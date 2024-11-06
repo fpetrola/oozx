@@ -32,8 +32,10 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   private MemoryReadListener memoryReadListener;
   private MemoryReadListener lastMemoryReadListener;
   private MemoryWriteListener lastMemoryWriteListener;
+  private boolean canDisable;
 
-  public MockedMemory() {
+  public MockedMemory(boolean canDisable1) {
+    this.canDisable= canDisable1;
   }
 
   public void init(Supplier<T[]> supplier) {
@@ -108,23 +110,35 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
 
   @Override
   public void disableReadListener() { //FIXME: para que era???
-    lastMemoryReadListener = memoryReadListener;
-    memoryReadListener = null;
+    if (canDisable) {
+      lastMemoryReadListener = memoryReadListener;
+      memoryReadListener = null;
+    }
   }
 
   @Override
   public void enableReadListener() {
-    memoryReadListener = lastMemoryReadListener;
+    if (canDisable) {
+      memoryReadListener = lastMemoryReadListener;
+    }
   }
 
   @Override
   public void disableWriteListener() {
-    lastMemoryWriteListener = memoryWriteListener;
-    memoryWriteListener = null;
+    if (canDisable) {
+      lastMemoryWriteListener = memoryWriteListener;
+      memoryWriteListener = null;
+    }
   }
 
   @Override
   public void enableWriteListener() {
-    memoryWriteListener = lastMemoryWriteListener;
+    if (canDisable) {
+      memoryWriteListener = lastMemoryWriteListener;
+    }
+  }
+
+  public void canDisable(boolean canDisable) {
+    this.canDisable = canDisable;
   }
 }

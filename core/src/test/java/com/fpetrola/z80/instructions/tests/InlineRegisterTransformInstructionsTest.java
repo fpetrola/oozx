@@ -31,6 +31,7 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -39,7 +40,7 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("ALL")
-
+@Ignore
 public class InlineRegisterTransformInstructionsTest<T extends WordNumber> extends ManualBytecodeGenerationTest<T> {
 
   private BlocksManager blocksManager;

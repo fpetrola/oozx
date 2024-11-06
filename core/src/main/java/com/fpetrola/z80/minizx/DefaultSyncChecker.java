@@ -63,7 +63,7 @@ public class DefaultSyncChecker implements SyncChecker {
       }
 
     };
-    var state = new State(io, registerBankFactory.createBank(), new MockedMemory());
+    var state = new State(io, registerBankFactory.createBank(), new MockedMemory(true));
     return new OOZ80(state, DefaultInstructionFetcher.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)));
   }
 
