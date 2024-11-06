@@ -25,3 +25,19 @@ OOZX is an open-source project that provides a Z80 emulator with a unique object
 1. Clone this repository:
    ```bash
    git clone https://github.com/fpetrola/oozx.git
+
+### Games Translation
+
+#### Usage
+
+   ```bash
+   java -jar translator/target/translator-0.0.1-SNAPSHOT.jar [execute/translate] [game-name] [url] [main-routine-address]
+   ```
+  Using "translate" will be creating "game-name.java" source code instead of creating bytecode on the fly.
+#### Examples
+
+   ```bash
+   mvn clean install
+   java -jar translator/target/translator-0.0.1-SNAPSHOT.jar execute jetsetwilly http://torinak.com/qaop/bin/manicminer 34762
+   java -jar translator/target/translator-0.0.1-SNAPSHOT.jar execute manicminer http://torinak.com/qaop/bin/manicminer 33792
+   ```
