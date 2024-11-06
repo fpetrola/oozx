@@ -41,5 +41,8 @@ OOZX is an open-source project that provides a Z80 emulator with a unique object
    java -jar translator/target/translator-0.0.1-SNAPSHOT.jar execute jetsetwilly http://torinak.com/qaop/bin/jetsetwilly 34762
    java -jar translator/target/translator-0.0.1-SNAPSHOT.jar execute manicminer http://torinak.com/qaop/bin/manicminer 33792
    ```
+#### Translation status
+* Jet Set Willy 100%
+* Manic Miner 80%
 
 ![Gameplay de ZX Spectrum en oozx](demo/jsw1.gif)
