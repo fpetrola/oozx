@@ -6,11 +6,10 @@
 
     <parent>
         <groupId>com.fpetrola</groupId>
-        <artifactId>zx3d</artifactId>
+        <artifactId>oozx</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.fpetrola</groupId>
     <artifactId>core</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 </project>
