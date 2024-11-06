@@ -19,7 +19,9 @@ package net.emustudio.plugins.cpu.zilogZ80;
 
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.minizx.emulation.Helper;
+import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.mmu.IO;
+import com.fpetrola.z80.mmu.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import net.emustudio.cpu.testsuite.Generator;
 import net.emustudio.emulib.plugins.memory.MemoryContext;
@@ -84,7 +86,9 @@ public class InstructionsTest {
 
     cpu = new CpuImpl(PLUGIN_ID, applicationApi, PluginSettings.UNAVAILABLE, ooz80);
 
-    memory.init(this.cpu.ooz80.getState().getMemory());
+    MockedMemory<WordNumber> memory1 = (MockedMemory<WordNumber>) this.cpu.ooz80.getState().getMemory();
+    memory1.canDisable(false);
+    memory.init(memory1);
     assertTrue(cpuContext.hasCaptured());
 
     for (int i = 0; i < 256; i++) {

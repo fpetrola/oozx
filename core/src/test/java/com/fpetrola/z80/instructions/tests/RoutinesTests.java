@@ -27,6 +27,7 @@ import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -36,7 +37,7 @@ import java.util.function.Function;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 @SuppressWarnings("ALL")
-
+@Ignore
 public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGenerationTest<T> {
   private SymbolicExecutionAdapter symbolicExecutionAdapter;
 

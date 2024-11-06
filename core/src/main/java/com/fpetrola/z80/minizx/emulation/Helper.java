@@ -28,7 +28,7 @@ import com.fpetrola.z80.spy.NullInstructionSpy;
 
 public class Helper {
   public static <T extends WordNumber> OOZ80<T> createOOZ80(IO io) {
-    var state = new State(io, new MockedMemory());
+    var state = new State(io, new MockedMemory(true));
     return new OOZ80(state, DefaultInstructionFetcher.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)));
   }
 }
