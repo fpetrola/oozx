@@ -1,0 +1,280 @@
+/*
+ *
+ *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *      http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *
+ */
+package net.emustudio.plugins.cpu.zilogZ80;
+
+import net.emustudio.cpu.testsuite.Generator;
+import net.emustudio.cpu.testsuite.RunnerContext;
+import net.emustudio.plugins.cpu.zilogZ80.suite.ByteTestBuilder;
+import net.emustudio.plugins.cpu.zilogZ80.suite.IntegerTestBuilder;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import java.util.function.Function;
+
+import static net.emustudio.plugins.cpu.zilogZ80.EmulatorEngine.*;
+
+public class IOTest extends InstructionsTest {
+
+    @Ignore
+    @Test
+    public void testIN_A_REF_N() {
+        ByteTestBuilder test = new ByteTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
+                .firstIsDeviceAndSecondIsPort()
+                .secondIsRegister(REG_A)
+                .verifyRegister(REG_A, context -> context.first & 0xFF);
+
+        Generator.forSome8bitBinary(
+                test.runWithSecondOperand(0xDB)
+        );
+    }
+
+    @Test
+    public void testIN_R_REF_C() {
+        Function<RunnerContext<Byte>, Integer> operation = context -> context.first & 0xFF;
+
+        ByteTestBuilder test = new ByteTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
+                .firstIsDeviceAndSecondIsPort()
+                .secondIsRegister(REG_C)
+                .keepCurrentInjectorsAfterRun()
+                .clearOtherVerifiersAfterRun();
+
+        Generator.forSome8bitBinary(
+                test.verifyRegister(REG_A, operation).runWithSecondOperand(0xED, 0x78),
+                test.verifyRegister(REG_B, operation).runWithSecondOperand(0xED, 0x40),
+                test.verifyRegister(REG_C, operation).runWithSecondOperand(0xED, 0x48),
+                test.verifyRegister(REG_D, operation).runWithSecondOperand(0xED, 0x50),
+                test.verifyRegister(REG_E, operation).runWithSecondOperand(0xED, 0x58),
+                test.verifyRegister(REG_H, operation).runWithSecondOperand(0xED, 0x60),
+                test.verifyRegister(REG_L, operation).runWithSecondOperand(0xED, 0x68)
+        );
+    }
+
+    @Test
+    public void testIN_REF_C() {
+        ByteTestBuilder test = new ByteTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
+                .firstIsDeviceAndSecondIsPort()
+                .secondIsRegister(REG_C)
+                .keepCurrentInjectorsAfterRun()
+                .clearOtherVerifiersAfterRun();
+
+        Generator.forSome8bitBinary(
+                test.runWithSecondOperand(0xED, 0x70)
+        );
+    }
+
+    @Test
+    public void testINI() {
+        IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
+                .first8MSBisDeviceAndFirst8LSBIsPort()
+                .first8LSBisRegister(REG_C)
+                .firstIsAddressAndSecondIsMemoryByte()
+                .firstIsPair(REG_PAIR_HL)
+                .first8MSBisRegister(REG_B)
+                .verifyByte(context -> context.first, context -> (context.first >>> 8) & 0xFF)
+                .verifyPair(REG_PAIR_HL, context -> (context.first + 1) & 0xFFFF)
+                .verifyRegister(REG_B, context -> (((context.first >>> 8) & 0xFF) - 1) & 0xFF);
+
+        Generator.forSome16bitBinary(2,
+                test.run(0xED, 0xA2)
+        );
+    }
+
+    @Test
+    public void testINIR() {
+        IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
+                .first8MSBisDeviceAndFirst8LSBIsPort()
+                .first8LSBisRegister(REG_C)
+                .firstIsAddressAndSecondIsMemoryByte()
+                .firstIsPair(REG_PAIR_HL)
+                .first8MSBisRegister(REG_B)
+                .verifyByte(context -> context.first, context -> (context.first >>> 8) & 0xFF)
+                .verifyPair(REG_PAIR_HL, context -> (context.first + 1) & 0xFFFF)
+                .verifyRegister(REG_B, context -> (((context.first >>> 8) & 0xFF) - 1) & 0xFF)
+                .verifyPC(context -> {
+                    if (((((context.first >>> 8) & 0xFF) - 1) & 0xFF) != 0) {
+                        return context.PC;
+                    }
+                    return context.PC + 2;
+                });
+
+        Generator.forSome16bitBinary(2,
+                test.run(0xED, 0xB2)
+        );
+    }
+
+    @Test
+    public void testIND() {
+        IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
+                .first8MSBisDeviceAndFirst8LSBIsPort()
+                .first8LSBisRegister(REG_C)
+                .firstIsAddressAndSecondIsMemoryByte()
+                .firstIsPair(REG_PAIR_HL)
+                .first8MSBisRegister(REG_B)
+                .verifyByte(context -> context.first, context -> (context.first >>> 8) & 0xFF)
+                .verifyPair(REG_PAIR_HL, context -> (context.first - 1) & 0xFFFF)
+                .verifyRegister(REG_B, context -> (((context.first >>> 8) & 0xFF) - 1) & 0xFF);
+
+        Generator.forSome16bitBinary(2,
+                test.run(0xED, 0xAA)
+        );
+    }
+
+    @Test
+    public void testINDR() {
+        IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
+                .first8MSBisDeviceAndFirst8LSBIsPort()
+                .first8LSBisRegister(REG_C)
+                .firstIsAddressAndSecondIsMemoryByte()
+                .firstIsPair(REG_PAIR_HL)
+                .first8MSBisRegister(REG_B)
+                .verifyByte(context -> context.first, context -> (context.first >>> 8) & 0xFF)
+                .verifyPair(REG_PAIR_HL, context -> (context.first - 1) & 0xFFFF)
+                .verifyRegister(REG_B, context -> (((context.first >>> 8) & 0xFF) - 1) & 0xFF)
+                .verifyPC(context -> {
+                    if (((((context.first >>> 8) & 0xFF) - 1) & 0xFF) != 0) {
+                        return context.PC;
+                    }
+                    return context.PC + 2;
+                });
+
+        Generator.forSome16bitBinary(2,
+                test.run(0xED, 0xBA)
+        );
+    }
+
+    @Test
+    public void testOUT_REF_N_A() {
+        ByteTestBuilder test = new ByteTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
+                .firstIsRegister(REG_A)
+                .verifyDeviceWhenSecondIsPort(context -> context.first & 0xFF);
+
+        Generator.forSome8bitBinary(
+                test.runWithSecondOperand(0xD3)
+        );
+    }
+
+    @Test
+    public void testOUT_REF_C_R() {
+        ByteTestBuilder test = new ByteTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
+                .secondIsRegister(REG_C)
+                .verifyDeviceWhenSecondIsPort(context -> context.first & 0xFF)
+                .keepCurrentInjectorsAfterRun();
+
+        Generator.forSome8bitBinaryWhichEqual(
+                test.firstIsRegister(REG_C).run(0xED, 0x49)
+        );
+
+        Generator.forSome8bitBinary(
+                test.firstIsRegister(REG_B).run(0xED, 0x41),
+                test.firstIsRegister(REG_D).run(0xED, 0x51),
+                test.firstIsRegister(REG_E).run(0xED, 0x59),
+                test.firstIsRegister(REG_H).run(0xED, 0x61),
+                test.firstIsRegister(REG_L).run(0xED, 0x69),
+                test.firstIsRegister(REG_A).run(0xED, 0x79)
+        );
+    }
+
+    @Test
+    public void testOUT_REF_C_0() {
+        ByteTestBuilder test = new ByteTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
+                .secondIsRegister(REG_C)
+                .verifyDeviceWhenSecondIsPort(context -> 0)
+                .keepCurrentInjectorsAfterRun();
+
+        Generator.forSome8bitBinaryWhichEqual(
+                test.firstIsRegister(REG_C).run(0xED, 0x71)
+        );
+    }
+
+    @Test
+    public void testOUTI() {
+        IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
+                .firstIsAddressAndSecondIsMemoryByte()
+                .firstIsPair(REG_PAIR_HL)
+                .first8LSBisRegister(REG_C)
+                .first8MSBisRegister(REG_B)
+                .verifyDeviceWhenFirst8LSBisPort(context -> context.second & 0xFF)
+                .verifyPair(REG_PAIR_HL, context -> (context.first + 1) & 0xFFFF)
+                .verifyRegister(REG_B, context -> (((context.first >>> 8) & 0xFF) - 1) & 0xFF);
+
+        Generator.forSome16bitBinary(2,
+                test.run(0xED, 0xA3)
+        );
+    }
+
+    @Test
+    public void testOTIR() {
+        IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
+                .firstIsAddressAndSecondIsMemoryByte()
+                .firstIsPair(REG_PAIR_HL)
+                .first8LSBisRegister(REG_C)
+                .first8MSBisRegister(REG_B)
+                .verifyDeviceWhenFirst8LSBisPort(context -> context.second & 0xFF)
+                .verifyPair(REG_PAIR_HL, context -> (context.first + 1) & 0xFFFF)
+                .verifyRegister(REG_B, context -> (((context.first >>> 8) & 0xFF) - 1) & 0xFF)
+                .verifyPC(context -> {
+                    if (((((context.first >>> 8) & 0xFF) - 1) & 0xFF) != 0) {
+                        return context.PC;
+                    }
+                    return context.PC + 2;
+                });
+
+        Generator.forSome16bitBinary(2,
+                test.run(0xED, 0xB3)
+        );
+    }
+
+    @Test
+    public void testOUTD() {
+        IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
+                .firstIsAddressAndSecondIsMemoryByte()
+                .firstIsPair(REG_PAIR_HL)
+                .first8LSBisRegister(REG_C)
+                .first8MSBisRegister(REG_B)
+                .verifyDeviceWhenFirst8LSBisPort(context -> context.second & 0xFF)
+                .verifyPair(REG_PAIR_HL, context -> (context.first - 1) & 0xFFFF)
+                .verifyRegister(REG_B, context -> (((context.first >>> 8) & 0xFF) - 1) & 0xFF);
+
+        Generator.forSome16bitBinary(2,
+                test.run(0xED, 0xAB)
+        );
+    }
+
+    @Test
+    public void testOTDR() {
+        IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
+                .firstIsAddressAndSecondIsMemoryByte()
+                .firstIsPair(REG_PAIR_HL)
+                .first8LSBisRegister(REG_C)
+                .first8MSBisRegister(REG_B)
+                .verifyDeviceWhenFirst8LSBisPort(context -> context.second & 0xFF)
+                .verifyPair(REG_PAIR_HL, context -> (context.first - 1) & 0xFFFF)
+                .verifyRegister(REG_B, context -> (((context.first >>> 8) & 0xFF) - 1) & 0xFF)
+                .verifyPC(context -> {
+                    if (((((context.first >>> 8) & 0xFF) - 1) & 0xFF) != 0) {
+                        return context.PC;
+                    }
+                    return context.PC + 2;
+                });
+
+        Generator.forSome16bitBinary(2,
+                test.run(0xED, 0xBB)
+        );
+    }
+}
+
