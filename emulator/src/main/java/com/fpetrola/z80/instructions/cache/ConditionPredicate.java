@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.z80.jspeccy;
+package com.fpetrola.z80.instructions.cache;
 
 import com.fpetrola.z80.instructions.base.Instruction;
 

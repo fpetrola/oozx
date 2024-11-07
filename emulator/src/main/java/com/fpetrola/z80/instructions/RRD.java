@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.instructions;
 
-import com.fpetrola.z80.mmu.Memory;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 

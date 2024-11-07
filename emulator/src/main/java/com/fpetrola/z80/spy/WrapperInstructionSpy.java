@@ -20,8 +20,8 @@ package com.fpetrola.z80.spy;
 
 import com.fpetrola.z80.instructions.base.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.cache.InstructionCloner;
-import com.fpetrola.z80.mmu.Memory;
-import com.fpetrola.z80.mmu.State;
+import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;

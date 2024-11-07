@@ -19,7 +19,7 @@
 package com.fpetrola.z80.transformations;
 
 import com.fpetrola.z80.instructions.base.Instruction;
-import com.fpetrola.z80.mmu.State;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class TransformerInstructionFetcher<T extends WordNumber> extends InstructionFetcherForTest<T> {

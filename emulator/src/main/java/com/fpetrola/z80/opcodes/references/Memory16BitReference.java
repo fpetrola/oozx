@@ -19,7 +19,7 @@
 package com.fpetrola.z80.opcodes.references;
 
 import com.fpetrola.z80.helpers.Helper;
-import com.fpetrola.z80.mmu.Memory;
+import com.fpetrola.z80.memory.Memory;
 
 public class Memory16BitReference<T extends WordNumber> implements OpcodeReference<T> {
 

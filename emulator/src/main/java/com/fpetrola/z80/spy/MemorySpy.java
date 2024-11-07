@@ -18,9 +18,9 @@
 
 package com.fpetrola.z80.spy;
 
-import com.fpetrola.z80.jspeccy.MemoryReadListener;
-import com.fpetrola.z80.jspeccy.MemoryWriteListener;
-import com.fpetrola.z80.mmu.Memory;
+import com.fpetrola.z80.memory.MemoryReadListener;
+import com.fpetrola.z80.memory.MemoryWriteListener;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.HashMap;

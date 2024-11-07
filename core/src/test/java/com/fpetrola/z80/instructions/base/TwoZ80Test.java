@@ -21,7 +21,7 @@ package com.fpetrola.z80.instructions.base;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.instructions.MemoryAccessOpcodeReference;
-import com.fpetrola.z80.mmu.State;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.spy.AbstractInstructionSpy;

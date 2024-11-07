@@ -18,8 +18,8 @@
 
 package net.emustudio.plugins.cpu.zilogZ80;
 
-import com.fpetrola.z80.jspeccy.MemoryWriteListener;
-import com.fpetrola.z80.mmu.Memory;
+import com.fpetrola.z80.memory.MemoryWriteListener;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import net.emustudio.cpu.testsuite.memory.ByteMemoryStub;
 import net.emustudio.emulib.runtime.helpers.NumberUtils;

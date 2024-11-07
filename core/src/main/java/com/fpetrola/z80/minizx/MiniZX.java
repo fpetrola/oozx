@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.minizx;
 
-import com.fpetrola.z80.mmu.IO;
+import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import org.apache.commons.lang3.StringUtils;
 

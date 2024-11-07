@@ -20,8 +20,8 @@ package com.fpetrola.z80.instructions;
 
 import com.fpetrola.z80.instructions.base.BlockInstruction;
 import com.fpetrola.z80.instructions.base.InstructionVisitor;
-import com.fpetrola.z80.mmu.IO;
-import com.fpetrola.z80.mmu.Memory;
+import com.fpetrola.z80.cpu.IO;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;

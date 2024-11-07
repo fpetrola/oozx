@@ -18,7 +18,9 @@
 
 package com.fpetrola.z80.jspeccy;
 
-import com.fpetrola.z80.mmu.State;
+import com.fpetrola.z80.instructions.cache.ConditionExecutionListener;
+import com.fpetrola.z80.instructions.cache.FlipFLopConditionFlag;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.RegisterName;
 

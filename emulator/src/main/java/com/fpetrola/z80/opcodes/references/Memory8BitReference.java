@@ -18,8 +18,7 @@
 
 package com.fpetrola.z80.opcodes.references;
 
-import com.fpetrola.z80.helpers.Helper;
-import com.fpetrola.z80.mmu.Memory;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 
 public class Memory8BitReference<T extends WordNumber> implements ImmutableOpcodeReference<T> {

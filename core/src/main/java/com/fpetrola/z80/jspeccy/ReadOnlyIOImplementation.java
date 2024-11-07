@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.jspeccy;
 
-import com.fpetrola.z80.mmu.IO;
+import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class ReadOnlyIOImplementation<T extends WordNumber> implements IO<T> {

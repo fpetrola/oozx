@@ -20,9 +20,9 @@ package com.fpetrola.z80.instructions.base;
 
 import com.fpetrola.z80.instructions.Ex;
 import com.fpetrola.z80.instructions.*;
-import com.fpetrola.z80.mmu.IO;
-import com.fpetrola.z80.mmu.Memory;
-import com.fpetrola.z80.mmu.State;
+import com.fpetrola.z80.cpu.IO;
+import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;

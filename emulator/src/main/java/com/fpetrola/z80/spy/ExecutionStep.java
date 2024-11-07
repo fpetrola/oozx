@@ -19,7 +19,7 @@
 package com.fpetrola.z80.spy;
 
 import com.fpetrola.z80.instructions.base.Instruction;
-import com.fpetrola.z80.mmu.Memory;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.ArrayList;

@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.helpers;
 
-import com.fpetrola.z80.mmu.Memory;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 
 public final class Z80Utils {

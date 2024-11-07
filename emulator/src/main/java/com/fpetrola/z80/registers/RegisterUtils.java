@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.registers;
 
-import com.fpetrola.z80.mmu.Memory;
+import com.fpetrola.z80.memory.Memory;
 
 public final class RegisterUtils {
 

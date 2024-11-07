@@ -19,16 +19,15 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.Push;
-import com.fpetrola.z80.mmu.Memory;
-import com.fpetrola.z80.mmu.State;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 
 import java.util.stream.Stream;
 
-import static com.fpetrola.z80.mmu.State.InterruptionMode.IM0;
-import static com.fpetrola.z80.mmu.State.InterruptionMode.IM2;
+import static com.fpetrola.z80.cpu.State.InterruptionMode.IM0;
+import static com.fpetrola.z80.cpu.State.InterruptionMode.IM2;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.AF;
 import static com.fpetrola.z80.registers.RegisterName.IR;

@@ -21,8 +21,8 @@ package com.fpetrola.z80.minizx.emulation;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.instructions.base.DefaultInstructionFactory;
-import com.fpetrola.z80.mmu.IO;
-import com.fpetrola.z80.mmu.State;
+import com.fpetrola.z80.cpu.IO;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 

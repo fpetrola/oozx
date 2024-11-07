@@ -16,10 +16,8 @@
  *
  */
 
-package com.fpetrola.z80.mmu;
+package com.fpetrola.z80.memory;
 
-import com.fpetrola.z80.jspeccy.MemoryReadListener;
-import com.fpetrola.z80.jspeccy.MemoryWriteListener;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public interface Memory<T> {
