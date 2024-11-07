@@ -20,8 +20,9 @@ package com.fpetrola.z80.instructions.cache;
 
 import com.fpetrola.z80.instructions.base.*;
 import com.fpetrola.z80.instructions.*;
+import com.fpetrola.z80.jspeccy.ConditionPredicate;
+import com.fpetrola.z80.jspeccy.FlipFLopConditionFlag;
 import com.fpetrola.z80.opcodes.references.*;
-import com.fpetrola.z80.transformations.InstructionTransformerBase;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -312,7 +313,7 @@ public class InstructionCloner<T extends WordNumber> implements InstructionVisit
     }
 
     public void visitBNotZeroCondition(BNotZeroCondition bNotZeroCondition) {
-      result = new BNotZeroCondition<>(InstructionCloner.this.clone(bNotZeroCondition.getB()), InstructionTransformerBase.clone(bNotZeroCondition.isConditionMet));
+      result = new BNotZeroCondition<>(InstructionCloner.this.clone(bNotZeroCondition.getB()), InstructionCloner.clone(bNotZeroCondition.isConditionMet));
     }
 
 
@@ -320,5 +321,12 @@ public class InstructionCloner<T extends WordNumber> implements InstructionVisit
     public void visitingConditionAlwaysTrue(ConditionAlwaysTrue conditionAlwaysTrue) {
       result = new ConditionAlwaysTrue();
     }
+
+  }
+  public static ConditionPredicate<Boolean> clone(ConditionPredicate isConditionMet) {
+    if (isConditionMet instanceof FlipFLopConditionFlag.FlipFlopPredicate flipFlopPredicate) {
+      return new FlipFLopConditionFlag(flipFlopPredicate.executionsListener, flipFlopPredicate.alwaysTrue).isConditionMet;
+    } else
+      return isConditionMet;
   }
 }

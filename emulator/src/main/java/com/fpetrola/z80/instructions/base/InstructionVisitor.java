@@ -21,8 +21,6 @@ package com.fpetrola.z80.instructions.base;
 import com.fpetrola.z80.instructions.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.transformations.VirtualAssignmentInstruction;
-import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;
 
 public interface InstructionVisitor<T extends WordNumber> {
   default void visitingSource(ImmutableOpcodeReference source, TargetSourceInstruction targetSourceInstruction) {
@@ -170,9 +168,6 @@ public interface InstructionVisitor<T extends WordNumber> {
 
   }
 
-  default void visitingVirtualAssignmentInstruction(VirtualAssignmentInstruction virtualAssignmentInstruction) {
-  }
-
   default void visitingFlag(Register<T> flag, DefaultTargetFlagInstruction targetSourceInstruction) {
 
   }
@@ -271,10 +266,6 @@ public interface InstructionVisitor<T extends WordNumber> {
 
   default void visitLdi(Ldi tLdi) {
 
-  }
-
-  default boolean visitVirtualComposed16BitRegister(VirtualComposed16BitRegister virtualComposed16BitRegister) {
-    return false;
   }
 
   default void visitBNotZeroCondition(BNotZeroCondition bNotZeroCondition) {

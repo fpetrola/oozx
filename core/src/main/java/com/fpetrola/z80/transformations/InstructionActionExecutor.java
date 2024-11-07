@@ -125,7 +125,6 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
     return false;
   }
 
-  @Override
   public void visitingVirtualAssignmentInstruction(VirtualAssignmentInstruction virtualAssignmentInstruction) {
     executeAction(virtualAssignmentInstruction.getRegister());
     executeAction(virtualAssignmentInstruction.getLastRegister().get());
