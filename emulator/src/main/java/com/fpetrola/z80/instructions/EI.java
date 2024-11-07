@@ -20,7 +20,7 @@ package com.fpetrola.z80.instructions;
 
 import com.fpetrola.z80.instructions.base.AbstractInstruction;
 import com.fpetrola.z80.instructions.base.InstructionVisitor;
-import com.fpetrola.z80.mmu.State;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class EI<T extends WordNumber> extends AbstractInstruction<T> {

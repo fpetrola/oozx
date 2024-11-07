@@ -1,6 +1,8 @@
 package com.fpetrola.z80.jspeccy;
 
-import com.fpetrola.z80.mmu.Memory;
+import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.memory.MemoryReadListener;
+import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.opcodes.references.TraceableWordNumber;
 import com.fpetrola.z80.opcodes.references.TraceableWordNumber.ReadOperation;
 import com.fpetrola.z80.opcodes.references.WordNumber;

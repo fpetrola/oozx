@@ -1,7 +1,7 @@
 package com.fpetrola.z80.jspeccy;
 
-import com.fpetrola.z80.mmu.Memory;
-import com.fpetrola.z80.mmu.State;
+import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import snapshots.*;
 

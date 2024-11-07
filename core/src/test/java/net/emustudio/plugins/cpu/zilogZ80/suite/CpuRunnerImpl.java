@@ -18,7 +18,7 @@
 package net.emustudio.plugins.cpu.zilogZ80.suite;
 
 import com.fpetrola.z80.cpu.OOZ80;
-import com.fpetrola.z80.mmu.State;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;

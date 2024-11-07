@@ -19,7 +19,7 @@
 package com.fpetrola.z80.spy;
 
 import com.fpetrola.z80.helpers.Helper;
-import com.fpetrola.z80.mmu.Memory;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class WriteMemoryReference<T extends WordNumber> extends AbstractSpyReference<T> implements Undoable {

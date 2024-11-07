@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.instructions.base;
 
-import com.fpetrola.z80.mmu.State;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public abstract class AbstractInstruction<T extends WordNumber> implements Instruction<T> {

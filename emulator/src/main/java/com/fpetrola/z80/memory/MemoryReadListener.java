@@ -16,8 +16,8 @@
  *
  */
 
-package com.fpetrola.z80.jspeccy;
+package com.fpetrola.z80.memory;
 
-public interface MemoryWriteListener<T> {
-  void writtingMemoryAt(T address, T value);
+public interface MemoryReadListener<T> {
+  void readingMemoryAt(T address, T value);
 }

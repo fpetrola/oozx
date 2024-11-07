@@ -22,7 +22,6 @@ import com.fpetrola.z80.instructions.base.Instruction;
 import com.fpetrola.z80.instructions.base.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.base.JumpInstruction;
 import com.fpetrola.z80.instructions.cache.InstructionCache;
-import com.fpetrola.z80.mmu.State;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;

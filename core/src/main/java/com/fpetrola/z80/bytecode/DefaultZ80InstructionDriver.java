@@ -22,7 +22,7 @@ import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.base.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.base.InstructionFactory;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
-import com.fpetrola.z80.mmu.State;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.MemorySpy;

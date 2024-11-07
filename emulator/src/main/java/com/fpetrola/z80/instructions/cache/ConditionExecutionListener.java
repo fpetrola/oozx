@@ -16,23 +16,10 @@
  *
  */
 
-package com.fpetrola.z80.mmu;
+package com.fpetrola.z80.instructions.cache;
 
-public interface IO<T> {
+import com.fpetrola.z80.instructions.base.Instruction;
 
-    /**
-     * Read 8-bit data from the given port
-     *
-     * @param port port to read the data
-     * @return value available at the port
-     */
-    T in(T port);
-
-    /**
-     * Write 8-bit data into given port
-     *
-     * @param port target port
-     * @param value to be written
-     */
-    void out(T port, T value);
+public interface ConditionExecutionListener {
+  boolean executingCondition(Instruction<Boolean> instruction, boolean alwaysTrue, boolean state);
 }

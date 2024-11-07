@@ -20,8 +20,6 @@ package com.fpetrola.z80.transformations;
 
 import com.fpetrola.z80.instructions.base.*;
 import com.fpetrola.z80.instructions.cache.InstructionCloner;
-import com.fpetrola.z80.jspeccy.ConditionPredicate;
-import com.fpetrola.z80.jspeccy.FlipFLopConditionFlag;
 import com.fpetrola.z80.opcodes.references.*;
 
 import java.lang.reflect.Constructor;

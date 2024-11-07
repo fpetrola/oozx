@@ -18,7 +18,7 @@
 package net.emustudio.plugins.cpu.zilogZ80;
 
 import com.fpetrola.z80.cpu.OOZ80;
-import com.fpetrola.z80.mmu.State;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
 import net.emustudio.emulib.plugins.PluginInitializationException;
@@ -41,7 +41,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
-import static com.fpetrola.z80.mmu.State.InterruptionMode.IM0;
+import static com.fpetrola.z80.cpu.State.InterruptionMode.IM0;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.*;
 

@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.jspeccy;
 
-import com.fpetrola.z80.mmu.Memory;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class MemorySetter {
