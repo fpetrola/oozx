@@ -137,6 +137,12 @@ public interface BytecodeGeneration {
     routines1.forEach(routine -> {
       routine.optimize();
       RoutineBytecodeGenerator routineBytecodeGenerator = new RoutineBytecodeGenerator(new BytecodeGenerationContext(getRoutineManager(), classMaker, pc1, methods, syncEnabled, useFields), routine);
+      routineBytecodeGenerator.getMethod(routine.getStartAddress());
+    });
+
+    routines1.forEach(routine -> {
+      routine.optimize();
+      RoutineBytecodeGenerator routineBytecodeGenerator = new RoutineBytecodeGenerator(new BytecodeGenerationContext(getRoutineManager(), classMaker, pc1, methods, syncEnabled, useFields), routine);
       routineBytecodeGenerator.generate();
     });
 

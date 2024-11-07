@@ -120,7 +120,10 @@ public class Routine {
       });
 
       innerRoutines.stream().forEach(ir -> {
-        parameters.addAll(ir.parameters);
+        if (ir != null)
+          parameters.addAll(ir.parameters);
+        else
+          System.out.println("ir is null");
       });
     }
   }

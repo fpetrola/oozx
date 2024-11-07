@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.bytecode.impl;
 
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.base.ConditionalInstruction;
 import com.fpetrola.z80.instructions.base.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -68,8 +69,8 @@ public class RoutineBytecodeGenerator {
   }
 
   public static String createLabelName(int label) {
-    //return "$" + Helper.convertToHex(label);
-    return "$" + label;
+    return "$" + Helper.convertToHex(label);
+//    return "$" + label;
   }
 
   public void generate() {
@@ -131,6 +132,9 @@ public class RoutineBytecodeGenerator {
                 addLabel(address);
               };
               Runnable instructionGenerator = () -> {
+
+                if (address == 0xED06)
+                  System.out.println("adgadg");
                 bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
 
                 if (!ready[0]) {

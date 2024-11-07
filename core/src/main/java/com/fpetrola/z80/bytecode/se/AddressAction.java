@@ -61,4 +61,8 @@ public class AddressAction {
   public void setPending(boolean pending) {
     this.pending = pending;
   }
+
+  public int getNextPC() {
+    return address;
+  }
 }

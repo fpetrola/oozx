@@ -95,7 +95,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
         nextPC = (T) jumpInstruction.getNextPC();
       }
 
-      String x = pcValue + ": " + instruction + " -> " + nextPC;
+      String x = String.format("%04X", pcValue.intValue()) + ": " + instruction + " -> " + nextPC;
 //      System.out.println(x);
 
       if (nextPC == null)

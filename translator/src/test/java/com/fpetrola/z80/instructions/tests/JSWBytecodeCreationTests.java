@@ -41,8 +41,8 @@ public class JSWBytecodeCreationTests<T extends WordNumber> extends RealCodeByte
 
   @Test
   public void testJSWMoveWilly() {
-    String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
-    stepUntilComplete(35090);
+    String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/dynamitedan1.z80");
+    stepUntilComplete(0xC80A);
 
     String actual = generateAndDecompile(base64Memory, RealCodeBytecodeCreationBase.getRoutines(), ".", "JetSetWilly");
     actual = RemoteZ80Translator.improveSource(actual);

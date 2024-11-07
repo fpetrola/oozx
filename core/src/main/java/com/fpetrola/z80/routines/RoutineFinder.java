@@ -43,7 +43,7 @@ public class RoutineFinder {
   public void checkExecution(Instruction instruction, int pcValue) {
 
     try {
-      if (pcValue == 37310)
+      if (pcValue == 0xCA56)
         System.out.printf("");
       if (currentRoutine == null)
         createOrUpdateCurrentRoutine(pcValue, instruction.getLength());
@@ -106,6 +106,7 @@ public class RoutineFinder {
       currentRoutine = routineManager.createRoutine(startAddress, length);
     }
 
+    System.out.println("chaging routine to: "+ currentRoutine);
     if (lastCurrentRoutine != null) {
       BlockRelation blockRelation = BlockRelation.createBlockRelation(lastCurrentRoutine.getRangeHandler().getStartAddress(), startAddress);
       lastCurrentRoutine.getReferencesHandler().addBlockRelation(blockRelation);

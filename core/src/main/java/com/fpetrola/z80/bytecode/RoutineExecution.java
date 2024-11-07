@@ -21,8 +21,10 @@ package com.fpetrola.z80.bytecode;
 import com.fpetrola.z80.bytecode.se.AddressAction;
 import com.fpetrola.z80.bytecode.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.instructions.Call;
+import com.fpetrola.z80.instructions.JP;
 import com.fpetrola.z80.instructions.Ret;
 import com.fpetrola.z80.instructions.base.Instruction;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.*;
 
@@ -71,6 +73,7 @@ public class RoutineExecution {
     }
     return conditionalAddressAction;
   }
+
   public AddressAction getNextPending() {
     return actions.stream().filter(AddressAction::isPending).findFirst().orElse(getActionInAddress(retInstruction));
   }
@@ -94,11 +97,23 @@ public class RoutineExecution {
     addressAction = new AddressAction(pcValue) {
 
       public int getNext(int next, int pcValue) {
-        if (pending)
-          pending = false;
         int result = pcValue;
+        if (pending) {
+          pending = false;
+        }
         if (retInstruction == next && hasPendingPoints())
           result = getNextPending().address;
+        return result;
+      }
+
+      @Override
+      public int getNextPC() {
+        int result = address;
+        if (!pending) {
+          Optional<AddressAction> addressAction1 = actions.stream().filter(a -> a.isPending()).findFirst();
+          if (addressAction1.isPresent())
+            result = addressAction1.get().address;
+        }
         return result;
       }
 
@@ -111,8 +126,6 @@ public class RoutineExecution {
         innerAddressAction.setPending(true);
         return b;
       }
-
-
     };
 
     return addressAction;
@@ -158,7 +171,7 @@ public class RoutineExecution {
 
   private class RetAddressAction extends AddressAction {
     private final int pcValue;
-    private boolean executed= false;
+    private boolean executed = false;
 
     public RetAddressAction(int pcValue) {
       super(pcValue, true);
