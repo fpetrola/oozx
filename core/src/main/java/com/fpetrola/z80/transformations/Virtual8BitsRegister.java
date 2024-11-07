@@ -23,8 +23,6 @@ import com.fpetrola.z80.instructions.*;
 import com.fpetrola.z80.instructions.base.*;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Plain8BitRegister;
-import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.routines.RegisterFinderInstructionVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -238,15 +236,15 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
       System.out.println("dsgsddgs");
     }
 
-    instruction.accept(new RegisterFinderInstructionVisitor() {
-      public boolean visitRegister(Register register) {
-        if (isSource) {
-          if (virtualComposed16BitRegister == register)
-            isReturnValue2[0] = isComposed2();
-        }
-        return isReturnValue2[0];
-      }
-    });
+//    instruction.accept(new RegisterFinderInstructionVisitor() {
+//      public boolean visitRegister(Register register) {
+//        if (isSource) {
+//          if (virtualComposed16BitRegister == register)
+//            isReturnValue2[0] = isComposed2();
+//        }
+//        return isReturnValue2[0];
+//      }
+//    });
     return isReturnValue2[0];
   }
 

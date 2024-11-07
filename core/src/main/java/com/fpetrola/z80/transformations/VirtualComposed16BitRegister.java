@@ -116,15 +116,15 @@ public class VirtualComposed16BitRegister<T extends WordNumber> extends Composed
     return getVirtualRegisters(low.getDependants(), high.getDependants());
   }
 
-  @Override
-  public void accept(InstructionVisitor instructionVisitor) {
-    if (!instructionVisitor.visitVirtualComposed16BitRegister(this)) {
-      if (!instructionVisitor.visitRegister(this)) {
-        instructionVisitor.visitRegister(getHigh());
-        instructionVisitor.visitRegister(getLow());
-      }
-    }
-  }
+//  @Override
+//  public void accept(InstructionVisitor instructionVisitor) {
+//    if (!instructionVisitor.visitVirtualComposed16BitRegister(this)) {
+//      if (!instructionVisitor.visitRegister(this)) {
+//        instructionVisitor.visitRegister(getHigh());
+//        instructionVisitor.visitRegister(getLow());
+//      }
+//    }
+//  }
 
   public int getRegisterLine() {
     if (getName().contains(","))

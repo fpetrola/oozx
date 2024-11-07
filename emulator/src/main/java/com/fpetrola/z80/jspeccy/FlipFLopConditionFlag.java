@@ -20,8 +20,6 @@ package com.fpetrola.z80.jspeccy;
 
 import com.fpetrola.z80.instructions.base.Instruction;
 
-import java.util.function.Predicate;
-
 public class FlipFLopConditionFlag {
   public final FlipFlopPredicate isConditionMet;
 
