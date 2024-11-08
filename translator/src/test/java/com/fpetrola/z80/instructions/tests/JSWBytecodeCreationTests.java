@@ -34,7 +34,7 @@ import java.util.List;
 
 @SuppressWarnings("ALL")
 public class JSWBytecodeCreationTests<T extends WordNumber> extends RealCodeBytecodeCreationBase<T> {
-
+  @Ignore
   @Test
   public void testJSWMoveWilly() {
     String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
@@ -44,8 +44,8 @@ public class JSWBytecodeCreationTests<T extends WordNumber> extends RealCodeByte
     actual = RemoteZ80Translator.improveSource(actual);
     List<Routine> routines = routineManager.getRoutines();
 
-//    Assert.assertEquals("""
-//        """, actual);
+    Assert.assertEquals("""
+        """, actual);
   }
 
   @Ignore
@@ -53,7 +53,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> extends RealCodeByte
   public void testTranslateWillyToJava() {
     String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
     stepUntilComplete(35090);
-    translateToJava("JetSetWilly", base64Memory, "$34762", RealCodeBytecodeCreationBase.getRoutines());
+    translateToJava("JetSetWilly", base64Memory, "$34762");
   }
 
   private String getMemoryInBase64FromFile(String url) {

@@ -35,9 +35,7 @@ public abstract class ManualBytecodeGenerationTest<T extends WordNumber> extends
   @Override
   public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className1) {
     SymbolicExecutionAdapter.mutantAddress.clear();
-    return getDecompiledSource(currentContext.pc(),
-        (address) -> currentContext.getTransformedInstructionAt(address),
-        "JSW", base64Memory, routines, ".");
+    return getDecompiledSource("JSW", ".", currentContext.getState(), !base64Memory.isBlank());
   }
 
   @Override
