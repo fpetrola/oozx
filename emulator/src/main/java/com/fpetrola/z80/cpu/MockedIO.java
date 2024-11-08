@@ -16,9 +16,8 @@
  *
  */
 
-package com.fpetrola.z80.bytecode;
+package com.fpetrola.z80.cpu;
 
-import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class MockedIO implements IO {
