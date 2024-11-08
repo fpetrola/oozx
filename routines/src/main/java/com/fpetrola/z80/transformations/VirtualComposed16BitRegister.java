@@ -20,7 +20,6 @@ package com.fpetrola.z80.transformations;
 
 import com.fpetrola.z80.instructions.Ld;
 import com.fpetrola.z80.instructions.base.Instruction;
-import com.fpetrola.z80.instructions.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Composed16BitRegister;
 import org.apache.commons.lang3.builder.EqualsBuilder;
