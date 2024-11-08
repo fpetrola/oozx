@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.bytecode.refactor;
 
-import com.fpetrola.z80.minizx.JetSetWilly;
+import com.fpetrola.z80.bytecode.tests.JetSetWilly;
 import org.objectweb.asm.*;
 
 import java.util.ArrayList;
