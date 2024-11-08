@@ -25,7 +25,7 @@ import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.bytecode.MockedIO;
+import com.fpetrola.z80.cpu.MockedIO;
 import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.memory.Memory;
