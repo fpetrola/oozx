@@ -32,5 +32,13 @@
     <artifactId>emulator</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
+    <dependencies>
+        <dependency>
+            <groupId>net.emustudio</groupId>
+            <artifactId>cpu-testsuite_12.0</artifactId>
+            <version>1.2.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
     
 </project>
