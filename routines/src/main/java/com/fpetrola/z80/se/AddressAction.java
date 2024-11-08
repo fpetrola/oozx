@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.z80.bytecode.se;
+package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.instructions.base.Instruction;
 

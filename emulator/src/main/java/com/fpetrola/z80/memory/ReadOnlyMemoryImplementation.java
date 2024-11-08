@@ -16,11 +16,7 @@
  *
  */
 
-package com.fpetrola.z80.jspeccy;
-
-import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.memory.MemoryReadListener;
-import com.fpetrola.z80.memory.MemoryWriteListener;
+package com.fpetrola.z80.memory;
 
 public class ReadOnlyMemoryImplementation<T> implements Memory<T> {
   protected Memory<T> memory;
