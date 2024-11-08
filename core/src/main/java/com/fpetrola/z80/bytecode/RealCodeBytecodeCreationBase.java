@@ -119,7 +119,7 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends DefaultZ
     BytecodeGeneration.super.translateToJava(state.getPc(), randomAccessInstructionFetcher, className, memoryInBase64, startMethod, routines);
   }
 
-  protected DefaultRegistersSetter<T> gettDefaultRegistersSetter() {
+  protected DefaultRegistersSetter<T> getDefaultRegistersSetter() {
     DefaultRegistersSetter<T> registersBase = new DefaultRegistersSetter<>(state) {
       public VirtualRegisterFactory getVirtualRegisterFactory() {
         return virtualRegisterFactory;
