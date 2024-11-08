@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.blocks;
 
-import com.fpetrola.z80.instructions.base.Instruction;
+import com.fpetrola.z80.instructions.types.Instruction;
 
 import java.util.ArrayList;
 import java.util.List;

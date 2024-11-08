@@ -20,8 +20,8 @@ package com.fpetrola.z80.instructions.tests;
 
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
-import com.fpetrola.z80.instructions.base.InstructionFactory;
-import com.fpetrola.z80.instructions.base.ManualBytecodeGenerationTest;
+import com.fpetrola.z80.instructions.factory.InstructionFactory;
+import com.fpetrola.z80.instructions.visitor.ManualBytecodeGenerationTest;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;

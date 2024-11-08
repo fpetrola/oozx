@@ -18,8 +18,9 @@
 
 package com.fpetrola.z80.transformations;
 
-import com.fpetrola.z80.instructions.*;
-import com.fpetrola.z80.instructions.base.*;
+import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.instructions.visitor.*;
+import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 

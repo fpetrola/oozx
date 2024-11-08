@@ -18,8 +18,8 @@
 
 package com.fpetrola.z80.bytecode.generators.helpers;
 
-import com.fpetrola.z80.instructions.base.ConditionalInstruction;
-import com.fpetrola.z80.instructions.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
+import com.fpetrola.z80.instructions.visitor.InstructionVisitor;
 
 public class JumpLabelVisitor implements InstructionVisitor {
   private int jumpLabel = 0;

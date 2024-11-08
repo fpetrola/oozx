@@ -18,8 +18,8 @@
 
 package com.fpetrola.z80.instructions.tests;
 
-import com.fpetrola.z80.instructions.*;
-import com.fpetrola.z80.instructions.base.ManualBytecodeGenerationTest;
+import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.instructions.visitor.ManualBytecodeGenerationTest;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import org.junit.Assert;
 import org.junit.Test;
