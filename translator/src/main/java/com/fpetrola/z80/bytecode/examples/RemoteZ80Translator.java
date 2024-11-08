@@ -86,7 +86,7 @@ public class RemoteZ80Translator<T extends WordNumber> extends RealCodeBytecodeC
     File tempFile = getRemoteFile(url, ".z80", "/tmp/" + gameName + ".z80");
 
 
-    SnapshotLoader.setupStateWithSnapshot(gettDefaultRegistersSetter(), tempFile.getAbsolutePath(), new MemorySetter(state.getMemory()));
+    SnapshotLoader.setupStateWithSnapshot(getDefaultRegistersSetter(), tempFile.getAbsolutePath(), new MemorySetter(state.getMemory()));
 
     int firstAddress = state.getPc().read().intValue();
     String base64Memory = SnapshotHelper.getBase64Memory(state);

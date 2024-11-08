@@ -62,7 +62,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> extends RealCodeByte
 
   private String getMemoryInBase64FromFile(String url) {
     String first = getSnapshotFile(url);
-    SnapshotLoader.setupStateWithSnapshot(gettDefaultRegistersSetter(), first, new MemorySetter(state.getMemory()));
+    SnapshotLoader.setupStateWithSnapshot(getDefaultRegistersSetter(), first, new MemorySetter(state.getMemory()));
     String base64Memory = SnapshotHelper.getBase64Memory(state);
     return base64Memory;
   }
