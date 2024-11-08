@@ -19,8 +19,8 @@
 package com.fpetrola.z80.bytecode.generators;
 
 import com.fpetrola.z80.bytecode.generators.helpers.*;
-import com.fpetrola.z80.instructions.base.ConditionalInstruction;
-import com.fpetrola.z80.instructions.base.Instruction;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Plain16BitRegister;
 import com.fpetrola.z80.registers.Register;

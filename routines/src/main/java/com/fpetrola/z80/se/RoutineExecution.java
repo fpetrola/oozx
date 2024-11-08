@@ -18,9 +18,9 @@
 
 package com.fpetrola.z80.se;
 
-import com.fpetrola.z80.instructions.Call;
-import com.fpetrola.z80.instructions.Ret;
-import com.fpetrola.z80.instructions.base.Instruction;
+import com.fpetrola.z80.instructions.impl.Call;
+import com.fpetrola.z80.instructions.impl.Ret;
+import com.fpetrola.z80.instructions.types.Instruction;
 
 import java.util.*;
 

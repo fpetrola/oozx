@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.instructions.cache;
 
-import com.fpetrola.z80.instructions.base.Instruction;
+import com.fpetrola.z80.instructions.types.Instruction;
 
 public class FlipFLopConditionFlag {
   public final FlipFlopPredicate isConditionMet;

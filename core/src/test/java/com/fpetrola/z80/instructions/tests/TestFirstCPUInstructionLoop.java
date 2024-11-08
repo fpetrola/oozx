@@ -18,9 +18,9 @@
 
 package com.fpetrola.z80.instructions.tests;
 
-import com.fpetrola.z80.instructions.*;
-import com.fpetrola.z80.instructions.base.BaseInstructionLoopTest;
-import com.fpetrola.z80.instructions.base.Instruction;
+import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.instructions.visitor.BaseInstructionLoopTest;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import org.junit.Test;

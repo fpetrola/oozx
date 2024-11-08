@@ -20,11 +20,11 @@ package com.fpetrola.z80.minizx.emulation;
 
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.OOZ80;
-import com.fpetrola.z80.instructions.Call;
-import com.fpetrola.z80.instructions.Push;
-import com.fpetrola.z80.instructions.Ret;
-import com.fpetrola.z80.instructions.ReturnAddressWordNumber;
-import com.fpetrola.z80.instructions.base.DefaultInstructionFactory;
+import com.fpetrola.z80.instructions.impl.Call;
+import com.fpetrola.z80.instructions.impl.Push;
+import com.fpetrola.z80.instructions.impl.Ret;
+import com.fpetrola.z80.se.ReturnAddressWordNumber;
+import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.bytecode.MockedIO;
 import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.fpetrola.z80.cpu.IO;

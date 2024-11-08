@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.opcodes.references;
 
-import com.fpetrola.z80.instructions.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.visitor.InstructionVisitor;
 
 public interface OpcodeReference<T> extends ImmutableOpcodeReference<T>, MutableOpcodeReference<T> {
   default void accept(InstructionVisitor instructionVisitor) {

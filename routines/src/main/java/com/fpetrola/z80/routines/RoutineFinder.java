@@ -20,11 +20,11 @@ package com.fpetrola.z80.routines;
 
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.references.BlockRelation;
-import com.fpetrola.z80.instructions.Call;
-import com.fpetrola.z80.instructions.Ret;
-import com.fpetrola.z80.instructions.ReturnAddressWordNumber;
-import com.fpetrola.z80.instructions.base.ConditionalInstruction;
-import com.fpetrola.z80.instructions.base.Instruction;
+import com.fpetrola.z80.instructions.impl.Call;
+import com.fpetrola.z80.instructions.impl.Ret;
+import com.fpetrola.z80.se.ReturnAddressWordNumber;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 

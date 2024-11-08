@@ -22,7 +22,7 @@ import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.CodeBlockType;
 import com.fpetrola.z80.blocks.UnknownBlockType;
-import com.fpetrola.z80.instructions.base.Instruction;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.transformations.Virtual8BitsRegister;
 import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;

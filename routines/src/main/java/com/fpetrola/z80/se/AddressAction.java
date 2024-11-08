@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.se;
 
-import com.fpetrola.z80.instructions.base.Instruction;
+import com.fpetrola.z80.instructions.types.Instruction;
 
 public class AddressAction {
   @Override

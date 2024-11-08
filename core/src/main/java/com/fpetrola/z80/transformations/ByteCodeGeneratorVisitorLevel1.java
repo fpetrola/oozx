@@ -18,9 +18,9 @@
 
 package com.fpetrola.z80.transformations;
 
-import com.fpetrola.z80.instructions.Ld;
-import com.fpetrola.z80.instructions.base.ConditionalInstruction;
-import com.fpetrola.z80.instructions.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
+import com.fpetrola.z80.instructions.visitor.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 

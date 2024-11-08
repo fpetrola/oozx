@@ -20,7 +20,7 @@ package com.fpetrola.z80.minizx.sync;
 
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.OOZ80;
-import com.fpetrola.z80.instructions.base.DefaultInstructionFactory;
+import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.minizx.SpectrumApplication;

@@ -18,8 +18,13 @@
 
 package com.fpetrola.z80.transformations;
 
-import com.fpetrola.z80.instructions.base.*;
+import com.fpetrola.z80.instructions.visitor.*;
 import com.fpetrola.z80.instructions.cache.InstructionCloner;
+import com.fpetrola.z80.instructions.factory.InstructionFactory;
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
+import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
+import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.*;
 
 import java.lang.reflect.Constructor;

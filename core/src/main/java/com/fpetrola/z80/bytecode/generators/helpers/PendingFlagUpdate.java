@@ -20,7 +20,7 @@ package com.fpetrola.z80.bytecode.generators.helpers;
 
 import com.fpetrola.z80.bytecode.generators.OpcodeReferenceVisitor;
 import com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator;
-import com.fpetrola.z80.instructions.base.FlagInstruction;
+import com.fpetrola.z80.instructions.types.FlagInstruction;
 import com.fpetrola.z80.transformations.Virtual8BitsRegister;
 import com.fpetrola.z80.transformations.VirtualAssignmentInstruction;
 import com.fpetrola.z80.transformations.VirtualRegister;

@@ -3,7 +3,7 @@ package com.fpetrola.z80.jspeccy;
 import com.fpetrola.z80.blocks.spy.RoutineGrouperSpy;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.graph.GraphFrame;
-import com.fpetrola.z80.instructions.base.DefaultInstructionFactory;
+import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.ReadOnlyMemoryImplementation;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
