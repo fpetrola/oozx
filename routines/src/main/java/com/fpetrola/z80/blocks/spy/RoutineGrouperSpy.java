@@ -22,6 +22,7 @@ import blue.endless.jankson.Jankson;
 import blue.endless.jankson.JsonGrammar;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fpetrola.z80.blocks.BlocksManager;
+import com.fpetrola.z80.blocks.references.WordNumberMemoryReadListener;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.blocks.references.ReferencesHandler;
 import com.fpetrola.z80.graph.CustomGraph;
@@ -240,7 +241,7 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
   @Override
   public void enableStructureCapture() {
     if (!structureCapture)
-      blocksManager.getBlocks().forEach(block -> block.getReferencesHandler().addDataObserver(memory, this));
+      blocksManager.getBlocks().forEach(block -> block.getReferencesHandler().addDataObserver(memory, new WordNumberMemoryReadListener(block.getReferencesHandler(), this)));
     else
       blocksManager.getBlocks().forEach(block -> block.getReferencesHandler().removeDataObserver(memory));
 
