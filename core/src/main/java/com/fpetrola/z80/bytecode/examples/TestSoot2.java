@@ -33,7 +33,7 @@ public class TestSoot2 extends BodyTransformer {
   public static void main(String[] args) {
 
     String classesDir = "/home/fernando/detodo/desarrollo/m/zx/zx/zx3/ZX3D/target/classes";
-    String mainClass = "com.fpetrola.z80.minizx.JetSetWilly";
+    String mainClass = "com.fpetrola.z80.bytecode.tests.JetSetWilly";
     String javapath = System.getProperty("java.class.path");
     String[] split = javapath.split(":");
     Options.v().set_prepend_classpath(true);

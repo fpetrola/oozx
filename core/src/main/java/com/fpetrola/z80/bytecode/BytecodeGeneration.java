@@ -20,8 +20,8 @@ package com.fpetrola.z80.bytecode;
 
 import com.fpetrola.z80.bytecode.decompile.SimpleBytecodeProvider;
 import com.fpetrola.z80.bytecode.decompile.SimpleResultSaverFor;
-import com.fpetrola.z80.bytecode.impl.BytecodeGenerationContext;
-import com.fpetrola.z80.bytecode.impl.RoutineBytecodeGenerator;
+import com.fpetrola.z80.bytecode.generators.helpers.BytecodeGenerationContext;
+import com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator;
 import com.fpetrola.z80.cpu.RandomAccessInstructionFetcher;
 import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.SpectrumApplication;

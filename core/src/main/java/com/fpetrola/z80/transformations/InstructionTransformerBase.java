@@ -19,8 +19,7 @@
 package com.fpetrola.z80.transformations;
 
 import com.fpetrola.z80.instructions.base.*;
-import com.fpetrola.z80.jspeccy.ConditionPredicate;
-import com.fpetrola.z80.jspeccy.FlipFLopConditionFlag;
+import com.fpetrola.z80.instructions.cache.InstructionCloner;
 import com.fpetrola.z80.opcodes.references.*;
 
 import java.lang.reflect.Constructor;
@@ -111,24 +110,17 @@ public abstract class InstructionTransformerBase<T extends WordNumber> implement
     }
 
     public void visitingConditionFlag(ConditionFlag conditionFlag) {
-      result = new ConditionFlag<>(InstructionTransformerBase.this.clone(conditionFlag.getRegister()), conditionFlag.getFlag(), conditionFlag.isNegate(), InstructionTransformerBase.clone(conditionFlag.isConditionMet));
+      result = new ConditionFlag<>(InstructionTransformerBase.this.clone(conditionFlag.getRegister()), conditionFlag.getFlag(), conditionFlag.isNegate(), InstructionCloner.clone(conditionFlag.isConditionMet));
     }
 
     public void visitingConditionAlwaysTrue(ConditionAlwaysTrue conditionAlwaysTrue) {
       ConditionAlwaysTrue result1 = new ConditionAlwaysTrue();
-      result1.isConditionMet= InstructionTransformerBase.clone(conditionAlwaysTrue.isConditionMet);
+      result1.isConditionMet= InstructionCloner.clone(conditionAlwaysTrue.isConditionMet);
       result = result1;
     }
 
     public void visitBNotZeroCondition(BNotZeroCondition bNotZeroCondition) {
-      result = new BNotZeroCondition(InstructionTransformerBase.this.clone(bNotZeroCondition.getB()), InstructionTransformerBase.clone(bNotZeroCondition.isConditionMet));
+      result = new BNotZeroCondition(InstructionTransformerBase.this.clone(bNotZeroCondition.getB()), InstructionCloner.clone(bNotZeroCondition.isConditionMet));
     }
-  }
-
-  public static ConditionPredicate<Boolean> clone(ConditionPredicate isConditionMet) {
-    if (isConditionMet instanceof FlipFLopConditionFlag.FlipFlopPredicate flipFlopPredicate) {
-      return new FlipFLopConditionFlag(flipFlopPredicate.executionsListener, flipFlopPredicate.alwaysTrue).isConditionMet;
-    } else
-      return isConditionMet;
   }
 }

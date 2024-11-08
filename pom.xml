@@ -12,6 +12,9 @@
         <module>core</module>
         <module>integration</module>
         <module>translator</module>
+        <module>emulator</module>
+        <module>blocks</module>
+        <module>routines</module>
     </modules>
 
     <properties>

@@ -18,14 +18,13 @@
 
 package com.fpetrola.z80.bytecode;
 
-import com.fpetrola.z80.bytecode.se.SymbolicExecutionAdapter;
+import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.cpu.RandomAccessInstructionFetcher;
 import com.fpetrola.z80.instructions.base.Instruction;
 import com.fpetrola.z80.instructions.base.InstructionFactory;
-import com.fpetrola.z80.jspeccy.DefaultRegistersSetter;
-import com.fpetrola.z80.mmu.State;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
@@ -38,7 +37,7 @@ import static java.util.Comparator.comparingInt;
 
 @SuppressWarnings("ALL")
 public class RealCodeBytecodeCreationBase<T extends WordNumber> extends DefaultZ80InstructionDriver<T> implements BytecodeGeneration {
-  protected static RoutineManager routineManager = new RoutineManager();
+  public static RoutineManager routineManager = new RoutineManager();
   protected TransformerInstructionExecutor<T> transformerInstructionExecutor;
   private RandomAccessInstructionFetcher randomAccessInstructionFetcher;
   private static SymbolicExecutionAdapter symbolicExecutionAdapter;
@@ -120,7 +119,7 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends DefaultZ
     BytecodeGeneration.super.translateToJava(state.getPc(), randomAccessInstructionFetcher, className, memoryInBase64, startMethod, routines);
   }
 
-  protected DefaultRegistersSetter<T> gettDefaultRegistersSetter() {
+  protected DefaultRegistersSetter<T> getDefaultRegistersSetter() {
     DefaultRegistersSetter<T> registersBase = new DefaultRegistersSetter<>(state) {
       public VirtualRegisterFactory getVirtualRegisterFactory() {
         return virtualRegisterFactory;

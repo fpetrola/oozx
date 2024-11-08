@@ -18,6 +18,8 @@
 
 package com.fpetrola.z80.minizx;
 
+import com.fpetrola.z80.bytecode.tests.ZxObject;
+import com.fpetrola.z80.minizx.sync.SyncChecker;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.Arrays;
@@ -42,7 +44,7 @@ public abstract class SpectrumApplication<T> {
   public int initial;
 
   public int[] mem = new int[0x10000];
-  static public MiniZX.MiniZXIO io = new MiniZX.MiniZXIO();
+  static public MiniZXIO io = new MiniZXIO();
 
 
   private Stack<Integer> stack = new Stack<>();

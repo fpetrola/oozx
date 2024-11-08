@@ -26,7 +26,7 @@ import com.fpetrola.z80.blocks.ranges.RangeHandler;
 import com.fpetrola.z80.blocks.references.ReferencesHandler;
 import com.fpetrola.z80.instructions.*;
 import com.fpetrola.z80.instructions.base.ManualBytecodeGenerationTest;
-import com.fpetrola.z80.mmu.IO;
+import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
 import org.junit.Assert;

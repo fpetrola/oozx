@@ -20,16 +20,17 @@ package com.fpetrola.z80.instructions.base;
 
 import com.fpetrola.z80.bytecode.BytecodeGeneration;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
-import com.fpetrola.z80.bytecode.se.SymbolicExecutionAdapter;
+import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
+import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
 
 import java.util.List;
 
 public abstract class ManualBytecodeGenerationTest<T extends WordNumber> extends TransformInstructionsTest<T> implements BytecodeGeneration {
   public String generateAndDecompile() {
-    return generateAndDecompile("", RealCodeBytecodeCreationBase.getRoutines(), ".", "JetSetWilly");
+    return generateAndDecompile("", getRoutineManager().getRoutines(), ".", "JetSetWilly");
   }
 
   @Override
@@ -42,6 +43,6 @@ public abstract class ManualBytecodeGenerationTest<T extends WordNumber> extends
 
   @Override
   public RoutineManager getRoutineManager() {
-    return new RoutineManager();
+    return RegisterTransformerInstructionSpy.routineFinder.getRoutineManager();
   }
 }

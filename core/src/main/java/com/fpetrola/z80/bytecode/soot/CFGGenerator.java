@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.bytecode.soot;
 
-import com.fpetrola.z80.minizx.JetSetWilly;
+import com.fpetrola.z80.bytecode.tests.JetSetWilly;
 import soot.*;
 import soot.options.Options;
 import soot.toolkits.graph.BriefUnitGraph;

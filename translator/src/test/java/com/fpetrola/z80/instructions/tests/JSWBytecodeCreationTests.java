@@ -21,7 +21,7 @@ package com.fpetrola.z80.instructions.tests;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
 import com.fpetrola.z80.bytecode.examples.RemoteZ80Translator;
 import com.fpetrola.z80.bytecode.examples.SnapshotHelper;
-import com.fpetrola.z80.jspeccy.MemorySetter;
+import com.fpetrola.z80.cpu.MemorySetter;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
@@ -62,7 +62,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> extends RealCodeByte
 
   private String getMemoryInBase64FromFile(String url) {
     String first = getSnapshotFile(url);
-    SnapshotLoader.setupStateWithSnapshot(gettDefaultRegistersSetter(), first, new MemorySetter(state.getMemory()));
+    SnapshotLoader.setupStateWithSnapshot(getDefaultRegistersSetter(), first, new MemorySetter(state.getMemory()));
     String base64Memory = SnapshotHelper.getBase64Memory(state);
     return base64Memory;
   }

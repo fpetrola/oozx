@@ -19,7 +19,7 @@
 package com.fpetrola.z80.bytecode.examples;
 
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
-import com.fpetrola.z80.jspeccy.MemorySetter;
+import com.fpetrola.z80.cpu.MemorySetter;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
@@ -86,7 +86,7 @@ public class RemoteZ80Translator<T extends WordNumber> extends RealCodeBytecodeC
     File tempFile = getRemoteFile(url, ".z80", "/tmp/" + gameName + ".z80");
 
 
-    SnapshotLoader.setupStateWithSnapshot(gettDefaultRegistersSetter(), tempFile.getAbsolutePath(), new MemorySetter(state.getMemory()));
+    SnapshotLoader.setupStateWithSnapshot(getDefaultRegistersSetter(), tempFile.getAbsolutePath(), new MemorySetter(state.getMemory()));
 
     int firstAddress = state.getPc().read().intValue();
     String base64Memory = SnapshotHelper.getBase64Memory(state);

@@ -20,8 +20,9 @@ package com.fpetrola.z80.instructions.base;
 
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
+import com.fpetrola.z80.cpu.RandomAccessInstructionFetcher;
 import com.fpetrola.z80.instructions.MemoryAccessOpcodeReference;
-import com.fpetrola.z80.mmu.State;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.spy.AbstractInstructionSpy;
@@ -43,6 +44,7 @@ public abstract class TwoZ80Test<T extends WordNumber> extends ContextDriverDele
 
   public TwoZ80Test() {
     super(null);
+
   }
 
   @Before
@@ -60,7 +62,9 @@ public abstract class TwoZ80Test<T extends WordNumber> extends ContextDriverDele
     Function<State<T>, OpcodeConditions> stateOpcodeConditionsFunction1 = getStateOpcodeConditionsFactory();
     secondContext = new CPUExecutionContext<T>(registerTransformerInstructionSpy, stateOpcodeConditionsFunction1) {
       protected InstructionFetcher createInstructionFetcher(InstructionSpy spy, State<T> state, InstructionExecutor instructionExecutor) {
-        TransformerInstructionExecutor instructionExecutor1 = new TransformerInstructionExecutor(this.state.getPc(), this.instructionExecutor, false, (InstructionTransformer) instructionCloner);
+        TransformerInstructionExecutor<T> instructionExecutor1 = new TransformerInstructionExecutor(this.state.getPc(), this.instructionExecutor, false, (InstructionTransformer) instructionCloner);
+        RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> instructionExecutor1.clonedInstructions.get(address);
+        registerTransformerInstructionSpy.routineFinder.getRoutineManager().setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
         return buildInstructionFetcher(this.state, instructionExecutor1, spy);
       }
 

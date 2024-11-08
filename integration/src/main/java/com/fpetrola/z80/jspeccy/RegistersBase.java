@@ -1,6 +1,7 @@
 package com.fpetrola.z80.jspeccy;
 
-import com.fpetrola.z80.mmu.State;
+import com.fpetrola.z80.bytecode.DefaultRegistersSetter;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
 import snapshots.Z80State;
