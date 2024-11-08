@@ -2,7 +2,7 @@
 
 OOZX is an open-source project that provides a Z80 emulator with a unique object-oriented approach. This emulator can automatically translate ZX Spectrum games into pure Java code, leveraging the power and flexibility of Object-Oriented Programming (OOP).
 
-![Gameplay de ZX Spectrum en oozx](demo/jsw1.gif)
+![Gameplay de ZX Spectrum en oozx](doc/jsw1.gif)
 
 ## Key Features
 
