@@ -28,7 +28,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>bytecodeGenerator</artifactId>
+    <artifactId>translator</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <dependencies>
@@ -51,6 +51,12 @@
             <groupId>com.fpetrola</groupId>
             <artifactId>routines</artifactId>
             <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.windup.decompiler</groupId>
+            <artifactId>decompiler-fernflower</artifactId>
+            <version>2.3.0.Final</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
