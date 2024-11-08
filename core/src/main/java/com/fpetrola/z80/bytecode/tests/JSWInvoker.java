@@ -23,6 +23,6 @@ public class JSWInvoker {
     JetSetWilly jetSetWilly = new JetSetWilly();
 //    jetSetWilly.setSyncChecker(new DefaultSyncChecker());
 //    jetSetWilly.$34762(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0);
-    jetSetWilly.$C80A();
+//    jetSetWilly.$C80A();
   }
 }
