@@ -37,7 +37,7 @@ import static java.util.Comparator.comparingInt;
 
 @SuppressWarnings("ALL")
 public class RealCodeBytecodeCreationBase<T extends WordNumber> extends DefaultZ80InstructionDriver<T> implements BytecodeGeneration {
-  protected static RoutineManager routineManager = new RoutineManager();
+  public static RoutineManager routineManager = new RoutineManager();
   protected TransformerInstructionExecutor<T> transformerInstructionExecutor;
   private RandomAccessInstructionFetcher randomAccessInstructionFetcher;
   private static SymbolicExecutionAdapter symbolicExecutionAdapter;

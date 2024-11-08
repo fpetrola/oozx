@@ -33,6 +33,11 @@ public class RoutineFinder {
   private Instruction lastInstruction;
 
   private Routine currentRoutine;
+
+  public RoutineManager getRoutineManager() {
+    return routineManager;
+  }
+
   private RoutineManager routineManager;
   private int lastPc;
 
