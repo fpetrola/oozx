@@ -29,7 +29,7 @@ import com.fpetrola.z80.graph.CustomGraph;
 import com.fpetrola.z80.graph.GraphFrame;
 import com.fpetrola.z80.instructions.base.ConditionalInstruction;
 import com.fpetrola.z80.instructions.base.Instruction;
-import com.fpetrola.z80.jspeccy.ReadOnlyMemoryImplementation;
+import com.fpetrola.z80.memory.ReadOnlyMemoryImplementation;
 import com.fpetrola.z80.metadata.DataStructure;
 import com.fpetrola.z80.metadata.GameMetadata;
 import com.fpetrola.z80.memory.Memory;

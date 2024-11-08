@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.bytecode;
 
-import com.fpetrola.z80.bytecode.se.SymbolicExecutionAdapter;
+import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.cpu.RandomAccessInstructionFetcher;

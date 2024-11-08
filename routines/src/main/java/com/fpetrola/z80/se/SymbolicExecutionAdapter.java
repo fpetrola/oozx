@@ -16,16 +16,14 @@
  *
  */
 
-package com.fpetrola.z80.bytecode.se;
+package com.fpetrola.z80.se;
 
-import com.fpetrola.z80.bytecode.RoutineExecution;
-import com.fpetrola.z80.bytecode.Z80InstructionDriver;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.instructions.*;
 import com.fpetrola.z80.instructions.base.*;
-import com.fpetrola.z80.jspeccy.MutableOpcodeConditions;
+import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;

@@ -16,10 +16,8 @@
  *
  */
 
-package com.fpetrola.z80.bytecode;
+package com.fpetrola.z80.se;
 
-import com.fpetrola.z80.bytecode.se.AddressAction;
-import com.fpetrola.z80.bytecode.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.instructions.Call;
 import com.fpetrola.z80.instructions.Ret;
 import com.fpetrola.z80.instructions.base.Instruction;

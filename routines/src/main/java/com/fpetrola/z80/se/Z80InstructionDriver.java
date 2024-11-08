@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.z80.bytecode;
+package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.instructions.base.Instruction;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
