@@ -16,13 +16,11 @@
  *
  */
 
-package com.fpetrola.z80.transformations;
+package com.fpetrola.z80.instructions.base;
 
-import com.fpetrola.z80.instructions.base.Instruction;
-import com.fpetrola.z80.instructions.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-class DummyInstruction<T extends WordNumber> implements Instruction<T> {
+public class DummyInstruction<T extends WordNumber> implements Instruction<T> {
   @Override
   public int execute() {
     return 0;
