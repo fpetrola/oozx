@@ -65,24 +65,24 @@ public class UnprefixedTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
           return i.JR(cc[y - 4], d());
         }
       case 1:
-        return select(i.Ld(rp[p], nn()), i.Add16(hlOrIx, rp[p])).get(q);
-      case 2:
+        return select(i.Ld(rp[p], nn()), i.Add16(hlOrIx, rp[p]))[q];
+        case 2:
         switch (q) {
         case 0:
-          return select(i.Ld(iRR(BC), r(A)), i.Ld(iRR(DE), r(A)), i.Ld(iinn(), hlOrIx), i.Ld(inn(), r(A))).get(p);
-        case 1:
-          return select(i.Ld(r(A), iRR(BC)), i.Ld(r(A), iRR(DE)), i.Ld(hlOrIx, iinn()), i.Ld(r(A), inn())).get(p);
+          return select(i.Ld(iRR(BC), r(A)), i.Ld(iRR(DE), r(A)), i.Ld(iinn(), hlOrIx), i.Ld(inn(), r(A)))[p];
+          case 1:
+            return select(i.Ld(r(A), iRR(BC)), i.Ld(r(A), iRR(DE)), i.Ld(hlOrIx, iinn()), i.Ld(r(A), inn()))[p];
         }
       case 3:
-        return select(i.Inc16(rp[p]), i.Dec16(rp[p])).get(q);
-      case 4:
+        return select(i.Inc16(rp[p]), i.Dec16(rp[p]))[q];
+        case 4:
         return i.Inc(r[y]);
       case 5:
         return i.Dec(r[y]);
       case 6:
         return createLd1();
       case 7:
-        return select(i.RLCA(), i.RRCA(), i.RLA(), i.RRA(), i.DAA(), i.CPL(), i.SCF(), i.CCF()).get(y);
+        return select(i.RLCA(), i.RRCA(), i.RLA(), i.RRA(), i.DAA(), i.CPL(), i.SCF(), i.CCF())[y];
       }
       return null;
     case 1:
@@ -101,20 +101,20 @@ public class UnprefixedTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
         case 0:
           return i.Pop(rp2[p]);
         case 1:
-          return select(i.Ret(opc.t()), i.Exx(), i.JP(hlOrIx, opc.t()), i.Ld(r(SP), hlOrIx)).get(p);
+          return select(i.Ret(opc.t()), i.Exx(), i.JP(hlOrIx, opc.t()), i.Ld(r(SP), hlOrIx))[p];
         }
       case 2:
         return i.JP(nn(), cc[y]);
       case 3:
-        return select(i.JP(nn(), opc.t()), cbOpcode, i.Out(d(), r(A)), i.In(r(A), d()), i.Ex(iiRR(SP), hlOrIx), i.Ex(r(DE), r(RegisterName.HL)), i.DI(), i.EI()).get(y);
-      case 4:
+        return select(i.JP(nn(), opc.t()), cbOpcode, i.Out(d(), r(A)), i.In(r(A), d()), i.Ex(iiRR(SP), hlOrIx), i.Ex(r(DE), r(RegisterName.HL)), i.DI(), i.EI())[y];
+        case 4:
         return i.Call(cc[y], nn());
       case 5:
         switch (q) {
         case 0:
           return i.Push(rp2[p]);
         case 1:
-          return select(i.Call(opc.t(), nn()), ddOpcode, edOpcode, fdOpcode).get(p);
+          return select(i.Call(opc.t(), nn()), ddOpcode, edOpcode, fdOpcode)[p];
         }
       case 6:
         return alu.get(y).apply(d());

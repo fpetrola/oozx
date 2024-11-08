@@ -140,8 +140,8 @@ public abstract class TableOpCodeGenerator<T> extends OpcodeTargets<T> {
     return opcodes;
   }
 
-  protected Selector select(Instruction<T>... opcodes) {
-    return new Selector(opcodes);
+  protected Instruction<T>[] select(Instruction<T>... opcodes) {
+    return opcodes;
   }
 
 }
