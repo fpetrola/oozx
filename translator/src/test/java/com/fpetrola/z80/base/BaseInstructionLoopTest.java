@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.z80.instructions.visitor;
+package com.fpetrola.z80.base;
 
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
@@ -24,7 +24,7 @@ import java.util.Arrays;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
-public class BaseInstructionLoopTest<T extends WordNumber> extends TwoZ80Test<T> {
+public class BaseInstructionLoopTest<T extends WordNumber> extends TwoZ80Driver<T> {
   @Override
   protected void setUpMemory() {
     initMem(() -> {

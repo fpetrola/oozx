@@ -18,8 +18,8 @@
 
 package com.fpetrola.z80.instructions.cache;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.impl.*;
-import com.fpetrola.z80.instructions.visitor.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.BitOperation;

@@ -1,27 +1,24 @@
 /*
  *
- *  * This file is part of emuStudio.
+ *  * Copyright (c) 2023-2024 Fernando Damian Petrola
  *  *
- *  * Copyright (C) 2006-2023  Peter Jakubčo
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
  *  *
- *  * This program is free software: you can redistribute it and/or modify
- *  * it under the terms of the GNU General Public License as published by
- *  * the Free Software Foundation, either version 3 of the License, or
- *  * (at your option) any later version.
+ *  *      http://www.apache.org/licenses/LICENSE-2.0
  *  *
- *  * This program is distributed in the hope that it will be useful,
- *  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  * GNU General Public License for more details.
- *  *
- *  * You should have received a copy of the GNU General Public License
- *  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
  *
  */
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.visitor.InstructionVisitor;
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
@@ -32,6 +29,8 @@ import com.fpetrola.z80.registers.flag.*;
 public class Xor<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
   protected static final AluOperation xorTableAluOperation = new AluOperation() {
     public int execute(int result, int value, int carry) {
+      data = 0;
+      result = result ^ value;
       setS((result & 0x0080) != 0);
       setZ(result == 0);
       setPV(parity[result & 0xFF]);
@@ -41,23 +40,9 @@ public class Xor<T extends WordNumber> extends ParameterizedBinaryAluInstruction
   };
 
   public Xor(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
-    super(target, source, flag, (flag1, value1, value2) -> WordNumber.createValue(0));
+    super(target, source, flag, (flag1, value1, value2) -> xorTableAluOperation.executeWithoutCarry(value2, value1, flag1));
   }
 
-  @Override
-  public int execute() {
-    final T value1 = source.read();
-    final T value2 = target.read();
-
-    T result = value1.xor(value2);
-
-    T i = xorTableAluOperation.executeWithoutCarry(value1, result, flag);
-
-    target.write(i);
-    return cyclesCost;
-  }
-
-  @Override
   public void accept(InstructionVisitor visitor) {
     super.accept(visitor);
     visitor.visitingXor(this);

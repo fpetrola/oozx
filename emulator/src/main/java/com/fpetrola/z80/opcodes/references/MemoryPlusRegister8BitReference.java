@@ -19,7 +19,7 @@
 package com.fpetrola.z80.opcodes.references;
 
 import com.fpetrola.z80.helpers.Helper;
-import com.fpetrola.z80.instructions.visitor.InstructionVisitor;
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 

@@ -21,7 +21,7 @@ package com.fpetrola.z80.instructions.tests;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.bytecode.MockedIO;
-import com.fpetrola.z80.instructions.visitor.TransformInstructionsTest;
+import com.fpetrola.z80.base.TransformInstructionsTest;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.transformations.Virtual8BitsRegister;
 import org.junit.Test;

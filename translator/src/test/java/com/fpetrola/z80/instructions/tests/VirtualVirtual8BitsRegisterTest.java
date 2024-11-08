@@ -16,8 +16,9 @@
  *
  */
 
-package com.fpetrola.z80.instructions.visitor;
+package com.fpetrola.z80.instructions.tests;
 
+import com.fpetrola.z80.base.TransformInstructionsTest;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import org.junit.Test;

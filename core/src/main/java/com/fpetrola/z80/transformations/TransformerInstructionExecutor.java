@@ -20,8 +20,8 @@ package com.fpetrola.z80.transformations;
 
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.InstructionExecutor;
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.impl.*;
-import com.fpetrola.z80.instructions.visitor.*;
 import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
