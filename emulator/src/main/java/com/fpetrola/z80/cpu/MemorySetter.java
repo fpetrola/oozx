@@ -16,23 +16,21 @@
  *
  */
 
-package com.fpetrola.z80.jspeccy;
+package com.fpetrola.z80.cpu;
 
-import com.fpetrola.z80.cpu.OOZ80;
-import com.fpetrola.z80.cpu.Z80Cpu;
-import com.fpetrola.z80.instructions.base.Instruction;
-import com.fpetrola.z80.spy.NullInstructionSpy;
+import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class SyncInstructionSpy extends NullInstructionSpy {
-  private OOZ80 secondZ80;
+public class MemorySetter {
+  private final Memory<? extends WordNumber> memory;
 
-  @Override
-  public void setSecondZ80(Z80Cpu secondZ80) {
-    this.secondZ80 = (OOZ80) secondZ80;
+  public <T extends WordNumber> MemorySetter(Memory<T> memory) {
+    this.memory = memory;
   }
 
-  @Override
-  public void beforeExecution(Instruction opcode) {
-    secondZ80.execute();
+  public void setData(byte[] result) {
+    for (int i = 0; i <result.length; i++) {
+      memory.getData()[i]= WordNumber.createValue(result[i]);
+    }
   }
 }

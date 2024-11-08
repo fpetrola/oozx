@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.z80.jspeccy;
+package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.opcodes.references.WordNumber;
 

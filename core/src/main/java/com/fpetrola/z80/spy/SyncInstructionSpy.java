@@ -16,23 +16,22 @@
  *
  */
 
-package com.fpetrola.z80.jspeccy;
+package com.fpetrola.z80.spy;
 
-import com.fpetrola.z80.cpu.IO;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.cpu.OOZ80;
+import com.fpetrola.z80.cpu.Z80Cpu;
+import com.fpetrola.z80.instructions.base.Instruction;
 
-public class ReadOnlyIOImplementation<T extends WordNumber> implements IO<T> {
-  private IO<T> io;
+public class SyncInstructionSpy extends NullInstructionSpy {
+  private OOZ80 secondZ80;
 
-  public ReadOnlyIOImplementation(IO<T> io) {
-    this.io = io;
+  @Override
+  public void setSecondZ80(Z80Cpu secondZ80) {
+    this.secondZ80 = (OOZ80) secondZ80;
   }
 
-  public T in(T port) {
-    return WordNumber.createValue(0);
-  }
-
-  public void out(T port, T value) {
-
+  @Override
+  public void beforeExecution(Instruction opcode) {
+    secondZ80.execute();
   }
 }

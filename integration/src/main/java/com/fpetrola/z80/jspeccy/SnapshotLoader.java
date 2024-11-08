@@ -1,5 +1,7 @@
 package com.fpetrola.z80.jspeccy;
 
+import com.fpetrola.z80.cpu.MemorySetter;
+import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
