@@ -21,7 +21,7 @@ package com.fpetrola.z80.instructions.tests;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
 import com.fpetrola.z80.bytecode.examples.RemoteZ80Translator;
 import com.fpetrola.z80.bytecode.examples.SnapshotHelper;
-import com.fpetrola.z80.jspeccy.MemorySetter;
+import com.fpetrola.z80.cpu.MemorySetter;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;

@@ -16,21 +16,22 @@
  *
  */
 
-package com.fpetrola.z80.jspeccy;
+package com.fpetrola.z80.cpu;
 
-import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class MemorySetter {
-  private final Memory<? extends WordNumber> memory;
+public class ReadOnlyIOImplementation<T extends WordNumber> implements IO<T> {
+  private IO<T> io;
 
-  public <T extends WordNumber> MemorySetter(Memory<T> memory) {
-    this.memory = memory;
+  public ReadOnlyIOImplementation(IO<T> io) {
+    this.io = io;
   }
 
-  public void setData(byte[] result) {
-    for (int i = 0; i <result.length; i++) {
-      memory.getData()[i]= WordNumber.createValue(result[i]);
-    }
+  public T in(T port) {
+    return WordNumber.createValue(0);
+  }
+
+  public void out(T port, T value) {
+
   }
 }
