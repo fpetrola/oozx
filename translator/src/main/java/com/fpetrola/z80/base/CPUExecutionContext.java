@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.z80.instructions.visitor;
+package com.fpetrola.z80.base;
 
 import com.fpetrola.z80.bytecode.DefaultZ80InstructionDriver;
 import com.fpetrola.z80.cpu.InstructionExecutor;

@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.opcodes.references;
 
-import com.fpetrola.z80.instructions.visitor.InstructionVisitor;
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
 
 public final class IndirectMemory16BitReference<T extends WordNumber> implements OpcodeReference<T> {

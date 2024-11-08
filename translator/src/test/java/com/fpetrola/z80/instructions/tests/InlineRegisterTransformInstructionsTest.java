@@ -25,7 +25,7 @@ import com.fpetrola.z80.blocks.CodeBlockType;
 import com.fpetrola.z80.blocks.ranges.RangeHandler;
 import com.fpetrola.z80.blocks.references.ReferencesHandler;
 import com.fpetrola.z80.instructions.impl.*;
-import com.fpetrola.z80.instructions.visitor.ManualBytecodeGenerationTest;
+import com.fpetrola.z80.base.ManualBytecodeGenerationTest;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;

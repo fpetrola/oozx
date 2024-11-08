@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.z80.instructions.visitor;
+package com.fpetrola.z80.base;
 
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;

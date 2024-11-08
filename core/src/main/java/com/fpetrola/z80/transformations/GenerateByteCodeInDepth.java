@@ -19,7 +19,7 @@
 package com.fpetrola.z80.transformations;
 
 import com.fpetrola.z80.instructions.impl.Ld;
-import com.fpetrola.z80.instructions.visitor.InstructionVisitor;
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class GenerateByteCodeInDepth<T extends WordNumber> implements InstructionVisitor<T> {

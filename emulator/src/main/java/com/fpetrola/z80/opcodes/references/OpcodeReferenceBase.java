@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.opcodes.references;
 
-import com.fpetrola.z80.instructions.visitor.InstructionVisitor;
+import com.fpetrola.z80.base.InstructionVisitor;
 
 public interface OpcodeReferenceBase extends PublicCloneable {
   void accept(InstructionVisitor instructionVisitor);

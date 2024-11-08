@@ -19,7 +19,7 @@
 package com.fpetrola.z80.opcodes.references;
 
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.visitor.InstructionVisitor;
+import com.fpetrola.z80.base.InstructionVisitor;
 
 public interface Condition {
   boolean conditionMet(Instruction instruction);

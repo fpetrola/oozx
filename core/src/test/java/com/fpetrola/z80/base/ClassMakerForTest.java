@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.z80.instructions.visitor;
+package com.fpetrola.z80.base;
 
 import org.cojen.maker.*;
 

@@ -13,10 +13,10 @@
  *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  * See the License for the specific language governing permissions and
  *  * limitations under the License.
- *
+ *  
  */
 
-package com.fpetrola.z80.instructions.visitor;
+package com.fpetrola.z80.base;
 
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
@@ -38,12 +38,12 @@ import static com.fpetrola.z80.registers.RegisterName.B;
 import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("ALL")
-public abstract class TwoZ80Test<T extends WordNumber> extends ContextDriverDelegator<T> {
+public abstract class TwoZ80Driver<T extends WordNumber> extends ContextDriverDelegator<T> {
   private Z80ContextDriver<T> firstContext;
   private Z80ContextDriver<T> secondContext;
   private RegisterTransformerInstructionSpy registerTransformerInstructionSpy = new RegisterTransformerInstructionSpy(new RoutineManager());
 
-  public TwoZ80Test() {
+  public TwoZ80Driver() {
     super(null);
 
   }

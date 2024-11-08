@@ -20,7 +20,12 @@ package com.fpetrola.z80.helpers;
 
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 public class Helper {
   public static String convertToHex(int routineAddress) {
@@ -42,4 +47,14 @@ public class Helper {
     return (T) instance;
   }
 
+  public static String getSnapshotFile(String url) {
+    try {
+      String s = url;
+      String first = "/tmp/game.z80";
+      Files.copy(new URL(s).openStream(), Paths.get(first), StandardCopyOption.REPLACE_EXISTING);
+      return first;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }
