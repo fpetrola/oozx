@@ -109,7 +109,7 @@ public class RemoteZ80Translator<T extends WordNumber> extends RealCodeBytecodeC
         throw new RuntimeException(e);
       }
     } else
-      translateToJava(gameName, base64Memory, "$" + startRoutineAddress, routines);
+      translateToJava(gameName, base64Memory, "$" + startRoutineAddress);
   }
 
   public static String improveSource(String sourceCode) {

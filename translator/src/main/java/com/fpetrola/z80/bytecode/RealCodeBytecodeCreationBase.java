@@ -111,12 +111,12 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends DefaultZ
 
   @Override
   public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className) {
-    return getDecompiledSource(state.getPc(), randomAccessInstructionFetcher, className, base64Memory, routines, targetFolder);
+    return getDecompiledSource(className, targetFolder, state, !base64Memory.isBlank());
   }
 
 
-  public void translateToJava(String className, String memoryInBase64, String startMethod, List<Routine> routines) {
-    BytecodeGeneration.super.translateToJava(state.getPc(), randomAccessInstructionFetcher, className, memoryInBase64, startMethod, routines);
+  public void translateToJava(String className, String memoryInBase64, String startMethod) {
+    BytecodeGeneration.super.translateToJava(className, startMethod, state, !memoryInBase64.isBlank());
   }
 
   protected DefaultRegistersSetter<T> getDefaultRegistersSetter() {

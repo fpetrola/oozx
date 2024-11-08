@@ -60,15 +60,15 @@ I hope this overview gives you a clear picture of how oozx works! If you're exci
 #### Usage
 
    ```bash
-   java -jar translator/target/translator-0.0.1-SNAPSHOT.jar [execute/translate] [game-name] [url] [main-routine-address]
+   java -jar bytecodeGenerator/target/bytecodeGenerator-0.0.1-SNAPSHOT.jar [execute/translate] [game-name] [url] [main-routine-address]
    ```
   Using "translate" will be creating "game-name.java" source code instead of creating bytecode on the fly.
 #### Examples
 
    ```bash
    mvn clean install
-   java -jar translator/target/translator-0.0.1-SNAPSHOT.jar execute jetsetwilly http://torinak.com/qaop/bin/jetsetwilly 34762
-   java -jar translator/target/translator-0.0.1-SNAPSHOT.jar execute manicminer http://torinak.com/qaop/bin/manicminer 33792
+   java -jar bytecodeGenerator/target/bytecodeGenerator-0.0.1-SNAPSHOT.jar execute jetsetwilly http://torinak.com/qaop/bin/jetsetwilly 34762
+   java -jar bytecodeGenerator/target/bytecodeGenerator-0.0.1-SNAPSHOT.jar execute manicminer http://torinak.com/qaop/bin/manicminer 33792
    ```
 #### Translation status
 * Jet Set Willy 100%
