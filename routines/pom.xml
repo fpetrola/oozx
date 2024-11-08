@@ -48,5 +48,10 @@
             <artifactId>rsyntaxtextarea</artifactId>
             <version>3.1.1</version>
         </dependency>
+        <dependency>
+            <groupId>blue.endless</groupId>
+            <artifactId>jankson</artifactId>
+            <version>1.2.3</version>
+        </dependency>
     </dependencies>
 </project>

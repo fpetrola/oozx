@@ -11,7 +11,7 @@
     <modules>
         <module>core</module>
         <module>integration</module>
-        <module>bytecodeGenerator</module>
+        <module>translator</module>
         <module>emulator</module>
         <module>blocks</module>
         <module>routines</module>
@@ -47,11 +47,6 @@
     </repositories>
 
     <dependencies>
-        <dependency>
-            <groupId>org.soot-oss</groupId>
-            <artifactId>soot</artifactId>
-            <version>4.5.0</version>
-        </dependency>
         <dependency>
             <groupId>com.github.vlsi.mxgraph</groupId>
             <artifactId>jgraphx</artifactId>
@@ -107,12 +102,6 @@
             <version>4.4</version>
         </dependency>
         <dependency>
-            <groupId>blue.endless</groupId>
-            <artifactId>jankson</artifactId>
-            <version>1.2.3</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>RELEASE</version>
@@ -137,24 +126,7 @@
             <version>5.1.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.jboss.windup.decompiler</groupId>
-            <artifactId>decompiler-fernflower</artifactId>
-            <version>2.3.0.Final</version>
-            <scope>provided</scope>
-        </dependency>
 
-        <dependency>
-            <groupId>com.hypherionmc</groupId>
-            <artifactId>jarmanager</artifactId>
-            <version>1.0.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm</artifactId>
-            <version>9.2</version>
-        </dependency>
 
 
 
