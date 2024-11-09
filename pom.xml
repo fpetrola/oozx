@@ -48,42 +48,10 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.jgrapht</groupId>
-            <artifactId>jgrapht-core</artifactId>
-            <version>1.5.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jgrapht</groupId>
-            <artifactId>jgrapht-ext</artifactId>
-            <version>1.5.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jgrapht</groupId>
-            <artifactId>jgrapht-io</artifactId>
-            <version>1.5.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.vlsi.mxgraph</groupId>
-            <artifactId>jgraphx</artifactId>
-            <version>4.2.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fifesoft</groupId>
-            <artifactId>rsyntaxtextarea</artifactId>
-            <version>3.1.1</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
-        <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
             <version>2.4.0-b180830.0359</version>
         </dependency>
-
 
         <dependency>
             <groupId>javax.activation</groupId>
@@ -91,7 +59,6 @@
             <version>1.1</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime -->
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
@@ -129,17 +96,6 @@
             <version>4.4</version>
         </dependency>
         <dependency>
-            <groupId>blue.endless</groupId>
-            <artifactId>jankson</artifactId>
-            <version>1.2.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.cojen</groupId>
-            <artifactId>cojen-maker</artifactId>
-            <version>2.5.4</version>
-        </dependency>
-        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>RELEASE</version>
@@ -159,55 +115,10 @@
         </dependency>
 
         <dependency>
-            <groupId>net.emustudio</groupId>
-            <artifactId>cpu-testsuite_12.0</artifactId>
-            <version>1.2.0</version>
-            <scope>test</scope>
-        </dependency>
-
-
-        <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
             <version>5.1.0</version>
         </dependency>
-
-        <!--		<dependency>-->
-        <!--			<groupId>org.jboss.windup.decompiler</groupId>-->
-        <!--			<artifactId>decompiler-fernflower</artifactId>-->
-        <!--			<version>6.3.7.Final</version>-->
-        <!--			<scope>provided</scope>-->
-        <!--		</dependency>-->
-        <!-- https://mvnrepository.com/artifact/org.jetbrains/annotations -->
-        <!-- https://mvnrepository.com/artifact/org.jetbrains/annotations -->
-        <!-- https://mvnrepository.com/artifact/org.jboss.windup.decompiler/decompiler-fernflower -->
-        <dependency>
-            <groupId>org.jboss.windup.decompiler</groupId>
-            <artifactId>decompiler-fernflower</artifactId>
-            <version>2.3.0.Final</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.soot-oss</groupId>
-            <artifactId>soot</artifactId>
-            <version>4.5.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.hypherionmc</groupId>
-            <artifactId>jarmanager</artifactId>
-            <version>1.0.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm</artifactId>
-            <version>9.2</version>
-        </dependency>
-
-
-
     </dependencies>
 
     <build>

@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.routines;
 
-import com.fpetrola.z80.instructions.base.Instruction;
+import com.fpetrola.z80.instructions.types.Instruction;
 
 public interface RoutineVisitor<R> {
   default void visit(Routine routine) {

@@ -18,8 +18,8 @@
 
 package com.fpetrola.z80.opcodes.references;
 
-import com.fpetrola.z80.instructions.base.Instruction;
-import com.fpetrola.z80.instructions.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.cache.ConditionPredicate;
 import com.fpetrola.z80.registers.Flags;
 import com.fpetrola.z80.registers.Register;

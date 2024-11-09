@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.opcodes.references;
 
-import com.fpetrola.z80.instructions.base.Instruction;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.spy.ComplexInstructionSpy;
 
 import java.util.ArrayList;

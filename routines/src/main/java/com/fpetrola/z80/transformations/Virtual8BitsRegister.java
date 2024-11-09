@@ -19,8 +19,11 @@
 package com.fpetrola.z80.transformations;
 
 import com.fpetrola.z80.cpu.InstructionExecutor;
-import com.fpetrola.z80.instructions.*;
-import com.fpetrola.z80.instructions.base.*;
+import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.impl.In;
+import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.instructions.impl.Push;
+import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Plain8BitRegister;
 

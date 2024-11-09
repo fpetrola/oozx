@@ -43,5 +43,15 @@
             <artifactId>blocks</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.fifesoft</groupId>
+            <artifactId>rsyntaxtextarea</artifactId>
+            <version>3.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>blue.endless</groupId>
+            <artifactId>jankson</artifactId>
+            <version>1.2.3</version>
+        </dependency>
     </dependencies>
 </project>

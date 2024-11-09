@@ -18,8 +18,12 @@
 
 package com.fpetrola.z80.bytecode.generators;
 
+import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.types.BitOperation;
+import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
+import com.fpetrola.z80.instructions.types.TargetInstruction;
+import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
-import com.fpetrola.z80.instructions.base.*;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;

@@ -23,6 +23,9 @@ import com.fpetrola.z80.instructions.JP;
 import com.fpetrola.z80.instructions.Ret;
 import com.fpetrola.z80.instructions.base.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.instructions.impl.Call;
+import com.fpetrola.z80.instructions.impl.Ret;
+import com.fpetrola.z80.instructions.types.Instruction;
 
 import java.util.*;
 

@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.spy;
 
-import com.fpetrola.z80.instructions.base.DefaultInstructionFactory;
+import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.cache.InstructionCloner;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;

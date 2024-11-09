@@ -18,8 +18,9 @@
 
 package com.fpetrola.z80.routines;
 
-import com.fpetrola.z80.instructions.*;
-import com.fpetrola.z80.instructions.base.*;
+import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 

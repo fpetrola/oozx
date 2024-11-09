@@ -36,12 +36,12 @@ public class BytecodeGenerationContext {
   public boolean syncEnabled;
   public  boolean useFields;
 
-  public BytecodeGenerationContext(RoutineManager routineManager, ClassMaker classMaker, Register<?> pc1, HashMap<String, MethodMaker> methods, boolean syncEnabled, boolean useFields) {
+  public BytecodeGenerationContext(RoutineManager routineManager, ClassMaker classMaker, Register<?> pc1) {
     this.routineManager = routineManager;
     this.cm = classMaker;
     this.pc = (Register<WordNumber>) pc1;
-    this.methods = methods;
-    this.syncEnabled = syncEnabled;
-    this.useFields = useFields;
+    this.methods = new HashMap<>();
+    this.syncEnabled = false;
+    this.useFields = true;
   }
 }

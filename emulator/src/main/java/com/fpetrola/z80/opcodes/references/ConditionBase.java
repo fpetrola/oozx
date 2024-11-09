@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.opcodes.references;
 
-import com.fpetrola.z80.instructions.base.Instruction;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.cache.ConditionPredicate;
 
 public abstract class ConditionBase implements Condition {
