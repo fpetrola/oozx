@@ -28,7 +28,7 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 public class DAA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
   public static AluOperation daaTableAluOperation = new AluOperation() {
     public int execute(int registerA, int carry, int flags) {
-      return AdjustAccumulatorToBcd(registerA);
+      return adjustAccumulatorToBcd(registerA);
     }
   };
 

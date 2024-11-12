@@ -771,7 +771,7 @@ public class AluOperationBase {
       4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4, 0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0, 4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4
   };
 
-  public int AdjustAccumulatorToBcd(int regA) {
+  public int adjustAccumulatorToBcd(int regA) {
     int lookupIndex = regA;
     if (getC()) lookupIndex |= 256;
     if (getH()) lookupIndex |= 512;
