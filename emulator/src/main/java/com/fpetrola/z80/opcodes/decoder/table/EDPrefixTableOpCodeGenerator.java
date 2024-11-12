@@ -37,7 +37,7 @@ public class EDPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
     case 1:
       switch (z) {
       case 0:
-        return y == 6 ? i.In(r(A), r(BC)) : i.In(r[y], r(BC));
+        return y == 6 ? i.In(nullTarget(), r(BC)) : i.In(r[y], r(BC));
       case 1:
         return y == 6 ? i.Out(r(C), c(0)) : i.Out(r(C), r[y]);
       case 2:
@@ -51,12 +51,33 @@ public class EDPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
       case 6:
         return i.IM(im[y]);
       case 7:
-        return select(i.Ld(r(I), r(A)), i.Ld(r(R), r(A)), i.Ld(r(A), r(I)), i.LdAR(r(A), r(R)), i.RRD(), i.RLD(), i.Nop(), i.Nop())[y];
+        return select(i.Ld(r(I), r(A)), i.Ld(r(R), r(A)), i.LdAI(), i.LdAR(r(A), r(R)), i.RRD(), i.RLD(), i.Nop(), i.Nop())[y];
       }
     case 2:
       if (z <= 3 && y >= 4)
         return bli[y][z];
     }
     return null;
+  }
+
+  private OpcodeReference<T> nullTarget() {
+    return new NullOpcodeReference<>();
+  }
+
+  public static class NullOpcodeReference<T> implements OpcodeReference<T> {
+    public T read() {
+      return null;
+    }
+
+    public int getLength() {
+      return 0;
+    }
+
+    public void write(T value) {
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+      return this;
+    }
   }
 }

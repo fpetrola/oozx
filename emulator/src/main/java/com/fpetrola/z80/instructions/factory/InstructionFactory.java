@@ -117,6 +117,8 @@ public interface InstructionFactory<T extends WordNumber> {
 
   LdAR<T> LdAR(OpcodeReference<T> target, ImmutableOpcodeReference<T> source);
 
+  LdAI<T> LdAI();
+
   Ldd Ldd();
 
   Ldi Ldi();

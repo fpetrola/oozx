@@ -292,7 +292,7 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
     add(new Ld(r(DE), c(102), f()));
     add(new Ld(r(BC), c(3), f()));
     add(new Ld(r(HL), c(302), f()));
-    add(new Lddr(r(PC), rp(BC), new Ldd(r(DE), rp(BC), r(HL), f(), mem(), new MockedIO())));
+    add(new Lddr(r(PC), rp(BC), new Ldd(r(DE), rp(BC), rp(HL), f(), mem(), new MockedIO())));
 
     step(4);
     step(1);
@@ -321,7 +321,7 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
     add(new Ld(r(DE), c(100), f()));
     add(new Ld(r(BC), c(3), f()));
     add(new Ld(r(HL), c(300), f()));
-    add(new Ldir(r(PC), rp(BC), new Ldd(r(DE), rp(BC), r(HL), f(), mem(), new MockedIO())));
+    add(new Ldir(r(PC), rp(BC), new Ldd(r(DE), rp(BC), rp(HL), f(), mem(), new MockedIO())));
 
     step(4);
     step(1);

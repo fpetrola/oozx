@@ -34,11 +34,11 @@ public abstract class BlockInstruction<T extends WordNumber> extends AbstractIns
     this.bc = bc;
   }
 
-  public Register<T> getHl() {
+  public RegisterPair<T> getHl() {
     return hl;
   }
 
-  public void setHl(Register<T> hl) {
+  public void setHl(RegisterPair<T> hl) {
     this.hl = hl;
   }
 
@@ -67,12 +67,12 @@ public abstract class BlockInstruction<T extends WordNumber> extends AbstractIns
   }
 
   protected RegisterPair<T> bc;
-  protected Register<T> hl;
+  protected RegisterPair<T> hl;
   protected Register<T> flag;
   protected Memory<T> memory;
   protected IO<T> io;
 
-  public BlockInstruction(RegisterPair<T> bc, Register<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
+  public BlockInstruction(RegisterPair<T> bc, RegisterPair<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
     this.bc = bc;
     this.hl = hl;
     this.flag = flag;
@@ -80,7 +80,7 @@ public abstract class BlockInstruction<T extends WordNumber> extends AbstractIns
     this.io = io;
   }
 
-  protected abstract void flagOperation();
+  protected abstract void flagOperation(T valueFromHL);
 
   protected void next() {
     hl.increment();

@@ -211,6 +211,10 @@ public interface InstructionFactoryDelegator<T extends WordNumber> extends Instr
     return getDelegate().LdAR(target, source);
   }
 
+  default LdAI<T> LdAI() {
+    return getDelegate().LdAI();
+  }
+
   default Ldd Ldd() {
     return getDelegate().Ldd();
   }

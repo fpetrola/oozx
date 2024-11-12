@@ -107,6 +107,18 @@
             <version>4.13.2</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId> org.junit.jupiter </groupId>
+            <artifactId> junit-jupiter-engine </artifactId>
+            <version>RELEASE</version>
+            <scope> junit- fail </scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>RELEASE</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>commons-io</groupId>

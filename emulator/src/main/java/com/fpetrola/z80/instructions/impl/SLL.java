@@ -47,6 +47,7 @@ public class SLL<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
       setPV(parity[a]);
       resetN();
       // put value back
+      setUnusedFlags(a);
 
       return a;
     }

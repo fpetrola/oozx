@@ -24,34 +24,44 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
+import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Ini<T extends WordNumber> extends BlockInstruction<T> {
-  public static final TableAluOperation iniTableAluOperation = new TableAluOperation() {
-    public int execute(int b, int carry) {
-      data = 0;
-      setZ(b == 0);
-      setN();
-      return b;
+  public static final AluOperation iniTableAluOperation = new TableAluOperation() {
+    public <T extends WordNumber> T executeWithCarry(T value, T b, Register<T> c) {
+      int hlMem = value.intValue() & 0xff;
+      int regB = b.intValue() & 0xff;
+      regB = decAndSetFlags(regB);
+      var incC = (c.read().intValue() + 1) & 255;
+      setH(hlMem + incC > 255);
+      setC(hlMem + incC > 255);
+      setPV(isEvenParity((((hlMem + incC) & 7) ^ regB)));
+      setN((hlMem & 0x80) != 0);
+
+      return WordNumber.createValue(data);
     }
   };
 
-  public Ini(RegisterPair<T> bc, Register<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
+  public Ini(RegisterPair<T> bc, RegisterPair<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
     super(bc, hl, flag, memory, io);
   }
 
   public int execute() {
     T hlValue = hl.read();
     T cValue = bc.getLow().read();
-    T in = io.in(cValue);
+    T port = bc.read();
+
+    T in = io.in(port);
     memory.write(hlValue, in);
     bc.getHigh().decrement();
     next();
-    flagOperation();
+    flagOperation(in);
     return 1;
   }
 
-  protected void flagOperation() {
-    iniTableAluOperation.executeWithCarry(bc.getHigh().read(), flag);
+  protected void flagOperation(T valueFromHL) {
+    T t = iniTableAluOperation.executeWithCarry(valueFromHL, bc.getHigh().read(), bc.getLow());
+    flag.write(t);
   }
 }

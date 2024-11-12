@@ -20,6 +20,7 @@ package com.fpetrola.z80.instructions.impl;
 
 import com.fpetrola.z80.instructions.types.BitOperation;
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
@@ -27,51 +28,29 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class BIT<T extends WordNumber> extends BitOperation<T> {
   public static final AluOperation testBitTableAluOperation = new AluOperation() {
-    public int execute(int bit, int value, int carry) {
-      resetS();
+    @Override
+    public <T extends WordNumber> T executeWithCarry2(T value_, T bit_, int carry, Register<T> flag) {
+      data = flag.read().intValue();
+      int f = data;
+      int value = value_.intValue();
 
-      switch (bit) {
-        case 0: {
-          value = value & setBit0;
-          break;
-        }
-        case 1: {
-          value = value & setBit1;
-          break;
-        }
-        case 2: {
-          value = value & setBit2;
-          break;
-        }
-        case 3: {
-          value = value & setBit3;
-          break;
-        }
-        case 4: {
-          value = value & setBit4;
-          break;
-        }
-        case 5: {
-          value = value & setBit5;
-          break;
-        }
-        case 6: {
-          value = value & setBit6;
-          break;
-        }
-        case 7: {
-          value = value & setBit7;
-          setS(value != 0);
-          break;
-        }
+      int s = data & SIGN_MASK;
+      f = (f & CARRY_MASK) | HALFCARRY_MASK | (value & (FLAG_3 | FLAG_5));
+      int bit = bit_.intValue();
+      int mask = 1 << bit;
+      boolean zeroFlag = (mask & value) == 0;
+
+      if ((value & mask) == 0) {
+        f |= PARITY_MASK | ZERO_MASK;
       }
-      setZ(0 == value);
-      setPV(0 == value);
-      resetN();
-      setH();
-
-      return value;
+      if (mask == SIGN_MASK && !zeroFlag) {
+        f |= SIGN_MASK;
+      }
+      data = f;
+      SetFlags53From(carry);
+      return WordNumber.createValue(data);
     }
+
   };
 
   public BIT(OpcodeReference target, int n, Register<T> flag) {
@@ -80,7 +59,11 @@ public class BIT<T extends WordNumber> extends BitOperation<T> {
 
   public int execute() {
     final T value = target.read();
-    testBitTableAluOperation.executeWithCarry(value, WordNumber.createValue(n), flag);
+    int address = value.intValue();
+    if (target instanceof MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
+      address = memoryPlusRegister8BitReference.getTarget().read().plus(memoryPlusRegister8BitReference.fetchRelative()).intValue() >> 8;
+    }
+    flag.write(testBitTableAluOperation.executeWithCarry2(value, WordNumber.createValue(n), address, flag));
     return cyclesCost;
   }
 

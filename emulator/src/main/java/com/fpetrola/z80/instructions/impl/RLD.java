@@ -29,7 +29,7 @@ import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 public class RLD<T extends WordNumber> extends AbstractInstruction<T> {
   public static final TableAluOperation rldTableAluOperation = new TableAluOperation() {
     public int execute(int a, int carry) {
-      data = 0;
+      data = carry;
       if ((a & 0x80) == 0)
         resetS();
       else
@@ -38,6 +38,7 @@ public class RLD<T extends WordNumber> extends AbstractInstruction<T> {
       resetH();
       setPV(parity[a]);
       resetN();
+      setUnusedFlags(a);
       return a;
     }
   };

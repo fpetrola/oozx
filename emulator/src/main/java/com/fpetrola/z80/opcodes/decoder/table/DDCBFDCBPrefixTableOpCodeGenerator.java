@@ -26,6 +26,9 @@ import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.RegisterName;
 
+import static com.fpetrola.z80.registers.RegisterName.IXH;
+import static com.fpetrola.z80.registers.RegisterName.IXL;
+
 public class DDCBFDCBPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
 
   private RegisterName ixy;
@@ -36,21 +39,27 @@ public class DDCBFDCBPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<
   }
 
   protected Instruction<T> getOpcode() {
+    OpcodeReference hlOrIx = r(main16BitRegister);
+
     Instruction result = null;
     switch (x) {
       case 0:
-        result = z != 6 ? i.LdOperation(r[z], rot.get(y).create(iRRn(ixy, true, 2), 1)) : rot.get(y).create(iRRn(ixy, true, 2), 1);
+        result = z != 6 ? i.LdOperation(getTarget(r[z]), rot.get(y).create(iRRn(ixy, true, 2), 1)) : rot.get(y).create(iRRn(ixy, true, 2), 1);
         break;
       case 1:
         result = i.BIT(iRRn(ixy, true, 2), y);
         break;
       case 2:
-        result = z != 6 ? i.LdOperation(r[z], i.RES(iRRn(ixy, true, 2), y)) : i.RES(iRRn(ixy, true, 2), y);
+        result = z != 6 ? i.LdOperation(getTarget(r[z]), i.RES(iRRn(ixy, true, 2), y)) : i.RES(iRRn(ixy, true, 2), y);
         break;
       case 3:
-        result = z != 6 ? i.LdOperation(r[z], i.SET(iRRn(ixy, true, 2), y)) : i.SET(iRRn(ixy, true, 2), y);
+        result = z != 6 ? i.LdOperation(getTarget(r[z]), i.SET(iRRn(ixy, true, 2), y)) : i.SET(iRRn(ixy, true, 2), y);
     }
     ((AbstractInstruction) result).setLength(result.getLength() + 1);
     return result;
+  }
+
+  private OpcodeReference getTarget(OpcodeReference source) {
+    return replaceLowHigh(source, mainLow8BitRegister, mainHigh8BitRegister);
   }
 }

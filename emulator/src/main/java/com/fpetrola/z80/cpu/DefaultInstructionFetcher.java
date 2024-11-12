@@ -31,6 +31,7 @@ import com.fpetrola.z80.spy.NullInstructionSpy;
 
 import java.io.FileWriter;
 import java.util.*;
+import java.util.function.Supplier;
 
 import static com.fpetrola.z80.registers.RegisterName.B;
 
@@ -44,6 +45,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   protected final InstructionExecutor<T> instructionExecutor;
   FileWriter fileWriter;
   List<ExecutedInstruction> lastInstructions = new ArrayList<>();
+  protected Supplier<TableBasedOpCodeDecoder> tableFactory;
 
 //  {
 //    try {
@@ -60,8 +62,17 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, DefaultInstructionFactory instructionFactory) {
     this.state = aState;
     this.instructionExecutor = instructionExecutor;
-    opcodesTables = new TableBasedOpCodeDecoder<T>(this.state, opcodeConditions, fetchInstructionFactory, instructionFactory).getOpcodeLookupTable();
+    tableFactory = () -> createOpcodesTables(opcodeConditions, fetchInstructionFactory, instructionFactory);
+    createOpcodeTables();
     pcValue = state.getPc().read();
+  }
+
+  protected void createOpcodeTables() {
+    opcodesTables = tableFactory.get().getOpcodeLookupTable();
+  }
+
+  public TableBasedOpCodeDecoder createOpcodesTables(OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, DefaultInstructionFactory instructionFactory) {
+    return new TableBasedOpCodeDecoder<T>(this.state, opcodeConditions, fetchInstructionFactory, instructionFactory);
   }
 
   public static DefaultInstructionFetcher getInstructionFetcher(State state, NullInstructionSpy spy, DefaultInstructionFactory instructionFactory) {

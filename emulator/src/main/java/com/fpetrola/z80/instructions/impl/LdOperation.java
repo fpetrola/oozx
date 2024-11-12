@@ -31,6 +31,7 @@ public class LdOperation<T extends WordNumber> extends AbstractInstruction<T> {
   public LdOperation(OpcodeReference target, Instruction<T> instruction) {
     this.target = target;
     this.instruction = instruction;
+    incrementLengthBy(1);
   }
 
   public int execute() {

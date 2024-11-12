@@ -18,28 +18,41 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class DAA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
-  public static AluOperation daaTableAluOperation = new TableAluOperation() {
-    public int execute(int flag, int a, int flags) {
-      data= flag;
-      return adjustAccumulatorToBcd(a);
+public class LdAI<T extends WordNumber> extends Ld<T> {
+  public static final AluOperation ldaiTableAluOperation = new TableAluOperation() {
+    public int execute(int reg_R, int reg_A, int carry) {
+      setC(false);
+      setS(!isBytePositive(reg_R));
+      setZ(reg_R == 0);
+      setH(false);
+      setPV(carry == 1);
+      setN(false);
+      setUnusedFlags(reg_R);
+      return data;
     }
   };
+  private final State<T> state;
 
-  public DAA(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, reg_A) -> daaTableAluOperation.executeWithCarry(reg_A, tFlagRegister.read(), tFlagRegister));
+  public LdAI(OpcodeReference<T> target, OpcodeReference<T> source, Register<T> flag, State<T> state) {
+    super(target, source, flag);
+    this.state = state;
   }
 
-  public void accept(InstructionVisitor visitor) {
-    if (!visitor.visitingDaa(this))
-      super.accept(visitor);
+  public int execute() {
+    T value = source.read();
+    T reg_A = target.read();
+    boolean iff2 = state.isIff2();
+    T ldar = ldaiTableAluOperation.executeWithCarry2(reg_A, value, iff2 ? 1 : 0, flag);
+
+    target.write(value);
+
+    return cyclesCost;
   }
 }

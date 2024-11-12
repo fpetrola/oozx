@@ -26,7 +26,7 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import java.util.function.Supplier;
 
 public class MockedMemory<T extends WordNumber> implements Memory<T> {
-  protected T[] data = (T[]) new WordNumber[0x100000];
+  protected T[] data = (T[]) new WordNumber[0x10000];
   private MemoryWriteListener memoryWriteListener;
   private boolean readOnly;
   private MemoryReadListener memoryReadListener;
@@ -35,7 +35,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   private boolean canDisable;
 
   public MockedMemory(boolean canDisable1) {
-    this.canDisable= canDisable1;
+    this.canDisable = canDisable1;
   }
 
   public void init(Supplier<T[]> supplier) {
@@ -61,7 +61,8 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
         memoryWriteListener.writtingMemoryAt(address, value);
 //      if (address.intValue() == 23548)
 //        System.out.println("");
-      data[address.intValue()] = value;
+      if (address.intValue() < 0x10000)
+        data[address.intValue()] = value;
     }
   }
 
