@@ -28,7 +28,6 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.fpetrola</groupId>
     <artifactId>emulator</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 

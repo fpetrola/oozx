@@ -40,27 +40,12 @@ import java.util.stream.Stream;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
-class FuseTests {
-
+public class FuseTests {
   private static final Path FUSE_TEST_DATA_DIR = Paths.get("src", "test", "resources", "fuse");
-  private IPortHandler portHandler;
   private static FuseTestParser fuseTestParser = new FuseTestParser(FUSE_TEST_DATA_DIR.toFile());
 
-  // Load tests and results from FuseTestParser
   private static final List<FuseTest> theTests = fuseTestParser.getTests();
   private static final List<FuseResult> theResults = fuseTestParser.getResults();
-
-  public static Stream<Arguments> sumProvider() {
-    return null;
-  }
-
-  @BeforeEach
-  void setUp() {
-//    portHandler = Mockito.mock(IPortHandler.class);
-//    Mockito.when(portHandler.in(Mockito.anyByte())).thenAnswer(invocation -> (byte) (invocation.getArgumentAt(0, Short.class) >> 8));
-    portHandler = new IPortHandler();
-  }
-
 
   static Stream<FuseTest> fuseTests() {
     return theTests.stream();
@@ -96,6 +81,5 @@ class FuseTests {
     }
     else
       Assertions.assertTrue(true, "OK");
-
   }
 }
