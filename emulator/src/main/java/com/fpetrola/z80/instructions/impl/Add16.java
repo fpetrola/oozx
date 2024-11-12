@@ -30,15 +30,13 @@ public class Add16<T extends WordNumber> extends ParameterizedBinaryAluInstructi
   public static final AluOperation add16TableAluOperation = new AluOperation() {
     public int execute(int reg16, int oper16, int carry) {
       oper16 += reg16;
-      boolean carryFlag = oper16 > 0xffff;
+      int i = oper16 > 0xffff ? 1 : 0;
       data = (data & FLAG_SZP_MASK) | ((oper16 >>> 8) & FLAG_53_MASK);
       oper16 &= 0xffff;
-      if ((oper16 & 0x0fff) < (reg16 & 0x0fff)) {
-        data |= HALFCARRY_MASK;
-      }
+      if ((oper16 & 0x0fff) < (reg16 & 0x0fff)) data |= HALFCARRY_MASK;
       memptr = reg16 + 1;
       flagQ = true;
-      data = data | (carryFlag ? 1 : 0);
+      data = data | i;
       return oper16;
     }
   };

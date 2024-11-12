@@ -29,16 +29,17 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 public class Adc16<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
   public static final AluOperation adc16TableAluOperation = new AluOperation() {
     public int execute(int b, int a, int carry) {
-      data = carry;
-      int lans = a + b + carry;
-      int ans = lans & 0xffff;
-      setS((ans & (FLAG_S << 8)) != 0);
-      setZ(ans == 0);
-      setC(lans > 0xFFFF);
-      setOverflowFlagAdd16(a, b, carry);
-      setH((((a & 0x0fff) + (b & 0x0fff) + carry) & 0x1000) != 0);
-      resetN();
-      return ans;
+      int res = a + b;
+      if (carry == 1) res++;
+      int i = res > 0xffff ? 1 : 0;
+      res &= 0xffff;
+      data = sz53n_addTable[res >> 8];
+      if (res != 0) data &= ~ZERO_MASK;
+      if (((res ^ a ^ b) & 0x1000) != 0) data |= HALFCARRY_MASK;
+      if (((a ^ ~b) & (a ^ res)) > 0x7fff) data |= OVERFLOW_MASK;
+      flagQ = true;
+      data = data | i;
+      return res;
     }
   };
 
