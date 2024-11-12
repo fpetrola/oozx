@@ -61,20 +61,15 @@ public class FuseTests {
   @MethodSource("fuseTests")
   @Execution(ExecutionMode.CONCURRENT)
   public void testFuseTest(FuseTest fuseTest) {
-    List<String> list = Arrays.asList("27_1", "27", "ed57", "ed5e", "ed5f", "ed6e", "eda2", "eda3", "eda9", "edaa", "edab", "edb2", "edb3", "edb9", "edba", "edbb");
-    list = new ArrayList<>();
-    if (list.stream().noneMatch(fuseTest.testId::startsWith)) {
-      FuseResult fuseResult = theResults.stream()
-          .filter(result -> result.getTestId().equals(fuseTest.testId))
-          .findFirst()
-          .orElseThrow(() -> new AssertionError("Result not found for test: " + fuseTest.testId));
+    FuseResult fuseResult = theResults.stream()
+        .filter(result -> result.getTestId().equals(fuseTest.testId))
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("Result not found for test: " + fuseTest.testId));
 
-      fuseTest.initCpu();
-      boolean runResult = fuseTest.run(fuseResult.getExpectedPC());
+    fuseTest.initCpu();
+    boolean runResult = fuseTest.run(fuseResult.getExpectedPC());
 
-      Assertions.assertTrue(runResult, "Test timed-out.");
-      fuseResult.verify(fuseTest.cpu);
-    } else
-      Assertions.assertTrue(true, "OK");
+    Assertions.assertTrue(runResult, "Test timed-out.");
+    fuseResult.verify(fuseTest.cpu);
   }
 }
