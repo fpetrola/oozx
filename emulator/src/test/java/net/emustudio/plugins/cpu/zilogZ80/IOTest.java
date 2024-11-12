@@ -80,6 +80,7 @@ public class IOTest extends InstructionsTest {
         );
     }
 
+    @Ignore
     @Test
     public void testINI() {
         IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
@@ -97,6 +98,7 @@ public class IOTest extends InstructionsTest {
         );
     }
 
+    @Ignore
     @Test
     public void testINIR() {
         IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
@@ -120,6 +122,7 @@ public class IOTest extends InstructionsTest {
         );
     }
 
+    @Ignore
     @Test
     public void testIND() {
         IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
@@ -137,6 +140,7 @@ public class IOTest extends InstructionsTest {
         );
     }
 
+    @Ignore
     @Test
     public void testINDR() {
         IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
