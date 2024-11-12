@@ -144,4 +144,15 @@ public abstract class TableOpCodeGenerator<T> extends OpcodeTargets<T> {
     return opcodes;
   }
 
+  public OpcodeReference replaceLowHigh(OpcodeReference source, RegisterName lowRegisterName, RegisterName highRegisterName) {
+    if (source instanceof Register) {
+      Register register = (Register) source;
+      if (register.getName().equals(lowRegisterName.toString()))
+        return r(L);
+      else if (register.getName().equals(highRegisterName.toString()))
+        return r(H);
+    }
+
+    return source;
+  }
 }
