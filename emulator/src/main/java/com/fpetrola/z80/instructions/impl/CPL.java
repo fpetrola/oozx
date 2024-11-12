@@ -31,6 +31,8 @@ public class CPL<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
       a = (a ^ 0x00FF) & 0x00FF;
       setH();
       setN();
+      setUnusedFlags(a);
+
       return a;
     }
   };

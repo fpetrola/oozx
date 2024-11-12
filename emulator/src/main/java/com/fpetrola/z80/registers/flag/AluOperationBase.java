@@ -19,6 +19,63 @@
 package com.fpetrola.z80.registers.flag;
 
 public class AluOperationBase {
+  protected int sz5h3pnFlags;
+  protected int memptr;
+  protected boolean flagQ, lastFlagQ;
+
+  public static final int CARRY_MASK = 0x01;
+  public static final int ADDSUB_MASK = 0x02;
+  public static final int PARITY_MASK = 0x04;
+  public static final int OVERFLOW_MASK = 0x04; // alias de PARITY_MASK
+  public static final int BIT3_MASK = 0x08;
+  public static final int HALFCARRY_MASK = 0x10;
+  public static final int BIT5_MASK = 0x20;
+  public static final int ZERO_MASK = 0x40;
+  public static final int SIGN_MASK = 0x80;
+  // Máscaras de conveniencia
+  public static final int FLAG_53_MASK = BIT5_MASK | BIT3_MASK;
+  public static final int FLAG_SZ_MASK = SIGN_MASK | ZERO_MASK;
+  public static final int FLAG_SZHN_MASK = FLAG_SZ_MASK | HALFCARRY_MASK | ADDSUB_MASK;
+  public static final int FLAG_SZP_MASK = FLAG_SZ_MASK | PARITY_MASK;
+  public static final int FLAG_SZHP_MASK = FLAG_SZP_MASK | HALFCARRY_MASK;
+
+  protected static final int[] sz53n_addTable = new int[256];
+  public static final int sz53pn_addTable[] = new int[256];
+  private static final int sz53n_subTable[] = new int[256];
+  private static final int sz53pn_subTable[] = new int[256];
+  static {
+    boolean evenBits;
+
+    for (int idx = 0; idx < 256; idx++) {
+      if (idx > 0x7f) {
+        sz53n_addTable[idx] |= SIGN_MASK;
+      }
+
+      evenBits = true;
+      for (int mask = 0x01; mask < 0x100; mask <<= 1) {
+        if ((idx & mask) != 0) {
+          evenBits = !evenBits;
+        }
+      }
+
+      sz53n_addTable[idx] |= (idx & FLAG_53_MASK);
+      sz53n_subTable[idx] = sz53n_addTable[idx] | ADDSUB_MASK;
+
+      if (evenBits) {
+        sz53pn_addTable[idx] = sz53n_addTable[idx] | PARITY_MASK;
+        sz53pn_subTable[idx] = sz53n_subTable[idx] | PARITY_MASK;
+      } else {
+        sz53pn_addTable[idx] = sz53n_addTable[idx];
+        sz53pn_subTable[idx] = sz53n_subTable[idx];
+      }
+    }
+
+    sz53n_addTable[0] |= ZERO_MASK;
+    sz53pn_addTable[0] |= ZERO_MASK;
+    sz53n_subTable[0] |= ZERO_MASK;
+    sz53pn_subTable[0] |= ZERO_MASK;
+  }
+
   public static final int FLAG_5 = 0x20;
   public static final int FLAG_3 = 0x08;
   protected final static int byteSize = 8;

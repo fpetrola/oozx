@@ -421,7 +421,7 @@ public class DefaultInstructionFactory<T extends WordNumber> implements Instruct
 
   @Override
   public SCF SCF() {
-    return new SCF<T>(flag);
+    return new SCF<T>(flag, a);
   }
 
   @Override

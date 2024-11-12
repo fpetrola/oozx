@@ -47,6 +47,7 @@ public class RR<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T
       setPV(parity[a]);
       resetN();
       // put value back
+      setUnusedFlags(a);
 
       return a;
     }

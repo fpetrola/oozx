@@ -28,48 +28,35 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 public class BIT<T extends WordNumber> extends BitOperation<T> {
   public static final AluOperation testBitTableAluOperation = new AluOperation() {
     public int execute(int bit, int value, int carry) {
-      resetS();
+      int s = data & SIGN_MASK;
+      int f = data;
+      f = (f & CARRY_MASK) | HALFCARRY_MASK | (value & (FLAG_3 | FLAG_5));
+      int mask = 1 << bit;
+      boolean zeroFlag = (mask & value) == 0;
 
-      switch (bit) {
-        case 0: {
-          value = value & setBit0;
-          break;
-        }
-        case 1: {
-          value = value & setBit1;
-          break;
-        }
-        case 2: {
-          value = value & setBit2;
-          break;
-        }
-        case 3: {
-          value = value & setBit3;
-          break;
-        }
-        case 4: {
-          value = value & setBit4;
-          break;
-        }
-        case 5: {
-          value = value & setBit5;
-          break;
-        }
-        case 6: {
-          value = value & setBit6;
-          break;
-        }
-        case 7: {
-          value = value & setBit7;
-          setS(value != 0);
-          break;
-        }
+      if ((value & mask) == 0) {
+        f |= PARITY_MASK | ZERO_MASK;
       }
-      setZ(0 == value);
-      setPV(0 == value);
-      resetN();
-      setH();
-
+      if (mask == SIGN_MASK && !zeroFlag) {
+        f |= SIGN_MASK;
+      }
+//      int reg = value;
+//      int mask = 1 << bit;
+//      boolean zeroFlag = (mask & reg) == 0;
+//
+//      sz5h3pnFlags = sz53n_addTable[reg] & ~FLAG_SZP_MASK | HALFCARRY_MASK;
+//
+//      if (zeroFlag) {
+//        sz5h3pnFlags |= (PARITY_MASK | ZERO_MASK);
+//      }
+//
+//      if (mask == SIGN_MASK && !zeroFlag) {
+//        sz5h3pnFlags |= SIGN_MASK;
+//      }
+//      flagQ = true;
+//
+//      data = sz5h3pnFlags | carry;
+      data = f;
       return value;
     }
   };

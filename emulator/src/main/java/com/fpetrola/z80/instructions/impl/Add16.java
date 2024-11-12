@@ -28,24 +28,18 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Add16<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
   public static final AluOperation add16TableAluOperation = new AluOperation() {
-    public int execute(int value2, int value, int carry) {
-      int operand = value;
-      int result = value2 + value; // ADD HL,rr
-      resetN(); // N = 0;
-      //
-      int temp = (value2 & 0x0FFF) + (operand & 0x0FFF);
-      if ((temp & 0xF000) != 0)
-        setH();
-      else
-        resetH();
-      if (result > lsw) // overflow ?
-      {
-        setC();
-        return result & lsw;
-      } else {
-        resetC();
-        return result;
+    public int execute(int reg16, int oper16, int carry) {
+      oper16 += reg16;
+      boolean carryFlag = oper16 > 0xffff;
+      data = (data & FLAG_SZP_MASK) | ((oper16 >>> 8) & FLAG_53_MASK);
+      oper16 &= 0xffff;
+      if ((oper16 & 0x0fff) < (reg16 & 0x0fff)) {
+        data |= HALFCARRY_MASK;
       }
+      memptr = reg16 + 1;
+      flagQ = true;
+      data = data | (carryFlag ? 1 : 0);
+      return oper16;
     }
   };
 

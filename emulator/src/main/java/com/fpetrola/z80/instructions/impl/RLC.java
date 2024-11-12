@@ -51,6 +51,7 @@ public class RLC<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
       // put value back
       a = a & 0x00FF;
       setPV(parity[a]);
+      setUnusedFlags(a);
 
       return a;
     }

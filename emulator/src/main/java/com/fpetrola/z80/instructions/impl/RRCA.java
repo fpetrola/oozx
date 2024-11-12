@@ -24,12 +24,12 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RRCA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
-  public static final AluOperation rrcaTableAluOperation = new AluOperation() {
+  public static final AluOperation rrcaTableAluOperation = new TableAluOperation() {
     public int execute(int a, int carry) {
       boolean c = (a & 0x0001) != 0;
-
       a = (a >> 1);
       if (c) {
         setC();
@@ -38,6 +38,7 @@ public class RRCA<T extends WordNumber> extends ParameterizedUnaryAluInstruction
         resetC();
       resetH();
       resetN();
+      setUnusedFlags(a);
 
       return a;
     }

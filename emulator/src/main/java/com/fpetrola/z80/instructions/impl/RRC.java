@@ -44,6 +44,7 @@ public class RRC<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
       resetH();
       setPV(parity[a]);
       resetN();
+      setUnusedFlags(a);
 
       return a;
     }
