@@ -80,7 +80,7 @@ public class FuseResult<T extends WordNumber> {
         int addr = memoryData[0];
         for (int value : Arrays.copyOfRange(memoryData, 1, memoryData.length)) {
           int actual = cpu.getState().getMemory().getData()[addr++].intValue();
-          Assertions.assertEquals(value, actual, "Memory mismatch at address " + Integer.toHexString(addr));
+          Assertions.assertEquals(value, actual, "Memory mismatch at address " + Integer.toHexString(addr - 1));
         }
       }
     }

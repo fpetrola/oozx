@@ -18,8 +18,7 @@
 
 package fuse;
 
-import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.cpu.Z80Cpu;
+import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
 
@@ -36,15 +35,20 @@ public class FuseTest<T extends WordNumber> {
   public final String state;
   public final String memory;
   public final String testId;
+  public Z80Cpu<T> cpu;
+  private String name = "";
 
-  public FuseTest(String testId, String registers, String state, String memory) {
+  public FuseTest(String testId, String registers, String state, String memory, Z80Cpu<T> z80Cpu) {
     this.testId = testId;
     this.registers = registers;
     this.state = state;
     this.memory = memory;
+    cpu = z80Cpu;
   }
 
-  public void initCpu(Z80Cpu<T> cpu) {
+  public void initCpu() {
+    cpu.reset();
+
     List<Integer> registersArray = Arrays.stream(registers.split(" "))
         .filter(s -> !s.isEmpty()).map(s -> Integer.parseInt(s, 16)).toList();
 
@@ -61,13 +65,13 @@ public class FuseTest<T extends WordNumber> {
     cpu.getState().setIff1(stateArray.get(2) != 0);
     cpu.getState().setIff2(stateArray.get(3) != 0);
     cpu.getState().setIntMode(State.InterruptionMode.values()[stateArray.get(4).intValue()]);
+    cpu.getState().setHalted(false);
 
     boolean isHalted = stateArray.get(5) != 0;
     if (isHalted) {
       throw new UnsupportedOperationException("Halted state is not supported.");
     }
 
-    // Load memory
     for (String memoryLine : memory.split("\n")) {
       if (!memoryLine.isBlank()) {
         List<Integer> memoryArray = Arrays.stream(memoryLine.split(" ")).filter(s -> !s.equals("-1")).map(s -> Integer.parseInt(s, 16)).collect(Collectors.toList());
@@ -82,20 +86,25 @@ public class FuseTest<T extends WordNumber> {
 
   @Override
   public String toString() {
-    return "FuseTest{" +
-        "id='" + testId + '\'' +
-        ", memory='" + memory + '\'' +
-        ", state='" + state + '\'' +
-        ", registers='" + registers + '\'' +
-        '}';
+    return name + "   [id='" + testId + '\'' +
+        ", memory='" + memory.replace(" -1", " | ") + '\'' +
+        ']';
   }
 
-  public boolean run(Z80Cpu<WordNumber> cpu, int expectedPc) {
+  public boolean run(int expectedPc) {
     int ticks = 0;
+    int i;
     do {
       cpu.execute();
-    } while (cpu.getState().getPc().read().intValue() < expectedPc && ticks++ < 65536);
-
+      i = cpu.getState().getPc().read().intValue();
+//      System.out.println("pc: " + i + " - expected: " + expectedPc + " - ticks: " + ticks);
+    } while (i < expectedPc && ticks++ < 65536);
     return ticks < 65536;
+  }
+
+  public void run() {
+    cpu.execute();
+    cpu.getState().getPc().write(createValue(0));
+    name = ((FuseTestParser.MyDefaultInstructionFetcher) cpu.getInstructionFetcher()).getLastInstruction().toString();
   }
 }

@@ -18,6 +18,16 @@
 
 package fuse;
 
+import com.fpetrola.z80.cpu.*;
+import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
+import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.minizx.emulation.MockedMemory;
+import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
+import com.fpetrola.z80.opcodes.references.OpcodeConditions;
+import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.spy.NullInstructionSpy;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,6 +36,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class FuseTestParser {
   private final File inFile;
@@ -45,6 +57,8 @@ public class FuseTestParser {
       List<FuseTest> tests = new ArrayList<>();
       Iterator<String> iterator = inLines.iterator();
 
+      Z80Cpu z80Cpu = getZ80Cpu();
+
       while (iterator.hasNext()) {
         String testId = iterator.next();
         String registers = iterator.next(); // AF BC DE HL AF' BC' DE' HL' IX IY SP PC
@@ -56,13 +70,49 @@ public class FuseTestParser {
           memory.append("\n").append(line);
         }
 
-        tests.add(new FuseTest(testId, registers, state, memory.toString()));
+        FuseTest fuseTest = new FuseTest(testId, registers, state, memory.toString(), z80Cpu);
+        fuseTest.initCpu();
+        fuseTest.run();
+        tests.add(fuseTest);
       }
       return tests;
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
+
+  private Z80Cpu getZ80Cpu() {
+    var state = new State(new IO<WordNumber>() {
+      public WordNumber in(WordNumber port) {
+        return createValue(port.intValue() >> 8);
+      }
+
+      public void out(WordNumber port, WordNumber value) {
+      }
+    }, new MockedMemory(true));
+    NullInstructionSpy spy = new NullInstructionSpy();
+    DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory<WordNumber>(state);
+    DefaultInstructionFetcher instructionFetcher = new MyDefaultInstructionFetcher(state, spy, instructionFactory);
+    Z80Cpu cpu = (OOZ80<WordNumber>) new OOZ80(state, instructionFetcher);
+    return cpu;
+  }
+
+  public static class MyDefaultInstructionFetcher extends DefaultInstructionFetcher {
+    public MyDefaultInstructionFetcher(State state, NullInstructionSpy spy, DefaultInstructionFactory instructionFactory) {
+      super(state, new OpcodeConditions(state.getFlag(), state.getRegister(RegisterName.B)), new FetchNextOpcodeInstructionFactory(spy, state), new SpyInstructionExecutor(spy), instructionFactory);
+    }
+
+    public Instruction getLastInstruction() {
+      return instruction;
+    }
+
+    public void reset() {
+      super.reset();
+      createOpcodeTables();
+    }
+
+  }
+
 
   public List<FuseResult> getResults() {
     try {
