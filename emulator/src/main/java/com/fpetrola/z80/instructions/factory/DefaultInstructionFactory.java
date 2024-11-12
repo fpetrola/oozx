@@ -33,7 +33,7 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 public class DefaultInstructionFactory<T extends WordNumber> implements InstructionFactory<T> {
   private RegisterPair<T> bc;
   private Register<T> de;
-  private Register<T> hl;
+  private RegisterPair<T> hl;
   protected Memory<T> memory;
   private Register<T> c;
   private Register<T> _bc;
@@ -41,6 +41,7 @@ public class DefaultInstructionFactory<T extends WordNumber> implements Instruct
   private Register<T> _hl;
   protected Register<T> sp;
   private Register<T> r;
+  private Register<T> i;
   private Register<T> a;
   private Register<T> b;
   protected State<T> state;
@@ -66,11 +67,12 @@ public class DefaultInstructionFactory<T extends WordNumber> implements Instruct
     c = state.getRegister(B);
     bc = (RegisterPair<T>) state.getRegister(BC);
     de = state.getRegister(DE);
-    hl = state.getRegister(HL);
+    hl = (RegisterPair<T>) state.getRegister(HL);
     _bc = state.getRegister(BCx);
     _de = state.getRegister(DEx);
     _hl = state.getRegister(HLx);
     r = state.getRegister(R);
+    i = state.getRegister(I);
     memory = state.getMemory();
   }
 
@@ -307,6 +309,11 @@ public class DefaultInstructionFactory<T extends WordNumber> implements Instruct
   @Override
   public LdAR<T> LdAR(OpcodeReference<T> target, ImmutableOpcodeReference<T> source) {
     return new LdAR<T>(target, source, flag, state);
+  }
+
+  @Override
+  public LdAI<T> LdAI() {
+    return new LdAI<T>(a, i, flag, state);
   }
 
   @Override

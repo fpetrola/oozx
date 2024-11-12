@@ -47,7 +47,7 @@ public class Ldi<T extends WordNumber> extends BlockInstruction<T> {
 
   protected Register<T> de;
 
-  public Ldi(Register<T> de, RegisterPair<T> bc, Register<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
+  public Ldi(Register<T> de, RegisterPair<T> bc, RegisterPair<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
     super(bc, hl, flag, memory, io);
     this.de = de;
   }
@@ -55,19 +55,20 @@ public class Ldi<T extends WordNumber> extends BlockInstruction<T> {
   public int execute() {
     memory.disableReadListener();
     memory.disableWriteListener();
-    memory.write(de.read(), memory.read(hl.read()));
+    T read = memory.read(hl.read());
+    memory.write(de.read(), read);
 
     next();
     bc.decrement();
 
-    flagOperation();
+    flagOperation(read);
     memory.enableReadListener();
     memory.enableWriteListener();
 
     return 1;
   }
 
-  protected void flagOperation() {
+  protected void flagOperation(T valueFromHL) {
     ldiTableAluOperation.executeWithCarry(bc.read(), flag);
   }
 

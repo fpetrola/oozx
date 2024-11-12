@@ -60,11 +60,11 @@ public class FuseTest<T extends WordNumber> {
 
     List<Integer> stateArray = Arrays.stream(state.split(" ")).filter(s -> !s.isEmpty()).map(s -> Integer.parseInt(s, 16)).toList();
 
-    cpu.getState().getRegister(I).write(createValue(stateArray.get(0).byteValue()));
-    cpu.getState().getRegister(R).write(createValue(stateArray.get(1).byteValue()));
+    cpu.getState().getRegister(I).write(createValue(stateArray.get(0)));
+    cpu.getState().getRegister(R).write(createValue(stateArray.get(1)));
     cpu.getState().setIff1(stateArray.get(2) != 0);
     cpu.getState().setIff2(stateArray.get(3) != 0);
-    cpu.getState().setIntMode(State.InterruptionMode.values()[stateArray.get(4).intValue()]);
+    cpu.getState().setIntMode(State.InterruptionMode.values()[stateArray.get(4)]);
     cpu.getState().setHalted(false);
 
     boolean isHalted = stateArray.get(5) != 0;

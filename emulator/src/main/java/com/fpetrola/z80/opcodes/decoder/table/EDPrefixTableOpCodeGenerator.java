@@ -51,7 +51,7 @@ public class EDPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
       case 6:
         return i.IM(im[y]);
       case 7:
-        return select(i.Ld(r(I), r(A)), i.Ld(r(R), r(A)), i.Ld(r(A), r(I)), i.LdAR(r(A), r(R)), i.RRD(), i.RLD(), i.Nop(), i.Nop())[y];
+        return select(i.Ld(r(I), r(A)), i.Ld(r(R), r(A)), i.LdAI(), i.LdAR(r(A), r(R)), i.RRD(), i.RLD(), i.Nop(), i.Nop())[y];
       }
     case 2:
       if (z <= 3 && y >= 4)

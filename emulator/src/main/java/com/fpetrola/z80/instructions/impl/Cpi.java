@@ -29,7 +29,7 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Cpi<T extends WordNumber> extends BlockInstruction<T> {
-  public static final AluOperation cpiTableAluOperation = new TableAluOperation() {
+  public static final AluOperation cpiTableAluOperation = new AluOperation() {
     public int execute(int reg_A, int value, int carry) {
       data= carry;
       //    reg_R++;
@@ -73,7 +73,7 @@ public class Cpi<T extends WordNumber> extends BlockInstruction<T> {
 
   protected Register<T> a;
 
-  public Cpi(Register<T> a, Register<T> flag, RegisterPair<T> bc, Register<T> hl, Memory<T> memory, IO<T> io) {
+  public Cpi(Register<T> a, Register<T> flag, RegisterPair<T> bc, RegisterPair<T> hl, Memory<T> memory, IO<T> io) {
     super(bc, hl, flag, memory, io);
     this.a = a;
   }
@@ -82,14 +82,14 @@ public class Cpi<T extends WordNumber> extends BlockInstruction<T> {
     memory.disableReadListener();
     memory.disableWriteListener();
     bc.decrement();
-    flagOperation();
+    flagOperation(bc.read());
     next();
     memory.enableReadListener();
     memory.enableWriteListener();
     return 1;
   }
 
-  protected void flagOperation() {
+  protected void flagOperation(T valueFromHL) {
     T value = memory.read(hl.read());
     T reg_A = a.read();
     cpiTableAluOperation.executeWithCarry2(value, reg_A, bc.read().isNotZero() ? 1 : 0, flag);

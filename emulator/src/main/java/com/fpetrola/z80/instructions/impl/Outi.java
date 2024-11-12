@@ -24,19 +24,25 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
+import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Outi<T extends WordNumber> extends BlockInstruction<T> {
-  public static final TableAluOperation outiTableAluOperation = new TableAluOperation() {
-    public int execute(int b, int carry) {
-      b = (b - 1) & lsb;
-      setZ(b == 0);
-      setN();
-      return b;
+  public static final AluOperation outiTableAluOperation = new AluOperation() {
+    public <T extends WordNumber> T executeWithCarry(T value, T b, Register<T> l) {
+      int work8 = value.intValue() & 0xff;
+      int regB = b.intValue() & 0xff;
+      int regL = l.read().intValue() & 0xFF;
+      regB = decAndSetFlags(regB);
+      setH(work8 + regL > 255);
+      setC(work8 + regL > 255);
+      setPV(isEvenParity(((work8 + regL) & 7) ^ regB));
+      setN((work8 & 0x80) != 0);
+      return WordNumber.createValue(data);
     }
   };
 
-  public Outi(RegisterPair<T> bc, Register<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
+  public Outi(RegisterPair<T> bc, RegisterPair<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
     super(bc, hl, flag, memory, io);
   }
 
@@ -47,12 +53,13 @@ public class Outi<T extends WordNumber> extends BlockInstruction<T> {
     io.out(cValue, valueFromHL);
     next();
     bc.getHigh().decrement();
-    flagOperation();
+    flagOperation(valueFromHL);
 
     return 1;
   }
 
-  protected void flagOperation() {
-    outiTableAluOperation.executeWithCarry(bc.getHigh().read(), flag);
+  protected void flagOperation(T valueFromHL) {
+    T t = outiTableAluOperation.executeWithCarry(valueFromHL, bc.getHigh().read(), hl.getLow());
+    flag.write(t);
   }
 }

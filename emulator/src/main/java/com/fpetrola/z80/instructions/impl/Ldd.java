@@ -25,11 +25,11 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 
 public class Ldd<T extends WordNumber> extends Ldi<T> {
-  public Ldd(Register<T> de, RegisterPair<T> bc, Register<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
+  public Ldd(Register<T> de, RegisterPair<T> bc, RegisterPair<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
     super(de, bc, hl, flag, memory, io);
   }
 
-  protected void flagOperation() {
+  protected void flagOperation(T valueFromHL) {
     Ldi.ldiTableAluOperation.executeWithCarry(bc.read(), flag);
   }
 
