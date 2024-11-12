@@ -35,7 +35,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   private boolean canDisable;
 
   public MockedMemory(boolean canDisable1) {
-    this.canDisable= canDisable1;
+    this.canDisable = canDisable1;
   }
 
   public void init(Supplier<T[]> supplier) {
@@ -61,7 +61,8 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
         memoryWriteListener.writtingMemoryAt(address, value);
 //      if (address.intValue() == 23548)
 //        System.out.println("");
-      data[address.intValue()] = value;
+      if (address.intValue() < 0x10000)
+        data[address.intValue()] = value;
     }
   }
 

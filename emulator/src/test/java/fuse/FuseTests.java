@@ -36,6 +36,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -60,7 +61,7 @@ public class FuseTests {
   @Execution(ExecutionMode.CONCURRENT)
   public void testFuseTest(FuseTest fuseTest) {
     List<String> list = Arrays.asList("27_1", "27", "ed57", "ed5e", "ed5f", "ed6e", "eda2", "eda3", "eda9", "edaa", "edab", "edb2", "edb3", "edb9", "edba", "edbb");
-
+//    list = new ArrayList<>();
     if (list.stream().noneMatch(fuseTest.testId::startsWith)) {
       FuseResult fuseResult = theResults.stream()
           .filter(result -> result.getTestId().equals(fuseTest.testId))
