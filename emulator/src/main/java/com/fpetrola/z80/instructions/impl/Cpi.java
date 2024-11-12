@@ -29,7 +29,7 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Cpi<T extends WordNumber> extends BlockInstruction<T> {
-  public static final AluOperation cpiTableAluOperation = new AluOperation() {
+  public static final AluOperation cpiTableAluOperation = new TableAluOperation() {
     public int execute(int reg_A, int value, int carry) {
       data= carry;
       //    reg_R++;

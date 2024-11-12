@@ -23,11 +23,12 @@ import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class SCF<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
-  public static final AluOperation scfTableAluOperation = new AluOperation() {
-    public int execute(int a, int carry) {
-      data = (data & (PARITY_MASK | ZERO_MASK | SIGN_MASK)) | CARRY_MASK | (a & (FLAG_3 | FLAG_5));
+  public static final AluOperation scfTableAluOperation = new TableAluOperation() {
+    public int execute(int data1, int a, int carry) {
+      data = (data1 & (PARITY_MASK | ZERO_MASK | SIGN_MASK)) | CARRY_MASK | (a & (FLAG_3 | FLAG_5));
       return data;
     }
   };
@@ -37,7 +38,7 @@ public class SCF<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
   }
 
   public int execute() {
-    scfTableAluOperation.executeWithCarry(target.read(), flag);
+    scfTableAluOperation.executeWithCarry(target.read(), flag.read(), flag);
     return 4;
   }
 

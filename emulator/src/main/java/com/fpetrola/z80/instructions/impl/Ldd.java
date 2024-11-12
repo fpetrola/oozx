@@ -30,7 +30,7 @@ public class Ldd<T extends WordNumber> extends Ldi<T> {
   }
 
   protected void flagOperation(T valueFromHL) {
-    Ldi.ldiTableAluOperation.executeWithCarry(bc.read(), flag);
+    Ldi.ldiTableAluOperation.executeWithCarry(bc.read(), flag.read(), flag);
   }
 
   protected void next() {

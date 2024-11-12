@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class LdAI<T extends WordNumber> extends Ld<T> {
-  public static final AluOperation ldaiTableAluOperation = new AluOperation() {
+  public static final AluOperation ldaiTableAluOperation = new TableAluOperation() {
     public int execute(int reg_R, int reg_A, int carry) {
       setC(false);
       setS(!isBytePositive(reg_R));

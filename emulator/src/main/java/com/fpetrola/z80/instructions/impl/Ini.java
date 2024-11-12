@@ -28,7 +28,7 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Ini<T extends WordNumber> extends BlockInstruction<T> {
-  public static final AluOperation iniTableAluOperation = new AluOperation() {
+  public static final AluOperation iniTableAluOperation = new TableAluOperation() {
     public <T extends WordNumber> T executeWithCarry(T value, T b, Register<T> c) {
       int hlMem = value.intValue() & 0xff;
       int regB = b.intValue() & 0xff;

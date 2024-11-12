@@ -23,11 +23,12 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class CCF<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
-  public static final AluOperation ccfTableAluOperation = new AluOperation() {
-    public int execute(int a, int carry) {
-      data = (data & (PARITY_MASK | ZERO_MASK | SIGN_MASK)) | ((data & CARRY_MASK) != 0 ? HALFCARRY_MASK : CARRY_MASK) | (a & (FLAG_3 | FLAG_5));
+  public static final AluOperation ccfTableAluOperation = new TableAluOperation() {
+    public int execute(int data1, int a, int carry) {
+      data = (data1 & (PARITY_MASK | ZERO_MASK | SIGN_MASK)) | ((data1 & CARRY_MASK) != 0 ? HALFCARRY_MASK : CARRY_MASK) | (a & (FLAG_3 | FLAG_5));
       return data;
     }
   };
@@ -37,7 +38,7 @@ public class CCF<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
   }
 
   public int execute() {
-    ccfTableAluOperation.executeWithCarry(target.read(), flag);
+    ccfTableAluOperation.executeWithCarry(target.read(), flag.read(), flag);
     return 4;
   }
 

@@ -24,9 +24,10 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Ind<T extends WordNumber> extends Ini<T> {
-  public static final AluOperation indTableAluOperation = new AluOperation() {
+  public static final AluOperation indTableAluOperation = new TableAluOperation() {
     public <T extends WordNumber> T executeWithCarry(T value, T b, Register<T> c) {
       int hlMem = value.intValue() & 0xff;
       int regB = b.intValue() & 0xff;
