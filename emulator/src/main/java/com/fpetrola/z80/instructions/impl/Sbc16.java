@@ -32,20 +32,14 @@ public class Sbc16<T extends WordNumber> extends ParameterizedBinaryAluInstructi
       data = carry;
       int a = HL;
       int b = DE;
-      int c = getC() ? 1 : 0;
-      int lans = (a - b) - c;
+      int lans = (a - b) - carry;
       int ans = lans & 0xffff;
       setS((ans & (FLAG_S << 8)) != 0);
       setZ(ans == 0);
       setC(lans < 0);
-      // setPV( ((a ^ b) & (a ^ value) & 0x8000)!=0 );
-      setOverflowFlagSub16(a, b, c);
-      if ((((a & 0x0fff) - (b & 0x0fff) - c) & 0x1000) != 0)
-        setH();
-      else
-        resetH();
+      setOverflowFlagSub16(a, b, carry);
+      setH((((a & 0x0fff) - (b & 0x0fff) - carry) & 0x1000) != 0);
       setN();
-
       return ans;
     }
   };

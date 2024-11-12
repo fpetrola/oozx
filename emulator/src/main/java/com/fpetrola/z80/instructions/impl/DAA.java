@@ -24,16 +24,18 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class DAA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
-  public static AluOperation daaTableAluOperation = new AluOperation() {
-    public int execute(int registerA, int carry, int flags) {
-      return adjustAccumulatorToBcd(registerA);
+  public static AluOperation daaTableAluOperation = new TableAluOperation() {
+    public int execute(int flag, int a, int flags) {
+      data= flag;
+      return adjustAccumulatorToBcd(a);
     }
   };
 
   public DAA(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, reg_A) -> daaTableAluOperation.executeWithCarry2(reg_A, reg_A, tFlagRegister.read().intValue(), tFlagRegister));
+    super(target, flag, (tFlagRegister, reg_A) -> daaTableAluOperation.executeWithCarry(reg_A, tFlagRegister.read(), tFlagRegister));
   }
 
   public void accept(InstructionVisitor visitor) {
