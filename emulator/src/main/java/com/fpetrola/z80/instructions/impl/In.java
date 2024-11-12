@@ -47,6 +47,7 @@ public class In<T extends WordNumber> extends TargetSourceInstruction<T, Immutab
         resetPV();
       resetN();
       resetH();
+      setUnusedFlags(a);
       return a;
     }
   };

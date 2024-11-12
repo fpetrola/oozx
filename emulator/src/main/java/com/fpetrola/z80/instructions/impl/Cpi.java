@@ -31,7 +31,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class Cpi<T extends WordNumber> extends BlockInstruction<T> {
   public static final AluOperation cpiTableAluOperation = new TableAluOperation() {
     public int execute(int reg_A, int value, int carry) {
-      data= carry;
+      data = carry;
       //    reg_R++;
       int result = reg_A - value;
       //
@@ -47,17 +47,16 @@ public class Cpi<T extends WordNumber> extends BlockInstruction<T> {
       setHalfCarryFlagSub(reg_A, value);
       setPV(carry == 1);
       setN();
-      //
-//    if (getH())
-//      value--;
-//    if ((value & 0x00002) == 0)
-//      reset5();
-//    else
-//      set5();
-//    if ((value & 0x00008) == 0)
-//      reset3();
-//    else
-//      set3();
+      if (getH())
+        value--;
+      if ((value & 0x00002) == 0)
+        reset5();
+      else
+        set5();
+      if ((value & 0x00008) == 0)
+        reset3();
+      else
+        set3();
 
       return reg_A;
     }

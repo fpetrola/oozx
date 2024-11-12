@@ -35,6 +35,7 @@ public class Ldi<T extends WordNumber> extends BlockInstruction<T> {
       resetH();
       resetN();
       setPV(bc != 0);
+      setUnusedFlags(data1);
       return data;
     }
   };

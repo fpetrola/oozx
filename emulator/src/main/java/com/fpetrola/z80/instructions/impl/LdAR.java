@@ -35,6 +35,7 @@ public class LdAR<T extends WordNumber> extends Ld<T> {
       setH(false);
       setPV(carry == 1);
       setN(false);
+      setUnusedFlags(reg_R);
       return data;
     }
   };

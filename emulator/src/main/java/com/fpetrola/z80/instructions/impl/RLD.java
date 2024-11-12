@@ -38,6 +38,7 @@ public class RLD<T extends WordNumber> extends AbstractInstruction<T> {
       resetH();
       setPV(parity[a]);
       resetN();
+      setUnusedFlags(a);
       return a;
     }
   };

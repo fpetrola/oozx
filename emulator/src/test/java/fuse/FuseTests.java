@@ -44,6 +44,7 @@ import java.util.stream.Stream;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.B;
 
+@SuppressWarnings("ALL")
 public class FuseTests {
   private static final Path FUSE_TEST_DATA_DIR = Paths.get("src", "test", "resources", "fuse");
   private static FuseTestParser fuseTestParser = new FuseTestParser(FUSE_TEST_DATA_DIR.toFile());
