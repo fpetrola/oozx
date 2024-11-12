@@ -780,4 +780,14 @@ public class AluOperationBase {
     data = AF & 0xff;
     return AF >> 8;
   }
+
+  protected void doCPD(int regA, int work8, boolean b) {
+    var oldCarry = (data & 0x01) == 1;
+    subtractAndSetFlags(regA, work8, false);
+    setPV(b);
+    setN(true);
+    setC(oldCarry);
+//      TheRegisters.Flag3 = v.IsBitSet(3);
+//      TheRegisters.Flag5 = v.IsBitSet(1);
+  }
 }

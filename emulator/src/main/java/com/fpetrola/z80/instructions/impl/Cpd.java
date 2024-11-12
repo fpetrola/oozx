@@ -24,7 +24,6 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Cpd<T extends WordNumber> extends Cpi<T> {
   public static final AluOperation cpdTableAluOperation = new AluOperation() {
@@ -32,18 +31,7 @@ public class Cpd<T extends WordNumber> extends Cpi<T> {
       doCPD(reg_A, value, carry == 1);
       return reg_A;
     }
-
-    private void doCPD(int regA, int work8, boolean b) {
-      var oldCarry = (data & 0x01) == 1;
-      subtractAndSetFlags(regA, work8, false);
-      setPV(b);
-      setN(true);
-      setC(oldCarry);
-//      TheRegisters.Flag3 = v.IsBitSet(3);
-//      TheRegisters.Flag5 = v.IsBitSet(1);
-    }
   };
-
 
   public Cpd(Register<T> a, Register flag, RegisterPair<T> bc, RegisterPair<T> hl, Memory<T> memory, IO<T> io) {
     super(a, flag, bc, hl, memory, io);
