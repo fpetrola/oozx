@@ -40,22 +40,6 @@ public class BIT<T extends WordNumber> extends BitOperation<T> {
       if (mask == SIGN_MASK && !zeroFlag) {
         f |= SIGN_MASK;
       }
-//      int reg = value;
-//      int mask = 1 << bit;
-//      boolean zeroFlag = (mask & reg) == 0;
-//
-//      sz5h3pnFlags = sz53n_addTable[reg] & ~FLAG_SZP_MASK | HALFCARRY_MASK;
-//
-//      if (zeroFlag) {
-//        sz5h3pnFlags |= (PARITY_MASK | ZERO_MASK);
-//      }
-//
-//      if (mask == SIGN_MASK && !zeroFlag) {
-//        sz5h3pnFlags |= SIGN_MASK;
-//      }
-//      flagQ = true;
-//
-//      data = sz5h3pnFlags | carry;
       data = f;
       return value;
     }
