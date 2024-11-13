@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,15 +18,26 @@
 
 package com.fpetrola.z80.opcodes.references;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.memory.Memory;
 
-public class Memory16BitReference<T extends WordNumber> implements OpcodeReference<T> {
+public class Memory16BitReference implements OpcodeReference {
+  private final Memory memory;
+  private final ImmutableOpcodeReference pc;
+  private final int delta;
 
-  private final Memory<T> memory;
-  protected T fetchedAddress;
-  private ImmutableOpcodeReference<T> pc;
-  private int delta;
+  public Memory getMemory() {
+    return memory;
+  }
+
+  public ImmutableOpcodeReference getPc() {
+    return pc;
+  }
+
+  public int getDelta() {
+    return delta;
+  }
 
   public Memory16BitReference(Memory memory, ImmutableOpcodeReference pc, int delta) {
     this.memory = memory;
@@ -34,46 +45,36 @@ public class Memory16BitReference<T extends WordNumber> implements OpcodeReferen
     this.delta = delta;
   }
 
-  public T read() {
-    return fetchAddress();
+  final public int read() {
+    return memory.read16Bits((pc.read() + delta) & 0xFFFF);
   }
 
-  public void write(T value) {
-    T address = fetchAddress();
-    Memory.write16Bits(memory, value, address);
-  }
-
-  protected T fetchAddress() {
-    memory.disableReadListener();
-    T pcValue = pc.read().plus(delta);
-    fetchedAddress = Memory.read16Bits(memory, pcValue);
-    memory.enableReadListener();
-
-    return fetchedAddress;
+  final public void write(int value) {
+    int address = memory.read16Bits((pc.read() + delta) & 0xFFFF);
+    memory.write16Bits(value, address);
   }
 
   public String toString() {
-    T read = read();
-    return read == null ? "" : "0x" + Helper.convertToHex(read.intValue()) + "";
+    Integer read = 1;
+    if (read == null) {
+      return "";
+    } else {
+      return "0x" + Helper.formatAddress(read);
+    }
   }
 
   public int getLength() {
     return 2;
   }
 
+  public void accept(InstructionVisitor instructionVisitor) {
+    if (!instructionVisitor.visitMemory16BitReference(this))
+      OpcodeReference.super.accept(instructionVisitor);
+  }
+
   public Object clone() throws CloneNotSupportedException {
-    T lastFetchedAddress = fetchedAddress;
-    return new MyMemory16BitReference(lastFetchedAddress, memory, pc, delta);
+    int lastFetchedAddress = 1;
+    return new CachedMemory16BitReference(lastFetchedAddress, memory, pc, delta);
   }
 
-  private class MyMemory16BitReference extends Memory16BitReference<T> {
-    public MyMemory16BitReference(T lastFetchedAddress, Memory<T> memory, ImmutableOpcodeReference<T> pc, int delta) {
-      super(memory, pc, delta);
-      this.fetchedAddress = lastFetchedAddress;
-    }
-
-    protected T fetchAddress() {
-      return fetchedAddress;
-    }
-  }
 }

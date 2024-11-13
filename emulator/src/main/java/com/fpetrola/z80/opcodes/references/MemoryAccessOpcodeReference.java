@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -21,22 +21,22 @@ package com.fpetrola.z80.opcodes.references;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
 
-public class MemoryAccessOpcodeReference<T extends WordNumber> implements OpcodeReference<T> {
-  public ImmutableOpcodeReference<T> getC() {
+public class MemoryAccessOpcodeReference implements OpcodeReference {
+  public ImmutableOpcodeReference getC() {
     return c;
   }
 
-  private final ImmutableOpcodeReference<T> c;
-  private Memory<T> mem;
+  private final ImmutableOpcodeReference c;
+  private final Memory mem;
 
-  public MemoryAccessOpcodeReference(ImmutableOpcodeReference<T> c, Memory mem) {
+  public MemoryAccessOpcodeReference(ImmutableOpcodeReference c, Memory mem) {
     this.c = c;
     this.mem = mem;
   }
 
   @Override
-  public T read() {
-    return mem.read(c.read());
+  public int read() {
+    return mem.read(c.read(), 0);
   }
 
   @Override
@@ -45,13 +45,13 @@ public class MemoryAccessOpcodeReference<T extends WordNumber> implements Opcode
   }
 
   @Override
-  public void write(T value) {
+  public void write(int value) {
     this.mem.write(c.read(), value);
   }
 
   @Override
   public Object clone() throws CloneNotSupportedException {
-    return new MemoryAccessOpcodeReference<>(c, mem);
+    return new MemoryAccessOpcodeReference(c, mem);
   }
 
   @Override

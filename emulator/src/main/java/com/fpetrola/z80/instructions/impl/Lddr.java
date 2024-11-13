@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -21,21 +21,20 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterPair;
 
-public class Lddr<T extends WordNumber> extends RepeatingInstruction<T> {
-  public Lddr(ImmutableOpcodeReference<T> pc, RegisterPair<T> bc, Ldd ldd) {
+public class Lddr extends RepeatingInstruction {
+  public Lddr(ImmutableOpcodeReference pc, RegisterPair bc, Ldd ldd) {
     super(ldd, pc, bc);
   }
 
   protected boolean checkLoopCondition() {
-    return bc.read().isNotZero();
+    return bc.read() != 0;
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitLddr(this);
+  public void accept(InstructionVisitor<?> visitor) {
+    if (!visitor.visitLddr(this))
+      super.accept(visitor);
   }
 }

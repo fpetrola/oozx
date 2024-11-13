@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,9 +18,10 @@
 
 package com.fpetrola.z80.opcodes.decoder.table;
 
+import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
@@ -33,20 +34,19 @@ import static com.fpetrola.z80.registers.Flags.*;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 @SuppressWarnings("ALL")
-public abstract class TableOpCodeGenerator<T> extends OpcodeTargets<T> {
+public abstract class TableOpCodeGenerator extends OpcodeTargets {
 
   protected OpcodeConditions opc;
 
-  protected abstract Instruction<T> getOpcode();
+  protected abstract Instruction getOpcode();
 
   protected OpcodeReference[] r;
   protected Register[] rp;
   protected OpcodeReference[] rp2;
   protected Condition[] cc;
-  protected Instruction<T>[][] bli;
-  protected List<Function<ImmutableOpcodeReference, Instruction<T>>> alu;
+  protected Instruction[][] bli;
+  protected List<Function<ImmutableOpcodeReference, Instruction>> alu;
   protected List<RotFactory> rot;
-  protected State s;
   protected int[] im;
   protected int x;
   protected int y;
@@ -56,13 +56,12 @@ public abstract class TableOpCodeGenerator<T> extends OpcodeTargets<T> {
   protected RegisterName mainHigh8BitRegister;
   protected RegisterName mainLow8BitRegister;
   protected RegisterName main16BitRegister;
-  DefaultInstructionFactory i;
+  InstructionFactory i;
 
-  public TableOpCodeGenerator(State state, RegisterName main16BitRegister, RegisterName mainHigh8BitRegister, RegisterName mainLow8BitRegister, OpcodeReference main16BitRegisterReference, OpcodeConditions opcodeConditions, DefaultInstructionFactory instructionFactory) {
-    super(state);
+  public TableOpCodeGenerator(State state, RegisterName main16BitRegister, RegisterName mainHigh8BitRegister, RegisterName mainLow8BitRegister, OpcodeReference main16BitRegisterReference, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, Memory memoryForOpcodes) {
+    super(state, memoryForOpcodes);
     this.i = instructionFactory;
 
-    this.s = state;
     this.main16BitRegister = main16BitRegister;
     this.mainHigh8BitRegister = mainHigh8BitRegister;
     this.mainLow8BitRegister = mainLow8BitRegister;
@@ -134,14 +133,25 @@ public abstract class TableOpCodeGenerator<T> extends OpcodeTargets<T> {
       p = (i & 0x30) >> 4;
       q = (i & 0x08) >> 3;
 
-      Instruction<T> opcode = getOpcode();
+      Instruction opcode = getOpcode();
       opcodes[i] = opcode;
     }
     return opcodes;
   }
 
-  protected Instruction<T>[] select(Instruction<T>... opcodes) {
+  protected Instruction[] select(Instruction... opcodes) {
     return opcodes;
   }
 
+  public OpcodeReference replaceLowHigh(OpcodeReference source, RegisterName lowRegisterName, RegisterName highRegisterName) {
+    if (source instanceof Register) {
+      Register register = (Register) source;
+      if (register.getName().equals(lowRegisterName.toString()))
+        return r(L);
+      else if (register.getName().equals(highRegisterName.toString()))
+        return r(H);
+    }
+
+    return source;
+  }
 }

@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,13 +18,11 @@
 
 package com.fpetrola.z80.cpu;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
 public class MockedIO implements IO {
-  public Object in(Object port) {
-    return WordNumber.createValue(123);
+  public int in(int port) {
+    return 123;
   }
 
-  public void out(Object port, Object value) {
+  public void out(int port, int value) {
   }
 }

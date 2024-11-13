@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,8 +18,21 @@
 
 package com.fpetrola.z80.cpu;
 
+import com.fpetrola.z80.instructions.types.Instruction;
+
 public interface InstructionFetcher {
 
-  void fetchNextInstruction();
+  Instruction fetchNextInstruction();
+
   void reset();
+
+  default void addFetchListener(FetchListener fetchListener) {
+  }
+
+  default void afterExecute(Instruction currentInstruction) {
+  }
+
+  default void setClone(boolean clone){
+
+  }
 }

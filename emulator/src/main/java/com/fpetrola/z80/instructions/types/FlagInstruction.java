@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,9 +18,8 @@
 
 package com.fpetrola.z80.instructions.types;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public interface FlagInstruction<T extends WordNumber> {
-  Register<T> getFlag();
+public interface FlagInstruction {
+  Register getFlag();
 }

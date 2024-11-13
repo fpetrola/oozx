@@ -18,49 +18,42 @@
 
 package com.fpetrola.z80.registers;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.spy.ObservableRegister;
 
-public class Plain8BitRegister<T extends WordNumber> implements Register<T> {
-  protected T data;
-  private final String name;
+public class Plain8BitRegister extends ObservableRegister implements Register {
+    protected int data;
 
-  public Plain8BitRegister(String name) {
-    this.name = name;
-  }
+    public Plain8BitRegister(String name) {
+        super(name);
+    }
 
-  public Plain8BitRegister(RegisterName name) {
-    this.name = name.name();
-  }
+    public Plain8BitRegister(RegisterName name) {
+        this(name.name());
+    }
 
-  public T read() {
-    return data;
-  }
+    public int read() {
+        reading(data);
+        return data;
+    }
 
-  public void write(T value) {
-      this.data = value;
-  }
+    public void write(int value) {
+        int and = value & 0xff;
+        writing(and);
+        this.data = and;
+    }
 
-  public String toString() {
-    return name;
-  }
 
-  public void increment() {
-    this.data = data.plus(1);
-  }
+    public void increment() {
+        incrementing(data);
+        this.data = data + 1;
+    }
 
-  public void decrement() {
-    this.data = data.minus1().and(0xFF);
-  }
+    public void decrement() {
+        decrementing(data);
+        this.data = (data - 1) & 0xFF;
+    }
 
-  public int getLength() {
-    return 0;
-  }
-
-  public Plain8BitRegister clone() throws CloneNotSupportedException {
-    return this;
-  }
-
-  public String getName() {
-    return name;
-  }
+    public int getLength() {
+        return 0;
+    }
 }

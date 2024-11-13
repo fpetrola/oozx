@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,58 +18,53 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class Cpd<T extends WordNumber> extends Cpi<T> {
-  public static final AluOperation cpdTableAluOperation = new TableAluOperation() {
-    public int execute(int reg_A, int value, int carry) {
-      int result = reg_A - value;
-
-      if ((result & 0x0080) == 0)
-        resetS();
-      else
-        setS();
-      result = result & lsb;
-      if (result == 0)
-        setZ();
-      else
-        resetZ();
-      setHalfCarryFlagSub(reg_A, value);
-      setPV(carry == 1);
-      setN();
-      //
-//    if (getH())
-//      value--;
-//    if ((value & 0x00002) == 0)
-//      reset5();
-//    else
-//      set5();
-//    if ((value & 0x00008) == 0)
-//      reset3();
-//    else
-//      set3();
-
-      return reg_A;
+public class Cpd extends Cpi {
+  public static class CpdTableAluOperation extends AluOperation {
+    @Override
+    protected int calculate2Values1Boolean(int value1, int value2, int BC) {
+      int bytetemp = value2 - value1;
+      int lookup = ((value2 & 0x08) >> 3) |
+                   (((value1) & 0x08) >> 2) |
+                   ((bytetemp & 0x08) >> 1);
+      F = (F & FLAG_C) | (BC != 0 ? (FLAG_V | FLAG_N) : FLAG_N) |
+          halfCarrySubTable(lookup) | (bytetemp != 0 ? 0 : FLAG_Z) |
+          (bytetemp & FLAG_S);
+      if ((F & FLAG_H) != 0) bytetemp--;
+      F |= (bytetemp & FLAG_3) | ((bytetemp & 0x02) != 0 ? FLAG_5 : 0);
+      Q = F;
+      return value2;
     }
-  };
-
-  public Cpd(Register<T> a, Register flag, RegisterPair<T> bc, Register<T> hl, Memory<T> memory, IO<T> io) {
-    super(a, flag, bc, hl, memory, io);
   }
 
-  protected void flagOperation() {
-    T value = memory.read(hl.read());
-    T reg_A = a.read();
-    cpdTableAluOperation.executeWithCarry2(value, reg_A, bc.read().isNotZero() ? 1 : 0, flag);
+  public Cpd(Register a, Register flag, RegisterPair bc, RegisterPair hl, Memory memory, IO io) {
+    super(a, flag, bc, hl, memory, io, new CpdTableAluOperation());
+  }
+
+  public void execute() {
+    bc.decrement();
+    flagOperation(bc.read());
+    next();
   }
 
   protected void next() {
     hl.decrement();
+  }
+
+  protected void flagOperation(int valueFromHL) {
+    int lastCarry = flag.read() & 1;
+    aluOperation.execute2Values1Boolean(memory.read(hl.read(), 0), a.read(), bc.read() != 0 ? 1 : 0, flag);
+    flag.write((flag.read() | lastCarry) & 0xFFFF);
+  }
+
+  public void accept(InstructionVisitor<?> visitor) {
+    if (!visitor.visitCpd(this))
+      super.accept(visitor);
   }
 }

@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -20,14 +20,19 @@ package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
-public abstract class BitOperation<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
+public abstract class BitOperation extends DefaultTargetFlagInstruction {
   protected final int n;
 
-  public BitOperation(OpcodeReference<T> target, int n, Register<T> flag) {
+  public BitOperation(OpcodeReference target, int n, Register flag) {
     super(target, flag);
+    this.n = n;
+  }
+
+  public BitOperation(OpcodeReference target, int n, Register flag, AluOperation aluOperation) {
+    super(target, flag, aluOperation);
     this.n = n;
   }
 
@@ -39,9 +44,10 @@ public abstract class BitOperation<T extends WordNumber> extends DefaultTargetFl
     return n;
   }
 
-  public void accept(InstructionVisitor visitor) {
-    visitor.visitingTarget(target, this);
-    visitor.visitingFlag(flag, this);
-    visitor.visitingBitOperation(this);
+  public void accept(InstructionVisitor<?> visitor) {
+    if (!visitor.visitingBitOperation(this)) {
+      visitor.visitingTarget(target, this);
+      visitor.visitingFlag(flag, this);
+    }
   }
 }

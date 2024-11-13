@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -19,18 +19,26 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class MemorySetter {
-  private final Memory<? extends WordNumber> memory;
+  private final Memory memory;
+  private final byte[] rom;
+  private final State state;
 
-  public <T extends WordNumber> MemorySetter(Memory<T> memory) {
+  public MemorySetter(Memory memory, byte[] rom, State state) {
     this.memory = memory;
+    this.rom = rom;
+    this.state = state;
   }
 
   public void setData(byte[] result) {
-    for (int i = 0; i <result.length; i++) {
-      memory.getData()[i]= WordNumber.createValue(result[i]);
+    memory.disableWriteListener();
+    for (int i = 0; i < result.length; i++) {
+      int data = ((i < 16384) ? rom[i] : result[i]) & 0xff;
+      int value = data;
+      state.clock.addTStates(-state.clock.getTStates());
+      memory.write(i, (value & 0xff) & 0xFFFF);
     }
+    memory.enableWriteListener();
   }
 }

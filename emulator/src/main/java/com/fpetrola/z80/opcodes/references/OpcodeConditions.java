@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -27,6 +27,10 @@ public class OpcodeConditions {
   public OpcodeConditions(Register flag, Register b) {
     register = flag;
     this.b = b;
+  }
+
+  public static OpcodeConditions createOpcodeConditions(Register flag, Register b) {
+    return new OpcodeConditions(flag, b);
   }
 
   public ConditionAlwaysTrue t() {

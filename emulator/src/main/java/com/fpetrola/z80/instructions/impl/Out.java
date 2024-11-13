@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -19,46 +19,50 @@
 package com.fpetrola.z80.instructions.impl;
 
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.cpu.IO;
+import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class Out<T extends WordNumber> extends TargetSourceInstruction<T, ImmutableOpcodeReference<T>> {
-  public Out(ImmutableOpcodeReference source, OutPortOpcodeReference outPortOpcodeReference, Register<T> flag) {
+public class Out extends TargetSourceInstruction<ImmutableOpcodeReference> {
+  public Out(ImmutableOpcodeReference source, OutPortOpcodeReference outPortOpcodeReference, Register flag) {
     super(outPortOpcodeReference, source, flag);
   }
 
-  public int execute() {
+  public void execute() {
     target.write(source.read());
-    return cyclesCost;
   }
 
-  public static class OutPortOpcodeReference<T> implements OpcodeReference<T> {
-    private final IO<T> io;
-    private final ImmutableOpcodeReference target;
+  public static class OutPortOpcodeReference implements OpcodeReference {
+    private final IO io;
+    public final ImmutableOpcodeReference target;
+    private final Register a;
 
-    public OutPortOpcodeReference(IO<T> io, ImmutableOpcodeReference target) {
+    public OutPortOpcodeReference(IO io, ImmutableOpcodeReference target, Register a) {
       this.io = io;
       this.target = target;
+      this.a = a;
     }
 
-    public void write(T value) {
-      io.out((T) target.read(), value);
+    public void write(int value) {
+      io.out(getRead(), value);
     }
 
-    public T read() {
-      return (T) target.read();
+    private int getRead() {
+      int read = target.read();
+      if (!(target instanceof Register)) {
+        read = (read | a.read() << 8) & 0xFFFF;
+      }
+      return read;
+    }
+
+    public int read() {
+      return getRead();
     }
 
     public int getLength() {
       return target.getLength();
-    }
-
-    public Object clone() throws CloneNotSupportedException {
-      return target.clone();
     }
 
     public String toString() {
@@ -66,7 +70,7 @@ public class Out<T extends WordNumber> extends TargetSourceInstruction<T, Immuta
     }
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitOut(this);
   }

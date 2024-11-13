@@ -1,0 +1,180 @@
+/*
+ *
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *      http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *
+ */
+
+package com.fpetrola.z80.transformations;
+
+import com.fpetrola.z80.blocks.BlocksManager;
+import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.registers.Composed16BitRegister;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class VirtualComposed16BitRegister extends Composed16BitRegister<IVirtual8BitsRegister> implements VirtualRegister {
+  private final int currentAddress;
+  private final Scope scope = new Scope();
+  private final VirtualRegisterVersionHandler versionHandler;
+  private final BlocksManager blocksManager;
+
+  public VirtualComposed16BitRegister(int currentAddress, String virtualRegisterName, IVirtual8BitsRegister virtualH, IVirtual8BitsRegister virtualL, VirtualRegisterVersionHandler versionHandler, boolean composed, BlocksManager blocksManager) {
+    super(virtualRegisterName, virtualH, virtualL);
+    this.currentAddress = currentAddress;
+    this.versionHandler = versionHandler;
+    this.blocksManager = blocksManager;
+    virtualL.set16BitsRegister(this);
+    virtualH.set16BitsRegister(this);
+    if (composed) {
+      virtualL.setComposed(composed);
+      virtualH.setComposed(composed);
+    }
+    scope.include(this);
+  }
+
+  @Override
+  public List<VirtualRegister> getPreviousVersions() {
+    return getVirtualRegisters(low.getPreviousVersions(), high.getPreviousVersions());
+  }
+
+  @Override
+  public BlocksManager getBlocksManager() {
+    return blocksManager;
+  }
+
+  private List<VirtualRegister> getVirtualRegisters(List<VirtualRegister> previousVersionsL, List<VirtualRegister> previousVersionsH) {
+    List<VirtualRegister> list = new ArrayList<>();
+    for (int i = 0, previousVersionsLSize = previousVersionsL.size(); i < previousVersionsLSize; i++) {
+      VirtualRegister pL = previousVersionsL.get(i);
+      VirtualRegister pH = previousVersionsH.isEmpty() ? high : previousVersionsH.get(Math.min(i, previousVersionsH.size() - 1));
+
+      String nameL = pL.getName();
+      String nameH = pH.getName();
+      String lineL = getLineNumber(nameL);
+      String lineH = getLineNumber(nameH);
+
+      String finalName = nameH + "," + nameL;
+      if (lineL.equals(lineH))
+        finalName = nameH.substring(0, nameH.indexOf("_")) + nameL.substring(0, nameL.indexOf("_")) + "_" + lineL;
+
+      finalName = fixIndexNames(finalName);
+
+      list.add(new VirtualComposed16BitRegister(Math.min(pL.getAddress(), pH.getAddress()), finalName, (IVirtual8BitsRegister) pH, (IVirtual8BitsRegister) pL, versionHandler, false, getBlocksManager()));
+    }
+    return list;
+  }
+
+  public static String fixIndexNames(String finalName) {
+    return finalName.replace("IXHIXL", "IX").replace("IYHIYL", "IY"); //FIXME
+  }
+
+  public static String getLineNumber(String name) {
+    return name.substring(name.indexOf("_") + 1);
+  }
+
+  @Override
+  public boolean usesMultipleVersions() {
+    return high.usesMultipleVersions() && low.usesMultipleVersions();
+  }
+
+  public void reset() {
+    low.reset();
+    high.reset();
+  }
+
+  public void saveData() {
+    low.saveData();
+    high.saveData();
+  }
+
+  public boolean hasNoPrevious() {
+    return getPreviousVersions().isEmpty() || high.hasNoPrevious() && low.hasNoPrevious();
+  }
+
+  @Override
+  public int getAddress() {
+    return Math.min(high.getAddress(), low.getAddress());
+  }
+
+  @Override
+  public Scope getScope() {
+    return scope;
+  }
+
+  @Override
+  public List<VirtualRegister> getDependants() {
+    return getVirtualRegisters(low.getDependants(), high.getDependants());
+  }
+
+//  @Override
+//  public void accept(InstructionVisitor instructionVisitor) {
+//    if (!instructionVisitor.visitVirtualComposed16BitRegister(this)) {
+//      if (!instructionVisitor.visitRegister(this)) {
+//        instructionVisitor.visitRegister(getHigh());
+//        instructionVisitor.visitRegister(getLow());
+//      }
+//    }
+//  }
+
+  public int getRegisterLine() {
+    if (getName().contains(","))
+      return Math.min(low.getRegisterLine(), high.getRegisterLine());
+    else
+      return VirtualRegister.super.getRegisterLine();
+  }
+
+  @Override
+  public VirtualRegisterVersionHandler getVersionHandler() {
+    return versionHandler;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (o == null || getClass() != o.getClass()) return false;
+
+    VirtualComposed16BitRegister that = (VirtualComposed16BitRegister) o;
+
+    return new EqualsBuilder().append(toString(), that.toString()).isEquals();
+  }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder(17, 37).append(toString()).toHashCode();
+  }
+
+  @Override
+  public boolean isInitialized() {
+    return isLdTarget(high) || isLdTarget(low);
+  }
+
+  private boolean isLdTarget(IVirtual8BitsRegister high1) {
+    Instruction instruction = ((Virtual8BitsRegister) high1).instruction;
+
+    if (instruction instanceof Ld ld) {
+      return ld.getTarget().equals(this);
+    }
+    return false;
+  }
+
+  public boolean isMixRegister() {
+    return low.getRegisterLine() != high.getRegisterLine();
+  }
+}

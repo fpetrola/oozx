@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -20,19 +20,17 @@ package com.fpetrola.z80.opcodes.decoder.table;
 
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
-import com.fpetrola.z80.spy.InstructionSpy;
 
-public class FetchNextOpcodeInstructionFactory<T> {
-  private InstructionSpy spy;
-  private State state;
+public class FetchNextOpcodeInstructionFactory {
+  private final State state;
 
-  public FetchNextOpcodeInstructionFactory(InstructionSpy spy, State state) {
-    this.spy = spy;
+  public FetchNextOpcodeInstructionFactory(State state) {
     this.state = state;
   }
 
-  public DefaultFetchNextOpcodeInstruction createFetchInstruction(Instruction<T>[] opcodesTable, String name, int incPc) {
-    return new DefaultFetchNextOpcodeInstruction(this.state, opcodesTable, incPc, name, this.spy);
+  public DefaultFetchNextOpcodeInstruction createFetchInstruction(Instruction[] opcodesTable, String name, int incPc, Memory memoryForOpcodes) {
+    return new DefaultFetchNextOpcodeInstruction(this.state, opcodesTable, incPc, name, memoryForOpcodes);
   }
 }

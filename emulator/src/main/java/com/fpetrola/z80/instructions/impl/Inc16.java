@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,24 +18,21 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.DefaultTargetInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.types.DefaultTargetInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class Inc16<T extends WordNumber> extends DefaultTargetInstruction<T> {
+public class Inc16 extends DefaultTargetInstruction {
   public Inc16(OpcodeReference target) {
     super(target);
   }
 
-  public int execute() {
-    T read = target.read();
-    target.write(read.plus1());
-    return cyclesCost;
+  public void execute() {
+    int read = target.read();
+    target.write((read + 1) & 0xFFFF);
   }
 
-  @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitingTarget(getTarget(), this);
     visitor.visitingTargetInstruction(this);
     visitor.visitingInc16(this);

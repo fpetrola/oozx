@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,65 +18,54 @@
 
 package com.fpetrola.z80.registers.flag;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import org.apache.commons.lang3.function.TriFunction;
-
-import java.util.function.BiFunction;
 
 public class AluOperation extends AluOperationBase {
-  protected BiFunction<Integer, Integer, Integer> biFunction;
-  protected TriFunction<Integer, Integer, Integer, Integer> triFunction;
+  private ToPrimitiveIntTriFunction triFunction;
 
   public AluOperation() {
-    super("flag");
-    data = 0;
-    if (execute(0, 0, 0) != -1) {
-      triFunction = (a, b, c) -> execute(a, b, c);
-      init(triFunction);
-    } else if (execute(0, 0) != -1) {
-      biFunction = (a, b) -> execute(a, b);
-      init(biFunction);
+    triFunction = null;
+    if (calculate2Values1Boolean(0, 0, 0) != -1) {
+      triFunction = this::calculate2Values1Boolean;
+    } else if (calculate1Value(0) != -1) {
+      triFunction = (value1, value2, carry) -> this.calculate1Value(value1);
+    } else if (calculate3Values(0, 0, 0) != -1) {
+      triFunction = this::calculate3Values;
     }
   }
 
-  public int execute(int a, int value, int carry) {
+  protected int calculate2Values1Boolean(int value1, int value2, int carry) {
     return -1;
   }
 
-  public int execute(int a, int carry) {
+  protected int calculate3Values(int value1, int value2, int value3) {
     return -1;
   }
 
-  protected void init(BiFunction<Integer, Integer, Integer> biFunction) {
+  protected int calculate1Value(int value) {
+    return -1;
   }
 
-  public void init(TriFunction<Integer, Integer, Integer, Integer> triFunction) {
+  public int execute2ValuesAndCarry(int value1, int value2, Register flag) {
+    return execute2Values1Boolean(value1, value2, flag.read() & 0x01, flag);
   }
 
-  public <T extends WordNumber> T executeWithCarry(T regA, Register<T> flag) {
-    data = flag.read().intValue();
-    Integer result = biFunction.apply(regA.intValue(), flag.read().intValue() & 0x01);
-    flag.write(WordNumber.createValue(data));
-    return WordNumber.createValue(result);
+  public int execute2Values1Boolean(int value1, int value2, int booleanValue, Register flag) {
+    return executeWrappingF(value1, value2, booleanValue, flag);
   }
 
-  public <T extends WordNumber> T executeWithCarry(T value, T regA, Register<T> flag) {
-    data = flag.read().intValue();
-    return executeWithCarry2(value, regA, flag.read().intValue() & 0x01, flag);
+  public int execute2Values(int value1, int value2, Register flag) {
+    return executeWrappingF(value1, value2, 0, flag);
   }
 
-  public <T extends WordNumber> T executeWithCarry2(T value, T regA, int carry, Register<T> flag) {
-    data = flag.read().intValue();
-    Integer result = triFunction.apply(regA.intValue(), value.intValue(), carry);
-    flag.write(WordNumber.createValue(data));
-    return WordNumber.createValue(result);
+  public void execute3Values(int value1, int value2, int value3, Register flag) {
+    executeWrappingF(value1, value2, value3, flag);
   }
 
-  public <T extends WordNumber> T executeWithoutCarry(T value, T regA, Register<T> flag) {
-    data = flag.read().intValue();
-    Integer result = triFunction.apply(regA.intValue(), value.intValue(), 0);
-    flag.write(WordNumber.createValue(data));
-    return WordNumber.createValue(result);
+  private int executeWrappingF(int value1, int value2, int value3, Register flag) {
+    F = flag.read();
+    int data1 = triFunction.applyAsInt(value1, value2, value3) & 0xFF;
+    flag.write(F & 0xFF);
+    return data1;
   }
 }

@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,73 +18,52 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.BitOperation;
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.types.BitOperation;
+import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
+import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class BIT<T extends WordNumber> extends BitOperation<T> {
-  public static final AluOperation testBitTableAluOperation = new AluOperation() {
-    public int execute(int bit, int value, int carry) {
-      resetS();
-
-      switch (bit) {
-        case 0: {
-          value = value & setBit0;
-          break;
-        }
-        case 1: {
-          value = value & setBit1;
-          break;
-        }
-        case 2: {
-          value = value & setBit2;
-          break;
-        }
-        case 3: {
-          value = value & setBit3;
-          break;
-        }
-        case 4: {
-          value = value & setBit4;
-          break;
-        }
-        case 5: {
-          value = value & setBit5;
-          break;
-        }
-        case 6: {
-          value = value & setBit6;
-          break;
-        }
-        case 7: {
-          value = value & setBit7;
-          setS(value != 0);
-          break;
-        }
-      }
-      setZ(0 == value);
-      setPV(0 == value);
-      resetN();
-      setH();
-
-      return value;
+public class BIT extends BitOperation {
+  public static class BitAluOperation extends AluOperation {
+    protected int calculate3Values(int address, int value1, int bit) {
+      F = bit & 1;
+      bit = bit >>> 1;
+      F = (F & FLAG_C) | FLAG_H | (address & (FLAG_3 | FLAG_5));
+      if (((value1) & (0x01 << (bit))) == 0) F |= FLAG_P | FLAG_Z;
+      if ((bit) == 7 && ((value1) & 0x80) != 0) F |= FLAG_S;
+      Q = F;
+      return F;
     }
-  };
-
-  public BIT(OpcodeReference target, int n, Register<T> flag) {
-    super(target, n, flag);
   }
 
-  public int execute() {
-    final T value = target.read();
-    testBitTableAluOperation.executeWithCarry(value, WordNumber.createValue(n), flag);
-    return cyclesCost;
+  public Register getMemptr() {
+    return memptr;
   }
 
-  public void accept(InstructionVisitor visitor) {
+  private final Register memptr;
+
+  public BIT(OpcodeReference target, int n, Register flag, Register memptr) {
+    super(target, n, flag, new BitAluOperation());
+    this.memptr = memptr;
+  }
+
+  public void execute() {
+    int address;
+    if (target instanceof MemoryPlusRegister8BitReference memoryPlusRegister8BitReference) {
+      address = ((memoryPlusRegister8BitReference.getTarget().read() + (int) memoryPlusRegister8BitReference.fetchRelative()) & 0xFFFF) >> 8;
+    } else if (target instanceof IndirectMemory8BitReference) {
+      address = memptr.read() >>> 8;
+    } else {
+      address = target.read();
+    }
+    int nAndCarry = (n << 1) | flag.read() & 1;
+    aluOperation.execute3Values(address, target.read(), nAndCarry, flag);
+  }
+
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingBit(this))
       super.accept(visitor);
   }

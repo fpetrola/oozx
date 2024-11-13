@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,31 +18,54 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.TargetInstruction;
+import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class LdOperation<T extends WordNumber> extends AbstractInstruction<T> {
-  protected Instruction<T> instruction;
-  protected OpcodeReference<T> target;
-
-  public LdOperation(OpcodeReference target, Instruction<T> instruction) {
-    this.target = target;
-    this.instruction = instruction;
+public class LdOperation extends AbstractInstruction {
+  public Instruction getInstruction() {
+    return instruction;
   }
 
-  public int execute() {
+  public OpcodeReference getTarget() {
+    return target;
+  }
+
+  protected Instruction instruction;
+  protected OpcodeReference target;
+
+  public LdOperation(OpcodeReference target, Instruction instruction) {
+    this.target = target;
+    this.instruction = instruction;
+    incrementLengthBy(1);
+  }
+
+  public void execute() {
     instruction.execute();
-    if (instruction instanceof TargetInstruction<T> targetInstruction) {
-      T read = targetInstruction.getTarget().read();
+    if (instruction instanceof TargetInstruction targetInstruction) {
+      int read;
+      if (targetInstruction.getTarget() instanceof MemoryPlusRegister8BitReference memoryPlusRegister8BitReference) {
+        read = memoryPlusRegister8BitReference.value;
+      } else
+        read = targetInstruction.getTarget().read();
       target.write(read);
     }
-    return cyclesCost;
+
   }
 
   public String toString() {
     return "LD " + target + "," + instruction;
+  }
+
+  @Override
+  public void accept(InstructionVisitor<?> visitor) {
+    if (!visitor.visitLdOperation(this)) {
+      instruction.accept(visitor);
+      target.accept(visitor);
+      super.accept(visitor);
+    }
   }
 }

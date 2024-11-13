@@ -1,0 +1,93 @@
+/*
+ *
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *      http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *
+ */
+
+package com.fpetrola.z80.spy;
+
+import com.fpetrola.z80.registers.Plain16BitRegister;
+import com.fpetrola.z80.registers.Register;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class RegisterSpy extends Plain16BitRegister {
+
+  protected Register register;
+  protected List<RegisterWriteListener> registerWriteListeners= new ArrayList<>();
+  protected List<RegisterReadListener> registerReadListeners= new ArrayList<>();
+
+  public RegisterSpy(Register register) {
+    super(register.getName());
+    this.register = register;
+  }
+
+  public int read() {
+    int value = register.read();
+    registerReadListeners.forEach(l->l.readingRegister(value));
+
+    return value;
+  }
+
+  public void write(int value) {
+    registerWriteListeners.forEach(l -> l.writingRegister(value, false));
+    register.write(value);
+  }
+
+  public void increment() {
+    registerWriteListeners.forEach(l -> {
+      Integer wordNumber = register.read();
+      l.writingRegister((wordNumber + 1) & 0xFFFF, true);
+    });
+    register.increment();
+  }
+
+  public void decrement() {
+    registerWriteListeners.forEach(l -> {
+      Integer wordNumber = register.read();
+      l.writingRegister((wordNumber - 1) & 0xFFFF, true);
+    });
+    register.decrement();
+  }
+
+  public String toString() {
+    return register.toString();
+  }
+
+  public String getName() {
+    return register.getName();
+  }
+
+  public Object clone() throws CloneNotSupportedException {
+    return this;
+  }
+
+  public void addRegisterWriteListener(RegisterWriteListener memoryWriteListener) {
+    this.registerWriteListeners.add(memoryWriteListener);
+  }
+
+  public void removeRegisterWriteListener(RegisterWriteListener memoryWriteListener) {
+    this.registerWriteListeners.remove(memoryWriteListener);
+  }
+
+  public void addRegisterReadListener(RegisterReadListener memoryReadListener) {
+    this.registerReadListeners.add(memoryReadListener);
+  }
+
+  public void removeRegisterReadListener(RegisterReadListener memoryReadListener) {
+    this.registerReadListeners.remove(memoryReadListener);
+  }
+}

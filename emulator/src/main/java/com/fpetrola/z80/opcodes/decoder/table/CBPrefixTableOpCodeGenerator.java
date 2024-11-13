@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,21 +18,22 @@
 
 package com.fpetrola.z80.opcodes.decoder.table;
 
+import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-public class CBPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
+public class CBPrefixTableOpCodeGenerator extends TableOpCodeGenerator {
 
-  public CBPrefixTableOpCodeGenerator(State state, OpcodeReference a, OpcodeConditions opc1, DefaultInstructionFactory instructionFactory) {
-    super(state, HL, H, L, a, opc1, instructionFactory);
+  public CBPrefixTableOpCodeGenerator(State state, OpcodeReference a, OpcodeConditions opc1, InstructionFactory instructionFactory, Memory memoryForOpcodes) {
+    super(state, HL, H, L, a, opc1, instructionFactory, memoryForOpcodes);
   }
 
-  protected Instruction<T> getOpcode() {
+  protected Instruction getOpcode() {
     return select(rot.get(y).create(r[z], 0), i.BIT(r[z], y), i.RES(r[z], y), i.SET(r[z], y))[x];
   }
 }
