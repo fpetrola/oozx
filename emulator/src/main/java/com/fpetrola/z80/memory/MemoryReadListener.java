@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,6 +18,6 @@
 
 package com.fpetrola.z80.memory;
 
-public interface MemoryReadListener<T> {
-  void readingMemoryAt(T address, T value);
+public interface MemoryReadListener {
+  void readingMemoryAt(int address, int value, int fetching);
 }

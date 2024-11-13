@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -19,43 +19,50 @@
 package com.fpetrola.z80.instructions.impl;
 
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class Add16<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
-  public static final AluOperation add16TableAluOperation = new AluOperation() {
-    public int execute(int value2, int value, int carry) {
-      int operand = value;
-      int result = value2 + value; // ADD HL,rr
-      resetN(); // N = 0;
-      //
-      int temp = (value2 & 0x0FFF) + (operand & 0x0FFF);
-      if ((temp & 0xF000) != 0)
-        setH();
-      else
-        resetH();
-      if (result > lsw) // overflow ?
-      {
-        setC();
-        return result & lsw;
-      } else {
-        resetC();
-        return result;
-      }
+public class Add16 extends Binary16BitsOperation {
+  public static class Add16TableAluOperation extends AluOperation {
+    @Override
+    protected int calculate2Values1Boolean(int value1, int value2, int value2Bit0) {
+      F = value2;
+      getValue1(value1 << 4, value2Bit0 << 11, value1 << 11);
+      return F;
     }
-  };
 
-  public Add16(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
-    super(target, source, flag, (tFlagRegister, value2, value) -> add16TableAluOperation.executeWithCarry2(value2, value, tFlagRegister.read().intValue(), tFlagRegister));
+    private void getValue1(int value1, int value2, int add16temp) {
+      int lookup = ((value1 & 0x0800) >> 11) |
+                   ((value2 & 0x0800) >> 10) |
+                   ((add16temp & 0x0800) >> 9);
+      F = (F & (FLAG_V | FLAG_Z | FLAG_S)) |
+          ((add16temp & 0x10000) != 0 ? FLAG_C : 0) |
+          ((add16temp >> 8) & (FLAG_3 | FLAG_5)) |
+          halfCarryAddTable(lookup);
+      Q = F;
+    }
   }
 
-  @Override
-  public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitingAdd16(this);
+  public Add16(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
+    super(target, source, flag, new Add16TableAluOperation());
+  }
+
+  protected int operation(int v1, int v2, int f) {
+    return v1 + v2;
+  }
+
+  protected void executeAction(int v1, int v2, int result) {
+    aluOperation.execute2Values1Boolean(v1, flag.read(), v2 >> 11, flag);
+  }
+
+  protected int compress(int v1, int v2, int result) {
+    return (v1 & 0x0800) >> 4 | result >> 11;
+  }
+
+  public void accept(InstructionVisitor<?> visitor) {
+    if (!visitor.visitingAdd16(this))
+      super.accept(visitor);
   }
 }

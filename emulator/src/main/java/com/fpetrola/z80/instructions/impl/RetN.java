@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.Condition;
 import com.fpetrola.z80.registers.Register;
 
@@ -31,8 +31,8 @@ public class RetN extends Ret {
     this.state = state;
   }
 
-  public int execute() {
+  public void execute() {
     state.setIff1(state.isIff2());
-    return super.execute();
+    super.execute();
   }
 }

@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,24 +18,23 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.BitOperation;
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.types.BitOperation;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class SET<T extends WordNumber> extends BitOperation<T> {
+public class SET extends BitOperation {
 
-  public SET(OpcodeReference target, int n, Register<T> flag) {
+  public SET(OpcodeReference target, int n, Register flag) {
     super(target, n, flag);
   }
 
-  public int execute() {
-    target.write(target.read().or(1 << n));
-    return cyclesCost;
+  public void execute() {
+    target.write((target.read() | 1 << n) & 0xFFFF);
+
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingSet(this))
       super.accept(visitor);
   }

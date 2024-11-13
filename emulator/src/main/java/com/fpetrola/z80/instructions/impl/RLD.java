@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,36 +18,32 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-
-public class RLD<T extends WordNumber> extends AbstractInstruction<T> {
-  public static final TableAluOperation rldTableAluOperation = new TableAluOperation() {
-    public int execute(int a, int carry) {
-      data = 0;
-      if ((a & 0x80) == 0)
-        resetS();
-      else
-        setS();
-      setZ(a == 0);
-      resetH();
-      setPV(parity[a]);
-      resetN();
-      return a;
+public class RLD extends AbstractInstruction {
+  public static class RldTableAluOperation extends AluOperation {
+    @Override
+    protected int calculate2Values1Boolean(int value1, int value2, int flag) {
+      F = flag;
+      value2 = (value2 & 0xf0) | (value1 >> 4);
+      F = (F & FLAG_C) | sz53pTable(value2);
+      Q = F;
+      return value2;
     }
-  };
-  protected final Register<T> a;
-  protected final Register<T> hl;
-  protected final Register<T> flag;
-  protected final Register<T> r;
-  protected final Memory<T> memory;
+  }
 
-  public RLD(Register<T> a, Register<T> hl, Register<T> flag, Register<T> r, Memory<T> memory) {
+  protected final Register a;
+  protected final Register hl;
+  protected final Register flag;
+  protected final Register r;
+  protected final Memory memory;
+
+  public RLD(Register a, Register hl, Register flag, Register r, Memory memory) {
+    super(new RldTableAluOperation());
     this.a = a;
     this.hl = hl;
     this.flag = flag;
@@ -55,27 +51,34 @@ public class RLD<T extends WordNumber> extends AbstractInstruction<T> {
     this.memory = memory;
   }
 
-  public int execute() {
-    int reg_A = a.read().intValue();
+  protected RLD(Register a, Register hl, Register flag, Register r, Memory memory, AluOperation aluOperation) {
+    super(aluOperation);
+    this.a = a;
+    this.hl = hl;
+    this.flag = flag;
+    this.r = r;
+    this.memory = memory;
+  }
+
+  public void execute() {
+    int reg_A = a.read();
     int nibble1 = (reg_A & 0x00F0) >> 4;
     int nibble2 = reg_A & 0x000F;
 
-    int temp = memory.read(hl.read()).intValue();
+    int temp = memory.read(hl.read(), 0);
     int nibble3 = (temp & 0x00F0) >> 4;
     int nibble4 = temp & 0x000F;
 
-    memory.write(hl.read(), createValue(getTemp1(nibble2, nibble3, nibble4)));
-    T value = createValue(getRegA1(nibble1, nibble4, nibble3));
+    memory.write(hl.read(), getTemp1(nibble2, nibble3, nibble4));
+    int value = getRegA1(nibble1, nibble4, nibble3);
 
-    executeAlu(value);
+    executeAlu(temp, reg_A);
 
     a.write(value);
-
-    return 1;
   }
 
-  protected void executeAlu(T value) {
-    rldTableAluOperation.executeWithCarry(value, flag);
+  protected void executeAlu(int value, int reg_A) {
+    aluOperation.execute2ValuesAndCarry(value, reg_A, flag);
   }
 
   protected int getTemp1(int nibble2, int nibble3, int nibble4) {
@@ -84,5 +87,15 @@ public class RLD<T extends WordNumber> extends AbstractInstruction<T> {
 
   protected int getRegA1(int nibble1, int nibble4, int nibble3) {
     return (nibble1 << 4) | nibble3;
+  }
+
+  public void accept(InstructionVisitor<?> visitor) {
+    if (!visitor.visitRLD(this)) {
+      super.accept(visitor);
+    }
+  }
+
+  public Register getHl() {
+    return hl;
   }
 }

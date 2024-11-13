@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,57 +18,58 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.BlockInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.IO;
+import com.fpetrola.z80.instructions.types.BlockInstruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class Ldi<T extends WordNumber> extends BlockInstruction<T> {
-  public static final AluOperation ldiTableAluOperation = new AluOperation() {
-    public int execute(int bc, int carry) {
-      resetH();
-      resetN();
-      setPV(bc != 0);
-      return data;
-    }
-  };
+public class Ldi extends BlockInstruction {
+  public static class LdiTableAluOperation extends AluOperation {
+    protected int calculate2Values1Boolean(int value1, int value2, int carry) {
+      F = value1;
+      int BC = carry;
+      int bytetemp = value2;
+      F = (F & (FLAG_C | FLAG_Z | FLAG_S)) | (BC != 0 ? FLAG_V : 0) |
+          (bytetemp & FLAG_3) | ((bytetemp & 0x02) != 0 ? FLAG_5 : 0);
+      Q = F;
 
-  public Register<T> getDe() {
+      return F;
+    }
+  }
+  protected final Register a;
+
+  public Register getDe() {
     return de;
   }
 
-  public void setDe(Register<T> de) {
+  public void setDe(Register de) {
     this.de = de;
   }
 
-  protected Register<T> de;
+  protected Register de;
 
-  public Ldi(Register<T> de, RegisterPair<T> bc, Register<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
-    super(bc, hl, flag, memory, io);
+  public Ldi(Register de, RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io, Register a) {
+    super(bc, hl, flag, memory, io, new LdiTableAluOperation());
     this.de = de;
+    this.a = a;
   }
 
-  public int execute() {
-    memory.disableReadListener();
-    memory.disableWriteListener();
-    memory.write(de.read(), memory.read(hl.read()));
+  public void execute() {
+    int read = memory.read(hl.read(), 0);
+    memory.write(de.read(), read);
 
     next();
     bc.decrement();
 
-    flagOperation();
-    memory.enableReadListener();
-    memory.enableWriteListener();
-
-    return 1;
+    flagOperation(read);
   }
 
-  protected void flagOperation() {
-    ldiTableAluOperation.executeWithCarry(bc.read(), flag);
+  protected void flagOperation(int valueFromHL) {
+    int byteTemp = valueFromHL + a.read();
+    aluOperation.execute2Values1Boolean(flag.read(), byteTemp, bc.read() != 0 ? 1 : 0, flag);
   }
 
   protected void next() {
@@ -76,8 +77,8 @@ public class Ldi<T extends WordNumber> extends BlockInstruction<T> {
     de.increment();
   }
 
-  public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitLdi(this);
+  public void accept(InstructionVisitor<?> visitor) {
+    if (!visitor.visitLdi(this))
+      super.accept(visitor);
   }
 }

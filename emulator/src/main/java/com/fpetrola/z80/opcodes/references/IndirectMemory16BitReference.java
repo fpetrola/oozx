@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -20,43 +20,49 @@ package com.fpetrola.z80.opcodes.references;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.flag.PrimitiveIntBiFunction;
 
-public final class IndirectMemory16BitReference<T extends WordNumber> implements OpcodeReference<T> {
-  public ImmutableOpcodeReference<T> target;
-
-  public Memory<T> getMemory() {
-    return memory;
-  }
-
-  private final Memory<T> memory;
+public final class IndirectMemory16BitReference implements OpcodeReference {
+  private final PrimitiveIntBiFunction memoryWriter;
+  private final ImmutableOpcodeReference target;
+  private final Memory memory;
+  public int address;
 
   public IndirectMemory16BitReference(ImmutableOpcodeReference target, Memory memory) {
     this.target = target;
     this.memory = memory;
+
+    if (target instanceof Register register && register.getName().equals("SP"))
+      memoryWriter = memory::write16Bits;
+    else
+      memoryWriter = memory::write16BitsReverse;
   }
 
-  public T read() {
-    T address = target.read();
-    T fetchAddress = Memory.read16Bits(memory, address);
-    return fetchAddress;
+  public int read() {
+    address = target.read();
+    return memory.read16Bits(address);
   }
 
-  public void write(T value) {
-    T address = target.read();
-
-    Memory.write16Bits(memory, value, address);
+  public void write(int value) {
+    address = target.read();
+    memoryWriter.applyAsInt(value, address);
   }
 
-  public String toString() {
-    return "(" + target.toString() + ")";
+  public Memory getMemory() {
+    return memory;
   }
 
   public int getLength() {
     return target.getLength();
   }
 
-  public Object clone() throws CloneNotSupportedException {
-    return new IndirectMemory16BitReference((ImmutableOpcodeReference) target.clone(), memory);
+  public ImmutableOpcodeReference getTarget() {
+    return target;
+  }
+
+  public String toString() {
+    return "(" + target.toString() + ")";
   }
 
   public void accept(InstructionVisitor instructionVisitor) {

@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class FlipFLopConditionFlag {
     }
 
     @Override
-    public boolean test(Boolean aBoolean, Instruction<Boolean> instruction) {
+    public boolean test(Boolean aBoolean, Instruction instruction) {
       boolean result = state;
       state = !state;
 //    return Math.random() * 100 > 50;

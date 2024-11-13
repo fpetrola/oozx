@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -21,26 +21,25 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Flags;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 
-public class Cpdr<T extends WordNumber> extends RepeatingInstruction<T> {
-  private final Register<T> flag;
+public class Cpdr extends RepeatingInstruction {
+  private final Register flag;
 
-  public Cpdr(ImmutableOpcodeReference<T> pc, RegisterPair<T> bc, Register<T> flag, Cpd cpd) {
+  public Cpdr(ImmutableOpcodeReference pc, RegisterPair bc, Register flag, Cpd cpd) {
     super(cpd, pc, bc);
     this.flag = flag;
   }
 
   protected boolean checkLoopCondition() {
-    return !((flag.read().intValue() & Flags.ZERO_FLAG) != 0) && bc.read().isNotZero();
+    return (flag.read() & Flags.ZERO_FLAG) == 0 && bc.read() != 0;
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitCpdr(this);
+  public void accept(InstructionVisitor<?> visitor) {
+    if (!visitor.visitCpdr(this))
+      super.accept(visitor);
   }
 }

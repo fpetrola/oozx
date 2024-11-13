@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -22,45 +22,32 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class Add<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
-  public static final TableAluOperation adc8TableAluOperation = new TableAluOperation() {
-    public int execute(int a, int value, int carry) {
-      data = carry;
-      int reg_A = a;
-      int local_reg_A = reg_A;
-      setHalfCarryFlagAdd(local_reg_A, value, carry);
-      setOverflowFlagAdd(local_reg_A, value, carry);
-      local_reg_A = local_reg_A + value + carry;
-      setS((local_reg_A & 0x0080) != 0);
-      setC((local_reg_A & 0xff00) != 0);
-      local_reg_A = local_reg_A & 0x00ff;
-      setZ(local_reg_A == 0);
-      resetN();
-      reg_A = local_reg_A;
-      setUnusedFlags(reg_A);
-      return reg_A;
+public class Add extends ParameterizedBinaryAluInstruction {
+  public static class Add8TableAluOperation extends AluOperation {
+    @Override
+    protected int calculate2Values1Boolean(int value1, int value2, int carry) {
+      int addtemp = value2 + (value1);
+      int lookup = ((value2 & 0x88) >> 3) |
+                   (((value1) & 0x88) >> 2) |
+                   ((addtemp & 0x88) >> 1);
+      value2 = addtemp & 0xff;
+      F = ((addtemp & 0x100) != 0 ? FLAG_C : 0) |
+          halfCarryAddTable(lookup & 0x07) | overflowAddTable(lookup >> 4) |
+          sz53Table(value2);
+      Q = F;
+      return value2;
     }
-  };
-
-  public Add(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
-    super(target, source, flag, (tFlagRegister, value, regA) -> adc8TableAluOperation.executeWithoutCarry(value, regA, tFlagRegister));
   }
 
-  @Override
-  public int execute() {
-    final T value1 = source.read();
-    final T value2 = target.read();
-    target.write(binaryAluOperation.execute(flag, value1, value2));
-    return cyclesCost;
+  public Add(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
+    super(target, source, flag, new Add8TableAluOperation());
   }
 
-  @Override
-  public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitingAdd(this);
+  public void accept(InstructionVisitor<?> visitor) {
+    if (!visitor.visitingAdd(this))
+      super.accept(visitor);
   }
 }

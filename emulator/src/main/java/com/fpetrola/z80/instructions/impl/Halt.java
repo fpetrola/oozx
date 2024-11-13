@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,27 +18,28 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
+import com.fpetrola.z80.instructions.types.JumpInstruction;
 
-public class Halt<T extends WordNumber> extends AbstractInstruction<T> {
-  private final State<T> state;
+public class Halt extends AbstractInstruction implements JumpInstruction {
+  private final State state;
 
   public Halt(State state) {
     this.state = state;
   }
 
   @Override
-  public int execute() {
-    if (!state.isHalted())
+  public void execute() {
+    if (!state.isHalted()) {
       state.setHalted(true);
-
-    return 4;
+//      state.getPc().decrement();
+      setNextPC(state.getPc().read());
+    }
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingHalt(this);
   }

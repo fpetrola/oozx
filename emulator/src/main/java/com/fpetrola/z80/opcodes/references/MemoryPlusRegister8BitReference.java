@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -23,39 +23,15 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 
-public class MemoryPlusRegister8BitReference<T extends WordNumber> implements OpcodeReference<T> {
+public class MemoryPlusRegister8BitReference implements OpcodeReference {
+  final private Memory memory;
+  final private ImmutableOpcodeReference target;
+  final protected int valueDelta;
+  final private Register pc;
 
-  public Memory<T> getMemory() {
-    return memory;
-  }
-
-  private Memory<T> memory;
-
-  public ImmutableOpcodeReference<T> getTarget() {
-    return target;
-  }
-
-  public void setTarget(ImmutableOpcodeReference<T> target) {
-    this.target = target;
-  }
-
-  private ImmutableOpcodeReference<T> target;
-
-  public int getValueDelta() {
-    return valueDelta;
-  }
-
-  protected int valueDelta;
-  protected T fetchedRelative;
-
-  public Register<T> getPc() {
-    return pc;
-  }
-
-  private Register<T> pc;
-
-  public MemoryPlusRegister8BitReference() {
-  }
+  public int fetchedRelative = -1;
+  public int address;
+  public int value;
 
   public MemoryPlusRegister8BitReference(ImmutableOpcodeReference target, Memory memory, Register pc, int valueDelta) {
     this.target = target;
@@ -64,38 +40,50 @@ public class MemoryPlusRegister8BitReference<T extends WordNumber> implements Op
     this.valueDelta = valueDelta;
   }
 
-  public T read() {
-    T address = target.read().plus(fetchRelative());
-    return memory.read(address);
+  final public int read() {
+    address = (target.read() + (int) fetchRelative()) & 0xFFFF;
+    value = memory.read(address, 0);
+    return value;
   }
 
-  public void write(T value) {
-    T address = target.read().plus(fetchRelative());
+  final public void write(int value) {
+    address = (target.read() + (int) fetchRelative()) & 0xFFFF;
+    this.value = value;
     memory.write(address, value);
   }
 
   public byte fetchRelative() {
-    T dd = memory.read(pc.read().plus(valueDelta));
-    fetchedRelative = dd;
-    return (byte) fetchedRelative.intValue();
+    return (byte) memory.read((pc.read() + valueDelta) & 0xFFFF, 0);
   }
 
   public String toString() {
-    byte dd = fetchRelative();
-    String string2 = (dd > 0 ? "+" : "-") + Helper.convertToHex(Math.abs(dd));
-    return "(" + target.toString() + string2 + ")";
+    byte dd = (byte) (fetchedRelative != -1 ? fetchedRelative : 0);
+    String string2 = (dd > 0 ? "+" : "-") + Helper.formatAddress(Math.abs(dd));
+    String string = "IXY";// target.toString();
+    return "(" + string + string2 + ")";
   }
 
   public int getLength() {
     return 1;
   }
 
-  public Object clone() throws CloneNotSupportedException {
-    T lastFetchedRelative = fetchedRelative;
-    return new CachedMemoryPlusRegister8BitReference(lastFetchedRelative, (ImmutableOpcodeReference) target.clone(),memory, pc, valueDelta);
-  }
-
   public void accept(InstructionVisitor instructionVisitor) {
     instructionVisitor.visitMemoryPlusRegister8BitReference(this);
+  }
+
+  public ImmutableOpcodeReference getTarget() {
+    return target;
+  }
+
+  public Memory getMemory() {
+    return memory;
+  }
+
+  public int getValueDelta() {
+    return valueDelta;
+  }
+
+  public Register getPc() {
+    return pc;
   }
 }

@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -20,10 +20,16 @@ package com.fpetrola.z80.instructions.factory;
 
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
 
-public interface InstructionFactoryDelegator<T extends WordNumber> extends InstructionFactory<T> {
-  default DJNZ<T> DJNZ(BNotZeroCondition bnz, ImmutableOpcodeReference<T> target) {
+public interface InstructionFactoryDelegator extends InstructionFactory {
+
+  default FetchNextOpcodeInstructionFactory getFetchNextOpcodeInstructionFactory() {
+    return getDelegate().getFetchNextOpcodeInstructionFactory();
+  }
+
+  default DJNZ DJNZ(BNotZeroCondition bnz, ImmutableOpcodeReference target) {
     return getDelegate().DJNZ(bnz, target);
   }
 
@@ -39,7 +45,7 @@ public interface InstructionFactoryDelegator<T extends WordNumber> extends Instr
     return getDelegate().JR(condition, target);
   }
 
-  default Adc<T> Adc(OpcodeReference<T> target, ImmutableOpcodeReference<T> source) {
+  default Adc Adc(OpcodeReference target, ImmutableOpcodeReference source) {
     return getDelegate().Adc(target, source);
   }
 
@@ -107,7 +113,7 @@ public interface InstructionFactoryDelegator<T extends WordNumber> extends Instr
     return getDelegate().SET(target, n);
   }
 
-  default Cpir<T> Cpir() {
+  default Cpir Cpir() {
     return getDelegate().Cpir();
   }
 
@@ -203,12 +209,16 @@ public interface InstructionFactoryDelegator<T extends WordNumber> extends Instr
     return getDelegate().Inc16(target);
   }
 
-  default Ld<T> Ld(OpcodeReference<T> target, ImmutableOpcodeReference<T> source) {
+  default Ld Ld(OpcodeReference target, ImmutableOpcodeReference source) {
     return getDelegate().Ld(target, source);
   }
 
-  default LdAR<T> LdAR(OpcodeReference<T> target, ImmutableOpcodeReference<T> source) {
+  default LdAR LdAR(OpcodeReference target, ImmutableOpcodeReference source) {
     return getDelegate().LdAR(target, source);
+  }
+
+  default LdAI LdAI() {
+    return getDelegate().LdAI();
   }
 
   default Ldd Ldd() {
@@ -219,7 +229,7 @@ public interface InstructionFactoryDelegator<T extends WordNumber> extends Instr
     return getDelegate().Ldi();
   }
 
-  default LdOperation<T> LdOperation(OpcodeReference target, Instruction<T> instruction) {
+  default LdOperation LdOperation(OpcodeReference target, Instruction instruction) {
     return getDelegate().LdOperation(target, instruction);
   }
 
@@ -255,7 +265,7 @@ public interface InstructionFactoryDelegator<T extends WordNumber> extends Instr
     return getDelegate().RetN(condition);
   }
 
-  default RL<T> RL(OpcodeReference target) {
+  default RL RL(OpcodeReference target) {
     return getDelegate().RL(target);
   }
 
@@ -263,7 +273,7 @@ public interface InstructionFactoryDelegator<T extends WordNumber> extends Instr
     return getDelegate().RLA();
   }
 
-  default RLC<T> RLC(OpcodeReference target) {
+  default RLC RLC(OpcodeReference target) {
     return getDelegate().RLC(target);
   }
 
@@ -303,7 +313,7 @@ public interface InstructionFactoryDelegator<T extends WordNumber> extends Instr
     return getDelegate().SCF();
   }
 
-  default SLA SLA(OpcodeReference<T> target) {
+  default SLA SLA(OpcodeReference target) {
     return getDelegate().SLA(target);
   }
 
@@ -319,5 +329,5 @@ public interface InstructionFactoryDelegator<T extends WordNumber> extends Instr
     return getDelegate().SRL(target);
   }
 
-  InstructionFactory<T> getDelegate();
+  InstructionFactory getDelegate();
 }

@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,20 +18,18 @@
 
 package com.fpetrola.z80.cpu;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
+public class ReadOnlyIOImplementation implements IO {
+  private final IO io;
 
-public class ReadOnlyIOImplementation<T extends WordNumber> implements IO<T> {
-  private IO<T> io;
-
-  public ReadOnlyIOImplementation(IO<T> io) {
+  public ReadOnlyIOImplementation(IO io) {
     this.io = io;
   }
 
-  public T in(T port) {
-    return WordNumber.createValue(0);
+  public int in(int port) {
+    return 0;
   }
 
-  public void out(T port, T value) {
+  public void out(int port, int value) {
 
   }
 }

@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -22,21 +22,31 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class Adc<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
-  public Adc(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
-    super(target, source, flag, (tFlagRegister, value, regA) -> Add.adc8TableAluOperation.executeWithCarry(value, regA, tFlagRegister));
+public class Adc extends ParameterizedBinaryAluInstruction {
+  public static class Adc8TableAluOperation extends AluOperation {
+    protected int calculate2Values1Boolean(int value1, int value2, int carry) {
+      F = carry;
+      int adctemp = value1 + (value2) + (F & FLAG_C);
+      int lookup = ((value1 & 0x88) >> 3) |
+                   (((value2) & 0x88) >> 2) |
+                   ((adctemp & 0x88) >> 1);
+      value1 = adctemp & 0xff;
+      F = ((adctemp & 0x100) != 0 ? FLAG_C : 0) |
+          halfCarryAddTable(lookup & 0x07) | overflowAddTable(lookup >> 4) |
+          sz53Table(value1);
+      Q = F;
+      return value1;
+    }
   }
 
-  @Override
-  public int execute() {
-    return super.execute();
+  public Adc(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
+    super(target, source, flag, new Adc8TableAluOperation());
   }
 
-  @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingAdc(this);
   }

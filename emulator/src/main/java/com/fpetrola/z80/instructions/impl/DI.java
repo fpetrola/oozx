@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,25 +18,23 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 
-public class DI<T extends WordNumber> extends AbstractInstruction<T> {
-  private final State<T> state;
+public class DI extends AbstractInstruction {
+  private final State state;
 
   public DI(State state) {
     this.state = state;
   }
 
-  public int execute() {
+  public void execute() {
     state.resetInterrupt();
-    return 4;
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitDI(this);
   }
 }

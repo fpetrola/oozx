@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,15 +18,14 @@
 
 package com.fpetrola.z80.opcodes.references;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 
-public class Memory8BitReference<T extends WordNumber> implements ImmutableOpcodeReference<T> {
-
-  private final Memory<T> memory;
-  private int delta;
-  protected T fetchedAddress;
-  private Register<T> pc;
+public class Memory8BitReference implements ImmutableOpcodeReference {
+  private final Memory memory;
+  private final int delta;
+  private final Register pc;
 
   public Memory8BitReference(Memory memory, Register pc, int delta) {
     this.memory = memory;
@@ -34,44 +33,47 @@ public class Memory8BitReference<T extends WordNumber> implements ImmutableOpcod
     this.delta = delta;
   }
 
-  public T read() {
-    memory.disableReadListener();
-    T read = memory.read(fetchAddress().plus(delta));
-    memory.enableReadListener();
-    return read;
+  final public int read() {
+    return memory.read((pc.read() + delta) & 0xFFFF, 0);
   }
 
-  public void write(T value) {
-    memory.write(fetchAddress(), value);
-  }
-
-  protected T fetchAddress() {
-    return fetchedAddress = pc.read();
+  final public void write(int value) {
+    memory.write(pc.read(), value);
   }
 
   public String toString() {
-    T read = read();
+    Integer read = 1;
     //return read == null ? "" : "0x" + Helper.convertToHex(read.intValue()) + "";
-    return read == null ? "" : read.intValue() + "";
+    if (read == null) {
+      return "";
+    } else {
+      return read + "";
+    }
   }
 
   public int getLength() {
     return 1;
   }
 
+  public int getDelta() {
+    return delta;
+  }
+
+  public Memory getMemory() {
+    return memory;
+  }
+
+  public Register getPc() {
+    return pc;
+  }
+
+  public void accept(InstructionVisitor instructionVisitor) {
+    if (!instructionVisitor.visitMemory8BitReference(this))
+      ImmutableOpcodeReference.super.accept(instructionVisitor);
+  }
+
   public Object clone() throws CloneNotSupportedException {
-    return new MyMemory8BitReference(fetchedAddress, memory, pc, delta);
+    return new CachedMemory8BitReference(-1, memory, pc, delta);
   }
 
-  private class MyMemory8BitReference extends Memory8BitReference<T> {
-    public MyMemory8BitReference(T lastFetchedAddress, Memory<T> memory, Register<T> pc, int delta) {
-      super(memory, pc, delta);
-      this.fetchedAddress = lastFetchedAddress;
-    }
-
-    @Override
-    protected T fetchAddress() {
-      return fetchedAddress;
-    }
-  }
 }

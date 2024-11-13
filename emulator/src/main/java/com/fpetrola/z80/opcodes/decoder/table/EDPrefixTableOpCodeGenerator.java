@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,28 +18,29 @@
 
 package com.fpetrola.z80.opcodes.decoder.table;
 
+import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-public class EDPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
+public class EDPrefixTableOpCodeGenerator extends TableOpCodeGenerator {
 
-  public EDPrefixTableOpCodeGenerator(State state, OpcodeReference a, OpcodeConditions opc1, DefaultInstructionFactory instructionFactory) {
-    super(state, HL, H, L, a, opc1, instructionFactory);
+  public EDPrefixTableOpCodeGenerator(State state, OpcodeReference a, OpcodeConditions opc1, InstructionFactory instructionFactory, Memory memoryForOpcodes) {
+    super(state, HL, H, L, a, opc1, instructionFactory, memoryForOpcodes);
   }
 
-  protected Instruction<T> getOpcode() {
+  protected Instruction getOpcode() {
     switch (x) {
     case 1:
       switch (z) {
       case 0:
-        return y == 6 ? i.In(r(A), r(BC)) : i.In(r[y], r(BC));
+        return y == 6 ? i.In(nullTarget(), r(BC)) : i.In(r[y], r(BC));
       case 1:
-        return y == 6 ? i.Out(r(C), c(0)) : i.Out(r(C), r[y]);
+        return y == 6 ? i.Out(r(BC), c(0)) : i.Out(r(BC), r[y]);
       case 2:
         return q == 0 ? i.Sbc16(r(HL), rp[p]) : i.Adc16(r(HL), rp[p]);
       case 3:
@@ -47,16 +48,23 @@ public class EDPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
       case 4:
         return i.Neg(r(A));
       case 5:
-        return y != 1 ? i.RetN(opc.t()) : i.RetN(opc.t());
+        return i.RetN(opc.t());
       case 6:
         return i.IM(im[y]);
       case 7:
-        return select(i.Ld(r(I), r(A)), i.Ld(r(R), r(A)), i.Ld(r(A), r(I)), i.LdAR(r(A), r(R)), i.RRD(), i.RLD(), i.Nop(), i.Nop())[y];
+        return select(i.Ld(r(I), r(A)), i.Ld(r(R), r(A)), i.LdAI(), i.LdAR(r(A), r(R)), i.RRD(), i.RLD(), i.Nop(), i.Nop())[y];
       }
     case 2:
       if (z <= 3 && y >= 4)
         return bli[y][z];
     }
-    return null;
+    // An ED prefix on anything else is two bytes and eight T-states of nothing, which is what the
+    // processor does with it. Leaving the table empty made the fetcher fail on a program that ran
+    // one, and some protections do.
+    return i.Nop();
+  }
+
+  private OpcodeReference nullTarget() {
+    return new NullOpcodeReference();
   }
 }

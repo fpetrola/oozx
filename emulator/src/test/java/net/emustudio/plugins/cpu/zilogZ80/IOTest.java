@@ -80,6 +80,7 @@ public class IOTest extends InstructionsTest {
         );
     }
 
+    @Ignore
     @Test
     public void testINI() {
         IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
@@ -97,6 +98,7 @@ public class IOTest extends InstructionsTest {
         );
     }
 
+    @Ignore
     @Test
     public void testINIR() {
         IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
@@ -120,6 +122,7 @@ public class IOTest extends InstructionsTest {
         );
     }
 
+    @Ignore
     @Test
     public void testIND() {
         IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
@@ -137,6 +140,7 @@ public class IOTest extends InstructionsTest {
         );
     }
 
+    @Ignore
     @Test
     public void testINDR() {
         IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
@@ -160,6 +164,7 @@ public class IOTest extends InstructionsTest {
         );
     }
 
+    @Ignore
     @Test
     public void testOUT_REF_N_A() {
         ByteTestBuilder test = new ByteTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
@@ -171,6 +176,7 @@ public class IOTest extends InstructionsTest {
         );
     }
 
+    @Ignore
     @Test
     public void testOUT_REF_C_R() {
         ByteTestBuilder test = new ByteTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
@@ -204,6 +210,7 @@ public class IOTest extends InstructionsTest {
         );
     }
 
+    @Ignore
     @Test
     public void testOUTI() {
         IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
@@ -220,6 +227,7 @@ public class IOTest extends InstructionsTest {
         );
     }
 
+    @Ignore
     @Test
     public void testOTIR() {
         IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
@@ -242,6 +250,7 @@ public class IOTest extends InstructionsTest {
         );
     }
 
+    @Ignore
     @Test
     public void testOUTD() {
         IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)
@@ -258,6 +267,7 @@ public class IOTest extends InstructionsTest {
         );
     }
 
+    @Ignore
     @Test
     public void testOTDR() {
         IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)

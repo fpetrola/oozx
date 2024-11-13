@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,6 +18,6 @@
 
 package com.fpetrola.z80.instructions.types;
 
-public interface JumpInstruction<T> {
-  T getNextPC();
+public interface JumpInstruction extends Instruction {
+  int getNextPC();
 }

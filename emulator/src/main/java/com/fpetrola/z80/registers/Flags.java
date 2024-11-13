@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@
  */
 
 package com.fpetrola.z80.registers;
-
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class Flags {
 
@@ -38,13 +36,13 @@ public class Flags {
    * @param flag flags to set
    * @param set  if true will set, unset otherwise
    */
-  public final static <T extends WordNumber> void setFlag(Register<T> r, int flag, boolean set) {
-    final int currentFlags = r.read().intValue();
+  public final static  void setFlag(Register r, int flag, boolean set) {
+    final int currentFlags = r.read();
 
     if (set) {
-      r.write(WordNumber.createValue(currentFlags | flag));
+      r.write(currentFlags | flag);
     } else {
-      r.write(WordNumber.createValue(currentFlags & ~(flag)));
+      r.write(currentFlags & ~(flag));
     }
   }
 
@@ -55,9 +53,9 @@ public class Flags {
    * @param flag flags to check
    * @return true if all flags passed in flag param are set
    */
-  public final static <T extends WordNumber> boolean getFlag(Register<T> r, int flag) {
+  public final static  boolean getFlag(Register r, int flag) {
 
-    final int currentFlags = r.read().intValue();
+    final int currentFlags = r.read();
 
     return ((currentFlags & flag) == flag);
 
@@ -73,9 +71,9 @@ public class Flags {
    * @param flag  flags to copy from value
    * @param value a value that will be used as reference for the flags
    */
-  public final static <T extends WordNumber> void copyFrom(Register<T> r, int flag, int value) {
-    final int currentFlag = r.read().intValue() & ~(flag);
-    r.write(WordNumber.createValue(currentFlag | (value & flag)));
+  public final static  void copyFrom(Register r, int flag, int value) {
+    final int currentFlag = r.read() & ~(flag);
+    r.write(currentFlag | (value & flag));
   }
 
   public final static String toString(int flag) {

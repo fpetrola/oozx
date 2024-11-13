@@ -9,6 +9,13 @@ JSpeccy.xml
 *.iml
 *.dot
 *.class
+*.jfr
 */target/**
+**/target/**
+dependency-reduced-pom.xml
+.profileconfig.json
 
-
+# The reference emulator's C source and library, kept alongside to check against. GPL, and this
+# repo is Apache: they must never be committed here.
+fuse-emulator-fuse/
+libspectrum/

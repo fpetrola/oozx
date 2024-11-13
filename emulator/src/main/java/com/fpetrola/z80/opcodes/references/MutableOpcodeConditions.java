@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.registers.RegisterName;
 
 public class MutableOpcodeConditions extends OpcodeConditions {
-  private ConditionExecutionListener executionsListener;
+  private final ConditionExecutionListener executionsListener;
 
   public MutableOpcodeConditions(State state2, ConditionExecutionListener executionsListener) {
     super(state2.getFlag(), state2.getRegister(RegisterName.B));

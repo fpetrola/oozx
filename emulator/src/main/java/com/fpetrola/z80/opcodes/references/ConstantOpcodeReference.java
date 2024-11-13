@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@ package com.fpetrola.z80.opcodes.references;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 
-public class ConstantOpcodeReference<T> implements ImmutableOpcodeReference<T> {
-  private final T value;
+public class ConstantOpcodeReference implements ImmutableOpcodeReference {
+  private final int value;
 
-  ConstantOpcodeReference(T value) {
+  ConstantOpcodeReference(int value) {
     this.value = value;
   }
 
-  public T read() {
+  public int read() {
     return value;
   }
 

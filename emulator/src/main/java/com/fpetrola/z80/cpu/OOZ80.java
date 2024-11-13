@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,70 +18,77 @@
 
 package com.fpetrola.z80.cpu;
 
+import com.fpetrola.z80.instructions.impl.EI;
 import com.fpetrola.z80.instructions.impl.Push;
-import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.RegisterName;
 
-import java.util.stream.Stream;
-
-import static com.fpetrola.z80.cpu.State.InterruptionMode.IM0;
 import static com.fpetrola.z80.cpu.State.InterruptionMode.IM2;
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-import static com.fpetrola.z80.registers.RegisterName.AF;
-import static com.fpetrola.z80.registers.RegisterName.IR;
 
-public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
+public class OOZ80 implements Z80Cpu {
   protected InstructionFetcher instructionFetcher;
-  protected State<T> state;
+  private final InstructionExecutor instructionExecutor;
+  protected State state;
 
-  public OOZ80(State aState, InstructionFetcher instructionFetcher) {
+  public OOZ80(State aState, InstructionFetcher instructionFetcher, InstructionExecutor instructionExecutor) {
     this.state = aState;
     this.instructionFetcher = instructionFetcher;
+    this.instructionExecutor = instructionExecutor;
   }
 
   @Override
   public void reset() {
-    Stream.of(RegisterName.values()).forEach(r -> state.r(r).write(createValue(0xFFFF)));
-    state.getRegister(IR).write(createValue(0));
-    state.getRegister(AF).write(createValue(0xFFFF));
-    state.setIntMode(IM0);
+    instructionExecutor.reset();
+    instructionFetcher.reset();
+    state.reset();
   }
 
   @Override
   public void execute() {
     if (state.isActiveNMI()) {
       state.setActiveNMI(false);
+      nmi();
       return;
     }
     if (state.isIntLine() && state.isIff1() && !state.isPendingEI())
       interruption();
 
+    Instruction instruction;
     try {
-      execute(1);
+      instruction = execute(1);
     } catch (Exception e) {
       e.printStackTrace();
       System.out.println("Invalid instruction");
       throw new RuntimeException(e);
     }
-    if (state.isPendingEI()) {
+    if (state.isPendingEI() && !(instruction instanceof EI)) {
       state.setPendingEI(false);
       endInterruption();
     }
   }
 
-  public void execute(int cycles) {
-    instructionFetcher.fetchNextInstruction();
+  public Instruction execute(int cycles) {
+    try {
+      Instruction currentInstruction = instructionFetcher.fetchNextInstruction();
+      instructionExecutor.execute(currentInstruction);
+//      instructionFetcher.afterExecute(currentInstruction);
+      return currentInstruction;
+    } catch (Exception e) {
+      e.printStackTrace();
+      state.setRunState(State.RunState.STATE_STOPPED_BREAK);
+      return null;
+    }
   }
 
   @Override
   public void interruption() {
+    getState().setINTLine(true);
     doInt();
+    getState().setINTLine(false);
   }
 
   private void doInt() {
-    Register<T> pc = state.getPc();
+    Register pc = state.getPc();
 
     if (state.isHalted()) {
       state.setHalted(false);
@@ -89,13 +96,37 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
     }
 
     state.getRegisterR().increment();
+    Push.doPush(pc.read(), state.getRegisterSP(), state.getMemory());
     state.setIff1(false);
     state.setIff2(false);
 
-    Push.doPush(pc.read(), state.getRegisterSP(), state.getMemory());
-    T value = state.getInterruptionMode() == IM2 ? Memory.read16Bits(state.getMemory(), (state.getRegI().read().left(8)).or(0xff)) : createValue(0x0038);
+    int value;
+    if (state.getInterruptionMode() == IM2) {
+      int wordNumber = state.getRegI().read();
+      int wordNumber1 = (wordNumber << 8) & 0xFFFF;
+      value = state.getMemory().read16Bits((wordNumber1 | 0xff) & 0xFFFF);
+    } else {
+      value = 0x0038;
+    }
     pc.write(value);
     state.getMemptr().write(value);
+  }
+
+  /**
+   * The non-maskable interrupt, taken between two instructions: out of HALT if it was there,
+   * IFF1 copied into IFF2 and cleared, PC pushed, and off to 0x0066.
+   */
+  public void nmi() {
+    Register pc = state.getPc();
+    if (state.isHalted()) {
+      state.setHalted(false);
+      pc.increment();
+    }
+    state.getRegisterR().increment();
+    Push.doPush(pc.read(), state.getRegisterSP(), state.getMemory());
+    state.setIff2(state.isIff1());
+    state.setIff1(false);
+    pc.write(0x0066);
   }
 
   @Override
@@ -113,8 +144,12 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
   }
 
   @Override
-  public State<T> getState() {
+  public State getState() {
     return state;
   }
 
+  @Override
+  public InstructionExecutor getInstructionExecutor() {
+    return instructionExecutor;
+  }
 }

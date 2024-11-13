@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -19,24 +19,71 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
-import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.RegisterBank;
-import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.registers.*;
 
+import java.util.stream.Stream;
+
+import static com.fpetrola.z80.cpu.State.InterruptionMode.IM0;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-public class State<T extends WordNumber> {
+public class State {
   private RunState runState;
+  public Z80Clock clock = new DefaultZ80Clock();
+
+  public long getTStatesSinceCpuStart() {
+    return getTstates();
+  }
+
+
+
+
+  public void reset() {
+    setTstates(0);
+    Stream.of(values()).forEach(r -> r(r).write(0xFFFF));
+    getRegister(IR).write(0);
+    getRegister(AF).write(0xFFFF);
+    setIntMode(IM0);
+  }
+
+  public void setRegisters(State state) {
+    Stream.of(values()).forEach(r -> getRegister(r).write(state.getRegister(r).read()));
+  }
+
+  /**
+   * Everything this state is, taken from another one: the registers and the processor's own
+   * pins and latches. What it does NOT take is the memory, the ports and the clock, which are
+   * the machine's rather than the processor's - a state built over the same machine already
+   * shares them.
+   */
+  public void takeFrom(State other) {
+    setRegisters(other);
+    setIntMode(other.getInterruptionMode());
+    setIff1(other.isIff1());
+    setIff2(other.isIff2());
+    setHalted(other.isHalted());
+    setActiveNMI(other.isActiveNMI());
+    setINTLine(other.isIntLine());
+    setPendingEI(other.isPendingEI());
+    setFlagQ(other.isFlagQ());
+    setPinReset(other.isPinReset());
+    setRunState(other.getRunState());
+  }
+
+  private long getTstates() {
+    return clock.getTStates();
+  }
+
+  private void setTstates(int tstates) {
+    clock.setTStates(tstates);
+  }
 
   public enum InterruptionMode {IM0, IM1, IM2}
 
   private InterruptionMode intMode;
 
-  private RegisterBank<T> registers;
-  private Memory<T> memory;
-  private IO<T> io;
+  private final RegisterBank registers;
+  private final Memory memory;
+  private final IO io;
 
   private boolean halted;
   private boolean iff1;
@@ -57,15 +104,15 @@ public class State<T extends WordNumber> {
     this(io, new DefaultRegisterBankFactory().createBank(), memory);
   }
 
-  public Register<T> getFlag() {
+  public Register getFlag() {
     return getRegister(F);
   }
 
-  public Register<T> r(RegisterName name) {
+  public Register r(RegisterName name) {
     return this.registers.get(name);
   }
 
-  public Register<T> getRegister(RegisterName name) {
+  public Register getRegister(RegisterName name) {
     return this.registers.get(name);
   }
 
@@ -114,11 +161,11 @@ public class State<T extends WordNumber> {
     this.intMode = intMode;
   }
 
-  public Memory<T> getMemory() {
+  public Memory getMemory() {
     return memory;
   }
 
-  public IO<T> getIo() {
+  public IO getIo() {
     return io;
   }
 
@@ -163,23 +210,23 @@ public class State<T extends WordNumber> {
   }
 
 
-  public Register<T> getPc() {
+  public Register getPc() {
     return this.getRegister(PC);
   }
 
-  public Register<T> getMemptr() {
+  public Register getMemptr() {
     return this.getRegister(MEMPTR);
   }
 
-  public Register<T> getRegI() {
+  public Register getRegI() {
     return this.getRegister(I);
   }
 
-  public Register<T> getRegisterSP() {
+  public Register getRegisterSP() {
     return this.getRegister(SP);
   }
 
-  public Register<T> getRegisterR() {
+  public Register getRegisterR() {
     return this.getRegister(R);
   }
 
@@ -207,4 +254,5 @@ public class State<T extends WordNumber> {
       return this.name;
     }
   }
+
 }

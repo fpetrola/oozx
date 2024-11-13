@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,115 +18,76 @@
 
 package com.fpetrola.z80.registers;
 
-import com.fpetrola.z80.opcodes.references.IntegerWordNumber;
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-public class DefaultRegisterBankFactory<T extends WordNumber> {
+public class DefaultRegisterBankFactory {
 
   public DefaultRegisterBankFactory() {
   }
 
-  public <T> RegisterBank createBank() {
+  public RegisterBank createBank() {
     return initBasicBank();
   }
 
-  public RegisterBank<T> initBasicBank() {
+  public RegisterBank initBasicBank() {
     RegisterBank registerBank = new RegisterBank();
 
-    registerBank.af = createComposed16BitRegister(AF, create8BitRegister(A), createFlagRegister());
-    registerBank.bc = createComposed16BitRegister(BC, B, C);
-    registerBank.de = createComposed16BitRegister(DE, D, E);
-    registerBank.hl = createComposed16BitRegister(HL, H, L);
+    registerBank.registerAf = createComposed16BitRegister(AF, A, F);
+    registerBank.registerBc = createComposed16BitRegister(BC, B, C);
+    registerBank.registerDe = createComposed16BitRegister(DE, D, E);
+    registerBank.registerHl = createComposed16BitRegister(HL, H, L);
 
-    registerBank._af = createComposed16BitRegister(AFx, Ax, Fx);
-    registerBank._bc = createComposed16BitRegister(BCx, Bx, Cx);
-    registerBank._de = createComposed16BitRegister(DEx, Dx, Ex);
-    registerBank._hl = createComposed16BitRegister(HLx, Hx, Lx);
+    registerBank.register_af = createInvertedComposed16BitRegister(AFx, Ax, Fx);
+    registerBank.register_bc = createInvertedComposed16BitRegister(BCx, Bx, Cx);
+    registerBank.register_de = createInvertedComposed16BitRegister(DEx, Dx, Ex);
+    registerBank.register_hl = createInvertedComposed16BitRegister(HLx, Hx, Lx);
 
-    registerBank.ix = createComposed16BitRegister(IX, IXH, IXL);
-    registerBank.iy = createComposed16BitRegister(IY, IYH, IYL);
-    registerBank.ir = createComposed16BitRegister(IR, createAlwaysIntegerPlain8BitRegister(I), createRRegister());
+    registerBank.registerIx = createInvertedComposed16BitRegister(IX, IXH, IXL);
+    registerBank.registerIy = createInvertedComposed16BitRegister(IY, IYH, IYL);
+    registerBank.registerIr = createComposed16BitRegister(IR, create8BitRegister(I), createRRegister());
 
-    registerBank.pc = createAlwaysIntegerPlain16BitRegister(PC);
-    registerBank.sp = createAlwaysIntegerPlain16BitRegister(SP);
+    registerBank.registerPc = createPlain16BitRegister(PC);
+    registerBank.registerSp = createPlain16BitRegister(SP);
 
-    registerBank.memptr = createPlain16BitRegister(MEMPTR);
-    registerBank.virtual = createPlain16BitRegister(VIRTUAL);
+    registerBank.registerMemptr = createPlain16BitRegister(MEMPTR);
+    registerBank.registerVirtual = createPlain16BitRegister(VIRTUAL);
 
     return registerBank;
   }
 
-  protected Register createFlagRegister() {
-    return new Plain8BitRegister(F.name());
+  protected Register createRRegister() {
+    return new RRegister();
   }
 
-  protected Register<T> createRRegister() {
-    return new RRegister<T>();
-  }
-
-  protected Register<T> createAlwaysIntegerPlain8BitRegister(RegisterName registerName) {
-    return new AlwaysIntegerPlain8BitRegister<T>(registerName.name());
-  }
-
-  protected Register<T> create8BitRegister(RegisterName registerName) {
+  protected Register create8BitRegister(RegisterName registerName) {
     return new Plain8BitRegister(registerName.name());
   }
 
-  protected RegisterPair<T> createComposed16BitRegister(RegisterName registerName, Register<T> h, Register<T> l) {
-    return new Composed16BitRegister<>(registerName.name(), h, l);
+  protected RegisterPair createComposed16BitRegister(RegisterName registerName, Register h, Register l) {
+    return compose(registerName.name(), h, l);
   }
 
-  protected Register createAlwaysIntegerPlain16BitRegister(RegisterName registerName) {
-    return new AlwaysIntegerPlain16BitRegister(registerName.name());
-  }
-
-  protected Register<T> createPlain16BitRegister(RegisterName registerName) {
-    return new Plain16BitRegister<T>(registerName.name());
+  protected Register createPlain16BitRegister(RegisterName registerName) {
+    return new Plain16BitRegister(registerName.name());
   }
 
   protected RegisterPair createComposed16BitRegister(RegisterName registerName, RegisterName h, RegisterName l) {
-    return new Composed16BitRegister(registerName.name(), create8BitRegister(h), create8BitRegister(l));
+    return compose(registerName.name(), create8BitRegister(h), create8BitRegister(l));
   }
 
-  public static class AlwaysIntegerPlain8BitRegister<T extends WordNumber> extends Plain8BitRegister<T> {
-    public AlwaysIntegerPlain8BitRegister(String registerName) {
-      super(registerName);
-    }
-
-    public void write(T value) {
-      this.data = (T) new IntegerWordNumber(value.intValue());
-    }
+  protected RegisterPair createInvertedComposed16BitRegister(RegisterName registerName, RegisterName h, RegisterName l) {
+    return new InvertedComposed16BitRegister(registerName.name(), h, l);
   }
 
-  public static class AlwaysIntegerPlain16BitRegister<T extends WordNumber> extends Plain16BitRegister<T> {
-    public AlwaysIntegerPlain16BitRegister(String registerName) {
-      super(registerName);
-    }
 
-    public void write(T value) {
-      this.data = (T) new IntegerWordNumber(value.intValue());
-    }
-  }
-
-  public static class RRegister<T extends WordNumber> extends AlwaysIntegerPlain8BitRegister<T> {
-    private boolean regRbit7;
-
-    public RRegister() {
-      super(RegisterName.R.name());
-    }
-
-    public void write(T value) {
-      int regR = value.intValue() & 0x7f;
-      regRbit7 = (value.intValue() > 0x7f);
-      super.write((T) new IntegerWordNumber(regR));
-    }
-
-    public T read() {
-      int regR = super.read().intValue();
-      int result = regRbit7 ? (regR & 0x7f) | 0x80 : regR & 0x7f;
-      return (T) new IntegerWordNumber(result);
-    }
+  /**
+   * El camino rapido escribe el campo data directamente, asi que solo sirve si
+   * ninguna mitad redefine el contrato de Register: subclases como RRegister, los
+   * envoltorios de spy y los registros virtuales necesitan la version polimorfica.
+   */
+  private static RegisterPair compose(String name, Register h, Register l) {
+    if (h.getClass() == Plain8BitRegister.class && l.getClass() == Plain8BitRegister.class)
+      return new PlainComposed16BitRegister(name, (Plain8BitRegister) h, (Plain8BitRegister) l);
+    return new Composed16BitRegister<>(name, h, l);
   }
 }

@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -22,28 +22,24 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.*;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class Xor<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
-  protected static final AluOperation xorTableAluOperation = new AluOperation() {
-    public int execute(int result, int value, int carry) {
-      data = 0;
-      result = result ^ value;
-      setS((result & 0x0080) != 0);
-      setZ(result == 0);
-      setPV(parity[result & 0xFF]);
-      setUnusedFlags(result);
-      return result;
+public class Xor extends ParameterizedBinaryAluInstruction {
+  public static class XorTableAluOperation extends AluOperation {
+    protected int calculate2Values1Boolean(int value1, int value2, int carry) {
+      value2 ^= (value1);
+      F = sz53pTable(value2);
+      Q = F;
+      return value2;
     }
-  };
-
-  public Xor(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
-    super(target, source, flag, (flag1, value1, value2) -> xorTableAluOperation.executeWithoutCarry(value2, value1, flag1));
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public Xor(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
+    super(target, source, flag, new XorTableAluOperation());
+  }
+
+  public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingXor(this);
   }

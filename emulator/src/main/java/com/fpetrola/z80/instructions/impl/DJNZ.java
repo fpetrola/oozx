@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,34 +18,39 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.opcodes.references.BNotZeroCondition;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class DJNZ<T extends WordNumber> extends ConditionalInstruction<T, BNotZeroCondition<T>> {
-  public DJNZ(ImmutableOpcodeReference<T> target, BNotZeroCondition condition, Register<T> pc) {
-    super(target, null, pc);
-    this.condition = condition;
+public class DJNZ extends ConditionalInstruction<BNotZeroCondition> {
+  public DJNZ(ImmutableOpcodeReference target, BNotZeroCondition condition, Register pc) {
+    super(target, condition, pc);
   }
 
-  public int execute() {
+  public void execute() {
     condition.getB().decrement();
-    return super.execute();
+    if (condition.conditionMet(this)) {
+      int jumpAddress2 = calculateJumpAddress();
+      jumpAddress2 = beforeJump(jumpAddress2);
+      setJumpAddress(jumpAddress2);
+      setNextPC(jumpAddress2);
+    } else
+      setNextPC(-1);
   }
 
-  public T calculateJumpAddress() {
+  public int calculateJumpAddress() {
     return calculateRelativeJumpAddress();
   }
 
-  public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitingDjnz(this);
+  public void accept(InstructionVisitor<?> visitor) {
+    if (!visitor.visitingDjnz(this)) {
+      super.accept(visitor);
+    }
   }
 
   public String toString() {
-    return getClass().getSimpleName() + " " + positionOpcodeReference;
+    return getClass().getSimpleName() + " "/* + positionOpcodeReference*/;
   }
 }

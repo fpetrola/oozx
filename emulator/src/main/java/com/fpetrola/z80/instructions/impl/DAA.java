@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -21,46 +21,41 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Plain8BitRegister;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class DAA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
-  public static AluOperation daaTableAluOperation = new AluOperation() {
-    public int execute(int registerA, int carry, int flags) {
-      // pc:4
-      // The following algorithm is from comp.sys.sinclair's FAQ.
-      int c, d;
-
-      if (registerA > 0x99 || ((flags & FLAG_C) != 0)) {
-        c = FLAG_C;
-        d = 0x60;
+public class DAA extends ParameterizedUnaryAluInstruction {
+  public static class DaaTableAluOperation extends AluOperation {
+    protected int calculate2Values1Boolean(int value1, int value2, int flags) {
+      F = value2;
+      value1 &= 0xff;
+      int add = 0;
+      int carry = (F & FLAG_C);
+      if (((F & FLAG_H) != 0) || ((value1 & 0x0f) > 9)) add = 6;
+      if (carry != 0 || (value1 > 0x99)) add |= 0x60;
+      if (value1 > 0x99) carry = FLAG_C;
+      Register f = new Plain8BitRegister("");
+      f.write(F);
+      if ((F & FLAG_N) != 0) {
+        value1 = new Sub.Sub8TableAluOperation().execute2Values(value1, add, f);
       } else {
-        c = d = 0;
+        value1 = new Add.Add8TableAluOperation().execute2Values(add, value1, f);
       }
+      F = f.read();
 
-      if ((registerA & 0x0f) > 0x09 || ((flags & FLAG_H) != 0)) {
-        d += 0x06;
-      }
+      F = (F & ~(FLAG_C | FLAG_P)) | carry | parityTable(value1);
+      Q = F;
 
-      int regA = ((flags & FLAG_N) != 0 ? registerA - d : registerA + d) & 0xFF;
-      flags = TABLE_SZ[regA]
-          | PARITY_TABLE[regA]
-          | TABLE_XY[regA]
-          | ((regA ^ registerA) & FLAG_H)
-          | (flags & FLAG_N)
-          | c;
-      int Q = flags;
-
-      return regA;
+      return value1;
     }
-  };
-
-  public DAA(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, reg_A) -> daaTableAluOperation.executeWithCarry2(reg_A, reg_A, tFlagRegister.read().intValue(), tFlagRegister));
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public DAA(OpcodeReference target, Register flag) {
+    super(target, flag, new DaaTableAluOperation());
+  }
+
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingDaa(this))
       super.accept(visitor);
   }

@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,23 +18,24 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 
-public class Ldd<T extends WordNumber> extends Ldi<T> {
-  public Ldd(Register<T> de, RegisterPair<T> bc, Register<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
-    super(de, bc, hl, flag, memory, io);
-  }
-
-  protected void flagOperation() {
-    Ldi.ldiTableAluOperation.executeWithCarry(bc.read(), flag);
+public class Ldd extends Ldi {
+  public Ldd(Register de, RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io, Register a) {
+    super(de, bc, hl, flag, memory, io, a);
   }
 
   protected void next() {
     hl.decrement();
     de.decrement();
+  }
+
+  public void accept(InstructionVisitor<?> visitor) {
+    if (!visitor.visitLdd(this))
+      super.accept(visitor);
   }
 }

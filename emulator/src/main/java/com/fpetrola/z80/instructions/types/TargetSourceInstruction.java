@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -21,32 +21,33 @@ package com.fpetrola.z80.instructions.types;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
-public abstract class TargetSourceInstruction<T extends WordNumber, S extends ImmutableOpcodeReference<T>> extends DefaultTargetFlagInstruction<T> {
-  protected S source;
+public abstract class TargetSourceInstruction<S extends ImmutableOpcodeReference> extends DefaultTargetFlagInstruction implements SourceInstruction<S> {
+  final protected S source;
 
-  public TargetSourceInstruction(OpcodeReference<T> target, S source, Register<T> flag) {
+  public TargetSourceInstruction(OpcodeReference target, S source, Register flag) {
     super(target, flag);
     this.source = source;
     incrementLengthBy(source.getLength());
-    cyclesCost += 1;
+  }
+
+  public TargetSourceInstruction(OpcodeReference target, S source, Register flag, AluOperation aluOperation) {
+    super(target, flag, aluOperation);
+    this.source = source;
+    incrementLengthBy(source.getLength());
   }
 
   public String toString() {
-    return super.toString() + ", " + source;
+    return super.toString() + ", " + "source";
   }
 
   public S getSource() {
     return source;
   }
 
-  public void setSource(S source) {
-    this.source = source;
-  }
-
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitingFlag(getFlag(), this);
     visitor.visitingSource(getSource(), this);
     visitor.visitingTarget(getTarget(), this);

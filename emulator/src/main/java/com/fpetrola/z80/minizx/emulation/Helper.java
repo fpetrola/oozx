@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,17 +18,13 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
-import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
-import com.fpetrola.z80.cpu.OOZ80;
+import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.cpu.IO;
-import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.spy.NullInstructionSpy;
+import com.fpetrola.z80.spy.InstructionSpy;
 
 public class Helper {
-  public static <T extends WordNumber> OOZ80<T> createOOZ80(IO io) {
-    var state = new State(io, new MockedMemory(true));
-    return new OOZ80(state, DefaultInstructionFetcher.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)));
+  public static DefaultInstructionFetcher getInstructionFetcher(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory) {
+    return new DefaultInstructionFetcher(state, instructionFactory, false, false);
+//    return new CachedInstructionFetcher(state, instructionFactory, false);
   }
 }

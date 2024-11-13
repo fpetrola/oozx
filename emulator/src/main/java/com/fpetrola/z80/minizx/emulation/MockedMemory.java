@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,127 +18,41 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
-import com.fpetrola.z80.memory.MemoryReadListener;
-import com.fpetrola.z80.memory.MemoryWriteListener;
-import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
 import java.util.function.Supplier;
 
-public class MockedMemory<T extends WordNumber> implements Memory<T> {
-  protected T[] data = (T[]) new WordNumber[0x100000];
-  private MemoryWriteListener memoryWriteListener;
-  private boolean readOnly;
-  private MemoryReadListener memoryReadListener;
-  private MemoryReadListener lastMemoryReadListener;
-  private MemoryWriteListener lastMemoryWriteListener;
-  private boolean canDisable;
+@SuppressWarnings("unchecked")
+public class MockedMemory extends AbstractMemory {
+  protected int[] data =  new int[0x10000];
 
   public MockedMemory(boolean canDisable1) {
-    this.canDisable= canDisable1;
+    super();
   }
 
-  public void init(Supplier<T[]> supplier) {
+  public void init(Supplier<int[]> supplier) {
     data = supplier.get();
   }
 
   @Override
-  public T read(T address) {
-    if (memoryReadListener != null)
-      memoryReadListener.readingMemoryAt(address, WordNumber.createValue(0));
-
-    T datum = data[address.intValue()];
-    if (datum == null)
-      return WordNumber.createValue(0);
-    else
-      return datum.and(0xFF);
+  protected int doRead(int address) {
+    int i = address;
+    return i >= 0 ? data[i] : 0;
   }
 
   @Override
-  public void write(T address, T value) {
-    if (!readOnly) {
-      if (memoryWriteListener != null)
-        memoryWriteListener.writtingMemoryAt(address, value);
-//      if (address.intValue() == 23548)
-//        System.out.println("");
-      data[address.intValue()] = value;
-    }
-  }
-
-  @Override
-  public boolean compare() {
-    return false;
-  }
-
-  @Override
-  public void update() {
-
-  }
-
-  @Override
-  public void addMemoryWriteListener(MemoryWriteListener memoryWriteListener) {
-    this.memoryWriteListener = memoryWriteListener;
-  }
-
-  @Override
-  public void removeMemoryWriteListener(MemoryWriteListener memoryWriteListener) {
+  protected void doWrite(int address, int value) {
+    data[address] = value & 0xff;
   }
 
   @Override
   public void reset() {
-
+    for (int i = 0; i < data.length; i++) {
+      doWrite(i, 0);
+    }
+//    Arrays.fill(data, WordNumber.createValue(0));
   }
 
   @Override
-  public void addMemoryReadListener(MemoryReadListener memoryReadListener) {
-    this.memoryReadListener = memoryReadListener;
-  }
-
-  @Override
-  public void removeMemoryReadListener(MemoryReadListener memoryReadListener) {
-
-  }
-
-  public void enableReadyOnly(boolean readOnly) {
-    this.readOnly = readOnly;
-  }
-
-  @Override
-  public T[] getData() {
+  public int[] getData() {
     return data;
-  }
-
-  @Override
-  public void disableReadListener() { //FIXME: para que era???
-    if (canDisable) {
-      lastMemoryReadListener = memoryReadListener;
-      memoryReadListener = null;
-    }
-  }
-
-  @Override
-  public void enableReadListener() {
-    if (canDisable) {
-      memoryReadListener = lastMemoryReadListener;
-    }
-  }
-
-  @Override
-  public void disableWriteListener() {
-    if (canDisable) {
-      lastMemoryWriteListener = memoryWriteListener;
-      memoryWriteListener = null;
-    }
-  }
-
-  @Override
-  public void enableWriteListener() {
-    if (canDisable) {
-      memoryWriteListener = lastMemoryWriteListener;
-    }
-  }
-
-  public void canDisable(boolean canDisable) {
-    this.canDisable = canDisable;
   }
 }

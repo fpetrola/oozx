@@ -1,0 +1,89 @@
+/*
+ *
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *      http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *
+ */
+
+package com.fpetrola.z80.se.actions;
+
+import com.fpetrola.z80.instructions.impl.Pop;
+import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.opcodes.references.OpcodeReference;
+import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.se.*;
+
+public class SePop extends Pop implements IPopReturnAddress {
+  private final SymbolicExecutionAdapter symbolicExecutionAdapter;
+  private int previousPc = -1;
+  private int popAddress;
+
+  private ReturnAddressWordNumber returnAddress;
+
+  public SePop(SymbolicExecutionAdapter symbolicExecutionAdapter, OpcodeReference target, Register sp, Memory memory, Register flag) {
+    super(target, sp, memory, flag);
+    this.symbolicExecutionAdapter = symbolicExecutionAdapter;
+  }
+
+  public void execute() {
+    setNextPC(-1);
+    returnAddress = null;
+    int stackAddress = sp.read();
+    var read = memory.read16Bits(stackAddress);
+    ReturnAddressWordNumber returnAddressWordNumber = symbolicExecutionAdapter.takeReturnAddress(stackAddress, read);
+
+    if (returnAddressWordNumber != null) {
+      RoutineExecutorHandler routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
+      var pc = routineExecutorHandler.getPc();
+      var pcValue = pc.read();
+
+      previousPc = symbolicExecutionAdapter.lastPc;
+      popAddress = pcValue;
+      returnAddress = returnAddressWordNumber;
+
+      var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
+      var routineExecution = routineExecutorHandler.getCallerRoutineExecution();
+
+      routineExecution.replaceAddressAction(new AddressActionDelegate(pcValue + 1, routineExecutorHandler));
+      routineExecution.replaceAddressAction(new AddressActionDelegate(returnAddressWordNumber.value, routineExecutorHandler));
+      lastRoutineExecution.replaceAddressAction(new BasicAddressAction(popAddress, routineExecutorHandler, false));
+      routineExecution.replaceAddressAction(new PopReturnCallAddressAction(routineExecutorHandler, lastRoutineExecution, returnAddressWordNumber.pc));
+
+      target.write(doPop(memory, sp));
+
+      routineExecutorHandler.popRoutineExecution();
+      if (!lastRoutineExecution.hasRetInstruction())
+        lastRoutineExecution.setRetInstruction(pcValue);
+    } else {
+      symbolicExecutionAdapter.checkNextSP();
+      target.write(doPop(memory, sp));
+    }
+  }
+
+  protected String getName() {
+    return "Pop_";
+  }
+
+  public int getPreviousPc() {
+    return previousPc;
+  }
+
+  public int getPopAddress() {
+    return popAddress;
+  }
+
+  public ReturnAddressWordNumber getReturnAddress() {
+    return returnAddress;
+  }
+}

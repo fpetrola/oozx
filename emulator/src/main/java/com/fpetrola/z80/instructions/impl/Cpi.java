@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,85 +18,76 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.BlockInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.IO;
+import com.fpetrola.z80.instructions.types.BlockInstruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class Cpi<T extends WordNumber> extends BlockInstruction<T> {
-  public static final AluOperation cpiTableAluOperation = new TableAluOperation() {
-    public int execute(int reg_A, int value, int carry) {
-      //    reg_R++;
-      int result = reg_A - value;
-      //
-      if ((result & 0x0080) == 0)
-        resetS();
-      else
-        setS();
-      result = result & 0x00FF;
-      if (result == 0)
-        setZ();
-      else
-        resetZ();
-      setHalfCarryFlagSub(reg_A, value);
-      setPV(carry == 1);
-      setN();
-      //
-//    if (getH())
-//      value--;
-//    if ((value & 0x00002) == 0)
-//      reset5();
-//    else
-//      set5();
-//    if ((value & 0x00008) == 0)
-//      reset3();
-//    else
-//      set3();
-
-      return reg_A;
+public class Cpi extends BlockInstruction {
+  public static class CpiTableAluOperation extends AluOperation {
+    @Override
+    protected int calculate2Values1Boolean(int value, int A, int BC) {
+      // NOT the carry: the third argument here says whether BC is still counting, and seeding the
+      // flags from it took the carry out of that - so CPI reported a carry whenever it had more
+      // to compare. The carry is the one flag CPI leaves alone and this table cannot carry it,
+      // being indexed by the compared byte, the accumulator and that counter; it is put back in
+      // flagOperation, where the flags register is at hand.
+      F = 0;
+      int bytetemp = A - value;
+      int lookup = ((A & 0x08) >> 3) |
+                   ((value & 0x08) >> 2) |
+                   ((bytetemp & 0x08) >> 1);
+      F = (F & FLAG_C) | (BC != 0 ? (FLAG_V | FLAG_N) : FLAG_N) |
+          halfCarrySubTable(lookup) | (bytetemp != 0 ? 0 : FLAG_Z) |
+          (bytetemp & FLAG_S);
+      if ((F & FLAG_H) != 0) bytetemp--;
+      F |= (bytetemp & FLAG_3) | ((bytetemp & 0x02) != 0 ? FLAG_5 : 0);
+      Q = F;
+      return F;
     }
-  };
+  }
 
-  public Register<T> getA() {
+  public Register getA() {
     return a;
   }
 
-  public void setA(Register<T> a) {
+  public void setA(Register a) {
     this.a = a;
   }
 
-  protected Register<T> a;
+  protected Register a;
 
-  public Cpi(Register<T> a, Register<T> flag, RegisterPair<T> bc, Register<T> hl, Memory<T> memory, IO<T> io) {
-    super(bc, hl, flag, memory, io);
+  public Cpi(Register a, Register flag, RegisterPair bc, RegisterPair hl, Memory memory, IO io) {
+    super(bc, hl, flag, memory, io, new CpiTableAluOperation());
     this.a = a;
   }
 
-  public int execute() {
-    memory.disableReadListener();
-    memory.disableWriteListener();
+  protected Cpi(Register a, Register flag, RegisterPair bc, RegisterPair hl, Memory memory, IO io, AluOperation aluOperation) {
+    super(bc, hl, flag, memory, io, aluOperation);
+    this.a = a;
+  }
+
+  public void execute() {
     bc.decrement();
-    flagOperation();
+    flagOperation(bc.read());
     next();
-    memory.enableReadListener();
-    memory.enableWriteListener();
-    return 1;
   }
 
-  protected void flagOperation() {
-    T value = memory.read(hl.read());
-    T reg_A = a.read();
-    cpiTableAluOperation.executeWithCarry2(value, reg_A, bc.read().isNotZero() ? 1 : 0, flag);
+  protected void flagOperation(int valueFromHL) {
+    int value = memory.read(hl.read(), 0);
+    int reg_A = a.read();
+    // Kept across, because CPI does not touch it and the table it goes through cannot know it.
+    int carry = flag.read() & 1;
+    aluOperation.execute2Values1Boolean(value, reg_A, bc.read() != 0 ? 1 : 0, flag);
+    flag.write((flag.read() & ~1) | carry);
   }
 
 
-  public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitCpi(this);
+  public void accept(InstructionVisitor<?> visitor) {
+    if (!visitor.visitCpi(this))
+      super.accept(visitor);
   }
 }

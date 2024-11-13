@@ -20,14 +20,14 @@
  */
 package net.emustudio.plugins.cpu.zilogZ80;
 
+import com.fpetrola.z80.ProcessorUnderTest;
 import com.fpetrola.z80.cpu.OOZ80;
-import com.fpetrola.z80.minizx.emulation.Helper;
-import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.cpu.IO;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import net.emustudio.cpu.testsuite.Generator;
+import net.emustudio.emulib.plugins.PluginInitializationException;
 import net.emustudio.emulib.plugins.memory.MemoryContext;
 import net.emustudio.emulib.runtime.ApplicationApi;
+import net.emustudio.emulib.runtime.ContextAlreadyRegisteredException;
 import net.emustudio.emulib.runtime.ContextPool;
 import net.emustudio.emulib.runtime.settings.PluginSettings;
 import net.emustudio.plugins.cpu.intel8080.api.Context8080;
@@ -36,8 +36,6 @@ import net.emustudio.plugins.cpu.zilogZ80.suite.CpuVerifierImpl;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,58 +51,53 @@ public class InstructionsTest {
   static final int REG_PAIR_HL = 2;
   static final int REG_SP = 3;
   private static final long PLUGIN_ID = 0L;
-  private static OOZ80 ooz80;
-  private static MyIO io;
+  private OOZ80 ooz80;
+  private MyIO io;
   private final List<FakeByteDevice> devices = new ArrayList<>();
   CpuRunnerImpl cpuRunnerImpl;
   CpuVerifierImpl cpuVerifierImpl;
   protected CpuImpl cpu;
-  protected static MyByteMemoryStub memory;
+  protected MyByteMemoryStub memory;
 
   public InstructionsTest() {
+    try {
+      Capture<Context8080> cpuContext = Capture.newInstance();
+      ContextPool contextPool = EasyMock.createNiceMock(ContextPool.class);
+      expect(contextPool.getMemoryContext(0, MemoryContext.class)).andReturn(memory).anyTimes();
+      contextPool.register(anyLong(), capture(cpuContext), same(Context8080.class));
+      expectLastCall().anyTimes();
+      replay(contextPool);
 
-  }
+      ApplicationApi applicationApi = createNiceMock(ApplicationApi.class);
+      expect(applicationApi.getContextPool()).andReturn(contextPool).anyTimes();
+      replay(applicationApi);
 
-  @BeforeClass
-  public static void setUpClass() throws Exception {
-    io = new MyIO();
-    ooz80 = Helper.createOOZ80(io);
-    memory = new MyByteMemoryStub();
-  }
 
-  @SuppressWarnings("unchecked")
-  @Before
-  public void setUp() throws Exception {
-    Capture<Context8080> cpuContext = Capture.newInstance();
-    ContextPool contextPool = EasyMock.createNiceMock(ContextPool.class);
-    expect(contextPool.getMemoryContext(0, MemoryContext.class)).andReturn(memory).anyTimes();
-    contextPool.register(anyLong(), capture(cpuContext), same(Context8080.class));
-    expectLastCall().anyTimes();
-    replay(contextPool);
+      io = new MyIO();
+      ooz80 = ProcessorUnderTest.found().processor(io);
+      memory = new MyByteMemoryStub();
+      cpu = new CpuImpl(PLUGIN_ID, applicationApi, PluginSettings.UNAVAILABLE, ooz80);
 
-    ApplicationApi applicationApi = createNiceMock(ApplicationApi.class);
-    expect(applicationApi.getContextPool()).andReturn(contextPool).anyTimes();
-    replay(applicationApi);
+      memory.init(this.cpu.ooz80.getState().getMemory());
+      assertTrue(cpuContext.hasCaptured());
 
-    cpu = new CpuImpl(PLUGIN_ID, applicationApi, PluginSettings.UNAVAILABLE, ooz80);
+      for (int i = 0; i < 256; i++) {
+        FakeByteDevice device = new FakeByteDevice(i, io);
+        devices.add(device);
+        cpuContext.getValue().attachDevice(i, device);
+      }
 
-    MockedMemory<WordNumber> memory1 = (MockedMemory<WordNumber>) this.cpu.ooz80.getState().getMemory();
-    memory1.canDisable(false);
-    memory.init(memory1);
-    assertTrue(cpuContext.hasCaptured());
+      cpu.initialize();
 
-    for (int i = 0; i < 256; i++) {
-      FakeByteDevice device = new FakeByteDevice(i, io);
-      devices.add(device);
-      cpuContext.getValue().attachDevice(i, device);
+      cpuRunnerImpl = new CpuRunnerImpl(cpu, memory, devices);
+      cpuVerifierImpl = new CpuVerifierImpl(cpu, memory, devices);
+
+      Generator.setRandomTestsCount(10);
+    } catch (ContextAlreadyRegisteredException | PluginInitializationException e) {
+      throw new RuntimeException(e);
     }
 
-    cpu.initialize();
 
-    cpuRunnerImpl = new CpuRunnerImpl(cpu, memory, devices);
-    cpuVerifierImpl = new CpuVerifierImpl(cpu, memory, devices);
-
-    Generator.setRandomTestsCount(10);
   }
 
   @After
@@ -112,16 +105,16 @@ public class InstructionsTest {
     cpu.destroy();
   }
 
-  protected static class MyIO<T extends WordNumber> implements IO<T> {
-    private Map<Integer, FakeByteDevice> devices = new HashMap<>();
+  protected static class MyIO implements IO {
+    private final Map<java.lang.Integer, FakeByteDevice> devices = new HashMap<>();
 
-    public T in(T port) {
-      FakeByteDevice fakeByteDevice = devices.get(port.intValue());
-      return  WordNumber.createValue(fakeByteDevice.getValue());
+    public int in(int port) {
+      FakeByteDevice fakeByteDevice = devices.get(port);
+      return fakeByteDevice.getValue();
     }
 
-    public void out(T port, T value) {
-      devices.get(port.intValue()).setValue((byte) value.intValue());
+    public void out(int port, int value) {
+      devices.get(port).setValue((byte) value);
     }
 
     public void addDevice(int port, FakeByteDevice device) {

@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,33 +18,56 @@
 
 package com.fpetrola.z80.cpu;
 
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.InstructionSpy;
+import jakarta.inject.Inject;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-public class SpyInstructionExecutor<T extends WordNumber> implements InstructionExecutor<T> {
-  private InstructionSpy spy;
-  private Set<Instruction<T>> executingInstructions = new HashSet<>();
+public class SpyInstructionExecutor implements InstructionExecutor {
+  private final InstructionSpy spy;
+  private final Register pc;
+  private final Set<Instruction> executingInstructions = new HashSet<>();
+  private Map<java.lang.Integer, Instruction> instructions= new HashMap<>();
 
-  public SpyInstructionExecutor(InstructionSpy spy) {
+  @Inject
+  public SpyInstructionExecutor(InstructionSpy spy, State state) {
     this.spy = spy;
+    this.pc = state.getPc();
   }
 
   @Override
-  public Instruction<T> execute(Instruction<T> instruction) {
+  public Instruction getInstructionAt(int address) {
+    return instructions.get(address);
+  }
+
+  @Override
+  public Instruction execute(Instruction instruction) {
     spy.beforeExecution(instruction);
     executingInstructions.add(instruction);
     instruction.execute();
+    instructions.put(pc.read(), instruction);
     executingInstructions.remove(instruction);
     spy.afterExecution(instruction);
+    updatePC(instruction);
     return instruction;
   }
 
+  private void updatePC(Instruction instruction) {
+    int nextPC = instruction instanceof AbstractInstruction abstractInstruction ? abstractInstruction.getNextPC() : -1;
+    if (nextPC == -1)
+      nextPC = (pc.read() + instruction.getLength()) & 0xFFFF;
+
+    pc.write(nextPC);
+  }
+
   @Override
-  public boolean isExecuting(Instruction<T> instruction) {
+  public boolean isExecuting(Instruction instruction) {
     return executingInstructions.contains(instruction);
   }
 }
