@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -21,12 +21,12 @@ package com.fpetrola.z80.instructions.cache;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class InstructionCache<T extends WordNumber> {
+public class InstructionCache {
 
   public class MutableOpcode extends CacheEntry {
 
@@ -42,16 +42,16 @@ public class InstructionCache<T extends WordNumber> {
 
   public class CacheEntry {
 
-    private Instruction<T> opcode;
+    private Instruction opcode;
 
     public CacheEntry() {
     }
 
-    public CacheEntry(Instruction<T> opcode) {
+    public CacheEntry(Instruction opcode) {
       this.opcode = opcode;
     }
 
-    public Instruction<T> getOpcode() {
+    public Instruction getInstruction() {
       return opcode;
     }
 
@@ -62,24 +62,25 @@ public class InstructionCache<T extends WordNumber> {
   }
 
   public class InstructionCacheInvalidator implements Runnable {
-    private final T pcValue;
+    private final int pcValue;
     private final int length;
 
-    private InstructionCacheInvalidator(T pcValue, int length) {
+    private InstructionCacheInvalidator(int pcValue, int length) {
       this.pcValue = pcValue;
       this.length = length;
     }
 
     public void run() {
       for (int j = 0; j < length; j++) {
-        opcodesCache.set(pcValue.intValue() + j, mutableOpcode);
-        cacheInvalidators[pcValue.intValue() + j] = null;
+        opcodesCache.set(pcValue + j, mutableOpcode);
+        cacheInvalidators[pcValue + j] = null;
       }
     }
 
     public void set() {
-      for (int j = 0; j < length; j++)
-        cacheInvalidators[pcValue.intValue() + j] = this;
+      for (int j = 0; j < length; j++) {
+        cacheInvalidators[pcValue + j] = this;
+      }
     }
   }
 
@@ -95,27 +96,29 @@ public class InstructionCache<T extends WordNumber> {
 
   private Runnable[] cacheInvalidators = new Runnable[0x10000];
 
-  private InstructionCloner instructionCloner;
+  private final InstructionCloner instructionCloner;
 
   public InstructionCache(Memory memory, DefaultInstructionFactory instructionFactory) {
     instructionCloner = new InstructionCloner(instructionFactory);
     memory.addMemoryWriteListener(new CacheInvalidatorMemoryWriteListener(cacheInvalidators));
   }
 
-  public void cacheInstruction(T pcValue, Instruction<T> instruction) {
-    Instruction<T> clone = instructionCloner.clone(instruction);
-    opcodesCache.set(pcValue.intValue(), new CacheEntry(clone));
-    new InstructionCacheInvalidator(pcValue, instruction.getLength()).set();
+  public void cacheInstruction(int pcValue, Instruction instruction) {
+    Instruction clone = instructionCloner.clone(instruction);
+    opcodesCache.set(pcValue, new CacheEntry(clone));
+    new InstructionCacheInvalidator(pcValue, clone.getLength()).set();
   }
 
   public void reset() {
     opcodesCache = getCacheEntries();
+    Arrays.fill(cacheInvalidators, null);
   }
 
-  public CacheEntry getCacheEntryAt(T pcValue) {
-    if (opcodesCache.size() <= pcValue.intValue())
+  public CacheEntry getCacheEntryAt(int pcValue) {
+    if (opcodesCache.size() <= pcValue)
       return null;
-    else
-      return opcodesCache.get(pcValue.intValue());
+    else {
+      return opcodesCache.get(pcValue);
+    }
   }
 }

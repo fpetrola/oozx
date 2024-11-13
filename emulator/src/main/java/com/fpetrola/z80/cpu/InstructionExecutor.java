@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -19,12 +19,24 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.spy.ExecutionListener;
 
-public interface InstructionExecutor<T> {
-  Instruction<T> execute(Instruction<T> instruction);
+public interface InstructionExecutor {
+  default void setNoRepeat(boolean noRepeat) {
+  }
 
-  boolean isExecuting(Instruction<T> instruction);
+  Instruction getInstructionAt(int address);
+
+  Instruction execute(Instruction instruction);
+
+  boolean isExecuting(Instruction instruction);
 
   default void reset() {
+  }
+
+  default void setExecutionListener(ExecutionListener executionListener) {
+  }
+
+  default void addTopExecutionListener(ExecutionListener executionListener) {
   }
 }

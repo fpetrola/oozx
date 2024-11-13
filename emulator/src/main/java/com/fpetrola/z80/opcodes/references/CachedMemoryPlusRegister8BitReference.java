@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -21,13 +21,13 @@ package com.fpetrola.z80.opcodes.references;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 
-public class CachedMemoryPlusRegister8BitReference<T extends WordNumber> extends MemoryPlusRegister8BitReference<T>{
-  public CachedMemoryPlusRegister8BitReference(T lastFetchedRelative, ImmutableOpcodeReference target, Memory<T> memory, Register<T> pc, int valueDelta) {
+public class CachedMemoryPlusRegister8BitReference extends MemoryPlusRegister8BitReference{
+  public CachedMemoryPlusRegister8BitReference(int lastFetchedRelative, ImmutableOpcodeReference target, Memory memory, Register pc, int valueDelta) {
     super(target, memory, pc, valueDelta);
     fetchedRelative = lastFetchedRelative;
   }
 
   public byte fetchRelative() {
-    return (byte) fetchedRelative.intValue();
+    return (byte) fetchedRelative;
   }
 }

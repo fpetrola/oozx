@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,45 +18,32 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
-import com.fpetrola.z80.instructions.types.FlagInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class SCF<T extends WordNumber> extends AbstractInstruction<T> implements FlagInstruction<T> {
-  public static final AluOperation scfTableAluOperation = new AluOperation() {
-    public int execute(int a, int carry) {
-      setC();
-      resetH();
-      resetN();
-      return data;
+public class SCF extends DefaultTargetFlagInstruction {
+  public static class ScfTableAluOperation extends AluOperation {
+    @Override
+    protected int calculate2Values1Boolean(int value1, int value2, int carry) {
+      F = value2;
+      F = F & (FLAG_P | FLAG_Z | FLAG_S) | value1 & (FLAG_3 | FLAG_5) | FLAG_C;
+      Q = F;
+      return F;
     }
-  };
-
-  public Register<T> getFlag() {
-    return flag;
   }
 
-  public void setFlag(Register<T> flag) {
-    this.flag = flag;
+  public SCF(Register flag, Register a) {
+    super(a, flag, new ScfTableAluOperation());
   }
 
-  private Register<T> flag;
-
-  public SCF(Register<T> flag) {
-    this.flag = flag;
+  public void execute() {
+    aluOperation.execute2Values(target.read(), flag.read(), flag);
   }
 
-  public int execute() {
-    scfTableAluOperation.executeWithCarry(WordNumber.createValue(0), flag);
-    return 4;
-  }
-
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingScf(this);
   }
-
 }

@@ -1,0 +1,167 @@
+{
+  "operations" : [ {
+    "name" : "RLA",
+    "description" : "Rotate Left Accumulator",
+    "md5" : "5c61e9f26f399917e9beb9d8fde3f5c6"
+  }, {
+    "name" : "RRA",
+    "description" : "Rotate Right Accumulator",
+    "md5" : "b3cf9bcf21861153a0bfd8e1166a79e8"
+  }, {
+    "name" : "RLCA",
+    "description" : "Rotate Left Circular Accumulator",
+    "md5" : "cb971e7dc007ec1843246c8d1542e97a"
+  }, {
+    "name" : "RRCA",
+    "description" : "Rotate Right Circular Accumulator",
+    "md5" : "7517cb2bd9db8486cdc3cd3f2570c0c1"
+  }, {
+    "name" : "RLC",
+    "description" : "Rotate Left Circular",
+    "md5" : "f50759350f5aa52ed105be2f4bf34cb5"
+  }, {
+    "name" : "RRC",
+    "description" : "Rotate Right Circular",
+    "md5" : "7b329286ddea8b11e12fab3e27ac059f"
+  }, {
+    "name" : "RL",
+    "description" : "Rotate Left",
+    "md5" : "1700b282d2fe0876c8d8fc31427d1e5c"
+  }, {
+    "name" : "RR",
+    "description" : "Rotate Right",
+    "md5" : "b4003edbf591f26fd514381b125da5d2"
+  }, {
+    "name" : "SLA",
+    "description" : "Shift Left Arithmetic",
+    "md5" : "349683c6acdf16e35682d0195b68fc0a"
+  }, {
+    "name" : "SRA",
+    "description" : "Shift Right Arithmetic",
+    "md5" : "2cf60f17abfd888c591b26f9ecb16d12"
+  }, {
+    "name" : "SRL",
+    "description" : "Shift Right Logical",
+    "md5" : "be797cf13d2636f43a0bfde6248735e8"
+  }, {
+    "name" : "SLL",
+    "description" : "Shift Left Logical",
+    "md5" : "948a392b3ebc3abf16d2797eaae13c6b"
+  }, {
+    "name" : "RLD",
+    "description" : "Rotate Left Digit",
+    "md5" : "e837d37f5d0bbb426246e03389c68ffb"
+  }, {
+    "name" : "RRD",
+    "description" : "Rotate Right Digit",
+    "md5" : "4379fe51b238cf59c0a562e25ee68933"
+  }, {
+    "name" : "Add",
+    "description" : "Add to Accumulator",
+    "md5" : "be682dd2336a93af4f3c99078c688042"
+  }, {
+    "name" : "Adc",
+    "description" : "Add with Carry",
+    "md5" : "08012c414a8c510e94bd777f3c74013b"
+  }, {
+    "name" : "Sub",
+    "description" : "Subtract from Accumulator",
+    "md5" : "417cd881079023a2bdc4ad386a17c0d9"
+  }, {
+    "name" : "Sbc",
+    "description" : "Subtract with Carry",
+    "md5" : "5fd836723687d3b558b0df6006c40ff7"
+  }, {
+    "name" : "And",
+    "description" : "Logical AND",
+    "md5" : "9bfa45df7dca6a57186806b8248d1eed"
+  }, {
+    "name" : "Xor",
+    "description" : "Logical XOR",
+    "md5" : "2e4776399807a00babd4d7c31f745383"
+  }, {
+    "name" : "Or",
+    "description" : "Logical OR",
+    "md5" : "833e2981980a119ffcf525e8910a38ed"
+  }, {
+    "name" : "Cp",
+    "description" : "Compare with Accumulator",
+    "md5" : "81badeaca94f9b7d59c084bddf62ec38"
+  }, {
+    "name" : "Inc",
+    "description" : "Increment 8-bit",
+    "md5" : "9e32df514b27cd98c7f9d292ab71f1fc"
+  }, {
+    "name" : "Dec",
+    "description" : "Decrement 8-bit",
+    "md5" : "914be6373593b7e0912b7c99ae7e5c6d"
+  }, {
+    "name" : "DAA",
+    "description" : "Decimal Adjust Accumulator",
+    "md5" : "333b5627ae5b5fbc28e6fa407295e1f6"
+  }, {
+    "name" : "CPL",
+    "description" : "Complement Accumulator",
+    "md5" : "42944617d898210b81edf773ab9e3deb"
+  }, {
+    "name" : "SCF",
+    "description" : "Set Carry Flag",
+    "md5" : "761accef121ab8804ca314edf2ed415d"
+  }, {
+    "name" : "CCF",
+    "description" : "Complement Carry Flag",
+    "md5" : "8fe9088778ec266f7ac1fff87ddba844"
+  }, {
+    "name" : "BIT",
+    "description" : "Test Bit",
+    "md5" : "a72fac775d2bd7b7db90543084e6de12"
+  }, {
+    "name" : "Ini",
+    "description" : "Input and increment",
+    "md5" : "47a98366596c98699bf03dda9e810fc2"
+  }, {
+    "name" : "Ldi",
+    "description" : "Load and increment",
+    "md5" : "84b908efdd3f3787c241e3b96c702959"
+  }, {
+    "name" : "Cpi",
+    "description" : "Compare and increment",
+    "md5" : "4360165c6ce9d87ffd37e310504fbc08"
+  }, {
+    "name" : "LdAI",
+    "description" : "Load A from I",
+    "md5" : "5d95b55d292d3e60ae4f6b31776062d2"
+  }, {
+    "name" : "LdAR",
+    "description" : "Load A from R",
+    "md5" : "5d95b55d292d3e60ae4f6b31776062d2"
+  }, {
+    "name" : "Add16",
+    "description" : "Add 16-bit",
+    "md5" : "f120367b697df682016081d97b6798dc"
+  }, {
+    "name" : "Adc16",
+    "description" : "Add 16-bit with Carry",
+    "md5" : "099202dec42c43aaf91006fa99baa15a"
+  }, {
+    "name" : "Sbc16",
+    "description" : "Subtract 16-bit with Carry",
+    "md5" : "882c58cd733ab714d5c20d30c933f528"
+  }, {
+    "name" : "Cpd",
+    "description" : "Compare and decrement",
+    "md5" : "14bd127197d7765c99a34a952c1fb3d9"
+  }, {
+    "name" : "In",
+    "description" : "Input",
+    "md5" : "67f30d05f2b69b1277305440563b0309"
+  }, {
+    "name" : "Outi",
+    "description" : "Output and increment",
+    "md5" : "6bef22866c3a9cc19a0410ae427205c6"
+  }, {
+    "name" : "Neg",
+    "description" : "Negate Accumulator",
+    "md5" : "8623464ca5fb49766717ef9e17a9a89b"
+  } ]
+}

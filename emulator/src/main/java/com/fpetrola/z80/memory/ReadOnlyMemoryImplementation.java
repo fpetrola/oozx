@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,18 +18,18 @@
 
 package com.fpetrola.z80.memory;
 
-public class ReadOnlyMemoryImplementation<T> implements Memory<T> {
-  protected Memory<T> memory;
+public class ReadOnlyMemoryImplementation implements Memory {
+  protected Memory memory;
 
   public ReadOnlyMemoryImplementation(Memory memory) {
     this.memory = memory;
   }
 
-  public T read(T address) {
-    return memory.read(address);
+  public int read(int address, int fetching) {
+    return memory.read(address, 0);
   }
 
-  public void write(T address, T value) {
+  public void write(int address, int value) {
   }
 
   public boolean compare() {

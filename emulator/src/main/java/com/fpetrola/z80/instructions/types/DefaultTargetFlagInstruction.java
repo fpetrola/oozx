@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -20,28 +20,29 @@ package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
-public abstract class DefaultTargetFlagInstruction<T extends WordNumber> extends DefaultTargetInstruction<T> implements FlagInstruction<T> {
-  protected Register<T> flag;
+public abstract class DefaultTargetFlagInstruction extends DefaultTargetInstruction implements FlagInstruction {
+  final protected Register flag;
 
-  public DefaultTargetFlagInstruction(OpcodeReference<T> target, Register<T> flag) {
+  public DefaultTargetFlagInstruction(OpcodeReference target, Register flag) {
     super(target);
     this.flag = flag;
     incrementLengthBy(target.getLength());
   }
 
-  @Override
-  public Register<T> getFlag() {
+  public DefaultTargetFlagInstruction(OpcodeReference target, Register flag, AluOperation aluOperation) {
+    super(target, aluOperation);
+    this.flag = flag;
+    incrementLengthBy(target.getLength());
+  }
+
+  public Register getFlag() {
     return flag;
   }
 
-  public void setFlag(Register<T> flag) {
-    this.flag = flag;
-  }
-
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitingTarget(getTarget(), this);
     visitor.visitingFlag(flag, this);
     visitor.visitingTargetInstruction(this);

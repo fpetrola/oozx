@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,40 +18,59 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.BlockInstruction;
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.IO;
+import com.fpetrola.z80.instructions.types.BlockInstruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class Ini<T extends WordNumber> extends BlockInstruction<T> {
-  public static final TableAluOperation iniTableAluOperation = new TableAluOperation() {
-    public int execute(int b, int carry) {
-      data = 0;
-      setZ(b == 0);
-      setN();
-      return b;
+public class Ini extends BlockInstruction {
+  public static class IniTableAluOperation extends AluOperation {
+    protected int calculate3Values(int initemp, int initemp2, int B) {
+      F = ((initemp & 0x80) != 0 ? FLAG_N : 0) |
+          ((initemp2 < initemp) ? FLAG_H | FLAG_C : 0) |
+          (parityTable((initemp2 & 0x07) ^ B) != 0 ? FLAG_P : 0) |
+          sz53Table(B);
+      Q = F;
+      return F;
     }
-  };
-
-  public Ini(RegisterPair<T> bc, Register<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
-    super(bc, hl, flag, memory, io);
   }
 
-  public int execute() {
-    T hlValue = hl.read();
-    T cValue = bc.getLow().read();
-    T in = io.in(cValue);
+  public Ini(RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io) {
+    super(bc, hl, flag, memory, io, new IniTableAluOperation());
+  }
+
+  public void execute() {
+    int port = bc.read();
+    int in = io.in(port);
+    int cValue = bc.getLow().read();
+    int hlValue = hl.read();
     memory.write(hlValue, in);
-    bc.getHigh().decrement();
     next();
-    flagOperation();
+    bc.getHigh().decrement();
+    flagOperation(in);
+  }
+
+  protected void flagOperation(int value) {
+    int b = bc.getHigh().read();
+    Register c = bc.getLow();
+    int C = c.read() & 0xff;
+    int B = b & 0xff;
+    int i = getDirection();
+
+    int initemp = value & 0xff;
+    int initemp2 = (initemp + C + i) & 0xff;
+    aluOperation.execute3Values(initemp, initemp2, B, flag);
+  }
+
+  protected int getDirection() {
     return 1;
   }
 
-  protected void flagOperation() {
-    iniTableAluOperation.executeWithCarry(bc.getHigh().read(), flag);
+  public void accept(InstructionVisitor<?> visitor) {
+    if (!visitor.visitIni(this))
+      super.accept(visitor);
   }
 }

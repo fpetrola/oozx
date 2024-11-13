@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,41 +18,50 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.BlockInstruction;
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.IO;
+import com.fpetrola.z80.instructions.types.BlockInstruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class Outi<T extends WordNumber> extends BlockInstruction<T> {
-  public static final TableAluOperation outiTableAluOperation = new TableAluOperation() {
-    public int execute(int b, int carry) {
-      b = (b - 1) & lsb;
-      setZ(b == 0);
-      setN();
-      return b;
+public class Outi extends BlockInstruction {
+  public static class OutiTableAluOperation extends AluOperation {
+    protected int calculate3Values(int value1, int value2, int value3) {
+      int outitemp = value1;
+      int B = value2;
+      int L = value3;
+      int outitemp2 = (outitemp + L) & 0xff;
+      F = ((outitemp & 0x80) != 0 ? FLAG_N : 0) |
+          ((outitemp2 < outitemp) ? FLAG_H | FLAG_C : 0) |
+          (parityTable((outitemp2 & 0x07) ^ B) != 0 ? FLAG_P : 0) |
+          sz53Table(B);
+      Q = F;
+      return F;
     }
-  };
-
-  public Outi(RegisterPair<T> bc, Register<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
-    super(bc, hl, flag, memory, io);
   }
 
-  public int execute() {
-    T hlValue = hl.read();
-    T cValue = bc.getLow().read();
-    T valueFromHL = memory.read(hlValue);
-    io.out(cValue, valueFromHL);
-    next();
+  public Outi(RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io) {
+    super(bc, hl, flag, memory, io, new OutiTableAluOperation());
+  }
+
+  public void execute() {
+    int hlValue = hl.read();
+    int cValue = bc.getLow().read();
+    int valueFromHL = memory.read(hlValue, 0);
     bc.getHigh().decrement();
-    flagOperation();
-
-    return 1;
+    io.out(bc.read(), valueFromHL);
+    next();
+    flagOperation(valueFromHL);
   }
 
-  protected void flagOperation() {
-    outiTableAluOperation.executeWithCarry(bc.getHigh().read(), flag);
+  protected void flagOperation(int valueFromHL) {
+    aluOperation.execute3Values(valueFromHL, bc.getHigh().read(), hl.getLow().read(), flag);
+  }
+
+  public void accept(InstructionVisitor<?> visitor) {
+    if (!visitor.visitOuti(this))
+      super.accept(visitor);
   }
 }

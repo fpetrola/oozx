@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,39 +18,71 @@
 
 package com.fpetrola.z80.memory;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
-public interface Memory<T> {
-
-  static <T extends WordNumber> T read16Bits(Memory<T> memory, T address) {
-    return memory.read(address.plus1()).left(8).or(memory.read(address).and(0xff));
+public interface Memory {
+  default int read16Bits(int address) {
+    int wordNumber1 = read(address, 0);
+    int wordNumber = read((address + 1) & 0xFFFF, 0);
+    return ((wordNumber << 8) | wordNumber1);
   }
 
-  static <T extends WordNumber> void write16Bits(Memory<T> memory, T value, T address) {
-    memory.write(address, value.and(0xFF));
-    memory.write(address.plus1(), (value.right(8)));
+  default void write16Bits(int value, int address) {
+    write((address + 1) & 0xFFFF, ((value >>> 8)));
+    write(address, (value & 0xFF));
   }
 
-  T read(T address);
+  default void write16BitsReverse(int value, int address) {
+    write(address, (value & 0xFF));
+    write((address + 1) & 0xFFFF, ((value >>> 8)));
+  }
 
-  void write(T address, T value);
+  int read(int address, int fetching);
 
-  boolean compare();
+  default int read(int address) {
+    return read(address, 0);
+  }
 
-  void update();
+  default int readFetching(int address, int fetching) {
+    return read(address, fetching);
+  }
 
-  void addMemoryWriteListener(MemoryWriteListener memoryWriteListener);
+  void write(int address, int value);
 
-  void removeMemoryWriteListener(MemoryWriteListener memoryWriteListener);
+  default boolean compare() {
+    return false;
+  }
+
+  default void update() {
+  }
+
+  default void addMemoryWriteListener(MemoryWriteListener memoryWriteListener) {
+  }
+
+  ;
+
+  default void removeMemoryWriteListener(MemoryWriteListener memoryWriteListener) {
+  }
+
+  ;
 
   void reset();
 
-  void addMemoryReadListener(MemoryReadListener memoryReadListener);
+  default void addMemoryReadListener(MemoryReadListener memoryReadListener) {
+  }
 
-  void removeMemoryReadListener(MemoryReadListener memoryReadListener);
+  default void removeMemoryReadListener(MemoryReadListener memoryReadListener) {
+  }
 
-  default T[] getData() {
-    return (T[]) new WordNumber[0];
+  default int[] getData() {
+    return new int[0];
+  }
+
+  /** The byte at an address as it is: no time taken, nobody told. */
+  default int peek(int address) {
+    return getData()[address];
+  }
+
+  default void poke(int address, int value) {
+    getData()[address] = value;
   }
 
   default void disableReadListener() {
@@ -64,4 +96,13 @@ public interface Memory<T> {
 
   default void enableWriteListener() {
   }
+
+  default void copyFrom(Memory memory) {
+    int[] data = memory.getData();
+    for (int i = 0; i < data.length; i++) {
+      int d = data[i];
+      getData()[i] = d;
+    }
+  }
+
 }

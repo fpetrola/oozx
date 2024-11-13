@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -20,30 +20,19 @@ package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class ParameterizedUnaryAluInstruction<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
-  public interface UnaryAluOperation<T extends WordNumber> {
-    T execute(Register<T> flag, T value);
+public class ParameterizedUnaryAluInstruction extends DefaultTargetFlagInstruction {
+  public ParameterizedUnaryAluInstruction(OpcodeReference target, Register flag, AluOperation aluOperation) {
+    super(target, flag, aluOperation);
   }
 
-  protected UnaryAluOperation<T> unaryAluOperation;
-
-  public ParameterizedUnaryAluInstruction(OpcodeReference<T> target, Register<T> flag, UnaryAluOperation<T> unaryAluOperation) {
-    super(target, flag);
-    this.unaryAluOperation = unaryAluOperation;
-    this.flag = flag;
+  public void execute() {
+    target.write(aluOperation.execute2ValuesAndCarry(target.read(), flag.read(), flag));
   }
 
-  public int execute() {
-    final T value2 = target.read();
-    T execute = unaryAluOperation.execute(flag, value2);
-    target.write(execute);
-    return cyclesCost;
-  }
-
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingParameterizedUnaryAluInstruction(this))
       super.accept(visitor);
   }

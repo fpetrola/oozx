@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -19,27 +19,25 @@
 package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
-public abstract class DefaultTargetInstruction<T extends WordNumber> extends AbstractInstruction<T> implements TargetInstruction<T> {
-  protected OpcodeReference<T> target;
+public abstract class DefaultTargetInstruction extends AbstractInstruction implements TargetInstruction {
+  final protected OpcodeReference target;
 
-  public DefaultTargetInstruction(OpcodeReference<T> target) {
+  public DefaultTargetInstruction(OpcodeReference target) {
     this.target = target;
   }
 
-  @Override
-  public OpcodeReference<T> getTarget() {
+  public DefaultTargetInstruction(OpcodeReference target, AluOperation aluOperation) {
+    super(aluOperation);
+    this.target = target;
+  }
+
+  public OpcodeReference getTarget() {
     return target;
   }
 
-  @Override
-  public void setTarget(OpcodeReference<T> target) {
-    this.target = target;
-  }
-
-  @Override
   public String toString() {
-    return super.toString() + " " + getTarget().toString();
+    return super.toString() + " " + getTarget().getClass().getSimpleName().toString();
   }
 }

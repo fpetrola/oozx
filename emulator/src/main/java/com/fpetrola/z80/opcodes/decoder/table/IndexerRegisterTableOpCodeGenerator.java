@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,27 +18,24 @@
 
 package com.fpetrola.z80.opcodes.decoder.table;
 
+import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 
-import static com.fpetrola.z80.registers.RegisterName.H;
-import static com.fpetrola.z80.registers.RegisterName.L;
-
-public class IndexerRegisterTableOpCodeGenerator<T> extends UnprefixedTableOpCodeGenerator<T> {
+public class IndexerRegisterTableOpCodeGenerator extends UnprefixedTableOpCodeGenerator {
   private final RegisterName lowRegisterName;
   private final RegisterName highRegisterName;
   private final RegisterName registerName;
 
-  public IndexerRegisterTableOpCodeGenerator(State state, Instruction<T> cbOpcode, Instruction<T> ddOpcode, Instruction<T> edOpcode, Instruction<T> fdOpcode, RegisterName main16BitRegister, RegisterName mainHigh8BitRegister, RegisterName mainLow8BitRegister, OpcodeReference main16BitRegisterReference, RegisterName lowRegisterName, RegisterName highRegisterName, RegisterName registerName, OpcodeConditions opc1, DefaultInstructionFactory instructionFactory) {
-    super(2, state, cbOpcode, ddOpcode, edOpcode, fdOpcode, main16BitRegister, mainHigh8BitRegister, mainLow8BitRegister, main16BitRegisterReference, opc1, instructionFactory);
+  public IndexerRegisterTableOpCodeGenerator(State state, Instruction cbOpcode, Instruction ddOpcode, Instruction edOpcode, Instruction fdOpcode, RegisterName main16BitRegister, RegisterName mainHigh8BitRegister, RegisterName mainLow8BitRegister, OpcodeReference main16BitRegisterReference, RegisterName lowRegisterName, RegisterName highRegisterName, RegisterName registerName, OpcodeConditions opc1, InstructionFactory instructionFactory, Memory memoryForOpcodes) {
+    super(2, state, cbOpcode, ddOpcode, edOpcode, fdOpcode, main16BitRegister, mainHigh8BitRegister, mainLow8BitRegister, main16BitRegisterReference, opc1, instructionFactory, memoryForOpcodes);
     this.lowRegisterName = lowRegisterName;
     this.highRegisterName = highRegisterName;
     this.registerName = registerName;
@@ -49,22 +46,10 @@ public class IndexerRegisterTableOpCodeGenerator<T> extends UnprefixedTableOpCod
     OpcodeReference source = r[z];
 
     if (isHL(source) || isHL(target)) {
-      source = replaceLowHigh(source);
-      target = replaceLowHigh(target);
+      source = replaceLowHigh(source, lowRegisterName, highRegisterName);
+      target = replaceLowHigh(target, lowRegisterName, highRegisterName);
     }
     return i.Ld(target, source);
-  }
-
-  private OpcodeReference replaceLowHigh(OpcodeReference source) {
-    if (source instanceof Register) {
-      Register register = (Register) source;
-      if (register.getName().equals(r(lowRegisterName).getName()))
-        return r(L);
-      else if (register.getName().equals(r(highRegisterName).getName()))
-        return r(H);
-    }
-
-    return source;
   }
 
   private boolean isHL(ImmutableOpcodeReference source) {

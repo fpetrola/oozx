@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -22,38 +22,28 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class Sub<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
-  public static final TableAluOperation sub8TableAluOperation = new TableAluOperation() {
-    public int execute(int a, int value, int carry) {
-      data = 0;
-      int reg_A = a;
-      int local_reg_A = reg_A;
+public class Sub extends ParameterizedBinaryAluInstruction {
+  public static class Sub8TableAluOperation extends AluOperation {
+    protected int calculate2Values1Boolean(int value2, int value1, int carry) {
+      int subtemp = value2 - value1;
+      int lookup = ((value2 & 0x88) >> 3) | ((value1 & 0x88) >> 2) | ((subtemp & 0x88) >> 1);
+      value2 = subtemp & 0xff;
+      F = ((subtemp & 0x100) != 0 ? FLAG_C : 0) | FLAG_N |
+          halfCarrySubTable(lookup & 0x07) | overflowSubTable(lookup >> 4) | sz53Table(value2);
+      Q = F;
 
-      setHalfCarryFlagSub(local_reg_A, value);
-      setOverflowFlagSub(local_reg_A, value);
-      local_reg_A = local_reg_A - value;
-      setS((local_reg_A & 0x0080) != 0);
-      setC((local_reg_A & 0xff00) != 0);
-      local_reg_A = local_reg_A & 0x00ff;
-      setZ(local_reg_A == 0);
-      setN();
-      reg_A = local_reg_A;
-      setUnusedFlags(reg_A);
-
-      return reg_A;
+      return value2;
     }
-  };
-
-  public Sub(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
-    super(target, source, flag, (tFlagRegister, value, reg_A) -> sub8TableAluOperation.executeWithoutCarry(value, reg_A, tFlagRegister));
   }
 
-  @Override
-  public void accept(InstructionVisitor visitor) {
+  public Sub(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
+    super(target, source, flag, new Sub8TableAluOperation());
+  }
+
+  public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingSub(this);
   }

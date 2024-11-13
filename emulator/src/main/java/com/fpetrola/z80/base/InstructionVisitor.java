@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -20,10 +20,19 @@ package com.fpetrola.z80.base;
 
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
+import com.fpetrola.z80.opcodes.decoder.table.NullOpcodeReference;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 
-public interface InstructionVisitor<T extends WordNumber> {
+public interface InstructionVisitor<R> {
+  default R getResult() {
+    return null;
+  }
+
+  default void setResult(R result) {
+  }
+
+
   default void visitingSource(ImmutableOpcodeReference source, TargetSourceInstruction targetSourceInstruction) {
   }
 
@@ -34,12 +43,14 @@ public interface InstructionVisitor<T extends WordNumber> {
 
   }
 
-  default void visitingAdd(Add add) {
+  default boolean visitingAdd(Add add) {
 
+    return false;
   }
 
-  default void visitingAdd16(Add16 tAdd16) {
+  default boolean visitingAdd16(Add16 tAdd16) {
 
+    return false;
   }
 
   default void visitingAnd(And tAnd) {
@@ -111,8 +122,9 @@ public interface InstructionVisitor<T extends WordNumber> {
     return false;
   }
 
-  default void visitingDjnz(DJNZ<T> djnz) {
+  default boolean visitingDjnz(DJNZ djnz) {
 
+    return false;
   }
 
   default void visitingLd(Ld ld) {
@@ -157,19 +169,19 @@ public interface InstructionVisitor<T extends WordNumber> {
 
   }
 
-  default void visitingBitOperation(BitOperation tBitOperation) {
-
+  default boolean visitingBitOperation(BitOperation tBitOperation) {
+    return false;
   }
 
   default void visitingPop(Pop pop) {
 
   }
 
-  default void visitingJP(JP tjp) {
-
+  default boolean visitingJP(JP jp) {
+    return false;
   }
 
-  default void visitingFlag(Register<T> flag, DefaultTargetFlagInstruction targetSourceInstruction) {
+  default void visitingFlag(Register flag, DefaultTargetFlagInstruction targetSourceInstruction) {
 
   }
 
@@ -190,15 +202,15 @@ public interface InstructionVisitor<T extends WordNumber> {
     return false;
   }
 
-  default void visitConstantOpcodeReference(ConstantOpcodeReference<T> constantOpcodeReference) {
+  default void visitConstantOpcodeReference(ConstantOpcodeReference constantOpcodeReference) {
 
   }
 
-  default void visitMemoryAccessOpcodeReference(MemoryAccessOpcodeReference<T> memoryAccessOpcodeReference) {
+  default void visitMemoryAccessOpcodeReference(MemoryAccessOpcodeReference memoryAccessOpcodeReference) {
 
   }
 
-  default void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
+  default void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference memoryPlusRegister8BitReference) {
 
   }
 
@@ -245,38 +257,42 @@ public interface InstructionVisitor<T extends WordNumber> {
 
   }
 
-  default void visitRepeatingInstruction(RepeatingInstruction tRepeatingInstruction) {
+  default boolean visitRepeatingInstruction(RepeatingInstruction tRepeatingInstruction) {
 
+    return false;
   }
 
-  default void visitLdir(Ldir ldir) {
+  default boolean visitLdir(Ldir ldir) {
 
+    return false;
   }
 
-  default void visitLddr(Lddr lddr) {
-
+  default boolean visitLddr(Lddr lddr) {
+    return false;
   }
 
   default void visitBlockInstruction(BlockInstruction blockInstruction) {
 
   }
 
-  default void visitCpir(Cpir cpir) {
+  default boolean visitCpir(Cpir cpir) {
 
+    return false;
   }
 
-  default void visitLdi(Ldi tLdi) {
-
+  default boolean visitLdi(Ldi tLdi) {
+    return false;
   }
 
   default void visitBNotZeroCondition(BNotZeroCondition bNotZeroCondition) {
   }
 
-  default void visitingSbc16(Sbc16 sbc16) {
+  default boolean visitingSbc16(Sbc16 sbc16) {
 
+    return false;
   }
 
-  default void visitingSbc(Sbc<T> sbc) {
+  default void visitingSbc(Sbc sbc) {
 
   }
 
@@ -284,11 +300,12 @@ public interface InstructionVisitor<T extends WordNumber> {
 
   }
 
-  default void visitingAdc16(Adc16 tAdc16) {
-
+  default boolean visitingAdc16(Adc16 tAdc16) {
+    return false;
   }
 
-  default void visitCpdr(Cpdr tCpdr) {
+  default boolean visitCpdr(Cpdr tCpdr) {
+    return false;
   }
 
   default boolean visitingRlca(RLCA rlca) {
@@ -299,11 +316,11 @@ public interface InstructionVisitor<T extends WordNumber> {
     return false;
   }
 
-  default boolean visitingRlc(RLC<T> rlc) {
+  default boolean visitingRlc(RLC rlc) {
     return false;
   }
 
-  default boolean visitingRrc(RRC<T> rrc) {
+  default boolean visitingRrc(RRC rrc) {
     return false;
   }
 
@@ -318,7 +335,7 @@ public interface InstructionVisitor<T extends WordNumber> {
     return false;
   }
 
-  default boolean visitingSra(SRA<T> tsra) {
+  default boolean visitingSra(SRA tsra) {
     return false;
   }
 
@@ -326,8 +343,8 @@ public interface InstructionVisitor<T extends WordNumber> {
 
   }
 
-  default void visitCpi(Cpi cpi) {
-
+  default boolean visitCpi(Cpi cpi) {
+    return false;
   }
 
   default boolean visitingSll(SLL sll) {
@@ -347,5 +364,81 @@ public interface InstructionVisitor<T extends WordNumber> {
   }
 
   default void visitingTargetSourceInstruction(TargetSourceInstruction targetSourceInstruction) {
+  }
+
+  default boolean visitLdOperation(LdOperation ldOperation) {
+    return false;
+  }
+
+  default boolean visitOuti(Outi outi) {
+    return false;
+  }
+
+  default boolean visitOutd(Outd outi) {
+    return false;
+  }
+
+  default boolean visitIni(Ini tIni) {
+    return false;
+  }
+
+  default boolean visitInd(Ind tInd) {
+    return false;
+  }
+
+  default boolean visitCpd(Cpd cpd) {
+    return false;
+  }
+
+  default boolean visitRLD(RLD rld) {
+    return false;
+  }
+
+  default boolean visitRRD(RRD rrd) {
+    return false;
+  }
+
+  default boolean visitLdd(Ldd ldd) {
+    return false;
+  }
+
+  default boolean visitMemory16BitReference(Memory16BitReference memory16BitReference) {
+    return false;
+  }
+
+  default boolean visitMemory8BitReference(Memory8BitReference memory8BitReference) {
+    return false;
+  }
+
+  default boolean visiting16BitsOperation(Binary16BitsOperation binary16BitsOperation) {
+    return false;
+  }
+
+  default boolean visitingRra(RRA rra) {
+    return false;
+  }
+
+  default boolean visitLdAR(LdAR tLdAR) {
+    return false;
+  }
+
+  default void visitNullOpcodeReference(NullOpcodeReference tNullOpcodeReference) {
+
+  }
+
+  default boolean visitInir(Inir inir) {
+    return false;
+  }
+
+  default boolean visitIndr(Indr indr) {
+    return false;
+  }
+
+  default boolean visitOutir(Outir outir) {
+    return false;
+  }
+
+  default boolean visitOutdr(Outdr outdr) {
+    return false;
   }
 }

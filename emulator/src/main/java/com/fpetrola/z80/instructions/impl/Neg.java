@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -21,43 +21,29 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class Neg<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
-  public static final TableAluOperation negTableAluOperation = new TableAluOperation() {
-    public int execute(int a, int carry) {
-      data = 0;
-      int reg_A = a;
-      setHalfCarryFlagSub(0, reg_A, 0);
-      setOverflowFlagSub(0, reg_A, 0);
-      reg_A = 0 - reg_A;
-      if ((reg_A & 0xFF00) != 0)
-        setC();
-      else
-        resetC();
-      setN();
-      reg_A = reg_A & 0x00FF;
-      if (reg_A == 0)
-        setZ();
-      else
-        resetZ();
-      if ((reg_A & 0x0080) != 0)
-        setS();
-      else
-        resetS();
-      setUnusedFlags(reg_A);
-      return reg_A;
+public class Neg extends ParameterizedUnaryAluInstruction {
+  public static class NegTableAluOperation extends AluOperation {
+    protected int calculate2Values1Boolean(int value1, int value2, int carry) {
+      value2 = 0;
+      int subtemp = value2 - value1;
+      int lookup = ((value2 & 0x88) >> 3) | ((value1 & 0x88) >> 2) | ((subtemp & 0x88) >> 1);
+      value2 = subtemp & 0xff;
+      F = ((subtemp & 0x100) != 0 ? FLAG_C : 0) | FLAG_N |
+          halfCarrySubTable(lookup & 0x07) | overflowSubTable(lookup >> 4) | sz53Table(value2);
+      Q = F;
+
+      return value2;
     }
-  };
-
-  public Neg(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, reg_A) -> negTableAluOperation.executeWithCarry(reg_A, tFlagRegister));
   }
 
-  @Override
-  public void accept(InstructionVisitor visitor) {
+  public Neg(OpcodeReference target, Register flag) {
+    super(target, flag, new NegTableAluOperation());
+  }
+
+  public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingNeg(this);
   }

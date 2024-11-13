@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,35 +18,31 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class CCF<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
-  public static final AluOperation ccfTableAluOperation = new AluOperation() {
-    public int execute(int a, int carry) {
-      if (getC())
-        setH();
-      else
-        resetH();
-      data = data ^ FLAG_C;
-      resetN();
-      return a;
+public class CCF extends DefaultTargetFlagInstruction {
+  public static class CcfTableAluOperation extends AluOperation {
+    @Override
+    protected int calculate2Values1Boolean(int value1, int value2, int carry) {
+      F = value2;
+      F = F & (FLAG_P | FLAG_Z | FLAG_S) | ((F & FLAG_C) != 0 ? FLAG_H : FLAG_C) | value1 & (FLAG_3 | FLAG_5);
+      Q = F;
+      return F;
     }
-  };
-
-  public CCF(Register flag, Register<T> a) {
-    super(a, flag);
   }
 
-  public int execute() {
-    ccfTableAluOperation.executeWithCarry(target.read(), flag);
-    return 4;
+  public CCF(Register flag, Register a) {
+    super(a, flag, new CcfTableAluOperation());
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void execute() {
+    aluOperation.execute2Values(target.read(), flag.read(), flag);
+  }
+
+  public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingCcf(this);
   }

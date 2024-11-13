@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -21,44 +21,27 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class RL<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
-  public static final TableAluOperation rlTableAluOperation = new TableAluOperation() {
-    public int execute(int a, int carry) {
-      data = carry;
-
-      // do shift operation
-      a = a << 1;
-      if (getC())
-        a = a | 0x01;
-      // standard flag updates
-      setS((a & 0x0080) != 0);
-      resetH();
-      if ((a & 0x0FF00) == 0)
-        resetC();
-      else
-        setC();
-      a = a & lsb;
-      if ((a & 0x00FF) == 0)
-        setZ();
-      else
-        resetZ();
-      setPV(parity[a]);
-      resetN();
-      // put value back
-
-      return a;
+public class RL extends ParameterizedUnaryAluInstruction {
+  public static class RlTableAluOperation extends AluOperation {
+    @Override
+    protected int calculate1Value(int value) {
+      int rltemp = value;
+      value = (value << 1) | (F & FLAG_C);
+      value &= 0xff;
+      F = (rltemp >> 7) | sz53pTable(value);
+      Q = F;
+      return value;
     }
-  };
-
-  public RL(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, temp1) -> rlTableAluOperation.executeWithCarry(temp1, tFlagRegister));
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public RL(OpcodeReference target, Register flag) {
+    super(target, flag, new RlTableAluOperation());
+  }
+
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingRl(this))
       super.accept(visitor);
   }

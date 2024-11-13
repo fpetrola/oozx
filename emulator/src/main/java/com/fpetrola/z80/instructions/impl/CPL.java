@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -21,27 +21,28 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class CPL<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
-  public static final AluOperation cplTableAluOperation = new AluOperation() {
-    public int execute(int a, int carry) {
-      a = (a ^ 0x00FF) & 0x00FF;
-      setH();
-      setN();
-      return a;
-    }
-  };
+public class CPL extends ParameterizedUnaryAluInstruction {
+  public static class CplTableAluOperation extends AluOperation {
+    @Override
+    protected int calculate1Value(int A) {
+      A ^= 0xff;
+      F = (F & (FLAG_C | FLAG_P | FLAG_Z | FLAG_S)) |
+          (A & (FLAG_3 | FLAG_5)) | (FLAG_N | FLAG_H);
+      Q = F;
 
-  public CPL(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, regA) -> cplTableAluOperation.executeWithCarry(regA, tFlagRegister));
+      return A;
+    }
   }
 
-  @Override
-  public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitingCpl(this);
+  public CPL(OpcodeReference target, Register flag) {
+    super(target, flag, new CplTableAluOperation());
+  }
+
+  public void accept(InstructionVisitor<?> visitor) {
+    if (!visitor.visitingCpl(this))
+      super.accept(visitor);
   }
 }

@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,17 +18,24 @@
 
 package com.fpetrola.z80.instructions.types;
 
-import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 
-public abstract class AbstractInstruction<T extends WordNumber> implements Instruction<T> {
+public abstract class AbstractInstruction implements Instruction {
   protected int length = 1;
-  protected int cyclesCost = 4;
-  private T nextPC = null;
+  private int nextPC = -1;
+  private int rdelta;
+  protected final AluOperation aluOperation;
+
+
 
   protected AbstractInstruction() {
-    cyclesCost += 1;
+    this.aluOperation = null;
+  }
+
+  protected AbstractInstruction(AluOperation aluOperation) {
+    this.aluOperation = new CachedTableAluOperation(aluOperation);
   }
 
   public String toString() {
@@ -43,6 +50,7 @@ public abstract class AbstractInstruction<T extends WordNumber> implements Instr
     return length;
   }
 
+
   public void incrementLengthBy(int by) {
     length += by;
   }
@@ -51,20 +59,28 @@ public abstract class AbstractInstruction<T extends WordNumber> implements Instr
     this.length = length;
   }
 
-  public State getState() {
-    return null;
-  }
-
-  public void setNextPC(T address) {
+  public void setNextPC(int address) {
     this.nextPC = address;
   }
 
-  public T getNextPC() {
+  public int getNextPC() {
     return nextPC;
   }
 
+  public void setRDelta(int rdelta) {
+    this.rdelta = rdelta;
+  }
+
+  public int getRDelta() {
+    return rdelta;
+  }
+
+  public AluOperation getAluOperation() {
+    return aluOperation;
+  }
+
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitingInstruction(this);
   }
 }

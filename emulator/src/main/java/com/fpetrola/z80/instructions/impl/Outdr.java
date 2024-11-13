@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,13 +18,19 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterPair;
 
-public class Outdr<T extends WordNumber> extends RepeatingInstruction<T> {
-  public Outdr(ImmutableOpcodeReference<T> pc, RegisterPair<T> bc, Outd outd) {
+public class Outdr extends RepeatingInstruction {
+  public Outdr(ImmutableOpcodeReference pc, RegisterPair bc, Outd outd) {
     super(outd, pc, bc);
+  }
+
+  public void accept(InstructionVisitor<?> visitor) {
+    if (!visitor.visitOutdr(this)) {
+      super.accept(visitor);
+    }
   }
 }
