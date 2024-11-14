@@ -73,6 +73,8 @@ public class Routine {
   }
 
   public void addInnerRoutine(Routine routine) {
+    if (routine == null)
+      throw new RuntimeException("null inner routine");
     innerRoutines.add(routine);
   }
 

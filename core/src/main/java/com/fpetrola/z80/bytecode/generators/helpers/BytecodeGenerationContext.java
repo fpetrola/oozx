@@ -41,7 +41,7 @@ public class BytecodeGenerationContext {
     this.cm = classMaker;
     this.pc = (Register<WordNumber>) pc1;
     this.methods = new HashMap<>();
-    this.syncEnabled = false;
+    this.syncEnabled = true;
     this.useFields = true;
   }
 }

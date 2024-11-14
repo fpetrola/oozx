@@ -48,7 +48,7 @@ public class RoutineFinder {
   public void checkExecution(Instruction instruction, int pcValue) {
 
     try {
-      if (pcValue == 0xCA56)
+      if (pcValue == 0xE592)
         System.out.printf("");
       if (currentRoutine == null)
         createOrUpdateCurrentRoutine(pcValue, instruction.getLength());
@@ -80,7 +80,7 @@ public class RoutineFinder {
             if (currentRoutine != routineAt) {
               currentRoutine.addInnerRoutine(routineAt);
             }
-            currentRoutine.finish();
+//            currentRoutine.finish();
             this.currentRoutine = routineManager.findRoutineAt(ret.getNextPC().intValue() - 1);
           }
         }
@@ -111,7 +111,7 @@ public class RoutineFinder {
       currentRoutine = routineManager.createRoutine(startAddress, length);
     }
 
-    System.out.println("chaging routine to: "+ currentRoutine);
+//    System.out.println("chaging routine to: "+ currentRoutine);
     if (lastCurrentRoutine != null) {
       BlockRelation blockRelation = BlockRelation.createBlockRelation(lastCurrentRoutine.getRangeHandler().getStartAddress(), startAddress);
       lastCurrentRoutine.getReferencesHandler().addBlockRelation(blockRelation);

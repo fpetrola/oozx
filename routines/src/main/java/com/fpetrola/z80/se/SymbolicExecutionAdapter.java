@@ -21,6 +21,7 @@ package com.fpetrola.z80.se;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
@@ -34,6 +35,7 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.spy.InstructionSpy;
@@ -85,17 +87,22 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
             } else
               return super.execute();
           }
+
+          protected String getName() {
+            return "Ld_";
+          }
         };
       }
 
       public Ret Ret(Condition condition) {
         return new Ret<T>(condition, sp, memory, pc) {
           public int execute() {
-            memoryReadOnly(false, state);
-
             int execute = super.execute();
-            memoryReadOnly(true, state);
             return execute;
+          }
+
+          protected String getName() {
+            return "Ret_";
           }
         };
       }
@@ -106,6 +113,18 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
       public Push Push(OpcodeReference target) {
         return new PushReturnAddress(target, sp, memory);
+      }
+
+      @Override
+      public JP JP(ImmutableOpcodeReference target, Condition condition) {
+        return new JP<T>(target, condition, pc) {
+          protected T beforeJump(T jumpAddress) {
+            if (pc.read().intValue() > 16384 && jumpAddress.intValue() < 16384) {
+              return WordNumber.createValue(pc.read().intValue() + 3);
+            }
+            return super.beforeJump(jumpAddress);
+          }
+        };
       }
 
       public Call Call(Condition condition, ImmutableOpcodeReference positionOpcodeReference) {
@@ -119,15 +138,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
           protected String getName() {
             return "Call_";
-          }
-
-          @Override
-          public int execute() {
-            memoryReadOnly(false, state);
-
-            int execute = super.execute();
-            memoryReadOnly(true, state);
-            return execute;
           }
         };
       }
@@ -152,7 +162,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   public void stepUntilComplete(Z80InstructionDriver z80InstructionDriver, State<T> state, int firstAddress, int minimalValidCodeAddress) {
     this.minimalValidCodeAddress = minimalValidCodeAddress;
-    memoryReadOnly(true, state);
+    memoryReadOnly(false, state);
 
     registerSP = state.getRegisterSP().read().intValue();
 
@@ -188,15 +198,13 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     while (!ready) {
       int pcValue = pc.read().intValue();
       ready = isReady(pcValue, ready);
+      if (pcValue == 0xD812)
+        System.out.println("ddgsdggd");
 
       if (!ready) {
         RoutineExecution routineExecution = getRoutineExecution();
 
         addressAction = routineExecution.getActionInAddress(pcValue);
-        T value1 = createValue(addressAction.getNextPC());
-        pcValue= value1.intValue();
-        System.out.println(pcValue);
-        pc.write(value1);
         z80InstructionDriver.step();
         addressAction.setPending(false);
         AddressAction nextAddressAction = routineExecution.getActionInAddress(pcValue);
@@ -208,8 +216,11 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
         ready |= stackFrames.isEmpty();
         lastPc = pcValue;
-      } else
-        System.out.println("termino");
+
+        System.out.println("PC: " + Helper.convertToHex(pcValue));
+        System.out.println("BC: " + Helper.convertToHex(state.getRegister(RegisterName.BC).read().intValue()));
+
+      }
     }
   }
 
@@ -268,12 +279,11 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     }
 
     public int execute() {
-      memoryReadOnly(false, state);
       setNextPC(null);
       returnAddress = null;
       final T read = Memory.read16Bits(memory, sp.read());
 
-      if (false && read instanceof ReturnAddressWordNumber returnAddressWordNumber) {
+      if (read instanceof ReturnAddressWordNumber returnAddressWordNumber) {
         returnAddress0 = returnAddressWordNumber;
 
         // target.write(createValue(0));
@@ -321,15 +331,13 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         if (lastRoutineExecution.retInstruction == -1)
           lastRoutineExecution.retInstruction = pc.read().intValue();
       } else {
-//        checkNextSP();
-//        T read1 = doPop(memory, sp);
-//        if (read1 == null) {
-//          System.out.print("");
-//        }
-//        target.write(read1);
-        target.write(createValue(0));
+        checkNextSP();
+        T read1 = doPop(memory, sp);
+        if (read1 == null) {
+          System.out.print("");
+        }
+        target.write(read1);
       }
-      memoryReadOnly(true, state);
 
       return 0;
     }
@@ -372,12 +380,9 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     }
 
     public int execute() {
-//      memoryReadOnly(false, state);
-//
-//      doPush(createValue(target.read().intValue()), sp, memory);
-//      checkNextSP();
-//      memoryReadOnly(true, state);
-      target.read().intValue();
+      doPush(createValue(target.read().intValue()), sp, memory);
+      checkNextSP();
+
       return 5 + cyclesCost;
     }
 

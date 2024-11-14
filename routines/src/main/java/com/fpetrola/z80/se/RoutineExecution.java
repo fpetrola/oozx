@@ -68,6 +68,18 @@ public class RoutineExecution {
 
           return doBranch;
         }
+
+        @Override
+        public int getNext(int next, int pcValue) {
+          if (true || retInstruction == -1)
+            return super.getNext(next, pcValue);
+          List<AddressAction> list = actions.stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
+          if (list.isEmpty()) {
+            return pcValue;
+          } else {
+            return list.get(0).address;
+          }
+        }
       };
     }
     return conditionalAddressAction;
@@ -185,6 +197,19 @@ public class RoutineExecution {
         return true;
       } else {
         return false;
+      }
+    }
+
+    @Override
+    public int getNext(int next, int pcValue) {
+      if (retInstruction == -1 || retInstruction == address)
+        return super.getNext(next, pcValue);
+
+      List<AddressAction> list = actions.stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
+      if (list.isEmpty()) {
+        return pcValue;
+      } else {
+        return list.get(0).address;
       }
     }
   }

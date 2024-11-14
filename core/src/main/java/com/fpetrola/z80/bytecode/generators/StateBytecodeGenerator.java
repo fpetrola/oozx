@@ -71,8 +71,14 @@ public class StateBytecodeGenerator {
     }
     BytecodeGenerationContext bytecodeGenerationContext = new BytecodeGenerationContext(routineManager, classMaker, state.getPc());
     List<Routine> routines = routineManager.getRoutines();
+
     routines.forEach(routine -> {
       routine.optimize();
+      RoutineBytecodeGenerator routineBytecodeGenerator = new RoutineBytecodeGenerator(bytecodeGenerationContext, routine);
+      routineBytecodeGenerator.getMethod(routine.getStartAddress());
+    });
+
+    routines.forEach(routine -> {
       RoutineBytecodeGenerator routineBytecodeGenerator = new RoutineBytecodeGenerator(bytecodeGenerationContext, routine);
       routineBytecodeGenerator.generate();
     });
