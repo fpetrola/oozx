@@ -914,7 +914,7 @@ public class InlineRegisterTransformInstructionsTest<T extends WordNumber> exten
     add(new Ld(r(HL), c(253), f()));
     add(new Ld(r(HL), c(253), f()));
     add(new Ld(r(HL), c(253), f()));
-    add(new BIT(iRR(r(HL)), 7, f()));
+    add(new BIT(iRR(r(HL)), 7, f(), r(PC)));
     add(new JR(c(-5), z(), r(PC)));
 
     step(6);

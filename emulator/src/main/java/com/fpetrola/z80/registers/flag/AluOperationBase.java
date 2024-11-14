@@ -278,7 +278,7 @@ public class AluOperationBase {
       0x9283, 0x9387, 0x9483, 0x9587, 0x9687, 0x9783, 0x988B, 0x998F
   };
   protected int sz5h3pnFlags;
-  protected int memptr;
+//  protected int memptr;
   protected boolean flagQ, lastFlagQ;
 
   public static final int CARRY_MASK = 0x01;
@@ -417,11 +417,11 @@ public class AluOperationBase {
     setN();
     var result = v;
     setPV(b == 0x80);
-    SetFlags53From(result);
+    setFlags53From(result);
     return result;
   }
 
-  public void SetFlags53From(int b) {
+  public void setFlags53From(int b) {
     set5((b & setBit5) != 0);
     set3((b & setBit3) != 0);
   }
@@ -783,11 +783,11 @@ public class AluOperationBase {
 
   protected void doCPD(int regA, int work8, boolean b) {
     var oldCarry = (data & 0x01) == 1;
-    subtractAndSetFlags(regA, work8, false);
+    var result= subtractAndSetFlags(regA, work8, false);
     setPV(b);
     setN(true);
     setC(oldCarry);
-//      TheRegisters.Flag3 = v.IsBitSet(3);
-//      TheRegisters.Flag5 = v.IsBitSet(1);
+    set5((result & 0x00002) != 0);
+    set3((result & 0x00008) != 0);
   }
 }

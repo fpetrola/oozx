@@ -106,8 +106,6 @@ public class FuseResult<T extends WordNumber> {
 
     int mainF = getRegisterValue(cpu, F);
     int expectedF = regs[0] & 0x00ff;
-    mainF &= 0xD7;
-    expectedF &= 0xD7;
     Assertions.assertEquals(expectedF, mainF, String.format("Flags (F): SZ5H3PNC%nActual:    %s%nExpected:  %s",
         String.format("%8s", Integer.toBinaryString(mainF)).replace(' ', '0'),
         String.format("%8s", Integer.toBinaryString(expectedF)).replace(' ', '0')

@@ -23,14 +23,28 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
+import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Ldd<T extends WordNumber> extends Ldi<T> {
-  public Ldd(Register<T> de, RegisterPair<T> bc, RegisterPair<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
-    super(de, bc, hl, flag, memory, io);
+  public static final AluOperation lddTableAluOperation = new TableAluOperation() {
+    public <T extends WordNumber> T executeWithCarry2(T value, T regA, int carry, Register<T> flag) {
+      data = flag.read().intValue();
+      resetH();
+      resetN();
+      setPV(carry != 0);
+      set3(((value.intValue() + regA.intValue()) & BIT3_MASK) != 0);
+      set5(((value.intValue() + regA.intValue()) & 0x02) != 0);
+      return WordNumber.createValue(data);
+    }
+  };
+
+  public Ldd(Register<T> de, RegisterPair<T> bc, RegisterPair<T> hl, Register<T> flag, Memory<T> memory, IO<T> io, Register<T> a) {
+    super(de, bc, hl, flag, memory, io, a);
   }
 
   protected void flagOperation(T valueFromHL) {
-    Ldi.ldiTableAluOperation.executeWithCarry(bc.read(), flag.read(), flag);
+    flag.write(lddTableAluOperation.executeWithCarry2(valueFromHL, a.read(), bc.read().intValue() != 0 ? 1 : 0, flag));
   }
 
   protected void next() {
