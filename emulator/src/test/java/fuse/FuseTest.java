@@ -52,7 +52,7 @@ public class FuseTest<T extends WordNumber> {
     List<Integer> registersArray = Arrays.stream(registers.split(" "))
         .filter(s -> !s.isEmpty()).map(s -> Integer.parseInt(s, 16)).toList();
 
-    RegisterName[] registerNames = {AF, BC, DE, HL, AFx, BCx, DEx, HLx, IX, IY, SP, PC};
+    RegisterName[] registerNames = {AF, BC, DE, HL, AFx, BCx, DEx, HLx, IX, IY, SP, PC, MEMPTR};
 
     IntStream.range(0, registerNames.length)
         .forEach(i -> cpu.getState().getRegister(registerNames[i])

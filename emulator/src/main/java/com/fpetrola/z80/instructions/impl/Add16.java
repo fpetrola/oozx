@@ -34,7 +34,7 @@ public class Add16<T extends WordNumber> extends ParameterizedBinaryAluInstructi
       data = (data & FLAG_SZP_MASK) | ((oper16 >>> 8) & FLAG_53_MASK);
       oper16 &= 0xffff;
       if ((oper16 & 0x0fff) < (reg16 & 0x0fff)) data |= HALFCARRY_MASK;
-      memptr = reg16 + 1;
+      int memptr = reg16 + 1;
       flagQ = true;
       data = data | i;
       return oper16;

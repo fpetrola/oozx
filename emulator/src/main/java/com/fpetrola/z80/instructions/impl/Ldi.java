@@ -30,15 +30,16 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Ldi<T extends WordNumber> extends BlockInstruction<T> {
   public static final AluOperation ldiTableAluOperation = new TableAluOperation() {
-    public int execute(int data1, int bc, int carry) {
-      data= data1;
+    public int execute(int bc, int data1, int carry) {
+      data = bc;
       resetH();
       resetN();
-      setPV(bc != 0);
+      setPV(carry != 0);
       setUnusedFlags(data1);
       return data;
     }
   };
+  protected final Register<T> a;
 
   public Register<T> getDe() {
     return de;
@@ -50,9 +51,10 @@ public class Ldi<T extends WordNumber> extends BlockInstruction<T> {
 
   protected Register<T> de;
 
-  public Ldi(Register<T> de, RegisterPair<T> bc, RegisterPair<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
+  public Ldi(Register<T> de, RegisterPair<T> bc, RegisterPair<T> hl, Register<T> flag, Memory<T> memory, IO<T> io, Register<T> a) {
     super(bc, hl, flag, memory, io);
     this.de = de;
+    this.a= a;
   }
 
   public int execute() {
@@ -72,7 +74,7 @@ public class Ldi<T extends WordNumber> extends BlockInstruction<T> {
   }
 
   protected void flagOperation(T valueFromHL) {
-    ldiTableAluOperation.executeWithCarry(bc.read(), flag.read(), flag);
+    flag.write(Ldd.lddTableAluOperation.executeWithCarry2(valueFromHL, a.read(), bc.read().intValue() != 0 ? 1 : 0, flag));
   }
 
   protected void next() {

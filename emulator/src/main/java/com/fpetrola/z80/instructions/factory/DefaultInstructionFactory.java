@@ -48,6 +48,7 @@ public class DefaultInstructionFactory<T extends WordNumber> implements Instruct
   protected Register<T> pc;
   protected Register<T> flag;
   private IO<T> io;
+  private Register<T> memptr;
 
   public DefaultInstructionFactory() {
   }
@@ -73,6 +74,7 @@ public class DefaultInstructionFactory<T extends WordNumber> implements Instruct
     _hl = state.getRegister(HLx);
     r = state.getRegister(R);
     i = state.getRegister(I);
+    memptr = state.getMemptr();
     memory = state.getMemory();
   }
 
@@ -168,7 +170,7 @@ public class DefaultInstructionFactory<T extends WordNumber> implements Instruct
 
   @Override
   public BIT BIT(OpcodeReference target, int n) {
-    return new BIT<T>(target, n, flag);
+    return new BIT<T>(target, n, flag, memptr);
   }
 
   @Override
@@ -318,12 +320,12 @@ public class DefaultInstructionFactory<T extends WordNumber> implements Instruct
 
   @Override
   public Ldd Ldd() {
-    return new Ldd<T>(de, bc, hl, flag, memory, io);
+    return new Ldd<T>(de, bc, hl, flag, memory, io, a);
   }
 
   @Override
   public Ldi Ldi() {
-    return new Ldi<T>(de, bc, hl, flag, memory, io);
+    return new Ldi<T>(de, bc, hl, flag, memory, io, a);
   }
 
   @Override

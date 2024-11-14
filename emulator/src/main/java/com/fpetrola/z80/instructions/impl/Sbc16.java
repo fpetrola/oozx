@@ -40,7 +40,7 @@ public class Sbc16<T extends WordNumber> extends ParameterizedBinaryAluInstructi
       setOverflowFlagSub16(a, b, carry);
       setH((((a & 0x0fff) - (b & 0x0fff) - carry) & 0x1000) != 0);
       setN();
-      setUnusedFlags(ans);
+      setFlags53From((ans & 0xff00) >> 8);
       return ans;
     }
   };

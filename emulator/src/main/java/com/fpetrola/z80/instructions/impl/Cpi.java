@@ -49,14 +49,8 @@ public class Cpi<T extends WordNumber> extends BlockInstruction<T> {
       setN();
       if (getH())
         value--;
-      if ((value & 0x00002) == 0)
-        reset5();
-      else
-        set5();
-      if ((value & 0x00008) == 0)
-        reset3();
-      else
-        set3();
+      set5((result & 0x00002) != 0);
+      set3((result & 0x00008) != 0);
 
       return reg_A;
     }
