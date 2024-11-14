@@ -19,11 +19,9 @@ OOZX is an open-source project that provides a Z80 emulator with a unique object
 
 ## How It Works
 
-The core of **oozx** is built around an object-oriented Z80 emulator, where each instruction is individually modeled, categorized, and accessible via a visitor pattern. Registers are also modeled and designed to handle a variety of data types beyond basic integers or bytes; for example, they can store complex data structures, enabling dataflow analysis features such as value tainting. This design allows extensive use of the `InstructionVisitor` to perform tasks such as cloning instructions, replacing registers with advanced `VirtualRegister` objects, verifying data scopes, and translating instructions into bytecode equivalents.
+The core of **oozx** is an object-oriented Z80 emulator with each instruction modeled, categorized, and accessible via a visitor pattern. Registers support various data types, enabling advanced dataflow analysis, such as value tainting. The `InstructionVisitor` facilitates tasks like instruction cloning, register replacement, data scope verification, and bytecode translation.
 
-To ensure coverage of all code paths without needing to manually play through every game level, oozx employs a symbolic execution algorithm. This algorithm leverages the emulator's instruction model, register structure, and control flow capabilities to traverse all potential execution paths in the code.
-
-A simple algorithm is used to detect self-modifying code (SMC). It works by monitoring instructions that write to memory regions not designated for static data. When only an instruction argument is modified (mutant data), it’s replaced by memory access to fetch this data as needed. While this algorithm is basic and works for certain cases, future improvements will aim to handle more complex SMC strategies.
+To cover all code paths without playing through each level, oozx uses symbolic execution to analyze all possible flows. A basic self-modifying code (SMC) detection algorithm monitors instructions writing to non-static data regions, adapting mutant data into memory access, with future enhancements planned for more complex SMC scenarios.
 
 ### Screen Visualization
 
