@@ -46,10 +46,10 @@ public class ManualJSWTest<T extends WordNumber> extends ManualBytecodeGeneratio
     add(new JP(c(51), z(), r(PC)));
     add(new Cp(r(A), c(0x2), f()));
     add(new JP(c(81), z(), r(PC)));
-    add(new BIT(iRRn(r(IX), 0), 7, f()));
+    add(new BIT(iRRn(r(IX), 0), 7, f(), r(PC)));
     add(new JR(c(32), z(), r(PC)));
     add(new Ld(r(A), iRRn(r(IX), 1), f()));
-    add(new BIT(r(A), 7, f()));
+    add(new BIT(r(A), 7, f(), r(PC)));
     add(new JR(c(15), z(), r(PC)));
     add(new Sub(r(A), c(0x2), f()));
     add(new Cp(r(A), c(0x94), f()));
@@ -65,7 +65,7 @@ public class ManualJSWTest<T extends WordNumber> extends ManualBytecodeGeneratio
     add(new Add(r(A), c(0x2), f()));
     add(new JR(c(30), t(), r(PC)));
     add(new Ld(r(A), iRRn(r(IX), 1), f()));
-    add(new BIT(r(A), 7, f()));
+    add(new BIT(r(A), 7, f(), r(PC)));
     add(new JR(c(15), nz(), r(PC)));
     add(new Sub(r(A), c(0x2), f()));
     add(new Cp(r(A), c(0x14), f()));
@@ -87,7 +87,7 @@ public class ManualJSWTest<T extends WordNumber> extends ManualBytecodeGeneratio
     add(new Xor(r(A), c(0x80), f()));
     add(new Ld(iRRn(r(IX), 0), r(A), f()));
     add(new JP(c(_246), t(), r(PC)));
-    add(new BIT(iRRn(r(IX), 0), 7, f()));
+    add(new BIT(iRRn(r(IX), 0), 7, f(), r(PC)));
     add(new JR(c(35), nz(), r(PC)));
     add(new Ld(r(A), iRRn(r(IX), 0), f()));
     add(new Sub(r(A), c(0x20), f()));
