@@ -25,8 +25,8 @@ import com.fpetrola.z80.registers.RegisterPair;
 
 public class RepeatingInstruction<T extends WordNumber> extends AbstractInstruction<T> implements JumpInstruction<T> {
   protected Instruction<T> instructionToRepeat;
-  private  ImmutableOpcodeReference<T> pc;
-  protected  RegisterPair<T> bc;
+  private ImmutableOpcodeReference<T> pc;
+  protected RegisterPair<T> bc;
 
   public RepeatingInstruction(Instruction<T> instructionToRepeat, ImmutableOpcodeReference<T> pc, RegisterPair<T> bc) {
     this.instructionToRepeat = instructionToRepeat;
@@ -46,8 +46,8 @@ public class RepeatingInstruction<T extends WordNumber> extends AbstractInstruct
 
   @Override
   public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitRepeatingInstruction(this);
+    if (!visitor.visitRepeatingInstruction(this))
+      super.accept(visitor);
   }
 
   public Instruction<T> getInstructionToRepeat() {

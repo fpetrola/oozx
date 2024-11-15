@@ -131,5 +131,6 @@ public class FuseResult<T extends WordNumber> {
     Assertions.assertEquals(regs[9], getRegisterValue(cpu, IY), "Register mismatch: IY");
     Assertions.assertEquals(regs[10], getRegisterValue(cpu, SP), "Register mismatch: SP");
     Assertions.assertEquals(regs[11], getRegisterValue(cpu, PC), "Register mismatch: PC");
+    Assertions.assertEquals(regs[12], getRegisterValue(cpu, MEMPTR), "Register mismatch: MEMPTR");
   }
 }

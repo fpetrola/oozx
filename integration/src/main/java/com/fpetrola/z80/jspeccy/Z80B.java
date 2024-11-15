@@ -127,7 +127,7 @@ public class Z80B extends RegistersBase implements IZ80 {
     IOImplementation io = new IOImplementation(memIoOps);
 
     State state = new State(io, new SpyRegisterBankFactory(spy1).createBank(), spy1.wrapMemory(memory));
-    InstructionExecutor instructionExecutor = new SpyInstructionExecutor(getSpy());
+    InstructionExecutor instructionExecutor = new SpyInstructionExecutor(getSpy(), state.getMemptr());
 
     TransformerInstructionExecutor transformerInstructionExecutor = createInstructionTransformer(state, instructionExecutor);
     InstructionExecutor instructionExecutor1 = traditional ? instructionExecutor : transformerInstructionExecutor;

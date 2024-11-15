@@ -27,6 +27,9 @@ import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.NullInstructionSpy;
+import fuse.parser.TestFileParser;
+import fuse.parser.TestInput;
+import fuse.parser.TestOutput;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.parallel.Execution;
@@ -34,6 +37,8 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -71,5 +76,28 @@ public class FuseTests {
 
     Assertions.assertTrue(runResult, "Test timed-out.");
     fuseResult.verify(fuseTest.cpu);
+  }
+
+  public static void main(String[] args) {
+    try {
+      File testDataDir= FUSE_TEST_DATA_DIR.toFile();
+      File inFile = new File(testDataDir, "tests.in");
+      File expectedFile = new File(testDataDir, "tests.expected");
+
+      TestFileParser parser = new TestFileParser();
+
+      // Parse the .in file
+      List<TestInput> inputs = parser.parseInputFile(inFile);
+
+      // Parse the .expected file
+      List<TestOutput> outputs = parser.parseExpectedFile(expectedFile);
+
+      // Example of accessing parsed data
+      inputs.forEach(System.out::println);
+      outputs.forEach(System.out::println);
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }

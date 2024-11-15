@@ -101,9 +101,10 @@ public abstract class RegisterFinderInstructionVisitor implements InstructionVis
   }
 
   @Override
-  public void visitRepeatingInstruction(RepeatingInstruction repeatingInstruction) {
+  public boolean visitRepeatingInstruction(RepeatingInstruction repeatingInstruction) {
     isTarget = true;
     repeatingInstruction.getInstructionToRepeat().accept(this);
     repeatingInstruction.getBc().accept(this);
+    return false;
   }
 }

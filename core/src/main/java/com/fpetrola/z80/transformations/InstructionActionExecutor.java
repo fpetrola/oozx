@@ -132,9 +132,10 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
   }
 
   @Override
-  public void visitRepeatingInstruction(RepeatingInstruction tRepeatingInstruction) {
+  public boolean visitRepeatingInstruction(RepeatingInstruction tRepeatingInstruction) {
     executeAction(tRepeatingInstruction.getBc());
     executeAction(tRepeatingInstruction.getInstructionToRepeat());
+    return false;
   }
 
   public void visitBlockInstruction(BlockInstruction blockInstruction) {
@@ -150,9 +151,10 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
   }
 
   @Override
-  public void visitCpir(Cpir cpir) {
+  public boolean visitCpir(Cpir cpir) {
     Cpi instructionToRepeat = (Cpi) cpir.getInstructionToRepeat();
     executeAction(instructionToRepeat.getA());
+    return false;
   }
 
   public void visitingPop(Pop pop) {

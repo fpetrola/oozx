@@ -24,7 +24,7 @@ import com.fpetrola.z80.memory.Memory;
 public class Memory16BitReference<T extends WordNumber> implements OpcodeReference<T> {
 
   private final Memory<T> memory;
-  protected T fetchedAddress;
+  public T fetchedAddress;
   private ImmutableOpcodeReference<T> pc;
   private int delta;
 

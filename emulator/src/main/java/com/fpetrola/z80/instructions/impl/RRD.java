@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
@@ -37,5 +38,11 @@ public class RRD<T extends WordNumber> extends RLD<T> {
 
   protected int getRegA1(int nibble1, int nibble4, int nibble3) {
     return (nibble1 << 4) | nibble4;
+  }
+
+  public void accept(InstructionVisitor visitor) {
+    if (!visitor.visitRRD(this)) {
+      super.accept(visitor);
+    }
   }
 }

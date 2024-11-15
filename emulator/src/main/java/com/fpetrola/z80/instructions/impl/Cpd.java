@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -45,5 +46,10 @@ public class Cpd<T extends WordNumber> extends Cpi<T> {
     T value = memory.read(hl.read());
     T reg_A = a.read();
     cpdTableAluOperation.executeWithCarry2(value, reg_A, bc.read().isNotZero() ? 1 : 0, flag);
+  }
+
+  public void accept(InstructionVisitor visitor) {
+    if (!visitor.visitCpd(this))
+      super.accept(visitor);
   }
 }

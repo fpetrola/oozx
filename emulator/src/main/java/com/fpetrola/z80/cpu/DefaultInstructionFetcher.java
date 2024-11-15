@@ -76,7 +76,9 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   }
 
   public static DefaultInstructionFetcher getInstructionFetcher(State state, NullInstructionSpy spy, DefaultInstructionFactory instructionFactory) {
-    return new DefaultInstructionFetcher(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), new FetchNextOpcodeInstructionFactory(spy, state), new SpyInstructionExecutor(spy), instructionFactory);
+    SpyInstructionExecutor instructionExecutor1 = new SpyInstructionExecutor(spy);
+    instructionExecutor1.setMemptr(state.getMemptr());
+    return new DefaultInstructionFetcher(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), new FetchNextOpcodeInstructionFactory(spy, state), instructionExecutor1, instructionFactory);
   }
 
   @Override
@@ -113,6 +115,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
       state.getPc().write(nextPC);
     } catch (Exception e) {
+      e.printStackTrace();
       state.setRunState(State.RunState.STATE_STOPPED_BREAK);
     }
   }

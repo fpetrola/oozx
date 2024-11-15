@@ -27,6 +27,7 @@ import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.NullInstructionSpy;
+import fuse.parser.Event;
 
 import java.io.File;
 import java.io.IOException;
@@ -99,7 +100,7 @@ public class FuseTestParser {
 
   public static class MyDefaultInstructionFetcher extends DefaultInstructionFetcher {
     public MyDefaultInstructionFetcher(State state, NullInstructionSpy spy, DefaultInstructionFactory instructionFactory) {
-      super(state, new OpcodeConditions(state.getFlag(), state.getRegister(RegisterName.B)), new FetchNextOpcodeInstructionFactory(spy, state), new SpyInstructionExecutor(spy), instructionFactory);
+      super(state, new OpcodeConditions(state.getFlag(), state.getRegister(RegisterName.B)), new FetchNextOpcodeInstructionFactory(spy, state), new SpyInstructionExecutor(spy, state.getMemptr()), instructionFactory);
     }
 
     public Instruction getLastInstruction() {
@@ -128,6 +129,8 @@ public class FuseTestParser {
       while (iterator.hasNext()) {
         String testId = next;
 
+        List<Event> events = new ArrayList<>();
+
         // Skip events
         while (true) {
           if (!iterator.hasNext()) {
@@ -137,6 +140,7 @@ public class FuseTestParser {
             if (eventTypes.stream().noneMatch(next::contains)) {
               break;
             }
+            events.add(parseEvent(next));
           }
         }
 
@@ -159,6 +163,16 @@ public class FuseTestParser {
       throw new RuntimeException(e);
     }
   }
+  // Helper to parse event in .expected file
+  private Event parseEvent(String line) {
+    String[] parts = line.trim().split(" ");
+    int time = Integer.parseInt(parts[0]);
+    String type = parts[1];
+    int address = Integer.parseInt(parts[2], 16);
+    Integer data = parts.length > 3 ? Integer.parseInt(parts[3], 16) : null;
+    return new Event(time, type, address, data);
+  }
+
 }
 
 // Assuming you have classes FuseTest and FuseResult defined somewhere in your codebase.

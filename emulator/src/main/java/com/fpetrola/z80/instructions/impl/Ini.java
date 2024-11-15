@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.BlockInstruction;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.memory.Memory;
@@ -63,5 +64,10 @@ public class Ini<T extends WordNumber> extends BlockInstruction<T> {
   protected void flagOperation(T valueFromHL) {
     T t = iniTableAluOperation.executeWithCarry(valueFromHL, bc.getHigh().read(), bc.getLow());
     flag.write(t);
+  }
+
+  public void accept(InstructionVisitor visitor) {
+    if (!visitor.visitIni(this))
+      super.accept(visitor);
   }
 }

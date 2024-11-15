@@ -74,8 +74,9 @@ public class InstructionCloner<T extends WordNumber> implements InstructionVisit
   }
 
   @Override
-  public void visitCpir(Cpir cpir) {
+  public boolean visitCpir(Cpir cpir) {
     setCloned(instructionFactory.Cpir(), cpir);
+    return false;
   }
 
   @Override
@@ -144,8 +145,9 @@ public class InstructionCloner<T extends WordNumber> implements InstructionVisit
   }
 
   @Override
-  public void visitingAdd(Add tjp) {
+  public boolean visitingAdd(Add tjp) {
     setCloned(instructionFactory.Add(clone(tjp.getTarget()), clone(tjp.getSource())), tjp);
+    return false;
   }
 
   @Override

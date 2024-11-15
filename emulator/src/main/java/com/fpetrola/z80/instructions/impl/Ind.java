@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -54,5 +55,11 @@ public class Ind<T extends WordNumber> extends Ini<T> {
   protected void flagOperation(T valueFromHL) {
     T t = indTableAluOperation.executeWithCarry(valueFromHL, bc.getHigh().read(), bc.getLow());
     flag.write(t);
+  }
+
+  public void accept(InstructionVisitor visitor) {
+    if (!visitor.visitInd(this)) {
+      super.accept(visitor);
+    }
   }
 }

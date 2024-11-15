@@ -37,6 +37,7 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
   private final Register<T> pc;
   private InstructionExecutor<T> instructionExecutor;
   private boolean noRepeat;
+  private Register<T> memptr;
 
   public TransformerInstructionExecutor(Register<T> pc, InstructionExecutor<T> instructionExecutor, boolean noRepeat, InstructionTransformer<T> instructionTransformer) {
     this.pc = pc;
@@ -69,6 +70,11 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
     resetter.executeAction(cloned);
 
     return cloned;
+  }
+
+  @Override
+  public void setMemptr(Register<T> memptr) {
+    this.memptr = memptr;
   }
 
   @Override
@@ -120,8 +126,9 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
         b[0] = true;
       }
 
-      public void visitRepeatingInstruction(RepeatingInstruction tRepeatingInstruction) {
+      public boolean visitRepeatingInstruction(RepeatingInstruction tRepeatingInstruction) {
         b[0] = true;
+        return false;
       }
 
       public void visitBlockInstruction(BlockInstruction blockInstruction) {

@@ -16,18 +16,33 @@
  *
  */
 
-package com.fpetrola.z80.cpu;
+package fuse.parser;
 
-import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.registers.Register;
+import java.util.List;
 
-public interface InstructionExecutor<T> {
-  void setMemptr(Register<T> memptr);
+// Represents a memory change in the output file
+public class MemoryChange {
+    private int address;
+    private List<Integer> bytes;
 
-  Instruction<T> execute(Instruction<T> instruction);
+    public MemoryChange(int address, List<Integer> bytes) {
+        this.address = address;
+        this.bytes = bytes;
+    }
 
-  boolean isExecuting(Instruction<T> instruction);
+    public int getAddress() {
+        return address;
+    }
 
-  default void reset() {
-  }
+    public void setAddress(int address) {
+        this.address = address;
+    }
+
+    public List<Integer> getBytes() {
+        return bytes;
+    }
+
+    public void setBytes(List<Integer> bytes) {
+        this.bytes = bytes;
+    }
 }

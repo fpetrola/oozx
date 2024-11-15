@@ -60,7 +60,7 @@ public class Add<T extends WordNumber> extends ParameterizedBinaryAluInstruction
 
   @Override
   public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitingAdd(this);
+    if (!visitor.visitingAdd(this))
+      super.accept(visitor);
   }
 }

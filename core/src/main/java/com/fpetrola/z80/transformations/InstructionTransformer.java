@@ -280,7 +280,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
   }
 
   @Override
-  public void visitCpir(Cpir cpir) {
+  public boolean visitCpir(Cpir cpir) {
     setCloned(instructionFactory.Cpir(), cpir);
     Cpir cloned1 = (Cpir) cloned;
 
@@ -295,6 +295,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
     instructionToRepeat.setFlag(createRegisterReplacement(instructionToRepeat.getFlag(), cloned1, virtualFetcher));
 
     cloned1.setInstructionToRepeat(instructionToRepeat);
+    return false;
   }
 
 

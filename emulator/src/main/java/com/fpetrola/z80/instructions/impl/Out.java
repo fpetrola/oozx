@@ -38,7 +38,7 @@ public class Out<T extends WordNumber> extends TargetSourceInstruction<T, Immuta
 
   public static class OutPortOpcodeReference<T> implements OpcodeReference<T> {
     private final IO<T> io;
-    private final ImmutableOpcodeReference target;
+    public final ImmutableOpcodeReference target;
 
     public OutPortOpcodeReference(IO<T> io, ImmutableOpcodeReference target) {
       this.io = io;

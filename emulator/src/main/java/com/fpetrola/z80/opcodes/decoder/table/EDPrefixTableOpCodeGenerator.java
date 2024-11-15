@@ -39,7 +39,7 @@ public class EDPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
       case 0:
         return y == 6 ? i.In(nullTarget(), r(BC)) : i.In(r[y], r(BC));
       case 1:
-        return y == 6 ? i.Out(r(C), c(0)) : i.Out(r(C), r[y]);
+        return y == 6 ? i.Out(r(BC), c(0)) : i.Out(r(BC), r[y]);
       case 2:
         return q == 0 ? i.Sbc16(r(HL), rp[p]) : i.Adc16(r(HL), rp[p]);
       case 3:

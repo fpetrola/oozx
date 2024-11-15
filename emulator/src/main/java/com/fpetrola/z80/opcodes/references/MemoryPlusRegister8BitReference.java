@@ -25,6 +25,8 @@ import com.fpetrola.z80.registers.Register;
 
 public class MemoryPlusRegister8BitReference<T extends WordNumber> implements OpcodeReference<T> {
 
+  public T address;
+
   public Memory<T> getMemory() {
     return memory;
   }
@@ -65,12 +67,12 @@ public class MemoryPlusRegister8BitReference<T extends WordNumber> implements Op
   }
 
   public T read() {
-    T address = target.read().plus(fetchRelative());
+    address = target.read().plus(fetchRelative());
     return memory.read(address);
   }
 
   public void write(T value) {
-    T address = target.read().plus(fetchRelative());
+    address = target.read().plus(fetchRelative());
     memory.write(address, value);
   }
 

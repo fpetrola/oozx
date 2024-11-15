@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.TargetInstruction;
@@ -45,5 +46,14 @@ public class LdOperation<T extends WordNumber> extends AbstractInstruction<T> {
 
   public String toString() {
     return "LD " + target + "," + instruction;
+  }
+
+  @Override
+  public void accept(InstructionVisitor visitor) {
+    instruction.accept(visitor);
+    target.accept(visitor);
+    if (!visitor.visitLdOperation(this)) {
+      super.accept(visitor);
+    }
   }
 }
