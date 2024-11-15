@@ -23,6 +23,7 @@ import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.RegisterName;
 
 @SuppressWarnings("ALL")
 public class MemptrUpdater<T extends WordNumber> {
@@ -140,7 +141,7 @@ public class MemptrUpdater<T extends WordNumber> {
           if (!(jp.getPositionOpcodeReference() instanceof Register<?>))
             nextPC = (T) conditionalInstruction.getJumpAddress();
           else
-            nextPC= null;
+            nextPC = null;
         }
         memptr.write(nextPC == null ? WordNumber.createValue(0) : nextPC);
       }
@@ -202,8 +203,10 @@ public class MemptrUpdater<T extends WordNumber> {
       }
 
       public void visitEx(Ex<T> ex) {
-        if (ex.getTarget().toString().contains("SP"))
-          memptr.write(ex.getSource().read());
+        if (ex.getTarget() instanceof IndirectMemory16BitReference indirectMemory16BitReference)
+          if (indirectMemory16BitReference.target instanceof Register<?> register && register.getName().equals(RegisterName.SP.name())) {
+            memptr.write(ex.getSource().read());
+          }
       }
     });
   }
