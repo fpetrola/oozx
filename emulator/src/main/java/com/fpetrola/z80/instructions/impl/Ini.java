@@ -49,13 +49,12 @@ public class Ini<T extends WordNumber> extends BlockInstruction<T> {
   }
 
   public int execute() {
-    T hlValue = hl.read();
-    T cValue = bc.getLow().read();
     T port = bc.read();
-
     T in = io.in(port);
-    memory.write(hlValue, in);
+    T cValue = bc.getLow().read();
     bc.getHigh().decrement();
+    T hlValue = hl.read();
+    memory.write(hlValue, in);
     next();
     flagOperation(in);
     return 1;
