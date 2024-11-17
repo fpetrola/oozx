@@ -16,7 +16,9 @@
  *
  */
 
-package fuse.parser;
+package com.fpetrola.z80.cpu;
+
+import java.util.Objects;
 
 // Represents a memory or port event in the output file
 public class Event {
@@ -62,5 +64,27 @@ public class Event {
 
     public void setData(Integer data) {
         this.data = data;
+    }
+
+    public String toString() {
+        return "Event{" +
+            "time=" + time +
+            ", type='" + type + '\'' +
+            ", address=" + address +
+            ", data=" + data +
+            '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Event event = (Event) o;
+        return getTime() == event.getTime() && getAddress() == event.getAddress() && Objects.equals(getType(), event.getType()) && Objects.equals(getData(), event.getData());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getTime(), getType(), getAddress(), getData());
     }
 }

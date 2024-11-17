@@ -18,6 +18,8 @@
 
 package fuse.parser;
 
+import com.fpetrola.z80.cpu.Event;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;

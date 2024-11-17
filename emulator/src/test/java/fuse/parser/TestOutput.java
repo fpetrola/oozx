@@ -18,6 +18,8 @@
 
 package fuse.parser;
 
+import com.fpetrola.z80.cpu.Event;
+
 import java.util.List;
 
 // Represents a single test in the output file

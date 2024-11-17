@@ -25,10 +25,26 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterBank;
 import com.fpetrola.z80.registers.RegisterName;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class State<T extends WordNumber> {
   private RunState runState;
+  private ArrayList<Event> events = new ArrayList<>();
+
+  public int getTStatesSinceCpuStart() {
+    return 0;
+  }
+
+  public List<Event> getEvents() {
+    return events;
+  }
+
+  public void addEvent(Event event) {
+    events.add(event);
+  }
 
   public enum InterruptionMode {IM0, IM1, IM2}
 

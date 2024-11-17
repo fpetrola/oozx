@@ -77,12 +77,12 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   }
 
   @Override
-  public void addMemoryWriteListener(MemoryWriteListener memoryWriteListener) {
+  public void addMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener) {
     this.memoryWriteListener = memoryWriteListener;
   }
 
   @Override
-  public void removeMemoryWriteListener(MemoryWriteListener memoryWriteListener) {
+  public void removeMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener) {
   }
 
   @Override
@@ -91,12 +91,12 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   }
 
   @Override
-  public void addMemoryReadListener(MemoryReadListener memoryReadListener) {
+  public void addMemoryReadListener(MemoryReadListener<T> memoryReadListener) {
     this.memoryReadListener = memoryReadListener;
   }
 
   @Override
-  public void removeMemoryReadListener(MemoryReadListener memoryReadListener) {
+  public void removeMemoryReadListener(MemoryReadListener<T> memoryReadListener) {
 
   }
 

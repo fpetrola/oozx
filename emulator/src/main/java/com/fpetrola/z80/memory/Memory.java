@@ -39,15 +39,15 @@ public interface Memory<T> {
 
   void update();
 
-  void addMemoryWriteListener(MemoryWriteListener memoryWriteListener);
+  void addMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener);
 
-  void removeMemoryWriteListener(MemoryWriteListener memoryWriteListener);
+  void removeMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener);
 
   void reset();
 
-  void addMemoryReadListener(MemoryReadListener memoryReadListener);
+  void addMemoryReadListener(MemoryReadListener<T> memoryReadListener);
 
-  void removeMemoryReadListener(MemoryReadListener memoryReadListener);
+  void removeMemoryReadListener(MemoryReadListener<T> memoryReadListener);
 
   default T[] getData() {
     return (T[]) new WordNumber[0];

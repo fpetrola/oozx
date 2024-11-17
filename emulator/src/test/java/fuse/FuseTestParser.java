@@ -21,13 +21,14 @@ package fuse;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.NullInstructionSpy;
-import fuse.parser.Event;
+import com.fpetrola.z80.cpu.Event;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,9 +41,10 @@ import java.util.stream.Collectors;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
-public class FuseTestParser {
+public class FuseTestParser<T extends WordNumber> {
   private final File inFile;
   private final File expectedFile;
+  private int time;
 
   public FuseTestParser(File testDataDir) {
     this.inFile = new File(testDataDir, "tests.in");
@@ -83,6 +85,8 @@ public class FuseTestParser {
   }
 
   private Z80Cpu getZ80Cpu() {
+    MockedMemory<T> memory = new MockedMemory(true);
+
     var state = new State(new IO<WordNumber>() {
       public WordNumber in(WordNumber port) {
         return createValue(port.intValue() >> 8);
@@ -90,11 +94,19 @@ public class FuseTestParser {
 
       public void out(WordNumber port, WordNumber value) {
       }
-    }, new MockedMemory(true));
+    }, memory);
     NullInstructionSpy spy = new NullInstructionSpy();
     DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory<WordNumber>(state);
     DefaultInstructionFetcher instructionFetcher = new MyDefaultInstructionFetcher(state, spy, instructionFactory);
     Z80Cpu cpu = (OOZ80<WordNumber>) new OOZ80(state, instructionFetcher);
+
+    memory.addMemoryReadListener((address, value) -> {
+      cpu.getState().addEvent(new Event(time, "MR", address.intValue(), value.intValue()));
+    });
+
+    memory.addMemoryWriteListener((address, value) -> {
+      cpu.getState().addEvent(new Event(time, "MW", address.intValue(), value.intValue()));
+    });
     return cpu;
   }
 
@@ -156,13 +168,14 @@ public class FuseTestParser {
           memory.append("\n").append(next);
         }
 
-        results.add(new FuseResult(testId, registers, state, memory.toString()));
+        results.add(new FuseResult(testId, registers, state, memory.toString(), events));
       }
       return results;
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
+
   // Helper to parse event in .expected file
   private Event parseEvent(String line) {
     String[] parts = line.trim().split(" ");
