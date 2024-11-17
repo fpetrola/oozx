@@ -28,6 +28,10 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class BIT<T extends WordNumber> extends BitOperation<T> {
+  public Register<T> getMemptr() {
+    return memptr;
+  }
+
   private final Register<T> memptr;
 
   public BIT(OpcodeReference<T> target, int n, Register<T> flag, Register<T> memptr) {

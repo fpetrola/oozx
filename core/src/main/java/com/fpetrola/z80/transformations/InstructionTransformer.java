@@ -199,9 +199,16 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
   }
 
   public void visitingBitOperation(BitOperation bitOperation) {
+    boolean isBIT = bitOperation instanceof BIT;
     Constructor<?>[] constructors = bitOperation.getClass().getConstructors();
     try {
-      AbstractInstruction cloned1 = (AbstractInstruction) constructors[0].newInstance(clone(bitOperation.getTarget()), bitOperation.getN(), bitOperation.getFlag());
+      AbstractInstruction cloned1;
+
+      if (bitOperation instanceof BIT bit)
+        cloned1 = (AbstractInstruction) constructors[0].newInstance(clone(bitOperation.getTarget()), bitOperation.getN(), bitOperation.getFlag(), bit.getMemptr());
+      else
+        cloned1 = (AbstractInstruction) constructors[0].newInstance(clone(bitOperation.getTarget()), bitOperation.getN(), bitOperation.getFlag());
+
       setCloned(cloned1, bitOperation);
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e);
@@ -212,7 +219,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
     VirtualFetcher virtualFetcher = new VirtualFetcher();
 
     cloned1.setTarget(createRegisterReplacement(cloned1.getTarget(), cloned1, virtualFetcher));
-    if (bitOperation instanceof BIT)
+    if (isBIT)
       cloned1.setFlag(createRegisterReplacement(cloned1.getFlag(), cloned1, virtualFetcher));
   }
 
