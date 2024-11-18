@@ -135,4 +135,16 @@ class AfterExecutionAdder<T extends WordNumber> extends StatesAdder<T, List<Stat
       cpu.getState().tstates += 2;
     }
   }
+
+  public boolean visitingDjnz(DJNZ<T> djnz) {
+    if (djnz.getNextPC() != null) {
+      AddStatesMemoryReadListener.addMc(5, cpu, 1, 1, cpu.getState().getRegister(PC).read().intValue());
+    } else {
+      AddStatesMemoryReadListener.addMc(1, cpu, 1, 1, cpu.getState().getRegister(PC).read().intValue());
+      cpu.getState().tstates += 2;
+    }
+
+    super.visitingDjnz(djnz);
+    return true;
+  }
 }

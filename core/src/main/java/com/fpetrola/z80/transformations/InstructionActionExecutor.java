@@ -96,10 +96,11 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
     executeAction(parameterizedBinaryAluInstruction.getFlag());
   }
 
-  public void visitingDjnz(DJNZ<T> djnz) {
+  public boolean visitingDjnz(DJNZ<T> djnz) {
     executeAction(djnz.getPositionOpcodeReference());
 
     djnz.accept(new ConditionVisitor());
+    return false;
   }
 
   public void visitingJR(JR jr) {

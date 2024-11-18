@@ -23,14 +23,9 @@ import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.cpu.Z80Cpu;
-import com.fpetrola.z80.instructions.impl.*;
-import com.fpetrola.z80.instructions.types.BitOperation;
-import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
-import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetInstruction;
 import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.Register;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +66,7 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
     }
   }
 
-  private boolean addIfIndirectHL(TargetInstruction tBitOperation) {
+  public boolean addIfIndirectHL(TargetInstruction tBitOperation) {
     if (AfterExecutionAdder.isIndirectHL(tBitOperation)) {
       if (cpu.getState().getTStatesSinceCpuStart() == 11) {
         addMc(1, cpu, 1, 0, cpu.getState().getRegister(HL).read().intValue());
@@ -82,7 +77,7 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
     return false;
   }
 
-  private  <T extends WordNumber> void addMc14Or19(T address) {
+  public <T extends WordNumber> void addMc14Or19(T address) {
     if (cpu.getState().getTStatesSinceCpuStart() == 14) {
       addMc(2, cpu, 1, 3, cpu.getState().getRegister(PC).read().intValue());
     } else if (cpu.getState().getTStatesSinceCpuStart() == 19) {
@@ -114,7 +109,7 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
         addMc(1, cpu, time1, 0, address.intValue());
         cpu.getState().addEvent(new Event(0, "MR", address.intValue(), value.intValue()));
 
-        addBefore(address, cpu, state, instructionFetcher, time1);
+        addAfterMR(address, cpu, state, instructionFetcher, time1);
       };
 
       if (fetching != 2) {
@@ -131,44 +126,11 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
     }
   }
 
-  private void addBefore(T address, Z80Cpu<T> cpu, State<T> state, DefaultInstructionFetcher instructionFetcher, int time1) {
-    InstructionVisitor<T, ?> instructionVisitor = new InstructionVisitor<>() {
-      public boolean visitRLD(RLD<T> rld) {
-        if (cpu.getState().getTStatesSinceCpuStart() == 11) {
-          addMc(4, cpu, 1, 0, cpu.getState().getRegister(HL).read().intValue());
-        }
-        return InstructionVisitor.super.visitRLD(rld);
-      }
-
-      public boolean visitLdOperation(LdOperation ldOperation) {
-        addMc14Or19(address);
-        return InstructionVisitor.super.visitLdOperation(ldOperation);
-      }
-
-      public void visitingBitOperation(BitOperation tBitOperation) {
-        if (!(tBitOperation instanceof RES<?> || tBitOperation instanceof SET<?>) || !addIfIndirectHL(tBitOperation))
-          addMc14Or19(address);
-      }
-
-      public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction parameterizedUnaryAluInstruction) {
-        addIfIndirectHL(parameterizedUnaryAluInstruction);
-        addMc14Or19(address);
-        return InstructionVisitor.super.visitingParameterizedUnaryAluInstruction(parameterizedUnaryAluInstruction);
-      }
-
-      public void visitingLd(Ld<T> ld) {
-        if (cpu.getState().getTStatesSinceCpuStart() == 11 && (!ld.getTarget().equals(state.getRegister(SP)) || ld.getSource() instanceof Register<T>))
-          addMc(5, cpu, 1, 0, cpu.getState().getRegister(IR).read().intValue());
-        InstructionVisitor.super.visitingLd(ld);
-      }
-
-      public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction parameterizedBinaryAluInstruction) {
-        if (cpu.getState().getTStatesSinceCpuStart() == 11)
-          addMc(5, cpu, 1, 0, cpu.getState().getRegister(IR).read().intValue());
-      }
-    };
+  private void addAfterMR(T address, Z80Cpu<T> cpu, State<T> state, DefaultInstructionFetcher instructionFetcher, int time1) {
+    InstructionVisitor<T, ?> instructionVisitor = new AfterMRAdder(this, cpu, address, state);
     var instruction = instructionFetcher.instruction2;
     if (instruction != null)
       instruction.accept(instructionVisitor);
   }
+
 }

@@ -98,5 +98,9 @@ class AfterFetchAdder<T extends WordNumber> extends StatesAdder<T, Integer> {
       result = 2;
   }
 
-
+  @Override
+  public boolean visitingDjnz(DJNZ<T> djnz) {
+    result = 1;
+    return false;
+  }
 }

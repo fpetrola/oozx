@@ -234,8 +234,9 @@ public class InstructionCloner<T extends WordNumber> implements InstructionVisit
     return false;
   }
 
-  public void visitingDjnz(DJNZ<T> djnz) {
+  public boolean visitingDjnz(DJNZ<T> djnz) {
     setCloned(instructionFactory.DJNZ(clone(djnz.getCondition()), djnz.getPositionOpcodeReference()), djnz);
+    return false;
   }
 
   public void visitingLd(Ld ld) {

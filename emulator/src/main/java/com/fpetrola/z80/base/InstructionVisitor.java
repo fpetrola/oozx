@@ -55,7 +55,7 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default boolean visitingDec(Dec dec) {
+  default boolean visitingDec(Dec<T> dec) {
 
     return false;
   }
@@ -64,7 +64,7 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default boolean visitingInc(Inc tInc) {
+  default boolean visitingInc(Inc<T> tInc) {
 
     return false;
   }
@@ -120,8 +120,9 @@ public interface InstructionVisitor<T extends WordNumber, R> {
     return false;
   }
 
-  default void visitingDjnz(DJNZ<T> djnz) {
+  default boolean visitingDjnz(DJNZ<T> djnz) {
 
+    return false;
   }
 
   default void visitingLd(Ld<T> ld) {

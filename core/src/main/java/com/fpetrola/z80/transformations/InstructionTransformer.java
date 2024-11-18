@@ -71,10 +71,11 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
     cloned1.setTarget(createRegisterReplacement(cloned1.getTarget(), cloned1, new VirtualFetcher()));
   }
 
-  public void visitingDjnz(DJNZ<T> djnz) {
+  public boolean visitingDjnz(DJNZ<T> djnz) {
     setCloned(instructionFactory.DJNZ(clone(djnz.getCondition()), clone(djnz.getPositionOpcodeReference())), djnz);
     DJNZ djnz1 = (DJNZ) cloned;
     djnz1.accept(new ConditionTransformerVisitor(new VirtualFetcher()));
+    return false;
   }
 
   public void visitingJR(JR jr) {
