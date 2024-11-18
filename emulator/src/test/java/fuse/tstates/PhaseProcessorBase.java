@@ -77,16 +77,6 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
     return getState().getRegister(registerName);
   }
 
-  public boolean addIfIndirectHL(TargetInstruction<T> tBitOperation) {
-    if (isIndirectHL(tBitOperation)) {
-      if (getState().tstates == 11) {
-        addMultipleMc(1, 1, 0, getRegister(HL).read().intValue());
-        return true;
-      }
-    }
-    return false;
-  }
-
   public void setAddress(T address) {
     this.address = address;
   }

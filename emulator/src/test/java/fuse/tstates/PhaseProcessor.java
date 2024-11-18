@@ -85,11 +85,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   public boolean visitRepeatingInstruction(RepeatingInstruction<T> instruction) {
     phase.accept(new PhaseVisitor() {
       public void visit(AfterFetch afterFetch) {
-        if (instruction instanceof Inir ||
-            instruction instanceof Indr ||
-            instruction instanceof Outir ||
-            instruction instanceof Outdr
-        )
+        if (instruction instanceof Inir || instruction instanceof Indr || instruction instanceof Outir || instruction instanceof Outdr)
           addMc(1, IR, 0);
       }
 
@@ -117,9 +113,8 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       }
 
       private void addResultIfNextPC(RepeatingInstruction<T> tRepeatingInstruction, RegisterName registerName, int delta) {
-        if (tRepeatingInstruction.getNextPC() != null) {
+        if (tRepeatingInstruction.getNextPC() != null)
           addMc(5, registerName, delta);
-        }
       }
     });
     return super.visitRepeatingInstruction(instruction);
@@ -149,16 +144,6 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     });
   }
 
-  private void addForRelativeJump(ConditionalInstruction<T, ?> jr, RegisterName registerName, RegisterName registerName1, int delta) {
-    if (jr.getNextPC() != null) {
-      addMultipleMc(5, 1, 1, getRegister(registerName).read().intValue());
-    } else {
-      addMultipleMc(1, 1, delta, getRegister(registerName1).read().intValue());
-      getState().tstates += 2;
-    }
-  }
-
-  @Override
   public boolean visitingDjnz(DJNZ<T> djnz) {
     phase.accept(new PhaseVisitor() {
       public void visit(AfterFetch afterFetch) {
@@ -172,23 +157,29 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return false;
   }
 
+  private void addForRelativeJump(ConditionalInstruction<T, ?> jr, RegisterName registerName, RegisterName registerName1, int delta) {
+    if (jr.getNextPC() != null) {
+      addMultipleMc(5, 1, 1, getRegister(registerName).read().intValue());
+    } else {
+      addMultipleMc(1, 1, delta, getRegister(registerName1).read().intValue());
+      getState().tstates += 2;
+    }
+  }
 
   public void visitEx(Ex<T> ex) {
-    phase.accept(new PhaseVisitor() {
-      public void visit(AfterExecution afterExecution) {
-        if (ex.getTarget() instanceof IndirectMemory16BitReference<T>)
+    if (ex.getTarget() instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
+      phase.accept(new PhaseVisitor() {
+        public void visit(AfterExecution afterExecution) {
           addMc(2, SP, 0);
-      }
+        }
 
-      public void visit(BeforeWrite beforeWrite) {
-        if (ex.getTarget() instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
+        public void visit(BeforeWrite beforeWrite) {
           int i = ex.getSource().equals(getRegister(HL)) && indirectMemory16BitReference.target.equals(getRegister(SP)) ? 10 : 14;
           if (getState().tstates == i)
             addMc(1, SP, 1);
         }
-      }
-    });
-
+      });
+    }
   }
 
   public boolean visitingBit(BIT bit) {
@@ -289,6 +280,16 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return super.visitingParameterizedUnaryAluInstruction(parameterizedUnaryAluInstruction);
   }
 
+  public boolean addIfIndirectHL(TargetInstruction<T> targetInstruction) {
+    if (isIndirectHL(targetInstruction)) {
+      if (getState().tstates == 11) {
+        addMultipleMc(1, 1, 0, getRegister(HL).read().intValue());
+        return true;
+      }
+    }
+    return false;
+  }
+
   public boolean visitingInc(Inc<T> tInc) {
     addDecInc(tInc);
     return super.visitingInc(tInc);
@@ -302,10 +303,10 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   private void addDecInc(TargetInstruction<T> dec) {
     phase.accept(new PhaseVisitor() {
       public void visit(AfterMR afterExecution) {
-        if (getState().tstates == 11)
-          if (dec.getTarget() instanceof MemoryPlusRegister8BitReference<T>) {
+        if (dec.getTarget() instanceof MemoryPlusRegister8BitReference<T>) {
+          if (getState().tstates == 11)
             addMultipleMc(5, 1, 2, getRegister(PC).read().intValue());
-          }
+        }
       }
 
       public void visit(BeforeWrite beforeWrite) {
