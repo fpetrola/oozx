@@ -58,7 +58,7 @@ public class MemoryImplementation<T extends WordNumber> implements Memory<T> {
     }
   }
 
-  public T read(T address) {
+  public T read(T address, int fetching) {
 //    if (address.intValue() == 24686) System.out.println("dgadg");
 
     int i = address.intValue() & 0xFFFF;
@@ -73,7 +73,7 @@ public class MemoryImplementation<T extends WordNumber> implements Memory<T> {
 
     if (!spy.wasFetched(i)) {
       WordNumber finalValue = value;
-      new ArrayList<>(memoryReadListeners).forEach(l -> l.readingMemoryAt(address, finalValue));
+      new ArrayList<>(memoryReadListeners).forEach(l -> l.readingMemoryAt(address, finalValue, fetching));
     }
     return (T) value;
   }

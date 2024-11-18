@@ -26,6 +26,7 @@ import com.fpetrola.z80.registers.Register;
 public class MemoryPlusRegister8BitReference<T extends WordNumber> implements OpcodeReference<T> {
 
   public T address;
+  public T value;
 
   public Memory<T> getMemory() {
     return memory;
@@ -67,25 +68,33 @@ public class MemoryPlusRegister8BitReference<T extends WordNumber> implements Op
   }
 
   public T read() {
-    address = target.read().plus(fetchRelative());
-    return memory.read(address);
+    T read = target.read();
+    byte i = fetchRelative();
+    address = read.plus(i);
+    value = memory.read(address, 0);
+    return value;
   }
 
   public void write(T value) {
-    address = target.read().plus(fetchRelative());
+    byte i = fetchRelative();
+    address = target.read().plus(i);
+    this.value= value;
     memory.write(address, value);
   }
 
   public byte fetchRelative() {
-    T dd = memory.read(pc.read().plus(valueDelta));
-    fetchedRelative = dd;
+    if (fetchedRelative == null) {
+      T dd = memory.read(pc.read().plus(valueDelta), 0);
+      fetchedRelative = dd;
+    }
     return (byte) fetchedRelative.intValue();
   }
 
   public String toString() {
-    byte dd = fetchRelative();
+    byte dd = (byte) fetchedRelative.intValue();
     String string2 = (dd > 0 ? "+" : "-") + Helper.convertToHex(Math.abs(dd));
-    return "(" + target.toString() + string2 + ")";
+    String string = "IXY";// target.toString();
+    return "(" + string + string2 + ")";
   }
 
   public int getLength() {
@@ -94,7 +103,7 @@ public class MemoryPlusRegister8BitReference<T extends WordNumber> implements Op
 
   public Object clone() throws CloneNotSupportedException {
     T lastFetchedRelative = fetchedRelative;
-    return new CachedMemoryPlusRegister8BitReference(lastFetchedRelative, (ImmutableOpcodeReference) target.clone(),memory, pc, valueDelta);
+    return new CachedMemoryPlusRegister8BitReference(lastFetchedRelative, (ImmutableOpcodeReference) target.clone(), memory, pc, valueDelta);
   }
 
   public void accept(InstructionVisitor instructionVisitor) {

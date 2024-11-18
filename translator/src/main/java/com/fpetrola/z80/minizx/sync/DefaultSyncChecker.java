@@ -88,7 +88,7 @@ public class DefaultSyncChecker implements SyncChecker {
     memory.addMemoryWriteListener((MemoryWriteListener<WordNumber>) (address, value) -> {
       checkSyncEmu(address.intValue(), value.intValue(), pc.read().intValue(), true);
     });
-    memory.addMemoryReadListener((MemoryReadListener<WordNumber>) (address, value) -> {
+    memory.addMemoryReadListener((MemoryReadListener<WordNumber>) (address, value, fetching) -> {
       checkSyncEmu(address.intValue(), value.intValue(), pc.read().intValue(), false);
     });
 

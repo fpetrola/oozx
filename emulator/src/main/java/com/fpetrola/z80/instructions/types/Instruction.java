@@ -25,5 +25,5 @@ public interface Instruction<T> {
 
   int getLength();
 
-  void accept(InstructionVisitor<?> visitor);
+  void accept(InstructionVisitor<?, ?> visitor);
 }

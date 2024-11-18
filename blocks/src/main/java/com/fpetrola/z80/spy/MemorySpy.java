@@ -55,8 +55,8 @@ public final class MemorySpy<T extends WordNumber> implements Memory<T> {
     memory.write(address, value);
   }
 
-  public T read(T address) {
-    T value = memory.read(address);
+  public T read(T address, int fetching) {
+    T value = memory.read(address, 0);
     return value;
   }
 

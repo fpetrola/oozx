@@ -49,7 +49,7 @@ public class Adc16<T extends WordNumber> extends ParameterizedBinaryAluInstructi
 
   @Override
   public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitingAdc16(this);
+    if (!visitor.visitingAdc16(this))
+      super.accept(visitor);
   }
 }

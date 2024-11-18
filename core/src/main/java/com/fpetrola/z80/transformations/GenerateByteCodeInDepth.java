@@ -22,7 +22,7 @@ import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class GenerateByteCodeInDepth<T extends WordNumber> implements InstructionVisitor<T> {
+public class GenerateByteCodeInDepth<T extends WordNumber> implements InstructionVisitor<T, T> {
   public void visitingLd(Ld ld) {
     Virtual8BitsRegister source = (Virtual8BitsRegister) ld.getSource();
 

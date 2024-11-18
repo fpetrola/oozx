@@ -52,10 +52,10 @@ public class Ini<T extends WordNumber> extends BlockInstruction<T> {
     T port = bc.read();
     T in = io.in(port);
     T cValue = bc.getLow().read();
-    bc.getHigh().decrement();
     T hlValue = hl.read();
     memory.write(hlValue, in);
     next();
+    bc.getHigh().decrement();
     flagOperation(in);
     return 1;
   }

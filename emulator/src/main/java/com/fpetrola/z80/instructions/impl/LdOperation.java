@@ -22,6 +22,8 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.TargetInstruction;
+import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
+import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
@@ -38,7 +40,11 @@ public class LdOperation<T extends WordNumber> extends AbstractInstruction<T> {
   public int execute() {
     instruction.execute();
     if (instruction instanceof TargetInstruction<T> targetInstruction) {
-      T read = targetInstruction.getTarget().read();
+      T read;
+      if (targetInstruction.getTarget() instanceof MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
+        read = memoryPlusRegister8BitReference.value;
+      } else
+        read = targetInstruction.getTarget().read();
       target.write(read);
     }
     return cyclesCost;

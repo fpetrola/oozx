@@ -33,9 +33,10 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 public class State<T extends WordNumber> {
   private RunState runState;
   private ArrayList<Event> events = new ArrayList<>();
+  public int tstates;
 
   public int getTStatesSinceCpuStart() {
-    return 0;
+    return tstates;
   }
 
   public List<Event> getEvents() {
@@ -43,6 +44,9 @@ public class State<T extends WordNumber> {
   }
 
   public void addEvent(Event event) {
+    int time = event.getTime();
+    event.setTime(tstates);
+    tstates += time;
     events.add(event);
   }
 

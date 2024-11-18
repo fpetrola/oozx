@@ -345,7 +345,7 @@ public class DefaultInstructionFactory<T extends WordNumber> implements Instruct
 
   @Override
   public Out Out(ImmutableOpcodeReference target, ImmutableOpcodeReference source) {
-    return new Out<T>(source, new Out.OutPortOpcodeReference(io, target), flag);
+    return new Out<T>(source, new Out.OutPortOpcodeReference(io, target, a), flag);
   }
 
   @Override

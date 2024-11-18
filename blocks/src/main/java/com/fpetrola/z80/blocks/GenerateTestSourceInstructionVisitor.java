@@ -25,7 +25,7 @@ import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 
-public class GenerateTestSourceInstructionVisitor implements InstructionVisitor<WordNumber> {
+public class GenerateTestSourceInstructionVisitor implements InstructionVisitor<WordNumber, Integer> {
   StringBuilder result = new StringBuilder();
   private int startAddress;
 
@@ -45,8 +45,8 @@ public class GenerateTestSourceInstructionVisitor implements InstructionVisitor<
     result.append(string);
   }
 
-  private InstructionVisitor<WordNumber> getWordNumberDummyInstructionVisitor() {
-    InstructionVisitor<WordNumber> instructionVisitor = new InstructionVisitor<>() {
+  private InstructionVisitor<WordNumber, ?> getWordNumberDummyInstructionVisitor() {
+    InstructionVisitor<WordNumber, ?> instructionVisitor = new InstructionVisitor<>() {
       public boolean visitRegister(Register register) {
         add("r(" + register.getName() + ")");
         return false;

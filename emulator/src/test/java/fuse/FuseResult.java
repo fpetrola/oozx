@@ -51,7 +51,7 @@ public class FuseResult<T extends WordNumber> {
         .collect(Collectors.toList());
 
     this.state = stateList.subList(0, stateList.size() - 1).stream().mapToInt(Integer::intValue).toArray();
-    this.tStates = stateList.get(stateList.size() - 1);
+    this.tStates = Integer.parseInt(Arrays.stream(state.split(" ")).toList().getLast());
     this.memory = memory;
     this.testId = testId;
   }
@@ -75,7 +75,10 @@ public class FuseResult<T extends WordNumber> {
 
   private void verifyEvents(Z80Cpu<T> cpu) {
     List<Event> eventsFromCpu= cpu.getState().getEvents();
-//    Assertions.assertEquals(events, eventsFromCpu, "Events mismatch");
+    Assertions.assertEquals(events, eventsFromCpu, "Events mismatch");
+    for (int i = 0; i < events.size(); i++) {
+      Assertions.assertEquals(events.get(i), eventsFromCpu.get(i), "Event mismatch");
+    }
   }
 
   private void verifyMemory(Z80Cpu<T> cpu) {
@@ -101,7 +104,7 @@ public class FuseResult<T extends WordNumber> {
     Assertions.assertEquals(state[2] != 0, cpu.getState().isIff1(), "Register mismatch: IFF1");
     Assertions.assertEquals(state[3] != 0, cpu.getState().isIff2(), "Register mismatch: IFF2");
     Assertions.assertEquals(state[4], cpu.getState().getInterruptionMode().ordinal(), "Register mismatch: IM");
-//    Assertions.assertEquals(tStates, cpu.getState().getTStatesSinceCpuStart(), "Mismatch in T-states");
+    Assertions.assertEquals(tStates, cpu.getState().getTStatesSinceCpuStart(), "Mismatch in T-states");
   }
 
   private int getRegisterValue(Z80Cpu<T> cpu, RegisterName registerName) {

@@ -27,7 +27,7 @@ import com.fpetrola.z80.registers.Register;
 import java.util.function.Consumer;
 
 @SuppressWarnings("ALL")
-public class InstructionActionExecutor<T extends WordNumber> implements InstructionVisitor<T> {
+public class InstructionActionExecutor<T extends WordNumber> implements InstructionVisitor<T, Integer> {
   private int tick;
   private Consumer<VirtualRegister<?>> actionExecutor;
 

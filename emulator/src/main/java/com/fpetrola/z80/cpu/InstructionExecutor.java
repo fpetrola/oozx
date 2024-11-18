@@ -19,10 +19,9 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.registers.Register;
 
 public interface InstructionExecutor<T> {
-  void setMemptr(Register<T> memptr);
+  void setMemptrUpdater(MemptrUpdater<?> memptrUpdater1);
 
   Instruction<T> execute(Instruction<T> instruction);
 

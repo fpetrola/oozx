@@ -25,8 +25,8 @@ public class ReadOnlyMemoryImplementation<T> implements Memory<T> {
     this.memory = memory;
   }
 
-  public T read(T address) {
-    return memory.read(address);
+  public T read(T address, int fetching) {
+    return memory.read(address, 0);
   }
 
   public void write(T address, T value) {

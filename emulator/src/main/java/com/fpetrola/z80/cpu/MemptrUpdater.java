@@ -21,6 +21,7 @@ package com.fpetrola.z80.cpu;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
@@ -28,13 +29,17 @@ import com.fpetrola.z80.registers.RegisterName;
 @SuppressWarnings("ALL")
 public class MemptrUpdater<T extends WordNumber> {
   protected final Register<T> memptr;
+  private final Memory<T> memory;
 
-  public MemptrUpdater(Register<T> memptr1) {
+  public MemptrUpdater(Register<T> memptr1, Memory<T> memory1) {
     memptr = memptr1;
+    this.memory= memory1;
   }
 
   public void updateBefore(Instruction<T> instruction) {
-    instruction.accept(new InstructionVisitor<T>() {
+    memory.canDisable(true);
+    memory.disableReadListener();
+    instruction.accept(new InstructionVisitor<T, Integer>() {
       public boolean visitingCall(Call tCall) {
         T jumpAddress2 = (T) tCall.calculateJumpAddress();
         memptr.write(jumpAddress2);
@@ -80,8 +85,9 @@ public class MemptrUpdater<T extends WordNumber> {
         }
       }
 
-      public void visitingAdc16(Adc16<T> tAdc16) {
+      public boolean visitingAdc16(Adc16<T> tAdc16) {
         memptr.write(tAdc16.getTarget().read().plus(1));
+        return false;
       }
 
       public void visitingSbc16(Sbc16<T> sbc16) {
@@ -93,10 +99,13 @@ public class MemptrUpdater<T extends WordNumber> {
         return false;
       }
     });
+
+    memory.enableReadListener();
+    memory.canDisable(false);
   }
 
   public void updateAfter(Instruction<T> instruction) {
-    instruction.accept(new InstructionVisitor<T>() {
+    instruction.accept(new InstructionVisitor<T, Integer>() {
       @Override
       public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
         memptr.write((T) memoryPlusRegister8BitReference.address);

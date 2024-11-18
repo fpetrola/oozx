@@ -30,7 +30,7 @@ import com.fpetrola.z80.opcodes.references.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-public class InstructionCloner<T extends WordNumber> implements InstructionVisitor<T> {
+public class InstructionCloner<T extends WordNumber> implements InstructionVisitor<T, Integer> {
   DefaultInstructionFactory instructionFactory;
   protected AbstractInstruction cloned;
 
@@ -110,8 +110,9 @@ public class InstructionCloner<T extends WordNumber> implements InstructionVisit
   }
 
   @Override
-  public void visitingAdc16(Adc16 sbc16) {
+  public boolean visitingAdc16(Adc16 sbc16) {
     setCloned(instructionFactory.Sbc(clone(sbc16.getTarget()), clone(sbc16.getSource())), sbc16);
+    return false;
   }
 
   @Override

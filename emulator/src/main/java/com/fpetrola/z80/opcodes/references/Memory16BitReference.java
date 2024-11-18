@@ -53,7 +53,7 @@ public class Memory16BitReference<T extends WordNumber> implements OpcodeReferen
   }
 
   public String toString() {
-    T read = read();
+    T read = fetchedAddress;
     return read == null ? "" : "0x" + Helper.convertToHex(read.intValue()) + "";
   }
 

@@ -30,7 +30,7 @@ import org.cojen.maker.Variable;
 import java.util.*;
 import java.util.function.Function;
 
-public class OpcodeReferenceVisitor<T extends WordNumber> implements InstructionVisitor<T> {
+public class OpcodeReferenceVisitor<T extends WordNumber> implements InstructionVisitor<T, Object> {
   private Object result;
   private boolean isTarget;
   private RoutineBytecodeGenerator routineByteCodeGenerator;

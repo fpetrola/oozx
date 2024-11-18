@@ -31,6 +31,11 @@ import static com.fpetrola.z80.registers.RegisterName.PC;
 
 public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends AbstractInstruction<T> implements FetchNextOpcodeInstruction<T> {
 
+  @Override
+  public State<T> getState() {
+    return state;
+  }
+
   private final State<T> state;
   private final Register<T> pc;
   private Instruction[] table;
@@ -70,17 +75,17 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
   public Instruction findNextOpcode() {
     spy.pause();
     Memory<T> memory = state.getMemory();
-    memory.disableReadListener();
-    int opcodeInt = memory.read(pc.read().plus(incPc - 1 + length)).intValue();
+    //memory.disableReadListener();
+    int opcodeInt = memory.read(pc.read().plus(incPc - 1 + length), incPc).intValue();
     Instruction instruction = table[opcodeInt];
     spy.flipOpcode(instruction, opcodeInt);
-    memory.enableReadListener();
+    // memory.enableReadListener();
     spy.doContinue();
     return instruction;
   }
 
   public String toString() {
-    return findNextOpcode().toString();
+    return "STRING:DefaultFetchNextOpcodeInstruction";//findNextOpcode().toString();
   }
 
   public int getIncPc() {

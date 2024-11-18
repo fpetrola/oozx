@@ -67,7 +67,7 @@ public class RLD<T extends WordNumber> extends AbstractInstruction<T> {
     int nibble1 = (reg_A & 0x00F0) >> 4;
     int nibble2 = reg_A & 0x000F;
 
-    int temp = memory.read(hl.read()).intValue();
+    int temp = memory.read(hl.read(), 0).intValue();
     int nibble3 = (temp & 0x00F0) >> 4;
     int nibble4 = temp & 0x000F;
 

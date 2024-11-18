@@ -43,7 +43,7 @@ public class Cpd<T extends WordNumber> extends Cpi<T> {
   }
 
   protected void flagOperation(T valueFromHL) {
-    T value = memory.read(hl.read());
+    T value = memory.read(hl.read(), 0);
     T reg_A = a.read();
     cpdTableAluOperation.executeWithCarry2(value, reg_A, bc.read().isNotZero() ? 1 : 0, flag);
   }

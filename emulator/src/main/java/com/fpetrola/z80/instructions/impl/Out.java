@@ -36,21 +36,33 @@ public class Out<T extends WordNumber> extends TargetSourceInstruction<T, Immuta
     return cyclesCost;
   }
 
-  public static class OutPortOpcodeReference<T> implements OpcodeReference<T> {
+  public static class OutPortOpcodeReference<T extends WordNumber> implements OpcodeReference<T> {
     private final IO<T> io;
     public final ImmutableOpcodeReference target;
+    private final Register<T> a;
+    private T read;
 
-    public OutPortOpcodeReference(IO<T> io, ImmutableOpcodeReference target) {
+    public OutPortOpcodeReference(IO<T> io, ImmutableOpcodeReference target, Register<T> a) {
       this.io = io;
       this.target = target;
+      this.a = a;
     }
 
     public void write(T value) {
-      io.out((T) target.read(), value);
+      io.out(getRead(), value);
+    }
+
+    private T getRead() {
+      if (read == null) {
+        read = (T) target.read();
+        if (!(target instanceof Register<?>))
+          read = read.or(a.read().left(8));
+      }
+      return read;
     }
 
     public T read() {
-      return (T) target.read();
+      return getRead();
     }
 
     public int getLength() {

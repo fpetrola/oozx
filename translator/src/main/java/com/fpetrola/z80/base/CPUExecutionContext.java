@@ -19,10 +19,7 @@
 package com.fpetrola.z80.base;
 
 import com.fpetrola.z80.bytecode.DefaultZ80InstructionDriver;
-import com.fpetrola.z80.cpu.InstructionExecutor;
-import com.fpetrola.z80.cpu.InstructionFetcher;
-import com.fpetrola.z80.cpu.SpyInstructionExecutor;
-import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
@@ -50,7 +47,7 @@ public abstract class CPUExecutionContext<T extends WordNumber> extends DefaultZ
   }
 
   protected InstructionFetcher createInstructionFetcher(InstructionSpy spy, State<T> state, InstructionExecutor instructionExecutor) {
-    return new InstructionFetcherForTest(this.state, new SpyInstructionExecutor(spy, state.getMemptr()));
+    return new InstructionFetcherForTest(this.state, new SpyInstructionExecutor(spy, new MemptrUpdater(state.getMemptr(), state.getMemory())));
   }
 
   public InstructionFetcherForTest getInstructionFetcherForTest() {

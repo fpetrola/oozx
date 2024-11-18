@@ -36,7 +36,7 @@ public class MemoryAccessOpcodeReference<T extends WordNumber> implements Opcode
 
   @Override
   public T read() {
-    return mem.read(c.read());
+    return mem.read(c.read(), 0);
   }
 
   @Override

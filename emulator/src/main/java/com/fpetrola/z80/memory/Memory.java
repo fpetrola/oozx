@@ -23,15 +23,16 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 public interface Memory<T> {
 
   static <T extends WordNumber> T read16Bits(Memory<T> memory, T address) {
-    return memory.read(address.plus1()).left(8).or(memory.read(address).and(0xff));
+    T and = memory.read(address, 0).and(0xff);
+    return memory.read(address.plus1(), 0).left(8).or(and);
   }
 
   static <T extends WordNumber> void write16Bits(Memory<T> memory, T value, T address) {
-    memory.write(address, value.and(0xFF));
     memory.write(address.plus1(), (value.right(8)));
+    memory.write(address, value.and(0xFF));
   }
 
-  T read(T address);
+  T read(T address, int fetching);
 
   void write(T address, T value);
 
@@ -63,5 +64,8 @@ public interface Memory<T> {
   }
 
   default void enableWriteListener() {
+  }
+
+  default void canDisable(boolean canDisable) {
   }
 }

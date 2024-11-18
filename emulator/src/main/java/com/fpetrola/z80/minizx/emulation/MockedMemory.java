@@ -35,7 +35,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   private boolean canDisable;
 
   public MockedMemory(boolean canDisable1) {
-    this.canDisable = canDisable1;
+    this.canDisable = false;
   }
 
   public void init(Supplier<T[]> supplier) {
@@ -43,15 +43,19 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   }
 
   @Override
-  public T read(T address) {
+  public T read(T address, int fetching) {
+    T value = WordNumber.createValue(0);
+    if (address.intValue() >= 0) {
+      T datum = data[address.intValue()];
+      if (datum == null) {
+      } else {
+        value = datum.and(0xFF);
+      }
+    }
     if (memoryReadListener != null)
-      memoryReadListener.readingMemoryAt(address, WordNumber.createValue(0));
+      memoryReadListener.readingMemoryAt(address, value, fetching);
 
-    T datum = data[address.intValue()];
-    if (datum == null)
-      return WordNumber.createValue(0);
-    else
-      return datum.and(0xFF);
+    return value;
   }
 
   @Override
@@ -112,8 +116,10 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   @Override
   public void disableReadListener() { //FIXME: para que era???
     if (canDisable) {
-      lastMemoryReadListener = memoryReadListener;
-      memoryReadListener = null;
+      if (memoryReadListener != null) {
+        lastMemoryReadListener = memoryReadListener;
+        memoryReadListener = null;
+      }
     }
   }
 
@@ -139,6 +145,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
     }
   }
 
+  @Override
   public void canDisable(boolean canDisable) {
     this.canDisable = canDisable;
   }

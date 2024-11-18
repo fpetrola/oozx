@@ -352,8 +352,9 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
 
 
   @Override
-  public void visitingAdc16(Adc16 adc16) {
+  public boolean visitingAdc16(Adc16 adc16) {
     adc16.accept(new VariableHandlingInstructionVisitor((s, t) -> getSet(s, t, 0xffff), routineByteCodeGenerator));
+    return false;
   }
 
   public boolean visitingDec(Dec dec) {

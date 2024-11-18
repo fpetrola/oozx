@@ -55,7 +55,7 @@ public abstract class WrapperInstructionSpy<T extends WordNumber> implements Ins
         addWriteMemoryReference((T) address, (T) value);
     });
 
-    memorySpy.addMemoryReadListener((address, value) -> {
+    memorySpy.addMemoryReadListener((address, value, fetching) -> {
       if (isCapturing())
         addReadMemoryReference((T) address, (T) value);
     });

@@ -30,7 +30,7 @@ import com.fpetrola.z80.opcodes.references.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-public abstract class InstructionTransformerBase<T extends WordNumber> implements InstructionVisitor<T> {
+public abstract class InstructionTransformerBase<T extends WordNumber> implements InstructionVisitor<T, T> {
   InstructionFactory instructionFactory;
   protected AbstractInstruction cloned;
 

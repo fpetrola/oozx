@@ -23,7 +23,11 @@ import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 
-public interface InstructionVisitor<T extends WordNumber> {
+public interface InstructionVisitor<T extends WordNumber, R> {
+  default R getResult() {
+    return null;
+  }
+
   default void visitingSource(ImmutableOpcodeReference source, TargetSourceInstruction targetSourceInstruction) {
   }
 
@@ -287,8 +291,8 @@ public interface InstructionVisitor<T extends WordNumber> {
 
   }
 
-  default void visitingAdc16(Adc16<T> tAdc16) {
-
+  default boolean visitingAdc16(Adc16<T> tAdc16) {
+    return false;
   }
 
   default void visitCpdr(Cpdr tCpdr) {
@@ -381,6 +385,10 @@ public interface InstructionVisitor<T extends WordNumber> {
   }
 
   default boolean visitRRD(RRD<T> rrd) {
+    return false;
+  }
+
+  default boolean visitLdd(Ldd ldd) {
     return false;
   }
 }

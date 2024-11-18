@@ -72,4 +72,9 @@ public class RLC<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
     if (!visitor.visitingRlc(this))
       super.accept(visitor);
   }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
 }

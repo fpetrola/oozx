@@ -69,7 +69,7 @@ public class BIT<T extends WordNumber> extends BitOperation<T> {
       }
       data = f;
 
-      int address = target.read().intValue();
+      int address =value;
       if (target instanceof MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
         address = memoryPlusRegister8BitReference.getTarget().read().plus(memoryPlusRegister8BitReference.fetchRelative()).intValue() >> 8;
       } else if (target instanceof IndirectMemory8BitReference<T>) {

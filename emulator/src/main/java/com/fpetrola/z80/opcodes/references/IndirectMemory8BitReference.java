@@ -25,6 +25,7 @@ public final class IndirectMemory8BitReference<T> implements OpcodeReference<T> 
 
   public ImmutableOpcodeReference<T> target;
   public T address;
+  public T value;
 
   public Memory<T> getMemory() {
     return memory;
@@ -39,7 +40,7 @@ public final class IndirectMemory8BitReference<T> implements OpcodeReference<T> 
 
   public T read() {
     address = target.read();
-    final T value = memory.read(address);
+    value = memory.read(address, 0);
     return value;
   }
 

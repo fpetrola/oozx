@@ -50,10 +50,10 @@ public class Outi<T extends WordNumber> extends BlockInstruction<T> {
   public int execute() {
     T hlValue = hl.read();
     T cValue = bc.getLow().read();
-    T valueFromHL = memory.read(hlValue);
-    io.out(cValue, valueFromHL);
-    next();
+    T valueFromHL = memory.read(hlValue, 0);
     bc.getHigh().decrement();
+    io.out(bc.read(), valueFromHL);
+    next();
     flagOperation(valueFromHL);
 
     return 1;
