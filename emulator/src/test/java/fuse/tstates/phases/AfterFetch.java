@@ -16,9 +16,10 @@
  *
  */
 
-package fuse.tstates;
+package fuse.tstates.phases;
 
-import com.fpetrola.z80.registers.RegisterName;
-
-public record StatesAddition(int time, RegisterName registerName, int delta) {
+public class AfterFetch implements Phase {
+    public void accept(PhaseVisitor visitor) {
+        visitor.visit(this);
+    }
 }

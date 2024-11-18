@@ -30,6 +30,7 @@ import com.fpetrola.z80.cpu.Event;
 import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
 import fuse.tstates.AddStatesIO;
+import fuse.tstates.PhaseProcessor;
 
 import java.io.File;
 import java.io.IOException;
@@ -96,8 +97,9 @@ public class FuseTestParser<T extends WordNumber> {
     instructionFetcher = new MyDefaultInstructionFetcher(state, spy, instructionFactory);
     cpu = (OOZ80<WordNumber>) new OOZ80(state, instructionFetcher);
 
-    memory.addMemoryReadListener(new AddStatesMemoryReadListener<T>(cpu));
-    memory.addMemoryWriteListener(new AddStatesMemoryWriteListener<T>(cpu));
+    PhaseProcessor<T> phaseProcessor = new PhaseProcessor<>((Z80Cpu<T>) cpu);
+    memory.addMemoryReadListener(new AddStatesMemoryReadListener<T>(phaseProcessor));
+    memory.addMemoryWriteListener(new AddStatesMemoryWriteListener<T>(phaseProcessor));
     return cpu;
   }
 

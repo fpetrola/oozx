@@ -16,18 +16,11 @@
  *
  */
 
-package fuse.tstates;
+package fuse.tstates.phases;
 
-import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
-public abstract class StatesAdder<T extends WordNumber, R> implements InstructionVisitor<T, R> {
-  protected R result;
-
-  public void setResult(R result) {
-    this.result = result;
-  }
-  public R getResult() {
-    return result;
-  }
+public class AfterExecution implements Phase {
+    public void accept(PhaseVisitor visitor) {
+        visitor.visit(this);
+    }
 }
+
