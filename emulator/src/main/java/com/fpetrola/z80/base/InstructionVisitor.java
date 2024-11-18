@@ -28,6 +28,10 @@ public interface InstructionVisitor<T extends WordNumber, R> {
     return null;
   }
 
+  default void setResult(R result) {
+  }
+
+
   default void visitingSource(ImmutableOpcodeReference source, TargetSourceInstruction targetSourceInstruction) {
   }
 
