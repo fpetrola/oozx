@@ -84,8 +84,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   }
 
   public Optional<Boolean> isIndirectHL(TargetInstruction<T> targetInstruction) {
-    boolean b = targetInstruction.getTarget() instanceof IndirectMemory8BitReference<?> indirectMemory8BitReference && indirectMemory8BitReference.getTarget() instanceof Register<?> register && register.getName().equals(HL.name());
-    return Optional.ofNullable(b ? b : null);
+    return Optional.ofNullable(targetInstruction.getTarget() instanceof IndirectMemory8BitReference<?> indirectMemory8BitReference && indirectMemory8BitReference.getTarget() instanceof Register<?> register && register.getName().equals(HL.name()) ? true : null);
   }
 
   public void setPhase(Phase phase) {

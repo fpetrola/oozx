@@ -84,42 +84,24 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       addResultAfterFetch(1);
   }
 
+  int lastAddress;
+
   public boolean visitRepeatingInstruction(RepeatingInstruction<T> instruction) {
-    phase.accept(new DefaultPhaseVisitor() {
+    DefaultPhaseVisitor visitor = new DefaultPhaseVisitor() {
       public void visit(AfterFetch afterFetch) {
-        if (instruction instanceof Inir || instruction instanceof Indr || instruction instanceof Outir || instruction instanceof Outdr)
-          addMc(1, IR, 0);
+        lastAddress = instruction instanceof Ldir<T> || instruction instanceof Lddr<T> ? getRegister(DE).read().intValue() : getRegister(HL).read().intValue();
       }
 
       public void visit(AfterExecution afterExecution) {
-        addIORepeatingInstructionResult(instruction instanceof Inir<T>, HL, -1);
-        addIORepeatingInstructionResult(instruction instanceof Indr<T>, HL, 1);
-        addIORepeatingInstructionResult(instruction instanceof Outdr<T> || instruction instanceof Outir<T>, BC, 0);
-        addRepeatingInstructionResult(instruction instanceof Ldir<T>, DE, -1, 2);
-        addRepeatingInstructionResult(instruction instanceof Lddr<T>, DE, 1, 2);
-        addRepeatingInstructionResult(instruction instanceof Cpir<T>, HL, -1, 5);
-        addRepeatingInstructionResult(instruction instanceof Cpdr<T>, HL, 1, 5);
+        if (instruction instanceof Outdr<T> || instruction instanceof Outir<T>)
+          lastAddress = getRegister(BC).read().intValue();
+        if (instruction.getNextPC() != null)
+          addMultipleMc(5, 1, 0, lastAddress);
       }
-
-      private void addIORepeatingInstructionResult(boolean b, RegisterName registerName, int delta) {
-        if (b) {
-          addResultIfNextPC(instruction, registerName, delta);
-        }
-      }
-
-      private void addRepeatingInstructionResult(boolean b, RegisterName registerName, int delta, int time) {
-        if (b) {
-          addMc(time, registerName, delta);
-          addResultIfNextPC(instruction, registerName, delta);
-        }
-      }
-
-      private void addResultIfNextPC(RepeatingInstruction<T> tRepeatingInstruction, RegisterName registerName, int delta) {
-        if (tRepeatingInstruction.getNextPC() != null)
-          addMc(5, registerName, delta);
-      }
-    });
-    return super.visitRepeatingInstruction(instruction);
+    };
+    instruction.getInstructionToRepeat().accept(PhaseProcessor.this);
+    phase.accept(visitor);
+    return false;
   }
 
   public void visitingLd(Ld<T> ld) {
@@ -156,8 +138,8 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return false;
   }
 
-  private void addForRelativeJump(ConditionalInstruction<T, ?> jr, RegisterName registerName, RegisterName registerName1, int delta) {
-    if (jr.getNextPC() != null) {
+  private void addForRelativeJump(ConditionalInstruction<T, ?> conditionalInstruction, RegisterName registerName, RegisterName registerName1, int delta) {
+    if (conditionalInstruction.getNextPC() != null) {
       addMultipleMc(5, 1, 1, getRegister(registerName).read().intValue());
     } else {
       addMultipleMc(1, 1, delta, getRegister(registerName1).read().intValue());
@@ -198,7 +180,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   private void addIfNextPC(BlockInstruction<T> tIni) {
     phase.acceptAfterExecution(afterExecution -> {
       if (tIni.getNextPC() != null)
-        addMc(5, IR, 0);
+        addMc(5, BC, 0);
     });
   }
 
@@ -272,7 +254,6 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   public boolean visitRLD(RLD<T> rld) {
     phase.acceptAfterMR(p -> matchesTstate(11).ifPresent(x -> addMultipleMc(4, 1, 0, getRegister(HL).read().intValue())));
-
     return false;
   }
 
@@ -281,8 +262,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   private Optional<Boolean> matchesTstate(int i) {
-    boolean b = getState().tstates == i;
-    return Optional.ofNullable(b ? b : null);
+    return Optional.ofNullable(getState().tstates == i ? true : null);
   }
 
 

@@ -90,8 +90,9 @@ public class InstructionCloner<T extends WordNumber> implements InstructionVisit
   }
 
   @Override
-  public void visitLddr(Lddr lddr) {
+  public boolean visitLddr(Lddr lddr) {
     setCloned(instructionFactory.Lddr(), lddr);
+    return false;
   }
 
   @Override

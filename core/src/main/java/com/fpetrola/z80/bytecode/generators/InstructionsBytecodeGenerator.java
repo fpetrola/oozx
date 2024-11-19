@@ -571,8 +571,9 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
   }
 
   @Override
-  public void visitLddr(Lddr lddr) {
+  public boolean visitLddr(Lddr lddr) {
     callRepeatingInstruction(lddr);
+    return false;
   }
 
   @Override

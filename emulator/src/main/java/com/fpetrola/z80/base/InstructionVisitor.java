@@ -264,8 +264,8 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default void visitLddr(Lddr lddr) {
-
+  default boolean visitLddr(Lddr<T> lddr) {
+    return false;
   }
 
   default void visitBlockInstruction(BlockInstruction blockInstruction) {
