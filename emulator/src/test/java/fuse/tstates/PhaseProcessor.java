@@ -26,6 +26,8 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.phases.*;
 
+import java.util.Optional;
+
 import static com.fpetrola.z80.registers.RegisterName.*;
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
@@ -54,7 +56,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   private void addResultAfterFetch(final int time) {
-    phase.accept(new PhaseVisitor() {
+    phase.accept(new DefaultPhaseVisitor() {
       public void visit(AfterFetch afterFetch) {
         addMc(time, IR, 0);
       }
@@ -62,7 +64,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public void visitingInc16(Inc16 tInc16) {
-    addResultAfterExecution(IR, 0, 2);
+    phase.acceptAfterExecution(afterExecution -> addMc(2, IR, 0));
   }
 
   public void visitingSbc16(Sbc16<T> sbc16) {
@@ -70,7 +72,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public void visitingDec16(Dec16 tDec16) {
-    addResultAfterExecution(IR, 0, 2);
+    phase.acceptAfterExecution(afterExecution -> addMc(2, IR, 0));
   }
 
   public void visitPush(Push push) {
@@ -83,33 +85,33 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public boolean visitRepeatingInstruction(RepeatingInstruction<T> instruction) {
-    phase.accept(new PhaseVisitor() {
+    phase.accept(new DefaultPhaseVisitor() {
       public void visit(AfterFetch afterFetch) {
         if (instruction instanceof Inir || instruction instanceof Indr || instruction instanceof Outir || instruction instanceof Outdr)
           addMc(1, IR, 0);
       }
 
       public void visit(AfterExecution afterExecution) {
-        if (instruction instanceof Inir<T>) {
-          addResultIfNextPC(instruction, HL, -1);
-        } else if (instruction instanceof Indr<T>) {
-          addResultIfNextPC(instruction, HL, 1);
-        } else if (instruction instanceof Outdr<T> || instruction instanceof Outir<T>) {
-          addResultIfNextPC(instruction, BC, 0);
-        } else if (instruction instanceof Ldir<T>) {
-          addRepeatingInstructionResult(instruction, DE, -1, 2);
-        } else if (instruction instanceof Lddr<T>) {
-          addRepeatingInstructionResult(instruction, DE, 1, 2);
-        } else if (instruction instanceof Cpir<T>) {
-          addRepeatingInstructionResult(instruction, HL, -1, 5);
-        } else if (instruction instanceof Cpdr<T>) {
-          addRepeatingInstructionResult(instruction, HL, 1, 5);
+        addIORepeatingInstructionResult(instruction instanceof Inir<T>, HL, -1);
+        addIORepeatingInstructionResult(instruction instanceof Indr<T>, HL, 1);
+        addIORepeatingInstructionResult(instruction instanceof Outdr<T> || instruction instanceof Outir<T>, BC, 0);
+        addRepeatingInstructionResult(instruction instanceof Ldir<T>, DE, -1, 2);
+        addRepeatingInstructionResult(instruction instanceof Lddr<T>, DE, 1, 2);
+        addRepeatingInstructionResult(instruction instanceof Cpir<T>, HL, -1, 5);
+        addRepeatingInstructionResult(instruction instanceof Cpdr<T>, HL, 1, 5);
+      }
+
+      private void addIORepeatingInstructionResult(boolean b, RegisterName registerName, int delta) {
+        if (b) {
+          addResultIfNextPC(instruction, registerName, delta);
         }
       }
 
-      private void addRepeatingInstructionResult(RepeatingInstruction<T> tRepeatingInstruction, RegisterName registerName, int delta, int time) {
-        addMc(time, registerName, delta);
-        addResultIfNextPC(tRepeatingInstruction, registerName, delta);
+      private void addRepeatingInstructionResult(boolean b, RegisterName registerName, int delta, int time) {
+        if (b) {
+          addMc(time, registerName, delta);
+          addResultIfNextPC(instruction, registerName, delta);
+        }
       }
 
       private void addResultIfNextPC(RepeatingInstruction<T> tRepeatingInstruction, RegisterName registerName, int delta) {
@@ -121,31 +123,28 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public void visitingLd(Ld<T> ld) {
-    phase.accept(new PhaseVisitor() {
+    phase.accept(new DefaultPhaseVisitor() {
       public void visit(AfterFetch afterFetch) {
         if (isLdSP(ld))
           addMc(2, IR, 0);
       }
 
       public void visit(AfterMR afterMR) {
-        if (getState().tstates == 11)
+        matchesTstate(11).ifPresent(x -> {
           if (!ld.getTarget().equals(getRegister(SP)) || ld.getSource() instanceof Register<T>) {
             addMultipleMc(5, 1, 0, getRegister(IR).read().intValue());
           }
+        });
       }
     });
   }
 
   public void visitingJR(JR jr) {
-    phase.accept(new PhaseVisitor() {
-      public void visit(AfterExecution afterExecution) {
-        addForRelativeJump(jr, HL, IR, 0);
-      }
-    });
+    phase.acceptAfterExecution(afterExecution -> addForRelativeJump(jr, HL, IR, 0));
   }
 
   public boolean visitingDjnz(DJNZ<T> djnz) {
-    phase.accept(new PhaseVisitor() {
+    phase.accept(new DefaultPhaseVisitor() {
       public void visit(AfterFetch afterFetch) {
         addMc(1, IR, 0);
       }
@@ -168,28 +167,21 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   public void visitEx(Ex<T> ex) {
     if (ex.getTarget() instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
-      phase.accept(new PhaseVisitor() {
+      phase.accept(new DefaultPhaseVisitor() {
         public void visit(AfterExecution afterExecution) {
           addMc(2, SP, 0);
         }
 
         public void visit(BeforeWrite beforeWrite) {
           int i = ex.getSource().equals(getRegister(HL)) && indirectMemory16BitReference.target.equals(getRegister(SP)) ? 10 : 14;
-          if (getState().tstates == i)
-            addMc(1, SP, 1);
+          matchesTstate(i).ifPresent(x -> addMc(1, SP, 1));
         }
       });
     }
   }
 
-  public boolean visitingBit(BIT bit) {
-    phase.accept(new PhaseVisitor() {
-      public void visit(AfterExecution afterExecution) {
-        if (isIndirectHL(bit))
-          addMc(1, HL, 0);
-      }
-    });
-
+  public boolean visitingBit(BIT<T> bit) {
+    phase.acceptAfterExecution(afterExecution -> isIndirectHL(bit).ifPresent(x -> addMc(1, HL, 0)));
     return false;
   }
 
@@ -204,89 +196,53 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   private void addIfNextPC(BlockInstruction<T> tIni) {
-    phase.accept(new PhaseVisitor() {
-      public void visit(AfterExecution afterExecution) {
-        if (tIni.getNextPC() != null)
-          addMc(5, IR, 0);
-      }
+    phase.acceptAfterExecution(afterExecution -> {
+      if (tIni.getNextPC() != null)
+        addMc(5, IR, 0);
     });
   }
 
   public boolean visitLdd(Ldd ldd) {
-    addResultAfterExecution(DE, 1, 2);
+    phase.acceptAfterExecution(p -> addMc(2, DE, 1));
     return true;
-  }
-
-  private void addResultAfterExecution(final RegisterName registerName, final int delta, final int time) {
-    phase.accept(new PhaseVisitor() {
-      public void visit(AfterExecution afterExecution) {
-        addMc(time, registerName, delta);
-      }
-    });
   }
 
   public void visitLdi(Ldi<T> tLdi) {
-    addResultAfterExecution(DE, -1, 2);
+    phase.acceptAfterExecution(p -> addMc(2, DE, -1));
   }
 
   public void visitCpi(Cpi<T> cpi) {
-    addResultAfterExecution(HL, -1, 5);
+    phase.acceptAfterExecution(p -> addMc(5, HL, -1));
   }
 
   public boolean visitCpd(Cpd<T> cpd) {
-    addResultAfterExecution(HL, 1, 5);
+    phase.acceptAfterExecution(p -> addMc(5, HL, 1));
     return true;
   }
 
-
-  public boolean visitRLD(RLD<T> rld) {
-    phase.accept(new PhaseVisitor() {
-      public void visit(AfterMR afterMR) {
-        if (getState().tstates == 11) {
-          addMultipleMc(4, 1, 0, getRegister(HL).read().intValue());
-        }
-      }
-    });
-
-    return super.visitRLD(rld);
-  }
-
   public boolean visitLdOperation(LdOperation ldOperation) {
-    phase.accept(new PhaseVisitor() {
-      public void visit(AfterMR afterMR) {
-        addMc14Or19(address);
-      }
-    });
-    return super.visitLdOperation(ldOperation);
+    phase.acceptAfterMR(p -> addMc14Or19(address));
+    return false;
   }
 
   public void visitingBitOperation(BitOperation tBitOperation) {
-    phase.accept(new PhaseVisitor() {
-      public void visit(AfterMR afterMR) {
-        if (!(tBitOperation instanceof RES<?> || tBitOperation instanceof SET<?>) || !addIfIndirectHL(tBitOperation))
-          addMc14Or19(address);
-      }
+    phase.acceptAfterMR(p -> {
+      if (!(tBitOperation instanceof RES<?> || tBitOperation instanceof SET<?>) || !addIfIndirectHL(tBitOperation))
+        addMc14Or19(address);
     });
   }
 
   public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction parameterizedUnaryAluInstruction) {
-    phase.accept(new PhaseVisitor() {
-      public void visit(AfterMR afterMR) {
-        addIfIndirectHL(parameterizedUnaryAluInstruction);
-        addMc14Or19(address);
-      }
+    phase.acceptAfterMR(p -> {
+      addIfIndirectHL(parameterizedUnaryAluInstruction);
+      addMc14Or19(address);
     });
 
-    return super.visitingParameterizedUnaryAluInstruction(parameterizedUnaryAluInstruction);
+    return false;
   }
 
   public boolean addIfIndirectHL(TargetInstruction<T> targetInstruction) {
-    if (isIndirectHL(targetInstruction)) {
-      if (getState().tstates == 11) {
-        addMultipleMc(1, 1, 0, getRegister(HL).read().intValue());
-        return true;
-      }
-    }
+    isIndirectHL(targetInstruction).ifPresent((x) -> matchesTstate(11).ifPresent(x2 -> addMultipleMc(1, 1, 0, getRegister(HL).read().intValue())));
     return false;
   }
 
@@ -301,36 +257,39 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   private void addDecInc(TargetInstruction<T> dec) {
-    phase.accept(new PhaseVisitor() {
+    phase.accept(new DefaultPhaseVisitor() {
       public void visit(AfterMR afterExecution) {
         if (dec.getTarget() instanceof MemoryPlusRegister8BitReference<T>) {
-          if (getState().tstates == 11)
-            addMultipleMc(5, 1, 2, getRegister(PC).read().intValue());
+          matchesTstate(11).ifPresent(x -> addMultipleMc(5, 1, 2, getRegister(PC).read().intValue()));
         }
       }
 
       public void visit(BeforeWrite beforeWrite) {
-        if (isIndirectHL(dec))
-          addMc(1, HL, 0);
+        isIndirectHL(dec).ifPresent(x -> addMc(1, HL, 0));
       }
     });
   }
 
+  public boolean visitRLD(RLD<T> rld) {
+    phase.acceptAfterMR(p -> matchesTstate(11).ifPresent(x -> addMultipleMc(4, 1, 0, getRegister(HL).read().intValue())));
+
+    return false;
+  }
+
   public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction parameterizedBinaryAluInstruction) {
-    phase.accept(new PhaseVisitor() {
-      public void visit(AfterMR afterExecution) {
-        if (getState().tstates == 11)
-          addMultipleMc(5, 1, 0, getRegister(IR).read().intValue());
-      }
-    });
+    phase.acceptAfterMR(p -> matchesTstate(11).ifPresent(x -> addMultipleMc(5, 1, 0, getRegister(IR).read().intValue())));
+  }
+
+  private Optional<Boolean> matchesTstate(int i) {
+    boolean b = getState().tstates == i;
+    return Optional.ofNullable(b ? b : null);
   }
 
 
   public boolean visitingCall(Call tCall) {
-    phase.accept(new PhaseVisitor() {
+    phase.accept(new DefaultPhaseVisitor() {
       public void visit(BeforeWrite beforeWrite) {
-        if (getState().tstates == 10)
-          addMc(1, IR, 1);
+        matchesTstate(10).ifPresent(x -> addMc(1, IR, 1));
       }
     });
 

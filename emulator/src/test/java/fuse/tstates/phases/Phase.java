@@ -19,5 +19,13 @@
 package fuse.tstates.phases;
 
 public interface Phase {
-    void accept(PhaseVisitor visitor);
+  void accept(PhaseVisitor visitor);
+
+  default void acceptAfterExecution(AfterExecutionPhaseVisitor visitor) {
+    accept(visitor);
+  }
+
+  default void acceptAfterMR(AfterMRPhaseVisitor visitor) {
+    accept(visitor);
+  }
 }

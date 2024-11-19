@@ -32,6 +32,8 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.phases.Phase;
 
+import java.util.Optional;
+
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 public abstract class PhaseProcessorBase<T extends WordNumber> implements InstructionVisitor<T, Integer> {
@@ -81,8 +83,9 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
     this.address = address;
   }
 
-  public boolean isIndirectHL(TargetInstruction<T> targetInstruction) {
-    return targetInstruction.getTarget() instanceof IndirectMemory8BitReference<?> indirectMemory8BitReference && indirectMemory8BitReference.getTarget() instanceof Register<?> register && register.getName().equals(HL.name());
+  public Optional<Boolean> isIndirectHL(TargetInstruction<T> targetInstruction) {
+    boolean b = targetInstruction.getTarget() instanceof IndirectMemory8BitReference<?> indirectMemory8BitReference && indirectMemory8BitReference.getTarget() instanceof Register<?> register && register.getName().equals(HL.name());
+    return Optional.ofNullable(b ? b : null);
   }
 
   public void setPhase(Phase phase) {

@@ -18,12 +18,17 @@
 
 package fuse.tstates.phases;
 
-public interface PhaseVisitor {
-   void visit(AfterExecution afterExecution);
+public interface AfterExecutionPhaseVisitor extends PhaseVisitor {
 
-  void visit(AfterFetch afterFetch);
+  default void visit(AfterFetch afterFetch) {
 
-  void visit(AfterMR afterMR);
+  }
 
-  void visit(BeforeWrite beforeWrite);
+  default void visit(AfterMR afterMR) {
+
+  }
+
+  default void visit(BeforeWrite beforeWrite) {
+
+  }
 }

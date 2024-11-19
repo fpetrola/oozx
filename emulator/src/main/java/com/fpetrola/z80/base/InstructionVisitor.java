@@ -116,7 +116,7 @@ public interface InstructionVisitor<T extends WordNumber, R> {
     return false;
   }
 
-  default boolean visitingBit(BIT bit){
+  default boolean visitingBit(BIT<T> bit){
     return false;
   }
 
