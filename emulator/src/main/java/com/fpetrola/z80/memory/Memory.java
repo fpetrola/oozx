@@ -32,7 +32,16 @@ public interface Memory<T> {
     memory.write(address, value.and(0xFF));
   }
 
+  static <T extends WordNumber> void write16BitsR(Memory<T> memory, T value, T address) {
+    memory.write(address, value.and(0xFF));
+    memory.write(address.plus1(), (value.right(8)));
+  }
+
   T read(T address, int fetching);
+
+  default T read(T address, int delta, int fetching) {
+    return read(address, fetching);
+  }
 
   void write(T address, T value);
 

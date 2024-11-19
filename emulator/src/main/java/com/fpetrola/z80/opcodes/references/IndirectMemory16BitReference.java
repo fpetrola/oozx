@@ -44,8 +44,10 @@ public final class IndirectMemory16BitReference<T extends WordNumber> implements
 
   public void write(T value) {
     address = target.read();
-
-    Memory.write16Bits(memory, value, address);
+    if (target.toString().equals("SP"))
+      Memory.write16Bits(memory, value, address);
+    else
+      Memory.write16BitsR(memory, value, address);
   }
 
   public String toString() {

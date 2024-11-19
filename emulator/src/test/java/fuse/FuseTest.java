@@ -67,6 +67,8 @@ public class FuseTest<T extends WordNumber> {
     cpu.getState().setIntMode(State.InterruptionMode.values()[stateArray.get(4)]);
     cpu.getState().setHalted(false);
 
+    cpu.getState().getMemory().reset();
+
     boolean isHalted = stateArray.get(5) != 0;
     if (isHalted) {
       throw new UnsupportedOperationException("Halted state is not supported.");

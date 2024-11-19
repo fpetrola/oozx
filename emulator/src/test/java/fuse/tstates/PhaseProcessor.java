@@ -104,16 +104,32 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return false;
   }
 
+
   public void visitingLd(Ld<T> ld) {
     phase.accept(new DefaultPhaseVisitor() {
       public void visit(AfterFetch afterFetch) {
+        int times = 0;
         if (isLdSP(ld))
-          addMc(2, IR, 0);
+          times = 2;
+
+        if (ld.getTarget().equals(getRegister(I)) || ld.getTarget().equals(getRegister(R)) || ld instanceof LdAI<T> || ld instanceof LdAR<T>)
+          times = 1;
+
+        addMc(times, IR, 0);
+      }
+
+      public void visit(BeforeWrite beforeWrite) {
+        if (ld.getTarget() instanceof MemoryPlusRegister8BitReference<T> && ld.getSource() instanceof Memory8BitReference<T>) {
+          addMc(2, PC, 3);
+        }
       }
 
       public void visit(AfterMR afterMR) {
         matchesTstate(11).ifPresent(x -> {
-          if (!ld.getTarget().equals(getRegister(SP)) || ld.getSource() instanceof Register<T>) {
+          boolean b = ld.getSource() instanceof Register<T> && !ld.getSource().equals(getRegister(IX));
+          b |= ld.getSource() instanceof MemoryPlusRegister8BitReference<T>;
+          b &= !(ld.getTarget() instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference && indirectMemory16BitReference.target instanceof Memory16BitReference<T>);
+          if ((!ld.getTarget().equals(getRegister(SP))) && b) {
             addMultipleMc(5, 1, 0, getRegister(IR).read().intValue());
           }
         });

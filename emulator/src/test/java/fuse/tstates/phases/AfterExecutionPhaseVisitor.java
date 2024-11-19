@@ -21,14 +21,11 @@ package fuse.tstates.phases;
 public interface AfterExecutionPhaseVisitor extends PhaseVisitor {
 
   default void visit(AfterFetch afterFetch) {
-
   }
 
   default void visit(AfterMR afterMR) {
-
   }
 
   default void visit(BeforeWrite beforeWrite) {
-
   }
 }

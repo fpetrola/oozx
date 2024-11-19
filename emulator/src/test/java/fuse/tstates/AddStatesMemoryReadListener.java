@@ -32,7 +32,7 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
     this.phaseProcessor = phaseProcessor;
   }
 
-  public void readingMemoryAt(T address, T value, int fetching) {
+  public void readingMemoryAt(T address, T value, int delta, int fetching) {
     if (address.intValue() == -1) {
       phaseProcessor.processPhase(new AfterFetch());
     } else if (address.intValue() == -2) {
@@ -55,7 +55,8 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
         phaseProcessor.processPhase(new AfterMR());
       };
 
-      if (fetching != 2) {
+      boolean requiresDelay = fetching == 2 || delta == 3;
+      if (!requiresDelay) {
         lastEvents1.run();
       }
 
@@ -64,7 +65,7 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
         lastEvents = null;
       }
 
-      if (fetching == 2)
+      if (requiresDelay)
         lastEvents = lastEvents1;
     }
   }

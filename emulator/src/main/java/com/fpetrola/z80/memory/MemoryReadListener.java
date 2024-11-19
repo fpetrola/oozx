@@ -19,5 +19,5 @@
 package com.fpetrola.z80.memory;
 
 public interface MemoryReadListener<T> {
-  void readingMemoryAt(T address, T value, int fetching);
+  void readingMemoryAt(T address, T value, int delta, int fetching);
 }

@@ -23,6 +23,7 @@ import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 public class MockedMemory<T extends WordNumber> implements Memory<T> {
@@ -33,6 +34,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   private MemoryReadListener lastMemoryReadListener;
   private MemoryWriteListener lastMemoryWriteListener;
   private boolean canDisable;
+  protected T[] cachedValues = (T[]) new WordNumber[0x10000];
 
   public MockedMemory(boolean canDisable1) {
     this.canDisable = false;
@@ -42,19 +44,36 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
     data = supplier.get();
   }
 
-  @Override
   public T read(T address, int fetching) {
+    T value = doRead(address);
+    T cachedValue = null;
+    boolean b = fetching == 1|| address.intValue() < 0 || (cachedValue = cachedValues[address.intValue()]) != value;
+    if (memoryReadListener != null && b) {
+      memoryReadListener.readingMemoryAt(address, value, 0, fetching);
+      if (address.intValue() >= 0)
+        cachedValues[address.intValue()] = value;
+    }
+
+    return value;
+  }
+
+  public T read(T address, int delta, int fetching) {
+    T value = doRead(address);
+    if (memoryReadListener != null)
+      memoryReadListener.readingMemoryAt(address, value, delta, fetching);
+
+    return value;
+  }
+
+  private T doRead(T address) {
     T value = WordNumber.createValue(0);
     if (address.intValue() >= 0) {
       T datum = data[address.intValue()];
       if (datum == null) {
       } else {
-        value = datum.and(0xFF);
+        value = datum;
       }
     }
-    if (memoryReadListener != null)
-      memoryReadListener.readingMemoryAt(address, value, fetching);
-
     return value;
   }
 
@@ -66,7 +85,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
 //      if (address.intValue() == 23548)
 //        System.out.println("");
       if (address.intValue() < 0x10000)
-        data[address.intValue()] = value;
+        data[address.intValue()] = value.and(0xff);
     }
   }
 
@@ -91,7 +110,10 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
 
   @Override
   public void reset() {
-
+    for (int i = 0; i < data.length; i++) {
+      data[i] = WordNumber.createValue(0);
+    }
+//    Arrays.fill(data, WordNumber.createValue(0));
   }
 
   @Override

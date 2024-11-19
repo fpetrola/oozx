@@ -30,7 +30,8 @@ public class MemorySetter {
 
   public void setData(byte[] result) {
     for (int i = 0; i <result.length; i++) {
-      memory.getData()[i]= WordNumber.createValue(result[i]);
+      WordNumber value = WordNumber.createValue(result[i]);
+      memory.getData()[i]= value.and(0xff);
     }
   }
 }

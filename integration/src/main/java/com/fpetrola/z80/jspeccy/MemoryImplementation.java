@@ -73,7 +73,7 @@ public class MemoryImplementation<T extends WordNumber> implements Memory<T> {
 
     if (!spy.wasFetched(i)) {
       WordNumber finalValue = value;
-      new ArrayList<>(memoryReadListeners).forEach(l -> l.readingMemoryAt(address, finalValue, fetching));
+      new ArrayList<>(memoryReadListeners).forEach(l -> l.readingMemoryAt(address, finalValue, 0, fetching));
     }
     return (T) value;
   }
