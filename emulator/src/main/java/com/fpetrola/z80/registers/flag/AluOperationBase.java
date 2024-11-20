@@ -19,6 +19,39 @@
 package com.fpetrola.z80.registers.flag;
 
 public class AluOperationBase {
+
+  protected int[] halfcarry_add_table = {0, FLAG_H, FLAG_H, FLAG_H, 0, 0, 0, FLAG_H};
+  protected int[] halfcarry_sub_table = {0, 0, FLAG_H, 0, FLAG_H, 0, FLAG_H, FLAG_H};
+  int[] overflow_add_table = {0, 0, 0, FLAG_V, FLAG_V, 0, 0, 0};
+  protected int[] overflow_sub_table = {0, FLAG_V, 0, 0, 0, 0, FLAG_V, 0};
+
+
+  protected static int[] sz53_table = new int[0x100]; /* The S, Z, 5 and 3 bits of the index */
+  static int[] parity_table = new int[0x100]; /* The parity of the lookup value */
+  protected static int[] sz53p_table = new int[0x100]; /* OR the above two tables together */
+
+
+  {
+    int i, j, k;
+    int parity;
+
+    for (i = 0; i < 0x100; i++) {
+      sz53_table[i] = i & (FLAG_3 | FLAG_5 | FLAG_S);
+      j = i;
+      parity = 0;
+      for (k = 0; k < 8; k++) {
+        parity ^= j & 1;
+        j >>= 1;
+      }
+      parity_table[i] = (parity != 0 ? 0 : FLAG_P);
+      sz53p_table[i] = sz53_table[i] | parity_table[i];
+    }
+
+    sz53_table[0] |= FLAG_Z;
+    sz53p_table[0] |= FLAG_Z;
+  }
+
+
   protected static final int[] m_daaTable = {
       0x0044, 0x0100, 0x0200, 0x0304, 0x0400, 0x0504, 0x0604, 0x0700,
       0x0808, 0x090C, 0x1010, 0x1114, 0x1214, 0x1310, 0x1414, 0x1510,
@@ -278,7 +311,7 @@ public class AluOperationBase {
       0x9283, 0x9387, 0x9483, 0x9587, 0x9687, 0x9783, 0x988B, 0x998F
   };
   protected int sz5h3pnFlags;
-//  protected int memptr;
+  //  protected int memptr;
   protected boolean flagQ, lastFlagQ;
 
   public static final int CARRY_MASK = 0x01;
@@ -343,6 +376,8 @@ public class AluOperationBase {
   protected final static int FLAG_Z = 0x0040;
   protected final static int FLAG_H = 0x0010;
   protected final static int FLAG_PV = 0x0004;
+  protected final static int FLAG_P = 0x0004;
+  protected final static int FLAG_V = 0x0004;
   protected final static int FLAG_N = 0x0002;
   protected final static int FLAG_C = 0x0001;
   /* LSB, MSB masking values */
@@ -380,7 +415,8 @@ public class AluOperationBase {
   private final static int resetBit6 = setBit6 ^ 0x00FF;
   private final static int resetBit7 = setBit7 ^ 0x00FF;
 
-  protected int data;
+  protected int F;
+  protected int Q;
 
   public AluOperationBase(String name) {
   }
@@ -443,7 +479,7 @@ public class AluOperationBase {
     int v = a;
     v -= b;
 
-    boolean CarryFlag = (data & 0x01) == 1;
+    boolean CarryFlag = (F & 0x01) == 1;
     var needCarry = subCarryFlag && CarryFlag;
     if (needCarry)
       v--;
@@ -575,47 +611,47 @@ public class AluOperationBase {
    * test & set flag states
    */
   private final boolean getS() {
-    return ((data & FLAG_S) != 0);
+    return ((F & FLAG_S) != 0);
   }
 
   public boolean getZ() {
-    return ((data & FLAG_Z) != 0);
+    return ((F & FLAG_Z) != 0);
   }
 
   protected final boolean getH() {
-    return ((data & FLAG_H) != 0);
+    return ((F & FLAG_H) != 0);
   }
 
   private final boolean getPV() {
-    return ((data & FLAG_PV) != 0);
+    return ((F & FLAG_PV) != 0);
   }
 
   protected final boolean getN() {
-    return ((data & FLAG_N) != 0);
+    return ((F & FLAG_N) != 0);
   }
 
   public final boolean getC() {
-    return ((data & FLAG_C) != 0);
+    return ((F & FLAG_C) != 0);
   }
 
   protected final void setS() {
-    data = data | FLAG_S;
+    F = F | FLAG_S;
   }
 
   protected final void setZ() {
-    data = data | FLAG_Z;
+    F = F | FLAG_Z;
   }
 
   protected final void setH() {
-    data = data | FLAG_H;
+    F = F | FLAG_H;
   }
 
   protected final void setPV() {
-    data = data | FLAG_PV;
+    F = F | FLAG_PV;
   }
 
   protected final void setN() {
-    data = data | FLAG_N;
+    F = F | FLAG_N;
   }
 
   protected final void setN(boolean b) {
@@ -626,7 +662,7 @@ public class AluOperationBase {
   }
 
   protected final void setC() {
-    data = data | FLAG_C;
+    F = F | FLAG_C;
   }
 
   protected final void setS(boolean b) {
@@ -652,15 +688,15 @@ public class AluOperationBase {
 
   public final void setPV(boolean b) {
     if (b)
-      data = data | FLAG_PV;
+      F = F | FLAG_PV;
     else
-      data = data & flag_PV_N;
+      F = F & flag_PV_N;
   }
 
   protected final void setUnusedFlags(int value) {
     value = value & 0x28;
-    data = data & 0xD7;
-    data = data | value;
+    F = F & 0xD7;
+    F = F | value;
   }
 
   // private final void setN(boolean b) { if (b) setN(); else resetN(); }
@@ -672,27 +708,27 @@ public class AluOperationBase {
   }
 
   protected final void resetS() {
-    data = data & flag_S_N;
+    F = F & flag_S_N;
   }
 
   protected final void resetZ() {
-    data = data & flag_Z_N;
+    F = F & flag_Z_N;
   }
 
   public final void resetH() {
-    data = data & flag_H_N;
+    F = F & flag_H_N;
   }
 
   protected final void resetPV() {
-    data = data & flag_PV_N;
+    F = F & flag_PV_N;
   }
 
   public final void resetN() {
-    data = data & flag_N_N;
+    F = F & flag_N_N;
   }
 
   protected final void resetC() {
-    data = data & flag_C_N;
+    F = F & flag_C_N;
   }
 
 
@@ -704,11 +740,11 @@ public class AluOperationBase {
   }
 
   protected final void reset3() {
-    data = data & flag_3_N;
+    F = F & flag_3_N;
   }
 
   protected final void set3() {
-    data = data | FLAG_3;
+    F = F | FLAG_3;
   }
 
   protected final void set5(boolean b) {
@@ -719,11 +755,11 @@ public class AluOperationBase {
   }
 
   protected final void set5() {
-    data = data | FLAG_5;
+    F = F | FLAG_5;
   }
 
   protected final void reset5() {
-    data = data & flag_5_N;
+    F = F & flag_5_N;
   }
 
 
@@ -777,13 +813,13 @@ public class AluOperationBase {
     if (getH()) lookupIndex |= 512;
     if (getN()) lookupIndex |= 1024;
     int AF = m_daaTable[lookupIndex];
-    data = AF & 0xff;
+    F = AF & 0xff;
     return AF >> 8;
   }
 
   protected void doCPD(int regA, int work8, boolean b) {
-    var oldCarry = (data & 0x01) == 1;
-    var result= subtractAndSetFlags(regA, work8, false);
+    var oldCarry = (F & 0x01) == 1;
+    var result = subtractAndSetFlags(regA, work8, false);
     setPV(b);
     setN(true);
     setC(oldCarry);

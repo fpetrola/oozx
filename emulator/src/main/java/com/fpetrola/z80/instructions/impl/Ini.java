@@ -40,7 +40,7 @@ public class Ini<T extends WordNumber> extends BlockInstruction<T> {
       setPV(isEvenParity((((hlMem + incC) & 7) ^ regB)));
       setN((hlMem & 0x80) != 0);
 
-      return WordNumber.createValue(data);
+      return WordNumber.createValue(F);
     }
   };
 

@@ -28,21 +28,17 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Sbc<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
   public static final TableAluOperation sbc8TableAluOperation = new TableAluOperation() {
-    public int execute(int a, int value, int carry) {
-      data = carry;
-      int local_reg_A = a;
-      setHalfCarryFlagSub(local_reg_A, value, carry);
-      setOverflowFlagSub(local_reg_A, value, carry);
-      local_reg_A = local_reg_A - value - carry;
-      setS((local_reg_A & 0x0080) != 0);
-      setC((local_reg_A & 0xff00) != 0);
-      local_reg_A = local_reg_A & 0x00ff;
-      setZ(local_reg_A == 0);
-      setN();
-      int reg_A = local_reg_A;
-      setUnusedFlags(reg_A);
+    public int execute(int A, int value, int carry) {
+      F = carry;
+      int sbctemp = A - (value) - (F & FLAG_C);
+      int lookup = ((A & 0x88) >> 3) | (((value) & 0x88) >> 2) | ((sbctemp & 0x88) >> 1);
+      A = sbctemp & 0xff;
+      F = ((sbctemp & 0x100) != 0 ? FLAG_C : 0) | FLAG_N |
+          halfcarry_sub_table[lookup & 0x07] | overflow_sub_table[lookup >> 4] |
+          sz53_table[A];
+      Q = F;
 
-      return reg_A;
+      return A;
     }
   };
 

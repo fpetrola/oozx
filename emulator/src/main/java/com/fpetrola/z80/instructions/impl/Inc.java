@@ -27,9 +27,8 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Inc<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
   public static final TableAluOperation inc8TableAluOperation = new TableAluOperation() {
-    public int execute(int a, int carry) {
-      data = carry;
-      int value = a;
+    public int execute(int value, int carry) {
+      F = carry;
       setHalfCarryFlagAdd(value, 1);
       setPV(value == 0x7F);
       value++;

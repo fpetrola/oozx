@@ -28,9 +28,9 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Add<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
   public static final TableAluOperation adc8TableAluOperation = new TableAluOperation() {
-    public int execute(int a, int value, int carry) {
-      data = carry;
-      int reg_A = a;
+    public int execute(int A, int value, int carry) {
+      F = carry;
+      int reg_A = A;
       int local_reg_A = reg_A;
       setHalfCarryFlagAdd(local_reg_A, value, carry);
       setOverflowFlagAdd(local_reg_A, value, carry);

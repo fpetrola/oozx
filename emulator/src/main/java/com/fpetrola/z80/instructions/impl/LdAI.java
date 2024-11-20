@@ -35,7 +35,7 @@ public class LdAI<T extends WordNumber> extends Ld<T> {
       setPV(carry == 1);
       setN(false);
       setUnusedFlags(reg_R);
-      return data;
+      return F;
     }
   };
   private final State<T> state;

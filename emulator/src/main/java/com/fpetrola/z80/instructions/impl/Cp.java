@@ -28,18 +28,18 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Cp<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
   public static final TableAluOperation cpTableAluOperation = new TableAluOperation() {
-    public int execute(int a, int value, int carry) {
+    public int execute(int A, int value, int carry) {
       int b = value;
-      int wans = a - b;
+      int wans = A - b;
       int ans = wans & 0xff;
-      data = 0x02;
+      F = 0x02;
       setS((ans & FLAG_S) != 0);
       set3((b & FLAG_3) != 0);
       set5((b & FLAG_5) != 0);
       setZ(ans == 0);
       setC((wans & 0x100) != 0);
-      setH((((a & 0x0f) - (b & 0x0f)) & FLAG_H) != 0);
-      setPV(((a ^ b) & (a ^ ans) & 0x80) != 0);
+      setH((((A & 0x0f) - (b & 0x0f)) & FLAG_H) != 0);
+      setPV(((A ^ b) & (A ^ ans) & 0x80) != 0);
 
       return ans;
     }

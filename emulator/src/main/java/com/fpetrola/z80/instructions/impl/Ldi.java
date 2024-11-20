@@ -31,12 +31,12 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class Ldi<T extends WordNumber> extends BlockInstruction<T> {
   public static final AluOperation ldiTableAluOperation = new TableAluOperation() {
     public int execute(int bc, int data1, int carry) {
-      data = bc;
+      F = bc;
       resetH();
       resetN();
       setPV(carry != 0);
       setUnusedFlags(data1);
-      return data;
+      return F;
     }
   };
   protected final Register<T> a;

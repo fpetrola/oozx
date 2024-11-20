@@ -19,6 +19,7 @@
 package com.fpetrola.z80.instructions.impl;
 
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.types.LogicalOperation;
 import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
@@ -27,14 +28,12 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class And<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
-  protected static final TableAluOperation andTableAluOperation = new TableAluOperation() {
-    public int execute(int result, int value, int carry) {
-      data = 0x10;
-      setS((result & 0x0080) != 0);
-      setZ(result == 0);
-      setPV(parity[result]);
-      setUnusedFlags(result);
-      return result;
+  protected static final TableAluOperation andTableAluOperation = new LogicalOperation() {
+    public int execute(int A, int value, int carry) {
+      A &= value;
+      F = FLAG_H | sz53p_table[A];
+      Q = F;
+      return A;
     }
   };
 

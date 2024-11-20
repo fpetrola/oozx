@@ -32,7 +32,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class In<T extends WordNumber> extends TargetSourceInstruction<T, ImmutableOpcodeReference<T>> {
   public static AluOperation inCTableAluOperation = new TableAluOperation() {
     public int execute(int value, int a, int carry) {
-      data= value;
+      F = value;
       if ((a & 0x0080) == 0)
         resetS();
       else

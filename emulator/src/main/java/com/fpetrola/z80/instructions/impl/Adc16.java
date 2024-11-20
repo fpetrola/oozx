@@ -33,12 +33,12 @@ public class Adc16<T extends WordNumber> extends ParameterizedBinaryAluInstructi
       if (carry == 1) res++;
       int i = res > 0xffff ? 1 : 0;
       res &= 0xffff;
-      data = sz53n_addTable[res >> 8];
-      if (res != 0) data &= ~ZERO_MASK;
-      if (((res ^ a ^ b) & 0x1000) != 0) data |= HALFCARRY_MASK;
-      if (((a ^ ~b) & (a ^ res)) > 0x7fff) data |= OVERFLOW_MASK;
+      F = sz53n_addTable[res >> 8];
+      if (res != 0) F &= ~ZERO_MASK;
+      if (((res ^ a ^ b) & 0x1000) != 0) F |= HALFCARRY_MASK;
+      if (((a ^ ~b) & (a ^ res)) > 0x7fff) F |= OVERFLOW_MASK;
       flagQ = true;
-      data = data | i;
+      F = F | i;
       return res;
     }
   };

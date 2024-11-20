@@ -39,7 +39,7 @@ public class Outi<T extends WordNumber> extends BlockInstruction<T> {
       setC(work8 + regL > 255);
       setPV(isEvenParity(((work8 + regL) & 7) ^ regB));
       setN((work8 & 0x80) != 0);
-      return WordNumber.createValue(data);
+      return WordNumber.createValue(F);
     }
   };
 

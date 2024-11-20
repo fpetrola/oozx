@@ -54,9 +54,9 @@ public class BIT<T extends WordNumber> extends BitOperation<T> {
       final int value = target.read().intValue();
       int bit = bit_.intValue();
 
-      data = flag.read().intValue();
-      int f = data;
-      int s = data & SIGN_MASK;
+      F = flag.read().intValue();
+      int f = F;
+      int s = F & SIGN_MASK;
       f = (f & CARRY_MASK) | HALFCARRY_MASK | (value & (FLAG_3 | FLAG_5));
       int mask = 1 << bit;
       boolean zeroFlag = (mask & value) == 0;
@@ -67,7 +67,7 @@ public class BIT<T extends WordNumber> extends BitOperation<T> {
       if (mask == SIGN_MASK && !zeroFlag) {
         f |= SIGN_MASK;
       }
-      data = f;
+      F = f;
 
       int address =value;
       if (target instanceof MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
@@ -77,7 +77,7 @@ public class BIT<T extends WordNumber> extends BitOperation<T> {
       }
 
       setFlags53From(address);
-      flag.write(WordNumber.createValue(data));
+      flag.write(WordNumber.createValue(F));
     }
 
   }

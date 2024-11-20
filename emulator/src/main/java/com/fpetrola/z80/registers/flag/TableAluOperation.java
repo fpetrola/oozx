@@ -32,7 +32,7 @@ public class TableAluOperation extends AluOperation {
     for (int a = 0; a < 256; a++) {
       for (int c = 0; c < 2; c++) {
         Integer aluResult = biFunction.apply(a, c);
-        table[((a & 0xff)) | (c << 8)] = ((aluResult & 0xff) << 16) + data;
+        table[((a & 0xff)) | (c << 8)] = ((aluResult & 0xff) << 16) + F;
       }
     }
   }
@@ -43,7 +43,7 @@ public class TableAluOperation extends AluOperation {
       for (int value = 0; value < 256; value++) {
         for (int c = 0; c < 2; c++) {
           Integer aluResult = triFunction.apply(a, value, c);
-          table[((value & 0xff)) | (a << 8) | (c << 16)] = ((aluResult & 0xff) << 16) + data;
+          table[((value & 0xff)) | (a << 8) | (c << 16)] = ((aluResult & 0xff) << 16) + F;
         }
       }
     }

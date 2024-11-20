@@ -20,27 +20,16 @@ package com.fpetrola.z80.instructions.impl;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
+import com.fpetrola.z80.instructions.types.RROperation;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RRCA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
-  public static final AluOperation rrcaTableAluOperation = new TableAluOperation() {
-    public int execute(int a, int carry) {
-      boolean c = (a & 0x0001) != 0;
-      a = (a >> 1);
-      if (c) {
-        setC();
-        a = (a | 0x0080);
-      } else
-        resetC();
-      resetH();
-      resetN();
-      setUnusedFlags(a);
-
-      return a;
+  public static final AluOperation rrcaTableAluOperation = new RROperation() {
+    public int execute(int value, int carry) {
+      return calcRotation(value, (value & 0x0001) != 0);
     }
   };
 

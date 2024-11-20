@@ -29,18 +29,18 @@ import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class RLD<T extends WordNumber> extends AbstractInstruction<T> {
   public static final TableAluOperation rldTableAluOperation = new TableAluOperation() {
-    public int execute(int a, int carry) {
-      data = carry;
-      if ((a & 0x80) == 0)
+    public int execute(int value, int carry) {
+      F = carry;
+      if ((value & 0x80) == 0)
         resetS();
       else
         setS();
-      setZ(a == 0);
+      setZ(value == 0);
       resetH();
-      setPV(parity[a]);
+      setPV(parity[value]);
       resetN();
-      setUnusedFlags(a);
-      return a;
+      setUnusedFlags(value);
+      return value;
     }
   };
   protected final Register<T> a;
