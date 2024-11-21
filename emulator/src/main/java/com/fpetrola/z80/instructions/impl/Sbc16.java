@@ -34,9 +34,9 @@ public class Sbc16<T extends WordNumber> extends ParameterizedBinaryAluInstructi
       int lookup = ((HL & 0x8800) >> 11) | (((value) & 0x8800) >> 10) | ((sub16temp & 0x8800) >> 9);
       HL = sub16temp;
       F = ((sub16temp & 0x10000) != 0 ? FLAG_C : 0) |
-          FLAG_N | overflow_sub_table[lookup >> 4] |
+          FLAG_N | overflowSubTable[lookup >> 4] |
           ((HL >> 8) & (FLAG_3 | FLAG_5 | FLAG_S)) |
-          halfcarry_sub_table[lookup & 0x07] |
+          halfCarrySubTable[lookup & 0x07] |
           (HL != 0 ? 0 : FLAG_Z);
       Q = F;
       return HL;

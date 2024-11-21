@@ -32,7 +32,7 @@ public class RLD<T extends WordNumber> extends AbstractInstruction<T> {
     public int execute(int A, int value, int flag) {
       F = flag;
       A = (A & 0xf0) | (value >> 4);
-      F = (F & FLAG_C) | sz53p_table[A];
+      F = (F & FLAG_C) | sz53pTable[A];
       Q = F;
       return A;
     }

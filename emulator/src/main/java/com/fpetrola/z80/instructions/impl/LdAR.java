@@ -31,7 +31,7 @@ public class LdAR<T extends WordNumber> extends Ld<T> {
     public int execute(int R, int A, int IFF2) {
       F = 1;
       A = R & 0xff;
-      F = (F & FLAG_C) | sz53_table[A] | (IFF2 != 0 ? FLAG_V : 0);
+      F = (F & FLAG_C) | sz53Table[A] | (IFF2 != 0 ? FLAG_V : 0);
       Q = F;
       return F;
     }

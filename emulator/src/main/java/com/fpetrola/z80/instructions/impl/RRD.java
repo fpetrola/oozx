@@ -28,7 +28,7 @@ public class RRD<T extends WordNumber> extends RLD<T> {
   public static final TableAluOperation rrdTableAluOperation = new TableAluOperation() {
     public int execute(int A, int value, int flag) {
       A = (A & 0xf0) | (value & 0x0f);
-      F = (F & FLAG_C) | sz53p_table[A];
+      F = (F & FLAG_C) | sz53pTable[A];
       Q = F;
       return A;
     }

@@ -29,8 +29,8 @@ public class IniAluOperation extends TableAluOperation {
     int initemp2 = (initemp + C + i) & 0xff;
     F = ((initemp & 0x80) != 0 ? FLAG_N : 0) |
         ((initemp2 < initemp) ? FLAG_H | FLAG_C : 0) |
-        (parity_table[(initemp2 & 0x07) ^ B] != 0 ? FLAG_P : 0) |
-        sz53_table[B];
+        (parityTable[(initemp2 & 0x07) ^ B] != 0 ? FLAG_P : 0) |
+        sz53Table[B];
     Q = F;
     return WordNumber.createValue(F);
   }

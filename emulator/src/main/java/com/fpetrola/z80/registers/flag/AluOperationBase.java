@@ -19,16 +19,16 @@
 package com.fpetrola.z80.registers.flag;
 
 public class AluOperationBase {
-  protected int[] halfcarry_add_table = {0, FLAG_H, FLAG_H, FLAG_H, 0, 0, 0, FLAG_H};
-  protected int[] halfcarry_sub_table = {0, 0, FLAG_H, 0, FLAG_H, 0, FLAG_H, FLAG_H};
-  protected int[] overflow_add_table = {0, 0, 0, FLAG_V, FLAG_V, 0, 0, 0};
-  protected int[] overflow_sub_table = {0, FLAG_V, 0, 0, 0, 0, FLAG_V, 0};
+  protected int[] halfCarryAddTable = {0, FLAG_H, FLAG_H, FLAG_H, 0, 0, 0, FLAG_H};
+  protected int[] halfCarrySubTable = {0, 0, FLAG_H, 0, FLAG_H, 0, FLAG_H, FLAG_H};
+  protected int[] overflowAddTable = {0, 0, 0, FLAG_V, FLAG_V, 0, 0, 0};
+  protected int[] overflowSubTable = {0, FLAG_V, 0, 0, 0, 0, FLAG_V, 0};
 
-  protected static int[] sz53_table = new int[0x100];
-  protected static int[] parity_table = new int[0x100];
-  protected static int[] sz53p_table = new int[0x100];
+  protected static int[] sz53Table = new int[0x100];
+  protected static int[] parityTable = new int[0x100];
+  protected static int[] sz53pTable = new int[0x100];
 
-  protected static final int[] m_daaTable = {
+  protected static final int[] daaTable = {
       0x0044, 0x0100, 0x0200, 0x0304, 0x0400, 0x0504, 0x0604, 0x0700,
       0x0808, 0x090C, 0x1010, 0x1114, 0x1214, 0x1310, 0x1414, 0x1510,
       0x1000, 0x1104, 0x1204, 0x1300, 0x1404, 0x1500, 0x1600, 0x1704,
@@ -286,15 +286,16 @@ public class AluOperationBase {
       0x8A9B, 0x8B9F, 0x8C9B, 0x8D9F, 0x8E9F, 0x8F9B, 0x9087, 0x9183,
       0x9283, 0x9387, 0x9483, 0x9587, 0x9687, 0x9783, 0x988B, 0x998F
   };
-  protected final static int FLAG_5 = 0x20;
-  protected final static int FLAG_3 = 0x08;
-  protected final static int FLAG_S = 0x0080;
-  protected final static int FLAG_Z = 0x0040;
-  protected final static int FLAG_H = 0x0010;
+
+  protected final static int FLAG_C = 0x0001;
+  protected final static int FLAG_N = 0x0002;
   protected final static int FLAG_P = 0x0004;
   protected final static int FLAG_V = 0x0004;
-  protected final static int FLAG_N = 0x0002;
-  protected final static int FLAG_C = 0x0001;
+  protected final static int FLAG_3 = 0x0008;
+  protected final static int FLAG_H = 0x0010;
+  protected final static int FLAG_5 = 0x0020;
+  protected final static int FLAG_Z = 0x0040;
+  protected final static int FLAG_S = 0x0080;
 
   protected int F;
   protected int Q;
@@ -307,7 +308,7 @@ public class AluOperationBase {
     if (((F & FLAG_C) != 0)) lookupIndex |= 256;
     if (((F & FLAG_H) != 0)) lookupIndex |= 512;
     if (((F & FLAG_N) != 0)) lookupIndex |= 1024;
-    int AF = m_daaTable[lookupIndex];
+    int AF = daaTable[lookupIndex];
     F = AF & 0xff;
     return AF >> 8;
   }
@@ -317,18 +318,18 @@ public class AluOperationBase {
     int parity;
 
     for (i = 0; i < 0x100; i++) {
-      sz53_table[i] = i & (FLAG_3 | FLAG_5 | FLAG_S);
+      sz53Table[i] = i & (FLAG_3 | FLAG_5 | FLAG_S);
       j = i;
       parity = 0;
       for (k = 0; k < 8; k++) {
         parity ^= j & 1;
         j >>= 1;
       }
-      parity_table[i] = (parity != 0 ? 0 : FLAG_P);
-      sz53p_table[i] = sz53_table[i] | parity_table[i];
+      parityTable[i] = (parity != 0 ? 0 : FLAG_P);
+      sz53pTable[i] = sz53Table[i] | parityTable[i];
     }
 
-    sz53_table[0] |= FLAG_Z;
-    sz53p_table[0] |= FLAG_Z;
+    sz53Table[0] |= FLAG_Z;
+    sz53pTable[0] |= FLAG_Z;
   }
 }

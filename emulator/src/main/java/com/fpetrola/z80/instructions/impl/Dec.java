@@ -32,7 +32,7 @@ public class Dec<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
       F = (F & FLAG_C) | (((value) & 0x0f) != 0 ? 0 : FLAG_H) | FLAG_N;
       (value)--;
       value &= 0xff;
-      F |= ((value) == 0x7f ? FLAG_V : 0) | sz53_table[value];
+      F |= ((value) == 0x7f ? FLAG_V : 0) | sz53Table[value];
       Q = F;
       return value;
     }

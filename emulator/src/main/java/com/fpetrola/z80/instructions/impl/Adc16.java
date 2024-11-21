@@ -35,9 +35,9 @@ public class Adc16<T extends WordNumber> extends ParameterizedBinaryAluInstructi
           ((add16temp & 0x8800) >> 9);
       HL = add16temp;
       F = ((add16temp & 0x10000) != 0 ? FLAG_C : 0) |
-          overflow_add_table[lookup >> 4] |
+          overflowAddTable[lookup >> 4] |
           ((HL >> 8) & (FLAG_3 | FLAG_5 | FLAG_S)) |
-          halfcarry_add_table[lookup & 0x07] |
+          halfCarryAddTable[lookup & 0x07] |
           (HL != 0 ? 0 : FLAG_Z);
       Q = F;
       return HL;

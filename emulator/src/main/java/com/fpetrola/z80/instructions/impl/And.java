@@ -30,7 +30,7 @@ public class And<T extends WordNumber> extends ParameterizedBinaryAluInstruction
   protected static final TableAluOperation andTableAluOperation = new TableAluOperation() {
     public int execute(int A, int value, int carry) {
       A &= value;
-      F = FLAG_H | sz53p_table[A];
+      F = FLAG_H | sz53pTable[A];
       Q = F;
       return A;
     }

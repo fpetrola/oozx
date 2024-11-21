@@ -30,7 +30,7 @@ public class Or<T extends WordNumber> extends ParameterizedBinaryAluInstruction<
   public static final TableAluOperation orTableAluOperation = new TableAluOperation() {
     public int execute(int A, int value, int carry) {
       A |= (value);
-      F = sz53p_table[A];
+      F = sz53pTable[A];
       Q = F;
       return A;
 

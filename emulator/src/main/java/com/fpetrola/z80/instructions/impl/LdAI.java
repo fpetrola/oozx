@@ -29,7 +29,7 @@ public class LdAI<T extends WordNumber> extends Ld<T> {
   public static final AluOperation ldaiTableAluOperation = new TableAluOperation() {
     public int execute(int I, int A, int IFF2) {
       A = I;
-      F = (F & FLAG_C) | sz53_table[A] | (IFF2 != 0 ? FLAG_V : 0);
+      F = (F & FLAG_C) | sz53Table[A] | (IFF2 != 0 ? FLAG_V : 0);
       Q = F;
       return F;
     }
