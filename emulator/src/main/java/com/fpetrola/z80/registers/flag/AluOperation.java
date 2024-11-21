@@ -70,7 +70,7 @@ public class AluOperation extends AluOperationBase {
 
   public <T extends WordNumber> T executeWithCarry2(T value, T regA, int carry, Register<T> flag) {
     F = flag.read().intValue();
-    Integer result = triFunction.apply(regA.intValue(), value.intValue(), carry);
+    Integer result = triFunction.apply(regA.intValue(), value.intValue(), carry & 1);
     flag.write(createValue(F));
     return createValue(result);
   }
