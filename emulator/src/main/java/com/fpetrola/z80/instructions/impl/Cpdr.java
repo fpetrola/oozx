@@ -35,7 +35,7 @@ public class Cpdr<T extends WordNumber> extends RepeatingInstruction<T> {
   }
 
   protected boolean checkLoopCondition() {
-    return !((flag.read().intValue() & Flags.ZERO_FLAG) != 0) && bc.read().isNotZero();
+    return (flag.read().intValue() & Flags.ZERO_FLAG) == 0 && bc.read().isNotZero();
   }
 
   @Override

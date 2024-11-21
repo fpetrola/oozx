@@ -25,9 +25,10 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Cpd<T extends WordNumber> extends Cpi<T> {
-  public static final AluOperation cpdTableAluOperation = new AluOperation() {
+  public static final AluOperation cpdTableAluOperation = new TableAluOperation() {
     public int execute(int A, int value, int BC) {
       int bytetemp = A - value;
       int lookup = ((A & 0x08) >> 3) |
@@ -47,14 +48,25 @@ public class Cpd<T extends WordNumber> extends Cpi<T> {
     super(a, flag, bc, hl, memory, io);
   }
 
+  public int execute() {
+    memory.disableReadListener();
+    memory.disableWriteListener();
+    bc.decrement();
+    flagOperation(bc.read());
+    next();
+    memory.enableReadListener();
+    memory.enableWriteListener();
+    return 1;
+  }
+
   protected void next() {
     hl.decrement();
   }
 
   protected void flagOperation(T valueFromHL) {
-    T value = memory.read(hl.read(), 0);
-    T reg_A = a.read();
-    cpdTableAluOperation.executeWithCarry2(value, reg_A, bc.read().isNotZero() ? 1 : 0, flag);
+    int lastCarry = flag.read().intValue() & 1;
+    cpdTableAluOperation.executeWithCarry2(memory.read(hl.read(), 0), a.read(), bc.read().isNotZero() ? 1 : 0, flag);
+    flag.write(flag.read().or(lastCarry));
   }
 
   public void accept(InstructionVisitor visitor) {
