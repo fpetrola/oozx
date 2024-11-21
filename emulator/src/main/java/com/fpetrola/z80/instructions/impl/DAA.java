@@ -22,15 +22,36 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Plain8BitRegister;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
+
 public class DAA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
   public static AluOperation daaTableAluOperation = new TableAluOperation() {
-    public int execute(int flag, int a, int flags) {
+    public int execute(int flag, int A, int flags) {
       F = flag;
-      return adjustAccumulatorToBcd(a);
+      A &= 0xff;
+      int add = 0;
+      int carry = (F & FLAG_C);
+      if (((F & FLAG_H) != 0) || ((A & 0x0f) > 9)) add = 6;
+      if (carry != 0 || (A > 0x99)) add |= 0x60;
+      if (A > 0x99) carry = FLAG_C;
+      Register<WordNumber> f = new Plain8BitRegister<>("");
+      f.write(createValue(F));
+      if ((F & FLAG_N) != 0) {
+        A = Sub.sub8TableAluOperation.executeWithoutCarry(createValue(add), createValue(A), f).intValue();
+      } else {
+        A = Add.add8TableAluOperation.executeWithoutCarry(createValue(add), createValue(A), f).intValue();
+      }
+      F = f.read().intValue();
+
+      F = (F & ~(FLAG_C | FLAG_P)) | carry | parityTable[A];
+      Q = F;
+
+      return A;
     }
   };
 
