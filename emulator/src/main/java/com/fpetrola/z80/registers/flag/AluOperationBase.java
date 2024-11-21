@@ -19,38 +19,14 @@
 package com.fpetrola.z80.registers.flag;
 
 public class AluOperationBase {
-
   protected int[] halfcarry_add_table = {0, FLAG_H, FLAG_H, FLAG_H, 0, 0, 0, FLAG_H};
   protected int[] halfcarry_sub_table = {0, 0, FLAG_H, 0, FLAG_H, 0, FLAG_H, FLAG_H};
-  int[] overflow_add_table = {0, 0, 0, FLAG_V, FLAG_V, 0, 0, 0};
+  protected int[] overflow_add_table = {0, 0, 0, FLAG_V, FLAG_V, 0, 0, 0};
   protected int[] overflow_sub_table = {0, FLAG_V, 0, 0, 0, 0, FLAG_V, 0};
 
-
-  protected static int[] sz53_table = new int[0x100]; /* The S, Z, 5 and 3 bits of the index */
-  static int[] parity_table = new int[0x100]; /* The parity of the lookup value */
-  protected static int[] sz53p_table = new int[0x100]; /* OR the above two tables together */
-
-
-  {
-    int i, j, k;
-    int parity;
-
-    for (i = 0; i < 0x100; i++) {
-      sz53_table[i] = i & (FLAG_3 | FLAG_5 | FLAG_S);
-      j = i;
-      parity = 0;
-      for (k = 0; k < 8; k++) {
-        parity ^= j & 1;
-        j >>= 1;
-      }
-      parity_table[i] = (parity != 0 ? 0 : FLAG_P);
-      sz53p_table[i] = sz53_table[i] | parity_table[i];
-    }
-
-    sz53_table[0] |= FLAG_Z;
-    sz53p_table[0] |= FLAG_Z;
-  }
-
+  protected static int[] sz53_table = new int[0x100];
+  protected static int[] parity_table = new int[0x100];
+  protected static int[] sz53p_table = new int[0x100];
 
   protected static final int[] m_daaTable = {
       0x0044, 0x0100, 0x0200, 0x0304, 0x0400, 0x0504, 0x0604, 0x0700,
@@ -310,520 +286,49 @@ public class AluOperationBase {
       0x8A9B, 0x8B9F, 0x8C9B, 0x8D9F, 0x8E9F, 0x8F9B, 0x9087, 0x9183,
       0x9283, 0x9387, 0x9483, 0x9587, 0x9687, 0x9783, 0x988B, 0x998F
   };
-  protected int sz5h3pnFlags;
-  //  protected int memptr;
-  protected boolean flagQ, lastFlagQ;
-
-  public static final int CARRY_MASK = 0x01;
-  public static final int ADDSUB_MASK = 0x02;
-  public static final int PARITY_MASK = 0x04;
-  public static final int OVERFLOW_MASK = 0x04; // alias de PARITY_MASK
-  public static final int BIT3_MASK = 0x08;
-  public static final int HALFCARRY_MASK = 0x10;
-  public static final int BIT5_MASK = 0x20;
-  public static final int ZERO_MASK = 0x40;
-  public static final int SIGN_MASK = 0x80;
-  // Máscaras de conveniencia
-  public static final int FLAG_53_MASK = BIT5_MASK | BIT3_MASK;
-  public static final int FLAG_SZ_MASK = SIGN_MASK | ZERO_MASK;
-  public static final int FLAG_SZHN_MASK = FLAG_SZ_MASK | HALFCARRY_MASK | ADDSUB_MASK;
-  public static final int FLAG_SZP_MASK = FLAG_SZ_MASK | PARITY_MASK;
-  public static final int FLAG_SZHP_MASK = FLAG_SZP_MASK | HALFCARRY_MASK;
-
-  protected static final int[] sz53n_addTable = new int[256];
-  protected static final int sz53pn_addTable[] = new int[256];
-  protected static final int sz53n_subTable[] = new int[256];
-  protected static final int sz53pn_subTable[] = new int[256];
-
-  static {
-    boolean evenBits;
-
-    for (int idx = 0; idx < 256; idx++) {
-      if (idx > 0x7f) {
-        sz53n_addTable[idx] |= SIGN_MASK;
-      }
-
-      evenBits = true;
-      for (int mask = 0x01; mask < 0x100; mask <<= 1) {
-        if ((idx & mask) != 0) {
-          evenBits = !evenBits;
-        }
-      }
-
-      sz53n_addTable[idx] |= (idx & FLAG_53_MASK);
-      sz53n_subTable[idx] = sz53n_addTable[idx] | ADDSUB_MASK;
-
-      if (evenBits) {
-        sz53pn_addTable[idx] = sz53n_addTable[idx] | PARITY_MASK;
-        sz53pn_subTable[idx] = sz53n_subTable[idx] | PARITY_MASK;
-      } else {
-        sz53pn_addTable[idx] = sz53n_addTable[idx];
-        sz53pn_subTable[idx] = sz53n_subTable[idx];
-      }
-    }
-
-    sz53n_addTable[0] |= ZERO_MASK;
-    sz53pn_addTable[0] |= ZERO_MASK;
-    sz53n_subTable[0] |= ZERO_MASK;
-    sz53pn_subTable[0] |= ZERO_MASK;
-  }
-
-  public static final int FLAG_5 = 0x20;
-  public static final int FLAG_3 = 0x08;
-  protected final static int byteSize = 8;
-  // for setting
+  protected final static int FLAG_5 = 0x20;
+  protected final static int FLAG_3 = 0x08;
   protected final static int FLAG_S = 0x0080;
   protected final static int FLAG_Z = 0x0040;
   protected final static int FLAG_H = 0x0010;
-  protected final static int FLAG_PV = 0x0004;
   protected final static int FLAG_P = 0x0004;
   protected final static int FLAG_V = 0x0004;
   protected final static int FLAG_N = 0x0002;
   protected final static int FLAG_C = 0x0001;
-  /* LSB, MSB masking values */
-  protected final static int lsb = 0x00FF;
-  protected final static int lsw = 0x0000FFFF;
-  protected final static int setBit0 = 0x0001; // or
-  // mask
-  // value
-  protected final static int setBit1 = 0x0002;
-  protected final static int setBit2 = 0x0004;
-  protected final static int setBit3 = 0x0008;
-  protected final static int setBit4 = 0x0010;
-  protected final static int setBit5 = 0x0020;
-  protected final static int setBit6 = 0x0040;
-  protected final static int setBit7 = 0x0080;
-  protected static final boolean[] parity = new boolean[256];
-  // for resetting
-  private final static int flag_S_N = 0x007F;
-  private final static int flag_Z_N = 0x00BF;
-  private final static int flag_5_N = 0x00DF;
-  private final static int flag_H_N = 0x00EF;
-  private final static int flag_3_N = 0x00F7;
-  private final static int flag_PV_N = 0x00FB;
-  private final static int flag_N_N = 0x00FD;
-  private final static int flag_C_N = 0x00FE;
-  private final static int msb = 0xFF00;
-  private final static int resetBit0 = setBit0 ^ 0x00FF; // and
-  // mask
-  // value
-  private final static int resetBit1 = setBit1 ^ 0x00FF;
-  private final static int resetBit2 = setBit2 ^ 0x00FF;
-  private final static int resetBit3 = setBit3 ^ 0x00FF;
-  private final static int resetBit4 = setBit4 ^ 0x00FF;
-  private final static int resetBit5 = setBit5 ^ 0x00FF;
-  private final static int resetBit6 = setBit6 ^ 0x00FF;
-  private final static int resetBit7 = setBit7 ^ 0x00FF;
 
   protected int F;
   protected int Q;
 
-  public AluOperationBase(String name) {
+  public AluOperationBase() {
   }
-
-  static {
-    parity[0] = true; // even parity seed value
-    int position = 1; // table position
-    for (int bit = 0; bit < byteSize; bit++) {
-      for (int fill = 0; fill < position; fill++) {
-        parity[position + fill] = !parity[fill];
-      }
-      position = position * 2;
-    }
-  }
-
-  protected static boolean isHalfCarry8(int a, int b, boolean carry, boolean isAddition) {
-    var c = (carry ? 1 : 0);
-    if (isAddition)
-      return (((a & 0x0f) + (b & 0x0f) + c) & 0x10) != 0;
-    return (((a & 0x0f) - (b & 0x0f) - c) & 0x10) != 0;
-  }
-
-  protected static boolean isBytePositive(int b) {
-    return (b & 0x80) == 0;
-  }
-
-  public int decAndSetFlags(int b) {
-    int v = b;
-
-    var result1 = (byte) (v & 0xff);
-    setH(isHalfCarry8(b, 0x01, false, false));
-    setS(!isBytePositive(result1));
-    setZ(v == 0);
-    setN();
-    var result = v;
-    setPV(b == 0x80);
-    setFlags53From(result);
-    return result;
-  }
-
-  public void setFlags53From(int b) {
-    set5((b & setBit5) != 0);
-    set3((b & setBit3) != 0);
-  }
-
-  protected static int countBits(int b) {
-    var count = 0;
-    while (b != 0) {
-      count += b & 1;
-      b >>= 1;
-    }
-    return count;
-  }
-
-  protected static boolean isEvenParity(int b) {
-    return (countBits(b & 0xff) & 1) == 0;
-  }
-
-  public int subtractAndSetFlags(int a, int b, boolean subCarryFlag) {
-    int v = a;
-    v -= b;
-
-    boolean CarryFlag = (F & 0x01) == 1;
-    var needCarry = subCarryFlag && CarryFlag;
-    if (needCarry)
-      v--;
-
-    var result = (v & 0xff);
-
-    setH(isHalfCarry8(a, b, needCarry, false));
-    setC(isCarry8(v));
-    setS(!isBytePositive(result));
-    setZ(v == 0);
-    setPV(isOverflow8(a, b, result, false));
-    setN(true);
-//      TheRegisters.SetFlags53From((byte) v);
-    return v;
-  }
-
-  protected static boolean isCarry8(int unclippedResult) {
-    return (unclippedResult & 0x100) != 0;
-  }
-
-  protected static boolean isOverflow8(int a, int b, int result, boolean isAddition) {
-    var signA = a >> 7 != 0;
-    var signB = b >> 7 != 0;
-    var signResult = result >> 7 != 0;
-    return isOverflow(signA, signB, signResult, isAddition);
-  }
-
-  protected static boolean isOverflow(boolean signA, boolean signB, boolean signResult, boolean isAddition) {
-    if (isAddition)
-      return (!signA && !signB && signResult) || (signA && signB && !signResult);
-    return (!signA && signB && signResult) || (signA && !signB && !signResult);
-  }
-
-  /* half carry flag control */
-  public final void setHalfCarryFlagAdd(int left, int right, int carry) {
-    left = left & 0x000f;
-    right = right & 0x000f;
-    setH((right + left + carry) > 0x0f);
-  }
-
-  /* half carry flag control */
-  protected final void setHalfCarryFlagAdd(int left, int right) {
-    left = left & 0x000F;
-    right = right & 0x000F;
-    setH((right + left) > 0x0F);
-  }
-
-  /* half carry flag control */
-  protected final void setHalfCarryFlagSub(int left, int right) {
-    left = left & 0x000F;
-    right = right & 0x000F;
-    setH(left < right);
-  }
-
-  /* half carry flag control */
-  protected final void setHalfCarryFlagSub(int left, int right, int carry) {
-    left = left & 0x000F;
-    right = right & 0x000F;
-    setH(left < (right + carry));
-  }
-
-  /* half carry flag control */
-  /*
-   * private final void setHalfCarryFlagSub16(int left, int right, int carry) {
-   * left = left & 0x0FFF; right = right & 0x0FFF; setH ( left < (right+carry) );
-   * }
-   */
-  /* 2's compliment overflow flag control */
-  public void setOverflowFlagAdd(int left, int right, int carry) {
-    if (left > 127)
-      left = left - 256;
-    if (right > 127)
-      right = right - 256;
-    left = left + right + carry;
-    setPV((left < -128) || (left > 127));
-  }
-
-  /* 2's compliment overflow flag control */
-  private void setOverflowFlagAdd(int left, int right) {
-    if (left > 127)
-      left = left - 256;
-    if (right > 127)
-      right = right - 256;
-    left = left + right;
-    setPV((left < -128) || (left > 127));
-  }
-
-  /* 2's compliment overflow flag control */
-  protected void setOverflowFlagAdd16(int left, int right, int carry) {
-    if (left > 32767)
-      left = left - 65536;
-    if (right > 32767)
-      right = right - 65536;
-    left = left + right + carry;
-    setPV((left < -32768) || (left > 32767));
-  }
-
-  /* 2's compliment overflow flag control */
-  protected void setOverflowFlagSub(int left, int right, int carry) {
-    if (left > 127)
-      left = left - 256;
-    if (right > 127)
-      right = right - 256;
-    left = left - right - carry;
-    setPV((left < -128) || (left > 127));
-  }
-
-  /* 2's compliment overflow flag control */
-  protected void setOverflowFlagSub(int left, int right) {
-    if (left > 127)
-      left = left - 256;
-    if (right > 127)
-      right = right - 256;
-    left = left - right;
-    setPV((left < -128) || (left > 127));
-  }
-
-  /* 2's compliment overflow flag control */
-  protected void setOverflowFlagSub16(int left, int right, int carry) {
-    if (left > 32767)
-      left = left - 65536;
-    if (right > 32767)
-      right = right - 65536;
-    left = left - right - carry;
-    setPV((left < -32768) || (left > 32767));
-  }
-
-  /*
-   * test & set flag states
-   */
-  private final boolean getS() {
-    return ((F & FLAG_S) != 0);
-  }
-
-  public boolean getZ() {
-    return ((F & FLAG_Z) != 0);
-  }
-
-  protected final boolean getH() {
-    return ((F & FLAG_H) != 0);
-  }
-
-  private final boolean getPV() {
-    return ((F & FLAG_PV) != 0);
-  }
-
-  protected final boolean getN() {
-    return ((F & FLAG_N) != 0);
-  }
-
-  public final boolean getC() {
-    return ((F & FLAG_C) != 0);
-  }
-
-  protected final void setS() {
-    F = F | FLAG_S;
-  }
-
-  protected final void setZ() {
-    F = F | FLAG_Z;
-  }
-
-  protected final void setH() {
-    F = F | FLAG_H;
-  }
-
-  protected final void setPV() {
-    F = F | FLAG_PV;
-  }
-
-  protected final void setN() {
-    F = F | FLAG_N;
-  }
-
-  protected final void setN(boolean b) {
-    if (b)
-      setN();
-    else
-      resetN();
-  }
-
-  protected final void setC() {
-    F = F | FLAG_C;
-  }
-
-  protected final void setS(boolean b) {
-    if (b)
-      setS();
-    else
-      resetS();
-  }
-
-  protected final void setZ(boolean b) {
-    if (b)
-      setZ();
-    else
-      resetZ();
-  }
-
-  protected final void setH(boolean b) {
-    if (b)
-      setH();
-    else
-      resetH();
-  }
-
-  public final void setPV(boolean b) {
-    if (b)
-      F = F | FLAG_PV;
-    else
-      F = F & flag_PV_N;
-  }
-
-  protected final void setUnusedFlags(int value) {
-    value = value & 0x28;
-    F = F & 0xD7;
-    F = F | value;
-  }
-
-  // private final void setN(boolean b) { if (b) setN(); else resetN(); }
-  protected final void setC(boolean b) {
-    if (b)
-      setC();
-    else
-      resetC();
-  }
-
-  protected final void resetS() {
-    F = F & flag_S_N;
-  }
-
-  protected final void resetZ() {
-    F = F & flag_Z_N;
-  }
-
-  public final void resetH() {
-    F = F & flag_H_N;
-  }
-
-  protected final void resetPV() {
-    F = F & flag_PV_N;
-  }
-
-  public final void resetN() {
-    F = F & flag_N_N;
-  }
-
-  protected final void resetC() {
-    F = F & flag_C_N;
-  }
-
-
-  protected final void set3(boolean b) {
-    if (b)
-      set3();
-    else
-      reset3();
-  }
-
-  protected final void reset3() {
-    F = F & flag_3_N;
-  }
-
-  protected final void set3() {
-    F = F | FLAG_3;
-  }
-
-  protected final void set5(boolean b) {
-    if (b)
-      set5();
-    else
-      reset5();
-  }
-
-  protected final void set5() {
-    F = F | FLAG_5;
-  }
-
-  protected final void reset5() {
-    F = F & flag_5_N;
-  }
-
-
-  public final static int[] TABLE_SZ = new int[]{
-      0x40, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-      0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
-      0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
-      0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
-      0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
-      0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
-      0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
-      0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
-      0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80
-  };
-  public final static int[] TABLE_XY = new int[]{
-      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8,
-      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8,
-      0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28,
-      0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28,
-      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8,
-      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8,
-      0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28,
-      0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28,
-      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8,
-      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8,
-      0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28,
-      0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28,
-      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8,
-      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8,
-      0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28,
-      0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28, 0x28,
-  };
-
-  public final static short[] PARITY_TABLE = {
-      4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4, 0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0, 4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
-      0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0, 4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4, 0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
-      0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0, 4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4, 0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0,
-      4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4, 0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4, 4, 0, 0, 4, 0, 4, 4, 0, 4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4
-  };
 
   public int adjustAccumulatorToBcd(int regA) {
     int lookupIndex = regA;
-    if (getC()) lookupIndex |= 256;
-    if (getH()) lookupIndex |= 512;
-    if (getN()) lookupIndex |= 1024;
+    if (((F & FLAG_C) != 0)) lookupIndex |= 256;
+    if (((F & FLAG_H) != 0)) lookupIndex |= 512;
+    if (((F & FLAG_N) != 0)) lookupIndex |= 1024;
     int AF = m_daaTable[lookupIndex];
     F = AF & 0xff;
     return AF >> 8;
   }
 
-  protected void doCPD(int regA, int work8, boolean b) {
-    var oldCarry = (F & 0x01) == 1;
-    var result = subtractAndSetFlags(regA, work8, false);
-    setPV(b);
-    setN(true);
-    setC(oldCarry);
-    set5((result & 0x00002) != 0);
-    set3((result & 0x00008) != 0);
+  {
+    int i, j, k;
+    int parity;
+
+    for (i = 0; i < 0x100; i++) {
+      sz53_table[i] = i & (FLAG_3 | FLAG_5 | FLAG_S);
+      j = i;
+      parity = 0;
+      for (k = 0; k < 8; k++) {
+        parity ^= j & 1;
+        j >>= 1;
+      }
+      parity_table[i] = (parity != 0 ? 0 : FLAG_P);
+      sz53p_table[i] = sz53_table[i] | parity_table[i];
+    }
+
+    sz53_table[0] |= FLAG_Z;
+    sz53p_table[0] |= FLAG_Z;
   }
 }

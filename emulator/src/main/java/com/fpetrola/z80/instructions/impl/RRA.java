@@ -19,14 +19,14 @@
 package com.fpetrola.z80.instructions.impl;
 
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
-import com.fpetrola.z80.instructions.types.RROperation;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RRA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
-  public static final AluOperation rraTableAluOperation = new RROperation() {
+  public static final AluOperation rraTableAluOperation = new TableAluOperation() {
     public int execute(int value, int a, int carry) {
       F = value;
       int A = a;

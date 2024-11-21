@@ -18,14 +18,14 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.BitOperation;
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.types.BitOperation;
 import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class BIT<T extends WordNumber> extends BitOperation<T> {
   public Register<T> getMemptr() {
@@ -49,34 +49,24 @@ public class BIT<T extends WordNumber> extends BitOperation<T> {
       super.accept(visitor);
   }
 
-  private static class BitAluOperation<T extends WordNumber> extends AluOperation {
+  private static class BitAluOperation<T extends WordNumber> extends TableAluOperation {
     public void execute(T bit_, OpcodeReference<T> target, Register<T> flag, Register<T> memptr) {
       final int value = target.read().intValue();
-      int bit = bit_.intValue();
+
+      int address = value;
+      if (target instanceof MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference)
+        address = memoryPlusRegister8BitReference.getTarget().read().plus(memoryPlusRegister8BitReference.fetchRelative()).intValue() >> 8;
+      else if (target instanceof IndirectMemory8BitReference<T>)
+        address = memptr.read().intValue() >>> 8;
 
       F = flag.read().intValue();
-      int f = F;
-      int s = F & SIGN_MASK;
-      f = (f & CARRY_MASK) | HALFCARRY_MASK | (value & (FLAG_3 | FLAG_5));
-      int mask = 1 << bit;
-      boolean zeroFlag = (mask & value) == 0;
+      int bit = bit_.intValue();
 
-      if ((value & mask) == 0) {
-        f |= PARITY_MASK | ZERO_MASK;
-      }
-      if (mask == SIGN_MASK && !zeroFlag) {
-        f |= SIGN_MASK;
-      }
-      F = f;
+      F = (F & FLAG_C) | FLAG_H | (address & (FLAG_3 | FLAG_5));
+      if (((value) & (0x01 << (bit))) == 0) F |= FLAG_P | FLAG_Z;
+      if ((bit) == 7 && ((value) & 0x80) != 0) F |= FLAG_S;
+      Q = F;
 
-      int address =value;
-      if (target instanceof MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
-        address = memoryPlusRegister8BitReference.getTarget().read().plus(memoryPlusRegister8BitReference.fetchRelative()).intValue() >> 8;
-      } else if (target instanceof IndirectMemory8BitReference<T>) {
-        address = memptr.read().intValue() >>> 8;
-      }
-
-      setFlags53From(address);
       flag.write(WordNumber.createValue(F));
     }
 

@@ -31,24 +31,11 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class In<T extends WordNumber> extends TargetSourceInstruction<T, ImmutableOpcodeReference<T>> {
   public static AluOperation inCTableAluOperation = new TableAluOperation() {
-    public int execute(int value, int a, int carry) {
+    public int execute(int value, int reg, int carry) {
       F = value;
-      if ((a & 0x0080) == 0)
-        resetS();
-      else
-        setS();
-      if (a == 0)
-        setZ();
-      else
-        resetZ();
-      if (parity[a & 0xff])
-        setPV();
-      else
-        resetPV();
-      resetN();
-      resetH();
-      setUnusedFlags(a);
-      return a;
+      F = ( F & FLAG_C) | sz53p_table[(reg)];
+      Q = F;
+      return reg;
     }
   };
 

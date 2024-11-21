@@ -18,42 +18,24 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.BlockInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.IO;
+import com.fpetrola.z80.instructions.types.BlockInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.CpiOperation;
 
 public class Cpi<T extends WordNumber> extends BlockInstruction<T> {
-  public static final AluOperation cpiTableAluOperation = new TableAluOperation() {
-    public int execute(int reg_A, int value, int carry) {
-      F = carry;
-      //    reg_R++;
-      int result = reg_A - value;
-      //
-      if ((result & 0x0080) == 0)
-        resetS();
-      else
-        setS();
-      result = result & 0x00FF;
-      if (result == 0)
-        setZ();
-      else
-        resetZ();
-      setHalfCarryFlagSub(reg_A, value);
-      setPV(carry == 1);
-      setN();
-      if (getH())
-        value--;
-      set5((result & 0x00002) != 0);
-      set3((result & 0x00008) != 0);
-
-      return reg_A;
+  public static final AluOperation cpiTableAluOperation = new CpiOperation() {
+    public int execute(int A, int value, int BC) {
+      F = BC;
+      calculate(A, value, BC);
+      return A;
     }
+
   };
 
   public Register<T> getA() {

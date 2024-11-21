@@ -31,14 +31,15 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class Outi<T extends WordNumber> extends BlockInstruction<T> {
   public static final AluOperation outiTableAluOperation = new TableAluOperation() {
     public <T extends WordNumber> T executeWithCarry(T value, T b, Register<T> l) {
-      int work8 = value.intValue() & 0xff;
-      int regB = b.intValue() & 0xff;
-      int regL = l.read().intValue() & 0xFF;
-      regB = decAndSetFlags(regB);
-      setH(work8 + regL > 255);
-      setC(work8 + regL > 255);
-      setPV(isEvenParity(((work8 + regL) & 7) ^ regB));
-      setN((work8 & 0x80) != 0);
+      int outitemp = value.intValue();
+      int B = b.intValue();
+      int L = l.read().intValue();
+      int outitemp2 = (outitemp + L) & 0xff;
+      F = ((outitemp & 0x80) != 0 ? FLAG_N : 0) |
+          ((outitemp2 < outitemp) ? FLAG_H | FLAG_C : 0) |
+          (parity_table[(outitemp2 & 0x07) ^ B] != 0 ? FLAG_P : 0) |
+          sz53_table[B];
+      Q = F;
       return WordNumber.createValue(F);
     }
   };

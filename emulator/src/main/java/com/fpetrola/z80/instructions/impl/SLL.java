@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class SLL<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
-  public static final TableAluOperation sllTableAluOperation = new SLOperation() {
+  public static final TableAluOperation sllTableAluOperation = new TableAluOperation() {
     public int execute(int value, int carry) {
       F = value >> 7;
       value = (value << 1) | 0x01;

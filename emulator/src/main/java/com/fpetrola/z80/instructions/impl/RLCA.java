@@ -24,9 +24,10 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RLCA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
-  public static final AluOperation rlcaTableAluOperation = new RLOperation() {
+  public static final AluOperation rlcaTableAluOperation = new TableAluOperation() {
     public int execute(int A, int carry) {
       F = carry;
       A = (A << 1) | (A >> 7);

@@ -22,14 +22,24 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RRD<T extends WordNumber> extends RLD<T> {
+  public static final TableAluOperation rrdTableAluOperation = new TableAluOperation() {
+    public int execute(int A, int value, int flag) {
+      A = (A & 0xf0) | (value & 0x0f);
+      F = (F & FLAG_C) | sz53p_table[A];
+      Q = F;
+      return A;
+    }
+  };
+
   public RRD(Register<T> a, Register<T> hl, Register<T> r, Register<T> flag, Memory<T> memory) {
     super(a, hl, flag, r, memory);
   }
 
-  protected void executeAlu(T value) {
-    RLD.rldTableAluOperation.executeWithCarry(value, flag);
+  protected void executeAlu(T value, T reg_A) {
+    rrdTableAluOperation.executeWithCarry(value, reg_A, flag);
   }
 
   protected int getTemp1(int nibble2, int nibble3, int nibble4) {

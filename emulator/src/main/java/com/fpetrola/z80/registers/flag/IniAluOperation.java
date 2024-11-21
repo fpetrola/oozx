@@ -16,14 +16,22 @@
  *
  */
 
-package com.fpetrola.z80.instructions.types;
+package com.fpetrola.z80.registers.flag;
 
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Register;
 
-public class LogicalOperation extends TableAluOperation {
-  protected int updateFlag(int A) {
-    F = sz53p_table[A];
+public class IniAluOperation extends TableAluOperation {
+  protected <T extends WordNumber> T update(T value, T b, Register<T> c, int i) {
+    int initemp = value.intValue() & 0xff;
+    int C = c.read().intValue() & 0xff;
+    int B = b.intValue() & 0xff;
+    int initemp2 = (initemp + C + i) & 0xff;
+    F = ((initemp & 0x80) != 0 ? FLAG_N : 0) |
+        ((initemp2 < initemp) ? FLAG_H | FLAG_C : 0) |
+        (parity_table[(initemp2 & 0x07) ^ B] != 0 ? FLAG_P : 0) |
+        sz53_table[B];
     Q = F;
-    return A;
+    return WordNumber.createValue(F);
   }
 }

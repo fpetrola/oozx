@@ -20,14 +20,13 @@ package com.fpetrola.z80.instructions.impl;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
-import com.fpetrola.z80.instructions.types.RotationOperation;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RR<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
-  public static final TableAluOperation rrTableAluOperation = new RotationOperation() {
+  public static final TableAluOperation rrTableAluOperation = new TableAluOperation() {
     public int execute(int value, int carry) {
       F= carry;
       int rrtemp = value;

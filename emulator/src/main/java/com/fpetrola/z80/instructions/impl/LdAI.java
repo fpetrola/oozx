@@ -27,14 +27,10 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class LdAI<T extends WordNumber> extends Ld<T> {
   public static final AluOperation ldaiTableAluOperation = new TableAluOperation() {
-    public int execute(int reg_R, int reg_A, int carry) {
-      setC(false);
-      setS(!isBytePositive(reg_R));
-      setZ(reg_R == 0);
-      setH(false);
-      setPV(carry == 1);
-      setN(false);
-      setUnusedFlags(reg_R);
+    public int execute(int I, int A, int IFF2) {
+      A = I;
+      F = (F & FLAG_C) | sz53_table[A] | (IFF2 != 0 ? FLAG_V : 0);
+      Q = F;
       return F;
     }
   };

@@ -30,19 +30,16 @@ public class Add<T extends WordNumber> extends ParameterizedBinaryAluInstruction
   public static final TableAluOperation adc8TableAluOperation = new TableAluOperation() {
     public int execute(int A, int value, int carry) {
       F = carry;
-      int reg_A = A;
-      int local_reg_A = reg_A;
-      setHalfCarryFlagAdd(local_reg_A, value, carry);
-      setOverflowFlagAdd(local_reg_A, value, carry);
-      local_reg_A = local_reg_A + value + carry;
-      setS((local_reg_A & 0x0080) != 0);
-      setC((local_reg_A & 0xff00) != 0);
-      local_reg_A = local_reg_A & 0x00ff;
-      setZ(local_reg_A == 0);
-      resetN();
-      reg_A = local_reg_A;
-      setUnusedFlags(reg_A);
-      return reg_A;
+      int adctemp = A + (value) + (F & FLAG_C);
+      int lookup = ((A & 0x88) >> 3) |
+          (((value) & 0x88) >> 2) |
+          ((adctemp & 0x88) >> 1);
+      A = adctemp & 0xff;
+      F = ((adctemp & 0x100) != 0 ? FLAG_C : 0) |
+          halfcarry_add_table[lookup & 0x07] | overflow_add_table[lookup >> 4] |
+          sz53_table[A];
+      Q = F;
+      return A;
     }
   };
 

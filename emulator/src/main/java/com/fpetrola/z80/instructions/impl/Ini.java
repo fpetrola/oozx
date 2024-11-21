@@ -26,21 +26,12 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.IniAluOperation;
 
 public class Ini<T extends WordNumber> extends BlockInstruction<T> {
-  public static final AluOperation iniTableAluOperation = new TableAluOperation() {
+  public static final AluOperation iniTableAluOperation = new IniAluOperation() {
     public <T extends WordNumber> T executeWithCarry(T value, T b, Register<T> c) {
-      int hlMem = value.intValue() & 0xff;
-      int regB = b.intValue() & 0xff;
-      regB = decAndSetFlags(regB);
-      var incC = (c.read().intValue() + 1) & 255;
-      setH(hlMem + incC > 255);
-      setC(hlMem + incC > 255);
-      setPV(isEvenParity((((hlMem + incC) & 7) ^ regB)));
-      setN((hlMem & 0x80) != 0);
-
-      return WordNumber.createValue(F);
+      return update(value, b, c, 1);
     }
   };
 

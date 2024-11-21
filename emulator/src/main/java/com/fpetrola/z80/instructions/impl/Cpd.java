@@ -28,9 +28,18 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Cpd<T extends WordNumber> extends Cpi<T> {
   public static final AluOperation cpdTableAluOperation = new AluOperation() {
-    public int execute(int reg_A, int value, int carry) {
-      doCPD(reg_A, value, carry == 1);
-      return reg_A;
+    public int execute(int A, int value, int BC) {
+      int bytetemp = A - value;
+      int lookup = ((A & 0x08) >> 3) |
+          (((value) & 0x08) >> 2) |
+          ((bytetemp & 0x08) >> 1);
+      F = (F & FLAG_C) | (BC != 0 ? (FLAG_V | FLAG_N) : FLAG_N) |
+          halfcarry_sub_table[lookup] | (bytetemp != 0 ? 0 : FLAG_Z) |
+          (bytetemp & FLAG_S);
+      if ((F & FLAG_H) != 0) bytetemp--;
+      F |= (bytetemp & FLAG_3) | ((bytetemp & 0x02) != 0 ? FLAG_5 : 0);
+      Q = F;
+      return A;
     }
   };
 

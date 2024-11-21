@@ -28,13 +28,13 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class CPL<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
   public static final AluOperation cplTableAluOperation = new TableAluOperation() {
-    public int execute(int value, int carry) {
-      value = (value ^ 0x00FF) & 0x00FF;
-      setH();
-      setN();
-      setUnusedFlags(value);
+    public int execute(int A, int carry) {
+      A ^= 0xff;
+      F = (F & (FLAG_C | FLAG_P | FLAG_Z | FLAG_S)) |
+          (A & (FLAG_3 | FLAG_5)) | (FLAG_N | FLAG_H);
+      Q = F;
 
-      return value;
+      return A;
     }
   };
 

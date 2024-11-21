@@ -27,7 +27,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RLC<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
 
-  public static final TableAluOperation rlcTableAluOperation1 = new RLOperation() {
+  public static final TableAluOperation rlcTableAluOperation1 = new TableAluOperation() {
     public int execute(int value, int carry) {
       value = (value << 1 | value >> 7) & 0xff;
       F = (value & FLAG_C) | sz53p_table[value];

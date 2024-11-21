@@ -16,28 +16,19 @@
  *
  */
 
-package com.fpetrola.z80.instructions.impl;
+package com.fpetrola.z80.registers.flag;
 
-import com.fpetrola.z80.registers.flag.TableAluOperation;
-
-public class SLOperation extends TableAluOperation {
-  protected int doSL(int a, int carry) {
-    F = carry;
-    setS((a & 0x0080) != 0);
-    if ((a & 0x00FF) == 0)
-      setZ();
-    else
-      resetZ();
-    resetH();
-    if ((a & 0x0FF00) != 0)
-      setC();
-    else
-      resetC();
-    a = a & 0x00FF;
-    setPV(parity[a]);
-    resetN();
-    // put value back
-    setUnusedFlags(a);
-    return a;
+public class CpiOperation extends TableAluOperation {
+  protected void calculate(int A, int value, int BC) {
+    int bytetemp = A - value;
+    int lookup = ((A & 0x08) >> 3) |
+        ((value & 0x08) >> 2) |
+        ((bytetemp & 0x08) >> 1);
+    F = (F & FLAG_C) | (BC != 0 ? (FLAG_V | FLAG_N) : FLAG_N) |
+        halfcarry_sub_table[lookup] | (bytetemp != 0 ? 0 : FLAG_Z) |
+        (bytetemp & FLAG_S);
+    if ((F & FLAG_H) != 0) bytetemp--;
+    F |= (bytetemp & FLAG_3) | ((bytetemp & 0x02) != 0 ? FLAG_5 : 0);
+    Q = F;
   }
 }

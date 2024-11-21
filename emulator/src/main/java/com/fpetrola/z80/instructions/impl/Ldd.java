@@ -29,13 +29,16 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Ldd<T extends WordNumber> extends Ldi<T> {
   public static final AluOperation lddTableAluOperation = new TableAluOperation() {
-    public <T extends WordNumber> T executeWithCarry2(T value, T regA, int carry, Register<T> flag) {
+    public <T extends WordNumber> T executeWithCarry2(T value, T a, int bc, Register<T> flag) {
       F = flag.read().intValue();
-      resetH();
-      resetN();
-      setPV(carry != 0);
-      set3(((value.intValue() + regA.intValue()) & BIT3_MASK) != 0);
-      set5(((value.intValue() + regA.intValue()) & 0x02) != 0);
+      int A = a.intValue();
+      int BC = bc;
+      int bytetemp = value.intValue();
+      bytetemp += A;
+      F = (F & (FLAG_C | FLAG_Z | FLAG_S)) | (BC != 0 ? FLAG_V : 0) |
+          (bytetemp & FLAG_3) | ((bytetemp & 0x02) != 0 ? FLAG_5 : 0);
+      Q = F;
+
       return WordNumber.createValue(F);
     }
   };

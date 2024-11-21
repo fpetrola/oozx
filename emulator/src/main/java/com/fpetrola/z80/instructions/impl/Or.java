@@ -19,7 +19,6 @@
 package com.fpetrola.z80.instructions.impl;
 
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.instructions.types.LogicalOperation;
 import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
@@ -28,7 +27,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Or<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
-  public static final TableAluOperation orTableAluOperation = new LogicalOperation() {
+  public static final TableAluOperation orTableAluOperation = new TableAluOperation() {
     public int execute(int A, int value, int carry) {
       A |= (value);
       F = sz53p_table[A];

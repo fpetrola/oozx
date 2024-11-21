@@ -29,7 +29,7 @@ public class AluOperation extends AluOperationBase {
   protected TriFunction<Integer, Integer, Integer, Integer> triFunction;
 
   public AluOperation() {
-    super("flag");
+    super();
     F = 0;
     if (execute(0, 0, 0) != -1) {
       triFunction = (a, b, c) -> execute(a, b, c);

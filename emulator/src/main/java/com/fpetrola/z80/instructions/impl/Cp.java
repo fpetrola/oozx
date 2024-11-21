@@ -29,19 +29,17 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class Cp<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
   public static final TableAluOperation cpTableAluOperation = new TableAluOperation() {
     public int execute(int A, int value, int carry) {
-      int b = value;
-      int wans = A - b;
-      int ans = wans & 0xff;
-      F = 0x02;
-      setS((ans & FLAG_S) != 0);
-      set3((b & FLAG_3) != 0);
-      set5((b & FLAG_5) != 0);
-      setZ(ans == 0);
-      setC((wans & 0x100) != 0);
-      setH((((A & 0x0f) - (b & 0x0f)) & FLAG_H) != 0);
-      setPV(((A ^ b) & (A ^ ans) & 0x80) != 0);
-
-      return ans;
+      int cptemp = A - value;
+      int lookup = ((A & 0x88) >> 3) |
+          ((value & 0x88) >> 2) |
+          ((cptemp & 0x88) >> 1);
+      F = ((cptemp & 0x100) != 0 ? FLAG_C : (cptemp != 0 ? 0 : FLAG_Z)) | FLAG_N |
+          halfcarry_sub_table[lookup & 0x07] |
+          overflow_sub_table[lookup >> 4] |
+          (value & (FLAG_3 | FLAG_5)) |
+          (cptemp & FLAG_S);
+      Q = F;
+      return A;
     }
   };
 
