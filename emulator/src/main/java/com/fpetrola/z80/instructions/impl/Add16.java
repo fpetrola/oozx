@@ -31,9 +31,9 @@ import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class Add16<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
   public static final AluOperation add16TableAluOperation = new TableAluOperation() {
-    public int execute(int add16temp1, int value1, int value2) {
-      F = add16temp1;
-      getValue1((value1) << 4, value2 << 11, value1 << 11);
+    public int execute(int flag, int value1AndAddition, int value2Bit0) {
+      F = flag;
+      getValue1((value1AndAddition) << 4, value2Bit0 << 11, value1AndAddition << 11);
       return F;
     }
 
