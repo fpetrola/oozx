@@ -28,19 +28,22 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Adc16<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
   public static final AluOperation adc16TableAluOperation = new AluOperation() {
-    public int execute(int HL, int value, int carry) {
-      int add16temp = HL + (value) + (F & FLAG_C);
-      int lookup = ((HL & 0x8800) >> 11) |
-          (((value) & 0x8800) >> 10) |
-          ((add16temp & 0x8800) >> 9);
-      HL = add16temp;
-      F = ((add16temp & 0x10000) != 0 ? FLAG_C : 0) |
+    public int execute(int value1, int value2, int carry) {
+      int result = value1 + value2 + (F & FLAG_C);
+      calc(value1 & 0x8800, value2 & 0x8800, result & 0x1A800, result != 0);
+      return result;
+    }
+
+    private void calc(int value1, int value2, int result, boolean resultIsZero) {
+      int lookup = ((value1 & 0x8800) >> 11) |
+          ((value2 & 0x8800) >> 10) |
+          ((result & 0x8800) >> 9);
+      F = ((result & 0x10000) != 0 ? FLAG_C : 0) |
           overflowAddTable[lookup >> 4] |
-          ((HL >> 8) & (FLAG_3 | FLAG_5 | FLAG_S)) |
+          ((result >> 8) & (FLAG_3 | FLAG_5 | FLAG_S)) |
           halfCarryAddTable[lookup & 0x07] |
-          (HL != 0 ? 0 : FLAG_Z);
+          (resultIsZero ? 0 : FLAG_Z);
       Q = F;
-      return HL;
     }
   };
 
