@@ -28,22 +28,13 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class SRL<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
 
   public static final TableAluOperation srlTableAluOperation = new TableAluOperation() {
-    public int execute(int a, int carry) {
-      data = carry;
-
-      // do shift operation
-      setC((a & 0x0001) != 0);
-      a = a >> 1;
-      // standard flag updates
-      setS((a & 0x0080) != 0);
-      setZ(a == 0);
-      resetH();
-      setPV(parity[a]);
-      resetN();
-      // put value back
-      setUnusedFlags(a);
-
-      return a;
+    public int execute(int value, int carry) {
+      F = (value) & FLAG_C;
+      (value) >>= 1;
+      value &= 0xff;
+      F |= sz53pTable[(value)];
+      Q = F;
+      return value;
     }
   };
 

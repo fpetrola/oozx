@@ -988,7 +988,7 @@ public class InlineRegisterTransformInstructionsTest<T extends WordNumber> exten
     add(new Or(r(A), r(A), f()));
     add(new JP(c(9), z(), r(PC)));
     add(new Ld(r(BC), c(31), f()));
-    add(new In(r(A), r(BC), r(A), r(BC), f(), r(SP), io));
+    add(new In(r(A), r(BC), r(A), r(BC), f(), io));
     add(new And(r(A), c(3), f()));
     add(new CPL(r(A), f()));
     add(new And(r(A), r(E), f()));

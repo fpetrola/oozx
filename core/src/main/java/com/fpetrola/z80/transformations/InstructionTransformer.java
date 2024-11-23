@@ -71,10 +71,11 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
     cloned1.setTarget(createRegisterReplacement(cloned1.getTarget(), cloned1, new VirtualFetcher()));
   }
 
-  public void visitingDjnz(DJNZ<T> djnz) {
+  public boolean visitingDjnz(DJNZ<T> djnz) {
     setCloned(instructionFactory.DJNZ(clone(djnz.getCondition()), clone(djnz.getPositionOpcodeReference())), djnz);
     DJNZ djnz1 = (DJNZ) cloned;
     djnz1.accept(new ConditionTransformerVisitor(new VirtualFetcher()));
+    return false;
   }
 
   public void visitingJR(JR jr) {
@@ -199,9 +200,16 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
   }
 
   public void visitingBitOperation(BitOperation bitOperation) {
+    boolean isBIT = bitOperation instanceof BIT;
     Constructor<?>[] constructors = bitOperation.getClass().getConstructors();
     try {
-      AbstractInstruction cloned1 = (AbstractInstruction) constructors[0].newInstance(clone(bitOperation.getTarget()), bitOperation.getN(), bitOperation.getFlag());
+      AbstractInstruction cloned1;
+
+      if (bitOperation instanceof BIT bit)
+        cloned1 = (AbstractInstruction) constructors[0].newInstance(clone(bitOperation.getTarget()), bitOperation.getN(), bitOperation.getFlag(), bit.getMemptr());
+      else
+        cloned1 = (AbstractInstruction) constructors[0].newInstance(clone(bitOperation.getTarget()), bitOperation.getN(), bitOperation.getFlag());
+
       setCloned(cloned1, bitOperation);
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e);
@@ -212,7 +220,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
     VirtualFetcher virtualFetcher = new VirtualFetcher();
 
     cloned1.setTarget(createRegisterReplacement(cloned1.getTarget(), cloned1, virtualFetcher));
-    if (bitOperation instanceof BIT)
+    if (isBIT)
       cloned1.setFlag(createRegisterReplacement(cloned1.getFlag(), cloned1, virtualFetcher));
   }
 
@@ -252,7 +260,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
   }
 
   @Override
-  public void visitLddr(Lddr lddr) {
+  public boolean visitLddr(Lddr lddr) {
     setCloned(instructionFactory.Lddr(), lddr);
     Lddr cloned1 = (Lddr) cloned;
 
@@ -265,6 +273,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
     instructionToRepeat.setHl(createRegisterReplacement(instructionToRepeat.getHl(), cloned1, virtualFetcher));
     instructionToRepeat.setDe(createRegisterReplacement(instructionToRepeat.getDe(), cloned1, virtualFetcher));
     instructionToRepeat.setFlag(createRegisterReplacement(instructionToRepeat.getFlag(), cloned1, virtualFetcher));
+    return false;
   }
 
   @Override
@@ -280,7 +289,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
   }
 
   @Override
-  public void visitCpir(Cpir cpir) {
+  public boolean visitCpir(Cpir cpir) {
     setCloned(instructionFactory.Cpir(), cpir);
     Cpir cloned1 = (Cpir) cloned;
 
@@ -295,6 +304,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
     instructionToRepeat.setFlag(createRegisterReplacement(instructionToRepeat.getFlag(), cloned1, virtualFetcher));
 
     cloned1.setInstructionToRepeat(instructionToRepeat);
+    return false;
   }
 
 

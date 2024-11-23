@@ -27,7 +27,7 @@ import com.fpetrola.z80.registers.Register;
 import java.util.function.Consumer;
 
 @SuppressWarnings("ALL")
-public class InstructionActionExecutor<T extends WordNumber> implements InstructionVisitor<T> {
+public class InstructionActionExecutor<T extends WordNumber> implements InstructionVisitor<T, Integer> {
   private int tick;
   private Consumer<VirtualRegister<?>> actionExecutor;
 
@@ -96,10 +96,11 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
     executeAction(parameterizedBinaryAluInstruction.getFlag());
   }
 
-  public void visitingDjnz(DJNZ<T> djnz) {
+  public boolean visitingDjnz(DJNZ<T> djnz) {
     executeAction(djnz.getPositionOpcodeReference());
 
     djnz.accept(new ConditionVisitor());
+    return false;
   }
 
   public void visitingJR(JR jr) {
@@ -132,9 +133,10 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
   }
 
   @Override
-  public void visitRepeatingInstruction(RepeatingInstruction tRepeatingInstruction) {
+  public boolean visitRepeatingInstruction(RepeatingInstruction tRepeatingInstruction) {
     executeAction(tRepeatingInstruction.getBc());
     executeAction(tRepeatingInstruction.getInstructionToRepeat());
+    return false;
   }
 
   public void visitBlockInstruction(BlockInstruction blockInstruction) {
@@ -150,9 +152,10 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
   }
 
   @Override
-  public void visitCpir(Cpir cpir) {
+  public boolean visitCpir(Cpir cpir) {
     Cpi instructionToRepeat = (Cpi) cpir.getInstructionToRepeat();
     executeAction(instructionToRepeat.getA());
+    return false;
   }
 
   public void visitingPop(Pop pop) {

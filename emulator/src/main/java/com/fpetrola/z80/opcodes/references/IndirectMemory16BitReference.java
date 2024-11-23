@@ -23,6 +23,7 @@ import com.fpetrola.z80.memory.Memory;
 
 public final class IndirectMemory16BitReference<T extends WordNumber> implements OpcodeReference<T> {
   public ImmutableOpcodeReference<T> target;
+  public T address;
 
   public Memory<T> getMemory() {
     return memory;
@@ -36,15 +37,17 @@ public final class IndirectMemory16BitReference<T extends WordNumber> implements
   }
 
   public T read() {
-    T address = target.read();
+    address = target.read();
     T fetchAddress = Memory.read16Bits(memory, address);
     return fetchAddress;
   }
 
   public void write(T value) {
-    T address = target.read();
-
-    Memory.write16Bits(memory, value, address);
+    address = target.read();
+    if (target.toString().equals("SP"))
+      Memory.write16Bits(memory, value, address);
+    else
+      Memory.write16BitsR(memory, value, address);
   }
 
   public String toString() {

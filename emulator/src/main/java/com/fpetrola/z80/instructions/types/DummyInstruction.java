@@ -33,6 +33,6 @@ public class DummyInstruction<T extends WordNumber> implements Instruction<T> {
   }
 
   @Override
-  public void accept(InstructionVisitor<?> visitor) {
+  public void accept(InstructionVisitor<?, ?> visitor) {
   }
 }

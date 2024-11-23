@@ -46,6 +46,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   FileWriter fileWriter;
   List<ExecutedInstruction> lastInstructions = new ArrayList<>();
   protected Supplier<TableBasedOpCodeDecoder> tableFactory;
+  public Instruction<T> instruction2;
 
 //  {
 //    try {
@@ -76,7 +77,9 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   }
 
   public static DefaultInstructionFetcher getInstructionFetcher(State state, NullInstructionSpy spy, DefaultInstructionFactory instructionFactory) {
-    return new DefaultInstructionFetcher(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), new FetchNextOpcodeInstructionFactory(spy, state), new SpyInstructionExecutor(spy), instructionFactory);
+    SpyInstructionExecutor instructionExecutor1 = new SpyInstructionExecutor(spy);
+    instructionExecutor1.setMemptrUpdater(new MemptrUpdater<>(state.getMemptr(), state.getMemory()));
+    return new DefaultInstructionFetcher(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), new FetchNextOpcodeInstructionFactory(spy, state), instructionExecutor1, instructionFactory);
   }
 
   @Override
@@ -87,14 +90,18 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 //      System.out.println("dagdag");
     Memory<T> memory = state.getMemory();
     memory.disableReadListener();
-    opcodeInt = memory.read(pcValue).intValue();
+    opcodeInt = memory.read(pcValue, 1).intValue();
     Instruction<T> instruction = opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt];
     this.instruction = instruction;
     memory.enableReadListener();
 
     try {
       lastInstructions.add(new ExecutedInstruction(pcValue.intValue(), this.instruction));
-      Instruction<T> executedInstruction = this.instructionExecutor.execute(this.instruction);
+      instruction2 = getBaseInstruction2(this.instruction);
+
+      memory.read(WordNumber.createValue(-1), 1);
+      Instruction<T> executedInstruction = this.instructionExecutor.execute(instruction2);
+      memory.read(WordNumber.createValue(-2), 1);
 
       // fileWriter.write(x + "\n");
 
@@ -120,10 +127,24 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   public static <T extends WordNumber> Instruction<T> getBaseInstruction(Instruction<T> instruction) {
     while (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
+      Memory memory = fetchNextOpcodeInstruction.getState().getMemory();
+      memory.canDisable(true);
+      memory.disableReadListener();
+      instruction = fetchNextOpcodeInstruction.findNextOpcode();
+      memory.enableReadListener();
+      memory.canDisable(false);
+    }
+    return instruction;
+  }
+
+  public static <T extends WordNumber> Instruction<T> getBaseInstruction2(Instruction<T> instruction) {
+    while (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
+      fetchNextOpcodeInstruction.update();
       instruction = fetchNextOpcodeInstruction.findNextOpcode();
     }
     return instruction;
   }
+
 
   public static <T extends WordNumber> Instruction<T> processToBase(Instruction<T> instruction) {
     while (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {

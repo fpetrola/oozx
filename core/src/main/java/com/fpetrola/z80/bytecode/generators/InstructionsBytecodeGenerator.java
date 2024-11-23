@@ -306,7 +306,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
     dec16.accept(visitor);
   }
 
-  public void visitingAdd(Add add) {
+  public boolean visitingAdd(Add add) {
     Variable[] add1 = new Variable[1];
     VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> {
       add1[0] = t.add(s);
@@ -314,6 +314,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
     }, routineByteCodeGenerator);
     add.accept(visitor);
     processFlag(add, () -> add1[0]);
+    return false;
   }
 
   @Override
@@ -351,8 +352,9 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
 
 
   @Override
-  public void visitingAdc16(Adc16 adc16) {
+  public boolean visitingAdc16(Adc16 adc16) {
     adc16.accept(new VariableHandlingInstructionVisitor((s, t) -> getSet(s, t, 0xffff), routineByteCodeGenerator));
+    return false;
   }
 
   public boolean visitingDec(Dec dec) {
@@ -569,12 +571,13 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
   }
 
   @Override
-  public void visitLddr(Lddr lddr) {
+  public boolean visitLddr(Lddr lddr) {
     callRepeatingInstruction(lddr);
+    return false;
   }
 
   @Override
-  public void visitCpir(Cpir cpir) {
+  public boolean visitCpir(Cpir cpir) {
     String methodName = ((RepeatingInstruction) cpir).getClass().getSimpleName().toLowerCase();
     if (routineByteCodeGenerator.bytecodeGenerationContext.useFields) {
       methodMaker.invoke(methodName);
@@ -583,6 +586,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
       routineByteCodeGenerator.getExistingVariable("HL").set(invoke.aget(0));
       routineByteCodeGenerator.getExistingVariable("BC").set(invoke.aget(1));
     }
+    return false;
   }
 
   @Override

@@ -27,26 +27,13 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RRC<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
   public static final TableAluOperation rrcTableAluOperation = new TableAluOperation() {
-    public int execute(int a, int carry) {
-      data = carry;
-
-      // do shift operation
-      setC((a & 0x0001) != 0);
-      a = a >> 1;
-      if (getC())
-        a = a | 0x80;
-      // standard flag updates
-      setS((a & 0x0080) != 0);
-      if (a == 0)
-        setZ();
-      else
-        resetZ();
-      resetH();
-      setPV(parity[a]);
-      resetN();
-      setUnusedFlags(a);
-
-      return a;
+    public int execute(int value, int carry) {
+      F = value & FLAG_C;
+      value = (value >> 1) | (value << 7);
+      value &= 0xff;
+      F |= sz53pTable[value];
+      Q = F;
+      return value;
     }
   };
 

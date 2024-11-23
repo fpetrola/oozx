@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -32,5 +33,10 @@ public class Outd<T extends WordNumber> extends Outi<T> {
 
   protected void next() {
     hl.decrement();
+  }
+
+  public void accept(InstructionVisitor visitor) {
+    if (!visitor.visitOutd(this))
+      super.accept(visitor);
   }
 }

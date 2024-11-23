@@ -18,18 +18,29 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Cpd<T extends WordNumber> extends Cpi<T> {
-  public static final AluOperation cpdTableAluOperation = new AluOperation() {
-    public int execute(int reg_A, int value, int carry) {
-      doCPD(reg_A, value, carry == 1);
-      return reg_A;
+  public static final AluOperation cpdTableAluOperation = new TableAluOperation() {
+    public int execute(int A, int value, int BC) {
+      int bytetemp = A - value;
+      int lookup = ((A & 0x08) >> 3) |
+          (((value) & 0x08) >> 2) |
+          ((bytetemp & 0x08) >> 1);
+      F = (F & FLAG_C) | (BC != 0 ? (FLAG_V | FLAG_N) : FLAG_N) |
+          halfCarrySubTable[lookup] | (bytetemp != 0 ? 0 : FLAG_Z) |
+          (bytetemp & FLAG_S);
+      if ((F & FLAG_H) != 0) bytetemp--;
+      F |= (bytetemp & FLAG_3) | ((bytetemp & 0x02) != 0 ? FLAG_5 : 0);
+      Q = F;
+      return A;
     }
   };
 
@@ -37,13 +48,29 @@ public class Cpd<T extends WordNumber> extends Cpi<T> {
     super(a, flag, bc, hl, memory, io);
   }
 
+  public int execute() {
+    memory.disableReadListener();
+    memory.disableWriteListener();
+    bc.decrement();
+    flagOperation(bc.read());
+    next();
+    memory.enableReadListener();
+    memory.enableWriteListener();
+    return 1;
+  }
+
   protected void next() {
     hl.decrement();
   }
 
   protected void flagOperation(T valueFromHL) {
-    T value = memory.read(hl.read());
-    T reg_A = a.read();
-    cpdTableAluOperation.executeWithCarry2(value, reg_A, bc.read().isNotZero() ? 1 : 0, flag);
+    int lastCarry = flag.read().intValue() & 1;
+    cpdTableAluOperation.executeWithCarry2(memory.read(hl.read(), 0), a.read(), bc.read().isNotZero() ? 1 : 0, flag);
+    flag.write(flag.read().or(lastCarry));
+  }
+
+  public void accept(InstructionVisitor visitor) {
+    if (!visitor.visitCpd(this))
+      super.accept(visitor);
   }
 }

@@ -27,9 +27,11 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class SCF<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
   public static final AluOperation scfTableAluOperation = new TableAluOperation() {
-    public int execute(int data1, int a, int carry) {
-      data = (data1 & (PARITY_MASK | ZERO_MASK | SIGN_MASK)) | CARRY_MASK | (a & (FLAG_3 | FLAG_5));
-      return data;
+    public int execute(int flag, int A, int carry) {
+      F = flag;
+      F = F & (FLAG_P | FLAG_Z | FLAG_S) | A & (FLAG_3 | FLAG_5) | FLAG_C;
+      Q = F;
+      return F;
     }
   };
 

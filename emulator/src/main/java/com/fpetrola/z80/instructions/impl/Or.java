@@ -28,14 +28,12 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Or<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
   public static final TableAluOperation orTableAluOperation = new TableAluOperation() {
-    public int execute(int a, int value, int carry) {
-      data = 0;
-      int reg_A = a | value;
-      setS((reg_A & 0x0080) != 0);
-      setZ(reg_A == 0);
-      setPV(parity[reg_A]);
-      setUnusedFlags(reg_A);
-      return reg_A;
+    public int execute(int A, int value, int carry) {
+      A |= (value);
+      F = sz53pTable[A];
+      Q = F;
+      return A;
+
     }
   };
 

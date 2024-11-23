@@ -30,7 +30,7 @@ import com.fpetrola.z80.opcodes.references.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-public class InstructionCloner<T extends WordNumber> implements InstructionVisitor<T> {
+public class InstructionCloner<T extends WordNumber> implements InstructionVisitor<T, Integer> {
   DefaultInstructionFactory instructionFactory;
   protected AbstractInstruction cloned;
 
@@ -74,8 +74,9 @@ public class InstructionCloner<T extends WordNumber> implements InstructionVisit
   }
 
   @Override
-  public void visitCpir(Cpir cpir) {
+  public boolean visitCpir(Cpir cpir) {
     setCloned(instructionFactory.Cpir(), cpir);
+    return false;
   }
 
   @Override
@@ -89,8 +90,9 @@ public class InstructionCloner<T extends WordNumber> implements InstructionVisit
   }
 
   @Override
-  public void visitLddr(Lddr lddr) {
+  public boolean visitLddr(Lddr lddr) {
     setCloned(instructionFactory.Lddr(), lddr);
+    return false;
   }
 
   @Override
@@ -109,8 +111,9 @@ public class InstructionCloner<T extends WordNumber> implements InstructionVisit
   }
 
   @Override
-  public void visitingAdc16(Adc16 sbc16) {
+  public boolean visitingAdc16(Adc16 sbc16) {
     setCloned(instructionFactory.Sbc(clone(sbc16.getTarget()), clone(sbc16.getSource())), sbc16);
+    return false;
   }
 
   @Override
@@ -144,8 +147,9 @@ public class InstructionCloner<T extends WordNumber> implements InstructionVisit
   }
 
   @Override
-  public void visitingAdd(Add tjp) {
+  public boolean visitingAdd(Add tjp) {
     setCloned(instructionFactory.Add(clone(tjp.getTarget()), clone(tjp.getSource())), tjp);
+    return false;
   }
 
   @Override
@@ -231,8 +235,9 @@ public class InstructionCloner<T extends WordNumber> implements InstructionVisit
     return false;
   }
 
-  public void visitingDjnz(DJNZ<T> djnz) {
+  public boolean visitingDjnz(DJNZ<T> djnz) {
     setCloned(instructionFactory.DJNZ(clone(djnz.getCondition()), djnz.getPositionOpcodeReference()), djnz);
+    return false;
   }
 
   public void visitingLd(Ld ld) {

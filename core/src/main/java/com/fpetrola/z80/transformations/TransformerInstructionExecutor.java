@@ -21,6 +21,7 @@ package com.fpetrola.z80.transformations;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.cpu.MemptrUpdater;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.*;
@@ -37,6 +38,7 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
   private final Register<T> pc;
   private InstructionExecutor<T> instructionExecutor;
   private boolean noRepeat;
+  private MemptrUpdater<?> memptrUpdater;
 
   public TransformerInstructionExecutor(Register<T> pc, InstructionExecutor<T> instructionExecutor, boolean noRepeat, InstructionTransformer<T> instructionTransformer) {
     this.pc = pc;
@@ -72,6 +74,11 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
   }
 
   @Override
+  public void setMemptrUpdater(MemptrUpdater<?> memptrUpdater1) {
+    this.memptrUpdater = memptrUpdater1;
+  }
+
+  @Override
   public Instruction<T> execute(Instruction<T> instruction) {
     Instruction<T> existentCloned = clonedInstructions.get(pc.read().intValue());
     Instruction<T> cloned = processTargetSource(instruction, existentCloned);
@@ -95,7 +102,7 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
   private boolean isConcreteInstruction(Instruction<T> cloned) {
     boolean[] b = new boolean[]{isConcrete(cloned)};
 
-    InstructionVisitor<WordNumber> instructionVisitor = new InstructionVisitor<>() {
+    InstructionVisitor<WordNumber, ?> instructionVisitor = new InstructionVisitor<>() {
       public void visitingSource(ImmutableOpcodeReference source, TargetSourceInstruction targetSourceInstruction) {
         source.accept(this);
       }
@@ -120,8 +127,9 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
         b[0] = true;
       }
 
-      public void visitRepeatingInstruction(RepeatingInstruction tRepeatingInstruction) {
+      public boolean visitRepeatingInstruction(RepeatingInstruction tRepeatingInstruction) {
         b[0] = true;
+        return false;
       }
 
       public void visitBlockInstruction(BlockInstruction blockInstruction) {

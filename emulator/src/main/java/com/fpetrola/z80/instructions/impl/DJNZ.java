@@ -33,7 +33,15 @@ public class DJNZ<T extends WordNumber> extends ConditionalInstruction<T, BNotZe
 
   public int execute() {
     condition.getB().decrement();
-    return super.execute();
+    if (condition.conditionMet(this)) {
+      T jumpAddress2 = calculateJumpAddress();
+      jumpAddress2 = beforeJump(jumpAddress2);
+      setJumpAddress(jumpAddress2);
+      setNextPC(jumpAddress2);
+    } else
+      setNextPC(null);
+
+    return cyclesCost;
   }
 
   public T calculateJumpAddress() {
@@ -41,11 +49,12 @@ public class DJNZ<T extends WordNumber> extends ConditionalInstruction<T, BNotZe
   }
 
   public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitingDjnz(this);
+    if (!visitor.visitingDjnz(this)) {
+      super.accept(visitor);
+    }
   }
 
   public String toString() {
-    return getClass().getSimpleName() + " " + positionOpcodeReference;
+    return getClass().getSimpleName() + " "/* + positionOpcodeReference*/;
   }
 }

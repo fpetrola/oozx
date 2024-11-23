@@ -24,13 +24,15 @@ import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.function.BiFunction;
 
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
+
 public class AluOperation extends AluOperationBase {
   protected BiFunction<Integer, Integer, Integer> biFunction;
   protected TriFunction<Integer, Integer, Integer, Integer> triFunction;
 
   public AluOperation() {
-    super("flag");
-    data = 0;
+    super();
+    F = 0;
     if (execute(0, 0, 0) != -1) {
       triFunction = (a, b, c) -> execute(a, b, c);
       init(triFunction);
@@ -40,11 +42,11 @@ public class AluOperation extends AluOperationBase {
     }
   }
 
-  public int execute(int a, int value, int carry) {
+  public int execute(int A, int value, int carry) {
     return -1;
   }
 
-  public int execute(int a, int carry) {
+  public int execute(int value, int carry) {
     return -1;
   }
 
@@ -55,28 +57,28 @@ public class AluOperation extends AluOperationBase {
   }
 
   public <T extends WordNumber> T executeWithCarry(T regA, Register<T> flag) {
-    data = flag.read().intValue();
+    F = flag.read().intValue();
     Integer result = biFunction.apply(regA.intValue(), flag.read().intValue() & 0x01);
-    flag.write(WordNumber.createValue(data));
-    return WordNumber.createValue(result);
+    flag.write(createValue(F));
+    return createValue(result);
   }
 
   public <T extends WordNumber> T executeWithCarry(T value, T regA, Register<T> flag) {
-    data = flag.read().intValue();
+    F = flag.read().intValue();
     return executeWithCarry2(value, regA, flag.read().intValue() & 0x01, flag);
   }
 
   public <T extends WordNumber> T executeWithCarry2(T value, T regA, int carry, Register<T> flag) {
-    data = flag.read().intValue();
-    Integer result = triFunction.apply(regA.intValue(), value.intValue(), carry);
-    flag.write(WordNumber.createValue(data));
-    return WordNumber.createValue(result);
+    F = flag.read().intValue();
+    Integer result = triFunction.apply(regA.intValue(), value.intValue(), carry & 1);
+    flag.write(createValue(F));
+    return createValue(result);
   }
 
   public <T extends WordNumber> T executeWithoutCarry(T value, T regA, Register<T> flag) {
-    data = flag.read().intValue();
+    F = flag.read().intValue();
     Integer result = triFunction.apply(regA.intValue(), value.intValue(), 0);
-    flag.write(WordNumber.createValue(data));
-    return WordNumber.createValue(result);
+    flag.write(createValue(F));
+    return createValue(result);
   }
 }

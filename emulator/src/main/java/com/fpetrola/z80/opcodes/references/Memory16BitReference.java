@@ -18,13 +18,14 @@
 
 package com.fpetrola.z80.opcodes.references;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.memory.Memory;
 
 public class Memory16BitReference<T extends WordNumber> implements OpcodeReference<T> {
 
   private final Memory<T> memory;
-  protected T fetchedAddress;
+  public T fetchedAddress;
   private ImmutableOpcodeReference<T> pc;
   private int delta;
 
@@ -53,12 +54,16 @@ public class Memory16BitReference<T extends WordNumber> implements OpcodeReferen
   }
 
   public String toString() {
-    T read = read();
+    T read = fetchedAddress;
     return read == null ? "" : "0x" + Helper.convertToHex(read.intValue()) + "";
   }
 
   public int getLength() {
     return 2;
+  }
+
+  public void accept(InstructionVisitor instructionVisitor) {
+    instructionVisitor.visitMemory16BitReference(this);
   }
 
   public Object clone() throws CloneNotSupportedException {

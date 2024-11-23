@@ -86,7 +86,7 @@ public class TestFirstCPUInstructionLoop<T extends WordNumber> extends BaseInstr
     step();
     assertEquals(memoryValue, r(A).read().intValue());
     step();
-    assertEquals(memoryValue, mem().read(r(DE).read()).intValue());
+    assertEquals(memoryValue, mem().read(r(DE).read(), 0).intValue());
     step();
     assertEquals(14369 + increment, r(HL).read().intValue());
     step();
@@ -115,7 +115,7 @@ public class TestFirstCPUInstructionLoop<T extends WordNumber> extends BaseInstr
   private void assertCompositeLoop(Register<T> vr1, Register<T> counter, int bValue, int memoryReadValue, int indexValue, int dValue, int readAddress, Register<T> vr2A) {
     step();
 
-    assertEquals(memoryReadValue, mem().read(createValue(readAddress)).intValue());
+    assertEquals(memoryReadValue, mem().read(createValue(readAddress), 0).intValue());
     assertEquals(indexValue, vr1.read().intValue());
 
     step();

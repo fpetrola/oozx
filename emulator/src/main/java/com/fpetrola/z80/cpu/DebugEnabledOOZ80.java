@@ -40,7 +40,7 @@ public class DebugEnabledOOZ80<T extends WordNumber> extends OOZ80<T> {
   public RegisterBank registerBank;
 
   public DebugEnabledOOZ80(State aState, InstructionSpy spy) {
-    super(aState, new DefaultInstructionFetcher(aState, new FetchNextOpcodeInstructionFactory(spy, aState), new SpyInstructionExecutor(spy), new DefaultInstructionFactory(aState)));
+    super(aState, new DefaultInstructionFetcher(aState, new FetchNextOpcodeInstructionFactory(spy, aState), new SpyInstructionExecutor(spy, new MemptrUpdater(aState.getMemptr(), aState.getMemory())), new DefaultInstructionFactory(aState)));
     opCodeHandler2 = createOpCodeHandler(aState);
   }
 
@@ -114,7 +114,7 @@ public class DebugEnabledOOZ80<T extends WordNumber> extends OOZ80<T> {
   }
 
   public int getLenghtAt(int pc2) {
-    int i = state.getMemory().read(WordNumber.createValue(pc2)).intValue();
+    int i = state.getMemory().read(WordNumber.createValue(pc2), 0).intValue();
     Instruction<T> opcode1 = createOpCodeHandler(state).getOpcodeLookupTable()[i];
     int length = opcode1.getLength();
     return length;

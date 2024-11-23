@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -28,21 +29,20 @@ import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class RLD<T extends WordNumber> extends AbstractInstruction<T> {
   public static final TableAluOperation rldTableAluOperation = new TableAluOperation() {
-    public int execute(int a, int carry) {
-      data = carry;
-      if ((a & 0x80) == 0)
-        resetS();
-      else
-        setS();
-      setZ(a == 0);
-      resetH();
-      setPV(parity[a]);
-      resetN();
-      setUnusedFlags(a);
-      return a;
+    public int execute(int A, int value, int flag) {
+      F = flag;
+      A = (A & 0xf0) | (value >> 4);
+      F = (F & FLAG_C) | sz53pTable[A];
+      Q = F;
+      return A;
     }
   };
   protected final Register<T> a;
+
+  public Register<T> getHl() {
+    return hl;
+  }
+
   protected final Register<T> hl;
   protected final Register<T> flag;
   protected final Register<T> r;
@@ -61,22 +61,22 @@ public class RLD<T extends WordNumber> extends AbstractInstruction<T> {
     int nibble1 = (reg_A & 0x00F0) >> 4;
     int nibble2 = reg_A & 0x000F;
 
-    int temp = memory.read(hl.read()).intValue();
+    int temp = memory.read(hl.read(), 0).intValue();
     int nibble3 = (temp & 0x00F0) >> 4;
     int nibble4 = temp & 0x000F;
 
     memory.write(hl.read(), createValue(getTemp1(nibble2, nibble3, nibble4)));
     T value = createValue(getRegA1(nibble1, nibble4, nibble3));
 
-    executeAlu(value);
+    executeAlu(createValue(temp), createValue(reg_A));
 
     a.write(value);
 
     return 1;
   }
 
-  protected void executeAlu(T value) {
-    rldTableAluOperation.executeWithCarry(value, flag);
+  protected void executeAlu(T value, T reg_A) {
+    rldTableAluOperation.executeWithCarry(value, reg_A, flag);
   }
 
   protected int getTemp1(int nibble2, int nibble3, int nibble4) {
@@ -85,5 +85,11 @@ public class RLD<T extends WordNumber> extends AbstractInstruction<T> {
 
   protected int getRegA1(int nibble1, int nibble4, int nibble3) {
     return (nibble1 << 4) | nibble3;
+  }
+
+  public void accept(InstructionVisitor visitor) {
+    if (!visitor.visitRLD(this)) {
+      super.accept(visitor);
+    }
   }
 }

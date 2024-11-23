@@ -35,6 +35,19 @@ public class JR<T extends WordNumber> extends ConditionalInstruction<T, Conditio
     return calculateRelativeJumpAddress();
   }
 
+  protected int jumpIfConditionMatches() {
+    if (condition.conditionMet(this)) {
+      T jumpAddress2 = calculateJumpAddress();
+      jumpAddress2 = beforeJump(jumpAddress2);
+      setJumpAddress(jumpAddress2);
+      setNextPC(jumpAddress2);
+    } else
+      setNextPC(null);
+
+    return cyclesCost;
+  }
+
+
   public void accept(InstructionVisitor visitor) {
     super.accept(visitor);
     visitor.visitingJR(this);

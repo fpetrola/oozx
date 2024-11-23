@@ -20,13 +20,17 @@ package fuse;
 
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
-import com.fpetrola.z80.opcodes.references.OpcodeConditions;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.NullInstructionSpy;
+import com.fpetrola.z80.cpu.Event;
+import fuse.tstates.AddStatesMemoryReadListener;
+import fuse.tstates.AddStatesMemoryWriteListener;
+import fuse.tstates.AddStatesIO;
+import fuse.tstates.PhaseProcessor;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,11 +41,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-
-public class FuseTestParser {
+public class FuseTestParser<T extends WordNumber> {
   private final File inFile;
   private final File expectedFile;
+  private Z80Cpu<WordNumber> cpu;
+  private DefaultInstructionFetcher instructionFetcher;
+  private State<T> state;
 
   public FuseTestParser(File testDataDir) {
     this.inFile = new File(testDataDir, "tests.in");
@@ -82,24 +87,25 @@ public class FuseTestParser {
   }
 
   private Z80Cpu getZ80Cpu() {
-    var state = new State(new IO<WordNumber>() {
-      public WordNumber in(WordNumber port) {
-        return createValue(port.intValue() >> 8);
-      }
+    MockedMemory<T> memory = new MockedMemory(true);
 
-      public void out(WordNumber port, WordNumber value) {
-      }
-    }, new MockedMemory(true));
+    AddStatesIO io = new AddStatesIO();
+    state = new State<T>(io, memory);
+    io.setState(state);
     NullInstructionSpy spy = new NullInstructionSpy();
     DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory<WordNumber>(state);
-    DefaultInstructionFetcher instructionFetcher = new MyDefaultInstructionFetcher(state, spy, instructionFactory);
-    Z80Cpu cpu = (OOZ80<WordNumber>) new OOZ80(state, instructionFetcher);
+    instructionFetcher = new MyDefaultInstructionFetcher(state, spy, instructionFactory);
+    cpu = (OOZ80<WordNumber>) new OOZ80(state, instructionFetcher);
+
+    PhaseProcessor<T> phaseProcessor = new PhaseProcessor<>((Z80Cpu<T>) cpu);
+    memory.addMemoryReadListener(new AddStatesMemoryReadListener<T>(phaseProcessor));
+    memory.addMemoryWriteListener(new AddStatesMemoryWriteListener<T>(phaseProcessor));
     return cpu;
   }
 
   public static class MyDefaultInstructionFetcher extends DefaultInstructionFetcher {
     public MyDefaultInstructionFetcher(State state, NullInstructionSpy spy, DefaultInstructionFactory instructionFactory) {
-      super(state, new OpcodeConditions(state.getFlag(), state.getRegister(RegisterName.B)), new FetchNextOpcodeInstructionFactory(spy, state), new SpyInstructionExecutor(spy), instructionFactory);
+      super(state, new OpcodeConditions(state.getFlag(), state.getRegister(RegisterName.B)), new FetchNextOpcodeInstructionFactory(spy, state), new SpyInstructionExecutor(spy, new MemptrUpdater(state.getMemptr(), state.getMemory())), instructionFactory);
     }
 
     public Instruction getLastInstruction() {
@@ -128,6 +134,8 @@ public class FuseTestParser {
       while (iterator.hasNext()) {
         String testId = next;
 
+        List<Event> events = new ArrayList<>();
+
         // Skip events
         while (true) {
           if (!iterator.hasNext()) {
@@ -137,6 +145,7 @@ public class FuseTestParser {
             if (eventTypes.stream().noneMatch(next::contains)) {
               break;
             }
+            events.add(parseEvent(next));
           }
         }
 
@@ -152,13 +161,24 @@ public class FuseTestParser {
           memory.append("\n").append(next);
         }
 
-        results.add(new FuseResult(testId, registers, state, memory.toString()));
+        results.add(new FuseResult(testId, registers, state, memory.toString(), events));
       }
       return results;
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
+
+  // Helper to parse event in .expected file
+  private Event parseEvent(String line) {
+    String[] parts = line.trim().split(" ");
+    int time = Integer.parseInt(parts[0]);
+    String type = parts[1];
+    int address = Integer.parseInt(parts[2], 16);
+    Integer data = parts.length > 3 ? Integer.parseInt(parts[3], 16) : null;
+    return new Event(time, type, address, data);
+  }
+
 }
 
 // Assuming you have classes FuseTest and FuseResult defined somewhere in your codebase.

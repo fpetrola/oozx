@@ -22,7 +22,6 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.MutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
@@ -31,24 +30,11 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class In<T extends WordNumber> extends TargetSourceInstruction<T, ImmutableOpcodeReference<T>> {
   public static AluOperation inCTableAluOperation = new TableAluOperation() {
-    public int execute(int value, int a, int carry) {
-      data= value;
-      if ((a & 0x0080) == 0)
-        resetS();
-      else
-        setS();
-      if (a == 0)
-        setZ();
-      else
-        resetZ();
-      if (parity[a & 0xff])
-        setPV();
-      else
-        resetPV();
-      resetN();
-      resetH();
-      setUnusedFlags(a);
-      return a;
+    public int execute(int value, int reg, int carry) {
+      F = value;
+      F = ( F & FLAG_C) | sz53pTable[(reg)];
+      Q = F;
+      return reg;
     }
   };
 
@@ -70,14 +56,12 @@ public class In<T extends WordNumber> extends TargetSourceInstruction<T, Immutab
 
   private ImmutableOpcodeReference<T> a;
   private ImmutableOpcodeReference<T> bc;
-  private MutableOpcodeReference<T> memptr;
   private IO<T> io;
 
-  public In(OpcodeReference target, ImmutableOpcodeReference source, ImmutableOpcodeReference<T> a, ImmutableOpcodeReference<T> bc, Register<T> flag, MutableOpcodeReference<T> memptr, IO<T> io) {
+  public In(OpcodeReference target, ImmutableOpcodeReference source, ImmutableOpcodeReference<T> a, ImmutableOpcodeReference<T> bc, Register<T> flag, IO<T> io) {
     super(target, source, flag);
     this.a = a;
     this.bc = bc;
-    this.memptr = memptr;
     this.io = io;
   }
 
@@ -87,7 +71,6 @@ public class In<T extends WordNumber> extends TargetSourceInstruction<T, Immutab
     boolean equalsN = !(source instanceof Register);
     if (equalsN) {
       port = port.or(a.read().left(8));
-      memptr.write(port.plus1());
     } else {
       port = bc.read();
     }

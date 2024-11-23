@@ -20,6 +20,7 @@ package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.InstructionSpy;
 
 import java.util.HashSet;
@@ -28,6 +29,17 @@ import java.util.Set;
 public class SpyInstructionExecutor<T extends WordNumber> implements InstructionExecutor<T> {
   private InstructionSpy spy;
   private Set<Instruction<T>> executingInstructions = new HashSet<>();
+  private MemptrUpdater<?> memptrUpdater;
+
+  public SpyInstructionExecutor(InstructionSpy spy, MemptrUpdater<T> memptrUpdater1) {
+    this(spy);
+    setMemptrUpdater(memptrUpdater1);
+  }
+
+  @Override
+  public void setMemptrUpdater(MemptrUpdater<?> memptrUpdater1) {
+    this.memptrUpdater = memptrUpdater1;
+  }
 
   public SpyInstructionExecutor(InstructionSpy spy) {
     this.spy = spy;
@@ -37,7 +49,10 @@ public class SpyInstructionExecutor<T extends WordNumber> implements Instruction
   public Instruction<T> execute(Instruction<T> instruction) {
     spy.beforeExecution(instruction);
     executingInstructions.add(instruction);
+    Instruction baseInstruction = DefaultInstructionFetcher.getBaseInstruction(instruction);
+    memptrUpdater.updateBefore(baseInstruction);
     instruction.execute();
+    memptrUpdater.updateAfter(baseInstruction);
     executingInstructions.remove(instruction);
     spy.afterExecution(instruction);
     return instruction;

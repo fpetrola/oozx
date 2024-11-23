@@ -27,18 +27,13 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Dec<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
   public static final TableAluOperation dec8TableAluOperation = new TableAluOperation() {
-    public int execute(int a, int carry) {
-      data = carry;
-      int value = a;
-      setHalfCarryFlagSub(value, 1);
-      setPV(value == 0x80);
-      value--;
-      setS((value & 0x0080) != 0);
-      value = value & 0x00ff;
-      setZ(value == 0);
-      setN();
-      setUnusedFlags(value);
-
+    public int execute(int value, int carry) {
+      F = carry;
+      F = (F & FLAG_C) | (((value) & 0x0f) != 0 ? 0 : FLAG_H) | FLAG_N;
+      (value)--;
+      value &= 0xff;
+      F |= ((value) == 0x7f ? FLAG_V : 0) | sz53Table[value];
+      Q = F;
       return value;
     }
   };

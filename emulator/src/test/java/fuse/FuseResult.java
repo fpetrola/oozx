@@ -21,6 +21,7 @@ package fuse;
 import com.fpetrola.z80.cpu.Z80Cpu;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.cpu.Event;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.Arrays;
@@ -31,16 +32,18 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class FuseResult<T extends WordNumber> {
   private final int[] registers;
+  private final List<Event> events;
   private final int[] state;
   private final String memory;
   private final int tStates;
   private final String testId;
 
-  public FuseResult(String testId, String registers, String state, String memory) {
+  public FuseResult(String testId, String registers, String state, String memory, List<Event> events) {
     this.registers = Arrays.stream(registers.split(" "))
         .filter(s -> !s.isEmpty())
         .mapToInt(s -> Integer.parseInt(s, 16))
         .toArray();
+    this.events = events;
 
     List<Integer> stateList = Arrays.stream(state.split(" "))
         .filter(s -> !s.isEmpty())
@@ -48,7 +51,7 @@ public class FuseResult<T extends WordNumber> {
         .collect(Collectors.toList());
 
     this.state = stateList.subList(0, stateList.size() - 1).stream().mapToInt(Integer::intValue).toArray();
-    this.tStates = stateList.get(stateList.size() - 1);
+    this.tStates = Integer.parseInt(Arrays.stream(state.split(" ")).toList().getLast());
     this.memory = memory;
     this.testId = testId;
   }
@@ -63,10 +66,19 @@ public class FuseResult<T extends WordNumber> {
 
   public void verify(Z80Cpu<T> cpu) {
     Assertions.assertAll(
+        () -> verifyEvents(cpu),
         () -> verifyRegisters(cpu),
         () -> verifyCpuState(cpu),
         () -> verifyMemory(cpu)
     );
+  }
+
+  private void verifyEvents(Z80Cpu<T> cpu) {
+    List<Event> eventsFromCpu= cpu.getState().getEvents();
+    Assertions.assertEquals(events, eventsFromCpu, "Events mismatch");
+    for (int i = 0; i < events.size(); i++) {
+      Assertions.assertEquals(events.get(i), eventsFromCpu.get(i), "Event mismatch");
+    }
   }
 
   private void verifyMemory(Z80Cpu<T> cpu) {
@@ -92,7 +104,7 @@ public class FuseResult<T extends WordNumber> {
     Assertions.assertEquals(state[2] != 0, cpu.getState().isIff1(), "Register mismatch: IFF1");
     Assertions.assertEquals(state[3] != 0, cpu.getState().isIff2(), "Register mismatch: IFF2");
     Assertions.assertEquals(state[4], cpu.getState().getInterruptionMode().ordinal(), "Register mismatch: IM");
-//    Assertions.assertEquals(tStates, cpu.getTStatesSinceCpuStart(), "Mismatch in T-states");
+    Assertions.assertEquals(tStates, cpu.getState().getTStatesSinceCpuStart(), "Mismatch in T-states");
   }
 
   private int getRegisterValue(Z80Cpu<T> cpu, RegisterName registerName) {
@@ -131,5 +143,6 @@ public class FuseResult<T extends WordNumber> {
     Assertions.assertEquals(regs[9], getRegisterValue(cpu, IY), "Register mismatch: IY");
     Assertions.assertEquals(regs[10], getRegisterValue(cpu, SP), "Register mismatch: SP");
     Assertions.assertEquals(regs[11], getRegisterValue(cpu, PC), "Register mismatch: PC");
+    Assertions.assertEquals(regs[12], getRegisterValue(cpu, MEMPTR), "Register mismatch: MEMPTR");
   }
 }

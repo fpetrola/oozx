@@ -44,7 +44,15 @@ public class Call<T extends WordNumber> extends ConditionalInstruction<T, Condit
 
   @Override
   public int execute() {
-    return super.execute();
+    T jumpAddress2 = calculateJumpAddress();
+    if (condition.conditionMet(this)) {
+      jumpAddress2 = beforeJump(jumpAddress2);
+      setJumpAddress(jumpAddress2);
+      setNextPC(jumpAddress2);
+    } else
+      setNextPC(null);
+
+    return cyclesCost;
   }
 
   @Override

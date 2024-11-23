@@ -43,6 +43,8 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
 
   @Override
   public void reset() {
+    state.tstates= 0;
+    state.getEvents().clear();
     instructionFetcher.reset();
     Stream.of(RegisterName.values()).forEach(r -> state.r(r).write(createValue(0xFFFF)));
     state.getRegister(IR).write(createValue(0));

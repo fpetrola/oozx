@@ -28,32 +28,11 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class RLC<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
 
   public static final TableAluOperation rlcTableAluOperation1 = new TableAluOperation() {
-    public int execute(int a, int carry) {
-      data = carry;
-
-      a = a << 1;
-      if ((a & 0x0FF00) != 0) {
-        setC();
-        a = a | 0x01;
-      } else
-        resetC();
-      // standard flag updates
-      if ((a & FLAG_S) == 0)
-        resetS();
-      else
-        setS();
-      if ((a & 0x00FF) == 0)
-        setZ();
-      else
-        resetZ();
-      resetH();
-      resetN();
-      // put value back
-      a = a & 0x00FF;
-      setPV(parity[a]);
-      setUnusedFlags(a);
-
-      return a;
+    public int execute(int value, int carry) {
+      value = (value << 1 | value >> 7) & 0xff;
+      F = (value & FLAG_C) | sz53pTable[value];
+      Q = F;
+      return value;
     }
   };
 
@@ -71,5 +50,10 @@ public class RLC<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
   public void accept(InstructionVisitor visitor) {
     if (!visitor.visitingRlc(this))
       super.accept(visitor);
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
   }
 }

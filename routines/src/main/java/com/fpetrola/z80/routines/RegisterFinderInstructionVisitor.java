@@ -25,7 +25,7 @@ import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 
 @SuppressWarnings("ALL")
-public abstract class RegisterFinderInstructionVisitor implements InstructionVisitor<WordNumber> {
+public abstract class RegisterFinderInstructionVisitor implements InstructionVisitor<WordNumber, Integer> {
   protected boolean isTarget;
   protected boolean isSource;
 
@@ -101,9 +101,10 @@ public abstract class RegisterFinderInstructionVisitor implements InstructionVis
   }
 
   @Override
-  public void visitRepeatingInstruction(RepeatingInstruction repeatingInstruction) {
+  public boolean visitRepeatingInstruction(RepeatingInstruction repeatingInstruction) {
     isTarget = true;
     repeatingInstruction.getInstructionToRepeat().accept(this);
     repeatingInstruction.getBc().accept(this);
+    return false;
   }
 }

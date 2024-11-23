@@ -27,9 +27,11 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class CCF<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
   public static final AluOperation ccfTableAluOperation = new TableAluOperation() {
-    public int execute(int data1, int a, int carry) {
-      data = (data1 & (PARITY_MASK | ZERO_MASK | SIGN_MASK)) | ((data1 & CARRY_MASK) != 0 ? HALFCARRY_MASK : CARRY_MASK) | (a & (FLAG_3 | FLAG_5));
-      return data;
+    public int execute(int flag, int A, int carry) {
+      F = flag;
+      F = F & (FLAG_P | FLAG_Z | FLAG_S) | ((F & FLAG_C) != 0 ? FLAG_H : FLAG_C) | A & (FLAG_3 | FLAG_5);
+      Q = F;
+      return F;
     }
   };
 

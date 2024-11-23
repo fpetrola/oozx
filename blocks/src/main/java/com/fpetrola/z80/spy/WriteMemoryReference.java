@@ -37,7 +37,7 @@ public class WriteMemoryReference<T extends WordNumber> extends AbstractSpyRefer
     this.value = value;
     this.memory = memory;
     this.indirectReference = indirectReference;
-    lastValue = memory.read(address);
+    lastValue = memory.read(address, 0);
   }
 
   public String toString() {

@@ -25,24 +25,42 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
+
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class Add16<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
-  public static final AluOperation add16TableAluOperation = new AluOperation() {
-    public int execute(int reg16, int oper16, int carry) {
-      oper16 += reg16;
-      int i = oper16 > 0xffff ? 1 : 0;
-      data = (data & FLAG_SZP_MASK) | ((oper16 >>> 8) & FLAG_53_MASK);
-      oper16 &= 0xffff;
-      if ((oper16 & 0x0fff) < (reg16 & 0x0fff)) data |= HALFCARRY_MASK;
-      int memptr = reg16 + 1;
-      flagQ = true;
-      data = data | i;
-      return oper16;
+  public static final AluOperation add16TableAluOperation = new TableAluOperation() {
+    public int execute(int flag, int value1AndAddition, int value2Bit0) {
+      F = flag;
+      getValue1(value1AndAddition << 4, value2Bit0 << 11, value1AndAddition << 11);
+      return F;
+    }
+
+    private void getValue1(int value1, int value2, int add16temp) {
+      int lookup = ((value1 & 0x0800) >> 11) |
+          ((value2 & 0x0800) >> 10) |
+          ((add16temp & 0x0800) >> 9);
+      F = (F & (FLAG_V | FLAG_Z | FLAG_S)) |
+          ((add16temp & 0x10000) != 0 ? FLAG_C : 0) |
+          ((add16temp >> 8) & (FLAG_3 | FLAG_5)) |
+          halfCarryAddTable[lookup];
+      Q = F;
     }
   };
 
   public Add16(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
-    super(target, source, flag, (tFlagRegister, value2, value) -> add16TableAluOperation.executeWithCarry2(value2, value, tFlagRegister.read().intValue(), tFlagRegister));
+    super(target, source, flag, (tFlagRegister, v2, v1) -> {
+      int value1 = v1.intValue();
+      int value2 = v2.intValue();
+      int add16temp = value1 + value2;
+      T t = add16TableAluOperation.executeWithCarry2(
+          createValue((value1 & 0x0800) >> 4 | add16temp >> 11),
+          createValue(flag.read().intValue()),
+          value2 >> 11, tFlagRegister);
+      flag.write(t);
+      return createValue(add16temp & 0xffff);
+    });
   }
 
   @Override

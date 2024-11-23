@@ -38,7 +38,7 @@ public class WordNumberMemoryReadListener<T extends WordNumber> implements Memor
   }
 
   @Override
-  public void readingMemoryAt(T address, T value) {
+  public void readingMemoryAt(T address, T value, int delta, int fetching) {
     if (referencesHandler.isDataBlock(address.intValue())) {
       if (referencesHandler.blocksManager.findBlockAt(spy.getLastExecutionPoint().pc) == referencesHandler.associatedBlock) {
         Collection<Map.Entry<Integer, BlockRelation>> entries1 = referencesHandler.relationsBySourceAddress.entries();

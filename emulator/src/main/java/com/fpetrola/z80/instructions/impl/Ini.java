@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.BlockInstruction;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.memory.Memory;
@@ -25,21 +26,12 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.IniAluOperation;
 
 public class Ini<T extends WordNumber> extends BlockInstruction<T> {
-  public static final AluOperation iniTableAluOperation = new TableAluOperation() {
+  public static final AluOperation iniTableAluOperation = new IniAluOperation() {
     public <T extends WordNumber> T executeWithCarry(T value, T b, Register<T> c) {
-      int hlMem = value.intValue() & 0xff;
-      int regB = b.intValue() & 0xff;
-      regB = decAndSetFlags(regB);
-      var incC = (c.read().intValue() + 1) & 255;
-      setH(hlMem + incC > 255);
-      setC(hlMem + incC > 255);
-      setPV(isEvenParity((((hlMem + incC) & 7) ^ regB)));
-      setN((hlMem & 0x80) != 0);
-
-      return WordNumber.createValue(data);
+      return update(value, b, c, 1);
     }
   };
 
@@ -48,14 +40,13 @@ public class Ini<T extends WordNumber> extends BlockInstruction<T> {
   }
 
   public int execute() {
-    T hlValue = hl.read();
-    T cValue = bc.getLow().read();
     T port = bc.read();
-
     T in = io.in(port);
+    T cValue = bc.getLow().read();
+    T hlValue = hl.read();
     memory.write(hlValue, in);
-    bc.getHigh().decrement();
     next();
+    bc.getHigh().decrement();
     flagOperation(in);
     return 1;
   }
@@ -63,5 +54,10 @@ public class Ini<T extends WordNumber> extends BlockInstruction<T> {
   protected void flagOperation(T valueFromHL) {
     T t = iniTableAluOperation.executeWithCarry(valueFromHL, bc.getHigh().read(), bc.getLow());
     flag.write(t);
+  }
+
+  public void accept(InstructionVisitor visitor) {
+    if (!visitor.visitIni(this))
+      super.accept(visitor);
   }
 }

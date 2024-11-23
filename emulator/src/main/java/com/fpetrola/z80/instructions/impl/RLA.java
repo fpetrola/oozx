@@ -27,21 +27,14 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RLA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
   public static final TableAluOperation rlaTableAluOperation = new TableAluOperation() {
-    public int execute(int a, int carry) {
-      data = carry;
-      boolean c = (a & 0x0080) != 0;
-
-      a = ((a << 1) & 0x00FF);
-      if (getC())
-        a = a | 0x01;
-      if (c)
-        setC();
-      else
-        resetC();
-      resetH();
-      resetN();
-
-      return a;
+    public int execute(int A, int flag) {
+      F = flag;
+      int bytetemp = A;
+      A = (A << 1) | (F & FLAG_C);
+      F = (F & (FLAG_P | FLAG_Z | FLAG_S)) |
+          (A & (FLAG_3 | FLAG_5)) | (bytetemp >> 7);
+      Q = F;
+      return A;
     }
   };
 

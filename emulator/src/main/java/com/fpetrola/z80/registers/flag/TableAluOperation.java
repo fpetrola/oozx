@@ -32,7 +32,7 @@ public class TableAluOperation extends AluOperation {
     for (int a = 0; a < 256; a++) {
       for (int c = 0; c < 2; c++) {
         Integer aluResult = biFunction.apply(a, c);
-        table[((a & 0xff)) | (c << 8)] = ((aluResult & 0xff) << 16) + data;
+        table[((a & 0xff)) | (c << 8)] = ((aluResult & 0xff) << 16) + F;
       }
     }
   }
@@ -43,7 +43,7 @@ public class TableAluOperation extends AluOperation {
       for (int value = 0; value < 256; value++) {
         for (int c = 0; c < 2; c++) {
           Integer aluResult = triFunction.apply(a, value, c);
-          table[((value & 0xff)) | (a << 8) | (c << 16)] = ((aluResult & 0xff) << 16) + data;
+          table[((value & 0xff)) | (a << 8) | (c << 16)] = ((aluResult & 0xff) << 16) + F;
         }
       }
     }
@@ -62,7 +62,7 @@ public class TableAluOperation extends AluOperation {
   }
 
   public <T extends WordNumber> T executeWithCarry2(T value, T regA, int carry, Register<T> flag) {
-    int data1 = table[(regA.left(8)).or(value).intValue() | (carry << 16)];
+    int data1 = table[(regA.left(8)).or(value).intValue() | ((carry & 1) << 16)];
     flag.write(WordNumber.createValue(data1 & 0xFF));
     return regA.createInstance(data1 >> 16);
   }

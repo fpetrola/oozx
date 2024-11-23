@@ -28,18 +28,13 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class RRA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
   public static final AluOperation rraTableAluOperation = new TableAluOperation() {
     public int execute(int value, int a, int carry) {
-      data= value;
-      boolean c = (a & 0x01) != 0;
-      a = (a >> 1);
-      if (getC())
-        a = (a | 0x0080);
-      if (c)
-        setC();
-      else
-        resetC();
-      resetH();
-      resetN();
-      return a;
+      F = value;
+      int A = a;
+      int bytetemp = A;
+      A = (A >> 1) | (F << 7);
+      F = (F & (FLAG_P | FLAG_Z | FLAG_S)) | (A & (FLAG_3 | FLAG_5)) | (bytetemp & FLAG_C);
+      Q = F;
+      return A;
     }
   };
 
