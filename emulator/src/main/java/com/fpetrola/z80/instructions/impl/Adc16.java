@@ -25,30 +25,40 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
+
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class Adc16<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
-  public static final AluOperation adc16TableAluOperation = new AluOperation() {
+  public static final AluOperation adc16TableAluOperation = new TableAluOperation() {
     public int execute(int value1, int value2, int carry) {
-      int result = value1 + value2 + (F & FLAG_C);
-      calc(value1 & 0x8800, value2 & 0x8800, result & 0x1A800, result != 0);
-      return result;
+      int i = value1 & 0x33;
+      i |= ((i & 0x02) != 0 ? 0x04 : 0x00);
+      int result1 = (i << 11) & 0x1A800;
+      int lookup = (((value1) << 8 & 0x8800) >> 11) |
+          (((value1) << 9 & 0x8800) >> 10) |
+          ((result1 & 0x8800) >> 9);
+      F = ((result1 & 0x10000) != 0 ? FLAG_C : 0) |
+          overflowAddTable[lookup >> 4] |
+          ((result1 >> 8) & (FLAG_3 | FLAG_5 | FLAG_S)) |
+          halfCarryAddTable[lookup & 0x07] |
+          (carry == 1 ? 0 : FLAG_Z);
+      Q = F;
+      return F;
     }
 
-    private void calc(int value1, int value2, int result, boolean resultIsZero) {
-      int lookup = ((value1 & 0x8800) >> 11) |
-          ((value2 & 0x8800) >> 10) |
-          ((result & 0x8800) >> 9);
-      F = ((result & 0x10000) != 0 ? FLAG_C : 0) |
-          overflowAddTable[lookup >> 4] |
-          ((result >> 8) & (FLAG_3 | FLAG_5 | FLAG_S)) |
-          halfCarryAddTable[lookup & 0x07] |
-          (resultIsZero ? 0 : FLAG_Z);
-      Q = F;
-    }
   };
 
   public Adc16(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
-    super(target, source, flag, (tFlagRegister, a, b) -> adc16TableAluOperation.executeWithCarry(a, b, tFlagRegister));
+    super(target, source, flag, (tFlagRegister, a, b) -> {
+      int value1 = a.intValue();
+      int value2 = b.intValue();
+      T flagValue = tFlagRegister.read();
+      int result = value1 + value2 + (flagValue.intValue() & AluOperation.FLAG_C);
+      value1 = ((value1 & 0x8800 | (value2 & 0x8800) >> 1) | (result & 0x1A800 | (result & 0x2000) >> 1) >> 3) >> 8;
+      adc16TableAluOperation.executeWithCarry2(flagValue, createValue(value1), result != 0 ? 1 : 0, tFlagRegister);
+      return createValue(result & 0xffff);
+    });
   }
 
   @Override

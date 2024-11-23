@@ -25,26 +25,40 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
+
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class Sbc16<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
-  public static final AluOperation sbc16TableAluOperation = new AluOperation() {
-    public int execute(int HL, int value, int carry) {
-      F = carry;
-      int sub16temp = HL - (value) - (F & FLAG_C);
-      int lookup = ((HL & 0x8800) >> 11) | (((value) & 0x8800) >> 10) | ((sub16temp & 0x8800) >> 9);
-      HL = sub16temp;
-      F = ((sub16temp & 0x10000) != 0 ? FLAG_C : 0) |
+  public static final AluOperation sbc16TableAluOperation = new TableAluOperation() {
+    public int execute(int value1, int value2, int carry) {
+      int i = value1 & 0x33;
+      i |= (i & 0x02) != 0 ? 0x04 : 0x00;
+      int result1 = (i << 11) & 0x1A800;
+      int lookup = ((value1 << 8 & 0x8800) >> 11) |
+          ((value1 << 9 & 0x8800) >> 10) |
+          ((result1 & 0x8800) >> 9);
+      F = ((result1 & 0x10000) != 0 ? FLAG_C : 0) |
           FLAG_N | overflowSubTable[lookup >> 4] |
-          ((HL >> 8) & (FLAG_3 | FLAG_5 | FLAG_S)) |
+          ((result1 >> 8) & (FLAG_3 | FLAG_5 | FLAG_S)) |
           halfCarrySubTable[lookup & 0x07] |
-          (HL != 0 ? 0 : FLAG_Z);
+          (value2 != 0 ? 0 : FLAG_Z);
       Q = F;
-      return HL;
+      return F;
     }
+
   };
 
   public Sbc16(OpcodeReference<T> target, ImmutableOpcodeReference<T> source, Register<T> flag) {
-    super(target, source, flag, (tFlagRegister, DE, HL) -> sbc16TableAluOperation.executeWithCarry(DE, HL, tFlagRegister));
+    super(target, source, flag, (tFlagRegister, v1, v2) -> {
+      int value1 = v2.intValue();
+      int value2 = v1.intValue();
+      int result = value1 - value2 - (tFlagRegister.read().intValue() & AluOperation.FLAG_C);
+      value1 = ((value1 & 0x8800 | (value2 & 0x8800) >> 1) | (result & 0x1A800 | (result & 0x2000) >> 1) >> 3) >> 8;
+      T t = sbc16TableAluOperation.executeWithCarry(createValue(result != 0 ? 1 : 0), createValue(value1 & 0xff), tFlagRegister);
+      tFlagRegister.write(t);
+      return createValue(result & 0xffff);
+    });
   }
 
   @Override

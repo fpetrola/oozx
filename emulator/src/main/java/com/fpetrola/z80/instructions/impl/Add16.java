@@ -33,21 +33,19 @@ public class Add16<T extends WordNumber> extends ParameterizedBinaryAluInstructi
   public static final AluOperation add16TableAluOperation = new TableAluOperation() {
     public int execute(int flag, int value1AndAddition, int value2Bit0) {
       F = flag;
-      getValue1((value1AndAddition) << 4, value2Bit0 << 11, value1AndAddition << 11);
+      getValue1(value1AndAddition << 4, value2Bit0 << 11, value1AndAddition << 11);
       return F;
     }
 
-    private int getValue1(int value1, int value2, int add16temp) {
+    private void getValue1(int value1, int value2, int add16temp) {
       int lookup = ((value1 & 0x0800) >> 11) |
           ((value2 & 0x0800) >> 10) |
           ((add16temp & 0x0800) >> 9);
-      value1 = add16temp;
       F = (F & (FLAG_V | FLAG_Z | FLAG_S)) |
           ((add16temp & 0x10000) != 0 ? FLAG_C : 0) |
           ((add16temp >> 8) & (FLAG_3 | FLAG_5)) |
           halfCarryAddTable[lookup];
       Q = F;
-      return value1;
     }
   };
 
@@ -61,7 +59,7 @@ public class Add16<T extends WordNumber> extends ParameterizedBinaryAluInstructi
           createValue(flag.read().intValue()),
           value2 >> 11, tFlagRegister);
       flag.write(t);
-      return createValue(add16temp);
+      return createValue(add16temp & 0xffff);
     });
   }
 
