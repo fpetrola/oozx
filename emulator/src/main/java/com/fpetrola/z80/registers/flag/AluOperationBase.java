@@ -19,7 +19,7 @@
 package com.fpetrola.z80.registers.flag;
 
 public class AluOperationBase {
-  public final static int FLAG_C = 0x0001;
+  protected final static int FLAG_C = 0x0001;
   protected final static int FLAG_N = 0x0002;
   protected final static int FLAG_P = 0x0004;
   protected final static int FLAG_V = 0x0004;
@@ -38,7 +38,7 @@ public class AluOperationBase {
   protected static int[] parityTable = new int[0x100];
   protected static int[] sz53pTable = new int[0x100];
 
-  public int F;
+  protected int F;
   protected int Q;
 
   public AluOperationBase() {
