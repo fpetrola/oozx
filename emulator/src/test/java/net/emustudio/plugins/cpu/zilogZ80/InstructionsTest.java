@@ -26,8 +26,10 @@ import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import net.emustudio.cpu.testsuite.Generator;
+import net.emustudio.emulib.plugins.PluginInitializationException;
 import net.emustudio.emulib.plugins.memory.MemoryContext;
 import net.emustudio.emulib.runtime.ApplicationApi;
+import net.emustudio.emulib.runtime.ContextAlreadyRegisteredException;
 import net.emustudio.emulib.runtime.ContextPool;
 import net.emustudio.emulib.runtime.settings.PluginSettings;
 import net.emustudio.plugins.cpu.intel8080.api.Context8080;
@@ -62,49 +64,48 @@ public class InstructionsTest {
   protected static MyByteMemoryStub memory;
 
   public InstructionsTest() {
+    try {
+      Capture<Context8080> cpuContext = Capture.newInstance();
+      ContextPool contextPool = EasyMock.createNiceMock(ContextPool.class);
+      expect(contextPool.getMemoryContext(0, MemoryContext.class)).andReturn(memory).anyTimes();
+      contextPool.register(anyLong(), capture(cpuContext), same(Context8080.class));
+      expectLastCall().anyTimes();
+      replay(contextPool);
+
+      ApplicationApi applicationApi = createNiceMock(ApplicationApi.class);
+      expect(applicationApi.getContextPool()).andReturn(contextPool).anyTimes();
+      replay(applicationApi);
+
+      cpu = new CpuImpl(PLUGIN_ID, applicationApi, PluginSettings.UNAVAILABLE, ooz80);
+
+      MockedMemory<WordNumber> memory1 = (MockedMemory<WordNumber>) this.cpu.ooz80.getState().getMemory();
+      memory1.canDisable(false);
+      memory.init(memory1);
+      assertTrue(cpuContext.hasCaptured());
+
+      for (int i = 0; i < 256; i++) {
+        FakeByteDevice device = new FakeByteDevice(i, io);
+        devices.add(device);
+        cpuContext.getValue().attachDevice(i, device);
+      }
+
+      cpu.initialize();
+
+      cpuRunnerImpl = new CpuRunnerImpl(cpu, memory, devices);
+      cpuVerifierImpl = new CpuVerifierImpl(cpu, memory, devices);
+
+      Generator.setRandomTestsCount(10);
+    } catch (ContextAlreadyRegisteredException | PluginInitializationException e) {
+      throw new RuntimeException(e);
+    }
 
   }
 
   @BeforeClass
-  public static void setUpClass() throws Exception {
+  public static void setUpClass() {
     io = new MyIO();
     ooz80 = Helper.createOOZ80(io);
     memory = new MyByteMemoryStub();
-  }
-
-  @SuppressWarnings("unchecked")
-  @Before
-  public void setUp() throws Exception {
-    Capture<Context8080> cpuContext = Capture.newInstance();
-    ContextPool contextPool = EasyMock.createNiceMock(ContextPool.class);
-    expect(contextPool.getMemoryContext(0, MemoryContext.class)).andReturn(memory).anyTimes();
-    contextPool.register(anyLong(), capture(cpuContext), same(Context8080.class));
-    expectLastCall().anyTimes();
-    replay(contextPool);
-
-    ApplicationApi applicationApi = createNiceMock(ApplicationApi.class);
-    expect(applicationApi.getContextPool()).andReturn(contextPool).anyTimes();
-    replay(applicationApi);
-
-    cpu = new CpuImpl(PLUGIN_ID, applicationApi, PluginSettings.UNAVAILABLE, ooz80);
-
-    MockedMemory<WordNumber> memory1 = (MockedMemory<WordNumber>) this.cpu.ooz80.getState().getMemory();
-    memory1.canDisable(false);
-    memory.init(memory1);
-    assertTrue(cpuContext.hasCaptured());
-
-    for (int i = 0; i < 256; i++) {
-      FakeByteDevice device = new FakeByteDevice(i, io);
-      devices.add(device);
-      cpuContext.getValue().attachDevice(i, device);
-    }
-
-    cpu.initialize();
-
-    cpuRunnerImpl = new CpuRunnerImpl(cpu, memory, devices);
-    cpuVerifierImpl = new CpuVerifierImpl(cpu, memory, devices);
-
-    Generator.setRandomTestsCount(10);
   }
 
   @After
