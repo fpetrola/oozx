@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.opcodes.references;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 
@@ -57,6 +58,10 @@ public class Memory8BitReference<T extends WordNumber> implements ImmutableOpcod
 
   public int getLength() {
     return 1;
+  }
+
+  public void accept(InstructionVisitor instructionVisitor) {
+    instructionVisitor.visitMemory8BitReference(this);
   }
 
   public Object clone() throws CloneNotSupportedException {

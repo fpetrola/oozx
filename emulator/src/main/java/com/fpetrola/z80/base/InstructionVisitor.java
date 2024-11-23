@@ -212,7 +212,7 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
+  default void visitIndirectMemory8BitReference(IndirectMemory8BitReference<T> indirectMemory8BitReference) {
 
   }
 
@@ -395,5 +395,12 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   default boolean visitLdd(Ldd ldd) {
     return false;
+  }
+
+  default void visitMemory16BitReference(Memory16BitReference<T> memory16BitReference) {
+  }
+
+  default void visitMemory8BitReference(Memory8BitReference<T> memory8BitReference) {
+
   }
 }

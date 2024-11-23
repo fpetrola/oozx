@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.opcodes.references;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.memory.Memory;
 
@@ -59,6 +60,10 @@ public class Memory16BitReference<T extends WordNumber> implements OpcodeReferen
 
   public int getLength() {
     return 2;
+  }
+
+  public void accept(InstructionVisitor instructionVisitor) {
+    instructionVisitor.visitMemory16BitReference(this);
   }
 
   public Object clone() throws CloneNotSupportedException {

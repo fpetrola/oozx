@@ -290,7 +290,7 @@ public class DefaultInstructionFactory<T extends WordNumber> implements Instruct
 
   @Override
   public In In(OpcodeReference target, ImmutableOpcodeReference source) {
-    return new In<T>(target, source, a, bc, flag, state.getMemptr(), io);
+    return new In<T>(target, source, a, bc, flag, io);
   }
 
   @Override

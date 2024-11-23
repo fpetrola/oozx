@@ -33,7 +33,7 @@ public class MemptrUpdater<T extends WordNumber> {
 
   public MemptrUpdater(Register<T> memptr1, Memory<T> memory1) {
     memptr = memptr1;
-    this.memory= memory1;
+    this.memory = memory1;
   }
 
   public void updateBefore(Instruction<T> instruction) {
@@ -78,11 +78,16 @@ public class MemptrUpdater<T extends WordNumber> {
       }
 
       public void visitIn(In<T> tOut) {
-        if (tOut.getSource() instanceof Register<?>)
-          memptr.write(((T) tOut.getSource().read()).plus(1));
-        if (tOut.getSource() instanceof Memory8BitReference<?> memory8BitReference) {
-          memptr.write((tOut.getA().read().left(8).or(tOut.getSource().read())).plus(1));
-        }
+        tOut.getSource().accept(new InstructionVisitor<T, T>() {
+          public boolean visitRegister(Register register) {
+            memptr.write(((T) tOut.getSource().read()).plus(1));
+            return false;
+          }
+
+          public void visitMemory8BitReference(Memory8BitReference<T> memory8BitReference) {
+            memptr.write((tOut.getA().read().left(8).or(tOut.getSource().read())).plus(1));
+          }
+        });
       }
 
       public boolean visitingAdc16(Adc16<T> tAdc16) {
@@ -106,18 +111,14 @@ public class MemptrUpdater<T extends WordNumber> {
 
   public void updateAfter(Instruction<T> instruction) {
     instruction.accept(new InstructionVisitor<T, Integer>() {
-      @Override
       public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
         memptr.write((T) memoryPlusRegister8BitReference.address);
-
-        InstructionVisitor.super.visitMemoryPlusRegister8BitReference(memoryPlusRegister8BitReference);
       }
 
       public void visitingTarget(OpcodeReference target, TargetInstruction targetInstruction) {
         target.accept(this);
       }
 
-      @Override
       public void visitingSource(ImmutableOpcodeReference source, TargetSourceInstruction targetSourceInstruction) {
         source.accept(this);
       }
@@ -144,6 +145,7 @@ public class MemptrUpdater<T extends WordNumber> {
 
       public void visitingConditionalInstruction(ConditionalInstruction conditionalInstruction) {
         T nextPC = (T) conditionalInstruction.getNextPC();
+
         if (conditionalInstruction instanceof Call) {
           nextPC = (T) conditionalInstruction.getJumpAddress();
         } else if (conditionalInstruction instanceof JP jp) {
@@ -158,21 +160,33 @@ public class MemptrUpdater<T extends WordNumber> {
       public void visitingLd(Ld<T> ld) {
         ImmutableOpcodeReference source = ld.getSource();
         OpcodeReference<T> target = ld.getTarget();
-        if (target instanceof IndirectMemory16BitReference indirectMemory16BitReference) {
-          memptr.write(indirectMemory16BitReference.address.plus(1));
-        } else if (target instanceof IndirectMemory8BitReference<T> indirectMemory8BitReference1) {
-          boolean b = indirectMemory8BitReference1.target instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"));
-          if (b || indirectMemory8BitReference1.getTarget() instanceof Memory16BitReference<T>)
-            memptr.write(ld.getSource().read().left(8).or(indirectMemory8BitReference1.address.plus(1).and(0xff)));
-        } else if (source instanceof IndirectMemory8BitReference indirectMemory8BitReference) {
-          boolean b = indirectMemory8BitReference.target instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"));
-          if (b || indirectMemory8BitReference.getTarget() instanceof Memory16BitReference<?>)
-            memptr.write(((T) indirectMemory8BitReference.address).plus(1));
-        } else if (source instanceof IndirectMemory16BitReference indirectMemory16BitReference) {
-          memptr.write(indirectMemory16BitReference.address.plus(1));
-        } else if (target instanceof Memory16BitReference memory16BitReference) {
-          memptr.write(memory16BitReference.fetchedAddress.plus(2));
-        }
+
+        target.accept(new InstructionVisitor<T, T>() {
+          public void visitIndirectMemory8BitReference(IndirectMemory8BitReference<T> indirectMemory8BitReference1) {
+            boolean b = indirectMemory8BitReference1.target instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"));
+            if (b || indirectMemory8BitReference1.getTarget() instanceof Memory16BitReference<T>)
+              memptr.write(ld.getSource().read().left(8).or(indirectMemory8BitReference1.address.plus(1).and(0xff)));
+          }
+
+          public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
+            memptr.write(indirectMemory16BitReference.address.plus(1));
+          }
+
+          public void visitMemory16BitReference(Memory16BitReference<T> memory16BitReference) {
+            memptr.write(memory16BitReference.fetchedAddress.plus(2));
+          }
+        });
+        source.accept(new InstructionVisitor<T, T>() {
+          public void visitIndirectMemory8BitReference(IndirectMemory8BitReference<T> indirectMemory8BitReference) {
+            boolean b = indirectMemory8BitReference.target instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"));
+            if (b || indirectMemory8BitReference.getTarget() instanceof Memory16BitReference<?>)
+              memptr.write(((T) indirectMemory8BitReference.address).plus(1));
+          }
+
+          public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
+            memptr.write(indirectMemory16BitReference.address.plus(1));
+          }
+        });
       }
 
       public void visitingRst(RST rst) {
