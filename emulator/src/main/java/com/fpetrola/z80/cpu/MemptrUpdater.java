@@ -173,8 +173,9 @@ public class MemptrUpdater<T extends WordNumber> {
             memptr.write(indirectMemory16BitReference.address.plus(1));
           }
 
-          public void visitMemory16BitReference(Memory16BitReference<T> memory16BitReference) {
+          public boolean visitMemory16BitReference(Memory16BitReference<T> memory16BitReference) {
             memptr.write(memory16BitReference.fetchedAddress.plus(2));
+            return false;
           }
         });
         source.accept(new InstructionVisitor<T, T>() {
