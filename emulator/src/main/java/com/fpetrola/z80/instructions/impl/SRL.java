@@ -32,7 +32,7 @@ public class SRL<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
       F = (value) & FLAG_C;
       (value) >>= 1;
       value &= 0xff;
-      F |= sz53pTable[(value)];
+      F |= sz53pTable((value));
       Q = F;
       return value;
     }

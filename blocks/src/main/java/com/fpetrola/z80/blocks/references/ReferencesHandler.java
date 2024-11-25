@@ -167,7 +167,7 @@ public class ReferencesHandler {
 
     Collections.sort(entries1, (o1, o2) -> (int) (o1.getValue().executionNumber - o2.getValue().executionNumber));
 
-    entries1.stream().forEach(r -> System.out.println(Helper.convertToHex(r.getKey().getSourceAddress()) + " -> " + Helper.convertToHex(r.getKey().getTargetAddress()) + " = " + r.getValue()));
+    entries1.stream().forEach(r -> System.out.println(Helper.formatAddress(r.getKey().getSourceAddress()) + " -> " + Helper.formatAddress(r.getKey().getTargetAddress()) + " = " + r.getValue()));
 //
 //    collect.stream().map(r -> r.getTargetAddress()).distinct().sorted().forEach(r -> System.out.println(Helper.convertToHex(r)));
 //    System.out.println("---------------------------------------");

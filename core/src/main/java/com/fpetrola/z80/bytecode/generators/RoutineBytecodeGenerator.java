@@ -42,8 +42,8 @@ public class RoutineBytecodeGenerator {
   public Map<String, Variable> registers = new HashMap<>();
   public Field memory;
   public MethodMaker mm;
-  private Map<Integer, Label> labels = new HashMap<>();
-  private Set<Integer> positionedLabels = new HashSet<>();
+  private final Map<Integer, Label> labels = new HashMap<>();
+  private final Set<Integer> positionedLabels = new HashSet<>();
   public final Routine routine;
   public Register<WordNumber> lastMemPc = new Plain16BitRegister<WordNumber>("lastMemPc");
 
@@ -51,7 +51,7 @@ public class RoutineBytecodeGenerator {
   public Map<String, VirtualRegister> registerByVariable = new HashMap<>();
   public Map<VirtualRegister, Variable> variablesByRegister = new HashMap<>();
   public Map<VirtualRegister<?>, VirtualRegister<?>> commonRegisters = new HashMap<>();
-  private Map<Integer, Label> insertLabels = new HashMap<>();
+  private final Map<Integer, Label> insertLabels = new HashMap<>();
   protected Field initial;
   private PendingFlagUpdate pendingFlag;
   public Instruction currentInstruction;
@@ -70,8 +70,7 @@ public class RoutineBytecodeGenerator {
   }
 
   public static String createLabelName(int label) {
-    return "$" + Helper.convertToHex(label);
-//    return "$" + label;
+    return "$" + Helper.formatAddress(label);
   }
 
   public void generate() {
@@ -284,7 +283,7 @@ public class RoutineBytecodeGenerator {
     }
 
     label.here();
-    positionedLabels.remove((Object) labelName);
+    positionedLabels.remove(labelName);
 
   }
 

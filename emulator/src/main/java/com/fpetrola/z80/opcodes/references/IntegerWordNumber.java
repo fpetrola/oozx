@@ -114,7 +114,7 @@ public class IntegerWordNumber implements WordNumber {
 
   @Override
   public <T extends WordNumber> List<T> getFirstReadOperation() {
-    return (List<T>) Arrays.asList(this);
+    return (List<T>) List.of(this);
   }
 
   public String toString() {

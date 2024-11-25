@@ -40,15 +40,21 @@ public class MemptrUpdater<T extends WordNumber> {
     memory.canDisable(true);
     memory.disableReadListener();
     instruction.accept(new InstructionVisitor<T, Integer>() {
+      public boolean visitRLD(RLD<T> rld) {
+        memptr.write(rld.getHl().read().plus(1));
+        return false;
+      }
+
       public boolean visitingCall(Call tCall) {
         T jumpAddress2 = (T) tCall.calculateJumpAddress();
         memptr.write(jumpAddress2);
 
-        return InstructionVisitor.super.visitingCall(tCall);
+        return false;
       }
 
-      public void visitingAdd16(Add16 tAdd16) {
-        memptr.write(((T) tAdd16.getTarget().read()).plus(1));
+      public boolean visitingOperation16Bits(Binary16BitsOperation<T> binary16BitsOperation) {
+        memptr.write(((T) binary16BitsOperation.getTarget().read()).plus(1));
+        return false;
       }
 
       public boolean visitIni(Ini<T> tIni) {
@@ -90,20 +96,6 @@ public class MemptrUpdater<T extends WordNumber> {
           }
         });
       }
-
-      public boolean visitingAdc16(Adc16<T> tAdc16) {
-        memptr.write(tAdc16.getTarget().read().plus(1));
-        return false;
-      }
-
-      public void visitingSbc16(Sbc16<T> sbc16) {
-        memptr.write(sbc16.getTarget().read().plus(1));
-      }
-
-      public boolean visitRLD(RLD<T> rld) {
-        memptr.write(rld.getHl().read().plus(1));
-        return false;
-      }
     });
 
     memory.enableReadListener();
@@ -112,52 +104,6 @@ public class MemptrUpdater<T extends WordNumber> {
 
   public void updateAfter(Instruction<T> instruction) {
     instruction.accept(new InstructionVisitor<T, Integer>() {
-      public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
-        memptr.write((T) memoryPlusRegister8BitReference.address);
-      }
-
-      public void visitingTarget(OpcodeReference target, TargetInstruction targetInstruction) {
-        target.accept(this);
-      }
-
-      public void visitingSource(ImmutableOpcodeReference source, TargetSourceInstruction targetSourceInstruction) {
-        source.accept(this);
-      }
-
-      public boolean visitingBit(BIT bit) {
-        return false;
-      }
-
-      public boolean visitLdOperation(LdOperation ldOperation) {
-        return InstructionVisitor.super.visitLdOperation(ldOperation);
-      }
-
-      public boolean visitOuti(Outi<T> outi) {
-        memptr.write(outi.getBc().read().plus(1));
-
-        return InstructionVisitor.super.visitOuti(outi);
-      }
-
-      public boolean visitOutd(Outd<T> outd) {
-        memptr.write(outd.getBc().read().plus(-1));
-
-        return true;
-      }
-
-      public void visitingConditionalInstruction(ConditionalInstruction conditionalInstruction) {
-        T nextPC = (T) conditionalInstruction.getNextPC();
-
-        if (conditionalInstruction instanceof Call) {
-          nextPC = (T) conditionalInstruction.getJumpAddress();
-        } else if (conditionalInstruction instanceof JP jp) {
-          if (!(jp.getPositionOpcodeReference() instanceof Register<?>))
-            nextPC = (T) conditionalInstruction.getJumpAddress();
-          else
-            nextPC = null;
-        }
-        memptr.write(nextPC == null ? WordNumber.createValue(0) : nextPC);
-      }
-
       public void visitingLd(Ld<T> ld) {
         ImmutableOpcodeReference source = ld.getSource();
         OpcodeReference<T> target = ld.getTarget();
@@ -191,6 +137,59 @@ public class MemptrUpdater<T extends WordNumber> {
         });
       }
 
+      public void visitEx(Ex<T> ex) {
+        if (ex.getTarget() instanceof IndirectMemory16BitReference indirectMemory16BitReference)
+          if (indirectMemory16BitReference.target instanceof Register<?> register && register.getName().equals(RegisterName.SP.name())) {
+            memptr.write(ex.getSource().read());
+          }
+      }
+
+      public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
+        memptr.write((T) memoryPlusRegister8BitReference.address);
+      }
+
+      public void visitingTarget(OpcodeReference target, TargetInstruction targetInstruction) {
+        target.accept(this);
+      }
+
+      public void visitingSource(ImmutableOpcodeReference source, TargetSourceInstruction targetSourceInstruction) {
+        source.accept(this);
+      }
+
+      public boolean visitingBit(BIT bit) {
+        return false;
+      }
+
+      public boolean visitLdOperation(LdOperation ldOperation) {
+        return false;
+      }
+
+      public boolean visitOuti(Outi<T> outi) {
+        memptr.write(outi.getBc().read().plus(1));
+
+        return false;
+      }
+
+      public boolean visitOutd(Outd<T> outd) {
+        memptr.write(outd.getBc().read().plus(-1));
+
+        return true;
+      }
+
+      public void visitingConditionalInstruction(ConditionalInstruction conditionalInstruction) {
+        T nextPC = (T) conditionalInstruction.getNextPC();
+
+        if (conditionalInstruction instanceof Call) {
+          nextPC = (T) conditionalInstruction.getJumpAddress();
+        } else if (conditionalInstruction instanceof JP jp) {
+          if (!(jp.getPositionOpcodeReference() instanceof Register<?>))
+            nextPC = (T) conditionalInstruction.getJumpAddress();
+          else
+            nextPC = null;
+        }
+        memptr.write(nextPC == null ? WordNumber.createValue(0) : nextPC);
+      }
+
       public void visitingRst(RST rst) {
         memptr.write((T) rst.getNextPC());
       }
@@ -207,31 +206,36 @@ public class MemptrUpdater<T extends WordNumber> {
         }
       }
 
-      public boolean visitRepeatingInstruction(RepeatingInstruction<T> tRepeatingInstruction) {
-        boolean isCpdr = tRepeatingInstruction instanceof Cpdr;
-        boolean isCpir = tRepeatingInstruction instanceof Cpir;
-        if (tRepeatingInstruction instanceof Ldir || tRepeatingInstruction instanceof Lddr<?> || isCpdr || isCpir) {
-          T nextPC = tRepeatingInstruction.getNextPC();
-          if (nextPC != null) {
-            memptr.write(nextPC.plus(1));
-          } else {
-            if (isCpdr) {
-              memptr.write(memptr.read().plus(-1));
-            } else if (isCpir) {
-              memptr.write(memptr.read().plus(1));
-            }
-            tRepeatingInstruction.getInstructionToRepeat().accept(this);
+      public boolean visitRepeatingInstruction(RepeatingInstruction<T> repeatingInstruction) {
+        repeatingInstruction.accept(new InstructionVisitor<T, T>() {
+          public boolean visitLddr(Lddr lddr) {
+            incIfNextPC(0);
+            return false;
           }
-        } else
-          tRepeatingInstruction.getInstructionToRepeat().accept(this);
-        return true;
-      }
 
-      public void visitEx(Ex<T> ex) {
-        if (ex.getTarget() instanceof IndirectMemory16BitReference indirectMemory16BitReference)
-          if (indirectMemory16BitReference.target instanceof Register<?> register && register.getName().equals(RegisterName.SP.name())) {
-            memptr.write(ex.getSource().read());
+          public void visitLdir(Ldir<T> ldir) {
+            incIfNextPC(0);
           }
+
+          public boolean visitCpir(Cpir<T> cpir) {
+            incIfNextPC(1);
+            return false;
+          }
+
+          public void visitCpdr(Cpdr tCpdr) {
+            incIfNextPC(-1);
+          }
+
+          private void incIfNextPC(int i) {
+            T nextPC = repeatingInstruction.getNextPC();
+            T newValue = nextPC != null ? nextPC.plus(1) : memptr.read().plus(i);
+            memptr.write(newValue);
+          }
+        });
+
+        repeatingInstruction.getInstructionToRepeat().accept(this);
+
+        return true;
       }
     });
   }

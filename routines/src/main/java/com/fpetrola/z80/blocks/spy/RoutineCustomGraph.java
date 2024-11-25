@@ -32,10 +32,10 @@ import java.util.Set;
 
 public class RoutineCustomGraph extends CustomGraph {
   private static mxGraph graph;
-  private static Map<Block, mxCell> routinesVertices = new HashMap<>();
+  private static final Map<Block, mxCell> routinesVertices = new HashMap<>();
 
   public RoutineCustomGraph(mxGraph graph) {
-    this.graph = graph;
+    RoutineCustomGraph.graph = graph;
   }
 
   public static class GraphBlockChangesListener implements BlockChangesListener {
@@ -173,15 +173,13 @@ public class RoutineCustomGraph extends CustomGraph {
   }
 
   protected String getVertexLabel(Object object) {
-    if (object instanceof mxCell) {
-      mxCell mxCell = (mxCell) object;
+    if (object instanceof mxCell mxCell) {
       return mxCell.getValue().toString();
     } else return object + "";
   }
 
   protected String getVertexId(Object object) {
-    if (object instanceof mxCell) {
-      mxCell mxCell = (mxCell) object;
+    if (object instanceof mxCell mxCell) {
       return mxCell.getId();
     } else return getVertexLabel(object);
   }

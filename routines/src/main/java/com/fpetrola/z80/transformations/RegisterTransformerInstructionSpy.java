@@ -45,7 +45,7 @@ public class RegisterTransformerInstructionSpy<T extends WordNumber> extends Wra
     return executedInstructions;
   }
 
-  private List<Instruction<T>> executedInstructions = new ArrayList<>();
+  private final List<Instruction<T>> executedInstructions = new ArrayList<>();
 
   public RegisterTransformerInstructionSpy(RoutineManager routineManager) {
     routineFinder = new RoutineFinder(routineManager);

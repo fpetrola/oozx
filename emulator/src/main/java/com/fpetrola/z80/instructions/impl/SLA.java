@@ -31,7 +31,7 @@ public class SLA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
       F = value >> 7;
       value <<= 1;
       value &= 0xff;
-      F |= sz53pTable[value];
+      F |= sz53pTable(value);
       Q = F;
       return value;
     }

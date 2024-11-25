@@ -25,17 +25,20 @@ import java.util.Arrays;
 
 public class MiniZXKeyboard implements KeyListener {
 
-  public static enum JoystickModel {
+  public enum JoystickModel {
     NONE, KEMPSTON, SINCLAIR1, SINCLAIR2, CURSOR, FULLER
   }
 
-  ;
-
-  private int rowKey[] = new int[8], sjs1, sjs2;
-  private boolean shiftPressed, mapPCKeys, winBug;
-  private KeyEvent keyEventPending[] = new KeyEvent[8];
+  private final int[] rowKey = new int[8];
+  private int sjs1;
+  private int sjs2;
+  private boolean shiftPressed;
+  private boolean mapPCKeys;
+  private final boolean winBug;
+  private final KeyEvent[] keyEventPending = new KeyEvent[8];
   private int kempston, fuller;
-  private JoystickModel joystickModel, shadowJoystick;
+  private final JoystickModel joystickModel;
+  private JoystickModel shadowJoystick;
   private int capsShiftCounter = 0;
 
   /*

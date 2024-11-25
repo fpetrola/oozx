@@ -75,7 +75,7 @@ public interface IZ80 {
 
   void setSpritesArray(boolean[] bitsWritten);
   
-  public boolean isExecuting();
+  boolean isExecuting();
 
   void setLoadedFile(File fileSnapshot);
 

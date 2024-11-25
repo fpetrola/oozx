@@ -54,7 +54,7 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
 
   private RoutineCustomGraph customGraph;
   private final GraphFrame graphFrame;
-  private RoutineFinder routineFinder;
+  private final RoutineFinder routineFinder;
 
   @Override
   public boolean isStructureCapture() {
@@ -67,10 +67,10 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
     return blocksManager;
   }
 
-  private BlocksManager blocksManager;
-  private List<String> visitedPCs = new ArrayList<>();
+  private final BlocksManager blocksManager;
+  private final List<String> visitedPCs = new ArrayList<>();
 
-  private Queue<ExecutionStep> stepsQueue = new CircularFifoQueue<>(1000);
+  private final Queue<ExecutionStep> stepsQueue = new CircularFifoQueue<>(1000);
   private String gameName;
 
   public RoutineGrouperSpy(GraphFrame graphFrame) {

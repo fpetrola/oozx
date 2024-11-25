@@ -9,6 +9,6 @@ package joystickinput;
  * @author jsanchez
  */
 public interface JoystickRawListener {
-    public void buttonEvent(int joystickId, int buttonId, boolean state);
-    public void axisEvent(int joystickId, int axisId, short value);
+    void buttonEvent(int joystickId, int buttonId, boolean state);
+    void axisEvent(int joystickId, int axisId, short value);
 }

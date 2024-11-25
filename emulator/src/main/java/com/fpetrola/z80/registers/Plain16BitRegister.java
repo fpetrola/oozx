@@ -23,7 +23,7 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 public class Plain16BitRegister<T extends WordNumber> implements Register<T> {
 
   protected T data;
-  private String name;
+  private final String name;
 
   public Plain16BitRegister(String name) {
     this.name = name;

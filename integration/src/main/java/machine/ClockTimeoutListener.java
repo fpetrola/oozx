@@ -9,5 +9,5 @@ package machine;
  * @author jsanchez
  */  
 public interface ClockTimeoutListener {
-    public void clockTimeout();
+    void clockTimeout();
 }

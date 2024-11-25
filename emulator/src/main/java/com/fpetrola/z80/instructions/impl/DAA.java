@@ -48,7 +48,7 @@ public class DAA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
       }
       F = f.read().intValue();
 
-      F = (F & ~(FLAG_C | FLAG_P)) | carry | parityTable[A];
+      F = (F & ~(FLAG_C | FLAG_P)) | carry | parityTable(A);
       Q = F;
 
       return A;

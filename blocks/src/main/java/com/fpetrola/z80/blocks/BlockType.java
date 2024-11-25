@@ -26,6 +26,6 @@ public interface BlockType {
   void setBlock(Block block);
 
   default String getName() {
-    return getClass().getSimpleName().toString();
+    return getClass().getSimpleName();
   }
 }

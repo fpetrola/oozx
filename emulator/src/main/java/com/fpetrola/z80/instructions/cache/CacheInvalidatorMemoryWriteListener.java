@@ -26,7 +26,7 @@ public class CacheInvalidatorMemoryWriteListener<T extends WordNumber>  implemen
     this.cacheInvalidators = cacheInvalidators;
   }
 
-  private Runnable[] cacheInvalidators;
+  private final Runnable[] cacheInvalidators;
 
   @Override
   public void writtingMemoryAt(T address, T value) {

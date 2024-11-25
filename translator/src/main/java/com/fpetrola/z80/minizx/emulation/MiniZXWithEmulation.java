@@ -259,7 +259,7 @@ public class MiniZXWithEmulation {
         };
       }
 
-      protected Map<Integer, Runnable> getConvertedRoutines() {
+      private Map<Integer, Runnable> getConvertedRoutines() {
         return null;
       }
 
@@ -355,7 +355,6 @@ public class MiniZXWithEmulation {
       d1[i] = (byte) (data[i].intValue() & 0xff);
     }
     String s = Base64Utils.gzipArrayCompressToBase64(d1);
-    s.toString();
     return d1;
   }
 }

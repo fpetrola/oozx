@@ -24,7 +24,7 @@ import com.fpetrola.z80.registers.*;
 import static com.fpetrola.z80.registers.RegisterName.F;
 
 public class SpyRegisterBankFactory<T extends WordNumber> extends DefaultRegisterBankFactory<T> {
-  private InstructionSpy spy;
+  private final InstructionSpy spy;
 
   public SpyRegisterBankFactory(InstructionSpy spy) {
     this.spy = spy;

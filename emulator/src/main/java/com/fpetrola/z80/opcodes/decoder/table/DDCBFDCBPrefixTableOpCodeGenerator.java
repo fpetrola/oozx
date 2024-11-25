@@ -31,7 +31,7 @@ import static com.fpetrola.z80.registers.RegisterName.IXL;
 
 public class DDCBFDCBPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
 
-  private RegisterName ixy;
+  private final RegisterName ixy;
 
   public DDCBFDCBPrefixTableOpCodeGenerator(State state, RegisterName ixy, RegisterName ixyh, RegisterName ixyl, OpcodeReference a, OpcodeConditions opcodeConditions, DefaultInstructionFactory instructionFactory) {
     super(state, ixy, ixyh, ixyl, a, opcodeConditions, instructionFactory);

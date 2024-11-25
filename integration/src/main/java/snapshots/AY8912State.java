@@ -12,7 +12,7 @@ public class AY8912State {
     // AY register index
     private int addressLatch;
     // AY register set
-    private int regAY[];
+    private int[] regAY;
     
     public AY8912State() {
     }
@@ -29,7 +29,7 @@ public class AY8912State {
         return regAY;
     }
     
-    public void setRegAY(int reg[]) {
+    public void setRegAY(int[] reg) {
         regAY = reg;
     }
 }

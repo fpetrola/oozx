@@ -32,8 +32,8 @@ import java.util.function.Function;
 
 public class OpcodeReferenceVisitor<T extends WordNumber> implements InstructionVisitor<T, Object> {
   private Object result;
-  private boolean isTarget;
-  private RoutineBytecodeGenerator routineByteCodeGenerator;
+  private final boolean isTarget;
+  private final RoutineBytecodeGenerator routineByteCodeGenerator;
 
   public void setInitializerFactory(Function initializerFactory) {
     this.initializerFactory = initializerFactory;
@@ -113,7 +113,7 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
         variable = routineByteCodeGenerator.getVariable(virtualRegister, () -> solveInitializer(initializerFactory, virtualRegister));
     } else {
       variable = routineByteCodeGenerator.getExistingVariable(virtualRegister);
-      if (true || b) {
+      if (true) {
         if (virtualRegister.isInitialized()) {
           Object value = solveInitializer(initializerFactory, virtualRegister);
           if (value != null) variable.set(value);

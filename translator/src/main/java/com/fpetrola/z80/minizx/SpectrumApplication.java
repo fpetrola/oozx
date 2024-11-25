@@ -43,7 +43,7 @@ public abstract class SpectrumApplication<T> {
 
   public int[] mem = new int[0x10000];
   static public IO<WordNumber> io;
-  private Stack<Integer> stack = new Stack<>();
+  private final Stack<Integer> stack = new Stack<>();
 
   public int exAF(int AF) {
     int temp1 = AFx;

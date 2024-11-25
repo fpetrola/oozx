@@ -9,6 +9,7 @@ import machine.MachineTypes;
 import z80core.IntMode;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,7 +29,7 @@ public class SnapshotSZX implements SnapshotFile {
     private AY8912State ay8912;
     
     private boolean tapeEmbedded, tapeLinked;
-    private byte tapeData[];
+    private byte[] tapeData;
     private int tapeBlock;
     private String tapeName, tapeExtension;
     
@@ -275,13 +276,13 @@ public class SnapshotSZX implements SnapshotFile {
     @Override
     public SpectrumState load(File filename) throws SnapshotException {
         
-        byte dwMagic[] = new byte[4];
-        byte dwSize[] = new byte[4];
+        byte[] dwMagic = new byte[4];
+        byte[] dwSize = new byte[4];
         byte szxMajorVer, szxMinorVer;
         int readed, szxId, szxLen;
         ByteArrayInputStream bais;
         InflaterInputStream iis;
-        byte chData[];
+        byte[] chData;
 
         spectrum = new SpectrumState();
         
@@ -345,7 +346,7 @@ public class SnapshotSZX implements SnapshotFile {
 
                 switch (szxId) {
                     case ZXSTBID_CREATOR:
-                        byte szCreator[] = new byte[32];
+                        byte[] szCreator = new byte[32];
                         readed = fIn.read(szCreator);
 //                        System.out.println(String.format("Creator: %s", new String(szCreator)));
                         int majorVersion = fIn.read() + fIn.read() * 256;
@@ -367,7 +368,7 @@ public class SnapshotSZX implements SnapshotFile {
                         if (szxLen != 37) {
                             throw new SnapshotException("FILE_READ_ERROR");
                         }
-                        byte z80Regs[] = new byte[szxLen];
+                        byte[] z80Regs = new byte[szxLen];
                         readed = fIn.read(z80Regs);
                         if (readed != szxLen) {
                             throw new SnapshotException("FILE_READ_ERROR");
@@ -413,8 +414,8 @@ public class SnapshotSZX implements SnapshotFile {
                                 break;
                         }
                         
-                        spectrum.setTstates((int) (((z80Regs[32] & 0xff) << 24) | ((z80Regs[31] & 0xff) << 16)
-                                | ((z80Regs[30] & 0xff) << 8) | (z80Regs[29] & 0xff)));
+                        spectrum.setTstates(((z80Regs[32] & 0xff) << 24) | ((z80Regs[31] & 0xff) << 16)
+                                | ((z80Regs[30] & 0xff) << 8) | (z80Regs[29] & 0xff));
 
                         // ignore the chHoldIntReqCycles z80Regs[33]
 
@@ -442,7 +443,7 @@ public class SnapshotSZX implements SnapshotFile {
                         if (szxLen != 8) {
                             throw new SnapshotException("FILE_READ_ERROR");
                         }
-                        byte specRegs[] = new byte[szxLen];
+                        byte[] specRegs = new byte[szxLen];
                         readed = fIn.read(specRegs);
                         if (readed != szxLen) {
                             throw new SnapshotException("FILE_READ_ERROR");
@@ -456,7 +457,7 @@ public class SnapshotSZX implements SnapshotFile {
                         if (szxLen != 5) {
                             throw new SnapshotException("FILE_READ_ERROR");
                         }
-                        byte keyb[] = new byte[szxLen];
+                        byte[] keyb = new byte[szxLen];
                         readed = fIn.read(keyb);
                         if (readed != szxLen) {
                             throw new SnapshotException("FILE_READ_ERROR");
@@ -488,7 +489,7 @@ public class SnapshotSZX implements SnapshotFile {
                             throw new SnapshotException("FILE_READ_ERROR");
                         }
                         
-                        byte ayRegs[] = new byte[szxLen];
+                        byte[] ayRegs = new byte[szxLen];
                         readed = fIn.read(ayRegs);
                         if (readed != szxLen) {
                             throw new SnapshotException("FILE_READ_ERROR");
@@ -503,7 +504,7 @@ public class SnapshotSZX implements SnapshotFile {
                         ay8912 = new AY8912State();
                         spectrum.setAY8912State(ay8912);
                         
-                        int regAY[] = new int[16];
+                        int[] regAY = new int[16];
                         ay8912.setAddressLatch(ayRegs[1]);
                         for (int idx = 0; idx < 16; idx++) {
                             regAY[idx] = ayRegs[2 + idx] & 0xff;
@@ -516,7 +517,7 @@ public class SnapshotSZX implements SnapshotFile {
                             spectrum.setMemoryState(memory);
                         }
                         
-                        byte ramPage[] = new byte[3];
+                        byte[] ramPage = new byte[3];
                         readed = fIn.read(ramPage);
                         if (readed != ramPage.length) {
                             throw new SnapshotException("FILE_READ_ERROR");
@@ -539,7 +540,7 @@ public class SnapshotSZX implements SnapshotFile {
                         // Compressed RAM page
                         bais = new ByteArrayInputStream(chData);
                         iis = new InflaterInputStream(bais);
-                        byte pageRAM[] = new byte[0x4000];
+                        byte[] pageRAM = new byte[0x4000];
                         readed = 0;
                         while (readed < pageRAM.length) {
                             int count = iis.read(pageRAM, readed, pageRAM.length - readed);
@@ -560,7 +561,7 @@ public class SnapshotSZX implements SnapshotFile {
                             spectrum.setMemoryState(memory);
                         }
                         
-                        byte mf[] = new byte[2];
+                        byte[] mf = new byte[2];
                         readed = fIn.read(mf);
                         if (readed != mf.length) {
                             throw new SnapshotException("FILE_READ_ERROR");
@@ -610,7 +611,7 @@ public class SnapshotSZX implements SnapshotFile {
                         // MF RAM compressed
                         bais = new ByteArrayInputStream(chData);
                         iis = new InflaterInputStream(bais);
-                        byte mfRAM[] = new byte[0x2000];
+                        byte[] mfRAM = new byte[0x2000];
                         readed = 0;
                         while (readed < mfRAM.length) {
                             int count = iis.read(mfRAM, readed, mfRAM.length - readed);
@@ -633,7 +634,7 @@ public class SnapshotSZX implements SnapshotFile {
                         }
                         
                         spectrum.setULAPlusEnabled(true);
-                        byte ULAplusRegs[] = new byte[szxLen];
+                        byte[] ULAplusRegs = new byte[szxLen];
                         readed = fIn.read(ULAplusRegs);
                         if (readed != szxLen) {
                             throw new SnapshotException("FILE_READ_ERROR");
@@ -653,7 +654,7 @@ public class SnapshotSZX implements SnapshotFile {
                         spectrum.setULAPlusPalette(palette);
                         break;
                     case ZXSTBID_ZXTAPE:
-                        byte tape[] = new byte[4];
+                        byte[] tape = new byte[4];
                         readed = fIn.read(tape);
                         if (readed != tape.length) {
                             throw new SnapshotException("FILE_READ_ERROR");
@@ -661,7 +662,7 @@ public class SnapshotSZX implements SnapshotFile {
                         szxLen -= tape.length;
                         tapeBlock = ((tape[1] << 8) & 0xff00) | (tape[0] & 0xff);
 
-                        byte qword[] = new byte[4];
+                        byte[] qword = new byte[4];
                         readed = fIn.read(qword);
                         if (readed != qword.length) {
                             throw new SnapshotException("FILE_READ_ERROR");
@@ -678,7 +679,7 @@ public class SnapshotSZX implements SnapshotFile {
 //                        System.out.println(String.format("uSize: %d, cSize: %d",
 //                                uSize, cSize));
 
-                        byte szFileExtension[] = new byte[16];
+                        byte[] szFileExtension = new byte[16];
                         readed = fIn.read(szFileExtension);
                         if (readed != szFileExtension.length) {
                             throw new SnapshotException("FILE_READ_ERROR");
@@ -755,7 +756,7 @@ public class SnapshotSZX implements SnapshotFile {
                             spectrum.setMemoryState(memory);
                         }
                         
-                        byte dwCartSize[] = new byte[4];
+                        byte[] dwCartSize = new byte[4];
                         readed = fIn.read(dwCartSize);
                         if (readed != dwCartSize.length) {
                             throw new SnapshotException("FILE_READ_ERROR");
@@ -785,7 +786,7 @@ public class SnapshotSZX implements SnapshotFile {
                         // ROM is compressed
                         bais = new ByteArrayInputStream(chData);
                         iis = new InflaterInputStream(bais);
-                        byte IF2Rom[] = new byte[0x4000];
+                        byte[] IF2Rom = new byte[0x4000];
                         readed = 0;
                         while (readed < IF2Rom.length) {
                             int count = iis.read(IF2Rom, readed, IF2Rom.length - readed);
@@ -899,7 +900,7 @@ public class SnapshotSZX implements SnapshotFile {
                             spectrum.setMemoryState(memory);
                         }
                         
-                        byte lecPage[] = new byte[3];
+                        byte[] lecPage = new byte[3];
                         readed = fIn.read(lecPage);
                         if (readed != lecPage.length) {
                             throw new SnapshotException("FILE_READ_ERROR");
@@ -923,7 +924,7 @@ public class SnapshotSZX implements SnapshotFile {
                         // Compressed RAM page
                         bais = new ByteArrayInputStream(chData);
                         iis = new InflaterInputStream(bais);
-                        byte lecRAM[] = new byte[0x8000];
+                        byte[] lecRAM = new byte[0x8000];
                         readed = 0;
                         while (readed < lecRAM.length) {
                             int count = iis.read(lecRAM, readed, lecRAM.length - readed);
@@ -968,13 +969,13 @@ public class SnapshotSZX implements SnapshotFile {
                         }
 
                         String blockID = new String(dwMagic);
-                        System.out.println(String.format(
-                                "SZX block ID '%s' readed but not emulated. Skipping...",
-                                blockID));
+                        System.out.printf(
+                            "SZX block ID '%s' readed but not emulated. Skipping...%n",
+                                blockID);
                         break;
                     default:
                         String header = new String(dwMagic);
-                        System.out.println(String.format("Unknown SZX block ID: %s", header));
+                        System.out.printf("Unknown SZX block ID: %s%n", header);
                         throw new SnapshotException("FILE_READ_ERROR");
                 }
             }
@@ -1010,7 +1011,7 @@ public class SnapshotSZX implements SnapshotFile {
 
             // SZX Header
             String blockID = "ZXST";
-            fOut.write(blockID.getBytes("US-ASCII"));
+            fOut.write(blockID.getBytes(StandardCharsets.US_ASCII));
             fOut.write(0x01); // SZX major version
             fOut.write(0x05); // SZX minor version
             switch (spectrum.getSpectrumModel()) {
@@ -1037,15 +1038,15 @@ public class SnapshotSZX implements SnapshotFile {
 
             // SZX Creator block
             blockID = "CRTR";
-            fOut.write(blockID.getBytes("US-ASCII"));
+            fOut.write(blockID.getBytes(StandardCharsets.US_ASCII));
             fOut.write(0x25);
             fOut.write(0x00);
             fOut.write(0x00);
             fOut.write(0x00);  // CRTR length block
             blockID = "JSpeccy v0.93";
             byte[] szCreator = new byte[32];
-            System.arraycopy(blockID.getBytes("US-ASCII"), 0, szCreator,
-                    0, blockID.getBytes("US-ASCII").length);
+            System.arraycopy(blockID.getBytes(StandardCharsets.US_ASCII), 0, szCreator,
+                    0, blockID.getBytes(StandardCharsets.US_ASCII).length);
             fOut.write(szCreator);
             fOut.write(0x00);
             fOut.write(0x00); // JSpeccy major version (0)
@@ -1055,7 +1056,7 @@ public class SnapshotSZX implements SnapshotFile {
 
             // SZX Z80REGS block
             blockID = "Z80R";
-            fOut.write(blockID.getBytes("US-ASCII"));
+            fOut.write(blockID.getBytes(StandardCharsets.US_ASCII));
             fOut.write(0x25);
             fOut.write(0x00);
             fOut.write(0x00);
@@ -1119,7 +1120,7 @@ public class SnapshotSZX implements SnapshotFile {
 
             // SZX SPECREGS block
             blockID = "SPCR";
-            fOut.write(blockID.getBytes("US-ASCII"));
+            fOut.write(blockID.getBytes(StandardCharsets.US_ASCII));
             fOut.write(0x08);
             fOut.write(0x00);
             fOut.write(0x00);
@@ -1157,7 +1158,7 @@ public class SnapshotSZX implements SnapshotFile {
 //                    System.out.println(String.format("Ram page: %d, compressed len: %d",
 //                        page, baos.size()));
                     blockID = "RAMP";
-                    fOut.write(blockID.getBytes("US-ASCII"));
+                    fOut.write(blockID.getBytes(StandardCharsets.US_ASCII));
                     int pageLen = baos.size() + 3;
                     fOut.write(pageLen);
                     fOut.write(pageLen >>> 8);
@@ -1172,7 +1173,7 @@ public class SnapshotSZX implements SnapshotFile {
 
             // SZX KEYB block
             blockID = "KEYB";
-            fOut.write(blockID.getBytes("US-ASCII"));
+            fOut.write(blockID.getBytes(StandardCharsets.US_ASCII));
             fOut.write(0x05);
             fOut.write(0x00);
             fOut.write(0x00);
@@ -1209,7 +1210,7 @@ public class SnapshotSZX implements SnapshotFile {
             // SZX AY block
             if (spectrum.isEnabledAY()) {
                 blockID = "AY\0\0";
-                fOut.write(blockID.getBytes("US-ASCII"));
+                fOut.write(blockID.getBytes(StandardCharsets.US_ASCII));
                 fOut.write(0x12);
                 fOut.write(0x00);
                 fOut.write(0x00);
@@ -1220,7 +1221,7 @@ public class SnapshotSZX implements SnapshotFile {
                     fOut.write(0x00);
                 }
                 fOut.write(ay8912.getAddressLatch());
-                int regAY[] = ay8912.getRegAY();
+                int[] regAY = ay8912.getRegAY();
                 for (int reg = 0; reg < 16; reg++) {
                     fOut.write(regAY[reg]);
                 }
@@ -1229,7 +1230,7 @@ public class SnapshotSZX implements SnapshotFile {
             // SZX ULAplus block
             if (spectrum.isULAPlusEnabled()) {
                 blockID = "PLTT";
-                fOut.write(blockID.getBytes("US-ASCII"));
+                fOut.write(blockID.getBytes(StandardCharsets.US_ASCII));
                 fOut.write(0x42);
                 fOut.write(0x00);
                 fOut.write(0x00);
@@ -1251,7 +1252,7 @@ public class SnapshotSZX implements SnapshotFile {
             // SZX Multiface block
             if (spectrum.isMultiface()) {
                 blockID = "MFCE";
-                fOut.write(blockID.getBytes("US-ASCII"));
+                fOut.write(blockID.getBytes(StandardCharsets.US_ASCII));
 
                 byte[] mfRam = memory.getMultifaceRam();
                 baos = new ByteArrayOutputStream();
@@ -1288,7 +1289,7 @@ public class SnapshotSZX implements SnapshotFile {
             if (memory.isIF2RomPaged()
                     && spectrum.getSpectrumModel().codeModel != MachineTypes.CodeModel.SPECTRUMPLUS3) {
                 blockID = "IF2R";
-                fOut.write(blockID.getBytes("US-ASCII"));
+                fOut.write(blockID.getBytes(StandardCharsets.US_ASCII));
 
                 byte[] if2Rom = memory.getIF2Rom();
                 baos = new ByteArrayOutputStream();
@@ -1312,7 +1313,7 @@ public class SnapshotSZX implements SnapshotFile {
             // SZX Tape Block
             if (tapeLinked && !tapeEmbedded) {
                 blockID = "TAPE";
-                fOut.write(blockID.getBytes("US-ASCII"));
+                fOut.write(blockID.getBytes(StandardCharsets.US_ASCII));
                 int blockLen = 28 + tapeName.length() + 1;
                 fOut.write(blockLen);
                 fOut.write(blockLen >>> 8);
@@ -1333,13 +1334,13 @@ public class SnapshotSZX implements SnapshotFile {
                 fOut.write(blockLen >>> 24); // dwCompressedSize
                 byte[] szFileExtension = new byte[16];
                 fOut.write(szFileExtension);
-                fOut.write(tapeName.getBytes("US-ASCII"));
+                fOut.write(tapeName.getBytes(StandardCharsets.US_ASCII));
                 fOut.write(0x00); // zero-terminated strings
             }
 
             if (!tapeLinked && tapeEmbedded) {
                 blockID = "TAPE";
-                fOut.write(blockID.getBytes("US-ASCII"));
+                fOut.write(blockID.getBytes(StandardCharsets.US_ASCII));
                 File tapeFile = new File(tapeName);
                 fIn = new BufferedInputStream(new FileInputStream(tapeFile));
                 tapeData = new byte[fIn.available()];
@@ -1385,7 +1386,7 @@ public class SnapshotSZX implements SnapshotFile {
             if (spectrum.isConnectedIF1()
                     && spectrum.getSpectrumModel().codeModel != MachineTypes.CodeModel.SPECTRUMPLUS3) {
                 blockID = "IF1\0";
-                fOut.write(blockID.getBytes("US-ASCII"));
+                fOut.write(blockID.getBytes(StandardCharsets.US_ASCII));
 
                 fOut.write(0x28);
                 fOut.write(0x00);
@@ -1398,14 +1399,14 @@ public class SnapshotSZX implements SnapshotFile {
                 }
                 fOut.write(if1Flag);
                 fOut.write(spectrum.getNumMicrodrives());
-                byte reserved[] = new byte[38]; // 35 reserved + wRomSize + chRomData[1]
+                byte[] reserved = new byte[38]; // 35 reserved + wRomSize + chRomData[1]
                 fOut.write(reserved);
             }
             
             // LEC RAM Extension Block
             if (spectrum.isConnectedLec() && spectrum.getSpectrumModel() == MachineTypes.SPECTRUM48K) {
                 blockID = "LEC\0";
-                fOut.write(blockID.getBytes("US-ASCII"));
+                fOut.write(blockID.getBytes(StandardCharsets.US_ASCII));
                 fOut.write(0x02);
                 fOut.write(0x00);
                 fOut.write(0x00);
@@ -1426,7 +1427,7 @@ public class SnapshotSZX implements SnapshotFile {
                         dos.close();
 //                    System.out.println(String.format("Ram page: %d, compressed len: %d",
 //                        page, baos.size()));
-                        fOut.write(blockID.getBytes("US-ASCII"));
+                        fOut.write(blockID.getBytes(StandardCharsets.US_ASCII));
                         int pageLen = baos.size() + 3;
                         fOut.write(pageLen);
                         fOut.write(pageLen >>> 8);

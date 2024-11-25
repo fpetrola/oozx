@@ -50,9 +50,9 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class Z80B extends RegistersBase implements IZ80 {
   public static final String FILE = "console2A.txt";
-  private MemIoOps memIoImpl;
+  private final MemIoOps memIoImpl;
   public OOZ80 z80;
-  private Timer timer;
+  private final Timer timer;
   private final Clock clock;
   private volatile boolean executing;
   private ComplexInstructionSpy spy;
@@ -89,8 +89,7 @@ public class Z80B extends RegistersBase implements IZ80 {
     Register<WordNumber> register = z80.getState().getRegister(registerName);
     int result;
 
-    if (register instanceof RegisterPair<WordNumber>) {
-      RegisterPair<WordNumber> wordNumberRegisterPair = (RegisterPair<WordNumber>) register;
+    if (register instanceof RegisterPair<WordNumber> wordNumberRegisterPair) {
       result = ((getValueH(wordNumberRegisterPair.getHigh()) & 0xff) << 8) | (getValueH(wordNumberRegisterPair.getLow()) & 0xff);
     } else {
       WordNumber o = (WordNumber) virtualRegisterFactory.lastValues.get(register);

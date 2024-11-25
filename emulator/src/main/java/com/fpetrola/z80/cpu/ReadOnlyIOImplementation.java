@@ -21,7 +21,7 @@ package com.fpetrola.z80.cpu;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class ReadOnlyIOImplementation<T extends WordNumber> implements IO<T> {
-  private IO<T> io;
+  private final IO<T> io;
 
   public ReadOnlyIOImplementation(IO<T> io) {
     this.io = io;

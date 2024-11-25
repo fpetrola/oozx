@@ -23,7 +23,7 @@ import java.util.List;
 
 public class GameMetadata {
   public int mainLoopAddress;
-  private List<DataStructure> dataStructures = new ArrayList<>();
+  private final List<DataStructure> dataStructures = new ArrayList<>();
 
   public void addDataStructure(DataStructure dataStructure) {
     dataStructures.add(dataStructure);

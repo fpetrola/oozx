@@ -32,7 +32,7 @@ public class Tracer
 		AF, BC, DE, HL, PC, SP, IX, IY
 	}
 
-	private int[][] traceMemory= new int[100000000][];
+	private final int[][] traceMemory= new int[100000000][];
 
 	public int getReg8BitAddressBit(Registers8bit register, int bitNumber)
 	{

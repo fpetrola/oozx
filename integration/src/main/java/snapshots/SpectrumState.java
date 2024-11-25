@@ -22,7 +22,7 @@ public class SpectrumState {
     private boolean connectedIF1, enabledAY, enabledAYon48k;
     private JoystickModel joystick;
     // Color palette
-    private int ULAPlusPalette[];
+    private int[] ULAPlusPalette;
     // Palette group
     private int paletteGroup;
     

@@ -25,7 +25,7 @@ import org.apache.commons.lang3.function.TriFunction;
 import java.util.function.BiFunction;
 
 public class TableAluOperation extends AluOperation {
-  protected int table[];
+  protected int[] table;
 
   protected void init(BiFunction<Integer, Integer, Integer> biFunction) {
     table = new int[256 * 2];

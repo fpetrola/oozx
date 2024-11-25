@@ -49,7 +49,7 @@ public class DefaultSyncChecker implements SyncChecker {
   MiniZXWithEmulation miniZXWithEmulation;
   static OOZ80<WordNumber> ooz80;
   private SpectrumApplication spectrumApplication;
-  private Map<String, Integer> writtenRegisters = new HashMap<>();
+  private final Map<String, Integer> writtenRegisters = new HashMap<>();
 
   public <T extends WordNumber> OOZ80<T> createOOZ80(IO io) {
     DefaultRegisterBankFactory registerBankFactory = new DefaultRegisterBankFactory() {
@@ -69,7 +69,7 @@ public class DefaultSyncChecker implements SyncChecker {
   }
 
   public DefaultSyncChecker() {
-    this.ooz80 = createOOZ80(SpectrumApplication.io);
+    ooz80 = createOOZ80(SpectrumApplication.io);
   }
 
   @Override
@@ -85,10 +85,10 @@ public class DefaultSyncChecker implements SyncChecker {
     this.spectrumApplication = spectrumApplication;
     Register<WordNumber> pc = ooz80.getState().getPc();
     Memory<WordNumber> memory = ooz80.getState().getMemory();
-    memory.addMemoryWriteListener((MemoryWriteListener<WordNumber>) (address, value) -> {
+    memory.addMemoryWriteListener((address, value) -> {
       checkSyncEmu(address.intValue(), value.intValue(), pc.read().intValue(), true);
     });
-    memory.addMemoryReadListener((MemoryReadListener<WordNumber>) (address, value, delta, fetching) -> {
+    memory.addMemoryReadListener((address, value, delta, fetching) -> {
       checkSyncEmu(address.intValue(), value.intValue(), pc.read().intValue(), false);
     });
 

@@ -38,7 +38,7 @@ public class mxGraphHierarchyModel2 extends mxGraphHierarchyModel {
 
     for (int i = 0; i < maxRank + 1; i++) {
       rankList[i] = new mxGraphHierarchyRank();
-      ranks.put(new Integer(i), rankList[i]);
+      ranks.put(Integer.valueOf(i), rankList[i]);
     }
 
     // Perform a DFS to obtain an initial ordering for each rank.

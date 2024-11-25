@@ -44,7 +44,7 @@ public class JSW2b {
     public void $90C0() {
         this.IX = 33024;
         while(true) {
-            this.A = this.memory[this.IX + 0];
+            this.A = this.memory[this.IX];
             this.F = this.A - 255;
             if (this.F == 0) {
                 return;
@@ -53,47 +53,47 @@ public class JSW2b {
             label0: if (this.F != 0) {
                 this.F = this.A - 1;
                 if (this.F == 0) {
-                    this.memory[this.IX + 0] = 0;
+                    this.memory[this.IX] = 0;
                     if (this.F != 0) {
-                        this.A = this.memory[this.IX + 0];
+                        this.A = this.memory[this.IX];
                         this.A = this.A + 32;
                         this.A = this.A | 128;
-                        this.memory[this.IX + 0] = this.A;
+                        this.memory[this.IX] = this.A;
                         this.F = this.A - 160;
                         if (this.F < 0) {
                             this.A = this.memory[this.IX + 2];
                             this.A = this.A & 31;
                             this.F = this.A - this.memory[this.IX + 7];
                             if (this.F == 0) {
-                                this.memory[this.IX + 0] = 97;
+                                this.memory[this.IX] = 97;
                             }
                         }
                     } else {
-                        this.A = this.memory[this.IX + 0];
+                        this.A = this.memory[this.IX];
                         this.A = this.A - 32;
                         this.A = this.A & 127;
-                        this.memory[this.IX + 0] = this.A;
+                        this.memory[this.IX] = this.A;
                         this.F = this.A - 96;
                         if (this.F >= 0) {
                             this.A = this.memory[this.IX + 2];
                             this.A = this.A & 31;
                             this.F = this.A - this.memory[this.IX + 6];
                             if (this.F == 0) {
-                                this.memory[this.IX + 0] = 129;
+                                this.memory[this.IX] = 129;
                             }
                         }
                     }
                 } else {
                     this.F = this.A - 2;
                     if (this.F == 0) {
-                        this.A = this.memory[this.IX + 0];
+                        this.A = this.memory[this.IX];
                         this.A = this.A ^ 8;
-                        this.memory[this.IX + 0] = this.A;
+                        this.memory[this.IX] = this.A;
                         this.A = this.A & 24;
                         if (this.F != 0) {
-                            this.A = this.memory[this.IX + 0];
+                            this.A = this.memory[this.IX];
                             this.A = this.A + 32;
-                            this.memory[this.IX + 0] = this.A;
+                            this.memory[this.IX] = this.A;
                         }
                         this.A = this.memory[this.IX + 3];
                         this.A = this.A + this.memory[this.IX + 4];
@@ -124,7 +124,7 @@ public class JSW2b {
                         this.A = 0;
                         this.memory[this.IX + 4] = this.A;
                     } else {
-                        this.memory[this.IX + 0] = 0;
+                        this.memory[this.IX] = 0;
                         if (this.F == 0) {
                             this.A = this.memory[this.IX + 1];
                             this.A = 0;
@@ -170,9 +170,9 @@ public class JSW2b {
                         this.A = this.A & 127;
                         this.F = this.A - this.memory[this.IX + 7];
                         if (this.F == 0) {
-                            this.A = this.memory[this.IX + 0];
+                            this.A = this.memory[this.IX];
                             this.A = this.A ^ 128;
-                            this.memory[this.IX + 0] = this.A;
+                            this.memory[this.IX] = this.A;
                         }
                     }
                 }

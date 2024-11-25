@@ -34,7 +34,7 @@ public class ExecutionStep<T extends WordNumber> {
   private transient Instruction<T> instruction;
   public String description;
   public int pcValue;
-  transient private Memory memory;
+  final transient private Memory memory;
   public int i;
 
   public ExecutionStep(Memory memory) {

@@ -25,7 +25,7 @@ public class SnapshotZ80 implements SnapshotFile {
   private MemoryState memory;
   private AY8912State ay8912;
 
-  private int uncompressZ80(byte buffer[], int length) {
+  private int uncompressZ80(byte[] buffer, int length) {
 //        System.out.println(String.format("Addr: %04X, len = %d", address, length));
     int address = 0;
     try {
@@ -65,7 +65,7 @@ public class SnapshotZ80 implements SnapshotFile {
     return count;
   }
 
-  private int compressPageZ80(byte buffer[], int page) {
+  private int compressPageZ80(byte[] buffer, int page) {
     int address = 0;
     int addrDst = 0;
     int nReps;
@@ -93,12 +93,12 @@ public class SnapshotZ80 implements SnapshotFile {
         if (nReps < 4) {
           // Si hay menos de 5 valores consecutivos iguales
           // no se comprimen.
-          buffer[addrDst++] = (byte) value;
+          buffer[addrDst++] = value;
         } else {
           buffer[addrDst++] = (byte) 0xED;
           buffer[addrDst++] = (byte) 0xED;
           buffer[addrDst++] = (byte) (nReps + 1);
-          buffer[addrDst++] = (byte) value;
+          buffer[addrDst++] = value;
           address += nReps;
         }
       }
@@ -158,7 +158,7 @@ public class SnapshotZ80 implements SnapshotFile {
       throw new SnapshotException("FILE_SIZE_ERROR");
     }
 
-    byte z80Header1[] = new byte[30];
+    byte[] z80Header1 = new byte[30];
     int count = 0;
     while (count != -1 && count < z80Header1.length) {
       count += fIn.read(z80Header1, count, z80Header1.length - count);
@@ -281,7 +281,7 @@ public class SnapshotZ80 implements SnapshotFile {
 
         memory.setPageRam(0, pageBuffer);
       } else {
-        byte buffer[] = new byte[0xC000];
+        byte[] buffer = new byte[0xC000];
         int len = uncompressZ80(buffer, buffer.length);
         if (len != 0xC000 || fIn.available() != 4) {
           throw new SnapshotException("FILE_READ_ERROR");
@@ -298,7 +298,7 @@ public class SnapshotZ80 implements SnapshotFile {
         throw new SnapshotException("FILE_SIZE_ERROR");
       }
 
-      byte z80Header2[] = new byte[hdrLen];
+      byte[] z80Header2 = new byte[hdrLen];
       count = 0;
       while (count != -1 && count < z80Header2.length) {
         count += fIn.read(z80Header2, count, z80Header2.length - count);
@@ -449,7 +449,7 @@ public class SnapshotZ80 implements SnapshotFile {
       spectrum.setAY8912State(ay8912);
 
       ay8912.setAddressLatch(z80Header2[6]);
-      int regAY[] = new int[16];
+      int[] regAY = new int[16];
       for (int idx = 0; idx < 16; idx++) {
         regAY[idx] = z80Header2[7 + idx] & 0xff;
       }
@@ -520,7 +520,7 @@ public class SnapshotZ80 implements SnapshotFile {
         throw new SnapshotException("OPEN_FILE_ERROR", ex);
       }
 
-      byte z80HeaderV3[] = new byte[87];
+      byte[] z80HeaderV3 = new byte[87];
       z80HeaderV3[0] = (byte) z80.getRegA();
       z80HeaderV3[1] = (byte) z80.getRegF();
       z80HeaderV3[2] = (byte) z80.getRegC();
@@ -608,7 +608,7 @@ public class SnapshotZ80 implements SnapshotFile {
         z80HeaderV3[37] |= 0x04;
         z80HeaderV3[38] = (byte) ay8912.getAddressLatch();
 
-        int regAY[] = ay8912.getRegAY();
+        int[] regAY = ay8912.getRegAY();
         for (int reg = 0; reg < 16; reg++) {
           z80HeaderV3[39 + reg] = (byte) regAY[reg];
         }
@@ -620,7 +620,7 @@ public class SnapshotZ80 implements SnapshotFile {
 
       fOut.write(z80HeaderV3, 0, z80HeaderV3.length);
 
-      byte buffer[] = new byte[0x4000];
+      byte[] buffer = new byte[0x4000];
       int bufLen;
       if (spectrum.getSpectrumModel().codeModel == MachineTypes.CodeModel.SPECTRUM48K) {
         // Página 5, que corresponde a 0x4000-0x7FFF

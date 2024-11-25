@@ -35,7 +35,7 @@ public class Cpd<T extends WordNumber> extends Cpi<T> {
           (((value) & 0x08) >> 2) |
           ((bytetemp & 0x08) >> 1);
       F = (F & FLAG_C) | (BC != 0 ? (FLAG_V | FLAG_N) : FLAG_N) |
-          halfCarrySubTable[lookup] | (bytetemp != 0 ? 0 : FLAG_Z) |
+          halfCarrySubTable(lookup) | (bytetemp != 0 ? 0 : FLAG_Z) |
           (bytetemp & FLAG_S);
       if ((F & FLAG_H) != 0) bytetemp--;
       F |= (bytetemp & FLAG_3) | ((bytetemp & 0x02) != 0 ? FLAG_5 : 0);

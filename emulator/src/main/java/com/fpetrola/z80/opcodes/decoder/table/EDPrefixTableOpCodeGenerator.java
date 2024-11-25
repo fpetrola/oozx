@@ -47,7 +47,7 @@ public class EDPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
       case 4:
         return i.Neg(r(A));
       case 5:
-        return y != 1 ? i.RetN(opc.t()) : i.RetN(opc.t());
+        return i.RetN(opc.t());
       case 6:
         return i.IM(im[y]);
       case 7:

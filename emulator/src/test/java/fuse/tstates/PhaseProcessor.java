@@ -51,8 +51,9 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return false;
   }
 
-  public void visitingAdd16(Add16 tAdd16) {
+  public boolean visitingAdd16(Add16 tAdd16) {
     addResultAfterFetch(7);
+    return false;
   }
 
   private void addResultAfterFetch(final int time) {
@@ -67,8 +68,9 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     phase.acceptAfterExecution(afterExecution -> addMc(2, IR, 0));
   }
 
-  public void visitingSbc16(Sbc16<T> sbc16) {
+  public boolean visitingSbc16(Sbc16<T> sbc16) {
     addResultAfterFetch(7);
+    return false;
   }
 
   public void visitingDec16(Dec16 tDec16) {

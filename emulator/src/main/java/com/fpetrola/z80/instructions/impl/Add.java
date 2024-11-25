@@ -35,8 +35,8 @@ public class Add<T extends WordNumber> extends ParameterizedBinaryAluInstruction
           ((addtemp & 0x88) >> 1);
       A = addtemp & 0xff;
       F = ((addtemp & 0x100) != 0 ? FLAG_C : 0) |
-          halfCarryAddTable[lookup & 0x07] | overflowAddTable[lookup >> 4] |
-          sz53Table[A];
+          halfCarryAddTable(lookup & 0x07) | overflowAddTable(lookup >> 4) |
+          sz53Table(A);
       Q = F;
       return A;
     }

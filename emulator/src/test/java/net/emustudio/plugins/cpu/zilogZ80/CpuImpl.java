@@ -123,10 +123,7 @@ public class CpuImpl extends AbstractCPU {
 
   @Override
   public RunState call() {
-    try {
-      return engine.run(this);
-    } finally {
-    }
+    return engine.run(this);
   }
 
   @Override

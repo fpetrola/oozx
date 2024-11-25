@@ -43,12 +43,12 @@ import static com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.getR
 
 public class VariableHandlingInstructionVisitor implements InstructionVisitor<WordNumber, WordNumber> {
   protected Function createInitializer;
-  private BiConsumer<Object, Variable> variableAction;
+  private final BiConsumer<Object, Variable> variableAction;
   protected Object sourceVariable;
   protected Variable targetVariable;
   private OpcodeReference target;
   private ImmutableOpcodeReference source;
-  private RoutineBytecodeGenerator routineByteCodeGenerator;
+  private final RoutineBytecodeGenerator routineByteCodeGenerator;
 
   public VariableHandlingInstructionVisitor(BiConsumer<Object, Variable> variableAction, RoutineBytecodeGenerator routineByteCodeGenerator1) {
     this.variableAction = variableAction;
@@ -91,7 +91,7 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<Wo
 
   @Override
   public void visitingBitOperation(BitOperation tBitOperation) {
-    variableAction.accept(sourceVariable, (Variable) targetVariable);
+    variableAction.accept(sourceVariable, targetVariable);
   }
 
   private void createResult() {

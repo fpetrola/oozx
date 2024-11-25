@@ -71,7 +71,7 @@ public class RoutineExecution {
 
         @Override
         public int getNext(int next, int pcValue) {
-          if (true || retInstruction == -1)
+          if (true)
             return super.getNext(next, pcValue);
           List<AddressAction> list = actions.stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
           if (list.isEmpty()) {
@@ -182,7 +182,7 @@ public class RoutineExecution {
 
   private class RetAddressAction extends AddressAction {
     private final int pcValue;
-    private boolean executed = false;
+    private final boolean executed = false;
 
     public RetAddressAction(int pcValue) {
       super(pcValue, true);

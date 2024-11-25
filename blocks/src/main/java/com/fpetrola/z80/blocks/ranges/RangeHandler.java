@@ -131,7 +131,7 @@ public class RangeHandler {
   public void chainedJoin(Block startBlock, int end) {
     while (true) {
       RangeHandler rangeHandler = startBlock.getRangeHandler();
-      if (!(rangeHandler.endAddress != end - 1)) break;
+      if (rangeHandler.endAddress == end - 1) break;
 
       Class<? extends BlockType> type1 = startBlock.getBlockType().getClass();
       Class<? extends BlockType> type2 = rangeHandler.nextBlock.getBlockType().getClass();

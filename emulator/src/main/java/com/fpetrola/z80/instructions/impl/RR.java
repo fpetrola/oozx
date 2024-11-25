@@ -32,7 +32,7 @@ public class RR<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T
       int rrtemp = value;
       value = (value >> 1) | (F << 7);
       value &= 0xff;
-      F = (rrtemp & FLAG_C) | sz53pTable[value];
+      F = (rrtemp & FLAG_C) | sz53pTable(value);
       Q = F;
       return value;
     }

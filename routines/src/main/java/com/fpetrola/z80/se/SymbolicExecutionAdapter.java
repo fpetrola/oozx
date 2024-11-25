@@ -174,7 +174,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
     routineExecutions.entrySet().forEach(e -> {
       if (e.getValue().actions.stream().anyMatch(AddressAction::isPending)) {
-        System.err.println("");
+        System.err.println();
       }
     });
 
@@ -188,7 +188,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     });
 
 
-    return;
   }
 
   private void executeAllCode(Z80InstructionDriver z80InstructionDriver, Register<T> pc) {
@@ -217,8 +216,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         ready |= stackFrames.isEmpty();
         lastPc = pcValue;
 
-        System.out.println("PC: " + Helper.convertToHex(pcValue));
-        System.out.println("BC: " + Helper.convertToHex(state.getRegister(RegisterName.BC).read().intValue()));
+//        System.out.println("PC: " + Helper.formatAddress(pcValue));
+//        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
 
       }
     }
@@ -249,7 +248,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   public abstract class SymbolicInstructionFactoryDelegator implements InstructionFactoryDelegator {
-    private InstructionFactory instructionFactory;
+    private final InstructionFactory instructionFactory;
 
     public SymbolicInstructionFactoryDelegator() {
       this.instructionFactory = createInstructionFactory(state);
@@ -347,7 +346,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     }
 
     private class AddressActionDelegate extends BasicAddressAction {
-      private RoutineExecution routineExecution;
+      private final RoutineExecution routineExecution;
 
       public AddressActionDelegate(int address2, RoutineExecution routineExecution) {
         super(address2);

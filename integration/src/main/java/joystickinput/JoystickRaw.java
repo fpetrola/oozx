@@ -34,7 +34,7 @@ public class JoystickRaw implements Runnable {
     private static final int EVENT_BUFFER = 64;
     private static final int STRUCT_EVENT_SIZE = 8;
     private static final int JOYSTICK_BUFFER_SIZE = EVENT_BUFFER * STRUCT_EVENT_SIZE;
-    private byte eventBuffer[] = new byte[JOYSTICK_BUFFER_SIZE];
+    private final byte[] eventBuffer = new byte[JOYSTICK_BUFFER_SIZE];
 
     private static final int TIMESTAMP_OFFSET = 0;
     private static final int VALUE_OFFSET = 4;
@@ -49,10 +49,13 @@ public class JoystickRaw implements Runnable {
     
     private static final int MAX_BUTTONS = 32;
     private static final int MAX_AXIS = 32;
-    private final boolean buttonState[] = new boolean[MAX_BUTTONS];
-    private final int buttonMasks[] = new int[MAX_BUTTONS];
-    private final short axisValue[] = new short[MAX_AXIS];
-    private int numButtons, numAxis, buttonMask, joystickId;
+    private final boolean[] buttonState = new boolean[MAX_BUTTONS];
+    private final int[] buttonMasks = new int[MAX_BUTTONS];
+    private final short[] axisValue = new short[MAX_AXIS];
+    private int numButtons;
+  private int numAxis;
+  private int buttonMask;
+  private final int joystickId;
     private String joystickName;
 
     private boolean run;
@@ -60,8 +63,8 @@ public class JoystickRaw implements Runnable {
     private final ArrayList<JoystickRawListener> buttonListeners;
     private final ArrayList<JoystickRawListener> axisListeners;
     
-    private String deviceName;
-    public JoystickRaw(int id) throws FileNotFoundException, IOException {
+    private final String deviceName;
+    public JoystickRaw(int id) throws IOException {
         deviceName = "/dev/input/js" + id;
         joystickId = id;
         buttonListeners = new ArrayList<>();
@@ -75,8 +78,8 @@ public class JoystickRaw implements Runnable {
             numButtons = getNumButtonsHelper(id);
             numAxis = getNumAxisHelper(id);
             joystickName = toStringHelper(id);
-            System.out.println(String.format("From JNI: buttons %d, axis %d", numButtons, numAxis));
-            System.out.println(String.format("From JNI: joystick name: %s", joystickName));
+            System.out.printf("From JNI: buttons %d, axis %d%n", numButtons, numAxis);
+            System.out.printf("From JNI: joystick name: %s%n", joystickName);
         }
 
         if (!helperLoaded || numButtons == -1) {

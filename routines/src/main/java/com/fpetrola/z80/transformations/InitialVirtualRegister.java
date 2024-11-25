@@ -28,7 +28,7 @@ public class InitialVirtualRegister<T extends WordNumber> implements IVirtual8Bi
 
   private final Register<T> register;
   private final VirtualRegisterVersionHandler versionHandler;
-  private Scope scope= new Scope(0, 0);
+  private final Scope scope= new Scope(0, 0);
   private VirtualComposed16BitRegister<T> virtualComposed16BitRegister;
 
   @Override

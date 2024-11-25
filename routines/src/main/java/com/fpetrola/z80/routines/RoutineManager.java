@@ -42,7 +42,7 @@ public class RoutineManager {
   private RandomAccessInstructionFetcher randomAccessInstructionFetcher;
 
   public RoutineManager(BlocksManager blocksManager) {
-    this.blocksManager = blocksManager;
+    RoutineManager.blocksManager = blocksManager;
   }
 
   public RoutineManager() {

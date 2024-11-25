@@ -27,8 +27,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SpyInstructionExecutor<T extends WordNumber> implements InstructionExecutor<T> {
-  private InstructionSpy spy;
-  private Set<Instruction<T>> executingInstructions = new HashSet<>();
+  private final InstructionSpy spy;
+  private final Set<Instruction<T>> executingInstructions = new HashSet<>();
   private MemptrUpdater<?> memptrUpdater;
 
   public SpyInstructionExecutor(InstructionSpy spy, MemptrUpdater<T> memptrUpdater1) {

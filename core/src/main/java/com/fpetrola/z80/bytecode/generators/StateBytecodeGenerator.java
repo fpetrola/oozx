@@ -30,12 +30,12 @@ import org.cojen.maker.MethodMaker;
 import java.util.List;
 
 public class StateBytecodeGenerator {
-  private String className;
-  private RoutineManager routineManager;
-  private State state;
-  private boolean translation;
-  private Class<?> translationSuperClass;
-  private Class<?> executionSuperClass;
+  private final String className;
+  private final RoutineManager routineManager;
+  private final State state;
+  private final boolean translation;
+  private final Class<?> translationSuperClass;
+  private final Class<?> executionSuperClass;
 
   public StateBytecodeGenerator(String className, RoutineManager routineManager, State state, boolean translation, Class<?> translationSuperClass, Class<?> executionSuperClass) {
     this.className = className;

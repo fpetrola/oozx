@@ -23,7 +23,7 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class MemoryPlusRegister8BitReferenceSpy<T extends WordNumber> extends MemoryPlusRegister8BitReference<T> {
 
-  private MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference;
+  private final MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference;
 
   public MemoryPlusRegister8BitReferenceSpy(MemoryPlusRegister8BitReference memoryPlusRegister8BitReference) {
     super();

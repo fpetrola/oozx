@@ -38,11 +38,11 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
 
   private final State<T> state;
   private final Register<T> pc;
-  private Instruction[] table;
-  private int incPc;
-  private String name;
-  private InstructionSpy spy;
-  private Register registerR;
+  private final Instruction[] table;
+  private final int incPc;
+  private final String name;
+  private final InstructionSpy spy;
+  private final Register registerR;
 
   public DefaultFetchNextOpcodeInstruction(State state, Instruction[] table, int incPc, String name, InstructionSpy spy) {
     this.state = state;

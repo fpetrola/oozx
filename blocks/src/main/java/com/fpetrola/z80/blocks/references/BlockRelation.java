@@ -23,10 +23,10 @@ import java.util.List;
 import java.util.Objects;
 
 public class BlockRelation {
-  private int sourceAddress;
-  private int targetAddress;
+  private final int sourceAddress;
+  private final int targetAddress;
 
-  private List<ReferenceVersion> versions = new ArrayList<>();
+  private final List<ReferenceVersion> versions = new ArrayList<>();
 
   public BlockRelation(int sourceAddress, int targetAddress) {
     this.sourceAddress = sourceAddress;

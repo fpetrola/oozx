@@ -26,9 +26,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 public class MiniZXIO implements IO<WordNumber> {
-  private int[] ports = initPorts();
-  private LinkedList<PortInput> lastEmuInputs = new LinkedList<>();
-  private LinkedList<PortInput> lastJavaInputs = new LinkedList<>();
+  private final int[] ports = initPorts();
+  private final LinkedList<PortInput> lastEmuInputs = new LinkedList<>();
+  private final LinkedList<PortInput> lastJavaInputs = new LinkedList<>();
   public MiniZXKeyboard miniZXKeyboard;
 
   public MiniZXIO() {

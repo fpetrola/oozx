@@ -31,14 +31,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MemoryImplementation<T extends WordNumber> implements Memory<T> {
-  private MemIoOps memory;
+  private final MemIoOps memory;
   private final ComplexInstructionSpy spy;
   int[] data = new int[0x10000];
 
   WordNumber[] traces = new WordNumber[0x10000];
 
-  private List<MemoryReadListener> memoryReadListeners = new ArrayList<>();
-  private List<MemoryWriteListener> memoryWriteListeners = new ArrayList<>();
+  private final List<MemoryReadListener> memoryReadListeners = new ArrayList<>();
+  private final List<MemoryWriteListener> memoryWriteListeners = new ArrayList<>();
 
   public MemoryImplementation(MemIoOps memory2, ComplexInstructionSpy spy) {
     this.memory = memory2;
@@ -95,8 +95,7 @@ public class MemoryImplementation<T extends WordNumber> implements Memory<T> {
   }
 
   private void checkTrace(T value, int a) {
-    if (value instanceof TraceableWordNumber) {
-      TraceableWordNumber traceableWordNumber = ((TraceableWordNumber) value);
+    if (value instanceof TraceableWordNumber traceableWordNumber) {
 
       WordNumber trace = traces[a];
       traces[a] = value;

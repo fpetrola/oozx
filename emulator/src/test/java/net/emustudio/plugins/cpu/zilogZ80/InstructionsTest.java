@@ -114,7 +114,7 @@ public class InstructionsTest {
   }
 
   protected static class MyIO<T extends WordNumber> implements IO<T> {
-    private Map<Integer, FakeByteDevice> devices = new HashMap<>();
+    private final Map<Integer, FakeByteDevice> devices = new HashMap<>();
 
     public T in(T port) {
       FakeByteDevice fakeByteDevice = devices.get(port.intValue());

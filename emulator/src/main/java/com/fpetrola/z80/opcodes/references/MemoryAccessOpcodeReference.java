@@ -27,7 +27,7 @@ public class MemoryAccessOpcodeReference<T extends WordNumber> implements Opcode
   }
 
   private final ImmutableOpcodeReference<T> c;
-  private Memory<T> mem;
+  private final Memory<T> mem;
 
   public MemoryAccessOpcodeReference(ImmutableOpcodeReference<T> c, Memory mem) {
     this.c = c;

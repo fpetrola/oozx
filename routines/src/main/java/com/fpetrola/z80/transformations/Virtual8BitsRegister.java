@@ -36,15 +36,15 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
   private final int address;
   private final InstructionExecutor instructionExecutor;
   public Instruction<T> instruction;
-  private VirtualFetcher<T> virtualFetcher;
-  private List<VirtualRegister<T>> previousVersions = new ArrayList<>();
+  private final VirtualFetcher<T> virtualFetcher;
+  private final List<VirtualRegister<T>> previousVersions = new ArrayList<>();
   protected T lastData;
   protected int reads;
   public IVirtual8BitsRegister<T> lastVersionRead;
-  private Consumer<T> dataConsumer;
+  private final Consumer<T> dataConsumer;
   private final VirtualRegisterVersionHandler versionHandler;
-  private List<VirtualRegister<T>> dependants = new ArrayList<>();
-  private Scope scope;
+  private final List<VirtualRegister<T>> dependants = new ArrayList<>();
+  private final Scope scope;
   public VirtualComposed16BitRegister<T> virtualComposed16BitRegister;
 
   private boolean isComposed;

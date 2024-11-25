@@ -50,12 +50,14 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
     }
   }
 
-  private Set<Integer> spritesAt = new HashSet<>();
+  private final Set<Integer> spritesAt = new HashSet<>();
   private State state;
   private CustomGraph customGraph;
+
   public SearchSpritesInstructionSpy() {
     super();
   }
+
   AddressRange currentRange = new AddressRange();
   protected List<AddressRange> ranges = new ArrayList<AddressRange>();
   public static final int STEP_PROCESSOR_CANCEL = -2;
@@ -90,9 +92,8 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
   private void initGraph() {
     customGraph = new CustomGraph() {
       protected String getVertexLabel(Object object) {
-        if (object instanceof ExecutionStep) {
-          ExecutionStep currentStep = (ExecutionStep) object;
-          return Helper.convertToHex(currentStep.pcValue) + ": " + currentStep.description;
+        if (object instanceof ExecutionStep currentStep) {
+          return Helper.formatAddress(currentStep.pcValue) + ": " + currentStep.description;
         } else
           return object + "";
       }
@@ -174,7 +175,7 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
     }
   }
 
-  private void importData(ObjectMapper objectMapper) throws IOException, StreamReadException, DatabindException {
+  private void importData(ObjectMapper objectMapper) throws IOException {
     ResultContainer resultContainer2 = objectMapper.readValue(new File(FILE_TRACE_JSON), ResultContainer.class);
 
     executionSteps = resultContainer2.executionSteps;
@@ -182,11 +183,11 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
 
     for (ExecutionStep step : executionSteps) {
       step.accessReferences = new ArrayList<>();
-      step.writeMemoryReferences= filterIndirect(step.writeMemoryReferences);
-      step.writeReferences= filterIndirect(step.writeReferences);
-      step.readMemoryReferences= filterIndirect(step.readMemoryReferences);
-      step.readReferences= filterIndirect(step.readReferences);
-     
+      step.writeMemoryReferences = filterIndirect(step.writeMemoryReferences);
+      step.writeReferences = filterIndirect(step.writeReferences);
+      step.readMemoryReferences = filterIndirect(step.readMemoryReferences);
+      step.readReferences = filterIndirect(step.readReferences);
+
       step.accessReferences.addAll(step.writeMemoryReferences);
       step.accessReferences.addAll(step.writeReferences);
       step.accessReferences.addAll(step.readMemoryReferences);
@@ -202,7 +203,7 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
     return writeMemoryReferences;
   }
 
-  private void exportData(ObjectMapper objectMapper) throws IOException, StreamWriteException, DatabindException {
+  private void exportData(ObjectMapper objectMapper) throws IOException {
     ResultContainer resultContainer = new ResultContainer();
     resultContainer.executionSteps = executionSteps;
     resultContainer.memorySpy = memorySpy;
@@ -287,8 +288,7 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
       ReadMemoryReference<WordNumber> readMemoryOpcodeReference = (ReadMemoryReference<WordNumber>) source;
       if (readMemoryOpcodeReference.address.intValue() < 0x4000)
         return true;
-      else if (isSpriteAddress(readMemoryOpcodeReference.address.intValue()))
-        return true;
+      else return isSpriteAddress(readMemoryOpcodeReference.address.intValue());
     }
     return false;
   }
@@ -300,7 +300,7 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
 //      return results;
 
     if (checkSource(source))
-      return Arrays.asList(foundStep);
+      return Collections.singletonList(foundStep);
 
     ExecutionStep currentStep = foundStep;
 
@@ -387,14 +387,13 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
   }
 
   private boolean isSpriteAddress(int address) {
-    return  memorySpy.getAddressModificationsCounter(address) <= 100;
+    return memorySpy.getAddressModificationsCounter(address) <= 100;
   }
 
   private boolean isScreenWriting(Object accessReference) {
     if (accessReference instanceof WriteMemoryReference) {
       WriteMemoryReference<T> wr = (WriteMemoryReference) accessReference;
-      if (wr.address.intValue() >= 0x4000 && wr.address.intValue() <= (0x5000))
-        return true;
+      return wr.address.intValue() >= 0x4000 && wr.address.intValue() <= (0x5000);
     }
     return false;
   }

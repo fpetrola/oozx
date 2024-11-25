@@ -28,7 +28,7 @@ public interface WordNumber {
   <T extends WordNumber> T plus(int i);
 
   default <T extends WordNumber> T plus1() {
-    return (T) plus(1);
+    return plus(1);
   }
 
   <T extends WordNumber> T minus1();
