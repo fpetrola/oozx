@@ -19,24 +19,15 @@
 package com.fpetrola.z80.registers.flag;
 
 public class AluOperationBase {
-  protected final static int FLAG_C = 0x0001;
-  protected final static int FLAG_N = 0x0002;
-  protected final static int FLAG_P = 0x0004;
-  protected final static int FLAG_V = 0x0004;
-  protected final static int FLAG_3 = 0x0008;
-  protected final static int FLAG_H = 0x0010;
-  protected final static int FLAG_5 = 0x0020;
-  protected final static int FLAG_Z = 0x0040;
-  protected final static int FLAG_S = 0x0080;
-
-  protected static int[] halfCarryAddTable = {0, FLAG_H, FLAG_H, FLAG_H, 0, 0, 0, FLAG_H};
-  protected static int[] halfCarrySubTable = {0, 0, FLAG_H, 0, FLAG_H, 0, FLAG_H, FLAG_H};
-  protected static int[] overflowAddTable = {0, 0, 0, FLAG_V, FLAG_V, 0, 0, 0};
-  protected static int[] overflowSubTable = {0, FLAG_V, 0, 0, 0, 0, FLAG_V, 0};
-
-  protected static int[] sz53Table = new int[0x100];
-  protected static int[] parityTable = new int[0x100];
-  protected static int[] sz53pTable = new int[0x100];
+  protected final int FLAG_C = 0x0001;
+  protected final int FLAG_N = 0x0002;
+  protected final int FLAG_P = 0x0004;
+  protected final int FLAG_V = 0x0004;
+  protected final int FLAG_3 = 0x0008;
+  protected final int FLAG_H = 0x0010;
+  protected final int FLAG_5 = 0x0020;
+  protected final int FLAG_Z = 0x0040;
+  protected final int FLAG_S = 0x0080;
 
   protected int F;
   protected int Q;
@@ -44,23 +35,38 @@ public class AluOperationBase {
   public AluOperationBase() {
   }
 
-  static {
-    int i, j, k;
-    int parity;
+  protected int halfCarryAddTable(int i) {
+    return new int[]{0, FLAG_H, FLAG_H, FLAG_H, 0, 0, 0, FLAG_H}[i];
+  }
 
-    for (i = 0; i < 0x100; i++) {
-      sz53Table[i] = i & (FLAG_3 | FLAG_5 | FLAG_S);
-      j = i;
-      parity = 0;
-      for (k = 0; k < 8; k++) {
-        parity ^= j & 1;
-        j >>= 1;
-      }
-      parityTable[i] = (parity != 0 ? 0 : FLAG_P);
-      sz53pTable[i] = sz53Table[i] | parityTable[i];
+  protected int halfCarrySubTable(int i) {
+    return new int[]{0, 0, FLAG_H, 0, FLAG_H, 0, FLAG_H, FLAG_H}[i];
+  }
+
+  protected int overflowAddTable(int i) {
+    return new int[]{0, 0, 0, FLAG_V, FLAG_V, 0, 0, 0}[i];
+  }
+
+  protected int overflowSubTable(int i) {
+    return new int[]{0, FLAG_V, 0, 0, 0, 0, FLAG_V, 0}[i];
+  }
+
+  protected int sz53Table(int i) {
+    return i & (FLAG_3 | FLAG_5 | FLAG_S) | (i == 0 ? FLAG_Z : 0);
+  }
+
+  protected int sz53pTable(int i) {
+    return sz53Table(i) | parityTable(i) | (i == 0 ? FLAG_Z : 0);
+  }
+
+  protected int parityTable(int i) {
+    int j, k;
+    j = i;
+    int parity = 0;
+    for (k = 0; k < 8; k++) {
+      parity ^= j & 1;
+      j >>= 1;
     }
-
-    sz53Table[0] |= FLAG_Z;
-    sz53pTable[0] |= FLAG_Z;
+    return (parity != 0 ? 0 : FLAG_P);
   }
 }

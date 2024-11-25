@@ -37,8 +37,8 @@ public class Outi<T extends WordNumber> extends BlockInstruction<T> {
       int outitemp2 = (outitemp + L) & 0xff;
       F = ((outitemp & 0x80) != 0 ? FLAG_N : 0) |
           ((outitemp2 < outitemp) ? FLAG_H | FLAG_C : 0) |
-          (parityTable[(outitemp2 & 0x07) ^ B] != 0 ? FLAG_P : 0) |
-          sz53Table[B];
+          (parityTable((outitemp2 & 0x07) ^ B) != 0 ? FLAG_P : 0) |
+          sz53Table(B);
       Q = F;
       return WordNumber.createValue(F);
     }

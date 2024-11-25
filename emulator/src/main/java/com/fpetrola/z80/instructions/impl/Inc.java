@@ -32,7 +32,7 @@ public class Inc<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
       (value)++;
       value &= 0xff;
       F = (F & FLAG_C) | ((value) == 0x80 ? FLAG_V : 0) |
-          (((value) & 0x0f) != 0 ? 0 : FLAG_H) | sz53Table[(value)];
+          (((value) & 0x0f) != 0 ? 0 : FLAG_H) | sz53Table((value));
       Q = F;
       return value;
     }

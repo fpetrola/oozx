@@ -32,7 +32,7 @@ public class In<T extends WordNumber> extends TargetSourceInstruction<T, Immutab
   public static AluOperation inCTableAluOperation = new TableAluOperation() {
     public int execute(int value, int reg, int carry) {
       F = value;
-      F = ( F & FLAG_C) | sz53pTable[(reg)];
+      F = ( F & FLAG_C) | sz53pTable((reg));
       Q = F;
       return reg;
     }

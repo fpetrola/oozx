@@ -38,9 +38,9 @@ public class Sbc16<T extends WordNumber> extends Binary16BitsOperation<T> {
           (value1 << 9 & 0x8800) >> 10 |
           (result1 & 0x8800) >> 9;
       F = ((result1 & 0x10000) != 0 ? FLAG_C : 0) |
-          FLAG_N | overflowSubTable[lookup >> 4] |
+          FLAG_N | overflowSubTable(lookup >> 4) |
           (result1 >> 8 & (FLAG_3 | FLAG_5 | FLAG_S)) |
-          halfCarrySubTable[lookup & 0x07] |
+          halfCarrySubTable(lookup & 0x07) |
           (value2 != 0 ? 0 : FLAG_Z);
       Q = F;
       return F;

@@ -30,7 +30,7 @@ public class RLC<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
   public static final TableAluOperation rlcTableAluOperation1 = new TableAluOperation() {
     public int execute(int value, int carry) {
       value = (value << 1 | value >> 7) & 0xff;
-      F = (value & FLAG_C) | sz53pTable[value];
+      F = (value & FLAG_C) | sz53pTable(value);
       Q = F;
       return value;
     }

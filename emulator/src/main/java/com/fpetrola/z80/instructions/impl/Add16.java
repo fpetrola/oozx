@@ -44,7 +44,7 @@ public class Add16<T extends WordNumber> extends Binary16BitsOperation<T> {
       F = (F & (FLAG_V | FLAG_Z | FLAG_S)) |
           ((add16temp & 0x10000) != 0 ? FLAG_C : 0) |
           ((add16temp >> 8) & (FLAG_3 | FLAG_5)) |
-          halfCarryAddTable[lookup];
+          halfCarryAddTable(lookup);
       Q = F;
     }
   };

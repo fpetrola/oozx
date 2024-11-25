@@ -34,8 +34,8 @@ public class Cp<T extends WordNumber> extends ParameterizedBinaryAluInstruction<
           ((value & 0x88) >> 2) |
           ((cptemp & 0x88) >> 1);
       F = ((cptemp & 0x100) != 0 ? FLAG_C : (cptemp != 0 ? 0 : FLAG_Z)) | FLAG_N |
-          halfCarrySubTable[lookup & 0x07] |
-          overflowSubTable[lookup >> 4] |
+          halfCarrySubTable(lookup & 0x07) |
+          overflowSubTable(lookup >> 4) |
           (value & (FLAG_3 | FLAG_5)) |
           (cptemp & FLAG_S);
       Q = F;

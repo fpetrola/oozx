@@ -33,7 +33,7 @@ public class Sub<T extends WordNumber> extends ParameterizedBinaryAluInstruction
       int lookup = ((A & 0x88) >> 3) | ((value & 0x88) >> 2) | ((subtemp & 0x88) >> 1);
       A = subtemp & 0xff;
       F = ((subtemp & 0x100) != 0 ? FLAG_C : 0) | FLAG_N |
-          halfCarrySubTable[lookup & 0x07] | overflowSubTable[lookup >> 4] | sz53Table[A];
+          halfCarrySubTable(lookup & 0x07) | overflowSubTable(lookup >> 4) | sz53Table(A);
       Q = F;
 
       return A;
