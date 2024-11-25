@@ -101,8 +101,9 @@ public class InstructionCloner<T extends WordNumber> implements InstructionVisit
   }
 
   @Override
-  public void visitingAdd16(Add16 add16) {
+  public boolean visitingAdd16(Add16 add16) {
     setCloned(instructionFactory.Add16(clone(add16.getTarget()), clone(add16.getSource())), add16);
+    return false;
   }
 
   @Override
@@ -127,8 +128,9 @@ public class InstructionCloner<T extends WordNumber> implements InstructionVisit
   }
 
   @Override
-  public void visitingSbc16(Sbc16 sbc16) {
+  public boolean visitingSbc16(Sbc16 sbc16) {
     setCloned(instructionFactory.Sbc16(clone(sbc16.getTarget()), clone(sbc16.getSource())), sbc16);
+    return false;
   }
 
   @Override

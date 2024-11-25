@@ -56,9 +56,8 @@ public class Sbc16<T extends WordNumber> extends Operation16Bits<T> {
             (tFlagRegister1, value3, result1) -> sbc16TableAluOperation.executeWithCarry(createValue(result1 != 0 ? 1 : 0), createValue(value3), tFlagRegister)));
   }
 
-  @Override
   public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitingSbc16(this);
+    if (!visitor.visitingSbc16(this))
+      super.accept(visitor);
   }
 }

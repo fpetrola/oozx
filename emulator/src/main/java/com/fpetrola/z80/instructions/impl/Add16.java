@@ -63,9 +63,8 @@ public class Add16<T extends WordNumber> extends Operation16Bits<T> {
     });
   }
 
-  @Override
   public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitingAdd16(this);
+    if (!visitor.visitingAdd16(this))
+      super.accept(visitor);
   }
 }

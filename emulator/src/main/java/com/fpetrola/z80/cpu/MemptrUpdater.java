@@ -47,17 +47,9 @@ public class MemptrUpdater<T extends WordNumber> {
         return InstructionVisitor.super.visitingCall(tCall);
       }
 
-      public void visitingAdd16(Add16 tAdd16) {
-        memptr.write(((T) tAdd16.getTarget().read()).plus(1));
-      }
-
-      public boolean visitingAdc16(Adc16<T> tAdc16) {
-        memptr.write(tAdc16.getTarget().read().plus(1));
+      public boolean visitingOperation16Bits(Operation16Bits<T> operation16Bits) {
+        memptr.write(((T) operation16Bits.getTarget().read()).plus(1));
         return false;
-      }
-
-      public void visitingSbc16(Sbc16<T> sbc16) {
-        memptr.write(sbc16.getTarget().read().plus(1));
       }
 
       public boolean visitIni(Ini<T> tIni) {

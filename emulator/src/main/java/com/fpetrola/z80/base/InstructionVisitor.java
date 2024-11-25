@@ -47,8 +47,9 @@ public interface InstructionVisitor<T extends WordNumber, R> {
     return false;
   }
 
-  default void visitingAdd16(Add16 tAdd16) {
+  default boolean visitingAdd16(Add16 tAdd16) {
 
+    return false;
   }
 
   default void visitingAnd(And tAnd) {
@@ -284,8 +285,9 @@ public interface InstructionVisitor<T extends WordNumber, R> {
   default void visitBNotZeroCondition(BNotZeroCondition bNotZeroCondition) {
   }
 
-  default void visitingSbc16(Sbc16<T> sbc16) {
+  default boolean visitingSbc16(Sbc16<T> sbc16) {
 
+    return false;
   }
 
   default void visitingSbc(Sbc<T> sbc) {
@@ -402,6 +404,10 @@ public interface InstructionVisitor<T extends WordNumber, R> {
   }
 
   default boolean visitMemory8BitReference(Memory8BitReference<T> memory8BitReference) {
+    return false;
+  }
+
+  default boolean visitingOperation16Bits(Operation16Bits<T> tOperation16Bits) {
     return false;
   }
 }

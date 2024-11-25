@@ -265,8 +265,9 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
     processFlag(and, () -> visitor.targetVariable.shl(1));
   }
 
-  public void visitingAdd16(Add16 add16) {
+  public boolean visitingAdd16(Add16 add16) {
     add16.accept(new VariableHandlingInstructionVisitor((s, t) -> getSet(s, t, 0xffff), routineByteCodeGenerator));
+    return false;
   }
 
   private void getSet(Object s, Variable t, int mask) {
@@ -346,8 +347,9 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
   }
 
   @Override
-  public void visitingSbc16(Sbc16 sbc16) {
+  public boolean visitingSbc16(Sbc16 sbc16) {
     sbc16.accept(new VariableHandlingInstructionVisitor((s, t) -> t.set(t.sub(s).and(0xffff)), routineByteCodeGenerator));
+    return false;
   }
 
 

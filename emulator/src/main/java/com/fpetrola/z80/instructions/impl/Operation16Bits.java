@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
@@ -40,5 +41,10 @@ public class Operation16Bits<T extends WordNumber> extends ParameterizedBinaryAl
     value1 = ((value1 & 0x8800 | (value2 & 0x8800) >> 1) | (result & 0x1A800 | (result & 0x2000) >> 1) >> 3) >> 8;
     action.apply(tFlagRegister, value1, result);
     return createValue(result & 0xffff);
+  }
+
+  public void accept(InstructionVisitor visitor) {
+    if (!visitor.visitingOperation16Bits(this))
+      super.accept(visitor);
   }
 }
