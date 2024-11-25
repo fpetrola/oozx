@@ -84,8 +84,9 @@ public class MemptrUpdater<T extends WordNumber> {
             return false;
           }
 
-          public void visitMemory8BitReference(Memory8BitReference<T> memory8BitReference) {
+          public boolean visitMemory8BitReference(Memory8BitReference<T> memory8BitReference) {
             memptr.write((tOut.getA().read().left(8).or(tOut.getSource().read())).plus(1));
+            return false;
           }
         });
       }

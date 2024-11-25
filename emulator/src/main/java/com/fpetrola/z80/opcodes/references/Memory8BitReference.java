@@ -61,7 +61,8 @@ public class Memory8BitReference<T extends WordNumber> implements ImmutableOpcod
   }
 
   public void accept(InstructionVisitor instructionVisitor) {
-    instructionVisitor.visitMemory8BitReference(this);
+    if (!instructionVisitor.visitMemory8BitReference(this))
+      ImmutableOpcodeReference.super.accept(instructionVisitor);
   }
 
   public Object clone() throws CloneNotSupportedException {
