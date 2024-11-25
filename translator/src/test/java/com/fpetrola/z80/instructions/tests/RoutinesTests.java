@@ -1103,28 +1103,21 @@ public class JSW extends SpectrumApplication {
     List<Routine> routines = getRoutineManager().getRoutines();
 
     Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-        
-        public class JSW extends SpectrumApplication {
-           public void $0() {
-              super.A = 2;
-              this.$5();
-              super.B = 3;
-           }
-        
-           public void $5() {
-              while(true) {
-                 super.D = 5;
-                 int var1 = super.A - 1 & 255;
-                 super.A = var1;
-                 if(super.A == 0) {
-                    return;
-                 }
-        
-                 super.D = 6;
-              }
-           }
-        }
+import com.fpetrola.z80.minizx.SpectrumApplication;
+
+public class JSW extends SpectrumApplication {
+   public void $0() {
+      super.A = 2;
+      this.$5();
+      super.B = 3;
+   }
+
+   public void $5() {
+      if(super.A << 1 != 0) {
+         super.D = 6;
+      }
+   }
+}
         """, resultingJava);
 
 
