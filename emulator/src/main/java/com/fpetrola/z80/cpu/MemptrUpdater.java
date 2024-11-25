@@ -84,8 +84,9 @@ public class MemptrUpdater<T extends WordNumber> {
             return false;
           }
 
-          public void visitMemory8BitReference(Memory8BitReference<T> memory8BitReference) {
+          public boolean visitMemory8BitReference(Memory8BitReference<T> memory8BitReference) {
             memptr.write((tOut.getA().read().left(8).or(tOut.getSource().read())).plus(1));
+            return false;
           }
         });
       }
@@ -172,8 +173,9 @@ public class MemptrUpdater<T extends WordNumber> {
             memptr.write(indirectMemory16BitReference.address.plus(1));
           }
 
-          public void visitMemory16BitReference(Memory16BitReference<T> memory16BitReference) {
+          public boolean visitMemory16BitReference(Memory16BitReference<T> memory16BitReference) {
             memptr.write(memory16BitReference.fetchedAddress.plus(2));
+            return false;
           }
         });
         source.accept(new InstructionVisitor<T, T>() {
