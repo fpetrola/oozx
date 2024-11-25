@@ -217,12 +217,6 @@ public class MemptrUpdater<T extends WordNumber> {
             incIfNextPC(0);
           }
 
-          private void incIfNextPC(int i) {
-            T nextPC = repeatingInstruction.getNextPC();
-            T newValue = nextPC != null ? nextPC.plus(1) : memptr.read().plus(i);
-            memptr.write(newValue);
-          }
-
           public boolean visitCpir(Cpir<T> cpir) {
             incIfNextPC(1);
             return false;
@@ -230,6 +224,12 @@ public class MemptrUpdater<T extends WordNumber> {
 
           public void visitCpdr(Cpdr tCpdr) {
             incIfNextPC(-1);
+          }
+
+          private void incIfNextPC(int i) {
+            T nextPC = repeatingInstruction.getNextPC();
+            T newValue = nextPC != null ? nextPC.plus(1) : memptr.read().plus(i);
+            memptr.write(newValue);
           }
         });
 
