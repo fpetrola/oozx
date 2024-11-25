@@ -25,6 +25,7 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
+import org.apache.commons.lang3.function.TriFunction;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
@@ -49,17 +50,11 @@ public class Add16<T extends WordNumber> extends Binary16BitsOperation<T> {
   };
 
   public Add16(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
-    super(target, source, flag, (tFlagRegister, v2, v1) -> {
-      int value1 = v1.intValue();
-      int value2 = v2.intValue();
-      int add16temp = value1 + value2;
-      T t = add16TableAluOperation.executeWithCarry2(
-          createValue((value1 & 0x0800) >> 4 | add16temp >> 11),
-          createValue(flag.read().intValue()),
-          value2 >> 11, tFlagRegister);
-      flag.write(t);
-      return createValue(add16temp & 0xffff);
-    });
+    super(target, source, flag, (flag0, a, b) ->
+        calculate(flag0, b, a,
+            (v1, v2, f) -> v1 + v2,
+            (flag1, value3, value2, result1) -> add16TableAluOperation.executeWithCarry2(createValue(value3), createValue(flag1.read().intValue()), value2 >> 11, flag0),
+            (v3, v4, result2) -> (v3 & 0x0800) >> 4 | result2 >> 11));
   }
 
   public void accept(InstructionVisitor visitor) {

@@ -49,10 +49,10 @@ public class Sbc16<T extends WordNumber> extends Binary16BitsOperation<T> {
   };
 
   public Sbc16(OpcodeReference<T> target, ImmutableOpcodeReference<T> source, Register<T> flag) {
-    super(target, source, flag, (tFlagRegister, a, b) ->
-        calculate(tFlagRegister, b, a,
+    super(target, source, flag, (f0, a, b) ->
+        calculate(f0, b, a,
             (v1, v2, f) -> v1 - v2 - (f & 1),
-            (tFlagRegister1, value3, result1) -> sbc16TableAluOperation.executeWithCarry(createValue(result1 != 0 ? 1 : 0), createValue(value3), tFlagRegister)));
+            (f1, value3, value2, result1) -> sbc16TableAluOperation.executeWithCarry(createValue(result1 != 0 ? 1 : 0), createValue(value3), f0)));
   }
 
   public void accept(InstructionVisitor visitor) {

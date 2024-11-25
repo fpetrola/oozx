@@ -33,18 +33,26 @@ public class Binary16BitsOperation<T extends WordNumber> extends ParameterizedBi
     super(target, source, flag, binaryAluOperation);
   }
 
-  protected static <T extends WordNumber> T calculate(Register<T> tFlagRegister, T a, T b, TriFunction<Integer, Integer, Integer, Integer> operation, TriFunction<Register<T>, Integer, Integer, T> action) {
+  protected static <T extends WordNumber> T calculate(Register<T> tFlagRegister, T a, T b, TriFunction<Integer, Integer, Integer, Integer> operation, Binary16BitsAluOperation<T>  action) {
+    return calculate(tFlagRegister, a, b, operation, action, (v1, v2, result1) -> ((v1 & 0x8800 | (v2 & 0x8800) >> 1) | (result1 & 0x1A800 | (result1 & 0x2000) >> 1) >> 3) >> 8);
+  }
+
+  protected static <T extends WordNumber> T calculate(Register<T> tFlagRegister, T a, T b, TriFunction<Integer, Integer, Integer, Integer> operation, Binary16BitsAluOperation<T> action, TriFunction<Integer, Integer, Integer, Integer> compressFunction) {
     int value1 = a.intValue();
     int value2 = b.intValue();
     T flagValue = tFlagRegister.read();
     int result = operation.apply(value1, value2, flagValue.intValue());
-    value1 = ((value1 & 0x8800 | (value2 & 0x8800) >> 1) | (result & 0x1A800 | (result & 0x2000) >> 1) >> 3) >> 8;
-    action.apply(tFlagRegister, value1, result);
+    value1 = compressFunction.apply(value1, value2, result);
+    action.execute(tFlagRegister, value1, value2, result);
     return createValue(result & 0xffff);
   }
 
   public void accept(InstructionVisitor visitor) {
     if (!visitor.visitingOperation16Bits(this))
       super.accept(visitor);
+  }
+
+  interface Binary16BitsAluOperation<T> {
+    T execute (Register<T> flag, int value1, int value2, int result);
   }
 }
