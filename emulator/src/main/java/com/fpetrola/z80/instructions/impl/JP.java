@@ -35,14 +35,6 @@ public class JP<T extends WordNumber> extends ConditionalInstruction<T, Conditio
     return jumpIfConditionMatches();
   }
 
-  @Override
-  protected T beforeJump(T jumpAddress) {
-    if (jumpAddress.intValue() < 16384) {
-      return WordNumber.createValue(pc.read().intValue() + 3);
-    }
-    return super.beforeJump(jumpAddress);
-  }
-
   public void accept(InstructionVisitor visitor) {
     super.accept(visitor);
     visitor.visitingJP(this);
