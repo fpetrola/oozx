@@ -19,7 +19,6 @@
 package com.fpetrola.z80.instructions.impl;
 
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -29,7 +28,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
-public class Add16<T extends WordNumber> extends Operation16Bits<T> {
+public class Add16<T extends WordNumber> extends Binary16BitsOperation<T> {
   public static final AluOperation add16TableAluOperation = new TableAluOperation() {
     public int execute(int flag, int value1AndAddition, int value2Bit0) {
       F = flag;

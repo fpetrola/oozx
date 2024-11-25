@@ -52,8 +52,8 @@ public class MemptrUpdater<T extends WordNumber> {
         return false;
       }
 
-      public boolean visitingOperation16Bits(Operation16Bits<T> operation16Bits) {
-        memptr.write(((T) operation16Bits.getTarget().read()).plus(1));
+      public boolean visitingOperation16Bits(Binary16BitsOperation<T> binary16BitsOperation) {
+        memptr.write(((T) binary16BitsOperation.getTarget().read()).plus(1));
         return false;
       }
 

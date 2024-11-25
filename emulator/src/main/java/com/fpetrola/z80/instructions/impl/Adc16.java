@@ -28,7 +28,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
-public class Adc16<T extends WordNumber> extends Operation16Bits<T> {
+public class Adc16<T extends WordNumber> extends Binary16BitsOperation<T> {
   public static final AluOperation adc16TableAluOperation = new TableAluOperation() {
     public int execute(int value1, int value2, int carry) {
       int i = value1 & 0x33;

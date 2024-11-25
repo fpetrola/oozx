@@ -28,8 +28,8 @@ import org.apache.commons.lang3.function.TriFunction;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
-public class Operation16Bits<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
-  public Operation16Bits(OpcodeReference<T> target, ImmutableOpcodeReference<T> source, Register<T> flag, BinaryAluOperation<T> binaryAluOperation) {
+public class Binary16BitsOperation<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
+  public Binary16BitsOperation(OpcodeReference<T> target, ImmutableOpcodeReference<T> source, Register<T> flag, BinaryAluOperation<T> binaryAluOperation) {
     super(target, source, flag, binaryAluOperation);
   }
 
