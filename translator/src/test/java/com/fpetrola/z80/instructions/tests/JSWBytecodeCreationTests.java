@@ -37,6 +37,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> extends RealCodeByte
   @Ignore
   @Test
   public void testJSWMoveWilly() {
+    Helper.hex= true;
     String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/dynamitedan1.z80");
     stepUntilComplete(0xC807);
 
