@@ -98,7 +98,7 @@ public class TraceableWordNumber implements WordNumber {
 
   @Override
   public <T extends WordNumber> T or(T wordNumber) {
-    return (T) or(wordNumber.intValue());
+    return or(wordNumber.intValue());
   }
 
   @Override

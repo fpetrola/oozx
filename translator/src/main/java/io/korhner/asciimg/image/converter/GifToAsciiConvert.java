@@ -41,6 +41,6 @@ public class GifToAsciiConvert extends AsciiToImageConverter{
 			return 1;//done!
 		}
 		return 0;//open disfile failed!
-	};
-	
+	}
+
 }

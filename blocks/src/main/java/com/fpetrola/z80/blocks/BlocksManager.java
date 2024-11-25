@@ -26,7 +26,7 @@ public class BlocksManager {
   BlockChangesListener blockChangesListener;
   private long executionNumber;
   private Block[] blocksAddresses = new Block[0x10000];
-  private boolean romEnabled;
+  private final boolean romEnabled;
 
   public int getCycle() {
     return cycle;

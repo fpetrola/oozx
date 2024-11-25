@@ -93,7 +93,7 @@ public class AddFieldAsParameterTransformer extends ClassVisitor {
 
         newMethodDescriptor.append(")").append(methodType.getReturnType().getDescriptor());
 
-        System.out.println("New method descriptor: " + newMethodDescriptor.toString());
+        System.out.println("New method descriptor: " + newMethodDescriptor);
 
         // Crear el nuevo método con la firma modificada
         MethodVisitor newMethod = cv.visitMethod(ACC_PUBLIC, "new_" + name, newMethodDescriptor.toString(), null, null);

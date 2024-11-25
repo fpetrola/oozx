@@ -54,7 +54,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> extends RealCodeByte
   public void testTranslateWillyToJava() {
     String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
     stepUntilComplete(35090);
-    translateToJava("JetSetWilly", base64Memory, "$87CA");
+    translateToJava("JetSetWilly", base64Memory, "$34762");
   }
 
   private String getMemoryInBase64FromFile(String url) {

@@ -22,7 +22,7 @@ import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 
 public class OpcodeReferenceSpy<T> implements OpcodeReference<T> {
-  private ImmutableOpcodeReference immutableOpcodeReference;
+  private final ImmutableOpcodeReference immutableOpcodeReference;
 
   public OpcodeReferenceSpy(ImmutableOpcodeReference immutableOpcodeReference) {
     this.immutableOpcodeReference = immutableOpcodeReference;

@@ -26,7 +26,7 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class IM<T extends WordNumber> extends AbstractInstruction<T> {
   int mode;
-  private State<T> state;
+  private final State<T> state;
 
   public IM(State state, int mode) {
     this.state = state;

@@ -25,9 +25,9 @@ import java.util.List;
 
 public class CodeBlockType extends AbstractBlockType {
   public Integer routine;
-  private List<Instruction> instructions = new ArrayList<>();
-  private List<Block> nextBlocks = new ArrayList<>();
-  private List<Block> previousBlocks = new ArrayList<>();
+  private final List<Instruction> instructions = new ArrayList<>();
+  private final List<Block> nextBlocks = new ArrayList<>();
+  private final List<Block> previousBlocks = new ArrayList<>();
 
   public CodeBlockType() {
   }

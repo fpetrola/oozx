@@ -157,10 +157,8 @@ public final class DTW {
     // Iterate.
     for (int i = 0; i < pK; i++) {
       // Iterate.
-      for (int j = 0; j < 2; j++) {
-        // Update the Path.
-        lPath[i][j] = pPath[pK - i - 1][j];
-      }
+      // Update the Path.
+      System.arraycopy(pPath[pK - i - 1], 0, lPath[i], 0, 2);
     }
     // Return the Allocated Path.
     return lPath;
@@ -169,7 +167,7 @@ public final class DTW {
   /**
    * Computes a distance between two points.
    */
-  protected double getDistanceBetween(double p1, double p2) {
+  private double getDistanceBetween(double p1, double p2) {
     // Calculate the square error.
     return (p1 - p2) * (p1 - p2);
   }
@@ -177,7 +175,7 @@ public final class DTW {
   /**
    * Finds the index of the minimum element from the given array.
    */
-  protected final int getMinimumIndex(final double[] pArray) {
+  private int getMinimumIndex(final double[] pArray) {
     // Declare iteration variables.
     int lIndex = 0;
     double lValue = pArray[0];

@@ -69,7 +69,7 @@ public class GraphFrame extends JFrame {
       }
     }
   };
-  private mxGraphComponent graphComponent;
+  private final mxGraphComponent graphComponent;
   private int id;
   public boolean ready;
 
@@ -206,22 +206,8 @@ public class GraphFrame extends JFrame {
 //    mxParallelEdgeLayout layout2 = new mxParallelEdgeLayout(graph);
 
     graph.getModel().beginUpdate();
-    try {
-      layout.execute(graph.getDefaultParent());
+    layout.execute(graph.getDefaultParent());
 //      layout2.execute(graph.getDefaultParent());
-    } finally {
-//      mxMorphing morph = new mxMorphing(graphComponent, 20, 1.5, 20);
-//
-//      morph.addListener(mxEvent.DONE, new mxIEventListener() {
-//
-//        public void invoke(Object arg0, mxEventObject arg1) {
-//          graph.getModel().endUpdate();
-//        }
-//
-//      });
-//
-//      morph.startAnimation();
-    }
     graph.getModel().endUpdate();
 
 //    graphComponent.zoomAndCenter();

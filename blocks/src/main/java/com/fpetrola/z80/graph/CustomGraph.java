@@ -37,7 +37,7 @@ public class CustomGraph {
   protected Map<String, Map<String, Attribute>> edgeAttributes = new HashMap<>();
   protected Map<String, Map<String, Attribute>> vertexAttributes = new HashMap<>();
   public DefaultDirectedGraph<String, String> g2 = new DefaultDirectedGraph<>(String.class);
-  private Map<String, String> vertexes = new HashMap<>();
+  private final Map<String, String> vertexes = new HashMap<>();
   public int edges;
 
   public void  exportGraph() {

@@ -26,8 +26,8 @@ public class Memory16BitReference<T extends WordNumber> implements OpcodeReferen
 
   private final Memory<T> memory;
   public T fetchedAddress;
-  private ImmutableOpcodeReference<T> pc;
-  private int delta;
+  private final ImmutableOpcodeReference<T> pc;
+  private final int delta;
 
   public Memory16BitReference(Memory memory, ImmutableOpcodeReference pc, int delta) {
     this.memory = memory;
@@ -55,7 +55,7 @@ public class Memory16BitReference<T extends WordNumber> implements OpcodeReferen
 
   public String toString() {
     T read = fetchedAddress;
-    return read == null ? "" : "0x" + Helper.formatAddress(read.intValue()) + "";
+    return read == null ? "" : "0x" + Helper.formatAddress(read.intValue());
   }
 
   public int getLength() {

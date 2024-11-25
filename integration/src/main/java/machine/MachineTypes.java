@@ -17,8 +17,9 @@ public enum MachineTypes {
     SPECTRUMPLUS2A(4),
     SPECTRUMPLUS3(5);
 
-    static public enum CodeModel { SPECTRUM48K, SPECTRUM128K, SPECTRUMPLUS3 };
-    public CodeModel codeModel; // Código de modelo
+    public enum CodeModel { SPECTRUM48K, SPECTRUM128K, SPECTRUMPLUS3 }
+
+  public CodeModel codeModel; // Código de modelo
     private String longModelName;   // Nombre largo del modelo de Spectrum
     private String shortModelName;   // Nombre corto del modelo de Spectrum
     public int clockFreq;       // Clock frequency

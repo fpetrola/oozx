@@ -1349,7 +1349,6 @@ public class JSW2 extends MiniZX {
     A = var201;
     wMem(34255, A, 36505);
     $36508();
-    return;
   }
 
   private void extracted12() {
@@ -1470,19 +1469,14 @@ public class JSW2 extends MiniZX {
 
       BC(31);
       A = in(BC());
-      if ((A & 16) == 0) {
-        return true;
-      }
+      return (A & 16) == 0;
     }
     return false;
   }
 
   private boolean extracted8() {
     HL(HL() + 1 & 65535);
-    if (A != mem(HL(), 36593)) {
-      return true;
-    }
-    return false;
+    return A != mem(HL(), 36593);
   }
 
   private boolean extracted() {
@@ -1543,17 +1537,11 @@ public class JSW2 extends MiniZX {
     A = var180;
     int var181 = A & 14;
     A = var181;
-    if (A << 1 != 0) {
-      return true;
-    }
-    return false;
+    return A << 1 != 0;
   }
 
   private boolean extracted6() {
-    if (A != 16 && A != 13) {
-      return true;
-    }
-    return false;
+    return A != 16 && A != 13;
   }
 
   private boolean extracted4() {
@@ -1570,10 +1558,7 @@ public class JSW2 extends MiniZX {
     A = var228;
     int var229 = HL();
     wMem(var229, A, 36334);
-    if (A >= 240) {
-      return true;
-    }
-    return false;
+    return A >= 240;
   }
 
   private boolean extracted3() {
@@ -1592,10 +1577,7 @@ public class JSW2 extends MiniZX {
     HL(var240);
     int var241 = HL();
     int var242 = mem(var241, 36351);
-    if (A == var242) {
-      return true;
-    }
-    return false;
+    return A == var242;
   }
 
   private boolean extracted2() {
@@ -1628,9 +1610,7 @@ public class JSW2 extends MiniZX {
     if (F == 0) {
       int var221 = HL();
       int var222 = mem(var221, 36446);
-      if (A == var222) {
-        return true;
-      }
+      return A == var222;
     }
     return false;
   }
@@ -2955,6 +2935,7 @@ public class JSW2 extends MiniZX {
       do {
         if (A == B) {
           D = 24;
+          break;
         }
 
         int var3 = B - 1 & 255;

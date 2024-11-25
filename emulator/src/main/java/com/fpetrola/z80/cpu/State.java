@@ -32,7 +32,7 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class State<T extends WordNumber> {
   private RunState runState;
-  private ArrayList<Event> events = new ArrayList<>();
+  private final ArrayList<Event> events = new ArrayList<>();
   public int tstates;
 
   public int getTStatesSinceCpuStart() {
@@ -54,9 +54,9 @@ public class State<T extends WordNumber> {
 
   private InterruptionMode intMode;
 
-  private RegisterBank<T> registers;
-  private Memory<T> memory;
-  private IO<T> io;
+  private final RegisterBank<T> registers;
+  private final Memory<T> memory;
+  private final IO<T> io;
 
   private boolean halted;
   private boolean iff1;

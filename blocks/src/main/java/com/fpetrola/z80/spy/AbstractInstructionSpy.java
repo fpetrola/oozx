@@ -41,9 +41,9 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
   protected Map<Integer, List<ExecutionStep<T>>> memoryChanges = new HashMap<>();
   private Instruction lastInstruction;
   private ExecutionPoint lastExecutionPoint;
-  private LinkedList<ExecutionPoint> executionPoints = new LinkedList<>();
+  private final LinkedList<ExecutionPoint> executionPoints = new LinkedList<>();
   protected int enabledExecutionNumber;
-  private Set<Integer> mutantCode = new HashSet<>();
+  private final Set<Integer> mutantCode = new HashSet<>();
 
   @Override
   public boolean isReadAccessCapture() {
@@ -71,7 +71,7 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
 
   protected boolean[] bitsWritten;
   protected ExecutionStep nullStep = new ExecutionStep(memory);
-  private Instruction[] fetchedMemory = new Instruction[0x10000];
+  private final Instruction[] fetchedMemory = new Instruction[0x10000];
 
   @Override
   public Instruction getFetchedAt(int address) {

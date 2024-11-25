@@ -15,7 +15,7 @@ import java.io.File;
 public class SnapshotFactory {
     public static SnapshotFile getSnapshot(File file) {
         String name = file.getName().toLowerCase();
-        switch (name.substring(name.lastIndexOf("."), name.length())) {
+        switch (name.substring(name.lastIndexOf("."))) {
             case ".sna":
                 return new SnapshotSNA();
             case ".z80":

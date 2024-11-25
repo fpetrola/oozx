@@ -150,7 +150,7 @@ public class SnapshotSNA implements SnapshotFile {
                 z80.setRegPC(0x72); // dirección de RETN en la ROM
                 spectrum.setEnabledAY(false);
             } else {
-                boolean loaded[] = new boolean[8];
+                boolean[] loaded = new boolean[8];
 
                 // Hasta que leamos el último valor del puerto 0x7ffd no sabemos
                 // en qué página hay que poner los últimos 16K. Los leemos en
@@ -199,7 +199,7 @@ public class SnapshotSNA implements SnapshotFile {
                     // Los ponemos a cero y que se apañe....
                     spectrum.setEnabledAY(true);
                     spectrum.setEnabledAYon48k(false);
-                    int regAY[] = new int[16];
+                    int[] regAY = new int[16];
                     ay8912 = new AY8912State();
                     spectrum.setAY8912State(ay8912);
                     ay8912.setAddressLatch(0);
@@ -250,7 +250,7 @@ public class SnapshotSNA implements SnapshotFile {
                 throw new SnapshotException("OPEN_FILE_ERROR", ex);
             }
 
-            byte snaHeader[] = new byte[27];
+            byte[] snaHeader = new byte[27];
             snaHeader[0] = (byte) z80.getRegI();
             snaHeader[1] = (byte) z80.getRegLx();
             snaHeader[2] = (byte) z80.getRegHx();
@@ -314,7 +314,7 @@ public class SnapshotSNA implements SnapshotFile {
                 buffer = memory.getPageRam((spectrum.getPort7ffd() & 0x07));
                 fOut.write(buffer, 0, buffer.length);
 
-                boolean saved[] = new boolean[8];
+                boolean[] saved = new boolean[8];
                 saved[2] = saved[5] = true;
                 fOut.write(z80.getRegPC());
                 fOut.write(z80.getRegPC() >>> 8);

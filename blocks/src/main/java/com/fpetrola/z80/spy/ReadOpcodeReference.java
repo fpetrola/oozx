@@ -36,7 +36,7 @@ public class ReadOpcodeReference<T extends WordNumber> extends AbstractSpyRefere
   }
 
   public String toString() {
-    return Helper.convertToHex(this.value) + "= " + this.opcodeReference.toString()+ (indirectReference ? " (I)" : "");
+    return Helper.convertToHex(this.value) + "= " + this.opcodeReference + (indirectReference ? " (I)" : "");
   }
 
   public void undo() {

@@ -13,6 +13,6 @@ import java.io.File;
  * @author jsanchez
  */
 public interface SnapshotFile {
-    public SpectrumState load(File filename) throws SnapshotException;
-    public boolean save(File filename, SpectrumState state) throws SnapshotException;
+    SpectrumState load(File filename) throws SnapshotException;
+    boolean save(File filename, SpectrumState state) throws SnapshotException;
 }

@@ -27,7 +27,7 @@ import com.fpetrola.z80.registers.Register;
 
 public class GenerateTestSourceInstructionVisitor implements InstructionVisitor<WordNumber, Integer> {
   StringBuilder result = new StringBuilder();
-  private int startAddress;
+  private final int startAddress;
 
   public GenerateTestSourceInstructionVisitor(int startAddress) {
     this.startAddress = startAddress;

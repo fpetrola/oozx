@@ -50,7 +50,7 @@ public class Helper {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    return (T) instance;
+    return instance;
   }
 
   public static String getSnapshotFile(String url) {

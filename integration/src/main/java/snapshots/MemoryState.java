@@ -9,10 +9,10 @@ package snapshots;
  * @author jsanchez
  */
 public class MemoryState {
-    private byte ram[][] = new byte[8][]; 
-    private byte IF2Rom[];
-    private byte mfRam[];
-    private byte lecRam[][] = new byte[16][];
+    private byte[][] ram = new byte[8][];
+    private byte[] IF2Rom;
+    private byte[] mfRam;
+    private final byte[][] lecRam = new byte[16][];
     private int portFD;
     private boolean IF1RomPaged, IF2RomPaged;
     private boolean multifacePaged, multifaceLocked, mf128on48k;
@@ -156,7 +156,7 @@ public class MemoryState {
       return ram;
     }
 
-    public void setRam(byte ram[][]) {
+    public void setRam(byte[][] ram) {
       this.ram = ram;
     }
 }

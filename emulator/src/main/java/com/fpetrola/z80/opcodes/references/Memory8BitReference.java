@@ -25,9 +25,9 @@ import com.fpetrola.z80.registers.Register;
 public class Memory8BitReference<T extends WordNumber> implements ImmutableOpcodeReference<T> {
 
   private final Memory<T> memory;
-  private int delta;
+  private final int delta;
   protected T fetchedAddress;
-  private Register<T> pc;
+  private final Register<T> pc;
 
   public Memory8BitReference(Memory memory, Register pc, int delta) {
     this.memory = memory;

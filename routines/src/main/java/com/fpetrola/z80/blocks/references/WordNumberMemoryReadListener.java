@@ -49,8 +49,7 @@ public class WordNumberMemoryReadListener<T extends WordNumber> implements Memor
 
             Collection<BlockRelation> blockRelations1 = referencesHandler.relationsBySourceAddress.get(blockRelation.getSourceAddress());
             if (blockRelations1.size() < 100) {
-              if (address instanceof TraceableWordNumber) {
-                TraceableWordNumber traceableWordNumber = (TraceableWordNumber) address;
+              if (address instanceof TraceableWordNumber traceableWordNumber) {
                 TreeSet<ExecutionPoint> operationsAddresses = traceableWordNumber.getOperationsAddresses();
 
                 ExecutionPoint first = findFirst(operationsAddresses);

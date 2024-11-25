@@ -30,7 +30,7 @@ import java.util.List;
 
 public class VirtualComposed16BitRegister<T extends WordNumber> extends Composed16BitRegister<T, IVirtual8BitsRegister<T>> implements VirtualRegister<T> {
   private final int currentAddress;
-  private Scope scope = new Scope();
+  private final Scope scope = new Scope();
   private final VirtualRegisterVersionHandler versionHandler;
 
   public VirtualComposed16BitRegister(int currentAddress, String virtualRegisterName, IVirtual8BitsRegister<T> virtualH, IVirtual8BitsRegister<T> virtualL, VirtualRegisterVersionHandler versionHandler, boolean composed) {
@@ -162,8 +162,7 @@ public class VirtualComposed16BitRegister<T extends WordNumber> extends Composed
     Instruction instruction = ((Virtual8BitsRegister) high1).instruction;
 
     if (instruction instanceof Ld ld) {
-      if (ld.getTarget().equals(this))
-        return true;
+      return ld.getTarget().equals(this);
     }
     return false;
   }

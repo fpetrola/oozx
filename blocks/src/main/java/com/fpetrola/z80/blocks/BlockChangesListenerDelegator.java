@@ -20,7 +20,7 @@ package com.fpetrola.z80.blocks;
 
 public class BlockChangesListenerDelegator implements BlockChangesListener {
   private final BlockChangesListener blockChangesListener;
-  private boolean delegationEnabled= true;
+  private final boolean delegationEnabled= true;
 
   public BlockChangesListenerDelegator(BlockChangesListener blockChangesListener) {
 

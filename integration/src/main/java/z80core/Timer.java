@@ -27,7 +27,7 @@ public class Timer {
   private long sumTime;
   private long times;
   private long lower = Long.MAX_VALUE;
-  private String name;
+  private final String name;
 
   public Timer(String name) {
     this.name = name;

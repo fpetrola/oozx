@@ -24,8 +24,8 @@ import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.spy.InstructionSpy;
 
 public class FetchNextOpcodeInstructionFactory<T> {
-  private InstructionSpy spy;
-  private State state;
+  private final InstructionSpy spy;
+  private final State state;
 
   public FetchNextOpcodeInstructionFactory(InstructionSpy spy, State state) {
     this.spy = spy;

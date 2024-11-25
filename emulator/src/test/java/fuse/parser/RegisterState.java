@@ -20,12 +20,26 @@ package fuse.parser;
 
 // Represents register state in both .in and .expected files
 public class RegisterState {
-    private int af, bc, de, hl;
-    private int af_, bc_, de_, hl_;
-    private int ix, iy, sp, pc, memptr;
-    private int i, r, iff1, iff2, im;
-    private boolean halted;
-    private int tstates;
+    private final int af;
+  private final int bc;
+  private final int de;
+  private final int hl;
+    private final int af_;
+  private final int bc_;
+  private final int de_;
+  private final int hl_;
+    private final int ix;
+  private final int iy;
+  private final int sp;
+  private final int pc;
+  private final int memptr;
+    private final int i;
+  private final int r;
+  private final int iff1;
+  private final int iff2;
+  private final int im;
+    private final boolean halted;
+    private final int tstates;
 
     public RegisterState(int af, int bc, int de, int hl, int af_, int bc_, int de_, int hl_, int ix, int iy, int sp, int pc, int memptr,
                          int i, int r, int iff1, int iff2, int im, boolean halted, int tstates) {

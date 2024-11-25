@@ -25,9 +25,9 @@ import org.cojen.maker.Variable;
 
 public class Single8BitRegisterVariable implements VariableDelegator {
   private final MethodMaker methodMaker;
-  private Variable variable;
-  private SmartComposed16BitRegisterVariable composedRegisterVariable;
-  private String nibble;
+  private final Variable variable;
+  private final SmartComposed16BitRegisterVariable composedRegisterVariable;
+  private final String nibble;
   private final RoutineBytecodeGenerator routineByteCodeGenerator;
   private VirtualRegister<?> register;
 

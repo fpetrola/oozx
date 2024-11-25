@@ -93,9 +93,9 @@ public class InstructionCache<T extends WordNumber> {
     return cacheEntries;
   }
 
-  private Runnable[] cacheInvalidators = new Runnable[0x10000];
+  private final Runnable[] cacheInvalidators = new Runnable[0x10000];
 
-  private InstructionCloner instructionCloner;
+  private final InstructionCloner instructionCloner;
 
   public InstructionCache(Memory memory, DefaultInstructionFactory instructionFactory) {
     instructionCloner = new InstructionCloner(instructionFactory);

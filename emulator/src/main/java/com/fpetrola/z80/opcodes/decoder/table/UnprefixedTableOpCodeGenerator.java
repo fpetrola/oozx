@@ -31,11 +31,11 @@ import com.fpetrola.z80.registers.RegisterName;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class UnprefixedTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
-  private Instruction<T> cbOpcode;
-  private Instruction<T> ddOpcode;
-  private Instruction<T> edOpcode;
-  private Instruction<T> fdOpcode;
-  private int delta;
+  private final Instruction<T> cbOpcode;
+  private final Instruction<T> ddOpcode;
+  private final Instruction<T> edOpcode;
+  private final Instruction<T> fdOpcode;
+  private final int delta;
 
   public UnprefixedTableOpCodeGenerator(int delta, State state, Instruction<T> cbOpcode, Instruction<T> ddOpcode, Instruction<T> edOpcode, Instruction<T> fdOpcode, RegisterName main16BitRegister, RegisterName mainHigh8BitRegister, RegisterName mainLow8BitRegister, OpcodeReference main16BitRegisterReference, OpcodeConditions opc1, DefaultInstructionFactory instructionFactory) {
     super(state, main16BitRegister, mainHigh8BitRegister, mainLow8BitRegister, main16BitRegisterReference, opc1, instructionFactory);

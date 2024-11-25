@@ -41,12 +41,11 @@ public class WriteOpcodeReference<T extends WordNumber> extends AbstractSpyRefer
   }
 
   public String toString() {
-    return this.opcodeReference.toString() + ":= " + Helper.convertToHex(this.value) + (indirectReference ? " (I)" : "");
+    return this.opcodeReference + ":= " + Helper.convertToHex(this.value) + (indirectReference ? " (I)" : "");
   }
 
   public boolean sameReference(SpyReference obj) {
-    if (obj instanceof ReadOpcodeReference) {
-      ReadOpcodeReference readOpcodeReference = (ReadOpcodeReference) obj;
+    if (obj instanceof ReadOpcodeReference readOpcodeReference) {
       return readOpcodeReference.opcodeReference.equals(opcodeReference);
     } else
       return false;

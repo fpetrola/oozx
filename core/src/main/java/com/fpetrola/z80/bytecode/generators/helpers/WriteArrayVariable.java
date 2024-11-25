@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 
 public class WriteArrayVariable implements Variable {
   private final RoutineBytecodeGenerator routineByteCodeGenerator;
-  private Supplier<Object> variableSupplier;
+  private final Supplier<Object> variableSupplier;
   private final String bits;
 
   public WriteArrayVariable(RoutineBytecodeGenerator routineByteCodeGenerator, Supplier<Object> variableSupplier1, String bits) {
@@ -40,7 +40,7 @@ public class WriteArrayVariable implements Variable {
     if (variable instanceof Integer integer) {
       int l = integer;
       if (integer > 20000)
-        l = integer * 1;
+        l = integer;
       variable = l;
     }
 

@@ -26,7 +26,7 @@ import java.util.Map;
 public class RegisterNameBuilder {
   static long count = 0L;
 
-  private Map<String, String> names = new HashMap<>();
+  private final Map<String, String> names = new HashMap<>();
 
   public int getCurrentAddress() {
     return currentAddress;

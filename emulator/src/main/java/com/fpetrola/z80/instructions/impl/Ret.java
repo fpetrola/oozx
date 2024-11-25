@@ -27,7 +27,7 @@ import com.fpetrola.z80.registers.Register;
 
 public class Ret<T extends WordNumber> extends ConditionalInstruction<T, Condition> {
   private final Memory<T> memory;
-  private Register<T> sp;
+  private final Register<T> sp;
 
   public Ret(Condition condition, Register<T> sp, Memory<T> memory, Register<T> pc) {
     super(sp, condition, pc);

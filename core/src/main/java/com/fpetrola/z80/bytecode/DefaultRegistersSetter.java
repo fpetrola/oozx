@@ -219,7 +219,6 @@ public abstract class DefaultRegistersSetter<T extends WordNumber> implements Re
   @Override
   public void setFlagQ(boolean flagQ) {
     this.state.setFlagQ(flagQ);
-    ;
   }
 
   @Override
@@ -254,13 +253,11 @@ public abstract class DefaultRegistersSetter<T extends WordNumber> implements Re
   @Override
   public void setFfIFF1(boolean ffIFF1) {
     this.state.setIff1(ffIFF1);
-    ;
   }
 
   @Override
   public void setFfIFF2(boolean ffIFF2) {
     this.state.setIff2(ffIFF2);
-    ;
   }
 
   @Override

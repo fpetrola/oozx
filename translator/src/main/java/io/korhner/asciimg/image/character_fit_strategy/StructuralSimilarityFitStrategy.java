@@ -12,7 +12,7 @@ public class StructuralSimilarityFitStrategy implements
 
 	private final float K1 = 0.01f;
 	private final float K2 = 0.03f;
-	private float L = 255f;
+	private final float L = 255f;
 
 	@Override
 	public float calculateError(GrayscaleMatrix character, GrayscaleMatrix tile) {

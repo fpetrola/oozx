@@ -36,8 +36,8 @@ import java.util.stream.Stream;
 
 public class TransformerInstructionExecutor<T extends WordNumber> implements InstructionExecutor<T> {
   private final Register<T> pc;
-  private InstructionExecutor<T> instructionExecutor;
-  private boolean noRepeat;
+  private final InstructionExecutor<T> instructionExecutor;
+  private final boolean noRepeat;
   private MemptrUpdater<?> memptrUpdater;
 
   public TransformerInstructionExecutor(Register<T> pc, InstructionExecutor<T> instructionExecutor, boolean noRepeat, InstructionTransformer<T> instructionTransformer) {
@@ -47,8 +47,8 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
     this.instructionTransformer = instructionTransformer;
   }
 
-  private InstructionTransformer<T> instructionTransformer;
-  private InstructionActionExecutor<T> resetter = new InstructionActionExecutor<>(r -> r.reset());
+  private final InstructionTransformer<T> instructionTransformer;
+  private final InstructionActionExecutor<T> resetter = new InstructionActionExecutor<>(r -> r.reset());
   public Map<Integer, Instruction<T>> clonedInstructions = new HashMap<>();
   public Map<Integer, Instruction<T>> instructions = new HashMap<>();
   public List<Instruction<T>> executed = new ArrayList<>();
