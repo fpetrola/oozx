@@ -40,11 +40,16 @@ public class MemptrUpdater<T extends WordNumber> {
     memory.canDisable(true);
     memory.disableReadListener();
     instruction.accept(new InstructionVisitor<T, Integer>() {
+      public boolean visitRLD(RLD<T> rld) {
+        memptr.write(rld.getHl().read().plus(1));
+        return false;
+      }
+
       public boolean visitingCall(Call tCall) {
         T jumpAddress2 = (T) tCall.calculateJumpAddress();
         memptr.write(jumpAddress2);
 
-        return InstructionVisitor.super.visitingCall(tCall);
+        return false;
       }
 
       public boolean visitingOperation16Bits(Operation16Bits<T> operation16Bits) {
@@ -90,11 +95,6 @@ public class MemptrUpdater<T extends WordNumber> {
             return false;
           }
         });
-      }
-
-      public boolean visitRLD(RLD<T> rld) {
-        memptr.write(rld.getHl().read().plus(1));
-        return false;
       }
     });
 
@@ -161,13 +161,13 @@ public class MemptrUpdater<T extends WordNumber> {
       }
 
       public boolean visitLdOperation(LdOperation ldOperation) {
-        return InstructionVisitor.super.visitLdOperation(ldOperation);
+        return false;
       }
 
       public boolean visitOuti(Outi<T> outi) {
         memptr.write(outi.getBc().read().plus(1));
 
-        return InstructionVisitor.super.visitOuti(outi);
+        return false;
       }
 
       public boolean visitOutd(Outd<T> outd) {
@@ -206,23 +206,35 @@ public class MemptrUpdater<T extends WordNumber> {
         }
       }
 
-      public boolean visitRepeatingInstruction(RepeatingInstruction<T> tRepeatingInstruction) {
-        boolean isCpdr = tRepeatingInstruction instanceof Cpdr;
-        boolean isCpir = tRepeatingInstruction instanceof Cpir;
-        if (tRepeatingInstruction instanceof Ldir || tRepeatingInstruction instanceof Lddr<?> || isCpdr || isCpir) {
-          T nextPC = tRepeatingInstruction.getNextPC();
-          if (nextPC != null) {
-            memptr.write(nextPC.plus(1));
-          } else {
-            if (isCpdr) {
-              memptr.write(memptr.read().plus(-1));
-            } else if (isCpir) {
-              memptr.write(memptr.read().plus(1));
-            }
-            tRepeatingInstruction.getInstructionToRepeat().accept(this);
+      public boolean visitRepeatingInstruction(RepeatingInstruction<T> repeatingInstruction) {
+        repeatingInstruction.accept(new InstructionVisitor<T, T>() {
+          public boolean visitLddr(Lddr lddr) {
+            incIfNextPC(0);
+            return false;
           }
-        } else
-          tRepeatingInstruction.getInstructionToRepeat().accept(this);
+
+          public void visitLdir(Ldir<T> ldir) {
+            incIfNextPC(0);
+          }
+
+          private void incIfNextPC(int i) {
+            T nextPC = repeatingInstruction.getNextPC();
+            T newValue = nextPC != null ? nextPC.plus(1) : memptr.read().plus(i);
+            memptr.write(newValue);
+          }
+
+          public boolean visitCpir(Cpir<T> cpir) {
+            incIfNextPC(1);
+            return false;
+          }
+
+          public void visitCpdr(Cpdr tCpdr) {
+            incIfNextPC(-1);
+          }
+        });
+
+        repeatingInstruction.getInstructionToRepeat().accept(this);
+
         return true;
       }
     });
