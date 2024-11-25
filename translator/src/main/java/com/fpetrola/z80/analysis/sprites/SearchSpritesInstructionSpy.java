@@ -53,9 +53,11 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
   private Set<Integer> spritesAt = new HashSet<>();
   private State state;
   private CustomGraph customGraph;
+
   public SearchSpritesInstructionSpy() {
     super();
   }
+
   AddressRange currentRange = new AddressRange();
   protected List<AddressRange> ranges = new ArrayList<AddressRange>();
   public static final int STEP_PROCESSOR_CANCEL = -2;
@@ -92,7 +94,7 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
       protected String getVertexLabel(Object object) {
         if (object instanceof ExecutionStep) {
           ExecutionStep currentStep = (ExecutionStep) object;
-          return Helper.convertToHex(currentStep.pcValue) + ": " + currentStep.description;
+          return Helper.formatAddress(currentStep.pcValue) + ": " + currentStep.description;
         } else
           return object + "";
       }
@@ -182,11 +184,11 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
 
     for (ExecutionStep step : executionSteps) {
       step.accessReferences = new ArrayList<>();
-      step.writeMemoryReferences= filterIndirect(step.writeMemoryReferences);
-      step.writeReferences= filterIndirect(step.writeReferences);
-      step.readMemoryReferences= filterIndirect(step.readMemoryReferences);
-      step.readReferences= filterIndirect(step.readReferences);
-     
+      step.writeMemoryReferences = filterIndirect(step.writeMemoryReferences);
+      step.writeReferences = filterIndirect(step.writeReferences);
+      step.readMemoryReferences = filterIndirect(step.readMemoryReferences);
+      step.readReferences = filterIndirect(step.readReferences);
+
       step.accessReferences.addAll(step.writeMemoryReferences);
       step.accessReferences.addAll(step.writeReferences);
       step.accessReferences.addAll(step.readMemoryReferences);
@@ -387,7 +389,7 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
   }
 
   private boolean isSpriteAddress(int address) {
-    return  memorySpy.getAddressModificationsCounter(address) <= 100;
+    return memorySpy.getAddressModificationsCounter(address) <= 100;
   }
 
   private boolean isScreenWriting(Object accessReference) {

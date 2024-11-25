@@ -35,7 +35,7 @@ public class AddressRange {
   }
 
   public String getName() {
-    return "[" + Helper.convertToHex(firstAddress) + "-" + Helper.convertToHex(lastAddress) + "]";
+    return "[" + Helper.formatAddress(firstAddress) + "-" + Helper.formatAddress(lastAddress) + "]";
   }
 
   public boolean canAdd(int address, ExecutionStep step) {

@@ -221,7 +221,7 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
     if (capturing) {
       executionStep.setInstruction(instruction);
       if (print)
-        System.out.println(instruction + " (" + Helper.convertToHex(opcodeInt) + ")");
+        System.out.println(instruction + " (" + Helper.formatAddress(opcodeInt) + ")");
     }
   }
 

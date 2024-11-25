@@ -28,8 +28,14 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 public class Helper {
-  public static String convertToHex(int routineAddress) {
+  public static boolean hex = false;
+
+  private static String convertToHex(int routineAddress) {
     return Long.toHexString(routineAddress).toUpperCase();
+  }
+
+  public static String formatAddress(int routineAddress) {
+    return hex ? Long.toHexString(routineAddress).toUpperCase() : routineAddress + "";
   }
 
   public static <T extends WordNumber> String convertToHex(T value) {

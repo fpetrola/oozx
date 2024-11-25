@@ -217,8 +217,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         ready |= stackFrames.isEmpty();
         lastPc = pcValue;
 
-        System.out.println("PC: " + Helper.convertToHex(pcValue));
-        System.out.println("BC: " + Helper.convertToHex(state.getRegister(RegisterName.BC).read().intValue()));
+        System.out.println("PC: " + Helper.formatAddress(pcValue));
+        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
 
       }
     }

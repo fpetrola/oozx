@@ -19,6 +19,7 @@
 package com.fpetrola.z80.instructions.tests;
 
 import com.fpetrola.z80.blocks.Block;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.base.ManualBytecodeGenerationTest;
@@ -39,6 +40,9 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 @SuppressWarnings("ALL")
 public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGenerationTest<T> {
   private SymbolicExecutionAdapter symbolicExecutionAdapter;
+
+  public RoutinesTests() {
+  }
 
   public SymbolicExecutionAdapter getSymbolicExecutionAdapter(State<T> state) {
     if (symbolicExecutionAdapter == null)
@@ -739,55 +743,55 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     List<Routine> routines = getRoutineManager().getRoutines();
 
     Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-        
-        public class JSW extends SpectrumApplication {
-           public void $0() {
-              label11: {
-                 super.A = 2;
-                 this.$7();
-                 if(!this.isNextPC(19)) {
-                    super.C = 2;
-                    this.$22();
-                    if(!this.isNextPC(19)) {
-                       break label11;
-                    }
-                 }
-        
-                 super.A = 61;
-                 super.B = 62;
-              }
-        
-              super.C = 3;
-              super.C = 5;
-           }
-        
-           public void $7() {
-              super.D = 4;
-              if(super.A == 3) {
-                 this.$13();
-                 if(this.isNextPC(17)) {
-                    super.E = 71;
-                    super.nextAddress = 19;
-                    return;
-                 }
-              }
-        
-              int var1 = super.A - 3;
-              super.F = var1;
-           }
-        
-           public void $22() {
-              super.D = 41;
-              super.E = 51;
-              super.nextAddress = 19;
-           }
-        
-           public void $13() {
-              super.C = 40;
-              super.nextAddress = 17;
-           }
-        }
+import com.fpetrola.z80.minizx.SpectrumApplication;
+
+public class JSW extends SpectrumApplication {
+   public void $0() {
+      label11: {
+         super.A = 2;
+         this.$7();
+         if(!this.isNextPC(19)) {
+            super.C = 2;
+            this.$22();
+            if(!this.isNextPC(19)) {
+               break label11;
+            }
+         }
+
+         super.A = 61;
+         super.B = 62;
+      }
+
+      super.C = 3;
+      super.C = 5;
+   }
+
+   public void $7() {
+      super.D = 4;
+      if(super.A == 3) {
+         this.$13();
+         if(this.isNextPC(17)) {
+            super.E = 71;
+            super.nextAddress = 19;
+            return;
+         }
+      }
+
+      int var1 = super.A - 3;
+      super.F = var1;
+   }
+
+   public void $13() {
+      super.C = 40;
+      super.nextAddress = 17;
+   }
+
+   public void $22() {
+      super.D = 41;
+      super.E = 51;
+      super.nextAddress = 19;
+   }
+}
         """, resultingJava);
 
 
@@ -1043,7 +1047,7 @@ public class JSW extends SpectrumApplication {
       do {
          int var1 = this.BC();
          this.push(var1);
-         this.$B();
+         this.$11();
          super.B = 3;
 
          do {
@@ -1061,7 +1065,7 @@ public class JSW extends SpectrumApplication {
 
    }
 
-   public void $B() {
+   public void $11() {
       super.D = super.A;
    }
 }
@@ -1103,28 +1107,28 @@ public class JSW extends SpectrumApplication {
     List<Routine> routines = getRoutineManager().getRoutines();
 
     Assert.assertEquals("""
-import com.fpetrola.z80.minizx.SpectrumApplication;
-
-public class JSW extends SpectrumApplication {
-   public void $0() {
-      super.A = 2;
-      this.$5();
-      super.B = 3;
-   }
-
-   public void $5() {
-      if(super.A << 1 != 0) {
-         super.D = 6;
-      }
-   }
-}
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+        
+        public class JSW extends SpectrumApplication {
+           public void $0() {
+              super.A = 2;
+              this.$5();
+              super.B = 3;
+           }
+        
+           public void $5() {
+              if(super.A << 1 != 0) {
+                 super.D = 6;
+              }
+           }
+        }
         """, resultingJava);
 
 
     Assert.assertEquals(2, routines.size());
 
     assertBlockAddresses(routines.get(0).blocks.get(0), 0, 3);
-    assertBlockAddresses(routines.get(1).blocks.get(0), 5, 9);
+    assertBlockAddresses(routines.get(1).blocks.get(0), 5, 8);
   }
 
 }

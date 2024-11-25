@@ -70,8 +70,7 @@ public class RoutineBytecodeGenerator {
   }
 
   public static String createLabelName(int label) {
-    return "$" + Helper.convertToHex(label);
-//    return "$" + label;
+    return "$" + Helper.formatAddress(label);
   }
 
   public void generate() {
