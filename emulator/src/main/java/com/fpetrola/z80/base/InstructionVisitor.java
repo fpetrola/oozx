@@ -397,10 +397,11 @@ public interface InstructionVisitor<T extends WordNumber, R> {
     return false;
   }
 
-  default void visitMemory16BitReference(Memory16BitReference<T> memory16BitReference) {
+  default boolean visitMemory16BitReference(Memory16BitReference<T> memory16BitReference) {
+    return false;
   }
 
-  default void visitMemory8BitReference(Memory8BitReference<T> memory8BitReference) {
-
+  default boolean visitMemory8BitReference(Memory8BitReference<T> memory8BitReference) {
+    return false;
   }
 }

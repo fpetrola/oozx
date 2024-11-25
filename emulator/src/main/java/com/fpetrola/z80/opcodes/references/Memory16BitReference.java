@@ -63,7 +63,8 @@ public class Memory16BitReference<T extends WordNumber> implements OpcodeReferen
   }
 
   public void accept(InstructionVisitor instructionVisitor) {
-    instructionVisitor.visitMemory16BitReference(this);
+    if (!instructionVisitor.visitMemory16BitReference(this))
+      OpcodeReference.super.accept(instructionVisitor);
   }
 
   public Object clone() throws CloneNotSupportedException {
