@@ -19,7 +19,6 @@
 package com.fpetrola.z80.instructions.impl;
 
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -29,7 +28,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
-public class Adc16<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
+public class Adc16<T extends WordNumber> extends Operation16Bits<T> {
   public static final AluOperation adc16TableAluOperation = new TableAluOperation() {
     public int execute(int value1, int value2, int carry) {
       int i = value1 & 0x33;
@@ -46,22 +45,15 @@ public class Adc16<T extends WordNumber> extends ParameterizedBinaryAluInstructi
       Q = F;
       return F;
     }
-
   };
 
   public Adc16(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
-    super(target, source, flag, (tFlagRegister, a, b) -> {
-      int value1 = a.intValue();
-      int value2 = b.intValue();
-      T flagValue = tFlagRegister.read();
-      int result = value1 + value2 + (flagValue.intValue() & 1);
-      value1 = ((value1 & 0x8800 | (value2 & 0x8800) >> 1) | (result & 0x1A800 | (result & 0x2000) >> 1) >> 3) >> 8;
-      adc16TableAluOperation.executeWithCarry2(flagValue, createValue(value1), result != 0 ? 1 : 0, tFlagRegister);
-      return createValue(result & 0xffff);
-    });
+    super(target, source, flag, (tFlagRegister, a, b) ->
+        calculate(tFlagRegister, a, b,
+            (v1, v2, f) -> v1 + v2 + (f & 1),
+            (tFlagRegister1, value3, result1) -> adc16TableAluOperation.executeWithCarry2(tFlagRegister1.read(), createValue(value3), result1 != 0 ? 1 : 0, tFlagRegister1)));
   }
 
-  @Override
   public void accept(InstructionVisitor visitor) {
     if (!visitor.visitingAdc16(this))
       super.accept(visitor);

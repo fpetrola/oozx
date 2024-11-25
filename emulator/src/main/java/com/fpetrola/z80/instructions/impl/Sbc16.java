@@ -29,7 +29,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
-public class Sbc16<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
+public class Sbc16<T extends WordNumber> extends Operation16Bits<T> {
   public static final AluOperation sbc16TableAluOperation = new TableAluOperation() {
     public int execute(int value1, int value2, int carry) {
       int i = value1 & 0x33;
@@ -50,15 +50,10 @@ public class Sbc16<T extends WordNumber> extends ParameterizedBinaryAluInstructi
   };
 
   public Sbc16(OpcodeReference<T> target, ImmutableOpcodeReference<T> source, Register<T> flag) {
-    super(target, source, flag, (tFlagRegister, v1, v2) -> {
-      int value1 = v2.intValue();
-      int value2 = v1.intValue();
-      int result = value1 - value2 - (tFlagRegister.read().intValue() & 1);
-      value1 = ((value1 & 0x8800 | (value2 & 0x8800) >> 1) | (result & 0x1A800 | (result & 0x2000) >> 1) >> 3) >> 8;
-      T t = sbc16TableAluOperation.executeWithCarry(createValue(result != 0 ? 1 : 0), createValue(value1 & 0xff), tFlagRegister);
-      tFlagRegister.write(t);
-      return createValue(result & 0xffff);
-    });
+    super(target, source, flag, (tFlagRegister, a, b) ->
+        calculate(tFlagRegister, b, a,
+            (v1, v2, f) -> v1 - v2 - (f & 1),
+            (tFlagRegister1, value3, result1) -> sbc16TableAluOperation.executeWithCarry(createValue(result1 != 0 ? 1 : 0), createValue(value3), tFlagRegister)));
   }
 
   @Override
