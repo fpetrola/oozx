@@ -74,11 +74,6 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
   }
 
   @Override
-  public void setMemptrUpdater(MemptrUpdater<?> memptrUpdater1) {
-    this.memptrUpdater = memptrUpdater1;
-  }
-
-  @Override
   public Instruction<T> execute(Instruction<T> instruction) {
     Instruction<T> existentCloned = clonedInstructions.get(pc.read().intValue());
     Instruction<T> cloned = processTargetSource(instruction, existentCloned);

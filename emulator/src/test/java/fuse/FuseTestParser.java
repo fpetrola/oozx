@@ -25,8 +25,9 @@ import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.RegisterName;
-import com.fpetrola.z80.spy.NullInstructionSpy;
+import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.cpu.Event;
+import com.fpetrola.z80.spy.MemptrUpdateInstructionSpy;
 import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
 import fuse.tstates.AddStatesIO;
@@ -92,7 +93,7 @@ public class FuseTestParser<T extends WordNumber> {
     AddStatesIO io = new AddStatesIO();
     state = new State<T>(io, memory);
     io.setState(state);
-    NullInstructionSpy spy = new NullInstructionSpy();
+    InstructionSpy spy = new MemptrUpdateInstructionSpy(state);
     DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory<WordNumber>(state);
     instructionFetcher = new MyDefaultInstructionFetcher(state, spy, instructionFactory);
     cpu = (OOZ80<WordNumber>) new OOZ80(state, instructionFetcher);
@@ -104,8 +105,8 @@ public class FuseTestParser<T extends WordNumber> {
   }
 
   public static class MyDefaultInstructionFetcher extends DefaultInstructionFetcher {
-    public MyDefaultInstructionFetcher(State state, NullInstructionSpy spy, DefaultInstructionFactory instructionFactory) {
-      super(state, new OpcodeConditions(state.getFlag(), state.getRegister(RegisterName.B)), new FetchNextOpcodeInstructionFactory(spy, state), new SpyInstructionExecutor(spy, new MemptrUpdater(state.getMemptr(), state.getMemory())), instructionFactory);
+    public MyDefaultInstructionFetcher(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory) {
+      super(state, new OpcodeConditions(state.getFlag(), state.getRegister(RegisterName.B)), new FetchNextOpcodeInstructionFactory(spy, state), new SpyInstructionExecutor(spy), instructionFactory);
     }
 
     public Instruction getLastInstruction() {

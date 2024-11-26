@@ -47,7 +47,7 @@ public abstract class CPUExecutionContext<T extends WordNumber> extends DefaultZ
   }
 
   protected InstructionFetcher createInstructionFetcher(InstructionSpy spy, State<T> state, InstructionExecutor instructionExecutor) {
-    return new InstructionFetcherForTest(this.state, new SpyInstructionExecutor(spy, new MemptrUpdater(state.getMemptr(), state.getMemory())));
+    return new InstructionFetcherForTest(this.state, new SpyInstructionExecutor(spy));
   }
 
   public InstructionFetcherForTest getInstructionFetcherForTest() {

@@ -16,20 +16,28 @@
  *
  */
 
-package com.fpetrola.z80.minizx.emulation;
+package com.fpetrola.z80.spy;
 
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
-import com.fpetrola.z80.cpu.OOZ80;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.cpu.IO;
+import com.fpetrola.z80.cpu.MemptrUpdater;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.spy.MemptrUpdateInstructionSpy;
-import com.fpetrola.z80.spy.NullInstructionSpy;
 
-public class Helper {
-  public static <T extends WordNumber> OOZ80<T> createOOZ80(IO<T> io) {
-    var state = new State<T>(io, new MockedMemory<T>(true));
-    return new OOZ80<T>(state, DefaultInstructionFetcher.getInstructionFetcher(state, new MemptrUpdateInstructionSpy<T>(state), new DefaultInstructionFactory<T>(state)));
+public class MemptrUpdateInstructionSpy<T extends WordNumber> implements InstructionSpy<T> {
+  MemptrUpdater<T> memptrUpdater;
+
+  public MemptrUpdateInstructionSpy(State<T> state) {
+    memptrUpdater = new MemptrUpdater<T>(state.getMemptr(), state.getMemory());
+  }
+
+  public void beforeExecution(Instruction<T> instruction) {
+    Instruction<T> baseInstruction = DefaultInstructionFetcher.getBaseInstruction(instruction);
+    memptrUpdater.updateBefore(baseInstruction);
+  }
+
+  public void afterExecution(Instruction<T> instruction) {
+    Instruction<T> baseInstruction = DefaultInstructionFetcher.getBaseInstruction(instruction);
+    memptrUpdater.updateAfter(baseInstruction);
   }
 }

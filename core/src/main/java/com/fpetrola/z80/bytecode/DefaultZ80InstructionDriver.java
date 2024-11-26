@@ -59,7 +59,6 @@ public abstract class DefaultZ80InstructionDriver<T extends WordNumber> implemen
     InstructionSpy spy = createSpy();
     instructionExecutor = new SpyInstructionExecutor(spy);
     state = new State(new MockedIO(), new SpyRegisterBankFactory(spy).createBank(), spy.wrapMemory(new MockedMemory(true)));
-    instructionExecutor.setMemptrUpdater(new MemptrUpdater<>(state.getMemptr(), state.getMemory()));
     InstructionFactory instructionFactory = createInstructionFactory(state);
     virtualRegisterFactory = new VirtualRegisterFactory(instructionExecutor, new RegisterNameBuilder());
     instructionCloner = new InstructionTransformer(instructionFactory, virtualRegisterFactory);
