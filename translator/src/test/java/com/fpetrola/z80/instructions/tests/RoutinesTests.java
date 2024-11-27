@@ -18,38 +18,41 @@
 
 package com.fpetrola.z80.instructions.tests;
 
-import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.base.ManualBytecodeGenerationTest;
 import com.fpetrola.z80.blocks.Block;
-import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.instructions.factory.InstructionFactory;
-import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
+import io.exemplary.guice.Modules;
+import io.exemplary.guice.TestRunner;
+import jakarta.inject.Inject;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Function;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 @SuppressWarnings("ALL")
+@RunWith(TestRunner.class)
+@Modules(RoutinesModule.class)
 public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGenerationTest<T> {
-  private SymbolicExecutionAdapter symbolicExecutionAdapter;
 
-  public RoutinesTests() {
-    super(new WordNumberDriverConfigurator());
-    symbolicExecutionAdapter = ((WordNumberDriverConfigurator) driverConfigurator).symbolicExecutionAdapter;
+  private final RoutinesDriverConfigurator configurator;
+
+  @Inject
+  public RoutinesTests(RoutinesDriverConfigurator configurator) {
+    super(configurator);
+    this.configurator = configurator;
   }
 
   @Test
   public void callingSimpleRoutine() {
     setUpMemory();
-    symbolicExecutionAdapter.new SymbolicInstructionFactoryDelegator() {
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
         add(Ld(r(A), c(2)));
         add(Call(t(), c(5)));
@@ -91,7 +94,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   }
 
   protected void stepUntilComplete() {
-    symbolicExecutionAdapter.stepUntilComplete(this, getState(), 0, 0);
+    getSymbolicExecutionAdapter().stepUntilComplete(this, getState(), 0, 0);
   }
 
   private void assertBlockAddresses(Block block, int start, int end) {
@@ -103,7 +106,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   public void callingSimpleRoutineWithContinuation() {
     setUpMemory();
 
-    symbolicExecutionAdapter.new SymbolicInstructionFactoryDelegator() {
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
         add(Ld(r(B), c(2)));
         add(Call(t(), c(3)));
@@ -158,7 +161,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   public void multipleInnerRoutinesWithContinuation() {
     setUpMemory();
 
-    symbolicExecutionAdapter.new SymbolicInstructionFactoryDelegator() {
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
         add(Ld(r(A), c(1)));
         add(Call(t(), c(5)));
@@ -226,7 +229,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   public void interleavedRoutinesTest() {
     setUpMemory();
 
-    symbolicExecutionAdapter.new SymbolicInstructionFactoryDelegator() {
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
         add(Ld(r(A), c(1)));
         add(Call(t(), c(5)));
@@ -279,7 +282,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   public void recursiveInnerRoutineWithContinuation() {
     setUpMemory();
 
-    symbolicExecutionAdapter.new SymbolicInstructionFactoryDelegator() {
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
         add(Ld(r(A), c(1)));
         add(Call(t(), c(5)));
@@ -337,7 +340,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   public void simpleRoutineTest() {
     setUpMemory();
 
-    symbolicExecutionAdapter.new SymbolicInstructionFactoryDelegator() {
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
         add(Ld(r(A), c(10)));
         add(Ld(r(B), c(20)));
@@ -370,7 +373,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   public void nonConsecutiveBlocksTest() {
     setUpMemory();
 
-    symbolicExecutionAdapter.new SymbolicInstructionFactoryDelegator() {
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
         add(Ld(r(A), c(1)));
         add(JP(c(10), t()));
@@ -425,7 +428,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   public void recursiveRoutineTest() {
     setUpMemory();
 
-    symbolicExecutionAdapter.new SymbolicInstructionFactoryDelegator() {
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
         add(Ld(r(A), c(2)));
         add(Dec(r(A)));
@@ -475,7 +478,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   public void multipleCallsAndRetsTest() {
     setUpMemory();
 
-    symbolicExecutionAdapter.new SymbolicInstructionFactoryDelegator() {
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
 
         add(Ld(r(A), c(50)));
@@ -535,7 +538,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   public void poppingReturnAddress() {
     setUpMemory();
 
-    symbolicExecutionAdapter.new SymbolicInstructionFactoryDelegator() {
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
         add(Ld(r(A), c(2)));
         add(Call(t(), c(6)));
@@ -598,7 +601,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   public void popping2ReturnAddresses() {
     setUpMemory();
 
-    symbolicExecutionAdapter.new SymbolicInstructionFactoryDelegator() {
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
         add(Ld(r(A), c(2)));
         add(Call(t(), c(6)));
@@ -689,7 +692,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   public void popping2ReturnAddressesB() {
     setUpMemory();
 
-    symbolicExecutionAdapter.new SymbolicInstructionFactoryDelegator() {
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
         add(Ld(r(A), c(2)));
         add(Call(t(), c(7)));
@@ -804,7 +807,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   public void poppingReturnAddressWithPendingBranches() {
     setUpMemory();
 
-    symbolicExecutionAdapter.new SymbolicInstructionFactoryDelegator() {
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
         add(Ld(r(H), c(1)));
         add(Ld(r(A), c(2)));
@@ -884,7 +887,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   @Test
   public void callingSimpleRoutineWithRetZ() {
     setUpMemory();
-    symbolicExecutionAdapter.new SymbolicInstructionFactoryDelegator() {
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
         add(Ld(r(A), c(2)));
         add(Call(t(), c(8)));
@@ -943,7 +946,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   @Test
   public void callingSimpleRoutineWithRetZInLoop() {
     setUpMemory();
-    symbolicExecutionAdapter.new SymbolicInstructionFactoryDelegator() {
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
         add(Ld(r(A), c(2)));
         add(Call(t(), c(5)));
@@ -1001,7 +1004,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   @Test
   public void callingSimpleRoutineInDjnz() {
     setUpMemory();
-    symbolicExecutionAdapter.new SymbolicInstructionFactoryDelegator() {
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
         add(Ld(r(A), c(10)));
         add(Ld(r(B), c(2)));
@@ -1071,7 +1074,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   @Test
   public void callingSimpleRoutineWithRetZ2() {
     setUpMemory();
-    symbolicExecutionAdapter.new SymbolicInstructionFactoryDelegator() {
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
         add(Ld(r(A), c(2)));
         add(Call(t(), c(5)));
@@ -1118,22 +1121,8 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     assertBlockAddresses(routines.get(1).blocks.get(0), 5, 8);
   }
 
-  private static class WordNumberDriverConfigurator<T extends WordNumber> extends DriverConfigurator<T> {
-    public SymbolicExecutionAdapter symbolicExecutionAdapter;
-
-    public SymbolicExecutionAdapter getSymbolicExecutionAdapter(State<T> state) {
-      if (symbolicExecutionAdapter == null)
-        symbolicExecutionAdapter = new SymbolicExecutionAdapter(state, getRoutineManager());
-      return symbolicExecutionAdapter;
-    }
-
-    protected Function<State<T>, OpcodeConditions> getStateOpcodeConditionsFactory() {
-      return state -> getSymbolicExecutionAdapter(state).createOpcodeConditions(state);
-    }
-
-    @Override
-    protected Function<State<T>, InstructionFactory> getInstructionFactoryFactory() {
-      return state -> getSymbolicExecutionAdapter(state).createInstructionFactory(state);
-    }
+  public SymbolicExecutionAdapter getSymbolicExecutionAdapter() {
+    return ((RoutinesDriverConfigurator) driverConfigurator).symbolicExecutionAdapter;
   }
+
 }

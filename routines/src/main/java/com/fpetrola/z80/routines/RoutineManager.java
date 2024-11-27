@@ -87,4 +87,9 @@ public class RoutineManager {
   public void setRandomAccessInstructionFetcher(RandomAccessInstructionFetcher randomAccessInstructionFetcher) {
     this.randomAccessInstructionFetcher = randomAccessInstructionFetcher;
   }
+
+  public void reset() {
+    blocksManager.clear();
+    routines.clear();
+  }
 }

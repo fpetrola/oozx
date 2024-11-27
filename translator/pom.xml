@@ -64,6 +64,12 @@
             <artifactId>guice</artifactId>
             <version>7.0.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>io.exemplary.guice</groupId>
+            <artifactId>guice-behave</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>

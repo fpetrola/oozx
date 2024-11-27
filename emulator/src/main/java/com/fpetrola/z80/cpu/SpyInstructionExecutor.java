@@ -22,6 +22,7 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.InstructionSpy;
+import com.google.inject.Inject;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -30,6 +31,7 @@ public class SpyInstructionExecutor<T extends WordNumber> implements Instruction
   private final InstructionSpy spy;
   private final Set<Instruction<T>> executingInstructions = new HashSet<>();
 
+  @Inject
   public SpyInstructionExecutor(InstructionSpy spy) {
     this.spy = spy;
   }

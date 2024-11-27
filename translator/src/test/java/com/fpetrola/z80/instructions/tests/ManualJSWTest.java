@@ -22,16 +22,23 @@ import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.base.ManualBytecodeGenerationTest;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.google.inject.Inject;
+import io.exemplary.guice.Modules;
+import io.exemplary.guice.TestRunner;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 @SuppressWarnings("ALL")
 
+@RunWith(TestRunner.class)
+@Modules(BaseModule.class)
 public class ManualJSWTest<T extends WordNumber> extends ManualBytecodeGenerationTest<T> {
-  public ManualJSWTest() {
-    super(new DriverConfigurator<T>());
+  @Inject
+  public ManualJSWTest(DriverConfigurator tDriverConfigurator) {
+    super(tDriverConfigurator);
   }
 
   @Test

@@ -21,7 +21,6 @@ package com.fpetrola.z80.se;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
-import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
@@ -35,7 +34,6 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.spy.InstructionSpy;
@@ -48,6 +46,8 @@ import java.util.*;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class SymbolicExecutionAdapter<T extends WordNumber> {
+  public Stack<Object> stackFrames = new Stack<>();
+  public Map<Integer, RoutineExecution> routineExecutions = new HashMap<>();
   private final State<? extends WordNumber> state;
   private final RoutineManager routineManager;
   private int lastPc;
@@ -56,6 +56,16 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   private AddressAction addressAction;
   private int minimalValidCodeAddress;
   public static Set<Integer> mutantAddress = new HashSet<>();
+
+
+  public void reset() {
+    mutantAddress.clear();
+    stackFrames.clear();
+    routineExecutions.clear();
+    nextSP= 0;
+    lastPc= 0;
+    addressAction= null;
+  }
 
   public <T extends WordNumber> SymbolicExecutionAdapter(State<T> state, RoutineManager routineManager) {
     this.state = state;
@@ -66,12 +76,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 //    });
   }
 
-  public Stack<Object> stackFrames = new Stack<>();
-
-  public Map<Integer, RoutineExecution> routineExecutions = new HashMap<>();
-
-  public InstructionFetcher createInstructionFetcher(InstructionSpy spy, State<T> state, InstructionExecutor<T> instructionExecutor) {
-    return new DefaultInstructionFetcher<T>(state, createOpcodeConditions(state), new FetchNextOpcodeInstructionFactory(spy, state), instructionExecutor, createInstructionFactory(state));
+  public InstructionFetcher createInstructionFetcher(InstructionSpy spy, State<T> state, InstructionExecutor<T> instructionExecutor, OpcodeConditions opcodeConditions) {
+    return new DefaultInstructionFetcher<T>(state, opcodeConditions, new FetchNextOpcodeInstructionFactory(spy, state), instructionExecutor, createInstructionFactory(state));
   }
 
   public DefaultInstructionFactory createInstructionFactory(final State state) {
@@ -204,6 +210,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         RoutineExecution routineExecution = getRoutineExecution();
 
         addressAction = routineExecution.getActionInAddress(pcValue);
+        System.out.println(state.getPc().read().intValue());
+
         z80InstructionDriver.step();
         addressAction.setPending(false);
         AddressAction nextAddressAction = routineExecution.getActionInAddress(pcValue);

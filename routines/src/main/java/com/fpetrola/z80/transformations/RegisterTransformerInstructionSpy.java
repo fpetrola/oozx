@@ -29,6 +29,7 @@ import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.spy.ExecutionStep;
 import com.fpetrola.z80.spy.WrapperInstructionSpy;
 import com.fpetrola.z80.spy.WriteMemoryReference;
+import com.google.inject.Inject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,23 +41,31 @@ public class RegisterTransformerInstructionSpy<T extends WordNumber> extends Wra
   private Instruction<T> lastInstruction;
   private int lastPC;
   public static RoutineFinder routineFinder;
+  private final RoutineManager routineManager;
+  private final List<Instruction<T>> executedInstructions = new ArrayList<>();
+
 
   public List<Instruction<T>> getExecutedInstructions() {
     return executedInstructions;
   }
 
-  private final List<Instruction<T>> executedInstructions = new ArrayList<>();
-
+  @Inject
   public RegisterTransformerInstructionSpy(RoutineManager routineManager) {
     routineFinder = new RoutineFinder(routineManager);
-    capturing = true;
-    executionStep = new ExecutionStep(memory);
+    this.routineManager = routineManager;
+    capturing = false;
   }
 
   @Override
   public void reset(State state) {
     super.reset(state);
+    routineManager.reset();
+    routineFinder = new RoutineFinder(routineManager);
     executionStep = new ExecutionStep(memory);
+    blocksManager.clear();
+    lastInstruction= null;
+    lastPC= 0;
+    executedInstructions.clear();
   }
 
   @Override
@@ -129,5 +138,9 @@ public class RegisterTransformerInstructionSpy<T extends WordNumber> extends Wra
           ((CodeBlockType) nextBlock.getBlockType()).addPreviousBlock(previousBlock);
       }
     }
+  }
+
+  public void doContinue() {
+    capturing= true;
   }
 }

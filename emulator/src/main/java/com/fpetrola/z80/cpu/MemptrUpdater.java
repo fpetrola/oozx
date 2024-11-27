@@ -39,64 +39,65 @@ public class MemptrUpdater<T extends WordNumber> {
   public void updateBefore(Instruction<T> instruction) {
     memory.canDisable(true);
     memory.disableReadListener();
-    instruction.accept(new InstructionVisitor<T, Integer>() {
-      public boolean visitRLD(RLD<T> rld) {
-        memptr.write(rld.getHl().read().plus(1));
-        return false;
-      }
-
-      public boolean visitingCall(Call tCall) {
-        T jumpAddress2 = (T) tCall.calculateJumpAddress();
-        memptr.write(jumpAddress2);
-
-        return false;
-      }
-
-      public boolean visitingOperation16Bits(Binary16BitsOperation<T> binary16BitsOperation) {
-        memptr.write(((T) binary16BitsOperation.getTarget().read()).plus(1));
-        return false;
-      }
-
-      public boolean visitIni(Ini<T> tIni) {
-        memptr.write(tIni.getBc().read().plus(1));
-        return false;
-      }
-
-      public boolean visitInd(Ind<T> tInd) {
-        memptr.write(tInd.getBc().read().plus(-1));
-        return true;
-      }
-
-      public boolean visitRepeatingInstruction(RepeatingInstruction<T> tRepeatingInstruction) {
-        if (tRepeatingInstruction instanceof Inir || tRepeatingInstruction instanceof Indr<?> || tRepeatingInstruction instanceof Outir<?> || tRepeatingInstruction instanceof Outdr<T>) {
-          tRepeatingInstruction.getInstructionToRepeat().accept(this);
+    if (instruction != null)
+      instruction.accept(new InstructionVisitor<T, Integer>() {
+        public boolean visitRLD(RLD<T> rld) {
+          memptr.write(rld.getHl().read().plus(1));
+          return false;
         }
-        return false;
-      }
 
-      public void visitCpi(Cpi<T> cpi) {
-        memptr.write(memptr.read().plus(1));
-      }
+        public boolean visitingCall(Call tCall) {
+          T jumpAddress2 = (T) tCall.calculateJumpAddress();
+          memptr.write(jumpAddress2);
 
-      public boolean visitCpd(Cpd<T> cpd) {
-        memptr.write(memptr.read().plus(-1));
-        return true;
-      }
+          return false;
+        }
 
-      public void visitIn(In<T> tOut) {
-        tOut.getSource().accept(new InstructionVisitor<T, T>() {
-          public boolean visitRegister(Register register) {
-            memptr.write(((T) tOut.getSource().read()).plus(1));
-            return false;
+        public boolean visitingOperation16Bits(Binary16BitsOperation<T> binary16BitsOperation) {
+          memptr.write(((T) binary16BitsOperation.getTarget().read()).plus(1));
+          return false;
+        }
+
+        public boolean visitIni(Ini<T> tIni) {
+          memptr.write(tIni.getBc().read().plus(1));
+          return false;
+        }
+
+        public boolean visitInd(Ind<T> tInd) {
+          memptr.write(tInd.getBc().read().plus(-1));
+          return true;
+        }
+
+        public boolean visitRepeatingInstruction(RepeatingInstruction<T> tRepeatingInstruction) {
+          if (tRepeatingInstruction instanceof Inir || tRepeatingInstruction instanceof Indr<?> || tRepeatingInstruction instanceof Outir<?> || tRepeatingInstruction instanceof Outdr<T>) {
+            tRepeatingInstruction.getInstructionToRepeat().accept(this);
           }
+          return false;
+        }
 
-          public boolean visitMemory8BitReference(Memory8BitReference<T> memory8BitReference) {
-            memptr.write((tOut.getA().read().left(8).or(tOut.getSource().read())).plus(1));
-            return false;
-          }
-        });
-      }
-    });
+        public void visitCpi(Cpi<T> cpi) {
+          memptr.write(memptr.read().plus(1));
+        }
+
+        public boolean visitCpd(Cpd<T> cpd) {
+          memptr.write(memptr.read().plus(-1));
+          return true;
+        }
+
+        public void visitIn(In<T> tOut) {
+          tOut.getSource().accept(new InstructionVisitor<T, T>() {
+            public boolean visitRegister(Register register) {
+              memptr.write(((T) tOut.getSource().read()).plus(1));
+              return false;
+            }
+
+            public boolean visitMemory8BitReference(Memory8BitReference<T> memory8BitReference) {
+              memptr.write((tOut.getA().read().left(8).or(tOut.getSource().read())).plus(1));
+              return false;
+            }
+          });
+        }
+      });
 
     memory.enableReadListener();
     memory.canDisable(false);

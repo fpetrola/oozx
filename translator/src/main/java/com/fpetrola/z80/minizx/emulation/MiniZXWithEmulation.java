@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
-import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.Push;
@@ -306,7 +305,7 @@ public class MiniZXWithEmulation {
         };
       }
     };
-    var z80 = new OOZ80(state, DefaultInstructionFetcher.getInstructionFetcher(state, new NullInstructionSpy(), instructionFactory));
+    var z80 = new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), instructionFactory));
     return z80;
   }
 

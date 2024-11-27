@@ -65,6 +65,7 @@ public class InstructionFetcherForTest<T extends WordNumber> implements Instruct
 
   public void reset() {
     pc.write(createValue(0));
+    instructions.clear();
   }
 
   public int add(Instruction<T> instruction) {

@@ -18,84 +18,68 @@
 
 package com.fpetrola.z80.base;
 
-import com.fpetrola.z80.cpu.InstructionExecutor;
-import com.fpetrola.z80.cpu.InstructionFetcher;
-import com.fpetrola.z80.cpu.RandomAccessInstructionFetcher;
-import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.instructions.factory.InstructionFactory;
+import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
-import com.fpetrola.z80.opcodes.references.TraceableWordNumber;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineManager;
-import com.fpetrola.z80.spy.AbstractInstructionSpy;
-import com.fpetrola.z80.spy.ComplexInstructionSpy;
-import com.fpetrola.z80.spy.InstructionSpy;
+import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.transformations.*;
+import com.google.inject.Inject;
 
-import java.util.function.Function;
+public class DriverConfigurator<T extends WordNumber> implements IDriverConfigurator<T> {
+  protected final RoutineManager routineManager;
+  protected final RegisterTransformerInstructionSpy<T> spy;
+  protected final SpyInstructionExecutor instructionExecutor1;
+  protected State<T> state1;
+  protected VirtualRegisterFactory virtualRegisterFactory1;
+  public SymbolicExecutionAdapter symbolicExecutionAdapter;
+  protected InstructionTransformer instructionTransformer;
+  protected TransformerInstructionExecutor<T> transformerInstructionExecutor;
+  protected OpcodeConditions opcodeConditions;
 
-import static com.fpetrola.z80.registers.RegisterName.B;
-
-public class DriverConfigurator<T extends WordNumber> {
-
-  private Function<State<T>, OpcodeConditions> stateOpcodeConditionsFunction;
-  private Function<State<T>, InstructionFactory> instructionFactoryFactory;
-
-  public DriverConfigurator() {
-    stateOpcodeConditionsFunction= getStateOpcodeConditionsFactory();
-    instructionFactoryFactory= getInstructionFactoryFactory();
+  @Override
+  public RegisterTransformerInstructionSpy<T> getRegisterTransformerInstructionSpy() {
+    return spy;
   }
 
-  public DriverConfigurator(Function<State<T>, OpcodeConditions> stateOpcodeConditionsFunction1, Function<State<T>, InstructionFactory> stateInstructionFactoryFunction) {
-    stateOpcodeConditionsFunction = stateOpcodeConditionsFunction1;
-    instructionFactoryFactory = stateInstructionFactoryFunction;
+  @Inject
+  public DriverConfigurator(RoutineManager routineManager, RegisterTransformerInstructionSpy spy, State state2, SpyInstructionExecutor instructionExecutor2, VirtualRegisterFactory virtualRegisterFactory2, SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1) {
+    this.routineManager = routineManager;
+    this.symbolicExecutionAdapter = symbolicExecutionAdapter;
+    symbolicExecutionAdapter.reset();
+    this.routineManager.reset();
+    this.spy = spy;
+    this.spy.reset(state2);
+    state1 = state2;
+    instructionExecutor1 = instructionExecutor2;
+    virtualRegisterFactory1 = virtualRegisterFactory2;
+    instructionTransformer = instructionCloner2;
+    transformerInstructionExecutor = transformerInstructionExecutor1;
+    opcodeConditions = opcodeConditions1;
   }
 
-  void configure(final TwoZ80Driver<T> twoZ80Driver) {
-    twoZ80Driver.registerTransformerInstructionSpy = new RegisterTransformerInstructionSpy(getRoutineManager());
-
-    twoZ80Driver.firstContext = new CPUExecutionContext<T>(twoZ80Driver.registerTransformerInstructionSpy, state -> new OpcodeConditions(state.getFlag(), state.getRegister(B))) {
-      protected InstructionSpy createSpy() {
-        ComplexInstructionSpy spy = new AbstractInstructionSpy<>();
-        TraceableWordNumber.instructionSpy = spy;
-        return spy;
-      }
-    };
-
-    Function<State<T>, OpcodeConditions> stateOpcodeConditionsFunction1 = stateOpcodeConditionsFunction;
-    twoZ80Driver.secondContext = new CPUExecutionContext<T>(twoZ80Driver.registerTransformerInstructionSpy, stateOpcodeConditionsFunction1) {
-      protected InstructionFetcher createInstructionFetcher(InstructionSpy spy, State<T> state, InstructionExecutor instructionExecutor) {
-        TransformerInstructionExecutor<T> instructionExecutor1 = new TransformerInstructionExecutor(this.state.getPc(), this.instructionExecutor, false, (InstructionTransformer) instructionCloner);
-        RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> instructionExecutor1.clonedInstructions.get(address);
-        registerTransformerInstructionSpy.routineFinder.getRoutineManager().setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
-        return buildInstructionFetcher(this.state, instructionExecutor1, spy);
-      }
-
-      @Override
-      protected RegisterTransformerInstructionSpy createSpy() {
-        return registerTransformerInstructionSpy;
-      }
-
-      @Override
-      protected InstructionFactory createInstructionFactory(State<T> state) {
-        return instructionFactoryFactory.apply(state);
-      }
-    };
+  @Override
+  public CPUExecutionContext<T> getSecondContext() {
+    TransformerInstructionExecutor<T> transformerInstructionExecutor1 = new TransformerInstructionExecutor(this.state1.getPc(), instructionExecutor1, false, instructionTransformer);
+    RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> transformerInstructionExecutor1.clonedInstructions.get(address);
+    routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
+    InstructionFetcher instructionFetcher1 = new TransformerInstructionFetcher(this.state1, transformerInstructionExecutor1);
+    OOZ80 z80 = new OOZ80(state1, instructionFetcher1);
+    return new CPUExecutionContext<T>(spy, z80, opcodeConditions);
   }
 
-  protected InstructionFetcherForTest buildInstructionFetcher(State state, TransformerInstructionExecutor instructionExecutor1, InstructionSpy spy) {
-    return new TransformerInstructionFetcher(state, instructionExecutor1);
-  }
-  protected RoutineManager getRoutineManager() {
-    return new RoutineManager();
+  @Override
+  public CPUExecutionContext<T> getFirstContext() {
+    return getSecondContext();
   }
 
-  protected Function<State<T>, InstructionFactory> getInstructionFactoryFactory() {
-    return state -> new DefaultInstructionFactory(state);
+  public RoutineManager getRoutineManager() {
+    return routineManager;
   }
 
-  protected Function<State<T>, OpcodeConditions> getStateOpcodeConditionsFactory() {
-    return state -> new OpcodeConditions(state.getFlag(), state.getRegister(B));
+  public void reset() {
+    state1.getPc().write(WordNumber.createValue(0));
+    routineManager.reset();
+    spy.reset(state1);
   }
 }

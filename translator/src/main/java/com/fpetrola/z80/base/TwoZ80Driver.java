@@ -29,22 +29,25 @@ import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("ALL")
 public abstract class TwoZ80Driver<T extends WordNumber> extends ContextDriverDelegator<T> {
-  protected final DriverConfigurator<T> driverConfigurator;
+  protected final IDriverConfigurator<T> driverConfigurator;
   public Z80ContextDriver<T> firstContext;
   public Z80ContextDriver<T> secondContext;
   public RegisterTransformerInstructionSpy registerTransformerInstructionSpy;
 
-  public TwoZ80Driver(DriverConfigurator<T> driverConfigurator) {
+  public TwoZ80Driver(IDriverConfigurator<T> driverConfigurator) {
     super(null);
     this.driverConfigurator = driverConfigurator;
-
-    driverConfigurator.configure(this);
+    driverConfigurator.reset();
+    registerTransformerInstructionSpy = driverConfigurator.getRegisterTransformerInstructionSpy();
+    firstContext = driverConfigurator.getFirstContext();
+    secondContext = driverConfigurator.getSecondContext();
     useBoth();
   }
 
   @Before
   public <T2 extends WordNumber> void setUp() {
     setUpMemory();
+    driverConfigurator.reset();
   }
 
   protected void useFirst() {

@@ -30,10 +30,14 @@ import com.fpetrola.z80.base.ManualBytecodeGenerationTest;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
+import com.google.inject.Inject;
+import io.exemplary.guice.Modules;
+import io.exemplary.guice.TestRunner;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.List;
 
@@ -42,12 +46,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("ALL")
 @Ignore
+@RunWith(TestRunner.class)
+@Modules(BaseModule.class)
 public class InlineRegisterTransformInstructionsTest<T extends WordNumber> extends ManualBytecodeGenerationTest<T> {
 
   private BlocksManager blocksManager;
 
-  public InlineRegisterTransformInstructionsTest() {
-    super(new DriverConfigurator<T>());
+  @Inject
+  public InlineRegisterTransformInstructionsTest(DriverConfigurator tDriverConfigurator) {
+    super(tDriverConfigurator);
   }
 
   @Before

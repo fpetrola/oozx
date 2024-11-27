@@ -18,11 +18,21 @@
 
 package com.fpetrola.z80.bytecode.examples;
 
+import com.fpetrola.z80.bytecode.DefaultRegistersSetter;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
 import com.fpetrola.z80.cpu.MemorySetter;
+import com.fpetrola.z80.cpu.MockedIO;
+import com.fpetrola.z80.cpu.SpyInstructionExecutor;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
+import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
+import com.fpetrola.z80.routines.RoutineManager;
+import com.fpetrola.z80.spy.InstructionSpy;
+import com.fpetrola.z80.spy.NullInstructionSpy;
+import com.fpetrola.z80.spy.SpyRegisterBankFactory;
+import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
 import io.korhner.asciimg.image.AsciiImgCache;
 import io.korhner.asciimg.image.character_fit_strategy.StructuralSimilarityFitStrategy;
 import io.korhner.asciimg.image.converter.AsciiToStringConverter;
@@ -42,7 +52,16 @@ import java.util.regex.Pattern;
 import static java.net.URI.create;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-public class RemoteZ80Translator<T extends WordNumber> extends RealCodeBytecodeCreationBase<T> {
+public class RemoteZ80Translator<T extends WordNumber> {
+  private RealCodeBytecodeCreationBase<T> realCodeBytecodeCreationBase;
+
+//  {
+//    InstructionSpy registerTransformerInstructionSpy1 = new NullInstructionSpy();
+//    State state1 = new State(new MockedIO(), new SpyRegisterBankFactory(registerTransformerInstructionSpy1).createBank(), registerTransformerInstructionSpy1.wrapMemory(new MockedMemory(true)));
+//    final RegisterTransformerInstructionSpy registerTransformerInstructionSpy2 = new RegisterTransformerInstructionSpy(RealCodeBytecodeCreationBase.routineManager);
+//    realCodeBytecodeCreationBase = new RealCodeBytecodeCreationBase<T>(registerTransformerInstructionSpy2, new RoutineManager(), state1, new SpyInstructionExecutor(registerTransformerInstructionSpy2));
+//  }
+
   public static void main(String[] args) {
     RemoteZ80Translator<WordNumber> remoteZ80Translator = new RemoteZ80Translator<>();
 
@@ -86,13 +105,13 @@ public class RemoteZ80Translator<T extends WordNumber> extends RealCodeBytecodeC
     File tempFile = getRemoteFile(url, ".z80", "/tmp/" + gameName + ".z80");
 
 
-    SnapshotLoader.setupStateWithSnapshot(getDefaultRegistersSetter(), tempFile.getAbsolutePath(), new MemorySetter(state.getMemory()));
+    SnapshotLoader.setupStateWithSnapshot(getDefaultRegistersSetter(), tempFile.getAbsolutePath(), new MemorySetter(realCodeBytecodeCreationBase.getState().getMemory()));
 
-    int firstAddress = state.getPc().read().intValue();
-    String base64Memory = SnapshotHelper.getBase64Memory(state);
+    int firstAddress = realCodeBytecodeCreationBase.getState().getPc().read().intValue();
+    String base64Memory = SnapshotHelper.getBase64Memory(realCodeBytecodeCreationBase.getState());
     stepUntilComplete(firstAddress);
 
-    List<Routine> routines = getRoutines();
+    List<Routine> routines = realCodeBytecodeCreationBase.getRoutines();
     String className = CaseUtils.toCamelCase(gameName, true);
 
     if (action.equals("translate")) {
@@ -132,5 +151,25 @@ public class RemoteZ80Translator<T extends WordNumber> extends RealCodeBytecodeC
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public void stepUntilComplete(int startAddress) {
+    realCodeBytecodeCreationBase.stepUntilComplete(startAddress);
+  }
+
+  public String generateAndDecompile() {
+    return realCodeBytecodeCreationBase.generateAndDecompile();
+  }
+
+  public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className) {
+    return realCodeBytecodeCreationBase.generateAndDecompile(base64Memory, routines, targetFolder, className);
+  }
+
+  public void translateToJava(String className, String memoryInBase64, String startMethod) {
+    realCodeBytecodeCreationBase.translateToJava(className, memoryInBase64, startMethod);
+  }
+
+  public DefaultRegistersSetter<T> getDefaultRegistersSetter() {
+    return realCodeBytecodeCreationBase.getDefaultRegistersSetter();
   }
 }

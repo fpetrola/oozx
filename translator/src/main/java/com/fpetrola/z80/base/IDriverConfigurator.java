@@ -18,27 +18,21 @@
 
 package com.fpetrola.z80.base;
 
-import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import org.junit.Before;
+import com.fpetrola.z80.routines.RoutineManager;
+import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
 
-public class TransformInstructionsTest<T extends WordNumber> extends BaseInstructionLoopTest<T> {
-  protected int memPosition = 1000;
-  protected int addedInstructions;
+public interface IDriverConfigurator<T extends WordNumber> {
+  RegisterTransformerInstructionSpy<T> getRegisterTransformerInstructionSpy();
 
-  public TransformInstructionsTest(IDriverConfigurator<T> driverConfigurator) {
-    super(driverConfigurator);
-  }
+  CPUExecutionContext<T> getSecondContext();
 
-  @Before
-  public void setUp() {
-    super.setUp();
-    useSecond();
-  }
+  CPUExecutionContext<T> getFirstContext();
 
-  @Override
-  public int add(Instruction<T> instruction) {
-    addedInstructions++;
-    return super.add(instruction);
+  RoutineManager getRoutineManager();
+
+  default void reset() {
+
   }
 }

@@ -46,6 +46,8 @@ public abstract class WrapperInstructionSpy<T extends WordNumber> implements Ins
   }
 
   public Memory wrapMemory(Memory aMemory) {
+    if (executionStep == null)
+      executionStep = new ExecutionStep(memory);
     this.memory = aMemory;
     if (memorySpy == null)
       memorySpy = new MemorySpy(aMemory);
@@ -77,11 +79,11 @@ public abstract class WrapperInstructionSpy<T extends WordNumber> implements Ins
 
     if (result instanceof RegisterSpy<T> registerSpy) {
       registerSpy.addRegisterWriteListener(((value, isIncrement) -> {
-        if (isCapturing())
+        if (capturing)
           addWriteReference(register.getName(), (T) value, isIncrement);
       }));
       registerSpy.addRegisterReadListener(((value) -> {
-        if (isCapturing())
+        if (capturing)
           addReadReference(register.getName(), (T) value);
       }));
     }

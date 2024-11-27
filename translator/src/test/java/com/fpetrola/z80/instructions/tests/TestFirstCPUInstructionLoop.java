@@ -18,22 +18,29 @@
 
 package com.fpetrola.z80.instructions.tests;
 
-import com.fpetrola.z80.base.DriverConfigurator;
-import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.base.BaseInstructionLoopTest;
+import com.fpetrola.z80.base.PlainDriverConfigurator;
+import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import com.google.inject.Inject;
+import io.exemplary.guice.Modules;
+import io.exemplary.guice.TestRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.*;
 import static org.junit.Assert.assertEquals;
 
+@RunWith(TestRunner.class)
+@Modules(BaseModule.class)
 public class TestFirstCPUInstructionLoop<T extends WordNumber> extends BaseInstructionLoopTest<T> {
 
-  public TestFirstCPUInstructionLoop() {
-    super(new DriverConfigurator<T>());
+  @Inject
+  public TestFirstCPUInstructionLoop(PlainDriverConfigurator tDriverConfigurator) {
+    super(tDriverConfigurator);
   }
 
   @Test

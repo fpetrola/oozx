@@ -19,13 +19,18 @@
 package com.fpetrola.z80.instructions.tests;
 
 import com.fpetrola.z80.base.DriverConfigurator;
+import com.fpetrola.z80.base.IDriverConfigurator;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.cpu.MockedIO;
 import com.fpetrola.z80.base.TransformInstructionsTest;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.transformations.Virtual8BitsRegister;
+import com.google.inject.Inject;
+import io.exemplary.guice.Modules;
+import io.exemplary.guice.TestRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.List;
 
@@ -35,9 +40,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 @SuppressWarnings("ALL")
+@RunWith(TestRunner.class)
+@Modules(BaseModule.class)
 public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends TransformInstructionsTest<T> {
-  public ConditionalsTransformInstructionsTest() {
-    super(new DriverConfigurator<T>());
+  @Inject
+  public ConditionalsTransformInstructionsTest(IDriverConfigurator configurator) {
+    super(configurator);
   }
 
   @Test

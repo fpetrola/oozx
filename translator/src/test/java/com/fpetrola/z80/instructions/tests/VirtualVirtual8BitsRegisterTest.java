@@ -22,15 +22,22 @@ import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.base.TransformInstructionsTest;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.google.inject.Inject;
+import io.exemplary.guice.Modules;
+import io.exemplary.guice.TestRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 import static org.junit.Assert.*;
 
 @SuppressWarnings("ALL")
+@RunWith(TestRunner.class)
+@Modules(BaseModule.class)
 public class VirtualVirtual8BitsRegisterTest<T extends WordNumber> extends TransformInstructionsTest<T> {
-  public VirtualVirtual8BitsRegisterTest() {
-    super(new DriverConfigurator<T>());
+  @Inject
+  public VirtualVirtual8BitsRegisterTest(DriverConfigurator tDriverConfigurator) {
+    super(tDriverConfigurator);
   }
 
   @Test

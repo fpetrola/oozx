@@ -29,29 +29,33 @@ import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.transformations.InstructionFetcherForTest;
 import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
 
-import java.util.function.Function;
-
 import static com.fpetrola.z80.registers.Flags.CARRY_FLAG;
 import static com.fpetrola.z80.registers.Flags.ZERO_FLAG;
 
-public abstract class CPUExecutionContext<T extends WordNumber> extends DefaultZ80InstructionDriver<T> implements Z80ContextDriver<T> {
+public class CPUExecutionContext<T extends WordNumber> extends DefaultZ80InstructionDriver<T> implements Z80ContextDriver<T> {
   OpcodeTargets ot;
   OpcodeConditions opc;
   Register<T> flag;
+  protected InstructionSpy spy;
 
-  public CPUExecutionContext(RegisterTransformerInstructionSpy registerTransformerInstructionSpy, Function<State<T>, OpcodeConditions> opcodeConditionsFactory) {
-    super(registerTransformerInstructionSpy);
-    ot = new OpcodeTargets(state);
-    flag = state.getFlag();
-    opc = opcodeConditionsFactory.apply(state);
+  public CPUExecutionContext(InstructionSpy spy, OOZ80 z80) {
+    super(z80);
+    this.spy = spy;
   }
 
-  protected InstructionFetcher createInstructionFetcher(InstructionSpy spy, State<T> state, InstructionExecutor instructionExecutor) {
-    return new InstructionFetcherForTest(this.state, new SpyInstructionExecutor(spy));
+  public CPUExecutionContext(InstructionSpy spy, OOZ80 z80, OpcodeConditions opcodeConditions) {
+    this(spy, z80);
+    spy.reset(getState());
+    this.z80.reset();
+    this.z80.getInstructionFetcher().reset();
+    spy.doContinue();
+    ot = new OpcodeTargets(getState());
+    flag = getState().getFlag();
+    opc = opcodeConditions;
   }
 
   public InstructionFetcherForTest getInstructionFetcherForTest() {
-    return (InstructionFetcherForTest) instructionFetcher;
+    return (InstructionFetcherForTest) z80.getInstructionFetcher();
   }
 
   public int add(Instruction<T> instruction) {
@@ -67,13 +71,18 @@ public abstract class CPUExecutionContext<T extends WordNumber> extends DefaultZ
   }
 
   @Override
+  public RegisterTransformerInstructionSpy getRegisterTransformerInstructionSpy() {
+    return (RegisterTransformerInstructionSpy) spy;
+  }
+
+  @Override
   public Register<T> r(RegisterName registerName) {
-    return state.r(registerName);
+    return getState().r(registerName);
   }
 
   @Override
   public RegisterPair<T> rp(RegisterName registerName) {
-    return (RegisterPair<T>) state.r(registerName);
+    return (RegisterPair<T>) getState().r(registerName);
   }
 
   @Override
@@ -83,7 +92,7 @@ public abstract class CPUExecutionContext<T extends WordNumber> extends DefaultZ
 
   @Override
   public Register<T> pc() {
-    return state.getPc();
+    return getState().getPc();
   }
 
   @Override

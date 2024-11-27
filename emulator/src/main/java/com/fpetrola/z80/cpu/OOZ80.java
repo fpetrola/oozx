@@ -22,15 +22,9 @@ import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.RegisterName;
 
-import java.util.stream.Stream;
-
-import static com.fpetrola.z80.cpu.State.InterruptionMode.IM0;
 import static com.fpetrola.z80.cpu.State.InterruptionMode.IM2;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-import static com.fpetrola.z80.registers.RegisterName.AF;
-import static com.fpetrola.z80.registers.RegisterName.IR;
 
 public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
   protected InstructionFetcher instructionFetcher;
@@ -43,13 +37,8 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
 
   @Override
   public void reset() {
-    state.tstates= 0;
-    state.getEvents().clear();
     instructionFetcher.reset();
-    Stream.of(RegisterName.values()).forEach(r -> state.r(r).write(createValue(0xFFFF)));
-    state.getRegister(IR).write(createValue(0));
-    state.getRegister(AF).write(createValue(0xFFFF));
-    state.setIntMode(IM0);
+    state.reset();
   }
 
   @Override

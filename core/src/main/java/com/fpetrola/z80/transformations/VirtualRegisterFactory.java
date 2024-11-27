@@ -24,6 +24,7 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
+import com.google.inject.Inject;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
 import java.util.*;
@@ -38,7 +39,8 @@ public class VirtualRegisterFactory<T extends WordNumber> {
   public Map<Register<T>, VirtualRegisterVersionHandler> versionHandlers = new HashMap<>();
   private final List<Runnable> actions = new ArrayList<>();
 
-  public VirtualRegisterFactory(InstructionExecutor<T> instructionExecutor, RegisterNameBuilder registerNameBuilder) {
+  @Inject
+  public VirtualRegisterFactory(InstructionExecutor instructionExecutor, RegisterNameBuilder registerNameBuilder) {
     this.instructionExecutor = instructionExecutor;
     this.registerNameBuilder = registerNameBuilder;
   }
@@ -68,7 +70,7 @@ public class VirtualRegisterFactory<T extends WordNumber> {
     VirtualRegisterVersionHandler versionHandler = getVersionHandlerFor(register);
 
     boolean registerAssignment = targetInstruction instanceof Ld<T> ld && ld.getTarget() == register;
-    registerAssignment= false;
+    registerAssignment = false;
     VirtualRegister<T> previousVersion1;
     if (previousVersion == null) {
       previousVersion1 = new InitialVirtualRegister(register, versionHandler);
@@ -103,7 +105,7 @@ public class VirtualRegisterFactory<T extends WordNumber> {
     if (result != virtualRegister && result instanceof IVirtual8BitsRegister<T> multiEntryRegister) {
       IVirtual8BitsRegister<T> currentPreviousVersion = ((IVirtual8BitsRegister<T>) virtualRegister).getCurrentPreviousVersion();
       if (currentPreviousVersion != null) {
-       // currentPreviousVersion.read();  //FIXME: revisar esto cuando ejecuta simbolico
+        // currentPreviousVersion.read();  //FIXME: revisar esto cuando ejecuta simbolico
         multiEntryRegister.addPreviousVersion(currentPreviousVersion);
       }
     }
@@ -133,6 +135,14 @@ public class VirtualRegisterFactory<T extends WordNumber> {
 
   public interface VirtualRegisterBuilder<T extends WordNumber> {
     VirtualRegister<T> build(String virtualRegisterName, VirtualRegister<T> previousVersion, int currentAddress, VirtualRegisterVersionHandler versionHandler);
+  }
+
+  public void reset() {
+    virtualRegisters.clear();
+    lastVirtualRegisters.clear();
+    lastValues.clear();
+    versionHandlers.clear();
+    actions.clear();
   }
 
 }

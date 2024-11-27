@@ -27,7 +27,10 @@ import com.fpetrola.z80.registers.RegisterName;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
+import static com.fpetrola.z80.cpu.State.InterruptionMode.IM0;
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class State<T extends WordNumber> {
@@ -48,6 +51,15 @@ public class State<T extends WordNumber> {
     event.setTime(tstates);
     tstates += time;
     events.add(event);
+  }
+
+  public void reset() {
+    tstates = 0;
+    getEvents().clear();
+    Stream.of(values()).forEach(r -> r(r).write(createValue(0xFFFF)));
+    getRegister(IR).write(createValue(0));
+    getRegister(AF).write(createValue(0xFFFF));
+    setIntMode(IM0);
   }
 
   public enum InterruptionMode {IM0, IM1, IM2}

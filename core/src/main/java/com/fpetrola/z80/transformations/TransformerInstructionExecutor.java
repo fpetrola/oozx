@@ -38,7 +38,6 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
   private final Register<T> pc;
   private final InstructionExecutor<T> instructionExecutor;
   private final boolean noRepeat;
-  private MemptrUpdater<?> memptrUpdater;
 
   public TransformerInstructionExecutor(Register<T> pc, InstructionExecutor<T> instructionExecutor, boolean noRepeat, InstructionTransformer<T> instructionTransformer) {
     this.pc = pc;

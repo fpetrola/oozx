@@ -26,7 +26,6 @@ import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterBank;
-import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 import com.fpetrola.z80.spy.SpyRegisterBankFactory;
 
@@ -39,8 +38,8 @@ public class DebugEnabledOOZ80<T extends WordNumber> extends OOZ80<T> {
   protected volatile boolean step;
   public RegisterBank registerBank;
 
-  public DebugEnabledOOZ80(State aState, InstructionSpy spy) {
-    super(aState, new DefaultInstructionFetcher(aState, new FetchNextOpcodeInstructionFactory(spy, aState), new SpyInstructionExecutor(spy), new DefaultInstructionFactory(aState)));
+  public DebugEnabledOOZ80(State aState, DefaultInstructionFetcher instructionFetcher1) {
+    super(aState, instructionFetcher1);
     opCodeHandler2 = createOpCodeHandler(aState);
   }
 

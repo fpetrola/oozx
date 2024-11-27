@@ -18,18 +18,24 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
-import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
-import com.fpetrola.z80.cpu.OOZ80;
+import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.cpu.IO;
-import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
+import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.MemptrUpdateInstructionSpy;
-import com.fpetrola.z80.spy.NullInstructionSpy;
+
+import static com.fpetrola.z80.registers.RegisterName.B;
 
 public class Helper {
   public static <T extends WordNumber> OOZ80<T> createOOZ80(IO<T> io) {
     var state = new State<T>(io, new MockedMemory<T>(true));
-    return new OOZ80<T>(state, DefaultInstructionFetcher.getInstructionFetcher(state, new MemptrUpdateInstructionSpy<T>(state), new DefaultInstructionFactory<T>(state)));
+    return new OOZ80<T>(state, getInstructionFetcher(state, new MemptrUpdateInstructionSpy<T>(state), new DefaultInstructionFactory<T>(state)));
+  }
+
+  public static DefaultInstructionFetcher getInstructionFetcher(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory) {
+    SpyInstructionExecutor instructionExecutor1 = new SpyInstructionExecutor(spy);
+    return new DefaultInstructionFetcher(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), new FetchNextOpcodeInstructionFactory(spy, state), instructionExecutor1, instructionFactory);
   }
 }

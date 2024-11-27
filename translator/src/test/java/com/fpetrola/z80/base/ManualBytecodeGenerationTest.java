@@ -24,6 +24,7 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
+import jakarta.inject.Inject;
 
 import java.util.List;
 
@@ -44,6 +45,6 @@ public abstract class ManualBytecodeGenerationTest<T extends WordNumber> extends
 
   @Override
   public RoutineManager getRoutineManager() {
-    return RegisterTransformerInstructionSpy.routineFinder.getRoutineManager();
+    return driverConfigurator.getRoutineManager();
   }
 }
