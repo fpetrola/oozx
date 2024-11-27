@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.tests;
 
+import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.base.TransformInstructionsTest;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -28,6 +29,10 @@ import static org.junit.Assert.*;
 
 @SuppressWarnings("ALL")
 public class VirtualVirtual8BitsRegisterTest<T extends WordNumber> extends TransformInstructionsTest<T> {
+  public VirtualVirtual8BitsRegisterTest() {
+    super(new DriverConfigurator<T>());
+  }
+
   @Test
   public void testRegisterAssignmentUsingVirtualRegister() {
     add(new Ld(r(H), c(7), f()));

@@ -28,6 +28,10 @@ import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
 import java.util.List;
 
 public abstract class ManualBytecodeGenerationTest<T extends WordNumber> extends TransformInstructionsTest<T> implements BytecodeGeneration {
+  public ManualBytecodeGenerationTest(DriverConfigurator<T> tDriverConfigurator) {
+    super(tDriverConfigurator);
+  }
+
   public String generateAndDecompile() {
     return generateAndDecompile("", getRoutineManager().getRoutines(), ".", "JetSetWilly");
   }

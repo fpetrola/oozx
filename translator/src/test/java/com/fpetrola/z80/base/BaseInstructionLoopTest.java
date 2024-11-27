@@ -25,6 +25,10 @@ import java.util.Arrays;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class BaseInstructionLoopTest<T extends WordNumber> extends TwoZ80Driver<T> {
+  public BaseInstructionLoopTest(DriverConfigurator<T> tDriverConfigurator) {
+    super(tDriverConfigurator);
+  }
+
   @Override
   protected void setUpMemory() {
     initMem(() -> {

@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.tests;
 
+import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.base.ManualBytecodeGenerationTest;
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.cpu.State;
@@ -41,21 +42,8 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   private SymbolicExecutionAdapter symbolicExecutionAdapter;
 
   public RoutinesTests() {
-  }
-
-  public SymbolicExecutionAdapter getSymbolicExecutionAdapter(State<T> state) {
-    if (symbolicExecutionAdapter == null)
-      symbolicExecutionAdapter = new SymbolicExecutionAdapter(state, getRoutineManager());
-    return symbolicExecutionAdapter;
-  }
-
-  protected Function<State<T>, OpcodeConditions> getStateOpcodeConditionsFactory() {
-    return state -> getSymbolicExecutionAdapter(state).createOpcodeConditions(state);
-  }
-
-  @Override
-  protected Function<State<T>, InstructionFactory> getInstructionFactoryFactory() {
-    return state -> getSymbolicExecutionAdapter(state).createInstructionFactory(state);
+    super(new WordNumberDriverConfigurator());
+    symbolicExecutionAdapter = ((WordNumberDriverConfigurator) driverConfigurator).symbolicExecutionAdapter;
   }
 
   @Test
@@ -742,55 +730,55 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     List<Routine> routines = getRoutineManager().getRoutines();
 
     Assert.assertEquals("""
-import com.fpetrola.z80.minizx.SpectrumApplication;
-
-public class JSW extends SpectrumApplication {
-   public void $0() {
-      label11: {
-         super.A = 2;
-         this.$7();
-         if(!this.isNextPC(19)) {
-            super.C = 2;
-            this.$22();
-            if(!this.isNextPC(19)) {
-               break label11;
-            }
-         }
-
-         super.A = 61;
-         super.B = 62;
-      }
-
-      super.C = 3;
-      super.C = 5;
-   }
-
-   public void $7() {
-      super.D = 4;
-      if(super.A == 3) {
-         this.$13();
-         if(this.isNextPC(17)) {
-            super.E = 71;
-            super.nextAddress = 19;
-            return;
-         }
-      }
-
-      int var1 = super.A - 3;
-      super.F = var1;
-   }
-
-   public void $13() {
-      super.C = 40;
-      super.nextAddress = 17;
-   }
-
-   public void $22() {
-      super.D = 41;
-      super.E = 51;
-      super.nextAddress = 19;
-   }
-}
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+        
+        public class JSW extends SpectrumApplication {
+           public void $0() {
+              label11: {
+                 super.A = 2;
+                 this.$7();
+                 if(!this.isNextPC(19)) {
+                    super.C = 2;
+                    this.$22();
+                    if(!this.isNextPC(19)) {
+                       break label11;
+                    }
+                 }
+        
+                 super.A = 61;
+                 super.B = 62;
+              }
+        
+              super.C = 3;
+              super.C = 5;
+           }
+        
+           public void $7() {
+              super.D = 4;
+              if(super.A == 3) {
+                 this.$13();
+                 if(this.isNextPC(17)) {
+                    super.E = 71;
+                    super.nextAddress = 19;
+                    return;
+                 }
+              }
+        
+              int var1 = super.A - 3;
+              super.F = var1;
+           }
+        
+           public void $13() {
+              super.C = 40;
+              super.nextAddress = 17;
+           }
+        
+           public void $22() {
+              super.D = 41;
+              super.E = 51;
+              super.nextAddress = 19;
+           }
+        }
         """, resultingJava);
 
 
@@ -1036,38 +1024,38 @@ public class JSW extends SpectrumApplication {
 
     String resultingJava = generateAndDecompile();
     Assert.assertEquals("""
-import com.fpetrola.z80.minizx.SpectrumApplication;
-
-public class JSW extends SpectrumApplication {
-   public void $0() {
-      super.A = 10;
-      super.B = 2;
-
-      do {
-         int var1 = this.BC();
-         this.push(var1);
-         this.$11();
-         super.B = 3;
-
-         do {
-            int var2 = super.A + 1 & 255;
-            super.A = var2;
-            int var3 = super.B - 1 & 255;
-            super.B = var3;
-         } while(super.B != 0);
-
-         int var4 = this.pop();
-         this.BC(var4);
-         int var5 = super.B - 1 & 255;
-         super.B = var5;
-      } while(super.B != 0);
-
-   }
-
-   public void $11() {
-      super.D = super.A;
-   }
-}
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+        
+        public class JSW extends SpectrumApplication {
+           public void $0() {
+              super.A = 10;
+              super.B = 2;
+        
+              do {
+                 int var1 = this.BC();
+                 this.push(var1);
+                 this.$11();
+                 super.B = 3;
+        
+                 do {
+                    int var2 = super.A + 1 & 255;
+                    super.A = var2;
+                    int var3 = super.B - 1 & 255;
+                    super.B = var3;
+                 } while(super.B != 0);
+        
+                 int var4 = this.pop();
+                 this.BC(var4);
+                 int var5 = super.B - 1 & 255;
+                 super.B = var5;
+              } while(super.B != 0);
+        
+           }
+        
+           public void $11() {
+              super.D = super.A;
+           }
+        }
         """, resultingJava);
 
 
@@ -1130,4 +1118,22 @@ public class JSW extends SpectrumApplication {
     assertBlockAddresses(routines.get(1).blocks.get(0), 5, 8);
   }
 
+  private static class WordNumberDriverConfigurator<T extends WordNumber> extends DriverConfigurator<T> {
+    public SymbolicExecutionAdapter symbolicExecutionAdapter;
+
+    public SymbolicExecutionAdapter getSymbolicExecutionAdapter(State<T> state) {
+      if (symbolicExecutionAdapter == null)
+        symbolicExecutionAdapter = new SymbolicExecutionAdapter(state, getRoutineManager());
+      return symbolicExecutionAdapter;
+    }
+
+    protected Function<State<T>, OpcodeConditions> getStateOpcodeConditionsFactory() {
+      return state -> getSymbolicExecutionAdapter(state).createOpcodeConditions(state);
+    }
+
+    @Override
+    protected Function<State<T>, InstructionFactory> getInstructionFactoryFactory() {
+      return state -> getSymbolicExecutionAdapter(state).createInstructionFactory(state);
+    }
+  }
 }

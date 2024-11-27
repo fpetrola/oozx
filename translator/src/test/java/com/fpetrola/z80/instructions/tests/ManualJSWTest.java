@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.tests;
 
+import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.base.ManualBytecodeGenerationTest;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -29,6 +30,10 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 @SuppressWarnings("ALL")
 
 public class ManualJSWTest<T extends WordNumber> extends ManualBytecodeGenerationTest<T> {
+  public ManualJSWTest() {
+    super(new DriverConfigurator<T>());
+  }
+
   @Test
   public void testJSW2() {
     pc().write(WordNumber.createValue(37056));

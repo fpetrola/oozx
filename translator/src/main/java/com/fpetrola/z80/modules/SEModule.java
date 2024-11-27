@@ -16,29 +16,22 @@
  *
  */
 
-package com.fpetrola.z80.base;
+package com.fpetrola.z80.modules;
 
-import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import org.junit.Before;
+import com.fpetrola.z80.routines.RoutineManager;
+import com.fpetrola.z80.se.SymbolicExecutionAdapter;
+import com.google.inject.Provides;
 
-public class TransformInstructionsTest<T extends WordNumber> extends BaseInstructionLoopTest<T> {
-  protected int memPosition = 1000;
-  protected int addedInstructions;
-
-  public TransformInstructionsTest(DriverConfigurator<T> tDriverConfigurator) {
-    super(tDriverConfigurator);
+public class SEModule<T extends WordNumber> {
+  @Provides
+  RoutineManager routineManager() {
+    return new RoutineManager();
   }
 
-  @Before
-  public void setUp() {
-    super.setUp();
-    useSecond();
-  }
-
-  @Override
-  public int add(Instruction<T> instruction) {
-    addedInstructions++;
-    return super.add(instruction);
+  @Provides
+  SymbolicExecutionAdapter<T> symbolicExecutionAdapter(State<T> state, RoutineManager routineManager) {
+    return new SymbolicExecutionAdapter<T>(state, routineManager);
   }
 }

@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.tests;
 
+import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.cpu.MockedIO;
@@ -35,6 +36,10 @@ import static org.junit.Assert.assertNull;
 
 @SuppressWarnings("ALL")
 public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends TransformInstructionsTest<T> {
+  public ConditionalsTransformInstructionsTest() {
+    super(new DriverConfigurator<T>());
+  }
+
   @Test
   public void testIncJPInfiniteLoop() {
     add(new Ld(f(), c(20), f()));

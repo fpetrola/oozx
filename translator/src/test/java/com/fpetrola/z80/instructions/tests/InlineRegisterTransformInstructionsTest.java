@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.tests;
 
+import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.BlockType;
 import com.fpetrola.z80.blocks.BlocksManager;
@@ -44,6 +45,10 @@ import static org.junit.jupiter.api.Assertions.*;
 public class InlineRegisterTransformInstructionsTest<T extends WordNumber> extends ManualBytecodeGenerationTest<T> {
 
   private BlocksManager blocksManager;
+
+  public InlineRegisterTransformInstructionsTest() {
+    super(new DriverConfigurator<T>());
+  }
 
   @Before
   public void setUp() {

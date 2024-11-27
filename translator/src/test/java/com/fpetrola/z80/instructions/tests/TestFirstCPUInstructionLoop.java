@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.tests;
 
+import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.base.BaseInstructionLoopTest;
 import com.fpetrola.z80.instructions.types.Instruction;
@@ -30,6 +31,10 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 import static org.junit.Assert.assertEquals;
 
 public class TestFirstCPUInstructionLoop<T extends WordNumber> extends BaseInstructionLoopTest<T> {
+
+  public TestFirstCPUInstructionLoop() {
+    super(new DriverConfigurator<T>());
+  }
 
   @Test
   public void testPlainPath() {
