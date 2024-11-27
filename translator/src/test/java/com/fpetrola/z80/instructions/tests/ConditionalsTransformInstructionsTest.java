@@ -85,7 +85,7 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
     assertEquals(8, r(PC).read().intValue());
 
 
-    List executedInstructions = getRegisterTransformerInstructionSpy().getExecutedInstructions();
+    List executedInstructions = getExecutedInstructions();
     executedInstructions.size();
 
 //    test3Equals(executedInstructions, 2, 6, 12);
@@ -125,7 +125,7 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
     step();
     assertEquals(5, r(PC).read().intValue());
 
-    List executedInstructions = getRegisterTransformerInstructionSpy().getExecutedInstructions();
+    List executedInstructions = getExecutedInstructions();
     executedInstructions.size();
   }
 
@@ -152,7 +152,7 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
     step();
     assertEquals(5, r(PC).read().intValue());
 
-    List executedInstructions = getRegisterTransformerInstructionSpy().getExecutedInstructions();
+    List executedInstructions = getExecutedInstructions();
     executedInstructions.size();
   }
 
@@ -192,7 +192,7 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
     assertEquals(1, r(PC).read().intValue());
     step();
 
-    List executedInstructions = getRegisterTransformerInstructionSpy().getExecutedInstructions();
+    List executedInstructions = getExecutedInstructions();
     executedInstructions.size();
     assertEquals(2, r(PC).read().intValue());
   }
@@ -215,7 +215,7 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
     step(2);
     step(1);
 
-    List<Instruction<T>> executedInstructions = getRegisterTransformerInstructionSpy().getExecutedInstructions();
+    List<Instruction<T>> executedInstructions = getExecutedInstructions();
     executedInstructions.size();
   }
 
@@ -260,7 +260,7 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
 
     assertEquals(17, readMemAt(1000));
 
-    List<Instruction<T>> executedInstructions = getRegisterTransformerInstructionSpy().getExecutedInstructions();
+    List<Instruction<T>> executedInstructions = getExecutedInstructions();
     executedInstructions.size();
 
     Virtual8BitsRegister target = (Virtual8BitsRegister) ((Ld) executedInstructions.get(3)).getTarget();
@@ -286,7 +286,7 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
 
     assertEquals(7, r(PC).read().intValue());
 
-    List executedInstructions = getRegisterTransformerInstructionSpy().getExecutedInstructions();
+    List executedInstructions = getExecutedInstructions();
     executedInstructions.size();
   }
 
@@ -314,10 +314,9 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
 
     assertEquals(5, r(PC).read().intValue());
 
-    List executedInstructions = getRegisterTransformerInstructionSpy().getExecutedInstructions();
+    List executedInstructions = getExecutedInstructions();
     executedInstructions.size();
   }
-
 
   @Test
   public void testLdir() {
@@ -343,7 +342,7 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
 
     assertEquals(5, r(PC).read().intValue());
 
-    List executedInstructions = getRegisterTransformerInstructionSpy().getExecutedInstructions();
+    List executedInstructions = getExecutedInstructions();
     executedInstructions.size();
   }
 }

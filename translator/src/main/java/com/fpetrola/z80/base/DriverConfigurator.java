@@ -31,9 +31,7 @@ import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.spy.AbstractInstructionSpy;
 import com.fpetrola.z80.spy.ComplexInstructionSpy;
 import com.fpetrola.z80.spy.InstructionSpy;
-import com.fpetrola.z80.transformations.InstructionTransformer;
-import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
-import com.fpetrola.z80.transformations.TransformerInstructionExecutor;
+import com.fpetrola.z80.transformations.*;
 
 import java.util.function.Function;
 
@@ -71,7 +69,7 @@ public class DriverConfigurator<T extends WordNumber> {
         TransformerInstructionExecutor<T> instructionExecutor1 = new TransformerInstructionExecutor(this.state.getPc(), this.instructionExecutor, false, (InstructionTransformer) instructionCloner);
         RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> instructionExecutor1.clonedInstructions.get(address);
         registerTransformerInstructionSpy.routineFinder.getRoutineManager().setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
-        return twoZ80Driver.buildInstructionFetcher(this.state, instructionExecutor1, spy);
+        return buildInstructionFetcher(this.state, instructionExecutor1, spy);
       }
 
       @Override
@@ -86,6 +84,9 @@ public class DriverConfigurator<T extends WordNumber> {
     };
   }
 
+  protected InstructionFetcherForTest buildInstructionFetcher(State state, TransformerInstructionExecutor instructionExecutor1, InstructionSpy spy) {
+    return new TransformerInstructionFetcher(state, instructionExecutor1);
+  }
   protected RoutineManager getRoutineManager() {
     return new RoutineManager();
   }

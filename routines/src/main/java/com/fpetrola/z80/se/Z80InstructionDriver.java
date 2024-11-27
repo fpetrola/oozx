@@ -61,5 +61,9 @@ public interface Z80InstructionDriver<T extends WordNumber> {
     return executedInstructions.stream().filter(i -> instructionType.isAssignableFrom(i.getClass())).count();
   }
 
+  default List getExecutedInstructions() {
+    return getRegisterTransformerInstructionSpy().getExecutedInstructions();
+  }
+
   RegisterTransformerInstructionSpy getRegisterTransformerInstructionSpy();
 }

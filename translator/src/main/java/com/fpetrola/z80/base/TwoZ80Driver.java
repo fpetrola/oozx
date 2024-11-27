@@ -18,17 +18,13 @@
 
 package com.fpetrola.z80.base;
 
-import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.instructions.factory.InstructionFactory;
-import com.fpetrola.z80.opcodes.references.*;
-import com.fpetrola.z80.spy.InstructionSpy;
-import com.fpetrola.z80.transformations.*;
+import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
+import com.fpetrola.z80.opcodes.references.MemoryAccessOpcodeReference;
+import com.fpetrola.z80.opcodes.references.OpcodeReference;
+import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
 import org.junit.Before;
 
-import java.util.function.Function;
-
-import static com.fpetrola.z80.registers.RegisterName.B;
 import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("ALL")
@@ -49,18 +45,6 @@ public abstract class TwoZ80Driver<T extends WordNumber> extends ContextDriverDe
   @Before
   public <T2 extends WordNumber> void setUp() {
     setUpMemory();
-  }
-
-  protected Function<State<T>, InstructionFactory> getInstructionFactoryFactory() {
-    return state -> new DefaultInstructionFactory(state);
-  }
-
-  protected Function<State<T>, OpcodeConditions> getStateOpcodeConditionsFactory() {
-    return state -> new OpcodeConditions(state.getFlag(), state.getRegister(B));
-  }
-
-  protected InstructionFetcherForTest buildInstructionFetcher(State state, TransformerInstructionExecutor instructionExecutor1, InstructionSpy spy) {
-    return new TransformerInstructionFetcher(state, instructionExecutor1);
   }
 
   protected void useFirst() {
