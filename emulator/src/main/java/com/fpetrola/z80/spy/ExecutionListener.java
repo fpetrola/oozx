@@ -18,20 +18,10 @@
 
 package com.fpetrola.z80.spy;
 
-import com.fpetrola.z80.cpu.OOZ80;
-import com.fpetrola.z80.cpu.Z80Cpu;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class SyncInstructionSpy extends NullInstructionSpy {
-  private OOZ80 secondZ80;
-
-  @Override
-  public void setSecondZ80(Z80Cpu secondZ80) {
-    this.secondZ80 = (OOZ80) secondZ80;
-  }
-
-  @Override
-  public void beforeExecution(Instruction instruction) {
-    secondZ80.execute();
-  }
+public interface ExecutionListener<T extends WordNumber> {
+  void beforeExecution(Instruction<T> instruction);
+  void afterExecution(Instruction<T> instruction);
 }

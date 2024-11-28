@@ -36,6 +36,7 @@ import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
+import com.fpetrola.z80.spy.ExecutionListener;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.MemorySpy;
 import com.fpetrola.z80.spy.WriteMemoryReference;
@@ -63,15 +64,25 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     mutantAddress.clear();
     stackFrames.clear();
     routineExecutions.clear();
-    nextSP= 0;
-    lastPc= 0;
-    addressAction= null;
+    nextSP = 0;
+    lastPc = 0;
+    addressAction = null;
   }
 
   public <T extends WordNumber> SymbolicExecutionAdapter(State<T> state, RoutineManager routineManager, RegisterTransformerInstructionSpy spy) {
     this.state = state;
     this.routineManager = routineManager;
     this.spy = spy;
+    this.spy.addExecutionListener(new ExecutionListener() {
+      public void beforeExecution(Instruction instruction) {
+//        System.out.println(instruction);
+      }
+
+      public void afterExecution(Instruction instruction) {
+//        System.out.println(instruction);
+
+      }
+    });
     mutantAddress.clear();
 //    state.getMemory().addMemoryWriteListener((address, value) -> {
 //

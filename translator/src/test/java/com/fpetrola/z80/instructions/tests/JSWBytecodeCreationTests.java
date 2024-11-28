@@ -51,7 +51,6 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     this.driverConfigurator = driverConfigurator;
   }
 
-  @Ignore
   @Test
   public void testJSWMoveWilly() {
     String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");

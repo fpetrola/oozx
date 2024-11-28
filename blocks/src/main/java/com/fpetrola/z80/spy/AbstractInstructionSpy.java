@@ -99,6 +99,8 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
   }
 
   public void beforeExecution(Instruction<T> instruction) {
+    super.beforeExecution(instruction);
+
     Register pc = state.getPc();
     T pcValue = (T) pc.read();
 
@@ -133,6 +135,7 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
   }
 
   public void afterExecution(Instruction<T> instruction) {
+    super.afterExecution(instruction);
 //    lastExecutionPoint.instruction = cloned;
 
     if (fetchedMemory[lastExecutionPoint.pc] == null) {

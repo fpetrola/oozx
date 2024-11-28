@@ -38,8 +38,7 @@ public interface InstructionSpy<T> {
     return register;
   }
 
-  default void beforeExecution(Instruction<T> opcode) {
-
+  default void beforeExecution(Instruction<T> instruction) {
   }
 
   default void afterExecution(Instruction<T> instruction) {
@@ -73,5 +72,9 @@ public interface InstructionSpy<T> {
 
   default boolean isCapturing() {
     return false;
+  }
+
+  default void addExecutionListener(ExecutionListener executionListener) {
+
   }
 }

@@ -20,6 +20,7 @@ package com.fpetrola.z80.spy;
 
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.cache.InstructionCloner;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
@@ -28,6 +29,9 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.registers.RegisterPair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class WrapperInstructionSpy<T extends WordNumber> implements InstructionSpy<T> {
   protected volatile boolean capturing;
@@ -38,7 +42,8 @@ public abstract class WrapperInstructionSpy<T extends WordNumber> implements Ins
   protected boolean indirectReference;
   protected State state;
   protected DefaultInstructionFactory instructionFactory;
-  protected InstructionCloner instructionCloner ;
+  protected InstructionCloner instructionCloner;
+  private List<ExecutionListener> executionListeners = new ArrayList<>();
 
   public void reset(State state) {
     InstructionSpy.super.reset(state);
@@ -133,5 +138,19 @@ public abstract class WrapperInstructionSpy<T extends WordNumber> implements Ins
     this.memory = state.getMemory();
     instructionFactory = new DefaultInstructionFactory(state);
     instructionCloner = new InstructionCloner(instructionFactory);
+  }
+
+  public void addExecutionListener(ExecutionListener executionListener) {
+    executionListeners.add(executionListener);
+  }
+
+  @Override
+  public void beforeExecution(Instruction<T> instruction) {
+    executionListeners.forEach(l -> l.beforeExecution(instruction));
+  }
+
+  @Override
+  public void afterExecution(Instruction<T> instruction) {
+    executionListeners.forEach(l -> l.afterExecution(instruction));
   }
 }
