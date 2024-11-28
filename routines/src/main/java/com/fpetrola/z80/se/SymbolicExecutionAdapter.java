@@ -84,9 +84,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       }
     });
     mutantAddress.clear();
-//    state.getMemory().addMemoryWriteListener((address, value) -> {
-//
-//    });
   }
 
   public InstructionFetcher createInstructionFetcher(InstructionSpy spy, State<T> state, InstructionExecutor<T> instructionExecutor, OpcodeConditions opcodeConditions) {
