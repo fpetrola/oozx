@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RegisterNameBuilder {
-  static long count = 0L;
+  private long count = 0L;
 
   private final Map<String, String> names = new HashMap<>();
 

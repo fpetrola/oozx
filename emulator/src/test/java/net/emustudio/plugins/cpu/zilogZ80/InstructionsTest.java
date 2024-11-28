@@ -55,13 +55,13 @@ public class InstructionsTest {
   static final int REG_PAIR_HL = 2;
   static final int REG_SP = 3;
   private static final long PLUGIN_ID = 0L;
-  private static OOZ80 ooz80;
-  private static MyIO io;
+  private OOZ80 ooz80;
+  private MyIO io;
   private final List<FakeByteDevice> devices = new ArrayList<>();
   CpuRunnerImpl cpuRunnerImpl;
   CpuVerifierImpl cpuVerifierImpl;
   protected CpuImpl cpu;
-  protected static MyByteMemoryStub memory;
+  protected MyByteMemoryStub memory;
 
   public InstructionsTest() {
     try {
@@ -76,6 +76,10 @@ public class InstructionsTest {
       expect(applicationApi.getContextPool()).andReturn(contextPool).anyTimes();
       replay(applicationApi);
 
+
+      io = new MyIO();
+      ooz80 = Helper.createOOZ80(io);
+      memory = new MyByteMemoryStub();
       cpu = new CpuImpl(PLUGIN_ID, applicationApi, PluginSettings.UNAVAILABLE, ooz80);
 
       MockedMemory<WordNumber> memory1 = (MockedMemory<WordNumber>) this.cpu.ooz80.getState().getMemory();
@@ -99,13 +103,7 @@ public class InstructionsTest {
       throw new RuntimeException(e);
     }
 
-  }
 
-  @BeforeClass
-  public static void setUpClass() {
-    io = new MyIO();
-    ooz80 = Helper.createOOZ80(io);
-    memory = new MyByteMemoryStub();
   }
 
   @After
@@ -118,7 +116,7 @@ public class InstructionsTest {
 
     public T in(T port) {
       FakeByteDevice fakeByteDevice = devices.get(port.intValue());
-      return  WordNumber.createValue(fakeByteDevice.getValue());
+      return WordNumber.createValue(fakeByteDevice.getValue());
     }
 
     public void out(T port, T value) {

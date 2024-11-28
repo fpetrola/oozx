@@ -31,9 +31,8 @@ import java.util.Optional;
 import static java.util.Comparator.comparingInt;
 
 public class RoutineManager {
-  public static BlocksManager blocksManager;
-  List<Routine> routines = new ArrayList<>();
-  private int firstAddress;
+  public BlocksManager blocksManager;
+  private List<Routine> routines = new ArrayList<>();
 
   public RandomAccessInstructionFetcher getRandomAccessInstructionFetcher() {
     return randomAccessInstructionFetcher;
@@ -42,7 +41,7 @@ public class RoutineManager {
   private RandomAccessInstructionFetcher randomAccessInstructionFetcher;
 
   public RoutineManager(BlocksManager blocksManager) {
-    RoutineManager.blocksManager = blocksManager;
+    this.blocksManager = blocksManager;
   }
 
   public RoutineManager() {
@@ -76,7 +75,7 @@ public class RoutineManager {
   }
 
   public Routine createRoutine(int startAddress, int length) {
-    Block foundBlock = RoutineManager.blocksManager.findBlockAt(startAddress);
+    Block foundBlock = blocksManager.findBlockAt(startAddress);
     foundBlock.split(startAddress + length - 1);
     foundBlock = foundBlock.split(startAddress - 1, CodeBlockType.class);
     foundBlock.setType(new CodeBlockType());

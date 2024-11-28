@@ -52,7 +52,7 @@ import static com.fpetrola.z80.registers.RegisterName.B;
 @SuppressWarnings("ALL")
 public class FuseTests {
   public static final Path FUSE_TEST_DATA_DIR = Paths.get("src", "test", "resources", "fuse");
-  private static FuseTestParser fuseTestParser = new FuseTestParser(FUSE_TEST_DATA_DIR.toFile());
+  private final static FuseTestParser fuseTestParser = new FuseTestParser(FUSE_TEST_DATA_DIR.toFile());
 
   private static final List<FuseTest> theTests = fuseTestParser.getTests();
   private static final List<FuseResult> theResults = fuseTestParser.getResults();

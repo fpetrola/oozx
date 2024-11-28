@@ -30,7 +30,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class DAA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
-  public static AluOperation daaTableAluOperation = new TableAluOperation() {
+  public final static AluOperation daaTableAluOperation = new TableAluOperation() {
     public int execute(int flag, int A, int flags) {
       F = flag;
       A &= 0xff;

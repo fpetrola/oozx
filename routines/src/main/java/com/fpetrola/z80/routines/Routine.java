@@ -165,7 +165,7 @@ public class Routine {
 
   void addInstructionAt(Instruction instruction, int pcValue) {
     if (!finished) {
-      Block currentBlock = RoutineManager.blocksManager.findBlockAt(pcValue);
+      Block currentBlock = routineManager.blocksManager.findBlockAt(pcValue);
       if (currentBlock.getBlockType() instanceof UnknownBlockType) {
         currentBlock.split(pcValue + instruction.getLength() - 1);
         Block blockAt2 = currentBlock.split(pcValue - 1);

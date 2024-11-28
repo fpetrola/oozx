@@ -40,12 +40,11 @@ import java.util.Stack;
 import java.util.concurrent.Semaphore;
 
 public class DefaultSyncChecker implements SyncChecker {
-  static Semaphore semaphore = new Semaphore(2);
   volatile int checking;
   volatile int checkingEmu;
-  volatile static Stack<StateSync> stateSync = new Stack();
+  volatile Stack<StateSync> stateSync = new Stack();
   MiniZXWithEmulation miniZXWithEmulation;
-  static OOZ80<WordNumber> ooz80;
+  OOZ80<WordNumber> ooz80;
   private SpectrumApplication spectrumApplication;
   private final Map<String, Integer> writtenRegisters = new HashMap<>();
 

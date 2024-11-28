@@ -29,7 +29,7 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class In<T extends WordNumber> extends TargetSourceInstruction<T, ImmutableOpcodeReference<T>> {
-  public static AluOperation inCTableAluOperation = new TableAluOperation() {
+  public final static AluOperation inCTableAluOperation = new TableAluOperation() {
     public int execute(int value, int reg, int carry) {
       F = value;
       F = ( F & FLAG_C) | sz53pTable((reg));
