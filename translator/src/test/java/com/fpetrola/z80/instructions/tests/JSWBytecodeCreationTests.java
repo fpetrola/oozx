@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.instructions.tests;
 
-import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.bytecode.DefaultRegistersSetter;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
 import com.fpetrola.z80.bytecode.examples.RemoteZ80Translator;
@@ -29,7 +28,6 @@ import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
-import com.fpetrola.z80.spy.InstructionSpy;
 import io.exemplary.guice.Modules;
 import io.exemplary.guice.TestRunner;
 import jakarta.inject.Inject;
@@ -94,7 +92,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
   }
 
   public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className) {
-    return realCodeBytecodeCreationBase.generateAndDecompile(base64Memory, routines, targetFolder, className);
+    return realCodeBytecodeCreationBase.generateAndDecompile(base64Memory, routines, targetFolder, className, realCodeBytecodeCreationBase.symbolicExecutionAdapter);
   }
 
   public void translateToJava(String className, String memoryInBase64, String startMethod) {

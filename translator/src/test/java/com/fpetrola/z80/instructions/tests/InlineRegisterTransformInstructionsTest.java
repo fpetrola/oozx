@@ -49,18 +49,17 @@ import static org.junit.jupiter.api.Assertions.*;
 @RunWith(TestRunner.class)
 @Modules(BaseModule.class)
 public class InlineRegisterTransformInstructionsTest<T extends WordNumber> extends ManualBytecodeGenerationTest<T> {
-
   private BlocksManager blocksManager;
 
   @Inject
-  public InlineRegisterTransformInstructionsTest(DriverConfigurator tDriverConfigurator) {
+  public InlineRegisterTransformInstructionsTest(DriverConfigurator tDriverConfigurator, BlocksManager blocksManager) {
     super(tDriverConfigurator);
+    this.blocksManager = blocksManager;
   }
 
   @Before
   public void setUp() {
     super.setUp();
-    blocksManager = RegisterTransformerInstructionSpy.blocksManager;
     blocksManager.clear();
   }
 

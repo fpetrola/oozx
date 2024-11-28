@@ -21,18 +21,10 @@ package com.fpetrola.z80.bytecode.examples;
 import com.fpetrola.z80.bytecode.DefaultRegistersSetter;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
 import com.fpetrola.z80.cpu.MemorySetter;
-import com.fpetrola.z80.cpu.MockedIO;
-import com.fpetrola.z80.cpu.SpyInstructionExecutor;
-import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
-import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
-import com.fpetrola.z80.routines.RoutineManager;
-import com.fpetrola.z80.spy.InstructionSpy;
-import com.fpetrola.z80.spy.NullInstructionSpy;
-import com.fpetrola.z80.spy.SpyRegisterBankFactory;
-import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
+import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import io.korhner.asciimg.image.AsciiImgCache;
 import io.korhner.asciimg.image.character_fit_strategy.StructuralSimilarityFitStrategy;
 import io.korhner.asciimg.image.converter.AsciiToStringConverter;
@@ -116,7 +108,7 @@ public class RemoteZ80Translator<T extends WordNumber> {
 
     if (action.equals("translate")) {
       String targetFolder = "target/translation/";
-      String sourceCode = generateAndDecompile(base64Memory, routines, targetFolder, className);
+      String sourceCode = generateAndDecompile(base64Memory, routines, targetFolder, className, realCodeBytecodeCreationBase.symbolicExecutionAdapter);
 
       try {
         String fileName = className + ".java";
@@ -161,8 +153,8 @@ public class RemoteZ80Translator<T extends WordNumber> {
     return realCodeBytecodeCreationBase.generateAndDecompile();
   }
 
-  public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className) {
-    return realCodeBytecodeCreationBase.generateAndDecompile(base64Memory, routines, targetFolder, className);
+  public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className, SymbolicExecutionAdapter symbolicExecutionAdapter) {
+    return realCodeBytecodeCreationBase.generateAndDecompile(base64Memory, routines, targetFolder, className, symbolicExecutionAdapter);
   }
 
   public void translateToJava(String className, String memoryInBase64, String startMethod) {

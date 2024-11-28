@@ -35,7 +35,7 @@ import static java.util.Comparator.comparingInt;
 public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecutionContext<T> implements BytecodeGeneration {
   public RoutineManager routineManager;
   private final VirtualRegisterFactory virtualRegisterFactory1;
-  private SymbolicExecutionAdapter symbolicExecutionAdapter;
+  public SymbolicExecutionAdapter symbolicExecutionAdapter;
 
   public RealCodeBytecodeCreationBase(RegisterTransformerInstructionSpy registerTransformerInstructionSpy1, RoutineManager routineManager1, SpyInstructionExecutor instructionExecutor1, VirtualRegisterFactory virtualRegisterFactory1, SymbolicExecutionAdapter executionAdapter, InstructionTransformer instructionCloner1, TransformerInstructionExecutor<T> transformerInstructionExecutor1, OOZ80 z80, OpcodeConditions opcodeConditions) {
     super(registerTransformerInstructionSpy1, z80, opcodeConditions);
@@ -68,17 +68,17 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecu
   }
 
   public String generateAndDecompile() {
-    return generateAndDecompile("", getRoutines(), ".", "JetSetWilly");
+    return generateAndDecompile("", getRoutines(), ".", "JetSetWilly", symbolicExecutionAdapter);
   }
 
   @Override
-  public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className) {
-    return getDecompiledSource(className, targetFolder, getState(), !base64Memory.isBlank());
+  public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className, SymbolicExecutionAdapter symbolicExecutionAdapter) {
+    return getDecompiledSource(className, targetFolder, getState(), !base64Memory.isBlank(), this.symbolicExecutionAdapter);
   }
 
 
   public void translateToJava(String className, String memoryInBase64, String startMethod) {
-    BytecodeGeneration.super.translateToJava(className, startMethod, getState(), !memoryInBase64.isBlank());
+    BytecodeGeneration.super.translateToJava(className, startMethod, getState(), !memoryInBase64.isBlank(), symbolicExecutionAdapter);
   }
 
   public DefaultRegistersSetter<T> getDefaultRegistersSetter() {

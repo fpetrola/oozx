@@ -19,12 +19,10 @@
 package com.fpetrola.z80.base;
 
 import com.fpetrola.z80.bytecode.BytecodeGeneration;
-import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
-import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
-import jakarta.inject.Inject;
+import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 import java.util.List;
 
@@ -34,13 +32,13 @@ public abstract class ManualBytecodeGenerationTest<T extends WordNumber> extends
   }
 
   public String generateAndDecompile() {
-    return generateAndDecompile("", getRoutineManager().getRoutines(), ".", "JetSetWilly");
+    return generateAndDecompile("", getRoutineManager().getRoutines(), ".", "JetSetWilly", ((DriverConfigurator)driverConfigurator).symbolicExecutionAdapter);
   }
 
   @Override
-  public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className1) {
-    SymbolicExecutionAdapter.mutantAddress.clear();
-    return getDecompiledSource("JSW", ".", currentContext.getState(), !base64Memory.isBlank());
+  public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className1, SymbolicExecutionAdapter symbolicExecutionAdapter) {
+    driverConfigurator.reset();
+    return getDecompiledSource("JSW", ".", currentContext.getState(), !base64Memory.isBlank(), symbolicExecutionAdapter);
   }
 
   @Override

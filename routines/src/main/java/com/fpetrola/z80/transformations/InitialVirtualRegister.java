@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.transformations;
 
+import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
@@ -28,6 +29,7 @@ public class InitialVirtualRegister<T extends WordNumber> implements IVirtual8Bi
 
   private final Register<T> register;
   private final VirtualRegisterVersionHandler versionHandler;
+  private final BlocksManager blocksManager;
   private final Scope scope= new Scope(0, 0);
   private VirtualComposed16BitRegister<T> virtualComposed16BitRegister;
 
@@ -61,15 +63,21 @@ public class InitialVirtualRegister<T extends WordNumber> implements IVirtual8Bi
     return versionHandler;
   }
 
-  public InitialVirtualRegister(Register<T> register, VirtualRegisterVersionHandler versionHandler) {
+  public InitialVirtualRegister(Register<T> register, VirtualRegisterVersionHandler versionHandler, BlocksManager blocksManager) {
     this.register = register;
     this.versionHandler = versionHandler;
+    this.blocksManager = blocksManager;
     register.write(WordNumber.createValue(65535));
   }
 
   @Override
   public List<VirtualRegister<T>> getPreviousVersions() {
     return new ArrayList<>();
+  }
+
+  @Override
+  public BlocksManager getBlocksManager() {
+    return blocksManager;
   }
 
   @Override

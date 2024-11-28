@@ -20,6 +20,8 @@ package com.fpetrola.z80.instructions.tests;
 
 import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.base.IDriverConfigurator;
+import com.fpetrola.z80.blocks.BlocksManager;
+import com.fpetrola.z80.blocks.NullBlockChangesListener;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
@@ -43,6 +45,12 @@ import com.google.inject.Singleton;
 import static com.fpetrola.z80.registers.RegisterName.B;
 
 public class BaseModule<T extends WordNumber> extends AbstractModule {
+  @Provides
+  @Singleton
+  protected BlocksManager getBlocksManager() {
+    return new BlocksManager(new NullBlockChangesListener(), false);
+  }
+
   @Provides
   @Singleton
   protected RoutineManager getRoutineManager() {
@@ -72,8 +80,8 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Provides
   @Inject
   @Singleton
-  private RegisterTransformerInstructionSpy getSpy(RoutineManager routineManager) {
-    return new RegisterTransformerInstructionSpy<>(routineManager);
+  private RegisterTransformerInstructionSpy getSpy(RoutineManager routineManager, BlocksManager blocksManager) {
+    return new RegisterTransformerInstructionSpy<>(routineManager, blocksManager);
   }
 
   @Provides
@@ -86,8 +94,8 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Provides
   @Inject
   @Singleton
-  private SymbolicExecutionAdapter getExecutionAdapter(State state1, RoutineManager routineManager) {
-    return new SymbolicExecutionAdapter(state1, routineManager);
+  private SymbolicExecutionAdapter getExecutionAdapter(State state1, RoutineManager routineManager, RegisterTransformerInstructionSpy spy) {
+    return new SymbolicExecutionAdapter(state1, routineManager, spy);
   }
 
 

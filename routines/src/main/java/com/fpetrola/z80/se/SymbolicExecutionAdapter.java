@@ -50,12 +50,13 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   public Map<Integer, RoutineExecution> routineExecutions = new HashMap<>();
   private final State<? extends WordNumber> state;
   private final RoutineManager routineManager;
+  private final RegisterTransformerInstructionSpy spy;
   private int lastPc;
   private int registerSP;
   private int nextSP;
   private AddressAction addressAction;
   private int minimalValidCodeAddress;
-  public static Set<Integer> mutantAddress = new HashSet<>();
+  private Set<Integer> mutantAddress = new HashSet<>();
 
 
   public void reset() {
@@ -67,9 +68,10 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     addressAction= null;
   }
 
-  public <T extends WordNumber> SymbolicExecutionAdapter(State<T> state, RoutineManager routineManager) {
+  public <T extends WordNumber> SymbolicExecutionAdapter(State<T> state, RoutineManager routineManager, RegisterTransformerInstructionSpy spy) {
     this.state = state;
     this.routineManager = routineManager;
+    this.spy = spy;
     mutantAddress.clear();
 //    state.getMemory().addMemoryWriteListener((address, value) -> {
 //
@@ -184,7 +186,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       }
     });
 
-    List<WriteMemoryReference> writeMemoryReferences = RegisterTransformerInstructionSpy.writeMemoryReferences;
+    List<WriteMemoryReference> writeMemoryReferences = spy.getWriteMemoryReferences();
 
     writeMemoryReferences.forEach(wmr -> {
       Routine routineAt = routineManager.findRoutineAt(wmr.address.intValue());
@@ -192,8 +194,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         mutantAddress.add(wmr.address.intValue());
       }
     });
-
-
   }
 
   private void executeAllCode(Z80InstructionDriver z80InstructionDriver, Register<T> pc) {
@@ -253,6 +253,10 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   protected void memoryReadOnly(boolean readOnly, State state) {
     MockedMemory<T> memory = (MockedMemory<T>) ((MemorySpy<T>) state.getMemory()).getMemory();
     memory.enableReadyOnly(readOnly);
+  }
+
+  public Set<Integer> getMutantAddress() {
+    return mutantAddress;
   }
 
   public abstract class SymbolicInstructionFactoryDelegator implements InstructionFactoryDelegator {

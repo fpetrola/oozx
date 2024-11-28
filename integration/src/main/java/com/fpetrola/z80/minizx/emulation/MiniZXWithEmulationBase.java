@@ -52,7 +52,7 @@ public class MiniZXWithEmulationBase {
   private static void loadIntoMemory(State<WordNumber> state, SpectrumState snapState) {
     RegistersBase registersBase = new RegistersBase<>(state) {
       public VirtualRegisterFactory getVirtualRegisterFactory() {
-        return new VirtualRegisterFactory(null, null);
+        return new VirtualRegisterFactory(null, null, null);
       }
     };
 

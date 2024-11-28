@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.transformations;
 
+import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.impl.In;
@@ -43,6 +44,13 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
   public IVirtual8BitsRegister<T> lastVersionRead;
   private final Consumer<T> dataConsumer;
   private final VirtualRegisterVersionHandler versionHandler;
+
+  @Override
+  public BlocksManager getBlocksManager() {
+    return blocksManager;
+  }
+
+  private final BlocksManager blocksManager;
   private final List<VirtualRegister<T>> dependants = new ArrayList<>();
   private final Scope scope;
   public VirtualComposed16BitRegister<T> virtualComposed16BitRegister;
@@ -56,7 +64,7 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
 
   public Virtual8BitsRegister(int address, InstructionExecutor instructionExecutor, String name, Instruction<T> instruction,
                               IVirtual8BitsRegister<T> previousVersion, VirtualFetcher<T> virtualFetcher, Consumer<T> dataConsumer,
-                              VirtualRegisterVersionHandler versionHandler) {
+                              VirtualRegisterVersionHandler versionHandler, BlocksManager blocksManager) {
     super(name);
     this.address = address;
     this.instructionExecutor = instructionExecutor;
@@ -64,6 +72,7 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
     this.virtualFetcher = virtualFetcher;
     this.dataConsumer = dataConsumer;
     this.versionHandler = versionHandler;
+    this.blocksManager = blocksManager;
 
     if (previousVersion != null)
       addPreviousVersion(previousVersion);

@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.transformations;
 
+import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -32,11 +33,13 @@ public class VirtualComposed16BitRegister<T extends WordNumber> extends Composed
   private final int currentAddress;
   private final Scope scope = new Scope();
   private final VirtualRegisterVersionHandler versionHandler;
+  private final BlocksManager blocksManager;
 
-  public VirtualComposed16BitRegister(int currentAddress, String virtualRegisterName, IVirtual8BitsRegister<T> virtualH, IVirtual8BitsRegister<T> virtualL, VirtualRegisterVersionHandler versionHandler, boolean composed) {
+  public VirtualComposed16BitRegister(int currentAddress, String virtualRegisterName, IVirtual8BitsRegister<T> virtualH, IVirtual8BitsRegister<T> virtualL, VirtualRegisterVersionHandler versionHandler, boolean composed, BlocksManager blocksManager) {
     super(virtualRegisterName, virtualH, virtualL);
     this.currentAddress = currentAddress;
     this.versionHandler = versionHandler;
+    this.blocksManager = blocksManager;
     virtualL.set16BitsRegister(this);
     virtualH.set16BitsRegister(this);
     if (composed) {
@@ -49,6 +52,11 @@ public class VirtualComposed16BitRegister<T extends WordNumber> extends Composed
   @Override
   public List<VirtualRegister<T>> getPreviousVersions() {
     return getVirtualRegisters(low.getPreviousVersions(), high.getPreviousVersions());
+  }
+
+  @Override
+  public BlocksManager getBlocksManager() {
+    return blocksManager;
   }
 
   private List<VirtualRegister<T>> getVirtualRegisters(List<VirtualRegister<T>> previousVersionsL, List<VirtualRegister<T>> previousVersionsH) {
@@ -68,7 +76,7 @@ public class VirtualComposed16BitRegister<T extends WordNumber> extends Composed
 
       finalName = fixIndexNames(finalName);
 
-      list.add(new VirtualComposed16BitRegister<T>(Math.min(pL.getAddress(), pH.getAddress()), finalName, (IVirtual8BitsRegister<T>) pH, (IVirtual8BitsRegister<T>) pL, versionHandler, false));
+      list.add(new VirtualComposed16BitRegister<T>(Math.min(pL.getAddress(), pH.getAddress()), finalName, (IVirtual8BitsRegister<T>) pH, (IVirtual8BitsRegister<T>) pL, versionHandler, false, getBlocksManager()));
     }
     return list;
   }

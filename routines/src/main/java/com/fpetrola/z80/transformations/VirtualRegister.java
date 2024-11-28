@@ -20,6 +20,7 @@ package com.fpetrola.z80.transformations;
 
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.BlockType;
+import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.CodeBlockType;
 import com.fpetrola.z80.registers.Register;
 
@@ -28,6 +29,8 @@ import java.util.stream.Collectors;
 
 public interface VirtualRegister<T> extends Register<T> {
   List<VirtualRegister<T>> getPreviousVersions();
+
+  BlocksManager getBlocksManager();
 
   default boolean isInitialized(){
     return false;
@@ -107,7 +110,7 @@ public interface VirtualRegister<T> extends Register<T> {
     List<VirtualRegister<T>> previousVersions = getPreviousVersions();
 
     List<Block> blocks = previousVersions.stream().map(r ->
-        RegisterTransformerInstructionSpy.blocksManager.findBlockAt(r.getRegisterLine())
+        getBlocksManager().findBlockAt(r.getRegisterLine())
     ).collect(Collectors.toList());
 
 
@@ -182,7 +185,7 @@ public interface VirtualRegister<T> extends Register<T> {
   }
 
   default Block getDominantOf(List<Block> blocks) {
-    Set<Block> blockSetMap = computeDominators2(blocks, RegisterTransformerInstructionSpy.blocksManager.findBlockAt(0));
+    Set<Block> blockSetMap = computeDominators2(blocks, getBlocksManager().findBlockAt(0));
     return blockSetMap.isEmpty() ? null : blockSetMap.iterator().next();
   }
 

@@ -21,6 +21,7 @@ package com.fpetrola.z80.bytecode.generators.helpers;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.RoutineManager;
+import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import org.cojen.maker.ClassMaker;
 import org.cojen.maker.MethodMaker;
 
@@ -33,13 +34,15 @@ public class BytecodeGenerationContext {
   public ClassMaker cm;
   public Map<String, MethodMaker> methods;
   public Register<WordNumber> pc;
+  public SymbolicExecutionAdapter symbolicExecutionAdapter;
   public boolean syncEnabled;
-  public  boolean useFields;
+  public boolean useFields;
 
-  public BytecodeGenerationContext(RoutineManager routineManager, ClassMaker classMaker, Register<?> pc1) {
+  public BytecodeGenerationContext(RoutineManager routineManager, ClassMaker classMaker, Register<?> pc1, SymbolicExecutionAdapter symbolicExecutionAdapter) {
     this.routineManager = routineManager;
     this.cm = classMaker;
     this.pc = (Register<WordNumber>) pc1;
+    this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     this.methods = new HashMap<>();
     this.syncEnabled = true;
     this.useFields = true;

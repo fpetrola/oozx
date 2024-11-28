@@ -23,7 +23,6 @@ import com.fpetrola.z80.instructions.types.BitOperation;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.instructions.types.TargetInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
-import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -35,6 +34,7 @@ import org.cojen.maker.Variable;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -72,7 +72,8 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<Wo
     sourceVariable = opcodeReferenceVisitor.getResult();
 
     int i = routineByteCodeGenerator.bytecodeGenerationContext.pc.read().intValue();
-    Optional<Integer> mutantCode = SymbolicExecutionAdapter.mutantAddress.stream()
+    Set<Integer> mutantAddress = (Set<Integer>) routineByteCodeGenerator.bytecodeGenerationContext.symbolicExecutionAdapter.getMutantAddress();
+    Optional<Integer> mutantCode = mutantAddress.stream()
         .filter(m -> m >= i && m <= routineByteCodeGenerator.currentInstruction.getLength() + i).findFirst();
     if (mutantCode.isPresent()) {
       sourceVariable = routineByteCodeGenerator.getField("mem").aget(mutantCode.get());
@@ -131,7 +132,8 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<Wo
 
   private Variable get8BitCommon(IVirtual8BitsRegister<?> virtualRegister) {
     VirtualComposed16BitRegister<?> virtualComposed16BitRegister = virtualRegister.getVirtualComposed16BitRegister();
-    if (virtualComposed16BitRegister.isMixRegister()) return routineByteCodeGenerator.getExistingVariable(virtualRegister);
+    if (virtualComposed16BitRegister.isMixRegister())
+      return routineByteCodeGenerator.getExistingVariable(virtualRegister);
     return routineByteCodeGenerator.getExistingVariable(virtualComposed16BitRegister);
   }
 

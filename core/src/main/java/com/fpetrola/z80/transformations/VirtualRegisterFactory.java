@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.transformations;
 
+import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.Instruction;
@@ -33,6 +34,7 @@ import java.util.function.Consumer;
 public class VirtualRegisterFactory<T extends WordNumber> {
   private final InstructionExecutor<T> instructionExecutor;
   private final RegisterNameBuilder registerNameBuilder;
+  private final BlocksManager blocksManager;
   private final ArrayListValuedHashMap<Register<T>, VirtualRegister<T>> virtualRegisters = new ArrayListValuedHashMap<>();
   public Map<Register<T>, VirtualRegister<T>> lastVirtualRegisters = new HashMap<>();
   public Map<Register<T>, T> lastValues = new HashMap<>();
@@ -40,9 +42,10 @@ public class VirtualRegisterFactory<T extends WordNumber> {
   private final List<Runnable> actions = new ArrayList<>();
 
   @Inject
-  public VirtualRegisterFactory(InstructionExecutor instructionExecutor, RegisterNameBuilder registerNameBuilder) {
+  public VirtualRegisterFactory(InstructionExecutor instructionExecutor, RegisterNameBuilder registerNameBuilder, BlocksManager blocksManager) {
     this.instructionExecutor = instructionExecutor;
     this.registerNameBuilder = registerNameBuilder;
+    this.blocksManager = blocksManager;
   }
 
   public Register<T> createVirtualRegister(Instruction<T> instruction, Register<T> register, VirtualFetcher<T> virtualFetcher) {
@@ -56,13 +59,13 @@ public class VirtualRegisterFactory<T extends WordNumber> {
 
   private IVirtual8BitsRegister<T> createVirtual8BitsRegister(Register<T> register, Instruction<T> targetInstruction, VirtualFetcher<T> virtualFetcher) {
     Consumer<T> dataConsumer = (v) -> lastValues.put(register, v);
-    return (IVirtual8BitsRegister<T>) buildVirtualRegister(targetInstruction, register, (virtualRegisterName, previousVersion, currentAddress, versionHandler) -> new Virtual8BitsRegister<>(currentAddress, instructionExecutor, virtualRegisterName, targetInstruction, (IVirtual8BitsRegister<T>) previousVersion, virtualFetcher, dataConsumer, versionHandler));
+    return (IVirtual8BitsRegister<T>) buildVirtualRegister(targetInstruction, register, (virtualRegisterName, previousVersion, currentAddress, versionHandler) -> new Virtual8BitsRegister<>(currentAddress, instructionExecutor, virtualRegisterName, targetInstruction, (IVirtual8BitsRegister<T>) previousVersion, virtualFetcher, dataConsumer, versionHandler, blocksManager));
   }
 
   private VirtualRegister<T> create16VirtualRegister(Instruction<T> targetInstruction, RegisterPair<T> registerPair, VirtualFetcher<T> virtualFetcher) {
     IVirtual8BitsRegister<T> virtualH = createVirtual8BitsRegister(registerPair.getHigh(), targetInstruction, virtualFetcher);
     IVirtual8BitsRegister<T> virtualL = createVirtual8BitsRegister(registerPair.getLow(), targetInstruction, virtualFetcher);
-    return buildVirtualRegister(targetInstruction, registerPair, (virtualRegisterName, supplier, currentAddress, versionHandler) -> new VirtualComposed16BitRegister<>(currentAddress, virtualRegisterName, virtualH, virtualL, versionHandler, true));
+    return buildVirtualRegister(targetInstruction, registerPair, (virtualRegisterName, supplier, currentAddress, versionHandler) -> new VirtualComposed16BitRegister<>(currentAddress, virtualRegisterName, virtualH, virtualL, versionHandler, true, blocksManager));
   }
 
   private VirtualRegister<T> buildVirtualRegister(Instruction<T> targetInstruction, Register<T> register, VirtualRegisterBuilder<T> registerBuilder) {
@@ -73,7 +76,7 @@ public class VirtualRegisterFactory<T extends WordNumber> {
     registerAssignment = false;
     VirtualRegister<T> previousVersion1;
     if (previousVersion == null) {
-      previousVersion1 = new InitialVirtualRegister(register, versionHandler);
+      previousVersion1 = new InitialVirtualRegister(register, versionHandler, blocksManager);
       previousVersion1.getVersionHandler().addVersion(previousVersion1);
     } else if (registerAssignment) {
       previousVersion1 = null;

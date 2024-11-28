@@ -25,6 +25,7 @@ import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
+import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import org.apache.commons.io.FileUtils;
 import org.cojen.maker.ClassMaker2;
 import org.cojen.maker.MethodMaker;
@@ -35,9 +36,9 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 public interface BytecodeGeneration {
-  default <T extends WordNumber> String getDecompiledSource(String className, String targetFolder, State state, boolean translation) {
+  default <T extends WordNumber> String getDecompiledSource(String className, String targetFolder, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter) {
     try {
-      StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation);
+      StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter);
       byte[] bytecode = bytecodeGenerator.getBytecode();
       String classFile = className + ".class";
       File source = new File(targetFolder + "/" + classFile);
@@ -64,12 +65,12 @@ public interface BytecodeGeneration {
 
   String generateAndDecompile();
 
-  String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className1);
+  String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className1, SymbolicExecutionAdapter symbolicExecutionAdapter);
 
-  default void translateToJava(String className, String startMethod, State state, boolean translation) {
+  default void translateToJava(String className, String startMethod, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter) {
     try {
       boolean useFields = true;
-      StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation);
+      StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter);
       Class<?> finish = bytecodeGenerator.getNewClass();
       Object o = finish.getConstructors()[0].newInstance();
       if (useFields) {
@@ -79,18 +80,18 @@ public interface BytecodeGeneration {
         Method method = o.getClass().getMethod(startMethod, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class);
         method.invoke(o, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
       }
-      writeClassFile(className, state, translation);
+      writeClassFile(className, state, translation, symbolicExecutionAdapter);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  private StateBytecodeGenerator getBytecodeGenerator(String className, State state, boolean translation) {
-    return new StateBytecodeGenerator(className, this.getRoutineManager(), state, translation, MiniZX.class, SpectrumApplication.class);
+  private StateBytecodeGenerator getBytecodeGenerator(String className, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter) {
+    return new StateBytecodeGenerator(className, this.getRoutineManager(), state, translation, MiniZX.class, SpectrumApplication.class, symbolicExecutionAdapter);
   }
 
-  private void writeClassFile(String className, State state, boolean translation) throws IOException {
-    StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation);
+  private void writeClassFile(String className, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter) throws IOException {
+    StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter);
     byte[] bytecode = bytecodeGenerator.getBytecode();
     String classFile = className + ".class";
     File source = new File(classFile);

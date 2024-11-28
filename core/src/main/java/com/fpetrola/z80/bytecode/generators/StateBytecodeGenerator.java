@@ -23,6 +23,7 @@ import com.fpetrola.z80.bytecode.generators.helpers.BytecodeGenerationContext;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
+import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import org.cojen.maker.ClassMaker;
 import org.cojen.maker.ClassMaker2;
 import org.cojen.maker.MethodMaker;
@@ -36,14 +37,16 @@ public class StateBytecodeGenerator {
   private final boolean translation;
   private final Class<?> translationSuperClass;
   private final Class<?> executionSuperClass;
+  private final SymbolicExecutionAdapter symbolicExecutionAdapter;
 
-  public StateBytecodeGenerator(String className, RoutineManager routineManager, State state, boolean translation, Class<?> translationSuperClass, Class<?> executionSuperClass) {
+  public StateBytecodeGenerator(String className, RoutineManager routineManager, State state, boolean translation, Class<?> translationSuperClass, Class<?> executionSuperClass, SymbolicExecutionAdapter symbolicExecutionAdapter) {
     this.className = className;
     this.routineManager = routineManager;
     this.state = state;
     this.translation = translation;
     this.translationSuperClass = translationSuperClass;
     this.executionSuperClass = executionSuperClass;
+    this.symbolicExecutionAdapter = symbolicExecutionAdapter;
   }
 
   private ClassMaker translate() {
@@ -69,7 +72,7 @@ public class StateBytecodeGenerator {
       MethodMaker getProgramBytesMaker = classMaker.addMethod(String.class, "getProgramBytes").public_();
       getProgramBytesMaker.return_(SnapshotHelper.getBase64Memory(state));
     }
-    BytecodeGenerationContext bytecodeGenerationContext = new BytecodeGenerationContext(routineManager, classMaker, state.getPc());
+    BytecodeGenerationContext bytecodeGenerationContext = new BytecodeGenerationContext(routineManager, classMaker, state.getPc(), symbolicExecutionAdapter);
     List<Routine> routines = routineManager.getRoutines();
 
     routines.forEach(routine -> {

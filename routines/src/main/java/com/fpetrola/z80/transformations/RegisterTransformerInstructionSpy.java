@@ -35,25 +35,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RegisterTransformerInstructionSpy<T extends WordNumber> extends WrapperInstructionSpy<T> {
-  public static List<WriteMemoryReference> writeMemoryReferences = new ArrayList<>();
-
-  public static BlocksManager blocksManager = new BlocksManager(new NullBlockChangesListener(), false);
+  private List<WriteMemoryReference> writeMemoryReferences = new ArrayList<>();
+  private BlocksManager blocksManager;
   private Instruction<T> lastInstruction;
   private int lastPC;
-  public static RoutineFinder routineFinder;
+  private RoutineFinder routineFinder;
   private final RoutineManager routineManager;
   private final List<Instruction<T>> executedInstructions = new ArrayList<>();
-
 
   public List<Instruction<T>> getExecutedInstructions() {
     return executedInstructions;
   }
 
   @Inject
-  public RegisterTransformerInstructionSpy(RoutineManager routineManager) {
+  public RegisterTransformerInstructionSpy(RoutineManager routineManager, BlocksManager blocksManager1) {
     routineFinder = new RoutineFinder(routineManager);
     this.routineManager = routineManager;
     capturing = false;
+    this.blocksManager = blocksManager1;
   }
 
   @Override
@@ -63,8 +62,8 @@ public class RegisterTransformerInstructionSpy<T extends WordNumber> extends Wra
     routineFinder = new RoutineFinder(routineManager);
     executionStep = new ExecutionStep(memory);
     blocksManager.clear();
-    lastInstruction= null;
-    lastPC= 0;
+    lastInstruction = null;
+    lastPC = 0;
     executedInstructions.clear();
   }
 
@@ -101,7 +100,7 @@ public class RegisterTransformerInstructionSpy<T extends WordNumber> extends Wra
       lastPC = pcValue.intValue();
     }
 
-    writeMemoryReferences.addAll(executionStep.writeMemoryReferences);
+    getWriteMemoryReferences().addAll(executionStep.writeMemoryReferences);
   }
 
   private void executionTracking(Instruction<T> instruction, int pcIntValue, T pcValue, int instructionLength) {
@@ -141,6 +140,10 @@ public class RegisterTransformerInstructionSpy<T extends WordNumber> extends Wra
   }
 
   public void doContinue() {
-    capturing= true;
+    capturing = true;
+  }
+
+  public List<WriteMemoryReference> getWriteMemoryReferences() {
+    return writeMemoryReferences;
   }
 }

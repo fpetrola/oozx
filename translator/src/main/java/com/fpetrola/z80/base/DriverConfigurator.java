@@ -78,8 +78,9 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
   }
 
   public void reset() {
-    state1.getPc().write(WordNumber.createValue(0));
-    routineManager.reset();
-    spy.reset(state1);
+    symbolicExecutionAdapter.reset();
+//    state1.getPc().write(WordNumber.createValue(0));
+//    routineManager.reset();
+//    spy.reset(state1);
   }
 }

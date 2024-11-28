@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.jspeccy;
 
+import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.spy.RoutineGrouperSpy;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.graph.GraphFrame;
@@ -56,6 +57,7 @@ public class Z80B extends RegistersBase implements IZ80 {
   private final Clock clock;
   private volatile boolean executing;
   private ComplexInstructionSpy spy;
+  private BlocksManager blockManager;
 
   @Override
   public VirtualRegisterFactory getVirtualRegisterFactory() {
@@ -135,7 +137,7 @@ public class Z80B extends RegistersBase implements IZ80 {
 
   private TransformerInstructionExecutor createInstructionTransformer(State state, InstructionExecutor instructionExecutor) {
     DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory(state);
-    virtualRegisterFactory = new VirtualRegisterFactory(instructionExecutor, new RegisterNameBuilder());
+    virtualRegisterFactory = new VirtualRegisterFactory(instructionExecutor, new RegisterNameBuilder(), blockManager);
     InstructionTransformer instructionTransformer = new InstructionTransformer(instructionFactory, virtualRegisterFactory);
     TransformerInstructionExecutor transformerInstructionExecutor = new TransformerInstructionExecutor(state.getPc(), instructionExecutor, false, instructionTransformer);
     return transformerInstructionExecutor;
