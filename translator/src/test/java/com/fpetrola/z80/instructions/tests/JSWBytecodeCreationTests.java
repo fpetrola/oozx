@@ -64,7 +64,6 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
         """, actual);
   }
 
-  @Ignore
   @Test
   public void testTranslateWillyToJava() {
     String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");

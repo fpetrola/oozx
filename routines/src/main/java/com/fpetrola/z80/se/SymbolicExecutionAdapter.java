@@ -220,8 +220,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 //        System.out.println(state.getPc().read().intValue());
 
         z80InstructionDriver.step();
-        addressAction.setPending(false);
         AddressAction nextAddressAction = routineExecution.getActionInAddress(pcValue);
+        nextAddressAction.setPendingAfterStep(this);
         T value = createValue(nextAddressAction.getNext(pcValue, pc.read().intValue()));
         pc.write(value);
 

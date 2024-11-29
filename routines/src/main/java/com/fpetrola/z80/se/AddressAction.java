@@ -21,6 +21,7 @@ package com.fpetrola.z80.se;
 import com.fpetrola.z80.instructions.types.Instruction;
 
 public class AddressAction {
+  private int count;
   @Override
   public String toString() {
     return "AddressAction{" +
@@ -64,5 +65,14 @@ public class AddressAction {
 
   public int getNextPC() {
     return address;
+  }
+
+  void setPendingAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
+    setPending(false);
+  }
+
+  protected void updatePending() {
+    count++;
+    pending = count == 1;
   }
 }

@@ -47,4 +47,9 @@ class ConditionalInstructionAddressAction extends AddressAction {
       return list.get(0).address;
     }
   }
+
+  void setPendingAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
+    updatePending();
+  }
+
 }
