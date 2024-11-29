@@ -1121,6 +1121,58 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     assertBlockAddresses(routines.get(1).blocks.get(0), 5, 8);
   }
 
+  @Test
+  public void simpleRoutineWithContinuation() {
+    setUpMemory();
+
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
+      {
+        add(Ld(r(B), c(2)));
+        add(Call(t(), c(4)));
+        add(Ld(r(B), c(3)));
+        add(Ret(t()));
+
+        add(Ld(r(D), r(B)));
+        add(Ret(nz()));
+        add(Ld(r(B), c(4)));
+        add(Ret(t()));
+      }
+    };
+
+    stepUntilComplete();
+
+    String resultingJava = generateAndDecompile();
+    Assert.assertEquals("""
+import com.fpetrola.z80.minizx.SpectrumApplication;
+
+public class JSW extends SpectrumApplication {
+   public void $0() {
+      super.B = 2;
+      this.$4();
+      super.B = 3;
+   }
+
+   public void $4() {
+      super.D = super.B;
+      if(super.F == 0) {
+         super.B = 4;
+      }
+   }
+}
+        """, resultingJava);
+
+
+    List<Routine> routines = getRoutineManager().getRoutines();
+
+
+    Assert.assertEquals(2, routines.size());
+
+    Routine routine0 = routines.get(0);
+    Assert.assertEquals(1, routine0.blocks.size());
+
+    assertBlockAddresses(routine0.blocks.get(0), 0, 3);
+  }
+
   public SymbolicExecutionAdapter getSymbolicExecutionAdapter() {
     return ((RoutinesDriverConfigurator) driverConfigurator).symbolicExecutionAdapter;
   }
