@@ -23,10 +23,12 @@ import com.fpetrola.z80.instructions.types.Instruction;
 
 class CallAddressAction extends AddressAction {
   private final Call call;
+  private boolean alwaysTrue;
 
-  public CallAddressAction(int pcValue, Call call) {
-    super(pcValue, true);
+  public CallAddressAction(int pcValue, Call call, RoutineExecution routineExecution, boolean alwaysTrue) {
+    super(pcValue, true, routineExecution);
     this.call = call;
+    this.alwaysTrue = alwaysTrue;
   }
 
   public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
@@ -41,5 +43,13 @@ class CallAddressAction extends AddressAction {
 
   void setPendingAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
     updatePending();
+  }
+
+  public int getNext(int next, int pcValue) {
+    if (alwaysTrue) {
+      return genericGetNext(next, pcValue);
+    } else {
+      return super.getNext(next, pcValue);
+    }
   }
 }

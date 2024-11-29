@@ -170,14 +170,12 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   public <T extends WordNumber> OpcodeConditions createOpcodeConditions(State<T> state) {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
-//      if (!getRoutineExecution().hasActionAt(getPcValue()))
-
       if (instruction instanceof Ret) {
-        addressAction = getRoutineExecution().replaceIfAbsent(getPcValue(), new RetAddressAction(getRoutineExecution(), getPcValue()));
+        addressAction = getRoutineExecution().replaceIfAbsent(getPcValue(), new RetAddressAction(getRoutineExecution(), getPcValue(), alwaysTrue));
       } else if (instruction instanceof Call call) {
-        addressAction = getRoutineExecution().replaceIfAbsent(getPcValue(), new CallAddressAction(getPcValue(), call));
-      } else
-        addressAction = getRoutineExecution().getActionInAddress(getPcValue());
+        addressAction = getRoutineExecution().replaceIfAbsent(getPcValue(), new CallAddressAction(getPcValue(), call, getRoutineExecution(), alwaysTrue));
+      }
+      addressAction = getRoutineExecution().getActionInAddress(getPcValue());
 
       return addressAction.processBranch(doBranch, instruction, alwaysTrue, this);
     });
@@ -240,8 +238,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 //        System.out.println(state.getPc().read().intValue());
 
         z80InstructionDriver.step();
-        if (!routineExecution.hasActionAt(getPcValue()))
-          addressAction = routineExecution.getActionInAddress(getPcValue());
+        if (!routineExecution.hasActionAt(pcValue))
+          addressAction = routineExecution.getActionInAddress(pcValue);
 
         AddressAction nextAddressAction = routineExecution.getActionInAddress(pcValue);
         nextAddressAction.setPendingAfterStep(this);

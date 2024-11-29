@@ -48,9 +48,9 @@ public class RoutineExecution {
   public AddressAction createConditionalAction(Instruction instruction, int pcValue) {
     AddressAction conditionalAddressAction;
     if (instruction instanceof Ret ret) {
-      conditionalAddressAction = new RetAddressAction(this, pcValue);
+      conditionalAddressAction = new RetAddressAction(this, pcValue, false);
     } else if (instruction instanceof Call call) {
-      conditionalAddressAction = new CallAddressAction(pcValue, call);
+      conditionalAddressAction = new CallAddressAction(pcValue, call, this, false);
     } else {
       conditionalAddressAction = new ConditionalInstructionAddressAction(this, pcValue);
     }

@@ -22,6 +22,14 @@ import com.fpetrola.z80.instructions.types.Instruction;
 
 public class AddressAction {
   private int count;
+  private RoutineExecution routineExecution;
+
+  public AddressAction(int pcValue, RoutineExecution routineExecution) {
+    this(pcValue);
+
+    this.routineExecution = routineExecution;
+  }
+
   @Override
   public String toString() {
     return "AddressAction{" +
@@ -33,7 +41,10 @@ public class AddressAction {
   public int address;
   protected boolean pending;
 
-  public AddressAction() {
+  public AddressAction(int pcValue, boolean b, RoutineExecution routineExecution) {
+    this(pcValue, b);
+
+    this.routineExecution = routineExecution;
   }
 
   public AddressAction(int address) {
@@ -61,6 +72,16 @@ public class AddressAction {
 
   public void setPending(boolean pending) {
     this.pending = pending;
+  }
+
+  protected int genericGetNext(int next, int pcValue) {
+    int result = pcValue;
+    if (pending) {
+      pending = false;
+    }
+    if (routineExecution.retInstruction == next && routineExecution.hasPendingPoints())
+      result = routineExecution.getNextPending().address;
+    return result;
   }
 
   public int getNextPC() {

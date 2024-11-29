@@ -26,11 +26,13 @@ class RetAddressAction extends AddressAction {
   private final RoutineExecution routineExecution;
   private final int pcValue;
   private final boolean executed = false;
+  private boolean alwaysTrue;
 
-  public RetAddressAction(RoutineExecution routineExecution, int pcValue) {
-    super(pcValue, true);
+  public RetAddressAction(RoutineExecution routineExecution, int pcValue, boolean alwaysTrue) {
+    super(pcValue, true, routineExecution);
     this.routineExecution = routineExecution;
     this.pcValue = pcValue;
+    this.alwaysTrue = alwaysTrue;
   }
 
   public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
@@ -46,14 +48,18 @@ class RetAddressAction extends AddressAction {
 
   @Override
   public int getNext(int next, int pcValue) {
-    if (routineExecution.retInstruction == -1 || routineExecution.retInstruction == address)
-      return super.getNext(next, pcValue);
-
-    List<AddressAction> list = routineExecution.actions.stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
-    if (list.isEmpty()) {
-      return pcValue;
+    if (alwaysTrue) {
+      return genericGetNext(next, pcValue);
     } else {
-      return list.get(0).address;
+      if (routineExecution.retInstruction == -1 || routineExecution.retInstruction == address)
+        return super.getNext(next, pcValue);
+
+      List<AddressAction> list = routineExecution.actions.stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
+      if (list.isEmpty()) {
+        return pcValue;
+      } else {
+        return list.get(0).address;
+      }
     }
   }
 

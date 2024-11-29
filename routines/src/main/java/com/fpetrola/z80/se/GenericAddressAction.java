@@ -28,19 +28,13 @@ class GenericAddressAction extends AddressAction {
   private final int pcValue;
 
   public GenericAddressAction(RoutineExecution routineExecution, int pcValue) {
-    super(pcValue);
+    super(pcValue, routineExecution);
     this.routineExecution = routineExecution;
     this.pcValue = pcValue;
   }
 
   public int getNext(int next, int pcValue) {
-    int result = pcValue;
-    if (pending) {
-      pending = false;
-    }
-    if (routineExecution.retInstruction == next && routineExecution.hasPendingPoints())
-      result = routineExecution.getNextPending().address;
-    return result;
+    return genericGetNext(next, pcValue);
   }
 
   @Override
