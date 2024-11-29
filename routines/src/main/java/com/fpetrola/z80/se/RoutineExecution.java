@@ -41,22 +41,6 @@ public class RoutineExecution {
     return actions.stream().anyMatch(AddressAction::isPending);
   }
 
-  private AddressAction peekNextPending() {
-    return actions.peek();
-  }
-
-  public AddressAction createConditionalAction(Instruction instruction, int pcValue) {
-    AddressAction conditionalAddressAction;
-    if (instruction instanceof Ret ret) {
-      conditionalAddressAction = new RetAddressAction(this, pcValue, false);
-    } else if (instruction instanceof Call call) {
-      conditionalAddressAction = new CallAddressAction(pcValue, call, this, false);
-    } else {
-      conditionalAddressAction = new ConditionalInstructionAddressAction(this, pcValue, false);
-    }
-    return conditionalAddressAction;
-  }
-
   public AddressAction getNextPending() {
     return actions.stream().filter(AddressAction::isPending).findFirst().orElse(getActionInAddress(retInstruction));
   }
@@ -76,10 +60,7 @@ public class RoutineExecution {
   }
 
   private AddressAction createActionForConditionals(int pcValue) {
-    AddressAction addressAction;
-    addressAction = new GenericAddressAction(this, pcValue);
-
-    return addressAction;
+    return new GenericAddressAction(this, pcValue);
   }
 
   private AddressAction getAddressAction(int pcValue) {

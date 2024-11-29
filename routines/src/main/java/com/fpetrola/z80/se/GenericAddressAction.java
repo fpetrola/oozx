@@ -23,14 +23,11 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import java.util.Optional;
 
 class GenericAddressAction extends AddressAction {
-
   private final RoutineExecution routineExecution;
-  private final int pcValue;
 
   public GenericAddressAction(RoutineExecution routineExecution, int pcValue) {
     super(pcValue, routineExecution);
     this.routineExecution = routineExecution;
-    this.pcValue = pcValue;
   }
 
   public int getNext(int next, int pcValue) {
