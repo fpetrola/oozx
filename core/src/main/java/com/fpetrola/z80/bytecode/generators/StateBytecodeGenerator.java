@@ -82,6 +82,7 @@ public class StateBytecodeGenerator {
     });
 
     routines.forEach(routine -> {
+      System.out.println(routine);
       RoutineBytecodeGenerator routineBytecodeGenerator = new RoutineBytecodeGenerator(bytecodeGenerationContext, routine);
       routineBytecodeGenerator.generate();
     });

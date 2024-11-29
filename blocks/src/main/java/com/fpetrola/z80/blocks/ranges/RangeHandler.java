@@ -19,6 +19,7 @@
 package com.fpetrola.z80.blocks.ranges;
 
 import com.fpetrola.z80.blocks.*;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.types.Instruction;
 
@@ -77,7 +78,7 @@ public class RangeHandler {
   }
 
   public String toString() {
-    return String.format("%04X : %04X", startAddress, endAddress);
+    return String.format("%s : %s", Helper.formatAddress(startAddress), Helper.formatAddress(endAddress));
   }
 
   public boolean contains(int address) {
