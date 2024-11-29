@@ -175,6 +175,11 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       if (addressAction1 == null) {
         addressAction1 = getRoutineExecution().getActionInAddress(getPcValue());
       }
+      if (addressAction1 instanceof PopReturnAddress.AddressActionDelegate) {
+        addressAction1 = getRoutineExecution().createAddressAction(instruction, alwaysTrue, getPcValue());
+        getRoutineExecution().replaceAddressAction(addressAction1);
+      }
+
       addressAction = addressAction1;
 
       return addressAction.processBranch(doBranch, instruction, alwaysTrue, this);
