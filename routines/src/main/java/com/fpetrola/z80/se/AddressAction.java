@@ -21,11 +21,13 @@ package com.fpetrola.z80.se;
 import com.fpetrola.z80.instructions.types.Instruction;
 
 public class AddressAction {
+  protected boolean alwaysTrue;
   private int count;
   private RoutineExecution routineExecution;
+  protected final SymbolicExecutionAdapter symbolicExecutionAdapter;
 
-  public AddressAction(int pcValue, RoutineExecution routineExecution) {
-    this(pcValue);
+  public AddressAction(int pcValue, RoutineExecution routineExecution, SymbolicExecutionAdapter symbolicExecutionAdapter) {
+    this(symbolicExecutionAdapter, pcValue);
 
     this.routineExecution = routineExecution;
   }
@@ -41,17 +43,20 @@ public class AddressAction {
   public int address;
   protected boolean pending;
 
-  public AddressAction(int pcValue, boolean b, RoutineExecution routineExecution) {
-    this(pcValue, b);
+  public AddressAction(int pcValue, boolean b, RoutineExecution routineExecution, SymbolicExecutionAdapter symbolicExecutionAdapter, Instruction instruction, boolean alwaysTrue) {
+    this(symbolicExecutionAdapter, pcValue, b);
 
     this.routineExecution = routineExecution;
+    this.alwaysTrue = alwaysTrue;
   }
 
-  public AddressAction(int address) {
+  public AddressAction(SymbolicExecutionAdapter symbolicExecutionAdapter, int address) {
+    this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     this.address = address;
   }
 
-  public AddressAction(int address, boolean pending) {
+  public AddressAction(SymbolicExecutionAdapter symbolicExecutionAdapter, int address, boolean pending) {
+    this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     this.address = address;
     this.pending = pending;
   }

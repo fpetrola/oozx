@@ -23,6 +23,7 @@ import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -33,9 +34,11 @@ public class RoutineExecution {
   public int retInstruction = -1;
   public int start;
   public LinkedList<AddressAction> actions = new LinkedList<>();
+  private SymbolicExecutionAdapter symbolicExecutionAdapter;
 
-  public RoutineExecution(int minimalValidCodeAddress) {
+  public RoutineExecution(int minimalValidCodeAddress, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
     this.minimalValidCodeAddress = minimalValidCodeAddress;
+    symbolicExecutionAdapter = symbolicExecutionAdapter1;
   }
 
   public boolean hasPendingPoints() {
@@ -61,7 +64,7 @@ public class RoutineExecution {
   }
 
   private AddressAction createActionForConditionals(int pcValue) {
-    return new GenericAddressAction(this, pcValue);
+    return new GenericAddressAction(this, pcValue, symbolicExecutionAdapter);
   }
 
   private AddressAction getAddressAction(int pcValue) {
@@ -113,13 +116,13 @@ public class RoutineExecution {
     return addressAction1;
   }
 
-  public AddressAction createAddressAction(Instruction<Boolean> instruction, boolean alwaysTrue, int pcValue) {
+  public <T extends WordNumber> AddressAction createAddressAction(Instruction<Boolean> instruction, boolean alwaysTrue, int pcValue, SymbolicExecutionAdapter<T> symbolicExecutionAdapter) {
     if (instruction instanceof Ret) {
-      return new RetAddressAction(this, pcValue, alwaysTrue);
+      return new RetAddressAction(instruction, this, pcValue, alwaysTrue, symbolicExecutionAdapter);
     } else if (instruction instanceof Call call) {
-      return new CallAddressAction(pcValue, call, this, alwaysTrue);
+      return new CallAddressAction(pcValue, call, this, alwaysTrue, symbolicExecutionAdapter);
     } else if (instruction instanceof ConditionalInstruction) {
-      return new ConditionalInstructionAddressAction(this, pcValue, alwaysTrue);
+      return new ConditionalInstructionAddressAction(instruction, this, pcValue, alwaysTrue, symbolicExecutionAdapter);
     }
     return null;
   }

@@ -171,12 +171,12 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   public <T extends WordNumber> OpcodeConditions createOpcodeConditions(State<T> state) {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
-      AddressAction addressAction1 = getRoutineExecution().replaceIfAbsent(getPcValue(), getRoutineExecution().createAddressAction(instruction, alwaysTrue, getPcValue()));
+      AddressAction addressAction1 = getRoutineExecution().replaceIfAbsent(getPcValue(), getRoutineExecution().createAddressAction(instruction, alwaysTrue, getPcValue(), SymbolicExecutionAdapter.this));
       if (addressAction1 == null) {
         addressAction1 = getRoutineExecution().getActionInAddress(getPcValue());
       }
       if (addressAction1 instanceof PopReturnAddress.AddressActionDelegate) {
-        addressAction1 = getRoutineExecution().createAddressAction(instruction, alwaysTrue, getPcValue());
+        addressAction1 = getRoutineExecution().createAddressAction(instruction, alwaysTrue, getPcValue(), this);
         getRoutineExecution().replaceAddressAction(addressAction1);
       }
 
@@ -193,7 +193,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     stackFrames.push(jumpAddress);
     RoutineExecution routineExecution = routineExecutions.get(jumpAddress);
     if (routineExecution == null) {
-      routineExecutions.put(jumpAddress, routineExecution = new RoutineExecution(minimalValidCodeAddress));
+      routineExecutions.put(jumpAddress, routineExecution = new RoutineExecution(minimalValidCodeAddress, this));
     } else
       System.err.print("");
 

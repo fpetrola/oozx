@@ -25,11 +25,9 @@ import java.util.List;
 class RetAddressAction extends AddressAction {
   private final RoutineExecution routineExecution;
   private final int pcValue;
-  private final boolean executed = false;
-  private boolean alwaysTrue;
 
-  public RetAddressAction(RoutineExecution routineExecution, int pcValue, boolean alwaysTrue) {
-    super(pcValue, true, routineExecution);
+  public RetAddressAction(Instruction<Boolean> instruction, RoutineExecution routineExecution, int pcValue, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
+    super(pcValue, true, routineExecution, symbolicExecutionAdapter1, instruction, alwaysTrue);
     this.routineExecution = routineExecution;
     this.pcValue = pcValue;
     this.alwaysTrue = alwaysTrue;

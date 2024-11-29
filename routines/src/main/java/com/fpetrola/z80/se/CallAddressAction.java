@@ -23,10 +23,9 @@ import com.fpetrola.z80.instructions.types.Instruction;
 
 class CallAddressAction extends AddressAction {
   private final Call call;
-  private boolean alwaysTrue;
 
-  public CallAddressAction(int pcValue, Call call, RoutineExecution routineExecution, boolean alwaysTrue) {
-    super(pcValue, true, routineExecution);
+  public CallAddressAction(int pcValue, Call call, RoutineExecution routineExecution, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
+    super(pcValue, true, routineExecution, symbolicExecutionAdapter1, call, alwaysTrue);
     this.call = call;
     this.alwaysTrue = alwaysTrue;
   }

@@ -20,7 +20,6 @@ package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.Pop;
-import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
@@ -60,15 +59,15 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> {
       RoutineExecution routineExecution = symbolicExecutionAdapter.routineExecutions.get(symbolicExecutionAdapter.stackFrames.get(symbolicExecutionAdapter.stackFrames.size() - 2));
       int address2 = pc.read().intValue() + 1;
 
-      routineExecution.replaceAddressAction(new BasicAddressAction(address2));
-      routineExecution.replaceAddressAction(new AddressActionDelegate(returnAddressWordNumber.intValue(), routineExecution));
+      routineExecution.replaceAddressAction(new BasicAddressAction(address2, symbolicExecutionAdapter));
+      routineExecution.replaceAddressAction(new AddressActionDelegate(returnAddressWordNumber.intValue(), symbolicExecutionAdapter));
 
       RoutineExecution lastRoutineExecution = symbolicExecutionAdapter.getRoutineExecution();
       popAddress = pc.read().intValue();
-      BasicAddressAction addressAction1 = new BasicAddressAction(popAddress);
+      BasicAddressAction addressAction1 = new BasicAddressAction(popAddress, symbolicExecutionAdapter);
       addressAction1.setPending(false);
       lastRoutineExecution.replaceAddressAction(addressAction1);
-      routineExecution.replaceAddressAction(new BasicAddressAction(returnAddressWordNumber.pc) {
+      routineExecution.replaceAddressAction(new BasicAddressAction(returnAddressWordNumber.pc, symbolicExecutionAdapter) {
         @Override
         public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
           if (lastRoutineExecution.hasPendingPoints()) {
@@ -115,11 +114,8 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> {
   }
 
   public class AddressActionDelegate extends BasicAddressAction {
-    private final RoutineExecution routineExecution;
-
-    public AddressActionDelegate(int address2, RoutineExecution routineExecution) {
-      super(address2);
-      this.routineExecution = routineExecution;
+    public AddressActionDelegate(int address2, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
+      super(address2, symbolicExecutionAdapter1);
     }
 
     public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {

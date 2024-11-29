@@ -25,8 +25,8 @@ import java.util.Optional;
 class GenericAddressAction extends AddressAction {
   private final RoutineExecution routineExecution;
 
-  public GenericAddressAction(RoutineExecution routineExecution, int pcValue) {
-    super(pcValue, routineExecution);
+  public GenericAddressAction(RoutineExecution routineExecution, int pcValue, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
+    super(pcValue, routineExecution, symbolicExecutionAdapter1);
     this.routineExecution = routineExecution;
   }
 

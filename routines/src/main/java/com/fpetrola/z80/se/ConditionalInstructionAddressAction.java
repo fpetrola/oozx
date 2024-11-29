@@ -24,12 +24,10 @@ import java.util.List;
 
 class ConditionalInstructionAddressAction extends AddressAction {
   private final RoutineExecution routineExecution;
-  private boolean alwaysTrue;
 
-  public ConditionalInstructionAddressAction(RoutineExecution routineExecution, int pcValue, boolean alwaysTrue) {
-    super(pcValue, true, routineExecution);
+  public ConditionalInstructionAddressAction(Instruction<Boolean> instruction, RoutineExecution routineExecution, int pcValue, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
+    super(pcValue, true, routineExecution, symbolicExecutionAdapter1, instruction, alwaysTrue);
     this.routineExecution = routineExecution;
-    this.alwaysTrue = alwaysTrue;
   }
 
   public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {

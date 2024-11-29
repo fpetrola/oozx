@@ -19,7 +19,7 @@
 package com.fpetrola.z80.se;
 
 public class BasicAddressAction extends AddressAction {
-  public BasicAddressAction(int address) {
-    super(address, true);
+  public BasicAddressAction(int address, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
+    super(symbolicExecutionAdapter1, address, true);
   }
 }
