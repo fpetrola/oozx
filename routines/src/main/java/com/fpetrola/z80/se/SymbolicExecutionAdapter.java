@@ -26,7 +26,6 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
 import com.fpetrola.z80.instructions.impl.*;
-import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
@@ -182,7 +181,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
       addressAction = addressAction1;
 
-      return addressAction.processBranch(doBranch, instruction, alwaysTrue, this);
+      return addressAction.processBranch(doBranch, instruction);
     });
   }
 

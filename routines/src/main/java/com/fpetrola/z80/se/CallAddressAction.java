@@ -30,8 +30,8 @@ class CallAddressAction extends AddressAction {
     this.alwaysTrue = alwaysTrue;
   }
 
-  public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-    super.processBranch(doBranch, instruction, alwaysTrue, symbolicExecutionAdapter);
+  public boolean processBranch(boolean doBranch, Instruction instruction) {
+    super.processBranch(doBranch, instruction);
 
     if (doBranch) {
       int jumpAddress = call.getJumpAddress().intValue();

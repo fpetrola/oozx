@@ -45,7 +45,7 @@ class GenericAddressAction extends AddressAction {
     return result;
   }
 
-  public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public boolean processBranch(boolean doBranch, Instruction instruction) {
     return false;
   }
 }

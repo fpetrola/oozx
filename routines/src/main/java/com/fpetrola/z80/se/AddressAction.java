@@ -21,6 +21,7 @@ package com.fpetrola.z80.se;
 import com.fpetrola.z80.instructions.types.Instruction;
 
 public class AddressAction {
+  private Instruction instruction;
   protected boolean alwaysTrue;
   private int count;
   private RoutineExecution routineExecution;
@@ -47,6 +48,7 @@ public class AddressAction {
     this(symbolicExecutionAdapter, pcValue, b);
 
     this.routineExecution = routineExecution;
+    this.instruction = instruction;
     this.alwaysTrue = alwaysTrue;
   }
 
@@ -61,7 +63,7 @@ public class AddressAction {
     this.pending = pending;
   }
 
-  public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public boolean processBranch(boolean doBranch, Instruction instruction) {
     if (pending)
       pending = false;
     return true;
