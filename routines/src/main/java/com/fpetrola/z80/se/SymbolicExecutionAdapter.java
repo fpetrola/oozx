@@ -21,6 +21,7 @@ package com.fpetrola.z80.se;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
@@ -231,7 +232,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         ready |= stackFrames.isEmpty();
         lastPc = pcValue;
 
-//        System.out.println("PC: " + Helper.formatAddress(pcValue));
+        System.out.println("PC: " + Helper.formatAddress(pcValue));
 //        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
 
       }
