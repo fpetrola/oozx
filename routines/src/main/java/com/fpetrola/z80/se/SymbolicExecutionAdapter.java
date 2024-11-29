@@ -26,6 +26,7 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
 import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
@@ -170,15 +171,30 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   public <T extends WordNumber> OpcodeConditions createOpcodeConditions(State<T> state) {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
-      if (instruction instanceof Ret) {
-        addressAction = getRoutineExecution().replaceIfAbsent(getPcValue(), new RetAddressAction(getRoutineExecution(), getPcValue(), alwaysTrue));
-      } else if (instruction instanceof Call call) {
-        addressAction = getRoutineExecution().replaceIfAbsent(getPcValue(), new CallAddressAction(getPcValue(), call, getRoutineExecution(), alwaysTrue));
+      AddressAction addressAction1 = getRoutineExecution().replaceIfAbsent(getPcValue(), createAddressAction(instruction, alwaysTrue));
+      if (addressAction1 == null) {
+        addressAction1 = getRoutineExecution().getActionInAddress(getPcValue());
       }
-      addressAction = getRoutineExecution().getActionInAddress(getPcValue());
+      if (addressAction1 instanceof PopReturnAddress.AddressActionDelegate) {
+        addressAction1 = createAddressAction(instruction, alwaysTrue);
+        getRoutineExecution().replaceAddressAction(addressAction1);
+      }
+
+      addressAction = addressAction1;
 
       return addressAction.processBranch(doBranch, instruction, alwaysTrue, this);
     });
+  }
+
+  private AddressAction createAddressAction(Instruction<Boolean> instruction, boolean alwaysTrue) {
+    if (instruction instanceof Ret) {
+      return new RetAddressAction(getRoutineExecution(), getPcValue(), alwaysTrue);
+    } else if (instruction instanceof Call call) {
+      return new CallAddressAction(getPcValue(), call, getRoutineExecution(), alwaysTrue);
+    } else if (instruction instanceof ConditionalInstruction) {
+      return new ConditionalInstructionAddressAction(getRoutineExecution(), getPcValue(), alwaysTrue);
+    }
+    return null;
   }
 
   public void createRoutineExecution(int jumpAddress) {

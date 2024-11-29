@@ -49,12 +49,6 @@ class GenericAddressAction extends AddressAction {
   }
 
   public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-    AddressAction innerAddressAction = routineExecution.createConditionalAction(instruction, pcValue);
-    if (!alwaysTrue)
-      routineExecution.replaceAddressAction(innerAddressAction);
-
-    boolean b = innerAddressAction.processBranch(doBranch, instruction, alwaysTrue, symbolicExecutionAdapter);
-    innerAddressAction.setPending(true);
-    return b;
+    return false;
   }
 }

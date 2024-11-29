@@ -52,7 +52,7 @@ public class RoutineExecution {
     } else if (instruction instanceof Call call) {
       conditionalAddressAction = new CallAddressAction(pcValue, call, this, false);
     } else {
-      conditionalAddressAction = new ConditionalInstructionAddressAction(this, pcValue);
+      conditionalAddressAction = new ConditionalInstructionAddressAction(this, pcValue, false);
     }
     return conditionalAddressAction;
   }

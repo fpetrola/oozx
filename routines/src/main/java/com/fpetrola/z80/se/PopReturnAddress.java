@@ -114,7 +114,7 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> {
     return "Pop_";
   }
 
-  private class AddressActionDelegate extends BasicAddressAction {
+  public class AddressActionDelegate extends BasicAddressAction {
     private final RoutineExecution routineExecution;
 
     public AddressActionDelegate(int address2, RoutineExecution routineExecution) {
@@ -123,12 +123,7 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> {
     }
 
     public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-      boolean b = super.processBranch(doBranch, instruction, alwaysTrue, symbolicExecutionAdapter);
-      if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
-        return routineExecution.createConditionalAction(conditionalInstruction, address).processBranch(doBranch, instruction, alwaysTrue, symbolicExecutionAdapter);
-      } else {
-        return b;
-      }
+      return doBranch;
     }
 
     @Override

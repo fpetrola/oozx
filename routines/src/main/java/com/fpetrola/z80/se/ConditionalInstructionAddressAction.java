@@ -24,10 +24,12 @@ import java.util.List;
 
 class ConditionalInstructionAddressAction extends AddressAction {
   private final RoutineExecution routineExecution;
+  private boolean alwaysTrue;
 
-  public ConditionalInstructionAddressAction(RoutineExecution routineExecution, int pcValue) {
-    super(pcValue, true);
+  public ConditionalInstructionAddressAction(RoutineExecution routineExecution, int pcValue, boolean alwaysTrue) {
+    super(pcValue, true, routineExecution);
     this.routineExecution = routineExecution;
+    this.alwaysTrue = alwaysTrue;
   }
 
   public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
@@ -38,13 +40,17 @@ class ConditionalInstructionAddressAction extends AddressAction {
 
   @Override
   public int getNext(int next, int pcValue) {
-    if (true)
-      return super.getNext(next, pcValue);
-    List<AddressAction> list = routineExecution.actions.stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
-    if (list.isEmpty()) {
-      return pcValue;
+    if (alwaysTrue) {
+      return genericGetNext(next, pcValue);
     } else {
-      return list.get(0).address;
+      if (true)
+        return super.getNext(next, pcValue);
+      List<AddressAction> list = routineExecution.actions.stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
+      if (list.isEmpty()) {
+        return pcValue;
+      } else {
+        return list.get(0).address;
+      }
     }
   }
 
