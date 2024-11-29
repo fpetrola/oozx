@@ -38,4 +38,8 @@ class CallAddressAction extends AddressAction {
     }
     return doBranch;
   }
+
+  void setPendingAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
+    updatePending();
+  }
 }
