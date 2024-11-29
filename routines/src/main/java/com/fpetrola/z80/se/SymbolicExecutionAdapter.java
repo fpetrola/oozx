@@ -21,12 +21,10 @@ package com.fpetrola.z80.se;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
-import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
 import com.fpetrola.z80.instructions.impl.*;
-import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
@@ -53,7 +51,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   private final State<? extends WordNumber> state;
   private final RoutineManager routineManager;
   private final RegisterTransformerInstructionSpy spy;
-  private int lastPc;
+  public int lastPc;
   private int registerSP;
   private int nextSP;
   private AddressAction addressAction;
@@ -125,7 +123,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       }
 
       public Pop Pop(OpcodeReference target) {
-        return new PopReturnAddress(target, sp, memory, flag, pc);
+        return new PopReturnAddress(SymbolicExecutionAdapter.this, target, sp, memory, flag, pc);
       }
 
       public Push Push(OpcodeReference target) {
@@ -249,7 +247,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     return ready;
   }
 
-  private void checkNextSP() {
+  public void checkNextSP() {
     if (nextSP == state.getRegisterSP().read().intValue()) {
       System.out.print("");
     }
@@ -278,115 +276,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     @Override
     public InstructionFactory getDelegate() {
       return instructionFactory;
-    }
-  }
-
-  public class PopReturnAddress extends Pop<T> {
-    public final Register<T> pc;
-    public int previousPc = -1;
-    public ReturnAddressWordNumber returnAddress0;
-    public int popAddress;
-
-    public ReturnAddressWordNumber getReturnAddress() {
-      return returnAddress;
-    }
-
-    private ReturnAddressWordNumber returnAddress;
-
-    public PopReturnAddress(OpcodeReference target, Register<T> sp, Memory<T> memory, Register<T> flag, Register<T> pc) {
-      super(target, sp, memory, flag);
-      this.pc = pc;
-    }
-
-    public int execute() {
-      setNextPC(null);
-      returnAddress = null;
-      final T read = Memory.read16Bits(memory, sp.read());
-
-      if (read instanceof ReturnAddressWordNumber returnAddressWordNumber) {
-        returnAddress0 = returnAddressWordNumber;
-
-        // target.write(createValue(0));
-
-        previousPc = lastPc;
-        RoutineExecution routineExecution = routineExecutions.get(stackFrames.get(stackFrames.size() - 2));
-        int address2 = pc.read().intValue() + 1;
-
-        routineExecution.replaceAddressAction(new BasicAddressAction(address2));
-        routineExecution.replaceAddressAction(new AddressActionDelegate(returnAddressWordNumber.intValue(), routineExecution));
-
-        RoutineExecution lastRoutineExecution = getRoutineExecution();
-        popAddress = pc.read().intValue();
-        BasicAddressAction addressAction1 = new BasicAddressAction(popAddress);
-        addressAction1.setPending(false);
-        lastRoutineExecution.replaceAddressAction(addressAction1);
-        routineExecution.replaceAddressAction(new BasicAddressAction(returnAddressWordNumber.pc) {
-          @Override
-          public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-            if (lastRoutineExecution.hasPendingPoints()) {
-              Call call = (Call) instruction;
-              int jumpAddress = call.getJumpAddress().intValue();
-              createRoutineExecution(jumpAddress);
-              return true;
-            } else {
-              super.processBranch(false, instruction, alwaysTrue, symbolicExecutionAdapter);
-              return false;
-            }
-          }
-
-          @Override
-          public int getNext(int next, int pcValue) {
-            if (lastRoutineExecution.hasPendingPoints())
-              return pcValue;
-            else
-              return routineExecution.getNextPending().address;
-          }
-        });
-        {
-          returnAddress = returnAddressWordNumber;
-          T read1 = doPop(memory, sp);
-          target.write(read1);
-          popFrame();
-        }
-        if (lastRoutineExecution.retInstruction == -1)
-          lastRoutineExecution.retInstruction = pc.read().intValue();
-      } else {
-        checkNextSP();
-        T read1 = doPop(memory, sp);
-        if (read1 == null) {
-          System.out.print("");
-        }
-        target.write(read1);
-      }
-
-      return 0;
-    }
-
-    protected String getName() {
-      return "Pop_";
-    }
-
-    private class AddressActionDelegate extends BasicAddressAction {
-      private final RoutineExecution routineExecution;
-
-      public AddressActionDelegate(int address2, RoutineExecution routineExecution) {
-        super(address2);
-        this.routineExecution = routineExecution;
-      }
-
-      public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-        boolean b = super.processBranch(doBranch, instruction, alwaysTrue, symbolicExecutionAdapter);
-        if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
-          return routineExecution.createConditionalAction(conditionalInstruction, address).processBranch(doBranch, instruction, alwaysTrue, symbolicExecutionAdapter);
-        } else {
-          return b;
-        }
-      }
-
-      @Override
-      public int getNext(int next, int pcValue) {
-        return super.getNext(next, pcValue);
-      }
     }
   }
 

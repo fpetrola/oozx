@@ -22,10 +22,10 @@ import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.references.BlockRelation;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.Ret;
+import com.fpetrola.z80.se.PopReturnAddress;
 import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 @SuppressWarnings("ALL")
@@ -59,7 +59,7 @@ public class RoutineFinder {
           createOrUpdateCurrentRoutine(nextPC.intValue(), instruction.getLength());
       }
 
-      if (instruction instanceof SymbolicExecutionAdapter.PopReturnAddress popReturnAddress) {
+      if (instruction instanceof PopReturnAddress popReturnAddress) {
         if (popReturnAddress.returnAddress0 != null) {
           ReturnAddressWordNumber returnAddress = popReturnAddress.getReturnAddress();
           if (returnAddress != null) {
