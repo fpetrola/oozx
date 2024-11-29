@@ -120,4 +120,14 @@ public class RoutineExecution {
     return next;
   }
 
+  AddressAction replaceIfAbsent(int address, AddressAction addressAction2) {
+    AddressAction addressAction1;
+    if (!hasActionAt(address)) {
+      addressAction1 = addressAction2;
+      replaceAddressAction(addressAction1);
+    } else
+      addressAction1 = getActionInAddress(address);
+
+    return addressAction1;
+  }
 }

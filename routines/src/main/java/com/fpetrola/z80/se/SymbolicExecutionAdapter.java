@@ -58,7 +58,11 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   private AddressAction addressAction;
   private int minimalValidCodeAddress;
   private Set<Integer> mutantAddress = new HashSet<>();
+  private Register<T> pc;
 
+  private int getPcValue() {
+    return pc.read().intValue();
+  }
 
   public void reset() {
     mutantAddress.clear();
@@ -113,6 +117,10 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       public Ret Ret(Condition condition) {
         return new Ret<T>(condition, sp, memory, pc) {
           public int execute() {
+//            if (!getRoutineExecution().hasActionAt(getPcValue()))
+//              getRoutineExecution().replaceAddressAction(new RetAddressAction(getRoutineExecution(), getPcValue()));
+//            addressAction = getRoutineExecution().getActionInAddress(getPcValue());
+
             int execute = super.execute();
             return execute;
           }
@@ -161,7 +169,18 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   public <T extends WordNumber> OpcodeConditions createOpcodeConditions(State<T> state) {
-    return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> addressAction.processBranch(doBranch, instruction, alwaysTrue, this));
+    return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
+//      if (!getRoutineExecution().hasActionAt(getPcValue()))
+
+      if (instruction instanceof Ret) {
+        addressAction = getRoutineExecution().replaceIfAbsent(getPcValue(), new RetAddressAction(getRoutineExecution(), getPcValue()));
+      } else if (instruction instanceof Call call) {
+        addressAction = getRoutineExecution().replaceIfAbsent(getPcValue(), new CallAddressAction(getPcValue(), call));
+      } else
+        addressAction = getRoutineExecution().getActionInAddress(getPcValue());
+
+      return addressAction.processBranch(doBranch, instruction, alwaysTrue, this);
+    });
   }
 
   public void createRoutineExecution(int jumpAddress) {
@@ -183,7 +202,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     registerSP = state.getRegisterSP().read().intValue();
 
     createRoutineExecution(firstAddress);
-    Register<T> pc = state.getPc();
+    pc = state.getPc();
     pc.write(createValue(firstAddress));
 
     executeAllCode(z80InstructionDriver, pc);
@@ -217,10 +236,13 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       if (!ready) {
         RoutineExecution routineExecution = getRoutineExecution();
 
-        addressAction = routineExecution.getActionInAddress(pcValue);
+//        addressAction = routineExecution.getActionInAddress(pcValue);
 //        System.out.println(state.getPc().read().intValue());
 
         z80InstructionDriver.step();
+        if (!routineExecution.hasActionAt(getPcValue()))
+          addressAction = routineExecution.getActionInAddress(getPcValue());
+
         AddressAction nextAddressAction = routineExecution.getActionInAddress(pcValue);
         nextAddressAction.setPendingAfterStep(this);
         T value = createValue(nextAddressAction.getNext(pcValue, pc.read().intValue()));
@@ -232,6 +254,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         ready |= stackFrames.isEmpty();
         lastPc = pcValue;
 
+        addressAction = null;
         System.out.println("PC: " + Helper.formatAddress(pcValue));
 //        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
 
