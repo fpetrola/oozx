@@ -123,7 +123,7 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> {
     }
 
     public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-      return doBranch;
+      return routineExecution.createAddressAction(instruction, alwaysTrue, address).processBranch(doBranch, instruction, alwaysTrue, symbolicExecutionAdapter);
     }
 
     @Override

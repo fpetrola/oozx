@@ -21,6 +21,7 @@ package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.Ret;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 
 import java.util.LinkedList;
@@ -110,5 +111,16 @@ public class RoutineExecution {
       addressAction1 = getActionInAddress(address);
 
     return addressAction1;
+  }
+
+  public AddressAction createAddressAction(Instruction<Boolean> instruction, boolean alwaysTrue, int pcValue) {
+    if (instruction instanceof Ret) {
+      return new RetAddressAction(this, pcValue, alwaysTrue);
+    } else if (instruction instanceof Call call) {
+      return new CallAddressAction(pcValue, call, this, alwaysTrue);
+    } else if (instruction instanceof ConditionalInstruction) {
+      return new ConditionalInstructionAddressAction(this, pcValue, alwaysTrue);
+    }
+    return null;
   }
 }

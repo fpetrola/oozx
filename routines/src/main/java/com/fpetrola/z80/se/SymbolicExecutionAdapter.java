@@ -171,31 +171,17 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   public <T extends WordNumber> OpcodeConditions createOpcodeConditions(State<T> state) {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
-      AddressAction addressAction1 = getRoutineExecution().replaceIfAbsent(getPcValue(), createAddressAction(instruction, alwaysTrue));
+      AddressAction addressAction1 = getRoutineExecution().replaceIfAbsent(getPcValue(), getRoutineExecution().createAddressAction(instruction, alwaysTrue, getPcValue()));
       if (addressAction1 == null) {
         addressAction1 = getRoutineExecution().getActionInAddress(getPcValue());
       }
-      if (addressAction1 instanceof PopReturnAddress.AddressActionDelegate) {
-        addressAction1 = createAddressAction(instruction, alwaysTrue);
-        getRoutineExecution().replaceAddressAction(addressAction1);
-      }
-
       addressAction = addressAction1;
 
       return addressAction.processBranch(doBranch, instruction, alwaysTrue, this);
     });
   }
 
-  private AddressAction createAddressAction(Instruction<Boolean> instruction, boolean alwaysTrue) {
-    if (instruction instanceof Ret) {
-      return new RetAddressAction(getRoutineExecution(), getPcValue(), alwaysTrue);
-    } else if (instruction instanceof Call call) {
-      return new CallAddressAction(getPcValue(), call, getRoutineExecution(), alwaysTrue);
-    } else if (instruction instanceof ConditionalInstruction) {
-      return new ConditionalInstructionAddressAction(getRoutineExecution(), getPcValue(), alwaysTrue);
-    }
-    return null;
-  }
+
 
   public void createRoutineExecution(int jumpAddress) {
     // if (jumpAddress == 35211) System.out.println("start routine: " + jumpAddress);
@@ -249,9 +235,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
       if (!ready) {
         RoutineExecution routineExecution = getRoutineExecution();
-
-//        addressAction = routineExecution.getActionInAddress(pcValue);
-//        System.out.println(state.getPc().read().intValue());
 
         z80InstructionDriver.step();
         if (!routineExecution.hasActionAt(pcValue))
