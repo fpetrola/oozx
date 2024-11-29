@@ -48,39 +48,11 @@ public class RoutineExecution {
   public AddressAction createConditionalAction(Instruction instruction, int pcValue) {
     AddressAction conditionalAddressAction;
     if (instruction instanceof Ret ret) {
-      conditionalAddressAction = new RetAddressAction(pcValue);
+      conditionalAddressAction = new RetAddressAction(this, pcValue);
     } else if (instruction instanceof Call call) {
-      conditionalAddressAction = new AddressAction(pcValue, true) {
-        public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-          super.processBranch(doBranch, instruction, alwaysTrue, symbolicExecutionAdapter);
-
-          if (doBranch) {
-            int jumpAddress = call.getJumpAddress().intValue();
-            symbolicExecutionAdapter.createRoutineExecution(jumpAddress);
-          }
-          return doBranch;
-        }
-      };
+      conditionalAddressAction = new CallAddressAction(pcValue, call);
     } else {
-      conditionalAddressAction = new AddressAction(pcValue, true) {
-        public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-          super.processBranch(doBranch, instruction, alwaysTrue, symbolicExecutionAdapter);
-
-          return doBranch;
-        }
-
-        @Override
-        public int getNext(int next, int pcValue) {
-          if (true)
-            return super.getNext(next, pcValue);
-          List<AddressAction> list = actions.stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
-          if (list.isEmpty()) {
-            return pcValue;
-          } else {
-            return list.get(0).address;
-          }
-        }
-      };
+      conditionalAddressAction = new ConditionalInstructionAddressAction(this, pcValue);
     }
     return conditionalAddressAction;
   }
@@ -105,39 +77,7 @@ public class RoutineExecution {
 
   private AddressAction createActionForConditionals(int pcValue) {
     AddressAction addressAction;
-    addressAction = new AddressAction(pcValue) {
-
-      public int getNext(int next, int pcValue) {
-        int result = pcValue;
-        if (pending) {
-          pending = false;
-        }
-        if (retInstruction == next && hasPendingPoints())
-          result = getNextPending().address;
-        return result;
-      }
-
-      @Override
-      public int getNextPC() {
-        int result = address;
-        if (!pending) {
-          Optional<AddressAction> addressAction1 = actions.stream().filter(a -> a.isPending()).findFirst();
-          if (addressAction1.isPresent())
-            result = addressAction1.get().address;
-        }
-        return result;
-      }
-
-      public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-        AddressAction innerAddressAction = createConditionalAction(instruction, pcValue);
-        if (!alwaysTrue)
-          replaceAddressAction(innerAddressAction);
-
-        boolean b = innerAddressAction.processBranch(doBranch, instruction, alwaysTrue, symbolicExecutionAdapter);
-        innerAddressAction.setPending(true);
-        return b;
-      }
-    };
+    addressAction = new GenericAddressAction(this, pcValue);
 
     return addressAction;
   }
@@ -180,37 +120,4 @@ public class RoutineExecution {
     return next;
   }
 
-  private class RetAddressAction extends AddressAction {
-    private final int pcValue;
-    private final boolean executed = false;
-
-    public RetAddressAction(int pcValue) {
-      super(pcValue, true);
-      this.pcValue = pcValue;
-    }
-
-    public boolean processBranch(boolean doBranch, Instruction instruction, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-      super.processBranch(doBranch, instruction, alwaysTrue, symbolicExecutionAdapter);
-      retInstruction = pcValue;
-      if (!hasPendingPoints() && doBranch) {
-        symbolicExecutionAdapter.popFrame();
-        return true;
-      } else {
-        return false;
-      }
-    }
-
-    @Override
-    public int getNext(int next, int pcValue) {
-      if (retInstruction == -1 || retInstruction == address)
-        return super.getNext(next, pcValue);
-
-      List<AddressAction> list = actions.stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
-      if (list.isEmpty()) {
-        return pcValue;
-      } else {
-        return list.get(0).address;
-      }
-    }
-  }
 }
