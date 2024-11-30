@@ -30,10 +30,10 @@ class ConditionalInstructionAddressAction extends AddressAction {
     this.routineExecution = routineExecution;
   }
 
-  public boolean processBranch(boolean doBranch, Instruction instruction) {
-    doBranch= getDoBranch();
+  public boolean processBranch(Instruction instruction) {
+    boolean doBranch = getDoBranch();
 
-    super.processBranch(doBranch, instruction);
+    super.processBranch(instruction);
 
     return doBranch;
   }

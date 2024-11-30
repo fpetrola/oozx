@@ -33,9 +33,9 @@ class RetAddressAction extends AddressAction {
     this.alwaysTrue = alwaysTrue;
   }
 
-  public boolean processBranch(boolean doBranch, Instruction instruction) {
-    doBranch= getDoBranch();
-    super.processBranch(doBranch, instruction);
+  public boolean processBranch(Instruction instruction) {
+    boolean doBranch = getDoBranch();
+    super.processBranch(instruction);
 
     routineExecution.retInstruction = pcValue;
     if (!routineExecution.hasPendingPoints() && doBranch) {

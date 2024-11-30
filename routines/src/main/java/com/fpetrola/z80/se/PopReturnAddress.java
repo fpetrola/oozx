@@ -69,16 +69,14 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> {
       lastRoutineExecution.replaceAddressAction(addressAction1);
       routineExecution.replaceAddressAction(new BasicAddressAction(returnAddressWordNumber.pc, symbolicExecutionAdapter) {
         @Override
-        public boolean processBranch(boolean doBranch, Instruction instruction) {
-          doBranch= getDoBranch();
-
+        public boolean processBranch(Instruction instruction) {
           if (lastRoutineExecution.hasPendingPoints()) {
             Call call = (Call) instruction;
             int jumpAddress = call.getJumpAddress().intValue();
             symbolicExecutionAdapter.createRoutineExecution(jumpAddress);
             return true;
           } else {
-            super.processBranch(false, instruction);
+            super.processBranch(instruction);
             return false;
           }
         }
@@ -120,7 +118,7 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> {
       super(address2, symbolicExecutionAdapter1);
     }
 
-    public boolean processBranch(boolean doBranch, Instruction instruction) {
+    public boolean processBranch(Instruction instruction) {
       return false;
     }
 

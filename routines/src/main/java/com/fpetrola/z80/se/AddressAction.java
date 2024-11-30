@@ -64,7 +64,7 @@ public class AddressAction {
     this.pending = pending;
   }
 
-  public boolean processBranch(boolean doBranch, Instruction instruction) {
+  public boolean processBranch(Instruction instruction) {
     if (pending)
       pending = false;
     return true;

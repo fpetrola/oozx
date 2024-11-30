@@ -30,9 +30,9 @@ class CallAddressAction extends AddressAction {
     this.alwaysTrue = alwaysTrue;
   }
 
-  public boolean processBranch(boolean doBranch, Instruction instruction) {
-    doBranch= getDoBranch();
-    super.processBranch(doBranch, instruction);
+  public boolean processBranch(Instruction instruction) {
+    boolean doBranch = getDoBranch();
+    super.processBranch(instruction);
 
     if (doBranch) {
       int jumpAddress = call.getJumpAddress().intValue();
