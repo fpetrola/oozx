@@ -34,7 +34,9 @@ class RetAddressAction extends AddressAction {
   }
 
   public boolean processBranch(boolean doBranch, Instruction instruction) {
+    doBranch= getDoBranch();
     super.processBranch(doBranch, instruction);
+
     routineExecution.retInstruction = pcValue;
     if (!routineExecution.hasPendingPoints() && doBranch) {
       symbolicExecutionAdapter.popFrame();

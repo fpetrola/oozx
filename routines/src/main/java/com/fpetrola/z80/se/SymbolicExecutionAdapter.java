@@ -181,7 +181,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
       addressAction = addressAction1;
 
-      return addressAction.processBranch(doBranch, instruction);
+      return addressAction.processBranch(true, instruction);
     });
   }
 

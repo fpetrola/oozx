@@ -26,6 +26,7 @@ public class AddressAction {
   private int count;
   private RoutineExecution routineExecution;
   protected final SymbolicExecutionAdapter symbolicExecutionAdapter;
+  private boolean state;
 
   public AddressAction(int pcValue, RoutineExecution routineExecution, SymbolicExecutionAdapter symbolicExecutionAdapter) {
     this(symbolicExecutionAdapter, pcValue);
@@ -67,6 +68,13 @@ public class AddressAction {
     if (pending)
       pending = false;
     return true;
+  }
+
+  protected boolean getDoBranch() {
+    boolean result = state;
+    state = !state;
+    result = alwaysTrue || result;
+    return result;
   }
 
   public int getNext(int next, int pcValue) {

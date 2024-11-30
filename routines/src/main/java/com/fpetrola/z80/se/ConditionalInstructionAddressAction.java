@@ -31,6 +31,8 @@ class ConditionalInstructionAddressAction extends AddressAction {
   }
 
   public boolean processBranch(boolean doBranch, Instruction instruction) {
+    doBranch= getDoBranch();
+
     super.processBranch(doBranch, instruction);
 
     return doBranch;

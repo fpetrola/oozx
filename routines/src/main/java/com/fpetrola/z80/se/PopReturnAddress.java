@@ -70,6 +70,8 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> {
       routineExecution.replaceAddressAction(new BasicAddressAction(returnAddressWordNumber.pc, symbolicExecutionAdapter) {
         @Override
         public boolean processBranch(boolean doBranch, Instruction instruction) {
+          doBranch= getDoBranch();
+
           if (lastRoutineExecution.hasPendingPoints()) {
             Call call = (Call) instruction;
             int jumpAddress = call.getJumpAddress().intValue();

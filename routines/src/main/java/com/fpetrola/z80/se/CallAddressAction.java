@@ -31,6 +31,7 @@ class CallAddressAction extends AddressAction {
   }
 
   public boolean processBranch(boolean doBranch, Instruction instruction) {
+    doBranch= getDoBranch();
     super.processBranch(doBranch, instruction);
 
     if (doBranch) {
