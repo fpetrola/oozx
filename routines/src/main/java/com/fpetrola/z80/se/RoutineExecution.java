@@ -63,7 +63,7 @@ public class RoutineExecution {
     return addressAction;
   }
 
-  private AddressAction getAddressAction(int pcValue) {
+  public AddressAction getAddressAction(int pcValue) {
     List<AddressAction> list = actions.stream().filter(a -> a.address == pcValue).toList();
     if (list.isEmpty())
       return null;

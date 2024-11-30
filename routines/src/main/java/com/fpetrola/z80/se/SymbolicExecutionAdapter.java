@@ -228,7 +228,14 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       if (!ready) {
         RoutineExecution routineExecution = getRoutineExecution();
 
+        addressAction = routineExecution.getAddressAction(pcValue);
+        if (addressAction != null) {
+          pcValue = addressAction.getNextPC();
+          pc.write(createValue(pcValue));
+        }
+
         z80InstructionDriver.step();
+
         if (!routineExecution.hasActionAt(pcValue))
           addressAction = routineExecution.getActionInAddress(pcValue);
 
