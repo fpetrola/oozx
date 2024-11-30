@@ -56,15 +56,11 @@ public class RoutineExecution {
   public AddressAction getActionInAddress(int pcValue) {
     AddressAction addressAction = getAddressAction(pcValue);
     if (addressAction == null) {
-      addressAction = createActionForConditionals(pcValue);
+      addressAction = new GenericAddressAction(this, pcValue, symbolicExecutionAdapter);
       replaceAddressAction(addressAction);
     }
 
     return addressAction;
-  }
-
-  private AddressAction createActionForConditionals(int pcValue) {
-    return new GenericAddressAction(this, pcValue, symbolicExecutionAdapter);
   }
 
   private AddressAction getAddressAction(int pcValue) {
@@ -88,30 +84,13 @@ public class RoutineExecution {
   }
 
 
-  int getNext(int pcValue) {
-    int next = pcValue;
-    if (!hasActionAt(pcValue) && pcValue >= minimalValidCodeAddress) {
-      AddressAction addressAction = getActionInAddress(pcValue);
-      replaceAddressAction(addressAction);
-    } else {
-      if (!hasPendingPoints()) {
-        if (retInstruction == -1)
-          System.out.print("");
-
-        next = retInstruction;
-      } else
-        next = getNextPending().address;
-    }
-    return next;
-  }
-
   AddressAction replaceIfAbsent(int address, AddressAction addressAction2) {
     AddressAction addressAction1;
     if (!hasActionAt(address)) {
       addressAction1 = addressAction2;
       replaceAddressAction(addressAction1);
     } else
-      addressAction1 = getActionInAddress(address);
+      addressAction1 = getAddressAction(address);
 
     return addressAction1;
   }
@@ -121,9 +100,8 @@ public class RoutineExecution {
       return new RetAddressAction(instruction, this, pcValue, alwaysTrue, symbolicExecutionAdapter);
     } else if (instruction instanceof Call call) {
       return new CallAddressAction(pcValue, call, this, alwaysTrue, symbolicExecutionAdapter);
-    } else if (instruction instanceof ConditionalInstruction) {
+    } else {
       return new ConditionalInstructionAddressAction(instruction, this, pcValue, alwaysTrue, symbolicExecutionAdapter);
     }
-    return null;
   }
 }

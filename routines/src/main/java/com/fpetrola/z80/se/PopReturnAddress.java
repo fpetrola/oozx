@@ -113,18 +113,4 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> {
     return "Pop_";
   }
 
-  public class AddressActionDelegate extends BasicAddressAction {
-    public AddressActionDelegate(int address2, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
-      super(address2, symbolicExecutionAdapter1);
-    }
-
-    public boolean processBranch(Instruction instruction) {
-      return false;
-    }
-
-    @Override
-    public int getNext(int next, int pcValue) {
-      return super.getNext(next, pcValue);
-    }
-  }
 }
