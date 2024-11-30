@@ -22,7 +22,7 @@ import com.fpetrola.z80.instructions.types.Instruction;
 
 import java.util.List;
 
-class RetAddressAction extends AddressAction {
+public class RetAddressAction extends AddressAction {
   private final RoutineExecution routineExecution;
   private final int pcValue;
 
