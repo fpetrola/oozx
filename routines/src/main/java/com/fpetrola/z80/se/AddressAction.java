@@ -22,28 +22,20 @@ import com.fpetrola.z80.instructions.types.Instruction;
 
 public class AddressAction {
   private Instruction instruction;
+  private RoutineExecution routineExecution;
   protected boolean alwaysTrue;
   private int count;
-  private RoutineExecution routineExecution;
   protected final SymbolicExecutionAdapter symbolicExecutionAdapter;
   private boolean state;
+  public int address;
+  protected boolean pending;
+
 
   public AddressAction(int pcValue, RoutineExecution routineExecution, SymbolicExecutionAdapter symbolicExecutionAdapter) {
     this(symbolicExecutionAdapter, pcValue);
 
     this.routineExecution = routineExecution;
   }
-
-  @Override
-  public String toString() {
-    return "AddressAction{" +
-        "address=" + address +
-        ", pending=" + pending +
-        '}';
-  }
-
-  public int address;
-  protected boolean pending;
 
   public AddressAction(int pcValue, boolean b, RoutineExecution routineExecution, SymbolicExecutionAdapter symbolicExecutionAdapter, Instruction instruction, boolean alwaysTrue) {
     this(symbolicExecutionAdapter, pcValue, b);
@@ -111,4 +103,18 @@ public class AddressAction {
     count++;
     pending = count == 1;
   }
+
+  @Override
+  public String toString() {
+    return "AddressAction{" +
+        "address=" + address +
+        ", pending=" + pending +
+        '}';
+  }
 }
+
+
+
+
+
+
