@@ -1,4 +1,4 @@
-[![Build and Deploy](https://github.com/fpetrola/oozx/actions/workflows/continuous-integration-workflow.yml/badge.svg)](https://github.com/fpetrola/oozx/actions/workflows/continuous-integration-workflow.yml)
+[![Build and Deploy](https://github.com/fpetrola/oozx/actions/workflows/maven.yml/badge.svg)](https://github.com/fpetrola/oozx/actions/workflows/maven.yml)
 
 
 # OOZX: Object-Oriented Z80 Emulator for ZX Spectrum to Java Translation
