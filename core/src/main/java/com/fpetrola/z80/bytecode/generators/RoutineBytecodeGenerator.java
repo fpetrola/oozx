@@ -29,7 +29,6 @@ import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineVisitor;
 import com.fpetrola.z80.transformations.InstructionActionExecutor;
-import com.fpetrola.z80.transformations.Virtual8BitsRegister;
 import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;
 import com.fpetrola.z80.transformations.VirtualRegister;
 import org.cojen.maker.*;
@@ -410,7 +409,7 @@ public class RoutineBytecodeGenerator {
   }
 
   public static String getRegisterName(VirtualRegister register) {
-    Virtual8BitsRegister.breakInStackOverflow();
+    Helper.breakInStackOverflow();
 
     return VirtualComposed16BitRegister.fixIndexNames(register.getName().replace(",", ""));
   }

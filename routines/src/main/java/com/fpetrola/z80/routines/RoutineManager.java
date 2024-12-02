@@ -25,8 +25,10 @@ import com.fpetrola.z80.blocks.NullBlockChangesListener;
 import com.fpetrola.z80.cpu.RandomAccessInstructionFetcher;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparingInt;
 
@@ -51,14 +53,14 @@ public class RoutineManager {
   public Routine findRoutineAt(int address) {
     Optional<Routine> first = routines.stream().filter(r -> r.contains(address)).findFirst();
     if (first.isPresent()) {
-      Optional<Routine> b = first.get().innerRoutines.stream().filter(i -> i != null && i.contains(address)).findFirst();
-      if (b.isPresent())
-        return b.get();
-    }
-    return first.orElse(null);
+      return first.get().findRoutineAt(address);
+    } else
+      return first.orElse(null);
   }
 
   public Routine addRoutine(Routine routine) {
+    if (routines.contains(routine))
+      System.out.println("dfasfasf!!!!");
     routines.add(routine);
     routine.setRoutineManager(this);
     return routine;
@@ -90,5 +92,27 @@ public class RoutineManager {
   public void reset() {
     blocksManager.clear();
     routines.clear();
+  }
+
+  public void removeRoutine(Routine routine) {
+    routines.remove(routine);
+  }
+
+  public List<Routine> getRoutinesInDepth() {
+    List<Routine> flat = new ArrayList<>();
+    List<Routine> routines1 = routines;
+    for (Routine r : routines1) {
+      List<Routine> allRoutines = r.getAllRoutines();
+      boolean disjoint = Collections.disjoint(allRoutines, flat);
+//      if (!disjoint)
+//        System.out.println("rrrrrr");
+      for (Routine routine : allRoutines) {
+        if (flat.contains(routine))
+          System.out.println("agdgdag");
+        flat.add(routine);
+      }
+    }
+
+    return flat;
   }
 }

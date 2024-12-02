@@ -138,20 +138,18 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
         """, resultingJava);
 
 
-    List<Routine> routines = getRoutineManager().getRoutines();
+    List<Routine> routines = getRoutineManager().getRoutinesInDepth();
 
 
     Assert.assertEquals(2, routines.size());
 
     Routine routine0 = routines.get(0);
-    Assert.assertEquals(2, routine0.blocks.size());
+    Assert.assertEquals(1, routine0.blocks.size());
 
     assertBlockAddresses(routine0.blocks.get(0), 0, 2);
-    assertBlockAddresses(routine0.blocks.get(1), 3, 4);
     Assert.assertEquals(1, routine0.innerRoutines.size());
     Routine innerRoutine = routine0.innerRoutines.iterator().next();
-    Block innerRoutineBlock = innerRoutine.blocks.get(0);
-    assertBlockAddresses(innerRoutineBlock, 3, 4);
+    assertBlockAddresses(innerRoutine.blocks.get(0), 3, 4);
 
     Assert.assertEquals(innerRoutine, routines.get(1));
   }
@@ -204,14 +202,12 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
         """, resultingJava);
 
 
-    List<Routine> routines = getRoutineManager().getRoutines();
+    List<Routine> routines = getRoutineManager().getRoutinesInDepth();
 
 
     Assert.assertEquals(3, routines.size());
     Routine routine0 = routines.get(0);
     assertBlockAddresses(routine0.blocks.get(0), 0, 4);
-    assertBlockAddresses(routine0.blocks.get(1), 5, 6);
-
 
     Assert.assertEquals(1, routine0.innerRoutines.size());
 
@@ -317,13 +313,12 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
         }
         """, resultingJava);
 
-    List<Routine> routines = getRoutineManager().getRoutines();
+    List<Routine> routines = getRoutineManager().getRoutinesInDepth();
 
     Assert.assertEquals(2, routines.size());
     Routine routine0 = routines.get(0);
     Routine routine1 = routines.get(1);
     assertBlockAddresses(routine0.blocks.get(0), 0, 4);
-    assertBlockAddresses(routine0.blocks.get(1), 5, 6);
 
     Assert.assertEquals(1, routine0.innerRoutines.size());
 
@@ -332,7 +327,6 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     Block subroutineBlock = iterator.next().blocks.get(0);
     assertBlockAddresses(subroutineBlock, 5, 6);
 
-    Assert.assertEquals(subroutineBlock, routine0.blocks.get(1));
     Assert.assertEquals(subroutineBlock, routine1.blocks.get(0));
   }
 

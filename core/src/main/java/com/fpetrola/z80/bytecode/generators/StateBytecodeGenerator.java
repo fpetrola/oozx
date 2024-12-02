@@ -73,7 +73,7 @@ public class StateBytecodeGenerator {
       getProgramBytesMaker.return_(SnapshotHelper.getBase64Memory(state));
     }
     BytecodeGenerationContext bytecodeGenerationContext = new BytecodeGenerationContext(routineManager, classMaker, state.getPc(), symbolicExecutionAdapter);
-    List<Routine> routines = routineManager.getRoutines();
+    List<Routine> routines = routineManager.getRoutinesInDepth();
 
     routines.forEach(routine -> {
       routine.optimize();

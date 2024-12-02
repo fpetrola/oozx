@@ -26,6 +26,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Helper {
   public static boolean hex = false;
@@ -62,5 +64,12 @@ public class Helper {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static void breakInStackOverflow() {
+    StackWalker walker = StackWalker.getInstance();
+    List<StackWalker.StackFrame> walk = walker.walk(s -> s.collect(Collectors.toList()));
+    if (walk.size() > 1000)
+      System.out.println("dssdg");
   }
 }

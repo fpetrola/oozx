@@ -77,7 +77,7 @@ public class RoutineFinder {
         if (instruction instanceof Ret ret) {
           if (ret.getNextPC() != null) {
             Routine routineAt = routineManager.findRoutineAt(pcValue);
-            if (currentRoutine != routineAt) {
+            if (currentRoutine != routineAt && !currentRoutine.contains(routineAt)) {
               currentRoutine.addInnerRoutine(routineAt);
             }
 //            currentRoutine.finish();

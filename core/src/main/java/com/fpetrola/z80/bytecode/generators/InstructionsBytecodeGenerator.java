@@ -94,7 +94,9 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
     //var.set(byteCodeGenerator.getExistingVariable(target).get());
     if (routineByteCodeGenerator.getTop(source).getName().startsWith("AF")) {
       Variable variable = routineByteCodeGenerator.variables.get("AF");
-      if (variable instanceof SmartComposed16BitRegisterVariable existingVariable) {
+      if (routineByteCodeGenerator.bytecodeGenerationContext.useFields) {
+        Variable invoke = methodMaker.invoke("exAF", RoutineBytecodeGenerator.getRealVariable(variable));
+      } else if (variable instanceof SmartComposed16BitRegisterVariable existingVariable) {
         existingVariable.setRegister(target);
 //      Variable existingVariable = byteCodeGenerator.getExistingVariable("AF");
         Variable invoke = methodMaker.invoke("exAF", RoutineBytecodeGenerator.getRealVariable(existingVariable));

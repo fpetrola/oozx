@@ -21,6 +21,7 @@ package com.fpetrola.z80.transformations;
 import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.In;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Push;
@@ -31,7 +32,6 @@ import com.fpetrola.z80.registers.Plain8BitRegister;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegister<T> implements IVirtual8BitsRegister<T> {
   private final int address;
@@ -168,7 +168,7 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
   }
 
   public T readPrevious() {
-    breakInStackOverflow();
+    Helper.breakInStackOverflow();
 
 //    if (data == null && lastData == null && reads == 0) {
 //      for (VirtualRegister<T> v1 : previousVersions) {
@@ -195,13 +195,6 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
 
     T result = lastData != null ? lastData : read();
     return result;
-  }
-
-  public static void breakInStackOverflow() {
-    StackWalker walker = StackWalker.getInstance();
-    List<StackWalker.StackFrame> walk = walker.walk(s -> s.collect(Collectors.toList()));
-    if (walk.size() > 1000)
-      System.out.println("dssdg");
   }
 
   public void accept(InstructionVisitor instructionVisitor) {
