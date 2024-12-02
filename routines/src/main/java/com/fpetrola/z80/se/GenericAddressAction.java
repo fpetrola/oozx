@@ -41,6 +41,9 @@ class GenericAddressAction extends AddressAction {
       Optional<AddressAction> addressAction1 = routineExecution.actions.stream().filter(a -> a.isPending()).findFirst();
       if (addressAction1.isPresent())
         result = addressAction1.get().address;
+      else {
+        result= routineExecution.retInstruction;
+      }
     }
     return result;
   }

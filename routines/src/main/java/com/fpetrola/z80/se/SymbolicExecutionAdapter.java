@@ -25,11 +25,9 @@ import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
-import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
-import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
@@ -95,77 +93,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   public DefaultInstructionFactory createInstructionFactory(final State state) {
-    return new DefaultInstructionFactory<T>(state) {
-      public Ld<T> Ld(OpcodeReference<T> target, ImmutableOpcodeReference<T> source) {
-        return new Ld<T>(target, source, flag) {
-          public int execute() {
-            if (source instanceof IndirectMemory8BitReference<T>) {
-              T value = source.read();
-              T aLU8Assign = value;
-              target.write((T) new DirectAccessWordNumber(aLU8Assign.intValue(), pc.read().intValue()));
-              return cyclesCost;
-            } else
-              return super.execute();
-          }
-
-          protected String getName() {
-            return "Ld_";
-          }
-        };
-      }
-
-      public Ret Ret(Condition condition) {
-        return new Ret<T>(condition, sp, memory, pc) {
-          public int execute() {
-//            if (!getRoutineExecution().hasActionAt(getPcValue()))
-//              getRoutineExecution().replaceAddressAction(new RetAddressAction(getRoutineExecution(), getPcValue()));
-//            addressAction = getRoutineExecution().getActionInAddress(getPcValue());
-
-            int execute = super.execute();
-            return execute;
-          }
-
-          protected String getName() {
-            return "Ret_";
-          }
-        };
-      }
-
-      public Pop Pop(OpcodeReference target) {
-        return new PopReturnAddress(SymbolicExecutionAdapter.this, target, sp, memory, flag, pc);
-      }
-
-      public Push Push(OpcodeReference target) {
-        return new PushReturnAddress(target, sp, memory);
-      }
-
-      @Override
-      public JP JP(ImmutableOpcodeReference target, Condition condition) {
-        return new JP<T>(target, condition, pc) {
-          protected T beforeJump(T jumpAddress) {
-            if (pc.read().intValue() > 16384 && jumpAddress.intValue() < 16384) {
-              return WordNumber.createValue(pc.read().intValue() + 3);
-            }
-            return super.beforeJump(jumpAddress);
-          }
-        };
-      }
-
-      public Call Call(Condition condition, ImmutableOpcodeReference positionOpcodeReference) {
-        return new Call<T>(positionOpcodeReference, condition, pc, sp, this.state.getMemory()) {
-          public T beforeJump(T jumpAddress) {
-            T value = pc.read().plus(length);
-            value = (T) new ReturnAddressWordNumber(value.intValue(), pc.read().intValue());
-            Push.doPush(value, sp, memory);
-            return jumpAddress;
-          }
-
-          protected String getName() {
-            return "Call_";
-          }
-        };
-      }
-    };
+    return new SEInstructionFactory(this, state);
   }
 
   public <T extends WordNumber> OpcodeConditions createOpcodeConditions(State<T> state) {
@@ -207,12 +135,27 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
     List<WriteMemoryReference> writeMemoryReferences = spy.getWriteMemoryReferences();
 
+    printJPHL(writeMemoryReferences, 0xCFCA);
+    printJPHL(writeMemoryReferences, 0xE9BA);
+    printJPHL(writeMemoryReferences, 0xDA8B);
     writeMemoryReferences.forEach(wmr -> {
       Routine routineAt = routineManager.findRoutineAt(wmr.address.intValue());
       if (routineAt != null) {
         mutantAddress.add(wmr.address.intValue());
       }
     });
+  }
+
+  private void printJPHL(List<WriteMemoryReference> writeMemoryReferences, int i) {
+    for (int j = 0; j < writeMemoryReferences.size(); j++) {
+      WriteMemoryReference w = writeMemoryReferences.get(j);
+      if (w.address.intValue() == i) {
+        WriteMemoryReference w2 = writeMemoryReferences.get(j + 1);
+
+        int value = w2.value.intValue() * 256 + w.value.intValue();
+        System.out.println("0x" + Helper.formatAddress(i) + ":  " +  Helper.formatAddress(value));
+      }
+    }
   }
 
   private void executeAllCode(Z80InstructionDriver z80InstructionDriver, Register<T> pc) {
@@ -222,8 +165,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     while (!ready) {
       int pcValue = pc.read().intValue();
       ready = isReady(pcValue, ready);
-      if (pcValue == 0xD812)
-        System.out.println("ddgsdggd");
+//      if (pcValue == 0xCEC3)
+//        System.out.println("ddgsdggd");
 
       if (!ready) {
         RoutineExecution routineExecution = getRoutineExecution();
@@ -251,7 +194,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         lastPc = pcValue;
 
         addressAction = null;
-        System.out.println("PC: " + Helper.formatAddress(pcValue));
+//        System.out.println("PC: " + Helper.formatAddress(pcValue));
 //        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
 
       }
@@ -303,22 +246,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     stackFrames.pop();
   }
 
-  public class PushReturnAddress extends Push<T> {
-    public PushReturnAddress(OpcodeReference target, Register<T> sp, Memory<T> memory) {
-      super(target, sp, memory);
-    }
-
-    public int execute() {
-      doPush(createValue(target.read().intValue()), sp, memory);
-      checkNextSP();
-
-      return 5 + cyclesCost;
-    }
-
-    protected String getName() {
-      return "Push_";
-    }
-  }
 }
 
 

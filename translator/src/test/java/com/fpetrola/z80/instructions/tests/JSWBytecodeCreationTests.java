@@ -55,7 +55,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
   public void testJSWMoveWilly() {
     Helper.hex = true;
     String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/dynamitedan1.z80");
-    stepUntilComplete(0xC807);
+    stepUntilComplete(0xC804);
 
 //    String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
 //    stepUntilComplete(35090);
