@@ -555,6 +555,8 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
         if (routineByteCodeGenerator.routine.virtualPop.containsKey(address)) {
           routineByteCodeGenerator.getField("nextAddress").set(routineByteCodeGenerator.routine.virtualPop.get(address) + 1);
           incPopsAdded = true;
+        }else{
+          System.out.println("dagadgdag!!!!llll");
         }
         routineByteCodeGenerator.returnFromMethod();
       });

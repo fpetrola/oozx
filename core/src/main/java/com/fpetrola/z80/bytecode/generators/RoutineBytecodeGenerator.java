@@ -132,7 +132,7 @@ public class RoutineBytecodeGenerator {
               };
               Runnable instructionGenerator = () -> {
 
-                if (address == 0xED06)
+                if (address == 0xDCCA)
                   System.out.println("adgadg");
                 bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
 

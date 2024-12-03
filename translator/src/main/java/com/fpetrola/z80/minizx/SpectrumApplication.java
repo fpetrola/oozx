@@ -47,7 +47,8 @@ public abstract class SpectrumApplication<T> {
 
   public int exAF(int AF) {
     int temp1 = AFx;
-    AFx = AF;
+    AFx(AF);
+    AF(temp1);
     return temp1;
   }
 
