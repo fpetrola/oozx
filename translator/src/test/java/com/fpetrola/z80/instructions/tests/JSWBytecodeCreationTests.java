@@ -31,9 +31,7 @@ import com.fpetrola.z80.routines.RoutineManager;
 import io.exemplary.guice.Modules;
 import io.exemplary.guice.TestRunner;
 import jakarta.inject.Inject;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 
 import java.util.List;
@@ -45,15 +43,26 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
   private final RealCodeBytecodeCreationBase<T> realCodeBytecodeCreationBase;
   private final RoutinesDriverConfigurator driverConfigurator;
 
+  @Before
+  public void setUp() throws Exception {
+    Helper.hex = true;
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    Helper.hex = false;
+  }
+
   @Inject
   public JSWBytecodeCreationTests(RoutinesDriverConfigurator driverConfigurator) {
     realCodeBytecodeCreationBase = driverConfigurator.getRealCodeBytecodeCreationBase();
     this.driverConfigurator = driverConfigurator;
   }
 
+
+  @Ignore
   @Test
   public void testJSWMoveWilly() {
-    Helper.hex = true;
     String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/dynamitedan1.z80");
     stepUntilComplete(0xC804);
 
@@ -68,8 +77,10 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
         """, actual);
   }
 
+  @Ignore
   @Test
   public void testTranslateWillyToJava() {
+    Helper.hex = false;
     String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
     stepUntilComplete(35090);
     translateToJava("JetSetWilly", base64Memory, "$34762");

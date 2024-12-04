@@ -1200,26 +1200,24 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
 
     String resultingJava = generateAndDecompile();
     Assert.assertEquals("""
-import com.fpetrola.z80.minizx.SpectrumApplication;
-
-public class JSW extends SpectrumApplication {
-   public void $0() {
-      super.B = 2;
-      this.$5();
-      super.B = 3;
-      this.$7();
-   }
-
-   public void $5() {
-      this.$5();
-   }
-
-   public void $7() {
-   }
-} 
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+        
+        public class JSW extends SpectrumApplication {
+           public void $0() {
+              super.B = 2;
+              this.$5();
+              super.B = 3;
+              this.$7();
+           }
+        
+           public void $5() {
+              this.$5();
+           }
+        
+           public void $7() {
+           }
+        } 
         """, resultingJava);
-
-
 
 
     Assert.assertEquals(2, routines.size());
