@@ -34,6 +34,8 @@ import jakarta.inject.Inject;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.List;
 
 @SuppressWarnings("ALL")
@@ -60,7 +62,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
   }
 
 
-  @Ignore
+  //  @Ignore
   @Test
   public void testJSWMoveWilly() {
     String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/dynamitedan1.z80");
@@ -84,6 +86,53 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
     stepUntilComplete(35090);
     translateToJava("JetSetWilly", base64Memory, "$34762");
+  }
+
+  @Test
+  public void testWillyCheckingRoutines() {
+    Helper.hex = false;
+    String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
+    stepUntilComplete(35090);
+
+    String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "JetSetWilly");
+
+    System.out.println("---------------------");
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    PrintStream printStream = new PrintStream(out);
+
+    getRoutineManager().getRoutinesInDepth().forEach(r -> {
+      printStream.println(r);
+    });
+
+    String string = out.toString();
+    Assert.assertEquals("""
+        {34762:65535} -> [Code: 34762 : 35210, Code: 35245 : 35562, Code: 35591 : 36146, Code: 37048 : 37055, Code: 38043 : 38045, Code: 38061 : 38063, Code: 38095 : 38097, Code: 38134 : 38136, Code: 38644 : 65535]
+        {36147:36202} -> [Code: 36147 : 36170]
+        {36171:36202} -> [Code: 36171 : 36202]
+        {36203:36287} -> [Code: 36203 : 36287]
+        {36288:36306} -> [Code: 36288 : 36306]
+        {38528:38544} -> [Code: 38528 : 38544]
+        {38545:38561} -> [Code: 38545 : 38554]
+        {38555:38561} -> [Code: 38555 : 38561]
+        {35211:35244} -> [Code: 35211 : 35244]
+        {37974:38025} -> [Code: 37974 : 38025]
+        {37056:37309} -> [Code: 37056 : 37309]
+        {38196:38343} -> [Code: 38196 : 38275, Code: 38298 : 38343]
+        {36307:38132} -> [Code: 36307 : 36507, Code: 36528 : 37045, Code: 38026 : 38041, Code: 38046 : 38059, Code: 38098 : 38132]
+        {36508:36527} -> [Code: 36508 : 36527]
+        {38064:38093} -> [Code: 38064 : 38093]
+        {38344:38527} -> [Code: 38344 : 38429, Code: 38455 : 38503]
+        {38504:38527} -> [Code: 38504 : 38527]
+        {38430:38454} -> [Code: 38430 : 38454]
+        {38276:38297} -> [Code: 38276 : 38297]
+        {37310:37818} -> [Code: 37310 : 37818]
+        {38137:38195} -> [Code: 38137 : 38195]
+        {37841:37973} -> [Code: 37841 : 37973]
+        {38562:38600} -> [Code: 38562 : 38600]
+        {38601:38621} -> [Code: 38601 : 38621]
+        {35563:35590} -> [Code: 35563 : 35590]
+        {38622:38643} -> [Code: 38622 : 38643]
+        """, string);
   }
 
   private String getMemoryInBase64FromFile(String url) {

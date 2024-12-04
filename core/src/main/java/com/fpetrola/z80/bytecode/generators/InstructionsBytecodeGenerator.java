@@ -414,7 +414,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
     if (routineByteCodeGenerator.getMethod(jumpLabel) != null)
       createIfs(call, () -> {
         routineByteCodeGenerator.invokeTransformedMethod(jumpLabel);
-        List<Integer> i = routineByteCodeGenerator.routine.returnPoints.get(address).stream().toList();
+        List<Integer> i = routineByteCodeGenerator.routine.getReturnPoints().get(address).stream().toList();
         i.forEach(ga -> {
           Variable isNextPC = methodMaker.invoke("isNextPC", ga);
           isNextPC.ifTrue(() -> {
@@ -498,7 +498,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
     int endAddress = conditionalInstruction.getJumpAddress().intValue() - 1;
     if (startAddress < endAddress) {
       int i = bytecodeGenerationContext.pc.read().intValue();
-      Routine routine = new Routine(new DefaultBlock(startAddress, endAddress, new BlocksManager(new NullBlockChangesListener(), true)));
+      Routine routine = new Routine(new DefaultBlock(startAddress, endAddress, new BlocksManager(new NullBlockChangesListener(), true)), startAddress);
       routine.setRoutineManager(bytecodeGenerationContext.routineManager);
       final boolean[] notContained = new boolean[1];
 
@@ -552,10 +552,12 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
 //      byteCodeGenerator.getMethod(i);
 //      createIfs(conditionalInstruction, () -> methodMaker.invoke(ByteCodeGenerator.createLabelName(i)));
       createIfs(conditionalInstruction, () -> {
-        if (routineByteCodeGenerator.routine.virtualPop.containsKey(address)) {
-          routineByteCodeGenerator.getField("nextAddress").set(routineByteCodeGenerator.routine.virtualPop.get(address) + 1);
+        if (routineByteCodeGenerator.routine.getVirtualPop().containsKey(address)) {
+          routineByteCodeGenerator.getField("nextAddress").set(routineByteCodeGenerator.routine.getVirtualPop().get(address) + 1);
           incPopsAdded = true;
         }else{
+          routineByteCodeGenerator.invokeTransformedMethod(i);
+          methodMaker.return_();
           System.out.println("dagadgdag!!!!llll");
         }
         routineByteCodeGenerator.returnFromMethod();

@@ -39,23 +39,24 @@ import static java.util.Arrays.asList;
 
 @SuppressWarnings("ALL")
 public class Routine {
-  public List<Block> blocks;
+  private List<Block> blocks;
 
-  public boolean finished;
-  public Map<Integer, Integer> virtualPop = new HashMap<>();
+  private boolean finished;
+  private Map<Integer, Integer> virtualPop = new HashMap<>();
   private List<Instruction> instructions = new ArrayList<>();
   private Routine parent;
+  private int entryPoint;
 
   public List<Routine> getInnerRoutines() {
     return innerRoutines;
   }
 
-  public List<Routine> innerRoutines = new ArrayList<>();
+  private List<Routine> innerRoutines = new ArrayList<>();
   private RoutineManager routineManager;
-  public MultiValuedMap<Integer, Integer> returnPoints = new HashSetValuedHashMap<>();
+  private MultiValuedMap<Integer, Integer> returnPoints = new HashSetValuedHashMap<>();
 
-  public Set<String> parameters = new HashSet<>();
-  public Set<String> returnValues = new HashSet<>();
+  private Set<String> parameters = new HashSet<>();
+  private Set<String> returnValues = new HashSet<>();
   private boolean callable = true;
 
   public List<Routine> getAllRoutines() {
@@ -90,12 +91,13 @@ public class Routine {
   public Routine() {
   }
 
-  public Routine(Block block) {
-    this(new ArrayList<>(asList(block)));
+  public Routine(Block block, int entryPoint) {
+    this(new ArrayList<>(asList(block)), entryPoint);
   }
 
-  public Routine(List<Block> blocks) {
+  public Routine(List<Block> blocks, int entryPoint) {
     this.blocks = blocks;
+    this.entryPoint = entryPoint;
   }
 
   public void addInstruction(Instruction instruction) {
@@ -110,6 +112,11 @@ public class Routine {
   }
 
   public void addInnerRoutine(Routine routine) {
+    if (routine.toString().contains("D895"))
+      System.out.println("ehh3");
+    boolean isVirtual = routine instanceof VirtualRoutine;
+    if (isVirtual)
+      System.out.println("virtual");
     if (routine.toString().contains("C804"))
       System.out.println("eh22222!");
     if (routine == this)
@@ -131,16 +138,37 @@ public class Routine {
       System.out.println("already in routinemanager");
 
     List<Block> innerBlocks = routine.getBlocks();
-    blocks.removeAll(innerBlocks);
+    removeBlocks(innerBlocks);
     innerRoutines.add(routine);
     routineManager.removeRoutine(routine);
   }
+
+  public void removeBlocks(List<Block> innerBlocks) {
+    getBlocks().removeAll(innerBlocks);
+    if (getBlocks().isEmpty()) {
+      System.out.println("cannot be empty");
+      if (getInnerRoutines().isEmpty())
+        getRoutineManager().removeRoutine(this);
+      else if (getInnerRoutines().size() == 1) {
+        Routine first = getInnerRoutines().getFirst();
+        first.getBlocks().forEach(b -> addBlock(b));
+        removeInnerRoutine(first);
+      } else
+        System.out.println("more inner routines");
+
+    }
+  }
+
+  public void removeBlock(Block block) {
+    removeBlocks(asList(block));
+  }
+
 
   private void setParent(Routine routine) {
     if (parent != null && parent != routine)
       throw new RuntimeException("cannot add routine twice");
 
-    parent= routine;
+    parent = routine;
   }
 
   private boolean overlap(Routine routine) {
@@ -228,7 +256,7 @@ public class Routine {
             ArrayList<Routine> inner = new ArrayList<>(innerRoutines);
             if (inner.isEmpty() || (isNotInner(previousBlock) && isNotInner(block))) {
               previousBlock.join(block);
-              blocks.remove(block);
+              removeBlock(block);
             }
           }
       });
@@ -265,16 +293,16 @@ public class Routine {
       first.ifPresent(b -> {
         Block split = b.split(address - 1);
         addBlock(split);
-        Routine routine = new Routine(split);
-        blocks.remove(split);
+        Routine routine = new Routine(split, address);
+        removeBlock(split);
         addInnerRoutine(routine);
         result[0] = routine;
       });
       result[0].setRoutineManager(routineManager);
     } else {
-      Routine routine = new Routine(first.get());
+      Routine routine = new Routine(first.get(), address);
       result[0] = routine;
-      blocks.remove(first.get());
+      removeBlock(first.get());
       addInnerRoutine(result[0]);
       result[0].setRoutineManager(routineManager);
     }
@@ -291,9 +319,12 @@ public class Routine {
         addBlock(blockAt2);
       } else {
         Routine routineAt = routineManager.findRoutineAt(pcValue);
-        if (routineAt != this && !this.overlap(routineAt)) {
-          routineAt.blocks.forEach(this::addBlock);
-          blocks.removeAll(routineAt.getBlocks());
+        boolean isVirtual = routineAt instanceof VirtualRoutine;
+        if (isVirtual)
+          System.out.println("virtual");
+        if (!isVirtual && routineAt != this && !this.overlap(routineAt)) {
+          routineAt.getBlocks().forEach(this::addBlock);
+          removeBlocks(routineAt.getBlocks());
           routineManager.removeRoutine(routineAt);
           addInnerRoutine(routineAt);
         }
@@ -446,7 +477,7 @@ public class Routine {
 
         if (blocksBetween2.size() > 2)
           System.out.println("dddddddddddddd");
-        Routine routine = new Routine(blocksBetween2);
+        Routine routine = new Routine(blocksBetween2, entryPoint);
         addInnerRoutine(routine);
         result[0] = routine;
         routineManager.addRoutine(result[0]);
@@ -468,15 +499,60 @@ public class Routine {
   }
 
   public Routine findRoutineAt(int address) {
-    Optional<Block> b1 = blocks.stream().filter(i -> i != null && i.contains(address)).findFirst();
+    Optional<Block> b1 = getBlocks().stream().filter(i -> i != null && i.contains(address)).findFirst();
 
     if (b1.isPresent())
       return this;
     else {
-      Optional<Routine> b = innerRoutines.stream().filter(i -> i.findRoutineAt(address) != null).findFirst();
+      Optional<Routine> b = getInnerRoutines().stream().filter(i -> i.findRoutineAt(address) != null).findFirst();
       if (b.isPresent())
         return b.get().findRoutineAt(address);
     }
     return null;
+  }
+
+  public Routine removeInnerRoutine(Routine routine) {
+    innerRoutines.remove(routine);
+    return routine;
+  }
+
+  public boolean isFinished() {
+    return finished;
+  }
+
+  public Map<Integer, Integer> getVirtualPop() {
+    return virtualPop;
+  }
+
+  public List<Instruction> getInstructions() {
+    return instructions;
+  }
+
+  public Routine getParent() {
+    return parent;
+  }
+
+  public RoutineManager getRoutineManager() {
+    return routineManager;
+  }
+
+  public MultiValuedMap<Integer, Integer> getReturnPoints() {
+    return returnPoints;
+  }
+
+  public Set<String> getParameters() {
+    return parameters;
+  }
+
+  public Set<String> getReturnValues() {
+    return returnValues;
+  }
+
+  public Block findBlockOf(int address) {
+    return blocks.stream().filter(b -> b.contains(address)).findFirst().get();
+  }
+
+  public int getEntryPoint() {
+    return entryPoint;
   }
 }

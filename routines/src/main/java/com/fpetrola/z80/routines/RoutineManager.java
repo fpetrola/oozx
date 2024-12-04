@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparingInt;
 
@@ -82,7 +81,7 @@ public class RoutineManager {
     foundBlock = foundBlock.split(startAddress - 1, CodeBlockType.class);
     foundBlock.setType(new CodeBlockType());
 
-    return addRoutine(new Routine(foundBlock));
+    return addRoutine(new Routine(foundBlock, startAddress));
   }
 
   public void setRandomAccessInstructionFetcher(RandomAccessInstructionFetcher randomAccessInstructionFetcher) {

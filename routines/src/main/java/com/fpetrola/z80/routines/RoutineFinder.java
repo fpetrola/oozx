@@ -48,52 +48,82 @@ public class RoutineFinder {
   public void checkExecution(Instruction instruction, int pcValue) {
 
     try {
-      if (pcValue == 0xD2EE)
+      if (pcValue == 0xD304)
         System.out.printf("");
       if (currentRoutine == null)
         createOrUpdateCurrentRoutine(pcValue, instruction.getLength());
 
       if (lastInstruction instanceof Call) {
-        WordNumber nextPC = ((ConditionalInstruction) lastInstruction).getNextPC();
-        if (nextPC != null)
-          createOrUpdateCurrentRoutine(nextPC.intValue(), instruction.getLength());
+        processCallInstruction(instruction);
       }
 
       if (instruction instanceof PopReturnAddress popReturnAddress) {
-        if (popReturnAddress.returnAddress0 != null) {
-          ReturnAddressWordNumber returnAddress = popReturnAddress.getReturnAddress();
-          if (returnAddress != null) {
-            if (popReturnAddress.previousPc != -1)
-              currentRoutine.virtualPop.put(popReturnAddress.previousPc, popReturnAddress.popAddress);
-            Routine returnRoutine = routineManager.findRoutineAt(returnAddress.pc);
-            returnRoutine.addReturnPoint(returnAddress.pc, pcValue + 1);
-            this.currentRoutine = returnRoutine;
-          }
-        } else
-          currentRoutine.addInstructionAt(instruction, pcValue);
+        processPopInstruction(instruction, pcValue, popReturnAddress);
       } else {
         currentRoutine.addInstructionAt(instruction, pcValue);
-
         if (instruction instanceof Ret ret) {
-          if (ret.getNextPC() != null) {
-//            Routine routineAt = routineManager.findRoutineAt(pcValue);
-//            if (currentRoutine != routineAt && !currentRoutine.contains(routineAt)) {
-//              currentRoutine.addInnerRoutine(routineAt);
-//            }
-//            currentRoutine.finish();
-            this.currentRoutine = routineManager.findRoutineAt(ret.getNextPC().intValue() - 1);
-          }
+          processRetInstruction(ret);
+        } else if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
+          WordNumber nextPC = conditionalInstruction.getNextPC();
+          if (nextPC != null)
+            if (!(conditionalInstruction instanceof Call<?>)) {
+              if (pcValue == 0xD304)
+                System.out.println("ddgsdggd");
+              int address = nextPC.intValue();
+              Routine routineAt = routineManager.findRoutineAt(address);
+              if (routineAt != null && routineAt != currentRoutine && !currentRoutine.containsInner(routineAt)) {
+                if (routineAt.getParent() != null) {
+                  routineAt.getParent().removeInnerRoutine(routineAt);
+                  routineManager.addRoutine(new VirtualRoutine(routineAt.getBlocks(), routineAt.getEntryPoint()));
+                } else {
+                  Block blockOf = routineAt.findBlockOf(address);
+                  routineAt.removeBlock(blockOf);
+                  routineManager.addRoutine(new VirtualRoutine(blockOf, address));
+                }
+                System.out.println("eh!!!");
+              }
+            }
         }
       }
 
     } catch (Exception e) {
       throw new RuntimeException(e);
-    }
-    finally {
+    } finally {
       routineManager.optimizeAll();
       lastInstruction = instruction;
       lastPc = pcValue;
     }
+  }
+
+  private void processCallInstruction(Instruction instruction) {
+    WordNumber nextPC = ((ConditionalInstruction) lastInstruction).getNextPC();
+    if (nextPC != null)
+      createOrUpdateCurrentRoutine(nextPC.intValue(), instruction.getLength());
+  }
+
+  private void processRetInstruction(Ret ret) {
+    if (ret.getNextPC() != null) {
+//            Routine routineAt = routineManager.findRoutineAt(pcValue);
+//            if (currentRoutine != routineAt && !currentRoutine.contains(routineAt)) {
+//              currentRoutine.addInnerRoutine(routineAt);
+//            }
+//            currentRoutine.finish();
+      this.currentRoutine = routineManager.findRoutineAt(ret.getNextPC().intValue() - 1);
+    }
+  }
+
+  private void processPopInstruction(Instruction instruction, int pcValue, PopReturnAddress popReturnAddress) {
+    if (popReturnAddress.returnAddress0 != null) {
+      ReturnAddressWordNumber returnAddress = popReturnAddress.getReturnAddress();
+      if (returnAddress != null) {
+        if (popReturnAddress.previousPc != -1)
+          currentRoutine.getVirtualPop().put(popReturnAddress.previousPc, popReturnAddress.popAddress);
+        Routine returnRoutine = routineManager.findRoutineAt(returnAddress.pc);
+        returnRoutine.addReturnPoint(returnAddress.pc, pcValue + 1);
+        this.currentRoutine = returnRoutine;
+      }
+    } else
+      currentRoutine.addInstructionAt(instruction, pcValue);
   }
 
   private Routine createOrUpdateCurrentRoutine(int startAddress, int length) {
@@ -103,9 +133,11 @@ public class RoutineFinder {
     currentRoutine = routineManager.findRoutineAt(startAddress);
 
     if (currentRoutine != null) {
-      if (currentRoutine.getStartAddress() < startAddress) {
+      if (currentRoutine.getEntryPoint() != startAddress) {
         Routine newRoutine = currentRoutine.split(startAddress);
         currentRoutine = newRoutine;
+      } else {
+        System.out.println("eswrg43346346");
       }
     } else {
       currentRoutine = routineManager.createRoutine(startAddress, length);

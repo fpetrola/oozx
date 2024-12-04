@@ -93,8 +93,8 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
 
     Assert.assertEquals(2, routines.size());
 
-    assertBlockAddresses(routines.get(0).blocks.get(0), 0, 3);
-    assertBlockAddresses(routines.get(1).blocks.get(0), 5, 6);
+    assertBlockAddresses(routines.get(0).getBlocks().get(0), 0, 3);
+    assertBlockAddresses(routines.get(1).getBlocks().get(0), 5, 6);
   }
 
   protected void stepUntilComplete() {
@@ -148,12 +148,12 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     Assert.assertEquals(2, routines.size());
 
     Routine routine0 = routines.get(0);
-    Assert.assertEquals(1, routine0.blocks.size());
+    Assert.assertEquals(1, routine0.getBlocks().size());
 
-    assertBlockAddresses(routine0.blocks.get(0), 0, 2);
-    Assert.assertEquals(1, routine0.innerRoutines.size());
-    Routine innerRoutine = routine0.innerRoutines.iterator().next();
-    assertBlockAddresses(innerRoutine.blocks.get(0), 3, 4);
+    assertBlockAddresses(routine0.getBlocks().get(0), 0, 2);
+    Assert.assertEquals(1, routine0.getInnerRoutines().size());
+    Routine innerRoutine = routine0.getInnerRoutines().iterator().next();
+    assertBlockAddresses(innerRoutine.getBlocks().get(0), 3, 4);
 
     Assert.assertEquals(innerRoutine, routines.get(1));
   }
@@ -211,18 +211,18 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
 
     Assert.assertEquals(3, routines.size());
     Routine routine0 = routines.get(0);
-    assertBlockAddresses(routine0.blocks.get(0), 0, 4);
+    assertBlockAddresses(routine0.getBlocks().get(0), 0, 4);
 
-    Assert.assertEquals(1, routine0.innerRoutines.size());
+    Assert.assertEquals(1, routine0.getInnerRoutines().size());
 
 
-    Iterator<Routine> iterator = routine0.innerRoutines.iterator();
-    assertBlockAddresses(iterator.next().blocks.get(0), 5, 6);
+    Iterator<Routine> iterator = routine0.getInnerRoutines().iterator();
+    assertBlockAddresses(iterator.next().getBlocks().get(0), 5, 6);
 
     Routine routine1 = routines.get(1);
-    assertBlockAddresses(routine1.blocks.get(0), 5, 6);
+    assertBlockAddresses(routine1.getBlocks().get(0), 5, 6);
     Routine routine2 = routines.get(2);
-    assertBlockAddresses(routine2.blocks.get(0), 7, 8);
+    assertBlockAddresses(routine2.getBlocks().get(0), 7, 8);
   }
 
   @Test
@@ -269,12 +269,12 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
 
 
     Assert.assertEquals(2, routines.size());
-    assertBlockAddresses(routines.get(0).blocks.get(0), 0, 3);
-    assertBlockAddresses(routines.get(0).blocks.get(1), 7, 8);
+    assertBlockAddresses(routines.get(0).getBlocks().get(0), 0, 3);
+    assertBlockAddresses(routines.get(0).getBlocks().get(1), 7, 8);
 
 
-    Assert.assertEquals(0, routines.get(0).innerRoutines.size());
-    assertBlockAddresses(routines.get(1).blocks.get(0), 5, 6);
+    Assert.assertEquals(0, routines.get(0).getInnerRoutines().size());
+    assertBlockAddresses(routines.get(1).getBlocks().get(0), 5, 6);
   }
 
 
@@ -322,16 +322,16 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     Assert.assertEquals(2, routines.size());
     Routine routine0 = routines.get(0);
     Routine routine1 = routines.get(1);
-    assertBlockAddresses(routine0.blocks.get(0), 0, 4);
+    assertBlockAddresses(routine0.getBlocks().get(0), 0, 4);
 
-    Assert.assertEquals(1, routine0.innerRoutines.size());
+    Assert.assertEquals(1, routine0.getInnerRoutines().size());
 
-    Iterator<Routine> iterator = routine0.innerRoutines.iterator();
+    Iterator<Routine> iterator = routine0.getInnerRoutines().iterator();
 
-    Block subroutineBlock = iterator.next().blocks.get(0);
+    Block subroutineBlock = iterator.next().getBlocks().get(0);
     assertBlockAddresses(subroutineBlock, 5, 6);
 
-    Assert.assertEquals(subroutineBlock, routine1.blocks.get(0));
+    Assert.assertEquals(subroutineBlock, routine1.getBlocks().get(0));
   }
 
   @Test
@@ -364,7 +364,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
 
 
     Assert.assertEquals(1, routines.size());
-    assertBlockAddresses(routines.get(0).blocks.get(0), 0, 2);
+    assertBlockAddresses(routines.get(0).getBlocks().get(0), 0, 2);
   }
 
   @Test
@@ -415,10 +415,10 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
 
 
     Assert.assertEquals(2, routines.size());
-    assertBlockAddresses(routines.get(0).blocks.get(0), 0, 1);
-    assertBlockAddresses(routines.get(0).blocks.get(1), 3, 6);
-    assertBlockAddresses(routines.get(0).blocks.get(2), 10, 11);
-    assertBlockAddresses(routines.get(1).blocks.get(0), 8, 9);
+    assertBlockAddresses(routines.get(0).getBlocks().get(0), 0, 1);
+    assertBlockAddresses(routines.get(0).getBlocks().get(1), 3, 6);
+    assertBlockAddresses(routines.get(0).getBlocks().get(2), 10, 11);
+    assertBlockAddresses(routines.get(1).getBlocks().get(0), 8, 9);
   }
 
   @Ignore
@@ -463,12 +463,12 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     Assert.assertEquals(2, routines.size());
 
     Routine routine0 = routines.get(0);
-    assertBlockAddresses(routine0.blocks.get(0), 0, 0);
-    assertBlockAddresses(routine0.blocks.get(1), 1, 3);
-    Block innerRoutineBlock = routine0.innerRoutines.iterator().next().blocks.get(0);
+    assertBlockAddresses(routine0.getBlocks().get(0), 0, 0);
+    assertBlockAddresses(routine0.getBlocks().get(1), 1, 3);
+    Block innerRoutineBlock = routine0.getInnerRoutines().iterator().next().getBlocks().get(0);
     assertBlockAddresses(innerRoutineBlock, 1, 3);
 
-    Assert.assertEquals(innerRoutineBlock, routines.get(1).blocks.get(0));
+    Assert.assertEquals(innerRoutineBlock, routines.get(1).getBlocks().get(0));
 
   }
 
@@ -527,9 +527,9 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
 
     Assert.assertEquals(3, routines.size());
     Routine routine0 = routines.get(0);
-    assertBlockAddresses(routine0.blocks.get(0), 0, 5);
-    assertBlockAddresses(routines.get(1).blocks.get(0), 6, 7);
-    assertBlockAddresses(routines.get(2).blocks.get(0), 8, 9);
+    assertBlockAddresses(routine0.getBlocks().get(0), 0, 5);
+    assertBlockAddresses(routines.get(1).getBlocks().get(0), 6, 7);
+    assertBlockAddresses(routines.get(2).getBlocks().get(0), 8, 9);
   }
 
   @Test
@@ -937,8 +937,8 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
 
     Assert.assertEquals(2, routines.size());
 
-    assertBlockAddresses(routines.get(0).blocks.get(0), 0, 6);
-    assertBlockAddresses(routines.get(1).blocks.get(0), 8, 12);
+    assertBlockAddresses(routines.get(0).getBlocks().get(0), 0, 6);
+    assertBlockAddresses(routines.get(1).getBlocks().get(0), 8, 12);
   }
 
   @Test
@@ -995,8 +995,8 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
 
     Assert.assertEquals(2, routines.size());
 
-    assertBlockAddresses(routines.get(0).blocks.get(0), 0, 3);
-    assertBlockAddresses(routines.get(1).blocks.get(0), 5, 9);
+    assertBlockAddresses(routines.get(0).getBlocks().get(0), 0, 3);
+    assertBlockAddresses(routines.get(1).getBlocks().get(0), 5, 9);
   }
 
   @Test
@@ -1064,8 +1064,8 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
 
     Assert.assertEquals(2, routines.size());
 
-    assertBlockAddresses(routines.get(0).blocks.get(0), 0, 9);
-    assertBlockAddresses(routines.get(1).blocks.get(0), 11, 12);
+    assertBlockAddresses(routines.get(0).getBlocks().get(0), 0, 9);
+    assertBlockAddresses(routines.get(1).getBlocks().get(0), 11, 12);
   }
 
 
@@ -1115,8 +1115,8 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
 
     Assert.assertEquals(2, routines.size());
 
-    assertBlockAddresses(routines.get(0).blocks.get(0), 0, 3);
-    assertBlockAddresses(routines.get(1).blocks.get(0), 5, 8);
+    assertBlockAddresses(routines.get(0).getBlocks().get(0), 0, 3);
+    assertBlockAddresses(routines.get(1).getBlocks().get(0), 5, 8);
   }
 
   @Test
@@ -1166,11 +1166,10 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     Assert.assertEquals(2, routines.size());
 
     Routine routine0 = routines.get(0);
-    Assert.assertEquals(1, routine0.blocks.size());
+    Assert.assertEquals(1, routine0.getBlocks().size());
 
-    assertBlockAddresses(routine0.blocks.get(0), 0, 3);
+    assertBlockAddresses(routine0.getBlocks().get(0), 0, 3);
   }
-
 
   @Ignore
   @Test
@@ -1223,14 +1222,168 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     Assert.assertEquals(2, routines.size());
 
     Routine routine0 = routines.get(0);
-    Assert.assertEquals(1, routine0.blocks.size());
+    Assert.assertEquals(1, routine0.getBlocks().size());
 
-    assertBlockAddresses(routine0.blocks.get(0), 0, 2);
-    Assert.assertEquals(1, routine0.innerRoutines.size());
-    Routine innerRoutine = routine0.innerRoutines.iterator().next();
-    assertBlockAddresses(innerRoutine.blocks.get(0), 3, 4);
+    assertBlockAddresses(routine0.getBlocks().get(0), 0, 2);
+    Assert.assertEquals(1, routine0.getInnerRoutines().size());
+    Routine innerRoutine = routine0.getInnerRoutines().iterator().next();
+    assertBlockAddresses(innerRoutine.getBlocks().get(0), 3, 4);
 
     Assert.assertEquals(innerRoutine, routines.get(1));
+  }
+
+
+  @Test
+  public void callingSharedCodeFromDifferentRoutines() {
+    setUpMemory();
+
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
+      {
+        add(Ld(r(A), c(1)));
+        add(Call(t(), c(6)));
+        add(Ld(r(B), c(8)));
+        add(Call(t(), c(10)));
+        add(Ld(r(C), c(8)));
+        add(Ret(t()));
+
+        add(Ld(r(B), c(1)));
+        add(JP(c(14), nz()));
+        add(Ld(r(B), c(2)));
+        add(Ret(t()));
+
+        add(Ld(r(C), c(1)));
+        add(JP(c(14), nz()));
+        add(Ld(r(C), c(2)));
+        add(Ret(t()));
+
+        add(Ld(r(H), c(1)));
+        add(Ret(t()));
+      }
+    };
+
+
+    stepUntilComplete();
+    String resultingJava = generateAndDecompile();
+
+    List<Routine> routines = getRoutineManager().getRoutines();
+
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+        
+        public class JSW extends SpectrumApplication {
+           public void $0() {
+              super.A = 1;
+              this.$6();
+              super.B = 8;
+              this.$10();
+              super.C = 8;
+           }
+        
+           public void $6() {
+              super.B = 1;
+              if(super.F != 0) {
+                 this.$14();
+              } else {
+                 super.B = 2;
+              }
+           }
+        
+           public void $10() {
+              super.C = 1;
+              if(super.F != 0) {
+                 this.$14();
+              } else {
+                 super.C = 2;
+              }
+           }
+        
+           public void $14() {
+              super.H = 1;
+           }
+        }
+        """, resultingJava);
+
+    Assert.assertEquals(4, routines.size());
+    Routine routine0 = routines.get(0);
+    assertBlockAddresses(routine0.getBlocks().get(0), 0, 5);
+    assertBlockAddresses(routines.get(1).getBlocks().get(0), 6, 9);
+    assertBlockAddresses(routines.get(2).getBlocks().get(0), 10, 13);
+    assertBlockAddresses(routines.get(3).getBlocks().get(0), 14, 15);
+  }
+
+  @Test
+  public void callingSharedCodeInTheMiddleOfExistingRoutine() {
+    setUpMemory();
+
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
+      {
+        add(Ld(r(A), c(1)));
+        add(Call(t(), c(6)));
+        add(Ld(r(B), c(8)));
+        add(Call(t(), c(10)));
+        add(Ld(r(C), c(8)));
+        add(Ret(t()));
+
+        add(Ld(r(B), c(1)));
+        add(Ld(r(C), c(2)));
+        add(Ld(r(D), c(3)));
+        add(Ret(t()));
+
+        add(Ld(r(C), c(1)));
+        add(JP(c(7), nz()));
+        add(Ld(r(C), c(2)));
+        add(Ret(t()));
+      }
+    };
+
+
+    stepUntilComplete();
+
+    List<Routine> routines = getRoutineManager().getRoutines();
+
+    String resultingJava = generateAndDecompile();
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+        
+        public class JSW extends SpectrumApplication {
+           public void $0() {
+              super.A = 1;
+              this.$6();
+              super.B = 8;
+              this.$10();
+              super.C = 8;
+           }
+        
+           public void $6() {
+              super.B = 1;
+              if(super.F != 0) {
+                 this.$14();
+              } else {
+                 super.B = 2;
+              }
+           }
+        
+           public void $10() {
+              super.C = 1;
+              if(super.F != 0) {
+                 this.$14();
+              } else {
+                 super.C = 2;
+              }
+           }
+        
+           public void $14() {
+              super.H = 1;
+           }
+        }
+        """, resultingJava);
+
+    Assert.assertEquals(4, routines.size());
+    Routine routine0 = routines.get(0);
+    assertBlockAddresses(routine0.getBlocks().get(0), 0, 5);
+    assertBlockAddresses(routines.get(1).getBlocks().get(0), 6, 9);
+    assertBlockAddresses(routines.get(2).getBlocks().get(0), 10, 13);
+    assertBlockAddresses(routines.get(3).getBlocks().get(0), 14, 15);
   }
 
 

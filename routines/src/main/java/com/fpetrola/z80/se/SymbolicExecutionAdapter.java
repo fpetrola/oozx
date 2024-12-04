@@ -180,7 +180,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 //        System.out.println("PC: " + Helper.formatAddress(pcValue));
 //        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
 
-        if (pcValue == 0xD2EE)
+        if (pcValue == 0xD8F6)
           System.out.println("ddgsdggd");
         z80InstructionDriver.step();
 

@@ -141,7 +141,7 @@ public class RoutineBytecodeGenerator {
                     System.out.print("");
 
                   currentInstruction = instruction;
-                  List<Routine> list = routine.innerRoutines.stream().filter(routine1 -> routine1.contains(address)).toList();
+                  List<Routine> list = routine.getInnerRoutines().stream().filter(routine1 -> routine1.contains(address)).toList();
                   if (!list.isEmpty()) {
                     Routine first = list.getFirst();
                     if (first.getStartAddress() == address) {
@@ -178,8 +178,8 @@ public class RoutineBytecodeGenerator {
 
                     pendingFlag = instructionsBytecodeGenerator.pendingFlag;
 
-                    if (!instructionsBytecodeGenerator.incPopsAdded && routine.virtualPop.containsKey(address)) {
-                      getField("nextAddress").set(routine.virtualPop.get(address) + 1);
+                    if (!instructionsBytecodeGenerator.incPopsAdded && routine.getVirtualPop().containsKey(address)) {
+                      getField("nextAddress").set(routine.getVirtualPop().get(address) + 1);
                       returnFromMethod();
                     }
                   }

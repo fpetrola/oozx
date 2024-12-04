@@ -96,6 +96,11 @@ class SEInstructionFactory<T extends WordNumber> extends DefaultInstructionFacto
         } else
           return super.execute();
       }
+
+      protected String getName() {
+        return "JP_";
+      }
+
     };
   }
 
