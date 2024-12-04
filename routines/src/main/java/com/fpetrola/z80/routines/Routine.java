@@ -44,6 +44,7 @@ public class Routine {
   public boolean finished;
   public Map<Integer, Integer> virtualPop = new HashMap<>();
   private List<Instruction> instructions = new ArrayList<>();
+  private Routine parent;
 
   public List<Routine> getInnerRoutines() {
     return innerRoutines;
@@ -109,6 +110,8 @@ public class Routine {
   }
 
   public void addInnerRoutine(Routine routine) {
+    if (routine.toString().contains("C804"))
+      System.out.println("eh22222!");
     if (routine == this)
       throw new RuntimeException("cannot add it to self");
     if (routine == null)
@@ -122,6 +125,8 @@ public class Routine {
     if (b)
       throw new RuntimeException("cannot add it to inner");
 
+    routine.setParent(this);
+
     if (routineManager.getRoutines().contains(routine))
       System.out.println("already in routinemanager");
 
@@ -131,7 +136,38 @@ public class Routine {
     routineManager.removeRoutine(routine);
   }
 
+  private void setParent(Routine routine) {
+    if (parent != null && parent != routine)
+      throw new RuntimeException("cannot add routine twice");
+
+    parent= routine;
+  }
+
   private boolean overlap(Routine routine) {
+//    return Block.testOverlap(getStartAddress(), getEndAddress(), routine.getStartAddress(), routine.getEndAddress());
+
+    return overlapByBlocks(routine);
+
+//    return overlapByRecursive(routine);
+  }
+
+  private boolean overlapByRecursive(Routine routine) {
+    boolean overlap = false;
+    for (int i = 0; i < routine.getBlocks().size(); i++) {
+      for (int j = 0; j < getBlocks().size(); j++) {
+        Block block = routine.getBlocks().get(i);
+        Block block1 = getBlocks().get(j);
+        if (block.overlap(block1))
+          overlap = true;
+      }
+    }
+
+//    overlap |= innerRoutines.stream().anyMatch(ir -> ir.overlap(routine));
+    overlap |= routine.innerRoutines.stream().anyMatch(ir -> ir.overlap(this));
+    return overlap;
+  }
+
+  private boolean overlapByBlocks(Routine routine) {
     List<Block> allBlocksInDepth = getAllBlocksInDepth(getAllRoutines());
     List<Routine> allRoutines = routine.getAllRoutines();
     List<Block> allBlocksInDepth1 = getAllBlocksInDepth(allRoutines);
@@ -141,11 +177,12 @@ public class Routine {
     boolean overlap = false;
     for (int i = 0; i < allBlocksInDepth.size(); i++) {
       for (int j = 0; j < allBlocksInDepth.size(); j++) {
-        if (i != j && allBlocksInDepth.get(i).overlap(allBlocksInDepth.get(j)))
+        Block block = allBlocksInDepth.get(i);
+        Block block1 = allBlocksInDepth.get(j);
+        if (i != j && block.overlap(block1))
           overlap = true;
       }
     }
-
     return overlap;
   }
 
@@ -195,6 +232,10 @@ public class Routine {
             }
           }
       });
+
+      blocks.sort(Comparator.comparingInt(b -> b.getRangeHandler().getStartAddress()));
+
+      innerRoutines.forEach(i -> i.optimize());
 
       innerRoutines.stream().forEach(ir -> {
         if (ir != null)
@@ -336,7 +377,8 @@ public class Routine {
   }
 
   public int getStartAddress() {
-    return blocks.stream().map(b -> b.getRangeHandler().getStartAddress()).min(Comparator.comparingInt(b -> b)).get();
+    List<Block> flat = getAllBlocksInDepth(getAllRoutines());
+    return flat.stream().map(b -> b.getRangeHandler().getStartAddress()).min(Comparator.comparingInt(b -> b)).get();
   }
 
   public int getEndAddress() {

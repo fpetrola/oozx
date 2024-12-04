@@ -55,14 +55,16 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> {
 
       // target.write(createValue(0));
 
+      RoutineExecution lastRoutineExecution = symbolicExecutionAdapter.getRoutineExecution();
+//      if (symbolicExecutionAdapter.lastPc != lastRoutineExecution.lastPc)
+//        System.out.println("lastpc!!!");
       previousPc = symbolicExecutionAdapter.lastPc;
       RoutineExecution routineExecution = symbolicExecutionAdapter.routineExecutions.get(symbolicExecutionAdapter.stackFrames.get(symbolicExecutionAdapter.stackFrames.size() - 2));
       int address2 = pc.read().intValue() + 1;
 
-      routineExecution.replaceAddressAction(new BasicAddressAction(address2, symbolicExecutionAdapter));
+      routineExecution.replaceAddressAction(new AddressActionDelegate(address2, symbolicExecutionAdapter));
       routineExecution.replaceAddressAction(new AddressActionDelegate(returnAddressWordNumber.intValue(), symbolicExecutionAdapter));
 
-      RoutineExecution lastRoutineExecution = symbolicExecutionAdapter.getRoutineExecution();
       popAddress = pc.read().intValue();
       BasicAddressAction addressAction1 = new BasicAddressAction(popAddress, symbolicExecutionAdapter);
       addressAction1.setPending(false);

@@ -105,6 +105,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   public void createRoutineExecution(int jumpAddress) {
     // if (jumpAddress == 35211) System.out.println("start routine: " + jumpAddress);
+    if (jumpAddress == 0xCFD9)
+      System.out.println("duplicated!");
     stackFrames.push(jumpAddress);
     RoutineExecution routineExecution = routineExecutions.get(jumpAddress);
     if (routineExecution == null) {
@@ -165,8 +167,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     while (!ready) {
       int pcValue = pc.read().intValue();
       ready = isReady(pcValue, ready);
-//      if (pcValue == 0xCEC3)
-//        System.out.println("ddgsdggd");
 
       if (!ready) {
         RoutineExecution routineExecution = getRoutineExecution();
@@ -177,6 +177,11 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           pc.write(createValue(pcValue));
         }
 
+//        System.out.println("PC: " + Helper.formatAddress(pcValue));
+//        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
+
+        if (pcValue == 0xD2EE)
+          System.out.println("ddgsdggd");
         z80InstructionDriver.step();
 
         if (!routineExecution.hasActionAt(pcValue))
@@ -192,11 +197,9 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
         ready |= stackFrames.isEmpty();
         lastPc = pcValue;
+        routineExecution.lastPc= pcValue;
 
         addressAction = null;
-//        System.out.println("PC: " + Helper.formatAddress(pcValue));
-//        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
-
       }
     }
   }

@@ -34,6 +34,7 @@ public class RoutineExecution {
   public int retInstruction = -1;
   public int start;
   public LinkedList<AddressAction> actions = new LinkedList<>();
+  public int lastPc;
   private SymbolicExecutionAdapter symbolicExecutionAdapter;
 
   public RoutineExecution(int minimalValidCodeAddress, SymbolicExecutionAdapter symbolicExecutionAdapter1) {

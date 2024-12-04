@@ -48,7 +48,7 @@ public class RoutineFinder {
   public void checkExecution(Instruction instruction, int pcValue) {
 
     try {
-      if (pcValue == 0xE592)
+      if (pcValue == 0xD2EE)
         System.out.printf("");
       if (currentRoutine == null)
         createOrUpdateCurrentRoutine(pcValue, instruction.getLength());
@@ -76,10 +76,10 @@ public class RoutineFinder {
 
         if (instruction instanceof Ret ret) {
           if (ret.getNextPC() != null) {
-            Routine routineAt = routineManager.findRoutineAt(pcValue);
-            if (currentRoutine != routineAt && !currentRoutine.contains(routineAt)) {
-              currentRoutine.addInnerRoutine(routineAt);
-            }
+//            Routine routineAt = routineManager.findRoutineAt(pcValue);
+//            if (currentRoutine != routineAt && !currentRoutine.contains(routineAt)) {
+//              currentRoutine.addInnerRoutine(routineAt);
+//            }
 //            currentRoutine.finish();
             this.currentRoutine = routineManager.findRoutineAt(ret.getNextPC().intValue() - 1);
           }

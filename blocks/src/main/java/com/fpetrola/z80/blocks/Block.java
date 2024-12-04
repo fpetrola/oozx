@@ -164,7 +164,7 @@ public interface Block {
     return testOverlap(getRangeHandler().getStartAddress(), getRangeHandler().getEndAddress(), block.getRangeHandler().getStartAddress(), block.getRangeHandler().getEndAddress());
   }
 
-  default boolean testOverlap(int x1, int x2, int y1, int y2) {
+  static boolean testOverlap(int x1, int x2, int y1, int y2) {
     return (x1 >= y1 && x1 <= y2) ||
         (x2 >= y1 && x2 <= y2) ||
         (y1 >= x1 && y1 <= x2) ||
