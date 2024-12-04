@@ -26,9 +26,16 @@ public class VirtualRoutine extends Routine {
 
   public VirtualRoutine(List<Block> blocks, int entryPoint) {
     super(blocks, entryPoint);
+    extracted(entryPoint);
+  }
+
+  private static void extracted(int entryPoint) {
+    if (entryPoint == 0xEEF1)
+      System.out.println("61169 (0xEEF1)");
   }
 
   public VirtualRoutine(Block block, int entryPoint) {
     super(block, entryPoint);
+    extracted(entryPoint);
   }
 }
