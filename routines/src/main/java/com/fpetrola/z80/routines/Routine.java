@@ -145,18 +145,20 @@ public class Routine {
 
   public void removeBlocks(List<Block> innerBlocks) {
     getBlocks().removeAll(innerBlocks);
-    if (getBlocks().isEmpty()) {
-      System.out.println("cannot be empty");
-      if (getInnerRoutines().isEmpty())
-        getRoutineManager().removeRoutine(this);
-      else if (getInnerRoutines().size() == 1) {
-        Routine first = getInnerRoutines().getFirst();
-        first.getBlocks().forEach(b -> addBlock(b));
-        removeInnerRoutine(first);
-      } else
-        System.out.println("more inner routines");
-
-    }
+//    if (getBlocks().isEmpty()) {
+//      System.out.println("cannot be empty");
+//      if (getInnerRoutines().isEmpty()) {
+//        if (parent != null)
+//          parent.removeInnerRoutine(this);
+//        getRoutineManager().removeRoutine(this);
+//      } else if (getInnerRoutines().size() == 1) {
+//        Routine first = getInnerRoutines().getFirst();
+//        first.getBlocks().forEach(b -> addBlock(b));
+//        removeInnerRoutine(first);
+//      } else
+//        System.out.println("more inner routines");
+//
+//    }
   }
 
   public void removeBlock(Block block) {

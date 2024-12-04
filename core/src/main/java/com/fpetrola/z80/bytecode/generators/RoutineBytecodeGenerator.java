@@ -28,6 +28,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineVisitor;
+import com.fpetrola.z80.routines.VirtualRoutine;
 import com.fpetrola.z80.transformations.InstructionActionExecutor;
 import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;
 import com.fpetrola.z80.transformations.VirtualRegister;
@@ -131,7 +132,6 @@ public class RoutineBytecodeGenerator {
                 addLabel(address);
               };
               Runnable instructionGenerator = () -> {
-
                 if (address == 0xDCCA)
                   System.out.println("adgadg");
                 bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
@@ -141,48 +141,16 @@ public class RoutineBytecodeGenerator {
                     System.out.print("");
 
                   currentInstruction = instruction;
-                  List<Routine> list = routine.getInnerRoutines().stream().filter(routine1 -> routine1.contains(address)).toList();
-                  if (!list.isEmpty()) {
-                    Routine first = list.getFirst();
-                    if (first.getStartAddress() == address) {
-                      invokeTransformedMethod(first.getStartAddress());
-                      Routine routineAt = bytecodeGenerationContext.routineManager.findRoutineAt(first.getStartAddress());
-                      if (routineAt.isCallable())
-                        returnFromMethod();
-                      else
-                        System.out.println("dsgdg");
-                    } else {
-                      System.out.print("");
-                    }
-                    //ready[0] = true;
-                  } else {
-                    lastMemPc.write(WordNumber.createValue(address));
+                  List<Routine> list = new ArrayList<>(routine.getInnerRoutines().stream().filter(routine1 -> routine1.contains(address)).toList());
+                  if (!list.isEmpty())
+                    invokeInnerIfAvailable(address, list);
+                  else
+                    generateInstruction(address, instruction, firstAddress);
 
-                    if (!(instruction instanceof ConditionalInstruction<?, ?>) && pendingFlag != null) {
-                      if (!pendingFlag.processed)
-                        pendingFlag.update(false);
-                    }
-
-                    int label = -1;
-                    if (getLabel(address) != null) {
-                      label = firstAddress;
-                      hereLabel(label);
-                    }
-
-//                    if (instruction instanceof Ret && routine.virtualPop.contains(address)) {
-//                      mm.invoke("incPops");
-//                    }
-
-                    InstructionsBytecodeGenerator instructionsBytecodeGenerator = new InstructionsBytecodeGenerator(mm, label, RoutineBytecodeGenerator.this, address, pendingFlag);
-                    instruction.accept(instructionsBytecodeGenerator);
-
-                    pendingFlag = instructionsBytecodeGenerator.pendingFlag;
-
-                    if (!instructionsBytecodeGenerator.incPopsAdded && routine.getVirtualPop().containsKey(address)) {
-                      getField("nextAddress").set(routine.getVirtualPop().get(address) + 1);
-                      returnFromMethod();
-                    }
-                  }
+                  int nextAddress = address + instruction.getLength();
+                  List<Routine> list2 = routine.getRoutineManager().getRoutines().stream().filter(routine1 -> routine1 instanceof VirtualRoutine && routine1 != routine && routine1.getEntryPoint() == nextAddress).toList();
+                  if (!list2.isEmpty())
+                    invokeInnerIfAvailable(nextAddress, list2);
                 }
 
               };
@@ -191,6 +159,50 @@ public class RoutineBytecodeGenerator {
             }
           }
         }
+      }
+
+      private void generateInstruction(int address, Instruction instruction, int firstAddress) {
+        lastMemPc.write(WordNumber.createValue(address));
+
+        if (!(instruction instanceof ConditionalInstruction<?, ?>) && pendingFlag != null) {
+          if (!pendingFlag.processed)
+            pendingFlag.update(false);
+        }
+
+        int label = -1;
+        if (getLabel(address) != null) {
+          label = firstAddress;
+          hereLabel(label);
+        }
+
+//                    if (instruction instanceof Ret && routine.virtualPop.contains(address)) {
+//                      mm.invoke("incPops");
+//                    }
+
+        InstructionsBytecodeGenerator instructionsBytecodeGenerator = new InstructionsBytecodeGenerator(mm, label, RoutineBytecodeGenerator.this, address, pendingFlag);
+        instruction.accept(instructionsBytecodeGenerator);
+
+        pendingFlag = instructionsBytecodeGenerator.pendingFlag;
+
+        if (!instructionsBytecodeGenerator.incPopsAdded && routine.getVirtualPop().containsKey(address)) {
+          getField("nextAddress").set(routine.getVirtualPop().get(address) + 1);
+          returnFromMethod();
+        }
+      }
+
+      private void invokeInnerIfAvailable(int address, List<Routine> list) {
+        Routine first = list.getFirst();
+        if (first.getStartAddress() == address) {
+          invokeTransformedMethod(first.getStartAddress());
+          Routine routineAt = bytecodeGenerationContext.routineManager.findRoutineAt(first.getStartAddress());
+          if (routineAt.isCallable())
+            returnFromMethod();
+          else
+            System.out.println("dsgdg");
+        } else {
+          System.out.print("");
+        }
+        //ready[0] = true;
       }
     });
 

@@ -1356,24 +1356,21 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
         
            public void $6() {
               super.B = 1;
-              if(super.F != 0) {
-                 this.$14();
-              } else {
-                 super.B = 2;
-              }
+              this.$7();
            }
         
            public void $10() {
               super.C = 1;
               if(super.F != 0) {
-                 this.$14();
+                 this.$7();
               } else {
                  super.C = 2;
               }
            }
         
-           public void $14() {
-              super.H = 1;
+           public void $7() {
+              super.C = 2;
+              super.D = 3;
            }
         }
         """, resultingJava);
@@ -1381,9 +1378,9 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     Assert.assertEquals(4, routines.size());
     Routine routine0 = routines.get(0);
     assertBlockAddresses(routine0.getBlocks().get(0), 0, 5);
-    assertBlockAddresses(routines.get(1).getBlocks().get(0), 6, 9);
-    assertBlockAddresses(routines.get(2).getBlocks().get(0), 10, 13);
-    assertBlockAddresses(routines.get(3).getBlocks().get(0), 14, 15);
+    assertBlockAddresses(routines.get(1).getBlocks().get(0), 6, 6);
+    assertBlockAddresses(routines.get(2).getBlocks().get(0), 7, 9);
+    assertBlockAddresses(routines.get(3).getBlocks().get(0), 10, 13);
   }
 
 

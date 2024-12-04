@@ -79,7 +79,6 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
         """, actual);
   }
 
-  @Ignore
   @Test
   public void testTranslateWillyToJava() {
     Helper.hex = false;

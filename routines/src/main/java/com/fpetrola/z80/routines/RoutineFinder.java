@@ -66,23 +66,8 @@ public class RoutineFinder {
         } else if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
           WordNumber nextPC = conditionalInstruction.getNextPC();
           if (nextPC != null)
-            if (!(conditionalInstruction instanceof Call<?>)) {
-              if (pcValue == 0xD304)
-                System.out.println("ddgsdggd");
-              int address = nextPC.intValue();
-              Routine routineAt = routineManager.findRoutineAt(address);
-              if (routineAt != null && routineAt != currentRoutine && !currentRoutine.containsInner(routineAt)) {
-                if (routineAt.getParent() != null) {
-                  routineAt.getParent().removeInnerRoutine(routineAt);
-                  routineManager.addRoutine(new VirtualRoutine(routineAt.getBlocks(), routineAt.getEntryPoint()));
-                } else {
-                  Block blockOf = routineAt.findBlockOf(address);
-                  routineAt.removeBlock(blockOf);
-                  routineManager.addRoutine(new VirtualRoutine(blockOf, address));
-                }
-                System.out.println("eh!!!");
-              }
-            }
+            if (!(conditionalInstruction instanceof Call<?>))
+              processNonCalls(pcValue, nextPC);
         }
       }
 
@@ -92,6 +77,29 @@ public class RoutineFinder {
       routineManager.optimizeAll();
       lastInstruction = instruction;
       lastPc = pcValue;
+    }
+  }
+
+  private void processNonCalls(int pcValue, WordNumber nextPC) {
+    if (pcValue == 0xD304)
+      System.out.println("ddgsdggd");
+    int address = nextPC.intValue();
+    Routine routineAt = routineManager.findRoutineAt(address);
+    if (routineAt != null && routineAt != currentRoutine && !currentRoutine.containsInner(routineAt)) {
+      if (routineAt.getParent() != null) {
+        routineAt.getParent().removeInnerRoutine(routineAt);
+        routineManager.addRoutine(new VirtualRoutine(routineAt.getBlocks(), routineAt.getEntryPoint()));
+      } else {
+        Block blockOf = routineAt.findBlockOf(address);
+        routineAt.removeBlock(blockOf);
+        if (blockOf.getRangeHandler().getStartAddress() != address) {
+          Block split = blockOf.split(address - 1);
+          routineAt.addBlock(blockOf);
+          blockOf= split;
+        }
+        routineManager.addRoutine(new VirtualRoutine(blockOf, address));
+      }
+      System.out.println("eh!!!");
     }
   }
 
