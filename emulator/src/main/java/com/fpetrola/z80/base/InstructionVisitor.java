@@ -410,4 +410,8 @@ public interface InstructionVisitor<T extends WordNumber, R> {
   default boolean visitingOperation16Bits(Binary16BitsOperation<T> binary16BitsOperation) {
     return false;
   }
+
+  default boolean visitingRra(RRA rra) {
+    return false;
+  }
 }

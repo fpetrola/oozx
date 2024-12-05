@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -40,5 +41,10 @@ public class RRA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
 
   public RRA(OpcodeReference target, Register<T> flag) {
     super(target, flag, (flagRegister, regA) -> rraTableAluOperation.executeWithCarry(regA, flagRegister.read(), flagRegister));
+  }
+
+  public void accept(InstructionVisitor visitor) {
+    if (!visitor.visitingRra(this))
+      super.accept(visitor);
   }
 }

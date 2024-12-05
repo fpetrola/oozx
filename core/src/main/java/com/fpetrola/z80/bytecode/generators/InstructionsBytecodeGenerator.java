@@ -191,6 +191,38 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
   }
 
   @Override
+  public boolean visitingRla(RLA rla) {
+    if (previousPendingFlag != null)
+      previousPendingFlag.update(true);
+
+    invokeRotationInstruction(rla, "rl");
+    return true;
+  }
+
+  @Override
+  public boolean visitRLD(RLD rld) {
+    throw new RuntimeException("Not implemented");
+  }
+
+  @Override
+  public boolean visitingSll(SLL sll) {
+    if (previousPendingFlag != null)
+      previousPendingFlag.update(true);
+
+    invokeRotationInstruction(sll, "sl");
+    return true;
+  }
+
+  @Override
+  public boolean visitingSla(SLA sla) {
+    if (previousPendingFlag != null)
+      previousPendingFlag.update(true);
+
+    invokeRotationInstruction(sla, "sl");
+    return true;
+  }
+
+  @Override
   public boolean visitingRr(RR rrc) {
     rrc.accept(new VariableHandlingInstructionVisitor((s, t) -> {
       Variable variable = t.get();
@@ -199,6 +231,15 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
     }, routineByteCodeGenerator));
     return true;
   }
+
+  @Override
+  public boolean visitingRra(RRA rra) {
+    rra.accept(new VariableHandlingInstructionVisitor((s, t) -> {
+      Variable variable = t.get();
+      if (variable != null)
+        t.set(methodMaker.invoke("rrc", variable));
+    }, routineByteCodeGenerator));
+    return true;  }
 
   @Override
   public boolean visitingRrc(RRC rrc) {

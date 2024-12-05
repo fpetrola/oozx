@@ -75,6 +75,8 @@ public abstract class SpectrumApplication<T> {
 
   public void push(int value) {
     stack.push(value);
+    if (stack.size() > 100)
+      System.out.println("mmmmmm push");
   }
 
   public int pop() {
@@ -297,6 +299,7 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int rrc(int a) {
+    F = a & 1;
     return ((a & 0xff) >> 1) | ((a & 0x01) << 7) & 0xff;
   }
 
@@ -307,6 +310,12 @@ public abstract class SpectrumApplication<T> {
 
   public int rl(int a) {
     int lastCarry = carry(F) & 0x01;
+    F = (a & 128) >> 7;
+    return ((a << 1) & 0xfe) | lastCarry;
+  }
+
+  public int sl(int a) {
+    int lastCarry = 0;
     F = (a & 128) >> 7;
     return ((a << 1) & 0xfe) | lastCarry;
   }

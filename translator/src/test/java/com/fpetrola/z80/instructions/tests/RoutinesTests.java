@@ -719,14 +719,14 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
         
         public class JSW extends SpectrumApplication {
            public void $0() {
-              label11: {
+              label12: {
                  super.A = 2;
                  this.$7();
                  if(!this.isNextPC(19)) {
                     super.C = 2;
                     this.$22();
                     if(!this.isNextPC(19)) {
-                       break label11;
+                       break label12;
                     }
                  }
         
@@ -1404,47 +1404,47 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
 
     String resultingJava = generateAndDecompile();
     Assert.assertEquals("""
-import com.fpetrola.z80.minizx.SpectrumApplication;
-
-public class JSW extends SpectrumApplication {
-   public void $0() {
-      if(super.A != 1) {
-         this.$6();
-      } else if(super.A == 1) {
-         this.$3();
-      } else {
-         super.B = 2;
-         this.$10();
-      }
-   }
-
-   public void $12() {
-      super.C = 2;
-      this.$4();
-   }
-
-   public void $4() {
-      super.B = 3;
-   }
-
-   public void $6() {
-      super.B = 1;
-      this.$10();
-   }
-
-   public void $10() {
-      super.C = 1;
-      this.$3();
-   }
-
-   public void $3() {
-      if(super.F != 0) {
-         this.$12();
-      }
-
-      this.$4();
-   }
-}
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+        
+        public class JSW extends SpectrumApplication {
+           public void $0() {
+              if(super.A != 1) {
+                 this.$6();
+              } else if(super.A == 1) {
+                 this.$3();
+              } else {
+                 super.B = 2;
+                 this.$10();
+              }
+           }
+        
+           public void $12() {
+              super.C = 2;
+              this.$4();
+           }
+        
+           public void $4() {
+              super.B = 3;
+           }
+        
+           public void $6() {
+              super.B = 1;
+              this.$10();
+           }
+        
+           public void $10() {
+              super.C = 1;
+              this.$3();
+           }
+        
+           public void $3() {
+              if(super.F != 0) {
+                 this.$12();
+              }
+        
+              this.$4();
+           }
+        }
         """, resultingJava);
 
     Assert.assertEquals(6, routines.size());

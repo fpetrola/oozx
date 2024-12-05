@@ -73,7 +73,7 @@ public class RoutineBytecodeGenerator {
   }
 
   public void generate() {
-    mm = getMethod(routine.getStartAddress());
+    mm = getMethod(routine.getEntryPoint());
     addInstructions();
     returnFromMethod();
   }
@@ -106,6 +106,7 @@ public class RoutineBytecodeGenerator {
     registers.put("mem", memory);
 
     final boolean[] ready = new boolean[]{false};
+    List<Routine> routines = routine.getRoutineManager().getRoutines();
 
     routine.accept(new RoutineVisitor<Integer>() {
       public void visitInstruction(int address, Instruction instruction) {
@@ -131,8 +132,8 @@ public class RoutineBytecodeGenerator {
                 addLabel(address);
               };
               Runnable instructionGenerator = () -> {
-//                if (address == 0xDCCA)
-//                  System.out.println("adgadg");
+                if (address == 0xD895)
+                  System.out.println("adgadg");
                 bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
 
                 if (!ready[0]) {
@@ -147,7 +148,7 @@ public class RoutineBytecodeGenerator {
                     generateInstruction(address, instruction, firstAddress);
 
                   int nextAddress = address + instruction.getLength();
-                  List<Routine> list2 = routine.getRoutineManager().getRoutines().stream().filter(routine1 -> routine1.virtual && routine1 != routine && routine1.getEntryPoint() == nextAddress).toList();
+                  List<Routine> list2 = routines.stream().filter(routine1 -> routine1.virtual && routine1 != routine && routine1.getEntryPoint() == nextAddress).toList();
                   if (!list2.isEmpty())
                     invokeInnerIfAvailable(nextAddress, list2);
                 }
@@ -208,6 +209,11 @@ public class RoutineBytecodeGenerator {
     generators.forEach(g -> g.scopeAdjuster().run());
     generators.forEach(g -> g.scopeAdjuster().run());
     generators.forEach(g -> g.labelGenerator().run());
+    if (routine.getEntryPoint() == 0xD895)
+      System.out.println("adgadg");
+    Label label = getLabel(routine.getEntryPoint());
+    if (label != null)
+      label.goto_();
     generators.forEach(g -> g.instructionGenerator().run());
 
     positionedLabels.forEach(l -> labels.get(l).here());

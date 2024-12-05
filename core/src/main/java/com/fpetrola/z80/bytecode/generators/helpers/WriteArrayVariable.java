@@ -116,7 +116,9 @@ public class WriteArrayVariable implements Variable {
 
   @Override
   public void ifEq(Object o, Label label) {
-
+    Object variable = variableSupplier.get();
+    Variable aget = getVariable1(variable);
+    aget.ifEq(o, label);
   }
 
   @Override
@@ -128,22 +130,30 @@ public class WriteArrayVariable implements Variable {
 
   @Override
   public void ifLt(Object o, Label label) {
-
+    Object variable = variableSupplier.get();
+    Variable aget = getVariable1(variable);
+    aget.ifLt(o, label);
   }
 
   @Override
   public void ifGe(Object o, Label label) {
-
+    Object variable = variableSupplier.get();
+    Variable aget = getVariable1(variable);
+    aget.ifGe(o, label);
   }
 
   @Override
   public void ifGt(Object o, Label label) {
-
+    Object variable = variableSupplier.get();
+    Variable aget = getVariable1(variable);
+    aget.ifGt(o, label);
   }
 
   @Override
   public void ifLe(Object o, Label label) {
-
+    Object variable = variableSupplier.get();
+    Variable aget = getVariable1(variable);
+    aget.ifLe(o, label);
   }
 
   @Override

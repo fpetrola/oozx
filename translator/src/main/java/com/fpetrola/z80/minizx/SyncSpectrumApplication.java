@@ -41,6 +41,7 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
 
   public void wMem(int address, int value, int pc) {
     syncChecker.checkSyncJava(address, value, pc);
+//    System.out.println("pc: " + pc);
     wMem(address, value);
   }
 

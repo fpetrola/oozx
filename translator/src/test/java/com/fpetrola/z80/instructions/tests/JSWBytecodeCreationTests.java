@@ -83,7 +83,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
   public void testTranslateWillyToJava() {
     Helper.hex = false;
     String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
-    stepUntilComplete(35090);
+    stepUntilComplete(34762);
     translateToJava("JetSetWilly", base64Memory, "$34762");
   }
 

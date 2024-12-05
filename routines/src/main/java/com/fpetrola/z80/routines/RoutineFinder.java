@@ -62,7 +62,7 @@ public class RoutineFinder {
   public void checkExecution(Instruction instruction, int pcValue) {
 
     try {
-      if (pcValue == 0xDE3A)
+      if (pcValue == 0xD895)
         System.out.printf("");
 
       if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
@@ -108,7 +108,7 @@ public class RoutineFinder {
     if (routineAt1 != null)
       currentRoutine = routineAt1;
 
-    if (nextPC.intValue() == 0xDE3A)
+    if (nextPC.intValue() == 0xD895)
       System.out.printf("");
     if (pcValue == 0xD304)
       System.out.println("ddgsdggd");
