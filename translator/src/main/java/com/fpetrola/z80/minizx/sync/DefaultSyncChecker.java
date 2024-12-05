@@ -20,6 +20,7 @@ package com.fpetrola.z80.minizx.sync;
 
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
+import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulation;
@@ -66,6 +67,7 @@ public class DefaultSyncChecker implements SyncChecker {
   }
 
   public DefaultSyncChecker() {
+    SpectrumApplication.io= new MiniZXIO();
     ooz80 = createOOZ80(SpectrumApplication.io);
   }
 
@@ -83,10 +85,10 @@ public class DefaultSyncChecker implements SyncChecker {
     Register<WordNumber> pc = ooz80.getState().getPc();
     Memory<WordNumber> memory = ooz80.getState().getMemory();
     memory.addMemoryWriteListener((address, value) -> {
-      checkSyncEmu(address.intValue(), value.intValue(), pc.read().intValue(), true);
+//      checkSyncEmu(address.intValue(), value.intValue(), pc.read().intValue(), true);
     });
     memory.addMemoryReadListener((address, value, delta, fetching) -> {
-      checkSyncEmu(address.intValue(), value.intValue(), pc.read().intValue(), false);
+//      checkSyncEmu(address.intValue(), value.intValue(), pc.read().intValue(), false);
     });
 
     miniZXWithEmulation = new MiniZXWithEmulation(ooz80, this.spectrumApplication);

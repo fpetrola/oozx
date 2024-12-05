@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.bytecode.soot;
 
-import com.fpetrola.z80.bytecode.tests.JetSetWilly;
+import com.fpetrola.z80.bytecode.tests.ZxGame1;
 import soot.*;
 import soot.options.Options;
 import soot.toolkits.graph.BriefUnitGraph;
@@ -41,7 +41,7 @@ public class CFGGenerator {
 //        Options.scene().set_soot_classpath(Scene.scene().getSootClassPath());
 
         // Establecer la clase a analizar (puede ser cualquier clase compilada en bytecode)
-        String className = JetSetWilly.class.getName();  // Reemplaza con tu clase
+        String className = ZxGame1.class.getName();  // Reemplaza con tu clase
         scene.addBasicClass(className, SootClass.SIGNATURES);
 
         // Añadir la clase a la escena de Soot

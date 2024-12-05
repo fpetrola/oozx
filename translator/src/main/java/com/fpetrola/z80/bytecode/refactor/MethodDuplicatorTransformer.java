@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.bytecode.refactor;
 
-import com.fpetrola.z80.bytecode.tests.JetSetWilly;
+import com.fpetrola.z80.bytecode.tests.ZxGame1;
 import org.objectweb.asm.*;
 
 import java.nio.file.Files;
@@ -138,7 +138,7 @@ public class MethodDuplicatorTransformer extends ClassVisitor {
 
     public static void main(String[] args) throws Exception {
         // Load the original class
-        ClassReader classReader = new ClassReader(JetSetWilly.class.getName());
+        ClassReader classReader = new ClassReader(ZxGame1.class.getName());
         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
 
         // Apply the transformation to duplicate a method with field accesses replaced by parameters

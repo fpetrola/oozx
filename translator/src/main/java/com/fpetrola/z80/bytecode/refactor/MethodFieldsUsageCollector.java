@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.bytecode.refactor;
 
-import com.fpetrola.z80.bytecode.tests.JetSetWilly;
+import com.fpetrola.z80.bytecode.tests.ZxGame1;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -81,7 +81,7 @@ public class MethodFieldsUsageCollector extends ClassVisitor {
   }
 
   public static void main(String[] args) throws Exception {
-    ClassReader classReader = new ClassReader(JetSetWilly.class.getName());
+    ClassReader classReader = new ClassReader(ZxGame1.class.getName());
     MethodFieldsUsageCollector methodFieldsUsageCollector = new MethodFieldsUsageCollector("$38601");
     classReader.accept(methodFieldsUsageCollector, 0);
   }

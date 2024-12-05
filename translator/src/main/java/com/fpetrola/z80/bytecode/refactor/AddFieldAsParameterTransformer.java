@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.bytecode.refactor;
 
-import com.fpetrola.z80.bytecode.tests.JetSetWilly;
+import com.fpetrola.z80.bytecode.tests.ZxGame1;
 import org.objectweb.asm.*;
 
 import java.io.IOException;
@@ -123,7 +123,7 @@ public class AddFieldAsParameterTransformer extends ClassVisitor {
   public static void main(String[] args) throws Exception {
     MethodFieldsUsageCollector methodInfo = getMethodInfo();
 
-    ClassReader classReader = new ClassReader(JetSetWilly.class.getName());
+    ClassReader classReader = new ClassReader(ZxGame1.class.getName());
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
 
     // Aplicar la transformación
@@ -138,7 +138,7 @@ public class AddFieldAsParameterTransformer extends ClassVisitor {
   }
 
   private static MethodFieldsUsageCollector getMethodInfo() throws IOException {
-    ClassReader classReader1 = new ClassReader(JetSetWilly.class.getName());
+    ClassReader classReader1 = new ClassReader(ZxGame1.class.getName());
     MethodFieldsUsageCollector methodFieldsUsageCollector = new MethodFieldsUsageCollector("$38601");
     classReader1.accept(methodFieldsUsageCollector, 0);
     return methodFieldsUsageCollector;

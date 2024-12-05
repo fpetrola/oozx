@@ -18,12 +18,13 @@
 
 package com.fpetrola.z80.bytecode.tests;
 
-public class JSWInvoker {
+import com.fpetrola.z80.minizx.sync.DefaultSyncChecker;
+
+public class GameInvoker {
   public static void main(String[] args) {
-    JetSetWilly jetSetWilly = new JetSetWilly();
-//    jetSetWilly.setSyncChecker(new DefaultSyncChecker());
-//    jetSetWilly.$34762(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0);
-    jetSetWilly.$C804();
-    System.out.println("sdgdsg");
+    ZxGame1 zxGame1 = new ZxGame1();
+//    zxGame1.setSyncChecker(new DefaultSyncChecker());
+//    zxGame1.$34762(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0);
+    zxGame1.$C804();
   }
 }
