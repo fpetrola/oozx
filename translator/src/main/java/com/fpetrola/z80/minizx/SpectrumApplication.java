@@ -58,6 +58,21 @@ public abstract class SpectrumApplication<T> {
     DE(temp1);
   }
 
+  public int exx() {
+    int temp1 = BCx;
+    BCx(BC);
+    BC(temp1);
+
+    int temp2 = DEx;
+    DEx(DE);
+    DE(temp2);
+
+    int temp3 = HLx;
+    HLx(HL);
+    HL(temp2);
+    return temp1;
+  }
+
   public void push(int value) {
     stack.push(value);
   }
@@ -336,6 +351,24 @@ public abstract class SpectrumApplication<T> {
     AFx = value & 0xffff;
     Ax = AFx >> 8;
     Fx = AFx & 0xFF;
+  }
+
+  public void BCx(int value) {
+    BCx = value & 0xffff;
+    Bx = BCx >> 8;
+    Cx = BCx & 0xFF;
+  }
+
+  public void DEx(int value) {
+    DEx = value & 0xffff;
+    Dx = DEx >> 8;
+    Ex = DEx & 0xFF;
+  }
+
+  public void HLx(int value) {
+    HLx = value & 0xffff;
+    Hx = HLx >> 8;
+    Lx = HLx & 0xFF;
   }
 
   public int AFx() {

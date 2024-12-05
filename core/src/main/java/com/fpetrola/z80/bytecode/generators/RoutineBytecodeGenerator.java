@@ -28,7 +28,6 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineVisitor;
-import com.fpetrola.z80.routines.VirtualRoutine;
 import com.fpetrola.z80.transformations.InstructionActionExecutor;
 import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;
 import com.fpetrola.z80.transformations.VirtualRegister;
@@ -132,13 +131,13 @@ public class RoutineBytecodeGenerator {
                 addLabel(address);
               };
               Runnable instructionGenerator = () -> {
-                if (address == 0xDCCA)
-                  System.out.println("adgadg");
+//                if (address == 0xDCCA)
+//                  System.out.println("adgadg");
                 bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
 
                 if (!ready[0]) {
-                  if (address == 34873)
-                    System.out.print("");
+//                  if (address == 34873)
+//                    System.out.print("");
 
                   currentInstruction = instruction;
                   List<Routine> list = new ArrayList<>(routine.getInnerRoutines().stream().filter(routine1 -> routine1.contains(address)).toList());
@@ -148,7 +147,7 @@ public class RoutineBytecodeGenerator {
                     generateInstruction(address, instruction, firstAddress);
 
                   int nextAddress = address + instruction.getLength();
-                  List<Routine> list2 = routine.getRoutineManager().getRoutines().stream().filter(routine1 -> routine1 instanceof VirtualRoutine && routine1 != routine && routine1.getEntryPoint() == nextAddress).toList();
+                  List<Routine> list2 = routine.getRoutineManager().getRoutines().stream().filter(routine1 -> routine1.virtual && routine1 != routine && routine1.getEntryPoint() == nextAddress).toList();
                   if (!list2.isEmpty())
                     invokeInnerIfAvailable(nextAddress, list2);
                 }

@@ -72,7 +72,7 @@ public class RoutineManager {
   }
 
   public void optimizeAll() {
-    routines.forEach(Routine::optimize);
+    new ArrayList<>(routines).forEach(Routine::optimize);
   }
 
   public Routine createRoutine(int startAddress, int length) {
@@ -81,7 +81,7 @@ public class RoutineManager {
     foundBlock = foundBlock.split(startAddress - 1, CodeBlockType.class);
     foundBlock.setType(new CodeBlockType());
 
-    return addRoutine(new Routine(foundBlock, startAddress));
+    return addRoutine(new Routine(foundBlock, startAddress, false));
   }
 
   public void setRandomAccessInstructionFetcher(RandomAccessInstructionFetcher randomAccessInstructionFetcher) {

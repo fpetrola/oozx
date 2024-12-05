@@ -498,7 +498,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
     int endAddress = conditionalInstruction.getJumpAddress().intValue() - 1;
     if (startAddress < endAddress) {
       int i = bytecodeGenerationContext.pc.read().intValue();
-      Routine routine = new Routine(new DefaultBlock(startAddress, endAddress, new BlocksManager(new NullBlockChangesListener(), true)), startAddress);
+      Routine routine = new Routine(new DefaultBlock(startAddress, endAddress, new BlocksManager(new NullBlockChangesListener(), true)), startAddress, true);
       routine.setRoutineManager(bytecodeGenerationContext.routineManager);
       final boolean[] notContained = new boolean[1];
 
@@ -555,14 +555,20 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
         if (routineByteCodeGenerator.routine.getVirtualPop().containsKey(address)) {
           routineByteCodeGenerator.getField("nextAddress").set(routineByteCodeGenerator.routine.getVirtualPop().get(address) + 1);
           incPopsAdded = true;
-        }else{
+        } else {
           routineByteCodeGenerator.invokeTransformedMethod(i);
           methodMaker.return_();
-          System.out.println("dagadgdag!!!!llll");
         }
         routineByteCodeGenerator.returnFromMethod();
       });
     }
+  }
+
+  public void visitExx(Exx exx) {
+    if (routineByteCodeGenerator.bytecodeGenerationContext.useFields) {
+      methodMaker.invoke("exx");
+    } else
+      throw new RuntimeException("not implemented");
   }
 
   @Override

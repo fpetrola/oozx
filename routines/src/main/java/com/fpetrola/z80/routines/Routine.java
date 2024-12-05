@@ -39,6 +39,7 @@ import static java.util.Arrays.asList;
 
 @SuppressWarnings("ALL")
 public class Routine {
+  public boolean virtual;
   private List<Block> blocks;
 
   private boolean finished;
@@ -47,16 +48,31 @@ public class Routine {
   private Routine parent;
   private int entryPoint;
 
+  public Routine(boolean virtual) {
+    this.virtual = virtual;
+  }
+
+  public Routine(Block block, int entryPoint, boolean virtual) {
+    this(new ArrayList<>(asList(block)), entryPoint, virtual);
+  }
+
+  public Routine(List<Block> blocks, int entryPoint, boolean virtual) {
+    this.virtual = virtual;
+    this.blocks = blocks;
+    this.entryPoint = entryPoint;
+  }
+
   public List<Routine> getInnerRoutines() {
     return innerRoutines;
   }
 
   private List<Routine> innerRoutines = new ArrayList<>();
   private RoutineManager routineManager;
-  private MultiValuedMap<Integer, Integer> returnPoints = new HashSetValuedHashMap<>();
 
+  private MultiValuedMap<Integer, Integer> returnPoints = new HashSetValuedHashMap<>();
   private Set<String> parameters = new HashSet<>();
   private Set<String> returnValues = new HashSet<>();
+
   private boolean callable = true;
 
   public List<Routine> getAllRoutines() {
@@ -88,16 +104,9 @@ public class Routine {
     this.callable = callable;
   }
 
-  public Routine() {
-  }
-
-  public Routine(Block block, int entryPoint) {
-    this(new ArrayList<>(asList(block)), entryPoint);
-  }
-
-  public Routine(List<Block> blocks, int entryPoint) {
-    this.blocks = blocks;
-    this.entryPoint = entryPoint;
+  private static void extracted(int entryPoint) {
+    if (entryPoint == 0xEEF1)
+      System.out.println("61169 (0xEEF1)");
   }
 
   public void addInstruction(Instruction instruction) {
@@ -112,40 +121,43 @@ public class Routine {
   }
 
   public void addInnerRoutine(Routine routine) {
-    if (routine.toString().contains("D895"))
-      System.out.println("ehh3");
-    boolean isVirtual = routine instanceof VirtualRoutine;
-    if (isVirtual)
-      System.out.println("virtual");
-    if (routine.toString().contains("C804"))
-      System.out.println("eh22222!");
-    if (routine == this)
-      throw new RuntimeException("cannot add it to self");
-    if (routine == null)
-      throw new RuntimeException("null inner routine");
-
-    boolean b1 = routine.overlap(this);
-    if (b1)
-      System.out.println("overlapped");
-
-    boolean b = routine.getAllInnerRoutines().stream().anyMatch(i -> i.containsInner(this));
-    if (b)
-      throw new RuntimeException("cannot add it to inner");
-
-    routine.setParent(this);
-
-    if (routineManager.getRoutines().contains(routine))
-      System.out.println("already in routinemanager");
-
-    List<Block> innerBlocks = routine.getBlocks();
-    removeBlocks(innerBlocks);
-    innerRoutines.add(routine);
-    routineManager.removeRoutine(routine);
+    routineManager.addRoutine(routine);
   }
+//  public void addInnerRoutine(Routine routine) {
+//    if (routine.toString().contains("D895"))
+//      System.out.println("ehh3");
+//    boolean isVirtual = routine instanceof VirtualRoutine;
+//    if (isVirtual)
+//      System.out.println("virtual");
+//    if (routine.toString().contains("C804"))
+//      System.out.println("eh22222!");
+//    if (routine == this)
+//      throw new RuntimeException("cannot add it to self");
+//    if (routine == null)
+//      throw new RuntimeException("null inner routine");
+//
+//    boolean b1 = routine.overlap(this);
+//    if (b1)
+//      System.out.println("overlapped");
+//
+//    boolean b = routine.getAllInnerRoutines().stream().anyMatch(i -> i.containsInner(this));
+//    if (b)
+//      throw new RuntimeException("cannot add it to inner");
+//
+//    routine.setParent(this);
+//
+//    if (routineManager.getRoutines().contains(routine))
+//      System.out.println("already in routinemanager");
+//
+//    List<Block> innerBlocks = routine.getBlocks();
+//    removeBlocks(innerBlocks);
+//    innerRoutines.add(routine);
+//    routineManager.removeRoutine(routine);
+//  }
 
   public void removeBlocks(List<Block> innerBlocks) {
     getBlocks().removeAll(innerBlocks);
-//    if (getBlocks().isEmpty()) {
+    if (getBlocks().isEmpty()) {
 //      System.out.println("cannot be empty");
 //      if (getInnerRoutines().isEmpty()) {
 //        if (parent != null)
@@ -157,8 +169,8 @@ public class Routine {
 //        removeInnerRoutine(first);
 //      } else
 //        System.out.println("more inner routines");
-//
-//    }
+
+    }
   }
 
   public void removeBlock(Block block) {
@@ -242,6 +254,56 @@ public class Routine {
       blocks.add(block);
   }
 
+  private Block splitIfCallers(Block block) {
+    int startAddress = block.getRangeHandler().getStartAddress();
+    int endAddress = block.getRangeHandler().getEndAddress();
+
+    for (int address = startAddress; address <= endAddress; address++) {
+      List<Integer> integers = RoutineFinder.callers.get(address);
+      int finalI = address;
+      boolean b = integers.stream().anyMatch(call -> routineManager.findRoutineAt(call) != routineManager.findRoutineAt(finalI));
+      if (b) {
+        if (address != startAddress) {
+          Block split = block.split(address - 1);
+          Routine routine = new Routine(split, address, true);
+          routine.getVirtualPop().putAll(getVirtualPop());
+          routineManager.addRoutine(routine);
+        }
+      }
+    }
+
+    return block;
+  }
+
+  private void splitIfCallees(int startAddress, int endAddress) {
+
+    for (int address = startAddress; address <= endAddress; address++) {
+      List<Integer> callees = RoutineFinder.callees.get(address);
+      int finalI = address;
+
+      for (int i = 0; i < callees.size(); i++) {
+        Routine routineAt = routineManager.findRoutineAt(i);
+        if (routineAt != null && routineAt != routineManager.findRoutineAt(finalI)) {
+          List<Block> blocks1 = new ArrayList<>(routineAt.getBlocks());
+          int finalI1 = callees.get(i);
+          blocks1.forEach(block -> {
+            if (block.contains(finalI1)) {
+              Block split = block;
+              if (finalI1 != block.getRangeHandler().getStartAddress()) {
+                split = block.split(finalI1 - 1);
+              } else {
+                routineAt.removeBlock(split);
+              }
+              Routine routine = new Routine(split, finalI1, true);
+              routine.getVirtualPop().putAll(getVirtualPop());
+              routineManager.addRoutine(routine);
+            }
+          });
+        }
+      }
+    }
+  }
+
   public void optimize() {
     {
 //      if (finished) {
@@ -249,6 +311,7 @@ public class Routine {
 //          System.out.println("finished");
 //      }
       blocks.sort(Comparator.comparingInt(b -> b.getRangeHandler().getStartAddress()));
+
       List<Block> blocksInReverse = new ArrayList<>(blocks);
       Collections.reverse(blocksInReverse);
       blocksInReverse.forEach(block -> {
@@ -276,6 +339,15 @@ public class Routine {
     }
   }
 
+  public void optimizeSplit() {
+    blocks.forEach(block -> {
+      int startAddress = block.getRangeHandler().getStartAddress();
+      int endAddress = block.getRangeHandler().getEndAddress();
+      splitIfCallers(block);
+      splitIfCallees(startAddress, endAddress);
+    });
+  }
+
   private boolean isNotInner(Block block) {
     return innerRoutines.stream().noneMatch(i -> i != null && i.contains(block));
   }
@@ -295,14 +367,14 @@ public class Routine {
       first.ifPresent(b -> {
         Block split = b.split(address - 1);
         addBlock(split);
-        Routine routine = new Routine(split, address);
+        Routine routine = new Routine(split, address, true);
         removeBlock(split);
         addInnerRoutine(routine);
         result[0] = routine;
       });
       result[0].setRoutineManager(routineManager);
     } else {
-      Routine routine = new Routine(first.get(), address);
+      Routine routine = new Routine(first.get(), address, true);
       result[0] = routine;
       removeBlock(first.get());
       addInnerRoutine(result[0]);
@@ -321,13 +393,12 @@ public class Routine {
         addBlock(blockAt2);
       } else {
         Routine routineAt = routineManager.findRoutineAt(pcValue);
-        boolean isVirtual = routineAt instanceof VirtualRoutine;
-        if (isVirtual)
-          System.out.println("virtual");
+        boolean isVirtual = routineAt.virtual;
         if (!isVirtual && routineAt != this && !this.overlap(routineAt)) {
           routineAt.getBlocks().forEach(this::addBlock);
           removeBlocks(routineAt.getBlocks());
           routineManager.removeRoutine(routineAt);
+          routineAt.virtual = true;
           addInnerRoutine(routineAt);
         }
       }
@@ -479,7 +550,7 @@ public class Routine {
 
         if (blocksBetween2.size() > 2)
           System.out.println("dddddddddddddd");
-        Routine routine = new Routine(blocksBetween2, entryPoint);
+        Routine routine = new Routine(blocksBetween2, entryPoint, true);
         addInnerRoutine(routine);
         result[0] = routine;
         routineManager.addRoutine(result[0]);

@@ -19,6 +19,7 @@
 package com.fpetrola.z80.routines;
 
 import com.fpetrola.z80.blocks.Block;
+import com.fpetrola.z80.blocks.BlockRoleVisitor;
 import com.fpetrola.z80.blocks.references.BlockRelation;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.Ret;
@@ -27,12 +28,23 @@ import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import org.apache.commons.collections4.ListValuedMap;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
+import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("ALL")
 public class RoutineFinder {
   private Instruction lastInstruction;
 
   private Routine currentRoutine;
+
+  public static ListValuedMap<Integer, Integer> callers = new ArrayListValuedHashMap<>();
+  public static ListValuedMap<Integer, Integer> callees = new ArrayListValuedHashMap<>();
 
   public RoutineManager getRoutineManager() {
     return routineManager;
@@ -43,13 +55,24 @@ public class RoutineFinder {
 
   public RoutineFinder(RoutineManager routineManager) {
     this.routineManager = routineManager;
+    callers.clear();
+    callees.clear();
   }
 
   public void checkExecution(Instruction instruction, int pcValue) {
 
     try {
-      if (pcValue == 0xD304)
+      if (pcValue == 0xDE3A)
         System.out.printf("");
+
+      if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
+        if (!(instruction instanceof Call) && !(instruction instanceof Ret<?>))
+          if (conditionalInstruction.getNextPC() != null) {
+            callers.put(conditionalInstruction.getNextPC().intValue(), pcValue);
+            callees.put(pcValue, conditionalInstruction.getNextPC().intValue());
+          }
+      }
+
       if (currentRoutine == null)
         createOrUpdateCurrentRoutine(pcValue, instruction.getLength());
 
@@ -81,25 +104,38 @@ public class RoutineFinder {
   }
 
   private void processNonCalls(int pcValue, WordNumber nextPC) {
+    Routine routineAt1 = routineManager.findRoutineAt(pcValue);
+    if (routineAt1 != null)
+      currentRoutine = routineAt1;
+
+    if (nextPC.intValue() == 0xDE3A)
+      System.out.printf("");
     if (pcValue == 0xD304)
       System.out.println("ddgsdggd");
     int address = nextPC.intValue();
     Routine routineAt = routineManager.findRoutineAt(address);
+
     if (routineAt != null && routineAt != currentRoutine && !currentRoutine.containsInner(routineAt)) {
       if (routineAt.getParent() != null) {
         routineAt.getParent().removeInnerRoutine(routineAt);
-        routineManager.addRoutine(new VirtualRoutine(routineAt.getBlocks(), routineAt.getEntryPoint()));
+        routineManager.addRoutine(new Routine(routineAt.getBlocks(), routineAt.getEntryPoint(), true));
       } else {
         Block blockOf = routineAt.findBlockOf(address);
         routineAt.removeBlock(blockOf);
         if (blockOf.getRangeHandler().getStartAddress() != address) {
           Block split = blockOf.split(address - 1);
           routineAt.addBlock(blockOf);
-          blockOf= split;
+          blockOf = split;
+        } else {
+          if (routineAt.getBlocks().isEmpty())
+            routineManager.removeRoutine(routineAt);
+          System.out.println("quizas!");
         }
-        routineManager.addRoutine(new VirtualRoutine(blockOf, address));
+        Routine routine = new Routine(blockOf, address, true);
+        routine.getVirtualPop().putAll(routineAt.getVirtualPop());
+        routineManager.addRoutine(routine);
+        routine.optimizeSplit();
       }
-      System.out.println("eh!!!");
     }
   }
 

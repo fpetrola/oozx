@@ -79,11 +79,14 @@ class SEInstructionFactory<T extends WordNumber> extends DefaultInstructionFacto
   @Override
   public JP JP(ImmutableOpcodeReference target, Condition condition) {
     return new JP<T>(target, condition, pc) {
-      protected T beforeJump(T jumpAddress) {
-        if (pc.read().intValue() > 16384 && jumpAddress.intValue() < 16384) {
-          return WordNumber.createValue( pc.read().intValue() + 3);
+      @Override
+      public T calculateJumpAddress() {
+        T t = super.calculateJumpAddress();
+        if (pc.read().intValue() > 16384 && t.intValue() < 16384) {
+          return jumpAddress= WordNumber.createValue(pc.read().intValue() + 3);
+        } else {
+          return t;
         }
-        return super.beforeJump(jumpAddress);
       }
 
       @Override
