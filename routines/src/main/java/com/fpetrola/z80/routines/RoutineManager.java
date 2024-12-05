@@ -75,6 +75,16 @@ public class RoutineManager {
     new ArrayList<>(routines).forEach(Routine::optimize);
   }
 
+  public void optimizeAllSplit() {
+    boolean changes = false;
+
+    do {
+      changes= false;
+      for (Routine routine : new ArrayList<>(routines))
+        changes |= routine.optimizeSplit();
+    } while (changes);
+  }
+
   public Routine createRoutine(int startAddress, int length) {
     Block foundBlock = blocksManager.findBlockAt(startAddress);
     foundBlock.split(startAddress + length - 1);

@@ -19,7 +19,6 @@
 package com.fpetrola.z80.routines;
 
 import com.fpetrola.z80.blocks.Block;
-import com.fpetrola.z80.blocks.BlockRoleVisitor;
 import com.fpetrola.z80.blocks.references.BlockRelation;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.Ret;
@@ -29,13 +28,7 @@ import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import org.apache.commons.collections4.ListValuedMap;
-import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
-import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @SuppressWarnings("ALL")
 public class RoutineFinder {
@@ -86,11 +79,6 @@ public class RoutineFinder {
         currentRoutine.addInstructionAt(instruction, pcValue);
         if (instruction instanceof Ret ret) {
           processRetInstruction(ret);
-        } else if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
-          WordNumber nextPC = conditionalInstruction.getNextPC();
-          if (nextPC != null)
-            if (!(conditionalInstruction instanceof Call<?>))
-              processNonCalls(pcValue, nextPC);
         }
       }
 
@@ -100,42 +88,6 @@ public class RoutineFinder {
       routineManager.optimizeAll();
       lastInstruction = instruction;
       lastPc = pcValue;
-    }
-  }
-
-  private void processNonCalls(int pcValue, WordNumber nextPC) {
-    Routine routineAt1 = routineManager.findRoutineAt(pcValue);
-    if (routineAt1 != null)
-      currentRoutine = routineAt1;
-
-    if (nextPC.intValue() == 0xD895)
-      System.out.printf("");
-    if (pcValue == 0xD304)
-      System.out.println("ddgsdggd");
-    int address = nextPC.intValue();
-    Routine routineAt = routineManager.findRoutineAt(address);
-
-    if (routineAt != null && routineAt != currentRoutine && !currentRoutine.containsInner(routineAt)) {
-      if (routineAt.getParent() != null) {
-        routineAt.getParent().removeInnerRoutine(routineAt);
-        routineManager.addRoutine(new Routine(routineAt.getBlocks(), routineAt.getEntryPoint(), true));
-      } else {
-        Block blockOf = routineAt.findBlockOf(address);
-        routineAt.removeBlock(blockOf);
-        if (blockOf.getRangeHandler().getStartAddress() != address) {
-          Block split = blockOf.split(address - 1);
-          routineAt.addBlock(blockOf);
-          blockOf = split;
-        } else {
-          if (routineAt.getBlocks().isEmpty())
-            routineManager.removeRoutine(routineAt);
-          System.out.println("quizas!");
-        }
-        Routine routine = new Routine(blockOf, address, true);
-        routine.getVirtualPop().putAll(routineAt.getVirtualPop());
-        routineManager.addRoutine(routine);
-        routine.optimizeSplit();
-      }
     }
   }
 

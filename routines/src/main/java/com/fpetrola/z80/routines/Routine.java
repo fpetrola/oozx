@@ -60,7 +60,7 @@ public class Routine {
     this.virtual = virtual;
     this.blocks = blocks;
     this.entryPoint = entryPoint;
-    if (entryPoint == 35090)
+    if (blocks.get(0).getRangeHandler().getStartAddress() == 0xE782)
       System.out.println("dsagsdgdg");
   }
 
@@ -256,54 +256,93 @@ public class Routine {
       blocks.add(block);
   }
 
-  private Block splitIfCallers(Block block) {
+  private boolean splitIfCallers(Block block) {
     int startAddress = block.getRangeHandler().getStartAddress();
     int endAddress = block.getRangeHandler().getEndAddress();
 
+    boolean changes = false;
     for (int address = startAddress; address <= endAddress; address++) {
       List<Integer> integers = RoutineFinder.callers.get(address);
       int finalI = address;
+
       boolean b = integers.stream().anyMatch(call -> routineManager.findRoutineAt(call) != routineManager.findRoutineAt(finalI));
       if (b) {
+        Block split = block;
+        boolean create = false;
+        if (address == 0xe6f6)
+          System.out.println("sdgdgdg");
+
         if (address != startAddress) {
-          Block split = block.split(address - 1);
+          split = block.split(address - 1);
+          if (block.getRangeHandler().getStartAddress() != entryPoint)
+            entryPoint = address;
+          create = true;
+        } else {
+          if (getBlocks().size() > 1) {
+            removeBlock(split);
+            if (split.getRangeHandler().getStartAddress() == entryPoint) {
+              entryPoint = getBlocks().get(0).getRangeHandler().getStartAddress();
+            }
+            create = true;
+          }
+        }
+
+        if (create) {
           Routine routine = new Routine(split, address, true);
           routine.getVirtualPop().putAll(getVirtualPop());
           routineManager.addRoutine(routine);
+          changes = true;
         }
       }
     }
 
-    return block;
+    return changes;
   }
 
-  private void splitIfCallees(int startAddress, int endAddress) {
+  private boolean splitIfCallees(int startAddress, int endAddress) {
+    final boolean[] changes = {false};
 
     for (int address = startAddress; address <= endAddress; address++) {
       List<Integer> callees = RoutineFinder.callees.get(address);
       int finalI = address;
-
       for (int i = 0; i < callees.size(); i++) {
-        Routine routineAt = routineManager.findRoutineAt(i);
+        int finalI1 = callees.get(i);
+        Routine routineAt = routineManager.findRoutineAt(finalI1);
         if (routineAt != null && routineAt != routineManager.findRoutineAt(finalI)) {
           List<Block> blocks1 = new ArrayList<>(routineAt.getBlocks());
-          int finalI1 = callees.get(i);
           blocks1.forEach(block -> {
             if (block.contains(finalI1)) {
+              boolean create = false;
+              if (finalI1 == 0xe6f6)
+                System.out.println("sdgdgdg");
+
               Block split = block;
               if (finalI1 != block.getRangeHandler().getStartAddress()) {
                 split = block.split(finalI1 - 1);
+                if (block.getRangeHandler().getStartAddress() != routineAt.entryPoint)
+                  routineAt.entryPoint = finalI1 - 1;
+                create = true;
               } else {
-                routineAt.removeBlock(split);
+                if (routineAt.getBlocks().size() > 1) {
+                  routineAt.removeBlock(split);
+                  if (split.getRangeHandler().getStartAddress() == routineAt.entryPoint) {
+                    routineAt.entryPoint = finalI1;
+                  }
+                  create = true;
+                }
               }
-              Routine routine = new Routine(split, finalI1, true);
-              routine.getVirtualPop().putAll(getVirtualPop());
-              routineManager.addRoutine(routine);
+              if (create) {
+                Routine routine = new Routine(split, finalI1, true);
+                routine.getVirtualPop().putAll(getVirtualPop());
+                routineManager.addRoutine(routine);
+                changes[0] = true;
+              }
             }
           });
         }
       }
     }
+    return changes[0];
   }
 
   public void optimize() {
@@ -341,13 +380,18 @@ public class Routine {
     }
   }
 
-  public void optimizeSplit() {
-    blocks.forEach(block -> {
+  public boolean optimizeSplit() {
+    boolean changes = false;
+
+    for (int i = 0; i < blocks.size(); i++) {
+      Block block = blocks.get(i);
       int startAddress = block.getRangeHandler().getStartAddress();
       int endAddress = block.getRangeHandler().getEndAddress();
-      splitIfCallers(block);
-      splitIfCallees(startAddress, endAddress);
-    });
+      changes |= splitIfCallers(block);
+      changes |= splitIfCallees(startAddress, endAddress);
+    }
+
+    return changes;
   }
 
   private boolean isNotInner(Block block) {
@@ -369,14 +413,14 @@ public class Routine {
       first.ifPresent(b -> {
         Block split = b.split(address - 1);
         addBlock(split);
-        Routine routine = new Routine(split, address, true);
+        Routine routine = new Routine(split, address, false);
         removeBlock(split);
         addInnerRoutine(routine);
         result[0] = routine;
       });
       result[0].setRoutineManager(routineManager);
     } else {
-      Routine routine = new Routine(first.get(), address, true);
+      Routine routine = new Routine(first.get(), address, false);
       result[0] = routine;
       removeBlock(first.get());
       addInnerRoutine(result[0]);

@@ -146,6 +146,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         mutantAddress.add(wmr.address.intValue());
       }
     });
+
+    routineManager.optimizeAllSplit();
   }
 
   private void printJPHL(List<WriteMemoryReference> writeMemoryReferences, int i) {

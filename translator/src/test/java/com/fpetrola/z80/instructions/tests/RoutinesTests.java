@@ -1263,21 +1263,21 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
               super.C = 8;
            }
         
-           public void $6() {
-              super.B = 1;
-              if(super.F != 0) {
-                 this.$14();
-              } else {
-                 super.B = 2;
-              }
-           }
-        
            public void $10() {
               super.C = 1;
               if(super.F != 0) {
                  this.$14();
               } else {
                  super.C = 2;
+              }
+           }
+        
+           public void $6() {
+              super.B = 1;
+              if(super.F != 0) {
+                 this.$14();
+              } else {
+                 super.B = 2;
               }
            }
         
@@ -1338,11 +1338,6 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
               super.C = 8;
            }
         
-           public void $6() {
-              super.B = 1;
-              this.$7();
-           }
-        
            public void $10() {
               super.C = 1;
               if(super.F != 0) {
@@ -1350,6 +1345,11 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
               } else {
                  super.C = 2;
               }
+           }
+        
+           public void $6() {
+              super.B = 1;
+              this.$7();
            }
         
            public void $7() {
@@ -1407,34 +1407,23 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
         import com.fpetrola.z80.minizx.SpectrumApplication;
         
         public class JSW extends SpectrumApplication {
-           public void $0() {
-              if(super.A != 1) {
-                 this.$6();
-              } else if(super.A == 1) {
-                 this.$3();
-              } else {
-                 super.B = 2;
-                 this.$10();
-              }
-           }
-        
            public void $12() {
               super.C = 2;
               this.$4();
            }
         
+           public void $0() {
+              if(super.A != 1) {
+                 this.$6();
+              } else if(super.A != 1) {
+                 this.$8();
+              } else {
+                 this.$3();
+              }
+           }
+        
            public void $4() {
               super.B = 3;
-           }
-        
-           public void $6() {
-              super.B = 1;
-              this.$10();
-           }
-        
-           public void $10() {
-              super.C = 1;
-              this.$3();
            }
         
            public void $3() {
@@ -1444,10 +1433,25 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
         
               this.$4();
            }
+        
+           public void $6() {
+              super.B = 1;
+              this.$10();
+           }
+        
+           public void $8() {
+              super.B = 2;
+              this.$10();
+           }
+        
+           public void $10() {
+              super.C = 1;
+              this.$3();
+           }
         }
         """, resultingJava);
 
-    Assert.assertEquals(6, routines.size());
+    Assert.assertEquals(7, routines.size());
     Routine routine0 = routines.get(0);
     assertBlockAddresses(routine0.getBlocks().get(0), 0, 2);
 //    assertBlockAddresses(routines.get(1).getBlocks().get(0), 6, 6);

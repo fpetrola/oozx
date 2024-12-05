@@ -10,7 +10,7 @@ public class JetSetWilly extends MiniZX {
   public void $C804() {
     label64:
     while(true) {
-//      $CA5B();
+      $CA5B();
       $C881();
 
       while(true) {
@@ -90,7 +90,7 @@ public class JetSetWilly extends MiniZX {
         int var30 = A;
         int var31 = rrc(var30);
         A = var31;
-        if( F >= 0) {
+        if(F >= 0) {
           HL(51327);
           int var32 = HL();
           int var33 = mem(var32, 51298) | 128;
@@ -656,17 +656,6 @@ public class JetSetWilly extends MiniZX {
 
   }
 
-  public void $E8F1() {
-    A = E;
-    int var1 = A & 24;
-    A = var1;
-    int var2 = A + 64 & 255;
-    A = var2;
-    int var3 = AF();
-    push(var3);
-    $E8F7();
-  }
-
   public void $E8E3() {
     A = E;
     int var1 = A & 24;
@@ -690,33 +679,15 @@ public class JetSetWilly extends MiniZX {
     $E8F7();
   }
 
-  public void $E8F7() {
+  public void $E8F1() {
     A = E;
-    int var1 = A & 7;
+    int var1 = A & 24;
     A = var1;
-    int var2 = A << 1;
-    F = var2;
-    int var3 = A;
-    int var4 = sl(var3);
-    A = var4;
-    int var5 = A;
-    int var6 = sl(var5);
-    A = var6;
-    int var7 = A;
-    int var8 = sl(var7);
-    A = var8;
-    int var9 = A;
-    int var10 = sl(var9);
-    A = var10;
-    int var11 = A;
-    int var12 = sl(var11);
-    A = var12;
-    int var13 = A + D & 255;
-    A = var13;
-    E = A;
-    int var14 = pop();
-    AF(var14);
-    D = A;
+    int var2 = A + 64 & 255;
+    A = var2;
+    int var3 = AF();
+    push(var3);
+    $E8F7();
   }
 
   public void $E8BA() {
@@ -1734,46 +1705,6 @@ public class JetSetWilly extends MiniZX {
     }
   }
 
-  public void $D4AF() {
-    do {
-      int var1 = BC() - 1 & 65535;
-      BC(var1);
-      A = B;
-      int var2 = A | C;
-      A = var2;
-    } while(A << 1 != 0);
-
-  }
-
-  public void $DAB2() {
-    int var1 = mem(59392, 55986);
-    A = var1;
-
-    do {
-      int var2 = DE();
-      push(var2);
-      int var3 = A ^ 16;
-      A = var3;
-      C = A;
-
-      do {
-        int var4 = DE() - 1 & 65535;
-        DE(var4);
-        A = D;
-        int var5 = A | E;
-        A = var5;
-      } while(A << 1 != 0);
-
-      int var6 = pop();
-      DE(var6);
-      A = C;
-      int var7 = B - 1 & 255;
-      B = var7;
-    } while(B != 0);
-
-    wMem(59392, A, 56004);
-  }
-
   public void $DA8D() {
     int var1 = mem(55946, 55949);
     A = var1;
@@ -1855,6 +1786,46 @@ public class JetSetWilly extends MiniZX {
       } while(B != 0);
 
     }
+  }
+
+  public void $D4AF() {
+    do {
+      int var1 = BC() - 1 & 65535;
+      BC(var1);
+      A = B;
+      int var2 = A | C;
+      A = var2;
+    } while(A << 1 != 0);
+
+  }
+
+  public void $DAB2() {
+    int var1 = mem(59392, 55986);
+    A = var1;
+
+    do {
+      int var2 = DE();
+      push(var2);
+      int var3 = A ^ 16;
+      A = var3;
+      C = A;
+
+      do {
+        int var4 = DE() - 1 & 65535;
+        DE(var4);
+        A = D;
+        int var5 = A | E;
+        A = var5;
+      } while(A << 1 != 0);
+
+      int var6 = pop();
+      DE(var6);
+      A = C;
+      int var7 = B - 1 & 255;
+      B = var7;
+    } while(B != 0);
+
+    wMem(59392, A, 56004);
   }
 
   public void $DAFA() {
@@ -2639,6 +2610,21 @@ public class JetSetWilly extends MiniZX {
     $EEF9();
   }
 
+  public void $EEF1() {
+    int var1 = HL();
+    int var2 = mem(var1, 61169);
+    E = var2;
+    int var3 = HL() + 1 & 65535;
+    HL(var3);
+    int var4 = HL();
+    int var5 = mem(var4, 61171);
+    D = var5;
+    $E8F1();
+    int var6 = D + 1 & 255;
+    D = var6;
+    $EEF8();
+  }
+
   public void $EEF9() {
     int var1 = HL();
     int var2 = mem(var1, 61177);
@@ -2693,27 +2679,6 @@ public class JetSetWilly extends MiniZX {
         $EEF8();
       }
     }
-  }
-
-  public void $EEF8() {
-    int var1 = HL() + 1 & 65535;
-    HL(var1);
-    $EEF9();
-  }
-
-  public void $EEF1() {
-    int var1 = HL();
-    int var2 = mem(var1, 61169);
-    E = var2;
-    int var3 = HL() + 1 & 65535;
-    HL(var3);
-    int var4 = HL();
-    int var5 = mem(var4, 61171);
-    D = var5;
-    $E8F1();
-    int var6 = D + 1 & 255;
-    D = var6;
-    $EEF8();
   }
 
   public void $CBBD() {
@@ -3154,10 +3119,6 @@ public class JetSetWilly extends MiniZX {
       A = 255;
       $DCE4();
     }
-  }
-
-  public void $DCE4() {
-    wMem(53193, A, 56548);
   }
 
   public void $DCCC() {
@@ -3997,24 +3958,6 @@ public class JetSetWilly extends MiniZX {
 
   }
 
-  public void $E90C() {
-    A = D;
-    int var1 = A;
-    int var2 = rrc(var1);
-    A = var2;
-    int var3 = A;
-    int var4 = rrc(var3);
-    A = var4;
-    int var5 = A;
-    int var6 = rrc(var5);
-    A = var6;
-    int var7 = A & 3;
-    A = var7;
-    int var8 = A | 88;
-    A = var8;
-    D = A;
-  }
-
   public void $D2BF() {
     if(A << 1 != 0) {
       L = A;
@@ -4637,6 +4580,24 @@ public class JetSetWilly extends MiniZX {
     exx();
   }
 
+  public void $E90C() {
+    A = D;
+    int var1 = A;
+    int var2 = rrc(var1);
+    A = var2;
+    int var3 = A;
+    int var4 = rrc(var3);
+    A = var4;
+    int var5 = A;
+    int var6 = rrc(var5);
+    A = var6;
+    int var7 = A & 3;
+    A = var7;
+    int var8 = A | 88;
+    A = var8;
+    D = A;
+  }
+
   public void $D9A7() {
     A = D;
     if(A != E) {
@@ -4653,46 +4614,243 @@ public class JetSetWilly extends MiniZX {
     }
   }
 
-  public void $DE0B() {
-    int var1 = IX() + 11;
-    int var2 = mem(var1, 56843) & -2;
-    wMem(var1, var2, 56843);
-    HL(51326);
-    int var3 = HL();
-    int var4 = mem(var3, 56850) | 64;
-    int var5 = HL();
-    wMem(var5, var4, 56850);
-    A = 75;
-    DE(65067);
-    $DE3A();
-  }
+  public void $D895() {
+    label97: {
+      label96: {
+        int var1 = mem(51323, 55445);
+        A = var1;
+        if((A & 4) == 0) {
+          int var7 = mem16(51314, 55453);
+          DE(var7);
+          A = 26;
+          int var8 = A + E & 255;
+          A = var8;
+          E = A;
+          $E909();
+          int var9 = mem(51317, 55464);
+          A = var9;
+          if(A != 4 && A >= 3) {
+            int var48 = E + 1 & 255;
+            E = var48;
+          }
 
-  public void $DE28() {
-    int var1 = IX() + 11;
-    int var2 = mem(var1, 56843) & -2;
-    wMem(var1, var2, 56843);
-    HL(51326);
-    int var3 = HL();
-    int var4 = mem(var3, 56850) | 64;
-    int var5 = HL();
-    wMem(var5, var4, 56850);
-    A = 75;
-    DE(65067);
-    $DE3A();
-  }
+          int var10 = DE();
+          int var11 = mem(var10, 55476);
+          A = var11;
+          B = A;
+          int var12 = E + 1 & 255;
+          E = var12;
+          int var13 = DE();
+          int var14 = mem(var13, 55479);
+          A = var14;
+          C = A;
+          HL(53196);
+          D = 7;
 
-  public void $DE3A() {
-    int var1 = IX() + 11;
-    int var2 = mem(var1, 56843) & -2;
-    wMem(var1, var2, 56843);
-    HL(51326);
-    int var3 = HL();
-    int var4 = mem(var3, 56850) | 64;
-    int var5 = HL();
-    wMem(var5, var4, 56850);
-    A = 75;
-    DE(65067);
-    $DE3A();
+          while(true) {
+            int var15 = HL();
+            int var16 = mem(var15, 55486);
+            E = var16;
+            $D9AA();
+            if(F == 0) {
+              A = 14;
+              break;
+            }
+
+            int var21 = HL() + 1 & 65535;
+            HL(var21);
+            int var22 = D - 1 & 255;
+            D = var22;
+            if(D == 0) {
+              int var23 = mem(53193, 55496);
+              A = var23;
+              E = A;
+              $D9AA();
+              if(F == 0) {
+                $DBB8();
+                return;
+              }
+
+              E = 56;
+              $D9AA();
+              if(F == 0) {
+                $DE0B();
+                return;
+              }
+
+              E = 104;
+              $D9AA();
+              if(F == 0) {
+                $DE1B();
+                return;
+              }
+
+              E = 96;
+              $D9AA();
+              if(F == 0) {
+                $DE28();
+                return;
+              }
+
+              E = 2;
+              $D9AA();
+              if(F != 0) {
+                E = 79;
+                $D9AA();
+                if(F != 0) {
+                  int var26 = mem(51316, 55557);
+                  A = var26;
+                  B = A;
+                  int var27 = A & 81;
+                  A = var27;
+                  if(A << 1 == 0) {
+                    A = 24;
+                    wMem(53195, A, 55567);
+                  }
+
+                  A = B;
+                  int var28 = A | 64;
+                  A = var28;
+                } else {
+                  A = 13;
+                  wMem(56301, A, 55610);
+                  int var24 = mem(51316, 55613);
+                  A = var24;
+                  int var25 = A | 128;
+                  A = var25;
+                }
+                break label97;
+              }
+
+              int var29 = mem(53194, 55537);
+              A = var29;
+              if(A >= 8) {
+                int var30 = mem(51314, 54000);
+                A = var30;
+                int var31 = A & 7;
+                A = var31;
+                if(A << 1 == 0) {
+                  int var32 = mem(51318, 54009);
+                  A = var32;
+                  L = A;
+                  int var33 = mem(51316, 54013);
+                  A = var33;
+                  B = A;
+                  A = L;
+                  if(A < 3) {
+                    int var46 = mem(51316, 54022);
+                    A = var46;
+                    int var47 = A & 34;
+                    A = var47;
+                    wMem(51316, A, 54027);
+                    A = 0;
+                    wMem(51318, A, 54031);
+                    $D567();
+                  }
+
+                  int var34 = HL();
+                  push(var34);
+                  int var35 = DE();
+                  push(var35);
+                  int var36 = BC();
+                  push(var36);
+                  $E9BC();
+                  A = C;
+                  int var37 = pop();
+                  BC(var37);
+                  int var38 = pop();
+                  DE(var38);
+                  int var39 = pop();
+                  HL(var39);
+                  C = A;
+                  if((C & 1) == 0) {
+                    $D32E();
+                    return;
+                  }
+
+                  int var40 = L + 1 & 255;
+                  L = var40;
+                  A = L;
+                  wMem(51321, A, 54066);
+                  int var41 = C & 4;
+                  F = var41;
+                  int var42 = B & -9;
+                  B = var42;
+                  if(F != 0) {
+                    $D361();
+                    return;
+                  }
+
+                  int var43 = B | 8;
+                  B = var43;
+                  if((C & 2) != 0) {
+                    $D34A();
+                    return;
+                  }
+
+                  if((B & 2) != 0) {
+                    $D361();
+                    return;
+                  }
+
+                  $D4B5();
+                  int var44 = mem(51316, 54097);
+                  A = var44;
+                  int var45 = A & 34;
+                  A = var45;
+                  wMem(51316, A, 54102);
+                  A = 9;
+                  wMem(51318, A, 54107);
+                  $D1CE();
+                  return;
+                }
+
+                return;
+              }
+
+              A = 13;
+              break;
+            }
+          }
+
+          wMem(56301, A, 55577);
+          int var17 = mem(51314, 55580);
+          A = var17;
+          int var18 = A & 7;
+          A = var18;
+          if(A != 6) {
+            return;
+          }
+
+          int var19 = mem(51316, 55589);
+          A = var19;
+          int var20 = A & 17;
+          A = var20;
+          if(A << 1 != 0) {
+            break label96;
+          }
+        }
+
+        int var2 = mem(51318, 55596);
+        A = var2;
+        if(A >= 28) {
+          int var6 = A - 28;
+          F = var6;
+          $CD8A();
+        }
+      }
+
+      A = 0;
+      wMem(51318, A, 55621);
+      int var3 = mem(51316, 55624);
+      A = var3;
+      int var4 = A & 34;
+      A = var4;
+      int var5 = A << 1;
+      F = var5;
+    }
+
+    wMem(51316, A, 55629);
   }
 
   public void $D951() {
@@ -4782,73 +4940,6 @@ public class JetSetWilly extends MiniZX {
         }
       }
     }
-  }
-
-  public void $DE1B() {
-    int var1 = IX() + 11;
-    int var2 = mem(var1, 56859) & -3;
-    wMem(var1, var2, 56859);
-    int var3 = A & 127;
-    A = var3;
-    int var4 = A << 1;
-    F = var4;
-    DE(65093);
-    $DE3A();
-  }
-
-  public void $DBB8() {
-    int var1 = IX() + 5;
-    int var2 = mem(var1, 56248);
-    E = var2;
-    int var3 = IX() + 6;
-    int var4 = mem(var3, 56251);
-    D = var4;
-    int var5 = IX() + 4;
-    int var6 = mem(var5, 56254) & -9;
-    wMem(var5, var6, 56254);
-    int var7 = IX() + 4;
-    int var8 = mem(var7, 56258);
-    A = var8;
-    int var9 = A & 7;
-    A = var9;
-    int var10 = AF();
-    push(var10);
-    $DCE8();
-    int var11 = HL();
-    int var12 = mem(var11, 56267);
-    B = var12;
-    int var13 = HL() + 1 & 65535;
-    HL(var13);
-    int var14 = HL();
-    int var15 = mem(var14, 56269);
-    C = var15;
-    $E897();
-    int var16 = pop();
-    AF(var16);
-    int var17 = A + 1 & 255;
-    A = var17;
-    B = A;
-    int var18 = A + A & 255;
-    A = var18;
-    int var19 = A + A & 255;
-    A = var19;
-    int var20 = A + B & 255;
-    A = var20;
-    HL(51307);
-    int var21 = HL();
-    int var22 = mem(var21, 56282);
-    int var23 = A + var22;
-    int var24 = var23 & 255;
-    A = var24;
-    F = var23;
-    int var25 = HL();
-    wMem(var25, A, 56283);
-    HL(60998);
-    $DB0B();
-    A = 8;
-    wMem(51309, A, 56292);
-    A = 200;
-    wMem(51311, A, 56297);
   }
 
   public void $D550() {
@@ -5073,263 +5164,6 @@ public class JetSetWilly extends MiniZX {
     A = L;
     wMem(51315, A, 54603);
     exx();
-  }
-
-  public void $D895() {
-    label99: {
-      label98: {
-        int var1 = mem(51323, 55445);
-        A = var1;
-        if((A & 4) == 0) {
-          int var7 = mem16(51314, 55453);
-          DE(var7);
-          A = 26;
-          int var8 = A + E & 255;
-          A = var8;
-          E = A;
-          $E909();
-          int var9 = mem(51317, 55464);
-          A = var9;
-          if(A != 4 && A >= 3) {
-            int var53 = E + 1 & 255;
-            E = var53;
-          }
-
-          int var10 = DE();
-          int var11 = mem(var10, 55476);
-          A = var11;
-          B = A;
-          int var12 = E + 1 & 255;
-          E = var12;
-          int var13 = DE();
-          int var14 = mem(var13, 55479);
-          A = var14;
-          C = A;
-          HL(53196);
-          D = 7;
-
-          while(true) {
-            int var15 = HL();
-            int var16 = mem(var15, 55486);
-            E = var16;
-            $D9AA();
-            if(F == 0) {
-              A = 14;
-              break;
-            }
-
-            int var21 = HL() + 1 & 65535;
-            HL(var21);
-            int var22 = D - 1 & 255;
-            D = var22;
-            if(D == 0) {
-              int var23 = mem(53193, 55496);
-              A = var23;
-              E = A;
-              $D9AA();
-              if(F == 0) {
-                $DBB8();
-                return;
-              }
-
-              E = 56;
-              $D9AA();
-              if(F == 0) {
-                $DE0B();
-                return;
-              }
-
-              E = 104;
-              $D9AA();
-              if(F == 0) {
-                $DE1B();
-                return;
-              }
-
-              E = 96;
-              $D9AA();
-              if(F == 0) {
-                $DE28();
-                return;
-              }
-
-              E = 2;
-              $D9AA();
-              if(F != 0) {
-                E = 79;
-                $D9AA();
-                if(F != 0) {
-                  int var26 = mem(51316, 55557);
-                  A = var26;
-                  B = A;
-                  int var27 = A & 81;
-                  A = var27;
-                  if(A << 1 == 0) {
-                    A = 24;
-                    wMem(53195, A, 55567);
-                  }
-
-                  A = B;
-                  int var28 = A | 64;
-                  A = var28;
-                } else {
-                  A = 13;
-                  wMem(56301, A, 55610);
-                  int var24 = mem(51316, 55613);
-                  A = var24;
-                  int var25 = A | 128;
-                  A = var25;
-                }
-                break label99;
-              }
-
-              int var29 = mem(53194, 55537);
-              A = var29;
-              if(A >= 8) {
-                int var30 = mem(51314, 54000);
-                A = var30;
-                int var31 = A & 7;
-                A = var31;
-                if(A << 1 == 0) {
-                  int var32 = mem(51318, 54009);
-                  A = var32;
-                  L = A;
-                  int var33 = mem(51316, 54013);
-                  A = var33;
-                  B = A;
-                  A = L;
-                  if(A < 3) {
-                    int var51 = mem(51316, 54022);
-                    A = var51;
-                    int var52 = A & 34;
-                    A = var52;
-                    wMem(51316, A, 54027);
-                    A = 0;
-                    wMem(51318, A, 54031);
-                    $D567();
-                  }
-
-                  int var34 = HL();
-                  push(var34);
-                  int var35 = DE();
-                  push(var35);
-                  int var36 = BC();
-                  push(var36);
-                  $E9BC();
-                  A = C;
-                  int var37 = pop();
-                  BC(var37);
-                  int var38 = pop();
-                  DE(var38);
-                  int var39 = pop();
-                  HL(var39);
-                  C = A;
-                  if((C & 1) != 0) {
-                    int var50 = L + 1 & 255;
-                    L = var50;
-                    A = L;
-                  } else {
-                    A = L;
-                    int var40 = A + L;
-                    int var41 = var40 & 255;
-                    A = var41;
-                    F = var40;
-                  }
-
-                  label66: {
-                    wMem(51321, A, 54066);
-                    int var42 = C & 4;
-                    F = var42;
-                    int var43 = B & -9;
-                    B = var43;
-                    if(F == 0) {
-                      int var47 = B | 8;
-                      B = var47;
-                      if((C & 2) == 0) {
-                        if((B & 2) == 0) {
-                          $D4B5();
-                          break label66;
-                        }
-                      } else if((B & 2) != 0) {
-                        $D3EC();
-                        break label66;
-                      }
-                    }
-
-                    int var44 = B | 16;
-                    B = var44;
-                    int var45 = B & -5;
-                    B = var45;
-                    A = B;
-                    wMem(51316, A, 54118);
-                    A = 0;
-                    int var46 = A << 1;
-                    F = var46;
-                    wMem(51318, A, 54122);
-                    A = 12;
-                    wMem(53195, A, 54127);
-                    A = 14;
-                    wMem(56301, A, 54132);
-                    return;
-                  }
-
-                  int var48 = mem(51316, 54097);
-                  A = var48;
-                  int var49 = A & 34;
-                  A = var49;
-                  wMem(51316, A, 54102);
-                  A = 9;
-                  wMem(51318, A, 54107);
-                  $D1CE();
-                  return;
-                }
-
-                return;
-              }
-
-              A = 13;
-              break;
-            }
-          }
-
-          wMem(56301, A, 55577);
-          int var17 = mem(51314, 55580);
-          A = var17;
-          int var18 = A & 7;
-          A = var18;
-          if(A != 6) {
-            return;
-          }
-
-          int var19 = mem(51316, 55589);
-          A = var19;
-          int var20 = A & 17;
-          A = var20;
-          if(A << 1 != 0) {
-            break label98;
-          }
-        }
-
-        int var2 = mem(51318, 55596);
-        A = var2;
-        if(A >= 28) {
-          int var6 = A - 28;
-          F = var6;
-          $CD8A();
-        }
-      }
-
-      A = 0;
-      wMem(51318, A, 55621);
-      int var3 = mem(51316, 55624);
-      A = var3;
-      int var4 = A & 34;
-      A = var4;
-      int var5 = A << 1;
-      F = var5;
-    }
-
-    wMem(51316, A, 55629);
   }
 
   public void $CFD9() {
@@ -5777,6 +5611,21 @@ public class JetSetWilly extends MiniZX {
     }
   }
 
+  public void $CD8A() {
+    A = 8;
+    wMem(51328, A, 52620);
+    HL(51316);
+    int var1 = HL();
+    int var2 = mem(var1, 52626) | 32;
+    int var3 = HL();
+    wMem(var3, var2, 52626);
+    HL(55946);
+    int var4 = HL();
+    int var5 = mem(var4, 52631) | 2;
+    int var6 = HL();
+    wMem(var6, var5, 52631);
+  }
+
   public void $D607() {
     exx();
     int var1 = mem(51314, 54792);
@@ -5842,280 +5691,263 @@ public class JetSetWilly extends MiniZX {
     exx();
   }
 
-  public void $D1E8() {
+  public void $D1CE() {
+    int var1 = mem(51328, 53710);
+    A = var1;
+    if((A & 1) != 0) {
+      DE(25302);
+    } else {
+      int var2 = mem(51317, 53722);
+      A = var2;
+      int var3 = A + A & 255;
+      A = var3;
+      C = A;
+      B = 0;
+      HL(25386);
+      int var4 = BC();
+      int var5 = HL() + var4 & 65535;
+      HL(var5);
+      int var6 = HL();
+      int var7 = mem(var6, 53733);
+      E = var7;
+      int var8 = HL() + 1 & 65535;
+      HL(var8);
+      int var9 = HL();
+      int var10 = mem(var9, 53735);
+      D = var10;
+    }
+
     HL(25302);
     exx();
-    int var1 = mem16(51314, 53740);
-    DE(var1);
-    int var2 = mem(56301, 53744);
-    A = var2;
+    int var11 = mem16(51314, 53740);
+    DE(var11);
+    int var12 = mem(56301, 53744);
+    A = var12;
     B = A;
-    $D1F4();
-  }
 
-  public void $D289() {
-    int var1 = IX() + 7;
-    int var2 = mem(var1, 53897);
-    L = var2;
-    int var3 = IX() + 8;
-    int var4 = mem(var3, 53900);
-    H = var4;
-    DE(6);
-    int var5 = DE();
-    int var6 = HL() + var5 & 65535;
-    HL(var6);
-    int var7 = HL();
-    push(var7);
-    int var8 = pop();
-    IY(var8);
-    int var9 = mem16(57048, 53910);
-    BC(var9);
-    int var10 = mem(58688, 53914);
-    A = var10;
-    $D2BF();
-    int var11 = mem16(57290, 53920);
-    BC(var11);
-    int var12 = mem(58689, 53924);
-    A = var12;
-    $D2BF();
-    int var13 = mem16(57532, 53930);
-    BC(var13);
-    int var14 = mem(58690, 53934);
-    A = var14;
-    $D2BF();
-    int var15 = mem16(58110, 53940);
-    BC(var15);
-    int var16 = mem(58691, 53944);
-    A = var16;
-    $D2BF();
-  }
+    do {
+      int var13 = BC();
+      push(var13);
+      int var14 = DE();
+      push(var14);
+      $E8D2();
+      int var15 = DE();
+      push(var15);
+      $E90C();
+      exHLDE();
+      int var16 = pop();
+      DE(var16);
+      C = 2;
 
-  public void $D21F() {
-    int var1 = DE();
-    int var2 = mem(var1, 53791);
-    A = var2;
-    int var3 = DE() + 1 & 65535;
-    DE(var3);
-    int var4 = HL() + 1 & 65535;
-    HL(var4);
-    exx();
-    exHLDE();
-    int var5 = AF();
-    push(var5);
-    int var6 = HL();
-    int var7 = mem(var6, 53797);
-    int var8 = A & var7;
-    A = var8;
-    if(A << 1 != 0) {
-      int var17 = DE();
-      int var18 = mem(var17, 53800);
-      A = var18;
-      int var19 = A | 128;
-      A = var19;
-      wMem(53709, A, 53803);
-    }
+      do {
+        int var17 = DE();
+        push(var17);
+        int var18 = HL();
+        push(var18);
+        B = 3;
 
-    int var9 = pop();
-    AF(var9);
-    int var10 = HL();
-    int var11 = mem(var10, 53807);
-    int var12 = A | var11;
-    A = var12;
-    exHLDE();
-    int var13 = DE();
-    wMem(var13, A, 53809);
-    int var14 = DE() + 1 & 65535;
-    DE(var14);
-    int var15 = L + 1 & 255;
-    L = var15;
-    int var16 = B - 1 & 255;
-    B = var16;
-    if(B != 0) {
-      $D205();
-    } else {
-      $D243();
-    }
-  }
-
-  public void $D243() {
-    int var1 = pop();
-    HL(var1);
-    int var2 = pop();
-    DE(var2);
-    int var3 = D + 1 & 255;
-    D = var3;
-    int var4 = C - 1 & 255;
-    C = var4;
-    if(C != 0) {
-      $D201();
-    } else {
-      int var5 = pop();
-      DE(var5);
-      int var6 = E + 1 & 255;
-      E = var6;
-      int var7 = E + 1 & 255;
-      E = var7;
-      int var8 = pop();
-      BC(var8);
-      int var9 = B - 1 & 255;
-      B = var9;
-      if(B != 0) {
-        $D1F4();
-      } else {
-        HL(53709);
-        int var10 = HL();
-        if((mem(var10, 53844) & 128) != 0) {
-          int var11 = HL();
-          int var12 = mem(var11, 53845) & -129;
-          int var13 = HL();
-          wMem(var13, var12, 53845);
-          int var14 = HL();
-          int var15 = mem(var14, 53847);
-          A = var15;
-          if(A << 1 == 0) {
-            $DE87();
-          } else {
-            int var16 = mem(53194, 53852);
-            A = var16;
-            if(A == 27) {
-              int var22 = mem(53709, 53859);
-              A = var22;
-              if(A == 67) {
-                $CD8A();
-                return;
+        label66:
+        do {
+          while(true) {
+            int var19 = HL();
+            int var20 = mem(var19, 53765);
+            A = var20;
+            if(A == 69) {
+              exx();
+              A = 0;
+              int var92 = HL();
+              wMem(var92, A, 53772);
+              exx();
+            } else {
+              if(A << 1 == 0) {
+                exx();
+                break;
               }
 
-              if(A == 71) {
-                $CD8A();
-                return;
+              int var21 = A & 120;
+              A = var21;
+              if(A == 64) {
+                exx();
+                A = 0;
+                int var71 = A << 1;
+                F = var71;
+                int var72 = HL();
+                wMem(var72, A, 53790);
+                break;
               }
             }
 
-            int var17 = mem(51326, 53872);
-            A = var17;
-            if((A & 32) != 0) {
-              HL(65137);
-              $DB0B();
-              A = 20;
-              HL(51307);
-              int var18 = HL();
-              int var19 = mem(var18, 53890);
-              int var20 = A + var19 & 255;
-              A = var20;
-              int var21 = HL();
-              wMem(var21, A, 53891);
-              $D289();
-            } else {
-              $CD8A();
-              $D289();
+            exx();
+            int var22 = DE();
+            int var23 = mem(var22, 53817);
+            A = var23;
+            int var24 = HL();
+            int var25 = mem(var24, 53818);
+            int var26 = A | var25;
+            A = var26;
+            int var27 = DE() + 1 & 65535;
+            DE(var27);
+            int var28 = HL() + 1 & 65535;
+            HL(var28);
+            exx();
+            int var29 = DE();
+            wMem(var29, A, 53822);
+            int var30 = DE() + 1 & 65535;
+            DE(var30);
+            int var31 = L + 1 & 255;
+            L = var31;
+            int var32 = B - 1 & 255;
+            B = var32;
+            if(B == 0) {
+              break label66;
             }
           }
+
+          int var73 = DE();
+          int var74 = mem(var73, 53791);
+          A = var74;
+          int var75 = DE() + 1 & 65535;
+          DE(var75);
+          int var76 = HL() + 1 & 65535;
+          HL(var76);
+          exx();
+          exHLDE();
+          int var77 = AF();
+          push(var77);
+          int var78 = HL();
+          int var79 = mem(var78, 53797);
+          int var80 = A & var79;
+          A = var80;
+          if(A << 1 != 0) {
+            int var89 = DE();
+            int var90 = mem(var89, 53800);
+            A = var90;
+            int var91 = A | 128;
+            A = var91;
+            wMem(53709, A, 53803);
+          }
+
+          int var81 = pop();
+          AF(var81);
+          int var82 = HL();
+          int var83 = mem(var82, 53807);
+          int var84 = A | var83;
+          A = var84;
+          exHLDE();
+          int var85 = DE();
+          wMem(var85, A, 53809);
+          int var86 = DE() + 1 & 65535;
+          DE(var86);
+          int var87 = L + 1 & 255;
+          L = var87;
+          int var88 = B - 1 & 255;
+          B = var88;
+        } while(false && B != 0);
+
+        int var33 = pop();
+        HL(var33);
+        int var34 = pop();
+        DE(var34);
+        int var35 = D + 1 & 255;
+        D = var35;
+        int var36 = C - 1 & 255;
+        C = var36;
+      } while(false & C != 0);
+
+      int var37 = pop();
+      DE(var37);
+      int var38 = E + 1 & 255;
+      E = var38;
+      int var39 = E + 1 & 255;
+      E = var39;
+      int var40 = pop();
+      BC(var40);
+      int var41 = B - 1 & 255;
+      B = var41;
+    } while(B != 0);
+
+    HL(53709);
+    int var42 = HL();
+    if((mem(var42, 53844) & 128) != 0) {
+      int var43 = HL();
+      int var44 = mem(var43, 53845) & -129;
+      int var45 = HL();
+      wMem(var45, var44, 53845);
+      int var46 = HL();
+      int var47 = mem(var46, 53847);
+      A = var47;
+      if(A << 1 == 0) {
+        $DE87();
+      } else {
+        int var48 = mem(53194, 53852);
+        A = var48;
+        if(A == 27) {
+          int var70 = mem(53709, 53859);
+          A = var70;
+          if(A == 67) {
+            $CD8A();
+            return;
+          }
+
+          if(A == 71) {
+            $CD8A();
+            return;
+          }
         }
+
+        int var49 = mem(51326, 53872);
+        A = var49;
+        if((A & 32) != 0) {
+          HL(65137);
+          $DB0B();
+          A = 20;
+          HL(51307);
+          int var66 = HL();
+          int var67 = mem(var66, 53890);
+          int var68 = A + var67 & 255;
+          A = var68;
+          int var69 = HL();
+          wMem(var69, A, 53891);
+        } else {
+          $CD8A();
+        }
+
+        int var50 = IX() + 7;
+        int var51 = mem(var50, 53897);
+        L = var51;
+        int var52 = IX() + 8;
+        int var53 = mem(var52, 53900);
+        H = var53;
+        DE(6);
+        int var54 = DE();
+        int var55 = HL() + var54 & 65535;
+        HL(var55);
+        int var56 = HL();
+        push(var56);
+        int var57 = pop();
+        IY(var57);
+        int var58 = mem16(57048, 53910);
+        BC(var58);
+        int var59 = mem(58688, 53914);
+        A = var59;
+        $D2BF();
+        int var60 = mem16(57290, 53920);
+        BC(var60);
+        int var61 = mem(58689, 53924);
+        A = var61;
+        $D2BF();
+        int var62 = mem16(57532, 53930);
+        BC(var62);
+        int var63 = mem(58690, 53934);
+        A = var63;
+        $D2BF();
+        int var64 = mem16(58110, 53940);
+        BC(var64);
+        int var65 = mem(58691, 53944);
+        A = var65;
+        $D2BF();
       }
     }
-  }
-
-  public void $D201() {
-    int var1 = DE();
-    push(var1);
-    int var2 = HL();
-    push(var2);
-    B = 3;
-    $D205();
-  }
-
-  public void $D1F4() {
-    int var1 = BC();
-    push(var1);
-    int var2 = DE();
-    push(var2);
-    $E8D2();
-    int var3 = DE();
-    push(var3);
-    $E90C();
-    exHLDE();
-    int var4 = pop();
-    DE(var4);
-    C = 2;
-    $D201();
-  }
-
-  public void $DE87() {
-    int var1 = IX() + 9;
-    int var2 = mem(var1, 56967);
-    E = var2;
-    int var3 = IX() + 10;
-    int var4 = mem(var3, 56970);
-    D = var4;
-    int var5 = E - 1 & 255;
-    E = var5;
-    int var6 = E - 1 & 255;
-    E = var6;
-    F = E;
-    $DB38();
-    if(F < 0) {
-      int var16 = IX() + 4;
-      int var17 = mem(var16, 56980) & -33;
-      wMem(var16, var17, 56980);
-      int var18 = E + 1 & 255;
-      E = var18;
-      int var19 = E + 1 & 255;
-      E = var19;
-      BC(513);
-      $E897();
-      HL(51320);
-      int var20 = HL();
-      int var21 = mem(var20, 56995);
-      A = var21;
-      int var22 = HL();
-      int var23 = mem(var22, 56996) + 1 & 255;
-      int var24 = HL();
-      wMem(var24, var23, 56996);
-      E = 23;
-      D = A;
-      BC(257);
-      HL(56959);
-      $E87A();
-      A = 100;
-      HL(61067);
-    } else {
-      int var7 = IX() + 2;
-      int var8 = mem(var7, 57016);
-      E = var8;
-      int var9 = IX() + 3;
-      int var10 = mem(var9, 57019);
-      D = var10;
-      BC(258);
-      $E897();
-      int var11 = IX() + 4;
-      int var12 = mem(var11, 57028) & -17;
-      wMem(var11, var12, 57028);
-      HL(51308);
-      int var13 = HL();
-      int var14 = mem(var13, 57035) + 1 & 255;
-      int var15 = HL();
-      wMem(var15, var14, 57035);
-      A = 50;
-      HL(61117);
-    }
-
-    wMem(51307, A, 57041);
-    $DB0B();
-  }
-
-  public void $CD8A() {
-    A = 8;
-    wMem(51328, A, 52620);
-    HL(51316);
-    int var1 = HL();
-    int var2 = mem(var1, 52626) | 32;
-    int var3 = HL();
-    wMem(var3, var2, 52626);
-    HL(55946);
-    int var4 = HL();
-    int var5 = mem(var4, 52631) | 2;
-    int var6 = HL();
-    wMem(var6, var5, 52631);
   }
 
   public void $CD2B() {
@@ -6253,95 +6085,6 @@ public class JetSetWilly extends MiniZX {
     int var2 = A << 1;
     F = var2;
     B = A;
-  }
-
-  public void $D205() {
-    int var1 = HL();
-    int var2 = mem(var1, 53765);
-    A = var2;
-    if(A == 69) {
-      exx();
-      A = 0;
-      int var6 = HL();
-      wMem(var6, A, 53772);
-      exx();
-      $D238();
-    } else if(A << 1 == 0) {
-      exx();
-      $D21F();
-    } else {
-      int var3 = A & 120;
-      A = var3;
-      if(A != 64) {
-        $D238();
-      } else {
-        exx();
-        A = 0;
-        int var4 = A << 1;
-        F = var4;
-        int var5 = HL();
-        wMem(var5, A, 53790);
-        $D21F();
-      }
-    }
-  }
-
-  public void $D1CE() {
-//    int var1 = mem(51328, 53710);
-//    A = var1;
-//    if((A & 1) != 0) {
-//      DE(25302);
-//      $D1E8();
-//    } else {
-//      int var2 = mem(51317, 53722);
-//      A = var2;
-//      int var3 = A + A & 255;
-//      A = var3;
-//      C = A;
-//      B = 0;
-//      HL(25386);
-//      int var4 = BC();
-//      int var5 = HL() + var4 & 65535;
-//      HL(var5);
-//      int var6 = HL();
-//      int var7 = mem(var6, 53733);
-//      E = var7;
-//      int var8 = HL() + 1 & 65535;
-//      HL(var8);
-//      int var9 = HL();
-//      int var10 = mem(var9, 53735);
-//      D = var10;
-//      $D1E8();
-//    }
-  }
-
-  public void $D238() {
-    exx();
-    int var1 = DE();
-    int var2 = mem(var1, 53817);
-    A = var2;
-    int var3 = HL();
-    int var4 = mem(var3, 53818);
-    int var5 = A | var4;
-    A = var5;
-    int var6 = DE() + 1 & 65535;
-    DE(var6);
-    int var7 = HL() + 1 & 65535;
-    HL(var7);
-    exx();
-    int var8 = DE();
-    wMem(var8, A, 53822);
-    int var9 = DE() + 1 & 65535;
-    DE(var9);
-    int var10 = L + 1 & 255;
-    L = var10;
-    int var11 = B - 1 & 255;
-    B = var11;
-    if(B != 0) {
-      $D205();
-    } else {
-      $D243();
-    }
   }
 
   public void $CC89() {
@@ -6846,130 +6589,6 @@ public class JetSetWilly extends MiniZX {
 
   }
 
-  public void $E6F6() {
-    int var1 = IY() + 3;
-    int var2 = mem(var1, 59126);
-    C = var2;
-    HL(59097);
-    int var3 = HL();
-    int var4 = mem(var3, 59132) + 1 & 255;
-    int var5 = HL();
-    wMem(var5, var4, 59132);
-    int var6 = HL();
-    if((mem(var6, 59135) & 128) == 0) {
-      $E7D7();
-    } else {
-      int var7 = HL();
-      int var8 = mem(var7, 59138);
-      A = var8;
-      int var9 = A & 3;
-      A = var9;
-      B = A;
-      int var10 = A + A & 255;
-      A = var10;
-      int var11 = A + A & 255;
-      A = var11;
-      int var12 = A + A & 255;
-      A = var12;
-      E = A;
-      D = 0;
-      HL(60605);
-      int var13 = DE();
-      int var14 = HL() + var13 & 65535;
-      HL(var14);
-      exHLDE();
-      A = B;
-      int var15 = A + 3 & 255;
-      A = var15;
-      wMem(59099, A, 59156);
-      HL(59098);
-      int var16 = HL();
-      if((mem(var16, 59164) & 128) != 0) {
-        int var26 = HL();
-        int var27 = mem(var26, 59166) - 1 & 255;
-        int var28 = HL();
-        wMem(var28, var27, 59166);
-        $ECF4();
-        $E775();
-        int var29 = HL();
-        int var30 = mem(var29, 59173);
-        A = var30;
-        int var31 = A & 63;
-        A = var31;
-        if(A << 1 == 0) {
-          A = 0;
-          int var32 = A << 1;
-          F = var32;
-          int var33 = HL();
-          wMem(var33, A, 59179);
-          int var34 = HL() - 1 & 65535;
-          HL(var34);
-          int var35 = HL();
-          wMem(var35, A, 59181);
-          int var36 = IY() + 1;
-          int var37 = mem(var36, 59182);
-          L = var37;
-          int var38 = IY() + 2;
-          int var39 = mem(var38, 59185);
-          H = var39;
-          $E76C();
-          $E7D7();
-        } else {
-          $E756();
-          $E76C();
-          $E782();
-        }
-      } else {
-        int var17 = HL();
-        int var18 = mem(var17, 59202) + 1 & 255;
-        int var19 = HL();
-        wMem(var19, var18, 59202);
-        $ECF4();
-        $E775();
-        int var20 = HL();
-        int var21 = mem(var20, 59209);
-        A = var21;
-        int var22 = A & 63;
-        A = var22;
-        if(A == C) {
-          int var23 = HL();
-          int var24 = mem(var23, 59215) | 128;
-          int var25 = HL();
-          wMem(var25, var24, 59215);
-        }
-
-        $E756();
-        $E782();
-      }
-    }
-  }
-
-  public void $E6DC() {
-    IY(60920);
-    B = 15;
-    int var1 = mem(53194, 59106);
-    A = var1;
-
-    do {
-      int var2 = IY();
-      int var3 = mem(var2, 59109);
-      if(A == var3) {
-        $E6F6();
-        return;
-      }
-
-      DE(4);
-      int var4 = DE();
-      int var5 = IY() + var4 & 65535;
-      IY(var5);
-      int var6 = B - 1 & 255;
-      B = var6;
-    } while(B != 0);
-
-    C = 20;
-    $E7D7();
-  }
-
   public void $E782() {
     int var1 = mem(51327, 59266);
     A = var1;
@@ -7069,24 +6688,30 @@ public class JetSetWilly extends MiniZX {
     }
   }
 
-  public void $E7D7() {
+  public void $E6DC() {
+    IY(60920);
+    B = 15;
+    int var1 = mem(53194, 59106);
+    A = var1;
+
     do {
-      A = C;
-      if(A << 1 == 0) {
+      int var2 = IY();
+      int var3 = mem(var2, 59109);
+      if(A == var3) {
+        $E6F6();
         return;
       }
 
-      B = 31;
+      DE(4);
+      int var4 = DE();
+      int var5 = IY() + var4 & 65535;
+      IY(var5);
+      int var6 = B - 1 & 255;
+      B = var6;
+    } while(B != 0);
 
-      do {
-        int var1 = B - 1 & 255;
-        B = var1;
-      } while(B != 0);
-
-      int var2 = C - 1 & 255;
-      C = var2;
-    } while(C != 0);
-
+    C = 20;
+    $E7D7();
   }
 
   public void $CEAD() {
@@ -7334,5 +6959,374 @@ public class JetSetWilly extends MiniZX {
         $DB01();
       }
     }
+  }
+
+  public void $E8F7() {
+    A = E;
+    int var1 = A & 7;
+    A = var1;
+    int var2 = A << 1;
+    F = var2;
+    int var3 = A;
+    int var4 = sl(var3);
+    A = var4;
+    int var5 = A;
+    int var6 = sl(var5);
+    A = var6;
+    int var7 = A;
+    int var8 = sl(var7);
+    A = var8;
+    int var9 = A;
+    int var10 = sl(var9);
+    A = var10;
+    int var11 = A;
+    int var12 = sl(var11);
+    A = var12;
+    int var13 = A + D & 255;
+    A = var13;
+    E = A;
+    int var14 = pop();
+    AF(var14);
+    D = A;
+  }
+
+  public void $EEF8() {
+    int var1 = HL() + 1 & 65535;
+    HL(var1);
+    $EEF9();
+  }
+
+  public void $DCE4() {
+    wMem(53193, A, 56548);
+  }
+
+  public void $D32E() {
+    A = L;
+    int var1 = A + L & 255;
+    A = var1;
+  }
+
+  public void $D361() {
+    int var1 = B | 16;
+    B = var1;
+    int var2 = B & -5;
+    B = var2;
+    A = B;
+    wMem(51316, A, 54118);
+    A = 0;
+    int var3 = A << 1;
+    F = var3;
+    wMem(51318, A, 54122);
+    A = 12;
+    wMem(53195, A, 54127);
+    A = 14;
+    wMem(56301, A, 54132);
+  }
+
+  public void $D34A() {
+    if((B & 2) == 0) {
+      $D361();
+    } else {
+      $D3EC();
+    }
+  }
+
+  public void $DBB8() {
+    int var1 = IX() + 5;
+    int var2 = mem(var1, 56248);
+    E = var2;
+    int var3 = IX() + 6;
+    int var4 = mem(var3, 56251);
+    D = var4;
+    int var5 = IX() + 4;
+    int var6 = mem(var5, 56254) & -9;
+    wMem(var5, var6, 56254);
+    int var7 = IX() + 4;
+    int var8 = mem(var7, 56258);
+    A = var8;
+    int var9 = A & 7;
+    A = var9;
+    int var10 = AF();
+    push(var10);
+    $DCE8();
+    int var11 = HL();
+    int var12 = mem(var11, 56267);
+    B = var12;
+    int var13 = HL() + 1 & 65535;
+    HL(var13);
+    int var14 = HL();
+    int var15 = mem(var14, 56269);
+    C = var15;
+    $E897();
+    int var16 = pop();
+    AF(var16);
+    int var17 = A + 1 & 255;
+    A = var17;
+    B = A;
+    int var18 = A + A & 255;
+    A = var18;
+    int var19 = A + A & 255;
+    A = var19;
+    int var20 = A + B & 255;
+    A = var20;
+    HL(51307);
+    int var21 = HL();
+    int var22 = mem(var21, 56282);
+    int var23 = A + var22;
+    int var24 = var23 & 255;
+    A = var24;
+    F = var23;
+    int var25 = HL();
+    wMem(var25, A, 56283);
+    HL(60998);
+    $DB0B();
+    A = 8;
+    wMem(51309, A, 56292);
+    A = 200;
+    wMem(51311, A, 56297);
+  }
+
+  public void $DE0B() {
+    int var1 = IX() + 11;
+    int var2 = mem(var1, 56843) & -2;
+    wMem(var1, var2, 56843);
+    HL(51326);
+    int var3 = HL();
+    int var4 = mem(var3, 56850) | 64;
+    int var5 = HL();
+    wMem(var5, var4, 56850);
+    A = 75;
+    DE(65067);
+    $DE3A();
+  }
+
+  public void $DE1B() {
+    int var1 = IX() + 11;
+    int var2 = mem(var1, 56859) & -3;
+    wMem(var1, var2, 56859);
+    int var3 = A & 127;
+    A = var3;
+    int var4 = A << 1;
+    F = var4;
+    DE(65093);
+    $DE3A();
+  }
+
+  public void $DE28() {
+    int var1 = IX() + 11;
+    int var2 = mem(var1, 56872) & -5;
+    wMem(var1, var2, 56872);
+    A = 0;
+    int var3 = A << 1;
+    F = var3;
+    wMem(56913, A, 56877);
+    HL(51326);
+    int var4 = HL();
+    int var5 = mem(var4, 56883) | 32;
+    int var6 = HL();
+    wMem(var6, var5, 56883);
+    A = 25;
+    DE(65125);
+    $DE3A();
+  }
+
+  public void $DE87() {
+    int var1 = IX() + 9;
+    int var2 = mem(var1, 56967);
+    E = var2;
+    int var3 = IX() + 10;
+    int var4 = mem(var3, 56970);
+    D = var4;
+    int var5 = E - 1 & 255;
+    E = var5;
+    int var6 = E - 1 & 255;
+    E = var6;
+    F = E;
+    $DB38();
+    if(F < 0) {
+      int var16 = IX() + 4;
+      int var17 = mem(var16, 56980) & -33;
+      wMem(var16, var17, 56980);
+      int var18 = E + 1 & 255;
+      E = var18;
+      int var19 = E + 1 & 255;
+      E = var19;
+      BC(513);
+      $E897();
+      HL(51320);
+      int var20 = HL();
+      int var21 = mem(var20, 56995);
+      A = var21;
+      int var22 = HL();
+      int var23 = mem(var22, 56996) + 1 & 255;
+      int var24 = HL();
+      wMem(var24, var23, 56996);
+      E = 23;
+      D = A;
+      BC(257);
+      HL(56959);
+      $E87A();
+      A = 100;
+      HL(61067);
+    } else {
+      int var7 = IX() + 2;
+      int var8 = mem(var7, 57016);
+      E = var8;
+      int var9 = IX() + 3;
+      int var10 = mem(var9, 57019);
+      D = var10;
+      BC(258);
+      $E897();
+      int var11 = IX() + 4;
+      int var12 = mem(var11, 57028) & -17;
+      wMem(var11, var12, 57028);
+      HL(51308);
+      int var13 = HL();
+      int var14 = mem(var13, 57035) + 1 & 255;
+      int var15 = HL();
+      wMem(var15, var14, 57035);
+      A = 50;
+      HL(61117);
+    }
+
+    wMem(51307, A, 57041);
+    $DB0B();
+  }
+
+  public void $E6F6() {
+    int var1 = IY() + 3;
+    int var2 = mem(var1, 59126);
+    C = var2;
+    HL(59097);
+    int var3 = HL();
+    int var4 = mem(var3, 59132) + 1 & 255;
+    int var5 = HL();
+    wMem(var5, var4, 59132);
+    int var6 = HL();
+    if((mem(var6, 59135) & 128) == 0) {
+      $E7D7();
+    } else {
+      int var7 = HL();
+      int var8 = mem(var7, 59138);
+      A = var8;
+      int var9 = A & 3;
+      A = var9;
+      B = A;
+      int var10 = A + A & 255;
+      A = var10;
+      int var11 = A + A & 255;
+      A = var11;
+      int var12 = A + A & 255;
+      A = var12;
+      E = A;
+      D = 0;
+      HL(60605);
+      int var13 = DE();
+      int var14 = HL() + var13 & 65535;
+      HL(var14);
+      exHLDE();
+      A = B;
+      int var15 = A + 3 & 255;
+      A = var15;
+      wMem(59099, A, 59156);
+      HL(59098);
+      int var16 = HL();
+      if((mem(var16, 59164) & 128) != 0) {
+        int var26 = HL();
+        int var27 = mem(var26, 59166) - 1 & 255;
+        int var28 = HL();
+        wMem(var28, var27, 59166);
+        $ECF4();
+        $E775();
+        int var29 = HL();
+        int var30 = mem(var29, 59173);
+        A = var30;
+        int var31 = A & 63;
+        A = var31;
+        if(A << 1 == 0) {
+          A = 0;
+          int var32 = A << 1;
+          F = var32;
+          int var33 = HL();
+          wMem(var33, A, 59179);
+          int var34 = HL() - 1 & 65535;
+          HL(var34);
+          int var35 = HL();
+          wMem(var35, A, 59181);
+          int var36 = IY() + 1;
+          int var37 = mem(var36, 59182);
+          L = var37;
+          int var38 = IY() + 2;
+          int var39 = mem(var38, 59185);
+          H = var39;
+          $E76C();
+          $E7D7();
+        } else {
+          $E756();
+          $E76C();
+          $E782();
+        }
+      } else {
+        int var17 = HL();
+        int var18 = mem(var17, 59202) + 1 & 255;
+        int var19 = HL();
+        wMem(var19, var18, 59202);
+        $ECF4();
+        $E775();
+        int var20 = HL();
+        int var21 = mem(var20, 59209);
+        A = var21;
+        int var22 = A & 63;
+        A = var22;
+        if(A == C) {
+          int var23 = HL();
+          int var24 = mem(var23, 59215) | 128;
+          int var25 = HL();
+          wMem(var25, var24, 59215);
+        }
+
+        $E756();
+        $E782();
+      }
+    }
+  }
+
+  public void $E7D7() {
+    do {
+      A = C;
+      if(A << 1 == 0) {
+        return;
+      }
+
+      B = 31;
+
+      do {
+        int var1 = B - 1 & 255;
+        B = var1;
+      } while(B != 0);
+
+      int var2 = C - 1 & 255;
+      C = var2;
+    } while(C != 0);
+
+  }
+
+  public void $DE3A() {
+    HL(51307);
+    int var1 = HL();
+    int var2 = mem(var1, 56893);
+    int var3 = A + var2 & 255;
+    A = var3;
+    int var4 = HL();
+    wMem(var4, A, 56894);
+    exHLDE();
+    $DB0B();
+    int var5 = mem(53194, 56899);
+    A = var5;
+    $F3E0();
+    BC(514);
+    $E897();
+    int var6 = A << 1;
+    F = var6;
   }
 }
