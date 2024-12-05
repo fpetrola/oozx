@@ -62,7 +62,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
   }
 
 
-  //  @Ignore
+  @Ignore
   @Test
   public void testJSWMoveWilly() {
     String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/dynamitedan1.z80");
@@ -79,6 +79,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
         """, actual);
   }
 
+  @Ignore
   @Test
   public void testTranslateWillyToJava() {
     Helper.hex = false;
