@@ -106,7 +106,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   public void createRoutineExecution(int jumpAddress) {
     // if (jumpAddress == 35211) System.out.println("start routine: " + jumpAddress);
     if (jumpAddress == 0xCFD9)
-      System.out.println("duplicated!");
+      System.out.println("");
     stackFrames.push(jumpAddress);
     RoutineExecution routineExecution = routineExecutions.get(jumpAddress);
     if (routineExecution == null) {
@@ -183,7 +183,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 //        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
 
         if (pcValue == 0xD8F6)
-          System.out.println("ddgsdggd");
+          System.out.println("");
         z80InstructionDriver.step();
 
         if (!routineExecution.hasActionAt(pcValue))

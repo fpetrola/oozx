@@ -269,8 +269,6 @@ public class Routine {
       if (b) {
         Block split = block;
         boolean create = false;
-        if (address == 0xe6f6)
-          System.out.println("sdgdgdg");
 
         if (address != startAddress) {
           split = block.split(address - 1);
@@ -313,8 +311,6 @@ public class Routine {
           blocks1.forEach(block -> {
             if (block.contains(finalI1)) {
               boolean create = false;
-              if (finalI1 == 0xe6f6)
-                System.out.println("sdgdgdg");
 
               Block split = block;
               if (finalI1 != block.getRangeHandler().getStartAddress()) {

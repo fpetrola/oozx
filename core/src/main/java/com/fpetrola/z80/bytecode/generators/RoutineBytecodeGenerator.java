@@ -132,8 +132,6 @@ public class RoutineBytecodeGenerator {
                 addLabel(address);
               };
               Runnable instructionGenerator = () -> {
-                if (address == 0xD895)
-                  System.out.println("adgadg");
                 bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
 
                 if (!ready[0]) {
@@ -209,8 +207,6 @@ public class RoutineBytecodeGenerator {
     generators.forEach(g -> g.scopeAdjuster().run());
     generators.forEach(g -> g.scopeAdjuster().run());
     generators.forEach(g -> g.labelGenerator().run());
-    if (routine.getEntryPoint() == 0xD895)
-      System.out.println("adgadg");
     Label label = getLabel(routine.getEntryPoint());
     if (label != null)
       label.goto_();

@@ -62,7 +62,6 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
   }
 
 
-  @Ignore
   @Test
   public void testJSWMoveWilly() {
     String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/dynamitedan1.z80");
