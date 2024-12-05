@@ -18,5 +18,78 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
-public class EmulatedMiniZX {
+import com.fpetrola.z80.cpu.IO;
+import com.fpetrola.z80.cpu.MemorySetter;
+import com.fpetrola.z80.cpu.OOZ80;
+import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
+import com.fpetrola.z80.jspeccy.RegistersBase;
+import com.fpetrola.z80.jspeccy.SnapshotLoader;
+import com.fpetrola.z80.minizx.MiniZX;
+import com.fpetrola.z80.minizx.MiniZXIO;
+import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
+import com.fpetrola.z80.registers.Plain8BitRegister;
+import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.spy.NullInstructionSpy;
+import com.fpetrola.z80.transformations.VirtualRegisterFactory;
+
+import java.util.function.Function;
+
+public class EmulatedMiniZX<T extends WordNumber> {
+  private OOZ80<T> ooz80;
+
+  public static void main(String[] args) {
+    new EmulatedMiniZX().start();
+  }
+
+  public <T extends WordNumber> OOZ80<T> createOOZ80(IO io) {
+    DefaultRegisterBankFactory registerBankFactory = new DefaultRegisterBankFactory() {
+      @Override
+      protected Register create8BitRegister(RegisterName registerName) {
+        return new Plain8BitRegister(registerName.name()) {
+          public void write(WordNumber value) {
+            super.write(value);
+          }
+        };
+      }
+
+    };
+    var state = new State(io, registerBankFactory.createBank(), new MockedMemory(true));
+    return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)));
+  }
+
+  protected Function<Integer, Integer> getMemFunction() {
+    return index -> ooz80.getState().getMemory().read(WordNumber.createValue(index), 0).intValue();
+  }
+
+  private void start() {
+    MiniZXIO io = new MiniZXIO();
+    ooz80 = createOOZ80(io);
+    MiniZX.createScreen(io.miniZXKeyboard, this.getMemFunction());
+    final byte[] rom = MiniZX.createROM();
+
+    RegistersBase registersBase = new RegistersBase<>(ooz80.getState()) {
+      public VirtualRegisterFactory getVirtualRegisterFactory() {
+        return new VirtualRegisterFactory(null, null, null);
+      }
+    };
+
+//    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile("file:///home/fernando/detodo/desarrollo/m/zx/zx/emlyn.z80");
+    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile("file:///home/fernando/dynamitedan1.z80");
+    SnapshotLoader.setupStateWithSnapshot(registersBase, first, new MemorySetter(ooz80.getState().getMemory()));
+
+    new Thread(() -> emulate()).start();
+  }
+
+  public void emulate() {
+    int i = 0;
+    while (true) {
+      if (i++ % 100000 == 0) this.ooz80.getState().setINTLine(true);
+      else if (i % 2 == 0) {
+        this.ooz80.execute();
+      }
+    }
+  }
 }

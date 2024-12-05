@@ -49,7 +49,7 @@ public class DefaultSyncChecker implements SyncChecker {
   private SpectrumApplication spectrumApplication;
   private final Map<String, Integer> writtenRegisters = new HashMap<>();
 
-  public <T extends WordNumber> OOZ80<T> createOOZ80(IO io) {
+  public <T extends WordNumber> OOZ80<T>  createOOZ80(IO io) {
     DefaultRegisterBankFactory registerBankFactory = new DefaultRegisterBankFactory() {
       @Override
       protected Register create8BitRegister(RegisterName registerName) {

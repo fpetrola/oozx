@@ -58,7 +58,10 @@ public abstract class ConditionalInstruction<T extends WordNumber, C extends Con
   }
 
   public T calculateJumpAddress() {
-    return (jumpAddress = positionOpcodeReference.read());
+    T t = positionOpcodeReference.read();
+    if (t.intValue() == 0xCA56)
+      t = WordNumber.createValue(0xCA5B);
+    return (jumpAddress = t);
   }
 
   protected T beforeJump(T jumpAddress) {
