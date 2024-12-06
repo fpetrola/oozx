@@ -37,6 +37,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 import com.fpetrola.z80.transformations.Base64Utils;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static com.fpetrola.z80.helpers.Helper.formatAddress;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class MiniZXWithEmulation {
@@ -125,7 +127,7 @@ public class MiniZXWithEmulation {
 
   public boolean stateIsMatching(Map<String, Integer> writtenRegisters, int address, boolean write) {
     final boolean[] differences = {false};
-    //spectrumApplication.update16Registers();
+    spectrumApplication.update16Registers();
 
     List<RegisterName> list = new ArrayList<>(Arrays.asList(RegisterName.values()));
     list.removeAll(Arrays.asList(RegisterName.PC, RegisterName.F, RegisterName.AF, RegisterName.Fx, RegisterName.AFx, RegisterName.SP, RegisterName.IR, RegisterName.I, RegisterName.R));
@@ -143,7 +145,7 @@ public class MiniZXWithEmulation {
             register.write(createValue(o));
           }
         } catch (Exception e) {
-          differences[0]= false;
+          differences[0] = false;
         }
       }
     });
@@ -162,12 +164,14 @@ public class MiniZXWithEmulation {
   private int checkField(RegisterName n, Register<WordNumber> register, boolean[] differences) throws NoSuchFieldException, IllegalAccessException {
     Field field = spectrumApplication.getClass().getField(n.name());
     int o = (Integer) field.get(spectrumApplication);
-    if (register.read() != null && o != register.read().intValue()) {
+    int registerValue = register.read().intValue();
+
+    if (register.read() != null && o != registerValue) {
       differences[0] = true;
     }
     if (differences[0]) {
       o = getFrom16BitField(n);
-      if (o == register.read().intValue())
+      if (o == registerValue)
         differences[0] = false;
     }
 
@@ -199,6 +203,14 @@ public class MiniZXWithEmulation {
       return get16BitFieldValue("IY") >> 8;
     else if (n.name().equals("IYL"))
       return get16BitFieldValue("IY") & 0xff;
+    else if (n.name().equals("DE"))
+      return spectrumApplication.DE();
+    else if (n.name().equals("BC"))
+      return spectrumApplication.BC();
+    else if (n.name().equals("HL"))
+      return spectrumApplication.HL();
+    else if (n.name().equals("AF"))
+      return spectrumApplication.AF();
 
     throw new RuntimeException("no reg");
   }
@@ -212,7 +224,7 @@ public class MiniZXWithEmulation {
     int i1 = data[i].intValue() & 0xFF;
     int i2 = spectrumApplication.getMem()[i] & 0xff;
     if (i1 != i2) {
-      System.out.println("mem diff at: " + i + ": " + i1 + " - " + i2);
+      System.out.println("mem diff at: " + formatAddress(i) + ": " + formatAddress(i1) + " - " + formatAddress(i2));
       differences[0] = true;
     }
   }

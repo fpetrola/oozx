@@ -77,4 +77,8 @@ public interface Memory<T> {
 
   default void canDisable(boolean canDisable) {
   }
+
+  default boolean canDisable() {
+    return false;
+  }
 }

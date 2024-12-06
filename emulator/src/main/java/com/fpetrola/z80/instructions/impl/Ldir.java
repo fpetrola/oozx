@@ -34,6 +34,11 @@ public class Ldir<T extends WordNumber> extends RepeatingInstruction<T> {
   }
 
   @Override
+  public int execute() {
+    return super.execute();
+  }
+
+  @Override
   public void accept(InstructionVisitor visitor) {
     super.accept(visitor);
     visitor.visitLdir(this);

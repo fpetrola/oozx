@@ -92,6 +92,8 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
       lastInstructions.add(new ExecutedInstruction(pcValue.intValue(), this.instruction));
       instruction2 = getBaseInstruction2(this.instruction);
 
+      if (pcValue.intValue() == 0xE868)
+        System.out.println("");
       memory.read(WordNumber.createValue(-1), 1);
       Instruction<T> executedInstruction = this.instructionExecutor.execute(instruction2);
       memory.read(WordNumber.createValue(-2), 1);
@@ -108,6 +110,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
       String x = String.format("%04X", pcValue.intValue()) + ": " + instruction + " -> " + nextPC;
 //      System.out.println(x);
 
+
       if (nextPC == null)
         nextPC = pcValue.plus(getBaseInstruction(instruction).getLength());
 
@@ -121,11 +124,12 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   public static <T extends WordNumber> Instruction<T> getBaseInstruction(Instruction<T> instruction) {
     while (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
       Memory memory = fetchNextOpcodeInstruction.getState().getMemory();
+      boolean lastCanDiable = memory.canDisable();
       memory.canDisable(true);
       memory.disableReadListener();
       instruction = fetchNextOpcodeInstruction.findNextOpcode();
       memory.enableReadListener();
-      memory.canDisable(false);
+      memory.canDisable(lastCanDiable);
     }
     return instruction;
   }

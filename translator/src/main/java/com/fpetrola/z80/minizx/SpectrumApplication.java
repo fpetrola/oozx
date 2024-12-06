@@ -46,8 +46,8 @@ public abstract class SpectrumApplication<T> {
   private final Stack<Integer> stack = new Stack<>();
 
   public int exAF(int AF) {
-    int temp1 = AFx;
-    AFx(AF);
+    int temp1 = AFx();
+    AFx(AF());
     AF(temp1);
     return temp1;
   }
@@ -59,24 +59,24 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int exx() {
-    int temp1 = BCx;
-    BCx(BC);
+    int temp1 = BCx();
+    BCx(BC());
     BC(temp1);
 
-    int temp2 = DEx;
-    DEx(DE);
+    int temp2 = DEx();
+    DEx(DE());
     DE(temp2);
 
-    int temp3 = HLx;
-    HLx(HL);
-    HL(temp2);
+    int temp3 = HLx();
+    HLx(HL());
+    HL(temp3);
     return temp1;
   }
 
   public void push(int value) {
     stack.push(value);
-    if (stack.size() > 100)
-      System.out.println("mmmmmm push");
+//    if (stack.size() > 100)
+//      System.out.println("mmmmmm push");
   }
 
   public int pop() {
@@ -181,7 +181,7 @@ public abstract class SpectrumApplication<T> {
 
   public void wMem(int address, int value) {
     long start = System.nanoTime();
-    while (start + 4000 >= System.nanoTime()) ;
+//    while (start + 40 >= System.nanoTime()) ;
     getMem()[address] = value & 0xff;
   }
 
@@ -303,6 +303,12 @@ public abstract class SpectrumApplication<T> {
     return ((a & 0xff) >> 1) | ((a & 0x01) << 7) & 0xff;
   }
 
+  public int rr(int a) {
+    int lastCarry = (carry(F) & 0x01) << 7;
+    F = a & 1;
+    return ((a & 0xff) >> 1) | lastCarry;
+  }
+
   public int rlc(int a) {
     F = (a & 128) >> 7;
     return ((a << 1) & 0xfe) | (a & 0xFF) >> 7;
@@ -321,12 +327,17 @@ public abstract class SpectrumApplication<T> {
   }
 
   public void update16Registers() {
+    AF(pair(A, F));
     BC(pair(B, C));
     DE(pair(D, E));
     HL(pair(H, L));
-    AF(pair(A, F));
     IX(pair(IXH, IXL));
     IY(pair(IYH, IYL));
+
+    AFx(pair(Ax, Fx));
+    BCx(pair(Bx, Cx));
+    DEx(pair(Dx, Ex));
+    HLx(pair(Hx, Lx));
   }
 
 
@@ -380,10 +391,6 @@ public abstract class SpectrumApplication<T> {
     Lx = HLx & 0xFF;
   }
 
-  public int AFx() {
-    return ((Ax & 0xFF) << 8) | (Fx & 0xFF);
-  }
-
   public int AF() {
     return ((A & 0xFF) << 8) | (F & 0xFF);
   }
@@ -398,6 +405,22 @@ public abstract class SpectrumApplication<T> {
 
   public int HL() {
     return ((H & 0xFF) << 8) | (L & 0xFF);
+  }
+
+  public int AFx() {
+    return ((Ax & 0xFF) << 8) | (Fx & 0xFF);
+  }
+
+  public int BCx() {
+    return ((Bx & 0xFF) << 8) | (Cx & 0xFF);
+  }
+
+  public int DEx() {
+    return ((Dx & 0xFF) << 8) | (Ex & 0xFF);
+  }
+
+  public int HLx() {
+    return ((Hx & 0xFF) << 8) | (Lx & 0xFF);
   }
 
   public int IX() {

@@ -47,7 +47,9 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   public T read(T address, int fetching) {
     T value = doRead(address);
     T cachedValue = null;
-    boolean b = fetching == 1|| address.intValue() < 0 || (cachedValue = cachedValues[address.intValue()]) != value;
+    boolean b1 = true || (cachedValue = cachedValues[address.intValue()]) != value; //FIXME: para que????
+
+    boolean b = fetching == 1|| address.intValue() < 0 || b1;
     if (memoryReadListener != null && b) {
       memoryReadListener.readingMemoryAt(address, value, 0, fetching);
       if (address.intValue() >= 0)
@@ -170,5 +172,10 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   @Override
   public void canDisable(boolean canDisable) {
     this.canDisable = canDisable;
+  }
+
+  @Override
+  public boolean canDisable() {
+    return canDisable;
   }
 }
