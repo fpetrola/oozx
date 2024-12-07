@@ -10,7 +10,7 @@ public class ZxGame1 extends MiniZX {
   public void $C804() {
     label64:
     while(true) {
-//      $CA5B();
+      $CA5B();
       waitNanos(10000000);
       $C881();
 
