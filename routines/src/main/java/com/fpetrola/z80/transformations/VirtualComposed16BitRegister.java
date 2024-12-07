@@ -34,6 +34,7 @@ public class VirtualComposed16BitRegister<T extends WordNumber> extends Composed
   private final Scope scope = new Scope();
   private final VirtualRegisterVersionHandler versionHandler;
   private final BlocksManager blocksManager;
+  public T lastData;
 
   public VirtualComposed16BitRegister(int currentAddress, String virtualRegisterName, IVirtual8BitsRegister<T> virtualH, IVirtual8BitsRegister<T> virtualL, VirtualRegisterVersionHandler versionHandler, boolean composed, BlocksManager blocksManager) {
     super(virtualRegisterName, virtualH, virtualL);

@@ -133,13 +133,14 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
   }
 
   @Override
-  public void visitingJP(JP jp) {
+  public boolean visitingJP(JP jp) {
     setCloned(instructionFactory.JP(clone(jp.getPositionOpcodeReference()), clone(jp.getCondition())), jp);
     JP clonedJp = (JP) cloned;
     VirtualFetcher virtualFetcher = new VirtualFetcher();
 
     clonedJp.setPositionOpcodeReference(createRegisterReplacement(clonedJp.getPositionOpcodeReference(), clonedJp, virtualFetcher));
     clonedJp.accept(new ConditionTransformerVisitor(virtualFetcher));
+    return false;
   }
 
   @Override

@@ -38,6 +38,7 @@ public class RoutineFinder {
 
   public static ListValuedMap<Integer, Integer> callers = new ArrayListValuedHashMap<>();
   public static ListValuedMap<Integer, Integer> callees = new ArrayListValuedHashMap<>();
+  public static ListValuedMap<Integer, Integer> callers2 = new ArrayListValuedHashMap<>();
 
   public RoutineManager getRoutineManager() {
     return routineManager;
@@ -59,11 +60,15 @@ public class RoutineFinder {
         System.out.printf("");
 
       if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
-        if (!(instruction instanceof Call) && !(instruction instanceof Ret<?>))
+        if (!(instruction instanceof Call) && !(instruction instanceof Ret<?>)) {
           if (conditionalInstruction.getNextPC() != null) {
             callers.put(conditionalInstruction.getNextPC().intValue(), pcValue);
             callees.put(pcValue, conditionalInstruction.getNextPC().intValue());
           }
+        } else if (instruction instanceof Call) {
+          if (conditionalInstruction.getNextPC() != null)
+            callers2.put(conditionalInstruction.getNextPC().intValue(), pcValue);
+        }
       }
 
       if (currentRoutine == null)

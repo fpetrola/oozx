@@ -33,6 +33,7 @@ import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.Routine;
+import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.spy.ExecutionListener;
 import com.fpetrola.z80.spy.InstructionSpy;
@@ -54,6 +55,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   private int registerSP;
   private int nextSP;
   private AddressAction addressAction;
+  private Z80InstructionDriver z80InstructionDriver;
   private int minimalValidCodeAddress;
   private Set<Integer> mutantAddress = new HashSet<>();
   private Register<T> pc;
@@ -98,7 +100,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   public <T extends WordNumber> OpcodeConditions createOpcodeConditions(State<T> state) {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
-      addressAction = getRoutineExecution().replaceIfAbsent(getPcValue(), getRoutineExecution().createAddressAction(instruction, alwaysTrue, getPcValue(), this));
+      addressAction = getRoutineExecution().replaceIfAbsent(getPcValue(), getRoutineExecution().createAddressAction(instruction, alwaysTrue, getPcValue(), this, state));
       return addressAction.processBranch(instruction);
     });
   }
@@ -118,6 +120,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   public void stepUntilComplete(Z80InstructionDriver z80InstructionDriver, State<T> state, int firstAddress, int minimalValidCodeAddress) {
+    this.z80InstructionDriver = z80InstructionDriver;
     this.minimalValidCodeAddress = minimalValidCodeAddress;
     memoryReadOnly(false, state);
 
@@ -129,17 +132,24 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
     executeAllCode(z80InstructionDriver, pc);
 
-    routineExecutions.entrySet().forEach(e -> {
-      if (e.getValue().actions.stream().anyMatch(AddressAction::isPending)) {
-        System.err.println();
-      }
-    });
-
     List<WriteMemoryReference> writeMemoryReferences = spy.getWriteMemoryReferences();
 
-    printJPHL(writeMemoryReferences, 0xCFCA);
-    printJPHL(writeMemoryReferences, 0xE9BA);
-    printJPHL(writeMemoryReferences, 0xDA8B);
+    SEInstructionFactory.dynamicJP.forEach((pc, dj) -> {
+      for (int j = 0; j < writeMemoryReferences.size(); j++) {
+        WriteMemoryReference w = writeMemoryReferences.get(j);
+        if (w.address.intValue() == dj.pointerAddress()) {
+          WriteMemoryReference w2 = writeMemoryReferences.get(j + 1);
+
+          int value = w2.value.intValue() * 256 + w.value.intValue();
+          if (value != 0xDE00) {
+            dj.addCase(value);
+
+//            RoutineFinder.callers.put(value, pc);
+//            RoutineFinder.callees.put(pc, value);
+          }
+        }
+      }
+    });
     writeMemoryReferences.forEach(wmr -> {
       Routine routineAt = routineManager.findRoutineAt(wmr.address.intValue());
       if (routineAt != null) {
@@ -147,19 +157,28 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       }
     });
 
+    processPending();
+
     routineManager.optimizeAllSplit();
   }
 
-  private void printJPHL(List<WriteMemoryReference> writeMemoryReferences, int i) {
-    for (int j = 0; j < writeMemoryReferences.size(); j++) {
-      WriteMemoryReference w = writeMemoryReferences.get(j);
-      if (w.address.intValue() == i) {
-        WriteMemoryReference w2 = writeMemoryReferences.get(j + 1);
-
-        int value = w2.value.intValue() * 256 + w.value.intValue();
-        System.out.println("0x" + Helper.formatAddress(i) + ":  " +  Helper.formatAddress(value));
+  private void processPending() {
+    Map<Integer, RoutineExecution> routineExecutions1 = new HashMap<>(routineExecutions);
+    routineExecutions1.entrySet().forEach(e -> {
+      if (e.getValue().actions.stream().anyMatch(AddressAction::isPending)) {
+        System.err.println("pending action: " + Helper.formatAddress(e.getValue().start));
       }
-    }
+      Optional<AddressAction> first = e.getValue().actions.stream().filter(addressAction1 -> addressAction1 instanceof JPRegisterAddressAction jpRegisterAddressAction).findFirst();
+      if (first.isPresent()) {
+        JPRegisterAddressAction jpRegisterAddressAction = (JPRegisterAddressAction) first.get();
+        if (jpRegisterAddressAction.dynamicJPData == null) {
+          DynamicJPData dynamicJPData = SEInstructionFactory.dynamicJP.get(jpRegisterAddressAction.address);
+          jpRegisterAddressAction.setDynamicJPData(dynamicJPData);
+          List<Integer> integers = RoutineFinder.callers2.get(e.getValue().start);
+          stepUntilComplete(z80InstructionDriver, (State<T>) state, integers.getFirst(), minimalValidCodeAddress);
+        }
+      }
+    });
   }
 
   private void executeAllCode(Z80InstructionDriver z80InstructionDriver, Register<T> pc) {
@@ -184,6 +203,11 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
         if (pcValue == 0xD8F6)
           System.out.println("");
+
+        AddressAction currentAddressAction = routineExecution.getAddressAction(pcValue);
+        if (currentAddressAction != null)
+          currentAddressAction.beforeStep();
+
         z80InstructionDriver.step();
 
         if (!routineExecution.hasActionAt(pcValue))
@@ -199,7 +223,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
         ready |= stackFrames.isEmpty();
         lastPc = pcValue;
-        routineExecution.lastPc= pcValue;
+        routineExecution.lastPc = pcValue;
 
         addressAction = null;
       }

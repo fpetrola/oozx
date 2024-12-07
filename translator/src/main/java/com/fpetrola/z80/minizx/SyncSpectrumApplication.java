@@ -61,8 +61,8 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
   }
 
   public void wMem(int address, int value) {
-    long start = System.nanoTime();
-    while (start + 4000 >= System.nanoTime()) ;
+//    long start = System.nanoTime();
+//    while (start + 4000 >= System.nanoTime()) ;
     getMem()[address] = value & 0xff;
     objectMemory[address] = new ZxObject(value);
     replaceWithObject(address, value);

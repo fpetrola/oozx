@@ -176,13 +176,18 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int mem(int address) {
+//    waitNanos(40);
     return getMem()[address] & 0xff;
   }
 
   public void wMem(int address, int value) {
-    long start = System.nanoTime();
-//    while (start + 40 >= System.nanoTime()) ;
+//    waitNanos(40);
     getMem()[address] = value & 0xff;
+  }
+
+  public void waitNanos(int i) {
+    long start = System.nanoTime();
+    while (start + i >= System.nanoTime()) ;
   }
 
   public void wMem16(int address, int value) {
@@ -211,7 +216,8 @@ public abstract class SpectrumApplication<T> {
 
   public void ldir() {
     while (BC() != 0) {
-      wMem(DE(), mem(HL()));
+//      wMem(DE(), mem(HL()));
+      mem[DE()]= mem[HL()];
       BC(BC() - 1);
       HL(HL() + 1);
       DE(DE() + 1);
@@ -219,7 +225,12 @@ public abstract class SpectrumApplication<T> {
   }
 
   public void lddr() {
-
+    while (BC() != 0) {
+      wMem(DE(), mem(HL()));
+      BC(BC() - 1);
+      HL(HL() - 1);
+      DE(DE() - 1);
+    }
   }
 
   public int[] cpir(int HL, int BC, int A) {
@@ -324,6 +335,11 @@ public abstract class SpectrumApplication<T> {
     int lastCarry = 0;
     F = (a & 128) >> 7;
     return ((a << 1) & 0xfe) | lastCarry;
+  }
+
+  public int sr(int a) {
+    F = (a & 1) >> 7;
+    return ((a & 0xff) >> 1);
   }
 
   public void update16Registers() {

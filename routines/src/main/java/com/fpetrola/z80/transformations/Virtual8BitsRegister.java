@@ -90,7 +90,7 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
   }
 
   public IVirtual8BitsRegister<T> getCurrentPreviousVersion() {
-    return previousVersions.isEmpty() ? null : (IVirtual8BitsRegister<T>) previousVersions.get(previousVersions.size() - 1);
+    return previousVersions.isEmpty() ? null : (IVirtual8BitsRegister<T>) previousVersions.get(0);
   }
 
   public T read() {

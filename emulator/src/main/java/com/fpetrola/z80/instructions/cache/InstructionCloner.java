@@ -175,8 +175,9 @@ public class InstructionCloner<T extends WordNumber> implements InstructionVisit
   }
 
   @Override
-  public void visitingJP(JP tjp) {
-    setCloned(instructionFactory.JP(clone(tjp.getPositionOpcodeReference()), clone(tjp.getCondition())), tjp);
+  public boolean visitingJP(JP jp) {
+    setCloned(instructionFactory.JP(clone(jp.getPositionOpcodeReference()), clone(jp.getCondition())), jp);
+    return false;
   }
 
   @Override

@@ -135,8 +135,8 @@ public class RoutineBytecodeGenerator {
                 bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
 
                 if (!ready[0]) {
-//                  if (address == 34873)
-//                    System.out.print("");
+                  if (address == 0xDA8D)
+                    System.out.print("");
 
                   currentInstruction = instruction;
                   List<Routine> list = new ArrayList<>(routine.getInnerRoutines().stream().filter(routine1 -> routine1.contains(address)).toList());

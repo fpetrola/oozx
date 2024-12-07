@@ -19,11 +19,13 @@
 package com.fpetrola.z80.se;
 
 
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.impl.Call;
+import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ret;
-import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Register;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -96,11 +98,13 @@ public class RoutineExecution {
     return addressAction1;
   }
 
-  public <T extends WordNumber> AddressAction createAddressAction(Instruction<Boolean> instruction, boolean alwaysTrue, int pcValue, SymbolicExecutionAdapter<T> symbolicExecutionAdapter) {
+  public <T extends WordNumber> AddressAction createAddressAction(Instruction<Boolean> instruction, boolean alwaysTrue, int pcValue, SymbolicExecutionAdapter<T> symbolicExecutionAdapter, State state) {
     if (instruction instanceof Ret) {
       return new RetAddressAction(instruction, this, pcValue, alwaysTrue, symbolicExecutionAdapter);
     } else if (instruction instanceof Call call) {
       return new CallAddressAction(pcValue, call, this, alwaysTrue, symbolicExecutionAdapter);
+    } else if (instruction instanceof JP jp && jp.getPositionOpcodeReference() instanceof Register register) {
+      return new JPRegisterAddressAction(instruction, this, pcValue, alwaysTrue, symbolicExecutionAdapter, state);
     } else {
       return new ConditionalInstructionAddressAction(instruction, this, pcValue, alwaysTrue, symbolicExecutionAdapter);
     }

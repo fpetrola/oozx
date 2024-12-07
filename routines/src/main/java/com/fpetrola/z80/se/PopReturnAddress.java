@@ -62,8 +62,8 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> {
       RoutineExecution routineExecution = symbolicExecutionAdapter.routineExecutions.get(symbolicExecutionAdapter.stackFrames.get(symbolicExecutionAdapter.stackFrames.size() - 2));
       int address2 = pc.read().intValue() + 1;
 
-      routineExecution.replaceAddressAction(new AddressActionDelegate(address2, symbolicExecutionAdapter));
-      routineExecution.replaceAddressAction(new AddressActionDelegate(returnAddressWordNumber.intValue(), symbolicExecutionAdapter));
+      routineExecution.replaceAddressAction(new AddressActionDelegate(address2, symbolicExecutionAdapter, getState()));
+      routineExecution.replaceAddressAction(new AddressActionDelegate(returnAddressWordNumber.intValue(), symbolicExecutionAdapter, getState()));
 
       popAddress = pc.read().intValue();
       BasicAddressAction addressAction1 = new BasicAddressAction(popAddress, symbolicExecutionAdapter);

@@ -19,14 +19,19 @@
 package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.transformations.Virtual8BitsRegister;
+import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;
 
-class SEInstructionFactory<T extends WordNumber> extends DefaultInstructionFactory<T> {
+import java.util.HashMap;
+import java.util.Map;
+
+public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructionFactory<T> {
   private final SymbolicExecutionAdapter symbolicExecutionAdapter;
+  public static Map<Integer, DynamicJPData> dynamicJP = new HashMap<>();
 
   public SEInstructionFactory(SymbolicExecutionAdapter symbolicExecutionAdapter, State state) {
     super(state);
@@ -79,6 +84,7 @@ class SEInstructionFactory<T extends WordNumber> extends DefaultInstructionFacto
   @Override
   public JP JP(ImmutableOpcodeReference target, Condition condition) {
     return new JP<T>(target, condition, pc) {
+
       @Override
       public T calculateJumpAddress() {
         T t = super.calculateJumpAddress();
@@ -91,11 +97,31 @@ class SEInstructionFactory<T extends WordNumber> extends DefaultInstructionFacto
 
       @Override
       public int execute() {
-        if (positionOpcodeReference instanceof Register<T>) {
-          System.out.println("JP (HL): " + Helper.formatAddress(pc.read().intValue()));
+        if (positionOpcodeReference instanceof Register<T> register) {
+          int pointerAddress = -1;
+          VirtualComposed16BitRegister<T> virtualComposed16BitRegister = (VirtualComposed16BitRegister<T>) register;
+          VirtualComposed16BitRegister<T> first = (VirtualComposed16BitRegister<T>) virtualComposed16BitRegister.getPreviousVersions().getFirst();
+          Virtual8BitsRegister<T> low = (Virtual8BitsRegister<T>) first.getLow();
+          Ld<T> instruction = (Ld<T>) low.instruction;
+          if (instruction.getSource() instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
+            ImmutableOpcodeReference<T> target1 = indirectMemory16BitReference.target;
+            pointerAddress = target1.read().intValue();
+            System.out.println("indirectMemory16BitReference: " + target1);
+          }
+
+          dynamicJP.put(pc.read().intValue(), new DynamicJPData(pc.read().intValue(), register.read().intValue(), pointerAddress));
+
+          System.out.println("JP (HL): PC: %H, HL: %H".formatted(pc.read().intValue(), register.read().intValue()));
 //              Pop.doPop(memory, sp);
 //              setNextPC(createValue(pc.read().intValue() + 1));
-          return super.execute();
+          T lastData = virtualComposed16BitRegister.lastData;
+
+          if (lastData == null)
+            return super.execute();
+          else {
+            setNextPC(lastData);
+            return 0;
+          }
         } else
           return super.execute();
       }

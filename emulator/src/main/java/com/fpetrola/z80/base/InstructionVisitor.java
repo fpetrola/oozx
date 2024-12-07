@@ -176,8 +176,8 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default void visitingJP(JP tjp) {
-
+  default boolean visitingJP(JP<T> jp) {
+    return false;
   }
 
   default void visitingFlag(Register<T> flag, DefaultTargetFlagInstruction targetSourceInstruction) {

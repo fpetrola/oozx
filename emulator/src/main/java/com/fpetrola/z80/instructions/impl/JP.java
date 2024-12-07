@@ -36,7 +36,7 @@ public class JP<T extends WordNumber> extends ConditionalInstruction<T, Conditio
   }
 
   public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitingJP(this);
+    if (!visitor.visitingJP(this))
+      super.accept(visitor);
   }
 }

@@ -108,9 +108,10 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
     jr.accept(new ConditionVisitor());
   }
 
-  public void visitingJP(JP jp) {
+  public boolean visitingJP(JP jp) {
     executeAction(jp.getPositionOpcodeReference());
     jp.accept(new ConditionVisitor());
+    return false;
   }
 
   @Override

@@ -21,7 +21,7 @@ package com.fpetrola.z80.se;
 import com.fpetrola.z80.instructions.types.Instruction;
 
 public class AddressAction {
-  private Instruction instruction;
+  protected Instruction instruction;
   private RoutineExecution routineExecution;
   protected boolean alwaysTrue;
   private int count;
@@ -57,7 +57,7 @@ public class AddressAction {
   }
 
   public boolean processBranch(Instruction instruction) {
-    if (pending)
+    if (isPending())
       pending = false;
     return true;
   }
@@ -83,7 +83,7 @@ public class AddressAction {
 
   protected int genericGetNext(int next, int pcValue) {
     int result = pcValue;
-    if (pending) {
+    if (isPending()) {
       pending = false;
     }
     if (routineExecution.retInstruction == next && routineExecution.hasPendingPoints())
@@ -110,6 +110,10 @@ public class AddressAction {
         "address=" + address +
         ", pending=" + pending +
         '}';
+  }
+
+  public void beforeStep() {
+
   }
 }
 

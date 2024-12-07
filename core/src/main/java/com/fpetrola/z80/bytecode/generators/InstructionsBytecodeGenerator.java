@@ -26,23 +26,28 @@ import com.fpetrola.z80.bytecode.generators.helpers.PendingFlagUpdate;
 import com.fpetrola.z80.bytecode.generators.helpers.SmartComposed16BitRegisterVariable;
 import com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable;
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.ConditionFlag;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineVisitor;
+import com.fpetrola.z80.se.DynamicJPData;
+import com.fpetrola.z80.se.SEInstructionFactory;
 import com.fpetrola.z80.transformations.VirtualRegister;
 import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 @SuppressWarnings("ALL")
-public class InstructionsBytecodeGenerator implements InstructionVisitor {
+public class InstructionsBytecodeGenerator<T extends WordNumber> implements InstructionVisitor<T, T> {
   private final MethodMaker methodMaker;
   private final RoutineBytecodeGenerator routineByteCodeGenerator;
   private final int address;
@@ -166,6 +171,12 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
     return true;
   }
 
+  @Override
+  public boolean visitingSrl(SRL srl) {
+    invokeRotationInstruction(srl, "sr");
+    return true;
+  }
+
   private void invokeRotationInstruction(Instruction instruction, String name) {
     instruction.accept(new VariableHandlingInstructionVisitor((s, t) -> {
       if (routineByteCodeGenerator.bytecodeGenerationContext.useFields)
@@ -239,7 +250,8 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
       if (variable != null)
         t.set(methodMaker.invoke("rr", variable));
     }, routineByteCodeGenerator));
-    return true;  }
+    return true;
+  }
 
   @Override
   public boolean visitingRrc(RRC rrc) {
@@ -652,5 +664,32 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor {
   private void callRepeatingInstruction(RepeatingInstruction repeatingInstruction) {
     String methodName = repeatingInstruction.getClass().getSimpleName().toLowerCase();
     methodMaker.invoke(methodName);
+  }
+
+  @Override
+  public boolean visitingJP(JP<T> jp) {
+    if (jp.getPositionOpcodeReference() instanceof Register<T> register) {
+      Map<Integer, DynamicJPData> dynamicJP = SEInstructionFactory.dynamicJP;
+      boolean[] returnValue = new boolean[1];
+      dynamicJP.forEach((djpc, dj) -> {
+        if (djpc == routineByteCodeGenerator.bytecodeGenerationContext.pc.read().intValue()) {
+          dj.cases.forEach(c -> {
+            Label label = routineByteCodeGenerator.getLabel(c);
+            if (label != null) {
+              Variable existingVariable = routineByteCodeGenerator.getExistingVariable((VirtualRegister) register);
+              existingVariable.ifEq(c, () -> {
+                methodMaker.goto_(label);
+              });
+              returnValue[0] = true;
+            } else {
+              returnValue[0] = false;
+              System.out.println("label not found: " + Helper.formatAddress(c));
+            }
+          });
+        }
+      });
+      return returnValue[0];
+    } else
+      return false;
   }
 }

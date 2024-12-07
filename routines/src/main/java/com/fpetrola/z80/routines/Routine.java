@@ -59,7 +59,7 @@ public class Routine {
   public Routine(List<Block> blocks, int entryPoint, boolean virtual) {
     this.virtual = virtual;
     this.blocks = blocks;
-    this.entryPoint = entryPoint;
+    this.setEntryPoint(entryPoint);
     if (blocks.get(0).getRangeHandler().getStartAddress() == 0xE782)
       System.out.println("dsagsdgdg");
   }
@@ -273,13 +273,13 @@ public class Routine {
         if (address != startAddress) {
           split = block.split(address - 1);
           if (block.getRangeHandler().getStartAddress() != entryPoint)
-            entryPoint = address;
+            setEntryPoint(address);
           create = true;
         } else {
           if (getBlocks().size() > 1) {
             removeBlock(split);
             if (split.getRangeHandler().getStartAddress() == entryPoint) {
-              entryPoint = getBlocks().get(0).getRangeHandler().getStartAddress();
+              setEntryPoint(getBlocks().get(0).getRangeHandler().getStartAddress());
             }
             create = true;
           }
@@ -316,13 +316,13 @@ public class Routine {
               if (finalI1 != block.getRangeHandler().getStartAddress()) {
                 split = block.split(finalI1 - 1);
                 if (block.getRangeHandler().getStartAddress() != routineAt.entryPoint)
-                  routineAt.entryPoint = finalI1 - 1;
+                  routineAt.setEntryPoint(finalI1 - 1);
                 create = true;
               } else {
                 if (routineAt.getBlocks().size() > 1) {
                   routineAt.removeBlock(split);
                   if (split.getRangeHandler().getStartAddress() == routineAt.entryPoint) {
-                    routineAt.entryPoint = finalI1;
+                    routineAt.setEntryPoint(finalI1);
                   }
                   create = true;
                 }
@@ -669,5 +669,11 @@ public class Routine {
 
   public int getEntryPoint() {
     return entryPoint;
+  }
+
+  public void setEntryPoint(int entryPoint) {
+    if (entryPoint == 0xDDFF)
+      System.out.println("sdfadadgaffff");
+    this.entryPoint = entryPoint;
   }
 }
