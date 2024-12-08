@@ -6863,6 +6863,7 @@ public class ZxGame1 extends MiniZX {
       $EEF1();
       DE(2567);
       A = 2;
+      waitMilis(50);
 
       do {
         int var1 = DE();

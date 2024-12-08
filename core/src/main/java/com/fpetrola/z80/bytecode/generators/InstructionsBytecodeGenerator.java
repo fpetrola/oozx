@@ -250,9 +250,11 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   public boolean visitingRra(RRA rra) {
     rra.accept(new VariableHandlingInstructionVisitor((s, t) -> {
       Variable variable = t.get();
+      processFlag(rra, () -> getF());
       if (variable != null)
         t.set(methodMaker.invoke("rr", variable));
     }, routineByteCodeGenerator));
+
     return true;
   }
 
