@@ -20,25 +20,20 @@ package com.fpetrola.z80.minizx;
 
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Register;
 
 import java.awt.event.KeyEvent;
-import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.*;
 
 public class MiniZXIO implements IO<WordNumber> {
   private final int[] ports = initPorts();
-  private final LinkedList<PortInput> lastEmuInputs = new LinkedList<>();
-  private final LinkedList<PortInput> lastJavaInputs = new LinkedList<>();
+  private final List<PortInput> inputs = Collections.synchronizedList(new ArrayList<>());
   public MiniZXKeyboard miniZXKeyboard;
+  public int javaPC;
+  private Register<WordNumber> pc;
 
   public MiniZXIO() {
     miniZXKeyboard = new MiniZXKeyboard();
-  }
-
-  public synchronized WordNumber in(WordNumber port) {
-    WordNumber wordNumber = processLastInputs(port, lastEmuInputs, lastJavaInputs);
-//      System.out.println("emu IN: " + port.intValue() + "= " + wordNumber.intValue());
-    return wordNumber;
   }
 
   private WordNumber in0(WordNumber port) {
@@ -123,24 +118,53 @@ public class MiniZXIO implements IO<WordNumber> {
     return ports;
   }
 
-  public synchronized WordNumber in2(WordNumber port) {
-    WordNumber wordNumber = processLastInputs(port, lastJavaInputs, lastEmuInputs);
-//      System.out.println("java IN: " + port.intValue() + "= " + wordNumber.intValue());
-    return wordNumber;
+  public synchronized WordNumber in(WordNumber port) {
+    PortInput portInput = processLastInputs(port, inputs.stream().allMatch(i -> i.resultEmu == null));
+
+    WordNumber resultEmu = portInput.resultEmu;
+    portInput.resultEmu = null;
+    removeIfReady(portInput);
+
+    System.out.printf("emu IN: %d -> %d= %d%n", pc.read().intValue(), port.intValue(), resultEmu.intValue());
+    return resultEmu;
   }
 
-  private WordNumber processLastInputs(WordNumber port, LinkedList<PortInput> ownInputs, LinkedList<PortInput> otherInputs) {
-    if (otherInputs.isEmpty()) {
+  public synchronized WordNumber in2(WordNumber port) {
+    PortInput portInput = processLastInputs(port, inputs.stream().allMatch(i -> i.resultJava == null));
+    WordNumber resultJava = portInput.resultJava;
+
+    portInput.resultJava = null;
+
+    removeIfReady(portInput);
+
+    System.out.printf("java IN: %d -> %d= %d%n", javaPC, port.intValue(), resultJava.intValue());
+
+//    System.out.println("java IN: " + port.intValue() + "= " + resultJava);
+    return resultJava;
+  }
+
+  private synchronized PortInput processLastInputs(WordNumber port, boolean readNew) {
+    if (readNew) {
       WordNumber in = in0(port);
-      ownInputs.offer(new PortInput(port, in));
-      return in;
+      if (in == null)
+        System.out.println("dag");
+      PortInput e = new PortInput(port, in);
+      inputs.add(e);
+      return e;
     } else {
-      PortInput pop = otherInputs.poll();
+      PortInput pop = inputs.getFirst();
 //        if (pop.port.intValue() != port.intValue())
 //          System.out.println("port!");
 
-      return pop.result;
+      if (pop == null)
+        System.out.println("dag");
+      return pop;
     }
+  }
+
+  private void removeIfReady(PortInput pop) {
+    if (pop.resultEmu == null && pop.resultJava == null)
+      inputs.removeFirst();
   }
 
   private int performIn(int port) {
@@ -155,13 +179,19 @@ public class MiniZXIO implements IO<WordNumber> {
     return 0 & 0xff;
   }
 
+  public void setPc(Register pc) {
+    this.pc = pc;
+  }
+
   public static class PortInput {
-    public WordNumber result;
+    public WordNumber resultJava;
+    public WordNumber resultEmu;
     public WordNumber port;
 
     public PortInput(WordNumber port, WordNumber in) {
       this.port = port;
-      this.result = in;
+      this.resultJava = in;
+      this.resultEmu = in;
     }
   }
 }

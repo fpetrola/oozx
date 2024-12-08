@@ -139,13 +139,9 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         WriteMemoryReference w = writeMemoryReferences.get(j);
         if (w.address.intValue() == dj.pointerAddress()) {
           WriteMemoryReference w2 = writeMemoryReferences.get(j + 1);
-
-          int value = w2.value.intValue() * 256 + w.value.intValue();
-          if (value != 0xDE00) {
+          if (w2.address.intValue() == dj.pointerAddress() + 1) {
+            int value = w2.value.intValue() * 256 + w.value.intValue();
             dj.addCase(value);
-
-//            RoutineFinder.callers.put(value, pc);
-//            RoutineFinder.callees.put(pc, value);
           }
         }
       }

@@ -36,4 +36,11 @@ public interface SyncChecker {
 
   default void checkMatching(int pc, int address, boolean write) {
   }
+
+  default void checkSyncInJava(int port, int pc) {
+  }
+
+  default int getR() {
+    return (int) (Math.random() * 65535);
+  }
 }

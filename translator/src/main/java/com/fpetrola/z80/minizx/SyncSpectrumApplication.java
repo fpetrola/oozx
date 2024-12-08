@@ -22,16 +22,12 @@ import com.fpetrola.z80.bytecode.tests.ZxObject;
 import com.fpetrola.z80.minizx.sync.SyncChecker;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-import java.util.Arrays;
-import java.util.Stack;
-
 public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> {
   public SyncChecker syncChecker = new DummySyncChecker();
-  static public MiniZXIO io = new MiniZXIO();
   protected ZxObject[] objectMemory = new ZxObject[0x10000];
 
-  public int in(int port) {
-    return io.in2(WordNumber.createValue(port)).intValue();
+  public SyncSpectrumApplication() {
+    io = new MiniZXIO();
   }
 
   public int mem(int address, int pc) {
@@ -68,6 +64,18 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
     replaceWithObject(address, value);
   }
 
+  @Override
+  public int in(int port, int pc) {
+    syncChecker.checkSyncInJava(port, pc);
+    return ((MiniZXIO)io).in2(WordNumber.createValue(port)).intValue();
+  }
+
+  @Override
+  public int in(int port) {
+    syncChecker.checkSyncInJava(port, -1);
+    return ((MiniZXIO)io).in2(WordNumber.createValue(port)).intValue();
+  }
+
   protected void replaceWithObject(int address, int value) {
 
   }
@@ -81,5 +89,10 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
     public int getByteFromEmu(Integer index) {
       return getMem()[index];
     }
+  }
+
+  @Override
+  public int R() {
+    return syncChecker.getR();
   }
 }

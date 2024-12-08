@@ -26,7 +26,6 @@ import com.fpetrola.z80.bytecode.generators.helpers.PendingFlagUpdate;
 import com.fpetrola.z80.bytecode.generators.helpers.SmartComposed16BitRegisterVariable;
 import com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable;
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.ConditionFlag;
@@ -161,7 +160,11 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   @Override
   public void visitIn(In in) {
     in.accept(new VariableHandlingInstructionVisitor((s, t) -> {
-      t.set(methodMaker.invoke("in", RoutineBytecodeGenerator.getRealVariable(s)));
+      Object realVariable = RoutineBytecodeGenerator.getRealVariable(s);
+      if (realVariable instanceof Integer integer)
+        realVariable = routineByteCodeGenerator.variables.get("A").shl(8).or(integer);
+
+      t.set(methodMaker.invoke("in", realVariable, routineByteCodeGenerator.bytecodeGenerationContext.pc.read().intValue()));
     }, routineByteCodeGenerator));
   }
 
@@ -415,9 +418,13 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   public boolean visitingDec(Dec dec) {
-    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.sub(1).and(0xff)), routineByteCodeGenerator);
+    final Variable[] and = new Variable[1];
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> {
+      and[0] = t.sub(1).and(0xff);
+      t.set(and[0]);
+    }, routineByteCodeGenerator);
     dec.accept(visitor);
-    processFlag(dec, () -> visitor.targetVariable);
+    processFlag(dec, () -> and[0]);
     return false;
   }
 
@@ -500,6 +507,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
       Variable targetVariable = null;
       if (previousPendingFlag != null) {
         FlagInstruction targetFlagInstruction = previousPendingFlag.targetFlagInstruction;
+        routineByteCodeGenerator.lastMemPc.write(WordNumber.createValue(previousPendingFlag.address));
 
 //        if (routineByteCodeGenerator.bytecodeGenerationContext.pc.read().intValue() == 38370)
 //          System.out.println("sdsdg");
@@ -516,9 +524,9 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
             OpcodeReferenceVisitor opcodeReferenceVisitor2 = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
             source1.accept(opcodeReferenceVisitor2);
             source = opcodeReferenceVisitor2.getResult();
-          } else
+          } else {
             source = previousPendingFlag.sourceVariableSupplier.get();
-
+          }
           if (targetFlagInstruction instanceof TargetInstruction<?> targetInstruction) {
             OpcodeReferenceVisitor<WordNumber> variableAdapter = new OpcodeReferenceVisitor<>(true, routineByteCodeGenerator);
             targetInstruction.getTarget().accept(variableAdapter);
@@ -670,26 +678,35 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   public boolean visitingJP(JP<T> jp) {
     if (jp.getPositionOpcodeReference() instanceof Register<T> register) {
       Map<Integer, DynamicJPData> dynamicJP = SEInstructionFactory.dynamicJP;
-      boolean[] returnValue = new boolean[1];
       dynamicJP.forEach((djpc, dj) -> {
         if (djpc == routineByteCodeGenerator.bytecodeGenerationContext.pc.read().intValue()) {
           dj.cases.forEach(c -> {
-            Label label = routineByteCodeGenerator.getLabel(c);
-            if (label != null) {
-              Variable existingVariable = routineByteCodeGenerator.getExistingVariable((VirtualRegister) register);
-              existingVariable.ifEq(c, () -> {
+            Variable existingVariable = routineByteCodeGenerator.getExistingVariable((VirtualRegister) register);
+            existingVariable.ifEq(c, () -> {
+              Label label = routineByteCodeGenerator.getLabel(c);
+              if (label != null) {
                 methodMaker.goto_(label);
-              });
-              returnValue[0] = true;
-            } else {
-              returnValue[0] = false;
-              System.out.println("label not found: " + Helper.formatAddress(c));
-            }
+              } else {
+                routineByteCodeGenerator.invokeTransformedMethod(c);
+                methodMaker.return_();
+              }
+            });
           });
         }
       });
-      return returnValue[0];
+      return true;
     } else
       return false;
+  }
+
+  public boolean visitLdAR(LdAR tLdAR) {
+    Variable existingVariable = routineByteCodeGenerator.getExistingVariable("A");
+    existingVariable.set(methodMaker.invoke("R"));
+    return true;
+  }
+
+  @Override
+  public void visitingCcf(CCF ccf) {
+    methodMaker.invoke("ccf");
   }
 }

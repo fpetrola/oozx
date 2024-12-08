@@ -98,7 +98,7 @@ public abstract class SpectrumApplication<T> {
     Arrays.fill(getMem(), 0);
   }
 
-  public int in(int port) {
+  public int in(int port, int pc) {
     return io.in(WordNumber.createValue(port)).intValue();
   }
 
@@ -217,7 +217,7 @@ public abstract class SpectrumApplication<T> {
   public void ldir() {
     while (BC() != 0) {
 //      wMem(DE(), mem(HL()));
-      mem[DE()]= mem[HL()];
+      mem[DE()] = mem[HL()];
       BC(BC() - 1);
       HL(HL() + 1);
       DE(DE() + 1);
@@ -342,6 +342,10 @@ public abstract class SpectrumApplication<T> {
     return ((a & 0xff) >> 1);
   }
 
+  public void ccf() {
+    F = ~F;
+  }
+
   public void update16Registers() {
     AF(pair(A, F));
     BC(pair(B, C));
@@ -378,6 +382,15 @@ public abstract class SpectrumApplication<T> {
   public int PC;
   public int SP;
   public int I;
+
+  public int R() {
+    return R;
+  }
+
+  public void R(int r) {
+    R = r;
+  }
+
   public int R;
   public int IR;
   public int VIRTUAL;
@@ -449,5 +462,9 @@ public abstract class SpectrumApplication<T> {
 
   public int[] getMem() {
     return mem;
+  }
+
+  public int in(int port) {
+    return io.in(WordNumber.createValue(port)).intValue();
   }
 }

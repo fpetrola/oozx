@@ -44,7 +44,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
     new EmulatedMiniZX().start();
   }
 
-  public <T extends WordNumber> OOZ80<T> createOOZ80(IO io) {
+  public <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
     DefaultRegisterBankFactory registerBankFactory = new DefaultRegisterBankFactory() {
       @Override
       protected Register create8BitRegister(RegisterName registerName) {
@@ -57,6 +57,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
     };
     var state = new State(io, registerBankFactory.createBank(), new MockedMemory(true));
+    io.setPc(state.getPc());
     return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)));
   }
 

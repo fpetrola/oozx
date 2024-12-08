@@ -92,7 +92,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
       lastInstructions.add(new ExecutedInstruction(pcValue.intValue(), this.instruction));
       instruction2 = getBaseInstruction2(this.instruction);
 
-      if (pcValue.intValue() == 0xE868)
+      if (pcValue.intValue() == 0xE667)
         System.out.println("");
       memory.read(WordNumber.createValue(-1), 1);
       Instruction<T> executedInstruction = this.instructionExecutor.execute(instruction2);

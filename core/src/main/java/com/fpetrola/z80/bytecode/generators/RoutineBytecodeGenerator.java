@@ -239,7 +239,7 @@ public class RoutineBytecodeGenerator {
     Variable field = mm.field(name);
     registers.put(name, field);
 
-    if (name.length() == 2) field = new Composed16BitRegisterVariable(mm, name);
+    if (name.length() == 2 || name.equals("R")) field = new Composed16BitRegisterVariable(mm, name);
 
     variables.put(name, field);
   }

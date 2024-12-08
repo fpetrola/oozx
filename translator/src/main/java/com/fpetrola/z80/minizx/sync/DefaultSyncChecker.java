@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.minizx.sync;
 
+import com.fpetrola.z80.analysis.sprites.AddressRange;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.minizx.MiniZXIO;
@@ -35,12 +36,11 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.Semaphore;
 
 import static com.fpetrola.z80.helpers.Helper.formatAddress;
+import static com.fpetrola.z80.registers.RegisterName.R;
 
 public class DefaultSyncChecker implements SyncChecker {
   volatile int checking;
@@ -50,8 +50,15 @@ public class DefaultSyncChecker implements SyncChecker {
   OOZ80<WordNumber> ooz80;
   private SpectrumApplication spectrumApplication;
   private final Map<String, Integer> writtenRegisters = new HashMap<>();
+  private int syncEmuCounter;
+  private int syncJavaCounter;
+  private int port;
+  private int pc;
+  private MiniZXIO io;
+  private List<Integer> rValues = Collections.synchronizedList(new ArrayList<>());
 
-  public <T extends WordNumber> OOZ80<T> createOOZ80(IO io) {
+  public <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
+    this.io = io;
     DefaultRegisterBankFactory registerBankFactory = new DefaultRegisterBankFactory() {
       @Override
       protected Register create8BitRegister(RegisterName registerName) {
@@ -61,17 +68,32 @@ public class DefaultSyncChecker implements SyncChecker {
             writtenRegisters.put(getName(), value.intValue());
           }
         };
+
+
       }
 
+      public Register<T> createRRegister() {
+        return new RRegister<T>() {
+          public T read() {
+            T read = super.read();
+            int e = read.intValue();
+            System.out.println("emu R: " + e);
+            rValues.add(e);
+            return read;
+          }
+        };
+      }
     };
     var state = new State(io, registerBankFactory.createBank(), new MockedMemory(true));
+    io.setPc(state.getPc());
     return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)));
   }
 
   public DefaultSyncChecker() {
     com.fpetrola.z80.helpers.Helper.hex = true;
-    SpectrumApplication.io = new MiniZXIO();
-    ooz80 = createOOZ80(SpectrumApplication.io);
+    MiniZXIO io = (MiniZXIO) SpectrumApplication.io;
+    SpectrumApplication.io = io;
+    ooz80 = createOOZ80(io);
     ooz80.getState().getMemory().canDisable(true);
   }
 
@@ -109,7 +131,8 @@ public class DefaultSyncChecker implements SyncChecker {
   @Override
   public void checkSyncEmu(int address, int value, int pc, boolean write) {
     System.out.println("sync emu: " + formatAddress(pc));
-    while (checking == 0) ;
+    syncEmuCounter++;
+    while (checking == 0 || syncEmuCounter > 10) ;
     if (checking != pc)
       System.out.print("");
     else {
@@ -121,9 +144,9 @@ public class DefaultSyncChecker implements SyncChecker {
   @Override
   public void checkSyncJava(int address, int value, int pc) {
     System.out.println("sync java: " + formatAddress(pc));
-
+    syncEmuCounter++;
     checking = pc;
-    while (checking != 0) ;
+    while (checking != 0 || syncJavaCounter > 10) ;
   }
 
   @Override
@@ -131,8 +154,27 @@ public class DefaultSyncChecker implements SyncChecker {
     if (!miniZXWithEmulation.stateIsMatching(writtenRegisters, address, write)) {
       System.out.println("not matching at: " + formatAddress(pc));
     } else {
+      syncEmuCounter = 0;
+      syncJavaCounter = 0;
       System.out.println("ok at: " + formatAddress(pc));
     }
     stateSync.clear();
+  }
+
+  @Override
+  public void checkSyncInJava(int port, int pc) {
+    this.port = port;
+    this.pc = pc;
+    io.javaPC = pc;
+  }
+
+  public int getR() {
+    while (rValues.isEmpty());
+    Integer e = rValues.getLast();
+    rValues.removeLast();
+    System.out.println("java R: " + e);
+
+    return e;
+//    return ooz80.getState().getRegister(R).read().intValue();
   }
 }

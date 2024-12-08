@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
@@ -52,5 +53,10 @@ public class LdAR<T extends WordNumber> extends Ld<T> {
     target.write(value);
 
     return cyclesCost;
+  }
+
+  @Override
+  public void accept(InstructionVisitor visitor) {
+    visitor.visitLdAR(this);
   }
 }

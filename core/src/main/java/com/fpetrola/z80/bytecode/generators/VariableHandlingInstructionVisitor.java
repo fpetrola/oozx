@@ -19,6 +19,7 @@
 package com.fpetrola.z80.bytecode.generators;
 
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.impl.LdAR;
 import com.fpetrola.z80.instructions.types.BitOperation;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.instructions.types.TargetInstruction;
@@ -53,6 +54,11 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<Wo
   public VariableHandlingInstructionVisitor(BiConsumer<Object, Variable> variableAction, RoutineBytecodeGenerator routineByteCodeGenerator1) {
     this.variableAction = variableAction;
     routineByteCodeGenerator = routineByteCodeGenerator1;
+  }
+
+  @Override
+  public boolean visitLdAR(LdAR tLdAR) {
+    return true;
   }
 
   public void visitingTarget(OpcodeReference target, TargetInstruction targetInstruction) {
