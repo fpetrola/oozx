@@ -11,11 +11,11 @@ public class ZxGame1 extends MiniZX {
     label64:
     while(true) {
       $CA5B();
-      waitNanos(20000000);
       $C881();
 
       while(true) {
         $D9EC();
+        waitMilis(50);
         $E592();
         $E93F();
         $CFD9();
@@ -53,9 +53,10 @@ public class ZxGame1 extends MiniZX {
         int var27 = in(var26, 51260);
         A = var27;
         int var28 = A;
+        F= 1;
         int var29 = rr(var28);
         A = var29;
-        if(F >= 0) {
+        if(F == 0) {
           do {
             A = 0;
             int var37 = A << 8 | 254;
@@ -96,7 +97,7 @@ public class ZxGame1 extends MiniZX {
         int var32 = A;
         int var33 = rr(var32);
         A = var33;
-        if(F >= 0) {
+        if(F == 0) {
           HL(51327);
           int var34 = HL();
           int var35 = mem(var34, 51298) | 128;
@@ -6322,7 +6323,7 @@ public class ZxGame1 extends MiniZX {
 
     do {
       int var2 = IY();
-      int var3 = mem(var2, 58988);
+      int var3 = mem(var2);
       if(A == var3) {
         HL(58978);
         int var4 = HL();

@@ -190,6 +190,10 @@ public abstract class SpectrumApplication<T> {
     while (start + i >= System.nanoTime()) ;
   }
 
+  public void waitMilis(int i) {
+    long start = System.currentTimeMillis();
+    while (start + i >= System.currentTimeMillis()) ;
+  }
   public void wMem16(int address, int value) {
     value = value & 0xffff;
     getMem()[address + 1] = value >> 8;

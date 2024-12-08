@@ -23,7 +23,7 @@ import com.fpetrola.z80.minizx.sync.DefaultSyncChecker;
 public class GameInvoker {
   public static void main(String[] args) {
     ZxGame1 zxGame1 = new ZxGame1();
-    zxGame1.setSyncChecker(new DefaultSyncChecker());
+//    zxGame1.setSyncChecker(new DefaultSyncChecker());
 //    zxGame1.$34762(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0);
     zxGame1.$C804();
   }

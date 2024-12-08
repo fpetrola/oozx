@@ -43,6 +43,7 @@ import static com.fpetrola.z80.helpers.Helper.formatAddress;
 import static com.fpetrola.z80.registers.RegisterName.R;
 
 public class DefaultSyncChecker implements SyncChecker {
+  public static final int maxwait = 100;
   volatile int checking;
   volatile int checkingEmu;
   volatile Stack<StateSync> stateSync = new Stack();
@@ -132,7 +133,7 @@ public class DefaultSyncChecker implements SyncChecker {
   public void checkSyncEmu(int address, int value, int pc, boolean write) {
     System.out.println("sync emu: " + formatAddress(pc));
     syncEmuCounter++;
-    while (checking == 0 || syncEmuCounter > 10) ;
+    while (checking == 0 || syncEmuCounter > maxwait) ;
     if (checking != pc)
       System.out.print("");
     else {
@@ -146,7 +147,7 @@ public class DefaultSyncChecker implements SyncChecker {
     System.out.println("sync java: " + formatAddress(pc));
     syncEmuCounter++;
     checking = pc;
-    while (checking != 0 || syncJavaCounter > 10) ;
+    while (checking != 0 || syncJavaCounter > maxwait) ;
   }
 
   @Override
