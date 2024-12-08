@@ -22,13 +22,15 @@ import com.fpetrola.z80.cpu.MemorySetter;
 import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulationBase;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import snapshots.*;
 
 import java.io.File;
 
 public class SnapshotLoader {
-  public static <T extends WordNumber> byte[] setupStateWithSnapshot(RegistersSetter registersSetter, String fileName, MemorySetter memorySetter) {
+  public static <T extends WordNumber> byte[] setupStateWithSnapshot(RegistersSetter registersSetter, String fileName, State<T> state) {
+    MemorySetter memorySetter = new MemorySetter(state.getMemory(), MiniZXWithEmulationBase.createROM());
     WordNumber[] data = new WordNumber[0x10000];
 
     try {

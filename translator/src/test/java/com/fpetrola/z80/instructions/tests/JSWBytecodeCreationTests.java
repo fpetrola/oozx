@@ -22,10 +22,10 @@ import com.fpetrola.z80.bytecode.DefaultRegistersSetter;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
 import com.fpetrola.z80.bytecode.examples.RemoteZ80Translator;
 import com.fpetrola.z80.bytecode.examples.SnapshotHelper;
-import com.fpetrola.z80.cpu.MemorySetter;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
-import com.fpetrola.z80.minizx.MiniZX;
+import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
@@ -65,7 +65,13 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
 
   @Test
   public void testJSWMoveWilly() {
-    String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/dynamitedan1.z80");
+    EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX("http://torinak.com/qaop/bin/dynamitedan", 1, false, 0xC804, false);
+    emulatedMiniZX.start();
+
+    String base64Memory = SnapshotHelper.getBase64Memory(emulatedMiniZX.ooz80.getState());
+    realCodeBytecodeCreationBase.getState().getMemory().copyFrom(emulatedMiniZX.ooz80.getState().getMemory());
+
+//    String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/dynamitedan1.z80");
     stepUntilComplete(0xC804);
 
 //    String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
@@ -136,7 +142,8 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
 
   private String getMemoryInBase64FromFile(String url) {
     String first = Helper.getSnapshotFile(url);
-    SnapshotLoader.setupStateWithSnapshot(getDefaultRegistersSetter(), first, new MemorySetter(realCodeBytecodeCreationBase.getState().getMemory(), MiniZX.createROM()));
+    State<T> state = realCodeBytecodeCreationBase.getState();
+    SnapshotLoader.setupStateWithSnapshot(getDefaultRegistersSetter(), first, state);
     return SnapshotHelper.getBase64Memory(realCodeBytecodeCreationBase.getState());
   }
 

@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
-import com.fpetrola.z80.cpu.MemorySetter;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
@@ -28,34 +27,35 @@ import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
-import com.fpetrola.z80.registers.Plain8BitRegister;
-import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 import com.fpetrola.z80.transformations.VirtualRegisterFactory;
 
 import java.util.function.Function;
 
 public class EmulatedMiniZX<T extends WordNumber> {
-  private OOZ80<T> ooz80;
+  public OOZ80<T> ooz80;
+  private int pause;
+
+  private String url;
+  private boolean showScreen;
+  private final int emulateUntil;
+  private boolean inThread;
+
+  public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread) {
+    this.pause = pause;
+    //    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile("file:///home/fernando/detodo/desarrollo/m/zx/zx/jsw.z80");
+    this.url = url;
+    this.showScreen = showScreen;
+    this.emulateUntil = emulateUntil;
+    this.inThread = inThread;
+  }
 
   public static void main(String[] args) {
-    new EmulatedMiniZX().start();
+    new EmulatedMiniZX("file:///home/fernando/dynamitedan1.z80", 1000, true, -1, true).start();
   }
 
   public <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
-    DefaultRegisterBankFactory registerBankFactory = new DefaultRegisterBankFactory() {
-      @Override
-      protected Register create8BitRegister(RegisterName registerName) {
-        return new Plain8BitRegister(registerName.name()) {
-          public void write(WordNumber value) {
-            super.write(value);
-          }
-        };
-      }
-
-    };
-    var state = new State(io, registerBankFactory.createBank(), new MockedMemory(true));
+    var state = new State(io, new DefaultRegisterBankFactory().createBank(), new MockedMemory(true));
     io.setPc(state.getPc());
     return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)));
   }
@@ -64,11 +64,11 @@ public class EmulatedMiniZX<T extends WordNumber> {
     return index -> ooz80.getState().getMemory().read(WordNumber.createValue(index), 0).intValue();
   }
 
-  private void start() {
+  public void start() {
     MiniZXIO io = new MiniZXIO();
     ooz80 = createOOZ80(io);
-    MiniZX.createScreen(io.miniZXKeyboard, this.getMemFunction());
-    final byte[] rom = MiniZX.createROM();
+    if (showScreen)
+      MiniZX.createScreen(io.miniZXKeyboard, this.getMemFunction());
 
     RegistersBase registersBase = new RegistersBase<>(ooz80.getState()) {
       public VirtualRegisterFactory getVirtualRegisterFactory() {
@@ -76,19 +76,23 @@ public class EmulatedMiniZX<T extends WordNumber> {
       }
     };
 
-    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile("file:///home/fernando/detodo/desarrollo/m/zx/zx/jsw.z80");
-//    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile("file:///home/fernando/dynamitedan1.z80");
-    SnapshotLoader.setupStateWithSnapshot(registersBase, first, new MemorySetter(ooz80.getState().getMemory(), rom));
+    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
+    State<T> state = ooz80.getState();
+    SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
 
-    new Thread(() -> emulate()).start();
+    if (inThread)
+      new Thread(this::emulate).start();
+    else
+      emulate();
   }
 
   public void emulate() {
     int i = 0;
-    while (true) {
-      if (i++ % 100000 == 0) this.ooz80.getState().setINTLine(true);
-      else if (i % 2 == 0) {
-        this.ooz80.execute();
+    while (ooz80.getState().getPc().read().intValue() != emulateUntil) {
+      if (i++ % (pause * 1000) == 0) this.ooz80.getState().setINTLine(true);
+      else {
+        if (i % pause == 0)
+          this.ooz80.execute();
       }
     }
   }
