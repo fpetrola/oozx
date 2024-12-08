@@ -137,7 +137,7 @@ public class MiniZXIO implements IO<WordNumber> {
 
     removeIfReady(portInput);
 
-    System.out.printf("java IN: %d -> %d= %d%n", javaPC, port.intValue(), resultJava.intValue());
+//    System.out.printf("java IN: %d -> %d= %d%n", javaPC, port.intValue(), resultJava.intValue());
 
 //    System.out.println("java IN: " + port.intValue() + "= " + resultJava);
     return resultJava;

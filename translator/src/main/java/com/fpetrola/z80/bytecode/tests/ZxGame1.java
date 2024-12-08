@@ -855,6 +855,7 @@ public class ZxGame1 extends MiniZX {
         int var28 = A;
         int var29 = rr(var28);
         A = var29;
+        F = F;
         int var30 = D;
         int var31 = rl(var30);
         D = var31;

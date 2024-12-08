@@ -62,6 +62,10 @@ public class State<T extends WordNumber> {
     setIntMode(IM0);
   }
 
+  public void setRegisters(State<T> state) {
+    Stream.of(values()).forEach(r -> getRegister(r).write(state.getRegister(r).read()));
+  }
+
   public enum InterruptionMode {IM0, IM1, IM2}
 
   private InterruptionMode intMode;

@@ -54,7 +54,13 @@ class JPRegisterAddressAction extends AddressAction {
   @Override
   public int getNext(int next, int pcValue) {
     if (alwaysTrue) {
-      return genericGetNext(next, pcValue);
+      if (!isPending()) {
+        int result = pcValue;
+        if (routineExecution.retInstruction == next && routineExecution.hasPendingPoints())
+          result = routineExecution.getNextPending().address;
+        return result;
+      } else
+        return genericGetNext(next, pcValue);
     } else {
       if (true)
         return super.getNext(next, pcValue);
@@ -73,7 +79,7 @@ class JPRegisterAddressAction extends AddressAction {
   }
 
   void setPendingAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
-    updatePending();
+    pending = false;
   }
 
   public void setDynamicJPData(DynamicJPData dynamicJPData) {
@@ -83,8 +89,10 @@ class JPRegisterAddressAction extends AddressAction {
 
   public void beforeStep() {
     Integer poll = cases.poll();
-    JP jp = (JP) instruction;
-    VirtualComposed16BitRegister positionOpcodeReference = (VirtualComposed16BitRegister) jp.getPositionOpcodeReference();
-    positionOpcodeReference.lastData = WordNumber.createValue(poll);
+    if (poll != null) {
+      JP jp = (JP) instruction;
+      VirtualComposed16BitRegister positionOpcodeReference = (VirtualComposed16BitRegister) jp.getPositionOpcodeReference();
+      positionOpcodeReference.lastData = WordNumber.createValue(poll);
+    }
   }
 }

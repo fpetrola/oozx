@@ -65,13 +65,15 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
 
   @Test
   public void testJSWMoveWilly() {
-    EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX("http://torinak.com/qaop/bin/dynamitedan", 1, false, 0xC804, false);
-    emulatedMiniZX.start();
+//    EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX("http://torinak.com/qaop/bin/dynamitedan", 1, false, 0xC804, false);
+//    emulatedMiniZX.start();
+//
+//    State state = emulatedMiniZX.ooz80.getState();
+//    String base64Memory = SnapshotHelper.getBase64Memory(state);
+//    realCodeBytecodeCreationBase.getState().getMemory().copyFrom(state.getMemory());
+//    realCodeBytecodeCreationBase.getState().setRegisters(state);
 
-    String base64Memory = SnapshotHelper.getBase64Memory(emulatedMiniZX.ooz80.getState());
-    realCodeBytecodeCreationBase.getState().getMemory().copyFrom(emulatedMiniZX.ooz80.getState().getMemory());
-
-//    String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/dynamitedan1.z80");
+    String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/dynamitedan1.z80");
     stepUntilComplete(0xC804);
 
 //    String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
