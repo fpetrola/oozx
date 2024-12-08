@@ -23,14 +23,17 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class MemorySetter {
   private final Memory<? extends WordNumber> memory;
+  private final byte[] rom;
 
-  public <T extends WordNumber> MemorySetter(Memory<T> memory) {
+  public <T extends WordNumber> MemorySetter(Memory<T> memory, byte[] rom) {
     this.memory = memory;
+    this.rom = rom;
   }
 
   public void setData(byte[] result) {
     for (int i = 0; i <result.length; i++) {
-      WordNumber value = WordNumber.createValue(result[i]);
+      int data = ((i < 16384) ? rom[i] : result[i]) & 0xff;
+      WordNumber value = WordNumber.createValue(data);
       memory.getData()[i]= value.and(0xff);
     }
   }

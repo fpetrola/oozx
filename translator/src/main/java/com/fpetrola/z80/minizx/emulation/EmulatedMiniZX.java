@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
-import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.MemorySetter;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.State;
@@ -77,9 +76,9 @@ public class EmulatedMiniZX<T extends WordNumber> {
       }
     };
 
-//    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile("file:///home/fernando/detodo/desarrollo/m/zx/zx/emlyn.z80");
-    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile("file:///home/fernando/dynamitedan1.z80");
-    SnapshotLoader.setupStateWithSnapshot(registersBase, first, new MemorySetter(ooz80.getState().getMemory()));
+    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile("file:///home/fernando/detodo/desarrollo/m/zx/zx/jsw.z80");
+//    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile("file:///home/fernando/dynamitedan1.z80");
+    SnapshotLoader.setupStateWithSnapshot(registersBase, first, new MemorySetter(ooz80.getState().getMemory(), rom));
 
     new Thread(() -> emulate()).start();
   }
