@@ -292,9 +292,13 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   public boolean visitingInc(Inc inc) {
-    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.add(1).and(0xff)), routineByteCodeGenerator);
+    final Variable[] and = new Variable[1];
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> {
+      and[0] = t.add(1).and(0xff);
+      t.set(and[0]);
+    }, routineByteCodeGenerator);
     inc.accept(visitor);
-    processFlag(inc, () -> visitor.targetVariable);
+    processFlag(inc, () -> and[0]);
     return false;
   }
 
@@ -437,19 +441,22 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   private void processFlag(DefaultTargetFlagInstruction targetFlagInstruction, Supplier<Variable> targetVariable) {
     Variable value = targetVariable.get();
-    if (value instanceof WriteArrayVariable)
-      value = value.get();
-    getF().set(value);
+    getF().set(processWriteArray(value));
+
     routineByteCodeGenerator.lastTargetFlagInstruction = targetFlagInstruction;
 
 //    pendingFlag = new PendingFlagUpdate(targetVariable, targetFlagInstruction, routineByteCodeGenerator, address);
   }
 
-  private void processFlag(DefaultTargetFlagInstruction targetFlagInstruction, Supplier<Variable> targetVariable, Supplier<Object> sourceVariable) {
-    Variable value = targetVariable.get();
+  private Variable processWriteArray(Variable value) {
     if (value instanceof WriteArrayVariable)
       value = value.get();
-    getF().set(value);
+    return value;
+  }
+
+  private void processFlag(DefaultTargetFlagInstruction targetFlagInstruction, Supplier<Variable> targetVariable, Supplier<Object> sourceVariable) {
+    Variable value = targetVariable.get();
+    getF().set(processWriteArray(value));
     routineByteCodeGenerator.lastTargetFlagInstruction = targetFlagInstruction;
 
 //    pendingFlag = new PendingFlagUpdate(targetVariable, targetFlagInstruction, routineByteCodeGenerator, address, sourceVariable);
