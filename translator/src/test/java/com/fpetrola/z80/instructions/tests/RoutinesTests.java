@@ -646,7 +646,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
            public void $11() {
               int var1 = super.A - 1 & 255;
               super.A = var1;
-              if(super.A != 0) {
+              if(var1 != 0) {
                  super.nextAddress = 16;
               } else {
                  super.E = 8;
@@ -966,7 +966,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
                  super.D = 5;
                  int var1 = super.A - 1 & 255;
                  super.A = var1;
-                 if(super.A == 0) {
+                 if(var1 == 0) {
                     return;
                  }
         
