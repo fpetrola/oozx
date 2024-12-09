@@ -441,11 +441,15 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   private void processFlag(DefaultTargetFlagInstruction targetFlagInstruction, Supplier<Variable> targetVariable) {
     Variable value = targetVariable.get();
-    getF().set(processWriteArray(value));
+    setFlagPreservingCarry(value);
 
     routineByteCodeGenerator.lastTargetFlagInstruction = targetFlagInstruction;
 
 //    pendingFlag = new PendingFlagUpdate(targetVariable, targetFlagInstruction, routineByteCodeGenerator, address);
+  }
+
+  private void setFlagPreservingCarry(Variable value) {
+    getF().set(processWriteArray(value));
   }
 
   private Variable processWriteArray(Variable value) {
@@ -456,7 +460,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   private void processFlag(DefaultTargetFlagInstruction targetFlagInstruction, Supplier<Variable> targetVariable, Supplier<Object> sourceVariable) {
     Variable value = targetVariable.get();
-    getF().set(processWriteArray(value));
+    setFlagPreservingCarry(value);
     routineByteCodeGenerator.lastTargetFlagInstruction = targetFlagInstruction;
 
 //    pendingFlag = new PendingFlagUpdate(targetVariable, targetFlagInstruction, routineByteCodeGenerator, address, sourceVariable);
@@ -592,12 +596,13 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
     if (targetVariable != null) {
       if (isRotationInstruction(routineByteCodeGenerator.lastTargetFlagInstruction))
         if (targetVariable != null) {
-          if (string.equals("NZ")) targetVariable.ifNe(source, runnable);
-          else if (string.equals("Z")) targetVariable.ifEq(source, runnable);
-          else if (string.equals("NC")) targetVariable.ifEq(source, runnable);
-          else if (string.equals("C")) targetVariable.ifNe(source, runnable);
-          else if (string.equals("NS")) targetVariable.ifGe(source, runnable);
-          else if (string.equals("S")) targetVariable.ifLt(source, runnable);
+          Variable invoke = methodMaker.invoke("getCarry");
+          if (string.equals("NZ")) invoke.ifNe(source, runnable);
+          else if (string.equals("Z")) invoke.ifEq(source, runnable);
+          else if (string.equals("NC")) invoke.ifEq(source, runnable);
+          else if (string.equals("C")) invoke.ifNe(source, runnable);
+          else if (string.equals("NS")) invoke.ifGe(source, runnable);
+          else if (string.equals("S")) invoke.ifLt(source, runnable);
           return;
         }
 

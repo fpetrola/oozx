@@ -55,7 +55,7 @@ public class ZxGame1 extends MiniZX {
         F = F;
         int var31 = rr(var30);
         A = var31;
-        if(F == 0) {
+        if(getCarry() == 0) {
           do {
             A = 0;
             int var39 = A << 1;
@@ -81,7 +81,7 @@ public class ZxGame1 extends MiniZX {
             F = F;
             int var48 = rr(var47);
             A = var48;
-          } while(F != 0);
+          } while(getCarry() != 0);
 
           do {
             A = 0;
@@ -108,7 +108,7 @@ public class ZxGame1 extends MiniZX {
         F = F;
         int var35 = rr(var34);
         A = var35;
-        if(F == 0) {
+        if(getCarry() == 0) {
           HL(51327);
           int var36 = HL();
           int var37 = mem(var36, 51298) | 128;
@@ -941,7 +941,8 @@ public class ZxGame1 extends MiniZX {
       HL(var34);
       int var35 = C - 1 & 255;
       C = var35;
-    } while(C != 0);
+      F = var35;
+    } while(F != 0);
 
   }
 

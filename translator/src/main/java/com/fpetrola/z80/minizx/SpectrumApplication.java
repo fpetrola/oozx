@@ -44,6 +44,7 @@ public abstract class SpectrumApplication<T> {
   public int[] mem = new int[0x10000];
   static public IO<WordNumber> io;
   private final Stack<Integer> stack = new Stack<>();
+  protected int carry;
 
   public int exAF(int AF) {
     int temp1 = AFx();
@@ -300,54 +301,58 @@ public abstract class SpectrumApplication<T> {
     return ((a & 0xFF) << 8) | (f & 0xFF);
   }
 
-  public int[] rlc(int a, int F) {
-    F = (a & 128) >> 7;
-    int i = ((a << 1) & 0xfe) | (a & 0xFF) >> 7;
-    return new int[]{i & 0xff, F};
-  }
-
-  public int[] rl(int a, int F) {
-    int lastCarry = carry(F) & 0x01;
-    F = (a & 128) >> 7;
-    int i = ((a << 1) & 0xfe) | lastCarry;
-    return new int[]{i & 0xff, F};
-  }
+//  public int[] rlc(int a, int F) {
+//    F = (a & 128) >> 7;
+//    int i = ((a << 1) & 0xfe) | (a & 0xFF) >> 7;
+//    return new int[]{i & 0xff, F};
+//  }
+//
+//  public int[] rl(int a, int F) {
+//    int lastCarry = carry(F) & 0x01;
+//    F = (a & 128) >> 7;
+//    int i = ((a << 1) & 0xfe) | lastCarry;
+//    return new int[]{i & 0xff, F};
+//  }
 
   public int rrc(int a) {
-    F = a & 1;
+    F= carry = a & 1;
     return ((a & 0xff) >> 1) | ((a & 0x01) << 7) & 0xff;
   }
 
   public int rr(int a) {
     int lastCarry = (carry(F) & 0x01) << 7;
-    F = a & 1;
+    F= carry = a & 1;
     return ((a & 0xff) >> 1) | lastCarry;
   }
 
   public int rlc(int a) {
-    F = (a & 128) >> 7;
+    F= carry = (a & 128) >> 7;
     return ((a << 1) & 0xfe) | (a & 0xFF) >> 7;
   }
 
   public int rl(int a) {
     int lastCarry = carry(F) & 0x01;
-    F = (a & 128) >> 7;
+    F= carry = (a & 128) >> 7;
     return ((a << 1) & 0xfe) | lastCarry;
   }
 
   public int sl(int a) {
     int lastCarry = 0;
-    F = (a & 128) >> 7;
+    F= carry = (a & 128) >> 7;
     return ((a << 1) & 0xfe) | lastCarry;
   }
 
   public int sr(int a) {
-    F = (a & 1) >> 7;
+    F= carry = (a & 1) >> 7;
     return ((a & 0xff) >> 1);
   }
 
+  public int getCarry() {
+    return carry;
+  }
+
   public void ccf() {
-    F = ~F;
+    carry = ~carry;
   }
 
   public void update16Registers() {
