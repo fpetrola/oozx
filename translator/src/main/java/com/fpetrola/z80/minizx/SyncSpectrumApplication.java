@@ -31,6 +31,7 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
   }
 
   public int mem(int address, int pc) {
+    waitNanos(20000);
     syncChecker.checkSyncJava(address, 0, pc);
     return getMem()[address] & 0xff;
   }

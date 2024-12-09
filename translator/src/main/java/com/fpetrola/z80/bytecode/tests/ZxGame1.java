@@ -15,7 +15,6 @@ public class ZxGame1 extends MiniZX {
 
       while(true) {
         $D9EC();
-        waitMilis(50);
         $E592();
         $E93F();
         $CFD9();
