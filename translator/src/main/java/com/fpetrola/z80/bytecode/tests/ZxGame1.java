@@ -1180,18 +1180,12 @@ public class ZxGame1 extends MiniZX {
     int var1 = BC();
     push(var1);
     int var2 = IY() + 4;
-    Runnable mut1;
-    Runnable mut2;
     int var3 = mem(var2, 59756) & 64;
     F = var3;
     if(F != 0) {
       BC(30590);
-      mut1 = () -> wMem(HL(), A, 59792);
-      mut2 = () -> A = mem(HL(), 59823);
     } else {
       BC(4727);
-      mut1 = () -> wMem(DE(), A, 59792);
-      mut2 = () -> wMem(HL(), A, 59823);
     }
 
     A = B;
@@ -1222,87 +1216,78 @@ public class ZxGame1 extends MiniZX {
 
         do {
           int var11 = HL();
-          A = mem(var11, 59791);
-//          int var11 = mem[59792];
-//          A = var11;
-//          int var12 = mem[59792];
-//          int var13 = HL();
-          mut1.run();
-
-          int var15 = E + 1 & 255;
-          E = var15;
-          F = var15;
-          int var16 = HL() + 1 & 65535;
-          HL(var16);
-          int var17 = B - 1 & 255;
-          B = var17;
+          int var12 = mem(var11, 59791);
+          A = var12;
+          executeMutantCode(59792);
+          int var13 = E + 1 & 255;
+          E = var13;
+          F = var13;
+          int var14 = HL() + 1 & 65535;
+          HL(var14);
+          int var15 = B - 1 & 255;
+          B = var15;
         } while(B != 0);
 
+        int var16 = pop();
+        DE(var16);
+        int var17 = D + 1 & 255;
+        D = var17;
+        F = var17;
         int var18 = pop();
-        DE(var18);
-        int var19 = D + 1 & 255;
-        D = var19;
+        BC(var18);
+        int var19 = C - 1 & 255;
+        C = var19;
         F = var19;
-        int var20 = pop();
-        BC(var20);
-        int var21 = C - 1 & 255;
-        C = var21;
-        F = var21;
       } while(F != 0);
 
-      int var22 = pop();
-      DE(var22);
-      int var23 = E + 1 & 255;
-      E = var23;
+      int var20 = pop();
+      DE(var20);
+      int var21 = E + 1 & 255;
+      E = var21;
+      F = var21;
+      int var22 = AF();
+      exAF(var22);
+      int var23 = A - 1 & 255;
+      A = var23;
       F = var23;
-      int var24 = AF();
-      exAF(var24);
-      int var25 = A - 1 & 255;
-      A = var25;
-      F = var25;
     } while(F != 0);
 
-    int var26 = pop();
-    BC(var26);
-    int var27 = pop();
-    DE(var27);
+    int var24 = pop();
+    BC(var24);
+    int var25 = pop();
+    DE(var25);
     $E8E3();
     exHLDE();
     DE(32);
-    int var28 = IY() + 5;
-    int var29 = mem(var28, 59818);
-    A = var29;
+    int var26 = IY() + 5;
+    int var27 = mem(var26, 59818);
+    A = var27;
 
     do {
-      int var30 = HL();
-      push(var30);
-      int var31 = BC();
-      push(var31);
+      int var28 = HL();
+      push(var28);
+      int var29 = BC();
+      push(var29);
 
       do {
-        //        int var31 = HL();
-//        mem(var31, 59823);
-//        int var32 = mem[59823];
-//        A = var32;
-
-        mut2.run();
-        int var34 = L + 1 & 255;
-        L = var34;
-        F = var34;
-        int var35 = B - 1 & 255;
-        B = var35;
+        executeMutantCode(59823);
+        int var30 = L + 1 & 255;
+        L = var30;
+        F = var30;
+        int var31 = B - 1 & 255;
+        B = var31;
       } while(B != 0);
 
-      int var36 = pop();
-      BC(var36);
-      int var37 = pop();
-      HL(var37);
-      int var38 = DE();
-      int var39 = HL() + var38 & 65535;
-      HL(var39);
-      int var40 = C - 1 & 255;
-      C = var40;
-      F = var40;
+      int var32 = pop();
+      BC(var32);
+      int var33 = pop();
+      HL(var33);
+      int var34 = DE();
+      int var35 = HL() + var34 & 65535;
+      HL(var35);
+      int var36 = C - 1 & 255;
+      C = var36;
+      F = var36;
     } while(F != 0);
 
   }

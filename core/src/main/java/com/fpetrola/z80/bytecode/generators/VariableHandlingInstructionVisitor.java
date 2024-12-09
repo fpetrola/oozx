@@ -80,9 +80,10 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<Wo
     int i = routineByteCodeGenerator.bytecodeGenerationContext.pc.read().intValue();
     Set<Integer> mutantAddress = (Set<Integer>) routineByteCodeGenerator.bytecodeGenerationContext.symbolicExecutionAdapter.getMutantAddress();
     Optional<Integer> mutantCode = mutantAddress.stream()
-        .filter(m -> m >= i && m <= routineByteCodeGenerator.currentInstruction.getLength() + i).findFirst();
+        .filter(m -> m >= i && m < routineByteCodeGenerator.currentInstruction.getLength() + i).findFirst();
     if (mutantCode.isPresent()) {
-      sourceVariable = routineByteCodeGenerator.getField("mem").aget(mutantCode.get());
+      routineByteCodeGenerator.mm.invoke("executeMutantCode", mutantCode.get());
+//      sourceVariable = routineByteCodeGenerator.getField("mem").aget(mutantCode.get());
     }
   }
 

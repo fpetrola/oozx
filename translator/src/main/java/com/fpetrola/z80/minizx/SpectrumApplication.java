@@ -46,6 +46,18 @@ public abstract class SpectrumApplication<T> {
   private final Stack<Integer> stack = new Stack<>();
   protected int carry;
 
+  public void executeMutantCode(int address) {
+    if (mem[address] == 0x77) {
+      wMem(HL(), A, address);
+    } else if (mem[address] == 0x7E) {
+      A = mem(HL(), address);
+    } else if (mem[address] == 0x12) {
+      wMem(DE(), A, address);
+    }
+
+//    System.out.println("mutant at: " + address);
+  }
+
   public int exAF(int AF) {
     int temp1 = AFx();
     AFx(AF());
@@ -195,6 +207,7 @@ public abstract class SpectrumApplication<T> {
     long start = System.currentTimeMillis();
     while (start + i >= System.currentTimeMillis()) ;
   }
+
   public void wMem16(int address, int value) {
     value = value & 0xffff;
     getMem()[address + 1] = value >> 8;
@@ -315,35 +328,35 @@ public abstract class SpectrumApplication<T> {
 //  }
 
   public int rrc(int a) {
-    F= carry = a & 1;
+    F = carry = a & 1;
     return ((a & 0xff) >> 1) | ((a & 0x01) << 7) & 0xff;
   }
 
   public int rr(int a) {
     int lastCarry = (carry(F) & 0x01) << 7;
-    F= carry = a & 1;
+    F = carry = a & 1;
     return ((a & 0xff) >> 1) | lastCarry;
   }
 
   public int rlc(int a) {
-    F= carry = (a & 128) >> 7;
+    F = carry = (a & 128) >> 7;
     return ((a << 1) & 0xfe) | (a & 0xFF) >> 7;
   }
 
   public int rl(int a) {
     int lastCarry = carry(F) & 0x01;
-    F= carry = (a & 128) >> 7;
+    F = carry = (a & 128) >> 7;
     return ((a << 1) & 0xfe) | lastCarry;
   }
 
   public int sl(int a) {
     int lastCarry = 0;
-    F= carry = (a & 128) >> 7;
+    F = carry = (a & 128) >> 7;
     return ((a << 1) & 0xfe) | lastCarry;
   }
 
   public int sr(int a) {
-    F= carry = (a & 1) >> 7;
+    F = carry = (a & 1) >> 7;
     return ((a & 0xff) >> 1);
   }
 

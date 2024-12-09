@@ -179,14 +179,17 @@ public class RoutineBytecodeGenerator {
 //                      mm.invoke("incPops");
 //                    }
 
-        InstructionsBytecodeGenerator instructionsBytecodeGenerator = new InstructionsBytecodeGenerator(mm, label, RoutineBytecodeGenerator.this, address, pendingFlag);
-        instruction.accept(instructionsBytecodeGenerator);
+        if (mutantCodeInInstruction(instruction, address)) {
+          mm.invoke("executeMutantCode", address);
+        } else {
+          InstructionsBytecodeGenerator instructionsBytecodeGenerator = new InstructionsBytecodeGenerator(mm, label, RoutineBytecodeGenerator.this, address, pendingFlag);
+          instruction.accept(instructionsBytecodeGenerator);
+          pendingFlag = instructionsBytecodeGenerator.pendingFlag;
 
-        pendingFlag = instructionsBytecodeGenerator.pendingFlag;
-
-        if (!instructionsBytecodeGenerator.incPopsAdded && routine.getVirtualPop().containsKey(address)) {
-          getField("nextAddress").set(routine.getVirtualPop().get(address) + 1);
-          returnFromMethod();
+          if (!instructionsBytecodeGenerator.incPopsAdded && routine.getVirtualPop().containsKey(address)) {
+            getField("nextAddress").set(routine.getVirtualPop().get(address) + 1);
+            returnFromMethod();
+          }
         }
       }
 
@@ -215,6 +218,11 @@ public class RoutineBytecodeGenerator {
     generators.forEach(g -> g.instructionGenerator().run());
 
     positionedLabels.forEach(l -> labels.get(l).here());
+  }
+
+  private boolean mutantCodeInInstruction(Instruction instruction, int address) {
+    Set<Integer> mutantAddress = (Set<Integer>) bytecodeGenerationContext.symbolicExecutionAdapter.getMutantAddress();
+    return mutantAddress.stream().anyMatch(a1 -> a1 >= address && a1 < address + instruction.getLength());
   }
 
   private void addReg16(String name) {
