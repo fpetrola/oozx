@@ -20,7 +20,9 @@ package com.fpetrola.z80.bytecode.generators.helpers;
 
 import com.fpetrola.z80.bytecode.generators.OpcodeReferenceVisitor;
 import com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.FlagInstruction;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.transformations.Virtual8BitsRegister;
 import com.fpetrola.z80.transformations.VirtualAssignmentInstruction;
 import com.fpetrola.z80.transformations.VirtualRegister;
@@ -50,11 +52,12 @@ public class PendingFlagUpdate {
   }
 
   public void update(boolean force) {
-    VirtualRegister virtualRegister = (VirtualRegister) targetFlagInstruction.getFlag();
+    Register flag = targetFlagInstruction.getFlag();
+    VirtualRegister virtualRegister = (VirtualRegister) flag;
     List<VirtualRegister<?>> dependants = virtualRegister.getDependants();
-    if (force || dependants.stream().anyMatch(d -> d instanceof Virtual8BitsRegister<?> virtual8BitsRegister && virtual8BitsRegister.instruction instanceof VirtualAssignmentInstruction<?>)) {
+    if (force || dependants.stream().anyMatch(d -> d instanceof Virtual8BitsRegister<?> virtual8BitsRegister && virtual8BitsRegister.currentInstruction1 instanceof ConditionalInstruction<?,?>)) {
       OpcodeReferenceVisitor variableAdapter = new OpcodeReferenceVisitor(true, routineByteCodeGenerator);
-      targetFlagInstruction.getFlag().accept(variableAdapter);
+      flag.accept(variableAdapter);
       Object targetVariable = targetVariableSupplier.get();
       if (!(targetVariable instanceof WriteArrayVariable))
         ((Variable) variableAdapter.getResult()).set(RoutineBytecodeGenerator.getRealVariable(targetVariable));

@@ -51,6 +51,7 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
   }
 
   private final BlocksManager blocksManager;
+  public Instruction currentInstruction1;
   private final List<VirtualRegister<T>> dependants = new ArrayList<>();
   private final Scope scope;
   public VirtualComposed16BitRegister<T> virtualComposed16BitRegister;
@@ -64,7 +65,7 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
 
   public Virtual8BitsRegister(int address, InstructionExecutor instructionExecutor, String name, Instruction<T> instruction,
                               IVirtual8BitsRegister<T> previousVersion, VirtualFetcher<T> virtualFetcher, Consumer<T> dataConsumer,
-                              VirtualRegisterVersionHandler versionHandler, BlocksManager blocksManager) {
+                              VirtualRegisterVersionHandler versionHandler, BlocksManager blocksManager, Instruction currentInstruction1) {
     super(name);
     this.address = address;
     this.instructionExecutor = instructionExecutor;
@@ -73,6 +74,7 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
     this.dataConsumer = dataConsumer;
     this.versionHandler = versionHandler;
     this.blocksManager = blocksManager;
+    this.currentInstruction1 = currentInstruction1;
 
     if (previousVersion != null)
       addPreviousVersion(previousVersion);

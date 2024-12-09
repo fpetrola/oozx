@@ -319,7 +319,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
       OpcodeReference target1 = (OpcodeReference) memoryPlusRegister8BitReference.getTarget();
       ImmutableOpcodeReference result;
       if (target1 instanceof Register register) {
-        result = virtualRegisterFactory.createVirtualRegister(null, register, virtualFetcher);
+        result = virtualRegisterFactory.createVirtualRegister(null, register, virtualFetcher, currentInstruction);
       } else {
         result = clone(memoryPlusRegister8BitReference.getTarget());
       }
@@ -336,7 +336,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
       OpcodeReference target1 = (OpcodeReference) indirectMemory8BitReference.target;
       ImmutableOpcodeReference result;
       if (target1 instanceof Register register) {
-        result = virtualRegisterFactory.createVirtualRegister(null, register, virtualFetcher);
+        result = virtualRegisterFactory.createVirtualRegister(null, register, virtualFetcher, currentInstruction);
       } else {
         result = clone(indirectMemory8BitReference.target);
       }
@@ -346,14 +346,14 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
       OpcodeReference target1 = (OpcodeReference) indirectMemory16BitReference.target;
       ImmutableOpcodeReference result;
       if (target1 instanceof Register register) {
-        result = virtualRegisterFactory.createVirtualRegister(null, register, virtualFetcher);
+        result = virtualRegisterFactory.createVirtualRegister(null, register, virtualFetcher, currentInstruction);
       } else {
         result = clone(indirectMemory16BitReference.target);
       }
 
       return (R) new IndirectMemory16BitReference(result, indirectMemory16BitReference.getMemory());
     } else if (cloneable instanceof Register register) {
-      return (R) virtualRegisterFactory.createVirtualRegister(currentInstruction1, register, virtualFetcher);
+      return (R) virtualRegisterFactory.createVirtualRegister(currentInstruction1, register, virtualFetcher, currentInstruction);
     } else
       return super.clone(cloneable);
   }

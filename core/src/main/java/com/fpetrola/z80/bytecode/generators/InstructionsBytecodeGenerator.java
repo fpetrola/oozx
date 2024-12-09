@@ -517,6 +517,8 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   private void processExistingCondition(Runnable runnable, ConditionalInstruction conditionalInstruction, ConditionFlag conditionFlag, OpcodeReferenceVisitor opcodeReferenceVisitor) {
+    if (routineByteCodeGenerator.bytecodeGenerationContext.pc.read().intValue() == 0xD9AC)
+      System.out.println("break");
     Variable f = opcodeReferenceVisitor.process((VirtualRegister) conditionFlag.getRegister());
     String string = conditionalInstruction.getCondition().toString();
     Object source;
