@@ -76,7 +76,7 @@ public class ZxGame1 extends MiniZX {
             int var43 = A;
             int var44 = rr(var43);
             A = var44;
-          } while(F < 0);
+          } while(F != 0);
 
           do {
             A = 0;
@@ -6324,7 +6324,7 @@ public class ZxGame1 extends MiniZX {
 
     do {
       int var2 = IY();
-      int var3 = mem(var2);
+      int var3 = mem(var2, 58988);
       if(A == var3) {
         HL(58978);
         int var4 = HL();

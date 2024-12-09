@@ -498,18 +498,32 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   private void createIfs(Instruction instruction, Runnable runnable) {
     OpcodeReferenceVisitor opcodeReferenceVisitor = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
     if (instruction instanceof DJNZ<?> djnz) {
-      Variable result = opcodeReferenceVisitor.process((VirtualRegister) djnz.getCondition().getB());
-      Variable and = result.sub(1).and(0xFF);
-      result.set(and);
-      result.ifNe(0, runnable);
-    } else if (instruction instanceof ConditionalInstruction conditionalInstruction && conditionalInstruction.getCondition() instanceof ConditionFlag conditionFlag) {
-      Variable f = opcodeReferenceVisitor.process((VirtualRegister) conditionFlag.getRegister());
-      String string = conditionalInstruction.getCondition().toString();
-      Object source;
-      Variable targetVariable = null;
+      processDjnz(runnable, djnz, opcodeReferenceVisitor);
+    } else if (instruction instanceof ConditionalInstruction conditionalInstruction && conditionalInstruction.getCondition() instanceof ConditionFlag conditionFlag)
+      processExistingCondition(runnable, conditionalInstruction, conditionFlag, opcodeReferenceVisitor);
+    else {
       if (previousPendingFlag != null) {
-        FlagInstruction targetFlagInstruction = previousPendingFlag.targetFlagInstruction;
-        routineByteCodeGenerator.lastMemPc.write(WordNumber.createValue(previousPendingFlag.address));
+        previousPendingFlag.update(false);
+      }
+      runnable.run();
+    }
+  }
+
+  private void processDjnz(Runnable runnable, DJNZ<?> djnz, OpcodeReferenceVisitor opcodeReferenceVisitor) {
+    Variable result = opcodeReferenceVisitor.process((VirtualRegister) djnz.getCondition().getB());
+    Variable and = result.sub(1).and(0xFF);
+    result.set(and);
+    result.ifNe(0, runnable);
+  }
+
+  private void processExistingCondition(Runnable runnable, ConditionalInstruction conditionalInstruction, ConditionFlag conditionFlag, OpcodeReferenceVisitor opcodeReferenceVisitor) {
+    Variable f = opcodeReferenceVisitor.process((VirtualRegister) conditionFlag.getRegister());
+    String string = conditionalInstruction.getCondition().toString();
+    Object source;
+    Variable targetVariable = null;
+    if (previousPendingFlag != null) {
+      FlagInstruction targetFlagInstruction = previousPendingFlag.targetFlagInstruction;
+      routineByteCodeGenerator.lastMemPc.write(WordNumber.createValue(previousPendingFlag.address));
 
 //        if (routineByteCodeGenerator.bytecodeGenerationContext.pc.read().intValue() == 38370)
 //          System.out.println("sdsdg");
@@ -520,38 +534,57 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 //          }
 //        }
 
-        if (targetFlagInstruction instanceof Cp<?> cp) {
-          ImmutableOpcodeReference<WordNumber> source1 = (ImmutableOpcodeReference<WordNumber>) cp.getSource();
-          if (previousPendingFlag.sourceVariableSupplier == null) {
-            OpcodeReferenceVisitor opcodeReferenceVisitor2 = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
-            source1.accept(opcodeReferenceVisitor2);
-            source = opcodeReferenceVisitor2.getResult();
-          } else {
-            source = previousPendingFlag.sourceVariableSupplier.get();
-          }
-          if (targetFlagInstruction instanceof TargetInstruction<?> targetInstruction) {
-            OpcodeReferenceVisitor<WordNumber> variableAdapter = new OpcodeReferenceVisitor<>(true, routineByteCodeGenerator);
-            targetInstruction.getTarget().accept(variableAdapter);
-            targetVariable = (Variable) variableAdapter.getResult();
-          }
-          previousPendingFlag.processed = true;
-          pendingFlag = previousPendingFlag;
+      if (targetFlagInstruction instanceof Cp<?> cp) {
+        ImmutableOpcodeReference<WordNumber> source1 = (ImmutableOpcodeReference<WordNumber>) cp.getSource();
+        if (previousPendingFlag.sourceVariableSupplier == null) {
+          OpcodeReferenceVisitor opcodeReferenceVisitor2 = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
+          source1.accept(opcodeReferenceVisitor2);
+          source = opcodeReferenceVisitor2.getResult();
         } else {
-          targetVariable = (Variable) previousPendingFlag.targetVariableSupplier.get();
-          source = 0;
+          source = previousPendingFlag.sourceVariableSupplier.get();
         }
+        if (targetFlagInstruction instanceof TargetInstruction<?> targetInstruction) {
+          OpcodeReferenceVisitor<WordNumber> variableAdapter = new OpcodeReferenceVisitor<>(true, routineByteCodeGenerator);
+          targetInstruction.getTarget().accept(variableAdapter);
+          targetVariable = (Variable) variableAdapter.getResult();
+        }
+        previousPendingFlag.processed = true;
+        pendingFlag = previousPendingFlag;
       } else {
+        targetVariable = (Variable) previousPendingFlag.targetVariableSupplier.get();
         source = 0;
-        targetVariable = f;
+        if (isRotationInstruction(targetFlagInstruction))
+          if (targetVariable != null) {
+            if (string.equals("NZ")) targetVariable.ifNe(source, runnable);
+            else if (string.equals("Z")) targetVariable.ifEq(source, runnable);
+            else if (string.equals("NC")) targetVariable.ifEq(source, runnable);
+            else if (string.equals("C")) targetVariable.ifNe(source, runnable);
+            else if (string.equals("NS")) targetVariable.ifGe(source, runnable);
+            else if (string.equals("S")) targetVariable.ifLt(source, runnable);
+            return;
+          }
       }
-      if (targetVariable != null)
-        executeCondition(runnable, string, targetVariable, source);
     } else {
-      if (previousPendingFlag != null) {
-        previousPendingFlag.update(false);
-      }
-      runnable.run();
+      source = 0;
+      targetVariable = f;
     }
+    if (targetVariable != null)
+      executeCondition(runnable, string, targetVariable, source);
+  }
+
+  private boolean isRotationInstruction(FlagInstruction targetFlagInstruction) {
+    return targetFlagInstruction instanceof RR ||
+        targetFlagInstruction instanceof RRA ||
+        targetFlagInstruction instanceof RRC ||
+        targetFlagInstruction instanceof RRCA ||
+        targetFlagInstruction instanceof RL ||
+        targetFlagInstruction instanceof RLA ||
+        targetFlagInstruction instanceof RLC ||
+        targetFlagInstruction instanceof RLCA ||
+        targetFlagInstruction instanceof SLA ||
+        targetFlagInstruction instanceof SLL ||
+        targetFlagInstruction instanceof SRA ||
+        targetFlagInstruction instanceof SRL;
   }
 
   private void createIfMethod(Instruction instruction, ConditionalInstruction conditionalInstruction) {
