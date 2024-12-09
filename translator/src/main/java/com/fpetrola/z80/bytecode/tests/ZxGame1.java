@@ -52,7 +52,7 @@ public class ZxGame1 extends MiniZX {
         int var29 = in(var28, 51260);
         A = var29;
         int var30 = A;
-        F = 1;
+        F = F;
         int var31 = rr(var30);
         A = var31;
         if(F == 0) {
@@ -916,7 +916,6 @@ public class ZxGame1 extends MiniZX {
     A = var25;
     C = A;
     E = 8;
-    F= 0;
 
     do {
       B = E;
