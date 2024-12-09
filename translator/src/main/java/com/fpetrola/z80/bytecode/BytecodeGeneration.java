@@ -36,9 +36,9 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 public interface BytecodeGeneration {
-  default <T extends WordNumber> String getDecompiledSource(String className, String targetFolder, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  default <T extends WordNumber> String getDecompiledSource(String className, String targetFolder, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory) {
     try {
-      StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter);
+      StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter, base64Memory);
       byte[] bytecode = bytecodeGenerator.getBytecode();
       String classFile = className + ".class";
       File source = new File(targetFolder + "/" + classFile);
@@ -67,10 +67,10 @@ public interface BytecodeGeneration {
 
   String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className1, SymbolicExecutionAdapter symbolicExecutionAdapter);
 
-  default void translateToJava(String className, String startMethod, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  default void translateToJava(String className, String startMethod, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory) {
     try {
       boolean useFields = true;
-      StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter);
+      StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter, base64Memory);
       Class<?> finish = bytecodeGenerator.getNewClass();
       Object o = finish.getConstructors()[0].newInstance();
       if (useFields) {
@@ -80,18 +80,18 @@ public interface BytecodeGeneration {
         Method method = o.getClass().getMethod(startMethod, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class);
         method.invoke(o, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
       }
-      writeClassFile(className, state, translation, symbolicExecutionAdapter);
+      writeClassFile(className, state, translation, symbolicExecutionAdapter, base64Memory);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  private StateBytecodeGenerator getBytecodeGenerator(String className, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-    return new StateBytecodeGenerator(className, this.getRoutineManager(), state, translation, MiniZX.class, SpectrumApplication.class, symbolicExecutionAdapter);
+  private StateBytecodeGenerator getBytecodeGenerator(String className, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory) {
+    return new StateBytecodeGenerator(className, this.getRoutineManager(), state, translation, MiniZX.class, SpectrumApplication.class, symbolicExecutionAdapter, base64Memory);
   }
 
-  private void writeClassFile(String className, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter) throws IOException {
-    StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter);
+  private void writeClassFile(String className, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory) throws IOException {
+    StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter, base64Memory);
     byte[] bytecode = bytecodeGenerator.getBytecode();
     String classFile = className + ".class";
     File source = new File(classFile);

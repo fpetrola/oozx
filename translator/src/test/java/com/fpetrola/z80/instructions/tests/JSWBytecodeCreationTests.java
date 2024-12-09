@@ -76,8 +76,9 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/dynamitedan1.z80");
     stepUntilComplete(0xC804);
 
+//    Helper.hex= false;
 //    String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
-//    stepUntilComplete(35090);
+//    stepUntilComplete(34762);
 
     String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "ZxGame1");
     actual = RemoteZ80Translator.improveSource(actual);

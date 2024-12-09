@@ -38,7 +38,7 @@ public abstract class ManualBytecodeGenerationTest<T extends WordNumber> extends
   @Override
   public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className1, SymbolicExecutionAdapter symbolicExecutionAdapter) {
     driverConfigurator.reset();
-    return getDecompiledSource("JSW", ".", currentContext.getState(), !base64Memory.isBlank(), symbolicExecutionAdapter);
+    return getDecompiledSource("JSW", ".", currentContext.getState(), !base64Memory.isBlank(), symbolicExecutionAdapter, base64Memory);
   }
 
   @Override

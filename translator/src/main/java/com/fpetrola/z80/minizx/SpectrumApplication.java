@@ -53,6 +53,8 @@ public abstract class SpectrumApplication<T> {
       A = mem(HL(), address);
     } else if (mem[address] == 0x12) {
       wMem(DE(), A, address);
+    } else if (mem[address] == 0x16) {
+      D = mem[address + 1];
     }
 
 //    System.out.println("mutant at: " + address);

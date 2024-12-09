@@ -38,8 +38,9 @@ public class StateBytecodeGenerator {
   private final Class<?> translationSuperClass;
   private final Class<?> executionSuperClass;
   private final SymbolicExecutionAdapter symbolicExecutionAdapter;
+  private final String base64Memory;
 
-  public StateBytecodeGenerator(String className, RoutineManager routineManager, State state, boolean translation, Class<?> translationSuperClass, Class<?> executionSuperClass, SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public StateBytecodeGenerator(String className, RoutineManager routineManager, State state, boolean translation, Class<?> translationSuperClass, Class<?> executionSuperClass, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory) {
     this.className = className;
     this.routineManager = routineManager;
     this.state = state;
@@ -47,6 +48,7 @@ public class StateBytecodeGenerator {
     this.translationSuperClass = translationSuperClass;
     this.executionSuperClass = executionSuperClass;
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
+    this.base64Memory = base64Memory;
   }
 
   private ClassMaker translate() {
@@ -70,7 +72,7 @@ public class StateBytecodeGenerator {
 
     if (translation) {
       MethodMaker getProgramBytesMaker = classMaker.addMethod(String.class, "getProgramBytes").public_();
-      getProgramBytesMaker.return_(SnapshotHelper.getBase64Memory(state));
+      getProgramBytesMaker.return_(base64Memory);
     }
     BytecodeGenerationContext bytecodeGenerationContext = new BytecodeGenerationContext(routineManager, classMaker, state.getPc(), symbolicExecutionAdapter);
     List<Routine> routines = routineManager.getRoutinesInDepth();

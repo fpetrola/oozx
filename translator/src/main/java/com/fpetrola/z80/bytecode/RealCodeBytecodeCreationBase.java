@@ -73,12 +73,12 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecu
 
   @Override
   public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-    return getDecompiledSource(className, targetFolder, getState(), !base64Memory.isBlank(), this.symbolicExecutionAdapter);
+    return getDecompiledSource(className, targetFolder, getState(), !base64Memory.isBlank(), this.symbolicExecutionAdapter, base64Memory);
   }
 
 
   public void translateToJava(String className, String memoryInBase64, String startMethod) {
-    BytecodeGeneration.super.translateToJava(className, startMethod, getState(), !memoryInBase64.isBlank(), symbolicExecutionAdapter);
+    BytecodeGeneration.super.translateToJava(className, startMethod, getState(), !memoryInBase64.isBlank(), symbolicExecutionAdapter, memoryInBase64);
   }
 
   public DefaultRegistersSetter<T> getDefaultRegistersSetter() {
