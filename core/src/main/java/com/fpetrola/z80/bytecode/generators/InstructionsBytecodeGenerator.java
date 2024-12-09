@@ -192,7 +192,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   @Override
   public void visitingScf(SCF scf) {
     Supplier<Variable> f = () -> routineByteCodeGenerator.getField("F").or(1);
-    pendingFlag = new PendingFlagUpdate(f, scf, routineByteCodeGenerator, address);
+    processFlag(scf, f);
   }
 
   @Override
@@ -436,11 +436,23 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   private void processFlag(DefaultTargetFlagInstruction targetFlagInstruction, Supplier<Variable> targetVariable) {
-    pendingFlag = new PendingFlagUpdate(targetVariable, targetFlagInstruction, routineByteCodeGenerator, address);
+    Variable value = targetVariable.get();
+    if (value instanceof WriteArrayVariable)
+      value = value.get();
+    getF().set(value);
+    routineByteCodeGenerator.lastTargetFlagInstruction = targetFlagInstruction;
+
+//    pendingFlag = new PendingFlagUpdate(targetVariable, targetFlagInstruction, routineByteCodeGenerator, address);
   }
 
   private void processFlag(DefaultTargetFlagInstruction targetFlagInstruction, Supplier<Variable> targetVariable, Supplier<Object> sourceVariable) {
-    pendingFlag = new PendingFlagUpdate(targetVariable, targetFlagInstruction, routineByteCodeGenerator, address, sourceVariable);
+    Variable value = targetVariable.get();
+    if (value instanceof WriteArrayVariable)
+      value = value.get();
+    getF().set(value);
+    routineByteCodeGenerator.lastTargetFlagInstruction = targetFlagInstruction;
+
+//    pendingFlag = new PendingFlagUpdate(targetVariable, targetFlagInstruction, routineByteCodeGenerator, address, sourceVariable);
   }
 
   public void visitingLd(Ld ld) {
@@ -570,8 +582,20 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
       source = 0;
       targetVariable = f;
     }
-    if (targetVariable != null)
+    if (targetVariable != null) {
+      if (isRotationInstruction(routineByteCodeGenerator.lastTargetFlagInstruction))
+        if (targetVariable != null) {
+          if (string.equals("NZ")) targetVariable.ifNe(source, runnable);
+          else if (string.equals("Z")) targetVariable.ifEq(source, runnable);
+          else if (string.equals("NC")) targetVariable.ifEq(source, runnable);
+          else if (string.equals("C")) targetVariable.ifNe(source, runnable);
+          else if (string.equals("NS")) targetVariable.ifGe(source, runnable);
+          else if (string.equals("S")) targetVariable.ifLt(source, runnable);
+          return;
+        }
+
       executeCondition(runnable, string, targetVariable, source);
+    }
   }
 
   private boolean isRotationInstruction(FlagInstruction targetFlagInstruction) {

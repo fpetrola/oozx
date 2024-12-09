@@ -21,6 +21,7 @@ package com.fpetrola.z80.bytecode.generators;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.bytecode.generators.helpers.*;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
+import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Plain16BitRegister;
@@ -51,6 +52,7 @@ public class RoutineBytecodeGenerator {
   public Map<VirtualRegister, Variable> variablesByRegister = new HashMap<>();
   public Map<VirtualRegister<?>, VirtualRegister<?>> commonRegisters = new HashMap<>();
   private final Map<Integer, Label> insertLabels = new HashMap<>();
+  public DefaultTargetFlagInstruction lastTargetFlagInstruction;
   protected Field initial;
   private PendingFlagUpdate pendingFlag;
   public Instruction currentInstruction;
