@@ -49,60 +49,72 @@ public class ZxGame1 extends MiniZX {
         BC(1024);
         $D4AF();
         A = 223;
-        int var26 = A << 8 | 254;
-        int var27 = in(var26, 51260);
-        A = var27;
-        int var28 = A;
-        F= 1;
-        int var29 = rr(var28);
+        int var28 = A << 8 | 254;
+        int var29 = in(var28, 51260);
         A = var29;
+        int var30 = A;
+        F = 1;
+        int var31 = rr(var30);
+        A = var31;
         if(F == 0) {
           do {
             A = 0;
-            int var37 = A << 8 | 254;
-            int var38 = in(var37, 51266);
-            A = var38;
-            int var39 = ~A;
-            A = var39;
-            int var40 = A & 31;
-            A = var40;
-          } while(A << 1 != 0);
+            int var39 = A << 1;
+            F = var39;
+            int var40 = A << 8 | 254;
+            int var41 = in(var40, 51266);
+            A = var41;
+            int var42 = ~A;
+            A = var42;
+            F = A;
+            int var43 = A & 31;
+            A = var43;
+            int var44 = A << 1;
+            F = var44;
+          } while(F != 0);
 
           do {
             A = 223;
-            int var41 = A << 8 | 254;
-            int var42 = in(var41, 51275);
-            A = var42;
-            int var43 = A;
-            int var44 = rr(var43);
-            A = var44;
+            int var45 = A << 8 | 254;
+            int var46 = in(var45, 51275);
+            A = var46;
+            int var47 = A;
+            F = F;
+            int var48 = rr(var47);
+            A = var48;
           } while(F != 0);
 
           do {
             A = 0;
-            int var45 = A << 8 | 254;
-            int var46 = in(var45, 51281);
-            A = var46;
-            int var47 = ~A;
-            A = var47;
-            int var48 = A & 31;
-            A = var48;
-          } while(A << 1 != 0);
+            int var49 = A << 1;
+            F = var49;
+            int var50 = A << 8 | 254;
+            int var51 = in(var50, 51281);
+            A = var51;
+            int var52 = ~A;
+            A = var52;
+            F = A;
+            int var53 = A & 31;
+            A = var53;
+            int var54 = A << 1;
+            F = var54;
+          } while(F != 0);
         }
 
         A = 251;
-        int var30 = A << 8 | 254;
-        int var31 = in(var30, 51290);
-        A = var31;
-        int var32 = A;
-        int var33 = rr(var32);
+        int var32 = A << 8 | 254;
+        int var33 = in(var32, 51290);
         A = var33;
+        int var34 = A;
+        F = F;
+        int var35 = rr(var34);
+        A = var35;
         if(F == 0) {
           HL(51327);
-          int var34 = HL();
-          int var35 = mem(var34, 51298) | 128;
           int var36 = HL();
-          wMem(var36, var35, 51298);
+          int var37 = mem(var36, 51298) | 128;
+          int var38 = HL();
+          wMem(var38, var37, 51298);
           continue label64;
         }
       }
@@ -146,47 +158,52 @@ public class ZxGame1 extends MiniZX {
         $C92A();
         int var17 = mem(59098, 52753);
         A = var17;
-      } while(A << 1 != 0);
+        int var18 = A << 1;
+        F = var18;
+      } while(F != 0);
 
       A = 184;
 
       do {
-        int var18 = AF();
-        push(var18);
+        int var19 = AF();
+        push(var19);
         $F3D3();
         DE(521);
         $E84E();
         $DAFA();
         $C92A();
         $DA8D();
-        int var19 = pop();
-        AF(var19);
-        int var20 = A + 1 & 255;
-        A = var20;
-      } while(A != 187);
+        int var20 = pop();
+        AF(var20);
+        int var21 = A + 1 & 255;
+        A = var21;
+        F = A;
+        int var22 = A - 187;
+        F = var22;
+      } while(F != 0);
 
       do {
-        int var21 = A - 187;
-        F = var21;
         $C92A();
         $DA8D();
         $DAFA();
-        int var22 = mem(51307, 52795);
-        A = var22;
-      } while(A << 1 != 0);
+        int var23 = mem(51307, 52795);
+        A = var23;
+        int var24 = A << 1;
+        F = var24;
+      } while(F != 0);
 
       HL(52819);
       $DDE0();
       B = 50;
 
       while(true) {
-        int var23 = BC();
-        push(var23);
+        int var25 = BC();
+        push(var25);
         $DAFA();
-        int var24 = pop();
-        BC(var24);
-        int var25 = B - 1 & 255;
-        B = var25;
+        int var26 = pop();
+        BC(var26);
+        int var27 = B - 1 & 255;
+        B = var27;
         if(B == 0) {
           break;
         }
@@ -211,6 +228,8 @@ public class ZxGame1 extends MiniZX {
     A = var3;
     int var4 = A & 248;
     A = var4;
+    int var5 = A << 1;
+    F = var5;
     wMem(59392, A, 59420);
   }
 
@@ -237,49 +256,54 @@ public class ZxGame1 extends MiniZX {
     int var11 = HL();
     int var12 = mem(var11, 59481);
     A = var12;
-    if(A << 1 == 0) {
-      int var26 = HL() + 1 & 65535;
-      HL(var26);
-      int var27 = HL();
-      int var28 = mem(var27, 59486);
-      A = var28;
+    int var13 = A << 1;
+    F = var13;
+    if(F == 0) {
+      int var28 = HL() + 1 & 65535;
+      HL(var28);
+      int var29 = HL();
+      int var30 = mem(var29, 59486);
+      A = var30;
       $E8BA();
     } else {
       $E8E3();
       exHLDE();
 
-      int var25;
       do {
-        int var13 = BC();
-        push(var13);
-        int var14 = HL();
+        int var14 = BC();
         push(var14);
+        int var15 = HL();
+        push(var15);
 
         do {
-          int var15 = DE();
-          int var16 = mem(var15, 59496);
-          A = var16;
-          int var17 = HL();
-          wMem(var17, A, 59497);
-          int var18 = L + 1 & 255;
-          L = var18;
-          int var19 = DE() + 1 & 65535;
-          DE(var19);
-          int var20 = B - 1 & 255;
-          B = var20;
+          int var16 = DE();
+          int var17 = mem(var16, 59496);
+          A = var17;
+          int var18 = HL();
+          wMem(var18, A, 59497);
+          int var19 = L + 1 & 255;
+          L = var19;
+          F = L;
+          int var20 = DE() + 1 & 65535;
+          DE(var20);
+          int var21 = B - 1 & 255;
+          B = var21;
         } while(B != 0);
 
-        int var21 = pop();
-        HL(var21);
+        int var22 = pop();
+        HL(var22);
         BC(32);
-        int var22 = BC();
-        int var23 = HL() - var22 & 65535;
-        HL(var23);
-        int var24 = pop();
-        BC(var24);
-        var25 = C - 1 & 255;
-        C = var25;
-      } while(var25 != 0);
+        int var23 = A << 1;
+        F = var23;
+        int var24 = BC();
+        int var25 = HL() - var24 & 65535;
+        HL(var25);
+        int var26 = pop();
+        BC(var26);
+        int var27 = C - 1 & 255;
+        C = var27;
+        F = var27;
+      } while(F != 0);
 
     }
   }
@@ -287,7 +311,6 @@ public class ZxGame1 extends MiniZX {
   public void $E87A() {
     A = C;
 
-    int var18;
     do {
       int var1 = AF();
       exAF(var1);
@@ -296,7 +319,6 @@ public class ZxGame1 extends MiniZX {
       push(var2);
       $E8F1();
 
-      int var14;
       do {
         int var3 = BC();
         push(var3);
@@ -311,6 +333,7 @@ public class ZxGame1 extends MiniZX {
           wMem(var7, A, 59525);
           int var8 = E + 1 & 255;
           E = var8;
+          F = E;
           int var9 = HL() + 1 & 65535;
           HL(var9);
           int var10 = B - 1 & 255;
@@ -321,21 +344,25 @@ public class ZxGame1 extends MiniZX {
         DE(var11);
         int var12 = D + 1 & 255;
         D = var12;
+        F = D;
         int var13 = pop();
         BC(var13);
-        var14 = C - 1 & 255;
+        int var14 = C - 1 & 255;
         C = var14;
-      } while(var14 != 0);
+        F = var14;
+      } while(F != 0);
 
       int var15 = pop();
       DE(var15);
       int var16 = E - 1 & 255;
       E = var16;
+      F = var16;
       int var17 = AF();
       exAF(var17);
-      var18 = A - 1 & 255;
+      int var18 = A - 1 & 255;
       A = var18;
-    } while(var18 != 0);
+      F = var18;
+    } while(F != 0);
 
   }
 
@@ -343,22 +370,26 @@ public class ZxGame1 extends MiniZX {
     A = E;
     int var1 = A & 24;
     A = var1;
-    int var2 = A >> 1;
-    int var3 = A & 128;
-    int var4 = var2 | var3;
-    A = var4;
-    int var5 = A >> 1;
-    int var6 = A & 128;
-    int var7 = var5 | var6;
-    A = var7;
-    int var8 = A >> 1;
-    int var9 = A & 128;
-    int var10 = var8 | var9;
-    A = var10;
-    int var11 = A + 88 & 255;
+    int var2 = A << 1;
+    F = var2;
+    int var3 = A >> 1;
+    int var4 = A & 128;
+    int var5 = var3 | var4;
+    A = var5;
+    int var6 = A >> 1;
+    int var7 = A & 128;
+    int var8 = var6 | var7;
+    A = var8;
+    int var9 = A >> 1;
+    int var10 = A & 128;
+    int var11 = var9 | var10;
     A = var11;
-    int var12 = AF();
-    push(var12);
+    int var12 = A + 88;
+    int var13 = var12 & 255;
+    A = var13;
+    F = var12;
+    int var14 = AF();
+    push(var14);
     $E8F7();
   }
 
@@ -366,10 +397,14 @@ public class ZxGame1 extends MiniZX {
     A = E;
     int var1 = A & 24;
     A = var1;
-    int var2 = A + 64 & 255;
-    A = var2;
-    int var3 = AF();
-    push(var3);
+    int var2 = A << 1;
+    F = var2;
+    int var3 = A + 64;
+    int var4 = var3 & 255;
+    A = var4;
+    F = var3;
+    int var5 = AF();
+    push(var5);
     $E8F7();
   }
 
@@ -380,7 +415,6 @@ public class ZxGame1 extends MiniZX {
     exHLDE();
     DE(32);
 
-    int var10;
     do {
       int var1 = BC();
       push(var1);
@@ -392,40 +426,46 @@ public class ZxGame1 extends MiniZX {
         wMem(var3, A, 59589);
         int var4 = L + 1 & 255;
         L = var4;
+        F = L;
         int var5 = B - 1 & 255;
         B = var5;
       } while(B != 0);
 
       int var6 = pop();
       HL(var6);
-      int var7 = DE();
-      int var8 = HL() - var7 & 65535;
-      HL(var8);
-      int var9 = pop();
-      BC(var9);
-      var10 = C - 1 & 255;
-      C = var10;
-    } while(var10 != 0);
+      int var7 = A << 1;
+      F = var7;
+      int var8 = DE();
+      int var9 = HL() - var8 & 65535;
+      HL(var9);
+      int var10 = pop();
+      BC(var10);
+      int var11 = C - 1 & 255;
+      C = var11;
+      F = var11;
+    } while(F != 0);
 
   }
 
   public void $D669() {
-    int var1 = A + A & 255;
-    A = var1;
+    int var1 = A + A;
+    int var2 = var1 & 255;
+    A = var2;
+    F = var1;
     E = A;
     D = 0;
     HL(44640);
-    int var2 = DE();
-    int var3 = HL() + var2 & 65535;
-    HL(var3);
-    int var4 = HL();
-    int var5 = mem(var4, 54897);
-    E = var5;
-    int var6 = HL() + 1 & 65535;
-    HL(var6);
-    int var7 = HL();
-    int var8 = mem(var7, 54899);
-    D = var8;
+    int var3 = DE();
+    int var4 = HL() + var3 & 65535;
+    HL(var4);
+    int var5 = HL();
+    int var6 = mem(var5, 54897);
+    E = var6;
+    int var7 = HL() + 1 & 65535;
+    HL(var7);
+    int var8 = HL();
+    int var9 = mem(var8, 54899);
+    D = var9;
   }
 
   public void $D677() {
@@ -434,89 +474,100 @@ public class ZxGame1 extends MiniZX {
     A = var2;
     int var3 = A & 12;
     A = var3;
-    int var4 = A;
-    int var5 = rrc(var4);
-    A = var5;
-    int var6 = A;
-    int var7 = rrc(var6);
-    A = var7;
-    C = A;
-    int var8 = A + 1 & 255;
+    int var4 = A << 1;
+    F = var4;
+    int var5 = A;
+    int var6 = rrc(var5);
+    A = var6;
+    int var7 = A;
+    int var8 = rrc(var7);
     A = var8;
-    int var9 = HL();
-    wMem(var9, A, 54910);
-    int var10 = HL() + 1 & 65535;
-    HL(var10);
-    int var11 = DE();
-    int var12 = mem(var11, 54912);
-    A = var12;
-    int var13 = A & 3;
+    C = A;
+    int var9 = A + 1 & 255;
+    A = var9;
+    F = A;
+    int var10 = HL();
+    wMem(var10, A, 54910);
+    int var11 = HL() + 1 & 65535;
+    HL(var11);
+    int var12 = DE();
+    int var13 = mem(var12, 54912);
     A = var13;
+    int var14 = A & 3;
+    A = var14;
+    int var15 = A << 1;
+    F = var15;
     B = A;
-    int var14 = HL();
-    wMem(var14, A, 54916);
-    int var15 = C;
-    int var16 = sl(var15);
-    C = var16;
+    int var16 = HL();
+    wMem(var16, A, 54916);
     int var17 = C;
     int var18 = sl(var17);
     C = var18;
     int var19 = C;
     int var20 = sl(var19);
     C = var20;
+    int var21 = C;
+    int var22 = sl(var21);
+    C = var22;
     A = 0;
+    int var23 = A << 1;
+    F = var23;
 
     do {
-      int var21 = A + C & 255;
-      A = var21;
-      int var22 = B - 1 & 255;
-      B = var22;
+      int var24 = A + C;
+      int var25 = var24 & 255;
+      A = var25;
+      F = var24;
+      int var26 = B - 1 & 255;
+      B = var26;
     } while(B != 0);
 
     C = A;
     B = 0;
-    int var23 = BC();
-    wMem16(54901, var23, 54930);
-    int var24 = HL() + 1 & 65535;
-    HL(var24);
-    int var25 = HL();
-    push(var25);
+    int var27 = BC();
+    wMem16(54901, var27, 54930);
+    int var28 = HL() + 1 & 65535;
+    HL(var28);
+    int var29 = HL();
+    push(var29);
     B = 240;
     A = 0;
+    int var30 = A << 1;
+    F = var30;
 
     do {
-      int var26 = HL();
-      wMem(var26, A, 54939);
-      int var27 = HL() + 1 & 65535;
-      HL(var27);
-      int var28 = B - 1 & 255;
-      B = var28;
+      int var31 = HL();
+      wMem(var31, A, 54939);
+      int var32 = HL() + 1 & 65535;
+      HL(var32);
+      int var33 = B - 1 & 255;
+      B = var33;
     } while(B != 0);
 
-    int var29 = pop();
-    HL(var29);
-    int var30 = HL();
-    push(var30);
+    int var34 = pop();
+    HL(var34);
+    int var35 = HL();
+    push(var35);
     BC(24);
-    int var31 = BC();
-    int var32 = HL() + var31 & 65535;
-    HL(var32);
-    int var33 = DE() + 1 & 65535;
-    DE(var33);
-    exHLDE();
-    int var34 = mem16(54901, 54951);
-    BC(var34);
-    ldir();
-    exHLDE();
-    int var35 = pop();
-    HL(var35);
-    BC(144);
     int var36 = BC();
     int var37 = HL() + var36 & 65535;
     HL(var37);
+    int var38 = DE() + 1 & 65535;
+    DE(var38);
     exHLDE();
-    int var38 = mem16(54901, 54964);
-    BC(var38);
+    int var39 = mem16(54901, 54951);
+    BC(var39);
+    ldir();
+    exHLDE();
+    int var40 = pop();
+    HL(var40);
+    BC(144);
+    int var41 = BC();
+    int var42 = HL() + var41 & 65535;
+    HL(var42);
+    exHLDE();
+    int var43 = mem16(54901, 54964);
+    BC(var43);
     ldir();
   }
 
@@ -526,160 +577,179 @@ public class ZxGame1 extends MiniZX {
     A = var2;
     int var3 = A & 12;
     A = var3;
-    int var4 = A;
-    int var5 = rrc(var4);
-    A = var5;
-    int var6 = A;
-    int var7 = rrc(var6);
-    A = var7;
+    int var4 = A << 1;
+    F = var4;
+    int var5 = A;
+    int var6 = rrc(var5);
+    A = var6;
+    int var7 = A;
+    int var8 = rrc(var7);
+    A = var8;
     C = A;
-    int var8 = HL();
-    wMem(var8, A, 55323);
-    int var9 = HL() + 1 & 65535;
-    HL(var9);
-    int var10 = DE();
-    int var11 = mem(var10, 55325);
-    A = var11;
-    int var12 = A & 3;
+    int var9 = HL();
+    wMem(var9, A, 55323);
+    int var10 = HL() + 1 & 65535;
+    HL(var10);
+    int var11 = DE();
+    int var12 = mem(var11, 55325);
     A = var12;
-    int var13 = A + 1 & 255;
+    int var13 = A & 3;
     A = var13;
+    int var14 = A << 1;
+    F = var14;
+    int var15 = A + 1 & 255;
+    A = var15;
+    F = A;
     B = A;
-    int var14 = HL();
-    wMem(var14, A, 55330);
-    int var15 = BC();
-    wMem16(55086, var15, 55331);
+    int var16 = HL();
+    wMem(var16, A, 55330);
+    int var17 = BC();
+    wMem16(55086, var17, 55331);
     A = C;
-    int var16 = A + A & 255;
-    A = var16;
-    int var17 = A + A & 255;
-    A = var17;
-    int var18 = A + A & 255;
-    A = var18;
+    int var18 = A + A;
+    int var19 = var18 & 255;
+    A = var19;
+    F = var18;
+    int var20 = A + A;
+    int var21 = var20 & 255;
+    A = var21;
+    F = var20;
+    int var22 = A + A;
+    int var23 = var22 & 255;
+    A = var23;
+    F = var22;
     wMem(55315, A, 55339);
     C = A;
     A = 0;
+    int var24 = A << 1;
+    F = var24;
 
     do {
-      int var19 = A + C & 255;
-      A = var19;
-      int var20 = B - 1 & 255;
-      B = var20;
+      int var25 = A + C;
+      int var26 = var25 & 255;
+      A = var26;
+      F = var25;
+      int var27 = B - 1 & 255;
+      B = var27;
     } while(B != 0);
 
     wMem(55316, A, 55347);
-    int var21 = DE() + 1 & 65535;
-    DE(var21);
-    int var22 = DE();
-    push(var22);
-    int var23 = HL() + 1 & 65535;
-    HL(var23);
-    int var24 = HL();
-    wMem16(55088, var24, 55353);
+    int var28 = DE() + 1 & 65535;
+    DE(var28);
+    int var29 = DE();
+    push(var29);
+    int var30 = HL() + 1 & 65535;
+    HL(var30);
+    int var31 = HL();
+    wMem16(55088, var31, 55353);
     E = L;
     D = H;
-    int var25 = DE() + 1 & 65535;
-    DE(var25);
-    int var26 = HL();
-    wMem(var26, 0, 55359);
+    int var32 = DE() + 1 & 65535;
+    DE(var32);
+    int var33 = HL();
+    wMem(var33, 0, 55359);
     BC(575);
     ldir();
-    int var27 = pop();
-    DE(var27);
+    int var34 = pop();
+    DE(var34);
     A = 4;
-    int var28 = mem16(55088, 55369);
-    HL(var28);
+    int var35 = mem16(55088, 55369);
+    HL(var35);
     BC(72);
 
-    int var37;
     do {
-      int var29 = AF();
-      exAF(var29);
-      int var30 = BC();
-      push(var30);
-      int var31 = HL();
-      push(var31);
-      $DB83();
-      int var32 = pop();
-      HL(var32);
-      int var33 = pop();
-      BC(var33);
-      int var34 = BC();
-      int var35 = HL() + var34 & 65535;
-      HL(var35);
       int var36 = AF();
       exAF(var36);
-      var37 = A - 1 & 255;
-      A = var37;
-    } while(var37 != 0);
+      int var37 = BC();
+      push(var37);
+      int var38 = HL();
+      push(var38);
+      $DB83();
+      int var39 = pop();
+      HL(var39);
+      int var40 = pop();
+      BC(var40);
+      int var41 = BC();
+      int var42 = HL() + var41 & 65535;
+      HL(var42);
+      int var43 = AF();
+      exAF(var43);
+      int var44 = A - 1 & 255;
+      A = var44;
+      F = var44;
+    } while(F != 0);
 
     BC(72);
-    int var38 = mem16(55088, 55391);
-    HL(var38);
+    int var45 = mem16(55088, 55391);
+    HL(var45);
     A = 2;
 
     do {
-      int var39 = AF();
-      exAF(var39);
-      int var40 = BC();
-      push(var40);
-      int var41 = HL();
-      push(var41);
-      $DB9B();
-      int var42 = pop();
-      HL(var42);
-      int var43 = pop();
-      BC(var43);
-      int var44 = BC();
-      int var45 = HL() + var44 & 65535;
-      HL(var45);
       int var46 = AF();
       exAF(var46);
-      int var47 = A + 2 & 255;
-      A = var47;
-    } while(A != 10);
+      int var47 = BC();
+      push(var47);
+      int var48 = HL();
+      push(var48);
+      $DB9B();
+      int var49 = pop();
+      HL(var49);
+      int var50 = pop();
+      BC(var50);
+      int var51 = BC();
+      int var52 = HL() + var51 & 65535;
+      HL(var52);
+      int var53 = AF();
+      exAF(var53);
+      int var54 = A + 2;
+      int var55 = var54 & 255;
+      A = var55;
+      F = var54;
+      int var56 = A - 10;
+      F = var56;
+    } while(F != 0);
 
     A = 4;
-    int var48 = mem16(55088, 55414);
-    HL(var48);
+    int var57 = mem16(55088, 55414);
+    HL(var57);
     D = H;
     E = L;
     BC(288);
-    int var49 = BC();
-    int var50 = HL() + var49 & 65535;
-    HL(var50);
+    int var58 = BC();
+    int var59 = HL() + var58 & 65535;
+    HL(var59);
     BC(72);
 
-    int var63;
     do {
-      int var51 = AF();
-      exAF(var51);
-      int var52 = BC();
-      push(var52);
-      int var53 = DE();
-      push(var53);
-      int var54 = HL();
-      push(var54);
+      int var60 = AF();
+      exAF(var60);
+      int var61 = BC();
+      push(var61);
+      int var62 = DE();
+      push(var62);
+      int var63 = HL();
+      push(var63);
       $D9B0();
-      int var55 = pop();
-      HL(var55);
-      int var56 = pop();
-      DE(var56);
-      int var57 = pop();
-      BC(var57);
-      int var58 = BC();
-      int var59 = HL() + var58 & 65535;
-      HL(var59);
+      int var64 = pop();
+      HL(var64);
+      int var65 = pop();
+      DE(var65);
+      int var66 = pop();
+      BC(var66);
+      int var67 = BC();
+      int var68 = HL() + var67 & 65535;
+      HL(var68);
       exHLDE();
-      int var60 = BC();
-      int var61 = HL() + var60 & 65535;
-      HL(var61);
+      int var69 = BC();
+      int var70 = HL() + var69 & 65535;
+      HL(var70);
       exHLDE();
-      int var62 = AF();
-      exAF(var62);
-      var63 = A - 1 & 255;
-      A = var63;
-    } while(var63 != 0);
+      int var71 = AF();
+      exAF(var71);
+      int var72 = A - 1 & 255;
+      A = var72;
+      F = var72;
+    } while(F != 0);
 
   }
 
@@ -688,12 +758,12 @@ public class ZxGame1 extends MiniZX {
     A = var1;
     int var2 = A - 1 & 255;
     A = var2;
+    F = var2;
     B = A;
     int var3 = mem(55315, 56200);
     A = var3;
     C = A;
 
-    int var14;
     do {
       int var4 = BC();
       push(var4);
@@ -715,13 +785,16 @@ public class ZxGame1 extends MiniZX {
       int var11 = HL() + 1 & 65535;
       HL(var11);
       A = 0;
-      int var12 = HL();
-      wMem(var12, A, 56213);
-      int var13 = pop();
-      BC(var13);
-      var14 = C - 1 & 255;
-      C = var14;
-    } while(var14 != 0);
+      int var12 = A << 1;
+      F = var12;
+      int var13 = HL();
+      wMem(var13, A, 56213);
+      int var14 = pop();
+      BC(var14);
+      int var15 = C - 1 & 255;
+      C = var15;
+      F = var15;
+    } while(F != 0);
 
   }
 
@@ -738,40 +811,42 @@ public class ZxGame1 extends MiniZX {
     int var4 = AF();
     exAF(var4);
 
-    int var16;
     do {
       int var5 = HL();
       push(var5);
       int var6 = BC();
       push(var6);
 
-      int var13;
       do {
+        int var7 = A << 1;
+        F = var7;
         B = D;
 
         do {
-          int var7 = HL();
-          int var8 = mem(var7, 56234);
-          int var9 = rr(var8);
-          int var10 = HL();
-          wMem(var10, var9, 56234);
-          int var11 = HL() + 1 & 65535;
-          HL(var11);
-          int var12 = B - 1 & 255;
-          B = var12;
+          int var8 = HL();
+          int var9 = mem(var8, 56234);
+          int var10 = rr(var9);
+          int var11 = HL();
+          wMem(var11, var10, 56234);
+          int var12 = HL() + 1 & 65535;
+          HL(var12);
+          int var13 = B - 1 & 255;
+          B = var13;
         } while(B != 0);
 
-        var13 = C - 1 & 255;
-        C = var13;
-      } while(var13 != 0);
+        int var14 = C - 1 & 255;
+        C = var14;
+        F = var14;
+      } while(F != 0);
 
-      int var14 = pop();
-      BC(var14);
       int var15 = pop();
-      HL(var15);
-      var16 = E - 1 & 255;
-      E = var16;
-    } while(var16 != 0);
+      BC(var15);
+      int var16 = pop();
+      HL(var16);
+      int var17 = E - 1 & 255;
+      E = var17;
+      F = var17;
+    } while(F != 0);
 
   }
 
@@ -802,7 +877,6 @@ public class ZxGame1 extends MiniZX {
     A = var10;
     C = A;
 
-    int var23;
     do {
       int var11 = BC();
       push(var11);
@@ -832,9 +906,10 @@ public class ZxGame1 extends MiniZX {
       HL(var21);
       int var22 = pop();
       BC(var22);
-      var23 = C - 1 & 255;
+      int var23 = C - 1 & 255;
       C = var23;
-    } while(var23 != 0);
+      F = var23;
+    } while(F != 0);
 
     int var24 = pop();
     HL(var24);
@@ -842,9 +917,7 @@ public class ZxGame1 extends MiniZX {
     A = var25;
     C = A;
     E = 8;
-    F = 0;
 
-    int var35;
     do {
       B = E;
       int var26 = HL();
@@ -853,9 +926,9 @@ public class ZxGame1 extends MiniZX {
 
       do {
         int var28 = A;
+        F = F;
         int var29 = rr(var28);
         A = var29;
-        F = F;
         int var30 = D;
         int var31 = rl(var30);
         D = var31;
@@ -867,9 +940,10 @@ public class ZxGame1 extends MiniZX {
       wMem(var33, D, 55778);
       int var34 = HL() + 1 & 65535;
       HL(var34);
-      var35 = C - 1 & 255;
+      int var35 = C - 1 & 255;
       C = var35;
-    } while(var35 != 0);
+      F = var35;
+    } while(F != 0);
 
   }
 
@@ -877,13 +951,14 @@ public class ZxGame1 extends MiniZX {
     C = A;
     int var1 = A & 7;
     A = var1;
+    int var2 = A << 1;
+    F = var2;
     B = A;
     A = C;
-    int var2 = A & 240;
-    A = var2;
-    int var3 = A;
-    int var4 = rrc(var3);
-    A = var4;
+    int var3 = A & 240;
+    A = var3;
+    int var4 = A << 1;
+    F = var4;
     int var5 = A;
     int var6 = rrc(var5);
     A = var6;
@@ -893,6 +968,9 @@ public class ZxGame1 extends MiniZX {
     int var9 = A;
     int var10 = rrc(var9);
     A = var10;
+    int var11 = A;
+    int var12 = rrc(var11);
+    A = var12;
     C = A;
   }
 
@@ -907,108 +985,131 @@ public class ZxGame1 extends MiniZX {
   }
 
   public void $D6BF() {
-    if(A << 1 != 0) {
+    int var1 = A << 1;
+    F = var1;
+    if(F != 0) {
       B = A;
 
       do {
-        int var1 = BC();
-        push(var1);
-        int var2 = IY() + 4;
-        int var3 = mem(var2, 54979);
-        D = var3;
-        int var4 = IY();
-        int var5 = mem(var4, 54982);
-        E = var5;
-        int var6 = IY() + 6;
-        int var7 = mem(var6, 54985) - 1 & 255;
-        wMem(var6, var7, 54985);
-        if(var7 == 0) {
-          int var18 = IY() + 7;
-          int var19 = mem(var18, 54990);
-          A = var19;
-          int var20 = IY() + 6;
-          wMem(var20, A, 54993);
-          if((D & 128) == 0) {
+        int var2 = BC();
+        push(var2);
+        int var3 = IY() + 4;
+        int var4 = mem(var3, 54979);
+        D = var4;
+        int var5 = IY();
+        int var6 = mem(var5, 54982);
+        E = var6;
+        int var7 = IY() + 6;
+        int var8 = mem(var7, 54985) - 1 & 255;
+        wMem(var7, var8, 54985);
+        F = var8;
+        if(F == 0) {
+          int var21 = IY() + 7;
+          int var22 = mem(var21, 54990);
+          A = var22;
+          int var23 = IY() + 6;
+          wMem(var23, A, 54993);
+          int var24 = D & 128;
+          F = var24;
+          if(F == 0) {
             A = D;
-            int var28 = A & 7;
-            A = var28;
-            if(A << 1 != 0) {
-              int var37 = D - 1 & 255;
-              D = var37;
+            int var35 = A & 7;
+            A = var35;
+            int var36 = A << 1;
+            F = var36;
+            if(F != 0) {
+              int var47 = D - 1 & 255;
+              D = var47;
+              F = var47;
             } else {
               A = E;
-              int var29 = IY() + 2;
-              int var30 = mem(var29, 55009);
-              if(A == var30) {
+              int var37 = IY() + 2;
+              int var38 = mem(var37, 55009);
+              int var39 = A - var38;
+              F = var39;
+              if(F == 0) {
                 D = 129;
               } else {
-                int var31 = DE();
-                push(var31);
-                int var32 = mem(54971, 55019);
-                A = var32;
-                int var33 = A - 1 & 255;
-                A = var33;
-                int var34 = A + E & 255;
-                A = var34;
+                int var40 = DE();
+                push(var40);
+                int var41 = mem(54971, 55019);
+                A = var41;
+                int var42 = A - 1 & 255;
+                A = var42;
+                F = var42;
+                int var43 = A + E;
+                int var44 = var43 & 255;
+                A = var44;
+                F = var43;
                 E = A;
                 $D7D6();
-                int var35 = pop();
-                DE(var35);
-                int var36 = E - 1 & 255;
-                E = var36;
-                F = var36;
+                int var45 = pop();
+                DE(var45);
+                int var46 = E - 1 & 255;
+                E = var46;
+                F = var46;
                 D = 3;
               }
             }
           } else {
             A = D;
-            int var21 = A & 7;
-            A = var21;
-            if(A != 4) {
-              int var27 = D + 1 & 255;
-              D = var27;
+            int var25 = A & 7;
+            A = var25;
+            int var26 = A << 1;
+            F = var26;
+            int var27 = A - 4;
+            F = var27;
+            if(F != 0) {
+              int var34 = D + 1 & 255;
+              D = var34;
               F = D;
             } else {
               A = E;
-              int var22 = IY() + 3;
-              int var23 = mem(var22, 55045);
-              if(A == var23) {
+              int var28 = IY() + 3;
+              int var29 = mem(var28, 55045);
+              int var30 = A - var29;
+              F = var30;
+              if(F == 0) {
                 D = 3;
               } else {
-                int var24 = DE();
-                push(var24);
+                int var31 = DE();
+                push(var31);
                 $D7D6();
-                int var25 = pop();
-                DE(var25);
+                int var32 = pop();
+                DE(var32);
                 D = 129;
-                int var26 = E + 1 & 255;
-                E = var26;
+                int var33 = E + 1 & 255;
+                E = var33;
                 F = E;
               }
             }
           }
         }
 
-        int var8 = IY();
-        wMem(var8, E, 55062);
-        int var9 = IY() + 4;
-        int var10 = mem(var9, 55065);
-        A = var10;
-        int var11 = A & 64;
+        int var9 = IY();
+        wMem(var9, E, 55062);
+        int var10 = IY() + 4;
+        int var11 = mem(var10, 55065);
         A = var11;
-        int var12 = A | D;
+        int var12 = A & 64;
         A = var12;
-        int var13 = IY() + 4;
-        wMem(var13, A, 55071);
+        int var13 = A << 1;
+        F = var13;
+        int var14 = A | D;
+        A = var14;
+        int var15 = A << 1;
+        F = var15;
+        int var16 = IY() + 4;
+        wMem(var16, A, 55071);
         $D7E7();
-        int var14 = pop();
-        BC(var14);
+        int var17 = pop();
+        BC(var17);
         DE(8);
-        int var15 = DE();
-        int var16 = IY() + var15 & 65535;
-        IY(var16);
-        int var17 = B - 1 & 255;
-        B = var17;
+        int var18 = DE();
+        int var19 = IY() + var18 & 65535;
+        IY(var19);
+        int var20 = B - 1 & 255;
+        B = var20;
       } while(B != 0);
 
     }
@@ -1023,42 +1124,56 @@ public class ZxGame1 extends MiniZX {
     A = D;
     int var3 = A & 7;
     A = var3;
-    int var4 = A + A & 255;
-    A = var4;
+    int var4 = A << 1;
+    F = var4;
+    int var5 = A + A;
+    int var6 = var5 & 255;
+    A = var6;
+    F = var5;
     C = A;
     A = 0;
+    int var7 = A << 1;
+    F = var7;
 
     do {
-      int var5 = A + C & 255;
-      A = var5;
-      int var6 = B - 1 & 255;
-      B = var6;
+      int var8 = A + C;
+      int var9 = var8 & 255;
+      A = var9;
+      F = var8;
+      int var10 = B - 1 & 255;
+      B = var10;
     } while(B != 0);
 
     C = A;
-    if((D & 1) == 0) {
+    int var11 = D & 1;
+    F = var11;
+    if(F == 0) {
       A = 24;
-      int var13 = A - C & 255;
+      int var19 = A - C;
+      int var20 = var19 & 255;
+      A = var20;
+      F = var19;
+      C = A;
+      int var21 = BC();
+      int var22 = HL() + var21 & 65535;
+      HL(var22);
+    } else {
+      A = 144;
+      int var12 = A - C;
+      int var13 = var12 & 255;
       A = var13;
+      F = var12;
       C = A;
       int var14 = BC();
       int var15 = HL() + var14 & 65535;
       HL(var15);
-    } else {
-      A = 144;
-      int var7 = A - C & 255;
-      A = var7;
-      C = A;
-      int var8 = BC();
-      int var9 = HL() + var8 & 65535;
-      HL(var9);
     }
 
-    int var10 = IY() + 1;
-    int var11 = mem(var10, 55304);
-    D = var11;
-    int var12 = mem16(54971, 55307);
-    BC(var12);
+    int var16 = IY() + 1;
+    int var17 = mem(var16, 55304);
+    D = var17;
+    int var18 = mem16(54971, 55307);
+    BC(var18);
     $E96B();
   }
 
@@ -1068,7 +1183,9 @@ public class ZxGame1 extends MiniZX {
     int var2 = IY() + 4;
     Runnable mut1;
     Runnable mut2;
-    if((mem(var2, 59756) & 64) != 0) {
+    int var3 = mem(var2, 59756) & 64;
+    F = var3;
+    if(F != 0) {
       BC(30590);
       mut1 = () -> wMem(HL(), A, 59792);
       mut2 = () -> A = mem(HL(), 59823);
@@ -1082,108 +1199,111 @@ public class ZxGame1 extends MiniZX {
     wMem(59792, A, 59771);
     A = C;
     wMem(59823, A, 59775);
-    int var3 = pop();
-    BC(var3);
-    int var4 = DE();
-    push(var4);
-    int var5 = BC();
+    int var4 = pop();
+    BC(var4);
+    int var5 = DE();
     push(var5);
+    int var6 = BC();
+    push(var6);
     A = C;
 
-    int var24;
     do {
-      int var6 = AF();
-      exAF(var6);
-      int var7 = DE();
-      push(var7);
+      int var7 = AF();
+      exAF(var7);
+      int var8 = DE();
+      push(var8);
       $E8F1();
       C = 8;
 
-      int var20;
       do {
-        int var8 = BC();
-        push(var8);
-        int var9 = DE();
+        int var9 = BC();
         push(var9);
+        int var10 = DE();
+        push(var10);
 
         do {
-          int var10 = HL();
-          A = mem(var10, 59791);
-//          int var11 = mem[59792];
-//          A = var11;
-//          int var12 = mem[59792];
-//          int var13 = HL();
+          int var11 = HL();
+          mem(var11, 59791);
+          int var12 = mem[59792];
+          A = var12;
+          int var13 = mem[59792];
+          int var14 = HL();
+          wMem(var14, var13, 59792);
           mut1.run();
-          //          wMem(var13, var12, 59792);
-          int var14 = E + 1 & 255;
-          E = var14;
-          int var15 = HL() + 1 & 65535;
-          HL(var15);
-          int var16 = B - 1 & 255;
-          B = var16;
+          int var15 = E + 1 & 255;
+          E = var15;
+          F = E;
+          int var16 = HL() + 1 & 65535;
+          HL(var16);
+          int var17 = B - 1 & 255;
+          B = var17;
         } while(B != 0);
 
-        int var17 = pop();
-        DE(var17);
-        int var18 = D + 1 & 255;
-        D = var18;
-        int var19 = pop();
-        BC(var19);
-        var20 = C - 1 & 255;
-        C = var20;
-      } while(var20 != 0);
+        int var18 = pop();
+        DE(var18);
+        int var19 = D + 1 & 255;
+        D = var19;
+        F = D;
+        int var20 = pop();
+        BC(var20);
+        int var21 = C - 1 & 255;
+        C = var21;
+        F = var21;
+      } while(F != 0);
 
-      int var21 = pop();
-      DE(var21);
-      int var22 = E + 1 & 255;
-      E = var22;
-      int var23 = AF();
-      exAF(var23);
-      var24 = A - 1 & 255;
-      A = var24;
-    } while(var24 != 0);
+      int var22 = pop();
+      DE(var22);
+      int var23 = E + 1 & 255;
+      E = var23;
+      F = E;
+      int var24 = AF();
+      exAF(var24);
+      int var25 = A - 1 & 255;
+      A = var25;
+      F = var25;
+    } while(F != 0);
 
-    int var25 = pop();
-    BC(var25);
     int var26 = pop();
-    DE(var26);
+    BC(var26);
+    int var27 = pop();
+    DE(var27);
     $E8E3();
     exHLDE();
     DE(32);
-    int var27 = IY() + 5;
-    int var28 = mem(var27, 59818);
-    A = var28;
+    int var28 = IY() + 5;
+    int var29 = mem(var28, 59818);
+    A = var29;
 
-    int var39;
     do {
-      int var29 = HL();
-      push(var29);
-      int var30 = BC();
+      int var30 = HL();
       push(var30);
+      int var31 = BC();
+      push(var31);
 
       do {
-//        int var31 = HL();
-//        mem(var31, 59823);
-//        int var32 = mem[59823];
-//        A = var32;
-
+        int var32 = HL();
+        mem(var32, 59823);
+        int var33 = mem[59823];
+        A = var33;
         mut2.run();
-        int var33 = L + 1 & 255;
-        L = var33;
-        int var34 = B - 1 & 255;
-        B = var34;
+        int var34 = L + 1 & 255;
+        L = var34;
+        F = L;
+        int var35 = B - 1 & 255;
+        B = var35;
       } while(B != 0);
 
-      int var35 = pop();
-      BC(var35);
       int var36 = pop();
-      HL(var36);
-      int var37 = DE();
-      int var38 = HL() + var37 & 65535;
-      HL(var38);
-      var39 = C - 1 & 255;
-      C = var39;
-    } while(var39 != 0);
+      BC(var36);
+      int var37 = pop();
+      HL(var37);
+      int var38 = DE();
+      int var39 = HL() + var38 & 65535;
+      HL(var39);
+      int var40 = C - 1 & 255;
+      C = var40;
+      F = var40;
+    } while(F != 0);
 
   }
 
@@ -1202,6 +1322,7 @@ public class ZxGame1 extends MiniZX {
       wMem(var4, A, 55266);
       int var5 = E + 1 & 255;
       E = var5;
+      F = E;
       int var6 = B - 1 & 255;
       B = var6;
     } while(B != 0);
@@ -1209,105 +1330,130 @@ public class ZxGame1 extends MiniZX {
   }
 
   public void $D732() {
-    if(A << 1 != 0) {
+    int var1 = A << 1;
+    F = var1;
+    if(F != 0) {
       B = A;
 
       do {
-        int var1 = BC();
-        push(var1);
-        int var2 = IY() + 4;
-        int var3 = mem(var2, 55094);
-        E = var3;
-        int var4 = IY() + 1;
-        int var5 = mem(var4, 55097);
-        D = var5;
-        int var6 = IY() + 6;
-        int var7 = mem(var6, 55100) - 1 & 255;
-        wMem(var6, var7, 55100);
-        if(var7 == 0) {
-          int var18 = IY() + 7;
-          int var19 = mem(var18, 55105);
-          A = var19;
-          int var20 = IY() + 6;
-          wMem(var20, A, 55108);
-          if((E & 128) == 0) {
+        int var2 = BC();
+        push(var2);
+        int var3 = IY() + 4;
+        int var4 = mem(var3, 55094);
+        E = var4;
+        int var5 = IY() + 1;
+        int var6 = mem(var5, 55097);
+        D = var6;
+        int var7 = IY() + 6;
+        int var8 = mem(var7, 55100) - 1 & 255;
+        wMem(var7, var8, 55100);
+        F = var8;
+        if(F == 0) {
+          int var21 = IY() + 7;
+          int var22 = mem(var21, 55105);
+          A = var22;
+          int var23 = IY() + 6;
+          wMem(var23, A, 55108);
+          int var24 = E & 128;
+          F = var24;
+          if(F == 0) {
             A = E;
-            int var28 = A & 7;
-            A = var28;
-            if(A != 7) {
-              int var36 = E + 1 & 255;
-              E = var36;
+            int var35 = A & 7;
+            A = var35;
+            int var36 = A << 1;
+            F = var36;
+            int var37 = A - 7;
+            F = var37;
+            if(F != 0) {
+              int var47 = E + 1 & 255;
+              E = var47;
+              F = E;
             } else {
               A = D;
-              int var29 = IY() + 2;
-              int var30 = mem(var29, 55126);
-              if(A == var30) {
+              int var38 = IY() + 2;
+              int var39 = mem(var38, 55126);
+              int var40 = A - var39;
+              F = var40;
+              if(F == 0) {
                 E = 128;
               } else {
-                int var31 = D - 1 & 255;
-                D = var31;
-                int var32 = DE();
-                push(var32);
-                int var33 = mem(55087, 55137);
-                A = var33;
-                int var34 = A + D & 255;
-                A = var34;
+                int var41 = D - 1 & 255;
+                D = var41;
+                F = var41;
+                int var42 = DE();
+                push(var42);
+                int var43 = mem(55087, 55137);
+                A = var43;
+                int var44 = A + D;
+                int var45 = var44 & 255;
+                A = var45;
+                F = var44;
                 D = A;
                 $D7A2();
-                int var35 = pop();
-                DE(var35);
+                int var46 = pop();
+                DE(var46);
                 E = 4;
               }
             }
           } else {
             A = E;
-            int var21 = A & 7;
-            A = var21;
-            if(A != 3) {
-              int var27 = E + 1 & 255;
-              E = var27;
+            int var25 = A & 7;
+            A = var25;
+            int var26 = A << 1;
+            F = var26;
+            int var27 = A - 3;
+            F = var27;
+            if(F != 0) {
+              int var34 = E + 1 & 255;
+              E = var34;
               F = E;
             } else {
               A = D;
-              int var22 = IY() + 3;
-              int var23 = mem(var22, 55161);
-              if(A == var23) {
+              int var28 = IY() + 3;
+              int var29 = mem(var28, 55161);
+              int var30 = A - var29;
+              F = var30;
+              if(F == 0) {
                 E = 4;
               } else {
-                int var24 = DE();
-                push(var24);
+                int var31 = DE();
+                push(var31);
                 $D7A2();
-                int var25 = pop();
-                DE(var25);
+                int var32 = pop();
+                DE(var32);
                 E = 128;
-                int var26 = D + 1 & 255;
-                D = var26;
+                int var33 = D + 1 & 255;
+                D = var33;
                 F = D;
               }
             }
           }
         }
 
-        int var8 = IY() + 1;
-        wMem(var8, D, 55178);
-        int var9 = IY() + 4;
-        int var10 = mem(var9, 55181);
-        A = var10;
-        int var11 = A & 64;
+        int var9 = IY() + 1;
+        wMem(var9, D, 55178);
+        int var10 = IY() + 4;
+        int var11 = mem(var10, 55181);
         A = var11;
-        int var12 = A | E;
+        int var12 = A & 64;
         A = var12;
-        int var13 = IY() + 4;
-        wMem(var13, A, 55187);
+        int var13 = A << 1;
+        F = var13;
+        int var14 = A | E;
+        A = var14;
+        int var15 = A << 1;
+        F = var15;
+        int var16 = IY() + 4;
+        wMem(var16, A, 55187);
         $D7B7();
-        int var14 = pop();
-        BC(var14);
+        int var17 = pop();
+        BC(var17);
         DE(8);
-        int var15 = DE();
-        int var16 = IY() + var15 & 65535;
-        IY(var16);
-        int var17 = B - 1 & 255;
-        B = var17;
+        int var18 = DE();
+        int var19 = IY() + var18 & 65535;
+        IY(var19);
+        int var20 = B - 1 & 255;
+        B = var20;
       } while(B != 0);
 
     }
@@ -1317,38 +1463,46 @@ public class ZxGame1 extends MiniZX {
     A = E;
     int var1 = A & 7;
     A = var1;
-    int var2 = A + A & 255;
-    A = var2;
-    int var3 = A + A & 255;
-    A = var3;
-    int var4 = A + A & 255;
+    int var2 = A << 1;
+    F = var2;
+    int var3 = A + A;
+    int var4 = var3 & 255;
     A = var4;
+    F = var3;
+    int var5 = A + A;
+    int var6 = var5 & 255;
+    A = var6;
+    F = var5;
+    int var7 = A + A;
+    int var8 = var7 & 255;
+    A = var8;
+    F = var7;
     C = A;
     B = 0;
     L = A;
     H = B;
-    int var5 = HL();
-    int var6 = HL() + var5 & 65535;
-    HL(var6);
-    int var7 = HL();
-    int var8 = HL() + var7 & 65535;
-    HL(var8);
     int var9 = HL();
     int var10 = HL() + var9 & 65535;
     HL(var10);
-    int var11 = BC();
+    int var11 = HL();
     int var12 = HL() + var11 & 65535;
     HL(var12);
-    int var13 = mem16(55088, 55238);
-    BC(var13);
-    int var14 = BC();
-    int var15 = HL() + var14 & 65535;
-    HL(var15);
-    int var16 = IY();
-    int var17 = mem(var16, 55243);
-    E = var17;
-    int var18 = mem16(55086, 55246);
-    BC(var18);
+    int var13 = HL();
+    int var14 = HL() + var13 & 65535;
+    HL(var14);
+    int var15 = BC();
+    int var16 = HL() + var15 & 65535;
+    HL(var16);
+    int var17 = mem16(55088, 55238);
+    BC(var17);
+    int var18 = BC();
+    int var19 = HL() + var18 & 65535;
+    HL(var19);
+    int var20 = IY();
+    int var21 = mem(var20, 55243);
+    E = var21;
+    int var22 = mem16(55086, 55246);
+    BC(var22);
     $E96B();
   }
 
@@ -1383,28 +1537,36 @@ public class ZxGame1 extends MiniZX {
     int var3 = HL();
     wMem(var3, var2, 60837);
     int var4 = HL();
-    int var5 = mem(var4, 60838);
-    A = var5;
-    int var6 = A & 3;
-    A = var6;
-    if(A == 3) {
-      int var7 = mem(22648, 60844);
-      A = var7;
+    int var5 = mem(var4, 60837);
+    F = var5;
+    int var6 = HL();
+    int var7 = mem(var6, 60838);
+    A = var7;
+    int var8 = A & 3;
+    A = var8;
+    int var9 = A << 1;
+    F = var9;
+    int var10 = A - 3;
+    F = var10;
+    if(F == 0) {
+      int var11 = mem(22648, 60844);
+      A = var11;
       C = A;
       B = 19;
       HL(22631);
 
       do {
-        int var8 = HL();
-        int var9 = mem(var8, 60853);
-        A = var9;
-        int var10 = HL();
-        wMem(var10, C, 60854);
+        int var12 = HL();
+        int var13 = mem(var12, 60853);
+        A = var13;
+        int var14 = HL();
+        wMem(var14, C, 60854);
         C = A;
-        int var11 = L + 1 & 255;
-        L = var11;
-        int var12 = B - 1 & 255;
-        B = var12;
+        int var15 = L + 1 & 255;
+        L = var15;
+        F = L;
+        int var16 = B - 1 & 255;
+        B = var16;
       } while(B != 0);
 
     }
@@ -1413,14 +1575,18 @@ public class ZxGame1 extends MiniZX {
   public void $DA8D() {
     int var1 = mem(55946, 55949);
     A = var1;
-    if((A & 2) == 0) {
-      if((A & 1) == 0) {
-        int var29 = mem16(55947, 55962);
-        HL(var29);
+    int var2 = A & 2;
+    F = var2;
+    if(F == 0) {
+      int var14 = A & 1;
+      F = var14;
+      if(F == 0) {
+        int var34 = mem16(55947, 55962);
+        HL(var34);
         if(HL() == 56008) {
           HL(56058);
-          int var30 = HL();
-          wMem16(55947, var30, 56011);
+          int var35 = HL();
+          wMem16(55947, var35, 56011);
           DE(10);
           B = 30;
           $DAB2();
@@ -1442,82 +1608,88 @@ public class ZxGame1 extends MiniZX {
         }
 
         HL(56058);
-        int var31 = HL();
-        wMem16(55947, var31, 55969);
-        int var32 = mem(55943, 55972);
-        A = var32;
+        int var36 = HL();
+        wMem16(55947, var36, 55969);
+        int var37 = mem(55943, 55972);
+        A = var37;
       } else {
-        int var13 = mem16(55944, 56087);
-        HL(var13);
-        int var14 = HL();
-        int var15 = mem(var14, 56090);
-        A = var15;
-        int var16 = HL() + 1 & 65535;
-        HL(var16);
-        int var17 = HL();
-        wMem16(55944, var17, 56092);
-        if(A == 255) {
+        int var15 = mem16(55944, 56087);
+        HL(var15);
+        int var16 = HL();
+        int var17 = mem(var16, 56090);
+        A = var17;
+        int var18 = HL() + 1 & 65535;
+        HL(var18);
+        int var19 = HL();
+        wMem16(55944, var19, 56092);
+        int var20 = A - 255;
+        F = var20;
+        if(F == 0) {
           HL(56058);
-          int var18 = HL();
-          wMem16(55947, var18, 56108);
-          int var19 = mem(55946, 56111);
-          A = var19;
-          int var20 = A & -2;
-          A = var20;
+          int var21 = HL();
+          wMem16(55947, var21, 56108);
+          int var22 = mem(55946, 56111);
+          A = var22;
+          int var23 = A & -2;
+          A = var23;
           wMem(55946, A, 56116);
           return;
         }
 
-        if(A << 1 == 0) {
+        int var24 = A << 1;
+        F = var24;
+        if(F == 0) {
           $DAFA();
           return;
         }
       }
 
-      int var21 = A + A & 255;
-      A = var21;
+      int var25 = A + A;
+      int var26 = var25 & 255;
+      A = var26;
+      F = var25;
       E = A;
       D = 0;
       HL(26905);
-      int var22 = DE();
-      int var23 = HL() + var22 & 65535;
-      HL(var23);
-      int var24 = HL();
-      int var25 = mem(var24, 55983);
-      E = var25;
-      int var26 = HL() + 1 & 65535;
-      HL(var26);
-      int var27 = HL();
-      int var28 = mem(var27, 55985);
-      B = var28;
+      int var27 = DE();
+      int var28 = HL() + var27 & 65535;
+      HL(var28);
+      int var29 = HL();
+      int var30 = mem(var29, 55983);
+      E = var30;
+      int var31 = HL() + 1 & 65535;
+      HL(var31);
+      int var32 = HL();
+      int var33 = mem(var32, 55985);
+      B = var33;
       $DAB2();
     } else {
       HL(60980);
       B = 9;
 
       do {
-        int var2 = HL();
-        int var3 = mem(var2, 56042);
-        E = var3;
+        int var3 = HL();
+        int var4 = mem(var3, 56042);
+        E = var4;
         D = 0;
-        int var4 = HL() + 1 & 65535;
-        HL(var4);
-        int var5 = HL();
-        int var6 = mem(var5, 56046);
-        B = var6;
-        int var7 = HL();
-        push(var7);
-        int var8 = BC();
+        int var5 = HL() + 1 & 65535;
+        HL(var5);
+        int var6 = HL();
+        int var7 = mem(var6, 56046);
+        B = var7;
+        int var8 = HL();
         push(var8);
+        int var9 = BC();
+        push(var9);
         $DAB2();
-        int var9 = pop();
-        BC(var9);
         int var10 = pop();
-        HL(var10);
-        int var11 = HL() + 1 & 65535;
+        BC(var10);
+        int var11 = pop();
         HL(var11);
-        int var12 = B - 1 & 255;
-        B = var12;
+        int var12 = HL() + 1 & 65535;
+        HL(var12);
+        int var13 = B - 1 & 255;
+        B = var13;
       } while(B != 0);
 
     }
@@ -1530,7 +1702,9 @@ public class ZxGame1 extends MiniZX {
       A = B;
       int var2 = A | C;
       A = var2;
-    } while(A << 1 != 0);
+      int var3 = A << 1;
+      F = var3;
+    } while(F != 0);
 
   }
 
@@ -1543,21 +1717,25 @@ public class ZxGame1 extends MiniZX {
       push(var2);
       int var3 = A ^ 16;
       A = var3;
+      int var4 = A << 1;
+      F = var4;
       C = A;
 
       do {
-        int var4 = DE() - 1 & 65535;
-        DE(var4);
+        int var5 = DE() - 1 & 65535;
+        DE(var5);
         A = D;
-        int var5 = A | E;
-        A = var5;
-      } while(A << 1 != 0);
+        int var6 = A | E;
+        A = var6;
+        int var7 = A << 1;
+        F = var7;
+      } while(F != 0);
 
-      int var6 = pop();
-      DE(var6);
+      int var8 = pop();
+      DE(var8);
       A = C;
-      int var7 = B - 1 & 255;
-      B = var7;
+      int var9 = B - 1 & 255;
+      B = var9;
     } while(B != 0);
 
     wMem(59392, A, 56004);
@@ -1635,7 +1813,9 @@ public class ZxGame1 extends MiniZX {
     do {
       int var4 = mem(56565, 56752);
       A = var4;
-      if(A << 1 != 0) {
+      int var5 = A << 1;
+      F = var5;
+      if(F != 0) {
         $EF7C();
         $DAFA();
         $E93F();
@@ -1648,16 +1828,20 @@ public class ZxGame1 extends MiniZX {
       $E6F6();
       $DA8D();
       $DAFA();
-      int var5 = mem(56565, 56781);
-      A = var5;
-      if(A << 1 != 0) {
+      int var6 = mem(56565, 56781);
+      A = var6;
+      int var7 = A << 1;
+      F = var7;
+      if(F != 0) {
         $E93F();
         $EF7C();
       }
 
-      int var6 = mem(59098, 56793);
-      A = var6;
-    } while(A << 1 != 0);
+      int var8 = mem(59098, 56793);
+      A = var8;
+      int var9 = A << 1;
+      F = var9;
+    } while(F != 0);
 
   }
 
@@ -1668,42 +1852,53 @@ public class ZxGame1 extends MiniZX {
     int var3 = HL();
     wMem(var3, var2, 61311);
     int var4 = HL();
-    if((mem(var4, 61312) & 1) != 0) {
-      int var5 = mem16(61306, 61315);
-      HL(var5);
-      int var6 = HL() + 1 & 65535;
-      HL(var6);
-      int var7 = HL();
-      int var8 = mem(var7, 61319);
-      A = var8;
-      if(A == 7) {
+    int var5 = mem(var4, 61311);
+    F = var5;
+    int var6 = HL();
+    int var7 = mem(var6, 61312) & 1;
+    F = var7;
+    if(F != 0) {
+      int var8 = mem16(61306, 61315);
+      HL(var8);
+      int var9 = HL() + 1 & 65535;
+      HL(var9);
+      int var10 = HL();
+      int var11 = mem(var10, 61319);
+      A = var11;
+      int var12 = A - 7;
+      F = var12;
+      if(F == 0) {
         HL(61297);
       }
 
-      int var9 = HL();
-      wMem16(61306, var9, 61327);
+      int var13 = HL();
+      wMem16(61306, var13, 61327);
       wMem(61276, A, 61330);
       wMem(61296, A, 61333);
-      int var10 = IX() + 4;
-      if((mem(var10, 61336) & 32) != 0) {
-        int var16 = IX() + 9;
-        int var17 = mem(var16, 61342);
-        E = var17;
-        int var18 = IX() + 10;
-        int var19 = mem(var18, 61345);
-        D = var19;
+      int var14 = IX() + 4;
+      int var15 = mem(var14, 61336) & 32;
+      F = var15;
+      if(F != 0) {
+        int var22 = IX() + 9;
+        int var23 = mem(var22, 61342);
+        E = var23;
+        int var24 = IX() + 10;
+        int var25 = mem(var24, 61345);
+        D = var25;
         HL(61257);
         $E84E();
       }
 
-      int var11 = IX() + 4;
-      if((mem(var11, 61354) & 16) != 0) {
-        int var12 = IX() + 2;
-        int var13 = mem(var12, 61359);
-        E = var13;
-        int var14 = IX() + 3;
-        int var15 = mem(var14, 61362);
-        D = var15;
+      int var16 = IX() + 4;
+      int var17 = mem(var16, 61354) & 16;
+      F = var17;
+      if(F != 0) {
+        int var18 = IX() + 2;
+        int var19 = mem(var18, 61359);
+        E = var19;
+        int var20 = IX() + 3;
+        int var21 = mem(var20, 61362);
+        D = var21;
         HL(61277);
         $E84E();
       }
@@ -1712,73 +1907,95 @@ public class ZxGame1 extends MiniZX {
 
   public void $E93F() {
     int var1 = IX() + 4;
-    if((mem(var1, 59711) & 32) != 0) {
-      int var11 = IX() + 9;
-      int var12 = mem(var11, 59717);
-      E = var12;
-      int var13 = IX() + 10;
-      int var14 = mem(var13, 59720);
-      D = var14;
+    int var2 = mem(var1, 59711) & 32;
+    F = var2;
+    if(F != 0) {
+      int var15 = IX() + 9;
+      int var16 = mem(var15, 59717);
+      E = var16;
+      int var17 = IX() + 10;
+      int var18 = mem(var17, 59720);
+      D = var18;
       $E8E3();
       A = 0;
-      int var15 = DE();
-      wMem(var15, A, 59727);
-      int var16 = E + 1 & 255;
-      E = var16;
-      int var17 = DE();
-      wMem(var17, A, 59729);
+      int var19 = A << 1;
+      F = var19;
+      int var20 = DE();
+      wMem(var20, A, 59727);
+      int var21 = E + 1 & 255;
+      E = var21;
+      F = E;
+      int var22 = DE();
+      wMem(var22, A, 59729);
     }
 
-    int var2 = IX() + 4;
-    if((mem(var2, 59730) & 16) != 0) {
-      int var3 = IX() + 2;
-      int var4 = mem(var3, 59735);
-      E = var4;
-      int var5 = IX() + 3;
-      int var6 = mem(var5, 59738);
-      D = var6;
+    int var3 = IX() + 4;
+    int var4 = mem(var3, 59730) & 16;
+    F = var4;
+    if(F != 0) {
+      int var5 = IX() + 2;
+      int var6 = mem(var5, 59735);
+      E = var6;
+      int var7 = IX() + 3;
+      int var8 = mem(var7, 59738);
+      D = var8;
       $E8E3();
       exHLDE();
       A = 0;
-      int var7 = HL();
-      wMem(var7, A, 59746);
-      BC(32);
-      int var8 = BC();
-      int var9 = HL() - var8 & 65535;
-      HL(var9);
+      int var9 = A << 1;
+      F = var9;
       int var10 = HL();
-      wMem(var10, A, 59753);
+      wMem(var10, A, 59746);
+      BC(32);
+      int var11 = A << 1;
+      F = var11;
+      int var12 = BC();
+      int var13 = HL() - var12 & 65535;
+      HL(var13);
+      int var14 = HL();
+      wMem(var14, A, 59753);
     }
   }
 
   public void $CB9C() {
     int var1 = mem(51802, 52124);
     A = var1;
-    if(A == 9) {
-      int var7 = A << 8 | 31;
-      int var8 = in(var7, 52131);
-      A = var8;
-      int var9 = ~A;
-      A = var9;
-      if((A & 16) == 0) {
+    int var2 = A - 9;
+    F = var2;
+    if(F == 0) {
+      int var10 = A << 8 | 31;
+      int var11 = in(var10, 52131);
+      A = var11;
+      int var12 = ~A;
+      A = var12;
+      F = A;
+      int var13 = A & 16;
+      F = var13;
+      if(F == 0) {
         return;
       }
-    } else if(A == 11) {
-      A = 239;
-      int var5 = A << 8 | 254;
-      int var6 = in(var5, 52145);
-      A = var6;
-      if((A & 1) == 0) {
-        return;
+    } else {
+      int var3 = A - 11;
+      F = var3;
+      if(F == 0) {
+        A = 239;
+        int var7 = A << 8 | 254;
+        int var8 = in(var7, 52145);
+        A = var8;
+        int var9 = A & 1;
+        F = var9;
+        if(F == 0) {
+          return;
+        }
       }
     }
 
     A = 191;
-    int var2 = A << 8 | 254;
-    int var3 = in(var2, 52152);
-    A = var3;
-    int var4 = A & 1;
-    F = var4;
+    int var4 = A << 8 | 254;
+    int var5 = in(var4, 52152);
+    A = var5;
+    int var6 = A & 1;
+    F = var6;
   }
 
   public void $ECF4() {
@@ -1787,35 +2004,43 @@ public class ZxGame1 extends MiniZX {
     A = var2;
     int var3 = A & 63;
     A = var3;
+    int var4 = A << 1;
+    F = var4;
     B = A;
     A = C;
-    if(A < B) {
-      int var4 = A - 1 & 255;
-      A = var4;
-      F = var4;
-      int var5 = A | 128;
-      A = var5;
-      int var6 = HL();
-      wMem(var6, A, 60670);
+    int var5 = A - B;
+    F = var5;
+    if(F < 0) {
+      int var6 = A - 1 & 255;
+      A = var6;
+      F = var6;
+      int var7 = A | 128;
+      A = var7;
+      int var8 = HL();
+      wMem(var8, A, 60670);
     }
   }
 
   public void $E775() {
     int var1 = mem(59099, 59253);
     A = var1;
-    int var2 = A + A & 255;
-    A = var2;
-    int var3 = HL();
-    int var4 = mem(var3, 59257);
-    int var5 = A + var4 & 255;
-    A = var5;
-    int var6 = A & -129;
-    A = var6;
-    int var7 = HL();
-    push(var7);
+    int var2 = A + A;
+    int var3 = var2 & 255;
+    A = var3;
+    F = var2;
+    int var4 = HL();
+    int var5 = mem(var4, 59257);
+    int var6 = A + var5;
+    int var7 = var6 & 255;
+    A = var7;
+    F = var6;
+    int var8 = A & -129;
+    A = var8;
+    int var9 = HL();
+    push(var9);
     $DB01();
-    int var8 = pop();
-    HL(var8);
+    int var10 = pop();
+    HL(var10);
   }
 
   public void $DB01() {
@@ -1841,65 +2066,73 @@ public class ZxGame1 extends MiniZX {
     A = H;
     int var4 = A & 3;
     A = var4;
-    int var5 = A;
-    int var6 = rlc(var5);
-    A = var6;
-    int var7 = A;
-    int var8 = rlc(var7);
-    A = var8;
-    int var9 = A;
-    int var10 = rlc(var9);
-    A = var10;
-    int var11 = A | 64;
+    int var5 = A << 1;
+    F = var5;
+    int var6 = A;
+    int var7 = rlc(var6);
+    A = var7;
+    int var8 = A;
+    int var9 = rlc(var8);
+    A = var9;
+    int var10 = A;
+    int var11 = rlc(var10);
     A = var11;
+    int var12 = A | 64;
+    A = var12;
+    int var13 = A << 1;
+    F = var13;
     H = A;
     B = 8;
 
     do {
-      int var12 = DE();
-      int var13 = mem(var12, 60651);
-      A = var13;
-      int var14 = HL();
-      wMem(var14, A, 60652);
-      int var15 = H + 1 & 255;
-      H = var15;
-      int var16 = DE() + 1 & 65535;
-      DE(var16);
-      int var17 = B - 1 & 255;
-      B = var17;
+      int var14 = DE();
+      int var15 = mem(var14, 60651);
+      A = var15;
+      int var16 = HL();
+      wMem(var16, A, 60652);
+      int var17 = H + 1 & 255;
+      H = var17;
+      F = H;
+      int var18 = DE() + 1 & 65535;
+      DE(var18);
+      int var19 = B - 1 & 255;
+      B = var19;
     } while(B != 0);
 
-    int var18 = pop();
-    DE(var18);
-    int var19 = pop();
-    HL(var19);
+    int var20 = pop();
+    DE(var20);
+    int var21 = pop();
+    HL(var21);
   }
 
   public void $E756() {
     B = A;
     A = C;
-    int var1 = A - B & 255;
-    A = var1;
+    int var1 = A - B;
+    int var2 = var1 & 255;
+    A = var2;
+    F = var1;
     C = A;
-    int var2 = IY() + 1;
-    int var3 = mem(var2, 59226);
-    L = var3;
-    int var4 = IY() + 2;
-    int var5 = mem(var4, 59229);
-    H = var5;
+    int var3 = IY() + 1;
+    int var4 = mem(var3, 59226);
+    L = var4;
+    int var5 = IY() + 2;
+    int var6 = mem(var5, 59229);
+    H = var6;
 
     do {
-      int var6 = BC();
-      push(var6);
-      int var7 = mem(59099, 59233);
-      A = var7;
+      int var7 = BC();
+      push(var7);
+      int var8 = mem(59099, 59233);
+      A = var8;
       $ECDD();
-      int var8 = L + 1 & 255;
-      L = var8;
-      int var9 = pop();
-      BC(var9);
-      int var10 = B - 1 & 255;
-      B = var10;
+      int var9 = L + 1 & 255;
+      L = var9;
+      F = L;
+      int var10 = pop();
+      BC(var10);
+      int var11 = B - 1 & 255;
+      B = var11;
     } while(B != 0);
 
   }
@@ -1919,14 +2152,19 @@ public class ZxGame1 extends MiniZX {
 
     do {
       A = 0;
-      int var1 = A << 8 | 254;
-      int var2 = in(var1, 62200);
-      A = var2;
-      int var3 = ~A;
+      int var1 = A << 1;
+      F = var1;
+      int var2 = A << 8 | 254;
+      int var3 = in(var2, 62200);
       A = var3;
-      int var4 = A & 31;
+      int var4 = ~A;
       A = var4;
-    } while(A << 1 != 0);
+      F = A;
+      int var5 = A & 31;
+      A = var5;
+      int var6 = A << 1;
+      F = var6;
+    } while(F != 0);
 
   }
 
@@ -1936,7 +2174,8 @@ public class ZxGame1 extends MiniZX {
       if(F == 0) {
         int var1 = D + 1 & 255;
         D = var1;
-        if(D != 0) {
+        F = D;
+        if(F != 0) {
           int var2 = D - 1 & 255;
           D = var2;
           F = var2;
@@ -1956,12 +2195,16 @@ public class ZxGame1 extends MiniZX {
       A = var2;
       int var3 = ~A;
       A = var3;
+      F = A;
       int var4 = A & 31;
       A = var4;
-      if(A << 1 != 0) {
-        int var8 = D + 1 & 255;
-        D = var8;
-        if(D != 0) {
+      int var5 = A << 1;
+      F = var5;
+      if(F != 0) {
+        int var10 = D + 1 & 255;
+        D = var10;
+        F = D;
+        if(F != 0) {
           return;
         }
 
@@ -1969,11 +2212,13 @@ public class ZxGame1 extends MiniZX {
         A = E;
 
         do {
-          int var9 = A - 8 & 255;
-          A = var9;
-          int var10 = H;
-          int var11 = sr(var10);
-          H = var11;
+          int var11 = A - 8;
+          int var12 = var11 & 255;
+          A = var12;
+          F = var11;
+          int var13 = H;
+          int var14 = sr(var13);
+          H = var14;
         } while(F >= 0);
 
         if(F != 0) {
@@ -1983,44 +2228,18 @@ public class ZxGame1 extends MiniZX {
         D = A;
       }
 
-      int var5 = E - 1 & 255;
-      E = var5;
-      int var6 = B;
-      int var7 = rlc(var6);
-      B = var7;
+      int var6 = E - 1 & 255;
+      E = var6;
+      F = var6;
+      int var7 = B;
+      int var8 = rlc(var7);
+      B = var8;
     } while(F < 0);
 
-    if(A != A) {
-      C = A;
-      int var8 = A & 7;
-      A = var8;
-      int var9 = A + 1 & 255;
-      A = var9;
-      B = A;
-      A = 5;
-      int var10 = A - C & 255;
-      A = var10;
-      C = A;
-      A = 254;
-
-      do {
-        int var11 = A;
-        int var12 = rrc(var11);
-        A = var12;
-        int var13 = B - 1 & 255;
-        B = var13;
-      } while (B != 0);
-
-      int var14 = in(254);
-      A = var14;
-
-      do {
-        int var15 = A;
-        int var16 = rrc(var15);
-        A = var16;
-        int var17 = C - 1 & 255;
-        C = var17;
-      } while (C != 0);
+    int var9 = A - A;
+    F = var9;
+    if(F != 0) {
+      ;
     }
   }
 
@@ -2038,6 +2257,7 @@ public class ZxGame1 extends MiniZX {
       wMem(var3, var2, 52118);
       int var4 = L + 1 & 255;
       L = var4;
+      F = L;
       int var5 = B - 1 & 255;
       B = var5;
     } while(B != 0);
@@ -2045,22 +2265,24 @@ public class ZxGame1 extends MiniZX {
   }
 
   public void $DCE8() {
-    int var1 = A + A & 255;
-    A = var1;
+    int var1 = A + A;
+    int var2 = var1 & 255;
+    A = var2;
+    F = var1;
     C = A;
     B = 0;
     HL(26074);
-    int var2 = BC();
-    int var3 = HL() + var2 & 65535;
-    HL(var3);
-    int var4 = HL();
-    int var5 = mem(var4, 56560);
-    A = var5;
-    int var6 = HL() + 1 & 65535;
-    HL(var6);
-    int var7 = HL();
-    int var8 = mem(var7, 56562);
-    H = var8;
+    int var3 = BC();
+    int var4 = HL() + var3 & 65535;
+    HL(var4);
+    int var5 = HL();
+    int var6 = mem(var5, 56560);
+    A = var6;
+    int var7 = HL() + 1 & 65535;
+    HL(var7);
+    int var8 = HL();
+    int var9 = mem(var8, 56562);
+    H = var9;
     L = A;
   }
 
@@ -2094,7 +2316,9 @@ public class ZxGame1 extends MiniZX {
       A = var8;
       int var9 = HL();
       int var10 = mem(var9, 51360);
-      if(A < var10) {
+      int var11 = A - var10;
+      F = var11;
+      if(F < 0) {
         HL(51302);
         DE(51493);
         BC(4);
@@ -2102,26 +2326,26 @@ public class ZxGame1 extends MiniZX {
         break;
       }
 
-      if(A != var10) {
+      if(F != 0) {
         break;
       }
 
-      int var14 = DE() + 1 & 65535;
-      DE(var14);
-      int var15 = HL() + 1 & 65535;
-      HL(var15);
-      int var16 = B - 1 & 255;
-      B = var16;
+      int var15 = DE() + 1 & 65535;
+      DE(var15);
+      int var16 = HL() + 1 & 65535;
+      HL(var16);
+      int var17 = B - 1 & 255;
+      B = var17;
     } while(B != 0);
 
     $D378();
     HL(52822);
-    int var11 = HL();
-    wMem(var11, 0, 51388);
-    int var12 = HL() - 1 & 65535;
-    HL(var12);
-    int var13 = HL();
-    wMem(var13, 39, 51391);
+    int var12 = HL();
+    wMem(var12, 0, 51388);
+    int var13 = HL() - 1 & 65535;
+    HL(var13);
+    int var14 = HL();
+    wMem(var14, 39, 51391);
     HL(51410);
     DE(51302);
     BC(27);
@@ -2151,43 +2375,49 @@ public class ZxGame1 extends MiniZX {
       A = var8;
       $E9F8();
       A = B;
-      int var9 = A + C & 255;
-      A = var9;
+      int var9 = A + C;
+      int var10 = var9 & 255;
+      A = var10;
+      F = var9;
       D = A;
-      int var10 = HL() + 1 & 65535;
-      HL(var10);
-      int var11 = HL();
-      int var12 = mem(var11, 61232);
-      A = var12;
+      int var11 = HL() + 1 & 65535;
+      HL(var11);
+      int var12 = HL();
+      int var13 = mem(var12, 61232);
+      A = var13;
       $E9F8();
       A = B;
-      int var13 = A + C & 255;
-      A = var13;
-      int var14 = A + D & 255;
-      A = var14;
+      int var14 = A + C;
+      int var15 = var14 & 255;
+      A = var15;
+      F = var14;
+      int var16 = A + D;
+      int var17 = var16 & 255;
+      A = var17;
+      F = var16;
       B = A;
       DE(5);
-      int var15 = DE();
-      int var16 = HL() + var15 & 65535;
-      HL(var16);
+      int var18 = DE();
+      int var19 = HL() + var18 & 65535;
+      HL(var19);
 
       do {
-        int var17 = HL();
-        int var18 = mem(var17, 61244) & -65;
-        int var19 = HL();
-        wMem(var19, var18, 61244);
+        int var20 = HL();
+        int var21 = mem(var20, 61244) & -65;
+        int var22 = HL();
+        wMem(var22, var21, 61244);
         DE(8);
-        int var20 = DE();
-        int var21 = HL() + var20 & 65535;
-        HL(var21);
-        int var22 = B - 1 & 255;
-        B = var22;
+        int var23 = DE();
+        int var24 = HL() + var23 & 65535;
+        HL(var24);
+        int var25 = B - 1 & 255;
+        B = var25;
       } while(B != 0);
 
-      int var23 = pop();
-      BC(var23);
-      int var24 = B - 1 & 255;
-      B = var24;
+      int var26 = pop();
+      BC(var26);
+      int var27 = B - 1 & 255;
+      B = var27;
     } while(B != 0);
 
   }
@@ -2198,7 +2428,6 @@ public class ZxGame1 extends MiniZX {
     BC(5);
     A = 48;
 
-    int var12;
     do {
       int var1 = HL();
       int var2 = mem(var1, 62288) & -33;
@@ -2216,9 +2445,10 @@ public class ZxGame1 extends MiniZX {
       int var10 = BC();
       int var11 = HL() + var10 & 65535;
       HL(var11);
-      var12 = A - 1 & 255;
+      int var12 = A - 1 & 255;
       A = var12;
-    } while(var12 != 0);
+      F = var12;
+    } while(F != 0);
 
     HL(62368);
     int var13 = HL();
@@ -2264,58 +2494,74 @@ public class ZxGame1 extends MiniZX {
       A = var1;
       int var2 = A & 63;
       A = var2;
-    } while(A >= 48);
+      int var3 = A << 1;
+      F = var3;
+      int var4 = A - 48;
+      F = var4;
+    } while(F >= 0);
 
     C = A;
 
     while(true) {
       A = C;
-      int var3 = A + 17 & 255;
-      A = var3;
-      if(A >= 48) {
-        int var23 = A - 48 & 255;
-        A = var23;
+      int var5 = A + 17;
+      int var6 = var5 & 255;
+      A = var6;
+      F = var5;
+      int var7 = A - 48;
+      F = var7;
+      if(F >= 0) {
+        int var30 = A - 48;
+        int var31 = var30 & 255;
+        A = var31;
+        F = var30;
       }
 
       C = A;
-      int var4 = A + A & 255;
-      A = var4;
-      int var5 = A + A & 255;
-      A = var5;
+      int var8 = A + A;
+      int var9 = var8 & 255;
+      A = var9;
+      F = var8;
+      int var10 = A + A;
+      int var11 = var10 & 255;
+      A = var11;
+      F = var10;
       L = A;
       H = 0;
       E = L;
       D = H;
-      int var6 = HL();
-      int var7 = HL() + var6 & 65535;
-      HL(var7);
-      int var8 = DE();
-      int var9 = HL() + var8 & 65535;
-      HL(var9);
-      int var10 = mem16(62370, 62400);
-      DE(var10);
-      int var11 = DE();
-      int var12 = HL() + var11 & 65535;
-      HL(var12);
-      int var13 = mem16(62368, 62405);
-      DE(var13);
-      int var14 = HL();
-      int var15 = mem(var14, 62409);
-      A = var15;
-      int var16 = A & D;
-      A = var16;
-      if(A << 1 == 0) {
-        int var17 = HL();
-        int var18 = mem(var17, 62413);
-        A = var18;
-        int var19 = A | E;
-        A = var19;
-        int var20 = A << 1;
-        F = var20;
-        int var21 = HL();
-        wMem(var21, A, 62415);
-        int var22 = B - 1 & 255;
-        B = var22;
+      int var12 = HL();
+      int var13 = HL() + var12 & 65535;
+      HL(var13);
+      int var14 = DE();
+      int var15 = HL() + var14 & 65535;
+      HL(var15);
+      int var16 = mem16(62370, 62400);
+      DE(var16);
+      int var17 = DE();
+      int var18 = HL() + var17 & 65535;
+      HL(var18);
+      int var19 = mem16(62368, 62405);
+      DE(var19);
+      int var20 = HL();
+      int var21 = mem(var20, 62409);
+      A = var21;
+      int var22 = A & D;
+      A = var22;
+      int var23 = A << 1;
+      F = var23;
+      if(F == 0) {
+        int var24 = HL();
+        int var25 = mem(var24, 62413);
+        A = var25;
+        int var26 = A | E;
+        A = var26;
+        int var27 = A << 1;
+        F = var27;
+        int var28 = HL();
+        wMem(var28, A, 62415);
+        int var29 = B - 1 & 255;
+        B = var29;
         if(B == 0) {
           return;
         }
@@ -2343,6 +2589,7 @@ public class ZxGame1 extends MiniZX {
       wMem(var1, B, 54173);
       int var2 = L + 1 & 255;
       L = var2;
+      F = L;
       int var3 = B - 1 & 255;
       B = var3;
     } while(B != 0);
@@ -2366,6 +2613,7 @@ public class ZxGame1 extends MiniZX {
     $E8F1();
     int var6 = D + 1 & 255;
     D = var6;
+    F = D;
     $EEF8();
   }
 
@@ -2373,52 +2621,61 @@ public class ZxGame1 extends MiniZX {
     int var1 = HL();
     int var2 = mem(var1, 61177);
     A = var2;
-    if(A != 255) {
-      if(A == 254) {
-        int var3 = HL() + 1 & 65535;
-        HL(var3);
+    int var3 = A - 255;
+    F = var3;
+    if(F != 0) {
+      int var4 = A - 254;
+      F = var4;
+      if(F == 0) {
+        int var5 = HL() + 1 & 65535;
+        HL(var5);
         $EEF1();
       } else {
-        int var4 = HL();
-        push(var4);
-        int var5 = DE();
-        push(var5);
+        int var6 = HL();
+        push(var6);
+        int var7 = DE();
+        push(var7);
         B = A;
-        int var6 = A + A & 255;
-        A = var6;
-        int var7 = A + B & 255;
-        A = var7;
+        int var8 = A + A;
+        int var9 = var8 & 255;
+        A = var9;
+        F = var8;
+        int var10 = A + B;
+        int var11 = var10 & 255;
+        A = var11;
+        F = var10;
         L = A;
         H = 0;
-        int var8 = HL();
-        int var9 = HL() + var8 & 65535;
-        HL(var9);
+        int var12 = HL();
+        int var13 = HL() + var12 & 65535;
+        HL(var13);
         BC(26495);
-        int var10 = BC();
-        int var11 = HL() + var10 & 65535;
-        HL(var11);
+        int var14 = BC();
+        int var15 = HL() + var14 & 65535;
+        HL(var15);
         B = 6;
 
         do {
-          int var12 = HL();
-          int var13 = mem(var12, 61200);
-          A = var13;
-          int var14 = DE();
-          wMem(var14, A, 61201);
-          int var15 = HL() + 1 & 65535;
-          HL(var15);
-          int var16 = D + 1 & 255;
-          D = var16;
-          int var17 = B - 1 & 255;
-          B = var17;
+          int var16 = HL();
+          int var17 = mem(var16, 61200);
+          A = var17;
+          int var18 = DE();
+          wMem(var18, A, 61201);
+          int var19 = HL() + 1 & 65535;
+          HL(var19);
+          int var20 = D + 1 & 255;
+          D = var20;
+          F = D;
+          int var21 = B - 1 & 255;
+          B = var21;
         } while(B != 0);
 
-        int var18 = pop();
-        DE(var18);
-        int var19 = pop();
-        HL(var19);
-        int var20 = E + 1 & 255;
-        E = var20;
+        int var22 = pop();
+        DE(var22);
+        int var23 = pop();
+        HL(var23);
+        int var24 = E + 1 & 255;
+        E = var24;
         F = E;
         $EEF8();
       }
@@ -2427,57 +2684,63 @@ public class ZxGame1 extends MiniZX {
 
   public void $CBBD() {
     wMem(53194, A, 52157);
-    int var1 = A + A & 255;
-    A = var1;
-    int var2 = A + A & 255;
+    int var1 = A + A;
+    int var2 = var1 & 255;
     A = var2;
+    F = var1;
+    int var3 = A + A;
+    int var4 = var3 & 255;
+    A = var4;
+    F = var3;
     L = A;
     H = 0;
     C = L;
     B = H;
-    int var3 = HL();
-    int var4 = HL() + var3 & 65535;
-    HL(var4);
-    int var5 = BC();
+    int var5 = HL();
     int var6 = HL() + var5 & 65535;
     HL(var6);
-    DE(27110);
-    int var7 = DE();
+    int var7 = BC();
     int var8 = HL() + var7 & 65535;
     HL(var8);
-    int var9 = HL();
-    push(var9);
-    int var10 = pop();
-    IX(var10);
-    int var11 = IX() + 4;
-    int var12 = mem(var11, 52176);
-    A = var12;
-    int var13 = A & 192;
-    A = var13;
-    int var14 = A;
-    int var15 = rrc(var14);
+    DE(27110);
+    int var9 = DE();
+    int var10 = HL() + var9 & 65535;
+    HL(var10);
+    int var11 = HL();
+    push(var11);
+    int var12 = pop();
+    IX(var12);
+    int var13 = IX() + 4;
+    int var14 = mem(var13, 52176);
+    A = var14;
+    int var15 = A & 192;
     A = var15;
-    int var16 = A;
-    int var17 = rrc(var16);
-    A = var17;
-    int var18 = A;
-    int var19 = rrc(var18);
-    A = var19;
+    int var16 = A << 1;
+    F = var16;
+    int var17 = A;
+    int var18 = rrc(var17);
+    A = var18;
+    int var19 = A;
+    int var20 = rrc(var19);
+    A = var20;
+    int var21 = A;
+    int var22 = rrc(var21);
+    A = var22;
     C = A;
     HL(27686);
-    int var20 = BC();
-    int var21 = HL() + var20 & 65535;
-    HL(var21);
+    int var23 = BC();
+    int var24 = HL() + var23 & 65535;
+    HL(var24);
     BC(8);
     DE(53201);
     ldir();
     exx();
-    int var22 = HL();
-    push(var22);
-    int var23 = DE();
-    push(var23);
-    int var24 = BC();
-    push(var24);
+    int var25 = HL();
+    push(var25);
+    int var26 = DE();
+    push(var26);
+    int var27 = BC();
+    push(var27);
     exx();
     $E820();
     $ED00();
@@ -2485,60 +2748,74 @@ public class ZxGame1 extends MiniZX {
     $CC36();
     $E544();
     $CE76();
-    int var25 = mem(53194, 52220);
-    A = var25;
+    int var28 = mem(53194, 52220);
+    A = var28;
     B = A;
     $F3EC();
     $C8FF();
     HL(51324);
-    int var26 = HL();
-    int var27 = mem(var26, 52233);
-    A = var27;
-    if(A < 28) {
-      int var47 = HL();
-      wMem(var47, 28, 52238);
+    int var29 = HL();
+    int var30 = mem(var29, 52233);
+    A = var30;
+    int var31 = A - 28;
+    F = var31;
+    if(F < 0) {
+      int var58 = HL();
+      wMem(var58, 28, 52238);
     }
 
-    int var28 = IX() + 11;
-    if((mem(var28, 52240) & 128) == 0) {
-      int var32 = IX() + 11;
-      int var33 = mem(var32, 52246) | 128;
-      wMem(var32, var33, 52246);
+    int var32 = IX() + 11;
+    int var33 = mem(var32, 52240) & 128;
+    F = var33;
+    if(F == 0) {
+      int var37 = IX() + 11;
+      int var38 = mem(var37, 52246) | 128;
+      wMem(var37, var38, 52246);
       HL(52822);
-      int var34 = HL();
-      int var35 = mem(var34, 52253);
-      A = var35;
-      if(A != 9) {
-        int var44 = HL();
-        int var45 = mem(var44, 52258) + 1 & 255;
-        int var46 = HL();
-        wMem(var46, var45, 52258);
+      int var39 = HL();
+      int var40 = mem(var39, 52253);
+      A = var40;
+      int var41 = A - 9;
+      F = var41;
+      if(F != 0) {
+        int var53 = HL();
+        int var54 = mem(var53, 52258) + 1 & 255;
+        int var55 = HL();
+        wMem(var55, var54, 52258);
+        int var56 = HL();
+        int var57 = mem(var56, 52258);
+        F = var57;
       } else {
-        int var36 = HL();
-        wMem(var36, 0, 52261);
-        int var37 = HL() - 1 & 65535;
-        HL(var37);
-        int var38 = HL();
-        int var39 = mem(var38, 52264) + 1 & 255;
-        int var40 = HL();
-        wMem(var40, var39, 52264);
-        int var41 = HL();
-        int var42 = mem(var41, 52265);
-        A = var42;
-        if(A == 40) {
-          int var43 = HL();
-          wMem(var43, 1, 52270);
+        int var42 = HL();
+        wMem(var42, 0, 52261);
+        int var43 = HL() - 1 & 65535;
+        HL(var43);
+        int var44 = HL();
+        int var45 = mem(var44, 52264) + 1 & 255;
+        int var46 = HL();
+        wMem(var46, var45, 52264);
+        int var47 = HL();
+        int var48 = mem(var47, 52264);
+        F = var48;
+        int var49 = HL();
+        int var50 = mem(var49, 52265);
+        A = var50;
+        int var51 = A - 40;
+        F = var51;
+        if(F == 0) {
+          int var52 = HL();
+          wMem(var52, 1, 52270);
         }
       }
     }
 
     exx();
-    int var29 = pop();
-    BC(var29);
-    int var30 = pop();
-    DE(var30);
-    int var31 = pop();
-    HL(var31);
+    int var34 = pop();
+    BC(var34);
+    int var35 = pop();
+    DE(var35);
+    int var36 = pop();
+    HL(var36);
     exx();
   }
 
@@ -2551,39 +2828,43 @@ public class ZxGame1 extends MiniZX {
     E = 1;
     ldir();
     A = 0;
+    int var2 = A << 1;
+    F = var2;
     B = 8;
 
     do {
-      int var2 = BC();
-      push(var2);
-      int var3 = HL();
+      int var3 = BC();
       push(var3);
-      int var4 = DE();
+      int var4 = HL();
       push(var4);
-      int var5 = HL();
-      wMem(var5, A, 59442);
+      int var5 = DE();
+      push(var5);
+      int var6 = HL();
+      wMem(var6, A, 59442);
       BC(127);
       ldir();
-      int var6 = pop();
-      DE(var6);
       int var7 = pop();
-      HL(var7);
-      int var8 = D + 1 & 255;
-      D = var8;
-      int var9 = H + 1 & 255;
-      H = var9;
-      int var10 = pop();
-      BC(var10);
-      int var11 = B - 1 & 255;
-      B = var11;
+      DE(var7);
+      int var8 = pop();
+      HL(var8);
+      int var9 = D + 1 & 255;
+      D = var9;
+      F = D;
+      int var10 = H + 1 & 255;
+      H = var10;
+      F = H;
+      int var11 = pop();
+      BC(var11);
+      int var12 = B - 1 & 255;
+      B = var12;
     } while(B != 0);
 
     HL(22528);
     D = H;
     E = 1;
     A = 69;
-    int var12 = HL();
-    wMem(var12, A, 59463);
+    int var13 = HL();
+    wMem(var13, A, 59463);
     BC(639);
     ldir();
   }
@@ -2603,252 +2884,268 @@ public class ZxGame1 extends MiniZX {
       int var1 = HL();
       int var2 = mem(var1, 60678);
       A = var2;
-      if(A == 255) {
+      int var3 = A - 255;
+      F = var3;
+      if(F == 0) {
         return;
       }
 
       E = A;
-      int var3 = HL() + 1 & 65535;
-      HL(var3);
-      int var4 = HL();
-      int var5 = mem(var4, 60684);
-      D = var5;
-      int var6 = HL() + 1 & 65535;
-      HL(var6);
-      int var7 = HL();
-      push(var7);
+      int var4 = HL() + 1 & 65535;
+      HL(var4);
+      int var5 = HL();
+      int var6 = mem(var5, 60684);
+      D = var6;
+      int var7 = HL() + 1 & 65535;
+      HL(var7);
       int var8 = HL();
-      int var9 = mem(var8, 60687);
-      L = var9;
+      push(var8);
+      int var9 = HL();
+      int var10 = mem(var9, 60687);
+      L = var10;
       H = 0;
-      int var10 = HL();
-      int var11 = HL() + var10 & 65535;
-      HL(var11);
+      int var11 = HL();
+      int var12 = HL() + var11 & 65535;
+      HL(var12);
       BC(27718);
-      int var12 = BC();
-      int var13 = HL() + var12 & 65535;
-      HL(var13);
-      int var14 = HL();
-      int var15 = mem(var14, 60695);
-      C = var15;
-      int var16 = HL() + 1 & 65535;
-      HL(var16);
-      int var17 = HL();
-      int var18 = mem(var17, 60697);
-      B = var18;
-      int var19 = pop();
-      HL(var19);
-      int var20 = HL() + 1 & 65535;
+      int var13 = BC();
+      int var14 = HL() + var13 & 65535;
+      HL(var14);
+      int var15 = HL();
+      int var16 = mem(var15, 60695);
+      C = var16;
+      int var17 = HL() + 1 & 65535;
+      HL(var17);
+      int var18 = HL();
+      int var19 = mem(var18, 60697);
+      B = var19;
+      int var20 = pop();
       HL(var20);
-      int var21 = HL();
-      int var22 = mem(var21, 60700);
-      A = var22;
-      if(A != 254) {
-        if(A != 253) {
-          if(A != 252) {
-            if(A != 251) {
-              int var107 = HL();
-              push(var107);
+      int var21 = HL() + 1 & 65535;
+      HL(var21);
+      int var22 = HL();
+      int var23 = mem(var22, 60700);
+      A = var23;
+      int var24 = A - 254;
+      F = var24;
+      if(F != 0) {
+        int var46 = A - 253;
+        F = var46;
+        if(F != 0) {
+          int var68 = A - 252;
+          F = var68;
+          if(F != 0) {
+            int var91 = A - 251;
+            F = var91;
+            if(F != 0) {
+              int var114 = HL();
+              push(var114);
               L = C;
               H = B;
               $E84E();
-              int var108 = pop();
-              HL(var108);
+              int var115 = pop();
+              HL(var115);
             } else {
-              int var86 = HL() + 1 & 65535;
-              HL(var86);
-              int var87 = HL();
-              push(var87);
-              int var88 = BC();
-              push(var88);
-              int var89 = HL();
-              int var90 = mem(var89, 60808);
-              C = var90;
-              int var91 = HL() + 1 & 65535;
-              HL(var91);
-              int var92 = HL();
-              int var93 = mem(var92, 60810);
-              B = var93;
-              int var94 = pop();
-              HL(var94);
+              int var92 = HL() + 1 & 65535;
+              HL(var92);
+              int var93 = HL();
+              push(var93);
+              int var94 = BC();
+              push(var94);
+              int var95 = HL();
+              int var96 = mem(var95, 60808);
+              C = var96;
+              int var97 = HL() + 1 & 65535;
+              HL(var97);
+              int var98 = HL();
+              int var99 = mem(var98, 60810);
+              B = var99;
+              int var100 = pop();
+              HL(var100);
 
               do {
-                int var95 = BC();
-                push(var95);
-                int var96 = DE();
-                push(var96);
-                int var97 = HL();
-                push(var97);
+                int var101 = BC();
+                push(var101);
+                int var102 = DE();
+                push(var102);
+                int var103 = HL();
+                push(var103);
                 $E84E();
-                int var98 = pop();
-                HL(var98);
-                int var99 = pop();
-                DE(var99);
-                int var100 = pop();
-                BC(var100);
+                int var104 = pop();
+                HL(var104);
+                int var105 = pop();
+                DE(var105);
+                int var106 = pop();
+                BC(var106);
                 A = D;
-                int var101 = A + C & 255;
-                A = var101;
+                int var107 = A + C;
+                int var108 = var107 & 255;
+                A = var108;
+                F = var107;
                 D = A;
-                int var102 = E - 1 & 255;
-                E = var102;
-                int var103 = B - 1 & 255;
-                B = var103;
+                int var109 = E - 1 & 255;
+                E = var109;
+                F = var109;
+                int var110 = B - 1 & 255;
+                B = var110;
               } while(B != 0);
 
-              int var104 = pop();
-              HL(var104);
-              int var105 = HL() + 1 & 65535;
-              HL(var105);
-              int var106 = HL() + 1 & 65535;
-              HL(var106);
+              int var111 = pop();
+              HL(var111);
+              int var112 = HL() + 1 & 65535;
+              HL(var112);
+              int var113 = HL() + 1 & 65535;
+              HL(var113);
             }
           } else {
-            int var65 = HL() + 1 & 65535;
-            HL(var65);
-            int var66 = HL();
-            push(var66);
-            int var67 = BC();
-            push(var67);
-            int var68 = HL();
-            int var69 = mem(var68, 60781);
-            C = var69;
-            int var70 = HL() + 1 & 65535;
-            HL(var70);
-            int var71 = HL();
-            int var72 = mem(var71, 60783);
-            B = var72;
-            int var73 = pop();
-            HL(var73);
+            int var69 = HL() + 1 & 65535;
+            HL(var69);
+            int var70 = HL();
+            push(var70);
+            int var71 = BC();
+            push(var71);
+            int var72 = HL();
+            int var73 = mem(var72, 60781);
+            C = var73;
+            int var74 = HL() + 1 & 65535;
+            HL(var74);
+            int var75 = HL();
+            int var76 = mem(var75, 60783);
+            B = var76;
+            int var77 = pop();
+            HL(var77);
 
             do {
-              int var74 = BC();
-              push(var74);
-              int var75 = DE();
-              push(var75);
-              int var76 = HL();
-              push(var76);
+              int var78 = BC();
+              push(var78);
+              int var79 = DE();
+              push(var79);
+              int var80 = HL();
+              push(var80);
               $E84E();
-              int var77 = pop();
-              HL(var77);
-              int var78 = pop();
-              DE(var78);
-              int var79 = pop();
-              BC(var79);
+              int var81 = pop();
+              HL(var81);
+              int var82 = pop();
+              DE(var82);
+              int var83 = pop();
+              BC(var83);
               A = D;
-              int var80 = A + C & 255;
-              A = var80;
+              int var84 = A + C;
+              int var85 = var84 & 255;
+              A = var85;
+              F = var84;
               D = A;
-              int var81 = E + 1 & 255;
-              E = var81;
-              int var82 = B - 1 & 255;
-              B = var82;
+              int var86 = E + 1 & 255;
+              E = var86;
+              F = E;
+              int var87 = B - 1 & 255;
+              B = var87;
             } while(B != 0);
 
-            int var83 = pop();
-            HL(var83);
-            int var84 = HL() + 1 & 65535;
-            HL(var84);
-            int var85 = HL() + 1 & 65535;
-            HL(var85);
+            int var88 = pop();
+            HL(var88);
+            int var89 = HL() + 1 & 65535;
+            HL(var89);
+            int var90 = HL() + 1 & 65535;
+            HL(var90);
           }
         } else {
-          int var44 = HL() + 1 & 65535;
-          HL(var44);
-          int var45 = HL();
-          push(var45);
-          int var46 = BC();
-          push(var46);
-          int var47 = HL();
-          int var48 = mem(var47, 60755);
-          C = var48;
-          int var49 = HL() + 1 & 65535;
-          HL(var49);
+          int var47 = HL() + 1 & 65535;
+          HL(var47);
+          int var48 = HL();
+          push(var48);
+          int var49 = BC();
+          push(var49);
           int var50 = HL();
-          int var51 = mem(var50, 60757);
-          B = var51;
-          int var52 = pop();
+          int var51 = mem(var50, 60755);
+          C = var51;
+          int var52 = HL() + 1 & 65535;
           HL(var52);
+          int var53 = HL();
+          int var54 = mem(var53, 60757);
+          B = var54;
+          int var55 = pop();
+          HL(var55);
 
           do {
-            int var53 = BC();
-            push(var53);
-            int var54 = DE();
-            push(var54);
-            int var55 = HL();
-            push(var55);
+            int var56 = BC();
+            push(var56);
+            int var57 = DE();
+            push(var57);
+            int var58 = HL();
+            push(var58);
             $E84E();
-            int var56 = pop();
-            HL(var56);
-            int var57 = pop();
-            DE(var57);
-            int var58 = pop();
-            BC(var58);
+            int var59 = pop();
+            HL(var59);
+            int var60 = pop();
+            DE(var60);
+            int var61 = pop();
+            BC(var61);
             A = E;
-            int var59 = A - C;
-            int var60 = var59 & 255;
-            A = var60;
-            F = var59;
+            int var62 = A - C;
+            int var63 = var62 & 255;
+            A = var63;
+            F = var62;
             E = A;
-            int var61 = B - 1 & 255;
-            B = var61;
+            int var64 = B - 1 & 255;
+            B = var64;
           } while(B != 0);
 
-          int var62 = pop();
-          HL(var62);
-          int var63 = HL() + 1 & 65535;
-          HL(var63);
-          int var64 = HL() + 1 & 65535;
-          HL(var64);
+          int var65 = pop();
+          HL(var65);
+          int var66 = HL() + 1 & 65535;
+          HL(var66);
+          int var67 = HL() + 1 & 65535;
+          HL(var67);
         }
       } else {
-        int var23 = HL() + 1 & 65535;
-        HL(var23);
-        int var24 = HL();
-        push(var24);
-        int var25 = BC();
-        push(var25);
+        int var25 = HL() + 1 & 65535;
+        HL(var25);
         int var26 = HL();
-        int var27 = mem(var26, 60729);
-        C = var27;
-        int var28 = HL() + 1 & 65535;
-        HL(var28);
-        int var29 = HL();
-        int var30 = mem(var29, 60731);
-        B = var30;
-        int var31 = pop();
-        HL(var31);
+        push(var26);
+        int var27 = BC();
+        push(var27);
+        int var28 = HL();
+        int var29 = mem(var28, 60729);
+        C = var29;
+        int var30 = HL() + 1 & 65535;
+        HL(var30);
+        int var31 = HL();
+        int var32 = mem(var31, 60731);
+        B = var32;
+        int var33 = pop();
+        HL(var33);
 
         do {
-          int var32 = BC();
-          push(var32);
-          int var33 = DE();
-          push(var33);
-          int var34 = HL();
+          int var34 = BC();
           push(var34);
+          int var35 = DE();
+          push(var35);
+          int var36 = HL();
+          push(var36);
           $E84E();
-          int var35 = pop();
-          HL(var35);
-          int var36 = pop();
-          DE(var36);
           int var37 = pop();
-          BC(var37);
+          HL(var37);
+          int var38 = pop();
+          DE(var38);
+          int var39 = pop();
+          BC(var39);
           A = D;
-          int var38 = A + C;
-          int var39 = var38 & 255;
-          A = var39;
-          F = var38;
+          int var40 = A + C;
+          int var41 = var40 & 255;
+          A = var41;
+          F = var40;
           D = A;
-          int var40 = B - 1 & 255;
-          B = var40;
+          int var42 = B - 1 & 255;
+          B = var42;
         } while(B != 0);
 
-        int var41 = pop();
-        HL(var41);
-        int var42 = HL() + 1 & 65535;
-        HL(var42);
-        int var43 = HL() + 1 & 65535;
+        int var43 = pop();
         HL(var43);
+        int var44 = HL() + 1 & 65535;
+        HL(var44);
+        int var45 = HL() + 1 & 65535;
+        HL(var45);
       }
     }
   }
@@ -2857,7 +3154,9 @@ public class ZxGame1 extends MiniZX {
     int var1 = IX() + 4;
     int var2 = mem(var1, 56513);
     A = var2;
-    if((A & 8) != 0) {
+    int var3 = A & 8;
+    F = var3;
+    if(F != 0) {
       $DCCC();
     } else {
       A = 255;
@@ -2868,77 +3167,84 @@ public class ZxGame1 extends MiniZX {
   public void $DCCC() {
     int var1 = A & 7;
     A = var1;
-    int var2 = AF();
-    push(var2);
+    int var2 = A << 1;
+    F = var2;
+    int var3 = AF();
+    push(var3);
     $DCE8();
-    int var3 = IX() + 5;
-    int var4 = mem(var3, 56530);
-    E = var4;
-    int var5 = IX() + 6;
-    int var6 = mem(var5, 56533);
-    D = var6;
+    int var4 = IX() + 5;
+    int var5 = mem(var4, 56530);
+    E = var5;
+    int var6 = IX() + 6;
+    int var7 = mem(var6, 56533);
+    D = var7;
     $E84E();
-    int var7 = pop();
-    AF(var7);
+    int var8 = pop();
+    AF(var8);
     C = A;
     B = 0;
     HL(26090);
-    int var8 = BC();
-    int var9 = HL() + var8 & 65535;
-    HL(var9);
-    int var10 = HL();
-    int var11 = mem(var10, 56547);
-    A = var11;
+    int var9 = BC();
+    int var10 = HL() + var9 & 65535;
+    HL(var10);
+    int var11 = HL();
+    int var12 = mem(var11, 56547);
+    A = var12;
     $DCE4();
   }
 
   public void $CC36() {
     int var1 = mem(53194, 52278);
     A = var1;
-    if(A < 8) {
+    int var2 = A - 8;
+    F = var2;
+    if(F < 0) {
       HL(27013);
       DE(20576);
       C = 3;
 
-      int var11;
       do {
-        int var2 = DE();
-        push(var2);
+        int var3 = DE();
+        push(var3);
         B = 32;
 
         do {
-          int var3 = HL();
-          int var4 = mem(var3, 52295);
-          A = var4;
-          int var5 = DE();
-          wMem(var5, A, 52296);
-          int var6 = HL() + 1 & 65535;
-          HL(var6);
-          int var7 = E + 1 & 255;
-          E = var7;
-          int var8 = B - 1 & 255;
-          B = var8;
+          int var4 = HL();
+          int var5 = mem(var4, 52295);
+          A = var5;
+          int var6 = DE();
+          wMem(var6, A, 52296);
+          int var7 = HL() + 1 & 65535;
+          HL(var7);
+          int var8 = E + 1 & 255;
+          E = var8;
+          F = E;
+          int var9 = B - 1 & 255;
+          B = var9;
         } while(B != 0);
 
-        int var9 = pop();
-        DE(var9);
-        int var10 = D + 1 & 255;
-        D = var10;
-        var11 = C - 1 & 255;
-        C = var11;
-      } while(var11 != 0);
+        int var10 = pop();
+        DE(var10);
+        int var11 = D + 1 & 255;
+        D = var11;
+        F = D;
+        int var12 = C - 1 & 255;
+        C = var12;
+        F = var12;
+      } while(F != 0);
 
       DE(23136);
       A = 79;
       B = 32;
 
       do {
-        int var12 = DE();
-        wMem(var12, A, 52313);
-        int var13 = E + 1 & 255;
-        E = var13;
-        int var14 = B - 1 & 255;
-        B = var14;
+        int var13 = DE();
+        wMem(var13, A, 52313);
+        int var14 = E + 1 & 255;
+        E = var14;
+        F = E;
+        int var15 = B - 1 & 255;
+        B = var15;
       } while(B != 0);
 
     }
@@ -3000,29 +3306,35 @@ public class ZxGame1 extends MiniZX {
   public void $CE76() {
     int var1 = mem(53194, 52854);
     A = var1;
-    if(A == 27) {
-      int var2 = mem(51326, 52860);
-      A = var2;
-      if((A & 1) == 0) {
+    int var2 = A - 27;
+    F = var2;
+    if(F == 0) {
+      int var3 = mem(51326, 52860);
+      A = var3;
+      int var4 = A & 1;
+      F = var4;
+      if(F == 0) {
         DE(5130);
         HL(60380);
         $E84E();
       }
 
-      int var3 = mem(51326, 52876);
-      A = var3;
-      if((A & 2) == 0) {
+      int var5 = mem(51326, 52876);
+      A = var5;
+      int var6 = A & 2;
+      F = var6;
+      if(F == 0) {
         DE(1286);
         HL(60297);
         $E84E();
-        int var4 = mem(51308, 52891);
-        A = var4;
-        if(A < 26) {
+        int var7 = mem(51308, 52891);
+        A = var7;
+        int var8 = A - 26;
+        F = var8;
+        if(F < 0) {
           ;
         }
 
-        int var5 = A - 26;
-        F = var5;
       }
     }
   }
@@ -3031,16 +3343,24 @@ public class ZxGame1 extends MiniZX {
     int var1 = IX() + 11;
     int var2 = mem(var1, 62444);
     A = var2;
-    if((A & 1) != 0) {
+    int var3 = A & 1;
+    F = var3;
+    if(F != 0) {
       C = 205;
-    } else if((A & 2) != 0) {
-      C = 203;
     } else {
-      if((A & 4) == 0) {
-        return;
-      }
+      int var4 = A & 2;
+      F = var4;
+      if(F != 0) {
+        C = 203;
+      } else {
+        int var5 = A & 4;
+        F = var5;
+        if(F == 0) {
+          return;
+        }
 
-      C = 204;
+        C = 204;
+      }
     }
 
     A = B;
@@ -3051,22 +3371,24 @@ public class ZxGame1 extends MiniZX {
   }
 
   public void $F3E0() {
-    int var1 = A + A & 255;
-    A = var1;
+    int var1 = A + A;
+    int var2 = var1 & 255;
+    A = var2;
+    F = var1;
     E = A;
     D = 0;
     HL(62480);
-    int var2 = DE();
-    int var3 = HL() + var2 & 65535;
-    HL(var3);
-    int var4 = HL();
-    int var5 = mem(var4, 62440);
-    E = var5;
-    int var6 = HL() + 1 & 65535;
-    HL(var6);
-    int var7 = HL();
-    int var8 = mem(var7, 62442);
-    D = var8;
+    int var3 = DE();
+    int var4 = HL() + var3 & 65535;
+    HL(var4);
+    int var5 = HL();
+    int var6 = mem(var5, 62440);
+    E = var6;
+    int var7 = HL() + 1 & 65535;
+    HL(var7);
+    int var8 = HL();
+    int var9 = mem(var8, 62442);
+    D = var9;
   }
 
   public void $F3D3() {
@@ -3096,7 +3418,6 @@ public class ZxGame1 extends MiniZX {
     HL(25302);
     A = 14;
 
-    int var18;
     do {
       int var2 = AF();
       exAF(var2);
@@ -3105,7 +3426,6 @@ public class ZxGame1 extends MiniZX {
       $E8D2();
       C = 2;
 
-      int var13;
       do {
         int var4 = DE();
         push(var4);
@@ -3121,6 +3441,7 @@ public class ZxGame1 extends MiniZX {
           HL(var8);
           int var9 = E + 1 & 255;
           E = var9;
+          F = E;
           int var10 = B - 1 & 255;
           B = var10;
         } while(B != 0);
@@ -3129,21 +3450,26 @@ public class ZxGame1 extends MiniZX {
         DE(var11);
         int var12 = D + 1 & 255;
         D = var12;
-        var13 = C - 1 & 255;
+        F = D;
+        int var13 = C - 1 & 255;
         C = var13;
-      } while(var13 != 0);
+        F = var13;
+      } while(F != 0);
 
       int var14 = pop();
       DE(var14);
       int var15 = E + 1 & 255;
       E = var15;
+      F = E;
       int var16 = E + 1 & 255;
       E = var16;
+      F = E;
       int var17 = AF();
       exAF(var17);
-      var18 = A - 1 & 255;
+      int var18 = A - 1 & 255;
       A = var18;
-    } while(var18 != 0);
+      F = var18;
+    } while(F != 0);
 
   }
 
@@ -3151,20 +3477,24 @@ public class ZxGame1 extends MiniZX {
     A = E;
     int var1 = A & 7;
     A = var1;
+    int var2 = A << 1;
+    F = var2;
     B = A;
-    int var2 = E;
-    int var3 = sr(var2);
-    E = var3;
-    int var4 = E;
-    int var5 = sr(var4);
-    E = var5;
-    int var6 = E;
-    int var7 = sr(var6);
-    E = var7;
+    int var3 = E;
+    int var4 = sr(var3);
+    E = var4;
+    int var5 = E;
+    int var6 = sr(var5);
+    E = var6;
+    int var7 = E;
+    int var8 = sr(var7);
+    E = var8;
     $E8F1();
     A = B;
-    int var8 = A + D & 255;
-    A = var8;
+    int var9 = A + D;
+    int var10 = var9 & 255;
+    A = var10;
+    F = var9;
     D = A;
   }
 
@@ -3183,61 +3513,86 @@ public class ZxGame1 extends MiniZX {
       int var5 = mem(var4, 55803) - 1 & 255;
       int var6 = HL();
       wMem(var6, var5, 55803);
-      if(var5 == 0) {
-        int var40 = HL();
-        wMem(var40, 3, 55806);
-        int var41 = E + 1 & 255;
-        E = var41;
+      F = var5;
+      if(F == 0) {
+        int var54 = HL();
+        wMem(var54, 3, 55806);
+        int var55 = E + 1 & 255;
+        E = var55;
+        F = E;
         A = E;
-        if(A != 4) {
+        int var56 = A - 4;
+        F = var56;
+        if(F != 0) {
           break label74;
         }
 
         E = 0;
-        int var42 = D - 1 & 255;
-        D = var42;
+        int var57 = D - 1 & 255;
+        D = var57;
+        F = var57;
         A = D;
-        if(A != 252) {
+        int var58 = A - 252;
+        F = var58;
+        if(F != 0) {
           break label74;
         }
 
         D = 28;
-        int var43 = B + 1 & 255;
-        B = var43;
+        int var59 = B + 1 & 255;
+        B = var59;
+        F = B;
         A = B;
-        int var44 = A & 7;
-        A = var44;
+        int var60 = A & 7;
+        A = var60;
+        int var61 = A << 1;
+        F = var61;
         B = A;
         A = C;
-        if(A == B) {
+        int var62 = A - B;
+        F = var62;
+        if(F == 0) {
           D = 31;
         }
       }
 
       A = C;
-      if(A < 8) {
+      int var7 = A - 8;
+      F = var7;
+      if(F < 0) {
         label71: {
-          int var36 = A + 1 & 255;
-          A = var36;
-          if(A >= B) {
+          int var46 = A + 1 & 255;
+          A = var46;
+          F = A;
+          int var47 = A - B;
+          F = var47;
+          if(F >= 0) {
             A = B;
-            if(A < 2) {
+            int var51 = A - 2;
+            F = var51;
+            if(F < 0) {
               break label71;
             }
 
             A = C;
-            int var39 = A - 1 & 255;
-            A = var39;
-            if(A < B) {
+            int var52 = A - 1 & 255;
+            A = var52;
+            F = var52;
+            int var53 = A - B;
+            F = var53;
+            if(F < 0) {
               break label71;
             }
           }
 
           A = C;
-          int var37 = A - 1 & 255;
-          A = var37;
-          int var38 = A & 7;
-          A = var38;
+          int var48 = A - 1 & 255;
+          A = var48;
+          F = var48;
+          int var49 = A & 7;
+          A = var49;
+          int var50 = A << 1;
+          F = var50;
           B = A;
         }
       }
@@ -3246,98 +3601,118 @@ public class ZxGame1 extends MiniZX {
       wMem(55786, A, 55860);
     }
 
-    int var7 = DE();
-    wMem16(55784, var7, 55863);
+    int var8 = DE();
+    wMem16(55784, var8, 55863);
     A = C;
-    if(A == B) {
+    int var9 = A - B;
+    F = var9;
+    if(F == 0) {
       A = E;
-      int var8 = A + A & 255;
-      A = var8;
-      int var9 = A + A & 255;
-      A = var9;
-      int var10 = A + A & 255;
-      A = var10;
-      int var11 = A + A & 255;
+      int var10 = A + A;
+      int var11 = var10 & 255;
       A = var11;
-      int var12 = A + A & 255;
-      A = var12;
+      F = var10;
+      int var12 = A + A;
+      int var13 = var12 & 255;
+      A = var13;
+      F = var12;
+      int var14 = A + A;
+      int var15 = var14 & 255;
+      A = var15;
+      F = var14;
+      int var16 = A + A;
+      int var17 = var16 & 255;
+      A = var17;
+      F = var16;
+      int var18 = A + A;
+      int var19 = var18 & 255;
+      A = var19;
+      F = var18;
       C = A;
       B = 0;
       HL(26777);
-      int var13 = BC();
-      int var14 = HL() + var13 & 65535;
-      HL(var14);
+      int var20 = BC();
+      int var21 = HL() + var20 & 65535;
+      HL(var21);
       C = D;
       DE(20544);
       exHLDE();
       A = C;
-      if(A < 32) {
-        int var34 = BC();
-        int var35 = HL() + var34 & 65535;
-        HL(var35);
+      int var22 = A - 32;
+      F = var22;
+      if(F < 0) {
+        int var44 = BC();
+        int var45 = HL() + var44 & 65535;
+        HL(var45);
       }
 
       B = 4;
 
       do {
         A = C;
-        if(A >= 32) {
-          int var30 = HL();
-          push(var30);
+        int var23 = A - 32;
+        F = var23;
+        if(F >= 0) {
+          int var40 = HL();
+          push(var40);
           HL(8);
-          int var31 = DE();
-          int var32 = HL() + var31 & 65535;
-          HL(var32);
+          int var41 = DE();
+          int var42 = HL() + var41 & 65535;
+          HL(var42);
           exHLDE();
-          int var33 = pop();
-          HL(var33);
+          int var43 = pop();
+          HL(var43);
         } else {
-          int var15 = BC();
-          push(var15);
-          int var16 = HL();
-          push(var16);
+          int var24 = BC();
+          push(var24);
+          int var25 = HL();
+          push(var25);
           B = 8;
 
           do {
-            int var17 = DE();
-            int var18 = mem(var17, 55914);
-            A = var18;
-            int var19 = HL();
-            wMem(var19, A, 55915);
-            int var20 = H + 1 & 255;
-            H = var20;
-            int var21 = DE() + 1 & 65535;
-            DE(var21);
-            int var22 = B - 1 & 255;
-            B = var22;
+            int var26 = DE();
+            int var27 = mem(var26, 55914);
+            A = var27;
+            int var28 = HL();
+            wMem(var28, A, 55915);
+            int var29 = H + 1 & 255;
+            H = var29;
+            F = H;
+            int var30 = DE() + 1 & 65535;
+            DE(var30);
+            int var31 = B - 1 & 255;
+            B = var31;
           } while(B != 0);
 
-          int var23 = pop();
-          HL(var23);
-          int var24 = pop();
-          BC(var24);
+          int var32 = pop();
+          HL(var32);
+          int var33 = pop();
+          BC(var33);
           H = 90;
           A = 2;
-          int var25 = HL();
-          wMem(var25, A, 55926);
+          int var34 = HL();
+          wMem(var34, A, 55926);
           H = 80;
-          int var26 = L + 1 & 255;
-          L = var26;
+          int var35 = L + 1 & 255;
+          L = var35;
           F = L;
         }
 
-        int var27 = C + 1 & 255;
-        C = var27;
-        int var28 = B - 1 & 255;
-        B = var28;
+        int var36 = C + 1 & 255;
+        C = var36;
+        F = C;
+        int var37 = B - 1 & 255;
+        B = var37;
       } while(B != 0);
 
       A = C;
-      if(A < 32) {
+      int var38 = A - 32;
+      F = var38;
+      if(F < 0) {
         H = 90;
         A = 69;
-        int var29 = HL();
-        wMem(var29, A, 55941);
+        int var39 = HL();
+        wMem(var39, A, 55941);
       }
     }
   }
@@ -3412,56 +3787,74 @@ public class ZxGame1 extends MiniZX {
     A = var3;
     int var4 = A & 1;
     A = var4;
+    int var5 = A << 1;
+    F = var5;
     C = A;
-    int var5 = mem(53194, 56446);
-    A = var5;
-    if(A == D) {
+    int var6 = mem(53194, 56446);
+    A = var6;
+    int var7 = A - D;
+    F = var7;
+    if(F == 0) {
       A = L;
-      int var6 = A + 26 & 255;
-      A = var6;
-      if(A == E) {
+      int var8 = A + 26;
+      int var9 = var8 & 255;
+      A = var9;
+      F = var8;
+      int var10 = A - E;
+      F = var10;
+      if(F == 0) {
         A = H;
-        int var7 = A - 13 & 255;
-        A = var7;
-        if(A < 5) {
+        int var11 = A - 13;
+        int var12 = var11 & 255;
+        A = var12;
+        F = var11;
+        int var13 = A - 5;
+        F = var13;
+        if(F < 0) {
           label29: {
-            int var8 = C | 2;
-            C = var8;
+            int var14 = C | 2;
+            C = var14;
             A = H;
-            if(A != 15) {
+            int var15 = A - 15;
+            F = var15;
+            if(F != 0) {
               HL(56425);
-              if(A != 14) {
+              int var17 = A - 14;
+              F = var17;
+              if(F != 0) {
                 HL(56429);
-                if(A != 16) {
-                  int var15 = A - 16;
-                  F = var15;
+                int var24 = A - 16;
+                F = var24;
+                if(F != 0) {
                   break label29;
                 }
               }
 
               B = 4;
-              int var10 = mem(51317, 56490);
-              A = var10;
+              int var18 = mem(51317, 56490);
+              A = var18;
 
               while(true) {
-                int var11 = HL();
-                int var12 = mem(var11, 56493);
-                if(A == var12) {
+                int var19 = HL();
+                int var20 = mem(var19, 56493);
+                int var21 = A - var20;
+                F = var21;
+                if(F == 0) {
                   break;
                 }
 
-                int var13 = HL() + 1 & 65535;
-                HL(var13);
-                int var14 = B - 1 & 255;
-                B = var14;
+                int var22 = HL() + 1 & 65535;
+                HL(var22);
+                int var23 = B - 1 & 255;
+                B = var23;
                 if(B == 0) {
                   break label29;
                 }
               }
             }
 
-            int var9 = C | 4;
-            C = var9;
+            int var16 = C | 4;
+            C = var16;
             A = 13;
             wMem(56301, A, 56505);
           }
@@ -3485,52 +3878,57 @@ public class ZxGame1 extends MiniZX {
     push(var2);
     H = C;
 
-    int var15;
     do {
       int var3 = DE();
       push(var3);
       $E8F1();
       C = 8;
       A = 0;
+      int var4 = A << 1;
+      F = var4;
 
-      int var12;
       do {
-        int var4 = BC();
-        push(var4);
-        int var5 = DE();
+        int var5 = BC();
         push(var5);
+        int var6 = DE();
+        push(var6);
 
         do {
-          int var6 = DE();
-          wMem(var6, A, 59555);
-          int var7 = E + 1 & 255;
-          E = var7;
-          int var8 = B - 1 & 255;
-          B = var8;
+          int var7 = DE();
+          wMem(var7, A, 59555);
+          int var8 = E + 1 & 255;
+          E = var8;
+          F = E;
+          int var9 = B - 1 & 255;
+          B = var9;
         } while(B != 0);
 
-        int var9 = pop();
-        DE(var9);
-        int var10 = D + 1 & 255;
-        D = var10;
-        int var11 = pop();
-        BC(var11);
-        var12 = C - 1 & 255;
-        C = var12;
-      } while(var12 != 0);
+        int var10 = pop();
+        DE(var10);
+        int var11 = D + 1 & 255;
+        D = var11;
+        F = D;
+        int var12 = pop();
+        BC(var12);
+        int var13 = C - 1 & 255;
+        C = var13;
+        F = var13;
+      } while(F != 0);
 
-      int var13 = pop();
-      DE(var13);
-      int var14 = E - 1 & 255;
-      E = var14;
-      var15 = H - 1 & 255;
-      H = var15;
-    } while(var15 != 0);
+      int var14 = pop();
+      DE(var14);
+      int var15 = E - 1 & 255;
+      E = var15;
+      F = var15;
+      int var16 = H - 1 & 255;
+      H = var16;
+      F = var16;
+    } while(F != 0);
 
-    int var16 = pop();
-    BC(var16);
     int var17 = pop();
-    DE(var17);
+    BC(var17);
+    int var18 = pop();
+    DE(var18);
     A = 69;
     $E8BA();
   }
@@ -3542,151 +3940,187 @@ public class ZxGame1 extends MiniZX {
     $E909();
     int var2 = mem(51317, 54639);
     A = var2;
-    int var3 = AF();
-    push(var3);
-    if(F >= 0 && A != 4) {
-      int var42 = E + 1 & 255;
-      E = var42;
+    int var3 = A - 2;
+    F = var3;
+    int var4 = AF();
+    push(var4);
+    if(F >= 0) {
+      int var51 = A - 4;
+      F = var51;
+      if(F != 0) {
+        int var52 = E + 1 & 255;
+        E = var52;
+        F = E;
+      }
     }
 
-    int var4 = DE();
-    int var5 = mem(var4, 54652);
-    A = var5;
-    B = A;
-    int var6 = E + 1 & 255;
-    E = var6;
-    int var7 = DE();
-    int var8 = mem(var7, 54655);
-    A = var8;
-    C = A;
-    int var9 = pop();
-    AF(var9);
-    if(F == 0 || A == 5) {
+    label50: {
+      int var5 = DE();
+      int var6 = mem(var5, 54652);
+      A = var6;
+      B = A;
+      int var7 = E + 1 & 255;
+      E = var7;
+      F = E;
+      int var8 = DE();
+      int var9 = mem(var8, 54655);
+      A = var9;
+      C = A;
+      int var10 = pop();
+      AF(var10);
+      if(F != 0) {
+        int var50 = A - 5;
+        F = var50;
+        if(F != 0) {
+          break label50;
+        }
+      }
+
       C = B;
     }
 
     HL(53203);
-    if((B & 128) == 0 && (C & 128) == 0) {
-      D = 6;
+    int var11 = B & 128;
+    F = var11;
+    if(F == 0) {
+      int var20 = C & 128;
+      F = var20;
+      if(F == 0) {
+        D = 6;
 
-      while(true) {
-        int var18 = HL();
-        int var19 = mem(var18, 54680);
-        E = var19;
-        $D9AA();
-        if(F != 0) {
-          int var22 = HL() + 1 & 65535;
-          HL(var22);
-          int var23 = D - 1 & 255;
-          D = var23;
-          if(var23 != 0) {
-            continue;
-          }
-
-          int var24 = mem(51314, 54690);
-          A = var24;
-          if(A << 1 == 0) {
-            A = 130;
-            wMem(51314, A, 54698);
-            int var39 = mem(53194, 54701);
-            A = var39;
-            int var40 = A + 8;
-            int var41 = var40 & 255;
-            A = var41;
-            F = var40;
-            $CBBD();
-            exx();
-            return;
-          }
-
-          int var25 = A - 1 & 255;
-          A = var25;
-          int var26 = A - 1 & 255;
-          A = var26;
-          wMem(51314, A, 54713);
-          int var27 = mem(51327, 54716);
-          A = var27;
-          if((A & 1) == 0) {
-            int var36 = mem(51323, 54723);
-            A = var36;
-            if((A & 4) == 0) {
-              int var37 = mem(53195, 54730);
-              A = var37;
-              int var38 = A + 1 & 255;
-              A = var38;
-              if(A == 53) {
-                A = 40;
-              }
-
-              wMem(53195, A, 54740);
-              $DB01();
+        while(true) {
+          int var21 = HL();
+          int var22 = mem(var21, 54680);
+          E = var22;
+          $D9AA();
+          if(F != 0) {
+            int var25 = HL() + 1 & 65535;
+            HL(var25);
+            int var26 = D - 1 & 255;
+            D = var26;
+            F = var26;
+            if(F != 0) {
+              continue;
             }
+
+            int var27 = mem(51314, 54690);
+            A = var27;
+            int var28 = A << 1;
+            F = var28;
+            if(F == 0) {
+              A = 130;
+              wMem(51314, A, 54698);
+              int var47 = mem(53194, 54701);
+              A = var47;
+              int var48 = A + 8;
+              int var49 = var48 & 255;
+              A = var49;
+              F = var48;
+              $CBBD();
+              exx();
+              return;
+            }
+
+            int var29 = A - 1 & 255;
+            A = var29;
+            F = var29;
+            int var30 = A - 1 & 255;
+            A = var30;
+            F = var30;
+            wMem(51314, A, 54713);
+            int var31 = mem(51327, 54716);
+            A = var31;
+            int var32 = A & 1;
+            F = var32;
+            if(F == 0) {
+              int var42 = mem(51323, 54723);
+              A = var42;
+              int var43 = A & 4;
+              F = var43;
+              if(F == 0) {
+                int var44 = mem(53195, 54730);
+                A = var44;
+                int var45 = A + 1 & 255;
+                A = var45;
+                F = A;
+                int var46 = A - 53;
+                F = var46;
+                if(F == 0) {
+                  A = 40;
+                }
+
+                wMem(53195, A, 54740);
+                $DB01();
+              }
+            }
+
+            HL(25302);
+            BC(83);
+            int var33 = BC();
+            int var34 = HL() + var33 & 65535;
+            HL(var34);
+            int var35 = HL();
+            push(var35);
+            BC(6);
+            int var36 = A << 1;
+            F = var36;
+            int var37 = BC();
+            int var38 = HL() - var37 & 65535;
+            HL(var38);
+            int var39 = pop();
+            DE(var39);
+            BC(78);
+            lddr();
+            int var40 = mem16(51314, 54766);
+            DE(var40);
+            int var41 = HL() + 1 & 65535;
+            HL(var41);
+            $D655();
+            break;
           }
 
-          HL(25302);
-          BC(83);
-          int var28 = BC();
-          int var29 = HL() + var28 & 65535;
-          HL(var29);
-          int var30 = HL();
-          push(var30);
-          BC(6);
-          int var31 = BC();
-          int var32 = HL() - var31 & 65535;
-          HL(var32);
-          int var33 = pop();
-          DE(var33);
-          BC(78);
-          lddr();
-          int var34 = mem16(51314, 54766);
-          DE(var34);
-          int var35 = HL() + 1 & 65535;
-          HL(var35);
-          $D655();
+          exx();
+          int var23 = B & -2;
+          B = var23;
+          int var24 = B & -17;
+          B = var24;
+          L = 0;
+          exx();
+          A = 13;
+          wMem(56301, A, 54786);
           break;
         }
 
         exx();
-        int var20 = B & -2;
-        B = var20;
-        int var21 = B & -17;
-        B = var21;
-        L = 0;
-        exx();
-        A = 13;
-        wMem(56301, A, 54786);
-        break;
+        return;
       }
-
-      exx();
-    } else {
-      DE(1286);
-      BC(771);
-      $E897();
-      A = 200;
-      HL(51307);
-      int var10 = HL();
-      int var11 = mem(var10, 56834);
-      int var12 = A + var11;
-      int var13 = var12 & 255;
-      A = var13;
-      F = var12;
-      int var14 = HL();
-      wMem(var14, A, 56835);
-      HL(51326);
-      int var15 = HL();
-      int var16 = mem(var15, 56839) | 2;
-      int var17 = HL();
-      wMem(var17, var16, 56839);
-      exx();
     }
+
+    DE(1286);
+    BC(771);
+    $E897();
+    A = 200;
+    HL(51307);
+    int var12 = HL();
+    int var13 = mem(var12, 56834);
+    int var14 = A + var13;
+    int var15 = var14 & 255;
+    A = var15;
+    F = var14;
+    int var16 = HL();
+    wMem(var16, A, 56835);
+    HL(51326);
+    int var17 = HL();
+    int var18 = mem(var17, 56839) | 2;
+    int var19 = HL();
+    wMem(var19, var18, 56839);
+    exx();
   }
 
   public void $D655() {
     $E8D2();
     C = 2;
 
-    int var10;
     do {
       int var1 = DE();
       push(var1);
@@ -3702,6 +4136,7 @@ public class ZxGame1 extends MiniZX {
         HL(var5);
         int var6 = E + 1 & 255;
         E = var6;
+        F = E;
         int var7 = B - 1 & 255;
         B = var7;
       } while(B != 0);
@@ -3710,58 +4145,66 @@ public class ZxGame1 extends MiniZX {
       DE(var8);
       int var9 = D + 1 & 255;
       D = var9;
-      var10 = C - 1 & 255;
+      F = D;
+      int var10 = C - 1 & 255;
       C = var10;
-    } while(var10 != 0);
+      F = var10;
+    } while(F != 0);
 
   }
 
   public void $D2BF() {
-    if(A << 1 != 0) {
+    int var1 = A << 1;
+    F = var1;
+    if(F != 0) {
       L = A;
 
-      int var6;
       do {
-        int var1 = mem(53709, 53954);
-        A = var1;
-        int var2 = IY() + 5;
-        int var3 = mem(var2, 53957);
-        if(A == var3) {
-          int var7 = IY();
-          int var8 = mem(var7, 53962);
-          E = var8;
-          int var9 = IY() + 1;
-          int var10 = mem(var9, 53965);
-          D = var10;
+        int var2 = mem(53709, 53954);
+        A = var2;
+        int var3 = IY() + 5;
+        int var4 = mem(var3, 53957);
+        int var5 = A - var4;
+        F = var5;
+        if(F == 0) {
+          int var9 = IY();
+          int var10 = mem(var9, 53962);
+          E = var10;
+          int var11 = IY() + 1;
+          int var12 = mem(var11, 53965);
+          D = var12;
           $DB38();
           if(F < 0) {
-            int var11 = IY() + 1;
-            int var12 = mem(var11, 53982);
-            D = var12;
-            int var13 = IY();
-            int var14 = mem(var13, 53985);
-            A = var14;
-            int var15 = A + C & 255;
-            A = var15;
-            int var16 = A - 1 & 255;
+            int var13 = IY() + 1;
+            int var14 = mem(var13, 53982);
+            D = var14;
+            int var15 = IY();
+            int var16 = mem(var15, 53985);
             A = var16;
-            F = var16;
+            int var17 = A + C;
+            int var18 = var17 & 255;
+            A = var18;
+            F = var17;
+            int var19 = A - 1 & 255;
+            A = var19;
+            F = var19;
             E = A;
-            int var17 = IY() + 4;
-            int var18 = mem(var17, 53991) | 64;
-            wMem(var17, var18, 53991);
+            int var20 = IY() + 4;
+            int var21 = mem(var20, 53991) | 64;
+            wMem(var20, var21, 53991);
             $E897();
             return;
           }
         }
 
         DE(8);
-        int var4 = DE();
-        int var5 = IY() + var4 & 65535;
-        IY(var5);
-        var6 = L - 1 & 255;
-        L = var6;
-      } while(var6 != 0);
+        int var6 = DE();
+        int var7 = IY() + var6 & 65535;
+        IY(var7);
+        int var8 = L - 1 & 255;
+        L = var8;
+        F = var8;
+      } while(F != 0);
 
     }
   }
@@ -3772,31 +4215,41 @@ public class ZxGame1 extends MiniZX {
     int var2 = mem16(51314, 56121);
     HL(var2);
     A = H;
-    int var3 = A - D & 255;
-    A = var3;
-    int var4 = A + 3 & 255;
+    int var3 = A - D;
+    int var4 = var3 & 255;
     A = var4;
-    if(A < 7) {
+    F = var3;
+    int var5 = A + 3;
+    int var6 = var5 & 255;
+    A = var6;
+    F = var5;
+    int var7 = A - 7;
+    F = var7;
+    if(F < 0) {
       A = L;
-      int var6 = A;
-      int var7 = sr(var6);
-      A = var7;
-      int var8 = A;
-      int var9 = sr(var8);
-      A = var9;
-      int var10 = A;
-      int var11 = sr(var10);
-      A = var11;
-      int var12 = A - E & 255;
+      int var9 = A;
+      int var10 = sr(var9);
+      A = var10;
+      int var11 = A;
+      int var12 = sr(var11);
       A = var12;
-      int var13 = A + 3 & 255;
-      A = var13;
-      int var14 = A - 7;
-      F = var14;
+      int var13 = A;
+      int var14 = sr(var13);
+      A = var14;
+      int var15 = A - E;
+      int var16 = var15 & 255;
+      A = var16;
+      F = var15;
+      int var17 = A + 3;
+      int var18 = var17 & 255;
+      A = var18;
+      F = var17;
+      int var19 = A - 7;
+      F = var19;
     }
 
-    int var5 = pop();
-    HL(var5);
+    int var8 = pop();
+    HL(var8);
   }
 
   public void $CD9A() {
@@ -3804,59 +4257,70 @@ public class ZxGame1 extends MiniZX {
     int var1 = HL();
     int var2 = mem(var1, 52637);
     A = var2;
-    if(A << 1 != 0) {
-      int var25 = HL();
-      int var26 = mem(var25, 52641) - 1 & 255;
-      int var27 = HL();
-      wMem(var27, var26, 52641);
-      F = var26;
+    int var3 = A << 1;
+    F = var3;
+    if(F != 0) {
+      int var31 = HL();
+      int var32 = mem(var31, 52641) - 1 & 255;
+      int var33 = HL();
+      wMem(var33, var32, 52641);
+      F = var32;
     } else {
       HL(55946);
-      int var3 = HL();
-      int var4 = mem(var3, 52646) & -3;
-      int var5 = HL();
-      wMem(var5, var4, 52646);
-      HL(51309);
+      int var4 = HL();
+      int var5 = mem(var4, 52646) & -3;
       int var6 = HL();
-      int var7 = mem(var6, 52651);
-      A = var7;
-      if(A != 8) {
-        int var18 = HL();
-        int var19 = mem(var18, 52656) + 1 & 255;
-        int var20 = HL();
-        wMem(var20, var19, 52656);
-        int var21 = A;
-        int var22 = sl(var21);
-        A = var22;
-        int var23 = A;
-        int var24 = sl(var23);
-        A = var24;
+      wMem(var6, var5, 52646);
+      HL(51309);
+      int var7 = HL();
+      int var8 = mem(var7, 52651);
+      A = var8;
+      int var9 = A - 8;
+      F = var9;
+      if(F != 0) {
+        int var22 = HL();
+        int var23 = mem(var22, 52656) + 1 & 255;
+        int var24 = HL();
+        wMem(var24, var23, 52656);
+        int var25 = HL();
+        int var26 = mem(var25, 52656);
+        F = var26;
+        int var27 = A;
+        int var28 = sl(var27);
+        A = var28;
+        int var29 = A;
+        int var30 = sl(var29);
+        A = var30;
         $DB01();
       } else {
         HL(51308);
         A = 25;
-        int var8 = HL();
-        int var9 = mem(var8, 52670);
-        if(A >= var9) {
+        int var10 = HL();
+        int var11 = mem(var10, 52670);
+        int var12 = A - var11;
+        F = var12;
+        if(F >= 0) {
           ;
         }
 
-        int var10 = HL();
-        int var11 = mem(var10, 52674);
-        A = var11;
-        if(A << 1 == 0) {
+        int var13 = HL();
+        int var14 = mem(var13, 52674);
+        A = var14;
+        int var15 = A << 1;
+        F = var15;
+        if(F == 0) {
           nextAddress = 52692;
         } else {
-          int var12 = HL();
-          int var13 = mem(var12, 52678) - 1 & 255;
-          int var14 = HL();
-          wMem(var14, var13, 52678);
-          F = var13;
+          int var16 = HL();
+          int var17 = mem(var16, 52678) - 1 & 255;
+          int var18 = HL();
+          wMem(var18, var17, 52678);
+          F = var17;
           HL(51316);
-          int var15 = HL();
-          int var16 = mem(var15, 52682) & -33;
-          int var17 = HL();
-          wMem(var17, var16, 52682);
+          int var19 = HL();
+          int var20 = mem(var19, 52682) & -33;
+          int var21 = HL();
+          wMem(var21, var20, 52682);
           HL(61064);
           $DB0B();
         }
@@ -3866,54 +4330,67 @@ public class ZxGame1 extends MiniZX {
 
   public void $F021() {
     HL(61472);
-    if(A << 1 == 0) {
+    int var1 = A << 1;
+    F = var1;
+    if(F == 0) {
       A = 8;
-    } else if((A & 128) == 0) {
-      A = 0;
-      int var20 = A << 1;
-      F = var20;
-      int var21 = HL();
-      wMem(var21, A, 61488);
     } else {
-      int var1 = HL();
-      int var2 = mem(var1, 61491) + 1 & 255;
-      int var3 = HL();
-      wMem(var3, var2, 61491);
-      int var4 = HL();
-      int var5 = mem(var4, 61492);
-      A = var5;
-      if(A >= 9) {
-        A = 8;
+      int var2 = A & 128;
+      F = var2;
+      if(F == 0) {
+        A = 0;
+        int var26 = A << 1;
+        F = var26;
+        int var27 = HL();
+        wMem(var27, A, 61488);
+      } else {
+        int var3 = HL();
+        int var4 = mem(var3, 61491) + 1 & 255;
+        int var5 = HL();
+        wMem(var5, var4, 61491);
+        int var6 = HL();
+        int var7 = mem(var6, 61491);
+        F = var7;
+        int var8 = HL();
+        int var9 = mem(var8, 61492);
+        A = var9;
+        int var10 = A - 9;
+        F = var10;
+        if(F >= 0) {
+          A = 8;
+        }
       }
     }
 
-    int var6 = A + A & 255;
-    A = var6;
+    int var11 = A + A;
+    int var12 = var11 & 255;
+    A = var12;
+    F = var11;
     C = A;
     B = 0;
     HL(61522);
-    int var7 = BC();
-    int var8 = HL() + var7 & 65535;
-    HL(var8);
-    int var9 = HL();
-    int var10 = mem(var9, 61507);
-    A = var10;
-    int var11 = HL() + 1 & 65535;
-    HL(var11);
-    int var12 = HL();
-    int var13 = mem(var12, 61509);
-    H = var13;
+    int var13 = BC();
+    int var14 = HL() + var13 & 65535;
+    HL(var14);
+    int var15 = HL();
+    int var16 = mem(var15, 61507);
+    A = var16;
+    int var17 = HL() + 1 & 65535;
+    HL(var17);
+    int var18 = HL();
+    int var19 = mem(var18, 61509);
+    H = var19;
     L = A;
-    int var14 = HL();
-    int var15 = mem(var14, 61511);
-    B = var15;
-    int var16 = HL() + 1 & 65535;
-    HL(var16);
-    int var17 = HL();
-    int var18 = mem(var17, 61513);
-    C = var18;
-    int var19 = HL() + 1 & 65535;
-    HL(var19);
+    int var20 = HL();
+    int var21 = mem(var20, 61511);
+    B = var21;
+    int var22 = HL() + 1 & 65535;
+    HL(var22);
+    int var23 = HL();
+    int var24 = mem(var23, 61513);
+    C = var24;
+    int var25 = HL() + 1 & 65535;
+    HL(var25);
     DE(6923);
     $E87A();
   }
@@ -3926,36 +4403,48 @@ public class ZxGame1 extends MiniZX {
     A = L;
     int var3 = A | H;
     A = var3;
-    if(A << 1 == 0) {
+    int var4 = A << 1;
+    F = var4;
+    if(F == 0) {
       HL(51307);
-      int var78 = HL();
-      int var79 = mem(var78, 51509) + 1 & 255;
-      int var80 = HL();
-      wMem(var80, var79, 51509);
+      int var95 = HL();
+      int var96 = mem(var95, 51509) + 1 & 255;
+      int var97 = HL();
+      wMem(var97, var96, 51509);
+      int var98 = HL();
+      int var99 = mem(var98, 51509);
+      F = var99;
       HL(900);
     }
 
-    int var4 = HL();
-    wMem16(51312, var4, 51513);
-    HL(51311);
     int var5 = HL();
-    int var6 = mem(var5, 51519) - 1 & 255;
-    int var7 = HL();
-    wMem(var7, var6, 51519);
-    if(var6 != 0) {
+    wMem16(51312, var5, 51513);
+    HL(51311);
+    int var6 = HL();
+    int var7 = mem(var6, 51519) - 1 & 255;
+    int var8 = HL();
+    wMem(var8, var7, 51519);
+    F = var7;
+    if(F != 0) {
       label86: {
-        int var74 = mem(51309, 51522);
-        A = var74;
-        if(A == 1) {
-          int var75 = HL();
-          int var76 = mem(var75, 51529);
-          A = var76;
-          int var77 = A & 7;
-          A = var77;
-          if(A << 1 == 0) {
+        int var88 = mem(51309, 51522);
+        A = var88;
+        int var89 = A - 1;
+        F = var89;
+        if(F == 0) {
+          int var90 = HL();
+          int var91 = mem(var90, 51529);
+          A = var91;
+          int var92 = A & 7;
+          A = var92;
+          int var93 = A << 1;
+          F = var93;
+          if(F == 0) {
             A = 46;
             $DB01();
             A = 0;
+            int var94 = A << 1;
+            F = var94;
             break label86;
           }
         }
@@ -3965,113 +4454,137 @@ public class ZxGame1 extends MiniZX {
 
       wMem(51437, A, 51544);
     } else {
-      int var8 = HL();
-      wMem(var8, 200, 51549);
+      int var9 = HL();
+      wMem(var9, 200, 51549);
       A = 0;
+      int var10 = A << 1;
+      F = var10;
       $DB01();
       HL(51309);
-      int var9 = HL();
-      int var10 = mem(var9, 51558) - 1 & 255;
       int var11 = HL();
-      wMem(var11, var10, 51558);
-      F = var10;
+      int var12 = mem(var11, 51558) - 1 & 255;
+      int var13 = HL();
+      wMem(var13, var12, 51558);
+      F = var12;
     }
 
     HL(51310);
-    int var12 = HL();
-    int var13 = mem(var12, 51562) - 1 & 255;
     int var14 = HL();
-    wMem(var14, var13, 51562);
-    if(var13 == 0) {
-      int var59 = HL();
-      wMem(var59, 3, 51565);
+    int var15 = mem(var14, 51562) - 1 & 255;
+    int var16 = HL();
+    wMem(var16, var15, 51562);
+    F = var15;
+    if(F == 0) {
+      int var69 = HL();
+      wMem(var69, 3, 51565);
       HL(51307);
-      int var60 = HL();
-      int var61 = mem(var60, 51570);
-      A = var61;
-      if(A << 1 != 0) {
-        int var62 = HL();
-        int var63 = mem(var62, 51574) - 1 & 255;
-        int var64 = HL();
-        wMem(var64, var63, 51574);
-        int var65 = mem(51326, 51575);
-        A = var65;
-        if((A & 32) == 0) {
+      int var70 = HL();
+      int var71 = mem(var70, 51570);
+      A = var71;
+      int var72 = A << 1;
+      F = var72;
+      if(F != 0) {
+        int var73 = HL();
+        int var74 = mem(var73, 51574) - 1 & 255;
+        int var75 = HL();
+        wMem(var75, var74, 51574);
+        F = var74;
+        int var76 = mem(51326, 51575);
+        A = var76;
+        int var77 = A & 32;
+        F = var77;
+        if(F == 0) {
           HL(56008);
-          int var73 = HL();
-          wMem16(55947, var73, 51585);
+          int var87 = HL();
+          wMem16(55947, var87, 51585);
         }
 
         HL(51305);
         B = 4;
 
         do {
-          int var66 = HL();
-          int var67 = mem(var66, 51593);
-          A = var67;
-          if(A != 9) {
-            int var68 = A + 1 & 255;
-            A = var68;
+          int var78 = HL();
+          int var79 = mem(var78, 51593);
+          A = var79;
+          int var80 = A - 9;
+          F = var80;
+          if(F != 0) {
+            int var81 = A + 1 & 255;
+            A = var81;
             F = A;
-            int var69 = HL();
-            wMem(var69, A, 51606);
+            int var82 = HL();
+            wMem(var82, A, 51606);
             break;
           }
 
           A = 0;
-          int var70 = HL();
-          wMem(var70, A, 51599);
-          int var71 = HL() - 1 & 65535;
-          HL(var71);
-          int var72 = B - 1 & 255;
-          B = var72;
+          int var83 = A << 1;
+          F = var83;
+          int var84 = HL();
+          wMem(var84, A, 51599);
+          int var85 = HL() - 1 & 65535;
+          HL(var85);
+          int var86 = B - 1 & 255;
+          B = var86;
         } while(B != 0);
       }
     }
 
     HL(23200);
     DE(51437);
-    int var15 = mem(51309, 51613);
-    A = var15;
+    int var17 = mem(51309, 51613);
+    A = var17;
     B = A;
     C = A;
-    if(A << 1 == 0) {
-      int var57 = mem(51316, 51621);
-      A = var57;
-      if((A & 32) == 0) {
-        int var58 = HL();
-        wMem(var58, 0, 51628);
+    int var18 = A << 1;
+    F = var18;
+    if(F == 0) {
+      int var66 = mem(51316, 51621);
+      A = var66;
+      int var67 = A & 32;
+      F = var67;
+      if(F == 0) {
+        int var68 = HL();
+        wMem(var68, 0, 51628);
         $CD8A();
       }
     } else {
       do {
-        int var16 = DE();
-        int var17 = mem(var16, 51635);
-        A = var17;
-        int var18 = HL();
-        wMem(var18, A, 51636);
-        int var19 = L + 1 & 255;
-        L = var19;
-        int var20 = DE() + 1 & 65535;
-        DE(var20);
-        int var21 = B - 1 & 255;
-        B = var21;
+        int var19 = DE();
+        int var20 = mem(var19, 51635);
+        A = var20;
+        int var21 = HL();
+        wMem(var21, A, 51636);
+        int var22 = L + 1 & 255;
+        L = var22;
+        F = L;
+        int var23 = DE() + 1 & 65535;
+        DE(var23);
+        int var24 = B - 1 & 255;
+        B = var24;
       } while(B != 0);
 
       A = 8;
-      int var22 = A - C & 255;
-      A = var22;
-      if(A << 1 != 0) {
+      int var25 = A - C;
+      int var26 = var25 & 255;
+      A = var26;
+      F = var25;
+      int var27 = A << 1;
+      F = var27;
+      if(F != 0) {
         B = A;
         A = 0;
+        int var62 = A << 1;
+        F = var62;
 
         do {
-          int var54 = HL();
-          wMem(var54, A, 51649);
-          int var55 = L + 1 & 255;
-          L = var55;
-          int var56 = B - 1 & 255;
-          B = var56;
+          int var63 = HL();
+          wMem(var63, A, 51649);
+          int var64 = L + 1 & 255;
+          L = var64;
+          F = L;
+          int var65 = B - 1 & 255;
+          B = var65;
         } while(B != 0);
       }
     }
@@ -4079,94 +4592,108 @@ public class ZxGame1 extends MiniZX {
     HL(51302);
     DE(20912);
     $EEF9();
-    int var23 = mem(23271, 51662);
-    A = var23;
+    int var28 = mem(23271, 51662);
+    A = var28;
     C = A;
     HL(23264);
     B = 8;
 
     do {
-      int var24 = HL();
-      int var25 = mem(var24, 51671);
-      A = var25;
-      int var26 = HL();
-      wMem(var26, C, 51672);
-      int var27 = L + 1 & 255;
-      L = var27;
+      int var29 = HL();
+      int var30 = mem(var29, 51671);
+      A = var30;
+      int var31 = HL();
+      wMem(var31, C, 51672);
+      int var32 = L + 1 & 255;
+      L = var32;
+      F = L;
       C = A;
-      int var28 = B - 1 & 255;
-      B = var28;
+      int var33 = B - 1 & 255;
+      B = var33;
     } while(B != 0);
 
     BC(1282);
     HL(23190);
     DE(51445);
-    int var29 = mem(51308, 51686);
-    A = var29;
-    if(A < 26) {
+    int var34 = mem(51308, 51686);
+    A = var34;
+    int var35 = A - 26;
+    F = var35;
+    if(F < 0) {
       ;
     }
 
-    if(A >= 11) {
+    int var36 = A - 11;
+    F = var36;
+    if(F >= 0) {
       A = 10;
     }
 
-    int var30 = AF();
-    exAF(var30);
+    int var37 = AF();
+    exAF(var37);
 
     while(true) {
-      int var31 = AF();
-      exAF(var31);
-      if(A << 1 != 0) {
-        int var53 = A - 1 & 255;
-        A = var53;
+      int var38 = AF();
+      exAF(var38);
+      int var39 = A << 1;
+      F = var39;
+      if(F != 0) {
+        int var61 = A - 1 & 255;
+        A = var61;
+        F = var61;
       } else {
         DE(15616);
       }
 
-      int var32 = AF();
-      exAF(var32);
-      int var33 = BC();
-      push(var33);
-      int var34 = HL();
-      push(var34);
-      int var35 = DE();
-      int var36 = mem(var35, 51714);
-      A = var36;
-      int var37 = HL();
-      wMem(var37, A, 51715);
-      int var38 = L + 1 & 255;
-      L = var38;
-      int var39 = HL();
-      wMem(var39, A, 51717);
-      int var40 = L - 1 & 255;
-      L = var40;
-      BC(32);
+      int var40 = AF();
+      exAF(var40);
       int var41 = BC();
-      int var42 = HL() + var41 & 65535;
-      HL(var42);
-      int var43 = HL();
-      wMem(var43, A, 51723);
-      int var44 = L + 1 & 255;
-      L = var44;
+      push(var41);
+      int var42 = HL();
+      push(var42);
+      int var43 = DE();
+      int var44 = mem(var43, 51714);
+      A = var44;
       int var45 = HL();
-      wMem(var45, A, 51725);
-      int var46 = pop();
-      HL(var46);
-      int var47 = L + 1 & 255;
-      L = var47;
-      int var48 = L + 1 & 255;
+      wMem(var45, A, 51715);
+      int var46 = L + 1 & 255;
+      L = var46;
+      F = L;
+      int var47 = HL();
+      wMem(var47, A, 51717);
+      int var48 = L - 1 & 255;
       L = var48;
-      int var49 = DE() + 1 & 65535;
-      DE(var49);
-      int var50 = pop();
-      BC(var50);
-      int var51 = B - 1 & 255;
-      B = var51;
+      F = var48;
+      BC(32);
+      int var49 = BC();
+      int var50 = HL() + var49 & 65535;
+      HL(var50);
+      int var51 = HL();
+      wMem(var51, A, 51723);
+      int var52 = L + 1 & 255;
+      L = var52;
+      F = L;
+      int var53 = HL();
+      wMem(var53, A, 51725);
+      int var54 = pop();
+      HL(var54);
+      int var55 = L + 1 & 255;
+      L = var55;
+      F = L;
+      int var56 = L + 1 & 255;
+      L = var56;
+      F = L;
+      int var57 = DE() + 1 & 65535;
+      DE(var57);
+      int var58 = pop();
+      BC(var58);
+      int var59 = B - 1 & 255;
+      B = var59;
       if(B == 0) {
-        int var52 = C - 1 & 255;
-        C = var52;
-        if(var52 == 0) {
+        int var60 = C - 1 & 255;
+        C = var60;
+        F = var60;
+        if(F == 0) {
           return;
         }
 
@@ -4177,9 +4704,9 @@ public class ZxGame1 extends MiniZX {
   }
 
   public void $D3EC() {
-    label56: {
-      label55: {
-        label54: {
+    label55: {
+      label54: {
+        label53: {
           exx();
           int var1 = mem(51317, 54253);
           A = var1;
@@ -4189,99 +4716,115 @@ public class ZxGame1 extends MiniZX {
           L = A;
           int var3 = mem(51316, 54261);
           A = var3;
-          if((A & 2) != 0) {
-            int var30 = A & -3;
-            A = var30;
+          int var4 = A & 2;
+          F = var4;
+          if(F != 0) {
+            int var43 = A & -3;
+            A = var43;
             wMem(51316, A, 54270);
             A = H;
-            if(A >= 2) {
-              int var34 = H + 1 & 255;
-              H = var34;
-              int var35 = H + 1 & 255;
-              H = var35;
+            int var44 = A - 2;
+            F = var44;
+            if(F >= 0) {
+              int var49 = H + 1 & 255;
+              H = var49;
               F = H;
+              int var50 = H + 1 & 255;
+              H = var50;
+              F = H;
+              break label54;
+            }
+
+            int var45 = A + 6;
+            int var46 = var45 & 255;
+            A = var46;
+            F = var45;
+            H = A;
+            int var47 = L - 1 & 255;
+            L = var47;
+            F = var47;
+            A = L;
+            int var48 = A - 255;
+            F = var48;
+            if(F == 0) {
               break label55;
             }
-
-            int var31 = A + 6 & 255;
-            A = var31;
-            H = A;
-            int var32 = L - 1 & 255;
-            L = var32;
-            A = L;
-            if(A == 255) {
-              break label56;
-            }
-
-            int var33 = A - 255;
-            F = var33;
           } else {
             A = H;
-            if(A == 5) {
-              int var26 = HL();
-              push(var26);
+            int var5 = A - 5;
+            F = var5;
+            if(F == 0) {
+              int var38 = HL();
+              push(var38);
               D = L;
               $D951();
-              int var27 = pop();
-              HL(var27);
+              int var39 = pop();
+              HL(var39);
               if(F == 0) {
                 exx();
-                int var28 = B & -9;
-                B = var28;
-                int var29 = B & -17;
-                B = var29;
-                if((B & 1) == 0) {
+                int var40 = B & -9;
+                B = var40;
+                int var41 = B & -17;
+                B = var41;
+                int var42 = B & 1;
+                F = var42;
+                if(F == 0) {
                   L = 0;
                 }
 
                 exx();
-                break label55;
+                break label54;
               }
-              break label54;
+              break label53;
             }
 
-            if(A != 4) {
-              break label54;
+            int var6 = A - 4;
+            F = var6;
+            if(F != 0) {
+              break label53;
             }
 
             A = L;
-            if(A << 1 == 0) {
-              break label56;
+            int var8 = A << 1;
+            F = var8;
+            if(F == 0) {
+              break label55;
             }
 
-            int var5 = L - 1 & 255;
-            L = var5;
-            F = var5;
+            int var9 = L - 1 & 255;
+            L = var9;
+            F = var9;
             H = 7;
           }
 
-          int var6 = HL();
-          push(var6);
+          int var10 = HL();
+          push(var10);
           HL(25302);
           BC(83);
-          int var7 = BC();
-          int var8 = HL() + var7 & 65535;
-          HL(var8);
+          int var11 = BC();
+          int var12 = HL() + var11 & 65535;
+          HL(var12);
           E = L;
           D = H;
-          int var9 = HL() - 1 & 65535;
-          HL(var9);
-          lddr();
-          int var10 = HL() + 1 & 65535;
-          HL(var10);
-          int var11 = mem16(51314, 54428);
-          DE(var11);
-          int var12 = D - 1 & 255;
-          D = var12;
-          $D550();
-          int var13 = pop();
+          int var13 = HL() - 1 & 65535;
           HL(var13);
-          break label55;
+          lddr();
+          int var14 = HL() + 1 & 65535;
+          HL(var14);
+          int var15 = mem16(51314, 54428);
+          DE(var15);
+          int var16 = D - 1 & 255;
+          D = var16;
+          F = var16;
+          $D550();
+          int var17 = pop();
+          HL(var17);
+          break label54;
         }
 
-        int var4 = H - 1 & 255;
-        H = var4;
-        F = var4;
+        int var7 = H - 1 & 255;
+        H = var7;
+        F = var7;
         BC(239);
         $D4AF();
       }
@@ -4298,45 +4841,62 @@ public class ZxGame1 extends MiniZX {
     wMem(51315, A, 54332);
     A = 7;
     wMem(51317, A, 54337);
-    int var14 = mem(53194, 54340);
-    A = var14;
+    int var18 = mem(53194, 54340);
+    A = var18;
     B = A;
-    int var15 = A & 7;
-    A = var15;
-    if(A == 7) {
+    int var19 = A & 7;
+    A = var19;
+    int var20 = A << 1;
+    F = var20;
+    int var21 = A - 7;
+    F = var21;
+    if(F == 0) {
       A = B;
-      int var25 = A - 7 & 255;
-      A = var25;
+      int var36 = A - 7;
+      int var37 = var36 & 255;
+      A = var37;
+      F = var36;
     } else {
       A = B;
-      int var16 = A + 1 & 255;
-      A = var16;
+      int var22 = A + 1 & 255;
+      A = var22;
       F = A;
     }
 
-    int var17 = AF();
-    push(var17);
+    int var23 = AF();
+    push(var23);
     $CBBD();
-    int var18 = mem(55786, 54361);
-    A = var18;
-    int var19 = A + 1 & 255;
-    A = var19;
-    if(A == 8) {
+    int var24 = mem(55786, 54361);
+    A = var24;
+    int var25 = A + 1 & 255;
+    A = var25;
+    F = A;
+    int var26 = A - 8;
+    F = var26;
+    if(F == 0) {
       A = 0;
+      int var35 = A << 1;
+      F = var35;
     }
 
-    int var20 = pop();
-    BC(var20);
-    if(A == B) {
-      int var21 = mem(55785, 54374);
-      A = var21;
-      int var22 = A + 3 & 255;
-      A = var22;
-      if(A < 5) {
-        int var23 = A + 27;
-        int var24 = var23 & 255;
-        A = var24;
-        F = var23;
+    int var27 = pop();
+    BC(var27);
+    int var28 = A - B;
+    F = var28;
+    if(F == 0) {
+      int var29 = mem(55785, 54374);
+      A = var29;
+      int var30 = A + 3;
+      int var31 = var30 & 255;
+      A = var31;
+      F = var30;
+      int var32 = A - 5;
+      F = var32;
+      if(F < 0) {
+        int var33 = A + 27;
+        int var34 = var33 & 255;
+        A = var34;
+        F = var33;
         wMem(55785, A, 54385);
         A = B;
         wMem(55786, A, 54389);
@@ -4362,26 +4922,33 @@ public class ZxGame1 extends MiniZX {
     A = var6;
     int var7 = A & 3;
     A = var7;
-    int var8 = A | 88;
-    A = var8;
+    int var8 = A << 1;
+    F = var8;
+    int var9 = A | 88;
+    A = var9;
+    int var10 = A << 1;
+    F = var10;
     D = A;
   }
 
   public void $D9A7() {
     A = D;
-    if(A != E) {
+    int var1 = A - E;
+    F = var1;
+    if(F != 0) {
       $D9AA();
     }
   }
 
   public void $D9AA() {
     A = C;
-    if(A != E) {
+    int var1 = A - E;
+    F = var1;
+    if(F != 0) {
       A = B;
-      int var1 = A - E;
-      F = var1;
-    }else
-      F= 0;
+      int var2 = A - E;
+      F = var2;
+    }
   }
 
   public void $D895() {
@@ -4389,51 +4956,64 @@ public class ZxGame1 extends MiniZX {
       label96: {
         int var1 = mem(51323, 55445);
         A = var1;
-        if((A & 4) == 0) {
-          int var7 = mem16(51314, 55453);
-          DE(var7);
+        int var2 = A & 4;
+        F = var2;
+        if(F == 0) {
+          int var9 = mem16(51314, 55453);
+          DE(var9);
           A = 26;
-          int var8 = A + E & 255;
-          A = var8;
+          int var10 = A + E;
+          int var11 = var10 & 255;
+          A = var11;
+          F = var10;
           E = A;
           $E909();
-          int var9 = mem(51317, 55464);
-          A = var9;
-          if(A != 4 && A >= 3) {
-            int var50 = E + 1 & 255;
-            E = var50;
+          int var12 = mem(51317, 55464);
+          A = var12;
+          int var13 = A - 4;
+          F = var13;
+          if(F != 0) {
+            int var68 = A - 3;
+            F = var68;
+            if(F >= 0) {
+              int var69 = E + 1 & 255;
+              E = var69;
+              F = E;
+            }
           }
 
-          int var10 = DE();
-          int var11 = mem(var10, 55476);
-          A = var11;
+          int var14 = DE();
+          int var15 = mem(var14, 55476);
+          A = var15;
           B = A;
-          int var12 = E + 1 & 255;
-          E = var12;
-          int var13 = DE();
-          int var14 = mem(var13, 55479);
-          A = var14;
+          int var16 = E + 1 & 255;
+          E = var16;
+          F = E;
+          int var17 = DE();
+          int var18 = mem(var17, 55479);
+          A = var18;
           C = A;
           HL(53196);
           D = 7;
 
           while(true) {
-            int var15 = HL();
-            int var16 = mem(var15, 55486);
-            E = var16;
+            int var19 = HL();
+            int var20 = mem(var19, 55486);
+            E = var20;
             $D9AA();
             if(F == 0) {
               A = 14;
               break;
             }
 
-            int var21 = HL() + 1 & 65535;
-            HL(var21);
-            int var22 = D - 1 & 255;
-            D = var22;
-            if(var22 == 0) {
-              int var23 = mem(53193, 55496);
-              A = var23;
+            int var28 = HL() + 1 & 65535;
+            HL(var28);
+            int var29 = D - 1 & 255;
+            D = var29;
+            F = var29;
+            if(F == 0) {
+              int var30 = mem(53193, 55496);
+              A = var30;
               E = A;
               $D9AA();
               if(F == 0) {
@@ -4468,109 +5048,132 @@ public class ZxGame1 extends MiniZX {
                 E = 79;
                 $D9AA();
                 if(F != 0) {
-                  int var26 = mem(51316, 55557);
-                  A = var26;
+                  int var33 = mem(51316, 55557);
+                  A = var33;
                   B = A;
-                  int var27 = A & 81;
-                  A = var27;
-                  if(A << 1 == 0) {
+                  int var34 = A & 81;
+                  A = var34;
+                  int var35 = A << 1;
+                  F = var35;
+                  if(F == 0) {
                     A = 24;
                     wMem(53195, A, 55567);
                   }
 
                   A = B;
-                  int var28 = A | 64;
-                  A = var28;
+                  int var36 = A | 64;
+                  A = var36;
                 } else {
                   A = 13;
                   wMem(56301, A, 55610);
-                  int var24 = mem(51316, 55613);
-                  A = var24;
-                  int var25 = A | 128;
-                  A = var25;
+                  int var31 = mem(51316, 55613);
+                  A = var31;
+                  int var32 = A | 128;
+                  A = var32;
                 }
                 break label97;
               }
 
-              int var29 = mem(53194, 55537);
-              A = var29;
-              if(A >= 8) {
-                int var30 = mem(51314, 54000);
-                A = var30;
-                int var31 = A & 7;
-                A = var31;
-                if(A << 1 == 0) {
-                  int var32 = mem(51318, 54009);
-                  A = var32;
+              int var37 = mem(53194, 55537);
+              A = var37;
+              int var38 = A - 8;
+              F = var38;
+              if(F >= 0) {
+                int var39 = mem(51314, 54000);
+                A = var39;
+                int var40 = A & 7;
+                A = var40;
+                int var41 = A << 1;
+                F = var41;
+                int var42 = A << 1;
+                F = var42;
+                if(F == 0) {
+                  int var43 = mem(51318, 54009);
+                  A = var43;
                   L = A;
-                  int var33 = mem(51316, 54013);
-                  A = var33;
+                  int var44 = mem(51316, 54013);
+                  A = var44;
                   B = A;
                   A = L;
-                  if(A < 3) {
-                    int var48 = mem(51316, 54022);
-                    A = var48;
-                    int var49 = A & 34;
-                    A = var49;
+                  int var45 = A - 3;
+                  F = var45;
+                  if(F < 0) {
+                    int var64 = mem(51316, 54022);
+                    A = var64;
+                    int var65 = A & 34;
+                    A = var65;
+                    int var66 = A << 1;
+                    F = var66;
                     wMem(51316, A, 54027);
                     A = 0;
+                    int var67 = A << 1;
+                    F = var67;
                     wMem(51318, A, 54031);
                     $D567();
                   }
 
-                  int var34 = HL();
-                  push(var34);
-                  int var35 = DE();
-                  push(var35);
-                  int var36 = BC();
-                  push(var36);
+                  int var46 = HL();
+                  push(var46);
+                  int var47 = DE();
+                  push(var47);
+                  int var48 = BC();
+                  push(var48);
                   $E9BC();
                   A = C;
-                  int var37 = pop();
-                  BC(var37);
-                  int var38 = pop();
-                  DE(var38);
-                  int var39 = pop();
-                  HL(var39);
+                  int var49 = pop();
+                  BC(var49);
+                  int var50 = pop();
+                  DE(var50);
+                  int var51 = pop();
+                  HL(var51);
                   C = A;
-                  if((C & 1) == 0) {
+                  int var52 = C & 1;
+                  F = var52;
+                  if(F == 0) {
                     $D32E();
                     return;
                   }
 
-                  int var40 = L;
-                  int var41 = sr(var40);
-                  L = var41;
-                  int var42 = L + 1 & 255;
-                  L = var42;
+                  int var53 = L;
+                  int var54 = sr(var53);
+                  L = var54;
+                  int var55 = L + 1 & 255;
+                  L = var55;
+                  F = L;
                   A = L;
                   wMem(51321, A, 54066);
-                  int var43 = C & 4;
-                  F = var43;
-                  int var44 = B & -9;
-                  B = var44;
+                  int var56 = C & 4;
+                  F = var56;
+                  int var57 = B & -9;
+                  B = var57;
                   if(F != 0) {
                     $D361();
                     return;
                   }
 
-                  int var45 = B | 8;
-                  B = var45;
-                  if((C & 2) != 0) {
+                  int var58 = B | 8;
+                  B = var58;
+                  int var59 = C & 2;
+                  F = var59;
+                  if(F != 0) {
                     $D34A();
                     return;
                   }
 
-                  if((B & 2) != 0) {
+                  int var60 = B & 2;
+                  F = var60;
+                  if(F != 0) {
                     $D361();
                     return;
                   }
 
                   $D4B5();
-                  int var46 = mem(51316, 54097);
-                  A = var46;
-                  int var47 = A & 34;
-                  A = var47;
+                  int var61 = mem(51316, 54097);
+                  A = var61;
+                  int var62 = A & 34;
+                  A = var62;
+                  int var63 = A << 1;
+                  F = var63;
                   wMem(51316, A, 54102);
                   A = 9;
                   wMem(51318, A, 54107);
@@ -4587,40 +5190,48 @@ public class ZxGame1 extends MiniZX {
           }
 
           wMem(56301, A, 55577);
-          int var17 = mem(51314, 55580);
-          A = var17;
-          int var18 = A & 7;
-          A = var18;
-          if(A != 6) {
+          int var21 = mem(51314, 55580);
+          A = var21;
+          int var22 = A & 7;
+          A = var22;
+          int var23 = A << 1;
+          F = var23;
+          int var24 = A - 6;
+          F = var24;
+          if(F != 0) {
             return;
           }
 
-          int var19 = mem(51316, 55589);
-          A = var19;
-          int var20 = A & 17;
-          A = var20;
-          if(A << 1 != 0) {
+          int var25 = mem(51316, 55589);
+          A = var25;
+          int var26 = A & 17;
+          A = var26;
+          int var27 = A << 1;
+          F = var27;
+          if(F != 0) {
             break label96;
           }
         }
 
-        int var2 = mem(51318, 55596);
-        A = var2;
-        if(A >= 28) {
-          int var6 = A - 28;
-          F = var6;
+        int var3 = mem(51318, 55596);
+        A = var3;
+        int var4 = A - 28;
+        F = var4;
+        if(F >= 0) {
           $CD8A();
         }
       }
 
       A = 0;
-      wMem(51318, A, 55621);
-      int var3 = mem(51316, 55624);
-      A = var3;
-      int var4 = A & 34;
-      A = var4;
       int var5 = A << 1;
       F = var5;
+      wMem(51318, A, 55621);
+      int var6 = mem(51316, 55624);
+      A = var6;
+      int var7 = A & 34;
+      A = var7;
+      int var8 = A << 1;
+      F = var8;
     }
 
     wMem(51316, A, 55629);
@@ -4632,62 +5243,70 @@ public class ZxGame1 extends MiniZX {
     E = A;
     int var2 = E + 1 & 255;
     E = var2;
+    F = E;
     int var3 = E + 1 & 255;
     E = var3;
+    F = E;
     $E909();
     exHLDE();
     DE(32);
     int var4 = mem(51318, 55646);
     A = var4;
-    if(A >= 5) {
-      int var22 = mem(51314, 55653);
-      A = var22;
-      int var23 = A & 7;
+    int var5 = A - 5;
+    F = var5;
+    if(F >= 0) {
+      int var23 = mem(51314, 55653);
       A = var23;
-      if(A != 6) {
-        int var24 = DE();
-        int var25 = HL() + var24 & 65535;
-        HL(var25);
+      int var24 = A & 7;
+      A = var24;
+      int var25 = A << 1;
+      F = var25;
+      int var26 = A - 6;
+      F = var26;
+      if(F != 0) {
+        int var27 = DE();
+        int var28 = HL() + var27 & 65535;
+        HL(var28);
       }
     }
 
-    int var5 = HL();
-    int var6 = mem(var5, 55663);
-    B = var6;
-    int var7 = DE();
-    int var8 = HL() + var7 & 65535;
-    HL(var8);
-    int var9 = HL();
-    int var10 = mem(var9, 55665);
-    C = var10;
-    int var11 = DE();
-    int var12 = HL() + var11 & 65535;
-    HL(var12);
-    int var13 = HL();
-    int var14 = mem(var13, 55667);
-    D = var14;
+    int var6 = HL();
+    int var7 = mem(var6, 55663);
+    B = var7;
+    int var8 = DE();
+    int var9 = HL() + var8 & 65535;
+    HL(var9);
+    int var10 = HL();
+    int var11 = mem(var10, 55665);
+    C = var11;
+    int var12 = DE();
+    int var13 = HL() + var12 & 65535;
+    HL(var13);
+    int var14 = HL();
+    int var15 = mem(var14, 55667);
+    D = var15;
     HL(53203);
     A = 6;
 
-    int var20;
     do {
-      int var15 = AF();
-      exAF(var15);
-      int var16 = HL();
-      int var17 = mem(var16, 55674);
-      E = var17;
+      int var16 = AF();
+      exAF(var16);
+      int var17 = HL();
+      int var18 = mem(var17, 55674);
+      E = var18;
       $D9A7();
       if(F == 0) {
         return;
       }
 
-      int var18 = HL() + 1 & 65535;
-      HL(var18);
-      int var19 = AF();
-      exAF(var19);
-      var20 = A - 1 & 255;
-      A = var20;
-    } while(var20 != 0);
+      int var19 = HL() + 1 & 65535;
+      HL(var19);
+      int var20 = AF();
+      exAF(var20);
+      int var21 = A - 1 & 255;
+      A = var21;
+      F = var21;
+    } while(F != 0);
 
     E = 56;
     $D9A7();
@@ -4704,8 +5323,8 @@ public class ZxGame1 extends MiniZX {
         if(F == 0) {
           $DE28();
         } else {
-          int var21 = mem(53193, 55708);
-          A = var21;
+          int var22 = mem(53193, 55708);
+          A = var22;
           E = A;
           $D9A7();
           if(F == 0) {
@@ -4719,7 +5338,6 @@ public class ZxGame1 extends MiniZX {
   public void $D550() {
     C = 14;
 
-    int var13;
     do {
       int var1 = DE();
       push(var1);
@@ -4734,6 +5352,7 @@ public class ZxGame1 extends MiniZX {
         wMem(var4, A, 54617);
         int var5 = D + 1 & 255;
         D = var5;
+        F = D;
         int var6 = HL() + 1 & 65535;
         HL(var6);
         int var7 = HL() + 1 & 65535;
@@ -4748,11 +5367,14 @@ public class ZxGame1 extends MiniZX {
       DE(var10);
       int var11 = E + 1 & 255;
       E = var11;
+      F = E;
       int var12 = E + 1 & 255;
       E = var12;
-      var13 = C - 1 & 255;
+      F = E;
+      int var13 = C - 1 & 255;
       C = var13;
-    } while(var13 != 0);
+      F = var13;
+    } while(F != 0);
 
   }
 
@@ -4765,105 +5387,142 @@ public class ZxGame1 extends MiniZX {
         E = 0;
         D = 3;
 
-        int var15;
         do {
-          int var10 = HL();
-          int var11 = mem(var10, 62072);
-          A = var11;
+          int var16 = HL();
+          int var17 = mem(var16, 62072);
+          A = var17;
           $F32A();
           ccf();
-          int var12 = E;
-          int var13 = rl(var12);
-          E = var13;
-          int var14 = HL() + 1 & 65535;
-          HL(var14);
-          var15 = D - 1 & 255;
-          D = var15;
-        } while(var15 != 0);
+          int var18 = E;
+          int var19 = rl(var18);
+          E = var19;
+          int var20 = HL() + 1 & 65535;
+          HL(var20);
+          int var21 = D - 1 & 255;
+          D = var21;
+          F = var21;
+        } while(F != 0);
 
         A = E;
-        int var16 = A & 6;
-        A = var16;
-        if(A == 6) {
+        int var22 = A & 6;
+        A = var22;
+        int var23 = A << 1;
+        F = var23;
+        int var24 = A - 6;
+        F = var24;
+        if(F == 0) {
           A = E;
-          int var22 = A & 1;
-          A = var22;
+          int var35 = A & 1;
+          A = var35;
+          int var36 = A << 1;
+          F = var36;
           E = A;
         }
 
         C = 5;
         A = E;
-        if(A << 1 == 0) {
+        int var25 = A << 1;
+        F = var25;
+        if(F == 0) {
           return;
         }
 
-        int var17 = C - 1 & 255;
-        C = var17;
-        if(A == 1) {
+        int var26 = C - 1 & 255;
+        C = var26;
+        F = var26;
+        int var27 = A - 1;
+        F = var27;
+        if(F == 0) {
           return;
         }
 
-        int var18 = C - 1 & 255;
-        C = var18;
-        if(A == 4) {
+        int var28 = C - 1 & 255;
+        C = var28;
+        F = var28;
+        int var29 = A - 4;
+        F = var29;
+        if(F == 0) {
           return;
         }
 
-        int var19 = C - 1 & 255;
-        C = var19;
-        if(A == 5) {
+        int var30 = C - 1 & 255;
+        C = var30;
+        F = var30;
+        int var31 = A - 5;
+        F = var31;
+        if(F == 0) {
           return;
         }
 
-        int var20 = C - 1 & 255;
-        C = var20;
-        if(A == 2) {
+        int var32 = C - 1 & 255;
+        C = var32;
+        F = var32;
+        int var33 = A - 2;
+        F = var33;
+        if(F == 0) {
           return;
         }
 
-        int var21 = C - 1 & 255;
-        C = var21;
+        int var34 = C - 1 & 255;
+        C = var34;
+        F = var34;
         return;
       }
 
       if(HL() == 59867) {
         A = 239;
-        int var23 = A << 8 | 254;
-        int var24 = in(var23, 59869);
-        A = var24;
-        int var25 = A & 31;
-        A = var25;
+        int var37 = A << 8 | 254;
+        int var38 = in(var37, 59869);
+        A = var38;
+        int var39 = A & 31;
+        A = var39;
+        int var40 = A << 1;
+        F = var40;
         C = 0;
-        if(A == 22) {
+        int var41 = A - 22;
+        F = var41;
+        if(F == 0) {
           return;
         }
 
-        int var26 = C + 1 & 255;
-        C = var26;
-        if(A == 23) {
+        int var42 = C + 1 & 255;
+        C = var42;
+        F = C;
+        int var43 = A - 23;
+        F = var43;
+        if(F == 0) {
           return;
         }
 
-        int var27 = C + 1 & 255;
-        C = var27;
-        if(A == 14) {
+        int var44 = C + 1 & 255;
+        C = var44;
+        F = C;
+        int var45 = A - 14;
+        F = var45;
+        if(F == 0) {
           return;
         }
 
-        int var28 = C + 1 & 255;
-        C = var28;
-        if(A == 15) {
+        int var46 = C + 1 & 255;
+        C = var46;
+        F = C;
+        int var47 = A - 15;
+        F = var47;
+        if(F == 0) {
           return;
         }
 
-        int var29 = C + 1 & 255;
-        C = var29;
-        if(A == 30) {
+        int var48 = C + 1 & 255;
+        C = var48;
+        F = C;
+        int var49 = A - 30;
+        F = var49;
+        if(F == 0) {
           return;
         }
 
-        int var30 = C + 1 & 255;
-        C = var30;
+        int var50 = C + 1 & 255;
+        C = var50;
         F = C;
         return;
       }
@@ -4874,22 +5533,38 @@ public class ZxGame1 extends MiniZX {
     A = var3;
     int var4 = A & 19;
     A = var4;
+    int var5 = A << 1;
+    F = var5;
     C = 0;
-    if(A != 17) {
-      int var5 = C + 1 & 255;
-      C = var5;
-      if(A != 1) {
-        int var6 = C + 1 & 255;
-        C = var6;
-        if(A != 18) {
-          int var7 = C + 1 & 255;
-          C = var7;
-          if(A != 2) {
-            int var8 = C + 1 & 255;
-            C = var8;
-            if(A != 16) {
-              int var9 = C + 1 & 255;
-              C = var9;
+    int var6 = A - 17;
+    F = var6;
+    if(F != 0) {
+      int var7 = C + 1 & 255;
+      C = var7;
+      F = C;
+      int var8 = A - 1;
+      F = var8;
+      if(F != 0) {
+        int var9 = C + 1 & 255;
+        C = var9;
+        F = C;
+        int var10 = A - 18;
+        F = var10;
+        if(F != 0) {
+          int var11 = C + 1 & 255;
+          C = var11;
+          F = C;
+          int var12 = A - 2;
+          F = var12;
+          if(F != 0) {
+            int var13 = C + 1 & 255;
+            C = var13;
+            F = C;
+            int var14 = A - 16;
+            F = var14;
+            if(F != 0) {
+              int var15 = C + 1 & 255;
+              C = var15;
               F = C;
             }
           }
@@ -4899,9 +5574,9 @@ public class ZxGame1 extends MiniZX {
   }
 
   public void $D4B5() {
-    label48: {
-      label45: {
-        label44: {
+    label47: {
+      label44: {
+        label43: {
           exx();
           int var1 = mem(51317, 54454);
           A = var1;
@@ -4911,133 +5586,156 @@ public class ZxGame1 extends MiniZX {
           L = A;
           int var3 = mem(51316, 54462);
           A = var3;
-          if((A & 2) == 0) {
-            int var27 = A | 2;
-            A = var27;
+          int var4 = A & 2;
+          F = var4;
+          if(F == 0) {
+            int var34 = A | 2;
+            A = var34;
             wMem(51316, A, 54471);
             A = H;
-            if(A < 6) {
-              int var31 = H - 1 & 255;
-              H = var31;
-              int var32 = H - 1 & 255;
-              H = var32;
-              F = var32;
-              break label48;
+            int var35 = A - 6;
+            F = var35;
+            if(F < 0) {
+              int var40 = H - 1 & 255;
+              H = var40;
+              F = var40;
+              int var41 = H - 1 & 255;
+              H = var41;
+              F = var41;
+              break label47;
             }
 
-            int var28 = A - 6 & 255;
-            A = var28;
+            int var36 = A - 6;
+            int var37 = var36 & 255;
+            A = var37;
+            F = var36;
             H = A;
-            int var29 = L + 1 & 255;
-            L = var29;
+            int var38 = L + 1 & 255;
+            L = var38;
+            F = L;
             A = L;
-            if(A == 30) {
-              break label45;
+            int var39 = A - 30;
+            F = var39;
+            if(F == 0) {
+              break label44;
             }
-
-            int var30 = A - 30;
-            F = var30;
           } else {
             A = H;
-            if(A == 2) {
+            int var5 = A - 2;
+            F = var5;
+            if(F == 0) {
               D = L;
-              int var21 = D + 1 & 255;
-              D = var21;
-              int var22 = D + 1 & 255;
-              D = var22;
+              int var27 = D + 1 & 255;
+              D = var27;
               F = D;
-              int var23 = HL();
-              push(var23);
+              int var28 = D + 1 & 255;
+              D = var28;
+              F = D;
+              int var29 = HL();
+              push(var29);
               $D951();
-              int var24 = pop();
-              HL(var24);
+              int var30 = pop();
+              HL(var30);
               if(F == 0) {
                 exx();
-                int var25 = B & -9;
-                B = var25;
-                int var26 = B & -17;
-                B = var26;
-                if((B & 1) == 0) {
+                int var31 = B & -9;
+                B = var31;
+                int var32 = B & -17;
+                B = var32;
+                int var33 = B & 1;
+                F = var33;
+                if(F == 0) {
                   L = 0;
                 }
 
                 exx();
-                break label48;
+                break label47;
               }
-              break label44;
+              break label43;
             }
 
-            if(A != 3) {
-              break label44;
+            int var6 = A - 3;
+            F = var6;
+            if(F != 0) {
+              break label43;
             }
 
             A = L;
-            if(A == 29) {
-              break label45;
+            int var8 = A - 29;
+            F = var8;
+            if(F == 0) {
+              break label44;
             }
 
-            int var5 = L + 1 & 255;
-            L = var5;
+            int var9 = L + 1 & 255;
+            L = var9;
             F = L;
             H = 0;
           }
 
-          int var6 = HL();
-          push(var6);
+          int var10 = HL();
+          push(var10);
           HL(25302);
           E = L;
           D = H;
-          int var7 = HL() + 1 & 65535;
-          HL(var7);
-          int var8 = HL();
-          push(var8);
+          int var11 = HL() + 1 & 65535;
+          HL(var11);
+          int var12 = HL();
+          push(var12);
           BC(83);
           ldir();
-          int var9 = pop();
-          HL(var9);
-          int var10 = HL() + 1 & 65535;
-          HL(var10);
-          int var11 = mem16(51314, 54587);
-          DE(var11);
-          int var12 = D + 1 & 255;
-          D = var12;
-          int var13 = D + 1 & 255;
-          D = var13;
-          int var14 = D + 1 & 255;
-          D = var14;
+          int var13 = pop();
+          HL(var13);
+          int var14 = HL() + 1 & 65535;
+          HL(var14);
+          int var15 = mem16(51314, 54587);
+          DE(var15);
+          int var16 = D + 1 & 255;
+          D = var16;
+          F = D;
+          int var17 = D + 1 & 255;
+          D = var17;
+          F = D;
+          int var18 = D + 1 & 255;
+          D = var18;
           F = D;
           $D550();
-          int var15 = pop();
-          HL(var15);
-          break label48;
+          int var19 = pop();
+          HL(var19);
+          break label47;
         }
 
-        int var4 = H + 1 & 255;
-        H = var4;
+        int var7 = H + 1 & 255;
+        H = var7;
         F = H;
         BC(239);
         $D4AF();
-        break label48;
+        break label47;
       }
 
       A = 0;
+      int var20 = A << 1;
+      F = var20;
       wMem(51317, A, 54534);
       wMem(51315, A, 54537);
-      int var16 = mem(53194, 54540);
-      A = var16;
+      int var21 = mem(53194, 54540);
+      A = var21;
       B = A;
-      int var17 = A & 7;
-      A = var17;
-      if(A << 1 == 0) {
+      int var22 = A & 7;
+      A = var22;
+      int var23 = A << 1;
+      F = var23;
+      if(F == 0) {
         A = B;
-        int var19 = A + 7;
-        int var20 = var19 & 255;
-        A = var20;
-        F = var19;
+        int var25 = A + 7;
+        int var26 = var25 & 255;
+        A = var26;
+        F = var25;
       } else {
         A = B;
-        int var18 = A - 1 & 255;
-        A = var18;
+        int var24 = A - 1 & 255;
+        A = var24;
+        F = var24;
       }
 
       $CBBD();
@@ -5055,11 +5753,17 @@ public class ZxGame1 extends MiniZX {
   public void $CFD9() {
     int var1 = mem(51326, 53209);
     A = var1;
-    if((A & 128) == 0) {
-      int var2 = mem(51316, 53215);
-      A = var2;
-      if((A & 128) == 0) {
-        if((A & 32) != 0) {
+    int var2 = A & 128;
+    F = var2;
+    if(F == 0) {
+      int var3 = mem(51316, 53215);
+      A = var3;
+      int var4 = A & 128;
+      F = var4;
+      if(F == 0) {
+        int var48 = A & 32;
+        F = var48;
+        if(F != 0) {
           $CD9A();
           if(isNextPC(52692)) {
             nextAddress = 52693;
@@ -5067,42 +5771,57 @@ public class ZxGame1 extends MiniZX {
           }
         }
 
-        int var37 = mem(51327, 53228);
-        A = var37;
-        if((A & 1) != 0) {
-          label188: {
-            A = 14;
-            wMem(56301, A, 53388);
-            int var38 = mem(51317, 53391);
-            A = var38;
-            if(A << 1 != 0 && A != 7) {
-              int var56 = A - 7;
-              F = var56;
-            } else {
+        int var49 = mem(51327, 53228);
+        A = var49;
+        int var50 = A & 1;
+        F = var50;
+        if(F != 0) {
+          label176: {
+            label165: {
+              A = 14;
+              wMem(56301, A, 53388);
+              int var51 = mem(51317, 53391);
+              A = var51;
+              int var52 = A << 1;
+              F = var52;
+              if(F != 0) {
+                int var75 = A - 7;
+                F = var75;
+                if(F != 0) {
+                  break label165;
+                }
+              }
+
               $D567();
-              int var39 = mem(52967, 53406);
-              A = var39;
-              if((A & 128) != 0) {
-                break label188;
+              int var53 = mem(52967, 53406);
+              A = var53;
+              int var54 = A & 128;
+              F = var54;
+              if(F != 0) {
+                break label176;
               }
             }
 
-            int var44 = mem16(51314, 53413);
-            DE(var44);
-            int var45 = mem(52972, 53417);
-            A = var45;
-            if(A == E) {
-              int var52 = mem(52974, 53423);
-              A = var52;
-              int var53 = A - 1 & 255;
-              A = var53;
-              int var54 = A - 1 & 255;
-              A = var54;
+            int var59 = mem16(51314, 53413);
+            DE(var59);
+            int var60 = mem(52972, 53417);
+            A = var60;
+            int var61 = A - E;
+            F = var61;
+            if(F == 0) {
+              int var71 = mem(52974, 53423);
+              A = var71;
+              int var72 = A - 1 & 255;
+              A = var72;
+              F = var72;
+              int var73 = A - 1 & 255;
+              A = var73;
+              F = var73;
               B = A;
               A = D;
-              if(A >= B) {
-                int var55 = A - B;
-                F = var55;
+              int var74 = A - B;
+              F = var74;
+              if(F >= 0) {
                 $D3EC();
                 $D1CE();
                 return;
@@ -5114,29 +5833,34 @@ public class ZxGame1 extends MiniZX {
             }
 
             HL(51318);
-            int var46 = HL();
-            int var47 = mem(var46, 53448) + 1 & 255;
-            int var48 = HL();
-            wMem(var48, var47, 53448);
-            int var49 = mem(52975, 53449);
-            A = var49;
-            int var50 = HL();
-            int var51 = mem(var50, 53452);
-            if(A != var51) {
+            int var62 = HL();
+            int var63 = mem(var62, 53448) + 1 & 255;
+            int var64 = HL();
+            wMem(var64, var63, 53448);
+            int var65 = HL();
+            int var66 = mem(var65, 53448);
+            F = var66;
+            int var67 = mem(52975, 53449);
+            A = var67;
+            int var68 = HL();
+            int var69 = mem(var68, 53452);
+            int var70 = A - var69;
+            F = var70;
+            if(F != 0) {
               $D1CE();
               return;
             }
           }
 
           A = 0;
-          int var40 = A << 1;
-          F = var40;
+          int var55 = A << 1;
+          F = var55;
           wMem(51318, A, 53457);
           HL(51327);
-          int var41 = HL();
-          int var42 = mem(var41, 53463) & -2;
-          int var43 = HL();
-          wMem(var43, var42, 53463);
+          int var56 = HL();
+          int var57 = mem(var56, 53463) & -2;
+          int var58 = HL();
+          wMem(var58, var57, 53463);
           $D1CE();
           return;
         }
@@ -5148,89 +5872,111 @@ public class ZxGame1 extends MiniZX {
           return;
         }
 
-        int var57 = mem(51322, 53242);
-        A = var57;
-        if(A << 1 == 0) {
-          int var95 = mem(51323, 53248);
-          A = var95;
-          if((A & 4) != 0) {
-            int var96 = mem(51323, 53615);
-            A = var96;
-            if((A & 1) != 0) {
+        int var76 = mem(51322, 53242);
+        A = var76;
+        int var77 = A << 1;
+        F = var77;
+        if(F == 0) {
+          int var142 = mem(51323, 53248);
+          A = var142;
+          int var143 = A & 4;
+          F = var143;
+          if(F != 0) {
+            int var144 = mem(51323, 53615);
+            A = var144;
+            int var145 = A & 1;
+            F = var145;
+            if(F != 0) {
               $D607();
             } else {
               $D567();
             }
 
-            int var97 = mem(51324, 53630);
-            A = var97;
+            int var146 = mem(51324, 53630);
+            A = var146;
             $CD24();
             $D1CE();
-            int var98 = mem16(51314, 53639);
-            DE(var98);
+            int var147 = mem16(51314, 53639);
+            DE(var147);
             A = E;
-            int var99 = A + 26 & 255;
-            A = var99;
+            int var148 = A + 26;
+            int var149 = var148 & 255;
+            A = var149;
+            F = var148;
             E = A;
             wMem(51324, A, 53647);
-            int var100 = mem(53194, 53650);
-            A = var100;
+            int var150 = mem(53194, 53650);
+            A = var150;
             wMem(51325, A, 53653);
             $CD2B();
-            int var101 = mem16(51324, 53659);
-            DE(var101);
-            int var102 = mem16(51322, 53663);
-            BC(var102);
+            int var151 = mem16(51324, 53659);
+            DE(var151);
+            int var152 = mem16(51322, 53663);
+            BC(var152);
             $CD5C();
             $D1B2();
-            int var103 = DE();
-            wMem16(51324, var103, 53673);
-            int var104 = BC();
-            wMem16(51322, var104, 53677);
+            int var153 = DE();
+            wMem16(51324, var153, 53673);
+            int var154 = BC();
+            wMem16(51322, var154, 53677);
             return;
           }
         }
 
-        int var58 = mem(51316, 53256);
-        A = var58;
-        if((A & 16) != 0) {
-          int var59 = mem(51316, 53468);
-          A = var59;
+        int var78 = mem(51316, 53256);
+        A = var78;
+        int var79 = A & 16;
+        F = var79;
+        if(F != 0) {
+          int var80 = mem(51316, 53468);
+          A = var80;
           B = A;
-          int var60 = mem(51318, 53472);
-          A = var60;
+          int var81 = mem(51318, 53472);
+          A = var81;
           L = A;
-          if((B & 4) == 0) {
-            int var65 = mem(51321, 53480);
-            A = var65;
-            if(A == L) {
-              int var67 = B | 4;
-              B = var67;
+          int var82 = B & 4;
+          F = var82;
+          if(F == 0) {
+            int var91 = mem(51321, 53480);
+            A = var91;
+            int var92 = A - L;
+            F = var92;
+            if(F == 0) {
+              int var94 = B | 4;
+              B = var94;
               L = 0;
             } else {
               $D567();
-              int var66 = L + 1 & 255;
-              L = var66;
+              int var93 = L + 1 & 255;
+              L = var93;
               F = L;
             }
           } else {
-            int var61 = mem(51319, 53498);
-            A = var61;
-            int var62 = A - 2 & 255;
-            A = var62;
-            if(A == L) {
-              int var64 = B & -17;
-              B = var64;
+            int var83 = mem(51319, 53498);
+            A = var83;
+            int var84 = A - 2;
+            int var85 = var84 & 255;
+            A = var85;
+            F = var84;
+            int var86 = A - L;
+            F = var86;
+            if(F == 0) {
+              int var90 = B & -17;
+              B = var90;
             }
 
             $D607();
-            int var63 = L + 1 & 255;
-            L = var63;
+            int var87 = L + 1 & 255;
+            L = var87;
             F = L;
           }
 
-          if((B & 8) != 0) {
-            if((B & 2) == 0) {
+          int var88 = B & 8;
+          F = var88;
+          if(F != 0) {
+            int var89 = B & 2;
+            F = var89;
+            if(F == 0) {
               $D3EC();
             } else {
               $D4B5();
@@ -5245,63 +5991,87 @@ public class ZxGame1 extends MiniZX {
           return;
         }
 
-        if((A & 128) == 0) {
-          if((A & 1) == 0) {
+        int var95 = A & 128;
+        F = var95;
+        if(F == 0) {
+          int var96 = A & 1;
+          F = var96;
+          if(F == 0) {
             label184: {
-              if((A & 64) == 0) {
+              int var112 = A & 64;
+              F = var112;
+              if(F == 0) {
                 $E9BC();
                 A = C;
-                if(A == 5) {
+                int var122 = A - 5;
+                F = var122;
+                if(F == 0) {
                   $D1CE();
                   return;
                 }
 
                 label148: {
                   label147: {
-                    if(A != 4) {
-                      if(A == 3) {
+                    int var123 = A - 4;
+                    F = var123;
+                    if(F != 0) {
+                      int var127 = A - 3;
+                      F = var127;
+                      if(F == 0) {
                         break label147;
                       }
 
-                      if(A != 2) {
-                        if(A == 1) {
+                      int var128 = A - 2;
+                      F = var128;
+                      if(F != 0) {
+                        int var135 = A - 1;
+                        F = var135;
+                        if(F == 0) {
                           break label148;
                         }
 
-                        int var91 = A - 1;
-                        F = var91;
-                        int var92 = mem(51316, 53323);
-                        A = var92;
-                        if((A & 2) == 0) {
+                        int var136 = mem(51316, 53323);
+                        A = var136;
+                        int var137 = A & 2;
+                        F = var137;
+                        if(F == 0) {
                           break label148;
                         }
 
-                        int var93 = A & 32;
-                        A = var93;
-                        int var94 = A + 11 & 255;
-                        A = var94;
+                        int var138 = A & 32;
+                        A = var138;
+                        int var139 = A << 1;
+                        F = var139;
+                        int var140 = A + 11;
+                        int var141 = var140 & 255;
+                        A = var141;
+                        F = var140;
                         wMem(51316, A, 53334);
                       } else {
-                        int var87 = mem(51316, 53339);
-                        A = var87;
-                        if((A & 2) != 0) {
+                        int var129 = mem(51316, 53339);
+                        A = var129;
+                        int var130 = A & 2;
+                        F = var130;
+                        if(F != 0) {
                           break label147;
                         }
 
-                        int var88 = A & 32;
-                        A = var88;
-                        int var89 = A + 9;
-                        int var90 = var89 & 255;
-                        A = var90;
-                        F = var89;
+                        int var131 = A & 32;
+                        A = var131;
+                        int var132 = A << 1;
+                        F = var132;
+                        int var133 = A + 9;
+                        int var134 = var133 & 255;
+                        A = var134;
+                        F = var133;
                         wMem(51316, A, 53350);
                       }
                     } else {
                       HL(51316);
-                      int var84 = HL();
-                      int var85 = mem(var84, 53319) | 1;
-                      int var86 = HL();
-                      wMem(var86, var85, 53319);
+                      int var124 = HL();
+                      int var125 = mem(var124, 53319) | 1;
+                      int var126 = HL();
+                      wMem(var126, var125, 53319);
                     }
 
                     A = 12;
@@ -5322,65 +6092,81 @@ public class ZxGame1 extends MiniZX {
               }
 
               HL(51318);
-              int var78 = HL();
-              int var79 = mem(var78, 53372);
-              A = var79;
-              if(A == 255) {
-                int var83 = HL();
-                wMem(var83, 28, 53377);
+              int var113 = HL();
+              int var114 = mem(var113, 53372);
+              A = var114;
+              int var115 = A - 255;
+              F = var115;
+              if(F == 0) {
+                int var121 = HL();
+                wMem(var121, 28, 53377);
               }
 
-              int var80 = HL();
-              int var81 = mem(var80, 53379) + 1 & 255;
-              int var82 = HL();
-              wMem(var82, var81, 53379);
+              int var116 = HL();
+              int var117 = mem(var116, 53379) + 1 & 255;
+              int var118 = HL();
+              wMem(var118, var117, 53379);
+              int var119 = HL();
+              int var120 = mem(var119, 53379);
+              F = var120;
               $D607();
               $D1CE();
               return;
             }
           }
 
-          int var68 = mem(51318, 53539);
-          A = var68;
+          int var97 = mem(51318, 53539);
+          A = var97;
           L = A;
-          int var69 = mem(51316, 53543);
-          A = var69;
+          int var98 = mem(51316, 53543);
+          A = var98;
           B = A;
-          int var70 = mem(51319, 53547);
-          A = var70;
+          int var99 = mem(51319, 53547);
+          A = var99;
           H = A;
-          if((B & 4) == 0) {
+          int var100 = B & 4;
+          F = var100;
+          if(F == 0) {
             A = L;
-            if(A == H) {
-              int var74 = B | 4;
-              B = var74;
+            int var106 = A - H;
+            F = var106;
+            if(F == 0) {
+              int var108 = B | 4;
+              B = var108;
               L = 0;
-              int var75 = HL();
-              push(var75);
-              int var76 = mem(53195, 53564);
-              A = var76;
+              int var109 = HL();
+              push(var109);
+              int var110 = mem(53195, 53564);
+              A = var110;
               $DB01();
-              int var77 = pop();
-              HL(var77);
+              int var111 = pop();
+              HL(var111);
             } else {
-              int var73 = L + 1 & 255;
-              L = var73;
+              int var107 = L + 1 & 255;
+              L = var107;
               F = L;
               $D567();
             }
           } else {
-            int var71 = L + 1 & 255;
-            L = var71;
+            int var101 = L + 1 & 255;
+            L = var101;
+            F = L;
             $D607();
             A = L;
-            if(A == H) {
-              int var72 = B & -2;
-              B = var72;
+            int var102 = A - H;
+            F = var102;
+            if(F == 0) {
+              int var105 = B & -2;
+              B = var105;
             }
           }
 
-          if((B & 8) != 0) {
-            if((B & 2) != 0) {
+          int var103 = B & 8;
+          F = var103;
+          if(F != 0) {
+            int var104 = B & 2;
+            F = var104;
+            if(F != 0) {
               $D4B5();
             } else {
               $D3EC();
@@ -5397,99 +6183,119 @@ public class ZxGame1 extends MiniZX {
       }
 
       HL(55946);
-      int var3 = HL();
-      int var4 = mem(var3, 56305) & -3;
       int var5 = HL();
-      wMem(var5, var4, 56305);
+      int var6 = mem(var5, 56305) & -3;
+      int var7 = HL();
+      wMem(var7, var6, 56305);
       HL(51316);
-      int var6 = HL();
-      int var7 = mem(var6, 56310) & -33;
       int var8 = HL();
-      wMem(var8, var7, 56310);
+      int var9 = mem(var8, 56310) & -33;
+      int var10 = HL();
+      wMem(var10, var9, 56310);
       A = 0;
+      int var11 = A << 1;
+      F = var11;
       wMem(51328, A, 56313);
       HL(56301);
-      int var9 = HL();
-      int var10 = mem(var9, 56319) - 1 & 255;
-      int var11 = HL();
-      wMem(var11, var10, 56319);
-      if(var10 == 0) {
+      int var12 = HL();
+      int var13 = mem(var12, 56319) - 1 & 255;
+      int var14 = HL();
+      wMem(var14, var13, 56319);
+      F = var13;
+      if(F == 0) {
         HL(61027);
         $DB0B();
       } else {
-        int var12 = HL();
-        int var13 = mem(var12, 56330);
-        A = var13;
-        if(A < 15) {
-          int var36 = mem(51314, 56335);
-          A = var36;
+        int var15 = HL();
+        int var16 = mem(var15, 56330);
+        A = var16;
+        int var17 = A - 15;
+        F = var17;
+        if(F < 0) {
+          int var47 = mem(51314, 56335);
+          A = var47;
           $D61E();
           $D1CE();
           return;
         }
       }
 
-      if(A == 220) {
+      int var18 = A - 220;
+      F = var18;
+      if(F == 0) {
         A = 14;
         wMem(56301, A, 56350);
         HL(51326);
-        int var25 = HL();
-        if((mem(var25, 56356) & 64) == 0) {
+        int var34 = HL();
+        int var35 = mem(var34, 56356) & 64;
+        F = var35;
+        if(F == 0) {
           nextAddress = 56386;
         } else {
-          int var26 = HL();
-          if((mem(var26, 56360) & 2) != 0) {
+          int var36 = HL();
+          int var37 = mem(var36, 56360) & 2;
+          F = var37;
+          if(F != 0) {
             nextAddress = 56386;
           } else {
-            int var27 = HL();
-            int var28 = mem(var27, 56364) & -65;
-            int var29 = HL();
-            wMem(var29, var28, 56364);
+            int var38 = HL();
+            int var39 = mem(var38, 56364) & -65;
+            int var40 = HL();
+            wMem(var40, var39, 56364);
             HL(4118);
-            int var30 = HL();
-            wMem16(51314, var30, 56369);
+            int var41 = HL();
+            wMem16(51314, var41, 56369);
             HL(51316);
-            int var31 = HL();
-            int var32 = mem(var31, 56375);
-            A = var32;
-            int var33 = A & 2;
-            A = var33;
-            int var34 = A << 1;
-            F = var34;
-            int var35 = HL();
-            wMem(var35, A, 56378);
+            int var42 = HL();
+            int var43 = mem(var42, 56375);
+            A = var43;
+            int var44 = A & 2;
+            A = var44;
+            int var45 = A << 1;
+            F = var45;
+            int var46 = HL();
+            wMem(var46, A, 56378);
             A = 43;
             $CBBD();
           }
         }
       } else {
-        int var14 = mem(56301, 56389);
-        A = var14;
-        int var15 = ~A;
-        A = var15;
-        int var16 = A;
-        int var17 = sr(var16);
-        A = var17;
-        if(A >= 12) {
+        int var19 = mem(56301, 56389);
+        A = var19;
+        int var20 = ~A;
+        A = var20;
+        F = A;
+        int var21 = A;
+        int var22 = sr(var21);
+        A = var22;
+        int var23 = A - 12;
+        F = var23;
+        if(F >= 0) {
           A = 11;
         }
 
-        int var18 = A + A & 255;
-        A = var18;
-        int var19 = A + A & 255;
-        A = var19;
-        int var20 = A + A & 255;
-        A = var20;
+        int var24 = A + A;
+        int var25 = var24 & 255;
+        A = var25;
+        F = var24;
+        int var26 = A + A;
+        int var27 = var26 & 255;
+        A = var27;
+        F = var26;
+        int var28 = A + A;
+        int var29 = var28 & 255;
+        A = var29;
+        F = var28;
         C = A;
         B = 0;
         HL(62597);
-        int var21 = BC();
-        int var22 = HL() + var21 & 65535;
-        HL(var22);
-        int var23 = mem(51315, 56411);
-        A = var23;
-        int var24 = A + 1 & 255;
-        A = var24;
+        int var30 = BC();
+        int var31 = HL() + var30 & 65535;
+        HL(var31);
+        int var32 = mem(51315, 56411);
+        A = var32;
+        int var33 = A + 1 & 255;
+        A = var33;
         F = A;
         D = A;
         E = 18;
@@ -5518,17 +6324,19 @@ public class ZxGame1 extends MiniZX {
     exx();
     int var1 = mem(51314, 54792);
     A = var1;
-    if(A != 132) {
+    int var2 = A - 132;
+    F = var2;
+    if(F != 0) {
       $D61E();
     } else {
       A = 2;
       wMem(51314, A, 54801);
-      int var2 = mem(53194, 54804);
-      A = var2;
-      int var3 = A - 8;
-      int var4 = var3 & 255;
-      A = var4;
-      F = var3;
+      int var3 = mem(53194, 54804);
+      A = var3;
+      int var4 = A - 8;
+      int var5 = var4 & 255;
+      A = var5;
+      F = var4;
       $CBBD();
       exx();
     }
@@ -5537,17 +6345,24 @@ public class ZxGame1 extends MiniZX {
   public void $D61E() {
     int var1 = A + 1 & 255;
     A = var1;
+    F = A;
     int var2 = A + 1 & 255;
     A = var2;
+    F = A;
     wMem(51314, A, 54816);
     int var3 = mem(51323, 54819);
     A = var3;
-    if((A & 4) == 0) {
-      int var11 = mem(53195, 54826);
-      A = var11;
-      int var12 = A - 1 & 255;
+    int var4 = A & 4;
+    F = var4;
+    if(F == 0) {
+      int var12 = mem(53195, 54826);
       A = var12;
-      if(A << 1 == 0) {
+      int var13 = A - 1 & 255;
+      A = var13;
+      F = var13;
+      int var14 = A << 1;
+      F = var14;
+      if(F == 0) {
         A = 12;
       }
 
@@ -5556,24 +6371,24 @@ public class ZxGame1 extends MiniZX {
     }
 
     HL(25302);
-    int var4 = HL();
-    push(var4);
+    int var5 = HL();
+    push(var5);
     BC(6);
-    int var5 = BC();
-    int var6 = HL() + var5 & 65535;
-    HL(var6);
-    int var7 = pop();
-    DE(var7);
+    int var6 = BC();
+    int var7 = HL() + var6 & 65535;
+    HL(var7);
+    int var8 = pop();
+    DE(var8);
     BC(78);
     ldir();
     exHLDE();
-    int var8 = mem16(51314, 54856);
-    DE(var8);
+    int var9 = mem16(51314, 54856);
+    DE(var9);
     A = 26;
-    int var9 = A + E;
-    int var10 = var9 & 255;
-    A = var10;
-    F = var9;
+    int var10 = A + E;
+    int var11 = var10 & 255;
+    A = var11;
+    F = var10;
     E = A;
     $D655();
     exx();
@@ -5582,258 +6397,297 @@ public class ZxGame1 extends MiniZX {
   public void $D1CE() {
     int var1 = mem(51328, 53710);
     A = var1;
-    if((A & 1) != 0) {
+    int var2 = A & 1;
+    F = var2;
+    if(F != 0) {
       DE(25302);
     } else {
-      int var2 = mem(51317, 53722);
-      A = var2;
-      int var3 = A + A & 255;
+      int var3 = mem(51317, 53722);
       A = var3;
+      int var4 = A + A;
+      int var5 = var4 & 255;
+      A = var5;
+      F = var4;
       C = A;
       B = 0;
       HL(25386);
-      int var4 = BC();
-      int var5 = HL() + var4 & 65535;
-      HL(var5);
-      int var6 = HL();
-      int var7 = mem(var6, 53733);
-      E = var7;
-      int var8 = HL() + 1 & 65535;
-      HL(var8);
-      int var9 = HL();
-      int var10 = mem(var9, 53735);
-      D = var10;
+      int var6 = BC();
+      int var7 = HL() + var6 & 65535;
+      HL(var7);
+      int var8 = HL();
+      int var9 = mem(var8, 53733);
+      E = var9;
+      int var10 = HL() + 1 & 65535;
+      HL(var10);
+      int var11 = HL();
+      int var12 = mem(var11, 53735);
+      D = var12;
     }
 
     HL(25302);
     exx();
-    int var11 = mem16(51314, 53740);
-    DE(var11);
-    int var12 = mem(56301, 53744);
-    A = var12;
+    int var13 = mem16(51314, 53740);
+    DE(var13);
+    int var14 = mem(56301, 53744);
+    A = var14;
     B = A;
 
     do {
-      int var13 = BC();
-      push(var13);
-      int var14 = DE();
-      push(var14);
-      $E8D2();
-      int var15 = DE();
+      int var15 = BC();
       push(var15);
+      int var16 = DE();
+      push(var16);
+      $E8D2();
+      int var17 = DE();
+      push(var17);
       $E90C();
       exHLDE();
-      int var16 = pop();
-      DE(var16);
+      int var18 = pop();
+      DE(var18);
       C = 2;
 
-      int var36;
       do {
-        int var17 = DE();
-        push(var17);
-        int var18 = HL();
-        push(var18);
+        int var19 = DE();
+        push(var19);
+        int var20 = HL();
+        push(var20);
         B = 3;
 
         label66:
         do {
           while(true) {
-            int var19 = HL();
-            int var20 = mem(var19, 53765);
-            A = var20;
-            if(A == 69) {
+            int var21 = HL();
+            int var22 = mem(var21, 53765);
+            A = var22;
+            int var23 = A - 69;
+            F = var23;
+            if(F == 0) {
               exx();
               A = 0;
-              int var92 = HL();
-              wMem(var92, A, 53772);
+              int var108 = A << 1;
+              F = var108;
+              int var109 = HL();
+              wMem(var109, A, 53772);
               exx();
             } else {
-              if(A << 1 == 0) {
+              int var24 = A << 1;
+              F = var24;
+              if(F == 0) {
                 exx();
                 break;
               }
 
-              int var21 = A & 120;
-              A = var21;
-              if(A == 64) {
+              int var25 = A & 120;
+              A = var25;
+              int var26 = A << 1;
+              F = var26;
+              int var27 = A - 64;
+              F = var27;
+              if(F == 0) {
                 exx();
                 A = 0;
-                int var71 = A << 1;
-                F = var71;
-                int var72 = HL();
-                wMem(var72, A, 53790);
+                int var85 = A << 1;
+                F = var85;
+                int var86 = HL();
+                wMem(var86, A, 53790);
                 break;
               }
             }
 
             exx();
-            int var22 = DE();
-            int var23 = mem(var22, 53817);
-            A = var23;
-            int var24 = HL();
-            int var25 = mem(var24, 53818);
-            int var26 = A | var25;
-            A = var26;
-            int var27 = DE() + 1 & 65535;
-            DE(var27);
-            int var28 = HL() + 1 & 65535;
-            HL(var28);
+            int var28 = DE();
+            int var29 = mem(var28, 53817);
+            A = var29;
+            int var30 = HL();
+            int var31 = mem(var30, 53818);
+            int var32 = A | var31;
+            A = var32;
+            int var33 = A << 1;
+            F = var33;
+            int var34 = DE() + 1 & 65535;
+            DE(var34);
+            int var35 = HL() + 1 & 65535;
+            HL(var35);
             exx();
-            int var29 = DE();
-            wMem(var29, A, 53822);
-            int var30 = DE() + 1 & 65535;
-            DE(var30);
-            int var31 = L + 1 & 255;
-            L = var31;
-            int var32 = B - 1 & 255;
-            B = var32;
+            int var36 = DE();
+            wMem(var36, A, 53822);
+            int var37 = DE() + 1 & 65535;
+            DE(var37);
+            int var38 = L + 1 & 255;
+            L = var38;
+            F = L;
+            int var39 = B - 1 & 255;
+            B = var39;
             if(B == 0) {
               break label66;
             }
           }
 
-          int var73 = DE();
-          int var74 = mem(var73, 53791);
-          A = var74;
-          int var75 = DE() + 1 & 65535;
-          DE(var75);
-          int var76 = HL() + 1 & 65535;
-          HL(var76);
+          int var87 = DE();
+          int var88 = mem(var87, 53791);
+          A = var88;
+          int var89 = DE() + 1 & 65535;
+          DE(var89);
+          int var90 = HL() + 1 & 65535;
+          HL(var90);
           exx();
           exHLDE();
-          int var77 = AF();
-          push(var77);
-          int var78 = HL();
-          int var79 = mem(var78, 53797);
-          int var80 = A & var79;
-          A = var80;
-          if(A << 1 != 0) {
-            int var89 = DE();
-            int var90 = mem(var89, 53800);
-            A = var90;
-            int var91 = A | 128;
-            A = var91;
+          int var91 = AF();
+          push(var91);
+          int var92 = HL();
+          int var93 = mem(var92, 53797);
+          int var94 = A & var93;
+          A = var94;
+          int var95 = A << 1;
+          F = var95;
+          if(F != 0) {
+            int var105 = DE();
+            int var106 = mem(var105, 53800);
+            A = var106;
+            int var107 = A | 128;
+            A = var107;
             wMem(53709, A, 53803);
           }
 
-          int var81 = pop();
-          AF(var81);
-          int var82 = HL();
-          int var83 = mem(var82, 53807);
-          int var84 = A | var83;
-          A = var84;
+          int var96 = pop();
+          AF(var96);
+          int var97 = HL();
+          int var98 = mem(var97, 53807);
+          int var99 = A | var98;
+          A = var99;
+          int var100 = A << 1;
+          F = var100;
           exHLDE();
-          int var85 = DE();
-          wMem(var85, A, 53809);
-          int var86 = DE() + 1 & 65535;
-          DE(var86);
-          int var87 = L + 1 & 255;
-          L = var87;
-          int var88 = B - 1 & 255;
-          B = var88;
+          int var101 = DE();
+          wMem(var101, A, 53809);
+          int var102 = DE() + 1 & 65535;
+          DE(var102);
+          int var103 = L + 1 & 255;
+          L = var103;
+          F = L;
+          int var104 = B - 1 & 255;
+          B = var104;
         } while(B != 0);
 
-        int var33 = pop();
-        HL(var33);
-        int var34 = pop();
-        DE(var34);
-        int var35 = D + 1 & 255;
-        D = var35;
-        var36 = C - 1 & 255;
-        C = var36;
-      } while(var36 != 0);
+        int var40 = pop();
+        HL(var40);
+        int var41 = pop();
+        DE(var41);
+        int var42 = D + 1 & 255;
+        D = var42;
+        F = D;
+        int var43 = C - 1 & 255;
+        C = var43;
+        F = var43;
+      } while(F != 0);
 
-      int var37 = pop();
-      DE(var37);
-      int var38 = E + 1 & 255;
-      E = var38;
-      int var39 = E + 1 & 255;
-      E = var39;
-      int var40 = pop();
-      BC(var40);
-      int var41 = B - 1 & 255;
-      B = var41;
+      int var44 = pop();
+      DE(var44);
+      int var45 = E + 1 & 255;
+      E = var45;
+      F = E;
+      int var46 = E + 1 & 255;
+      E = var46;
+      F = E;
+      int var47 = pop();
+      BC(var47);
+      int var48 = B - 1 & 255;
+      B = var48;
     } while(B != 0);
 
     HL(53709);
-    int var42 = HL();
-    if((mem(var42, 53842) & 128) != 0) {
-      int var43 = HL();
-      int var44 = mem(var43, 53845) & -129;
-      int var45 = HL();
-      wMem(var45, var44, 53845);
-      int var46 = HL();
-      int var47 = mem(var46, 53847);
-      A = var47;
-      if(A << 1 == 0) {
+    int var49 = HL();
+    int var50 = mem(var49, 53842) & 128;
+    F = var50;
+    if(F != 0) {
+      int var51 = HL();
+      int var52 = mem(var51, 53845) & -129;
+      int var53 = HL();
+      wMem(var53, var52, 53845);
+      int var54 = HL();
+      int var55 = mem(var54, 53847);
+      A = var55;
+      int var56 = A << 1;
+      F = var56;
+      if(F == 0) {
         $DE87();
       } else {
-        int var48 = mem(53194, 53852);
-        A = var48;
-        if(A == 27) {
-          int var70 = mem(53709, 53859);
-          A = var70;
-          if(A == 67) {
+        int var57 = mem(53194, 53852);
+        A = var57;
+        int var58 = A - 27;
+        F = var58;
+        if(F == 0) {
+          int var82 = mem(53709, 53859);
+          A = var82;
+          int var83 = A - 67;
+          F = var83;
+          if(F == 0) {
             $CD8A();
             return;
           }
 
-          if(A == 71) {
+          int var84 = A - 71;
+          F = var84;
+          if(F == 0) {
             $CD8A();
             return;
           }
         }
 
-        int var49 = mem(51326, 53872);
-        A = var49;
-        if((A & 32) != 0) {
+        int var59 = mem(51326, 53872);
+        A = var59;
+        int var60 = A & 32;
+        F = var60;
+        if(F != 0) {
           HL(65137);
           $DB0B();
           A = 20;
           HL(51307);
-          int var66 = HL();
-          int var67 = mem(var66, 53890);
-          int var68 = A + var67 & 255;
-          A = var68;
-          int var69 = HL();
-          wMem(var69, A, 53891);
+          int var77 = HL();
+          int var78 = mem(var77, 53890);
+          int var79 = A + var78;
+          int var80 = var79 & 255;
+          A = var80;
+          F = var79;
+          int var81 = HL();
+          wMem(var81, A, 53891);
         } else {
           $CD8A();
         }
 
-        int var50 = IX() + 7;
-        int var51 = mem(var50, 53897);
-        L = var51;
-        int var52 = IX() + 8;
-        int var53 = mem(var52, 53900);
-        H = var53;
+        int var61 = IX() + 7;
+        int var62 = mem(var61, 53897);
+        L = var62;
+        int var63 = IX() + 8;
+        int var64 = mem(var63, 53900);
+        H = var64;
         DE(6);
-        int var54 = DE();
-        int var55 = HL() + var54 & 65535;
-        HL(var55);
-        int var56 = HL();
-        push(var56);
-        int var57 = pop();
-        IY(var57);
-        int var58 = mem16(57048, 53910);
-        BC(var58);
-        int var59 = mem(58688, 53914);
-        A = var59;
+        int var65 = DE();
+        int var66 = HL() + var65 & 65535;
+        HL(var66);
+        int var67 = HL();
+        push(var67);
+        int var68 = pop();
+        IY(var68);
+        int var69 = mem16(57048, 53910);
+        BC(var69);
+        int var70 = mem(58688, 53914);
+        A = var70;
         $D2BF();
-        int var60 = mem16(57290, 53920);
-        BC(var60);
-        int var61 = mem(58689, 53924);
-        A = var61;
+        int var71 = mem16(57290, 53920);
+        BC(var71);
+        int var72 = mem(58689, 53924);
+        A = var72;
         $D2BF();
-        int var62 = mem16(57532, 53930);
-        BC(var62);
-        int var63 = mem(58690, 53934);
-        A = var63;
+        int var73 = mem16(57532, 53930);
+        BC(var73);
+        int var74 = mem(58690, 53934);
+        A = var74;
         $D2BF();
-        int var64 = mem16(58110, 53940);
-        BC(var64);
-        int var65 = mem(58691, 53944);
-        A = var65;
+        int var75 = mem16(58110, 53940);
+        BC(var75);
+        int var76 = mem(58691, 53944);
+        A = var76;
         $D2BF();
       }
     }
@@ -5854,7 +6708,6 @@ public class ZxGame1 extends MiniZX {
     C = 2;
     $E8D2();
 
-    int var10;
     do {
       int var1 = DE();
       push(var1);
@@ -5870,6 +6723,7 @@ public class ZxGame1 extends MiniZX {
         HL(var5);
         int var6 = E + 1 & 255;
         E = var6;
+        F = E;
         int var7 = B - 1 & 255;
         B = var7;
       } while(B != 0);
@@ -5878,30 +6732,41 @@ public class ZxGame1 extends MiniZX {
       DE(var8);
       int var9 = D + 1 & 255;
       D = var9;
-      var10 = C - 1 & 255;
+      F = D;
+      int var10 = C - 1 & 255;
       C = var10;
-    } while(var10 != 0);
+      F = var10;
+    } while(F != 0);
 
     exx();
     A = C;
-    if(A << 1 == 0) {
-      if((B & 2) == 0) {
-        if((E & 2) == 0) {
+    int var11 = A << 1;
+    F = var11;
+    if(F == 0) {
+      int var12 = B & 2;
+      F = var12;
+      if(F == 0) {
+        int var13 = E & 2;
+        F = var13;
+        if(F == 0) {
           A = E;
-          int var11 = A;
-          int var12 = rr(var11);
-          A = var12;
-          int var13 = A & 15;
-          A = var13;
-          int var14 = A + 3;
-          int var15 = var14 & 255;
+          int var14 = A;
+          F = F;
+          int var15 = rr(var14);
           A = var15;
-          F = var14;
-          int var16 = HL();
-          push(var16);
+          int var16 = A & 15;
+          A = var16;
+          int var17 = A << 1;
+          F = var17;
+          int var18 = A + 3;
+          int var19 = var18 & 255;
+          A = var19;
+          F = var18;
+          int var20 = HL();
+          push(var20);
           $DB01();
-          int var17 = pop();
-          HL(var17);
+          int var21 = pop();
+          HL(var21);
         }
       }
     }
@@ -5911,28 +6776,35 @@ public class ZxGame1 extends MiniZX {
     A = E;
     int var1 = A & 7;
     A = var1;
-    if(A << 1 == 0) {
+    int var2 = A << 1;
+    F = var2;
+    int var3 = A << 1;
+    F = var3;
+    if(F == 0) {
       A = E;
       exx();
       E = A;
       D = 14;
       $E909();
-      int var2 = DE();
-      int var3 = mem(var2, 52585);
-      A = var3;
+      int var4 = DE();
+      int var5 = mem(var4, 52585);
+      A = var5;
       B = A;
-      int var4 = E + 1 & 255;
-      E = var4;
-      int var5 = E + 1 & 255;
-      E = var5;
       int var6 = E + 1 & 255;
       E = var6;
+      F = E;
       int var7 = E + 1 & 255;
       E = var7;
       F = E;
-      int var8 = DE();
-      int var9 = mem(var8, 52591);
-      A = var9;
+      int var8 = E + 1 & 255;
+      E = var8;
+      F = E;
+      int var9 = E + 1 & 255;
+      E = var9;
+      F = E;
+      int var10 = DE();
+      int var11 = mem(var10, 52591);
+      A = var11;
       C = A;
       E = 4;
       $D9AA();
@@ -5948,32 +6820,38 @@ public class ZxGame1 extends MiniZX {
   public void $D1B2() {
     label21: {
       A = D;
-      if(A == 5) {
+      int var1 = A - 5;
+      F = var1;
+      if(F == 0) {
         A = E;
-        if(A == 72) {
-          int var3 = A - 72;
-          F = var3;
+        int var6 = A - 72;
+        F = var6;
+        if(F == 0) {
           break label21;
         }
       }
 
       A = D;
-      if(A != 45) {
+      int var2 = A - 45;
+      F = var2;
+      if(F != 0) {
         return;
       }
 
       A = E;
-      if(A != 64) {
+      int var3 = A - 64;
+      F = var3;
+      if(F != 0) {
         return;
       }
     }
 
     C = 100;
     A = B;
-    int var1 = A ^ 1;
-    A = var1;
-    int var2 = A << 1;
-    F = var2;
+    int var4 = A ^ 1;
+    A = var4;
+    int var5 = A << 1;
+    F = var5;
     B = A;
   }
 
@@ -5988,178 +6866,231 @@ public class ZxGame1 extends MiniZX {
       int var3 = mem16(51324, 52372);
       DE(var3);
       A = C;
-      if(A << 1 != 0) {
-        int var26 = C - 1 & 255;
-        C = var26;
+      int var4 = A << 1;
+      F = var4;
+      if(F != 0) {
+        int var40 = C - 1 & 255;
+        C = var40;
+        F = var40;
         A = H;
-        if(A != D) {
+        int var41 = A - D;
+        F = var41;
+        if(F != 0) {
           break label54;
         }
-      } else if((B & 2) == 0) {
-        if((B & 1) == 0) {
-          label56: {
-            int var16 = E - 1 & 255;
-            E = var16;
-            int var17 = E - 1 & 255;
-            E = var17;
-            A = E;
-            if(A == 254) {
-              A = D;
-              int var23 = A + 8 & 255;
-              A = var23;
-              D = A;
-              E = 158;
-              int var24 = A - 8 & 255;
-              A = var24;
-              if(A == H) {
-                A = 0;
-                int var25 = A << 1;
-                F = var25;
-                break label56;
+      } else {
+        int var5 = B & 2;
+        F = var5;
+        if(F == 0) {
+          int var8 = B & 1;
+          F = var8;
+          if(F == 0) {
+            label56: {
+              int var24 = E - 1 & 255;
+              E = var24;
+              F = var24;
+              int var25 = E - 1 & 255;
+              E = var25;
+              F = var25;
+              A = E;
+              int var26 = A - 254;
+              F = var26;
+              if(F == 0) {
+                A = D;
+                int var34 = A + 8;
+                int var35 = var34 & 255;
+                A = var35;
+                F = var34;
+                D = A;
+                E = 158;
+                int var36 = A - 8;
+                int var37 = var36 & 255;
+                A = var37;
+                F = var36;
+                int var38 = A - H;
+                F = var38;
+                if(F == 0) {
+                  A = 0;
+                  int var39 = A << 1;
+                  F = var39;
+                  break label56;
+                }
               }
+
+              $D1B2();
+              A = D;
+              int var27 = A - H;
+              F = var27;
+              if(F != 0) {
+                int var30 = A - H;
+                int var31 = var30 & 255;
+                A = var31;
+                F = var30;
+                if(F >= 0) {
+                  int var32 = A - 16;
+                  F = var32;
+                  if(F >= 0) {
+                    int var33 = B | 1;
+                    B = var33;
+                  }
+                }
+                break label54;
+              }
+
+              $CD2B();
+              $CD5C();
+              A = E;
+              int var28 = A + 1 & 255;
+              A = var28;
+              F = A;
+              int var29 = A + 1 & 255;
+              A = var29;
+              F = A;
             }
 
-            $D1B2();
-            A = D;
-            if(A != H) {
-              int var20 = A - H;
-              int var21 = var20 & 255;
-              A = var21;
-              if(var20 >= 0 && A >= 16) {
-                int var22 = B | 1;
-                B = var22;
+            $CD24();
+          } else {
+            label57: {
+              int var9 = E + 1 & 255;
+              E = var9;
+              F = E;
+              int var10 = E + 1 & 255;
+              E = var10;
+              F = E;
+              A = E;
+              int var11 = A - 160;
+              F = var11;
+              if(F == 0) {
+                A = D;
+                int var19 = A - 8;
+                int var20 = var19 & 255;
+                A = var20;
+                F = var19;
+                D = A;
+                E = 0;
+                int var21 = A + 8;
+                int var22 = var21 & 255;
+                A = var22;
+                F = var21;
+                int var23 = A - H;
+                F = var23;
+                if(F == 0) {
+                  E = 26;
+                  A = 158;
+                  break label57;
+                }
               }
-              break label54;
-            }
 
-            $CD2B();
-            $CD5C();
-            A = E;
-            int var18 = A + 1 & 255;
-            A = var18;
-            int var19 = A + 1 & 255;
-            A = var19;
-          }
+              $D1B2();
+              A = H;
+              int var12 = A - D;
+              F = var12;
+              if(F != 0) {
+                int var15 = A - D;
+                int var16 = var15 & 255;
+                A = var16;
+                F = var15;
+                if(F >= 0) {
+                  int var17 = A - 16;
+                  F = var17;
+                  if(F >= 0) {
+                    int var18 = B & -2;
+                    B = var18;
+                  }
+                }
+                break label54;
+              }
 
-          F = A;
-          $CD24();
-        } else {
-          int var10 = 0;
-          label57: {
-            int var7 = E + 1 & 255;
-            E = var7;
-            int var8 = E + 1 & 255;
-            E = var8;
-            A = E;
-            if(A == 160) {
-              A = D;
-              int var14 = A - 8 & 255;
+              $CD2B();
+              $CD5C();
+              A = E;
+              int var13 = A - 1 & 255;
+              A = var13;
+              F = var13;
+              int var14 = A - 1 & 255;
               A = var14;
-              D = A;
-              E = 0;
-              int var15 = A + 8 & 255;
-              A = var15;
-              if(A == H) {
-                E = 26;
-                A = 158;
-                break label57;
-              }
+              F = var14;
             }
 
-            $D1B2();
-            A = H;
-            if(A != D) {
-              int var11 = A - D;
-              int var12 = var11 & 255;
-              A = var12;
-              if(var11 >= 0 && A >= 16) {
-                int var13 = B & -2;
-                B = var13;
-              }
-              break label54;
-            }
-
-            $CD2B();
-            $CD5C();
-            A = E;
-            int var9 = A - 1 & 255;
-            A = var9;
-            var10 = A - 1 & 255;
-            A = var10;
+            $CD24();
           }
-
-          F = var10;
-          $CD24();
+          break label54;
         }
-        break label54;
       }
 
-      int var4 = A - D;
-      F = var4;
       $CD2B();
     }
 
-    int var5 = DE();
-    wMem16(51324, var5, 52507);
-    int var6 = BC();
-    wMem16(51322, var6, 52511);
+    int var6 = DE();
+    wMem16(51324, var6, 52507);
+    int var7 = BC();
+    wMem16(51322, var7, 52511);
   }
 
   public void $CC5F() {
     int var1 = mem(53194, 52319);
     A = var1;
-    if(A < 8) {
+    int var2 = A - 8;
+    F = var2;
+    if(F < 0) {
       HL(52318);
-      int var2 = HL();
-      int var3 = mem(var2, 52328) - 1 & 255;
-      int var4 = HL();
-      wMem(var4, var3, 52328);
-      if(var3 == 0) {
-        int var5 = HL();
-        wMem(var5, 3, 52332);
+      int var3 = HL();
+      int var4 = mem(var3, 52328) - 1 & 255;
+      int var5 = HL();
+      wMem(var5, var4, 52328);
+      F = var4;
+      if(F == 0) {
+        int var6 = HL();
+        wMem(var6, 3, 52332);
         DE(20576);
         C = 3;
 
-        int var21;
         do {
-          int var6 = DE();
-          push(var6);
           int var7 = DE();
-          int var8 = mem(var7, 52340);
-          A = var8;
+          push(var7);
+          int var8 = DE();
+          int var9 = mem(var8, 52340);
+          A = var9;
           H = A;
-          int var9 = E + 1 & 255;
-          E = var9;
+          int var10 = E + 1 & 255;
+          E = var10;
+          F = E;
           B = 31;
 
           do {
-            int var10 = DE();
-            int var11 = mem(var10, 52345);
-            A = var11;
-            int var12 = E - 1 & 255;
-            E = var12;
-            int var13 = DE();
-            wMem(var13, A, 52347);
-            int var14 = E + 1 & 255;
-            E = var14;
+            int var11 = DE();
+            int var12 = mem(var11, 52345);
+            A = var12;
+            int var13 = E - 1 & 255;
+            E = var13;
+            F = var13;
+            int var14 = DE();
+            wMem(var14, A, 52347);
             int var15 = E + 1 & 255;
             E = var15;
-            int var16 = B - 1 & 255;
-            B = var16;
+            F = E;
+            int var16 = E + 1 & 255;
+            E = var16;
+            F = E;
+            int var17 = B - 1 & 255;
+            B = var17;
           } while(B != 0);
 
-          int var17 = E - 1 & 255;
-          E = var17;
+          int var18 = E - 1 & 255;
+          E = var18;
+          F = var18;
           A = H;
-          int var18 = DE();
-          wMem(var18, A, 52354);
-          int var19 = pop();
-          DE(var19);
-          int var20 = D + 1 & 255;
-          D = var20;
-          var21 = C - 1 & 255;
-          C = var21;
-        } while(var21 != 0);
+          int var19 = DE();
+          wMem(var19, A, 52354);
+          int var20 = pop();
+          DE(var20);
+          int var21 = D + 1 & 255;
+          D = var21;
+          F = D;
+          int var22 = C - 1 & 255;
+          C = var22;
+          F = var22;
+        } while(F != 0);
 
       }
     }
@@ -6168,13 +7099,20 @@ public class ZxGame1 extends MiniZX {
   public void $E5E8() {
     HL(51326);
     int var1 = HL();
-    if((mem(var1, 58859) & 128) != 0) {
-      int var2 = HL();
-      int var3 = mem(var2, 58927) + 1 & 255;
-      int var4 = HL();
-      wMem(var4, var3, 58927);
+    int var2 = mem(var1, 58859) & 128;
+    F = var2;
+    if(F != 0) {
+      int var3 = HL();
+      int var4 = mem(var3, 58927) + 1 & 255;
       int var5 = HL();
-      if((mem(var5, 58928) & 64) != 0) {
+      wMem(var5, var4, 58927);
+      int var6 = HL();
+      int var7 = mem(var6, 58927);
+      F = var7;
+      int var8 = HL();
+      int var9 = mem(var8, 58928) & 64;
+      F = var9;
+      if(F != 0) {
         $E801();
         HL(65143);
         $EEF1();
@@ -6182,72 +7120,87 @@ public class ZxGame1 extends MiniZX {
       }
 
       $E916();
-      int var6 = mem(51326, 58951);
-      A = var6;
-      int var7 = A & 7;
-      A = var7;
-      if(A << 1 == 0) {
+      int var10 = mem(51326, 58951);
+      A = var10;
+      int var11 = A & 7;
+      A = var11;
+      int var12 = A << 1;
+      F = var12;
+      if(F == 0) {
         HL(22560);
         DE(22528);
         BC(192);
         ldir();
         HL(51320);
         A = 8;
-        int var8 = HL();
-        int var9 = mem(var8, 58973);
-        if(A >= var9) {
+        int var13 = HL();
+        int var14 = mem(var13, 58973);
+        int var15 = A - var14;
+        F = var15;
+        if(F >= 0) {
           ;
         }
 
-        int var10 = A - var9;
-        F = var10;
       }
     } else {
-      int var11 = mem(53194, 58863);
-      A = var11;
-      if(A == 43) {
+      int var16 = mem(53194, 58863);
+      A = var16;
+      int var17 = A - 43;
+      F = var17;
+      if(F == 0) {
         A = 2;
         wMem(53203, A, 58871);
-        int var12 = mem(51314, 58874);
-        A = var12;
-        if(A == 22) {
-          int var13 = mem(51315, 58880);
-          A = var13;
-          int var14 = A - 12 & 255;
-          A = var14;
-          if(A < 8) {
-            int var15 = HL();
-            if((mem(var15, 58888) & 2) != 0) {
-              int var16 = HL();
-              wMem(var16, 128, 58891);
+        int var18 = mem(51314, 58874);
+        A = var18;
+        int var19 = A - 22;
+        F = var19;
+        if(F == 0) {
+          int var20 = mem(51315, 58880);
+          A = var20;
+          int var21 = A - 12;
+          int var22 = var21 & 255;
+          A = var22;
+          F = var21;
+          int var23 = A - 8;
+          F = var23;
+          if(F < 0) {
+            int var24 = HL();
+            int var25 = mem(var24, 58888) & 2;
+            F = var25;
+            if(F != 0) {
+              int var26 = HL();
+              wMem(var26, 128, 58891);
               HL(16560);
               B = 8;
               A = 255;
 
               do {
-                int var17 = HL();
-                push(var17);
-                int var18 = HL();
-                wMem(var18, A, 58901);
-                int var19 = L + 1 & 255;
-                L = var19;
-                int var20 = HL();
-                wMem(var20, A, 58903);
-                int var21 = L + 1 & 255;
-                L = var21;
-                int var22 = HL();
-                wMem(var22, A, 58905);
-                int var23 = pop();
-                HL(var23);
-                int var24 = H + 1 & 255;
-                H = var24;
-                int var25 = B - 1 & 255;
-                B = var25;
+                int var27 = HL();
+                push(var27);
+                int var28 = HL();
+                wMem(var28, A, 58901);
+                int var29 = L + 1 & 255;
+                L = var29;
+                F = L;
+                int var30 = HL();
+                wMem(var30, A, 58903);
+                int var31 = L + 1 & 255;
+                L = var31;
+                F = L;
+                int var32 = HL();
+                wMem(var32, A, 58905);
+                int var33 = pop();
+                HL(var33);
+                int var34 = H + 1 & 255;
+                H = var34;
+                F = H;
+                int var35 = B - 1 & 255;
+                B = var35;
               } while(B != 0);
 
               HL(22613);
-              int var26 = HL();
-              wMem(var26, 6, 58913);
+              int var36 = HL();
+              wMem(var36, 6, 58913);
               BC(2308);
               DE(3077);
               A = 5;
@@ -6275,6 +7228,7 @@ public class ZxGame1 extends MiniZX {
         H = D;
         int var3 = H + 1 & 255;
         H = var3;
+        F = H;
         int var4 = HL();
         push(var4);
         int var5 = BC();
@@ -6296,7 +7250,8 @@ public class ZxGame1 extends MiniZX {
       BC(var10);
       int var11 = B - 1 & 255;
       B = var11;
-      if(var11 == 0) {
+      F = var11;
+      if(F == 0) {
         return;
       }
 
@@ -6325,106 +7280,124 @@ public class ZxGame1 extends MiniZX {
     do {
       int var2 = IY();
       int var3 = mem(var2, 58988);
-      if(A == var3) {
+      int var4 = A - var3;
+      F = var4;
+      if(F == 0) {
         HL(58978);
-        int var4 = HL();
-        int var5 = mem(var4, 59004) + 1 & 255;
-        int var6 = HL();
-        wMem(var6, var5, 59004);
+        int var5 = HL();
+        int var6 = mem(var5, 59004) + 1 & 255;
         int var7 = HL();
-        int var8 = mem(var7, 59005);
-        A = var8;
-        int var9 = IY() + 1;
-        int var10 = mem(var9, 59006);
-        L = var10;
-        int var11 = IY() + 2;
-        int var12 = mem(var11, 59009);
-        H = var12;
+        wMem(var7, var6, 59004);
+        int var8 = HL();
+        int var9 = mem(var8, 59004);
+        F = var9;
+        int var10 = HL();
+        int var11 = mem(var10, 59005);
+        A = var11;
+        int var12 = IY() + 1;
+        int var13 = mem(var12, 59006);
+        L = var13;
+        int var14 = IY() + 2;
+        int var15 = mem(var14, 59009);
+        H = var15;
         B = 4;
 
         do {
-          int var13 = A & 7;
-          A = var13;
-          if(A << 1 == 0) {
-            int var42 = A + 1 & 255;
-            A = var42;
+          int var16 = A & 7;
+          A = var16;
+          int var17 = A << 1;
+          F = var17;
+          if(F == 0) {
+            int var49 = A + 1 & 255;
+            A = var49;
+            F = A;
           }
 
-          int var14 = HL();
-          wMem(var14, A, 59019);
-          int var15 = A + 1 & 255;
-          A = var15;
-          int var16 = L + 1 & 255;
-          L = var16;
-          int var17 = B - 1 & 255;
-          B = var17;
+          int var18 = HL();
+          wMem(var18, A, 59019);
+          int var19 = A + 1 & 255;
+          A = var19;
+          F = A;
+          int var20 = L + 1 & 255;
+          L = var20;
+          F = L;
+          int var21 = B - 1 & 255;
+          B = var21;
         } while(B != 0);
 
-        int var18 = A - 1 & 255;
-        A = var18;
+        int var22 = A - 1 & 255;
+        A = var22;
+        F = var22;
         C = A;
-        int var19 = mem(58978, 59026);
-        A = var19;
-        if(A < 200) {
+        int var23 = mem(58978, 59026);
+        A = var23;
+        int var24 = A - 200;
+        F = var24;
+        if(F < 0) {
           return;
         } else {
-          if((A & 2) == 0) {
+          int var25 = A & 2;
+          F = var25;
+          if(F == 0) {
             A = 69;
           } else {
             A = C;
-            int var20 = A;
-            int var21 = rlc(var20);
-            A = var21;
-            int var22 = A;
-            int var23 = rlc(var22);
-            A = var23;
-            int var24 = A;
-            int var25 = rlc(var24);
-            A = var25;
+            int var26 = A;
+            int var27 = rlc(var26);
+            A = var27;
+            int var28 = A;
+            int var29 = rlc(var28);
+            A = var29;
+            int var30 = A;
+            int var31 = rlc(var30);
+            A = var31;
           }
 
           $ECA4();
           C = A;
-          int var26 = A;
-          int var27 = rrc(var26);
-          A = var27;
+          int var32 = A;
+          int var33 = rrc(var32);
+          A = var33;
           $DB01();
-          int var28 = mem16(51314, 59052);
-          DE(var28);
+          int var34 = mem16(51314, 59052);
+          DE(var34);
           $E909();
           exHLDE();
           DE(64);
-          int var29 = DE();
-          int var30 = HL() + var29 & 65535;
-          HL(var30);
-          int var31 = L + 1 & 255;
-          L = var31;
-          int var32 = mem(58978, 59065);
-          A = var32;
-          if(A != 255) {
+          int var35 = DE();
+          int var36 = HL() + var35 & 65535;
+          HL(var36);
+          int var37 = L + 1 & 255;
+          L = var37;
+          F = L;
+          int var38 = mem(58978, 59065);
+          A = var38;
+          int var39 = A - 255;
+          F = var39;
+          if(F != 0) {
             return;
           } else {
-            int var33 = HL();
-            int var34 = mem(var33, 59071);
-            A = var34;
-            int var35 = A - C;
-            F = var35;
+            int var40 = HL();
+            int var41 = mem(var40, 59071);
+            A = var41;
+            int var42 = A - C;
+            F = var42;
             A = 69;
             if(F != 0) {
               $ECA4();
               return;
             } else {
-              int var36 = IY() + 4;
-              int var37 = mem(var36, 59078);
-              A = var37;
+              int var43 = IY() + 4;
+              int var44 = mem(var43, 59078);
+              A = var44;
               wMem(51314, A, 59081);
-              int var38 = IY() + 5;
-              int var39 = mem(var38, 59084);
-              A = var39;
+              int var45 = IY() + 5;
+              int var46 = mem(var45, 59084);
+              A = var46;
               wMem(51315, A, 59087);
-              int var40 = IY() + 3;
-              int var41 = mem(var40, 59090);
-              A = var41;
+              int var47 = IY() + 3;
+              int var48 = mem(var47, 59090);
+              A = var48;
               $CBBD();
               return;
             }
@@ -6433,11 +7406,11 @@ public class ZxGame1 extends MiniZX {
       }
 
       DE(6);
-      int var43 = DE();
-      int var44 = IY() + var43 & 65535;
-      IY(var44);
-      int var45 = B - 1 & 255;
-      B = var45;
+      int var50 = DE();
+      int var51 = IY() + var50 & 65535;
+      IY(var51);
+      int var52 = B - 1 & 255;
+      B = var52;
     } while(B != 0);
 
   }
@@ -6455,7 +7428,6 @@ public class ZxGame1 extends MiniZX {
     HL(var6);
     C = 4;
 
-    int var14;
     do {
       int var7 = HL();
       push(var7);
@@ -6466,6 +7438,7 @@ public class ZxGame1 extends MiniZX {
         wMem(var8, A, 60595);
         int var9 = L + 1 & 255;
         L = var9;
+        F = L;
         int var10 = B - 1 & 255;
         B = var10;
       } while(B != 0);
@@ -6475,100 +7448,135 @@ public class ZxGame1 extends MiniZX {
       int var12 = DE();
       int var13 = HL() + var12 & 65535;
       HL(var13);
-      var14 = C - 1 & 255;
+      int var14 = C - 1 & 255;
       C = var14;
-    } while(var14 != 0);
+      F = var14;
+    } while(F != 0);
 
   }
 
   public void $E782() {
     int var1 = mem(51327, 59266);
     A = var1;
-    if((A & 128) == 0) {
-      int var2 = IY() + 1;
-      int var3 = mem(var2, 59272);
-      A = var3;
-      int var4 = A & 31;
+    int var2 = A & 128;
+    F = var2;
+    if(F == 0) {
+      int var3 = IY() + 1;
+      int var4 = mem(var3, 59272);
       A = var4;
-      int var5 = A - 1 & 255;
+      int var5 = A & 31;
       A = var5;
-      B = A;
-      int var6 = mem(59098, 59279);
-      A = var6;
-      int var7 = A & 63;
+      int var6 = A << 1;
+      F = var6;
+      int var7 = A - 1 & 255;
       A = var7;
-      int var8 = A + B & 255;
+      F = var7;
+      B = A;
+      int var8 = mem(59098, 59279);
       A = var8;
-      L = A;
-      int var9 = mem(51315, 59286);
+      int var9 = A & 63;
       A = var9;
+      int var10 = A << 1;
+      F = var10;
+      int var11 = A + B;
+      int var12 = var11 & 255;
+      A = var12;
+      F = var11;
+      L = A;
+      int var13 = mem(51315, 59286);
+      A = var13;
       H = A;
-      if(A == L) {
+      int var14 = A - L;
+      F = var14;
+      if(F == 0) {
         $E7D7();
       } else {
         A = B;
-        int var10 = A - 1 & 255;
-        A = var10;
-        if(A >= H) {
+        int var15 = A - 1 & 255;
+        A = var15;
+        F = var15;
+        int var16 = A - H;
+        F = var16;
+        if(F >= 0) {
           $E7D7();
         } else {
           A = L;
-          if(A < H) {
+          int var17 = A - H;
+          F = var17;
+          if(F < 0) {
             $E7D7();
           } else {
             A = C;
-            if(A == H) {
+            int var18 = A - H;
+            F = var18;
+            if(F == 0) {
               $E7D7();
             } else {
-              int var11 = IY() + 2;
-              int var12 = mem(var11, 59306);
-              A = var12;
-              int var13 = A & 3;
-              A = var13;
-              int var14 = A;
-              int var15 = rrc(var14);
-              A = var15;
-              int var16 = A;
-              int var17 = rrc(var16);
-              A = var17;
-              B = A;
-              int var18 = IY() + 1;
-              int var19 = mem(var18, 59314);
-              A = var19;
-              int var20 = A & 224;
+              int var19 = IY() + 2;
+              int var20 = mem(var19, 59306);
               A = var20;
-              int var21 = A;
-              int var22 = rrc(var21);
-              A = var22;
+              int var21 = A & 3;
+              A = var21;
+              int var22 = A << 1;
+              F = var22;
               int var23 = A;
               int var24 = rrc(var23);
               A = var24;
-              int var25 = A + B & 255;
-              A = var25;
-              B = A;
-              int var26 = mem(51314, 59323);
+              int var25 = A;
+              int var26 = rrc(var25);
               A = var26;
-              int var27 = A + 26 & 255;
-              A = var27;
-              if(A < B) {
+              B = A;
+              int var27 = IY() + 1;
+              int var28 = mem(var27, 59314);
+              A = var28;
+              int var29 = A & 224;
+              A = var29;
+              int var30 = A << 1;
+              F = var30;
+              int var31 = A;
+              int var32 = rrc(var31);
+              A = var32;
+              int var33 = A;
+              int var34 = rrc(var33);
+              A = var34;
+              int var35 = A + B;
+              int var36 = var35 & 255;
+              A = var36;
+              F = var35;
+              B = A;
+              int var37 = mem(51314, 59323);
+              A = var37;
+              int var38 = A + 26;
+              int var39 = var38 & 255;
+              A = var39;
+              F = var38;
+              int var40 = A - B;
+              F = var40;
+              if(F < 0) {
                 $E7D7();
               } else {
-                int var28 = A - 32 & 255;
-                A = var28;
-                if(A >= B) {
+                int var41 = A - 32;
+                int var42 = var41 & 255;
+                A = var42;
+                F = var41;
+                int var43 = A - B;
+                F = var43;
+                if(F >= 0) {
                   $E7D7();
                 } else {
                   HL(51316);
-                  int var29 = HL();
-                  if((mem(var29, 59339) & 32) != 0) {
+                  int var44 = HL();
+                  int var45 = mem(var44, 59339) & 32;
+                  F = var45;
+                  if(F != 0) {
                     $E7D7();
                   } else {
                     $CD8A();
                     HL(59098);
-                    int var30 = HL();
-                    int var31 = mem(var30, 59349) | 128;
-                    int var32 = HL();
-                    wMem(var32, var31, 59349);
+                    int var46 = HL();
+                    int var47 = mem(var46, 59349) | 128;
+                    int var48 = HL();
+                    wMem(var48, var47, 59349);
                     $E7D7();
                   }
                 }
@@ -6589,17 +7597,19 @@ public class ZxGame1 extends MiniZX {
     do {
       int var2 = IY();
       int var3 = mem(var2, 59109);
-      if(A == var3) {
+      int var4 = A - var3;
+      F = var4;
+      if(F == 0) {
         $E6F6();
         return;
       }
 
       DE(4);
-      int var4 = DE();
-      int var5 = IY() + var4 & 65535;
-      IY(var5);
-      int var6 = B - 1 & 255;
-      B = var6;
+      int var5 = DE();
+      int var6 = IY() + var5 & 65535;
+      IY(var6);
+      int var7 = B - 1 & 255;
+      B = var7;
     } while(B != 0);
 
     C = 20;
@@ -6615,176 +7625,222 @@ public class ZxGame1 extends MiniZX {
     do {
       int var2 = HL();
       int var3 = mem(var2, 52917);
-      if(A == var3) {
-        int var4 = HL() + 1 & 65535;
-        HL(var4);
-        int var5 = HL();
-        int var6 = mem(var5, 52927);
-        A = var6;
-        int var7 = HL() + 1 & 65535;
-        HL(var7);
-        int var8 = HL();
-        int var9 = mem(var8, 52929);
-        H = var9;
+      int var4 = A - var3;
+      F = var4;
+      if(F == 0) {
+        int var5 = HL() + 1 & 65535;
+        HL(var5);
+        int var6 = HL();
+        int var7 = mem(var6, 52927);
+        A = var7;
+        int var8 = HL() + 1 & 65535;
+        HL(var8);
+        int var9 = HL();
+        int var10 = mem(var9, 52929);
+        H = var10;
         L = A;
         HL(52940);
         DE(52968);
         BC(8);
         ldir();
         HL(52967);
-        int var10 = HL();
-        int var11 = mem(var10, 52987) + 1 & 255;
-        int var12 = HL();
-        wMem(var12, var11, 52987);
+        int var11 = HL();
+        int var12 = mem(var11, 52987) + 1 & 255;
         int var13 = HL();
-        int var14 = mem(var13, 52988);
-        A = var14;
+        wMem(var13, var12, 52987);
+        int var14 = HL();
+        int var15 = mem(var14, 52987);
+        F = var15;
+        int var16 = HL();
+        int var17 = mem(var16, 52988);
+        A = var17;
         HL(52966);
-        if((A & 128) == 0) {
-          int var68 = HL();
-          int var69 = mem(var68, 52996) + 1 & 255;
-          int var70 = HL();
-          wMem(var70, var69, 52996);
-          int var71 = HL();
-          int var72 = mem(var71, 52997);
-          A = var72;
-          if(A == 8) {
-            int var73 = HL();
-            wMem(var73, 1, 53002);
+        int var18 = A & 128;
+        F = var18;
+        if(F == 0) {
+          int var85 = HL();
+          int var86 = mem(var85, 52996) + 1 & 255;
+          int var87 = HL();
+          wMem(var87, var86, 52996);
+          int var88 = HL();
+          int var89 = mem(var88, 52996);
+          F = var89;
+          int var90 = HL();
+          int var91 = mem(var90, 52997);
+          A = var91;
+          int var92 = A - 8;
+          F = var92;
+          if(F == 0) {
+            int var93 = HL();
+            wMem(var93, 1, 53002);
           }
-        } else if((A & 1) != 0) {
-          int var62 = HL();
-          int var63 = mem(var62, 53010) - 1 & 255;
-          int var64 = HL();
-          wMem(var64, var63, 53010);
-          int var65 = HL();
-          int var66 = mem(var65, 53011);
-          A = var66;
-          if(A << 1 == 0) {
-            int var67 = HL();
-            wMem(var67, 7, 53015);
+        } else {
+          int var19 = A & 1;
+          F = var19;
+          if(F != 0) {
+            int var78 = HL();
+            int var79 = mem(var78, 53010) - 1 & 255;
+            int var80 = HL();
+            wMem(var80, var79, 53010);
+            F = var79;
+            int var81 = HL();
+            int var82 = mem(var81, 53011);
+            A = var82;
+            int var83 = A << 1;
+            F = var83;
+            if(F == 0) {
+              int var84 = HL();
+              wMem(var84, 7, 53015);
+            }
           }
         }
 
-        int var15 = mem(52966, 53017);
-        A = var15;
-        int var16 = mem16(52968, 53020);
-        HL(var16);
-        int var17 = mem16(52970, 53023);
-        BC(var17);
+        int var20 = mem(52966, 53017);
+        A = var20;
+        int var21 = mem16(52968, 53020);
+        HL(var21);
+        int var22 = mem16(52970, 53023);
+        BC(var22);
         DE(32);
 
-        int var30;
         do {
-          int var18 = BC();
-          push(var18);
-          int var19 = HL();
-          push(var19);
+          int var23 = BC();
+          push(var23);
+          int var24 = HL();
+          push(var24);
 
           do {
-            int var20 = HL();
-            wMem(var20, A, 53032);
-            int var21 = DE();
-            int var22 = HL() + var21 & 65535;
-            HL(var22);
-            int var23 = A + 1 & 255;
-            A = var23;
-            if(A == 8) {
+            int var25 = HL();
+            wMem(var25, A, 53032);
+            int var26 = DE();
+            int var27 = HL() + var26 & 65535;
+            HL(var27);
+            int var28 = A + 1 & 255;
+            A = var28;
+            F = A;
+            int var29 = A - 8;
+            F = var29;
+            if(F == 0) {
               A = 1;
             }
 
-            int var24 = B - 1 & 255;
-            B = var24;
+            int var30 = B - 1 & 255;
+            B = var30;
           } while(B != 0);
 
-          int var25 = pop();
-          HL(var25);
-          int var26 = pop();
-          BC(var26);
-          int var27 = L + 1 & 255;
-          L = var27;
-          int var28 = L + 1 & 255;
-          L = var28;
-          int var29 = L + 1 & 255;
-          L = var29;
-          var30 = C - 1 & 255;
-          C = var30;
-        } while(var30 != 0);
+          int var31 = pop();
+          HL(var31);
+          int var32 = pop();
+          BC(var32);
+          int var33 = L + 1 & 255;
+          L = var33;
+          F = L;
+          int var34 = L + 1 & 255;
+          L = var34;
+          F = L;
+          int var35 = L + 1 & 255;
+          L = var35;
+          F = L;
+          int var36 = C - 1 & 255;
+          C = var36;
+          F = var36;
+        } while(F != 0);
 
         HL(52967);
-        int var31 = HL();
-        if((mem(var31, 53054) & 128) != 0) {
+        int var37 = HL();
+        int var38 = mem(var37, 53054) & 128;
+        F = var38;
+        if(F != 0) {
           return;
         } else {
-          int var32 = HL();
-          int var33 = mem(var32, 53057);
-          A = var33;
-          int var34 = A & 112;
-          A = var34;
-          int var35 = A;
-          int var36 = rrc(var35);
-          A = var36;
-          int var37 = A;
-          int var38 = rrc(var37);
-          A = var38;
-          int var39 = HL() - 1 & 65535;
-          HL(var39);
-          int var40 = HL();
-          int var41 = mem(var40, 53063);
-          B = var41;
-          int var42 = B;
-          int var43 = sl(var42);
-          B = var43;
-          int var44 = A - B & 255;
+          int var39 = HL();
+          int var40 = mem(var39, 53057);
+          A = var40;
+          int var41 = A & 112;
+          A = var41;
+          int var42 = A << 1;
+          F = var42;
+          int var43 = A;
+          int var44 = rrc(var43);
           A = var44;
-          int var45 = A | 32;
-          A = var45;
-          int var46 = A & 46;
+          int var45 = A;
+          int var46 = rrc(var45);
           A = var46;
+          int var47 = HL() - 1 & 65535;
+          HL(var47);
+          int var48 = HL();
+          int var49 = mem(var48, 53063);
+          B = var49;
+          int var50 = B;
+          int var51 = sl(var50);
+          B = var51;
+          int var52 = A - B;
+          int var53 = var52 & 255;
+          A = var53;
+          F = var52;
+          int var54 = A | 32;
+          A = var54;
+          int var55 = A << 1;
+          F = var55;
+          int var56 = A & 46;
+          A = var56;
+          int var57 = A << 1;
+          F = var57;
           $DB01();
-          int var47 = mem16(51314, 53074);
-          DE(var47);
+          int var58 = mem16(51314, 53074);
+          DE(var58);
           HL(52972);
           A = E;
-          int var48 = HL();
-          int var49 = mem(var48, 53082);
-          if(A != var49) {
+          int var59 = HL();
+          int var60 = mem(var59, 53082);
+          int var61 = A - var60;
+          F = var61;
+          if(F != 0) {
             return;
           } else {
             A = D;
-            int var50 = HL() + 1 & 65535;
-            HL(var50);
-            int var51 = HL();
-            int var52 = mem(var51, 53086);
-            B = var52;
-            int var53 = B - 1 & 255;
-            B = var53;
-            if(A < B) {
+            int var62 = HL() + 1 & 65535;
+            HL(var62);
+            int var63 = HL();
+            int var64 = mem(var63, 53086);
+            B = var64;
+            int var65 = B - 1 & 255;
+            B = var65;
+            F = var65;
+            int var66 = A - B;
+            F = var66;
+            if(F < 0) {
               return;
             } else {
-              int var54 = HL() + 1 & 65535;
-              HL(var54);
-              int var55 = HL();
-              int var56 = mem(var55, 53091);
-              B = var56;
-              if(A >= B) {
+              int var67 = HL() + 1 & 65535;
+              HL(var67);
+              int var68 = HL();
+              int var69 = mem(var68, 53091);
+              B = var69;
+              int var70 = A - B;
+              F = var70;
+              if(F >= 0) {
                 return;
               } else {
-                int var57 = mem(51318, 53094);
-                A = var57;
-                if(A << 1 != 0) {
+                int var71 = mem(51318, 53094);
+                A = var71;
+                int var72 = A << 1;
+                F = var72;
+                if(F != 0) {
                   return;
                 } else {
-                  int var58 = mem(51316, 53099);
-                  A = var58;
-                  if((A & 32) != 0) {
+                  int var73 = mem(51316, 53099);
+                  A = var73;
+                  int var74 = A & 32;
+                  F = var74;
+                  if(F != 0) {
                     return;
                   } else {
                     HL(51327);
-                    int var59 = HL();
-                    int var60 = mem(var59, 53108) | 1;
-                    int var61 = HL();
-                    wMem(var61, var60, 53108);
+                    int var75 = HL();
+                    int var76 = mem(var75, 53108) | 1;
+                    int var77 = HL();
+                    wMem(var77, var76, 53108);
                     return;
                   }
                 }
@@ -6794,14 +7850,14 @@ public class ZxGame1 extends MiniZX {
         }
       }
 
-      int var74 = HL() + 1 & 65535;
-      HL(var74);
-      int var75 = HL() + 1 & 65535;
-      HL(var75);
-      int var76 = HL() + 1 & 65535;
-      HL(var76);
-      int var77 = B - 1 & 255;
-      B = var77;
+      int var94 = HL() + 1 & 65535;
+      HL(var94);
+      int var95 = HL() + 1 & 65535;
+      HL(var95);
+      int var96 = HL() + 1 & 65535;
+      HL(var96);
+      int var97 = B - 1 & 255;
+      B = var97;
     } while(B != 0);
 
   }
@@ -6809,46 +7865,62 @@ public class ZxGame1 extends MiniZX {
   public void $DE52() {
     HL(51326);
     int var1 = HL();
-    if((mem(var1, 56917) & 32) != 0) {
-      int var2 = HL();
-      if((mem(var2, 56920) & 128) == 0) {
+    int var2 = mem(var1, 56917) & 32;
+    F = var2;
+    if(F != 0) {
+      int var3 = HL();
+      int var4 = mem(var3, 56920) & 128;
+      F = var4;
+      if(F == 0) {
         exHLDE();
         HL(56913);
-        int var3 = HL();
-        int var4 = mem(var3, 56927) - 1 & 255;
         int var5 = HL();
-        wMem(var5, var4, 56927);
-        int var6 = HL();
-        int var7 = mem(var6, 56928);
-        A = var7;
-        if(A << 1 == 0) {
+        int var6 = mem(var5, 56927) - 1 & 255;
+        int var7 = HL();
+        wMem(var7, var6, 56927);
+        F = var6;
+        int var8 = HL();
+        int var9 = mem(var8, 56928);
+        A = var9;
+        int var10 = A << 1;
+        F = var10;
+        if(F == 0) {
           exHLDE();
-          int var17 = HL();
-          int var18 = mem(var17, 56933) & -33;
-          int var19 = HL();
-          wMem(var19, var18, 56933);
+          int var24 = HL();
+          int var25 = mem(var24, 56933) & -33;
+          int var26 = HL();
+          wMem(var26, var25, 56933);
         }
 
-        int var8 = A & 7;
-        A = var8;
-        C = A;
-        int var9 = mem(59392, 56938);
-        A = var9;
-        int var10 = A & 248;
-        A = var10;
-        int var11 = A | C;
+        int var11 = A & 7;
         A = var11;
+        int var12 = A << 1;
+        F = var12;
+        C = A;
+        int var13 = mem(59392, 56938);
+        A = var13;
+        int var14 = A & 248;
+        A = var14;
+        int var15 = A << 1;
+        F = var15;
+        int var16 = A | C;
+        A = var16;
+        int var17 = A << 1;
+        F = var17;
         wMem(59392, A, 56946);
         A = C;
-        int var12 = A & 4;
-        A = var12;
-        int var13 = A;
-        int var14 = rr(var13);
-        A = var14;
-        int var15 = A + 5;
-        int var16 = var15 & 255;
-        A = var16;
-        F = var15;
+        int var18 = A & 4;
+        A = var18;
+        int var19 = A << 1;
+        F = var19;
+        int var20 = A;
+        F = F;
+        int var21 = rr(var20);
+        A = var21;
+        int var22 = A + 5;
+        int var23 = var22 & 255;
+        A = var23;
+        F = var22;
         $DB01();
       }
     }
@@ -6864,7 +7936,6 @@ public class ZxGame1 extends MiniZX {
       $EEF1();
       DE(2567);
       A = 2;
-      waitMilis(50);
 
       do {
         int var1 = DE();
@@ -6879,64 +7950,71 @@ public class ZxGame1 extends MiniZX {
         DE(var4);
         int var5 = E + 1 & 255;
         E = var5;
+        F = E;
         int var6 = E + 1 & 255;
         E = var6;
+        F = E;
         int var7 = A + 1 & 255;
         A = var7;
-      } while(A != 7);
+        F = A;
+        int var8 = A - 7;
+        F = var8;
+      } while(F != 0);
 
       BC(18);
       DE(22631);
       HL(51755);
       ldir();
       HL(55946);
-      int var8 = HL();
-      wMem(var8, 0, 51854);
+      int var9 = HL();
+      wMem(var9, 0, 51854);
       IY(51773);
       $E54D();
       HL(59097);
-      int var9 = HL();
-      wMem(var9, 127, 51866);
-      int var10 = HL() + 1 & 65535;
-      HL(var10);
-      int var11 = HL();
-      wMem(var11, 0, 51869);
-      HL(59909);
+      int var10 = HL();
+      wMem(var10, 127, 51866);
+      int var11 = HL() + 1 & 65535;
+      HL(var11);
       int var12 = HL();
-      wMem16(51799, var12, 51874);
+      wMem(var12, 0, 51869);
+      HL(59909);
+      int var13 = HL();
+      wMem16(51799, var13, 51874);
       A = 18;
       wMem(51801, A, 51879);
 
       label78:
       while(true) {
-        int var13 = mem16(51799, 51882);
-        HL(var13);
-        int var14 = HL();
-        int var15 = mem(var14, 51885);
-        A = var15;
-        int var16 = HL() + 1 & 65535;
-        HL(var16);
-        int var17 = HL();
-        int var18 = mem(var17, 51887);
-        H = var18;
+        int var14 = mem16(51799, 51882);
+        HL(var14);
+        int var15 = HL();
+        int var16 = mem(var15, 51885);
+        A = var16;
+        int var17 = HL() + 1 & 65535;
+        HL(var17);
+        int var18 = HL();
+        int var19 = mem(var18, 51887);
+        H = var19;
         L = A;
         $DB0B();
 
         while(true) {
           while(true) {
             A = 253;
-            int var19 = A << 8 | 254;
-            int var20 = in(var19, 51894);
-            A = var20;
-            if((A & 4) == 0) {
+            int var20 = A << 8 | 254;
+            int var21 = in(var20, 51894);
+            A = var21;
+            int var22 = A & 4;
+            F = var22;
+            if(F == 0) {
               $E801();
               HL(64915);
               $EEF1();
               HL(56157);
               $F470();
               HL(55946);
-              int var21 = HL();
-              wMem(var21, 0, 56181);
+              int var23 = HL();
+              wMem(var23, 0, 56181);
               $DD8D();
               HL(56146);
               $DDE0();
@@ -6967,35 +8045,40 @@ public class ZxGame1 extends MiniZX {
             $EDA2();
             $DA8D();
             $DAFA();
-            int var22 = mem16(55944, 51917);
-            HL(var22);
-            int var23 = HL();
-            int var24 = mem(var23, 51920);
-            A = var24;
-            if(A == 255) {
-              int var63 = mem16(51799, 51925);
-              HL(var63);
-              int var64 = HL() + 1 & 65535;
-              HL(var64);
-              int var65 = HL() + 1 & 65535;
-              HL(var65);
-              int var66 = mem(51801, 51930);
-              A = var66;
-              int var67 = A - 1 & 255;
-              A = var67;
-              if(A << 1 == 0) {
+            int var24 = mem16(55944, 51917);
+            HL(var24);
+            int var25 = HL();
+            int var26 = mem(var25, 51920);
+            A = var26;
+            int var27 = A - 255;
+            F = var27;
+            if(F == 0) {
+              int var72 = mem16(51799, 51925);
+              HL(var72);
+              int var73 = HL() + 1 & 65535;
+              HL(var73);
+              int var74 = HL() + 1 & 65535;
+              HL(var74);
+              int var75 = mem(51801, 51930);
+              A = var75;
+              int var76 = A - 1 & 255;
+              A = var76;
+              F = var76;
+              int var77 = A << 1;
+              F = var77;
+              if(F == 0) {
                 A = 18;
                 HL(59909);
               }
 
-              int var68 = HL();
-              wMem16(51799, var68, 51942);
+              int var78 = HL();
+              wMem16(51799, var78, 51942);
               wMem(51801, A, 51945);
               continue label78;
             }
 
-            int var25 = mem(51802, 51950);
-            A = var25;
+            int var28 = mem(51802, 51950);
+            A = var28;
             E = A;
             D = 10;
             $E8E3();
@@ -7003,84 +8086,93 @@ public class ZxGame1 extends MiniZX {
             B = 10;
 
             do {
-              int var26 = HL();
-              int var27 = mem(var26, 51962) | 128;
-              int var28 = HL();
-              wMem(var28, var27, 51962);
-              int var29 = L + 1 & 255;
-              L = var29;
-              int var30 = B - 1 & 255;
-              B = var30;
+              int var29 = HL();
+              int var30 = mem(var29, 51962) | 128;
+              int var31 = HL();
+              wMem(var31, var30, 51962);
+              int var32 = L + 1 & 255;
+              L = var32;
+              F = L;
+              int var33 = B - 1 & 255;
+              B = var33;
             } while(B != 0);
 
             A = 253;
-            int var31 = A << 8 | 254;
-            int var32 = in(var31, 51969);
-            A = var32;
-            int var33 = A & 2;
-            A = var33;
-            if(A << 1 == 0) {
-              int var60 = mem(51802, 51975);
-              A = var60;
-              if(A != 11) {
-                int var61 = A - 11;
-                F = var61;
+            int var34 = A << 8 | 254;
+            int var35 = in(var34, 51969);
+            A = var35;
+            int var36 = A & 2;
+            A = var36;
+            int var37 = A << 1;
+            F = var37;
+            if(F == 0) {
+              int var69 = mem(51802, 51975);
+              A = var69;
+              int var70 = A - 11;
+              F = var70;
+              if(F != 0) {
                 $CB8D();
                 HL(59867);
-                int var62 = HL();
-                wMem16(59834, var62, 51988);
+                int var71 = HL();
+                wMem16(59834, var71, 51988);
                 A = 11;
                 break;
               }
             } else {
               A = 191;
-              int var34 = A << 8 | 254;
-              int var35 = in(var34, 52000);
-              A = var35;
+              int var38 = A << 8 | 254;
+              int var39 = in(var38, 52000);
+              A = var39;
               B = A;
-              int var36 = A & 4;
-              A = var36;
-              if(A << 1 == 0) {
-                int var57 = mem(51802, 52007);
-                A = var57;
-                if(A != 7) {
-                  int var58 = A - 7;
-                  F = var58;
+              int var40 = A & 4;
+              A = var40;
+              int var41 = A << 1;
+              F = var41;
+              if(F == 0) {
+                int var66 = mem(51802, 52007);
+                A = var66;
+                int var67 = A - 7;
+                F = var67;
+                if(F != 0) {
                   $CB8D();
                   HL(62065);
-                  int var59 = HL();
-                  wMem16(59834, var59, 52020);
+                  int var68 = HL();
+                  wMem16(59834, var68, 52020);
                   A = 7;
                   break;
                 }
               } else {
                 A = B;
-                int var37 = A & 8;
-                A = var37;
-                if(A << 1 == 0) {
-                  int var54 = mem(51802, 52032);
-                  A = var54;
-                  if(A != 9) {
-                    int var55 = A - 9;
-                    F = var55;
+                int var42 = A & 8;
+                A = var42;
+                int var43 = A << 1;
+                F = var43;
+                if(F == 0) {
+                  int var63 = mem(51802, 52032);
+                  A = var63;
+                  int var64 = A - 9;
+                  F = var64;
+                  if(F != 0) {
                     $CB8D();
                     HL(59840);
-                    int var56 = HL();
-                    wMem16(59834, var56, 52046);
+                    int var65 = HL();
+                    wMem16(59834, var65, 52046);
                     A = 9;
                     break;
                   }
                 } else {
                   A = 223;
-                  int var38 = A << 8 | 254;
-                  int var39 = in(var38, 52055);
-                  A = var39;
-                  if((A & 4) == 0) {
+                  int var44 = A << 8 | 254;
+                  int var45 = in(var44, 52055);
+                  A = var45;
+                  int var46 = A & 4;
+                  F = var46;
+                  if(F == 0) {
                     HL(55946);
-                    int var40 = HL();
-                    int var41 = mem(var40, 56569) & -2;
-                    int var42 = HL();
-                    wMem(var42, var41, 56569);
+                    int var47 = HL();
+                    int var48 = mem(var47, 56569) & -2;
+                    int var49 = HL();
+                    wMem(var49, var48, 56569);
                     $E801();
                     HL(63687);
                     $EEF1();
@@ -7104,23 +8196,26 @@ public class ZxGame1 extends MiniZX {
                     $F470();
                     IX(62725);
                     A = 0;
+                    int var50 = A << 1;
+                    F = var50;
 
                     do {
-                      int var43 = AF();
-                      push(var43);
+                      int var51 = AF();
+                      push(var51);
                       $DCCC();
-                      int var44 = IX() + 1 & 65535;
-                      IX(var44);
-                      int var45 = IX() + 1 & 65535;
-                      IX(var45);
-                      int var46 = pop();
-                      AF(var46);
-                      int var47 = A + 1 & 255;
-                      A = var47;
-                    } while(A != 8);
+                      int var52 = IX() + 1 & 65535;
+                      IX(var52);
+                      int var53 = IX() + 1 & 65535;
+                      IX(var53);
+                      int var54 = pop();
+                      AF(var54);
+                      int var55 = A + 1 & 255;
+                      A = var55;
+                      F = A;
+                      int var56 = A - 8;
+                      F = var56;
+                    } while(F != 0);
 
-                    int var48 = A - 8;
-                    F = var48;
                     $DD8D();
                     HL(62921);
                     $DDE0();
@@ -7141,8 +8236,8 @@ public class ZxGame1 extends MiniZX {
                     HL(62933);
                     $DDE0();
                     A = 0;
-                    int var49 = A << 1;
-                    F = var49;
+                    int var57 = A << 1;
+                    F = var57;
                     wMem(56565, A, 56711);
                     continue label85;
                   }
@@ -7150,10 +8245,10 @@ public class ZxGame1 extends MiniZX {
                   $CB9C();
                   if(F == 0) {
                     HL(55946);
-                    int var50 = HL();
-                    int var51 = mem(var50, 52071) & -2;
-                    int var52 = HL();
-                    wMem(var52, var51, 52071);
+                    int var58 = HL();
+                    int var59 = mem(var58, 52071) & -2;
+                    int var60 = HL();
+                    wMem(var60, var59, 52071);
 
                     do {
                       IY(51795);
@@ -7163,9 +8258,11 @@ public class ZxGame1 extends MiniZX {
                       $EDA2();
                       IY(51779);
                       $E59F();
-                      int var53 = mem(59098, 52096);
-                      A = var53;
-                    } while(A << 1 != 0);
+                      int var61 = mem(59098, 52096);
+                      A = var61;
+                      int var62 = A << 1;
+                      F = var62;
+                    } while(F != 0);
 
                     HL(51742);
                     $DDE0();
@@ -7186,44 +8283,50 @@ public class ZxGame1 extends MiniZX {
     C = A;
     int var1 = A & 7;
     A = var1;
-    int var2 = A + 1 & 255;
-    A = var2;
+    int var2 = A << 1;
+    F = var2;
+    int var3 = A + 1 & 255;
+    A = var3;
+    F = A;
     B = A;
-    int var3 = C;
-    int var4 = sr(var3);
-    C = var4;
-    int var5 = C;
-    int var6 = sr(var5);
-    C = var6;
-    int var7 = C;
-    int var8 = sr(var7);
-    C = var8;
+    int var4 = C;
+    int var5 = sr(var4);
+    C = var5;
+    int var6 = C;
+    int var7 = sr(var6);
+    C = var7;
+    int var8 = C;
+    int var9 = sr(var8);
+    C = var9;
     A = 5;
-    int var9 = A - C & 255;
-    A = var9;
+    int var10 = A - C;
+    int var11 = var10 & 255;
+    A = var11;
+    F = var10;
     C = A;
     A = 254;
 
     do {
-      int var10 = A;
-      int var11 = rrc(var10);
-      A = var11;
-      int var12 = B - 1 & 255;
-      B = var12;
+      int var12 = A;
+      int var13 = rrc(var12);
+      A = var13;
+      int var14 = B - 1 & 255;
+      B = var14;
     } while(B != 0);
 
-    int var13 = A << 8 | 254;
-    int var14 = in(var13, 62270);
-    A = var14;
+    int var15 = A << 8 | 254;
+    int var16 = in(var15, 62270);
+    A = var16;
 
-    int var17;
     do {
-      int var15 = A;
-      int var16 = rr(var15);
-      A = var16;
-      var17 = C - 1 & 255;
-      C = var17;
-    } while(var17 != 0);
+      int var17 = A;
+      F = F;
+      int var18 = rr(var17);
+      A = var18;
+      int var19 = C - 1 & 255;
+      C = var19;
+      F = var19;
+    } while(F != 0);
 
   }
 
@@ -7248,11 +8351,13 @@ public class ZxGame1 extends MiniZX {
     int var11 = A;
     int var12 = sl(var11);
     A = var12;
-    int var13 = A + D & 255;
-    A = var13;
+    int var13 = A + D;
+    int var14 = var13 & 255;
+    A = var14;
+    F = var13;
     E = A;
-    int var14 = pop();
-    AF(var14);
+    int var15 = pop();
+    AF(var15);
     D = A;
   }
 
@@ -7271,8 +8376,10 @@ public class ZxGame1 extends MiniZX {
     int var1 = A;
     int var2 = sr(var1);
     A = var2;
-    int var3 = A + L & 255;
-    A = var3;
+    int var3 = A + L;
+    int var4 = var3 & 255;
+    A = var4;
+    F = var3;
   }
 
   public void $D361() {
@@ -7293,7 +8400,9 @@ public class ZxGame1 extends MiniZX {
   }
 
   public void $D34A() {
-    if((B & 2) == 0) {
+    int var1 = B & 2;
+    F = var1;
+    if(F == 0) {
       $D361();
     } else {
       $D3EC();
@@ -7315,38 +8424,47 @@ public class ZxGame1 extends MiniZX {
     A = var8;
     int var9 = A & 7;
     A = var9;
-    int var10 = AF();
-    push(var10);
+    int var10 = A << 1;
+    F = var10;
+    int var11 = AF();
+    push(var11);
     $DCE8();
-    int var11 = HL();
-    int var12 = mem(var11, 56267);
-    B = var12;
-    int var13 = HL() + 1 & 65535;
-    HL(var13);
-    int var14 = HL();
-    int var15 = mem(var14, 56269);
-    C = var15;
+    int var12 = HL();
+    int var13 = mem(var12, 56267);
+    B = var13;
+    int var14 = HL() + 1 & 65535;
+    HL(var14);
+    int var15 = HL();
+    int var16 = mem(var15, 56269);
+    C = var16;
     $E897();
-    int var16 = pop();
-    AF(var16);
-    int var17 = A + 1 & 255;
-    A = var17;
-    B = A;
-    int var18 = A + A & 255;
+    int var17 = pop();
+    AF(var17);
+    int var18 = A + 1 & 255;
     A = var18;
-    int var19 = A + A & 255;
-    A = var19;
-    int var20 = A + B & 255;
+    F = A;
+    B = A;
+    int var19 = A + A;
+    int var20 = var19 & 255;
     A = var20;
-    HL(51307);
-    int var21 = HL();
-    int var22 = mem(var21, 56282);
-    int var23 = A + var22;
+    F = var19;
+    int var21 = A + A;
+    int var22 = var21 & 255;
+    A = var22;
+    F = var21;
+    int var23 = A + B;
     int var24 = var23 & 255;
     A = var24;
     F = var23;
+    HL(51307);
     int var25 = HL();
-    wMem(var25, A, 56283);
+    int var26 = mem(var25, 56282);
+    int var27 = A + var26;
+    int var28 = var27 & 255;
+    A = var28;
+    F = var27;
+    int var29 = HL();
+    wMem(var29, A, 56283);
     HL(60998);
     $DB0B();
     A = 8;
@@ -7410,28 +8528,34 @@ public class ZxGame1 extends MiniZX {
     D = var4;
     int var5 = E - 1 & 255;
     E = var5;
+    F = var5;
     int var6 = E - 1 & 255;
     E = var6;
     F = var6;
     $DB38();
     if(F < 0) {
-      int var16 = IX() + 4;
-      int var17 = mem(var16, 56980) & -33;
-      wMem(var16, var17, 56980);
-      int var18 = E + 1 & 255;
-      E = var18;
-      int var19 = E + 1 & 255;
-      E = var19;
+      int var18 = IX() + 4;
+      int var19 = mem(var18, 56980) & -33;
+      wMem(var18, var19, 56980);
+      int var20 = E + 1 & 255;
+      E = var20;
+      F = E;
+      int var21 = E + 1 & 255;
+      E = var21;
+      F = E;
       BC(513);
       $E897();
       HL(51320);
-      int var20 = HL();
-      int var21 = mem(var20, 56995);
-      A = var21;
       int var22 = HL();
-      int var23 = mem(var22, 56996) + 1 & 255;
+      int var23 = mem(var22, 56995);
+      A = var23;
       int var24 = HL();
-      wMem(var24, var23, 56996);
+      int var25 = mem(var24, 56996) + 1 & 255;
+      int var26 = HL();
+      wMem(var26, var25, 56996);
+      int var27 = HL();
+      int var28 = mem(var27, 56996);
+      F = var28;
       E = 23;
       D = A;
       BC(257);
@@ -7456,6 +8580,9 @@ public class ZxGame1 extends MiniZX {
       int var14 = mem(var13, 57035) + 1 & 255;
       int var15 = HL();
       wMem(var15, var14, 57035);
+      int var16 = HL();
+      int var17 = mem(var16, 57035);
+      F = var17;
       A = 50;
       HL(61117);
     }
@@ -7474,63 +8601,82 @@ public class ZxGame1 extends MiniZX {
     int var5 = HL();
     wMem(var5, var4, 59132);
     int var6 = HL();
-    if((mem(var6, 59133) & 128) == 0) {
+    int var7 = mem(var6, 59132);
+    F = var7;
+    int var8 = HL();
+    int var9 = mem(var8, 59133) & 128;
+    F = var9;
+    if(F == 0) {
       $E7D7();
     } else {
-      int var7 = HL();
-      int var8 = mem(var7, 59138);
-      A = var8;
-      int var9 = A & 3;
-      A = var9;
-      B = A;
-      int var10 = A + A & 255;
-      A = var10;
-      int var11 = A + A & 255;
+      int var10 = HL();
+      int var11 = mem(var10, 59138);
       A = var11;
-      int var12 = A + A & 255;
+      int var12 = A & 3;
       A = var12;
+      int var13 = A << 1;
+      F = var13;
+      B = A;
+      int var14 = A + A;
+      int var15 = var14 & 255;
+      A = var15;
+      F = var14;
+      int var16 = A + A;
+      int var17 = var16 & 255;
+      A = var17;
+      F = var16;
+      int var18 = A + A;
+      int var19 = var18 & 255;
+      A = var19;
+      F = var18;
       E = A;
       D = 0;
       HL(60605);
-      int var13 = DE();
-      int var14 = HL() + var13 & 65535;
-      HL(var14);
+      int var20 = DE();
+      int var21 = HL() + var20 & 65535;
+      HL(var21);
       exHLDE();
       A = B;
-      int var15 = A + 3 & 255;
-      A = var15;
+      int var22 = A + 3;
+      int var23 = var22 & 255;
+      A = var23;
+      F = var22;
       wMem(59099, A, 59156);
       HL(59098);
-      int var16 = HL();
-      if((mem(var16, 59162) & 128) != 0) {
-        int var26 = HL();
-        int var27 = mem(var26, 59166) - 1 & 255;
-        int var28 = HL();
-        wMem(var28, var27, 59166);
-        F = var27;
+      int var24 = HL();
+      int var25 = mem(var24, 59162) & 128;
+      F = var25;
+      if(F != 0) {
+        int var39 = HL();
+        int var40 = mem(var39, 59166) - 1 & 255;
+        int var41 = HL();
+        wMem(var41, var40, 59166);
+        F = var40;
         $ECF4();
         $E775();
-        int var29 = HL();
-        int var30 = mem(var29, 59173);
-        A = var30;
-        int var31 = A & 63;
-        A = var31;
-        if(A << 1 == 0) {
+        int var42 = HL();
+        int var43 = mem(var42, 59173);
+        A = var43;
+        int var44 = A & 63;
+        A = var44;
+        int var45 = A << 1;
+        F = var45;
+        if(F == 0) {
           A = 0;
-          int var32 = A << 1;
-          F = var32;
-          int var33 = HL();
-          wMem(var33, A, 59179);
-          int var34 = HL() - 1 & 65535;
-          HL(var34);
-          int var35 = HL();
-          wMem(var35, A, 59181);
-          int var36 = IY() + 1;
-          int var37 = mem(var36, 59182);
-          L = var37;
-          int var38 = IY() + 2;
-          int var39 = mem(var38, 59185);
-          H = var39;
+          int var46 = A << 1;
+          F = var46;
+          int var47 = HL();
+          wMem(var47, A, 59179);
+          int var48 = HL() - 1 & 65535;
+          HL(var48);
+          int var49 = HL();
+          wMem(var49, A, 59181);
+          int var50 = IY() + 1;
+          int var51 = mem(var50, 59182);
+          L = var51;
+          int var52 = IY() + 2;
+          int var53 = mem(var52, 59185);
+          H = var53;
           $E76C();
           $E7D7();
         } else {
@@ -7539,22 +8685,29 @@ public class ZxGame1 extends MiniZX {
           $E782();
         }
       } else {
-        int var17 = HL();
-        int var18 = mem(var17, 59202) + 1 & 255;
-        int var19 = HL();
-        wMem(var19, var18, 59202);
+        int var26 = HL();
+        int var27 = mem(var26, 59202) + 1 & 255;
+        int var28 = HL();
+        wMem(var28, var27, 59202);
+        int var29 = HL();
+        int var30 = mem(var29, 59202);
+        F = var30;
         $ECF4();
         $E775();
-        int var20 = HL();
-        int var21 = mem(var20, 59209);
-        A = var21;
-        int var22 = A & 63;
-        A = var22;
-        if(A == C) {
-          int var23 = HL();
-          int var24 = mem(var23, 59215) | 128;
-          int var25 = HL();
-          wMem(var25, var24, 59215);
+        int var31 = HL();
+        int var32 = mem(var31, 59209);
+        A = var32;
+        int var33 = A & 63;
+        A = var33;
+        int var34 = A << 1;
+        F = var34;
+        int var35 = A - C;
+        F = var35;
+        if(F == 0) {
+          int var36 = HL();
+          int var37 = mem(var36, 59215) | 128;
+          int var38 = HL();
+          wMem(var38, var37, 59215);
         }
 
         $E756();
@@ -7564,23 +8717,25 @@ public class ZxGame1 extends MiniZX {
   }
 
   public void $E7D7() {
-    int var2;
     do {
       A = C;
-      if(A << 1 == 0) {
+      int var1 = A << 1;
+      F = var1;
+      if(F == 0) {
         return;
       }
 
       B = 31;
 
       do {
-        int var1 = B - 1 & 255;
-        B = var1;
+        int var2 = B - 1 & 255;
+        B = var2;
       } while(B != 0);
 
-      var2 = C - 1 & 255;
-      C = var2;
-    } while(var2 != 0);
+      int var3 = C - 1 & 255;
+      C = var3;
+      F = var3;
+    } while(F != 0);
 
   }
 
@@ -7588,18 +8743,20 @@ public class ZxGame1 extends MiniZX {
     HL(51307);
     int var1 = HL();
     int var2 = mem(var1, 56893);
-    int var3 = A + var2 & 255;
-    A = var3;
-    int var4 = HL();
-    wMem(var4, A, 56894);
+    int var3 = A + var2;
+    int var4 = var3 & 255;
+    A = var4;
+    F = var3;
+    int var5 = HL();
+    wMem(var5, A, 56894);
     exHLDE();
     $DB0B();
-    int var5 = mem(53194, 56899);
-    A = var5;
+    int var6 = mem(53194, 56899);
+    A = var6;
     $F3E0();
     BC(514);
     $E897();
-    int var6 = A << 1;
-    F = var6;
+    int var7 = A << 1;
+    F = var7;
   }
 }

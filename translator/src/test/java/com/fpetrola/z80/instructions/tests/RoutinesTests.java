@@ -1459,5 +1459,54 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
 //    assertBlockAddresses(routines.get(3).getBlocks().get(0), 10, 13);
   }
 
+  @Test
+  public void callingSimpleRoutineWithRetZ2WithAndHL() {
+    setUpMemory();
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
+      {
+        add(Ld(r(A), c(2)));
+        add(Call(t(), c(5)));
+        add(Ld(r(B), c(3)));
+        add(Ret(t()));
 
+        add(Ld(r(C), c(4)));
+
+        add(Ld(r(HL), c(10)));
+        add(And(iRR(r(HL))));
+        add(Ret(z()));
+        add(Ld(r(D), c(6)));
+        add(Ret(t()));
+      }
+    };
+
+    stepUntilComplete();
+
+    String resultingJava = generateAndDecompile();
+
+    List<Routine> routines = getRoutineManager().getRoutines();
+
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+        
+        public class JSW extends SpectrumApplication {
+           public void $0() {
+              super.A = 2;
+              this.$5();
+              super.B = 3;
+           }
+        
+           public void $5() {
+              if(super.A << 1 != 0) {
+                 super.D = 6;
+              }
+           }
+        }
+        """, resultingJava);
+
+
+    Assert.assertEquals(2, routines.size());
+
+    assertBlockAddresses(routines.get(0).getBlocks().get(0), 0, 3);
+    assertBlockAddresses(routines.get(1).getBlocks().get(0), 5, 8);
+  }
 }
