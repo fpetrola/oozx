@@ -22,6 +22,7 @@ import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.base.IDriverConfigurator;
 import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.NullBlockChangesListener;
+import com.fpetrola.z80.bytecode.VirtualRegistersRegistersSetter;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
@@ -129,5 +130,11 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Inject
   protected DataflowService getDataflowService() {
     return new VirtualRegisterDataflowService();
+  }
+
+  @Provides
+  @Inject
+  private RegistersSetter getRegistersSetter(State state1, VirtualRegisterFactory virtualRegisterFactory) {
+    return new VirtualRegistersRegistersSetter<>(state1, virtualRegisterFactory);
   }
 }

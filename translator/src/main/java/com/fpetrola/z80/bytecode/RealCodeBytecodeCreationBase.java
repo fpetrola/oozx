@@ -34,21 +34,20 @@ import static java.util.Comparator.comparingInt;
 @SuppressWarnings("ALL")
 public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecutionContext<T> implements BytecodeGeneration {
   public RoutineManager routineManager;
-  private final VirtualRegisterFactory virtualRegisterFactory1;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
+  private RegistersSetter<T> registersSetter;
 
   public RealCodeBytecodeCreationBase(RoutineFinderInstructionSpy routineFinderInstructionSpy1, RoutineManager routineManager1,
-                                      SpyInstructionExecutor instructionExecutor1, VirtualRegisterFactory virtualRegisterFactory1,
+                                      SpyInstructionExecutor instructionExecutor1,
                                       SymbolicExecutionAdapter executionAdapter, InstructionTransformer instructionCloner1,
-                                      TransformerInstructionExecutor<T> transformerInstructionExecutor1, OOZ80 z80, OpcodeConditions opcodeConditions) {
+                                      TransformerInstructionExecutor<T> transformerInstructionExecutor1, OOZ80 z80, OpcodeConditions opcodeConditions, RegistersSetter<T> registersSetter1) {
     super(routineFinderInstructionSpy1, z80, opcodeConditions);
     routineManager = routineManager1;
-    this.virtualRegisterFactory1 = virtualRegisterFactory1;
-    this.virtualRegisterFactory1.reset();
 
     symbolicExecutionAdapter = executionAdapter;
     RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> transformerInstructionExecutor1.clonedInstructions.get(address);
     routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
+    registersSetter = registersSetter1;
   }
 
   public List<Routine> getRoutines() {
@@ -85,6 +84,6 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecu
   }
 
   public RegistersSetter<T> getRegistersSetter() {
-    return new VirtualRegistersRegistersSetter<>(getState(), virtualRegisterFactory1);
+    return registersSetter;
   }
 }

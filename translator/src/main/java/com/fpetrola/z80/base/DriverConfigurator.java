@@ -31,11 +31,11 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
   protected final RoutineFinderInstructionSpy<T> spy;
   protected final SpyInstructionExecutor instructionExecutor1;
   protected State<T> state1;
-  protected VirtualRegisterFactory virtualRegisterFactory1;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
   protected InstructionTransformer instructionTransformer;
   protected TransformerInstructionExecutor<T> transformerInstructionExecutor;
   protected OpcodeConditions opcodeConditions;
+  protected RegistersSetter<T> registersSetter;
 
   @Override
   public RoutineFinderInstructionSpy<T> getRegisterTransformerInstructionSpy() {
@@ -43,7 +43,7 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
   }
 
   @Inject
-  public DriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy spy, State state2, SpyInstructionExecutor instructionExecutor2, VirtualRegisterFactory virtualRegisterFactory2, SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1) {
+  public DriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy spy, State state2, SpyInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1, RegistersSetter<T> registersSetter1) {
     this.routineManager = routineManager;
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     symbolicExecutionAdapter.reset();
@@ -52,10 +52,10 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
     this.spy.reset(state2);
     state1 = state2;
     instructionExecutor1 = instructionExecutor2;
-    virtualRegisterFactory1 = virtualRegisterFactory2;
     instructionTransformer = instructionCloner2;
     transformerInstructionExecutor = transformerInstructionExecutor1;
     opcodeConditions = opcodeConditions1;
+    this.registersSetter = registersSetter1;
   }
 
   @Override

@@ -19,6 +19,7 @@
 package com.fpetrola.z80.base;
 
 import com.fpetrola.z80.cpu.OOZ80;
+import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.cpu.SpyInstructionExecutor;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
@@ -31,8 +32,8 @@ import com.google.inject.Inject;
 public class PlainDriverConfigurator<T extends WordNumber> extends DriverConfigurator<T> {
 
   @Inject
-  public PlainDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy spy, State state2, SpyInstructionExecutor instructionExecutor2, VirtualRegisterFactory virtualRegisterFactory2, SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1) {
-    super(routineManager, spy, state2, instructionExecutor2, virtualRegisterFactory2, symbolicExecutionAdapter, instructionCloner2, transformerInstructionExecutor1, opcodeConditions1);
+  public PlainDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy spy, State state2, SpyInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1, RegistersSetter registersSetter1) {
+    super(routineManager, spy, state2, instructionExecutor2, symbolicExecutionAdapter, instructionCloner2, transformerInstructionExecutor1, opcodeConditions1, registersSetter1);
   }
 
   public CPUExecutionContext<T> getSecondContext() {
