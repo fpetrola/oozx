@@ -16,9 +16,11 @@
  *
  */
 
-package com.fpetrola.z80.se;
+package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.se.RoutineExecution;
+import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 import java.util.List;
 
@@ -63,7 +65,7 @@ public class RetAddressAction extends AddressAction {
     }
   }
 
-  void setPendingAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public void setPendingAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
     updatePending();
   }
 }

@@ -16,13 +16,15 @@
  *
  */
 
-package com.fpetrola.z80.se;
+package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.se.RoutineExecution;
+import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 import java.util.List;
 
-class ConditionalInstructionAddressAction extends AddressAction {
+public class ConditionalInstructionAddressAction extends AddressAction {
   private final RoutineExecution routineExecution;
 
   public ConditionalInstructionAddressAction(Instruction<Boolean> instruction, RoutineExecution routineExecution, int pcValue, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
@@ -54,7 +56,7 @@ class ConditionalInstructionAddressAction extends AddressAction {
     }
   }
 
-  void setPendingAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public void setPendingAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
     updatePending();
   }
 

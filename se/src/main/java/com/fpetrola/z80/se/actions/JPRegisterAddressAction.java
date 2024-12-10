@@ -16,22 +16,21 @@
  *
  */
 
-package com.fpetrola.z80.se;
+package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.se.DynamicJPData;
+import com.fpetrola.z80.se.RoutineExecution;
+import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-class JPRegisterAddressAction extends AddressAction {
+public class JPRegisterAddressAction extends AddressAction {
   private final RoutineExecution routineExecution;
   private final State state;
   public DynamicJPData dynamicJPData;
@@ -78,7 +77,7 @@ class JPRegisterAddressAction extends AddressAction {
     return super.isPending() || !cases.isEmpty();
   }
 
-  void setPendingAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public void setPendingAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
     pending = false;
   }
 

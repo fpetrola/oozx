@@ -16,13 +16,15 @@
  *
  */
 
-package com.fpetrola.z80.se;
+package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.se.RoutineExecution;
+import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 import java.util.Optional;
 
-class GenericAddressAction extends AddressAction {
+public class GenericAddressAction extends AddressAction {
   private final RoutineExecution routineExecution;
 
   public GenericAddressAction(RoutineExecution routineExecution, int pcValue, SymbolicExecutionAdapter symbolicExecutionAdapter1) {

@@ -37,6 +37,8 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
+import com.fpetrola.z80.se.actions.AddressAction;
+import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
 import com.fpetrola.z80.spy.ExecutionListener;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.MemorySpy;

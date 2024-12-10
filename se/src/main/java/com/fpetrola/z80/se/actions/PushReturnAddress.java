@@ -16,13 +16,14 @@
  *
  */
 
-package com.fpetrola.z80.se;
+package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 

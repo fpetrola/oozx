@@ -23,6 +23,8 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.se.actions.PopReturnAddress;
+import com.fpetrola.z80.se.actions.PushReturnAddress;
 import com.fpetrola.z80.transformations.Virtual8BitsRegister;
 import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;
 
