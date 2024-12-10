@@ -19,13 +19,12 @@
 package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.DynamicJPData;
 import com.fpetrola.z80.se.RoutineExecution;
+import com.fpetrola.z80.se.SEInstructionFactory;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
-import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -89,9 +88,8 @@ public class JPRegisterAddressAction extends AddressAction {
   public void beforeStep() {
     Integer poll = cases.poll();
     if (poll != null) {
-      JP jp = (JP) instruction;
-      VirtualComposed16BitRegister positionOpcodeReference = (VirtualComposed16BitRegister) jp.getPositionOpcodeReference();
-      positionOpcodeReference.lastData = WordNumber.createValue(poll);
+      SEInstructionFactory.SeJP jp = (SEInstructionFactory.SeJP) instruction;
+      jp.lastData = WordNumber.createValue(poll);
     }
   }
 }

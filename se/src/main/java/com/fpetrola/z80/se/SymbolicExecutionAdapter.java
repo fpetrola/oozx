@@ -63,6 +63,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   private int minimalValidCodeAddress;
   private Set<Integer> mutantAddress = new HashSet<>();
   private Register<T> pc;
+  private DataflowService dataflowService;
 
   public int getPcValue() {
     return pc.read().intValue();
@@ -77,7 +78,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     addressAction = null;
   }
 
-  public <T extends WordNumber> SymbolicExecutionAdapter(State<T> state, RoutineManager routineManager, RoutineFinderInstructionSpy spy) {
+  public <T extends WordNumber> SymbolicExecutionAdapter(State<T> state, RoutineManager routineManager, RoutineFinderInstructionSpy spy, DataflowService dataflowService1) {
     this.state = state;
     this.routineManager = routineManager;
     this.spy = spy;
@@ -92,6 +93,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       }
     });
     mutantAddress.clear();
+    dataflowService = dataflowService1;
   }
 
   public InstructionFetcher createInstructionFetcher(InstructionSpy spy, State<T> state, InstructionExecutor<T> instructionExecutor, OpcodeConditions opcodeConditions) {
@@ -99,7 +101,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   public DefaultInstructionFactory createInstructionFactory(final State state) {
-    return new SEInstructionFactory(this, state);
+    return new SEInstructionFactory(this, state, dataflowService);
   }
 
   public <T extends WordNumber> OpcodeConditions createOpcodeConditions(State<T> state) {

@@ -37,7 +37,10 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecu
   private final VirtualRegisterFactory virtualRegisterFactory1;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
 
-  public RealCodeBytecodeCreationBase(RoutineFinderInstructionSpy routineFinderInstructionSpy1, RoutineManager routineManager1, SpyInstructionExecutor instructionExecutor1, VirtualRegisterFactory virtualRegisterFactory1, SymbolicExecutionAdapter executionAdapter, InstructionTransformer instructionCloner1, TransformerInstructionExecutor<T> transformerInstructionExecutor1, OOZ80 z80, OpcodeConditions opcodeConditions) {
+  public RealCodeBytecodeCreationBase(RoutineFinderInstructionSpy routineFinderInstructionSpy1, RoutineManager routineManager1,
+                                      SpyInstructionExecutor instructionExecutor1, VirtualRegisterFactory virtualRegisterFactory1,
+                                      SymbolicExecutionAdapter executionAdapter, InstructionTransformer instructionCloner1,
+                                      TransformerInstructionExecutor<T> transformerInstructionExecutor1, OOZ80 z80, OpcodeConditions opcodeConditions) {
     super(routineFinderInstructionSpy1, z80, opcodeConditions);
     routineManager = routineManager1;
     this.virtualRegisterFactory1 = virtualRegisterFactory1;
