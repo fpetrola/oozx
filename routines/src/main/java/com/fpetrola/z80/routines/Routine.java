@@ -24,10 +24,6 @@ import com.fpetrola.z80.blocks.CodeBlockType;
 import com.fpetrola.z80.blocks.UnknownBlockType;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.transformations.Virtual8BitsRegister;
-import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;
-import com.fpetrola.z80.transformations.VirtualRegister;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
@@ -69,11 +65,11 @@ public class Routine {
   }
 
   private List<Routine> innerRoutines = new ArrayList<>();
-  private RoutineManager routineManager;
+  public RoutineManager routineManager;
 
   private MultiValuedMap<Integer, Integer> returnPoints = new HashSetValuedHashMap<>();
-  private Set<String> parameters = new HashSet<>();
-  private Set<String> returnValues = new HashSet<>();
+  public Set<String> parameters = new HashSet<>();
+  public Set<String> returnValues = new HashSet<>();
 
   private boolean callable = true;
 
@@ -449,73 +445,7 @@ public class Routine {
     else
       System.out.hashCode();
 
-    detectInputAndOutput(instruction);
-  }
-
-  private void detectInputAndOutput(Instruction instruction) {
-    instruction.accept(new RegisterFinderInstructionVisitor() {
-      public boolean visitRegister(Register register) {
-        if (register instanceof VirtualRegister<?> virtualRegister) {
-          addParameter(virtualRegister);
-          addReturnValue(virtualRegister);
-//        addReturnValues(virtualRegister);
-//        addParameters(virtualRegister);
-        }
-        return super.visitRegister(register);
-      }
-
-      private void addParameters(VirtualRegister<?> virtualRegister) {
-        boolean isParameter = virtualRegister.getPreviousVersions().stream().anyMatch(previous -> routineManager.findRoutineAt(previous.getRegisterLine()) != Routine.this);
-        if (isParameter)
-          addParameter(virtualRegister);
-      }
-
-      private void addReturnValues(VirtualRegister<?> virtualRegister) {
-        boolean isReturnValue = virtualRegister.getDependants().stream().anyMatch(dependantRegister -> {
-          boolean[] isReturnValue2 = new boolean[]{false};
-          if (routineManager.findRoutineAt(dependantRegister.getRegisterLine()) != routineManager.findRoutineAt(virtualRegister.getRegisterLine())) {
-            if (dependantRegister instanceof Virtual8BitsRegister<?> dependantVirtual8BitsRegister) {
-              checkReturn(virtualRegister, dependantVirtual8BitsRegister, isReturnValue2);
-            } else if (dependantRegister instanceof VirtualComposed16BitRegister<?> virtualComposed16BitRegister) {
-              checkReturn((VirtualRegister<?>) virtualRegister, (Virtual8BitsRegister<?>) virtualComposed16BitRegister.getHigh(), isReturnValue2);
-              checkReturn((VirtualRegister<?>) virtualRegister, (Virtual8BitsRegister<?>) virtualComposed16BitRegister.getLow(), isReturnValue2);
-            } else
-              System.out.println();
-          }
-          return isReturnValue2[0];
-        });
-        if (isReturnValue)
-          addReturnValue(virtualRegister);
-      }
-    });
-  }
-
-  private void checkReturn(VirtualRegister<?> virtualRegister, Virtual8BitsRegister<?> dependantVirtual8BitsRegister, boolean[] isReturnValue2) {
-    Instruction<?> instruction = dependantVirtual8BitsRegister.instruction;
-    instruction.accept(new RegisterFinderInstructionVisitor() {
-      public boolean visitRegister(Register register) {
-        boolean sameInitial = false;
-        if (isSource) {
-          sameInitial = getFirstVersion(virtualRegister) == getFirstVersion((VirtualRegister) register);
-          if (sameInitial) {
-            isReturnValue2[0] = sameInitial;
-          }
-        }
-        return sameInitial;
-      }
-    });
-  }
-
-  private VirtualRegister getFirstVersion(VirtualRegister virtualRegister) {
-    return (VirtualRegister) virtualRegister.getVersionHandler().versions.getFirst();
-  }
-
-  private void addParameter(VirtualRegister register) {
-    parameters.add(getFirstVersion(register).getName());
-  }
-
-  private void addReturnValue(VirtualRegister register) {
-    returnValues.add(getFirstVersion(register).getName());
+//    InputOutputDetector.detectInputAndOutput(this, instruction);
   }
 
   public void setRoutineManager(RoutineManager routineManager) {
