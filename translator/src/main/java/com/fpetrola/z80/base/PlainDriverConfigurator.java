@@ -32,12 +32,14 @@ import com.google.inject.Inject;
 public class PlainDriverConfigurator<T extends WordNumber> extends DriverConfigurator<T> {
 
   @Inject
-  public PlainDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy spy, State state2, SpyInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1, RegistersSetter registersSetter1) {
-    super(routineManager, spy, state2, instructionExecutor2, symbolicExecutionAdapter, instructionCloner2, transformerInstructionExecutor1, opcodeConditions1, registersSetter1);
+  public PlainDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy spy, State state2,
+                                 SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2,
+                                 TransformerInstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1, RegistersSetter registersSetter1, CPUExecutionContext aContext) {
+    super(routineManager, spy, state2, symbolicExecutionAdapter, instructionCloner2, transformerInstructionExecutor1, opcodeConditions1, registersSetter1, aContext);
   }
 
   public CPUExecutionContext<T> getSecondContext() {
-    OOZ80 z80 = new OOZ80(state1, new InstructionFetcherForTest<>(this.state1, new SpyInstructionExecutor(spy)));
+    OOZ80 z80 = new OOZ80(state1, new InstructionFetcherForTest<>(this.state1, new SpyInstructionExecutor(spy, state1)));
     return new CPUExecutionContext<>(spy, z80, opcodeConditions);
   }
 }

@@ -42,7 +42,6 @@ public class VirtualRegisterFactory<T extends WordNumber> {
   public Map<Register<T>, VirtualRegisterVersionHandler> versionHandlers = new HashMap<>();
   private final List<Runnable> actions = new ArrayList<>();
 
-  @Inject
   public VirtualRegisterFactory(InstructionExecutor instructionExecutor, RegisterNameBuilder registerNameBuilder, BlocksManager blocksManager) {
     this.instructionExecutor = instructionExecutor;
     this.registerNameBuilder = registerNameBuilder;

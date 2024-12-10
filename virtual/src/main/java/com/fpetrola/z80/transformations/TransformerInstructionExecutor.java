@@ -35,7 +35,7 @@ import java.util.stream.Stream;
 
 public class TransformerInstructionExecutor<T extends WordNumber> implements InstructionExecutor<T> {
   private final Register<T> pc;
-  private final InstructionExecutor<T> instructionExecutor;
+  public final InstructionExecutor<T> instructionExecutor;
   private final boolean noRepeat;
 
   public TransformerInstructionExecutor(Register<T> pc, InstructionExecutor<T> instructionExecutor, boolean noRepeat, InstructionTransformer<T> instructionTransformer) {
@@ -47,9 +47,14 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
 
   private final InstructionTransformer<T> instructionTransformer;
   private final InstructionActionExecutor<T> resetter = new InstructionActionExecutor<>(r -> r.reset());
-  public Map<Integer, Instruction<T>> clonedInstructions = new HashMap<>();
+  private Map<Integer, Instruction<T>> clonedInstructions = new HashMap<>();
   public Map<Integer, Instruction<T>> instructions = new HashMap<>();
   public List<Instruction<T>> executed = new ArrayList<>();
+
+  @Override
+  public Instruction<T> getInstructionAt(int address) {
+    return clonedInstructions.get(address);
+  }
 
   private Instruction<T> processTargetSource(Instruction<T> instruction, Instruction<T> existentCloned) {
     instructionTransformer.virtualRegisterFactory.getRegisterNameBuilder().setCurrentAddress(getAddressOf(instruction));
@@ -81,7 +86,7 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
     //System.err.println(pc.read() + ":- " + cloned);
 
     //if (isConcreteInstruction(cloned) || existentCloned != null)
-      instructionExecutor.execute(cloned);
+    instructionExecutor.execute(cloned);
 
     if (noRepeat && cloned instanceof RepeatingInstruction repeatingInstruction)
       repeatingInstruction.setNextPC(null);

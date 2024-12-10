@@ -29,13 +29,13 @@ import com.google.inject.Inject;
 public class DriverConfigurator<T extends WordNumber> implements IDriverConfigurator<T> {
   protected final RoutineManager routineManager;
   protected final RoutineFinderInstructionSpy<T> spy;
-  protected final SpyInstructionExecutor instructionExecutor1;
   protected State<T> state1;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
   protected InstructionTransformer instructionTransformer;
-  protected TransformerInstructionExecutor<T> transformerInstructionExecutor;
+  protected InstructionExecutor<T> transformerInstructionExecutor;
   protected OpcodeConditions opcodeConditions;
   protected RegistersSetter<T> registersSetter;
+  private CPUExecutionContext<T> secondContext;
 
   @Override
   public RoutineFinderInstructionSpy<T> getRegisterTransformerInstructionSpy() {
@@ -43,7 +43,11 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
   }
 
   @Inject
-  public DriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy spy, State state2, SpyInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1, RegistersSetter<T> registersSetter1) {
+  public DriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy spy, State state2,
+                            SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2,
+                            InstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1, RegistersSetter registersSetter1,
+                            CPUExecutionContext aContext) {
+    this.secondContext= aContext;
     this.routineManager = routineManager;
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     symbolicExecutionAdapter.reset();
@@ -51,21 +55,15 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
     this.spy = spy;
     this.spy.reset(state2);
     state1 = state2;
-    instructionExecutor1 = instructionExecutor2;
-    instructionTransformer = instructionCloner2;
     transformerInstructionExecutor = transformerInstructionExecutor1;
+    instructionTransformer = instructionCloner2;
     opcodeConditions = opcodeConditions1;
     this.registersSetter = registersSetter1;
   }
 
   @Override
   public CPUExecutionContext<T> getSecondContext() {
-    TransformerInstructionExecutor<T> transformerInstructionExecutor1 = new TransformerInstructionExecutor(this.state1.getPc(), instructionExecutor1, false, instructionTransformer);
-    RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> transformerInstructionExecutor1.clonedInstructions.get(address);
-    routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
-    InstructionFetcher instructionFetcher1 = new TransformerInstructionFetcher(this.state1, transformerInstructionExecutor1);
-    OOZ80 z80 = new OOZ80(state1, instructionFetcher1);
-    return new CPUExecutionContext<T>(spy, z80, opcodeConditions);
+    return secondContext;
   }
 
   @Override

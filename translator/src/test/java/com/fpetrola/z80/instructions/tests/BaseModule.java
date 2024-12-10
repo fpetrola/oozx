@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.tests;
 
+import com.fpetrola.z80.base.CPUExecutionContext;
 import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.base.IDriverConfigurator;
 import com.fpetrola.z80.blocks.BlocksManager;
@@ -36,10 +37,7 @@ import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.se.VirtualRegisterDataflowService;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.SpyRegisterBankFactory;
-import com.fpetrola.z80.transformations.InstructionTransformer;
-import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
-import com.fpetrola.z80.transformations.TransformerInstructionExecutor;
-import com.fpetrola.z80.transformations.VirtualRegisterFactory;
+import com.fpetrola.z80.transformations.*;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
@@ -87,12 +85,12 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
     return new RoutineFinderInstructionSpy<>(routineManager, blocksManager);
   }
 
-  @Provides
-  @Inject
-  @Singleton
-  private SpyInstructionExecutor getInstructionExecutor(RoutineFinderInstructionSpy routineFinderInstructionSpy1) {
-    return new SpyInstructionExecutor(routineFinderInstructionSpy1);
-  }
+//  @Provides
+//  @Inject
+//  @Singleton
+//  private SpyInstructionExecutor getInstructionExecutor(RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state1) {
+//    return new SpyInstructionExecutor(routineFinderInstructionSpy1, state1);
+//  }
 
   @Provides
   @Inject
@@ -116,9 +114,22 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
 
   @Provides
   @Inject
-  private TransformerInstructionExecutor getTransformerInstructionExecutor(State state1, InstructionExecutor tInstructionExecutor, InstructionTransformer instructionTransformer) {
-    return new TransformerInstructionExecutor<T>(state1.getPc(), tInstructionExecutor, true, instructionTransformer);
+  private TransformerInstructionExecutor getTransformerInstructionExecutor(State state1, InstructionTransformer instructionTransformer, SpyInstructionExecutor spyInstructionExecutor) {
+    return new TransformerInstructionExecutor<T>(state1.getPc(), spyInstructionExecutor, true, instructionTransformer);
   }
+
+  @Provides
+  @Inject
+  @Singleton
+  private SpyInstructionExecutor getSpyInstructionExecutor(State state1, InstructionSpy spy) {
+    return new SpyInstructionExecutor<>(spy, state1);
+  }
+
+//  @Provides
+//  @Inject
+//  private InstructionExecutor getTransformerInstructionExecutor(InstructionSpy spy, State state1) {
+//    return new SpyInstructionExecutor(spy, state1.getPc());
+//  }
 
   @Provides
   @Inject
@@ -128,13 +139,30 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
 
   @Provides
   @Inject
-  protected DataflowService getDataflowService() {
+  public DataflowService getDataflowService() {
     return new VirtualRegisterDataflowService();
   }
 
   @Provides
   @Inject
-  private RegistersSetter getRegistersSetter(State state1, VirtualRegisterFactory virtualRegisterFactory) {
+  public RegistersSetter getRegistersSetter(State state1, VirtualRegisterFactory virtualRegisterFactory) {
     return new VirtualRegistersRegistersSetter<>(state1, virtualRegisterFactory);
+  }
+
+  @Provides
+  @Inject
+  public CPUExecutionContext getSecondContext(RoutineManager routineManager, State state1, InstructionExecutor instructionExecutor1, InstructionTransformer instructionTransformer, OpcodeConditions opcodeConditions, InstructionSpy spy) {
+    TransformerInstructionExecutor<T> transformerInstructionExecutor1 = new TransformerInstructionExecutor(state1.getPc(), instructionExecutor1, false, instructionTransformer);
+    RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> transformerInstructionExecutor1.getInstructionAt(address);
+    routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
+    InstructionFetcher instructionFetcher1 = new TransformerInstructionFetcher(state1, transformerInstructionExecutor1);
+    OOZ80 z80 = new OOZ80(state1, instructionFetcher1);
+    return new CPUExecutionContext<T>(spy, z80, opcodeConditions);
+  }
+
+  @Provides
+  @Inject
+  private VirtualRegisterFactory getVirtualRegisterFactory(SpyInstructionExecutor instructionExecutor, BlocksManager blockManager) {
+    return  new VirtualRegisterFactory(instructionExecutor, new RegisterNameBuilder(), blockManager);
   }
 }

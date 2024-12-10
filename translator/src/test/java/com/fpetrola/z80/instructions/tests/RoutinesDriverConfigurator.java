@@ -18,28 +18,25 @@
 
 package com.fpetrola.z80.instructions.tests;
 
+import com.fpetrola.z80.base.CPUExecutionContext;
 import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
-import com.fpetrola.z80.cpu.OOZ80;
-import com.fpetrola.z80.cpu.RegistersSetter;
-import com.fpetrola.z80.cpu.SpyInstructionExecutor;
-import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.transformations.InstructionTransformer;
 import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
-import com.fpetrola.z80.transformations.TransformerInstructionExecutor;
 import com.google.inject.Inject;
 
 public class RoutinesDriverConfigurator<T extends WordNumber> extends DriverConfigurator<T> {
   @Inject
-  public RoutinesDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state2, SpyInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter1, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor, RegistersSetter registersSetter1) {
-    super(routineManager, routineFinderInstructionSpy1, state2, instructionExecutor2, symbolicExecutionAdapter1, instructionCloner2, transformerInstructionExecutor, symbolicExecutionAdapter1.createOpcodeConditions(state2), registersSetter1);
+  public RoutinesDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state2, SymbolicExecutionAdapter symbolicExecutionAdapter1, InstructionTransformer instructionCloner2, InstructionExecutor transformerInstructionExecutor, RegistersSetter registersSetter1, CPUExecutionContext aContext) {
+    super(routineManager, routineFinderInstructionSpy1, state2, symbolicExecutionAdapter1, instructionCloner2, transformerInstructionExecutor, symbolicExecutionAdapter1.createOpcodeConditions(state2), registersSetter1, aContext);
   }
 
   public RealCodeBytecodeCreationBase getRealCodeBytecodeCreationBase() {
     OOZ80 z80 = new OOZ80(state1, symbolicExecutionAdapter.createInstructionFetcher(spy, state1, transformerInstructionExecutor, opcodeConditions));
-    return new RealCodeBytecodeCreationBase<T>(spy, routineManager, instructionExecutor1, symbolicExecutionAdapter, instructionTransformer, transformerInstructionExecutor, z80, this.opcodeConditions, registersSetter);
+    return new RealCodeBytecodeCreationBase<T>(spy, routineManager, symbolicExecutionAdapter, transformerInstructionExecutor, z80, this.opcodeConditions, registersSetter);
   }
 }

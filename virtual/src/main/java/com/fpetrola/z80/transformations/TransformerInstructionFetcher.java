@@ -35,6 +35,6 @@ public class TransformerInstructionFetcher<T extends WordNumber> extends Instruc
   }
 
   public Instruction<T> getTransformedInstructionAt(int i) {
-    return instructionExecutor1.clonedInstructions.get(i);
+    return instructionExecutor1.getInstructionAt(i);
   }
 }

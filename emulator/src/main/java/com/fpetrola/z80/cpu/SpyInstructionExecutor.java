@@ -21,19 +21,29 @@ package com.fpetrola.z80.cpu;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.RegisterBank;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.google.inject.Inject;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class SpyInstructionExecutor<T extends WordNumber> implements InstructionExecutor<T> {
   private final InstructionSpy spy;
+  private final Register<T> pc;
   private final Set<Instruction<T>> executingInstructions = new HashSet<>();
+  private Map<Integer, Instruction<T>> instructions= new HashMap<>();
 
-  @Inject
-  public SpyInstructionExecutor(InstructionSpy spy) {
+  public SpyInstructionExecutor(InstructionSpy spy, State state) {
     this.spy = spy;
+    this.pc = state.getPc();
+  }
+
+  @Override
+  public Instruction<T> getInstructionAt(int address) {
+    return instructions.get(address);
   }
 
   @Override

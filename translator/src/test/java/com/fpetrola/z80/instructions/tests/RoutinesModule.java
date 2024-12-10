@@ -19,17 +19,20 @@
 package com.fpetrola.z80.instructions.tests;
 
 import com.fpetrola.z80.base.IDriverConfigurator;
+import com.fpetrola.z80.bytecode.VirtualRegistersRegistersSetter;
 import com.fpetrola.z80.cpu.InstructionExecutor;
+import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.cpu.SpyInstructionExecutor;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
+import com.fpetrola.z80.transformations.TransformerInstructionExecutor;
 
 public class RoutinesModule<T extends WordNumber> extends BaseModule<T> {
   protected void configure() {
     bind(IDriverConfigurator.class).to(RoutinesDriverConfigurator.class);
     bind(InstructionSpy.class).to(RoutineFinderInstructionSpy.class);
-    bind(InstructionExecutor.class).to(SpyInstructionExecutor.class);
+    bind(InstructionExecutor.class).to(TransformerInstructionExecutor.class);
   }
 
 //  @Provides
