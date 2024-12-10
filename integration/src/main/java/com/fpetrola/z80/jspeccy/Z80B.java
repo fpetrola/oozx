@@ -59,7 +59,6 @@ public class Z80B extends RegistersBase implements IZ80 {
   private ComplexInstructionSpy spy;
   private BlocksManager blockManager;
 
-  @Override
   public VirtualRegisterFactory getVirtualRegisterFactory() {
     return virtualRegisterFactory;
   }

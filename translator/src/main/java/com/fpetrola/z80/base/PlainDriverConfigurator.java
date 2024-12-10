@@ -31,7 +31,7 @@ import com.google.inject.Inject;
 public class PlainDriverConfigurator<T extends WordNumber> extends DriverConfigurator<T> {
 
   @Inject
-  public PlainDriverConfigurator(RoutineManager routineManager, RegisterTransformerInstructionSpy spy, State state2, SpyInstructionExecutor instructionExecutor2, VirtualRegisterFactory virtualRegisterFactory2, SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1) {
+  public PlainDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy spy, State state2, SpyInstructionExecutor instructionExecutor2, VirtualRegisterFactory virtualRegisterFactory2, SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1) {
     super(routineManager, spy, state2, instructionExecutor2, virtualRegisterFactory2, symbolicExecutionAdapter, instructionCloner2, transformerInstructionExecutor1, opcodeConditions1);
   }
 

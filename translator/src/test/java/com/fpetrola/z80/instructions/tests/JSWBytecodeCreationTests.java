@@ -18,10 +18,10 @@
 
 package com.fpetrola.z80.instructions.tests;
 
-import com.fpetrola.z80.bytecode.DefaultRegistersSetter;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
 import com.fpetrola.z80.bytecode.examples.RemoteZ80Translator;
 import com.fpetrola.z80.bytecode.examples.SnapshotHelper;
+import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
@@ -157,7 +157,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     realCodeBytecodeCreationBase.translateToJava(className, memoryInBase64, startMethod);
   }
 
-  protected DefaultRegistersSetter<T> getDefaultRegistersSetter() {
-    return realCodeBytecodeCreationBase.getDefaultRegistersSetter();
+  protected RegistersSetter<T> getDefaultRegistersSetter() {
+    return realCodeBytecodeCreationBase.getRegistersSetter();
   }
 }

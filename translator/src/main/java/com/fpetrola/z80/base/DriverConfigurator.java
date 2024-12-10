@@ -28,7 +28,7 @@ import com.google.inject.Inject;
 
 public class DriverConfigurator<T extends WordNumber> implements IDriverConfigurator<T> {
   protected final RoutineManager routineManager;
-  protected final RegisterTransformerInstructionSpy<T> spy;
+  protected final RoutineFinderInstructionSpy<T> spy;
   protected final SpyInstructionExecutor instructionExecutor1;
   protected State<T> state1;
   protected VirtualRegisterFactory virtualRegisterFactory1;
@@ -38,12 +38,12 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
   protected OpcodeConditions opcodeConditions;
 
   @Override
-  public RegisterTransformerInstructionSpy<T> getRegisterTransformerInstructionSpy() {
+  public RoutineFinderInstructionSpy<T> getRegisterTransformerInstructionSpy() {
     return spy;
   }
 
   @Inject
-  public DriverConfigurator(RoutineManager routineManager, RegisterTransformerInstructionSpy spy, State state2, SpyInstructionExecutor instructionExecutor2, VirtualRegisterFactory virtualRegisterFactory2, SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1) {
+  public DriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy spy, State state2, SpyInstructionExecutor instructionExecutor2, VirtualRegisterFactory virtualRegisterFactory2, SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1) {
     this.routineManager = routineManager;
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     symbolicExecutionAdapter.reset();
@@ -79,8 +79,5 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
 
   public void reset() {
     symbolicExecutionAdapter.reset();
-//    state1.getPc().write(WordNumber.createValue(0));
-//    routineManager.reset();
-//    spy.reset(state1);
   }
 }

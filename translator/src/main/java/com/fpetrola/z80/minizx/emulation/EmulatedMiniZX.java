@@ -70,11 +70,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
     if (showScreen)
       MiniZX.createScreen(io.miniZXKeyboard, this.getMemFunction());
 
-    RegistersBase registersBase = new RegistersBase<>(ooz80.getState()) {
-      public VirtualRegisterFactory getVirtualRegisterFactory() {
-        return new VirtualRegisterFactory(null, null, null);
-      }
-    };
+    RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
 
     String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
     State<T> state = ooz80.getState();

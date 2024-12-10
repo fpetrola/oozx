@@ -37,8 +37,8 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecu
   private final VirtualRegisterFactory virtualRegisterFactory1;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
 
-  public RealCodeBytecodeCreationBase(RegisterTransformerInstructionSpy registerTransformerInstructionSpy1, RoutineManager routineManager1, SpyInstructionExecutor instructionExecutor1, VirtualRegisterFactory virtualRegisterFactory1, SymbolicExecutionAdapter executionAdapter, InstructionTransformer instructionCloner1, TransformerInstructionExecutor<T> transformerInstructionExecutor1, OOZ80 z80, OpcodeConditions opcodeConditions) {
-    super(registerTransformerInstructionSpy1, z80, opcodeConditions);
+  public RealCodeBytecodeCreationBase(RoutineFinderInstructionSpy routineFinderInstructionSpy1, RoutineManager routineManager1, SpyInstructionExecutor instructionExecutor1, VirtualRegisterFactory virtualRegisterFactory1, SymbolicExecutionAdapter executionAdapter, InstructionTransformer instructionCloner1, TransformerInstructionExecutor<T> transformerInstructionExecutor1, OOZ80 z80, OpcodeConditions opcodeConditions) {
+    super(routineFinderInstructionSpy1, z80, opcodeConditions);
     routineManager = routineManager1;
     this.virtualRegisterFactory1 = virtualRegisterFactory1;
     this.virtualRegisterFactory1.reset();
@@ -81,12 +81,7 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecu
     BytecodeGeneration.super.translateToJava(className, startMethod, getState(), !memoryInBase64.isBlank(), symbolicExecutionAdapter, memoryInBase64);
   }
 
-  public DefaultRegistersSetter<T> getDefaultRegistersSetter() {
-    DefaultRegistersSetter<T> registersBase = new DefaultRegistersSetter<>(getState()) {
-      public VirtualRegisterFactory getVirtualRegisterFactory() {
-        return virtualRegisterFactory1;
-      }
-    };
-    return registersBase;
+  public RegistersSetter<T> getRegistersSetter() {
+    return new VirtualRegistersRegistersSetter<>(getState(), virtualRegisterFactory1);
   }
 }

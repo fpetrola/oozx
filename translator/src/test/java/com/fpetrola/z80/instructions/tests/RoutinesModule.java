@@ -21,21 +21,14 @@ package com.fpetrola.z80.instructions.tests;
 import com.fpetrola.z80.base.IDriverConfigurator;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.SpyInstructionExecutor;
-import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.spy.InstructionSpy;
-import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
-import com.google.inject.Inject;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
+import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 
 public class RoutinesModule<T extends WordNumber> extends BaseModule<T> {
   protected void configure() {
     bind(IDriverConfigurator.class).to(RoutinesDriverConfigurator.class);
-    bind(InstructionSpy.class).to(RegisterTransformerInstructionSpy.class);
+    bind(InstructionSpy.class).to(RoutineFinderInstructionSpy.class);
     bind(InstructionExecutor.class).to(SpyInstructionExecutor.class);
   }
 

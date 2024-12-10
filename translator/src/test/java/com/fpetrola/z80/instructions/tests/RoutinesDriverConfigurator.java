@@ -23,12 +23,11 @@ import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.SpyInstructionExecutor;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.transformations.InstructionTransformer;
-import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
+import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 import com.fpetrola.z80.transformations.TransformerInstructionExecutor;
 import com.fpetrola.z80.transformations.VirtualRegisterFactory;
 import com.google.inject.Inject;
@@ -36,8 +35,8 @@ import com.google.inject.Inject;
 public class RoutinesDriverConfigurator<T extends WordNumber> extends DriverConfigurator<T> {
 
   @Inject
-  public RoutinesDriverConfigurator(RoutineManager routineManager, RegisterTransformerInstructionSpy registerTransformerInstructionSpy1, State state2, SpyInstructionExecutor instructionExecutor2, VirtualRegisterFactory virtualRegisterFactory2, SymbolicExecutionAdapter symbolicExecutionAdapter1, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor) {
-    super(routineManager, registerTransformerInstructionSpy1, state2, instructionExecutor2, virtualRegisterFactory2, symbolicExecutionAdapter1, instructionCloner2, transformerInstructionExecutor, symbolicExecutionAdapter1.createOpcodeConditions(state2));
+  public RoutinesDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state2, SpyInstructionExecutor instructionExecutor2, VirtualRegisterFactory virtualRegisterFactory2, SymbolicExecutionAdapter symbolicExecutionAdapter1, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor) {
+    super(routineManager, routineFinderInstructionSpy1, state2, instructionExecutor2, virtualRegisterFactory2, symbolicExecutionAdapter1, instructionCloner2, transformerInstructionExecutor, symbolicExecutionAdapter1.createOpcodeConditions(state2));
   }
 
   public RealCodeBytecodeCreationBase getRealCodeBytecodeCreationBase() {

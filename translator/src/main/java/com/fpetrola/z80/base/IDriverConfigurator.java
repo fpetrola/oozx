@@ -18,13 +18,12 @@
 
 package com.fpetrola.z80.base;
 
-import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineManager;
-import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
+import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 
 public interface IDriverConfigurator<T extends WordNumber> {
-  RegisterTransformerInstructionSpy<T> getRegisterTransformerInstructionSpy();
+  RoutineFinderInstructionSpy<T> getRegisterTransformerInstructionSpy();
 
   CPUExecutionContext<T> getSecondContext();
 

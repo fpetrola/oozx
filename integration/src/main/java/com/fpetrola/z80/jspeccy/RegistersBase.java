@@ -26,7 +26,7 @@ import snapshots.Z80State;
 
 import z80core.IntMode;
 
-public abstract class RegistersBase<T extends WordNumber> extends DefaultRegistersSetter<T> {
+public class RegistersBase<T extends WordNumber> extends DefaultRegistersSetter<T> {
 
   public RegistersBase() {
     super(null);
@@ -48,79 +48,79 @@ public abstract class RegistersBase<T extends WordNumber> extends DefaultRegiste
   }
 
   public final int getRegA() {
-    return getVirtualRegister(RegisterName.A).read().intValue();
+    return getRegister(RegisterName.A).read().intValue();
   }
 
   public final int getRegB() {
-    return getVirtualRegister(RegisterName.B).read().intValue();
+    return getRegister(RegisterName.B).read().intValue();
   }
 
   public final int getRegC() {
-    return getVirtualRegister(RegisterName.C).read().intValue();
+    return getRegister(RegisterName.C).read().intValue();
   }
 
   public final int getRegD() {
-    return getVirtualRegister(RegisterName.D).read().intValue();
+    return getRegister(RegisterName.D).read().intValue();
   }
 
   public final int getRegE() {
-    return getVirtualRegister(RegisterName.E).read().intValue();
+    return getRegister(RegisterName.E).read().intValue();
   }
 
   public final int getRegH() {
-    return getVirtualRegister(RegisterName.H).read().intValue();
+    return getRegister(RegisterName.H).read().intValue();
   }
 
   public final int getRegL() {
-    return getVirtualRegister(RegisterName.L).read().intValue();
+    return getRegister(RegisterName.L).read().intValue();
   }
 
   public final int getRegAx() {
-    return getVirtualRegister(RegisterName.Ax).read().intValue();
+    return getRegister(RegisterName.Ax).read().intValue();
   }
 
   public final int getRegFx() {
-    return getVirtualRegister(RegisterName.Fx).read().intValue();
+    return getRegister(RegisterName.Fx).read().intValue();
   }
 
   public final int getRegBx() {
-    return getVirtualRegister(RegisterName.Bx).read().intValue();
+    return getRegister(RegisterName.Bx).read().intValue();
   }
 
   public final int getRegCx() {
-    return getVirtualRegister(RegisterName.Cx).read().intValue();
+    return getRegister(RegisterName.Cx).read().intValue();
   }
 
   public final int getRegDx() {
-    return getVirtualRegister(RegisterName.Dx).read().intValue();
+    return getRegister(RegisterName.Dx).read().intValue();
   }
 
   public final int getRegEx() {
-    return getVirtualRegister(RegisterName.Ex).read().intValue();
+    return getRegister(RegisterName.Ex).read().intValue();
   }
 
   public final int getRegHx() {
-    return getVirtualRegister(RegisterName.Hx).read().intValue();
+    return getRegister(RegisterName.Hx).read().intValue();
   }
 
   public final int getRegLx() {
-    return getVirtualRegister(RegisterName.Lx).read().intValue();
+    return getRegister(RegisterName.Lx).read().intValue();
   }
 
   public final int getRegAF() {
-    return getVirtualRegister(RegisterName.AF).read().intValue();
+    return getRegister(RegisterName.AF).read().intValue();
   }
 
   public final int getRegAFx() {
-    return getVirtualRegister(RegisterName.AFx).read().intValue();
+    return getRegister(RegisterName.AFx).read().intValue();
   }
 
   public final void setRegAFx(int word) {
-    getVirtualRegister(RegisterName.AFx).write(mask16(word));
+    getRegister(RegisterName.AFx).write(mask16(word));
   }
 
   public final int getRegBC() {
-    return getVirtualRegister(RegisterName.BC).read().intValue();
+    return getRegister(RegisterName.BC).read().intValue();
   }
 
   public final int getFlags() {
@@ -128,7 +128,7 @@ public abstract class RegistersBase<T extends WordNumber> extends DefaultRegiste
   }
 
   public final int getRegHLx() {
-    return getVirtualRegister(RegisterName.HLx).read().intValue();
+    return getRegister(RegisterName.HLx).read().intValue();
   }
 
   public final int getRegSP() {
@@ -136,11 +136,11 @@ public abstract class RegistersBase<T extends WordNumber> extends DefaultRegiste
   }
 
   public final int getRegIX() {
-    return getVirtualRegister(RegisterName.IX).read().intValue();
+    return getRegister(RegisterName.IX).read().intValue();
   }
 
   public final int getRegIY() {
-    return getVirtualRegister(RegisterName.IY).read().intValue();
+    return getRegister(RegisterName.IY).read().intValue();
   }
 
   public final int getRegI() {
@@ -164,7 +164,7 @@ public abstract class RegistersBase<T extends WordNumber> extends DefaultRegiste
   }
 
   public final int getRegDE() {
-    return getVirtualRegister(RegisterName.DE).read().intValue();
+    return getRegister(RegisterName.DE).read().intValue();
   }
 
   public final void setZ80State(Z80State state) {
@@ -297,7 +297,7 @@ public abstract class RegistersBase<T extends WordNumber> extends DefaultRegiste
   }
 
   public int getDE() {
-    return getVirtualRegister(RegisterName.DE).read().intValue();
+    return getRegister(RegisterName.DE).read().intValue();
   }
 
   public boolean isActiveINT() {

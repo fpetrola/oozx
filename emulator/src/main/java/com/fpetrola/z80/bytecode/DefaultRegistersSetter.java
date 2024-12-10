@@ -21,16 +21,12 @@ package com.fpetrola.z80.bytecode;
 import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.Composed16BitRegister;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
-import com.fpetrola.z80.registers.RegisterPair;
-import com.fpetrola.z80.transformations.VirtualRegister;
-import com.fpetrola.z80.transformations.VirtualRegisterFactory;
 
-import static com.fpetrola.z80.registers.RegisterName.*;
+import static com.fpetrola.z80.registers.RegisterName.F;
 
-public abstract class DefaultRegistersSetter<T extends WordNumber> implements RegistersSetter<T> {
+public class DefaultRegistersSetter<T extends WordNumber> implements RegistersSetter<T> {
   protected State<T> state;
 
   public DefaultRegistersSetter(State<T> state) {
@@ -49,97 +45,97 @@ public abstract class DefaultRegistersSetter<T extends WordNumber> implements Re
 
   @Override
   public final void setRegDE(int word) {
-    getVirtualRegister(RegisterName.DE).write(mask16(word));
+    getRegister(RegisterName.DE).write(mask16(word));
   }
 
   @Override
   public final void setRegA(int value) {
-    getVirtualRegister(RegisterName.A).write(mask8(value));
+    getRegister(RegisterName.A).write(mask8(value));
   }
 
   @Override
   public final void setRegB(int value) {
-    getVirtualRegister(RegisterName.B).write(mask8(value));
+    getRegister(RegisterName.B).write(mask8(value));
   }
 
   @Override
   public final void setRegC(int value) {
-    getVirtualRegister(RegisterName.C).write(mask8(value));
+    getRegister(RegisterName.C).write(mask8(value));
   }
 
   @Override
   public final void setRegD(int value) {
-    getVirtualRegister(RegisterName.D).write(mask8(value));
+    getRegister(RegisterName.D).write(mask8(value));
   }
 
   @Override
   public final void setRegE(int value) {
-    getVirtualRegister(RegisterName.E).write(mask8(value));
+    getRegister(RegisterName.E).write(mask8(value));
   }
 
   @Override
   public final void setRegH(int value) {
-    getVirtualRegister(RegisterName.H).write(mask8(value));
+    getRegister(RegisterName.H).write(mask8(value));
   }
 
   @Override
   public final void setRegL(int value) {
-    getVirtualRegister(RegisterName.L).write(mask8(value));
+    getRegister(RegisterName.L).write(mask8(value));
   }
 
   @Override
   public final void setRegAx(int value) {
-    getVirtualRegister(RegisterName.Ax).write(mask8(value));
+    getRegister(RegisterName.Ax).write(mask8(value));
   }
 
   @Override
   public final void setRegFx(int value) {
-    getVirtualRegister(RegisterName.Fx).write(mask8(value));
+    getRegister(RegisterName.Fx).write(mask8(value));
   }
 
   @Override
   public final void setRegBx(int value) {
-    getVirtualRegister(RegisterName.Bx).write(mask8(value));
+    getRegister(RegisterName.Bx).write(mask8(value));
   }
 
   @Override
   public final void setRegCx(int value) {
-    getVirtualRegister(RegisterName.Cx).write(mask8(value));
+    getRegister(RegisterName.Cx).write(mask8(value));
   }
 
   @Override
   public final void setRegDx(int value) {
-    getVirtualRegister(RegisterName.Dx).write(mask8(value));
+    getRegister(RegisterName.Dx).write(mask8(value));
   }
 
   @Override
   public final void setRegEx(int value) {
-    getVirtualRegister(RegisterName.Ex).write(mask8(value));
+    getRegister(RegisterName.Ex).write(mask8(value));
   }
 
   @Override
   public final void setRegHx(int value) {
-    getVirtualRegister(RegisterName.Hx).write(mask8(value));
+    getRegister(RegisterName.Hx).write(mask8(value));
   }
 
   @Override
   public final void setRegLx(int value) {
-    getVirtualRegister(RegisterName.Lx).write(mask8(value));
+    getRegister(RegisterName.Lx).write(mask8(value));
   }
 
   @Override
   public final void setRegAF(int word) {
-    getVirtualRegister(RegisterName.AF).write(mask16(word));
+    getRegister(RegisterName.AF).write(mask16(word));
   }
 
   @Override
   public final void setRegBC(int word) {
-    getVirtualRegister(RegisterName.BC).write(mask8(word));
+    getRegister(RegisterName.BC).write(mask8(word));
   }
 
   @Override
   public final void setRegHLx(int word) {
-    getVirtualRegister(RegisterName.HLx).write(mask16(word));
+    getRegister(RegisterName.HLx).write(mask16(word));
   }
 
   @Override
@@ -149,12 +145,12 @@ public abstract class DefaultRegistersSetter<T extends WordNumber> implements Re
 
   @Override
   public final void setRegIX(int word) {
-    getVirtualRegister(RegisterName.IX).write(mask16(word));
+    getRegister(RegisterName.IX).write(mask16(word));
   }
 
   @Override
   public final void setRegIY(int word) {
-    getVirtualRegister(RegisterName.IY).write(mask16(word));
+    getRegister(RegisterName.IY).write(mask16(word));
   }
 
   @Override
@@ -233,7 +229,7 @@ public abstract class DefaultRegistersSetter<T extends WordNumber> implements Re
 
   @Override
   public void setDE(int DE) {
-    getVirtualRegister(RegisterName.DE).write(mask16(DE));
+    getRegister(RegisterName.DE).write(mask16(DE));
   }
 
   @Override
@@ -265,35 +261,13 @@ public abstract class DefaultRegistersSetter<T extends WordNumber> implements Re
     this.state.setPinReset(pinReset);
   }
 
-  protected Register<T> getVirtualRegister(RegisterName registerName) {
-    Register<T> register = getState().getRegister(registerName);
-    Register<T> result;
-
-    if (registerName != IY && registerName != IX && register instanceof RegisterPair<T>) {
-      RegisterPair<WordNumber> wordNumberRegisterPair = (RegisterPair<WordNumber>) register;
-      Register<T> high = (Register<T>) wordNumberRegisterPair.getHigh();
-      Register<T> h = (Register) getVirtualRegisterFactory().lastVirtualRegisters.get(high);
-      h = h != null ? h : high;
-      Register<WordNumber> low = wordNumberRegisterPair.getLow();
-      Register<WordNumber> l = (VirtualRegister) getVirtualRegisterFactory().lastVirtualRegisters.get(low);
-      l = l != null ? l : low;
-      result = new Composed16BitRegister<>(registerName, h, l);
-    } else {
-      VirtualRegister<T> l = (VirtualRegister) getVirtualRegisterFactory().lastVirtualRegisters.get(register);
-      if (l != null) {
-        result = l;
-      } else {
-        result = register;
-      }
-    }
-    return result;
+  protected Register<T> getRegister(RegisterName registerName) {
+    return state.getRegister(registerName);
   }
 
   public State<T> getState() {
     return state;
   }
-
-  public abstract VirtualRegisterFactory getVirtualRegisterFactory();
 
   private T mask8(int value) {
     return WordNumber.createValue(value & 0xff);
@@ -304,7 +278,7 @@ public abstract class DefaultRegistersSetter<T extends WordNumber> implements Re
   }
 
   protected Register<T> getFlag() {
-    return getVirtualRegister(F);
+    return getRegister(F);
     //return getState().getFlag();
   }
 }

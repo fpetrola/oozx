@@ -27,7 +27,7 @@ import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.transformations.InstructionFetcherForTest;
-import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
+import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 
 import static com.fpetrola.z80.registers.Flags.CARRY_FLAG;
 import static com.fpetrola.z80.registers.Flags.ZERO_FLAG;
@@ -71,8 +71,8 @@ public class CPUExecutionContext<T extends WordNumber> extends DefaultZ80Instruc
   }
 
   @Override
-  public RegisterTransformerInstructionSpy getRegisterTransformerInstructionSpy() {
-    return (RegisterTransformerInstructionSpy) spy;
+  public RoutineFinderInstructionSpy getRegisterTransformerInstructionSpy() {
+    return (RoutineFinderInstructionSpy) spy;
   }
 
   @Override

@@ -41,7 +41,7 @@ import com.fpetrola.z80.spy.ExecutionListener;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.MemorySpy;
 import com.fpetrola.z80.spy.WriteMemoryReference;
-import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
+import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 
 import java.util.*;
 
@@ -52,7 +52,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   public Map<Integer, RoutineExecution> routineExecutions = new HashMap<>();
   private final State<? extends WordNumber> state;
   private final RoutineManager routineManager;
-  private final RegisterTransformerInstructionSpy spy;
+  private final RoutineFinderInstructionSpy spy;
   public int lastPc;
   private int registerSP;
   private int nextSP;
@@ -75,7 +75,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     addressAction = null;
   }
 
-  public <T extends WordNumber> SymbolicExecutionAdapter(State<T> state, RoutineManager routineManager, RegisterTransformerInstructionSpy spy) {
+  public <T extends WordNumber> SymbolicExecutionAdapter(State<T> state, RoutineManager routineManager, RoutineFinderInstructionSpy spy) {
     this.state = state;
     this.routineManager = routineManager;
     this.spy = spy;

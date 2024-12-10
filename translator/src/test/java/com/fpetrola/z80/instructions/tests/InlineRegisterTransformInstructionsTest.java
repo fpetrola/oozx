@@ -29,7 +29,6 @@ import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.base.ManualBytecodeGenerationTest;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
 import com.google.inject.Inject;
 import io.exemplary.guice.Modules;
 import io.exemplary.guice.TestRunner;

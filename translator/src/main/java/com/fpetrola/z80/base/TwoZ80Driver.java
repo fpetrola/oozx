@@ -22,7 +22,7 @@ import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.MemoryAccessOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
+import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 import org.junit.Before;
 
 import static org.junit.Assert.assertEquals;
@@ -32,13 +32,13 @@ public abstract class TwoZ80Driver<T extends WordNumber> extends ContextDriverDe
   protected final IDriverConfigurator<T> driverConfigurator;
   public Z80ContextDriver<T> firstContext;
   public Z80ContextDriver<T> secondContext;
-  public RegisterTransformerInstructionSpy registerTransformerInstructionSpy;
+  public RoutineFinderInstructionSpy routineFinderInstructionSpy;
 
   public TwoZ80Driver(IDriverConfigurator<T> driverConfigurator) {
     super(null);
     this.driverConfigurator = driverConfigurator;
     driverConfigurator.reset();
-    registerTransformerInstructionSpy = driverConfigurator.getRegisterTransformerInstructionSpy();
+    routineFinderInstructionSpy = driverConfigurator.getRegisterTransformerInstructionSpy();
     firstContext = driverConfigurator.getFirstContext();
     secondContext = driverConfigurator.getSecondContext();
     useBoth();
@@ -83,7 +83,7 @@ public abstract class TwoZ80Driver<T extends WordNumber> extends ContextDriverDe
   }
 
   @Override
-  public RegisterTransformerInstructionSpy getRegisterTransformerInstructionSpy() {
-    return registerTransformerInstructionSpy;
+  public RoutineFinderInstructionSpy getRegisterTransformerInstructionSpy() {
+    return routineFinderInstructionSpy;
   }
 }

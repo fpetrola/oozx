@@ -18,8 +18,8 @@
 
 package com.fpetrola.z80.bytecode.examples;
 
-import com.fpetrola.z80.bytecode.DefaultRegistersSetter;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
+import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
@@ -178,7 +178,7 @@ public class RemoteZ80Translator<T extends WordNumber> {
     realCodeBytecodeCreationBase.translateToJava(className, memoryInBase64, startMethod);
   }
 
-  public DefaultRegistersSetter<T> getDefaultRegistersSetter() {
-    return realCodeBytecodeCreationBase.getDefaultRegistersSetter();
+  public RegistersSetter<T> getDefaultRegistersSetter() {
+    return realCodeBytecodeCreationBase.getRegistersSetter();
   }
 }

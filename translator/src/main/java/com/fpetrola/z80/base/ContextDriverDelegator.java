@@ -25,7 +25,7 @@ import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.registers.RegisterPair;
-import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
+import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 
 import java.util.function.Supplier;
 
@@ -144,7 +144,7 @@ public class ContextDriverDelegator<T extends WordNumber> implements Z80ContextD
   }
 
   @Override
-  public RegisterTransformerInstructionSpy getRegisterTransformerInstructionSpy() {
+  public RoutineFinderInstructionSpy getRegisterTransformerInstructionSpy() {
     return currentContext.getRegisterTransformerInstructionSpy();
   }
 }

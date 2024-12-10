@@ -76,12 +76,9 @@ public class MiniZXWithEmulationBase {
       throw new RuntimeException(e);
     }
   }
+
   private static void loadIntoMemory(State<WordNumber> state, SpectrumState snapState) {
-    RegistersBase registersBase = new RegistersBase<>(state) {
-      public VirtualRegisterFactory getVirtualRegisterFactory() {
-        return new VirtualRegisterFactory(null, null, null);
-      }
-    };
+    RegistersBase registersBase = new RegistersBase<>(state);
 
     registersBase.setZ80State(snapState.getZ80State());
 

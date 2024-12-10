@@ -35,6 +35,11 @@
             <version>2.5.4</version>
         </dependency>
         <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>virtual</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.windup.decompiler</groupId>
             <artifactId>decompiler-fernflower</artifactId>
             <version>2.3.0.Final</version>

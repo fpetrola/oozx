@@ -34,7 +34,7 @@ import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.SpyRegisterBankFactory;
 import com.fpetrola.z80.transformations.InstructionTransformer;
-import com.fpetrola.z80.transformations.RegisterTransformerInstructionSpy;
+import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 import com.fpetrola.z80.transformations.TransformerInstructionExecutor;
 import com.fpetrola.z80.transformations.VirtualRegisterFactory;
 import com.google.inject.AbstractModule;
@@ -59,42 +59,42 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
 
   @Provides
   @Inject
-  private Memory getMemory(RegisterTransformerInstructionSpy spy) {
+  private Memory getMemory(RoutineFinderInstructionSpy spy) {
     return spy.wrapMemory(new MockedMemory<>(true));
   }
 
   protected void configure() {
 //    bind(new TypeLiteral<IDriverConfigurator<T>>(){}).to(new TypeLiteral<DriverConfigurator<T>>() {});
     bind(IDriverConfigurator.class).to(DriverConfigurator.class);
-    bind(InstructionSpy.class).to(RegisterTransformerInstructionSpy.class);
+    bind(InstructionSpy.class).to(RoutineFinderInstructionSpy.class);
     bind(InstructionExecutor.class).to(SpyInstructionExecutor.class);
   }
 
   @Provides
   @Inject
   @Singleton
-  private State getState(RegisterTransformerInstructionSpy spy, Memory aMemory) {
+  private State getState(RoutineFinderInstructionSpy spy, Memory aMemory) {
     return new State(new MockedIO(), new SpyRegisterBankFactory<>(spy).createBank(), aMemory);
   }
 
   @Provides
   @Inject
   @Singleton
-  private RegisterTransformerInstructionSpy getSpy(RoutineManager routineManager, BlocksManager blocksManager) {
-    return new RegisterTransformerInstructionSpy<>(routineManager, blocksManager);
+  private RoutineFinderInstructionSpy getSpy(RoutineManager routineManager, BlocksManager blocksManager) {
+    return new RoutineFinderInstructionSpy<>(routineManager, blocksManager);
   }
 
   @Provides
   @Inject
   @Singleton
-  private SpyInstructionExecutor getInstructionExecutor(RegisterTransformerInstructionSpy registerTransformerInstructionSpy1) {
-    return new SpyInstructionExecutor(registerTransformerInstructionSpy1);
+  private SpyInstructionExecutor getInstructionExecutor(RoutineFinderInstructionSpy routineFinderInstructionSpy1) {
+    return new SpyInstructionExecutor(routineFinderInstructionSpy1);
   }
 
   @Provides
   @Inject
   @Singleton
-  private SymbolicExecutionAdapter getExecutionAdapter(State state1, RoutineManager routineManager, RegisterTransformerInstructionSpy spy) {
+  private SymbolicExecutionAdapter getExecutionAdapter(State state1, RoutineManager routineManager, RoutineFinderInstructionSpy spy) {
     return new SymbolicExecutionAdapter(state1, routineManager, spy);
   }
 
