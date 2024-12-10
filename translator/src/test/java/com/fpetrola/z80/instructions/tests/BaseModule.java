@@ -108,12 +108,14 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
 
   @Provides
   @Inject
+  @Singleton
   private InstructionTransformer getInstructionTransformer(State state2, VirtualRegisterFactory virtualRegisterFactory2, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
     return new InstructionTransformer(symbolicExecutionAdapter1.createInstructionFactory(state2), virtualRegisterFactory2);
   }
 
   @Provides
   @Inject
+  @Singleton
   private TransformerInstructionExecutor getTransformerInstructionExecutor(State state1, InstructionTransformer instructionTransformer, SpyInstructionExecutor spyInstructionExecutor) {
     return new TransformerInstructionExecutor<T>(state1.getPc(), spyInstructionExecutor, true, instructionTransformer);
   }
@@ -133,25 +135,29 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
 
   @Provides
   @Inject
+  @Singleton
   protected OpcodeConditions getOpcodeConditions(State state1) {
     return new OpcodeConditions(state1.getFlag(), state1.getRegister(B));
   }
 
   @Provides
   @Inject
+  @Singleton
   public DataflowService getDataflowService() {
     return new VirtualRegisterDataflowService();
   }
 
   @Provides
   @Inject
+  @Singleton
   public RegistersSetter getRegistersSetter(State state1, VirtualRegisterFactory virtualRegisterFactory) {
     return new VirtualRegistersRegistersSetter<>(state1, virtualRegisterFactory);
   }
 
   @Provides
   @Inject
-  public CPUExecutionContext getSecondContext(RoutineManager routineManager, State state1, InstructionExecutor instructionExecutor1, InstructionTransformer instructionTransformer, OpcodeConditions opcodeConditions, InstructionSpy spy) {
+  @Singleton
+  public CPUExecutionContext getSecondContext(RoutineManager routineManager, State state1, SpyInstructionExecutor instructionExecutor1, InstructionTransformer instructionTransformer, OpcodeConditions opcodeConditions, InstructionSpy spy) {
     TransformerInstructionExecutor<T> transformerInstructionExecutor1 = new TransformerInstructionExecutor(state1.getPc(), instructionExecutor1, false, instructionTransformer);
     RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> transformerInstructionExecutor1.getInstructionAt(address);
     routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
@@ -162,6 +168,7 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
 
   @Provides
   @Inject
+  @Singleton
   private VirtualRegisterFactory getVirtualRegisterFactory(SpyInstructionExecutor instructionExecutor, BlocksManager blockManager) {
     return  new VirtualRegisterFactory(instructionExecutor, new RegisterNameBuilder(), blockManager);
   }
