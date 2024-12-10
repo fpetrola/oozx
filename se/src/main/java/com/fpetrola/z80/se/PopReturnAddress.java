@@ -26,13 +26,14 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class PopReturnAddress<T extends WordNumber> extends Pop<T> {
+public class PopReturnAddress<T extends WordNumber> extends Pop<T> implements IPopReturnAddress<T> {
   private final SymbolicExecutionAdapter<T> symbolicExecutionAdapter;
   public final Register<T> pc;
-  public int previousPc = -1;
-  public ReturnAddressWordNumber returnAddress0;
-  public int popAddress;
+  private int previousPc = -1;
+  private ReturnAddressWordNumber returnAddress0;
+  private int popAddress;
 
+  @Override
   public ReturnAddressWordNumber getReturnAddress() {
     return returnAddress;
   }
@@ -115,4 +116,18 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> {
     return "Pop_";
   }
 
+  @Override
+  public int getPreviousPc() {
+    return previousPc;
+  }
+
+  @Override
+  public ReturnAddressWordNumber getReturnAddress0() {
+    return returnAddress0;
+  }
+
+  @Override
+  public int getPopAddress() {
+    return popAddress;
+  }
 }

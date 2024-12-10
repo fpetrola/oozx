@@ -16,6 +16,7 @@
         <module>emulator</module>
         <module>blocks</module>
         <module>routines</module>
+        <module>se</module>
     </modules>
 
     <properties>

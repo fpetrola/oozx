@@ -22,7 +22,7 @@ import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.references.BlockRelation;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.Ret;
-import com.fpetrola.z80.se.PopReturnAddress;
+import com.fpetrola.z80.se.IPopReturnAddress;
 import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
@@ -78,7 +78,7 @@ public class RoutineFinder {
         processCallInstruction(instruction);
       }
 
-      if (instruction instanceof PopReturnAddress popReturnAddress) {
+      if (instruction instanceof IPopReturnAddress popReturnAddress) {
         processPopInstruction(instruction, pcValue, popReturnAddress);
       } else {
         currentRoutine.addInstructionAt(instruction, pcValue);
@@ -119,12 +119,12 @@ public class RoutineFinder {
     }
   }
 
-  private void processPopInstruction(Instruction instruction, int pcValue, PopReturnAddress popReturnAddress) {
-    if (popReturnAddress.returnAddress0 != null) {
+  private void processPopInstruction(Instruction instruction, int pcValue, IPopReturnAddress popReturnAddress) {
+    if (popReturnAddress.getReturnAddress0() != null) {
       ReturnAddressWordNumber returnAddress = popReturnAddress.getReturnAddress();
       if (returnAddress != null) {
-        if (popReturnAddress.previousPc != -1)
-          currentRoutine.getVirtualPop().put(popReturnAddress.previousPc, popReturnAddress.popAddress);
+        if (popReturnAddress.getPreviousPc() != -1)
+          currentRoutine.getVirtualPop().put(popReturnAddress.getPreviousPc(), popReturnAddress.getPopAddress());
         Routine returnRoutine = routineManager.findRoutineAt(returnAddress.pc);
         returnRoutine.addReturnPoint(returnAddress.pc, pcValue + 1);
         this.currentRoutine = returnRoutine;
