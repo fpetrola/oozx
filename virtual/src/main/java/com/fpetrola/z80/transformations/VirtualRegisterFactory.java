@@ -31,6 +31,7 @@ import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import java.util.*;
 import java.util.function.Consumer;
 
+//TODO: remember reset
 public class VirtualRegisterFactory<T extends WordNumber> {
   private final InstructionExecutor<T> instructionExecutor;
   private final RegisterNameBuilder registerNameBuilder;
