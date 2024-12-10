@@ -83,6 +83,8 @@ public class RoutineFinder {
       } else {
         currentRoutine.addInstructionAt(instruction, pcValue);
         if (instruction instanceof Ret ret) {
+          if (pcValue == 0xCB8C)
+            System.out.println("");
           processRetInstruction(ret);
         }
       }
@@ -98,8 +100,10 @@ public class RoutineFinder {
 
   private void processCallInstruction(Instruction instruction) {
     WordNumber nextPC = ((ConditionalInstruction) lastInstruction).getNextPC();
-    if (nextPC != null)
+    if (nextPC != null) {
+      System.out.printf("CALL: %H%n", nextPC.intValue());
       createOrUpdateCurrentRoutine(nextPC.intValue(), instruction.getLength());
+    }
   }
 
   private void processRetInstruction(Ret ret) {
@@ -109,7 +113,11 @@ public class RoutineFinder {
 //              currentRoutine.addInnerRoutine(routineAt);
 //            }
 //            currentRoutine.finish();
+      System.out.printf("RET: %H%n", ret.getNextPC().intValue());
+
       this.currentRoutine = routineManager.findRoutineAt(ret.getNextPC().intValue() - 1);
+      if (currentRoutine == null)
+        System.out.println("null!");
     }
   }
 

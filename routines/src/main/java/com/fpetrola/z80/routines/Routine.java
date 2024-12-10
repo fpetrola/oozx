@@ -60,7 +60,7 @@ public class Routine {
     this.virtual = virtual;
     this.blocks = blocks;
     this.setEntryPoint(entryPoint);
-    if (blocks.get(0).getRangeHandler().getStartAddress() == 0xE782)
+    if (blocks.get(0).getRangeHandler().getStartAddress() == 0xC82E)
       System.out.println("dsagsdgdg");
   }
 

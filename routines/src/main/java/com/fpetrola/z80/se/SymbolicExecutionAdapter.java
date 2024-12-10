@@ -25,7 +25,9 @@ import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
+import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.cpu.State;
@@ -171,10 +173,23 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           DynamicJPData dynamicJPData = SEInstructionFactory.dynamicJP.get(jpRegisterAddressAction.address);
           jpRegisterAddressAction.setDynamicJPData(dynamicJPData);
           List<Integer> integers = RoutineFinder.callers2.get(e.getValue().start);
-          stepUntilComplete(z80InstructionDriver, (State<T>) state, integers.getFirst(), minimalValidCodeAddress);
+          Integer first1 = integers.getFirst();
+          Routine routineAt = routineManager.findRoutineAt(first1);
+          int startAddress = first1;
+          pushAddress(startAddress); //FiXME: calculate minimal ret to run
+          pushAddress(startAddress);
+          pushAddress(startAddress);
+          pushAddress(startAddress);
+          stepUntilComplete(z80InstructionDriver, (State<T>) state, first1, minimalValidCodeAddress);
         }
       }
     });
+  }
+
+  private void pushAddress(int startAddress) {
+    Register<WordNumber> registerSP1 = (Register<WordNumber>) state.getRegisterSP();
+    Memory<WordNumber> memory = (Memory<WordNumber>) state.getMemory();
+    Push.doPush(createValue(startAddress), registerSP1, memory);
   }
 
   private void executeAllCode(Z80InstructionDriver z80InstructionDriver, Register<T> pc) {
@@ -197,7 +212,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 //        System.out.println("PC: " + Helper.formatAddress(pcValue));
 //        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
 
-        if (pcValue == 0xD8F6)
+        if (pcValue == 0xCB8C)
           System.out.println("");
 
         AddressAction currentAddressAction = routineExecution.getAddressAction(pcValue);
