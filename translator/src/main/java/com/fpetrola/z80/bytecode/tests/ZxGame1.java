@@ -2017,7 +2017,7 @@ public class ZxGame1 extends MiniZX {
     int var9 = A - A;
     F = var9;
     if(F != 0) {
-      ;
+      $F32A();
     }
   }
 
@@ -2379,22 +2379,6 @@ public class ZxGame1 extends MiniZX {
     $EEF9();
   }
 
-  public void $EEF1() {
-    int var1 = HL();
-    int var2 = mem(var1, 61169);
-    E = var2;
-    int var3 = HL() + 1 & 65535;
-    HL(var3);
-    int var4 = HL();
-    int var5 = mem(var4, 61171);
-    D = var5;
-    $E8F1();
-    int var6 = D + 1 & 255;
-    D = var6;
-    F = var6;
-    $EEF8();
-  }
-
   public void $EEF9() {
     int var1 = HL();
     int var2 = mem(var1, 61177);
@@ -2458,6 +2442,22 @@ public class ZxGame1 extends MiniZX {
         $EEF8();
       }
     }
+  }
+
+  public void $EEF1() {
+    int var1 = HL();
+    int var2 = mem(var1, 61169);
+    E = var2;
+    int var3 = HL() + 1 & 65535;
+    HL(var3);
+    int var4 = HL();
+    int var5 = mem(var4, 61171);
+    D = var5;
+    $E8F1();
+    int var6 = D + 1 & 255;
+    D = var6;
+    F = var6;
+    $EEF8();
   }
 
   public void $CBBD() {
@@ -3927,6 +3927,28 @@ public class ZxGame1 extends MiniZX {
 
   }
 
+  public void $E90C() {
+    A = D;
+    int var1 = A;
+    int var2 = rrc(var1);
+    A = var2;
+    int var3 = A;
+    int var4 = rrc(var3);
+    A = var4;
+    int var5 = A;
+    int var6 = rrc(var5);
+    A = var6;
+    int var7 = A & 3;
+    A = var7;
+    int var8 = A << 1;
+    F = var8;
+    int var9 = A | 88;
+    A = var9;
+    int var10 = A << 1;
+    F = var10;
+    D = A;
+  }
+
   public void $D2BF() {
     int var1 = A << 1;
     F = var1;
@@ -4675,28 +4697,6 @@ public class ZxGame1 extends MiniZX {
     wMem(55787, A, 54394);
     $D9EC();
     exx();
-  }
-
-  public void $E90C() {
-    A = D;
-    int var1 = A;
-    int var2 = rrc(var1);
-    A = var2;
-    int var3 = A;
-    int var4 = rrc(var3);
-    A = var4;
-    int var5 = A;
-    int var6 = rrc(var5);
-    A = var6;
-    int var7 = A & 3;
-    A = var7;
-    int var8 = A << 1;
-    F = var8;
-    int var9 = A | 88;
-    A = var9;
-    int var10 = A << 1;
-    F = var10;
-    D = A;
   }
 
   public void $D9A7() {

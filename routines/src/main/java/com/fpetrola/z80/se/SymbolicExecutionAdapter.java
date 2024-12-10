@@ -174,7 +174,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           jpRegisterAddressAction.setDynamicJPData(dynamicJPData);
           List<Integer> integers = RoutineFinder.callers2.get(e.getValue().start);
           Integer first1 = integers.getFirst();
-          Routine routineAt = routineManager.findRoutineAt(first1);
           int startAddress = first1;
           pushAddress(startAddress); //FiXME: calculate minimal ret to run
           pushAddress(startAddress);

@@ -42,8 +42,6 @@ class GenericAddressAction extends AddressAction {
       if (addressAction1.isPresent())
         result = addressAction1.get().address;
       else {
-        if (routineExecution.retInstruction == -1)
-          System.out.println("dsdgsdgsdg");
         result= routineExecution.retInstruction;
       }
     }

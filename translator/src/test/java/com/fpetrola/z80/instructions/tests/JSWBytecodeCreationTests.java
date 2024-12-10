@@ -65,10 +65,9 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
 
   @Test
   public void testJSWMoveWilly() {
-    EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX("http://torinak.com/qaop/bin/dynamitedan", 1, false, 0xC800, false);
+    EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX("http://torinak.com/qaop/bin/dynamitedan", 1, false, 0xC804, false);
     emulatedMiniZX.start();
 
-    emulatedMiniZX.ooz80.getState().getRegisterSP().write(WordNumber.createValue(65525));
     State state = emulatedMiniZX.ooz80.getState();
     String base64Memory = SnapshotHelper.getBase64Memory(state);
     realCodeBytecodeCreationBase.getState().getMemory().copyFrom(state.getMemory());

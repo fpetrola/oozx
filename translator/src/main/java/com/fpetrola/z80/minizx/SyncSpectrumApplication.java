@@ -31,12 +31,13 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
   }
 
   public int mem(int address, int pc) {
-    waitNanos(20000);
+    waitNanos(30000);
     syncChecker.checkSyncJava(address, 0, pc);
     return getMem()[address] & 0xff;
   }
 
   public void wMem(int address, int value, int pc) {
+    waitNanos(30000);
     syncChecker.checkSyncJava(address, value, pc);
 //    System.out.println("pc: " + pc);
     wMem(address, value);

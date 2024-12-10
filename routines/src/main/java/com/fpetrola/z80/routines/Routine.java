@@ -60,7 +60,7 @@ public class Routine {
     this.virtual = virtual;
     this.blocks = blocks;
     this.setEntryPoint(entryPoint);
-    if (blocks.get(0).getRangeHandler().getStartAddress() == 0xC82E)
+    if (blocks.get(0).getRangeHandler().getStartAddress() == 38555)
       System.out.println("dsagsdgdg");
   }
 
@@ -409,7 +409,7 @@ public class Routine {
       first.ifPresent(b -> {
         Block split = b.split(address - 1);
         addBlock(split);
-        Routine routine = new Routine(split, address, false);
+        Routine routine = new Routine(split, address, true);
         removeBlock(split);
         addInnerRoutine(routine);
         result[0] = routine;
