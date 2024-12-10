@@ -23,6 +23,7 @@ import com.fpetrola.z80.minizx.sync.SyncChecker;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> {
+  public static final int delay = 50000;
   public SyncChecker syncChecker = new DummySyncChecker();
   protected ZxObject[] objectMemory = new ZxObject[0x10000];
 
@@ -31,13 +32,13 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
   }
 
   public int mem(int address, int pc) {
-    waitNanos(30000);
+    waitNanos(delay);
     syncChecker.checkSyncJava(address, 0, pc);
     return getMem()[address] & 0xff;
   }
 
   public void wMem(int address, int value, int pc) {
-    waitNanos(30000);
+    waitNanos(delay);
     syncChecker.checkSyncJava(address, value, pc);
 //    System.out.println("pc: " + pc);
     wMem(address, value);

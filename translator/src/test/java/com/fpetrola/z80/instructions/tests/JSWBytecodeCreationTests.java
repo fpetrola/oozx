@@ -64,28 +64,26 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
 
 
   @Test
-  public void testJSWMoveWilly() {
-    EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX("http://torinak.com/qaop/bin/dynamitedan", 1, false, 0xC804, false);
-    emulatedMiniZX.start();
-
-    State state = emulatedMiniZX.ooz80.getState();
-    String base64Memory = SnapshotHelper.getBase64Memory(state);
-    realCodeBytecodeCreationBase.getState().getMemory().copyFrom(state.getMemory());
-    realCodeBytecodeCreationBase.getState().setRegisters(state);
-
-//    String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/dynamitedan1.z80");
+  public void testEmulateUntil() {
+    String base64Memory = emulateUntil(0xC804, "http://torinak.com/qaop/bin/dynamitedan");
     stepUntilComplete(0xC804);
-
-//    Helper.hex= false;
-//    String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
-//    stepUntilComplete(34762);
-
     String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "ZxGame1");
     actual = RemoteZ80Translator.improveSource(actual);
     List<Routine> routines = driverConfigurator.getRoutineManager().getRoutines();
 
     Assert.assertEquals("""
         """, actual);
+  }
+
+  private String emulateUntil(int address, String url) {
+    EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX(url, 1, false, address, false);
+    emulatedMiniZX.start();
+
+    State state = emulatedMiniZX.ooz80.getState();
+    String base64Memory = SnapshotHelper.getBase64Memory(state);
+    realCodeBytecodeCreationBase.getState().getMemory().copyFrom(state.getMemory());
+    realCodeBytecodeCreationBase.getState().setRegisters(state);
+    return base64Memory;
   }
 
   @Test
