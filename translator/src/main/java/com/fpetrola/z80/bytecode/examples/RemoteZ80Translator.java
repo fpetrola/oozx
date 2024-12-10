@@ -22,6 +22,7 @@ import com.fpetrola.z80.bytecode.DefaultRegistersSetter;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
+import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
@@ -62,6 +63,7 @@ public class RemoteZ80Translator<T extends WordNumber> {
     String url = "http://torinak.com/qaop/bin/" + gameName;
     int startRoutineAddress = 34762;
     String screenURL = "https://tcrf.net/images/3/3a/Jet_Set_Willy-ZX_Spectrum-title.png";
+    int emulateUntil = -1;
 
 
     if (args.length >= 4) {
@@ -70,12 +72,23 @@ public class RemoteZ80Translator<T extends WordNumber> {
       url = args[2];
       startRoutineAddress = Integer.parseInt(args[3]);
       if (args.length > 4)
-        screenURL = args[4];
+        emulateUntil = Integer.parseInt(args[4]);
     }
 
     System.out.println("\n\nTranslating: " + gameName + " " + url + " " + startRoutineAddress + "\n\n");
 
-    remoteZ80Translator.translate(action, gameName, url, startRoutineAddress, screenURL);
+    remoteZ80Translator.translate(action, gameName, url, startRoutineAddress, screenURL, emulateUntil);
+  }
+
+  public static <T extends WordNumber> String emulateUntil(RealCodeBytecodeCreationBase<T> realCodeBytecodeCreationBase, int address, String url) {
+    EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX(url, 1, false, address, false);
+    emulatedMiniZX.start();
+
+    State state = emulatedMiniZX.ooz80.getState();
+    String base64Memory = SnapshotHelper.getBase64Memory(state);
+    realCodeBytecodeCreationBase.getState().getMemory().copyFrom(state.getMemory());
+    realCodeBytecodeCreationBase.getState().setRegisters(state);
+    return base64Memory;
   }
 
   private void drawPicture(String url) {
@@ -91,17 +104,20 @@ public class RemoteZ80Translator<T extends WordNumber> {
     }
   }
 
-  public void translate(String action, String gameName, String url, int startRoutineAddress, String screeenURL) {
+  public void translate(String action, String gameName, String url, int startRoutineAddress, String screeenURL, int emulateUntil) {
     //  drawPicture(screeenURL);
+    int firstAddress = startRoutineAddress;
+    String base64Memory;
+    if (emulateUntil > 0) {
+      base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, emulateUntil, url);
+    } else {
+      File tempFile = getRemoteFile(url, ".z80", "/tmp/" + gameName + ".z80");
+      State<T> state = realCodeBytecodeCreationBase.getState();
+      SnapshotLoader.setupStateWithSnapshot(getDefaultRegistersSetter(), tempFile.getAbsolutePath(), state);
+      firstAddress = realCodeBytecodeCreationBase.getState().getPc().read().intValue();
+      base64Memory = SnapshotHelper.getBase64Memory(realCodeBytecodeCreationBase.getState());
+    }
 
-    File tempFile = getRemoteFile(url, ".z80", "/tmp/" + gameName + ".z80");
-
-
-    State<T> state = realCodeBytecodeCreationBase.getState();
-    SnapshotLoader.setupStateWithSnapshot(getDefaultRegistersSetter(), tempFile.getAbsolutePath(), state);
-
-    int firstAddress = realCodeBytecodeCreationBase.getState().getPc().read().intValue();
-    String base64Memory = SnapshotHelper.getBase64Memory(realCodeBytecodeCreationBase.getState());
     stepUntilComplete(firstAddress);
 
     List<Routine> routines = realCodeBytecodeCreationBase.getRoutines();

@@ -25,7 +25,6 @@ import com.fpetrola.z80.bytecode.examples.SnapshotHelper;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
-import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
@@ -65,7 +64,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
 
   @Test
   public void testEmulateUntil() {
-    String base64Memory = emulateUntil(0xC804, "http://torinak.com/qaop/bin/dynamitedan");
+    String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, 0xC804, "http://torinak.com/qaop/bin/dynamitedan");
     stepUntilComplete(0xC804);
     String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "ZxGame1");
     actual = RemoteZ80Translator.improveSource(actual);
@@ -73,17 +72,6 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
 
     Assert.assertEquals("""
         """, actual);
-  }
-
-  private String emulateUntil(int address, String url) {
-    EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX(url, 1, false, address, false);
-    emulatedMiniZX.start();
-
-    State state = emulatedMiniZX.ooz80.getState();
-    String base64Memory = SnapshotHelper.getBase64Memory(state);
-    realCodeBytecodeCreationBase.getState().getMemory().copyFrom(state.getMemory());
-    realCodeBytecodeCreationBase.getState().setRegisters(state);
-    return base64Memory;
   }
 
   @Test
