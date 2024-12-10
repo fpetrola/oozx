@@ -49,4 +49,8 @@ public class RegisterNameBuilder {
   public void setCurrentAddress(int currentAddress) {
     this.currentAddress = currentAddress;
   }
+
+  public void reset() {
+    names.clear();
+  }
 }

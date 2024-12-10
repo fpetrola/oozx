@@ -32,7 +32,7 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
   protected State<T> state1;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
   protected InstructionTransformer instructionTransformer;
-  protected InstructionExecutor<T> transformerInstructionExecutor;
+  protected InstructionExecutor<T> instructionExecutor;
   protected OpcodeConditions opcodeConditions;
   protected RegistersSetter<T> registersSetter;
   private CPUExecutionContext<T> secondContext;
@@ -55,7 +55,7 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
     this.spy = spy;
     this.spy.reset(state2);
     state1 = state2;
-    transformerInstructionExecutor = transformerInstructionExecutor1;
+    instructionExecutor = transformerInstructionExecutor1;
     instructionTransformer = instructionCloner2;
     opcodeConditions = opcodeConditions1;
     this.registersSetter = registersSetter1;
@@ -77,5 +77,6 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
 
   public void reset() {
     symbolicExecutionAdapter.reset();
+    instructionExecutor.reset();
   }
 }

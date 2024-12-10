@@ -98,7 +98,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   }
 
   protected void stepUntilComplete() {
-    getSymbolicExecutionAdapter().stepUntilComplete(this, getState(), 0, 0);
+  getSymbolicExecutionAdapter().stepUntilComplete(this, getState(), 0, 0);
   }
 
   private void assertBlockAddresses(Block block, int start, int end) {

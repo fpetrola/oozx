@@ -146,6 +146,7 @@ public class VirtualRegisterFactory<T extends WordNumber> {
     lastValues.clear();
     versionHandlers.clear();
     actions.clear();
+    registerNameBuilder.reset();
   }
 
 }
