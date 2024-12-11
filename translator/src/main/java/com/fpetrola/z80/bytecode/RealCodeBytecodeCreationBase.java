@@ -36,6 +36,7 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecu
   public RoutineManager routineManager;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
   private RegistersSetter<T> registersSetter;
+  private RandomAccessInstructionFetcher randomAccessInstructionFetcher;
 
   public RealCodeBytecodeCreationBase(RoutineFinderInstructionSpy routineFinderInstructionSpy1, RoutineManager routineManager1,
                                       SpyInstructionExecutor instructionExecutor1,
@@ -45,9 +46,14 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecu
     routineManager = routineManager1;
 
     symbolicExecutionAdapter = executionAdapter;
-    RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> transformerInstructionExecutor1.clonedInstructions.get(address);
+    randomAccessInstructionFetcher = (address) -> transformerInstructionExecutor1.clonedInstructions.get(address);
     routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
     registersSetter = registersSetter1;
+  }
+
+  public void reset() {
+    super.reset();
+    routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
   }
 
   public List<Routine> getRoutines() {

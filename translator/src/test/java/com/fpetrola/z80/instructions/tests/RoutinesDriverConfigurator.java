@@ -36,13 +36,23 @@ import com.fpetrola.z80.transformations.TransformerInstructionExecutor;
 import com.google.inject.Inject;
 
 public class RoutinesDriverConfigurator<T extends WordNumber> extends DriverConfigurator<T> {
+
+  private OOZ80 z80;
+
   @Inject
   public RoutinesDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state2, SpyInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter1, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor, RegistersSetter registersSetter1, CPUExecutionContext secondContext1, MutableOpcodeConditions mutableOpcodeConditions) {
     super(routineManager, routineFinderInstructionSpy1, state2, instructionExecutor2, symbolicExecutionAdapter1, instructionCloner2, transformerInstructionExecutor, mutableOpcodeConditions, registersSetter1, secondContext1);
   }
 
   public RealCodeBytecodeCreationBase getRealCodeBytecodeCreationBase() {
-    OOZ80 z80 = new OOZ80(state1, symbolicExecutionAdapter.createInstructionFetcher(spy, state1, transformerInstructionExecutor, opcodeConditions));
+    z80 = new OOZ80(state1, symbolicExecutionAdapter.createInstructionFetcher(spy, state1, transformerInstructionExecutor, opcodeConditions));
     return new RealCodeBytecodeCreationBase<T>(spy, routineManager, instructionExecutor1, symbolicExecutionAdapter, instructionTransformer, transformerInstructionExecutor, z80, this.opcodeConditions, registersSetter);
+  }
+
+  @Override
+  public void reset() {
+    super.reset();
+    if (z80 != null)
+      z80.reset();
   }
 }

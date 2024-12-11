@@ -45,7 +45,7 @@ public class TestFirstCPUInstructionLoop<T extends WordNumber> extends BaseInstr
 
   @Test
   public void testPlainPath() {
-    useFirst();
+    useSecond();
 
     createPlainExecution();
 
@@ -61,7 +61,7 @@ public class TestFirstCPUInstructionLoop<T extends WordNumber> extends BaseInstr
 
   @Test
   public void testPlainPath2() {
-    useFirst();
+    useSecond();
     createPlainExecution();
 
     step();

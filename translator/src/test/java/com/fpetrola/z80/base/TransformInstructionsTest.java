@@ -20,6 +20,7 @@ package com.fpetrola.z80.base;
 
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.RegisterName;
 import org.junit.Before;
 
 public class TransformInstructionsTest<T extends WordNumber> extends BaseInstructionLoopTest<T> {
@@ -35,6 +36,7 @@ public class TransformInstructionsTest<T extends WordNumber> extends BaseInstruc
     super.setUp();
     useSecond();
     reset();
+    currentContext.r(RegisterName.PC).write(WordNumber.createValue(0));
   }
 
   @Override
