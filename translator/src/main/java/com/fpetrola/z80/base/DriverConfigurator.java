@@ -39,7 +39,7 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
   private CPUExecutionContext<T> secondContext;
 
   @Override
-  public RoutineFinderInstructionSpy<T> getRegisterTransformerInstructionSpy() {
+  public RoutineFinderInstructionSpy<T> getRoutineFinderInstructionSpy() {
     return spy;
   }
 

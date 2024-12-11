@@ -38,7 +38,7 @@ public abstract class TwoZ80Driver<T extends WordNumber> extends ContextDriverDe
     super(null);
     this.driverConfigurator = driverConfigurator;
     driverConfigurator.reset();
-    routineFinderInstructionSpy = driverConfigurator.getRegisterTransformerInstructionSpy();
+    routineFinderInstructionSpy = driverConfigurator.getRoutineFinderInstructionSpy();
 //    firstContext = driverConfigurator.getFirstContext();
     secondContext = driverConfigurator.getSecondContext();
     useSecond();

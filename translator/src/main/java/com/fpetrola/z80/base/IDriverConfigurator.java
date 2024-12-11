@@ -23,7 +23,7 @@ import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 
 public interface IDriverConfigurator<T extends WordNumber> {
-  RoutineFinderInstructionSpy<T> getRegisterTransformerInstructionSpy();
+  RoutineFinderInstructionSpy<T> getRoutineFinderInstructionSpy();
 
   CPUExecutionContext<T> getSecondContext();
 
