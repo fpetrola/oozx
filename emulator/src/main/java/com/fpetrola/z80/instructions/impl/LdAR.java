@@ -57,6 +57,8 @@ public class LdAR<T extends WordNumber> extends Ld<T> {
 
   @Override
   public void accept(InstructionVisitor visitor) {
-    visitor.visitLdAR(this);
+    if (!visitor.visitLdAR(this)) {
+      super.accept(visitor);
+    }
   }
 }
