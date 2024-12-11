@@ -646,7 +646,8 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
            public void $11() {
               int var1 = super.A - 1 & 255;
               super.A = var1;
-              if(var1 != 0) {
+              super.F = var1;
+              if(super.F != 0) {
                  super.nextAddress = 16;
               } else {
                  super.E = 8;
@@ -740,7 +741,9 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
         
            public void $7() {
               super.D = 4;
-              if(super.A == 3) {
+              int var1 = super.A - 3;
+              super.F = var1;
+              if(super.F == 0) {
                  this.$13();
                  if(this.isNextPC(17)) {
                     super.E = 71;
@@ -749,8 +752,6 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
                  }
               }
         
-              int var1 = super.A - 3;
-              super.F = var1;
            }
         
            public void $13() {
@@ -843,7 +844,9 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
         
            public void $7() {
               super.D = 4;
-              if(super.A == 3) {
+              int var1 = super.A - 3;
+              super.F = var1;
+              if(super.F == 0) {
                  super.H = 2;
               } else {
                  super.A = 61;
@@ -911,7 +914,9 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
         
            public void $8() {
               super.D = 5;
-              if(super.A << 1 != 0) {
+              int var1 = super.A << 1;
+              super.F = var1;
+              if(super.F != 0) {
                  super.D = 6;
               }
            }
@@ -966,7 +971,8 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
                  super.D = 5;
                  int var1 = super.A - 1 & 255;
                  super.A = var1;
-                 if(var1 == 0) {
+                 super.F = var1;
+                 if(super.F == 0) {
                     return;
                  }
         
@@ -1025,6 +1031,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
                  do {
                     int var2 = super.A + 1 & 255;
                     super.A = var2;
+                    super.F = var2;
                     int var3 = super.B - 1 & 255;
                     super.B = var3;
                  } while(super.B != 0);
@@ -1089,7 +1096,9 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
            }
         
            public void $5() {
-              if(super.A << 1 != 0) {
+              int var1 = super.A << 1;
+              super.F = var1;
+              if(super.F != 0) {
                  super.D = 6;
               }
            }
@@ -1413,9 +1422,11 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
            }
         
            public void $0() {
-              if(super.A != 1) {
+              int var1 = super.A - 1;
+              super.F = var1;
+              if(super.F != 0) {
                  this.$6();
-              } else if(super.A != 1) {
+              } else if(super.F != 0) {
                  this.$8();
               } else {
                  this.$3();
@@ -1496,7 +1507,14 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
            }
         
            public void $5() {
-              if(super.A << 1 != 0) {
+              this.HL(10);
+              int var1 = this.HL();
+              int var2 = this.mem(var1, 6);
+              int var3 = super.A & var2;
+              super.A = var3;
+              int var4 = super.A << 1;
+              super.F = var4;
+              if(super.F != 0) {
                  super.D = 6;
               }
            }
@@ -1507,6 +1525,6 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     Assert.assertEquals(2, routines.size());
 
     assertBlockAddresses(routines.get(0).getBlocks().get(0), 0, 3);
-    assertBlockAddresses(routines.get(1).getBlocks().get(0), 5, 8);
+    assertBlockAddresses(routines.get(1).getBlocks().get(0), 5, 9);
   }
 }
