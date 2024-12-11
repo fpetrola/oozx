@@ -44,7 +44,11 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
   }
 
   @Inject
-  public DriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy spy, State state2, SpyInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1, RegistersSetter<T> registersSetter1) {
+  public DriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy spy, State state2,
+                            SpyInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter,
+                            InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1,
+                            OpcodeConditions opcodeConditions1, RegistersSetter registersSetter1, CPUExecutionContext secondContext2) {
+    this.secondContext= secondContext2;
     this.routineManager = routineManager;
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     symbolicExecutionAdapter.reset();

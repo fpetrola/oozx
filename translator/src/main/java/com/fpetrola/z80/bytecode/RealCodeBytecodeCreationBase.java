@@ -46,7 +46,7 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecu
     routineManager = routineManager1;
 
     symbolicExecutionAdapter = executionAdapter;
-    RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> transformerInstructionExecutor1.clonedInstructions.get(address);
+    RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> transformerInstructionExecutor1.getInstructionAt(address);
     routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
     registersSetter = registersSetter1;
   }

@@ -38,8 +38,10 @@ public class RoutinesDriverConfigurator<T extends WordNumber> extends DriverConf
   private OOZ80 z80;
 
   @Inject
-  public RoutinesDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state2, SpyInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter1, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor, RegistersSetter registersSetter1) {
-    super(routineManager, routineFinderInstructionSpy1, state2, instructionExecutor2, symbolicExecutionAdapter1, instructionCloner2, transformerInstructionExecutor, symbolicExecutionAdapter1.createOpcodeConditions(state2), registersSetter1);
+  public RoutinesDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state2, SpyInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter1, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor, RegistersSetter registersSetter1, CPUExecutionContext secondContext2) {
+    super(routineManager, routineFinderInstructionSpy1, state2, instructionExecutor2,
+        symbolicExecutionAdapter1, instructionCloner2, transformerInstructionExecutor,
+        symbolicExecutionAdapter1.createOpcodeConditions(state2), registersSetter1, secondContext2);
   }
 
   public RealCodeBytecodeCreationBase getRealCodeBytecodeCreationBase() {
