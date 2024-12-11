@@ -36,10 +36,7 @@ import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.se.VirtualRegisterDataflowService;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.SpyRegisterBankFactory;
-import com.fpetrola.z80.transformations.InstructionTransformer;
-import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
-import com.fpetrola.z80.transformations.TransformerInstructionExecutor;
-import com.fpetrola.z80.transformations.VirtualRegisterFactory;
+import com.fpetrola.z80.transformations.*;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
@@ -110,6 +107,7 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
 
   @Provides
   @Inject
+  @Singleton
   private InstructionTransformer getInstructionTransformer(State state2, VirtualRegisterFactory virtualRegisterFactory2, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
     return new InstructionTransformer(symbolicExecutionAdapter1.createInstructionFactory(state2), virtualRegisterFactory2);
   }
@@ -136,5 +134,12 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Inject
   private RegistersSetter getRegistersSetter(State state1, VirtualRegisterFactory virtualRegisterFactory) {
     return new VirtualRegistersRegistersSetter<>(state1, virtualRegisterFactory);
+  }
+
+  @Provides
+  @Inject
+  @Singleton
+  public VirtualRegisterFactory getVirtualRegisterFactory(InstructionExecutor instructionExecutor, RegisterNameBuilder registerNameBuilder, BlocksManager blocksManager) {
+    return new VirtualRegisterFactory<>(instructionExecutor, registerNameBuilder, blocksManager);
   }
 }
