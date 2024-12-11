@@ -26,6 +26,8 @@ import com.fpetrola.z80.registers.RegisterPair;
 
 public interface Z80ContextDriver<T extends WordNumber> extends Z80InstructionDriver<T> {
 
+  void reset();
+
   Register<T> r(RegisterName registerName);
 
   RegisterPair<T> rp(RegisterName registerName);

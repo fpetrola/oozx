@@ -86,7 +86,7 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
     //System.err.println(pc.read() + ":- " + cloned);
 
     //if (isConcreteInstruction(cloned) || existentCloned != null)
-    instructionExecutor.execute(cloned);
+      instructionExecutor.execute(cloned);
 
     if (noRepeat && cloned instanceof RepeatingInstruction repeatingInstruction)
       repeatingInstruction.setNextPC(null);
@@ -180,6 +180,7 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
   public void reset() {
     clonedInstructions.clear();
     executed.clear();
+    instructionExecutor.reset();
     instructionTransformer.virtualRegisterFactory.reset();
   }
 }

@@ -27,18 +27,12 @@ import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import org.apache.commons.collections4.ListValuedMap;
-import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
 @SuppressWarnings("ALL")
 public class RoutineFinder {
   private Instruction lastInstruction;
 
   private Routine currentRoutine;
-
-  public static ListValuedMap<Integer, Integer> callers = new ArrayListValuedHashMap<>();
-  public static ListValuedMap<Integer, Integer> callees = new ArrayListValuedHashMap<>();
-  public static ListValuedMap<Integer, Integer> callers2 = new ArrayListValuedHashMap<>();
 
   public RoutineManager getRoutineManager() {
     return routineManager;
@@ -49,8 +43,8 @@ public class RoutineFinder {
 
   public RoutineFinder(RoutineManager routineManager) {
     this.routineManager = routineManager;
-    callers.clear();
-    callees.clear();
+    routineManager.callers.clear();
+    routineManager.callees.clear();
   }
 
   public void checkExecution(Instruction instruction, int pcValue) {
@@ -62,12 +56,12 @@ public class RoutineFinder {
       if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
         if (!(instruction instanceof Call) && !(instruction instanceof Ret<?>)) {
           if (conditionalInstruction.getNextPC() != null) {
-            callers.put(conditionalInstruction.getNextPC().intValue(), pcValue);
-            callees.put(pcValue, conditionalInstruction.getNextPC().intValue());
+            routineManager.callers.put(conditionalInstruction.getNextPC().intValue(), pcValue);
+            routineManager.callees.put(pcValue, conditionalInstruction.getNextPC().intValue());
           }
         } else if (instruction instanceof Call) {
           if (conditionalInstruction.getNextPC() != null)
-            callers2.put(conditionalInstruction.getNextPC().intValue(), pcValue);
+            routineManager.callers2.put(conditionalInstruction.getNextPC().intValue(), pcValue);
         }
       }
 

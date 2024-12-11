@@ -258,7 +258,7 @@ public class Routine {
 
     boolean changes = false;
     for (int address = startAddress; address <= endAddress; address++) {
-      List<Integer> integers = RoutineFinder.callers.get(address);
+      List<Integer> integers = routineManager.callers.get(address);
       int finalI = address;
 
       boolean b = integers.stream().anyMatch(call -> routineManager.findRoutineAt(call) != routineManager.findRoutineAt(finalI));
@@ -297,7 +297,7 @@ public class Routine {
     final boolean[] changes = {false};
 
     for (int address = startAddress; address <= endAddress; address++) {
-      List<Integer> callees = RoutineFinder.callees.get(address);
+      List<Integer> callees = routineManager.callees.get(address);
       int finalI = address;
       for (int i = 0; i < callees.size(); i++) {
         int finalI1 = callees.get(i);

@@ -60,6 +60,7 @@ public class RoutineFinderInstructionSpy<T extends WordNumber> extends WrapperIn
     lastInstruction = null;
     lastPC = 0;
     executedInstructions.clear();
+    writeMemoryReferences.clear();
   }
 
   @Override

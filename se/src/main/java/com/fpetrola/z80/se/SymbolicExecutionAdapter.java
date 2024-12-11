@@ -35,7 +35,6 @@ import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.Routine;
-import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.actions.AddressAction;
 import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
@@ -73,6 +72,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     mutantAddress.clear();
     stackFrames.clear();
     routineExecutions.clear();
+    routineManager.reset();
+    spy.reset(state);
     nextSP = 0;
     lastPc = 0;
     addressAction = null;
@@ -104,7 +105,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     return new SEInstructionFactory(this, state, dataflowService);
   }
 
-  public <T extends WordNumber> OpcodeConditions createOpcodeConditions(State<T> state) {
+  public <T extends WordNumber> MutableOpcodeConditions createOpcodeConditions(State<T> state) {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
       addressAction = getRoutineExecution().replaceIfAbsent(getPcValue(), getRoutineExecution().createAddressAction(instruction, alwaysTrue, getPcValue(), this, state));
       return addressAction.processBranch(instruction);
@@ -176,7 +177,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         if (jpRegisterAddressAction.dynamicJPData == null) {
           DynamicJPData dynamicJPData = SEInstructionFactory.dynamicJP.get(jpRegisterAddressAction.address);
           jpRegisterAddressAction.setDynamicJPData(dynamicJPData);
-          List<Integer> integers = RoutineFinder.callers2.get(e.getValue().start);
+          List<Integer> integers = routineManager.callers2.get(e.getValue().start);
           Integer first1 = integers.getFirst();
           int startAddress = first1;
           pushAddress(startAddress); //FiXME: calculate minimal ret to run

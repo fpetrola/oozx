@@ -416,7 +416,6 @@ public interface InstructionVisitor<T extends WordNumber, R> {
   }
 
   default boolean visitLdAR(LdAR tLdAR) {
-
     return false;
   }
 }

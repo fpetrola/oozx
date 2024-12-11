@@ -56,6 +56,15 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
     setCloned(instructionFactory.Halt(), halt);
   }
 
+  public boolean visitLdAR(LdAR ld) {
+    setCloned(instructionFactory.LdAR(clone(ld.getTarget()), clone(ld.getSource())), ld);
+    TargetSourceInstruction cloned1 = (TargetSourceInstruction) cloned;
+
+    cloned1.setTarget(createRegisterReplacement(cloned1.getTarget(), cloned1, new VirtualFetcher()));
+    cloned1.setSource(createRegisterReplacement(cloned1.getSource(), null, new VirtualFetcher()));
+    return true;
+  }
+
   public void visitingLd(Ld ld) {
     setCloned(instructionFactory.Ld(clone(ld.getTarget()), clone(ld.getSource())), ld);
     TargetSourceInstruction cloned1 = (TargetSourceInstruction) cloned;

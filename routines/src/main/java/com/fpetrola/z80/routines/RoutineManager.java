@@ -23,6 +23,8 @@ import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.CodeBlockType;
 import com.fpetrola.z80.blocks.NullBlockChangesListener;
 import com.fpetrola.z80.cpu.RandomAccessInstructionFetcher;
+import org.apache.commons.collections4.ListValuedMap;
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +34,9 @@ import java.util.Optional;
 import static java.util.Comparator.comparingInt;
 
 public class RoutineManager {
+  public ListValuedMap<Integer, Integer> callers = new ArrayListValuedHashMap<>();
+  public ListValuedMap<Integer, Integer> callees = new ArrayListValuedHashMap<>();
+  public ListValuedMap<Integer, Integer> callers2 = new ArrayListValuedHashMap<>();
   public BlocksManager blocksManager;
   private List<Routine> routines = new ArrayList<>();
 
@@ -79,7 +84,7 @@ public class RoutineManager {
     boolean changes = false;
 
     do {
-      changes= false;
+      changes = false;
       for (Routine routine : new ArrayList<>(routines))
         changes |= routine.optimizeSplit();
     } while (changes);
@@ -101,6 +106,9 @@ public class RoutineManager {
   public void reset() {
     blocksManager.clear();
     routines.clear();
+    callees.clear();
+    callees.clear();
+    callers2.clear();
   }
 
   public void removeRoutine(Routine routine) {

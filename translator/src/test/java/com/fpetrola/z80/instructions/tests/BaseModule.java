@@ -29,6 +29,7 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
+import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineManager;
@@ -85,12 +86,12 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
     return new RoutineFinderInstructionSpy<>(routineManager, blocksManager);
   }
 
-//  @Provides
-//  @Inject
-//  @Singleton
-//  private SpyInstructionExecutor getInstructionExecutor(RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state1) {
-//    return new SpyInstructionExecutor(routineFinderInstructionSpy1, state1);
-//  }
+  @Provides
+  @Inject
+  @Singleton
+  private SpyInstructionExecutor getInstructionExecutor(RoutineFinderInstructionSpy routineFinderInstructionSpy1) {
+    return new SpyInstructionExecutor(routineFinderInstructionSpy1);
+  }
 
   @Provides
   @Inject
@@ -115,61 +116,25 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
 
   @Provides
   @Inject
-  @Singleton
-  private TransformerInstructionExecutor getTransformerInstructionExecutor(State state1, InstructionTransformer instructionTransformer, SpyInstructionExecutor spyInstructionExecutor) {
-    return new TransformerInstructionExecutor<T>(state1.getPc(), spyInstructionExecutor, true, instructionTransformer);
+  private TransformerInstructionExecutor getTransformerInstructionExecutor(State state1, InstructionExecutor tInstructionExecutor, InstructionTransformer instructionTransformer) {
+    return new TransformerInstructionExecutor<T>(state1.getPc(), tInstructionExecutor, true, instructionTransformer);
   }
 
   @Provides
   @Inject
-  @Singleton
-  private SpyInstructionExecutor getSpyInstructionExecutor(State state1, InstructionSpy spy) {
-    return new SpyInstructionExecutor<>(spy, state1);
-  }
-
-//  @Provides
-//  @Inject
-//  private InstructionExecutor getTransformerInstructionExecutor(InstructionSpy spy, State state1) {
-//    return new SpyInstructionExecutor(spy, state1.getPc());
-//  }
-
-  @Provides
-  @Inject
-  @Singleton
   protected OpcodeConditions getOpcodeConditions(State state1) {
     return new OpcodeConditions(state1.getFlag(), state1.getRegister(B));
   }
 
   @Provides
   @Inject
-  @Singleton
-  public DataflowService getDataflowService() {
+  protected DataflowService getDataflowService() {
     return new VirtualRegisterDataflowService();
   }
 
   @Provides
   @Inject
-  @Singleton
-  public RegistersSetter getRegistersSetter(State state1, VirtualRegisterFactory virtualRegisterFactory) {
+  private RegistersSetter getRegistersSetter(State state1, VirtualRegisterFactory virtualRegisterFactory) {
     return new VirtualRegistersRegistersSetter<>(state1, virtualRegisterFactory);
-  }
-
-  @Provides
-  @Inject
-  @Singleton
-  public CPUExecutionContext getSecondContext(RoutineManager routineManager, State state1, SpyInstructionExecutor instructionExecutor1, InstructionTransformer instructionTransformer, OpcodeConditions opcodeConditions, InstructionSpy spy) {
-    TransformerInstructionExecutor<T> transformerInstructionExecutor1 = new TransformerInstructionExecutor(state1.getPc(), instructionExecutor1, false, instructionTransformer);
-    RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> transformerInstructionExecutor1.getInstructionAt(address);
-    routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
-    InstructionFetcher instructionFetcher1 = new TransformerInstructionFetcher(state1, transformerInstructionExecutor1);
-    OOZ80 z80 = new OOZ80(state1, instructionFetcher1);
-    return new CPUExecutionContext<T>(spy, z80, opcodeConditions);
-  }
-
-  @Provides
-  @Inject
-  @Singleton
-  private VirtualRegisterFactory getVirtualRegisterFactory(SpyInstructionExecutor instructionExecutor, BlocksManager blockManager) {
-    return  new VirtualRegisterFactory(instructionExecutor, new RegisterNameBuilder(), blockManager);
   }
 }

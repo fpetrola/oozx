@@ -54,6 +54,12 @@ public class CPUExecutionContext<T extends WordNumber> extends DefaultZ80Instruc
     opc = opcodeConditions;
   }
 
+  @Override
+  public void reset() {
+    getInstructionFetcherForTest().reset();
+    z80.reset();
+  }
+
   public InstructionFetcherForTest getInstructionFetcherForTest() {
     return (InstructionFetcherForTest) z80.getInstructionFetcher();
   }

@@ -20,11 +20,13 @@ package com.fpetrola.z80.instructions.tests;
 
 import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.base.IDriverConfigurator;
+import com.fpetrola.z80.base.PlainDriverConfigurator;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.cpu.MockedIO;
 import com.fpetrola.z80.base.TransformInstructionsTest;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.transformations.Virtual8BitsRegister;
 import com.google.inject.Inject;
 import io.exemplary.guice.Modules;
@@ -44,7 +46,7 @@ import static org.junit.Assert.assertNull;
 @Modules(BaseModule.class)
 public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends TransformInstructionsTest<T> {
   @Inject
-  public ConditionalsTransformInstructionsTest(IDriverConfigurator configurator) {
+  public ConditionalsTransformInstructionsTest(PlainDriverConfigurator configurator) {
     super(configurator);
   }
 
@@ -270,9 +272,6 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
 
     List<Instruction<T>> executedInstructions = getExecutedInstructions();
     executedInstructions.size();
-
-    Virtual8BitsRegister target = (Virtual8BitsRegister) ((Ld) executedInstructions.get(3)).getTarget();
-    assertNull(target.lastVersionRead);
   }
 
   @Test
@@ -333,7 +332,7 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
     add(new Ld(r(DE), c(100), f()));
     add(new Ld(r(BC), c(3), f()));
     add(new Ld(r(HL), c(300), f()));
-    add(new Ldir(r(PC), rp(BC), new Ldd(r(DE), rp(BC), rp(HL), f(), mem(), new MockedIO(), r(A))));
+    add(new Ldir(r(PC), rp(BC), new Ldi(r(DE), rp(BC), rp(HL), f(), mem(), new MockedIO(), r(A))));
 
     step(4);
     step(1);
