@@ -175,5 +175,7 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
   public void reset() {
     clonedInstructions.clear();
     executed.clear();
+    instructionExecutor.reset();
+    instructionTransformer.virtualRegisterFactory.reset();
   }
 }

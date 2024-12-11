@@ -108,6 +108,7 @@ public class RoutineManager {
     routines.clear();
     callees.clear();
     callees.clear();
+    callers2.clear();
   }
 
   public void removeRoutine(Routine routine) {

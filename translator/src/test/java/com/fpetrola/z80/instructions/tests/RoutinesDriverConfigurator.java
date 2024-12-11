@@ -18,12 +18,15 @@
 
 package com.fpetrola.z80.instructions.tests;
 
+import com.fpetrola.z80.base.CPUExecutionContext;
 import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.cpu.SpyInstructionExecutor;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
+import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
@@ -34,8 +37,8 @@ import com.google.inject.Inject;
 
 public class RoutinesDriverConfigurator<T extends WordNumber> extends DriverConfigurator<T> {
   @Inject
-  public RoutinesDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state2, SpyInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter1, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor, RegistersSetter registersSetter1) {
-    super(routineManager, routineFinderInstructionSpy1, state2, instructionExecutor2, symbolicExecutionAdapter1, instructionCloner2, transformerInstructionExecutor, symbolicExecutionAdapter1.createOpcodeConditions(state2), registersSetter1);
+  public RoutinesDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state2, SpyInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter1, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor, RegistersSetter registersSetter1, CPUExecutionContext secondContext1, MutableOpcodeConditions mutableOpcodeConditions) {
+    super(routineManager, routineFinderInstructionSpy1, state2, instructionExecutor2, symbolicExecutionAdapter1, instructionCloner2, transformerInstructionExecutor, mutableOpcodeConditions, registersSetter1, secondContext1);
   }
 
   public RealCodeBytecodeCreationBase getRealCodeBytecodeCreationBase() {

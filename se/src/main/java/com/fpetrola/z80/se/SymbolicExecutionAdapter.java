@@ -72,6 +72,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     mutantAddress.clear();
     stackFrames.clear();
     routineExecutions.clear();
+    routineManager.reset();
+    spy.reset(state);
     nextSP = 0;
     lastPc = 0;
     addressAction = null;
@@ -103,7 +105,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     return new SEInstructionFactory(this, state, dataflowService);
   }
 
-  public <T extends WordNumber> OpcodeConditions createOpcodeConditions(State<T> state) {
+  public <T extends WordNumber> MutableOpcodeConditions createOpcodeConditions(State<T> state) {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
       addressAction = getRoutineExecution().replaceIfAbsent(getPcValue(), getRoutineExecution().createAddressAction(instruction, alwaysTrue, getPcValue(), this, state));
       return addressAction.processBranch(instruction);

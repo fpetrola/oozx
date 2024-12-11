@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.tests;
 
+import com.fpetrola.z80.base.CPUExecutionContext;
 import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.base.IDriverConfigurator;
 import com.fpetrola.z80.blocks.BlocksManager;
@@ -28,6 +29,7 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
+import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineManager;
@@ -114,13 +116,15 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
 
   @Provides
   @Inject
+  @Singleton
   private TransformerInstructionExecutor getTransformerInstructionExecutor(State state1, InstructionExecutor tInstructionExecutor, InstructionTransformer instructionTransformer) {
     return new TransformerInstructionExecutor<T>(state1.getPc(), tInstructionExecutor, true, instructionTransformer);
   }
 
   @Provides
   @Inject
-  protected OpcodeConditions getOpcodeConditions(State state1) {
+  @Singleton
+  protected OpcodeConditions getMutableOpcodeConditions(State state1) {
     return new OpcodeConditions(state1.getFlag(), state1.getRegister(B));
   }
 
@@ -132,8 +136,28 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
 
   @Provides
   @Inject
+  @Singleton
   private RegistersSetter getRegistersSetter(State state1, VirtualRegisterFactory virtualRegisterFactory) {
     return new VirtualRegistersRegistersSetter<>(state1, virtualRegisterFactory);
+  }
+
+  @Provides
+  @Inject
+  @Singleton
+  public CPUExecutionContext getSecondContext(State state1, RoutineManager routineManager, SpyInstructionExecutor instructionExecutor1, InstructionTransformer instructionTransformer, MutableOpcodeConditions opcodeConditions, InstructionSpy spy, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
+    TransformerInstructionExecutor<T> transformerInstructionExecutor1 = new TransformerInstructionExecutor(state1.getPc(), instructionExecutor1, false, instructionTransformer);
+    RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> transformerInstructionExecutor1.clonedInstructions.get(address);
+    routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
+    InstructionFetcher instructionFetcher1 = new TransformerInstructionFetcher(state1, transformerInstructionExecutor1);
+    OOZ80 z80 = new OOZ80(state1, instructionFetcher1);
+    return new CPUExecutionContext<T>(spy, z80, opcodeConditions);
+  }
+
+  @Provides
+  @Inject
+  @Singleton
+  public MutableOpcodeConditions getMutableOpcodeConditions(State state1, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
+    return symbolicExecutionAdapter1.createOpcodeConditions(state1);
   }
 
   @Provides

@@ -34,6 +34,13 @@ public class TransformInstructionsTest<T extends WordNumber> extends BaseInstruc
   public void setUp() {
     super.setUp();
     useSecond();
+    reset();
+  }
+
+  @Override
+  public void reset() {
+    super.reset();
+    addedInstructions= 0;
   }
 
   @Override

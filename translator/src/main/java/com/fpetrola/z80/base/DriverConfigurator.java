@@ -36,6 +36,7 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
   protected TransformerInstructionExecutor<T> transformerInstructionExecutor;
   protected OpcodeConditions opcodeConditions;
   protected RegistersSetter<T> registersSetter;
+  private CPUExecutionContext<T> secondContext;
 
   @Override
   public RoutineFinderInstructionSpy<T> getRegisterTransformerInstructionSpy() {
@@ -43,7 +44,8 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
   }
 
   @Inject
-  public DriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy spy, State state2, SpyInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1, RegistersSetter<T> registersSetter1) {
+  public DriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy spy, State state2, SpyInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1, RegistersSetter<T> registersSetter1, CPUExecutionContext secondContext1) {
+    this.secondContext= secondContext1;
     this.routineManager = routineManager;
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     symbolicExecutionAdapter.reset();
@@ -60,12 +62,7 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
 
   @Override
   public CPUExecutionContext<T> getSecondContext() {
-    TransformerInstructionExecutor<T> transformerInstructionExecutor1 = new TransformerInstructionExecutor(this.state1.getPc(), instructionExecutor1, false, instructionTransformer);
-    RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> transformerInstructionExecutor1.clonedInstructions.get(address);
-    routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
-    InstructionFetcher instructionFetcher1 = new TransformerInstructionFetcher(this.state1, transformerInstructionExecutor1);
-    OOZ80 z80 = new OOZ80(state1, instructionFetcher1);
-    return new CPUExecutionContext<T>(spy, z80, opcodeConditions);
+    return secondContext;
   }
 
   @Override
@@ -79,5 +76,9 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
 
   public void reset() {
     symbolicExecutionAdapter.reset();
+    transformerInstructionExecutor.reset();
+    instructionExecutor1.reset();
+    instructionTransformer.virtualRegisterFactory.reset();
+    routineManager.reset();
   }
 }

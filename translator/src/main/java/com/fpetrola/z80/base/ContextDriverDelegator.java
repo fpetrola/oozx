@@ -51,6 +51,11 @@ public class ContextDriverDelegator<T extends WordNumber> implements Z80ContextD
   }
 
 
+  @Override
+  public void reset() {
+    currentContext.reset();
+  }
+
   public Register<T> r(RegisterName registerName) {
     return currentContext.r(registerName);
   }
