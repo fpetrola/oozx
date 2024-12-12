@@ -90,25 +90,26 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   @Override
   public void visitEx(Ex ex) {
     Register<T> source = (Register<T>) ex.getSource();
-    Register<T> target = (Register<T>) ex.getTarget();
-    // VirtualRegister top = byteCodeGenerator.getTop(target);
-    //Variable var = methodMaker.var(int.class);
-    //var.name("last_" + top.getName());
-    //var.set(byteCodeGenerator.getExistingVariable(target).get());
-    if (routineByteCodeGenerator.getTop2(source).getName().startsWith("AF")) {
-      Variable variable = routineByteCodeGenerator.variables.get("AF");
-      if (routineByteCodeGenerator.bytecodeGenerationContext.useFields) {
-        Variable invoke = methodMaker.invoke("exAF", RoutineBytecodeGenerator.getRealVariable(variable));
-      } else if (variable instanceof SmartComposed16BitRegisterVariable existingVariable) {
-        existingVariable.setRegister(target);
-//      Variable existingVariable = byteCodeGenerator.getExistingVariable("AF");
-        Variable invoke = methodMaker.invoke("exAF", RoutineBytecodeGenerator.getRealVariable(existingVariable));
-        existingVariable.set(invoke);
+    if (ex.getTarget() instanceof Register<?> target) {
+      if (routineByteCodeGenerator.getTop2(source).getName().startsWith("AF")) {
+        Variable variable = routineByteCodeGenerator.variables.get("AF");
+        if (routineByteCodeGenerator.bytecodeGenerationContext.useFields) {
+          Variable invoke = methodMaker.invoke("exAF", RoutineBytecodeGenerator.getRealVariable(variable));
+        } else if (variable instanceof SmartComposed16BitRegisterVariable existingVariable) {
+          existingVariable.setRegister(target);
+          Variable invoke = methodMaker.invoke("exAF", RoutineBytecodeGenerator.getRealVariable(existingVariable));
+          existingVariable.set(invoke);
+        }
+
+      } else {
+        OpcodeReferenceVisitor instructionVisitor = new OpcodeReferenceVisitor(true, routineByteCodeGenerator);
+        ex.getTarget().accept(instructionVisitor);
+
+        Object result = instructionVisitor.getResult();
+        String name = routineByteCodeGenerator.getTop2(source).getName();
+        Variable variable = routineByteCodeGenerator.variables.get(name);
+        Variable invoke = methodMaker.invoke("ex_iSP_REG", RoutineBytecodeGenerator.getRealVariable(variable));
       }
-
-//      Single8BitRegisterVariable variableA = (Single8BitRegisterVariable) byteCodeGenerator.getExistingVariable("A");
-//      variableA.directSet();
-
     } else
       methodMaker.invoke("exHLDE");
   }
