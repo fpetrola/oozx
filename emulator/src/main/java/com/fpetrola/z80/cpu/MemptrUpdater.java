@@ -223,8 +223,9 @@ public class MemptrUpdater<T extends WordNumber> {
             return false;
           }
 
-          public void visitCpdr(Cpdr tCpdr) {
+          public boolean visitCpdr(Cpdr tCpdr) {
             incIfNextPC(-1);
+            return false;
           }
 
           private void incIfNextPC(int i) {

@@ -40,7 +40,7 @@ public class Cpdr<T extends WordNumber> extends RepeatingInstruction<T> {
 
   @Override
   public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitCpdr(this);
+    if (!visitor.visitCpdr(this))
+      super.accept(visitor);
   }
 }

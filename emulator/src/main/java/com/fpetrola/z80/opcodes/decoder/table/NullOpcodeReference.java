@@ -16,23 +16,29 @@
  *
  */
 
-package com.fpetrola.z80.instructions.impl;
+package com.fpetrola.z80.opcodes.decoder.table;
 
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.instructions.types.RepeatingInstruction;
-import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.RegisterPair;
+import com.fpetrola.z80.opcodes.references.OpcodeReference;
 
-public class Inir<T extends WordNumber> extends RepeatingInstruction<T> {
-  public Inir(ImmutableOpcodeReference<T> pc, RegisterPair<T> bc, Ini ini) {
-    super(ini, pc, bc);
+public class NullOpcodeReference<T> implements OpcodeReference<T> {
+  public T read() {
+    return null;
+  }
+
+  public int getLength() {
+    return 0;
+  }
+
+  public void write(T value) {
+  }
+
+  public Object clone() throws CloneNotSupportedException {
+    return this;
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
-    if (!visitor.visitInir(this)){
-      super.accept(visitor);
-    }
+  public void accept(InstructionVisitor instructionVisitor) {
+    instructionVisitor.visitNullOpcodeReference(this);
   }
 }

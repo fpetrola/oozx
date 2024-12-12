@@ -63,21 +63,4 @@ public class EDPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
   private OpcodeReference<T> nullTarget() {
     return new NullOpcodeReference<>();
   }
-
-  public static class NullOpcodeReference<T> implements OpcodeReference<T> {
-    public T read() {
-      return null;
-    }
-
-    public int getLength() {
-      return 0;
-    }
-
-    public void write(T value) {
-    }
-
-    public Object clone() throws CloneNotSupportedException {
-      return this;
-    }
-  }
 }

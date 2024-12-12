@@ -20,6 +20,7 @@ package com.fpetrola.z80.base;
 
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
+import com.fpetrola.z80.opcodes.decoder.table.NullOpcodeReference;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 
@@ -302,7 +303,8 @@ public interface InstructionVisitor<T extends WordNumber, R> {
     return false;
   }
 
-  default void visitCpdr(Cpdr tCpdr) {
+  default boolean visitCpdr(Cpdr tCpdr) {
+    return false;
   }
 
   default boolean visitingRlca(RLCA rlca) {
@@ -416,6 +418,26 @@ public interface InstructionVisitor<T extends WordNumber, R> {
   }
 
   default boolean visitLdAR(LdAR tLdAR) {
+    return false;
+  }
+
+  default void visitNullOpcodeReference(NullOpcodeReference tNullOpcodeReference) {
+
+  }
+
+  default boolean visitInir(Inir inir) {
+    return false;
+  }
+
+  default boolean visitIndr(Indr indr) {
+    return false;
+  }
+
+  default boolean visitOutir(Outir outir) {
+    return false;
+  }
+
+  default boolean visitOutdr(Outdr outdr) {
     return false;
   }
 }

@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -26,5 +27,12 @@ import com.fpetrola.z80.registers.RegisterPair;
 public class Outir<T extends WordNumber> extends RepeatingInstruction<T> {
   public Outir(ImmutableOpcodeReference<T> pc, RegisterPair<T> bc, Outi outi) {
     super(outi, pc, bc);
+  }
+
+
+  public void accept(InstructionVisitor visitor) {
+    if (!visitor.visitOutir(this)){
+      super.accept(visitor);
+    }
   }
 }

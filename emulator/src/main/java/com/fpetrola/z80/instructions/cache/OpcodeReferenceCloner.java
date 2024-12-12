@@ -20,6 +20,7 @@ package com.fpetrola.z80.instructions.cache;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
+import com.fpetrola.z80.opcodes.decoder.table.NullOpcodeReference;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 
@@ -38,6 +39,14 @@ public class OpcodeReferenceCloner<T extends WordNumber> implements InstructionV
 
   public OpcodeReferenceCloner(InstructionFactory instructionFactory) {
     this.instructionFactory = instructionFactory;
+  }
+
+  public void visitConstantOpcodeReference(ConstantOpcodeReference<T> constantOpcodeReference) {
+    setResult(constantOpcodeReference);
+  }
+
+  public void visitNullOpcodeReference(NullOpcodeReference tNullOpcodeReference) {
+    setResult(tNullOpcodeReference);
   }
 
   @Override

@@ -63,6 +63,94 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   }
 
   @Override
+  public boolean visitCpdr(Cpdr tCpdr) {
+    setCloned(instructionFactory.Cpdr(), tCpdr);
+    return false;
+  }
+
+  @Override
+  public boolean visitingCpl(CPL cpl) {
+    setCloned(instructionFactory.CPL(), cpl);
+    return false;
+  }
+
+  @Override
+  public boolean visitOutd(Outd<T> outi) {
+    setCloned(instructionFactory.Outd(), outi);
+    return false;
+  }
+
+  @Override
+  public boolean visitOuti(Outi<T> outi) {
+    setCloned(instructionFactory.Outi(), outi);
+    return false;
+  }
+
+  @Override
+  public void visitCpi(Cpi<T> cpi) {
+    setCloned(instructionFactory.Cpi(), cpi);
+  }
+
+  @Override
+  public boolean visitCpd(Cpd<T> cpd) {
+    setCloned(instructionFactory.Cpd(), cpd);
+    return false;
+  }
+
+  @Override
+  public boolean visitIni(Ini<T> tIni) {
+    setCloned(instructionFactory.Ini(), tIni);
+    return true;
+  }
+
+  @Override
+  public boolean visitInd(Ind<T> tInd) {
+    setCloned(instructionFactory.Ind(), tInd);
+    return true;
+  }
+
+  @Override
+  public boolean visitIndr(Indr indr) {
+    setCloned(instructionFactory.Indr(), indr);
+    return false;
+  }
+
+  @Override
+  public boolean visitInir(Inir inir) {
+    setCloned(instructionFactory.Inir(), inir);
+    return false;
+  }
+
+  @Override
+  public boolean visitOutdr(Outdr outdr) {
+    setCloned(instructionFactory.Outdr(), outdr);
+    return false;
+  }
+
+  @Override
+  public boolean visitOutir(Outir outir) {
+    setCloned(instructionFactory.Outir(), outir);
+    return false;
+  }
+
+  @Override
+  public void visitingHalt(Halt halt) {
+    setCloned(instructionFactory.Halt(), halt);
+  }
+
+  @Override
+  public boolean visitRRD(RRD<T> rrd) {
+    setCloned(instructionFactory.RRD(), rrd);
+    return false;
+  }
+
+  @Override
+  public boolean visitRLD(RLD<T> rld) {
+    setCloned(instructionFactory.RLD(), rld);
+    return false;
+  }
+
+  @Override
   public void visitPush(Push push) {
     setCloned(instructionFactory.Push(clone(push.getTarget())), push);
   }

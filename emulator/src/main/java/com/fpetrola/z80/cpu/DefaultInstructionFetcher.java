@@ -92,9 +92,9 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     memory.disableReadListener();
     opcodeInt = memory.read(pcValue, 1).intValue();
     Instruction<T> baseInstruction2 = getBaseInstruction2(opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt]);
-    Instruction<T> clone = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction2);
-    instruction2 = clone;
-    this.instruction = clone;
+//    Instruction<T> clone = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction2);
+    instruction2 = baseInstruction2;
+    this.instruction = baseInstruction2;
     memory.enableReadListener();
 
     try {

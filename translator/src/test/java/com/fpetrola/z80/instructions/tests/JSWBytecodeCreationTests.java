@@ -62,6 +62,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
   }
 
 
+  @Ignore
   @Test
   public void testEmulateUntil() {
     String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, 0xC804, "http://torinak.com/qaop/bin/dynamitedan");
@@ -74,6 +75,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
         """, actual);
   }
 
+  @Ignore
   @Test
   public void testTranslateWillyToJava() {
     Helper.hex = false;

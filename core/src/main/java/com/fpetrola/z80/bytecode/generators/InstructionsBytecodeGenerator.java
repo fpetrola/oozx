@@ -36,7 +36,6 @@ import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineVisitor;
 import com.fpetrola.z80.se.DynamicJPData;
 import com.fpetrola.z80.se.SEInstructionFactory;
-import com.fpetrola.z80.transformations.VirtualRegister;
 import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
@@ -724,8 +723,9 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   @Override
-  public void visitCpdr(Cpdr cpdr) {
+  public boolean visitCpdr(Cpdr cpdr) {
     callRepeatingInstruction(cpdr);
+    return false;
   }
 
   private void callRepeatingInstruction(RepeatingInstruction repeatingInstruction) {
