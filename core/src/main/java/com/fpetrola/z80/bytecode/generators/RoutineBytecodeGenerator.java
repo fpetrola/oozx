@@ -43,7 +43,7 @@ public class RoutineBytecodeGenerator {
   public Field memory;
   public MethodMaker mm;
   private final Map<Integer, Label> labels = new HashMap<>();
-  private final Set<Integer> positionedLabels = new HashSet<>();
+  protected final Set<Integer> positionedLabels = new HashSet<>();
   public final Routine routine;
   public Register<WordNumber> lastMemPc = new Plain16BitRegister<WordNumber>("lastMemPc");
 
@@ -51,9 +51,8 @@ public class RoutineBytecodeGenerator {
   public Map<String, Register> registerByVariable = new HashMap<>();
   public Map<Register, Variable> variablesByRegister = new HashMap<>();
   public Map<VirtualRegister<?>, VirtualRegister<?>> commonRegisters = new HashMap<>();
-  private final Map<Integer, Label> insertLabels = new HashMap<>();
+  protected final Map<Integer, Label> insertLabels = new HashMap<>();
   public DefaultTargetFlagInstruction lastTargetFlagInstruction;
-  protected Field initial;
   private PendingFlagUpdate pendingFlag;
   public Instruction currentInstruction;
   public Register<?> currentRegister;
@@ -84,29 +83,14 @@ public class RoutineBytecodeGenerator {
     returnFromMethod();
   }
 
+  protected void addVariables() {
+    Arrays.stream(RegisterName.values()).forEach(n -> addField(n.name()));
+  }
+
   private void addInstructions() {
     List<InstructionGenerator> generators = new ArrayList<>();
 
-    if (bytecodeGenerationContext.useFields) {
-      Arrays.stream(RegisterName.values()).forEach(n -> addField(n.name()));
-    } else {
-      // Arrays.stream(RegisterName.values()).filter(r -> r.name().length() == 2).forEach(n -> addLocalVariable(n.name()));
-
-      addReg16("AF");
-      addReg16("BC");
-      addReg16("DE");
-      addReg16("HL");
-      addReg16("IX");
-      addReg16("IY");
-
-      add8BitBoth((SmartComposed16BitRegisterVariable) variables.get("AF"));
-      add8BitBoth((SmartComposed16BitRegisterVariable) variables.get("BC"));
-      add8BitBoth((SmartComposed16BitRegisterVariable) variables.get("DE"));
-      add8BitBoth((SmartComposed16BitRegisterVariable) variables.get("HL"));
-
-      addLowHigh((SmartComposed16BitRegisterVariable) variables.get("IX"), "IXH", "IXL");
-      addLowHigh((SmartComposed16BitRegisterVariable) variables.get("IY"), "IYH", "IYL");
-    }
+    addVariables();
     addField("nextAddress");
     memory = mm.field("mem");
     registers.put("mem", memory);
@@ -229,17 +213,17 @@ public class RoutineBytecodeGenerator {
     return mutantAddress.stream().anyMatch(a1 -> a1 >= address && a1 < address + instruction.getLength());
   }
 
-  private void addReg16(String name) {
+  protected void addReg16(String name) {
     Variable variable = addLocalVariable(name);
     SmartComposed16BitRegisterVariable smartComposed16BitRegisterVariable = new SmartComposed16BitRegisterVariable(mm, name, variable, this);
     variables.put(name, smartComposed16BitRegisterVariable);
   }
 
-  private void add8BitBoth(SmartComposed16BitRegisterVariable af) {
+  protected void add8BitBoth(SmartComposed16BitRegisterVariable af) {
     addLowHigh(af, af.name().charAt(0) + "", af.name().charAt(1) + "");
   }
 
-  private void addLowHigh(SmartComposed16BitRegisterVariable reg16, String high, String low) {
+  protected void addLowHigh(SmartComposed16BitRegisterVariable reg16, String high, String low) {
     Single8BitRegisterVariable variableHigh = new Single8BitRegisterVariable(mm, addLocalVariable(high), reg16, "h", this);
     variables.put(high, variableHigh);
     reg16.setHigh(variableHigh);
@@ -248,7 +232,7 @@ public class RoutineBytecodeGenerator {
     reg16.setLow(variableLow);
   }
 
-  private void addField(String name) {
+  protected void addField(String name) {
     // cm.addField(int.class, name).private_().static_();
     Variable field = mm.field(name);
     registers.put(name, field);
@@ -295,10 +279,6 @@ public class RoutineBytecodeGenerator {
     return labels.get(i);
   }
 
-  public boolean isLabelPositioned(int labelName) {
-    return positionedLabels.contains(labelName);
-  }
-
   public void hereLabel(int labelName) {
     Label insertLabel = insertLabels.get(labelName);
     if (insertLabel != null) insertLabel.here();
@@ -326,29 +306,16 @@ public class RoutineBytecodeGenerator {
     MethodMaker methodMaker = bytecodeGenerationContext.methods.get(methodName);
 
     if (methodMaker == null) {
-      if (!bytecodeGenerationContext.useFields) {
-        Routine routineAt = bytecodeGenerationContext.routineManager.findRoutineAt(address);
-        List<String> parametersList = routineAt.accept(new RoutineRegisterAccumulator<>() {
-          public void visitParameter(String register) {
-            routineParameters.add(register);
-          }
-        });
-        Object[] objects = parametersList.stream().map(s -> int.class).toArray();
-
-        Object[] values = routineAt.accept(new RoutineRegisterAccumulator<String>() {
-          public void visitReturnValue(String register) {
-            routineParameters.add(register);
-          }
-        }).toArray();
-
-        methodMaker = bytecodeGenerationContext.cm.addMethod(values.length == 0 ? void.class : int[].class, methodName, objects).public_();
-      } else
-        methodMaker = bytecodeGenerationContext.cm.addMethod(void.class, methodName).public_();
+      methodMaker = createMethod(address, methodName);
     }
 
     bytecodeGenerationContext.methods.put(methodName, methodMaker);
 
     return methodMaker;
+  }
+
+  protected MethodMaker createMethod(int address, String methodName) {
+    return bytecodeGenerationContext.cm.addMethod(void.class, methodName).public_();
   }
 
   public <T extends WordNumber> Variable getField(String name) {
@@ -361,65 +328,6 @@ public class RoutineBytecodeGenerator {
     return variable != null;
   }
 
-  public <T extends WordNumber> boolean variableExists(VirtualRegister register) {
-    register = getTop(register);
-    Variable variable = variables.get(getRegisterName(register));
-    return variable != null;
-  }
-
-  public <T extends WordNumber> void createVariable(VirtualRegister register1) {
-    VirtualRegister register = getTop(register1);
-    String name = getRegisterName(register);
-    registerByVariable.put(name, register);
-  }
-
-  public <T extends WordNumber> Variable getVariable2(Register register1, Supplier<Object> value) {
-    Register register = getTop2(register1);
-
-    String name = getRegisterName2(register);
-    Variable variable = variables.get(name);
-    if (variable != null) {
-      Variable set = doSetValue(value, variable);
-      variables.put(name, set);
-      variablesByRegister.put(register, set);
-      return variable;
-    } else {
-//      System.out.println("creating var: " + name + "= " + value);
-      registerByVariable.put(name, register);
-
-      Variable set = setVariable(name, value);
-
-      variables.put(name, set);
-      variablesByRegister.put(register, set);
-
-//      getField("PC").sub(var);
-      return set;
-    }
-  }
-  public <T extends WordNumber> Variable getVariable(VirtualRegister register1, Supplier<Object> value) {
-    VirtualRegister register = getTop(register1);
-
-    String name = getRegisterName(register);
-    Variable variable = variables.get(name);
-    if (variable != null) {
-      Variable set = doSetValue(value, variable);
-      variables.put(name, set);
-      variablesByRegister.put(register, set);
-      return variable;
-    } else {
-//      System.out.println("creating var: " + name + "= " + value);
-      registerByVariable.put(name, register);
-
-      Variable set = setVariable(name, value);
-
-      variables.put(name, set);
-      variablesByRegister.put(register, set);
-
-//      getField("PC").sub(var);
-      return set;
-    }
-  }
-
   public Variable setVariable(String name, Supplier<Object> value) {
     Variable var = mm.var(int.class);
     var.name(name);
@@ -427,26 +335,15 @@ public class RoutineBytecodeGenerator {
     return set;
   }
 
-  private Variable doSetValue(Supplier<Object> value, Variable var) {
+  protected Variable doSetValue(Supplier<Object> value, Variable var) {
     Variable set = var;
     Object value1 = getRealVariable(value.get());
     if (value1 != null) set = var.set(value1);
     return set;
   }
+
   public <T extends WordNumber> Variable getExistingVariable2(Register<T> register) {
     Register topRegister = getTop2(register);
-
-//    register.getPreviousVersions().stream().anyMatch(v -> {
-//
-//      if (v instanceof IVirtual8BitsRegister<?> virtual8BitsRegister) {
-//        VirtualComposed16BitRegister virtualComposed16BitRegister = virtual8BitsRegister.getVirtualComposed16BitRegister();
-//        if (virtualComposed16BitRegister != null) {
-//          return true;
-//        }
-//      }
-//
-//      return false;
-//    });
     String registerName = getRegisterName2(topRegister);
 
     Variable variable1 = variables.get(registerName);
@@ -459,18 +356,6 @@ public class RoutineBytecodeGenerator {
 
   public <T extends WordNumber> Variable getExistingVariable(VirtualRegister<?> register) {
     VirtualRegister topRegister = getTop(register);
-
-//    register.getPreviousVersions().stream().anyMatch(v -> {
-//
-//      if (v instanceof IVirtual8BitsRegister<?> virtual8BitsRegister) {
-//        VirtualComposed16BitRegister virtualComposed16BitRegister = virtual8BitsRegister.getVirtualComposed16BitRegister();
-//        if (virtualComposed16BitRegister != null) {
-//          return true;
-//        }
-//      }
-//
-//      return false;
-//    });
     String registerName = getRegisterName(topRegister);
 
     Variable variable1 = variables.get(registerName);
@@ -479,11 +364,6 @@ public class RoutineBytecodeGenerator {
     }
     currentRegister = register;
     return variable1;
-  }
-
-  public Label getBranchLabel(Integer minLine) {
-    Optional<Map.Entry<Integer, Label>> first = insertLabels.entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getKey)).filter(e -> e.getKey() >= minLine).findFirst();
-    return first.get().getValue();
   }
 
   public static String getRegisterName(VirtualRegister register) {
@@ -501,22 +381,6 @@ public class RoutineBytecodeGenerator {
   public static VirtualRegister getTop(VirtualRegister<?> register) {
     VirtualRegister o = (VirtualRegister) register.getVersionHandler().versions.get(0);
     return o;
-    //register = register.getVersionHandler().getBiggestScopeFor(register);
-
-//    if (register == null)
-//      return null;
-//    while (register.getPreviousVersions().size() == 1) {
-//      VirtualRegister<?> previous = register.getPreviousVersions().get(0);
-//      boolean initial = previous instanceof InitialVirtualRegister<?>;
-//      boolean mixed = previous.getName().contains(",");
-//      boolean isLd = false;
-//      if (register instanceof Virtual8BitsRegister<?> virtual8BitsRegister)
-//        isLd = virtual8BitsRegister.instruction instanceof Ld<?>;
-//
-//      if (initial || mixed || isLd) break;
-//      register = previous;
-//    }
-    //return register;
   }
 
   public Variable getVariableFromMemory(Object variable, String bits) {
@@ -630,7 +494,7 @@ public class RoutineBytecodeGenerator {
     }
   }
 
-  private static class RoutineRegisterAccumulator<S> implements RoutineVisitor<List<S>> {
+  public static class RoutineRegisterAccumulator<S> implements RoutineVisitor<List<S>> {
     protected final List<S> routineParameters = new ArrayList<>();
 
     public List<S> getResult() {
