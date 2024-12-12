@@ -51,6 +51,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   protected Supplier<TableBasedOpCodeDecoder> tableFactory;
   public Instruction<T> instruction2;
   private boolean noRepeat;
+  private boolean clone;
 
 //  {
 //    try {
@@ -61,10 +62,10 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 //  }
 
   public DefaultInstructionFetcher(State aState, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, DefaultInstructionFactory instructionFactory, boolean noRepeat1) {
-    this(aState, new OpcodeConditions(aState.getFlag(), aState.getRegister(B)), fetchInstructionFactory, instructionExecutor, instructionFactory, noRepeat1);
+    this(aState, new OpcodeConditions(aState.getFlag(), aState.getRegister(B)), fetchInstructionFactory, instructionExecutor, instructionFactory, noRepeat1, false);
   }
 
-  public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, DefaultInstructionFactory instructionFactory, boolean noRepeat) {
+  public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, DefaultInstructionFactory instructionFactory, boolean noRepeat, boolean clone) {
     this.state = aState;
     this.instructionExecutor = instructionExecutor;
     this.noRepeat = noRepeat;
@@ -72,6 +73,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     createOpcodeTables();
     pcValue = state.getPc().read();
     this.instructionFactory = instructionFactory;
+    this.clone= clone;
   }
 
   protected void createOpcodeTables() {
@@ -92,7 +94,9 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     memory.disableReadListener();
     opcodeInt = memory.read(pcValue, 1).intValue();
     Instruction<T> baseInstruction2 = getBaseInstruction2(opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt]);
-//    Instruction<T> clone = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction2);
+    if (clone)
+      baseInstruction2 = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction2);
+    
     instruction2 = baseInstruction2;
     this.instruction = baseInstruction2;
     memory.enableReadListener();

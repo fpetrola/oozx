@@ -70,7 +70,7 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
 //    bind(new TypeLiteral<IDriverConfigurator<T>>(){}).to(new TypeLiteral<DriverConfigurator<T>>() {});
     bind(IDriverConfigurator.class).to(DriverConfigurator.class);
     bind(InstructionSpy.class).to(RoutineFinderInstructionSpy.class);
-    bind(InstructionExecutor.class).to(SpyInstructionExecutor.class);
+//    bind(InstructionExecutor.class).to(SpyInstructionExecutor.class);
   }
 
   @Provides

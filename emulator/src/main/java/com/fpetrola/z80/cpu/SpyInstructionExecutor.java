@@ -36,6 +36,7 @@ public class SpyInstructionExecutor<T extends WordNumber> implements Instruction
   private final Set<Instruction<T>> executingInstructions = new HashSet<>();
   private Map<Integer, Instruction<T>> instructions= new HashMap<>();
 
+  @Inject
   public SpyInstructionExecutor(InstructionSpy spy, State state) {
     this.spy = spy;
     this.pc = state.getPc();
