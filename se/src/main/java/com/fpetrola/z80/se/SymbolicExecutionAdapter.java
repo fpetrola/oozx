@@ -204,7 +204,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
     while (!ready) {
       int pcValue = pc.read().intValue();
-      ready = isReady(pcValue, ready);
+      ready = isReady(pcValue);
 
       if (!ready) {
         RoutineExecution routineExecution = getRoutineExecution();
@@ -241,13 +241,13 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 //        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
   }
 
-  private boolean isReady(int pcValue, boolean ready) {
+  private boolean isReady(int pcValue) {
     if (pcValue == 38243)
       System.out.print("");
 
     if (pcValue < minimalValidCodeAddress)
-      ready = true;
-    return ready;
+      return true;
+    return false;
   }
 
   public void checkNextSP() {
