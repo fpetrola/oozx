@@ -3038,23 +3038,25 @@ public class ZxGame1 extends MiniZX {
     int var4 = super.L;
     int var5 = this.rl(var4);
     super.L = var5;
-    int var6 = super.A - 92 & 255;
-    super.A = var6;
+    int var6 = super.A + 92;
+    int var7 = this.carry(super.F) & 255;
+    int var8 = var6 + var7;
+    super.A = var8;
     super.F = super.A;
     super.H = super.A;
-    int var7 = this.mem('\u85d3', '\u8ea5');
-    super.A = var7;
-    int var8 = super.A & 31;
-    super.A = var8;
-    int var9 = super.A << 1;
-    super.F = var9;
-    int var10 = super.A | super.L;
+    int var9 = this.mem('\u85d3', '\u8ea5');
+    super.A = var9;
+    int var10 = super.A & 31;
     super.A = var10;
     int var11 = super.A << 1;
     super.F = var11;
+    int var12 = super.A | super.L;
+    super.A = var12;
+    int var13 = super.A << 1;
+    super.F = var13;
     super.L = super.A;
-    int var12 = this.HL();
-    this.wMem16('\u85d3', var12, '\u8eac');
+    int var14 = this.HL();
+    this.wMem16('\u85d3', var14, '\u8eac');
   }
 
   public void $38064() {

@@ -156,12 +156,12 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
 
   @Override
   public void visitingAdc(Adc sbc16) {
-    setCloned(instructionFactory.Sbc(clone(sbc16.getTarget()), clone(sbc16.getSource())), sbc16);
+    setCloned(instructionFactory.Adc(clone(sbc16.getTarget()), clone(sbc16.getSource())), sbc16);
   }
 
   @Override
   public boolean visitingAdc16(Adc16 sbc16) {
-    setCloned(instructionFactory.Sbc(clone(sbc16.getTarget()), clone(sbc16.getSource())), sbc16);
+    setCloned(instructionFactory.Adc16(clone(sbc16.getTarget()), clone(sbc16.getSource())), sbc16);
     return false;
   }
 
