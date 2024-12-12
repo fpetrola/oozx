@@ -130,9 +130,12 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
     @Override
     public int execute() {
       if (positionOpcodeReference instanceof Register<T> register) {
-        int pointerAddress = dataflowService.findValueOrigin(register);
-        dynamicJP.put(pc.read().intValue(), new DynamicJPData(pc.read().intValue(), register.read().intValue(), pointerAddress));
-        System.out.println("JP (HL): PC: %H, HL: %H".formatted(pc.read().intValue(), register.read().intValue()));
+        int pcValue = pc.read().intValue();
+        if (dynamicJP.get(pcValue) == null) {
+          int pointerAddress = dataflowService.findValueOrigin(register);
+          dynamicJP.put(pcValue, new DynamicJPData(pcValue, register.read().intValue(), pointerAddress));
+          System.out.println("JP (HL): PC: %H, HL: %H".formatted(pcValue, register.read().intValue()));
+        }
 //              Pop.doPop(memory, sp);
 //              setNextPC(createValue(pc.read().intValue() + 1));
         if (lastData == null)

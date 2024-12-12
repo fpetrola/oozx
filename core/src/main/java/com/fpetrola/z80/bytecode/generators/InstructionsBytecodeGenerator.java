@@ -740,7 +740,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
       dynamicJP.forEach((djpc, dj) -> {
         if (djpc == routineByteCodeGenerator.bytecodeGenerationContext.pc.read().intValue()) {
           dj.cases.forEach(c -> {
-            Variable existingVariable = routineByteCodeGenerator.getExistingVariable((VirtualRegister) register);
+            Variable existingVariable = routineByteCodeGenerator.getExistingVariable2(register);
             existingVariable.ifEq(c, () -> {
               Label label = routineByteCodeGenerator.getLabel(c);
               if (label != null) {

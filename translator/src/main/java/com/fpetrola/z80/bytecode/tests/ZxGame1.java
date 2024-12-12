@@ -1363,11 +1363,35 @@ public class ZxGame1 extends MiniZX {
       if(F == 0) {
         int var34 = mem16(55947, 55962);
         HL(var34);
+        if(HL() == 56008) {
+          HL(56058);
+          int var35 = HL();
+          wMem16(55947, var35, 56011);
+          DE(10);
+          B = 30;
+          $DAB2();
+          BC(1856);
+          $D4AF();
+          DE(20);
+          B = 20;
+          $DAB2();
+          return;
+        }
+
+        if(HL() == 56058) {
+          $DAFA();
+          return;
+        }
+
+        if(HL() != 55966) {
+          ;
+        }
+
         HL(56058);
-        int var35 = HL();
-        wMem16(55947, var35, 55969);
-        int var36 = mem(55943, 55972);
-        A = var36;
+        int var36 = HL();
+        wMem16(55947, var36, 55969);
+        int var37 = mem(55943, 55972);
+        A = var37;
       } else {
         int var15 = mem16(55944, 56087);
         HL(var15);
@@ -5125,6 +5149,153 @@ public class ZxGame1 extends MiniZX {
   public void $E9BC() {
     int var1 = mem16(59834, 59836);
     HL(var1);
+    if(HL() != 59840) {
+      if(HL() == 62065) {
+        HL(62062);
+        E = 0;
+        D = 3;
+
+        do {
+          int var16 = HL();
+          int var17 = mem(var16, 62072);
+          A = var17;
+          $F32A();
+          ccf();
+          int var18 = E;
+          int var19 = rl(var18);
+          E = var19;
+          int var20 = HL() + 1 & 65535;
+          HL(var20);
+          int var21 = D - 1 & 255;
+          D = var21;
+          F = var21;
+        } while(F != 0);
+
+        A = E;
+        int var22 = A & 6;
+        A = var22;
+        int var23 = A << 1;
+        F = var23;
+        int var24 = A - 6;
+        F = var24;
+        if(F == 0) {
+          A = E;
+          int var35 = A & 1;
+          A = var35;
+          int var36 = A << 1;
+          F = var36;
+          E = A;
+        }
+
+        C = 5;
+        A = E;
+        int var25 = A << 1;
+        F = var25;
+        if(F == 0) {
+          return;
+        }
+
+        int var26 = C - 1 & 255;
+        C = var26;
+        F = var26;
+        int var27 = A - 1;
+        F = var27;
+        if(F == 0) {
+          return;
+        }
+
+        int var28 = C - 1 & 255;
+        C = var28;
+        F = var28;
+        int var29 = A - 4;
+        F = var29;
+        if(F == 0) {
+          return;
+        }
+
+        int var30 = C - 1 & 255;
+        C = var30;
+        F = var30;
+        int var31 = A - 5;
+        F = var31;
+        if(F == 0) {
+          return;
+        }
+
+        int var32 = C - 1 & 255;
+        C = var32;
+        F = var32;
+        int var33 = A - 2;
+        F = var33;
+        if(F == 0) {
+          return;
+        }
+
+        int var34 = C - 1 & 255;
+        C = var34;
+        F = var34;
+        return;
+      }
+
+      if(HL() == 59867) {
+        A = 239;
+        int var37 = A << 8 | 254;
+        int var38 = in(var37, 59869);
+        A = var38;
+        int var39 = A & 31;
+        A = var39;
+        int var40 = A << 1;
+        F = var40;
+        C = 0;
+        int var41 = A - 22;
+        F = var41;
+        if(F == 0) {
+          return;
+        }
+
+        int var42 = C + 1 & 255;
+        C = var42;
+        F = var42;
+        int var43 = A - 23;
+        F = var43;
+        if(F == 0) {
+          return;
+        }
+
+        int var44 = C + 1 & 255;
+        C = var44;
+        F = var44;
+        int var45 = A - 14;
+        F = var45;
+        if(F == 0) {
+          return;
+        }
+
+        int var46 = C + 1 & 255;
+        C = var46;
+        F = var46;
+        int var47 = A - 15;
+        F = var47;
+        if(F == 0) {
+          return;
+        }
+
+        int var48 = C + 1 & 255;
+        C = var48;
+        F = var48;
+        int var49 = A - 30;
+        F = var49;
+        if(F == 0) {
+          return;
+        }
+
+        int var50 = C + 1 & 255;
+        C = var50;
+        F = var50;
+        return;
+      }
+    }
+
     int var2 = A << 8 | 31;
     int var3 = in(var2, 59840);
     A = var3;

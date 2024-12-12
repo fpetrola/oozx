@@ -46,7 +46,7 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
 
   public boolean visitRegister(Register register) {
     result = routineByteCodeGenerator.getExistingVariable2(register);
-    System.out.println("Cannot virtualize: " + register.getName());
+//    System.out.println("Cannot virtualize: " + register.getName());
     return true;
   }
 

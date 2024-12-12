@@ -213,7 +213,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           pc.write(createValue(pcValue));
         }
 
-        System.out.println("PC: " + Helper.formatAddress(pcValue));
+//        System.out.println("PC: " + Helper.formatAddress(pcValue));
 //        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
 
         if (pcValue == 0xE9BC)
