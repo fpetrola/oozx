@@ -97,7 +97,7 @@ public class AddressAction {
     return address;
   }
 
-  public void setReadyAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public void setReadyAfterStep() {
     setPending(false);
   }
 
@@ -112,10 +112,6 @@ public class AddressAction {
         "address=" + address +
         ", pending=" + pending +
         '}';
-  }
-
-  public void beforeStep() {
-
   }
 }
 

@@ -130,6 +130,8 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
     @Override
     public int execute() {
       if (positionOpcodeReference instanceof Register<T> register) {
+        boolean b = condition.conditionMet(this);
+
         int pcValue = pc.read().intValue();
         if (dynamicJP.get(pcValue) == null) {
           int pointerAddress = dataflowService.findValueOrigin(register);

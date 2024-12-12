@@ -56,7 +56,7 @@ public class ConditionalInstructionAddressAction extends AddressAction {
     }
   }
 
-  public void setReadyAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public void setReadyAfterStep() {
     updatePending();
   }
 

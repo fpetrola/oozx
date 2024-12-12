@@ -42,6 +42,7 @@ public class JPRegisterAddressAction extends AddressAction {
   }
 
   public boolean processBranch(Instruction instruction) {
+    pollCases();
     boolean doBranch = getDoBranch();
 
     super.processBranch(instruction);
@@ -76,7 +77,7 @@ public class JPRegisterAddressAction extends AddressAction {
     return super.isPending() || !cases.isEmpty();
   }
 
-  public void setReadyAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public void setReadyAfterStep() {
     pending = false;
   }
 
@@ -85,7 +86,7 @@ public class JPRegisterAddressAction extends AddressAction {
     this.cases.addAll(dynamicJPData.cases);
   }
 
-  public void beforeStep() {
+  public void pollCases() {
     Integer poll = cases.poll();
     if (poll != null) {
       SEInstructionFactory.SeJP jp = (SEInstructionFactory.SeJP) instruction;

@@ -215,15 +215,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           pc.write(createValue(pcValue));
         }
 
-        System.out.println("PC: " + Helper.formatAddress(pcValue));
-//        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
-
-        if (pcValue == 0xE9BC)
-          System.out.println("");
-
-        AddressAction currentAddressAction = routineExecution.getAddressAction(pcValue);
-        if (currentAddressAction != null)
-          currentAddressAction.beforeStep();
+        logPC(pcValue);
 
         z80InstructionDriver.step();
 
@@ -231,18 +223,20 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           routineExecution.createAndAddGenericAction(pcValue);
 
         AddressAction nextAddressAction = routineExecution.getActionOrCreateInAddress(pcValue);
-        nextAddressAction.setReadyAfterStep(this);
+        nextAddressAction.setReadyAfterStep();
         T value = createValue(nextAddressAction.getNext(pcValue, pc.read().intValue()));
         pc.write(value);
-
-//        if (value.intValue() == pcValue)
-//          ready= true;
 
         ready |= stackFrames.isEmpty();
         lastPc = pcValue;
         routineExecution.lastPc = pcValue;
       }
     }
+  }
+
+  private void logPC(int pcValue) {
+    System.out.println("PC: " + Helper.formatAddress(pcValue));
+//        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
   }
 
   private boolean isReady(int pcValue, boolean ready) {

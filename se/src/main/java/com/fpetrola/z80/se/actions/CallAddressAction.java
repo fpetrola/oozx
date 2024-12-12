@@ -43,7 +43,7 @@ public class CallAddressAction extends AddressAction {
     return doBranch;
   }
 
-  public void setReadyAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public void setReadyAfterStep() {
     updatePending();
   }
 
