@@ -210,7 +210,6 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     Assert.assertEquals("e73695f3bbcf36fa0401f8ac1ec93fb6", createMD5(actual));
   }
 
-  @Ignore
   @Test
   public void testTranslateWillyToJava() {
     Helper.hex = false;

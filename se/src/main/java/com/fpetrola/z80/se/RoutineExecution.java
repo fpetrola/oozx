@@ -69,16 +69,7 @@ public class RoutineExecution {
   }
 
   public AddressAction getAddressAction(int pcValue) {
-    List<AddressAction> list = new ArrayList<>();
-    for (AddressAction a : actions.values()) {
-      if (a.address == pcValue) {
-        list.add(a);
-      }
-    }
-    if (list.isEmpty())
-      return null;
-    else
-      return list.getFirst();
+    return actions.get(pcValue);
   }
 
   public void replaceAddressAction(AddressAction addressAction) {
