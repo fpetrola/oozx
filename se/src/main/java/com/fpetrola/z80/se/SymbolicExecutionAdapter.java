@@ -127,6 +127,12 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   public void stepUntilComplete(Z80InstructionDriver z80InstructionDriver, State<T> state, int firstAddress, int minimalValidCodeAddress) {
+    stepAllAndProcessPending(z80InstructionDriver, state, firstAddress, minimalValidCodeAddress);
+    processPending();
+    routineManager.optimizeAllSplit();
+  }
+
+  private void stepAllAndProcessPending(Z80InstructionDriver z80InstructionDriver, State<T> state, int firstAddress, int minimalValidCodeAddress) {
     this.z80InstructionDriver = z80InstructionDriver;
     this.minimalValidCodeAddress = minimalValidCodeAddress;
     memoryReadOnly(false, state);
@@ -159,10 +165,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         mutantAddress.add(wmr.address.intValue());
       }
     });
-
-    processPending();
-
-    routineManager.optimizeAllSplit();
   }
 
   private void processPending() {
@@ -184,7 +186,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           pushAddress(startAddress);
           pushAddress(startAddress);
           pushAddress(startAddress);
-          stepUntilComplete(z80InstructionDriver, (State<T>) state, first1, minimalValidCodeAddress);
+          stepAllAndProcessPending(z80InstructionDriver, (State<T>) state, first1, minimalValidCodeAddress);
         }
       }
     });
