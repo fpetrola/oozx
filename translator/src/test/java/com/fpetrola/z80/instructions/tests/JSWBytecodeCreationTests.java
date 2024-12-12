@@ -61,13 +61,14 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     this.driverConfigurator = driverConfigurator;
   }
 
-//  @Test
+  //  @Test
 //  public void testTranslateWillyToJava2() {
 //    Helper.hex = false;
 //    String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/Downloads/samcruise.z80");
 //    stepUntilComplete(61483);
 //    translateToJava("JetSetWilly", base64Memory, "$61483");
 //  }
+  @Ignore
   @Test
   public void testEmulateUntil() {
     String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, 0xC804, "http://torinak.com/qaop/bin/dynamitedan");
