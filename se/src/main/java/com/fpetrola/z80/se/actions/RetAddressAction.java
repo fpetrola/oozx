@@ -50,19 +50,16 @@ public class RetAddressAction extends AddressAction {
 
   @Override
   public int getNext(int next, int pcValue) {
+    int result;
     if (alwaysTrue) {
-      return genericGetNext(next, pcValue);
+      result = genericGetNext(next, pcValue);
+    } else if (routineExecution.retInstruction == -1 || routineExecution.retInstruction == address) {
+      result = super.getNext(next, pcValue);
     } else {
-      if (routineExecution.retInstruction == -1 || routineExecution.retInstruction == address)
-        return super.getNext(next, pcValue);
-
       AddressAction nextPending = routineExecution.getNextPending();
-      if (nextPending == this) {
-        return pcValue;
-      } else {
-        return nextPending.address;
-      }
+      result = nextPending == this ? pcValue : nextPending.address;
     }
+    return result;
   }
 
   public void setReady() {
