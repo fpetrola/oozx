@@ -43,7 +43,7 @@ import static org.junit.Assert.assertNull;
 
 @SuppressWarnings("ALL")
 @RunWith(TestRunner.class)
-@Modules(BaseModule.class)
+@Modules(TransformationsTestBaseModule.class)
 public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends TransformInstructionsTest<T> {
   @Inject
   public ConditionalsTransformInstructionsTest(PlainDriverConfigurator configurator) {

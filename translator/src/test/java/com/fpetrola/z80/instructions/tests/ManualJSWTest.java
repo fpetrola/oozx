@@ -34,7 +34,7 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 @SuppressWarnings("ALL")
 
 @RunWith(TestRunner.class)
-@Modules(BaseModule.class)
+@Modules(TransformationsTestBaseModule.class)
 public class ManualJSWTest<T extends WordNumber> extends ManualBytecodeGenerationTest<T> {
   @Inject
   public ManualJSWTest(DriverConfigurator tDriverConfigurator) {

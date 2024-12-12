@@ -33,7 +33,7 @@ import static org.junit.Assert.*;
 
 @SuppressWarnings("ALL")
 @RunWith(TestRunner.class)
-@Modules(BaseModule.class)
+@Modules(TransformationsTestBaseModule.class)
 public class VirtualVirtual8BitsRegisterTest<T extends WordNumber> extends TransformInstructionsTest<T> {
   @Inject
   public VirtualVirtual8BitsRegisterTest(DriverConfigurator tDriverConfigurator) {

@@ -35,7 +35,7 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(TestRunner.class)
-@Modules(BaseModule.class)
+@Modules(TransformationsTestBaseModule.class)
 public class TestFirstCPUInstructionLoop<T extends WordNumber> extends BaseInstructionLoopTest<T> {
 
   @Inject
