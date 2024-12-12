@@ -170,10 +170,10 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   private void processPending() {
     Map<Integer, RoutineExecution> routineExecutions1 = new HashMap<>(routineExecutions);
     routineExecutions1.entrySet().forEach(e -> {
-      if (e.getValue().actions.values().stream().anyMatch(AddressAction::isPending)) {
+      if (e.getValue().hasPendingPoints()) {
         System.err.println("pending action: " + Helper.formatAddress(e.getValue().start));
       }
-      Optional<AddressAction> first = e.getValue().actions.values().stream().filter(addressAction1 -> addressAction1 instanceof JPRegisterAddressAction jpRegisterAddressAction).findFirst();
+      Optional<AddressAction> first = e.getValue().actions.values().stream().filter(addressAction1 -> addressAction1 instanceof JPRegisterAddressAction).findFirst();
       if (first.isPresent()) {
         JPRegisterAddressAction jpRegisterAddressAction = (JPRegisterAddressAction) first.get();
         if (jpRegisterAddressAction.dynamicJPData == null) {

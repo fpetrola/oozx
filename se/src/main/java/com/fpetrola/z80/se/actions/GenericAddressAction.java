@@ -39,10 +39,8 @@ public class GenericAddressAction extends AddressAction {
   @Override
   public int getNextPC() {
     int result = address;
-    if (!isPending()) {
-      Optional<AddressAction> addressAction1 = routineExecution.actions.values().stream().filter(a -> a.isPending()).findFirst();
-      result = addressAction1.map(addressAction -> addressAction.address).orElseGet(() -> routineExecution.retInstruction);
-    }
+    if (!isPending())
+      result = routineExecution.getNextPending().address;
     return result;
   }
 

@@ -56,11 +56,11 @@ public class RetAddressAction extends AddressAction {
       if (routineExecution.retInstruction == -1 || routineExecution.retInstruction == address)
         return super.getNext(next, pcValue);
 
-      List<AddressAction> list = routineExecution.actions.values().stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
-      if (list.isEmpty()) {
+      AddressAction nextPending = routineExecution.getNextPending();
+      if (nextPending == this) {
         return pcValue;
       } else {
-        return list.get(0).address;
+        return nextPending.address;
       }
     }
   }
