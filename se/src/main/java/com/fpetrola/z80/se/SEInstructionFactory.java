@@ -43,7 +43,13 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
   public Ld<T> Ld(OpcodeReference<T> target, ImmutableOpcodeReference<T> source) {
     return new Ld<T>(target, source, flag) {
       public int execute() {
-        if (source instanceof IndirectMemory8BitReference<T>) {
+        if (source instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
+          T value = source.read();
+          T address = indirectMemory16BitReference.address;
+          T aLU8Assign = value;
+          target.write((T) new DirectAccessWordNumber(aLU8Assign.intValue(), address.intValue()));
+          return 1;
+        } else if (source instanceof IndirectMemory8BitReference<T>) {
           T value = source.read();
           T aLU8Assign = value;
           target.write((T) new DirectAccessWordNumber(aLU8Assign.intValue(), pc.read().intValue()));
@@ -105,7 +111,7 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
 
   public class SeJP extends JP<T> {
 
-    public T lastData;
+    public static WordNumber lastData;
 
     public SeJP(ImmutableOpcodeReference target, Condition condition) {
       super(target, condition, SEInstructionFactory.this.pc);
@@ -132,7 +138,7 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
         if (lastData == null)
           return super.execute();
         else {
-          setNextPC(lastData);
+          setNextPC((T) lastData);
           return 0;
         }
       } else

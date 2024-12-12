@@ -25,7 +25,7 @@ public class GameInvoker {
     ZxGame1 zxGame1 = new ZxGame1();
 //    zxGame1.setSyncChecker(new DefaultSyncChecker());
 //    zxGame1.$34762(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0);
-//    zxGame1.$C804();
-    zxGame1.$35090();
+    zxGame1.$C804();
+//    zxGame1.$35090();
   }
 }

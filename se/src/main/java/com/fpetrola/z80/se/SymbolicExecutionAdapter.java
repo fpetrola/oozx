@@ -160,7 +160,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       }
     });
 
-//    processPending();
+    processPending();
 
     routineManager.optimizeAllSplit();
   }
@@ -216,7 +216,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         System.out.println("PC: " + Helper.formatAddress(pcValue));
 //        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
 
-        if (pcValue == 35414)
+        if (pcValue == 0xE9BC)
           System.out.println("");
 
         AddressAction currentAddressAction = routineExecution.getAddressAction(pcValue);

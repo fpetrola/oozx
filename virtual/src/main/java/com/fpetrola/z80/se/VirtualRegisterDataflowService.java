@@ -40,6 +40,8 @@ public class VirtualRegisterDataflowService<T extends WordNumber> implements Dat
         pointerAddress = target1.read().intValue();
         System.out.println("indirectMemory16BitReference: " + target1);
       }
+    } else if (register.read() instanceof DirectAccessWordNumber directAccessWordNumber) {
+      pointerAddress = directAccessWordNumber.pc;
     }
     return pointerAddress;
   }

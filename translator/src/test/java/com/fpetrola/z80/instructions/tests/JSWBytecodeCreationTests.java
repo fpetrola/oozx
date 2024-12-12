@@ -64,12 +64,11 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
 
   @Test
   public void testEmulateUntil() {
-    Helper.hex = false;
-    String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
-    stepUntilComplete(35090);
-
-    String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "JetSetWilly");
-
+    String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, 0xC804, "http://torinak.com/qaop/bin/dynamitedan");
+    stepUntilComplete(0xC804);
+    String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "ZxGame1");
+    actual = RemoteZ80Translator.improveSource(actual);
+    List<Routine> routines = driverConfigurator.getRoutineManager().getRoutines();
 
     Assert.assertEquals("""
         """, actual);
