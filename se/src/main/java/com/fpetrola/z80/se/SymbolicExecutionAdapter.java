@@ -215,7 +215,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           pc.write(createValue(pcValue));
         }
 
-//        System.out.println("PC: " + Helper.formatAddress(pcValue));
+        System.out.println("PC: " + Helper.formatAddress(pcValue));
 //        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
 
         if (pcValue == 0xE9BC)
@@ -231,7 +231,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           routineExecution.createAndAddGenericAction(pcValue);
 
         AddressAction nextAddressAction = routineExecution.getActionOrCreateInAddress(pcValue);
-        nextAddressAction.setPendingAfterStep(this);
+        nextAddressAction.setReadyAfterStep(this);
         T value = createValue(nextAddressAction.getNext(pcValue, pc.read().intValue()));
         pc.write(value);
 

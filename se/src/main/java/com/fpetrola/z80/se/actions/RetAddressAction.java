@@ -65,7 +65,7 @@ public class RetAddressAction extends AddressAction {
     }
   }
 
-  public void setPendingAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public void setReadyAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
     updatePending();
   }
 }

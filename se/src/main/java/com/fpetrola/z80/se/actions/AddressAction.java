@@ -24,7 +24,7 @@ import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 public class AddressAction {
   protected Instruction instruction;
-  private RoutineExecution routineExecution;
+  protected RoutineExecution routineExecution;
   protected boolean alwaysTrue;
   private int count;
   protected final SymbolicExecutionAdapter symbolicExecutionAdapter;
@@ -97,7 +97,7 @@ public class AddressAction {
     return address;
   }
 
-  public void setPendingAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public void setReadyAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
     setPending(false);
   }
 

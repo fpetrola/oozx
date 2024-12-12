@@ -76,7 +76,7 @@ public class JPRegisterAddressAction extends AddressAction {
     return super.isPending() || !cases.isEmpty();
   }
 
-  public void setPendingAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public void setReadyAfterStep(SymbolicExecutionAdapter symbolicExecutionAdapter) {
     pending = false;
   }
 
