@@ -47,7 +47,7 @@ public class ConditionalInstructionAddressAction extends AddressAction {
     } else {
       if (true)
         return super.getNext(next, pcValue);
-      List<AddressAction> list = routineExecution.actions.stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
+      List<AddressAction> list = routineExecution.actions.values().stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
       if (list.isEmpty()) {
         return pcValue;
       } else {
@@ -56,7 +56,7 @@ public class ConditionalInstructionAddressAction extends AddressAction {
     }
   }
 
-  public void setReadyAfterStep() {
+  public void setReady() {
     updatePending();
   }
 

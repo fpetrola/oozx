@@ -56,7 +56,7 @@ public class RetAddressAction extends AddressAction {
       if (routineExecution.retInstruction == -1 || routineExecution.retInstruction == address)
         return super.getNext(next, pcValue);
 
-      List<AddressAction> list = routineExecution.actions.stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
+      List<AddressAction> list = routineExecution.actions.values().stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
       if (list.isEmpty()) {
         return pcValue;
       } else {
@@ -65,7 +65,7 @@ public class RetAddressAction extends AddressAction {
     }
   }
 
-  public void setReadyAfterStep() {
+  public void setReady() {
     updatePending();
   }
 }

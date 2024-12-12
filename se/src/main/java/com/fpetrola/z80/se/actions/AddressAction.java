@@ -97,7 +97,7 @@ public class AddressAction {
     return address;
   }
 
-  public void setReadyAfterStep() {
+  public void setReady() {
     setPending(false);
   }
 

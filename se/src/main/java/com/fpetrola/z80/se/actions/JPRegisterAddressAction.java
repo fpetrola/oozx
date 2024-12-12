@@ -63,7 +63,7 @@ public class JPRegisterAddressAction extends AddressAction {
     } else {
       if (true)
         return super.getNext(next, pcValue);
-      List<AddressAction> list = routineExecution.actions.stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
+      List<AddressAction> list = routineExecution.actions.values().stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
       if (list.isEmpty()) {
         return pcValue;
       } else {
@@ -75,10 +75,6 @@ public class JPRegisterAddressAction extends AddressAction {
   @Override
   public boolean isPending() {
     return super.isPending() || !cases.isEmpty();
-  }
-
-  public void setReadyAfterStep() {
-    pending = false;
   }
 
   public void setDynamicJPData(DynamicJPData dynamicJPData) {

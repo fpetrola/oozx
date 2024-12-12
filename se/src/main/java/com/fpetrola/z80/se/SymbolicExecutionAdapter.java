@@ -119,7 +119,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     stackFrames.push(jumpAddress);
     RoutineExecution routineExecution = routineExecutions.get(jumpAddress);
     if (routineExecution == null) {
-      routineExecutions.put(jumpAddress, routineExecution = new RoutineExecution(minimalValidCodeAddress, this));
+      routineExecutions.put(jumpAddress, routineExecution = new RoutineExecution(this));
     } else
       System.err.print("");
 
@@ -170,10 +170,10 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   private void processPending() {
     Map<Integer, RoutineExecution> routineExecutions1 = new HashMap<>(routineExecutions);
     routineExecutions1.entrySet().forEach(e -> {
-      if (e.getValue().actions.stream().anyMatch(AddressAction::isPending)) {
+      if (e.getValue().actions.values().stream().anyMatch(AddressAction::isPending)) {
         System.err.println("pending action: " + Helper.formatAddress(e.getValue().start));
       }
-      Optional<AddressAction> first = e.getValue().actions.stream().filter(addressAction1 -> addressAction1 instanceof JPRegisterAddressAction jpRegisterAddressAction).findFirst();
+      Optional<AddressAction> first = e.getValue().actions.values().stream().filter(addressAction1 -> addressAction1 instanceof JPRegisterAddressAction jpRegisterAddressAction).findFirst();
       if (first.isPresent()) {
         JPRegisterAddressAction jpRegisterAddressAction = (JPRegisterAddressAction) first.get();
         if (jpRegisterAddressAction.dynamicJPData == null) {
@@ -220,8 +220,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         if (!routineExecution.hasActionAt(pcValue))
           routineExecution.createAndAddGenericAction(pcValue);
 
-        AddressAction nextAddressAction = routineExecution.getActionOrCreateInAddress(pcValue);
-        nextAddressAction.setReadyAfterStep();
+        AddressAction nextAddressAction = routineExecution.getAddressAction(pcValue);
+        nextAddressAction.setReady();
         updatePcRegister(nextAddressAction.getNext(pcValue, pc.read().intValue()));
 
         ready = stackFrames.isEmpty();

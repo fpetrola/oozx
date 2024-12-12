@@ -28,29 +28,25 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.actions.*;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class RoutineExecution {
-  private final int minimalValidCodeAddress;
   public int retInstruction = -1;
   public int start;
-  public LinkedList<AddressAction> actions = new LinkedList<>();
+  public Map<Integer, AddressAction> actions = new HashMap<>();
   public int lastPc;
   private SymbolicExecutionAdapter symbolicExecutionAdapter;
 
-  public RoutineExecution(int minimalValidCodeAddress, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
-    this.minimalValidCodeAddress = minimalValidCodeAddress;
+  public RoutineExecution(SymbolicExecutionAdapter symbolicExecutionAdapter1) {
     symbolicExecutionAdapter = symbolicExecutionAdapter1;
   }
 
   public boolean hasPendingPoints() {
-    return actions.stream().anyMatch(AddressAction::isPending);
+    return actions.values().stream().anyMatch(AddressAction::isPending);
   }
 
   public AddressAction getNextPending() {
-    return actions.stream().filter(AddressAction::isPending).findFirst().orElse(getActionOrCreateInAddress(retInstruction));
+    return actions.values().stream().filter(AddressAction::isPending).findFirst().orElse(getActionOrCreateInAddress(retInstruction));
   }
 
   public boolean hasActionAt(int address) {
@@ -73,23 +69,20 @@ public class RoutineExecution {
   }
 
   public AddressAction getAddressAction(int pcValue) {
-    List<AddressAction> list = actions.stream().filter(a -> a.address == pcValue).toList();
+    List<AddressAction> list = new ArrayList<>();
+    for (AddressAction a : actions.values()) {
+      if (a.address == pcValue) {
+        list.add(a);
+      }
+    }
     if (list.isEmpty())
       return null;
     else
-      return list.get(0);
+      return list.getFirst();
   }
 
   public void replaceAddressAction(AddressAction addressAction) {
-    Optional<AddressAction> first = actions.stream().filter(a -> a.address == addressAction.address).findFirst();
-    if (first.isPresent())
-      actions.set(actions.indexOf(first.get()), addressAction);
-    else {
-      actions.offer(addressAction);
-    }
-
-    if (actions.stream().filter(a -> a.address == addressAction.address).toList().size() > 1)
-      System.out.println("sdgsdgdsg11111");
+    actions.put(addressAction.address, addressAction);
   }
 
 

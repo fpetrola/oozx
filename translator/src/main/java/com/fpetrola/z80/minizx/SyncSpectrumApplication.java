@@ -23,7 +23,7 @@ import com.fpetrola.z80.minizx.sync.SyncChecker;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> {
-  public static final int delay = 50000;
+  public static final int delay = 25000;
   public SyncChecker syncChecker = new DummySyncChecker();
   protected ZxObject[] objectMemory = new ZxObject[0x10000];
 
