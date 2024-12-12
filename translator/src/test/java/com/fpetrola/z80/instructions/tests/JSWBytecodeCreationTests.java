@@ -38,6 +38,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
 
+import static com.fpetrola.z80.helpers.Helper.createMD5;
+
 @SuppressWarnings("ALL")
 @RunWith(TestRunner.class)
 @Modules(RoutinesModule.class)
@@ -61,13 +63,15 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     this.driverConfigurator = driverConfigurator;
   }
 
-  //  @Test
-//  public void testTranslateWillyToJava2() {
-//    Helper.hex = false;
-//    String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/Downloads/samcruise.z80");
-//    stepUntilComplete(61483);
-//    translateToJava("JetSetWilly", base64Memory, "$61483");
-//  }
+  @Ignore
+  @Test
+  public void testTranslateWillyToJava2() {
+    Helper.hex = false;
+    String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/Downloads/samcruise.z80");
+    stepUntilComplete(61483);
+    translateToJava("ZxGame1", base64Memory, "$61483");
+  }
+
   @Ignore
   @Test
   public void testEmulateUntil() {
@@ -77,8 +81,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     actual = RemoteZ80Translator.improveSource(actual);
     List<Routine> routines = driverConfigurator.getRoutineManager().getRoutines();
 
-    Assert.assertEquals("""
-        """, actual);
+    Assert.assertEquals("e6762cd3b22a0232c2e8fab0d2188014", createMD5(actual));
   }
 
   @Ignore

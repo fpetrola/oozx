@@ -57,7 +57,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   public int lastPc;
   private int registerSP;
   private int nextSP;
-  private AddressAction addressAction;
   private Z80InstructionDriver z80InstructionDriver;
   private int minimalValidCodeAddress;
   private Set<Integer> mutantAddress = new HashSet<>();
@@ -76,7 +75,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     spy.reset(state);
     nextSP = 0;
     lastPc = 0;
-    addressAction = null;
   }
 
   public <T extends WordNumber> SymbolicExecutionAdapter(State<T> state, RoutineManager routineManager, RoutineFinderInstructionSpy spy, DataflowService dataflowService1) {
@@ -107,7 +105,9 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   public <T extends WordNumber> MutableOpcodeConditions createOpcodeConditions(State<T> state) {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
-      addressAction = getRoutineExecution().replaceIfAbsent(getPcValue(), getRoutineExecution().createAddressAction(instruction, alwaysTrue, getPcValue(), this, state));
+      RoutineExecution routineExecution = getRoutineExecution();
+      AddressAction addressAction = routineExecution.replaceIfAbsent(getPcValue(), routineExecution.createAddressAction(instruction, alwaysTrue, getPcValue(), this, state));
+      routineExecution.replaceAddressAction(addressAction);
       return addressAction.processBranch(instruction);
     });
   }
@@ -209,7 +209,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       if (!ready) {
         RoutineExecution routineExecution = getRoutineExecution();
 
-        addressAction = routineExecution.getAddressAction(pcValue);
+        AddressAction addressAction = routineExecution.getAddressAction(pcValue);
         if (addressAction != null) {
           pcValue = addressAction.getNextPC();
           pc.write(createValue(pcValue));
@@ -228,9 +228,9 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         z80InstructionDriver.step();
 
         if (!routineExecution.hasActionAt(pcValue))
-          addressAction = routineExecution.getActionInAddress(pcValue);
+          routineExecution.createAndAddGenericAction(pcValue);
 
-        AddressAction nextAddressAction = routineExecution.getActionInAddress(pcValue);
+        AddressAction nextAddressAction = routineExecution.getActionOrCreateInAddress(pcValue);
         nextAddressAction.setPendingAfterStep(this);
         T value = createValue(nextAddressAction.getNext(pcValue, pc.read().intValue()));
         pc.write(value);
@@ -241,8 +241,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         ready |= stackFrames.isEmpty();
         lastPc = pcValue;
         routineExecution.lastPc = pcValue;
-
-        addressAction = null;
       }
     }
   }

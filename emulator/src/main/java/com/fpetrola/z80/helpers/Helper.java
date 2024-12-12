@@ -22,10 +22,14 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.math.BigInteger;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,5 +75,15 @@ public class Helper {
     List<StackWalker.StackFrame> walk = walker.walk(s -> s.collect(Collectors.toList()));
     if (walk.size() > 1000)
       System.out.println("dssdg");
+  }
+
+  public static String createMD5(String actual) {
+    try {
+      MessageDigest md5 = MessageDigest.getInstance("MD5");
+      md5.update(StandardCharsets.UTF_8.encode(actual));
+      return String.format("%032x", new BigInteger(1, md5.digest()));
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

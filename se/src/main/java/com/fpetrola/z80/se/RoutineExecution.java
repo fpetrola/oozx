@@ -50,20 +50,25 @@ public class RoutineExecution {
   }
 
   public AddressAction getNextPending() {
-    return actions.stream().filter(AddressAction::isPending).findFirst().orElse(getActionInAddress(retInstruction));
+    return actions.stream().filter(AddressAction::isPending).findFirst().orElse(getActionOrCreateInAddress(retInstruction));
   }
 
   public boolean hasActionAt(int address) {
     return getAddressAction(address) != null;
   }
 
-  public AddressAction getActionInAddress(int pcValue) {
+  public AddressAction getActionOrCreateInAddress(int pcValue) {
     AddressAction addressAction = getAddressAction(pcValue);
     if (addressAction == null) {
-      addressAction = new GenericAddressAction(this, pcValue, symbolicExecutionAdapter);
-      replaceAddressAction(addressAction);
+      addressAction = createAndAddGenericAction(pcValue);
     }
 
+    return addressAction;
+  }
+
+  public AddressAction createAndAddGenericAction(int pcValue) {
+    AddressAction addressAction = new GenericAddressAction(this, pcValue, symbolicExecutionAdapter);
+    replaceAddressAction(addressAction);
     return addressAction;
   }
 
