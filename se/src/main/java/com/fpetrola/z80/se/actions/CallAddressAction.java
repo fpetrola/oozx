@@ -54,4 +54,12 @@ public class CallAddressAction extends AddressAction {
       return super.getNext(next, pcValue);
     }
   }
+
+  public boolean isRevisitable() {
+    return true;
+  }
+
+  public boolean isRevisiting() {
+    return count > 0;
+  }
 }

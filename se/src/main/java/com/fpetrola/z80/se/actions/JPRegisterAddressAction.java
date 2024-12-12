@@ -78,4 +78,11 @@ public class JPRegisterAddressAction extends AddressAction {
       jp.lastData = WordNumber.createValue(poll);
     }
   }
-}
+
+  public boolean isRevisitable() {
+    return true;
+  }
+
+  public boolean isRevisiting() {
+    return count > 0;
+  }}

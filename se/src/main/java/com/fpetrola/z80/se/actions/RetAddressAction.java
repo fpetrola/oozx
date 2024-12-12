@@ -65,4 +65,11 @@ public class RetAddressAction extends AddressAction {
   public void setReady() {
     updatePending();
   }
-}
+
+  public boolean isRevisitable() {
+    return true;
+  }
+
+  public boolean isRevisiting() {
+    return count > 0;
+  }}

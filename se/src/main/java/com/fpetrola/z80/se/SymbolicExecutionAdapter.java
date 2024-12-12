@@ -25,6 +25,7 @@ import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
+import com.fpetrola.z80.instructions.impl.DJNZ;
 import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
@@ -105,6 +106,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   public <T extends WordNumber> MutableOpcodeConditions createOpcodeConditions(State<T> state) {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
+      if (instruction instanceof DJNZ)
+        System.out.println("dsagsdgsdag");
       RoutineExecution routineExecution = getRoutineExecution();
       AddressAction addressAction = routineExecution.replaceIfAbsent(getPcValue(), routineExecution.createAddressAction(instruction, alwaysTrue, getPcValue(), this));
       routineExecution.replaceAddressAction(addressAction);
@@ -211,8 +214,17 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
         AddressAction addressAction = routineExecution.getAddressAction(pcValue);
         if (addressAction != null) {
+          if (addressAction.count > 1)
+            System.out.println("sdgdsadgs");
           pcValue = addressAction.getNextPC();
           updatePcRegister(pcValue);
+          if (addressAction.isRevisitable()) {
+            if (addressAction.isRevisiting()) {
+              beforeRevisit(addressAction, pcValue);
+            }
+
+            beforeStepRevisitable(addressAction, pcValue);
+          }
         }
 
         z80InstructionDriver.step();
@@ -229,6 +241,13 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         routineExecution.lastPc = pcValue;
       }
     }
+  }
+
+  private void beforeRevisit(AddressAction addressAction, int pcValue) {
+
+  }
+
+  private void beforeStepRevisitable(AddressAction addressAction, int pcValue) {
   }
 
   private void updatePcRegister(int pcValue) {

@@ -26,7 +26,7 @@ public class AddressAction {
   protected Instruction instruction;
   private RoutineExecution routineExecution;
   protected boolean alwaysTrue;
-  private int count;
+  public int count;
   protected final SymbolicExecutionAdapter symbolicExecutionAdapter;
   private boolean state;
   public int address;
@@ -112,6 +112,14 @@ public class AddressAction {
         "address=" + address +
         ", pending=" + pending +
         '}';
+  }
+
+  public boolean isRevisitable() {
+    return false;
+  }
+
+  public boolean isRevisiting() {
+    return false;
   }
 }
 

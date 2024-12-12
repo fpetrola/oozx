@@ -53,4 +53,15 @@ public class ConditionalInstructionAddressAction extends AddressAction {
     updatePending();
   }
 
+  public boolean isRevisitable() {
+    return true;
+  }
+
+  public boolean isRevisiting() {
+    return count > 0;
+  }
+
+  public int getNextPC() {
+    return super.getNextPC();
+  }
 }
