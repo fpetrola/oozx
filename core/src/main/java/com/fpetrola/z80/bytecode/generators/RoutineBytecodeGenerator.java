@@ -424,21 +424,8 @@ public class RoutineBytecodeGenerator {
     return getRealVariable(variables.get(hl));
   }
 
-  public Variable invokeTransformedMethod(int jumpLabel) {
-    Variable invoke;
-    if (bytecodeGenerationContext.useFields) {
-      invoke = mm.invoke(createLabelName(jumpLabel));
-    } else {
-      Routine routineAt = bytecodeGenerationContext.routineManager.findRoutineAt(jumpLabel);
-      Object[] array = routineAt.accept(new RoutineRegisterAccumulator<Variable>() {
-        public void visitParameter(String register) {
-          routineParameters.add(getVar(register));
-        }
-      }).toArray();
-      invoke = mm.invoke(createLabelName(jumpLabel), array);
-      assignReturnValues(routineAt, invoke);
-    }
-    return invoke;
+  public Variable invokeTransformedMethod(int jumpLabel){
+    return mm.invoke(createLabelName(jumpLabel));
   }
 
   private Object[] getAllregistersAsParameters() {
@@ -449,7 +436,7 @@ public class RoutineBytecodeGenerator {
     return getListOfAllRegistersNamesForParameters().stream().map(this::getVar).toList();
   }
 
-  private void assignReturnValues(Routine routine, Variable result) {
+  protected void assignReturnValues(Routine routine, Variable result) {
     List<Variable> resultValues = routine.accept(new RoutineRegisterAccumulator<>() {
       public void visitReturnValue(String register) {
         routineParameters.add(getVar(register));
@@ -461,37 +448,16 @@ public class RoutineBytecodeGenerator {
     }
   }
 
-  private List<String> getListOfAllRegistersNamesForParameters() {
-    if (bytecodeGenerationContext.useFields)
-      return new ArrayList<>();
-    else
-      return Arrays.asList("AF", "BC", "DE", "HL", "IX", "IY", "A", "F", "B", "C", "D", "E", "H", "L", "IXL", "IXH", "IYL", "IYH");
+  protected List<String> getListOfAllRegistersNamesForParameters() {
+    return new ArrayList<>();
   }
 
   public Variable getVar(String name) {
     return getExistingVariable(name);
   }
 
-  void returnFromMethod() {
-    if (bytecodeGenerationContext.useFields)
-      mm.return_();
-    else {
-      Object[] values = routine.accept(new RoutineRegisterAccumulator<Variable>() {
-        public void visitReturnValue(String register) {
-          routineParameters.add(getVar(register));
-        }
-      }).toArray();
-
-      if (values.length == 0)
-        mm.return_();
-      else {
-        Variable variable1 = mm.new_(int[].class, values.length);
-        for (int i = 0; i < values.length; i++) {
-          variable1.aset(i, values[i]);
-        }
-        mm.return_(variable1);
-      }
-    }
+  protected void returnFromMethod() {
+    mm.return_();
   }
 
   public static class RoutineRegisterAccumulator<S> implements RoutineVisitor<List<S>> {

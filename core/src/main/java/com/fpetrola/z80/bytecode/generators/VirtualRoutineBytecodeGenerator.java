@@ -143,4 +143,41 @@ public class VirtualRoutineBytecodeGenerator extends RoutineBytecodeGenerator {
     methodMaker = bytecodeGenerationContext.cm.addMethod(values.length == 0 ? void.class : int[].class, methodName, objects).public_();
     return methodMaker;
   }
+
+  @Override
+  public Variable invokeTransformedMethod(int jumpLabel) {
+    Routine routineAt = bytecodeGenerationContext.routineManager.findRoutineAt(jumpLabel);
+    Object[] array = routineAt.accept(new RoutineRegisterAccumulator<Variable>() {
+      public void visitParameter(String register) {
+        routineParameters.add(getVar(register));
+      }
+    }).toArray();
+    Variable invoke = mm.invoke(createLabelName(jumpLabel), array);
+    assignReturnValues(routineAt, invoke);
+    return invoke;
+  }
+
+  @Override
+  protected List<String> getListOfAllRegistersNamesForParameters() {
+    return Arrays.asList("AF", "BC", "DE", "HL", "IX", "IY", "A", "F", "B", "C", "D", "E", "H", "L", "IXL", "IXH", "IYL", "IYH");
+  }
+
+  @Override
+  protected void returnFromMethod() {
+    Object[] values = routine.accept(new RoutineRegisterAccumulator<Variable>() {
+      public void visitReturnValue(String register) {
+        routineParameters.add(getVar(register));
+      }
+    }).toArray();
+
+    if (values.length == 0)
+      mm.return_();
+    else {
+      Variable variable1 = mm.new_(int[].class, values.length);
+      for (int i = 0; i < values.length; i++) {
+        variable1.aset(i, values[i]);
+      }
+      mm.return_(variable1);
+    }
+  }
 }
