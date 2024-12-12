@@ -24,7 +24,6 @@ import com.fpetrola.z80.bytecode.generators.helpers.SmartComposed16BitRegisterVa
 import com.fpetrola.z80.bytecode.generators.helpers.VariableDelegator;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;
 import com.fpetrola.z80.transformations.VirtualRegister;
@@ -82,30 +81,6 @@ public class VirtualRoutineBytecodeGenerator extends RoutineBytecodeGenerator {
     VirtualRegister register = VirtualRoutineBytecodeGenerator.getTop(register1);
     String name = VirtualRoutineBytecodeGenerator.getRegisterName(register);
     registerByVariable.put(name, register);
-  }
-
-  public <T extends WordNumber> Variable getVariable2(Register register1, Supplier<Object> value) {
-    Register register = RoutineBytecodeGenerator.getTop2(register1);
-
-    String name = RoutineBytecodeGenerator.getRegisterName2(register);
-    Variable variable = variables.get(name);
-    if (variable != null) {
-      Variable set = doSetValue(value, variable);
-      variables.put(name, set);
-      variablesByRegister.put(register, set);
-      return variable;
-    } else {
-//      System.out.println("creating var: " + name + "= " + value);
-      registerByVariable.put(name, register);
-
-      Variable set = setVariable(name, value);
-
-      variables.put(name, set);
-      variablesByRegister.put(register, set);
-
-//      getField("PC").sub(var);
-      return set;
-    }
   }
 
   public <T extends WordNumber> Variable getVariable(VirtualRegister register1, Supplier<Object> value) {
@@ -166,7 +141,7 @@ public class VirtualRoutineBytecodeGenerator extends RoutineBytecodeGenerator {
     Routine routineAt = bytecodeGenerationContext.routineManager.findRoutineAt(jumpLabel);
     Object[] array = routineAt.accept(new RoutineRegisterAccumulator<Variable>() {
       public void visitParameter(String register) {
-        routineParameters.add(getVar(register));
+        routineParameters.add(getExistingVariable(register));
       }
     }).toArray();
     Variable invoke = mm.invoke(RoutineBytecodeGenerator.createLabelName(jumpLabel), array);
@@ -174,7 +149,6 @@ public class VirtualRoutineBytecodeGenerator extends RoutineBytecodeGenerator {
     return invoke;
   }
 
-  @Override
   protected List<String> getListOfAllRegistersNamesForParameters() {
     return Arrays.asList("AF", "BC", "DE", "HL", "IX", "IY", "A", "F", "B", "C", "D", "E", "H", "L", "IXL", "IXH", "IYL", "IYH");
   }
@@ -183,7 +157,7 @@ public class VirtualRoutineBytecodeGenerator extends RoutineBytecodeGenerator {
   protected void returnFromMethod() {
     Object[] values = routine.accept(new RoutineRegisterAccumulator<Variable>() {
       public void visitReturnValue(String register) {
-        routineParameters.add(getVar(register));
+        routineParameters.add(getExistingVariable(register));
       }
     }).toArray();
 
@@ -251,9 +225,24 @@ public class VirtualRoutineBytecodeGenerator extends RoutineBytecodeGenerator {
     return variable.name(name);
   }
 
-  public <T extends WordNumber> boolean variableExists2(Register register) {
-    register = getTop2(register);
-    Variable variable = variables.get(getRegisterName2(register));
-    return variable != null;
+  protected void assignReturnValues(Routine routine, Variable result) {
+    List<Variable> resultValues = routine.accept(new RoutineRegisterAccumulator<>() {
+      public void visitReturnValue(String register) {
+        routineParameters.add(getExistingVariable(register));
+      }
+    });
+    int index = 0;
+    for (Variable variable : resultValues) {
+      variable.set(result.aget(index++));
+    }
+  }
+
+  @Override
+  protected void addOtherMemSyncParameters(List<Object> params) {
+    params.addAll(getListOfAllRegistersForParameters());
+  }
+
+  protected List<Variable> getListOfAllRegistersForParameters() {
+    return getListOfAllRegistersNamesForParameters().stream().map(name -> getExistingVariable(name)).toList();
   }
 }

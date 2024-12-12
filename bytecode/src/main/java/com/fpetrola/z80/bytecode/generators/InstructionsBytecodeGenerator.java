@@ -62,34 +62,19 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   @Override
   public void visitPush(Push push) {
     Register<T> target = (Register<T>) push.getTarget();
-    // VirtualRegister top = byteCodeGenerator.getTop(target);
-    //Variable var = methodMaker.var(int.class);
-    //var.name("last_" + top.getName());
-    //var.set(byteCodeGenerator.getExistingVariable(target).get());
-    methodMaker.invoke("push", routineByteCodeGenerator.getExistingVariable2(target).get());
+    methodMaker.invoke("push", routineByteCodeGenerator.getExistingVariable(target).get());
   }
 
   @Override
   public void visitingPop(Pop pop) {
     Register<T> target = (Register<T>) pop.getTarget();
-//    VirtualRegister top = byteCodeGenerator.getTop(target);
-//    Variable var = methodMaker.var(int.class);
-//    var.name("last_" + top.getName());
-//    byteCodeGenerator.getExistingVariable(target).get().set(var);
-    routineByteCodeGenerator.getExistingVariable2(target).set(methodMaker.invoke("pop"));
-
-//    if (pop instanceof SymbolicExecutionAdapter.PopReturnAddress popReturnAddress) {
-//      ReturnAddressWordNumber returnAddress = popReturnAddress.getReturnAddress();
-//      if (returnAddress != null) {
-//        methodMaker.invoke("incPops");
-//      }
-//    }
+    routineByteCodeGenerator.getExistingVariable(target).set(methodMaker.invoke("pop"));
   }
 
   @Override
   public void visitEx(Ex ex) {
     Register<T> source = (Register<T>) ex.getSource();
-    String sourceName = routineByteCodeGenerator.getTop2(source).getName();
+    String sourceName = source.getName();
     if (ex.getTarget() instanceof Register<?> target) {
       if (sourceName.startsWith("AF")) {
         exAF(target);
@@ -736,7 +721,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
       dynamicJP.forEach((djpc, dj) -> {
         if (djpc == routineByteCodeGenerator.bytecodeGenerationContext.pc.read().intValue()) {
           dj.cases.forEach(c -> {
-            Variable existingVariable = routineByteCodeGenerator.getExistingVariable2(register);
+            Variable existingVariable = routineByteCodeGenerator.getExistingVariable(register);
             existingVariable.ifEq(c, () -> {
               Label label = routineByteCodeGenerator.getLabel(c);
               if (label != null) {

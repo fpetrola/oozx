@@ -72,10 +72,6 @@ public class RoutineBytecodeGenerator {
     return "$" + Helper.formatAddress(label);
   }
 
-  public static <T extends WordNumber> Register<T> getTop2(Register<T> register) {
-    return register;
-  }
-
   public void generate() {
     mm = getMethod(routine.getEntryPoint());
     addInstructions();
@@ -94,7 +90,6 @@ public class RoutineBytecodeGenerator {
     memory = mm.field("mem");
     registers.put("mem", memory);
 
-    final boolean[] ready = new boolean[]{false};
     List<Routine> routines = routine.getRoutineManager().getRoutines();
 
     routine.accept(new RoutineVisitor<Integer>() {
@@ -102,48 +97,41 @@ public class RoutineBytecodeGenerator {
         {
           boolean contains = routine.contains(address);
           if (contains) {
-            if (!ready[0]) {
+            bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
+            int firstAddress = address;
+
+            Runnable scopeAdjuster = () -> {
               bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
-              int firstAddress = address;
-
-              Runnable scopeAdjuster = () -> {
-                bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
 //                new InstructionActionExecutor<>(r -> r.adjustRegisterScope()).executeAction(instruction);
-              };
+            };
 
-              Runnable labelGenerator = () -> {
-                bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
-                JumpLabelVisitor jumpLabelVisitor1 = new JumpLabelVisitor();
-                instruction.accept(jumpLabelVisitor1);
-                int jumpLabel = jumpLabelVisitor1.getJumpLabel();
+            Runnable labelGenerator = () -> {
+              bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
+              JumpLabelVisitor jumpLabelVisitor1 = new JumpLabelVisitor();
+              instruction.accept(jumpLabelVisitor1);
+              addLabel(address);
+            };
+            Runnable instructionGenerator = () -> {
+              bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
 
-                //  if (jumpLabel > 0)
-                addLabel(address);
-              };
-              Runnable instructionGenerator = () -> {
-                bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
+              if (address == 0xDA8D)
+                System.out.print("");
 
-                if (!ready[0]) {
-                  if (address == 0xDA8D)
-                    System.out.print("");
+              currentInstruction = instruction;
+              List<Routine> list = new ArrayList<>(routine.getInnerRoutines().stream().filter(routine1 -> routine1.contains(address)).toList());
+              if (!list.isEmpty())
+                invokeInnerIfAvailable(address, list);
+              else
+                generateInstruction(address, instruction, firstAddress);
 
-                  currentInstruction = instruction;
-                  List<Routine> list = new ArrayList<>(routine.getInnerRoutines().stream().filter(routine1 -> routine1.contains(address)).toList());
-                  if (!list.isEmpty())
-                    invokeInnerIfAvailable(address, list);
-                  else
-                    generateInstruction(address, instruction, firstAddress);
+              int nextAddress = address + instruction.getLength();
+              List<Routine> list2 = routines.stream().filter(routine1 -> routine1.virtual && routine1 != routine && routine1.getEntryPoint() == nextAddress).toList();
+              if (!list2.isEmpty())
+                invokeInnerIfAvailable(nextAddress, list2);
 
-                  int nextAddress = address + instruction.getLength();
-                  List<Routine> list2 = routines.stream().filter(routine1 -> routine1.virtual && routine1 != routine && routine1.getEntryPoint() == nextAddress).toList();
-                  if (!list2.isEmpty())
-                    invokeInnerIfAvailable(nextAddress, list2);
-                }
+            };
 
-              };
-
-              generators.add(new InstructionGenerator(scopeAdjuster, labelGenerator, instructionGenerator));
-            }
+            generators.add(new InstructionGenerator(scopeAdjuster, labelGenerator, instructionGenerator));
           }
         }
       }
@@ -161,10 +149,6 @@ public class RoutineBytecodeGenerator {
           label = firstAddress;
           hereLabel(label);
         }
-
-//                    if (instruction instanceof Ret && routine.virtualPop.contains(address)) {
-//                      mm.invoke("incPops");
-//                    }
 
         if (mutantCodeInInstruction(instruction, address)) {
           mm.invoke("executeMutantCode", address);
@@ -192,7 +176,6 @@ public class RoutineBytecodeGenerator {
         } else {
           System.out.print("");
         }
-        //ready[0] = true;
       }
     });
 
@@ -298,9 +281,8 @@ public class RoutineBytecodeGenerator {
     return set;
   }
 
-  public <T extends WordNumber> Variable getExistingVariable2(Register<T> register) {
-    Register topRegister = getTop2(register);
-    String registerName = getRegisterName2(topRegister);
+  public <T extends WordNumber> Variable getExistingVariable(Register<T> register) {
+    String registerName = register.getName().replace(",", "");
 
     Variable variable1 = variables.get(registerName);
     if (variable1 instanceof VariableDelegator variable) {
@@ -310,19 +292,13 @@ public class RoutineBytecodeGenerator {
     return variable1;
   }
 
-  public static String getRegisterName2(Register register) {
-    Helper.breakInStackOverflow();
-
-    return register.getName().replace(",", "");
-  }
-
   public Variable getVariableFromMemory(Object variable, String bits) {
     Object variable1 = getRealVariable(variable);
     if (bytecodeGenerationContext.syncEnabled) {
       List<Object> params = new ArrayList<>();
       params.add(variable1);
       params.add(lastMemPc.read().intValue());
-      params.addAll(getListOfAllRegistersForParameters());
+      addOtherMemSyncParameters(params);
       return mm.invoke("mem" + bits, params.toArray());
     } else {
       if (bits.equals("16"))
@@ -340,7 +316,7 @@ public class RoutineBytecodeGenerator {
       params.add(variable1);
       params.add(o1);
       params.add(lastMemPc.read().intValue());
-      params.addAll(getListOfAllRegistersForParameters());
+      addOtherMemSyncParameters(params);
 
       mm.invoke("wMem" + bits, params.toArray());
     } else {
@@ -353,36 +329,15 @@ public class RoutineBytecodeGenerator {
     }
   }
 
-  Variable getExistingVariable(String hl) {
+  protected void addOtherMemSyncParameters(List<Object> params) {
+  }
+
+  public Variable getExistingVariable(String hl) {
     return getRealVariable(variables.get(hl));
   }
 
-  public Variable invokeTransformedMethod(int jumpLabel){
+  public Variable invokeTransformedMethod(int jumpLabel) {
     return mm.invoke(createLabelName(jumpLabel));
-  }
-
-  protected List<Variable> getListOfAllRegistersForParameters() {
-    return getListOfAllRegistersNamesForParameters().stream().map(this::getVar).toList();
-  }
-
-  protected void assignReturnValues(Routine routine, Variable result) {
-    List<Variable> resultValues = routine.accept(new RoutineRegisterAccumulator<>() {
-      public void visitReturnValue(String register) {
-        routineParameters.add(getVar(register));
-      }
-    });
-    int index = 0;
-    for (Variable variable : resultValues) {
-      variable.set(result.aget(index++));
-    }
-  }
-
-  protected List<String> getListOfAllRegistersNamesForParameters() {
-    return new ArrayList<>();
-  }
-
-  public Variable getVar(String name) {
-    return getExistingVariable(name);
   }
 
   protected void returnFromMethod() {
