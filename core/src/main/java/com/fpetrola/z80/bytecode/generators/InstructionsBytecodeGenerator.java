@@ -63,22 +63,22 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   @Override
   public void visitPush(Push push) {
-    VirtualRegister<?> target = (VirtualRegister<?>) push.getTarget();
+    Register<T> target = (Register<T>) push.getTarget();
     // VirtualRegister top = byteCodeGenerator.getTop(target);
     //Variable var = methodMaker.var(int.class);
     //var.name("last_" + top.getName());
     //var.set(byteCodeGenerator.getExistingVariable(target).get());
-    methodMaker.invoke("push", routineByteCodeGenerator.getExistingVariable(target).get());
+    methodMaker.invoke("push", routineByteCodeGenerator.getExistingVariable2(target).get());
   }
 
   @Override
   public void visitingPop(Pop pop) {
-    VirtualRegister<?> target = (VirtualRegister<?>) pop.getTarget();
+    Register<T> target = (Register<T>) pop.getTarget();
 //    VirtualRegister top = byteCodeGenerator.getTop(target);
 //    Variable var = methodMaker.var(int.class);
 //    var.name("last_" + top.getName());
 //    byteCodeGenerator.getExistingVariable(target).get().set(var);
-    routineByteCodeGenerator.getExistingVariable(target).set(methodMaker.invoke("pop"));
+    routineByteCodeGenerator.getExistingVariable2(target).set(methodMaker.invoke("pop"));
 
 //    if (pop instanceof SymbolicExecutionAdapter.PopReturnAddress popReturnAddress) {
 //      ReturnAddressWordNumber returnAddress = popReturnAddress.getReturnAddress();
@@ -90,13 +90,13 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   @Override
   public void visitEx(Ex ex) {
-    VirtualRegister<?> source = (VirtualRegister<?>) ex.getSource();
-    VirtualRegister<?> target = (VirtualRegister<?>) ex.getTarget();
+    Register<T> source = (Register<T>) ex.getSource();
+    Register<T> target = (Register<T>) ex.getTarget();
     // VirtualRegister top = byteCodeGenerator.getTop(target);
     //Variable var = methodMaker.var(int.class);
     //var.name("last_" + top.getName());
     //var.set(byteCodeGenerator.getExistingVariable(target).get());
-    if (routineByteCodeGenerator.getTop(source).getName().startsWith("AF")) {
+    if (routineByteCodeGenerator.getTop2(source).getName().startsWith("AF")) {
       Variable variable = routineByteCodeGenerator.variables.get("AF");
       if (routineByteCodeGenerator.bytecodeGenerationContext.useFields) {
         Variable invoke = methodMaker.invoke("exAF", RoutineBytecodeGenerator.getRealVariable(variable));
@@ -467,21 +467,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   public void visitingLd(Ld ld) {
-    ld.accept(new VariableHandlingInstructionVisitor((sourceVariable, targetVariable) -> {
-      Class<?> aClass = targetVariable.classType();
-      if (!aClass.equals(int.class))
-        targetVariable.aset(0, sourceVariable);
-      else if (targetVariable instanceof WriteArrayVariable writeArrayVariable)
-        writeArrayVariable.set(sourceVariable);
-      else if (sourceVariable instanceof Variable variable) {
-        //targetVariable.set(sourceVariable);
-      }
-    }, routineByteCodeGenerator) {
-      public void visitingSource(ImmutableOpcodeReference source, TargetSourceInstruction targetSourceInstruction) {
-        super.visitingSource(source, targetSourceInstruction);
-        createInitializer = (x) -> sourceVariable;
-      }
-    });
+    ld.accept(new VariableHandlingInstructionVisitor((s, t) -> t.set(s), routineByteCodeGenerator));
   }
 
 
@@ -533,7 +519,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   private void processDjnz(Runnable runnable, DJNZ<?> djnz, OpcodeReferenceVisitor opcodeReferenceVisitor) {
-    Variable result = opcodeReferenceVisitor.process((VirtualRegister) djnz.getCondition().getB());
+    Variable result = opcodeReferenceVisitor.process((Register) djnz.getCondition().getB());
     Variable and = result.sub(1).and(0xFF);
     result.set(and);
     result.ifNe(0, runnable);
@@ -542,7 +528,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   private void processExistingCondition(Runnable runnable, ConditionalInstruction conditionalInstruction, ConditionFlag conditionFlag, OpcodeReferenceVisitor opcodeReferenceVisitor) {
     if (routineByteCodeGenerator.bytecodeGenerationContext.pc.read().intValue() == 0xD9AC)
       System.out.println("break");
-    Variable f = opcodeReferenceVisitor.process((VirtualRegister) conditionFlag.getRegister());
+    Variable f = opcodeReferenceVisitor.process((Register) conditionFlag.getRegister());
     String string = conditionalInstruction.getCondition().toString();
     Object source;
     Variable targetVariable = null;

@@ -218,7 +218,6 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
     return versionHandler;
   }
 
-  @Override
   public boolean isComposed2() {
 
 

@@ -37,18 +37,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 import static com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.getRealVariable;
 import static com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.getRegisterName;
 
 public class VariableHandlingInstructionVisitor implements InstructionVisitor<WordNumber, WordNumber> {
-  protected Function createInitializer;
   private final BiConsumer<Object, Variable> variableAction;
   protected Object sourceVariable;
   protected Variable targetVariable;
-  private OpcodeReference target;
-  private ImmutableOpcodeReference source;
   private final RoutineBytecodeGenerator routineByteCodeGenerator;
 
   public VariableHandlingInstructionVisitor(BiConsumer<Object, Variable> variableAction, RoutineBytecodeGenerator routineByteCodeGenerator1) {
@@ -62,18 +58,13 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<Wo
   }
 
   public void visitingTarget(OpcodeReference target, TargetInstruction targetInstruction) {
-    this.target = target;
     OpcodeReferenceVisitor instructionVisitor = new OpcodeReferenceVisitor(true, routineByteCodeGenerator);
-    if (createInitializer != null) instructionVisitor.setInitializerFactory(createInitializer);
     target.accept(instructionVisitor);
     targetVariable = (Variable) instructionVisitor.getResult();
   }
 
   public void visitingSource(ImmutableOpcodeReference source, TargetSourceInstruction targetSourceInstruction) {
-    this.source = source;
     OpcodeReferenceVisitor opcodeReferenceVisitor = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
-    if (createInitializer != null) opcodeReferenceVisitor.setInitializerFactory(createInitializer);
-
     source.accept(opcodeReferenceVisitor);
     sourceVariable = opcodeReferenceVisitor.getResult();
 
@@ -88,9 +79,6 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<Wo
   }
 
   public void visitingFlag(Register<WordNumber> flag, DefaultTargetFlagInstruction targetSourceInstruction) {
-//    OpcodeReferenceVisitor instructionVisitor = new OpcodeReferenceVisitor(true, byteCodeGenerator);
-//    if (createInitializer != null) instructionVisitor.setCreateInitializer(createInitializer);
-//    flag.accept(instructionVisitor);
   }
 
   public void visitingTargetSourceInstruction(TargetSourceInstruction targetSourceInstruction) {

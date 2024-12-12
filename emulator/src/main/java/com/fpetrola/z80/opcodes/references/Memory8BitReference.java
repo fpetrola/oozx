@@ -25,14 +25,27 @@ import com.fpetrola.z80.registers.Register;
 public class Memory8BitReference<T extends WordNumber> implements ImmutableOpcodeReference<T> {
 
   private final Memory<T> memory;
+
   private final int delta;
-  protected T fetchedAddress;
+
+  public T fetchedAddress;
   private final Register<T> pc;
 
   public Memory8BitReference(Memory memory, Register pc, int delta) {
     this.memory = memory;
     this.pc = pc;
     this.delta = delta;
+  }
+
+  public int getDelta() {
+    return delta;
+  }
+  public Memory<T> getMemory() {
+    return memory;
+  }
+
+  public Register<T> getPc() {
+    return pc;
   }
 
   public T read() {
@@ -66,18 +79,7 @@ public class Memory8BitReference<T extends WordNumber> implements ImmutableOpcod
   }
 
   public Object clone() throws CloneNotSupportedException {
-    return new MyMemory8BitReference(fetchedAddress, memory, pc, delta);
+    return new CachedMemory8BitReference(fetchedAddress, memory, pc, delta);
   }
 
-  private class MyMemory8BitReference extends Memory8BitReference<T> {
-    public MyMemory8BitReference(T lastFetchedAddress, Memory<T> memory, Register<T> pc, int delta) {
-      super(memory, pc, delta);
-      this.fetchedAddress = lastFetchedAddress;
-    }
-
-    @Override
-    protected T fetchAddress() {
-      return fetchedAddress;
-    }
-  }
 }

@@ -49,7 +49,7 @@ public class MemoryPlusRegister8BitReference<T extends WordNumber> implements Op
   }
 
   protected int valueDelta;
-  protected T fetchedRelative;
+  public T fetchedRelative;
 
   public Register<T> getPc() {
     return pc;

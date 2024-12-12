@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.bytecode.generators.helpers;
 
-import com.fpetrola.z80.transformations.VirtualRegister;
+import com.fpetrola.z80.registers.Register;
 import org.cojen.maker.*;
 
 import static com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.getRealVariable;
@@ -436,5 +436,5 @@ public interface VariableDelegator extends Variable {
     return getDelegate().methodMaker();
   }
 
-  void setRegister(VirtualRegister<?> register);
+  void setRegister(Register<?> register);
 }

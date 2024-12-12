@@ -18,13 +18,13 @@
 
 package com.fpetrola.z80.bytecode.generators.helpers;
 
-import com.fpetrola.z80.transformations.VirtualRegister;
+import com.fpetrola.z80.registers.Register;
 import org.cojen.maker.*;
 
 public class Composed16BitRegisterVariable implements VariableDelegator {
   private final MethodMaker methodMaker;
   private final String name;
-  private VirtualRegister<?> register;
+  private Register<?> register;
 
   public Composed16BitRegisterVariable(MethodMaker methodMaker, String name) {
     this.methodMaker = methodMaker;
@@ -40,7 +40,7 @@ public class Composed16BitRegisterVariable implements VariableDelegator {
   }
 
   @Override
-  public void setRegister(VirtualRegister<?> register) {
+  public void setRegister(Register<?> register) {
     this.register = register;
   }
 

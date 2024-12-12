@@ -29,11 +29,11 @@ import com.google.inject.Inject;
 public class DriverConfigurator<T extends WordNumber> implements IDriverConfigurator<T> {
   protected final RoutineManager routineManager;
   protected final RoutineFinderInstructionSpy<T> spy;
-  protected final SpyInstructionExecutor instructionExecutor1;
+  protected final InstructionExecutor instructionExecutor1;
   protected State<T> state1;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
   protected InstructionTransformer instructionTransformer;
-  protected TransformerInstructionExecutor<T> transformerInstructionExecutor;
+  protected InstructionExecutor<T> transformerInstructionExecutor;
   protected OpcodeConditions opcodeConditions;
   protected RegistersSetter<T> registersSetter;
   private CPUExecutionContext<T> secondContext;
@@ -45,8 +45,8 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
 
   @Inject
   public DriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy spy, State state2,
-                            SpyInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter,
-                            InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1,
+                            InstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter,
+                            InstructionTransformer instructionCloner2, InstructionExecutor transformerInstructionExecutor1,
                             OpcodeConditions opcodeConditions1, RegistersSetter registersSetter1, CPUExecutionContext secondContext2) {
     this.secondContext= secondContext2;
     this.routineManager = routineManager;

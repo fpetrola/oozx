@@ -19,6 +19,7 @@
 package com.fpetrola.z80.bytecode.generators.helpers;
 
 import com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.transformations.VirtualRegister;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
@@ -29,7 +30,7 @@ public class Single8BitRegisterVariable implements VariableDelegator {
   private final SmartComposed16BitRegisterVariable composedRegisterVariable;
   private final String nibble;
   private final RoutineBytecodeGenerator routineByteCodeGenerator;
-  private VirtualRegister<?> register;
+  private Register<?> register;
 
   public Single8BitRegisterVariable(MethodMaker methodMaker, Variable variable, SmartComposed16BitRegisterVariable composedRegister, String nibble, RoutineBytecodeGenerator routineByteCodeGenerator) {
     this.methodMaker = methodMaker;
@@ -40,7 +41,7 @@ public class Single8BitRegisterVariable implements VariableDelegator {
   }
 
   @Override
-  public void setRegister(VirtualRegister<?> register) {
+  public void setRegister(Register<?> register) {
     String name = variable.name();
     if (!register.getName().startsWith(name)) {
       throw new RuntimeException("no!");
@@ -56,7 +57,7 @@ public class Single8BitRegisterVariable implements VariableDelegator {
   public Variable set(Object value) {
     Variable result = variable.set(RoutineBytecodeGenerator.getRealVariable(value));
     boolean noOptimization = !routineByteCodeGenerator.bytecodeGenerationContext.optimize16Convertion;
-    if (noOptimization || routineByteCodeGenerator.currentRegister.getDependants().stream().anyMatch(VirtualRegister::isComposed2)) {
+    if (noOptimization || ((VirtualRegister)routineByteCodeGenerator.currentRegister).getDependants().stream().anyMatch(t -> false)) {
       Variable invoke;
       if (nibble.equals("l")) {
         invoke = routineByteCodeGenerator.mm.invoke("reg16high", composedRegisterVariable.get(), result);

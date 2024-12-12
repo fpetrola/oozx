@@ -18,9 +18,12 @@
 
 package com.fpetrola.z80.cpu;
 
+import com.fpetrola.z80.instructions.cache.InstructionCloner;
+import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
+import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
@@ -35,6 +38,7 @@ import java.util.function.Supplier;
 import static com.fpetrola.z80.registers.RegisterName.B;
 
 public class DefaultInstructionFetcher<T extends WordNumber> implements InstructionFetcher {
+  private final InstructionFactory instructionFactory;
   protected State<T> state;
   protected Instruction<T> instruction;
   protected Instruction<T>[] opcodesTables;
@@ -46,6 +50,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   List<ExecutedInstruction> lastInstructions = new ArrayList<>();
   protected Supplier<TableBasedOpCodeDecoder> tableFactory;
   public Instruction<T> instruction2;
+  private boolean noRepeat;
 
 //  {
 //    try {
@@ -55,16 +60,18 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 //    }
 //  }
 
-  public DefaultInstructionFetcher(State aState, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, DefaultInstructionFactory instructionFactory) {
-    this(aState, new OpcodeConditions(aState.getFlag(), aState.getRegister(B)), fetchInstructionFactory, instructionExecutor, instructionFactory);
+  public DefaultInstructionFetcher(State aState, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, DefaultInstructionFactory instructionFactory, boolean noRepeat1) {
+    this(aState, new OpcodeConditions(aState.getFlag(), aState.getRegister(B)), fetchInstructionFactory, instructionExecutor, instructionFactory, noRepeat1);
   }
 
-  public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, DefaultInstructionFactory instructionFactory) {
+  public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, DefaultInstructionFactory instructionFactory, boolean noRepeat) {
     this.state = aState;
     this.instructionExecutor = instructionExecutor;
+    this.noRepeat = noRepeat;
     tableFactory = () -> createOpcodesTables(opcodeConditions, fetchInstructionFactory, instructionFactory);
     createOpcodeTables();
     pcValue = state.getPc().read();
+    this.instructionFactory = instructionFactory;
   }
 
   protected void createOpcodeTables() {
@@ -84,13 +91,14 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     Memory<T> memory = state.getMemory();
     memory.disableReadListener();
     opcodeInt = memory.read(pcValue, 1).intValue();
-    Instruction<T> instruction = opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt];
-    this.instruction = instruction;
+    Instruction<T> baseInstruction2 = getBaseInstruction2(opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt]);
+    Instruction<T> clone = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction2);
+    instruction2 = clone;
+    this.instruction = clone;
     memory.enableReadListener();
 
     try {
       lastInstructions.add(new ExecutedInstruction(pcValue.intValue(), this.instruction));
-      instruction2 = getBaseInstruction2(this.instruction);
 
       if (pcValue.intValue() == 0xE667)
         System.out.println("");
@@ -103,16 +111,19 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
       this.instruction = getBaseInstruction(executedInstruction);
 
       T nextPC = null;
+      if (noRepeat && this.instruction instanceof RepeatingInstruction repeatingInstruction)
+        repeatingInstruction.setNextPC(null);
+
       if (this.instruction instanceof AbstractInstruction jumpInstruction) {
         nextPC = (T) jumpInstruction.getNextPC();
       }
 
-      String x = String.format("%04X", pcValue.intValue()) + ": " + instruction + " -> " + nextPC;
+      String x = String.format("%04X", pcValue.intValue()) + ": " + opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt] + " -> " + nextPC;
 //      System.out.println(x);
 
 
       if (nextPC == null)
-        nextPC = pcValue.plus(getBaseInstruction(instruction).getLength());
+        nextPC = pcValue.plus(getBaseInstruction(opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt]).getLength());
 
       state.getPc().write(nextPC);
     } catch (Exception e) {

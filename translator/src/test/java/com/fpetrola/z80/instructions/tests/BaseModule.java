@@ -29,6 +29,7 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
+import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -89,7 +90,7 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Provides
   @Inject
   @Singleton
-  private SpyInstructionExecutor getInstructionExecutor(RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state) {
+  private InstructionExecutor getInstructionExecutor(RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state) {
     return new SpyInstructionExecutor(routineFinderInstructionSpy1, state);
   }
 
@@ -114,11 +115,11 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
     return new InstructionTransformer(symbolicExecutionAdapter1.createInstructionFactory(state2), virtualRegisterFactory2);
   }
 
-  @Provides
-  @Inject
-  private TransformerInstructionExecutor getTransformerInstructionExecutor(State state1, SpyInstructionExecutor tInstructionExecutor, InstructionTransformer instructionTransformer) {
-    return new TransformerInstructionExecutor<T>(state1.getPc(), tInstructionExecutor, true, instructionTransformer);
-  }
+//  @Provides
+//  @Inject
+//  private TransformerInstructionExecutor getTransformerInstructionExecutor(State state1, SpyInstructionExecutor tInstructionExecutor, InstructionTransformer instructionTransformer) {
+//    return new TransformerInstructionExecutor<T>(state1.getPc(), tInstructionExecutor, true, instructionTransformer);
+//  }
 
   @Provides
   @Inject
@@ -140,13 +141,22 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
 
   @Provides
   @Inject
-  public CPUExecutionContext getSecondContext(State state1, RoutineManager routineManager, SpyInstructionExecutor instructionExecutor1, InstructionTransformer instructionTransformer, MutableOpcodeConditions opcodeConditions, InstructionSpy spy, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
-    TransformerInstructionExecutor<T> transformerInstructionExecutor1 = new TransformerInstructionExecutor(state1.getPc(), instructionExecutor1, false, instructionTransformer);
-    RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> transformerInstructionExecutor1.getInstructionAt(address);
+  public CPUExecutionContext getSecondContext(State state1, RoutineManager routineManager, InstructionExecutor instructionExecutor1, InstructionTransformer instructionTransformer, MutableOpcodeConditions opcodeConditions, InstructionSpy spy, SymbolicExecutionAdapter symbolicExecutionAdapter1, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor instructionExecutor, DefaultInstructionFactory instructionFactory) {
+//    TransformerInstructionExecutor<T> transformerInstructionExecutor1 = new TransformerInstructionExecutor(state1.getPc(), instructionExecutor1, false, instructionTransformer);
+    RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> instructionExecutor1.getInstructionAt(address);
     routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
-    InstructionFetcher instructionFetcher1 = new TransformerInstructionFetcher(state1, transformerInstructionExecutor1);
+//    InstructionFetcher instructionFetcher1 = new TransformerInstructionFetcher(state1, transformerInstructionExecutor1);
+    InstructionFetcher instructionFetcher1 = new InstructionFetcherForTest<>(state1, instructionExecutor);
     OOZ80 z80 = new OOZ80(state1, instructionFetcher1);
     return new CPUExecutionContext<T>(spy, z80, opcodeConditions);
+  }
+
+
+  @Provides
+  @Inject
+  @Singleton
+  public FetchNextOpcodeInstructionFactory getMutableOpcodeConditions(State state1, InstructionSpy spy) {
+    return new FetchNextOpcodeInstructionFactory(spy, state1);
   }
 
   @Provides
@@ -159,7 +169,7 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Provides
   @Inject
   @Singleton
-  public VirtualRegisterFactory getVirtualRegisterFactory(SpyInstructionExecutor instructionExecutor, RegisterNameBuilder registerNameBuilder, BlocksManager blocksManager) {
+  public VirtualRegisterFactory getVirtualRegisterFactory(InstructionExecutor instructionExecutor, RegisterNameBuilder registerNameBuilder, BlocksManager blocksManager) {
     return new VirtualRegisterFactory<>(instructionExecutor, registerNameBuilder, blocksManager);
   }
 }

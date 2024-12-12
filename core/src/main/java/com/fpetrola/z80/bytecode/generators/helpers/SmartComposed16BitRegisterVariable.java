@@ -19,6 +19,7 @@
 package com.fpetrola.z80.bytecode.generators.helpers;
 
 import com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.transformations.IVirtual8BitsRegister;
 import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;
 import com.fpetrola.z80.transformations.VirtualRegister;
@@ -30,7 +31,7 @@ public class SmartComposed16BitRegisterVariable implements VariableDelegator {
   private final String name;
   private final Variable variable;
   private final RoutineBytecodeGenerator routineByteCodeGenerator;
-  private VirtualRegister<?> register;
+  private Register<?> register;
   private Single8BitRegisterVariable variableLow;
   private Single8BitRegisterVariable variableHigh;
 
@@ -42,7 +43,7 @@ public class SmartComposed16BitRegisterVariable implements VariableDelegator {
   }
 
   @Override
-  public void setRegister(VirtualRegister<?> register) {
+  public void setRegister(Register<?> register) {
     if (!register.getName().startsWith(name)) {
       throw new RuntimeException("no!");
     }

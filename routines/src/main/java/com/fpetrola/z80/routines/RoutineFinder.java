@@ -50,9 +50,6 @@ public class RoutineFinder {
   public void checkExecution(Instruction instruction, int pcValue) {
 
     try {
-      if (pcValue == 0xD895)
-        System.out.printf("");
-
       if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
         if (!(instruction instanceof Call) && !(instruction instanceof Ret<?>)) {
           if (conditionalInstruction.getNextPC() != null) {
@@ -86,6 +83,8 @@ public class RoutineFinder {
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
+      if (currentRoutine != null && currentRoutine.getStartAddress() == 36147 || pcValue == 35157)
+        System.out.println("");
       routineManager.optimizeAll();
       lastInstruction = instruction;
       lastPc = pcValue;

@@ -39,9 +39,9 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecu
   private RandomAccessInstructionFetcher randomAccessInstructionFetcher;
 
   public RealCodeBytecodeCreationBase(RoutineFinderInstructionSpy routineFinderInstructionSpy1, RoutineManager routineManager1,
-                                      SpyInstructionExecutor instructionExecutor1,
+                                      InstructionExecutor instructionExecutor1,
                                       SymbolicExecutionAdapter executionAdapter, InstructionTransformer instructionCloner1,
-                                      TransformerInstructionExecutor<T> transformerInstructionExecutor1, OOZ80 z80, OpcodeConditions opcodeConditions, RegistersSetter<T> registersSetter1) {
+                                      InstructionExecutor<T> transformerInstructionExecutor1, OOZ80 z80, OpcodeConditions opcodeConditions, RegistersSetter<T> registersSetter1) {
     super(routineFinderInstructionSpy1, z80, opcodeConditions);
     routineManager = routineManager1;
 

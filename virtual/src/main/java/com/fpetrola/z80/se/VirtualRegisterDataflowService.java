@@ -30,14 +30,16 @@ public class VirtualRegisterDataflowService<T extends WordNumber> implements Dat
   @Override
   public int findValueOrigin(Register<T> register) {
     int pointerAddress = -1;
-    VirtualComposed16BitRegister<T> virtualComposed16BitRegister = (VirtualComposed16BitRegister<T>) register;
-    VirtualComposed16BitRegister<T> first = (VirtualComposed16BitRegister<T>) virtualComposed16BitRegister.getPreviousVersions().getFirst();
-    Virtual8BitsRegister<T> low = (Virtual8BitsRegister<T>) first.getLow();
-    Ld<T> instruction = (Ld<T>) low.instruction;
-    if (instruction.getSource() instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
-      ImmutableOpcodeReference<T> target1 = indirectMemory16BitReference.target;
-      pointerAddress = target1.read().intValue();
-      System.out.println("indirectMemory16BitReference: " + target1);
+    if (register instanceof VirtualComposed16BitRegister<T>) {
+      VirtualComposed16BitRegister<T> virtualComposed16BitRegister = (VirtualComposed16BitRegister<T>) register;
+      VirtualComposed16BitRegister<T> first = (VirtualComposed16BitRegister<T>) virtualComposed16BitRegister.getPreviousVersions().getFirst();
+      Virtual8BitsRegister<T> low = (Virtual8BitsRegister<T>) first.getLow();
+      Ld<T> instruction = (Ld<T>) low.instruction;
+      if (instruction.getSource() instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
+        ImmutableOpcodeReference<T> target1 = indirectMemory16BitReference.target;
+        pointerAddress = target1.read().intValue();
+        System.out.println("indirectMemory16BitReference: " + target1);
+      }
     }
     return pointerAddress;
   }

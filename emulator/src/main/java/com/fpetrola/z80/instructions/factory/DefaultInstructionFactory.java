@@ -26,6 +26,7 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
+import com.google.inject.Inject;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
@@ -50,9 +51,7 @@ public class DefaultInstructionFactory<T extends WordNumber> implements Instruct
   private IO<T> io;
   private Register<T> memptr;
 
-  public DefaultInstructionFactory() {
-  }
-
+  @Inject
   public DefaultInstructionFactory(State state) {
     setState(state);
   }

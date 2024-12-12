@@ -23,59 +23,16 @@ import com.fpetrola.z80.opcodes.references.MemoryAccessOpcodeReference;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.transformations.*;
-import org.cojen.maker.Label;
 import org.cojen.maker.Variable;
-
-import java.util.*;
-import java.util.function.Function;
 
 public class OpcodeReferenceVisitor<T extends WordNumber> implements InstructionVisitor<T, Object> {
   private Object result;
   private final boolean isTarget;
   private final RoutineBytecodeGenerator routineByteCodeGenerator;
 
-  public void setInitializerFactory(Function initializerFactory) {
-    this.initializerFactory = initializerFactory;
-  }
-
-  private Function<VirtualRegister<T>, Object> initializerFactory;
-
   public OpcodeReferenceVisitor(boolean isTarget, RoutineBytecodeGenerator routineByteCodeGenerator) {
     this.isTarget = isTarget;
     this.routineByteCodeGenerator = routineByteCodeGenerator;
-
-    initializerFactory = new Function<>() {
-      public Object apply(VirtualRegister<T> virtualRegister) {
-        List<VirtualRegister<T>> previousVersions = virtualRegister.getPreviousVersions();
-        if (previousVersions.isEmpty()) {
-          return virtualRegister.read().intValue();
-        } else {
-          VirtualRegister<T> firstPrevious = previousVersions.get(0);
-          if (!virtualRegister.hasNoPrevious()) {
-            if (firstPrevious.isMixRegister()) {
-              VirtualComposed16BitRegister<T> virtualComposed16BitRegister = (VirtualComposed16BitRegister) firstPrevious;
-              Variable o = (Variable) processValue(initializerFactory, virtualComposed16BitRegister.getHigh());
-              Variable o2 = (Variable) processValue(initializerFactory, virtualComposed16BitRegister.getLow());
-              return o.shl(8).or(o2);
-            } else {
-              if (previousVersions.stream().noneMatch(r -> routineByteCodeGenerator.variableExists(r))) {
-                for (Map.Entry<String, VirtualRegister> entry : routineByteCodeGenerator.registerByVariable.entrySet()) {
-                  if (entry.getValue() instanceof VirtualComposed16BitRegister<?> virtualComposed16BitRegister) {
-                    Variable existingVariable = routineByteCodeGenerator.getExistingVariable(virtualComposed16BitRegister);
-                    if (virtualComposed16BitRegister.getLow() == firstPrevious) return existingVariable.and(0xFF);
-                    else if (virtualComposed16BitRegister.getHigh() == firstPrevious) return existingVariable.shr(8);
-                  }
-                }
-                return routineByteCodeGenerator.initial;
-              }
-            }
-          }
-
-          return processValue(this, firstPrevious);
-        }
-      }
-    };
   }
 
   @Override
@@ -88,58 +45,9 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
   }
 
   public boolean visitRegister(Register register) {
-    if (register instanceof VirtualRegister<?> virtualRegister)
-      result = processValue(initializerFactory, (VirtualRegister<T>) virtualRegister);
-    else
-      System.out.println("Cannot virtualize: " + register.getName());
+    result = routineByteCodeGenerator.getExistingVariable2(register);
+    System.out.println("Cannot virtualize: " + register.getName());
     return true;
-  }
-
-  protected Object processValue(Function<VirtualRegister<T>, Object> initializerFactory, VirtualRegister<T> virtualRegister) {
-    Variable variable;
-    VirtualRegister top = RoutineBytecodeGenerator.getTop(virtualRegister);
-    boolean b = !(top instanceof InitialVirtualRegister);
-    if (!routineByteCodeGenerator.variableExists(top)) {
-      if (!b) {
-        Variable[] variable2 = new Variable[1];
-
-        //byteCodeGenerator.createVariable(virtualRegister);
-        Runnable runnable = () -> variable2[0] = routineByteCodeGenerator.getVariable(virtualRegister, () -> solveInitializer(initializerFactory, virtualRegister));
-//        runnable.run();
-        Label branchLabel = routineByteCodeGenerator.getBranchLabel(top.getScope().start);
-        Label insert = branchLabel.insert(runnable);
-        variable = variable2[0];
-      } else
-        variable = routineByteCodeGenerator.getVariable(virtualRegister, () -> solveInitializer(initializerFactory, virtualRegister));
-    } else {
-      variable = routineByteCodeGenerator.getExistingVariable(virtualRegister);
-      if (true) {
-        if (virtualRegister.isInitialized()) {
-          Object value = solveInitializer(initializerFactory, virtualRegister);
-          if (value != null) variable.set(value);
-        }
-      }
-    }
-
-    return variable;
-  }
-
-  private Object solveInitializer(Function<VirtualRegister<T>, Object> initializerFactory, VirtualRegister<T> virtualRegister) {
-    Object initializer;
-    if (virtualRegister.usesMultipleVersions()) {
-      if (!routineByteCodeGenerator.variableExists(virtualRegister)) {
-        VirtualRegister<T> parentPreviousVersion = virtualRegister.adjustRegisterScope();
-        initializer = initializerFactory.apply(parentPreviousVersion);
-        Object finalInitializer = initializer;
-        routineByteCodeGenerator.getVariable(virtualRegister, () -> finalInitializer);
-        virtualRegister.getPreviousVersions().forEach(p -> routineByteCodeGenerator.commonRegisters.put(p, virtualRegister));
-      }
-
-      initializer = routineByteCodeGenerator.getExistingVariable(virtualRegister);
-    } else {
-      initializer = initializerFactory.apply(virtualRegister);
-    }
-    return initializer;
   }
 
   public void visitConstantOpcodeReference(ConstantOpcodeReference<T> constantOpcodeReference) {
@@ -219,7 +127,7 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
     result = ((T) immutableOpcodeReference.read()).intValue();
   }
 
-  public <T> Variable process(VirtualRegister<T> register) {
+  public <T> Variable process(Register<T> register) {
     register.accept(this);
     return (Variable) getResult();
   }

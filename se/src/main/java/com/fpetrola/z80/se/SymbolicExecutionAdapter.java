@@ -98,7 +98,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   public InstructionFetcher createInstructionFetcher(InstructionSpy spy, State<T> state, InstructionExecutor<T> instructionExecutor, OpcodeConditions opcodeConditions) {
-    return new DefaultInstructionFetcher<T>(state, opcodeConditions, new FetchNextOpcodeInstructionFactory(spy, state), instructionExecutor, createInstructionFactory(state));
+    return new DefaultInstructionFetcher<T>(state, opcodeConditions, new FetchNextOpcodeInstructionFactory(spy, state), instructionExecutor, createInstructionFactory(state), true);
   }
 
   public DefaultInstructionFactory createInstructionFactory(final State state) {
@@ -160,7 +160,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       }
     });
 
-    processPending();
+//    processPending();
 
     routineManager.optimizeAllSplit();
   }
@@ -213,10 +213,10 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           pc.write(createValue(pcValue));
         }
 
-//        System.out.println("PC: " + Helper.formatAddress(pcValue));
+        System.out.println("PC: " + Helper.formatAddress(pcValue));
 //        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
 
-        if (pcValue == 0xCB8C)
+        if (pcValue == 35414)
           System.out.println("");
 
         AddressAction currentAddressAction = routineExecution.getAddressAction(pcValue);

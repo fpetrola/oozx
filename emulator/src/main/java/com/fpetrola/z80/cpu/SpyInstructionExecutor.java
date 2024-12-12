@@ -51,6 +51,7 @@ public class SpyInstructionExecutor<T extends WordNumber> implements Instruction
     spy.beforeExecution(instruction);
     executingInstructions.add(instruction);
     instruction.execute();
+    instructions.put(pc.read().intValue(), instruction);
     executingInstructions.remove(instruction);
     spy.afterExecution(instruction);
     return instruction;

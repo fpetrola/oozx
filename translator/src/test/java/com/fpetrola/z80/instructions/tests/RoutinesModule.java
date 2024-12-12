@@ -32,7 +32,7 @@ public class RoutinesModule<T extends WordNumber> extends BaseModule<T> {
   protected void configure() {
     bind(IDriverConfigurator.class).to(RoutinesDriverConfigurator.class);
     bind(InstructionSpy.class).to(RoutineFinderInstructionSpy.class);
-    bind(InstructionExecutor.class).to(TransformerInstructionExecutor.class);
+//    bind(InstructionExecutor.class).to(TransformerInstructionExecutor.class);
   }
 
 //  @Provides

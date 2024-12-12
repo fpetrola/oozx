@@ -21,16 +21,12 @@ package com.fpetrola.z80.instructions.tests;
 import com.fpetrola.z80.base.CPUExecutionContext;
 import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
-import com.fpetrola.z80.cpu.OOZ80;
-import com.fpetrola.z80.cpu.RegistersSetter;
-import com.fpetrola.z80.cpu.SpyInstructionExecutor;
-import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.transformations.InstructionTransformer;
 import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
-import com.fpetrola.z80.transformations.TransformerInstructionExecutor;
 import com.google.inject.Inject;
 
 public class RoutinesDriverConfigurator<T extends WordNumber> extends DriverConfigurator<T> {
@@ -38,7 +34,7 @@ public class RoutinesDriverConfigurator<T extends WordNumber> extends DriverConf
   private OOZ80 z80;
 
   @Inject
-  public RoutinesDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state2, SpyInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter1, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor, RegistersSetter registersSetter1, CPUExecutionContext secondContext2) {
+  public RoutinesDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state2, InstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter1, InstructionTransformer instructionCloner2, InstructionExecutor transformerInstructionExecutor, RegistersSetter registersSetter1, CPUExecutionContext secondContext2) {
     super(routineManager, routineFinderInstructionSpy1, state2, instructionExecutor2,
         symbolicExecutionAdapter1, instructionCloner2, transformerInstructionExecutor,
         symbolicExecutionAdapter1.createOpcodeConditions(state2), registersSetter1, secondContext2);

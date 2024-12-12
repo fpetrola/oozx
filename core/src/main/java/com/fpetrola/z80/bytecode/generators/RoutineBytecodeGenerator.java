@@ -48,15 +48,15 @@ public class RoutineBytecodeGenerator {
   public Register<WordNumber> lastMemPc = new Plain16BitRegister<WordNumber>("lastMemPc");
 
   public Map<String, Variable> variables = new HashMap<>();
-  public Map<String, VirtualRegister> registerByVariable = new HashMap<>();
-  public Map<VirtualRegister, Variable> variablesByRegister = new HashMap<>();
+  public Map<String, Register> registerByVariable = new HashMap<>();
+  public Map<Register, Variable> variablesByRegister = new HashMap<>();
   public Map<VirtualRegister<?>, VirtualRegister<?>> commonRegisters = new HashMap<>();
   private final Map<Integer, Label> insertLabels = new HashMap<>();
   public DefaultTargetFlagInstruction lastTargetFlagInstruction;
   protected Field initial;
   private PendingFlagUpdate pendingFlag;
   public Instruction currentInstruction;
-  public VirtualRegister<?> currentRegister;
+  public Register<?> currentRegister;
 
   public static <S> S getRealVariable(S variable) {
     Object variable1 = variable;
@@ -72,6 +72,10 @@ public class RoutineBytecodeGenerator {
 
   public static String createLabelName(int label) {
     return "$" + Helper.formatAddress(label);
+  }
+
+  public static <T extends WordNumber> Register<T> getTop2(Register<T> register) {
+    return register;
   }
 
   public void generate() {
@@ -351,6 +355,12 @@ public class RoutineBytecodeGenerator {
     return registers.get(name);
   }
 
+  public <T extends WordNumber> boolean variableExists2(Register register) {
+    register = getTop2(register);
+    Variable variable = variables.get(getRegisterName2(register));
+    return variable != null;
+  }
+
   public <T extends WordNumber> boolean variableExists(VirtualRegister register) {
     register = getTop(register);
     Variable variable = variables.get(getRegisterName(register));
@@ -363,6 +373,29 @@ public class RoutineBytecodeGenerator {
     registerByVariable.put(name, register);
   }
 
+  public <T extends WordNumber> Variable getVariable2(Register register1, Supplier<Object> value) {
+    Register register = getTop2(register1);
+
+    String name = getRegisterName2(register);
+    Variable variable = variables.get(name);
+    if (variable != null) {
+      Variable set = doSetValue(value, variable);
+      variables.put(name, set);
+      variablesByRegister.put(register, set);
+      return variable;
+    } else {
+//      System.out.println("creating var: " + name + "= " + value);
+      registerByVariable.put(name, register);
+
+      Variable set = setVariable(name, value);
+
+      variables.put(name, set);
+      variablesByRegister.put(register, set);
+
+//      getField("PC").sub(var);
+      return set;
+    }
+  }
   public <T extends WordNumber> Variable getVariable(VirtualRegister register1, Supplier<Object> value) {
     VirtualRegister register = getTop(register1);
 
@@ -400,7 +433,29 @@ public class RoutineBytecodeGenerator {
     if (value1 != null) set = var.set(value1);
     return set;
   }
+  public <T extends WordNumber> Variable getExistingVariable2(Register<T> register) {
+    Register topRegister = getTop2(register);
 
+//    register.getPreviousVersions().stream().anyMatch(v -> {
+//
+//      if (v instanceof IVirtual8BitsRegister<?> virtual8BitsRegister) {
+//        VirtualComposed16BitRegister virtualComposed16BitRegister = virtual8BitsRegister.getVirtualComposed16BitRegister();
+//        if (virtualComposed16BitRegister != null) {
+//          return true;
+//        }
+//      }
+//
+//      return false;
+//    });
+    String registerName = getRegisterName2(topRegister);
+
+    Variable variable1 = variables.get(registerName);
+    if (variable1 instanceof VariableDelegator variable) {
+      variable.setRegister(register);
+    }
+    currentRegister = register;
+    return variable1;
+  }
 
   public <T extends WordNumber> Variable getExistingVariable(VirtualRegister<?> register) {
     VirtualRegister topRegister = getTop(register);
@@ -432,6 +487,12 @@ public class RoutineBytecodeGenerator {
   }
 
   public static String getRegisterName(VirtualRegister register) {
+    Helper.breakInStackOverflow();
+
+    return VirtualComposed16BitRegister.fixIndexNames(register.getName().replace(",", ""));
+  }
+
+  public static String getRegisterName2(Register register) {
     Helper.breakInStackOverflow();
 
     return VirtualComposed16BitRegister.fixIndexNames(register.getName().replace(",", ""));
