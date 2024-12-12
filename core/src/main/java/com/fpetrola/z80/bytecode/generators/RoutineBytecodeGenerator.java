@@ -222,24 +222,6 @@ public class RoutineBytecodeGenerator {
     variables.put(name, field);
   }
 
-  protected Variable addLocalVariable(String name) {
-    // cm.addField(int.class, name).private_().static_();
-//    Variable variable = mm.var(int.class);
-    List<String> parametersList = routine.accept(new RoutineRegisterAccumulator<>() {
-      public void visitParameter(String register) {
-        routineParameters.add(register);
-      }
-    });
-    int index = parametersList.indexOf(name);
-    Variable variable;
-    if (index != -1) {
-      variable = mm.param(index);
-    } else {
-      variable = mm.var(int.class).set(0);
-    }
-    return variable.name(name);
-  }
-
   public Label addLabel(int labelLine) {
     Label label = labels.get(labelLine);
     if (label == null) {
@@ -300,12 +282,6 @@ public class RoutineBytecodeGenerator {
 
   public <T extends WordNumber> Variable getField(String name) {
     return registers.get(name);
-  }
-
-  public <T extends WordNumber> boolean variableExists2(Register register) {
-    register = getTop2(register);
-    Variable variable = variables.get(getRegisterName2(register));
-    return variable != null;
   }
 
   public Variable setVariable(String name, Supplier<Object> value) {

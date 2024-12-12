@@ -232,4 +232,28 @@ public class VirtualRoutineBytecodeGenerator extends RoutineBytecodeGenerator {
   private Object[] getAllregistersAsParameters() {
     return getListOfAllRegistersForParameters().toArray();
   }
+
+  protected Variable addLocalVariable(String name) {
+    // cm.addField(int.class, name).private_().static_();
+//    Variable variable = mm.var(int.class);
+    List<String> parametersList = routine.accept(new RoutineRegisterAccumulator<>() {
+      public void visitParameter(String register) {
+        routineParameters.add(register);
+      }
+    });
+    int index = parametersList.indexOf(name);
+    Variable variable;
+    if (index != -1) {
+      variable = mm.param(index);
+    } else {
+      variable = mm.var(int.class).set(0);
+    }
+    return variable.name(name);
+  }
+
+  public <T extends WordNumber> boolean variableExists2(Register register) {
+    register = getTop2(register);
+    Variable variable = variables.get(getRegisterName2(register));
+    return variable != null;
+  }
 }
