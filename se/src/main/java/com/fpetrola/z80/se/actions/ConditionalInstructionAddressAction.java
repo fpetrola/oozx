@@ -25,9 +25,11 @@ import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import java.util.List;
 
 public class ConditionalInstructionAddressAction extends AddressAction {
+  private final RoutineExecution routineExecution;
 
   public ConditionalInstructionAddressAction(Instruction<Boolean> instruction, RoutineExecution routineExecution, int pcValue, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
     super(pcValue, true, routineExecution, symbolicExecutionAdapter1, instruction, alwaysTrue);
+    this.routineExecution = routineExecution;
   }
 
   public boolean processBranch(Instruction instruction) {

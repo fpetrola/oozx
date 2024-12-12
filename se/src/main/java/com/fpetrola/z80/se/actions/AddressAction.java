@@ -24,7 +24,7 @@ import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 public class AddressAction {
   protected Instruction instruction;
-  protected RoutineExecution routineExecution;
+  private RoutineExecution routineExecution;
   protected boolean alwaysTrue;
   private int count;
   protected final SymbolicExecutionAdapter symbolicExecutionAdapter;
