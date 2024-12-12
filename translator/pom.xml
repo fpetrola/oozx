@@ -34,7 +34,7 @@
     <dependencies>
         <dependency>
             <groupId>com.fpetrola</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>bytecode</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
