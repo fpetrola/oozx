@@ -36,7 +36,6 @@ public class BytecodeGenerationContext {
   public Register<WordNumber> pc;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
   public boolean syncEnabled;
-  public boolean useFields;
 
   public BytecodeGenerationContext(RoutineManager routineManager, ClassMaker classMaker, Register<?> pc1, SymbolicExecutionAdapter symbolicExecutionAdapter) {
     this.routineManager = routineManager;
@@ -45,6 +44,5 @@ public class BytecodeGenerationContext {
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     this.methods = new HashMap<>();
     this.syncEnabled = true;
-    this.useFields = true;
   }
 }

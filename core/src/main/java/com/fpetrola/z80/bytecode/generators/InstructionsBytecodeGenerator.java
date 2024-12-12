@@ -23,7 +23,6 @@ import com.fpetrola.z80.blocks.DefaultBlock;
 import com.fpetrola.z80.blocks.NullBlockChangesListener;
 import com.fpetrola.z80.bytecode.generators.helpers.BytecodeGenerationContext;
 import com.fpetrola.z80.bytecode.generators.helpers.PendingFlagUpdate;
-import com.fpetrola.z80.bytecode.generators.helpers.SmartComposed16BitRegisterVariable;
 import com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.impl.*;
@@ -46,8 +45,8 @@ import java.util.function.Supplier;
 
 @SuppressWarnings("ALL")
 public class InstructionsBytecodeGenerator<T extends WordNumber> implements InstructionVisitor<T, T> {
-  private final MethodMaker methodMaker;
-  private final RoutineBytecodeGenerator routineByteCodeGenerator;
+  protected final MethodMaker methodMaker;
+  protected final RoutineBytecodeGenerator routineByteCodeGenerator;
   private final int address;
   public PendingFlagUpdate pendingFlag;
   public PendingFlagUpdate previousPendingFlag;
@@ -103,13 +102,11 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   private void exAF(Register<?> target) {
     Variable variable = routineByteCodeGenerator.variables.get("AF");
-    if (routineByteCodeGenerator.bytecodeGenerationContext.useFields) {
-      Variable invoke = methodMaker.invoke("exAF", RoutineBytecodeGenerator.getRealVariable(variable));
-    } else if (variable instanceof SmartComposed16BitRegisterVariable existingVariable) {
-      existingVariable.setRegister(target);
-      Variable invoke = methodMaker.invoke("exAF", RoutineBytecodeGenerator.getRealVariable(existingVariable));
-      existingVariable.set(invoke);
-    }
+    invokeExAF(target, variable);
+  }
+
+  protected void invokeExAF(Register<?> target, Variable variable) {
+    Variable invoke = methodMaker.invoke("exAF", RoutineBytecodeGenerator.getRealVariable(variable));
   }
 
   private void ex_iSP_Reg(Ex ex, String name1) {
@@ -147,7 +144,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
     return true;
   }
 
-  private void invokeRlc(Variable t, Variable variable, String functionName) {
+  protected void invokeRlc(Variable t, Variable variable, String functionName) {
     Variable f = getF();
     Variable invoke = methodMaker.invoke(functionName, variable, f);
     t.set(invoke.aget(0));
@@ -157,10 +154,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   @Override
   public boolean visitingRrca(RRCA rrca) {
     rrca.accept(new VariableHandlingInstructionVisitor((s, t) -> {
-      if (routineByteCodeGenerator.bytecodeGenerationContext.useFields)
-        t.set(methodMaker.invoke("rrc", t.get()));
-      else
-        t.set(methodMaker.invoke("rrc", t.get()));
+      t.set(methodMaker.invoke("rrc", t.get()));
     }, routineByteCodeGenerator));
     return true;
   }
@@ -190,11 +184,12 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   private void invokeRotationInstruction(Instruction instruction, String name) {
     instruction.accept(new VariableHandlingInstructionVisitor((s, t) -> {
-      if (routineByteCodeGenerator.bytecodeGenerationContext.useFields)
-        t.set(methodMaker.invoke(name, t.get()));
-      else
-        invokeRlc(t, t.get(), name);
+      invokeRotationInstruction(name, t);
     }, routineByteCodeGenerator));
+  }
+
+  protected void invokeRotationInstruction(String name, Variable t) {
+    t.set(methodMaker.invoke(name, t.get()));
   }
 
   @Override
@@ -693,23 +688,17 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   public void visitExx(Exx exx) {
-    if (routineByteCodeGenerator.bytecodeGenerationContext.useFields) {
-      methodMaker.invoke("exx");
-    } else
-      throw new RuntimeException("not implemented");
+    methodMaker.invoke("exx");
   }
 
   @Override
   public void visitLdir(Ldir ldir) {
     String methodName = ((RepeatingInstruction) ldir).getClass().getSimpleName().toLowerCase();
-    if (routineByteCodeGenerator.bytecodeGenerationContext.useFields) {
-      methodMaker.invoke(methodName);
-    } else {
-      Variable invoke = methodMaker.invoke(methodName, routineByteCodeGenerator.getExistingVariable("HL"), routineByteCodeGenerator.getExistingVariable("DE"), routineByteCodeGenerator.getExistingVariable("BC"));
-      routineByteCodeGenerator.getExistingVariable("HL").set(invoke.aget(0));
-      routineByteCodeGenerator.getExistingVariable("DE").set(invoke.aget(1));
-      routineByteCodeGenerator.getExistingVariable("BC").set(invoke.aget(2));
-    }
+    invokeLdir(methodName);
+  }
+
+  protected void invokeLdir(String methodName) {
+    methodMaker.invoke(methodName);
   }
 
   @Override
@@ -721,14 +710,12 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   @Override
   public boolean visitCpir(Cpir cpir) {
     String methodName = ((RepeatingInstruction) cpir).getClass().getSimpleName().toLowerCase();
-    if (routineByteCodeGenerator.bytecodeGenerationContext.useFields) {
-      methodMaker.invoke(methodName);
-    } else {
-      Variable invoke = methodMaker.invoke(methodName, routineByteCodeGenerator.getExistingVariable("HL"), routineByteCodeGenerator.getExistingVariable("BC"), routineByteCodeGenerator.getExistingVariable("A"));
-      routineByteCodeGenerator.getExistingVariable("HL").set(invoke.aget(0));
-      routineByteCodeGenerator.getExistingVariable("BC").set(invoke.aget(1));
-    }
+    invokeCpir(methodName);
     return false;
+  }
+
+  protected void invokeCpir(String methodName) {
+    methodMaker.invoke(methodName);
   }
 
   @Override
