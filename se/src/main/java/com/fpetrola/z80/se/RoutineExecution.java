@@ -32,7 +32,7 @@ import java.util.*;
 public class RoutineExecution {
   public int retInstruction = -1;
   public int start;
-  public Map<Integer, AddressAction> actions = new HashMap<>();
+  private Map<Integer, AddressAction> actions = new HashMap<>();
   public int lastPc;
   private SymbolicExecutionAdapter symbolicExecutionAdapter;
 
@@ -97,5 +97,9 @@ public class RoutineExecution {
     } else {
       return new ConditionalInstructionAddressAction(instruction, this, pcValue, alwaysTrue, symbolicExecutionAdapter);
     }
+  }
+
+  public Optional<AddressAction> findActionOfType(Class<?> type) {
+    return actions.values().stream().filter(addressAction1 -> type.isAssignableFrom(addressAction1.getClass())).findFirst();
   }
 }

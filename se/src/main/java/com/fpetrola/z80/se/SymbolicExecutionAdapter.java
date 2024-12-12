@@ -173,9 +173,9 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       if (e.getValue().hasPendingPoints()) {
         System.err.println("pending action: " + Helper.formatAddress(e.getValue().start));
       }
-      Optional<AddressAction> first = e.getValue().actions.values().stream().filter(addressAction1 -> addressAction1 instanceof JPRegisterAddressAction).findFirst();
-      if (first.isPresent()) {
-        JPRegisterAddressAction jpRegisterAddressAction = (JPRegisterAddressAction) first.get();
+      Optional<AddressAction> foundAction = e.getValue().findActionOfType(JPRegisterAddressAction.class);
+      if (foundAction.isPresent()) {
+        JPRegisterAddressAction jpRegisterAddressAction = (JPRegisterAddressAction) foundAction.get();
         if (jpRegisterAddressAction.dynamicJPData == null) {
           DynamicJPData dynamicJPData = SEInstructionFactory.dynamicJP.get(jpRegisterAddressAction.address);
           jpRegisterAddressAction.setDynamicJPData(dynamicJPData);
