@@ -228,4 +228,8 @@ public class VirtualRoutineBytecodeGenerator extends RoutineBytecodeGenerator {
     currentRegister = register;
     return variable1;
   }
+
+  private Object[] getAllregistersAsParameters() {
+    return getListOfAllRegistersForParameters().toArray();
+  }
 }

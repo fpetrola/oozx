@@ -385,11 +385,7 @@ public class RoutineBytecodeGenerator {
     return mm.invoke(createLabelName(jumpLabel));
   }
 
-  private Object[] getAllregistersAsParameters() {
-    return getListOfAllRegistersForParameters().toArray();
-  }
-
-  private List<Variable> getListOfAllRegistersForParameters() {
+  protected List<Variable> getListOfAllRegistersForParameters() {
     return getListOfAllRegistersNamesForParameters().stream().map(this::getVar).toList();
   }
 
