@@ -18,8 +18,8 @@
 
 package com.fpetrola.z80.bytecode.generators;
 
-import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.bytecode.generators.helpers.*;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
@@ -29,10 +29,10 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineVisitor;
-import com.fpetrola.z80.transformations.InstructionActionExecutor;
-import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;
-import com.fpetrola.z80.transformations.VirtualRegister;
-import org.cojen.maker.*;
+import org.cojen.maker.Field;
+import org.cojen.maker.Label;
+import org.cojen.maker.MethodMaker;
+import org.cojen.maker.Variable;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -50,7 +50,6 @@ public class RoutineBytecodeGenerator {
   public Map<String, Variable> variables = new HashMap<>();
   public Map<String, Register> registerByVariable = new HashMap<>();
   public Map<Register, Variable> variablesByRegister = new HashMap<>();
-  public Map<VirtualRegister<?>, VirtualRegister<?>> commonRegisters = new HashMap<>();
   protected final Map<Integer, Label> insertLabels = new HashMap<>();
   public DefaultTargetFlagInstruction lastTargetFlagInstruction;
   private PendingFlagUpdate pendingFlag;
@@ -109,7 +108,7 @@ public class RoutineBytecodeGenerator {
 
               Runnable scopeAdjuster = () -> {
                 bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
-                new InstructionActionExecutor<>(r -> r.adjustRegisterScope()).executeAction(instruction);
+//                new InstructionActionExecutor<>(r -> r.adjustRegisterScope()).executeAction(instruction);
               };
 
               Runnable labelGenerator = () -> {
@@ -213,25 +212,6 @@ public class RoutineBytecodeGenerator {
     return mutantAddress.stream().anyMatch(a1 -> a1 >= address && a1 < address + instruction.getLength());
   }
 
-  protected void addReg16(String name) {
-    Variable variable = addLocalVariable(name);
-    SmartComposed16BitRegisterVariable smartComposed16BitRegisterVariable = new SmartComposed16BitRegisterVariable(mm, name, variable, this);
-    variables.put(name, smartComposed16BitRegisterVariable);
-  }
-
-  protected void add8BitBoth(SmartComposed16BitRegisterVariable af) {
-    addLowHigh(af, af.name().charAt(0) + "", af.name().charAt(1) + "");
-  }
-
-  protected void addLowHigh(SmartComposed16BitRegisterVariable reg16, String high, String low) {
-    Single8BitRegisterVariable variableHigh = new Single8BitRegisterVariable(mm, addLocalVariable(high), reg16, "h", this);
-    variables.put(high, variableHigh);
-    reg16.setHigh(variableHigh);
-    Single8BitRegisterVariable variableLow = new Single8BitRegisterVariable(mm, addLocalVariable(low), reg16, "l", this);
-    variables.put(low, variableLow);
-    reg16.setLow(variableLow);
-  }
-
   protected void addField(String name) {
     // cm.addField(int.class, name).private_().static_();
     Variable field = mm.field(name);
@@ -242,7 +222,7 @@ public class RoutineBytecodeGenerator {
     variables.put(name, field);
   }
 
-  private Variable addLocalVariable(String name) {
+  protected Variable addLocalVariable(String name) {
     // cm.addField(int.class, name).private_().static_();
 //    Variable variable = mm.var(int.class);
     List<String> parametersList = routine.accept(new RoutineRegisterAccumulator<>() {
@@ -354,33 +334,10 @@ public class RoutineBytecodeGenerator {
     return variable1;
   }
 
-  public <T extends WordNumber> Variable getExistingVariable(VirtualRegister<?> register) {
-    VirtualRegister topRegister = getTop(register);
-    String registerName = getRegisterName(topRegister);
-
-    Variable variable1 = variables.get(registerName);
-    if (variable1 instanceof VariableDelegator variable) {
-      variable.setRegister(register);
-    }
-    currentRegister = register;
-    return variable1;
-  }
-
-  public static String getRegisterName(VirtualRegister register) {
-    Helper.breakInStackOverflow();
-
-    return VirtualComposed16BitRegister.fixIndexNames(register.getName().replace(",", ""));
-  }
-
   public static String getRegisterName2(Register register) {
     Helper.breakInStackOverflow();
 
-    return VirtualComposed16BitRegister.fixIndexNames(register.getName().replace(",", ""));
-  }
-
-  public static VirtualRegister getTop(VirtualRegister<?> register) {
-    VirtualRegister o = (VirtualRegister) register.getVersionHandler().versions.get(0);
-    return o;
+    return register.getName().replace(",", "");
   }
 
   public Variable getVariableFromMemory(Object variable, String bits) {

@@ -28,18 +28,13 @@ import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.transformations.IVirtual8BitsRegister;
-import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;
-import com.fpetrola.z80.transformations.VirtualRegister;
 import org.cojen.maker.Variable;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
 import static com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.getRealVariable;
-import static com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.getRegisterName;
 
 public class VariableHandlingInstructionVisitor implements InstructionVisitor<WordNumber, WordNumber> {
   private final BiConsumer<Object, Variable> variableAction;
@@ -93,43 +88,12 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<Wo
   private void createResult() {
     if (targetVariable instanceof Variable variable) {
       variableAction.accept(getRealVariable(sourceVariable), variable);
-      Optional<Map.Entry<VirtualRegister<?>, VirtualRegister<?>>> fromCommonRegisters = getFromCommonRegisters(variable, routineByteCodeGenerator);
-      VirtualRegister<?> s = fromCommonRegisters.isEmpty() ? null : fromCommonRegisters.get().getValue();
-
-      if (s != null) {
-        if (!s.getName().equals(variable.name())) {
-          routineByteCodeGenerator.getExistingVariable(s).set(variable);
-        }
-      } else {
-        routineByteCodeGenerator.commonRegisters.entrySet().stream().forEach(e -> {
-          if (e.getKey() instanceof VirtualComposed16BitRegister<?> virtualComposed16BitRegister && virtualComposed16BitRegister.isMixRegister()) {
-            boolean contains = routineByteCodeGenerator.getExistingVariable(virtualComposed16BitRegister.getLow()) == variable;
-            contains |= routineByteCodeGenerator.getExistingVariable(virtualComposed16BitRegister.getHigh()) == variable;
-            if (contains) {
-              Variable commonHigh = get8BitCommon(virtualComposed16BitRegister.getHigh());
-              Variable commonLow = get8BitCommon(virtualComposed16BitRegister.getLow());
-              Variable variable1;
-
-              if (commonHigh == null) variable1 = commonLow.and(0xFF);
-              else variable1 = commonHigh.shl(8).or(commonLow.and(0xFF));
-
-              routineByteCodeGenerator.getExistingVariable(e.getValue()).set(variable1);
-            }
-          }
-        });
-      }
+      createResult(variable);
     }
   }
 
-  public static Optional<Map.Entry<VirtualRegister<?>, VirtualRegister<?>>> getFromCommonRegisters(Variable variable, RoutineBytecodeGenerator routineByteCodeGenerator) {
-    return routineByteCodeGenerator.commonRegisters.entrySet().stream().filter(e -> getRegisterName(e.getKey()).equals(variable.name())).findFirst();
-  }
+  protected void createResult(Variable variable) {
 
-  private Variable get8BitCommon(IVirtual8BitsRegister<?> virtualRegister) {
-    VirtualComposed16BitRegister<?> virtualComposed16BitRegister = virtualRegister.getVirtualComposed16BitRegister();
-    if (virtualComposed16BitRegister.isMixRegister())
-      return routineByteCodeGenerator.getExistingVariable(virtualRegister);
-    return routineByteCodeGenerator.getExistingVariable(virtualComposed16BitRegister);
   }
 
   public void visitingTargetInstruction(TargetInstruction targetInstruction) {
