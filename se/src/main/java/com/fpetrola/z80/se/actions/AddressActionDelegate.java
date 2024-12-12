@@ -40,7 +40,7 @@ public class AddressActionDelegate extends BasicAddressAction {
         alwaysTrue = conditionalInstruction.getCondition() instanceof ConditionAlwaysTrue;
 
       RoutineExecution routineExecution = symbolicExecutionAdapter.getRoutineExecution();
-      addressAction = routineExecution.createAddressAction(instruction, alwaysTrue, symbolicExecutionAdapter.getPcValue(), symbolicExecutionAdapter, state);
+      addressAction = routineExecution.createAddressAction(instruction, alwaysTrue, symbolicExecutionAdapter.getPcValue(), symbolicExecutionAdapter);
       routineExecution.replaceAddressAction(addressAction);
     }
 

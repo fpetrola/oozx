@@ -45,14 +45,7 @@ public class ConditionalInstructionAddressAction extends AddressAction {
     if (alwaysTrue) {
       return genericGetNext(next, pcValue);
     } else {
-      if (true)
-        return super.getNext(next, pcValue);
-      List<AddressAction> list = routineExecution.actions.values().stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
-      if (list.isEmpty()) {
-        return pcValue;
-      } else {
-        return list.get(0).address;
-      }
+      return super.getNext(next, pcValue);
     }
   }
 

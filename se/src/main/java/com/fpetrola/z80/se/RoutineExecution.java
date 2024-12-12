@@ -19,7 +19,6 @@
 package com.fpetrola.z80.se;
 
 
-import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ret;
@@ -88,13 +87,13 @@ public class RoutineExecution {
     return addressAction1;
   }
 
-  public <T extends WordNumber> AddressAction createAddressAction(Instruction<Boolean> instruction, boolean alwaysTrue, int pcValue, SymbolicExecutionAdapter<T> symbolicExecutionAdapter, State state) {
+  public <T extends WordNumber> AddressAction createAddressAction(Instruction<Boolean> instruction, boolean alwaysTrue, int pcValue, SymbolicExecutionAdapter<T> symbolicExecutionAdapter) {
     if (instruction instanceof Ret) {
       return new RetAddressAction(instruction, this, pcValue, alwaysTrue, symbolicExecutionAdapter);
     } else if (instruction instanceof Call call) {
       return new CallAddressAction(pcValue, call, this, alwaysTrue, symbolicExecutionAdapter);
     } else if (instruction instanceof JP jp && jp.getPositionOpcodeReference() instanceof Register register) {
-      return new JPRegisterAddressAction(instruction, this, pcValue, alwaysTrue, symbolicExecutionAdapter, state);
+      return new JPRegisterAddressAction(instruction, this, pcValue, alwaysTrue, symbolicExecutionAdapter);
     } else {
       return new ConditionalInstructionAddressAction(instruction, this, pcValue, alwaysTrue, symbolicExecutionAdapter);
     }

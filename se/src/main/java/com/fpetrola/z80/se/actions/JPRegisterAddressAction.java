@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.se.actions;
 
-import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.DynamicJPData;
@@ -27,18 +26,15 @@ import com.fpetrola.z80.se.SEInstructionFactory;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 import java.util.LinkedList;
-import java.util.List;
 
 public class JPRegisterAddressAction extends AddressAction {
   private final RoutineExecution routineExecution;
-  private final State state;
   public DynamicJPData dynamicJPData;
   private LinkedList<Integer> cases = new LinkedList<>();
 
-  public JPRegisterAddressAction(Instruction<Boolean> instruction, RoutineExecution routineExecution, int pcValue, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter1, State state) {
+  public JPRegisterAddressAction(Instruction<Boolean> instruction, RoutineExecution routineExecution, int pcValue, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
     super(pcValue, true, routineExecution, symbolicExecutionAdapter1, instruction, alwaysTrue);
     this.routineExecution = routineExecution;
-    this.state = state;
   }
 
   public boolean processBranch(Instruction instruction) {
@@ -61,14 +57,7 @@ public class JPRegisterAddressAction extends AddressAction {
       } else
         return genericGetNext(next, pcValue);
     } else {
-      if (true)
-        return super.getNext(next, pcValue);
-      List<AddressAction> list = routineExecution.actions.values().stream().filter(addressAction -> addressAction.isPending() && addressAction != this).toList();
-      if (list.isEmpty()) {
-        return pcValue;
-      } else {
-        return list.get(0).address;
-      }
+      return super.getNext(next, pcValue);
     }
   }
 

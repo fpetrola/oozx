@@ -106,7 +106,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   public <T extends WordNumber> MutableOpcodeConditions createOpcodeConditions(State<T> state) {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
       RoutineExecution routineExecution = getRoutineExecution();
-      AddressAction addressAction = routineExecution.replaceIfAbsent(getPcValue(), routineExecution.createAddressAction(instruction, alwaysTrue, getPcValue(), this, state));
+      AddressAction addressAction = routineExecution.replaceIfAbsent(getPcValue(), routineExecution.createAddressAction(instruction, alwaysTrue, getPcValue(), this));
       routineExecution.replaceAddressAction(addressAction);
       return addressAction.processBranch(instruction);
     });
