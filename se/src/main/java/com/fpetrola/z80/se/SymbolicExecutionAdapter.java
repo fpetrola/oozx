@@ -52,7 +52,7 @@ import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 public class SymbolicExecutionAdapter<T extends WordNumber> {
   public Stack<Object> stackFrames = new Stack<>();
   public Map<Integer, RoutineExecution> routineExecutions = new HashMap<>();
-  private final State<? extends WordNumber> state;
+  public final State<? extends WordNumber> state;
   private final RoutineManager routineManager;
   private final RoutineFinderInstructionSpy spy;
   public int lastPc;
@@ -106,6 +106,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   public <T extends WordNumber> MutableOpcodeConditions createOpcodeConditions(State<T> state) {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
+      System.out.printf("pc: %d -> %s%n", getPcValue(), instruction);
+
       if (instruction instanceof DJNZ)
         System.out.println("dsagsdgsdag");
       RoutineExecution routineExecution = getRoutineExecution();
@@ -214,25 +216,25 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
         AddressAction addressAction = routineExecution.getAddressAction(pcValue);
         if (addressAction != null) {
-          if (addressAction.count > 1)
-            System.out.println("sdgdsadgs");
           pcValue = addressAction.getNextPC();
           updatePcRegister(pcValue);
-          if (addressAction.isRevisitable()) {
-            if (addressAction.isRevisiting()) {
-              beforeRevisit(addressAction, pcValue);
-            }
-
-            beforeStepRevisitable(addressAction, pcValue);
-          }
         }
+
+        AddressAction addressActionToExecute = routineExecution.getAddressAction(pcValue);
+        if (addressActionToExecute != null)
+          addressActionToExecute.beforeStep();
 
         z80InstructionDriver.step();
 
-        if (!routineExecution.hasActionAt(pcValue))
+        if (!routineExecution.hasActionAt(pcValue)) {
           routineExecution.createAndAddGenericAction(pcValue);
+        }
 
         AddressAction nextAddressAction = routineExecution.getAddressAction(pcValue);
+//        if (nextAddressAction.isRevisitable()) {
+//          beforeStepRevisitable(nextAddressAction, pcValue);
+//        }
+
         nextAddressAction.setReady();
         updatePcRegister(nextAddressAction.getNext(pcValue, pc.read().intValue()));
 
@@ -243,19 +245,14 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     }
   }
 
-  private void beforeRevisit(AddressAction addressAction, int pcValue) {
-
-  }
-
-  private void beforeStepRevisitable(AddressAction addressAction, int pcValue) {
-  }
-
   private void updatePcRegister(int pcValue) {
     logPC(pcValue);
     pc.write(createValue(pcValue));
   }
 
   private void logPC(int pcValue) {
+    if (pcValue == 0xED09)
+      System.out.println("epa!");
     System.out.println("PC: " + Helper.formatAddress(pcValue));
 //        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
   }

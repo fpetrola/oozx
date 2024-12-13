@@ -79,10 +79,4 @@ public class JPRegisterAddressAction extends AddressAction {
     }
   }
 
-  public boolean isRevisitable() {
-    return true;
-  }
-
-  public boolean isRevisiting() {
-    return count > 0;
-  }}
+}

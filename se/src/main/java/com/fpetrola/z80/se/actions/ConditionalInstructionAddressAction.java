@@ -22,8 +22,6 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.se.RoutineExecution;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
-import java.util.List;
-
 public class ConditionalInstructionAddressAction extends AddressAction {
   private final RoutineExecution routineExecution;
 
@@ -53,15 +51,11 @@ public class ConditionalInstructionAddressAction extends AddressAction {
     updatePending();
   }
 
-  public boolean isRevisitable() {
-    return true;
-  }
-
-  public boolean isRevisiting() {
-    return count > 0;
-  }
-
   public int getNextPC() {
-    return super.getNextPC();
+    if (isPending())
+      return super.getNextPC();
+    else {
+      return routineExecution.getNextPending().address;
+    }
   }
 }

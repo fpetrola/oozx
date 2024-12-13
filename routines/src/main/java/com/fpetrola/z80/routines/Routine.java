@@ -431,8 +431,7 @@ public class Routine {
         addBlock(blockAt2);
       } else {
         Routine routineAt = routineManager.findRoutineAt(pcValue);
-        boolean isVirtual = routineAt.virtual;
-        if (!isVirtual && routineAt != this && !this.overlap(routineAt)) {
+        if (routineAt != null && !routineAt.virtual && routineAt != this && !this.overlap(routineAt)) {
           routineAt.getBlocks().forEach(this::addBlock);
           removeBlocks(routineAt.getBlocks());
           routineManager.removeRoutine(routineAt);

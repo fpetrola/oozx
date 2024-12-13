@@ -18,7 +18,10 @@
 
 package com.fpetrola.z80.se.actions;
 
+import com.fpetrola.z80.instructions.impl.Ret;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.RoutineExecution;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
@@ -31,12 +34,12 @@ public class AddressAction {
   private boolean state;
   public int address;
   protected boolean pending;
-
+  private ExecutionStackStorage executionStackStorage;
 
   public AddressAction(int pcValue, RoutineExecution routineExecution, SymbolicExecutionAdapter symbolicExecutionAdapter) {
     this(symbolicExecutionAdapter, pcValue);
-
     this.routineExecution = routineExecution;
+    executionStackStorage = new ExecutionStackStorage(symbolicExecutionAdapter.state);
   }
 
   public AddressAction(int pcValue, boolean b, RoutineExecution routineExecution, SymbolicExecutionAdapter symbolicExecutionAdapter, Instruction instruction, boolean alwaysTrue) {
@@ -53,14 +56,15 @@ public class AddressAction {
   }
 
   public AddressAction(SymbolicExecutionAdapter symbolicExecutionAdapter, int address, boolean pending) {
-    this.symbolicExecutionAdapter = symbolicExecutionAdapter;
-    this.address = address;
+    this(address, null, symbolicExecutionAdapter);
     this.pending = pending;
   }
 
   public boolean processBranch(Instruction instruction) {
-    if (isPending())
+    saveStack();
+    if (isPending()) {
       pending = false;
+    }
     return true;
   }
 
@@ -103,23 +107,33 @@ public class AddressAction {
 
   protected void updatePending() {
     count++;
+    if (count > 2 && !(instruction instanceof Ret<?>))
+      System.out.println("porque?");
     pending = count == 1;
   }
 
   @Override
   public String toString() {
     return "AddressAction{" +
-        "address=" + address +
+        "address=" + address + ", instruction=" + instruction +
         ", pending=" + pending +
         '}';
   }
 
-  public boolean isRevisitable() {
-    return false;
+  public <T extends WordNumber> void saveStack() {
+    boolean b = !(instruction instanceof Ret) || (count == 0);
+    if (b) {
+      executionStackStorage.save();
+    }
   }
 
-  public boolean isRevisiting() {
-    return false;
+  public void beforeStep() {
+    if (instruction instanceof ConditionalInstruction<?, ?>) {
+      boolean b = !(instruction instanceof Ret) || (routineExecution.retInstruction == this.address && count == 2);
+      if (b) {
+//        executionStackStorage.restore();
+      }
+    }
   }
 }
 

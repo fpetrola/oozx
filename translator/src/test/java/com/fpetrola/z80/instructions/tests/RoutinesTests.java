@@ -277,7 +277,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
 
         add(Ld(r(C), c(3)));
         add(Call(t(), c(5)));
-        add(Ld(r(D), c(6)));
+        add(Ld(r(D), c(6))); // 5
         add(Ret(t()));
       }
     };
@@ -884,7 +884,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
 
         add(Ld(r(C), c(4)));
 
-        add(Ld(r(D), c(5)));
+        add(Ld(r(D), c(5))); // 8
         add(Or(r(A)));
         add(Ret(z()));
         add(Ld(r(D), c(6)));

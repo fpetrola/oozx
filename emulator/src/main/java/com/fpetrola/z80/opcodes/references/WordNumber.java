@@ -20,7 +20,11 @@ package com.fpetrola.z80.opcodes.references;
 
 import java.util.List;
 
-public interface WordNumber {
+public interface WordNumber extends Comparable {
+  default int compareTo(Object o) {
+    return intValue() - ((WordNumber) o).intValue();
+  }
+
   static <T> T createValue(int i) {
     return (T) new IntegerWordNumber(i);
   }

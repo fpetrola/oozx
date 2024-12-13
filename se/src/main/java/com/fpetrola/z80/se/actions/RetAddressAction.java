@@ -22,8 +22,6 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.se.RoutineExecution;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
-import java.util.List;
-
 public class RetAddressAction extends AddressAction {
   private final RoutineExecution routineExecution;
   private final int pcValue;
@@ -66,10 +64,4 @@ public class RetAddressAction extends AddressAction {
     updatePending();
   }
 
-  public boolean isRevisitable() {
-    return true;
-  }
-
-  public boolean isRevisiting() {
-    return count > 0;
-  }}
+}

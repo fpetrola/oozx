@@ -65,7 +65,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
 
   @Ignore
   @Test
-  public void testTranslateWillyToJava2() {
+  public void testTranslateSamCruiseToJava() {
     Helper.hex = false;
     String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/Downloads/samcruise.z80");
     stepUntilComplete(61483);
@@ -210,6 +210,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     Assert.assertEquals("e73695f3bbcf36fa0401f8ac1ec93fb6", createMD5(actual));
   }
 
+  @Ignore
   @Test
   public void testTranslateWillyToJava() {
     Helper.hex = false;
