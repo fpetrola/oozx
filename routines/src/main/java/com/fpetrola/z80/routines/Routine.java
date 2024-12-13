@@ -35,7 +35,7 @@ import static java.util.Arrays.asList;
 
 @SuppressWarnings("ALL")
 public class Routine {
-  public boolean virtual;
+  private boolean virtual;
   private List<Block> blocks;
   private boolean finished;
   private Map<Integer, Integer> virtualPop = new HashMap<>();
@@ -444,5 +444,9 @@ public class Routine {
     if (entryPoint == 0xDDFF)
       System.out.println("sdfadadgaffff");
     this.entryPoint = entryPoint;
+  }
+
+  public boolean isVirtual() {
+    return virtual;
   }
 }
