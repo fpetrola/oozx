@@ -43,4 +43,9 @@ public class CallAddressAction extends AddressAction {
     return getNextPC(address);
   }
 
+  @Override
+  public int getNext(int executedInstructionAddress, int currentPc) {
+    pending = state;
+    return super.getNext(executedInstructionAddress, currentPc);
+  }
 }
