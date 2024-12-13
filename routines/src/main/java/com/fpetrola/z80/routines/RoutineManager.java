@@ -86,7 +86,7 @@ public class RoutineManager {
     do {
       changes = false;
       for (Routine routine : new ArrayList<>(routines))
-        changes |= routine.optimizeSplit();
+        changes |= routine.splitVirtualRoutines();
     } while (changes);
   }
 

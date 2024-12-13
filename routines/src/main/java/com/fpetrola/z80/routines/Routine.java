@@ -60,36 +60,6 @@ public class Routine {
       System.out.println("dsagsdgdg");
   }
 
-  private boolean splitIfRequired(Block block) {
-    int startAddress = block.getRangeHandler().getStartAddress();
-    final boolean[] changes = {false};
-    RoutineManager routineManager1 = routineManager;
-
-    for (int address = startAddress; address <= block.getRangeHandler().getEndAddress(); address++) {
-      List<Integer> integers = routineManager1.callers.get(address);
-
-      int finalAddress = address;
-      if (integers.stream().anyMatch(call -> routineManager1.findRoutineAt(call) != routineManager1.findRoutineAt(finalAddress))) {
-        changes[0] |= splitBlocksIfRequired(this, block, address, startAddress, getVirtualPop());
-      }
-
-      List<Integer> callees = routineManager1.callees.get(address);
-      for (int i = 0; i < callees.size(); i++) {
-        int finalI1 = callees.get(i);
-        Routine routineAt = routineManager1.findRoutineAt(finalI1);
-        if (routineAt != null && routineAt != routineManager1.findRoutineAt(address)) {
-          new ArrayList<Block>(routineAt.getBlocks()).forEach(block1 -> {
-            if (block1.contains(finalI1)) {
-              int startAddress2 = block1.getRangeHandler().getStartAddress();
-              changes[0] |= splitBlocksIfRequired(routineAt, block1, finalI1, startAddress2, getVirtualPop());
-            }
-          });
-        }
-      }
-    }
-    return changes[0];
-  }
-
   public List<Routine> getInnerRoutines() {
     return innerRoutines;
   }
@@ -337,12 +307,39 @@ public class Routine {
     }
   }
 
-  public boolean optimizeSplit() {
-    boolean changes = false;
-    for (int i = 0; i < blocks.size(); i++)
-      changes |= this.splitIfRequired(blocks.get(i));
+  public boolean splitVirtualRoutines() {
+    final boolean[] changes = {false};
 
-    return changes;
+    for (int i2 = 0; i2 < blocks.size(); i2++) {
+      Block block2 = blocks.get(i2);
+
+      int startAddress = block2.getRangeHandler().getStartAddress();
+      RoutineManager routineManager1 = routineManager;
+
+      for (int address = startAddress; address <= block2.getRangeHandler().getEndAddress(); address++) {
+        List<Integer> integers = routineManager1.callers.get(address);
+
+        int finalAddress = address;
+        if (integers.stream().anyMatch(call -> routineManager1.findRoutineAt(call) != routineManager1.findRoutineAt(finalAddress))) {
+          changes[0] |= splitBlocksIfRequired(this, block2, address, startAddress, getVirtualPop());
+        }
+
+        List<Integer> callees = routineManager1.callees.get(address);
+        for (int i = 0; i < callees.size(); i++) {
+          int finalI1 = callees.get(i);
+          Routine routineAt = routineManager1.findRoutineAt(finalI1);
+          if (routineAt != null && routineAt != routineManager1.findRoutineAt(address)) {
+            new ArrayList<Block>(routineAt.getBlocks()).forEach(block1 -> {
+              if (block1.contains(finalI1)) {
+                int startAddress2 = block1.getRangeHandler().getStartAddress();
+                changes[0] |= splitBlocksIfRequired(routineAt, block1, finalI1, startAddress2, getVirtualPop());
+              }
+            });
+          }
+        }
+      }
+    }
+    return changes[0];
   }
 
   private boolean isNotInner(Block block) {
