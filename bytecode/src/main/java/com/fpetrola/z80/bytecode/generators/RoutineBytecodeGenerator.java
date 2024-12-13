@@ -118,11 +118,7 @@ public class RoutineBytecodeGenerator {
                 System.out.print("");
 
               currentInstruction = instruction;
-              List<Routine> list = new ArrayList<>(routine.getInnerRoutines().stream().filter(routine1 -> routine1.contains(address)).toList());
-              if (!list.isEmpty())
-                invokeInnerIfAvailable(address, list);
-              else
-                generateInstruction(address, instruction, firstAddress);
+              generateInstruction(address, instruction, firstAddress);
 
               int nextAddress = address + instruction.getLength();
               List<Routine> list2 = routines.stream().filter(routine1 -> routine1.virtual && routine1 != routine && routine1.getEntryPoint() == nextAddress).toList();

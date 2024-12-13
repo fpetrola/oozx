@@ -260,7 +260,6 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     assertBlockAddresses(routines.get(0).getBlocks().get(1), 7, 8);
 
 
-    Assert.assertEquals(0, routines.get(0).getInnerRoutines().size());
     assertBlockAddresses(routines.get(1).getBlocks().get(0), 5, 6);
   }
 
@@ -448,10 +447,6 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     Routine routine0 = routines.get(0);
     assertBlockAddresses(routine0.getBlocks().get(0), 0, 0);
     assertBlockAddresses(routine0.getBlocks().get(1), 1, 3);
-    Block innerRoutineBlock = routine0.getInnerRoutines().iterator().next().getBlocks().get(0);
-    assertBlockAddresses(innerRoutineBlock, 1, 3);
-
-    Assert.assertEquals(innerRoutineBlock, routines.get(1).getBlocks().get(0));
 
   }
 
@@ -1217,11 +1212,6 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     Assert.assertEquals(1, routine0.getBlocks().size());
 
     assertBlockAddresses(routine0.getBlocks().get(0), 0, 2);
-    Assert.assertEquals(1, routine0.getInnerRoutines().size());
-    Routine innerRoutine = routine0.getInnerRoutines().iterator().next();
-    assertBlockAddresses(innerRoutine.getBlocks().get(0), 3, 4);
-
-    Assert.assertEquals(innerRoutine, routines.get(1));
   }
 
 

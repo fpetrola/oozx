@@ -60,11 +60,6 @@ public class Routine {
       System.out.println("dsagsdgdg");
   }
 
-  public List<Routine> getInnerRoutines() {
-    return innerRoutines;
-  }
-
-  private List<Routine> innerRoutines = new ArrayList<>();
   public RoutineManager routineManager;
 
   private MultiValuedMap<Integer, Integer> returnPoints = new HashSetValuedHashMap<>();
@@ -76,22 +71,7 @@ public class Routine {
   public List<Routine> getAllRoutines() {
     List<Routine> flat = new ArrayList<>();
     flat.add(this);
-
-    List<Routine> flat2 = innerRoutines.stream().map(ir -> ir.getAllRoutines())
-        .flatMap(List::stream)
-        .collect(Collectors.toList());
-
-    flat.addAll(flat2);
     return flat;
-  }
-
-  public List<Routine> getAllInnerRoutines() {
-
-    List<Routine> flat2 = innerRoutines.stream().map(ir -> ir.getAllRoutines())
-        .flatMap(List::stream)
-        .collect(Collectors.toList());
-
-    return flat2;
   }
 
   public List<Block> getBlocks() {
@@ -109,8 +89,7 @@ public class Routine {
   public boolean contains(int address) {
     Helper.breakInStackOverflow();
     boolean b1 = blocks.stream().anyMatch(b -> b.contains(address));
-    boolean b = innerRoutines.stream().anyMatch(i -> i.contains(address));
-    return b1 | b;
+    return b1;
   }
 
   public void addInnerRoutine(Routine routine) {
@@ -197,8 +176,6 @@ public class Routine {
       }
     }
 
-//    overlap |= innerRoutines.stream().anyMatch(ir -> ir.overlap(routine));
-    overlap |= routine.innerRoutines.stream().anyMatch(ir -> ir.overlap(this));
     return overlap;
   }
 
@@ -286,24 +263,12 @@ public class Routine {
         Block previousBlock = block.getRangeHandler().getPreviousBlock();
         if (blocks.contains(previousBlock))
           if (previousBlock.isAdjacent(block) && previousBlock.getBlockType() instanceof CodeBlockType) {
-            ArrayList<Routine> inner = new ArrayList<>(innerRoutines);
-            if (inner.isEmpty() || (isNotInner(previousBlock) && isNotInner(block))) {
-              previousBlock.join(block);
-              removeBlock(block);
-            }
+            previousBlock.join(block);
+            removeBlock(block);
           }
       });
 
       blocks.sort(Comparator.comparingInt(b -> b.getRangeHandler().getStartAddress()));
-
-      innerRoutines.forEach(i -> i.optimize());
-
-      innerRoutines.stream().forEach(ir -> {
-        if (ir != null)
-          parameters.addAll(ir.parameters);
-        else
-          System.out.println("ir is null");
-      });
     }
   }
 
@@ -340,10 +305,6 @@ public class Routine {
       }
     }
     return changes[0];
-  }
-
-  private boolean isNotInner(Block block) {
-    return innerRoutines.stream().noneMatch(i -> i != null && i.contains(block));
   }
 
   private boolean contains(Block block) {
@@ -494,26 +455,12 @@ public class Routine {
     return getAllRoutines().stream().anyMatch(i -> i == routine);
   }
 
-  public boolean containsInner(Routine routine) {
-    return getAllInnerRoutines().stream().anyMatch(i -> i == routine);
-  }
-
   public Routine findRoutineAt(int address) {
     Optional<Block> b1 = getBlocks().stream().filter(i -> i != null && i.contains(address)).findFirst();
 
     if (b1.isPresent())
       return this;
-    else {
-      Optional<Routine> b = getInnerRoutines().stream().filter(i -> i.findRoutineAt(address) != null).findFirst();
-      if (b.isPresent())
-        return b.get().findRoutineAt(address);
-    }
     return null;
-  }
-
-  public Routine removeInnerRoutine(Routine routine) {
-    innerRoutines.remove(routine);
-    return routine;
   }
 
   public boolean isFinished() {
