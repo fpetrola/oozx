@@ -102,8 +102,8 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> implements IP
         target.write(read1);
         symbolicExecutionAdapter.popFrame();
       }
-      if (lastRoutineExecution.retInstruction == -1)
-        lastRoutineExecution.retInstruction = pc.read().intValue();
+      if (!lastRoutineExecution.hasRetInstruction())
+        lastRoutineExecution.setRetInstruction(this.pc.read().intValue());
     } else {
       symbolicExecutionAdapter.checkNextSP();
       T read1 = doPop(memory, sp);

@@ -102,4 +102,12 @@ public class RoutineExecution {
   public Optional<AddressAction> findActionOfType(Class<?> type) {
     return actions.values().stream().filter(addressAction1 -> type.isAssignableFrom(addressAction1.getClass())).findFirst();
   }
+
+  public boolean hasRetInstruction() {
+    return retInstruction != -1;
+  }
+
+  public void setRetInstruction(int retInstruction1) {
+    retInstruction = retInstruction1;
+  }
 }

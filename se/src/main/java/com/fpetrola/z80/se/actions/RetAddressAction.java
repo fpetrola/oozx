@@ -37,7 +37,7 @@ public class RetAddressAction extends AddressAction {
     boolean doBranch = getDoBranch();
     super.processBranch(instruction);
 
-    routineExecution.retInstruction = pcValue;
+    routineExecution.setRetInstruction(pcValue);
     if (!routineExecution.hasPendingPoints() && doBranch) {
       symbolicExecutionAdapter.popFrame();
       return true;
@@ -49,13 +49,14 @@ public class RetAddressAction extends AddressAction {
   @Override
   public int getNext(int executedInstructionAddress, int currentPc) {
     int result;
+    int retInstruction = routineExecution.retInstruction;
     if (alwaysTrue) {
       pending = false;
       int result1 = currentPc;
-      if (routineExecution.retInstruction == executedInstructionAddress && routineExecution.hasPendingPoints())
+      if (retInstruction == executedInstructionAddress && routineExecution.hasPendingPoints())
         result1 = routineExecution.getNextPending().address;
       result = result1;
-    } else if (routineExecution.retInstruction == -1 || routineExecution.retInstruction == address) {
+    } else if (retInstruction == -1 || retInstruction == address) {
       result = currentPc;
     } else {
       AddressAction nextPending = routineExecution.getNextPending();
