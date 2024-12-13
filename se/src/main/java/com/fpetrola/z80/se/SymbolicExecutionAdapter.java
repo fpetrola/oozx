@@ -134,7 +134,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   public void stepUntilComplete(Z80InstructionDriver z80InstructionDriver, State<T> state, int firstAddress, int minimalValidCodeAddress) {
     stepAllAndProcessPending(z80InstructionDriver, state, firstAddress, minimalValidCodeAddress);
     processPending();
-    routineManager.optimizeAllSplit();
+    routineManager.createVirtualRoutines();
   }
 
   private void stepAllAndProcessPending(Z80InstructionDriver z80InstructionDriver, State<T> state, int firstAddress, int minimalValidCodeAddress) {

@@ -80,7 +80,7 @@ public class RoutineManager {
     new ArrayList<>(routines).forEach(Routine::optimize);
   }
 
-  public void optimizeAllSplit() {
+  public void createVirtualRoutines() {
     boolean changes;
 
     do {
