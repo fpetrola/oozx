@@ -18,10 +18,18 @@
 
 package com.fpetrola.z80.bytecode.generators;
 
+import com.fpetrola.z80.blocks.BlocksManager;
+import com.fpetrola.z80.blocks.DefaultBlock;
+import com.fpetrola.z80.blocks.NullBlockChangesListener;
+import com.fpetrola.z80.bytecode.generators.helpers.BytecodeGenerationContext;
 import com.fpetrola.z80.bytecode.generators.helpers.PendingFlagUpdate;
 import com.fpetrola.z80.bytecode.generators.helpers.SmartComposed16BitRegisterVariable;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.routines.Routine;
+import com.fpetrola.z80.routines.RoutineVisitor;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
@@ -56,5 +64,54 @@ public class VirtualInstructionsBytecodeGenerator<T extends WordNumber> extends 
     Variable invoke = methodMaker.invoke(methodName, routineByteCodeGenerator.getExistingVariable("HL"), routineByteCodeGenerator.getExistingVariable("BC"), routineByteCodeGenerator.getExistingVariable("A"));
     routineByteCodeGenerator.getExistingVariable("HL").set(invoke.aget(0));
     routineByteCodeGenerator.getExistingVariable("BC").set(invoke.aget(1));
+  }
+
+  //        if (routineByteCodeGenerator.bytecodeGenerationContext.pc.read().intValue() == 38370)
+//          System.out.println("sdsdg");
+//        routineByteCodeGenerator.lastMemPc.write(WordNumber.createValue(previousPendingFlag.address));
+//        if (targetFlagInstruction instanceof TargetInstruction<?> cp1) {
+//          if (cp1.getTarget().read() instanceof DirectAccessWordNumber && (instruction instanceof JR || instruction instanceof JP)) {
+//            createIfMethod(instruction, conditionalInstruction);
+//          }
+//        }
+
+  private void createIfMethod(Instruction instruction, ConditionalInstruction conditionalInstruction) {
+    BytecodeGenerationContext bytecodeGenerationContext = routineByteCodeGenerator.bytecodeGenerationContext;
+    BlocksManager blocksManager = bytecodeGenerationContext.routineManager.blocksManager;
+    int startAddress = bytecodeGenerationContext.pc.read().intValue() + instruction.getLength();
+    int endAddress = conditionalInstruction.getJumpAddress().intValue() - 1;
+    if (startAddress < endAddress) {
+      int i = bytecodeGenerationContext.pc.read().intValue();
+      Routine routine = new Routine(new DefaultBlock(startAddress, endAddress, new BlocksManager(new NullBlockChangesListener(), true)), startAddress, true);
+      routine.setRoutineManager(bytecodeGenerationContext.routineManager);
+      final boolean[] notContained = new boolean[1];
+
+      routine.accept(new RoutineVisitor<Object>() {
+        public void visitInstruction(int address, Instruction instruction) {
+          if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction1) {
+            if (!routine.contains(conditionalInstruction1.getJumpAddress().intValue())) {
+              notContained[0] |= true;
+            }
+          }
+        }
+      });
+
+      if (true || !notContained[0]) {
+        Routine innerRoutineBetween = routineByteCodeGenerator.routine.createInnerRoutineBetween(startAddress, endAddress);
+        if (innerRoutineBetween != null) {
+          innerRoutineBetween.setCallable(false);
+          routineByteCodeGenerator.findOrCreateMethodAt(startAddress);
+          RoutineBytecodeGenerator innerRoutineBytecodeGenerator = new RoutineBytecodeGenerator(bytecodeGenerationContext, innerRoutineBetween);
+          innerRoutineBytecodeGenerator.generate();
+//        String methodName = routineBytecodeGenerator.createLabelName(address);
+//        MethodMaker methodMaker = bytecodeGenerationContext.methods.get(methodName);
+//        if (methodMaker == null) {
+//          if (startAddress == 38115)
+//            System.out.println("");
+//        }
+        }
+        bytecodeGenerationContext.pc.write(WordNumber.createValue(i));
+      }
+    }
   }
 }
