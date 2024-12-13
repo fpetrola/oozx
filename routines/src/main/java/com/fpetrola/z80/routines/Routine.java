@@ -37,12 +37,16 @@ import static java.util.Arrays.asList;
 public class Routine {
   public boolean virtual;
   private List<Block> blocks;
-
   private boolean finished;
   private Map<Integer, Integer> virtualPop = new HashMap<>();
   private List<Instruction> instructions = new ArrayList<>();
-  private Routine parent;
   private int entryPoint;
+  public RoutineManager routineManager;
+  private MultiValuedMap<Integer, Integer> returnPoints = new HashSetValuedHashMap<>();
+  public Set<String> parameters = new HashSet<>();
+  public Set<String> returnValues = new HashSet<>();
+  private boolean callable = true;
+
 
   public Routine(boolean virtual) {
     this.virtual = virtual;
@@ -59,14 +63,6 @@ public class Routine {
     if (blocks.get(0).getRangeHandler().getStartAddress() == 38555)
       System.out.println("dsagsdgdg");
   }
-
-  public RoutineManager routineManager;
-
-  private MultiValuedMap<Integer, Integer> returnPoints = new HashSetValuedHashMap<>();
-  public Set<String> parameters = new HashSet<>();
-  public Set<String> returnValues = new HashSet<>();
-
-  private boolean callable = true;
 
   public List<Routine> getAllRoutines() {
     List<Routine> flat = new ArrayList<>();
@@ -95,73 +91,18 @@ public class Routine {
   public void addInnerRoutine(Routine routine) {
     routineManager.addRoutine(routine);
   }
-//  public void addInnerRoutine(Routine routine) {
-//    if (routine.toString().contains("D895"))
-//      System.out.println("ehh3");
-//    boolean isVirtual = routine instanceof VirtualRoutine;
-//    if (isVirtual)
-//      System.out.println("virtual");
-//    if (routine.toString().contains("C804"))
-//      System.out.println("eh22222!");
-//    if (routine == this)
-//      throw new RuntimeException("cannot add it to self");
-//    if (routine == null)
-//      throw new RuntimeException("null inner routine");
-//
-//    boolean b1 = routine.overlap(this);
-//    if (b1)
-//      System.out.println("overlapped");
-//
-//    boolean b = routine.getAllInnerRoutines().stream().anyMatch(i -> i.containsInner(this));
-//    if (b)
-//      throw new RuntimeException("cannot add it to inner");
-//
-//    routine.setParent(this);
-//
-//    if (routineManager.getRoutines().contains(routine))
-//      System.out.println("already in routinemanager");
-//
-//    List<Block> innerBlocks = routine.getBlocks();
-//    removeBlocks(innerBlocks);
-//    innerRoutines.add(routine);
-//    routineManager.removeRoutine(routine);
-//  }
 
   public void removeBlocks(List<Block> innerBlocks) {
     getBlocks().removeAll(innerBlocks);
-    if (getBlocks().isEmpty()) {
-//      System.out.println("cannot be empty");
-//      if (getInnerRoutines().isEmpty()) {
-//        if (parent != null)
-//          parent.removeInnerRoutine(this);
-//        getRoutineManager().removeRoutine(this);
-//      } else if (getInnerRoutines().size() == 1) {
-//        Routine first = getInnerRoutines().getFirst();
-//        first.getBlocks().forEach(b -> addBlock(b));
-//        removeInnerRoutine(first);
-//      } else
-//        System.out.println("more inner routines");
-
-    }
   }
 
   public void removeBlock(Block block) {
     removeBlocks(asList(block));
   }
 
-
-  private void setParent(Routine routine) {
-    if (parent != null && parent != routine)
-      throw new RuntimeException("cannot add routine twice");
-
-    parent = routine;
-  }
-
   private boolean overlap(Routine routine) {
 //    return Block.testOverlap(getStartAddress(), getEndAddress(), routine.getStartAddress(), routine.getEndAddress());
-
     return overlapByBlocks(routine);
-
 //    return overlapByRecursive(routine);
   }
 
@@ -473,10 +414,6 @@ public class Routine {
 
   public List<Instruction> getInstructions() {
     return instructions;
-  }
-
-  public Routine getParent() {
-    return parent;
   }
 
   public RoutineManager getRoutineManager() {
