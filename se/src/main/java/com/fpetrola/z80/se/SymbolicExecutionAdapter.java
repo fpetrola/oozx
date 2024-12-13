@@ -215,28 +215,15 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         RoutineExecution routineExecution = getRoutineExecution();
 
         AddressAction addressAction = routineExecution.getAddressAction(pcValue);
-        if (addressAction != null) {
-          pcValue = addressAction.getNextPC();
-          updatePcRegister(pcValue);
-        }
-
-        AddressAction addressActionToExecute = routineExecution.getAddressAction(pcValue);
-        if (addressActionToExecute != null)
-          addressActionToExecute.beforeStep();
+        if (addressAction != null)
+          pcValue = updatePcRegister(addressAction.getNextPC());
 
         z80InstructionDriver.step();
 
-        if (!routineExecution.hasActionAt(pcValue)) {
+        if (!routineExecution.hasActionAt(pcValue))
           routineExecution.createAndAddGenericAction(pcValue);
-        }
 
-        AddressAction nextAddressAction = routineExecution.getAddressAction(pcValue);
-//        if (nextAddressAction.isRevisitable()) {
-//          beforeStepRevisitable(nextAddressAction, pcValue);
-//        }
-
-        nextAddressAction.setReady();
-        updatePcRegister(nextAddressAction.getNext(pcValue, pc.read().intValue()));
+        updatePcRegister(routineExecution.getAddressAction(pcValue).getNext(pcValue, pc.read().intValue()));
 
         ready = stackFrames.isEmpty();
         lastPc = pcValue;
@@ -245,9 +232,10 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     }
   }
 
-  private void updatePcRegister(int pcValue) {
+  private int updatePcRegister(int pcValue) {
     logPC(pcValue);
     pc.write(createValue(pcValue));
+    return pcValue;
   }
 
   private void logPC(int pcValue) {

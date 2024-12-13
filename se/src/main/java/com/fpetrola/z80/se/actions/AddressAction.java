@@ -29,9 +29,8 @@ public class AddressAction {
   protected Instruction instruction;
   private RoutineExecution routineExecution;
   protected boolean alwaysTrue;
-  public int count;
   protected final SymbolicExecutionAdapter symbolicExecutionAdapter;
-  private boolean state;
+  protected boolean state;
   public int address;
   protected boolean pending;
   private ExecutionStackStorage executionStackStorage;
@@ -61,8 +60,7 @@ public class AddressAction {
   }
 
   public boolean processBranch(Instruction instruction) {
-    saveStack();
-    if (isPending()) {
+    if (pending) {
       pending = false;
     }
     return true;
@@ -75,39 +73,11 @@ public class AddressAction {
     return result;
   }
 
-  public int getNext(int executedInstructionAddress, int currentPc) {
-    return currentPc;
-  }
-
   public boolean isPending() {
     return pending;
   }
-
   public void setPending(boolean pending) {
     this.pending = pending;
-  }
-
-  protected int genericGetNext(int next, int pcValue) {
-    int result = pcValue;
-    if (isPending()) {
-      pending = false;
-    }
-    if (routineExecution.retInstruction == next && routineExecution.hasPendingPoints())
-      result = routineExecution.getNextPending().address;
-    return result;
-  }
-
-  public int getNextPC() {
-    return address;
-  }
-
-  public void setReady() {
-    setPending(false);
-  }
-
-  protected void updatePending() {
-    count++;
-    pending = count == 1;
   }
 
   @Override
@@ -115,23 +85,24 @@ public class AddressAction {
     return "AddressAction{address=%d, instruction=%s, pending=%s}".formatted(address, instruction, pending);
   }
 
-  public void beforeStep() {
-    if (instruction instanceof ConditionalInstruction<?, ?>) {
-      restoreStack();
+  protected int getNextPC(int address1) {
+    if (pending) {
+      pending= false;
+      return address1;
+    } else {
+      return routineExecution.getNextPending().address;
     }
   }
 
-  public <T extends WordNumber> void saveStack() {
-    boolean b = count == 0;
-    if (b) {
-      executionStackStorage.save();
-    }
+  public int getNextPC() {
+    return address;
   }
 
-  private void restoreStack() {
-    boolean b = !(instruction instanceof Ret) || (routineExecution.retInstruction == this.address && count == 2);
-    if (b) {
-//        executionStackStorage.restore();
+  public int getNext(int executedInstructionAddress, int currentPc) {
+    if (alwaysTrue) {
+      return getNextPC(currentPc);
+    } else {
+      return currentPc;
     }
   }
 }

@@ -25,45 +25,22 @@ import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 public class CallAddressAction extends AddressAction {
   private final Call call;
-  private final RoutineExecution routineExecution;
 
   public CallAddressAction(int pcValue, Call call, RoutineExecution routineExecution, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
     super(pcValue, true, routineExecution, symbolicExecutionAdapter1, call, alwaysTrue);
     this.call = call;
-    this.routineExecution = routineExecution;
     this.alwaysTrue = alwaysTrue;
   }
 
   public boolean processBranch(Instruction instruction) {
     boolean doBranch = getDoBranch();
-    saveStack();
-
     if (doBranch)
       symbolicExecutionAdapter.createRoutineExecution(call.getJumpAddress().intValue());
     return doBranch;
-  }
-
-  public void setReady() {
-  }
-
-  public int getNext(int executedInstructionAddress, int currentPc) {
-    if (alwaysTrue) {
-      return getNextPC(currentPc);
-    } else {
-      return currentPc;
-    }
   }
 
   public int getNextPC() {
     return getNextPC(address);
   }
 
-  private int getNextPC(int address1) {
-    if (pending) {
-      pending= false;
-      return address1;
-    } else {
-      return routineExecution.getNextPending().address;
-    }
-  }
 }

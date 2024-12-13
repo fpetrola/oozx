@@ -31,15 +31,12 @@ public class GenericAddressAction extends AddressAction {
   }
 
   public int getNext(int executedInstructionAddress, int currentPc) {
-    return genericGetNext(executedInstructionAddress, currentPc);
+    pending = false;
+    return currentPc;
   }
 
-  @Override
   public int getNextPC() {
-    int result = address;
-    if (!isPending())
-      result = routineExecution.getNextPending().address;
-    return result;
+    return getNextPC(address);
   }
 
   public boolean processBranch(Instruction instruction) {

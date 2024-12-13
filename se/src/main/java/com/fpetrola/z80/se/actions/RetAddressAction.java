@@ -50,18 +50,18 @@ public class RetAddressAction extends AddressAction {
   public int getNext(int executedInstructionAddress, int currentPc) {
     int result;
     if (alwaysTrue) {
-      result = genericGetNext(executedInstructionAddress, currentPc);
+      pending = false;
+      int result1 = currentPc;
+      if (routineExecution.retInstruction == executedInstructionAddress && routineExecution.hasPendingPoints())
+        result1 = routineExecution.getNextPending().address;
+      result = result1;
     } else if (routineExecution.retInstruction == -1 || routineExecution.retInstruction == address) {
-      result = super.getNext(executedInstructionAddress, currentPc);
+      result = currentPc;
     } else {
       AddressAction nextPending = routineExecution.getNextPending();
       result = nextPending == this ? currentPc : nextPending.address;
     }
     return result;
-  }
-
-  public void setReady() {
-    updatePending();
   }
 
 }

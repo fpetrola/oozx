@@ -23,39 +23,21 @@ import com.fpetrola.z80.se.RoutineExecution;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 public class ConditionalInstructionAddressAction extends AddressAction {
-  private final RoutineExecution routineExecution;
-
   public ConditionalInstructionAddressAction(Instruction<Boolean> instruction, RoutineExecution routineExecution, int pcValue, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
     super(pcValue, true, routineExecution, symbolicExecutionAdapter1, instruction, alwaysTrue);
-    this.routineExecution = routineExecution;
   }
 
   public boolean processBranch(Instruction instruction) {
-    boolean doBranch = getDoBranch();
+    return getDoBranch();
+  }
 
-    super.processBranch(instruction);
-
-    return doBranch;
+  public int getNextPC() {
+    return getNextPC(address);
   }
 
   @Override
   public int getNext(int executedInstructionAddress, int currentPc) {
-    if (alwaysTrue) {
-      return genericGetNext(executedInstructionAddress, currentPc);
-    } else {
-      return super.getNext(executedInstructionAddress, currentPc);
-    }
-  }
-
-  public void setReady() {
-    updatePending();
-  }
-
-  public int getNextPC() {
-    if (isPending())
-      return super.getNextPC();
-    else {
-      return routineExecution.getNextPending().address;
-    }
+    pending = state;
+    return super.getNext(executedInstructionAddress, currentPc);
   }
 }

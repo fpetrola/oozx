@@ -39,30 +39,18 @@ public class JPRegisterAddressAction extends AddressAction {
 
   public boolean processBranch(Instruction instruction) {
     pollCases();
-    boolean doBranch = getDoBranch();
-
-    super.processBranch(instruction);
-
-    return doBranch;
-  }
-
-  @Override
-  public <T extends WordNumber> void saveStack() {
-    super.saveStack();
-  }
-
-  public void setReady() {
-    updatePending();
+    return getDoBranch();
   }
 
   @Override
   public int getNext(int executedInstructionAddress, int currentPc) {
-    return genericGetNext(executedInstructionAddress, currentPc);
+    pending = false;
+    return currentPc;
   }
 
   @Override
   public boolean isPending() {
-    return super.isPending() || !cases.isEmpty();
+    return pending || !cases.isEmpty();
   }
 
   public void setDynamicJPData(DynamicJPData dynamicJPData) {
