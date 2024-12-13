@@ -38,7 +38,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 public class RoutineBytecodeGenerator {
-  public final BytecodeGenerationContext bytecodeGenerationContext;
+  public final BytecodeGenerationContext context;
   public Map<String, Variable> registers = new HashMap<>();
   public Field memory;
   public MethodMaker mm;
@@ -63,8 +63,8 @@ public class RoutineBytecodeGenerator {
     return (S) variable1;
   }
 
-  public RoutineBytecodeGenerator(BytecodeGenerationContext bytecodeGenerationContext, Routine routine) {
-    this.bytecodeGenerationContext = bytecodeGenerationContext;
+  public RoutineBytecodeGenerator(BytecodeGenerationContext context, Routine routine) {
+    this.context = context;
     this.routine = routine;
   }
 
@@ -97,22 +97,22 @@ public class RoutineBytecodeGenerator {
         {
           boolean contains = routine.contains(address);
           if (contains) {
-            bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
+            context.pc.write(WordNumber.createValue(address));
             int firstAddress = address;
 
             Runnable scopeAdjuster = () -> {
-              bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
+              context.pc.write(WordNumber.createValue(address));
 //                new InstructionActionExecutor<>(r -> r.adjustRegisterScope()).executeAction(instruction);
             };
 
             Runnable labelGenerator = () -> {
-              bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
+              context.pc.write(WordNumber.createValue(address));
               JumpLabelVisitor jumpLabelVisitor1 = new JumpLabelVisitor();
               instruction.accept(jumpLabelVisitor1);
               addLabel(address);
             };
             Runnable instructionGenerator = () -> {
-              bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
+              context.pc.write(WordNumber.createValue(address));
 
               if (address == 0xDA8D)
                 System.out.print("");
@@ -164,7 +164,7 @@ public class RoutineBytecodeGenerator {
         Routine first = list.getFirst();
         if (first.getStartAddress() == address) {
           invokeTransformedMethod(first.getStartAddress());
-          Routine routineAt = bytecodeGenerationContext.routineManager.findRoutineAt(first.getStartAddress());
+          Routine routineAt = context.routineManager.findRoutineAt(first.getStartAddress());
           if (routineAt.isCallable())
             returnFromMethod();
           else
@@ -187,7 +187,7 @@ public class RoutineBytecodeGenerator {
   }
 
   private boolean mutantCodeInInstruction(Instruction instruction, int address) {
-    Set<Integer> mutantAddress = (Set<Integer>) bytecodeGenerationContext.symbolicExecutionAdapter.getMutantAddress();
+    Set<Integer> mutantAddress = (Set<Integer>) context.symbolicExecutionAdapter.getMutantAddress();
     return mutantAddress.stream().anyMatch(a1 -> a1 >= address && a1 < address + instruction.getLength());
   }
 
@@ -244,19 +244,19 @@ public class RoutineBytecodeGenerator {
 
   public MethodMaker findOrCreateMethodAt(int address) {
     String methodName = createLabelName(address);
-    MethodMaker methodMaker = bytecodeGenerationContext.methods.get(methodName);
+    MethodMaker methodMaker = context.methods.get(methodName);
 
     if (methodMaker == null) {
       methodMaker = createMethod(address, methodName);
     }
 
-    bytecodeGenerationContext.methods.put(methodName, methodMaker);
+    context.methods.put(methodName, methodMaker);
 
     return methodMaker;
   }
 
   protected MethodMaker createMethod(int address, String methodName) {
-    return bytecodeGenerationContext.cm.addMethod(void.class, methodName).public_();
+    return context.cm.addMethod(void.class, methodName).public_();
   }
 
   public <T extends WordNumber> Variable getField(String name) {
@@ -290,7 +290,7 @@ public class RoutineBytecodeGenerator {
 
   public Variable getVariableFromMemory(Object variable, String bits) {
     Object variable1 = getRealVariable(variable);
-    if (bytecodeGenerationContext.syncEnabled) {
+    if (context.syncEnabled) {
       List<Object> params = new ArrayList<>();
       params.add(variable1);
       params.add(lastMemPc.read().intValue());
@@ -307,7 +307,7 @@ public class RoutineBytecodeGenerator {
   public void writeVariableToMemory(Object o, Object variable, String bits) {
     Object variable1 = getRealVariable(variable);
     Object o1 = getRealVariable(o);
-    if (bytecodeGenerationContext.syncEnabled) {
+    if (context.syncEnabled) {
       List<Object> params = new ArrayList<>();
       params.add(variable1);
       params.add(o1);

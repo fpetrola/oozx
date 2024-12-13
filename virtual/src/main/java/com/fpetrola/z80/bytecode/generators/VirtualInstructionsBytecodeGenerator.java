@@ -76,7 +76,7 @@ public class VirtualInstructionsBytecodeGenerator<T extends WordNumber> extends 
 //        }
 
   private void createIfMethod(Instruction instruction, ConditionalInstruction conditionalInstruction) {
-    BytecodeGenerationContext bytecodeGenerationContext = routineByteCodeGenerator.bytecodeGenerationContext;
+    BytecodeGenerationContext bytecodeGenerationContext = routineByteCodeGenerator.context;
     BlocksManager blocksManager = bytecodeGenerationContext.routineManager.blocksManager;
     int startAddress = bytecodeGenerationContext.pc.read().intValue() + instruction.getLength();
     int endAddress = conditionalInstruction.getJumpAddress().intValue() - 1;

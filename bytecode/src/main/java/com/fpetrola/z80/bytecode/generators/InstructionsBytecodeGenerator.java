@@ -145,7 +145,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
       if (realVariable instanceof Integer integer)
         realVariable = routineByteCodeGenerator.variables.get("A").shl(8).or(integer);
 
-      t.set(methodMaker.invoke("in", realVariable, routineByteCodeGenerator.bytecodeGenerationContext.pc.read().intValue()));
+      t.set(methodMaker.invoke("in", realVariable, routineByteCodeGenerator.context.pc.read().intValue()));
     }, routineByteCodeGenerator));
   }
 
@@ -508,7 +508,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   private void processExistingCondition(Runnable runnable, ConditionalInstruction conditionalInstruction, ConditionFlag conditionFlag, OpcodeReferenceVisitor opcodeReferenceVisitor) {
-    if (routineByteCodeGenerator.bytecodeGenerationContext.pc.read().intValue() == 0xD9AC)
+    if (routineByteCodeGenerator.context.pc.read().intValue() == 0xD9AC)
       System.out.println("break");
     Variable f = opcodeReferenceVisitor.process((Register) conditionFlag.getRegister());
     String string = conditionalInstruction.getCondition().toString();
@@ -664,7 +664,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
     if (jp.getPositionOpcodeReference() instanceof Register<T> register) {
       Map<Integer, DynamicJPData> dynamicJP = SEInstructionFactory.dynamicJP;
       dynamicJP.forEach((djpc, dj) -> {
-        if (djpc == routineByteCodeGenerator.bytecodeGenerationContext.pc.read().intValue()) {
+        if (djpc == routineByteCodeGenerator.context.pc.read().intValue()) {
           dj.cases.forEach(c -> {
             Variable existingVariable = routineByteCodeGenerator.getExistingVariable(register);
             existingVariable.ifEq(c, () -> {

@@ -118,7 +118,7 @@ public class VirtualRoutineBytecodeGenerator extends RoutineBytecodeGenerator {
 
   protected MethodMaker createMethod(int address, String methodName) {
     MethodMaker methodMaker;
-    Routine routineAt = bytecodeGenerationContext.routineManager.findRoutineAt(address);
+    Routine routineAt = context.routineManager.findRoutineAt(address);
     List<String> parametersList = routineAt.accept(new RoutineRegisterAccumulator<>() {
       public void visitParameter(String register) {
         routineParameters.add(register);
@@ -132,13 +132,13 @@ public class VirtualRoutineBytecodeGenerator extends RoutineBytecodeGenerator {
       }
     }).toArray();
 
-    methodMaker = bytecodeGenerationContext.cm.addMethod(values.length == 0 ? void.class : int[].class, methodName, objects).public_();
+    methodMaker = context.cm.addMethod(values.length == 0 ? void.class : int[].class, methodName, objects).public_();
     return methodMaker;
   }
 
   @Override
   public Variable invokeTransformedMethod(int jumpLabel) {
-    Routine routineAt = bytecodeGenerationContext.routineManager.findRoutineAt(jumpLabel);
+    Routine routineAt = context.routineManager.findRoutineAt(jumpLabel);
     Object[] array = routineAt.accept(new RoutineRegisterAccumulator<Variable>() {
       public void visitParameter(String register) {
         routineParameters.add(getExistingVariable(register));

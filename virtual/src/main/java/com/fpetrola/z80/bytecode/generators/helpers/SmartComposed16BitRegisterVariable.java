@@ -56,7 +56,7 @@ public class SmartComposed16BitRegisterVariable implements VariableDelegator {
     VirtualComposed16BitRegister<?> currentRegister = (VirtualComposed16BitRegister<?>) register;
 
     IVirtual8BitsRegister<?> low = currentRegister.getLow();
-    boolean noOptimization = !routineByteCodeGenerator.bytecodeGenerationContext.optimize16Convertion;
+    boolean noOptimization = !routineByteCodeGenerator.context.optimize16Convertion;
 
     if (noOptimization || !low.getDependants().stream().anyMatch(VirtualRegister::isComposed2))
       variableLow.directSet(variable.and(0xFF));
