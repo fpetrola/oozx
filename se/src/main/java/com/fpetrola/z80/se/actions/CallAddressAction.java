@@ -36,31 +36,33 @@ public class CallAddressAction extends AddressAction {
 
   public boolean processBranch(Instruction instruction) {
     boolean doBranch = getDoBranch();
-    super.processBranch(instruction);
+    saveStack();
 
-    if (doBranch) {
-      int jumpAddress = call.getJumpAddress().intValue();
-      symbolicExecutionAdapter.createRoutineExecution(jumpAddress);
-    }
+    if (doBranch)
+      symbolicExecutionAdapter.createRoutineExecution(call.getJumpAddress().intValue());
     return doBranch;
   }
 
   public void setReady() {
-    updatePending();
   }
 
-  public int getNext(int next, int pcValue) {
+  public int getNext(int executedInstructionAddress, int currentPc) {
     if (alwaysTrue) {
-      return genericGetNext(next, pcValue);
+      return getNextPC(currentPc);
     } else {
-      return super.getNext(next, pcValue);
+      return currentPc;
     }
   }
 
   public int getNextPC() {
-    if (isPending())
-      return super.getNextPC();
-    else {
+    return getNextPC(address);
+  }
+
+  private int getNextPC(int address1) {
+    if (pending) {
+      pending= false;
+      return address1;
+    } else {
       return routineExecution.getNextPending().address;
     }
   }

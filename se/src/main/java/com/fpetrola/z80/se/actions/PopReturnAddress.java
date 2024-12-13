@@ -89,9 +89,9 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> implements IP
         }
 
         @Override
-        public int getNext(int next, int pcValue) {
+        public int getNext(int executedInstructionAddress, int currentPc) {
           if (lastRoutineExecution.hasPendingPoints())
-            return pcValue;
+            return currentPc;
           else
             return routineExecution.getNextPending().address;
         }

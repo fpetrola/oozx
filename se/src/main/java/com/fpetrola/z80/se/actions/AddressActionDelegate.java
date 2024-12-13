@@ -48,7 +48,7 @@ public class AddressActionDelegate extends BasicAddressAction {
   }
 
   @Override
-  public int getNext(int next, int pcValue) {
-    return super.getNext(next, pcValue);
+  public int getNext(int executedInstructionAddress, int currentPc) {
+    return super.getNext(executedInstructionAddress, currentPc);
   }
 }

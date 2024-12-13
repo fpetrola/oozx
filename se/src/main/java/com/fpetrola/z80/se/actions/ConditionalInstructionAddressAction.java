@@ -39,11 +39,11 @@ public class ConditionalInstructionAddressAction extends AddressAction {
   }
 
   @Override
-  public int getNext(int next, int pcValue) {
+  public int getNext(int executedInstructionAddress, int currentPc) {
     if (alwaysTrue) {
-      return genericGetNext(next, pcValue);
+      return genericGetNext(executedInstructionAddress, currentPc);
     } else {
-      return super.getNext(next, pcValue);
+      return super.getNext(executedInstructionAddress, currentPc);
     }
   }
 

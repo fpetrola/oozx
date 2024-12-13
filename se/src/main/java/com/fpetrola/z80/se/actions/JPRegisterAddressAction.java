@@ -46,23 +46,18 @@ public class JPRegisterAddressAction extends AddressAction {
     return doBranch;
   }
 
+  @Override
+  public <T extends WordNumber> void saveStack() {
+    super.saveStack();
+  }
+
   public void setReady() {
     updatePending();
   }
 
   @Override
-  public int getNext(int next, int pcValue) {
-    if (alwaysTrue) {
-      if (!isPending()) {
-        int result = pcValue;
-        if (routineExecution.retInstruction == next && routineExecution.hasPendingPoints())
-          result = routineExecution.getNextPending().address;
-        return result;
-      } else
-        return genericGetNext(next, pcValue);
-    } else {
-      return super.getNext(next, pcValue);
-    }
+  public int getNext(int executedInstructionAddress, int currentPc) {
+    return genericGetNext(executedInstructionAddress, currentPc);
   }
 
   @Override

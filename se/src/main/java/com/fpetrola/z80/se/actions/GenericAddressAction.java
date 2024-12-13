@@ -22,8 +22,6 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.se.RoutineExecution;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
-import java.util.Optional;
-
 public class GenericAddressAction extends AddressAction {
   private final RoutineExecution routineExecution;
 
@@ -32,8 +30,8 @@ public class GenericAddressAction extends AddressAction {
     this.routineExecution = routineExecution;
   }
 
-  public int getNext(int next, int pcValue) {
-    return genericGetNext(next, pcValue);
+  public int getNext(int executedInstructionAddress, int currentPc) {
+    return genericGetNext(executedInstructionAddress, currentPc);
   }
 
   @Override

@@ -75,8 +75,8 @@ public class AddressAction {
     return result;
   }
 
-  public int getNext(int next, int pcValue) {
-    return pcValue;
+  public int getNext(int executedInstructionAddress, int currentPc) {
+    return currentPc;
   }
 
   public boolean isPending() {
@@ -107,8 +107,6 @@ public class AddressAction {
 
   protected void updatePending() {
     count++;
-    if (count > 2 && !(instruction instanceof Ret<?>))
-      System.out.println("porque?");
     pending = count == 1;
   }
 

@@ -37,8 +37,9 @@ public class ExecutionStackStorage<T extends WordNumber> {
     if (savedStack == null) {
       savedStack = copyStack(state);
       System.out.printf("stack saved: SP: %04X -> %s%n", savedSP, printStack());
-    } else
-      throw new RuntimeException("already stored");
+    }
+//    else
+//      throw new RuntimeException("already stored");
   }
 
   void restore() {
