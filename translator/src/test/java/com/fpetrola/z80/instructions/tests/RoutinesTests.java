@@ -97,7 +97,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   }
 
   protected void stepUntilComplete() {
-  getSymbolicExecutionAdapter().stepUntilComplete(this, getState(), 0, 0);
+    getSymbolicExecutionAdapter().stepUntilComplete(this, getState(), 0, 0);
   }
 
   private void assertBlockAddresses(Block block, int start, int end) {
@@ -1426,14 +1426,6 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
               super.B = 3;
            }
         
-           public void $3() {
-              if(super.F != 0) {
-                 this.$12();
-              }
-        
-              this.$4();
-           }
-        
            public void $6() {
               super.B = 1;
               this.$10();
@@ -1442,6 +1434,14 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
            public void $8() {
               super.B = 2;
               this.$10();
+           }
+        
+           public void $3() {
+              if(super.F != 0) {
+                 this.$12();
+              }
+        
+              this.$4();
            }
         
            public void $10() {
