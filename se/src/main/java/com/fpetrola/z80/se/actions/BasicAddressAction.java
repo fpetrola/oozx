@@ -18,11 +18,9 @@
 
 package com.fpetrola.z80.se.actions;
 
-import com.fpetrola.z80.se.SymbolicExecutionAdapter;
-
 public class BasicAddressAction extends AddressAction {
-  public BasicAddressAction(int address, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
-    super(symbolicExecutionAdapter1, address, true);
+  public BasicAddressAction(int address) {
+    super(address, true);
   }
 
   public int getNext(int executedInstructionAddress, int currentPc) {

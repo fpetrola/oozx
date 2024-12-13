@@ -34,10 +34,10 @@ public class RoutineExecution {
   public int start;
   private Map<Integer, AddressAction> actions = new HashMap<>();
   public int lastPc;
-  private SymbolicExecutionAdapter symbolicExecutionAdapter;
+  private ExecutionStackStorage executionStackStorage;
+//    executionStackStorage = new ExecutionStackStorage(symbolicExecutionAdapter.state);
 
-  public RoutineExecution(SymbolicExecutionAdapter symbolicExecutionAdapter1) {
-    symbolicExecutionAdapter = symbolicExecutionAdapter1;
+  public RoutineExecution() {
   }
 
   public boolean hasPendingPoints() {
@@ -62,7 +62,7 @@ public class RoutineExecution {
   }
 
   public AddressAction createAndAddGenericAction(int pcValue) {
-    AddressAction addressAction = new GenericAddressAction(this, pcValue, symbolicExecutionAdapter);
+    AddressAction addressAction = new GenericAddressAction(pcValue, this);
     replaceAddressAction(addressAction);
     return addressAction;
   }

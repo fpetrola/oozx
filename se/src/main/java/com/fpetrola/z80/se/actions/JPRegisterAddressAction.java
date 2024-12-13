@@ -33,7 +33,7 @@ public class JPRegisterAddressAction extends AddressAction {
   private LinkedList<Integer> cases = new LinkedList<>();
 
   public JPRegisterAddressAction(Instruction<Boolean> instruction, RoutineExecution routineExecution, int pcValue, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
-    super(pcValue, true, routineExecution, symbolicExecutionAdapter1, instruction, alwaysTrue);
+    super(pcValue, true, routineExecution, instruction, alwaysTrue);
     this.routineExecution = routineExecution;
   }
 

@@ -27,10 +27,12 @@ import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 public class AddressActionDelegate extends BasicAddressAction {
   private AddressAction addressAction;
+  private final SymbolicExecutionAdapter symbolicExecutionAdapter;
   private State state;
 
-  public AddressActionDelegate(int address2, SymbolicExecutionAdapter symbolicExecutionAdapter1, State state) {
-    super(address2, symbolicExecutionAdapter1);
+  public AddressActionDelegate(int address2, SymbolicExecutionAdapter symbolicExecutionAdapter, State state) {
+    super(address2);
+    this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     this.state = state;
   }
 

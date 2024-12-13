@@ -20,14 +20,10 @@ package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.se.RoutineExecution;
-import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 public class GenericAddressAction extends AddressAction {
-  private final RoutineExecution routineExecution;
-
-  public GenericAddressAction(RoutineExecution routineExecution, int pcValue, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
-    super(pcValue, routineExecution, symbolicExecutionAdapter1);
-    this.routineExecution = routineExecution;
+  public GenericAddressAction(int pcValue, RoutineExecution routineExecution) {
+    super(pcValue, routineExecution);
   }
 
   public int getNext(int executedInstructionAddress, int currentPc) {

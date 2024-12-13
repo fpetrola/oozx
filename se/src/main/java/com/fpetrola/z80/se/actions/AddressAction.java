@@ -18,44 +18,32 @@
 
 package com.fpetrola.z80.se.actions;
 
-import com.fpetrola.z80.instructions.impl.Ret;
-import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.RoutineExecution;
-import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 public class AddressAction {
   protected Instruction instruction;
   private RoutineExecution routineExecution;
   protected boolean alwaysTrue;
-  protected final SymbolicExecutionAdapter symbolicExecutionAdapter;
   protected boolean state;
   public int address;
   protected boolean pending;
-  private ExecutionStackStorage executionStackStorage;
 
-  public AddressAction(int pcValue, RoutineExecution routineExecution, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-    this(symbolicExecutionAdapter, pcValue);
+  public AddressAction(int pcValue, RoutineExecution routineExecution) {
+    this.address = pcValue;
     this.routineExecution = routineExecution;
-    executionStackStorage = new ExecutionStackStorage(symbolicExecutionAdapter.state);
   }
 
-  public AddressAction(int pcValue, boolean b, RoutineExecution routineExecution, SymbolicExecutionAdapter symbolicExecutionAdapter, Instruction instruction, boolean alwaysTrue) {
-    this(symbolicExecutionAdapter, pcValue, b);
+  public AddressAction(int pcValue, boolean b, RoutineExecution routineExecution, Instruction instruction, boolean alwaysTrue) {
+    this(pcValue, b);
 
     this.routineExecution = routineExecution;
     this.instruction = instruction;
     this.alwaysTrue = alwaysTrue;
   }
 
-  public AddressAction(SymbolicExecutionAdapter symbolicExecutionAdapter, int address) {
-    this.symbolicExecutionAdapter = symbolicExecutionAdapter;
-    this.address = address;
-  }
-
-  public AddressAction(SymbolicExecutionAdapter symbolicExecutionAdapter, int address, boolean pending) {
-    this(address, null, symbolicExecutionAdapter);
+  public AddressAction(int address, boolean pending) {
+    this(address, null);
     this.pending = pending;
   }
 

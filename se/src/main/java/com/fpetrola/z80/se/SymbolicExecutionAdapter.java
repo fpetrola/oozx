@@ -124,7 +124,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     stackFrames.push(jumpAddress);
     RoutineExecution routineExecution = routineExecutions.get(jumpAddress);
     if (routineExecution == null) {
-      routineExecutions.put(jumpAddress, routineExecution = new RoutineExecution(this));
+      routineExecutions.put(jumpAddress, routineExecution = new RoutineExecution());
     } else
       System.err.print("");
 

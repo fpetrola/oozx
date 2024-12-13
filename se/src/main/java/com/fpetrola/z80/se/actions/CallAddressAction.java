@@ -25,10 +25,12 @@ import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 public class CallAddressAction extends AddressAction {
   private final Call call;
+  private final SymbolicExecutionAdapter symbolicExecutionAdapter;
 
-  public CallAddressAction(int pcValue, Call call, RoutineExecution routineExecution, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
-    super(pcValue, true, routineExecution, symbolicExecutionAdapter1, call, alwaysTrue);
+  public CallAddressAction(int pcValue, Call call, RoutineExecution routineExecution, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
+    super(pcValue, true, routineExecution, call, alwaysTrue);
     this.call = call;
+    this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     this.alwaysTrue = alwaysTrue;
   }
 

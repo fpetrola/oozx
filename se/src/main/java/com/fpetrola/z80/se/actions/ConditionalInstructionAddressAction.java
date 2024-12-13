@@ -24,7 +24,7 @@ import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 public class ConditionalInstructionAddressAction extends AddressAction {
   public ConditionalInstructionAddressAction(Instruction<Boolean> instruction, RoutineExecution routineExecution, int pcValue, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
-    super(pcValue, true, routineExecution, symbolicExecutionAdapter1, instruction, alwaysTrue);
+    super(pcValue, true, routineExecution, instruction, alwaysTrue);
   }
 
   public boolean processBranch(Instruction instruction) {

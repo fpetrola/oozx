@@ -25,11 +25,13 @@ import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 public class RetAddressAction extends AddressAction {
   private final RoutineExecution routineExecution;
   private final int pcValue;
+  private final SymbolicExecutionAdapter symbolicExecutionAdapter;
 
-  public RetAddressAction(Instruction<Boolean> instruction, RoutineExecution routineExecution, int pcValue, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
-    super(pcValue, true, routineExecution, symbolicExecutionAdapter1, instruction, alwaysTrue);
+  public RetAddressAction(Instruction<Boolean> instruction, RoutineExecution routineExecution, int pcValue, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
+    super(pcValue, true, routineExecution, instruction, alwaysTrue);
     this.routineExecution = routineExecution;
     this.pcValue = pcValue;
+    this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     this.alwaysTrue = alwaysTrue;
   }
 

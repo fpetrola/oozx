@@ -71,10 +71,10 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> implements IP
       routineExecution.replaceAddressAction(new AddressActionDelegate(returnAddressWordNumber.intValue(), symbolicExecutionAdapter, getState()));
 
       popAddress = pc.read().intValue();
-      BasicAddressAction addressAction1 = new BasicAddressAction(popAddress, symbolicExecutionAdapter);
+      BasicAddressAction addressAction1 = new BasicAddressAction(popAddress);
       addressAction1.setPending(false);
       lastRoutineExecution.replaceAddressAction(addressAction1);
-      routineExecution.replaceAddressAction(new BasicAddressAction(returnAddressWordNumber.pc, symbolicExecutionAdapter) {
+      routineExecution.replaceAddressAction(new BasicAddressAction(returnAddressWordNumber.pc) {
         @Override
         public boolean processBranch(Instruction instruction) {
           if (lastRoutineExecution.hasPendingPoints()) {
