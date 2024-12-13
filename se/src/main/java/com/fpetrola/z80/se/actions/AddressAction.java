@@ -114,25 +114,26 @@ public class AddressAction {
 
   @Override
   public String toString() {
-    return "AddressAction{" +
-        "address=" + address + ", instruction=" + instruction +
-        ", pending=" + pending +
-        '}';
+    return "AddressAction{address=%d, instruction=%s, pending=%s}".formatted(address, instruction, pending);
+  }
+
+  public void beforeStep() {
+    if (instruction instanceof ConditionalInstruction<?, ?>) {
+      restoreStack();
+    }
   }
 
   public <T extends WordNumber> void saveStack() {
-    boolean b = !(instruction instanceof Ret) || (count == 0);
+    boolean b = count == 0;
     if (b) {
       executionStackStorage.save();
     }
   }
 
-  public void beforeStep() {
-    if (instruction instanceof ConditionalInstruction<?, ?>) {
-      boolean b = !(instruction instanceof Ret) || (routineExecution.retInstruction == this.address && count == 2);
-      if (b) {
+  private void restoreStack() {
+    boolean b = !(instruction instanceof Ret) || (routineExecution.retInstruction == this.address && count == 2);
+    if (b) {
 //        executionStackStorage.restore();
-      }
     }
   }
 }

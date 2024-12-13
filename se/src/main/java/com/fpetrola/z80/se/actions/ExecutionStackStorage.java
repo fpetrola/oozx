@@ -34,8 +34,11 @@ public class ExecutionStackStorage<T extends WordNumber> {
   }
 
   void save() {
-    savedStack = copyStack(state);
-    System.out.printf("stack saved: %d -> %s%n", savedSP, printStack());
+    if (savedStack == null) {
+      savedStack = copyStack(state);
+      System.out.printf("stack saved: SP: %04X -> %s%n", savedSP, printStack());
+    } else
+      throw new RuntimeException("already stored");
   }
 
   void restore() {
@@ -52,7 +55,7 @@ public class ExecutionStackStorage<T extends WordNumber> {
           memory.getData()[savedSP + i] = (T) savedStack[i];
       }
 
-      System.out.printf("stack restored: %d -> %s%n", savedSP, printStack());
+      System.out.printf("stack restored: SP: %04X -> %s%n", savedSP, printStack());
 
       T[] savedStack3 = Arrays.copyOfRange(memory.getData(), savedSP, savedSP + 40);
 
@@ -73,7 +76,7 @@ public class ExecutionStackStorage<T extends WordNumber> {
     for (int i = 0; i < savedStack.length; i += 2) {
       if (i + 1 < savedStack.length) {
         int i1 = (savedStack[i + 1].intValue() * 256) + savedStack[i].intValue();
-        result.append("%H".formatted(i1));
+        result.append("%04X".formatted(i1));
         result.append(", ");
       }
     }

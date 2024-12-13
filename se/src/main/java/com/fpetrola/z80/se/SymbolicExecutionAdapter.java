@@ -106,7 +106,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   public <T extends WordNumber> MutableOpcodeConditions createOpcodeConditions(State<T> state) {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
-      System.out.printf("pc: %d -> %s%n", getPcValue(), instruction);
+      System.out.printf("pc: %04x -> %s%n", getPcValue(), instruction);
 
       if (instruction instanceof DJNZ)
         System.out.println("dsagsdgsdag");

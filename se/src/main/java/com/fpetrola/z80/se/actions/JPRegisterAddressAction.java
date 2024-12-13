@@ -46,6 +46,10 @@ public class JPRegisterAddressAction extends AddressAction {
     return doBranch;
   }
 
+  public void setReady() {
+    updatePending();
+  }
+
   @Override
   public int getNext(int next, int pcValue) {
     if (alwaysTrue) {
