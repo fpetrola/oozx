@@ -81,7 +81,7 @@ public class RoutineManager {
   }
 
   public void optimizeAllSplit() {
-    boolean changes = false;
+    boolean changes;
 
     do {
       changes = false;
