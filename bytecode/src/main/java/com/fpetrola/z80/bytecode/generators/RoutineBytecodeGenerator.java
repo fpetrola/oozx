@@ -161,7 +161,7 @@ public class RoutineBytecodeGenerator {
       }
 
       private void invokeInnerIfAvailable(int address, List<Routine> list) {
-        Routine first = list.getFirst();
+        Routine first = list.get(0);
         if (first.getStartAddress() == address) {
           invokeTransformedMethod(first.getStartAddress());
           Routine routineAt = context.routineManager.findRoutineAt(first.getStartAddress());

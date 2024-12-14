@@ -373,8 +373,8 @@ public class Routine {
       BlocksManager blocksManager = block.getBlocksManager();
       if (block.getRangeHandler().getStartAddress() <= startAddress && block.getRangeHandler().getEndAddress() >= endAddress) {
         List<Block> blocksBetween = blocksManager.getBlocksBetween(startAddress, endAddress);
-        Block split = blocksBetween.getLast().split(endAddress);
-        Block split3 = blocksBetween.getFirst().split(startAddress - 1);
+        Block split = blocksBetween.get(blocksBetween.size() - 1).split(endAddress);
+        Block split3 = blocksBetween.get(0).split(startAddress - 1);
         List<Block> blocksBetween2 = blocksManager.getBlocksBetween(startAddress, endAddress);
 
         if (blocksBetween2.size() > 2)

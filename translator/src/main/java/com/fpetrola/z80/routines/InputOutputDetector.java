@@ -78,7 +78,7 @@ public class InputOutputDetector {
   }
 
   private static VirtualRegister getFirstVersion(VirtualRegister virtualRegister) {
-    return (VirtualRegister) virtualRegister.getVersionHandler().versions.getFirst();
+    return (VirtualRegister) virtualRegister.getVersionHandler().versions.get(0);
   }
 
   private static void addParameter(Routine routine, VirtualRegister register) {

@@ -86,7 +86,8 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<Wo
   }
 
   private void createResult() {
-    if (targetVariable instanceof Variable variable) {
+    if (targetVariable instanceof Variable) {
+      Variable variable = targetVariable;
       variableAction.accept(getRealVariable(sourceVariable), variable);
       createResult(variable);
     }

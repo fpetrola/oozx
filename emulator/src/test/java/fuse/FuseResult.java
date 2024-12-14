@@ -51,7 +51,8 @@ public class FuseResult<T extends WordNumber> {
         .collect(Collectors.toList());
 
     this.state = stateList.subList(0, stateList.size() - 1).stream().mapToInt(Integer::intValue).toArray();
-    this.tStates = Integer.parseInt(Arrays.stream(state.split(" ")).toList().getLast());
+    List<String> list = Arrays.stream(state.split(" ")).toList();
+    this.tStates = Integer.parseInt(list.get(list.size() - 1));
     this.memory = memory;
     this.testId = testId;
   }
@@ -74,7 +75,7 @@ public class FuseResult<T extends WordNumber> {
   }
 
   private void verifyEvents(Z80Cpu<T> cpu) {
-    List<Event> eventsFromCpu= cpu.getState().getEvents();
+    List<Event> eventsFromCpu = cpu.getState().getEvents();
     Assertions.assertEquals(events, eventsFromCpu, "Events mismatch");
     for (int i = 0; i < events.size(); i++) {
       Assertions.assertEquals(events.get(i), eventsFromCpu.get(i), "Event mismatch");

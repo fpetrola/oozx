@@ -170,7 +170,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           JPRegisterAddressAction.DynamicJPData dynamicJPData = SEInstructionFactory.dynamicJP.get(jpRegisterAddressAction.address);
           jpRegisterAddressAction.setDynamicJPData(dynamicJPData);
           List<Integer> integers = routineManager.callers2.get(e.getValue().getStart());
-          Integer first1 = integers.getFirst();
+          Integer first1 = integers.get(0);
           int startAddress = first1;
           pushAddress(startAddress); //FiXME: calculate minimal ret to run
           pushAddress(startAddress);

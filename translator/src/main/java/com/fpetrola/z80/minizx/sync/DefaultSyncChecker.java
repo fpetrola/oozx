@@ -170,9 +170,9 @@ public class DefaultSyncChecker implements SyncChecker {
   }
 
   public int getR() {
-    while (rValues.isEmpty());
-    Integer e = rValues.getLast();
-    rValues.removeLast();
+    while (rValues.isEmpty()) ;
+    Integer e = rValues.get(rValues.size() - 1);
+    rValues.remove(rValues.size() - 1);
     System.out.println("java R: " + e);
 
     return e;

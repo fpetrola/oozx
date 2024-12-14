@@ -152,7 +152,7 @@ public class MiniZXIO implements IO<WordNumber> {
       inputs.add(e);
       return e;
     } else {
-      PortInput pop = inputs.getFirst();
+      PortInput pop = inputs.get(0);
 //        if (pop.port.intValue() != port.intValue())
 //          System.out.println("port!");
 
@@ -164,7 +164,7 @@ public class MiniZXIO implements IO<WordNumber> {
 
   private void removeIfReady(PortInput pop) {
     if (pop.resultEmu == null && pop.resultJava == null)
-      inputs.removeFirst();
+      inputs.remove(0);
   }
 
   private int performIn(int port) {
