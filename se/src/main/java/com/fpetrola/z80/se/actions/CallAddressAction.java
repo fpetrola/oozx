@@ -20,13 +20,13 @@ package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.se.RoutineExecution;
+import com.fpetrola.z80.se.RoutineExecutorHandler;
 
 public class CallAddressAction extends AddressAction {
   private final Call call;
 
-  public CallAddressAction(int pcValue, Call call, RoutineExecution routineExecution, boolean alwaysTrue) {
-    super(pcValue, true, routineExecution, call, alwaysTrue);
+  public CallAddressAction(int pcValue, Call call, boolean alwaysTrue, RoutineExecutorHandler routineExecutorHandler) {
+    super(pcValue, true, call, alwaysTrue, routineExecutorHandler);
     this.call = call;
     this.alwaysTrue = alwaysTrue;
   }

@@ -23,7 +23,7 @@ import com.fpetrola.z80.se.RoutineExecution;
 
 public class GenericAddressAction extends AddressAction {
   public GenericAddressAction(int pcValue, RoutineExecution routineExecution) {
-    super(pcValue, routineExecution);
+    super(pcValue, routineExecution.getRoutineExecutorHandler());
   }
 
   public int getNext(int executedInstructionAddress, int currentPc) {

@@ -22,12 +22,13 @@ import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.ConditionAlwaysTrue;
 import com.fpetrola.z80.se.RoutineExecution;
+import com.fpetrola.z80.se.RoutineExecutorHandler;
 
 public class AddressActionDelegate extends BasicAddressAction {
   private AddressAction addressAction;
 
-  public AddressActionDelegate(int address2, RoutineExecution routineExecution) {
-    super(address2, routineExecution);
+  public AddressActionDelegate(int address2, RoutineExecutorHandler routineExecutorHandler) {
+    super(address2, routineExecutorHandler);
   }
 
   public boolean processBranch(Instruction instruction) {

@@ -92,14 +92,15 @@ public class RoutineExecution<T extends WordNumber> {
   }
 
   public <T extends WordNumber> AddressAction createAddressAction(Instruction<Boolean> instruction, boolean alwaysTrue, int pcValue) {
+    RoutineExecutorHandler<T> routineExecutorHandler1 = (RoutineExecutorHandler<T>) this.getRoutineExecutorHandler();
     if (instruction instanceof Ret) {
-      return new RetAddressAction(instruction, this, pcValue, alwaysTrue);
+      return new RetAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler1);
     } else if (instruction instanceof Call call) {
-      return new CallAddressAction(pcValue, call, this, alwaysTrue);
+      return new CallAddressAction(pcValue, call, alwaysTrue, routineExecutorHandler1);
     } else if (instruction instanceof JP jp && jp.getPositionOpcodeReference() instanceof Register) {
-      return new JPRegisterAddressAction(instruction, this, pcValue, alwaysTrue);
+      return new JPRegisterAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler1);
     } else {
-      return new ConditionalInstructionAddressAction(instruction, this, pcValue, alwaysTrue);
+      return new ConditionalInstructionAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler1);
     }
   }
 

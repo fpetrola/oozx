@@ -31,19 +31,19 @@ public class AddressAction {
   public int address;
   protected boolean pending;
 
-  public AddressAction(int pcValue, RoutineExecution routineExecution) {
+  public AddressAction(int pcValue, RoutineExecutorHandler routineExecutorHandler) {
     this.address = pcValue;
-    this.routineExecutionHandler= routineExecution.getRoutineExecutorHandler();
+    this.routineExecutionHandler= routineExecutorHandler;
   }
 
-  public AddressAction(int pcValue, boolean b, RoutineExecution routineExecution, Instruction instruction, boolean alwaysTrue) {
-    this(pcValue, b, routineExecution);
+  public AddressAction(int pcValue, boolean b, Instruction instruction, boolean alwaysTrue, RoutineExecutorHandler routineExecutorHandler) {
+    this(pcValue, b, routineExecutorHandler);
     this.instruction = instruction;
     this.alwaysTrue = alwaysTrue;
   }
 
-  public AddressAction(int address, boolean pending, RoutineExecution routineExecution) {
-    this(address, routineExecution);
+  public AddressAction(int address, boolean pending, RoutineExecutorHandler routineExecutorHandler) {
+    this(address, routineExecutorHandler);
     this.pending = pending;
   }
 

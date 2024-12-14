@@ -50,34 +50,29 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> implements IP
   public int execute() {
     setNextPC(null);
     returnAddress = null;
-    final T read = Memory.read16Bits(memory, sp.read());
+    var read = Memory.read16Bits(memory, sp.read());
 
     if (read instanceof ReturnAddressWordNumber returnAddressWordNumber) {
+      var pcValue = pc.read().intValue();
       returnAddress0 = returnAddressWordNumber;
-
-      // target.write(createValue(0));
-
-      RoutineExecution lastRoutineExecution = symbolicExecutionAdapter.routineExecutorHandler.getCurrentRoutineExecution();
-//      if (symbolicExecutionAdapter.lastPc != lastRoutineExecution.lastPc)
-//        System.out.println("lastpc!!!");
       previousPc = symbolicExecutionAdapter.lastPc;
-      RoutineExecution routineExecution = symbolicExecutionAdapter.routineExecutorHandler.getCallerRoutineExecution();
-      int address2 = pc.read().intValue() + 1;
+      popAddress = pcValue;
 
-      routineExecution.replaceAddressAction(new AddressActionDelegate(address2, routineExecution));
-      routineExecution.replaceAddressAction(new AddressActionDelegate(returnAddressWordNumber.intValue(), routineExecution));
+      var routineExecutorHandler1 = symbolicExecutionAdapter.routineExecutorHandler;
 
-      popAddress = pc.read().intValue();
-      BasicAddressAction addressAction1 = new BasicAddressAction(popAddress, routineExecution);
+      var lastRoutineExecution = routineExecutorHandler1.getCurrentRoutineExecution();
+      var routineExecution = routineExecutorHandler1.getCallerRoutineExecution();
+
+      routineExecution.replaceAddressAction(new AddressActionDelegate(pcValue + 1, routineExecutorHandler1));
+      routineExecution.replaceAddressAction(new AddressActionDelegate(returnAddressWordNumber.intValue(), routineExecutorHandler1));
+
+      var addressAction1 = new BasicAddressAction(popAddress, routineExecutorHandler1);
       addressAction1.setPending(false);
       lastRoutineExecution.replaceAddressAction(addressAction1);
-      routineExecution.replaceAddressAction(new BasicAddressAction(returnAddressWordNumber.pc, routineExecution) {
-        @Override
+      routineExecution.replaceAddressAction(new BasicAddressAction(returnAddressWordNumber.pc, routineExecutorHandler1) {
         public boolean processBranch(Instruction instruction) {
           if (lastRoutineExecution.hasPendingPoints()) {
-            Call call = (Call) instruction;
-            int jumpAddress = call.getJumpAddress().intValue();
-            symbolicExecutionAdapter.createRoutineExecution(jumpAddress);
+            symbolicExecutionAdapter.createRoutineExecution(((Call) instruction).getJumpAddress().intValue());
             return true;
           } else {
             super.processBranch(instruction);
@@ -85,7 +80,6 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> implements IP
           }
         }
 
-        @Override
         public int getNext(int executedInstructionAddress, int currentPc) {
           if (lastRoutineExecution.hasPendingPoints())
             return currentPc;
@@ -93,14 +87,12 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> implements IP
             return getCurrentRoutineExecution().getNextPending().address;
         }
       });
-      {
-        returnAddress = returnAddressWordNumber;
-        T read1 = doPop(memory, sp);
-        target.write(read1);
-        symbolicExecutionAdapter.popRoutineExecution();
-      }
+      returnAddress = returnAddressWordNumber;
+      T read1 = doPop(memory, sp);
+      target.write(read1);
+      symbolicExecutionAdapter.popRoutineExecution();
       if (!lastRoutineExecution.hasRetInstruction())
-        lastRoutineExecution.setRetInstruction(this.pc.read().intValue());
+        lastRoutineExecution.setRetInstruction(pcValue);
     } else {
       symbolicExecutionAdapter.checkNextSP();
       T read1 = doPop(memory, sp);

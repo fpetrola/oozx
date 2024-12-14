@@ -21,7 +21,7 @@ package com.fpetrola.z80.se.actions;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.se.RoutineExecution;
+import com.fpetrola.z80.se.RoutineExecutorHandler;
 import com.fpetrola.z80.se.instructions.SEInstructionFactory;
 
 import java.util.HashSet;
@@ -32,8 +32,8 @@ public class JPRegisterAddressAction extends AddressAction {
   public DynamicJPData dynamicJPData;
   private LinkedList<Integer> cases = new LinkedList<>();
 
-  public JPRegisterAddressAction(Instruction<Boolean> instruction, RoutineExecution routineExecution, int pcValue, boolean alwaysTrue) {
-    super(pcValue, true, routineExecution, instruction, alwaysTrue);
+  public JPRegisterAddressAction(Instruction<Boolean> instruction, int pcValue, boolean alwaysTrue, RoutineExecutorHandler routineExecutorHandler) {
+    super(pcValue, true, instruction, alwaysTrue, routineExecutorHandler);
   }
 
   public boolean processBranch(Instruction instruction) {

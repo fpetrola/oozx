@@ -189,17 +189,17 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   private void executeAllCode(Z80InstructionDriver z80InstructionDriver, Register<T> pc) {
-    boolean ready = false;
+    var ready = false;
     nextSP = 0;
 
     while (!ready) {
-      int pcValue = pc.read().intValue();
+      var pcValue = pc.read().intValue();
       ready = isReady(pcValue);
 
       if (!ready) {
-        RoutineExecution routineExecution = routineExecutorHandler.getCurrentRoutineExecution();
+        var routineExecution = routineExecutorHandler.getCurrentRoutineExecution();
 
-        AddressAction addressAction = routineExecution.getAddressAction(pcValue);
+        var addressAction = routineExecution.getAddressAction(pcValue);
         if (addressAction != null)
           pcValue = updatePcRegister(addressAction.getNextPC());
 
