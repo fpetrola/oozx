@@ -20,14 +20,20 @@ package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.se.RoutineExecution;
-import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 public class ConditionalInstructionAddressAction extends AddressAction {
-  public ConditionalInstructionAddressAction(Instruction<Boolean> instruction, RoutineExecution routineExecution, int pcValue, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter1) {
+  private int count;
+
+  public ConditionalInstructionAddressAction(Instruction<Boolean> instruction, RoutineExecution routineExecution, int pcValue, boolean alwaysTrue) {
     super(pcValue, true, routineExecution, instruction, alwaysTrue);
   }
 
   public boolean processBranch(Instruction instruction) {
+    if (routineExecution.getRoutineExecutorHandler().getPc().read().intValue() == 0x8d67)
+      System.out.println("dasfsssss!!!");
+    count++;
+    if (count > 2)
+      System.out.println("adgadgdag");
     return getDoBranch();
   }
 
@@ -37,7 +43,7 @@ public class ConditionalInstructionAddressAction extends AddressAction {
 
   @Override
   public int getNext(int executedInstructionAddress, int currentPc) {
-    pending = state;
+    pending = branch;
     return super.getNext(executedInstructionAddress, currentPc);
   }
 }

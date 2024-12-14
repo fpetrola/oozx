@@ -18,22 +18,16 @@
 
 package com.fpetrola.z80.se.actions;
 
-import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.ConditionAlwaysTrue;
 import com.fpetrola.z80.se.RoutineExecution;
-import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 public class AddressActionDelegate extends BasicAddressAction {
   private AddressAction addressAction;
-  private final SymbolicExecutionAdapter symbolicExecutionAdapter;
-  private State state;
 
-  public AddressActionDelegate(int address2, SymbolicExecutionAdapter symbolicExecutionAdapter, State state) {
-    super(address2);
-    this.symbolicExecutionAdapter = symbolicExecutionAdapter;
-    this.state = state;
+  public AddressActionDelegate(int address2, RoutineExecution routineExecution) {
+    super(address2, routineExecution);
   }
 
   public boolean processBranch(Instruction instruction) {
@@ -41,9 +35,9 @@ public class AddressActionDelegate extends BasicAddressAction {
       if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction)
         alwaysTrue = conditionalInstruction.getCondition() instanceof ConditionAlwaysTrue;
 
-      RoutineExecution routineExecution = symbolicExecutionAdapter.getRoutineExecution();
-      addressAction = routineExecution.createAddressAction(instruction, alwaysTrue, symbolicExecutionAdapter.getPcValue(), symbolicExecutionAdapter);
-      routineExecution.replaceAddressAction(addressAction);
+      RoutineExecution routineExecution2 = routineExecution.getRoutineExecutorHandler().getRoutineCurrentExecution();
+      addressAction = routineExecution2.createAddressAction(instruction, alwaysTrue, routineExecution.getRoutineExecutorHandler().getPc().read().intValue());
+      routineExecution2.replaceAddressAction(addressAction);
     }
 
     return addressAction.processBranch(instruction);

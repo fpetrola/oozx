@@ -16,13 +16,18 @@
  *
  */
 
-package com.fpetrola.z80.se;
+package com.fpetrola.z80.se.instructions;
 
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.se.DataflowService;
+import com.fpetrola.z80.se.DirectAccessWordNumber;
+import com.fpetrola.z80.se.ReturnAddressWordNumber;
+import com.fpetrola.z80.se.SymbolicExecutionAdapter;
+import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
 import com.fpetrola.z80.se.actions.PopReturnAddress;
 import com.fpetrola.z80.se.actions.PushReturnAddress;
 
@@ -31,7 +36,7 @@ import java.util.Map;
 
 public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructionFactory<T> {
   private final SymbolicExecutionAdapter symbolicExecutionAdapter;
-  public static Map<Integer, DynamicJPData> dynamicJP = new HashMap<>();
+  public static Map<Integer, JPRegisterAddressAction.DynamicJPData> dynamicJP = new HashMap<>();
   private final DataflowService<T> dataflowService;
 
   public SEInstructionFactory(SymbolicExecutionAdapter symbolicExecutionAdapter, State state, DataflowService<T> dataflowService1) {
@@ -135,7 +140,7 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
         int pcValue = pc.read().intValue();
         if (dynamicJP.get(pcValue) == null) {
           int pointerAddress = dataflowService.findValueOrigin(register);
-          dynamicJP.put(pcValue, new DynamicJPData(pcValue, register.read().intValue(), pointerAddress));
+          dynamicJP.put(pcValue, new JPRegisterAddressAction.DynamicJPData(pcValue, register.read().intValue(), pointerAddress));
           System.out.println("JP (HL): PC: %H, HL: %H".formatted(pcValue, register.read().intValue()));
         }
 //              Pop.doPop(memory, sp);

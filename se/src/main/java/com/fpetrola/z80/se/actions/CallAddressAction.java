@@ -21,23 +21,21 @@ package com.fpetrola.z80.se.actions;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.se.RoutineExecution;
-import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 public class CallAddressAction extends AddressAction {
   private final Call call;
-  private final SymbolicExecutionAdapter symbolicExecutionAdapter;
 
-  public CallAddressAction(int pcValue, Call call, RoutineExecution routineExecution, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public CallAddressAction(int pcValue, Call call, RoutineExecution routineExecution, boolean alwaysTrue) {
     super(pcValue, true, routineExecution, call, alwaysTrue);
     this.call = call;
-    this.symbolicExecutionAdapter = symbolicExecutionAdapter;
+    this.routineExecution = routineExecution;
     this.alwaysTrue = alwaysTrue;
   }
 
   public boolean processBranch(Instruction instruction) {
     boolean doBranch = getDoBranch();
     if (doBranch)
-      symbolicExecutionAdapter.createRoutineExecution(call.getJumpAddress().intValue());
+      routineExecution.getRoutineExecutorHandler().createRoutineExecution(call.getJumpAddress().intValue());
     return doBranch;
   }
 
@@ -47,7 +45,7 @@ public class CallAddressAction extends AddressAction {
 
   @Override
   public int getNext(int executedInstructionAddress, int currentPc) {
-    pending = state;
+    pending = branch;
     return super.getNext(executedInstructionAddress, currentPc);
   }
 }

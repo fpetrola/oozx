@@ -29,15 +29,17 @@ import com.fpetrola.z80.se.actions.*;
 
 import java.util.*;
 
-public class RoutineExecution {
-  public int retInstruction = -1;
-  public int start;
+public class RoutineExecution<T extends WordNumber> {
+  private final RoutineExecutorHandler<T> routineExecutorHandler;
+  private int retInstruction = -1;
+  private int start;
   private Map<Integer, AddressAction> actions = new HashMap<>();
-  public int lastPc;
   private ExecutionStackStorage executionStackStorage;
 //    executionStackStorage = new ExecutionStackStorage(symbolicExecutionAdapter.state);
 
-  public RoutineExecution() {
+  public RoutineExecution(RoutineExecutorHandler<T> routineExecutorHandler, int start) {
+    this.routineExecutorHandler = routineExecutorHandler;
+    this.start = start;
   }
 
   public boolean hasPendingPoints() {
@@ -72,6 +74,8 @@ public class RoutineExecution {
   }
 
   public void replaceAddressAction(AddressAction addressAction) {
+    if (addressAction.address == 36199)
+      System.out.println("replaced?");
     actions.put(addressAction.address, addressAction);
   }
 
@@ -87,15 +91,15 @@ public class RoutineExecution {
     return addressAction1;
   }
 
-  public <T extends WordNumber> AddressAction createAddressAction(Instruction<Boolean> instruction, boolean alwaysTrue, int pcValue, SymbolicExecutionAdapter<T> symbolicExecutionAdapter) {
+  public <T extends WordNumber> AddressAction createAddressAction(Instruction<Boolean> instruction, boolean alwaysTrue, int pcValue) {
     if (instruction instanceof Ret) {
-      return new RetAddressAction(instruction, this, pcValue, alwaysTrue, symbolicExecutionAdapter);
+      return new RetAddressAction(instruction, this, pcValue, alwaysTrue);
     } else if (instruction instanceof Call call) {
-      return new CallAddressAction(pcValue, call, this, alwaysTrue, symbolicExecutionAdapter);
-    } else if (instruction instanceof JP jp && jp.getPositionOpcodeReference() instanceof Register register) {
-      return new JPRegisterAddressAction(instruction, this, pcValue, alwaysTrue, symbolicExecutionAdapter);
+      return new CallAddressAction(pcValue, call, this, alwaysTrue);
+    } else if (instruction instanceof JP jp && jp.getPositionOpcodeReference() instanceof Register) {
+      return new JPRegisterAddressAction(instruction, this, pcValue, alwaysTrue);
     } else {
-      return new ConditionalInstructionAddressAction(instruction, this, pcValue, alwaysTrue, symbolicExecutionAdapter);
+      return new ConditionalInstructionAddressAction(instruction, this, pcValue, alwaysTrue);
     }
   }
 
@@ -109,5 +113,21 @@ public class RoutineExecution {
 
   public void setRetInstruction(int retInstruction1) {
     retInstruction = retInstruction1;
+  }
+
+  public String toString() {
+    return "RoutineExecution{start=%d, retInstruction=%d}".formatted(start, retInstruction);
+  }
+
+  public int getStart() {
+    return start;
+  }
+
+  public int getRetInstruction() {
+    return retInstruction;
+  }
+
+  public RoutineExecutorHandler<T> getRoutineExecutorHandler() {
+    return routineExecutorHandler;
   }
 }

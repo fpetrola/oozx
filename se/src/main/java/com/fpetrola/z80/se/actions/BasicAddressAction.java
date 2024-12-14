@@ -18,9 +18,11 @@
 
 package com.fpetrola.z80.se.actions;
 
+import com.fpetrola.z80.se.RoutineExecution;
+
 public class BasicAddressAction extends AddressAction {
-  public BasicAddressAction(int address) {
-    super(address, true);
+  public BasicAddressAction(int address, RoutineExecution routineExecution) {
+    super(address, true, routineExecution);
   }
 
   public int getNext(int executedInstructionAddress, int currentPc) {

@@ -19,13 +19,14 @@
 package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.RoutineExecution;
 
 public class AddressAction {
   protected Instruction instruction;
-  private RoutineExecution routineExecution;
+  protected RoutineExecution<WordNumber> routineExecution;
   protected boolean alwaysTrue;
-  protected boolean state;
+  protected boolean branch;
   public int address;
   protected boolean pending;
 
@@ -35,16 +36,15 @@ public class AddressAction {
   }
 
   public AddressAction(int pcValue, boolean b, RoutineExecution routineExecution, Instruction instruction, boolean alwaysTrue) {
-    this(pcValue, b);
-
-    this.routineExecution = routineExecution;
+    this(pcValue, b, routineExecution);
     this.instruction = instruction;
     this.alwaysTrue = alwaysTrue;
   }
 
-  public AddressAction(int address, boolean pending) {
+  public AddressAction(int address, boolean pending, RoutineExecution routineExecution) {
     this(address, null);
     this.pending = pending;
+    this.routineExecution = routineExecution;
   }
 
   public boolean processBranch(Instruction instruction) {
@@ -55,8 +55,8 @@ public class AddressAction {
   }
 
   protected boolean getDoBranch() {
-    boolean result = state;
-    state = !state;
+    boolean result = branch;
+    branch = !branch;
     result = alwaysTrue || result;
     return result;
   }

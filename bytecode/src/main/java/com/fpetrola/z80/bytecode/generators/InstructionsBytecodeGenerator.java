@@ -27,8 +27,8 @@ import com.fpetrola.z80.opcodes.references.ConditionFlag;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.se.DynamicJPData;
-import com.fpetrola.z80.se.SEInstructionFactory;
+import com.fpetrola.z80.se.instructions.SEInstructionFactory;
+import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
 import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
@@ -662,7 +662,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   @Override
   public boolean visitingJP(JP<T> jp) {
     if (jp.getPositionOpcodeReference() instanceof Register<T> register) {
-      Map<Integer, DynamicJPData> dynamicJP = SEInstructionFactory.dynamicJP;
+      Map<Integer, JPRegisterAddressAction.DynamicJPData> dynamicJP = SEInstructionFactory.dynamicJP;
       dynamicJP.forEach((djpc, dj) -> {
         if (djpc == routineByteCodeGenerator.context.pc.read().intValue()) {
           dj.cases.forEach(c -> {

@@ -20,18 +20,14 @@ package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.se.RoutineExecution;
-import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 public class RetAddressAction extends AddressAction {
-  private final RoutineExecution routineExecution;
   private final int pcValue;
-  private final SymbolicExecutionAdapter symbolicExecutionAdapter;
 
-  public RetAddressAction(Instruction<Boolean> instruction, RoutineExecution routineExecution, int pcValue, boolean alwaysTrue, SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public RetAddressAction(Instruction<Boolean> instruction, RoutineExecution routineExecution, int pcValue, boolean alwaysTrue) {
     super(pcValue, true, routineExecution, instruction, alwaysTrue);
     this.routineExecution = routineExecution;
     this.pcValue = pcValue;
-    this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     this.alwaysTrue = alwaysTrue;
   }
 
@@ -41,7 +37,7 @@ public class RetAddressAction extends AddressAction {
 
     routineExecution.setRetInstruction(pcValue);
     if (!routineExecution.hasPendingPoints() && doBranch) {
-      symbolicExecutionAdapter.popFrame();
+      routineExecution.getRoutineExecutorHandler().popRoutineExecution();
       return true;
     } else {
       return false;
@@ -51,7 +47,7 @@ public class RetAddressAction extends AddressAction {
   @Override
   public int getNext(int executedInstructionAddress, int currentPc) {
     int result;
-    int retInstruction = routineExecution.retInstruction;
+    int retInstruction = routineExecution.getRetInstruction();
     if (alwaysTrue) {
       pending = false;
       int result1 = currentPc;
