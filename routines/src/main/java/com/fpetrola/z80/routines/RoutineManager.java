@@ -107,7 +107,7 @@ public class RoutineManager {
     blocksManager.clear();
     routines.clear();
     callees.clear();
-    callees.clear();
+    callers.clear();
     callers2.clear();
   }
 
