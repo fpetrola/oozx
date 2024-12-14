@@ -43,23 +43,19 @@ public class RoutineFinder {
 
   public RoutineFinder(RoutineManager routineManager) {
     this.routineManager = routineManager;
-    routineManager.callers.clear();
-    routineManager.callees.clear();
   }
 
   public void checkExecution(Instruction instruction, int pcValue) {
 
     try {
       if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
-        if (!(instruction instanceof Call) && !(instruction instanceof Ret<?>)) {
-          if (conditionalInstruction.getNextPC() != null) {
+        if (conditionalInstruction.getNextPC() != null)
+          if (instruction instanceof Call) {
+            routineManager.callers2.put(conditionalInstruction.getNextPC().intValue(), pcValue);
+          } else if (!(instruction instanceof Ret<?>)) {
             routineManager.callers.put(conditionalInstruction.getNextPC().intValue(), pcValue);
             routineManager.callees.put(pcValue, conditionalInstruction.getNextPC().intValue());
           }
-        } else if (instruction instanceof Call) {
-          if (conditionalInstruction.getNextPC() != null)
-            routineManager.callers2.put(conditionalInstruction.getNextPC().intValue(), pcValue);
-        }
       }
 
       if (currentRoutine == null)
@@ -101,27 +97,18 @@ public class RoutineFinder {
 
   private void processRetInstruction(Ret ret) {
     if (ret.getNextPC() != null) {
-//            Routine routineAt = routineManager.findRoutineAt(pcValue);
-//            if (currentRoutine != routineAt && !currentRoutine.contains(routineAt)) {
-//              currentRoutine.addInnerRoutine(routineAt);
-//            }
-//            currentRoutine.finish();
-//      System.out.printf("RET: %H%n", ret.getNextPC().intValue());
-
       this.currentRoutine = routineManager.findRoutineAt(ret.getNextPC().intValue() - 1);
     }
   }
 
   private void processPopInstruction(Instruction instruction, int pcValue, IPopReturnAddress popReturnAddress) {
-    if (popReturnAddress.getReturnAddress0() != null) {
-      ReturnAddressWordNumber returnAddress = popReturnAddress.getReturnAddress();
-      if (returnAddress != null) {
-        if (popReturnAddress.getPreviousPc() != -1)
-          currentRoutine.getVirtualPop().put(popReturnAddress.getPreviousPc(), popReturnAddress.getPopAddress());
-        Routine returnRoutine = routineManager.findRoutineAt(returnAddress.pc);
-        returnRoutine.addReturnPoint(returnAddress.pc, pcValue + 1);
-        this.currentRoutine = returnRoutine;
-      }
+    ReturnAddressWordNumber returnAddress = popReturnAddress.getReturnAddress();
+    if (returnAddress != null) {
+      if (popReturnAddress.getPreviousPc() != -1)
+        currentRoutine.getVirtualPop().put(popReturnAddress.getPreviousPc(), popReturnAddress.getPopAddress());
+      Routine returnRoutine = routineManager.findRoutineAt(returnAddress.pc);
+      returnRoutine.addReturnPoint(returnAddress.pc, pcValue + 1);
+      this.currentRoutine = returnRoutine;
     } else
       currentRoutine.addInstructionAt(instruction, pcValue);
   }
@@ -143,7 +130,6 @@ public class RoutineFinder {
       currentRoutine = routineManager.createRoutine(startAddress, length);
     }
 
-//    System.out.println("chaging routine to: "+ currentRoutine);
     if (lastCurrentRoutine != null) {
       BlockRelation blockRelation = BlockRelation.createBlockRelation(lastCurrentRoutine.getRangeHandler().getStartAddress(), startAddress);
       lastCurrentRoutine.getReferencesHandler().addBlockRelation(blockRelation);
@@ -153,6 +139,3 @@ public class RoutineFinder {
   }
 
 }
-//Block lastCurrentRoutine = blocksManager.findBlockAt(lastPc);
-//    if (lastCurrentRoutine != null)
-//    lastCurrentRoutine.getReferencesHandler().addBlockRelation(BlockRelation.createBlockRelation(lastCurrentRoutine.getRangeHandler().getStartAddress(), startAddress));

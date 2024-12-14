@@ -19,9 +19,10 @@
 package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 
-public class ConditionalInstructionAddressAction extends AddressAction {
+public class ConditionalInstructionAddressAction<T extends WordNumber> extends AddressAction<T> {
   private int count;
 
   public ConditionalInstructionAddressAction(Instruction<Boolean> instruction, int pcValue, boolean alwaysTrue, RoutineExecutorHandler routineExecutorHandler) {
@@ -29,7 +30,7 @@ public class ConditionalInstructionAddressAction extends AddressAction {
   }
 
   public boolean processBranch(Instruction instruction) {
-    if (getCurrentRoutineExecution().getRoutineExecutorHandler().getPc().read().intValue() == 0x8d67)
+    if (routineExecutionHandler.getPc().read().intValue() == 0x8d67)
       System.out.println("dasfsssss!!!");
     count++;
     if (count > 2)

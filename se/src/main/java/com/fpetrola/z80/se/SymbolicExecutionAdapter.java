@@ -38,6 +38,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.actions.AddressAction;
+import com.fpetrola.z80.se.actions.ExecutionStackStorage;
 import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
 import com.fpetrola.z80.se.instructions.SEInstructionFactory;
 import com.fpetrola.z80.spy.ExecutionListener;
@@ -93,7 +94,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     });
     mutantAddress.clear();
     dataflowService = dataflowService1;
-    routineExecutorHandler = new RoutineExecutorHandler<>(state.getPc());
+    routineExecutorHandler = new RoutineExecutorHandler<>(state.getPc(), new ExecutionStackStorage<>(state));
   }
 
   public InstructionFetcher createInstructionFetcher(InstructionSpy spy, State<T> state, InstructionExecutor<T> instructionExecutor, OpcodeConditions opcodeConditions) {
@@ -129,7 +130,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
     registerSP = state.getRegisterSP().read().intValue();
 
-    createRoutineExecution(firstAddress);
+    routineExecutorHandler.createRoutineExecution(firstAddress);
     pc = state.getPc();
     updatePcRegister(firstAddress);
 
@@ -251,14 +252,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   public Set<Integer> getMutantAddress() {
     return mutantAddress;
-  }
-
-  public void createRoutineExecution(int jumpAddress) {
-    routineExecutorHandler.createRoutineExecution(jumpAddress);
-  }
-
-  public void popRoutineExecution() {
-    routineExecutorHandler.popRoutineExecution();
   }
 
   public abstract class SymbolicInstructionFactoryDelegator implements InstructionFactoryDelegator {

@@ -20,11 +20,10 @@ package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.se.RoutineExecution;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 
-public class AddressAction {
-  private final RoutineExecutorHandler routineExecutionHandler;
+public class AddressAction<T extends WordNumber> {
+  protected final RoutineExecutorHandler<T> routineExecutionHandler;
   protected Instruction instruction;
   protected boolean alwaysTrue;
   protected boolean branch;
@@ -78,7 +77,7 @@ public class AddressAction {
       pending= false;
       return address1;
     } else {
-      return getCurrentRoutineExecution().getNextPending().address;
+      return routineExecutionHandler.getCurrentRoutineExecution().getNextPending().address;
     }
   }
 
@@ -94,9 +93,6 @@ public class AddressAction {
     }
   }
 
-  public RoutineExecution<WordNumber> getCurrentRoutineExecution() {
-    return routineExecutionHandler.getCurrentRoutineExecution();
-  }
 }
 
 

@@ -34,7 +34,7 @@ public class CallAddressAction extends AddressAction {
   public boolean processBranch(Instruction instruction) {
     boolean doBranch = getDoBranch();
     if (doBranch)
-      getCurrentRoutineExecution().getRoutineExecutorHandler().createRoutineExecution(call.getJumpAddress().intValue());
+      routineExecutionHandler.createRoutineExecution(call.getJumpAddress().intValue());
     return doBranch;
   }
 

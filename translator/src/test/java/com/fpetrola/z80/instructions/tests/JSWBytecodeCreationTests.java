@@ -76,6 +76,9 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
   public void testEmulateUntil() {
     String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, 0xC804, "http://torinak.com/qaop/bin/dynamitedan");
     stepUntilComplete(0xC804);
+
+//    translateToJava("ZxGame1", base64Memory, "$C804");
+
     List<Routine> routines = getRoutineManager().getRoutines();
     String actual = generateAndDecompile(base64Memory, routines, ".", "ZxGame1");
 

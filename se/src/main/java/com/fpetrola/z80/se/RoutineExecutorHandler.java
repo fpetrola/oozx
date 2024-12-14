@@ -20,6 +20,7 @@ package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.se.actions.ExecutionStackStorage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,11 +30,12 @@ public class RoutineExecutorHandler<T extends WordNumber> {
   private final Register<T> pc;
   private Stack<Object> stackFrames = new Stack<>();
   private Map<Integer, RoutineExecution<T>> routineExecutions = new HashMap<>();
+  private ExecutionStackStorage<T> executionStackStorage;
 
-  public RoutineExecutorHandler(Register<T> pc) {
+  public RoutineExecutorHandler(Register<T> pc, ExecutionStackStorage executionStackStorage) {
     this.pc = pc;
+    this.executionStackStorage = executionStackStorage;
   }
-
   public void createRoutineExecution(int jumpAddress) {
     // if (jumpAddress == 35211) System.out.println("start routine: " + jumpAddress);
     if (jumpAddress == 0xCFD9)
@@ -73,5 +75,9 @@ public class RoutineExecutorHandler<T extends WordNumber> {
 
   public Register<T> getPc() {
     return pc;
+  }
+
+  public ExecutionStackStorage getExecutionStackStorage() {
+    return executionStackStorage;
   }
 }

@@ -16,26 +16,9 @@
  *
  */
 
-package com.fpetrola.z80.se.actions;
+package fuse;
 
-import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.se.RoutineExecutorHandler;
+import com.google.inject.AbstractModule;
 
-public class GenericAddressAction extends AddressAction {
-  public GenericAddressAction(int pcValue, RoutineExecutorHandler routineExecutorHandler) {
-    super(pcValue, routineExecutorHandler);
-  }
-
-  public int getNext(int executedInstructionAddress, int currentPc) {
-    pending = false;
-    return currentPc;
-  }
-
-  public int getNextPC() {
-    return getNextPC(address);
-  }
-
-  public boolean processBranch(Instruction instruction) {
-    return false;
-  }
+public class EmptyModule extends AbstractModule {
 }

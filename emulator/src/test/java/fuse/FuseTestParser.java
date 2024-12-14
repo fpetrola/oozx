@@ -35,7 +35,9 @@ import fuse.tstates.PhaseProcessor;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -49,9 +51,11 @@ public class FuseTestParser<T extends WordNumber> {
   private DefaultInstructionFetcher instructionFetcher;
   private State<T> state;
 
-  public FuseTestParser(File testDataDir) {
-    this.inFile = new File(testDataDir, "tests.in");
-    this.expectedFile = new File(testDataDir, "tests.expected");
+  public FuseTestParser(Path testDataDir) {
+    URL resource = FuseTestParser.class.getResource("/"+testDataDir.toString());
+    File file = new File(resource.getFile());
+    this.inFile = new File(file, "tests.in");
+    this.expectedFile = new File(file, "tests.expected");
   }
 
   public List<FuseTest> getTests() {

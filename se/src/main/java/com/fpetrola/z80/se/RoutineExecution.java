@@ -34,8 +34,6 @@ public class RoutineExecution<T extends WordNumber> {
   private int retInstruction = -1;
   private int start;
   private Map<Integer, AddressAction> actions = new HashMap<>();
-  private ExecutionStackStorage executionStackStorage;
-//    executionStackStorage = new ExecutionStackStorage(symbolicExecutionAdapter.state);
 
   public RoutineExecution(RoutineExecutorHandler<T> routineExecutorHandler, int start) {
     this.routineExecutorHandler = routineExecutorHandler;
@@ -64,7 +62,7 @@ public class RoutineExecution<T extends WordNumber> {
   }
 
   public AddressAction createAndAddGenericAction(int pcValue) {
-    AddressAction addressAction = new GenericAddressAction(pcValue, this);
+    AddressAction addressAction = new GenericAddressAction(pcValue, routineExecutorHandler);
     replaceAddressAction(addressAction);
     return addressAction;
   }
@@ -92,15 +90,14 @@ public class RoutineExecution<T extends WordNumber> {
   }
 
   public <T extends WordNumber> AddressAction createAddressAction(Instruction<Boolean> instruction, boolean alwaysTrue, int pcValue) {
-    RoutineExecutorHandler<T> routineExecutorHandler1 = (RoutineExecutorHandler<T>) this.getRoutineExecutorHandler();
     if (instruction instanceof Ret) {
-      return new RetAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler1);
+      return new RetAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler);
     } else if (instruction instanceof Call call) {
-      return new CallAddressAction(pcValue, call, alwaysTrue, routineExecutorHandler1);
+      return new CallAddressAction(pcValue, call, alwaysTrue, routineExecutorHandler);
     } else if (instruction instanceof JP jp && jp.getPositionOpcodeReference() instanceof Register) {
-      return new JPRegisterAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler1);
+      return new JPRegisterAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler);
     } else {
-      return new ConditionalInstructionAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler1);
+      return new ConditionalInstructionAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler);
     }
   }
 
@@ -128,7 +125,4 @@ public class RoutineExecution<T extends WordNumber> {
     return retInstruction;
   }
 
-  public RoutineExecutorHandler<T> getRoutineExecutorHandler() {
-    return routineExecutorHandler;
-  }
 }

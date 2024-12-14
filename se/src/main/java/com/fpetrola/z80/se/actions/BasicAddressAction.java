@@ -18,11 +18,16 @@
 
 package com.fpetrola.z80.se.actions;
 
+import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 
-public class BasicAddressAction extends AddressAction {
+public class BasicAddressAction<T extends WordNumber> extends AddressAction<T> {
   public BasicAddressAction(int address, RoutineExecutorHandler routineExecutorHandler) {
     super(address, true, routineExecutorHandler);
+  }
+
+  public BasicAddressAction(int address, RoutineExecutorHandler routineExecutorHandler, boolean pending) {
+    super(address, pending, routineExecutorHandler);
   }
 
   public int getNext(int executedInstructionAddress, int currentPc) {

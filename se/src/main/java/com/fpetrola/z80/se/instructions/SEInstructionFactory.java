@@ -87,7 +87,7 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
   }
 
   public Pop Pop(OpcodeReference target) {
-    return new PopReturnAddress(symbolicExecutionAdapter, target, sp, memory, flag, pc);
+    return new PopReturnAddress(symbolicExecutionAdapter, target, sp, memory, flag);
   }
 
   public Push Push(OpcodeReference target) {

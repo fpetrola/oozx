@@ -18,35 +18,37 @@
 
 package com.fpetrola.z80.se.actions;
 
-import com.fpetrola.z80.instructions.types.ConditionalInstruction;
+import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.ConditionAlwaysTrue;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.RoutineExecution;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 
-public class AddressActionDelegate<T extends WordNumber> extends BasicAddressAction<T> {
-  private AddressAction addressAction;
+public class PopReturnCallAddressAction<T extends WordNumber> extends BasicAddressAction<T> {
+  private final RoutineExecutorHandler<T> routineExecutorHandler;
+  private final RoutineExecution<T> lastRoutineExecution;
 
-  public AddressActionDelegate(int address2, RoutineExecutorHandler routineExecutorHandler) {
-    super(address2, routineExecutorHandler);
+  public PopReturnCallAddressAction(RoutineExecutorHandler<T> routineExecutorHandler, RoutineExecution<T> lastRoutineExecution, int pc1) {
+    super(pc1, routineExecutorHandler);
+    this.routineExecutorHandler = routineExecutorHandler;
+    this.lastRoutineExecution = lastRoutineExecution;
   }
 
   public boolean processBranch(Instruction instruction) {
-    if (addressAction == null) {
-      if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction)
-        alwaysTrue = conditionalInstruction.getCondition() instanceof ConditionAlwaysTrue;
-
-      RoutineExecution routineExecution2 = routineExecutionHandler.getCurrentRoutineExecution();
-      addressAction = routineExecution2.createAddressAction(instruction, alwaysTrue, routineExecutionHandler.getPc().read().intValue());
-      routineExecution2.replaceAddressAction(addressAction);
+    if (lastRoutineExecution.hasPendingPoints()) {
+      int jumpAddress = ((Call) instruction).getJumpAddress().intValue();
+      routineExecutorHandler.createRoutineExecution(jumpAddress);
+      return true;
+    } else {
+      super.processBranch(instruction);
+      return false;
     }
-
-    return addressAction.processBranch(instruction);
   }
 
-  @Override
   public int getNext(int executedInstructionAddress, int currentPc) {
-    return super.getNext(executedInstructionAddress, currentPc);
+    if (lastRoutineExecution.hasPendingPoints())
+      return currentPc;
+    else
+      return routineExecutionHandler.getCurrentRoutineExecution().getNextPending().address;
   }
 }
