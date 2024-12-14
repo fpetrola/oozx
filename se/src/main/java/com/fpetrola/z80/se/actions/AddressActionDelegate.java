@@ -35,8 +35,8 @@ public class AddressActionDelegate extends BasicAddressAction {
       if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction)
         alwaysTrue = conditionalInstruction.getCondition() instanceof ConditionAlwaysTrue;
 
-      RoutineExecution routineExecution2 = routineExecution.getRoutineExecutorHandler().getRoutineCurrentExecution();
-      addressAction = routineExecution2.createAddressAction(instruction, alwaysTrue, routineExecution.getRoutineExecutorHandler().getPc().read().intValue());
+      RoutineExecution routineExecution2 = getCurrentRoutineExecution().getRoutineExecutorHandler().getCurrentRoutineExecution();
+      addressAction = routineExecution2.createAddressAction(instruction, alwaysTrue, getCurrentRoutineExecution().getRoutineExecutorHandler().getPc().read().intValue());
       routineExecution2.replaceAddressAction(addressAction);
     }
 

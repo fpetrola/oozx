@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.se;
 
-import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
@@ -47,8 +46,8 @@ public class RoutineExecutorHandler<T extends WordNumber> {
       System.err.print("");
   }
 
-  public void popRoutineExecution() {
-    stackFrames.pop();
+  public Object popRoutineExecution() {
+    return stackFrames.pop();
   }
 
   public void reset() {
@@ -60,7 +59,7 @@ public class RoutineExecutorHandler<T extends WordNumber> {
     return stackFrames.isEmpty();
   }
 
-  public RoutineExecution<T> getRoutineCurrentExecution() {
+  public RoutineExecution<T> getCurrentRoutineExecution() {
     return routineExecutions.get(stackFrames.peek());
   }
 

@@ -106,11 +106,11 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   public <T extends WordNumber> MutableOpcodeConditions createOpcodeConditions(State<T> state) {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
-      System.out.printf("pc: %04x -> %s%n", getPcValue(), instruction);
+      System.out.printf("pc: %s -> %s%n", Helper.formatAddress(getPcValue()), instruction);
 
       if (instruction instanceof DJNZ)
         System.out.println("dsagsdgsdag");
-      RoutineExecution routineExecution = routineExecutorHandler.getRoutineCurrentExecution();
+      RoutineExecution routineExecution = routineExecutorHandler.getCurrentRoutineExecution();
       AddressAction addressAction = routineExecution.replaceIfAbsent(getPcValue(), routineExecution.createAddressAction(instruction, alwaysTrue, getPcValue()));
       return addressAction.processBranch(instruction);
     });
@@ -197,7 +197,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       ready = isReady(pcValue);
 
       if (!ready) {
-        RoutineExecution routineExecution = routineExecutorHandler.getRoutineCurrentExecution();
+        RoutineExecution routineExecution = routineExecutorHandler.getCurrentRoutineExecution();
 
         AddressAction addressAction = routineExecution.getAddressAction(pcValue);
         if (addressAction != null)

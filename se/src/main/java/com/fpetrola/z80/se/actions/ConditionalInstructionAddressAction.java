@@ -29,7 +29,7 @@ public class ConditionalInstructionAddressAction extends AddressAction {
   }
 
   public boolean processBranch(Instruction instruction) {
-    if (routineExecution.getRoutineExecutorHandler().getPc().read().intValue() == 0x8d67)
+    if (getCurrentRoutineExecution().getRoutineExecutorHandler().getPc().read().intValue() == 0x8d67)
       System.out.println("dasfsssss!!!");
     count++;
     if (count > 2)

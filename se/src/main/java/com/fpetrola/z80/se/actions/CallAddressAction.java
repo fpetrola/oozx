@@ -28,14 +28,13 @@ public class CallAddressAction extends AddressAction {
   public CallAddressAction(int pcValue, Call call, RoutineExecution routineExecution, boolean alwaysTrue) {
     super(pcValue, true, routineExecution, call, alwaysTrue);
     this.call = call;
-    this.routineExecution = routineExecution;
     this.alwaysTrue = alwaysTrue;
   }
 
   public boolean processBranch(Instruction instruction) {
     boolean doBranch = getDoBranch();
     if (doBranch)
-      routineExecution.getRoutineExecutorHandler().createRoutineExecution(call.getJumpAddress().intValue());
+      getCurrentRoutineExecution().getRoutineExecutorHandler().createRoutineExecution(call.getJumpAddress().intValue());
     return doBranch;
   }
 

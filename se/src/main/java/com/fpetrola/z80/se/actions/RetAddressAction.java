@@ -19,14 +19,15 @@
 package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.RoutineExecution;
 
 public class RetAddressAction extends AddressAction {
   private final int pcValue;
+  private RoutineExecution<WordNumber> currentRoutineExecution;
 
   public RetAddressAction(Instruction<Boolean> instruction, RoutineExecution routineExecution, int pcValue, boolean alwaysTrue) {
     super(pcValue, true, routineExecution, instruction, alwaysTrue);
-    this.routineExecution = routineExecution;
     this.pcValue = pcValue;
     this.alwaysTrue = alwaysTrue;
   }
@@ -35,9 +36,10 @@ public class RetAddressAction extends AddressAction {
     boolean doBranch = getDoBranch();
     super.processBranch(instruction);
 
-    routineExecution.setRetInstruction(pcValue);
-    if (!routineExecution.hasPendingPoints() && doBranch) {
-      routineExecution.getRoutineExecutorHandler().popRoutineExecution();
+    getCurrentRoutineExecution().setRetInstruction(pcValue);
+    currentRoutineExecution = getCurrentRoutineExecution();
+    if (!getCurrentRoutineExecution().hasPendingPoints() && doBranch) {
+      getCurrentRoutineExecution().getRoutineExecutorHandler().popRoutineExecution();
       return true;
     } else {
       return false;
@@ -47,17 +49,17 @@ public class RetAddressAction extends AddressAction {
   @Override
   public int getNext(int executedInstructionAddress, int currentPc) {
     int result;
-    int retInstruction = routineExecution.getRetInstruction();
+    int retInstruction = currentRoutineExecution.getRetInstruction();
     if (alwaysTrue) {
       pending = false;
       int result1 = currentPc;
-      if (retInstruction == executedInstructionAddress && routineExecution.hasPendingPoints())
-        result1 = routineExecution.getNextPending().address;
+      if (retInstruction == executedInstructionAddress && currentRoutineExecution.hasPendingPoints())
+        result1 = currentRoutineExecution.getNextPending().address;
       result = result1;
     } else if (retInstruction == -1 || retInstruction == address) {
       result = currentPc;
     } else {
-      AddressAction nextPending = routineExecution.getNextPending();
+      AddressAction nextPending = currentRoutineExecution.getNextPending();
       result = nextPending == this ? currentPc : nextPending.address;
     }
     return result;

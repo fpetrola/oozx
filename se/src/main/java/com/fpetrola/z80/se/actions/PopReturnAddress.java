@@ -57,7 +57,7 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> implements IP
 
       // target.write(createValue(0));
 
-      RoutineExecution lastRoutineExecution = symbolicExecutionAdapter.routineExecutorHandler.getRoutineCurrentExecution();
+      RoutineExecution lastRoutineExecution = symbolicExecutionAdapter.routineExecutorHandler.getCurrentRoutineExecution();
 //      if (symbolicExecutionAdapter.lastPc != lastRoutineExecution.lastPc)
 //        System.out.println("lastpc!!!");
       previousPc = symbolicExecutionAdapter.lastPc;
@@ -90,7 +90,7 @@ public class PopReturnAddress<T extends WordNumber> extends Pop<T> implements IP
           if (lastRoutineExecution.hasPendingPoints())
             return currentPc;
           else
-            return routineExecution.getNextPending().address;
+            return getCurrentRoutineExecution().getNextPending().address;
         }
       });
       {

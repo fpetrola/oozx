@@ -21,10 +21,11 @@ package com.fpetrola.z80.se.actions;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.RoutineExecution;
+import com.fpetrola.z80.se.RoutineExecutorHandler;
 
 public class AddressAction {
+  private final RoutineExecutorHandler routineExecutionHandler;
   protected Instruction instruction;
-  protected RoutineExecution<WordNumber> routineExecution;
   protected boolean alwaysTrue;
   protected boolean branch;
   public int address;
@@ -32,7 +33,7 @@ public class AddressAction {
 
   public AddressAction(int pcValue, RoutineExecution routineExecution) {
     this.address = pcValue;
-    this.routineExecution = routineExecution;
+    this.routineExecutionHandler= routineExecution.getRoutineExecutorHandler();
   }
 
   public AddressAction(int pcValue, boolean b, RoutineExecution routineExecution, Instruction instruction, boolean alwaysTrue) {
@@ -42,9 +43,8 @@ public class AddressAction {
   }
 
   public AddressAction(int address, boolean pending, RoutineExecution routineExecution) {
-    this(address, null);
+    this(address, routineExecution);
     this.pending = pending;
-    this.routineExecution = routineExecution;
   }
 
   public boolean processBranch(Instruction instruction) {
@@ -78,7 +78,7 @@ public class AddressAction {
       pending= false;
       return address1;
     } else {
-      return routineExecution.getNextPending().address;
+      return getCurrentRoutineExecution().getNextPending().address;
     }
   }
 
@@ -92,6 +92,10 @@ public class AddressAction {
     } else {
       return currentPc;
     }
+  }
+
+  public RoutineExecution<WordNumber> getCurrentRoutineExecution() {
+    return routineExecutionHandler.getCurrentRoutineExecution();
   }
 }
 
