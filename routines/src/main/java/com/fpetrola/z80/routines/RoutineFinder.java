@@ -46,7 +46,6 @@ public class RoutineFinder {
   }
 
   public void checkExecution(Instruction instruction, int pcValue) {
-
     try {
       if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
         if (conditionalInstruction.getNextPC() != null)
@@ -73,9 +72,6 @@ public class RoutineFinder {
           processRetInstruction(ret);
         }
       }
-
-    } catch (Exception e) {
-      throw new RuntimeException(e);
     } finally {
       routineManager.optimizeAll();
       lastInstruction = instruction;
