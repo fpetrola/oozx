@@ -65,8 +65,8 @@ public class RoutineFinder {
         processCallInstruction(instruction);
       }
 
-      if (instruction instanceof IPopReturnAddress popReturnAddress) {
-        processPopInstruction(instruction, pcValue, popReturnAddress);
+      if (instruction instanceof IPopReturnAddress popReturnAddress && popReturnAddress.getReturnAddress() != null) {
+        processPopInstruction(pcValue, popReturnAddress);
       } else {
         currentRoutine.addInstructionAt(instruction, pcValue);
         if (instruction instanceof Ret ret) {
@@ -101,16 +101,13 @@ public class RoutineFinder {
     }
   }
 
-  private void processPopInstruction(Instruction instruction, int pcValue, IPopReturnAddress popReturnAddress) {
-    ReturnAddressWordNumber returnAddress = popReturnAddress.getReturnAddress();
-    if (returnAddress != null) {
-      if (popReturnAddress.getPreviousPc() != -1)
-        currentRoutine.getVirtualPop().put(popReturnAddress.getPreviousPc(), popReturnAddress.getPopAddress());
-      Routine returnRoutine = routineManager.findRoutineAt(returnAddress.pc);
-      returnRoutine.addReturnPoint(returnAddress.pc, pcValue + 1);
-      this.currentRoutine = returnRoutine;
-    } else
-      currentRoutine.addInstructionAt(instruction, pcValue);
+  private void processPopInstruction(int pcValue, IPopReturnAddress popReturnAddress) {
+    if (popReturnAddress.getPreviousPc() != -1)
+      currentRoutine.getVirtualPop().put(popReturnAddress.getPreviousPc(), popReturnAddress.getPopAddress());
+    ReturnAddressWordNumber returnAddress1 = popReturnAddress.getReturnAddress();
+    Routine returnRoutine = routineManager.findRoutineAt(returnAddress1.pc);
+    returnRoutine.addReturnPoint(returnAddress1.pc, pcValue + 1);
+    this.currentRoutine = returnRoutine;
   }
 
   private Routine createOrUpdateCurrentRoutine(int startAddress, int length) {
