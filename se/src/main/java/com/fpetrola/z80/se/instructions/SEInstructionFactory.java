@@ -23,6 +23,7 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.se.DirectAccessWordNumber;
 import com.fpetrola.z80.se.ReturnAddressWordNumber;
@@ -48,6 +49,12 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
   public Ld<T> Ld(OpcodeReference<T> target, ImmutableOpcodeReference<T> source) {
     return new Ld<T>(target, source, flag) {
       public int execute() {
+        if (target instanceof Register<T> register) {
+          if (register.getName().equals(RegisterName.SP.name())) {
+            symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().printStack();
+            return 0;
+          }
+        }
         if (source instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
           T value = source.read();
           T address = indirectMemory16BitReference.address;
