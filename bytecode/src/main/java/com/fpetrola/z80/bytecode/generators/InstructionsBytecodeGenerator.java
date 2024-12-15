@@ -449,6 +449,8 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   public void visitingLd(Ld ld) {
+    if (ld.getTarget() instanceof Register<?> register && register.getName().equals("SP"))
+      return;
     ld.accept(new VariableHandlingInstructionVisitor((s, t) -> t.set(s), routineByteCodeGenerator));
   }
 
@@ -598,7 +600,11 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 //          routineByteCodeGenerator.getField("nextAddress").set(nextAddress);
           incPopsAdded = true;
         } else {
-          routineByteCodeGenerator.invokeTransformedMethod(i);
+          try {
+            routineByteCodeGenerator.invokeTransformedMethod(i);
+          } catch (Exception e) {
+            System.out.println("not defined: " + i);
+          }
           methodMaker.return_();
         }
         routineByteCodeGenerator.returnFromMethod();
