@@ -25,14 +25,14 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.*;
 
-public class PopReturnAddress<T extends WordNumber> extends Pop<T> implements IPopReturnAddress<T> {
+public class SePop<T extends WordNumber> extends Pop<T> implements IPopReturnAddress<T> {
   private final SymbolicExecutionAdapter<T> symbolicExecutionAdapter;
   private int previousPc = -1;
   private int popAddress;
 
   private ReturnAddressWordNumber returnAddress;
 
-  public PopReturnAddress(SymbolicExecutionAdapter<T> symbolicExecutionAdapter, OpcodeReference<T> target, Register<T> sp, Memory<T> memory, Register<T> flag) {
+  public SePop(SymbolicExecutionAdapter<T> symbolicExecutionAdapter, OpcodeReference<T> target, Register<T> sp, Memory<T> memory, Register<T> flag) {
     super(target, sp, memory, flag);
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
   }
