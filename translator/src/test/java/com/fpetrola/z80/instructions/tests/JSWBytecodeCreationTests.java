@@ -77,7 +77,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, 0xC804, "http://torinak.com/qaop/bin/dynamitedan");
     stepUntilComplete(0xC804);
 
-//    translateToJava("ZxGame1", base64Memory, "$C804");
+    translateToJava("ZxGame1", base64Memory, "$C804");
 
     List<Routine> routines = getRoutineManager().getRoutines();
     String actual = generateAndDecompile(base64Memory, routines, ".", "ZxGame1");
@@ -107,10 +107,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
         {D1B2:D1CC} -> [Code: D1B2 : D1CC]
         {D1CE:D2BE} -> [Code: D1CE : D2BE]
         {D2BF:D2ED} -> [Code: D2BF : D2ED]
-        {D2F0:D950} -> [Code: D2F0 : D314, Code: D319 : D32D, Code: D332 : D349, Code: D351 : D360, Code: D895 : D950]
-        {D32E:D331} -> [Code: D32E : D331]
-        {D34A:D350} -> [Code: D34A : D350]
-        {D361:D377} -> [Code: D361 : D377]
+        {D2F0:D950} -> [Code: D2F0 : D314, Code: D319 : D377, Code: D895 : D950]
         {D378:D3AB} -> [Code: D378 : D3AB]
         {D3EC:D4AE} -> [Code: D3EC : D4AE]
         {D4AF:D4B4} -> [Code: D4AF : D4B4]
@@ -134,8 +131,10 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
         {D9AA:D9AF} -> [Code: D9AA : D9AF]
         {D9B0:D9E7} -> [Code: D9B0 : D9E7]
         {D9EC:DA86} -> [Code: D9EC : DA86]
-        {DA8D:DB37} -> [Code: DA8D : DAB1, Code: DAC8 : DAF9, Code: DB17 : DB37]
+        {DA8D:DB37} -> [Code: DA8D : DA9D, Code: DAA7 : DAB1, Code: DAE5 : DAF9, Code: DB17 : DB37]
+        {DA9E:DAA6} -> [Code: DA9E : DAA6]
         {DAB2:DAC7} -> [Code: DAB2 : DAC7]
+        {DAC8:DAE4} -> [Code: DAC8 : DAE4]
         {DAFA:DB00} -> [Code: DAFA : DB00]
         {DB01:DB0A} -> [Code: DB01 : DB0A]
         {DB0B:DB16} -> [Code: DB0B : DB16]
@@ -184,7 +183,8 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
         {E916:E93D} -> [Code: E916 : E93D]
         {E93F:E96A} -> [Code: E93F : E96A]
         {E96B:E9B9} -> [Code: E96B : E9B9]
-        {E9BC:F2A4} -> [Code: E9BC : E9F7, Code: F271 : F2A4]
+        {E9BC:E9DA} -> [Code: E9BC : E9DA]
+        {E9DB:E9F7} -> [Code: E9DB : E9F7]
         {E9F8:EA04} -> [Code: E9F8 : EA04]
         {ECA4:ECBC} -> [Code: ECA4 : ECBC]
         {ECDD:ECF3} -> [Code: ECDD : ECF3]
@@ -198,6 +198,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
         {EF1E:EF47} -> [Code: EF1E : EF47]
         {EF7C:EFBB} -> [Code: EF7C : EFBB]
         {F021:F051} -> [Code: F021 : F051]
+        {F271:F2A4} -> [Code: F271 : F2A4]
         {F2F4:F2FF} -> [Code: F2F4 : F2FF]
         {F300:F309} -> [Code: F300 : F309]
         {F30A:F329} -> [Code: F30A : F329]
@@ -210,7 +211,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
         {F470:F484} -> [Code: F470 : F484]
         """, routinesString);
 
-    Assert.assertEquals("e73695f3bbcf36fa0401f8ac1ec93fb6", createMD5(actual));
+    Assert.assertEquals("8f16af509d0ed4447f5d57355f6505af", createMD5(actual));
   }
 
   @Ignore

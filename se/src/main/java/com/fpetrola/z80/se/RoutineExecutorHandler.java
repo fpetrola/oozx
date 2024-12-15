@@ -28,7 +28,7 @@ import java.util.Stack;
 
 public class RoutineExecutorHandler<T extends WordNumber> {
   private final Register<T> pc;
-  private Stack<Object> stackFrames = new Stack<>();
+  private Stack<Integer> stackFrames = new Stack<>();
   private Map<Integer, RoutineExecution<T>> routineExecutions = new HashMap<>();
   private ExecutionStackStorage<T> executionStackStorage;
 
@@ -36,6 +36,15 @@ public class RoutineExecutorHandler<T extends WordNumber> {
     this.pc = pc;
     this.executionStackStorage = executionStackStorage;
   }
+
+  public RoutineExecution<T> findRoutineExecutionAt(int address) {
+    return routineExecutions.get(address);
+  }
+
+  public RoutineExecution<T> findRoutineExecutionContaining(int address) {
+    return routineExecutions.values().stream().filter(r-> r.contains(address)).findFirst().get();
+  }
+
   public void createRoutineExecution(int jumpAddress) {
     // if (jumpAddress == 35211) System.out.println("start routine: " + jumpAddress);
     if (jumpAddress == 0xCFD9)
@@ -79,5 +88,9 @@ public class RoutineExecutorHandler<T extends WordNumber> {
 
   public ExecutionStackStorage getExecutionStackStorage() {
     return executionStackStorage;
+  }
+
+  public void pushRoutineExecution(RoutineExecution<T> routineExecution) {
+    stackFrames.push(routineExecution.getStart());
   }
 }

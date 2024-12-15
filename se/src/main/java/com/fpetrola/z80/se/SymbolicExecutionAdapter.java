@@ -177,7 +177,11 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           pushAddress(startAddress);
           pushAddress(startAddress);
           pushAddress(startAddress);
-          stepAllAndProcessPending(z80InstructionDriver, (State<T>) state, first1, minimalValidCodeAddress);
+          RoutineExecution<T> routineExecutionAt = routineExecutorHandler.findRoutineExecutionContaining(jpRegisterAddressAction.address);
+          routineExecutorHandler.pushRoutineExecution(routineExecutionAt);
+          pc.write(createValue(jpRegisterAddressAction.address));
+          executeAllCode(z80InstructionDriver, pc);
+//          stepAllAndProcessPending(z80InstructionDriver, (State<T>) state, first1, minimalValidCodeAddress);
         }
       }
     });

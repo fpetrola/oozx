@@ -125,4 +125,7 @@ public class RoutineExecution<T extends WordNumber> {
     return retInstruction;
   }
 
+  public boolean contains(int address) {
+    return actions.containsKey(address);
+  }
 }

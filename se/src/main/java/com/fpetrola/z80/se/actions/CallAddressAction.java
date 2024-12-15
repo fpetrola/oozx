@@ -20,6 +20,7 @@ package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.se.RoutineExecution;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 
 public class CallAddressAction extends AddressAction {
@@ -33,8 +34,13 @@ public class CallAddressAction extends AddressAction {
 
   public boolean processBranch(Instruction instruction) {
     boolean doBranch = getDoBranch();
-    if (doBranch)
-      routineExecutionHandler.createRoutineExecution(call.getJumpAddress().intValue());
+    if (doBranch) {
+      int jumpAddress = call.getJumpAddress().intValue();
+      RoutineExecution routineExecutionAt = routineExecutionHandler.findRoutineExecutionAt(jumpAddress);
+      if (routineExecutionAt != null)
+        return false;
+      routineExecutionHandler.createRoutineExecution(jumpAddress);
+    }
     return doBranch;
   }
 
