@@ -95,7 +95,9 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
     Object result = instructionVisitor.getResult();
     String name = name1;
     Variable variable = routineByteCodeGenerator.variables.get(name);
-    Variable invoke = methodMaker.invoke("ex_iSP_REG", RoutineBytecodeGenerator.getRealVariable(variable));
+    Variable realVariable = RoutineBytecodeGenerator.getRealVariable(variable);
+    Variable invoke = methodMaker.invoke("ex_iSP_REG", realVariable);
+    variable.set(invoke);
   }
 
   @Override
