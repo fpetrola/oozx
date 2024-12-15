@@ -23,18 +23,12 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 
 public class ConditionalInstructionAddressAction<T extends WordNumber> extends AddressAction<T> {
-  private int count;
 
   public ConditionalInstructionAddressAction(Instruction<Boolean> instruction, int pcValue, boolean alwaysTrue, RoutineExecutorHandler routineExecutorHandler) {
     super(pcValue, true, instruction, alwaysTrue, routineExecutorHandler);
   }
 
   public boolean processBranch(Instruction instruction) {
-    if (routineExecutionHandler.getPc().read().intValue() == 0x8d67)
-      System.out.println("dasfsssss!!!");
-    count++;
-    if (count > 2)
-      System.out.println("adgadgdag");
     return getDoBranch();
   }
 

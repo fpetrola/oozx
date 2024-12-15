@@ -19,6 +19,7 @@
 package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
@@ -35,17 +36,25 @@ public class ExecutionStackStorage<T extends WordNumber> {
 
   void save() {
     if (savedStack == null) {
-      savedStack = copyStack(state);
-      System.out.printf("stack saved: SP: %04X -> %s%n", savedSP, printStack());
+      savedStack = createStackCopy();
+      printStack(savedSP, savedStack, "saving ");
     }
 //    else
 //      throw new RuntimeException("already stored");
   }
 
-  void restore() {
+  private void printStack(int savedSP1, T[] savedStack1, String prefix) {
+    System.out.printf(prefix + "stack: SP: %04X -> %s%n", savedSP1, printStack(savedStack1));
+  }
+
+  public void printStack() {
+    printStack(state.getRegisterSP().read().intValue(), createStackCopy(), "PC: %s ".formatted(Helper.formatAddress(state.getPc().read().intValue())));
+  }
+
+  public void restore() {
     Memory<T> memory = state.getMemory();
     if (savedStack != null) {
-      WordNumber[] currentStack = copyStack(state);
+      WordNumber[] currentStack = createStackCopy();
 
       if (Arrays.compare(savedStack, currentStack) != 0) {
         System.out.println("dsgsddshB");
@@ -56,7 +65,7 @@ public class ExecutionStackStorage<T extends WordNumber> {
           memory.getData()[savedSP + i] = (T) savedStack[i];
       }
 
-      System.out.printf("stack restored: SP: %04X -> %s%n", savedSP, printStack());
+      printStack(savedSP, savedStack, "restoring ");
 
       T[] savedStack3 = Arrays.copyOfRange(memory.getData(), savedSP, savedSP + 40);
 
@@ -64,27 +73,31 @@ public class ExecutionStackStorage<T extends WordNumber> {
     }
   }
 
-  private <T extends WordNumber> T[] copyStack(State<T> state) {
+  public T[] createStackCopy() {
     Memory<T> memory = state.getMemory();
     savedSP = state.getRegisterSP().read().intValue();
     int i = savedSP + 40;
     return Arrays.copyOfRange(memory.getData(), savedSP, Math.min(i, 65536));
   }
 
-  private String printStack() {
+  private String printStack(T[] savedStack1) {
     StringBuilder result = new StringBuilder();
     result.append("[ ");
-    for (int i = 0; i < savedStack.length; i += 2) {
-      if (i + 1 < savedStack.length) {
-        int i1 = (savedStack[i + 1].intValue() * 256) + savedStack[i].intValue();
+    for (int i = 0; i < savedStack1.length; i += 2) {
+      if (i + 1 < savedStack1.length) {
+        int i1 = (savedStack1[i + 1].intValue() * 256) + savedStack1[i].intValue();
         result.append("%04X".formatted(i1));
         result.append(", ");
       }
     }
     result.append(" ]");
 
-    if (!result.toString().contains("C807"))
-      System.out.println("que?");
+//    if (!result.toString().contains("C807"))
+//      System.out.println("que?");
     return result.toString();
+  }
+
+  public ExecutionStackStorage<T> create() {
+    return new ExecutionStackStorage<>(state);
   }
 }

@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.se.actions;
 
+import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
@@ -29,10 +30,13 @@ public class AddressAction<T extends WordNumber> {
   protected boolean branch;
   public int address;
   protected boolean pending;
+  private int count;
+  private ExecutionStackStorage executionStackStorage;
 
   public AddressAction(int pcValue, RoutineExecutorHandler routineExecutorHandler) {
     this.address = pcValue;
-    this.routineExecutionHandler= routineExecutorHandler;
+    this.routineExecutionHandler = routineExecutorHandler;
+    executionStackStorage = routineExecutionHandler.getExecutionStackStorage().create();
   }
 
   public AddressAction(int pcValue, boolean b, Instruction instruction, boolean alwaysTrue, RoutineExecutorHandler routineExecutorHandler) {
@@ -54,6 +58,7 @@ public class AddressAction<T extends WordNumber> {
   }
 
   protected boolean getDoBranch() {
+    incCount();
     boolean result = branch;
     branch = !branch;
     result = alwaysTrue || result;
@@ -63,6 +68,7 @@ public class AddressAction<T extends WordNumber> {
   public boolean isPending() {
     return pending;
   }
+
   public void setPending(boolean pending) {
     this.pending = pending;
   }
@@ -74,11 +80,28 @@ public class AddressAction<T extends WordNumber> {
 
   protected int getNextPC(int address1) {
     if (pending) {
-      pending= false;
+      pending = false;
       return address1;
     } else {
       return routineExecutionHandler.getCurrentRoutineExecution().getNextPending().address;
     }
+  }
+
+  protected void incCount() {
+    if (!branch)
+      executionStackStorage.save();
+    else {
+      if (!(instruction instanceof Ret<?>)) {
+//        executionStackStorage.restore();
+      }
+    }
+
+//    if (routineExecutionHandler.getPc().read().intValue() == 0x8d67)
+//      System.out.println("dasfsssss!!!");
+//    count++;
+//    if (count > 2)
+//      if (!(instruction instanceof Ret<?>))
+//        System.out.println("adgadgdag");
   }
 
   public int getNextPC() {
