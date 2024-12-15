@@ -59,10 +59,10 @@ public abstract class SpectrumApplication<T> {
 
 //    System.out.println("mutant at: " + address);
   }
+
   public int ex_iSP_REG(int reg) {
-    int temp1 = AFx();
-    AFx(AF());
-    AF(temp1);
+    int temp1 = pop();
+    push(reg);
     return temp1;
   }
 
