@@ -54,11 +54,11 @@ public class ExecutionStackStorage<T extends WordNumber> {
   public void restore() {
     Memory<T> memory = state.getMemory();
     if (savedStack != null) {
-      WordNumber[] currentStack = createStackCopy();
+//      WordNumber[] currentStack = createStackCopy();
 
-      if (Arrays.compare(savedStack, currentStack) != 0) {
-        System.out.println("dsgsddshB");
-      }
+//      if (Arrays.compare(savedStack, currentStack) != 0) {
+//        System.out.println("dsgsddshB");
+//      }
 
       for (int i = 0; i < savedStack.length; i++) {
         if ((savedSP + i) <= 65535)
@@ -67,7 +67,7 @@ public class ExecutionStackStorage<T extends WordNumber> {
 
       printStack(savedSP, savedStack, "restoring ");
 
-      T[] savedStack3 = Arrays.copyOfRange(memory.getData(), savedSP, savedSP + 40);
+//      T[] savedStack3 = Arrays.copyOfRange(memory.getData(), savedSP, savedSP + 40);
 
       state.getRegisterSP().write(WordNumber.createValue(savedSP));
     }

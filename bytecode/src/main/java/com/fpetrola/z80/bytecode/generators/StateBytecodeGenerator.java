@@ -77,6 +77,9 @@ public class StateBytecodeGenerator {
     BytecodeGenerationContext bytecodeGenerationContext = new BytecodeGenerationContext(routineManager, classMaker, state.getPc(), symbolicExecutionAdapter);
     List<Routine> routines = routineManager.getRoutinesInDepth();
 
+    RoutineBytecodeGenerator routineBytecodeGenerator1 = new RoutineBytecodeGenerator(bytecodeGenerationContext, null);
+    routineBytecodeGenerator1.createMethod(0);
+
     routines.forEach(routine -> {
       routine.optimize();
       RoutineBytecodeGenerator routineBytecodeGenerator = new RoutineBytecodeGenerator(bytecodeGenerationContext, routine);

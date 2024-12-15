@@ -211,10 +211,9 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
         {F470:F484} -> [Code: F470 : F484]
         """, routinesString);
 
-    Assert.assertEquals("8f16af509d0ed4447f5d57355f6505af", createMD5(actual));
+    Assert.assertEquals("2259011d639fefafe8f7d2c05a2b86d8", createMD5(actual));
   }
 
-  @Ignore
   @Test
   public void testTranslateWillyToJava() {
     Helper.hex = false;

@@ -91,17 +91,14 @@ public class AddressAction<T extends WordNumber> {
     if (!branch)
       executionStackStorage.save();
     else {
-      if (!(instruction instanceof Ret<?>)) {
-//        executionStackStorage.restore();
-      }
+      executionStackStorage.restore();
     }
 
 //    if (routineExecutionHandler.getPc().read().intValue() == 0x8d67)
 //      System.out.println("dasfsssss!!!");
-//    count++;
-//    if (count > 2)
-//      if (!(instruction instanceof Ret<?>))
-//        System.out.println("adgadgdag");
+    count++;
+    if (count > 2)
+      System.out.println("adgadgdag");
   }
 
   public int getNextPC() {

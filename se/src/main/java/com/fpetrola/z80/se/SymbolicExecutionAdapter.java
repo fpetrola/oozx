@@ -208,9 +208,9 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         if (addressAction != null)
           pcValue = updatePcRegister(addressAction.getNextPC());
 
-        routineExecutorHandler.getExecutionStackStorage().printStack();
+//        routineExecutorHandler.getExecutionStackStorage().printStack();
         z80InstructionDriver.step();
-        routineExecutorHandler.getExecutionStackStorage().printStack();
+//        routineExecutorHandler.getExecutionStackStorage().printStack();
 
         if (!routineExecution.hasActionAt(pcValue))
           routineExecution.createAndAddGenericAction(pcValue);
