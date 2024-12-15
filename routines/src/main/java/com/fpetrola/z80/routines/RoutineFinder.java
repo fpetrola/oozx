@@ -21,23 +21,22 @@ package com.fpetrola.z80.routines;
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.references.BlockRelation;
 import com.fpetrola.z80.instructions.impl.Call;
+import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Ret;
+import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.se.IPopReturnAddress;
 import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
+import static com.fpetrola.z80.registers.RegisterName.SP;
+
 @SuppressWarnings("ALL")
-public class RoutineFinder {
+public class RoutineFinder<T extends WordNumber> {
   private Instruction lastInstruction;
-
   private Routine currentRoutine;
-
-  public RoutineManager getRoutineManager() {
-    return routineManager;
-  }
-
   private RoutineManager routineManager;
   private int lastPc;
 
@@ -45,7 +44,7 @@ public class RoutineFinder {
     this.routineManager = routineManager;
   }
 
-  public void checkExecution(Instruction instruction, int pcValue) {
+  public void checkExecution(Instruction<T> instruction, int pcValue) {
     try {
       updateCallers(instruction, pcValue);
 
@@ -56,7 +55,24 @@ public class RoutineFinder {
         processCallInstruction(instruction);
       }
 
-      if (instruction instanceof IPopReturnAddress popReturnAddress && popReturnAddress.getReturnAddress() != null) {
+      if (instruction instanceof Ld<T> ld && ld.getTarget() instanceof Register<?> register && register.getName().equals(SP.name())) {
+        int value = ld.getSource().read().intValue();
+
+        IPopReturnAddress<WordNumber> iPopReturnAddress = new IPopReturnAddress<>() {
+          public ReturnAddressWordNumber getReturnAddress() {
+            return null;
+          }
+
+          public int getPreviousPc() {
+            return 0;
+          }
+
+          public int getPopAddress() {
+            return 0;
+          }
+        };
+        System.out.println("asssssss");
+      } else if (instruction instanceof IPopReturnAddress popReturnAddress && popReturnAddress.getReturnAddress() != null) {
         processPopInstruction(pcValue, popReturnAddress);
       } else {
         currentRoutine.addInstructionAt(instruction, pcValue);
@@ -129,5 +145,9 @@ public class RoutineFinder {
           routineManager.callees.put(pcValue, conditionalInstruction.getNextPC().intValue());
         }
     }
+  }
+
+  public RoutineManager getRoutineManager() {
+    return routineManager;
   }
 }

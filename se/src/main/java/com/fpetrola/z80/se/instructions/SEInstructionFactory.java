@@ -49,12 +49,12 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
   public Ld<T> Ld(OpcodeReference<T> target, ImmutableOpcodeReference<T> source) {
     return new Ld<T>(target, source, flag) {
       public int execute() {
-        if (target instanceof Register<T> register) {
-          if (register.getName().equals(RegisterName.SP.name())) {
-            symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().printStack();
-            return 0;
-          }
-        }
+//        if (target instanceof Register<T> register) {
+//          if (register.getName().equals(RegisterName.SP.name())) {
+//            symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().printStack();
+//            return 0;
+//          }
+//        }
         if (source instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
           T value = source.read();
           T address = indirectMemory16BitReference.address;
