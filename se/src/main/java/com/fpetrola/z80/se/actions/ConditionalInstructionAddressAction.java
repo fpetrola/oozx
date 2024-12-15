@@ -18,8 +18,11 @@
 
 package com.fpetrola.z80.se.actions;
 
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.se.RoutineExecution;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 
 public class ConditionalInstructionAddressAction<T extends WordNumber> extends AddressAction<T> {
@@ -29,6 +32,12 @@ public class ConditionalInstructionAddressAction<T extends WordNumber> extends A
   }
 
   public boolean processBranch(Instruction instruction) {
+    ConditionalInstruction instruction1 = (ConditionalInstruction) instruction;
+    instruction1.calculateJumpAddress();
+    WordNumber jumpAddress = instruction1.getJumpAddress();
+    if (jumpAddress != null && jumpAddress.intValue() < 16384) {
+      return branch = false;
+    }
     return getDoBranch();
   }
 

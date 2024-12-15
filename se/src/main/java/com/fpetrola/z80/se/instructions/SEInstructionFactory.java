@@ -123,15 +123,15 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
       super(target, condition, SEInstructionFactory.this.pc);
     }
 
-    @Override
-    public T calculateJumpAddress() {
-      T t = super.calculateJumpAddress();
-      if (pc.read().intValue() > 16384 && t.intValue() < 16384) {
-        return jumpAddress = WordNumber.createValue(pc.read().intValue() + 3);
-      } else {
-        return t;
-      }
-    }
+//    @Override
+//    public T calculateJumpAddress() {
+//      T t = super.calculateJumpAddress();
+//      if (pc.read().intValue() > 16384 && t.intValue() < 16384) {
+//        return jumpAddress = WordNumber.createValue(pc.read().intValue() + 3);
+//      } else {
+//        return t;
+//      }
+//    }
 
     @Override
     public int execute() {
