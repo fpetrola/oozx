@@ -54,8 +54,8 @@ public class SePop<T extends WordNumber> extends Pop<T> implements IPopReturnAdd
       var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
       var routineExecution = routineExecutorHandler.getCallerRoutineExecution();
 
-      routineExecution.replaceAddressAction(new AddressActionDelegate(pcValue + 1, routineExecutorHandler));
-      routineExecution.replaceAddressAction(new AddressActionDelegate(returnAddressWordNumber.intValue(), routineExecutorHandler));
+      routineExecution.replaceAddressAction(new AddressActionDelegate<>(pcValue + 1, routineExecutorHandler));
+      routineExecution.replaceAddressAction(new AddressActionDelegate<>(returnAddressWordNumber.intValue(), routineExecutorHandler));
       lastRoutineExecution.replaceAddressAction(new BasicAddressAction<T>(popAddress, routineExecutorHandler, false));
       routineExecution.replaceAddressAction(new PopReturnCallAddressAction<>(routineExecutorHandler, lastRoutineExecution, returnAddressWordNumber.pc));
 
