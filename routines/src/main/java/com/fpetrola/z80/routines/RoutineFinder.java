@@ -47,15 +47,7 @@ public class RoutineFinder {
 
   public void checkExecution(Instruction instruction, int pcValue) {
     try {
-      if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
-        if (conditionalInstruction.getNextPC() != null)
-          if (instruction instanceof Call) {
-            routineManager.callers2.put(conditionalInstruction.getNextPC().intValue(), pcValue);
-          } else if (!(instruction instanceof Ret<?>)) {
-            routineManager.callers.put(conditionalInstruction.getNextPC().intValue(), pcValue);
-            routineManager.callees.put(pcValue, conditionalInstruction.getNextPC().intValue());
-          }
-      }
+      updateCallers(instruction, pcValue);
 
       if (currentRoutine == null)
         createOrUpdateCurrentRoutine(pcValue, instruction.getLength());
@@ -127,4 +119,15 @@ public class RoutineFinder {
     return currentRoutine;
   }
 
+  private void updateCallers(Instruction instruction, int pcValue) {
+    if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
+      if (conditionalInstruction.getNextPC() != null)
+        if (instruction instanceof Call) {
+          routineManager.callers2.put(conditionalInstruction.getNextPC().intValue(), pcValue);
+        } else if (!(instruction instanceof Ret<?>)) {
+          routineManager.callers.put(conditionalInstruction.getNextPC().intValue(), pcValue);
+          routineManager.callees.put(pcValue, conditionalInstruction.getNextPC().intValue());
+        }
+    }
+  }
 }
