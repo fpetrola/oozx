@@ -29,7 +29,7 @@ import com.fpetrola.z80.se.DirectAccessWordNumber;
 import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
-import com.fpetrola.z80.se.actions.PopReturnAddress;
+import com.fpetrola.z80.se.actions.SePop;
 import com.fpetrola.z80.se.actions.PushReturnAddress;
 
 import java.util.HashMap;
@@ -94,7 +94,7 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
   }
 
   public Pop Pop(OpcodeReference target) {
-    return new PopReturnAddress(symbolicExecutionAdapter, target, sp, memory, flag);
+    return new SePop(symbolicExecutionAdapter, target, sp, memory, flag);
   }
 
   public Push Push(OpcodeReference target) {
