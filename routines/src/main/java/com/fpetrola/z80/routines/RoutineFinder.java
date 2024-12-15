@@ -70,8 +70,6 @@ public class RoutineFinder {
       } else {
         currentRoutine.addInstructionAt(instruction, pcValue);
         if (instruction instanceof Ret ret) {
-          if (pcValue == 0xCB8C)
-            System.out.println("");
           processRetInstruction(ret);
         }
       }
@@ -79,8 +77,6 @@ public class RoutineFinder {
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
-      if (currentRoutine != null && currentRoutine.getStartAddress() == 36147 || pcValue == 35157)
-        System.out.println("");
       routineManager.optimizeAll();
       lastInstruction = instruction;
       lastPc = pcValue;
