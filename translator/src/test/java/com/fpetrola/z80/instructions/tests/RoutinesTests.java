@@ -1576,4 +1576,84 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     assertBlockAddresses(routines.get(0).getBlocks().get(0), 0, 3);
     assertBlockAddresses(routines.get(1).getBlocks().get(0), 5, 9);
   }
+
+  @Test
+  public void resetStackInSharedCodeFromDifferentRoutines() {
+    setUpMemory();
+
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
+      {
+        add(Ld(r(A), c(1)));
+        add(Call(t(), c(6)));
+        add(Ld(r(B), c(8)));
+        add(Call(t(), c(10)));
+        add(Ld(r(C), c(8)));
+        add(Ret(t()));
+
+        add(Ld(r(B), c(1)));  // 6
+        add(JP(c(14), nz()));
+        add(Ld(r(B), c(2)));
+        add(Ret(t()));
+
+        add(Ld(r(C), c(1)));  // 10
+        add(JP(c(14), nz()));
+        add(Ld(r(C), c(2)));
+        add(Ret(t()));
+
+        add(Ld(r(H), c(1)));
+//        add(Ld(r(SP), c(0xFFFF)));
+        add(Ret(t()));
+      }
+    };
+
+
+    stepUntilComplete();
+    String resultingJava = generateAndDecompile();
+
+    List<Routine> routines = getRoutineManager().getRoutines();
+
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+        
+        public class JSW extends SpectrumApplication {
+           public void $0() {
+              super.A = 1;
+              this.$6();
+              super.B = 8;
+              this.$10();
+              super.C = 8;
+           }
+        
+           public void $10() {
+              super.C = 1;
+              if(super.F != 0) {
+                 this.$14();
+              } else {
+                 super.C = 2;
+              }
+           }
+        
+           public void $6() {
+              super.B = 1;
+              if(super.F != 0) {
+                 this.$14();
+              } else {
+                 super.B = 2;
+              }
+           }
+        
+           public void $14() {
+              super.H = 1;
+           }
+        }
+        """, resultingJava);
+
+    Assert.assertEquals(4, routines.size());
+    Routine routine0 = routines.get(0);
+    assertBlockAddresses(routine0.getBlocks().get(0), 0, 5);
+    assertBlockAddresses(routines.get(1).getBlocks().get(0), 6, 9);
+    assertBlockAddresses(routines.get(2).getBlocks().get(0), 10, 13);
+    assertBlockAddresses(routines.get(3).getBlocks().get(0), 14, 15);
+  }
+
 }
