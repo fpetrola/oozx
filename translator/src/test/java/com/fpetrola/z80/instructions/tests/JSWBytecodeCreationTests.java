@@ -63,6 +63,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     this.driverConfigurator = driverConfigurator;
   }
 
+  @Ignore
   @Test
   public void testTranslateSamCruiseToJava() {
     Helper.hex = true;

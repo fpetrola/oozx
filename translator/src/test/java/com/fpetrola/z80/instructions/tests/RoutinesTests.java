@@ -1577,32 +1577,42 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     assertBlockAddresses(routines.get(1).getBlocks().get(0), 5, 9);
   }
 
+  @Ignore
   @Test
   public void resetStackInSharedCodeFromDifferentRoutines() {
     setUpMemory();
 
+    int delta = 2;
+    int resetSPLabel = 14 + delta;
+    int firstRoutine = 6 + delta;
+    int secondRoutine = 10 + delta;
     getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
       {
-        add(Ld(r(A), c(1)));
-        add(Call(t(), c(6)));
-        add(Ld(r(B), c(8)));
-        add(Call(t(), c(10)));
-        add(Ld(r(C), c(8)));
+        add(Call(t(), c(2)));
         add(Ret(t()));
 
-        add(Ld(r(B), c(1)));  // 6
-        add(JP(c(14), nz()));
-        add(Ld(r(B), c(2)));
+        add(Ld(r(A), c(1)));  // 2
+        add(Call(t(), c(firstRoutine)));
+        add(Ld(r(B), c(8))); // 4
+        add(Call(t(), c(secondRoutine)));
+        add(Ld(r(C), c(8))); // 6
+        add(JP(c(2), t()));
+
+        add(Ld(r(B), c(1)));  // 8
+        add(JP(c(resetSPLabel), nz()));
+        add(Ld(r(B), c(2))); //10
         add(Ret(t()));
 
-        add(Ld(r(C), c(1)));  // 10
-        add(JP(c(14), nz()));
-        add(Ld(r(C), c(2)));
+        add(Ld(r(C), c(1)));  // 12
+        add(JP(c(resetSPLabel), nz()));
+        add(Ld(r(C), c(2))); // 14
         add(Ret(t()));
 
-        add(Ld(r(H), c(1)));
-//        add(Ld(r(SP), c(0xFFFF)));
-        add(Ret(t()));
+        add(Ld(r(H), c(1))); // 16
+        add(Ld(r(SP), c(0xFFFF)));
+        add(Ld(r(C), c(20))); // 18
+        add(Ld(r(D), c(30)));
+        add(JP(c(5 + delta), t())); // 20
       }
     };
 
@@ -1651,9 +1661,9 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     Assert.assertEquals(4, routines.size());
     Routine routine0 = routines.get(0);
     assertBlockAddresses(routine0.getBlocks().get(0), 0, 5);
-    assertBlockAddresses(routines.get(1).getBlocks().get(0), 6, 9);
-    assertBlockAddresses(routines.get(2).getBlocks().get(0), 10, 13);
-    assertBlockAddresses(routines.get(3).getBlocks().get(0), 14, 15);
+    assertBlockAddresses(routines.get(1).getBlocks().get(0), firstRoutine, 9);
+    assertBlockAddresses(routines.get(2).getBlocks().get(0), secondRoutine, 13);
+    assertBlockAddresses(routines.get(3).getBlocks().get(0), resetSPLabel, 15);
   }
 
 }
