@@ -47,26 +47,31 @@ public class RoutineFinder<T extends WordNumber> {
   }
 
   public void checkBeforeExecution(Instruction<T> instruction, int pcValue, State<T> state) {
-    if (instruction instanceof Ld<T> ld && ld.getTarget() instanceof Register<?> register && register.getName().equals(SP.name())) {
-      int value = ld.getSource().read().intValue();
-
-      int sp = state.getRegisterSP().read().intValue();
-
-      while (sp != value) {
-        T t = Memory.read16Bits(state.getMemory(), WordNumber.createValue(sp));
-        if (t instanceof ReturnAddressWordNumber returnAddressWordNumber) {
-          int returnAddress = t.intValue();
-          int popAddress = pcValue;
-          IPopReturnAddress<WordNumber> simulatedPopReturnAddress = new SimulatedPopReturnAddress(returnAddress, popAddress + 3);
-          processPopInstruction(pcValue, simulatedPopReturnAddress);
-          System.out.println("pop instruction: " + Helper.formatAddress(returnAddress));
-        }
-        sp += 2;
-      }
-
-      System.out.println("back to: " + currentRoutine);
-      System.out.println("");
-    }
+//    if (instruction instanceof Ld<T> ld && ld.getTarget() instanceof Register<?> register && register.getName().equals(SP.name())) {
+//      int value = ld.getSource().read().intValue();
+//
+//      int sp = state.getRegisterSP().read().intValue();
+//
+//      while (sp != value) {
+//        T t = Memory.read16Bits(state.getMemory(), WordNumber.createValue(sp));
+//        if (t instanceof ReturnAddressWordNumber returnAddressWordNumber) {
+//          int returnAddress = t.intValue();
+//          int popAddress = pcValue;
+//          int popAddress1 = popAddress;
+//
+//          if (sp + 2 != value)
+//            popAddress1 += instruction.getLength();
+//
+//          IPopReturnAddress<WordNumber> simulatedPopReturnAddress = new SimulatedPopReturnAddress(returnAddress, popAddress1);
+//          processPopInstruction(pcValue, simulatedPopReturnAddress);
+//          System.out.println("pop instruction: " + Helper.formatAddress(returnAddress));
+//        }
+//        System.out.println("back to: " + currentRoutine);
+//        sp += 2;
+//      }
+//
+//      System.out.println("");
+//    }
   }
 
   public void checkExecution(Instruction<T> instruction, int pcValue, State<T> state) {
@@ -111,7 +116,7 @@ public class RoutineFinder<T extends WordNumber> {
 
   private void processPopInstruction(int pcValue, IPopReturnAddress popReturnAddress) {
     ReturnAddressWordNumber returnAddress1 = popReturnAddress.getReturnAddress();
-    Routine returnRoutine = routineManager.findRoutineAt(returnAddress1.pc);
+    Routine returnRoutine = routineManager.findRoutineAt(returnAddress1.intValue() - 1);
     if (returnRoutine != null) {
       if (popReturnAddress.getPreviousPc() != -1) {
         currentRoutine.getVirtualPop().put(popReturnAddress.getPreviousPc(), popReturnAddress.getPopAddress());

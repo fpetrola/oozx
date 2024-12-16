@@ -214,15 +214,20 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           pcValue = updatePcRegister(addressAction.getNextPC());
 
         routineExecutorHandler.getExecutionStackStorage().printStack();
-        z80InstructionDriver.step();
-        routineExecutorHandler.getExecutionStackStorage().printStack();
 
-        if (!routineExecution.hasActionAt(pcValue))
-          routineExecution.createAndAddGenericAction(pcValue);
+        if (pcValue == -1)
+          ready = true;
+        else {
+          z80InstructionDriver.step();
+          routineExecutorHandler.getExecutionStackStorage().printStack();
 
-        updatePcRegister(routineExecution.getAddressAction(pcValue).getNext(pcValue, pc.read().intValue()));
+          if (!routineExecution.hasActionAt(pcValue))
+            routineExecution.createAndAddGenericAction(pcValue);
 
-        ready = routineExecutorHandler.isEmpty();
+          updatePcRegister(routineExecution.getAddressAction(pcValue).getNext(pcValue, pc.read().intValue()));
+
+          ready = routineExecutorHandler.isEmpty();
+        }
         lastPc = pcValue;
       }
     }

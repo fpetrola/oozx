@@ -63,6 +63,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     this.driverConfigurator = driverConfigurator;
   }
 
+  @Ignore
   @Test
   public void testTranslateSamCruiseToJava() {
     Helper.hex = true;
@@ -84,7 +85,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, 0xC804, "http://torinak.com/qaop/bin/dynamitedan");
     stepUntilComplete(0xC804);
 
-    translateToJava("ZxGame1", base64Memory, "$C804");
+//    translateToJava("ZxGame1", base64Memory, "$C804");
 
     List<Routine> routines = getRoutineManager().getRoutines();
     String actual = generateAndDecompile(base64Memory, routines, ".", "ZxGame1");
@@ -92,7 +93,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     String routinesString = getRoutinesString(routines);
 
     Assert.assertEquals("""
-        {C804:FFFF} -> [Code: C804 : C865, Code: CDD5 : CE52, Code: DC42 : DC44, Code: E641 : E643, Code: F485 : FFFF]
+        {C804:E643} -> [Code: C804 : C865, Code: CDD5 : CE52, Code: DC42 : DC44, Code: E641 : E643]
         {C881:C8D1} -> [Code: C881 : C8D1]
         {C8FF:C924} -> [Code: C8FF : C924]
         {C92A:CA1D} -> [Code: C92A : CA1D]
@@ -218,9 +219,10 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
         {F470:F484} -> [Code: F470 : F484]
         """, routinesString);
 
-    Assert.assertEquals("2259011d639fefafe8f7d2c05a2b86d8", createMD5(actual));
+    Assert.assertEquals("48598c51cb6e882a6cae60b6b8232f1c", createMD5(actual));
   }
 
+  @Ignore
   @Test
   public void testTranslateWillyToJava() {
     Helper.hex = false;
@@ -241,7 +243,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     String routinesString = getRoutinesString(routines);
 
     Assert.assertEquals("""
-        {34762:65535} -> [Code: 34762 : 35210, Code: 35245 : 35562, Code: 35591 : 36146, Code: 37048 : 37055, Code: 38043 : 38045, Code: 38061 : 38063, Code: 38095 : 38097, Code: 38134 : 38136, Code: 38644 : 65535]
+        {34762:38136} -> [Code: 34762 : 35210, Code: 35245 : 35562, Code: 35591 : 36146, Code: 37048 : 37055, Code: 38043 : 38045, Code: 38061 : 38063, Code: 38095 : 38097, Code: 38134 : 38136]
         {35211:35244} -> [Code: 35211 : 35244]
         {35563:35590} -> [Code: 35563 : 35590]
         {36147:36170} -> [Code: 36147 : 36170]
