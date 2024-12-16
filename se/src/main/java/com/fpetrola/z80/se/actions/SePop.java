@@ -48,7 +48,7 @@ public class SePop<T extends WordNumber> extends Pop<T> implements IPopReturnAdd
       var pcValue = pc.read().intValue();
 
       previousPc = symbolicExecutionAdapter.lastPc;
-      popAddress = pcValue;
+      popAddress = pcValue + 1;
       returnAddress = returnAddressWordNumber;
 
       var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();

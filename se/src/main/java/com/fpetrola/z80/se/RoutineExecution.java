@@ -19,6 +19,7 @@
 package com.fpetrola.z80.se;
 
 
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ret;
@@ -114,7 +115,7 @@ public class RoutineExecution<T extends WordNumber> {
   }
 
   public String toString() {
-    return "RoutineExecution{start=%d, retInstruction=%d}".formatted(start, retInstruction);
+    return "RoutineExecution{start=%s, retInstruction=%s}".formatted(Helper.formatAddress(start), Helper.formatAddress(retInstruction));
   }
 
   public int getStart() {

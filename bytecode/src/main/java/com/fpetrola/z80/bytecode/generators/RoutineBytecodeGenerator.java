@@ -114,7 +114,7 @@ public class RoutineBytecodeGenerator {
             Runnable instructionGenerator = () -> {
               context.pc.write(WordNumber.createValue(address));
 
-              if (address == 0xDA8D)
+              if (address == 0xF0F3)
                 System.out.print("");
 
               currentInstruction = instruction;
@@ -154,7 +154,7 @@ public class RoutineBytecodeGenerator {
           pendingFlag = instructionsBytecodeGenerator.pendingFlag;
 
           if (!instructionsBytecodeGenerator.incPopsAdded && routine.getVirtualPop().containsKey(address)) {
-            getField("nextAddress").set(routine.getVirtualPop().get(address) + 1);
+            getField("nextAddress").set(routine.getVirtualPop().get(address));
             returnFromMethod();
           }
         }

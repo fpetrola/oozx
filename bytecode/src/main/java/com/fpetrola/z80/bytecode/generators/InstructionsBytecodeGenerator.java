@@ -21,6 +21,7 @@ package com.fpetrola.z80.bytecode.generators;
 import com.fpetrola.z80.bytecode.generators.helpers.PendingFlagUpdate;
 import com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable;
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.ConditionFlag;
@@ -610,13 +611,13 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 //      createIfs(conditionalInstruction, () -> methodMaker.invoke(ByteCodeGenerator.createLabelName(i)));
       createIfs(conditionalInstruction, () -> {
         if (routineByteCodeGenerator.routine.getVirtualPop().containsKey(address)) {
-          routineByteCodeGenerator.getField("nextAddress").set(routineByteCodeGenerator.routine.getVirtualPop().get(address) + 1);
+          routineByteCodeGenerator.getField("nextAddress").set(routineByteCodeGenerator.routine.getVirtualPop().get(address) );
           incPopsAdded = true;
         } else {
           try {
             routineByteCodeGenerator.invokeTransformedMethod(i);
           } catch (Exception e) {
-            System.out.println("not defined: " + i);
+            System.out.println("not defined: " + Helper.formatAddress(i));
           }
           methodMaker.return_();
         }
