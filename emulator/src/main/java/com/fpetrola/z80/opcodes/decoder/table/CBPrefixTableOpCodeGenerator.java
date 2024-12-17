@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.opcodes.decoder.table;
 
+import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.cpu.State;
@@ -28,7 +29,7 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class CBPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
 
-  public CBPrefixTableOpCodeGenerator(State state, OpcodeReference a, OpcodeConditions opc1, DefaultInstructionFactory instructionFactory) {
+  public CBPrefixTableOpCodeGenerator(State state, OpcodeReference a, OpcodeConditions opc1, InstructionFactory instructionFactory) {
     super(state, HL, H, L, a, opc1, instructionFactory);
   }
 

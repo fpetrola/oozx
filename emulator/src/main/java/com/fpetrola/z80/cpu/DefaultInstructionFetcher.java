@@ -61,11 +61,11 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 //    }
 //  }
 
-  public DefaultInstructionFetcher(State aState, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, DefaultInstructionFactory instructionFactory, boolean noRepeat1) {
+  public DefaultInstructionFetcher(State aState, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat1) {
     this(aState, new OpcodeConditions(aState.getFlag(), aState.getRegister(B)), fetchInstructionFactory, instructionExecutor, instructionFactory, noRepeat1, false);
   }
 
-  public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, DefaultInstructionFactory instructionFactory, boolean noRepeat, boolean clone) {
+  public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone) {
     this.state = aState;
     this.instructionExecutor = instructionExecutor;
     this.noRepeat = noRepeat;
@@ -80,7 +80,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     opcodesTables = tableFactory.get().getOpcodeLookupTable();
   }
 
-  public TableBasedOpCodeDecoder createOpcodesTables(OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, DefaultInstructionFactory instructionFactory) {
+  public TableBasedOpCodeDecoder createOpcodesTables(OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionFactory instructionFactory) {
     return new TableBasedOpCodeDecoder<T>(this.state, opcodeConditions, fetchInstructionFactory, instructionFactory);
   }
 

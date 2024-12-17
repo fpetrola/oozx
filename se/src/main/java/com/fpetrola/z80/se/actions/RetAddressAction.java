@@ -42,13 +42,13 @@ public class RetAddressAction<T extends WordNumber> extends AddressAction<T> {
     lastRoutineExecution = routineExecutionHandler.getCurrentRoutineExecution();
     lastRoutineExecution.setRetInstruction(pcValue);
     if (!lastRoutineExecution.hasPendingPoints() && doBranch) {
-      DataflowService<T> dataflowService = routineExecutionHandler.getDataflowService();
-      if (dataflowService.isSyntheticReturnAddress()) {
-        int returnAddress = dataflowService.findCurrentReturnAddress().intValue();
-        routineExecutionHandler.createRoutineExecution(returnAddress);
-        System.out.println("RET as JP -> " + Helper.formatAddress(returnAddress));
-
-      }
+//      DataflowService<T> dataflowService = routineExecutionHandler.getDataflowService();
+//      if (dataflowService.isSyntheticReturnAddress()) {
+//        int returnAddress = dataflowService.findCurrentReturnAddress().intValue();
+//        routineExecutionHandler.createRoutineExecution(returnAddress);
+//        System.out.println("RET as JP -> " + Helper.formatAddress(returnAddress));
+//
+//      }
       routineExecutionHandler.popRoutineExecution();
       return true;
     } else {

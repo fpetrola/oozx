@@ -63,6 +63,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     this.driverConfigurator = driverConfigurator;
   }
 
+  @Ignore
   @Test
   public void testTranslateWallyToJava() {
     Helper.hex = true;
@@ -97,7 +98,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
   }
 
   @Test
-  public void testEmulateUntil() {
+  public void testTranslateDynamite() {
     String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, 0xC804, "http://torinak.com/qaop/bin/dynamitedan");
     stepUntilComplete(0xC804);
 

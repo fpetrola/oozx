@@ -41,6 +41,11 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
   public static Map<Integer, JPRegisterAddressAction.DynamicJPData> dynamicJP = new HashMap<>();
   private final DataflowService<T> dataflowService;
 
+  public void reset() {
+    dynamicJP.clear();
+    SeJP.lastData= null;
+  }
+
   public SEInstructionFactory(SymbolicExecutionAdapter symbolicExecutionAdapter, State state, DataflowService<T> dataflowService1) {
     super(state);
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
