@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.se;
 
+import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
@@ -172,17 +173,42 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           JPRegisterAddressAction.DynamicJPData dynamicJPData = SEInstructionFactory.dynamicJP.get(jpRegisterAddressAction.address);
           jpRegisterAddressAction.setDynamicJPData(dynamicJPData);
           List<Integer> integers = routineManager.callers2.get(e.getValue().getStart());
-          Integer first1 = integers.get(0);
-          int startAddress = first1;
-          pushAddress(startAddress); //FiXME: calculate minimal ret to run
-          pushAddress(startAddress);
-          pushAddress(startAddress);
-          pushAddress(startAddress);
-          executingPending(jpRegisterAddressAction.address);
+          if (!integers.isEmpty()) {
+            Integer first1 = integers.get(0);
+            int startAddress = first1;
+            pushAddress(startAddress); //FiXME: calculate minimal ret to run
+            pushAddress(startAddress);
+            pushAddress(startAddress);
+            pushAddress(startAddress);
+            executingPending(jpRegisterAddressAction.address);
 //          stepAllAndProcessPending(z80InstructionDriver, (State<T>) state, first1, minimalValidCodeAddress);
+          } else {
+            solveUntrackedCases(dynamicJPData, jpRegisterAddressAction, dynamicJPData.pointer());
+          }
         }
       }
     });
+  }
+
+  private void solveUntrackedCases(JPRegisterAddressAction.DynamicJPData dynamicJPData, JPRegisterAddressAction jpRegisterAddressAction, int pointer) {
+
+    dynamicJPData.cases.clear();
+    dynamicJPData.addCase(pointer);
+    jpRegisterAddressAction.setDynamicJPData(dynamicJPData);
+    int address = jpRegisterAddressAction.address;
+    routineExecutorHandler.createRoutineExecution(pointer);
+    pc.write(createValue(pointer));
+    executeAllCode(z80InstructionDriver, pc);
+    Routine routineAt = routineManager.findRoutineAt(pointer);
+    if (routineAt != null) {
+      Block blockOf = routineAt.findBlockOf(pointer);
+      int endAddress = blockOf.getRangeHandler().getEndAddress();
+      int pointer1 = endAddress + 1;
+      Routine routineAt1 = routineManager.findRoutineAt(pointer1);
+      if (routineAt1 == null) {
+        solveUntrackedCases(dynamicJPData, jpRegisterAddressAction, pointer1);
+      }
+    }
   }
 
   private void executingPending(int address) {

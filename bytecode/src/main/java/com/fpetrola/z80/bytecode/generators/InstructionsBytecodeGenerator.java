@@ -315,6 +315,8 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   public boolean visitingAdd16(Add16 add16) {
+//    if (add16.getSource() instanceof Register<?> register && register.getName().equals("SP"))
+//      return false;
     add16.accept(new VariableHandlingInstructionVisitor((s, t) -> getSet(s, t, 0xffff), routineByteCodeGenerator));
     return false;
   }
@@ -452,8 +454,12 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   public void visitingLd(Ld ld) {
-    if (ld.getTarget() instanceof Register<?> register && register.getName().equals("SP"))
-      return;
+//    if (ld.getTarget() instanceof Register<?> register && register.getName().equals("SP"))
+//      return;
+//
+//    if (ld.getSource() instanceof Register<?> register && register.getName().equals("SP"))
+//      return;
+
     ld.accept(new VariableHandlingInstructionVisitor((s, t) -> t.set(s), routineByteCodeGenerator));
   }
 

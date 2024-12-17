@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Stack;
 
 public abstract class SpectrumApplication<T> {
+  public static final int INITIAL_SP_VALUE = 1234;
   public int A;
   public int F;
   public int B;
@@ -70,6 +71,14 @@ public abstract class SpectrumApplication<T> {
 //    System.out.println("mutant at: " + address);
   }
 
+  public void SP(int value) {
+    SP = value;
+  }
+
+  public int SP() {
+    return SP;
+  }
+
   public int ex_iSP_REG(int reg) {
     int temp1 = pop();
     push(reg);
@@ -105,13 +114,22 @@ public abstract class SpectrumApplication<T> {
   }
 
   public void push(int value) {
-    stack.push(value);
+    if (SP != INITIAL_SP_VALUE) {
+      wMem16(SP, value);
+      SP -= 2;
+    } else
+      stack.push(value);
 //    if (stack.size() > 100)
 //      System.out.println("mmmmmm push");
   }
 
   public int pop() {
-    return stack.pop();
+    if (SP != INITIAL_SP_VALUE) {
+      int i = mem16(SP);
+      SP += 2;
+      return i;
+    } else
+      return stack.pop();
   }
 
   public int carry(int f) {
@@ -420,7 +438,7 @@ public abstract class SpectrumApplication<T> {
   public int IX;
   public int IY;
   public int PC;
-  public int SP;
+  public int SP = INITIAL_SP_VALUE;
   public int I;
 
   public int R() {

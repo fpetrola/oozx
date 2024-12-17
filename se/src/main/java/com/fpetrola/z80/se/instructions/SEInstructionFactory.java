@@ -146,11 +146,11 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
         boolean b = condition.conditionMet(this);
 
         int pcValue = pc.read().intValue();
+        int pointerAddress = dataflowService.findValueOrigin(register);
         if (dynamicJP.get(pcValue) == null) {
-          int pointerAddress = dataflowService.findValueOrigin(register);
           dynamicJP.put(pcValue, new JPRegisterAddressAction.DynamicJPData(pcValue, register.read().intValue(), pointerAddress));
-          System.out.println("JP (HL): PC: %H, HL: %H".formatted(pcValue, register.read().intValue()));
         }
+        System.out.println("JP (HL): PC: %H, HL: %H".formatted(pcValue, register.read().intValue()));
 //              Pop.doPop(memory, sp);
 //              setNextPC(createValue(pc.read().intValue() + 1));
         if (lastData == null)

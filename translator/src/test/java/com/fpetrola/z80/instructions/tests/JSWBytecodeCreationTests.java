@@ -63,6 +63,22 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     this.driverConfigurator = driverConfigurator;
   }
 
+  @Test
+  public void testTranslateWallyToJava() {
+    Helper.hex = true;
+    String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, 0x8184, "http://torinak.com/qaop/bin/wally");
+    stepUntilComplete(0x8188);
+//    translateToJava("ZxGame1", base64Memory, "$61483");
+
+    List<Routine> routines = getRoutineManager().getRoutines();
+    String actual = generateAndDecompile(base64Memory, routines, ".", "ZxGame1");
+
+    String routinesString = getRoutinesString(routines);
+
+    Assert.assertEquals(""" 
+        """, actual);
+  }
+
   @Ignore
   @Test
   public void testTranslateSamCruiseToJava() {

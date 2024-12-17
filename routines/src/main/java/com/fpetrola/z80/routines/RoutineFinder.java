@@ -21,8 +21,8 @@ package com.fpetrola.z80.routines;
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.references.BlockRelation;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.Call;
+import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.memory.Memory;
@@ -37,7 +37,7 @@ import static com.fpetrola.z80.registers.RegisterName.SP;
 
 @SuppressWarnings("ALL")
 public class RoutineFinder<T extends WordNumber> {
-  private Instruction lastInstruction;
+  private Instruction<T> lastInstruction;
   private Routine currentRoutine;
   private RoutineManager routineManager;
   private int lastPc;
@@ -47,9 +47,9 @@ public class RoutineFinder<T extends WordNumber> {
   }
 
   public void checkBeforeExecution(Instruction<T> instruction, int pcValue, State<T> state) {
-//    if (instruction instanceof Ld<T> ld && ld.getTarget() instanceof Register<?> register && register.getName().equals(SP.name())) {
-//      int value = ld.getSource().read().intValue();
-//
+    if (instruction instanceof Ld<T> ld && ld.getTarget() instanceof Register<?> register && register.getName().equals(SP.name())) {
+      int value = ld.getSource().read().intValue();
+
 //      int sp = state.getRegisterSP().read().intValue();
 //
 //      while (sp != value) {
@@ -69,9 +69,9 @@ public class RoutineFinder<T extends WordNumber> {
 //        System.out.println("back to: " + currentRoutine);
 //        sp += 2;
 //      }
-//
-//      System.out.println("");
-//    }
+
+      System.out.println("");
+    }
   }
 
   public void checkExecution(Instruction<T> instruction, int pcValue, State<T> state) {
@@ -80,6 +80,16 @@ public class RoutineFinder<T extends WordNumber> {
 
       if (currentRoutine == null)
         createOrUpdateCurrentRoutine(pcValue, instruction.getLength());
+
+      if (lastInstruction instanceof JP<T> jp && jp.getPositionOpcodeReference() instanceof Register<T> register) {
+        T t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
+        if (t.intValue() == lastPc + 1) {
+          WordNumber nextPC = register.read();
+          if (nextPC != null) {
+            createOrUpdateCurrentRoutine(nextPC.intValue(), instruction.getLength());
+          }
+        }
+      }
 
       if (lastInstruction instanceof Call) {
         processCallInstruction(instruction);
