@@ -95,7 +95,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     });
     mutantAddress.clear();
     dataflowService = dataflowService1;
-    routineExecutorHandler = new RoutineExecutorHandler<>(state, new ExecutionStackStorage<>(state));
+    routineExecutorHandler = new RoutineExecutorHandler<>(state, new ExecutionStackStorage<>(state), dataflowService);
   }
 
   public InstructionFetcher createInstructionFetcher(InstructionSpy spy, State<T> state, InstructionExecutor<T> instructionExecutor, OpcodeConditions opcodeConditions) {

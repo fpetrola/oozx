@@ -44,18 +44,17 @@ public class RoutineFinderInstructionSpy<T extends WordNumber> extends WrapperIn
   private int lastPC;
 
   @Inject
-  public RoutineFinderInstructionSpy(RoutineManager routineManager, BlocksManager blocksManager1) {
-    routineFinder = new RoutineFinder(routineManager);
+  public RoutineFinderInstructionSpy(RoutineManager routineManager, BlocksManager blocksManager1, RoutineFinder routineFinder1) {
     this.routineManager = routineManager;
     capturing = false;
     this.blocksManager = blocksManager1;
+    this.routineFinder= routineFinder1;
   }
 
   @Override
   public void reset(State state) {
     super.reset(state);
     routineManager.reset();
-    routineFinder = new RoutineFinder(routineManager);
     executionStep = new ExecutionStep(memory);
     blocksManager.clear();
     lastInstruction = null;

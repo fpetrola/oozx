@@ -19,6 +19,7 @@
 package com.fpetrola.z80.se.instructions;
 
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.opcodes.references.*;
@@ -55,6 +56,21 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
 //            return 0;
 //          }
 //        }
+
+        if (target instanceof Register<T> register) {
+          if (register.getName().equals(RegisterName.SP.name())) {
+            System.out.println("LD SP at: " + Helper.formatAddress(pc.read().intValue()));
+            if (pc.read().intValue() != 0x8185) {
+              int i = source.read().intValue();
+              if (source instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
+                symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().restoringSP(i);
+              } else
+                symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().changingSP(i);
+            }
+            return 0;
+          }
+        }
+
         if (source instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
           T value = source.read();
           T address = indirectMemory16BitReference.address;

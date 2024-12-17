@@ -29,13 +29,15 @@ public class ExecutionStackStorage<T extends WordNumber> {
   private T[] savedStack;
   private final State<T> state;
   private int savedSP;
+  private boolean enabled = true;
+  private int lastSP = 123;
 
   public ExecutionStackStorage(State<T> state) {
     this.state = state;
   }
 
   void save() {
-    if (savedStack == null) {
+    if (savedStack == null && enabled) {
       savedStack = createStackCopy();
       printStack(savedSP, savedStack, "saving ");
     }
@@ -53,7 +55,7 @@ public class ExecutionStackStorage<T extends WordNumber> {
 
   public void restore() {
     Memory<T> memory = state.getMemory();
-    if (savedStack != null) {
+    if (savedStack != null && enabled) {
 //      WordNumber[] currentStack = createStackCopy();
 
 //      if (Arrays.compare(savedStack, currentStack) != 0) {
@@ -99,5 +101,23 @@ public class ExecutionStackStorage<T extends WordNumber> {
 
   public ExecutionStackStorage<T> create() {
     return new ExecutionStackStorage<>(state);
+  }
+
+  public void disable() {
+    enabled = false;
+  }
+
+  public void changingSP(int value) {
+    disable();
+    lastSP = state.getRegisterSP().read().intValue();
+  }
+
+  private void enable() {
+    enabled = true;
+  }
+
+  public void restoringSP(int i) {
+    enable();
+    lastSP = 123;
   }
 }

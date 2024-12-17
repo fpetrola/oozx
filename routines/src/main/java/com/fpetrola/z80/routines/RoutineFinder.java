@@ -84,6 +84,7 @@ public class RoutineFinder<T extends WordNumber> {
       if (lastInstruction instanceof JP<T> jp && jp.getPositionOpcodeReference() instanceof Register<T> register) {
         T t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
         if (t.intValue() == lastPc + 1) {
+//          boolean syntheticReturnAddress = routineManager.getDataflowService().isSyntheticReturnAddress();
           WordNumber nextPC = register.read();
           if (nextPC != null) {
             createOrUpdateCurrentRoutine(nextPC.intValue(), instruction.getLength());
