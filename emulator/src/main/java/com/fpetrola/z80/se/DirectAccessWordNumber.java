@@ -23,10 +23,12 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class DirectAccessWordNumber extends IntegerWordNumber {
   public final int pc;
+  private final int address;
 
-  public DirectAccessWordNumber(int i, int pc) {
+  public DirectAccessWordNumber(int i, int pc, int address) {
     super(i);
     this.pc = pc;
+    this.address = address;
   }
 
   @Override
@@ -35,6 +37,6 @@ public class DirectAccessWordNumber extends IntegerWordNumber {
   }
 
   public IntegerWordNumber createInstance(int value) {
-    return new DirectAccessWordNumber(value & 0xFFFF, pc);
+    return new DirectAccessWordNumber(value & 0xFFFF, pc, address);
   }
 }
