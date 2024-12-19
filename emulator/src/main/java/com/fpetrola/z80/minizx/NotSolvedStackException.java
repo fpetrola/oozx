@@ -19,7 +19,7 @@
 package com.fpetrola.z80.minizx;
 
 public class NotSolvedStackException extends RuntimeException {
-  private int nextPC;
+  private final int nextPC;
 
   public NotSolvedStackException(int nextPC) {
     this.nextPC = nextPC;
