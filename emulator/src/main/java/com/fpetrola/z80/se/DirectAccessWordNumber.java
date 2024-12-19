@@ -23,7 +23,7 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class DirectAccessWordNumber extends IntegerWordNumber {
   public final int pc;
-  private final int address;
+  public final int address;
 
   public DirectAccessWordNumber(int i, int pc, int address) {
     super(i);
