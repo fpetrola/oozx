@@ -21,16 +21,20 @@ package com.fpetrola.z80.bytecode.decompile;
 import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SimpleBytecodeProvider implements IBytecodeProvider {
-  private final byte[] bytecode;
+  private Map<String, byte[]> bytecodes = new HashMap<>();
 
-  public SimpleBytecodeProvider(byte[] bytecode) {
-
-    this.bytecode = bytecode;
+  public SimpleBytecodeProvider() {
   }
 
   public byte[] getBytecode(String externalPath, String internalPath) throws IOException {
-    return bytecode;
+    return bytecodes.get(externalPath);
+  }
+
+  public void addBytecode(String key, byte[] bytecode) {
+    bytecodes.put(key, bytecode);
   }
 }

@@ -31,9 +31,21 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 
-public class DecompilerHelper {
+public class Decompiler {
+  private SimpleResultSaverFor saver;
+  private HashMap<String, Object> customProperties;
+  private Fernflower fernflower;
+  private SimpleBytecodeProvider bytecodeProvider;
+
+  public Decompiler() {
+    saver = new SimpleResultSaverFor();
+    customProperties = createCustomProperties();
+    bytecodeProvider = new SimpleBytecodeProvider();
+    fernflower = new Fernflower(bytecodeProvider, saver, customProperties, new PrintStreamLogger(new PrintStream(new ByteArrayOutputStream())));
+  }
+
   private static byte[] optimize(String className, String targetFolder, File source, byte[] bytecode) throws IOException {
-    String path = DecompilerHelper.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+    String path = Decompiler.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 
     int i1 = path.indexOf("nested:");
     boolean isExecutingFatJar = i1 != -1;
@@ -77,16 +89,6 @@ public class DecompilerHelper {
     return bytecode;
   }
 
-  public static String decompile(byte[] bytecode, File source) {
-    SimpleResultSaverFor saver = new SimpleResultSaverFor();
-    HashMap<String, Object> customProperties = createCustomProperties();
-
-    Fernflower fernflower = new Fernflower(new SimpleBytecodeProvider(bytecode), saver, customProperties, new PrintStreamLogger(new PrintStream(new ByteArrayOutputStream())));
-    fernflower.getStructContext().addSpace(source, true);
-    fernflower.decompileContext();
-    return saver.getContent();
-  }
-
   private static HashMap<String, Object> createCustomProperties() {
     HashMap<String, Object> customProperties = new HashMap<>();
     customProperties.put("lit", "1");
@@ -118,5 +120,15 @@ public class DecompilerHelper {
 ////    customProperties.put("dcl", "1");
 
     return customProperties;
+  }
+
+  public String decompile() {
+    fernflower.decompileContext();
+    return saver.getContent();
+  }
+
+  public void addClass(byte[] bytecode, File source) {
+    bytecodeProvider.addBytecode(source.getAbsolutePath(), bytecode);
+    fernflower.getStructContext().addSpace(source, true);
   }
 }
