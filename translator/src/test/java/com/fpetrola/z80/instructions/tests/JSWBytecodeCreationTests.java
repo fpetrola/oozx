@@ -72,13 +72,14 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     translateToJava("ZxGame1", base64Memory, "$61483");
   }
 
-  @Ignore
   @Test
   public void testEmulateUntil() {
     String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, 0xC804, "http://torinak.com/qaop/bin/dynamitedan");
     stepUntilComplete(0xC804);
     String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "ZxGame1");
     actual = RemoteZ80Translator.improveSource(actual);
+
+    Assert.assertEquals("", actual);
     List<Routine> routines = driverConfigurator.getRoutineManager().getRoutines();
 
     Assert.assertEquals("e6762cd3b22a0232c2e8fab0d2188014", createMD5(actual));
@@ -100,6 +101,9 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     stepUntilComplete(35090);
 
     String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "JetSetWilly");
+    actual = RemoteZ80Translator.improveSource(actual);
+
+    Assert.assertEquals("", actual);
 
     System.out.println("---------------------");
     ByteArrayOutputStream out = new ByteArrayOutputStream();

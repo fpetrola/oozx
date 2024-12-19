@@ -23,6 +23,8 @@ import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.minizx.NotSolvedStackException;
+import com.fpetrola.z80.minizx.StackException;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Plain16BitRegister;
 import com.fpetrola.z80.registers.Register;
@@ -158,7 +160,9 @@ public class RoutineBytecodeGenerator {
           pendingFlag = instructionsBytecodeGenerator.pendingFlag;
 
           if (!instructionsBytecodeGenerator.incPopsAdded && routine.getVirtualPop().containsKey(address)) {
-            getField("nextAddress").set(routine.getVirtualPop().get(address) + 1);
+            int nextAddress = routine.getVirtualPop().get(address) + 1;
+            throwStackException(nextAddress, StackException.class);
+//            getField("nextAddress").set(nextAddress);
             returnFromMethod();
           }
         }
@@ -179,15 +183,20 @@ public class RoutineBytecodeGenerator {
       }
     });
 
+
     generators.forEach(g -> g.scopeAdjuster().run());
     generators.forEach(g -> g.scopeAdjuster().run());
     generators.forEach(g -> g.labelGenerator().run());
+
     Label label = getLabel(routine.getEntryPoint());
     if (label != null)
       label.goto_();
     generators.forEach(g -> g.instructionGenerator().run());
 
     positionedLabels.forEach(l -> labels.get(l).here());
+
+    invokeReturnPoints();
+
   }
 
   private boolean mutantCodeInInstruction(Instruction instruction, int address) {
@@ -340,8 +349,44 @@ public class RoutineBytecodeGenerator {
     return mm.invoke(createLabelName(jumpLabel));
   }
 
+  public void throwStackException(Object nextAddress, Class<? extends Exception> type) {
+    Variable variable = mm.new_(type, nextAddress);
+    variable.throw_();
+  }
+
   protected void returnFromMethod() {
     mm.return_();
+  }
+
+  void invokeReturnPoints() {
+    Label label2 = labels.get(routine.getEntryPoint());
+    List<Integer> i = routine.getReturnPoints().values().stream().toList();
+    List<Integer> integers = new ArrayList<>(new HashSet<>(i));
+    label2.insert(() -> {
+      Variable nextAddress = getField("nextAddress").get();
+      nextAddress.ifNe(0, () -> throwStackException(nextAddress, NotSolvedStackException.class));
+    });
+    if (!integers.isEmpty()) {
+      List<Integer> integers1 = integers.subList(0, Math.min(1, integers.size() - 1));
+      integers.forEach(ga -> insertIfNextPc(ga, label2));
+    }
+  }
+
+  private void insertIfNextPc(Integer ga, Label label2) {
+    label2.insert(() -> {
+      Variable isNextPC = mm.invoke("isNextPC", ga);
+      isNextPC.ifTrue(() -> {
+        Label label1 = getLabel(ga);
+        if (label1 != null) {
+          label1.goto_();
+        } else {
+          throwStackException(ga + 1, StackException.class);
+//              Variable nextAddress = routineByteCodeGenerator.getField("nextAddress");
+//              nextAddress.set(ga + 1);
+//              routineByteCodeGenerator.returnFromMethod();
+        }
+      });
+    });
   }
 
   public static class RoutineRegisterAccumulator<S> implements RoutineVisitor<List<S>> {

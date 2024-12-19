@@ -145,6 +145,13 @@
             <artifactId>guice-behave</artifactId>
             <version>1.0.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.15.11</version>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -16,21 +16,16 @@
  *
  */
 
-package com.fpetrola.z80.bytecode.tests;
+package com.fpetrola.z80.minizx;
 
-import org.easymock.bytebuddy.implementation.bind.annotation.*;
+public class NotSolvedStackException extends RuntimeException {
+  private int nextPC;
 
-import java.lang.reflect.Method;
+  public NotSolvedStackException(int nextPC) {
+    this.nextPC = nextPC;
+  }
 
-public class GameInvoker {
-  public static void main(String[] args) throws InstantiationException {
-//    ZxGame1 zxGame1 = new ZxGame1();
-//    zxGame1.setSyncChecker(new DefaultSyncChecker());
-//    zxGame1.$34762(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0);
-//    zxGame1.$C804();
-//    zxGame1.$35090();
-
-    ZxGame1 o = ClassProxyHelper.createGameInstance(ZxGame1.class);
-    o.$C804();
+  public int getNextPC() {
+    return nextPC;
   }
 }

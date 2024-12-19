@@ -38,7 +38,11 @@ public abstract class SpectrumApplication<T> {
   public int IYH;
   public int IYL;
 
-  public int nextAddress;
+  public void setNextAddress(int nextAddress) {
+    this.nextAddress = nextAddress;
+  }
+
+  public int nextAddress= 0;
   public int initial;
 
   public int[] mem = new int[0x10000];
