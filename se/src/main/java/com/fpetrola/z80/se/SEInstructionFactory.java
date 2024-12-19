@@ -53,7 +53,7 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
           T value = source.read();
           T address = indirectMemory8BitReference.address;
           T aLU8Assign = value;
-          target.write((T) new DirectAccessWordNumber(aLU8Assign.intValue(), pc.read().intValue(), address.intValue()));
+          target.write((T) new DirectAccessWordNumber(aLU8Assign.intValue(), pc.read().intValue()));
           return cyclesCost;
         } else
           return super.execute();
