@@ -16,25 +16,16 @@
  *
  */
 
-package com.fpetrola.z80.bytecode.decompile;
+package com.fpetrola.z80.minizx;
 
-import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
+public class NotSolvedStackException extends RuntimeException {
+  private final int nextPC;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-public class SimpleBytecodeProvider implements IBytecodeProvider {
-  private Map<String, byte[]> bytecodes = new HashMap<>();
-
-  public SimpleBytecodeProvider() {
+  public NotSolvedStackException(int nextPC) {
+    this.nextPC = nextPC;
   }
 
-  public byte[] getBytecode(String externalPath, String internalPath) throws IOException {
-    return bytecodes.get(externalPath);
-  }
-
-  public void addBytecode(String key, byte[] bytecode) {
-    bytecodes.put(key, bytecode);
+  public int getNextPC() {
+    return nextPC;
   }
 }

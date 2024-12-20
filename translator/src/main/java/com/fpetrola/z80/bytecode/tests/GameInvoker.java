@@ -18,14 +18,20 @@
 
 package com.fpetrola.z80.bytecode.tests;
 
-import com.fpetrola.z80.minizx.sync.DefaultSyncChecker;
+import org.easymock.bytebuddy.implementation.bind.annotation.*;
+
+import java.lang.reflect.Method;
 
 public class GameInvoker {
-  public static void main(String[] args) {
-    ZxGame1 zxGame1 = new ZxGame1();
+  public static void main(String[] args) throws InstantiationException {
+//    ZxGame1 zxGame1 = new ZxGame1();
 //    zxGame1.setSyncChecker(new DefaultSyncChecker());
 //    zxGame1.$34762(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0);
-    zxGame1.$C804();
+//    zxGame1.$C804();
 //    zxGame1.$35090();
+
+    ZxGame1 o= new ZxGame1();
+//    o = ClassProxyHelper.createGameInstance(ZxGame1.class);
+//    o.$C804();
   }
 }

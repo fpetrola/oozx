@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.bytecode.generators;
 
-import com.fpetrola.z80.bytecode.examples.SnapshotHelper;
 import com.fpetrola.z80.bytecode.generators.helpers.BytecodeGenerationContext;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.routines.Routine;
@@ -28,7 +27,10 @@ import org.cojen.maker.ClassMaker;
 import org.cojen.maker.ClassMaker2;
 import org.cojen.maker.MethodMaker;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class StateBytecodeGenerator {
   private final String className;
@@ -39,6 +41,7 @@ public class StateBytecodeGenerator {
   private final Class<?> executionSuperClass;
   private final SymbolicExecutionAdapter symbolicExecutionAdapter;
   private final String base64Memory;
+  private Map<String, byte[]> bytecodes = new HashMap<>();
 
   public StateBytecodeGenerator(String className, RoutineManager routineManager, State state, boolean translation, Class<?> translationSuperClass, Class<?> executionSuperClass, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory) {
     this.className = className;
@@ -74,6 +77,7 @@ public class StateBytecodeGenerator {
       MethodMaker getProgramBytesMaker = classMaker.addMethod(String.class, "getProgramBytes").public_();
       getProgramBytesMaker.return_(base64Memory);
     }
+
     BytecodeGenerationContext bytecodeGenerationContext = new BytecodeGenerationContext(routineManager, classMaker, state.getPc(), symbolicExecutionAdapter);
     List<Routine> routines = routineManager.getRoutinesInDepth();
 
@@ -92,11 +96,16 @@ public class StateBytecodeGenerator {
     return classMaker;
   }
 
-  public byte[] getBytecode() {
-    return translate().finishBytes();
+  public Map<String, byte[]> getBytecode() {
+    ClassMaker translate = translate();
+    byte[] bytes = translate.finishBytes();
+    bytecodes.put(className, bytes);
+    return bytecodes;
   }
 
-  public Class<?> getNewClass() {
-    return translate().finish();
+  public List<Class<?>> getNewClass() {
+    ClassMaker translate = translate();
+    Class<?> finish1 = translate.finish();
+    return Arrays.asList(finish1);
   }
 }
