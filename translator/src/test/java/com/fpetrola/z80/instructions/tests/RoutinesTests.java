@@ -97,7 +97,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   }
 
   protected void stepUntilComplete() {
-  getSymbolicExecutionAdapter().stepUntilComplete(this, getState(), 0, 0);
+    getSymbolicExecutionAdapter().stepUntilComplete(this, getState(), 0, 0);
   }
 
   private void assertBlockAddresses(Block block, int start, int end) {
@@ -545,24 +545,35 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     List<Routine> routines = getRoutineManager().getRoutines();
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
+        import com.fpetrola.z80.minizx.StackException;
         
         public class JSW extends SpectrumApplication {
            public void $0() {
-              super.A = 2;
-              this.$6();
-              if(!this.isNextPC(11)) {
-                 super.C = 3;
-                 super.C = 4;
-              } else {
-                 super.A = 6;
-              }
+              while(true) {
+                 try {
+                    if(!this.isNextPC(11)) {
+                       super.A = 2;
+                       this.$6();
+                       super.C = 3;
+                       super.C = 4;
+                    } else {
+                       super.A = 6;
+                    }
         
-              super.C = 5;
+                    super.C = 5;
+                    return;
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{11};
+                    if(!this.isOwnAddress(var3, var2)) {
+                       throw var3;
+                    }
+                 }
+              }
            }
         
            public void $6() {
               super.D = 4;
-              super.nextAddress = 11;
+              throw new StackException(11);
            }
         }
         """, resultingJava);
@@ -618,27 +629,49 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
 
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
+        import com.fpetrola.z80.minizx.StackException;
         
         public class JSW extends SpectrumApplication {
            public void $0() {
-              super.A = 2;
-              this.$6();
-              if(!this.isNextPC(17)) {
-                 super.C = 3;
-                 super.C = 4;
-              } else {
-                 super.A = 61;
-                 super.B = 62;
-              }
+              while(true) {
+                 try {
+                    if(!this.isNextPC(17)) {
+                       super.A = 2;
+                       this.$6();
+                       super.C = 3;
+                       super.C = 4;
+                    } else {
+                       super.A = 61;
+                       super.B = 62;
+                    }
         
-              super.C = 5;
+                    super.C = 5;
+                    return;
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{17};
+                    if(!this.isOwnAddress(var3, var2)) {
+                       throw var3;
+                    }
+                 }
+              }
            }
         
            public void $6() {
-              super.D = 4;
-              this.$11();
-              if(this.isNextPC(16)) {
-                 super.nextAddress = 17;
+              while(true) {
+                 try {
+                    if(this.isNextPC(16)) {
+                       throw new StackException(17);
+                    }
+        
+                    super.D = 4;
+                    this.$11();
+                    return;
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{16};
+                    if(!this.isOwnAddress(var3, var2)) {
+                       throw var3;
+                    }
+                 }
               }
            }
         
@@ -647,7 +680,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
               super.A = var1;
               super.F = var1;
               if(super.F != 0) {
-                 super.nextAddress = 16;
+                 throw new StackException(16);
               } else {
                  super.E = 8;
               }
@@ -716,52 +749,68 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
 
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
+        import com.fpetrola.z80.minizx.StackException;
         
         public class JSW extends SpectrumApplication {
            public void $0() {
-              label12: {
-                 super.A = 2;
-                 this.$7();
-                 if(!this.isNextPC(19)) {
-                    super.C = 2;
-                    this.$22();
+              while(true) {
+                 try {
                     if(!this.isNextPC(19)) {
-                       break label12;
+                       super.A = 2;
+                       this.$7();
+                       super.C = 2;
+                       this.$22();
+                    } else {
+                       super.A = 61;
+                       super.B = 62;
+                    }
+        
+                    super.C = 3;
+                    super.C = 5;
+                    return;
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{19, 19};
+                    if(!this.isOwnAddress(var3, var2)) {
+                       throw var3;
                     }
                  }
-        
-                 super.A = 61;
-                 super.B = 62;
               }
-        
-              super.C = 3;
-              super.C = 5;
            }
         
            public void $7() {
-              super.D = 4;
-              int var1 = super.A - 3;
-              super.F = var1;
-              if(super.F == 0) {
-                 this.$13();
-                 if(this.isNextPC(17)) {
+              while(true) {
+                 try {
+                    if(!this.isNextPC(17)) {
+                       super.D = 4;
+                       int var3 = super.A - 3;
+                       super.F = var3;
+                       if(super.F == 0) {
+                          this.$13();
+                       }
+        
+                       return;
+                    }
+        
                     super.E = 71;
-                    super.nextAddress = 19;
-                    return;
+                    throw new StackException(19);
+                 } catch (StackException var4) {
+                    int[] var2 = new int[]{17};
+                    if(!this.isOwnAddress(var4, var2)) {
+                       throw var4;
+                    }
                  }
               }
-        
            }
         
            public void $13() {
               super.C = 40;
-              super.nextAddress = 17;
+              throw new StackException(17);
            }
         
            public void $22() {
               super.D = 41;
               super.E = 51;
-              super.nextAddress = 19;
+              throw new StackException(19);
            }
         }
         """, resultingJava);
@@ -825,20 +874,31 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     List<Routine> routines = getRoutineManager().getRoutines();
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
+        import com.fpetrola.z80.minizx.StackException;
         
         public class JSW extends SpectrumApplication {
            public void $0() {
-              super.H = 1;
-              super.A = 2;
-              this.$7();
-              if(!this.isNextPC(17)) {
-                 super.C = 3;
-                 super.C = 4;
-              } else {
-                 super.A = 6;
-              }
+              while(true) {
+                 try {
+                    if(!this.isNextPC(17)) {
+                       super.H = 1;
+                       super.A = 2;
+                       this.$7();
+                       super.C = 3;
+                       super.C = 4;
+                    } else {
+                       super.A = 6;
+                    }
         
-              super.C = 5;
+                    super.C = 5;
+                    return;
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{17};
+                    if(!this.isOwnAddress(var3, var2)) {
+                       throw var3;
+                    }
+                 }
+              }
            }
         
            public void $7() {
@@ -852,7 +912,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
               }
         
               super.D = super.H;
-              super.nextAddress = 17;
+              throw new StackException(17);
            }
         }
         """, resultingJava);
