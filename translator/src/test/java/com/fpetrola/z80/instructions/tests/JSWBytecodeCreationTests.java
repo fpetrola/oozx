@@ -66,26 +66,25 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
   @Ignore
   @Test
   public void testTranslateWallyToJava() {
-    Helper.hex = true;
-    String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, 0x8184, "http://torinak.com/qaop/bin/wally");
-    stepUntilComplete(0x8184);
-//    translateToJava("ZxGame1", base64Memory, "$61483");
-
-    List<Routine> routines = getRoutineManager().getRoutines();
-    String actual = generateAndDecompile(base64Memory, routines, ".", "ZxGame1");
-
-    String routinesString = getRoutinesString(routines);
-
-    Assert.assertEquals(""" 
-        """, actual);
+    testTranslateGame(RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, 0x8184, "http://torinak.com/qaop/bin/wally"), 0x8184);
   }
 
   @Ignore
   @Test
   public void testTranslateSamCruiseToJava() {
+    testTranslateGame(getMemoryInBase64FromFile("file:///home/fernando/Downloads/samcruise.z80"), 61483);
+  }
+
+  @Ignore
+  @Test
+  public void testTranslateEmlynToJava() {
+    testTranslateGame(getMemoryInBase64FromFile("file:////home/fernando/detodo/desarrollo/m/zx/zx/emlyn.z80"), 0xb542);
+  }
+
+  private void testTranslateGame(String MemoryInBase64FromFile, int startAddress) {
     Helper.hex = true;
-    String base64Memory = getMemoryInBase64FromFile("file:///home/fernando/Downloads/samcruise.z80");
-    stepUntilComplete(61483);
+    String base64Memory = MemoryInBase64FromFile;
+    stepUntilComplete(startAddress);
 //    translateToJava("ZxGame1", base64Memory, "$61483");
 
     List<Routine> routines = getRoutineManager().getRoutines();

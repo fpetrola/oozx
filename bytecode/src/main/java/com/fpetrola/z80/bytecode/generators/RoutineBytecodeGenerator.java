@@ -358,7 +358,14 @@ public class RoutineBytecodeGenerator {
   }
 
   public Variable invokeTransformedMethod(int jumpLabel) {
-    return mm.invoke(createLabelName(jumpLabel));
+    String labelName = createLabelName(jumpLabel);
+    Variable invoke = null;
+    try {
+      invoke = mm.invoke(labelName);
+    } catch (Exception e) {
+      System.out.println("not found: "+ labelName);
+    }
+    return invoke;
   }
 
   public void throwStackException(Object nextAddress, Class<? extends Exception> type) {
