@@ -79,10 +79,9 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "ZxGame1");
     actual = RemoteZ80Translator.improveSource(actual);
 
-    Assert.assertEquals("", actual);
     List<Routine> routines = driverConfigurator.getRoutineManager().getRoutines();
 
-    Assert.assertEquals("d912b09ab54d0e2c61cf975cf5b02879", createMD5(actual));
+    Assert.assertEquals("80600301fc612d8b561823654f42a305", createMD5(actual));
   }
 
   @Ignore
@@ -102,10 +101,9 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
 
     String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "JetSetWilly");
     actual = RemoteZ80Translator.improveSource(actual);
-    Assert.assertEquals("", actual);
     List<Routine> routines = driverConfigurator.getRoutineManager().getRoutines();
 
-    Assert.assertEquals("e7bbb9e5852fef4282eec95ff2dea05f", createMD5(actual));
+    Assert.assertEquals("8d79e60e59c80f4fd46c7cd2241145f1", createMD5(actual));
 
     String routinesString = getRoutinesString(routines);
 

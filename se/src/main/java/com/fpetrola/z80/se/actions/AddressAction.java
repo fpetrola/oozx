@@ -88,9 +88,9 @@ public class AddressAction<T extends WordNumber> {
   }
 
   protected void incCount() {
-    if (!branch) {
+    if (!branch)
       executionStackStorage.save();
-    } else {
+    else {
 //      executionStackStorage.restore();
     }
 
