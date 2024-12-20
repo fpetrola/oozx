@@ -22,6 +22,7 @@ import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Stack;
 
 public abstract class SpectrumApplication<T> {
@@ -42,13 +43,18 @@ public abstract class SpectrumApplication<T> {
     this.nextAddress = nextAddress;
   }
 
-  public int nextAddress= 0;
+  public int nextAddress = 0;
   public int initial;
 
   public int[] mem = new int[0x10000];
   static public IO<WordNumber> io;
   private final Stack<Integer> stack = new Stack<>();
   protected int carry;
+
+  public boolean isOwnAddress(StackException stackException, int... integers) {
+    nextAddress = stackException.getNextPC();
+    return Arrays.stream(integers).anyMatch(a -> a == nextAddress);
+  }
 
   public void executeMutantCode(int address) {
     if (mem[address] == 0x77) {
@@ -63,6 +69,7 @@ public abstract class SpectrumApplication<T> {
 
 //    System.out.println("mutant at: " + address);
   }
+
   public int ex_iSP_REG(int reg) {
     int temp1 = AFx();
     AFx(AF());

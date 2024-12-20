@@ -39,6 +39,8 @@ import org.cojen.maker.Variable;
 import java.util.*;
 import java.util.function.Supplier;
 
+import static java.util.Comparator.comparingInt;
+
 public class RoutineBytecodeGenerator {
   public final BytecodeGenerationContext bytecodeGenerationContext;
   public Map<String, Variable> registers = new HashMap<>();
@@ -183,7 +185,8 @@ public class RoutineBytecodeGenerator {
       }
     });
 
-
+    Label label1 = mm.label();
+    label1.here();
     generators.forEach(g -> g.scopeAdjuster().run());
     generators.forEach(g -> g.scopeAdjuster().run());
     generators.forEach(g -> g.labelGenerator().run());
@@ -194,6 +197,19 @@ public class RoutineBytecodeGenerator {
     generators.forEach(g -> g.instructionGenerator().run());
 
     positionedLabels.forEach(l -> labels.get(l).here());
+    Label label2 = mm.label();
+    label2.here();
+
+    List<Integer> integers = routine.getReturnPoints().values().stream().toList();
+    if (!integers.isEmpty())
+      mm.catch_(label1, StackException.class, (Variable exception) -> {
+        Variable value = mm.new_(int[].class, integers.size());
+        for (int i = 0; i < integers.size(); i++) {
+          value.aset(i, integers.get(i));
+        }
+        mm.invoke("isOwnAddress", exception, value).ifTrue(label1::goto_);
+        exception.throw_();
+      });
 
     invokeReturnPoints();
 
@@ -362,10 +378,10 @@ public class RoutineBytecodeGenerator {
     Label label2 = labels.get(routine.getEntryPoint());
     List<Integer> i = routine.getReturnPoints().values().stream().toList();
     List<Integer> integers = new ArrayList<>(new HashSet<>(i));
-    label2.insert(() -> {
-      Variable nextAddress = getField("nextAddress").get();
-      nextAddress.ifNe(0, () -> throwStackException(nextAddress, NotSolvedStackException.class));
-    });
+//    label2.insert(() -> {
+//      Variable nextAddress = getField("nextAddress").get();
+//      nextAddress.ifNe(0, () -> throwStackException(nextAddress, NotSolvedStackException.class));
+//    });
     if (!integers.isEmpty()) {
       List<Integer> integers1 = integers.subList(0, Math.min(1, integers.size() - 1));
       integers.forEach(ga -> insertIfNextPc(ga, label2));
