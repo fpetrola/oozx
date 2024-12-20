@@ -118,7 +118,7 @@ public class RoutineBytecodeGenerator {
             Runnable instructionGenerator = () -> {
               bytecodeGenerationContext.pc.write(WordNumber.createValue(address));
 
-              if (address == 0xDA8D)
+              if (address == 37527)
                 System.out.print("");
 
               currentInstruction = instruction;
