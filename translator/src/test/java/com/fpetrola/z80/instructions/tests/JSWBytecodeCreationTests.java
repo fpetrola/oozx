@@ -78,7 +78,8 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     stepUntilComplete(0xC804);
 
 //    translateToJava("ZxGame1", base64Memory, "$C804");
-    String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "JetSetWilly");
+    String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "ZxGame1");
+    actual = RemoteZ80Translator.improveSource(actual);
 
     List<Routine> routines = driverConfigurator.getRoutineManager().getRoutines();
 
