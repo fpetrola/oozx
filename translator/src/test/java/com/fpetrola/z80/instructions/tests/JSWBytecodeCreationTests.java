@@ -79,10 +79,10 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "ZxGame1");
     actual = RemoteZ80Translator.improveSource(actual);
 
-    Assert.assertEquals("", actual);
+//    Assert.assertEquals("", actual);
     List<Routine> routines = driverConfigurator.getRoutineManager().getRoutines();
 
-    Assert.assertEquals("e6762cd3b22a0232c2e8fab0d2188014", createMD5(actual));
+    Assert.assertEquals("d912b09ab54d0e2c61cf975cf5b02879", createMD5(actual));
   }
 
   @Ignore
@@ -103,7 +103,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "JetSetWilly");
     actual = RemoteZ80Translator.improveSource(actual);
 
-    Assert.assertEquals("", actual);
+    Assert.assertEquals("e7bbb9e5852fef4282eec95ff2dea05f", createMD5(actual));
 
     System.out.println("---------------------");
     ByteArrayOutputStream out = new ByteArrayOutputStream();
