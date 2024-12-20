@@ -118,7 +118,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     String routinesString = getRoutinesString(routines);
 
     Assert.assertEquals("""
-        {34762:65535} -> [Code: 34762 : 35210, Code: 35245 : 35562, Code: 35591 : 36146, Code: 37048 : 37055, Code: 38043 : 38045, Code: 38061 : 38063, Code: 38095 : 38097, Code: 38134 : 38136, Code: 38644 : 65535]
+        {34762:38136} -> [Code: 34762 : 35210, Code: 35245 : 35562, Code: 35591 : 36146, Code: 37048 : 37055, Code: 38043 : 38045, Code: 38061 : 38063, Code: 38095 : 38097, Code: 38134 : 38136]
         {35211:35244} -> [Code: 35211 : 35244]
         {35563:35590} -> [Code: 35563 : 35590]
         {36147:36170} -> [Code: 36147 : 36170]
