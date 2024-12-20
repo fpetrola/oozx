@@ -1465,11 +1465,6 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
         import com.fpetrola.z80.minizx.SpectrumApplication;
         
         public class JSW extends SpectrumApplication {
-           public void $12() {
-              super.C = 2;
-              this.$4();
-           }
-        
            public void $0() {
               int var1 = super.A - 1;
               super.F = var1;
@@ -1480,6 +1475,11 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
               } else {
                  this.$3();
               }
+           }
+        
+           public void $12() {
+              super.C = 2;
+              this.$4();
            }
         
            public void $4() {

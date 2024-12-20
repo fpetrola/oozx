@@ -88,10 +88,10 @@ public class AddressAction<T extends WordNumber> {
   }
 
   protected void incCount() {
-    if (!branch)
+    if (!branch) {
       executionStackStorage.save();
-    else {
-      executionStackStorage.restore();
+    } else {
+//      executionStackStorage.restore();
     }
 
 //    if (routineExecutionHandler.getPc().read().intValue() == 0x8d67)
