@@ -27,6 +27,7 @@ import com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
+import com.fpetrola.z80.minizx.StackException;
 import com.fpetrola.z80.opcodes.references.ConditionFlag;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -39,7 +40,6 @@ import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
-import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -473,20 +473,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
     if (routineByteCodeGenerator.getMethod(jumpLabel) != null)
       createIfs(call, () -> {
         routineByteCodeGenerator.invokeTransformedMethod(jumpLabel);
-        List<Integer> i = routineByteCodeGenerator.routine.getReturnPoints().get(address).stream().toList();
-        i.forEach(ga -> {
-          Variable isNextPC = methodMaker.invoke("isNextPC", ga);
-          isNextPC.ifTrue(() -> {
-            Label label1 = routineByteCodeGenerator.getLabel(ga);
-            if (label1 != null) {
-              label1.goto_();
-            } else {
-              Variable nextAddress = routineByteCodeGenerator.getField("nextAddress");
-              nextAddress.set(ga + 1);
-              routineByteCodeGenerator.returnFromMethod();
-            }
-          });
-        });
+//        routineByteCodeGenerator.invokeReturnPoints();
       });
 
     return true;
@@ -661,7 +648,9 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 //      createIfs(conditionalInstruction, () -> methodMaker.invoke(ByteCodeGenerator.createLabelName(i)));
       createIfs(conditionalInstruction, () -> {
         if (routineByteCodeGenerator.routine.getVirtualPop().containsKey(address)) {
-          routineByteCodeGenerator.getField("nextAddress").set(routineByteCodeGenerator.routine.getVirtualPop().get(address) + 1);
+          int nextAddress = routineByteCodeGenerator.routine.getVirtualPop().get(address) + 1;
+          routineByteCodeGenerator.throwStackException(nextAddress, StackException.class);
+//          routineByteCodeGenerator.getField("nextAddress").set(nextAddress);
           incPopsAdded = true;
         } else {
           routineByteCodeGenerator.invokeTransformedMethod(i);

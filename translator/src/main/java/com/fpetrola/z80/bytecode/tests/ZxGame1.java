@@ -1,6 +1,7 @@
 package com.fpetrola.z80.bytecode.tests;
 
 import com.fpetrola.z80.minizx.MiniZX;
+import com.fpetrola.z80.minizx.StackException;
 
 public class ZxGame1 extends MiniZX {
   public String getProgramBytes() {
@@ -4103,7 +4104,7 @@ public class ZxGame1 extends MiniZX {
         int var15 = A << 1;
         F = var15;
         if(F == 0) {
-          nextAddress = 52692;
+          throw new StackException(52692);
         } else {
           int var16 = HL();
           int var17 = mem(var16, 52678) - 1 & 255;
@@ -5519,77 +5520,425 @@ public class ZxGame1 extends MiniZX {
   }
 
   public void $CFD9() {
-    int var1 = mem(51326, 53209);
-    A = var1;
-    int var2 = A & 128;
-    F = var2;
-    if(F == 0) {
-      int var3 = mem(51316, 53215);
-      A = var3;
-      int var4 = A & 128;
-      F = var4;
-      if(F == 0) {
-        int var48 = A & 32;
-        F = var48;
-        if(F != 0) {
-          $CD9A();
-          if(isNextPC(52692)) {
-            nextAddress = 52693;
+    while(true) {
+      try {
+        if(!isNextPC(53999)) {
+          if(isNextPC(54038)) {
+            $D1CE();
             return;
           }
-        }
 
-        int var49 = mem(51327, 53228);
-        A = var49;
-        int var50 = A & 1;
-        F = var50;
-        if(F != 0) {
-          label176: {
-            label165: {
-              A = 14;
-              wMem(56301, A, 53388);
-              int var51 = mem(51317, 53391);
-              A = var51;
-              int var52 = A << 1;
-              F = var52;
-              if(F != 0) {
-                int var73 = A - 7;
-                F = var73;
+          if(isNextPC(52692)) {
+            throw new StackException(52693);
+          }
+
+          int var3 = mem(51326, 53209);
+          A = var3;
+          int var4 = A & 128;
+          F = var4;
+          if(F != 0) {
+            return;
+          }
+
+          int var5 = mem(51316, 53215);
+          A = var5;
+          int var6 = A & 128;
+          F = var6;
+          if(F == 0) {
+            int var50 = A & 32;
+            F = var50;
+            if(F != 0) {
+              $CD9A();
+            }
+
+            int var51 = mem(51327, 53228);
+            A = var51;
+            int var52 = A & 1;
+            F = var52;
+            if(F != 0) {
+              label189: {
+                label171: {
+                  A = 14;
+                  wMem(56301, A, 53388);
+                  int var53 = mem(51317, 53391);
+                  A = var53;
+                  int var54 = A << 1;
+                  F = var54;
+                  if(F != 0) {
+                    int var75 = A - 7;
+                    F = var75;
+                    if(F != 0) {
+                      break label171;
+                    }
+                  }
+
+                  $D567();
+                  int var55 = mem(52967, 53406);
+                  A = var55;
+                  int var56 = A & 128;
+                  F = var56;
+                  if(F != 0) {
+                    break label189;
+                  }
+                }
+
+                int var61 = mem16(51314, 53413);
+                DE(var61);
+                int var62 = mem(52972, 53417);
+                A = var62;
+                int var63 = A - E;
+                F = var63;
+                if(F == 0) {
+                  int var71 = mem(52974, 53423);
+                  A = var71;
+                  int var72 = A - 1 & 255;
+                  A = var72;
+                  F = var72;
+                  int var73 = A - 1 & 255;
+                  A = var73;
+                  F = var73;
+                  B = A;
+                  A = D;
+                  int var74 = A - B;
+                  F = var74;
+                  if(F >= 0) {
+                    $D3EC();
+                    $D1CE();
+                    return;
+                  }
+
+                  $D4B5();
+                  $D1CE();
+                  return;
+                }
+
+                HL(51318);
+                int var64 = HL();
+                int var65 = mem(var64, 53448) + 1 & 255;
+                int var66 = HL();
+                wMem(var66, var65, 53448);
+                F = var65;
+                int var67 = mem(52975, 53449);
+                A = var67;
+                int var68 = HL();
+                int var69 = mem(var68, 53452);
+                int var70 = A - var69;
+                F = var70;
                 if(F != 0) {
-                  break label165;
+                  $D1CE();
+                  return;
                 }
               }
 
-              $D567();
-              int var53 = mem(52967, 53406);
-              A = var53;
-              int var54 = A & 128;
-              F = var54;
+              A = 0;
+              int var57 = A << 1;
+              F = var57;
+              wMem(51318, A, 53457);
+              HL(51327);
+              int var58 = HL();
+              int var59 = mem(var58, 53463) & -2;
+              int var60 = HL();
+              wMem(var60, var59, 53463);
+              $D1CE();
+              return;
+            }
+
+            $DC71();
+            $D895();
+            int var76 = mem(51322, 53242);
+            A = var76;
+            int var77 = A << 1;
+            F = var77;
+            if(F == 0) {
+              int var140 = mem(51323, 53248);
+              A = var140;
+              int var141 = A & 4;
+              F = var141;
               if(F != 0) {
-                break label176;
+                int var142 = mem(51323, 53615);
+                A = var142;
+                int var143 = A & 1;
+                F = var143;
+                if(F != 0) {
+                  $D607();
+                } else {
+                  $D567();
+                }
+
+                int var144 = mem(51324, 53630);
+                A = var144;
+                $CD24();
+                $D1CE();
+                int var145 = mem16(51314, 53639);
+                DE(var145);
+                A = E;
+                int var146 = A + 26;
+                int var147 = var146 & 255;
+                A = var147;
+                F = var146;
+                E = A;
+                wMem(51324, A, 53647);
+                int var148 = mem(53194, 53650);
+                A = var148;
+                wMem(51325, A, 53653);
+                $CD2B();
+                int var149 = mem16(51324, 53659);
+                DE(var149);
+                int var150 = mem16(51322, 53663);
+                BC(var150);
+                $CD5C();
+                $D1B2();
+                int var151 = DE();
+                wMem16(51324, var151, 53673);
+                int var152 = BC();
+                wMem16(51322, var152, 53677);
+                return;
               }
             }
 
-            int var59 = mem16(51314, 53413);
-            DE(var59);
-            int var60 = mem(52972, 53417);
-            A = var60;
-            int var61 = A - E;
-            F = var61;
-            if(F == 0) {
-              int var69 = mem(52974, 53423);
-              A = var69;
-              int var70 = A - 1 & 255;
-              A = var70;
-              F = var70;
-              int var71 = A - 1 & 255;
-              A = var71;
-              F = var71;
+            int var78 = mem(51316, 53256);
+            A = var78;
+            int var79 = A & 16;
+            F = var79;
+            if(F != 0) {
+              int var80 = mem(51316, 53468);
+              A = var80;
               B = A;
-              A = D;
-              int var72 = A - B;
-              F = var72;
-              if(F >= 0) {
+              int var81 = mem(51318, 53472);
+              A = var81;
+              L = A;
+              int var82 = B & 4;
+              F = var82;
+              if(F == 0) {
+                int var91 = mem(51321, 53480);
+                A = var91;
+                int var92 = A - L;
+                F = var92;
+                if(F == 0) {
+                  int var94 = B | 4;
+                  B = var94;
+                  L = 0;
+                } else {
+                  $D567();
+                  int var93 = L + 1 & 255;
+                  L = var93;
+                  F = var93;
+                }
+              } else {
+                int var83 = mem(51319, 53498);
+                A = var83;
+                int var84 = A - 2;
+                int var85 = var84 & 255;
+                A = var85;
+                F = var84;
+                int var86 = A - L;
+                F = var86;
+                if(F == 0) {
+                  int var90 = B & -17;
+                  B = var90;
+                }
+
+                $D607();
+                int var87 = L + 1 & 255;
+                L = var87;
+                F = var87;
+              }
+
+              int var88 = B & 8;
+              F = var88;
+              if(F != 0) {
+                int var89 = B & 2;
+                F = var89;
+                if(F == 0) {
+                  $D3EC();
+                } else {
+                  $D4B5();
+                }
+              }
+
+              A = B;
+              wMem(51316, A, 53529);
+              A = L;
+              wMem(51318, A, 53533);
+              $D1CE();
+              return;
+            }
+
+            int var95 = A & 128;
+            F = var95;
+            if(F == 0) {
+              label159: {
+                label192: {
+                  int var96 = A & 1;
+                  F = var96;
+                  if(F == 0) {
+                    int var112 = A & 64;
+                    F = var112;
+                    if(F != 0) {
+                      HL(51318);
+                      int var113 = HL();
+                      int var114 = mem(var113, 53372);
+                      A = var114;
+                      int var115 = A - 255;
+                      F = var115;
+                      if(F == 0) {
+                        int var119 = HL();
+                        wMem(var119, 28, 53377);
+                      }
+
+                      int var116 = HL();
+                      int var117 = mem(var116, 53379) + 1 & 255;
+                      int var118 = HL();
+                      wMem(var118, var117, 53379);
+                      F = var117;
+                      $D607();
+                      $D1CE();
+                      return;
+                    }
+
+                    $E9BC();
+                    A = C;
+                    int var120 = A - 5;
+                    F = var120;
+                    if(F == 0) {
+                      $D1CE();
+                      return;
+                    }
+
+                    int var121 = A - 4;
+                    F = var121;
+                    if(F != 0) {
+                      int var125 = A - 3;
+                      F = var125;
+                      if(F == 0) {
+                        break label192;
+                      }
+
+                      int var126 = A - 2;
+                      F = var126;
+                      if(F != 0) {
+                        int var133 = A - 1;
+                        F = var133;
+                        if(F == 0) {
+                          break label159;
+                        }
+
+                        int var134 = mem(51316, 53323);
+                        A = var134;
+                        int var135 = A & 2;
+                        F = var135;
+                        if(F == 0) {
+                          break label159;
+                        }
+
+                        int var136 = A & 32;
+                        A = var136;
+                        int var137 = A << 1;
+                        F = var137;
+                        int var138 = A + 11;
+                        int var139 = var138 & 255;
+                        A = var139;
+                        F = var138;
+                        wMem(51316, A, 53334);
+                      } else {
+                        int var127 = mem(51316, 53339);
+                        A = var127;
+                        int var128 = A & 2;
+                        F = var128;
+                        if(F != 0) {
+                          break label192;
+                        }
+
+                        int var129 = A & 32;
+                        A = var129;
+                        int var130 = A << 1;
+                        F = var130;
+                        int var131 = A + 9;
+                        int var132 = var131 & 255;
+                        A = var132;
+                        F = var131;
+                        wMem(51316, A, 53350);
+                      }
+                    } else {
+                      HL(51316);
+                      int var122 = HL();
+                      int var123 = mem(var122, 53319) | 1;
+                      int var124 = HL();
+                      wMem(var124, var123, 53319);
+                    }
+
+                    A = 12;
+                    wMem(53195, A, 53355);
+                    A = 14;
+                    wMem(56301, A, 53360);
+                  }
+
+                  int var97 = mem(51318, 53539);
+                  A = var97;
+                  L = A;
+                  int var98 = mem(51316, 53543);
+                  A = var98;
+                  B = A;
+                  int var99 = mem(51319, 53547);
+                  A = var99;
+                  H = A;
+                  int var100 = B & 4;
+                  F = var100;
+                  if(F == 0) {
+                    A = L;
+                    int var106 = A - H;
+                    F = var106;
+                    if(F == 0) {
+                      int var108 = B | 4;
+                      B = var108;
+                      L = 0;
+                      int var109 = HL();
+                      push(var109);
+                      int var110 = mem(53195, 53564);
+                      A = var110;
+                      $DB01();
+                      int var111 = pop();
+                      HL(var111);
+                    } else {
+                      int var107 = L + 1 & 255;
+                      L = var107;
+                      F = var107;
+                      $D567();
+                    }
+                  } else {
+                    int var101 = L + 1 & 255;
+                    L = var101;
+                    F = var101;
+                    $D607();
+                    A = L;
+                    int var102 = A - H;
+                    F = var102;
+                    if(F == 0) {
+                      int var105 = B & -2;
+                      B = var105;
+                    }
+                  }
+
+                  int var103 = B & 8;
+                  F = var103;
+                  if(F != 0) {
+                    int var104 = B & 2;
+                    F = var104;
+                    if(F != 0) {
+                      $D4B5();
+                    } else {
+                      $D3EC();
+                    }
+                  }
+
+                  A = B;
+                  wMem(51316, A, 53606);
+                  A = L;
+                  wMem(51318, A, 53610);
+                  $D1CE();
+                  return;
+                }
+
                 $D3EC();
                 $D1CE();
                 return;
@@ -5599,472 +5948,138 @@ public class ZxGame1 extends MiniZX {
               $D1CE();
               return;
             }
-
-            HL(51318);
-            int var62 = HL();
-            int var63 = mem(var62, 53448) + 1 & 255;
-            int var64 = HL();
-            wMem(var64, var63, 53448);
-            F = var63;
-            int var65 = mem(52975, 53449);
-            A = var65;
-            int var66 = HL();
-            int var67 = mem(var66, 53452);
-            int var68 = A - var67;
-            F = var68;
-            if(F != 0) {
-              $D1CE();
-              return;
-            }
           }
 
+          HL(55946);
+          int var7 = HL();
+          int var8 = mem(var7, 56305) & -3;
+          int var9 = HL();
+          wMem(var9, var8, 56305);
+          HL(51316);
+          int var10 = HL();
+          int var11 = mem(var10, 56310) & -33;
+          int var12 = HL();
+          wMem(var12, var11, 56310);
           A = 0;
-          int var55 = A << 1;
-          F = var55;
-          wMem(51318, A, 53457);
-          HL(51327);
-          int var56 = HL();
-          int var57 = mem(var56, 53463) & -2;
-          int var58 = HL();
-          wMem(var58, var57, 53463);
-          $D1CE();
-          return;
-        }
-
-        $DC71();
-        $D895();
-        if(isNextPC(54038)) {
-          $D1CE();
-          return;
-        }
-
-        int var74 = mem(51322, 53242);
-        A = var74;
-        int var75 = A << 1;
-        F = var75;
-        if(F == 0) {
-          int var138 = mem(51323, 53248);
-          A = var138;
-          int var139 = A & 4;
-          F = var139;
-          if(F != 0) {
-            int var140 = mem(51323, 53615);
-            A = var140;
-            int var141 = A & 1;
-            F = var141;
-            if(F != 0) {
-              $D607();
-            } else {
-              $D567();
-            }
-
-            int var142 = mem(51324, 53630);
-            A = var142;
-            $CD24();
-            $D1CE();
-            int var143 = mem16(51314, 53639);
-            DE(var143);
-            A = E;
-            int var144 = A + 26;
-            int var145 = var144 & 255;
-            A = var145;
-            F = var144;
-            E = A;
-            wMem(51324, A, 53647);
-            int var146 = mem(53194, 53650);
-            A = var146;
-            wMem(51325, A, 53653);
-            $CD2B();
-            int var147 = mem16(51324, 53659);
-            DE(var147);
-            int var148 = mem16(51322, 53663);
-            BC(var148);
-            $CD5C();
-            $D1B2();
-            int var149 = DE();
-            wMem16(51324, var149, 53673);
-            int var150 = BC();
-            wMem16(51322, var150, 53677);
-            return;
-          }
-        }
-
-        int var76 = mem(51316, 53256);
-        A = var76;
-        int var77 = A & 16;
-        F = var77;
-        if(F != 0) {
-          int var78 = mem(51316, 53468);
-          A = var78;
-          B = A;
-          int var79 = mem(51318, 53472);
-          A = var79;
-          L = A;
-          int var80 = B & 4;
-          F = var80;
+          int var13 = A << 1;
+          F = var13;
+          wMem(51328, A, 56313);
+          HL(56301);
+          int var14 = HL();
+          int var15 = mem(var14, 56319) - 1 & 255;
+          int var16 = HL();
+          wMem(var16, var15, 56319);
+          F = var15;
           if(F == 0) {
-            int var89 = mem(51321, 53480);
-            A = var89;
-            int var90 = A - L;
-            F = var90;
-            if(F == 0) {
-              int var92 = B | 4;
-              B = var92;
-              L = 0;
-            } else {
-              $D567();
-              int var91 = L + 1 & 255;
-              L = var91;
-              F = var91;
-            }
+            HL(61027);
+            $DB0B();
           } else {
-            int var81 = mem(51319, 53498);
-            A = var81;
-            int var82 = A - 2;
-            int var83 = var82 & 255;
-            A = var83;
-            F = var82;
-            int var84 = A - L;
-            F = var84;
-            if(F == 0) {
-              int var88 = B & -17;
-              B = var88;
-            }
-
-            $D607();
-            int var85 = L + 1 & 255;
-            L = var85;
-            F = var85;
-          }
-
-          int var86 = B & 8;
-          F = var86;
-          if(F != 0) {
-            int var87 = B & 2;
-            F = var87;
-            if(F == 0) {
-              $D3EC();
-            } else {
-              $D4B5();
-            }
-          }
-
-          A = B;
-          wMem(51316, A, 53529);
-          A = L;
-          wMem(51318, A, 53533);
-          $D1CE();
-          return;
-        }
-
-        int var93 = A & 128;
-        F = var93;
-        if(F == 0) {
-          int var94 = A & 1;
-          F = var94;
-          if(F == 0) {
-            label184: {
-              int var110 = A & 64;
-              F = var110;
-              if(F == 0) {
-                $E9BC();
-                A = C;
-                int var118 = A - 5;
-                F = var118;
-                if(F == 0) {
-                  $D1CE();
-                  return;
-                }
-
-                label148: {
-                  label147: {
-                    int var119 = A - 4;
-                    F = var119;
-                    if(F != 0) {
-                      int var123 = A - 3;
-                      F = var123;
-                      if(F == 0) {
-                        break label147;
-                      }
-
-                      int var124 = A - 2;
-                      F = var124;
-                      if(F != 0) {
-                        int var131 = A - 1;
-                        F = var131;
-                        if(F == 0) {
-                          break label148;
-                        }
-
-                        int var132 = mem(51316, 53323);
-                        A = var132;
-                        int var133 = A & 2;
-                        F = var133;
-                        if(F == 0) {
-                          break label148;
-                        }
-
-                        int var134 = A & 32;
-                        A = var134;
-                        int var135 = A << 1;
-                        F = var135;
-                        int var136 = A + 11;
-                        int var137 = var136 & 255;
-                        A = var137;
-                        F = var136;
-                        wMem(51316, A, 53334);
-                      } else {
-                        int var125 = mem(51316, 53339);
-                        A = var125;
-                        int var126 = A & 2;
-                        F = var126;
-                        if(F != 0) {
-                          break label147;
-                        }
-
-                        int var127 = A & 32;
-                        A = var127;
-                        int var128 = A << 1;
-                        F = var128;
-                        int var129 = A + 9;
-                        int var130 = var129 & 255;
-                        A = var130;
-                        F = var129;
-                        wMem(51316, A, 53350);
-                      }
-                    } else {
-                      HL(51316);
-                      int var120 = HL();
-                      int var121 = mem(var120, 53319) | 1;
-                      int var122 = HL();
-                      wMem(var122, var121, 53319);
-                    }
-
-                    A = 12;
-                    wMem(53195, A, 53355);
-                    A = 14;
-                    wMem(56301, A, 53360);
-                    break label184;
-                  }
-
-                  $D3EC();
-                  $D1CE();
-                  return;
-                }
-
-                $D4B5();
-                $D1CE();
-                return;
-              }
-
-              HL(51318);
-              int var111 = HL();
-              int var112 = mem(var111, 53372);
-              A = var112;
-              int var113 = A - 255;
-              F = var113;
-              if(F == 0) {
-                int var117 = HL();
-                wMem(var117, 28, 53377);
-              }
-
-              int var114 = HL();
-              int var115 = mem(var114, 53379) + 1 & 255;
-              int var116 = HL();
-              wMem(var116, var115, 53379);
-              F = var115;
-              $D607();
+            int var17 = HL();
+            int var18 = mem(var17, 56330);
+            A = var18;
+            int var19 = A - 15;
+            F = var19;
+            if(F < 0) {
+              int var49 = mem(51314, 56335);
+              A = var49;
+              $D61E();
               $D1CE();
               return;
             }
           }
 
-          int var95 = mem(51318, 53539);
-          A = var95;
-          L = A;
-          int var96 = mem(51316, 53543);
-          A = var96;
-          B = A;
-          int var97 = mem(51319, 53547);
-          A = var97;
-          H = A;
-          int var98 = B & 4;
-          F = var98;
+          int var20 = A - 220;
+          F = var20;
           if(F == 0) {
-            A = L;
-            int var104 = A - H;
-            F = var104;
+            A = 14;
+            wMem(56301, A, 56350);
+            HL(51326);
+            int var36 = HL();
+            int var37 = mem(var36, 56356) & 64;
+            F = var37;
             if(F == 0) {
-              int var106 = B | 4;
-              B = var106;
-              L = 0;
-              int var107 = HL();
-              push(var107);
-              int var108 = mem(53195, 53564);
-              A = var108;
-              $DB01();
-              int var109 = pop();
-              HL(var109);
-            } else {
-              int var105 = L + 1 & 255;
-              L = var105;
-              F = var105;
-              $D567();
+              throw new StackException(56386);
             }
-          } else {
-            int var99 = L + 1 & 255;
-            L = var99;
-            F = var99;
-            $D607();
-            A = L;
-            int var100 = A - H;
-            F = var100;
-            if(F == 0) {
-              int var103 = B & -2;
-              B = var103;
-            }
-          }
 
-          int var101 = B & 8;
-          F = var101;
-          if(F != 0) {
-            int var102 = B & 2;
-            F = var102;
-            if(F != 0) {
-              $D4B5();
-            } else {
-              $D3EC();
-            }
-          }
-
-          A = B;
-          wMem(51316, A, 53606);
-          A = L;
-          wMem(51318, A, 53610);
-          $D1CE();
-          return;
-        }
-      }
-
-      HL(55946);
-      int var5 = HL();
-      int var6 = mem(var5, 56305) & -3;
-      int var7 = HL();
-      wMem(var7, var6, 56305);
-      HL(51316);
-      int var8 = HL();
-      int var9 = mem(var8, 56310) & -33;
-      int var10 = HL();
-      wMem(var10, var9, 56310);
-      A = 0;
-      int var11 = A << 1;
-      F = var11;
-      wMem(51328, A, 56313);
-      HL(56301);
-      int var12 = HL();
-      int var13 = mem(var12, 56319) - 1 & 255;
-      int var14 = HL();
-      wMem(var14, var13, 56319);
-      F = var13;
-      if(F == 0) {
-        HL(61027);
-        $DB0B();
-      } else {
-        int var15 = HL();
-        int var16 = mem(var15, 56330);
-        A = var16;
-        int var17 = A - 15;
-        F = var17;
-        if(F < 0) {
-          int var47 = mem(51314, 56335);
-          A = var47;
-          $D61E();
-          $D1CE();
-          return;
-        }
-      }
-
-      int var18 = A - 220;
-      F = var18;
-      if(F == 0) {
-        A = 14;
-        wMem(56301, A, 56350);
-        HL(51326);
-        int var34 = HL();
-        int var35 = mem(var34, 56356) & 64;
-        F = var35;
-        if(F == 0) {
-          nextAddress = 56386;
-        } else {
-          int var36 = HL();
-          int var37 = mem(var36, 56360) & 2;
-          F = var37;
-          if(F != 0) {
-            nextAddress = 56386;
-          } else {
             int var38 = HL();
-            int var39 = mem(var38, 56364) & -65;
+            int var39 = mem(var38, 56360) & 2;
+            F = var39;
+            if(F != 0) {
+              throw new StackException(56386);
+            }
+
             int var40 = HL();
-            wMem(var40, var39, 56364);
-            HL(4118);
-            int var41 = HL();
-            wMem16(51314, var41, 56369);
-            HL(51316);
+            int var41 = mem(var40, 56364) & -65;
             int var42 = HL();
-            int var43 = mem(var42, 56375);
-            A = var43;
-            int var44 = A & 2;
-            A = var44;
-            int var45 = A << 1;
-            F = var45;
-            int var46 = HL();
-            wMem(var46, A, 56378);
+            wMem(var42, var41, 56364);
+            HL(4118);
+            int var43 = HL();
+            wMem16(51314, var43, 56369);
+            HL(51316);
+            int var44 = HL();
+            int var45 = mem(var44, 56375);
+            A = var45;
+            int var46 = A & 2;
+            A = var46;
+            int var47 = A << 1;
+            F = var47;
+            int var48 = HL();
+            wMem(var48, A, 56378);
             A = 43;
             $CBBD();
+            return;
           }
-        }
-      } else {
-        int var19 = mem(56301, 56389);
-        A = var19;
-        int var20 = ~A;
-        A = var20;
-        F = A;
-        int var21 = A;
-        int var22 = sr(var21);
-        A = var22;
-        int var23 = A - 12;
-        F = var23;
-        if(F >= 0) {
-          A = 11;
+
+          int var21 = mem(56301, 56389);
+          A = var21;
+          int var22 = ~A;
+          A = var22;
+          F = A;
+          int var23 = A;
+          int var24 = sr(var23);
+          A = var24;
+          int var25 = A - 12;
+          F = var25;
+          if(F >= 0) {
+            A = 11;
+          }
+
+          int var26 = A + A;
+          int var27 = var26 & 255;
+          A = var27;
+          F = var26;
+          int var28 = A + A;
+          int var29 = var28 & 255;
+          A = var29;
+          F = var28;
+          int var30 = A + A;
+          int var31 = var30 & 255;
+          A = var31;
+          F = var30;
+          C = A;
+          B = 0;
+          HL(62597);
+          int var32 = BC();
+          int var33 = HL() + var32 & 65535;
+          HL(var33);
+          int var34 = mem(51315, 56411);
+          A = var34;
+          int var35 = A + 1 & 255;
+          A = var35;
+          F = var35;
+          D = A;
+          E = 18;
+          BC(257);
+          $E87A();
+          return;
         }
 
-        int var24 = A + A;
-        int var25 = var24 & 255;
-        A = var25;
-        F = var24;
-        int var26 = A + A;
-        int var27 = var26 & 255;
-        A = var27;
-        F = var26;
-        int var28 = A + A;
-        int var29 = var28 & 255;
-        A = var29;
-        F = var28;
-        C = A;
-        B = 0;
-        HL(62597);
-        int var30 = BC();
-        int var31 = HL() + var30 & 65535;
-        HL(var31);
-        int var32 = mem(51315, 56411);
-        A = var32;
-        int var33 = A + 1 & 255;
-        A = var33;
-        F = var33;
-        D = A;
-        E = 18;
-        BC(257);
-        $E87A();
+        return;
+      } catch (StackException var153) {
+        int[] var2 = new int[]{54038, 52692, 53999};
+        if(!isOwnAddress(var153, var2)) {
+          throw var153;
+        }
       }
     }
   }
@@ -8036,203 +8051,207 @@ public class ZxGame1 extends MiniZX {
   }
 
   public void $C804() {
-    label64:
     while(true) {
-      $CA5B();
-      $C881();
+      try {
+        while(true) {
+          if(!isNextPC(52693)) {
+            if(!isNextPC(56386)) {
+              if(isNextPC(58945)) {
+                continue;
+              }
 
-      while(true) {
-        $D9EC();
-        $E592();
-        $E93F();
-        $CFD9();
-        if(isNextPC(52693)) {
-          HL(51327);
-          int var1 = HL();
-          int var2 = mem(var1, 52696) | 128;
-          int var3 = HL();
-          wMem(var3, var2, 52696);
-          break;
-        }
+              $CA5B();
+              $C881();
 
-        if(isNextPC(56386)) {
-          break;
-        }
+              do {
+                $D9EC();
+                $E592();
+                $E93F();
+                $CFD9();
+                $EF7C();
+                $CC89();
+                $C92A();
+                $DA8D();
+                $CC5F();
+                $E5E8();
+                $E663();
+                $E6DC();
+                $CEAD();
+                $DE52();
+                BC(1024);
+                $D4AF();
+                A = 223;
+                int var30 = A << 8 | 254;
+                int var31 = in(var30, 51260);
+                A = var31;
+                int var32 = A;
+                F = F;
+                int var33 = rr(var32);
+                A = var33;
+                if(getCarry() == 0) {
+                  do {
+                    A = 0;
+                    int var41 = A << 1;
+                    F = var41;
+                    int var42 = A << 8 | 254;
+                    int var43 = in(var42, 51266);
+                    A = var43;
+                    int var44 = ~A;
+                    A = var44;
+                    F = A;
+                    int var45 = A & 31;
+                    A = var45;
+                    int var46 = A << 1;
+                    F = var46;
+                  } while(F != 0);
 
-        $EF7C();
-        $CC89();
-        $C92A();
-        $DA8D();
-        $CC5F();
-        $E5E8();
-        if(isNextPC(58945)) {
-          continue label64;
-        }
+                  do {
+                    A = 223;
+                    int var47 = A << 8 | 254;
+                    int var48 = in(var47, 51275);
+                    A = var48;
+                    int var49 = A;
+                    F = F;
+                    int var50 = rr(var49);
+                    A = var50;
+                  } while(getCarry() != 0);
 
-        $E663();
-        $E6DC();
-        $CEAD();
-        $DE52();
-        BC(1024);
-        $D4AF();
-        A = 223;
-        int var28 = A << 8 | 254;
-        int var29 = in(var28, 51260);
-        A = var29;
-        int var30 = A;
-        F = F;
-        int var31 = rr(var30);
-        A = var31;
-        if(getCarry() == 0) {
+                  do {
+                    A = 0;
+                    int var51 = A << 1;
+                    F = var51;
+                    int var52 = A << 8 | 254;
+                    int var53 = in(var52, 51281);
+                    A = var53;
+                    int var54 = ~A;
+                    A = var54;
+                    F = A;
+                    int var55 = A & 31;
+                    A = var55;
+                    int var56 = A << 1;
+                    F = var56;
+                  } while(F != 0);
+                }
+
+                A = 251;
+                int var34 = A << 8 | 254;
+                int var35 = in(var34, 51290);
+                A = var35;
+                int var36 = A;
+                F = F;
+                int var37 = rr(var36);
+                A = var37;
+              } while(getCarry() != 0);
+
+              HL(51327);
+              int var38 = HL();
+              int var39 = mem(var38, 51298) | 128;
+              int var40 = HL();
+              wMem(var40, var39, 51298);
+              continue;
+            }
+          } else {
+            HL(51327);
+            int var3 = HL();
+            int var4 = mem(var3, 52696) | 128;
+            int var5 = HL();
+            wMem(var5, var4, 52696);
+          }
+
+          $E820();
+          HL(59392);
+          int var6 = HL();
+          int var7 = mem(var6, 52704);
+          A = var7;
+          int var8 = A & 248;
+          A = var8;
+          int var9 = A << 1;
+          F = var9;
+          int var10 = HL();
+          wMem(var10, A, 52707);
+          HL(55946);
+          int var11 = HL();
+          wMem(var11, 0, 52713);
+          HL(52840);
+          $ED06();
+          HL(59097);
+          int var12 = HL();
+          wMem(var12, 127, 52724);
+          int var13 = HL() + 1 & 65535;
+          HL(var13);
+          int var14 = HL();
+          wMem(var14, 0, 52727);
+          IY(52850);
+
           do {
-            A = 0;
-            int var39 = A << 1;
-            F = var39;
-            int var40 = A << 8 | 254;
-            int var41 = in(var40, 51266);
-            A = var41;
-            int var42 = ~A;
-            A = var42;
-            F = A;
-            int var43 = A & 31;
-            A = var43;
-            int var44 = A << 1;
-            F = var44;
+            $E6F6();
+            HL(55946);
+            int var15 = HL();
+            int var16 = mem(var15, 52739) & -3;
+            int var17 = HL();
+            wMem(var17, var16, 52739);
+            $DA8D();
+            int var18 = mem(59098, 52744);
+            A = var18;
+            $F021();
+            $C92A();
+            int var19 = mem(59098, 52753);
+            A = var19;
+            int var20 = A << 1;
+            F = var20;
+          } while(F != 0);
+
+          A = 184;
+
+          do {
+            int var21 = AF();
+            push(var21);
+            $F3D3();
+            DE(521);
+            $E84E();
+            $DAFA();
+            $C92A();
+            $DA8D();
+            int var22 = pop();
+            AF(var22);
+            int var23 = A + 1 & 255;
+            A = var23;
+            F = var23;
+            int var24 = A - 187;
+            F = var24;
           } while(F != 0);
 
           do {
-            A = 223;
-            int var45 = A << 8 | 254;
-            int var46 = in(var45, 51275);
-            A = var46;
-            int var47 = A;
-            F = F;
-            int var48 = rr(var47);
-            A = var48;
-          } while(getCarry() != 0);
-
-          do {
-            A = 0;
-            int var49 = A << 1;
-            F = var49;
-            int var50 = A << 8 | 254;
-            int var51 = in(var50, 51281);
-            A = var51;
-            int var52 = ~A;
-            A = var52;
-            F = A;
-            int var53 = A & 31;
-            A = var53;
-            int var54 = A << 1;
-            F = var54;
+            $C92A();
+            $DA8D();
+            $DAFA();
+            int var25 = mem(51307, 52795);
+            A = var25;
+            int var26 = A << 1;
+            F = var26;
           } while(F != 0);
+
+          HL(52819);
+          $DDE0();
+          B = 50;
+
+          while(true) {
+            int var27 = BC();
+            push(var27);
+            $DAFA();
+            int var28 = pop();
+            BC(var28);
+            int var29 = B - 1 & 255;
+            B = var29;
+            if(B == 0) {
+              break;
+            }
+          }
         }
-
-        A = 251;
-        int var32 = A << 8 | 254;
-        int var33 = in(var32, 51290);
-        A = var33;
-        int var34 = A;
-        F = F;
-        int var35 = rr(var34);
-        A = var35;
-        if(getCarry() == 0) {
-          HL(51327);
-          int var36 = HL();
-          int var37 = mem(var36, 51298) | 128;
-          int var38 = HL();
-          wMem(var38, var37, 51298);
-          continue label64;
-        }
-      }
-
-      $E820();
-      HL(59392);
-      int var4 = HL();
-      int var5 = mem(var4, 52704);
-      A = var5;
-      int var6 = A & 248;
-      A = var6;
-      int var7 = A << 1;
-      F = var7;
-      int var8 = HL();
-      wMem(var8, A, 52707);
-      HL(55946);
-      int var9 = HL();
-      wMem(var9, 0, 52713);
-      HL(52840);
-      $ED06();
-      HL(59097);
-      int var10 = HL();
-      wMem(var10, 127, 52724);
-      int var11 = HL() + 1 & 65535;
-      HL(var11);
-      int var12 = HL();
-      wMem(var12, 0, 52727);
-      IY(52850);
-
-      do {
-        $E6F6();
-        HL(55946);
-        int var13 = HL();
-        int var14 = mem(var13, 52739) & -3;
-        int var15 = HL();
-        wMem(var15, var14, 52739);
-        $DA8D();
-        int var16 = mem(59098, 52744);
-        A = var16;
-        $F021();
-        $C92A();
-        int var17 = mem(59098, 52753);
-        A = var17;
-        int var18 = A << 1;
-        F = var18;
-      } while(F != 0);
-
-      A = 184;
-
-      do {
-        int var19 = AF();
-        push(var19);
-        $F3D3();
-        DE(521);
-        $E84E();
-        $DAFA();
-        $C92A();
-        $DA8D();
-        int var20 = pop();
-        AF(var20);
-        int var21 = A + 1 & 255;
-        A = var21;
-        F = var21;
-        int var22 = A - 187;
-        F = var22;
-      } while(F != 0);
-
-      do {
-        $C92A();
-        $DA8D();
-        $DAFA();
-        int var23 = mem(51307, 52795);
-        A = var23;
-        int var24 = A << 1;
-        F = var24;
-      } while(F != 0);
-
-      HL(52819);
-      $DDE0();
-      B = 50;
-
-      while(true) {
-        int var25 = BC();
-        push(var25);
-        $DAFA();
-        int var26 = pop();
-        BC(var26);
-        int var27 = B - 1 & 255;
-        B = var27;
-        if(B == 0) {
-          break;
+      } catch (StackException var57) {
+        int[] var2 = new int[]{52693, 56386, 58945};
+        if(!isOwnAddress(var57, var2)) {
+          throw var57;
         }
       }
     }
