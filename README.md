@@ -39,7 +39,7 @@ OOZX includes a rudimentary mechanism for detecting SMC, dynamically adapting me
 ## Usage
 
 ### Prerequisites
-- **Java 21 or later**
+- **Java 18 or later**
 
 ### Installation
 1. Clone the repository:
