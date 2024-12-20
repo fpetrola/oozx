@@ -102,6 +102,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
 
     String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "JetSetWilly");
     actual = RemoteZ80Translator.improveSource(actual);
+    Assert.assertEquals("", actual);
 
     Assert.assertEquals("e7bbb9e5852fef4282eec95ff2dea05f", createMD5(actual));
 
