@@ -79,7 +79,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "ZxGame1");
     actual = RemoteZ80Translator.improveSource(actual);
 
-//    Assert.assertEquals("", actual);
+    Assert.assertEquals("", actual);
     List<Routine> routines = driverConfigurator.getRoutineManager().getRoutines();
 
     Assert.assertEquals("d912b09ab54d0e2c61cf975cf5b02879", createMD5(actual));
