@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.opcodes.decoder.table;
 
+import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
@@ -33,7 +34,7 @@ public class IndexerRegisterTableOpCodeGenerator<T> extends UnprefixedTableOpCod
   private final RegisterName highRegisterName;
   private final RegisterName registerName;
 
-  public IndexerRegisterTableOpCodeGenerator(State state, Instruction<T> cbOpcode, Instruction<T> ddOpcode, Instruction<T> edOpcode, Instruction<T> fdOpcode, RegisterName main16BitRegister, RegisterName mainHigh8BitRegister, RegisterName mainLow8BitRegister, OpcodeReference main16BitRegisterReference, RegisterName lowRegisterName, RegisterName highRegisterName, RegisterName registerName, OpcodeConditions opc1, DefaultInstructionFactory instructionFactory) {
+  public IndexerRegisterTableOpCodeGenerator(State state, Instruction<T> cbOpcode, Instruction<T> ddOpcode, Instruction<T> edOpcode, Instruction<T> fdOpcode, RegisterName main16BitRegister, RegisterName mainHigh8BitRegister, RegisterName mainLow8BitRegister, OpcodeReference main16BitRegisterReference, RegisterName lowRegisterName, RegisterName highRegisterName, RegisterName registerName, OpcodeConditions opc1, InstructionFactory instructionFactory) {
     super(2, state, cbOpcode, ddOpcode, edOpcode, fdOpcode, main16BitRegister, mainHigh8BitRegister, mainLow8BitRegister, main16BitRegisterReference, opc1, instructionFactory);
     this.lowRegisterName = lowRegisterName;
     this.highRegisterName = highRegisterName;

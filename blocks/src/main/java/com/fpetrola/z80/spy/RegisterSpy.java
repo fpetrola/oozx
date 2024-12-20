@@ -28,14 +28,12 @@ import java.util.List;
 public class RegisterSpy<T extends WordNumber> extends Plain16BitRegister<T> {
 
   protected Register<T> register;
-  protected InstructionSpy<T> spy;
   protected List<RegisterWriteListener<T>> registerWriteListeners= new ArrayList<>();
   protected List<RegisterReadListener<T>> registerReadListeners= new ArrayList<>();
 
-  public RegisterSpy(Register<T> register, InstructionSpy<T> spy) {
+  public RegisterSpy(Register<T> register) {
     super(register.getName());
     this.register = register;
-    this.spy = spy;
   }
 
   public T read() {

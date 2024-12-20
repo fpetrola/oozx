@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.opcodes.decoder.table;
 
+import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
@@ -37,7 +38,7 @@ public class UnprefixedTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
   private final Instruction<T> fdOpcode;
   private final int delta;
 
-  public UnprefixedTableOpCodeGenerator(int delta, State state, Instruction<T> cbOpcode, Instruction<T> ddOpcode, Instruction<T> edOpcode, Instruction<T> fdOpcode, RegisterName main16BitRegister, RegisterName mainHigh8BitRegister, RegisterName mainLow8BitRegister, OpcodeReference main16BitRegisterReference, OpcodeConditions opc1, DefaultInstructionFactory instructionFactory) {
+  public UnprefixedTableOpCodeGenerator(int delta, State state, Instruction<T> cbOpcode, Instruction<T> ddOpcode, Instruction<T> edOpcode, Instruction<T> fdOpcode, RegisterName main16BitRegister, RegisterName mainHigh8BitRegister, RegisterName mainLow8BitRegister, OpcodeReference main16BitRegisterReference, OpcodeConditions opc1, InstructionFactory instructionFactory) {
     super(state, main16BitRegister, mainHigh8BitRegister, mainLow8BitRegister, main16BitRegisterReference, opc1, instructionFactory);
     this.delta = delta;
     this.cbOpcode = cbOpcode;

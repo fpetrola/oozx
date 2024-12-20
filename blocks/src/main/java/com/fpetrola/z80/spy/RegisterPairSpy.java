@@ -24,8 +24,8 @@ import com.fpetrola.z80.registers.RegisterPair;
 
 public class RegisterPairSpy<T extends WordNumber> extends RegisterSpy<T> implements RegisterPair<T> {
 
-  public RegisterPairSpy(Register register, InstructionSpy spy) {
-    super(register, spy);
+  public RegisterPairSpy(Register register) {
+    super(register);
   }
 
   public Register getHigh() {

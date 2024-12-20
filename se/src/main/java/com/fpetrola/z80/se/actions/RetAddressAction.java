@@ -18,14 +18,16 @@
 
 package com.fpetrola.z80.se.actions;
 
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.se.RoutineExecution;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 
-public class RetAddressAction extends AddressAction {
+public class RetAddressAction<T extends WordNumber> extends AddressAction<T> {
   private final int pcValue;
-  private RoutineExecution<WordNumber> lastRoutineExecution;
+  private RoutineExecution<T> lastRoutineExecution;
 
   public RetAddressAction(Instruction<Boolean> instruction, int pcValue, boolean alwaysTrue, RoutineExecutorHandler routineExecutorHandler) {
     super(pcValue, true, instruction, alwaysTrue, routineExecutorHandler);
@@ -40,6 +42,13 @@ public class RetAddressAction extends AddressAction {
     lastRoutineExecution = routineExecutionHandler.getCurrentRoutineExecution();
     lastRoutineExecution.setRetInstruction(pcValue);
     if (!lastRoutineExecution.hasPendingPoints() && doBranch) {
+//      DataflowService<T> dataflowService = routineExecutionHandler.getDataflowService();
+//      if (dataflowService.isSyntheticReturnAddress()) {
+//        int returnAddress = dataflowService.findCurrentReturnAddress().intValue();
+//        routineExecutionHandler.createRoutineExecution(returnAddress);
+//        System.out.println("RET as JP -> " + Helper.formatAddress(returnAddress));
+//
+//      }
       routineExecutionHandler.popRoutineExecution();
       return true;
     } else {

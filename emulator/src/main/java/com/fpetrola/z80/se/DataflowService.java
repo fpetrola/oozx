@@ -23,4 +23,8 @@ import com.fpetrola.z80.registers.Register;
 
 public interface DataflowService<T extends WordNumber> {
   int findValueOrigin(Register<T> register);
+
+  WordNumber findCurrentReturnAddress();
+
+  boolean isSyntheticReturnAddress();
 }

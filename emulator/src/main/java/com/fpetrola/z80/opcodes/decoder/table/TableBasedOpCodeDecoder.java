@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.opcodes.decoder.table;
 
+import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.cpu.State;
@@ -31,9 +32,9 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class TableBasedOpCodeDecoder<T> implements OpCodeDecoder {
   Instruction[] opcodes = new Instruction[0x100];
-  DefaultInstructionFactory instructionFactory;
+  InstructionFactory instructionFactory;
 
-  public TableBasedOpCodeDecoder(State state, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, DefaultInstructionFactory instructionFactory) {
+  public TableBasedOpCodeDecoder(State state, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionFactory instructionFactory) {
     this.instructionFactory = instructionFactory;
     OpcodeTargets opcodeTargets = new OpcodeTargets(state);
     OpcodeReference a = opcodeTargets.iRR(HL);

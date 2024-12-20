@@ -46,6 +46,7 @@ public class PopReturnCallAddressAction<T extends WordNumber> extends BasicAddre
   }
 
   public int getNext(int executedInstructionAddress, int currentPc) {
+    pending = branch;
     if (lastRoutineExecution.hasPendingPoints())
       return currentPc;
     else

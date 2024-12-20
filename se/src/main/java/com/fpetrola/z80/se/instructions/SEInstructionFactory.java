@@ -19,6 +19,7 @@
 package com.fpetrola.z80.se.instructions;
 
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.opcodes.references.*;
@@ -40,6 +41,11 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
   public static Map<Integer, JPRegisterAddressAction.DynamicJPData> dynamicJP = new HashMap<>();
   private final DataflowService<T> dataflowService;
 
+  public void reset() {
+    dynamicJP.clear();
+    SeJP.lastData= null;
+  }
+
   public SEInstructionFactory(SymbolicExecutionAdapter symbolicExecutionAdapter, State state, DataflowService<T> dataflowService1) {
     super(state);
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
@@ -55,6 +61,21 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
 //            return 0;
 //          }
 //        }
+
+        if (target instanceof Register<T> register) {
+          if (register.getName().equals(RegisterName.SP.name())) {
+            System.out.println("LD SP at: " + Helper.formatAddress(pc.read().intValue()));
+            if (pc.read().intValue() != 0x8185) {
+              int i = source.read().intValue();
+              if (source instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
+                symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().restoringSP(i);
+              } else
+                symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().changingSP(i);
+            }
+            return 0;
+          }
+        }
+
         if (source instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
           T value = source.read();
           T address = indirectMemory16BitReference.address;
@@ -146,11 +167,11 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
         boolean b = condition.conditionMet(this);
 
         int pcValue = pc.read().intValue();
+        int pointerAddress = dataflowService.findValueOrigin(register);
         if (dynamicJP.get(pcValue) == null) {
-          int pointerAddress = dataflowService.findValueOrigin(register);
           dynamicJP.put(pcValue, new JPRegisterAddressAction.DynamicJPData(pcValue, register.read().intValue(), pointerAddress));
-          System.out.println("JP (HL): PC: %H, HL: %H".formatted(pcValue, register.read().intValue()));
         }
+        System.out.println("JP (HL): PC: %H, HL: %H".formatted(pcValue, register.read().intValue()));
 //              Pop.doPop(memory, sp);
 //              setNextPC(createValue(pc.read().intValue() + 1));
         if (lastData == null)

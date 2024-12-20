@@ -33,6 +33,8 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.registers.RegisterPair;
+import com.fpetrola.z80.routines.RoutineFinder;
+import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.spy.ComplexInstructionSpy;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 import com.fpetrola.z80.spy.SpyRegisterBankFactory;
@@ -65,13 +67,13 @@ public class Z80B extends RegistersBase implements IZ80 {
 
   public VirtualRegisterFactory virtualRegisterFactory;
 
-  public Z80B(MemIoOps memIoOps, GraphFrame graphFrame) {
+  public Z80B(MemIoOps memIoOps, GraphFrame graphFrame, DataflowService dataflowService, RoutineFinder routineFinder1) {
     super();
     this.clock = Clock.getInstance();
     this.memIoImpl = memIoOps;
     // spy = new SyncInstructionSpy();
     spy = new NullInstructionSpy();
-    spy = new RoutineGrouperSpy(graphFrame);
+    spy = new RoutineGrouperSpy(graphFrame, dataflowService, routineFinder1);
     z80 = createCompleteZ80(memIoOps, FILE.equals("console2A.txt"), spy);
     State state = z80.getState();
     setState(state);

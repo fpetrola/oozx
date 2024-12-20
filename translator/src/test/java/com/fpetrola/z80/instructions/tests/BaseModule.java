@@ -33,9 +33,9 @@ import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.DataflowService;
-import com.fpetrola.z80.se.RoutineExecutorHandler;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.se.VirtualRegisterDataflowService;
 import com.fpetrola.z80.spy.InstructionSpy;
@@ -63,6 +63,13 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
 
   @Provides
   @Inject
+  @Singleton
+  protected RoutineFinder getRoutineFinder(RoutineManager routineManager) {
+    return new RoutineFinder(routineManager);
+  }
+
+  @Provides
+  @Inject
   private Memory getMemory(RoutineFinderInstructionSpy spy) {
     return spy.wrapMemory(new MockedMemory<>(true));
   }
@@ -84,8 +91,8 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Provides
   @Inject
   @Singleton
-  private RoutineFinderInstructionSpy getSpy(RoutineManager routineManager, BlocksManager blocksManager) {
-    return new RoutineFinderInstructionSpy<>(routineManager, blocksManager);
+  private RoutineFinderInstructionSpy getSpy(RoutineManager routineManager, BlocksManager blocksManager, RoutineFinder routineFinder1) {
+    return new RoutineFinderInstructionSpy<>(routineManager, blocksManager, routineFinder1);
   }
 
   @Provides
@@ -130,8 +137,9 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
 
   @Provides
   @Inject
-  protected DataflowService getDataflowService() {
-    return new VirtualRegisterDataflowService();
+  @Singleton
+  protected DataflowService getDataflowService(State state) {
+    return new VirtualRegisterDataflowService(state);
   }
 
   @Provides

@@ -18,7 +18,9 @@
 
 package com.fpetrola.z80.se;
 
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.IndirectMemory16BitReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -27,6 +29,12 @@ import com.fpetrola.z80.transformations.Virtual8BitsRegister;
 import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;
 
 public class VirtualRegisterDataflowService<T extends WordNumber> implements DataflowService<T> {
+  private final State<T> state;
+
+  public VirtualRegisterDataflowService(State<T> state) {
+    this.state = state;
+  }
+
   @Override
   public int findValueOrigin(Register<T> register) {
     int pointerAddress = -1;
@@ -44,5 +52,14 @@ public class VirtualRegisterDataflowService<T extends WordNumber> implements Dat
       pointerAddress = directAccessWordNumber.address;
     }
     return pointerAddress;
+  }
+
+  public T findCurrentReturnAddress() {
+    return Memory.read16Bits(state.getMemory(), (T) state.getRegisterSP().read());
+  }
+
+  public boolean isSyntheticReturnAddress() {
+    T t = findCurrentReturnAddress();
+    return !(t instanceof ReturnAddressWordNumber);
   }
 }

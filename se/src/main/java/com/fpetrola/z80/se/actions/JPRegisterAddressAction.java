@@ -18,8 +18,11 @@
 
 package com.fpetrola.z80.se.actions;
 
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.helpers.Helper;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 import com.fpetrola.z80.se.instructions.SEInstructionFactory;
@@ -28,7 +31,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-public class JPRegisterAddressAction extends AddressAction {
+public class JPRegisterAddressAction<T extends WordNumber> extends AddressAction<T> {
   public DynamicJPData dynamicJPData;
   private LinkedList<Integer> cases = new LinkedList<>();
 
@@ -37,8 +40,21 @@ public class JPRegisterAddressAction extends AddressAction {
   }
 
   public boolean processBranch(Instruction instruction) {
+    ConditionalInstruction conditionalInstruction = (ConditionalInstruction) instruction;
     pollCases();
-    return getDoBranch();
+    boolean doBranch = getDoBranch();
+
+    if (doBranch) {
+      State<T> state = routineExecutionHandler.getState();
+      T t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
+      if (t.intValue() == address + 1) {
+        int jumpAddress = conditionalInstruction.calculateJumpAddress().intValue();
+        if (jumpAddress > 16384)
+          routineExecutionHandler.createRoutineExecution(jumpAddress);
+        else System.out.println("JP (HL) -> " + Helper.formatAddress(jumpAddress));
+      }
+    }
+    return doBranch;
   }
 
   @Override

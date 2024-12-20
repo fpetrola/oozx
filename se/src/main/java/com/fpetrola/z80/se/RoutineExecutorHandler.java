@@ -19,7 +19,6 @@
 package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
@@ -35,13 +34,26 @@ public class RoutineExecutorHandler<T extends WordNumber> {
   private final Register<T> pc;
   private Stack<Integer> stackFrames = new Stack<>();
   private Map<Integer, RoutineExecution<T>> routineExecutions = new HashMap<>();
+
   private final State<T> state;
+
   private ExecutionStackStorage<T> executionStackStorage;
 
-  public RoutineExecutorHandler(State<T> state, ExecutionStackStorage executionStackStorage) {
+  private final DataflowService<T> dataflowService;
+
+  public RoutineExecutorHandler(State<T> state, ExecutionStackStorage executionStackStorage, DataflowService dataflowService) {
     this.pc = state.getPc();
     this.state = state;
     this.executionStackStorage = executionStackStorage;
+    this.dataflowService = dataflowService;
+  }
+
+  public State<T> getState() {
+    return state;
+  }
+
+  public DataflowService<T> getDataflowService() {
+    return dataflowService;
   }
 
   public RoutineExecution<T> findRoutineExecutionAt(int address) {
