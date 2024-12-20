@@ -91,7 +91,7 @@ public class AddressAction<T extends WordNumber> {
     if (!branch)
       executionStackStorage.save();
     else {
-//      executionStackStorage.restore();
+      executionStackStorage.restore();
     }
 
 //    if (routineExecutionHandler.getPc().read().intValue() == 0x8d67)
