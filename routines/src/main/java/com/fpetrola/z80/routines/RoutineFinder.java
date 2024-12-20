@@ -178,6 +178,12 @@ public class RoutineFinder<T extends WordNumber> {
     return routineManager;
   }
 
+  public void reset() {
+    lastInstruction= null;
+    lastPc= -1;
+    currentRoutine= null;
+  }
+
   private class SimulatedPopReturnAddress implements IPopReturnAddress<WordNumber> {
     private final int returnAddress;
     private final int popAddress;
