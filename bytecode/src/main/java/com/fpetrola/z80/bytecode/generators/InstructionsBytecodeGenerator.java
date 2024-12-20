@@ -21,6 +21,7 @@ package com.fpetrola.z80.bytecode.generators;
 import com.fpetrola.z80.bytecode.generators.helpers.PendingFlagUpdate;
 import com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable;
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.minizx.StackException;
@@ -605,7 +606,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
           try {
             routineByteCodeGenerator.invokeTransformedMethod(i);
           } catch (Exception e) {
-            System.out.println("not defined: " + i);
+            System.out.println("not defined: " + Helper.formatAddress(i));
           }
           methodMaker.return_();
         }

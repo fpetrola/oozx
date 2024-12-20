@@ -94,7 +94,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     });
     mutantAddress.clear();
     dataflowService = dataflowService1;
-    routineExecutorHandler = new RoutineExecutorHandler<>(state.getPc(), new ExecutionStackStorage<>(state));
+    routineExecutorHandler = new RoutineExecutorHandler<>(state, new ExecutionStackStorage<>(state));
   }
 
   public InstructionFetcher createInstructionFetcher(InstructionSpy spy, State<T> state, InstructionExecutor<T> instructionExecutor, OpcodeConditions opcodeConditions) {
@@ -162,6 +162,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     Map<Integer, RoutineExecution> routineExecutions1 = routineExecutorHandler.getCopyListOfRoutineExecutions();
     routineExecutions1.entrySet().forEach(e -> {
       if (e.getValue().hasPendingPoints()) {
+        executingPending(e.getValue().getNextPending().address);
         System.err.println("pending action: " + e.getValue());
       }
       Optional<AddressAction> foundAction = e.getValue().findActionOfType(JPRegisterAddressAction.class);
@@ -177,14 +178,18 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           pushAddress(startAddress);
           pushAddress(startAddress);
           pushAddress(startAddress);
-          RoutineExecution<T> routineExecutionAt = routineExecutorHandler.findRoutineExecutionContaining(jpRegisterAddressAction.address);
-          routineExecutorHandler.pushRoutineExecution(routineExecutionAt);
-          pc.write(createValue(jpRegisterAddressAction.address));
-          executeAllCode(z80InstructionDriver, pc);
+          executingPending(jpRegisterAddressAction.address);
 //          stepAllAndProcessPending(z80InstructionDriver, (State<T>) state, first1, minimalValidCodeAddress);
         }
       }
     });
+  }
+
+  private void executingPending(int address) {
+    RoutineExecution<T> routineExecutionAt = routineExecutorHandler.findRoutineExecutionContaining(address);
+    routineExecutorHandler.pushRoutineExecution(routineExecutionAt);
+    pc.write(createValue(address));
+    executeAllCode(z80InstructionDriver, pc);
   }
 
   private void pushAddress(int startAddress) {
@@ -208,9 +213,9 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         if (addressAction != null)
           pcValue = updatePcRegister(addressAction.getNextPC());
 
-//        routineExecutorHandler.getExecutionStackStorage().printStack();
+        routineExecutorHandler.getExecutionStackStorage().printStack();
         z80InstructionDriver.step();
-//        routineExecutorHandler.getExecutionStackStorage().printStack();
+        routineExecutorHandler.getExecutionStackStorage().printStack();
 
         if (!routineExecution.hasActionAt(pcValue))
           routineExecution.createAndAddGenericAction(pcValue);

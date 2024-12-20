@@ -37,7 +37,7 @@ public class ExecutionStackStorage<T extends WordNumber> {
   void save() {
     if (savedStack == null) {
       savedStack = createStackCopy();
-//      printStack(savedSP, savedStack, "saving ");
+      printStack(savedSP, savedStack, "saving ");
     }
 //    else
 //      throw new RuntimeException("already stored");
@@ -65,7 +65,7 @@ public class ExecutionStackStorage<T extends WordNumber> {
           memory.getData()[savedSP + i] = (T) savedStack[i];
       }
 
-//      printStack(savedSP, savedStack, "restoring ");
+      printStack(savedSP, savedStack, "restoring ");
 
 //      T[] savedStack3 = Arrays.copyOfRange(memory.getData(), savedSP, savedSP + 40);
 

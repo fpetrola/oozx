@@ -18,6 +18,9 @@
 
 package com.fpetrola.z80.se;
 
+import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.helpers.Helper;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.actions.ExecutionStackStorage;
@@ -26,14 +29,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
+import static com.fpetrola.z80.helpers.Helper.formatAddress;
+
 public class RoutineExecutorHandler<T extends WordNumber> {
   private final Register<T> pc;
   private Stack<Integer> stackFrames = new Stack<>();
   private Map<Integer, RoutineExecution<T>> routineExecutions = new HashMap<>();
+  private final State<T> state;
   private ExecutionStackStorage<T> executionStackStorage;
 
-  public RoutineExecutorHandler(Register<T> pc, ExecutionStackStorage executionStackStorage) {
-    this.pc = pc;
+  public RoutineExecutorHandler(State<T> state, ExecutionStackStorage executionStackStorage) {
+    this.pc = state.getPc();
+    this.state = state;
     this.executionStackStorage = executionStackStorage;
   }
 
@@ -42,13 +49,16 @@ public class RoutineExecutorHandler<T extends WordNumber> {
   }
 
   public RoutineExecution<T> findRoutineExecutionContaining(int address) {
-    return routineExecutions.values().stream().filter(r-> r.contains(address)).findFirst().get();
+    return routineExecutions.values().stream().filter(r -> r.contains(address)).findFirst().get();
   }
 
   public void createRoutineExecution(int jumpAddress) {
     // if (jumpAddress == 35211) System.out.println("start routine: " + jumpAddress);
     if (jumpAddress == 0xCFD9)
       System.out.println("");
+
+    System.out.println("Push frame: " + formatAddress(jumpAddress));
+
     stackFrames.push(jumpAddress);
     RoutineExecution<T> routineExecution = routineExecutions.get(jumpAddress);
     if (routineExecution == null) {
@@ -58,7 +68,10 @@ public class RoutineExecutorHandler<T extends WordNumber> {
   }
 
   public Object popRoutineExecution() {
-    return stackFrames.pop();
+    T t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
+    Integer pop = stackFrames.pop();
+    System.out.printf("Pop frame: %s, ret: %s%n", formatAddress(pop), formatAddress(t.intValue()));
+    return pop;
   }
 
   public void reset() {

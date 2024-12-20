@@ -42,6 +42,7 @@ public class RoutineFinderInstructionSpy<T extends WordNumber> extends WrapperIn
   private Instruction<T> lastInstruction;
 
   private int lastPC;
+
   @Inject
   public RoutineFinderInstructionSpy(RoutineManager routineManager, BlocksManager blocksManager1) {
     routineFinder = new RoutineFinder(routineManager);
@@ -74,6 +75,10 @@ public class RoutineFinderInstructionSpy<T extends WordNumber> extends WrapperIn
     executionStep.setInstruction(instruction);
     executionStep.description = instruction.toString();
     super.beforeExecution(instruction);
+    Register pc = state.getPc();
+    T pcValue = (T) pc.read();
+    int pcIntValue = pcValue.intValue();
+    routineFinder.checkBeforeExecution(instruction, pcIntValue, state);
   }
 
   @Override
@@ -83,7 +88,7 @@ public class RoutineFinderInstructionSpy<T extends WordNumber> extends WrapperIn
     int pcIntValue = pcValue.intValue();
     int instructionLength = instruction.getLength();
     if (instructionLength > 0) {
-      routineFinder.checkExecution(instruction, pcIntValue);
+      routineFinder.checkExecution(instruction, pcIntValue, state);
       lastInstruction = instruction;
       super.afterExecution(instruction);
       lastPC = pcValue.intValue();
