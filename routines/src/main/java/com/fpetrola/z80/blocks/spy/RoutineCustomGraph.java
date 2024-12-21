@@ -20,6 +20,7 @@ package com.fpetrola.z80.blocks.spy;
 
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.BlockChangesListener;
+import com.fpetrola.z80.blocks.ParentChildChangesListener;
 import com.fpetrola.z80.graph.CustomGraph;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
@@ -30,19 +31,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class RoutineCustomGraph extends CustomGraph {
+public class RoutineCustomGraph<T> extends CustomGraph {
   public static mxGraph graph;
-  private static final Map<Block, mxCell> routinesVertices = new HashMap<>();
+  private static final Map<Nameable, mxCell> routinesVertices = new HashMap<>();
 
   public RoutineCustomGraph(mxGraph graph) {
     RoutineCustomGraph.graph = graph;
   }
 
-  public static class GraphBlockChangesListener implements BlockChangesListener {
+  public static class GraphBlockChangesListener<T extends Nameable> implements ParentChildChangesListener<T> {
 
     private int id;
 
-    public void removingKnownBlock(Block block, Block calledBlock) {
+    public void removingKnownBlock(T block, T calledBlock) {
       runOnSwing(() -> {
         log("graph: removing block references: " + block.getName() + " -> " + calledBlock.getName());
 
@@ -81,7 +82,7 @@ public class RoutineCustomGraph extends CustomGraph {
 //      }
     }
 
-    public void removingBlock(Block block) {
+    public void removingBlock(T block) {
       runOnSwing(() -> {
 
         log("graph: removing block: " + block.getName());
@@ -115,7 +116,7 @@ public class RoutineCustomGraph extends CustomGraph {
       }
     }
 
-    public void addingKnownBLock(Block block, Block calledBlock, int from) {
+    public void addingKnownBLock(T block, T calledBlock, int from) {
       runOnSwing(() -> {
         log("graph: adding block references: " + block.getName() + " -> " + calledBlock.getName());
         mxCell routineVertex = routinesVertices.get(block);
@@ -125,7 +126,7 @@ public class RoutineCustomGraph extends CustomGraph {
         Object[] edgesBetween = graph.getEdgesBetween(routineVertex, calledRoutineVertex);
         if (edgesBetween.length == 0) {
           String style = "edgeStyle=sideToSideEdgeStyle;elbow=vertical;orthogonal=0;";
-          graph.insertEdge(graph.getDefaultParent(), id++ + "", calledBlock.getCallType(), routineVertex, calledRoutineVertex, style);
+          graph.insertEdge(graph.getDefaultParent(), id++ + "", calledBlock.getName(), routineVertex, calledRoutineVertex, style);
           if (calledRoutineVertex == null) log("why?");
         }
 
@@ -134,7 +135,7 @@ public class RoutineCustomGraph extends CustomGraph {
       });
     }
 
-    public void addingBlock(Block block) {
+    public void addingBlock(T block) {
       runOnSwing(() -> {
         mxCell routineVertex = routinesVertices.get(block);
         if (routineVertex == null) {
@@ -150,7 +151,7 @@ public class RoutineCustomGraph extends CustomGraph {
       // System.out.println(block);
     }
 
-    public void blockChanged(Block block) {
+    public void blockChanged(T block) {
       runOnSwing(() -> {
         log("graph: changed block: " + block.getName());
         mxCell routineVertex = routinesVertices.get(block);
@@ -161,7 +162,7 @@ public class RoutineCustomGraph extends CustomGraph {
     }
 
     @Override
-    public void replaceBlock(Block oldBlock, Block newBlock) {
+    public void replaceBlock(T oldBlock, T newBlock) {
       runOnSwing(() -> {
         log("graph: replace block: " + oldBlock.getName() + " by: " + newBlock.getName());
         mxCell mxCell = routinesVertices.get(oldBlock);
@@ -187,9 +188,9 @@ public class RoutineCustomGraph extends CustomGraph {
 
   public CustomGraph convertGraph() {
 
-    Set<Map.Entry<Block, mxCell>> entrySet = routinesVertices.entrySet();
+    Set<Map.Entry<Nameable, mxCell>> entrySet = routinesVertices.entrySet();
 
-    for (Map.Entry<Block, mxCell> entry : entrySet) {
+    for (Map.Entry<Nameable, mxCell> entry : entrySet) {
       mxCell vertex = entry.getValue();
 
       System.out.println(vertex.getValue());
@@ -202,7 +203,7 @@ public class RoutineCustomGraph extends CustomGraph {
         mxICell sourceTerminal = edgeAt.getTerminal(true);
         mxICell targetTerminal = edgeAt.getTerminal(false);
         if (sourceTerminal == null || targetTerminal == null) System.out.println("guau");
-        addEdge(sourceTerminal, targetTerminal, entry.getKey().getCallType());
+        addEdge(sourceTerminal, targetTerminal, entry.getKey().getName());
       }
     }
 

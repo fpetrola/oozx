@@ -23,6 +23,7 @@ import com.fpetrola.z80.blocks.spy.RoutineCustomGraph;
 import com.fpetrola.z80.blocks.spy.RoutineGrouperSpy;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.graph.GraphFrame;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
@@ -32,6 +33,7 @@ import javax.swing.*;
 
 public class Ide {
   public static void main(String[] args) {
+    Helper.hex= true;
 
     GraphFrame frame = new GraphFrame();
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

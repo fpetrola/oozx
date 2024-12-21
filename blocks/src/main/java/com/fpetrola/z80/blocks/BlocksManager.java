@@ -23,7 +23,7 @@ import java.util.List;
 
 public class BlocksManager {
   List<Block> blocks = new ArrayList<>();
-  BlockChangesListener blockChangesListener;
+  ParentChildChangesListener<Block> blockChangesListener;
   private long executionNumber;
   private Block[] blocksAddresses = new Block[0x10000];
   private final boolean romEnabled;
@@ -34,7 +34,7 @@ public class BlocksManager {
 
   private int cycle;
 
-  public BlocksManager(BlockChangesListener blockChangesListener, boolean romEnabled) {
+  public BlocksManager(ParentChildChangesListener<Block> blockChangesListener, boolean romEnabled) {
     this.blockChangesListener = new BlockChangesListenerDelegator(blockChangesListener) {
       public void blockChanged(Block block) {
         updateBlockAddresses(block);
@@ -74,7 +74,7 @@ public class BlocksManager {
     blocks.remove(block);
   }
 
-  public BlockChangesListener getBlockChangesListener() {
+  public ParentChildChangesListener<Block> getBlockChangesListener() {
     return blockChangesListener;
   }
 

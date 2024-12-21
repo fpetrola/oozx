@@ -16,8 +16,8 @@
  *
  */
 
-package com.fpetrola.z80.blocks;
+package com.fpetrola.z80.blocks.spy;
 
-public interface BlockChangesListener extends ParentChildChangesListener<Block> {
-
+public interface Nameable {
+  String getName();
 }

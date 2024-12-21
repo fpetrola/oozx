@@ -18,6 +18,16 @@
 
 package com.fpetrola.z80.blocks;
 
-public interface BlockChangesListener extends ParentChildChangesListener<Block> {
+public interface ParentChildChangesListener<T> {
+  void removingKnownBlock(T block, T calledBlock);
 
+  void addingKnownBLock(T block, T calledBlock, int from);
+
+  void removingBlock(T block);
+
+  void addingBlock(T block);
+
+  void blockChanged(T block);
+
+  void replaceBlock(T oldBlock, T newBlock);
 }

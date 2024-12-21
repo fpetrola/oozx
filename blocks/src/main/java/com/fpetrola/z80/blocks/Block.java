@@ -20,10 +20,11 @@ package com.fpetrola.z80.blocks;
 
 import com.fpetrola.z80.blocks.ranges.RangeHandler;
 import com.fpetrola.z80.blocks.references.ReferencesHandler;
+import com.fpetrola.z80.blocks.spy.Nameable;
 
 import java.util.List;
 
-public interface Block {
+public interface Block extends Nameable {
 
   default RangeHandler getRangeHandler() {
     return new RangeHandler(0, 0, "", rangeHandler -> {
