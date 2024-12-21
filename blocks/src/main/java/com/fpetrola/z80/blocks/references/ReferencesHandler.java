@@ -200,4 +200,9 @@ public class ReferencesHandler {
     return blocksManager.findBlockAt(address) instanceof DataBlockType;
   }
 
+  public boolean containsRelation(int from, int to) {
+    Collection<BlockRelation> blockRelations = relationsBySourceAddress.get(from);
+    boolean b1 = blockRelations.stream().anyMatch(b -> b.getTargetAddress() == to);
+    return b1;
+  }
 }

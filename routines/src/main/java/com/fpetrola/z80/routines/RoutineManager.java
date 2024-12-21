@@ -23,7 +23,6 @@ import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.CodeBlockType;
 import com.fpetrola.z80.blocks.NullBlockChangesListener;
 import com.fpetrola.z80.cpu.RandomAccessInstructionFetcher;
-import com.fpetrola.z80.se.DataflowService;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
@@ -48,8 +47,11 @@ public class RoutineManager {
   private RandomAccessInstructionFetcher randomAccessInstructionFetcher;
 
   public RoutineManager() {
-    BlocksManager blocksManager1 = new BlocksManager(new NullBlockChangesListener(), true);
-    this.blocksManager = blocksManager1;
+    this(new BlocksManager(new NullBlockChangesListener(), true));
+  }
+
+  public RoutineManager(BlocksManager blocksManager) {
+    this.blocksManager = blocksManager;
   }
 
   public Routine findRoutineAt(int address) {

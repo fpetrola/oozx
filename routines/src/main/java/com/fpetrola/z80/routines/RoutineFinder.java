@@ -32,6 +32,12 @@ import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.se.Z80InstructionDriver;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.fpetrola.z80.registers.RegisterName.SP;
 
@@ -41,6 +47,7 @@ public class RoutineFinder<T extends WordNumber> {
   private Routine currentRoutine;
   private RoutineManager routineManager;
   private int lastPc;
+  private Set<Integer> processedPcs= new HashSet<>();
 
   public RoutineFinder(RoutineManager routineManager) {
     this.routineManager = routineManager;
@@ -76,7 +83,9 @@ public class RoutineFinder<T extends WordNumber> {
 
   public void checkExecution(Instruction<T> instruction, int pcValue, State<T> state) {
     try {
-      updateCallers(instruction, pcValue);
+      processedPcs.add(pcValue);
+
+//      updateCallers(instruction, pcValue);
 
       if (currentRoutine == null)
         createOrUpdateCurrentRoutine(pcValue, instruction.getLength());
@@ -138,9 +147,9 @@ public class RoutineFinder<T extends WordNumber> {
   }
 
   private Routine createOrUpdateCurrentRoutine(int startAddress, int length) {
-    Block lastCurrentRoutine = null;
+    Block lastCurrentRoutineBlock = null;
     if (currentRoutine != null)
-      lastCurrentRoutine = routineManager.blocksManager.findBlockAt(currentRoutine.getStartAddress());
+      lastCurrentRoutineBlock = routineManager.blocksManager.findBlockAt(currentRoutine.getStartAddress());
     currentRoutine = routineManager.findRoutineAt(startAddress);
 
     if (currentRoutine != null) {
@@ -154,24 +163,28 @@ public class RoutineFinder<T extends WordNumber> {
       currentRoutine = routineManager.createRoutine(startAddress, length);
     }
 
-    if (lastCurrentRoutine != null) {
-      BlockRelation blockRelation = BlockRelation.createBlockRelation(lastCurrentRoutine.getRangeHandler().getStartAddress(), startAddress);
-      lastCurrentRoutine.getReferencesHandler().addBlockRelation(blockRelation);
+    if (lastCurrentRoutineBlock != null) {
+      int startAddress1 = lastCurrentRoutineBlock.getRangeHandler().getStartAddress();
+
+      if (!lastCurrentRoutineBlock.getReferencesHandler().containsRelation(startAddress1, startAddress)) {
+        BlockRelation blockRelation = BlockRelation.createBlockRelation(startAddress1, startAddress);
+        lastCurrentRoutineBlock.getReferencesHandler().addBlockRelation(blockRelation);
+      }
     }
 
     return currentRoutine;
   }
 
   private void updateCallers(Instruction instruction, int pcValue) {
-    if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
-      if (conditionalInstruction.getNextPC() != null)
-        if (instruction instanceof Call) {
-          routineManager.callers2.put(conditionalInstruction.getNextPC().intValue(), pcValue);
-        } else if (!(instruction instanceof Ret<?>)) {
-          routineManager.callers.put(conditionalInstruction.getNextPC().intValue(), pcValue);
-          routineManager.callees.put(pcValue, conditionalInstruction.getNextPC().intValue());
-        }
-    }
+//    if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
+//      if (conditionalInstruction.getNextPC() != null)
+//        if (instruction instanceof Call) {
+//          routineManager.callers2.put(conditionalInstruction.getNextPC().intValue(), pcValue);
+//        } else if (!(instruction instanceof Ret<?>)) {
+//          routineManager.callers.put(conditionalInstruction.getNextPC().intValue(), pcValue);
+//          routineManager.callees.put(pcValue, conditionalInstruction.getNextPC().intValue());
+//        }
+//    }
   }
 
   public RoutineManager getRoutineManager() {
@@ -179,9 +192,13 @@ public class RoutineFinder<T extends WordNumber> {
   }
 
   public void reset() {
-    lastInstruction= null;
-    lastPc= -1;
-    currentRoutine= null;
+    lastInstruction = null;
+    lastPc = -1;
+    currentRoutine = null;
+  }
+
+  public <T extends WordNumber> boolean alreadyProcessed(Instruction<T> instruction, int pcValue) {
+    return !(instruction instanceof Call) && !(instruction instanceof Ret) && processedPcs.contains(pcValue);
   }
 
   private class SimulatedPopReturnAddress implements IPopReturnAddress<WordNumber> {

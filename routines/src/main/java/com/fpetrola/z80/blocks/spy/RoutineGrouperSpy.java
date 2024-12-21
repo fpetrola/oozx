@@ -22,21 +22,22 @@ import blue.endless.jankson.Jankson;
 import blue.endless.jankson.JsonGrammar;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fpetrola.z80.blocks.BlocksManager;
-import com.fpetrola.z80.blocks.references.WordNumberMemoryReadListener;
-import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.blocks.references.ReferencesHandler;
+import com.fpetrola.z80.blocks.references.WordNumberMemoryReadListener;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.graph.CustomGraph;
 import com.fpetrola.z80.graph.GraphFrame;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.instructions.types.RepeatingInstruction;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.memory.ReadOnlyMemoryImplementation;
 import com.fpetrola.z80.metadata.DataStructure;
 import com.fpetrola.z80.metadata.GameMetadata;
-import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.ExecutionPoint;
 import com.fpetrola.z80.opcodes.references.IntegerWordNumber;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.spy.AbstractInstructionSpy;
 import com.fpetrola.z80.spy.ComplexInstructionSpy;
@@ -47,6 +48,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstructionSpy<T> implements ComplexInstructionSpy<T> {
   private static final String FILE_TRACE_JSON = "game-metadata.json";
@@ -55,6 +59,9 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
   private RoutineCustomGraph customGraph;
   private final GraphFrame graphFrame;
   private final RoutineFinder routineFinder;
+  private int pcValue;
+  private Queue<Runnable> threadSafeQueue;
+  BlockingQueue<String> blockingQueue = new LinkedBlockingDeque<>(20);
 
   @Override
   public boolean isStructureCapture() {
@@ -78,11 +85,23 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
     initGraph();
     blocksManager = new BlocksManager(new RoutineCustomGraph.GraphBlockChangesListener(), true);
     routineFinder = routineFinder1;
+    threadSafeQueue = new ConcurrentLinkedQueue<>();
+
+    Thread consumerThread = new Thread(() -> {
+      while (true) {
+        if (!threadSafeQueue.isEmpty()) {
+          Runnable item = threadSafeQueue.poll();
+          item.run();
+        }
+      }
+    });
+
+    consumerThread.start();
   }
 
   public void setGameMetadata(GameMetadata gameMetadata) {
     this.gameMetadata = gameMetadata;
-   // blocksManager.setGameMetadata(gameMetadata);
+    // blocksManager.setGameMetadata(gameMetadata);
   }
 
   @Override
@@ -129,25 +148,27 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
     initGraph();
   }
 
-  private void initGraph() {
-    customGraph = new RoutineCustomGraph(graphFrame.graph);
+  public void initGraph() {
+    if (customGraph == null)
+      customGraph = new RoutineCustomGraph(graphFrame.graph);
+  }
+
+  public void beforeExecution(Instruction<T> instruction) {
+    pcValue = ((T) state.getPc().read()).intValue();
   }
 
   public void afterExecution(Instruction<T> instruction) {
-    super.afterExecution(instruction);
-
-    if (capturing) {
-      executionSteps.clear();
-      stepsQueue.add(executionStep);
-      memoryChanges.clear();
-      blocksManager.setExecutionNumber(executionNumber);
-      try {
-        routineFinder.checkExecution(executionStep.getInstruction(), executionStep.pcValue, state);
-      } catch (Exception e) {
-      e.printStackTrace();
-      }
-//      executeMutantCode();
+//      new Thread(() -> extracted(instruction)).start();
+    int pcValue1 = pcValue;
+    if (!(instruction instanceof RepeatingInstruction<T>)) {
+      if (!routineFinder.alreadyProcessed(instruction, pcValue1))
+        threadSafeQueue.add(() -> extracted(instruction, pcValue1));
     }
+//      executeMutantCode();
+  }
+
+  private void extracted(Instruction<T> instruction, int pcValue1) {
+      routineFinder.checkExecution(instruction, pcValue1, state);
   }
 
   private void executeMutantCode() {
@@ -175,7 +196,7 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
   }
 
   public void process() {
-   // blocksManager.optimizeBlocks();
+    // blocksManager.optimizeBlocks();
 
     //locksManager.findBlockAt(37310).accept(new BlockRoleBytecodeGenerator());
 

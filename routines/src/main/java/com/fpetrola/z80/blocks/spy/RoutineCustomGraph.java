@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class RoutineCustomGraph extends CustomGraph {
-  private static mxGraph graph;
+  public static mxGraph graph;
   private static final Map<Block, mxCell> routinesVertices = new HashMap<>();
 
   public RoutineCustomGraph(mxGraph graph) {
@@ -155,7 +155,8 @@ public class RoutineCustomGraph extends CustomGraph {
         log("graph: changed block: " + block.getName());
         mxCell routineVertex = routinesVertices.get(block);
         StringBuffer stringBuffer = new StringBuffer();
-        routineVertex.setValue(block.getName());
+        if (routineVertex != null)
+          routineVertex.setValue(block.getName());
       });
     }
 

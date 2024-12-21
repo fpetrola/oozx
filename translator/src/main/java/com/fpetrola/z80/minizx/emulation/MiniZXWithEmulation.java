@@ -317,7 +317,7 @@ public class MiniZXWithEmulation {
         };
       }
     };
-    var z80 = new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), instructionFactory));
+    var z80 = new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), instructionFactory, false));
     return z80;
   }
 

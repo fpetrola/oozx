@@ -21,6 +21,7 @@ package com.fpetrola.z80.minizx;
 import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulationBase;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyListener;
 import java.util.function.Function;
 
@@ -32,7 +33,7 @@ public abstract class MiniZX extends SyncSpectrumApplication {
 
   public void init() {
     this.mem = new int[65536];
-    MiniZX.createScreen(((MiniZXIO) io).miniZXKeyboard, this.getMemFunction());
+    MiniZX.createScreen(((MiniZXIO) io).miniZXKeyboard, new MiniZXScreen(this.getMemFunction()));
     final byte[] rom = MiniZXWithEmulationBase.createROM();
     final byte[] bytes = MiniZXWithEmulationBase.gzipDecompressFromBase64(this.getProgramBytes());
     for (int i = 0; i < 65536; ++i) {
@@ -53,14 +54,16 @@ public abstract class MiniZX extends SyncSpectrumApplication {
 
   protected abstract String getProgramBytes();
 
-  public static void createScreen(KeyListener keyListener, Function<Integer, Integer> memFunction) {
+  public static JFrame createScreen(KeyListener keyListener, Container miniZXScreen1) {
     JFrame frame = new JFrame("Mini ZX Spectrum");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setContentPane(new MiniZXScreen(memFunction));
+    frame.setContentPane(miniZXScreen1);
     frame.setLocationRelativeTo(null);
+    frame.setSize(512, 384);
     frame.pack();
     frame.setVisible(true);
     frame.addKeyListener(keyListener);
+    return frame;
   }
 
 }

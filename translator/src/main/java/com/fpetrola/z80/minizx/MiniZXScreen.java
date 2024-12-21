@@ -18,6 +18,9 @@
 
 package com.fpetrola.z80.minizx;
 
+import com.fpetrola.z80.memory.MemoryWriteListener;
+import com.fpetrola.z80.opcodes.references.WordNumber;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -26,7 +29,7 @@ import java.awt.geom.AffineTransform;
 import java.util.Arrays;
 import java.util.function.Function;
 
-public class MiniZXScreen extends JPanel {
+public class MiniZXScreen<T extends WordNumber> extends JPanel {
 
   protected final Function<Integer, Integer> screenMemory;
   protected final byte[] newScreen;
@@ -39,12 +42,12 @@ public class MiniZXScreen extends JPanel {
     this.newScreen = new byte[256 * 192];
     setPreferredSize(new Dimension((int) (256 * zoom), (int) (192 * zoom)));
 
-    new Timer(100, e -> {
-      convertScreen();
+    new Timer(30, e -> {
+//      convertScreen();
       repaint();
     }).start();
 
-    new Timer(500, e -> {
+    new Timer(300, e -> {
       flashState = !flashState;
     }).start();
 
@@ -90,7 +93,7 @@ public class MiniZXScreen extends JPanel {
   }
 
   protected void convertScreen() {
-    Arrays.fill(newScreen, (byte) 0);
+//    Arrays.fill(newScreen, (byte) 0);
 
     for (int block = 0; block < 3; block++) {
       int blockAddrOffset = block * 2048;
@@ -154,6 +157,48 @@ public class MiniZXScreen extends JPanel {
       bits[i] = (byte) ((b >> i) & 1);
     }
     return bits;
+  }
+
+  public MemoryWriteListener getMemoryListener() {
+    return (MemoryWriteListener<T>) (address, value) -> {
+      int address1 = address.intValue();
+      if (address1 >= 16384 && address1 <= 16384 + 6912) {
+
+        int[] ints = memoryToCartesian(address1);
+
+        byte[] pixels = byteToBits((byte) value.intValue());
+        for (int pixel = 7; pixel >= 0; pixel--) {
+          int blockAddrOffset = ints[0];
+          writeColourPixelToNewScreen(pixels[pixel], blockAddrOffset + pixel);
+        }
+//        convertScreen();
+
+//        System.out.println("sdgdag");
+      }
+    };
+
+  }
+
+  public int[] memoryToCartesian(int address) {
+    // Check if the address is within the valid range
+    if (address < 0x4000 || address > 0x57FF) {
+      throw new IllegalArgumentException("Address out of screen memory range (0x4000 to 0x57FF)");
+    }
+
+    // Calculate the base address relative to 0x4000
+    int baseAddress = address - 0x4000;
+
+    // Calculate the logical row based on ZX Spectrum screen layout
+    int rowWithinSection = (baseAddress % 0x800) / 32; // Row within 8-row block
+    int section = baseAddress / 0x800; // Determine the section (0, 1, 2)
+    int logicalRow = (rowWithinSection & 0b111)         // Bottom 3 bits (row within the block)
+        + ((rowWithinSection >> 3) * 8)      // Combine middle bits for block offset
+        + section * 64;                     // Add section offset
+
+    // Calculate the column (x-coordinate)
+    int column = (baseAddress % 32) * 8; // Each byte contains 8 pixels
+
+    return new int[]{column, logicalRow};
   }
 
   protected static class Colour {

@@ -25,11 +25,14 @@ import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
+import com.fpetrola.z80.minizx.MiniZXScreen;
+import com.fpetrola.z80.minizx.ZXScreenComponent;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
+import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.NullInstructionSpy;
-import com.fpetrola.z80.transformations.VirtualRegisterFactory;
 
+import javax.swing.*;
 import java.util.function.Function;
 
 public class EmulatedMiniZX<T extends WordNumber> {
@@ -40,24 +43,39 @@ public class EmulatedMiniZX<T extends WordNumber> {
   private boolean showScreen;
   private final int emulateUntil;
   private boolean inThread;
+  private InstructionSpy spy;
+  private State state;
 
   public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread) {
+    this(url, pause, showScreen, emulateUntil, inThread, new NullInstructionSpy(), createState());
+  }
+
+  public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread, InstructionSpy spy, State state) {
     this.pause = pause;
     //    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile("file:///home/fernando/detodo/desarrollo/m/zx/zx/jsw.z80");
     this.url = url;
     this.showScreen = showScreen;
     this.emulateUntil = emulateUntil;
     this.inThread = inThread;
+    this.spy = spy;
+    this.state = state;
   }
 
   public static void main(String[] args) {
-    new EmulatedMiniZX("file:///home/fernando/dynamitedan1.z80", 1000, true, -1, true).start();
+    new EmulatedMiniZX("file:///home/fernando/dynamitedan1.z80", 100, true, -1, true).start();
   }
 
-  public <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
-    var state = new State(io, new DefaultRegisterBankFactory().createBank(), new MockedMemory(true));
-    io.setPc(state.getPc());
-    return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)));
+  public <T extends WordNumber> OOZ80<T> createOOZ80() {
+    if (state == null)
+      state = createState();
+    ((MiniZXIO) state.getIo()).setPc(state.getPc());
+    spy.reset(state);
+    return new OOZ80(state, Helper.getInstructionFetcher(state, spy, new DefaultInstructionFactory<T>(state), true));
+  }
+
+  public static State createState() {
+    MiniZXIO io = new MiniZXIO();
+    return new State(io, new DefaultRegisterBankFactory().createBank(), new MockedMemory(true));
   }
 
   protected Function<Integer, Integer> getMemFunction() {
@@ -65,10 +83,14 @@ public class EmulatedMiniZX<T extends WordNumber> {
   }
 
   public void start() {
-    MiniZXIO io = new MiniZXIO();
-    ooz80 = createOOZ80(io);
-    if (showScreen)
-      MiniZX.createScreen(io.miniZXKeyboard, this.getMemFunction());
+    MiniZXIO io = ((MiniZXIO) state.getIo());
+    ooz80 = createOOZ80();
+    if (showScreen) {
+      MiniZXScreen miniZXScreen1 = new MiniZXScreen(this.getMemFunction());
+      ZXScreenComponent zxScreenComponent = new ZXScreenComponent();
+      MiniZX.createScreen(io.miniZXKeyboard, zxScreenComponent);
+      state.getMemory().addMemoryWriteListener(zxScreenComponent.getWriteListener());
+    }
 
     RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
 
@@ -85,7 +107,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
   public void emulate() {
     int i = 0;
     while (ooz80.getState().getPc().read().intValue() != emulateUntil) {
-      if (i++ % (pause * 1000) == 0) this.ooz80.getState().setINTLine(true);
+      if (i++ % (pause * 10) == 0) this.ooz80.getState().setINTLine(true);
       else {
         if (i % pause == 0)
           this.ooz80.execute();

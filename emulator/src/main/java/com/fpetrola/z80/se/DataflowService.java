@@ -22,9 +22,15 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
 public interface DataflowService<T extends WordNumber> {
-  int findValueOrigin(Register<T> register);
+  default int findValueOrigin(Register<T> register) {
+    return 0;
+  }
 
-  WordNumber findCurrentReturnAddress();
+  default WordNumber findCurrentReturnAddress() {
+    return null;
+  }
 
-  boolean isSyntheticReturnAddress();
+  default boolean isSyntheticReturnAddress() {
+    return false;
+  }
 }

@@ -31,11 +31,11 @@ import static com.fpetrola.z80.registers.RegisterName.B;
 public class Helper {
   public static <T extends WordNumber> OOZ80<T> createOOZ80(IO<T> io) {
     var state = new State<T>(io, new MockedMemory<T>(true));
-    return new OOZ80<T>(state, getInstructionFetcher(state, new MemptrUpdateInstructionSpy<T>(state), new DefaultInstructionFactory<T>(state)));
+    return new OOZ80<T>(state, getInstructionFetcher(state, new MemptrUpdateInstructionSpy<T>(state), new DefaultInstructionFactory<T>(state), false));
   }
 
-  public static DefaultInstructionFetcher getInstructionFetcher(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory) {
+  public static DefaultInstructionFetcher getInstructionFetcher(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory, boolean clone) {
     SpyInstructionExecutor instructionExecutor1 = new SpyInstructionExecutor(spy, state);
-    return new DefaultInstructionFetcher(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), new FetchNextOpcodeInstructionFactory(spy, state), instructionExecutor1, instructionFactory, false, false);
+    return new DefaultInstructionFetcher(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), new FetchNextOpcodeInstructionFactory(spy, state), instructionExecutor1, instructionFactory, false, clone);
   }
 }

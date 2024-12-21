@@ -60,8 +60,6 @@ public class Routine {
     this.virtual = virtual;
     this.blocks = blocks;
     this.setEntryPoint(entryPoint);
-    if (blocks.get(0).getRangeHandler().getStartAddress() == 38555)
-      System.out.println("dsagsdgdg");
   }
 
   public List<Routine> getAllRoutines() {
@@ -280,6 +278,7 @@ public class Routine {
   }
 
   void addInstructionAt(Instruction instruction, int pcValue) {
+    instructions.add(instruction);
     if (!finished) {
       Block currentBlock = routineManager.blocksManager.findBlockAt(pcValue);
       if (currentBlock.getBlockType() instanceof UnknownBlockType) {
@@ -397,7 +396,7 @@ public class Routine {
   }
 
   public Routine findRoutineAt(int address) {
-    Optional<Block> b1 = getBlocks().stream().filter(i -> i != null && i.contains(address)).findFirst();
+    Optional<Block> b1 = new ArrayList<>(getBlocks()).stream().filter(i -> i != null && i.contains(address)).findFirst();
 
     if (b1.isPresent())
       return this;

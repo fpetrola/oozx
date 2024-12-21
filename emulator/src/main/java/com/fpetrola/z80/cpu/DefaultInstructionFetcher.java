@@ -47,7 +47,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   protected T pcValue;
   protected final InstructionExecutor<T> instructionExecutor;
   FileWriter fileWriter;
-  List<ExecutedInstruction> lastInstructions = new ArrayList<>();
+//  List<ExecutedInstruction> lastInstructions = new ArrayList<>();
   protected Supplier<TableBasedOpCodeDecoder> tableFactory;
   public Instruction<T> instruction2;
   private boolean noRepeat;
@@ -102,10 +102,10 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     memory.enableReadListener();
 
     try {
-      lastInstructions.add(new ExecutedInstruction(pcValue.intValue(), this.instruction));
+//      lastInstructions.add(new ExecutedInstruction(pcValue.intValue(), this.instruction));
 
-      if (pcValue.intValue() == 0xE667)
-        System.out.println("");
+//      if (pcValue.intValue() == 0xE667)
+//        System.out.println("");
       memory.read(WordNumber.createValue(-1), 1);
       Instruction<T> executedInstruction = this.instructionExecutor.execute(instruction2);
       memory.read(WordNumber.createValue(-2), 1);
@@ -122,7 +122,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
         nextPC = (T) jumpInstruction.getNextPC();
       }
 
-      String x = String.format("%04X", pcValue.intValue()) + ": " + opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt] + " -> " + nextPC;
+//      String x = String.format("%04X", pcValue.intValue()) + ": " + opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt] + " -> " + nextPC;
 //      System.out.println(x);
 
 

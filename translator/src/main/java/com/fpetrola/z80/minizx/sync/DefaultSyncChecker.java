@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.minizx.sync;
 
-import com.fpetrola.z80.analysis.sprites.AddressRange;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.minizx.MiniZXIO;
@@ -26,7 +25,6 @@ import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulation;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
-import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -37,10 +35,8 @@ import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 
 import java.util.*;
-import java.util.concurrent.Semaphore;
 
 import static com.fpetrola.z80.helpers.Helper.formatAddress;
-import static com.fpetrola.z80.registers.RegisterName.R;
 
 public class DefaultSyncChecker implements SyncChecker {
   public static final int maxwait = 100;
@@ -87,7 +83,7 @@ public class DefaultSyncChecker implements SyncChecker {
     };
     var state = new State(io, registerBankFactory.createBank(), new MockedMemory(true));
     io.setPc(state.getPc());
-    return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)));
+    return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state), false));
   }
 
   public DefaultSyncChecker() {
