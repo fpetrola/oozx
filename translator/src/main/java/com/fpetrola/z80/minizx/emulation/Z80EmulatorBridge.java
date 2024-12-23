@@ -38,7 +38,7 @@ import java.util.List;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-class MyZ80Emulator<T extends WordNumber> extends Z80Emulator {
+class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   private final RegisterSpy<T> pc;
   private final int initialPcValue;
   private int lastPCValue;
@@ -52,7 +52,7 @@ class MyZ80Emulator<T extends WordNumber> extends Z80Emulator {
   private QueueExecutor queueExecutor;
   private State<T> state;
 
-  public MyZ80Emulator(RegisterSpy<T> pc, OOZ80<T> ooz80, int emulateUntil, int pause) {
+  public Z80EmulatorBridge(RegisterSpy<T> pc, OOZ80<T> ooz80, int emulateUntil, int pause) {
     this.pc = pc;
     this.initialPcValue = pc.read().intValue();
     lastPCValue = pc.read().intValue();

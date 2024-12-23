@@ -33,8 +33,6 @@ import com.fpetrola.z80.minizx.MiniZXScreen;
 import com.fpetrola.z80.minizx.ZXScreenComponent;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.spy.*;
-import com.github.weisj.darklaf.LafManager;
-import com.github.weisj.darklaf.theme.DarculaTheme;
 
 import javax.swing.*;
 import java.util.function.Function;
@@ -126,7 +124,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
   public void emulate() {
     RegisterSpy<T> pc = (RegisterSpy<T>) ooz80.getState().getPc();
-    Z80Emulator emulator1 = new MyZ80Emulator(pc, ooz80, emulateUntil, pause);
+    Z80Emulator emulator1 = new Z80EmulatorBridge(pc, ooz80, emulateUntil, pause);
     SwingUtilities.invokeLater(() -> Z80Debugger.createAndShowGUI(emulator1));
     pc.addRegisterWriteListener(emulator1.getRegisterWriteListener());
   }
