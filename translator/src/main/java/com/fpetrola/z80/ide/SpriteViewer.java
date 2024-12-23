@@ -1,58 +1,24 @@
-/*
- *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *      http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
- *
- */
-
 package com.fpetrola.z80.ide;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SpriteViewer extends JPanel {
-    private BufferedImage spriteImage; // The sprite as an image
+    private final List<Sprite> sprites = new ArrayList<>();
     public double zoomFactor = 1.0;   // Zoom level
-    private int rotationAngle = 0;    // Rotation angle in degrees
+    private int gridSize = 10;        // Size of each grid cell
+    private boolean showGrid = true; // Whether to show the grid
 
-    public SpriteViewer(int width, int height) {
+    public SpriteViewer() {
         setPreferredSize(new Dimension(400, 400));
-        spriteImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        // Fill the sprite with a default pattern
-        Graphics2D g = spriteImage.createGraphics();
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                g.setColor((x + y) % 2 == 0 ? Color.BLACK : Color.WHITE);
-                g.fillRect(x, y, 1, 1);
-            }
-        }
-        g.dispose();
     }
 
-    public void setSpriteData(int[][] spriteData, int pixelSize) {
-        int width = spriteData[0].length;
-        int height = spriteData.length;
-        spriteImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int color = spriteData[y][x] == 1 ? Color.WHITE.getRGB() : Color.BLACK.getRGB();
-                spriteImage.setRGB(x, y, color);
-            }
-        }
+    // Add a sprite to the viewer
+    public void addSprite(BufferedImage spriteImage, int x, int y) {
+        sprites.add(new Sprite(spriteImage, x, y));
         repaint();
     }
 
@@ -61,8 +27,13 @@ public class SpriteViewer extends JPanel {
         repaint();
     }
 
-    public void rotateSprite() {
-        rotationAngle = (rotationAngle + 90) % 360;
+    public void toggleGrid() {
+        showGrid = !showGrid;
+        repaint();
+    }
+
+    public void clearSprites() {
+        sprites.clear();
         repaint();
     }
 
@@ -71,16 +42,45 @@ public class SpriteViewer extends JPanel {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g.create();
 
-        // Apply zoom and rotation
-        int centerX = getWidth() / 2;
-        int centerY = getHeight() / 2;
-        g2d.translate(centerX, centerY);
+        // Apply zoom
         g2d.scale(zoomFactor, zoomFactor);
-        g2d.rotate(Math.toRadians(rotationAngle));
-        g2d.translate(-spriteImage.getWidth() / 2, -spriteImage.getHeight() / 2);
 
-        // Draw the sprite
-        g2d.drawImage(spriteImage, 0, 0, null);
+        // Draw sprites
+        for (Sprite sprite : sprites) {
+            g2d.drawImage(sprite.image, sprite.x, sprite.y, null);
+        }
+
+        // Draw grid if enabled
+        if (showGrid) {
+            drawGrid(g2d);
+        }
+
         g2d.dispose();
+    }
+
+    private void drawGrid(Graphics2D g2d) {
+        g2d.setColor(Color.LIGHT_GRAY);
+        int width = getWidth();
+        int height = getHeight();
+        int scaledGridSize = (int) (gridSize / zoomFactor);
+
+        for (int x = 0; x < width / zoomFactor; x += scaledGridSize) {
+            g2d.drawLine(x, 0, x, (int) (height / zoomFactor));
+        }
+        for (int y = 0; y < height / zoomFactor; y += scaledGridSize) {
+            g2d.drawLine(0, y, (int) (width / zoomFactor), y);
+        }
+    }
+
+    // Inner class to represent a sprite
+    private static class Sprite {
+        private final BufferedImage image;
+        private final int x, y;
+
+        public Sprite(BufferedImage image, int x, int y) {
+            this.image = image;
+            this.x = x;
+            this.y = y;
+        }
     }
 }
