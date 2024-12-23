@@ -26,7 +26,6 @@ import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.AffineTransform;
-import java.util.Arrays;
 import java.util.function.Function;
 
 public class MiniZXScreen<T extends WordNumber> extends JPanel {
@@ -35,7 +34,6 @@ public class MiniZXScreen<T extends WordNumber> extends JPanel {
   protected final byte[] newScreen;
   protected boolean flashState = false;
   private double zoom = 2;
-  Color[] colors = {Color.BLACK, Color.BLUE, Color.RED, Color.MAGENTA, Color.GREEN, Color.CYAN, Color.YELLOW, Color.WHITE};
 
   public MiniZXScreen(Function<Integer, Integer> screenMemory) {
     this.screenMemory = screenMemory;
@@ -86,7 +84,7 @@ public class MiniZXScreen<T extends WordNumber> extends JPanel {
       double y = i / 256;
 
       int zxColorCode = newScreen[i];
-      g2d.setColor(zxColorCode >= 8 ? colors[zxColorCode - 8] : colors[zxColorCode].darker());
+      g2d.setColor(zxColorCode >= 8 ? ZxColor.colors[zxColorCode - 8] : ZxColor.colors[zxColorCode].darker());
       g2d.fillRect((int) x, (int) y, 1, 1);
     }
     g2d.dispose();
@@ -125,13 +123,13 @@ public class MiniZXScreen<T extends WordNumber> extends JPanel {
   }
 
   protected void writeColourPixelToNewScreen(byte pixel, int newScreenAddress) {
-    Colour colour = Colour.colourFromAttribute((byte) screenMemory.apply(22528 + (newScreenAddress / 2048) * 32 + (newScreenAddress / 8) % 32).intValue());
+    ZxColor zxColor = new ZxColor((byte) screenMemory.apply(22528 + (newScreenAddress / 2048) * 32 + (newScreenAddress / 8) % 32).intValue());
 //    Colour colour = Colour.colourFromAttribute((byte) 2);
 
-    byte paperColour = colour.PAPER;
-    byte inkColour = colour.INK;
+    byte paperColour = zxColor.PAPER;
+    byte inkColour = zxColor.INK;
 
-    if (colour.FLASH && flashState) {
+    if (zxColor.FLASH && flashState) {
       byte newINK = paperColour;
       paperColour = inkColour;
       inkColour = newINK;
@@ -142,7 +140,7 @@ public class MiniZXScreen<T extends WordNumber> extends JPanel {
       colourID = inkColour;
     }
 
-    if (colour.BRIGHT) {
+    if (zxColor.BRIGHT) {
       colourID += 8;
     }
 
@@ -201,21 +199,4 @@ public class MiniZXScreen<T extends WordNumber> extends JPanel {
     return new int[]{column, logicalRow};
   }
 
-  protected static class Colour {
-    boolean FLASH;
-    boolean BRIGHT;
-    byte PAPER;
-    byte INK;
-
-    protected static Colour colourFromAttribute(byte attribute) {
-      Colour colour = new Colour();
-
-      colour.FLASH = (attribute & 0x80) != 0;
-      colour.BRIGHT = (attribute & 0x40) != 0;
-      colour.PAPER = (byte) ((attribute >> 3) & 0x07);
-      colour.INK = (byte) (attribute & 0x07);
-
-      return colour;
-    }
-  }
 }

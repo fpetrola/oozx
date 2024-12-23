@@ -35,7 +35,11 @@ public class Helper {
   }
 
   public static DefaultInstructionFetcher getInstructionFetcher(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory, boolean clone) {
-    SpyInstructionExecutor instructionExecutor1 = new SpyInstructionExecutor(spy, state);
+    return getInstructionFetcher2(state, spy, instructionFactory, clone, new SpyInstructionExecutor(spy, state));
+  }
+
+  public static DefaultInstructionFetcher getInstructionFetcher2(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory, boolean clone, SpyInstructionExecutor instructionExecutor2) {
+    SpyInstructionExecutor instructionExecutor1 = instructionExecutor2;
     return new DefaultInstructionFetcher(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), new FetchNextOpcodeInstructionFactory(spy, state), instructionExecutor1, instructionFactory, false, clone);
   }
 }

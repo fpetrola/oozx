@@ -160,15 +160,16 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
   public void afterExecution(Instruction<T> instruction) {
 //      new Thread(() -> extracted(instruction)).start();
     int pcValue1 = pcValue;
-    if (!(instruction instanceof RepeatingInstruction<T>)) {
-      if (!routineFinder.alreadyProcessed(instruction, pcValue1))
-        threadSafeQueue.add(() -> extracted(instruction, pcValue1));
-    }
+    if (false)
+      if (!(instruction instanceof RepeatingInstruction<T>)) {
+        if (!routineFinder.alreadyProcessed(instruction, pcValue1))
+          threadSafeQueue.add(() -> extracted(instruction, pcValue1));
+      }
 //      executeMutantCode();
   }
 
   private void extracted(Instruction<T> instruction, int pcValue1) {
-      routineFinder.checkExecution(instruction, pcValue1, state);
+    routineFinder.checkExecution(instruction, pcValue1, state);
   }
 
   private void executeMutantCode() {

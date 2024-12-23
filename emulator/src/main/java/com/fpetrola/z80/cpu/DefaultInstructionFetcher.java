@@ -22,7 +22,6 @@ import com.fpetrola.z80.instructions.cache.InstructionCloner;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
@@ -32,7 +31,6 @@ import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.io.FileWriter;
-import java.util.*;
 import java.util.function.Supplier;
 
 import static com.fpetrola.z80.registers.RegisterName.B;
@@ -91,15 +89,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 //    if (pcValue.intValue() == 5853)
 //      System.out.println("dagdag");
     Memory<T> memory = state.getMemory();
-    memory.disableReadListener();
-    opcodeInt = memory.read(pcValue, 1).intValue();
-    Instruction<T> baseInstruction2 = getBaseInstruction2(opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt]);
-    if (clone)
-      baseInstruction2 = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction2);
-    
-    instruction2 = baseInstruction2;
-    this.instruction = baseInstruction2;
-    memory.enableReadListener();
+    fetchInstruction(pcValue);
 
     try {
 //      lastInstructions.add(new ExecutedInstruction(pcValue.intValue(), this.instruction));
@@ -134,6 +124,21 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
       e.printStackTrace();
       state.setRunState(State.RunState.STATE_STOPPED_BREAK);
     }
+  }
+
+  public Instruction<T> fetchInstruction(T pcValue1) {
+    Memory<T> memory = state.getMemory();
+    memory.disableReadListener();
+    opcodeInt = memory.read(pcValue1, 1).intValue();
+    Instruction<T> opcodesTable = opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt];
+    Instruction<T> baseInstruction2 = getBaseInstruction2(opcodesTable);
+    if (clone)
+      baseInstruction2 = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction2);
+
+    instruction2 = baseInstruction2;
+    this.instruction = baseInstruction2;
+    memory.enableReadListener();
+    return baseInstruction2;
   }
 
   public static <T extends WordNumber> Instruction<T> getBaseInstruction(Instruction<T> instruction) {

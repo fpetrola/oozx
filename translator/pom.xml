@@ -80,6 +80,12 @@
             <artifactId>guice-behave</artifactId>
             <version>1.0.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.weisj</groupId>
+            <artifactId>darklaf-core</artifactId>
+            <version>3.0.2</version>
+        </dependency>
     </dependencies>
 
     <build>

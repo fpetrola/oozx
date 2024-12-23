@@ -28,8 +28,9 @@ import java.util.List;
 public class RegisterSpy<T extends WordNumber> extends Plain16BitRegister<T> {
 
   protected Register<T> register;
-  protected List<RegisterWriteListener<T>> registerWriteListeners= new ArrayList<>();
-  protected List<RegisterReadListener<T>> registerReadListeners= new ArrayList<>();
+  protected List<RegisterWriteListener<T>> registerWriteListeners = new ArrayList<>();
+  protected List<RegisterReadListener<T>> registerReadListeners = new ArrayList<>();
+  private boolean listening;
 
   public RegisterSpy(Register<T> register) {
     super(register.getName());
@@ -38,23 +39,27 @@ public class RegisterSpy<T extends WordNumber> extends Plain16BitRegister<T> {
 
   public T read() {
     T value = register.read();
-    registerReadListeners.forEach(l->l.readingRegister(value));
+    if (listening)
+      registerReadListeners.forEach(l -> l.readingRegister(value));
 
     return value;
   }
 
   public void write(T value) {
-    registerWriteListeners.forEach(l -> l.writingRegister(value, false));
+    if (listening)
+      registerWriteListeners.forEach(l -> l.writingRegister(value, false));
     register.write(value);
   }
 
   public void increment() {
-    registerWriteListeners.forEach(l -> l.writingRegister(register.read().plus1(), true));
+    if (listening)
+      registerWriteListeners.forEach(l -> l.writingRegister(register.read().plus1(), true));
     register.increment();
   }
 
   public void decrement() {
-    registerWriteListeners.forEach(l -> l.writingRegister(register.read().minus1(), true));
+    if (listening)
+      registerWriteListeners.forEach(l -> l.writingRegister(register.read().minus1(), true));
     register.decrement();
   }
 
@@ -84,5 +89,9 @@ public class RegisterSpy<T extends WordNumber> extends Plain16BitRegister<T> {
 
   public void removeRegisterReadListener(RegisterReadListener memoryReadListener) {
     this.registerReadListeners.remove(memoryReadListener);
+  }
+
+  public void listening(boolean state) {
+    listening = state;
   }
 }
