@@ -33,13 +33,12 @@ import javax.swing.*;
 
 public class Ide {
   public static void main(String[] args) {
-    Helper.hex= true;
+    Helper.hex = true;
 
     GraphFrame frame = new GraphFrame();
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setSize(1000, 700);
     frame.setVisible(true);
-    State state = EmulatedMiniZX.createState();
     DataflowService dataflowService = new DataflowService() {
     };
 
@@ -49,11 +48,18 @@ public class Ide {
     BlocksManager blocksManager = new BlocksManager(blockChangesListener, true);
     RoutineFinder routineFinder = new RoutineFinder(new RoutineManager(blocksManager));
     RoutineGrouperSpy spy = new RoutineGrouperSpy<>(frame, dataflowService, routineFinder);
+    State state = EmulatedMiniZX.createState(spy);
 
     spy.enable(true);
 
     String url = "file:///home/fernando/dynamitedan1.z80";
-    url= "file:///home/fernando/detodo/desarrollo/m/zx/roms/dynamitedan";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/tge.z80";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/rickdangerous";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/wally.z80";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/dynamitedan";
+
     new EmulatedMiniZX(url, 1000, true, -1, true, spy, state).start();
   }
 }
