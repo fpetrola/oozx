@@ -18,12 +18,12 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
-import com.fpetrola.z80.cpu.*;
+import com.fpetrola.z80.cpu.OOZ80;
+import com.fpetrola.z80.cpu.SpyInstructionExecutor;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.ide.Z80Debugger;
 import com.fpetrola.z80.ide.Z80Emulator;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.MemoryWriteListener;
@@ -32,18 +32,14 @@ import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.MiniZXScreen;
 import com.fpetrola.z80.minizx.ZXScreenComponent;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.*;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.DarculaTheme;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class EmulatedMiniZX<T extends WordNumber> {
   public OOZ80<T> ooz80;
@@ -127,137 +123,12 @@ public class EmulatedMiniZX<T extends WordNumber> {
       emulate();
   }
 
-  private List<Instruction<T>> instructions = new ArrayList<>();
 
   public void emulate() {
     RegisterSpy<T> pc = (RegisterSpy<T>) ooz80.getState().getPc();
-
-    int initialPcValue = pc.read().intValue();
-
-    LafManager.install(new DarculaTheme());
-    for (int i = 0; i <= 0xFFFF; i++) {
-      instructions.add(null);
-    }
-    updateInstructions();
-
-    Z80Emulator emulator1 = new Z80Emulator() {
-      private int lastPCValue = pc.read().intValue();
-      private Instruction currentInstruction;
-      private boolean enabled;
-
-      private Thread thread = createThread();
-
-      private Thread createThread() {
-        return new Thread(() -> {
-          System.out.println("starting thread");
-
-          int i = 0;
-
-          while (pc.read().intValue() != emulateUntil && enabled) {
-            if ((i++ % (pause * 100)) == 0) ooz80.getState().setINTLine(true);
-            else {
-              if (i % pause == 0) {
-                doExecuteStep();
-                if (!isRepeating())
-                  updateInstructions();
-              }
-            }
-          }
-
-          System.out.println("ending thread");
-        });
-      }
-
-      private void doExecuteStep() {
-        ooz80.execute();
-        DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
-        currentInstruction = instructionFetcher.instruction2;
-      }
-
-      public void step() {
-        do {
-          doExecuteStep();
-        } while (isRepeating());
-      }
-
-      public void continueExecution() {
-        enabled = true;
-        thread.start();
-      }
-
-      public void stopExecution() {
-        pc.write(createValue(initialPcValue));
-        enabled = false;
-        thread = createThread();
-      }
-
-      public String[] getInstructions() {
-        return instructions.stream().map(i -> i != null ? i.toString() : "-").toList().toArray(new String[0]);
-      }
-
-      public int getPC() {
-        return pc.read().intValue();
-      }
-
-      @Override
-      public int[] getRegisters() {
-        return new int[]{rv(AF), rv(BC), rv(DE), rv(HL), rv(IX), rv(IY), rv(SP), rv(PC)};
-      }
-
-      private int rv(RegisterName registerName) {
-        return ooz80.getState().getRegister(registerName).read().intValue();
-      }
-
-      public RegisterWriteListener<T> getRegisterWriteListener() {
-        return (value, increment) -> {
-          if (lastPCValue != 0) {
-            if (!isRepeating()) {
-              updateInstructions();
-              lastPCValue = value.intValue();
-              updateListener.run();
-            }
-          }
-        };
-      }
-
-      private boolean isRepeating() {
-        DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
-        return instructionFetcher.instruction2 instanceof RepeatingInstruction<?>;
-      }
-    };
-
-    SwingUtilities.invokeLater(() -> {
-      Z80Debugger.createAndShowGUI(emulator1);
-    });
-
+    Z80Emulator emulator1 = new MyZ80Emulator(pc, ooz80, emulateUntil, pause);
+    SwingUtilities.invokeLater(() -> Z80Debugger.createAndShowGUI(emulator1));
     pc.addRegisterWriteListener(emulator1.getRegisterWriteListener());
-
-
   }
 
-  private List<Instruction<T>> updateInstructions() {
-    RegisterSpy<T> pc = (RegisterSpy<T>) state.getPc();
-    pc.listening(false);
-    DefaultInstructionFetcher<T> instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
-    int start = state.getPc().read().intValue();
-    int i = 0;
-    int nextInstructionIndex = 0;
-    while (i <= 0xffff) {
-      if (i >= start && i <= start + 50) {
-        if (i >= nextInstructionIndex) {
-          T value = createValue(i);
-          state.getPc().write(value);
-          Instruction<T> instruction = instructionFetcher.fetchInstruction(value);
-          nextInstructionIndex = i + instruction.getLength();
-          instructions.set(i, instruction);
-        }
-      }
-      i++;
-    }
-
-    state.getPc().write(createValue(start));
-    pc.listening(true);
-
-    return instructions;
-  }
 }

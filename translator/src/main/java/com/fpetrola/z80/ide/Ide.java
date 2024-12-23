@@ -28,11 +28,15 @@ import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.DataflowService;
+import com.github.weisj.darklaf.LafManager;
+import com.github.weisj.darklaf.theme.DarculaTheme;
 
 import javax.swing.*;
 
 public class Ide {
   public static void main(String[] args) {
+    LafManager.install(new DarculaTheme());
+
     Helper.hex = true;
 
     GraphFrame frame = new GraphFrame();
@@ -56,10 +60,10 @@ public class Ide {
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/tge.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/rickdangerous";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/wally.z80";
-    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/dynamitedan";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80";
 
-    new EmulatedMiniZX(url, 1000, true, -1, true, spy, state).start();
+    new EmulatedMiniZX(url, 2, true, -1, true, spy, state).start();
   }
 }

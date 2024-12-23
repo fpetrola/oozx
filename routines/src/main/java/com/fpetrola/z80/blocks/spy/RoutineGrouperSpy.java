@@ -60,8 +60,7 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
   private final GraphFrame graphFrame;
   private final RoutineFinder routineFinder;
   private int pcValue;
-  private Queue<Runnable> threadSafeQueue;
-  BlockingQueue<String> blockingQueue = new LinkedBlockingDeque<>(20);
+  private QueueExecutor queueExecutor;
 
   @Override
   public boolean isStructureCapture() {
@@ -85,18 +84,7 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
     initGraph();
     blocksManager = new BlocksManager(new RoutineCustomGraph.GraphBlockChangesListener(), true);
     routineFinder = routineFinder1;
-    threadSafeQueue = new ConcurrentLinkedQueue<>();
-
-    Thread consumerThread = new Thread(() -> {
-      while (true) {
-        if (!threadSafeQueue.isEmpty()) {
-          Runnable item = threadSafeQueue.poll();
-          item.run();
-        }
-      }
-    });
-
-    consumerThread.start();
+    queueExecutor = new QueueExecutor();
   }
 
   public void setGameMetadata(GameMetadata gameMetadata) {
@@ -163,7 +151,7 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
     if (false)
       if (!(instruction instanceof RepeatingInstruction<T>)) {
         if (!routineFinder.alreadyProcessed(instruction, pcValue1))
-          threadSafeQueue.add(() -> extracted(instruction, pcValue1));
+          queueExecutor.threadSafeQueue.add(() -> extracted(instruction, pcValue1));
       }
 //      executeMutantCode();
   }

@@ -20,11 +20,14 @@ package com.fpetrola.z80.ide;
 
 import com.fpetrola.z80.spy.RegisterWriteListener;
 
+import javax.swing.*;
+
 public class Z80Emulator {
   private byte[] memory;
   private int[] registers; // Simplified registers array
   private boolean[] flags; // Z80 flags
   protected Runnable updateListener;
+  protected JTable instructionTable;
 
   public Z80Emulator() {
     memory = new byte[65536];
@@ -132,5 +135,9 @@ public class Z80Emulator {
 
   public void setUpdateListener(Runnable runnable) {
     this.updateListener = runnable;
+  }
+
+  public void setInstructionTableModel(JTable model) {
+    this.instructionTable = model;
   }
 }

@@ -39,7 +39,7 @@ public class Z80Debugger {
 
   public static void main(String[] args) {
 //    LafManager.install();
-    LafManager.install(new DarculaTheme());
+//    LafManager.install(new DarculaTheme());
 
     SwingUtilities.invokeLater(() -> createAndShowGUI(new Z80Emulator()));
   }
@@ -286,6 +286,8 @@ public class Z80Debugger {
       model.addRow(new Object[]{"", address, ""});
     }
 
+    emulator1.setInstructionTableModel(instructionTable);
+
     return emulator1;
   }
 
@@ -300,9 +302,9 @@ public class Z80Debugger {
   }
 
   private static void update(Z80Emulator emulator1, JTable instructionTable, JTable memoryTable, JLabel[] registerLabels, JTextField[] registerFields) {
-    updateInstructionTable(emulator1, instructionTable);
+//    updateInstructionTable(emulator1, instructionTable);
 //    updateMemoryTable(emulator1, memoryTable);
-    updateRegisterPanel(emulator1, registerLabels, registerFields);
+//    updateRegisterPanel(emulator1, registerLabels, registerFields);
   }
 
 
