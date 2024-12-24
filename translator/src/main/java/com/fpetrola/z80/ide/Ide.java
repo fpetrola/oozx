@@ -64,6 +64,6 @@ public class Ide {
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/dynamitedan";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80";
 
-    new EmulatedMiniZX(url, 2, true, -1, true, spy, state).start();
+    new EmulatedMiniZX(url, 100, true, -1, true, spy, state).start();
   }
 }

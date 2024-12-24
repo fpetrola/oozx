@@ -18,7 +18,9 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
+import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.spy.QueueExecutor;
+import com.fpetrola.z80.bytecode.generators.helpers.VariableDelegator;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.State;
@@ -31,9 +33,13 @@ import com.fpetrola.z80.spy.RegisterSpy;
 import com.fpetrola.z80.spy.RegisterWriteListener;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.*;
@@ -51,24 +57,27 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   private int pause;
   private QueueExecutor queueExecutor;
   private State<T> state;
+  private Map<Integer, Integer> addressToRow = new HashMap<>();
+  private List<Integer> removedInstructions = new ArrayList<>();
 
   public Z80EmulatorBridge(RegisterSpy<T> pc, OOZ80<T> ooz80, int emulateUntil, int pause) {
     this.pc = pc;
     this.initialPcValue = pc.read().intValue();
     lastPCValue = pc.read().intValue();
     this.ooz80 = ooz80;
-    this.state= ooz80.getState();
+    this.state = ooz80.getState();
     this.emulateUntil = emulateUntil;
     this.pause = pause;
     thread = createThread();
     for (int i = 0; i <= 0xFFFF; i++) {
       instructions.add(null);
+      addressToRow.put(i, i);
     }
 
     queueExecutor = new QueueExecutor();
   }
 
-  private List<Instruction<T>> updateInstructions() {
+  private void updateInstructions() {
     RegisterSpy<T> pc = (RegisterSpy<T>) state.getPc();
     pc.listening(false);
     DefaultInstructionFetcher<T> instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
@@ -90,8 +99,6 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
 
     state.getPc().write(createValue(start));
     pc.listening(true);
-
-    return instructions;
   }
 
   private Thread createThread() {
@@ -158,32 +165,49 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
         if (!isRepeating()) {
           updateInstructions();
           int lastPCValue1 = value.intValue();
+          lastPCValue = lastPCValue1;
+          int j = lastPCValue1;
+          int rowNumber = addressToRow.get(j);
+          Instruction<T> instruction = instructions.get(j);
           Runnable runnable = () -> {
-            lastPCValue = lastPCValue1;
-
-            List<String> list = new ArrayList<>();
-            for (int j = lastPCValue1; j < lastPCValue1 + 10; j++) {
-              Instruction<T> i = instructions.get(j);
-              String s = i != null ? i.toString() : "-";
-              list.add(s);
-              instructionTable.setValueAt(false, j, 0);
-              instructionTable.setValueAt(com.fpetrola.z80.helpers.Helper.formatAddress(j), j, 1);
-              instructionTable.setValueAt(s, j, 2);
+            if (instruction != null) {
+              instructionTable.setValueAt(false, rowNumber, 0);
+              instructionTable.setValueAt(com.fpetrola.z80.helpers.Helper.formatAddress(j), rowNumber, 1);
+              instructionTable.setValueAt(instruction.toString(), rowNumber, 2);
             }
-
 
 //              updateListener.run();
           };
-          SwingUtilities.invokeLater(() -> {
-            instructionTable.setRowSelectionInterval(lastPCValue, lastPCValue);
-            instructionTable.scrollRectToVisible(new Rectangle(instructionTable.getCellRect(lastPCValue, 0, true)));
-          });
 
           queueExecutor.threadSafeQueue.add(runnable);
-//              runnable.run();
+
+          if (instruction != null) {
+            if (!removedInstructions.contains(j)) {
+              removedInstructions.add(j);
+              for (int k = 1; k < instruction.getLength(); k++) {
+                removeRow(j + k);
+              }
+            }
+            instructionTable.setRowSelectionInterval(rowNumber, rowNumber);
+            SwingUtilities.invokeLater(() -> {
+              instructionTable.scrollRectToVisible(new Rectangle(instructionTable.getCellRect(rowNumber, 0, true)));
+            });
+          }
+          //              runnable.run();
         }
       }
     };
+  }
+
+  private void removeRow(int j) {
+    DefaultTableModel model = (DefaultTableModel) instructionTable.getModel();
+    model.removeRow(addressToRow.get(j));
+    for (Map.Entry<Integer, Integer> entry : addressToRow.entrySet()) {
+      if (entry.getValue() > j) {
+        addressToRow.put(entry.getKey(), entry.getValue() - 1);
+      }
+    }
+
   }
 
   private boolean isRepeating() {

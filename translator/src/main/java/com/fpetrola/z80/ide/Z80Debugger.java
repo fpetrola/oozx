@@ -23,6 +23,7 @@ import com.github.weisj.darklaf.theme.DarculaTheme;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -104,6 +105,12 @@ public class Z80Debugger {
     instructionScrollPane.setBorder(BorderFactory.createTitledBorder("Instructions"));
     instructionTable.setMaximumSize(new Dimension(100, 400)); // Fixed width and height
 
+    model = (DefaultTableModel) instructionTable.getModel();
+    for (int i = 0; i <= 0xFFFF; i++) {
+      String address = String.format("%04X", i);
+      model.addRow(new Object[]{"", address, ""});
+    }
+
 
     // Renderer for the circle column
     instructionTable.getColumnModel().getColumn(0).setCellRenderer((table, value, isSelected, hasFocus, row, col) -> {
@@ -184,7 +191,7 @@ public class Z80Debugger {
     registerPanel.add(flagPanel);
 
     // Breakpoints view
-    JTable breakpointsTable = new JTable(new DefaultTableModel(new Object[]{"Enabled", "Line", "Instruction", "Type"}, 0));
+    JTable breakpointsTable = new JTable(new MyDefaultTableModel());
     JScrollPane breakpointsScrollPane = new JScrollPane(breakpointsTable);
     breakpointsScrollPane.setBorder(BorderFactory.createTitledBorder("Breakpoints"));
     breakpointsTable.getColumnModel().getColumn(2).setCellRenderer(new Z80InstructionRenderer());
@@ -279,12 +286,6 @@ public class Z80Debugger {
         JOptionPane.showMessageDialog(frame, "Invalid address format", "Error", JOptionPane.ERROR_MESSAGE);
       }
     });
-
-    model = (DefaultTableModel) instructionTable.getModel();
-    for (int i = 0; i <= 0xFFFF; i++) {
-      String address = String.format("%04X", i);
-      model.addRow(new Object[]{"", address, ""});
-    }
 
     emulator1.setInstructionTableModel(instructionTable);
 
@@ -390,6 +391,13 @@ public class Z80Debugger {
   private static void scrollToAddress(JTable memoryTable, int address) {
     int row = address / 16;
     memoryTable.scrollRectToVisible(new Rectangle(memoryTable.getCellRect(row, 0, true)));
+  }
+
+  private static class MyDefaultTableModel extends DefaultTableModel {
+    public MyDefaultTableModel() {
+      super(new Object[]{"Enabled", "Line", "Instruction", "Type"}, 0);
+    }
+
   }
 }
 
