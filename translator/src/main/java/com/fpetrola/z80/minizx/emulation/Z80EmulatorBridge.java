@@ -93,7 +93,7 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   }
 
   public void step() {
-    enabled = false;
+    stopExecution();
     do {
       doExecuteStep();
     } while (isRepeating());
