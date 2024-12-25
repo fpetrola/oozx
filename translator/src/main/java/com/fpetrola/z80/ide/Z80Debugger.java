@@ -100,9 +100,10 @@ public class Z80Debugger {
 
 
     // Instruction view with breakpoints
-    JTable instructionTable = new JTable(new DefaultTableModel(new Object[]{"", "Address", "Instruction"}, 0));
+    JTable instructionTable = new JTable(new DefaultTableModel(new Object[]{"", "Address", "Bytes", "Instruction"}, 0));
     instructionTable.getColumnModel().getColumn(0).setMaxWidth(30); // Circle column width
-    instructionTable.getColumnModel().getColumn(1).setMaxWidth(60); // Address column width
+    instructionTable.getColumnModel().getColumn(1).setMaxWidth(50); // Address column width
+    instructionTable.getColumnModel().getColumn(2).setMaxWidth(70); // Address column width
     JScrollPane instructionScrollPane = new JScrollPane(instructionTable);
     instructionScrollPane.setBorder(BorderFactory.createTitledBorder("Instructions"));
     instructionTable.setMaximumSize(new Dimension(100, 400)); // Fixed width and height
@@ -132,7 +133,7 @@ public class Z80Debugger {
       return panel;
     });
 
-    instructionTable.getColumnModel().getColumn(2).setCellRenderer(new Z80InstructionRenderer());
+    instructionTable.getColumnModel().getColumn(3).setCellRenderer(new Z80InstructionRenderer());
 
 
 //      // Instruction view

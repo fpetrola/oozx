@@ -52,7 +52,7 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   private State<T> state;
   private Vector<Integer> addressToRow = new Vector<>();
   private double startTime = System.currentTimeMillis();
-
+  private Instruction<T> fetchedInstruction;
 
   public Z80EmulatorBridge(RegisterSpy<T> pc, OOZ80<T> ooz80, int emulateUntil, int pause, DefaultInstructionFetcher alternativeInstructionFetcher) {
     this.pc = pc;
@@ -108,6 +108,7 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
 //    pc.write(createValue(initialPcValue));
     enabled = false;
     thread = createThread();
+    updateSelectedRow(pc.read().intValue());
   }
 
   public String[] getInstructions() {
@@ -129,6 +130,7 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
 
   public FetchListener<T> getRegisterWriteListener() {
     return (address, instruction) -> {
+      fetchedInstruction = instruction;
       int addressValue = address.intValue();
       boolean addressIsPresent = addressToRow.contains(addressValue);
       if (!addressIsPresent) {
@@ -140,10 +142,19 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
         else
           addressToRow.add(rowNumber1, addressValue);
 
+        T[] data = ooz80.getState().getMemory().getData();
+
+        int length = instruction.getLength();
+        StringBuilder opcodes = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+          T datum = data[addressValue + i];
+          opcodes.append("%02X ".formatted(datum.intValue()));
+        }
+
         Runnable runnable = () -> {
           DefaultTableModel model = (DefaultTableModel) instructionTable.getModel();
           String string = getString(instruction);
-          model.insertRow(rowNumber1, new Object[]{false, formatAddress(addressValue), string});
+          model.insertRow(rowNumber1, new Object[]{false, formatAddress(addressValue), opcodes.toString(), string});
         };
 
         queueExecutor.threadSafeQueue.add(runnable);
@@ -171,8 +182,7 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   }
 
   private boolean isRepeating() {
-    DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
-    return instructionFetcher.instruction2 instanceof RepeatingInstruction<?>;
+    return fetchedInstruction instanceof RepeatingInstruction<?>;
   }
 
 }
