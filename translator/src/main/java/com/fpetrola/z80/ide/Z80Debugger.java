@@ -143,7 +143,7 @@ public class Z80Debugger {
 //        instructionScrollPane.setBorder(BorderFactory.createTitledBorder("Instructions"));
 
     // Memory view
-    JTable memoryTable = new JTable(new DefaultTableModel(256, 17)); // 16 rows of 16 columns
+    JTable memoryTable = new JTable(new DefaultTableModel(0x10000 / 16, 17)); // 16 rows of 16 columns
     JScrollPane memoryScrollPane = new JScrollPane(memoryTable);
     memoryScrollPane.setBorder(BorderFactory.createTitledBorder("Memory"));
     JPanel memoryPanel = new JPanel(new BorderLayout());
@@ -290,19 +290,9 @@ public class Z80Debugger {
     return emulator1;
   }
 
-  private static Thread createUpdateThread(Z80Emulator emulator1, JTable instructionTable, JTable memoryTable, JLabel[] registerLabels, JTextField[] registerFields) {
-    ready = false;
-    return new Thread(() -> {
-      while (!ready) {
-        emulator1.step();
-        SwingUtilities.invokeLater(() -> update(emulator1, instructionTable, memoryTable, registerLabels, registerFields));
-      }
-    });
-  }
-
   private static void update(Z80Emulator emulator1, JTable instructionTable, JTable memoryTable, JLabel[] registerLabels, JTextField[] registerFields) {
 //    updateInstructionTable(emulator1, instructionTable);
-//    updateMemoryTable(emulator1, memoryTable);
+    updateMemoryTable(emulator1, memoryTable);
     updateRegisterPanel(emulator1, registerLabels, registerFields);
   }
 
@@ -362,7 +352,7 @@ public class Z80Debugger {
   private static void updateMemoryTable(Z80Emulator emulator, JTable memoryTable) {
     byte[] memory = emulator.getMemory();
     DefaultTableModel model = (DefaultTableModel) memoryTable.getModel();
-    for (int row = 0; row < 256; row++) {
+    for (int row = 0; row < 0xFFFF / 16; row++) {
       model.setValueAt(String.format("%04X", row * 16), row, 0);
       for (int col = 1; col < 17; col++) {
         int address = row * 16 + (col - 1);
