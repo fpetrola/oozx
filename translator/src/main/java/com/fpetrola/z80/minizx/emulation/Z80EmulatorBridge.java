@@ -37,12 +37,10 @@ import java.util.*;
 import java.util.List;
 
 import static com.fpetrola.z80.helpers.Helper.formatAddress;
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   private final RegisterSpy<T> pc;
-  private final int initialPcValue;
   private boolean enabled;
 
   private Thread thread;
@@ -50,7 +48,6 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   private final int emulateUntil;
   private List<Instruction<T>> instructions = new ArrayList<>();
   private int pause;
-  private final DefaultInstructionFetcher alternativeInstructionFetcher;
   private QueueExecutor queueExecutor;
   private State<T> state;
   private Vector<Integer> addressToRow = new Vector<>();
@@ -59,12 +56,10 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
 
   public Z80EmulatorBridge(RegisterSpy<T> pc, OOZ80<T> ooz80, int emulateUntil, int pause, DefaultInstructionFetcher alternativeInstructionFetcher) {
     this.pc = pc;
-    this.initialPcValue = pc.read().intValue();
     this.ooz80 = ooz80;
     this.state = ooz80.getState();
     this.emulateUntil = emulateUntil;
     this.pause = pause;
-    this.alternativeInstructionFetcher = alternativeInstructionFetcher;
     thread = createThread();
     for (int i = 0; i < 0xFFFF; i++) {
       instructions.add(null);
@@ -72,43 +67,6 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
 
     queueExecutor = new QueueExecutor();
   }
-
-  private void updateInstructions() {
-    RegisterSpy<T> pc = (RegisterSpy<T>) state.getPc();
-    pc.listening(false);
-    DefaultInstructionFetcher<T> instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
-    int start = state.getPc().read().intValue();
-    int i = 0;
-    int nextInstructionIndex = 0;
-    while (i <= 0xffff) {
-      if (i >= start && i <= start + 5) {
-        if (i >= nextInstructionIndex) {
-          T value = createValue(i);
-          state.getPc().write(value);
-          Instruction<T> instruction = instructionFetcher.fetchInstruction(value);
-          nextInstructionIndex = i + instruction.getLength();
-          instructions.set(i, instruction);
-        }
-      }
-      i++;
-    }
-
-    state.getPc().write(createValue(start));
-    pc.listening(true);
-  }
-
-//  private Instruction<T> getInstructionAt(int i) {
-//    RegisterSpy<T> pc = (RegisterSpy<T>) state.getPc();
-//    pc.listening(false);
-//    int start = state.getPc().read().intValue();
-//    T value = createValue(i);
-//    state.getPc().write(value);
-//    Instruction<T> instruction = alternativeInstructionFetcher.fetchInstruction(value);
-//
-//    state.getPc().write(createValue(start));
-//    pc.listening(true);
-//    return instruction;
-//  }
 
   private Thread createThread() {
     return new Thread(() -> {
@@ -135,6 +93,7 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   }
 
   public void step() {
+    enabled = false;
     do {
       doExecuteStep();
     } while (isRepeating());
@@ -206,10 +165,6 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   }
 
   private void updateSelectedRow(int j) {
-//    DefaultTableModel model = (DefaultTableModel) instructionTable.getModel();
-//    model.fireTableDataChanged();
-
-
     int index0 = addressToRow.indexOf(j);
     instructionTable.setRowSelectionInterval(index0, index0);
     instructionTable.scrollRectToVisible(new Rectangle(instructionTable.getCellRect(index0, 0, true)));
