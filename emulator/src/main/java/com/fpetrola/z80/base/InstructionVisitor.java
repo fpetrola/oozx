@@ -210,12 +210,14 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
+  default boolean visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
 
+    return false;
   }
 
-  default void visitIndirectMemory8BitReference(IndirectMemory8BitReference<T> indirectMemory8BitReference) {
+  default boolean visitIndirectMemory8BitReference(IndirectMemory8BitReference<T> indirectMemory8BitReference) {
 
+    return false;
   }
 
   default void visitEx(Ex<T> ex) {
@@ -253,8 +255,8 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
-
+  default boolean visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
+    return false;
   }
 
   default boolean visitRepeatingInstruction(RepeatingInstruction<T> tRepeatingInstruction) {

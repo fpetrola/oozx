@@ -19,6 +19,7 @@
 package com.fpetrola.z80.opcodes.references;
 
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 
@@ -66,7 +67,7 @@ public class Memory8BitReference<T extends WordNumber> implements ImmutableOpcod
   public String toString() {
     T read = fetchedAddress;
     //return read == null ? "" : "0x" + Helper.convertToHex(read.intValue()) + "";
-    return read == null ? "" : read.intValue() + "";
+    return read == null ? "" : Helper.formatAddress(read.intValue()) + "";
   }
 
   public int getLength() {

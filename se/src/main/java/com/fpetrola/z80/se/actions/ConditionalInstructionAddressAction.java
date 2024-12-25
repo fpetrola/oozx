@@ -18,11 +18,9 @@
 
 package com.fpetrola.z80.se.actions;
 
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.se.RoutineExecution;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 
 public class ConditionalInstructionAddressAction<T extends WordNumber> extends AddressAction<T> {

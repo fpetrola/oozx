@@ -57,20 +57,23 @@ public abstract class RegisterFinderInstructionVisitor implements InstructionVis
     conditionalInstruction.getPositionOpcodeReference().accept(this);
   }
 
-  public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
+  public boolean visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
     indirectMemory8BitReference.target.accept(this);
+    return false;
   }
 
-  public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
+  public boolean visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
     indirectMemory16BitReference.target.accept(this);
+    return false;
   }
 
   public void visitMemoryAccessOpcodeReference(MemoryAccessOpcodeReference memoryAccessOpcodeReference) {
     memoryAccessOpcodeReference.getC().accept(this);
   }
 
-  public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference memoryPlusRegister8BitReference) {
+  public boolean visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference memoryPlusRegister8BitReference) {
     memoryPlusRegister8BitReference.getTarget().accept(this);
+    return false;
   }
 
   public void visitingPop(Pop pop) {

@@ -61,7 +61,7 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
     else result = getFromMemory(o);
   }
 
-  public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
+  public boolean visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
     Register target = (Register) memoryPlusRegister8BitReference.getTarget();
     OpcodeReferenceVisitor opcodeReferenceVisitor = new OpcodeReferenceVisitor(isTarget, routineByteCodeGenerator);
     target.accept(opcodeReferenceVisitor);
@@ -75,10 +75,11 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
     else {
       result = getFromMemory(variablePlusDelta);
     }
+    return false;
   }
 
 
-  public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
+  public boolean visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
     Object variable;
     if (indirectMemory8BitReference.getTarget() instanceof Memory16BitReference<?> memory16BitReference) {
       variable = memory16BitReference.read().intValue();
@@ -93,6 +94,7 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
     else {
       result = getFromMemory(variable);
     }
+    return false;
   }
 
   private Variable getFromMemory(Object variable) {
@@ -101,7 +103,7 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
 
 
   @Override
-  public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
+  public boolean visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
     Object variable;
     if (indirectMemory16BitReference.target instanceof Memory16BitReference<?> memory16BitReference) {
       variable = memory16BitReference.read().intValue();
@@ -116,6 +118,7 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
     else {
       result = getFromMemory16(variable);
     }
+    return false;
   }
 
   private Variable getFromMemory16(Object variable) {

@@ -109,20 +109,23 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
         target.accept(this);
       }
 
-      public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
+      public boolean visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
         b[0] = true;
+        return false;
       }
 
-      public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
+      public boolean visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
         b[0] = true;
+        return false;
       }
 
       public void visitMemoryAccessOpcodeReference(MemoryAccessOpcodeReference<WordNumber> memoryAccessOpcodeReference) {
         b[0] = true;
       }
 
-      public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<WordNumber> memoryPlusRegister8BitReference) {
+      public boolean visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<WordNumber> memoryPlusRegister8BitReference) {
         b[0] = true;
+        return false;
       }
 
       public boolean visitRepeatingInstruction(RepeatingInstruction tRepeatingInstruction) {

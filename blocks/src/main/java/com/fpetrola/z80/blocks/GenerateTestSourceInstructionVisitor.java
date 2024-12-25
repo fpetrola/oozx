@@ -56,18 +56,20 @@ public class GenerateTestSourceInstructionVisitor implements InstructionVisitor<
         add("c(" + constantOpcodeReference + ")");
       }
 
-      public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
+      public boolean visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
         add("iRR(r(" + indirectMemory16BitReference + "))");
+        return false;
       }
 
       public void visitOpcodeReference(OpcodeReference opcodeReference) {
         add("c(" + opcodeReference.toString() + ")");
       }
 
-      public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<WordNumber> memoryPlusRegister8BitReference) {
+      public boolean visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<WordNumber> memoryPlusRegister8BitReference) {
         add("iRRn(");
         memoryPlusRegister8BitReference.getTarget().accept(this);
         add(" , " + memoryPlusRegister8BitReference.fetchRelative() + ")");
+        return false;
       }
 
       public void visitImmutableOpcodeReference(ImmutableOpcodeReference immutableOpcodeReference) {

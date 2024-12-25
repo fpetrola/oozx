@@ -18,12 +18,8 @@
 
 package com.fpetrola.z80.cpu;
 
-public interface InstructionFetcher {
+import com.fpetrola.z80.instructions.types.Instruction;
 
-  void fetchNextInstruction();
-  void reset();
-
-  default void addFetchListener(FetchListener fetchListener) {
-
-  }
+public interface FetchListener<T> {
+  void instructionFetchedAt(T value, Instruction<T> instruction);
 }

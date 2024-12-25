@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.impl;
 
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.BNotZeroCondition;
@@ -26,6 +27,9 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
 public class DJNZ<T extends WordNumber> extends ConditionalInstruction<T, BNotZeroCondition<T>> {
+
+  private T jumpAddress2;
+
   public DJNZ(ImmutableOpcodeReference<T> target, BNotZeroCondition condition, Register<T> pc) {
     super(target, null, pc);
     this.condition = condition;
@@ -34,7 +38,7 @@ public class DJNZ<T extends WordNumber> extends ConditionalInstruction<T, BNotZe
   public int execute() {
     condition.getB().decrement();
     if (condition.conditionMet(this)) {
-      T jumpAddress2 = calculateJumpAddress();
+      jumpAddress2 = calculateJumpAddress();
       jumpAddress2 = beforeJump(jumpAddress2);
       setJumpAddress(jumpAddress2);
       setNextPC(jumpAddress2);
@@ -55,6 +59,6 @@ public class DJNZ<T extends WordNumber> extends ConditionalInstruction<T, BNotZe
   }
 
   public String toString() {
-    return getClass().getSimpleName() + " "/* + positionOpcodeReference*/;
+    return getClass().getSimpleName() + " " + Helper.formatAddress(calculateJumpAddress().intValue());
   }
 }

@@ -46,7 +46,7 @@ public class Z80InstructionRenderer extends DefaultTableCellRenderer {
             "$1 <span style='color:blue; font-style:italic;'>$2</span>");
         // Highlighting all Z80 mnemonics
 
-        instruction = instruction.replaceAll("\\b(LD|LDI|LDD|LDIR|LDDR|PUSH|POP|EX|EXX|EXAF|ADD|ADC|SUB|SBC|AND|OR|XOR|CP|INC|DEC|RLC|RL|RRC|RR|SLA|SRA|SRL|BIT|SET|RES|JP|JR|DJNZ|CALL|RET|RETI|RETN|RST|NOP|HALT|DI|EI|IN|OUT)\\b",
+        instruction = instruction.replaceAll("\\b(CPL|CPIR|CPDR|NEG|RLCA|RRCA|LD|LDI|LDD|LDIR|LDDR|PUSH|POP|EX|EXX|EXAF|ADD|ADC|SUB|SBC|AND|OR|XOR|CP|INC|DEC|RLC|RL|RRC|RR|SLA|SRA|SRL|BIT|SET|RES|JP|JR|DJNZ|CALL|RET|RETI|RETN|RST|NOP|HALT|DI|EI|IN|OUT)\\b",
             "<span style='color:blue; font-weight:bold;'>$1</span>");
 
         // Highlighting 8-bit registers (A, B, C, D, E, H, L, I, R)
@@ -64,7 +64,7 @@ public class Z80InstructionRenderer extends DefaultTableCellRenderer {
 
         // Highlighting immediate decimal numbers
         instruction = instruction.replaceAll("\\b(\\d+)\\b",
-            "<span style='color:purple;'>$1</span>");
+            "<span style='color:yellow;'>$1</span>");
 
         // Highlighting parentheses
         instruction = instruction.replaceAll("(\\(|\\))",

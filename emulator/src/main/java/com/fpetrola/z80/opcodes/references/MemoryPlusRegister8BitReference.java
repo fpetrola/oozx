@@ -107,6 +107,7 @@ public class MemoryPlusRegister8BitReference<T extends WordNumber> implements Op
   }
 
   public void accept(InstructionVisitor instructionVisitor) {
-    instructionVisitor.visitMemoryPlusRegister8BitReference(this);
+    if (!instructionVisitor.visitMemoryPlusRegister8BitReference(this))
+      OpcodeReference.super.accept(instructionVisitor);
   }
 }

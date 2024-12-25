@@ -19,8 +19,9 @@
 package com.fpetrola.z80.opcodes.references;
 
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.helpers.Helper;
 
-public class ConstantOpcodeReference<T> implements ImmutableOpcodeReference<T> {
+public class ConstantOpcodeReference<T extends WordNumber> implements ImmutableOpcodeReference<T> {
   private final T value;
 
   ConstantOpcodeReference(T value) {
@@ -36,7 +37,7 @@ public class ConstantOpcodeReference<T> implements ImmutableOpcodeReference<T> {
   }
 
   public String toString() {
-    return value + "";
+    return Helper.formatAddress(value.intValue());
   }
 
   public void accept(InstructionVisitor instructionVisitor) {

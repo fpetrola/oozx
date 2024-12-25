@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
+import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.SpyInstructionExecutor;
 import com.fpetrola.z80.cpu.State;
@@ -50,6 +51,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
   private InstructionSpy spy;
   private State<T> state;
   private SpyInstructionExecutor instructionExecutor2;
+  private DefaultInstructionFetcher alternativeInstructionFetcher;
 
   public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread) {
     this(url, pause, showScreen, emulateUntil, inThread, new NullInstructionSpy(), createState(new NullInstructionSpy()));
@@ -81,7 +83,9 @@ public class EmulatedMiniZX<T extends WordNumber> {
     ((MiniZXIO) state.getIo()).setPc(state.getPc());
     spy.reset(state);
     instructionExecutor2 = new SpyInstructionExecutor(spy, state);
-    return new OOZ80(state, Helper.getInstructionFetcher2(state, spy, new DefaultInstructionFactory<T>(state), true, instructionExecutor2));
+    DefaultInstructionFetcher instructionFetcher2 = Helper.getInstructionFetcher2(state, spy, new DefaultInstructionFactory<T>(state), true, instructionExecutor2);
+    alternativeInstructionFetcher = Helper.getInstructionFetcher2(state, spy, new DefaultInstructionFactory<T>(state), true, instructionExecutor2);
+    return new OOZ80(state, instructionFetcher2);
   }
 
   public static State createState(InstructionSpy spy1) {
@@ -124,9 +128,9 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
   public void emulate() {
     RegisterSpy<T> pc = (RegisterSpy<T>) ooz80.getState().getPc();
-    Z80Emulator emulator1 = new Z80EmulatorBridge(pc, ooz80, emulateUntil, pause);
+    Z80Emulator emulator1 = new Z80EmulatorBridge(pc, ooz80, emulateUntil, pause, alternativeInstructionFetcher);
     SwingUtilities.invokeLater(() -> Z80Debugger.createAndShowGUI(emulator1));
-    pc.addRegisterWriteListener(emulator1.getRegisterWriteListener());
+    ooz80.getInstructionFetcher().addFetchListener(emulator1.getRegisterWriteListener());
   }
 
 }

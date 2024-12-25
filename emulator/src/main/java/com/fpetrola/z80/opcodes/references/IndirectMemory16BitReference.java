@@ -63,6 +63,7 @@ public final class IndirectMemory16BitReference<T extends WordNumber> implements
   }
 
   public void accept(InstructionVisitor instructionVisitor) {
-    instructionVisitor.visitIndirectMemory16BitReference(this);
+    if (!instructionVisitor.visitIndirectMemory16BitReference(this))
+      OpcodeReference.super.accept(instructionVisitor);
   }
 }

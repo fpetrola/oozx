@@ -41,13 +41,15 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
   }
 
   @Override
-  public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
+  public boolean visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
     indirectMemory8BitReference.target.accept(this);
+    return false;
   }
 
   @Override
-  public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
+  public boolean visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
     indirectMemory16BitReference.target.accept(this);
+    return false;
   }
 
   @Override

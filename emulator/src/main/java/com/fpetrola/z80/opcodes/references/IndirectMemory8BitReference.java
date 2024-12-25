@@ -66,6 +66,7 @@ public final class IndirectMemory8BitReference<T> implements OpcodeReference<T> 
   }
 
   public void accept(InstructionVisitor instructionVisitor) {
-    instructionVisitor.visitIndirectMemory8BitReference(this);
+    if (!instructionVisitor.visitIndirectMemory8BitReference(this))
+      OpcodeReference.super.accept(instructionVisitor);
   }
 }

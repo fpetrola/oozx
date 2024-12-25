@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.ide;
 
+import com.fpetrola.z80.cpu.FetchListener;
 import com.fpetrola.z80.spy.RegisterWriteListener;
 
 import javax.swing.*;
@@ -128,8 +129,8 @@ public class Z80Emulator {
     return strings;
   }
 
-  public RegisterWriteListener getRegisterWriteListener() {
-    return (value, increment) -> {
+  public FetchListener getRegisterWriteListener() {
+    return (address, instruction) -> {
     };
   }
 

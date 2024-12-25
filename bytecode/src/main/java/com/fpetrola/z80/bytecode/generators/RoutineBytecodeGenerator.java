@@ -39,8 +39,6 @@ import org.cojen.maker.Variable;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static java.util.Comparator.comparingInt;
-
 public class RoutineBytecodeGenerator {
   public final BytecodeGenerationContext context;
   public Map<String, Variable> registers = new HashMap<>();

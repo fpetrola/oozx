@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.ide;
 
+import com.fpetrola.z80.helpers.Helper;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.DarculaTheme;
 
@@ -37,6 +38,7 @@ public class Z80Debugger {
   private static Thread updateThread;
   private static boolean ready;
   private static DefaultTableModel model;
+  private static JCheckBox[] flagCheckboxes;
 
   public static void main(String[] args) {
 //    LafManager.install();
@@ -106,11 +108,6 @@ public class Z80Debugger {
     instructionTable.setMaximumSize(new Dimension(100, 400)); // Fixed width and height
 
     model = (DefaultTableModel) instructionTable.getModel();
-    for (int i = 0; i <= 0xFFFF; i++) {
-      String address = String.format("%04X", i);
-      model.addRow(new Object[]{"", address, ""});
-    }
-
 
     // Renderer for the circle column
     instructionTable.getColumnModel().getColumn(0).setCellRenderer((table, value, isSelected, hasFocus, row, col) -> {
@@ -182,7 +179,7 @@ public class Z80Debugger {
     }
 
     JPanel flagPanel = new JPanel(new GridLayout(1, 4));
-    JCheckBox[] flagCheckboxes = {
+    flagCheckboxes = new JCheckBox[]{
         new JCheckBox("Z"), new JCheckBox("N"), new JCheckBox("H"), new JCheckBox("C")
     };
     for (JCheckBox checkbox : flagCheckboxes) {
@@ -305,7 +302,7 @@ public class Z80Debugger {
   private static void update(Z80Emulator emulator1, JTable instructionTable, JTable memoryTable, JLabel[] registerLabels, JTextField[] registerFields) {
 //    updateInstructionTable(emulator1, instructionTable);
 //    updateMemoryTable(emulator1, memoryTable);
-//    updateRegisterPanel(emulator1, registerLabels, registerFields);
+    updateRegisterPanel(emulator1, registerLabels, registerFields);
   }
 
 
@@ -379,13 +376,20 @@ public class Z80Debugger {
     String[] registerNames = {"AF", "BC", "DE", "HL", "IX", "IY", "SP", "PC"};
     for (int i = 0; i < registerNames.length; i++) {
       ((HighlightChangedTextField) registerFields[i]).updatePreviousValue();
-      registerFields[i].setText(String.format("%02X", registers[i]));
+      registerFields[i].setText("%04X".formatted(registers[i]));
 //      registerLabels[i].setText(String.format("%s: %02X", registerNames[i], registers[i]));
     }
+
     String[] flagNames = {"Z", "N", "H", "C"};
     for (int i = 0; i < flagNames.length; i++) {
       registerLabels[10 + i].setText(String.format("%s: %d", flagNames[i], flags[i] ? 1 : 0));
     }
+
+    flagCheckboxes[0].setSelected((registers[0] & 0x40) != 0);
+    flagCheckboxes[1].setSelected((registers[0] & 0x02) != 0);
+    flagCheckboxes[2].setSelected((registers[0] & 0x10) != 0);
+    flagCheckboxes[3].setSelected((registers[0] & 0x01) != 0);
+
   }
 
   private static void scrollToAddress(JTable memoryTable, int address) {
