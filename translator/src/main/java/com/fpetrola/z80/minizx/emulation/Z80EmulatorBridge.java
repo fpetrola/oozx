@@ -119,9 +119,9 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
     T[] data = ooz80.getState().getMemory().getData();
     byte[] bytes = new byte[0x10000];
 
-    for (int i = 0; i < 0x10000; i++) {
-      bytes[i]= (byte) data[i].intValue();
-    }
+//    for (int i = 0; i < 0x10000; i++) {
+//      bytes[i]= (byte) data[i].intValue();
+//    }
     return bytes;
   }
 

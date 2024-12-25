@@ -292,7 +292,7 @@ public class Z80Debugger {
 
   private static void update(Z80Emulator emulator1, JTable instructionTable, JTable memoryTable, JLabel[] registerLabels, JTextField[] registerFields) {
 //    updateInstructionTable(emulator1, instructionTable);
-    updateMemoryTable(emulator1, memoryTable);
+//    updateMemoryTable(emulator1, memoryTable);
     updateRegisterPanel(emulator1, registerLabels, registerFields);
   }
 
