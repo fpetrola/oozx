@@ -18,10 +18,11 @@
 
 package com.fpetrola.z80.blocks;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BlocksManager {
+public class BlocksManager implements Serializable {
   List<Block> blocks = new ArrayList<>();
   ParentChildChangesListener<Block> blockChangesListener;
   private long executionNumber;
@@ -111,5 +112,14 @@ public class BlocksManager {
     addBlock(block);
     if (romEnabled)
       block.split(16383, UnknownBlockType.class);
+  }
+
+  public Block findBlockByName(String blockName) {
+    for (Block b : new ArrayList<>(blocks)) {
+      if (b!= null && b.getName().equals(blockName)) {
+        return b;
+      }
+    }
+    return null;
   }
 }

@@ -59,11 +59,11 @@ public class GraphFrame extends JFrame {
       // the preview image when cells are dragged)
       Object cell = state.getCell();
       if (getModel().isVertex(cell) && canvas instanceof mxImageCanvas && ((mxImageCanvas) canvas).getGraphicsCanvas() instanceof SwingCanvas) {
-        ((SwingCanvas) ((mxImageCanvas) canvas).getGraphicsCanvas()).drawVertex(state, label);
+        ((SwingCanvas) ((mxImageCanvas) canvas).getGraphicsCanvas()).drawVertex(state, label, scaleChanged);
       }
       // Redirection of drawing vertices in SwingCanvas
       else if (getModel().isVertex(cell) && canvas instanceof SwingCanvas) {
-        ((SwingCanvas) canvas).drawVertex(state, label);
+        ((SwingCanvas) canvas).drawVertex(state, label, scaleChanged);
       } else {
         super.drawState(canvas, state, drawLabel);
       }
@@ -72,6 +72,8 @@ public class GraphFrame extends JFrame {
   private final mxGraphComponent graphComponent;
   private int id;
   public boolean ready;
+  private double newScale;
+  private double scaleChanged;
 
   public static void main(String[] args) {
     JFrame frame = new GraphFrame();
@@ -90,6 +92,12 @@ public class GraphFrame extends JFrame {
         return new SwingCanvas(this);
       }
     };
+
+
+    new Timer(30, e -> {
+      mxGraphComponent.mxGraphControl graphControl = graphComponent.getGraphControl();
+      graphControl.repaint();
+    }).start();
 
     MouseAdapter mouseAdapter = new MouseAdapter() {
       private mxPoint start;
@@ -134,9 +142,10 @@ public class GraphFrame extends JFrame {
     graphComponent.getGraphControl().addMouseWheelListener(new MouseAdapter() {
       public void zoom(double factor) {
         mxGraphView view = graph.getView();
-        double newScale = (double) ((int) (view.getScale() * 100 * factor)) / 100;
+        newScale = (double) ((int) (view.getScale() * 100 * factor)) / 100;
 
-        if (newScale != view.getScale() && newScale > 0.04) {
+        if (newScale != view.getScale()) {
+          scaleChanged= newScale;
           mxPoint translate = new mxPoint();
           graph.getView().scaleAndTranslate(newScale, translate.getX(), translate.getY());
 

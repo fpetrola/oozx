@@ -32,8 +32,9 @@ public class Z80InstructionRenderer extends DefaultTableCellRenderer {
         table, value, isSelected, hasFocus, row, column);
 
     String instruction = value.toString();
-    String highlighted = highlightInstruction(instruction);
-    label.setText("<html>" + highlighted + "</html>");
+//    String highlighted = highlightInstruction(instruction);
+//    label.setText("<html>" + highlighted + "</html>");
+    label.setText(instruction);
 
     return label;
   }

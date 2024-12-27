@@ -18,6 +18,8 @@
 
 package com.fpetrola.z80.blocks.spy;
 
-public interface Nameable {
+import java.io.Serializable;
+
+public interface Nameable extends Serializable {
   String getName();
 }

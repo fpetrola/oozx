@@ -26,7 +26,6 @@ import com.fpetrola.z80.blocks.references.ReferencesHandler;
 import com.fpetrola.z80.blocks.references.WordNumberMemoryReadListener;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.graph.CustomGraph;
-import com.fpetrola.z80.graph.GraphFrame;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
@@ -42,6 +41,7 @@ import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.spy.AbstractInstructionSpy;
 import com.fpetrola.z80.spy.ComplexInstructionSpy;
 import com.fpetrola.z80.spy.ExecutionStep;
+import com.mxgraph.view.mxGraph;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 import java.io.File;
@@ -54,7 +54,7 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
   private GameMetadata gameMetadata;
 
   private RoutineCustomGraph customGraph;
-  private final GraphFrame graphFrame;
+  private final mxGraph mxGraph;
   private final RoutineFinder routineFinder;
   private int pcValue;
   private QueueExecutor queueExecutor;
@@ -76,8 +76,8 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
   private final Queue<ExecutionStep> stepsQueue = new CircularFifoQueue<>(1000);
   private String gameName;
 
-  public RoutineGrouperSpy(GraphFrame graphFrame, DataflowService dataflowService, RoutineFinder routineFinder1) {
-    this.graphFrame = graphFrame;
+  public RoutineGrouperSpy(mxGraph graphFrame, DataflowService dataflowService, RoutineFinder routineFinder1) {
+    this.mxGraph = graphFrame;
     initGraph();
     blocksManager = new BlocksManager(new RoutineCustomGraph.GraphBlockChangesListener(), true);
     routineFinder = routineFinder1;
@@ -135,7 +135,7 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
 
   public void initGraph() {
     if (customGraph == null)
-      customGraph = new RoutineCustomGraph(graphFrame.graph);
+      customGraph = new RoutineCustomGraph(mxGraph);
   }
 
   public void beforeExecution(Instruction<T> instruction) {
@@ -145,7 +145,7 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
   public void afterExecution(Instruction<T> instruction) {
 //      new Thread(() -> extracted(instruction)).start();
     int pcValue1 = pcValue;
-    if (false)
+    if (true)
       if (!(instruction instanceof RepeatingInstruction<T>)) {
         if (!routineFinder.alreadyProcessed(instruction, pcValue1))
           queueExecutor.threadSafeQueue.add(() -> extracted(instruction, pcValue1));

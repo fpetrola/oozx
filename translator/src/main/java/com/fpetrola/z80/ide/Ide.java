@@ -35,7 +35,7 @@ import javax.swing.*;
 
 public class Ide {
   public static void main(String[] args) {
-    LafManager.install(new DarculaTheme());
+//    LafManager.install(new DarculaTheme());
 
     Helper.hex = true;
 
@@ -50,8 +50,10 @@ public class Ide {
 
     RoutineCustomGraph.GraphBlockChangesListener blockChangesListener = new RoutineCustomGraph.GraphBlockChangesListener();
     BlocksManager blocksManager = new BlocksManager(blockChangesListener, true);
+    Z80Debugger.blockManager= blocksManager;
+
     RoutineFinder routineFinder = new RoutineFinder(new RoutineManager(blocksManager));
-    RoutineGrouperSpy spy = new RoutineGrouperSpy<>(frame, dataflowService, routineFinder);
+    RoutineGrouperSpy spy = new RoutineGrouperSpy<>(frame.graph, dataflowService, routineFinder);
     State state = EmulatedMiniZX.createState(spy);
 
     spy.enable(true);
@@ -61,8 +63,9 @@ public class Ide {
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/rickdangerous";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/wally.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
-    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/dynamitedan";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80";
+
 
     new EmulatedMiniZX(url, 10, true, -1, true, spy, state).start();
   }

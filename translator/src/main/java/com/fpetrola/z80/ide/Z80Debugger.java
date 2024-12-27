@@ -18,27 +18,24 @@
 
 package com.fpetrola.z80.ide;
 
-import com.fpetrola.z80.helpers.Helper;
-import com.github.weisj.darklaf.LafManager;
-import com.github.weisj.darklaf.theme.DarculaTheme;
+import com.fpetrola.z80.blocks.BlocksManager;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Z80Debugger {
   private static final Set<Integer> breakpoints = new HashSet<>(); // To store breakpoints
+  public static BlocksManager blockManager;
   private static Thread updateThread;
   private static boolean ready;
   private static DefaultTableModel model;
   private static JCheckBox[] flagCheckboxes;
+  public static Map<String, JComponent> instructionTables = new ConcurrentHashMap<>();
 
   public static void main(String[] args) {
 //    LafManager.install();
@@ -47,18 +44,20 @@ public class Z80Debugger {
     SwingUtilities.invokeLater(() -> createAndShowGUI(new Z80Emulator()));
   }
 
-  public static Z80Emulator createAndShowGUI(Z80Emulator emulator1) {
+  public static void createAndShowGUI(Z80Emulator emulator1) {
 
+    JPanel mainPanel = createMainPanel(emulator1);
+
+    createFrame(mainPanel);
+  }
+
+  public static JPanel createMainPanel(Z80Emulator emulator1) {
     JLabel[] registerLabels = {
         new JLabel("A: 00"), new JLabel("F: 00"), new JLabel("B: 00"), new JLabel("C: 00"),
         new JLabel("D: 00"), new JLabel("E: 00"), new JLabel("H: 00"), new JLabel("L: 00"),
         new JLabel("PC: 0000"), new JLabel("SP: 0000"),
         new JLabel("Z: 0"), new JLabel("N: 0"), new JLabel("H: 0"), new JLabel("C: 0")
     };
-
-    JFrame frame = new JFrame("Z80 Debugger");
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(800, 600);
 
     // Main Layout
     JPanel mainPanel = new JPanel(new BorderLayout());
@@ -82,7 +81,7 @@ public class Z80Debugger {
     menuBar.add(debugMenu);
     menuBar.add(memoryMenu);
     menuBar.add(helpMenu);
-    frame.setJMenuBar(menuBar);
+//    frame.setJMenuBar(menuBar);
 
     // Toolbar
     JToolBar toolBar = new JToolBar();
@@ -99,41 +98,8 @@ public class Z80Debugger {
     mainPanel.add(toolBar, BorderLayout.NORTH);
 
 
-    // Instruction view with breakpoints
-    JTable instructionTable = new JTable(new DefaultTableModel(new Object[]{"", "Address", "Bytes", "Instruction"}, 0));
-    instructionTable.getColumnModel().getColumn(0).setMaxWidth(30); // Circle column width
-    instructionTable.getColumnModel().getColumn(1).setMaxWidth(50); // Address column width
-    instructionTable.getColumnModel().getColumn(2).setMaxWidth(70); // Address column width
-    JScrollPane instructionScrollPane = new JScrollPane(instructionTable);
-    instructionScrollPane.setBorder(BorderFactory.createTitledBorder("Instructions"));
-    instructionTable.setMaximumSize(new Dimension(100, 400)); // Fixed width and height
-
-    model = (DefaultTableModel) instructionTable.getModel();
-
-    // Renderer for the circle column
-    instructionTable.getColumnModel().getColumn(0).setCellRenderer((table, value, isSelected, hasFocus, row, col) -> {
-      JPanel panel = new JPanel();
-      panel.setOpaque(false);
-      panel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
-      int address = Integer.parseInt((String) table.getValueAt(row, 1), 16);
-
-      JButton circle = new JButton();
-      circle.setPreferredSize(new Dimension(10, 10));
-      circle.setBorderPainted(false);
-      circle.setFocusPainted(false);
-      circle.setContentAreaFilled(false);
-      circle.setOpaque(false);
-
-      if (breakpoints.contains(address)) {
-        circle.setBackground(Color.RED);
-        circle.setOpaque(true);
-      }
-
-      panel.add(circle);
-      return panel;
-    });
-
-    instructionTable.getColumnModel().getColumn(3).setCellRenderer(new Z80InstructionRenderer());
+    JScrollPane instructionScrollPane = (JScrollPane) createInstructionTable();
+    JTable instructionTable = (JTable) ((JViewport) instructionScrollPane.getComponent(0)).getComponent(0);
 
 
 //      // Instruction view
@@ -211,9 +177,6 @@ public class Z80Debugger {
     mainSplitPane.setResizeWeight(0.8);
 
     mainPanel.add(mainSplitPane, BorderLayout.CENTER);
-    frame.add(mainPanel);
-
-    frame.setVisible(true);
 
     // Debugger logic placeholder
 
@@ -276,18 +239,88 @@ public class Z80Debugger {
       update(emulator1, instructionTable, memoryTable, registerLabels, registerFields);
     });
 
-    jumpToAddressButton.addActionListener(e -> {
-      try {
-        int address = Integer.parseInt(jumpToAddressField.getText(), 16);
-        scrollToAddress(memoryTable, address);
-      } catch (NumberFormatException ex) {
-        JOptionPane.showMessageDialog(frame, "Invalid address format", "Error", JOptionPane.ERROR_MESSAGE);
-      }
-    });
+//    jumpToAddressButton.addActionListener(e -> {
+//      try {
+//        int address = Integer.parseInt(jumpToAddressField.getText(), 16);
+//        scrollToAddress(memoryTable, address);
+//      } catch (NumberFormatException ex) {
+//        JOptionPane.showMessageDialog(frame, "Invalid address format", "Error", JOptionPane.ERROR_MESSAGE);
+//      }
+//    });
 
     emulator1.setInstructionTableModel(instructionTable);
+    return mainPanel;
+  }
 
-    return emulator1;
+  public static JComponent createInstructionTable() {
+    // Instruction view with breakpoints
+    Rectangle r = new Rectangle(0, 0, 200, 200);
+
+    Object[] columnNames = {"", "Address", "Bytes", "Instruction", "xxxxxx"};
+    Object[][] data = {
+        {false, "1000", "25 27 12", "LD A, B", System.nanoTime() + ""},
+        {false, "2000", "25 27 12", "LD A, B", System.nanoTime() + ""},
+        {false, "3000", "25 27 12", "LD A, B", System.nanoTime() + ""},
+        {false, "4000", "25 27 12", "LD A, B", System.nanoTime() + ""},
+    };
+    InstructionTableModel dm = new InstructionTableModel(data, columnNames);
+    JTable instructionTable = new JTable(dm);
+    dm.setComponent(instructionTable);
+    instructionTable.getColumnModel().getColumn(0).setMaxWidth(30); // Circle column width
+    instructionTable.getColumnModel().getColumn(1).setMaxWidth(50); // Address column width
+    instructionTable.getColumnModel().getColumn(2).setMaxWidth(70); // Address column width
+
+    model = (DefaultTableModel) instructionTable.getModel();
+
+    // Renderer for the circle column
+    instructionTable.getColumnModel().getColumn(0).setCellRenderer((table, value, isSelected, hasFocus, row, col) -> {
+      JPanel panel = new JPanel();
+      panel.setOpaque(false);
+      panel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+      int address = Integer.parseInt((String) table.getValueAt(row, 1), 16);
+
+      JButton circle = new JButton();
+      circle.setPreferredSize(new Dimension(10, 10));
+      circle.setBorderPainted(false);
+      circle.setFocusPainted(false);
+      circle.setContentAreaFilled(false);
+      circle.setOpaque(false);
+
+      if (breakpoints.contains(address)) {
+        circle.setBackground(Color.RED);
+        circle.setOpaque(true);
+      }
+
+      panel.add(circle);
+      return panel;
+    });
+
+    instructionTable.getColumnModel().getColumn(3).setCellRenderer(new Z80InstructionRenderer());
+    instructionTable.setBounds(r);
+
+    JScrollPane instructionScrollPane = new JScrollPane(instructionTable) {
+      @Override
+      public boolean isShowing() {
+        return true;
+      }
+    };
+
+    instructionScrollPane.getViewport().setBounds(r);
+    instructionScrollPane.getVerticalScrollBar().setBounds(new Rectangle((int) (r.getX() + r.getWidth()), (int) r.getY(), (int) 20, (int) r.getHeight()));
+    instructionScrollPane.getHorizontalScrollBar().setBounds(new Rectangle((int) r.getX(), (int) (r.getY() + r.getHeight()), (int) r.getWidth(), (int) 20));
+
+    instructionScrollPane.setBounds(r);
+    instructionScrollPane.setBorder(BorderFactory.createTitledBorder("Instructions"));
+    instructionTable.setMaximumSize(new Dimension(100, 400)); // Fixed width and height
+    return instructionScrollPane;
+  }
+
+  private static void createFrame(JPanel mainPanel) {
+    JFrame frame = new JFrame("Z80 Debugger");
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setSize(800, 600);
+    frame.add(mainPanel);
+    frame.setVisible(true);
   }
 
   private static void update(Z80Emulator emulator1, JTable instructionTable, JTable memoryTable, JLabel[] registerLabels, JTextField[] registerFields) {
@@ -388,11 +421,21 @@ public class Z80Debugger {
     memoryTable.scrollRectToVisible(new Rectangle(memoryTable.getCellRect(row, 0, true)));
   }
 
+  public static JComponent addBlock(String blockName) {
+//    Block block = blockManager.findBlockByName(blockName);
+    JComponent jTable = instructionTables.get(blockName);
+    if (jTable == null)
+      instructionTables.put(blockName, jTable = createInstructionTable());
+
+    return jTable;
+  }
+
   private static class MyDefaultTableModel extends DefaultTableModel {
     public MyDefaultTableModel() {
       super(new Object[]{"Enabled", "Line", "Instruction", "Type"}, 0);
     }
 
   }
+
 }
 

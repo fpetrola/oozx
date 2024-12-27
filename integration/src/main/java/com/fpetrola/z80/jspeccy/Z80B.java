@@ -21,7 +21,6 @@ package com.fpetrola.z80.jspeccy;
 import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.spy.RoutineGrouperSpy;
 import com.fpetrola.z80.cpu.*;
-import com.fpetrola.z80.graph.GraphFrame;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.ReadOnlyMemoryImplementation;
@@ -42,6 +41,7 @@ import com.fpetrola.z80.transformations.InstructionTransformer;
 import com.fpetrola.z80.transformations.RegisterNameBuilder;
 import com.fpetrola.z80.transformations.TransformerInstructionExecutor;
 import com.fpetrola.z80.transformations.VirtualRegisterFactory;
+import com.mxgraph.view.mxGraph;
 import machine.Clock;
 import z80core.IZ80;
 import z80core.MemIoOps;
@@ -67,7 +67,7 @@ public class Z80B extends RegistersBase implements IZ80 {
 
   public VirtualRegisterFactory virtualRegisterFactory;
 
-  public Z80B(MemIoOps memIoOps, GraphFrame graphFrame, DataflowService dataflowService, RoutineFinder routineFinder1) {
+  public Z80B(MemIoOps memIoOps, mxGraph graphFrame, DataflowService dataflowService, RoutineFinder routineFinder1) {
     super();
     this.clock = Clock.getInstance();
     this.memIoImpl = memIoOps;
