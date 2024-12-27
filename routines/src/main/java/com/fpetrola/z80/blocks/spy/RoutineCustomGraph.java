@@ -140,7 +140,7 @@ public class RoutineCustomGraph<T> extends CustomGraph {
         mxCell routineVertex = routinesVertices.get(block);
         if (routineVertex == null) {
           log("graph: adding block: " + block.getName());
-          mxCell newRoutineVertex = (mxCell) graph.insertVertex(graph.getDefaultParent(), id++ + "", block.getName(), 50, 50, 200, 50);
+          mxCell newRoutineVertex = (mxCell) graph.insertVertex(graph.getDefaultParent(), id++ + "", block.getName(), 50, 50, 400, 400);
           routinesVertices.put(block, newRoutineVertex);
         } else
           log("trying to add a block twice: " + block.getName());

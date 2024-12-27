@@ -142,30 +142,32 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
 
   public FetchListener<T> getRegisterWriteListener() {
     return (address, instruction) -> {
-      fetchedInstruction = instruction;
-      int addressValue = address.intValue();
+      if (!(instruction instanceof RepeatingInstruction<T>)) {
+        fetchedInstruction = instruction;
+        int addressValue = address.intValue();
 
-      Map<String, JComponent> instructionTables = new ConcurrentHashMap<>(Z80Debugger.instructionTables);
-      Optional<Map.Entry<String, JComponent>> found = Optional.empty();
-      for (Map.Entry<String, JComponent> e : instructionTables.entrySet()) {
-        Block block = Z80Debugger.blockManager.findBlockByName(e.getKey());
-        if (block != null && block.contains(addressValue)) {
-          found = Optional.of(e);
-          break;
+        Map<String, JComponent> instructionTables = new ConcurrentHashMap<>(Z80Debugger.instructionTables);
+        Optional<Map.Entry<String, JComponent>> found = Optional.empty();
+        for (Map.Entry<String, JComponent> e : instructionTables.entrySet()) {
+          Block block = Z80Debugger.blockManager.findBlockByName(e.getKey());
+          if (block != null && block.contains(addressValue)) {
+            found = Optional.of(e);
+            break;
+          }
         }
-      }
-      if (found.isPresent()) {
-        Map.Entry<String, JComponent> entry = found.get();
-        JComponent value = entry.getValue();
-        JScrollPane instructionScrollPane = (JScrollPane) value;
-        instructionScrollPane.putClientProperty("validated2", "false");
+        if (found.isPresent()) {
+          Map.Entry<String, JComponent> entry = found.get();
+          JComponent value = entry.getValue();
+          JScrollPane instructionScrollPane = (JScrollPane) value;
+          instructionScrollPane.putClientProperty("validated2", "false");
 
-        JTable instructionTable1 = (JTable) ((JViewport) instructionScrollPane.getComponent(0)).getComponent(0);
-        InstructionTableModel model1 = (InstructionTableModel) instructionTable1.getModel();
-        model1.process(addressValue, ooz80, instruction);
+          JTable instructionTable1 = (JTable) ((JViewport) instructionScrollPane.getComponent(0)).getComponent(0);
+          InstructionTableModel model1 = (InstructionTableModel) instructionTable1.getModel();
+          model1.process(addressValue, ooz80, instruction);
+        }
+        InstructionTableModel<T> model = (InstructionTableModel) instructionTable.getModel();
+        model.process(addressValue, ooz80, instruction);
       }
-      InstructionTableModel<T> model = (InstructionTableModel) instructionTable.getModel();
-      model.process(addressValue, ooz80, instruction);
     };
   }
 

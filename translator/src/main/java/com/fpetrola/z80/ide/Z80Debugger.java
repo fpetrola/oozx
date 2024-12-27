@@ -256,13 +256,15 @@ public class Z80Debugger {
     // Instruction view with breakpoints
     Rectangle r = new Rectangle(0, 0, 200, 200);
 
-    Object[] columnNames = {"", "Address", "Bytes", "Instruction", "xxxxxx"};
-    Object[][] data = {
-        {false, "1000", "25 27 12", "LD A, B", System.nanoTime() + ""},
-        {false, "2000", "25 27 12", "LD A, B", System.nanoTime() + ""},
-        {false, "3000", "25 27 12", "LD A, B", System.nanoTime() + ""},
-        {false, "4000", "25 27 12", "LD A, B", System.nanoTime() + ""},
-    };
+    Object[] columnNames = {"", "Address", "Bytes", "Instruction"};
+//    Object[][] data = {
+//        {false, "1000", "25 27 12", "LD A, B", System.nanoTime() + ""},
+//        {false, "2000", "25 27 12", "LD A, B", System.nanoTime() + ""},
+//        {false, "3000", "25 27 12", "LD A, B", System.nanoTime() + ""},
+//        {false, "4000", "25 27 12", "LD A, B", System.nanoTime() + ""},
+//    };
+
+    Object[][] data = {{false, "0", "", ""}};
     InstructionTableModel dm = new InstructionTableModel(data, columnNames);
     JTable instructionTable = new JTable(dm);
     dm.setComponent(instructionTable);
