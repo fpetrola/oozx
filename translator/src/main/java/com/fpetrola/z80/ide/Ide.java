@@ -40,9 +40,9 @@ public class Ide {
     Helper.hex = true;
 
     GraphFrame frame = new GraphFrame();
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(1000, 700);
-    frame.setVisible(true);
+//    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//    frame.setSize(1000, 700);
+//    frame.setVisible(true);
     DataflowService dataflowService = new DataflowService() {
     };
 
@@ -62,9 +62,9 @@ public class Ide {
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/tge.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/rickdangerous";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/wally.z80";
-    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/dynamitedan";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
 
 
     new EmulatedMiniZX(url, 10, true, -1, true, spy, state).start();

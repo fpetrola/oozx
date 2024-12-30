@@ -84,8 +84,8 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
     if (!readOnly) {
       if (memoryWriteListener != null)
         memoryWriteListener.writtingMemoryAt(address, value);
-//      if (address.intValue() == 23548)
-//        System.out.println("");
+      if (address.intValue() < 16384)
+        System.out.println("");
       if (address.intValue() < 0x10000)
         data[address.intValue()] = value.and(0xff);
     }

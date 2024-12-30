@@ -22,6 +22,8 @@ import com.fpetrola.z80.cpu.FetchListener;
 import com.fpetrola.z80.spy.RegisterWriteListener;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 public class Z80Emulator {
   private byte[] memory;
@@ -29,6 +31,7 @@ public class Z80Emulator {
   private boolean[] flags; // Z80 flags
   protected Runnable updateListener;
   protected JTable instructionTable;
+  protected DefaultTableModel breakpointsTableModel;
 
   public Z80Emulator() {
     memory = new byte[65536];
@@ -140,5 +143,9 @@ public class Z80Emulator {
 
   public void setInstructionTableModel(JTable model) {
     this.instructionTable = model;
+  }
+
+  public void setBreakpointsModel(DefaultTableModel breakpointsTableModel) {
+    this.breakpointsTableModel = breakpointsTableModel;
   }
 }

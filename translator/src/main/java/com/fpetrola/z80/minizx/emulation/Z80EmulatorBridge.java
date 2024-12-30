@@ -19,6 +19,7 @@
 package com.fpetrola.z80.minizx.emulation;
 
 import com.fpetrola.z80.blocks.Block;
+import com.fpetrola.z80.bytecode.generators.helpers.VariableDelegator;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.FetchListener;
 import com.fpetrola.z80.cpu.OOZ80;
@@ -32,7 +33,9 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.RegisterSpy;
 import net.bytebuddy.pool.TypePool;
+import org.openjdk.nashorn.api.scripting.NashornScriptEngine;
 
+import javax.script.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -55,6 +58,8 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   private int pause;
   private State<T> state;
   private Instruction<T> fetchedInstruction;
+  private NashornScriptEngine engine;
+  private Map<String, CompiledScript> scripts = new HashMap<>();
 
   public Z80EmulatorBridge(RegisterSpy<T> pc, OOZ80<T> ooz80, int emulateUntil, int pause, DefaultInstructionFetcher alternativeInstructionFetcher) {
     this.pc = pc;
@@ -67,6 +72,8 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
       instructions.add(null);
     }
 
+    ScriptEngineManager factory = new ScriptEngineManager();
+    engine = (NashornScriptEngine) factory.getEngineByName("nashorn");
   }
 
   private Thread createThread() {
@@ -90,6 +97,26 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   }
 
   private void doExecuteStep() {
+    for (int i = 0; i < breakpointsTableModel.getRowCount(); i++) {
+      String valueAt = (String) breakpointsTableModel.getValueAt(i, 2);
+
+      Bindings bindings = engine.getBindings(ScriptContext.ENGINE_SCOPE);
+      bindings.put("PC", state.getPc().read().intValue());
+      bindings.put("SP", state.getRegisterSP().read().intValue());
+      try {
+        CompiledScript o = scripts.get(valueAt);
+        if (o == null)
+          scripts.put(valueAt, o = engine.compile(valueAt));
+
+        Object eval = o.eval(bindings);
+        if (Boolean.TRUE.equals(eval)) {
+          stopExecution();
+          System.out.println(eval);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
     ooz80.execute();
   }
 

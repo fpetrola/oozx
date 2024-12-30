@@ -62,40 +62,7 @@ public class Z80Debugger {
     // Main Layout
     JPanel mainPanel = new JPanel(new BorderLayout());
 
-    // Menu Bar
-    JMenuBar menuBar = new JMenuBar();
-    JMenu fileMenu = new JMenu("File");
-    fileMenu.add(new JMenuItem("Load Program"));
-    fileMenu.add(new JMenuItem("Exit"));
-    JMenu debugMenu = new JMenu("Debugging");
-    debugMenu.add(new JMenuItem("Step"));
-    debugMenu.add(new JMenuItem("Step Into"));
-    debugMenu.add(new JMenuItem("Continue"));
-    debugMenu.add(new JMenuItem("Pause"));
-    debugMenu.add(new JMenuItem("Stop"));
-    JMenu memoryMenu = new JMenu("Memory");
-    memoryMenu.add(new JMenuItem("Jump to Address"));
-    JMenu helpMenu = new JMenu("Help");
-    helpMenu.add(new JMenuItem("About"));
-    menuBar.add(fileMenu);
-    menuBar.add(debugMenu);
-    menuBar.add(memoryMenu);
-    menuBar.add(helpMenu);
-//    frame.setJMenuBar(menuBar);
-
-    // Toolbar
-    JToolBar toolBar = new JToolBar();
-    JButton stepButton = new JButton("Step", new ImageIcon("icons/step.png"));
-    JButton stepIntoButton = new JButton("Step Into", new ImageIcon("icons/stepInto.png"));
-    JButton continueButton = new JButton("Continue", new ImageIcon("icons/continue.png"));
-    JButton pauseButton = new JButton("Pause", new ImageIcon("icons/pause.png"));
-    JButton stopButton = new JButton("Stop", new ImageIcon("icons/stop.png"));
-    toolBar.add(stepButton);
-    toolBar.add(stepIntoButton);
-    toolBar.add(continueButton);
-    toolBar.add(pauseButton);
-    toolBar.add(stopButton);
-    mainPanel.add(toolBar, BorderLayout.NORTH);
+    createMenubar();
 
 
     JScrollPane instructionScrollPane = (JScrollPane) createInstructionTable();
@@ -206,6 +173,49 @@ public class Z80Debugger {
 
       }
     });
+
+    JPanel comp = new JPanel(new BorderLayout());
+    createToolbar(emulator1, comp, instructionTable, memoryTable, registerLabels, registerFields);
+    JToolBar toolBar = new JToolBar();
+    JButton addBreakpointButton = new JButton("Add breakpoint", new ImageIcon("icons/step.png"));
+    JButton removeBreakpointButton = new JButton("Remove breakpoint", new ImageIcon("icons/stepInto.png"));
+    toolBar.add(addBreakpointButton);
+    toolBar.add(removeBreakpointButton);
+    comp.add(toolBar, BorderLayout.EAST);
+
+    addBreakpointButton.addActionListener((e -> {
+      DefaultTableModel breakpointsModel = (DefaultTableModel) breakpointsTable.getModel();
+
+      breakpointsModel.addRow(new Object[]{
+          true,
+          0,
+          "PC == 1",
+          "Code"
+      });
+    }));
+
+    mainPanel.add(comp, BorderLayout.NORTH);
+
+
+    emulator1.setInstructionTableModel(instructionTable);
+    emulator1.setBreakpointsModel((DefaultTableModel) breakpointsTable.getModel());
+    return mainPanel;
+  }
+
+  private static void createToolbar(Z80Emulator emulator1, JPanel mainPanel, JTable instructionTable, JTable memoryTable, JLabel[] registerLabels, JTextField[] registerFields) {
+    // Toolbar
+    JToolBar toolBar = new JToolBar();
+    JButton stepButton = new JButton("Step", new ImageIcon("icons/step.png"));
+    JButton stepIntoButton = new JButton("Step Into", new ImageIcon("icons/stepInto.png"));
+    JButton continueButton = new JButton("Continue", new ImageIcon("icons/continue.png"));
+    JButton pauseButton = new JButton("Pause", new ImageIcon("icons/pause.png"));
+    JButton stopButton = new JButton("Stop", new ImageIcon("icons/stop.png"));
+    toolBar.add(stepButton);
+    toolBar.add(stepIntoButton);
+    toolBar.add(continueButton);
+    toolBar.add(pauseButton);
+    toolBar.add(stopButton);
+    mainPanel.add(toolBar, BorderLayout.WEST);
     stepButton.addActionListener(e -> {
       ready = true;
       emulator1.step();
@@ -247,9 +257,29 @@ public class Z80Debugger {
 //        JOptionPane.showMessageDialog(frame, "Invalid address format", "Error", JOptionPane.ERROR_MESSAGE);
 //      }
 //    });
+  }
 
-    emulator1.setInstructionTableModel(instructionTable);
-    return mainPanel;
+  private static void createMenubar() {
+    // Menu Bar
+    JMenuBar menuBar = new JMenuBar();
+    JMenu fileMenu = new JMenu("File");
+    fileMenu.add(new JMenuItem("Load Program"));
+    fileMenu.add(new JMenuItem("Exit"));
+    JMenu debugMenu = new JMenu("Debugging");
+    debugMenu.add(new JMenuItem("Step"));
+    debugMenu.add(new JMenuItem("Step Into"));
+    debugMenu.add(new JMenuItem("Continue"));
+    debugMenu.add(new JMenuItem("Pause"));
+    debugMenu.add(new JMenuItem("Stop"));
+    JMenu memoryMenu = new JMenu("Memory");
+    memoryMenu.add(new JMenuItem("Jump to Address"));
+    JMenu helpMenu = new JMenu("Help");
+    helpMenu.add(new JMenuItem("About"));
+    menuBar.add(fileMenu);
+    menuBar.add(debugMenu);
+    menuBar.add(memoryMenu);
+    menuBar.add(helpMenu);
+//    frame.setJMenuBar(menuBar);
   }
 
   public static JComponent createInstructionTable() {
