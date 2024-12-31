@@ -22,7 +22,7 @@ import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import z80core.MemIoOps;
 
-final class IOImplementation<T extends WordNumber> implements IO<T> {
+public final class IOImplementation<T extends WordNumber> implements IO<T> {
   private final MemIoOps memIoOps;
   private final int[] ports = new int[0x10000];
 

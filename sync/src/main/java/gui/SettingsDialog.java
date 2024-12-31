@@ -1,0 +1,1019 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/*
+ * SettingsDialog.java
+ *
+ * Created on 03-sep-2010, 16:42:01
+ */
+
+package gui;
+
+import configuration.JSpeccySettings;
+import configuration.ObjectFactory;
+
+import javax.swing.*;
+import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBElement;
+import java.awt.*;
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author jsanchez
+ */ 
+public class SettingsDialog extends JPanel {
+
+    private JSpeccySettings settings;
+    private JDialog settingsDialog;
+
+    /** Creates new form SettingsDialog */
+    public SettingsDialog(JSpeccySettings userSettings) {
+        initComponents();
+        settings = userSettings;
+    }
+
+    private void updateUserSettings() {
+
+        spectrumModel.setSelectedIndex(settings.getSpectrumSettings().getDefaultModel());
+
+        soundMuted.setSelected(settings.getSpectrumSettings().isMutedSound());
+
+        loadingNoise.setSelected(settings.getSpectrumSettings().isLoadingNoise());
+
+        hifiSound.setSelected(settings.getSpectrumSettings().isHifiSound());
+
+        enableLoadTraps.setSelected(settings.getTapeSettings().isEnableLoadTraps());
+
+        acceleratedLoad.setSelected(settings.getTapeSettings().isAccelerateLoading());
+        
+        flashLoad.setSelected(settings.getTapeSettings().isFlashLoad());
+        
+        flashLoad.setEnabled(settings.getTapeSettings().isEnableLoadTraps());
+        
+        autoLoadTape.setSelected(settings.getTapeSettings().isAutoLoadTape());
+
+        ULAplus.setSelected(settings.getSpectrumSettings().isULAplus());
+
+        joystick.setSelectedIndex(settings.getKeyboardJoystickSettings().getJoystickModel());
+
+        enabledAY48k.setSelected(settings.getSpectrumSettings().isAYEnabled48K());
+
+        speed.setValue(settings.getSpectrumSettings().getFramesInt());
+
+        zoomCheckbox.setSelected(settings.getSpectrumSettings().isZoomed());
+        
+        zoomSlider.setValue(settings.getSpectrumSettings().getZoom());
+
+        if (settings.getKeyboardJoystickSettings().isIssue2()) {
+            issue2.setSelected(true);
+        } else
+            issue3.setSelected(true);
+
+        mapPCKeys.setSelected(settings.getKeyboardJoystickSettings().isMapPCKeys());
+        
+        enableSaveTraps.setSelected(settings.getTapeSettings().isEnableSaveTraps());
+
+        if (settings.getTapeSettings().isHighSamplingFreq()) {
+            highSampling.setSelected(true);
+        } else {
+            lowSampling.setSelected(true);
+        }
+
+        switch (settings.getAY8912Settings().getSoundMode()) {
+            case 1: // Stereo ABC
+                AYABCMode.setSelected(true);
+                break;
+            case 2: // Stereo ACB
+                AYACBMode.setSelected(true);
+                break;
+            case 3: // Stereo BAC
+                AYBACMode.setSelected(true);
+                break;
+            default:
+                AYMonoMode.setSelected(true);
+        }
+
+        multifaceEnabled.setSelected(settings.getSpectrumSettings().isMultifaceEnabled());
+        if (settings.getSpectrumSettings().isMf128On48K()) {
+            multiface128RadioButton.setSelected(true);
+        } else {
+            multifaceOneRadioButton.setSelected(true);
+        }
+        
+        connectedIF1.setSelected(settings.getInterface1Settings().isConnectedIF1());
+        numDrivesSpinner.setValue(settings.getInterface1Settings().getMicrodriveUnits());
+        cartridgeSizeSpinner.setValue(settings.getInterface1Settings().getCartridgeSize());
+        autoSaveOnExit.setSelected(settings.getSpectrumSettings().isHibernateMode());
+        lecEnabled.setSelected(settings.getSpectrumSettings().isLecEnabled());
+        confirmActions.setSelected(settings.getEmulatorSettings().isConfirmActions());
+        autosaveConfigOnExit.setSelected(settings.getEmulatorSettings().isAutosaveConfigOnExit());
+        invertedEar.setSelected(settings.getTapeSettings().isInvertedEar());
+    }
+
+    public boolean showDialog(Component parent, String title) {
+        Frame owner;
+        if (parent instanceof Frame) {
+            owner = (Frame) parent;
+        } else {
+            owner = (Frame) SwingUtilities.getAncestorOfClass(Frame.class, parent);
+        }
+
+        if (settingsDialog == null) {
+            settingsDialog = new JDialog(owner, true);
+            settingsDialog.getContentPane().add(this);
+            settingsDialog.pack();
+        }
+
+        updateUserSettings();
+        settingsDialog.setTitle(title);
+        settingsDialog.setVisible(true);
+        return true;
+    }
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        keyboardButtonGroup = new ButtonGroup();
+        samplingButtonGroup = new ButtonGroup();
+        AYStereoModeButtonGroup = new ButtonGroup();
+        multifaceModelButtonGroup = new ButtonGroup();
+        buttonPanel = new JPanel();
+        saveSettingsButton = new JButton();
+        closeButton = new JButton();
+        jTabbedPane1 = new JTabbedPane();
+        hardwarePanelTab = new JPanel();
+        defaultModelPanel = new JPanel();
+        spectrumModel = new JComboBox();
+        videoPanel = new JPanel();
+        ULAplus = new JCheckBox();
+        zoomPanel = new JPanel();
+        zoomCheckbox = new JCheckBox();
+        zoomLabel = new JLabel();
+        zoomSlider = new JSlider();
+        highSpeedPanel = new JPanel();
+        speed = new JSlider();
+        autoSavePanel = new JPanel();
+        autoSaveOnExit = new JCheckBox();
+        soundPanelTab = new JPanel();
+        audioPanel = new JPanel();
+        soundMuted = new JCheckBox();
+        loadingNoise = new JCheckBox();
+        hifiSound = new JCheckBox();
+        AY8912Panel = new JPanel();
+        AYEnabled48k = new JPanel();
+        enabledAY48k = new JCheckBox();
+        AYStereoMode = new JPanel();
+        AYMonoMode = new JRadioButton();
+        AYABCMode = new JRadioButton();
+        AYACBMode = new JRadioButton();
+        AYBACMode = new JRadioButton();
+        tapePanelTab = new JPanel();
+        loadPanel = new JPanel();
+        enableLoadTraps = new JCheckBox();
+        flashLoad = new JCheckBox();
+        acceleratedLoad = new JCheckBox();
+        autoLoadTape = new JCheckBox();
+        invertedEar = new JCheckBox();
+        savePanel = new JPanel();
+        enableSaveTraps = new JCheckBox();
+        samplingPanel = new JPanel();
+        lowSampling = new JRadioButton();
+        highSampling = new JRadioButton();
+        keyboardPanelTab = new JPanel();
+        keyboard48kPanel = new JPanel();
+        jPanel3 = new JPanel();
+        keyboardIssueInfoLabel = new JLabel();
+        jPanel2 = new JPanel();
+        issue2 = new JRadioButton();
+        issue3 = new JRadioButton();
+        mapPCKeyPanel = new JPanel();
+        mapPCKeys = new JCheckBox();
+        joystickPanel = new JPanel();
+        joystick = new JComboBox();
+        multifacePanelTab = new JPanel();
+        multifacePanel = new JPanel();
+        multifaceEnabled = new JCheckBox();
+        multifaceModelPanel = new JPanel();
+        jLabel2 = new JLabel();
+        jPanel1 = new JPanel();
+        multifaceOneRadioButton = new JRadioButton();
+        multiface128RadioButton = new JRadioButton();
+        IF1PanelTab = new JPanel();
+        connectedIF1Panel = new JPanel();
+        connectedIF1InfoLabel = new JLabel();
+        jPanel4 = new JPanel();
+        connectedIF1 = new JCheckBox();
+        mdrPanel = new JPanel();
+        numDrivesPanel = new JPanel();
+        numDrivesLabel = new JLabel();
+        numDrivesSpinner = new JSpinner();
+        numBlocksInfoPanel = new JPanel();
+        numBlocksInfoLabel = new JLabel();
+        numBlocksPanel = new JPanel();
+        numSectorsLabel = new JLabel();
+        cartridgeSizeSpinner = new JSpinner();
+        lecPanelTab = new JPanel();
+        lecInfoPanel = new JPanel();
+        lecInfoLabel = new JLabel();
+        lecEnabledPanel = new JPanel();
+        lecEnabled = new JCheckBox();
+        emulatorPanelTab = new JPanel();
+        confirmActions = new JCheckBox();
+        autosaveConfigOnExit = new JCheckBox();
+
+        setMinimumSize(new Dimension(50, 50));
+        setPreferredSize(new Dimension(440, 400));
+        setLayout(new BorderLayout());
+
+        ResourceBundle bundle = ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+        saveSettingsButton.setText(bundle.getString("SettingsDialog.saveSettingsButton.text")); // NOI18N
+        saveSettingsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveSettingsButtonActionPerformed(evt);
+            }
+        });
+        buttonPanel.add(saveSettingsButton);
+
+        closeButton.setText(bundle.getString("CLOSE")); // NOI18N
+        closeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeButtonActionPerformed(evt);
+            }
+        });
+        buttonPanel.add(closeButton);
+
+        add(buttonPanel, BorderLayout.PAGE_END);
+
+        jTabbedPane1.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+
+        hardwarePanelTab.setLayout(new BoxLayout(hardwarePanelTab, BoxLayout.PAGE_AXIS));
+
+        defaultModelPanel.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.defaultModePanel.border.text"))); // NOI18N
+
+        spectrumModel.setModel(new DefaultComboBoxModel(new String[] { "Spectrum 16k", "Spectrum 48k", "Spectrum 128k", "Spectrum +2", "Spectrum +2A", "Spectrum +3" }));
+        spectrumModel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                spectrumModelActionPerformed(evt);
+            }
+        });
+        defaultModelPanel.add(spectrumModel);
+
+        hardwarePanelTab.add(defaultModelPanel);
+
+        videoPanel.setBorder(BorderFactory.createTitledBorder("Video"));
+        videoPanel.setLayout(new GridLayout(2, 1));
+
+        ULAplus.setText(bundle.getString("SettingsDialog.hardwarePanel.ULAplus.text")); // NOI18N
+        ULAplus.setPreferredSize(new Dimension(440, 24));
+        ULAplus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ULAplusActionPerformed(evt);
+            }
+        });
+        videoPanel.add(ULAplus);
+
+        zoomPanel.setBorder(BorderFactory.createEtchedBorder());
+        zoomPanel.setMaximumSize(new Dimension(32767, 53));
+        zoomPanel.setPreferredSize(new Dimension(100, 53));
+        zoomPanel.setLayout(new GridLayout(1, 3));
+
+        zoomCheckbox.setText(bundle.getString("SettingsDialog.hardwarePanel.zoomCheckbox.text")); // NOI18N
+        zoomCheckbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                zoomCheckboxActionPerformed(evt);
+            }
+        });
+        zoomPanel.add(zoomCheckbox);
+
+        zoomLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        zoomLabel.setText(bundle.getString("SettingsDialog.hardwarePanel.zoomLabel.text")); // NOI18N
+        zoomPanel.add(zoomLabel);
+
+        zoomSlider.setMajorTickSpacing(1);
+        zoomSlider.setMaximum(4);
+        zoomSlider.setMinimum(2);
+        zoomSlider.setPaintLabels(true);
+        zoomSlider.setPaintTicks(true);
+        zoomSlider.setSnapToTicks(true);
+        zoomSlider.setValue(2);
+        zoomSlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                zoomSliderStateChanged(evt);
+            }
+        });
+        zoomPanel.add(zoomSlider);
+
+        videoPanel.add(zoomPanel);
+
+        hardwarePanelTab.add(videoPanel);
+
+        highSpeedPanel.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.highSpeedPanel.border.text"))); // NOI18N
+
+        speed.setMajorTickSpacing(1);
+        speed.setMaximum(10);
+        speed.setMinimum(2);
+        speed.setPaintLabels(true);
+        speed.setPaintTicks(true);
+        speed.setSnapToTicks(true);
+        speed.setPreferredSize(new Dimension(300, 43));
+        speed.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                speedStateChanged(evt);
+            }
+        });
+        highSpeedPanel.add(speed);
+
+        hardwarePanelTab.add(highSpeedPanel);
+
+        autoSavePanel.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.autoSavePanel.border.text"))); // NOI18N
+
+        autoSaveOnExit.setText(bundle.getString("SettingsDialog.autoSaveOnExit.text")); // NOI18N
+        autoSaveOnExit.setToolTipText(bundle.getString("SettingsDialog.autoSaveOnExit.tooltip.text")); // NOI18N
+        autoSaveOnExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                autoSaveOnExitActionPerformed(evt);
+            }
+        });
+        autoSavePanel.add(autoSaveOnExit);
+
+        hardwarePanelTab.add(autoSavePanel);
+
+        jTabbedPane1.addTab(bundle.getString("SettingsDialog.hardwarePanel.TabTitle"), hardwarePanelTab); // NOI18N
+
+        soundPanelTab.setLayout(new GridLayout(2, 0));
+
+        audioPanel.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.audioPanel.border.text"))); // NOI18N
+        audioPanel.setLayout(new GridLayout(3, 0));
+
+        soundMuted.setText(bundle.getString("SettingsDialog.soundPanel.soundMuted.text")); // NOI18N
+        soundMuted.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                soundMutedActionPerformed(evt);
+            }
+        });
+        audioPanel.add(soundMuted);
+
+        loadingNoise.setText(bundle.getString("SettingsDialog.soundPanel.loadingNoise.text")); // NOI18N
+        loadingNoise.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loadingNoiseActionPerformed(evt);
+            }
+        });
+        audioPanel.add(loadingNoise);
+
+        hifiSound.setText(bundle.getString("SettingsDialog.audioPanel.hifiSound.text")); // NOI18N
+        hifiSound.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hifiSoundActionPerformed(evt);
+            }
+        });
+        audioPanel.add(hifiSound);
+
+        soundPanelTab.add(audioPanel);
+
+        AY8912Panel.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.AY8912Panel.border.text"))); // NOI18N
+        AY8912Panel.setLayout(new GridLayout(1, 2));
+
+        AYEnabled48k.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.AYEnabled48kPanel.border.text"))); // NOI18N
+
+        enabledAY48k.setText(bundle.getString("SettingsDialog.soundPanel.enabledAY48k.text")); // NOI18N
+        enabledAY48k.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                enabledAY48kActionPerformed(evt);
+            }
+        });
+        AYEnabled48k.add(enabledAY48k);
+
+        AY8912Panel.add(AYEnabled48k);
+
+        AYStereoMode.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.AYStereoMode.border.text"))); // NOI18N
+        AYStereoMode.setLayout(new GridLayout(4, 0));
+
+        AYStereoModeButtonGroup.add(AYMonoMode);
+        AYMonoMode.setSelected(true);
+        AYMonoMode.setText(bundle.getString("SettingsDialog.AYMonoMode.RadioButton.text")); // NOI18N
+        AYMonoMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AYMonoModeActionPerformed(evt);
+            }
+        });
+        AYStereoMode.add(AYMonoMode);
+
+        AYStereoModeButtonGroup.add(AYABCMode);
+        AYABCMode.setText(bundle.getString("SettingsDialog.AYABCMode.RadioButton.text")); // NOI18N
+        AYABCMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AYABCModeActionPerformed(evt);
+            }
+        });
+        AYStereoMode.add(AYABCMode);
+
+        AYStereoModeButtonGroup.add(AYACBMode);
+        AYACBMode.setText(bundle.getString("SettingsDialog.AYACBMode.RadioButton.text")); // NOI18N
+        AYACBMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AYACBModeActionPerformed(evt);
+            }
+        });
+        AYStereoMode.add(AYACBMode);
+
+        AYStereoModeButtonGroup.add(AYBACMode);
+        AYBACMode.setText(bundle.getString("SettingsDialog.AYBACMode.RadioButton.text")); // NOI18N
+        AYBACMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AYBACModeActionPerformed(evt);
+            }
+        });
+        AYStereoMode.add(AYBACMode);
+
+        AY8912Panel.add(AYStereoMode);
+
+        soundPanelTab.add(AY8912Panel);
+
+        jTabbedPane1.addTab(bundle.getString("SettingsDialog.soundPanel.TabTitle"), soundPanelTab); // NOI18N
+
+        tapePanelTab.setLayout(new GridLayout(2, 0));
+
+        loadPanel.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.loadPanel.border.text"))); // NOI18N
+        loadPanel.setLayout(new GridLayout(5, 1));
+
+        enableLoadTraps.setText(bundle.getString("SettingsDialog.tapePanel.enableLoadTraps.text")); // NOI18N
+        enableLoadTraps.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                enableLoadTrapsActionPerformed(evt);
+            }
+        });
+        loadPanel.add(enableLoadTraps);
+
+        flashLoad.setText(bundle.getString("SettingsDialog.tapePanel.flashload.text")); // NOI18N
+        flashLoad.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                flashLoadActionPerformed(evt);
+            }
+        });
+        loadPanel.add(flashLoad);
+
+        acceleratedLoad.setText(bundle.getString("SettingsDialog.tapePanel.acceleratedLoad.text")); // NOI18N
+        acceleratedLoad.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                acceleratedLoadActionPerformed(evt);
+            }
+        });
+        loadPanel.add(acceleratedLoad);
+
+        autoLoadTape.setText(bundle.getString("SettingsDialog.tapePanel.autoLoadTape.text")); // NOI18N
+        autoLoadTape.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                autoLoadTapeActionPerformed(evt);
+            }
+        });
+        loadPanel.add(autoLoadTape);
+
+        invertedEar.setText(bundle.getString("SettingsDialog.tapePanel.invertedEar.text")); // NOI18N
+        invertedEar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                invertedEarActionPerformed(evt);
+            }
+        });
+        loadPanel.add(invertedEar);
+
+        tapePanelTab.add(loadPanel);
+
+        savePanel.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.savePanel.border.text"))); // NOI18N
+        savePanel.setLayout(new GridLayout(1, 2));
+
+        enableSaveTraps.setSelected(true);
+        enableSaveTraps.setText(bundle.getString("SettingsDialog.savePanel.enableSaveTraps.text")); // NOI18N
+        enableSaveTraps.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                enableSaveTrapsActionPerformed(evt);
+            }
+        });
+        savePanel.add(enableSaveTraps);
+
+        samplingPanel.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.highSamplingFreq.border.text"))); // NOI18N
+        samplingPanel.setLayout(new GridLayout(2, 1));
+
+        samplingButtonGroup.add(lowSampling);
+        lowSampling.setSelected(true);
+        lowSampling.setText("DRB (44.1 kHz)");
+        lowSampling.setToolTipText("Direct Recording Block");
+        lowSampling.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lowSamplingActionPerformed(evt);
+            }
+        });
+        samplingPanel.add(lowSampling);
+
+        samplingButtonGroup.add(highSampling);
+        highSampling.setText("CSW Z-RLE (48 kHz)");
+        highSampling.setToolTipText("<html>Compressed Square Wave<br>Run Lenght Encoding</html>");
+        highSampling.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                highSamplingActionPerformed(evt);
+            }
+        });
+        samplingPanel.add(highSampling);
+
+        savePanel.add(samplingPanel);
+
+        tapePanelTab.add(savePanel);
+
+        jTabbedPane1.addTab(bundle.getString("SettingsDialog.tapePanel.TabTitle"), tapePanelTab); // NOI18N
+
+        keyboardPanelTab.setLayout(new BoxLayout(keyboardPanelTab, BoxLayout.PAGE_AXIS));
+
+        keyboard48kPanel.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.keyboard48kPanel.title.text"))); // NOI18N
+        keyboard48kPanel.setLayout(new BoxLayout(keyboard48kPanel, BoxLayout.PAGE_AXIS));
+
+        keyboardIssueInfoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        keyboardIssueInfoLabel.setText(bundle.getString("SettingsDialog.keyboardIssueInfoLabel.text")); // NOI18N
+        jPanel3.add(keyboardIssueInfoLabel);
+
+        keyboard48kPanel.add(jPanel3);
+
+        keyboardButtonGroup.add(issue2);
+        issue2.setText(bundle.getString("SettingsDialog.issue2RadioButton.text")); // NOI18N
+        issue2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                issue2ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(issue2);
+
+        keyboardButtonGroup.add(issue3);
+        issue3.setSelected(true);
+        issue3.setText(bundle.getString("SettingsDialog.issue3RadioButton.text")); // NOI18N
+        issue3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                issue2ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(issue3);
+
+        keyboard48kPanel.add(jPanel2);
+
+        keyboardPanelTab.add(keyboard48kPanel);
+
+        mapPCKeyPanel.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.mapPCKeysPanel.TabTitle"))); // NOI18N
+
+        mapPCKeys.setText(bundle.getString("SettingsDialog.mapPCKEysPanel.enabled.text")); // NOI18N
+        mapPCKeys.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mapPCKeysActionPerformed(evt);
+            }
+        });
+        mapPCKeyPanel.add(mapPCKeys);
+
+        keyboardPanelTab.add(mapPCKeyPanel);
+
+        joystickPanel.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.joystickPanel.border.text"))); // NOI18N
+
+        joystick.setModel(new DefaultComboBoxModel(new String[] { "None", "Kempston", "Sinclair 1", "Sinclair 2", "Cursor/AGF/Protek", "Fuller" }));
+        joystick.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                joystickActionPerformed(evt);
+            }
+        });
+        joystickPanel.add(joystick);
+
+        keyboardPanelTab.add(joystickPanel);
+
+        jTabbedPane1.addTab(bundle.getString("SettingsDialog.keyboardPanel.TabTitle"), keyboardPanelTab); // NOI18N
+
+        multifacePanelTab.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.MultifacePanel.border.text"))); // NOI18N
+        multifacePanelTab.setLayout(new BoxLayout(multifacePanelTab, BoxLayout.PAGE_AXIS));
+
+        multifaceEnabled.setText(bundle.getString("SettingsDialog.multifacePanel.enabled.text")); // NOI18N
+        multifaceEnabled.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                multifaceEnabledActionPerformed(evt);
+            }
+        });
+        multifacePanel.add(multifaceEnabled);
+
+        multifacePanelTab.add(multifacePanel);
+
+        multifaceModelPanel.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.MultifaceModelPanel.border.text"))); // NOI18N
+        multifaceModelPanel.setLayout(new GridLayout(2, 0));
+
+        jLabel2.setHorizontalAlignment(SwingConstants.CENTER);
+        jLabel2.setText(bundle.getString("SettingsDialog.MultifaceModelPanel.label.text")); // NOI18N
+        multifaceModelPanel.add(jLabel2);
+
+        jPanel1.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.MultifaceModelPanelRadioButton.border.text"))); // NOI18N
+        jPanel1.setLayout(new GridLayout(2, 0));
+
+        multifaceModelButtonGroup.add(multifaceOneRadioButton);
+        multifaceOneRadioButton.setSelected(true);
+        multifaceOneRadioButton.setText(bundle.getString("SettingsDialog.multifaceOne.RadioButton.text")); // NOI18N
+        multifaceOneRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                multifaceOneRadioButtonActionPerformed(evt);
+            }
+        });
+        jPanel1.add(multifaceOneRadioButton);
+
+        multifaceModelButtonGroup.add(multiface128RadioButton);
+        multiface128RadioButton.setText(bundle.getString("SettingsDialog.multiface128.RadioButton.text")); // NOI18N
+        multiface128RadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                multifaceOneRadioButtonActionPerformed(evt);
+            }
+        });
+        jPanel1.add(multiface128RadioButton);
+
+        multifaceModelPanel.add(jPanel1);
+
+        multifacePanelTab.add(multifaceModelPanel);
+
+        jTabbedPane1.addTab(bundle.getString("SettingsDialog.multifacePanel.TabTitle"), multifacePanelTab); // NOI18N
+
+        IF1PanelTab.setLayout(new GridLayout(2, 1));
+
+        connectedIF1Panel.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.connectedIF1.border.text"))); // NOI18N
+        connectedIF1Panel.setLayout(new GridLayout(2, 0));
+
+        connectedIF1InfoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        connectedIF1InfoLabel.setText(bundle.getString("SettingsDialog.connectedIF1InfoLabel.text")); // NOI18N
+        connectedIF1Panel.add(connectedIF1InfoLabel);
+
+        connectedIF1.setText(bundle.getString("SettingsDialog.connectedIF1Panel.enabled.text")); // NOI18N
+        connectedIF1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                connectedIF1ActionPerformed(evt);
+            }
+        });
+        jPanel4.add(connectedIF1);
+
+        connectedIF1Panel.add(jPanel4);
+
+        IF1PanelTab.add(connectedIF1Panel);
+
+        mdrPanel.setBorder(BorderFactory.createTitledBorder("ZX Microdrives"));
+        mdrPanel.setLayout(new GridLayout(3, 1));
+
+        numDrivesLabel.setText(bundle.getString("SettingsDialog.mdrPanel.numDrivesLabel.text")); // NOI18N
+        numDrivesPanel.add(numDrivesLabel);
+
+        numDrivesSpinner.setModel(new SpinnerNumberModel(Byte.valueOf((byte)8), Byte.valueOf((byte)1), Byte.valueOf((byte)8), Byte.valueOf((byte)1)));
+        numDrivesSpinner.setPreferredSize(new Dimension(40, 20));
+        numDrivesSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                numDrivesSpinnerStateChanged(evt);
+            }
+        });
+        numDrivesPanel.add(numDrivesSpinner);
+
+        mdrPanel.add(numDrivesPanel);
+
+        numBlocksInfoLabel.setText(bundle.getString("SettingsDialog.numBlocksInfoLabel.text")); // NOI18N
+        numBlocksInfoPanel.add(numBlocksInfoLabel);
+
+        mdrPanel.add(numBlocksInfoPanel);
+
+        numSectorsLabel.setText(bundle.getString("SettingsDialog.mdrPanel.numSectorsLabel.text")); // NOI18N
+        numBlocksPanel.add(numSectorsLabel);
+
+        cartridgeSizeSpinner.setModel(new SpinnerNumberModel(180, 10, 253, 1));
+        cartridgeSizeSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                cartridgeSizeSpinnerStateChanged(evt);
+            }
+        });
+        numBlocksPanel.add(cartridgeSizeSpinner);
+
+        mdrPanel.add(numBlocksPanel);
+
+        IF1PanelTab.add(mdrPanel);
+
+        jTabbedPane1.addTab("Interface I", IF1PanelTab);
+
+        lecPanelTab.setLayout(new BoxLayout(lecPanelTab, BoxLayout.PAGE_AXIS));
+
+        lecInfoPanel.setMaximumSize(new Dimension(400, 640));
+        lecInfoPanel.setPreferredSize(new Dimension(400, 100));
+        lecInfoPanel.setLayout(new BoxLayout(lecInfoPanel, BoxLayout.LINE_AXIS));
+
+        lecInfoLabel.setText(bundle.getString("SettingsDialog.lecPanelTab.lecInfoLabel.text")); // NOI18N
+        lecInfoLabel.setMaximumSize(new Dimension(2147483647, 640));
+        lecInfoLabel.setPreferredSize(new Dimension(380, 288));
+        lecInfoPanel.add(lecInfoLabel);
+
+        lecPanelTab.add(lecInfoPanel);
+
+        lecEnabledPanel.setMaximumSize(new Dimension(32767, 160));
+
+        lecEnabled.setText(bundle.getString("SettingsDialog.lecPanelTab.lecEnabledLabel.text")); // NOI18N
+        lecEnabled.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lecEnabledActionPerformed(evt);
+            }
+        });
+        lecEnabledPanel.add(lecEnabled);
+
+        lecPanelTab.add(lecEnabledPanel);
+
+        jTabbedPane1.addTab("LEC", lecPanelTab);
+
+        emulatorPanelTab.setBorder(BorderFactory.createTitledBorder(bundle.getString("SettingsDialog.emulatorTab.border.text"))); // NOI18N
+        emulatorPanelTab.setLayout(new GridLayout(9, 0));
+
+        confirmActions.setText(bundle.getString("SettingsDialog.confirmActions.text")); // NOI18N
+        confirmActions.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmActionsActionPerformed(evt);
+            }
+        });
+        emulatorPanelTab.add(confirmActions);
+
+        autosaveConfigOnExit.setText(bundle.getString("SettingsDialog.autosaveConfigOnExit.text")); // NOI18N
+        autosaveConfigOnExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                autosaveConfigOnExitActionPerformed(evt);
+            }
+        });
+        emulatorPanelTab.add(autosaveConfigOnExit);
+
+        jTabbedPane1.addTab(bundle.getString("SettingsDialog.emulatorPanel.title.text"), emulatorPanelTab); // NOI18N
+
+        add(jTabbedPane1, BorderLayout.CENTER);
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
+        settingsDialog.setVisible(false);
+    }//GEN-LAST:event_closeButtonActionPerformed
+
+    private void spectrumModelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_spectrumModelActionPerformed
+        settings.getSpectrumSettings().setDefaultModel(spectrumModel.getSelectedIndex());
+    }//GEN-LAST:event_spectrumModelActionPerformed
+
+    private void ULAplusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ULAplusActionPerformed
+        settings.getSpectrumSettings().setULAplus(ULAplus.isSelected());
+    }//GEN-LAST:event_ULAplusActionPerformed
+
+    private void speedStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_speedStateChanged
+        settings.getSpectrumSettings().setFramesInt(speed.getValue());
+    }//GEN-LAST:event_speedStateChanged
+
+    private void issue2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_issue2ActionPerformed
+        settings.getKeyboardJoystickSettings().setIssue2(issue2.isSelected());
+    }//GEN-LAST:event_issue2ActionPerformed
+
+    private void joystickActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_joystickActionPerformed
+        settings.getKeyboardJoystickSettings().setJoystickModel(joystick.getSelectedIndex());
+    }//GEN-LAST:event_joystickActionPerformed
+
+    private void saveSettingsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveSettingsButtonActionPerformed
+        if (settings.getEmulatorSettings().isConfirmActions()) {
+            ResourceBundle bundle = ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+            int ret = JOptionPane.showConfirmDialog(this,
+                    bundle.getString("ARE_YOU_SURE_QUESTION"), bundle.getString("SAVE_SETTINGS_QUESTION"),
+                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE); // NOI18N
+
+            if (ret == JOptionPane.NO_OPTION) {
+                return;
+            }
+        }
+
+        try {
+            BufferedOutputStream fOut =
+                new BufferedOutputStream(new FileOutputStream(System.getProperty("user.home") + "/JSpeccy.xml"));
+            // create an element for marshalling
+            JAXBElement<JSpeccySettings> confElement =
+                (new ObjectFactory()).createJSpeccySettings(settings);
+
+            // create a Marshaller and marshal to conf. file
+            JAXB.marshal(confElement, fOut);
+            try {
+                fOut.close();
+            } catch (IOException ex) {
+                Logger.getLogger(SettingsDialog.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(SettingsDialog.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_saveSettingsButtonActionPerformed
+
+    private void soundMutedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_soundMutedActionPerformed
+        settings.getSpectrumSettings().setMutedSound(soundMuted.isSelected());
+    }//GEN-LAST:event_soundMutedActionPerformed
+
+    private void loadingNoiseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadingNoiseActionPerformed
+        settings.getSpectrumSettings().setLoadingNoise(loadingNoise.isSelected());
+    }//GEN-LAST:event_loadingNoiseActionPerformed
+
+    private void enabledAY48kActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enabledAY48kActionPerformed
+        settings.getSpectrumSettings().setAYEnabled48K(enabledAY48k.isSelected());
+    }//GEN-LAST:event_enabledAY48kActionPerformed
+
+    private void enableLoadTrapsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enableLoadTrapsActionPerformed
+        settings.getTapeSettings().setEnableLoadTraps(enableLoadTraps.isSelected());
+        flashLoad.setEnabled(settings.getTapeSettings().isEnableLoadTraps());
+    }//GEN-LAST:event_enableLoadTrapsActionPerformed
+
+    private void acceleratedLoadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_acceleratedLoadActionPerformed
+        settings.getTapeSettings().setAccelerateLoading(acceleratedLoad.isSelected());
+    }//GEN-LAST:event_acceleratedLoadActionPerformed
+
+    private void enableSaveTrapsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enableSaveTrapsActionPerformed
+        settings.getTapeSettings().setEnableSaveTraps(enableSaveTraps.isSelected());
+    }//GEN-LAST:event_enableSaveTrapsActionPerformed
+
+    private void lowSamplingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lowSamplingActionPerformed
+        settings.getTapeSettings().setHighSamplingFreq(false);
+    }//GEN-LAST:event_lowSamplingActionPerformed
+
+    private void highSamplingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_highSamplingActionPerformed
+        settings.getTapeSettings().setHighSamplingFreq(true);
+    }//GEN-LAST:event_highSamplingActionPerformed
+
+    private void AYMonoModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AYMonoModeActionPerformed
+        settings.getAY8912Settings().setSoundMode(0);
+    }//GEN-LAST:event_AYMonoModeActionPerformed
+
+    private void AYABCModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AYABCModeActionPerformed
+        settings.getAY8912Settings().setSoundMode(1);
+    }//GEN-LAST:event_AYABCModeActionPerformed
+
+    private void AYACBModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AYACBModeActionPerformed
+        settings.getAY8912Settings().setSoundMode(2);
+    }//GEN-LAST:event_AYACBModeActionPerformed
+
+    private void AYBACModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AYBACModeActionPerformed
+        settings.getAY8912Settings().setSoundMode(3);
+    }//GEN-LAST:event_AYBACModeActionPerformed
+
+    private void multifaceEnabledActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_multifaceEnabledActionPerformed
+        settings.getSpectrumSettings().setMultifaceEnabled(multifaceEnabled.isSelected());
+    }//GEN-LAST:event_multifaceEnabledActionPerformed
+
+    private void multifaceOneRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_multifaceOneRadioButtonActionPerformed
+        settings.getSpectrumSettings().setMf128On48K(multiface128RadioButton.isSelected());
+    }//GEN-LAST:event_multifaceOneRadioButtonActionPerformed
+
+    private void hifiSoundActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hifiSoundActionPerformed
+        settings.getSpectrumSettings().setHifiSound(hifiSound.isSelected());
+    }//GEN-LAST:event_hifiSoundActionPerformed
+
+    private void connectedIF1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectedIF1ActionPerformed
+        settings.getInterface1Settings().setConnectedIF1(connectedIF1.isSelected());
+    }//GEN-LAST:event_connectedIF1ActionPerformed
+
+    private void numDrivesSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_numDrivesSpinnerStateChanged
+        settings.getInterface1Settings().setMicrodriveUnits(
+                ((SpinnerNumberModel)numDrivesSpinner.getModel()).getNumber().byteValue());
+    }//GEN-LAST:event_numDrivesSpinnerStateChanged
+
+    private void cartridgeSizeSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_cartridgeSizeSpinnerStateChanged
+        settings.getInterface1Settings().setCartridgeSize(
+                ((SpinnerNumberModel)cartridgeSizeSpinner.getModel()).getNumber().intValue());
+    }//GEN-LAST:event_cartridgeSizeSpinnerStateChanged
+
+    private void mapPCKeysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mapPCKeysActionPerformed
+        settings.getKeyboardJoystickSettings().setMapPCKeys(mapPCKeys.isSelected());
+    }//GEN-LAST:event_mapPCKeysActionPerformed
+
+    private void flashLoadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_flashLoadActionPerformed
+        settings.getTapeSettings().setFlashLoad(flashLoad.isSelected());
+    }//GEN-LAST:event_flashLoadActionPerformed
+
+    private void autoSaveOnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoSaveOnExitActionPerformed
+        settings.getSpectrumSettings().setHibernateMode(autoSaveOnExit.isSelected());
+    }//GEN-LAST:event_autoSaveOnExitActionPerformed
+
+    private void lecEnabledActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lecEnabledActionPerformed
+        settings.getSpectrumSettings().setLecEnabled(lecEnabled.isSelected());
+    }//GEN-LAST:event_lecEnabledActionPerformed
+
+    private void zoomSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_zoomSliderStateChanged
+        settings.getSpectrumSettings().setZoom(zoomSlider.getValue());
+    }//GEN-LAST:event_zoomSliderStateChanged
+
+    private void zoomCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zoomCheckboxActionPerformed
+        settings.getSpectrumSettings().setZoomed(zoomCheckbox.isSelected());
+    }//GEN-LAST:event_zoomCheckboxActionPerformed
+
+    private void autoLoadTapeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoLoadTapeActionPerformed
+        settings.getTapeSettings().setAutoLoadTape(autoLoadTape.isSelected());
+    }//GEN-LAST:event_autoLoadTapeActionPerformed
+
+    private void confirmActionsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmActionsActionPerformed
+        settings.getEmulatorSettings().setConfirmActions(confirmActions.isSelected());
+    }//GEN-LAST:event_confirmActionsActionPerformed
+
+    private void autosaveConfigOnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autosaveConfigOnExitActionPerformed
+        settings.getEmulatorSettings().setAutosaveConfigOnExit(autosaveConfigOnExit.isSelected());
+    }//GEN-LAST:event_autosaveConfigOnExitActionPerformed
+
+    private void invertedEarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_invertedEarActionPerformed
+        settings.getTapeSettings().setInvertedEar(invertedEar.isSelected());
+    }//GEN-LAST:event_invertedEarActionPerformed
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private JPanel AY8912Panel;
+    private JRadioButton AYABCMode;
+    private JRadioButton AYACBMode;
+    private JRadioButton AYBACMode;
+    private JPanel AYEnabled48k;
+    private JRadioButton AYMonoMode;
+    private JPanel AYStereoMode;
+    private ButtonGroup AYStereoModeButtonGroup;
+    private JPanel IF1PanelTab;
+    private JCheckBox ULAplus;
+    private JCheckBox acceleratedLoad;
+    private JPanel audioPanel;
+    private JCheckBox autoLoadTape;
+    private JCheckBox autoSaveOnExit;
+    private JPanel autoSavePanel;
+    private JCheckBox autosaveConfigOnExit;
+    private JPanel buttonPanel;
+    private JSpinner cartridgeSizeSpinner;
+    private JButton closeButton;
+    private JCheckBox confirmActions;
+    private JCheckBox connectedIF1;
+    private JLabel connectedIF1InfoLabel;
+    private JPanel connectedIF1Panel;
+    private JPanel defaultModelPanel;
+    private JPanel emulatorPanelTab;
+    private JCheckBox enableLoadTraps;
+    private JCheckBox enableSaveTraps;
+    private JCheckBox enabledAY48k;
+    private JCheckBox flashLoad;
+    private JPanel hardwarePanelTab;
+    private JCheckBox hifiSound;
+    private JRadioButton highSampling;
+    private JPanel highSpeedPanel;
+    private JCheckBox invertedEar;
+    private JRadioButton issue2;
+    private JRadioButton issue3;
+    private JLabel jLabel2;
+    private JPanel jPanel1;
+    private JPanel jPanel2;
+    private JPanel jPanel3;
+    private JPanel jPanel4;
+    private JTabbedPane jTabbedPane1;
+    private JComboBox joystick;
+    private JPanel joystickPanel;
+    private JPanel keyboard48kPanel;
+    private ButtonGroup keyboardButtonGroup;
+    private JLabel keyboardIssueInfoLabel;
+    private JPanel keyboardPanelTab;
+    private JCheckBox lecEnabled;
+    private JPanel lecEnabledPanel;
+    private JLabel lecInfoLabel;
+    private JPanel lecInfoPanel;
+    private JPanel lecPanelTab;
+    private JPanel loadPanel;
+    private JCheckBox loadingNoise;
+    private JRadioButton lowSampling;
+    private JPanel mapPCKeyPanel;
+    private JCheckBox mapPCKeys;
+    private JPanel mdrPanel;
+    private JRadioButton multiface128RadioButton;
+    private JCheckBox multifaceEnabled;
+    private ButtonGroup multifaceModelButtonGroup;
+    private JPanel multifaceModelPanel;
+    private JRadioButton multifaceOneRadioButton;
+    private JPanel multifacePanel;
+    private JPanel multifacePanelTab;
+    private JLabel numBlocksInfoLabel;
+    private JPanel numBlocksInfoPanel;
+    private JPanel numBlocksPanel;
+    private JLabel numDrivesLabel;
+    private JPanel numDrivesPanel;
+    private JSpinner numDrivesSpinner;
+    private JLabel numSectorsLabel;
+    private ButtonGroup samplingButtonGroup;
+    private JPanel samplingPanel;
+    private JPanel savePanel;
+    private JButton saveSettingsButton;
+    private JCheckBox soundMuted;
+    private JPanel soundPanelTab;
+    private JComboBox spectrumModel;
+    private JSlider speed;
+    private JPanel tapePanelTab;
+    private JPanel videoPanel;
+    private JCheckBox zoomCheckbox;
+    private JLabel zoomLabel;
+    private JPanel zoomPanel;
+    private JSlider zoomSlider;
+    // End of variables declaration//GEN-END:variables
+
+}

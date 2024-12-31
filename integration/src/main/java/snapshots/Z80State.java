@@ -382,6 +382,10 @@ public class Z80State {
         return modeINT;
     }
 
+    public final int getIM2() {
+        return modeINT.ordinal();
+    }
+
     public final void setIM(IntMode mode) {
         modeINT = mode;
     }

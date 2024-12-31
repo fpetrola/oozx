@@ -90,7 +90,7 @@ public class MemoryImplementation<T extends WordNumber> implements Memory<T> {
 
     int a = address.intValue() & 0xffff;
     data[a] = b;
-    memory.poke8(a, value.intValue());
+//    memory.poke8(a, value.intValue());
     checkTrace(value, a);
   }
 

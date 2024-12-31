@@ -53,7 +53,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   private boolean noRepeat;
   private boolean clone;
   private List<FetchListener> fetchListeners = new ArrayList<>();
-  private int prefetch;
+  private int prefetch= -1;
   private Instruction<T> prefetchedInstruction;
 
 //  {

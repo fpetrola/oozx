@@ -17,6 +17,7 @@
         <module>blocks</module>
         <module>routines</module>
         <module>se</module>
+        <module>sync</module>
     </modules>
 
     <properties>

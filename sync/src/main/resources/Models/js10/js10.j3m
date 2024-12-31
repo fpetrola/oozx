@@ -1,0 +1,13 @@
+Material My Material : Common/MatDefs/Light/Lighting.j3md {
+     MaterialParameters {
+        SpecularMap : Models/js10/js10_texture0.png
+        Shininess : 8
+        NormalMap : Models/js10/js10_texture0.png
+        DiffuseMap : Models/js10/js10_texture0.png
+	    GlowMap : Models/js10/js10_texture0.png
+        UseMaterialColors : true
+        Ambient  : 0.0 0.0 0.0 1.0
+        Diffuse  : 1.0 1.0 1.0 1.0
+        Specular : 1.0 1.0 1.0 1.0
+     }
+}

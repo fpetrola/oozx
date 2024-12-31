@@ -92,14 +92,12 @@ public class Z80B extends RegistersBase implements IZ80 {
     Register<WordNumber> register = z80.getState().getRegister(registerName);
     int result;
 
+    boolean b = registerName.name().length() > 1;
+
     if (register instanceof RegisterPair<WordNumber> wordNumberRegisterPair) {
       result = ((getValueH(wordNumberRegisterPair.getHigh()) & 0xff) << 8) | (getValueH(wordNumberRegisterPair.getLow()) & 0xff);
     } else {
-      WordNumber o = (WordNumber) virtualRegisterFactory.lastValues.get(register);
-      if (o == null)
-        return register.read().intValue();
-      else
-        return o.intValue();
+      return b ? register.read().intValue() & 0xFFFF : register.read().intValue() & 0xFF;
 //      VirtualRegister<WordNumber> l = (VirtualRegister) virtualRegisterFactory.lastVirtualRegisters.get(register);
 //      if (l != null) {
 //        WordNumber read = l.read();

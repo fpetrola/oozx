@@ -199,7 +199,7 @@ public class RegistersBase<T extends WordNumber> extends DefaultRegistersSetter<
     setHalted(state.isHalted());
     setFfIFF1(state.isIFF1());
     setFfIFF2(state.isIFF2());
-    setModeINT(state.getIM().ordinal());
+    setModeINT(state.getIM2());
     setActiveINT(state.isINTLine());
     setPendingEI(state.isPendingEI());
     setActiveNMI(state.isNMI());

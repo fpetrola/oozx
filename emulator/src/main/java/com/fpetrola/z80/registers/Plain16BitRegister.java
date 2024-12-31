@@ -38,7 +38,7 @@ public class Plain16BitRegister<T extends WordNumber> implements Register<T> {
   }
 
   public void write(T value) {
-      this.data = value;
+      this.data = value.and(0xFFFF);
   }
 
   public String toString() {

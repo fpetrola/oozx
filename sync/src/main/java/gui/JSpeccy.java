@@ -1,0 +1,4156 @@
+/*
+ * JSpeccy.java
+ *
+ * Created on 21 de enero de 2008, 14:27
+ */
+
+package gui;
+
+import com.fpetrola.z80.graph.GraphFrame;
+import com.fpetrola.z80.jspeccy.Z80B;
+import configuration.*;
+import gui.CommandLineOptions.BorderSize;
+import machine.Interface1DriveListener;
+import machine.Keyboard.JoystickModel;
+import machine.MachineTypes;
+import machine.Memory;
+import machine.Spectrum;
+import org.exbin.auxiliary.binary_data.ByteArrayEditableData;
+import org.exbin.bined.swing.basic.CodeArea;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import snapshots.*;
+import utilities.Tape;
+import utilities.Tape.TapeState;
+import utilities.TapeBlockListener;
+import utilities.TapeStateListener;
+
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.basic.BasicFileChooserUI;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.xml.bind.*;
+import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author  jsanchez
+ */
+public class JSpeccy extends JFrame
+{
+  private boolean spyEnabled= false;
+
+
+    private Spectrum spectrum;
+    private Tape tape;
+    private JSpeccyScreen jscr;
+    private File currentFileSnapshot, currentDirSaveSnapshot, currentFileTape, currentDirLoadImage, currentDirSaveImage, currentDirRom;
+    private JFileChooser openSnapshotDlg, saveSnapshotDlg, openTapeDlg;
+    private JFileChooser loadImageDlg, saveImageDlg, IF2RomDlg;
+    private File recentFile[]= new File[5];
+    private ListSelectionModel lsm;
+    private JSpeccySettings settings;
+    private SettingsDialog settingsDialog;
+    private MicrodriveDialog microdriveDialog;
+    private LoadSaveMemoryDialog loadSaveMemoryDialog;
+    private FileNameExtensionFilter allSnapTapeExtension, snapshotExtension, saveSnapshotExtension, tapeExtension, createTapeExtension, imageExtension, screenExtension, romExtension;
+    private SpectrumState memorySnapshot;
+    private CommandLineOptions clo;
+
+    Icon mdrOn= new ImageIcon(getClass().getResource("/icons/microdrive_on.png"));
+    Icon mdrOff= new ImageIcon(getClass().getResource("/icons/microdrive_off.png"));
+    Icon tapeStopped= new ImageIcon(getClass().getResource("/icons/Akai24x24.png"));
+    Icon tapePlaying= new ImageIcon(getClass().getResource("/icons/Akai24x24-playing.png"));
+    Icon tapeRecording= new ImageIcon(getClass().getResource("/icons/Akai24x24-recording.png"));
+
+    private final TransferHandler handler= new TransferHandler()
+    {
+	@Override
+	public boolean canImport(TransferSupport support)
+	{
+	    if (!support.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+	    {
+		return false;
+	    }
+
+	    // When spectrum is in acceleratedLoading method, anything can be dropped
+	    if (spectrum.isPaused() && tape.isTapePlaying())
+	    {
+		return false;
+	    }
+
+	    boolean copySupported= (COPY & support.getSourceDropActions()) == COPY;
+
+	    if (!copySupported)
+	    {
+		return false;
+	    }
+
+	    support.setDropAction(COPY);
+
+	    return true;
+	}
+
+	@Override
+	public boolean importData(TransferSupport support)
+	{
+	    if (!canImport(support))
+	    {
+		return false;
+	    }
+
+	    Transferable transfer= support.getTransferable();
+
+	    try
+	    {
+		java.util.List<File> list= (java.util.List<File>) transfer.getTransferData(DataFlavor.javaFileListFlavor);
+
+		if (list.size() != 1)
+		{
+		    return false;
+		}
+
+		for (File file : list)
+		{
+		    if (file.isDirectory())
+			return false;
+
+		    //                    System.out.println("File dropped: " + file.getAbsolutePath());
+		    //                    System.out.println("# selected files: " + list.size());
+		    if (snapshotExtension.accept(file))
+		    {
+			rotateRecentFile(file);
+			if (tape.isTapeRunning())
+			{
+			    tape.stop();
+			}
+			stopEmulation();
+			try
+			{
+			    SnapshotFile snap= SnapshotFactory.getSnapshot(file);
+			    SpectrumState snapState= snap.load(file);
+			    if (snap instanceof SnapshotSZX)
+			    {
+				SnapshotSZX snapSZX= (SnapshotSZX) snap;
+				if (snapSZX.isTapeEmbedded())
+				{
+				    tape.eject();
+				    tape.insertEmbeddedTape(snapSZX.getTapeName(), snapSZX.getTapeExtension(), snapSZX.getTapeData(), snapSZX.getTapeBlock());
+				}
+
+				if (snapSZX.isTapeLinked())
+				{
+				    File tapeLink= new File(snapSZX.getTapeName());
+
+				    if (tapeLink.exists())
+				    {
+					tape.eject();
+					tape.insert(tapeLink);
+					tape.setSelectedBlock(snapSZX.getTapeBlock());
+				    }
+				}
+			    }
+
+			    spectrum.setSpectrumState(snapState);
+			    startEmulation();
+			    break;
+			}
+			catch (SnapshotException excpt)
+			{
+			    JOptionPane.showMessageDialog(getContentPane(), ResourceBundle.getBundle("gui/Bundle").getString(excpt.getMessage()), ResourceBundle.getBundle("gui/Bundle").getString("SNAPSHOT_LOAD_ERROR"), JOptionPane.ERROR_MESSAGE);
+			    startEmulation();
+			}
+		    }
+
+		    if (tapeExtension.accept(file))
+		    {
+			// when a IF2 ROM is loaded, is needed to extract this rom to allow
+			// autoLoadTape work correctly.
+			if (spectrum.getSpectrumModel().codeModel != MachineTypes.CodeModel.SPECTRUMPLUS3 && settings.getTapeSettings().isAutoLoadTape() && extractIF2RomMediaMenu.isEnabled())
+			{
+			    spectrum.ejectIF2Rom();
+			    insertIF2RomMediaMenu.setEnabled(true);
+			    extractIF2RomMediaMenu.setEnabled(false);
+			}
+
+			if (tape.isTapeRunning())
+			{
+			    tape.stop();
+			}
+
+			tape.eject();
+
+			if (tape.insert(file))
+			{
+			    rotateRecentFile(file);
+			    if (settings.getTapeSettings().isAutoLoadTape())
+			    {
+				spectrum.autoLoadTape();
+			    }
+			    break;
+			}
+			else
+			{
+			    ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+			    JOptionPane.showMessageDialog(getContentPane(), bundle.getString("LOAD_TAPE_ERROR"), bundle.getString("LOAD_TAPE_ERROR_TITLE"), JOptionPane.ERROR_MESSAGE);
+			}
+		    }
+
+		    if (romExtension.accept(file))
+		    {
+			if (tape.isTapeRunning())
+			{
+			    tape.stop();
+			}
+			stopEmulation();
+
+			if (spectrum.getSpectrumModel() != MachineTypes.SPECTRUM48K)
+			{
+			    spectrum.selectHardwareModel(MachineTypes.SPECTRUM48K);
+			}
+
+			spectrum.reset();
+
+			if (spectrum.insertIF2Rom(file))
+			{
+			    insertIF2RomMediaMenu.setEnabled(false);
+			    extractIF2RomMediaMenu.setEnabled(true);
+			}
+			else
+			{
+			    ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+			    JOptionPane.showMessageDialog(getContentPane(), bundle.getString("LOAD_ROM_ERROR"), bundle.getString("LOAD_ROM_ERROR_TITLE"), JOptionPane.ERROR_MESSAGE);
+			}
+
+			startEmulation();
+			break;
+		    }
+
+		    if (screenExtension.accept(file))
+		    {
+			if (!spectrum.loadScreen(file))
+			{
+			    ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+			    JOptionPane.showMessageDialog(getContentPane(), bundle.getString("LOAD_SCREEN_ERROR"), bundle.getString("LOAD_SCREEN_ERROR_TITLE"), JOptionPane.ERROR_MESSAGE);
+			}
+			spectrum.invalidateScreen(true);
+			break;
+		    }
+
+		    if (file.getName().toLowerCase().endsWith(".bin"))
+		    {
+			if (loadSaveMemoryDialog == null)
+			{
+			    loadSaveMemoryDialog= new LoadSaveMemoryDialog(spectrum.getMemory());
+			}
+
+			stopEmulation();
+			loadSaveMemoryDialog.showLoadDialog(getContentPane(), file);
+			startEmulation();
+			break;
+		    }
+		}
+	    }
+	    catch (UnsupportedFlavorException | IOException e)
+	    {
+		return false;
+	    }
+
+	    return true;
+	}
+    };
+	private GraphFrame graphFrame;
+
+    /** Creates new form JSpeccy
+     * @param args 
+     * @param graphFrame */
+    public JSpeccy(final String args[], GraphFrame graphFrame)
+    {
+	//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+	//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+	//         */
+	//        try {
+	//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+	//                if ("Nimbus".equals(info.getName())) {
+	//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+	//                    break;
+	//                }
+	//            }
+	//        } catch (ClassNotFoundException ex) {
+	//            java.util.logging.Logger.getLogger(JSpeccy.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+	//        } catch (InstantiationException ex) {
+	//            java.util.logging.Logger.getLogger(JSpeccy.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+	//        } catch (IllegalAccessException ex) {
+	//            java.util.logging.Logger.getLogger(JSpeccy.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+	//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+	//            java.util.logging.Logger.getLogger(JSpeccy.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+	//        }
+
+	this.graphFrame = graphFrame;
+	if (UIManager.getLookAndFeel().getName().equals("Metal"))
+	{
+	    try
+	    {
+		// turn off bold fonts
+		UIManager.put("swing.boldMetal", Boolean.FALSE);
+		// re-install the Metal Look and Feel
+		UIManager.setLookAndFeel(new MetalLookAndFeel());
+		// Update the ComponentUIs for all Components. This
+		// needs to be invoked for all windows.
+		SwingUtilities.updateComponentTreeUI(this);
+	    }
+	    catch (UnsupportedLookAndFeelException ex)
+	    {
+		Logger.getLogger(JSpeccy.class.getName()).log(Level.SEVERE, null, ex);
+	    }
+	}
+
+	readSettingsFile();
+	if (args.length > 0)
+	{
+	    //            System.out.println("#args: " + args.length);
+	    if (!readArguments(args))
+	    {
+		System.exit(1);
+	    }
+	    //            System.out.println("# args remain: " + clo.getArguments().size());
+	    if (args.length > 1 || clo.getArguments().size() != 1)
+	    {
+		clo.copyArgumentsToSettings();
+	    }
+	}
+
+	initComponents();
+	setTransferHandler(handler);
+	initEmulator();
+
+	if (clo != null)
+	{
+	    if (clo.isIf1() && clo.getIf1mdv() != null)
+	    {
+		spectrum.getInterface1().insertFile(0, clo.getIf1mdv());
+	    }
+
+	    if (clo.getArguments().size() == 1)
+	    {
+		File file= new File(clo.getArguments().get(0));
+		if (snapshotExtension.accept(file))
+		{
+		    rotateRecentFile(file);
+		    try
+		    {
+			SnapshotFile snap= SnapshotFactory.getSnapshot(file);
+			SpectrumState snapState= snap.load(file);
+			if (snap instanceof SnapshotSZX)
+			{
+			    SnapshotSZX snapSZX= (SnapshotSZX) snap;
+			    if (snapSZX.isTapeEmbedded())
+			    {
+				tape.eject();
+				tape.insertEmbeddedTape(snapSZX.getTapeName(), snapSZX.getTapeExtension(), snapSZX.getTapeData(), snapSZX.getTapeBlock());
+			    }
+
+			    if (snapSZX.isTapeLinked())
+			    {
+				File tapeLink= new File(snapSZX.getTapeName());
+
+				if (tapeLink.exists())
+				{
+				    tape.eject();
+				    tape.insert(tapeLink);
+				    tape.setSelectedBlock(snapSZX.getTapeBlock());
+				}
+			    }
+			}
+
+			spectrum.setSpectrumState(snapState);
+		    }
+		    catch (SnapshotException excpt)
+		    {
+			JOptionPane.showMessageDialog(getContentPane(), ResourceBundle.getBundle("gui/Bundle").getString(excpt.getMessage()), ResourceBundle.getBundle("gui/Bundle").getString("SNAPSHOT_LOAD_ERROR"), JOptionPane.ERROR_MESSAGE);
+		    }
+		}
+
+		if (tapeExtension.accept(file))
+		{
+		    if (tape.insert(file))
+		    {
+			rotateRecentFile(file);
+			if (settings.getTapeSettings().isAutoLoadTape())
+			{
+			    spectrum.autoLoadTape();
+			}
+		    }
+		    else
+		    {
+			ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+			JOptionPane.showMessageDialog(getContentPane(), bundle.getString("LOAD_TAPE_ERROR"), bundle.getString("LOAD_TAPE_ERROR_TITLE"), JOptionPane.ERROR_MESSAGE);
+		    }
+		}
+
+		if (romExtension.accept(file))
+		{
+		    if (spectrum.getSpectrumModel().codeModel == MachineTypes.CodeModel.SPECTRUMPLUS3)
+		    {
+			spectrum.selectHardwareModel(MachineTypes.SPECTRUM48K);
+		    }
+
+		    if (spectrum.insertIF2Rom(file))
+		    {
+			insertIF2RomMediaMenu.setEnabled(false);
+			extractIF2RomMediaMenu.setEnabled(true);
+			spectrum.reset();
+		    }
+		    else
+		    {
+			ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+			JOptionPane.showMessageDialog(getContentPane(), bundle.getString("LOAD_ROM_ERROR"), bundle.getString("LOAD_ROM_ERROR_TITLE"), JOptionPane.ERROR_MESSAGE);
+		    }
+		}
+	    }
+	}
+
+	startEmulation();
+    }
+
+    private boolean readArguments(String args[])
+    {
+	clo= new CommandLineOptions(settings);
+	CmdLineParser parser= new CmdLineParser(clo);
+	ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+	Writer out= new BufferedWriter(new OutputStreamWriter(System.err));
+
+	// if you have a wider console, you could increase the value;
+	// here 80 is also the default
+	//        parser.setUsageWidth(80);
+
+	try
+	{
+	    // parse the arguments.
+	    parser.parseArgument(args);
+
+	    // after parsing arguments, you should check
+	    // if enough arguments are given.
+	    //            if( clo.getArguments().isEmpty() )
+	    //                throw new CmdLineException(parser,"No argument is given");
+
+	    if (clo.isPrintUsage())
+	    {
+		System.err.println(bundle.getString("JSpeccy.usage.sample.text"));
+		System.err.println("");
+		System.err.println(bundle.getString("JSpeccy.usage.header.text"));
+		parser.printUsage(out, bundle);
+		return false;
+	    }
+	    return true;
+
+	    //            clo.copyArgumentsToSettings();
+
+	}
+	catch (CmdLineException excpt)
+	{
+	    // if there's a problem in the command line,
+	    // you'll get this exception. this will report
+	    // an error message.
+	    System.err.println(excpt.getMessage());
+	    System.err.println(bundle.getString("JSpeccy.usage.sample.text"));
+	    System.err.println("");
+	    // print the list of available options
+	    System.err.println(bundle.getString("JSpeccy.usage.header.text"));
+	    parser.printUsage(out, bundle);
+	    System.err.println();
+
+	    return false;
+	}
+    }
+
+    private void verifyConfigFile(boolean deleteFile)
+    {
+	File file= new File(System.getProperty("user.home") + "/JSpeccy.xml");
+	if (file.exists() && !deleteFile)
+	{
+	    return;
+	}
+
+	if (deleteFile)
+	{
+	    if (!file.delete())
+	    {
+		System.out.println("Can't delete the bad JSpeccy.xml");
+	    }
+	}
+
+	// Si el archivo de configuración no existe, lo crea de nuevo en el
+	// directorio actual copiándolo del bueno que hay siempre en el .jar
+	InputStream input= null;
+	BufferedOutputStream output= null;
+	try
+	{
+	    input= Spectrum.class.getResourceAsStream("/schema/JSpeccy.xml");
+	    output= new BufferedOutputStream(new FileOutputStream(System.getProperty("user.home") + "/JSpeccy.xml"));
+
+	    byte[] fileConf= new byte[input.available()];
+	    input.read(fileConf);
+	    output.write(fileConf, 0, fileConf.length);
+	}
+	catch (FileNotFoundException notFoundExcpt)
+	{
+	    Logger.getLogger(JSpeccy.class.getName()).log(Level.SEVERE, null, notFoundExcpt);
+	}
+	catch (IOException ioExcpt)
+	{
+	    Logger.getLogger(JSpeccy.class.getName()).log(Level.SEVERE, null, ioExcpt);
+	}
+	finally
+	{
+	    try
+	    {
+		if (input != null)
+		{
+		    input.close();
+		}
+
+		if (output != null)
+		{
+		    output.close();
+		}
+	    }
+	    catch (IOException ex)
+	    {
+		Logger.getLogger(JSpeccy.class.getName()).log(Level.SEVERE, null, ex);
+	    }
+	}
+    }
+
+    private void readSettingsFile()
+    {
+	//verifyConfigFile(false);
+
+	boolean readed= true;
+	try
+	{
+	    // create a JAXBContext capable of handling classes generated into
+	    // the configuration package
+	    JAXBContext jc= JAXBContext.newInstance("configuration");
+
+//	    // create an Unmarshaller
+//	    Unmarshaller unmsh= jc.createUnmarshaller();
+//
+//	    // unmarshal a po instance document into a tree of Java content
+//	    // objects composed of classes from the configuration package.
+//	    JAXBElement<?> settingsElement= (JAXBElement<?>) unmsh.unmarshal(new FileInputStream(System.getProperty("user.home") + "/JSpeccy.xml"));
+//
+//	    settings= (JSpeccySettings) settingsElement.getValue();
+	    
+	    createSettings();
+	}
+	catch (JAXBException jexcpt)
+	{
+	    System.out.println("Something during unmarshalling go very bad!");
+	    readed= false;
+	}
+	catch (Exception ioexcpt)
+	{
+	    System.out.println("Can't open the JSpeccy.xml configuration file");
+	    createSettings();
+	}
+
+	if (readed)
+	    return;
+
+	System.out.println("Trying to create a new one JSpeccy.xml for you");
+
+	verifyConfigFile(true);
+	try
+	{
+	    // create a JAXBContext capable of handling classes generated into
+	    // the configuration package
+	    JAXBContext jc= JAXBContext.newInstance("configuration");
+
+	    // create an Unmarshaller
+	    Unmarshaller unmsh= jc.createUnmarshaller();
+
+	    // unmarshal a po instance document into a tree of Java content
+	    // objects composed of classes from the configuration package.
+	    JAXBElement<?> settingsElement= (JAXBElement<?>) unmsh.unmarshal(new FileInputStream(System.getProperty("user.home") + "/JSpeccy.xml"));
+
+	    settings= (JSpeccySettings) settingsElement.getValue();
+	}
+	catch (JAXBException jexcpt)
+	{
+	    System.out.println("Something go very very badly with unmarshalling!");
+	}
+	catch (FileNotFoundException ioexcpt)
+	{
+	    System.out.println("Can't open the JSpeccy.xml configuration file anyway");
+	    System.exit(0);
+	}
+
+    }
+
+	private void createSettings() {
+		settings= new JSpeccySettings();
+        EmulatorSettingsType value = new EmulatorSettingsType();
+		settings.setEmulatorSettings(value);
+		SpectrumType value2 = new SpectrumType();
+		value2.setFramesInt(20);
+		value2.setMutedSound(true);
+		value2.setBorderSize(BorderSize.STANDARD.ordinal());
+		settings.setSpectrumSettings(value2);
+		MemoryType value3 = new MemoryType();
+		value3.setRomsDirectory("");
+		value3.setRom48K("spectrum.rom");
+		settings.setMemorySettings(value3);
+		settings.setInterface1Settings(new Interface1Type());
+		KeyboardJoystickType joystick = new KeyboardJoystickType();
+		joystick.setJoystickModel(JoystickModel.KEMPSTON.ordinal());
+    settings.setKeyboardJoystickSettings(joystick);
+		settings.setTapeSettings(new TapeSettingsType());
+		settings.setAY8912Settings(new AY8912Type());
+		RecentFilesType value4 = new RecentFilesType();
+    value4.setRecentFile0("/home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80");
+    value4.setRecentFile1("/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
+    value4.setRecentFile2("/home/fernando/detodo/desarrollo/m/zx/roms/tge.z80");
+		settings.setRecentFilesSettings(value4);
+	}
+
+    private void saveRecentFiles()
+    {
+	if (!settings.getEmulatorSettings().isAutosaveConfigOnExit())
+	{
+	    try
+	    {
+		// create a JAXBContext capable of handling classes generated into
+		// the configuration package
+		JAXBContext jc= JAXBContext.newInstance("configuration");
+
+		// create an Unmarshaller
+		Unmarshaller unmsh= jc.createUnmarshaller();
+
+		// unmarshal a po instance document into a tree of Java content
+		// objects composed of classes from the configuration package.
+		JAXBElement<?> settingsElement= (JAXBElement<?>) unmsh.unmarshal(new FileInputStream(System.getProperty("user.home") + "/JSpeccy.xml"));
+
+		settings= (JSpeccySettings) settingsElement.getValue();
+	    }
+	    catch (JAXBException jexcpt)
+	    {
+		System.out.println("Something during unmarshalling go very bad!");
+	    }
+	    catch (FileNotFoundException ioexcpt)
+	    {
+		System.out.println("Can't open the JSpeccy.xml configuration file");
+	    }
+	}
+
+	if (recentFile[0] != null)
+	    settings.getRecentFilesSettings().setRecentFile0(recentFile[0].getAbsolutePath());
+	if (recentFile[1] != null)
+	    settings.getRecentFilesSettings().setRecentFile1(recentFile[1].getAbsolutePath());
+	if (recentFile[2] != null)
+	    settings.getRecentFilesSettings().setRecentFile2(recentFile[2].getAbsolutePath());
+	if (recentFile[3] != null)
+	    settings.getRecentFilesSettings().setRecentFile3(recentFile[3].getAbsolutePath());
+	if (recentFile[4] != null)
+	    settings.getRecentFilesSettings().setRecentFile4(recentFile[4].getAbsolutePath());
+	if (currentFileSnapshot != null)
+	    settings.getRecentFilesSettings().setLastSnapshotDir(currentFileSnapshot.getParent());
+	if (currentFileTape != null)
+	    settings.getRecentFilesSettings().setLastTapeDir(currentFileTape.getParent());
+
+	if (clo == null)
+	{
+	    int filterM= 0, zoomM= 0;
+
+	    if (palTvFilter.isSelected())
+	    {
+		filterM= 1;
+	    }
+
+	    if (rgbFilter.isSelected())
+	    {
+		filterM= 2;
+	    }
+
+	    if (bilinearZoom.isSelected())
+	    {
+		zoomM= 1;
+	    }
+
+	    if (bicubicZoom.isSelected())
+	    {
+		zoomM= 2;
+	    }
+
+	    settings.getSpectrumSettings().setZoomMethod(zoomM);
+	    settings.getSpectrumSettings().setFilterMethod(filterM);
+	    settings.getSpectrumSettings().setScanLines(scanlinesFilter.isSelected());
+
+	    settings.getSpectrumSettings().setBorderSize(jscr.getBorderMode());
+
+	    settings.getSpectrumSettings().setZoomed(jscr.isZoomed());
+	}
+
+			extracted();
+		}
+
+	private void extracted() {
+		try
+		{
+				BufferedOutputStream fOut= new BufferedOutputStream(new FileOutputStream(System.getProperty("user.home") + "/JSpeccy.xml"));
+				// create an element for marshalling
+				JAXBElement<JSpeccySettings> confElement= (new ObjectFactory()).createJSpeccySettings(settings);
+
+				// create a Marshaller and marshal to conf. file
+				JAXB.marshal(confElement, fOut);
+				try
+				{
+			fOut.close();
+				}
+				catch (IOException ex)
+				{
+			Logger.getLogger(SettingsDialog.class.getName()).log(Level.SEVERE, null, ex);
+				}
+		}
+		catch (FileNotFoundException ex)
+		{
+				Logger.getLogger(SettingsDialog.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	}
+
+	private void initEmulator()
+    {
+
+	//        readSettingsFile();
+      createSettings();
+
+	spectrum= new Spectrum(settings, graphFrame);
+
+	spectrum.selectHardwareModel(settings.getSpectrumSettings().getDefaultModel());
+  spectrum.z80.update();
+
+	spectrum.setJoystick(settings.getKeyboardJoystickSettings().getJoystickModel());
+
+	spectrum.setBorderMode(settings.getSpectrumSettings().getBorderSize());
+
+	spectrum.loadConfigVars();
+
+	tape= new Tape(settings.getTapeSettings());
+	spectrum.setTape(tape);
+	jscr= new JSpeccyScreen();
+	spectrum.setScreenComponent(jscr);
+
+	jscr.setTvImage(spectrum.getTvImage());
+	jscr.setBorderMode(settings.getSpectrumSettings().getBorderSize());
+	spectrum.setSpeedLabel(speedLabel);
+	tapeCatalog.setModel(tape.getTapeTableModel());
+	tapeCatalog.getColumnModel().getColumn(0).setMaxWidth(150);
+	lsm= tapeCatalog.getSelectionModel();
+	
+	lsm.addListSelectionListener(new ListSelectionListener()
+	{
+
+	    @Override
+	    public void valueChanged(ListSelectionEvent event)
+	    {
+
+		if (!event.getValueIsAdjusting() && event.getLastIndex() != -1)
+		{
+		    tape.setSelectedBlock(lsm.getLeadSelectionIndex());
+		}
+	    }
+	});
+
+	tape.addTapeChangedListener(new TapeChangedListener());
+	tape.addTapeBlockListener(new TapeBlockListener()
+	{
+
+	    @Override
+	    public void blockChanged(int block)
+	    {
+		lsm.setSelectionInterval(block, block);
+	    }
+	});
+
+	spectrum.getInterface1().addInterface1DriveListener(new Interface1DriveListener()
+	{
+
+	    @Override
+	    public void driveSelected(int unit)
+	    {
+		if (unit == 0)
+		{
+		    mdrvLabel.setIcon(mdrOff);
+		    mdrvLabel.setToolTipText(ResourceBundle.getBundle("gui/Bundle").getString("MICRODRIVES_STOPPED"));
+		}
+		else
+		{
+		    mdrvLabel.setIcon(mdrOn);
+		    mdrvLabel.setToolTipText(String.format(ResourceBundle.getBundle("gui/Bundle").getString("MICRODRIVE_RUNNING"), unit));
+		}
+	    }
+
+	    @Override
+	    public void driveModified(int drive)
+	    {
+		// Nothing to do
+	    }
+	});
+
+	getContentPane().add(jscr, BorderLayout.CENTER);
+	pack();
+	addKeyListener(spectrum.getKeyboard());
+
+	if (settings.getSpectrumSettings().isMutedSound())
+	{
+	    silenceMachineMenu.setSelected(true);
+	    silenceSoundToggleButton.setSelected(true);
+	}
+
+	int zoom= settings.getSpectrumSettings().getZoom();
+	if (zoom < 2 || zoom > 4)
+	{
+	    zoom= 2;
+	    settings.getSpectrumSettings().setZoom(zoom);
+	}
+
+	if (settings.getSpectrumSettings().isZoomed())
+	{
+	    jscr.setZoom(zoom);
+	    doubleSizeOption.setSelected(true);
+	    doubleSizeToggleButton.setSelected(true);
+	}
+	else
+	{
+	    jscr.setZoom(2);
+	    doubleSizeOption.setSelected(false);
+	    doubleSizeToggleButton.setSelected(false);
+	}
+
+	pack();
+
+//  showSpritesWindow();
+
+	if (settings.getRecentFilesSettings().getRecentFile0() != null && !settings.getRecentFilesSettings().getRecentFile0().isEmpty())
+	{
+	    recentFile[0]= new File(settings.getRecentFilesSettings().getRecentFile0());
+	    recentFileMenu0.setText(recentFile[0].getName());
+	    recentFileMenu0.setToolTipText(recentFile[0].getAbsolutePath());
+	    recentFileMenu0.setEnabled(true);
+	}
+
+	if (settings.getRecentFilesSettings().getRecentFile1() != null && !settings.getRecentFilesSettings().getRecentFile1().isEmpty())
+	{
+	    recentFile[1]= new File(settings.getRecentFilesSettings().getRecentFile1());
+	    recentFileMenu1.setText(recentFile[1].getName());
+	    recentFileMenu1.setToolTipText(recentFile[1].getAbsolutePath());
+	    recentFileMenu1.setEnabled(true);
+	}
+
+	if (settings.getRecentFilesSettings().getRecentFile2() != null && !settings.getRecentFilesSettings().getRecentFile2().isEmpty())
+	{
+	    recentFile[2]= new File(settings.getRecentFilesSettings().getRecentFile2());
+	    recentFileMenu2.setText(recentFile[2].getName());
+	    recentFileMenu2.setToolTipText(recentFile[2].getAbsolutePath());
+	    recentFileMenu2.setEnabled(true);
+	}
+
+	if (settings.getRecentFilesSettings().getRecentFile3() != null && !settings.getRecentFilesSettings().getRecentFile3().isEmpty())
+	{
+	    recentFile[3]= new File(settings.getRecentFilesSettings().getRecentFile3());
+	    recentFileMenu3.setText(recentFile[3].getName());
+	    recentFileMenu3.setToolTipText(recentFile[3].getAbsolutePath());
+	    recentFileMenu3.setEnabled(true);
+	}
+
+	if (settings.getRecentFilesSettings().getRecentFile4() != null && !settings.getRecentFilesSettings().getRecentFile4().isEmpty())
+	{
+	    recentFile[4]= new File(settings.getRecentFilesSettings().getRecentFile4());
+	    recentFileMenu4.setText(recentFile[4].getName());
+	    recentFileMenu4.setToolTipText(recentFile[4].getAbsolutePath());
+	    recentFileMenu4.setEnabled(true);
+	}
+
+	settingsDialog= new SettingsDialog(settings);
+
+	ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+	allSnapTapeExtension= new FileNameExtensionFilter(bundle.getString("SNAPSHOT_TAPE_TYPE"), "sna", "z80", "szx", "sp", "tap", "tzx", "csw");
+	snapshotExtension= new FileNameExtensionFilter(bundle.getString("SNAPSHOT_TYPE"), "sna", "z80", "szx", "sp");
+	saveSnapshotExtension= new FileNameExtensionFilter(bundle.getString("SAVE_SNAPSHOT_TYPE"), "sna", "z80", "szx");
+	tapeExtension= new FileNameExtensionFilter(bundle.getString("TAPE_TYPE"), "tap", "tzx", "csw");
+	createTapeExtension= new FileNameExtensionFilter(bundle.getString("SAVE_TAPE_TYPE"), "tap", "tzx");
+	imageExtension= new FileNameExtensionFilter(bundle.getString("IMAGE_TYPE"), "scr", "png");
+	screenExtension= new FileNameExtensionFilter(bundle.getString("SCR_TYPE"), "scr");
+	romExtension= new FileNameExtensionFilter(bundle.getString("ROM_TYPE"), "rom");
+
+	if (settings.getSpectrumSettings().isHibernateMode())
+	{
+	    File autoload= new File(System.getProperty("user.home") + "/JSpeccy.szx");
+	    if (autoload.exists())
+	    {
+		SnapshotSZX snapSZX= new SnapshotSZX();
+		try
+		{
+		    spectrum.setSpectrumState(snapSZX.load(autoload));
+
+		    if (snapSZX.isTapeLinked())
+		    {
+			File tapeLink= new File(snapSZX.getTapeName());
+
+			if (tapeLink.exists())
+			{
+			    tape.eject();
+			    tape.insert(tapeLink);
+			    tape.setSelectedBlock(snapSZX.getTapeBlock());
+			}
+		    }
+		}
+		catch (SnapshotException ex)
+		{
+		    JOptionPane.showMessageDialog(this, ResourceBundle.getBundle("gui/Bundle").getString("HIBERNATE_IMAGE_ERROR"), ResourceBundle.getBundle("gui/Bundle").getString("HIBERNATE_LOAD_ERROR"), JOptionPane.ERROR_MESSAGE);
+		}
+	    }
+	}
+
+	switch (settings.getSpectrumSettings().getZoomMethod())
+	{
+	    case 1: // Bilineal
+		jscr.setInterpolationMethod(RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		bilinearZoom.setSelected(true);
+		break;
+	    case 2: // Bicubic
+		jscr.setInterpolationMethod(RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+		bicubicZoom.setSelected(true);
+		break;
+	    default:
+		jscr.setInterpolationMethod(RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+		standardZoom.setSelected(true);
+	}
+
+	jscr.setScanlinesFilter(settings.getSpectrumSettings().isScanLines());
+	scanlinesFilter.setSelected(settings.getSpectrumSettings().isScanLines());
+
+	switch (settings.getSpectrumSettings().getFilterMethod())
+	{
+	    case 1: // PAL TV
+		jscr.setPalFilter(true);
+		palTvFilter.setSelected(true);
+		break;
+	    case 2: // RGB
+		jscr.setRgbFilter(true);
+		rgbFilter.setSelected(true);
+		scanlinesFilter.setEnabled(false);
+		break;
+	    default:
+		jscr.setAnyFilter(settings.getSpectrumSettings().isScanLines());
+		noneFilter.setSelected(true);
+	}
+
+	updateGuiSelections();
+
+	new Thread(spectrum, "SpectrumThread").start();
+    }
+
+    private void exitEmulator()
+    {
+	String msg;
+	int dialogType;
+
+	ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+
+	stopEmulation();
+	if (spectrum.getInterface1().hasDirtyCartridges())
+	{
+	    msg= bundle.getString("DIRTY_CARTRIDGES_WARNING");
+	    dialogType= JOptionPane.WARNING_MESSAGE;
+	}
+	else
+	{
+	    msg= bundle.getString("ARE_YOU_SURE_QUESTION");
+	    dialogType= JOptionPane.QUESTION_MESSAGE;
+	}
+
+	if (settings.getEmulatorSettings().isConfirmActions() || dialogType == JOptionPane.WARNING_MESSAGE)
+	{
+	    int ret= JOptionPane.showConfirmDialog(getContentPane(), msg, bundle.getString("QUIT_JSPECCY"), JOptionPane.OK_CANCEL_OPTION, dialogType); // NOI18N
+
+	    if (ret == JOptionPane.CANCEL_OPTION)
+	    {
+		startEmulation();
+		return;
+	    }
+	}
+
+	if (tape.isTapeRunning())
+	{
+	    tape.stop();
+	}
+
+	if (settings.getSpectrumSettings().isHibernateMode())
+	{
+	    SnapshotSZX snapSZX= new SnapshotSZX();
+	    if (tape.getTapeFilename() != null)
+	    {
+		snapSZX.setTapeLinked(true);
+		snapSZX.setTapeName(tape.getTapeFilename().getAbsolutePath());
+		snapSZX.setTapeBlock(tape.getSelectedBlock());
+	    }
+
+	    try
+	    {
+		snapSZX.save(new File(System.getProperty("user.home") + "/JSpeccy.szx"), spectrum.getSpectrumState());
+	    }
+	    catch (SnapshotException ex)
+	    {
+		JOptionPane.showMessageDialog(this, ResourceBundle.getBundle("gui/Bundle").getString("HIBERNATE_SAVE_ERROR"), ResourceBundle.getBundle("gui/Bundle").getString("SNAPSHOT_SAVE_ERROR"), JOptionPane.ERROR_MESSAGE);
+	    }
+	}
+
+	saveRecentFiles(); // debe ser lo último que se hace antes de salir!!!
+	dispose();
+	System.exit(0);
+    }
+
+    private void rotateRecentFile(File lastname)
+    {
+
+	for (int idx= 0; idx < 5; idx++)
+	{
+	    if (recentFile[idx] != null && lastname.getAbsolutePath().equals(recentFile[idx].getAbsolutePath()))
+		return;
+	}
+
+	recentFile[4]= recentFile[3];
+	recentFile[3]= recentFile[2];
+	recentFile[2]= recentFile[1];
+	recentFile[1]= recentFile[0];
+	recentFile[0]= lastname;
+
+	if (recentFile[0] != null && !recentFile[0].getName().isEmpty())
+	{
+	    recentFileMenu0.setText(recentFile[0].getName());
+	    recentFileMenu0.setToolTipText(recentFile[0].getAbsolutePath());
+	    recentFileMenu0.setEnabled(true);
+	    settings.getRecentFilesSettings().setRecentFile0(recentFile[0].getAbsolutePath());
+	}
+
+	if (recentFile[1] != null && !recentFile[1].getName().isEmpty())
+	{
+	    recentFileMenu1.setText(recentFile[1].getName());
+	    recentFileMenu1.setToolTipText(recentFile[1].getAbsolutePath());
+	    recentFileMenu1.setEnabled(true);
+	    settings.getRecentFilesSettings().setRecentFile1(recentFile[1].getAbsolutePath());
+	}
+
+	if (recentFile[2] != null && !recentFile[2].getName().isEmpty())
+	{
+	    recentFileMenu2.setText(recentFile[2].getName());
+	    recentFileMenu2.setToolTipText(recentFile[2].getAbsolutePath());
+	    recentFileMenu2.setEnabled(true);
+	    settings.getRecentFilesSettings().setRecentFile2(recentFile[2].getAbsolutePath());
+	}
+
+	if (recentFile[3] != null && !recentFile[3].getName().isEmpty())
+	{
+	    recentFileMenu3.setText(recentFile[3].getName());
+	    recentFileMenu3.setToolTipText(recentFile[3].getAbsolutePath());
+	    recentFileMenu3.setEnabled(true);
+	    settings.getRecentFilesSettings().setRecentFile3(recentFile[3].getAbsolutePath());
+	}
+
+	if (recentFile[4] != null && !recentFile[4].getName().isEmpty())
+	{
+	    recentFileMenu4.setText(recentFile[4].getName());
+	    recentFileMenu4.setToolTipText(recentFile[4].getAbsolutePath());
+	    recentFileMenu4.setEnabled(true);
+	    settings.getRecentFilesSettings().setRecentFile4(recentFile[4].getAbsolutePath());
+	}
+    }
+
+    private void updateGuiSelections()
+    {
+
+	if (spectrum.getSpectrumModel().codeModel != MachineTypes.CodeModel.SPECTRUMPLUS3)
+	{
+	    if (settings.getInterface1Settings().isConnectedIF1())
+	    {
+		IF1MediaMenu.setEnabled(true);
+		mdrvLabel.setEnabled(true);
+		mdrvLabel.setIcon(mdrOff);
+		mdrvLabel.setToolTipText(ResourceBundle.getBundle("gui/Bundle").getString("MICRODRIVES_STOPPED"));
+	    }
+	    else
+	    {
+		IF1MediaMenu.setEnabled(false);
+		mdrvLabel.setEnabled(false);
+		mdrvLabel.setToolTipText(null);
+	    }
+
+	    IF2MediaMenu.setEnabled(true);
+	    insertIF2RomMediaMenu.setEnabled(!spectrum.isIF2RomInserted());
+	    extractIF2RomMediaMenu.setEnabled(spectrum.isIF2RomInserted());
+	}
+	else
+	{
+	    IF1MediaMenu.setEnabled(false);
+	    IF2MediaMenu.setEnabled(false);
+	    mdrvLabel.setEnabled(false);
+	    mdrvLabel.setToolTipText(null);
+	}
+
+	switch (spectrum.getSpectrumModel())
+	{
+	    case SPECTRUM16K:
+		spec16kHardware.setSelected(true);
+		break;
+	    case SPECTRUM48K:
+		spec48kHardware.setSelected(true);
+		break;
+	    case SPECTRUM128K:
+		spec128kHardware.setSelected(true);
+		break;
+	    case SPECTRUMPLUS2:
+		specPlus2Hardware.setSelected(true);
+		break;
+	    case SPECTRUMPLUS2A:
+		specPlus2AHardware.setSelected(true);
+		IF2MediaMenu.setEnabled(false);
+		break;
+	    case SPECTRUMPLUS3:
+		specPlus3Hardware.setSelected(true);
+		IF2MediaMenu.setEnabled(false);
+		break;
+	}
+
+	modelLabel.setToolTipText(spectrum.getSpectrumModel().getLongModelName());
+	modelLabel.setText(spectrum.getSpectrumModel().getShortModelName());
+
+	switch (spectrum.getJoystick())
+	{
+	    case KEMPSTON:
+		kempstonJoystick.setSelected(true);
+		break;
+	    case SINCLAIR1:
+		sinclair1Joystick.setSelected(true);
+		break;
+	    case SINCLAIR2:
+		sinclair2Joystick.setSelected(true);
+		break;
+	    case CURSOR:
+		cursorJoystick.setSelected(true);
+		break;
+	    case FULLER:
+		fullerJoystick.setSelected(true);
+		break;
+	    default:
+		noneJoystick.setSelected(true);
+	}
+
+	if (settings.getSpectrumSettings().isULAplus())
+	{
+	    if (jscr.isPalFilter())
+	    {
+		noneFilter.setSelected(true);
+		jscr.setAnyFilter(false);
+		scanlinesFilter.setEnabled(true);
+		jscr.setScanlinesFilter(scanlinesFilter.isSelected());
+		jscr.repaint();
+	    }
+	    palTvFilter.setEnabled(false);
+	}
+	else
+	{
+	    palTvFilter.setEnabled(true);
+	}
+
+	switch (jscr.getBorderMode())
+	{
+	    case 0:
+		noBorder.setSelected(true);
+		break;
+	    case 2:
+		fullBorder.setSelected(true);
+		break;
+	    case 3:
+		hugeBorder.setSelected(true);
+		break;
+	    default:
+		standardBorder.setSelected(true);
+	}
+    }
+
+    private void startEmulation()
+    {
+
+	if (pauseToggleButton.isSelected())
+	{
+	    return;
+	}
+
+	speedLabel.setForeground(Color.black);
+	updateGuiSelections();
+	spectrum.startEmulation();
+    }
+
+    private void stopEmulation()
+    {
+
+	if (spectrum.isPaused())
+	{
+	    return;
+	}
+
+	spectrum.stopEmulation();
+
+	speedLabel.setForeground(Color.red);
+	speedLabel.setText("STOP");
+
+	updateGuiSelections();
+    }
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents()
+    {
+
+	keyboardHelper= new JDialog(this);
+	keyboardImage= new JLabel();
+	closeKeyboardHelper= new JButton();
+	joystickButtonGroup= new ButtonGroup();
+	hardwareButtonGroup= new ButtonGroup();
+	tapeBrowserDialog= new JDialog();
+	jScrollPane1= new JScrollPane();
+	tapeCatalog= new JTable();
+	jPanel2= new JPanel();
+	tapeBrowserToolbar= new JToolBar();
+	tapeBrowserButtonRec= new JButton();
+	jSeparator11= new JToolBar.Separator();
+	tapeBrowserButtonStop= new JButton();
+	tapeBrowserButtonRew= new JButton();
+	tapeBrowserButtonPlay= new JButton();
+	jSeparator12= new JToolBar.Separator();
+	tapeBrowserButtonEject= new JButton();
+	tapeFilename= new JLabel();
+	saveSzxTape= new JDialog();
+	jPanel4= new JPanel();
+	tapeMessageInfo= new JLabel();
+	tapeFilenameLabel= new JLabel();
+	saveSzxChoosePanel= new JPanel();
+	ignoreRadioButton= new JRadioButton();
+	linkedRadioButton= new JRadioButton();
+	embeddedRadioButton= new JRadioButton();
+	jPanel3= new JPanel();
+	filler4= new Box.Filler(new Dimension(0, 0), new Dimension(0, 0), new Dimension(32767, 0));
+	saveSzxCloseButton= new JButton();
+	filler5= new Box.Filler(new Dimension(25, 25), new Dimension(25, 25), new Dimension(25, 25));
+	saveSzxButtonGroup= new ButtonGroup();
+	pokeDialog= new JDialog();
+	addrValuePanel= new JPanel();
+	pokeAddress= new JLabel();
+	addressSpinner= new JSpinner();
+	filler1= new Box.Filler(new Dimension(20, 16), new Dimension(20, 16), new Dimension(20, 16));
+	pokeValue= new JLabel();
+	valueSpinner= new JSpinner();
+	filler2= new Box.Filler(new Dimension(20, 16), new Dimension(20, 16), new Dimension(20, 16));
+	pokeButton= new JButton();
+	closePokeDialogPanel= new JPanel();
+	closePokeDialogButton= new JButton();
+	filtersButtonGroup= new ButtonGroup();
+	zoomMethodButtonGroup= new ButtonGroup();
+	borderSizeButtonGroup= new ButtonGroup();
+	statusPanel= new JPanel();
+	modelLabel= new JLabel();
+	filler3= new Box.Filler(new Dimension(0, 0), new Dimension(0, 0), new Dimension(32767, 0));
+	mdrvLabel= new JLabel();
+	jSeparator10= new JSeparator();
+	tapeLabel= new JLabel();
+	jSeparator2= new JSeparator();
+	speedLabel= new JLabel();
+	toolbarMenu= new JToolBar();
+	openSnapshotButton= new JButton();
+	pauseToggleButton= new JToggleButton();
+	fastEmulationToggleButton= new JToggleButton();
+	doubleSizeToggleButton= new JToggleButton();
+  silenceSoundToggleButton= new JToggleButton();
+	resetSpectrumButton= new JButton();
+	hardResetSpectrumButton= new JButton();
+	jMenuBar1= new JMenuBar();
+	fileMenu= new JMenu();
+	openSnapshot= new JMenuItem();
+	saveSnapshot= new JMenuItem();
+	jSeparator4= new JPopupMenu.Separator();
+	loadMemorySnapshot= new JMenuItem();
+	saveMemorySnapshot= new JMenuItem();
+	jSeparator15= new JPopupMenu.Separator();
+	loadBinaryFile= new JMenuItem();
+	saveBinaryFile= new JMenuItem();
+	jSeparator16= new JPopupMenu.Separator();
+	loadScreenShot= new JMenuItem();
+	saveScreenShot= new JMenuItem();
+	jSeparator1= new JSeparator();
+	recentFilesMenu= new JMenu();
+	recentFileMenu0= new JMenuItem();
+	recentFileMenu1= new JMenuItem();
+	recentFileMenu2= new JMenuItem();
+	recentFileMenu3= new JMenuItem();
+	recentFileMenu4= new JMenuItem();
+	jSeparator7= new JPopupMenu.Separator();
+	thisIsTheEndMyFriend= new JMenuItem();
+	optionsMenu= new JMenu();
+	doubleSizeOption= new JCheckBoxMenuItem();
+	zoomMethodOptionMenu= new JMenu();
+	standardZoom= new JRadioButtonMenuItem();
+	bilinearZoom= new JRadioButtonMenuItem();
+	bicubicZoom= new JRadioButtonMenuItem();
+	borderSizeOptionMenu= new JMenu();
+	noBorder= new JRadioButtonMenuItem();
+	standardBorder= new JRadioButtonMenuItem();
+	fullBorder= new JRadioButtonMenuItem();
+	hugeBorder= new JRadioButtonMenuItem();
+	filtersOptionMenu= new JMenu();
+	noneFilter= new JRadioButtonMenuItem();
+	palTvFilter= new JRadioButtonMenuItem();
+	rgbFilter= new JRadioButtonMenuItem();
+	jSeparator20= new JPopupMenu.Separator();
+	scanlinesFilter= new JCheckBoxMenuItem();
+	jSeparator19= new JPopupMenu.Separator();
+	joystickOptionMenu= new JMenu();
+	noneJoystick= new JRadioButtonMenuItem();
+	kempstonJoystick= new JRadioButtonMenuItem();
+	sinclair1Joystick= new JRadioButtonMenuItem();
+	sinclair2Joystick= new JRadioButtonMenuItem();
+	cursorJoystick= new JRadioButtonMenuItem();
+	fullerJoystick= new JRadioButtonMenuItem();
+	jSeparator18= new JPopupMenu.Separator();
+	settingsOptionsMenu= new JMenuItem();
+	machineMenu= new JMenu();
+	pauseMachineMenu= new JCheckBoxMenuItem();
+	silenceMachineMenu= new JCheckBoxMenuItem();
+	jSeparator17= new JPopupMenu.Separator();
+	resetMachineMenu= new JMenuItem();
+	hardResetMachineMenu= new JMenuItem();
+	nmiMachineMenu= new JMenuItem();
+	jSeparator3= new JPopupMenu.Separator();
+	pokeMachineMenu= new JMenuItem();
+	memoryBrowserMachineMenu= new JMenuItem();
+	jSeparator14= new JPopupMenu.Separator();
+	hardwareMachineMenu= new JMenu();
+	spec16kHardware= new JRadioButtonMenuItem();
+	spec48kHardware= new JRadioButtonMenuItem();
+	spec128kHardware= new JRadioButtonMenuItem();
+	specPlus2Hardware= new JRadioButtonMenuItem();
+	specPlus2AHardware= new JRadioButtonMenuItem();
+	specPlus3Hardware= new JRadioButtonMenuItem();
+	mediaMenu= new JMenu();
+	tapeMediaMenu= new JMenu();
+	openTapeMediaMenu= new JMenuItem();
+	playTapeMediaMenu= new JMenuItem();
+	browserTapeMediaMenu= new JMenuItem();
+	rewindTapeMediaMenu= new JMenuItem();
+	ejectTapeMediaMenu= new JMenuItem();
+	jSeparator5= new JPopupMenu.Separator();
+	createTapeMediaMenu= new JMenuItem();
+	clearTapeMediaMenu= new JMenuItem();
+	jSeparator6= new JPopupMenu.Separator();
+	recordStartTapeMediaMenu= new JMenuItem();
+	recordStopTapeMediaMenu= new JMenuItem();
+	jSeparator13= new JPopupMenu.Separator();
+	reloadTapeMediaMenu= new JMenuItem();
+	jSeparator8= new JPopupMenu.Separator();
+	IF1MediaMenu= new JMenu();
+	microdrivesIF1MediaMenu= new JMenuItem();
+	jSeparator9= new JPopupMenu.Separator();
+	IF2MediaMenu= new JMenu();
+	insertIF2RomMediaMenu= new JMenuItem();
+	extractIF2RomMediaMenu= new JMenuItem();
+	helpMenu= new JMenu();
+	imageHelpMenu= new JMenuItem();
+	aboutHelpMenu= new JMenuItem();
+
+	ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+	keyboardHelper.setTitle(bundle.getString("JSpeccy.keyboardHelper.title")); // NOI18N
+
+	keyboardImage.setIcon(new ImageIcon(getClass().getResource("/icons/Keyboard48k.png"))); // NOI18N
+	keyboardImage.setText(bundle.getString("JSpeccy.keyboardImage.text")); // NOI18N
+	keyboardHelper.getContentPane().add(keyboardImage, BorderLayout.PAGE_START);
+
+	closeKeyboardHelper.setText(bundle.getString("JSpeccy.closeKeyboardHelper.text")); // NOI18N
+	closeKeyboardHelper.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		closeKeyboardHelperActionPerformed(evt);
+	    }
+	});
+	keyboardHelper.getContentPane().add(closeKeyboardHelper, BorderLayout.PAGE_END);
+
+	tapeBrowserDialog.setTitle(bundle.getString("JSpeccy.tapeBrowserDialog.title")); // NOI18N
+
+	tapeCatalog.setModel(new javax.swing.table.DefaultTableModel(new Object[][] { { null, null, null } }, new String[] { "Block Number", "Block Type", "Block information" })
+	{
+	    boolean[] canEdit= new boolean[] { false, false, false };
+
+	    public boolean isCellEditable(int rowIndex, int columnIndex)
+	    {
+		return canEdit[columnIndex];
+	    }
+	});
+	tapeCatalog.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+	tapeCatalog.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+	tapeCatalog.getTableHeader().setReorderingAllowed(false);
+	jScrollPane1.setViewportView(tapeCatalog);
+	tapeCatalog.getColumnModel().getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+	if (tapeCatalog.getColumnModel().getColumnCount() > 0)
+	{
+	    tapeCatalog.getColumnModel().getColumn(0).setResizable(false);
+	    tapeCatalog.getColumnModel().getColumn(0).setHeaderValue(bundle.getString("JSpeccy.tapeCatalog.columnModel.title0")); // NOI18N
+	    tapeCatalog.getColumnModel().getColumn(1).setHeaderValue(bundle.getString("JSpeccy.tapeCatalog.columnModel.title1")); // NOI18N
+	    tapeCatalog.getColumnModel().getColumn(2).setHeaderValue(bundle.getString("JSpeccy.tapeCatalog.columnModel.title2")); // NOI18N
+	}
+
+	tapeBrowserDialog.getContentPane().add(jScrollPane1, BorderLayout.CENTER);
+
+	tapeBrowserToolbar.setRollover(true);
+
+	tapeBrowserButtonRec.setIcon(new ImageIcon(getClass().getResource("/icons/32x32/player-rec.png"))); // NOI18N
+	tapeBrowserButtonRec.setText(bundle.getString("JSpeccy.tapeBrowserButtonRec.text")); // NOI18N
+	tapeBrowserButtonRec.setToolTipText(bundle.getString("JSpeccy.tapeBrowserButtonRec.tooltip.text")); // NOI18N
+	tapeBrowserButtonRec.setEnabled(false);
+	tapeBrowserButtonRec.setFocusable(false);
+	tapeBrowserButtonRec.setHorizontalTextPosition(SwingConstants.CENTER);
+	tapeBrowserButtonRec.setVerticalTextPosition(SwingConstants.BOTTOM);
+	tapeBrowserButtonRec.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		recordStartTapeMediaMenuActionPerformed(evt);
+	    }
+	});
+	tapeBrowserToolbar.add(tapeBrowserButtonRec);
+
+	jSeparator11.setSeparatorSize(new Dimension(25, 10));
+	tapeBrowserToolbar.add(jSeparator11);
+
+	tapeBrowserButtonStop.setIcon(new ImageIcon(getClass().getResource("/icons/32x32/player_stop.png"))); // NOI18N
+	tapeBrowserButtonStop.setText(bundle.getString("JSpeccy.tapeBrowserButtonStop.text")); // NOI18N
+	tapeBrowserButtonStop.setToolTipText(bundle.getString("JSpeccy.tapeBrowserButtonStop.tooltip.text")); // NOI18N
+	tapeBrowserButtonStop.setEnabled(false);
+	tapeBrowserButtonStop.setFocusable(false);
+	tapeBrowserButtonStop.setHorizontalTextPosition(SwingConstants.CENTER);
+	tapeBrowserButtonStop.setVerticalTextPosition(SwingConstants.BOTTOM);
+	tapeBrowserButtonStop.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		tapeBrowserButtonStopActionPerformed(evt);
+	    }
+	});
+	tapeBrowserToolbar.add(tapeBrowserButtonStop);
+
+	tapeBrowserButtonRew.setIcon(new ImageIcon(getClass().getResource("/icons/32x32/player_rew.png"))); // NOI18N
+	tapeBrowserButtonRew.setText(bundle.getString("JSpeccy.tapeBrowserButtonRew.text")); // NOI18N
+	tapeBrowserButtonRew.setToolTipText(bundle.getString("JSpeccy.tapeBrowserButtonRew.tooltip.text")); // NOI18N
+	tapeBrowserButtonRew.setEnabled(false);
+	tapeBrowserButtonRew.setFocusable(false);
+	tapeBrowserButtonRew.setHorizontalTextPosition(SwingConstants.CENTER);
+	tapeBrowserButtonRew.setVerticalTextPosition(SwingConstants.BOTTOM);
+	tapeBrowserButtonRew.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		rewindTapeMediaMenuActionPerformed(evt);
+	    }
+	});
+	tapeBrowserToolbar.add(tapeBrowserButtonRew);
+
+	tapeBrowserButtonPlay.setIcon(new ImageIcon(getClass().getResource("/icons/32x32/player_play.png"))); // NOI18N
+	tapeBrowserButtonPlay.setText(bundle.getString("JSpeccy.tapeBrowserButtonPlay.text")); // NOI18N
+	tapeBrowserButtonPlay.setToolTipText(bundle.getString("JSpeccy.tapeBrowserButtonPlay.tooltip.text")); // NOI18N
+	tapeBrowserButtonPlay.setEnabled(false);
+	tapeBrowserButtonPlay.setFocusable(false);
+	tapeBrowserButtonPlay.setHorizontalTextPosition(SwingConstants.CENTER);
+	tapeBrowserButtonPlay.setVerticalTextPosition(SwingConstants.BOTTOM);
+	tapeBrowserButtonPlay.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		tapeBrowserButtonPlayActionPerformed(evt);
+	    }
+	});
+	tapeBrowserToolbar.add(tapeBrowserButtonPlay);
+
+	jSeparator12.setSeparatorSize(new Dimension(25, 10));
+	tapeBrowserToolbar.add(jSeparator12);
+
+	tapeBrowserButtonEject.setIcon(new ImageIcon(getClass().getResource("/icons/32x32/player_eject.png"))); // NOI18N
+	tapeBrowserButtonEject.setText(bundle.getString("JSpeccy.tapeBrowserButtonEject.text")); // NOI18N
+	tapeBrowserButtonEject.setToolTipText(bundle.getString("JSpeccy.tapeBrowserButtonEject.tooltip.text")); // NOI18N
+	tapeBrowserButtonEject.setEnabled(false);
+	tapeBrowserButtonEject.setFocusable(false);
+	tapeBrowserButtonEject.setHorizontalTextPosition(SwingConstants.CENTER);
+	tapeBrowserButtonEject.setVerticalTextPosition(SwingConstants.BOTTOM);
+	tapeBrowserButtonEject.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		tapeBrowserButtonEjectActionPerformed(evt);
+	    }
+	});
+	tapeBrowserToolbar.add(tapeBrowserButtonEject);
+
+	jPanel2.add(tapeBrowserToolbar);
+
+	tapeBrowserDialog.getContentPane().add(jPanel2, BorderLayout.PAGE_END);
+
+	tapeFilename.setHorizontalAlignment(SwingConstants.CENTER);
+	tapeFilename.setText(bundle.getString("JSpeccy.tapeFilename.text")); // NOI18N
+	tapeBrowserDialog.getContentPane().add(tapeFilename, BorderLayout.PAGE_START);
+
+	saveSzxTape.setTitle(bundle.getString("JSpeccy.saveSzxTapeDialog.title.text")); // NOI18N
+	saveSzxTape.setModal(true);
+
+	jPanel4.setLayout(new GridLayout(3, 0, 5, 5));
+
+	tapeMessageInfo.setHorizontalAlignment(SwingConstants.CENTER);
+	tapeMessageInfo.setText(bundle.getString("JSpeccy.tapeMessageInfo.text")); // NOI18N
+	jPanel4.add(tapeMessageInfo);
+
+	tapeFilenameLabel.setForeground(new Color(204, 0, 0));
+	tapeFilenameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+	jPanel4.add(tapeFilenameLabel);
+
+	saveSzxChoosePanel.setBorder(BorderFactory.createTitledBorder(bundle.getString("JSpeccy.saveSzxChoosePanel.title"))); // NOI18N
+
+	saveSzxButtonGroup.add(ignoreRadioButton);
+	ignoreRadioButton.setSelected(true);
+	ignoreRadioButton.setText(bundle.getString("JSpeccy.ignoreRadioButton.text")); // NOI18N
+	saveSzxChoosePanel.add(ignoreRadioButton);
+
+	saveSzxButtonGroup.add(linkedRadioButton);
+	linkedRadioButton.setText(bundle.getString("JSpeccy.linkedRadioButton.text")); // NOI18N
+	saveSzxChoosePanel.add(linkedRadioButton);
+
+	saveSzxButtonGroup.add(embeddedRadioButton);
+	embeddedRadioButton.setText(bundle.getString("JSpeccy.embeddedRadioButton.text")); // NOI18N
+	saveSzxChoosePanel.add(embeddedRadioButton);
+
+	jPanel4.add(saveSzxChoosePanel);
+
+	saveSzxTape.getContentPane().add(jPanel4, BorderLayout.CENTER);
+
+	jPanel3.setLayout(new BoxLayout(jPanel3, BoxLayout.LINE_AXIS));
+	jPanel3.add(filler4);
+
+	saveSzxCloseButton.setText(bundle.getString("JSpeccy.saveSzxCloseButton.text")); // NOI18N
+	saveSzxCloseButton.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		saveSzxCloseButtonActionPerformed(evt);
+	    }
+	});
+	jPanel3.add(saveSzxCloseButton);
+	jPanel3.add(filler5);
+
+	saveSzxTape.getContentPane().add(jPanel3, BorderLayout.PAGE_END);
+
+	pokeDialog.setTitle(bundle.getString("JSpecy.pokeDialog.title.text")); // NOI18N
+	pokeDialog.getContentPane().setLayout(new BoxLayout(pokeDialog.getContentPane(), BoxLayout.PAGE_AXIS));
+
+	pokeAddress.setText(bundle.getString("JSpeccy.pokeAddress.text")); // NOI18N
+	addrValuePanel.add(pokeAddress);
+
+	addressSpinner.setModel(new SpinnerNumberModel(23296, 16384, 65535, 1));
+	addressSpinner.addChangeListener(new javax.swing.event.ChangeListener()
+	{
+	    public void stateChanged(javax.swing.event.ChangeEvent evt)
+	    {
+		addressSpinnerStateChanged(evt);
+	    }
+	});
+	addrValuePanel.add(addressSpinner);
+	addrValuePanel.add(filler1);
+
+	pokeValue.setText(bundle.getString("JSpeccy.pokeValue.text")); // NOI18N
+	addrValuePanel.add(pokeValue);
+
+	valueSpinner.setModel(new SpinnerNumberModel(0, 0, 255, 1));
+	valueSpinner.addChangeListener(new javax.swing.event.ChangeListener()
+	{
+	    public void stateChanged(javax.swing.event.ChangeEvent evt)
+	    {
+		valueSpinnerStateChanged(evt);
+	    }
+	});
+	addrValuePanel.add(valueSpinner);
+	addrValuePanel.add(filler2);
+
+	pokeButton.setText(bundle.getString("JSpeccy.pokeButton.text")); // NOI18N
+	pokeButton.setEnabled(false);
+	pokeButton.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		pokeButtonActionPerformed(evt);
+	    }
+	});
+	addrValuePanel.add(pokeButton);
+
+	pokeDialog.getContentPane().add(addrValuePanel);
+
+	closePokeDialogButton.setText(bundle.getString("JSpeccy.closePokeDialogButton.text")); // NOI18N
+	closePokeDialogButton.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		closePokeDialogButtonActionPerformed(evt);
+	    }
+	});
+	closePokeDialogPanel.add(closePokeDialogButton);
+
+	pokeDialog.getContentPane().add(closePokeDialogPanel);
+
+	setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+	setTitle(bundle.getString("JSpeccy.title")); // NOI18N
+	setIconImage(Toolkit.getDefaultToolkit().getImage(JSpeccy.class.getResource("/icons/JSpeccy48x48.png")));
+	setResizable(false);
+	addWindowListener(new java.awt.event.WindowAdapter()
+	{
+	    public void windowClosing(java.awt.event.WindowEvent evt)
+	    {
+		formWindowClosing(evt);
+	    }
+	});
+
+	statusPanel.setBorder(BorderFactory.createEtchedBorder());
+	statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.LINE_AXIS));
+
+	modelLabel.setText(bundle.getString("JSpeccy.modelLabel.text")); // NOI18N
+	modelLabel.setToolTipText(bundle.getString("JSpeccy.modelLabel.toolTipText")); // NOI18N
+	modelLabel.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+	statusPanel.add(modelLabel);
+	statusPanel.add(filler3);
+
+	mdrvLabel.setHorizontalAlignment(SwingConstants.CENTER);
+	mdrvLabel.setIcon(new ImageIcon(getClass().getResource("/icons/microdrive_on.png"))); // NOI18N
+	mdrvLabel.setText(bundle.getString("JSpeccy.mdrvLabel.text")); // NOI18N
+	mdrvLabel.setEnabled(false);
+	mdrvLabel.setMaximumSize(new Dimension(26, 26));
+	mdrvLabel.setMinimumSize(new Dimension(26, 26));
+	mdrvLabel.setPreferredSize(new Dimension(26, 26));
+	mdrvLabel.addMouseListener(new java.awt.event.MouseAdapter()
+	{
+	    public void mouseClicked(java.awt.event.MouseEvent evt)
+	    {
+		mdrvLabelMouseClicked(evt);
+	    }
+	});
+	statusPanel.add(mdrvLabel);
+
+	jSeparator10.setOrientation(SwingConstants.VERTICAL);
+	jSeparator10.setMaximumSize(new Dimension(5, 32767));
+	jSeparator10.setMinimumSize(new Dimension(3, 16));
+	jSeparator10.setPreferredSize(new Dimension(3, 16));
+	jSeparator10.setRequestFocusEnabled(false);
+	statusPanel.add(jSeparator10);
+
+	tapeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+	tapeLabel.setIcon(new ImageIcon(getClass().getResource("/icons/Akai24x24.png"))); // NOI18N
+	tapeLabel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+	tapeLabel.setEnabled(false);
+	tapeLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+	tapeLabel.setPreferredSize(new Dimension(30, 26));
+	tapeLabel.setRequestFocusEnabled(false);
+	tapeLabel.addMouseListener(new java.awt.event.MouseAdapter()
+	{
+	    public void mouseClicked(java.awt.event.MouseEvent evt)
+	    {
+		tapeLabelMouseClicked(evt);
+	    }
+	});
+	statusPanel.add(tapeLabel);
+
+	jSeparator2.setOrientation(SwingConstants.VERTICAL);
+	jSeparator2.setMaximumSize(new Dimension(5, 32767));
+	jSeparator2.setMinimumSize(new Dimension(3, 16));
+	jSeparator2.setPreferredSize(new Dimension(3, 16));
+	jSeparator2.setRequestFocusEnabled(false);
+	statusPanel.add(jSeparator2);
+
+	speedLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+	speedLabel.setText(bundle.getString("JSpeccy.speedLabel.text")); // NOI18N
+	speedLabel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+	speedLabel.setMaximumSize(new Dimension(75, 18));
+	speedLabel.setMinimumSize(new Dimension(40, 18));
+	speedLabel.setPreferredSize(new Dimension(50, 18));
+	speedLabel.setRequestFocusEnabled(false);
+	statusPanel.add(speedLabel);
+
+	getContentPane().add(statusPanel, BorderLayout.PAGE_END);
+
+	toolbarMenu.setRollover(true);
+
+	openSnapshotButton.setIcon(new ImageIcon(getClass().getResource("/icons/fileopen.png"))); // NOI18N
+	openSnapshotButton.setToolTipText(bundle.getString("JSpeccy.openSnapshotButton.toolTipText")); // NOI18N
+	openSnapshotButton.setFocusable(false);
+	openSnapshotButton.setHorizontalTextPosition(SwingConstants.CENTER);
+	openSnapshotButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+	openSnapshotButton.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		openSnapshotActionPerformed(evt);
+	    }
+	});
+	toolbarMenu.add(openSnapshotButton);
+
+	pauseToggleButton.setIcon(new ImageIcon(getClass().getResource("/icons/player_pause.png"))); // NOI18N
+	pauseToggleButton.setToolTipText(bundle.getString("JSpeccy.pauseToggleButton.toolTipText")); // NOI18N
+	pauseToggleButton.setFocusable(false);
+	pauseToggleButton.setHorizontalTextPosition(SwingConstants.CENTER);
+	pauseToggleButton.setSelectedIcon(new ImageIcon(getClass().getResource("/icons/player_play.png"))); // NOI18N
+	pauseToggleButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+	pauseToggleButton.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		pauseMachineMenuActionPerformed(evt);
+	    }
+	});
+	toolbarMenu.add(pauseToggleButton);
+
+	fastEmulationToggleButton.setIcon(new ImageIcon(getClass().getResource("/icons/player_fwd.png"))); // NOI18N
+	fastEmulationToggleButton.setText(bundle.getString("JSpeccy.fastEmulationToggleButton.text")); // NOI18N
+	fastEmulationToggleButton.setToolTipText(bundle.getString("JSpeccy.fastEmulationToggleButton.toolTipText")); // NOI18N
+	fastEmulationToggleButton.setFocusable(false);
+	fastEmulationToggleButton.setHorizontalTextPosition(SwingConstants.CENTER);
+	fastEmulationToggleButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+	fastEmulationToggleButton.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		fastEmulationToggleButtonActionPerformed(evt);
+	    }
+	});
+	toolbarMenu.add(fastEmulationToggleButton);
+
+	doubleSizeToggleButton.setIcon(new ImageIcon(getClass().getResource("/icons/viewmag+.png"))); // NOI18N
+	doubleSizeToggleButton.setToolTipText(bundle.getString("JSpeccy.doubleSizeToggleButton.toolTipText")); // NOI18N
+	doubleSizeToggleButton.setFocusable(false);
+	doubleSizeToggleButton.setHorizontalTextPosition(SwingConstants.CENTER);
+	doubleSizeToggleButton.setSelectedIcon(new ImageIcon(getClass().getResource("/icons/viewmag-.png"))); // NOI18N
+	doubleSizeToggleButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+	doubleSizeToggleButton.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		doubleSizeOptionActionPerformed(evt);
+	    }
+	});
+	toolbarMenu.add(doubleSizeToggleButton);
+
+	silenceSoundToggleButton.setIcon(new ImageIcon(getClass().getResource("/icons/sound-on-16x16.png"))); // NOI18N
+	silenceSoundToggleButton.setToolTipText(bundle.getString("JSpeccy.silenceSoundToggleButton.toolTipText")); // NOI18N
+	silenceSoundToggleButton.setFocusable(false);
+	silenceSoundToggleButton.setHorizontalTextPosition(SwingConstants.CENTER);
+	silenceSoundToggleButton.setSelectedIcon(new ImageIcon(getClass().getResource("/icons/sound-off-16x16.png"))); // NOI18N
+	silenceSoundToggleButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+	silenceSoundToggleButton.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		silenceSoundToggleButtonActionPerformed(evt);
+	    }
+	});
+	toolbarMenu.add(silenceSoundToggleButton);
+
+	resetSpectrumButton.setIcon(new ImageIcon(getClass().getResource("/icons/shutdown.png"))); // NOI18N
+	resetSpectrumButton.setToolTipText(bundle.getString("JSpeccy.resetSpectrumButton.toolTipText")); // NOI18N
+	resetSpectrumButton.setFocusable(false);
+	resetSpectrumButton.setHorizontalTextPosition(SwingConstants.CENTER);
+	resetSpectrumButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+	resetSpectrumButton.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		resetMachineMenuActionPerformed(evt);
+	    }
+	});
+	toolbarMenu.add(resetSpectrumButton);
+
+	hardResetSpectrumButton.setIcon(new ImageIcon(getClass().getResource("/icons/exit.png"))); // NOI18N
+	hardResetSpectrumButton.setToolTipText(bundle.getString("JSpeccy.hardResetSpectrumButton.toolTipText")); // NOI18N
+	hardResetSpectrumButton.setFocusable(false);
+	hardResetSpectrumButton.setHorizontalTextPosition(SwingConstants.CENTER);
+	hardResetSpectrumButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+	hardResetSpectrumButton.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		hardResetSpectrumButtonActionPerformed(evt);
+	    }
+	});
+	toolbarMenu.add(hardResetSpectrumButton);
+
+			toolbarMenu.add(new JSeparator());
+
+			addSpyButton(evt -> {
+        spectrum.stopEmulation();
+        try {
+          Thread.sleep(100);
+        } catch (InterruptedException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+        while (spectrum.z80.isExecuting()) ;
+        spectrum.z80.enableSpy(spyEnabled = !spyEnabled);
+        spectrum.startEmulation();
+      }, "enable spy", new ImageIcon(getClass().getResource("/icons/player_fwd.png")));
+
+			addSpyButton(evt -> {
+        spectrum.stopEmulation();
+        spectrum.z80.getSpy().enableReadAccessCapture();
+        spectrum.startEmulation();
+      }, "enable read access capture", new ImageIcon(getClass().getResource("/icons/player_fwd.png")));
+
+			addSpyButton(evt -> {
+				spectrum.stopEmulation();
+				spectrum.z80.getSpy().enableStructureCapture();
+				spectrum.startEmulation();
+			}, "enable structure capture", new ImageIcon(getClass().getResource("/icons/player_fwd.png")));
+
+			addSpyButton(evt -> {
+        spectrum.stopEmulation();
+        spectrum.z80.getSpy().export();
+        spectrum.startEmulation();
+      }, "export analysis", new ImageIcon(getClass().getResource("/icons/fileopen.png")));
+
+
+			getContentPane().add(toolbarMenu, BorderLayout.PAGE_START);
+
+	fileMenu.setText(bundle.getString("JSpeccy.fileMenu.text")); // NOI18N
+
+	openSnapshot.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F3, 0));
+	openSnapshot.setText(bundle.getString("JSpeccy.openSnapshot.text")); // NOI18N
+	openSnapshot.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		openSnapshotActionPerformed(evt);
+	    }
+	});
+	fileMenu.add(openSnapshot);
+
+	saveSnapshot.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F2, 0));
+	saveSnapshot.setText(bundle.getString("JSpeccy.saveSnapshot.text")); // NOI18N
+	saveSnapshot.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		saveSnapshotActionPerformed(evt);
+	    }
+	});
+	fileMenu.add(saveSnapshot);
+	fileMenu.add(jSeparator4);
+
+	loadMemorySnapshot.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.ALT_MASK));
+	loadMemorySnapshot.setText(bundle.getString("JSpeccy.loadMemorySnapshot.text")); // NOI18N
+	loadMemorySnapshot.setEnabled(false);
+	loadMemorySnapshot.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		loadMemorySnapshotActionPerformed(evt);
+	    }
+	});
+	fileMenu.add(loadMemorySnapshot);
+
+	saveMemorySnapshot.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.ALT_MASK));
+	saveMemorySnapshot.setText(bundle.getString("JSpeccy.saveMemorySnapshot.text")); // NOI18N
+	saveMemorySnapshot.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		saveMemorySnapshotActionPerformed(evt);
+	    }
+	});
+	fileMenu.add(saveMemorySnapshot);
+	fileMenu.add(jSeparator15);
+
+	loadBinaryFile.setText(bundle.getString("JSpeccy.loadBinaryFile.text")); // NOI18N
+	loadBinaryFile.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		loadBinaryFileActionPerformed(evt);
+	    }
+	});
+	fileMenu.add(loadBinaryFile);
+
+	saveBinaryFile.setText(bundle.getString("JSpeccy.saveBinaryFile.text")); // NOI18N
+	saveBinaryFile.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		saveBinaryFileActionPerformed(evt);
+	    }
+	});
+	fileMenu.add(saveBinaryFile);
+	fileMenu.add(jSeparator16);
+
+	loadScreenShot.setText(bundle.getString("JSpeccy.loadScreenShot.text")); // NOI18N
+	loadScreenShot.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		loadScreenShotActionPerformed(evt);
+	    }
+	});
+	fileMenu.add(loadScreenShot);
+
+	saveScreenShot.setText(bundle.getString("JSpeccy.saveScreenShot.text")); // NOI18N
+	saveScreenShot.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		saveScreenShotActionPerformed(evt);
+	    }
+	});
+	fileMenu.add(saveScreenShot);
+	fileMenu.add(jSeparator1);
+
+	recentFilesMenu.setText(bundle.getString("JSpeccy.recentFilesMenu.text")); // NOI18N
+
+	recentFileMenu0.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_1, java.awt.event.InputEvent.ALT_MASK));
+	recentFileMenu0.setText(bundle.getString("JSpeccy.recentFileMenu0.text")); // NOI18N
+	recentFileMenu0.setEnabled(false);
+	recentFileMenu0.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		recentFileMenu0ActionPerformed(evt);
+	    }
+	});
+	recentFilesMenu.add(recentFileMenu0);
+
+	recentFileMenu1.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_2, java.awt.event.InputEvent.ALT_MASK));
+	recentFileMenu1.setText(bundle.getString("JSpeccy.recentFileMenu0.text")); // NOI18N
+	recentFileMenu1.setEnabled(false);
+	recentFileMenu1.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		recentFileMenu1ActionPerformed(evt);
+	    }
+	});
+	recentFilesMenu.add(recentFileMenu1);
+
+	recentFileMenu2.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_3, java.awt.event.InputEvent.ALT_MASK));
+	recentFileMenu2.setText(bundle.getString("JSpeccy.recentFileMenu0.text")); // NOI18N
+	recentFileMenu2.setEnabled(false);
+	recentFileMenu2.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		recentFileMenu2ActionPerformed(evt);
+	    }
+	});
+	recentFilesMenu.add(recentFileMenu2);
+
+	recentFileMenu3.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_4, java.awt.event.InputEvent.ALT_MASK));
+	recentFileMenu3.setText(bundle.getString("JSpeccy.recentFileMenu0.text")); // NOI18N
+	recentFileMenu3.setEnabled(false);
+	recentFileMenu3.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		recentFileMenu3ActionPerformed(evt);
+	    }
+	});
+	recentFilesMenu.add(recentFileMenu3);
+
+	recentFileMenu4.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_5, java.awt.event.InputEvent.ALT_MASK));
+	recentFileMenu4.setText(bundle.getString("JSpeccy.recentFileMenu0.text")); // NOI18N
+	recentFileMenu4.setEnabled(false);
+	recentFileMenu4.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		recentFileMenu4ActionPerformed(evt);
+	    }
+	});
+	recentFilesMenu.add(recentFileMenu4);
+
+	fileMenu.add(recentFilesMenu);
+	fileMenu.add(jSeparator7);
+
+	thisIsTheEndMyFriend.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
+	thisIsTheEndMyFriend.setText(bundle.getString("JSpeccy.thisIsTheEndMyFriend.text")); // NOI18N
+	thisIsTheEndMyFriend.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		thisIsTheEndMyFriendActionPerformed(evt);
+	    }
+	});
+	fileMenu.add(thisIsTheEndMyFriend);
+
+	jMenuBar1.add(fileMenu);
+
+	optionsMenu.setText(bundle.getString("JSpeccy.optionsMenu.text")); // NOI18N
+
+	doubleSizeOption.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.ALT_MASK));
+	doubleSizeOption.setText(bundle.getString("JSpeccy.doubleSizeOption.text")); // NOI18N
+	doubleSizeOption.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		doubleSizeOptionActionPerformed(evt);
+	    }
+	});
+	optionsMenu.add(doubleSizeOption);
+
+	zoomMethodOptionMenu.setText(bundle.getString("JSpeccy.zoomMethodOptionMenu.text")); // NOI18N
+
+	zoomMethodButtonGroup.add(standardZoom);
+	standardZoom.setSelected(true);
+	standardZoom.setText(bundle.getString("JSpeccy.standardZoom.text")); // NOI18N
+	standardZoom.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		standardZoomActionPerformed(evt);
+	    }
+	});
+	zoomMethodOptionMenu.add(standardZoom);
+
+	zoomMethodButtonGroup.add(bilinearZoom);
+	bilinearZoom.setText(bundle.getString("JSpeccy.bilinearZoom.text")); // NOI18N
+	bilinearZoom.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		bilinearZoomActionPerformed(evt);
+	    }
+	});
+	zoomMethodOptionMenu.add(bilinearZoom);
+
+	zoomMethodButtonGroup.add(bicubicZoom);
+	bicubicZoom.setText(bundle.getString("JSpeccy.bicubicZoom.text")); // NOI18N
+	bicubicZoom.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		bicubicZoomActionPerformed(evt);
+	    }
+	});
+	zoomMethodOptionMenu.add(bicubicZoom);
+
+	optionsMenu.add(zoomMethodOptionMenu);
+
+	borderSizeOptionMenu.setText(bundle.getString("JSpeccy.borderSizeOptionMenu.text")); // NOI18N
+
+	borderSizeButtonGroup.add(noBorder);
+	noBorder.setText(bundle.getString("JSpeccy.noBorder.text")); // NOI18N
+	noBorder.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		noBorderActionPerformed(evt);
+	    }
+	});
+	borderSizeOptionMenu.add(noBorder);
+
+	borderSizeButtonGroup.add(standardBorder);
+	standardBorder.setSelected(true);
+	standardBorder.setText(bundle.getString("JSpeccy.standardBorder.text")); // NOI18N
+	standardBorder.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		standardBorderActionPerformed(evt);
+	    }
+	});
+	borderSizeOptionMenu.add(standardBorder);
+
+	borderSizeButtonGroup.add(fullBorder);
+	fullBorder.setText(bundle.getString("JSpeccy.fullBorder.text")); // NOI18N
+	fullBorder.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		fullBorderActionPerformed(evt);
+	    }
+	});
+	borderSizeOptionMenu.add(fullBorder);
+
+	borderSizeButtonGroup.add(hugeBorder);
+	hugeBorder.setText(bundle.getString("JSpeccy.hugeBorder.text")); // NOI18N
+	hugeBorder.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		hugeBorderActionPerformed(evt);
+	    }
+	});
+	borderSizeOptionMenu.add(hugeBorder);
+
+	optionsMenu.add(borderSizeOptionMenu);
+
+	filtersOptionMenu.setText(bundle.getString("JSpeccy.filtersOptionMenu.text")); // NOI18N
+
+	filtersButtonGroup.add(noneFilter);
+	noneFilter.setSelected(true);
+	noneFilter.setText(bundle.getString("JSpeccy.noneFilter.text")); // NOI18N
+	noneFilter.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		noneFilterActionPerformed(evt);
+	    }
+	});
+	filtersOptionMenu.add(noneFilter);
+
+	filtersButtonGroup.add(palTvFilter);
+	palTvFilter.setText(bundle.getString("JSpeccy.palTvFilter.text")); // NOI18N
+	palTvFilter.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		palTvFilterActionPerformed(evt);
+	    }
+	});
+	filtersOptionMenu.add(palTvFilter);
+
+	filtersButtonGroup.add(rgbFilter);
+	rgbFilter.setText(bundle.getString("JSpeccy.rgbFilter.text")); // NOI18N
+	rgbFilter.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		rgbFilterActionPerformed(evt);
+	    }
+	});
+	filtersOptionMenu.add(rgbFilter);
+	filtersOptionMenu.add(jSeparator20);
+
+	scanlinesFilter.setText(bundle.getString("JSpeccy.scanlinesFilter.text")); // NOI18N
+	scanlinesFilter.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		scanlinesFilterActionPerformed(evt);
+	    }
+	});
+	filtersOptionMenu.add(scanlinesFilter);
+
+	optionsMenu.add(filtersOptionMenu);
+	optionsMenu.add(jSeparator19);
+
+	joystickOptionMenu.setText(bundle.getString("JSpeccy.joystickOptionMenu.text")); // NOI18N
+
+	joystickButtonGroup.add(noneJoystick);
+	noneJoystick.setSelected(true);
+	noneJoystick.setText(bundle.getString("JSpeccy.noneJoystick.text")); // NOI18N
+	noneJoystick.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		noneJoystickActionPerformed(evt);
+	    }
+	});
+	joystickOptionMenu.add(noneJoystick);
+
+	joystickButtonGroup.add(kempstonJoystick);
+	kempstonJoystick.setText(bundle.getString("JSpeccy.kempstonJoystick.text")); // NOI18N
+	kempstonJoystick.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		kempstonJoystickActionPerformed(evt);
+	    }
+	});
+	joystickOptionMenu.add(kempstonJoystick);
+
+	joystickButtonGroup.add(sinclair1Joystick);
+	sinclair1Joystick.setText(bundle.getString("JSpeccy.sinclair1Joystick.text")); // NOI18N
+	sinclair1Joystick.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		sinclair1JoystickActionPerformed(evt);
+	    }
+	});
+	joystickOptionMenu.add(sinclair1Joystick);
+
+	joystickButtonGroup.add(sinclair2Joystick);
+	sinclair2Joystick.setText(bundle.getString("JSpeccy.sinclair2Joystick.text")); // NOI18N
+	sinclair2Joystick.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		sinclair2JoystickActionPerformed(evt);
+	    }
+	});
+	joystickOptionMenu.add(sinclair2Joystick);
+
+	joystickButtonGroup.add(cursorJoystick);
+	cursorJoystick.setText(bundle.getString("JSpeccy.cursorJoystick.text")); // NOI18N
+	cursorJoystick.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		cursorJoystickActionPerformed(evt);
+	    }
+	});
+	joystickOptionMenu.add(cursorJoystick);
+
+	joystickButtonGroup.add(fullerJoystick);
+	fullerJoystick.setText(bundle.getString("JSpeccy.fullerJoystick.text")); // NOI18N
+	fullerJoystick.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		fullerJoystickActionPerformed(evt);
+	    }
+	});
+	joystickOptionMenu.add(fullerJoystick);
+
+	optionsMenu.add(joystickOptionMenu);
+	optionsMenu.add(jSeparator18);
+
+	settingsOptionsMenu.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, 0));
+	settingsOptionsMenu.setText(bundle.getString("JSpeccy.settings.text")); // NOI18N
+	settingsOptionsMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		settingsOptionsMenuActionPerformed(evt);
+	    }
+	});
+	optionsMenu.add(settingsOptionsMenu);
+
+	jMenuBar1.add(optionsMenu);
+
+	machineMenu.setText(bundle.getString("JSpeccy.machineMenu.text")); // NOI18N
+	machineMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		silenceSoundToggleButtonActionPerformed(evt);
+	    }
+	});
+
+	pauseMachineMenu.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_PAUSE, 0));
+	pauseMachineMenu.setText(bundle.getString("JSpeccy.pauseMachineMenu.text")); // NOI18N
+	pauseMachineMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		pauseMachineMenuActionPerformed(evt);
+	    }
+	});
+	machineMenu.add(pauseMachineMenu);
+
+	silenceMachineMenu.setText(bundle.getString("JSpeccy.silenceMachineMenu.text")); // NOI18N
+	silenceMachineMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		silenceSoundToggleButtonActionPerformed(evt);
+	    }
+	});
+	machineMenu.add(silenceMachineMenu);
+	machineMenu.add(jSeparator17);
+
+	resetMachineMenu.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F5, 0));
+	resetMachineMenu.setText(bundle.getString("JSpeccy.resetMachineMenu.text")); // NOI18N
+	resetMachineMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		resetMachineMenuActionPerformed(evt);
+	    }
+	});
+	machineMenu.add(resetMachineMenu);
+
+	hardResetMachineMenu.setText(bundle.getString("JSpeccy.hardResetMachineMenu.text")); // NOI18N
+	hardResetMachineMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		hardResetSpectrumButtonActionPerformed(evt);
+	    }
+	});
+	machineMenu.add(hardResetMachineMenu);
+
+	nmiMachineMenu.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F5, java.awt.event.InputEvent.CTRL_MASK));
+	nmiMachineMenu.setText(bundle.getString("JSpeccy.nmiMachineMenu.text")); // NOI18N
+	nmiMachineMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		nmiMachineMenuActionPerformed(evt);
+	    }
+	});
+	machineMenu.add(nmiMachineMenu);
+	machineMenu.add(jSeparator3);
+
+	pokeMachineMenu.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.ALT_MASK));
+	pokeMachineMenu.setText(bundle.getString("JSpeccy.pokeMachineMenu.text")); // NOI18N
+	pokeMachineMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		pokeMachineMenuActionPerformed(evt);
+	    }
+	});
+	machineMenu.add(pokeMachineMenu);
+
+	memoryBrowserMachineMenu.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_H, java.awt.event.InputEvent.ALT_MASK));
+	memoryBrowserMachineMenu.setText(bundle.getString("JSpeccy.memoryBrowserMachineMenu.text")); // NOI18N
+	memoryBrowserMachineMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		spritesBrowserMachineMenuActionPerformed(evt);
+		//		memoryBrowserMachineMenuActionPerformed(evt);
+	    }
+	});
+
+//	SwingUtilities.invokeLater(new Runnable()
+//	{
+//	    public void run()
+//	    {
+//		ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+//		if (spritesBrowserDialog == null)
+//		    spritesBrowserDialog= new SpritesBrowserDialog(spectrum.getMemory());
+//		spritesBrowserDialog.showDialog(JSpeccy.this, bundle.getString("MEMORY_BROWSER_DIALOG_TITLE"));
+//	    }
+//	});
+
+
+	machineMenu.add(memoryBrowserMachineMenu);
+	machineMenu.add(jSeparator14);
+
+	hardwareMachineMenu.setText(bundle.getString("JSpeccy.hardwareMachineMenu.text")); // NOI18N
+
+	hardwareButtonGroup.add(spec16kHardware);
+	spec16kHardware.setText(bundle.getString("JSpeccy.spec16kHardware.text")); // NOI18N
+	spec16kHardware.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		spec16kHardwareActionPerformed(evt);
+	    }
+	});
+	hardwareMachineMenu.add(spec16kHardware);
+
+	hardwareButtonGroup.add(spec48kHardware);
+	spec48kHardware.setSelected(true);
+	spec48kHardware.setText(bundle.getString("JSpeccy.spec48kHardware.text")); // NOI18N
+	spec48kHardware.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		spec48kHardwareActionPerformed(evt);
+	    }
+	});
+	hardwareMachineMenu.add(spec48kHardware);
+
+	hardwareButtonGroup.add(spec128kHardware);
+	spec128kHardware.setText(bundle.getString("JSpeccy.spec128kHardware.text")); // NOI18N
+	spec128kHardware.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		spec128kHardwareActionPerformed(evt);
+	    }
+	});
+	hardwareMachineMenu.add(spec128kHardware);
+
+	hardwareButtonGroup.add(specPlus2Hardware);
+	specPlus2Hardware.setText(bundle.getString("JSpeccy.specPlus2Hardware.text")); // NOI18N
+	specPlus2Hardware.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		specPlus2HardwareActionPerformed(evt);
+	    }
+	});
+	hardwareMachineMenu.add(specPlus2Hardware);
+
+	hardwareButtonGroup.add(specPlus2AHardware);
+	specPlus2AHardware.setText(bundle.getString("JSpeccy.specPlus2AHardware.text")); // NOI18N
+	specPlus2AHardware.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		specPlus2AHardwareActionPerformed(evt);
+	    }
+	});
+	hardwareMachineMenu.add(specPlus2AHardware);
+
+	hardwareButtonGroup.add(specPlus3Hardware);
+	specPlus3Hardware.setText(bundle.getString("JSpeccy.specPlus3Hardware.text")); // NOI18N
+	specPlus3Hardware.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		specPlus3HardwareActionPerformed(evt);
+	    }
+	});
+	hardwareMachineMenu.add(specPlus3Hardware);
+
+	machineMenu.add(hardwareMachineMenu);
+
+	jMenuBar1.add(machineMenu);
+
+	mediaMenu.setText(bundle.getString("JSpeccy.mediaMenu.text")); // NOI18N
+
+	tapeMediaMenu.setText(bundle.getString("JSpeccy.tapeMediaMenu.text")); // NOI18N
+
+	openTapeMediaMenu.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F7, 0));
+	openTapeMediaMenu.setText(bundle.getString("JSpeccy.openTapeMediaMenu.text")); // NOI18N
+	openTapeMediaMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		openTapeMediaMenuActionPerformed(evt);
+	    }
+	});
+	tapeMediaMenu.add(openTapeMediaMenu);
+
+	playTapeMediaMenu.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F8, 0));
+	playTapeMediaMenu.setText(bundle.getString("JSpeccy.playTapeMediaMenu.text")); // NOI18N
+	playTapeMediaMenu.setEnabled(false);
+	playTapeMediaMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		playTapeMediaMenuActionPerformed(evt);
+	    }
+	});
+	tapeMediaMenu.add(playTapeMediaMenu);
+
+	browserTapeMediaMenu.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.ALT_MASK));
+	browserTapeMediaMenu.setText(bundle.getString("JSpeccy.browserTapeMediaMenu.text")); // NOI18N
+	browserTapeMediaMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		browserTapeMediaMenuActionPerformed(evt);
+	    }
+	});
+	tapeMediaMenu.add(browserTapeMediaMenu);
+
+	rewindTapeMediaMenu.setText(bundle.getString("JSpeccy.rewindTapeMediaMenu.text")); // NOI18N
+	rewindTapeMediaMenu.setEnabled(false);
+	rewindTapeMediaMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		rewindTapeMediaMenuActionPerformed(evt);
+	    }
+	});
+	tapeMediaMenu.add(rewindTapeMediaMenu);
+
+	ejectTapeMediaMenu.setText(bundle.getString("JSpeccy.ejectTapeMediaMenu.text")); // NOI18N
+	ejectTapeMediaMenu.setEnabled(false);
+	ejectTapeMediaMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		tapeBrowserButtonEjectActionPerformed(evt);
+	    }
+	});
+	tapeMediaMenu.add(ejectTapeMediaMenu);
+	tapeMediaMenu.add(jSeparator5);
+
+	createTapeMediaMenu.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F6, 0));
+	createTapeMediaMenu.setText(bundle.getString("JSpeccy.createTapeMediaMenu.text")); // NOI18N
+	createTapeMediaMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		createTapeMediaMenuActionPerformed(evt);
+	    }
+	});
+	tapeMediaMenu.add(createTapeMediaMenu);
+
+	clearTapeMediaMenu.setText(bundle.getString("JSpeccy.clearTapeMediaMenu.text")); // NOI18N
+	clearTapeMediaMenu.setEnabled(false);
+	clearTapeMediaMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		clearTapeMediaMenuActionPerformed(evt);
+	    }
+	});
+	tapeMediaMenu.add(clearTapeMediaMenu);
+	tapeMediaMenu.add(jSeparator6);
+
+	recordStartTapeMediaMenu.setText(bundle.getString("JSpeccy.recordStartTapeMediaMenu.text")); // NOI18N
+	recordStartTapeMediaMenu.setEnabled(false);
+	recordStartTapeMediaMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		recordStartTapeMediaMenuActionPerformed(evt);
+	    }
+	});
+	tapeMediaMenu.add(recordStartTapeMediaMenu);
+
+	recordStopTapeMediaMenu.setText(bundle.getString("JSpeccy.recordStopTapeMediaMenu.text")); // NOI18N
+	recordStopTapeMediaMenu.setEnabled(false);
+	recordStopTapeMediaMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		recordStopTapeMediaMenuActionPerformed(evt);
+	    }
+	});
+	tapeMediaMenu.add(recordStopTapeMediaMenu);
+	tapeMediaMenu.add(jSeparator13);
+
+	reloadTapeMediaMenu.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F7, java.awt.event.InputEvent.CTRL_MASK));
+	reloadTapeMediaMenu.setText(bundle.getString("JSpeccy.reloadTapeMediaMenu.text")); // NOI18N
+	reloadTapeMediaMenu.setEnabled(false);
+	reloadTapeMediaMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		reloadTapeMediaMenuActionPerformed(evt);
+	    }
+	});
+	tapeMediaMenu.add(reloadTapeMediaMenu);
+
+	mediaMenu.add(tapeMediaMenu);
+	mediaMenu.add(jSeparator8);
+
+	IF1MediaMenu.setText(bundle.getString("JSpeccy.IF1MediaMenu.text")); // NOI18N
+
+	microdrivesIF1MediaMenu.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_M, java.awt.event.InputEvent.ALT_MASK));
+	microdrivesIF1MediaMenu.setText(bundle.getString("JSpeccy.microdrivesIF1MediaMenu.text")); // NOI18N
+	microdrivesIF1MediaMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		microdrivesIF1MediaMenuActionPerformed(evt);
+	    }
+	});
+	IF1MediaMenu.add(microdrivesIF1MediaMenu);
+
+	mediaMenu.add(IF1MediaMenu);
+	mediaMenu.add(jSeparator9);
+
+	IF2MediaMenu.setText(bundle.getString("JSpeccy.IF2MediaMenu.text")); // NOI18N
+
+	insertIF2RomMediaMenu.setText(bundle.getString("JSpeccy.insertIF2RomMediaMenu.text")); // NOI18N
+	insertIF2RomMediaMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		insertIF2RomMediaMenuActionPerformed(evt);
+	    }
+	});
+	IF2MediaMenu.add(insertIF2RomMediaMenu);
+
+	extractIF2RomMediaMenu.setText(bundle.getString("JSpeccy.extractIF2RomMediaMenu.text")); // NOI18N
+	extractIF2RomMediaMenu.setEnabled(false);
+	extractIF2RomMediaMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		extractIF2RomMediaMenuActionPerformed(evt);
+	    }
+	});
+	IF2MediaMenu.add(extractIF2RomMediaMenu);
+
+	mediaMenu.add(IF2MediaMenu);
+
+	jMenuBar1.add(mediaMenu);
+
+	helpMenu.setText(bundle.getString("JSpeccy.helpMenu.text")); // NOI18N
+
+	imageHelpMenu.setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
+	imageHelpMenu.setText(bundle.getString("JSpeccy.imageHelpMenu.text")); // NOI18N
+	imageHelpMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		imageHelpMenuActionPerformed(evt);
+	    }
+	});
+	helpMenu.add(imageHelpMenu);
+
+	aboutHelpMenu.setText(bundle.getString("JSpeccy.aboutHelpMenu.text")); // NOI18N
+	aboutHelpMenu.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(java.awt.event.ActionEvent evt)
+	    {
+		aboutHelpMenuActionPerformed(evt);
+	    }
+	});
+	helpMenu.add(aboutHelpMenu);
+
+	jMenuBar1.add(helpMenu);
+
+	setJMenuBar(jMenuBar1);
+
+	pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+	private void addSpyButton(ActionListener l, String text, ImageIcon defaultIcon) {
+		JToggleButton toggleButton = new JToggleButton();
+		toggleButton.setIcon(defaultIcon); // NOI18N
+		toggleButton.setText(""); // NOI18N
+		toggleButton.setToolTipText(text); // NOI18N
+		toggleButton.setFocusable(false);
+		toggleButton.setHorizontalTextPosition(SwingConstants.CENTER);
+		toggleButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+		toggleButton.addActionListener(l);
+		toolbarMenu.add(toggleButton);
+	}
+
+	private void openSnapshotActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_openSnapshotActionPerformed
+
+	if (openSnapshotDlg == null)
+	{
+	    openSnapshotDlg= new JFileChooser(settings.getRecentFilesSettings().getLastSnapshotDir());
+	    openSnapshotDlg.addChoosableFileFilter(allSnapTapeExtension);
+	    openSnapshotDlg.addChoosableFileFilter(snapshotExtension);
+	    openSnapshotDlg.addChoosableFileFilter(tapeExtension);
+	    openSnapshotDlg.addChoosableFileFilter(createTapeExtension);
+	    openSnapshotDlg.setFileFilter(allSnapTapeExtension);
+	}
+	else
+	    openSnapshotDlg.setSelectedFile(currentFileSnapshot);
+
+	stopEmulation();
+
+	int status= openSnapshotDlg.showOpenDialog(getContentPane());
+	if (status == JFileChooser.APPROVE_OPTION)
+	{
+	    currentFileSnapshot= openSnapshotDlg.getSelectedFile();
+	    settings.getRecentFilesSettings().setLastSnapshotDir(currentFileSnapshot.getParent());
+
+	    if (snapshotExtension.accept(currentFileSnapshot))
+	    {
+		rotateRecentFile(currentFileSnapshot);
+		try
+		{
+		    SnapshotFile snap= SnapshotFactory.getSnapshot(currentFileSnapshot);
+		    SpectrumState snapState= snap.load(currentFileSnapshot);
+		    if (snap instanceof SnapshotSZX)
+		    {
+			SnapshotSZX snapSZX= (SnapshotSZX) snap;
+			if (snapSZX.isTapeEmbedded())
+			{
+			    tape.eject();
+			    tape.insertEmbeddedTape(snapSZX.getTapeName(), snapSZX.getTapeExtension(), snapSZX.getTapeData(), snapSZX.getTapeBlock());
+			}
+
+			if (snapSZX.isTapeLinked())
+			{
+			    File tapeLink= new File(snapSZX.getTapeName());
+
+			    if (tapeLink.exists())
+			    {
+				tape.eject();
+				tape.insert(tapeLink);
+				tape.setSelectedBlock(snapSZX.getTapeBlock());
+			    }
+			}
+		    }
+
+		    spectrum.setSpectrumState(snapState);
+		}
+		catch (SnapshotException excpt)
+		{
+		    JOptionPane.showMessageDialog(this, ResourceBundle.getBundle("gui/Bundle").getString(excpt.getMessage()), ResourceBundle.getBundle("gui/Bundle").getString("SNAPSHOT_LOAD_ERROR"), JOptionPane.ERROR_MESSAGE);
+		}
+	    }
+	    else
+	    {
+		currentFileTape= openSnapshotDlg.getSelectedFile();
+		settings.getRecentFilesSettings().setLastTapeDir(currentFileTape.getParent());
+		tape.eject();
+		if (tape.insert(currentFileTape))
+		{
+		    rotateRecentFile(currentFileTape);
+		    if (settings.getTapeSettings().isAutoLoadTape())
+		    {
+			spectrum.autoLoadTape();
+		    }
+		}
+		else
+		{
+		    ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+		    JOptionPane.showMessageDialog(this, bundle.getString("LOAD_TAPE_ERROR"), bundle.getString("LOAD_TAPE_ERROR_TITLE"), JOptionPane.ERROR_MESSAGE);
+		}
+	    }
+	}
+
+	startEmulation();
+    }//GEN-LAST:event_openSnapshotActionPerformed
+
+    private void thisIsTheEndMyFriendActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_thisIsTheEndMyFriendActionPerformed
+	exitEmulator();
+    }//GEN-LAST:event_thisIsTheEndMyFriendActionPerformed
+
+    private void doubleSizeOptionActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_doubleSizeOptionActionPerformed
+	Object source= evt.getSource();
+	if (source instanceof JCheckBoxMenuItem)
+	    doubleSizeToggleButton.setSelected(doubleSizeOption.isSelected());
+	else
+	    doubleSizeOption.setSelected(doubleSizeToggleButton.isSelected());
+
+	settings.getSpectrumSettings().setZoomed(doubleSizeOption.isSelected());
+
+	if (settings.getSpectrumSettings().isZoomed())
+	{
+	    jscr.setZoom(settings.getSpectrumSettings().getZoom());
+	}
+	else
+	{
+	    jscr.setZoom(1);
+	}
+
+	spectrum.invalidateScreen(true);
+	pack();
+    }//GEN-LAST:event_doubleSizeOptionActionPerformed
+
+    private void pauseMachineMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_pauseMachineMenuActionPerformed
+	Object source= evt.getSource();
+	if (source instanceof JCheckBoxMenuItem)
+	{
+	    pauseToggleButton.setSelected(pauseMachineMenu.isSelected());
+	}
+	else
+	{
+	    pauseMachineMenu.setSelected(pauseToggleButton.isSelected());
+	}
+
+	if (pauseMachineMenu.isSelected())
+	{
+	    stopEmulation();
+	}
+	else
+	{
+	    startEmulation();
+	}
+    }//GEN-LAST:event_pauseMachineMenuActionPerformed
+
+    private void resetMachineMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_resetMachineMenuActionPerformed
+	ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+
+	if (!settings.getEmulatorSettings().isConfirmActions())
+	{
+	    spectrum.reset();
+	    return;
+	}
+
+	stopEmulation();
+
+	int ret= JOptionPane.showConfirmDialog(getContentPane(), bundle.getString("ARE_YOU_SURE_QUESTION"), bundle.getString("RESET_SPECTRUM"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE); // NOI18N
+
+	if (ret == JOptionPane.YES_OPTION)
+	    spectrum.reset();
+
+	startEmulation();
+    }//GEN-LAST:event_resetMachineMenuActionPerformed
+
+    private void silenceSoundToggleButtonActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_silenceSoundToggleButtonActionPerformed
+	Object source= evt.getSource();
+	if (source instanceof JToggleButton)
+	    silenceMachineMenu.setSelected(silenceSoundToggleButton.isSelected());
+	else
+	    silenceSoundToggleButton.setSelected(silenceMachineMenu.isSelected());
+
+	spectrum.muteSound(silenceSoundToggleButton.isSelected());
+    }//GEN-LAST:event_silenceSoundToggleButtonActionPerformed
+
+    private void playTapeMediaMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_playTapeMediaMenuActionPerformed
+	if (tape.isTapePlaying())
+	{
+	    tape.stop();
+	}
+	else
+	{
+	    tape.play();
+	}
+    }//GEN-LAST:event_playTapeMediaMenuActionPerformed
+
+    private void openTapeMediaMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_openTapeMediaMenuActionPerformed
+
+	if (openTapeDlg == null)
+	{
+	    openTapeDlg= new JFileChooser(settings.getRecentFilesSettings().getLastTapeDir());
+	    openTapeDlg.addChoosableFileFilter(tapeExtension);
+	    openTapeDlg.addChoosableFileFilter(createTapeExtension);
+	    openTapeDlg.setFileFilter(tapeExtension);
+	}
+	else
+	    openTapeDlg.setSelectedFile(currentFileTape);
+
+	stopEmulation();
+
+	int status= openTapeDlg.showOpenDialog(getContentPane());
+	if (status == JFileChooser.APPROVE_OPTION)
+	{
+	    currentFileTape= openTapeDlg.getSelectedFile();
+	    settings.getRecentFilesSettings().setLastTapeDir(currentFileTape.getParent());
+	    tape.eject();
+	    if (tape.insert(currentFileTape))
+	    {
+		rotateRecentFile(currentFileTape);
+		if (settings.getTapeSettings().isAutoLoadTape())
+		{
+		    spectrum.autoLoadTape();
+		}
+	    }
+	    else
+	    {
+		ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+		JOptionPane.showMessageDialog(this, bundle.getString("LOAD_TAPE_ERROR"), bundle.getString("LOAD_TAPE_ERROR_TITLE"), JOptionPane.ERROR_MESSAGE);
+	    }
+	}
+
+	startEmulation();
+    }//GEN-LAST:event_openTapeMediaMenuActionPerformed
+
+    private void rewindTapeMediaMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_rewindTapeMediaMenuActionPerformed
+	tape.rewind();
+    }//GEN-LAST:event_rewindTapeMediaMenuActionPerformed
+
+    private void imageHelpMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_imageHelpMenuActionPerformed
+	keyboardHelper.setResizable(false);
+	keyboardHelper.pack();
+	keyboardHelper.setVisible(true);
+    }//GEN-LAST:event_imageHelpMenuActionPerformed
+
+    private void aboutHelpMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_aboutHelpMenuActionPerformed
+	ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+
+	stopEmulation();
+
+	JOptionPane.showMessageDialog(getContentPane(), bundle.getString("ABOUT_MESSAGE"), bundle.getString("ABOUT_TITLE"), JOptionPane.INFORMATION_MESSAGE, new ImageIcon(getClass().getResource("/icons/JSpeccy64x64.png")));
+
+	startEmulation();
+    }//GEN-LAST:event_aboutHelpMenuActionPerformed
+
+    private void nmiMachineMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_nmiMachineMenuActionPerformed
+	spectrum.triggerNMI();
+    }//GEN-LAST:event_nmiMachineMenuActionPerformed
+
+    private void closeKeyboardHelperActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_closeKeyboardHelperActionPerformed
+	keyboardHelper.setVisible(false);
+    }//GEN-LAST:event_closeKeyboardHelperActionPerformed
+
+    private void saveSnapshotActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_saveSnapshotActionPerformed
+
+	if (saveSnapshotDlg == null)
+	{
+	    saveSnapshotDlg= new JFileChooser("/home/jsanchez/Spectrum");
+	    saveSnapshotDlg.addChoosableFileFilter(snapshotExtension);
+	    saveSnapshotDlg.setFileFilter(saveSnapshotExtension);
+	    currentDirSaveSnapshot= saveSnapshotDlg.getCurrentDirectory();
+	}
+	else
+	{
+	    saveSnapshotDlg.setCurrentDirectory(currentDirSaveSnapshot);
+	    BasicFileChooserUI chooserUI= (BasicFileChooserUI) saveSnapshotDlg.getUI();
+	    chooserUI.setFileName("");
+	}
+
+	stopEmulation();
+
+	int status= saveSnapshotDlg.showSaveDialog(getContentPane());
+	if (status == JFileChooser.APPROVE_OPTION)
+	{
+	    currentDirSaveSnapshot= saveSnapshotDlg.getCurrentDirectory();
+	    if (!snapshotExtension.accept(saveSnapshotDlg.getSelectedFile()))
+	    {
+		String saveName= saveSnapshotDlg.getSelectedFile().getAbsolutePath() + ".szx";
+		saveSnapshotDlg.setSelectedFile(new File(saveName));
+	    }
+
+	    try
+	    {
+		SnapshotFile snap= SnapshotFactory.getSnapshot(saveSnapshotDlg.getSelectedFile());
+		if (snap instanceof SnapshotSZX && tape.getTapeFilename() != null)
+		{
+		    SnapshotSZX snapSZX= (SnapshotSZX) snap;
+		    tapeFilenameLabel.setText(tape.getTapeFilename().getName());
+		    ignoreRadioButton.setSelected(true);
+		    saveSzxTape.pack();
+		    saveSzxTape.setVisible(true);
+		    snapSZX.setTapeEmbedded(embeddedRadioButton.isSelected());
+		    snapSZX.setTapeLinked(linkedRadioButton.isSelected());
+		    if (snapSZX.isTapeEmbedded() || snapSZX.isTapeLinked())
+		    {
+			snapSZX.setTapeName(tape.getTapeFilename().getAbsolutePath());
+			snapSZX.setTapeBlock(tape.getSelectedBlock());
+		    }
+		}
+		snap.save(saveSnapshotDlg.getSelectedFile(), spectrum.getSpectrumState());
+	    }
+	    catch (SnapshotException excpt)
+	    {
+		JOptionPane.showMessageDialog(this, ResourceBundle.getBundle("gui/Bundle").getString(excpt.getMessage()), ResourceBundle.getBundle("gui/Bundle").getString("SNAPSHOT_SAVE_ERROR"), JOptionPane.ERROR_MESSAGE);
+	    }
+	}
+
+	startEmulation();
+    }//GEN-LAST:event_saveSnapshotActionPerformed
+
+    private void noneJoystickActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_noneJoystickActionPerformed
+
+	spectrum.setJoystick(JoystickModel.NONE);
+	noneJoystick.setSelected(true);
+
+    }//GEN-LAST:event_noneJoystickActionPerformed
+
+    private void kempstonJoystickActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_kempstonJoystickActionPerformed
+
+	spectrum.setJoystick(JoystickModel.KEMPSTON);
+	kempstonJoystick.setSelected(true);
+
+    }//GEN-LAST:event_kempstonJoystickActionPerformed
+
+    private void sinclair1JoystickActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_sinclair1JoystickActionPerformed
+
+	spectrum.setJoystick(JoystickModel.SINCLAIR1);
+	sinclair1Joystick.setSelected(true);
+
+    }//GEN-LAST:event_sinclair1JoystickActionPerformed
+
+    private void sinclair2JoystickActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_sinclair2JoystickActionPerformed
+
+	spectrum.setJoystick(JoystickModel.SINCLAIR2);
+	sinclair2Joystick.setSelected(true);
+
+    }//GEN-LAST:event_sinclair2JoystickActionPerformed
+
+    private void cursorJoystickActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_cursorJoystickActionPerformed
+
+	spectrum.setJoystick(JoystickModel.CURSOR);
+	cursorJoystick.setSelected(true);
+
+    }//GEN-LAST:event_cursorJoystickActionPerformed
+
+    private void spec48kHardwareActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_spec48kHardwareActionPerformed
+
+	if (spectrum.getSpectrumModel() == MachineTypes.SPECTRUM48K)
+	{
+	    return;
+	}
+
+	stopEmulation();
+
+	spectrum.selectHardwareModel(MachineTypes.SPECTRUM48K);
+
+	spectrum.reset();
+
+	startEmulation();
+    }//GEN-LAST:event_spec48kHardwareActionPerformed
+
+    private void spec128kHardwareActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_spec128kHardwareActionPerformed
+
+	if (spectrum.getSpectrumModel() == MachineTypes.SPECTRUM128K)
+	    return;
+
+	stopEmulation();
+
+	spectrum.selectHardwareModel(MachineTypes.SPECTRUM128K);
+
+	spectrum.reset();
+
+	startEmulation();
+    }//GEN-LAST:event_spec128kHardwareActionPerformed
+
+    private void fastEmulationToggleButtonActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_fastEmulationToggleButtonActionPerformed
+	if (fastEmulationToggleButton.isSelected())
+	    spectrum.changeSpeed(settings.getSpectrumSettings().getFramesInt());
+	else
+	    spectrum.changeSpeed(1);
+    }//GEN-LAST:event_fastEmulationToggleButtonActionPerformed
+
+    private void browserTapeMediaMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_browserTapeMediaMenuActionPerformed
+	tapeBrowserDialog.setVisible(true);
+	tapeBrowserDialog.pack();
+	tapeCatalog.doLayout();
+    }//GEN-LAST:event_browserTapeMediaMenuActionPerformed
+
+    private void specPlus2HardwareActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_specPlus2HardwareActionPerformed
+
+	if (spectrum.getSpectrumModel() == MachineTypes.SPECTRUMPLUS2)
+	    return;
+
+	stopEmulation();
+
+	spectrum.selectHardwareModel(MachineTypes.SPECTRUMPLUS2);
+
+	spectrum.reset();
+
+	startEmulation();
+
+    }//GEN-LAST:event_specPlus2HardwareActionPerformed
+
+    private void specPlus2AHardwareActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_specPlus2AHardwareActionPerformed
+
+	if (spectrum.getSpectrumModel() == MachineTypes.SPECTRUMPLUS2A)
+	    return;
+
+	stopEmulation();
+
+	spectrum.selectHardwareModel(MachineTypes.SPECTRUMPLUS2A);
+
+	spectrum.reset();
+
+	startEmulation();
+    }//GEN-LAST:event_specPlus2AHardwareActionPerformed
+
+    private void settingsOptionsMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_settingsOptionsMenuActionPerformed
+	ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+	int AYsoundMode= settings.getAY8912Settings().getSoundMode();
+	boolean hifiSound= settings.getSpectrumSettings().isHifiSound();
+	boolean muted= settings.getSpectrumSettings().isMutedSound();
+	boolean zoomed= settings.getSpectrumSettings().isZoomed();
+	boolean ayOn48k= settings.getSpectrumSettings().isAYEnabled48K();
+	int zoom= settings.getSpectrumSettings().getZoom();
+
+	stopEmulation();
+
+	settingsDialog.showDialog(this, bundle.getString("SETTINGS_DIALOG_TITLE"));
+	spectrum.loadConfigVars();
+
+	if (muted != settings.getSpectrumSettings().isMutedSound())
+	{
+	    spectrum.muteSound(!muted);
+	    silenceMachineMenu.setSelected(!muted);
+	    silenceSoundToggleButton.setSelected(!muted);
+	}
+
+	if ((AYsoundMode != settings.getAY8912Settings().getSoundMode() || hifiSound != settings.getSpectrumSettings().isHifiSound() || ayOn48k != settings.getSpectrumSettings().isAYEnabled48K()) && !spectrum.isMuteSound())
+	{
+	    spectrum.muteSound(true);
+	    spectrum.muteSound(false);
+	}
+
+	if (settings.getSpectrumSettings().isZoomed() != zoomed)
+	{
+	    doubleSizeToggleButton.setSelected(settings.getSpectrumSettings().isZoomed());
+	    doubleSizeOption.setSelected(settings.getSpectrumSettings().isZoomed());
+	    jscr.setZoom(settings.getSpectrumSettings().isZoomed() ? settings.getSpectrumSettings().getZoom() : 1);
+	    spectrum.invalidateScreen(true);
+	    pack();
+	}
+	else
+	{
+	    if (zoomed && zoom != settings.getSpectrumSettings().getZoom())
+	    {
+		jscr.setZoom(settings.getSpectrumSettings().getZoom());
+		spectrum.invalidateScreen(true);
+		pack();
+	    }
+	}
+
+	startEmulation();
+    }//GEN-LAST:event_settingsOptionsMenuActionPerformed
+
+    private void saveScreenShotActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_saveScreenShotActionPerformed
+
+	if (saveImageDlg == null)
+	{
+	    saveImageDlg= new JFileChooser("/home/jsanchez/Spectrum");
+	    saveImageDlg.addChoosableFileFilter(imageExtension);
+	    saveImageDlg.setFileFilter(imageExtension);
+	    currentDirSaveImage= saveImageDlg.getCurrentDirectory();
+	}
+	else
+	{
+	    saveImageDlg.setCurrentDirectory(currentDirSaveImage);
+	    BasicFileChooserUI chooserUI= (BasicFileChooserUI) saveImageDlg.getUI();
+	    chooserUI.setFileName("");
+	}
+
+	stopEmulation();
+
+	int status= saveImageDlg.showSaveDialog(getContentPane());
+	if (status == JFileChooser.APPROVE_OPTION)
+	{
+	    currentDirSaveImage= saveImageDlg.getCurrentDirectory();
+	    if (imageExtension.accept(saveImageDlg.getSelectedFile()))
+	    {
+		spectrum.saveImage(saveImageDlg.getSelectedFile());
+	    }
+	    else
+	    {
+		String saveName= saveImageDlg.getSelectedFile().getAbsolutePath() + ".scr";
+		spectrum.saveImage(new File(saveName));
+	    }
+	}
+
+	startEmulation();
+    }//GEN-LAST:event_saveScreenShotActionPerformed
+
+    private void createTapeMediaMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_createTapeMediaMenuActionPerformed
+
+	if (openTapeDlg == null)
+	{
+	    openTapeDlg= new JFileChooser("/home/jsanchez/Spectrum");
+	    openTapeDlg.addChoosableFileFilter(createTapeExtension);
+	    openTapeDlg.addChoosableFileFilter(tapeExtension);
+	}
+	else
+	{
+	    openTapeDlg.setCurrentDirectory(currentFileTape.getParentFile());
+	}
+
+	stopEmulation();
+
+	openTapeDlg.setFileFilter(createTapeExtension);
+	int status= openTapeDlg.showOpenDialog(this);
+	if (status == JFileChooser.APPROVE_OPTION)
+	{
+	    if (!createTapeExtension.accept(openTapeDlg.getSelectedFile()))
+	    {
+		String saveName= openTapeDlg.getSelectedFile().getAbsolutePath() + ".tzx";
+		openTapeDlg.setSelectedFile(new File(saveName));
+	    }
+	    currentFileTape= openTapeDlg.getSelectedFile();
+
+	    try
+	    {
+		boolean res= currentFileTape.createNewFile();
+		if (res)
+		    tape.eject();
+		if (res && tape.insert(currentFileTape))
+		{
+		    rotateRecentFile(currentFileTape);
+		}
+		else
+		{
+		    ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+		    JOptionPane.showMessageDialog(this, bundle.getString("LOAD_TAPE_ERROR"), bundle.getString("LOAD_TAPE_ERROR_TITLE"), JOptionPane.ERROR_MESSAGE);
+		}
+	    }
+	    catch (IOException ex)
+	    {
+		Logger.getLogger(JSpeccy.class.getName()).log(Level.SEVERE, null, ex);
+	    }
+	}
+
+	startEmulation();
+    }//GEN-LAST:event_createTapeMediaMenuActionPerformed
+
+    private void hardResetSpectrumButtonActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_hardResetSpectrumButtonActionPerformed
+	ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+
+	stopEmulation();
+
+	if (settings.getEmulatorSettings().isConfirmActions())
+	{
+	    int ret= JOptionPane.showConfirmDialog(getContentPane(), bundle.getString("ARE_YOU_SURE_QUESTION"), bundle.getString("HARD_RESET_SPECTRUM"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE); // NOI18N
+	    if (ret == JOptionPane.NO_OPTION)
+	    {
+		startEmulation();
+		return;
+	    }
+	}
+
+	spectrum.hardReset();
+	switch (settings.getSpectrumSettings().getDefaultModel())
+	{
+	    case 0:
+		spec16kHardware.setSelected(true);
+		modelLabel.setToolTipText(MachineTypes.SPECTRUM16K.getLongModelName());
+		modelLabel.setText(MachineTypes.SPECTRUM16K.getShortModelName());
+		spectrum.selectHardwareModel(MachineTypes.SPECTRUM16K);
+		break;
+	    case 2:
+		spec128kHardware.setSelected(true);
+		modelLabel.setToolTipText(MachineTypes.SPECTRUM128K.getLongModelName());
+		modelLabel.setText(MachineTypes.SPECTRUM128K.getShortModelName());
+		spectrum.selectHardwareModel(MachineTypes.SPECTRUM128K);
+		break;
+	    case 3:
+		specPlus2Hardware.setSelected(true);
+		modelLabel.setToolTipText(MachineTypes.SPECTRUMPLUS2.getLongModelName());
+		modelLabel.setText(MachineTypes.SPECTRUMPLUS2.getShortModelName());
+		spectrum.selectHardwareModel(MachineTypes.SPECTRUMPLUS2);
+		break;
+	    case 4:
+		specPlus2AHardware.setSelected(true);
+		IF1MediaMenu.setEnabled(false);
+		modelLabel.setToolTipText(MachineTypes.SPECTRUMPLUS2A.getLongModelName());
+		modelLabel.setText(MachineTypes.SPECTRUMPLUS2A.getShortModelName());
+		spectrum.selectHardwareModel(MachineTypes.SPECTRUMPLUS2A);
+		break;
+	    case 5:
+		specPlus3Hardware.setSelected(true);
+		IF1MediaMenu.setEnabled(false);
+		modelLabel.setToolTipText(MachineTypes.SPECTRUMPLUS3.getLongModelName());
+		modelLabel.setText(MachineTypes.SPECTRUMPLUS3.getShortModelName());
+		spectrum.selectHardwareModel(MachineTypes.SPECTRUMPLUS3);
+		break;
+	    default:
+		spec48kHardware.setSelected(true);
+		modelLabel.setToolTipText(MachineTypes.SPECTRUM48K.getLongModelName());
+		modelLabel.setText(MachineTypes.SPECTRUM48K.getShortModelName());
+		spectrum.selectHardwareModel(MachineTypes.SPECTRUM48K);
+	}
+
+	switch (settings.getKeyboardJoystickSettings().getJoystickModel())
+	{
+	    case 1:
+		kempstonJoystick.setSelected(true);
+		spectrum.setJoystick(JoystickModel.KEMPSTON);
+		break;
+	    case 2:
+		sinclair1Joystick.setSelected(true);
+		spectrum.setJoystick(JoystickModel.SINCLAIR1);
+		break;
+	    case 3:
+		sinclair2Joystick.setSelected(true);
+		spectrum.setJoystick(JoystickModel.SINCLAIR2);
+		break;
+	    case 4:
+		cursorJoystick.setSelected(true);
+		spectrum.setJoystick(JoystickModel.CURSOR);
+		break;
+	    default:
+		noneJoystick.setSelected(true);
+		spectrum.setJoystick(JoystickModel.NONE);
+	}
+
+	if (settings.getSpectrumSettings().getDefaultModel() < 4)
+	{
+	    IF1MediaMenu.setEnabled(settings.getInterface1Settings().isConnectedIF1());
+	    IF2MediaMenu.setEnabled(true);
+	}
+	else
+	{
+	    IF1MediaMenu.setEnabled(false);
+	    IF2MediaMenu.setEnabled(false);
+	}
+
+	startEmulation();
+    }//GEN-LAST:event_hardResetSpectrumButtonActionPerformed
+
+    private void clearTapeMediaMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_clearTapeMediaMenuActionPerformed
+	ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+	int ret= JOptionPane.showConfirmDialog(getContentPane(), bundle.getString("ARE_YOU_SURE_QUESTION"), bundle.getString("CLEAR_TAPE"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE); // NOI18N
+
+	stopEmulation();
+
+	if (ret == JOptionPane.YES_OPTION && tape.isTapeReady())
+	{
+	    try
+	    {
+		File tmp= tape.getTapeFilename();
+		if (tmp.delete())
+		{
+		    tape.eject();
+		}
+
+		if (tmp.createNewFile())
+		{
+		    if (!tape.insert(tmp))
+		    {
+			JOptionPane.showMessageDialog(this, bundle.getString("LOAD_TAPE_ERROR"), bundle.getString("LOAD_TAPE_ERROR_TITLE"), JOptionPane.ERROR_MESSAGE);
+		    }
+		}
+	    }
+	    catch (IOException ex)
+	    {
+		Logger.getLogger(JSpeccy.class.getName()).log(Level.SEVERE, null, ex);
+	    }
+	}
+
+	startEmulation();
+    }//GEN-LAST:event_clearTapeMediaMenuActionPerformed
+
+    private void spec16kHardwareActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_spec16kHardwareActionPerformed
+
+	if (spectrum.getSpectrumModel() == MachineTypes.SPECTRUM16K)
+	    return;
+
+	stopEmulation();
+
+	spectrum.selectHardwareModel(MachineTypes.SPECTRUM16K);
+
+	spectrum.reset();
+
+	startEmulation();
+    }//GEN-LAST:event_spec16kHardwareActionPerformed
+
+    private void specPlus3HardwareActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_specPlus3HardwareActionPerformed
+
+	if (spectrum.getSpectrumModel() == MachineTypes.SPECTRUMPLUS3)
+	    return;
+
+	stopEmulation();
+
+	spectrum.selectHardwareModel(MachineTypes.SPECTRUMPLUS3);
+
+	spectrum.reset();
+
+	startEmulation();
+    }//GEN-LAST:event_specPlus3HardwareActionPerformed
+
+    private void recordStartTapeMediaMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_recordStartTapeMediaMenuActionPerformed
+
+	ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+	if (!tape.isTapeReady())
+	{
+	    JOptionPane.showMessageDialog(this, bundle.getString("RECORD_START_ERROR"), bundle.getString("RECORD_START_TITLE"), JOptionPane.ERROR_MESSAGE); // NOI18N
+	}
+	else
+	{
+	    if (!spectrum.startRecording())
+	    {
+		JOptionPane.showMessageDialog(this, bundle.getString("RECORD_START_FORMAT_ERROR"), bundle.getString("RECORD_START_FORMAT_TITLE"), JOptionPane.ERROR_MESSAGE); // NOI18N
+	    }
+	}
+
+	playTapeMediaMenu.setSelected(false);
+    }//GEN-LAST:event_recordStartTapeMediaMenuActionPerformed
+
+    private void recordStopTapeMediaMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_recordStopTapeMediaMenuActionPerformed
+	spectrum.stopRecording();
+    }//GEN-LAST:event_recordStopTapeMediaMenuActionPerformed
+
+    private void loadRecentFile(int idx)
+    {
+	ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+
+	if (!recentFile[idx].exists())
+	{
+	    JOptionPane.showMessageDialog(this, bundle.getString("RECENT_FILE_ERROR"), bundle.getString("RECENT_FILE_ERROR_TITLE"), JOptionPane.ERROR_MESSAGE); //NOI18N
+	}
+	else
+	{
+	    if (snapshotExtension.accept(recentFile[idx]))
+	    {
+
+		stopEmulation();
+
+		currentFileSnapshot= recentFile[idx];
+		try
+		{
+		    SnapshotFile snap= SnapshotFactory.getSnapshot(currentFileSnapshot);
+		    SpectrumState snapState= snap.load(currentFileSnapshot);
+		    if (snap instanceof SnapshotSZX)
+		    {
+			SnapshotSZX snapSZX= (SnapshotSZX) snap;
+			if (snapSZX.isTapeEmbedded())
+			{
+			    tape.eject();
+			    tape.insertEmbeddedTape(snapSZX.getTapeName(), snapSZX.getTapeExtension(), snapSZX.getTapeData(), snapSZX.getTapeBlock());
+			}
+
+			if (snapSZX.isTapeLinked())
+			{
+			    File tapeLink= new File(snapSZX.getTapeName());
+
+			    if (tapeLink.exists())
+			    {
+				tape.eject();
+				tape.insert(tapeLink);
+				tape.setSelectedBlock(snapSZX.getTapeBlock());
+			    }
+			}
+		    }
+		    spectrum.setSpectrumState(snapState);
+			spectrum.z80.setLoadedFile(currentFileSnapshot);
+		}
+		catch (SnapshotException excpt)
+		{
+		    JOptionPane.showMessageDialog(this, ResourceBundle.getBundle("gui/Bundle").getString(excpt.getMessage()), ResourceBundle.getBundle("gui/Bundle").getString("SNAPSHOT_LOAD_ERROR"), JOptionPane.ERROR_MESSAGE);
+		}
+
+		startEmulation();
+
+	    }
+	    else
+	    {
+		tape.eject();
+		currentFileTape= recentFile[idx];
+
+		if (!tape.insert(currentFileTape))
+		{
+		    JOptionPane.showMessageDialog(this, bundle.getString("LOAD_TAPE_ERROR"), bundle.getString("LOAD_TAPE_ERROR_TITLE"), JOptionPane.ERROR_MESSAGE);
+		}
+		else
+		{
+		    if (settings.getTapeSettings().isAutoLoadTape())
+		    {
+			spectrum.autoLoadTape();
+		    }
+		}
+	    }
+	}
+    }
+
+    private void recentFileMenu0ActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_recentFileMenu0ActionPerformed
+	loadRecentFile(0);
+    }//GEN-LAST:event_recentFileMenu0ActionPerformed
+
+    private void recentFileMenu1ActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_recentFileMenu1ActionPerformed
+	loadRecentFile(1);
+    }//GEN-LAST:event_recentFileMenu1ActionPerformed
+
+    private void recentFileMenu2ActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_recentFileMenu2ActionPerformed
+	loadRecentFile(2);
+    }//GEN-LAST:event_recentFileMenu2ActionPerformed
+
+    private void recentFileMenu3ActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_recentFileMenu3ActionPerformed
+	loadRecentFile(3);
+    }//GEN-LAST:event_recentFileMenu3ActionPerformed
+
+    private void recentFileMenu4ActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_recentFileMenu4ActionPerformed
+	loadRecentFile(4);
+    }//GEN-LAST:event_recentFileMenu4ActionPerformed
+
+    private void insertIF2RomMediaMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_insertIF2RomMediaMenuActionPerformed
+
+	if (IF2RomDlg == null)
+	{
+	    IF2RomDlg= new JFileChooser("/home/jsanchez/Spectrum");
+	    IF2RomDlg.addChoosableFileFilter(romExtension);
+	    IF2RomDlg.setFileFilter(romExtension);
+	    currentDirRom= IF2RomDlg.getCurrentDirectory();
+	}
+	else
+	{
+	    IF2RomDlg.setCurrentDirectory(currentDirRom);
+	}
+
+	stopEmulation();
+
+	int status= IF2RomDlg.showOpenDialog(getContentPane());
+	if (status == JFileChooser.APPROVE_OPTION)
+	{
+	    currentDirRom= IF2RomDlg.getCurrentDirectory();
+	    if (spectrum.insertIF2Rom(IF2RomDlg.getSelectedFile()))
+	    {
+		insertIF2RomMediaMenu.setEnabled(false);
+		extractIF2RomMediaMenu.setEnabled(true);
+		spectrum.reset();
+	    }
+	    else
+	    {
+		ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+		JOptionPane.showMessageDialog(this, bundle.getString("LOAD_ROM_ERROR"), bundle.getString("LOAD_ROM_ERROR_TITLE"), JOptionPane.ERROR_MESSAGE);
+	    }
+	}
+
+	startEmulation();
+    }//GEN-LAST:event_insertIF2RomMediaMenuActionPerformed
+
+    private void extractIF2RomMediaMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_extractIF2RomMediaMenuActionPerformed
+	spectrum.ejectIF2Rom();
+	insertIF2RomMediaMenu.setEnabled(true);
+	extractIF2RomMediaMenu.setEnabled(false);
+	spectrum.reset();
+    }//GEN-LAST:event_extractIF2RomMediaMenuActionPerformed
+
+    private void fullerJoystickActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_fullerJoystickActionPerformed
+	spectrum.setJoystick(JoystickModel.FULLER);
+	fullerJoystick.setSelected(true);
+    }//GEN-LAST:event_fullerJoystickActionPerformed
+
+    private void saveSzxCloseButtonActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_saveSzxCloseButtonActionPerformed
+	saveSzxTape.setVisible(false);
+    }//GEN-LAST:event_saveSzxCloseButtonActionPerformed
+
+    private void loadScreenShotActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_loadScreenShotActionPerformed
+
+	if (loadImageDlg == null)
+	{
+	    loadImageDlg= new JFileChooser("/home/jsanchez/Spectrum");
+	    loadImageDlg.addChoosableFileFilter(screenExtension);
+	    loadImageDlg.setFileFilter(screenExtension);
+	    currentDirLoadImage= loadImageDlg.getCurrentDirectory();
+	}
+	else
+	{
+	    loadImageDlg.setCurrentDirectory(currentDirLoadImage);
+	    BasicFileChooserUI chooserUI= (BasicFileChooserUI) loadImageDlg.getUI();
+	    chooserUI.setFileName("");
+	}
+
+	stopEmulation();
+
+	int status= loadImageDlg.showOpenDialog(getContentPane());
+	if (status == JFileChooser.APPROVE_OPTION)
+	{
+	    currentDirLoadImage= loadImageDlg.getCurrentDirectory();
+
+	    if (!spectrum.loadScreen(loadImageDlg.getSelectedFile()))
+	    {
+		ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+		JOptionPane.showMessageDialog(this, bundle.getString("LOAD_SCREEN_ERROR"), bundle.getString("LOAD_SCREEN_ERROR_TITLE"), JOptionPane.ERROR_MESSAGE);
+	    }
+	}
+
+	startEmulation();
+    }//GEN-LAST:event_loadScreenShotActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt)
+    {//GEN-FIRST:event_formWindowClosing
+	exitEmulator();
+    }//GEN-LAST:event_formWindowClosing
+
+    private void microdrivesIF1MediaMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_microdrivesIF1MediaMenuActionPerformed
+	ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+	if (microdriveDialog == null)
+	    microdriveDialog= new MicrodriveDialog(spectrum.getInterface1());
+
+	microdriveDialog.showDialog(this, bundle.getString("MICRODRIVES_DIALOG_TITLE"));
+    }//GEN-LAST:event_microdrivesIF1MediaMenuActionPerformed
+
+    private void tapeBrowserButtonStopActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_tapeBrowserButtonStopActionPerformed
+	if (tape.isTapePlaying())
+	{
+	    tape.stop();
+	    return;
+	}
+
+	if (tape.isTapeRecording())
+	{
+	    spectrum.stopRecording();
+	}
+    }//GEN-LAST:event_tapeBrowserButtonStopActionPerformed
+
+    private void tapeBrowserButtonPlayActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_tapeBrowserButtonPlayActionPerformed
+	if (tape.isTapeReady())
+	{
+	    tape.play();
+	}
+    }//GEN-LAST:event_tapeBrowserButtonPlayActionPerformed
+
+    private void tapeBrowserButtonEjectActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_tapeBrowserButtonEjectActionPerformed
+	tape.eject();
+    }//GEN-LAST:event_tapeBrowserButtonEjectActionPerformed
+
+    private void reloadTapeMediaMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_reloadTapeMediaMenuActionPerformed
+	if (currentFileTape != null && currentFileTape.exists() && tape.isTapeReady())
+	{
+	    File tmp= tape.getTapeFilename();
+	    tape.eject();
+	    tape.insert(tmp);
+	    if (settings.getTapeSettings().isAutoLoadTape())
+	    {
+		spectrum.autoLoadTape();
+	    }
+	}
+    }//GEN-LAST:event_reloadTapeMediaMenuActionPerformed
+
+    private void memoryBrowserMachineMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_memoryBrowserMachineMenuActionPerformed
+	ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+    }//GEN-LAST:event_memoryBrowserMachineMenuActionPerformed
+
+    private void spritesBrowserMachineMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_memoryBrowserMachineMenuActionPerformed
+    	showSpritesWindow();
+    }//GEN-LAST:event_memoryBrowserMachineMenuActionPerformed
+
+    private void showSpritesWindow() {
+    }
+
+    private void pokeMachineMenuActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_pokeMachineMenuActionPerformed
+	SpinnerNumberModel snmAddress= (SpinnerNumberModel) addressSpinner.getModel();
+	SpinnerNumberModel snmValue= (SpinnerNumberModel) valueSpinner.getModel();
+	snmValue.setValue(spectrum.getMemory().readByte(snmAddress.getNumber().intValue()) & 0xff);
+	pokeDialog.setVisible(true);
+	pokeDialog.pack();
+    }//GEN-LAST:event_pokeMachineMenuActionPerformed
+
+    private void addressSpinnerStateChanged(javax.swing.event.ChangeEvent evt)
+    {//GEN-FIRST:event_addressSpinnerStateChanged
+	SpinnerNumberModel snmAddress= (SpinnerNumberModel) addressSpinner.getModel();
+	SpinnerNumberModel snmValue= (SpinnerNumberModel) valueSpinner.getModel();
+	snmValue.setValue(spectrum.getMemory().readByte(snmAddress.getNumber().intValue()) & 0xff);
+	pokeButton.setEnabled(false);
+    }//GEN-LAST:event_addressSpinnerStateChanged
+
+    private void valueSpinnerStateChanged(javax.swing.event.ChangeEvent evt)
+    {//GEN-FIRST:event_valueSpinnerStateChanged
+	SpinnerNumberModel snmAddress= (SpinnerNumberModel) addressSpinner.getModel();
+	SpinnerNumberModel snmValue= (SpinnerNumberModel) valueSpinner.getModel();
+	int address= snmAddress.getNumber().intValue() & 0xffff;
+	byte value= snmValue.getNumber().byteValue();
+	pokeButton.setEnabled(value != spectrum.getMemory().readByte(address));
+    }//GEN-LAST:event_valueSpinnerStateChanged
+
+    private void pokeButtonActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_pokeButtonActionPerformed
+	SpinnerNumberModel snmAddress= (SpinnerNumberModel) addressSpinner.getModel();
+	SpinnerNumberModel snmValue= (SpinnerNumberModel) valueSpinner.getModel();
+	int address= snmAddress.getNumber().intValue() & 0xffff;
+	spectrum.getMemory().writeByte(address, snmValue.getNumber().byteValue());
+	pokeButton.setEnabled(false);
+
+	if (spectrum.getMemory().isScreenByte(address))
+	    spectrum.invalidateScreen(false);
+    }//GEN-LAST:event_pokeButtonActionPerformed
+
+    private void closePokeDialogButtonActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_closePokeDialogButtonActionPerformed
+	pokeDialog.setVisible(false);
+    }//GEN-LAST:event_closePokeDialogButtonActionPerformed
+
+    private void loadMemorySnapshotActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_loadMemorySnapshotActionPerformed
+	if (memorySnapshot == null)
+	    return;
+
+	stopEmulation();
+	spectrum.setSpectrumState(memorySnapshot);
+	startEmulation();
+    }//GEN-LAST:event_loadMemorySnapshotActionPerformed
+
+    private void saveMemorySnapshotActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_saveMemorySnapshotActionPerformed
+	memorySnapshot= spectrum.getSpectrumState();
+	loadMemorySnapshot.setEnabled(true);
+    }//GEN-LAST:event_saveMemorySnapshotActionPerformed
+
+    private void loadBinaryFileActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_loadBinaryFileActionPerformed
+	if (loadSaveMemoryDialog == null)
+	    loadSaveMemoryDialog= new LoadSaveMemoryDialog(spectrum.getMemory());
+
+	stopEmulation();
+	loadSaveMemoryDialog.showLoadDialog(this, null);
+	// The display area may have been affected
+	startEmulation();
+    }//GEN-LAST:event_loadBinaryFileActionPerformed
+
+    private void saveBinaryFileActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_saveBinaryFileActionPerformed
+	if (loadSaveMemoryDialog == null)
+	    loadSaveMemoryDialog= new LoadSaveMemoryDialog(spectrum.getMemory());
+
+	stopEmulation();
+	loadSaveMemoryDialog.showSaveDialog(this);
+	startEmulation();
+    }//GEN-LAST:event_saveBinaryFileActionPerformed
+
+    private void noneFilterActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_noneFilterActionPerformed
+	jscr.setAnyFilter(false);
+	scanlinesFilter.setEnabled(true);
+	jscr.setScanlinesFilter(scanlinesFilter.isSelected());
+	jscr.repaint();
+    }//GEN-LAST:event_noneFilterActionPerformed
+
+    private void palTvFilterActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_palTvFilterActionPerformed
+	if (settings.getSpectrumSettings().isULAplus())
+	{
+	    noneFilter.setSelected(true);
+	    return;
+	}
+	jscr.setPalFilter(true);
+	scanlinesFilter.setEnabled(true);
+	jscr.setScanlinesFilter(scanlinesFilter.isSelected());
+	jscr.repaint();
+    }//GEN-LAST:event_palTvFilterActionPerformed
+
+    private void rgbFilterActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_rgbFilterActionPerformed
+	jscr.setRgbFilter(true);
+	scanlinesFilter.setEnabled(false);
+	jscr.repaint();
+    }//GEN-LAST:event_rgbFilterActionPerformed
+
+    private void scanlinesFilterActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_scanlinesFilterActionPerformed
+	jscr.setScanlinesFilter(scanlinesFilter.isSelected());
+	jscr.repaint();
+    }//GEN-LAST:event_scanlinesFilterActionPerformed
+
+    private void standardZoomActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_standardZoomActionPerformed
+	jscr.setInterpolationMethod(RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+	jscr.repaint();
+    }//GEN-LAST:event_standardZoomActionPerformed
+
+    private void bilinearZoomActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_bilinearZoomActionPerformed
+	jscr.setInterpolationMethod(RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+	jscr.repaint();
+    }//GEN-LAST:event_bilinearZoomActionPerformed
+
+    private void bicubicZoomActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_bicubicZoomActionPerformed
+	jscr.setInterpolationMethod(RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+	jscr.repaint();
+    }//GEN-LAST:event_bicubicZoomActionPerformed
+
+    private void noBorderActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_noBorderActionPerformed
+	if (jscr.getBorderMode() == 0)
+	{
+	    return;
+	}
+
+	stopEmulation();
+	spectrum.setBorderMode(0);
+	jscr.setBorderMode(0);
+	jscr.setTvImage(spectrum.getTvImage());
+	pack();
+	startEmulation();
+    }//GEN-LAST:event_noBorderActionPerformed
+
+    private void standardBorderActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_standardBorderActionPerformed
+	if (jscr.getBorderMode() == 1)
+	{
+	    return;
+	}
+
+	stopEmulation();
+	spectrum.setBorderMode(1);
+	jscr.setBorderMode(1);
+	jscr.setTvImage(spectrum.getTvImage());
+	pack();
+	startEmulation();
+    }//GEN-LAST:event_standardBorderActionPerformed
+
+    private void hugeBorderActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_hugeBorderActionPerformed
+	if (jscr.getBorderMode() == 3)
+	{
+	    return;
+	}
+
+	stopEmulation();
+	spectrum.setBorderMode(3);
+	jscr.setBorderMode(3);
+	jscr.setTvImage(spectrum.getTvImage());
+	pack();
+	startEmulation();
+    }//GEN-LAST:event_hugeBorderActionPerformed
+
+    private void fullBorderActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_fullBorderActionPerformed
+	if (jscr.getBorderMode() == 2)
+	{
+	    return;
+	}
+
+	stopEmulation();
+	spectrum.setBorderMode(2);
+	jscr.setBorderMode(2);
+	jscr.setTvImage(spectrum.getTvImage());
+	pack();
+	startEmulation();
+    }//GEN-LAST:event_fullBorderActionPerformed
+
+    private void tapeLabelMouseClicked(java.awt.event.MouseEvent evt)
+    {//GEN-FIRST:event_tapeLabelMouseClicked
+	if (evt.getClickCount() == 2 && !evt.isConsumed())
+	{
+	    evt.consume();
+	    tapeBrowserDialog.setVisible(true);
+	    tapeBrowserDialog.pack();
+	    tapeCatalog.doLayout();
+	}
+    }//GEN-LAST:event_tapeLabelMouseClicked
+
+    private void mdrvLabelMouseClicked(java.awt.event.MouseEvent evt)
+    {//GEN-FIRST:event_mdrvLabelMouseClicked
+	if (IF1MediaMenu.isEnabled() && evt.getClickCount() == 2 && !evt.isConsumed())
+	{
+	    evt.consume();
+	    ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+	    if (microdriveDialog == null)
+		microdriveDialog= new MicrodriveDialog(spectrum.getInterface1());
+
+	    microdriveDialog.showDialog(this, bundle.getString("MICRODRIVES_DIALOG_TITLE"));
+	}
+    }//GEN-LAST:event_mdrvLabelMouseClicked
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(final String args[])
+    {
+    	GraphFrame graphFrame = new GraphFrame();
+		graphFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		graphFrame.setSize(1000, 700);
+		graphFrame.setVisible(true);
+
+	EventQueue.invokeLater(new Runnable()
+	{
+	    @Override
+	    public void run()
+	    {
+		JSpeccy jSpeccy = new JSpeccy(args, graphFrame);
+    jSpeccy.setVisible(true);
+
+    addJDebug(jSpeccy);
+
+    JFrame frame = new JFrame("Memory editor");
+    CodeArea codeArea = new CodeArea();
+
+
+     Memory memory = jSpeccy.spectrum.getMemory();
+    codeArea.setContentData(new ByteArrayEditableData(memory.data2));
+    frame.add(codeArea);
+    frame.setSize(1000, 600);
+    frame.setVisible(true);
+	    }
+
+      private void addJDebug(JSpeccy jSpeccy) {
+        Z80B z80 = (Z80B) jSpeccy.spectrum.z80;
+      }
+	});
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private JMenu IF1MediaMenu;
+    private JMenu IF2MediaMenu;
+    private JMenuItem aboutHelpMenu;
+    private JPanel addrValuePanel;
+    private JSpinner addressSpinner;
+    private JRadioButtonMenuItem bicubicZoom;
+    private JRadioButtonMenuItem bilinearZoom;
+    private ButtonGroup borderSizeButtonGroup;
+    private JMenu borderSizeOptionMenu;
+    private JMenuItem browserTapeMediaMenu;
+    private JMenuItem clearTapeMediaMenu;
+    private JButton closeKeyboardHelper;
+    private JButton closePokeDialogButton;
+    private JPanel closePokeDialogPanel;
+    private JMenuItem createTapeMediaMenu;
+    private JRadioButtonMenuItem cursorJoystick;
+    private JCheckBoxMenuItem doubleSizeOption;
+    private JToggleButton doubleSizeToggleButton;
+    private JMenuItem ejectTapeMediaMenu;
+    private JRadioButton embeddedRadioButton;
+    private JMenuItem extractIF2RomMediaMenu;
+    private JToggleButton fastEmulationToggleButton;
+    private JMenu fileMenu;
+    private Box.Filler filler1;
+    private Box.Filler filler2;
+    private Box.Filler filler3;
+    private Box.Filler filler4;
+    private Box.Filler filler5;
+    private ButtonGroup filtersButtonGroup;
+    private JMenu filtersOptionMenu;
+    private JRadioButtonMenuItem fullBorder;
+    private JRadioButtonMenuItem fullerJoystick;
+    private JMenuItem hardResetMachineMenu;
+    private JButton hardResetSpectrumButton;
+    private ButtonGroup hardwareButtonGroup;
+    private JMenu hardwareMachineMenu;
+    private JMenu helpMenu;
+    private JRadioButtonMenuItem hugeBorder;
+    private JRadioButton ignoreRadioButton;
+    private JMenuItem imageHelpMenu;
+    private JMenuItem insertIF2RomMediaMenu;
+    private JMenuBar jMenuBar1;
+    private JPanel jPanel2;
+    private JPanel jPanel3;
+    private JPanel jPanel4;
+    private JScrollPane jScrollPane1;
+    private JSeparator jSeparator1;
+    private JSeparator jSeparator10;
+    private JToolBar.Separator jSeparator11;
+    private JToolBar.Separator jSeparator12;
+    private JPopupMenu.Separator jSeparator13;
+    private JPopupMenu.Separator jSeparator14;
+    private JPopupMenu.Separator jSeparator15;
+    private JPopupMenu.Separator jSeparator16;
+    private JPopupMenu.Separator jSeparator17;
+    private JPopupMenu.Separator jSeparator18;
+    private JPopupMenu.Separator jSeparator19;
+    private JSeparator jSeparator2;
+    private JPopupMenu.Separator jSeparator20;
+    private JPopupMenu.Separator jSeparator3;
+    private JPopupMenu.Separator jSeparator4;
+    private JPopupMenu.Separator jSeparator5;
+    private JPopupMenu.Separator jSeparator6;
+    private JPopupMenu.Separator jSeparator7;
+    private JPopupMenu.Separator jSeparator8;
+    private JPopupMenu.Separator jSeparator9;
+    private ButtonGroup joystickButtonGroup;
+    private JMenu joystickOptionMenu;
+    private JRadioButtonMenuItem kempstonJoystick;
+    private JDialog keyboardHelper;
+    private JLabel keyboardImage;
+    private JRadioButton linkedRadioButton;
+    private JMenuItem loadBinaryFile;
+    private JMenuItem loadMemorySnapshot;
+    private JMenuItem loadScreenShot;
+    private JMenu machineMenu;
+    private JLabel mdrvLabel;
+    private JMenu mediaMenu;
+    private JMenuItem memoryBrowserMachineMenu;
+    private JMenuItem microdrivesIF1MediaMenu;
+    private JLabel modelLabel;
+    private JMenuItem nmiMachineMenu;
+    private JRadioButtonMenuItem noBorder;
+    private JRadioButtonMenuItem noneFilter;
+    private JRadioButtonMenuItem noneJoystick;
+    private JMenuItem openSnapshot;
+    private JButton openSnapshotButton;
+    private JMenuItem openTapeMediaMenu;
+    private JMenu optionsMenu;
+    private JRadioButtonMenuItem palTvFilter;
+    private JCheckBoxMenuItem pauseMachineMenu;
+    private JToggleButton pauseToggleButton;
+    private JMenuItem playTapeMediaMenu;
+    private JLabel pokeAddress;
+    private JButton pokeButton;
+    private JDialog pokeDialog;
+    private JMenuItem pokeMachineMenu;
+    private JLabel pokeValue;
+    private JMenuItem recentFileMenu0;
+    private JMenuItem recentFileMenu1;
+    private JMenuItem recentFileMenu2;
+    private JMenuItem recentFileMenu3;
+    private JMenuItem recentFileMenu4;
+    private JMenu recentFilesMenu;
+    private JMenuItem recordStartTapeMediaMenu;
+    private JMenuItem recordStopTapeMediaMenu;
+    private JMenuItem reloadTapeMediaMenu;
+    private JMenuItem resetMachineMenu;
+    private JButton resetSpectrumButton;
+    private JMenuItem rewindTapeMediaMenu;
+    private JRadioButtonMenuItem rgbFilter;
+    private JMenuItem saveBinaryFile;
+    private JMenuItem saveMemorySnapshot;
+    private JMenuItem saveScreenShot;
+    private JMenuItem saveSnapshot;
+    private ButtonGroup saveSzxButtonGroup;
+    private JPanel saveSzxChoosePanel;
+    private JButton saveSzxCloseButton;
+    private JDialog saveSzxTape;
+    private JCheckBoxMenuItem scanlinesFilter;
+    private JMenuItem settingsOptionsMenu;
+    private JCheckBoxMenuItem silenceMachineMenu;
+    private JToggleButton silenceSoundToggleButton;
+    private JRadioButtonMenuItem sinclair1Joystick;
+    private JRadioButtonMenuItem sinclair2Joystick;
+    private JRadioButtonMenuItem spec128kHardware;
+    private JRadioButtonMenuItem spec16kHardware;
+    private JRadioButtonMenuItem spec48kHardware;
+    private JRadioButtonMenuItem specPlus2AHardware;
+    private JRadioButtonMenuItem specPlus2Hardware;
+    private JRadioButtonMenuItem specPlus3Hardware;
+    private JLabel speedLabel;
+    private JRadioButtonMenuItem standardBorder;
+    private JRadioButtonMenuItem standardZoom;
+    private JPanel statusPanel;
+    private JButton tapeBrowserButtonEject;
+    private JButton tapeBrowserButtonPlay;
+    private JButton tapeBrowserButtonRec;
+    private JButton tapeBrowserButtonRew;
+    private JButton tapeBrowserButtonStop;
+    private JDialog tapeBrowserDialog;
+    private JToolBar tapeBrowserToolbar;
+    private JTable tapeCatalog;
+    private JLabel tapeFilename;
+    private JLabel tapeFilenameLabel;
+    private JLabel tapeLabel;
+    private JMenu tapeMediaMenu;
+    private JLabel tapeMessageInfo;
+    private JMenuItem thisIsTheEndMyFriend;
+    private JToolBar toolbarMenu;
+    private JSpinner valueSpinner;
+    private ButtonGroup zoomMethodButtonGroup;
+    private JMenu zoomMethodOptionMenu;
+
+    // End of variables declaration//GEN-END:variables
+
+    private class TapeChangedListener implements TapeStateListener
+    {
+
+	@Override
+	public void stateChanged(final TapeState state)
+	{
+	    //            System.out.println("JSpeccy::TapeChangedListener: state = " + state);
+	    boolean canRec= false;
+	    switch (state)
+	    {
+		case INSERT:
+		    tapeLabel.setEnabled(true);
+		    tapeLabel.setIcon(tapeStopped);
+		    tapeLabel.setToolTipText(tape.getTapeFilename().getName());
+		    tapeFilename.setText(tape.getTapeFilename().getName());
+		    tapeBrowserButtonPlay.setEnabled(true);
+		    tapeBrowserButtonStop.setEnabled(false);
+		    tapeBrowserButtonRew.setEnabled(true);
+		    tapeBrowserButtonEject.setEnabled(true);
+		    playTapeMediaMenu.setEnabled(true);
+		    recordStopTapeMediaMenu.setEnabled(false);
+		    rewindTapeMediaMenu.setEnabled(true);
+		    ejectTapeMediaMenu.setEnabled(true);
+		    reloadTapeMediaMenu.setEnabled(true);
+		    if (tape.getTapeFilename().canWrite() && !tape.getTapeFilename().getName().toLowerCase().endsWith(".csw"))
+			canRec= true;
+		    clearTapeMediaMenu.setEnabled(canRec);
+		    recordStartTapeMediaMenu.setEnabled(canRec);
+		    tapeBrowserButtonRec.setEnabled(canRec);
+		    tapeCatalog.scrollRectToVisible(tapeCatalog.getCellRect(0, 0, true));
+		    break;
+		case EJECT:
+		    ResourceBundle bundle= ResourceBundle.getBundle("gui/Bundle"); // NOI18N
+		    tapeFilename.setText(bundle.getString("JSpeccy.tapeFilename.text")); // NOI18N
+		    tapeLabel.setEnabled(false);
+		    tapeLabel.setToolTipText(null);
+		    tapeBrowserButtonRec.setEnabled(false);
+		    tapeBrowserButtonPlay.setEnabled(false);
+		    tapeBrowserButtonStop.setEnabled(false);
+		    tapeBrowserButtonRew.setEnabled(false);
+		    tapeBrowserButtonEject.setEnabled(false);
+		    playTapeMediaMenu.setEnabled(false);
+		    recordStartTapeMediaMenu.setEnabled(false);
+		    recordStopTapeMediaMenu.setEnabled(false);
+		    clearTapeMediaMenu.setEnabled(false);
+		    rewindTapeMediaMenu.setEnabled(false);
+		    ejectTapeMediaMenu.setEnabled(false);
+		    reloadTapeMediaMenu.setEnabled(false);
+		    createTapeMediaMenu.setEnabled(true);
+		    break;
+		case STOP:
+		    tapeLabel.setIcon(tapeStopped);
+		    tapeBrowserButtonPlay.setEnabled(true);
+		    tapeBrowserButtonStop.setEnabled(false);
+		    tapeBrowserButtonRew.setEnabled(true);
+		    tapeBrowserButtonEject.setEnabled(true);
+		    playTapeMediaMenu.setEnabled(true);
+		    recordStopTapeMediaMenu.setEnabled(false);
+		    rewindTapeMediaMenu.setEnabled(true);
+		    ejectTapeMediaMenu.setEnabled(true);
+		    reloadTapeMediaMenu.setEnabled(true);
+		    createTapeMediaMenu.setEnabled(true);
+		    if (tape.getTapeFilename().canWrite() && !tape.getTapeFilename().getName().toLowerCase().endsWith(".csw"))
+			canRec= true;
+		    clearTapeMediaMenu.setEnabled(canRec);
+		    recordStartTapeMediaMenu.setEnabled(canRec);
+		    tapeBrowserButtonRec.setEnabled(canRec);
+		    pauseToggleButton.setEnabled(true);
+		    pauseMachineMenu.setEnabled(true);
+		    fastEmulationToggleButton.setEnabled(true);
+		    break;
+		case RECORD:
+		    tapeLabel.setIcon(tapeRecording);
+		    playTapeMediaMenu.setEnabled(false);
+		    tapeBrowserButtonRec.setEnabled(false);
+		    tapeBrowserButtonPlay.setEnabled(false);
+		    tapeBrowserButtonStop.setEnabled(true);
+		    tapeBrowserButtonRew.setEnabled(false);
+		    tapeBrowserButtonEject.setEnabled(false);
+		    recordStartTapeMediaMenu.setEnabled(false);
+		    recordStopTapeMediaMenu.setEnabled(true);
+		    clearTapeMediaMenu.setEnabled(false);
+		    rewindTapeMediaMenu.setEnabled(false);
+		    ejectTapeMediaMenu.setEnabled(false);
+		    reloadTapeMediaMenu.setEnabled(false);
+		    createTapeMediaMenu.setEnabled(false);
+		    if (settings.getTapeSettings().isAccelerateLoading())
+		    {
+			pauseToggleButton.setEnabled(false);
+			pauseMachineMenu.setEnabled(false);
+			fastEmulationToggleButton.setEnabled(false);
+		    }
+		    break;
+		case PLAY:
+		    tapeLabel.setIcon(tapePlaying);
+		    tapeBrowserButtonRec.setEnabled(false);
+		    tapeBrowserButtonPlay.setEnabled(false);
+		    tapeBrowserButtonStop.setEnabled(true);
+		    tapeBrowserButtonRew.setEnabled(false);
+		    tapeBrowserButtonEject.setEnabled(false);
+		    recordStartTapeMediaMenu.setEnabled(false);
+		    recordStopTapeMediaMenu.setEnabled(false);
+		    clearTapeMediaMenu.setEnabled(false);
+		    rewindTapeMediaMenu.setEnabled(false);
+		    ejectTapeMediaMenu.setEnabled(false);
+		    reloadTapeMediaMenu.setEnabled(false);
+		    createTapeMediaMenu.setEnabled(false);
+		    if (settings.getTapeSettings().isAccelerateLoading())
+		    {
+			pauseToggleButton.setEnabled(false);
+			pauseMachineMenu.setEnabled(false);
+			fastEmulationToggleButton.setEnabled(false);
+		    }
+		    break;
+	    }
+	}
+    }
+}
