@@ -39,7 +39,7 @@ public class VirtualRegistersRegistersSetter<T extends WordNumber> extends Defau
   }
 
   @Override
-  protected Register<T> getRegister(RegisterName registerName) {
+  public Register<T> getRegister(RegisterName registerName) {
     Register<T> register = getState().getRegister(registerName);
     Register<T> result;
 

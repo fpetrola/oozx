@@ -27,7 +27,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class SRA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
   public static final TableAluOperation sraTableAluOperation = new TableAluOperation() {
-    public int execute(int value, int carry) {
+    public int execute(int value, int flag, int carry) {
       F = value & FLAG_C;
       value = (value & 0x80) | (value >> 1);
       value &= 0xff;

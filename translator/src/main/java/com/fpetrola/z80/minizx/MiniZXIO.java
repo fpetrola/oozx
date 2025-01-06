@@ -126,6 +126,7 @@ public class MiniZXIO implements IO<WordNumber> {
     removeIfReady(portInput);
 
 //    System.out.printf("emu IN: %d -> %d= %d%n", pc.read().intValue(), port.intValue(), resultEmu.intValue());
+
     return resultEmu;
   }
 

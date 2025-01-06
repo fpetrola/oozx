@@ -3860,7 +3860,7 @@ public class JSpeccy extends JFrame
 		JSpeccy jSpeccy = new JSpeccy(args, graphFrame);
     jSpeccy.setVisible(true);
 
-    addJDebug(jSpeccy);
+//    addJDebug(jSpeccy);
 
     JFrame frame = new JFrame("Memory editor");
     CodeArea codeArea = new CodeArea();

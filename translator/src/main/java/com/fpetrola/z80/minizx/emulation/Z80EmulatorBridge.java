@@ -19,8 +19,6 @@
 package com.fpetrola.z80.minizx.emulation;
 
 import com.fpetrola.z80.blocks.Block;
-import com.fpetrola.z80.bytecode.generators.helpers.VariableDelegator;
-import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.FetchListener;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.State;
@@ -32,19 +30,14 @@ import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.RegisterSpy;
-import net.bytebuddy.pool.TypePool;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngine;
 
 import javax.script.*;
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.fpetrola.z80.helpers.Helper.formatAddress;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
@@ -61,7 +54,7 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   private NashornScriptEngine engine;
   private Map<String, CompiledScript> scripts = new HashMap<>();
 
-  public Z80EmulatorBridge(RegisterSpy<T> pc, OOZ80<T> ooz80, int emulateUntil, int pause, DefaultInstructionFetcher alternativeInstructionFetcher) {
+  public Z80EmulatorBridge(RegisterSpy<T> pc, OOZ80<T> ooz80, int emulateUntil, int pause) {
     this.pc = pc;
     this.ooz80 = ooz80;
     this.state = ooz80.getState();
@@ -83,11 +76,12 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
       int i = 0;
 
       while (pc.read().intValue() != emulateUntil && enabled) {
-        if ((i++ % (pause * 100)) == 0) {
+        if ((i++ % (pause * 10000)) == 0) {
           ooz80.getState().setINTLine(true);
         } else {
           if (i % pause == 0) {
             doExecuteStep();
+            ooz80.getState().setINTLine(false);
           }
         }
       }

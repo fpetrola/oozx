@@ -20,11 +20,13 @@ package com.fpetrola.z80.jspeccy;
 
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Register;
 import z80core.MemIoOps;
 
 public final class IOImplementation<T extends WordNumber> implements IO<T> {
   private final MemIoOps memIoOps;
   private final int[] ports = new int[0x10000];
+  private Register<T> pc;
 
   public IOImplementation(MemIoOps memory) {
     this.memIoOps = memory;
@@ -45,6 +47,12 @@ public final class IOImplementation<T extends WordNumber> implements IO<T> {
 
     ports[port.intValue()]= value.intValue();
 
+//    System.out.printf("emu IN: %d -> %d= %d%n", pc.read().intValue(), port.intValue(), value.intValue());
+
     return value;
+  }
+
+  public void setPc(Register pc) {
+    this.pc = pc;
   }
 }

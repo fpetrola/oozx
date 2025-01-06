@@ -28,11 +28,11 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RRCA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
   public static final AluOperation rrcaTableAluOperation = new TableAluOperation() {
-    public int execute(int A, int flag) {
-      F= flag;
-      F = ( F & ( FLAG_P | FLAG_Z | FLAG_S ) ) | ( A & FLAG_C );
-      A = ( A >> 1) | ( A << 7 );
-      F |= ( A & ( FLAG_3 | FLAG_5 ) );
+    public int execute(int A, int flag, int flag2) {
+      F = flag;
+      F = (F & (FLAG_P | FLAG_Z | FLAG_S)) | (A & FLAG_C);
+      A = (A >> 1) | (A << 7);
+      F |= (A & (FLAG_3 | FLAG_5));
       Q = F;
       return A;
     }

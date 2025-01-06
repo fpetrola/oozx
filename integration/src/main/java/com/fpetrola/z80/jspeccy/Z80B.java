@@ -27,7 +27,6 @@ import com.fpetrola.z80.memory.ReadOnlyMemoryImplementation;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
-import com.fpetrola.z80.opcodes.references.TraceableWordNumber;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
@@ -35,6 +34,7 @@ import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.spy.ComplexInstructionSpy;
+import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 import com.fpetrola.z80.spy.SpyRegisterBankFactory;
 import com.fpetrola.z80.transformations.InstructionTransformer;
@@ -51,7 +51,7 @@ import java.io.File;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-public class Z80B extends RegistersBase implements IZ80 {
+public class Z80B extends RegistersBase<WordNumber> implements IZ80 {
   public static final String FILE = "console2A.txt";
   private final MemIoOps memIoImpl;
   public OOZ80 z80;
@@ -74,8 +74,11 @@ public class Z80B extends RegistersBase implements IZ80 {
     // spy = new SyncInstructionSpy();
     spy = new NullInstructionSpy();
     spy = new RoutineGrouperSpy(graphFrame, dataflowService, routineFinder1);
-    z80 = createCompleteZ80(memIoOps, FILE.equals("console2A.txt"), spy);
+    final IOImplementation io = new IOImplementation(memIoOps);
+    final MemoryImplementation memory = new MemoryImplementation(memIoOps, spy);
+    z80 = createCompleteZ80(FILE.equals("console2A.txt"), spy, blockManager, new State(io, new SpyRegisterBankFactory(spy).createBank(), spy.wrapMemory(memory)));
     State state = z80.getState();
+    io.setPc(state.getPc());
     setState(state);
     spy.setState(state);
 
@@ -112,31 +115,31 @@ public class Z80B extends RegistersBase implements IZ80 {
   }
 
   private int getValueH(Register<WordNumber> high) {
-    WordNumber o = (WordNumber) virtualRegisterFactory.lastValues.get(high);
-    if (o == null) {
-      o = high.read();
-    }
-    return o.intValue();
+    if (virtualRegisterFactory != null) {
+      WordNumber o = (WordNumber) virtualRegisterFactory.lastValues.get(high);
+      if (o == null) {
+        o = high.read();
+      }
+
+      return o.intValue();
+    } else
+      return high.read().intValue();
 //    VirtualRegister<WordNumber> h = (VirtualRegister) virtualRegisterFactory.lastVirtualRegisters.get(high);
 //    return h != null ? h.read().intValue() : high.read().intValue();
   }
 
-  private OOZ80 createCompleteZ80(MemIoOps memIoOps, boolean traditional, ComplexInstructionSpy spy1) {
-    TraceableWordNumber.instructionSpy = spy1;
-    MemoryImplementation memory = new MemoryImplementation(memIoOps, spy1);
-    IOImplementation io = new IOImplementation(memIoOps);
+  public static OOZ80 createCompleteZ80(boolean traditional, InstructionSpy spy1, BlocksManager blockManager1, State state) {
+//    TraceableWordNumber.instructionSpy = spy1;
 
-    State state = new State(io, new SpyRegisterBankFactory(spy1).createBank(), spy1.wrapMemory(memory));
-    InstructionExecutor instructionExecutor = new SpyInstructionExecutor(getSpy(), state);
+    InstructionExecutor instructionExecutor = new SpyInstructionExecutor(spy1, state);
 
-    TransformerInstructionExecutor transformerInstructionExecutor = createInstructionTransformer(state, instructionExecutor);
-    InstructionExecutor instructionExecutor1 = traditional ? instructionExecutor : transformerInstructionExecutor;
-    return createZ80(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), instructionExecutor1);
+    InstructionExecutor instructionExecutor1 = traditional ? instructionExecutor : createInstructionTransformer(state, instructionExecutor, blockManager1);
+    return createZ80(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), instructionExecutor1, spy1);
   }
 
-  private TransformerInstructionExecutor createInstructionTransformer(State state, InstructionExecutor instructionExecutor) {
+  private static TransformerInstructionExecutor createInstructionTransformer(State state, InstructionExecutor instructionExecutor, BlocksManager blockManager1) {
     DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory(state);
-    virtualRegisterFactory = new VirtualRegisterFactory(instructionExecutor, new RegisterNameBuilder(), blockManager);
+    var virtualRegisterFactory = new VirtualRegisterFactory(instructionExecutor, new RegisterNameBuilder(), blockManager1);
     InstructionTransformer instructionTransformer = new InstructionTransformer(instructionFactory, virtualRegisterFactory);
     TransformerInstructionExecutor transformerInstructionExecutor = new TransformerInstructionExecutor(state.getPc(), instructionExecutor, false, instructionTransformer);
     return transformerInstructionExecutor;
@@ -145,12 +148,12 @@ public class Z80B extends RegistersBase implements IZ80 {
   private Z80Cpu createMutationsZ80(MemoryImplementation memory, IOImplementation io, InstructionExecutor instructionExecutor) {
     final ReadOnlyMemoryImplementation memory1 = new ReadOnlyMemoryImplementation(memory);
     State state2 = new State(new ReadOnlyIOImplementation(io), new SpyRegisterBankFactory(spy).createBank(), spy.wrapMemory(memory1));
-    Z80Cpu z802 = createZ80(state2, new MutableOpcodeConditions(state2, (instruction, x, state) -> true), instructionExecutor);
+    Z80Cpu z802 = createZ80(state2, new MutableOpcodeConditions(state2, (instruction, x, state) -> true), instructionExecutor, getSpy());
     return z802;
   }
 
-  private OOZ80 createZ80(State state, OpcodeConditions opcodeConditions, InstructionExecutor instructionExecutor1) {
-    return new OOZ80(state, new DefaultInstructionFetcher<>(state, opcodeConditions, new FetchNextOpcodeInstructionFactory(getSpy(), state), instructionExecutor1, new DefaultInstructionFactory(state), false, false));
+  private static OOZ80 createZ80(State state, OpcodeConditions opcodeConditions, InstructionExecutor instructionExecutor1, InstructionSpy spy1) {
+    return new OOZ80(state, new DefaultInstructionFetcher<>(state, opcodeConditions, new FetchNextOpcodeInstructionFactory(spy1, state), instructionExecutor1, new DefaultInstructionFactory(state), false, false));
   }
 
   public void execute(int statesLimit) {

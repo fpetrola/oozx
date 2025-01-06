@@ -27,7 +27,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class SLL<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
   public static final TableAluOperation sllTableAluOperation = new TableAluOperation() {
-    public int execute(int value, int carry) {
+    public int execute(int value, int flag, int carry) {
       F = value >> 7;
       value = (value << 1) | 0x01;
       value &= 0xff;
@@ -38,7 +38,7 @@ public class SLL<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
   };
 
   public SLL(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, temp1) -> sllTableAluOperation.executeWithCarry(temp1, tFlagRegister));
+    super(target, flag, (tFlagRegister, a) -> sllTableAluOperation.executeWithCarry(a, tFlagRegister));
   }
 
   public void accept(InstructionVisitor visitor) {

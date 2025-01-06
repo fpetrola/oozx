@@ -261,7 +261,7 @@ public class DefaultRegistersSetter<T extends WordNumber> implements RegistersSe
     this.state.setPinReset(pinReset);
   }
 
-  protected Register<T> getRegister(RegisterName registerName) {
+  public Register<T> getRegister(RegisterName registerName) {
     return state.getRegister(registerName);
   }
 

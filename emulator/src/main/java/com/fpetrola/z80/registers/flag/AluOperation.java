@@ -27,7 +27,6 @@ import java.util.function.BiFunction;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class AluOperation extends AluOperationBase {
-  protected BiFunction<Integer, Integer, Integer> biFunction;
   protected TriFunction<Integer, Integer, Integer, Integer> triFunction;
 
   public AluOperation() {
@@ -35,10 +34,7 @@ public class AluOperation extends AluOperationBase {
     F = 0;
     if (execute(0, 0, 0) != -1) {
       triFunction = (a, b, c) -> execute(a, b, c);
-      init(triFunction);
-    } else if (execute(0, 0) != -1) {
-      biFunction = (a, b) -> execute(a, b);
-      init(biFunction);
+//      init(triFunction);
     }
   }
 
@@ -46,21 +42,10 @@ public class AluOperation extends AluOperationBase {
     return -1;
   }
 
-  public int execute(int value, int carry) {
-    return -1;
-  }
-
   protected void init(BiFunction<Integer, Integer, Integer> biFunction) {
   }
 
   public void init(TriFunction<Integer, Integer, Integer, Integer> triFunction) {
-  }
-
-  public <T extends WordNumber> T executeWithCarry(T regA, Register<T> flag) {
-    F = flag.read().intValue();
-    Integer result = biFunction.apply(regA.intValue(), flag.read().intValue() & 0x01);
-    flag.write(createValue(F));
-    return createValue(result);
   }
 
   public <T extends WordNumber> T executeWithCarry(T value, T regA, Register<T> flag) {
@@ -80,5 +65,9 @@ public class AluOperation extends AluOperationBase {
     Integer result = triFunction.apply(regA.intValue(), value.intValue(), 0);
     flag.write(createValue(F));
     return createValue(result);
+  }
+
+  public <T extends WordNumber> T executeWithCarry(T a, Register<T> tFlagRegister) {
+    return executeWithCarry(tFlagRegister.read(), a, tFlagRegister);
   }
 }

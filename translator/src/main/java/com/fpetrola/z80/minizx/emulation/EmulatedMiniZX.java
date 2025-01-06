@@ -18,6 +18,8 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
+import com.fpetrola.z80.blocks.BlocksManager;
+import com.fpetrola.z80.blocks.NullBlockChangesListener;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.SpyInstructionExecutor;
@@ -27,12 +29,15 @@ import com.fpetrola.z80.ide.Z80Emulator;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
+import com.fpetrola.z80.jspeccy.Z80B;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.MiniZXScreen;
 import com.fpetrola.z80.minizx.ZXScreenComponent;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.*;
 
 import javax.swing.*;
@@ -51,7 +56,6 @@ public class EmulatedMiniZX<T extends WordNumber> {
   private InstructionSpy spy;
   private State<T> state;
   private SpyInstructionExecutor instructionExecutor2;
-  private DefaultInstructionFetcher alternativeInstructionFetcher;
 
   public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread) {
     this(url, pause, showScreen, emulateUntil, inThread, new NullInstructionSpy(), createState(new NullInstructionSpy()));
@@ -74,7 +78,10 @@ public class EmulatedMiniZX<T extends WordNumber> {
   public static void main(String[] args) {
     InstructionSpy spy = new AbstractInstructionSpy() {
     };
-    new EmulatedMiniZX("file:///home/fernando/dynamitedan1.z80", 100, true, -1, true).start();
+    String url1 = "file:///home/fernando/dynamitedan1.z80";
+    url1 = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
+
+    new EmulatedMiniZX(url1, 100, true, -1, true).start();
   }
 
   public <T extends WordNumber> OOZ80<T> createOOZ80() {
@@ -83,15 +90,36 @@ public class EmulatedMiniZX<T extends WordNumber> {
     ((MiniZXIO) state.getIo()).setPc(state.getPc());
     spy.reset(state);
     instructionExecutor2 = new SpyInstructionExecutor(spy, state);
-    DefaultInstructionFetcher instructionFetcher2 = Helper.getInstructionFetcher2(state, spy, new DefaultInstructionFactory<T>(state), true, instructionExecutor2);
-    alternativeInstructionFetcher = Helper.getInstructionFetcher2(state, spy, new DefaultInstructionFactory<T>(state), true, instructionExecutor2);
+    DefaultInstructionFactory<T> instructionFactory = new DefaultInstructionFactory<>(state);
+    DefaultInstructionFetcher instructionFetcher2 = Helper.getInstructionFetcher2(state, spy, instructionFactory, true, instructionExecutor2);
     return new OOZ80(state, instructionFetcher2);
   }
 
+  public <T extends WordNumber> OOZ80<T> createOOZ802() {
+    if (state == null)
+      state = createState(spy);
+    ((MiniZXIO) state.getIo()).setPc(state.getPc());
+    spy.reset(state);
+
+//    new DataflowService() {
+//    }, new RoutineFinder(new RoutineManager()));
+
+    BlocksManager blocksManager = new BlocksManager(new NullBlockChangesListener(), false);
+
+    OOZ80 completeZ80 = Z80B.createCompleteZ80(true, spy, blocksManager, state);
+    return completeZ80;
+  }
+
+
   public static State createState(InstructionSpy spy1) {
     MiniZXIO io = new MiniZXIO();
+    Memory memory = new DefaultMemory(true);
+    State state1 = new State(io, new SpyRegisterBankFactory(spy1).createBank(), spy1.wrapMemory(memory));
 
-    return new State(io, new SpyRegisterBankFactory<>(spy1).createBank(), new MockedMemory(true));
+    State state2 = new State(io, new SpyRegisterBankFactory<>(spy1).createBank(), memory);
+
+
+    return state2;
   }
 
   protected Function<Integer, Integer> getMemFunction() {
@@ -128,9 +156,25 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
   public void emulate() {
     RegisterSpy<T> pc = (RegisterSpy<T>) ooz80.getState().getPc();
-    Z80Emulator emulator1 = new Z80EmulatorBridge(pc, ooz80, emulateUntil, pause, alternativeInstructionFetcher);
+    Z80Emulator emulator1 = new Z80EmulatorBridge(pc, ooz80, emulateUntil, pause);
     SwingUtilities.invokeLater(() -> Z80Debugger.createAndShowGUI(emulator1));
     ooz80.getInstructionFetcher().addFetchListener(emulator1.getRegisterWriteListener());
+  }
+
+  public void emulate2() {
+    Register<T> pc = ooz80.getState().getPc();
+    int i = 0;
+
+    while (pc.read().intValue() != emulateUntil) {
+      if ((i++ % (pause * 10000)) == 0) {
+        ooz80.getState().setINTLine(true);
+      } else {
+        if (i % pause == 0) {
+          ooz80.execute();
+          ooz80.getState().setINTLine(false);
+        }
+      }
+    }
   }
 
 }

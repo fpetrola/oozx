@@ -27,8 +27,8 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Dec<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
   public static final TableAluOperation dec8TableAluOperation = new TableAluOperation() {
-    public int execute(int value, int carry) {
-      F = carry;
+    public int execute(int value, int flag, int carry) {
+      F = flag;
       F = (F & FLAG_C) | (((value) & 0x0f) != 0 ? 0 : FLAG_H) | FLAG_N;
       (value)--;
       value &= 0xff;

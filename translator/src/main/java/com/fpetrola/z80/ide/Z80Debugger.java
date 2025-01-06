@@ -22,6 +22,7 @@ import com.fpetrola.z80.blocks.BlocksManager;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -143,7 +144,11 @@ public class Z80Debugger {
     JSplitPane mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftSplitPane, rightPanel);
     mainSplitPane.setResizeWeight(0.8);
 
-    mainPanel.add(mainSplitPane, BorderLayout.CENTER);
+    JScrollPane treeScrollPanel = getjScrollPane();
+    JSplitPane treeSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeScrollPanel, mainSplitPane);
+    treeSplit.setResizeWeight(0.3);
+
+    mainPanel.add(treeSplit, BorderLayout.CENTER);
 
     // Debugger logic placeholder
 
@@ -200,6 +205,39 @@ public class Z80Debugger {
     emulator1.setInstructionTableModel(instructionTable);
     emulator1.setBreakpointsModel((DefaultTableModel) breakpointsTable.getModel());
     return mainPanel;
+  }
+
+  private static JScrollPane getjScrollPane() {
+
+    // Creating the root node
+    DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
+
+    // Creating child nodes
+    DefaultMutableTreeNode parent1 = new DefaultMutableTreeNode("Parent 1");
+    DefaultMutableTreeNode child1_1 = new DefaultMutableTreeNode("Child 1.1");
+    DefaultMutableTreeNode child1_2 = new DefaultMutableTreeNode("Child 1.2");
+
+    // Adding child nodes to the parent1
+    parent1.add(child1_1);
+    parent1.add(child1_2);
+
+    // Creating another set of child nodes
+    DefaultMutableTreeNode parent2 = new DefaultMutableTreeNode("Parent 2");
+    DefaultMutableTreeNode child2_1 = new DefaultMutableTreeNode("Child 2.1");
+    DefaultMutableTreeNode child2_2 = new DefaultMutableTreeNode("Child 2.2");
+
+    // Adding child nodes to the parent2
+    parent2.add(child2_1);
+    parent2.add(child2_2);
+
+    // Adding parent nodes to the root
+    root.add(parent1);
+    root.add(parent2);
+
+    JTree comp1 = new JTree(root);
+    JScrollPane treeScrollPanel = new JScrollPane(comp1);
+    treeScrollPanel.setBorder(BorderFactory.createTitledBorder("Routines"));
+    return treeScrollPanel;
   }
 
   private static void createToolbar(Z80Emulator emulator1, JPanel mainPanel, JTable instructionTable, JTable memoryTable, JLabel[] registerLabels, JTextField[] registerFields) {

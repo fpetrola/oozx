@@ -138,7 +138,10 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.jspeccy.Z80B;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.ComplexInstructionSpy;
+import com.fpetrola.z80.spy.RegisterSpy;
 import machine.Clock;
 import snapshots.Z80State;
 
@@ -1816,14 +1819,8 @@ public class Z80 implements IZ80 {
         if (z802.getRegisterValue(PC) != regPC) {
           System.out.println("no opcode!");
         }
-        if (regPC == 3659) {
-          System.out.println("aca!");
-        }
-        if (regPC == 3754) {
-          System.out.println("aca!");
-        }
 
-        if (regPC == 0xA0DE) {
+        if (regPC == 0x11d0) {
           System.out.println("aca!");
         }
         lastPC = regPC;
@@ -1907,8 +1904,17 @@ public class Z80 implements IZ80 {
     if (z802.getRegisterValue(HL) != getRegHL())
       System.out.println("no HL!");
 
-//    if (z802.getRegisterValue(R) != (getRegR()))
+    RegisterSpy<WordNumber> register = (RegisterSpy<WordNumber>) z802.getRegister(R);
+//    int i = ((DefaultRegisterBankFactory.RRegister<?>)register.getRegister()).read2().intValue();
+    int i= register.read().intValue();
+    int regR1 = getRegR();
+//    System.out.println(regR1);
+    if (i != regR1)
+      System.out.println("no R!");
+
+//    if ((z802.getRegister(R).read().intValue()& 0x7f) != (getRegR()& 0x7f))
 //      System.out.println("no R!");
+
     if (z802.getRegisterValue(Fx) != regFx)
       System.out.println("no Fx!");
 

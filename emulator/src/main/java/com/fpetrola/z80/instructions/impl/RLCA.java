@@ -28,8 +28,8 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RLCA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
   public static final AluOperation rlcaTableAluOperation = new TableAluOperation() {
-    public int execute(int A, int carry) {
-      F = carry;
+    public int execute(int A, int flag, int carry) {
+      F = flag;
       A = (A << 1) | (A >> 7);
       F = (F & (FLAG_P | FLAG_Z | FLAG_S)) | (A & (FLAG_C | FLAG_3 | FLAG_5));
       Q = F;

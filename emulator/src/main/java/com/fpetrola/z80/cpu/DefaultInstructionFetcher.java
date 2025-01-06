@@ -24,11 +24,13 @@ import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.minizx.emulation.ToStringInstructionVisitor;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.transformations.InstructionFetcherForTest;
 
 import java.io.FileWriter;
@@ -53,8 +55,9 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   private boolean noRepeat;
   private boolean clone;
   private List<FetchListener> fetchListeners = new ArrayList<>();
-  private int prefetch= -1;
+  private int prefetch = -1;
   private Instruction<T> prefetchedInstruction;
+  private int rdelta;
 
 //  {
 //    try {
@@ -89,14 +92,17 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   @Override
   public void fetchNextInstruction() {
-    state.getRegisterR().increment();
+    Register<T> registerR = state.getRegisterR();
+    registerR.increment();
     pcValue = state.getPc().read();
     Memory<T> memory = state.getMemory();
     if (prefetch != pcValue.intValue()) {
       instruction2 = fetchInstruction(pcValue);
-      prefetchedInstruction= instruction2;
-    } else
+      prefetchedInstruction = instruction2;
+    } else {
       instruction2 = prefetchedInstruction;
+      registerR.write(WordNumber.createValue(registerR.read().intValue() + rdelta));
+    }
 
     try {
       memory.read(WordNumber.createValue(-1), 1);
@@ -115,17 +121,20 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
         nextPC = (T) jumpInstruction.getNextPC();
       }
 
-//      String x = String.format("%04X", pcValue.intValue()) + ": " + opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt] + " -> " + nextPC;
+//      String toString = new ToStringInstructionVisitor<T>().createToString(instruction2);
+//      String x = String.format("%04X", pcValue.intValue()) + ": " + toString + " -> " + nextPC;
 //      System.out.println(x);
-
 
       if (nextPC == null)
         nextPC = pcValue.plus(instruction2.getLength());
 
       state.getPc().write(nextPC);
 
-      prefetchedInstruction = fetchInstruction(nextPC);
-      prefetch= nextPC.intValue();
+//      int rValue = registerR.read().intValue();
+//      prefetchedInstruction = fetchInstruction(nextPC);
+//      prefetch = nextPC.intValue();
+//      rdelta = registerR.read().intValue() - rValue;
+//      registerR.write(WordNumber.createValue(rValue));
     } catch (Exception e) {
       e.printStackTrace();
       state.setRunState(State.RunState.STATE_STOPPED_BREAK);

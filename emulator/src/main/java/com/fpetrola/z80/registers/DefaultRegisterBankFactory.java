@@ -128,5 +128,10 @@ public class DefaultRegisterBankFactory<T extends WordNumber> {
       int result = regRbit7 ? (regR & 0x7f) | 0x80 : regR & 0x7f;
       return (T) new IntegerWordNumber(result);
     }
+
+    public T read2() {
+      int regR = super.read().intValue();
+      return (T) new IntegerWordNumber(regR);
+    }
   }
 }
