@@ -41,6 +41,10 @@ public class Helper {
   }
 
   public static String formatAddress(int routineAddress) {
+    return hex ? "0x" +Long.toHexString(routineAddress).toUpperCase() : routineAddress + "";
+  }
+
+  public static String formatAddressPlain(int routineAddress) {
     return hex ? Long.toHexString(routineAddress).toUpperCase() : routineAddress + "";
   }
 

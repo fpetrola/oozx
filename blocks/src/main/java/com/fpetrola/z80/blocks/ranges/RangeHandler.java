@@ -78,7 +78,7 @@ public class RangeHandler {
   }
 
   public String toString() {
-    return String.format("%s : %s", Helper.formatAddress(startAddress), Helper.formatAddress(endAddress));
+    return String.format("%s : %s", Helper.formatAddressPlain(startAddress), Helper.formatAddressPlain(endAddress));
   }
 
   public boolean contains(int address) {

@@ -22,6 +22,7 @@ import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
 import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
+import com.fpetrola.z80.minizx.emulation.DefaultEmulator;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
@@ -81,7 +82,7 @@ public class RemoteZ80Translator<T extends WordNumber> {
   }
 
   public static <T extends WordNumber> String emulateUntil(RealCodeBytecodeCreationBase<T> realCodeBytecodeCreationBase, int address, String url) {
-    EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX(url, 1, false, address, false);
+    EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX( url, 1, false, address, false,new DefaultEmulator());
     emulatedMiniZX.start();
 
     State state = emulatedMiniZX.ooz80.getState();

@@ -93,7 +93,7 @@ public class MemoryPlusRegister8BitReference<T extends WordNumber> implements Op
   public String toString() {
     byte dd = (byte) (fetchedRelative!=null? fetchedRelative.intValue(): 0);
     String string2 = (dd > 0 ? "+" : "-") + Helper.formatAddress(Math.abs(dd));
-    String string = "IXY";// target.toString();
+    String string = target.toString();
     return "(" + string + string2 + ")";
   }
 

@@ -19,8 +19,10 @@
 package com.fpetrola.z80.ide;
 
 import com.fpetrola.z80.blocks.BlocksManager;
+import com.fpetrola.z80.routines.Routine;
 
 import javax.swing.*;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
@@ -37,18 +39,21 @@ public class Z80Debugger {
   private static boolean ready;
   private static DefaultTableModel model;
   private static JCheckBox[] flagCheckboxes;
-  public static Map<String, JComponent> instructionTables = new ConcurrentHashMap<>();
+  public static Map<Routine, JComponent> instructionTables = new ConcurrentHashMap<>();
   public static JTree routinesTree;
-  public static Map<String, DefaultMutableTreeNode> treeNodes= new HashMap<>();
+  public static Map<Routine, DefaultMutableTreeNode> treeNodes = new HashMap<>();
+  private static TreeSelectionListener treeSelectionListener;
 
   public static void main(String[] args) {
 //    LafManager.install();
 //    LafManager.install(new DarculaTheme());
 
-    SwingUtilities.invokeLater(() -> createAndShowGUI(new Z80Emulator()));
+    SwingUtilities.invokeLater(() -> createAndShowGUI(new Z80Emulator(), e -> {
+    }));
   }
 
-  public static void createAndShowGUI(Z80Emulator emulator1) {
+  public static void createAndShowGUI(Z80Emulator emulator1, TreeSelectionListener treeSelectionListener) {
+    Z80Debugger.treeSelectionListener = treeSelectionListener;
 
     JPanel mainPanel = createMainPanel(emulator1);
 
@@ -238,21 +243,40 @@ public class Z80Debugger {
 //    root.add(parent2);
 
     routinesTree = new JTree(root);
+    routinesTree.addTreeSelectionListener(treeSelectionListener);
     JScrollPane treeScrollPanel = new JScrollPane(routinesTree);
     treeScrollPanel.setBorder(BorderFactory.createTitledBorder("Routines"));
     return treeScrollPanel;
   }
 
+  protected static ImageIcon createImageIcon(String path,
+                                             String description) {
+    java.net.URL imgURL = Z80Debugger.class.getResource(path);
+    if (imgURL != null) {
+      ImageIcon imageIcon = new ImageIcon(imgURL, description);
+      Image image = imageIcon.getImage();
+      Image newimg = image.getScaledInstance(24, 24, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+      imageIcon = new ImageIcon(newimg);
+
+      return imageIcon;
+    } else {
+      System.err.println("Couldn't find file: " + path);
+      return null;
+    }
+  }
+
   private static void createToolbar(Z80Emulator emulator1, JPanel mainPanel, JTable instructionTable, JTable memoryTable, JLabel[] registerLabels, JTextField[] registerFields) {
     // Toolbar
     JToolBar toolBar = new JToolBar();
-    JButton stepButton = new JButton("Step", new ImageIcon("icons/step.png"));
-    JButton stepIntoButton = new JButton("Step Into", new ImageIcon("icons/stepInto.png"));
-    JButton continueButton = new JButton("Continue", new ImageIcon("icons/continue.png"));
-    JButton pauseButton = new JButton("Pause", new ImageIcon("icons/pause.png"));
-    JButton stopButton = new JButton("Stop", new ImageIcon("icons/stop.png"));
+    JButton stepButton = createButton("Step Over", "/icons/step-over.png");
+    JButton stepIntoButton = createButton("Step Into", "/icons/step-into.png");
+    JButton stepOutButton = createButton("Step Out", "/icons/step-out.png");
+    JButton continueButton = createButton("Continue", "/icons/continue.png");
+    JButton pauseButton = createButton("Pause", "/icons/pause.png");
+    JButton stopButton = createButton("Stop", "/icons/stop.png");
     toolBar.add(stepButton);
     toolBar.add(stepIntoButton);
+    toolBar.add(stepOutButton);
     toolBar.add(continueButton);
     toolBar.add(pauseButton);
     toolBar.add(stopButton);
@@ -300,6 +324,12 @@ public class Z80Debugger {
 //    });
   }
 
+  private static JButton createButton(String tooltipText, String iconPath) {
+    JButton jButton = new JButton(null, createImageIcon(iconPath, ""));
+    jButton.setToolTipText(tooltipText);
+    return jButton;
+  }
+
   private static void createMenubar() {
     // Menu Bar
     JMenuBar menuBar = new JMenuBar();
@@ -328,20 +358,9 @@ public class Z80Debugger {
     Rectangle r = new Rectangle(0, 0, 200, 200);
 
     Object[] columnNames = {"", "Address", "Bytes", "Instruction"};
-//    Object[][] data = {
-//        {false, "1000", "25 27 12", "LD A, B", System.nanoTime() + ""},
-//        {false, "2000", "25 27 12", "LD A, B", System.nanoTime() + ""},
-//        {false, "3000", "25 27 12", "LD A, B", System.nanoTime() + ""},
-//        {false, "4000", "25 27 12", "LD A, B", System.nanoTime() + ""},
-//    };
-
-    Object[][] data = {{false, "0", "", ""}};
-    InstructionTableModel dm = new InstructionTableModel(data, columnNames);
+    InstructionTableModel dm = new InstructionTableModel(columnNames);
     JTable instructionTable = new JTable(dm);
     dm.setComponent(instructionTable);
-    instructionTable.getColumnModel().getColumn(0).setMaxWidth(30); // Circle column width
-    instructionTable.getColumnModel().getColumn(1).setMaxWidth(50); // Address column width
-    instructionTable.getColumnModel().getColumn(2).setMaxWidth(70); // Address column width
 
     model = (DefaultTableModel) instructionTable.getModel();
 
@@ -368,7 +387,7 @@ public class Z80Debugger {
       return panel;
     });
 
-    instructionTable.getColumnModel().getColumn(3).setCellRenderer(new Z80InstructionRenderer());
+    setupColumnModel(instructionTable);
     instructionTable.setBounds(r);
 
     JScrollPane instructionScrollPane = new JScrollPane(instructionTable) {
@@ -386,6 +405,13 @@ public class Z80Debugger {
     instructionScrollPane.setBorder(BorderFactory.createTitledBorder("Instructions"));
     instructionTable.setMaximumSize(new Dimension(100, 400)); // Fixed width and height
     return instructionScrollPane;
+  }
+
+  public static void setupColumnModel(JTable instructionTable) {
+    instructionTable.getColumnModel().getColumn(0).setMaxWidth(30); // Circle column width
+    instructionTable.getColumnModel().getColumn(1).setMaxWidth(50); // Address column width
+    instructionTable.getColumnModel().getColumn(2).setMaxWidth(70); // Address column width
+    instructionTable.getColumnModel().getColumn(3).setCellRenderer(new Z80InstructionRenderer());
   }
 
   private static void createFrame(JPanel mainPanel) {
@@ -494,17 +520,20 @@ public class Z80Debugger {
     memoryTable.scrollRectToVisible(new Rectangle(memoryTable.getCellRect(row, 0, true)));
   }
 
-  public static JComponent addBlock(String blockName) {
-//    Block block = blockManager.findBlockByName(blockName);
-    JComponent jTable = instructionTables.get(blockName);
+  public static JComponent addInstructionTable(Routine routine) {
+//    Block block = blockManager.findBlockByName(routine);
+    JComponent jTable = instructionTables.get(routine);
     if (jTable == null) {
-      instructionTables.put(blockName, jTable = createInstructionTable());
+      instructionTables.put(routine, jTable = createInstructionTable());
       if (routinesTree != null) {
         TreeModel model1 = routinesTree.getModel();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model1.getRoot();
-        DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(blockName);
-        treeNodes.put(blockName, newChild);
-        root.add(newChild);
+        DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(routine);
+        treeNodes.put(routine, newChild);
+        SwingUtilities.invokeLater(() -> {
+          root.add(newChild);
+          routinesTree.updateUI();
+        });
       }
     }
 

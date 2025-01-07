@@ -25,24 +25,26 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.graph.GraphFrame;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
+import com.fpetrola.z80.minizx.emulation.Z80EmulatorBridge;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.DataflowService;
+import com.fpetrola.z80.spy.RegisterSpy;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.DarculaTheme;
 
 import javax.swing.*;
 
-public class Ide {
+public class ZXIde {
   public static void main(String[] args) {
     LafManager.install(new DarculaTheme());
 
     Helper.hex = true;
 
     GraphFrame frame = new GraphFrame();
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(1000, 700);
-    frame.setVisible(true);
+//    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//    frame.setSize(1000, 700);
+//    frame.setVisible(true);
     DataflowService dataflowService = new DataflowService() {
     };
 
@@ -50,9 +52,10 @@ public class Ide {
 
     RoutineCustomGraph.GraphBlockChangesListener blockChangesListener = new RoutineCustomGraph.GraphBlockChangesListener();
     BlocksManager blocksManager = new BlocksManager(blockChangesListener, true);
-    Z80Debugger.blockManager= blocksManager;
+    Z80Debugger.blockManager = blocksManager;
 
-    RoutineFinder routineFinder = new RoutineFinder(new RoutineManager(blocksManager));
+    RoutineManager routineManager = new RoutineManager(blocksManager);
+    RoutineFinder routineFinder = new RoutineFinder(routineManager);
     RoutineGrouperSpy spy = new RoutineGrouperSpy<>(frame.graph, dataflowService, routineFinder);
     State state = EmulatedMiniZX.createState(spy);
 
@@ -67,6 +70,13 @@ public class Ide {
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
 
 
-    new EmulatedMiniZX(url, 10, true, -1, true, spy, state).start();
+    new EmulatedMiniZX((ooz80, emulateUntil, pause) -> {
+      RegisterSpy<?> pc = (RegisterSpy<?>) ooz80.getState().getPc();
+      Z80EmulatorBridge emulator1 = new Z80EmulatorBridge(pc, ooz80, emulateUntil, pause, routineManager);
+      routineManager.setRoutineHandlingListener(emulator1.getRoutineHandlingListener());
+      SwingUtilities.invokeLater(() -> Z80Debugger.createAndShowGUI(emulator1, emulator1.getTreeListener()));
+      ooz80.getInstructionFetcher().addFetchListener(emulator1.getRegisterWriteListener());
+    }, url, 10, true, -1, true, spy, state).start();
   }
+
 }

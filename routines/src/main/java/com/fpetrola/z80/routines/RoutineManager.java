@@ -23,6 +23,7 @@ import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.CodeBlockType;
 import com.fpetrola.z80.blocks.NullBlockChangesListener;
 import com.fpetrola.z80.cpu.RandomAccessInstructionFetcher;
+import com.fpetrola.z80.ide.RoutineHandlingListener;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
@@ -34,11 +35,22 @@ import java.util.Optional;
 import static java.util.Comparator.comparingInt;
 
 public class RoutineManager {
+  public void setRoutineHandlingListener(RoutineHandlingListener routineHandlingListener) {
+    this.routineHandlingListener = routineHandlingListener;
+  }
+
+  private RoutineHandlingListener routineHandlingListener = new RoutineHandlingListener() {
+  };
   public ListValuedMap<Integer, Integer> callers = new ArrayListValuedHashMap<>();
   public ListValuedMap<Integer, Integer> callees = new ArrayListValuedHashMap<>();
   public ListValuedMap<Integer, Integer> callers2 = new ArrayListValuedHashMap<>();
   public BlocksManager blocksManager;
   private List<Routine> routines = new ArrayList<>();
+
+  public RoutineManager(BlocksManager blocksManager, RoutineHandlingListener routineHandlingListener) {
+    this(blocksManager);
+    this.routineHandlingListener = routineHandlingListener;
+  }
 
   public RandomAccessInstructionFetcher getRandomAccessInstructionFetcher() {
     return randomAccessInstructionFetcher;
@@ -55,7 +67,7 @@ public class RoutineManager {
   }
 
   public Routine findRoutineAt(int address) {
-    Optional<Routine> first = routines.stream().filter(r -> r.contains(address)).findFirst();
+    Optional<Routine> first = new ArrayList<>(routines).stream().filter(r -> r != null && r.contains(address)).findFirst();
     if (first.isPresent()) {
       return first.get().findRoutineAt(address);
     } else
@@ -67,6 +79,7 @@ public class RoutineManager {
       System.out.println("dfasfasf!!!!");
     routines.add(routine);
     routine.setRoutineManager(this);
+    routineHandlingListener.routineAdded(routine);
     return routine;
   }
 
@@ -113,6 +126,7 @@ public class RoutineManager {
 
   public void removeRoutine(Routine routine) {
     routines.remove(routine);
+    routineHandlingListener.routineRemoved(routine);
   }
 
   public List<Routine> getRoutinesInDepth() {

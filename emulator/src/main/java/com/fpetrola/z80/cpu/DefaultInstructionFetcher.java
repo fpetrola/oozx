@@ -130,11 +130,11 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
       state.getPc().write(nextPC);
 
-//      int rValue = registerR.read().intValue();
-//      prefetchedInstruction = fetchInstruction(nextPC);
-//      prefetch = nextPC.intValue();
-//      rdelta = registerR.read().intValue() - rValue;
-//      registerR.write(WordNumber.createValue(rValue));
+      int rValue = registerR.read().intValue();
+      prefetchedInstruction = fetchInstruction(nextPC);
+      prefetch = nextPC.intValue();
+      rdelta = registerR.read().intValue() - rValue;
+      registerR.write(WordNumber.createValue(rValue));
     } catch (Exception e) {
       e.printStackTrace();
       state.setRunState(State.RunState.STATE_STOPPED_BREAK);

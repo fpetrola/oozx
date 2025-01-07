@@ -41,15 +41,15 @@ public class Z80InstructionRenderer extends DefaultTableCellRenderer {
 
   private String highlightInstruction(String instruction) {
     // Highlighting condition codes (Z, NZ, C, NC, PE, PO, P, M) in valid contexts
-    instruction = instruction.replaceAll("\\b(JP|JR|CALL|RET)\\s+(Z|NZ|C|NC|PE|PO|P|M)\\b",
+    instruction = instruction.replaceAll("\\b(JP|JR|CALL|RET)\\s+(Z|NZ|C|NC|PE|PO|P|M|S|NS)\\b",
         "$1 <span style='color:blue; font-style:italic;'>$2</span>");
     // Highlighting all Z80 mnemonics
 
-    instruction = instruction.replaceAll("\\b(CPL|CPIR|CPDR|NEG|RLCA|RRCA|LD|LDI|LDD|LDIR|LDDR|PUSH|POP|EX|EXX|EXAF|ADD|ADC|SUB|SBC|AND|OR|XOR|CP|INC|DEC|RLC|RL|RRC|RR|SLA|SRA|SRL|BIT|SET|RES|JP|JR|DJNZ|CALL|RET|RETI|RETN|RST|NOP|HALT|DI|EI|IN|OUT)\\b",
+    instruction = instruction.replaceAll("\\b(CCF|SCF|RRA|RLA|CPL|CPIR|CPDR|NEG|RLCA|RRCA|LD|LDI|LDD|LDIR|LDDR|PUSH|POP|EX|EXX|EXAF|ADD|ADC|SUB|SBC|AND|OR|XOR|CP|INC|DEC|RLC|RL|RRC|RR|SLA|SRA|SRL|BIT|SET|RES|JP|JR|DJNZ|CALL|RET|RETI|RETN|RST|NOP|HALT|DI|EI|IN|OUT)\\b",
         "<span style='color:blue; font-weight:bold;'>$1</span>");
 
     // Highlighting 8-bit registers (A, B, C, D, E, H, L, I, R)
-    instruction = instruction.replaceAll("\\b(A|B|C|D|E|H|L|I|R)\\b",
+    instruction = instruction.replaceAll("\\b([ABCDEHLIR])\\b",
         "<span style='color:green; font-weight:bold;'>$1</span>");
 
     // Highlighting 16-bit registers (AF, BC, DE, HL, IX, IY, SP, PC)

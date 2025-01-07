@@ -18,34 +18,35 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
-import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.cpu.FetchListener;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.ide.InstructionTableModel;
+import com.fpetrola.z80.ide.RoutineHandlingListener;
 import com.fpetrola.z80.ide.Z80Debugger;
 import com.fpetrola.z80.ide.Z80Emulator;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.routines.Routine;
+import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.spy.RegisterSpy;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngine;
 
 import javax.script.*;
 import javax.swing.*;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.fpetrola.z80.helpers.Helper.formatAddress;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
+public class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   private final RegisterSpy<T> pc;
   private boolean enabled;
 
@@ -54,17 +55,20 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   private final int emulateUntil;
   private List<Instruction<T>> instructions = new ArrayList<>();
   private int pause;
+  private final RoutineManager routineManager;
   private State<T> state;
   private Instruction<T> fetchedInstruction;
   private NashornScriptEngine engine;
   private Map<String, CompiledScript> scripts = new HashMap<>();
+  private TableModel model0;
 
-  public Z80EmulatorBridge(RegisterSpy<T> pc, OOZ80<T> ooz80, int emulateUntil, int pause) {
+  public Z80EmulatorBridge(RegisterSpy<T> pc, OOZ80<T> ooz80, int emulateUntil, int pause, RoutineManager routineManager) {
     this.pc = pc;
     this.ooz80 = ooz80;
     this.state = ooz80.getState();
     this.emulateUntil = emulateUntil;
     this.pause = pause;
+    this.routineManager = routineManager;
     thread = createThread();
     for (int i = 0; i < 0xFFFF; i++) {
       instructions.add(null);
@@ -111,6 +115,7 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
         if (Boolean.TRUE.equals(eval)) {
           stopExecution();
           System.out.println(eval);
+          return;
         }
       } catch (Exception e) {
         e.printStackTrace();
@@ -169,50 +174,82 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   public FetchListener<T> getRegisterWriteListener() {
     return (address, instruction) -> {
       if (!(instruction instanceof RepeatingInstruction<T>)) {
+        if (model0 == null)
+          model0 = instructionTable.getModel();
+
         fetchedInstruction = instruction;
         int addressValue = address.intValue();
 
-        Map<String, JComponent> instructionTables = new ConcurrentHashMap<>(Z80Debugger.instructionTables);
-        Optional<Map.Entry<String, JComponent>> found = Optional.empty();
-        for (Map.Entry<String, JComponent> e : instructionTables.entrySet()) {
-          Block block = Z80Debugger.blockManager.findBlockByName(e.getKey());
-          if (block != null && block.contains(addressValue)) {
-            found = Optional.of(e);
-            break;
-          }
-        }
-        if (found.isPresent()) {
-          Map.Entry<String, JComponent> entry = found.get();
-          JComponent value = entry.getValue();
-          JScrollPane instructionScrollPane = (JScrollPane) value;
-          instructionScrollPane.putClientProperty("validated2", "false");
+        Map<Routine, JComponent> instructionTables = new ConcurrentHashMap<>(Z80Debugger.instructionTables);
+        Routine routineAt = routineManager.findRoutineAt(addressValue);
+        if (routineAt != null) {
+          JComponent jComponent = instructionTables.get(routineAt);
 
-          JTable instructionTable1 = (JTable) ((JViewport) instructionScrollPane.getComponent(0)).getComponent(0);
-          InstructionTableModel model1 = (InstructionTableModel) instructionTable1.getModel();
-          instructionTable.setModel(model1);
-          model1.process(addressValue, ooz80, instruction, instructionTable);
-          DefaultMutableTreeNode defaultMutableTreeNode = Z80Debugger.treeNodes.get(entry.getKey());
-          if (defaultMutableTreeNode != null) {
+          if (jComponent != null) {
             Runnable runnable = () -> {
-              JTree routinesTree = Z80Debugger.routinesTree;
-              DefaultMutableTreeNode root = (DefaultMutableTreeNode) routinesTree.getModel().getRoot();
-              int index = root.getIndex(defaultMutableTreeNode);
-              routinesTree.setSelectionRow(index);
-              routinesTree.scrollRowToVisible(index);
+              InstructionTableModel model1 = showRoutineInstructions(jComponent);
+              model1.process(addressValue, ooz80, instruction, instructionTable);
+              DefaultMutableTreeNode defaultMutableTreeNode = Z80Debugger.treeNodes.get(routineAt);
+              if (defaultMutableTreeNode != null) {
+                JTree routinesTree = Z80Debugger.routinesTree;
+                DefaultMutableTreeNode root = (DefaultMutableTreeNode) routinesTree.getModel().getRoot();
+                int index = root.getIndex(defaultMutableTreeNode);
+                routinesTree.setSelectionRow(index + 1);
+                routinesTree.scrollRowToVisible(index + 1);
+              }
             };
-
             SwingUtilities.invokeLater(runnable);
+            return;
+
           }
-        } else {
-          InstructionTableModel<T> model = (InstructionTableModel) instructionTable.getModel();
-          model.process(addressValue, ooz80, instruction, instructionTable);
+
+          SwingUtilities.invokeLater(() -> {
+            instructionTable.setModel(model0);
+            InstructionTableModel<T> model = (InstructionTableModel) instructionTable.getModel();
+            Z80Debugger.setupColumnModel(instructionTable);
+            model.process(addressValue, ooz80, instruction, instructionTable);
+          });
         }
       }
     };
+  }
+
+  private InstructionTableModel showRoutineInstructions(JComponent jComponent) {
+    JComponent instructionScrollPane = jComponent;
+    instructionScrollPane.putClientProperty("validated2", "false");
+
+    JTable instructionTable1 = (JTable) ((JViewport) instructionScrollPane.getComponent(0)).getComponent(0);
+    InstructionTableModel model1 = (InstructionTableModel) instructionTable1.getModel();
+    instructionTable.setModel(model1);
+    Z80Debugger.setupColumnModel(instructionTable);
+    return model1;
   }
 
   private boolean isRepeating() {
     return fetchedInstruction instanceof RepeatingInstruction<?>;
   }
 
+  public RoutineHandlingListener getRoutineHandlingListener() {
+    return new RoutineHandlingListener() {
+      public void routineAdded(Routine routine) {
+        JComponent mainPanel = Z80Debugger.addInstructionTable(routine);
+      }
+
+      public void routineRemoved(Routine routine) {
+      }
+    };
+  }
+
+  public TreeSelectionListener getTreeListener() {
+    return e -> {
+      DefaultMutableTreeNode node = (DefaultMutableTreeNode) e
+          .getPath().getLastPathComponent();
+
+      Map<Routine, JComponent> instructionTables = new ConcurrentHashMap<>(Z80Debugger.instructionTables);
+      JComponent jComponent = instructionTables.get(node.getUserObject());
+
+      if (jComponent != null)
+        showRoutineInstructions(jComponent);
+    };
+  }
 }

@@ -19,6 +19,7 @@
 package com.fpetrola.z80.ide;
 
 import com.fpetrola.z80.cpu.FetchListener;
+import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.spy.RegisterWriteListener;
 
 import javax.swing.*;
@@ -147,5 +148,10 @@ public class Z80Emulator {
 
   public void setBreakpointsModel(DefaultTableModel breakpointsTableModel) {
     this.breakpointsTableModel = breakpointsTableModel;
+  }
+
+  public RoutineHandlingListener getRoutineHandlingListener() {
+    return new RoutineHandlingListener() {
+    };
   }
 }

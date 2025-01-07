@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.Vector;
 
 import static com.fpetrola.z80.helpers.Helper.formatAddress;
+import static com.fpetrola.z80.helpers.Helper.formatAddressPlain;
 
 public class InstructionTableModel<T extends WordNumber> extends DefaultTableModel {
   private Vector<Integer> addressToRow = new Vector<>();
@@ -40,6 +41,10 @@ public class InstructionTableModel<T extends WordNumber> extends DefaultTableMod
   public InstructionTableModel(Object[][] data, Object[] columnNames) {
     super(data, columnNames);
 
+  }
+
+  public InstructionTableModel(Object[] columnNames) {
+    super(columnNames, 0);
   }
 
   public void process(int addressValue, OOZ80<T> ooz80, Instruction<T> instruction, JTable instructionTable) {
@@ -64,8 +69,8 @@ public class InstructionTableModel<T extends WordNumber> extends DefaultTableMod
 
       Runnable runnable = () -> {
         String string = getString(instruction);
-        Object[] rowData = {false, formatAddress(addressValue), opcodes.toString(), string};
-        insertRow(rowNumber1, rowData);
+        Object[] rowData = {false, formatAddressPlain(addressValue), opcodes.toString(), string};
+        SwingUtilities.invokeLater(() -> insertRow(rowNumber1, rowData));
       };
 
       queueExecutor.threadSafeQueue.add(runnable);
@@ -82,15 +87,43 @@ public class InstructionTableModel<T extends WordNumber> extends DefaultTableMod
 
   private void updateSelectedRow(int j, JTable instructionTable) {
     int index0 = addressToRow.indexOf(j);
-    if (instructionTable.getRowCount() > index0) {
+    if (index0 < instructionTable.getRowCount()) {
       instructionTable.setRowSelectionInterval(index0, index0);
-      instructionTable.scrollRectToVisible(new Rectangle(instructionTable.getCellRect(index0, 0, true)));
+      scrollToVisibleInstructionBlock2(instructionTable, index0, 5);
+//      instructionTable.scrollRectToVisible(new Rectangle(instructionTable.getCellRect(index0, 0, true)));
     }
   }
 
   private String getString(Instruction<T> instruction) {
     ToStringInstructionVisitor visitor = new ToStringInstructionVisitor();
     return visitor.createToString(instruction);
+  }
+
+  public void scrollToVisibleInstructionBlock2(JTable instructionTable, int rowIndex, int sizeOfBlock) {
+    int i = instructionTable.getRowCount() - rowIndex;
+
+    int rowIndex1 = Math.min(rowIndex + sizeOfBlock, rowIndex + i);
+    Rectangle cellRect = instructionTable.getCellRect(rowIndex1, 0, true);
+    instructionTable.scrollRectToVisible(new Rectangle(instructionTable.getCellRect(rowIndex, 0, true)));
+    instructionTable.scrollRectToVisible(new Rectangle(cellRect));
+  }
+
+  public void scrollToVisibleInstructionBlock(JTable table, int rowIndex, int sizeOfBlock) {
+    if (!(table.getParent() instanceof JViewport))
+      return;
+    JViewport viewport = (JViewport) table.getParent();
+
+    Rectangle r = table.getCellRect(rowIndex, 0, true);
+    int extentHeight = viewport.getExtentSize().height;
+    int viewHeight = viewport.getViewSize().height;
+
+    int y = Math.max(0, r.y - ((extentHeight - r.height) / 2));
+    y = Math.min(y, viewHeight - extentHeight);
+
+//    Rectangle aRect = new Rectangle(table.getCellRect(rowIndex, 0, true));
+//    aRect.add(0, y);
+//    table.scrollRectToVisible(aRect);
+    viewport.setViewPosition(new Point(0, y));
   }
 
   public void setComponent(JTable instructionTable) {

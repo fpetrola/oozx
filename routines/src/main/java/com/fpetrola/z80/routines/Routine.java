@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.fpetrola.z80.helpers.Helper.formatAddress;
+import static com.fpetrola.z80.helpers.Helper.formatAddressPlain;
 import static java.util.Arrays.asList;
 
 @SuppressWarnings("ALL")
@@ -81,8 +82,9 @@ public class Routine {
   }
 
   public boolean contains(int address) {
-    Helper.breakInStackOverflow();
-    boolean b1 = blocks.stream().anyMatch(b -> b.contains(address));
+//    Helper.breakInStackOverflow();
+    ArrayList<Block> blocks1 = new ArrayList<>(blocks);
+    boolean b1 = blocks1.stream().anyMatch(b -> b!= null && b.contains(address));
     return b1;
   }
 
@@ -138,7 +140,7 @@ public class Routine {
   }
 
   private List<Block> getAllBlocksInDepth(List<Routine> routine) {
-    return routine.stream().map(r -> r.getBlocks()).flatMap(List::stream).collect(Collectors.toList());
+    return routine.stream().map(r -> new ArrayList<>(r.getBlocks())).flatMap(List::stream).collect(Collectors.toList());
   }
 
   public void growTo(int address, int length) {
@@ -152,7 +154,7 @@ public class Routine {
 
   @Override
   public String toString() {
-    return "{" + formatAddress(getStartAddress()) + ":" + formatAddress(getEndAddress()) + "} -> " + blocks.toString();
+    return "{" + formatAddressPlain(getStartAddress()) + ":" + formatAddressPlain(getEndAddress()) + "} -> " + new ArrayList<>(blocks).toString();
   }
 
   public void addBlock(Block block) {

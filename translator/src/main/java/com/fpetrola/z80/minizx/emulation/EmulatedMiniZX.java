@@ -24,8 +24,6 @@ import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.SpyInstructionExecutor;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.ide.Z80Debugger;
-import com.fpetrola.z80.ide.Z80Emulator;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
@@ -37,42 +35,42 @@ import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.MiniZXScreen;
 import com.fpetrola.z80.minizx.ZXScreenComponent;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.*;
 
-import javax.swing.*;
 import java.util.function.Function;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class EmulatedMiniZX<T extends WordNumber> {
+  private Emulator emulator;
   public OOZ80<T> ooz80;
   private int pause;
 
   private String url;
   private boolean showScreen;
-  private final int emulateUntil;
+  private int emulateUntil;
   private boolean inThread;
   private InstructionSpy spy;
   private State<T> state;
   private SpyInstructionExecutor instructionExecutor2;
 
-  public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread) {
-    this(url, pause, showScreen, emulateUntil, inThread, new NullInstructionSpy(), createState(new NullInstructionSpy()));
+  public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread, Emulator emulator) {
+    this(emulator, url, pause, showScreen, emulateUntil, inThread, new NullInstructionSpy(), createState(new NullInstructionSpy()));
   }
 
   private void createSpy() {
   }
 
-  public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread, InstructionSpy spy, State state) {
-    this.pause = pause;
+  public EmulatedMiniZX(Emulator emulator, String url, int pause, boolean showScreen, int emulateUntil, boolean inThread, InstructionSpy spy, State state) {
+    this.emulator = emulator;
+    EmulatedMiniZX.this.pause = pause;
     //    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile("file:///home/fernando/detodo/desarrollo/m/zx/zx/jsw.z80");
-    this.url = url;
-    this.showScreen = showScreen;
-    this.emulateUntil = emulateUntil;
-    this.inThread = inThread;
-    this.spy = spy;
-    this.state = state;
+    EmulatedMiniZX.this.url = url;
+    EmulatedMiniZX.this.showScreen = showScreen;
+    EmulatedMiniZX.this.emulateUntil = emulateUntil;
+    EmulatedMiniZX.this.inThread = inThread;
+    EmulatedMiniZX.this.spy = spy;
+    EmulatedMiniZX.this.state = state;
   }
 
   public static void main(String[] args) {
@@ -81,7 +79,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
     String url1 = "file:///home/fernando/dynamitedan1.z80";
     url1 = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
 
-    new EmulatedMiniZX(url1, 100, true, -1, true).start();
+    new EmulatedMiniZX(url1, 100, true, -1, true, new DefaultEmulator()).start();
   }
 
   public <T extends WordNumber> OOZ80<T> createOOZ80() {
@@ -136,7 +134,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
     SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
 
     if (showScreen) {
-      MiniZXScreen miniZXScreen1 = new MiniZXScreen(this.getMemFunction());
+      MiniZXScreen miniZXScreen1 = new MiniZXScreen(EmulatedMiniZX.this.getMemFunction());
       ZXScreenComponent zxScreenComponent = new ZXScreenComponent();
       MiniZX.createScreen(io.miniZXKeyboard, zxScreenComponent);
       MemoryWriteListener<T> writeListener = zxScreenComponent.getWriteListener();
@@ -148,33 +146,9 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
 
     if (inThread)
-      new Thread(this::emulate).start();
+      new Thread(() -> emulator.emulate(ooz80, emulateUntil, pause)).start();
     else
-      emulate();
-  }
-
-
-  public void emulate() {
-    RegisterSpy<T> pc = (RegisterSpy<T>) ooz80.getState().getPc();
-    Z80Emulator emulator1 = new Z80EmulatorBridge(pc, ooz80, emulateUntil, pause);
-    SwingUtilities.invokeLater(() -> Z80Debugger.createAndShowGUI(emulator1));
-    ooz80.getInstructionFetcher().addFetchListener(emulator1.getRegisterWriteListener());
-  }
-
-  public void emulate2() {
-    Register<T> pc = ooz80.getState().getPc();
-    int i = 0;
-
-    while (pc.read().intValue() != emulateUntil) {
-      if ((i++ % (pause * 10000)) == 0) {
-        ooz80.getState().setINTLine(true);
-      } else {
-        if (i % pause == 0) {
-          ooz80.execute();
-          ooz80.getState().setINTLine(false);
-        }
-      }
-    }
+      emulator.emulate(ooz80, emulateUntil, pause);
   }
 
 }

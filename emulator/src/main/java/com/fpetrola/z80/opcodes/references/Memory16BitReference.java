@@ -67,7 +67,7 @@ public class Memory16BitReference<T extends WordNumber> implements OpcodeReferen
 
   public String toString() {
     T read = fetchedAddress;
-    return read == null ? "" : "0x" + Helper.formatAddress(read.intValue());
+    return read == null ? "" : Helper.formatAddress(read.intValue());
   }
 
   public int getLength() {

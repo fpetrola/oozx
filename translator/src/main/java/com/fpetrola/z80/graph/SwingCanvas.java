@@ -62,7 +62,7 @@ public class SwingCanvas extends mxInteractiveCanvas {
 
     mxCell cell = (mxCell) state.getCell();
     String value = (String) cell.getValue();
-    JComponent mainPanel = Z80Debugger.addBlock(value);
+    JComponent mainPanel = Z80Debugger.addInstructionTable(null);
     JPanel component1 = getjPanel(scale);
     component1.add(mainPanel);
 

@@ -35,7 +35,7 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
     instruction.accept(this);
     String result1 = getResult();
     if (result1 == null || result1.isEmpty())
-      return getInstructionName(instruction) + " ----";
+      return getInstructionName(instruction) + "";
     return result1;
   }
 
@@ -68,7 +68,11 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
     conditionalInstruction.calculateJumpAddress();
     WordNumber jumpAddress = conditionalInstruction.getJumpAddress();
     String string = conditionalInstruction.getCondition().toString();
-    result = getInstructionName(conditionalInstruction) + " " + ((!string.isEmpty()) ? string + ", " : "") + (jumpAddress != null ? Helper.formatAddress(jumpAddress.intValue()) : 0);
+    String s = " " + ((!string.isEmpty()) ? string + ", " : "") + (jumpAddress != null ? Helper.formatAddress(jumpAddress.intValue()) : 0);
+    if (conditionalInstruction instanceof Ret<?>)
+      s = " " + ((!string.isEmpty()) ? string : "");
+
+    result = getInstructionName(conditionalInstruction) + s;
   }
 
   public boolean visitingDjnz(DJNZ<T> conditionalInstruction) {
@@ -153,11 +157,11 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
   }
 
   public boolean visitRepeatingInstruction(RepeatingInstruction<T> tRepeatingInstruction) {
-    result= getInstructionName(tRepeatingInstruction);
+    result = getInstructionName(tRepeatingInstruction);
     return true;
   }
 
   public void visitBlockInstruction(BlockInstruction blockInstruction) {
-    result= getInstructionName(blockInstruction);
+    result = getInstructionName(blockInstruction);
   }
 }
