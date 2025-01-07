@@ -34,10 +34,15 @@ import org.openjdk.nashorn.api.scripting.NashornScriptEngine;
 
 import javax.script.*;
 import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
+import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.fpetrola.z80.helpers.Helper.formatAddress;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
@@ -184,10 +189,24 @@ class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
 
           JTable instructionTable1 = (JTable) ((JViewport) instructionScrollPane.getComponent(0)).getComponent(0);
           InstructionTableModel model1 = (InstructionTableModel) instructionTable1.getModel();
-          model1.process(addressValue, ooz80, instruction);
+          instructionTable.setModel(model1);
+          model1.process(addressValue, ooz80, instruction, instructionTable);
+          DefaultMutableTreeNode defaultMutableTreeNode = Z80Debugger.treeNodes.get(entry.getKey());
+          if (defaultMutableTreeNode != null) {
+            Runnable runnable = () -> {
+              JTree routinesTree = Z80Debugger.routinesTree;
+              DefaultMutableTreeNode root = (DefaultMutableTreeNode) routinesTree.getModel().getRoot();
+              int index = root.getIndex(defaultMutableTreeNode);
+              routinesTree.setSelectionRow(index);
+              routinesTree.scrollRowToVisible(index);
+            };
+
+            SwingUtilities.invokeLater(runnable);
+          }
+        } else {
+          InstructionTableModel<T> model = (InstructionTableModel) instructionTable.getModel();
+          model.process(addressValue, ooz80, instruction, instructionTable);
         }
-        InstructionTableModel<T> model = (InstructionTableModel) instructionTable.getModel();
-        model.process(addressValue, ooz80, instruction);
       }
     };
   }

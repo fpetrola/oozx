@@ -23,6 +23,7 @@ import com.fpetrola.z80.blocks.BlocksManager;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -37,6 +38,8 @@ public class Z80Debugger {
   private static DefaultTableModel model;
   private static JCheckBox[] flagCheckboxes;
   public static Map<String, JComponent> instructionTables = new ConcurrentHashMap<>();
+  public static JTree routinesTree;
+  public static Map<String, DefaultMutableTreeNode> treeNodes= new HashMap<>();
 
   public static void main(String[] args) {
 //    LafManager.install();
@@ -210,32 +213,32 @@ public class Z80Debugger {
   private static JScrollPane getjScrollPane() {
 
     // Creating the root node
-    DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
+    DefaultMutableTreeNode root = new DefaultMutableTreeNode("Program");
 
-    // Creating child nodes
-    DefaultMutableTreeNode parent1 = new DefaultMutableTreeNode("Parent 1");
-    DefaultMutableTreeNode child1_1 = new DefaultMutableTreeNode("Child 1.1");
-    DefaultMutableTreeNode child1_2 = new DefaultMutableTreeNode("Child 1.2");
+//    // Creating child nodes
+//    DefaultMutableTreeNode parent1 = new DefaultMutableTreeNode("Parent 1");
+//    DefaultMutableTreeNode child1_1 = new DefaultMutableTreeNode("Child 1.1");
+//    DefaultMutableTreeNode child1_2 = new DefaultMutableTreeNode("Child 1.2");
+//
+//    // Adding child nodes to the parent1
+//    parent1.add(child1_1);
+//    parent1.add(child1_2);
+//
+//    // Creating another set of child nodes
+//    DefaultMutableTreeNode parent2 = new DefaultMutableTreeNode("Parent 2");
+//    DefaultMutableTreeNode child2_1 = new DefaultMutableTreeNode("Child 2.1");
+//    DefaultMutableTreeNode child2_2 = new DefaultMutableTreeNode("Child 2.2");
+//
+//    // Adding child nodes to the parent2
+//    parent2.add(child2_1);
+//    parent2.add(child2_2);
+//
+//    // Adding parent nodes to the root
+//    root.add(parent1);
+//    root.add(parent2);
 
-    // Adding child nodes to the parent1
-    parent1.add(child1_1);
-    parent1.add(child1_2);
-
-    // Creating another set of child nodes
-    DefaultMutableTreeNode parent2 = new DefaultMutableTreeNode("Parent 2");
-    DefaultMutableTreeNode child2_1 = new DefaultMutableTreeNode("Child 2.1");
-    DefaultMutableTreeNode child2_2 = new DefaultMutableTreeNode("Child 2.2");
-
-    // Adding child nodes to the parent2
-    parent2.add(child2_1);
-    parent2.add(child2_2);
-
-    // Adding parent nodes to the root
-    root.add(parent1);
-    root.add(parent2);
-
-    JTree comp1 = new JTree(root);
-    JScrollPane treeScrollPanel = new JScrollPane(comp1);
+    routinesTree = new JTree(root);
+    JScrollPane treeScrollPanel = new JScrollPane(routinesTree);
     treeScrollPanel.setBorder(BorderFactory.createTitledBorder("Routines"));
     return treeScrollPanel;
   }
@@ -494,8 +497,16 @@ public class Z80Debugger {
   public static JComponent addBlock(String blockName) {
 //    Block block = blockManager.findBlockByName(blockName);
     JComponent jTable = instructionTables.get(blockName);
-    if (jTable == null)
+    if (jTable == null) {
       instructionTables.put(blockName, jTable = createInstructionTable());
+      if (routinesTree != null) {
+        TreeModel model1 = routinesTree.getModel();
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) model1.getRoot();
+        DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(blockName);
+        treeNodes.put(blockName, newChild);
+        root.add(newChild);
+      }
+    }
 
     return jTable;
   }

@@ -36,14 +36,13 @@ public class InstructionTableModel<T extends WordNumber> extends DefaultTableMod
   private Vector<Integer> addressToRow = new Vector<>();
   private static QueueExecutor queueExecutor = new QueueExecutor();
   private double startTime = System.currentTimeMillis();
-  private JTable instructionTable;
 
   public InstructionTableModel(Object[][] data, Object[] columnNames) {
     super(data, columnNames);
 
   }
 
-  public void process(int addressValue, OOZ80<T> ooz80, Instruction<T> instruction){
+  public void process(int addressValue, OOZ80<T> ooz80, Instruction<T> instruction, JTable instructionTable) {
     boolean addressIsPresent = addressToRow.contains(addressValue);
     if (!addressIsPresent) {
       int rowNumber = Collections.binarySearch(addressToRow, addressValue);
@@ -75,16 +74,18 @@ public class InstructionTableModel<T extends WordNumber> extends DefaultTableMod
     long currentTime = System.currentTimeMillis();
     if (currentTime - startTime > 50) {
       queueExecutor.threadSafeQueue.add(() -> {
-        SwingUtilities.invokeLater(() -> updateSelectedRow(addressValue));
+        SwingUtilities.invokeLater(() -> updateSelectedRow(addressValue, instructionTable));
       });
       startTime = System.currentTimeMillis();
     }
   }
 
-  private void updateSelectedRow(int j) {
+  private void updateSelectedRow(int j, JTable instructionTable) {
     int index0 = addressToRow.indexOf(j);
-    instructionTable.setRowSelectionInterval(index0, index0);
-    instructionTable.scrollRectToVisible(new Rectangle(instructionTable.getCellRect(index0, 0, true)));
+    if (instructionTable.getRowCount() > index0) {
+      instructionTable.setRowSelectionInterval(index0, index0);
+      instructionTable.scrollRectToVisible(new Rectangle(instructionTable.getCellRect(index0, 0, true)));
+    }
   }
 
   private String getString(Instruction<T> instruction) {
@@ -93,6 +94,6 @@ public class InstructionTableModel<T extends WordNumber> extends DefaultTableMod
   }
 
   public void setComponent(JTable instructionTable) {
-    this.instructionTable = instructionTable;
+//    this.instructionTable = instructionTable;
   }
 }

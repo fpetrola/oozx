@@ -35,14 +35,14 @@ import javax.swing.*;
 
 public class Ide {
   public static void main(String[] args) {
-//    LafManager.install(new DarculaTheme());
+    LafManager.install(new DarculaTheme());
 
     Helper.hex = true;
 
     GraphFrame frame = new GraphFrame();
-//    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//    frame.setSize(1000, 700);
-//    frame.setVisible(true);
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setSize(1000, 700);
+    frame.setVisible(true);
     DataflowService dataflowService = new DataflowService() {
     };
 
