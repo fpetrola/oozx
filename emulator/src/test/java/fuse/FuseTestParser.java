@@ -100,7 +100,8 @@ public class FuseTestParser<T extends WordNumber> {
     io.setState(state);
     InstructionSpy spy = new MemptrUpdateInstructionSpy(state);
     DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory<>(state);
-    instructionFetcher = new MyDefaultInstructionFetcher(state, spy, instructionFactory);
+    instructionFetcher = new FuseTestsInstructionFetcher(state, instructionFactory);
+    spy.addExecutionListeners(instructionFetcher.getInstructionExecutor());
     cpu = Z80Factory.createOOZ80(state, instructionFetcher);
 
     PhaseProcessor<T> phaseProcessor = new PhaseProcessor<>((Z80Cpu<T>) cpu);
@@ -109,9 +110,9 @@ public class FuseTestParser<T extends WordNumber> {
     return cpu;
   }
 
-  public static class MyDefaultInstructionFetcher extends DefaultInstructionFetcher {
-    public MyDefaultInstructionFetcher(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory) {
-      super(state, new OpcodeConditions(state.getFlag(), state.getRegister(RegisterName.B)), new FetchNextOpcodeInstructionFactory(state), DefaultInstructionExecutor.createSpyInstructionExecutor(spy, state), instructionFactory, false, false, false);
+  public static class FuseTestsInstructionFetcher extends DefaultInstructionFetcher {
+    public FuseTestsInstructionFetcher(State state, DefaultInstructionFactory instructionFactory) {
+      super(state, new OpcodeConditions(state.getFlag(), state.getRegister(RegisterName.B)), new FetchNextOpcodeInstructionFactory(state), new DefaultInstructionExecutor<>(state), instructionFactory, false, false, false);
     }
 
     public Instruction getLastInstruction() {

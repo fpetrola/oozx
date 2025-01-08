@@ -19,6 +19,7 @@
 package com.fpetrola.z80.spy;
 
 import com.fpetrola.z80.cpu.DefaultInstructionExecutor;
+import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
@@ -29,7 +30,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterBank;
 
 public interface InstructionSpy<T> {
-  default void addExecutionListeners(DefaultInstructionExecutor<?> defaultInstructionExecutor) {
+  default void addExecutionListeners(InstructionExecutor<?> defaultInstructionExecutor) {
     defaultInstructionExecutor.addExecutionListener(new ExecutionListener() {
       public void beforeExecution(Instruction instruction) {
         InstructionSpy.this.beforeExecution(instruction);

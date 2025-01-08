@@ -22,7 +22,6 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.ExecutionListener;
-import com.fpetrola.z80.spy.InstructionSpy;
 import com.google.inject.Inject;
 
 import java.util.*;
@@ -36,12 +35,6 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
   @Inject
   public DefaultInstructionExecutor(State state) {
     this.pc = state.getPc();
-  }
-
-  public static <T extends WordNumber> DefaultInstructionExecutor<T> createSpyInstructionExecutor(InstructionSpy spy, State state) {
-    DefaultInstructionExecutor<T> defaultInstructionExecutor = new DefaultInstructionExecutor<>(state);
-    spy.addExecutionListeners(defaultInstructionExecutor);
-    return defaultInstructionExecutor;
   }
 
   @Override

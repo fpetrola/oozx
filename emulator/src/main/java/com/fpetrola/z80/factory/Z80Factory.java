@@ -36,12 +36,13 @@ public class Z80Factory {
   }
 
   public static DefaultInstructionFetcher getInstructionFetcher(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory, boolean clone) {
-    return getInstructionFetcher2(state, instructionFactory, clone, DefaultInstructionExecutor.createSpyInstructionExecutor(spy, state), false);
+    DefaultInstructionFetcher instructionFetcher2 = getInstructionFetcher2(state, instructionFactory, clone, new DefaultInstructionExecutor<>(state), false);
+    spy.addExecutionListeners(instructionFetcher2.getInstructionExecutor());
+    return instructionFetcher2;
   }
 
   public static DefaultInstructionFetcher getInstructionFetcher2(State state, DefaultInstructionFactory instructionFactory, boolean clone, DefaultInstructionExecutor instructionExecutor2, boolean prefetch) {
-    DefaultInstructionExecutor instructionExecutor1 = instructionExecutor2;
-    return new DefaultInstructionFetcher(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), new FetchNextOpcodeInstructionFactory(state), instructionExecutor1, instructionFactory, false, clone, prefetch);
+    return new DefaultInstructionFetcher(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), new FetchNextOpcodeInstructionFactory(state), instructionExecutor2, instructionFactory, false, clone, prefetch);
   }
 
   public static <T extends WordNumber> OOZ80<T> createOOZ80(State aState, InstructionFetcher instructionFetcher) {

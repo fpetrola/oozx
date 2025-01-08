@@ -20,10 +20,11 @@ package com.fpetrola.z80.cpu;
 
 public interface InstructionFetcher {
 
+  InstructionExecutor getInstructionExecutor();
+
   void fetchNextInstruction();
   void reset();
 
   default void addFetchListener(FetchListener fetchListener) {
-
   }
 }

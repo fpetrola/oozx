@@ -42,6 +42,12 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   protected Instruction<T>[] opcodesTables;
 
   protected T pcValue;
+
+  @Override
+  public InstructionExecutor<T> getInstructionExecutor() {
+    return instructionExecutor;
+  }
+
   protected final InstructionExecutor<T> instructionExecutor;
   FileWriter fileWriter;
   //  List<ExecutedInstruction> lastInstructions = new ArrayList<>();

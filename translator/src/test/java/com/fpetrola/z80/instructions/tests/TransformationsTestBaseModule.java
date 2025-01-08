@@ -33,7 +33,7 @@ public class TransformationsTestBaseModule<T extends WordNumber> extends BaseMod
   @Inject
   @Singleton
   private DefaultInstructionExecutor getInstructionExecutor(RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state) {
-    return DefaultInstructionExecutor.createSpyInstructionExecutor(routineFinderInstructionSpy1, state);
+    return new DefaultInstructionExecutor<>(state);
   }
 
   @Provides

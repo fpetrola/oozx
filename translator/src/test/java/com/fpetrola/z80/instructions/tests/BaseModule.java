@@ -99,7 +99,9 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Inject
   @Singleton
   private InstructionExecutor getInstructionExecutor(RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state) {
-    return DefaultInstructionExecutor.createSpyInstructionExecutor(routineFinderInstructionSpy1, state);
+    DefaultInstructionExecutor<WordNumber> defaultInstructionExecutor = new DefaultInstructionExecutor<>(state);
+    routineFinderInstructionSpy1.addExecutionListeners(defaultInstructionExecutor);
+    return defaultInstructionExecutor;
   }
 
   @Provides
