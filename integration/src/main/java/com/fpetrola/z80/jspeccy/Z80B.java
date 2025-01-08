@@ -77,7 +77,7 @@ public class Z80B extends RegistersBase<WordNumber> implements IZ80 {
     spy = new RoutineGrouperSpy(graphFrame, dataflowService, routineFinder1);
     final IOImplementation io = new IOImplementation(memIoOps);
     final MemoryImplementation memory = new MemoryImplementation(memIoOps, spy);
-    z80 = createCompleteZ80(FILE.equals("console2A.txt"), spy, blockManager, new State(io, new SpyRegisterBankFactory(spy).createBank(), spy.wrapMemory(memory)));
+    z80 = createCompleteZ80(FILE.equals("console2A.txt"), spy, blockManager, new State(io, SpyRegisterBankFactory.createSpyRegisterBankFactory(spy).createBank(), spy.wrapMemory(memory)));
     State state = z80.getState();
     io.setPc(state.getPc());
     setState(state);
@@ -148,7 +148,7 @@ public class Z80B extends RegistersBase<WordNumber> implements IZ80 {
 
   private Z80Cpu createMutationsZ80(MemoryImplementation memory, IOImplementation io, InstructionExecutor instructionExecutor) {
     final ReadOnlyMemoryImplementation memory1 = new ReadOnlyMemoryImplementation(memory);
-    State state2 = new State(new ReadOnlyIOImplementation(io), new SpyRegisterBankFactory(spy).createBank(), spy.wrapMemory(memory1));
+    State state2 = new State(new ReadOnlyIOImplementation(io), SpyRegisterBankFactory.createSpyRegisterBankFactory(spy).createBank(), spy.wrapMemory(memory1));
     Z80Cpu z802 = createZ80(state2, new MutableOpcodeConditions(state2, (instruction, x, state) -> true), instructionExecutor);
     return z802;
   }

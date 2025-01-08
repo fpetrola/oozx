@@ -26,8 +26,12 @@ import static com.fpetrola.z80.registers.RegisterName.F;
 public class SpyRegisterBankFactory<T extends WordNumber> extends DefaultRegisterBankFactory<T> {
   private final InstructionSpy spy;
 
-  public SpyRegisterBankFactory(InstructionSpy spy) {
+  private SpyRegisterBankFactory(InstructionSpy spy) {
     this.spy = spy;
+  }
+
+  public static <T extends WordNumber> SpyRegisterBankFactory<T> createSpyRegisterBankFactory(InstructionSpy spy) {
+    return new SpyRegisterBankFactory<T>(spy);
   }
 
   protected Register<T> createRRegister() {

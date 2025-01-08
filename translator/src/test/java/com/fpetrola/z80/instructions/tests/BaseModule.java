@@ -86,7 +86,7 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Inject
   @Singleton
   private State getState(RoutineFinderInstructionSpy spy, Memory aMemory) {
-    return new State(new MockedIO(), new SpyRegisterBankFactory<>(spy).createBank(), aMemory);
+    return new State(new MockedIO(), SpyRegisterBankFactory.createSpyRegisterBankFactory(spy).createBank(), aMemory);
   }
 
   @Provides

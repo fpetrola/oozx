@@ -32,6 +32,7 @@ public class RegisterSpy<T extends WordNumber> extends Plain16BitRegister<T> {
   protected List<RegisterWriteListener<T>> registerWriteListeners = new ArrayList<>();
   protected List<RegisterReadListener<T>> registerReadListeners = new ArrayList<>();
   private boolean listening= true;
+  
   public RegisterSpy(Register<T> register) {
     super(register.getName());
     this.register = register;

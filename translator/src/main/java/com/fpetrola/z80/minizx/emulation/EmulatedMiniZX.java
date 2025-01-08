@@ -113,9 +113,9 @@ public class EmulatedMiniZX<T extends WordNumber> {
   public static State createState(InstructionSpy spy1) {
     MiniZXIO io = new MiniZXIO();
     Memory memory = new DefaultMemory(true);
-    State state1 = new State(io, new SpyRegisterBankFactory(spy1).createBank(), spy1.wrapMemory(memory));
+    State state1 = new State(io, SpyRegisterBankFactory.createSpyRegisterBankFactory(spy1).createBank(), spy1.wrapMemory(memory));
 
-    State state2 = new State(io, new SpyRegisterBankFactory<>(spy1).createBank(), memory);
+    State state2 = new State(io, SpyRegisterBankFactory.createSpyRegisterBankFactory(spy1).createBank(), memory);
 
 
     return state2;
