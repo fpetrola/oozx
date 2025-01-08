@@ -18,14 +18,28 @@
 
 package com.fpetrola.z80.spy;
 
+import com.fpetrola.z80.cpu.DefaultInstructionExecutor;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
 public interface InstructionSpy<T> {
+  static <T extends WordNumber> void addExecutionListenerForSpy(DefaultInstructionExecutor<T> defaultInstructionExecutor, InstructionSpy spy) {
+    defaultInstructionExecutor.addExecutionListener(new ExecutionListener() {
+      public void beforeExecution(Instruction instruction) {
+        spy.beforeExecution(instruction);
+      }
+
+      public void afterExecution(Instruction instruction) {
+        spy.afterExecution(instruction);
+      }
+    });
+  }
+
   default Memory<T> wrapMemory(Memory<T> aMemory) {
     return aMemory;
   }

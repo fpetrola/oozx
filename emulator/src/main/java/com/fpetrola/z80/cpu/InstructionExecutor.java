@@ -19,6 +19,7 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.spy.ExecutionListener;
 
 public interface InstructionExecutor<T> {
   Instruction<T> getInstructionAt(int address);
@@ -28,5 +29,8 @@ public interface InstructionExecutor<T> {
   boolean isExecuting(Instruction<T> instruction);
 
   default void reset() {
+  }
+
+  default void addExecutionListener(ExecutionListener executionListener) {
   }
 }

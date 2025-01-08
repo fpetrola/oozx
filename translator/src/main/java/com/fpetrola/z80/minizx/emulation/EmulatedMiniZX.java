@@ -22,7 +22,7 @@ import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.NullBlockChangesListener;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.OOZ80;
-import com.fpetrola.z80.cpu.SpyInstructionExecutor;
+import com.fpetrola.z80.cpu.DefaultInstructionExecutor;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
@@ -52,7 +52,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
   private boolean inThread;
   private InstructionSpy spy;
   private State<T> state;
-  private SpyInstructionExecutor instructionExecutor2;
+  private DefaultInstructionExecutor instructionExecutor2;
 
   public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread, Emulator emulator) {
     this(emulator, url, pause, showScreen, emulateUntil, inThread, new NullInstructionSpy(), createState(new NullInstructionSpy()));
@@ -63,14 +63,14 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
   public EmulatedMiniZX(Emulator emulator, String url, int pause, boolean showScreen, int emulateUntil, boolean inThread, InstructionSpy spy, State state) {
     this.emulator = emulator;
-    EmulatedMiniZX.this.pause = pause;
+    this.pause = pause;
     //    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile("file:///home/fernando/detodo/desarrollo/m/zx/zx/jsw.z80");
-    EmulatedMiniZX.this.url = url;
-    EmulatedMiniZX.this.showScreen = showScreen;
-    EmulatedMiniZX.this.emulateUntil = emulateUntil;
-    EmulatedMiniZX.this.inThread = inThread;
-    EmulatedMiniZX.this.spy = spy;
-    EmulatedMiniZX.this.state = state;
+    this.url = url;
+    this.showScreen = showScreen;
+    this.emulateUntil = emulateUntil;
+    this.inThread = inThread;
+    this.spy = spy;
+    this.state = state;
   }
 
   public static void main(String[] args) {
@@ -87,7 +87,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
       state = createState(spy);
     ((MiniZXIO) state.getIo()).setPc(state.getPc());
     spy.reset(state);
-    instructionExecutor2 = new SpyInstructionExecutor(spy, state);
+    instructionExecutor2 = DefaultInstructionExecutor.createSpyInstructionExecutor(spy, state);
     DefaultInstructionFactory<T> instructionFactory = new DefaultInstructionFactory<>(state);
     DefaultInstructionFetcher instructionFetcher2 = Helper.getInstructionFetcher2(state, spy, instructionFactory, true, instructionExecutor2);
     return new OOZ80(state, instructionFetcher2);
@@ -134,7 +134,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
     SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
 
     if (showScreen) {
-      MiniZXScreen miniZXScreen1 = new MiniZXScreen(EmulatedMiniZX.this.getMemFunction());
+      MiniZXScreen miniZXScreen1 = new MiniZXScreen(this.getMemFunction());
       ZXScreenComponent zxScreenComponent = new ZXScreenComponent();
       MiniZX.createScreen(io.miniZXKeyboard, zxScreenComponent);
       MemoryWriteListener<T> writeListener = zxScreenComponent.getWriteListener();

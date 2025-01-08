@@ -20,7 +20,7 @@ package com.fpetrola.z80.base;
 
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.RegistersSetter;
-import com.fpetrola.z80.cpu.SpyInstructionExecutor;
+import com.fpetrola.z80.cpu.DefaultInstructionExecutor;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -32,12 +32,12 @@ import com.google.inject.Inject;
 public class PlainDriverConfigurator<T extends WordNumber> extends DriverConfigurator<T> {
 
   @Inject
-  public PlainDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy spy, State state2, SpyInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1, RegistersSetter registersSetter1, CPUExecutionContext secondContext2) {
+  public PlainDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy spy, State state2, DefaultInstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter, InstructionTransformer instructionCloner2, TransformerInstructionExecutor transformerInstructionExecutor1, OpcodeConditions opcodeConditions1, RegistersSetter registersSetter1, CPUExecutionContext secondContext2) {
     super(routineManager, spy, state2, instructionExecutor2, symbolicExecutionAdapter, instructionCloner2, transformerInstructionExecutor1, opcodeConditions1, registersSetter1, secondContext2);
   }
 
   public CPUExecutionContext<T> getSecondContext() {
-    OOZ80 z80 = new OOZ80(state1, new InstructionFetcherForTest<>(this.state1, new SpyInstructionExecutor(spy, state1)));
+    OOZ80 z80 = new OOZ80(state1, new InstructionFetcherForTest<>(this.state1, DefaultInstructionExecutor.createSpyInstructionExecutor(spy, state1)));
     return new CPUExecutionContext<>(spy, z80, opcodeConditions);
   }
 }

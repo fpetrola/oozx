@@ -131,7 +131,7 @@ public class Z80B extends RegistersBase<WordNumber> implements IZ80 {
   public static OOZ80 createCompleteZ80(boolean traditional, InstructionSpy spy1, BlocksManager blockManager1, State state) {
 //    TraceableWordNumber.instructionSpy = spy1;
 
-    InstructionExecutor instructionExecutor = new SpyInstructionExecutor(spy1, state);
+    InstructionExecutor instructionExecutor = DefaultInstructionExecutor.createSpyInstructionExecutor(spy1, state);
 
     InstructionExecutor instructionExecutor1 = traditional ? instructionExecutor : createInstructionTransformer(state, instructionExecutor, blockManager1);
     return createZ80(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), instructionExecutor1, spy1);

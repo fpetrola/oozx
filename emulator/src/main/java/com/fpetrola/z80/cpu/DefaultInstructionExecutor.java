@@ -21,25 +21,27 @@ package com.fpetrola.z80.cpu;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.RegisterBank;
+import com.fpetrola.z80.spy.ExecutionListener;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.google.inject.Inject;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-public class SpyInstructionExecutor<T extends WordNumber> implements InstructionExecutor<T> {
-  private final InstructionSpy spy;
+public class DefaultInstructionExecutor<T extends WordNumber> implements InstructionExecutor<T> {
   private final Register<T> pc;
   private final Set<Instruction<T>> executingInstructions = new HashSet<>();
   private Map<Integer, Instruction<T>> instructions= new HashMap<>();
+  private List<ExecutionListener<T>> executionListeners = new ArrayList<>();
 
   @Inject
-  public SpyInstructionExecutor(InstructionSpy spy, State state) {
-    this.spy = spy;
+  private DefaultInstructionExecutor(State state) {
     this.pc = state.getPc();
+  }
+
+  public static <T extends WordNumber> DefaultInstructionExecutor<T> createSpyInstructionExecutor(InstructionSpy spy, State state) {
+    DefaultInstructionExecutor<T> defaultInstructionExecutor = new DefaultInstructionExecutor<>(state);
+    InstructionSpy.addExecutionListenerForSpy(defaultInstructionExecutor, spy);
+    return defaultInstructionExecutor;
   }
 
   @Override
@@ -49,17 +51,30 @@ public class SpyInstructionExecutor<T extends WordNumber> implements Instruction
 
   @Override
   public Instruction<T> execute(Instruction<T> instruction) {
-    spy.beforeExecution(instruction);
     executingInstructions.add(instruction);
+    beforeExecution(instruction);
     instruction.execute();
+    afterExecution(instruction);
     instructions.put(pc.read().intValue(), instruction);
     executingInstructions.remove(instruction);
-    spy.afterExecution(instruction);
     return instruction;
   }
 
   @Override
   public boolean isExecuting(Instruction<T> instruction) {
     return executingInstructions.contains(instruction);
+  }
+
+  @Override
+  public void addExecutionListener(ExecutionListener executionListener) {
+    executionListeners.add(executionListener);
+  }
+
+  public void beforeExecution(Instruction<T> instruction) {
+    executionListeners.forEach(l -> l.beforeExecution(instruction));
+  }
+
+  public void afterExecution(Instruction<T> instruction) {
+    executionListeners.forEach(l -> l.afterExecution(instruction));
   }
 }
