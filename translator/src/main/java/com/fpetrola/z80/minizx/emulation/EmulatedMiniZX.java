@@ -89,7 +89,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
     spy.reset(state);
     instructionExecutor2 = DefaultInstructionExecutor.createSpyInstructionExecutor(spy, state);
     DefaultInstructionFactory<T> instructionFactory = new DefaultInstructionFactory<>(state);
-    DefaultInstructionFetcher instructionFetcher2 = Helper.getInstructionFetcher2(state, spy, instructionFactory, true, instructionExecutor2);
+    DefaultInstructionFetcher instructionFetcher2 = Helper.getInstructionFetcher2(state, instructionFactory, true, instructionExecutor2);
     return new OOZ80(state, instructionFetcher2);
   }
 

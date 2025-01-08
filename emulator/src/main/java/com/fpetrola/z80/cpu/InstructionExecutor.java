@@ -31,6 +31,6 @@ public interface InstructionExecutor<T> {
   default void reset() {
   }
 
-  default void addExecutionListener(ExecutionListener executionListener) {
+  default void addExecutionListener(ExecutionListener<T> executionListener) {
   }
 }

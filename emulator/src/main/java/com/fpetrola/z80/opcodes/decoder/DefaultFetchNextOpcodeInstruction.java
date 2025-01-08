@@ -25,7 +25,6 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
-import com.fpetrola.z80.spy.InstructionSpy;
 
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
@@ -41,10 +40,9 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
   private final Instruction[] table;
   private final int incPc;
   private final String name;
-  private final InstructionSpy spy;
   private final Register registerR;
 
-  public DefaultFetchNextOpcodeInstruction(State state, Instruction[] table, int incPc, String name, InstructionSpy spy) {
+  public DefaultFetchNextOpcodeInstruction(State state, Instruction[] table, int incPc, String name) {
     this.state = state;
     this.table = table;
     for (int i = 0; i < table.length; i++) {
@@ -53,16 +51,13 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
     }
     this.incPc = incPc;
     this.name = name;
-    this.spy = spy;
     this.registerR = state.getRegister(RegisterName.R);
     this.pc = state.getRegister(PC);
   }
 
   public int execute() {
-    spy.pause();
     update();
     Instruction<T> instruction = findNextOpcode();
-    spy.doContinue();
     instruction.execute();
     return 4;
   }
@@ -73,14 +68,9 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
   }
 
   public Instruction findNextOpcode() {
-    spy.pause();
     Memory<T> memory = state.getMemory();
-    //memory.disableReadListener();
     int opcodeInt = memory.read(pc.read().plus(incPc - 1 + length), incPc).intValue();
     Instruction instruction = table[opcodeInt];
-    spy.flipOpcode(instruction, opcodeInt);
-    // memory.enableReadListener();
-    spy.doContinue();
     return instruction;
   }
 

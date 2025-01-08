@@ -23,7 +23,6 @@ import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.helpers.Helper;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
 import com.fpetrola.z80.instructions.impl.DJNZ;
@@ -43,7 +42,6 @@ import com.fpetrola.z80.se.actions.ExecutionStackStorage;
 import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
 import com.fpetrola.z80.se.instructions.SEInstructionFactory;
 import com.fpetrola.z80.spy.ExecutionListener;
-import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.MemorySpy;
 import com.fpetrola.z80.spy.WriteMemoryReference;
 import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
@@ -100,8 +98,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     routineExecutorHandler = new RoutineExecutorHandler<>(state, new ExecutionStackStorage<>(state), dataflowService);
   }
 
-  public InstructionFetcher createInstructionFetcher(InstructionSpy spy, State<T> state, InstructionExecutor<T> instructionExecutor, OpcodeConditions opcodeConditions) {
-    return new DefaultInstructionFetcher<T>(state, opcodeConditions, new FetchNextOpcodeInstructionFactory(spy, state), instructionExecutor, createInstructionFactory(state), true, true);
+  public InstructionFetcher createInstructionFetcher(State<T> state, InstructionExecutor<T> instructionExecutor, OpcodeConditions opcodeConditions) {
+    return new DefaultInstructionFetcher<T>(state, opcodeConditions, new FetchNextOpcodeInstructionFactory(state), instructionExecutor, createInstructionFactory(state), true, true);
   }
 
   public InstructionFactory createInstructionFactory(final State state) {

@@ -164,8 +164,8 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Provides
   @Inject
   @Singleton
-  public FetchNextOpcodeInstructionFactory getMutableOpcodeConditions(State state1, InstructionSpy spy) {
-    return new FetchNextOpcodeInstructionFactory(spy, state1);
+  public FetchNextOpcodeInstructionFactory getMutableOpcodeConditions(State state1) {
+    return new FetchNextOpcodeInstructionFactory(state1);
   }
 
   @Provides

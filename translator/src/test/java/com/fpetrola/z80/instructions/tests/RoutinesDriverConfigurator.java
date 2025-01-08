@@ -41,7 +41,7 @@ public class RoutinesDriverConfigurator<T extends WordNumber> extends DriverConf
   }
 
   public RealCodeBytecodeCreationBase getRealCodeBytecodeCreationBase() {
-    OOZ80 z80 = new OOZ80(state1, symbolicExecutionAdapter.createInstructionFetcher(spy, state1, transformerInstructionExecutor, opcodeConditions));
+    OOZ80 z80 = new OOZ80(state1, symbolicExecutionAdapter.createInstructionFetcher(state1, transformerInstructionExecutor, opcodeConditions));
     return new RealCodeBytecodeCreationBase<T>(spy, routineManager, instructionExecutor1, symbolicExecutionAdapter, instructionTransformer, transformerInstructionExecutor, z80, this.opcodeConditions, registersSetter);
   }
 
