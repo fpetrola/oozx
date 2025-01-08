@@ -27,7 +27,7 @@ import java.util.List;
 public abstract class ObservableRegister<T extends WordNumber> implements Register<T> {
   protected List<RegisterWriteListener<T>> registerWriteListeners = new ArrayList<>();
   protected List<RegisterReadListener<T>> registerReadListeners = new ArrayList<>();
-  private boolean listening = true;
+  private boolean listening = false;
 
   private String name;
 

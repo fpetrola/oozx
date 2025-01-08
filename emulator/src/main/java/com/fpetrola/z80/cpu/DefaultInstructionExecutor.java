@@ -34,13 +34,13 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
   private List<ExecutionListener<T>> executionListeners = new ArrayList<>();
 
   @Inject
-  private DefaultInstructionExecutor(State state) {
+  public DefaultInstructionExecutor(State state) {
     this.pc = state.getPc();
   }
 
   public static <T extends WordNumber> DefaultInstructionExecutor<T> createSpyInstructionExecutor(InstructionSpy spy, State state) {
     DefaultInstructionExecutor<T> defaultInstructionExecutor = new DefaultInstructionExecutor<>(state);
-    InstructionSpy.addExecutionListenerForSpy(defaultInstructionExecutor, spy);
+    spy.addExecutionListeners(defaultInstructionExecutor);
     return defaultInstructionExecutor;
   }
 

@@ -38,7 +38,9 @@ public class PlainDriverConfigurator<T extends WordNumber> extends DriverConfigu
   }
 
   public CPUExecutionContext<T> getSecondContext() {
-    OOZ80 z80 = Z80Factory.createOOZ80(state1, new InstructionFetcherForTest<>(this.state1, DefaultInstructionExecutor.createSpyInstructionExecutor(spy, state1)));
+    DefaultInstructionExecutor<WordNumber> defaultInstructionExecutor = new DefaultInstructionExecutor<>(state1);
+    spy.addExecutionListeners(defaultInstructionExecutor);
+    OOZ80 z80 = Z80Factory.createOOZ80(state1, new InstructionFetcherForTest<>(this.state1, defaultInstructionExecutor));
     return new CPUExecutionContext<>(spy, z80, opcodeConditions);
   }
 }

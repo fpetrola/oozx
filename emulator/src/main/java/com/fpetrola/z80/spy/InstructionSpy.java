@@ -24,20 +24,33 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Composed16BitRegister;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.RegisterBank;
 
 public interface InstructionSpy<T> {
-  static <T extends WordNumber> void addExecutionListenerForSpy(DefaultInstructionExecutor<T> defaultInstructionExecutor, InstructionSpy spy) {
+  default void addExecutionListeners(DefaultInstructionExecutor<?> defaultInstructionExecutor) {
     defaultInstructionExecutor.addExecutionListener(new ExecutionListener() {
       public void beforeExecution(Instruction instruction) {
-        spy.beforeExecution(instruction);
+        InstructionSpy.this.beforeExecution(instruction);
       }
 
       public void afterExecution(Instruction instruction) {
-        spy.afterExecution(instruction);
+        InstructionSpy.this.afterExecution(instruction);
       }
     });
+  }
+
+  default RegisterBank wrapBank(RegisterBank<?> bank) {
+    bank.getAll().forEach(r -> {
+      if (r instanceof Composed16BitRegister<?, ?> composed16BitRegister) {
+        wrapRegister((Register<T>) composed16BitRegister.getLow());
+        wrapRegister((Register<T>) composed16BitRegister.getHigh());
+      } else {
+        wrapRegister(r);
+      }
+    });
+    return bank;
   }
 
   default Memory<T> wrapMemory(Memory<T> aMemory) {

@@ -35,7 +35,6 @@ import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.spy.ComplexInstructionSpy;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.NullInstructionSpy;
-import com.fpetrola.z80.spy.SpyRegisterBankFactory;
 import com.fpetrola.z80.transformations.InstructionTransformer;
 import com.fpetrola.z80.transformations.RegisterNameBuilder;
 import com.fpetrola.z80.transformations.TransformerInstructionExecutor;
@@ -75,7 +74,7 @@ public class Z80B extends RegistersBase<WordNumber> implements IZ80 {
     spy = new RoutineGrouperSpy(graphFrame, dataflowService, routineFinder1);
     final IOImplementation io = new IOImplementation(memIoOps);
     final MemoryImplementation memory = new MemoryImplementation(memIoOps, spy);
-    z80 = createCompleteZ80(FILE.equals("console2A.txt"), spy, blockManager, new State(io, SpyRegisterBankFactory.wrapBank(spy, new DefaultRegisterBankFactory<>().createBank()), spy.wrapMemory(memory)));
+    z80 = createCompleteZ80(FILE.equals("console2A.txt"), spy, blockManager, new State(io, spy.wrapMemory(memory)));
     State state = z80.getState();
     io.setPc(state.getPc());
     setState(state);
@@ -130,7 +129,8 @@ public class Z80B extends RegistersBase<WordNumber> implements IZ80 {
   public static OOZ80 createCompleteZ80(boolean traditional, InstructionSpy spy1, BlocksManager blockManager1, State state) {
 //    TraceableWordNumber.instructionSpy = spy1;
 
-    InstructionExecutor instructionExecutor = DefaultInstructionExecutor.createSpyInstructionExecutor(spy1, state);
+    DefaultInstructionExecutor<?> instructionExecutor = new DefaultInstructionExecutor<>(state);
+    spy1.addExecutionListeners(instructionExecutor);
 
     InstructionExecutor instructionExecutor1 = traditional ? instructionExecutor : createInstructionTransformer(state, instructionExecutor, blockManager1);
     return createZ80(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), instructionExecutor1);
@@ -146,7 +146,7 @@ public class Z80B extends RegistersBase<WordNumber> implements IZ80 {
 
   private Z80Cpu createMutationsZ80(MemoryImplementation memory, IOImplementation io, InstructionExecutor instructionExecutor) {
     final ReadOnlyMemoryImplementation memory1 = new ReadOnlyMemoryImplementation(memory);
-    State state2 = new State(new ReadOnlyIOImplementation(io), SpyRegisterBankFactory.wrapBank(spy, new DefaultRegisterBankFactory<>().createBank()), spy.wrapMemory(memory1));
+    State state2 = new State(new ReadOnlyIOImplementation(io), spy.wrapMemory(memory1));
     Z80Cpu z802 = createZ80(state2, new MutableOpcodeConditions(state2, (instruction, x, state) -> true), instructionExecutor);
     return z802;
   }

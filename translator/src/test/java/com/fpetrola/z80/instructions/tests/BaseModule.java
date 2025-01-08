@@ -34,14 +34,12 @@ import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.se.VirtualRegisterDataflowService;
 import com.fpetrola.z80.spy.InstructionSpy;
-import com.fpetrola.z80.spy.SpyRegisterBankFactory;
 import com.fpetrola.z80.transformations.*;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
@@ -86,8 +84,8 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Provides
   @Inject
   @Singleton
-  private State getState(RoutineFinderInstructionSpy spy, Memory aMemory) {
-    return new State(new MockedIO(), SpyRegisterBankFactory.wrapBank(spy, new DefaultRegisterBankFactory<>().createBank()), aMemory);
+  private State getState(Memory aMemory) {
+    return new State(new MockedIO(), aMemory);
   }
 
   @Provides

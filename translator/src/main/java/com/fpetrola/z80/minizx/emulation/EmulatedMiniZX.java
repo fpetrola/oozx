@@ -29,14 +29,12 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.jspeccy.Z80B;
-import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.MiniZXScreen;
 import com.fpetrola.z80.minizx.ZXScreenComponent;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.spy.*;
 
 import java.util.function.Function;
@@ -57,7 +55,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
   private DefaultInstructionExecutor instructionExecutor2;
 
   public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread, Emulator emulator) {
-    this(emulator, url, pause, showScreen, emulateUntil, inThread, new NullInstructionSpy(), createState(new NullInstructionSpy()));
+    this(emulator, url, pause, showScreen, emulateUntil, inThread, new NullInstructionSpy(), createState());
   }
 
   private void createSpy() {
@@ -86,10 +84,11 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
   public <T extends WordNumber> OOZ80<T> createOOZ80() {
     if (state == null)
-      state = createState(spy);
+      state = createState();
     ((MiniZXIO) state.getIo()).setPc(state.getPc());
     spy.reset(state);
-    instructionExecutor2 = DefaultInstructionExecutor.createSpyInstructionExecutor(spy, state);
+    instructionExecutor2 = new DefaultInstructionExecutor<>(state);
+    spy.addExecutionListeners(instructionExecutor2);
     DefaultInstructionFactory<T> instructionFactory = new DefaultInstructionFactory<>(state);
     DefaultInstructionFetcher instructionFetcher2 = Z80Factory.getInstructionFetcher2(state, instructionFactory, true, instructionExecutor2, true);
     return Z80Factory.createOOZ80(state, instructionFetcher2);
@@ -97,7 +96,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
   public <T extends WordNumber> OOZ80<T> createOOZ802() {
     if (state == null)
-      state = createState(spy);
+      state = createState();
     ((MiniZXIO) state.getIo()).setPc(state.getPc());
     spy.reset(state);
 
@@ -111,15 +110,8 @@ public class EmulatedMiniZX<T extends WordNumber> {
   }
 
 
-  public static State createState(InstructionSpy spy1) {
-    MiniZXIO io = new MiniZXIO();
-    Memory memory = new DefaultMemory(true);
-    State state1 = new State(io, SpyRegisterBankFactory.wrapBank(spy1, new DefaultRegisterBankFactory<>().createBank()), spy1.wrapMemory(memory));
-
-    State state2 = new State(io, SpyRegisterBankFactory.wrapBank(spy1, new DefaultRegisterBankFactory<>().createBank()), memory);
-
-
-    return state2;
+  public static State createState() {
+    return new State(new MiniZXIO(), new DefaultMemory(true));
   }
 
   protected Function<Integer, Integer> getMemFunction() {

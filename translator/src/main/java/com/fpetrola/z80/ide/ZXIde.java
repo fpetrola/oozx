@@ -57,7 +57,7 @@ public class ZXIde {
     RoutineManager routineManager = new RoutineManager(blocksManager);
     RoutineFinder routineFinder = new RoutineFinder(routineManager);
     RoutineGrouperSpy spy = new RoutineGrouperSpy<>(frame.graph, dataflowService, routineFinder);
-    State state = EmulatedMiniZX.createState(spy);
+    State state = EmulatedMiniZX.createState();
 
     spy.enable(true);
 

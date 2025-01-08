@@ -37,6 +37,23 @@ public class State<T extends WordNumber> {
   private RunState runState;
   private final ArrayList<Event> events = new ArrayList<>();
   public int tstates;
+  public enum InterruptionMode {IM0, IM1, IM2;}
+  private InterruptionMode intMode;
+
+  private final RegisterBank<T> registerBank;
+
+  private final Memory<T> memory;
+
+  private final IO<T> io;
+  private boolean halted;
+  private boolean iff1;
+
+  private boolean iff2;
+  private boolean intLine;
+  private boolean activeNMI;
+  private boolean pendingEI;
+  private boolean flagQ;
+  private boolean pinReset;
 
   public int getTStatesSinceCpuStart() {
     return tstates;
@@ -65,32 +82,14 @@ public class State<T extends WordNumber> {
   public void setRegisters(State<T> state) {
     Stream.of(values()).forEach(r -> getRegister(r).write(state.getRegister(r).read()));
   }
-
-  public enum InterruptionMode {IM0, IM1, IM2}
-
-  private InterruptionMode intMode;
-
-  private final RegisterBank<T> registers;
-  private final Memory<T> memory;
-  private final IO<T> io;
-
-  private boolean halted;
-  private boolean iff1;
-  private boolean iff2;
-  private boolean intLine;
-  private boolean activeNMI;
-  private boolean pendingEI;
-  private boolean flagQ;
-  private boolean pinReset;
-
-  public State(IO io, RegisterBank registerBank, Memory memory) {
-    this.registers = registerBank;
+  public State(IO io, RegisterBank<T> registerBank, Memory memory) {
+    this.registerBank = registerBank;
     this.io = io;
     this.memory = memory;
   }
 
   public State(IO io, Memory memory) {
-    this(io, new DefaultRegisterBankFactory().createBank(), memory);
+    this(io, new DefaultRegisterBankFactory<>().createBank(), memory);
   }
 
   public Register<T> getFlag() {
@@ -98,11 +97,11 @@ public class State<T extends WordNumber> {
   }
 
   public Register<T> r(RegisterName name) {
-    return this.registers.get(name);
+    return this.registerBank.get(name);
   }
 
   public Register<T> getRegister(RegisterName name) {
-    return this.registers.get(name);
+    return this.registerBank.get(name);
   }
 
   public void setHalted(boolean halted) {
@@ -123,7 +122,7 @@ public class State<T extends WordNumber> {
   }
 
   public String toString() {
-    return "registers=" + registers + ", halted=" + halted + ", iff1=" + isIff1() + ", iff2=" + isIff2();
+    return "registers=" + registerBank + ", halted=" + halted + ", iff1=" + isIff1() + ", iff2=" + isIff2();
   }
 
   public boolean isIff1() {
@@ -225,6 +224,10 @@ public class State<T extends WordNumber> {
 
   public RunState getRunState() {
     return runState;
+  }
+
+  public RegisterBank<T> getRegisterBank() {
+    return registerBank;
   }
 
   public enum RunState {
