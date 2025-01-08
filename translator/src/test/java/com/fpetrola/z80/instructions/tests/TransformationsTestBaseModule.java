@@ -22,7 +22,6 @@ import com.fpetrola.z80.cpu.DefaultInstructionExecutor;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.transformations.InstructionTransformer;
-import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 import com.fpetrola.z80.transformations.TransformerInstructionExecutor;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
@@ -32,7 +31,7 @@ public class TransformationsTestBaseModule<T extends WordNumber> extends BaseMod
   @Provides
   @Inject
   @Singleton
-  private DefaultInstructionExecutor getInstructionExecutor(RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state) {
+  private DefaultInstructionExecutor getInstructionExecutor(State state) {
     return new DefaultInstructionExecutor<>(state);
   }
 
