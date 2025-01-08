@@ -138,10 +138,8 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.jspeccy.Z80B;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
-import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.ComplexInstructionSpy;
-import com.fpetrola.z80.spy.RegisterSpy;
+import com.fpetrola.z80.spy.ObservableRegister;
 import machine.Clock;
 import snapshots.Z80State;
 
@@ -1904,7 +1902,7 @@ public class Z80 implements IZ80 {
     if (z802.getRegisterValue(HL) != getRegHL())
       System.out.println("no HL!");
 
-    RegisterSpy<WordNumber> register = (RegisterSpy<WordNumber>) z802.getRegister(R);
+    ObservableRegister<WordNumber> register = (ObservableRegister<WordNumber>) z802.getRegister(R);
 //    int i = ((DefaultRegisterBankFactory.RRegister<?>)register.getRegister()).read2().intValue();
     int i= register.read().intValue();
     int regR1 = getRegR();

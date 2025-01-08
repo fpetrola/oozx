@@ -75,19 +75,13 @@ public abstract class WrapperInstructionSpy<T extends WordNumber> implements Ins
 
   public Register<T> wrapRegister(Register<T> register) {
     Register<T> result = register;
-    if (!register.getName().equals(RegisterName.F.name())) {
-      if (register instanceof RegisterPair) {
-        result = new RegisterPairSpy(register);
-      } else
-        result = new RegisterSpy(register);
-    }
 
-    if (result instanceof RegisterSpy<T> registerSpy) {
-      registerSpy.addRegisterWriteListener(((value, isIncrement) -> {
+    if (result instanceof ObservableRegister<T> observableRegister) {
+      observableRegister.addRegisterWriteListener(((value, isIncrement) -> {
         if (capturing)
           addWriteReference(register.getName(), (T) value, isIncrement);
       }));
-      registerSpy.addRegisterReadListener(((value) -> {
+      observableRegister.addRegisterReadListener(((value) -> {
         if (capturing)
           addReadReference(register.getName(), (T) value);
       }));

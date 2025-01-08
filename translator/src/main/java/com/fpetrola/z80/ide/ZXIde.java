@@ -29,7 +29,7 @@ import com.fpetrola.z80.minizx.emulation.Z80EmulatorBridge;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.DataflowService;
-import com.fpetrola.z80.spy.RegisterSpy;
+import com.fpetrola.z80.spy.ObservableRegister;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.DarculaTheme;
 
@@ -71,7 +71,7 @@ public class ZXIde {
 
 
     new EmulatedMiniZX((ooz80, emulateUntil, pause) -> {
-      RegisterSpy<?> pc = (RegisterSpy<?>) ooz80.getState().getPc();
+      ObservableRegister<?> pc = (ObservableRegister<?>) ooz80.getState().getPc();
       Z80EmulatorBridge emulator1 = new Z80EmulatorBridge(pc, ooz80, emulateUntil, pause, routineManager);
       routineManager.setRoutineHandlingListener(emulator1.getRoutineHandlingListener());
       SwingUtilities.invokeLater(() -> Z80Debugger.createAndShowGUI(emulator1, emulator1.getTreeListener()));

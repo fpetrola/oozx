@@ -19,48 +19,42 @@
 package com.fpetrola.z80.registers;
 
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.spy.ObservableRegister;
 
-public class Plain8BitRegister<T extends WordNumber> implements Register<T> {
+public class Plain8BitRegister<T extends WordNumber> extends ObservableRegister<T> implements Register<T> {
   protected T data;
-  private final String name;
 
   public Plain8BitRegister(String name) {
-    this.name = name;
+    super(name);
   }
 
   public Plain8BitRegister(RegisterName name) {
-    this.name = name.name();
+    this(name.name());
   }
 
   public T read() {
+    reading(data);
     return data;
   }
 
   public void write(T value) {
-      this.data = value.and(0xff);
+    T and = value.and(0xff);
+    writing(and);
+    this.data = and;
   }
 
-  public String toString() {
-    return name;
-  }
 
   public void increment() {
+    incrementing(data);
     this.data = data.plus(1);
   }
 
   public void decrement() {
+    decrementing(data);
     this.data = data.minus1().and(0xFF);
   }
 
   public int getLength() {
     return 0;
-  }
-
-  public Plain8BitRegister clone() throws CloneNotSupportedException {
-    return this;
-  }
-
-  public String getName() {
-    return name;
   }
 }

@@ -19,61 +19,49 @@
 package com.fpetrola.z80.spy;
 
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.Plain16BitRegister;
 import com.fpetrola.z80.registers.Register;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class RegisterSpy<T extends WordNumber> extends Plain16BitRegister<T> {
-
-  protected Register<T> register;
-
+public abstract class ObservableRegister<T extends WordNumber> implements Register<T> {
   protected List<RegisterWriteListener<T>> registerWriteListeners = new ArrayList<>();
   protected List<RegisterReadListener<T>> registerReadListeners = new ArrayList<>();
-  private boolean listening= true;
-  
-  public RegisterSpy(Register<T> register) {
-    super(register.getName());
-    this.register = register;
+  private boolean listening = true;
+
+  private String name;
+
+  public ObservableRegister(String name) {
+    this.name = name;
   }
 
-  public Register<T> getRegister() {
-    return register;
-  }
-
-  public T read() {
-    T value = register.read();
+  public T reading(T value) {
     if (listening)
       registerReadListeners.forEach(l -> l.readingRegister(value));
-
     return value;
   }
 
-  public void write(T value) {
+  public void writing(T value) {
     if (listening)
       registerWriteListeners.forEach(l -> l.writingRegister(value, false));
-    register.write(value);
   }
 
-  public void increment() {
+  public void incrementing(WordNumber value) {
     if (listening)
-      registerWriteListeners.forEach(l -> l.writingRegister(register.read().plus1(), true));
-    register.increment();
+      registerWriteListeners.forEach(l -> l.writingRegister(value.plus1(), true));
   }
 
-  public void decrement() {
+  public void decrementing(T value) {
     if (listening)
-      registerWriteListeners.forEach(l -> l.writingRegister(register.read().minus1(), true));
-    register.decrement();
+      registerWriteListeners.forEach(l -> l.writingRegister(value.minus1(), true));
   }
 
   public String toString() {
-    return register.toString();
+    return name;
   }
 
   public String getName() {
-    return register.getName();
+    return name;
   }
 
   public Object clone() throws CloneNotSupportedException {

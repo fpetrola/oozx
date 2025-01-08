@@ -32,12 +32,11 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
-import com.fpetrola.z80.spy.RegisterSpy;
+import com.fpetrola.z80.spy.ObservableRegister;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngine;
 
 import javax.script.*;
 import javax.swing.*;
-import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -48,7 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
-  private final RegisterSpy<T> pc;
+  private final ObservableRegister<T> pc;
   private boolean enabled;
 
   private Thread thread;
@@ -64,7 +63,7 @@ public class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   private TableModel model0;
   private Routine stepOutRoutine;
 
-  public Z80EmulatorBridge(RegisterSpy<T> pc, OOZ80<T> ooz80, int emulateUntil, int pause, RoutineManager routineManager) {
+  public Z80EmulatorBridge(ObservableRegister<T> pc, OOZ80<T> ooz80, int emulateUntil, int pause, RoutineManager routineManager) {
     this.pc = pc;
     this.ooz80 = ooz80;
     this.state = ooz80.getState();

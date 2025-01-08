@@ -19,26 +19,26 @@
 package com.fpetrola.z80.registers;
 
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.spy.ObservableRegister;
 
-public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> implements RegisterPair<T> {
+public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> extends ObservableRegister<T> implements RegisterPair<T> {
   protected final R high;
   protected final R low;
-  private String name;
 
   private Composed16BitRegister(String h, String l) {
+    super(h + l);
     high = (R) new Plain8BitRegister(h);
     low = (R) new Plain8BitRegister(l);
   }
 
   public Composed16BitRegister(String name, String h, String l) {
     this(h, l);
-    this.name = name;
   }
 
   public Composed16BitRegister(String name, Register h, Register l) {
+    super(name);
     high = (R) h;
     low = (R) l;
-    this.name = name;
   }
 
   public Composed16BitRegister(RegisterName name, Register h, Register l) {
@@ -46,10 +46,13 @@ public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> 
   }
 
   public T read() {
-    return (high.read().left(8)).or(low.read());
+    T or = (high.read().left(8)).or(low.read());
+    reading(or);
+    return or;
   }
 
   public void write(T value) {
+    writing(value);
     this.high.write(value.right(8));
     this.low.write(value.and(0xFF));
   }
@@ -63,12 +66,8 @@ public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> 
     return this.low;
   }
 
-  @Override
-  public String toString() {
-    return name == null ? high.toString() + low.toString() : name;
-  }
-
   public void increment() {
+    incrementing(read());
     T plus = low.read().plus(1);
     low.write(plus);
     if (plus.intValue() < 0x100)
@@ -82,6 +81,8 @@ public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> 
   }
 
   public void decrement() {
+    decrementing(read());
+
     T lowValue = low.read();
     if (lowValue.isNotZero()) {
       T minus = lowValue.minus1();
@@ -100,13 +101,5 @@ public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> 
 
   public int getLength() {
     return 0;
-  }
-
-  public RegisterPair<T> clone() throws CloneNotSupportedException {
-    return this;
-  }
-
-  public String getName() {
-    return name;
   }
 }
