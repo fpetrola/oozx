@@ -64,10 +64,14 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
   }
 
   public void beforeExecution(Instruction<T> instruction) {
-    executionListeners.forEach(l -> l.beforeExecution(instruction));
+    for (ExecutionListener<T> l : executionListeners) {
+      l.beforeExecution(instruction);
+    }
   }
 
   public void afterExecution(Instruction<T> instruction) {
-    executionListeners.forEach(l -> l.afterExecution(instruction));
+    for (ExecutionListener<T> l : executionListeners) {
+      l.afterExecution(instruction);
+    }
   }
 }
