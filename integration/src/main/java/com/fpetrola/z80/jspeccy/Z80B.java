@@ -154,7 +154,7 @@ public class Z80B extends RegistersBase<WordNumber> implements IZ80 {
   }
 
   private static OOZ80 createZ80(State state, OpcodeConditions opcodeConditions, InstructionExecutor instructionExecutor1) {
-    return Z80Factory.createOOZ80(state, new DefaultInstructionFetcher<>(state, opcodeConditions, new FetchNextOpcodeInstructionFactory(state), instructionExecutor1, new DefaultInstructionFactory(state), false, false));
+    return Z80Factory.createOOZ80(state, new DefaultInstructionFetcher<>(state, opcodeConditions, new FetchNextOpcodeInstructionFactory(state), instructionExecutor1, new DefaultInstructionFactory(state), false, false, false));
   }
 
   public void execute(int statesLimit) {

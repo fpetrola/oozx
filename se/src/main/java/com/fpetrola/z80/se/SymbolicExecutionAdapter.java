@@ -99,7 +99,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   public InstructionFetcher createInstructionFetcher(State<T> state, InstructionExecutor<T> instructionExecutor, OpcodeConditions opcodeConditions) {
-    return new DefaultInstructionFetcher<T>(state, opcodeConditions, new FetchNextOpcodeInstructionFactory(state), instructionExecutor, createInstructionFactory(state), true, true);
+    return new DefaultInstructionFetcher<T>(state, opcodeConditions, new FetchNextOpcodeInstructionFactory(state), instructionExecutor, createInstructionFactory(state), true, true, false);
   }
 
   public InstructionFactory createInstructionFactory(final State state) {

@@ -36,8 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static com.fpetrola.z80.registers.RegisterName.B;
-
 public class DefaultInstructionFetcher<T extends WordNumber> implements InstructionFetcher {
   private final InstructionFactory instructionFactory;
   protected State<T> state;
@@ -66,14 +64,11 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 //    }
 //  }
 
-  public DefaultInstructionFetcher(State aState, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat1) {
-    this(aState, new OpcodeConditions(aState.getFlag(), aState.getRegister(B)), fetchInstructionFactory, instructionExecutor, instructionFactory, noRepeat1, false);
-  }
-
-  public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone) {
+  public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone, boolean prefetch) {
     this.state = aState;
     this.instructionExecutor = instructionExecutor;
     this.noRepeat = noRepeat;
+    this.prefetch = prefetch;
     tableFactory = () -> createOpcodesTables(opcodeConditions, fetchInstructionFactory, instructionFactory);
     createOpcodeTables();
     pcValue = state.getPc().read();

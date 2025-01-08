@@ -111,7 +111,7 @@ public class FuseTestParser<T extends WordNumber> {
 
   public static class MyDefaultInstructionFetcher extends DefaultInstructionFetcher {
     public MyDefaultInstructionFetcher(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory) {
-      super(state, new OpcodeConditions(state.getFlag(), state.getRegister(RegisterName.B)), new FetchNextOpcodeInstructionFactory(state), DefaultInstructionExecutor.createSpyInstructionExecutor(spy, state), instructionFactory, false, false);
+      super(state, new OpcodeConditions(state.getFlag(), state.getRegister(RegisterName.B)), new FetchNextOpcodeInstructionFactory(state), DefaultInstructionExecutor.createSpyInstructionExecutor(spy, state), instructionFactory, false, false, false);
     }
 
     public Instruction getLastInstruction() {
