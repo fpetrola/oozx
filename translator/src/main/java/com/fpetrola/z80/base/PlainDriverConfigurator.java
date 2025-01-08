@@ -22,6 +22,7 @@ import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.cpu.DefaultInstructionExecutor;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.factory.Z80Factory;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineManager;
@@ -37,7 +38,7 @@ public class PlainDriverConfigurator<T extends WordNumber> extends DriverConfigu
   }
 
   public CPUExecutionContext<T> getSecondContext() {
-    OOZ80 z80 = new OOZ80(state1, new InstructionFetcherForTest<>(this.state1, DefaultInstructionExecutor.createSpyInstructionExecutor(spy, state1)));
+    OOZ80 z80 = Z80Factory.createOOZ80(state1, new InstructionFetcherForTest<>(this.state1, DefaultInstructionExecutor.createSpyInstructionExecutor(spy, state1)));
     return new CPUExecutionContext<>(spy, z80, opcodeConditions);
   }
 }

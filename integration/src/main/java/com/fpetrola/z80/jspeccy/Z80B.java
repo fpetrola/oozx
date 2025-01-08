@@ -21,6 +21,7 @@ package com.fpetrola.z80.jspeccy;
 import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.spy.RoutineGrouperSpy;
 import com.fpetrola.z80.cpu.*;
+import com.fpetrola.z80.factory.Z80Factory;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.ReadOnlyMemoryImplementation;
@@ -153,7 +154,7 @@ public class Z80B extends RegistersBase<WordNumber> implements IZ80 {
   }
 
   private static OOZ80 createZ80(State state, OpcodeConditions opcodeConditions, InstructionExecutor instructionExecutor1) {
-    return new OOZ80(state, new DefaultInstructionFetcher<>(state, opcodeConditions, new FetchNextOpcodeInstructionFactory(state), instructionExecutor1, new DefaultInstructionFactory(state), false, false));
+    return Z80Factory.createOOZ80(state, new DefaultInstructionFetcher<>(state, opcodeConditions, new FetchNextOpcodeInstructionFactory(state), instructionExecutor1, new DefaultInstructionFactory(state), false, false));
   }
 
   public void execute(int statesLimit) {

@@ -21,7 +21,7 @@
 package net.emustudio.plugins.cpu.zilogZ80;
 
 import com.fpetrola.z80.cpu.OOZ80;
-import com.fpetrola.z80.minizx.emulation.Helper;
+import com.fpetrola.z80.factory.Z80Factory;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -38,8 +38,6 @@ import net.emustudio.plugins.cpu.zilogZ80.suite.CpuVerifierImpl;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -78,7 +76,7 @@ public class InstructionsTest {
 
 
       io = new MyIO();
-      ooz80 = Helper.createOOZ80(io);
+      ooz80 = Z80Factory.createOOZ80(io);
       memory = new MyByteMemoryStub();
       cpu = new CpuImpl(PLUGIN_ID, applicationApi, PluginSettings.UNAVAILABLE, ooz80);
 

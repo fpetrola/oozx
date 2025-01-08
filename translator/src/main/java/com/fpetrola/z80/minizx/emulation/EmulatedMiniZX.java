@@ -24,6 +24,7 @@ import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.DefaultInstructionExecutor;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.factory.Z80Factory;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
@@ -89,8 +90,8 @@ public class EmulatedMiniZX<T extends WordNumber> {
     spy.reset(state);
     instructionExecutor2 = DefaultInstructionExecutor.createSpyInstructionExecutor(spy, state);
     DefaultInstructionFactory<T> instructionFactory = new DefaultInstructionFactory<>(state);
-    DefaultInstructionFetcher instructionFetcher2 = Helper.getInstructionFetcher2(state, instructionFactory, true, instructionExecutor2);
-    return new OOZ80(state, instructionFetcher2);
+    DefaultInstructionFetcher instructionFetcher2 = Z80Factory.getInstructionFetcher2(state, instructionFactory, true, instructionExecutor2);
+    return Z80Factory.createOOZ80(state, instructionFetcher2);
   }
 
   public <T extends WordNumber> OOZ80<T> createOOZ802() {

@@ -24,14 +24,12 @@ import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.minizx.emulation.ToStringInstructionVisitor;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.transformations.InstructionFetcherForTest;
 
 import java.io.FileWriter;
 import java.util.ArrayList;
@@ -55,9 +53,10 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   private boolean noRepeat;
   private boolean clone;
   private List<FetchListener> fetchListeners = new ArrayList<>();
-  private int prefetch = -1;
+  private int prefetchPC = -1;
   private Instruction<T> prefetchedInstruction;
   private int rdelta;
+  private boolean prefetch= false;
 
 //  {
 //    try {
@@ -96,7 +95,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     registerR.increment();
     pcValue = state.getPc().read();
     Memory<T> memory = state.getMemory();
-    if (prefetch != pcValue.intValue()) {
+    if (prefetchPC != pcValue.intValue()) {
       instruction2 = fetchInstruction(pcValue);
       prefetchedInstruction = instruction2;
     } else {
@@ -130,11 +129,13 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
       state.getPc().write(nextPC);
 
-      int rValue = registerR.read().intValue();
-      prefetchedInstruction = fetchInstruction(nextPC);
-      prefetch = nextPC.intValue();
-      rdelta = registerR.read().intValue() - rValue;
-      registerR.write(WordNumber.createValue(rValue));
+      if (prefetch) {
+        int rValue = registerR.read().intValue();
+        prefetchedInstruction = fetchInstruction(nextPC);
+        prefetchPC = nextPC.intValue();
+        rdelta = registerR.read().intValue() - rValue;
+        registerR.write(WordNumber.createValue(rValue));
+      }
     } catch (Exception e) {
       e.printStackTrace();
       state.setRunState(State.RunState.STATE_STOPPED_BREAK);

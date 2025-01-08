@@ -25,6 +25,7 @@ import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.NullBlockChangesListener;
 import com.fpetrola.z80.bytecode.VirtualRegistersRegistersSetter;
 import com.fpetrola.z80.cpu.*;
+import com.fpetrola.z80.factory.Z80Factory;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.memory.Memory;
@@ -156,7 +157,7 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
     routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
 //    InstructionFetcher instructionFetcher1 = new TransformerInstructionFetcher(state1, transformerInstructionExecutor1);
     InstructionFetcher instructionFetcher1 = new InstructionFetcherForTest<>(state1, instructionExecutor);
-    OOZ80 z80 = new OOZ80(state1, instructionFetcher1);
+    OOZ80 z80 = Z80Factory.createOOZ80(state1, instructionFetcher1);
     return new CPUExecutionContext<T>(spy, z80, opcodeConditions);
   }
 

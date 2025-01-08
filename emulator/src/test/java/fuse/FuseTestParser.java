@@ -19,6 +19,7 @@
 package fuse;
 
 import com.fpetrola.z80.cpu.*;
+import com.fpetrola.z80.factory.Z80Factory;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
@@ -98,9 +99,9 @@ public class FuseTestParser<T extends WordNumber> {
     state = new State<T>(io, memory);
     io.setState(state);
     InstructionSpy spy = new MemptrUpdateInstructionSpy(state);
-    DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory<WordNumber>(state);
+    DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory<>(state);
     instructionFetcher = new MyDefaultInstructionFetcher(state, spy, instructionFactory);
-    cpu = (OOZ80<WordNumber>) new OOZ80(state, instructionFetcher);
+    cpu = Z80Factory.createOOZ80(state, instructionFetcher);
 
     PhaseProcessor<T> phaseProcessor = new PhaseProcessor<>((Z80Cpu<T>) cpu);
     memory.addMemoryReadListener(new AddStatesMemoryReadListener<T>(phaseProcessor));

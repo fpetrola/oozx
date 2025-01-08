@@ -16,10 +16,11 @@
  *
  */
 
-package com.fpetrola.z80.minizx.emulation;
+package com.fpetrola.z80.factory;
 
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
+import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -28,10 +29,10 @@ import com.fpetrola.z80.spy.MemptrUpdateInstructionSpy;
 
 import static com.fpetrola.z80.registers.RegisterName.B;
 
-public class Helper {
+public class Z80Factory {
   public static <T extends WordNumber> OOZ80<T> createOOZ80(IO<T> io) {
     var state = new State<T>(io, new MockedMemory<T>(true));
-    return new OOZ80<T>(state, getInstructionFetcher(state, new MemptrUpdateInstructionSpy<T>(state), new DefaultInstructionFactory<T>(state), false));
+    return createOOZ80(state, getInstructionFetcher(state, new MemptrUpdateInstructionSpy<T>(state), new DefaultInstructionFactory<T>(state), false));
   }
 
   public static DefaultInstructionFetcher getInstructionFetcher(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory, boolean clone) {
@@ -41,5 +42,9 @@ public class Helper {
   public static DefaultInstructionFetcher getInstructionFetcher2(State state, DefaultInstructionFactory instructionFactory, boolean clone, DefaultInstructionExecutor instructionExecutor2) {
     DefaultInstructionExecutor instructionExecutor1 = instructionExecutor2;
     return new DefaultInstructionFetcher(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), new FetchNextOpcodeInstructionFactory(state), instructionExecutor1, instructionFactory, false, clone);
+  }
+
+  public static <T extends WordNumber> OOZ80<T> createOOZ80(State aState, InstructionFetcher instructionFetcher) {
+    return new OOZ80<T>(aState, instructionFetcher);
   }
 }

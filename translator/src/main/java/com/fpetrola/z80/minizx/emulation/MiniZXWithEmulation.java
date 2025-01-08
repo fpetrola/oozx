@@ -19,6 +19,7 @@
 package com.fpetrola.z80.minizx.emulation;
 
 import com.fpetrola.z80.cpu.OOZ80;
+import com.fpetrola.z80.factory.Z80Factory;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.instructions.impl.Ret;
@@ -317,8 +318,8 @@ public class MiniZXWithEmulation {
         };
       }
     };
-    var z80 = new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), instructionFactory, false));
-    return z80;
+    var z80 = Z80Factory.createOOZ80(state, Z80Factory.getInstructionFetcher(state, new NullInstructionSpy(), instructionFactory, false));
+    return (OOZ80<T>) z80;
   }
 
   protected void main() {

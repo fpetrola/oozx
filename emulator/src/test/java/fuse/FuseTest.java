@@ -19,6 +19,8 @@
 package fuse;
 
 import com.fpetrola.z80.cpu.*;
+import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.minizx.emulation.ToStringInstructionVisitor;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
 
@@ -107,6 +109,9 @@ public class FuseTest<T extends WordNumber> {
   public void run() {
     cpu.execute();
     cpu.getState().getPc().write(createValue(0));
-    name = ((FuseTestParser.MyDefaultInstructionFetcher) cpu.getInstructionFetcher()).getLastInstruction().toString();
+    Instruction lastInstruction = ((FuseTestParser.MyDefaultInstructionFetcher) cpu.getInstructionFetcher()).getLastInstruction();
+    String toString= lastInstruction.getClass().getSimpleName();
+//    toString = new ToStringInstructionVisitor<>().createToString(lastInstruction);
+    name = toString;
   }
 }

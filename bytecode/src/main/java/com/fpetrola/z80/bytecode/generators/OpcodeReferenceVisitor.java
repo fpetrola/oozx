@@ -75,7 +75,7 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
     else {
       result = getFromMemory(variablePlusDelta);
     }
-    return false;
+    return true;
   }
 
 
@@ -94,7 +94,7 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
     else {
       result = getFromMemory(variable);
     }
-    return false;
+    return true;
   }
 
   private Variable getFromMemory(Object variable) {
@@ -118,7 +118,7 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
     else {
       result = getFromMemory16(variable);
     }
-    return false;
+    return true;
   }
 
   private Variable getFromMemory16(Object variable) {

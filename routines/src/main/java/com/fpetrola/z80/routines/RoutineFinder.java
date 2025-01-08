@@ -77,7 +77,7 @@ public class RoutineFinder<T extends WordNumber> {
 //        sp += 2;
 //      }
 
-      System.out.println("");
+//      System.out.println("");
     }
   }
 
@@ -85,7 +85,7 @@ public class RoutineFinder<T extends WordNumber> {
     try {
       processedPcs.add(pcValue);
 
-//      updateCallers(instruction, pcValue);
+      updateCallers(instruction, pcValue);
 
       if (currentRoutine == null)
         createOrUpdateCurrentRoutine(pcValue, instruction.getLength());
@@ -176,15 +176,15 @@ public class RoutineFinder<T extends WordNumber> {
   }
 
   private void updateCallers(Instruction instruction, int pcValue) {
-//    if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
-//      if (conditionalInstruction.getNextPC() != null)
-//        if (instruction instanceof Call) {
-//          routineManager.callers2.put(conditionalInstruction.getNextPC().intValue(), pcValue);
-//        } else if (!(instruction instanceof Ret<?>)) {
-//          routineManager.callers.put(conditionalInstruction.getNextPC().intValue(), pcValue);
-//          routineManager.callees.put(pcValue, conditionalInstruction.getNextPC().intValue());
-//        }
-//    }
+    if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
+      if (conditionalInstruction.getNextPC() != null)
+        if (instruction instanceof Call) {
+          routineManager.callers2.put(conditionalInstruction.getNextPC().intValue(), pcValue);
+        } else if (!(instruction instanceof Ret<?>)) {
+          routineManager.callers.put(conditionalInstruction.getNextPC().intValue(), pcValue);
+          routineManager.callees.put(pcValue, conditionalInstruction.getNextPC().intValue());
+        }
+    }
   }
 
   public RoutineManager getRoutineManager() {

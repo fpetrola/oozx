@@ -71,7 +71,7 @@ public class RoutineBytecodeGenerator {
   }
 
   public static String createLabelName(int label) {
-    return "$" + Helper.formatAddress(label);
+    return "$" + Helper.formatAddressPlain(label);
   }
 
   public void generate() {
