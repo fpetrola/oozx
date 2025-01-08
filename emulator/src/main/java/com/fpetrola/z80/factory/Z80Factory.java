@@ -21,27 +21,21 @@ package com.fpetrola.z80.factory;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
-import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.MemptrUpdateInstructionSpy;
 
-import static com.fpetrola.z80.registers.RegisterName.B;
-
 public class Z80Factory {
   public static <T extends WordNumber> OOZ80<T> createOOZ80(IO<T> io) {
     var state = new State<T>(io, new MockedMemory<T>(true));
-    return createOOZ80(state, getInstructionFetcher(state, new MemptrUpdateInstructionSpy<T>(state), new DefaultInstructionFactory<T>(state), false));
+    InstructionSpy spy = new MemptrUpdateInstructionSpy<T>(state);
+    DefaultInstructionFetcher instructionFetcher = getInstructionFetcher2(state, false, false);
+    spy.addExecutionListeners(instructionFetcher.getInstructionExecutor());
+    return createOOZ80(state, instructionFetcher);
   }
 
-  public static DefaultInstructionFetcher getInstructionFetcher(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory, boolean clone) {
-    DefaultInstructionFetcher instructionFetcher2 = getInstructionFetcher2(state, instructionFactory, clone, new DefaultInstructionExecutor<>(state), false);
-    spy.addExecutionListeners(instructionFetcher2.getInstructionExecutor());
-    return instructionFetcher2;
-  }
-
-  public static DefaultInstructionFetcher getInstructionFetcher2(State state, DefaultInstructionFactory instructionFactory, boolean clone, DefaultInstructionExecutor instructionExecutor2, boolean prefetch) {
-    return new DefaultInstructionFetcher(state, instructionExecutor2, instructionFactory, false, clone, prefetch);
+  public static DefaultInstructionFetcher getInstructionFetcher2(State state, boolean clone, boolean prefetch) {
+    return new DefaultInstructionFetcher(state, new DefaultInstructionExecutor(state), new DefaultInstructionFactory(state), false, clone, prefetch);
   }
 
   public static <T extends WordNumber> OOZ80<T> createOOZ80(State aState, InstructionFetcher instructionFetcher) {

@@ -20,12 +20,8 @@ package com.fpetrola.z80.minizx.emulation;
 
 import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.NullBlockChangesListener;
-import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
-import com.fpetrola.z80.cpu.OOZ80;
-import com.fpetrola.z80.cpu.DefaultInstructionExecutor;
-import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.factory.Z80Factory;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.jspeccy.Z80B;
@@ -52,7 +48,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
   private boolean inThread;
   private InstructionSpy spy;
   private State<T> state;
-  private DefaultInstructionExecutor instructionExecutor2;
+  private InstructionExecutor instructionExecutor2;
 
   public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread, Emulator emulator) {
     this(emulator, url, pause, showScreen, emulateUntil, inThread, new NullInstructionSpy(), createState());
@@ -89,8 +85,8 @@ public class EmulatedMiniZX<T extends WordNumber> {
     spy.reset(state);
     instructionExecutor2 = new DefaultInstructionExecutor<>(state);
     spy.addExecutionListeners(instructionExecutor2);
-    DefaultInstructionFactory<T> instructionFactory = new DefaultInstructionFactory<>(state);
-    DefaultInstructionFetcher instructionFetcher2 = Z80Factory.getInstructionFetcher2(state, instructionFactory, true, instructionExecutor2, true);
+    DefaultInstructionFetcher instructionFetcher2 = Z80Factory.getInstructionFetcher2(state, true, true);
+    instructionExecutor2= instructionFetcher2.getInstructionExecutor();
     return Z80Factory.createOOZ80(state, instructionFetcher2);
   }
 

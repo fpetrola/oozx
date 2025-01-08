@@ -19,23 +19,12 @@
 package com.fpetrola.z80.minizx.emulation;
 
 import com.fpetrola.z80.cpu.OOZ80;
-import com.fpetrola.z80.factory.Z80Factory;
-import com.fpetrola.z80.instructions.impl.Call;
-import com.fpetrola.z80.instructions.impl.Push;
-import com.fpetrola.z80.instructions.impl.Ret;
-import com.fpetrola.z80.se.ReturnAddressWordNumber;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.cpu.MockedIO;
 import com.fpetrola.z80.minizx.SpectrumApplication;
-import com.fpetrola.z80.cpu.IO;
-import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.Condition;
-import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
-import com.fpetrola.z80.spy.NullInstructionSpy;
 import com.fpetrola.z80.transformations.Base64Utils;
 
 import java.lang.reflect.Field;
@@ -234,91 +223,6 @@ public class MiniZXWithEmulation {
     for (int i = 0; i < 0xFFFF; i++) {
       data[i] = createValue(spectrumApplication.getMem()[i]);
     }
-  }
-
-  public <T extends WordNumber> OOZ80<T> createOOZ802(IO io) {
-    var state = new State(io, new MockedMemory(true));
-    DefaultInstructionFactory<T> instructionFactory = new DefaultInstructionFactory<T>(state) {
-      private T nextRetAddress = createValue(0);
-
-      @Override
-      public Ret Ret(Condition condition) {
-        return new Ret<T>(condition, sp, memory, pc) {
-          @Override
-          public int execute() {
-            T jumpAddress2 = calculateJumpAddress();
-            if (condition.conditionMet(this)) {
-              final T value = Memory.read16Bits(memory, sp.read());
-
-              if (nextRetAddress.intValue() == value.intValue()) {
-                nextRetAddress = createValue(0);
-                Map<String, Integer> writtenRegisters = Map.of();
-                int address = 0;
-                boolean write = true;
-                boolean stateIsMatching = stateIsMatching(writtenRegisters, address, write);
-                if (!stateIsMatching)
-                  System.out.println("not matching");
-              }
-              jumpAddress2 = beforeJump(jumpAddress2);
-              setJumpAddress(jumpAddress2);
-              setNextPC(jumpAddress2);
-            } else
-              setNextPC(null);
-
-            return cyclesCost;
-          }
-        };
-      }
-
-      private Map<Integer, Runnable> getConvertedRoutines() {
-        return null;
-      }
-
-      @Override
-      public Call Call(Condition condition, ImmutableOpcodeReference positionOpcodeReference) {
-        return new Call<T>(positionOpcodeReference, condition, pc, sp, state.getMemory()) {
-          @Override
-          public int execute() {
-            Map<Integer, Runnable> convertedRoutines = getConvertedRoutines();
-
-            T jumpAddress2 = calculateJumpAddress();
-            if (condition.conditionMet(this)) {
-              Runnable runnable = convertedRoutines.get(jumpAddress.intValue());
-              if (runnable != null) {
-                T retAddress = pc.read().plus(length);
-                retAddress = (T) new ReturnAddressWordNumber(retAddress.intValue(), pc.read().intValue());
-                if (!replacing)
-                  Push.doPush(retAddress, sp, memory);
-                try {
-                  copyStateToJava();
-                  runnable.run();
-                  if (replacing) {
-                    copyStateBackToEmulation();
-                    setNextPC(null);
-                  }
-                } catch (Exception e) {
-                  System.out.println("pum!");
-                }
-                if (!replacing) {
-                  setJumpAddress(jumpAddress2);
-                  setNextPC(jumpAddress2);
-                  nextRetAddress = retAddress;
-                }
-              } else {
-                jumpAddress2 = beforeJump(jumpAddress2);
-                setJumpAddress(jumpAddress2);
-                setNextPC(jumpAddress2);
-              }
-            } else
-              setNextPC(null);
-
-            return 0;
-          }
-        };
-      }
-    };
-    var z80 = Z80Factory.createOOZ80(state, Z80Factory.getInstructionFetcher(state, new NullInstructionSpy(), instructionFactory, false));
-    return (OOZ80<T>) z80;
   }
 
   protected void main() {

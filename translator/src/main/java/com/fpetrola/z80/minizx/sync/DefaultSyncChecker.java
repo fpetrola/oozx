@@ -18,6 +18,8 @@
 
 package com.fpetrola.z80.minizx.sync;
 
+import com.fpetrola.z80.cpu.DefaultInstructionExecutor;
+import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.factory.Z80Factory;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
@@ -83,7 +85,8 @@ public class DefaultSyncChecker implements SyncChecker {
     };
     var state = new State(io, registerBankFactory.createBank(), new MockedMemory(true));
     io.setPc(state.getPc());
-    return Z80Factory.createOOZ80(state, Z80Factory.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state), false));
+    DefaultInstructionFetcher instructionFetcher = Z80Factory.getInstructionFetcher2(state, false, false);
+    return Z80Factory.createOOZ80(state, instructionFetcher);
   }
 
   public DefaultSyncChecker() {
