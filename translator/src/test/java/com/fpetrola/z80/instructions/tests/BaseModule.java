@@ -34,6 +34,7 @@ import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.DataflowService;
@@ -86,7 +87,7 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Inject
   @Singleton
   private State getState(RoutineFinderInstructionSpy spy, Memory aMemory) {
-    return new State(new MockedIO(), SpyRegisterBankFactory.createSpyRegisterBankFactory(spy).createBank(), aMemory);
+    return new State(new MockedIO(), SpyRegisterBankFactory.wrapBank(spy, new DefaultRegisterBankFactory<>().createBank()), aMemory);
   }
 
   @Provides

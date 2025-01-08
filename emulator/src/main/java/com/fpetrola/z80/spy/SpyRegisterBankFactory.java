@@ -30,8 +30,16 @@ public class SpyRegisterBankFactory<T extends WordNumber> extends DefaultRegiste
     this.spy = spy;
   }
 
-  public static <T extends WordNumber> SpyRegisterBankFactory<T> createSpyRegisterBankFactory(InstructionSpy spy) {
-    return new SpyRegisterBankFactory<T>(spy);
+  public static <T extends WordNumber> RegisterBank wrapBank(InstructionSpy spy, RegisterBank<T> bank) {
+    bank.getAll().forEach(r -> {
+      if (r instanceof Composed16BitRegister<?, ?> composed16BitRegister) {
+        spy.wrapRegister(composed16BitRegister.getLow());
+        spy.wrapRegister(composed16BitRegister.getHigh());
+      } else {
+        spy.wrapRegister(r);
+      }
+    });
+    return bank;
   }
 
   protected Register<T> createRRegister() {

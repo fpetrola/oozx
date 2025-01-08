@@ -20,6 +20,7 @@ package com.fpetrola.z80.registers;
 
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -157,8 +158,8 @@ public class RegisterBank<T extends WordNumber>  {
   }
 
   public List<Register> getAll() {
-    List<RegisterName> a = getRegisters();
-    List<RegisterName> b = getAlternateRegisters();
+    List<RegisterName> a = new ArrayList<>(getRegisters());
+    List<RegisterName> b = new ArrayList<>(getAlternateRegisters());
 
     a.addAll(b);
 
