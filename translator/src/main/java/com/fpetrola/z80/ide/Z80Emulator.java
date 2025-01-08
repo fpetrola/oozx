@@ -57,7 +57,10 @@ public class Z80Emulator {
   }
 
   public void stepInto() {
-    // Example logic for step into
+    step();
+  }
+
+  public void stepOut() {
     step();
   }
 

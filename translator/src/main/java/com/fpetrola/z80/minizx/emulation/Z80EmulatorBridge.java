@@ -25,6 +25,7 @@ import com.fpetrola.z80.ide.InstructionTableModel;
 import com.fpetrola.z80.ide.RoutineHandlingListener;
 import com.fpetrola.z80.ide.Z80Debugger;
 import com.fpetrola.z80.ide.Z80Emulator;
+import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -61,6 +62,7 @@ public class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   private NashornScriptEngine engine;
   private Map<String, CompiledScript> scripts = new HashMap<>();
   private TableModel model0;
+  private Routine stepOutRoutine;
 
   public Z80EmulatorBridge(RegisterSpy<T> pc, OOZ80<T> ooz80, int emulateUntil, int pause, RoutineManager routineManager) {
     this.pc = pc;
@@ -104,8 +106,12 @@ public class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
       String valueAt = (String) breakpointsTableModel.getValueAt(i, 2);
 
       Bindings bindings = engine.getBindings(ScriptContext.ENGINE_SCOPE);
-      bindings.put("PC", state.getPc().read().intValue());
+      int pcValue = state.getPc().read().intValue();
+      bindings.put("PC", pcValue);
       bindings.put("SP", state.getRegisterSP().read().intValue());
+      bindings.put("INSTRUCTION", new ToStringInstructionVisitor<T>().createToString(fetchedInstruction));
+//      bindings.put("ROUTINE", routineManager.findRoutineAt(pcValue));
+
       try {
         CompiledScript o = scripts.get(valueAt);
         if (o == null)
@@ -129,6 +135,35 @@ public class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
     do {
       doExecuteStep();
     } while (isRepeating());
+  }
+
+  public void stepOut() {
+    stopExecution();
+    int pcValue = state.getPc().read().intValue();
+    stepOutRoutine = routineManager.findRoutineAt(pcValue);
+    boolean finished = false;
+    int calls = 1;
+    int executions = 0;
+    do {
+      pcValue = state.getPc().read().intValue();
+      Routine currentRoutine = routineManager.findRoutineAt(pcValue);
+      String toString = new ToStringInstructionVisitor<T>().createToString(fetchedInstruction);
+      if (toString.contains("CALL"))
+        calls++;
+
+      if (toString.startsWith("RET")) {
+        Ret<T> ret = (Ret<T>) fetchedInstruction;
+        boolean b = ret.getCondition().conditionMet(ret);
+        if (b) {
+          if (currentRoutine == stepOutRoutine || executions > 10000) {
+            finished = true;
+          }
+          calls--;
+        }
+      }
+      doExecuteStep();
+      executions++;
+    } while (!finished);
   }
 
   public void continueExecution() {
@@ -173,11 +208,12 @@ public class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
 
   public FetchListener<T> getRegisterWriteListener() {
     return (address, instruction) -> {
-      if (!(instruction instanceof RepeatingInstruction<T>)) {
-        if (model0 == null)
+      fetchedInstruction = instruction;
+      if (true || !(instruction instanceof RepeatingInstruction<T>)) {
+        if (model0 == null) {
           model0 = instructionTable.getModel();
+        }
 
-        fetchedInstruction = instruction;
         int addressValue = address.intValue();
 
         Map<Routine, JComponent> instructionTables = new ConcurrentHashMap<>(Z80Debugger.instructionTables);

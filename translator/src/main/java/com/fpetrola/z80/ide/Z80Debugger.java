@@ -255,7 +255,7 @@ public class Z80Debugger {
     if (imgURL != null) {
       ImageIcon imageIcon = new ImageIcon(imgURL, description);
       Image image = imageIcon.getImage();
-      Image newimg = image.getScaledInstance(24, 24, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+      Image newimg = image.getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
       imageIcon = new ImageIcon(newimg);
 
       return imageIcon;
@@ -291,6 +291,12 @@ public class Z80Debugger {
       emulator1.stepInto();
       update(emulator1, instructionTable, memoryTable, registerLabels, registerFields);
     });
+
+    stepOutButton.addActionListener(e -> {
+      emulator1.stepOut();
+      update(emulator1, instructionTable, memoryTable, registerLabels, registerFields);
+    });
+
 
     continueButton.addActionListener(e -> {
       ready = true;
