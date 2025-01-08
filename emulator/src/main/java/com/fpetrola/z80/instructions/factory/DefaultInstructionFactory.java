@@ -23,6 +23,7 @@ import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
@@ -75,6 +76,11 @@ public class DefaultInstructionFactory<T extends WordNumber> implements Instruct
     i = state.getRegister(I);
     memptr = state.getMemptr();
     memory = state.getMemory();
+  }
+
+  @Override
+  public FetchNextOpcodeInstructionFactory getFetchNextOpcodeInstructionFactory() {
+    return new FetchNextOpcodeInstructionFactory(state);
   }
 
   @Override

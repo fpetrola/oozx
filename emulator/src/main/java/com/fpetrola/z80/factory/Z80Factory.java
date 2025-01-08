@@ -21,7 +21,6 @@ package com.fpetrola.z80.factory;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
-import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.spy.InstructionSpy;
@@ -42,7 +41,7 @@ public class Z80Factory {
   }
 
   public static DefaultInstructionFetcher getInstructionFetcher2(State state, DefaultInstructionFactory instructionFactory, boolean clone, DefaultInstructionExecutor instructionExecutor2, boolean prefetch) {
-    return new DefaultInstructionFetcher(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), new FetchNextOpcodeInstructionFactory(state), instructionExecutor2, instructionFactory, false, clone, prefetch);
+    return new DefaultInstructionFetcher(state, instructionExecutor2, instructionFactory, false, clone, prefetch);
   }
 
   public static <T extends WordNumber> OOZ80<T> createOOZ80(State aState, InstructionFetcher instructionFetcher) {

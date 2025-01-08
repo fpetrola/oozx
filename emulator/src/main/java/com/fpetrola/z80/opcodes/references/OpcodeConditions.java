@@ -24,9 +24,13 @@ public class OpcodeConditions {
   protected Register register;
   protected Register b;
 
-  public OpcodeConditions(Register flag, Register b) {
+  OpcodeConditions(Register flag, Register b) {
     register = flag;
     this.b = b;
+  }
+
+  public static OpcodeConditions createOpcodeConditions(Register flag, Register b) {
+    return new OpcodeConditions(flag, b);
   }
 
   public ConditionAlwaysTrue t() {

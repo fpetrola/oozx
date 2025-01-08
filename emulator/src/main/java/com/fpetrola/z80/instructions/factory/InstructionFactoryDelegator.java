@@ -20,9 +20,15 @@ package com.fpetrola.z80.instructions.factory;
 
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
 
 public interface InstructionFactoryDelegator<T extends WordNumber> extends InstructionFactory<T> {
+
+  default FetchNextOpcodeInstructionFactory getFetchNextOpcodeInstructionFactory(){
+    return getDelegate().getFetchNextOpcodeInstructionFactory();
+  }
+
   default DJNZ<T> DJNZ(BNotZeroCondition bnz, ImmutableOpcodeReference<T> target) {
     return getDelegate().DJNZ(bnz, target);
   }

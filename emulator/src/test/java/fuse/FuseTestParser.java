@@ -23,7 +23,6 @@ import com.fpetrola.z80.factory.Z80Factory;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
-import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.InstructionSpy;
@@ -112,7 +111,7 @@ public class FuseTestParser<T extends WordNumber> {
 
   public static class FuseTestsInstructionFetcher extends DefaultInstructionFetcher {
     public FuseTestsInstructionFetcher(State state, DefaultInstructionFactory instructionFactory) {
-      super(state, new OpcodeConditions(state.getFlag(), state.getRegister(RegisterName.B)), new FetchNextOpcodeInstructionFactory(state), new DefaultInstructionExecutor<>(state), instructionFactory, false, false, false);
+      super(state, new DefaultInstructionExecutor<>(state), instructionFactory, false, false, false);
     }
 
     public Instruction getLastInstruction() {

@@ -30,6 +30,7 @@ import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.RegisterName;
 
 import java.io.FileWriter;
 import java.util.ArrayList;
@@ -60,7 +61,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   private int prefetchPC = -1;
   private Instruction<T> prefetchedInstruction;
   private int rdelta;
-  private boolean prefetch= false;
+  private boolean prefetch = false;
 
 //  {
 //    try {
@@ -70,16 +71,20 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 //    }
 //  }
 
-  public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone, boolean prefetch) {
+  public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone, boolean prefetch) {
     this.state = aState;
     this.instructionExecutor = instructionExecutor;
     this.noRepeat = noRepeat;
     this.prefetch = prefetch;
-    tableFactory = () -> createOpcodesTables(opcodeConditions, fetchInstructionFactory, instructionFactory);
+    tableFactory = () -> createOpcodesTables(opcodeConditions, instructionFactory.getFetchNextOpcodeInstructionFactory(), instructionFactory);
     createOpcodeTables();
     pcValue = state.getPc().read();
     this.instructionFactory = instructionFactory;
     this.clone = clone;
+  }
+
+  public DefaultInstructionFetcher(State aState, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone, boolean prefetch) {
+    this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), instructionExecutor, instructionFactory, noRepeat, clone, prefetch);
   }
 
   protected void createOpcodeTables() {

@@ -22,15 +22,13 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.types.JumpInstruction;
 import com.fpetrola.z80.instructions.cache.InstructionCache;
-import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
-import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstructionFetcher<T> {
   protected InstructionCache<T> instructionCache;
 
-  public CachedInstructionFetcher(State aState, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor) {
-    super(aState, opcodeConditions, fetchInstructionFactory, instructionExecutor, new DefaultInstructionFactory(aState), false, false, false);
+  public CachedInstructionFetcher(State aState, InstructionExecutor<T> instructionExecutor) {
+    super(aState, instructionExecutor, new DefaultInstructionFactory(aState), false, false, false);
     instructionCache = new InstructionCache(aState.getMemory(), new DefaultInstructionFactory(aState));
   }
 

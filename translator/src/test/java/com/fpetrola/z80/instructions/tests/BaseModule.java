@@ -134,7 +134,7 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Provides
   @Inject
   protected OpcodeConditions getOpcodeConditions(State state1) {
-    return new OpcodeConditions(state1.getFlag(), state1.getRegister(B));
+    return OpcodeConditions.createOpcodeConditions(state1.getFlag(), state1.getRegister(B));
   }
 
   @Provides

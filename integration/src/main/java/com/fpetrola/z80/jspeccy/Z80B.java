@@ -24,9 +24,7 @@ import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.factory.Z80Factory;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.memory.ReadOnlyMemoryImplementation;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
-import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.*;
@@ -133,7 +131,7 @@ public class Z80B extends RegistersBase<WordNumber> implements IZ80 {
     spy1.addExecutionListeners(instructionExecutor);
 
     InstructionExecutor instructionExecutor1 = traditional ? instructionExecutor : createInstructionTransformer(state, instructionExecutor, blockManager1);
-    return createZ80(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), instructionExecutor1);
+    return createZ80(state, instructionExecutor1);
   }
 
   private static TransformerInstructionExecutor createInstructionTransformer(State state, InstructionExecutor instructionExecutor, BlocksManager blockManager1) {
@@ -144,15 +142,11 @@ public class Z80B extends RegistersBase<WordNumber> implements IZ80 {
     return transformerInstructionExecutor;
   }
 
-  private Z80Cpu createMutationsZ80(MemoryImplementation memory, IOImplementation io, InstructionExecutor instructionExecutor) {
-    final ReadOnlyMemoryImplementation memory1 = new ReadOnlyMemoryImplementation(memory);
-    State state2 = new State(new ReadOnlyIOImplementation(io), spy.wrapMemory(memory1));
-    Z80Cpu z802 = createZ80(state2, new MutableOpcodeConditions(state2, (instruction, x, state) -> true), instructionExecutor);
-    return z802;
-  }
-
-  private static OOZ80 createZ80(State state, OpcodeConditions opcodeConditions, InstructionExecutor instructionExecutor1) {
-    return Z80Factory.createOOZ80(state, new DefaultInstructionFetcher<>(state, opcodeConditions, new FetchNextOpcodeInstructionFactory(state), instructionExecutor1, new DefaultInstructionFactory(state), false, false, false));
+  private static OOZ80 createZ80(State state, InstructionExecutor instructionExecutor1) {
+    FetchNextOpcodeInstructionFactory fetchInstructionFactory = new FetchNextOpcodeInstructionFactory(state);
+    DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory(state);
+    DefaultInstructionFetcher instructionFetcher = new DefaultInstructionFetcher<>(state, instructionExecutor1, instructionFactory, false, false, false);
+    return Z80Factory.createOOZ80(state, instructionFetcher);
   }
 
   public void execute(int statesLimit) {

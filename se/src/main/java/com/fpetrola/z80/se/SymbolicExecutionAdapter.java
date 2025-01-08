@@ -32,7 +32,6 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.Routine;
@@ -99,7 +98,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   public InstructionFetcher createInstructionFetcher(State<T> state, InstructionExecutor<T> instructionExecutor, OpcodeConditions opcodeConditions) {
-    return new DefaultInstructionFetcher<T>(state, opcodeConditions, new FetchNextOpcodeInstructionFactory(state), instructionExecutor, createInstructionFactory(state), true, true, false);
+    return new DefaultInstructionFetcher<T>(state, opcodeConditions, instructionExecutor, createInstructionFactory(state), true, true, false);
   }
 
   public InstructionFactory createInstructionFactory(final State state) {
