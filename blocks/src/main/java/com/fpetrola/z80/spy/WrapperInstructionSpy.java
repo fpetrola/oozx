@@ -41,7 +41,6 @@ public abstract class WrapperInstructionSpy<T extends WordNumber> implements Ins
   protected State state;
   protected DefaultInstructionFactory instructionFactory;
   protected InstructionCloner instructionCloner;
-  private List<ExecutionListener> executionListeners = new ArrayList<>();
 
   public void reset(State state) {
     InstructionSpy.super.reset(state);
@@ -130,19 +129,5 @@ public abstract class WrapperInstructionSpy<T extends WordNumber> implements Ins
     this.memory = state.getMemory();
     instructionFactory = new DefaultInstructionFactory(state);
     instructionCloner = new InstructionCloner(instructionFactory);
-  }
-
-  public void addExecutionListener(ExecutionListener executionListener) {
-    executionListeners.add(executionListener);
-  }
-
-  @Override
-  public void beforeExecution(Instruction<T> instruction) {
-    executionListeners.forEach(l -> l.beforeExecution(instruction));
-  }
-
-  @Override
-  public void afterExecution(Instruction<T> instruction) {
-    executionListeners.forEach(l -> l.afterExecution(instruction));
   }
 }

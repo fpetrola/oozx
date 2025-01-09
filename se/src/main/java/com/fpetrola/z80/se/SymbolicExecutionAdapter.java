@@ -82,16 +82,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     this.state = state;
     this.routineManager = routineManager;
     this.spy = spy;
-    this.spy.addExecutionListener(new ExecutionListener() {
-      public void beforeExecution(Instruction instruction) {
-//        System.out.println(instruction);
-      }
-
-      public void afterExecution(Instruction instruction) {
-//        System.out.println(instruction);
-
-      }
-    });
     mutantAddress.clear();
     dataflowService = dataflowService1;
     routineExecutorHandler = new RoutineExecutorHandler<>(state, new ExecutionStackStorage<>(state), dataflowService);
