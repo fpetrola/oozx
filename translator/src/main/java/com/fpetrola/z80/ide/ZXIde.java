@@ -34,6 +34,7 @@ import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.DarculaTheme;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class ZXIde {
   public static void main(String[] args) {
@@ -78,5 +79,4 @@ public class ZXIde {
       ooz80.getInstructionFetcher().addFetchListener(emulator1.getRegisterWriteListener());
     }, url, 10, true, -1, true, spy, state).start();
   }
-
 }

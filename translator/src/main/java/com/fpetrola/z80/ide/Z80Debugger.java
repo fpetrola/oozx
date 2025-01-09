@@ -23,6 +23,7 @@ import com.fpetrola.z80.routines.Routine;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.plaf.FontUIResource;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
@@ -53,11 +54,27 @@ public class Z80Debugger {
   }
 
   public static void createAndShowGUI(Z80Emulator emulator1, TreeSelectionListener treeSelectionListener) {
+//    setFont(new FontUIResource(new Font("Tahoma", Font.PLAIN, 10)));
+    FontUIResource tahoma = new FontUIResource(new Font("Tahoma", Font.PLAIN, 8));
+    setUIFont(0.8f);
+
     Z80Debugger.treeSelectionListener = treeSelectionListener;
 
     JPanel mainPanel = createMainPanel(emulator1);
 
-    createFrame(mainPanel);
+    JFrame frame = createFrame(mainPanel);
+
+//    changeFontRecursive(frame, 9);
+  }
+
+  private static void changeFontRecursive(Container root, float size) {
+    for (Component c : root.getComponents()) {
+      Font font1 = c.getFont().deriveFont(size);
+      c.setFont(font1);
+      if (c instanceof Container) {
+        changeFontRecursive((Container) c, size);
+      }
+    }
   }
 
   public static JPanel createMainPanel(Z80Emulator emulator1) {
@@ -420,12 +437,26 @@ public class Z80Debugger {
     instructionTable.getColumnModel().getColumn(3).setCellRenderer(new Z80InstructionRenderer());
   }
 
-  private static void createFrame(JPanel mainPanel) {
+  public static void setUIFont(float scale) {
+    Enumeration<Object> keys = UIManager.getLookAndFeelDefaults().keys();
+    while (keys.hasMoreElements()) {
+      Object key = keys.nextElement();
+      Object value = UIManager.get(key);
+      if (value instanceof javax.swing.plaf.FontUIResource font) {
+        int size = font.getSize();
+        Font font1 = font.deriveFont(size * scale);
+        UIManager.put(key, font1);
+      }
+    }
+  }
+
+  private static JFrame createFrame(JPanel mainPanel) {
     JFrame frame = new JFrame("Z80 Debugger");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setSize(800, 600);
     frame.add(mainPanel);
     frame.setVisible(true);
+    return frame;
   }
 
   private static void update(Z80Emulator emulator1, JTable instructionTable, JTable memoryTable, JLabel[] registerLabels, JTextField[] registerFields) {
