@@ -91,7 +91,6 @@ public class FuseTestParser<T extends WordNumber> {
 
   private Z80Cpu getZ80Cpu() {
     MockedMemory<T> memory = new MockedMemory(true);
-
     AddStatesIO io = new AddStatesIO();
     state = new State<T>(io, memory);
     io.setState(state);

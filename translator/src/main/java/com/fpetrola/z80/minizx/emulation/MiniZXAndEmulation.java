@@ -37,11 +37,11 @@ import java.util.stream.Stream;
 import static com.fpetrola.z80.helpers.Helper.formatAddress;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
-public class MiniZXWithEmulation {
+public class MiniZXAndEmulation {
   protected boolean replacing = false;
   private State<WordNumber> state;
 
-  public MiniZXWithEmulation(OOZ80<WordNumber> ooz80, SpectrumApplication spectrumApplication) {
+  public MiniZXAndEmulation(OOZ80<WordNumber> ooz80, SpectrumApplication spectrumApplication) {
     this.ooz80 = ooz80;
     this.spectrumApplication = spectrumApplication;
   }

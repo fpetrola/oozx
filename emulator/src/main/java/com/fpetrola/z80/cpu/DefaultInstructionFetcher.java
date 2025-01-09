@@ -62,7 +62,9 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   private int prefetchPC = -1;
   private Instruction<T> prefetchedInstruction;
   private int rdelta;
+
   private boolean prefetch = false;
+
 
 //  {
 //    try {
@@ -71,7 +73,6 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 //      throw new RuntimeException(e);
 //    }
 //  }
-
   public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone, boolean prefetch) {
     this.state = aState;
     this.instructionExecutor = instructionExecutor;
@@ -210,5 +211,10 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   @Override
   public void addFetchListener(FetchListener fetchListener) {
     fetchListeners.add(fetchListener);
+  }
+
+  @Override
+  public void setPrefetch(boolean prefetch) {
+    this.prefetch = prefetch;
   }
 }

@@ -18,12 +18,11 @@
 
 package com.fpetrola.z80.minizx.sync;
 
-import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.factory.Z80Factory;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.SpectrumApplication;
-import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulation;
+import com.fpetrola.z80.minizx.emulation.MiniZXAndEmulation;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
@@ -42,7 +41,7 @@ public class DefaultSyncChecker implements SyncChecker {
   volatile int checking;
   volatile int checkingEmu;
   volatile Stack<StateSync> stateSync = new Stack();
-  MiniZXWithEmulation miniZXWithEmulation;
+  MiniZXAndEmulation miniZXAndEmulation;
   OOZ80<WordNumber> ooz80;
   private SpectrumApplication spectrumApplication;
   private final Map<String, Integer> writtenRegisters = new HashMap<>();
@@ -118,10 +117,10 @@ public class DefaultSyncChecker implements SyncChecker {
       }
     });
 
-    miniZXWithEmulation = new MiniZXWithEmulation(ooz80, this.spectrumApplication);
-    miniZXWithEmulation.copyStateBackToEmulation();
+    miniZXAndEmulation = new MiniZXAndEmulation(ooz80, this.spectrumApplication);
+    miniZXAndEmulation.copyStateBackToEmulation();
     pc.write(WordNumber.createValue(0xC804));
-    new Thread(() -> miniZXWithEmulation.emulate()).start();
+    new Thread(() -> miniZXAndEmulation.emulate()).start();
   }
 
   @Override
@@ -147,7 +146,7 @@ public class DefaultSyncChecker implements SyncChecker {
 
   @Override
   public void checkMatching(int pc, int address, boolean write) {
-    if (!miniZXWithEmulation.stateIsMatching(writtenRegisters, address, write)) {
+    if (!miniZXAndEmulation.stateIsMatching(writtenRegisters, address, write)) {
       System.out.println("not matching at: " + formatAddress(pc));
     } else {
       syncEmuCounter = 0;
