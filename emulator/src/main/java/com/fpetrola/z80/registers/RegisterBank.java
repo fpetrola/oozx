@@ -24,8 +24,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
 @SuppressWarnings("ALL")
-public class RegisterBank<T extends WordNumber>  {
+public class RegisterBank<T extends WordNumber> {
   protected RegisterPair<T> af;
   protected RegisterPair<T> bc;
   protected RegisterPair<T> de;
@@ -50,7 +51,11 @@ public class RegisterBank<T extends WordNumber>  {
   protected RegisterBank() {
   }
 
-  public Register get(RegisterName name) {
+  public Register<T> get(String name) {
+    return get(RegisterName.valueOf(name));
+  }
+
+  public Register<T> get(RegisterName name) {
     switch (name) {
       case A:
         return this.af.getHigh();
@@ -157,14 +162,17 @@ public class RegisterBank<T extends WordNumber>  {
     return Arrays.asList(RegisterName.AF, RegisterName.BC, RegisterName.DE, RegisterName.HL, RegisterName.IX, RegisterName.IY, RegisterName.PC, RegisterName.SP, RegisterName.IR);
   }
 
-  public List<Register> getAll() {
+  public List<Register<T>> getAll() {
     List<RegisterName> a = new ArrayList<>(getRegisters());
     List<RegisterName> b = new ArrayList<>(getAlternateRegisters());
 
     a.addAll(b);
 
-    List<Register> collect = a.stream().map(r -> get(r)).collect(Collectors.toList());
+    List<Register<T>> collect = a.stream().map(r -> get(r)).collect(Collectors.toList());
     return collect;
   }
 
+  public void copyValuesFrom(RegisterBank<T> registerBank) {
+    registerBank.getAll().stream().forEach(r -> get(r.getName()).write(r.read()));
+  }
 }

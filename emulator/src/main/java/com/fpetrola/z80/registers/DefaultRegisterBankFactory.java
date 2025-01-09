@@ -28,12 +28,12 @@ public class DefaultRegisterBankFactory<T extends WordNumber> {
   public DefaultRegisterBankFactory() {
   }
 
-  public <T> RegisterBank createBank() {
+  public RegisterBank<T> createBank() {
     return initBasicBank();
   }
 
   public RegisterBank<T> initBasicBank() {
-    RegisterBank registerBank = new RegisterBank();
+    RegisterBank<T> registerBank = new RegisterBank();
 
     registerBank.af = createComposed16BitRegister(AF, create8BitRegister(A), createFlagRegister());
     registerBank.bc = createComposed16BitRegister(BC, B, C);

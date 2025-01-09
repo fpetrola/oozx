@@ -37,23 +37,48 @@ public class State<T extends WordNumber> {
   private RunState runState;
   private final ArrayList<Event> events = new ArrayList<>();
   public int tstates;
-  public enum InterruptionMode {IM0, IM1, IM2;}
-  private InterruptionMode intMode;
 
   private final RegisterBank<T> registerBank;
-
   private final Memory<T> memory;
-
   private final IO<T> io;
+
+  private InterruptionMode intMode;
+
   private boolean halted;
   private boolean iff1;
-
   private boolean iff2;
   private boolean intLine;
   private boolean activeNMI;
   private boolean pendingEI;
   private boolean flagQ;
   private boolean pinReset;
+
+  public State(IO<T> io, RegisterBank<T> registerBank, Memory<T> memory) {
+    this.registerBank = registerBank;
+    this.io = io;
+    this.memory = memory;
+  }
+
+  public State(IO<T> io, Memory<T> memory) {
+    this(io, new DefaultRegisterBankFactory<T>().createBank(), memory);
+  }
+
+  public void copyValuesFrom(State<T> state) {
+    getRegisterBank().copyValuesFrom(state.getRegisterBank());
+    getMemory().copyFrom(state.getMemory());
+
+    this.tstates = state.tstates;
+    this.halted = state.halted;
+    this.iff1 = state.iff1;
+    this.iff2 = state.iff2;
+    this.intLine = state.intLine;
+    this.activeNMI = state.activeNMI;
+    this.pendingEI = state.pendingEI;
+    this.flagQ = state.flagQ;
+    this.pinReset = state.pinReset;
+    this.intMode = state.intMode;
+    this.runState= state.runState;
+  }
 
   public int getTStatesSinceCpuStart() {
     return tstates;
@@ -78,18 +103,8 @@ public class State<T extends WordNumber> {
     getRegister(AF).write(createValue(0xFFFF));
     setIntMode(IM0);
   }
-
   public void setRegisters(State<T> state) {
     Stream.of(values()).forEach(r -> getRegister(r).write(state.getRegister(r).read()));
-  }
-  public State(IO io, RegisterBank<T> registerBank, Memory memory) {
-    this.registerBank = registerBank;
-    this.io = io;
-    this.memory = memory;
-  }
-
-  public State(IO io, Memory memory) {
-    this(io, new DefaultRegisterBankFactory<>().createBank(), memory);
   }
 
   public Register<T> getFlag() {
@@ -246,4 +261,6 @@ public class State<T extends WordNumber> {
       return this.name;
     }
   }
+
+  public enum InterruptionMode {IM0, IM1, IM2;}
 }

@@ -18,11 +18,10 @@
 
 package com.fpetrola.z80.spy;
 
-import com.fpetrola.z80.cpu.DefaultInstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionExecutor;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.registers.Composed16BitRegister;
@@ -48,7 +47,7 @@ public interface InstructionSpy<T> {
         wrapRegister((Register<T>) composed16BitRegister.getLow());
         wrapRegister((Register<T>) composed16BitRegister.getHigh());
       } else {
-        wrapRegister(r);
+        wrapRegister((Register<T>) r);
       }
     });
     return bank;
