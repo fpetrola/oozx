@@ -33,10 +33,6 @@ public class Z80Factory {
     return createOOZ80(state, instructionFetcher);
   }
 
-  private static DefaultInstructionFetcher getInstructionFetcher2(State state, boolean clone, boolean prefetch) {
-    return new DefaultInstructionFetcher(state, false, clone, prefetch);
-  }
-
   public static <T extends WordNumber> OOZ80<T> createOOZ80(State aState, InstructionFetcher instructionFetcher) {
     return new OOZ80<T>(aState, instructionFetcher);
   }
@@ -47,5 +43,9 @@ public class Z80Factory {
 
   public static OOZ80 createOOZ80(State state, InstructionExecutor instructionExecutor) {
     return createOOZ80(state, new DefaultInstructionFetcher(state, instructionExecutor, false, false, false));
+  }
+
+  private static DefaultInstructionFetcher getInstructionFetcher2(State state, boolean clone, boolean prefetch) {
+    return new DefaultInstructionFetcher(state, false, clone, prefetch);
   }
 }

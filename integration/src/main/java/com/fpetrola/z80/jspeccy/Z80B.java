@@ -24,8 +24,6 @@ import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.factory.Z80Factory;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
-import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.*;
 import com.fpetrola.z80.routines.RoutineFinder;
@@ -131,7 +129,7 @@ public class Z80B extends RegistersBase<WordNumber> implements IZ80 {
     spy1.addExecutionListeners(instructionExecutor);
 
     InstructionExecutor instructionExecutor1 = traditional ? instructionExecutor : createInstructionTransformer(state, instructionExecutor, blockManager1);
-    return createZ80(state, instructionExecutor1);
+    return Z80Factory.createOOZ80(state, instructionExecutor1);
   }
 
   private static TransformerInstructionExecutor createInstructionTransformer(State state, InstructionExecutor instructionExecutor, BlocksManager blockManager1) {
@@ -140,10 +138,6 @@ public class Z80B extends RegistersBase<WordNumber> implements IZ80 {
     InstructionTransformer instructionTransformer = new InstructionTransformer(instructionFactory, virtualRegisterFactory);
     TransformerInstructionExecutor transformerInstructionExecutor = new TransformerInstructionExecutor(state.getPc(), instructionExecutor, false, instructionTransformer);
     return transformerInstructionExecutor;
-  }
-
-  private static OOZ80 createZ80(State state, InstructionExecutor instructionExecutor1) {
-    return Z80Factory.createOOZ80(state, instructionExecutor1);
   }
 
   public void execute(int statesLimit) {

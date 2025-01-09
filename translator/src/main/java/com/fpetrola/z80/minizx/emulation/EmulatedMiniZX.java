@@ -48,7 +48,6 @@ public class EmulatedMiniZX<T extends WordNumber> {
   private boolean inThread;
   private InstructionSpy spy;
   private State<T> state;
-  private InstructionExecutor instructionExecutor2;
 
   public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread, Emulator emulator) {
     this(emulator, url, pause, showScreen, emulateUntil, inThread, new NullInstructionSpy(), createState());
@@ -82,11 +81,11 @@ public class EmulatedMiniZX<T extends WordNumber> {
     if (state == null)
       state = createState();
     ((MiniZXIO) state.getIo()).setPc(state.getPc());
+    OOZ80<T> ooz81 = Z80Factory.createOOZ80(state, new DefaultInstructionFetcher(state, false, true, true));
+
     spy.reset(state);
-    DefaultInstructionFetcher instructionFetcher2 = new DefaultInstructionFetcher(state, false, true, true);
-    instructionExecutor2= instructionFetcher2.getInstructionExecutor();
-    spy.addExecutionListeners(instructionExecutor2);
-    return Z80Factory.createOOZ80(state, instructionFetcher2);
+    spy.addExecutionListeners(ooz81.getInstructionFetcher().getInstructionExecutor());
+    return ooz81;
   }
 
   public <T extends WordNumber> OOZ80<T> createOOZ802() {
