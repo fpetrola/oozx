@@ -143,10 +143,7 @@ public class Z80B extends RegistersBase<WordNumber> implements IZ80 {
   }
 
   private static OOZ80 createZ80(State state, InstructionExecutor instructionExecutor1) {
-    FetchNextOpcodeInstructionFactory fetchInstructionFactory = new FetchNextOpcodeInstructionFactory(state);
-    DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory(state);
-    DefaultInstructionFetcher instructionFetcher = new DefaultInstructionFetcher<>(state, instructionExecutor1, instructionFactory, false, false, false);
-    return Z80Factory.createOOZ80(state, instructionFetcher);
+    return Z80Factory.createOOZ80(state, instructionExecutor1);
   }
 
   public void execute(int statesLimit) {

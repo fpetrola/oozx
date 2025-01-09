@@ -19,6 +19,7 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.cache.InstructionCloner;
+import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
@@ -85,6 +86,14 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   public DefaultInstructionFetcher(State aState, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone, boolean prefetch) {
     this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), instructionExecutor, instructionFactory, noRepeat, clone, prefetch);
+  }
+
+  public DefaultInstructionFetcher(State aState, boolean noRepeat, boolean clone, boolean prefetch) {
+    this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), new DefaultInstructionExecutor<>(aState), new DefaultInstructionFactory(aState), noRepeat, clone, prefetch);
+  }
+
+  public DefaultInstructionFetcher(State aState, InstructionExecutor<T> instructionExecutor, boolean noRepeat, boolean clone, boolean prefetch) {
+    this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), instructionExecutor, new DefaultInstructionFactory(aState), noRepeat, clone, prefetch);
   }
 
   protected void createOpcodeTables() {

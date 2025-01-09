@@ -83,10 +83,9 @@ public class EmulatedMiniZX<T extends WordNumber> {
       state = createState();
     ((MiniZXIO) state.getIo()).setPc(state.getPc());
     spy.reset(state);
-    instructionExecutor2 = new DefaultInstructionExecutor<>(state);
-    spy.addExecutionListeners(instructionExecutor2);
-    DefaultInstructionFetcher instructionFetcher2 = Z80Factory.getInstructionFetcher2(state, true, true);
+    DefaultInstructionFetcher instructionFetcher2 = new DefaultInstructionFetcher(state, false, true, true);
     instructionExecutor2= instructionFetcher2.getInstructionExecutor();
+    spy.addExecutionListeners(instructionExecutor2);
     return Z80Factory.createOOZ80(state, instructionFetcher2);
   }
 

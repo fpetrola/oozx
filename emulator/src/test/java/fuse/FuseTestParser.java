@@ -24,7 +24,6 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.references.*;
-import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.spy.MemptrUpdateInstructionSpy;
@@ -48,7 +47,6 @@ public class FuseTestParser<T extends WordNumber> {
   private final File inFile;
   private final File expectedFile;
   private Z80Cpu<WordNumber> cpu;
-  private DefaultInstructionFetcher instructionFetcher;
   private State<T> state;
 
   public FuseTestParser(Path testDataDir) {
@@ -97,11 +95,9 @@ public class FuseTestParser<T extends WordNumber> {
     AddStatesIO io = new AddStatesIO();
     state = new State<T>(io, memory);
     io.setState(state);
+    cpu = Z80Factory.createOOZ80(state, new FuseTestsInstructionFetcher(state));
     InstructionSpy spy = new MemptrUpdateInstructionSpy(state);
-    DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory<>(state);
-    instructionFetcher = new FuseTestsInstructionFetcher(state, instructionFactory);
-    spy.addExecutionListeners(instructionFetcher.getInstructionExecutor());
-    cpu = Z80Factory.createOOZ80(state, instructionFetcher);
+    spy.addExecutionListeners(cpu.getInstructionFetcher().getInstructionExecutor());
 
     PhaseProcessor<T> phaseProcessor = new PhaseProcessor<>((Z80Cpu<T>) cpu);
     memory.addMemoryReadListener(new AddStatesMemoryReadListener<T>(phaseProcessor));
@@ -110,8 +106,8 @@ public class FuseTestParser<T extends WordNumber> {
   }
 
   public static class FuseTestsInstructionFetcher extends DefaultInstructionFetcher {
-    public FuseTestsInstructionFetcher(State state, DefaultInstructionFactory instructionFactory) {
-      super(state, new DefaultInstructionExecutor<>(state), instructionFactory, false, false, false);
+    public FuseTestsInstructionFetcher(State state) {
+      super(state, new DefaultInstructionExecutor<>(state), new DefaultInstructionFactory(state), false, false, false);
     }
 
     public Instruction getLastInstruction() {
