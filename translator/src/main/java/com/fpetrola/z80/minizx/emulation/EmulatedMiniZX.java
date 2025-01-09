@@ -71,10 +71,12 @@ public class EmulatedMiniZX<T extends WordNumber> {
   public static void main(String[] args) {
     InstructionSpy spy = new AbstractInstructionSpy() {
     };
-    String url1 = "file:///home/fernando/dynamitedan1.z80";
-    url1 = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
+    String url = "file:///home/fernando/dynamitedan1.z80";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/rickdangerous";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/wally.z80";
 
-    new EmulatedMiniZX(url1, 100, true, -1, true, new DefaultEmulator()).start();
+    new EmulatedMiniZX(url, 100, true, -1, true, new DefaultEmulator()).start();
   }
 
   public <T extends WordNumber> OOZ80<T> createOOZ80() {

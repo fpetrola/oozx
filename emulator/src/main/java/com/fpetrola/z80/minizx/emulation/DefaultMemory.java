@@ -23,13 +23,11 @@ import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-import java.util.function.Supplier;
-
 public class DefaultMemory<T extends WordNumber> implements Memory<T> {
   protected T[] data = (T[]) new WordNumber[0x10000];
   private MemoryWriteListener memoryWriteListener;
   private boolean readOnly;
-  private MemoryReadListener memoryReadListener;
+  protected MemoryReadListener memoryReadListener;
   private MemoryReadListener lastMemoryReadListener;
   private MemoryWriteListener lastMemoryWriteListener;
   private boolean canDisable;
@@ -56,7 +54,7 @@ public class DefaultMemory<T extends WordNumber> implements Memory<T> {
     return value;
   }
 
-  private T doRead(T address) {
+  protected T doRead(T address) {
     T value = WordNumber.createValue(0);
     if (address.intValue() >= 0) {
       T datum = data[address.intValue()];

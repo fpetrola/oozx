@@ -26,15 +26,11 @@ import com.fpetrola.z80.blocks.references.ReferencesHandler;
 import com.fpetrola.z80.blocks.references.WordNumberMemoryReadListener;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.graph.CustomGraph;
-import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
-import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.memory.ReadOnlyMemoryImplementation;
 import com.fpetrola.z80.metadata.DataStructure;
 import com.fpetrola.z80.metadata.GameMetadata;
 import com.fpetrola.z80.opcodes.references.ExecutionPoint;
-import com.fpetrola.z80.opcodes.references.IntegerWordNumber;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.se.DataflowService;
@@ -155,30 +151,6 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
 
   private void extracted(Instruction<T> instruction, int pcValue1) {
     routineFinder.checkExecution(instruction, pcValue1, state);
-  }
-
-  private void executeMutantCode() {
-    if (executionStep.pcValue > 16384 && enabledExecutionNumber > 50000) {
-      System.out.println(blocksManager.getBlocks().size());
-      Memory memory1 = memorySpy.getMemory();
-      try {
-        boolean isMutant = false;// executionStep.instruction.getState().getIo() instanceof ReadOnlyIOImplementation;
-        if (!isMutant) {
-          boolean isConditional = executionStep.getInstruction() instanceof ConditionalInstruction;
-          if (isConditional) {
-            z80.getState().getPc().write(new IntegerWordNumber(executionStep.pcValue));
-            memorySpy.setMemory(new ReadOnlyMemoryImplementation(memory1));
-            for (int i = 0; i < 2; i++) {
-              z80.execute();
-            }
-          }
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
-      } finally {
-        memorySpy.setMemory(memory1);
-      }
-    }
   }
 
   public void process() {
