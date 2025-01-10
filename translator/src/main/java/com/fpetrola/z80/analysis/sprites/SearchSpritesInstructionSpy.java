@@ -179,7 +179,7 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
     ResultContainer resultContainer2 = objectMapper.readValue(new File(FILE_TRACE_JSON), ResultContainer.class);
 
     executionSteps = resultContainer2.executionSteps;
-    memorySpy = resultContainer2.memorySpy;
+//    memorySpy = resultContainer2.memorySpy;
 
     for (ExecutionStep step : executionSteps) {
       step.accessReferences = new ArrayList<>();
@@ -206,7 +206,7 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
   private void exportData(ObjectMapper objectMapper) throws IOException {
     ResultContainer resultContainer = new ResultContainer();
     resultContainer.executionSteps = executionSteps;
-    resultContainer.memorySpy = memorySpy;
+//    resultContainer.memorySpy = memorySpy;
     objectMapper.writeValue(new File(FILE_TRACE_JSON), resultContainer);
   }
 
@@ -387,7 +387,8 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
   }
 
   private boolean isSpriteAddress(int address) {
-    return memorySpy.getAddressModificationsCounter(address) <= 100;
+//    return memorySpy.getAddressModificationsCounter(address) <= 100;
+    return false;
   }
 
   private boolean isScreenWriting(Object accessReference) {

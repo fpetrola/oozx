@@ -4,11 +4,14 @@
  */
 package machine;
 
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.graph.GraphFrame;
 import com.fpetrola.z80.jspeccy.Z80B;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.DataflowService;
+import com.fpetrola.z80.transformations.StackAnalyzer;
 import configuration.JSpeccySettings;
 import configuration.SpectrumType;
 import gui.JSpeccyScreen;
@@ -21,6 +24,8 @@ import utilities.Tape;
 import utilities.Tape.TapeState;
 import utilities.TapeStateListener;
 import z80core.IZ80;
+import z80core.MemIoOps;
+import z80core.NotifyOps;
 import z80core.Z80;
 
 import javax.imageio.ImageIO;
@@ -39,7 +44,7 @@ import java.util.logging.Logger;
  *
  * @author jsanchez
  */
-public class Spectrum implements Runnable, z80core.MemIoOps, z80core.NotifyOps {
+public class Spectrum implements Runnable, MemIoOps, NotifyOps {
 
   public final IZ80 z80;
   private final Memory memory;
@@ -82,8 +87,9 @@ public class Spectrum implements Runnable, z80core.MemIoOps, z80core.NotifyOps {
     clock = Clock.getInstance();
     settings = config;
     specSettings = settings.getSpectrumSettings();
+    State<?> state = null;
     z802 = new Z80B(this, graphFrame.graph, new DataflowService() {
-    }, new RoutineFinder(new RoutineManager()));
+    }, new RoutineFinder(new RoutineManager(), new StackAnalyzer<>(state), state));
 
     memory = new Memory(settings);
     z80 = new Z80(this, this, z802);

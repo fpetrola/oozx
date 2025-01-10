@@ -34,7 +34,7 @@ import java.util.List;
 public abstract class WrapperInstructionSpy<T extends WordNumber> implements InstructionSpy<T> {
   protected volatile boolean capturing;
   protected ExecutionStep<T> executionStep;
-  protected MemorySpy memorySpy;
+//  protected MemorySpy memorySpy;
   protected boolean print = false;
   protected Memory memory;
   protected boolean indirectReference;
@@ -47,23 +47,23 @@ public abstract class WrapperInstructionSpy<T extends WordNumber> implements Ins
     memory.reset();
   }
 
-  public Memory wrapMemory(Memory aMemory) {
+  public Memory wrapMemory(Memory<T> aMemory) {
     if (executionStep == null)
       executionStep = new ExecutionStep(memory);
     this.memory = aMemory;
-    if (memorySpy == null)
-      memorySpy = new MemorySpy(aMemory);
+//    if (memorySpy == null)
+//      memorySpy = new MemorySpy(aMemory);
 
-    memorySpy.addMemoryWriteListener((address, value) -> {
+    memory.addMemoryWriteListener((address, value) -> {
       if (isCapturing())
         addWriteMemoryReference((T) address, (T) value);
     });
 
-    memorySpy.addMemoryReadListener((address, value, delta, fetching) -> {
+    memory.addMemoryReadListener((address, value, delta, fetching) -> {
       if (isCapturing())
         addReadMemoryReference((T) address, (T) value);
     });
-    return memorySpy;
+    return memory;
   }
 
   public ImmutableOpcodeReference wrapOpcodeReference(ImmutableOpcodeReference immutableOpcodeReference) {

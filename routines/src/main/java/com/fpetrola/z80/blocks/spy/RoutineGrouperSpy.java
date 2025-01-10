@@ -150,7 +150,7 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
   }
 
   private void extracted(Instruction<T> instruction, int pcValue1) {
-    routineFinder.checkExecution(instruction, pcValue1, state);
+    routineFinder.checkExecution(instruction);
   }
 
   public void process() {

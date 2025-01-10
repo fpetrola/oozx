@@ -64,14 +64,16 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Provides
   @Inject
   @Singleton
-  protected RoutineFinder getRoutineFinder(RoutineManager routineManager) {
-    return new RoutineFinder(routineManager);
+  protected RoutineFinder getRoutineFinder(RoutineManager routineManager, StackAnalyzer stackAnalyzer, InstructionExecutor instructionExecutor, State state) {
+    RoutineFinder routineFinder = new RoutineFinder(routineManager, stackAnalyzer, state);
+    routineFinder.addExecutionListener(instructionExecutor);
+    return routineFinder;
   }
 
   @Provides
   @Inject
-  private Memory getMemory(RoutineFinderInstructionSpy spy) {
-    return spy.wrapMemory(new MockedMemory<>(true));
+  private Memory getMemory() {
+    return new MockedMemory<>(true);
   }
 
   protected void configure() {
@@ -91,24 +93,34 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Provides
   @Inject
   @Singleton
-  private RoutineFinderInstructionSpy getSpy(RoutineManager routineManager, BlocksManager blocksManager, RoutineFinder routineFinder1) {
-    return new RoutineFinderInstructionSpy<>(routineManager, blocksManager, routineFinder1);
+  private StackAnalyzer getStackAnalyzer(State state, InstructionExecutor instructionExecutor) {
+    StackAnalyzer stackAnalyzer = new StackAnalyzer(state);
+    stackAnalyzer.addExecutionListener(instructionExecutor);
+    return stackAnalyzer;
   }
 
   @Provides
   @Inject
   @Singleton
-  private InstructionExecutor getInstructionExecutor(RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state) {
-    DefaultInstructionExecutor<WordNumber> defaultInstructionExecutor = new DefaultInstructionExecutor<>(state);
-    routineFinderInstructionSpy1.addExecutionListeners(defaultInstructionExecutor);
-    return defaultInstructionExecutor;
+  private RoutineFinderInstructionSpy getSpy(RoutineManager routineManager, BlocksManager blocksManager, InstructionExecutor instructionExecutor, State state) {
+    RoutineFinderInstructionSpy<?> routineFinderInstructionSpy1 = new RoutineFinderInstructionSpy<>(routineManager, blocksManager);
+    routineFinderInstructionSpy1.addExecutionListeners(instructionExecutor);
+    routineFinderInstructionSpy1.wrapMemory(state.getMemory());
+    return routineFinderInstructionSpy1;
   }
 
   @Provides
   @Inject
   @Singleton
-  private SymbolicExecutionAdapter getExecutionAdapter(State state1, RoutineManager routineManager, RoutineFinderInstructionSpy spy, DataflowService dataflowService1) {
-    return new SymbolicExecutionAdapter(state1, routineManager, spy, dataflowService1);
+  private InstructionExecutor getInstructionExecutor(State state) {
+    return new DefaultInstructionExecutor<>(state);
+  }
+
+  @Provides
+  @Inject
+  @Singleton
+  private SymbolicExecutionAdapter getExecutionAdapter(State state1, RoutineManager routineManager, RoutineFinderInstructionSpy spy, DataflowService dataflowService1, StackAnalyzer stackAnalyzer, RoutineFinder routineFinder) {
+    return new SymbolicExecutionAdapter(state1, routineManager, spy, dataflowService1, stackAnalyzer, routineFinder);
   }
 
   @Provides

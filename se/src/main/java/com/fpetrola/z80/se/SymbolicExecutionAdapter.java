@@ -27,7 +27,6 @@ import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
 import com.fpetrola.z80.instructions.impl.DJNZ;
 import com.fpetrola.z80.instructions.impl.Push;
-import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
@@ -35,15 +34,13 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.Routine;
+import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
-import com.fpetrola.z80.se.actions.AddressAction;
-import com.fpetrola.z80.se.actions.ExecutionStackStorage;
-import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
+import com.fpetrola.z80.se.actions.*;
 import com.fpetrola.z80.se.instructions.SEInstructionFactory;
-import com.fpetrola.z80.spy.ExecutionListener;
-import com.fpetrola.z80.spy.MemorySpy;
 import com.fpetrola.z80.spy.WriteMemoryReference;
 import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
+import com.fpetrola.z80.transformations.StackAnalyzer;
 
 import java.util.*;
 
@@ -63,6 +60,19 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   private Register<T> pc;
   private DataflowService dataflowService;
   private SEInstructionFactory sEInstructionFactory;
+  private StackAnalyzer<T> stackAnalyzer;
+  private final RoutineFinder routineFinder;
+
+  public SymbolicExecutionAdapter(State<T> state, RoutineManager routineManager, RoutineFinderInstructionSpy spy, DataflowService dataflowService1, StackAnalyzer<T> stackAnalyzer, RoutineFinder routineFinder) {
+    this.state = state;
+    this.routineManager = routineManager;
+    this.spy = spy;
+    this.stackAnalyzer = stackAnalyzer;
+    this.routineFinder = routineFinder;
+    mutantAddress.clear();
+    dataflowService = dataflowService1;
+    routineExecutorHandler = new RoutineExecutorHandler<>(state, new ExecutionStackStorage<>(state), dataflowService);
+  }
 
   public int getPcValue() {
     return pc.read().intValue();
@@ -76,15 +86,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     nextSP = 0;
     lastPc = 0;
     sEInstructionFactory.reset();
-  }
-
-  public SymbolicExecutionAdapter(State<T> state, RoutineManager routineManager, RoutineFinderInstructionSpy spy, DataflowService dataflowService1) {
-    this.state = state;
-    this.routineManager = routineManager;
-    this.spy = spy;
-    mutantAddress.clear();
-    dataflowService = dataflowService1;
-    routineExecutorHandler = new RoutineExecutorHandler<>(state, new ExecutionStackStorage<>(state), dataflowService);
+    routineFinder.reset();
   }
 
   public InstructionFetcher createInstructionFetcher(State<T> state, InstructionExecutor<T> instructionExecutor, OpcodeConditions opcodeConditions) {
@@ -92,7 +94,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   public InstructionFactory createInstructionFactory(final State state) {
-    return sEInstructionFactory= new SEInstructionFactory(this, state, dataflowService);
+    return sEInstructionFactory = new SEInstructionFactory(this, state, dataflowService);
   }
 
   public <T extends WordNumber> MutableOpcodeConditions createOpcodeConditions(State<T> state) {
@@ -128,6 +130,20 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
     List<WriteMemoryReference> writeMemoryReferences = spy.getWriteMemoryReferences();
 
+    findJPHLCases(writeMemoryReferences);
+    findMutantCode(writeMemoryReferences);
+  }
+
+  private void findMutantCode(List<WriteMemoryReference> writeMemoryReferences) {
+    writeMemoryReferences.forEach(wmr -> {
+      Routine routineAt = routineManager.findRoutineAt(wmr.address.intValue());
+      if (routineAt != null) {
+        mutantAddress.add(wmr.address.intValue());
+      }
+    });
+  }
+
+  private void findJPHLCases(List<WriteMemoryReference> writeMemoryReferences) {
     SEInstructionFactory.dynamicJP.forEach((pc, dj) -> {
       for (int j = 0; j < writeMemoryReferences.size(); j++) {
         WriteMemoryReference w = writeMemoryReferences.get(j);
@@ -138,12 +154,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
             dj.addCase(value);
           }
         }
-      }
-    });
-    writeMemoryReferences.forEach(wmr -> {
-      Routine routineAt = routineManager.findRoutineAt(wmr.address.intValue());
-      if (routineAt != null) {
-        mutantAddress.add(wmr.address.intValue());
       }
     });
   }
@@ -180,7 +190,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   private void solveUntrackedCases(JPRegisterAddressAction.DynamicJPData dynamicJPData, JPRegisterAddressAction jpRegisterAddressAction, int pointer) {
-
     dynamicJPData.cases.clear();
     dynamicJPData.addCase(pointer);
     jpRegisterAddressAction.setDynamicJPData(dynamicJPData);
@@ -234,6 +243,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           ready = true;
         else {
           z80InstructionDriver.step();
+//          this.stackAnalyzer.listenEvents(new SEStackListener(this));
+
           routineExecutorHandler.getExecutionStackStorage().printStack();
 
           if (!routineExecution.hasActionAt(pcValue))
@@ -277,12 +288,47 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   protected void memoryReadOnly(boolean readOnly, State state) {
-    MockedMemory<T> memory = (MockedMemory<T>) ((MemorySpy<T>) state.getMemory()).getMemory();
+    MockedMemory<T> memory = (MockedMemory<T>) state.getMemory();
     memory.enableReadyOnly(readOnly);
   }
 
   public Set<Integer> getMutantAddress() {
     return mutantAddress;
+  }
+
+  private static class SEStackListener<T extends WordNumber> implements StackListener {
+    private final SymbolicExecutionAdapter<T> symbolicExecutionAdapter;
+    private int previousPc = -1;
+    private int popAddress;
+
+    private ReturnAddressWordNumber returnAddress;
+
+    private SEStackListener(SymbolicExecutionAdapter<T> symbolicExecutionAdapter) {
+      this.symbolicExecutionAdapter = symbolicExecutionAdapter;
+    }
+
+    @Override
+    public void returnAddressPopped(ReturnAddressWordNumber returnAddressWordNumber, int pcValue) {
+      returnAddress = null;
+
+      RoutineExecutorHandler<T> routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
+
+      previousPc = symbolicExecutionAdapter.lastPc;
+      popAddress = pcValue;
+      returnAddress = returnAddressWordNumber;
+
+      var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
+      var routineExecution = routineExecutorHandler.getCallerRoutineExecution();
+
+      routineExecution.replaceAddressAction(new AddressActionDelegate<>(pcValue + 1, routineExecutorHandler));
+      routineExecution.replaceAddressAction(new AddressActionDelegate<>(returnAddressWordNumber.intValue(), routineExecutorHandler));
+      lastRoutineExecution.replaceAddressAction(new BasicAddressAction<T>(popAddress, routineExecutorHandler, false));
+      routineExecution.replaceAddressAction(new PopReturnCallAddressAction<>(routineExecutorHandler, lastRoutineExecution, returnAddressWordNumber.pc));
+
+      routineExecutorHandler.popRoutineExecution();
+      if (!lastRoutineExecution.hasRetInstruction())
+        lastRoutineExecution.setRetInstruction(pcValue);
+    }
   }
 
   public abstract class SymbolicInstructionFactoryDelegator implements InstructionFactoryDelegator {

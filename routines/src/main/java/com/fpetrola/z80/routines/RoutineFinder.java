@@ -20,6 +20,7 @@ package com.fpetrola.z80.routines;
 
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.references.BlockRelation;
+import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.JP;
@@ -32,28 +33,32 @@ import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.se.Z80InstructionDriver;
+import com.fpetrola.z80.se.StackListener;
+import com.fpetrola.z80.spy.ExecutionListener;
+import com.fpetrola.z80.transformations.StackAnalyzer;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static com.fpetrola.z80.registers.RegisterName.SP;
 
 @SuppressWarnings("ALL")
 public class RoutineFinder<T extends WordNumber> {
+  private final StackAnalyzer<T> stackAnalyzer;
   private Instruction<T> lastInstruction;
   private Routine currentRoutine;
   private RoutineManager routineManager;
   private int lastPc;
-  private Set<Integer> processedPcs= new HashSet<>();
+  private Set<Integer> processedPcs = new HashSet<>();
+  private final State<T> state;
 
-  public RoutineFinder(RoutineManager routineManager) {
+  public RoutineFinder(RoutineManager routineManager, StackAnalyzer<T> stackAnalyzer1, State<T> state) {
     this.routineManager = routineManager;
+    this.stackAnalyzer = stackAnalyzer1;
+    this.state = state;
   }
 
-  public void checkBeforeExecution(Instruction<T> instruction, int pcValue, State<T> state) {
+  public void checkBeforeExecution(Instruction<T> instruction) {
     if (instruction instanceof Ld<T> ld && ld.getTarget() instanceof Register<?> register && register.getName().equals(SP.name())) {
       int value = ld.getSource().read().intValue();
 
@@ -81,42 +86,68 @@ public class RoutineFinder<T extends WordNumber> {
     }
   }
 
-  public void checkExecution(Instruction<T> instruction, int pcValue, State<T> state) {
-    try {
-      processedPcs.add(pcValue);
+  public void checkExecution(Instruction<T> instruction) {
+    int instructionLength = instruction.getLength();
+    if (instructionLength > 0) {
+      int pcValue = state.getPc().read().intValue();
+      try {
+        processedPcs.add(pcValue);
 
-      updateCallers(instruction, pcValue);
+        updateCallers(instruction, pcValue);
 
-      if (currentRoutine == null)
-        createOrUpdateCurrentRoutine(pcValue, instruction.getLength());
+        if (currentRoutine == null)
+          createOrUpdateCurrentRoutine(pcValue, instruction.getLength());
 
-      if (lastInstruction instanceof JP<T> jp && jp.getPositionOpcodeReference() instanceof Register<T> register) {
-        T t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
-        if (t.intValue() == lastPc + 1) {
+        if (lastInstruction instanceof JP<T> jp && jp.getPositionOpcodeReference() instanceof Register<T> register) {
+          T t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
+          if (t.intValue() == lastPc + 1) {
 //          boolean syntheticReturnAddress = routineManager.getDataflowService().isSyntheticReturnAddress();
-          WordNumber nextPC = register.read();
-          if (nextPC != null) {
-            createOrUpdateCurrentRoutine(nextPC.intValue(), instruction.getLength());
+            WordNumber nextPC = register.read();
+            if (nextPC != null) {
+              createOrUpdateCurrentRoutine(nextPC.intValue(), instruction.getLength());
+            }
           }
         }
-      }
 
-      if (lastInstruction instanceof Call) {
-        processCallInstruction(instruction);
-      }
-
-      if (instruction instanceof IPopReturnAddress popReturnAddress && popReturnAddress.getReturnAddress() != null) {
-        processPopInstruction(pcValue, popReturnAddress);
-      } else {
-        currentRoutine.addInstructionAt(instruction, pcValue);
-        if (instruction instanceof Ret ret) {
-          processRetInstruction(ret);
+        if (lastInstruction instanceof Call) {
+          processCallInstruction(instruction);
         }
+//      final boolean[] returnAddressPopped = new boolean[1];
+//
+//      this.stackAnalyzer.listenEvents(new StackListener() {
+//        public void returnAddressPopped(ReturnAddressWordNumber returnAddressWordNumber, int pcValue) {
+//          if (returnAddressWordNumber != null) {
+//            returnAddressPopped[0] = true;
+//            processPopInstruction(pcValue, new IPopReturnAddress() {
+//              public ReturnAddressWordNumber getReturnAddress() {
+//                return returnAddressWordNumber;
+//              }
+//
+//              public int getPreviousPc() {
+//                return lastPc;
+//              }
+//
+//              public int getPopAddress() {
+//                return pcValue;
+//              }
+//            });
+//          }
+//        }
+//      });
+
+        if (instruction instanceof IPopReturnAddress popReturnAddress && popReturnAddress.getReturnAddress() != null) {
+          processPopInstruction(pcValue, popReturnAddress);
+        } else {
+          currentRoutine.addInstructionAt(instruction, pcValue);
+          if (instruction instanceof Ret ret) {
+            processRetInstruction(ret);
+          }
+        }
+      } finally {
+        routineManager.optimizeAll();
+        lastInstruction = instruction;
+        lastPc = pcValue;
       }
-    } finally {
-      routineManager.optimizeAll();
-      lastInstruction = instruction;
-      lastPc = pcValue;
     }
   }
 
@@ -199,6 +230,18 @@ public class RoutineFinder<T extends WordNumber> {
 
   public <T extends WordNumber> boolean alreadyProcessed(Instruction<T> instruction, int pcValue) {
     return !(instruction instanceof Call) && !(instruction instanceof Ret) && processedPcs.contains(pcValue);
+  }
+
+  public void addExecutionListener(InstructionExecutor instructionExecutor) {
+    instructionExecutor.addExecutionListener(new ExecutionListener<T>() {
+      public void beforeExecution(Instruction instruction) {
+        RoutineFinder.this.checkBeforeExecution(instruction);
+      }
+
+      public void afterExecution(Instruction<T> instruction) {
+        RoutineFinder.this.checkExecution(instruction);
+      }
+    });
   }
 
   private class SimulatedPopReturnAddress implements IPopReturnAddress<WordNumber> {

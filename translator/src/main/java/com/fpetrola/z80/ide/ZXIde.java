@@ -26,15 +26,16 @@ import com.fpetrola.z80.graph.GraphFrame;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.minizx.emulation.Z80EmulatorBridge;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.spy.ObservableRegister;
+import com.fpetrola.z80.transformations.StackAnalyzer;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.DarculaTheme;
 
 import javax.swing.*;
-import java.awt.*;
 
 public class ZXIde {
   public static void main(String[] args) {
@@ -55,10 +56,10 @@ public class ZXIde {
     BlocksManager blocksManager = new BlocksManager(blockChangesListener, true);
     Z80Debugger.blockManager = blocksManager;
 
-    RoutineManager routineManager = new RoutineManager(blocksManager);
-    RoutineFinder routineFinder = new RoutineFinder(routineManager);
-    RoutineGrouperSpy spy = new RoutineGrouperSpy<>(frame.graph, dataflowService, routineFinder);
     State state = EmulatedMiniZX.createState();
+    RoutineManager routineManager = new RoutineManager(blocksManager);
+    RoutineFinder routineFinder = new RoutineFinder(routineManager, new StackAnalyzer<>(state), state);
+    RoutineGrouperSpy spy = new RoutineGrouperSpy<>(frame.graph, dataflowService, routineFinder);
 
     spy.enable(true);
 
