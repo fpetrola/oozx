@@ -267,9 +267,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   private boolean isReady(int pcValue) {
-    if (pcValue == 38243)
-      System.out.print("");
-
     if (pcValue < minimalValidCodeAddress)
       return true;
     return false;
