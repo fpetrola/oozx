@@ -19,5 +19,5 @@
 package com.fpetrola.z80.se;
 
 public interface StackListener {
-  boolean returnAddressPopped(ReturnAddressWordNumber returnAddressWordNumber, int pcValue);
+  boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress);
 }

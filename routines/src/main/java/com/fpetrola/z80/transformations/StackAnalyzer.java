@@ -44,9 +44,10 @@ public class StackAnalyzer<T extends WordNumber> {
     InstructionVisitor<T, Object> instructionVisitor = new InstructionVisitor<>() {
       public void visitingPop(Pop pop) {
         var read = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
-        ReturnAddressWordNumber returnAddressWordNumber1 = read instanceof ReturnAddressWordNumber returnAddressWordNumber ? returnAddressWordNumber : null;
-        int pcValue = state.getPc().read().intValue();
-        lastEvent = l -> l.returnAddressPopped(returnAddressWordNumber1, pcValue);
+        if (read instanceof ReturnAddressWordNumber returnAddressWordNumber) {
+          int pcValue = state.getPc().read().intValue();
+          lastEvent = l -> l.returnAddressPopped(pcValue, returnAddressWordNumber.intValue(), returnAddressWordNumber.pc);
+        }
       }
     };
     instruction.accept(instructionVisitor);
@@ -60,13 +61,13 @@ public class StackAnalyzer<T extends WordNumber> {
     return lastEvent != null && lastEvent.apply(stackListener);
   }
 
-  public void addExecutionListener(InstructionExecutor instructionExecutor) {
-    instructionExecutor.addExecutionListener(new ExecutionListener() {
-      public void beforeExecution(Instruction instruction) {
+  public void addExecutionListener(InstructionExecutor<T> instructionExecutor) {
+    instructionExecutor.addExecutionListener(new ExecutionListener<T>() {
+      public void beforeExecution(Instruction<T> instruction) {
         StackAnalyzer.this.beforeExecution(instruction);
       }
 
-      public void afterExecution(Instruction instruction) {
+      public void afterExecution(Instruction<T> instruction) {
         StackAnalyzer.this.afterExecution(instruction);
       }
     });

@@ -112,16 +112,19 @@ public class RoutineFinder<T extends WordNumber> {
           processCallInstruction(instruction);
         }
 
-        boolean b = this.stackAnalyzer.listenEvents(new StackListener() {
-          public boolean returnAddressPopped(ReturnAddressWordNumber returnAddressWordNumber, int pcValue1) {
-            if (returnAddressWordNumber != null) {
-              processPopInstruction(returnAddressWordNumber, pcValue1);
-              return true;
-            } else
-              return false;
+        boolean listened = this.stackAnalyzer.listenEvents(new StackListener() {
+          public boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress) {
+            Routine returnRoutine = routineManager.findRoutineAt(returnAddress - 1);
+            if (lastPc != -1)
+              currentRoutine.getVirtualPop().put(lastPc, pcValue);
+
+            returnRoutine.addReturnPoint(callAddress, pcValue + 1);
+            currentRoutine = returnRoutine;
+            return true;
           }
         });
-        if (!b) {
+
+        if (!listened) {
           currentRoutine.addInstructionAt(instruction, pcValue);
           if (instruction instanceof Ret ret) {
             processRetInstruction(ret);
@@ -146,19 +149,6 @@ public class RoutineFinder<T extends WordNumber> {
   private void processRetInstruction(Ret ret) {
     if (ret.getNextPC() != null) {
       this.currentRoutine = routineManager.findRoutineAt(ret.getNextPC().intValue() - 1);
-    }
-  }
-
-  private void processPopInstruction(ReturnAddressWordNumber returnAddress, int popAddress) {
-    int previousPc = lastPc;
-    ReturnAddressWordNumber returnAddress1 = returnAddress;
-    Routine returnRoutine = routineManager.findRoutineAt(returnAddress1.intValue() - 1);
-    if (returnRoutine != null) {
-      if (previousPc != -1) {
-        currentRoutine.getVirtualPop().put(previousPc, popAddress);
-      }
-      returnRoutine.addReturnPoint(returnAddress1.pc, popAddress + 1);
-      this.currentRoutine = returnRoutine;
     }
   }
 

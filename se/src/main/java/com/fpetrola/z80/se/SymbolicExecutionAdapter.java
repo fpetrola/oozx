@@ -22,7 +22,6 @@ import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
-import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
 import com.fpetrola.z80.instructions.impl.Push;
@@ -295,24 +294,21 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     }
 
     @Override
-    public boolean returnAddressPopped(ReturnAddressWordNumber returnAddressWordNumber, int pcValue) {
-      if (returnAddressWordNumber != null) {
-        RoutineExecutorHandler<T> routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
+    public boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress) {
+      RoutineExecutorHandler<T> routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
 
-        var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
-        var routineExecution = routineExecutorHandler.getCallerRoutineExecution();
+      var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
+      var routineExecution = routineExecutorHandler.getCallerRoutineExecution();
 
-        routineExecution.replaceAddressAction(new AddressActionDelegate<>(pcValue + 1, routineExecutorHandler));
-        routineExecution.replaceAddressAction(new AddressActionDelegate<>(returnAddressWordNumber.intValue(), routineExecutorHandler));
-        lastRoutineExecution.replaceAddressAction(new BasicAddressAction<T>(pcValue, routineExecutorHandler, false));
-        routineExecution.replaceAddressAction(new PopReturnCallAddressAction<>(routineExecutorHandler, lastRoutineExecution, returnAddressWordNumber.pc));
+      routineExecution.replaceAddressAction(new AddressActionDelegate<>(pcValue + 1, routineExecutorHandler));
+      routineExecution.replaceAddressAction(new AddressActionDelegate<>(returnAddress, routineExecutorHandler));
+      lastRoutineExecution.replaceAddressAction(new BasicAddressAction<T>(pcValue, routineExecutorHandler, false));
+      routineExecution.replaceAddressAction(new PopReturnCallAddressAction<>(routineExecutorHandler, lastRoutineExecution, callAddress));
 
-        routineExecutorHandler.popRoutineExecution();
-        if (!lastRoutineExecution.hasRetInstruction())
-          lastRoutineExecution.setRetInstruction(pcValue);
-        return true;
-      }
-      return false;
+      routineExecutorHandler.popRoutineExecution();
+      if (!lastRoutineExecution.hasRetInstruction())
+        lastRoutineExecution.setRetInstruction(pcValue);
+      return true;
     }
   }
 
