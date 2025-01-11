@@ -96,23 +96,6 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
     };
   }
 
-  public Ret Ret(Condition condition) {
-    return new Ret<T>(condition, sp, memory, pc) {
-      public int execute() {
-//            if (!getRoutineExecution().hasActionAt(getPcValue()))
-//              getRoutineExecution().replaceAddressAction(new RetAddressAction(getRoutineExecution(), getPcValue()));
-//            addressAction = getRoutineExecution().getActionInAddress(getPcValue());
-
-        int execute = super.execute();
-        return execute;
-      }
-
-      protected String getName() {
-        return "Ret_";
-      }
-    };
-  }
-
   public Push Push(OpcodeReference target) {
     return new PushReturnAddress(symbolicExecutionAdapter, target, sp, memory);
   }

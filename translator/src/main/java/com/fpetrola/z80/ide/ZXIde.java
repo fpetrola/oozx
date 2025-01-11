@@ -19,17 +19,24 @@
 package com.fpetrola.z80.ide;
 
 import com.fpetrola.z80.blocks.BlocksManager;
+import com.fpetrola.z80.blocks.spy.QueueExecutor;
 import com.fpetrola.z80.blocks.spy.RoutineCustomGraph;
 import com.fpetrola.z80.blocks.spy.RoutineGrouperSpy;
+import com.fpetrola.z80.cpu.InstructionExecutor;
+import com.fpetrola.z80.cpu.InstructionExecutorDelegator;
+import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.graph.GraphFrame;
 import com.fpetrola.z80.helpers.Helper;
+import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.minizx.emulation.Z80EmulatorBridge;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.DataflowService;
+import com.fpetrola.z80.spy.ExecutionListener;
 import com.fpetrola.z80.spy.ObservableRegister;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 import com.github.weisj.darklaf.LafManager;
@@ -37,7 +44,10 @@ import com.github.weisj.darklaf.theme.DarculaTheme;
 
 import javax.swing.*;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class ZXIde {
+  private static QueueExecutor queueExecutor;
+
   public static void main(String[] args) {
     LafManager.install(new DarculaTheme());
 
@@ -71,13 +81,44 @@ public class ZXIde {
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80";
 
+    queueExecutor = new QueueExecutor();
 
     new EmulatedMiniZX((ooz80, emulateUntil, pause) -> {
       ObservableRegister<?> pc = (ObservableRegister<?>) ooz80.getState().getPc();
       Z80EmulatorBridge emulator1 = new Z80EmulatorBridge(pc, ooz80, emulateUntil, pause, routineManager);
       routineManager.setRoutineHandlingListener(emulator1.getRoutineHandlingListener());
+      routineFinder.addExecutionListener(new MyInstructionExecutorDelegator(ooz80, routineFinder));
       SwingUtilities.invokeLater(() -> Z80Debugger.createAndShowGUI(emulator1, emulator1.getTreeListener()));
       ooz80.getInstructionFetcher().addFetchListener(emulator1.getRegisterWriteListener());
     }, url, 10, true, -1, true, spy, state).start();
+  }
+
+  private static class MyInstructionExecutorDelegator implements InstructionExecutorDelegator<Object> {
+    private final OOZ80<WordNumber> ooz80;
+    private final RoutineFinder routineFinder;
+
+    public MyInstructionExecutorDelegator(OOZ80 ooz80, RoutineFinder routineFinder) {
+      this.ooz80 = ooz80;
+      this.routineFinder = routineFinder;
+    }
+
+    public InstructionExecutor getDelegate() {
+      return ooz80.getInstructionFetcher().getInstructionExecutor();
+    }
+
+    public void addExecutionListener(ExecutionListener executionListener) {
+      InstructionExecutorDelegator.super.addExecutionListener(new ExecutionListener() {
+        public void beforeExecution(Instruction instruction) {
+          executionListener.beforeExecution(instruction);
+        }
+
+        public void afterExecution(Instruction instruction) {
+          if (!(instruction instanceof RepeatingInstruction<?>)) {
+            if (!routineFinder.alreadyProcessed(instruction, ooz80.getState().getPc().read().intValue()))
+              executionListener.afterExecution(instruction);
+          }
+        }
+      });
+    }
   }
 }

@@ -26,11 +26,11 @@ import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Ret;
-import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.StackListener;
 import com.fpetrola.z80.spy.ExecutionListener;
 import com.fpetrola.z80.transformations.StackAnalyzer;
@@ -88,6 +88,8 @@ public class RoutineFinder<T extends WordNumber> {
     int instructionLength = instruction.getLength();
     if (instructionLength > 0) {
       int pcValue = state.getPc().read().intValue();
+
+
       try {
         processedPcs.add(pcValue);
 
