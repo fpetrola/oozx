@@ -262,8 +262,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   private void logPC(int pcValue) {
-    if (pcValue == 0xED09)
-      System.out.println("epa!");
 //    System.out.println("PC: " + Helper.formatAddress(pcValue));
 //        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
   }
