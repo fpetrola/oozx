@@ -21,7 +21,9 @@ package com.fpetrola.z80.transformations;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.Pop;
+import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -54,7 +56,18 @@ public class StackAnalyzer<T extends WordNumber> {
   }
 
   public void afterExecution(Instruction<T> instruction) {
-
+    InstructionVisitor<T, Object> instructionVisitor = new InstructionVisitor<>() {
+      public boolean visitingCall(Call tCall) {
+        if (tCall.getNextPC() != null) {
+          var read = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
+          T read1 = state.getPc().read();
+          T value = (T) new ReturnAddressWordNumber(read.intValue(), read1.intValue());
+          Memory.write16Bits(state.getMemory(), value, state.getRegisterSP().read());
+        }
+        return true;
+      }
+    };
+    instruction.accept(instructionVisitor);
   }
 
   public boolean listenEvents(StackListener stackListener) {

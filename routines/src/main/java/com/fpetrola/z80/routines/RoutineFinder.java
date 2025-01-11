@@ -28,7 +28,6 @@ import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -226,10 +225,6 @@ public class RoutineFinder<T extends WordNumber> {
     public SimulatedPopReturnAddress(int returnAddress, int popAddress) {
       this.returnAddress = returnAddress;
       this.popAddress = popAddress;
-    }
-
-    public ReturnAddressWordNumber getReturnAddress() {
-      return new ReturnAddressWordNumber(returnAddress, returnAddress - 3);
     }
 
     public int getPreviousPc() {

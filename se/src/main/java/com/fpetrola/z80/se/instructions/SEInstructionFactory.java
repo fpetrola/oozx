@@ -27,7 +27,6 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.se.DirectAccessWordNumber;
-import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
 import com.fpetrola.z80.se.actions.PushReturnAddress;
@@ -121,21 +120,6 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
   @Override
   public JP JP(ImmutableOpcodeReference target, Condition condition) {
     return new SeJP(target, condition);
-  }
-
-  public Call Call(Condition condition, ImmutableOpcodeReference positionOpcodeReference) {
-    return new Call<T>(positionOpcodeReference, condition, pc, sp, this.state.getMemory()) {
-      public T beforeJump(T jumpAddress) {
-        T value = pc.read().plus(length);
-        value = (T) new ReturnAddressWordNumber(value.intValue(), pc.read().intValue());
-        Push.doPush(value, sp, memory);
-        return jumpAddress;
-      }
-
-      protected String getName() {
-        return "Call_";
-      }
-    };
   }
 
   public class SeJP extends JP<T> {
