@@ -46,7 +46,7 @@ public class ExecutionStackStorage<T extends WordNumber> {
   }
 
   private void printStack(int savedSP1, T[] savedStack1, String prefix) {
-    System.out.printf(prefix + "stack: SP: %04X -> %s%n", savedSP1, printStack(savedStack1));
+//    System.out.printf(prefix + "stack: SP: %04X -> %s%n", savedSP1, printStack(savedStack1));
   }
 
   public void printStack() {

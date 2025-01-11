@@ -115,9 +115,9 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
     };
   }
 
-  public Pop Pop(OpcodeReference target) {
-    return new SePop(symbolicExecutionAdapter, target, sp, memory, flag);
-  }
+//  public Pop Pop(OpcodeReference target) {
+//    return new SePop(symbolicExecutionAdapter, target, sp, memory, flag);
+//  }
 
   public Push Push(OpcodeReference target) {
     return new PushReturnAddress(symbolicExecutionAdapter, target, sp, memory);

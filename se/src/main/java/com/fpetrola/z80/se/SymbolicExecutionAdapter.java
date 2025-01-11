@@ -99,10 +99,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   public <T extends WordNumber> MutableOpcodeConditions createOpcodeConditions(State<T> state) {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
-      System.out.printf("pc: %s -> %s%n", Helper.formatAddress(getPcValue()), instruction);
-
-      if (instruction instanceof DJNZ)
-        System.out.println("dsagsdgsdag");
+//      System.out.printf("pc: %s -> %s%n", Helper.formatAddress(getPcValue()), instruction);
       RoutineExecution routineExecution = routineExecutorHandler.getCurrentRoutineExecution();
       AddressAction addressAction = routineExecution.replaceIfAbsent(getPcValue(), routineExecution.createAddressAction(instruction, alwaysTrue, getPcValue()));
       return addressAction.processBranch(instruction);
@@ -237,15 +234,15 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         if (addressAction != null)
           pcValue = updatePcRegister(addressAction.getNextPC());
 
-        routineExecutorHandler.getExecutionStackStorage().printStack();
+//        routineExecutorHandler.getExecutionStackStorage().printStack();
 
         if (pcValue == -1)
           ready = true;
         else {
           z80InstructionDriver.step();
-//          this.stackAnalyzer.listenEvents(new SEStackListener(this));
+          this.stackAnalyzer.listenEvents(new SEStackListener(this));
 
-          routineExecutorHandler.getExecutionStackStorage().printStack();
+//          routineExecutorHandler.getExecutionStackStorage().printStack();
 
           if (!routineExecution.hasActionAt(pcValue))
             routineExecution.createAndAddGenericAction(pcValue);
@@ -298,10 +295,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   private static class SEStackListener<T extends WordNumber> implements StackListener {
     private final SymbolicExecutionAdapter<T> symbolicExecutionAdapter;
-    private int previousPc = -1;
-    private int popAddress;
-
-    private ReturnAddressWordNumber returnAddress;
 
     private SEStackListener(SymbolicExecutionAdapter<T> symbolicExecutionAdapter) {
       this.symbolicExecutionAdapter = symbolicExecutionAdapter;
@@ -309,25 +302,25 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
     @Override
     public void returnAddressPopped(ReturnAddressWordNumber returnAddressWordNumber, int pcValue) {
-      returnAddress = null;
+      if (returnAddressWordNumber != null) {
+        RoutineExecutorHandler<T> routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
 
-      RoutineExecutorHandler<T> routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
+        int popAddress = pcValue;
 
-      previousPc = symbolicExecutionAdapter.lastPc;
-      popAddress = pcValue;
-      returnAddress = returnAddressWordNumber;
+        System.out.printf("pop2: %d %d %d %n", popAddress, returnAddressWordNumber.intValue(), pcValue);
 
-      var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
-      var routineExecution = routineExecutorHandler.getCallerRoutineExecution();
+        var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
+        var routineExecution = routineExecutorHandler.getCallerRoutineExecution();
 
-      routineExecution.replaceAddressAction(new AddressActionDelegate<>(pcValue + 1, routineExecutorHandler));
-      routineExecution.replaceAddressAction(new AddressActionDelegate<>(returnAddressWordNumber.intValue(), routineExecutorHandler));
-      lastRoutineExecution.replaceAddressAction(new BasicAddressAction<T>(popAddress, routineExecutorHandler, false));
-      routineExecution.replaceAddressAction(new PopReturnCallAddressAction<>(routineExecutorHandler, lastRoutineExecution, returnAddressWordNumber.pc));
+        routineExecution.replaceAddressAction(new AddressActionDelegate<>(pcValue + 1, routineExecutorHandler));
+        routineExecution.replaceAddressAction(new AddressActionDelegate<>(returnAddressWordNumber.intValue(), routineExecutorHandler));
+        lastRoutineExecution.replaceAddressAction(new BasicAddressAction<T>(popAddress, routineExecutorHandler, false));
+        routineExecution.replaceAddressAction(new PopReturnCallAddressAction<>(routineExecutorHandler, lastRoutineExecution, returnAddressWordNumber.pc));
 
-      routineExecutorHandler.popRoutineExecution();
-      if (!lastRoutineExecution.hasRetInstruction())
-        lastRoutineExecution.setRetInstruction(pcValue);
+        routineExecutorHandler.popRoutineExecution();
+        if (!lastRoutineExecution.hasRetInstruction())
+          lastRoutineExecution.setRetInstruction(pcValue);
+      }
     }
   }
 

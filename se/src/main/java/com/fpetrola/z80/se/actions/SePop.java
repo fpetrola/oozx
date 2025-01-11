@@ -27,7 +27,6 @@ import com.fpetrola.z80.se.*;
 
 public class SePop<T extends WordNumber> extends Pop<T> implements IPopReturnAddress<T> {
   private final SymbolicExecutionAdapter<T> symbolicExecutionAdapter;
-  private int previousPc = -1;
   private int popAddress;
 
   private ReturnAddressWordNumber returnAddress;
@@ -38,7 +37,6 @@ public class SePop<T extends WordNumber> extends Pop<T> implements IPopReturnAdd
   }
 
   public int execute() {
-    setNextPC(null);
     returnAddress = null;
     var read = Memory.read16Bits(memory, sp.read());
 
@@ -47,9 +45,10 @@ public class SePop<T extends WordNumber> extends Pop<T> implements IPopReturnAdd
       var pc = routineExecutorHandler.getPc();
       var pcValue = pc.read().intValue();
 
-      previousPc = symbolicExecutionAdapter.lastPc;
       popAddress = pcValue;
       returnAddress = returnAddressWordNumber;
+
+      System.out.printf("pop2: %d %d %d %n", popAddress, returnAddressWordNumber.intValue(), pcValue);
 
       var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
       var routineExecution = routineExecutorHandler.getCallerRoutineExecution();
@@ -74,10 +73,6 @@ public class SePop<T extends WordNumber> extends Pop<T> implements IPopReturnAdd
 
   protected String getName() {
     return "Pop_";
-  }
-
-  public int getPreviousPc() {
-    return previousPc;
   }
 
   public int getPopAddress() {

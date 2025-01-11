@@ -44,9 +44,9 @@ public class StackAnalyzer<T extends WordNumber> {
     InstructionVisitor<T, Object> instructionVisitor = new InstructionVisitor<>() {
       public void visitingPop(Pop pop) {
         var read = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
-        if (read instanceof ReturnAddressWordNumber returnAddressWordNumber) {
-          lastEvent = l -> l.returnAddressPopped(returnAddressWordNumber, state.getPc().read().intValue());
-        }
+        ReturnAddressWordNumber returnAddressWordNumber1 = read instanceof ReturnAddressWordNumber returnAddressWordNumber ? returnAddressWordNumber : null;
+        int pcValue = state.getPc().read().intValue();
+        lastEvent = l -> l.returnAddressPopped(returnAddressWordNumber1, pcValue);
       }
     };
     instruction.accept(instructionVisitor);

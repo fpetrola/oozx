@@ -73,8 +73,6 @@ public class RoutineExecution<T extends WordNumber> {
   }
 
   public void replaceAddressAction(AddressAction addressAction) {
-    if (addressAction.address == 36199)
-      System.out.println("replaced?");
     actions.put(addressAction.address, addressAction);
   }
 
