@@ -304,16 +304,14 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       if (returnAddressWordNumber != null) {
         RoutineExecutorHandler<T> routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
 
-        int popAddress = pcValue;
-
-        System.out.printf("pop2: %d %d %d %n", popAddress, returnAddressWordNumber.intValue(), pcValue);
+        System.out.printf("pop2: %d %d %d %n", pcValue, returnAddressWordNumber.intValue(), pcValue);
 
         var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
         var routineExecution = routineExecutorHandler.getCallerRoutineExecution();
 
         routineExecution.replaceAddressAction(new AddressActionDelegate<>(pcValue + 1, routineExecutorHandler));
         routineExecution.replaceAddressAction(new AddressActionDelegate<>(returnAddressWordNumber.intValue(), routineExecutorHandler));
-        lastRoutineExecution.replaceAddressAction(new BasicAddressAction<T>(popAddress, routineExecutorHandler, false));
+        lastRoutineExecution.replaceAddressAction(new BasicAddressAction<T>(pcValue, routineExecutorHandler, false));
         routineExecution.replaceAddressAction(new PopReturnCallAddressAction<>(routineExecutorHandler, lastRoutineExecution, returnAddressWordNumber.pc));
 
         routineExecutorHandler.popRoutineExecution();

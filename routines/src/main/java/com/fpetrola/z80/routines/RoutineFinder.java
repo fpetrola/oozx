@@ -151,7 +151,6 @@ public class RoutineFinder<T extends WordNumber> {
 
   private void processPopInstruction(ReturnAddressWordNumber returnAddress, int popAddress) {
     int previousPc = lastPc;
-    System.out.printf("pop1: %d %d %d %n", popAddress, returnAddress.intValue(), popAddress);
     ReturnAddressWordNumber returnAddress1 = returnAddress;
     Routine returnRoutine = routineManager.findRoutineAt(returnAddress1.intValue() - 1);
     if (returnRoutine != null) {
