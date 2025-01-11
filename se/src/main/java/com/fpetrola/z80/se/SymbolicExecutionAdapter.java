@@ -25,7 +25,6 @@ import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
-import com.fpetrola.z80.instructions.impl.DJNZ;
 import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
@@ -301,7 +300,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     }
 
     @Override
-    public void returnAddressPopped(ReturnAddressWordNumber returnAddressWordNumber, int pcValue) {
+    public boolean returnAddressPopped(ReturnAddressWordNumber returnAddressWordNumber, int pcValue) {
       if (returnAddressWordNumber != null) {
         RoutineExecutorHandler<T> routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
 
@@ -320,7 +319,9 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         routineExecutorHandler.popRoutineExecution();
         if (!lastRoutineExecution.hasRetInstruction())
           lastRoutineExecution.setRetInstruction(pcValue);
+        return true;
       }
+      return false;
     }
   }
 

@@ -28,7 +28,6 @@ import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.se.IPopReturnAddress;
 import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
@@ -112,32 +111,17 @@ public class RoutineFinder<T extends WordNumber> {
         if (lastInstruction instanceof Call) {
           processCallInstruction(instruction);
         }
-        final boolean[] returnAddressPopped = new boolean[1];
 
-        this.stackAnalyzer.listenEvents(new StackListener() {
-          public void returnAddressPopped(ReturnAddressWordNumber returnAddressWordNumber, int pcValue1) {
+        boolean b = this.stackAnalyzer.listenEvents(new StackListener() {
+          public boolean returnAddressPopped(ReturnAddressWordNumber returnAddressWordNumber, int pcValue1) {
             if (returnAddressWordNumber != null) {
-              returnAddressPopped[0] = true;
-              processPopInstruction(pcValue, new IPopReturnAddress() {
-                public ReturnAddressWordNumber getReturnAddress() {
-                  return returnAddressWordNumber;
-                }
-
-                public int getPreviousPc() {
-                  return lastPc;
-                }
-
-                public int getPopAddress() {
-                  return pcValue1;
-                }
-              });
-            }
+              processPopInstruction(returnAddressWordNumber, pcValue1);
+              return true;
+            } else
+              return false;
           }
         });
-        if (!returnAddressPopped[0]) {
-//        if (instruction instanceof IPopReturnAddress popReturnAddress && popReturnAddress.getReturnAddress() != null) {
-//          processPopInstruction(pcValue, popReturnAddress);
-//        } else {
+        if (!b) {
           currentRoutine.addInstructionAt(instruction, pcValue);
           if (instruction instanceof Ret ret) {
             processRetInstruction(ret);
@@ -165,16 +149,16 @@ public class RoutineFinder<T extends WordNumber> {
     }
   }
 
-  private void processPopInstruction(int pcValue, IPopReturnAddress popReturnAddress) {
+  private void processPopInstruction(ReturnAddressWordNumber returnAddress, int popAddress) {
     int previousPc = lastPc;
-    System.out.printf("pop1: %d %d %d %n", popReturnAddress.getPopAddress(), popReturnAddress.getReturnAddress().intValue(), pcValue);
-    ReturnAddressWordNumber returnAddress1 = popReturnAddress.getReturnAddress();
+    System.out.printf("pop1: %d %d %d %n", popAddress, returnAddress.intValue(), popAddress);
+    ReturnAddressWordNumber returnAddress1 = returnAddress;
     Routine returnRoutine = routineManager.findRoutineAt(returnAddress1.intValue() - 1);
     if (returnRoutine != null) {
       if (previousPc != -1) {
-        currentRoutine.getVirtualPop().put(previousPc, popReturnAddress.getPopAddress());
+        currentRoutine.getVirtualPop().put(previousPc, popAddress);
       }
-      returnRoutine.addReturnPoint(returnAddress1.pc, pcValue + 1);
+      returnRoutine.addReturnPoint(returnAddress1.pc, popAddress + 1);
       this.currentRoutine = returnRoutine;
     }
   }
@@ -246,7 +230,7 @@ public class RoutineFinder<T extends WordNumber> {
     });
   }
 
-  private class SimulatedPopReturnAddress implements IPopReturnAddress<WordNumber> {
+  private class SimulatedPopReturnAddress {
     private final int returnAddress;
     private final int popAddress;
 

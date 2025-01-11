@@ -29,11 +29,11 @@ import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.se.StackListener;
 import com.fpetrola.z80.spy.ExecutionListener;
 
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class StackAnalyzer<T extends WordNumber> {
   private final State<T> state;
-  private Consumer<StackListener> lastEvent;
+  private Function<StackListener, Boolean> lastEvent;
 
   public StackAnalyzer(State<T> state) {
     this.state = state;
@@ -56,9 +56,8 @@ public class StackAnalyzer<T extends WordNumber> {
 
   }
 
-  public void listenEvents(StackListener stackListener) {
-    if (lastEvent != null)
-      lastEvent.accept(stackListener);
+  public boolean listenEvents(StackListener stackListener) {
+    return lastEvent != null && lastEvent.apply(stackListener);
   }
 
   public void addExecutionListener(InstructionExecutor instructionExecutor) {
