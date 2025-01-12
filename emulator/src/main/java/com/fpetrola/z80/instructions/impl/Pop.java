@@ -36,6 +36,8 @@ public class Pop<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
   }
 
   public int execute() {
+//    if (sp.read().intValue() == 0xFFFE)
+//      System.out.println("adadgadg SP");
     T value = doPop(memory, sp);
     target.write(value);
     return 5 + 3 + 3;

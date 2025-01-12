@@ -43,7 +43,7 @@ import static com.fpetrola.z80.helpers.Helper.createMD5;
 @SuppressWarnings("ALL")
 @RunWith(TestRunner.class)
 @Modules(RoutinesModule.class)
-public class JSWBytecodeCreationTests<T extends WordNumber> {
+public class GameBytecodeCreationTests<T extends WordNumber> {
   private final RealCodeBytecodeCreationBase<T> realCodeBytecodeCreationBase;
   private final RoutinesDriverConfigurator driverConfigurator;
 
@@ -58,12 +58,11 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
   }
 
   @Inject
-  public JSWBytecodeCreationTests(RoutinesDriverConfigurator driverConfigurator) {
+  public GameBytecodeCreationTests(RoutinesDriverConfigurator driverConfigurator) {
     realCodeBytecodeCreationBase = driverConfigurator.getRealCodeBytecodeCreationBase();
     this.driverConfigurator = driverConfigurator;
   }
 
-  @Ignore
   @Test
   public void testTranslateWallyToJava() {
     testTranslateGame(RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, 0x8184, "http://torinak.com/qaop/bin/wally"), 0x8184);

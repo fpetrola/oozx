@@ -47,6 +47,7 @@ import javax.swing.*;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ZXIde {
   private static QueueExecutor queueExecutor;
+  private static StackAnalyzer stackAnalyzer1;
 
   public static void main(String[] args) {
     LafManager.install(new DarculaTheme());
@@ -68,18 +69,19 @@ public class ZXIde {
 
     State state = EmulatedMiniZX.createState();
     RoutineManager routineManager = new RoutineManager(blocksManager);
-    RoutineFinder routineFinder = new RoutineFinder(routineManager, new StackAnalyzer<>(state), state);
+    stackAnalyzer1 = new StackAnalyzer<>(state);
+    RoutineFinder routineFinder = new RoutineFinder(routineManager, stackAnalyzer1, state);
     RoutineGrouperSpy spy = new RoutineGrouperSpy<>(frame.graph, dataflowService, routineFinder);
 
     spy.enable(true);
 
     String url = "file:///home/fernando/dynamitedan1.z80";
-    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/tge.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/rickdangerous";
-    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/wally.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/dynamitedan";
-    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/tge.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/wally.z80";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
 
     queueExecutor = new QueueExecutor();
 
@@ -88,6 +90,8 @@ public class ZXIde {
       Z80EmulatorBridge emulator1 = new Z80EmulatorBridge(pc, ooz80, emulateUntil, pause, routineManager);
       routineManager.setRoutineHandlingListener(emulator1.getRoutineHandlingListener());
       routineFinder.addExecutionListener(new MyInstructionExecutorDelegator(ooz80, routineFinder));
+      stackAnalyzer1.addExecutionListener(ooz80.getInstructionFetcher().getInstructionExecutor());
+
       SwingUtilities.invokeLater(() -> Z80Debugger.createAndShowGUI(emulator1, emulator1.getTreeListener()));
       ooz80.getInstructionFetcher().addFetchListener(emulator1.getRegisterWriteListener());
     }, url, 10, true, -1, true, spy, state).start();
@@ -114,7 +118,7 @@ public class ZXIde {
 
         public void afterExecution(Instruction instruction) {
           if (!(instruction instanceof RepeatingInstruction<?>)) {
-            if (!routineFinder.alreadyProcessed(instruction, ooz80.getState().getPc().read().intValue()))
+//            if (!routineFinder.alreadyProcessed(instruction, ooz80.getState().getPc().read().intValue()))
               executionListener.afterExecution(instruction);
           }
         }

@@ -123,6 +123,14 @@ public class RoutineFinder<T extends WordNumber> {
             currentRoutine = returnRoutine;
             return true;
           }
+
+          public boolean jumpUsingRet(int pcValue, int jumpAddress) {
+            return StackListener.super.jumpUsingRet(pcValue, jumpAddress);
+          }
+
+          public boolean simulatedCall(int pcValue, int i) {
+            return StackListener.super.simulatedCall(pcValue, i);
+          }
         });
 
         if (!listened) {

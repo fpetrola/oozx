@@ -18,6 +18,16 @@
 
 package com.fpetrola.z80.se;
 
+import com.fpetrola.z80.opcodes.references.WordNumber;
+
 public interface StackListener {
   boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress);
+
+  default boolean jumpUsingRet(int pcValue, int jumpAddress) {
+    return false;
+  }
+
+  default boolean simulatedCall(int pcValue, int i) {
+    return false;
+  }
 }
