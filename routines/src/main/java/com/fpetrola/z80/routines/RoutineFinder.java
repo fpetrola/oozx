@@ -131,6 +131,16 @@ public class RoutineFinder<T extends WordNumber> {
           public boolean simulatedCall(int pcValue, int i) {
             return StackListener.super.simulatedCall(pcValue, i);
           }
+
+          @Override
+          public boolean beginUsingStackAsRepository(int pcValue, int newSpAddress, int oldSpAddress) {
+            return StackListener.super.beginUsingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
+          }
+
+          @Override
+          public boolean endUsingStackAsRepository(int pcValue, int newSpAddress, int oldSpAddress) {
+            return StackListener.super.endUsingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
+          }
         });
 
         if (!listened) {

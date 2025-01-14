@@ -21,11 +21,13 @@ package com.fpetrola.z80.transformations;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.se.StackListener;
 import com.fpetrola.z80.spy.ExecutionListener;
@@ -36,6 +38,7 @@ public class StackAnalyzer<T extends WordNumber> {
   private final State<T> state;
   private Function<StackListener, Boolean> lastEvent;
   private boolean initialized = false;
+  private StackAsRepositoryState stackAsRepository = new StackAsRepositoryState();
 
   public StackAnalyzer(State<T> state) {
     this.state = state;
@@ -98,7 +101,7 @@ public class StackAnalyzer<T extends WordNumber> {
 
             if (!(read instanceof ReturnAddressWordNumber)) {
               int pcValue = state.getPc().read().intValue();
-              if (Math.abs(read.intValue() - pcValue) < 20){
+              if (Math.abs(read.intValue() - pcValue) < 20) {
                 lastEvent = l -> l.simulatedCall(pcValue, read.intValue());
               }
             }
@@ -108,8 +111,49 @@ public class StackAnalyzer<T extends WordNumber> {
 
         return false;
       }
+
+      public void visitingLd(Ld<T> ld) {
+        Register<T> pc = state.getPc();
+        int pcValue = pc.read().intValue();
+
+        ImmutableOpcodeReference<T> source = ld.getSource();
+        OpcodeReference<T> target = ld.getTarget();
+
+        if (source instanceof Register<T> register && register.getName().equals(RegisterName.SP.name())) {
+          stackAsRepository.spReadAt = pcValue;
+        }
+
+        if (target instanceof Register<T> register && register.getName().equals(RegisterName.SP.name())) {
+          if (distance(stackAsRepository.spReadAt, pcValue) < 5000) {
+            System.out.println("LD SP at: " + Helper.formatAddress(pcValue));
+            usingStackAsRepository(register, source, pcValue);
+          }
+        }
+      }
+
+      private void usingStackAsRepository(Register<T> register, ImmutableOpcodeReference<T> source, int pcValue) {
+        int newSpAddress = source.read().intValue();
+        int oldSpAddress = register.read().intValue();
+        if (distance(oldSpAddress, newSpAddress) > 200) {
+          if (!stackAsRepository.active) {
+            stackAsRepository.active = true;
+            stackAsRepository.lastSP = oldSpAddress;
+            lastEvent = l -> l.beginUsingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
+          } else {
+            if (newSpAddress == stackAsRepository.lastSP) {
+              lastEvent = l -> l.endUsingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
+              stackAsRepository.clear();
+            }
+          }
+        }
+      }
+
     };
     instruction.accept(instructionVisitor);
+  }
+
+  private int distance(int oldSpAddress, int newSpAddress) {
+    return Math.abs(oldSpAddress - newSpAddress);
   }
 
   public void afterExecution(Instruction<T> instruction) {
