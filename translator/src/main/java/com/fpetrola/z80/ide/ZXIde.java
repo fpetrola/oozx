@@ -36,6 +36,7 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.DataflowService;
+import com.fpetrola.z80.se.StackListener;
 import com.fpetrola.z80.spy.ExecutionListener;
 import com.fpetrola.z80.spy.ObservableRegister;
 import com.fpetrola.z80.transformations.StackAnalyzer;
@@ -79,9 +80,9 @@ public class ZXIde {
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/rickdangerous";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/dynamitedan";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/tge.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/wally.z80";
-    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
 
     queueExecutor = new QueueExecutor();
 
@@ -91,9 +92,14 @@ public class ZXIde {
       routineManager.setRoutineHandlingListener(emulator1.getRoutineHandlingListener());
       routineFinder.addExecutionListener(new MyInstructionExecutorDelegator(ooz80, routineFinder));
       stackAnalyzer1.addExecutionListener(ooz80.getInstructionFetcher().getInstructionExecutor());
+//      stackAnalyzer1.addEventListener(new StackListener() {
+//      });
 
       SwingUtilities.invokeLater(() -> Z80Debugger.createAndShowGUI(emulator1, emulator1.getTreeListener()));
       ooz80.getInstructionFetcher().addFetchListener(emulator1.getRegisterWriteListener());
+
+
+//      state.getPc().write(WordNumber.createValue(0xF163));
     }, url, 10, true, -1, true, spy, state).start();
   }
 
@@ -119,7 +125,7 @@ public class ZXIde {
         public void afterExecution(Instruction instruction) {
           if (!(instruction instanceof RepeatingInstruction<?>)) {
 //            if (!routineFinder.alreadyProcessed(instruction, ooz80.getState().getPc().read().intValue()))
-              executionListener.afterExecution(instruction);
+            executionListener.afterExecution(instruction);
           }
         }
       });

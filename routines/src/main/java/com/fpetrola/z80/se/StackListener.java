@@ -22,7 +22,10 @@ import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public interface StackListener {
-  boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress);
+  default boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress) {
+    System.out.println("returnAddressPopped: %s %s %s".formatted(Helper.formatAddress(pcValue), Helper.formatAddress(returnAddress), Helper.formatAddress(callAddress)));
+    return false;
+  }
 
   default boolean jumpUsingRet(int pcValue, int jumpAddress) {
     System.out.println("jumpUsingRet: %s %s".formatted(Helper.formatAddress(pcValue), Helper.formatAddress(jumpAddress)));
@@ -41,6 +44,11 @@ public interface StackListener {
 
   default boolean endUsingStackAsRepository(int pcValue, int newSpAddress, int oldSpAddress) {
     System.out.println("endUsingStackAsRepository: %s %s %s".formatted(Helper.formatAddress(pcValue), Helper.formatAddress(newSpAddress), Helper.formatAddress(oldSpAddress)));
+    return false;
+  }
+
+  default boolean droppingReturnValues(int pcValue, int newSpAddress, int oldSpAddress) {
+    System.out.println("droppingReturnValues: %s %s %s".formatted(Helper.formatAddress(pcValue), Helper.formatAddress(newSpAddress), Helper.formatAddress(oldSpAddress)));
     return false;
   }
 }

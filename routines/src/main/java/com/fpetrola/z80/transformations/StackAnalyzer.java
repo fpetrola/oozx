@@ -34,11 +34,14 @@ import com.fpetrola.z80.spy.ExecutionListener;
 
 import java.util.function.Function;
 
+import static com.fpetrola.z80.registers.RegisterName.SP;
+
 public class StackAnalyzer<T extends WordNumber> {
   private final State<T> state;
   private Function<StackListener, Boolean> lastEvent;
   private boolean initialized = false;
   private StackAsRepositoryState stackAsRepository = new StackAsRepositoryState();
+  private StackListener stackListener;
 
   public StackAnalyzer(State<T> state) {
     this.state = state;
@@ -119,21 +122,23 @@ public class StackAnalyzer<T extends WordNumber> {
         ImmutableOpcodeReference<T> source = ld.getSource();
         OpcodeReference<T> target = ld.getTarget();
 
-        if (source instanceof Register<T> register && register.getName().equals(RegisterName.SP.name())) {
+        if (source instanceof Register<T> register && register.getName().equals(SP.name())) {
           stackAsRepository.spReadAt = pcValue;
         }
 
-        if (target instanceof Register<T> register && register.getName().equals(RegisterName.SP.name())) {
+        if (target instanceof Register<T> register && register.getName().equals(SP.name())) {
+          int newSpAddress = source.read().intValue();
+          int oldSpAddress = register.read().intValue();
           if (distance(stackAsRepository.spReadAt, pcValue) < 5000) {
-            System.out.println("LD SP at: " + Helper.formatAddress(pcValue));
-            usingStackAsRepository(register, source, pcValue);
+//            System.out.println("LD SP at: " + Helper.formatAddress(pcValue));
+            usingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
+          } else if (distance(oldSpAddress, newSpAddress) < 200) {
+            lastEvent = l -> l.droppingReturnValues(pcValue, newSpAddress, oldSpAddress);
           }
         }
       }
 
-      private void usingStackAsRepository(Register<T> register, ImmutableOpcodeReference<T> source, int pcValue) {
-        int newSpAddress = source.read().intValue();
-        int oldSpAddress = register.read().intValue();
+      private void usingStackAsRepository(int pcValue, int newSpAddress, int oldSpAddress) {
         if (distance(oldSpAddress, newSpAddress) > 200) {
           if (!stackAsRepository.active) {
             stackAsRepository.active = true;
@@ -150,6 +155,9 @@ public class StackAnalyzer<T extends WordNumber> {
 
     };
     instruction.accept(instructionVisitor);
+
+    if (lastEvent != null && stackListener != null)
+      lastEvent.apply(stackListener);
   }
 
   private int distance(int oldSpAddress, int newSpAddress) {
@@ -185,5 +193,9 @@ public class StackAnalyzer<T extends WordNumber> {
         StackAnalyzer.this.afterExecution(instruction);
       }
     });
+  }
+
+  public void addEventListener(StackListener stackListener) {
+    this.stackListener = stackListener;
   }
 }
