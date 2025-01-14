@@ -98,7 +98,9 @@ public class StackAnalyzer<T extends WordNumber> {
 
             if (!(read instanceof ReturnAddressWordNumber)) {
               int pcValue = state.getPc().read().intValue();
-              lastEvent = l -> l.simulatedCall(pcValue, read.intValue());
+              if (Math.abs(read.intValue() - pcValue) < 20){
+                lastEvent = l -> l.simulatedCall(pcValue, read.intValue());
+              }
             }
             return true;
           }

@@ -77,7 +77,7 @@ public class InstructionTableModel<T extends WordNumber> extends DefaultTableMod
     }
 
     long currentTime = System.currentTimeMillis();
-    if (currentTime - startTime > 50) {
+    if (currentTime - startTime > 200) {
       queueExecutor.threadSafeQueue.add(() -> {
         SwingUtilities.invokeLater(() -> updateSelectedRow(addressValue, instructionTable));
       });
