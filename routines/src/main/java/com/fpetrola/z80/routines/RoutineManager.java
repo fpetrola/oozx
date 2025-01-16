@@ -22,7 +22,7 @@ import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.CodeBlockType;
 import com.fpetrola.z80.blocks.NullBlockChangesListener;
-import com.fpetrola.z80.cpu.RandomAccessInstructionFetcher;
+import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.ide.RoutineHandlingListener;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
@@ -52,11 +52,11 @@ public class RoutineManager {
     this.routineHandlingListener = routineHandlingListener;
   }
 
-  public RandomAccessInstructionFetcher getRandomAccessInstructionFetcher() {
-    return randomAccessInstructionFetcher;
+  public InstructionExecutor<?> getInstructionExecutor() {
+    return instructionExecutor;
   }
 
-  private RandomAccessInstructionFetcher randomAccessInstructionFetcher;
+  private InstructionExecutor<?> instructionExecutor;
 
   public RoutineManager() {
     this(new BlocksManager(new NullBlockChangesListener(), true));
@@ -112,8 +112,8 @@ public class RoutineManager {
     return addRoutine(new Routine(foundBlock, startAddress, false));
   }
 
-  public void setRandomAccessInstructionFetcher(RandomAccessInstructionFetcher randomAccessInstructionFetcher) {
-    this.randomAccessInstructionFetcher = randomAccessInstructionFetcher;
+  public void setRandomAccessInstructionFetcher(InstructionExecutor<?> instructionExecutor) {
+    this.instructionExecutor = instructionExecutor;
   }
 
   public void reset() {

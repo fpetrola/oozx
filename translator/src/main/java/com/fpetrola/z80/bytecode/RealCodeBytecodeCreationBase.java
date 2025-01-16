@@ -35,25 +35,25 @@ import static java.util.Comparator.comparingInt;
 public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecutionContext<T> implements BytecodeGeneration {
   public RoutineManager routineManager;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
+  private final InstructionExecutor<T> instructionExecutor;
   private RegistersSetter<T> registersSetter;
-  private RandomAccessInstructionFetcher randomAccessInstructionFetcher;
 
   public RealCodeBytecodeCreationBase(RoutineFinderInstructionSpy routineFinderInstructionSpy1, RoutineManager routineManager1,
                                       InstructionExecutor instructionExecutor1,
                                       SymbolicExecutionAdapter executionAdapter, InstructionTransformer instructionCloner1,
-                                      InstructionExecutor<T> transformerInstructionExecutor1, OOZ80 z80, OpcodeConditions opcodeConditions, RegistersSetter<T> registersSetter1) {
+                                      InstructionExecutor<T> instructionExecutor, OOZ80 z80, OpcodeConditions opcodeConditions, RegistersSetter<T> registersSetter1) {
     super(routineFinderInstructionSpy1, z80, opcodeConditions);
     routineManager = routineManager1;
 
     symbolicExecutionAdapter = executionAdapter;
-    RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> transformerInstructionExecutor1.getInstructionAt(address);
-    routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
+    this.instructionExecutor = instructionExecutor;
+    routineManager.setRandomAccessInstructionFetcher(instructionExecutor);
     registersSetter = registersSetter1;
   }
 
   public void reset() {
     super.reset();
-    routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
+    routineManager.setRandomAccessInstructionFetcher(instructionExecutor);
   }
 
   public List<Routine> getRoutines() {

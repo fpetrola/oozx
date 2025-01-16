@@ -166,8 +166,7 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Inject
   public CPUExecutionContext getSecondContext(State state1, RoutineManager routineManager, InstructionExecutor instructionExecutor1, InstructionTransformer instructionTransformer, MutableOpcodeConditions opcodeConditions, InstructionSpy spy, SymbolicExecutionAdapter symbolicExecutionAdapter1, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor instructionExecutor, DefaultInstructionFactory instructionFactory) {
 //    TransformerInstructionExecutor<T> transformerInstructionExecutor1 = new TransformerInstructionExecutor(state1.getPc(), instructionExecutor1, false, instructionTransformer);
-    RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> instructionExecutor1.getInstructionAt(address);
-    routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
+    routineManager.setRandomAccessInstructionFetcher(instructionExecutor1);
 //    InstructionFetcher instructionFetcher1 = new TransformerInstructionFetcher(state1, transformerInstructionExecutor1);
     InstructionFetcher instructionFetcher1 = new InstructionFetcherForTest<>(state1);
     OOZ80 z80 = Z80Factory.createOOZ80(state1, instructionFetcher1, instructionExecutor);

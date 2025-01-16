@@ -349,7 +349,7 @@ public class Routine {
     Instruction[] lastInstruction = {null};
 
     for (int i = getStartAddress(); i <= getEndAddress(); i++) {
-      Instruction instruction = routineManager.getRandomAccessInstructionFetcher().getInstructionAt(i);
+      Instruction instruction = routineManager.getInstructionExecutor().getInstructionAt(i);
       if (instruction != null) {
         if (instruction != lastInstruction[0]) {
           routineVisitor.visitInstruction(i, instruction);
