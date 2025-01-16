@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.transformations;
 
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -26,13 +27,24 @@ public class TransformerInstructionFetcher<T extends WordNumber> extends Instruc
   private final TransformerInstructionExecutor<T> instructionExecutor1;
 
   public TransformerInstructionFetcher(State<T> state, TransformerInstructionExecutor instructionExecutor) {
-    super(state, instructionExecutor);
+    super(state);
     instructionExecutor1 = instructionExecutor;
   }
 
   public Instruction<T> fetchNextInstruction() {
-    updatePC(instructionExecutor.execute(instructions.get(pc.read().intValue())));
+    updatePC(instructionExecutor1.execute(instructions.get(pc.read().intValue())));
     return null;
+  }
+
+  protected void updatePC(Instruction<T> instruction) {
+    T nextPC = null;
+    if (instruction instanceof AbstractInstruction jumpInstruction)
+      nextPC = (T) jumpInstruction.getNextPC();
+
+    if (nextPC == null)
+      nextPC = pc.read().plus(instruction.getLength());
+
+    pc.write(nextPC);
   }
 
   public Instruction<T> getTransformedInstructionAt(int i) {

@@ -18,9 +18,7 @@
 
 package com.fpetrola.z80.transformations;
 
-import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -37,37 +35,19 @@ public class InstructionFetcherForTest<T extends WordNumber> implements Instruct
   private int i;
   protected Register<T> pc;
   protected final State<T> state;
-  protected final InstructionExecutor instructionExecutor;
 
-  public InstructionFetcherForTest(State<T> state, InstructionExecutor instructionExecutor) {
+  public InstructionFetcherForTest(State<T> state) {
     pc = state.getRegister(PC);
     this.state = state;
-    this.instructionExecutor = instructionExecutor;
   }
 
   public Instruction<T> fetchNextInstruction() {
-    Instruction<T> instruction = instructions.get(pc.read().intValue());
-//    Instruction execute = instructionExecutor.execute(instruction);
-//    System.out.println(execute);
-//    updatePC(instruction);
-    return instruction;
-  }
-
-  protected void updatePC(Instruction<T> instruction) {
-    T nextPC = null;
-    if (instruction instanceof AbstractInstruction jumpInstruction)
-      nextPC = (T) jumpInstruction.getNextPC();
-
-    if (nextPC == null)
-      nextPC = pc.read().plus(instruction.getLength());
-
-    pc.write(nextPC);
+    return instructions.get(pc.read().intValue());
   }
 
   public void reset() {
     pc.write(createValue(0));
     instructions.clear();
-    instructionExecutor.reset();
   }
 
   public int add(Instruction<T> instruction) {

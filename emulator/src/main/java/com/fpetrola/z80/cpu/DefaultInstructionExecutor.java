@@ -59,15 +59,6 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
   @Override
   public Instruction<T> execute(Instruction<T> instruction) {
     try {
-//      if (prefetch) {
-//        int rValue = registerR.read().intValue();
-//        T nextPC = createValue(0);
-//        prefetchedInstruction = fetchInstruction(nextPC);
-//        prefetchPC = nextPC.intValue();
-//        rdelta = registerR.read().intValue() - rValue;
-//        registerR.write(createValue(rValue));
-//      }
-
       Memory memory = state.getMemory();
       T pcValue = state.getPc().read();
       memory.read(createValue(-1), 1);
@@ -79,11 +70,11 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
       executingInstructions.remove(instruction);
       memory.read(createValue(-2), 1);
 
-      T nextPC = null;
-      if (noRepeat && instruction instanceof RepeatingInstruction repeatingInstruction)
+      if (noRepeat && instruction instanceof RepeatingInstruction repeatingInstruction) {
         repeatingInstruction.setNextPC(null);
+      }
 
-      nextPC = ((AbstractInstruction<T>) instruction).getNextPC();
+      T nextPC = ((AbstractInstruction<T>) instruction).getNextPC();
 
 //      String toString = new ToStringInstructionVisitor<T>().createToString(instruction2);
 //      String x = String.format("%04X", pcValue.intValue()) + ": " + toString + " -> " + nextPC;

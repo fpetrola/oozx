@@ -169,7 +169,7 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
     RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> instructionExecutor1.getInstructionAt(address);
     routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
 //    InstructionFetcher instructionFetcher1 = new TransformerInstructionFetcher(state1, transformerInstructionExecutor1);
-    InstructionFetcher instructionFetcher1 = new InstructionFetcherForTest<>(state1, instructionExecutor);
+    InstructionFetcher instructionFetcher1 = new InstructionFetcherForTest<>(state1);
     OOZ80 z80 = Z80Factory.createOOZ80(state1, instructionFetcher1, instructionExecutor);
     return new CPUExecutionContext<T>(spy, z80, opcodeConditions);
   }

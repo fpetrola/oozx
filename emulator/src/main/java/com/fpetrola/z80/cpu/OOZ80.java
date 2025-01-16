@@ -40,6 +40,7 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
 
   @Override
   public void reset() {
+    instructionExecutor.reset();
     instructionFetcher.reset();
     state.reset();
   }
