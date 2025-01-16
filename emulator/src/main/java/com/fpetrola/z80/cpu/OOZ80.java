@@ -19,6 +19,7 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.impl.Push;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
@@ -64,7 +65,10 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
   }
 
   public void execute(int cycles) {
-    instructionFetcher.fetchNextInstruction();
+    Instruction<?> currentInstruction = instructionFetcher.fetchNextInstruction();
+    InstructionExecutor instructionExecutor = instructionFetcher.getInstructionExecutor();
+    instructionExecutor.setNoRepeat(instructionFetcher.isNoRepeat());
+    instructionExecutor.execute(currentInstruction);
   }
 
   @Override

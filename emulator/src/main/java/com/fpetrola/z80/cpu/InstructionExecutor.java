@@ -22,6 +22,9 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.spy.ExecutionListener;
 
 public interface InstructionExecutor<T> {
+  default void setNoRepeat(boolean noRepeat) {
+  }
+
   Instruction<T> getInstructionAt(int address);
 
   Instruction<T> execute(Instruction<T> instruction);

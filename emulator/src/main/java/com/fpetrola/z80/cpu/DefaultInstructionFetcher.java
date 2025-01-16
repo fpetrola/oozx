@@ -21,9 +21,7 @@ package com.fpetrola.z80.cpu;
 import com.fpetrola.z80.instructions.cache.InstructionCloner;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
@@ -33,7 +31,6 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -48,6 +45,12 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   protected final InstructionExecutor<T> instructionExecutor;
   protected Supplier<TableBasedOpCodeDecoder> tableFactory;
   public Instruction<T> currentInstruction;
+
+  @Override
+  public boolean isNoRepeat() {
+    return noRepeat;
+  }
+
   private boolean noRepeat;
   private boolean clone;
   private List<FetchListener> fetchListeners = new ArrayList<>();
@@ -93,7 +96,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   }
 
   @Override
-  public void fetchNextInstruction() {
+  public Instruction<T> fetchNextInstruction() {
     registerR.increment();
     pcValue = state.getPc().read();
 
@@ -105,37 +108,21 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
       registerR.write(createValue(registerR.read().intValue() + rdelta));
     }
 
-    try {
-      memory.read(createValue(-1), 1);
-      this.instructionExecutor.execute(currentInstruction);
-      memory.read(createValue(-2), 1);
+    return currentInstruction;
 
-      T nextPC = null;
-      if (noRepeat && this.currentInstruction instanceof RepeatingInstruction repeatingInstruction)
-        repeatingInstruction.setNextPC(null);
-
-      nextPC = ((AbstractInstruction<T>) currentInstruction).getNextPC();
-
-//      String toString = new ToStringInstructionVisitor<T>().createToString(instruction2);
-//      String x = String.format("%04X", pcValue.intValue()) + ": " + toString + " -> " + nextPC;
-//      System.out.println(x);
-
-      if (nextPC == null)
-        nextPC = pcValue.plus(currentInstruction.getLength());
-
-      state.getPc().write(nextPC);
-
-      if (prefetch) {
-        int rValue = registerR.read().intValue();
-        prefetchedInstruction = fetchInstruction(nextPC);
-        prefetchPC = nextPC.intValue();
-        rdelta = registerR.read().intValue() - rValue;
-        registerR.write(createValue(rValue));
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-      state.setRunState(State.RunState.STATE_STOPPED_BREAK);
-    }
+//    try {
+//      if (prefetch) {
+//        int rValue = registerR.read().intValue();
+//        T nextPC= createValue(0);
+//        prefetchedInstruction = fetchInstruction(nextPC);
+//        prefetchPC = nextPC.intValue();
+//        rdelta = registerR.read().intValue() - rValue;
+//        registerR.write(createValue(rValue));
+//      }
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//      state.setRunState(State.RunState.STATE_STOPPED_BREAK);
+//    }
   }
 
   public Instruction<T> fetchInstruction(T address) {

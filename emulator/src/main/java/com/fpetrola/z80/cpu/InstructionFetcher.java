@@ -18,6 +18,8 @@
 
 package com.fpetrola.z80.cpu;
 
+import com.fpetrola.z80.instructions.types.Instruction;
+
 public interface InstructionFetcher {
 
   InstructionExecutor getInstructionExecutor();
@@ -25,7 +27,11 @@ public interface InstructionFetcher {
   default void setPrefetch(boolean prefetch) {
   }
 
-  void fetchNextInstruction();
+  default boolean isNoRepeat() {
+    return false;
+  }
+
+  Instruction<?> fetchNextInstruction();
 
   void reset();
 

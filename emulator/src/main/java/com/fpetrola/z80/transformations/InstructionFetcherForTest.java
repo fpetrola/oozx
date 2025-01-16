@@ -50,11 +50,12 @@ public class InstructionFetcherForTest<T extends WordNumber> implements Instruct
     return instructionExecutor;
   }
 
-  public void fetchNextInstruction() {
+  public Instruction<T> fetchNextInstruction() {
     Instruction<T> instruction = instructions.get(pc.read().intValue());
-    Instruction execute = instructionExecutor.execute(instruction);
+//    Instruction execute = instructionExecutor.execute(instruction);
 //    System.out.println(execute);
-    updatePC(instruction);
+//    updatePC(instruction);
+    return instruction;
   }
 
   protected void updatePC(Instruction<T> instruction) {

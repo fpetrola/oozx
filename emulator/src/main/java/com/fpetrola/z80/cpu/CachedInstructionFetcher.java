@@ -32,7 +32,7 @@ public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstr
     instructionCache = new InstructionCache(aState.getMemory(), new DefaultInstructionFactory(aState));
   }
 
-  public void fetchNextInstruction() {
+  public Instruction<T> fetchNextInstruction() {
     pcValue = state.getPc().read();
 
     InstructionCache.CacheEntry cacheEntry = instructionCache.getCacheEntryAt(pcValue);
@@ -53,6 +53,7 @@ public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstr
       if (cacheEntry == null || !cacheEntry.isMutable())
         instructionCache.cacheInstruction(pcValue, this.currentInstruction);
     }
+    return null;
   }
 
   public void reset() {

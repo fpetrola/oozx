@@ -30,8 +30,9 @@ public class TransformerInstructionFetcher<T extends WordNumber> extends Instruc
     instructionExecutor1 = instructionExecutor;
   }
 
-  public void fetchNextInstruction() {
+  public Instruction<T> fetchNextInstruction() {
     updatePC(instructionExecutor.execute(instructions.get(pc.read().intValue())));
+    return null;
   }
 
   public Instruction<T> getTransformedInstructionAt(int i) {
