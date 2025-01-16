@@ -34,7 +34,7 @@ public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstr
   }
 
   private void init(State aState) {
-    instructionCache = new InstructionCache(aState.getMemory(), new DefaultInstructionFactory(aState));
+    instructionCache = new InstructionCache(aState.getMemory(), instructionFactory);
   }
 
   public <T extends WordNumber> CachedInstructionFetcher(State<T> state, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory1, boolean clone, boolean prefetch) {

@@ -88,8 +88,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   public InstructionFetcher createInstructionFetcher(State<T> state, OpcodeConditions opcodeConditions) {
-//    return new CachedInstructionFetcher<>(state, opcodeConditions, createInstructionFactory(state), true, false);
-    return new DefaultInstructionFetcher<T>(state, opcodeConditions, createInstructionFactory(state), true, false);
+    return new CachedInstructionFetcher<>(state, opcodeConditions, createInstructionFactory(state), true, false);
+//    return new DefaultInstructionFetcher<T>(state, opcodeConditions, createInstructionFactory(state), true, false);
   }
 
   public InstructionFactory createInstructionFactory(final State state) {

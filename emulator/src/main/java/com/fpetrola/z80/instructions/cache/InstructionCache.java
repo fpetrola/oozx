@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.instructions.cache;
 
+import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.memory.Memory;
@@ -97,7 +98,7 @@ public class InstructionCache<T extends WordNumber> {
 
   private final InstructionCloner instructionCloner;
 
-  public InstructionCache(Memory memory, DefaultInstructionFactory instructionFactory) {
+  public InstructionCache(Memory memory, InstructionFactory instructionFactory) {
     instructionCloner = new InstructionCloner(instructionFactory);
     memory.addMemoryWriteListener(new CacheInvalidatorMemoryWriteListener(cacheInvalidators));
   }
