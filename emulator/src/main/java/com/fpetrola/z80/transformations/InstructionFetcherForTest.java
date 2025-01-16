@@ -63,7 +63,7 @@ public class InstructionFetcherForTest<T extends WordNumber> implements Instruct
       nextPC = (T) jumpInstruction.getNextPC();
 
     if (nextPC == null)
-      nextPC = pc.read().plus(1);
+      nextPC = pc.read().plus(instruction.getLength());
 
     pc.write(nextPC);
   }

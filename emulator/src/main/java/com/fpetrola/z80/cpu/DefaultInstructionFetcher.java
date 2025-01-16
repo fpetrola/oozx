@@ -71,6 +71,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     this.registerR = state.getRegisterR();
     this.memory = state.getMemory();
   }
+
   public DefaultInstructionFetcher(State aState, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone, boolean prefetch) {
     this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), instructionExecutor, instructionFactory, noRepeat, clone, prefetch);
   }
@@ -113,9 +114,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
       if (noRepeat && this.currentInstruction instanceof RepeatingInstruction repeatingInstruction)
         repeatingInstruction.setNextPC(null);
 
-      if (this.currentInstruction instanceof AbstractInstruction jumpInstruction) {
-        nextPC = (T) jumpInstruction.getNextPC();
-      }
+      nextPC = ((AbstractInstruction<T>) currentInstruction).getNextPC();
 
 //      String toString = new ToStringInstructionVisitor<T>().createToString(instruction2);
 //      String x = String.format("%04X", pcValue.intValue()) + ": " + toString + " -> " + nextPC;
