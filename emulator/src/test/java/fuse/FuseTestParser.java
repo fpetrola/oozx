@@ -96,7 +96,7 @@ public class FuseTestParser<T extends WordNumber> {
     io.setState(state);
     cpu = Z80Factory.createOOZ80(state, new FuseTestsInstructionFetcher(state));
     InstructionSpy spy = new MemptrUpdateInstructionSpy(state);
-    spy.addExecutionListeners(cpu.getInstructionFetcher().getInstructionExecutor());
+    spy.addExecutionListeners(cpu.getInstructionExecutor());
 
     PhaseProcessor<T> phaseProcessor = new PhaseProcessor<>((Z80Cpu<T>) cpu);
     memory.addMemoryReadListener(new AddStatesMemoryReadListener<T>(phaseProcessor));

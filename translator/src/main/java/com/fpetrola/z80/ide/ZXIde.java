@@ -91,7 +91,7 @@ public class ZXIde {
       Z80EmulatorBridge emulator1 = new Z80EmulatorBridge(pc, ooz80, emulateUntil, pause, routineManager);
       routineManager.setRoutineHandlingListener(emulator1.getRoutineHandlingListener());
       routineFinder.addExecutionListener(new MyInstructionExecutorDelegator(ooz80, routineFinder));
-      stackAnalyzer1.addExecutionListener(ooz80.getInstructionFetcher().getInstructionExecutor());
+      stackAnalyzer1.addExecutionListener(ooz80.getInstructionExecutor());
 //      stackAnalyzer1.addEventListener(new StackListener() {
 //      });
 
@@ -113,7 +113,7 @@ public class ZXIde {
     }
 
     public InstructionExecutor getDelegate() {
-      return ooz80.getInstructionFetcher().getInstructionExecutor();
+      return ooz80.getInstructionExecutor();
     }
 
     public void addExecutionListener(ExecutionListener executionListener) {

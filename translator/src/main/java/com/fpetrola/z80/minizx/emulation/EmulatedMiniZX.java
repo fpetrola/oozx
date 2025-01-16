@@ -86,7 +86,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
     ooz81.getInstructionFetcher().setPrefetch(true);
 
     spy.reset(state);
-    spy.addExecutionListeners(ooz81.getInstructionFetcher().getInstructionExecutor());
+    spy.addExecutionListeners(ooz81.getInstructionExecutor());
     return ooz81;
   }
 

@@ -116,4 +116,8 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
     return state;
   }
 
+  @Override
+  public InstructionExecutor<T> getInstructionExecutor() {
+    return instructionFetcher.getInstructionExecutor();
+  }
 }

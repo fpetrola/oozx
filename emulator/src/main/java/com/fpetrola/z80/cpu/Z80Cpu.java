@@ -32,4 +32,6 @@ public interface Z80Cpu<T extends WordNumber> {
   InstructionFetcher getInstructionFetcher();
 
   State<T> getState();
+
+  InstructionExecutor<T> getInstructionExecutor();
 }
