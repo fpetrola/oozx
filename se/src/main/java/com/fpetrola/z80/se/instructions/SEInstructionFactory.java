@@ -60,19 +60,19 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
 //          }
 //        }
 
-        if (target instanceof Register<T> register) {
-          if (register.getName().equals(RegisterName.SP.name())) {
-            System.out.println("LD SP at: " + Helper.formatAddress(pc.read().intValue()));
-            if (pc.read().intValue() != 0x8185) {
-              int i = source.read().intValue();
-              if (source instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
-                symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().restoringSP(i);
-              } else
-                symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().changingSP(i);
-            }
-            return 0;
-          }
-        }
+//        if (target instanceof Register<T> register) {
+//          if (register.getName().equals(RegisterName.SP.name())) {
+//            System.out.println("LD SP at: " + Helper.formatAddress(pc.read().intValue()));
+//            if (pc.read().intValue() != 0x8185) {
+//              int i = source.read().intValue();
+//              if (source instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
+//                symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().restoringSP(i);
+//              } else
+//                symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().changingSP(i);
+//            }
+//            return 0;
+//          }
+//        }
 
         if (source instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
           T value = source.read();

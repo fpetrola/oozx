@@ -293,7 +293,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     }
 
-    @Override
     public boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress) {
       RoutineExecutorHandler<T> routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
 
@@ -309,6 +308,17 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       if (!lastRoutineExecution.hasRetInstruction())
         lastRoutineExecution.setRetInstruction(pcValue);
       return true;
+    }
+
+    public boolean beginUsingStackAsRepository(int pcValue, int newSpAddress, int oldSpAddress) {
+      symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().disable();
+      return StackListener.super.beginUsingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
+    }
+
+    @Override
+    public boolean endUsingStackAsRepository(int pcValue, int newSpAddress, int oldSpAddress) {
+      symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().enable();
+      return StackListener.super.endUsingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
     }
   }
 

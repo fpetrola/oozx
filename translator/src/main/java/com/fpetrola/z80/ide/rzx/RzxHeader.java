@@ -16,13 +16,15 @@
  *
  */
 
-package com.fpetrola.z80.minizx;
+package com.fpetrola.z80.ide.rzx;
 
-import com.fpetrola.z80.cpu.IO;
-import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.Register;
+public class RzxHeader {
+  public String signature;
+  public byte majorRevision;
+  public byte minorRevision;
+  public int flags;
 
-public interface MiniZXIO<T extends WordNumber> extends IO<T> {
-  MiniZXKeyboard getMiniZXKeyboard();
-  void setPc(Register<T> pc);
+  public String toString() {
+    return "Header: " + signature + " v" + majorRevision + "." + minorRevision;
+  }
 }

@@ -28,7 +28,7 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
   protected ZxObject[] objectMemory = new ZxObject[0x10000];
 
   public SyncSpectrumApplication() {
-    io = new MiniZXIO();
+    io = new DefaultMiniZXIO();
   }
 
   public int mem(int address, int pc) {
@@ -70,13 +70,13 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
   @Override
   public int in(int port, int pc) {
     syncChecker.checkSyncInJava(port, pc);
-    return ((MiniZXIO)io).in2(WordNumber.createValue(port)).intValue();
+    return ((DefaultMiniZXIO)io).in2(WordNumber.createValue(port)).intValue();
   }
 
   @Override
   public int in(int port) {
     syncChecker.checkSyncInJava(port, -1);
-    return ((MiniZXIO)io).in2(WordNumber.createValue(port)).intValue();
+    return ((DefaultMiniZXIO)io).in2(WordNumber.createValue(port)).intValue();
   }
 
   protected void replaceWithObject(int address, int value) {

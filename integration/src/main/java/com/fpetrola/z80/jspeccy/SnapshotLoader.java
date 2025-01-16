@@ -30,33 +30,35 @@ import java.io.File;
 
 public class SnapshotLoader {
   public static <T extends WordNumber> byte[] setupStateWithSnapshot(RegistersSetter registersSetter, String fileName, State<T> state) {
-    MemorySetter memorySetter = new MemorySetter(state.getMemory(), MiniZXWithEmulationBase.createROM());
-    WordNumber[] data = new WordNumber[0x10000];
-
     try {
       File file = new File(fileName);
-
       SnapshotFile snap = new SnapshotZ80();
-      SpectrumState snapState = snap.load(file);
+      SpectrumState spectrumState = snap.load(file);
 
-      setZ80State(registersSetter, snapState.getZ80State());
-//      registersBase.setZ80State(snapState.getZ80State());
-
-      MemoryState memoryState = snapState.getMemoryState();
-
-      byte[][] ram = memoryState.getRam();
-      byte[] result = new byte[0x10000];
-
-      int position = 16384;
-      position = copyPage(ram, 5, position, result);
-      position = copyPage(ram, 2, position, result);
-      copyPage(ram, 0, position, result);
-
-      memorySetter.setData(result);
-      return result;
+      return setupStateFromSpectrumState(spectrumState, registersSetter, state);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static <T extends WordNumber> byte[] setupStateFromSpectrumState(SpectrumState spectrumState, RegistersSetter registersSetter, State<T> state) {
+    MemorySetter memorySetter = new MemorySetter(state.getMemory(), MiniZXWithEmulationBase.createROM());
+
+    setZ80State(registersSetter, spectrumState.getZ80State());
+//      registersBase.setZ80State(spectrumState.getZ80State());
+
+    MemoryState memoryState = spectrumState.getMemoryState();
+
+    byte[][] ram = memoryState.getRam();
+    byte[] result = new byte[0x10000];
+
+    int position = 16384;
+    position = copyPage(ram, 5, position, result);
+    position = copyPage(ram, 2, position, result);
+    copyPage(ram, 0, position, result);
+
+    memorySetter.setData(result);
+    return result;
   }
 
   private static <T extends WordNumber> int copyPage(byte[][] ram, int page, int position, byte[] result) {

@@ -20,7 +20,7 @@ package com.fpetrola.z80.minizx.sync;
 
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.factory.Z80Factory;
-import com.fpetrola.z80.minizx.MiniZXIO;
+import com.fpetrola.z80.minizx.DefaultMiniZXIO;
 import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.fpetrola.z80.minizx.emulation.MiniZXAndEmulation;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
@@ -49,10 +49,10 @@ public class DefaultSyncChecker implements SyncChecker {
   private int syncJavaCounter;
   private int port;
   private int pc;
-  private MiniZXIO io;
+  private DefaultMiniZXIO io;
   private List<Integer> rValues = Collections.synchronizedList(new ArrayList<>());
 
-  public <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
+  public <T extends WordNumber> OOZ80<T> createOOZ80(DefaultMiniZXIO io) {
     this.io = io;
     DefaultRegisterBankFactory registerBankFactory = new DefaultRegisterBankFactory() {
       @Override
@@ -86,7 +86,7 @@ public class DefaultSyncChecker implements SyncChecker {
 
   public DefaultSyncChecker() {
     com.fpetrola.z80.helpers.Helper.hex = true;
-    MiniZXIO io = (MiniZXIO) SpectrumApplication.io;
+    DefaultMiniZXIO io = (DefaultMiniZXIO) SpectrumApplication.io;
     SpectrumApplication.io = io;
     ooz80 = createOOZ80(io);
     ooz80.getState().getMemory().canDisable(true);

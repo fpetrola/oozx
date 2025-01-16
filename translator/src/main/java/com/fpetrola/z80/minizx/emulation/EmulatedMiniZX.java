@@ -22,16 +22,16 @@ import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.NullBlockChangesListener;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.factory.Z80Factory;
+import com.fpetrola.z80.ide.rzx.RzxFile;
+import com.fpetrola.z80.ide.rzx.RzxParser;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.jspeccy.Z80B;
 import com.fpetrola.z80.memory.MemoryWriteListener;
-import com.fpetrola.z80.minizx.MiniZX;
-import com.fpetrola.z80.minizx.MiniZXIO;
-import com.fpetrola.z80.minizx.MiniZXScreen;
-import com.fpetrola.z80.minizx.ZXScreenComponent;
+import com.fpetrola.z80.minizx.*;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.spy.*;
+import snapshots.SpectrumState;
 
 import java.util.function.Function;
 
@@ -69,14 +69,13 @@ public class EmulatedMiniZX<T extends WordNumber> {
   }
 
   public static void main(String[] args) {
-    InstructionSpy spy = new AbstractInstructionSpy() {
-    };
     String url = "file:///home/fernando/dynamitedan1.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/rickdangerous";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/wally.z80";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/equinox.z80";
 
-    new EmulatedMiniZX(url, 100, true, -1, true, new DefaultEmulator()).start();
+    new EmulatedMiniZX(url, 10, true, -1, true, new DefaultEmulator()).start();
   }
 
   public <T extends WordNumber> OOZ80<T> createOOZ80() {
@@ -94,7 +93,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
   public <T extends WordNumber> OOZ80<T> createOOZ802() {
     if (state == null)
       state = createState();
-    ((MiniZXIO) state.getIo()).setPc(state.getPc());
+//    ((MiniZXIO) state.getIo()).setPc(state.getPc());
     spy.reset(state);
 
 //    new DataflowService() {
@@ -108,7 +107,8 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
 
   public static State createState() {
-    return new State(new MiniZXIO(), new DefaultMemory(true));
+    return new State(new RZXPlayerIO(), new DefaultMemory(true));
+//    return new State(new DefaultMiniZXIO(), new DefaultMemory(true));
   }
 
   protected Function<Integer, Integer> getMemFunction() {
@@ -122,12 +122,27 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
     String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
     State<T> state = ooz80.getState();
-    SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
+//    SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
+    String name;
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/greatescape/greatescape.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/wally1.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/exolon.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
+
+    RzxFile rzxFile = new RzxParser().parseFile(name);
+    SpectrumState spectrumState = RzxParser.loadSnapshot(rzxFile);
+    SnapshotLoader.setupStateFromSpectrumState(spectrumState, registersBase, state);
+//    SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
+
+    if (io instanceof RZXPlayerIO<?> rzxPlayerIO)
+      rzxPlayerIO.setup(rzxFile, ooz80);
 
     if (showScreen) {
       MiniZXScreen miniZXScreen1 = new MiniZXScreen(this.getMemFunction());
       ZXScreenComponent zxScreenComponent = new ZXScreenComponent();
-      MiniZX.createScreen(io.miniZXKeyboard, zxScreenComponent);
+      MiniZX.createScreen(io.getMiniZXKeyboard(), zxScreenComponent);
       MemoryWriteListener<T> writeListener = zxScreenComponent.getWriteListener();
       state.getMemory().addMemoryWriteListener(writeListener);
       for (int i = 0; i < 0xFFFF; i++) {

@@ -33,7 +33,7 @@ public abstract class MiniZX extends SyncSpectrumApplication {
 
   public void init() {
     this.mem = new int[65536];
-    MiniZX.createScreen(((MiniZXIO) io).miniZXKeyboard, new MiniZXScreen(this.getMemFunction()));
+    MiniZX.createScreen(((DefaultMiniZXIO) io).miniZXKeyboard, new MiniZXScreen(this.getMemFunction()));
     final byte[] rom = MiniZXWithEmulationBase.createROM();
     final byte[] bytes = MiniZXWithEmulationBase.gzipDecompressFromBase64(this.getProgramBytes());
     for (int i = 0; i < 65536; ++i) {

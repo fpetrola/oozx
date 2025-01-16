@@ -30,6 +30,8 @@ import com.fpetrola.z80.se.actions.*;
 
 import java.util.*;
 
+import static com.fpetrola.z80.helpers.Helper.formatAddress;
+
 public class RoutineExecution<T extends WordNumber> {
   private final RoutineExecutorHandler<T> routineExecutorHandler;
   private int retInstruction = -1;
@@ -47,6 +49,10 @@ public class RoutineExecution<T extends WordNumber> {
 
   public AddressAction getNextPending() {
     return actions.values().stream().filter(AddressAction::isPending).findFirst().orElse(getActionOrCreateInAddress(retInstruction));
+  }
+
+  public List<AddressAction> getAllPending() {
+    return actions.values().stream().filter(AddressAction::isPending).toList();
   }
 
   public boolean hasActionAt(int address) {
@@ -113,7 +119,7 @@ public class RoutineExecution<T extends WordNumber> {
   }
 
   public String toString() {
-    return "RoutineExecution{start=%s, retInstruction=%s}".formatted(Helper.formatAddress(start), Helper.formatAddress(retInstruction));
+    return "RoutineExecution{start=%s, retInstruction=%s, pending=%s}".formatted(formatAddress(start), formatAddress(retInstruction), getAllPending().toString());
   }
 
   public int getStart() {

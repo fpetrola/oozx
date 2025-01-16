@@ -112,7 +112,7 @@ public class ExecutionStackStorage<T extends WordNumber> {
     lastSP = state.getRegisterSP().read().intValue();
   }
 
-  private void enable() {
+  public void enable() {
     enabled = true;
   }
 

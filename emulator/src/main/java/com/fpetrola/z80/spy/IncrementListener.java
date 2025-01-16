@@ -16,13 +16,8 @@
  *
  */
 
-package com.fpetrola.z80.minizx;
+package com.fpetrola.z80.spy;
 
-import com.fpetrola.z80.cpu.IO;
-import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.Register;
-
-public interface MiniZXIO<T extends WordNumber> extends IO<T> {
-  MiniZXKeyboard getMiniZXKeyboard();
-  void setPc(Register<T> pc);
+public interface IncrementListener<T> {
+  void incrementingRegister(T value);
 }
