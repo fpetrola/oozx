@@ -110,7 +110,7 @@ public class FuseTestParser<T extends WordNumber> {
     }
 
     public Instruction getLastInstruction() {
-      return instruction2;
+      return currentInstruction;
     }
 
     public void reset() {

@@ -101,7 +101,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
 
   public void processPhase(Phase phase) {
     DefaultInstructionFetcher<T> instructionFetcher = (DefaultInstructionFetcher<T>) cpu.getInstructionFetcher();
-    Instruction<T> instruction2 = instructionFetcher.instruction2;
+    Instruction<T> instruction2 = instructionFetcher.currentInstruction;
     setPhase(phase);
     if (instruction2 != null)
       instruction2.accept(this);

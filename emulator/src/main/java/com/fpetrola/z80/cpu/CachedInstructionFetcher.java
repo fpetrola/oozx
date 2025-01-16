@@ -51,7 +51,7 @@ public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstr
     } else {
       super.fetchNextInstruction();
       if (cacheEntry == null || !cacheEntry.isMutable())
-        instructionCache.cacheInstruction(pcValue, this.instruction2);
+        instructionCache.cacheInstruction(pcValue, this.currentInstruction);
     }
   }
 

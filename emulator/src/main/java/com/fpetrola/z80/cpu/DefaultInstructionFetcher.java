@@ -44,37 +44,20 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   private final InstructionFactory instructionFactory;
   protected State<T> state;
   protected Instruction<T>[] opcodesTables;
-
   protected T pcValue;
-
-  @Override
-  public InstructionExecutor<T> getInstructionExecutor() {
-    return instructionExecutor;
-  }
-
   protected final InstructionExecutor<T> instructionExecutor;
-  FileWriter fileWriter;
-  //  List<ExecutedInstruction> lastInstructions = new ArrayList<>();
   protected Supplier<TableBasedOpCodeDecoder> tableFactory;
-  protected Instruction<T> instruction;
-  public Instruction<T> instruction2;
+  public Instruction<T> currentInstruction;
   private boolean noRepeat;
   private boolean clone;
   private List<FetchListener> fetchListeners = new ArrayList<>();
   private int prefetchPC = -1;
   private Instruction<T> prefetchedInstruction;
   private int rdelta;
-
   private boolean prefetch = false;
+  private Register<T> registerR;
+  private Memory<T> memory;
 
-
-//  {
-//    try {
-//      fileWriter = new FileWriter(Z80B.FILE);
-//    } catch (IOException e) {
-//      throw new RuntimeException(e);
-//    }
-//  }
   public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone, boolean prefetch) {
     this.state = aState;
     this.instructionExecutor = instructionExecutor;
@@ -85,8 +68,9 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     pcValue = state.getPc().read();
     this.instructionFactory = instructionFactory;
     this.clone = clone;
+    this.registerR = state.getRegisterR();
+    this.memory = state.getMemory();
   }
-
   public DefaultInstructionFetcher(State aState, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone, boolean prefetch) {
     this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), instructionExecutor, instructionFactory, noRepeat, clone, prefetch);
   }
@@ -109,32 +93,27 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   @Override
   public void fetchNextInstruction() {
-    Register<T> registerR = state.getRegisterR();
     registerR.increment();
     pcValue = state.getPc().read();
-    Memory<T> memory = state.getMemory();
+
     if (prefetchPC != pcValue.intValue()) {
-      instruction2 = fetchInstruction(pcValue);
-      prefetchedInstruction = instruction2;
+      currentInstruction = fetchInstruction(pcValue);
+      prefetchedInstruction = currentInstruction;
     } else {
-      instruction2 = prefetchedInstruction;
+      currentInstruction = prefetchedInstruction;
       registerR.write(createValue(registerR.read().intValue() + rdelta));
     }
 
     try {
       memory.read(createValue(-1), 1);
-      Instruction<T> executedInstruction = this.instructionExecutor.execute(instruction2);
+      this.instructionExecutor.execute(currentInstruction);
       memory.read(createValue(-2), 1);
 
-      // fileWriter.write(x + "\n");
-
-      this.instruction2 = getBaseInstruction(executedInstruction);
-
       T nextPC = null;
-      if (noRepeat && this.instruction2 instanceof RepeatingInstruction repeatingInstruction)
+      if (noRepeat && this.currentInstruction instanceof RepeatingInstruction repeatingInstruction)
         repeatingInstruction.setNextPC(null);
 
-      if (this.instruction2 instanceof AbstractInstruction jumpInstruction) {
+      if (this.currentInstruction instanceof AbstractInstruction jumpInstruction) {
         nextPC = (T) jumpInstruction.getNextPC();
       }
 
@@ -143,7 +122,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 //      System.out.println(x);
 
       if (nextPC == null)
-        nextPC = pcValue.plus(instruction2.getLength());
+        nextPC = pcValue.plus(currentInstruction.getLength());
 
       state.getPc().write(nextPC);
 
@@ -161,7 +140,6 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   }
 
   public Instruction<T> fetchInstruction(T address) {
-    Memory<T> memory = state.getMemory();
     memory.disableReadListener();
     int opcodeInt = memory.read(address, 1).intValue();
     Instruction<T> opcodesTable = opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt];
@@ -218,5 +196,10 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   @Override
   public void setPrefetch(boolean prefetch) {
     this.prefetch = prefetch;
+  }
+
+  @Override
+  public InstructionExecutor<T> getInstructionExecutor() {
+    return instructionExecutor;
   }
 }
