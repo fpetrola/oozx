@@ -122,22 +122,8 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
     String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
     State<T> state = ooz80.getState();
-//    SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
-    String name;
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/greatescape/greatescape.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/wally1.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/exolon.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
-
-    RzxFile rzxFile = new RzxParser().parseFile(name);
-    SpectrumState spectrumState = RzxParser.loadSnapshot(rzxFile);
-    SnapshotLoader.setupStateFromSpectrumState(spectrumState, registersBase, state);
-//    SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
-
-    if (io instanceof RZXPlayerIO<?> rzxPlayerIO)
-      rzxPlayerIO.setup(rzxFile, ooz80);
+    SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
+//    useRzx(registersBase, state, io);
 
     if (showScreen) {
       MiniZXScreen miniZXScreen1 = new MiniZXScreen(this.getMemFunction());
@@ -155,6 +141,24 @@ public class EmulatedMiniZX<T extends WordNumber> {
       new Thread(() -> emulator.emulate(ooz80, emulateUntil, pause)).start();
     else
       emulator.emulate(ooz80, emulateUntil, pause);
+  }
+
+  private void useRzx(RegistersBase registersBase, State<T> state, MiniZXIO io) {
+    String name;
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/greatescape/greatescape.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/wally1.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/exolon.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
+
+    RzxFile rzxFile = new RzxParser().parseFile(name);
+    SpectrumState spectrumState = RzxParser.loadSnapshot(rzxFile);
+    SnapshotLoader.setupStateFromSpectrumState(spectrumState, registersBase, state);
+//    SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
+
+    if (io instanceof RZXPlayerIO<?> rzxPlayerIO)
+      rzxPlayerIO.setup(rzxFile, ooz80);
   }
 
 }
