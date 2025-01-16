@@ -23,13 +23,16 @@ import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DefaultMemory<T extends WordNumber> implements Memory<T> {
   protected T[] data = (T[]) new WordNumber[0x10000];
-  private MemoryWriteListener memoryWriteListener;
+  private List<MemoryWriteListener> memoryWriteListener = new ArrayList<>();
   private boolean readOnly;
-  protected MemoryReadListener memoryReadListener;
-  private MemoryReadListener lastMemoryReadListener;
-  private MemoryWriteListener lastMemoryWriteListener;
+  protected List<MemoryReadListener> memoryReadListener = new ArrayList<>();
+  private List<MemoryReadListener> lastMemoryReadListener;
+  private List<MemoryWriteListener> lastMemoryWriteListener;
   private boolean canDisable;
 
   public DefaultMemory(boolean canDisable1) {
@@ -40,7 +43,7 @@ public class DefaultMemory<T extends WordNumber> implements Memory<T> {
     T value = doRead(address);
     boolean b = fetching == 1 || address.intValue() < 0;
     if (memoryReadListener != null && b) {
-      memoryReadListener.readingMemoryAt(address, value, 0, fetching);
+      memoryReadListener.forEach(l -> l.readingMemoryAt(address, value, 0, fetching));
     }
 
     return value;
@@ -49,7 +52,7 @@ public class DefaultMemory<T extends WordNumber> implements Memory<T> {
   public T read(T address, int delta, int fetching) {
     T value = doRead(address);
     if (memoryReadListener != null)
-      memoryReadListener.readingMemoryAt(address, value, delta, fetching);
+      memoryReadListener.forEach(l -> l.readingMemoryAt(address, value, delta, fetching));
 
     return value;
   }
@@ -70,7 +73,7 @@ public class DefaultMemory<T extends WordNumber> implements Memory<T> {
   public void write(T address, T value) {
     if (!readOnly) {
       if (memoryWriteListener != null)
-        memoryWriteListener.writtingMemoryAt(address, value);
+        memoryWriteListener.forEach(l -> l.writtingMemoryAt(address, value));
       if (address.intValue() < 0x10000)
         data[address.intValue()] = value.and(0xff);
     }
@@ -88,7 +91,7 @@ public class DefaultMemory<T extends WordNumber> implements Memory<T> {
 
   @Override
   public void addMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener) {
-    this.memoryWriteListener = memoryWriteListener;
+    this.memoryWriteListener.add(memoryWriteListener);
   }
 
   @Override
@@ -105,7 +108,7 @@ public class DefaultMemory<T extends WordNumber> implements Memory<T> {
 
   @Override
   public void addMemoryReadListener(MemoryReadListener<T> memoryReadListener) {
-    this.memoryReadListener = memoryReadListener;
+    this.memoryReadListener.add(memoryReadListener);
   }
 
   @Override

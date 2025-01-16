@@ -40,7 +40,7 @@ public class MockedMemory<T extends WordNumber> extends DefaultMemory<T> {
 
     boolean b = fetching == 1 || address.intValue() < 0 || (cachedValue = cachedValues[address.intValue()]) != value;
     if (memoryReadListener != null && b) {
-      memoryReadListener.readingMemoryAt(address, value, 0, fetching);
+      memoryReadListener.forEach(l -> l.readingMemoryAt(address, value, 0, fetching));
       if (address.intValue() >= 0)
         cachedValues[address.intValue()] = value;
     }
