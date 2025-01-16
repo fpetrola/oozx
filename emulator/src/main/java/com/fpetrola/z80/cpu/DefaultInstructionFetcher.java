@@ -46,12 +46,6 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   protected Supplier<TableBasedOpCodeDecoder> tableFactory;
   public Instruction<T> currentInstruction;
 
-  @Override
-  public boolean isNoRepeat() {
-    return noRepeat;
-  }
-
-  private boolean noRepeat;
   private boolean clone;
   private List<FetchListener> fetchListeners = new ArrayList<>();
   private int prefetchPC = -1;
@@ -64,7 +58,6 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone, boolean prefetch) {
     this.state = aState;
     this.instructionExecutor = instructionExecutor;
-    this.noRepeat = noRepeat;
     this.prefetch = prefetch;
     tableFactory = () -> createOpcodesTables(opcodeConditions, instructionFactory.getFetchNextOpcodeInstructionFactory(), instructionFactory);
     createOpcodeTables();
@@ -80,7 +73,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   }
 
   public DefaultInstructionFetcher(State aState, boolean noRepeat, boolean clone, boolean prefetch) {
-    this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), new DefaultInstructionExecutor<>(aState), new DefaultInstructionFactory(aState), noRepeat, clone, prefetch);
+    this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), new DefaultInstructionExecutor<>(aState, noRepeat), new DefaultInstructionFactory(aState), noRepeat, clone, prefetch);
   }
 
   public DefaultInstructionFetcher(State aState, InstructionExecutor<T> instructionExecutor, boolean noRepeat, boolean clone, boolean prefetch) {

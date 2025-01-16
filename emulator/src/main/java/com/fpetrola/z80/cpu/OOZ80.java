@@ -67,7 +67,6 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
   public void execute(int cycles) {
     Instruction<?> currentInstruction = instructionFetcher.fetchNextInstruction();
     InstructionExecutor instructionExecutor = instructionFetcher.getInstructionExecutor();
-    instructionExecutor.setNoRepeat(instructionFetcher.isNoRepeat());
     instructionExecutor.execute(currentInstruction);
   }
 

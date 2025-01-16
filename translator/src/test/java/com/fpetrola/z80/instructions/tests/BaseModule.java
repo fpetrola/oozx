@@ -113,7 +113,7 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Inject
   @Singleton
   private InstructionExecutor getInstructionExecutor(State state) {
-    return new DefaultInstructionExecutor<>(state);
+    return new DefaultInstructionExecutor<>(state, true);
   }
 
   @Provides

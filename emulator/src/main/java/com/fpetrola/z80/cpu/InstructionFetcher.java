@@ -27,10 +27,6 @@ public interface InstructionFetcher {
   default void setPrefetch(boolean prefetch) {
   }
 
-  default boolean isNoRepeat() {
-    return false;
-  }
-
   Instruction<?> fetchNextInstruction();
 
   void reset();

@@ -37,18 +37,18 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
   private final Set<Instruction<T>> executingInstructions = new HashSet<>();
   private Map<Integer, Instruction<T>> instructions = new HashMap<>();
   private List<ExecutionListener<T>> executionListeners = new ArrayList<>();
+  private boolean noRepeat;
 
   @Override
   public void setNoRepeat(boolean noRepeat) {
     this.noRepeat = noRepeat;
   }
 
-  private boolean noRepeat;
-
   @Inject
-  public DefaultInstructionExecutor(State state) {
+  public DefaultInstructionExecutor(State state, boolean noRepeat) {
     this.pc = state.getPc();
     this.state = state;
+    this.noRepeat = noRepeat;
   }
 
   @Override

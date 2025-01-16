@@ -32,7 +32,7 @@ public class TransformationsTestBaseModule<T extends WordNumber> extends BaseMod
   @Inject
   @Singleton
   private DefaultInstructionExecutor getInstructionExecutor(State state) {
-    return new DefaultInstructionExecutor<>(state);
+    return new DefaultInstructionExecutor<>(state, false);
   }
 
   @Provides
