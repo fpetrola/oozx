@@ -127,9 +127,9 @@ public class EmulatedMiniZX<T extends WordNumber> {
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/greatescape/greatescape.rzx";
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/wally1.rzx";
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/exolon.rzx";
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
 
     RzxFile rzxFile = new RzxParser().parseFile(name);
     SpectrumState spectrumState = RzxParser.loadSnapshot(rzxFile);
