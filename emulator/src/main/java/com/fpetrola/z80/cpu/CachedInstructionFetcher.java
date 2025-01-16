@@ -57,6 +57,9 @@ public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstr
     }
   }
 
+  public void afterExecute(Instruction<?> currentInstruction) {
+  }
+
   public void reset() {
     super.reset();
     instructionCache.reset();

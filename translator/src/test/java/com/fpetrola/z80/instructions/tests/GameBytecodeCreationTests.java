@@ -63,7 +63,6 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
     this.driverConfigurator = driverConfigurator;
   }
 
-  @Ignore
   @Test
   public void testTranslateWallyToJava() {
     int address = 0x8184;

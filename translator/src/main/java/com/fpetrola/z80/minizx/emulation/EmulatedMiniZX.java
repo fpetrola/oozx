@@ -82,7 +82,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
     if (state == null)
       state = createState();
     ((MiniZXIO) state.getIo()).setPc(state.getPc());
-    OOZ80<T> ooz81 = Z80Factory.createOOZ80(state);
+    OOZ80<T> ooz81 = Z80Factory.createOOZ80(state, new CachedInstructionFetcher<>(state));
     ooz81.getInstructionFetcher().setPrefetch(true);
 
     spy.reset(state);
@@ -121,7 +121,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
     State<T> state = ooz80.getState();
     RegistersBase registersBase = new RegistersBase<>(state);
 
-    if (true) {
+    if (!true) {
       String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
       SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
     } else
