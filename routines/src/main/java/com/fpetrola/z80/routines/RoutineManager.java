@@ -112,7 +112,7 @@ public class RoutineManager {
     return addRoutine(new Routine(foundBlock, startAddress, false));
   }
 
-  public void setRandomAccessInstructionFetcher(InstructionExecutor<?> instructionExecutor) {
+  public void setInstructionExecutor(InstructionExecutor<?> instructionExecutor) {
     this.instructionExecutor = instructionExecutor;
   }
 

@@ -47,13 +47,13 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecu
 
     symbolicExecutionAdapter = executionAdapter;
     this.instructionExecutor = instructionExecutor;
-    routineManager.setRandomAccessInstructionFetcher(instructionExecutor);
+    routineManager.setInstructionExecutor(instructionExecutor);
     registersSetter = registersSetter1;
   }
 
   public void reset() {
     super.reset();
-    routineManager.setRandomAccessInstructionFetcher(instructionExecutor);
+    routineManager.setInstructionExecutor(instructionExecutor);
   }
 
   public List<Routine> getRoutines() {
