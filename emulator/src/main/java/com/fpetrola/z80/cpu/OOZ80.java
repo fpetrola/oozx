@@ -29,11 +29,13 @@ import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
   protected InstructionFetcher instructionFetcher;
+  private final InstructionExecutor<T> instructionExecutor;
   protected State<T> state;
 
-  public OOZ80(State aState, InstructionFetcher instructionFetcher) {
+  public OOZ80(State aState, InstructionFetcher instructionFetcher, InstructionExecutor<T> instructionExecutor) {
     this.state = aState;
     this.instructionFetcher = instructionFetcher;
+    this.instructionExecutor = instructionExecutor;
   }
 
   @Override
@@ -117,6 +119,6 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
 
   @Override
   public InstructionExecutor<T> getInstructionExecutor() {
-    return instructionFetcher.getInstructionExecutor();
+    return instructionExecutor;
   }
 }

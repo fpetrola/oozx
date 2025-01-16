@@ -42,7 +42,6 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   protected State<T> state;
   protected Instruction<T>[] opcodesTables;
   protected T pcValue;
-  protected final InstructionExecutor<T> instructionExecutor;
   protected Supplier<TableBasedOpCodeDecoder> tableFactory;
   public Instruction<T> currentInstruction;
 
@@ -57,7 +56,6 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone, boolean prefetch) {
     this.state = aState;
-    this.instructionExecutor = instructionExecutor;
     this.prefetch = prefetch;
     tableFactory = () -> createOpcodesTables(opcodeConditions, instructionFactory.getFetchNextOpcodeInstructionFactory(), instructionFactory);
     createOpcodeTables();
@@ -164,7 +162,6 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   @Override
   public void reset() {
-    instructionExecutor.reset();
   }
 
   @Override
@@ -175,10 +172,5 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   @Override
   public void setPrefetch(boolean prefetch) {
     this.prefetch = prefetch;
-  }
-
-  @Override
-  public InstructionExecutor<T> getInstructionExecutor() {
-    return instructionExecutor;
   }
 }

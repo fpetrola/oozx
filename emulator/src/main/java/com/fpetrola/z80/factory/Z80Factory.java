@@ -29,12 +29,18 @@ public class Z80Factory {
     var state = new State<T>(io, new MockedMemory<T>(true));
     InstructionSpy spy = new MemptrUpdateInstructionSpy<T>(state);
     DefaultInstructionFetcher instructionFetcher = getInstructionFetcher2(state, false, false);
-    spy.addExecutionListeners(instructionFetcher.getInstructionExecutor());
-    return createOOZ80(state, instructionFetcher);
+    OOZ80<T> ooz80 = createOOZ80(state, instructionFetcher);
+    spy.addExecutionListeners(ooz80.getInstructionExecutor());
+    return ooz80;
   }
 
   public static <T extends WordNumber> OOZ80<T> createOOZ80(State aState, InstructionFetcher instructionFetcher) {
-    return new OOZ80<T>(aState, instructionFetcher);
+    InstructionExecutor<T> instructionExecutor = new DefaultInstructionExecutor<>(aState, false);
+    return createOOZ80(aState, instructionFetcher, instructionExecutor);
+  }
+
+  public static <T extends WordNumber> OOZ80<T> createOOZ80(State aState, InstructionFetcher instructionFetcher, InstructionExecutor<T> instructionExecutor) {
+    return new OOZ80<T>(aState, instructionFetcher, instructionExecutor);
   }
 
   public static <T extends WordNumber> OOZ80<T> createOOZ80(State aState) {
