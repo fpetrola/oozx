@@ -44,10 +44,10 @@ public class Z80Factory {
   }
 
   public static OOZ80 createOOZ80(State state) {
-    return createOOZ80(state, new DefaultInstructionFetcher(state, false, false, false));
+    return createOOZ80(state, new DefaultInstructionFetcher(state, false, false));
   }
 
   private static DefaultInstructionFetcher getInstructionFetcher2(State state, boolean clone, boolean prefetch) {
-    return new DefaultInstructionFetcher(state, false, clone, prefetch);
+    return new DefaultInstructionFetcher(state, clone, prefetch);
   }
 }

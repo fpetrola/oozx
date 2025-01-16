@@ -106,7 +106,7 @@ public class FuseTestParser<T extends WordNumber> {
 
   public static class FuseTestsInstructionFetcher extends DefaultInstructionFetcher {
     public FuseTestsInstructionFetcher(State state) {
-      super(state, new DefaultInstructionFactory(state), false, false, false);
+      super(state, new DefaultInstructionFactory(state), false, false);
     }
 
     public Instruction getLastInstruction() {

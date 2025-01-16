@@ -31,4 +31,7 @@ public interface InstructionFetcher {
 
   default void addFetchListener(FetchListener fetchListener) {
   }
+
+  default void afterExecute(Instruction<?> currentInstruction) {
+  }
 }

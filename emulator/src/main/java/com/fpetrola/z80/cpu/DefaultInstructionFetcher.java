@@ -54,7 +54,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   private Register<T> registerR;
   private Memory<T> memory;
 
-  public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, boolean noRepeat, boolean clone, boolean prefetch) {
+  public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
     this.state = aState;
     this.prefetch = prefetch;
     tableFactory = () -> createOpcodesTables(opcodeConditions, instructionFactory.getFetchNextOpcodeInstructionFactory(), instructionFactory);
@@ -66,12 +66,12 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     this.memory = state.getMemory();
   }
 
-  public DefaultInstructionFetcher(State aState, InstructionFactory instructionFactory, boolean noRepeat, boolean clone, boolean prefetch) {
-    this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), instructionFactory, noRepeat, clone, prefetch);
+  public DefaultInstructionFetcher(State aState, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
+    this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), instructionFactory, clone, prefetch);
   }
 
-  public DefaultInstructionFetcher(State aState, boolean noRepeat, boolean clone, boolean prefetch) {
-    this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), new DefaultInstructionFactory(aState), noRepeat, clone, prefetch);
+  public DefaultInstructionFetcher(State aState, boolean clone, boolean prefetch) {
+    this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), new DefaultInstructionFactory(aState), clone, prefetch);
   }
 
   protected void createOpcodeTables() {
@@ -96,20 +96,23 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     }
 
     return currentInstruction;
+  }
 
-//    try {
-//      if (prefetch) {
-//        int rValue = registerR.read().intValue();
-//        T nextPC= createValue(0);
-//        prefetchedInstruction = fetchInstruction(nextPC);
-//        prefetchPC = nextPC.intValue();
-//        rdelta = registerR.read().intValue() - rValue;
-//        registerR.write(createValue(rValue));
-//      }
-//    } catch (Exception e) {
-//      e.printStackTrace();
-//      state.setRunState(State.RunState.STATE_STOPPED_BREAK);
-//    }
+  @Override
+  public void afterExecute(Instruction<?> currentInstruction) {
+    try {
+      if (prefetch) {
+        int rValue = registerR.read().intValue();
+        T nextPC = createValue(0);
+        prefetchedInstruction = fetchInstruction(nextPC);
+        prefetchPC = nextPC.intValue();
+        rdelta = registerR.read().intValue() - rValue;
+        registerR.write(createValue(rValue));
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      state.setRunState(State.RunState.STATE_STOPPED_BREAK);
+    }
   }
 
   public Instruction<T> fetchInstruction(T address) {
