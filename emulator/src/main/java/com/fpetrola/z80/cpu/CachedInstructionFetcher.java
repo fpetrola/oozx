@@ -18,10 +18,12 @@
 
 package com.fpetrola.z80.cpu;
 
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.cache.InstructionCache;
+import com.fpetrola.z80.minizx.emulation.ToStringInstructionVisitor;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
@@ -51,8 +53,10 @@ public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstr
       return (Instruction<T>) cacheEntry.getOpcode();
     } else {
       Instruction<T> instruction = super.fetchNextInstruction();
-      if (cacheEntry == null || !cacheEntry.isMutable())
+      if (cacheEntry == null || !cacheEntry.isMutable()) {
+//        System.out.printf("cloning: %s %s %n", new ToStringInstructionVisitor<>().createToString((Instruction<WordNumber>) instruction), Helper.formatAddress(pcValue.intValue()));
         instructionCache.cacheInstruction(pcValue, this.currentInstruction);
+      }
       return instruction;
     }
   }

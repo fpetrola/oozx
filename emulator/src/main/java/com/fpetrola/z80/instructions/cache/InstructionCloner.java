@@ -25,6 +25,7 @@ import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
+import com.fpetrola.z80.minizx.emulation.ToStringInstructionVisitor;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 
@@ -63,29 +64,28 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   }
 
 
-
   @Override
   public boolean visitCpdr(Cpdr tCpdr) {
     setCloned(instructionFactory.Cpdr(), tCpdr);
-    return false;
+    return true;
   }
 
   @Override
   public boolean visitingCpl(CPL cpl) {
     setCloned(instructionFactory.CPL(), cpl);
-    return false;
+    return true;
   }
 
   @Override
   public boolean visitOutd(Outd<T> outi) {
     setCloned(instructionFactory.Outd(), outi);
-    return false;
+    return true;
   }
 
   @Override
   public boolean visitOuti(Outi<T> outi) {
     setCloned(instructionFactory.Outi(), outi);
-    return false;
+    return true;
   }
 
   @Override
@@ -96,7 +96,7 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   @Override
   public boolean visitCpd(Cpd<T> cpd) {
     setCloned(instructionFactory.Cpd(), cpd);
-    return false;
+    return true;
   }
 
   @Override
@@ -114,25 +114,25 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   @Override
   public boolean visitIndr(Indr indr) {
     setCloned(instructionFactory.Indr(), indr);
-    return false;
+    return true;
   }
 
   @Override
   public boolean visitInir(Inir inir) {
     setCloned(instructionFactory.Inir(), inir);
-    return false;
+    return true;
   }
 
   @Override
   public boolean visitOutdr(Outdr outdr) {
     setCloned(instructionFactory.Outdr(), outdr);
-    return false;
+    return true;
   }
 
   @Override
   public boolean visitOutir(Outir outir) {
     setCloned(instructionFactory.Outir(), outir);
-    return false;
+    return true;
   }
 
   @Override
@@ -143,13 +143,13 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   @Override
   public boolean visitRRD(RRD<T> rrd) {
     setCloned(instructionFactory.RRD(), rrd);
-    return false;
+    return true;
   }
 
   @Override
   public boolean visitRLD(RLD<T> rld) {
     setCloned(instructionFactory.RLD(), rld);
-    return false;
+    return true;
   }
 
   @Override
@@ -175,7 +175,7 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   @Override
   public boolean visitingCall(Call tCall) {
     setCloned(instructionFactory.Call(clone(tCall.getCondition()), clone(tCall.getPositionOpcodeReference())), tCall);
-    return false;
+    return true;
   }
 
   private Condition cloneCondition(Condition condition1) {
@@ -214,7 +214,7 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   @Override
   public boolean visitCpir(Cpir cpir) {
     setCloned(instructionFactory.Cpir(), cpir);
-    return false;
+    return true;
   }
 
   @Override
@@ -230,7 +230,7 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   @Override
   public boolean visitLddr(Lddr lddr) {
     setCloned(instructionFactory.Lddr(), lddr);
-    return false;
+    return true;
   }
 
   @Override
@@ -241,7 +241,7 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   @Override
   public boolean visitingAdd16(Add16 add16) {
     setCloned(instructionFactory.Add16(clone(add16.getTarget()), clone(add16.getSource())), add16);
-    return false;
+    return true;
   }
 
   @Override
@@ -252,7 +252,7 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   @Override
   public boolean visitingAdc16(Adc16 sbc16) {
     setCloned(instructionFactory.Adc16(clone(sbc16.getTarget()), clone(sbc16.getSource())), sbc16);
-    return false;
+    return true;
   }
 
   @Override
@@ -268,7 +268,7 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   @Override
   public boolean visitingSbc16(Sbc16 sbc16) {
     setCloned(instructionFactory.Sbc16(clone(sbc16.getTarget()), clone(sbc16.getSource())), sbc16);
-    return false;
+    return true;
   }
 
   @Override
@@ -289,7 +289,7 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   @Override
   public boolean visitingAdd(Add tjp) {
     setCloned(instructionFactory.Add(clone(tjp.getTarget()), clone(tjp.getSource())), tjp);
-    return false;
+    return true;
   }
 
   @Override
@@ -315,7 +315,7 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   @Override
   public boolean visitingJP(JP jp) {
     setCloned(instructionFactory.JP(clone(jp.getPositionOpcodeReference()), clone(jp.getCondition())), jp);
-    return false;
+    return true;
   }
 
   @Override
@@ -365,22 +365,22 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
 
   public boolean visitingSet(SET set) {
     setCloned(instructionFactory.SET(clone(set.getTarget()), set.getN()), set);
-    return false;
+    return true;
   }
 
   public boolean visitingRes(RES res) {
     setCloned(instructionFactory.RES(clone(res.getTarget()), res.getN()), res);
-    return false;
+    return true;
   }
 
   public boolean visitingBit(BIT bit) {
     setCloned(instructionFactory.BIT(clone(bit.getTarget()), bit.getN()), bit);
-    return false;
+    return true;
   }
 
   public boolean visitingDjnz(DJNZ<T> djnz) {
     setCloned(instructionFactory.DJNZ(clone(djnz.getCondition()), djnz.getPositionOpcodeReference()), djnz);
-    return false;
+    return true;
   }
 
   public void visitingLd(Ld ld) {
@@ -389,22 +389,22 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
 
   public boolean visitingInc(Inc inc) {
     setCloned(instructionFactory.Inc(clone(inc.getTarget())), inc);
-    return false;
+    return true;
   }
 
   public boolean visitingRla(RLA rla) {
     setCloned(instructionFactory.RLA(), rla);
-    return false;
+    return true;
   }
 
   public boolean visitingRl(RL rl) {
     setCloned(instructionFactory.RL(rl.getTarget()), rl);
-    return false;
+    return true;
   }
 
   public boolean visitingRet(Ret ret) {
     setCloned(instructionFactory.Ret(ret.getCondition()), ret);
-    return false;
+    return true;
   }
 
   public void visitingAnd(And and) {
@@ -429,7 +429,7 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
 
   public boolean visitingDec(Dec dec) {
     setCloned(instructionFactory.Dec(clone(dec.getTarget())), dec);
-    return false;
+    return true;
   }
 
   public void visitingJR(JR jr) {
@@ -452,7 +452,7 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e);
     }
-    return false;
+    return true;
   }
 
   public static ConditionPredicate<Boolean> clone(ConditionPredicate isConditionMet) {

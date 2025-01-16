@@ -22,6 +22,7 @@ import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.NullBlockChangesListener;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.factory.Z80Factory;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.ide.rzx.RzxFile;
 import com.fpetrola.z80.ide.rzx.RzxParser;
 import com.fpetrola.z80.jspeccy.RegistersBase;
@@ -69,6 +70,8 @@ public class EmulatedMiniZX<T extends WordNumber> {
   }
 
   public static void main(String[] args) {
+    Helper.hex= true;
+
     String url = "file:///home/fernando/dynamitedan1.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/rickdangerous";
@@ -148,12 +151,12 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
   private void useRzx(RegistersBase registersBase, State<T> state, MiniZXIO io) {
     String name;
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/greatescape/greatescape.rzx";
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/wally1.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/exolon.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/greatescape/greatescape.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/exolon.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
 
     RzxFile rzxFile = new RzxParser().parseFile(name);
     SpectrumState spectrumState = RzxParser.loadSnapshot(rzxFile);
