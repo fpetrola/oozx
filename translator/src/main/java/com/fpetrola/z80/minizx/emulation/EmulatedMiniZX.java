@@ -75,7 +75,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/wally.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/equinox.z80";
 
-    new EmulatedMiniZX(url, 10, true, -1, true, new DefaultEmulator()).start();
+    new EmulatedMiniZX(url, 1, true, -1, true, new DefaultEmulator()).start();
   }
 
   public <T extends WordNumber> OOZ80<T> createOOZ80() {
@@ -83,6 +83,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
       state = createState();
     ((MiniZXIO) state.getIo()).setPc(state.getPc());
     OOZ80<T> ooz81 = Z80Factory.createOOZ80(state, new CachedInstructionFetcher<>(state));
+//    OOZ80<T> ooz81 = Z80Factory.createOOZ80(state);
     ooz81.getInstructionFetcher().setPrefetch(true);
 
     spy.reset(state);

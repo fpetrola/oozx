@@ -38,7 +38,7 @@ public class DefaultEmulator<T extends WordNumber> implements Emulator<T> {
 //    registerR.listening(true);
 
     while (pc.read().intValue() != emulateUntil) {
-      if (fetchCounter > emulateUntil)
+      if (emulateUntil >= 0 && fetchCounter > emulateUntil)
         break;
       if ((i++ % (pause * 1000000)) == 0) {
         ooz80.getState().setINTLine(true);
