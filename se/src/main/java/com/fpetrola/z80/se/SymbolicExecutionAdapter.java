@@ -20,7 +20,6 @@ package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
-import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
@@ -87,8 +86,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     routineFinder.reset();
   }
 
-  public InstructionFetcher createInstructionFetcher(State<T> state, InstructionExecutor<T> instructionExecutor, OpcodeConditions opcodeConditions) {
-    return new DefaultInstructionFetcher<T>(state, opcodeConditions, instructionExecutor, createInstructionFactory(state), true, true, false);
+  public InstructionFetcher createInstructionFetcher(State<T> state, OpcodeConditions opcodeConditions) {
+    return new DefaultInstructionFetcher<T>(state, opcodeConditions, createInstructionFactory(state), true, true, false);
   }
 
   public InstructionFactory createInstructionFactory(final State state) {

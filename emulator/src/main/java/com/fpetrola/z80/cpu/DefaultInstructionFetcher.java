@@ -54,7 +54,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   private Register<T> registerR;
   private Memory<T> memory;
 
-  public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone, boolean prefetch) {
+  public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, boolean noRepeat, boolean clone, boolean prefetch) {
     this.state = aState;
     this.prefetch = prefetch;
     tableFactory = () -> createOpcodesTables(opcodeConditions, instructionFactory.getFetchNextOpcodeInstructionFactory(), instructionFactory);
@@ -66,16 +66,12 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     this.memory = state.getMemory();
   }
 
-  public DefaultInstructionFetcher(State aState, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone, boolean prefetch) {
-    this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), instructionExecutor, instructionFactory, noRepeat, clone, prefetch);
+  public DefaultInstructionFetcher(State aState, InstructionFactory instructionFactory, boolean noRepeat, boolean clone, boolean prefetch) {
+    this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), instructionFactory, noRepeat, clone, prefetch);
   }
 
   public DefaultInstructionFetcher(State aState, boolean noRepeat, boolean clone, boolean prefetch) {
-    this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), new DefaultInstructionExecutor<>(aState, noRepeat), new DefaultInstructionFactory(aState), noRepeat, clone, prefetch);
-  }
-
-  public DefaultInstructionFetcher(State aState, InstructionExecutor<T> instructionExecutor, boolean noRepeat, boolean clone, boolean prefetch) {
-    this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), instructionExecutor, new DefaultInstructionFactory(aState), noRepeat, clone, prefetch);
+    this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), new DefaultInstructionFactory(aState), noRepeat, clone, prefetch);
   }
 
   protected void createOpcodeTables() {

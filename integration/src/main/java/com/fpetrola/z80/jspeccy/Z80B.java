@@ -129,7 +129,7 @@ public class Z80B extends RegistersBase<WordNumber> implements IZ80 {
     spy1.addExecutionListeners(instructionExecutor);
 
     InstructionExecutor instructionExecutor1 = traditional ? instructionExecutor : createInstructionTransformer(state, instructionExecutor, blockManager1);
-    return Z80Factory.createOOZ80(state, instructionExecutor1);
+    return Z80Factory.createOOZ80(state);
   }
 
   private static TransformerInstructionExecutor createInstructionTransformer(State state, InstructionExecutor instructionExecutor, BlocksManager blockManager1) {

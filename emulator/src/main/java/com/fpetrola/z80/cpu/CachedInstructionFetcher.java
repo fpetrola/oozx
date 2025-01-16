@@ -28,7 +28,7 @@ public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstr
   protected InstructionCache<T> instructionCache;
 
   public CachedInstructionFetcher(State aState, InstructionExecutor<T> instructionExecutor) {
-    super(aState, instructionExecutor, new DefaultInstructionFactory(aState), false, false, false);
+    super(aState, new DefaultInstructionFactory(aState), false, false, false);
     instructionCache = new InstructionCache(aState.getMemory(), new DefaultInstructionFactory(aState));
   }
 
