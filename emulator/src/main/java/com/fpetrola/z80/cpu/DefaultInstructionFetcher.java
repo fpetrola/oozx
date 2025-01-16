@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
+
 public class DefaultInstructionFetcher<T extends WordNumber> implements InstructionFetcher {
   private final InstructionFactory instructionFactory;
   protected State<T> state;
@@ -116,13 +118,13 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
       prefetchedInstruction = instruction2;
     } else {
       instruction2 = prefetchedInstruction;
-      registerR.write(WordNumber.createValue(registerR.read().intValue() + rdelta));
+      registerR.write(createValue(registerR.read().intValue() + rdelta));
     }
 
     try {
-      memory.read(WordNumber.createValue(-1), 1);
+      memory.read(createValue(-1), 1);
       Instruction<T> executedInstruction = this.instructionExecutor.execute(instruction2);
-      memory.read(WordNumber.createValue(-2), 1);
+      memory.read(createValue(-2), 1);
 
       // fileWriter.write(x + "\n");
 
@@ -150,7 +152,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
         prefetchedInstruction = fetchInstruction(nextPC);
         prefetchPC = nextPC.intValue();
         rdelta = registerR.read().intValue() - rValue;
-        registerR.write(WordNumber.createValue(rValue));
+        registerR.write(createValue(rValue));
       }
     } catch (Exception e) {
       e.printStackTrace();

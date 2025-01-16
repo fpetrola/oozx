@@ -118,12 +118,14 @@ public class EmulatedMiniZX<T extends WordNumber> {
   public void start() {
     MiniZXIO io = ((MiniZXIO) state.getIo());
     ooz80 = createOOZ80();
-    RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
-
-    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
     State<T> state = ooz80.getState();
-    SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
-//    useRzx(registersBase, state, io);
+    RegistersBase registersBase = new RegistersBase<>(state);
+
+    if (true) {
+      String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
+      SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
+    } else
+      useRzx(registersBase, state, io);
 
     if (showScreen) {
       MiniZXScreen miniZXScreen1 = new MiniZXScreen(this.getMemFunction());
