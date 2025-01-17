@@ -56,7 +56,7 @@ public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstr
     InstructionCache.CacheEntry cacheEntry = instructionCache.getCacheEntryAt(pcValue);
 
     if (cacheEntry != null && !cacheEntry.isMutable()) {
-      registerR.write(createValue(registerR.read().intValue() + cacheEntry.getRdelta()));
+      registerR.write(registerR.read().plus(cacheEntry.getRdelta()));
       return (Instruction<T>) cacheEntry.getOpcode();
     } else {
       Instruction<T> instruction = super.fetchNextInstruction();
