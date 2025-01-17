@@ -20,7 +20,6 @@ package com.fpetrola.z80.instructions.cache;
 
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
@@ -45,11 +44,18 @@ public class InstructionCache<T extends WordNumber> {
 
     private Instruction<T> opcode;
 
+    public int getRdelta() {
+      return rdelta;
+    }
+
+    private int rdelta;
+
     public CacheEntry() {
     }
 
-    public CacheEntry(Instruction<T> opcode) {
+    public CacheEntry(Instruction<T> opcode, int rdelta) {
       this.opcode = opcode;
+      this.rdelta = rdelta;
     }
 
     public Instruction<T> getOpcode() {
@@ -103,9 +109,9 @@ public class InstructionCache<T extends WordNumber> {
     memory.addMemoryWriteListener(new CacheInvalidatorMemoryWriteListener(cacheInvalidators));
   }
 
-  public void cacheInstruction(T pcValue, Instruction<T> instruction) {
+  public void cacheInstruction(T pcValue, Instruction<T> instruction, int rdelta) {
     Instruction<T> clone = instructionCloner.clone(instruction);
-    opcodesCache.set(pcValue.intValue(), new CacheEntry(clone));
+    opcodesCache.set(pcValue.intValue(), new CacheEntry(clone, rdelta));
     new InstructionCacheInvalidator(pcValue, instruction.getLength()).set();
   }
 

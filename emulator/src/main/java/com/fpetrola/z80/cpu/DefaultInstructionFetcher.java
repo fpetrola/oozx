@@ -49,9 +49,9 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   private List<FetchListener> fetchListeners = new ArrayList<>();
   private int prefetchPC = -1;
   private Instruction<T> prefetchedInstruction;
-  private int rdelta;
+  protected int rdelta;
   private boolean prefetch = false;
-  private Register<T> registerR;
+  protected Register<T> registerR;
   private Memory<T> memory;
 
   public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
@@ -84,6 +84,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   @Override
   public Instruction<T> fetchNextInstruction() {
+    int rValue = registerR.read().intValue();
     registerR.increment();
     pcValue = state.getPc().read();
 
@@ -94,6 +95,8 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
       currentInstruction = prefetchedInstruction;
       registerR.write(createValue(registerR.read().intValue() + rdelta));
     }
+
+    rdelta = registerR.read().intValue() - rValue;
 
     return currentInstruction;
   }

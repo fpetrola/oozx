@@ -72,11 +72,12 @@ public class EmulatedMiniZX<T extends WordNumber> {
   public static void main(String[] args) {
     Helper.hex= true;
 
-    String url = "file:///home/fernando/dynamitedan1.z80";
-    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
-    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/rickdangerous";
+    String url;
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/wally.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/equinox.z80";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/rickdangerous";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
+    url = "file:///home/fernando/dynamitedan1.z80";
 
     new EmulatedMiniZX(url, 1, true, -1, true, new DefaultEmulator()).start();
   }
@@ -153,10 +154,10 @@ public class EmulatedMiniZX<T extends WordNumber> {
     String name;
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/wally1.rzx";
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/greatescape/greatescape.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/exolon.rzx";
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/greatescape/greatescape.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
 
     RzxFile rzxFile = new RzxParser().parseFile(name);
     SpectrumState spectrumState = RzxParser.loadSnapshot(rzxFile);

@@ -22,6 +22,7 @@ import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.minizx.emulation.ToStringInstructionVisitor;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.ExecutionListener;
@@ -37,6 +38,8 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
   private final Set<Instruction<T>> executingInstructions = new HashSet<>();
   private Map<Integer, Instruction<T>> instructions = new HashMap<>();
   private List<ExecutionListener<T>> executionListeners = new ArrayList<>();
+  public static final List<Instruction<?>> allInstructions = new LinkedList<>();
+
   private boolean noRepeat;
 
   @Override
@@ -63,6 +66,7 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
       T pcValue = state.getPc().read();
       memory.read(createValue(-1), 1);
       executingInstructions.add(instruction);
+//      allInstructions.add(instruction);
       beforeExecution(instruction);
       instruction.execute();
       afterExecution(instruction);
@@ -76,7 +80,7 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
 
       T nextPC = ((AbstractInstruction<T>) instruction).getNextPC();
 
-//      String toString = new ToStringInstructionVisitor<T>().createToString(instruction2);
+//      String toString = new ToStringInstructionVisitor<T>().createToString(instruction);
 //      String x = String.format("%04X", pcValue.intValue()) + ": " + toString + " -> " + nextPC;
 //      System.out.println(x);
 
