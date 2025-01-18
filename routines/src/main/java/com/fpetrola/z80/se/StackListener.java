@@ -19,7 +19,6 @@
 package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.helpers.Helper;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public interface StackListener {
   default boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress) {
@@ -47,8 +46,8 @@ public interface StackListener {
     return false;
   }
 
-  default boolean droppingReturnValues(int pcValue, int newSpAddress, int oldSpAddress) {
-    System.out.println("droppingReturnValues: %s %s %s".formatted(Helper.formatAddress(pcValue), Helper.formatAddress(newSpAddress), Helper.formatAddress(oldSpAddress)));
+  default boolean droppingReturnValues(int pcValue, int newSpAddress, int oldSpAddress, ReturnAddressWordNumber lastReturnAddress) {
+    System.out.println("droppingReturnValues: %s %s %s %s".formatted(Helper.formatAddress(pcValue), Helper.formatAddress(newSpAddress), Helper.formatAddress(oldSpAddress), lastReturnAddress));
     return false;
   }
 }

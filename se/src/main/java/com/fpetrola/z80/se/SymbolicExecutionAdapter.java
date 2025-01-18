@@ -20,7 +20,6 @@ package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.cpu.CachedInstructionFetcher;
-import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
@@ -323,14 +322,29 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     }
 
     @Override
-    public boolean droppingReturnValues(int pcValue, int newSpAddress, int oldSpAddress) {
-//      WordNumber wordNumber = Memory.read16Bits(symbolicExecutionAdapter.state.getMemory(), createValue(oldSpAddress - 2));
-//      if (wordNumber instanceof ReturnAddressWordNumber returnAddressWordNumber) {
-////        Routine routineAt = symbolicExecutionAdapter.routineManager.findRoutineAt(returnAddressWordNumber.pc);
-//        RoutineExecution<T> routineExecutionAt = symbolicExecutionAdapter.routineExecutorHandler.findRoutineExecutionAt(returnAddressWordNumber.pc);
-//        symbolicExecutionAdapter.routineExecutorHandler.popRoutineExecution()
-//      }
-      return StackListener.super.droppingReturnValues(pcValue, newSpAddress, oldSpAddress);
+    public boolean droppingReturnValues(int pcValue, int newSpAddress, int oldSpAddress, ReturnAddressWordNumber lastReturnAddress) {
+      RoutineExecutorHandler<T> routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
+      WordNumber[] stackCopy = routineExecutorHandler.getExecutionStackStorage().createStackCopy(oldSpAddress);
+
+      if (lastReturnAddress != null) {
+        var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
+        var callerRoutineExecution = routineExecutorHandler.findRoutineExecutionContaining(lastReturnAddress.pc);
+
+        callerRoutineExecution.replaceAddressAction(new AddressActionDelegate<>(pcValue + 1, routineExecutorHandler));
+        callerRoutineExecution.replaceAddressAction(new AddressActionDelegate<>(lastReturnAddress.intValue(), routineExecutorHandler));
+        lastRoutineExecution.replaceAddressAction(new BasicAddressAction<T>(pcValue, routineExecutorHandler, false));
+        callerRoutineExecution.replaceAddressAction(new PopReturnCallAddressAction<>(routineExecutorHandler, lastRoutineExecution, lastReturnAddress.pc));
+
+        RoutineExecution<T> popRoutine = lastRoutineExecution;
+        while (popRoutine != callerRoutineExecution) {
+          int start = routineExecutorHandler.popRoutineExecution();
+          popRoutine =routineExecutorHandler.getCurrentRoutineExecution();
+        }
+        if (!lastRoutineExecution.hasRetInstruction())
+          lastRoutineExecution.setRetInstruction(pcValue);
+        return true;
+      } else
+        return StackListener.super.droppingReturnValues(pcValue, newSpAddress, oldSpAddress, lastReturnAddress);
     }
   }
 
@@ -346,7 +360,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       return instructionFactory;
     }
   }
-
 }
 
 

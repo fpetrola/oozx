@@ -21,19 +21,18 @@ package com.fpetrola.z80.transformations;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.se.StackListener;
 import com.fpetrola.z80.spy.ExecutionListener;
 
 import java.util.function.Function;
 
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.SP;
 
 public class StackAnalyzer<T extends WordNumber> {
@@ -136,7 +135,18 @@ public class StackAnalyzer<T extends WordNumber> {
 //            System.out.println("LD SP at: " + Helper.formatAddress(pcValue));
             usingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
           } else if (distance(oldSpAddress, newSpAddress) < 200) {
-            lastEvent = l -> l.droppingReturnValues(pcValue, newSpAddress, oldSpAddress);
+            ReturnAddressWordNumber returnAddressWordNumber = null;
+            for (int i = 0; i < 40; i += 2) {
+              int address = oldSpAddress + i;
+              if (address <= 0xFFFF) {
+                WordNumber wordNumber = Memory.read16Bits(state.getMemory(), createValue(address));
+                if (wordNumber instanceof ReturnAddressWordNumber foundReturnAddressWordNumber) {
+                  returnAddressWordNumber = foundReturnAddressWordNumber;
+                }
+              }
+            }
+            ReturnAddressWordNumber finalReturnAddressWordNumber = returnAddressWordNumber;
+            lastEvent = l -> l.droppingReturnValues(pcValue, newSpAddress, oldSpAddress, finalReturnAddressWordNumber);
           }
         }
       }

@@ -68,7 +68,7 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
     int address = 0x8184;
     int emulateUntil= 3000;
     String memoryInBase64FromFile = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, emulateUntil, "http://torinak.com/qaop/bin/wally");
-    testTranslateGame(memoryInBase64FromFile, 0x8184);
+    testTranslateGame(memoryInBase64FromFile, 0x8185);
   }
 
   @Ignore
@@ -134,7 +134,7 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
 //    Assert.assertEquals("", actual);
     List<Routine> routines = driverConfigurator.getRoutineManager().getRoutines();
 
-//    Assert.assertEquals("8d79e60e59c80f4fd46c7cd2241145f1", createMD5(actual));
+    Assert.assertEquals("8d79e60e59c80f4fd46c7cd2241145f1", createMD5(actual));
 
     String routinesString = getRoutinesString(routines);
 

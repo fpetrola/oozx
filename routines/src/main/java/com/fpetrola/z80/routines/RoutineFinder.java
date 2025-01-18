@@ -31,6 +31,7 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.se.StackListener;
 import com.fpetrola.z80.spy.ExecutionListener;
 import com.fpetrola.z80.transformations.StackAnalyzer;
@@ -140,6 +141,13 @@ public class RoutineFinder<T extends WordNumber> {
           @Override
           public boolean endUsingStackAsRepository(int pcValue, int newSpAddress, int oldSpAddress) {
             return StackListener.super.endUsingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
+          }
+
+          @Override
+          public boolean droppingReturnValues(int pcValue, int newSpAddress, int oldSpAddress, ReturnAddressWordNumber lastReturnAddress) {
+            if (lastReturnAddress != null)
+              currentRoutine = routineManager.findRoutineAt(lastReturnAddress.pc);
+            return StackListener.super.droppingReturnValues(pcValue, newSpAddress, oldSpAddress, lastReturnAddress);
           }
         });
 
