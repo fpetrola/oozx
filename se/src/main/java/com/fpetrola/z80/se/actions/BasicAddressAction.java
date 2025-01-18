@@ -31,7 +31,7 @@ public class BasicAddressAction<T extends WordNumber> extends AddressAction<T> {
   }
 
   public int getNext(int executedInstructionAddress, int currentPc) {
-    setPending(false);
+    this.pending = false;
     return super.getNext(executedInstructionAddress, currentPc);
   }
 }
