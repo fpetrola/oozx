@@ -36,7 +36,6 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.DataflowService;
-import com.fpetrola.z80.se.StackListener;
 import com.fpetrola.z80.spy.ExecutionListener;
 import com.fpetrola.z80.spy.ObservableRegister;
 import com.fpetrola.z80.transformations.StackAnalyzer;
@@ -86,9 +85,9 @@ public class ZXIde {
 
     queueExecutor = new QueueExecutor();
 
-    new EmulatedMiniZX((ooz80, emulateUntil, pause) -> {
+    new EmulatedMiniZX((ooz80, emulateUntil, pause, continueEmulation) -> {
       ObservableRegister<?> pc = (ObservableRegister<?>) ooz80.getState().getPc();
-      Z80EmulatorBridge emulator1 = new Z80EmulatorBridge(pc, ooz80, emulateUntil, pause, routineManager);
+      Z80EmulatorBridge emulator1 = new Z80EmulatorBridge(pc, ooz80, continueEmulation, pause, routineManager);
       routineManager.setRoutineHandlingListener(emulator1.getRoutineHandlingListener());
       routineFinder.addExecutionListener(new MyInstructionExecutorDelegator(ooz80, routineFinder));
       stackAnalyzer1.addExecutionListener(ooz80.getInstructionExecutor());

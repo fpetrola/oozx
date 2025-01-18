@@ -46,11 +46,16 @@ public class ExecutionStackStorage<T extends WordNumber> {
   }
 
   private void printStack(int savedSP1, T[] savedStack1, String prefix) {
-//    System.out.printf(prefix + "stack: SP: %04X -> %s%n", savedSP1, printStack(savedStack1));
+    System.out.printf(prefix + "stack: SP: %04X -> %s%n", savedSP1, printStack(savedStack1));
   }
 
   public void printStack() {
-    printStack(state.getRegisterSP().read().intValue(), createStackCopy(), "PC: %s ".formatted(Helper.formatAddress(state.getPc().read().intValue())));
+    int savedSP1 = state.getRegisterSP().read().intValue();
+    printStack(savedSP1);
+  }
+
+  public void printStack(int spValue) {
+    printStack(spValue, createStackCopy(), "PC: %s ".formatted(Helper.formatAddress(state.getPc().read().intValue())));
   }
 
   public void restore() {
@@ -76,10 +81,12 @@ public class ExecutionStackStorage<T extends WordNumber> {
   }
 
   public T[] createStackCopy() {
-    Memory<T> memory = state.getMemory();
     savedSP = state.getRegisterSP().read().intValue();
-    int i = savedSP + 40;
-    return Arrays.copyOfRange(memory.getData(), savedSP, Math.min(i, 65536));
+    return createStackCopy(savedSP);
+  }
+
+  public T[] createStackCopy(int spValue) {
+    return Arrays.copyOfRange(state.getMemory().getData(), spValue, Math.min(spValue + 40, 65536));
   }
 
   private String printStack(T[] savedStack1) {

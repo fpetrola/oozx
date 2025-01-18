@@ -43,7 +43,10 @@ public class DefaultMemory<T extends WordNumber> implements Memory<T> {
     T value = doRead(address);
     boolean b = fetching == 1 || address.intValue() < 0;
     if (memoryReadListener != null && b) {
-      memoryReadListener.forEach(l -> l.readingMemoryAt(address, value, 0, fetching));
+      for (int i = 0, memoryReadListenerSize = memoryReadListener.size(); i < memoryReadListenerSize; i++) {
+        MemoryReadListener l = memoryReadListener.get(i);
+        l.readingMemoryAt(address, value, 0, fetching);
+      }
     }
 
     return value;
@@ -51,8 +54,12 @@ public class DefaultMemory<T extends WordNumber> implements Memory<T> {
 
   public T read(T address, int delta, int fetching) {
     T value = doRead(address);
-    if (memoryReadListener != null)
-      memoryReadListener.forEach(l -> l.readingMemoryAt(address, value, delta, fetching));
+    if (memoryReadListener != null) {
+      for (int i = 0, memoryReadListenerSize = memoryReadListener.size(); i < memoryReadListenerSize; i++) {
+        MemoryReadListener l = memoryReadListener.get(i);
+        l.readingMemoryAt(address, value, delta, fetching);
+      }
+    }
 
     return value;
   }
@@ -72,10 +79,13 @@ public class DefaultMemory<T extends WordNumber> implements Memory<T> {
   @Override
   public void write(T address, T value) {
     if (!readOnly) {
-      if (memoryWriteListener != null)
-        memoryWriteListener.forEach(l -> l.writtingMemoryAt(address, value));
-      if (address.intValue() < 0x10000)
-        data[address.intValue()] = value.and(0xff);
+      if (memoryWriteListener != null) {
+        for (int i = 0, memoryWriteListenerSize = memoryWriteListener.size(); i < memoryWriteListenerSize; i++) {
+          MemoryWriteListener l = memoryWriteListener.get(i);
+          l.writtingMemoryAt(address, value);
+        }
+      }
+      data[address.intValue()] = value;
     }
   }
 

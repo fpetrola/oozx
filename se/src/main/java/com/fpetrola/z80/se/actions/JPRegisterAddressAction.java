@@ -25,6 +25,7 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
+import com.fpetrola.z80.se.StackListener;
 import com.fpetrola.z80.se.instructions.SEInstructionFactory;
 
 import java.util.HashSet;
@@ -46,13 +47,16 @@ public class JPRegisterAddressAction<T extends WordNumber> extends AddressAction
 
     if (doBranch) {
       State<T> state = routineExecutionHandler.getState();
-      T t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
-      if (t.intValue() == address + 1) {
-        int jumpAddress = conditionalInstruction.calculateJumpAddress().intValue();
-        if (jumpAddress > 16384)
-          routineExecutionHandler.createRoutineExecution(jumpAddress);
-        else System.out.println("JP (HL) -> " + Helper.formatAddress(jumpAddress));
-      }
+
+      routineExecutionHandler.getStackAnalyzer().listenEvents(new StackListener() {
+        public boolean simulatedCall(int pcValue, int i) {
+          int jumpAddress = conditionalInstruction.calculateJumpAddress().intValue();
+          if (jumpAddress > 16384)
+            routineExecutionHandler.createRoutineExecution(jumpAddress);
+          else System.out.println("JP (HL) -> " + Helper.formatAddress(jumpAddress));
+          return StackListener.super.simulatedCall(pcValue, i);
+        }
+      });
     }
     return doBranch;
   }

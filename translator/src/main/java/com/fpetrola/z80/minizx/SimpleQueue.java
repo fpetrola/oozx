@@ -16,14 +16,37 @@
  *
  */
 
-package com.fpetrola.z80.spy;
+package com.fpetrola.z80.minizx;
 
-import com.fpetrola.z80.instructions.types.Instruction;
+import java.util.Queue;
 
-public interface ExecutionListener<T> {
-  default void beforeExecution(Instruction<T> instruction) {
+public class SimpleQueue<E> {
+  int index = 0;
+  int head = 0;
+  int size = 100;
+  volatile int counter = 0;
+  E[] data;
+
+
+  public SimpleQueue(int size) {
+    this.size = size;
+    data = (E[]) new Object[size];
   }
 
-  default void afterExecution(Instruction<T> instruction) {
+  public void add(E e) {
+    data[index] = e;
+    index = (index + 1) % size;
+    counter++;
+  }
+
+  public E poll() {
+    E value = data[head];
+    head = (head + 1) % size;
+    counter--;
+    return value;
+  }
+
+  public boolean empty() {
+    return counter == 0;
   }
 }

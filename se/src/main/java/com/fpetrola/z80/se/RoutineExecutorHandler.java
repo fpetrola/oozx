@@ -23,6 +23,7 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.actions.ExecutionStackStorage;
+import com.fpetrola.z80.transformations.StackAnalyzer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,11 +42,18 @@ public class RoutineExecutorHandler<T extends WordNumber> {
 
   private final DataflowService<T> dataflowService;
 
-  public RoutineExecutorHandler(State<T> state, ExecutionStackStorage executionStackStorage, DataflowService dataflowService) {
+  public StackAnalyzer getStackAnalyzer() {
+    return stackAnalyzer;
+  }
+
+  private final StackAnalyzer stackAnalyzer;
+
+  public RoutineExecutorHandler(State<T> state, ExecutionStackStorage executionStackStorage, DataflowService dataflowService, StackAnalyzer stackAnalyzer) {
     this.pc = state.getPc();
     this.state = state;
     this.executionStackStorage = executionStackStorage;
     this.dataflowService = dataflowService;
+    this.stackAnalyzer = stackAnalyzer;
   }
 
   public State<T> getState() {

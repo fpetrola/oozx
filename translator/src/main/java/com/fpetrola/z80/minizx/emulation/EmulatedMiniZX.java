@@ -25,20 +25,29 @@ import com.fpetrola.z80.factory.Z80Factory;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.ide.rzx.RzxFile;
 import com.fpetrola.z80.ide.rzx.RzxParser;
+import com.fpetrola.z80.instructions.impl.JP;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.jspeccy.Z80B;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.minizx.*;
+import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.*;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
+import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import snapshots.SpectrumState;
 
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class EmulatedMiniZX<T extends WordNumber> {
+  private static boolean useRZX = false;
   private Emulator emulator;
   public OOZ80<T> ooz80;
   private int pause;
@@ -49,6 +58,8 @@ public class EmulatedMiniZX<T extends WordNumber> {
   private boolean inThread;
   private InstructionSpy spy;
   private State<T> state;
+  public MultiValuedMap<Integer, Integer> dynamicJP = new HashSetValuedHashMap<>();
+  private boolean cachingInstructions = false;
 
   public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread, Emulator emulator) {
     this(emulator, url, pause, showScreen, emulateUntil, inThread, new NullInstructionSpy(), createState());
@@ -70,7 +81,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
   }
 
   public static void main(String[] args) {
-    Helper.hex= true;
+    Helper.hex = true;
 
     String url;
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/wally.z80";
@@ -85,9 +96,11 @@ public class EmulatedMiniZX<T extends WordNumber> {
   public <T extends WordNumber> OOZ80<T> createOOZ80() {
     if (state == null)
       state = createState();
+
     ((MiniZXIO) state.getIo()).setPc(state.getPc());
-    OOZ80<T> ooz81 = Z80Factory.createOOZ80(state, new CachedInstructionFetcher<>(state));
-//    OOZ80<T> ooz81 = Z80Factory.createOOZ80(state);
+
+    OOZ80<T> ooz81 = cachingInstructions ? Z80Factory.createOOZ80(state, new CachedInstructionFetcher<>(state)) : Z80Factory.createOOZ80(state);
+
     ooz81.getInstructionFetcher().setPrefetch(true);
 
     spy.reset(state);
@@ -112,8 +125,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
 
   public static State createState() {
-    return new State(new RZXPlayerIO(), new DefaultMemory(true));
-//    return new State(new DefaultMiniZXIO(), new DefaultMemory(true));
+    return useRZX ? new State(new RZXPlayerIO(), new DefaultMemory(true)) : new State(new DefaultMiniZXIO(), new DefaultMemory(true));
   }
 
   protected Function<Integer, Integer> getMemFunction() {
@@ -126,11 +138,23 @@ public class EmulatedMiniZX<T extends WordNumber> {
     State<T> state = ooz80.getState();
     RegistersBase registersBase = new RegistersBase<>(state);
 
-    if (!true) {
+    if (!useRZX) {
       String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
       SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
     } else
       useRzx(registersBase, state, io);
+
+
+    ooz80.getInstructionExecutor().addExecutionListener(new ExecutionListener<T>() {
+      public void beforeExecution(Instruction<T> instruction) {
+        if (instruction instanceof JP<T> jp) {
+          ImmutableOpcodeReference<T> positionOpcodeReference = jp.getPositionOpcodeReference();
+          if (positionOpcodeReference instanceof Register<T> register) {
+            dynamicJP.put(state.getPc().read().intValue(), register.read().intValue());
+          }
+        }
+      }
+    });
 
     if (showScreen) {
       MiniZXScreen miniZXScreen1 = new MiniZXScreen(this.getMemFunction());
@@ -143,21 +167,22 @@ public class EmulatedMiniZX<T extends WordNumber> {
       }
     }
 
+    Predicate<Integer> continueEmulation = useRZX ? (i) -> ((RZXPlayerIO) io).getCurrentFrameIndex() < emulateUntil : (i) -> iuse < emulateUntil;
 
     if (inThread)
-      new Thread(() -> emulator.emulate(ooz80, emulateUntil, pause)).start();
+      new Thread(() -> emulator.emulate(ooz80, emulateUntil, pause, continueEmulation)).start();
     else
-      emulator.emulate(ooz80, emulateUntil, pause);
+      emulator.emulate(ooz80, emulateUntil, pause, continueEmulation);
   }
 
   private void useRzx(RegistersBase registersBase, State<T> state, MiniZXIO io) {
     String name;
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/wally1.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/exolon.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/greatescape/greatescape.rzx";
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
 
     RzxFile rzxFile = new RzxParser().parseFile(name);
     SpectrumState spectrumState = RzxParser.loadSnapshot(rzxFile);

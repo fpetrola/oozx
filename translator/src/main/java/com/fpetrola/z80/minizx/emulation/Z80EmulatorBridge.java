@@ -43,6 +43,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
@@ -52,7 +53,7 @@ public class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
 
   private Thread thread;
   private final OOZ80<T> ooz80;
-  private final int emulateUntil;
+  private final Predicate<Integer> continueEmulation;
   private List<Instruction<T>> instructions = new ArrayList<>();
   private int pause;
   private final RoutineManager routineManager;
@@ -63,11 +64,11 @@ public class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
   private TableModel model0;
   private Routine stepOutRoutine;
 
-  public Z80EmulatorBridge(ObservableRegister<T> pc, OOZ80<T> ooz80, int emulateUntil, int pause, RoutineManager routineManager) {
+  public Z80EmulatorBridge(ObservableRegister pc, OOZ80 ooz80, Predicate<Integer> continueEmulation, int pause, RoutineManager routineManager) {
     this.pc = pc;
     this.ooz80 = ooz80;
     this.state = ooz80.getState();
-    this.emulateUntil = emulateUntil;
+    this.continueEmulation = continueEmulation;
     this.pause = pause;
     this.routineManager = routineManager;
     thread = createThread();
@@ -85,7 +86,7 @@ public class Z80EmulatorBridge<T extends WordNumber> extends Z80Emulator {
 
       int i = 0;
 
-      while (pc.read().intValue() != emulateUntil && enabled) {
+      while (continueEmulation.test(pc.read().intValue()) && enabled) {
         if ((i++ % (pause * 10000)) == 0) {
           ooz80.getState().setINTLine(true);
         } else {

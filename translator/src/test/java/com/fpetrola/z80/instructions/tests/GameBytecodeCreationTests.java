@@ -66,8 +66,9 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
   @Test
   public void testTranslateWallyToJava() {
     int address = 0x8184;
-    int emulateUntil= 1000000000;
-    testTranslateGame(RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, emulateUntil, "http://torinak.com/qaop/bin/wally"), 0x8184);
+    int emulateUntil= 3000;
+    String memoryInBase64FromFile = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, emulateUntil, "http://torinak.com/qaop/bin/wally");
+    testTranslateGame(memoryInBase64FromFile, 0x8184);
   }
 
   @Ignore

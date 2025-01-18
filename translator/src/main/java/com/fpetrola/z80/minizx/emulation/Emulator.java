@@ -21,6 +21,8 @@ package com.fpetrola.z80.minizx.emulation;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
+import java.util.function.Predicate;
+
 public interface Emulator<T extends WordNumber> {
-  void emulate(OOZ80<T> ooz81, int emulateUntil1, int pause1);
+  void emulate(OOZ80<T> ooz81, int emulateUntil1, int pause1, Predicate<Integer> continueEmulation);
 }

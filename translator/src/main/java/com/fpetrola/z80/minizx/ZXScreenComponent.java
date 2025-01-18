@@ -26,22 +26,23 @@ import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ZXScreenComponent<T extends WordNumber> extends JComponent {
 
   private final BufferedImage screenBuffer;
   private final ZxAttribute[][] attributes;
-  private final ConcurrentLinkedQueue<Runnable> threadSafeQueue;
+  private final SimpleQueue<Runnable> threadSafeQueue;
+  private int refresh;
 
   public ZXScreenComponent() {
-    threadSafeQueue = new ConcurrentLinkedQueue<>();
+    threadSafeQueue = new SimpleQueue<>(10000);
 
     Thread consumerThread = new Thread(() -> {
       while (true) {
-        if (!threadSafeQueue.isEmpty()) {
+        if (!threadSafeQueue.empty()) {
           Runnable item = threadSafeQueue.poll();
-          item.run();
+          if (item != null)
+            item.run();
         }
       }
     });
@@ -57,11 +58,11 @@ public class ZXScreenComponent<T extends WordNumber> extends JComponent {
       }
     }
 
-    setPreferredSize(new Dimension(256*2, 192*2));
+    setPreferredSize(new Dimension(256 * 2, 192 * 2));
     addComponentListener(new ComponentAdapter() {
-      public void componentResized(ComponentEvent arg0) {
-        Rectangle b = arg0.getComponent().getBounds();
-        arg0.getComponent().setBounds(b.x, b.y, b.width, b.width * 3 / 4);
+      public void componentResized(ComponentEvent event) {
+        Rectangle b = event.getComponent().getBounds();
+        event.getComponent().setBounds(b.x, b.y, b.width, b.width * 3 / 4);
       }
     });
   }
@@ -75,7 +76,8 @@ public class ZXScreenComponent<T extends WordNumber> extends JComponent {
       attributes[attributeOffset / 32][attributeOffset % 32].setZxColor(new ZxColor(value));
     }
 
-    repaint();
+    if (refresh++ % 100000 == 0)
+      repaint();
   }
 
 
@@ -88,6 +90,7 @@ public class ZXScreenComponent<T extends WordNumber> extends JComponent {
     return (address, value) -> {
       int address1 = address.intValue();
       int value1 = value.intValue();
+
       threadSafeQueue.add(() -> onMemoryWrite(address1, value1));
     };
   }

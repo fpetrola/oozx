@@ -21,13 +21,14 @@ package com.fpetrola.z80.minizx.emulation;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.spy.ObservableRegister;
+
+import java.util.function.Predicate;
 
 public class DefaultEmulator<T extends WordNumber> implements Emulator<T> {
 
   private int fetchCounter;
 
-  public void emulate(OOZ80 ooz80, int emulateUntil, int pause) {
+  public void emulate(OOZ80<T> ooz80, int emulateUntil, int pause, Predicate<Integer> continueEmulation) {
     Register<T> pc = ooz80.getState().getPc();
     int i = 0;
 
@@ -38,7 +39,7 @@ public class DefaultEmulator<T extends WordNumber> implements Emulator<T> {
 //    registerR.listening(true);
 
     while (pc.read().intValue() != emulateUntil) {
-      if (emulateUntil >= 0 && fetchCounter > emulateUntil)
+      if (!continueEmulation.test(i))
         break;
       if ((i++ % (pause * 10000)) == 0) {
         ooz80.getState().setINTLine(true);

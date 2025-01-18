@@ -62,23 +62,25 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
   @Override
   public Instruction<T> execute(Instruction<T> instruction) {
     try {
+      AbstractInstruction<T> abstractInstruction = (AbstractInstruction<T>) instruction;
+      abstractInstruction.setNextPC(null);
       Memory memory = state.getMemory();
       T pcValue = state.getPc().read();
-      memory.read(createValue(-1), 1);
-      executingInstructions.add(instruction);
+//      memory.read(createValue(-1), 1);
+//      executingInstructions.add(instruction);
 //      allInstructions.add(instruction);
       beforeExecution(instruction);
       instruction.execute();
       afterExecution(instruction);
       instructions.put(pc.read().intValue(), instruction);
-      executingInstructions.remove(instruction);
-      memory.read(createValue(-2), 1);
+//      executingInstructions.remove(instruction);
+//      memory.read(createValue(-2), 1);
 
       if (noRepeat && instruction instanceof RepeatingInstruction repeatingInstruction) {
         repeatingInstruction.setNextPC(null);
       }
 
-      T nextPC = ((AbstractInstruction<T>) instruction).getNextPC();
+      T nextPC = abstractInstruction.getNextPC();
 
 //      String toString = new ToStringInstructionVisitor<T>().createToString(instruction);
 //      String x = String.format("%04X", pcValue.intValue()) + ": " + toString + " -> " + nextPC;
@@ -86,6 +88,8 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
 
       if (nextPC == null)
         nextPC = pcValue.plus(instruction.getLength());
+//      else
+//        abstractInstruction.setNextPC(null);
 
       state.getPc().write(nextPC);
     } catch (Exception e) {

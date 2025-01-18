@@ -30,6 +30,7 @@ import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import io.korhner.asciimg.image.AsciiImgCache;
 import io.korhner.asciimg.image.character_fit_strategy.StructuralSimilarityFitStrategy;
 import io.korhner.asciimg.image.converter.AsciiToStringConverter;
+import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.text.CaseUtils;
 
 import javax.imageio.ImageIO;
@@ -81,9 +82,11 @@ public class RemoteZ80Translator<T extends WordNumber> {
     remoteZ80Translator.translate(action, gameName, url, startRoutineAddress, screenURL, emulateUntil);
   }
 
-  public static <T extends WordNumber> String emulateUntil(RealCodeBytecodeCreationBase<T> realCodeBytecodeCreationBase, int address, String url) {
-    EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX( url, 1, false, address, false,new DefaultEmulator());
+  public static <T extends WordNumber> String emulateUntil(RealCodeBytecodeCreationBase<T> realCodeBytecodeCreationBase, int emulateUntil, String url) {
+    EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX( url, 1, false, emulateUntil, false,new DefaultEmulator());
     emulatedMiniZX.start();
+
+    MultiValuedMap dynamicJP = emulatedMiniZX.dynamicJP;
 
     State state = emulatedMiniZX.ooz80.getState();
     String base64Memory = SnapshotHelper.getBase64Memory(state);

@@ -32,15 +32,20 @@ import java.util.List;
 public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
   public MiniZXKeyboard miniZXKeyboard;
   private Register<T> pc;
+
   private int currentFrameIndex;
+
   private RzxFile rzxFile;
   private OOZ80 ooz80;
   private InputRecordingBlock.Frame currentFrame;
   private int fetchCounter;
   private LinkedList<Byte> inputs = new LinkedList<>();
-
   public RZXPlayerIO() {
     miniZXKeyboard = new MiniZXKeyboard();
+  }
+
+  public int getCurrentFrameIndex() {
+    return currentFrameIndex;
   }
 
   public void out(T port, T value) {
@@ -109,13 +114,14 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
     InputRecordingBlock inputRecordingBlock = rzxFile.getInputRecordingBlock();
     List<InputRecordingBlock.Frame> frames = inputRecordingBlock.frames;
     if (frames.size() > currentFrameIndex) {
+      if (currentFrameIndex % 1000 == 0)
+        System.out.println(currentFrameIndex);
       currentFrame = frames.get(currentFrameIndex);
       for (int i = 0; i < currentFrame.returnValues.length; i++) {
         inputs.add(currentFrame.returnValues[i]);
       }
       fetchCounter = 0;
-    }
-    else
+    } else
       System.out.println("dagadg");
   }
 }

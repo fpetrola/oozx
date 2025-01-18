@@ -69,7 +69,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     this.routineFinder = routineFinder;
     mutantAddress.clear();
     dataflowService = dataflowService1;
-    routineExecutorHandler = new RoutineExecutorHandler<>(state, new ExecutionStackStorage<>(state), dataflowService);
+    routineExecutorHandler = new RoutineExecutorHandler<>(state, new ExecutionStackStorage<>(state), dataflowService, stackAnalyzer);
   }
 
   public int getPcValue() {
@@ -298,12 +298,12 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       RoutineExecutorHandler<T> routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
 
       var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
-      var routineExecution = routineExecutorHandler.getCallerRoutineExecution();
+      var callerRoutineExecution = routineExecutorHandler.getCallerRoutineExecution();
 
-      routineExecution.replaceAddressAction(new AddressActionDelegate<>(pcValue + 1, routineExecutorHandler));
-      routineExecution.replaceAddressAction(new AddressActionDelegate<>(returnAddress, routineExecutorHandler));
+      callerRoutineExecution.replaceAddressAction(new AddressActionDelegate<>(pcValue + 1, routineExecutorHandler));
+      callerRoutineExecution.replaceAddressAction(new AddressActionDelegate<>(returnAddress, routineExecutorHandler));
       lastRoutineExecution.replaceAddressAction(new BasicAddressAction<T>(pcValue, routineExecutorHandler, false));
-      routineExecution.replaceAddressAction(new PopReturnCallAddressAction<>(routineExecutorHandler, lastRoutineExecution, callAddress));
+      callerRoutineExecution.replaceAddressAction(new PopReturnCallAddressAction<>(routineExecutorHandler, lastRoutineExecution, callAddress));
 
       routineExecutorHandler.popRoutineExecution();
       if (!lastRoutineExecution.hasRetInstruction())
@@ -320,6 +320,17 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     public boolean endUsingStackAsRepository(int pcValue, int newSpAddress, int oldSpAddress) {
       symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().enable();
       return StackListener.super.endUsingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
+    }
+
+    @Override
+    public boolean droppingReturnValues(int pcValue, int newSpAddress, int oldSpAddress) {
+//      WordNumber wordNumber = Memory.read16Bits(symbolicExecutionAdapter.state.getMemory(), createValue(oldSpAddress - 2));
+//      if (wordNumber instanceof ReturnAddressWordNumber returnAddressWordNumber) {
+////        Routine routineAt = symbolicExecutionAdapter.routineManager.findRoutineAt(returnAddressWordNumber.pc);
+//        RoutineExecution<T> routineExecutionAt = symbolicExecutionAdapter.routineExecutorHandler.findRoutineExecutionAt(returnAddressWordNumber.pc);
+//        symbolicExecutionAdapter.routineExecutorHandler.popRoutineExecution()
+//      }
+      return StackListener.super.droppingReturnValues(pcValue, newSpAddress, oldSpAddress);
     }
   }
 
