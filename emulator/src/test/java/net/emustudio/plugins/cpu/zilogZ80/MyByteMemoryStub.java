@@ -57,7 +57,7 @@ public class MyByteMemoryStub extends ByteMemoryStub {
   @Override
   public void setMemory(short[] memory) {
     super.setMemory(memory);
-    for (int i = 0; i < memory.length; i++) {
+    for (int i = 0; i < 0xFFFF; i++) {
       getMemory().write(WordNumber.createValue(i), WordNumber.createValue(memory[i]));
     }
   }

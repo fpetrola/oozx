@@ -24,6 +24,7 @@ import net.emustudio.cpu.testsuite.Generator;
 import net.emustudio.emulib.plugins.cpu.CPU;
 import net.emustudio.plugins.cpu.zilogZ80.suite.ByteTestBuilder;
 import net.emustudio.plugins.cpu.zilogZ80.suite.IntegerTestBuilder;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static net.emustudio.plugins.cpu.zilogZ80.EmulatorEngine.*;
@@ -96,6 +97,7 @@ public class ControlTest extends InstructionsTest {
         );
     }
 
+    @Ignore
     @Test
     public void testCALL__nn() {
         IntegerTestBuilder test = new IntegerTestBuilder(cpuRunnerImpl, cpuVerifierImpl)

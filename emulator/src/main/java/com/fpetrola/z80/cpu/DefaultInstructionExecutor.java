@@ -66,7 +66,7 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
       abstractInstruction.setNextPC(null);
       Memory memory = state.getMemory();
       T pcValue = state.getPc().read();
-//      memory.read(createValue(-1), 1);
+      memory.read(createValue(-1), 1);
 //      executingInstructions.add(instruction);
 //      allInstructions.add(instruction);
       beforeExecution(instruction);
@@ -74,7 +74,7 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
       afterExecution(instruction);
       instructions.put(pc.read().intValue(), instruction);
 //      executingInstructions.remove(instruction);
-//      memory.read(createValue(-2), 1);
+      memory.read(createValue(-2), 1);
 
       if (noRepeat && instruction instanceof RepeatingInstruction repeatingInstruction) {
         repeatingInstruction.setNextPC(null);
