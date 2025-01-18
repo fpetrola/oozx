@@ -167,7 +167,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
       }
     }
 
-    Predicate<Integer> continueEmulation = useRZX ? (i) -> ((RZXPlayerIO) io).getCurrentFrameIndex() < emulateUntil : (i) -> iuse < emulateUntil;
+    Predicate<Integer> continueEmulation = useRZX ? (i) -> ((RZXPlayerIO) io).getCurrentFrameIndex() < emulateUntil : (i) -> i < emulateUntil;
 
     if (inThread)
       new Thread(() -> emulator.emulate(ooz80, emulateUntil, pause, continueEmulation)).start();
