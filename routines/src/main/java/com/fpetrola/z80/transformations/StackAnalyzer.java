@@ -41,6 +41,7 @@ public class StackAnalyzer<T extends WordNumber> {
   private boolean initialized = false;
   private StackAsRepositoryState stackAsRepository = new StackAsRepositoryState();
   private StackListener stackListener;
+  private boolean stackInitialized;
 
   public StackAnalyzer(State<T> state) {
     this.state = state;
@@ -131,37 +132,44 @@ public class StackAnalyzer<T extends WordNumber> {
         if (target instanceof Register<T> register && register.getName().equals(SP.name())) {
           int newSpAddress = source.read().intValue();
           int oldSpAddress = register.read().intValue();
-          if (distance(stackAsRepository.spReadAt, pcValue) < 5000) {
-//            System.out.println("LD SP at: " + Helper.formatAddress(pcValue));
-            usingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
-          } else if (distance(oldSpAddress, newSpAddress) < 200) {
-            ReturnAddressWordNumber returnAddressWordNumber = null;
-            for (int i = 0; i < 40; i += 2) {
-              int address = oldSpAddress + i;
-              if (address <= 0xFFFF) {
-                WordNumber wordNumber = Memory.read16Bits(state.getMemory(), createValue(address));
-                if (wordNumber instanceof ReturnAddressWordNumber foundReturnAddressWordNumber) {
-                  returnAddressWordNumber = foundReturnAddressWordNumber;
-                }
+          if (stackInitialized) {
+            if (distance(oldSpAddress, newSpAddress) > 1000) {
+              if (distance(stackAsRepository.spReadAt, pcValue) < 2000) {
+                usingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
               }
+            } else if (distance(oldSpAddress, newSpAddress) < 200) {
+              droppingMultipleReturnAddresses(oldSpAddress, pcValue, newSpAddress);
             }
-            ReturnAddressWordNumber finalReturnAddressWordNumber = returnAddressWordNumber;
-            lastEvent = l -> l.droppingReturnValues(pcValue, newSpAddress, oldSpAddress, finalReturnAddressWordNumber);
-          }
+          } else
+            stackInitialized = true;
         }
       }
 
-      private void usingStackAsRepository(int pcValue, int newSpAddress, int oldSpAddress) {
-        if (distance(oldSpAddress, newSpAddress) > 200) {
-          if (!stackAsRepository.active) {
-            stackAsRepository.active = true;
-            stackAsRepository.lastSP = oldSpAddress;
-            lastEvent = l -> l.beginUsingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
-          } else {
-            if (newSpAddress == stackAsRepository.lastSP) {
-              lastEvent = l -> l.endUsingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
-              stackAsRepository.clear();
+      private void droppingMultipleReturnAddresses(int oldSpAddress, int pcValue, int newSpAddress) {
+        ReturnAddressWordNumber returnAddressWordNumber = null;
+        for (int i = 0; i < 40; i += 2) {
+          int address = oldSpAddress + i;
+          if (address <= 0xFFFF) {
+            WordNumber wordNumber = Memory.read16Bits(state.getMemory(), createValue(address));
+            if (wordNumber instanceof ReturnAddressWordNumber foundReturnAddressWordNumber) {
+              returnAddressWordNumber = foundReturnAddressWordNumber;
             }
+          }
+        }
+        ReturnAddressWordNumber finalReturnAddressWordNumber = returnAddressWordNumber;
+        lastEvent = l -> l.droppingReturnValues(pcValue, newSpAddress, oldSpAddress, finalReturnAddressWordNumber);
+      }
+
+      private void usingStackAsRepository(int pcValue, int newSpAddress, int oldSpAddress) {
+        //            System.out.println("LD SP at: " + Helper.formatAddress(pcValue));
+        if (!stackAsRepository.active) {
+          stackAsRepository.active = true;
+          stackAsRepository.lastSP = oldSpAddress;
+          lastEvent = l -> l.beginUsingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
+        } else {
+          if (newSpAddress == stackAsRepository.lastSP) {
+            lastEvent = l -> l.endUsingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
+            stackAsRepository.clear();
           }
         }
       }
@@ -174,7 +182,7 @@ public class StackAnalyzer<T extends WordNumber> {
   }
 
   private int distance(int oldSpAddress, int newSpAddress) {
-    return Math.abs(oldSpAddress - newSpAddress);
+    return Math.abs(oldSpAddress - newSpAddress) & 0xffff;
   }
 
   public void afterExecution(Instruction<T> instruction) {

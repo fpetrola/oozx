@@ -195,7 +195,8 @@ public class RoutineBytecodeGenerator {
     label2.here();
 
     List<Integer> integers = routine.getReturnPoints().values().stream().toList();
-    if (!integers.isEmpty())
+    if (!integers.isEmpty()) {
+//      integers = integers.stream().filter(i -> routine.contains(i)).toList();
       mm.catch_(label1, StackException.class, (Variable exception) -> {
         Variable value = mm.new_(int[].class, integers.size());
         for (int i = 0; i < integers.size(); i++) {
@@ -204,6 +205,7 @@ public class RoutineBytecodeGenerator {
         mm.invoke("isOwnAddress", exception, value).ifTrue(label1::goto_);
         exception.throw_();
       });
+    }
 
     invokeReturnPoints();
 
@@ -361,7 +363,7 @@ public class RoutineBytecodeGenerator {
     try {
       invoke = mm.invoke(labelName);
     } catch (Exception e) {
-      System.out.println("not found: "+ labelName);
+      System.out.println("not found: " + labelName);
     }
     return invoke;
   }

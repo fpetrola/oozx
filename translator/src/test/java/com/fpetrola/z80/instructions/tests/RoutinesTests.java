@@ -1666,4 +1666,78 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
     assertBlockAddresses(routines.get(3).getBlocks().get(0), resetSPLabel, 15);
   }
 
+
+  @Test
+  public void droppingReturnAddresses() {
+    setUpMemory();
+
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
+      {
+        add(DI());
+        add(Ld(r(SP), c(0xFC00)));
+        add(Ld(r(B), c(5)));
+        add(Call(t(), c(7)));
+        add(Call(t(), c(9)));
+        add(Ld(r(B), c(3)));
+        add(Ret(t()));
+
+        add(Ld(r(D), r(B)));
+        add(JP(c(1), nz()));
+        add(Ld(r(B), c(4)));
+        add(Ret(t()));
+      }
+    };
+
+    stepUntilComplete();
+
+    String resultingJava = generateAndDecompile();
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+        import com.fpetrola.z80.minizx.StackException;
+        
+        public class JSW extends SpectrumApplication {
+           public void $0() {
+              this.$1();
+           }
+        
+           public void $7() {
+              super.D = super.B;
+              if(super.F != 0) {
+                 throw new StackException(2);
+              } else {
+                 this.$9();
+              }
+           }
+        
+           public void $9() {
+              super.B = 4;
+           }
+        
+           public void $1() {
+              while(true) {
+                 try {
+                    if(!this.isNextPC(2)) {
+                       this.SP('\\ufc00');
+                    }
+        
+                    super.B = 5;
+                    this.$7();
+                    this.$9();
+                    super.B = 3;
+                    return;
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{2};
+                    if(!this.isOwnAddress(var3, var2)) {
+                       throw var3;
+                    }
+                 }
+              }
+           }
+        }
+        """, resultingJava);
+
+    List<Routine> routines = getRoutineManager().getRoutines();
+    Assert.assertEquals(4, routines.size());
+  }
+
 }

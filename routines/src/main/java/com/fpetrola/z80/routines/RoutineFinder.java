@@ -116,7 +116,7 @@ public class RoutineFinder<T extends WordNumber> {
 
         boolean listened = this.stackAnalyzer.listenEvents(new StackListener() {
           public boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress) {
-            Routine returnRoutine = routineManager.findRoutineAt(returnAddress - 1);
+            Routine returnRoutine = routineManager.findRoutineAt(callAddress);
             if (lastPc != -1)
               currentRoutine.getVirtualPop().put(lastPc, pcValue);
 
@@ -145,8 +145,21 @@ public class RoutineFinder<T extends WordNumber> {
 
           @Override
           public boolean droppingReturnValues(int pcValue, int newSpAddress, int oldSpAddress, ReturnAddressWordNumber lastReturnAddress) {
-            if (lastReturnAddress != null)
-              currentRoutine = routineManager.findRoutineAt(lastReturnAddress.pc);
+//            if (lastReturnAddress != null)
+//              currentRoutine = routineManager.findRoutineAt(lastReturnAddress.pc);
+//
+//            if (lastPc != -1)
+//              currentRoutine.getVirtualPop().put(lastPc, pcValue);
+//
+//            returnRoutine.addReturnPoint(callAddress, pcValue + 1);
+
+            Routine returnRoutine = routineManager.findRoutineAt(lastReturnAddress.pc);
+            if (lastPc != -1)
+              currentRoutine.getVirtualPop().put(lastPc, pcValue);
+
+            returnRoutine.addReturnPoint(lastReturnAddress.intValue(), pcValue + 1);
+            currentRoutine = returnRoutine;
+
             return StackListener.super.droppingReturnValues(pcValue, newSpAddress, oldSpAddress, lastReturnAddress);
           }
         });

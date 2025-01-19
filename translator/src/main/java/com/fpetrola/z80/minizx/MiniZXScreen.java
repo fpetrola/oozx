@@ -40,14 +40,14 @@ public class MiniZXScreen<T extends WordNumber> extends JPanel {
     this.newScreen = new byte[256 * 192];
     setPreferredSize(new Dimension((int) (256 * zoom), (int) (192 * zoom)));
 
-//    new Timer(30, e -> {
-////      convertScreen();
-//      repaint();
-//    }).start();
-//
-//    new Timer(300, e -> {
-//      flashState = !flashState;
-//    }).start();
+    new Timer(30, e -> {
+      convertScreen();
+      repaint();
+    }).start();
+
+    new Timer(300, e -> {
+      flashState = !flashState;
+    }).start();
 
     this.addComponentListener(new ComponentAdapter() {
       @Override
