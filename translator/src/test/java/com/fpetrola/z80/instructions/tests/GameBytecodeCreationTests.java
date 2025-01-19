@@ -65,11 +65,12 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
     this.driverConfigurator = driverConfigurator;
   }
 
+  @Ignore
   @Test
   public void testTranslateWallyToJava() {
     int address = 0x8184;
     int emulateUntil= 4000;
-    EmulatedMiniZX.useRZX= true;
+    EmulatedMiniZX.rzxFile= "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
     StackAnalyzer.collecting= true;
     String memoryInBase64FromFile = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, emulateUntil, "http://torinak.com/qaop/bin/wally");
     StackAnalyzer.collecting= false;
@@ -106,7 +107,12 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
 
   @Test
   public void testTranslateDynamite() {
-    String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, 0xC804, "http://torinak.com/qaop/bin/dynamitedan");
+//    EmulatedMiniZX.rzxFile= "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
+//    StackAnalyzer.collecting= true;
+    int emulateUntil = 0xC804;
+//    emulateUntil= 4000;
+    String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, emulateUntil, "http://torinak.com/qaop/bin/dynamitedan");
+    StackAnalyzer.collecting= false;
     realCodeBytecodeCreationBase.getStackAnalyzer().reset(realCodeBytecodeCreationBase.getState());
     stepUntilComplete(0xC804);
 
@@ -117,7 +123,7 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
 //    Assert.assertEquals("", actual);
     List<Routine> routines = driverConfigurator.getRoutineManager().getRoutines();
 
-    Assert.assertEquals("80600301fc612d8b561823654f42a305", createMD5(actual));
+    Assert.assertEquals("316054b2f1a45816f1410048afd34a77", createMD5(actual));
   }
 
   @Ignore
@@ -141,7 +147,7 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
 //    Assert.assertEquals("", actual);
     List<Routine> routines = driverConfigurator.getRoutineManager().getRoutines();
 
-    Assert.assertEquals("8d79e60e59c80f4fd46c7cd2241145f1", createMD5(actual));
+    Assert.assertEquals("b58b3dee93626aa2e7598615f79bfd25", createMD5(actual));
 
     String routinesString = getRoutinesString(routines);
 

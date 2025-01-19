@@ -27,10 +27,7 @@ import org.cojen.maker.ClassMaker;
 import org.cojen.maker.ClassMaker2;
 import org.cojen.maker.MethodMaker;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class StateBytecodeGenerator {
   private final String className;
@@ -63,8 +60,7 @@ public class StateBytecodeGenerator {
     ClassMaker classMaker = ClassMaker2.beginExternal(className, classLoader).public_();
     if (translation) {
       classMaker.extend(translationSuperClass);
-    }
-    else {
+    } else {
       classMaker.extend(executionSuperClass);
     }
 
@@ -83,6 +79,8 @@ public class StateBytecodeGenerator {
 
     RoutineBytecodeGenerator routineBytecodeGenerator1 = new RoutineBytecodeGenerator(bytecodeGenerationContext, null);
     routineBytecodeGenerator1.createMethod(0);
+
+    routines.sort(Comparator.comparingInt(Routine::getEntryPoint));
 
     routines.forEach(routine -> {
       routine.optimize();

@@ -188,12 +188,12 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
               this.$5();
            }
         
-           public void $7() {
-              super.E = 5;
-           }
-        
            public void $5() {
               super.D = 4;
+           }
+        
+           public void $7() {
+              super.E = 5;
            }
         }
         """, resultingJava);
@@ -1321,21 +1321,21 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
               super.C = 8;
            }
         
-           public void $10() {
-              super.C = 1;
-              if(super.F != 0) {
-                 this.$14();
-              } else {
-                 super.C = 2;
-              }
-           }
-        
            public void $6() {
               super.B = 1;
               if(super.F != 0) {
                  this.$14();
               } else {
                  super.B = 2;
+              }
+           }
+        
+           public void $10() {
+              super.C = 1;
+              if(super.F != 0) {
+                 this.$14();
+              } else {
+                 super.C = 2;
               }
            }
         
@@ -1396,15 +1396,6 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
               super.C = 8;
            }
         
-           public void $10() {
-              super.C = 1;
-              if(super.F != 0) {
-                 this.$7();
-              } else {
-                 super.C = 2;
-              }
-           }
-        
            public void $6() {
               super.B = 1;
               this.$7();
@@ -1413,6 +1404,15 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
            public void $7() {
               super.C = 2;
               super.D = 3;
+           }
+        
+           public void $10() {
+              super.C = 1;
+              if(super.F != 0) {
+                 this.$7();
+              } else {
+                 super.C = 2;
+              }
            }
         }
         """, resultingJava);
@@ -1477,8 +1477,11 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
               }
            }
         
-           public void $12() {
-              super.C = 2;
+           public void $3() {
+              if(super.F != 0) {
+                 this.$12();
+              }
+        
               this.$4();
            }
         
@@ -1496,17 +1499,14 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
               this.$10();
            }
         
-           public void $3() {
-              if(super.F != 0) {
-                 this.$12();
-              }
-        
-              this.$4();
-           }
-        
            public void $10() {
               super.C = 1;
               this.$3();
+           }
+        
+           public void $12() {
+              super.C = 2;
+              this.$4();
            }
         }
         """, resultingJava);

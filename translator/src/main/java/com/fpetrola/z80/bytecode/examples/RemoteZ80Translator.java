@@ -83,6 +83,7 @@ public class RemoteZ80Translator<T extends WordNumber> {
   }
 
   public static <T extends WordNumber> String emulateUntil(RealCodeBytecodeCreationBase<T> realCodeBytecodeCreationBase, int emulateUntil, String url) {
+    EmulatedMiniZX.useRZX = EmulatedMiniZX.rzxFile != null;
     EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX( url, 1, false, emulateUntil, false,new DefaultEmulator(), realCodeBytecodeCreationBase.getStackAnalyzer());
     emulatedMiniZX.start();
 
@@ -90,6 +91,7 @@ public class RemoteZ80Translator<T extends WordNumber> {
     String base64Memory = SnapshotHelper.getBase64Memory(state);
     realCodeBytecodeCreationBase.getState().getMemory().copyFrom(state.getMemory());
     realCodeBytecodeCreationBase.getState().setRegisters(state);
+    EmulatedMiniZX.rzxFile= null;
     return base64Memory;
   }
 

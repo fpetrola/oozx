@@ -42,6 +42,7 @@ import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class EmulatedMiniZX<T extends WordNumber> {
   public static boolean useRZX = false;
+  public static String rzxFile;
   private StackAnalyzer stackAnalyzer;
   private Emulator emulator;
   public OOZ80<T> ooz80;
@@ -171,6 +172,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
+    name = rzxFile;
 
     RzxFile rzxFile = new RzxParser().parseFile(name);
     SpectrumState spectrumState = RzxParser.loadSnapshot(rzxFile);
