@@ -194,13 +194,19 @@ public class RoutineBytecodeGenerator {
     Label label2 = mm.label();
     label2.here();
 
-    List<Integer> integers = routine.getReturnPoints().values().stream().toList();
-    if (!integers.isEmpty()) {
-//      integers = integers.stream().filter(i -> routine.contains(i)).toList();
+    List<Integer> returnPoints = routine.getReturnPoints().values().stream().toList();
+    List<Integer> returnPointsDropped = routine.getReturnPointsDropped().values().stream().toList();
+
+    if (!returnPoints.isEmpty() || !returnPointsDropped.isEmpty()) {
+//      returnPoints = returnPoints.stream().filter(i -> routine.contains(i)).toList();
       mm.catch_(label1, StackException.class, (Variable exception) -> {
-        Variable value = mm.new_(int[].class, integers.size());
-        for (int i = 0; i < integers.size(); i++) {
-          value.aset(i, integers.get(i));
+        ArrayList<Integer> points = new ArrayList<>(returnPoints);
+        points.addAll(returnPointsDropped);
+        int size = points.size();
+        Variable value = mm.new_(int[].class, size);
+
+        for (int i = 0; i < size; i++) {
+          value.aset(i, points.get(i));
         }
         mm.invoke("isOwnAddress", exception, value).ifTrue(label1::goto_);
         exception.throw_();

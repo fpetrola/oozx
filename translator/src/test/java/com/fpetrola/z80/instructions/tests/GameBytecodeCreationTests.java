@@ -25,9 +25,11 @@ import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
+import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
+import com.fpetrola.z80.transformations.StackAnalyzer;
 import io.exemplary.guice.Modules;
 import io.exemplary.guice.TestRunner;
 import jakarta.inject.Inject;
@@ -63,12 +65,15 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
     this.driverConfigurator = driverConfigurator;
   }
 
-  @Ignore
   @Test
   public void testTranslateWallyToJava() {
     int address = 0x8184;
-    int emulateUntil= 3000;
+    int emulateUntil= 4000;
+    EmulatedMiniZX.useRZX= true;
+    StackAnalyzer.collecting= true;
     String memoryInBase64FromFile = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, emulateUntil, "http://torinak.com/qaop/bin/wally");
+    StackAnalyzer.collecting= false;
+    realCodeBytecodeCreationBase.getStackAnalyzer().reset(realCodeBytecodeCreationBase.getState());
     testTranslateGame(memoryInBase64FromFile, 0x8185);
   }
 
@@ -102,6 +107,7 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
   @Test
   public void testTranslateDynamite() {
     String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, 0xC804, "http://torinak.com/qaop/bin/dynamitedan");
+    realCodeBytecodeCreationBase.getStackAnalyzer().reset(realCodeBytecodeCreationBase.getState());
     stepUntilComplete(0xC804);
 
 //    translateToJava("ZxGame1", base64Memory, "$C804");

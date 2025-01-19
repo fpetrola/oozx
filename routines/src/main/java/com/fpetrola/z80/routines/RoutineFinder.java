@@ -125,8 +125,8 @@ public class RoutineFinder<T extends WordNumber> {
             return true;
           }
 
-          public boolean jumpUsingRet(int pcValue, int jumpAddress) {
-            return StackListener.super.jumpUsingRet(pcValue, jumpAddress);
+          public boolean jumpUsingRet(int pcValue, Set<Integer> jumpAddresses) {
+            return StackListener.super.jumpUsingRet(pcValue, jumpAddresses);
           }
 
           public boolean simulatedCall(int pcValue, int i) {
@@ -155,9 +155,9 @@ public class RoutineFinder<T extends WordNumber> {
 
             Routine returnRoutine = routineManager.findRoutineAt(lastReturnAddress.pc);
             if (lastPc != -1)
-              currentRoutine.getVirtualPop().put(lastPc, pcValue);
+              currentRoutine.getVirtualPop().put(lastPc, pcValue + 2);
 
-            returnRoutine.addReturnPoint(lastReturnAddress.intValue(), pcValue + 1);
+            returnRoutine.addReturnPointDropped(lastReturnAddress.intValue(), pcValue + 3);
             currentRoutine = returnRoutine;
 
             return StackListener.super.droppingReturnValues(pcValue, newSpAddress, oldSpAddress, lastReturnAddress);

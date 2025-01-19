@@ -20,14 +20,16 @@ package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.helpers.Helper;
 
+import java.util.Set;
+
 public interface StackListener {
   default boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress) {
     System.out.println("returnAddressPopped: %s %s %s".formatted(Helper.formatAddress(pcValue), Helper.formatAddress(returnAddress), Helper.formatAddress(callAddress)));
     return false;
   }
 
-  default boolean jumpUsingRet(int pcValue, int jumpAddress) {
-    System.out.println("jumpUsingRet: %s %s".formatted(Helper.formatAddress(pcValue), Helper.formatAddress(jumpAddress)));
+  default boolean jumpUsingRet(int pcValue, Set<Integer> jumpAddresses) {
+    System.out.println("jumpUsingRet: %s %s".formatted(Helper.formatAddress(pcValue), jumpAddresses));
     return false;
   }
 

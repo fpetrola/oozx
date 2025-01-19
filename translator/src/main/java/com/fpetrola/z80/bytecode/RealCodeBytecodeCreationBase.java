@@ -36,17 +36,25 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecu
   public RoutineManager routineManager;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
   private final InstructionExecutor<T> instructionExecutor;
+
+  public StackAnalyzer getStackAnalyzer() {
+    return stackAnalyzer;
+  }
+
+  private final StackAnalyzer stackAnalyzer;
   private RegistersSetter<T> registersSetter;
 
   public RealCodeBytecodeCreationBase(RoutineFinderInstructionSpy routineFinderInstructionSpy1, RoutineManager routineManager1,
                                       InstructionExecutor instructionExecutor1,
                                       SymbolicExecutionAdapter executionAdapter, InstructionTransformer instructionCloner1,
-                                      InstructionExecutor<T> instructionExecutor, OOZ80 z80, OpcodeConditions opcodeConditions, RegistersSetter<T> registersSetter1) {
+                                      InstructionExecutor<T> instructionExecutor, OOZ80 z80, OpcodeConditions opcodeConditions,
+                                      RegistersSetter<T> registersSetter1, StackAnalyzer stackAnalyzer) {
     super(routineFinderInstructionSpy1, z80, opcodeConditions);
     routineManager = routineManager1;
 
     symbolicExecutionAdapter = executionAdapter;
     this.instructionExecutor = instructionExecutor;
+    this.stackAnalyzer = stackAnalyzer;
     routineManager.setInstructionExecutor(instructionExecutor);
     registersSetter = registersSetter1;
   }

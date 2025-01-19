@@ -25,20 +25,14 @@ import com.fpetrola.z80.factory.Z80Factory;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.ide.rzx.RzxFile;
 import com.fpetrola.z80.ide.rzx.RzxParser;
-import com.fpetrola.z80.instructions.impl.JP;
-import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.jspeccy.Z80B;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.minizx.*;
-import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.*;
-import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
-import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
+import com.fpetrola.z80.transformations.StackAnalyzer;
 import snapshots.SpectrumState;
 
 import java.util.function.Function;
@@ -47,7 +41,8 @@ import java.util.function.Predicate;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class EmulatedMiniZX<T extends WordNumber> {
-  private static boolean useRZX = false;
+  public static boolean useRZX = false;
+  private StackAnalyzer stackAnalyzer;
   private Emulator emulator;
   public OOZ80<T> ooz80;
   private int pause;
@@ -58,11 +53,11 @@ public class EmulatedMiniZX<T extends WordNumber> {
   private boolean inThread;
   private InstructionSpy spy;
   private State<T> state;
-  public MultiValuedMap<Integer, Integer> dynamicJP = new HashSetValuedHashMap<>();
   private boolean cachingInstructions = false;
 
-  public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread, Emulator emulator) {
+  public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread, Emulator emulator, StackAnalyzer stackAnalyzer) {
     this(emulator, url, pause, showScreen, emulateUntil, inThread, new NullInstructionSpy(), createState());
+    this.stackAnalyzer = stackAnalyzer;
   }
 
   private void createSpy() {
@@ -90,7 +85,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
     url = "file:///home/fernando/dynamitedan1.z80";
 
-    new EmulatedMiniZX(url, 1, true, -1, true, new DefaultEmulator()).start();
+    new EmulatedMiniZX(url, 1, true, -1, true, new DefaultEmulator(), null).start();
   }
 
   public <T extends WordNumber> OOZ80<T> createOOZ80() {
@@ -102,7 +97,11 @@ public class EmulatedMiniZX<T extends WordNumber> {
     OOZ80<T> ooz81 = cachingInstructions ? Z80Factory.createOOZ80(state, new CachedInstructionFetcher<>(state)) : Z80Factory.createOOZ80(state);
 
     ooz81.getInstructionFetcher().setPrefetch(true);
-
+    if (stackAnalyzer != null) {
+      InstructionExecutor<T> instructionExecutor = ooz81.getInstructionExecutor();
+      stackAnalyzer.reset(state);
+      stackAnalyzer.addExecutionListener(instructionExecutor);
+    }
     spy.reset(state);
     spy.addExecutionListeners(ooz81.getInstructionExecutor());
     return ooz81;
@@ -144,17 +143,6 @@ public class EmulatedMiniZX<T extends WordNumber> {
     } else
       useRzx(registersBase, state, io);
 
-
-    ooz80.getInstructionExecutor().addExecutionListener(new ExecutionListener<T>() {
-      public void beforeExecution(Instruction<T> instruction) {
-        if (instruction instanceof JP<T> jp) {
-          ImmutableOpcodeReference<T> positionOpcodeReference = jp.getPositionOpcodeReference();
-          if (positionOpcodeReference instanceof Register<T> register) {
-            dynamicJP.put(state.getPc().read().intValue(), register.read().intValue());
-          }
-        }
-      }
-    });
 
     if (showScreen) {
       MiniZXScreen miniZXScreen1 = new MiniZXScreen(this.getMemFunction());

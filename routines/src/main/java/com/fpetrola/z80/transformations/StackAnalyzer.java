@@ -29,22 +29,44 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.se.StackListener;
 import com.fpetrola.z80.spy.ExecutionListener;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Function;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.SP;
 
 public class StackAnalyzer<T extends WordNumber> {
-  private final State<T> state;
+  private State<T> state;
   private Function<StackListener, Boolean> lastEvent;
   private boolean initialized = false;
   private StackAsRepositoryState stackAsRepository = new StackAsRepositoryState();
   private StackListener stackListener;
   private boolean stackInitialized;
+  public MultiValuedMap<Integer, Integer> dynamicInvocation = new HashSetValuedHashMap<>();
+
+  public static boolean collecting;
+  private int pcValue;
 
   public StackAnalyzer(State<T> state) {
     this.state = state;
+  }
+
+  public void setCollecting(boolean collecting) {
+    this.collecting = collecting;
+  }
+
+  public void reset(State<T> state) {
+    this.state = state;
+    lastEvent = null;
+    stackAsRepository = new StackAsRepositoryState();
+    stackListener = null;
+    stackInitialized = false;
+    pcValue = -1;
+    initialized = false;
   }
 
   public void init() {
@@ -68,8 +90,9 @@ public class StackAnalyzer<T extends WordNumber> {
 
   public void beforeExecution(Instruction<T> instruction) {
     int i = state.getRegisterSP().read().intValue();
+    pcValue = state.getPc().read().intValue();
 
-    if (!initialized && i > 0xFF00)
+    if (!initialized)
       init();
 
     lastEvent = null;
@@ -82,20 +105,10 @@ public class StackAnalyzer<T extends WordNumber> {
         }
       }
 
-      public boolean visitingRet(Ret ret) {
-        if (!(ret instanceof RetN) && ret.getNextPC() != null) {
-
-          var read = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
-          if (!(read instanceof ReturnAddressWordNumber)) {
-            int pcValue = state.getPc().read().intValue();
-            lastEvent = l -> l.jumpUsingRet(pcValue, read.intValue());
-          }
-          return true;
-        } else return false;
-      }
-
       public boolean visitingJP(JP<T> jp) {
         if (jp.getPositionOpcodeReference() instanceof Register<T> register) {
+          addDynamicInvocationData(register.read().intValue());
+
           int stackPlace = state.getRegisterSP().read().intValue();
 
           if (stackPlace >= 16384) {
@@ -181,6 +194,15 @@ public class StackAnalyzer<T extends WordNumber> {
       lastEvent.apply(stackListener);
   }
 
+  private void addDynamicInvocationData(int address) {
+    if (collecting) {
+      if (address < 16384)
+        System.out.println("eh!!!");
+      else
+        dynamicInvocation.put(pcValue, address);
+    }
+  }
+
   private int distance(int oldSpAddress, int newSpAddress) {
     return Math.abs(oldSpAddress - newSpAddress) & 0xffff;
   }
@@ -196,8 +218,25 @@ public class StackAnalyzer<T extends WordNumber> {
         }
         return true;
       }
+
+      public boolean visitingRet(Ret ret) {
+        WordNumber nextPC = ret.getNextPC();
+        if (!(ret instanceof RetN) && nextPC != null) {
+
+//          var read = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
+          if (!(nextPC instanceof ReturnAddressWordNumber)) {
+            addDynamicInvocationData(nextPC.intValue());
+            lastEvent = l -> l.jumpUsingRet(pcValue, getInvocationsSet(StackAnalyzer.this.pcValue));
+          }
+          return true;
+        } else return false;
+      }
     };
     instruction.accept(instructionVisitor);
+  }
+
+  private Set<Integer> getInvocationsSet(int pcValue1) {
+    return new HashSet<>(dynamicInvocation.get(pcValue1));
   }
 
   public boolean listenEvents(StackListener stackListener) {

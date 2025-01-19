@@ -346,6 +346,12 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       } else
         return StackListener.super.droppingReturnValues(pcValue, newSpAddress, oldSpAddress, lastReturnAddress);
     }
+
+    public boolean jumpUsingRet(int pcValue, Set<Integer> jumpAddresses) {
+//      RoutineExecutorHandler<T> routineExecutorHandler1 = symbolicExecutionAdapter.routineExecutorHandler;
+//      routineExecutorHandler1.getCurrentRoutineExecution().replaceAddressAction(new JumpUsingRetAddressAction<>(pcValue, jumpAddresses, routineExecutorHandler1));
+      return StackListener.super.jumpUsingRet(pcValue, jumpAddresses);
+    }
   }
 
   public abstract class SymbolicInstructionFactoryDelegator implements InstructionFactoryDelegator {
