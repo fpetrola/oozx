@@ -58,6 +58,11 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   private Register<T> pc;
   private DataflowService dataflowService;
   private SEInstructionFactory sEInstructionFactory;
+
+  public StackAnalyzer<T> getStackAnalyzer() {
+    return stackAnalyzer;
+  }
+
   private StackAnalyzer<T> stackAnalyzer;
   private final RoutineFinder routineFinder;
 
@@ -107,7 +112,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   public void stepUntilComplete(Z80InstructionDriver z80InstructionDriver, State<T> state, int firstAddress, int minimalValidCodeAddress) {
     stepAllAndProcessPending(z80InstructionDriver, state, firstAddress, minimalValidCodeAddress);
-    processPending();
     routineManager.createVirtualRoutines();
   }
 
@@ -126,7 +130,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
     List<WriteMemoryReference> writeMemoryReferences = spy.getWriteMemoryReferences();
 
-    findJPHLCases(writeMemoryReferences);
     findMutantCode(writeMemoryReferences);
   }
 
@@ -138,86 +141,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       }
     });
   }
-
-  private void findJPHLCases(List<WriteMemoryReference> writeMemoryReferences) {
-    SEInstructionFactory.dynamicJP.forEach((pc, dj) -> {
-      for (int j = 0; j < writeMemoryReferences.size(); j++) {
-        WriteMemoryReference w = writeMemoryReferences.get(j);
-        if (w.address.intValue() == dj.pointerAddress()) {
-          WriteMemoryReference w2 = writeMemoryReferences.get(j + 1);
-          if (w2.address.intValue() == dj.pointerAddress() + 1) {
-            int value = w2.value.intValue() * 256 + w.value.intValue();
-            dj.addCase(value);
-          }
-        }
-      }
-    });
-  }
-
-  private void processPending() {
-    Map<Integer, RoutineExecution> routineExecutions1 = routineExecutorHandler.getCopyListOfRoutineExecutions();
-    routineExecutions1.entrySet().forEach(e -> {
-      if (e.getValue().hasPendingPoints()) {
-        executingPending(e.getValue().getNextPending().address);
-        System.err.println("pending action: " + e.getValue());
-      }
-      Optional<AddressAction> foundAction = e.getValue().findActionOfType(JPRegisterAddressAction.class);
-      if (foundAction.isPresent()) {
-        JPRegisterAddressAction jpRegisterAddressAction = (JPRegisterAddressAction) foundAction.get();
-        if (jpRegisterAddressAction.dynamicJPData == null) {
-          JPRegisterAddressAction.DynamicJPData dynamicJPData = SEInstructionFactory.dynamicJP.get(jpRegisterAddressAction.address);
-          jpRegisterAddressAction.setDynamicJPData(dynamicJPData);
-          List<Integer> integers = routineManager.callers2.get(e.getValue().getStart());
-          if (!integers.isEmpty()) {
-            Integer first1 = integers.get(0);
-            int startAddress = first1;
-            pushAddress(startAddress); //FiXME: calculate minimal ret to run
-            pushAddress(startAddress);
-            pushAddress(startAddress);
-            pushAddress(startAddress);
-            executingPending(jpRegisterAddressAction.address);
-//          stepAllAndProcessPending(z80InstructionDriver, (State<T>) state, first1, minimalValidCodeAddress);
-          } else {
-            solveUntrackedCases(dynamicJPData, jpRegisterAddressAction, dynamicJPData.pointer());
-          }
-        }
-      }
-    });
-  }
-
-  private void solveUntrackedCases(JPRegisterAddressAction.DynamicJPData dynamicJPData, JPRegisterAddressAction jpRegisterAddressAction, int pointer) {
-    dynamicJPData.cases.clear();
-    dynamicJPData.addCase(pointer);
-    jpRegisterAddressAction.setDynamicJPData(dynamicJPData);
-    int address = jpRegisterAddressAction.address;
-    routineExecutorHandler.createRoutineExecution(pointer);
-    pc.write(createValue(pointer));
-    executeAllCode(z80InstructionDriver, pc);
-    Routine routineAt = routineManager.findRoutineAt(pointer);
-    if (routineAt != null) {
-      Block blockOf = routineAt.findBlockOf(pointer);
-      int endAddress = blockOf.getRangeHandler().getEndAddress();
-      int pointer1 = endAddress + 1;
-      Routine routineAt1 = routineManager.findRoutineAt(pointer1);
-      if (routineAt1 == null) {
-        solveUntrackedCases(dynamicJPData, jpRegisterAddressAction, pointer1);
-      }
-    }
-  }
-
-  private void executingPending(int address) {
-    RoutineExecution<T> routineExecutionAt = routineExecutorHandler.findRoutineExecutionContaining(address);
-    routineExecutorHandler.pushRoutineExecution(routineExecutionAt);
-    pc.write(createValue(address));
-    executeAllCode(z80InstructionDriver, pc);
-  }
-
-  private void pushAddress(int startAddress) {
-    Register<WordNumber> registerSP1 = (Register<WordNumber>) state.getRegisterSP();
-    Memory<WordNumber> memory = (Memory<WordNumber>) state.getMemory();
-    Push.doPush(createValue(startAddress), registerSP1, memory);
-  }
-
   private void executeAllCode(Z80InstructionDriver z80InstructionDriver, Register<T> pc) {
     var ready = false;
     nextSP = 0;

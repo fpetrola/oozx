@@ -31,11 +31,13 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.instructions.SEInstructionFactory;
 import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
+import com.fpetrola.z80.transformations.StackAnalyzer;
 import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 @SuppressWarnings("ALL")
@@ -665,23 +667,21 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   @Override
   public boolean visitingJP(JP<T> jp) {
+    StackAnalyzer stackAnalyzer = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer();
     if (jp.getPositionOpcodeReference() instanceof Register<T> register) {
-      Map<Integer, JPRegisterAddressAction.DynamicJPData> dynamicJP = SEInstructionFactory.dynamicJP;
-      dynamicJP.forEach((djpc, dj) -> {
-        if (djpc == routineByteCodeGenerator.context.pc.read().intValue()) {
-          dj.cases.forEach(c -> {
-            Variable existingVariable = routineByteCodeGenerator.getExistingVariable(register);
-            existingVariable.ifEq(c, () -> {
-              Label label = routineByteCodeGenerator.getLabel(c);
-              if (label != null) {
-                methodMaker.goto_(label);
-              } else {
-                routineByteCodeGenerator.invokeTransformedMethod(c);
-                methodMaker.return_();
-              }
-            });
-          });
-        }
+      int pcValue1 = routineByteCodeGenerator.context.pc.read().intValue();
+      Set<Integer> invocationsSet = stackAnalyzer.getInvocationsSet(pcValue1);
+      invocationsSet.forEach(c -> {
+        Variable existingVariable = routineByteCodeGenerator.getExistingVariable(register);
+        existingVariable.ifEq(c, () -> {
+          Label label = routineByteCodeGenerator.getLabel(c);
+          if (label != null) {
+            methodMaker.goto_(label);
+          } else {
+            routineByteCodeGenerator.invokeTransformedMethod(c);
+            methodMaker.return_();
+          }
+        });
       });
       return true;
     } else

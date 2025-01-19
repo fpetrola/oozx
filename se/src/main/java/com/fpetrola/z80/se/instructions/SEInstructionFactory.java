@@ -19,29 +19,20 @@
 package com.fpetrola.z80.se.instructions;
 
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.opcodes.references.*;
-import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.se.DirectAccessWordNumber;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
-import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
 import com.fpetrola.z80.se.actions.PushReturnAddress;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructionFactory<T> {
   private final SymbolicExecutionAdapter symbolicExecutionAdapter;
-  public static Map<Integer, JPRegisterAddressAction.DynamicJPData> dynamicJP = new HashMap<>();
   private final DataflowService<T> dataflowService;
 
   public void reset() {
-    dynamicJP.clear();
-    SeJP.lastData= null;
   }
 
   public SEInstructionFactory(SymbolicExecutionAdapter symbolicExecutionAdapter, State state, DataflowService<T> dataflowService1) {
@@ -98,57 +89,5 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
 
   public Push Push(OpcodeReference target) {
     return new PushReturnAddress(symbolicExecutionAdapter, target, sp, memory);
-  }
-
-  @Override
-  public JP JP(ImmutableOpcodeReference target, Condition condition) {
-    return new SeJP(target, condition);
-  }
-
-  public class SeJP extends JP<T> {
-
-    public static WordNumber lastData;
-
-    public SeJP(ImmutableOpcodeReference target, Condition condition) {
-      super(target, condition, SEInstructionFactory.this.pc);
-    }
-
-//    @Override
-//    public T calculateJumpAddress() {
-//      T t = super.calculateJumpAddress();
-//      if (pc.read().intValue() > 16384 && t.intValue() < 16384) {
-//        return jumpAddress = WordNumber.createValue(pc.read().intValue() + 3);
-//      } else {
-//        return t;
-//      }
-//    }
-
-    @Override
-    public int execute() {
-      if (positionOpcodeReference instanceof Register<T> register) {
-        boolean b = condition.conditionMet(this);
-
-        int pcValue = pc.read().intValue();
-        int pointerAddress = dataflowService.findValueOrigin(register);
-        if (dynamicJP.get(pcValue) == null) {
-          dynamicJP.put(pcValue, new JPRegisterAddressAction.DynamicJPData(pcValue, register.read().intValue(), pointerAddress));
-        }
-        System.out.println("JP (HL): PC: %H, HL: %H".formatted(pcValue, register.read().intValue()));
-//              Pop.doPop(memory, sp);
-//              setNextPC(createValue(pc.read().intValue() + 1));
-        if (lastData == null)
-          return super.execute();
-        else {
-          setNextPC((T) lastData);
-          return 0;
-        }
-      } else
-        return super.execute();
-    }
-
-    protected String getName() {
-      return "JP_";
-    }
-
   }
 }
