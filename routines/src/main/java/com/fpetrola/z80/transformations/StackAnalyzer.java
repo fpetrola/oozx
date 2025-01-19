@@ -235,7 +235,7 @@ public class StackAnalyzer<T extends WordNumber> {
     instruction.accept(instructionVisitor);
   }
 
-  private Set<Integer> getInvocationsSet(int pcValue1) {
+  public Set<Integer> getInvocationsSet(int pcValue1) {
     return new HashSet<>(dynamicInvocation.get(pcValue1));
   }
 

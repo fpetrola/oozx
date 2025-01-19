@@ -100,7 +100,7 @@ public class RoutineExecution<T extends WordNumber> {
     } else if (instruction instanceof Call call) {
       return new CallAddressAction(pcValue, call, alwaysTrue, routineExecutorHandler);
     } else if (instruction instanceof JP jp && jp.getPositionOpcodeReference() instanceof Register) {
-      return new JPRegisterAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler);
+      return new JPRegisterAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler,routineExecutorHandler.getStackAnalyzer().getInvocationsSet(pcValue));
     } else {
       return new ConditionalInstructionAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler);
     }
