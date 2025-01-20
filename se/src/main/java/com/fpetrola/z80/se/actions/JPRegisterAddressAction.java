@@ -68,7 +68,7 @@ public class JPRegisterAddressAction<T extends WordNumber> extends AddressAction
 
   public int getNext(int executedInstructionAddress, int currentPc) {
     pending = false;
-    if (!cases.isEmpty())
+    if (currentCase!= null)
       return currentCase;
     else
       return super.getNext(executedInstructionAddress, currentPc);
