@@ -30,6 +30,11 @@ public class AddressAction<T extends WordNumber> {
   public int address;
   protected boolean pending;
   private int count;
+
+  public ExecutionStackStorage getExecutionStackStorage() {
+    return executionStackStorage;
+  }
+
   private ExecutionStackStorage executionStackStorage;
 
   public AddressAction(int pcValue, RoutineExecutorHandler routineExecutorHandler) {
@@ -87,11 +92,11 @@ public class AddressAction<T extends WordNumber> {
   }
 
   protected void incCount() {
-    if (!branch)
-      executionStackStorage.save();
-    else {
-      executionStackStorage.restore();
-    }
+//    if (!branch)
+//      executionStackStorage.save();
+//    else {
+//      executionStackStorage.restore();
+//    }
 
 //    if (routineExecutionHandler.getPc().read().intValue() == 0x8d67)
 //      System.out.println("dasfsssss!!!");

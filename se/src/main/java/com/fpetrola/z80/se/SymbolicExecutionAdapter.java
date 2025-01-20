@@ -18,14 +18,13 @@
 
 package com.fpetrola.z80.se;
 
-import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.cpu.CachedInstructionFetcher;
+import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
-import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
-import com.fpetrola.z80.instructions.impl.Push;
-import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.cpu.State;
@@ -36,6 +35,7 @@ import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.actions.*;
 import com.fpetrola.z80.se.instructions.SEInstructionFactory;
+import com.fpetrola.z80.spy.ExecutionListener;
 import com.fpetrola.z80.spy.WriteMemoryReference;
 import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 import com.fpetrola.z80.transformations.StackAnalyzer;
@@ -65,16 +65,45 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   private StackAnalyzer<T> stackAnalyzer;
   private final RoutineFinder routineFinder;
+  private final InstructionExecutor instructionExecutor;
 
-  public SymbolicExecutionAdapter(State<T> state, RoutineManager routineManager, RoutineFinderInstructionSpy spy, DataflowService dataflowService1, StackAnalyzer<T> stackAnalyzer, RoutineFinder routineFinder) {
+  public SymbolicExecutionAdapter(State<T> state, RoutineManager routineManager, RoutineFinderInstructionSpy spy, DataflowService dataflowService1, StackAnalyzer<T> stackAnalyzer, RoutineFinder routineFinder, InstructionExecutor instructionExecutor) {
     this.state = state;
     this.routineManager = routineManager;
     this.spy = spy;
     this.stackAnalyzer = stackAnalyzer;
     this.routineFinder = routineFinder;
+    this.instructionExecutor = instructionExecutor;
     mutantAddress.clear();
     dataflowService = dataflowService1;
     routineExecutorHandler = new RoutineExecutorHandler<>(state, new ExecutionStackStorage<>(state), dataflowService, stackAnalyzer);
+
+    instructionExecutor.addTopExecutionListener(new ExecutionListener() {
+      public void beforeExecution(Instruction instruction) {
+        int pcValue = state.getPc().read().intValue();
+
+        RoutineExecution<T> currentRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
+        AddressAction addressAction = currentRoutineExecution.getAddressAction(pcValue);
+        if (addressAction == null) {
+          RoutineExecution routineExecution = routineExecutorHandler.getCurrentRoutineExecution();
+          if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
+            addressAction = routineExecution.replaceIfAbsent(getPcValue(), routineExecution.createAddressAction(instruction, conditionalInstruction.getCondition() instanceof ConditionAlwaysTrue, getPcValue()));
+          } else
+            addressAction = routineExecution.createAndAddGenericAction(pcValue);
+        }
+
+        if (instruction instanceof ConditionalInstruction<?, ?>) {
+          ExecutionStackStorage executionStackStorage = addressAction.getExecutionStackStorage();
+          if (executionStackStorage.isSaved())
+            executionStackStorage.restore();
+          else
+            executionStackStorage.save();
+        }
+      }
+
+      public void afterExecution(Instruction instruction) {
+      }
+    });
   }
 
   public int getPcValue() {
@@ -104,9 +133,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   public <T extends WordNumber> MutableOpcodeConditions createOpcodeConditions(State<T> state) {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
 //      System.out.printf("pc: %s -> %s%n", Helper.formatAddress(getPcValue()), instruction);
-      RoutineExecution routineExecution = routineExecutorHandler.getCurrentRoutineExecution();
-      AddressAction addressAction = routineExecution.replaceIfAbsent(getPcValue(), routineExecution.createAddressAction(instruction, alwaysTrue, getPcValue()));
-      return addressAction.processBranch(instruction);
+      return routineExecutorHandler.getCurrentRoutineExecution().getAddressAction(getPcValue()).processBranch(instruction);
     });
   }
 
@@ -141,6 +168,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       }
     });
   }
+
   private void executeAllCode(Z80InstructionDriver z80InstructionDriver, Register<T> pc) {
     var ready = false;
     nextSP = 0;
@@ -165,9 +193,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           this.stackAnalyzer.listenEvents(new SEStackListener(this));
 
 //          routineExecutorHandler.getExecutionStackStorage().printStack();
-
-          if (!routineExecution.hasActionAt(pcValue))
-            routineExecution.createAndAddGenericAction(pcValue);
 
           updatePcRegister(routineExecution.getAddressAction(pcValue).getNext(pcValue, pc.read().intValue()));
 
@@ -262,7 +287,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         RoutineExecution<T> popRoutine = lastRoutineExecution;
         while (popRoutine != callerRoutineExecution) {
           int start = routineExecutorHandler.popRoutineExecution();
-          popRoutine =routineExecutorHandler.getCurrentRoutineExecution();
+          popRoutine = routineExecutorHandler.getCurrentRoutineExecution();
         }
         if (!lastRoutineExecution.hasRetInstruction())
           lastRoutineExecution.setRetInstruction(pcValue);

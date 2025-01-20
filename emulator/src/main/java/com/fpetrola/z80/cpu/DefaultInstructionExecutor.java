@@ -110,6 +110,11 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
     executionListeners.add(executionListener);
   }
 
+  @Override
+  public void addTopExecutionListener(ExecutionListener<T> executionListener) {
+    executionListeners.add(0, executionListener);
+  }
+
   public void beforeExecution(Instruction<T> instruction) {
     for (int i = 0, executionListenersSize = executionListeners.size(); i < executionListenersSize; i++)
       executionListeners.get(i).beforeExecution(instruction);
