@@ -23,12 +23,10 @@ import com.fpetrola.z80.blocks.references.BlockRelation;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.impl.Call;
-import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.ReturnAddressWordNumber;
@@ -50,6 +48,7 @@ public class RoutineFinder<T extends WordNumber> {
   private int lastPc;
   private Set<Integer> processedPcs = new HashSet<>();
   private final State<T> state;
+  private Integer lastSimulatedCallJump;
 
   public RoutineFinder(RoutineManager routineManager, StackAnalyzer<T> stackAnalyzer1, State<T> state) {
     this.routineManager = routineManager;
@@ -99,15 +98,9 @@ public class RoutineFinder<T extends WordNumber> {
         if (currentRoutine == null)
           createOrUpdateCurrentRoutine(pcValue, instruction.getLength());
 
-        if (lastInstruction instanceof JP<T> jp && jp.getPositionOpcodeReference() instanceof Register<T> register) {
-          T t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
-          if (t.intValue() == lastPc + 1) {
-//          boolean syntheticReturnAddress = routineManager.getDataflowService().isSyntheticReturnAddress();
-            WordNumber nextPC = register.read();
-            if (nextPC != null) {
-              createOrUpdateCurrentRoutine(nextPC.intValue(), instruction.getLength());
-            }
-          }
+        if (lastSimulatedCallJump != null) {
+          createOrUpdateCurrentRoutine(lastSimulatedCallJump, instruction.getLength());
+          lastSimulatedCallJump = null;
         }
 
         if (lastInstruction instanceof Call) {
@@ -129,8 +122,9 @@ public class RoutineFinder<T extends WordNumber> {
             return StackListener.super.jumpUsingRet(pcValue, jumpAddresses);
           }
 
-          public boolean simulatedCall(int pcValue, int i) {
-            return StackListener.super.simulatedCall(pcValue, i);
+          public boolean simulatedCall(int pcValue, int jumpAddress, Set<Integer> jumpAddresses, int returnAddress) {
+            lastSimulatedCallJump = jumpAddress;
+            return true;
           }
 
           @Override
@@ -155,9 +149,9 @@ public class RoutineFinder<T extends WordNumber> {
 
             Routine returnRoutine = routineManager.findRoutineAt(lastReturnAddress.pc);
             if (lastPc != -1)
-              currentRoutine.getVirtualPop().put(lastPc, pcValue + 2);
+              currentRoutine.getVirtualPop().put(lastPc, pcValue);
 
-            returnRoutine.addReturnPointDropped(lastReturnAddress.intValue(), pcValue + 3);
+            returnRoutine.addReturnPointDropped(lastReturnAddress.intValue(), pcValue + instructionLength);
             currentRoutine = returnRoutine;
 
             return StackListener.super.droppingReturnValues(pcValue, newSpAddress, oldSpAddress, lastReturnAddress);

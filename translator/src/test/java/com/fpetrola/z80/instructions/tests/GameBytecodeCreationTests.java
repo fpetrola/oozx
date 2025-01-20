@@ -30,6 +30,7 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.transformations.StackAnalyzer;
+import com.google.gson.Gson;
 import io.exemplary.guice.Modules;
 import io.exemplary.guice.TestRunner;
 import jakarta.inject.Inject;
@@ -39,6 +40,7 @@ import org.junit.runner.RunWith;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Map;
 
 import static com.fpetrola.z80.helpers.Helper.createMD5;
 
@@ -65,17 +67,31 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
     this.driverConfigurator = driverConfigurator;
   }
 
-  @Ignore
   @Test
   public void testTranslateWallyToJava() {
     int address = 0x8184;
-    int emulateUntil= 4000;
-    EmulatedMiniZX.rzxFile= "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
-    StackAnalyzer.collecting= true;
+    int emulateUntil = address;
+//    emulateUntil = 184100;
+////    emulateUntil = 10000;
+//    EmulatedMiniZX.rzxFile= "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
+//    StackAnalyzer.collecting= true;
     String memoryInBase64FromFile = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, emulateUntil, "http://torinak.com/qaop/bin/wally");
-    StackAnalyzer.collecting= false;
-    realCodeBytecodeCreationBase.getStackAnalyzer().reset(realCodeBytecodeCreationBase.getState());
+//    StackAnalyzer.collecting= false;
+
+    StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
+    addDynamicInvocations(stackAnalyzer, "{60160=[60161, 60835, 60870, 60919, 60840, 60281, 60604, 60175], 60130=[60386, 60851, 60356, 60468, 60309, 60459, 60397, 60414], 61170=[62723, 63302, 62473, 62217, 62027, 62379, 63212, 62799, 62961, 62834, 62675, 63347, 60691, 62260, 63092, 62198, 62524, 62621, 62333], 43400=[43872, 43698, 43843, 43814, 43785, 43931, 43741]}");
+    stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
     testTranslateGame(memoryInBase64FromFile, 0x8185);
+  }
+
+  private void addDynamicInvocations(StackAnalyzer stackAnalyzer, String json) {
+    Map<String, List<Double>> map = new Gson().fromJson(json, Map.class);
+
+    map.entrySet().forEach(e -> {
+      e.getValue().forEach(v -> {
+        stackAnalyzer.dynamicInvocation.put(Integer.parseInt(e.getKey()), Double.valueOf(v).intValue());
+      });
+    });
   }
 
   @Ignore
@@ -107,13 +123,17 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
 
   @Test
   public void testTranslateDynamite() {
-    EmulatedMiniZX.rzxFile= "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
-    StackAnalyzer.collecting= true;
     int emulateUntil = 0xC804;
-    emulateUntil= 40000;
+//    EmulatedMiniZX.rzxFile = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
+//    StackAnalyzer.collecting = true;
+//    emulateUntil = 52879;
     String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, emulateUntil, "http://torinak.com/qaop/bin/dynamitedan");
-    StackAnalyzer.collecting= false;
-    realCodeBytecodeCreationBase.getStackAnalyzer().reset(realCodeBytecodeCreationBase.getState());
+//    StackAnalyzer.collecting = false;
+
+    StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
+    addDynamicInvocations(stackAnalyzer, "{52931=[52961, 53111], 55965=[56008, 55966, 56058], 111=[51200], 59839=[59867]}");
+
+    stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
     stepUntilComplete(0xC804);
 
 //    translateToJava("ZxGame1", base64Memory, "$C804");

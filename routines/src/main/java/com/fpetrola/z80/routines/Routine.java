@@ -24,7 +24,6 @@ import com.fpetrola.z80.blocks.CodeBlockType;
 import com.fpetrola.z80.blocks.UnknownBlockType;
 import com.fpetrola.z80.instructions.types.Instruction;
 import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
 import java.util.*;
@@ -170,29 +169,29 @@ public class Routine {
       blocks.add(block);
   }
 
-  private static boolean splitBlocksIfRequired(Routine routineAt, Block block, int startAddress1, int startAddress2, Map<Integer, Integer> virtualPop1, MultiValuedMap<Integer, Integer> returnPoints) {
+  private static boolean splitBlocksIfRequired(Routine routineAt, Block block, int startAddress1, int startAddress2, Map<Integer, Integer> virtualPop1, MultiValuedMap<Integer, Integer> returnPointsDropped) {
     if (startAddress1 != startAddress2) {
       Block split = block.split(startAddress1 - 1);
       if (startAddress2 != routineAt.entryPoint)
         routineAt.setEntryPoint(startAddress1 - 1);
-      return createRoutineFromSplit(routineAt, startAddress1, virtualPop1, split, returnPoints);
+      return createRoutineFromSplit(routineAt, startAddress1, virtualPop1, split, returnPointsDropped);
     } else {
       if (routineAt.getBlocks().size() > 1) {
         routineAt.removeBlock(block);
         if (block.getRangeHandler().getStartAddress() == routineAt.entryPoint) {
           routineAt.setEntryPoint(routineAt.getBlocks().get(0).getRangeHandler().getStartAddress());
         }
-        return createRoutineFromSplit(routineAt, startAddress1, virtualPop1, block, returnPoints);
+        return createRoutineFromSplit(routineAt, startAddress1, virtualPop1, block, returnPointsDropped);
       }
     }
     return false;
   }
 
-  private static boolean createRoutineFromSplit(Routine routineAt, int startAddress1, Map<Integer, Integer> virtualPop1, Block split, MultiValuedMap<Integer, Integer> returnPoints) {
+  private static boolean createRoutineFromSplit(Routine routineAt, int startAddress1, Map<Integer, Integer> virtualPop1, Block split, MultiValuedMap<Integer, Integer> returnPointsDropped) {
     Routine routine = new Routine(split, startAddress1, true);
 
     updateVirtualPops(routineAt, virtualPop1, routine);
-    updateReturnPoints(routineAt, returnPoints, routine);
+    updateReturnPointsDropped(routineAt, returnPointsDropped, routine);
 
     routineAt.routineManager.addRoutine(routine);
     return true;
@@ -212,10 +211,9 @@ public class Routine {
     });
   }
 
-  private static void updateReturnPoints(Routine routineAt, MultiValuedMap<Integer, Integer> returnPoints, Routine routine) {
-    routine.getReturnPoints().putAll(returnPoints);
-    MultiValuedMap<Integer, Integer> returnPoints1 = new ArrayListValuedHashMap<>(routine.getReturnPointsDropped());
-    returnPoints1.entries().forEach(e -> {
+  private static void updateReturnPointsDropped(Routine routineAt, MultiValuedMap<Integer, Integer> returnPointsDropped, Routine routine) {
+    routine.getReturnPointsDropped().putAll(returnPointsDropped);
+    returnPointsDropped.entries().forEach(e -> {
       if (!routineAt.contains(e.getValue())) {
         routineAt.getReturnPointsDropped().removeMapping(e.getKey(), e.getValue());
       }

@@ -1700,26 +1700,10 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
               this.$1();
            }
         
-           public void $7() {
-              super.D = super.B;
-              if(super.F != 0) {
-                 throw new StackException(2);
-              } else {
-                 this.$9();
-              }
-           }
-        
-           public void $9() {
-              super.B = 4;
-           }
-        
            public void $1() {
               while(true) {
                  try {
-                    if(!this.isNextPC(2)) {
-                       this.SP('\\ufc00');
-                    }
-        
+                    this.SP('\\ufc00');
                     super.B = 5;
                     this.$7();
                     this.$9();
@@ -1732,6 +1716,19 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
                     }
                  }
               }
+           }
+        
+           public void $7() {
+              super.D = super.B;
+              if(super.F != 0) {
+                 throw new StackException(2);
+              } else {
+                 this.$9();
+              }
+           }
+        
+           public void $9() {
+              super.B = 4;
            }
         }
         """, resultingJava);

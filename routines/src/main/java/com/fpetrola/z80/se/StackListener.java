@@ -20,6 +20,7 @@ package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.helpers.Helper;
 
+import java.util.List;
 import java.util.Set;
 
 public interface StackListener {
@@ -33,9 +34,13 @@ public interface StackListener {
     return false;
   }
 
-  default boolean simulatedCall(int pcValue, int i) {
-    System.out.println("simulatedCall: %s %s".formatted(Helper.formatAddress(pcValue), Helper.formatAddress(i)));
+  default boolean simulatedCall(int pcValue, int jumpAddress, Set<Integer> jumpAddresses, int returnAddress) {
+    System.out.println("simulatedCall: %s %s %s %s".formatted(Helper.formatAddress(pcValue), Helper.formatAddress(jumpAddress), formatHex(jumpAddresses), Helper.formatAddress(returnAddress)));
     return false;
+  }
+
+  private List<String> formatHex(Set<Integer> jumpAddresses) {
+    return jumpAddresses.stream().map(i-> Helper.formatAddress(i)).toList();
   }
 
   default boolean beginUsingStackAsRepository(int pcValue, int newSpAddress, int oldSpAddress) {

@@ -26,13 +26,16 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.se.PushedWordNumber;
 import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.se.StackListener;
 import com.fpetrola.z80.spy.ExecutionListener;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -50,6 +53,7 @@ public class StackAnalyzer<T extends WordNumber> {
 
   public static boolean collecting;
   private int pcValue;
+  private List<Integer> simulatedRets = new ArrayList<>();
 
   public StackAnalyzer(State<T> state) {
     this.state = state;
@@ -107,7 +111,8 @@ public class StackAnalyzer<T extends WordNumber> {
 
       public boolean visitingJP(JP<T> jp) {
         if (jp.getPositionOpcodeReference() instanceof Register<T> register) {
-          addDynamicInvocationData(register.read().intValue());
+          int jumpAddress = register.read().intValue();
+          addDynamicInvocationData(jumpAddress);
 
           int stackPlace = state.getRegisterSP().read().intValue();
 
@@ -118,10 +123,16 @@ public class StackAnalyzer<T extends WordNumber> {
             if (!(read instanceof ReturnAddressWordNumber)) {
               int pcValue = state.getPc().read().intValue();
               if (Math.abs(read.intValue() - pcValue) < 20) {
-                lastEvent = l -> l.simulatedCall(pcValue, read.intValue());
+                lastEvent = l -> l.simulatedCall(pcValue, jumpAddress, getInvocationsSet(pcValue), read.intValue());
                 T read1 = state.getPc().read();
-                T value = (T) new ReturnAddressWordNumber(read.intValue(), read1.intValue());
-                Memory.write16Bits(state.getMemory(), value, state.getRegisterSP().read());
+                simulatedRets.add(read.intValue());
+                if (read instanceof PushedWordNumber pushedWordNumber) {
+                  pushedWordNumber.setSimulatedCall();
+                }
+//                T value = (T) new ReturnAddressWordNumber(read.intValue(), read1.intValue());
+//                Memory.write16Bits(state.getMemory(), value, state.getRegisterSP().read());
+//                T value = (T) new IntegerWordNumber(read.intValue());
+//                Memory.write16Bits(state.getMemory(), value, state.getRegisterSP().read());
               }
             }
             return true;
@@ -146,7 +157,7 @@ public class StackAnalyzer<T extends WordNumber> {
           int newSpAddress = source.read().intValue();
           int oldSpAddress = register.read().intValue();
           if (stackInitialized) {
-            if (distance(oldSpAddress, newSpAddress) > 1000) {
+            if (distance(oldSpAddress, newSpAddress) > 2000) {
               if (distance(stackAsRepository.spReadAt, pcValue) < 2000) {
                 usingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
               }
@@ -219,12 +230,19 @@ public class StackAnalyzer<T extends WordNumber> {
         return true;
       }
 
+      public void visitPush(Push push) {
+        var read = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
+        T read1 = state.getPc().read();
+        T value = (T) new PushedWordNumber(read.intValue(), read1.intValue(), false);
+        Memory.write16Bits(state.getMemory(), value, state.getRegisterSP().read());
+      }
+
       public boolean visitingRet(Ret ret) {
         WordNumber nextPC = ret.getNextPC();
         if (!(ret instanceof RetN) && nextPC != null) {
 
 //          var read = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
-          if (!(nextPC instanceof ReturnAddressWordNumber)) {
+          if (nextPC instanceof PushedWordNumber pushedWordNumber && !simulatedRets.contains(nextPC.intValue())) {
             addDynamicInvocationData(nextPC.intValue());
             lastEvent = l -> l.jumpUsingRet(pcValue, getInvocationsSet(StackAnalyzer.this.pcValue));
           }

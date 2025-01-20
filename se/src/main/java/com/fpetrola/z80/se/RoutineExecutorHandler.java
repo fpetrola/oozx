@@ -77,7 +77,7 @@ public class RoutineExecutorHandler<T extends WordNumber> {
     if (jumpAddress == 0xCFD9)
       System.out.println("");
 
-//    System.out.println("Push frame: " + formatAddress(jumpAddress));
+    System.out.println("Push frame: " + formatAddress(jumpAddress));
 
     stackFrames.push(jumpAddress);
     RoutineExecution<T> routineExecution = routineExecutions.get(jumpAddress);
@@ -90,7 +90,7 @@ public class RoutineExecutorHandler<T extends WordNumber> {
   public int popRoutineExecution() {
     T t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
     Integer pop = stackFrames.pop();
-//    System.out.printf("Pop frame: %s, ret: %s%n", formatAddress(pop), formatAddress(t.intValue()));
+    System.out.printf("Pop frame: %s, ret: %s%n", formatAddress(pop), formatAddress(t.intValue()));
     return pop;
   }
 
@@ -100,7 +100,10 @@ public class RoutineExecutorHandler<T extends WordNumber> {
   }
 
   public boolean isEmpty() {
-    return stackFrames.isEmpty();
+    boolean empty = stackFrames.isEmpty();
+    if (empty)
+      System.out.println("empty");
+    return empty;
   }
 
   public RoutineExecution<T> getCurrentRoutineExecution() {

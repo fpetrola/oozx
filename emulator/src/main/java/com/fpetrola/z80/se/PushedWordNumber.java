@@ -16,22 +16,30 @@
  *
  */
 
-package com.fpetrola.z80.bytecode.tests;
+package com.fpetrola.z80.se;
 
-import org.easymock.bytebuddy.implementation.bind.annotation.*;
+import com.fpetrola.z80.opcodes.references.IntegerWordNumber;
 
-import java.lang.reflect.Method;
+public class PushedWordNumber extends IntegerWordNumber {
+  public final int pc;
 
-public class GameInvoker {
-  public static void main(String[] args) throws InstantiationException {
-    ZxGame1 zxGame1 = new ZxGame1();
-//    zxGame1.setSyncChecker(new DefaultSyncChecker());
-//    zxGame1.$34762(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0);
-    zxGame1.$8185();
-//    zxGame1.$35090();
+  public boolean isSimulatedCall() {
+    return simulatedCall;
+  }
 
-//    ZxGame1 o= new ZxGame1();
-//    o = ClassProxyHelper.createGameInstance(ZxGame1.class);
-//    o.$C804();
+  private boolean simulatedCall;
+
+  public PushedWordNumber(int i, int pc, boolean simulatedCall) {
+    super(i);
+    this.pc = pc;
+    this.simulatedCall = simulatedCall;
+  }
+
+  public IntegerWordNumber createInstance(int value) {
+    return new PushedWordNumber(value & 0xFFFF, pc, simulatedCall);
+  }
+
+  public void setSimulatedCall() {
+    simulatedCall= true;
   }
 }

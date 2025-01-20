@@ -18,14 +18,11 @@
 
 package com.fpetrola.z80.se;
 
-import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.cpu.CachedInstructionFetcher;
 import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
-import com.fpetrola.z80.instructions.impl.Push;
-import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.cpu.State;
@@ -105,7 +102,12 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
 //      System.out.printf("pc: %s -> %s%n", Helper.formatAddress(getPcValue()), instruction);
       RoutineExecution routineExecution = routineExecutorHandler.getCurrentRoutineExecution();
-      AddressAction addressAction = routineExecution.replaceIfAbsent(getPcValue(), routineExecution.createAddressAction(instruction, alwaysTrue, getPcValue()));
+      int pcValue = getPcValue();
+      AddressAction addressAction = routineExecution.getAddressAction(pcValue);
+      if (addressAction == null) {
+        addressAction = routineExecution.createAddressAction(instruction, alwaysTrue, pcValue);
+        routineExecution.replaceIfAbsent(pcValue, addressAction);
+      }
       return addressAction.processBranch(instruction);
     });
   }
@@ -141,6 +143,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       }
     });
   }
+
   private void executeAllCode(Z80InstructionDriver z80InstructionDriver, Register<T> pc) {
     var ready = false;
     nextSP = 0;
@@ -149,6 +152,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       var pcValue = pc.read().intValue();
       ready = isReady(pcValue);
 
+      if (pcValue == 0xEAE1 || pcValue == 0x8139)
+        System.out.println("aca!");
       if (!ready) {
         var routineExecution = routineExecutorHandler.getCurrentRoutineExecution();
 
@@ -185,7 +190,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   private void logPC(int pcValue) {
-//    System.out.println("PC: " + Helper.formatAddress(pcValue));
+    System.out.println("PC: " + Helper.formatAddress(pcValue));
 //        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
   }
 
@@ -262,7 +267,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         RoutineExecution<T> popRoutine = lastRoutineExecution;
         while (popRoutine != callerRoutineExecution) {
           int start = routineExecutorHandler.popRoutineExecution();
-          popRoutine =routineExecutorHandler.getCurrentRoutineExecution();
+          popRoutine = routineExecutorHandler.getCurrentRoutineExecution();
         }
         if (!lastRoutineExecution.hasRetInstruction())
           lastRoutineExecution.setRetInstruction(pcValue);
@@ -272,9 +277,13 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     }
 
     public boolean jumpUsingRet(int pcValue, Set<Integer> jumpAddresses) {
-//      RoutineExecutorHandler<T> routineExecutorHandler1 = symbolicExecutionAdapter.routineExecutorHandler;
-//      routineExecutorHandler1.getCurrentRoutineExecution().replaceAddressAction(new JumpUsingRetAddressAction<>(pcValue, jumpAddresses, routineExecutorHandler1));
+      RoutineExecutorHandler<T> routineExecutorHandler1 = symbolicExecutionAdapter.routineExecutorHandler;
+      routineExecutorHandler1.getCurrentRoutineExecution().replaceAddressAction(new JumpUsingRetAddressAction<>(pcValue, jumpAddresses, routineExecutorHandler1));
       return StackListener.super.jumpUsingRet(pcValue, jumpAddresses);
+    }
+
+    public boolean simulatedCall(int pcValue, int jumpAddress, Set<Integer> jumpAddresses, int returnAddress) {
+      return StackListener.super.simulatedCall(pcValue, jumpAddress, jumpAddresses, returnAddress);
     }
   }
 

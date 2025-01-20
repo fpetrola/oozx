@@ -38,7 +38,7 @@ public class DefaultEmulator<T extends WordNumber> implements Emulator<T> {
 //    });
 //    registerR.listening(true);
 
-    while (pc.read().intValue() != emulateUntil) {
+    while (true) {
       if (!continueEmulation.test(i))
         break;
       if ((i++ % (pause * 10000)) == 0) {

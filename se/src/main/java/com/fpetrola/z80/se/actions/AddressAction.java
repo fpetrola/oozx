@@ -96,8 +96,8 @@ public class AddressAction<T extends WordNumber> {
 //    if (routineExecutionHandler.getPc().read().intValue() == 0x8d67)
 //      System.out.println("dasfsssss!!!");
     count++;
-    if (count > 2)
-      System.out.println("adgadgdag");
+//    if (count > 2)
+//      System.out.println("adgadgdag");
   }
 
   public int getNextPC() {

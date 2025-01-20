@@ -30,9 +30,16 @@ public class JP<T extends WordNumber> extends ConditionalInstruction<T, Conditio
     super(target, condition, pc);
   }
 
-  @Override
   public int execute() {
-    return jumpIfConditionMatches();
+    if (positionOpcodeReference instanceof Register<T> register) {
+      if (condition.conditionMet(this)) {
+        T address = calculateJumpAddress();
+        setJumpAddress(address);
+        setNextPC(address);
+      }
+      return 1;
+    } else
+      return jumpIfConditionMatches();
   }
 
   public void accept(InstructionVisitor visitor) {
