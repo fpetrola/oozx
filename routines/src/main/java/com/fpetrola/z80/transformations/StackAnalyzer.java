@@ -67,7 +67,6 @@ public class StackAnalyzer<T extends WordNumber> {
     this.state = state;
     lastEvent = null;
     stackAsRepository = new StackAsRepositoryState();
-    stackListener = null;
     stackInitialized = false;
     pcValue = -1;
     initialized = false;
@@ -198,6 +197,17 @@ public class StackAnalyzer<T extends WordNumber> {
         }
       }
 
+      public boolean visitingRet(Ret ret) {
+        if (!(ret instanceof RetN) ) {
+
+          var read = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
+          if (read instanceof PushedWordNumber pushedWordNumber && !simulatedRets.contains(read.intValue())) {
+            addDynamicInvocationData(read.intValue());
+            lastEvent = l -> l.jumpUsingRet(pcValue, getInvocationsSet(StackAnalyzer.this.pcValue));
+          }
+          return true;
+        } else return false;
+      }
     };
     instruction.accept(instructionVisitor);
 

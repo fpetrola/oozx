@@ -18,37 +18,55 @@
 
 package com.fpetrola.z80.se;
 
+import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.actions.AddressAction;
 
 import java.util.LinkedList;
 import java.util.Set;
 
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
+
 public class JumpUsingRetAddressAction<T extends WordNumber> extends AddressAction<T> {
   private final Set<Integer> jumpAddresses;
-  private final LinkedList<Integer> addresses;
+  private final LinkedList<Integer> cases;
+  private Integer currentCase;
 
   public JumpUsingRetAddressAction(int pcValue, Set<Integer> jumpAddresses, RoutineExecutorHandler<T> routineExecutorHandler) {
     super(pcValue, routineExecutorHandler);
     this.jumpAddresses = jumpAddresses;
-    this.addresses = new LinkedList<>(jumpAddresses);
+    this.cases = new LinkedList<>(jumpAddresses);
   }
 
   public boolean processBranch(Instruction instruction) {
-    return getDoBranch();
-  }
+    boolean doBranch = getDoBranch();
 
-  @Override
-  public boolean isPending() {
-    return pending || !addresses.isEmpty();
+    if (doBranch) {
+      State<T> state = routineExecutionHandler.getState();
+      pollNextCase();
+      Memory.write16Bits(state.getMemory(), createValue(currentCase), state.getRegisterSP().read());
+    }
+    return doBranch;
   }
 
   public int getNext(int executedInstructionAddress, int currentPc) {
-    Integer jumpAddress = addresses.poll();
-    if (jumpAddress != null) {
-      return jumpAddress;
-    } else
-      return currentPc;
+    pending = false;
+    if (currentCase != null)
+      return currentCase;
+    else if (!cases.isEmpty())
+      return executedInstructionAddress;
+    else
+      return super.getNext(executedInstructionAddress, currentPc);
+  }
+
+  private void pollNextCase() {
+    currentCase = cases.poll();
+  }
+
+  public boolean isPending() {
+    return pending || !cases.isEmpty();
   }
 }

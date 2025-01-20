@@ -78,6 +78,14 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     mutantAddress.clear();
     dataflowService = dataflowService1;
     routineExecutorHandler = new RoutineExecutorHandler<>(state, new ExecutionStackStorage<>(state), dataflowService, stackAnalyzer);
+    this.stackAnalyzer.addEventListener(new StackListener() {
+      public boolean jumpUsingRet(int pcValue, Set<Integer> jumpAddresses) {
+        AddressAction addressAction = routineExecutorHandler.getCurrentRoutineExecution().getAddressAction(pcValue);
+        if (!(addressAction instanceof JumpUsingRetAddressAction<?>))
+          routineExecutorHandler.getCurrentRoutineExecution().replaceAddressAction(new JumpUsingRetAddressAction<>(pcValue, jumpAddresses, routineExecutorHandler));
+        return StackListener.super.jumpUsingRet(pcValue, jumpAddresses);
+      }
+    });
 
     instructionExecutor.addTopExecutionListener(new ExecutionListener() {
       public void beforeExecution(Instruction instruction) {
@@ -156,6 +164,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
     executeAllCode(z80InstructionDriver, pc);
 
+//    processPending();
+    checkPending();
     List<WriteMemoryReference> writeMemoryReferences = spy.getWriteMemoryReferences();
 
     findMutantCode(writeMemoryReferences);
@@ -178,7 +188,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       var pcValue = pc.read().intValue();
       ready = isReady(pcValue);
 
-      if (pcValue == 0xEAE1 || pcValue == 0x8139)
+      if (pcValue == 0xEAE1 || pcValue == 0xF9EC)
         System.out.println("aca!");
       if (!ready) {
         var routineExecution = routineExecutorHandler.getCurrentRoutineExecution();
@@ -213,7 +223,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   private void logPC(int pcValue) {
-//    System.out.println("PC: " + Helper.formatAddress(pcValue));
+    System.out.println("PC: " + Helper.formatAddress(pcValue));
 //        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
   }
 
@@ -227,6 +237,31 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     if (nextSP == state.getRegisterSP().read().intValue()) {
       System.out.print("");
     }
+  }
+
+  private void executingPending(int address) {
+    RoutineExecution<T> routineExecutionAt = routineExecutorHandler.findRoutineExecutionContaining(address);
+    routineExecutorHandler.pushRoutineExecution(routineExecutionAt);
+    pc.write(createValue(address));
+    executeAllCode(z80InstructionDriver, pc);
+  }
+
+  private void processPending() {
+    Map<Integer, RoutineExecution> routineExecutions1 = routineExecutorHandler.getCopyListOfRoutineExecutions();
+    routineExecutions1.entrySet().forEach(e -> {
+      if (e.getValue().hasPendingPoints()) {
+        executingPending(e.getValue().getStart());
+      }
+    });
+  }
+
+  private void checkPending() {
+    Map<Integer, RoutineExecution> routineExecutions1 = routineExecutorHandler.getCopyListOfRoutineExecutions();
+    routineExecutions1.entrySet().forEach(e -> {
+      if (e.getValue().hasPendingPoints()) {
+        System.err.println("pending action: " + e.getValue());
+      }
+    });
   }
 
   protected void memoryReadOnly(boolean readOnly, State state) {
@@ -282,16 +317,23 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
         var callerRoutineExecution = routineExecutorHandler.findRoutineExecutionContaining(lastReturnAddress.pc);
 
-        callerRoutineExecution.replaceAddressAction(new AddressActionDelegate<>(pcValue + 1, routineExecutorHandler));
-        callerRoutineExecution.replaceAddressAction(new AddressActionDelegate<>(lastReturnAddress.intValue(), routineExecutorHandler));
-        lastRoutineExecution.replaceAddressAction(new BasicAddressAction<T>(pcValue, routineExecutorHandler, false));
-        callerRoutineExecution.replaceAddressAction(new PopReturnCallAddressAction<>(routineExecutorHandler, lastRoutineExecution, lastReturnAddress.pc));
 
         RoutineExecution<T> popRoutine = lastRoutineExecution;
+        List<RoutineExecution<T>> stackedRoutines = new ArrayList<>();
         while (popRoutine != callerRoutineExecution) {
+          stackedRoutines.add(popRoutine);
           int start = routineExecutorHandler.popRoutineExecution();
           popRoutine = routineExecutorHandler.getCurrentRoutineExecution();
         }
+
+        callerRoutineExecution.replaceAddressAction(new AddressActionDelegate<>(pcValue + 3, routineExecutorHandler));
+        callerRoutineExecution.replaceAddressAction(new AddressActionDelegate<>(lastReturnAddress.intValue(), routineExecutorHandler));
+        lastRoutineExecution.replaceAddressAction(new BasicAddressAction<T>(pcValue, routineExecutorHandler, false));
+//        if (callerRoutineExecution.getAddressAction(lastReturnAddress.pc) instanceof ChangeStackCallAddressAction<T> changeStackCallAddressAction) {
+//          changeStackCallAddressAction.getLastRoutineExecutions().addAll(stackedRoutines);
+//        } else
+          callerRoutineExecution.replaceAddressAction(new ChangeStackCallAddressAction<>(routineExecutorHandler, stackedRoutines, lastReturnAddress.pc));
+
         if (!lastRoutineExecution.hasRetInstruction())
           lastRoutineExecution.setRetInstruction(pcValue);
         return true;
@@ -300,8 +342,6 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     }
 
     public boolean jumpUsingRet(int pcValue, Set<Integer> jumpAddresses) {
-      RoutineExecutorHandler<T> routineExecutorHandler1 = symbolicExecutionAdapter.routineExecutorHandler;
-      routineExecutorHandler1.getCurrentRoutineExecution().replaceAddressAction(new JumpUsingRetAddressAction<>(pcValue, jumpAddresses, routineExecutorHandler1));
       return StackListener.super.jumpUsingRet(pcValue, jumpAddresses);
     }
 

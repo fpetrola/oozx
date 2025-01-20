@@ -33,6 +33,8 @@ public class WriteMemoryReference<T extends WordNumber> extends AbstractSpyRefer
   }
 
   public WriteMemoryReference(T address, T value, Memory<T> memory, boolean indirectReference) {
+    if (address.intValue() == 0xF9EC)
+      System.out.println("eh!!!");
     this.address = address;
     this.value = value;
     this.memory = memory;

@@ -11,86 +11,107 @@ public class ZxGame1 extends MiniZX {
   public void $0() {
   }
 
-  public void $405() {
-  }
-
   public void $80E5() {
     this.$B8ED();
     this.$B471();
 
     while(true) {
-      this.HL(32198);
-      this.DE(3);
-      this.$B8C4();
-      this.HL(32311);
-      int var1 = this.mem('\ub2db', '\u80f7');
-      super.A = var1;
-      super.B = super.A;
-      super.A = 2;
-      int var2 = super.A - super.B;
-      int var3 = var2 & 255;
-      super.A = var3;
-      super.F = var2;
-      super.B = super.A;
-      int var4 = super.A + super.A;
-      int var5 = var4 & 255;
-      super.A = var5;
-      super.F = var4;
-      int var6 = super.A + super.A;
-      int var7 = var6 & 255;
-      super.A = var7;
-      super.F = var6;
-      int var8 = super.A + super.A;
-      int var9 = var8 & 255;
-      super.A = var9;
-      super.F = var8;
-      int var10 = super.A - super.B;
-      int var11 = var10 & 255;
-      super.A = var11;
-      super.F = var10;
-      super.D = super.A;
-      super.E = 3;
-      this.$B8C4();
-      super.A = 255;
-      this.wMem('\ub4e9', super.A, '\u810b');
-      this.$B482();
-      int var12 = this.mem('\ub55f', '\u8111');
-      super.A = var12;
-      int var13 = super.A << 1;
-      super.F = var13;
-      if(super.F != 0) {
-        this.$BAD8();
-        this.$B8ED();
-        this.$E3FD();
-        this.$813B();
-        this.wMem('\u813a', super.A, '\u8161');
-        int var14 = this.mem('\u813a', '\u8164');
-        super.A = var14;
-        int var15 = this.IY() + 15;
-        int var16 = this.mem(var15, '\u8167');
-        int var17 = super.A - var16;
-        super.F = var17;
-        if(super.F != 0) {
-          int var18 = this.IY() + 15;
-          int var19 = this.mem(var18, '\u816c');
-          super.A = var19;
-          this.wMem('\u813a', super.A, '\u816f');
-          this.$B952();
-        }
+      label33:
+      while(true) {
+        this.HL(32198);
+        this.DE(3);
+        this.$B8C4();
+        this.HL(32311);
+        int var1 = this.mem('\ub2db', '\u80f7');
+        super.A = var1;
+        super.B = super.A;
+        super.A = 2;
+        int var2 = super.A - super.B;
+        int var3 = var2 & 255;
+        super.A = var3;
+        super.F = var2;
+        super.B = super.A;
+        int var4 = super.A + super.A;
+        int var5 = var4 & 255;
+        super.A = var5;
+        super.F = var4;
+        int var6 = super.A + super.A;
+        int var7 = var6 & 255;
+        super.A = var7;
+        super.F = var6;
+        int var8 = super.A + super.A;
+        int var9 = var8 & 255;
+        super.A = var9;
+        super.F = var8;
+        int var10 = super.A - super.B;
+        int var11 = var10 & 255;
+        super.A = var11;
+        super.F = var10;
+        super.D = super.A;
+        super.E = 3;
+        this.$B8C4();
 
-        this.$81AE();
+        do {
+          super.A = 255;
+          this.wMem('\ub4e9', super.A, '\u810b');
+          this.$B482();
+          int var12 = this.mem('\ub55f', '\u8111');
+          super.A = var12;
+          int var13 = super.A << 1;
+          super.F = var13;
+          if(super.F != 0) {
+            this.$BAD8();
+            this.$B8ED();
+            this.$E3FD();
+            this.$813B();
+            this.wMem('\u813a', super.A, '\u8161');
+            int var14 = this.mem('\u813a', '\u8164');
+            super.A = var14;
+            int var15 = this.IY() + 15;
+            int var16 = this.mem(var15, '\u8167');
+            int var17 = super.A - var16;
+            super.F = var17;
+            if(super.F != 0) {
+              int var18 = this.IY() + 15;
+              int var19 = this.mem(var18, '\u816c');
+              super.A = var19;
+              this.wMem('\u813a', super.A, '\u816f');
+              this.$B952();
+            }
+
+            this.$81AE();
+            return;
+          }
+
+          int var20 = this.mem('\ub4e9', '\u8117');
+          super.A = var20;
+          int var21 = super.A & 1;
+          super.F = var21;
+          if(super.F == 0) {
+            this.$B2DC();
+            continue label33;
+          }
+
+          int var22 = super.A & 2;
+          super.F = var22;
+          if(super.F == 0) {
+            this.$B2E2();
+            continue label33;
+          }
+
+          int var23 = super.A & 4;
+          super.F = var23;
+          if(super.F == 0) {
+            this.$B2E8();
+            continue label33;
+          }
+
+          int var24 = super.A & 8;
+          super.F = var24;
+        } while(super.F != 0);
+
         return;
       }
-
-      int var20 = this.mem('\ub4e9', '\u8117');
-      super.A = var20;
-      int var21 = super.A & 1;
-      super.F = var21;
-      if(super.F != 0) {
-        return;
-      }
-
-      this.$B2DC();
     }
   }
 
@@ -118,31 +139,33 @@ public class ZxGame1 extends MiniZX {
 
   }
 
+  public void $8184() {
+    throw new StackException('\u8188');
+  }
+
   public void $8185() {
     while(true) {
       try {
 //        this.SP('\ufc00');
-        if(super.F < 0) {
-          this.$E5CD();
-        }
-
         this.$80E5();
-        int var3 = super.A + super.B;
-        int var4 = var3 & 255;
-        super.A = var4;
-        super.F = var3;
         this.$BAD8();
         this.$E3FD();
         this.$813B();
-        this.$EB55();
-        this.$EABF();
 
-        $81AE();
-        return;
-      } catch (StackException var5) {
-        int[] var2 = new int[]{'\u8188'};
-        if(!this.isOwnAddress(var5, var2)) {
-          throw var5;
+        while(true) {
+          this.$EB55();
+          this.$EABF();
+          this.$AC06();
+          this.$E79B();
+          this.$B09F();
+          this.$81AE();
+          this.$81C4();
+          this.$ED2A();
+        }
+      } catch (StackException var3) {
+        int[] var2 = new int[]{'\u8188', '\u8188'};
+        if(!this.isOwnAddress(var3, var2)) {
+          throw var3;
         }
       }
     }
@@ -152,6 +175,27 @@ public class ZxGame1 extends MiniZX {
     this.$BAB4();
     this.$A92C();
     this.$EEC1();
+  }
+
+  public void $81C4() {
+    do {
+      super.A = 254;
+      int var1 = super.A << 8 | 254;
+      int var2 = this.in(var1, '\u81c6');
+      super.A = var2;
+      super.B = super.A;
+      super.A = 127;
+      int var3 = super.A << 8 | 254;
+      int var4 = this.in(var3, '\u81cb');
+      super.A = var4;
+      int var5 = super.A | super.B;
+      super.A = var5;
+      int var6 = super.A << 1;
+      super.F = var6;
+      int var7 = super.A & 1;
+      super.F = var7;
+    } while(super.F == 0);
+
   }
 
   public void $81D4() {
@@ -1041,6 +1085,40 @@ public class ZxGame1 extends MiniZX {
     int var1 = this.IY() + 10;
     int var2 = this.mem(var1, '\uaab2');
     super.A = var2;
+    int var3 = super.A - 152;
+    super.F = var3;
+    if(super.F != 0) {
+      int var8 = this.IY() + 15;
+      int var9 = this.mem(var8, '\uaab9');
+      super.A = var9;
+      int var10 = super.A - 31;
+      super.F = var10;
+      if(super.F == 0) {
+        int var11 = this.IY() + 5;
+        int var12 = this.mem(var11, '\uaac0');
+        super.A = var12;
+        int var13 = super.A - 120;
+        super.F = var13;
+        if(super.F < 0) {
+          int var14 = this.IY() + 60;
+          this.wMem(var14, 1, '\uaac7');
+          this.$B288();
+          return;
+        }
+      }
+    }
+
+    int var4 = this.IY() + 60;
+    this.wMem(var4, 255, '\uaace');
+    this.$B288();
+    int var5 = this.IY() + 5;
+    int var6 = this.mem(var5, '\uaad5');
+    super.A = var6;
+    int var7 = super.A << 1;
+    super.F = var7;
+    if(super.F == 0) {
+      this.$AE5D();
+    }
   }
 
   public void $AADD() {
@@ -1087,25 +1165,22 @@ public class ZxGame1 extends MiniZX {
     int var1 = this.IY() + 5;
     int var2 = this.mem(var1, '\uab09');
     super.A = var2;
-  }
-
-  public void $AB0A() {
-    int var1 = super.A - 120;
-    super.F = var1;
+    int var3 = super.A - 120;
+    super.F = var3;
     if(super.F < 0) {
-      int var6 = this.IY() + 60;
-      this.wMem(var6, 1, '\uab10');
+      int var8 = this.IY() + 60;
+      this.wMem(var8, 1, '\uab10');
     } else {
-      int var2 = this.IY() + 60;
-      this.wMem(var2, 255, '\uab16');
+      int var4 = this.IY() + 60;
+      this.wMem(var4, 255, '\uab16');
     }
 
     this.$B288();
-    int var3 = this.IY() + 5;
-    int var4 = this.mem(var3, '\uab1d');
-    super.A = var4;
-    int var5 = super.A - 120;
-    super.F = var5;
+    int var5 = this.IY() + 5;
+    int var6 = this.mem(var5, '\uab1d');
+    super.A = var6;
+    int var7 = super.A - 120;
+    super.F = var7;
     if(super.F == 0) {
       this.$AE5D();
     }
@@ -1115,25 +1190,22 @@ public class ZxGame1 extends MiniZX {
     int var1 = this.IY() + 5;
     int var2 = this.mem(var1, '\uab26');
     super.A = var2;
-  }
-
-  public void $AB27() {
-    int var1 = super.A - 48;
-    super.F = var1;
+    int var3 = super.A - 48;
+    super.F = var3;
     if(super.F < 0) {
-      int var6 = this.IY() + 60;
-      this.wMem(var6, 1, '\uab2d');
+      int var8 = this.IY() + 60;
+      this.wMem(var8, 1, '\uab2d');
     } else {
-      int var2 = this.IY() + 60;
-      this.wMem(var2, 255, '\uab33');
+      int var4 = this.IY() + 60;
+      this.wMem(var4, 255, '\uab33');
     }
 
     this.$B288();
-    int var3 = this.IY() + 5;
-    int var4 = this.mem(var3, '\uab3a');
-    super.A = var4;
-    int var5 = super.A - 48;
-    super.F = var5;
+    int var5 = this.IY() + 5;
+    int var6 = this.mem(var5, '\uab3a');
+    super.A = var6;
+    int var7 = super.A - 48;
+    super.F = var7;
     if(super.F == 0) {
       this.$AE5D();
     }
@@ -1143,25 +1215,22 @@ public class ZxGame1 extends MiniZX {
     int var1 = this.IY() + 5;
     int var2 = this.mem(var1, '\uab43');
     super.A = var2;
-  }
-
-  public void $AB44() {
-    int var1 = super.A - 192;
-    super.F = var1;
+    int var3 = super.A - 192;
+    super.F = var3;
     if(super.F < 0) {
-      int var6 = this.IY() + 60;
-      this.wMem(var6, 1, '\uab4a');
+      int var8 = this.IY() + 60;
+      this.wMem(var8, 1, '\uab4a');
     } else {
-      int var2 = this.IY() + 60;
-      this.wMem(var2, 255, '\uab50');
+      int var4 = this.IY() + 60;
+      this.wMem(var4, 255, '\uab50');
     }
 
     this.$B288();
-    int var3 = this.IY() + 5;
-    int var4 = this.mem(var3, '\uab57');
-    super.A = var4;
-    int var5 = super.A - 192;
-    super.F = var5;
+    int var5 = this.IY() + 5;
+    int var6 = this.mem(var5, '\uab57');
+    super.A = var6;
+    int var7 = super.A - 192;
+    super.F = var7;
     if(super.F == 0) {
       this.$AE5D();
     }
@@ -1275,6 +1344,187 @@ public class ZxGame1 extends MiniZX {
     int var5 = this.IY() + 60;
     this.wMem(var5, 1, '\uabbc');
     this.$B1A6();
+  }
+
+  public void $ABD7() {
+    label19: {
+      int var1 = this.mem('\ub2db', '\uabd7');
+      super.A = var1;
+      int var2 = super.A << 1;
+      super.F = var2;
+      if(super.F != 0) {
+        int var13 = super.A - 1;
+        super.F = var13;
+        if(super.F == 0) {
+          int var17 = super.A << 8 | 31;
+          int var18 = this.in(var17, '\uabe1');
+          super.A = var18;
+          int var19 = super.A & 8;
+          super.F = var19;
+          if(super.F != 0) {
+            break label19;
+          }
+        } else {
+          super.A = 239;
+          int var14 = super.A << 8 | 254;
+          int var15 = this.in(var14, '\uabfe');
+          super.A = var15;
+          int var16 = super.A & 2;
+          super.F = var16;
+          if(super.F == 0) {
+            break label19;
+          }
+        }
+      } else {
+        super.A = 253;
+        int var3 = super.A << 8 | 254;
+        int var4 = this.in(var3, '\uabec');
+        super.A = var4;
+        super.B = super.A;
+        super.A = 191;
+        int var5 = super.A << 8 | 254;
+        int var6 = this.in(var5, '\uabf1');
+        super.A = var6;
+        int var7 = super.A & super.B;
+        super.A = var7;
+        int var8 = super.A << 1;
+        super.F = var8;
+        int var9 = super.A | 224;
+        super.A = var9;
+        int var10 = super.A << 1;
+        super.F = var10;
+        int var11 = super.A - 255;
+        super.F = var11;
+        if(super.F != 0) {
+          break label19;
+        }
+      }
+
+      super.A = 0;
+      int var12 = super.A << 1;
+      super.F = var12;
+      return;
+    }
+
+    super.A = 1;
+  }
+
+  public void $AC06() {
+    int var1 = this.IY() + 5;
+    int var2 = this.mem(var1, '\uac06');
+    super.A = var2;
+    int var3 = super.A << 1;
+    super.F = var3;
+    if(super.F != 0) {
+      int var43 = super.A - 240;
+      super.F = var43;
+      if(super.F != 0) {
+        this.$ABD7();
+        int var44 = super.A << 1;
+        super.F = var44;
+        if(super.F == 0) {
+          return;
+        }
+      }
+    }
+
+    int var4 = this.IY() + 15;
+    int var5 = this.mem(var4, '\uac15');
+    super.A = var5;
+    this.$AC69();
+    this.exHLDE();
+
+    while(true) {
+      int var6 = this.DE();
+      int var7 = this.mem(var6, '\uac1c');
+      super.A = var7;
+      int var8 = super.A - 255;
+      super.F = var8;
+      if(super.F == 0) {
+        return;
+      }
+
+      super.B = super.A;
+      int var9 = this.DE() + 1 & '\uffff';
+      this.DE(var9);
+      int var10 = this.DE();
+      int var11 = this.mem(var10, '\uac22');
+      super.A = var11;
+      int var12 = this.DE() + 1 & '\uffff';
+      this.DE(var12);
+      int var13 = this.DE() + 1 & '\uffff';
+      this.DE(var13);
+      this.$AC5F();
+      int var14 = this.HL();
+      int var15 = this.mem(var14, '\uac28');
+      super.A = var15;
+      int var16 = this.IY() + 5;
+      int var17 = this.mem(var16, '\uac29');
+      int var18 = super.A - var17;
+      int var19 = var18 & 255;
+      super.A = var19;
+      super.F = var18;
+      int var20 = super.A - 8;
+      int var21 = var20 & 255;
+      super.A = var21;
+      super.F = var20;
+      int var22 = super.A - 240;
+      super.F = var22;
+      if(super.F >= 0) {
+        int var23 = this.HL() + 1 & '\uffff';
+        this.HL(var23);
+        int var24 = this.HL();
+        int var25 = this.mem(var24, '\uac33');
+        super.A = var25;
+        int var26 = this.IY() + 10;
+        int var27 = this.mem(var26, '\uac34');
+        int var28 = super.A - var27;
+        super.F = var28;
+        if(super.F == 0) {
+          int var29 = this.DE() - 1 & '\uffff';
+          this.DE(var29);
+          int var30 = this.IY() + 15;
+          this.wMem(var30, super.B, '\uac3a');
+          int var31 = this.DE();
+          int var32 = this.mem(var31, '\uac3d');
+          super.A = var32;
+          this.$AC5F();
+          int var33 = this.HL();
+          int var34 = this.mem(var33, '\uac41');
+          super.A = var34;
+          int var35 = super.A << 1;
+          super.F = var35;
+          if(super.F == 0) {
+            super.A = 2;
+          }
+
+          int var36 = super.A - 240;
+          super.F = var36;
+          if(super.F == 0) {
+            super.A = 238;
+          }
+
+          int var37 = this.IY() + 5;
+          this.wMem(var37, super.A, '\uac4d');
+          int var38 = this.HL() + 1 & '\uffff';
+          this.HL(var38);
+          int var39 = this.HL();
+          int var40 = this.mem(var39, '\uac51');
+          super.A = var40;
+          int var41 = this.IY() + 10;
+          this.wMem(var41, super.A, '\uac52');
+          this.$B952();
+
+          do {
+            this.$ABD7();
+            int var42 = super.A << 1;
+            super.F = var42;
+          } while(super.F != 0);
+
+          return;
+        }
+      }
+    }
   }
 
   public void $AC5F() {
@@ -1798,40 +2048,258 @@ public class ZxGame1 extends MiniZX {
     this.wMem(var20, 0, '\ub006');
   }
 
-  public void $B041() {
-    int var1 = super.A - 152;
-    super.F = var1;
-    if(super.F != 0) {
-      int var6 = this.IY() + 15;
-      int var7 = this.mem(var6, '\uaab9');
-      super.A = var7;
-      int var8 = super.A - 31;
-      super.F = var8;
-      if(super.F == 0) {
-        int var9 = this.IY() + 5;
-        int var10 = this.mem(var9, '\uaac0');
-        super.A = var10;
-        int var11 = super.A - 120;
-        super.F = var11;
-        if(super.F < 0) {
-          int var12 = this.IY() + 60;
-          this.wMem(var12, 1, '\uaac7');
-          this.$B288();
-          return;
+  public void $B00B() {
+    label19: {
+      int var1 = this.mem('\ub2db', '\ub00b');
+      super.A = var1;
+      int var2 = super.A << 1;
+      super.F = var2;
+      if(super.F != 0) {
+        int var15 = super.A - 1;
+        super.F = var15;
+        if(super.F == 0) {
+          int var19 = super.A << 8 | 31;
+          int var20 = this.in(var19, '\ub015');
+          super.A = var20;
+          int var21 = super.A & 1;
+          super.F = var21;
+          if(super.F != 0) {
+            break label19;
+          }
+        } else {
+          super.A = 239;
+          int var16 = super.A << 8 | 254;
+          int var17 = this.in(var16, '\ub01f');
+          super.A = var17;
+          int var18 = super.A & 8;
+          super.F = var18;
+          if(super.F == 0) {
+            break label19;
+          }
+        }
+      } else {
+        super.A = 251;
+        int var3 = super.A << 8 | 254;
+        int var4 = this.in(var3, '\ub02a');
+        super.A = var4;
+        int var5 = super.A | 245;
+        super.A = var5;
+        int var6 = super.A << 1;
+        super.F = var6;
+        super.B = super.A;
+        super.A = 223;
+        int var7 = super.A << 8 | 254;
+        int var8 = this.in(var7, '\ub031');
+        super.A = var8;
+        int var9 = super.A | 234;
+        super.A = var9;
+        int var10 = super.A << 1;
+        super.F = var10;
+        int var11 = super.A & super.B;
+        super.A = var11;
+        int var12 = super.A << 1;
+        super.F = var12;
+        int var13 = super.A - 255;
+        super.F = var13;
+        if(super.F != 0) {
+          break label19;
         }
       }
+
+      super.A = 0;
+      int var14 = super.A << 1;
+      super.F = var14;
+      return;
     }
 
-    int var2 = this.IY() + 60;
-    this.wMem(var2, 255, '\uaace');
-    this.$B288();
-    int var3 = this.IY() + 5;
-    int var4 = this.mem(var3, '\uaad5');
-    super.A = var4;
-    int var5 = super.A << 1;
-    super.F = var5;
-    if(super.F == 0) {
-      this.$AE5D();
+    super.A = 1;
+  }
+
+  public void $B03C() {
+    label19: {
+      int var1 = this.mem('\ub2db', '\ub03c');
+      super.A = var1;
+      int var2 = super.A << 1;
+      super.F = var2;
+      if(super.F != 0) {
+        int var15 = super.A - 1;
+        super.F = var15;
+        if(super.F == 0) {
+          int var19 = super.A << 8 | 31;
+          int var20 = this.in(var19, '\ub046');
+          super.A = var20;
+          int var21 = super.A & 2;
+          super.F = var21;
+          if(super.F != 0) {
+            break label19;
+          }
+        } else {
+          super.A = 239;
+          int var16 = super.A << 8 | 254;
+          int var17 = this.in(var16, '\ub050');
+          super.A = var17;
+          int var18 = super.A & 16;
+          super.F = var18;
+          if(super.F == 0) {
+            break label19;
+          }
+        }
+      } else {
+        super.A = 251;
+        int var3 = super.A << 8 | 254;
+        int var4 = this.in(var3, '\ub05b');
+        super.A = var4;
+        int var5 = super.A | 234;
+        super.A = var5;
+        int var6 = super.A << 1;
+        super.F = var6;
+        super.B = super.A;
+        super.A = 223;
+        int var7 = super.A << 8 | 254;
+        int var8 = this.in(var7, '\ub062');
+        super.A = var8;
+        int var9 = super.A | 245;
+        super.A = var9;
+        int var10 = super.A << 1;
+        super.F = var10;
+        int var11 = super.A & super.B;
+        super.A = var11;
+        int var12 = super.A << 1;
+        super.F = var12;
+        int var13 = super.A - 255;
+        super.F = var13;
+        if(super.F != 0) {
+          break label19;
+        }
+      }
+
+      super.A = 0;
+      int var14 = super.A << 1;
+      super.F = var14;
+      return;
+    }
+
+    super.A = 1;
+  }
+
+  public void $B06D() {
+    label19: {
+      int var1 = this.mem('\ub2db', '\ub06d');
+      super.A = var1;
+      int var2 = super.A << 1;
+      super.F = var2;
+      if(super.F != 0) {
+        int var13 = super.A - 1;
+        super.F = var13;
+        if(super.F == 0) {
+          int var17 = super.A << 8 | 31;
+          int var18 = this.in(var17, '\ub077');
+          super.A = var18;
+          int var19 = super.A & 16;
+          super.F = var19;
+          if(super.F != 0) {
+            break label19;
+          }
+        } else {
+          super.A = 239;
+          int var14 = super.A << 8 | 254;
+          int var15 = this.in(var14, '\ub082');
+          super.A = var15;
+          int var16 = super.A & 1;
+          super.F = var16;
+          if(super.F == 0) {
+            break label19;
+          }
+        }
+      } else {
+        super.A = 254;
+        int var3 = super.A << 8 | 254;
+        int var4 = this.in(var3, '\ub08c');
+        super.A = var4;
+        super.B = super.A;
+        super.A = 127;
+        int var5 = super.A << 8 | 254;
+        int var6 = this.in(var5, '\ub091');
+        super.A = var6;
+        int var7 = super.A & super.B;
+        super.A = var7;
+        int var8 = super.A << 1;
+        super.F = var8;
+        int var9 = super.A | 224;
+        super.A = var9;
+        int var10 = super.A << 1;
+        super.F = var10;
+        int var11 = super.A - 255;
+        super.F = var11;
+        if(super.F != 0) {
+          break label19;
+        }
+      }
+
+      super.A = 0;
+      int var12 = super.A << 1;
+      super.F = var12;
+      return;
+    }
+
+    super.A = 1;
+  }
+
+  public void $B09F() {
+    int var1 = this.mem16('\ub09d', '\ub09f');
+    this.IY(var1);
+    int var2 = this.IY() + 15;
+    int var3 = this.mem(var2, '\ub0a3');
+    super.A = var3;
+    this.wMem('\ub951', super.A, '\ub0a6');
+    this.$AFC4();
+    int var4 = this.IY() + 70;
+    int var5 = this.mem(var4, '\ub0ac');
+    super.A = var5;
+    int var6 = super.A << 1;
+    super.F = var6;
+    if(super.F != 0) {
+      this.$B1B9();
+    } else {
+      int var7 = this.IY() + 55;
+      int var8 = this.mem(var7, '\ub0b3');
+      super.A = var8;
+      int var9 = super.A << 1;
+      super.F = var9;
+      if(super.F != 0) {
+        this.$B197();
+      } else {
+        this.$B06D();
+        int var10 = super.A << 1;
+        super.F = var10;
+        if(super.F != 0) {
+          this.$B1A6();
+        } else {
+          int var11 = this.IY() + 60;
+          this.wMem(var11, 0, '\ub0c1');
+          this.$B00B();
+          int var12 = super.A << 1;
+          super.F = var12;
+          if(super.F != 0) {
+            int var16 = this.IY() + 60;
+            this.wMem(var16, 1, '\ub0cb');
+            int var17 = this.IY() + 65;
+            this.wMem(var17, 1, '\ub0cf');
+            this.$B288();
+          } else {
+            this.$B03C();
+            int var13 = super.A << 1;
+            super.F = var13;
+            if(super.F != 0) {
+              int var14 = this.IY() + 60;
+              this.wMem(var14, 255, '\ub0db');
+              int var15 = this.IY() + 65;
+              this.wMem(var15, 255, '\ub0df');
+              this.$B288();
+            }
+          }
+        }
+      }
     }
   }
 
@@ -2155,102 +2623,102 @@ public class ZxGame1 extends MiniZX {
   }
 
   public void $B1B9() {
-    label49: {
+    label44: {
       int var1 = this.IY() + 60;
       int var2 = this.mem(var1, '\ub1b9');
       super.A = var2;
       int var3 = super.A - 1;
       super.F = var3;
       if(super.F != 0) {
-        int var56 = this.IY() + 75;
-        int var57 = this.mem(var56, '\ub1c0');
-        super.A = var57;
+        int var52 = this.IY() + 75;
+        int var53 = this.mem(var52, '\ub1c0');
+        super.A = var53;
         super.E = super.A;
-        int var58 = super.A + super.A;
-        int var59 = var58 & 255;
-        super.A = var59;
-        super.F = var58;
-        int var60 = super.A + super.E;
-        int var61 = var60 & 255;
-        super.A = var61;
-        super.F = var60;
+        int var54 = super.A + super.A;
+        int var55 = var54 & 255;
+        super.A = var55;
+        super.F = var54;
+        int var56 = super.A + super.E;
+        int var57 = var56 & 255;
+        super.A = var57;
+        super.F = var56;
         super.E = super.A;
         super.D = 0;
         this.HL('\ub264');
-        int var62 = this.DE();
-        int var63 = this.HL() + var62 & '\uffff';
-        this.HL(var63);
-        int var64 = this.HL();
-        int var65 = this.mem(var64, '\ub1cd');
-        super.E = var65;
-        int var66 = this.HL() + 1 & '\uffff';
-        this.HL(var66);
-        int var67 = this.HL();
-        int var68 = this.mem(var67, '\ub1cf');
-        super.D = var68;
-        int var69 = this.HL() + 1 & '\uffff';
-        this.HL(var69);
-        int var70 = this.HL();
-        int var71 = this.mem(var70, '\ub1d1');
-        super.B = var71;
+        int var58 = this.DE();
+        int var59 = this.HL() + var58 & '\uffff';
+        this.HL(var59);
+        int var60 = this.HL();
+        int var61 = this.mem(var60, '\ub1cd');
+        super.E = var61;
+        int var62 = this.HL() + 1 & '\uffff';
+        this.HL(var62);
+        int var63 = this.HL();
+        int var64 = this.mem(var63, '\ub1cf');
+        super.D = var64;
+        int var65 = this.HL() + 1 & '\uffff';
+        this.HL(var65);
+        int var66 = this.HL();
+        int var67 = this.mem(var66, '\ub1d1');
+        super.B = var67;
         super.A = super.D;
-        int var72 = super.A - 1 & 255;
-        super.A = var72;
-        super.F = var72;
-        int var73 = super.A & 128;
-        super.F = var73;
+        int var68 = super.A - 1 & 255;
+        super.A = var68;
+        super.F = var68;
+        int var69 = super.A & 128;
+        super.F = var69;
         if(super.F == 0) {
-          int var87 = this.IY() + 55;
-          int var88 = this.mem(var87, '\ub1d8');
-          super.A = var88;
-          int var89 = super.A << 1;
-          super.F = var89;
+          int var83 = this.IY() + 55;
+          int var84 = this.mem(var83, '\ub1d8');
+          super.A = var84;
+          int var85 = super.A << 1;
+          super.F = var85;
           if(super.F == 0) {
-            int var90 = this.IY() + 10;
-            int var91 = this.mem(var90, '\ub1de');
-            super.A = var91;
-            int var92 = super.A & 7;
-            super.A = var92;
-            int var93 = super.A << 1;
-            super.F = var93;
+            int var86 = this.IY() + 10;
+            int var87 = this.mem(var86, '\ub1de');
+            super.A = var87;
+            int var88 = super.A & 7;
+            super.A = var88;
+            int var89 = super.A << 1;
+            super.F = var89;
             if(super.F == 0) {
-              int var94 = this.IY() + 75;
-              this.wMem(var94, 11, '\ub1e5');
+              int var90 = this.IY() + 75;
+              this.wMem(var90, 11, '\ub1e5');
               super.B = 0;
-              break label49;
+              break label44;
             }
           }
         }
 
-        int var74 = this.IY();
-        int var75 = this.mem(var74, '\ub1ed');
-        super.A = var75;
-        int var76 = super.A << 1;
-        super.F = var76;
+        int var70 = this.IY();
+        int var71 = this.mem(var70, '\ub1ed');
+        super.A = var71;
+        int var72 = super.A << 1;
+        super.F = var72;
         if(super.F != 0) {
           this.$81D4();
         }
 
+        int var73 = this.IY() + 10;
+        int var74 = this.mem(var73, '\ub1f4');
+        super.A = var74;
+        int var75 = super.A + super.D;
+        int var76 = var75 & 255;
+        super.A = var76;
+        super.F = var75;
         int var77 = this.IY() + 10;
-        int var78 = this.mem(var77, '\ub1f4');
-        super.A = var78;
-        int var79 = super.A + super.D;
-        int var80 = var79 & 255;
-        super.A = var80;
-        super.F = var79;
-        int var81 = this.IY() + 10;
-        this.wMem(var81, super.A, '\ub1f8');
-        int var82 = this.IY() + 5;
-        int var83 = this.mem(var82, '\ub1fb');
-        super.A = var83;
-        int var84 = super.A - super.E;
-        int var85 = var84 & 255;
-        super.A = var85;
-        super.F = var84;
+        this.wMem(var77, super.A, '\ub1f8');
+        int var78 = this.IY() + 5;
+        int var79 = this.mem(var78, '\ub1fb');
+        super.A = var79;
+        int var80 = super.A - super.E;
+        int var81 = var80 & 255;
+        super.A = var81;
+        super.F = var80;
         if(super.F < 0) {
           super.A = 0;
-          int var86 = super.A << 1;
-          super.F = var86;
+          int var82 = super.A << 1;
+          super.F = var82;
         }
       } else {
         int var4 = this.IY() + 75;
@@ -2291,24 +2759,24 @@ public class ZxGame1 extends MiniZX {
         int var21 = super.A & 128;
         super.F = var21;
         if(super.F == 0) {
-          int var48 = this.IY() + 55;
-          int var49 = this.mem(var48, '\ub234');
-          super.A = var49;
-          int var50 = super.A << 1;
-          super.F = var50;
+          int var44 = this.IY() + 55;
+          int var45 = this.mem(var44, '\ub234');
+          super.A = var45;
+          int var46 = super.A << 1;
+          super.F = var46;
           if(super.F == 0) {
-            int var51 = this.IY() + 10;
-            int var52 = this.mem(var51, '\ub23a');
-            super.A = var52;
-            int var53 = super.A & 7;
-            super.A = var53;
-            int var54 = super.A << 1;
-            super.F = var54;
+            int var47 = this.IY() + 10;
+            int var48 = this.mem(var47, '\ub23a');
+            super.A = var48;
+            int var49 = super.A & 7;
+            super.A = var49;
+            int var50 = super.A << 1;
+            super.F = var50;
             if(super.F == 0) {
-              int var55 = this.IY() + 75;
-              this.wMem(var55, 11, '\ub241');
+              int var51 = this.IY() + 75;
+              this.wMem(var51, 11, '\ub241');
               super.B = 0;
-              break label49;
+              break label44;
             }
           }
         }
@@ -2365,27 +2833,12 @@ public class ZxGame1 extends MiniZX {
       this.wMem(var42, 0, '\ub211');
       int var43 = this.IY() + 70;
       this.wMem(var43, 0, '\ub215');
-      int var44 = this.mem('\ub951', '\ue315');
-      super.A = var44;
-      int var45 = this.IY() + 15;
-      int var46 = this.mem(var45, '\ue318');
-      int var47 = super.A - var46;
-      super.F = var47;
-      if(super.F == 0) {
-        this.BC(1793);
-        this.DE(3841);
-        this.HL(1028);
-        this.$E3D3();
-      }
+      this.$E315();
     }
   }
 
   public void $B288() {
     this.$A921();
-    this.$B28B();
-  }
-
-  public void $B28B() {
     if(super.F != 0) {
       int var27 = this.mem('\ub951', '\ub28d');
       super.A = var27;
@@ -2484,6 +2937,18 @@ public class ZxGame1 extends MiniZX {
   public void $B2DC() {
     super.A = 2;
     this.wMem('\ub2db', super.A, '\ub2de');
+  }
+
+  public void $B2E2() {
+    super.A = 1;
+    this.wMem('\ub2db', super.A, '\ub2e4');
+  }
+
+  public void $B2E8() {
+    super.A = 0;
+    int var1 = super.A << 1;
+    super.F = var1;
+    this.wMem('\ub2db', super.A, '\ub2e9');
   }
 
   public void $B2F1() {
@@ -2708,6 +3173,163 @@ public class ZxGame1 extends MiniZX {
       super.F = var12;
     } while(super.F == 0);
 
+  }
+
+  public void $B3C3() {
+    this.DE(4892);
+    this.HL('\uccf2');
+    this.$B82B();
+    this.$B3CC();
+  }
+
+  public void $B3CC() {
+    this.IY('\ubc67');
+    this.HL('\ub3be');
+    super.B = 5;
+    this.$B3D5();
+  }
+
+  public void $B3D5() {
+    int var1 = this.BC();
+    this.push(var1);
+    int var2 = this.IY() + 10;
+    this.wMem(var2, 152, '\ub3d6');
+    int var3 = this.IY() + 5;
+    int var4 = this.mem(var3, '\ub3da');
+    super.A = var4;
+    int var5 = this.HL();
+    int var6 = this.mem(var5, '\ub3dd');
+    int var7 = super.A - var6;
+    super.F = var7;
+    if(super.F == 0) {
+      this.$B41D();
+    } else {
+      this.$B3E0();
+    }
+  }
+
+  public void $B3E0() {
+    int var1 = this.AF();
+    this.push(var1);
+    int var2 = this.IY() + 15;
+    int var3 = this.mem(var2, '\ub3e1');
+    super.A = var3;
+    int var4 = super.A - 22;
+    super.F = var4;
+    if(super.F != 0) {
+      int var9 = this.IY() + 15;
+      this.wMem(var9, 22, '\ub3e8');
+      int var10 = this.IY() + 5;
+      this.wMem(var10, 0, '\ub3ec');
+      int var11 = this.pop();
+      this.AF(var11);
+      int var12 = super.F | 1;
+      super.F = var12;
+      int var13 = this.AF();
+      this.push(var13);
+    }
+
+    int var5 = this.pop();
+    this.AF(var5);
+    int var6 = this.HL();
+    this.push(var6);
+    if(super.F >= 0) {
+      this.$B404();
+    } else {
+      int var7 = this.IY() + 60;
+      this.wMem(var7, 1, '\ub3f7');
+      int var8 = this.IY() + 65;
+      this.wMem(var8, 1, '\ub3fb');
+      this.$B288();
+      this.$B40F();
+    }
+  }
+
+  public void $B404() {
+    int var1 = this.IY() + 60;
+    this.wMem(var1, 255, '\ub404');
+    int var2 = this.IY() + 65;
+    this.wMem(var2, 255, '\ub408');
+    this.$B288();
+    this.$B40F();
+  }
+
+  public void $B40F() {
+    int var1 = this.pop();
+    this.HL(var1);
+    int var2 = this.pop();
+    this.BC(var2);
+    this.$B411();
+  }
+
+  public void $B411() {
+    this.IY('\ubc67');
+    this.$EEC1();
+    this.$B9D6();
+    this.$B3CC();
+  }
+
+  public void $B41C() {
+    int var1 = this.pop();
+    this.HL(var1);
+    this.$EAE3();
+  }
+
+  public void $B41D() {
+    int var1 = this.IY() + 15;
+    int var2 = this.mem(var1, '\ub41d');
+    super.A = var2;
+    int var3 = super.A - 22;
+    super.F = var3;
+    if(super.F != 0) {
+      this.$B3E0();
+    } else {
+      int var4 = this.pop();
+      this.BC(var4);
+      int var5 = this.HL() + 1 & '\uffff';
+      this.HL(var5);
+      int var6 = this.IY() + 1 & '\uffff';
+      this.IY(var6);
+      int var7 = super.B - 1 & 255;
+      super.B = var7;
+      if(super.B != 0) {
+        this.$B3D5();
+      } else {
+        int var8 = this.mem('\uf6db', '\ub42a');
+        super.A = var8;
+        int var9 = super.A << 1;
+        super.F = var9;
+        if(super.F == 0) {
+          this.$B411();
+        } else {
+          this.DE(1024);
+          this.HL(32360);
+          this.$B84B();
+          this.$B3AB();
+          this.$B8ED();
+          this.DE(2);
+          this.HL(31862);
+          this.$B8C4();
+          this.$B3AB();
+          this.$B2F1();
+          this.$8184();
+        }
+      }
+    }
+  }
+
+  public void $B451() {
+    this.$B8ED();
+    this.HL('\uecfe');
+    this.DE(2058);
+    super.C = 0;
+    this.$B34C();
+    this.HL(32072);
+    this.DE(1284);
+    this.$B8C4();
+    this.$B3AB();
+    this.$B2F1();
+    this.$8184();
   }
 
   public void $B471() {
@@ -3296,6 +3918,32 @@ public class ZxGame1 extends MiniZX {
     this.AF(var56);
   }
 
+  public void $B82B() {
+    int var1 = this.HL();
+    this.push(var1);
+    this.HL('\ub7f9');
+    int var2 = this.HL();
+    this.wMem16('\ub8be', var2, '\ub82f');
+    int var3 = this.HL();
+    this.wMem16('\ub8b5', var3, '\ub832');
+    int var4 = this.HL();
+    this.wMem16('\ub895', var4, '\ub835');
+    int var5 = this.pop();
+    this.HL(var5);
+    this.$B84B();
+    int var6 = this.HL();
+    this.push(var6);
+    this.HL('\ub7ba');
+    int var7 = this.HL();
+    this.wMem16('\ub895', var7, '\ub840');
+    int var8 = this.HL();
+    this.wMem16('\ub8be', var8, '\ub843');
+    int var9 = this.HL();
+    this.wMem16('\ub8b5', var9, '\ub846');
+    int var10 = this.pop();
+    this.HL(var10);
+  }
+
   public void $B84B() {
     while(true) {
       label60:
@@ -3404,7 +4052,7 @@ public class ZxGame1 extends MiniZX {
                 this.HL(var36);
 
                 while(true) {
-                  this.$B7BA();
+                  this.executeMutantCode('\ub894');
                   int var37 = super.D + 1 & 255;
                   super.D = var37;
                   super.F = var37;
@@ -3426,7 +4074,7 @@ public class ZxGame1 extends MiniZX {
                 this.HL(var20);
 
                 while(true) {
-                  this.$B7BA();
+                  this.executeMutantCode('\ub8b4');
                   int var21 = super.E + 1 & 255;
                   super.E = var21;
                   super.F = var21;
@@ -3471,7 +4119,7 @@ public class ZxGame1 extends MiniZX {
           }
         }
 
-        this.$B7BA();
+        this.executeMutantCode('\ub8bd');
         break;
       }
 
@@ -3865,6 +4513,65 @@ public class ZxGame1 extends MiniZX {
   public void $BA25() {
   }
 
+  public void $BA6E() {
+    int var1 = this.mem('\ubab3', '\uba6e');
+    super.A = var1;
+    int var2 = super.A << 1;
+    super.F = var2;
+    if(super.F == 0) {
+      this.HL('\udfdc');
+      int var3 = this.HL();
+      this.wMem16('\ub7e9', var3, '\uba76');
+      int var4 = this.IY() + 15;
+      int var5 = this.mem(var4, '\uba79');
+      super.A = var5;
+      this.HL(32543);
+      this.$AC6C();
+      int var6 = this.HL();
+      this.push(var6);
+      this.$BACE();
+      super.C = super.B;
+      super.H = 124;
+      int var7 = this.IY();
+      int var8 = this.mem(var7, '\uba89');
+      super.L = var8;
+      int var9 = this.HL();
+      this.push(var9);
+      this.$BACE();
+      super.A = 7;
+      int var10 = super.A + super.B;
+      int var11 = var10 & 255;
+      super.A = var11;
+      super.F = var10;
+      int var12 = super.A + super.C;
+      int var13 = var12 & 255;
+      super.A = var13;
+      super.F = var12;
+      super.C = super.A;
+      super.A = 32;
+      int var14 = super.A - super.C;
+      int var15 = var14 & 255;
+      super.A = var15;
+      super.F = var14;
+      int var16 = super.A;
+      int var17 = this.sr(var16);
+      super.A = var17;
+      super.E = super.A;
+      super.D = 4;
+      int var18 = this.pop();
+      this.HL(var18);
+      super.C = 78;
+      this.$B84B();
+      this.HL('\uba66');
+      this.$B84B();
+      int var19 = this.pop();
+      this.HL(var19);
+      this.$B84B();
+      super.A = 30;
+      this.wMem('\ubab3', super.A, '\ubaaf');
+    }
+  }
+
   public void $BAB4() {
     this.HL('\ubab3');
     int var1 = this.HL();
@@ -3887,6 +4594,27 @@ public class ZxGame1 extends MiniZX {
         this.HL(32360);
         this.$B84B();
       }
+    }
+  }
+
+  public void $BACE() {
+    super.B = 0;
+
+    while(true) {
+      int var1 = this.HL();
+      int var2 = this.mem(var1, '\ubad0');
+      super.A = var2;
+      int var3 = super.A - 255;
+      super.F = var3;
+      if(super.F == 0) {
+        return;
+      }
+
+      int var4 = super.B + 1 & 255;
+      super.B = var4;
+      super.F = var4;
+      int var5 = this.HL() + 1 & '\uffff';
+      this.HL(var5);
     }
   }
 
@@ -4005,6 +4733,22 @@ public class ZxGame1 extends MiniZX {
       super.A = 1;
       int var7 = this.IY();
       this.wMem(var7, super.A, '\ue312');
+      this.$E315();
+    }
+  }
+
+  public void $E315() {
+    int var1 = this.mem('\ub951', '\ue315');
+    super.A = var1;
+    int var2 = this.IY() + 15;
+    int var3 = this.mem(var2, '\ue318');
+    int var4 = super.A - var3;
+    super.F = var4;
+    if(super.F == 0) {
+      this.BC(1793);
+      this.DE(3841);
+      this.HL(1028);
+      this.$E3D3();
     }
   }
 
@@ -4039,54 +4783,49 @@ public class ZxGame1 extends MiniZX {
       int var16 = super.A - 214;
       super.F = var16;
       if(super.F >= 0) {
-        int var17 = this.mem('\ub55f', '\ue33f');
-        super.A = var17;
-        int var18 = super.A << 1;
-        super.F = var18;
-        if(super.F == 0) {
-          this.exx();
-          this.BC(25610);
-          this.DE(257);
-          this.HL(25601);
-          this.$E3D3();
-          int var19 = this.mem('\uf26e', '\ue351');
-          super.A = var19;
-          super.B = super.A;
-          int var20 = this.IY() + 20;
-          int var21 = this.mem(var20, '\ue355');
-          super.A = var21;
-          int var22 = super.A - super.B;
-          int var23 = var22 & 255;
-          super.A = var23;
-          super.F = var22;
-          int var24 = this.IY() + 20;
-          this.wMem(var24, super.A, '\ue359');
-          if(super.F == 0 || super.F < 0) {
-            int var25 = this.IY() + 20;
-            this.wMem(var25, 128, '\ue362');
-            int var26 = this.IY() + 45;
-            int var27 = this.mem(var26, '\ue366') - 1 & 255;
-            this.wMem(var26, var27, '\ue366');
-            super.F = var27;
-            if(super.F == 0) {
-              this.$B8ED();
-              this.HL('\uecfe');
-              this.DE(2058);
-              super.C = 0;
-              this.$B34C();
-              this.HL(32072);
-              this.DE(1284);
-              this.$B8C4();
-              this.$B3AB();
-              this.$B2F1();
-              throw new StackException('\u8186');
-            }
-          }
+        this.$E33F();
+      }
+    }
+  }
 
-          this.exx();
-          this.$E36D();
+  public void $E33F() {
+    int var1 = this.mem('\ub55f', '\ue33f');
+    super.A = var1;
+    int var2 = super.A << 1;
+    super.F = var2;
+    if(super.F == 0) {
+      this.exx();
+      this.BC(25610);
+      this.DE(257);
+      this.HL(25601);
+      this.$E3D3();
+      int var3 = this.mem('\uf26e', '\ue351');
+      super.A = var3;
+      super.B = super.A;
+      int var4 = this.IY() + 20;
+      int var5 = this.mem(var4, '\ue355');
+      super.A = var5;
+      int var6 = super.A - super.B;
+      int var7 = var6 & 255;
+      super.A = var7;
+      super.F = var6;
+      int var8 = this.IY() + 20;
+      this.wMem(var8, super.A, '\ue359');
+      if(super.F == 0 || super.F < 0) {
+        int var9 = this.IY() + 20;
+        this.wMem(var9, 128, '\ue362');
+        int var10 = this.IY() + 45;
+        int var11 = this.mem(var10, '\ue366') - 1 & 255;
+        this.wMem(var10, var11, '\ue366');
+        super.F = var11;
+        if(super.F == 0) {
+          this.$B451();
+          return;
         }
       }
+
+      this.exx();
+      this.$E36D();
     }
   }
 
@@ -4437,6 +5176,87 @@ public class ZxGame1 extends MiniZX {
     this.HL(var16);
   }
 
+  public void $E79B() {
+    super.A = 247;
+    int var1 = super.A << 8 | 254;
+    int var2 = this.in(var1, '\ue79d');
+    super.A = var2;
+    int var3 = super.A | 224;
+    super.A = var3;
+    int var4 = super.A << 1;
+    super.F = var4;
+    int var5 = super.A ^ 255;
+    super.A = var5;
+    int var6 = super.A << 1;
+    super.F = var6;
+    if(super.F != 0) {
+      int var7 = this.IY() + 15;
+      int var8 = this.mem(var7, '\ue7a4');
+      super.B = var8;
+      int var9 = this.IY();
+      this.push(var9);
+      this.IY('\ubc67');
+
+      while(true) {
+        int var10 = super.A;
+        int var11 = this.rrc(var10);
+        super.A = var11;
+        if(super.F < 0) {
+          int var12 = this.IY() + 15;
+          int var13 = this.mem(var12, '\ue7b4');
+          super.A = var13;
+          int var14 = super.A - super.B;
+          super.F = var14;
+          if(super.F != 0) {
+            this.$BA6E();
+          } else {
+            this.$A921();
+            if(super.F != 0) {
+              int var16 = this.IY();
+              this.wMem16('\ub09d', var16, '\ue7c5');
+              int var17 = this.pop();
+              this.IY(var17);
+              super.A = super.B;
+              this.$AC69();
+              int var18 = this.HL();
+              int var19 = this.mem(var18, '\ue7cf');
+              super.A = var19;
+              int var20 = this.IY() + 105;
+              this.wMem(var20, super.A, '\ue7d0');
+              int var21 = this.HL() + 1 & '\uffff';
+              this.HL(var21);
+              int var22 = this.HL();
+              int var23 = this.mem(var22, '\ue7d4');
+              super.A = var23;
+              int var24 = this.IY() + 100;
+              this.wMem(var24, super.A, '\ue7d5');
+              int var25 = this.HL() + 1 & '\uffff';
+              this.HL(var25);
+              int var26 = this.HL();
+              int var27 = this.mem(var26, '\ue7d9');
+              super.A = var27;
+              int var28 = this.IY() + 115;
+              this.wMem(var28, super.A, '\ue7da');
+              int var29 = this.IY() + 110;
+              this.wMem(var29, 5, '\ue7dd');
+              int var30 = this.mem16('\ub09d', '\ue7e1');
+              this.IY(var30);
+              this.$E3FD();
+              return;
+            }
+          }
+
+          int var15 = this.pop();
+          this.IY(var15);
+          return;
+        }
+
+        int var31 = this.IY() + 1 & '\uffff';
+        this.IY(var31);
+      }
+    }
+  }
+
   public void $EABF() {
     int var1 = this.IY() + 15;
     int var2 = this.mem(var1, '\ueabf');
@@ -4444,82 +5264,101 @@ public class ZxGame1 extends MiniZX {
     this.wMem('\ub951', super.A, '\ueac2');
     this.HL('\ue80f');
     this.$AC6C();
+    this.$EACB();
+  }
 
-    do {
-      int var3 = this.HL();
-      int var4 = this.mem(var3, '\ueacb');
-      super.A = var4;
-      int var5 = this.HL() + 1 & '\uffff';
-      this.HL(var5);
-      int var6 = super.A - 255;
-      super.F = var6;
+  public void $EACB() {
+    int var1 = this.HL();
+    int var2 = this.mem(var1, '\ueacb');
+    super.A = var2;
+    int var3 = this.HL() + 1 & '\uffff';
+    this.HL(var3);
+    int var4 = super.A - 255;
+    super.F = var4;
+    if(super.F != 0) {
+      int var5 = super.A - 247;
+      super.F = var5;
       if(super.F == 0) {
-        return;
-      }
-
-      int var7 = super.A - 247;
-      super.F = var7;
-      if(super.F != 0) {
-        int var24 = super.A + super.A;
-        int var25 = var24 & 255;
-        super.A = var25;
-        super.F = var24;
+        this.$EAEB();
+      } else {
+        int var6 = super.A + super.A;
+        int var7 = var6 & 255;
+        super.A = var7;
+        super.F = var6;
         super.E = super.A;
         super.D = 0;
-        int var26 = this.HL();
-        this.push(var26);
+        int var8 = this.HL();
+        this.push(var8);
         this.HL('\ue7e9');
-        int var27 = this.DE();
-        int var28 = this.HL() + var27 & '\uffff';
-        this.HL(var28);
-        int var29 = this.HL();
-        int var30 = this.mem(var29, '\ueadd');
-        super.E = var30;
-        int var31 = this.HL() + 1 & '\uffff';
-        this.HL(var31);
-        int var32 = this.HL();
-        int var33 = this.mem(var32, '\ueadf');
-        super.D = var33;
-        int var34 = this.pop();
-        this.HL(var34);
-        int var35 = this.DE();
-        this.push(var35);
-        return;
+        int var9 = this.DE();
+        int var10 = this.HL() + var9 & '\uffff';
+        this.HL(var10);
+        int var11 = this.HL();
+        int var12 = this.mem(var11, '\ueadd');
+        super.E = var12;
+        int var13 = this.HL() + 1 & '\uffff';
+        this.HL(var13);
+        int var14 = this.HL();
+        int var15 = this.mem(var14, '\ueadf');
+        super.D = var15;
+        int var16 = this.pop();
+        this.HL(var16);
+        int var17 = this.DE();
+        this.push(var17);
       }
+    }
+  }
 
-      int var8 = this.HL();
-      int var9 = this.mem(var8, '\ueaeb');
-      super.A = var9;
-      int var10 = this.HL() + 1 & '\uffff';
-      this.HL(var10);
-      int var11 = super.A - 246;
-      super.F = var11;
-    } while(super.F == 0);
+  public void $EAE3() {
+    do {
+      int var1 = this.HL();
+      int var2 = this.mem(var1, '\ueae3');
+      super.A = var2;
+      int var3 = this.HL() + 1 & '\uffff';
+      this.HL(var3);
+      int var4 = super.A - 246;
+      super.F = var4;
+    } while(super.F != 0);
 
-    int var12 = super.A + super.A;
-    int var13 = var12 & 255;
-    super.A = var13;
-    super.F = var12;
-    super.E = super.A;
-    super.D = 0;
-    int var14 = this.HL();
-    this.push(var14);
-    this.HL('\ue7f9');
-    int var15 = this.DE();
-    int var16 = this.HL() + var15 & '\uffff';
-    this.HL(var16);
-    int var17 = this.HL();
-    int var18 = this.mem(var17, '\ueafb');
-    super.E = var18;
-    int var19 = this.HL() + 1 & '\uffff';
-    this.HL(var19);
-    int var20 = this.HL();
-    int var21 = this.mem(var20, '\ueafd');
-    super.D = var21;
-    int var22 = this.pop();
-    this.HL(var22);
-    int var23 = this.DE();
-    this.push(var23);
+    this.$EACB();
+  }
+
+  public void $EAEB() {
+    int var1 = this.HL();
+    int var2 = this.mem(var1, '\ueaeb');
+    super.A = var2;
+    int var3 = this.HL() + 1 & '\uffff';
+    this.HL(var3);
+    int var4 = super.A - 246;
+    super.F = var4;
+    if(super.F == 0) {
+      this.$EACB();
+    } else {
+      int var5 = super.A + super.A;
+      int var6 = var5 & 255;
+      super.A = var6;
+      super.F = var5;
+      super.E = super.A;
+      super.D = 0;
+      int var7 = this.HL();
+      this.push(var7);
+      this.HL('\ue7f9');
+      int var8 = this.DE();
+      int var9 = this.HL() + var8 & '\uffff';
+      this.HL(var9);
+      int var10 = this.HL();
+      int var11 = this.mem(var10, '\ueafb');
+      super.E = var11;
+      int var12 = this.HL() + 1 & '\uffff';
+      this.HL(var12);
+      int var13 = this.HL();
+      int var14 = this.mem(var13, '\ueafd');
+      super.D = var14;
+      int var15 = this.pop();
+      this.HL(var15);
+      int var16 = this.DE();
+      this.push(var16);
+    }
   }
 
   public void $EB55() {
@@ -4573,6 +5412,242 @@ public class ZxGame1 extends MiniZX {
     }
   }
 
+  public void $EB79() {
+    int var1 = this.HL();
+    int var2 = this.mem(var1, '\ueb79');
+    super.A = var2;
+    int var3 = this.HL() + 1 & '\uffff';
+    this.HL(var3);
+    int var4 = this.HL();
+    int var5 = this.mem(var4, '\ueb7b');
+    super.E = var5;
+    int var6 = this.HL() + 1 & '\uffff';
+    this.HL(var6);
+    int var7 = this.HL();
+    int var8 = this.mem(var7, '\ueb7d');
+    super.D = var8;
+    int var9 = this.HL() + 1 & '\uffff';
+    this.HL(var9);
+    int var10 = this.HL();
+    this.push(var10);
+    int var11 = this.DE();
+    this.push(var11);
+    int var12 = super.A + super.A;
+    int var13 = var12 & 255;
+    super.A = var13;
+    super.F = var12;
+    super.E = super.A;
+    super.D = 0;
+    this.HL('\ubd86');
+    int var14 = this.DE();
+    int var15 = this.HL() + var14 & '\uffff';
+    this.HL(var15);
+    int var16 = this.HL();
+    int var17 = this.mem(var16, '\ueb89');
+    super.E = var17;
+    int var18 = this.HL() + 1 & '\uffff';
+    this.HL(var18);
+    int var19 = this.HL();
+    int var20 = this.mem(var19, '\ueb8b');
+    super.D = var20;
+    this.exHLDE();
+    int var21 = this.pop();
+    this.DE(var21);
+    this.$B82B();
+    int var22 = this.pop();
+    this.HL(var22);
+    this.$EAEB();
+  }
+
+  public void $EB95() {
+    int var1 = this.HL();
+    int var2 = this.mem(var1, '\ueb95');
+    super.B = var2;
+    int var3 = this.HL() + 1 & '\uffff';
+    this.HL(var3);
+    int var4 = this.HL();
+    this.push(var4);
+    int var5 = this.mem('\ueb54', '\ueb98');
+    super.A = var5;
+    int var6 = super.A << 1;
+    super.F = var6;
+    if(super.F == 0) {
+      int var7 = this.IY();
+      this.wMem(var7, super.B, '\ueb9e');
+      this.$AA8C();
+      int var8 = this.IY() + 5;
+      int var9 = this.mem(var8, '\ueba4');
+      super.A = var9;
+      int var10 = this.HL() + 1 & '\uffff';
+      this.HL(var10);
+      int var11 = this.HL();
+      int var12 = this.mem(var11, '\ueba8');
+      int var13 = super.A - var12;
+      int var14 = var13 & 255;
+      super.A = var14;
+      super.F = var13;
+      int var15 = super.A - 4;
+      int var16 = var15 & 255;
+      super.A = var16;
+      super.F = var15;
+      int var17 = super.A - 248;
+      super.F = var17;
+      if(super.F >= 0) {
+        int var18 = this.HL() + 1 & '\uffff';
+        this.HL(var18);
+        int var19 = this.IY() + 10;
+        int var20 = this.mem(var19, '\uebb0');
+        super.A = var20;
+        int var21 = super.A + 16;
+        int var22 = var21 & 255;
+        super.A = var22;
+        super.F = var21;
+        int var23 = this.HL();
+        int var24 = this.mem(var23, '\uebb5');
+        int var25 = super.A - var24;
+        int var26 = var25 & 255;
+        super.A = var26;
+        super.F = var25;
+        int var27 = super.A - 4;
+        int var28 = var27 & 255;
+        super.A = var28;
+        super.F = var27;
+        int var29 = super.A - 248;
+        super.F = var29;
+        if(super.F >= 0) {
+          int var30 = this.pop();
+          this.HL(var30);
+          this.$EACB();
+        }
+      }
+    }
+  }
+
+  public void $EBC4() {
+    int var1 = this.IY() + 5;
+    int var2 = this.mem(var1, '\uebc4');
+    super.A = var2;
+    int var3 = this.HL();
+    int var4 = this.mem(var3, '\uebc7');
+    int var5 = super.A - var4;
+    int var6 = var5 & 255;
+    super.A = var6;
+    super.F = var5;
+    int var7 = super.A - 4;
+    int var8 = var7 & 255;
+    super.A = var8;
+    super.F = var7;
+    int var9 = super.A - 248;
+    super.F = var9;
+    if(super.F < 0) {
+      this.$EBDD();
+    } else {
+      int var10 = this.HL() + 1 & '\uffff';
+      this.HL(var10);
+      int var11 = this.IY() + 10;
+      int var12 = this.mem(var11, '\uebcf');
+      super.A = var12;
+      int var13 = this.HL();
+      int var14 = this.mem(var13, '\uebd2');
+      int var15 = super.A - var14;
+      int var16 = var15 & 255;
+      super.A = var16;
+      super.F = var15;
+      int var17 = super.A - 4;
+      int var18 = var17 & 255;
+      super.A = var18;
+      super.F = var17;
+      int var19 = super.A - 248;
+      super.F = var19;
+      if(super.F < 0) {
+        this.$EBDE();
+      } else {
+        int var20 = this.HL() + 1 & '\uffff';
+        this.HL(var20);
+        this.$EACB();
+      }
+    }
+  }
+
+  public void $EBDD() {
+    int var1 = this.HL() + 1 & '\uffff';
+    this.HL(var1);
+    this.$EBDE();
+  }
+
+  public void $EBDE() {
+    int var1 = this.HL() + 1 & '\uffff';
+    this.HL(var1);
+    this.$EAE3();
+  }
+
+  public void $EBE2() {
+    int var1 = this.HL();
+    int var2 = this.mem(var1, '\uebe2');
+    super.A = var2;
+    int var3 = this.HL() + 1 & '\uffff';
+    this.HL(var3);
+    int var4 = this.IY();
+    int var5 = this.mem(var4, '\uebe4');
+    int var6 = super.A - var5;
+    super.F = var6;
+    if(super.F == 0) {
+      this.$EACB();
+    } else {
+      this.$EAE3();
+    }
+  }
+
+  public void $EBED() {
+    int var1 = this.HL();
+    int var2 = this.mem(var1, '\uebed');
+    super.A = var2;
+    int var3 = this.HL() + 1 & '\uffff';
+    this.HL(var3);
+    int var4 = this.IY() + 80;
+    int var5 = this.mem(var4, '\uebef');
+    int var6 = super.A - var5;
+    super.F = var6;
+    if(super.F == 0) {
+      this.$EACB();
+    } else {
+      int var7 = this.IY() + 85;
+      int var8 = this.mem(var7, '\uebf5');
+      int var9 = super.A - var8;
+      super.F = var9;
+      if(super.F == 0) {
+        this.$EACB();
+      } else {
+        this.$EAE3();
+      }
+    }
+  }
+
+  public void $EBFE() {
+    int var1 = this.HL();
+    int var2 = this.mem(var1, '\uebfe');
+    super.A = var2;
+    int var3 = this.HL() + 1 & '\uffff';
+    this.HL(var3);
+    int var4 = this.IY() + 80;
+    int var5 = this.mem(var4, '\uec00');
+    int var6 = super.A - var5;
+    super.F = var6;
+    if(super.F == 0) {
+      this.$EAE3();
+    } else {
+      int var7 = this.IY() + 85;
+      int var8 = this.mem(var7, '\uec06');
+      int var9 = super.A - var8;
+      super.F = var9;
+      if(super.F == 0) {
+        this.$EAE3();
+      } else {
+        this.$EACB();
+      }
+    }
+  }
+
   public void $EC1D() {
     int var1 = this.HL();
     this.push(var1);
@@ -4593,6 +5668,419 @@ public class ZxGame1 extends MiniZX {
     this.HL(var8);
     int var9 = super.A << 1;
     super.F = var9;
+  }
+
+  public void $EC2B() {
+    this.$EC3D();
+    if(super.F == 0) {
+      this.$EACB();
+    } else {
+      this.$EAE3();
+    }
+  }
+
+  public void $EC34() {
+    this.$EC3D();
+    if(super.F != 0) {
+      this.$EACB();
+    } else {
+      this.$EAE3();
+    }
+  }
+
+  public void $EC3D() {
+    int var1 = this.HL();
+    int var2 = this.mem(var1, '\uec3d');
+    super.B = var2;
+    int var3 = this.HL() + 1 & '\uffff';
+    this.HL(var3);
+    int var4 = this.HL();
+    int var5 = this.mem(var4, '\uec3f');
+    super.A = var5;
+    int var6 = this.HL() + 1 & '\uffff';
+    this.HL(var6);
+    int var7 = this.HL();
+    this.push(var7);
+    int var8 = this.AF();
+    this.push(var8);
+    this.$AA8C();
+    int var9 = this.pop();
+    this.AF(var9);
+    int var10 = this.HL();
+    int var11 = this.mem(var10, '\uec47');
+    int var12 = super.A - var11;
+    super.F = var12;
+    int var13 = this.pop();
+    this.HL(var13);
+  }
+
+  public void $ECBC() {
+    int var1 = this.HL();
+    int var2 = this.mem(var1, '\uecbc');
+    super.E = var2;
+    int var3 = this.HL() + 1 & '\uffff';
+    this.HL(var3);
+    super.D = 0;
+    int var4 = this.HL();
+    this.push(var4);
+    this.HL('\uec5c');
+    int var5 = this.DE();
+    int var6 = this.HL() + var5 & '\uffff';
+    this.HL(var6);
+    int var7 = this.DE();
+    int var8 = this.HL() + var7 & '\uffff';
+    this.HL(var8);
+    int var9 = this.DE();
+    int var10 = this.HL() + var9 & '\uffff';
+    this.HL(var10);
+    int var11 = this.HL();
+    int var12 = this.mem(var11, '\uecc7');
+    super.A = var12;
+    int var13 = super.A << 1;
+    super.F = var13;
+    if(super.F == 0) {
+      int var15 = this.HL();
+      this.wMem(var15, 1, '\ueccb');
+      int var16 = this.HL() + 1 & '\uffff';
+      this.HL(var16);
+      int var17 = this.IY();
+      int var18 = this.mem(var17, '\uecce');
+      super.A = var18;
+      int var19 = this.HL();
+      int var20 = this.mem(var19, '\uecd1');
+      int var21 = super.A + var20;
+      int var22 = var21 & 255;
+      super.A = var22;
+      super.F = var21;
+      int var23 = this.IY();
+      this.wMem(var23, super.A, '\uecd3');
+      int var24 = this.HL() + 1 & '\uffff';
+      this.HL(var24);
+      int var25 = this.IY();
+      int var26 = this.mem(var25, '\uecd7');
+      super.A = var26;
+      int var27 = this.HL();
+      int var28 = this.mem(var27, '\uecda');
+      int var29 = super.A + var28;
+      int var30 = this.carry(super.F) & 255;
+      int var31 = var29 + var30;
+      super.A = var31;
+      super.F = super.A;
+      int var32 = this.IY();
+      this.wMem(var32, super.A, '\uecdc');
+      int var33 = this.HL() - 1 & '\uffff';
+      this.HL(var33);
+      int var34 = this.mem('\uecff', '\uece0');
+      super.A = var34;
+      int var35 = this.HL();
+      int var36 = this.mem(var35, '\uece3');
+      int var37 = super.A + var36;
+      int var38 = var37 & 255;
+      super.A = var38;
+      super.F = var37;
+      this.wMem('\uecff', super.A, '\uece5');
+      int var39 = this.HL() + 1 & '\uffff';
+      this.HL(var39);
+      int var40 = this.mem('\uecfe', '\uece9');
+      super.A = var40;
+      int var41 = this.HL();
+      int var42 = this.mem(var41, '\uecec');
+      int var43 = super.A + var42;
+      int var44 = this.carry(super.F) & 255;
+      int var45 = var43 + var44;
+      super.A = var45;
+      super.F = super.A;
+      this.wMem('\uecfe', super.A, '\uecee');
+    }
+
+    int var14 = this.pop();
+    this.HL(var14);
+    this.$EAEB();
+  }
+
+  public void $ED2A() {
+    int var1 = this.mem('\uecf5', '\ued2a');
+    super.A = var1;
+    int var2 = super.A + super.A;
+    int var3 = var2 & 255;
+    super.A = var3;
+    super.F = var2;
+    super.E = super.A;
+    super.D = 0;
+    this.HL('\uecf6');
+    int var4 = this.DE();
+    int var5 = this.HL() + var4 & '\uffff';
+    this.HL(var5);
+    int var6 = this.mem('\uecff', '\ued35');
+    super.A = var6;
+    int var7 = this.HL();
+    int var8 = this.mem(var7, '\ued38');
+    int var9 = super.A - var8;
+    int var10 = var9 & 255;
+    super.A = var10;
+    super.F = var9;
+    int var11 = this.HL() + 1 & '\uffff';
+    this.HL(var11);
+    int var12 = this.mem('\uecfe', '\ued3a');
+    super.A = var12;
+    int var13 = this.HL();
+    int var14 = this.mem(var13, '\ued3d');
+    int var15 = super.A - var14 & 255;
+    super.A = var15;
+    super.F = super.A;
+    if(super.F >= 0) {
+      this.BC(0);
+
+      do {
+        int var16 = this.BC() - 1 & '\uffff';
+        this.BC(var16);
+        super.A = super.B;
+        int var17 = super.A | super.C;
+        super.A = var17;
+        int var18 = super.A << 1;
+        super.F = var18;
+      } while(super.F != 0);
+
+      this.executeMutantCode('\ued49');
+      this.HL('\ued00');
+      int var19 = this.DE();
+      int var20 = this.HL() + var19 & '\uffff';
+      this.HL(var20);
+      int var21 = this.HL();
+      int var22 = this.mem(var21, '\ued50');
+      super.E = var22;
+      int var23 = this.HL() + 1 & '\uffff';
+      this.HL(var23);
+      int var24 = this.HL();
+      int var25 = this.mem(var24, '\ued52');
+      super.D = var25;
+      this.exHLDE();
+      this.DE(0);
+      this.$B8C4();
+      this.$B9AC();
+
+      do {
+        this.$EEA2();
+        int var26 = this.mem('\uecf5', '\ued60');
+        super.A = var26;
+        int var27 = super.A + super.A;
+        int var28 = var27 & 255;
+        super.A = var28;
+        super.F = var27;
+        int var29 = super.A + 101;
+        int var30 = var29 & 255;
+        super.A = var30;
+        super.F = var29;
+        this.IX('\ued06');
+        super.B = 3;
+
+        do {
+          int var31 = this.BC();
+          this.push(var31);
+          this.BC('\uf5ca');
+          this.$EF35();
+          this.$A8A0();
+          int var32 = this.pop();
+          this.BC(var32);
+          int var33 = super.B - 1 & 255;
+          super.B = var33;
+        } while(super.B != 0);
+
+        this.$B9FB();
+        this.$ABD7();
+        int var34 = super.A << 1;
+        super.F = var34;
+      } while(super.F == 0);
+
+      this.HL('\uecf5');
+      int var35 = this.HL();
+      int var36 = this.mem(var35, '\ued85') + 1 & 255;
+      int var37 = this.HL();
+      this.wMem(var37, var36, '\ued85');
+      super.F = var36;
+      this.$B952();
+    }
+  }
+
+  public void $EDA3() {
+    super.A = 1;
+  }
+
+  public void $EDA7() {
+    int var1 = this.HL();
+    int var2 = this.mem(var1, '\uec4a');
+    super.E = var2;
+    int var3 = this.HL() + 1 & '\uffff';
+    this.HL(var3);
+    int var4 = this.HL();
+    this.push(var4);
+    super.D = 0;
+    this.HL('\uec0f');
+    int var5 = this.DE();
+    int var6 = this.HL() + var5 & '\uffff';
+    this.HL(var6);
+    int var7 = this.HL();
+    int var8 = this.mem(var7, '\uec53');
+    int var9 = super.A - var8;
+    super.F = var9;
+    int var10 = this.HL();
+    this.wMem(var10, super.A, '\uec54');
+    if(super.F != 0) {
+      this.$E41D();
+    }
+
+    int var11 = this.pop();
+    this.HL(var11);
+    this.$EAEB();
+  }
+
+  public void $EDA8() {
+    super.A = 0;
+    int var1 = super.A << 1;
+    super.F = var1;
+  }
+
+  public void $EDB3() {
+    int var1 = this.HL();
+    int var2 = this.mem(var1, '\uedb3');
+    super.A = var2;
+    int var3 = this.HL() + 1 & '\uffff';
+    this.HL(var3);
+    this.$EC1D();
+    if(super.F == 0) {
+      this.$EAE3();
+    } else {
+      this.$EACB();
+    }
+  }
+
+  public void $EDC6() {
+    int var1 = this.HL();
+    this.push(var1);
+    this.HL('\uedbe');
+    int var2 = this.mem('\uedc5', '\uedca');
+    super.A = var2;
+    super.E = super.A;
+    super.D = 0;
+    int var3 = this.DE();
+    int var4 = this.HL() + var3 & '\uffff';
+    this.HL(var4);
+    int var5 = this.HL();
+    int var6 = this.mem(var5, '\uedd1');
+    super.A = var6;
+    int var7 = super.A - 255;
+    super.F = var7;
+    if(super.F == 0) {
+      this.$EDE5();
+    } else {
+      int var8 = this.IY();
+      int var9 = this.mem(var8, '\uedd6');
+      int var10 = super.A - var9;
+      super.F = var10;
+      if(super.F != 0) {
+        this.$EDE9();
+      } else {
+        int var11 = super.E + 1 & 255;
+        super.E = var11;
+        super.F = var11;
+        super.A = super.E;
+        this.wMem('\uedc5', super.A, '\ueddd');
+        int var12 = super.A - 6;
+        super.F = var12;
+        if(super.F == 0) {
+          this.$B3C3();
+        } else {
+          this.$EDE5();
+        }
+      }
+    }
+  }
+
+  public void $EDE5() {
+    int var1 = this.pop();
+    this.HL(var1);
+    this.$EAEB();
+  }
+
+  public void $EDE9() {
+    int var1 = this.HL() - 1 & '\uffff';
+    this.HL(var1);
+    int var2 = this.HL();
+    int var3 = this.mem(var2, '\uedea');
+    super.A = var3;
+    int var4 = this.IY();
+    int var5 = this.mem(var4, '\uedeb');
+    int var6 = super.A - var5;
+    super.F = var6;
+    if(super.F == 0) {
+      this.$EDE5();
+    } else {
+      super.A = 1;
+      this.wMem('\uedc5', super.A, '\uedf2');
+      this.$EDE5();
+    }
+  }
+
+  public void $EDF7() {
+    super.A = 0;
+    int var1 = super.A << 1;
+    super.F = var1;
+    this.wMem('\ufaef', super.A, '\uedf8');
+    int var2 = super.A - 1 & 255;
+    super.A = var2;
+    super.F = var2;
+    this.wMem('\uf9f0', super.A, '\uedfc');
+    int var3 = this.IY();
+    this.wMem(var3, 110, '\uedff');
+    int var4 = this.IY() + 5;
+    int var5 = this.mem(var4, '\uee03');
+    super.A = var5;
+    int var6 = super.A - 128;
+    super.F = var6;
+    int var7 = this.IY() + 5;
+    this.wMem(var7, 192, '\uee08');
+    if(super.F < 0) {
+      int var14 = this.IY() + 5;
+      this.wMem(var14, 48, '\uee0e');
+    }
+
+    int var8 = this.IY() + 10;
+    this.wMem(var8, 120, '\uee12');
+    this.HL('\uf879');
+    this.DE('\u80a9');
+    this.BC(60);
+    this.ldir();
+    this.$B902();
+    this.HL(18432);
+    super.D = 0;
+    super.A = 83;
+    this.R(super.A);
+
+    do {
+      int var9 = this.R();
+      super.A = var9;
+      super.E = super.A;
+      int var10 = this.HL();
+      this.wMem(var10, 32, '\uee30');
+      int var11 = this.DE();
+      int var12 = this.HL() + var11 & '\uffff';
+      this.HL(var12);
+      super.A = super.H;
+      int var13 = super.A - 88;
+      super.F = var13;
+    } while(super.F != 0);
+
+    this.HL(32514);
+    this.DE(3844);
+    this.$B84B();
+    this.$B9AC();
+    this.$BAB4();
+    this.$EEA2();
+    this.$F93A();
+    this.$F9F5();
+    this.$F9F5();
+    this.$F9F5();
+    this.$F8B9();
   }
 
   public void $EEA2() {
@@ -4857,14 +6345,18 @@ public class ZxGame1 extends MiniZX {
     this.AF(var38);
     int var39 = this.pop();
     this.BC(var39);
-    int var40 = this.IX() + 1 & '\uffff';
-    this.IX(var40);
-    int var41 = this.IX() + 1 & '\uffff';
-    this.IX(var41);
-    int var42 = this.IX() + 1 & '\uffff';
-    this.IX(var42);
-    int var43 = this.IX() + 1 & '\uffff';
-    this.IX(var43);
+    this.$EF88();
+  }
+
+  public void $EF88() {
+    int var1 = this.IX() + 1 & '\uffff';
+    this.IX(var1);
+    int var2 = this.IX() + 1 & '\uffff';
+    this.IX(var2);
+    int var3 = this.IX() + 1 & '\uffff';
+    this.IX(var3);
+    int var4 = this.IX() + 1 & '\uffff';
+    this.IX(var4);
   }
 
   public void $EF91() {
@@ -4980,7 +6472,623 @@ public class ZxGame1 extends MiniZX {
     this.wMem('\uf571', super.A, '\uf5ba');
   }
 
-  public void $E5CD() {
+  public void $F8B9() {
+    this.IX('\u80a9');
+    super.A = 8;
+    this.wMem('\uf26e', super.A, '\uf8bf');
+    super.B = 12;
+
+    do {
+      int var1 = this.BC();
+      this.push(var1);
+      this.BC('\uf8b5');
+      int var2 = this.IX();
+      int var3 = this.mem(var2, '\uf8c8');
+      super.A = var3;
+      int var4 = super.A - 255;
+      super.F = var4;
+      if(super.F == 0) {
+        this.$EF88();
+        int var48 = this.IX() + 1 & '\uffff';
+        this.IX(var48);
+      } else {
+        this.$EF35();
+        int var5 = this.IX();
+        int var6 = this.mem(var5, '\uf8d9');
+        super.A = var6;
+        this.$A8A0();
+        int var7 = this.IX() + 1 & '\uffff';
+        this.IX(var7);
+        int var8 = this.IY() + 5;
+        int var9 = this.mem(var8, '\uf8e1');
+        super.A = var9;
+        int var10 = this.IX();
+        int var11 = this.mem(var10, '\uf8e4');
+        int var12 = super.A - var11;
+        int var13 = var12 & 255;
+        super.A = var13;
+        super.F = var12;
+        int var14 = super.A - 8;
+        int var15 = var14 & 255;
+        super.A = var15;
+        super.F = var14;
+        int var16 = super.A - 240;
+        super.F = var16;
+        if(super.F >= 0) {
+          int var39 = this.IY() + 10;
+          int var40 = this.mem(var39, '\uf8ed');
+          super.A = var40;
+          int var41 = this.IX();
+          int var42 = this.mem(var41, '\uf8f0');
+          int var43 = super.A - var42;
+          int var44 = var43 & 255;
+          super.A = var44;
+          super.F = var43;
+          int var45 = super.A - 8;
+          int var46 = var45 & 255;
+          super.A = var46;
+          super.F = var45;
+          int var47 = super.A - 240;
+          super.F = var47;
+          if(super.F >= 0) {
+            this.$E33F();
+          }
+        }
+
+        int var17 = this.mem('\uf672', '\uf8fa');
+        super.A = var17;
+        int var18 = super.A << 1;
+        super.F = var18;
+        if(super.F != 0) {
+          int var31 = this.IX();
+          int var32 = this.mem(var31, '\uf900');
+          super.A = var32;
+          int var33 = super.A - 240;
+          super.F = var33;
+          if(super.F != 0) {
+            super.A = 238;
+          } else {
+            super.A = 2;
+          }
+
+          int var34 = this.IX();
+          this.wMem(var34, super.A, '\uf90d');
+          int var35 = this.IX();
+          int var36 = this.mem(var35, '\uf910');
+          super.A = var36;
+          int var37 = -super.A & 255;
+          super.A = var37;
+          int var38 = this.IX();
+          this.wMem(var38, super.A, '\uf915');
+        }
+
+        int var19 = this.mem('\uf673', '\uf918');
+        super.A = var19;
+        int var20 = super.A << 1;
+        super.F = var20;
+        if(super.F != 0) {
+          int var23 = this.IX();
+          int var24 = this.mem(var23, '\uf91e');
+          super.A = var24;
+          int var25 = super.A - 64;
+          super.F = var25;
+          if(super.F == 0) {
+            super.A = 174;
+          } else {
+            super.A = 66;
+          }
+
+          int var26 = this.IX();
+          this.wMem(var26, super.A, '\uf92b');
+          int var27 = this.IX();
+          int var28 = this.mem(var27, '\uf92e');
+          super.A = var28;
+          int var29 = -super.A & 255;
+          super.A = var29;
+          int var30 = this.IX();
+          this.wMem(var30, super.A, '\uf933');
+        }
+      }
+
+      int var21 = this.pop();
+      this.BC(var21);
+      int var22 = super.B - 1 & 255;
+      super.B = var22;
+    } while(super.B != 0);
+
+  }
+
+  public void $F93A() {
+    this.$B03C();
+    int var1 = super.A << 1;
+    super.F = var1;
+    if(super.F != 0) {
+      int var36 = this.IY();
+      int var37 = this.mem(var36, '\uf940') - 1 & 255;
+      int var38 = this.IY();
+      this.wMem(var38, var37, '\uf940');
+      super.F = var37;
+      int var39 = this.IY();
+      int var40 = this.mem(var39, '\uf943');
+      super.A = var40;
+      int var41 = super.A - 109;
+      super.F = var41;
+      if(super.F == 0) {
+        int var42 = this.IY();
+        this.wMem(var42, 117, '\uf94a');
+      }
+    }
+
+    this.$B00B();
+    int var2 = super.A << 1;
+    super.F = var2;
+    if(super.F != 0) {
+      int var29 = this.IY();
+      int var30 = this.mem(var29, '\uf954') + 1 & 255;
+      int var31 = this.IY();
+      this.wMem(var31, var30, '\uf954');
+      super.F = var30;
+      int var32 = this.IY();
+      int var33 = this.mem(var32, '\uf957');
+      super.A = var33;
+      int var34 = super.A - 118;
+      super.F = var34;
+      if(super.F == 0) {
+        int var35 = this.IY();
+        this.wMem(var35, 110, '\uf95e');
+      }
+    }
+
+    this.$ABD7();
+    int var3 = super.A << 1;
+    super.F = var3;
+    if(super.F != 0) {
+      this.$F9A4();
+      int var11 = this.IY() + 5;
+      int var12 = this.mem(var11, '\uf96b');
+      super.A = var12;
+      int var13 = this.HL();
+      int var14 = this.mem(var13, '\uf96e');
+      int var15 = super.A + var14;
+      int var16 = var15 & 255;
+      super.A = var16;
+      super.F = var15;
+      if(super.F == 0) {
+        super.A = 238;
+      } else {
+        int var17 = super.A - 240;
+        super.F = var17;
+        if(super.F == 0) {
+          super.A = 2;
+        }
+      }
+
+      int var18 = this.IY() + 5;
+      this.wMem(var18, super.A, '\uf97b');
+      int var19 = this.HL() + 1 & '\uffff';
+      this.HL(var19);
+      int var20 = this.IY() + 10;
+      int var21 = this.mem(var20, '\uf97f');
+      super.A = var21;
+      int var22 = this.HL();
+      int var23 = this.mem(var22, '\uf982');
+      int var24 = super.A + var23;
+      int var25 = var24 & 255;
+      super.A = var25;
+      super.F = var24;
+      int var26 = super.A - 64;
+      super.F = var26;
+      if(super.F == 0) {
+        super.A = 172;
+      } else {
+        int var27 = super.A - 174;
+        super.F = var27;
+        if(super.F == 0) {
+          super.A = 66;
+        }
+      }
+
+      int var28 = this.IY() + 10;
+      this.wMem(var28, super.A, '\uf991');
+    }
+
+    int var4 = this.IY() + 5;
+    int var5 = this.mem(var4, '\uf994');
+    super.L = var5;
+    int var6 = this.IY() + 10;
+    int var7 = this.mem(var6, '\uf997');
+    super.H = var7;
+    int var8 = this.HL();
+    this.wMem16('\ua838', var8, '\uf99a');
+    int var9 = this.IY();
+    int var10 = this.mem(var9, '\uf99d');
+    super.A = var10;
+    this.$A83D();
+  }
+
+  public void $F9A4() {
+    int var1 = this.IY();
+    int var2 = this.mem(var1, '\uf9a4');
+    super.A = var2;
+    int var3 = super.A - 110;
+    int var4 = var3 & 255;
+    super.A = var4;
+    super.F = var3;
+    int var5 = super.A + super.A;
+    int var6 = var5 & 255;
+    super.A = var6;
+    super.F = var5;
+    super.E = super.A;
+    super.D = 0;
+    this.HL('\uf9b2');
+    int var7 = this.DE();
+    int var8 = this.HL() + var7 & '\uffff';
+    this.HL(var8);
+  }
+
+  public void $F9C4() {
+    int var1 = this.AF();
+    this.push(var1);
+    int var2 = this.BC();
+    this.push(var2);
+    int var3 = this.HL();
+    this.push(var3);
+    int var4 = this.mem16('\uf9c2', '\uf9c7');
+    this.HL(var4);
+    super.B = 25;
+
+    do {
+      int var5 = this.BC();
+      this.push(var5);
+      int var6 = this.HL();
+      int var7 = this.mem(var6, '\uf9cd');
+      super.B = var7;
+      int var8 = this.HL() + 1 & '\uffff';
+      this.HL(var8);
+      super.A = 16;
+      int var9 = this.BC();
+      this.push(var9);
+
+      do {
+        int var10 = super.B - 1 & 255;
+        super.B = var10;
+      } while(super.B != 0);
+
+      int var11 = this.pop();
+      this.BC(var11);
+      int var12 = this.HL();
+      int var13 = this.mem(var12, '\uf9d7');
+      super.B = var13;
+      int var14 = this.HL() + 1 & '\uffff';
+      this.HL(var14);
+      super.A = 0;
+
+      do {
+        int var15 = super.B - 1 & 255;
+        super.B = var15;
+      } while(super.B != 0);
+
+      int var16 = this.pop();
+      this.BC(var16);
+      int var17 = super.B - 1 & 255;
+      super.B = var17;
+    } while(super.B != 0);
+
+    super.A = super.H;
+    int var18 = super.A - 156;
+    super.F = var18;
+    if(super.F == 0) {
+      super.H = 128;
+    }
+
+    int var19 = this.HL();
+    this.wMem16('\uf9c2', var19, '\uf9e9');
+    int var20 = this.pop();
+    this.HL(var20);
+    int var21 = this.pop();
+    this.BC(var21);
+    int var22 = this.pop();
+    this.AF(var22);
+  }
+
+  public void $F9F5() {
+    this.IX('\uf9f0');
+    int var1 = this.IX();
+    int var2 = this.mem(var1, '\uf9f9');
+    super.A = var2;
+    int var3 = super.A - 255;
+    super.F = var3;
+    if(super.F == 0) {
+      this.$B06D();
+      int var64 = super.A << 1;
+      super.F = var64;
+      if(super.F != 0) {
+        int var65 = this.IY() + 5;
+        int var66 = this.mem(var65, '\ufa05');
+        super.A = var66;
+        this.wMem('\uf9f0', super.A, '\ufa08');
+        int var67 = this.IY() + 10;
+        int var68 = this.mem(var67, '\ufa0b');
+        super.A = var68;
+        this.wMem('\uf9f1', super.A, '\ufa0e');
+        this.$F9A4();
+        int var69 = this.HL();
+        int var70 = this.mem(var69, '\ufa14');
+        super.A = var70;
+        this.wMem('\uf9f2', super.A, '\ufa15');
+        int var71 = this.HL() + 1 & '\uffff';
+        this.HL(var71);
+        int var72 = this.HL();
+        int var73 = this.mem(var72, '\ufa19');
+        super.A = var73;
+        this.wMem('\uf9f3', super.A, '\ufa1a');
+        this.BC('\uff0a');
+        this.DE(276);
+        this.HL(5121);
+        this.$E3D3();
+      }
+    } else {
+      this.BC('\uf8b5');
+      this.$EF35();
+      super.A = 109;
+      this.$A83D();
+      int var4 = this.mem('\uf672', '\ufa35');
+      super.A = var4;
+      super.B = super.A;
+      int var5 = this.mem('\uf673', '\ufa39');
+      super.A = var5;
+      int var6 = super.A | super.B;
+      super.A = var6;
+      int var7 = super.A << 1;
+      super.F = var7;
+      if(super.F != 0) {
+        int var63 = this.IX();
+        this.wMem(var63, 255, '\ufa3f');
+      } else {
+        super.B = 12;
+        this.HL('\u80a9');
+
+        do {
+          int var8 = this.HL();
+          int var9 = this.mem(var8, '\ufa49');
+          super.A = var9;
+          int var10 = super.A - 255;
+          super.F = var10;
+          if(super.F != 0) {
+            super.E = super.A;
+            int var11 = this.IX();
+            int var12 = this.mem(var11, '\ufa57');
+            int var13 = super.A - var12;
+            int var14 = var13 & 255;
+            super.A = var14;
+            super.F = var13;
+            int var15 = super.A - 8;
+            int var16 = var15 & 255;
+            super.A = var16;
+            super.F = var15;
+            int var17 = super.A - 240;
+            super.F = var17;
+            if(super.F >= 0) {
+              int var24 = this.HL() + 1 & '\uffff';
+              this.HL(var24);
+              int var25 = this.HL();
+              int var26 = this.mem(var25, '\ufa61');
+              super.A = var26;
+              super.D = super.A;
+              int var27 = this.HL() - 1 & '\uffff';
+              this.HL(var27);
+              int var28 = this.IX();
+              int var29 = this.mem(var28, '\ufa64');
+              int var30 = super.A - var29;
+              int var31 = var30 & 255;
+              super.A = var31;
+              super.F = var30;
+              int var32 = super.A - 8;
+              int var33 = var32 & 255;
+              super.A = var33;
+              super.F = var32;
+              int var34 = super.A - 240;
+              super.F = var34;
+              if(super.F >= 0) {
+                super.A = 255;
+                int var35 = this.HL();
+                this.wMem(var35, super.A, '\ufa6f');
+                this.wMem('\uf9f0', super.A, '\ufa70');
+                int var36 = this.HL() + 1 & '\uffff';
+                this.HL(var36);
+                int var37 = this.HL() + 1 & '\uffff';
+                this.HL(var37);
+                int var38 = this.HL() + 1 & '\uffff';
+                this.HL(var38);
+                int var39 = this.HL() + 1 & '\uffff';
+                this.HL(var39);
+                int var40 = this.HL();
+                int var41 = this.mem(var40, '\ufa77');
+                super.A = var41;
+                int var42 = super.A - 107;
+                super.F = var42;
+                if(super.F != 0) {
+                  super.A = 107;
+                  this.$FAF0();
+                  this.$FAF0();
+                } else {
+                  int var43 = this.mem('\ufaef', '\ufa86');
+                  super.A = var43;
+                  int var44 = super.A ^ 1;
+                  super.A = var44;
+                  int var45 = super.A << 1;
+                  super.F = var45;
+                  this.wMem('\ufaef', super.A, '\ufa8b');
+                  if(super.F == 0) {
+                    this.DE(17134);
+                    int var46 = this.R();
+                    super.A = var46;
+                    int var47 = super.A & 1;
+                    super.A = var47;
+                    int var48 = super.A << 1;
+                    super.F = var48;
+                    if(super.F == 0) {
+                      this.DE('\uae02');
+                    }
+
+                    super.A = 56;
+                    this.$FAF0();
+                    this.HL('\uf9f4');
+                    int var49 = this.HL();
+                    int var50 = this.mem(var49, '\ufaa4');
+                    super.A = var50;
+                    int var51 = super.A << 1;
+                    super.F = var51;
+                    if(super.F != 0) {
+                      int var52 = this.HL();
+                      int var53 = this.mem(var52, '\ufaa8') - 1 & 255;
+                      int var54 = this.HL();
+                      this.wMem(var54, var53, '\ufaa8');
+                      super.F = var53;
+                      if(super.F == 0) {
+                        super.A = 1;
+                        this.wMem('\uec1c', super.A, '\ufaad');
+                        this.wMem('\uecb3', super.A, '\ufab0');
+                        int var55 = this.IY();
+                        int var56 = this.mem(var55, '\ufab3');
+                        super.A = var56;
+                        int var57 = super.A + 1;
+                        int var58 = var57 & 255;
+                        super.A = var58;
+                        super.F = var57;
+                        int var59 = this.IY();
+                        this.wMem(var59, super.A, '\ufab9');
+                        int var60 = this.mem('\uecfe', '\ufabc');
+                        super.A = var60;
+                        int var61 = super.A + 1;
+                        int var62 = var61 & 255;
+                        super.A = var62;
+                        super.F = var61;
+                        this.wMem('\uecfe', super.A, '\ufac2');
+                        this.BC('\ube32');
+                        this.HL(0);
+                        this.DE(2570);
+                        this.$FAE7();
+                        this.BC('\u9664');
+                        this.$FAE7();
+                        this.BC('\ua532');
+                        this.$FAE7();
+                        this.BC(32120);
+                        this.$FAE7();
+                      }
+                    }
+                  }
+                }
+
+                this.$F9C4();
+                return;
+              }
+            }
+          }
+
+          int var18 = this.HL() + 1 & '\uffff';
+          this.HL(var18);
+          int var19 = this.HL() + 1 & '\uffff';
+          this.HL(var19);
+          int var20 = this.HL() + 1 & '\uffff';
+          this.HL(var20);
+          int var21 = this.HL() + 1 & '\uffff';
+          this.HL(var21);
+          int var22 = this.HL() + 1 & '\uffff';
+          this.HL(var22);
+          int var23 = super.B - 1 & 255;
+          super.B = var23;
+        } while(super.B != 0);
+
+      }
+    }
+  }
+
+  public void $FAE7() {
+    int var1 = this.HL();
+    this.push(var1);
+    int var2 = this.DE();
+    this.push(var2);
+    this.$E3D3();
+    int var3 = this.pop();
+    this.DE(var3);
+    int var4 = this.pop();
+    this.HL(var4);
+  }
+
+  public void $FAF0() {
+    int var1 = this.IX();
+    this.push(var1);
+    this.IX('\u80a9');
+    int var2 = this.AF();
+    this.push(var2);
+
+    while(true) {
+      int var3 = this.IX();
+      int var4 = this.mem(var3, '\ufaf7');
+      super.A = var4;
+      int var5 = super.A - 255;
+      super.F = var5;
+      if(super.F == 0) {
+        int var6 = this.IX();
+        this.wMem(var6, super.E, '\ufb05');
+        int var7 = this.IX() + 1;
+        this.wMem(var7, super.D, '\ufb08');
+        int var8 = this.R();
+        super.A = var8;
+        int var9 = super.A & 2;
+        super.A = var9;
+        int var10 = super.A << 1;
+        super.F = var10;
+        int var11 = super.A - 1 & 255;
+        super.A = var11;
+        super.F = var11;
+        int var12 = super.A + super.A;
+        int var13 = var12 & 255;
+        super.A = var13;
+        super.F = var12;
+        int var14 = this.IX() + 2;
+        this.wMem(var14, super.A, '\ufb11');
+        int var15 = this.R();
+        super.A = var15;
+        int var16 = super.A & 2;
+        super.A = var16;
+        int var17 = super.A << 1;
+        super.F = var17;
+        int var18 = super.A;
+        super.F = super.F;
+        int var19 = this.rr(var18);
+        super.A = var19;
+        super.C = super.A;
+        int var20 = this.R();
+        super.A = var20;
+        int var21 = super.A & 1;
+        super.A = var21;
+        int var22 = super.A << 1;
+        super.F = var22;
+        int var23 = super.A - super.C;
+        int var24 = var23 & 255;
+        super.A = var24;
+        super.F = var23;
+        int var25 = super.A + super.A;
+        int var26 = var25 & 255;
+        super.A = var26;
+        super.F = var25;
+        int var27 = this.IX() + 3;
+        this.wMem(var27, super.A, '\ufb20');
+        int var28 = this.pop();
+        this.AF(var28);
+        int var29 = this.IX() + 4;
+        this.wMem(var29, super.A, '\ufb24');
+        int var30 = this.pop();
+        this.IX(var30);
+        return;
+      }
+
+      this.$EF88();
+      int var31 = this.IX() + 1 & '\uffff';
+      this.IX(var31);
+    }
   }
 
   public void $A92C() {

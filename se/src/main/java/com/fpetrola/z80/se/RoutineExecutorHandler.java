@@ -87,6 +87,10 @@ public class RoutineExecutorHandler<T extends WordNumber> {
       System.err.print("");
   }
 
+  public Stack<Integer> getStackFrames() {
+    return stackFrames;
+  }
+
   public int popRoutineExecution() {
     T t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
     Integer pop = stackFrames.pop();

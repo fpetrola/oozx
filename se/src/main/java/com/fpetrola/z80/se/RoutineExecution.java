@@ -73,7 +73,7 @@ public class RoutineExecution<T extends WordNumber> {
     return addressAction;
   }
 
-  public AddressAction getAddressAction(int pcValue) {
+  public AddressAction<T> getAddressAction(int pcValue) {
     return actions.get(pcValue);
   }
 

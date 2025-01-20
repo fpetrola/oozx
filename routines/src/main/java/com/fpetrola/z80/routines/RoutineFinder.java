@@ -23,10 +23,12 @@ import com.fpetrola.z80.blocks.references.BlockRelation;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.impl.Call;
+import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.ReturnAddressWordNumber;
@@ -37,6 +39,7 @@ import com.fpetrola.z80.transformations.StackAnalyzer;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.SP;
 
 @SuppressWarnings("ALL")
@@ -119,11 +122,28 @@ public class RoutineFinder<T extends WordNumber> {
           }
 
           public boolean jumpUsingRet(int pcValue, Set<Integer> jumpAddresses) {
-            return StackListener.super.jumpUsingRet(pcValue, jumpAddresses);
+            if (instruction instanceof Ret<T> ret) {
+              T nextPC = ret.getNextPC();
+              if (nextPC != null) {
+//                T spValue = state.getRegisterSP().read();
+//                var read = Memory.read16Bits(state.getMemory(), spValue.plus(-2));
+                routineManager.callers.put(nextPC.intValue(), pcValue);
+                routineManager.callees.put(pcValue, nextPC.intValue());
+              }
+            }
+            return false;
           }
 
           public boolean simulatedCall(int pcValue, int jumpAddress, Set<Integer> jumpAddresses, int returnAddress) {
-            lastSimulatedCallJump = jumpAddress;
+            if (instruction instanceof JP<T> jp) {
+              T nextPC = jp.getNextPC();
+              if (nextPC != null) {
+                lastSimulatedCallJump = nextPC.intValue();
+
+//                routineManager.callers.put(nextPC.intValue(), pcValue);
+//                routineManager.callees.put(pcValue, nextPC.intValue());
+              }
+            }
             return true;
           }
 
@@ -154,7 +174,7 @@ public class RoutineFinder<T extends WordNumber> {
             returnRoutine.addReturnPointDropped(lastReturnAddress.intValue(), pcValue + instructionLength);
             currentRoutine = returnRoutine;
 
-            return StackListener.super.droppingReturnValues(pcValue, newSpAddress, oldSpAddress, lastReturnAddress);
+            return true;
           }
         });
 

@@ -65,6 +65,10 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
 //          }
 //        }
 
+        if (target instanceof MemoryPlusRegister8BitReference<T>) {
+          T value = source.read();
+          return 0;
+        }
         if (source instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
           T value = source.read();
           T address = indirectMemory16BitReference.address;
