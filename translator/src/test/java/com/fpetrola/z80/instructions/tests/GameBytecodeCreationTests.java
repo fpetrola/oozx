@@ -85,9 +85,7 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
   }
 
   private void addDynamicInvocations(StackAnalyzer stackAnalyzer, String json) {
-    Map<String, List<Double>> map = new Gson().fromJson(json, Map.class);
-
-    map.entrySet().forEach(e -> {
+    ((Map<String, List<Double>>) new Gson().fromJson(json, Map.class)).entrySet().forEach(e -> {
       e.getValue().forEach(v -> {
         stackAnalyzer.dynamicInvocation.put(Integer.parseInt(e.getKey()), Double.valueOf(v).intValue());
       });
