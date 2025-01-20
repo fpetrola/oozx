@@ -36,4 +36,7 @@ public interface InstructionExecutor<T> {
 
   default void addExecutionListener(ExecutionListener<T> executionListener) {
   }
+
+  default void addTopExecutionListener(ExecutionListener<T> executionListener) {
+  }
 }

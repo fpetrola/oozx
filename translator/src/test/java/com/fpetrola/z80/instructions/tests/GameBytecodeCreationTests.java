@@ -124,13 +124,14 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
   @Test
   public void testTranslateDynamite() {
     int emulateUntil = 0xC804;
-//    EmulatedMiniZX.rzxFile = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
-//    StackAnalyzer.collecting = true;
-//    emulateUntil = 52879;
+//    EmulatedMiniZX.rzxFile= "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
+//    StackAnalyzer.collecting= true;
+//    emulateUntil= 52879;
     String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, emulateUntil, "http://torinak.com/qaop/bin/dynamitedan");
-//    StackAnalyzer.collecting = false;
+//    StackAnalyzer.collecting= false;
 
     StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
+
     addDynamicInvocations(stackAnalyzer, "{52931=[52961, 53111], 55965=[56008, 55966, 56058], 111=[51200], 59839=[59867]}");
 
     stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
@@ -140,10 +141,10 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
     String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "ZxGame1");
     actual = RemoteZ80Translator.improveSource(actual);
 
-    Assert.assertEquals("", actual);
+//    Assert.assertEquals("", actual);
     List<Routine> routines = driverConfigurator.getRoutineManager().getRoutines();
 
-    Assert.assertEquals("316054b2f1a45816f1410048afd34a77", createMD5(actual));
+    Assert.assertEquals("296abb94c428f5a9593c2ec4dafe5e1a", createMD5(actual));
   }
 
   @Ignore

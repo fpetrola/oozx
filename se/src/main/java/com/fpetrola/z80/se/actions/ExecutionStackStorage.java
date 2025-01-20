@@ -36,7 +36,11 @@ public class ExecutionStackStorage<T extends WordNumber> {
     this.state = state;
   }
 
-  void save() {
+  public boolean isSaved() {
+    return savedStack != null;
+  }
+
+  public void save() {
     if (savedStack == null && enabled) {
       savedStack = createStackCopy();
 //      printStack(savedSP, savedStack, "saving ");

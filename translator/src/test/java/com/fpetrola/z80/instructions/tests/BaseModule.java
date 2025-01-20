@@ -119,8 +119,8 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Provides
   @Inject
   @Singleton
-  private SymbolicExecutionAdapter getExecutionAdapter(State state1, RoutineManager routineManager, RoutineFinderInstructionSpy spy, DataflowService dataflowService1, StackAnalyzer stackAnalyzer, RoutineFinder routineFinder) {
-    return new SymbolicExecutionAdapter(state1, routineManager, spy, dataflowService1, stackAnalyzer, routineFinder);
+  private SymbolicExecutionAdapter getExecutionAdapter(State state1, RoutineManager routineManager, RoutineFinderInstructionSpy spy, DataflowService dataflowService1, StackAnalyzer stackAnalyzer, RoutineFinder routineFinder, InstructionExecutor instructionExecutor) {
+    return new SymbolicExecutionAdapter(state1, routineManager, spy, dataflowService1, stackAnalyzer, routineFinder, instructionExecutor);
   }
 
   @Provides
