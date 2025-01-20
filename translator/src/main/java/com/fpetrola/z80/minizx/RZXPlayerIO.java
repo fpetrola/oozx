@@ -122,6 +122,6 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
       }
       fetchCounter = 0;
     } else
-      System.out.println("dagadg");
+      inputs.add((byte) 0);
   }
 }

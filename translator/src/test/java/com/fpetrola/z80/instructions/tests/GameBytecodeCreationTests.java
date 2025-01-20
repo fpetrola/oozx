@@ -30,6 +30,7 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.transformations.StackAnalyzer;
+import com.google.gson.Gson;
 import io.exemplary.guice.Modules;
 import io.exemplary.guice.TestRunner;
 import jakarta.inject.Inject;
@@ -39,6 +40,7 @@ import org.junit.runner.RunWith;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Map;
 
 import static com.fpetrola.z80.helpers.Helper.createMD5;
 
@@ -107,23 +109,38 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
 
   @Test
   public void testTranslateDynamite() {
-    EmulatedMiniZX.rzxFile= "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
-    StackAnalyzer.collecting= true;
     int emulateUntil = 0xC804;
-    emulateUntil= 40000;
+//    EmulatedMiniZX.rzxFile= "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
+//    StackAnalyzer.collecting= true;
+//    emulateUntil= 52879;
     String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, emulateUntil, "http://torinak.com/qaop/bin/dynamitedan");
-    StackAnalyzer.collecting= false;
-    realCodeBytecodeCreationBase.getStackAnalyzer().reset(realCodeBytecodeCreationBase.getState());
+//    StackAnalyzer.collecting= false;
+
+    StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
+
+    addDynamicInvocations(stackAnalyzer, "{52931=[52961, 53111], 55965=[56008, 55966, 56058], 111=[51200], 59839=[59867]}");
+
+    stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
     stepUntilComplete(0xC804);
 
 //    translateToJava("ZxGame1", base64Memory, "$C804");
     String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "ZxGame1");
     actual = RemoteZ80Translator.improveSource(actual);
 
-    Assert.assertEquals("", actual);
+//    Assert.assertEquals("", actual);
     List<Routine> routines = driverConfigurator.getRoutineManager().getRoutines();
 
-    Assert.assertEquals("316054b2f1a45816f1410048afd34a77", createMD5(actual));
+    Assert.assertEquals("296abb94c428f5a9593c2ec4dafe5e1a", createMD5(actual));
+  }
+
+  private void addDynamicInvocations(StackAnalyzer stackAnalyzer, String json) {
+    Map<String, List<Double>> map = new Gson().fromJson(json, Map.class);
+
+    map.entrySet().forEach(e -> {
+      e.getValue().forEach(v -> {
+        stackAnalyzer.dynamicInvocation.put(Integer.parseInt(e.getKey()), Double.valueOf(v).intValue());
+      });
+    });
   }
 
   @Ignore
