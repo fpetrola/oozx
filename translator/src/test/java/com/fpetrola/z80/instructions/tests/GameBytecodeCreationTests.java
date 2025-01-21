@@ -136,7 +136,7 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
     String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "ZxGame1");
     actual = RemoteZ80Translator.improveSource(actual);
 
-//    Assert.assertEquals("", actual);
+    Assert.assertEquals("", actual);
     List<Routine> routines = driverConfigurator.getRoutineManager().getRoutines();
 
     Assert.assertEquals("296abb94c428f5a9593c2ec4dafe5e1a", createMD5(actual));

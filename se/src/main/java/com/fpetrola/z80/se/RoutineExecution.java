@@ -36,6 +36,7 @@ public class RoutineExecution<T extends WordNumber> {
   private int retInstruction = -1;
   private int start;
   private Map<Integer, AddressAction> actions = new HashMap<>();
+  private List<RoutineExecution<T>> callees = new ArrayList<>();
 
   public RoutineExecution(RoutineExecutorHandler<T> routineExecutorHandler, int start) {
     this.routineExecutorHandler = routineExecutorHandler;
@@ -99,7 +100,7 @@ public class RoutineExecution<T extends WordNumber> {
     } else if (instruction instanceof Call call) {
       return new CallAddressAction(pcValue, call, alwaysTrue, routineExecutorHandler);
     } else if (instruction instanceof JP jp && jp.getPositionOpcodeReference() instanceof Register) {
-      return new JPRegisterAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler,routineExecutorHandler.getStackAnalyzer().getInvocationsSet(pcValue));
+      return new JPRegisterAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler, routineExecutorHandler.getStackAnalyzer().getInvocationsSet(pcValue));
     } else {
       return new ConditionalInstructionAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler);
     }
@@ -131,5 +132,13 @@ public class RoutineExecution<T extends WordNumber> {
 
   public boolean contains(int address) {
     return actions.containsKey(address);
+  }
+
+  public void addCallee(RoutineExecution<T> routineExecution) {
+    callees.add(routineExecution);
+  }
+
+  public boolean isPending() {
+    return hasPendingPoints() || callees.stream().anyMatch(RoutineExecution::isPending);
   }
 }

@@ -72,10 +72,8 @@ public class RoutineExecutorHandler<T extends WordNumber> {
     return routineExecutions.values().stream().filter(r -> r.contains(address)).findFirst().get();
   }
 
-  public void createRoutineExecution(int jumpAddress) {
-    // if (jumpAddress == 35211) System.out.println("start routine: " + jumpAddress);
-    if (jumpAddress == 0xCFD9)
-      System.out.println("");
+  public RoutineExecution<T> createRoutineExecution(int jumpAddress) {
+    RoutineExecution<T> currentRoutineExecution = getCurrentRoutineExecution();
 
     System.out.println("Push frame: " + formatAddress(jumpAddress));
 
@@ -85,6 +83,11 @@ public class RoutineExecutorHandler<T extends WordNumber> {
       routineExecutions.put(jumpAddress, routineExecution = new RoutineExecution<>(this, jumpAddress));
     } else
       System.err.print("");
+
+    if (currentRoutineExecution != null)
+      currentRoutineExecution.addCallee(routineExecution);
+
+    return routineExecution;
   }
 
   public Stack<Integer> getStackFrames() {
@@ -111,7 +114,10 @@ public class RoutineExecutorHandler<T extends WordNumber> {
   }
 
   public RoutineExecution<T> getCurrentRoutineExecution() {
-    return routineExecutions.get(stackFrames.peek());
+    if (stackFrames.isEmpty())
+      return null;
+    else
+      return routineExecutions.get(stackFrames.peek());
   }
 
   public RoutineExecution<T> getCallerRoutineExecution() {

@@ -188,7 +188,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       var pcValue = pc.read().intValue();
       ready = isReady(pcValue);
 
-      if (pcValue == 0xEAE1 || pcValue == 0xF9EC)
+      if (pcValue == 0x81B4)
         System.out.println("aca!");
       if (!ready) {
         var routineExecution = routineExecutorHandler.getCurrentRoutineExecution();
@@ -332,7 +332,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 //        if (callerRoutineExecution.getAddressAction(lastReturnAddress.pc) instanceof ChangeStackCallAddressAction<T> changeStackCallAddressAction) {
 //          changeStackCallAddressAction.getLastRoutineExecutions().addAll(stackedRoutines);
 //        } else
-          callerRoutineExecution.replaceAddressAction(new ChangeStackCallAddressAction<>(routineExecutorHandler, stackedRoutines, lastReturnAddress.pc));
+        callerRoutineExecution.replaceAddressAction(new ChangeStackCallAddressAction<>(routineExecutorHandler, stackedRoutines, lastReturnAddress.pc));
 
         if (!lastRoutineExecution.hasRetInstruction())
           lastRoutineExecution.setRetInstruction(pcValue);
