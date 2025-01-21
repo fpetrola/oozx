@@ -768,6 +768,9 @@ public class ZxGame1 extends MiniZX {
         this.DE('\ua989');
         int var26 = this.DE();
         this.push(var26);
+        pop();
+        $A988();
+        $A989();
       }
     }
   }
@@ -787,8 +790,6 @@ public class ZxGame1 extends MiniZX {
       this.$AB9B();
     } else if(this.HL() == '\uaadd') {
       this.$AADD();
-    } else {
-      this.$A989();
     }
   }
 
@@ -4104,7 +4105,8 @@ public class ZxGame1 extends MiniZX {
                 this.HL(var36);
 
                 while(true) {
-                  this.executeMutantCode('\ub894');
+                  $B7BA();
+//                  this.executeMutantCode('\ub894');
                   int var37 = super.D + 1 & 255;
                   super.D = var37;
                   super.F = var37;
@@ -4126,7 +4128,8 @@ public class ZxGame1 extends MiniZX {
                 this.HL(var20);
 
                 while(true) {
-                  this.executeMutantCode('\ub8b4');
+                  $B7BA();
+//                  this.executeMutantCode('\ub8b4');
                   int var21 = super.E + 1 & 255;
                   super.E = var21;
                   super.F = var21;
@@ -4171,7 +4174,8 @@ public class ZxGame1 extends MiniZX {
           }
         }
 
-        this.executeMutantCode('\ub8bd');
+        $B7BA();
+//        this.executeMutantCode('\ub8bd');
         break;
       }
 

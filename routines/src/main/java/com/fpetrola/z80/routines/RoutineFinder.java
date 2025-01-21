@@ -92,7 +92,8 @@ public class RoutineFinder<T extends WordNumber> {
     if (instructionLength > 0) {
       int pcValue = state.getPc().read().intValue();
 
-
+      if (pcValue == 0xA92C || pcValue== 0xAE86)
+        System.out.print("");
       try {
         processedPcs.add(pcValue);
 
@@ -144,7 +145,7 @@ public class RoutineFinder<T extends WordNumber> {
 //                routineManager.callees.put(pcValue, nextPC.intValue());
               }
             }
-            return true;
+            return false;
           }
 
           @Override
