@@ -514,7 +514,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   private void processExistingCondition(Runnable runnable, ConditionalInstruction conditionalInstruction, ConditionFlag conditionFlag, OpcodeReferenceVisitor opcodeReferenceVisitor) {
-    if (routineByteCodeGenerator.context.pc.read().intValue() == 0xD9AC)
+    if (routineByteCodeGenerator.context.pc.read().intValue() == 0xBA12)
       System.out.println("break");
     Variable f = opcodeReferenceVisitor.process((Register) conditionFlag.getRegister());
     String string = conditionalInstruction.getCondition().toString();
@@ -551,8 +551,8 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
             else if (string.equals("C")) targetVariable.ifNe(source, runnable);
             else if (string.equals("NS")) targetVariable.ifGe(source, runnable);
             else if (string.equals("S")) targetVariable.ifLt(source, runnable);
-            else if (string.equals("PE")) targetVariable.ifGe(source, runnable);
-            else if (string.equals("PO")) targetVariable.ifLt(source, runnable);
+            else if (string.equals("P")) targetVariable.ifGt(source, runnable);
+            else if (string.equals("NP")) targetVariable.ifLt(source, runnable);
             return;
           }
       }
@@ -570,8 +570,8 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
           else if (string.equals("C")) invoke.ifNe(source, runnable);
           else if (string.equals("NS")) invoke.ifGe(source, runnable);
           else if (string.equals("S")) invoke.ifLt(source, runnable);
-          else if (string.equals("PE")) invoke.ifGe(source, runnable);
-          else if (string.equals("PO")) invoke.ifLt(source, runnable);
+          else if (string.equals("P")) invoke.ifGt(source, runnable);
+          else if (string.equals("NP")) invoke.ifLt(source, runnable);
           return;
         }
 
@@ -601,8 +601,8 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
     else if (conditionString.equals("C")) target.ifLe(source, runnable);
     else if (conditionString.equals("NS")) target.ifGe(source, runnable);
     else if (conditionString.equals("S")) target.ifLt(source, runnable);
-    else if (conditionString.equals("PE")) target.ifGe(source, runnable);
-    else if (conditionString.equals("PO")) target.ifLt(source, runnable);
+    else if (conditionString.equals("P")) target.ifGt(source, runnable);
+    else if (conditionString.equals("NP")) target.ifLt(source, runnable);
   }
 
   @Override
@@ -639,9 +639,22 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
     methodMaker.invoke("exx");
   }
 
-  @Override
   public void visitLdi(Ldi<T> tLdi) {
     methodMaker.invoke("ldi");
+  }
+
+  public boolean visitLdd(Ldd ldd) {
+    methodMaker.invoke("ldi");
+    return true;
+  }
+
+  public boolean visitCpd(Cpd<T> cpd) {
+    methodMaker.invoke("cpd");
+    return true;
+  }
+
+  public void visitCpi(Cpi<T> cpi) {
+    methodMaker.invoke("cpi");
   }
 
   @Override

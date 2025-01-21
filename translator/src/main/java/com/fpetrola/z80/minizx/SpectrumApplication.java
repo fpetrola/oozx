@@ -287,10 +287,12 @@ public abstract class SpectrumApplication<T> {
   }
 
   public void ldi() {
-//    mem[DE()] = mem[HL()];
-//    BC(BC() - 1);
-//    HL(HL() + 1);
-//    DE(DE() + 1);
+    mem[DE()] = mem[HL()];
+    BC(BC() - 1);
+    HL(HL() + 1);
+    DE(DE() + 1);
+    if (BC() == 0)
+      F= -1;
   }
 
   public void lddr() {
