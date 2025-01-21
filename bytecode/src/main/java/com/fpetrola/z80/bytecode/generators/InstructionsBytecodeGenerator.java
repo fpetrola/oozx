@@ -551,7 +551,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
             else if (string.equals("C")) targetVariable.ifNe(source, runnable);
             else if (string.equals("NS")) targetVariable.ifGe(source, runnable);
             else if (string.equals("S")) targetVariable.ifLt(source, runnable);
-            else if (string.equals("P")) targetVariable.ifGt(source, runnable);
+            else if (string.equals("P")) targetVariable.ifGe(source, runnable);
             else if (string.equals("NP")) targetVariable.ifLt(source, runnable);
             return;
           }
@@ -570,7 +570,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
           else if (string.equals("C")) invoke.ifNe(source, runnable);
           else if (string.equals("NS")) invoke.ifGe(source, runnable);
           else if (string.equals("S")) invoke.ifLt(source, runnable);
-          else if (string.equals("P")) invoke.ifGt(source, runnable);
+          else if (string.equals("P")) invoke.ifGe(source, runnable);
           else if (string.equals("NP")) invoke.ifLt(source, runnable);
           return;
         }
@@ -601,7 +601,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
     else if (conditionString.equals("C")) target.ifLe(source, runnable);
     else if (conditionString.equals("NS")) target.ifGe(source, runnable);
     else if (conditionString.equals("S")) target.ifLt(source, runnable);
-    else if (conditionString.equals("P")) target.ifGt(source, runnable);
+    else if (conditionString.equals("P")) target.ifGe(source, runnable);
     else if (conditionString.equals("NP")) target.ifLt(source, runnable);
   }
 
