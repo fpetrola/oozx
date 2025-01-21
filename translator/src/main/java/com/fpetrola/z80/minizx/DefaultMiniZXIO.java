@@ -149,7 +149,7 @@ public class DefaultMiniZXIO<T extends WordNumber> implements MiniZXIO<T> {
     return resultJava;
   }
 
-  private synchronized PortInput processLastInputs(WordNumber port, boolean readNew) {
+  private  PortInput processLastInputs(WordNumber port, boolean readNew) {
     if (readNew) {
       WordNumber in = in0(port);
       if (in == null)
