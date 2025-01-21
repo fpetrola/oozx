@@ -125,6 +125,7 @@ public class MiniZXScreen<T extends WordNumber> extends JPanel {
   protected void writeColourPixelToNewScreen(byte pixel, int newScreenAddress) {
     ZxColor zxColor = new ZxColor((byte) screenMemory.apply(22528 + (newScreenAddress / 2048) * 32 + (newScreenAddress / 8) % 32).intValue());
 //    Colour colour = Colour.colourFromAttribute((byte) 2);
+//    zxColor = new ZxColor(7);
 
     byte paperColour = zxColor.PAPER;
     byte inkColour = zxColor.INK;

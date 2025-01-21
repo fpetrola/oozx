@@ -172,8 +172,8 @@ public class Routine {
   private static boolean splitBlocksIfRequired(Routine routineAt, Block block, int startAddress1, int startAddress2, Map<Integer, Integer> virtualPop1, MultiValuedMap<Integer, Integer> returnPointsDropped) {
     if (startAddress1 != startAddress2) {
       Block split = block.split(startAddress1 - 1);
-      if (startAddress2 != routineAt.entryPoint)
-        routineAt.setEntryPoint(startAddress1 - 1);
+//      if (startAddress2 != routineAt.entryPoint)
+//        routineAt.setEntryPoint(startAddress1 - 1);
       return createRoutineFromSplit(routineAt, startAddress1, virtualPop1, split, returnPointsDropped);
     } else {
       if (routineAt.getBlocks().size() > 1) {
@@ -481,7 +481,7 @@ public class Routine {
   }
 
   public void setEntryPoint(int entryPoint) {
-    if (entryPoint == 0xDDFF)
+    if (entryPoint == 0xA9BD)
       System.out.println("sdfadadgaffff");
     this.entryPoint = entryPoint;
   }

@@ -29,14 +29,11 @@ import com.fpetrola.z80.opcodes.references.ConditionFlag;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.se.instructions.SEInstructionFactory;
-import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -471,7 +468,16 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   public boolean visitingRet(Ret ret) {
-    createIfs(ret, () -> routineByteCodeGenerator.returnFromMethod());
+    StackAnalyzer stackAnalyzer = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer();
+    int pcValue = routineByteCodeGenerator.context.pc.read().intValue();
+
+    Set invocationsSet = stackAnalyzer.getInvocationsSet(pcValue);
+    if (invocationsSet.isEmpty())
+      createIfs(ret, () -> routineByteCodeGenerator.returnFromMethod());
+    else {
+      Variable poppedValue = methodMaker.invoke("pop");
+      invokeDynamicCall(invocationsSet, poppedValue);
+    }
     return true;
   }
 
@@ -545,6 +551,8 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
             else if (string.equals("C")) targetVariable.ifNe(source, runnable);
             else if (string.equals("NS")) targetVariable.ifGe(source, runnable);
             else if (string.equals("S")) targetVariable.ifLt(source, runnable);
+            else if (string.equals("PE")) targetVariable.ifGe(source, runnable);
+            else if (string.equals("PO")) targetVariable.ifLt(source, runnable);
             return;
           }
       }
@@ -562,6 +570,8 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
           else if (string.equals("C")) invoke.ifNe(source, runnable);
           else if (string.equals("NS")) invoke.ifGe(source, runnable);
           else if (string.equals("S")) invoke.ifLt(source, runnable);
+          else if (string.equals("PE")) invoke.ifGe(source, runnable);
+          else if (string.equals("PO")) invoke.ifLt(source, runnable);
           return;
         }
 
@@ -588,9 +598,11 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
     if (conditionString.equals("NZ")) target.ifNe(source, runnable);
     else if (conditionString.equals("Z")) target.ifEq(source, runnable);
     else if (conditionString.equals("NC")) target.ifGe(source, runnable);
-    else if (conditionString.equals("C")) target.ifLt(source, runnable);
+    else if (conditionString.equals("C")) target.ifLe(source, runnable);
     else if (conditionString.equals("NS")) target.ifGe(source, runnable);
     else if (conditionString.equals("S")) target.ifLt(source, runnable);
+    else if (conditionString.equals("PE")) target.ifGe(source, runnable);
+    else if (conditionString.equals("PO")) target.ifLt(source, runnable);
   }
 
   @Override
@@ -625,6 +637,11 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   public void visitExx(Exx exx) {
     methodMaker.invoke("exx");
+  }
+
+  @Override
+  public void visitLdi(Ldi<T> tLdi) {
+    methodMaker.invoke("ldi");
   }
 
   @Override
@@ -671,21 +688,24 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
     if (jp.getPositionOpcodeReference() instanceof Register<T> register) {
       int pcValue1 = routineByteCodeGenerator.context.pc.read().intValue();
       Set<Integer> invocationsSet = stackAnalyzer.getInvocationsSet(pcValue1);
-      invocationsSet.forEach(c -> {
-        Variable existingVariable = routineByteCodeGenerator.getExistingVariable(register);
-        existingVariable.ifEq(c, () -> {
-          Label label = routineByteCodeGenerator.getLabel(c);
-          if (label != null) {
-            methodMaker.goto_(label);
-          } else {
-            routineByteCodeGenerator.invokeTransformedMethod(c);
-            methodMaker.return_();
-          }
-        });
-      });
+      invokeDynamicCall(invocationsSet, routineByteCodeGenerator.getExistingVariable(register));
       return true;
     } else
       return false;
+  }
+
+  private void invokeDynamicCall(Set<Integer> invocationsSet, Variable existingVariable) {
+    invocationsSet.forEach(c -> {
+      existingVariable.ifEq(c, () -> {
+        Label label = routineByteCodeGenerator.getLabel(c);
+        if (label != null) {
+          methodMaker.goto_(label);
+        } else {
+          routineByteCodeGenerator.invokeTransformedMethod(c);
+          methodMaker.return_();
+        }
+      });
+    });
   }
 
   public boolean visitLdAR(LdAR tLdAR) {

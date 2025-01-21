@@ -66,6 +66,14 @@ public abstract class SpectrumApplication<T> {
       wMem(DE(), A, address);
     } else if (mem[address] == 0x16) {
       D = mem[address + 1];
+    } else if (mem[address] == 0x06) {
+      B = mem[address + 1];
+    } else if (mem[address] == 0x11) {
+      DE(mem16(address + 1));
+    } else if (mem[address] == 0x3E) {
+      A = mem[address + 1];
+    } else if (mem[address] == 0x01) {
+      BC(mem16(address + 1));
     }
 
 //    System.out.println("mutant at: " + address);
@@ -276,6 +284,13 @@ public abstract class SpectrumApplication<T> {
       HL(HL() + 1);
       DE(DE() + 1);
     }
+  }
+
+  public void ldi() {
+//    mem[DE()] = mem[HL()];
+//    BC(BC() - 1);
+//    HL(HL() + 1);
+//    DE(DE() + 1);
   }
 
   public void lddr() {

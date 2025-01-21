@@ -52,6 +52,8 @@ public class ZxColor {
   }
 
   public Color getStateColor(boolean set) {
-    return set ? getInkColor() : getPaperColor();
+    Color color = set ? getInkColor() : getPaperColor();
+//    color= Color.WHITE;
+    return color;
   }
 }
