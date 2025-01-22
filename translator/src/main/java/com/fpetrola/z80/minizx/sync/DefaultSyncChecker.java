@@ -20,6 +20,8 @@ package com.fpetrola.z80.minizx.sync;
 
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.factory.Z80Factory;
+import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.minizx.DefaultMiniZXIO;
 import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.fpetrola.z80.minizx.emulation.MiniZXAndEmulation;
@@ -36,7 +38,7 @@ import static com.fpetrola.z80.helpers.Helper.formatAddress;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class DefaultSyncChecker implements SyncChecker {
-  public static final int maxwait = 100;
+  public static final int maxwait = 30;
   volatile int checking;
   volatile int checkingEmu;
   volatile Stack<StateSync> stateSync = new Stack();
@@ -50,6 +52,7 @@ public class DefaultSyncChecker implements SyncChecker {
   private int pc;
   private DefaultMiniZXIO io;
   private List<Integer> rValues = Collections.synchronizedList(new ArrayList<>());
+  private ObservableRegister<WordNumber> observablePC;
 
   public <T extends WordNumber> OOZ80<T> createOOZ80(DefaultMiniZXIO io) {
     this.io = io;
@@ -98,8 +101,21 @@ public class DefaultSyncChecker implements SyncChecker {
         writtenRegisters.put(observableRegister.getName(), v.intValue());
       });
     });
-    var state = new State(io, bank, new MockedMemory(true));
-    io.setPc(state.getPc());
+    var state = new State<T>(io, bank, new MockedMemory(true));
+    observablePC = (ObservableRegister) state.getPc();
+    observablePC.addRegisterWriteListener((v, i) -> {
+      Instruction<WordNumber> instructionAt = ooz80.getInstructionExecutor().getInstructionAt(v.intValue());
+      if (!(instructionAt instanceof RepeatingInstruction<WordNumber>))
+        checkSyncEmu(-1, -1, v.intValue(), false);
+    });
+    observablePC.addIncrementWriteListener(v -> {
+      int pc1 = observablePC.read().intValue();
+      Instruction<WordNumber> instructionAt = ooz80.getInstructionExecutor().getInstructionAt(pc1);
+      if (!(instructionAt instanceof RepeatingInstruction<WordNumber>)) {
+        checkSyncEmu(-1, -1, pc1, false);
+      }
+    });
+    io.setPc(observablePC);
     return Z80Factory.createOOZ80(state);
   }
 
@@ -139,18 +155,21 @@ public class DefaultSyncChecker implements SyncChecker {
 
     miniZXAndEmulation = new MiniZXAndEmulation(ooz80, this.spectrumApplication);
     miniZXAndEmulation.copyStateBackToEmulation();
+
+//    if (!miniZXAndEmulation.stateIsMatching(writtenRegisters, value.intValue(), false)) {
+//      System.out.println("not matching at: " + formatAddress(value.intValue()));
+//    }
+
     WordNumber value = createValue(0x8185);
     pc.write(value);
+    observablePC.listening(true);
 
-    if (!miniZXAndEmulation.stateIsMatching(writtenRegisters, value.intValue(), false)) {
-      System.out.println("not matching at: " + formatAddress(value.intValue()));
-    }
     new Thread(() -> miniZXAndEmulation.emulate()).start();
   }
 
   @Override
   public void checkSyncEmu(int address, int value, int pc, boolean write) {
-    System.out.println("sync emu: " + formatAddress(pc));
+//    System.out.println("sync emu: " + formatAddress(pc));
     syncEmuCounter++;
     while (checking == 0 || syncEmuCounter > maxwait) ;
     if (checking != pc)
@@ -163,7 +182,7 @@ public class DefaultSyncChecker implements SyncChecker {
 
   @Override
   public void checkSyncJava(int address, int value, int pc) {
-    System.out.println("sync java: " + formatAddress(pc));
+//    System.out.println("sync java: " + formatAddress(pc));
     syncEmuCounter++;
     checking = pc;
     while (checking != 0 || syncJavaCounter > maxwait) ;
@@ -177,7 +196,7 @@ public class DefaultSyncChecker implements SyncChecker {
     } else {
       syncEmuCounter = 0;
       syncJavaCounter = 0;
-      System.out.println("ok at: " + formatAddress(pc));
+//      System.out.println("ok at: " + formatAddress(pc));
     }
     stateSync.clear();
   }

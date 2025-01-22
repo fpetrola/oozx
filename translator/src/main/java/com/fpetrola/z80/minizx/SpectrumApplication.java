@@ -335,7 +335,7 @@ public abstract class SpectrumApplication<T> {
   public void AF(int value) {
     AF = value & 0xffff;
     A = AF >> 8;
-    F = AF & 0xFF;
+   // F = AF & 0xFF;
   }
 
   public void BC(int value) {

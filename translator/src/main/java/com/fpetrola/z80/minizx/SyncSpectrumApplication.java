@@ -54,6 +54,10 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
     }
   }
 
+  public void pc(int address) {
+    syncChecker.checkSyncJava(-1, -1, address);
+  }
+
   public int mem16(int address, int pc) {
     syncChecker.checkSyncJava(address, 0, pc);
     return mem(address + 1) * 256 + mem(address);

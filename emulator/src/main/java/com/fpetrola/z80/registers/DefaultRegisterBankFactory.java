@@ -106,7 +106,7 @@ public class DefaultRegisterBankFactory<T extends WordNumber> {
     }
 
     public void write(T value) {
-      this.data = (T) new IntegerWordNumber(value.intValue());
+      super.write((T) new IntegerWordNumber(value.intValue()));
     }
   }
 
