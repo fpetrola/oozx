@@ -166,7 +166,7 @@ public class ZxGame1 extends MiniZX {
   public void $8185() {
     while(true) {
       try {
-//        this.SP('\ufc00');
+//        this.SP('\ufc00'); //FIXME
         this.$80E5();
         this.$BAD8();
         this.$E3FD();
@@ -183,7 +183,7 @@ public class ZxGame1 extends MiniZX {
           this.$ED2A();
         }
       } catch (StackException var3) {
-        int[] var2 = new int[]{'\u8188', '\uee9d', '\u8186'};
+        int[] var2 = new int[]{'\u8188', '\uee9d', '\u8186'};//FIXME
         if(!this.isOwnAddress(var3, var2)) {
           throw var3;
         }
@@ -908,33 +908,33 @@ public class ZxGame1 extends MiniZX {
             this.DE('\ua989');
             int var32 = this.DE();
             this.push(var32);
-            pop();
+            pop();//FIXME
             if(this.HL() == '\uab60') {
-              this.$AB60();
+              this.$AB60();//FIXME
             }
 
             if(this.HL() == '\uaab2') {
-              this.$AAB2();
+              this.$AAB2();//FIXME
             }
 
             if(this.HL() == '\uab43') {
-              this.$AB43();
+              this.$AB43();//FIXME
             }
 
             if(this.HL() == '\uab26') {
-              this.$AB26();
+              this.$AB26();//FIXME
             }
 
             if(this.HL() == '\uab09') {
-              this.$AB09();
+              this.$AB09();//FIXME
             }
 
             if(this.HL() == '\uab9b') {
-              this.$AB9B();
+              this.$AB9B();//FIXME
             }
 
             if(this.HL() == '\uaadd') {
-              this.$AADD();
+              this.$AADD();//FIXME
             }
           }
         }
@@ -3947,7 +3947,7 @@ public class ZxGame1 extends MiniZX {
                 this.HL(var36);
 
                 while(true) {
-                  $B7BA();
+                  $B7BA();//FIXME
 //                  this.executeMutantCode('\ub894');
                   int var37 = super.D + 1 & 255;
                   super.D = var37;
@@ -3970,7 +3970,7 @@ public class ZxGame1 extends MiniZX {
                 this.HL(var20);
 
                 while(true) {
-                  $B7BA();
+                  $B7BA();//FIXME
 //                  this.executeMutantCode('\ub8b4');
                   int var21 = super.E + 1 & 255;
                   super.E = var21;
@@ -4016,7 +4016,7 @@ public class ZxGame1 extends MiniZX {
           }
         }
 
-        $B7BA();
+        $B7BA();//FIXME
 //        this.executeMutantCode('\ub8bd');
         break;
       }
@@ -7310,7 +7310,7 @@ public class ZxGame1 extends MiniZX {
       int var15 = super.A - super.L;
       super.F = var15;
       if(super.F != 0) {
-        super.A= this.mem(BC(), '\uef59');
+        super.A= this.mem(BC(), '\uef59');//FIXME
         int var16 = super.A - super.L;
         super.F = var16;
         if(super.F != 0) {
