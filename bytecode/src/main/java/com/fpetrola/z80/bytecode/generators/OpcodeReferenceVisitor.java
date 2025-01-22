@@ -69,7 +69,7 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
     Variable variable = (Variable) opcodeReferenceVisitor.getResult();
 
     byte value = memoryPlusRegister8BitReference.fetchRelative();
-    Variable variablePlusDelta = value > 0 ? variable.add(value) : variable;
+    Variable variablePlusDelta = variable.add(value);
     if (isTarget)
       result = new WriteArrayVariable(routineByteCodeGenerator, () -> variablePlusDelta, "");
     else {

@@ -228,7 +228,7 @@ public class ZxGame1 extends MiniZX {
     super.A = var1;
     int var2 = super.A << 1;
     super.F = var2;
-    int var3 = this.IY();
+    int var3 = this.IY() + -60;
     this.wMem(var3, super.A, '\u81d7');
     int var4 = this.IY() + 35;
     int var5 = this.mem(var4, '\u81da');
@@ -698,8 +698,8 @@ public class ZxGame1 extends MiniZX {
       if(super.F == 0) {
         this.$A921();
         if(super.F == 0) {
-          int var97 = this.IY() + 1 & '\uffff';
-          this.IY(var97);
+          int var96 = this.IY() + 1 & '\uffff';
+          this.IY(var96);
         }
       }
 
@@ -712,7 +712,7 @@ public class ZxGame1 extends MiniZX {
         int var14 = super.A - var13;
         super.F = var14;
         if(super.F == 0) {
-          int var37 = this.IY();
+          int var37 = this.IY() + -20;
           int var38 = this.mem(var37, '\ua954');
           super.A = var38;
           int var39 = super.A << 1;
@@ -745,24 +745,24 @@ public class ZxGame1 extends MiniZX {
             int var48 = super.A - 152;
             super.F = var48;
             if(super.F != 0) {
-              int var92 = this.IY() + 5;
-              int var93 = this.mem(var92, '\ua9b3');
-              super.A = var93;
-              int var94 = super.A - 120;
-              super.F = var94;
+              int var91 = this.IY() + 5;
+              int var92 = this.mem(var91, '\ua9b3');
+              super.A = var92;
+              int var93 = super.A - 120;
+              super.F = var93;
               if(super.F < 0) {
-                int var96 = this.IY() + 60;
-                this.wMem(var96, 1, '\ua9ba');
-              } else {
                 int var95 = this.IY() + 60;
-                this.wMem(var95, 255, '\ua9c4');
+                this.wMem(var95, 1, '\ua9ba');
+              } else {
+                int var94 = this.IY() + 60;
+                this.wMem(var94, 255, '\ua9c4');
               }
 
               this.$B288();
               break label89;
             }
 
-            int var49 = this.IY();
+            int var49 = this.IY() + -15;
             int var50 = this.mem(var49, '\ua9ca');
             super.B = var50;
             this.$AA8C();
@@ -781,8 +781,8 @@ public class ZxGame1 extends MiniZX {
             int var59 = super.A - var58;
             super.F = var59;
             if(super.F < 0) {
-              int var91 = this.IY() + 60;
-              this.wMem(var91, 1, '\ua9d9');
+              int var90 = this.IY() + 60;
+              this.wMem(var90, 1, '\ua9d9');
             } else {
               int var60 = this.IY() + 60;
               this.wMem(var60, 255, '\ua9df');
@@ -799,11 +799,11 @@ public class ZxGame1 extends MiniZX {
               break label89;
             }
 
-            int var65 = this.IY();
+            int var65 = this.IY() + -15;
             int var66 = this.mem(var65, '\ua9ed');
             super.B = var66;
             this.$AA30();
-            int var67 = this.IY();
+            int var67 = this.IY() + -20;
             this.wMem(var67, 0, '\ua9f3');
             int var68 = this.IY() + 120;
             int var69 = this.mem(var68, '\ua9f7');
@@ -812,52 +812,51 @@ public class ZxGame1 extends MiniZX {
             int var71 = this.mem(var70, '\ua9fa');
             super.D = var71;
             super.H = 0;
-            int var72 = this.IY();
+            int var72 = this.IY() + -5;
             int var73 = this.mem(var72, '\ua9ff') + 1 & 255;
-            int var74 = this.IY();
-            this.wMem(var74, var73, '\ua9ff');
+            this.wMem(var72, var73, '\ua9ff');
             super.F = var73;
-            int var75 = this.IY();
-            int var76 = this.mem(var75, '\uaa02');
-            super.L = var76;
-            int var77 = this.DE();
-            int var78 = this.HL() + var77 & '\uffff';
-            this.HL(var78);
-            int var79 = this.HL();
-            int var80 = this.mem(var79, '\uaa06');
-            super.A = var80;
-            int var81 = super.A - 255;
-            super.F = var81;
+            int var74 = this.IY() + -5;
+            int var75 = this.mem(var74, '\uaa02');
+            super.L = var75;
+            int var76 = this.DE();
+            int var77 = this.HL() + var76 & '\uffff';
+            this.HL(var77);
+            int var78 = this.HL();
+            int var79 = this.mem(var78, '\uaa06');
+            super.A = var79;
+            int var80 = super.A - 255;
+            super.F = var80;
             if(super.F == 0) {
               this.exHLDE();
-              int var90 = this.IY();
-              this.wMem(var90, 0, '\uaa0c');
+              int var89 = this.IY() + -5;
+              this.wMem(var89, 0, '\uaa0c');
             }
 
-            int var82 = this.HL();
-            int var83 = this.mem(var82, '\uaa10');
-            super.E = var83;
+            int var81 = this.HL();
+            int var82 = this.mem(var81, '\uaa10');
+            super.E = var82;
             this.$AE8A();
             super.A = super.B;
-            int var84 = super.A << 1;
-            super.F = var84;
+            int var83 = super.A << 1;
+            super.F = var83;
             if(super.F == 0) {
               do {
                 this.$AED7();
                 super.C = 0;
                 super.D = super.A;
                 super.A = super.D;
-                int var87 = this.IY() + 15;
-                int var88 = this.mem(var87, '\uaa1f');
-                int var89 = super.A - var88;
-                super.F = var89;
+                int var86 = this.IY() + 15;
+                int var87 = this.mem(var86, '\uaa1f');
+                int var88 = super.A - var87;
+                super.F = var88;
               } while(super.F == 0);
             }
 
-            int var85 = this.IY() + 90;
-            this.wMem(var85, super.D, '\uaa24');
-            int var86 = this.IY();
-            this.wMem(var86, super.C, '\uaa27');
+            int var84 = this.IY() + 90;
+            this.wMem(var84, super.D, '\uaa24');
+            int var85 = this.IY() + -15;
+            this.wMem(var85, super.C, '\uaa27');
             this.$ADBA();
             break label89;
           }
@@ -908,37 +907,30 @@ public class ZxGame1 extends MiniZX {
             pop();
             if(this.HL() == '\uab60') {
               this.$AB60();
-              return;
             }
 
             if(this.HL() == '\uaab2') {
               this.$AAB2();
-              return;
             }
 
             if(this.HL() == '\uab43') {
               this.$AB43();
-              return;
             }
 
             if(this.HL() == '\uab26') {
               this.$AB26();
-              return;
             }
 
             if(this.HL() == '\uab09') {
               this.$AB09();
-              return;
             }
 
             if(this.HL() == '\uab9b') {
               this.$AB9B();
-              return;
             }
 
             if(this.HL() == '\uaadd') {
               this.$AADD();
-              return;
             }
           }
         }
@@ -969,7 +961,7 @@ public class ZxGame1 extends MiniZX {
     int var5 = this.HL();
     int var6 = this.mem(var5, '\uaa37');
     super.A = var6;
-    int var7 = this.IY();
+    int var7 = this.IY() + -40;
     int var8 = this.mem(var7, '\uaa38');
     int var9 = super.A & var8;
     super.A = var9;
@@ -1008,7 +1000,7 @@ public class ZxGame1 extends MiniZX {
         super.A = var25;
         int var26 = super.A << 1;
         super.F = var26;
-        int var27 = this.IY();
+        int var27 = this.IY() + -50;
         int var28 = this.mem(var27, '\uaa50');
         int var29 = super.A | var28;
         super.A = var29;
@@ -1016,12 +1008,12 @@ public class ZxGame1 extends MiniZX {
         super.F = var30;
         int var31 = this.HL();
         this.wMem(var31, super.A, '\uaa53');
-        int var32 = this.IY();
+        int var32 = this.IY() + -55;
         int var33 = this.mem(var32, '\uaa54');
         super.A = var33;
-        int var34 = this.IY();
+        int var34 = this.IY() + -50;
         this.wMem(var34, super.A, '\uaa57');
-        int var35 = this.IY();
+        int var35 = this.IY() + -55;
         this.wMem(var35, super.D, '\uaa5a');
         int var36 = this.IY() + 85;
         int var37 = this.mem(var36, '\uaa5d');
@@ -1603,7 +1595,7 @@ public class ZxGame1 extends MiniZX {
     int var5 = super.A - var4;
     super.F = var5;
     if(super.F == 0) {
-      int var67 = this.IY();
+      int var67 = this.IY() + -20;
       this.wMem(var67, 1, '\uadc2');
     } else {
       super.D = 255;
@@ -1870,7 +1862,7 @@ public class ZxGame1 extends MiniZX {
     super.A = 0;
     int var16 = super.A << 1;
     super.F = var16;
-    int var17 = this.IY();
+    int var17 = this.IY() + 0;
     this.wMem(var17, super.A, '\uae79');
     this.$ADBA();
     super.A = 0;
@@ -2351,7 +2343,7 @@ public class ZxGame1 extends MiniZX {
     super.D = var4;
     int var5 = this.SP();
     this.wMem16('\ua83b', var5, '\ub0ed');
-    int var6 = this.IY();
+    int var6 = this.IY() + 0;
     int var7 = this.mem(var6, '\ub0f1');
     super.H = var7;
     super.L = 0;
@@ -2728,7 +2720,7 @@ public class ZxGame1 extends MiniZX {
           }
         }
 
-        int var70 = this.IY();
+        int var70 = this.IY() + -60;
         int var71 = this.mem(var70, '\ub1ed');
         super.A = var71;
         int var72 = super.A << 1;
@@ -2819,7 +2811,7 @@ public class ZxGame1 extends MiniZX {
           }
         }
 
-        int var22 = this.IY();
+        int var22 = this.IY() + -60;
         int var23 = this.mem(var22, '\ub249');
         super.A = var23;
         int var24 = super.A << 1;
@@ -2855,7 +2847,7 @@ public class ZxGame1 extends MiniZX {
       this.wMem(var35, super.A, '\ub202');
     }
 
-    int var36 = this.IY();
+    int var36 = this.IY() + 0;
     this.wMem(var36, super.B, '\ub205');
     int var37 = this.IY() + 75;
     int var38 = this.mem(var37, '\ub208') + 1 & 255;
@@ -2900,7 +2892,7 @@ public class ZxGame1 extends MiniZX {
       }
     }
 
-    int var1 = this.IY();
+    int var1 = this.IY() + 0;
     int var2 = this.mem(var1, '\ub29e');
     super.A = var2;
     int var3 = super.A + 1 & 255;
@@ -2914,7 +2906,7 @@ public class ZxGame1 extends MiniZX {
       super.F = var26;
     }
 
-    int var5 = this.IY();
+    int var5 = this.IY() + 0;
     this.wMem(var5, super.A, '\ub2a7');
     int var6 = this.IY() + 60;
     int var7 = this.mem(var6, '\ub2aa');
@@ -2922,7 +2914,7 @@ public class ZxGame1 extends MiniZX {
     int var8 = super.A - 1;
     super.F = var8;
     if(super.F == 0) {
-      int var18 = this.IY();
+      int var18 = this.IY() + -60;
       int var19 = this.mem(var18, '\ub2b1');
       super.A = var19;
       int var20 = super.A << 1;
@@ -2944,7 +2936,7 @@ public class ZxGame1 extends MiniZX {
         super.A = 240;
       }
     } else {
-      int var9 = this.IY();
+      int var9 = this.IY() + -60;
       int var10 = this.mem(var9, '\ub2c6');
       super.A = var10;
       int var11 = super.A << 1;
@@ -3007,7 +2999,7 @@ public class ZxGame1 extends MiniZX {
     this.wMem(var3, 0, '\ub314');
 
     do {
-      int var4 = this.IY();
+      int var4 = this.IY() + -10;
       int var5 = this.mem(var4, '\ub318');
       super.A = var5;
       int var6 = this.IX() + 1;
@@ -3020,10 +3012,10 @@ public class ZxGame1 extends MiniZX {
       super.F = var9;
       int var11 = this.IX() + 3;
       this.wMem(var11, super.A, '\ub322');
-      int var12 = this.IY();
+      int var12 = this.IY() + -30;
       int var13 = this.mem(var12, '\ub325');
       super.A = var13;
-      int var14 = this.IX();
+      int var14 = this.IX() + 0;
       this.wMem(var14, super.A, '\ub328');
       int var15 = this.IX() + 2;
       int var16 = this.mem(var15, '\ub32b');
@@ -3688,7 +3680,7 @@ public class ZxGame1 extends MiniZX {
     super.A = 8;
 
     do {
-      int var46 = this.IX();
+      int var46 = this.IX() + 0;
       int var47 = this.mem(var46, '\ub750');
       super.L = var47;
       int var48 = this.IX() + 1;
@@ -3706,7 +3698,7 @@ public class ZxGame1 extends MiniZX {
       this.exHLDE();
       int var54 = this.BC() + 1 & '\uffff';
       this.BC(var54);
-      int var55 = this.IX();
+      int var55 = this.IX() + 0;
       int var56 = this.mem(var55, '\ub760');
       super.L = var56;
       int var57 = this.IX() + 1;
@@ -3802,7 +3794,7 @@ public class ZxGame1 extends MiniZX {
     super.A = 16;
 
     do {
-      int var29 = this.IX();
+      int var29 = this.IX() + 0;
       int var30 = this.mem(var29, '\ub79f');
       super.L = var30;
       int var31 = this.IX() + 1;
@@ -4256,7 +4248,7 @@ public class ZxGame1 extends MiniZX {
     super.C = 152;
 
     do {
-      int var4 = this.IX();
+      int var4 = this.IX() + 0;
       int var5 = this.mem(var4, '\ub90b');
       super.L = var5;
       int var6 = this.IX() + 1;
@@ -4312,7 +4304,7 @@ public class ZxGame1 extends MiniZX {
     super.C = 32;
 
     do {
-      int var4 = this.IX();
+      int var4 = this.IX() + 0;
       int var5 = this.mem(var4, '\ub93a');
       super.L = var5;
       int var6 = this.IX() + 1;
@@ -4477,7 +4469,7 @@ public class ZxGame1 extends MiniZX {
     this.BC(4096);
 
     do {
-      int var1 = this.IX();
+      int var1 = this.IX() + 0;
       int var2 = this.mem(var1, '\ub9b6');
       super.L = var2;
       int var3 = this.IX() + 1;
@@ -4542,7 +4534,7 @@ public class ZxGame1 extends MiniZX {
     this.BC(4096);
 
     do {
-      int var1 = this.IX();
+      int var1 = this.IX() + 0;
       int var2 = this.mem(var1, '\uba05');
       super.E = var2;
       int var3 = this.IX() + 1;
@@ -4619,7 +4611,7 @@ public class ZxGame1 extends MiniZX {
       this.$BACE();
       super.C = super.B;
       super.H = 124;
-      int var7 = this.IY();
+      int var7 = this.IY() + -35;
       int var8 = this.mem(var7, '\uba89');
       super.L = var8;
       int var9 = this.HL();
@@ -4795,7 +4787,7 @@ public class ZxGame1 extends MiniZX {
   }
 
   public void $E2FC() {
-    int var1 = this.IY();
+    int var1 = this.IY() + 0;
     int var2 = this.mem(var1, '\ue2fc');
     super.A = var2;
     int var3 = super.A << 1;
@@ -4807,20 +4799,20 @@ public class ZxGame1 extends MiniZX {
         super.A = 0;
         int var9 = super.A << 1;
         super.F = var9;
-        int var10 = this.IY();
+        int var10 = this.IY() + -25;
         this.wMem(var10, super.A, '\ue307');
         return;
       }
     }
 
-    int var4 = this.IY();
+    int var4 = this.IY() + -25;
     int var5 = this.mem(var4, '\ue30b');
     super.A = var5;
     int var6 = super.A << 1;
     super.F = var6;
     if(super.F == 0) {
       super.A = 1;
-      int var7 = this.IY();
+      int var7 = this.IY() + -25;
       this.wMem(var7, super.A, '\ue312');
       this.$E315();
     }
@@ -5104,7 +5096,7 @@ public class ZxGame1 extends MiniZX {
     this.DE(16);
     this.$B84B();
     super.H = 124;
-    int var1 = this.IY();
+    int var1 = this.IY() + -35;
     int var2 = this.mem(var1, '\ue40b');
     super.L = var2;
     super.C = 69;
@@ -5231,7 +5223,7 @@ public class ZxGame1 extends MiniZX {
     super.C = 32;
 
     do {
-      int var4 = this.IX();
+      int var4 = this.IX() + 0;
       int var5 = this.mem(var4, '\ue783');
       super.L = var5;
       int var6 = this.IX() + 1;
@@ -5505,7 +5497,7 @@ public class ZxGame1 extends MiniZX {
         if(var17 == '\ueb0f') {
           super.A = 1;
           this.wMem('\ueb54', super.A, '\ueb11');
-          int var20 = this.IY();
+          int var20 = this.IY() + -45;
           int var21 = this.mem(var20, '\ueb14');
           super.B = var21;
           int var22 = this.HL();
@@ -5565,7 +5557,7 @@ public class ZxGame1 extends MiniZX {
           super.A = var44;
           int var45 = super.A << 1;
           super.F = var45;
-          int var46 = this.IY();
+          int var46 = this.IY() + -55;
           int var47 = this.mem(var46, '\ueb41');
           int var48 = super.A | var47;
           super.A = var48;
@@ -5573,7 +5565,7 @@ public class ZxGame1 extends MiniZX {
           super.F = var49;
           int var50 = this.HL();
           this.wMem(var50, super.A, '\ueb44');
-          int var51 = this.IY();
+          int var51 = this.IY() + -55;
           this.wMem(var51, super.C, '\ueb45');
           int var52 = this.pop();
           this.IY(var52);
@@ -5587,7 +5579,7 @@ public class ZxGame1 extends MiniZX {
 
       super.A = 1;
       this.wMem('\ueb54', super.A, '\ueb03');
-      int var18 = this.IY();
+      int var18 = this.IY() + -45;
       int var19 = this.mem(var18, '\ueb06');
       super.B = var19;
       this.$AA30();
@@ -5705,7 +5697,7 @@ public class ZxGame1 extends MiniZX {
     int var6 = super.A << 1;
     super.F = var6;
     if(super.F == 0) {
-      int var7 = this.IY();
+      int var7 = this.IY() + -45;
       this.wMem(var7, super.B, '\ueb9e');
       this.$AA8C();
       int var8 = this.IY() + 5;
@@ -5993,7 +5985,7 @@ public class ZxGame1 extends MiniZX {
       this.wMem(var15, 1, '\ueccb');
       int var16 = this.HL() + 1 & '\uffff';
       this.HL(var16);
-      int var17 = this.IY();
+      int var17 = this.IY() + -10;
       int var18 = this.mem(var17, '\uecce');
       super.A = var18;
       int var19 = this.HL();
@@ -6002,11 +5994,11 @@ public class ZxGame1 extends MiniZX {
       int var22 = var21 & 255;
       super.A = var22;
       super.F = var21;
-      int var23 = this.IY();
+      int var23 = this.IY() + -10;
       this.wMem(var23, super.A, '\uecd3');
       int var24 = this.HL() + 1 & '\uffff';
       this.HL(var24);
-      int var25 = this.IY();
+      int var25 = this.IY() + -30;
       int var26 = this.mem(var25, '\uecd7');
       super.A = var26;
       int var27 = this.HL();
@@ -6016,7 +6008,7 @@ public class ZxGame1 extends MiniZX {
       int var31 = var29 + var30;
       super.A = var31;
       super.F = super.A;
-      int var32 = this.IY();
+      int var32 = this.IY() + -30;
       this.wMem(var32, super.A, '\uecdc');
       int var33 = this.HL() - 1 & '\uffff';
       this.HL(var33);
@@ -6220,7 +6212,7 @@ public class ZxGame1 extends MiniZX {
     if(super.F == 0) {
       this.$EDE5();
     } else {
-      int var8 = this.IY();
+      int var8 = this.IY() + -40;
       int var9 = this.mem(var8, '\uedd6');
       int var10 = super.A - var9;
       super.F = var10;
@@ -6255,7 +6247,7 @@ public class ZxGame1 extends MiniZX {
     int var2 = this.HL();
     int var3 = this.mem(var2, '\uedea');
     super.A = var3;
-    int var4 = this.IY();
+    int var4 = this.IY() + -40;
     int var5 = this.mem(var4, '\uedeb');
     int var6 = super.A - var5;
     super.F = var6;
@@ -6277,7 +6269,7 @@ public class ZxGame1 extends MiniZX {
     super.A = var2;
     super.F = var2;
     this.wMem('\uf9f0', super.A, '\uedfc');
-    int var3 = this.IY();
+    int var3 = this.IY() + 0;
     this.wMem(var3, 110, '\uedff');
     int var4 = this.IY() + 5;
     int var5 = this.mem(var4, '\uee03');
@@ -6394,7 +6386,7 @@ public class ZxGame1 extends MiniZX {
     this.wMem(var1, 152, '\uee90');
     int var2 = this.IY() + 70;
     this.wMem(var2, 0, '\uee94');
-    int var3 = this.IY();
+    int var3 = this.IY() + 0;
     this.wMem(var3, 0, '\uee98');
     throw new StackException('\uee9d');
   }
@@ -6940,7 +6932,7 @@ public class ZxGame1 extends MiniZX {
                     this.IX('\uf327');
                     this.BC('\uf330');
                     this.$EF35();
-                    int var165 = this.IX();
+                    int var165 = this.IX() + 0;
                     int var166 = this.mem(var165, '\uf343');
                     super.A = var166;
                     int var167 = super.A + 1 & 255;
@@ -6952,7 +6944,7 @@ public class ZxGame1 extends MiniZX {
                       super.A = 96;
                     }
 
-                    int var169 = this.IX();
+                    int var169 = this.IX() + 0;
                     this.wMem(var169, super.A, '\uf34d');
                     this.$A83D();
                     int var170 = this.IX() + 1 & '\uffff';
@@ -6961,7 +6953,7 @@ public class ZxGame1 extends MiniZX {
                     super.A = 100;
                     this.$A83D();
                     this.$E329();
-                    int var171 = this.IX();
+                    int var171 = this.IX() + -1;
                     int var172 = this.mem(var171, '\uf360');
                     super.A = var172;
                     int var173 = super.A - 254;
@@ -6970,14 +6962,14 @@ public class ZxGame1 extends MiniZX {
                       return;
                     }
 
-                    int var174 = this.IX();
+                    int var174 = this.IX() + -3;
                     this.wMem(var174, 110, '\uf366');
-                    int var175 = this.IX();
+                    int var175 = this.IX() + -1;
                     this.wMem(var175, 2, '\uf36a');
-                    int var176 = this.IX();
+                    int var176 = this.IX() + -9;
                     int var177 = this.mem(var176, '\uf36e');
                     super.A = var177;
-                    int var178 = this.IX();
+                    int var178 = this.IX() + -4;
                     this.wMem(var178, super.A, '\uf371');
                     return;
                   }
@@ -6993,89 +6985,88 @@ public class ZxGame1 extends MiniZX {
                       this.push(var179);
                       this.BC('\uf5ca');
                       this.$EF35();
-                      int var180 = this.IX();
+                      int var180 = this.IX() + 0;
                       int var181 = this.mem(var180, '\uf686') - 1 & 255;
-                      int var182 = this.IX();
-                      this.wMem(var182, var181, '\uf686');
+                      this.wMem(var180, var181, '\uf686');
                       super.F = var181;
                       if(super.F == 0) {
-                        int var190 = this.mem('\uf673', '\uf68b');
-                        super.A = var190;
+                        int var189 = this.mem('\uf673', '\uf68b');
+                        super.A = var189;
                         super.B = super.A;
-                        int var191 = this.mem('\uf672', '\uf68f');
+                        int var190 = this.mem('\uf672', '\uf68f');
+                        super.A = var190;
+                        int var191 = super.A | super.B;
                         super.A = var191;
-                        int var192 = super.A | super.B;
-                        super.A = var192;
-                        int var193 = super.A << 1;
-                        super.F = var193;
+                        int var192 = super.A << 1;
+                        super.F = var192;
                         if(super.F == 0) {
-                          int var194 = this.R();
+                          int var193 = this.R();
+                          super.A = var193;
+                          int var194 = super.A & 63;
                           super.A = var194;
-                          int var195 = super.A & 63;
-                          super.A = var195;
-                          int var196 = super.A << 1;
+                          int var195 = super.A << 1;
+                          super.F = var195;
+                          int var196 = super.A + 20;
+                          int var197 = var196 & 255;
+                          super.A = var197;
                           super.F = var196;
-                          int var197 = super.A + 20;
-                          int var198 = var197 & 255;
-                          super.A = var198;
-                          super.F = var197;
-                          int var199 = this.IX();
-                          this.wMem(var199, super.A, '\uf69b');
-                          int var200 = this.IX() + 1;
-                          int var201 = this.mem(var200, '\uf69e');
-                          super.A = var201;
-                          int var202 = super.A + 2;
-                          int var203 = var202 & 255;
-                          super.A = var203;
-                          super.F = var202;
-                          int var204 = super.A - 8;
-                          super.F = var204;
+                          int var198 = this.IX() + 0;
+                          this.wMem(var198, super.A, '\uf69b');
+                          int var199 = this.IX() + 1;
+                          int var200 = this.mem(var199, '\uf69e');
+                          super.A = var200;
+                          int var201 = super.A + 2;
+                          int var202 = var201 & 255;
+                          super.A = var202;
+                          super.F = var201;
+                          int var203 = super.A - 8;
+                          super.F = var203;
                           if(super.F == 0) {
                             super.A = 0;
-                            int var215 = super.A << 1;
-                            super.F = var215;
+                            int var214 = super.A << 1;
+                            super.F = var214;
                           }
 
-                          int var205 = this.IX() + 1;
-                          this.wMem(var205, super.A, '\uf6a8');
+                          int var204 = this.IX() + 1;
+                          this.wMem(var204, super.A, '\uf6a8');
                           super.E = super.A;
                           super.D = 0;
                           this.HL('\uf64b');
-                          int var206 = this.DE();
-                          int var207 = this.HL() + var206 & '\uffff';
-                          this.HL(var207);
-                          int var208 = this.HL();
-                          int var209 = this.mem(var208, '\uf6b2');
-                          super.A = var209;
-                          int var210 = this.IX();
-                          this.wMem(var210, super.A, '\uf6b3');
-                          int var211 = this.HL() + 1 & '\uffff';
-                          this.HL(var211);
-                          int var212 = this.HL();
-                          int var213 = this.mem(var212, '\uf6b7');
-                          super.A = var213;
-                          int var214 = this.IX();
-                          this.wMem(var214, super.A, '\uf6b8');
+                          int var205 = this.DE();
+                          int var206 = this.HL() + var205 & '\uffff';
+                          this.HL(var206);
+                          int var207 = this.HL();
+                          int var208 = this.mem(var207, '\uf6b2');
+                          super.A = var208;
+                          int var209 = this.IX() + -2;
+                          this.wMem(var209, super.A, '\uf6b3');
+                          int var210 = this.HL() + 1 & '\uffff';
+                          this.HL(var210);
+                          int var211 = this.HL();
+                          int var212 = this.mem(var211, '\uf6b7');
+                          super.A = var212;
+                          int var213 = this.IX() + -1;
+                          this.wMem(var213, super.A, '\uf6b8');
                         }
                       }
 
-                      int var183 = this.mem('\uf671', '\uf6bb');
+                      int var182 = this.mem('\uf671', '\uf6bb');
+                      super.A = var182;
+                      int var183 = super.A ^ 2;
                       super.A = var183;
-                      int var184 = super.A ^ 2;
-                      super.A = var184;
-                      int var185 = super.A << 1;
-                      super.F = var185;
+                      int var184 = super.A << 1;
+                      super.F = var184;
                       this.wMem('\uf671', super.A, '\uf6c0');
                       this.$A8A0();
                       this.$E329();
+                      int var185 = this.IX() + 1 & '\uffff';
+                      this.IX(var185);
                       int var186 = this.IX() + 1 & '\uffff';
                       this.IX(var186);
-                      int var187 = this.IX() + 1 & '\uffff';
-                      this.IX(var187);
-                      int var188 = this.pop();
-                      this.BC(var188);
-                      int var189 = super.B - 1 & 255;
-                      super.B = var189;
+                      int var187 = this.pop();
+                      this.BC(var187);
+                      int var188 = super.B - 1 & 255;
+                      super.B = var188;
                     } while(super.B != 0);
 
                     return;
@@ -7092,78 +7083,78 @@ public class ZxGame1 extends MiniZX {
                       super.A = 6;
                       this.$EC1D();
                       if(super.F != 0) {
-                        int var221 = this.mem('\ubd01', '\uf44a');
-                        super.A = var221;
-                        int var222 = super.A - 4;
-                        super.F = var222;
+                        int var220 = this.mem('\ubd01', '\uf44a');
+                        super.A = var220;
+                        int var221 = super.A - 4;
+                        super.F = var221;
                         if(super.F == 0) {
-                          int var223 = this.IY() + 5;
-                          int var224 = this.mem(var223, '\uf451');
-                          super.A = var224;
-                          int var225 = super.A - 66;
-                          int var226 = var225 & 255;
-                          super.A = var226;
-                          super.F = var225;
-                          int var227 = super.A - 252;
-                          super.F = var227;
+                          int var222 = this.IY() + 5;
+                          int var223 = this.mem(var222, '\uf451');
+                          super.A = var223;
+                          int var224 = super.A - 66;
+                          int var225 = var224 & 255;
+                          super.A = var225;
+                          super.F = var224;
+                          int var226 = super.A - 252;
+                          super.F = var226;
                           if(super.F > 0) {
-                            int var228 = this.mem('\uaf88', '\uf45a');
-                            super.A = var228;
-                            int var229 = this.IY() + 10;
-                            int var230 = this.mem(var229, '\uf45d');
-                            int var231 = super.A - var230;
-                            int var232 = var231 & 255;
-                            super.A = var232;
-                            super.F = var231;
-                            int var233 = super.A - 34;
-                            int var234 = var233 & 255;
-                            super.A = var234;
-                            super.F = var233;
-                            int var235 = super.A - 252;
-                            super.F = var235;
+                            int var227 = this.mem('\uaf88', '\uf45a');
+                            super.A = var227;
+                            int var228 = this.IY() + 10;
+                            int var229 = this.mem(var228, '\uf45d');
+                            int var230 = super.A - var229;
+                            int var231 = var230 & 255;
+                            super.A = var231;
+                            super.F = var230;
+                            int var232 = super.A - 34;
+                            int var233 = var232 & 255;
+                            super.A = var233;
+                            super.F = var232;
+                            int var234 = super.A - 252;
+                            super.F = var234;
                             if(super.F > 0) {
-                              int var236 = this.mem('\uaf88', '\uf466');
-                              super.A = var236;
-                              int var237 = super.A - 2;
-                              int var238 = var237 & 255;
-                              super.A = var238;
-                              super.F = var237;
-                              int var239 = super.A - 120;
-                              super.F = var239;
+                              int var235 = this.mem('\uaf88', '\uf466');
+                              super.A = var235;
+                              int var236 = super.A - 2;
+                              int var237 = var236 & 255;
+                              super.A = var237;
+                              super.F = var236;
+                              int var238 = super.A - 120;
+                              super.F = var238;
                               if(super.F < 0) {
                                 super.A = 120;
                               }
 
                               this.wMem('\uaf88', super.A, '\uf471');
-                              int var240 = super.A - 32;
-                              int var241 = var240 & 255;
-                              super.A = var241;
-                              super.F = var240;
-                              int var242 = this.IY() + 10;
-                              this.wMem(var242, super.A, '\uf476');
+                              int var239 = super.A - 32;
+                              int var240 = var239 & 255;
+                              super.A = var240;
+                              super.F = var239;
+                              int var241 = this.IY() + 10;
+                              this.wMem(var241, super.A, '\uf476');
                             }
                           }
                         }
                       }
                     }
 
-                    int var216 = this.mem('\uaf88', '\uf479');
-                    super.A = var216;
+                    int var215 = this.mem('\uaf88', '\uf479');
+                    super.A = var215;
                     super.B = 16;
-                    int var217 = super.A - 184;
-                    super.F = var217;
+                    int var216 = super.A - 184;
+                    super.F = var216;
                     if(super.F != 0) {
                       super.B = 14;
                     }
 
-                    int var218 = super.A - super.B;
-                    int var219 = var218 & 255;
-                    super.A = var219;
-                    super.F = var218;
+                    int var217 = super.A - super.B;
+                    int var218 = var217 & 255;
+                    super.A = var218;
+                    super.F = var217;
                     super.H = super.A;
                     super.L = 64;
-                    int var220 = this.HL();
-                    this.wMem16('\ua838', var220, '\uf488');
+                    int var219 = this.HL();
+                    this.wMem16('\ua838', var219, '\uf488');
                     super.A = 43;
                     this.$A83D();
                     return;
@@ -7176,43 +7167,43 @@ public class ZxGame1 extends MiniZX {
                     super.B = 3;
 
                     do {
-                      int var243 = this.BC();
-                      this.push(var243);
+                      int var242 = this.BC();
+                      this.push(var242);
                       this.BC('\uf2f7');
                       this.$EF35();
                       super.A = super.D;
-                      int var244 = super.A - 254;
-                      super.F = var244;
+                      int var243 = super.A - 254;
+                      super.F = var243;
                       if(super.F == 0) {
-                        int var247 = this.IX();
-                        this.wMem(var247, 2, '\uf4b4');
-                        int var248 = this.IX();
-                        this.wMem(var248, 64, '\uf4b8');
-                        int var249 = this.R();
+                        int var246 = this.IX() + -1;
+                        this.wMem(var246, 2, '\uf4b4');
+                        int var247 = this.IX() + -3;
+                        this.wMem(var247, 64, '\uf4b8');
+                        int var248 = this.R();
+                        super.A = var248;
+                        int var249 = super.A & 63;
                         super.A = var249;
-                        int var250 = super.A & 63;
-                        super.A = var250;
-                        int var251 = super.A << 1;
+                        int var250 = super.A << 1;
+                        super.F = var250;
+                        int var251 = super.A + super.A;
+                        int var252 = var251 & 255;
+                        super.A = var252;
                         super.F = var251;
-                        int var252 = super.A + super.A;
-                        int var253 = var252 & 255;
-                        super.A = var253;
-                        super.F = var252;
-                        int var254 = super.A + 56;
-                        int var255 = var254 & 255;
-                        super.A = var255;
-                        super.F = var254;
-                        int var256 = this.IX();
-                        this.wMem(var256, super.A, '\uf4c3');
+                        int var253 = super.A + 56;
+                        int var254 = var253 & 255;
+                        super.A = var254;
+                        super.F = var253;
+                        int var255 = this.IX() + -4;
+                        this.wMem(var255, super.A, '\uf4c3');
                       }
 
                       super.A = 52;
                       this.$A8A0();
                       this.$E329();
-                      int var245 = this.pop();
-                      this.BC(var245);
-                      int var246 = super.B - 1 & 255;
-                      super.B = var246;
+                      int var244 = this.pop();
+                      this.BC(var244);
+                      int var245 = super.B - 1 & 255;
+                      super.B = var245;
                     } while(super.B != 0);
 
                     return;
@@ -7295,13 +7286,13 @@ public class ZxGame1 extends MiniZX {
               int var27 = super.A - 254;
               super.F = var27;
               if(super.F == 0) {
-                int var30 = this.IX();
+                int var30 = this.IX() + -1;
                 this.wMem(var30, 252, '\uf420');
-                int var31 = this.IX();
+                int var31 = this.IX() + -2;
                 this.wMem(var31, 2, '\uf424');
-                int var32 = this.IX();
+                int var32 = this.IX() + -3;
                 this.wMem(var32, 128, '\uf428');
-                int var33 = this.IX();
+                int var33 = this.IX() + -4;
                 this.wMem(var33, 0, '\uf42c');
               }
 
@@ -7327,15 +7318,15 @@ public class ZxGame1 extends MiniZX {
             this.push(var18);
             this.BC('\uf2f7');
             this.$EF35();
-            int var19 = this.IX();
+            int var19 = this.IX() + -1;
             int var20 = this.mem(var19, '\uf758');
             super.A = var20;
             int var21 = super.A - 2;
             super.F = var21;
             if(super.F != 0) {
-              int var24 = this.IX();
+              int var24 = this.IX() + -1;
               this.wMem(var24, 2, '\uf75f');
-              int var25 = this.IX();
+              int var25 = this.IX() + -3;
               this.wMem(var25, 64, '\uf763');
             }
 
@@ -7352,22 +7343,22 @@ public class ZxGame1 extends MiniZX {
         }
       }
 
-      int var257 = this.HL() + 1 & '\uffff';
-      this.HL(var257);
-      int var258 = this.HL();
-      int var259 = this.mem(var258, '\ueed5');
-      super.E = var259;
-      int var260 = this.HL() + 1 & '\uffff';
-      this.HL(var260);
-      int var261 = this.HL();
-      int var262 = this.mem(var261, '\ueed7');
-      super.D = var262;
+      int var256 = this.HL() + 1 & '\uffff';
+      this.HL(var256);
+      int var257 = this.HL();
+      int var258 = this.mem(var257, '\ueed5');
+      super.E = var258;
+      int var259 = this.HL() + 1 & '\uffff';
+      this.HL(var259);
+      int var260 = this.HL();
+      int var261 = this.mem(var260, '\ueed7');
+      super.D = var261;
+      int var262 = this.HL() + 1 & '\uffff';
+      this.HL(var262);
       int var263 = this.HL() + 1 & '\uffff';
       this.HL(var263);
-      int var264 = this.HL() + 1 & '\uffff';
-      this.HL(var264);
-      int var265 = this.DE();
-      this.wMem16('\ua838', var265, '\ueeda');
+      int var264 = this.DE();
+      this.wMem16('\ua838', var264, '\ueeda');
       this.$A83D();
     }
   }
@@ -7389,7 +7380,7 @@ public class ZxGame1 extends MiniZX {
       super.F = var7;
       this.wMem('\uf673', super.A, '\uef3e');
       this.wMem('\uf672', super.A, '\uef41');
-      int var8 = this.IX();
+      int var8 = this.IX() + 0;
       int var9 = this.mem(var8, '\uef44');
       super.A = var9;
       int var10 = super.A + super.E;
@@ -7460,7 +7451,7 @@ public class ZxGame1 extends MiniZX {
 
     int var31 = this.HL();
     this.wMem16('\ua838', var31, '\uef77');
-    int var32 = this.IX();
+    int var32 = this.IX() + 0;
     this.wMem(var32, super.L, '\uef7a');
     int var33 = this.IX() + 1;
     this.wMem(var33, super.H, '\uef7d');
@@ -7575,7 +7566,7 @@ public class ZxGame1 extends MiniZX {
     this.IX('\uf104');
     this.BC('\uf10a');
     this.$EF35();
-    int var1 = this.IX();
+    int var1 = this.IX() + -4;
     int var2 = this.mem(var1, '\uf11d');
     super.A = var2;
     int var3 = super.A << 1;
@@ -7588,20 +7579,20 @@ public class ZxGame1 extends MiniZX {
       if(super.F == 0) {
         int var14 = this.IX() + 1;
         this.wMem(var14, 2, '\uf128');
-        int var15 = this.IX();
+        int var15 = this.IX() + -4;
         this.wMem(var15, 0, '\uf12c');
-        int var16 = this.IX();
+        int var16 = this.IX() + -3;
         this.wMem(var16, 168, '\uf130');
-        int var17 = this.IX();
+        int var17 = this.IX() + -1;
         this.wMem(var17, 254, '\uf134');
         this.$AF01();
-        int var18 = this.IX();
+        int var18 = this.IX() + 0;
         this.wMem(var18, super.A, '\uf13b');
         return;
       }
     }
 
-    int var4 = this.IX();
+    int var4 = this.IX() + 0;
     int var5 = this.mem(var4, '\uf13f');
     super.A = var5;
     int var6 = this.IY() + 15;
@@ -7609,7 +7600,7 @@ public class ZxGame1 extends MiniZX {
     int var8 = super.A - var7;
     super.F = var8;
     if(super.F == 0) {
-      int var9 = this.IX();
+      int var9 = this.IX() + -3;
       int var10 = this.mem(var9, '\uf146');
       super.A = var10;
       int var11 = super.A - 168;
@@ -7630,7 +7621,7 @@ public class ZxGame1 extends MiniZX {
     this.IX('\uf270');
     this.BC('\uf2f7');
     this.$EF35();
-    int var1 = this.IX();
+    int var1 = this.IX() + 0;
     int var2 = this.mem(var1, '\uf286');
     super.A = var2;
     this.$AC69();
@@ -7643,7 +7634,7 @@ public class ZxGame1 extends MiniZX {
     int var6 = this.HL();
     int var7 = this.mem(var6, '\uf291');
     super.A = var7;
-    int var8 = this.IX();
+    int var8 = this.IX() + -4;
     int var9 = this.mem(var8, '\uf292');
     int var10 = super.A - var9;
     super.F = var10;
@@ -7672,7 +7663,7 @@ public class ZxGame1 extends MiniZX {
           super.F = var34;
         } while(super.F == 0);
 
-        int var35 = this.IX();
+        int var35 = this.IX() + 0;
         this.wMem(var35, super.A, '\uf2ac');
         this.$AC69();
         int var36 = this.HL() + 1 & '\uffff';
@@ -7694,12 +7685,12 @@ public class ZxGame1 extends MiniZX {
           super.A = 238;
         }
 
-        int var44 = this.IX();
+        int var44 = this.IX() + -4;
         this.wMem(var44, super.A, '\uf2c0');
       }
     }
 
-    int var11 = this.IX();
+    int var11 = this.IX() + 0;
     int var12 = this.mem(var11, '\uf2c3');
     super.A = var12;
     int var13 = this.IY() + 15;
@@ -7707,7 +7698,7 @@ public class ZxGame1 extends MiniZX {
     int var15 = super.A - var14;
     super.F = var15;
     if(super.F == 0) {
-      int var16 = this.IX();
+      int var16 = this.IX() + -2;
       int var17 = this.mem(var16, '\uf2ca');
       super.A = var17;
       this.BC(17472);
@@ -7927,7 +7918,7 @@ public class ZxGame1 extends MiniZX {
       int var1 = this.BC();
       this.push(var1);
       this.BC('\uf8b5');
-      int var2 = this.IX();
+      int var2 = this.IX() + 0;
       int var3 = this.mem(var2, '\uf8c8');
       super.A = var3;
       int var4 = super.A - 255;
@@ -7938,7 +7929,7 @@ public class ZxGame1 extends MiniZX {
         this.IX(var48);
       } else {
         this.$EF35();
-        int var5 = this.IX();
+        int var5 = this.IX() + 0;
         int var6 = this.mem(var5, '\uf8d9');
         super.A = var6;
         this.$A8A0();
@@ -7947,7 +7938,7 @@ public class ZxGame1 extends MiniZX {
         int var8 = this.IY() + 5;
         int var9 = this.mem(var8, '\uf8e1');
         super.A = var9;
-        int var10 = this.IX();
+        int var10 = this.IX() + -5;
         int var11 = this.mem(var10, '\uf8e4');
         int var12 = super.A - var11;
         int var13 = var12 & 255;
@@ -7963,7 +7954,7 @@ public class ZxGame1 extends MiniZX {
           int var39 = this.IY() + 10;
           int var40 = this.mem(var39, '\uf8ed');
           super.A = var40;
-          int var41 = this.IX();
+          int var41 = this.IX() + -4;
           int var42 = this.mem(var41, '\uf8f0');
           int var43 = super.A - var42;
           int var44 = var43 & 255;
@@ -7985,7 +7976,7 @@ public class ZxGame1 extends MiniZX {
         int var18 = super.A << 1;
         super.F = var18;
         if(super.F != 0) {
-          int var31 = this.IX();
+          int var31 = this.IX() + -5;
           int var32 = this.mem(var31, '\uf900');
           super.A = var32;
           int var33 = super.A - 240;
@@ -7996,14 +7987,14 @@ public class ZxGame1 extends MiniZX {
             super.A = 2;
           }
 
-          int var34 = this.IX();
+          int var34 = this.IX() + -5;
           this.wMem(var34, super.A, '\uf90d');
-          int var35 = this.IX();
+          int var35 = this.IX() + -3;
           int var36 = this.mem(var35, '\uf910');
           super.A = var36;
           int var37 = -super.A & 255;
           super.A = var37;
-          int var38 = this.IX();
+          int var38 = this.IX() + -3;
           this.wMem(var38, super.A, '\uf915');
         }
 
@@ -8012,7 +8003,7 @@ public class ZxGame1 extends MiniZX {
         int var20 = super.A << 1;
         super.F = var20;
         if(super.F != 0) {
-          int var23 = this.IX();
+          int var23 = this.IX() + -4;
           int var24 = this.mem(var23, '\uf91e');
           super.A = var24;
           int var25 = super.A - 64;
@@ -8023,14 +8014,14 @@ public class ZxGame1 extends MiniZX {
             super.A = 66;
           }
 
-          int var26 = this.IX();
+          int var26 = this.IX() + -4;
           this.wMem(var26, super.A, '\uf92b');
-          int var27 = this.IX();
+          int var27 = this.IX() + -2;
           int var28 = this.mem(var27, '\uf92e');
           super.A = var28;
           int var29 = -super.A & 255;
           super.A = var29;
-          int var30 = this.IX();
+          int var30 = this.IX() + -2;
           this.wMem(var30, super.A, '\uf933');
         }
       }
@@ -8048,19 +8039,18 @@ public class ZxGame1 extends MiniZX {
     int var1 = super.A << 1;
     super.F = var1;
     if(super.F != 0) {
-      int var36 = this.IY();
-      int var37 = this.mem(var36, '\uf940') - 1 & 255;
-      int var38 = this.IY();
-      this.wMem(var38, var37, '\uf940');
-      super.F = var37;
-      int var39 = this.IY();
-      int var40 = this.mem(var39, '\uf943');
-      super.A = var40;
-      int var41 = super.A - 109;
-      super.F = var41;
+      int var35 = this.IY() + 0;
+      int var36 = this.mem(var35, '\uf940') - 1 & 255;
+      this.wMem(var35, var36, '\uf940');
+      super.F = var36;
+      int var37 = this.IY() + 0;
+      int var38 = this.mem(var37, '\uf943');
+      super.A = var38;
+      int var39 = super.A - 109;
+      super.F = var39;
       if(super.F == 0) {
-        int var42 = this.IY();
-        this.wMem(var42, 117, '\uf94a');
+        int var40 = this.IY() + 0;
+        this.wMem(var40, 117, '\uf94a');
       }
     }
 
@@ -8068,19 +8058,18 @@ public class ZxGame1 extends MiniZX {
     int var2 = super.A << 1;
     super.F = var2;
     if(super.F != 0) {
-      int var29 = this.IY();
+      int var29 = this.IY() + 0;
       int var30 = this.mem(var29, '\uf954') + 1 & 255;
-      int var31 = this.IY();
-      this.wMem(var31, var30, '\uf954');
+      this.wMem(var29, var30, '\uf954');
       super.F = var30;
-      int var32 = this.IY();
-      int var33 = this.mem(var32, '\uf957');
-      super.A = var33;
-      int var34 = super.A - 118;
-      super.F = var34;
+      int var31 = this.IY() + 0;
+      int var32 = this.mem(var31, '\uf957');
+      super.A = var32;
+      int var33 = super.A - 118;
+      super.F = var33;
       if(super.F == 0) {
-        int var35 = this.IY();
-        this.wMem(var35, 110, '\uf95e');
+        int var34 = this.IY() + 0;
+        this.wMem(var34, 110, '\uf95e');
       }
     }
 
@@ -8145,14 +8134,14 @@ public class ZxGame1 extends MiniZX {
     super.H = var7;
     int var8 = this.HL();
     this.wMem16('\ua838', var8, '\uf99a');
-    int var9 = this.IY();
+    int var9 = this.IY() + 0;
     int var10 = this.mem(var9, '\uf99d');
     super.A = var10;
     this.$A83D();
   }
 
   public void $F9A4() {
-    int var1 = this.IY();
+    int var1 = this.IY() + 0;
     int var2 = this.mem(var1, '\uf9a4');
     super.A = var2;
     int var3 = super.A - 110;
@@ -8238,7 +8227,7 @@ public class ZxGame1 extends MiniZX {
 
   public void $F9F5() {
     this.IX('\uf9f0');
-    int var1 = this.IX();
+    int var1 = this.IX() + 0;
     int var2 = this.mem(var1, '\uf9f9');
     super.A = var2;
     int var3 = super.A - 255;
@@ -8287,7 +8276,7 @@ public class ZxGame1 extends MiniZX {
       int var7 = super.A << 1;
       super.F = var7;
       if(super.F != 0) {
-        int var63 = this.IX();
+        int var63 = this.IX() + -4;
         this.wMem(var63, 255, '\ufa3f');
       } else {
         super.B = 12;
@@ -8301,7 +8290,7 @@ public class ZxGame1 extends MiniZX {
           super.F = var10;
           if(super.F != 0) {
             super.E = super.A;
-            int var11 = this.IX();
+            int var11 = this.IX() + -4;
             int var12 = this.mem(var11, '\ufa57');
             int var13 = super.A - var12;
             int var14 = var13 & 255;
@@ -8322,7 +8311,7 @@ public class ZxGame1 extends MiniZX {
               super.D = super.A;
               int var27 = this.HL() - 1 & '\uffff';
               this.HL(var27);
-              int var28 = this.IX();
+              int var28 = this.IX() + -3;
               int var29 = this.mem(var28, '\ufa64');
               int var30 = super.A - var29;
               int var31 = var30 & 255;
@@ -8394,14 +8383,14 @@ public class ZxGame1 extends MiniZX {
                         super.A = 1;
                         this.wMem('\uec1c', super.A, '\ufaad');
                         this.wMem('\uecb3', super.A, '\ufab0');
-                        int var55 = this.IY();
+                        int var55 = this.IY() + -30;
                         int var56 = this.mem(var55, '\ufab3');
                         super.A = var56;
                         int var57 = super.A + 1;
                         int var58 = var57 & 255;
                         super.A = var58;
                         super.F = var57;
-                        int var59 = this.IY();
+                        int var59 = this.IY() + -30;
                         this.wMem(var59, super.A, '\ufab9');
                         int var60 = this.mem('\uecfe', '\ufabc');
                         super.A = var60;
@@ -8469,13 +8458,13 @@ public class ZxGame1 extends MiniZX {
     this.push(var2);
 
     while(true) {
-      int var3 = this.IX();
+      int var3 = this.IX() + 0;
       int var4 = this.mem(var3, '\ufaf7');
       super.A = var4;
       int var5 = super.A - 255;
       super.F = var5;
       if(super.F == 0) {
-        int var6 = this.IX();
+        int var6 = this.IX() + 0;
         this.wMem(var6, super.E, '\ufb05');
         int var7 = this.IX() + 1;
         this.wMem(var7, super.D, '\ufb08');
