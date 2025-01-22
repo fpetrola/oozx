@@ -223,7 +223,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   private void logPC(int pcValue) {
-    System.out.println("PC: " + Helper.formatAddress(pcValue));
+//    System.out.println("PC: " + Helper.formatAddress(pcValue));
 //        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
   }
 

@@ -93,7 +93,7 @@ public class RoutineFinder<T extends WordNumber> {
     if (instructionLength > 0) {
       int pcValue = state.getPc().read().intValue();
 
-      System.out.println("PC: %s -> routine: %s".formatted(Helper.formatAddress(pcValue), currentRoutine));
+//      System.out.println("PC: %s -> routine: %s".formatted(Helper.formatAddress(pcValue), currentRoutine));
 
       if (pcValue == 0xEB00 )
         System.out.print("");
