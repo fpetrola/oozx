@@ -321,11 +321,11 @@ public abstract class SpectrumApplication<T> {
 
   public void cpir() {
     int result = -1;
-    while (BC() != 0 && result != A) {
+    do  {
       result = mem(HL());
       BC(BC() - 1);
       HL(HL() + 1);
-    }
+    } while (BC() != 0 && result != (A & 0xff));
   }
 
   public void cpdr() {
@@ -335,7 +335,7 @@ public abstract class SpectrumApplication<T> {
   public void AF(int value) {
     AF = value & 0xffff;
     A = AF >> 8;
-   // F = AF & 0xFF;
+    // F = AF & 0xFF;
   }
 
   public void BC(int value) {

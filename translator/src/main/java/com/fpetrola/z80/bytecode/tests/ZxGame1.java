@@ -5934,6 +5934,16 @@ public class ZxGame1 extends MiniZX {
       this.pc('\ub92b');
     } while (super.F != 0);
 
+    this.pc('\ub92d');  //FIXME
+    int var14 = this.pop();
+    this.DE(var14);
+    this.pc('\ub92e');
+    int var15 = this.pop();
+    this.BC(var15);
+    this.pc('\ub92f');
+    int var16 = this.pop();
+    this.HL(var16);
+    this.pc('\ub930');
   }
 
   public void $B931() {
@@ -11051,7 +11061,7 @@ public class ZxGame1 extends MiniZX {
         int var23 = super.A - super.B;
         super.F = var23;
         this.pc('\uf2dd');
-        if (super.F <= 0) {
+        if (super.F < 0) { //FIXME
           this.pc('\uf2e2');
           int var24 = super.A - super.C;
           super.F = var24;

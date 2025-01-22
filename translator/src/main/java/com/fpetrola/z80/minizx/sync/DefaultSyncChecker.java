@@ -196,7 +196,7 @@ public class DefaultSyncChecker implements SyncChecker {
     } else {
       syncEmuCounter = 0;
       syncJavaCounter = 0;
-//      System.out.println("ok at: " + formatAddress(pc));
+      System.out.println("ok at: " + formatAddress(pc));
     }
     stateSync.clear();
   }
