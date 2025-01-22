@@ -518,8 +518,8 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   private void processExistingCondition(Runnable runnable, ConditionalInstruction conditionalInstruction, ConditionFlag conditionFlag, OpcodeReferenceVisitor opcodeReferenceVisitor) {
-    if (routineByteCodeGenerator.context.pc.read().intValue() == 0xBA12)
-      System.out.println("break");
+//    if (routineByteCodeGenerator.context.pc.read().intValue() == 0xBA12)
+//      System.out.println("break");
     Variable f = opcodeReferenceVisitor.process((Register) conditionFlag.getRegister());
     String string = conditionalInstruction.getCondition().toString();
     Object source;
@@ -712,6 +712,11 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   private void invokeDynamicCall(Set<Integer> invocationsSet, Variable existingVariable) {
+    int pcValue1 = routineByteCodeGenerator.context.pc.read().intValue();
+    boolean isSimulatedCall = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().getSimulatedCallsPcs().contains(pcValue1);
+    if (isSimulatedCall)
+      methodMaker.invoke("pop");
+
     invocationsSet.forEach(c -> {
       existingVariable.ifEq(c, () -> {
         Label label = routineByteCodeGenerator.getLabel(c);
@@ -719,7 +724,8 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
           methodMaker.goto_(label);
         } else {
           routineByteCodeGenerator.invokeTransformedMethod(c);
-          methodMaker.return_();
+          if (!isSimulatedCall)
+            methodMaker.return_();
         }
       });
     });

@@ -29,6 +29,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.PushedWordNumber;
 import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.se.StackListener;
+import com.fpetrola.z80.se.Z80InstructionDriver;
 import com.fpetrola.z80.spy.ExecutionListener;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
@@ -54,6 +55,12 @@ public class StackAnalyzer<T extends WordNumber> {
   public static boolean collecting;
   private int pcValue;
   private List<Integer> simulatedRets = new ArrayList<>();
+
+  public List<Integer> getSimulatedCallsPcs() {
+    return simulatedCallsPcs;
+  }
+
+  private List<Integer> simulatedCallsPcs= new ArrayList<>();
 
   public StackAnalyzer(State<T> state) {
     this.state = state;
@@ -123,6 +130,7 @@ public class StackAnalyzer<T extends WordNumber> {
               int pcValue = state.getPc().read().intValue();
               if (Math.abs(read.intValue() - pcValue) < 20) {
                 lastEvent = l -> l.simulatedCall(pcValue, jumpAddress, getInvocationsSet(pcValue), read.intValue());
+                simulatedCallsPcs.add(pcValue);
                 T read1 = state.getPc().read();
                 simulatedRets.add(read.intValue());
                 if (read instanceof PushedWordNumber pushedWordNumber) {
