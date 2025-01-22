@@ -39,6 +39,7 @@ public class MockedMemory<T extends WordNumber> extends DefaultMemory<T> {
     //FIXME: para que????
 
     boolean b = fetching == 1 || address.intValue() < 0 || (cachedValue = cachedValues[address.intValue()]) != value;
+    b= true;
     if (memoryReadListener != null && b) {
       memoryReadListener.forEach(l -> l.readingMemoryAt(address, value, 0, fetching));
       if (address.intValue() >= 0)

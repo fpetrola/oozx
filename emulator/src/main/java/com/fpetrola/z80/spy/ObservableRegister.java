@@ -71,7 +71,7 @@ public abstract class ObservableRegister<T extends WordNumber> implements Regist
     return this;
   }
 
-  public void addRegisterWriteListener(RegisterWriteListener memoryWriteListener) {
+  public void addRegisterWriteListener(RegisterWriteListener<T> memoryWriteListener) {
     this.registerWriteListeners.add(memoryWriteListener);
   }
 
@@ -83,7 +83,7 @@ public abstract class ObservableRegister<T extends WordNumber> implements Regist
     this.incrementListeners.add(incrementListener);
   }
 
-  public void addRegisterReadListener(RegisterReadListener memoryReadListener) {
+  public void addRegisterReadListener(RegisterReadListener<T> memoryReadListener) {
     this.registerReadListeners.add(memoryReadListener);
   }
 

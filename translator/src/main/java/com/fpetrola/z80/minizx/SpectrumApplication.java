@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Stack;
 
 public abstract class SpectrumApplication<T> {
-  public static final int INITIAL_SP_VALUE = 1234;
+  public static final int INITIAL_SP_VALUE = 0xfc00;
   public int A;
   public int F;
   public int B;
@@ -293,6 +293,8 @@ public abstract class SpectrumApplication<T> {
     DE(DE() + 1);
     if (BC() == 0)
       F= -1;
+    else
+      F= 1;
   }
 
   public void lddr() {
@@ -397,7 +399,7 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int rl(int a) {
-    int lastCarry = carry(F) & 0x01;
+    int lastCarry = carry & 0x01;
     F = carry = (a & 128) >> 7;
     return ((a << 1) & 0xfe) | lastCarry;
   }
@@ -409,7 +411,7 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int sr(int a) {
-    F = carry = (a & 1) >> 7;
+    F = carry = (a & 1);
     return ((a & 0xff) >> 1);
   }
 

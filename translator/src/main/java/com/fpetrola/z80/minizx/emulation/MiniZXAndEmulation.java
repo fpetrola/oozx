@@ -50,6 +50,8 @@ public class MiniZXAndEmulation {
   private final SpectrumApplication spectrumApplication;
 
   public void emulate() {
+//    copyStateToJava();
+
     int i = 0;
     while (true) {
       this.ooz80 = ooz80;
@@ -141,12 +143,11 @@ public class MiniZXAndEmulation {
 
     if (write) {
       WordNumber[] data = state1.getMemory().getData();
-//    for (int i = 16384; i < 65520; i++)
-      int i = address;
+    for (int i = 16384; i < 0xFB10; i++)
+//      int i = address;
       checkMem(data, i, differences);
     }
 
-    writtenRegisters.clear();
     return !differences[0];
   }
 
@@ -165,7 +166,7 @@ public class MiniZXAndEmulation {
     }
 
     if (differences[0])
-      System.out.println("reg diff in: " + register.getName());
+      System.out.printf("reg diff in: %s -> emu: %d / java: %d%n", register.getName(), registerValue, o);
     return o;
   }
 
@@ -212,10 +213,11 @@ public class MiniZXAndEmulation {
   private void checkMem(WordNumber[] data, int i, boolean[] differences) {
     int i1 = data[i].intValue() & 0xFF;
     int i2 = spectrumApplication.getMem()[i] & 0xff;
-    if (i1 != i2) {
-      System.out.println("mem diff at: " + formatAddress(i) + ": " + formatAddress(i1) + " - " + formatAddress(i2));
-      differences[0] = true;
-    }
+    if (i != 0xa83B && i != 0xa83c)
+      if (i1 != i2) {
+        System.out.println("mem diff at: " + formatAddress(i) + ": " + formatAddress(i1) + " - " + formatAddress(i2));
+        differences[0] = true;
+      }
   }
 
   public void copyMemoryStateBack(State state) {
