@@ -23,6 +23,8 @@ import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.CodeBlockType;
 import com.fpetrola.z80.blocks.UnknownBlockType;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.google.common.collect.Maps;
+import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
@@ -249,22 +251,24 @@ public class Routine {
 
   public boolean splitVirtualRoutines() {
     final boolean[] changes = {false};
+    RoutineManager routineManager1 = routineManager;
+    ListValuedMap<Integer, Integer> callers = routineManager1.callers;
+    ListValuedMap<Integer, Integer> callees1 = routineManager1.callees;
 
     for (int i2 = 0; i2 < blocks.size(); i2++) {
       Block block2 = blocks.get(i2);
 
       int startAddress = block2.getRangeHandler().getStartAddress();
-      RoutineManager routineManager1 = routineManager;
 
       for (int address = startAddress; address <= block2.getRangeHandler().getEndAddress(); address++) {
-        List<Integer> integers = routineManager1.callers.get(address);
+        List<Integer> integers = new ArrayList<>(callers.get(address));
 
         int finalAddress = address;
         if (integers.stream().anyMatch(call -> routineManager1.findRoutineAt(call) != routineManager1.findRoutineAt(finalAddress))) {
           changes[0] |= splitBlocksIfRequired(this, block2, address, startAddress, getVirtualPop(), getReturnPointsDropped());
         }
 
-        List<Integer> callees = routineManager1.callees.get(address);
+        List<Integer> callees = callees1.get(address);
         for (int i = 0; i < callees.size(); i++) {
           int finalI1 = callees.get(i);
           Routine routineAt = routineManager1.findRoutineAt(finalI1);
@@ -314,6 +318,9 @@ public class Routine {
   }
 
   void addInstructionAt(Instruction instruction, int pcValue) {
+    if (getStartAddress() == 0xeb55)
+      System.out.println("eb55");
+
     instructions.add(instruction);
     if (!finished) {
       Block currentBlock = routineManager.blocksManager.findBlockAt(pcValue);
@@ -481,7 +488,7 @@ public class Routine {
   }
 
   public void setEntryPoint(int entryPoint) {
-    if (entryPoint == 0xA9BD)
+    if (entryPoint == 0xEBC0)
       System.out.println("sdfadadgaffff");
     this.entryPoint = entryPoint;
   }

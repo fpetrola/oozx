@@ -98,7 +98,9 @@ public class RoutineManager {
 
     do {
       changes = false;
-      for (Routine routine : new ArrayList<>(routines))
+      ArrayList<Routine> routines1 = new ArrayList<>(routines);
+      Collections.reverse(routines1);
+      for (Routine routine : routines1)
         changes |= routine.splitVirtualRoutines();
     } while (changes);
   }

@@ -22,6 +22,7 @@ import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.references.BlockRelation;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ld;
@@ -92,7 +93,9 @@ public class RoutineFinder<T extends WordNumber> {
     if (instructionLength > 0) {
       int pcValue = state.getPc().read().intValue();
 
-      if (pcValue == 0xA92C || pcValue== 0xAE86)
+      System.out.println("PC: %s -> routine: %s".formatted(Helper.formatAddress(pcValue), currentRoutine));
+
+      if (pcValue == 0xEB00 )
         System.out.print("");
       try {
         processedPcs.add(pcValue);
@@ -130,9 +133,13 @@ public class RoutineFinder<T extends WordNumber> {
 //                var read = Memory.read16Bits(state.getMemory(), spValue.plus(-2));
                 routineManager.callers.put(nextPC.intValue(), pcValue);
                 routineManager.callees.put(pcValue, nextPC.intValue());
+                currentRoutine.addInstructionAt(instruction, pcValue);
+//                if (ret.getNextPC() != null) {
+//                  RoutineFinder.this.currentRoutine = routineManager.findRoutineAt(ret.getNextPC().intValue());
+//                }
               }
             }
-            return false;
+            return true;
           }
 
           public boolean simulatedCall(int pcValue, int jumpAddress, Set<Integer> jumpAddresses, int returnAddress) {

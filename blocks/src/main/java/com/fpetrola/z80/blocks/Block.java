@@ -40,6 +40,8 @@ public interface Block extends Nameable {
   }
 
   default Block split(int address) {
+    if (address == 0xEBc0-1)
+      System.out.println("dsfsdg1111");
     return split(address, "split", getBlockType().getClass());
   }
 
