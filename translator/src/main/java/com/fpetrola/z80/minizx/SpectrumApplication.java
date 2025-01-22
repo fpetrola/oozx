@@ -57,6 +57,9 @@ public abstract class SpectrumApplication<T> {
     return Arrays.stream(integers).anyMatch(a -> a == nextAddress);
   }
 
+  public void pc(int address) {
+  }
+
   public void executeMutantCode(int address) {
     if (mem[address] == 0x77) {
       wMem(HL(), A, address);
@@ -292,9 +295,9 @@ public abstract class SpectrumApplication<T> {
     HL(HL() + 1);
     DE(DE() + 1);
     if (BC() == 0)
-      F= -1;
+      F = -1;
     else
-      F= 1;
+      F = 1;
   }
 
   public void lddr() {
