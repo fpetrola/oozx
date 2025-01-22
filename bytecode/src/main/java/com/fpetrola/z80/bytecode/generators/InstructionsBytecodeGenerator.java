@@ -431,7 +431,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   private void processFlag(DefaultTargetFlagInstruction targetFlagInstruction, Supplier<Variable> targetVariable) {
     Variable value = targetVariable.get();
-    setFlagPreservingCarry(value);
+    setFlagPreservingCarry(RoutineBytecodeGenerator.getRealVariable(value));
 
     routineByteCodeGenerator.lastTargetFlagInstruction = targetFlagInstruction;
 
