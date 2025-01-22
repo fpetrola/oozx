@@ -391,21 +391,25 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   @Override
   public void visitingSbc(Sbc sbc) { //TODO: revisar
-    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.sub(s).and(0xff)), routineByteCodeGenerator);
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.sub(s).sub(methodMaker.invoke("carry", getF()).and(255))), routineByteCodeGenerator);
     sbc.accept(visitor);
     processFlag(sbc, () -> visitor.targetVariable);
   }
 
   @Override
   public boolean visitingSbc16(Sbc16 sbc16) {
-    sbc16.accept(new VariableHandlingInstructionVisitor((s, t) -> t.set(t.sub(s).and(0xffff)), routineByteCodeGenerator));
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.sub(s).sub(methodMaker.invoke("carry", getF())).and(0xffff)), routineByteCodeGenerator);
+    sbc16.accept(visitor);
+    processFlag(sbc16, () -> visitor.targetVariable);
     return false;
   }
 
 
   @Override
   public boolean visitingAdc16(Adc16 adc16) {
-    adc16.accept(new VariableHandlingInstructionVisitor((s, t) -> getSet(s, t, 0xffff), routineByteCodeGenerator));
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.add(s).add(methodMaker.invoke("carry", getF()).and(0xffff))), routineByteCodeGenerator);
+    adc16.accept(visitor);
+    processFlag(adc16, () -> visitor.targetVariable);
     return false;
   }
 
