@@ -183,7 +183,7 @@ public class ZxGame1 extends MiniZX {
           this.$ED2A();
         }
       } catch (StackException var3) {
-        int[] var2 = new int[]{'\u8188', '\uee9f', '\u8186'};
+        int[] var2 = new int[]{'\u8188', '\uee9d', '\u8186'};
         if(!this.isOwnAddress(var3, var2)) {
           throw var3;
         }
