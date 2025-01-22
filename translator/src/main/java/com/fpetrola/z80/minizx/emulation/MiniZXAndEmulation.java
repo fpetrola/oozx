@@ -143,8 +143,8 @@ public class MiniZXAndEmulation {
 
     if (write) {
       WordNumber[] data = state1.getMemory().getData();
-    for (int i = 16384; i < 0xFB10; i++)
-//      int i = address;
+//    for (int i = 16384; i < 0xFB10; i++)
+      int i = address;
       checkMem(data, i, differences);
     }
 
