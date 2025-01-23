@@ -209,7 +209,7 @@ public class RzxParser {
     String name;
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
     name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
-
+    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/emlyn/emlyn3.rzx";
     RzxFile rzxFile = new RzxParser().parseFile(name);
     loadSnapshot(rzxFile);
   }

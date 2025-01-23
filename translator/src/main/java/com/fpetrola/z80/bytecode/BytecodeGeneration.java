@@ -85,8 +85,10 @@ public interface BytecodeGeneration {
   default void translateToJava(String className, String startMethod, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory) {
     try {
       boolean useFields = true;
+
       StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter, base64Memory);
       Class<?> finish = bytecodeGenerator.getNewClass().get(0);
+
       Object o = finish.getConstructors()[0].newInstance();
       if (useFields) {
         Method method = o.getClass().getMethod(startMethod);
@@ -97,7 +99,7 @@ public interface BytecodeGeneration {
       }
       writeClassFile(className, state, translation, symbolicExecutionAdapter, base64Memory);
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      //throw new RuntimeException(e);
     }
   }
 
@@ -107,9 +109,13 @@ public interface BytecodeGeneration {
 
   private void writeClassFile(String className, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory) throws IOException {
     StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter, base64Memory);
-    byte[] bytecode = bytecodeGenerator.getBytecode().get(0);
-    String classFile = className + ".class";
+    byte[] bytecode = bytecodeGenerator.getBytecode().get("emlyn");
+    String classFile = className + "1.class";
     File source = new File(classFile);
-    FileUtils.writeByteArrayToFile(source, bytecode);
+    try {
+      FileUtils.writeByteArrayToFile(source, bytecode);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

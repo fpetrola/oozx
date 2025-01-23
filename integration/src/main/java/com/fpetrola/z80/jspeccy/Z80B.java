@@ -67,7 +67,7 @@ public class Z80B extends RegistersBase<WordNumber> implements IZ80 {
     this.memIoImpl = memIoOps;
     // spy = new SyncInstructionSpy();
     spy = new NullInstructionSpy();
-    spy = new RoutineGrouperSpy(graphFrame, dataflowService, routineFinder1);
+//    spy = new RoutineGrouperSpy(graphFrame, dataflowService, routineFinder1);
     final IOImplementation io = new IOImplementation(memIoOps);
     final MemoryImplementation memory = new MemoryImplementation(memIoOps, spy);
     z80 = createCompleteZ80(FILE.equals("console2A.txt"), spy, blockManager, new State(io, spy.wrapMemory(memory)));

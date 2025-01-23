@@ -85,7 +85,7 @@ public class ZXIde {
 
     queueExecutor = new QueueExecutor();
 
-    new EmulatedMiniZX((ooz80, emulateUntil, pause, continueEmulation) -> {
+    new EmulatedMiniZX((ooz80, emulateUntil, pause, continueEmulation, interruptionListener) -> {
       ObservableRegister<?> pc = (ObservableRegister<?>) ooz80.getState().getPc();
       Z80EmulatorBridge emulator1 = new Z80EmulatorBridge(pc, ooz80, continueEmulation, pause, routineManager);
       routineManager.setRoutineHandlingListener(emulator1.getRoutineHandlingListener());

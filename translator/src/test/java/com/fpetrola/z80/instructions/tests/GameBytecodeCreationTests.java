@@ -95,10 +95,54 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
     testTranslateGame(getMemoryInBase64FromFile("file:///home/fernando/Downloads/samcruise.z80"), 61483);
   }
 
-  @Ignore
   @Test
   public void testTranslateEmlynToJava() {
-    testTranslateGame(getMemoryInBase64FromFile("file:////home/fernando/detodo/desarrollo/m/zx/zx/emlyn.z80"), 0xb542);
+    Helper.hex = true;
+    StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
+    addDynamicInvocations(stackAnalyzer, "{38257=[38282, 38307, 38323, 38332, 38316], 51063=[51648, 52056, 51265, 52417, 55011, 51653], 46923=[47657, 38058, 47475, 47047], 38110=[56880, 44643, 46020, 45288, 43866, 48939, 43964, 49758], 38222=[56880]}");
+
+    String base64Memory = getMemoryInBase64FromFile("file:////home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
+    stepUntilComplete(0xb542);
+
+    List<Routine> routines = getRoutineManager().getRoutines();
+//    String actual = generateAndDecompile(base64Memory, routines, ".", "ZxGame1");
+
+//    Assert.assertEquals("""
+//        """, actual);
+    translateToJava("emlyn", base64Memory, "$b542");
+//    testTranslateGame(getMemoryInBase64FromFile("file:////home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80"), 0xb542);
+  }
+
+  @Test
+  public void testTranslateEmlynToJava2() {
+    int emulateUntil = 0xC804;
+    EmulatedMiniZX.setRzxFile("/home/fernando/detodo/desarrollo/m/zx/roms/recordings/emlyn/emlyn3.rzx");
+    StackAnalyzer.collecting= true;
+    emulateUntil= 23451;
+    String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, emulateUntil, "file:////home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
+    StackAnalyzer.collecting= false;
+
+    StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
+
+    addDynamicInvocations(stackAnalyzer, "{52931=[52961, 53111], 55965=[56008, 55966, 56058], 111=[51200], 59839=[59867]}");
+
+    stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
+    stepUntilComplete(0xC804);
+
+
+    Helper.hex = true;
+    addDynamicInvocations(stackAnalyzer, "{38257=[38282, 38307, 38323, 38332, 38316], 51063=[51648, 52056, 51265, 52417, 55011, 51653], 46923=[47657, 38058, 47475, 47047], 38110=[56880, 44643, 46020, 45288, 43866, 48939, 43964, 49758], 38222=[56880]}");
+
+     base64Memory = getMemoryInBase64FromFile("file:////home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
+    stepUntilComplete(0xb542);
+
+    List<Routine> routines = getRoutineManager().getRoutines();
+//    String actual = generateAndDecompile(base64Memory, routines, ".", "ZxGame1");
+
+//    Assert.assertEquals("""
+//        """, actual);
+    translateToJava("emlyn", base64Memory, "$b542");
+//    testTranslateGame(getMemoryInBase64FromFile("file:////home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80"), 0xb542);
   }
 
   private void testTranslateGame(String MemoryInBase64FromFile, int startAddress) {

@@ -12,6 +12,7 @@ import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.transformations.StackAnalyzer;
+import com.mxgraph.view.mxGraph;
 import configuration.JSpeccySettings;
 import configuration.SpectrumType;
 import gui.JSpeccyScreen;
@@ -88,7 +89,9 @@ public class Spectrum implements Runnable, MemIoOps, NotifyOps {
     settings = config;
     specSettings = settings.getSpectrumSettings();
     State<?> state = null;
-    z802 = new Z80B(this, graphFrame.graph, new DataflowService() {
+//    mxGraph graph = graphFrame.graph;
+    mxGraph graph = null;
+    z802 = new Z80B(this, graph, new DataflowService() {
     }, new RoutineFinder(new RoutineManager(), new StackAnalyzer<>(state), state));
 
     memory = new Memory(settings);

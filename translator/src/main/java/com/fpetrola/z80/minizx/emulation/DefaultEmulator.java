@@ -21,33 +21,35 @@ package com.fpetrola.z80.minizx.emulation;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.spy.ObservableRegister;
 
 import java.util.function.Predicate;
 
 public class DefaultEmulator<T extends WordNumber> implements Emulator<T> {
 
   private int fetchCounter;
+  private Predicate<Integer> interruptionCondition;
 
-  public void emulate(OOZ80<T> ooz80, int emulateUntil, int pause, Predicate<Integer> continueEmulation) {
+  public void emulate(OOZ80<T> ooz80, int emulateUntil, int pause, Predicate<Integer> continueEmulationCondition, Predicate<Integer> interruptionCondition) {
+    this.interruptionCondition = interruptionCondition;
     Register<T> pc = ooz80.getState().getPc();
     int i = 0;
 
-//    ObservableRegister<T> registerR = (ObservableRegister<T>) ooz80.getState().getRegisterR();
-//    registerR.addIncrementWriteListener(value -> {
-//      fetchCounter++;
-//    });
-//    registerR.listening(true);
+    ObservableRegister<T> registerR = (ObservableRegister<T>) ooz80.getState().getRegisterR();
+    registerR.addIncrementWriteListener(value -> {
+      fetchCounter++;
+    });
+    registerR.listening(true);
 
     while (true) {
-      if (!continueEmulation.test(i))
+      if (!continueEmulationCondition.test(i++))
         break;
-      if ((i++ % (pause * 10000)) == 0) {
+      if (interruptionCondition.test(fetchCounter)) {
         ooz80.getState().setINTLine(true);
+        ooz80.execute();
+        ooz80.getState().setINTLine(false);
       } else {
-        if (i % pause == 0) {
           ooz80.execute();
-          ooz80.getState().setINTLine(false);
-        }
       }
     }
   }

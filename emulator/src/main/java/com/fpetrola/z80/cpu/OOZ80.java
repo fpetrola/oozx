@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.cpu;
 
+import com.fpetrola.z80.instructions.impl.EI;
 import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
@@ -54,23 +55,25 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
     if (state.isIntLine() && state.isIff1() && !state.isPendingEI())
       interruption();
 
+    Instruction<T> instruction;
     try {
-      execute(1);
+      instruction = execute(1);
     } catch (Exception e) {
       e.printStackTrace();
       System.out.println("Invalid instruction");
       throw new RuntimeException(e);
     }
-    if (state.isPendingEI()) {
+    if (state.isPendingEI() && !(instruction instanceof EI<T>)) {
       state.setPendingEI(false);
       endInterruption();
     }
   }
 
-  public void execute(int cycles) {
+  public Instruction<T> execute(int cycles) {
     Instruction<T> currentInstruction = (Instruction<T>) instructionFetcher.fetchNextInstruction();
     instructionExecutor.execute(currentInstruction);
     instructionFetcher.afterExecute(currentInstruction);
+    return currentInstruction;
   }
 
   @Override

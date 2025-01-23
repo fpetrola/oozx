@@ -619,7 +619,7 @@ public class JSpeccy extends JFrame
 		settings.setAY8912Settings(new AY8912Type());
 		RecentFilesType value4 = new RecentFilesType();
     value4.setRecentFile0("/home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80");
-    value4.setRecentFile1("/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
+    value4.setRecentFile1("/home/fernando/detodo/desarrollo/m/zx/roms/emlynh.z80");
     value4.setRecentFile2("/home/fernando/detodo/desarrollo/m/zx/roms/tge.z80");
 		settings.setRecentFilesSettings(value4);
 	}

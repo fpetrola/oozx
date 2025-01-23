@@ -130,6 +130,7 @@ public class State<T extends WordNumber> {
 
   public void enableInterrupt() {
     iff1 = iff2 = true;
+    pendingEI= true;
   }
 
   public void resetInterrupt() {

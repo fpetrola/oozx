@@ -23,21 +23,22 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.types.JumpInstruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 
 public class Halt<T extends WordNumber> extends AbstractInstruction<T> implements JumpInstruction<T> {
   private final State<T> state;
+  private Register<T> pc;
 
-  public Halt(State state) {
+  public Halt(State state, Register<T> pc) {
     this.state = state;
+    this.pc = pc;
   }
 
   @Override
   public int execute() {
-    if (!state.isHalted()) {
-      state.setHalted(true);
-      setNextPC(WordNumber.createValue(0));
-    }
+    state.setHalted(true);
+    setNextPC(pc.read());
 
     return 4;
   }

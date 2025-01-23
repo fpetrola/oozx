@@ -90,8 +90,10 @@ public class StateBytecodeGenerator {
 
     routines.forEach(routine -> {
       System.out.println(routine);
-      RoutineBytecodeGenerator routineBytecodeGenerator = new RoutineBytecodeGenerator(bytecodeGenerationContext, routine);
-      routineBytecodeGenerator.generate();
+      if (true || !routine.toString().contains("{7D9E:DE53}")) {
+        RoutineBytecodeGenerator routineBytecodeGenerator = new RoutineBytecodeGenerator(bytecodeGenerationContext, routine);
+        routineBytecodeGenerator.generate();
+      }
     });
 
     return classMaker;

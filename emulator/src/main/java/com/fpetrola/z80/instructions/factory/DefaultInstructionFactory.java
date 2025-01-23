@@ -285,7 +285,7 @@ public class DefaultInstructionFactory<T extends WordNumber> implements Instruct
 
   @Override
   public Halt Halt() {
-    return new Halt<T>(state);
+    return new Halt<T>(state, pc);
   }
 
   @Override

@@ -151,7 +151,7 @@ public class RoutineBytecodeGenerator {
         if (mutantCodeInInstruction(instruction, address)) {
           mm.invoke("executeMutantCode", address);
         } else {
-          mm.invoke("pc", context.pc.read().intValue());
+//          mm.invoke("pc", context.pc.read().intValue());
           InstructionsBytecodeGenerator instructionsBytecodeGenerator = new InstructionsBytecodeGenerator(mm, label, RoutineBytecodeGenerator.this, address, pendingFlag);
           instruction.accept(instructionsBytecodeGenerator);
           pendingFlag = instructionsBytecodeGenerator.pendingFlag;

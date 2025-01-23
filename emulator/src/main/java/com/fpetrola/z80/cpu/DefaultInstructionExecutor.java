@@ -82,8 +82,8 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
 
       T nextPC = abstractInstruction.getNextPC();
 
-      String toString = new ToStringInstructionVisitor<T>().createToString(instruction);
-      String x = String.format("%04X", pcValue.intValue()) + ": " + toString + " -> " + nextPC;
+//      String toString = new ToStringInstructionVisitor<T>().createToString(instruction);
+//      String x = String.format("%04X", pcValue.intValue()) + ": " + toString + " -> " + nextPC;
 //      System.out.println(x);
 
       if (nextPC == null)

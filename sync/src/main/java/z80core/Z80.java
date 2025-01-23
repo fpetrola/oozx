@@ -1834,7 +1834,7 @@ public class Z80 implements IZ80 {
         Map<Integer, Integer> lastWritten2 = MemIoImpl.getLastWrittenMap();
 
         if (!lastWritten2.equals(lastWritten)) {
-          System.out.println("No Memory!");
+//          System.out.println("No Memory!");
           lastWritten2.clear();
           lastWritten.clear();
         } else {
