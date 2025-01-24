@@ -85,6 +85,7 @@ public interface BytecodeGeneration {
   default void translateToJava(String className, String startMethod, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory) {
     try {
       boolean useFields = true;
+      writeClassFile(className, state, translation, symbolicExecutionAdapter, base64Memory);
 
       StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter, base64Memory);
       Class<?> finish = bytecodeGenerator.getNewClass().get(0);

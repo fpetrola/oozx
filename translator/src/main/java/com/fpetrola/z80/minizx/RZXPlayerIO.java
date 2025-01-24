@@ -46,6 +46,7 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
   private volatile boolean lastInterruption = true;
   private boolean noInputs;
   private long lastCount;
+  private byte lastPoll;
 
   public RZXPlayerIO() {
     miniZXKeyboard = new MiniZXKeyboard();
@@ -92,10 +93,13 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
     if (inputs.isEmpty()) {
       ++currentFrameIndex;
       changeFrame();
-      System.out.println("why?");
     }
     Byte poll = inputs.poll();
     noInputs = inputs.isEmpty();
+    if (poll == null)
+      return lastPoll;
+    else
+      lastPoll = poll;
     return poll;
   }
 
@@ -113,7 +117,7 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
     frames = inputRecordingBlock.frames;
     this.ooz80 = ooz80;
     currentFrameIndex = 0;
-    lastCount= inputRecordingBlock.tStates;
+    lastCount = inputRecordingBlock.tStates;
     changeFrame();
 
 //    ObservableRegister<T> registerR = (ObservableRegister<T>) ooz80.getState().getRegisterR();
@@ -147,10 +151,10 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
 
   public Predicate<Integer> getInterruptionCondition() {
     return (i) -> {
-      if (i - lastCount +1 >= currentFrame.fetchCounter) {
+      if (i - lastCount + 1 > currentFrame.fetchCounter) {
         ++currentFrameIndex;
         changeFrame();
-        lastCount= i;
+        lastCount = i;
         return true;
       } else
         return false;

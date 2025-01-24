@@ -33,6 +33,7 @@ public class GameInvoker {
 
 //    ZxGame1 o= new ZxGame1();
 //    o = ClassProxyHelper.createGameInstance(ZxGame1.class);
-    zxGame1.$C804();
+//    zxGame1.$C804();
+    zxGame1.$8185();
   }
 }

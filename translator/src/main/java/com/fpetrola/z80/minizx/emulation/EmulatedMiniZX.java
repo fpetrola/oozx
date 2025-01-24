@@ -62,9 +62,9 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
   public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread, Emulator emulator, StackAnalyzer stackAnalyzer) {
     this(emulator, url, pause, showScreen, emulateUntil, inThread, new NullInstructionSpy(), createState());
+    this.stackAnalyzer = stackAnalyzer;
 //    this.stackAnalyzer = new StackAnalyzer(state);
 //    this.stackAnalyzer.setCollecting(true);
-    this.stackAnalyzer = stackAnalyzer;
   }
 
   public static void setRzxFile(String rzxFile) {
@@ -100,7 +100,16 @@ public class EmulatedMiniZX<T extends WordNumber> {
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlynh.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/batman48.z80";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/batman1.rzx";
-    url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/emlyn/emlyn5.rzx";
+    url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/rick2/rick2-1.rzx";
+    url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/emlyn/emlyn3.rzx";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/tge.z80";
+    url = "/home/fernando/detodo/desarrollo/m/zx/roms/wally1.rzx";
+    url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/exolon.rzx";
+    url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
+    url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
+    url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
+    url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/greatescape/greatescape.rzx";
+
     setRzxFile(url);
 
     new EmulatedMiniZX(url, 10, true, -1, true, new DefaultEmulator(), null).start();
@@ -196,16 +205,9 @@ public class EmulatedMiniZX<T extends WordNumber> {
   }
 
   private void useRzx(RegistersBase registersBase, State<T> state, MiniZXIO io) {
-    String name;
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/wally1.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/exolon.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/greatescape/greatescape.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
-    name = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
-    name = rzxFile;
+    String url = rzxFile;
 
-    RzxFile rzxFile = new RzxParser().parseFile(name);
+    RzxFile rzxFile = new RzxParser().parseFile(url);
     SpectrumState spectrumState = RzxParser.loadSnapshot(rzxFile);
     SnapshotLoader.setupStateFromSpectrumState(spectrumState, registersBase, state);
 //    SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);

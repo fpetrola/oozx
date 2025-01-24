@@ -99,16 +99,16 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
   public void testTranslateEmlynToJava() {
     Helper.hex = true;
     StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
-    addDynamicInvocations(stackAnalyzer, "{38257=[38282, 38307, 38323, 38332, 38316], 51063=[51648, 52056, 51265, 52417, 55011, 51653], 46923=[47657, 38058, 47475, 47047], 38110=[56880, 44643, 46020, 45288, 43866, 48939, 43964, 49758], 38222=[56880]}");
+    addDynamicInvocations(stackAnalyzer, "{24992=[26125], 29217=[27660, 25762, 27675], 23942=[25378], 25606=[26550], 26662=[23744], 46923=[47657, 38058, 47475, 47047], 5676=[23744, 25251, 25238, 32759, 28122, 25372, 25468, 26685], 38222=[28174], 38257=[38282, 38323, 38307, 38332, 38316], 24979=[26125], 1012=[26457, 26498, 28515, 25532, 26509, 28037], 23893=[26125], 51063=[51648, 51840, 51265, 52417, 55011, 52211, 51653, 51878, 51705, 52332], 25080=[26125], 23801=[26125], 29212=[26141, 25278, 25302], 24988=[26125], 38110=[56880, 44643, 46020, 45288, 43866, 48939, 43964, 49758]}");
 
     String base64Memory = getMemoryInBase64FromFile("file:////home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
     stepUntilComplete(0xb542);
 
     List<Routine> routines = getRoutineManager().getRoutines();
-//    String actual = generateAndDecompile(base64Memory, routines, ".", "ZxGame1");
+    String actual = generateAndDecompile(base64Memory, routines, ".", "ZxGame1");
 
-//    Assert.assertEquals("""
-//        """, actual);
+    Assert.assertEquals("""
+        """, actual);
     translateToJava("emlyn", base64Memory, "$b542");
 //    testTranslateGame(getMemoryInBase64FromFile("file:////home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80"), 0xb542);
   }

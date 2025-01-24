@@ -78,41 +78,41 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     mutantAddress.clear();
     dataflowService = dataflowService1;
     routineExecutorHandler = new RoutineExecutorHandler<>(state, new ExecutionStackStorage<>(state), dataflowService, stackAnalyzer);
-//    this.stackAnalyzer.addEventListener(new StackListener() {
-//      public boolean jumpUsingRet(int pcValue, Set<Integer> jumpAddresses) {
-//        AddressAction addressAction = routineExecutorHandler.getCurrentRoutineExecution().getAddressAction(pcValue);
-//        if (!(addressAction instanceof JumpUsingRetAddressAction<?>))
-//          routineExecutorHandler.getCurrentRoutineExecution().replaceAddressAction(new JumpUsingRetAddressAction<>(pcValue, jumpAddresses, routineExecutorHandler));
-//        return StackListener.super.jumpUsingRet(pcValue, jumpAddresses);
-//      }
-//    });
-//
-//    instructionExecutor.addTopExecutionListener(new ExecutionListener() {
-//      public void beforeExecution(Instruction instruction) {
-//        int pcValue = state.getPc().read().intValue();
-//
-//        RoutineExecution<T> currentRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
-//        AddressAction addressAction = currentRoutineExecution.getAddressAction(pcValue);
-//        if (addressAction == null) {
-//          RoutineExecution routineExecution = routineExecutorHandler.getCurrentRoutineExecution();
-//          if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
-//            addressAction = routineExecution.replaceIfAbsent(getPcValue(), routineExecution.createAddressAction(instruction, conditionalInstruction.getCondition() instanceof ConditionAlwaysTrue, getPcValue()));
-//          } else
-//            addressAction = routineExecution.createAndAddGenericAction(pcValue);
-//        }
-//
-//        if (instruction instanceof ConditionalInstruction<?, ?>) {
-//          ExecutionStackStorage executionStackStorage = addressAction.getExecutionStackStorage();
-//          if (executionStackStorage.isSaved())
-//            executionStackStorage.restore();
-//          else
-//            executionStackStorage.save();
-//        }
-//      }
-//
-//      public void afterExecution(Instruction instruction) {
-//      }
-//    });
+    this.stackAnalyzer.addEventListener(new StackListener() {
+      public boolean jumpUsingRet(int pcValue, Set<Integer> jumpAddresses) {
+        AddressAction addressAction = routineExecutorHandler.getCurrentRoutineExecution().getAddressAction(pcValue);
+        if (!(addressAction instanceof JumpUsingRetAddressAction<?>))
+          routineExecutorHandler.getCurrentRoutineExecution().replaceAddressAction(new JumpUsingRetAddressAction<>(pcValue, jumpAddresses, routineExecutorHandler));
+        return StackListener.super.jumpUsingRet(pcValue, jumpAddresses);
+      }
+    });
+
+    instructionExecutor.addTopExecutionListener(new ExecutionListener() {
+      public void beforeExecution(Instruction instruction) {
+        int pcValue = state.getPc().read().intValue();
+
+        RoutineExecution<T> currentRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
+        AddressAction addressAction = currentRoutineExecution.getAddressAction(pcValue);
+        if (addressAction == null) {
+          RoutineExecution routineExecution = routineExecutorHandler.getCurrentRoutineExecution();
+          if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
+            addressAction = routineExecution.replaceIfAbsent(getPcValue(), routineExecution.createAddressAction(instruction, conditionalInstruction.getCondition() instanceof ConditionAlwaysTrue, getPcValue()));
+          } else
+            addressAction = routineExecution.createAndAddGenericAction(pcValue);
+        }
+
+        if (instruction instanceof ConditionalInstruction<?, ?>) {
+          ExecutionStackStorage executionStackStorage = addressAction.getExecutionStackStorage();
+          if (executionStackStorage.isSaved())
+            executionStackStorage.restore();
+          else
+            executionStackStorage.save();
+        }
+      }
+
+      public void afterExecution(Instruction instruction) {
+      }
+    });
   }
 
   public int getPcValue() {
