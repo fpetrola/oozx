@@ -68,7 +68,9 @@ java -jar bytecodeGenerator/target/bytecodeGenerator-0.0.1-SNAPSHOT.jar execute 
 
 ### Translation Status
 - **Jet Set Willy**: Fully translated (100%)
-- **Manic Miner**: Partially translated (80%)
+- **Manic Miner**: Fully translated (100%)
+- **Dynamite Dan**: Partially translated (~95%)
+- **Everyone's a Wally**: Partially translated (~90%)
 
 ## Development Opportunities
 The OOZX project provides a fertile ground for enhancements. Potential contributions include:
