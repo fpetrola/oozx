@@ -6,6 +6,7 @@ OOZX is an open-source Z80 emulator designed with an object-oriented architectur
 
 ![Gameplay de ZX Spectrum en oozx](doc/jsw1.gif)  
 ![dan-95%.gif](doc/dan-95%25.gif)
+![wally-90%.gif](doc/wally-90%25.gif)
 
 ## Features
 
