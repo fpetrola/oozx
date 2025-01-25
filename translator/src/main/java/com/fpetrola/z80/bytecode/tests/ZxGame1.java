@@ -7641,7 +7641,7 @@ public class ZxGame1 extends MiniZX {
         super.F = var21;
         int var23 = super.A - super.B;
         super.F = var23;
-        if(super.F < 0) {
+        if(super.F <= 0) {
           int var24 = super.A - super.C;
           super.F = var24;
           if(super.F > 0) {
