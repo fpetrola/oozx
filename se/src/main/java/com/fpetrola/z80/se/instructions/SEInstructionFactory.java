@@ -23,6 +23,7 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.opcodes.references.*;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.se.DirectAccessWordNumber;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
@@ -68,6 +69,10 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
         if (target instanceof MemoryPlusRegister8BitReference<T>) {
           T value = source.read();
           return 0;
+        }
+        if (target instanceof IndirectMemory8BitReference<T> indirectMemory8BitReference && indirectMemory8BitReference.getTarget() instanceof Register<T>) {
+          T value = source.read();
+          return cyclesCost;
         }
         if (source instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
           T value = source.read();

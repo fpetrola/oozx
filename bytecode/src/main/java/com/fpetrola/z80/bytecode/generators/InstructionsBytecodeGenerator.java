@@ -497,6 +497,8 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   private void createIfs(Instruction instruction, Runnable runnable) {
+    if (routineByteCodeGenerator.context.pc.read().intValue() == 0xF2DD)
+      System.out.println("aegassg");
     OpcodeReferenceVisitor opcodeReferenceVisitor = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
     if (instruction instanceof DJNZ<?> djnz) {
       processDjnz(runnable, djnz, opcodeReferenceVisitor);

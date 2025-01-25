@@ -21,6 +21,7 @@ package com.fpetrola.z80.minizx;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
@@ -77,9 +78,21 @@ public abstract class SpectrumApplication<T> {
       A = mem[address + 1];
     } else if (mem[address] == 0x01) {
       BC(mem16(address + 1));
+    } else if (mem[address] == 0xCD) {
+      invokeMethod(mem16(address + 1));
     }
 
 //    System.out.println("mutant at: " + address);
+  }
+
+  private void invokeMethod(int address) {
+    try {
+      String formatted = "$%04X".formatted(address);
+      Method method = getClass().getMethod(formatted);
+      method.invoke(this);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public void SP(int value) {
@@ -321,7 +334,7 @@ public abstract class SpectrumApplication<T> {
 
   public void cpir() {
     int result = -1;
-    do  {
+    do {
       result = mem(HL());
       BC(BC() - 1);
       HL(HL() + 1);

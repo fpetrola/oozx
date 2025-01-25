@@ -175,6 +175,8 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     writeMemoryReferences.forEach(wmr -> {
       Routine routineAt = routineManager.findRoutineAt(wmr.address.intValue());
       if (routineAt != null) {
+        if (wmr.address.intValue() == 0xb894)
+          System.out.println("asasgsag");
         mutantAddress.add(wmr.address.intValue());
       }
     });
