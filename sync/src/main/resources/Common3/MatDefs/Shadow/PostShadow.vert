@@ -32,10 +32,10 @@ varying vec3 lightVec;
 
 varying vec2 texCoord;
 
-attribute vec3 inPosition;
+attributeHandler vec3 inPosition;
 
 #ifdef DISCARD_ALPHA
-    attribute vec2 inTexCoord;
+    attributeHandler vec2 inTexCoord;
 #endif
 
 const mat4 biasMat = mat4(0.5, 0.0, 0.0, 0.0,

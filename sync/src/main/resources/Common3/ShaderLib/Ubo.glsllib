@@ -7,7 +7,7 @@
     #define START_MATPARAMS layout(std140) uniform matparams {
     #define END_MATPARAMS }
     #define MATPARAM
-    #define attribute in
+    #define attributeHandler in
 #else
     #define START_MATPARAMS
     #define END_MATPARAMS

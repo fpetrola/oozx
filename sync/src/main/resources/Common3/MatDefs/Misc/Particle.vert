@@ -1,8 +1,8 @@
 uniform mat4 g_WorldViewProjectionMatrix;
 
-attribute vec3 inPosition;
-attribute vec4 inColor;
-attribute vec4 inTexCoord;
+attributeHandler vec3 inPosition;
+attributeHandler vec4 inColor;
+attributeHandler vec4 inTexCoord;
 
 varying vec4 color;
 
@@ -16,7 +16,7 @@ uniform mat4 g_WorldMatrix;
 uniform vec3 g_CameraPosition;
 uniform float m_Quadratic;
 const float SIZE_MULTIPLIER = 4.0;
-attribute float inSize;
+attributeHandler float inSize;
 #endif
 
 void main(){

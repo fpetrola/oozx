@@ -19,26 +19,26 @@ varying vec2 texCoord;
 
 #ifdef SEPARATE_TEXCOORD
   varying vec2 texCoord2;
-  attribute vec2 inTexCoord2;
+  attributeHandler vec2 inTexCoord2;
 #endif
 
 varying vec3 AmbientSum;
 varying vec4 DiffuseSum;
 varying vec3 SpecularSum;
 
-attribute vec3 inPosition;
-attribute vec2 inTexCoord;
-attribute vec3 inNormal;
+attributeHandler vec3 inPosition;
+attributeHandler vec2 inTexCoord;
+attributeHandler vec3 inNormal;
 
 #ifdef VERTEX_COLOR
-  attribute vec4 inColor;
+  attributeHandler vec4 inColor;
 #endif
 
 #ifndef VERTEX_LIGHTING
     varying vec3 vNormal;
     varying vec3 vPos;
     #ifdef NORMALMAP
-        attribute vec4 inTangent;
+        attributeHandler vec4 inTangent;
         varying vec3 vTangent;
         varying vec3 vBinormal;
     #endif
@@ -55,8 +55,8 @@ attribute vec3 inNormal;
 
     /**
      * Input:
-     * attribute inPosition
-     * attribute inNormal
+     * attributeHandler inPosition
+     * attributeHandler inNormal
      * uniform g_WorldMatrix
      * uniform g_CameraPosition
      *

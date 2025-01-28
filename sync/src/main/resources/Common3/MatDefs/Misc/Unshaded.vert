@@ -2,15 +2,15 @@
 #import "Common/ShaderLib/Skinning.glsllib"
 #import "Common/ShaderLib/Instancing.glsllib"
 
-attribute vec3 inPosition;
+attributeHandler vec3 inPosition;
 
 #if defined(HAS_COLORMAP) || (defined(HAS_LIGHTMAP) && !defined(SEPARATE_TEXCOORD))
     #define NEED_TEXCOORD1
 #endif
 
-attribute vec2 inTexCoord;
-attribute vec2 inTexCoord2;
-attribute vec4 inColor;
+attributeHandler vec2 inTexCoord;
+attributeHandler vec2 inTexCoord2;
+attributeHandler vec4 inColor;
 
 varying vec2 texCoord1;
 varying vec2 texCoord2;

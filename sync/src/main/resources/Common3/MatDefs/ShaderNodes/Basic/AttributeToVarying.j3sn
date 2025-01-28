@@ -3,11 +3,11 @@ ShaderNodeDefinitions{
         Type : Vertex   
         Shader GLSL100: Common/MatDefs/ShaderNodes/Basic/null.vert         
         Documentation{
-            This node can pass an attribute value to a varying value.
-            @input floatVariable a float attribute
-            @input vec2Variable a vec2 attribute                   
-            @input vec3Variable a vec3 attribute
-            @input vec4Variable a vec4 attribute
+            This node can pass an attributeHandler value to a varying value.
+            @input floatVariable a float attributeHandler
+            @input vec2Variable a vec2 attributeHandler
+            @input vec3Variable a vec3 attributeHandler
+            @input vec4Variable a vec4 attributeHandler
             @output floatVariable a float varying
             @output vec2Variable a vec2 varying                    
             @output vec3Variable a vec3 varying

@@ -1,7 +1,7 @@
 #import "Common/ShaderLib/Instancing.glsllib"
 
-attribute vec3 inPosition;
-attribute vec3 inNormal;
+attributeHandler vec3 inPosition;
+attributeHandler vec3 inNormal;
 
 varying vec3 normal;
 

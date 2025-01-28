@@ -1,14 +1,14 @@
 uniform mat4 g_WorldViewProjectionMatrix;
 uniform vec4 m_Color;
 
-attribute vec3 inPosition;
+attributeHandler vec3 inPosition;
 
 #ifdef VERTEX_COLOR
-    attribute vec4 inColor;
+    attributeHandler vec4 inColor;
 #endif
 
 #ifdef TEXTURE
-    attribute vec2 inTexCoord;
+    attributeHandler vec2 inTexCoord;
     varying vec2 texCoord;
 #endif
 

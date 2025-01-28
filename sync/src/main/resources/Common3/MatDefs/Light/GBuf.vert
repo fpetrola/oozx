@@ -12,17 +12,17 @@ varying vec4 AmbientSum;
 varying vec4 DiffuseSum;
 varying vec4 SpecularSum;
 
-attribute vec3 inPosition;
-attribute vec2 inTexCoord;
-attribute vec3 inNormal;
+attributeHandler vec3 inPosition;
+attributeHandler vec2 inTexCoord;
+attributeHandler vec3 inNormal;
 
 #ifdef NORMALMAP
-attribute vec3 inTangent;
+attributeHandler vec3 inTangent;
 varying mat3 tbnMat;
 #endif
 
 #ifdef VERTEX_COLOR
-  attribute vec4 inColor;
+  attributeHandler vec4 inColor;
 #endif
 
 varying vec3 vNormal;

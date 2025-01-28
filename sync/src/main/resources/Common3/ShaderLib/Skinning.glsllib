@@ -6,8 +6,8 @@
 
 #define NUM_WEIGHTS_PER_VERT 4
  
-attribute vec4 inHWBoneWeight;
-attribute vec4 inHWBoneIndex;
+attributeHandler vec4 inHWBoneWeight;
+attributeHandler vec4 inHWBoneIndex;
 uniform mat4 m_BoneMatrices[NUM_BONES];
 
 void Skinning_Compute(inout vec4 position){

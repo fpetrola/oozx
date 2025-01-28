@@ -1,7 +1,7 @@
 #import "Common/ShaderLib/Instancing.glsllib"
 #import "Common/ShaderLib/Skinning.glsllib"
-attribute vec3 inPosition;
-attribute vec2 inTexCoord;
+attributeHandler vec3 inPosition;
+attributeHandler vec2 inTexCoord;
 
 varying vec2 texCoord;
 

@@ -4,8 +4,8 @@ uniform mat4 g_WorldMatrix;
 
 uniform vec3 m_NormalScale;
 
-attribute vec3 inPosition;
-attribute vec3 inNormal;
+attributeHandler vec3 inPosition;
+attributeHandler vec3 inNormal;
 
 varying vec3 direction;
 

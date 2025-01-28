@@ -4,7 +4,7 @@ uniform mat4 g_WorldMatrix;
 
 varying vec4 projCoord;
 
-attribute vec3 inPosition;
+attributeHandler vec3 inPosition;
 
 const mat4 biasMat = mat4(0.5, 0.0, 0.0, 0.0,
                           0.0, 0.5, 0.0, 0.0,

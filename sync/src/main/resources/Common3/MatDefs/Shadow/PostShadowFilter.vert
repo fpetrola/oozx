@@ -1,5 +1,5 @@
-attribute vec4 inPosition;
-attribute vec2 inTexCoord;
+attributeHandler vec4 inPosition;
+attributeHandler vec2 inTexCoord;
 varying vec2 texCoord;
 
 void main() {  

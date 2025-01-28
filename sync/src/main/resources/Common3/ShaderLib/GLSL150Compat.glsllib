@@ -6,7 +6,7 @@ out vec4 outFragColor;
 #  define texture2DLod texture
 #  if defined VERTEX_SHADER
 #    define varying out
-#    define attribute in
+#    define attributeHandler in
 #  elif defined FRAGMENT_SHADER
 #    define varying in
 #    define gl_FragColor outFragColor

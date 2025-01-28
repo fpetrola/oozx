@@ -1,7 +1,7 @@
 varying vec2 texCoord;
 
-attribute vec3 inPosition;
-attribute vec2 inTexCoord;
+attributeHandler vec3 inPosition;
+attributeHandler vec2 inTexCoord;
 
 void main(){
    texCoord = inTexCoord;
