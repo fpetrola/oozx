@@ -38,39 +38,36 @@ public class JetSetWillyOO3 extends MiniZX {
 
     while (true) {
       Entity1 current = entityList.getCurrent();
-      A = current.getType();
-      F = A - 255;
+      int A = current.getType();
+      int F = A - 255;
       if (F == 0) {
         return;
       }
 
       A = A & 7;
       if (A == 1 || A == 2) {
-        E = current.getY2();
-        D = 130;
+        int E = current.getY2();
+        int D = 130;
         A = mem(DE(), 37339);
-        L = A;
+        int L = A;
         A = current.getX();
         A = A & 31;
-        F = A << 1;
         A = A + L & 255;
         L = A;
         A = E;
         A = rlc(A);
         A = A & 1;
         A = A | 92;
-        H = A;
+        int H = A;
         DE(31);
         A = current.getAttribute();
         A = A & 15;
         A = A + 56 & 255;
         A = A & 71;
-        F = A << 1;
-        C = A;
+        int C = A;
         A = attributeBuffer.getAttribute(HL());
         A = A & 56;
         A = A ^ C;
-        F = A << 1;
         C = A;
         attributeBuffer.setAttribute(HL(), C);
         HL(HL() + 1 & 65535);
@@ -230,12 +227,28 @@ public class JetSetWillyOO3 extends MiniZX {
   }
 
   private class AttributeBuffer {
+    int[] attributes = new int[32 * 24];
+
     private int getAttribute(int hl) {
-      return mem(hl, 37368);
+//      return mem(hl, 37368);
+      return getAttributeLocal(mapAddress(hl));
+    }
+
+    private int getAttributeLocal(int i) {
+      return attributes[i];
     }
 
     private void setAttribute(int hl, int c) {
-      wMem(hl, c, 37373);
+//      wMem(hl, c, 37373);
+      setAttributeLocal(c, mapAddress(hl));
+    }
+
+    private void setAttributeLocal(int c, int i) {
+      attributes[i] = c;
+    }
+
+    private int mapAddress(int hl) {
+      return hl - 0x5800;
     }
   }
 }
