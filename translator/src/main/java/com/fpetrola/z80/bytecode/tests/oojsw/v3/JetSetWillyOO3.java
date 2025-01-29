@@ -46,67 +46,51 @@ public class JetSetWillyOO3 extends MiniZX {
 
       A = A & 7;
       if (A == 1 || A == 2) {
-        int E = current.getY2();
-        int D = 130;
-        A = mem(DE(), 37339);
-        int L = A;
-        A = current.getX();
-        A = A & 31;
-        A = A + L & 255;
-        L = A;
-        A = E;
-        A = rlc(A);
-        A = A & 1;
-        A = A | 92;
-        int H = A;
+        int L = (current.getX() & 31) + mem(130 * 256 + current.getY2(), 37339) & 255;
+        int H = rlc(current.getY2()) & 1 | 92;
         DE(31);
-        A = current.getAttribute();
-        A = A & 15;
-        A = A + 56 & 255;
-        A = A & 71;
-        int C = A;
-        A = attributeBuffer.getAttribute(HL());
-        A = A & 56;
-        A = A ^ C;
-        C = A;
-        attributeBuffer.setAttribute(HL(), C);
-        HL(HL() + 1 & 65535);
-        attributeBuffer.setAttribute(HL(), C);
-        HL(HL() + DE() & 65535);
-        attributeBuffer.setAttribute(HL(), C);
-        HL(HL() + 1 & 65535);
-        attributeBuffer.setAttribute(HL(), C);
+        int C = (current.getAttribute() & 15) + 56 & 255 & 71;
+        int hl = H * 256 + L;
+        C = attributeBuffer.getAttributeLocal(hl - 0x5800) & 56 ^ C;
+        attributeBuffer.setAttributeLocal(C, hl - 0x5800);
+        hl++;
+        attributeBuffer.setAttributeLocal(C, hl - 0x5800);
+        hl++;
+        attributeBuffer.setAttributeLocal(C, hl - 0x5800);
+        hl++;
+        attributeBuffer.setAttributeLocal(C, hl - 0x5800);
 
-        A = mem(IX() + 3, 37380);
-        A = A & 14;
-        F = A << 1;
+        int A2;
+        A2 = mem(IX() + 3, 37380);
+        A2 = A2 & 14;
+        F = A2 << 1;
         if (F != 0) {
-          HL(HL() + DE() & 65535);
-          wMem(HL(), C, 37388);
-          HL(HL() + 1 & 65535);
-          wMem(HL(), C, 37390);
+          HL(hl + DE() & 65535);
+          wMem(hl, C, 37388);
+          HL(hl + 1 & 65535);
+          wMem(hl, C, 37390);
         }
 
         C = 1;
-        A = mem(IX() + 1, 37393);
-        A = A & mem(IX() + 0, 37396);
-        F = A << 1;
-        A = A | mem(IX() + 2, 37399);
-        F = A << 1;
-        A = A & 224;
-        F = A << 1;
-        E = A;
+        A2 = mem(IX() + 1, 37393);
+        A2 = A2 & mem(IX() + 0, 37396);
+        F = A2 << 1;
+        A2 = A2 | mem(IX() + 2, 37399);
+        F = A2 << 1;
+        A2 = A2 & 224;
+        F = A2 << 1;
+        E = A2;
         D = mem(IX() + 5, 37405);
         H = 130;
         L = mem(IX() + 3, 37410);
-        A = mem(IX() + 2, 37413);
-        A = A & 31;
-        F = A << 1;
-        A = A | mem(HL(), 37418);
-        F = A << 1;
-        HL(HL() + 1 & 65535);
-        H = mem(HL(), 37420);
-        L = A;
+        A2 = mem(IX() + 2, 37413);
+        A2 = A2 & 31;
+        F = A2 << 1;
+        A2 = A2 | mem(hl, 37418);
+        F = A2 << 1;
+        HL(hl + 1 & 65535);
+        H = mem(hl, 37420);
+        L = A2;
         $37974();
         if (F != 0) {
           throw new StackException(37048);
@@ -127,19 +111,20 @@ public class JetSetWillyOO3 extends MiniZX {
     do {
       F = C & 1;
       A = mem(DE(), 37978);
+      int hl = 0;
       if (F != 0) {
-        A = A & mem(HL(), 37981);
+        A = A & mem(hl, 37981);
         F = A << 1;
         if (F != 0) {
           return;
         }
 
         A = mem(DE(), 37983);
-        A = A | mem(HL(), 37984);
+        A = A | mem(hl, 37984);
         F = A << 1;
       }
 
-      wMem(HL(), A, 37985);
+      wMem(hl, A, 37985);
       int var5 = L + 1 & 255;
       L = var5;
       F = var5;
@@ -147,18 +132,18 @@ public class JetSetWillyOO3 extends MiniZX {
       F = C & 1;
       A = mem(DE(), 37990);
       if (F != 0) {
-        A = A & mem(HL(), 37993);
+        A = A & mem(hl, 37993);
         F = A << 1;
         if (F != 0) {
           return;
         }
 
         A = mem(DE(), 37995);
-        A = A | mem(HL(), 37996);
+        A = A | mem(hl, 37996);
         F = A << 1;
       }
 
-      wMem(HL(), A, 37997);
+      wMem(hl, A, 37997);
       int var11 = L - 1 & 255;
       L = var11;
       F = var11;
@@ -230,8 +215,7 @@ public class JetSetWillyOO3 extends MiniZX {
     int[] attributes = new int[32 * 24];
 
     private int getAttribute(int hl) {
-//      return mem(hl, 37368);
-      return getAttributeLocal(mapAddress(hl));
+      return getAttributeLocal(hl - 0x5800);
     }
 
     private int getAttributeLocal(int i) {
@@ -239,8 +223,7 @@ public class JetSetWillyOO3 extends MiniZX {
     }
 
     private void setAttribute(int hl, int c) {
-//      wMem(hl, c, 37373);
-      setAttributeLocal(c, mapAddress(hl));
+      setAttributeLocal(c, hl - 0x5800);
     }
 
     private void setAttributeLocal(int c, int i) {
