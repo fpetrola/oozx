@@ -19,6 +19,7 @@
 package com.fpetrola.z80.ide;
 
 import com.fpetrola.z80.cpu.FetchListener;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.spy.RegisterWriteListener;
 
@@ -137,7 +138,10 @@ public class Z80Emulator {
   }
 
   public FetchListener getRegisterWriteListener() {
-    return (address, instruction) -> {
+    return new FetchListener() {
+      public void instructionFetchedAt(Object value, Instruction instruction) {
+        FetchListener.super.instructionFetchedAt(value, instruction);
+      }
     };
   }
 

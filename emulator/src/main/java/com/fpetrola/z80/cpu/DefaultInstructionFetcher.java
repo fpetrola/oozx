@@ -84,6 +84,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   @Override
   public Instruction<T> fetchNextInstruction() {
+    fetchListeners.forEach(FetchListener::beforeFetch);
     int rValue = registerR.read().intValue();
     registerR.increment();
     pcValue = state.getPc().read();

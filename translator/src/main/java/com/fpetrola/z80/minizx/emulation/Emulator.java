@@ -24,5 +24,7 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import java.util.function.Predicate;
 
 public interface Emulator<T extends WordNumber> {
-  void emulate(OOZ80<T> ooz81, int emulateUntil1, int pause1, Predicate<Integer> continueEmulation, Predicate<Integer> interruptionCondition);
+  void emulate();
+
+  void setup(OOZ80<T> ooz80, int emulateUntil1, int pause1, Predicate<Integer> continueEmulation, Predicate<Integer> interruptionCondition);
 }

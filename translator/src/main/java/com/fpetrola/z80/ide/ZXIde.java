@@ -31,6 +31,7 @@ import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
+import com.fpetrola.z80.minizx.emulation.Emulator;
 import com.fpetrola.z80.minizx.emulation.Z80EmulatorBridge;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineFinder;
@@ -43,6 +44,7 @@ import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.DarculaTheme;
 
 import javax.swing.*;
+import java.util.function.Predicate;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ZXIde {
@@ -85,21 +87,32 @@ public class ZXIde {
 
     queueExecutor = new QueueExecutor();
 
-    new EmulatedMiniZX((ooz80, emulateUntil, pause, continueEmulation, interruptionListener) -> {
-      ObservableRegister<?> pc = (ObservableRegister<?>) ooz80.getState().getPc();
-      Z80EmulatorBridge emulator1 = new Z80EmulatorBridge(pc, ooz80, continueEmulation, pause, routineManager);
-      routineManager.setRoutineHandlingListener(emulator1.getRoutineHandlingListener());
-      routineFinder.addExecutionListener(new MyInstructionExecutorDelegator(ooz80, routineFinder));
-      stackAnalyzer1.addExecutionListener(ooz80.getInstructionExecutor());
+    Emulator<WordNumber> emulator = new Emulator<WordNumber>() {
+      @Override
+      public void setup(OOZ80<WordNumber> ooz80, int emulateUntil, int pause, Predicate<Integer> continueEmulation, Predicate<Integer> interruptionCondition) {
+        ObservableRegister<?> pc = (ObservableRegister<?>) ooz80.getState().getPc();
+        Z80EmulatorBridge emulator1 = new Z80EmulatorBridge(pc, ooz80, continueEmulation, pause, routineManager);
+        routineManager.setRoutineHandlingListener(emulator1.getRoutineHandlingListener());
+        routineFinder.addExecutionListener(new MyInstructionExecutorDelegator(ooz80, routineFinder));
+        stackAnalyzer1.addExecutionListener(ooz80.getInstructionExecutor());
 //      stackAnalyzer1.addEventListener(new StackListener() {
 //      });
 
-      SwingUtilities.invokeLater(() -> Z80Debugger.createAndShowGUI(emulator1, emulator1.getTreeListener()));
-      ooz80.getInstructionFetcher().addFetchListener(emulator1.getRegisterWriteListener());
-
-
+        SwingUtilities.invokeLater(() -> Z80Debugger.createAndShowGUI(emulator1, emulator1.getTreeListener()));
+        ooz80.getInstructionFetcher().addFetchListener(emulator1.getRegisterWriteListener());
 //      state.getPc().write(WordNumber.createValue(0xF163));
-    }, url, 10, true, -1, true, spy, state).start();
+      }
+
+      public void emulate() {
+
+      }
+
+      public void setOOZ80(OOZ80<WordNumber> ooz80) {
+
+      }
+    };
+
+    new EmulatedMiniZX(emulator, url, 10, true, -1, true, spy, state).start();
   }
 
   private static class MyInstructionExecutorDelegator implements InstructionExecutorDelegator<Object> {

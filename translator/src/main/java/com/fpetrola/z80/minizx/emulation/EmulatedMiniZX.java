@@ -91,11 +91,8 @@ public class EmulatedMiniZX<T extends WordNumber> {
     Helper.hex = true;
 
     String url;
-    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/wally.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/equinox.z80";
     url = "file:///home/fernando/dynamitedan1.z80";
-    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
-    url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/rickdangerous";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlynh.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/batman48.z80";
@@ -103,14 +100,19 @@ public class EmulatedMiniZX<T extends WordNumber> {
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/rick2/rick2-1.rzx";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/emlyn/emlyn3.rzx";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/tge.z80";
-    url = "/home/fernando/detodo/desarrollo/m/zx/roms/wally1.rzx";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/exolon.rzx";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/greatescape/greatescape.rzx";
+    url = "/home/fernando/detodo/desarrollo/m/zx/roms/wally1.rzx";
+    url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/wally.z80";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80";
 
-    setRzxFile(url);
+    if (url.endsWith("rzx"))
+      setRzxFile(url);
 
     new EmulatedMiniZX(url, 10, true, -1, true, new DefaultEmulator(), null).start();
   }
@@ -123,7 +125,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
     OOZ80<T> ooz81 = cachingInstructions ? Z80Factory.createOOZ80(state, new CachedInstructionFetcher<>(state)) : Z80Factory.createOOZ80(state);
 
-    ooz81.getInstructionFetcher().setPrefetch(true);
+    ooz81.getInstructionFetcher().setPrefetch(false);
     if (stackAnalyzer != null) {
       InstructionExecutor<T> instructionExecutor = ooz81.getInstructionExecutor();
       stackAnalyzer.reset(state);
@@ -180,9 +182,14 @@ public class EmulatedMiniZX<T extends WordNumber> {
       useRzx(registersBase, state, io);
 
 
+    Z80Rewinder z80Rewinder = new Z80Rewinder(ooz80);
+    VerticalToolbarExample verticalToolbarExample = new VerticalToolbarExample(z80Rewinder, () -> {
+      new Thread(() -> emulator.emulate()).start();
+    });
     if (showScreen) {
 //      MiniZXScreen miniZXScreen1 = new MiniZXScreen(this.getMemFunction());
       ZXScreenComponent zxScreenComponent = new ZXScreenComponent();
+
       MiniZX.createScreen(io.getMiniZXKeyboard(), zxScreenComponent);
       MemoryWriteListener<T> writeListener = zxScreenComponent.getWriteListener();
       state.getMemory().addMemoryWriteListener(writeListener);
@@ -191,17 +198,26 @@ public class EmulatedMiniZX<T extends WordNumber> {
       }
     }
 
-    Predicate<Integer> continueEmulation = useRZX ? (i) -> emulateUntil == -1 || ((RZXPlayerIO) io).getCurrentFrameIndex() < emulateUntil : (i) -> emulateUntil == -1 || i < emulateUntil;
+    Predicate<Integer> continueEmulation;
+    if (useRZX)
+      continueEmulation = (i) -> (emulateUntil == -1 || ((RZXPlayerIO) io).getCurrentFrameIndex() < emulateUntil) && !verticalToolbarExample.pause;
+    else
+      continueEmulation = (i) -> (emulateUntil == -1 || i < emulateUntil) && !verticalToolbarExample.pause;
+
     Predicate<Integer> interruptionCondition;
     if (useRZX) {
       interruptionCondition = ((RZXPlayerIO) io).getInterruptionCondition();
     } else {
       interruptionCondition = (i) -> (i++ % pause * 100) == pause * 100 - 1;
     }
+    emulator.setup(ooz80, emulateUntil, pause, continueEmulation, interruptionCondition);
+
     if (inThread)
-      new Thread(() -> emulator.emulate(ooz80, emulateUntil, pause, continueEmulation, interruptionCondition)).start();
+      new Thread(() -> emulator.emulate()).start();
     else
-      emulator.emulate(ooz80, emulateUntil, pause, continueEmulation, interruptionCondition);
+      emulator.emulate();
+
+    System.out.println("agadg");
   }
 
   private void useRzx(RegistersBase registersBase, State<T> state, MiniZXIO io) {

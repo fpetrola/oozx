@@ -27,8 +27,8 @@ import java.util.List;
 public abstract class ObservableRegister<T extends WordNumber> implements Register<T> {
   protected List<RegisterWriteListener<T>> registerWriteListeners = new ArrayList<>();
   protected List<RegisterReadListener<T>> registerReadListeners = new ArrayList<>();
-  protected List<IncrementListener<T>> incrementListeners = new ArrayList<>();
-  private boolean listening = false;
+
+  protected boolean listening = false;
 
   private String name;
 
@@ -50,7 +50,6 @@ public abstract class ObservableRegister<T extends WordNumber> implements Regist
   public void incrementing(T value) {
     if (listening) {
       registerWriteListeners.forEach(l -> l.writingRegister(value.plus1(), true));
-      incrementListeners.forEach(l -> l.incrementingRegister(value));
     }
   }
 
@@ -79,10 +78,6 @@ public abstract class ObservableRegister<T extends WordNumber> implements Regist
     this.registerWriteListeners.remove(memoryWriteListener);
   }
 
-  public void addIncrementWriteListener(IncrementListener incrementListener) {
-    this.incrementListeners.add(incrementListener);
-  }
-
   public void addRegisterReadListener(RegisterReadListener<T> memoryReadListener) {
     this.registerReadListeners.add(memoryReadListener);
   }
@@ -91,7 +86,11 @@ public abstract class ObservableRegister<T extends WordNumber> implements Regist
     this.registerReadListeners.remove(memoryReadListener);
   }
 
-  public void listening(boolean state) {
+  public void setListening(boolean state) {
     listening = state;
+  }
+
+  public boolean isListening() {
+    return listening;
   }
 }

@@ -108,13 +108,13 @@ public class DefaultSyncChecker implements SyncChecker {
       if (!(instructionAt instanceof RepeatingInstruction<WordNumber>))
         checkSyncEmu(-1, -1, v.intValue(), false);
     });
-    observablePC.addIncrementWriteListener(v -> {
-      int pc1 = observablePC.read().intValue();
-      Instruction<WordNumber> instructionAt = ooz80.getInstructionExecutor().getInstructionAt(pc1);
-      if (!(instructionAt instanceof RepeatingInstruction<WordNumber>)) {
-        checkSyncEmu(-1, -1, pc1, false);
-      }
-    });
+//    observablePC.addIncrementWriteListener(v -> {
+//      int pc1 = observablePC.read().intValue();
+//      Instruction<WordNumber> instructionAt = ooz80.getInstructionExecutor().getInstructionAt(pc1);
+//      if (!(instructionAt instanceof RepeatingInstruction<WordNumber>)) {
+//        checkSyncEmu(-1, -1, pc1, false);
+//      }
+//    });
     io.setPc(observablePC);
     return Z80Factory.createOOZ80(state);
   }
@@ -162,7 +162,7 @@ public class DefaultSyncChecker implements SyncChecker {
 
     WordNumber value = createValue(0x8185);
     pc.write(value);
-    observablePC.listening(true);
+    observablePC.setListening(true);
 
     new Thread(() -> miniZXAndEmulation.emulate()).start();
   }

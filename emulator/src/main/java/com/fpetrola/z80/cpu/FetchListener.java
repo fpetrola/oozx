@@ -21,5 +21,11 @@ package com.fpetrola.z80.cpu;
 import com.fpetrola.z80.instructions.types.Instruction;
 
 public interface FetchListener<T> {
-  void instructionFetchedAt(T value, Instruction<T> instruction);
+  default void instructionFetchedAt(T value, Instruction<T> instruction) {
+
+  }
+
+  default void beforeFetch() {
+
+  }
 }
