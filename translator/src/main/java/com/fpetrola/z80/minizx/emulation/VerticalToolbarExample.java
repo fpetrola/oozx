@@ -50,32 +50,19 @@ public class VerticalToolbarExample extends JFrame {
     JButton button4 = new JButton("Action 4");
 
     // Add action listeners to the buttons
-    button1.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        pause = true;
-      }
+    button1.addActionListener(e -> pause = true);
+
+    button2.addActionListener(e -> {
+      pause = false;
+      restart.run();
     });
 
-    button2.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        pause = false;
-        restart.run();
-      }
+    button3.addActionListener(e -> {
+      pause= true;
+      z80Rewinder.rewind(100000);
     });
 
-    button3.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        pause= true;
-        z80Rewinder.rewind(100000);
-      }
-    });
-
-    button4.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        performAction("Action 4");
-      }
-    });
+    button4.addActionListener(e -> performAction("Action 4"));
 
     // Add buttons to the toolbar
     toolBar.add(button1);
