@@ -88,11 +88,10 @@ public class EmulatedMiniZX<T extends WordNumber> {
   }
 
   public static void main(String[] args) {
-    Helper.hex = true;
+    Helper.hex = false;
 
     String url;
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/equinox.z80";
-    url = "file:///home/fernando/dynamitedan1.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/rickdangerous";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlynh.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/batman48.z80";
@@ -107,9 +106,12 @@ public class EmulatedMiniZX<T extends WordNumber> {
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/greatescape/greatescape.rzx";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/wally1.rzx";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
+    url = "file:///home/fernando/dynamitedan1.z80";
+    url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/Dynamite Dan_unaided.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/wally.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80";
+
 
     if (url.endsWith("rzx"))
       setRzxFile(url);
@@ -123,19 +125,21 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
     ((MiniZXIO) state.getIo()).setPc(state.getPc());
 
-    OOZ80<T> ooz81 = cachingInstructions ? Z80Factory.createOOZ80(state, new CachedInstructionFetcher<>(state)) : Z80Factory.createOOZ80(state);
+    OOZ80<T> ooz80 = cachingInstructions ? Z80Factory.createOOZ80(state, new CachedInstructionFetcher<>(state)) : Z80Factory.createOOZ80(state);
 
-    ooz81.getInstructionFetcher().setPrefetch(false);
+    InstructionFetcher instructionFetcher = ooz80.getInstructionFetcher();
+    instructionFetcher.setClone(true);
+    instructionFetcher.setPrefetch(false);
     if (stackAnalyzer != null) {
-      InstructionExecutor<T> instructionExecutor = ooz81.getInstructionExecutor();
+      InstructionExecutor<T> instructionExecutor = ooz80.getInstructionExecutor();
       stackAnalyzer.reset(state);
       stackAnalyzer.addExecutionListener(instructionExecutor);
     }
     spy.reset(state);
-    spy.addExecutionListeners(ooz81.getInstructionExecutor());
+    spy.addExecutionListeners(ooz80.getInstructionExecutor());
 
-//    addTStatesUpdater(ooz81);
-    return ooz81;
+//    addTStatesUpdater(ooz80);
+    return ooz80;
   }
 
   private <T extends WordNumber> void addTStatesUpdater(Z80Cpu<T> ooz81) {
@@ -186,6 +190,10 @@ public class EmulatedMiniZX<T extends WordNumber> {
     VerticalToolbarExample verticalToolbarExample = new VerticalToolbarExample(z80Rewinder, () -> {
       new Thread(() -> emulator.emulate()).start();
     });
+
+
+    StructureFinder structureFinder = new StructureFinder(ooz80, z80Rewinder);
+
     if (showScreen) {
 //      MiniZXScreen miniZXScreen1 = new MiniZXScreen(this.getMemFunction());
       ZXScreenComponent zxScreenComponent = new ZXScreenComponent();

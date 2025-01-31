@@ -176,4 +176,8 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   public void setPrefetch(boolean prefetch) {
     this.prefetch = prefetch;
   }
+
+  public void setClone(boolean clone) {
+    this.clone = clone;
+  }
 }

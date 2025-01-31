@@ -36,7 +36,7 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 public class State<T extends WordNumber> {
   private RunState runState;
   private final ArrayList<Event> events = new ArrayList<>();
-  public int tstates;
+  public long tstates;
 
   private final RegisterBank<T> registerBank;
   private final Memory<T> memory;
@@ -52,6 +52,7 @@ public class State<T extends WordNumber> {
   private boolean pendingEI;
   private boolean flagQ;
   private boolean pinReset;
+  private long ticks;
 
   public State(IO<T> io, RegisterBank<T> registerBank, Memory<T> memory) {
     this.registerBank = registerBank;
@@ -77,10 +78,10 @@ public class State<T extends WordNumber> {
     this.flagQ = state.flagQ;
     this.pinReset = state.pinReset;
     this.intMode = state.intMode;
-    this.runState= state.runState;
+    this.runState = state.runState;
   }
 
-  public int getTStatesSinceCpuStart() {
+  public long getTStatesSinceCpuStart() {
     return tstates;
   }
 
@@ -90,7 +91,7 @@ public class State<T extends WordNumber> {
 
   public void addEvent(Event event) {
     int time = event.getTime();
-    event.setTime(tstates);
+    event.setTime((int) tstates);
     tstates += time;
     events.add(event);
   }
@@ -103,6 +104,7 @@ public class State<T extends WordNumber> {
     getRegister(AF).write(createValue(0xFFFF));
     setIntMode(IM0);
   }
+
   public void setRegisters(State<T> state) {
     Stream.of(values()).forEach(r -> getRegister(r).write(state.getRegister(r).read()));
   }
@@ -130,7 +132,7 @@ public class State<T extends WordNumber> {
 
   public void enableInterrupt() {
     iff1 = iff2 = true;
-    pendingEI= true;
+    pendingEI = true;
   }
 
   public void resetInterrupt() {
@@ -244,6 +246,14 @@ public class State<T extends WordNumber> {
 
   public RegisterBank<T> getRegisterBank() {
     return registerBank;
+  }
+
+  public long getTicks() {
+    return ticks;
+  }
+
+  public void incTicks() {
+    ticks++;
   }
 
   public enum RunState {

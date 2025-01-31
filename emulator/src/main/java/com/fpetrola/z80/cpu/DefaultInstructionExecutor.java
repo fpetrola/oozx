@@ -92,6 +92,7 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
 //        abstractInstruction.setNextPC(null);
 
       state.getPc().write(nextPC);
+      state.incTicks();
     } catch (Exception e) {
       e.printStackTrace();
       state.setRunState(State.RunState.STATE_STOPPED_BREAK);

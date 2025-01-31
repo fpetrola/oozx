@@ -16,26 +16,25 @@
  *
  */
 
-package com.fpetrola.z80.cpu;
+package com.fpetrola.z80.minizx.emulation;
 
-import com.fpetrola.z80.instructions.types.Instruction;
+public class PcVisit {
+  public int counter;
+  private long firstTicks;
 
-public interface InstructionFetcher {
-
-  default void setPrefetch(boolean prefetch) {
+  public PcVisit(int counter, long firstTicks) {
+    this.counter = counter;
+    this.firstTicks = firstTicks;
   }
 
-  Instruction<?> fetchNextInstruction();
-
-  void reset();
-
-  default void addFetchListener(FetchListener fetchListener) {
-  }
-
-  default void afterExecute(Instruction<?> currentInstruction) {
-  }
-
-  default void setClone(boolean clone){
-
+  boolean valid(long ticks) {
+    if (ticks - firstTicks > 10000) {
+      firstTicks = ticks;
+      counter = 1;
+      return true;
+    } else if (counter < 17)
+      return true;
+    else
+      return false;
   }
 }

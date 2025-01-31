@@ -143,6 +143,11 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
 
   public boolean visitingAdd16(Add16 tAdd16) {
     toStringForTargetInstruction(tAdd16.getTarget(), "ADD");
+    String result1 = result;
+    ToStringInstructionVisitor<T> instructionVisitor = new ToStringInstructionVisitor<>();
+    tAdd16.getSource().accept(instructionVisitor);
+    String targetString = instructionVisitor.getResult();
+    result = result + ", " + targetString;
     return true;
   }
 

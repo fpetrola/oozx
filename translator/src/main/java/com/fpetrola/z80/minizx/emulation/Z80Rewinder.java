@@ -27,11 +27,19 @@ import com.fpetrola.z80.spy.ObservableRegister;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Predicate;
+
+import static com.fpetrola.z80.registers.RegisterName.IX;
+import static com.fpetrola.z80.registers.RegisterName.IY;
 
 public class Z80Rewinder<T extends WordNumber> {
   private final OOZ80<T> ooz80;
-  private LinkedList<StateDelta<T>> deltas = new LinkedList<>();
+  public LinkedList<StateDelta<T>> deltas = new LinkedList<>();
+  public LinkedList<StateDelta<T>> ixdeltas = new LinkedList<>();
+  public LinkedList<StateDelta<T>> iydeltas = new LinkedList<>();
+
   StateDelta<T> currentDelta = null;
+
   private boolean listening = true;
 
   public Z80Rewinder(OOZ80<T> ooz80) {
@@ -67,11 +75,21 @@ public class Z80Rewinder<T extends WordNumber> {
 
   private void createStateDelta(OOZ80<T> ooz80) {
     if (listening) {
+      if (currentDelta != null) {
+        if (currentDelta.getRegisterChanges().containsKey(IX.name()))
+          ixdeltas.offer(currentDelta);
+        if (currentDelta.getRegisterChanges().containsKey(IY.name()))
+          iydeltas.offer(currentDelta);
+      }
       currentDelta = new StateDelta<>(ooz80);
-      if (deltas.size() > 10000000)
+      if (deltas.size() > 100000)
         deltas.pollFirst();
       deltas.offer(currentDelta);
     }
+  }
+
+  public StateDelta<T> getCurrentDelta() {
+    return currentDelta;
   }
 
   public void rewind(int steps) {
@@ -89,6 +107,7 @@ public class Z80Rewinder<T extends WordNumber> {
         delta.applyReverse();
     }
 
+    currentDelta = deltas.peekLast();
     listen();
   }
 
@@ -110,4 +129,23 @@ public class Z80Rewinder<T extends WordNumber> {
 //    memory.disableWriteListener();
   }
 
+  public void backPathUntil(Predicate<StateDelta<T>> untilCondition) {
+    backPathUntil(untilCondition, deltas);
+  }
+
+  public void backPathUntil(Predicate<StateDelta<T>> untilCondition, LinkedList<StateDelta<T>> deltas1) {
+    int currentIndex = deltas1.size() - 2;
+    while (currentIndex > 1) {
+      if (currentIndex < 10)
+        System.out.println("afasgasg");
+      StateDelta<T> t = deltas1.get(currentIndex);
+      if (!untilCondition.test(t))
+        break;
+      currentIndex--;
+    }
+  }
+
+  public StateDelta<T> getLastDelta() {
+    return deltas.get(deltas.size() - 2);
+  }
 }
