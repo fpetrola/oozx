@@ -16,29 +16,8 @@
  *
  */
 
-package com.fpetrola.z80.cpu;
+package com.fpetrola.z80.minizx.emulation;
 
-import com.fpetrola.z80.minizx.emulation.OutListener;
-
-public interface IO<T> {
-
-    /**
-     * Read 8-bit data from the given port
-     *
-     * @param port port to read the data
-     * @return value available at the port
-     */
-    T in(T port);
-
-    /**
-     * Write 8-bit data into given port
-     *
-     * @param port target port
-     * @param value to be written
-     */
-    void out(T port, T value);
-
-  default void addOutListener(OutListener<T> outListener) {
-
-  }
+public interface OutListener<T> {
+  void outAt(T port, T value);
 }

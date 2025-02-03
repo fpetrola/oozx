@@ -16,29 +16,21 @@
  *
  */
 
-package com.fpetrola.z80.cpu;
+package com.fpetrola.z80.minizx.emulation;
 
-import com.fpetrola.z80.minizx.emulation.OutListener;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 
-public interface IO<T> {
+public class LocalMemory {
+  public Set<Integer> addresses = new TreeSet<>();
+  public Set<Integer> referers = new TreeSet<>();
 
-    /**
-     * Read 8-bit data from the given port
-     *
-     * @param port port to read the data
-     * @return value available at the port
-     */
-    T in(T port);
+  public void addReferer(int address) {
+    referers.add(address);
+  }
 
-    /**
-     * Write 8-bit data into given port
-     *
-     * @param port target port
-     * @param value to be written
-     */
-    void out(T port, T value);
-
-  default void addOutListener(OutListener<T> outListener) {
-
+  public void addAddress(int address) {
+    addresses.add(address);
   }
 }

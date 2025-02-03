@@ -66,6 +66,10 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
       abstractInstruction.setNextPC(null);
       Memory memory = state.getMemory();
       T pcValue = state.getPc().read();
+
+//      if(pcValue.intValue() == 37422){
+//        System.out.println("sddssdggsdgg3333");
+//      }
       memory.read(createValue(-1), 1);
 //      executingInstructions.add(instruction);
 //      allInstructions.add(instruction);

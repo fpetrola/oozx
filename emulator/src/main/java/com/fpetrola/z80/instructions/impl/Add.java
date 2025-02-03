@@ -47,14 +47,6 @@ public class Add<T extends WordNumber> extends ParameterizedBinaryAluInstruction
   }
 
   @Override
-  public int execute() {
-    final T value1 = source.read();
-    final T value2 = target.read();
-    target.write(binaryAluOperation.execute(flag, value1, value2));
-    return cyclesCost;
-  }
-
-  @Override
   public void accept(InstructionVisitor visitor) {
     if (!visitor.visitingAdd(this))
       super.accept(visitor);

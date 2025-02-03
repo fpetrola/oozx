@@ -27,10 +27,12 @@ public class VerticalToolbarExample extends JFrame {
 
   public boolean pause;
   private final Z80Rewinder z80Rewinder;
+  private final MemoryRangesFinder memoryRangesFinder;
   private Runnable restart;
 
-  public VerticalToolbarExample(Z80Rewinder z80Rewinder, Runnable restart) {
+  public VerticalToolbarExample(Z80Rewinder z80Rewinder, MemoryRangesFinder memoryRangesFinder , Runnable restart) {
     this.z80Rewinder = z80Rewinder;
+    this.memoryRangesFinder = memoryRangesFinder;
     this.restart = restart;
     // Set up the main frame
     setTitle("Vertical Toolbar Example");
@@ -62,7 +64,10 @@ public class VerticalToolbarExample extends JFrame {
       z80Rewinder.rewind(100000);
     });
 
-    button4.addActionListener(e -> performAction("Action 4"));
+    button4.addActionListener(e -> {
+      pause= true;
+      memoryRangesFinder.persist();
+    });
 
     // Add buttons to the toolbar
     toolBar.add(button1);

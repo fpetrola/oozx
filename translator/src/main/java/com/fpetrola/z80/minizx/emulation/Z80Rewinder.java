@@ -20,23 +20,25 @@ package com.fpetrola.z80.minizx.emulation;
 
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.ExecutionListener;
 import com.fpetrola.z80.spy.ObservableRegister;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
-import static com.fpetrola.z80.registers.RegisterName.IX;
-import static com.fpetrola.z80.registers.RegisterName.IY;
+import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class Z80Rewinder<T extends WordNumber> {
   private final OOZ80<T> ooz80;
   public LinkedList<StateDelta<T>> deltas = new LinkedList<>();
-  public LinkedList<StateDelta<T>> ixdeltas = new LinkedList<>();
-  public LinkedList<StateDelta<T>> iydeltas = new LinkedList<>();
+  public Map<String, LinkedList<StateDelta<T>>> deltasByRegister = new HashMap<>();
 
   StateDelta<T> currentDelta = null;
 
@@ -45,7 +47,9 @@ public class Z80Rewinder<T extends WordNumber> {
   public Z80Rewinder(OOZ80<T> ooz80) {
     this.ooz80 = ooz80;
     createStateDelta(ooz80);
+  }
 
+  public void init() {
     ooz80.getInstructionExecutor().addExecutionListener(new ExecutionListener<T>() {
       public void beforeExecution(Instruction<T> instruction) {
         if (listening)
@@ -76,16 +80,33 @@ public class Z80Rewinder<T extends WordNumber> {
   private void createStateDelta(OOZ80<T> ooz80) {
     if (listening) {
       if (currentDelta != null) {
-        if (currentDelta.getRegisterChanges().containsKey(IX.name()))
-          ixdeltas.offer(currentDelta);
-        if (currentDelta.getRegisterChanges().containsKey(IY.name()))
-          iydeltas.offer(currentDelta);
+        if (!(currentDelta.getInstruction() instanceof RepeatingInstruction<T>)) {
+          addByRegister(IX);
+          addByRegister(IY);
+          addByRegister(HL);
+          addByRegister(DE);
+        }
       }
       currentDelta = new StateDelta<>(ooz80);
-      if (deltas.size() > 100000)
+      if (deltas.size() > 10000)
         deltas.pollFirst();
       deltas.offer(currentDelta);
     }
+  }
+
+  private void addByRegister(RegisterName ix) {
+    if (currentDelta.getRegisterChanges().containsKey(ix.name()))
+      offerDeltaByRegister(ix);
+  }
+
+  private void offerDeltaByRegister(RegisterName registerName) {
+    LinkedList<StateDelta<T>> stateDeltas = deltasByRegister.get(registerName.name());
+    if (stateDeltas == null)
+      deltasByRegister.put(registerName.name(), stateDeltas = new LinkedList<>());
+
+    if (stateDeltas.size() > 1000)
+      stateDeltas.pollFirst();
+    stateDeltas.offer(currentDelta);
   }
 
   public StateDelta<T> getCurrentDelta() {
@@ -134,14 +155,16 @@ public class Z80Rewinder<T extends WordNumber> {
   }
 
   public void backPathUntil(Predicate<StateDelta<T>> untilCondition, LinkedList<StateDelta<T>> deltas1) {
-    int currentIndex = deltas1.size() - 2;
-    while (currentIndex > 1) {
-      if (currentIndex < 10)
-        System.out.println("afasgasg");
-      StateDelta<T> t = deltas1.get(currentIndex);
-      if (!untilCondition.test(t))
-        break;
-      currentIndex--;
+    if (deltas1 != null) {
+      int currentIndex = deltas1.size() - 1;
+      while (currentIndex > 1) {
+//      if (currentIndex < 10)
+//        System.out.println("afasgasg");
+        StateDelta<T> t = deltas1.get(currentIndex);
+        if (!untilCondition.test(t))
+          break;
+        currentIndex--;
+      }
     }
   }
 

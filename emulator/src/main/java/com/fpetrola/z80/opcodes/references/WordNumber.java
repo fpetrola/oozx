@@ -68,4 +68,8 @@ public interface WordNumber extends Comparable {
   default <T extends WordNumber> T createInstance(int value) {
     return WordNumber.createValue(value);
   }
+
+  default <T extends WordNumber> T process(T execute) {
+    return execute;
+  }
 }

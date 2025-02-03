@@ -41,7 +41,7 @@ public class DefaultMemory<T extends WordNumber> implements Memory<T> {
 
   public T read(T address, int fetching) {
     T value = doRead(address);
-    boolean b = fetching == 1 || address.intValue() < 0;
+    boolean b = true || fetching == 1 || address.intValue() < 0;
     if (memoryReadListener != null && b) {
       for (int i = 0, memoryReadListenerSize = memoryReadListener.size(); i < memoryReadListenerSize; i++) {
         MemoryReadListener l = memoryReadListener.get(i);

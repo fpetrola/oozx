@@ -41,6 +41,7 @@ import snapshots.SpectrumState;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
@@ -101,7 +102,6 @@ public class EmulatedMiniZX<T extends WordNumber> {
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/tge.z80";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/exolon.rzx";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
-    url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/eawally/eawally.rzx";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/greatescape/greatescape.rzx";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/wally1.rzx";
@@ -111,12 +111,13 @@ public class EmulatedMiniZX<T extends WordNumber> {
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/wally.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80";
+    url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
 
 
     if (url.endsWith("rzx"))
       setRzxFile(url);
 
-    new EmulatedMiniZX(url, 10, true, -1, true, new DefaultEmulator(), null).start();
+    new EmulatedMiniZX(url, 2, true, -1, true, new DefaultEmulator(), null).start();
   }
 
   public <T extends WordNumber> OOZ80<T> createOOZ80() {
@@ -186,31 +187,43 @@ public class EmulatedMiniZX<T extends WordNumber> {
       useRzx(registersBase, state, io);
 
 
+    boolean rewinder = true;
+    Supplier<Boolean> pauseState;
     Z80Rewinder z80Rewinder = new Z80Rewinder(ooz80);
-    VerticalToolbarExample verticalToolbarExample = new VerticalToolbarExample(z80Rewinder, () -> {
-      new Thread(() -> emulator.emulate()).start();
-    });
-
-
+    if (rewinder)
+      z80Rewinder.init();
     StructureFinder structureFinder = new StructureFinder(ooz80, z80Rewinder);
+    MemoryRangesFinder<T> tMemoryRangesFinder = new MemoryRangesFinder<>(ooz80, structureFinder);
 
-    if (showScreen) {
-//      MiniZXScreen miniZXScreen1 = new MiniZXScreen(this.getMemFunction());
-      ZXScreenComponent zxScreenComponent = new ZXScreenComponent();
+    SpriteFinder<T> tSpriteFinder = new SpriteFinder<>(ooz80);
+    tSpriteFinder.init();
 
-      MiniZX.createScreen(io.getMiniZXKeyboard(), zxScreenComponent);
-      MemoryWriteListener<T> writeListener = zxScreenComponent.getWriteListener();
-      state.getMemory().addMemoryWriteListener(writeListener);
-      for (int i = 0; i < 0xFFFF; i++) {
-        zxScreenComponent.onMemoryWrite(i, state.getMemory().getData()[i].intValue());
+    VerticalToolbarExample verticalToolbarExample = new VerticalToolbarExample(z80Rewinder, tMemoryRangesFinder, () -> new Thread(() -> emulator.emulate()).start());
+    pauseState = () -> verticalToolbarExample.pause;
+
+
+
+
+    {
+      if (showScreen) {
+        //      MiniZXScreen miniZXScreen1 = new MiniZXScreen(this.getMemFunction());
+        ZXScreenComponent zxScreenComponent = new ZXScreenComponent();
+
+        MiniZX.createScreen(io.getMiniZXKeyboard(), zxScreenComponent);
+        MemoryWriteListener<T> writeListener = zxScreenComponent.getWriteListener();
+        state.getMemory().addMemoryWriteListener(writeListener);
+        for (int i = 0; i < 0xFFFF; i++) {
+          zxScreenComponent.onMemoryWrite(i, state.getMemory().getData()[i].intValue());
+        }
       }
     }
 
+
     Predicate<Integer> continueEmulation;
     if (useRZX)
-      continueEmulation = (i) -> (emulateUntil == -1 || ((RZXPlayerIO) io).getCurrentFrameIndex() < emulateUntil) && !verticalToolbarExample.pause;
+      continueEmulation = (i) -> (emulateUntil == -1 || ((RZXPlayerIO) io).getCurrentFrameIndex() < emulateUntil) && !pauseState.get();
     else
-      continueEmulation = (i) -> (emulateUntil == -1 || i < emulateUntil) && !verticalToolbarExample.pause;
+      continueEmulation = (i) -> (emulateUntil == -1 || i < emulateUntil) && !pauseState.get();
 
     Predicate<Integer> interruptionCondition;
     if (useRZX) {

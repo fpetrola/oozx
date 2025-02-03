@@ -22,9 +22,11 @@ import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.ide.rzx.InputRecordingBlock;
 import com.fpetrola.z80.ide.rzx.RzxFile;
 import com.fpetrola.z80.minizx.emulation.InterruptionListener;
+import com.fpetrola.z80.minizx.emulation.OutListener;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -47,9 +49,14 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
   private boolean noInputs;
   private long lastCount;
   private byte lastPoll;
+  private List<OutListener> outListeners = new ArrayList<>();
 
   public RZXPlayerIO() {
     miniZXKeyboard = new MiniZXKeyboard();
+  }
+
+  public void addOutListener(OutListener outListener) {
+    outListeners.add(outListener);
   }
 
   public int getCurrentFrameIndex() {
@@ -57,6 +64,7 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
   }
 
   public void out(T port, T value) {
+    outListeners.forEach(l-> l.outAt(port, value));
   }
 
   public synchronized T in(T port) {

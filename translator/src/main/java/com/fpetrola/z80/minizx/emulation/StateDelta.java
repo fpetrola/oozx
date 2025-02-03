@@ -108,4 +108,9 @@ public class StateDelta<T extends WordNumber> {
 
     return "%s: %s".formatted(formatAddress(registerNewValues.get(PC.name())), toString);
   }
+
+  public int getPc() {
+    Integer i = registerNewValues.get("PC");
+    return i != null ? i : -1;
+  }
 }

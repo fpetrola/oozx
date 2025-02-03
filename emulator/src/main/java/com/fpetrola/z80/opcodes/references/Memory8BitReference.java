@@ -50,9 +50,9 @@ public class Memory8BitReference<T extends WordNumber> implements ImmutableOpcod
   }
 
   public T read() {
-    memory.disableReadListener();
+//    memory.disableReadListener();
     T read = memory.read(fetchAddress().plus(delta), delta, 0);
-    memory.enableReadListener();
+//    memory.enableReadListener();
     return read;
   }
 

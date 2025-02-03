@@ -39,6 +39,7 @@ public class ParameterizedUnaryAluInstruction<T extends WordNumber> extends Defa
   public int execute() {
     final T value2 = target.read();
     T execute = unaryAluOperation.execute(flag, value2);
+    execute= value2.process(execute);
     target.write(execute);
     return cyclesCost;
   }

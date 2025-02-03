@@ -40,14 +40,6 @@ public class Xor<T extends WordNumber> extends ParameterizedBinaryAluInstruction
     super(target, source, flag, (flag1, value1, value2) -> xorTableAluOperation.executeWithoutCarry(value2, value1, flag1));
   }
 
-  @Override
-  public int execute() {
-    final T value1 = source.read();
-    final T value2 = target.read();
-    target.write(binaryAluOperation.execute(flag, value1, value2));
-    return cyclesCost;
-  }
-
   public void accept(InstructionVisitor visitor) {
     super.accept(visitor);
     visitor.visitingXor(this);

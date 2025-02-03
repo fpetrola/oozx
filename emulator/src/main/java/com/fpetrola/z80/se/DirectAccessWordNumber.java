@@ -21,14 +21,30 @@ package com.fpetrola.z80.se;
 import com.fpetrola.z80.opcodes.references.IntegerWordNumber;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
+import java.util.*;
+import java.util.function.Predicate;
+
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
+
 public class DirectAccessWordNumber extends IntegerWordNumber {
   public final int pc;
-  public final int address;
+  public Set<Integer> addresses = new HashSet<>();
 
   public DirectAccessWordNumber(int i, int pc, int address) {
     super(i);
     this.pc = pc;
-    this.address = address;
+    addAddress(address);
+  }
+
+  public DirectAccessWordNumber(int i, int pc, Set<Integer> addresses) {
+    super(i);
+    this.pc = pc;
+    this.addresses.addAll(addresses);
+  }
+
+  private void addAddress(int address) {
+    addresses.add(address);
   }
 
   @Override
@@ -37,6 +53,20 @@ public class DirectAccessWordNumber extends IntegerWordNumber {
   }
 
   public IntegerWordNumber createInstance(int value) {
-    return new DirectAccessWordNumber(value & 0xFFFF, pc, address);
+    return new DirectAccessWordNumber(value & 0xFFFF, pc, addresses);
+  }
+
+  @Override
+  public <T extends WordNumber> T process(T execute) {
+    if (execute instanceof DirectAccessWordNumber directAccessWordNumber) {
+      return (T) new DirectAccessWordNumber(execute.intValue(), directAccessWordNumber.pc, directAccessWordNumber.addresses);
+    } else {
+      return (T) new DirectAccessWordNumber(execute.intValue(), pc, addresses);
+    }
+  }
+
+  public boolean matchAddress(Predicate<Integer> predicate) {
+    return IntStream.range(0, addresses.size()).anyMatch(i -> predicate.test(i));
   }
 }
+
