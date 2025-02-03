@@ -43,12 +43,13 @@ public class MemoryRangesFinder<T extends WordNumber> {
   private final StructureFinder structureFinder;
   private MultiValuedMap<Integer, Integer> memoryAccesses = new HashSetValuedHashMap<>();
   private MultiValuedMap<Integer, Integer> invertedMemoryAccesses = new HashSetValuedHashMap<>();
+  private List<LocalMemory> localMemoryList;
 
   public MemoryRangesFinder(OOZ80<T> ooz80, StructureFinder structureFinder) {
     this.ooz80 = ooz80;
     pc = ooz80.getState().getPc();
     this.structureFinder = structureFinder;
-
+    localMemoryList = new ArrayList<>();
   }
 
   public void init() {
@@ -95,7 +96,6 @@ public class MemoryRangesFinder<T extends WordNumber> {
 
   public void persist() {
     Set<Integer> pcs = new HashSet<>(memoryAccesses.keySet());
-    List<LocalMemory> localMemoryList = new ArrayList<>();
 
     pcs.forEach(pc -> {
       if (!memoryAccesses.get(pc).isEmpty()) {
