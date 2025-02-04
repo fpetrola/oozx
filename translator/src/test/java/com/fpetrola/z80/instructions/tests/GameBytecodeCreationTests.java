@@ -26,6 +26,9 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
+import com.fpetrola.z80.minizx.emulation.GameData;
+import com.fpetrola.z80.minizx.emulation.MemoryRangesFinder;
+import com.fpetrola.z80.minizx.emulation.MultimapAdapter;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
@@ -239,6 +242,24 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
         {38601:38621} -> [38601 : 38621]
         {38622:38643} -> [38622 : 38643]
         """, routinesString);
+  }
+
+
+  @Test
+  public void testWillyCheckingRoutinesAndGameData() {
+    Helper.hex = false;
+    String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
+    stepUntilComplete(35090);
+
+    String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "JetSetWilly");
+    actual = RemoteZ80Translator.improveSource(actual);
+
+    List<Routine> routines = driverConfigurator.getRoutineManager().getRoutines();
+
+    Gson gson = MultimapAdapter.getGson();
+    GameData gameData = MemoryRangesFinder.loadFromJson("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/jsw-game-data.json", gson);
+
+    String routinesString = getRoutinesString(routines);
   }
 
   private String getRoutinesString(List<Routine> routines) {
