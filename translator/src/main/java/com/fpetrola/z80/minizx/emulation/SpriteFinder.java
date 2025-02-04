@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
-import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.instructions.types.Instruction;
@@ -34,15 +33,13 @@ public class SpriteFinder<T extends WordNumber> {
   public static final int ATTRIBUTES_START_ADDRESS = 22528;
   public static final int ATTRIBUTES_END_ADDRESS = 23296;
   private final OOZ80<T> ooz80;
-  private Set<Integer> spriteAddresses = new HashSet<>();
-  private Set<Integer> attributesAddresses = new HashSet<>();
-  private Set<Integer> borderAddresses = new HashSet<>();
-  private Set<Integer> soundAddresses = new HashSet<>();
+  private final GameData gameData;
   private int last254 = 0;
   private List<Integer> outPcs = new ArrayList<>();
 
-  public SpriteFinder(OOZ80<T> ooz80) {
+  public SpriteFinder(OOZ80<T> ooz80, GameData gameData2) {
     this.ooz80 = ooz80;
+    gameData = gameData2;
   }
 
   public void init() {
@@ -57,13 +54,13 @@ public class SpriteFinder<T extends WordNumber> {
       if (addressValue >= SCREEN_START_ADDRESS && addressValue < ATTRIBUTES_START_ADDRESS) {
         if (value instanceof DirectAccessWordNumber directAccessWordNumber) {
           List<Integer> list = directAccessWordNumber.addresses.stream().filter(i -> i > ATTRIBUTES_END_ADDRESS).toList();
-          spriteAddresses.addAll(list);
+          gameData.spriteAddresses.addAll(list);
         }
       }
       if (addressValue >= ATTRIBUTES_START_ADDRESS && addressValue < ATTRIBUTES_END_ADDRESS) {
         if (value instanceof DirectAccessWordNumber directAccessWordNumber) {
           List<Integer> list = directAccessWordNumber.addresses.stream().filter(i -> i > ATTRIBUTES_END_ADDRESS).toList();
-          attributesAddresses.addAll(list);
+          gameData.attributesAddresses.addAll(list);
         }
       }
     }));
@@ -84,7 +81,7 @@ public class SpriteFinder<T extends WordNumber> {
 //            }
 
           List<Integer> list = directAccessWordNumber.addresses.stream().toList();
-          soundAddresses.addAll(list);
+          gameData.soundAddresses.addAll(list);
           last254 = value.intValue();
         }
       }

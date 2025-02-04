@@ -24,32 +24,33 @@ import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.ExecutionListener;
+import com.google.common.collect.SetMultimap;
+import com.google.common.collect.TreeMultimap;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
 import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.stream.JsonReader;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MemoryRangesFinder<T extends WordNumber> {
   private final OOZ80<T> ooz80;
+  private final GameData gameData;
   private Register<T> pc;
   private final StructureFinder structureFinder;
-  private MultiValuedMap<Integer, Integer> memoryAccesses = new HashSetValuedHashMap<>();
-  private MultiValuedMap<Integer, Integer> invertedMemoryAccesses = new HashSetValuedHashMap<>();
-  private List<LocalMemory> localMemoryList;
 
-  public MemoryRangesFinder(OOZ80<T> ooz80, StructureFinder structureFinder) {
+  public MemoryRangesFinder(OOZ80<T> ooz80, StructureFinder structureFinder, GameData gameData) {
     this.ooz80 = ooz80;
     pc = ooz80.getState().getPc();
     this.structureFinder = structureFinder;
-    localMemoryList = new ArrayList<>();
+    this.gameData = gameData;
   }
 
   public void init() {
@@ -58,12 +59,12 @@ public class MemoryRangesFinder<T extends WordNumber> {
         int pcValue = pc.read().intValue();
         if (instruction instanceof TargetSourceInstruction<T, ?> targetSourceInstruction) {
           if (isMemoryAccess(targetSourceInstruction.getSource())) {
-            memoryAccesses.put(pcValue, getAccessedAddress(targetSourceInstruction.getSource()));
-            invertedMemoryAccesses.put(getAccessedAddress(targetSourceInstruction.getSource()), pcValue);
+            gameData.memoryAccesses.put(pcValue, getAccessedAddress(targetSourceInstruction.getSource()));
+            gameData.invertedMemoryAccesses.put(getAccessedAddress(targetSourceInstruction.getSource()), pcValue);
           }
           if (isMemoryAccess(targetSourceInstruction.getTarget())) {
-            memoryAccesses.put(pcValue, getAccessedAddress(targetSourceInstruction.getTarget()));
-            invertedMemoryAccesses.put(getAccessedAddress(targetSourceInstruction.getTarget()), pcValue);
+            gameData.memoryAccesses.put(pcValue, getAccessedAddress(targetSourceInstruction.getTarget()));
+            gameData.invertedMemoryAccesses.put(getAccessedAddress(targetSourceInstruction.getTarget()), pcValue);
           }
         }
       }
@@ -95,23 +96,25 @@ public class MemoryRangesFinder<T extends WordNumber> {
 
 
   public void persist() {
+    SetMultimap<Integer, Integer> memoryAccesses = TreeMultimap.create(gameData.memoryAccesses);
+    SetMultimap<Integer, Integer> invertedMemoryAccesses = TreeMultimap.create(gameData.invertedMemoryAccesses);
     Set<Integer> pcs = new HashSet<>(memoryAccesses.keySet());
 
     pcs.forEach(pc -> {
       if (!memoryAccesses.get(pc).isEmpty()) {
         LocalMemory localMemory = new LocalMemory();
-        localMemoryList.add(localMemory);
-        addOthers(pc, localMemory);
+        gameData.localMemoryList.add(localMemory);
+        addOthers(pc, localMemory, memoryAccesses, invertedMemoryAccesses);
       }
     });
 
 
-    for (int i = 0; i < localMemoryList.size(); i++) {
-      for (int j = 0; j < localMemoryList.size(); j++) {
+    for (int i = 0; i < gameData.localMemoryList.size(); i++) {
+      for (int j = 0; j < gameData.localMemoryList.size(); j++) {
         if (i != j) {
 
-          LocalMemory localMemory1 = localMemoryList.get(i);
-          LocalMemory localMemory2 = localMemoryList.get(j);
+          LocalMemory localMemory1 = gameData.localMemoryList.get(i);
+          LocalMemory localMemory2 = gameData.localMemoryList.get(j);
           Collection<Integer> intersection1 = CollectionUtils.intersection(localMemory1.addresses, localMemory2.addresses);
           Set<Integer> referers = localMemory1.referers;
           Set<Integer> referers1 = localMemory2.referers;
@@ -131,7 +134,7 @@ public class MemoryRangesFinder<T extends WordNumber> {
 //            localMemory1.addresses= new HashSet<>(list2);
             localMemory2.addresses.clear();
             localMemory2.referers.clear();
-            localMemoryList.remove(localMemory2);
+            gameData.localMemoryList.remove(localMemory2);
           }
           Collection<Integer> intersection2 = CollectionUtils.intersection(referers, referers1);
           if (!intersection1.isEmpty() || !intersection2.isEmpty()) {
@@ -141,8 +144,8 @@ public class MemoryRangesFinder<T extends WordNumber> {
       }
     }
 
-    saveFile("ranges.json", memoryAccesses);
-    saveFile("inverted-ranges.json", invertedMemoryAccesses);
+//    saveFile("ranges.json", gameData.memoryAccesses);
+//    saveFile("inverted-ranges.json", gameData.invertedMemoryAccesses);
   }
 
   private Set<Integer> getOrigins(Set<Integer> referers) {
@@ -150,7 +153,7 @@ public class MemoryRangesFinder<T extends WordNumber> {
     return new HashSet<>(list);
   }
 
-  private void addOthers(Integer pc, LocalMemory localMemory) {
+  private void addOthers(Integer pc, LocalMemory localMemory, SetMultimap<Integer, Integer> memoryAccesses, SetMultimap<Integer, Integer> invertedMemoryAccesses) {
     Collection<Integer> integers = memoryAccesses.get(pc);
     Collection<Integer> addresses = new ArrayList<>(integers);
     integers.clear();
@@ -160,22 +163,29 @@ public class MemoryRangesFinder<T extends WordNumber> {
       localMemory.addAddress(address);
 
       Collection<Integer> pcs2 = invertedMemoryAccesses.get(address);
-      pcs2.forEach(pc2 -> addOthers(pc2, localMemory));
+      pcs2.forEach(pc2 -> addOthers(pc2, localMemory, memoryAccesses, invertedMemoryAccesses));
     });
   }
 
-  private void saveFile(String fileName, MultiValuedMap<Integer, Integer> memoryAccesses1) {
-    GsonBuilder gsonBuilder = new GsonBuilder();
-    Gson gson = gsonBuilder.create();
-    Type objectListType = new TypeToken<LinkedTreeMap<String, List<Integer>>>() {
-    }.getType();
-    LinkedTreeMap<String, List<Integer>> result = gson.fromJson(memoryAccesses1.toString(), objectListType);
-    String json1 = gson.toJson(result);
+  static public void saveToJson(String fileName, Gson gson, GameData gameData) {
+    String json1 = gson.toJson(gameData);
     try {
       FileWriter fileWriter = new FileWriter(fileName);
       fileWriter.write(json1);
       fileWriter.close();
     } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  static public GameData loadFromJson(String fileName, Gson gson) {
+    try {
+      FileReader fileReader = new FileReader(fileName);
+      JsonReader reader = new JsonReader(fileReader);
+      GameData result = gson.fromJson(reader, GameData.class);
+      fileReader.close();
+      return result;
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }

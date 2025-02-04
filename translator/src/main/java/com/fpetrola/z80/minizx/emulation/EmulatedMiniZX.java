@@ -192,16 +192,15 @@ public class EmulatedMiniZX<T extends WordNumber> {
     Z80Rewinder z80Rewinder = new Z80Rewinder(ooz80);
     if (rewinder)
       z80Rewinder.init();
+    GameData gameData = new GameData(url);
     StructureFinder structureFinder = new StructureFinder(ooz80, z80Rewinder);
-    MemoryRangesFinder<T> tMemoryRangesFinder = new MemoryRangesFinder<>(ooz80, structureFinder);
-
-    SpriteFinder<T> tSpriteFinder = new SpriteFinder<>(ooz80);
+    MemoryRangesFinder<T> tMemoryRangesFinder = new MemoryRangesFinder<>(ooz80, structureFinder, gameData);
+    tMemoryRangesFinder.init();
+    SpriteFinder<T> tSpriteFinder = new SpriteFinder<>(ooz80, gameData);
     tSpriteFinder.init();
 
-    VerticalToolbarExample verticalToolbarExample = new VerticalToolbarExample(z80Rewinder, tMemoryRangesFinder, () -> new Thread(() -> emulator.emulate()).start());
+    VerticalToolbarExample verticalToolbarExample = new VerticalToolbarExample(gameData, z80Rewinder, tMemoryRangesFinder, () -> new Thread(() -> emulator.emulate()).start());
     pauseState = () -> verticalToolbarExample.pause;
-
-
 
 
     {

@@ -18,19 +18,21 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
+import com.google.gson.Gson;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class VerticalToolbarExample extends JFrame {
 
   public boolean pause;
+  private final GameData gameData;
   private final Z80Rewinder z80Rewinder;
   private final MemoryRangesFinder memoryRangesFinder;
   private Runnable restart;
 
-  public VerticalToolbarExample(Z80Rewinder z80Rewinder, MemoryRangesFinder memoryRangesFinder , Runnable restart) {
+  public VerticalToolbarExample(GameData gameData, Z80Rewinder z80Rewinder, MemoryRangesFinder memoryRangesFinder, Runnable restart) {
+    this.gameData = gameData;
     this.z80Rewinder = z80Rewinder;
     this.memoryRangesFinder = memoryRangesFinder;
     this.restart = restart;
@@ -49,7 +51,8 @@ public class VerticalToolbarExample extends JFrame {
     JButton button1 = new JButton("Pause");
     JButton button2 = new JButton("Restart");
     JButton button3 = new JButton("Rewind");
-    JButton button4 = new JButton("Action 4");
+    JButton button4 = new JButton("Save Game Data");
+    JButton button5 = new JButton("Load Game Data");
 
     // Add action listeners to the buttons
     button1.addActionListener(e -> pause = true);
@@ -60,13 +63,22 @@ public class VerticalToolbarExample extends JFrame {
     });
 
     button3.addActionListener(e -> {
-      pause= true;
+      pause = true;
       z80Rewinder.rewind(100000);
     });
 
     button4.addActionListener(e -> {
-      pause= true;
+      pause = true;
       memoryRangesFinder.persist();
+
+      MemoryRangesFinder.saveToJson(gameData.name + ".json", MultimapAdapter.getGson(), gameData);
+    });
+
+    button5.addActionListener(e -> {
+      pause = true;
+      Gson gson = MultimapAdapter.getGson();
+      GameData gameData1 = MemoryRangesFinder.loadFromJson(gameData.name + ".json", gson);
+      MemoryRangesFinder.saveToJson(gameData.name + ".json", MultimapAdapter.getGson(), gameData1);
     });
 
     // Add buttons to the toolbar
@@ -74,6 +86,7 @@ public class VerticalToolbarExample extends JFrame {
     toolBar.add(button2);
     toolBar.add(button3);
     toolBar.add(button4);
+    toolBar.add(button5);
 
     // Add the toolbar to the frame
     add(toolBar, BorderLayout.WEST);
