@@ -20,25 +20,25 @@ package com.fpetrola.z80.minizx.emulation;
 
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.TreeMultimap;
-import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.io.FilenameUtils;
 
-import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
 public class GameData {
-  SetMultimap<Integer, Integer> memoryAccesses = TreeMultimap.create();
-  SetMultimap<Integer, Integer> invertedMemoryAccesses = TreeMultimap.create();
-  List<LocalMemory> localMemoryList = new ArrayList<>();
+  public SetMultimap<Integer, Integer> memoryAccesses = TreeMultimap.create();
+  public SetMultimap<Integer, Integer> invertedMemoryAccesses = TreeMultimap.create();
+  public List<LocalMemory> localMemoryList = new ArrayList<>();
 
-  TreeSet<Integer> spriteAddresses = new TreeSet<>();
-  TreeSet<Integer> attributesAddresses = new TreeSet<>();
+  public TreeSet<Integer> spriteAddresses = new TreeSet<>();
+  public TreeSet<Integer> attributesAddresses = new TreeSet<>();
   TreeSet<Integer> borderAddresses = new TreeSet<>();
-  TreeSet<Integer> soundAddresses = new TreeSet<>();
+  public TreeSet<Integer> soundAddresses = new TreeSet<>();
   public String name;
+
+  public GameData() {
+  }
 
   public GameData(String url) {
     try {

@@ -16,25 +16,8 @@
  *
  */
 
-package com.fpetrola.z80.minizx.emulation;
+package com.fpetrola.z80.bytecode.generators;
 
-public class PcVisit {
-  public int counter;
-  private long firstTicks;
-
-  public PcVisit(int counter, long firstTicks) {
-    this.counter = counter;
-    this.firstTicks = firstTicks;
-  }
-
-  boolean valid(long ticks) {
-    if (ticks - firstTicks > 10000) {
-      firstTicks = ticks;
-      counter = 1;
-      return true;
-    } else if (counter < 17)
-      return true;
-    else
-      return false;
-  }
+public enum MemoryType {
+  Sprite, Sound, Structure, Attribute
 }

@@ -59,7 +59,9 @@ public class DirectAccessWordNumber extends IntegerWordNumber {
   @Override
   public <T extends WordNumber> T process(T execute) {
     if (execute instanceof DirectAccessWordNumber directAccessWordNumber) {
-      return (T) new DirectAccessWordNumber(execute.intValue(), directAccessWordNumber.pc, directAccessWordNumber.addresses);
+      Set<Integer> addresses1 = new HashSet<>(directAccessWordNumber.addresses);
+      addresses1.addAll(addresses);
+      return (T) new DirectAccessWordNumber(execute.intValue(), directAccessWordNumber.pc, addresses1);
     } else {
       return (T) new DirectAccessWordNumber(execute.intValue(), pc, addresses);
     }

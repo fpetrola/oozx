@@ -16,12 +16,13 @@
  *
  */
 
-package com.fpetrola.z80.minizx.emulation;
+package com.fpetrola.z80.minizx.emulation.finders;
 
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.minizx.emulation.GameData;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.DirectAccessWordNumber;
 import com.fpetrola.z80.spy.ExecutionListener;
@@ -55,6 +56,8 @@ public class SpriteFinder<T extends WordNumber> {
         if (value instanceof DirectAccessWordNumber directAccessWordNumber) {
           List<Integer> list = directAccessWordNumber.addresses.stream().filter(i -> i > ATTRIBUTES_END_ADDRESS).toList();
           gameData.spriteAddresses.addAll(list);
+        } else {
+          int notFound= 1;
         }
       }
       if (addressValue >= ATTRIBUTES_START_ADDRESS && addressValue < ATTRIBUTES_END_ADDRESS) {

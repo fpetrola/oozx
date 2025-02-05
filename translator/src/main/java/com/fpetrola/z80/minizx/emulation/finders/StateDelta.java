@@ -16,15 +16,14 @@
  *
  */
 
-package com.fpetrola.z80.minizx.emulation;
+package com.fpetrola.z80.minizx.emulation.finders;
 
 import com.fpetrola.z80.cpu.OOZ80;
-import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.minizx.emulation.ToStringInstructionVisitor;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.RegisterName;
 
 import java.util.HashMap;
 import java.util.Map;

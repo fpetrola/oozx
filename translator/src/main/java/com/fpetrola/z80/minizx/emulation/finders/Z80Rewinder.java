@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.z80.minizx.emulation;
+package com.fpetrola.z80.minizx.emulation.finders;
 
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.instructions.types.Instruction;
@@ -47,6 +47,16 @@ public class Z80Rewinder<T extends WordNumber> {
   public Z80Rewinder(OOZ80<T> ooz80) {
     this.ooz80 = ooz80;
     createStateDelta(ooz80);
+
+    deltasByRegister.put(AF.name(), new LinkedList<>());
+    deltasByRegister.put(BC.name(), new LinkedList<>());
+    deltasByRegister.put(DE.name(), new LinkedList<>());
+    deltasByRegister.put(HL.name(), new LinkedList<>());
+    deltasByRegister.put(IX.name(), new LinkedList<>());
+    deltasByRegister.put(IY.name(), new LinkedList<>());
+    deltasByRegister.put(IR.name(), new LinkedList<>());
+    deltasByRegister.put(PC.name(), new LinkedList<>());
+    deltasByRegister.put(SP.name(), new LinkedList<>());
   }
 
   public void init() {
@@ -88,7 +98,7 @@ public class Z80Rewinder<T extends WordNumber> {
         }
       }
       currentDelta = new StateDelta<>(ooz80);
-      if (deltas.size() > 10000)
+      if (deltas.size() > 100000)
         deltas.pollFirst();
       deltas.offer(currentDelta);
     }
@@ -101,10 +111,7 @@ public class Z80Rewinder<T extends WordNumber> {
 
   private void offerDeltaByRegister(RegisterName registerName) {
     LinkedList<StateDelta<T>> stateDeltas = deltasByRegister.get(registerName.name());
-    if (stateDeltas == null)
-      deltasByRegister.put(registerName.name(), stateDeltas = new LinkedList<>());
-
-    if (stateDeltas.size() > 1000)
+    if (stateDeltas.size() > 100000)
       stateDeltas.pollFirst();
     stateDeltas.offer(currentDelta);
   }

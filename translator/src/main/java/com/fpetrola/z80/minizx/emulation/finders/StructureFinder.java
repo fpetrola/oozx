@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.z80.minizx.emulation;
+package com.fpetrola.z80.minizx.emulation.finders;
 
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.instructions.impl.Ld;

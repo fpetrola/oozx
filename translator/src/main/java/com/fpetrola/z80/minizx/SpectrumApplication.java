@@ -23,10 +23,16 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Stack;
 
 public abstract class SpectrumApplication<T> {
+  public ZxGameGraphics zxGameGraphics= new ZxGameGraphics();
+  public ZxGameScreen zxGameScreen= new ZxGameScreen();
+  public ZxGameAttributes zxGameAttributes= new ZxGameAttributes();
+  public ZxGameCharacters zxGameCharacters= new ZxGameCharacters();
+  public ZxGameSounds zxGameSounds= new ZxGameSounds();
+  public ZxGameStatus zxGameStatus= new ZxGameStatus();
+
   public static final int INITIAL_SP_VALUE = 0xfc00;
   public int A;
   public int F;

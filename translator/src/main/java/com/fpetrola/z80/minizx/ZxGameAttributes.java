@@ -16,21 +16,7 @@
  *
  */
 
-package com.fpetrola.z80.minizx.emulation;
+package com.fpetrola.z80.minizx;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
-
-public class LocalMemory {
-  public Set<Integer> addresses = new TreeSet<>();
-  public Set<Integer> referers = new TreeSet<>();
-
-  public void addReferer(int address) {
-    referers.add(address);
-  }
-
-  public void addAddress(int address) {
-    addresses.add(address);
-  }
+public class ZxGameAttributes extends LocalMemoryStorage{
 }

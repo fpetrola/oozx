@@ -16,28 +16,25 @@
  *
  */
 
-package com.fpetrola.z80.minizx.emulation;
+package com.fpetrola.z80.minizx.emulation.finders;
 
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
+import com.fpetrola.z80.minizx.emulation.GameData;
+import com.fpetrola.z80.minizx.emulation.LocalMemory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.ExecutionListener;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.TreeMultimap;
-import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
-import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.stream.JsonReader;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.*;
 
 public class MemoryRangesFinder<T extends WordNumber> {

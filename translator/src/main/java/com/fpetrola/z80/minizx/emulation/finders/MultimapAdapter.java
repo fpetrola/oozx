@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.z80.minizx.emulation;
+package com.fpetrola.z80.minizx.emulation.finders;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;

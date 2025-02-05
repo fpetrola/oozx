@@ -31,6 +31,10 @@ import com.fpetrola.z80.jspeccy.Z80B;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.minizx.*;
+import com.fpetrola.z80.minizx.emulation.finders.MemoryRangesFinder;
+import com.fpetrola.z80.minizx.emulation.finders.SpriteFinder;
+import com.fpetrola.z80.minizx.emulation.finders.StructureFinder;
+import com.fpetrola.z80.minizx.emulation.finders.Z80Rewinder;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.spy.*;
 import com.fpetrola.z80.transformations.StackAnalyzer;
@@ -194,6 +198,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
       z80Rewinder.init();
     GameData gameData = new GameData(url);
     StructureFinder structureFinder = new StructureFinder(ooz80, z80Rewinder);
+    structureFinder.init();
     MemoryRangesFinder<T> tMemoryRangesFinder = new MemoryRangesFinder<>(ooz80, structureFinder, gameData);
     tMemoryRangesFinder.init();
     SpriteFinder<T> tSpriteFinder = new SpriteFinder<>(ooz80, gameData);

@@ -20,6 +20,7 @@ package com.fpetrola.z80.bytecode;
 
 import com.fpetrola.z80.base.CPUExecutionContext;
 import com.fpetrola.z80.cpu.*;
+import com.fpetrola.z80.minizx.emulation.GameData;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -36,6 +37,7 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecu
   public RoutineManager routineManager;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
   private final InstructionExecutor<T> instructionExecutor;
+  private GameData gameData;
 
   public StackAnalyzer getStackAnalyzer() {
     return stackAnalyzer;
@@ -89,15 +91,19 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecu
 
   @Override
   public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-    return getDecompiledSource(className, targetFolder, getState(), !base64Memory.isBlank(), this.symbolicExecutionAdapter, base64Memory);
+    return getDecompiledSource(className, targetFolder, getState(), !base64Memory.isBlank(), this.symbolicExecutionAdapter, base64Memory, gameData);
   }
 
 
   public void translateToJava(String className, String memoryInBase64, String startMethod) {
-    BytecodeGeneration.super.translateToJava(className, startMethod, getState(), !memoryInBase64.isBlank(), symbolicExecutionAdapter, memoryInBase64);
+    BytecodeGeneration.super.translateToJava(className, startMethod, getState(), !memoryInBase64.isBlank(), symbolicExecutionAdapter, memoryInBase64, gameData);
   }
 
   public RegistersSetter<T> getRegistersSetter() {
     return registersSetter;
+  }
+
+  public void setGameData(GameData gameData) {
+    this.gameData = gameData;
   }
 }

@@ -76,7 +76,7 @@ public class ZXScreenComponent<T extends WordNumber> extends JComponent {
       attributes[attributeOffset / 32][attributeOffset % 32].setZxColor(new ZxColor(value));
     }
 
-    if (refresh++ % 20000 == 0)
+    if (refresh++ % 200 == 0)
       repaint();
   }
 

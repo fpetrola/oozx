@@ -18,6 +18,9 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
+import com.fpetrola.z80.minizx.emulation.finders.MemoryRangesFinder;
+import com.fpetrola.z80.minizx.emulation.finders.MultimapAdapter;
+import com.fpetrola.z80.minizx.emulation.finders.Z80Rewinder;
 import com.google.gson.Gson;
 
 import javax.swing.*;

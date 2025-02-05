@@ -19,6 +19,7 @@
 package com.fpetrola.z80.base;
 
 import com.fpetrola.z80.bytecode.BytecodeGeneration;
+import com.fpetrola.z80.minizx.emulation.GameData;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
@@ -37,7 +38,7 @@ public abstract class ManualBytecodeGenerationTest<T extends WordNumber> extends
 
   @Override
   public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className1, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-    return getDecompiledSource("JSW", ".", currentContext.getState(), !base64Memory.isBlank(), symbolicExecutionAdapter, base64Memory);
+    return getDecompiledSource("JSW", ".", currentContext.getState(), !base64Memory.isBlank(), symbolicExecutionAdapter, base64Memory, new GameData());
   }
 
   @Override
