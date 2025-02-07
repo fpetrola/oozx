@@ -37,38 +37,17 @@ public class DirectAccessWordNumber extends IntegerWordNumber {
         integers.add(address);
       }
 
-      public int getDepth() {
-        return 1;
-      }
-
-      public boolean contains(DirectAccessWordNumber directAccessWordNumber) {
-        return directAccessWordNumber == DirectAccessWordNumber.this;
-      }
     };
 
     this.originSupplier = new DirectAccessProcessor<>() {
       public void process(Collection<Integer> integers, Collection<DirectAccessProcessor<Collection<Integer>>> processors) {
       }
 
-      public int getDepth() {
-        return 1;
-      }
-
-      public boolean contains(DirectAccessWordNumber directAccessWordNumber) {
-        return directAccessWordNumber == DirectAccessWordNumber.this;
-      }
     };
     this.allSupplier = new DirectAccessProcessor<>() {
       public void process(Collection<Integer> integers, Collection<DirectAccessProcessor<Collection<Integer>>> processors) {
       }
 
-      public int getDepth() {
-        return 1;
-      }
-
-      public boolean contains(DirectAccessWordNumber directAccessWordNumber) {
-        return directAccessWordNumber == DirectAccessWordNumber.this;
-      }
     };
   }
 
@@ -98,14 +77,6 @@ public class DirectAccessWordNumber extends IntegerWordNumber {
           directAccessWordNumber.addressesSupplier.process(addresses, processors);
         }
 
-        public int getDepth() {
-          int result = execute instanceof DirectAccessWordNumber directAccessWordNumber ? directAccessWordNumber.addressesSupplier.getDepth() : 1;
-          return Math.max(result, addressesSupplier.getDepth()) + 1;
-        }
-
-        public boolean contains(DirectAccessWordNumber directAccessWordNumber1) {
-          return addressesSupplier.contains(directAccessWordNumber1) || execute instanceof DirectAccessWordNumber directAccessWordNumber && directAccessWordNumber.addressesSupplier.contains(directAccessWordNumber1);
-        }
       };
 
       return (T) new DirectAccessWordNumber(value, pc, newSupplier, originSupplier, createAllSupplier(execute));
@@ -124,16 +95,6 @@ public class DirectAccessWordNumber extends IntegerWordNumber {
         }
       }
 
-      public int getDepth() {
-        int result = execute instanceof DirectAccessWordNumber directAccessWordNumber ? directAccessWordNumber.allSupplier.getDepth() : 1;
-        int max = Math.max(result, addressesSupplier.getDepth());
-        max = Math.max(max, originSupplier.getDepth());
-        return max + 1;
-      }
-
-      public boolean contains(DirectAccessWordNumber directAccessWordNumber1) {
-        return addressesSupplier.contains(directAccessWordNumber1) || originSupplier.contains(directAccessWordNumber1) || execute instanceof DirectAccessWordNumber directAccessWordNumber && directAccessWordNumber.allSupplier.contains(directAccessWordNumber1);
-      }
     };
     return allSupplier1;
   }
@@ -146,15 +107,6 @@ public class DirectAccessWordNumber extends IntegerWordNumber {
           directAccessWordNumber.addressesSupplier.process(addresses, processors);
         }
 
-        public int getDepth() {
-          int result = execute instanceof DirectAccessWordNumber directAccessWordNumber ? directAccessWordNumber.addressesSupplier.getDepth() : 1;
-          int max = Math.max(result, originSupplier.getDepth());
-          return max + 1;
-        }
-
-        public boolean contains(DirectAccessWordNumber directAccessWordNumber1) {
-          return originSupplier.contains(directAccessWordNumber1) || execute instanceof DirectAccessWordNumber directAccessWordNumber && directAccessWordNumber.addressesSupplier.contains(directAccessWordNumber1);
-        }
       };
       return (T) new DirectAccessWordNumber(value, pc, addressesSupplier, newSupplier, createAllSupplier(execute));
     }
@@ -185,9 +137,6 @@ public class DirectAccessWordNumber extends IntegerWordNumber {
   public interface DirectAccessProcessor<T> {
     void process(T t, Collection<DirectAccessProcessor<T>> processors);
 
-    int getDepth();
-
-    boolean contains(DirectAccessWordNumber directAccessWordNumber);
   }
 }
 
