@@ -36,6 +36,8 @@ public class GameData {
   TreeSet<Integer> borderAddresses = new TreeSet<>();
   public TreeSet<Integer> soundAddresses = new TreeSet<>();
   public String name;
+//  public TreeMap<Integer, VariableRange> variableRanges = new TreeMap<>();
+  public List<VariableRange> variableRanges= new ArrayList<>();
 
   public GameData() {
   }
@@ -51,5 +53,10 @@ public class GameData {
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public void processValueOfAddress(int addressValue, int value, long ticks) {
+//    variableRanges.computeIfAbsent(addressValue, k -> new VariableRange()).add(value, ticks);
+    variableRanges.add(new VariableRange(addressValue, value, ticks));
   }
 }

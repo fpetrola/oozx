@@ -74,6 +74,7 @@ public class Z80Rewinder<T extends WordNumber> {
     ooz80.getState().getMemory().addMemoryWriteListener((a, v) -> {
       if (listening)
         currentDelta.addMemoryChange(a, v);
+      return v;
     });
 
     List<Register<T>> all = ooz80.getState().getRegisterBank().getAll();

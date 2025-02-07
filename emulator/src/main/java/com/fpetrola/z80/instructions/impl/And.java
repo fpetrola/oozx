@@ -37,22 +37,7 @@ public class And<T extends WordNumber> extends ParameterizedBinaryAluInstruction
   };
 
   public And(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
-    super(target, source, flag, null);
-  }
-
-  @Override
-  public int execute() {
-    final T value1 = source.read();
-    final T value2 = target.read();
-
-    T result = value1.and(value2);
-
-    T i = andTableAluOperation.executeWithoutCarry(value1, result, flag);
-
-    i= value1.process(i);
-    i= value2.process(i);
-    target.write(i);
-    return cyclesCost;
+    super(target, source, flag, (flag1, value1, value2) -> andTableAluOperation.executeWithoutCarry(value1, value2, flag1));
   }
 
   @Override

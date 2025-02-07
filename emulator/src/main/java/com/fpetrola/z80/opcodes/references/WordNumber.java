@@ -70,6 +70,10 @@ public interface WordNumber extends Comparable {
   }
 
   default <T extends WordNumber> T process(T execute) {
-    return execute;
+    return (T) this;
+  }
+
+  default <T extends WordNumber> T processOrigin(T execute) {
+    return (T) this;
   }
 }

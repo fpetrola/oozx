@@ -72,7 +72,7 @@ public class VerticalToolbarExample extends JFrame {
 
     button4.addActionListener(e -> {
       pause = true;
-      memoryRangesFinder.persist();
+      memoryRangesFinder.processMemoryAccesses();
 
       MemoryRangesFinder.saveToJson(gameData.name + ".json", MultimapAdapter.getGson(), gameData);
     });

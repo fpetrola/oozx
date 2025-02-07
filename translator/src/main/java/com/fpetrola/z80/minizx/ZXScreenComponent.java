@@ -92,6 +92,7 @@ public class ZXScreenComponent<T extends WordNumber> extends JComponent {
       int value1 = value.intValue();
 
       threadSafeQueue.add(() -> onMemoryWrite(address1, value1));
+      return value;
     };
   }
 }

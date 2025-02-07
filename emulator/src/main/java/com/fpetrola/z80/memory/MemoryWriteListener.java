@@ -19,5 +19,5 @@
 package com.fpetrola.z80.memory;
 
 public interface MemoryWriteListener<T> {
-  void writtingMemoryAt(T address, T value);
+  T writtingMemoryAt(T address, T value);
 }

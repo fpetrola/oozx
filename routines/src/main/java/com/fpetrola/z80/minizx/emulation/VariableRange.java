@@ -16,23 +16,26 @@
  *
  */
 
-package fuse.tstates;
+package com.fpetrola.z80.minizx.emulation;
 
-import com.fpetrola.z80.memory.MemoryWriteListener;
-import com.fpetrola.z80.opcodes.references.WordNumber;
-import fuse.tstates.phases.BeforeWrite;
+import java.util.HashSet;
+import java.util.Set;
 
-public class AddStatesMemoryWriteListener<T extends WordNumber> implements MemoryWriteListener<T> {
-  private final PhaseProcessor<T> phaseProcessor;
+public class VariableRange {
+  public int addressValue;
+  public int value;
+  public long ticks;
+  //  public SetMultimap<Integer, Long> values = TreeMultimap.create();
+//  public Set<Integer> values = new HashSet<>();
 
-  public AddStatesMemoryWriteListener(PhaseProcessor<T> phaseProcessor1) {
-    phaseProcessor = phaseProcessor1;
+  public VariableRange(int addressValue, int value, long ticks) {
+    this.addressValue = addressValue;
+    this.value = value;
+    this.ticks = ticks;
   }
 
-  public T writtingMemoryAt(T address, T value) {
-    phaseProcessor.processPhase(new BeforeWrite());
-    phaseProcessor.addMultipleMc(1, 3, 0, address.intValue());
-    phaseProcessor.addMw(address, value);
-    return value;
-  }
+//  public void add(int value, long ticks) {
+////    values.put(value, ticks);
+//    values.add(value);
+//  }
 }

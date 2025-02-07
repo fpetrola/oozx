@@ -18,29 +18,29 @@
 
 package com.fpetrola.z80.minizx.emulation.finders;
 
-import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.OOZ80;
-import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.minizx.emulation.GameData;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.DirectAccessWordNumber;
-import com.fpetrola.z80.spy.ExecutionListener;
+import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
 
-public class SpriteFinder<T extends WordNumber> {
+public class SpriteAddressFinder<T extends WordNumber> {
   public static final int SCREEN_START_ADDRESS = 16384;
   public static final int ATTRIBUTES_START_ADDRESS = 22528;
   public static final int ATTRIBUTES_END_ADDRESS = 23296;
   private final OOZ80<T> ooz80;
   private final GameData gameData;
-  private int last254 = 0;
-  private List<Integer> outPcs = new ArrayList<>();
+  private final Z80Rewinder z80Rewinder;
 
-  public SpriteFinder(OOZ80<T> ooz80, GameData gameData2) {
+  public SpriteAddressFinder(OOZ80<T> ooz80, GameData gameData, Z80Rewinder z80Rewinder) {
     this.ooz80 = ooz80;
-    gameData = gameData2;
+    this.gameData = gameData;
+    this.z80Rewinder = z80Rewinder;
   }
 
   public void init() {
@@ -53,21 +53,43 @@ public class SpriteFinder<T extends WordNumber> {
     memory.addMemoryWriteListener(((address, value) -> {
       int addressValue = address.intValue();
 
-//      if (addressValue >= 24576 && addressValue < 24576 + 4096) {
-//        if (value instanceof DirectAccessWordNumber directAccessWordNumber) {
-//          List<Integer> list = directAccessWordNumber.addresses.stream().filter(i -> i > ATTRIBUTES_END_ADDRESS).toList();
-//          if (list.stream().anyMatch(a -> a > 43776 && a < 49152))
-//            System.out.println("dgadg");
-//
-//          gameData.spriteAddresses.addAll(list);
-//        } else {
-//          int notFound = 1;
-//        }
-//      }
+//      if (addressValue == 33026)
+//        System.out.println("sssss!1111!!!");
+
+//      if (addressValue >= 24576 && addressValue < 	28672)
+      if (addressValue > ATTRIBUTES_END_ADDRESS)
+        if (value instanceof DirectAccessWordNumber directAccessWordNumber) {
+          T read = memory.read(address, 0);
+          T value1 = (T) new DirectAccessWordNumber(value.intValue(), directAccessWordNumber.pc, addressValue);
+          value = value1.process(value);
+        }
+
+      if (addressValue >= 28672 && addressValue < 28672 + 4096) {
+        if (value instanceof DirectAccessWordNumber directAccessWordNumber) {
+          List<Integer> list = directAccessWordNumber.getAddressesSupplier().stream().filter(i -> i > ATTRIBUTES_END_ADDRESS).toList();
+          if (list.stream().anyMatch(a -> a > 43776 && a < 49152))
+            System.out.println("dgadg");
+
+          gameData.spriteAddresses.addAll(list);
+        } else {
+          int notFound = 1;
+        }
+      }
 
       if (addressValue >= SCREEN_START_ADDRESS && addressValue < ATTRIBUTES_START_ADDRESS) {
         if (value instanceof DirectAccessWordNumber directAccessWordNumber) {
           List<Integer> list = directAccessWordNumber.getAddressesSupplier().stream().filter(i -> i > ATTRIBUTES_END_ADDRESS).toList();
+          if (!list.isEmpty())
+            if (list.stream().anyMatch(a -> a > 43776 && a < 49152)) {
+
+              Collection<Integer> integers = directAccessWordNumber.getAllSupplier();
+//              LinkedHashSet<Integer> integers1 = directAccessWordNumber.getAddressesSupplier();
+//              Collection<Integer> integers2 = CollectionUtils.removeAll(integers, integers1);
+//              if (!directAccessWordNumber.getOriginSupplier().isEmpty()) {
+//                int v = 1;
+//              }
+              int a = 1;
+            }
           gameData.spriteAddresses.addAll(list);
         } else {
           int notFound = 1;
@@ -76,45 +98,15 @@ public class SpriteFinder<T extends WordNumber> {
       if (addressValue >= ATTRIBUTES_START_ADDRESS && addressValue < ATTRIBUTES_END_ADDRESS) {
         if (value instanceof DirectAccessWordNumber directAccessWordNumber) {
           List<Integer> list = directAccessWordNumber.getAddressesSupplier().stream().filter(i -> i > ATTRIBUTES_END_ADDRESS).toList();
+          if (!list.isEmpty()) {
+//            Collection<Integer> integers = directAccessWordNumber.getAllSupplier();
+//            int a= 1;
+          }
           gameData.attributesAddresses.addAll(list);
         }
       }
       return value;
     }));
-
-    IO<T> io = ooz80.getState().getIo();
-
-    io.addOutListener((port, value) -> {
-      int r = 0;
-      if (value instanceof DirectAccessWordNumber directAccessWordNumber) {
-        if ((port.intValue() & 0xFF) == 0xFE) {
-//            if ((value.intValue() & 0x10) != 0) {
-//              List<Integer> list = directAccessWordNumber.addresses.stream().toList();
-//              soundAddresses.addAll(list);
-//            }
-//            if ((value.intValue() & 0x07) != 0) {
-//              List<Integer> list = directAccessWordNumber.addresses.stream().toList();
-//              borderAddresses.addAll(list);
-//            }
-
-          List<Integer> list = directAccessWordNumber.getAddressesSupplier().stream().toList();
-          gameData.soundAddresses.addAll(list);
-          last254 = value.intValue();
-        }
-      }
-    });
-
-//    memory.addMemoryReadListener((address, value, delta, fetching) -> {
-//      if (address.intValue() >= 43776 && address.intValue() < 49152) {
-////        System.out.println("dgffffff");
-//      }
-//    });
-
-    this.ooz80.getInstructionExecutor().addExecutionListener(new ExecutionListener<T>() {
-      public void afterExecution(Instruction<T> instruction) {
-
-      }
-    });
   }
 
 }

@@ -31,10 +31,7 @@ import com.fpetrola.z80.jspeccy.Z80B;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.minizx.*;
-import com.fpetrola.z80.minizx.emulation.finders.MemoryRangesFinder;
-import com.fpetrola.z80.minizx.emulation.finders.SpriteFinder;
-import com.fpetrola.z80.minizx.emulation.finders.StructureFinder;
-import com.fpetrola.z80.minizx.emulation.finders.Z80Rewinder;
+import com.fpetrola.z80.minizx.emulation.finders.*;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.spy.*;
 import com.fpetrola.z80.transformations.StackAnalyzer;
@@ -190,35 +187,35 @@ public class EmulatedMiniZX<T extends WordNumber> {
     } else
       useRzx(registersBase, state, io);
 
-
-    boolean rewinder = true;
-    Supplier<Boolean> pauseState;
-    Z80Rewinder z80Rewinder = new Z80Rewinder(ooz80);
-    if (rewinder)
-      z80Rewinder.init();
     GameData gameData = new GameData(url);
+
+    Z80Rewinder z80Rewinder = new Z80Rewinder(ooz80);
+//    z80Rewinder.init();
     StructureFinder structureFinder = new StructureFinder(ooz80, z80Rewinder);
-    structureFinder.init();
-    MemoryRangesFinder<T> tMemoryRangesFinder = new MemoryRangesFinder<>(ooz80, structureFinder, gameData);
-    tMemoryRangesFinder.init();
-    SpriteFinder<T> tSpriteFinder = new SpriteFinder<>(ooz80, gameData);
-    tSpriteFinder.init();
+//    structureFinder.init();
+    MemoryRangesFinder<T> memoryRangesFinder = new MemoryRangesFinder<>(ooz80, structureFinder, gameData);
+//    memoryRangesFinder.init();
+    SpriteFinder<T> spriteFinder = new SpriteFinder<>(ooz80, gameData);
+//    spriteFinder.init();
 
-    VerticalToolbarExample verticalToolbarExample = new VerticalToolbarExample(gameData, z80Rewinder, tMemoryRangesFinder, () -> new Thread(() -> emulator.emulate()).start());
-    pauseState = () -> verticalToolbarExample.pause;
+    SpriteAddressFinder<T> spriteAddressFinder = new SpriteAddressFinder<>(ooz80, gameData, z80Rewinder);
+    spriteAddressFinder.init();
 
+//    VariableRangeFinder<T> variableRangeFinder = new VariableRangeFinder<>(ooz80, gameData);
+//    variableRangeFinder.init();
 
-    {
-      if (showScreen) {
-        //      MiniZXScreen miniZXScreen1 = new MiniZXScreen(this.getMemFunction());
-        ZXScreenComponent zxScreenComponent = new ZXScreenComponent();
+    VerticalToolbarExample verticalToolbarExample = new VerticalToolbarExample(gameData, z80Rewinder, memoryRangesFinder, () -> new Thread(() -> emulator.emulate()).start());
+    Supplier<Boolean> pauseState = () -> verticalToolbarExample.pause;
 
-        MiniZX.createScreen(io.getMiniZXKeyboard(), zxScreenComponent);
-        MemoryWriteListener<T> writeListener = zxScreenComponent.getWriteListener();
-        state.getMemory().addMemoryWriteListener(writeListener);
-        for (int i = 0; i < 0xFFFF; i++) {
-          zxScreenComponent.onMemoryWrite(i, state.getMemory().getData()[i].intValue());
-        }
+    if (showScreen) {
+      //      MiniZXScreen miniZXScreen1 = new MiniZXScreen(this.getMemFunction());
+      ZXScreenComponent zxScreenComponent = new ZXScreenComponent();
+
+      MiniZX.createScreen(io.getMiniZXKeyboard(), zxScreenComponent);
+      MemoryWriteListener<T> writeListener = zxScreenComponent.getWriteListener();
+      state.getMemory().addMemoryWriteListener(writeListener);
+      for (int i = 0; i < 0xFFFF; i++) {
+        zxScreenComponent.onMemoryWrite(i, state.getMemory().getData()[i].intValue());
       }
     }
 

@@ -20,16 +20,12 @@ package com.fpetrola.z80.spy;
 
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.cache.InstructionCloner;
-import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class WrapperInstructionSpy<T extends WordNumber> implements InstructionSpy<T> {
   protected volatile boolean capturing;
@@ -57,6 +53,7 @@ public abstract class WrapperInstructionSpy<T extends WordNumber> implements Ins
     memory.addMemoryWriteListener((address, value) -> {
       if (isCapturing())
         addWriteMemoryReference((T) address, (T) value);
+      return value;
     });
 
     memory.addMemoryReadListener((address, value, delta, fetching) -> {

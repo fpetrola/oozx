@@ -22,6 +22,7 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.se.DirectAccessWordNumber;
 
 public class ParameterizedUnaryAluInstruction<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
   public interface UnaryAluOperation<T extends WordNumber> {
@@ -39,7 +40,8 @@ public class ParameterizedUnaryAluInstruction<T extends WordNumber> extends Defa
   public int execute() {
     final T value2 = target.read();
     T execute = unaryAluOperation.execute(flag, value2);
-    execute= value2.process(execute);
+    execute= (T) new DirectAccessWordNumber(execute.intValue(), -1, -1);
+    execute= execute.process(value2);
     target.write(execute);
     return cyclesCost;
   }

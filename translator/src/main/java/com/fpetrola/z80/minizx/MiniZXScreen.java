@@ -174,6 +174,7 @@ public class MiniZXScreen<T extends WordNumber> extends JPanel {
 
 //        System.out.println("sdgdag");
       }
+      return value;
     };
 
   }

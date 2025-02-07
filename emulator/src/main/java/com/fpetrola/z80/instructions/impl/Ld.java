@@ -21,6 +21,7 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
+import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
@@ -33,7 +34,17 @@ public class Ld<T extends WordNumber> extends TargetSourceInstruction<T, Immutab
   public int execute() {
     T value = source.read();
     T aLU8Assign = value;
+    if (source instanceof IndirectMemory8BitReference<T> indirectMemory8BitReference) {
+      T read = indirectMemory8BitReference.getTarget().read();
+      aLU8Assign = aLU8Assign.processOrigin(read);
+    }
+
+    if (target instanceof IndirectMemory8BitReference<T> indirectMemory8BitReference) {
+      T read = indirectMemory8BitReference.getTarget().read();
+      aLU8Assign = aLU8Assign.processOrigin(read);
+    }
     target.write(aLU8Assign);
+
     return cyclesCost;
   }
 

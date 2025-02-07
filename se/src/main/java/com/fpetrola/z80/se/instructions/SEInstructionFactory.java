@@ -74,19 +74,19 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
           T value = source.read();
           return cyclesCost;
         }
-        if (source instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
-          T value = source.read();
-          T address = indirectMemory16BitReference.address;
-          T aLU8Assign = value;
-          target.write((T) new DirectAccessWordNumber(aLU8Assign.intValue(), pc.read().intValue(), address.intValue()));
-          return 1;
-        } else if (source instanceof IndirectMemory8BitReference<T> indirectMemory8BitReference) {
-          T value = source.read();
-          T address = indirectMemory8BitReference.address;
-          T aLU8Assign = value;
-          target.write((T) new DirectAccessWordNumber(aLU8Assign.intValue(), pc.read().intValue(), address.intValue()));
-          return cyclesCost;
-        } else
+//        if (source instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
+//          T value = source.read();
+//          T address = indirectMemory16BitReference.address;
+//          T aLU8Assign = value;
+//          target.write((T) new DirectAccessWordNumber(aLU8Assign.intValue(), pc.read().intValue(), address.intValue()));
+//          return 1;
+//        } else if (source instanceof IndirectMemory8BitReference<T> indirectMemory8BitReference) {
+//          T value = source.read();
+//          T address = indirectMemory8BitReference.address;
+//          T aLU8Assign = value;
+//          target.write((T) new DirectAccessWordNumber(aLU8Assign.intValue(), pc.read().intValue(), address.intValue()));
+//          return cyclesCost;
+//        } else
           return super.execute();
       }
 

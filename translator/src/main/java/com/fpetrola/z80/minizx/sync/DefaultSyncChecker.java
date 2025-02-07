@@ -143,6 +143,7 @@ public class DefaultSyncChecker implements SyncChecker {
     memory.addMemoryWriteListener((address, value) -> {
 //      System.out.println("write memory at: " + com.fpetrola.z80.helpers.Helper.formatAddress(address.intValue()));
       checkSyncEmu(address.intValue(), value.intValue(), pc.read().intValue(), true);
+      return value;
     });
     memory.addMemoryReadListener((address, value, delta, fetching) -> {
       if (address.intValue() >= 0) {

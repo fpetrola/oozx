@@ -92,7 +92,7 @@ public class MemoryRangesFinder<T extends WordNumber> {
   }
 
 
-  public void persist() {
+  public void processMemoryAccesses() {
     SetMultimap<Integer, Integer> memoryAccesses = TreeMultimap.create(gameData.memoryAccesses);
     SetMultimap<Integer, Integer> invertedMemoryAccesses = TreeMultimap.create(gameData.invertedMemoryAccesses);
     Set<Integer> pcs = new HashSet<>(memoryAccesses.keySet());

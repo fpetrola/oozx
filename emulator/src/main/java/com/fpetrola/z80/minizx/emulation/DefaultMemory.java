@@ -81,8 +81,10 @@ public class DefaultMemory<T extends WordNumber> implements Memory<T> {
     if (!readOnly) {
       if (memoryWriteListener != null) {
         for (int i = 0, memoryWriteListenerSize = memoryWriteListener.size(); i < memoryWriteListenerSize; i++) {
-          MemoryWriteListener l = memoryWriteListener.get(i);
-          l.writtingMemoryAt(address, value);
+          MemoryWriteListener<T> l = memoryWriteListener.get(i);
+          T o = l.writtingMemoryAt(address, value);
+          if (o != value)
+            value= o;
         }
       }
       data[address.intValue()] = value;

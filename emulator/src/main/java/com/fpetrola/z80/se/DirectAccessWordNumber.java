@@ -22,29 +22,62 @@ import com.fpetrola.z80.opcodes.references.IntegerWordNumber;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.*;
-import java.util.function.Predicate;
-
-import java.util.function.Predicate;
-import java.util.stream.IntStream;
 
 public class DirectAccessWordNumber extends IntegerWordNumber {
   public final int pc;
-  public Set<Integer> addresses = new HashSet<>();
+  private DirectAccessProcessor<Collection<Integer>> addressesSupplier;
+  private DirectAccessProcessor<Collection<Integer>> originSupplier;
+  private DirectAccessProcessor<Collection<Integer>> allSupplier;
 
   public DirectAccessWordNumber(int i, int pc, int address) {
     super(i);
     this.pc = pc;
-    addAddress(address);
+    this.addressesSupplier = new DirectAccessProcessor<>() {
+      public void process(Collection<Integer> integers, Collection<DirectAccessProcessor<Collection<Integer>>> processors) {
+        integers.add(address);
+      }
+
+      public int getDepth() {
+        return 1;
+      }
+
+      public boolean contains(DirectAccessWordNumber directAccessWordNumber) {
+        return directAccessWordNumber == DirectAccessWordNumber.this;
+      }
+    };
+
+    this.originSupplier = new DirectAccessProcessor<>() {
+      public void process(Collection<Integer> integers, Collection<DirectAccessProcessor<Collection<Integer>>> processors) {
+      }
+
+      public int getDepth() {
+        return 1;
+      }
+
+      public boolean contains(DirectAccessWordNumber directAccessWordNumber) {
+        return directAccessWordNumber == DirectAccessWordNumber.this;
+      }
+    };
+    this.allSupplier = new DirectAccessProcessor<>() {
+      public void process(Collection<Integer> integers, Collection<DirectAccessProcessor<Collection<Integer>>> processors) {
+      }
+
+      public int getDepth() {
+        return 1;
+      }
+
+      public boolean contains(DirectAccessWordNumber directAccessWordNumber) {
+        return directAccessWordNumber == DirectAccessWordNumber.this;
+      }
+    };
   }
 
-  public DirectAccessWordNumber(int i, int pc, Set<Integer> addresses) {
+  public DirectAccessWordNumber(int i, int pc, DirectAccessProcessor<Collection<Integer>> addressesSupplier, DirectAccessProcessor<Collection<Integer>> originSupplier, DirectAccessProcessor<Collection<Integer>> allSupplier) {
     super(i);
     this.pc = pc;
-    this.addresses.addAll(addresses);
-  }
-
-  private void addAddress(int address) {
-    addresses.add(address);
+    this.addressesSupplier = addressesSupplier;
+    this.originSupplier = originSupplier;
+    this.allSupplier = allSupplier;
   }
 
   @Override
@@ -53,22 +86,108 @@ public class DirectAccessWordNumber extends IntegerWordNumber {
   }
 
   public IntegerWordNumber createInstance(int value) {
-    return new DirectAccessWordNumber(value & 0xFFFF, pc, addresses);
+    return new DirectAccessWordNumber(value & 0xFFFF, pc, addressesSupplier, originSupplier, allSupplier);
   }
 
   @Override
   public <T extends WordNumber> T process(T execute) {
     if (execute instanceof DirectAccessWordNumber directAccessWordNumber) {
-      Set<Integer> addresses1 = new HashSet<>(directAccessWordNumber.addresses);
-      addresses1.addAll(addresses);
-      return (T) new DirectAccessWordNumber(execute.intValue(), directAccessWordNumber.pc, addresses1);
-    } else {
-      return (T) new DirectAccessWordNumber(execute.intValue(), pc, addresses);
+      DirectAccessProcessor<Collection<Integer>> newSupplier = new DirectAccessProcessor<>() {
+        public void process(Collection<Integer> addresses, Collection<DirectAccessProcessor<Collection<Integer>>> processors) {
+          addressesSupplier.process(addresses, processors);
+          directAccessWordNumber.addressesSupplier.process(addresses, processors);
+        }
+
+        public int getDepth() {
+          int result = execute instanceof DirectAccessWordNumber directAccessWordNumber ? directAccessWordNumber.addressesSupplier.getDepth() : 1;
+          return Math.max(result, addressesSupplier.getDepth()) + 1;
+        }
+
+        public boolean contains(DirectAccessWordNumber directAccessWordNumber1) {
+          return addressesSupplier.contains(directAccessWordNumber1) || execute instanceof DirectAccessWordNumber directAccessWordNumber && directAccessWordNumber.addressesSupplier.contains(directAccessWordNumber1);
+        }
+      };
+
+      return (T) new DirectAccessWordNumber(value, pc, newSupplier, originSupplier, createAllSupplier(execute));
     }
+    return (T) this;
   }
 
-  public boolean matchAddress(Predicate<Integer> predicate) {
-    return IntStream.range(0, addresses.size()).anyMatch(i -> predicate.test(i));
+  private <T extends WordNumber> DirectAccessProcessor<Collection<Integer>> createAllSupplier(T execute) {
+    DirectAccessProcessor<Collection<Integer>> allSupplier1 = new DirectAccessProcessor<>() {
+      public void process(Collection<Integer> addresses, Collection<DirectAccessProcessor<Collection<Integer>>> processors) {
+        addressesSupplier.process(addresses, processors);
+        originSupplier.process(addresses, processors);
+
+        if (execute instanceof DirectAccessWordNumber directAccessWordNumber) {
+          directAccessWordNumber.allSupplier.process(addresses, processors);
+        }
+      }
+
+      public int getDepth() {
+        int result = execute instanceof DirectAccessWordNumber directAccessWordNumber ? directAccessWordNumber.allSupplier.getDepth() : 1;
+        int max = Math.max(result, addressesSupplier.getDepth());
+        max = Math.max(max, originSupplier.getDepth());
+        return max + 1;
+      }
+
+      public boolean contains(DirectAccessWordNumber directAccessWordNumber1) {
+        return addressesSupplier.contains(directAccessWordNumber1) || originSupplier.contains(directAccessWordNumber1) || execute instanceof DirectAccessWordNumber directAccessWordNumber && directAccessWordNumber.allSupplier.contains(directAccessWordNumber1);
+      }
+    };
+    return allSupplier1;
+  }
+
+  public <T extends WordNumber> T processOrigin(T execute) {
+    if (execute instanceof DirectAccessWordNumber directAccessWordNumber) {
+      DirectAccessProcessor<Collection<Integer>> newSupplier = new DirectAccessProcessor<>() {
+        public void process(Collection<Integer> addresses, Collection<DirectAccessProcessor<Collection<Integer>>> processors) {
+          originSupplier.process(addresses, processors);
+          directAccessWordNumber.addressesSupplier.process(addresses, processors);
+        }
+
+        public int getDepth() {
+          int result = execute instanceof DirectAccessWordNumber directAccessWordNumber ? directAccessWordNumber.addressesSupplier.getDepth() : 1;
+          int max = Math.max(result, originSupplier.getDepth());
+          return max + 1;
+        }
+
+        public boolean contains(DirectAccessWordNumber directAccessWordNumber1) {
+          return originSupplier.contains(directAccessWordNumber1) || execute instanceof DirectAccessWordNumber directAccessWordNumber && directAccessWordNumber.addressesSupplier.contains(directAccessWordNumber1);
+        }
+      };
+      return (T) new DirectAccessWordNumber(value, pc, addressesSupplier, newSupplier, createAllSupplier(execute));
+    }
+    return (T) this;
+  }
+
+  public Collection<Integer> getAddressesSupplier() {
+    Collection<Integer> t = new LinkedList<>();
+    addressesSupplier.process(t, new HashSet<>());
+    return t;
+  }
+
+  public Collection<Integer> getOriginSupplier() {
+    Collection<Integer> integers = new LinkedList<>();
+    originSupplier.process(integers, new HashSet<>());
+    return integers;
+  }
+
+  public Collection<Integer> getAllSupplier() {
+    Collection<Integer> integers = new HashSet<>();
+    Collection<DirectAccessProcessor<Collection<Integer>>> processors = new HashSet<>();
+    allSupplier.process(integers, processors);
+//    if (processors.size() > 1000)
+//      System.out.println("dagdgagd");
+    return integers;
+  }
+
+  public interface DirectAccessProcessor<T> {
+    void process(T t, Collection<DirectAccessProcessor<T>> processors);
+
+    int getDepth();
+
+    boolean contains(DirectAccessWordNumber directAccessWordNumber);
   }
 }
 

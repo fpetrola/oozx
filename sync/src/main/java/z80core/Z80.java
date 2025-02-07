@@ -325,8 +325,9 @@ public class Z80 implements IZ80 {
 
     z80= z802.z80;
     z80.getState().getMemory().addMemoryWriteListener(new MemoryWriteListener<WordNumber>() {
-      public void writtingMemoryAt(WordNumber address, WordNumber value) {
+      public WordNumber writtingMemoryAt(WordNumber address, WordNumber value) {
         lastWritten.put(address.intValue(), value.intValue());
+        return value;
       }
     });
     timer = new Timer("Z80");

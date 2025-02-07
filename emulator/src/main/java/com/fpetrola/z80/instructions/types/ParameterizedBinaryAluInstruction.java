@@ -20,6 +20,7 @@ package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
+import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
@@ -41,8 +42,14 @@ public class ParameterizedBinaryAluInstruction<T extends WordNumber> extends Tar
     final T value1 = source.read();
     final T value2 = target.read();
     T execute = binaryAluOperation.execute(flag, value1, value2);
-    execute= value1.process(execute);
-    execute= value2.process(execute);
+    execute= (T) new DirectAccessWordNumber(execute.intValue(), -1, -1);
+    execute= execute.process(value1);
+    execute= execute.process(value2);
+
+    if (source instanceof IndirectMemory8BitReference<T> indirectMemory8BitReference) {
+      T read = indirectMemory8BitReference.getTarget().read();
+      execute = execute.processOrigin(read);
+    }
     target.write(execute);
     return cyclesCost;
   }

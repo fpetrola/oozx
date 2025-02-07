@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class IntegerWordNumber implements WordNumber {
-  private int value;
+  protected int value;
 
   public IntegerWordNumber(int aValue) {
     this.value = aValue;
