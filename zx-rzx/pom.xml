@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.fpetrola</groupId>
+        <artifactId>oozx</artifactId>
+        <version>0.0.2-alu-SNAPSHOT</version>
+    </parent>
+    <artifactId>zx-rzx</artifactId>
+    <name>zx-rzx</name>
+    <description>
+        The RZX format: reading a recording (header, blocks, embedded snapshot, and frames with
+        their fetch count and IN values), writing one, and replaying it against the emulator.
+
+        Brought over from the emulador-alu branch, where it had already been separated out to
+        depend on nothing but emulator. What was left behind there stays behind here:
+        RzxParser.loadSnapshot, which turned the embedded snapshot into a jspeccy SpectrumState.
+        It was the only thing tying the format reader to jspeccy, and parsing never calls it.
+
+        This is now where the player is evolved; the other projects are meant to consume it from
+        here rather than keep their own copy.
+    </description>
+    <dependencies>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>emulator</artifactId>
+            <version>0.0.2-alu-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
