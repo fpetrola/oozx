@@ -25,118 +25,59 @@ import java.util.*;
 
 public class DirectAccessWordNumber extends IntegerWordNumber {
   public final int pc;
-  private DirectAccessProcessor<Collection<Integer>> addressesSupplier;
-  private DirectAccessProcessor<Collection<Integer>> originSupplier;
-  private DirectAccessProcessor<Collection<Integer>> allSupplier;
+  private boolean readOnly;
+
+  public Set<Integer> addresses = new LinkedHashSet<>();
 
   public DirectAccessWordNumber(int i, int pc, int address) {
     super(i);
     this.pc = pc;
-    this.addressesSupplier = new DirectAccessProcessor<>() {
-      public void process(Collection<Integer> integers, Collection<DirectAccessProcessor<Collection<Integer>>> processors) {
-        integers.add(address);
-      }
-
-    };
-
-    this.originSupplier = new DirectAccessProcessor<>() {
-      public void process(Collection<Integer> integers, Collection<DirectAccessProcessor<Collection<Integer>>> processors) {
-      }
-
-    };
-    this.allSupplier = new DirectAccessProcessor<>() {
-      public void process(Collection<Integer> integers, Collection<DirectAccessProcessor<Collection<Integer>>> processors) {
-      }
-
-    };
+    this.addresses.add(address);
   }
 
-  public DirectAccessWordNumber(int i, int pc, DirectAccessProcessor<Collection<Integer>> addressesSupplier, DirectAccessProcessor<Collection<Integer>> originSupplier, DirectAccessProcessor<Collection<Integer>> allSupplier) {
+  public DirectAccessWordNumber(int i, int pc, Set<Integer> addresses) {
     super(i);
     this.pc = pc;
-    this.addressesSupplier = addressesSupplier;
-    this.originSupplier = originSupplier;
-    this.allSupplier = allSupplier;
+    this.addresses = addresses;
   }
 
-  @Override
-  public <T extends WordNumber> T left(int i) {
-    return super.left(i);
+  public DirectAccessWordNumber(int i, int pc, int address, boolean readOnly) {
+    this(i, pc, Set.of(address));
+    this.readOnly = readOnly;
   }
 
   public IntegerWordNumber createInstance(int value) {
-    return new DirectAccessWordNumber(value & 0xFFFF, pc, addressesSupplier, originSupplier, allSupplier);
+    return new DirectAccessWordNumber(value & 0xFFFF, pc, new LinkedHashSet<>(addresses));
   }
 
   @Override
   public <T extends WordNumber> T process(T execute) {
-    if (execute instanceof DirectAccessWordNumber directAccessWordNumber) {
-      DirectAccessProcessor<Collection<Integer>> newSupplier = new DirectAccessProcessor<>() {
-        public void process(Collection<Integer> addresses, Collection<DirectAccessProcessor<Collection<Integer>>> processors) {
-          addressesSupplier.process(addresses, processors);
-          directAccessWordNumber.addressesSupplier.process(addresses, processors);
-        }
-
-      };
-
-      return (T) new DirectAccessWordNumber(value, pc, newSupplier, originSupplier, createAllSupplier(execute));
-    }
+//    LinkedHashSet<Integer> integers = new LinkedHashSet<>(addresses);
+//    if (execute instanceof DirectAccessWordNumber directAccessWordNumber)
+//      integers.addAll(directAccessWordNumber.addresses);
+//    return (T) new DirectAccessWordNumber(value, pc, integers);
     return (T) this;
-  }
-
-  private <T extends WordNumber> DirectAccessProcessor<Collection<Integer>> createAllSupplier(T execute) {
-    DirectAccessProcessor<Collection<Integer>> allSupplier1 = new DirectAccessProcessor<>() {
-      public void process(Collection<Integer> addresses, Collection<DirectAccessProcessor<Collection<Integer>>> processors) {
-        addressesSupplier.process(addresses, processors);
-        originSupplier.process(addresses, processors);
-
-        if (execute instanceof DirectAccessWordNumber directAccessWordNumber) {
-          directAccessWordNumber.allSupplier.process(addresses, processors);
-        }
-      }
-
-    };
-    return allSupplier1;
   }
 
   public <T extends WordNumber> T processOrigin(T execute) {
-    if (execute instanceof DirectAccessWordNumber directAccessWordNumber) {
-      DirectAccessProcessor<Collection<Integer>> newSupplier = new DirectAccessProcessor<>() {
-        public void process(Collection<Integer> addresses, Collection<DirectAccessProcessor<Collection<Integer>>> processors) {
-          originSupplier.process(addresses, processors);
-          directAccessWordNumber.addressesSupplier.process(addresses, processors);
-        }
-
-      };
-      return (T) new DirectAccessWordNumber(value, pc, addressesSupplier, newSupplier, createAllSupplier(execute));
-    }
-    return (T) this;
+    LinkedHashSet<Integer> integers = new LinkedHashSet<>(addresses);
+    if (execute instanceof DirectAccessWordNumber directAccessWordNumber)
+      integers.addAll(directAccessWordNumber.addresses);
+    return (T) new DirectAccessWordNumber(value, pc, integers);
   }
 
   public Collection<Integer> getAddressesSupplier() {
-    Collection<Integer> t = new LinkedList<>();
-    addressesSupplier.process(t, new HashSet<>());
-    return t;
+    return addresses;
   }
 
   public Collection<Integer> getOriginSupplier() {
     Collection<Integer> integers = new LinkedList<>();
-    originSupplier.process(integers, new HashSet<>());
     return integers;
   }
 
   public Collection<Integer> getAllSupplier() {
     Collection<Integer> integers = new HashSet<>();
-    Collection<DirectAccessProcessor<Collection<Integer>>> processors = new HashSet<>();
-    allSupplier.process(integers, processors);
-//    if (processors.size() > 1000)
-//      System.out.println("dagdgagd");
     return integers;
-  }
-
-  public interface DirectAccessProcessor<T> {
-    void process(T t, Collection<DirectAccessProcessor<T>> processors);
-
   }
 }
 

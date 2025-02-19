@@ -190,7 +190,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
     GameData gameData = new GameData(url);
 
     Z80Rewinder z80Rewinder = new Z80Rewinder(ooz80);
-//    z80Rewinder.init();
+    z80Rewinder.init();
     StructureFinder structureFinder = new StructureFinder(ooz80, z80Rewinder);
 //    structureFinder.init();
     MemoryRangesFinder<T> memoryRangesFinder = new MemoryRangesFinder<>(ooz80, structureFinder, gameData);

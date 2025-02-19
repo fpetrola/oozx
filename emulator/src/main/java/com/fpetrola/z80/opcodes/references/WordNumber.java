@@ -70,10 +70,10 @@ public interface WordNumber extends Comparable {
   }
 
   default <T extends WordNumber> T process(T execute) {
-    return (T) this;
+    return (T) execute.createInstance(execute.intValue());
   }
 
   default <T extends WordNumber> T processOrigin(T execute) {
-    return (T) this;
+    return (T) execute.createInstance(execute.intValue());
   }
 }

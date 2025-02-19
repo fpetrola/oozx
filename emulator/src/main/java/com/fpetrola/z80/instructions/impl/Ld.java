@@ -20,11 +20,11 @@ package com.fpetrola.z80.instructions.impl;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
-import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
-import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.se.DirectAccessWordNumber;
+
+import java.util.Collections;
 
 public class Ld<T extends WordNumber> extends TargetSourceInstruction<T, ImmutableOpcodeReference<T>> {
   public Ld(OpcodeReference<T> target, ImmutableOpcodeReference<T> source, Register<T> flag) {
@@ -37,6 +37,8 @@ public class Ld<T extends WordNumber> extends TargetSourceInstruction<T, Immutab
     if (source instanceof IndirectMemory8BitReference<T> indirectMemory8BitReference) {
       T read = indirectMemory8BitReference.getTarget().read();
       aLU8Assign = aLU8Assign.processOrigin(read);
+    } else if (source instanceof Memory8BitReference<T> || source instanceof Memory16BitReference<T>) {
+      aLU8Assign = (T) new DirectAccessWordNumber(value.intValue(), -2, Collections.emptySet());
     }
 
     if (target instanceof IndirectMemory8BitReference<T> indirectMemory8BitReference) {

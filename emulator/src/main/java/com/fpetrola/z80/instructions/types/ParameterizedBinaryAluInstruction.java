@@ -19,12 +19,11 @@
 package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
-import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.DirectAccessWordNumber;
+
+import java.util.Collections;
 
 public class ParameterizedBinaryAluInstruction<T extends WordNumber> extends TargetSourceInstruction<T, ImmutableOpcodeReference<T>> {
   public interface BinaryAluOperation<T extends WordNumber> {
@@ -39,12 +38,16 @@ public class ParameterizedBinaryAluInstruction<T extends WordNumber> extends Tar
   }
 
   public int execute() {
-    final T value1 = source.read();
+    T value1 = source.read();
+
+    if (source instanceof Memory8BitReference<T> || source instanceof Memory16BitReference<T>) {
+      value1 = (T) new DirectAccessWordNumber(value1.intValue(), -2, Collections.emptySet());
+    }
     final T value2 = target.read();
     T execute = binaryAluOperation.execute(flag, value1, value2);
-    execute= (T) new DirectAccessWordNumber(execute.intValue(), -1, -1);
-    execute= execute.process(value1);
-    execute= execute.process(value2);
+    execute = (T) new DirectAccessWordNumber(execute.intValue(), -1, -1);
+    execute = execute.process(value1);
+    execute = execute.process(value2);
 
     if (source instanceof IndirectMemory8BitReference<T> indirectMemory8BitReference) {
       T read = indirectMemory8BitReference.getTarget().read();

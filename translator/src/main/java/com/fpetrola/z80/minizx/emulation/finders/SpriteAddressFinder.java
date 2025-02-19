@@ -47,66 +47,65 @@ public class SpriteAddressFinder<T extends WordNumber> {
     Memory<T> memory = ooz80.getState().getMemory();
     T[] data = memory.getData();
     for (int i = 0; i < data.length; i++) {
-      data[i] = (T) new DirectAccessWordNumber(data[i].intValue(), -1, i);
+      data[i] = (T) new DirectAccessWordNumber(data[i].intValue(), -1, i, true);
     }
 
-    memory.addMemoryWriteListener(((address, value) -> {
-      int addressValue = address.intValue();
-
-//      if (addressValue == 33026)
+//    memory.addMemoryWriteListener(((address, value) -> {
+//      int addressValue = address.intValue();
+//
+//      if (addressValue == 41498)
 //        System.out.println("sssss!1111!!!");
-
-//      if (addressValue >= 24576 && addressValue < 	28672)
-      if (addressValue > ATTRIBUTES_END_ADDRESS)
-        if (value instanceof DirectAccessWordNumber directAccessWordNumber) {
-          T read = memory.read(address, 0);
-          T value1 = (T) new DirectAccessWordNumber(value.intValue(), directAccessWordNumber.pc, addressValue);
-          value = value1.process(value);
-        }
-
-      if (addressValue >= 28672 && addressValue < 28672 + 4096) {
-        if (value instanceof DirectAccessWordNumber directAccessWordNumber) {
-          List<Integer> list = directAccessWordNumber.getAddressesSupplier().stream().filter(i -> i > ATTRIBUTES_END_ADDRESS).toList();
-          if (list.stream().anyMatch(a -> a > 43776 && a < 49152))
-            System.out.println("dgadg");
-
-          gameData.spriteAddresses.addAll(list);
-        } else {
-          int notFound = 1;
-        }
-      }
-
-      if (addressValue >= SCREEN_START_ADDRESS && addressValue < ATTRIBUTES_START_ADDRESS) {
-        if (value instanceof DirectAccessWordNumber directAccessWordNumber) {
-          List<Integer> list = directAccessWordNumber.getAddressesSupplier().stream().filter(i -> i > ATTRIBUTES_END_ADDRESS).toList();
-          if (!list.isEmpty())
-            if (list.stream().anyMatch(a -> a > 43776 && a < 49152)) {
-
-              Collection<Integer> integers = directAccessWordNumber.getAllSupplier();
-//              LinkedHashSet<Integer> integers1 = directAccessWordNumber.getAddressesSupplier();
-//              Collection<Integer> integers2 = CollectionUtils.removeAll(integers, integers1);
-//              if (!directAccessWordNumber.getOriginSupplier().isEmpty()) {
-//                int v = 1;
-//              }
-              int a = 1;
-            }
-          gameData.spriteAddresses.addAll(list);
-        } else {
-          int notFound = 1;
-        }
-      }
-      if (addressValue >= ATTRIBUTES_START_ADDRESS && addressValue < ATTRIBUTES_END_ADDRESS) {
-        if (value instanceof DirectAccessWordNumber directAccessWordNumber) {
-          List<Integer> list = directAccessWordNumber.getAddressesSupplier().stream().filter(i -> i > ATTRIBUTES_END_ADDRESS).toList();
-          if (!list.isEmpty()) {
-//            Collection<Integer> integers = directAccessWordNumber.getAllSupplier();
-//            int a= 1;
-          }
-          gameData.attributesAddresses.addAll(list);
-        }
-      }
-      return value;
-    }));
+//
+////      if (addressValue >= 24576 && addressValue < 	28672)
+//      if (addressValue > ATTRIBUTES_END_ADDRESS)
+//        if (value instanceof DirectAccessWordNumber directAccessWordNumber) {
+//          T read = memory.read(address, 0);
+//          T value1 = (T) new DirectAccessWordNumber(value.intValue(), directAccessWordNumber.pc, addressValue);
+//          value = value1.process(value);
+//        }
+//
+////      if (addressValue >= 28672 && addressValue < 28672 + 4096) {
+////        if (value instanceof DirectAccessWordNumber directAccessWordNumber) {
+////          List<Integer> list = directAccessWordNumber.getAddressesSupplier().stream().filter(i -> i > ATTRIBUTES_END_ADDRESS).toList();
+////          if (list.stream().anyMatch(a -> a > 43776 && a < 49152))
+////            System.out.println("dgadg");
+////
+////          gameData.spriteAddresses.addAll(list);
+////        } else {
+////          int notFound = 1;
+////        }
+////      }
+//
+//      if (addressValue >= SCREEN_START_ADDRESS && addressValue < ATTRIBUTES_START_ADDRESS) {
+//        if (value instanceof DirectAccessWordNumber directAccessWordNumber) {
+//          List<Integer> list = directAccessWordNumber.getAddressesSupplier().stream().filter(i -> i > ATTRIBUTES_END_ADDRESS).toList();
+//          if (!list.isEmpty()) {
+//            if (list.stream().anyMatch(a -> a > 43776 && a < 49152)) {
+//              Collection<Integer> integers = directAccessWordNumber.getAllSupplier();
+//              int a = 1;
+//            }
+//            if (list.stream().anyMatch(a -> a > 40192 && a < 40448)) {
+//              Collection<Integer> integers = directAccessWordNumber.getAllSupplier();
+//              int a = 1;
+//            }
+//            gameData.spriteAddresses.addAll(list);
+//          }
+//        } else {
+//          int notFound = 1;
+//        }
+//      }
+////      if (addressValue >= ATTRIBUTES_START_ADDRESS && addressValue < ATTRIBUTES_END_ADDRESS) {
+////        if (value instanceof DirectAccessWordNumber directAccessWordNumber) {
+////          List<Integer> list = directAccessWordNumber.getAddressesSupplier().stream().filter(i -> i > ATTRIBUTES_END_ADDRESS).toList();
+////          if (!list.isEmpty()) {
+//////            Collection<Integer> integers = directAccessWordNumber.getAllSupplier();
+//////            int a= 1;
+////          }
+////          gameData.attributesAddresses.addAll(list);
+////        }
+////      }
+//      return value;
+//    }));
   }
 
 }

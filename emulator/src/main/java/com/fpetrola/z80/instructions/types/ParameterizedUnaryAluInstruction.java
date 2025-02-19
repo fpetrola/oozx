@@ -19,10 +19,14 @@
 package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.opcodes.references.Memory16BitReference;
+import com.fpetrola.z80.opcodes.references.Memory8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.DirectAccessWordNumber;
+
+import java.util.Collections;
 
 public class ParameterizedUnaryAluInstruction<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
   public interface UnaryAluOperation<T extends WordNumber> {
