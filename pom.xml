@@ -28,6 +28,7 @@
 
     <modules>
         <module>emulator</module>
+        <module>zx-rzx</module>
         <module>translation</module>
     </modules>
 
