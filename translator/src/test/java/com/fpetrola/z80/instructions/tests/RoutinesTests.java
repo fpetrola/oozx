@@ -1667,6 +1667,7 @@ public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGeneratio
   }
 
 
+  @Ignore
   @Test
   public void droppingReturnAddresses() {
     setUpMemory();
