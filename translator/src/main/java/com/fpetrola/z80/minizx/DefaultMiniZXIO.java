@@ -124,15 +124,17 @@ public class DefaultMiniZXIO<T extends WordNumber> implements MiniZXIO<T> {
   }
 
   public synchronized WordNumber in(WordNumber port) {
-    PortInput portInput = processLastInputs(port, inputs.stream().allMatch(i -> i.resultEmu == null));
-
-    WordNumber resultEmu = portInput.resultEmu;
-    portInput.resultEmu = null;
-    removeIfReady(portInput);
-
-//    System.out.printf("emu IN: %d -> %d= %d%n", pc.read().intValue(), port.intValue(), resultEmu.intValue());
-
-    return resultEmu;
+    return in0(port);
+//
+//    PortInput portInput = processLastInputs(port, inputs.stream().allMatch(i -> i.resultEmu == null));
+//
+//    WordNumber resultEmu = portInput.resultEmu;
+//    portInput.resultEmu = null;
+//    removeIfReady(portInput);
+//
+////    System.out.printf("emu IN: %d -> %d= %d%n", pc.read().intValue(), port.intValue(), resultEmu.intValue());
+//
+//    return resultEmu;
   }
 
   public synchronized WordNumber in2(WordNumber port) {

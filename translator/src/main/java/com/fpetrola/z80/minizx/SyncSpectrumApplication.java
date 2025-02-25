@@ -23,8 +23,7 @@ import com.fpetrola.z80.minizx.sync.SyncChecker;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> {
-  public static final int delay = 25000;
-  public SyncChecker syncChecker = new DummySyncChecker();
+  public static final int delay = 0;
   protected ZxObject[] objectMemory = new ZxObject[0x10000];
 
   public SyncSpectrumApplication() {
@@ -49,9 +48,9 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
     getMem()[address] = value & 0xFF;
     syncChecker.checkSyncJava(address + 1, value, pc);
     getMem()[address + 1] = value >> 8;
-    if (address == 32985) {
-      System.out.println();
-    }
+//    if (address == 32985) {
+//      System.out.println();
+//    }
   }
 
   public int mem16(int address, int pc) {

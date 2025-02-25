@@ -18,8 +18,14 @@
 
 package com.fpetrola.z80.bytecode.tests;
 
+import com.fpetrola.z80.minizx.DefaultMiniZXIO;
+import com.fpetrola.z80.minizx.MiniZX;
+import com.fpetrola.z80.minizx.SpectrumApplication;
+import com.fpetrola.z80.minizx.ZXScreenComponent;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 import org.easymock.bytebuddy.implementation.bind.annotation.*;
 
+import javax.swing.*;
 import java.lang.reflect.Method;
 
 public class GameInvoker {
@@ -27,8 +33,15 @@ public class GameInvoker {
     ZxGame1 zxGame1 = new ZxGame1();
 //    zxGame1.setSyncChecker(new DefaultSyncChecker());
 //    zxGame1.$34762(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0);
-    zxGame1.$C804();
-//    zxGame1.$35090();
+//    zxGame1.$C804();
+    zxGame1.getMem()[33824] = 29;
+    ZXScreenComponent<WordNumber> zxScreenComponent = zxGame1.getZxScreenComponent();
+    new Timer(20, e -> {
+      zxScreenComponent.repaint();
+    }).start();
+    MiniZX.createScreen(((DefaultMiniZXIO) SpectrumApplication.io).miniZXKeyboard, zxScreenComponent);
+
+    zxGame1.$35090();
 
 //    ZxGame1 o= new ZxGame1();
 //    o = ClassProxyHelper.createGameInstance(ZxGame1.class);

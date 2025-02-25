@@ -19,6 +19,7 @@
 package com.fpetrola.z80.minizx;
 
 import com.fpetrola.z80.cpu.IO;
+import com.fpetrola.z80.minizx.sync.SyncChecker;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.Arrays;
@@ -26,6 +27,12 @@ import java.util.List;
 import java.util.Stack;
 
 public abstract class SpectrumApplication<T> {
+  public SyncChecker syncChecker = new SyncChecker() {
+    public int getByteFromEmu(Integer index) {
+      return mem[index];
+    }
+  };
+
   public static final int INITIAL_SP_VALUE = 1234;
   public int A;
   public int F;
@@ -51,6 +58,7 @@ public abstract class SpectrumApplication<T> {
   static public IO<WordNumber> io;
   private final Stack<Integer> stack = new Stack<>();
   protected int carry;
+
 
   public boolean isOwnAddress(StackException stackException, int... integers) {
     nextAddress = stackException.getNextPC();
@@ -114,22 +122,22 @@ public abstract class SpectrumApplication<T> {
   }
 
   public void push(int value) {
-    if (SP != INITIAL_SP_VALUE) {
-      wMem16(SP, value);
-      SP -= 2;
-    } else
-      stack.push(value);
+//    if (SP != INITIAL_SP_VALUE) {
+//      wMem16(SP, value);
+//      SP -= 2;
+//    } else
+    stack.push(value);
 //    if (stack.size() > 100)
 //      System.out.println("mmmmmm push");
   }
 
   public int pop() {
-    if (SP != INITIAL_SP_VALUE) {
-      int i = mem16(SP);
-      SP += 2;
-      return i;
-    } else
-      return stack.pop();
+//    if (SP != INITIAL_SP_VALUE) {
+//      int i = mem16(SP);
+//      SP += 2;
+//      return i;
+//    } else
+    return stack.pop();
   }
 
   public int carry(int f) {
@@ -145,6 +153,7 @@ public abstract class SpectrumApplication<T> {
 
   public SpectrumApplication() {
     Arrays.fill(getMem(), 0);
+    io = new DefaultMiniZXIO();
   }
 
   public int in(int port, int pc) {
@@ -270,8 +279,8 @@ public abstract class SpectrumApplication<T> {
 
   public void ldir() {
     while (BC() != 0) {
-//      wMem(DE(), mem(HL()));
-      mem[DE()] = mem[HL()];
+      wMem(DE(), mem(HL()));
+//      mem[DE()] = mem[HL()];
       BC(BC() - 1);
       HL(HL() + 1);
       DE(DE() + 1);

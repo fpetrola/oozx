@@ -18,31 +18,66 @@
 
 package com.fpetrola.z80.minizx;
 
+import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulationBase;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyListener;
 import java.util.function.Function;
 
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
+
 @SuppressWarnings("ALL")
-public abstract class MiniZX extends SyncSpectrumApplication {
+public abstract class MiniZX extends SpectrumApplication {
+
+  private MemoryWriteListener<WordNumber> writeListener;
+
+  public ZXScreenComponent<WordNumber> getZxScreenComponent() {
+    return zxScreenComponent;
+  }
+
+  private ZXScreenComponent<WordNumber> zxScreenComponent;
+
   public MiniZX() {
     init();
   }
 
   public void init() {
     this.mem = new int[65536];
-    MiniZX.createScreen(((DefaultMiniZXIO) io).miniZXKeyboard, new MiniZXScreen(this.getMemFunction()));
+    Container miniZXScreen1 = new MiniZXScreen(this.getMemFunction());
+    zxScreenComponent = new ZXScreenComponent<>();
+    writeListener = zxScreenComponent.getWriteListener();
+    miniZXScreen1 = zxScreenComponent;
+//    MiniZX.createScreen(((DefaultMiniZXIO) io).miniZXKeyboard, miniZXScreen1);
+
     final byte[] rom = MiniZXWithEmulationBase.createROM();
     final byte[] bytes = MiniZXWithEmulationBase.gzipDecompressFromBase64(this.getProgramBytes());
     for (int i = 0; i < 65536; ++i) {
       this.getMem()[i] = ((i < 16384) ? rom[i] : bytes[i]) & 0xff;
     }
 
+
+    for (int i = 0; i < 0xFFFF; i++) {
+      zxScreenComponent.onMemoryWrite(i, getMem()[i]);
+    }
     customizeMemory();
 
     syncChecker.init(this);
+  }
+
+  @Override
+  public void wMem(int address, int value) {
+    super.wMem(address, value);
+    writeListener.writtingMemoryAt(createValue(address & 0xffff), createValue(value & 0xff));
+  }
+
+  @Override
+  public void wMem16(int address, int value, int pc) {
+    super.wMem16(address, value, pc);
+    writeListener.writtingMemoryAt(createValue(address & 0xffff), createValue(value & 0xFF));
+    writeListener.writtingMemoryAt(createValue((address + 1) & 0xffff), createValue((value >> 8) & 0xff));
   }
 
   protected void customizeMemory() {
