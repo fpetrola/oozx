@@ -32,7 +32,7 @@ public class ScrollingScreenComponent extends JComponent {
     this.mainGameTile = mainGameTile;
     setPreferredSize(new Dimension(256 * 8, 192 * 8));
 
-    new Timer(10, e -> {
+    new Timer(50, e -> {
       repaint();
     }).start();
   }

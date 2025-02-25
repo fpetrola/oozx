@@ -32,7 +32,7 @@ import java.util.concurrent.*;
 public class GameInvokerScrolling {
 
 
-  private static GameTile mainGameTile = createGame(new TileSpec(33, 6, 2));
+  private static GameTile mainGameTile = createGame(new TileSpec(33, 9, 2));
   private static List<GameTile> gameList;
   private static boolean roomChanged;
 
@@ -49,12 +49,14 @@ public class GameInvokerScrolling {
 //    }
 
     int[][] rows = {
-        {47, 47, 47, 48, 18, 17, 16},
-        {47, 47, 43, 42, 41, 15, 40},
+        {47, 47, 47, 47, 47, 47, 48, 18, 17, 16},
+        {47, 47, 47, 47, 47, 43, 42, 41, 40, 39},
 
-        {57, 56, 37, 36, 35, 34, 33},
-        {55, 54, 31, 30, 29, 28, 27},
-        {53, 52, 25, 24, 23, 22, 21}};
+        {47, 47, 47, 57, 56, 37, 36, 35, 34, 33},
+        {47, 47, 47, 55, 54, 31, 30, 29, 28, 27},
+        {47, 47, 47, 53, 52, 25, 24, 23, 22, 21},
+        {60, 59, 58, 51, 49, 19, 47, 47, 47, 47}
+    };
 
     for (int j = 0; j < rows.length; j++) {
       for (int k = 0; k < rows[j].length; k++) {
