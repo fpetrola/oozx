@@ -41,16 +41,16 @@ public class ScrollingScreenComponent extends JComponent {
     this.mainGameTile = mainGameTile;
     setPreferredSize(new Dimension(256 * 4, 192 * 3));
 
-    new Timer(10, e -> {
+    new Timer(5, e -> {
       repaint();
     }).start();
   }
 
   protected void paintComponent(Graphics g) {
-    int xTiles = 9;
+    int xTiles = 14;
     int yTiles = 4;
 
-    double scale = 2.0;
+    double scale = 0.7;
     int tileWidth = 256;
     int tileHeight = 128;
 
@@ -79,12 +79,12 @@ public class ScrollingScreenComponent extends JComponent {
     if (currentTranslate == null)
       currentTranslate = o;
 
-    if (Math.abs(currentTranslate.x - o.x) > 10) {
-      double v = (currentTranslate.x - o.x) / 30f;
+    if (Math.abs(currentTranslate.x - o.x) > 20) {
+      double v = (currentTranslate.x - o.x) / 40f;
       currentTranslate.x -= v;
     }
-    if (Math.abs(currentTranslate.y - o.y) > 10) {
-      double v = (currentTranslate.y - o.y) / 30f;
+    if (Math.abs(currentTranslate.y - o.y) > 20) {
+      double v = (currentTranslate.y - o.y) / 40f;
       currentTranslate.y -= v;
     }
 
@@ -105,8 +105,8 @@ public class ScrollingScreenComponent extends JComponent {
 //    AffineTransformOp scaleOp2 = new AffineTransformOp(AffineTransform.getTranslateInstance(currentTranslate.x, currentTranslate.y), AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
     BufferedImage combined2 = new BufferedImage(combined.getWidth(), combined.getHeight(), BufferedImage.TYPE_INT_ARGB);
     Graphics2D g2b3 = (Graphics2D) combined2.getGraphics();
-//    g2b3.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-//    g2b3.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+    g2b3.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+    g2b3.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
     g2b3.setTransform(tx);
     g2b3.drawImage(combined, 0, 0, null);
     g2b3.dispose();

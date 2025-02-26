@@ -55,9 +55,9 @@ public class GameInvokerScrolling {
 
         {47, 47, 47, 57, 56, 37, 36, 35, 34, 33, 32, 47, 47, 47, 47, 47, 47, 47},
         {47, 47, 47, 55, 54, 31, 30, 29, 28, 27, 26, 47, 47, 13, 12, 47, 47, 47},
-        {47, 47, 47, 53, 52, 25, 24, 23, 22, 21, 20, 11, 10,  9,  8,  7, 47, 47},
-        {60, 59, 58, 51, 49, 47, 47, 47, 47, 47, 47, 19,  5, 4,   3,  2,  1,  0},
-        {47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47,  6, 45, 46, 47, 47, 47},
+        {47, 47, 47, 53, 52, 25, 24, 23, 22, 21, 20, 11, 10, 9, 8, 7, 47, 47},
+        {60, 59, 58, 51, 49, 47, 47, 47, 47, 47, 47, 19, 5, 4, 3, 2, 1, 0},
+        {47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 6, 45, 46, 47, 47, 47},
     };
 
     for (int j = 0; j < rows.length; j++) {
@@ -86,7 +86,76 @@ public class GameInvokerScrolling {
   private static GameTile createGame(TileSpec tileSpec) {
     ZxGame1 zxGame1 = new ZxGame1() {
 
-      @Override
+      public void $38562() {
+        if (isMain())
+          super.$38562();
+      }
+
+      public void $38430() {
+        if (isMain())
+          super.$38430();
+      }
+
+      public void $38528() {
+        if (isMain())
+          super.$38528();
+      }
+
+      public void $38601() {
+        if (isMain())
+          super.$38601();
+      }
+
+      public void $35211() {
+        if (isMain())
+          super.$35211();
+      }
+
+      public void $36307() {
+        if (isMain())
+          super.$36307();
+      }
+
+      public void $36508() {
+        if (isMain())
+          super.$36508();
+      }
+
+      public void $38344() {
+        if (isMain())
+          super.$38344();
+      }
+
+      public void $38545() {
+        if (isMain())
+          super.$38545();
+      }
+
+      public void $38276() {
+        if (isMain())
+          super.$38276();
+      }
+
+      public void $38504() {
+        if (isMain())
+          super.$38504();
+      }
+
+      public void $35563() {
+        if (isMain())
+          super.$35563();
+      }
+
+      public void $38064() {
+        if (isMain())
+          super.$38064();
+      }
+
+      public void $38196() {
+        if (isMain())
+          super.$38196();
+      }
+
       public void $35090() {
         if (getMem()[33824] == 47) {
           for (int i = 16384; i < 23296; i++) {
