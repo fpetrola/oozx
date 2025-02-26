@@ -41,7 +41,7 @@ public class ScrollingScreenComponent extends JComponent {
     this.mainGameTile = mainGameTile;
     setPreferredSize(new Dimension(256 * 4, 192 * 3));
 
-    new Timer(5, e -> {
+    new Timer(1, e -> {
       repaint();
     }).start();
   }
@@ -50,12 +50,12 @@ public class ScrollingScreenComponent extends JComponent {
     int xTiles = 14;
     int yTiles = 4;
 
-    double scale = 0.7;
+    double scale = 2.3;
     int tileWidth = 256;
     int tileHeight = 128;
 
     super.paintComponent(g);
-    BufferedImage combined = new BufferedImage((xTiles + 3) * tileWidth, (yTiles + 4) * tileHeight, BufferedImage.TYPE_INT_ARGB);
+    BufferedImage combined = new BufferedImage((xTiles + 3) * tileWidth, (yTiles + 4) * tileHeight, BufferedImage.TYPE_INT_RGB);
     Graphics2D g2b = (Graphics2D) combined.getGraphics();
 
     for (int i = 0; i < zxScreenComponent.size(); i++) {
@@ -79,31 +79,22 @@ public class ScrollingScreenComponent extends JComponent {
     if (currentTranslate == null)
       currentTranslate = o;
 
-    if (Math.abs(currentTranslate.x - o.x) > 20) {
-      double v = (currentTranslate.x - o.x) / 40f;
+    if (Math.abs(currentTranslate.x - o.x) > 100) {
+      double v = ((currentTranslate.x - o.x) / 200f);
+      v = v * Math.abs(v);
       currentTranslate.x -= v;
     }
-    if (Math.abs(currentTranslate.y - o.y) > 20) {
-      double v = (currentTranslate.y - o.y) / 40f;
+    if (Math.abs(currentTranslate.y - o.y) > 100) {
+      double v = (currentTranslate.y - o.y) / 50f;
+      v = v * Math.abs(v);
       currentTranslate.y -= v;
     }
 
     AffineTransform tx = new AffineTransform();
     tx.translate(currentTranslate.x, currentTranslate.y);
     tx.scale(scale, scale);
-//
-//
-//    AffineTransformOp scaleOp = new AffineTransformOp(AffineTransform.getScaleInstance(scale, scale), AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-//    BufferedImage after = new BufferedImage((int) (combined.getWidth() * scale), (int) (combined.getHeight() * scale), BufferedImage.TYPE_INT_ARGB);
-//    Graphics2D g2 = (Graphics2D) after.getGraphics();
-//    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-////    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-//    g2.drawImage(combined, scaleOp, 0, 0);
-//    g2.dispose();
 
-
-//    AffineTransformOp scaleOp2 = new AffineTransformOp(AffineTransform.getTranslateInstance(currentTranslate.x, currentTranslate.y), AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-    BufferedImage combined2 = new BufferedImage(combined.getWidth(), combined.getHeight(), BufferedImage.TYPE_INT_ARGB);
+    BufferedImage combined2 = new BufferedImage(combined.getWidth(), combined.getHeight(), BufferedImage.TYPE_INT_RGB);
     Graphics2D g2b3 = (Graphics2D) combined2.getGraphics();
     g2b3.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
     g2b3.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
@@ -112,7 +103,7 @@ public class ScrollingScreenComponent extends JComponent {
     g2b3.dispose();
 
     g.setColor(Color.BLACK);
-    g.fillRect(0, 0, combined2.getWidth(), combined2.getHeight());
+    //g.fillRect(0, 0, combined2.getWidth(), combined2.getHeight());
     g.drawImage(combined2, 0, 0, combined2.getWidth(), combined2.getHeight(), null);
 
   }

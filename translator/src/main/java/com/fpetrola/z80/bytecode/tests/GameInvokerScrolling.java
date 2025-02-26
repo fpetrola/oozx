@@ -21,6 +21,7 @@ package com.fpetrola.z80.bytecode.tests;
 import com.fpetrola.z80.minizx.DefaultMiniZXIO;
 import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.SpectrumApplication;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -28,6 +29,8 @@ import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
+
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class GameInvokerScrolling {
 
@@ -209,7 +212,7 @@ public class GameInvokerScrolling {
       public void $37310() {
         super.$37310();
         try {
-          Thread.sleep(Duration.ofMillis(40L));
+          Thread.sleep(Duration.ofMillis(60L));
         } catch (InterruptedException e) {
           throw new RuntimeException(e);
         }
@@ -285,6 +288,24 @@ public class GameInvokerScrolling {
         else
           return 1;
       }
+
+//      public void ldir() {
+////        System.arraycopy(mem, HL(), mem, DE(), BC());
+//        int de= DE();
+//        int hl= HL();
+//        for (int i = 0; i < BC(); i++) {
+//          de = DE() + i;
+//          hl = HL() + i;
+//          int i1 = mem[hl];
+//          WordNumber value = createValue(i1);
+//          mem[de]= i1;
+//          writeListener.writtingMemoryAt(createValue(de), value);
+//        }
+//
+//        BC(0);
+//        DE(de);
+//        HL(hl);
+//      }
     };
 
     zxGame1.getMem()[33824] = tileSpec.room;

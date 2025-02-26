@@ -32,7 +32,7 @@ import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 @SuppressWarnings("ALL")
 public abstract class MiniZX extends SpectrumApplication {
 
-  private MemoryWriteListener<WordNumber> writeListener;
+  protected MemoryWriteListener<WordNumber> writeListener;
 
   public ZXScreenComponent<WordNumber> getZxScreenComponent() {
     return zxScreenComponent;
