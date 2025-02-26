@@ -63,12 +63,12 @@ public class ZXScreenComponent<T extends WordNumber> extends JComponent {
     }
 
     setPreferredSize(new Dimension(256 * 2, 192 * 2));
-    addComponentListener(new ComponentAdapter() {
-      public void componentResized(ComponentEvent event) {
-        Rectangle b = event.getComponent().getBounds();
-        event.getComponent().setBounds(b.x, b.y, b.width, b.width * 3 / 4);
-      }
-    });
+//    addComponentListener(new ComponentAdapter() {
+//      public void componentResized(ComponentEvent event) {
+//        Rectangle b = event.getComponent().getBounds();
+//        event.getComponent().setBounds(b.x, b.y, b.width, b.width * 3 / 4);
+//      }
+//    });
   }
 
   public void onMemoryWrite(int address, int value) {

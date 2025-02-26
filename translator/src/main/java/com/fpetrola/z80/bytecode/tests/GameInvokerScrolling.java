@@ -23,6 +23,10 @@ import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
+import javax.swing.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
@@ -75,11 +79,22 @@ public class GameInvokerScrolling {
     gameList = tileSpecs.stream().map(ts -> createGame(ts)).toList();
 
     ScrollingScreenComponent scrollingScreenComponent = new ScrollingScreenComponent(gameList, mainGameTile);
-    MiniZX.createScreen(((DefaultMiniZXIO) SpectrumApplication.io).miniZXKeyboard, scrollingScreenComponent);
+    JFrame screen = MiniZX.createScreen(((DefaultMiniZXIO) SpectrumApplication.io).miniZXKeyboard, scrollingScreenComponent);
+    screen.addKeyListener(new KeyAdapter() {
+      public void keyTyped(KeyEvent e) {
+        if (e.getKeyChar()== '1'){
+          scrollingScreenComponent.scale+= 0.01f;
+        }
+        if (e.getKeyChar()== '2'){
+          scrollingScreenComponent.scale-= 0.01f;
+        }
+      }
+    });
 
 
-    System.setProperty("jdk.virtualThreadScheduler.parallelism", "50");
-    System.setProperty("jdk.virtualThreadScheduler.maxPoolSize", "2000");
+
+    System.setProperty("jdk.virtualThreadScheduler.parallelism", "1000");
+    System.setProperty("jdk.virtualThreadScheduler.maxPoolSize", "10000");
 
 
     Thread.startVirtualThread(() -> mainGameTile.zxGame.$35090());
@@ -212,7 +227,7 @@ public class GameInvokerScrolling {
       public void $37310() {
         super.$37310();
         try {
-          Thread.sleep(Duration.ofMillis(60L));
+          Thread.sleep(Duration.ofMillis(50L));
         } catch (InterruptedException e) {
           throw new RuntimeException(e);
         }

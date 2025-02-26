@@ -29,19 +29,17 @@ import java.util.List;
 public class ScrollingScreenComponent extends JComponent {
   private final List<GameTile> zxScreenComponent;
   private final GameTile mainGameTile;
-  private int t;
 
   private DoublePoint currentTranslate;
-
-  private int mx;
-  private int my;
+  public double scale;
 
   public ScrollingScreenComponent(List<GameTile> zxScreenComponent, GameTile mainGameTile) {
     this.zxScreenComponent = zxScreenComponent;
     this.mainGameTile = mainGameTile;
     setPreferredSize(new Dimension(256 * 4, 192 * 3));
+    scale = 1;
 
-    new Timer(1, e -> {
+    new Timer(10, e -> {
       repaint();
     }).start();
   }
@@ -50,11 +48,9 @@ public class ScrollingScreenComponent extends JComponent {
     int xTiles = 14;
     int yTiles = 4;
 
-    double scale = 2.3;
     int tileWidth = 256;
     int tileHeight = 128;
 
-    super.paintComponent(g);
     BufferedImage combined = new BufferedImage((xTiles + 3) * tileWidth, (yTiles + 4) * tileHeight, BufferedImage.TYPE_INT_RGB);
     Graphics2D g2b = (Graphics2D) combined.getGraphics();
 
