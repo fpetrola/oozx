@@ -32,7 +32,7 @@ import java.util.concurrent.*;
 public class GameInvokerScrolling {
 
 
-  private static GameTile mainGameTile = createGame(new TileSpec(33, 9, 2));
+  private static GameTile mainGameTile = createGame(new TileSpec(33, 9, 3));
   private static List<GameTile> gameList;
   private static boolean roomChanged;
 
@@ -49,13 +49,15 @@ public class GameInvokerScrolling {
 //    }
 
     int[][] rows = {
-        {47, 47, 47, 47, 47, 47, 48, 18, 17, 16},
-        {47, 47, 47, 47, 47, 43, 42, 41, 40, 39},
+        {47, 47, 47, 47, 47, 47, 47, 47, 47, 50, 47, 47, 47, 47, 47, 47, 47, 47},
+        {47, 47, 47, 47, 47, 47, 48, 18, 17, 16, 15, 14, 44, 47, 47, 47, 47, 47},
+        {47, 47, 47, 47, 47, 43, 42, 41, 40, 39, 38, 47, 47, 47, 47, 47, 47, 47},
 
-        {47, 47, 47, 57, 56, 37, 36, 35, 34, 33},
-        {47, 47, 47, 55, 54, 31, 30, 29, 28, 27},
-        {47, 47, 47, 53, 52, 25, 24, 23, 22, 21},
-        {60, 59, 58, 51, 49, 19, 47, 47, 47, 47}
+        {47, 47, 47, 57, 56, 37, 36, 35, 34, 33, 32, 47, 47, 47, 47, 47, 47, 47},
+        {47, 47, 47, 55, 54, 31, 30, 29, 28, 27, 26, 47, 47, 13, 12, 47, 47, 47},
+        {47, 47, 47, 53, 52, 25, 24, 23, 22, 21, 20, 11, 10,  9,  8,  7, 47, 47},
+        {60, 59, 58, 51, 49, 47, 47, 47, 47, 47, 47, 19,  5, 4,   3,  2,  1,  0},
+        {47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47,  6, 45, 46, 47, 47, 47},
     };
 
     for (int j = 0; j < rows.length; j++) {
@@ -86,6 +88,13 @@ public class GameInvokerScrolling {
 
       @Override
       public void $35090() {
+        if (getMem()[33824] == 47) {
+          for (int i = 16384; i < 23296; i++) {
+            wMem(i, 0, -1);
+          }
+          return;
+        }
+
         if (!isMain()) {
           for (int i = 40192; i < 40448; i++) {
             getMem()[i] = 0;
@@ -131,7 +140,7 @@ public class GameInvokerScrolling {
       public void $37310() {
         super.$37310();
         try {
-          Thread.sleep(Duration.ofMillis(50L));
+          Thread.sleep(Duration.ofMillis(40L));
         } catch (InterruptedException e) {
           throw new RuntimeException(e);
         }

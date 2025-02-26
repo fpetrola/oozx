@@ -26,13 +26,15 @@ import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 
 public class ZXScreenComponent<T extends WordNumber> extends JComponent {
 
   public final BufferedImage screenBuffer;
   private final ZxAttribute[][] attributes;
-//  private final SimpleQueue<Runnable> threadSafeQueue;
+  //  private final SimpleQueue<Runnable> threadSafeQueue;
   private int refresh;
+  private int[] memory = new int[0x10000];
 
   public ZXScreenComponent() {
 //    threadSafeQueue = new SimpleQueue<>(10000);
@@ -47,6 +49,8 @@ public class ZXScreenComponent<T extends WordNumber> extends JComponent {
 //      }
 //    });
 //    consumerThread.start();
+
+    Arrays.fill(memory, -1);
 
     screenBuffer = new BufferedImage(256, 192, BufferedImage.TYPE_INT_RGB);
     attributes = new ZxAttribute[24][32];
@@ -68,12 +72,15 @@ public class ZXScreenComponent<T extends WordNumber> extends JComponent {
   }
 
   public void onMemoryWrite(int address, int value) {
-    if (address >= 0x4000 && address <= 0x57FF) {
-      int y = (address & 0x0700) >> 8 | (address & 0xE0) >> 2 | (address & 0x1800) >> 5;
-      attributes[y / 8][address & 0x001F].updateLine(y % 8, value);
-    } else if (address >= 0x5800 && address <= 0x5AFF) {
-      int attributeOffset = address - 0x5800;
-      attributes[attributeOffset / 32][attributeOffset % 32].setZxColor(new ZxColor(value));
+    if (memory[address] != value) {
+      if (address >= 0x4000 && address <= 0x57FF) {
+        int y = (address & 0x0700) >> 8 | (address & 0xE0) >> 2 | (address & 0x1800) >> 5;
+        attributes[y / 8][address & 0x001F].updateLine(y % 8, value);
+      } else if (address >= 0x5800 && address <= 0x5AFF) {
+        int attributeOffset = address - 0x5800;
+        attributes[attributeOffset / 32][attributeOffset % 32].setZxColor(new ZxColor(value));
+      }
+      memory[address]= value;
     }
 
 //    if (refresh++ % 1 == 0)
