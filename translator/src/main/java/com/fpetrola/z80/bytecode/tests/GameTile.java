@@ -27,6 +27,7 @@ public class GameTile<T extends WordNumber> extends ZXScreenComponent<T> {
   public int x;
   public  int y;
   public final TileSpec tileSpec;
+  public boolean visible;
 
   public GameTile(ZxGame1 zxGame, ZXScreenComponent<T> zxScreenComponent, TileSpec tileSpec) {
     this.zxGame = zxGame;

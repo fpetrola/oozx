@@ -30,7 +30,16 @@ import java.lang.reflect.Method;
 
 public class GameInvoker {
   public static void main(String[] args) throws InstantiationException {
-    ZxGame1 zxGame1 = new ZxGame1();
+    ZxGame1 zxGame1 = new ZxGame1(){
+      public int in(int port, int pc) {
+        try {
+          Thread.sleep(2L);
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
+        return super.in(port, pc);
+      }
+    };
 //    zxGame1.setSyncChecker(new DefaultSyncChecker());
 //    zxGame1.$34762(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0);
 //    zxGame1.$C804();

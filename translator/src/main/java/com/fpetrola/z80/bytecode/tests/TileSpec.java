@@ -22,6 +22,7 @@ public class TileSpec {
   public final int room;
   public final int x;
   public final int y;
+  public volatile boolean visible;
 
   public TileSpec(int room, int x, int y) {
     this.room = room;

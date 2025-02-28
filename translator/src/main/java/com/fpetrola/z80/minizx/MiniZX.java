@@ -46,7 +46,8 @@ public abstract class MiniZX extends SpectrumApplication {
 
   public void init() {
     this.mem = new int[65536];
-    Container miniZXScreen1 = new MiniZXScreen(this.getMemFunction());
+    Container miniZXScreen1;
+//    miniZXScreen1 = new MiniZXScreen(this.getMemFunction());
     zxScreenComponent = new ZXScreenComponent<>();
     writeListener = zxScreenComponent.getWriteListener();
     miniZXScreen1 = zxScreenComponent;

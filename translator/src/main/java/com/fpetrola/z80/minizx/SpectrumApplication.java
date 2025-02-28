@@ -23,7 +23,6 @@ import com.fpetrola.z80.minizx.sync.SyncChecker;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Stack;
 
 public abstract class SpectrumApplication<T> {

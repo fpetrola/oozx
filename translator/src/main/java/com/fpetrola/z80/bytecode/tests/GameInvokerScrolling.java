@@ -21,20 +21,13 @@ package com.fpetrola.z80.bytecode.tests;
 import com.fpetrola.z80.minizx.DefaultMiniZXIO;
 import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.SpectrumApplication;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import javax.swing.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
-
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class GameInvokerScrolling {
 
@@ -82,19 +75,18 @@ public class GameInvokerScrolling {
     JFrame screen = MiniZX.createScreen(((DefaultMiniZXIO) SpectrumApplication.io).miniZXKeyboard, scrollingScreenComponent);
     screen.addKeyListener(new KeyAdapter() {
       public void keyTyped(KeyEvent e) {
-        if (e.getKeyChar()== '1'){
-          scrollingScreenComponent.scale+= 0.01f;
+        if (e.getKeyChar() == '1') {
+          scrollingScreenComponent.scale += 0.04f;
         }
-        if (e.getKeyChar()== '2'){
-          scrollingScreenComponent.scale-= 0.01f;
+        if (e.getKeyChar() == '2') {
+          scrollingScreenComponent.scale -= 0.04f;
         }
       }
     });
 
 
-
-    System.setProperty("jdk.virtualThreadScheduler.parallelism", "1000");
-    System.setProperty("jdk.virtualThreadScheduler.maxPoolSize", "10000");
+    System.setProperty("jdk.virtualThreadScheduler.parallelism", "2000");
+    System.setProperty("jdk.virtualThreadScheduler.maxPoolSize", "1000");
 
 
     Thread.startVirtualThread(() -> mainGameTile.zxGame.$35090());
@@ -103,6 +95,8 @@ public class GameInvokerScrolling {
 
   private static GameTile createGame(TileSpec tileSpec) {
     ZxGame1 zxGame1 = new ZxGame1() {
+
+      private int t1;
 
       public void $38562() {
         if (isMain())
@@ -226,18 +220,27 @@ public class GameInvokerScrolling {
 
       public void $37310() {
         super.$37310();
-        try {
-          Thread.sleep(Duration.ofMillis(50L));
-        } catch (InterruptedException e) {
-          throw new RuntimeException(e);
-        }
       }
 
       @Override
       public int mem(int address, int pc) {
+
+//        if (pc == 35401 && !isMain()) {
+//          delay(1L);
+//          throw new StackException(37048);
+//        }
         int value = super.mem(address, pc);
+
+        if (pc == 35401) {
+          delay(50L);
+          while (!tileSpec.visible) {
+            delay(10000L);
+          }
+        }
         if (roomChanged && isMain() && address == 34271 && pc == 35328) {
           roomChanged = false;
+          mainGameTile.x = tileSpec.x;
+          mainGameTile.y = tileSpec.y;
           for (int i = 0; i < gameList.size(); i++) {
             TileSpec tileSpec1 = gameList.get(i).tileSpec;
             if (tileSpec1.room == getMem()[33824]) {
@@ -247,6 +250,14 @@ public class GameInvokerScrolling {
           }
         }
         return value;
+      }
+
+      private void delay(long millis) {
+        try {
+          Thread.sleep(Duration.ofMillis(millis));
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
       }
 
       public void wMem(int address, int value, int pc) {
@@ -276,10 +287,10 @@ public class GameInvokerScrolling {
       }
 
       private int changeEnterRoom(int value, int pc) {
-        if (isMain() && pc == 38039) {
-          value += 1;
-        }
-
+//        if (isMain() && pc == 38039) {
+//          value += 1;
+//        }
+//
 //        if (isMain() && pc == 38057){
 //          value -= 1;
 //        }
@@ -297,11 +308,33 @@ public class GameInvokerScrolling {
           return 1;
       }
 
+      @Override
+      public void ldir() {
+        int bc = BC();
+        int de = DE();
+        int hl = HL();
+        while (bc-- != 0) {
+          wMem(de++, mem(hl++));
+        }
+        BC(bc);
+        HL(hl);
+        DE(de);
+      }
+
       public int in(int port, int pc) {
+//        if (t1++ % 1 == 0)
+//          doDelay();
         if (isMain())
           return super.in(port, pc);
         else
           return 1;
+      }
+
+      private void doDelay() {
+        delay(5);
+        while (!tileSpec.visible) {
+          delay(100L);
+        }
       }
 
 //      public void ldir() {
