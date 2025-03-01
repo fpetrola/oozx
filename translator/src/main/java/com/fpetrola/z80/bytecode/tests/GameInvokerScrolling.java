@@ -30,8 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameInvokerScrolling {
-
-
   private static GameTile mainGameTile = createGame(new TileSpec(33, 9, 3));
   private static List<GameTile> gameList;
   private static boolean roomChanged;
