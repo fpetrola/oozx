@@ -98,12 +98,25 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.fpetrola.z80.bytecode.examples.RemoteZ80Translator</mainClass>
+                            <mainClass>com.fpetrola.z80.bytecode.tests.GameInvokerScrolling</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.fpetrola.z80.bytecode.tests.GameInvokerScrolling</mainClass>
+                        </manifest>
+                    </archive>
+                    <finalName>hola</finalName>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -116,7 +129,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>com.fpetrola.z80.bytecode.examples.RemoteZ80Translator</mainClass>
+                    <mainClass>com.fpetrola.z80.bytecode.tests.GameInvokerScrolling</mainClass>
                     <executable>true</executable>
                     <layout>ZIP</layout>
                 </configuration>

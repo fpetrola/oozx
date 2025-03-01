@@ -92,7 +92,7 @@ public class ScrollingScreenComponent extends JComponent {
       g.drawImage(scaledImage, (int) (translate.x), (int) (translate.y), Color.BLACK, null);
     }
 
-    g.drawString("scale: %s".formatted(scale), 100, 100);
+//    g.drawString("scale: %s".formatted(scale), 100, 100);
 
     //    g.drawString("tx: " + translation.x + " ty:" + translation.y, 100, 100);
   }

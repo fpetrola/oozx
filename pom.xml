@@ -17,7 +17,7 @@
         <module>blocks</module>
         <module>routines</module>
         <module>se</module>
-        <module>sync</module>
+        <!--        <module>sync</module>-->
     </modules>
 
     <properties>
@@ -197,6 +197,41 @@
                 <!-- JUnit 5 requires Surefire version 2.22.0 or higher -->
                 <version>2.22.0</version>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <minimizeJar>true</minimizeJar>
+<!--                            <filters>-->
+<!--                                <filter>-->
+<!--                                    <relocations>-->
+<!--                                        <relocation>-->
+<!--                                            <pattern>com.example.unused</pattern>-->
+<!--                                            <shadedPattern>removed</shadedPattern>-->
+<!--                                        </relocation>-->
+<!--                                    </relocations>-->
+<!--                                </filter>-->
+<!--                            </filters>-->
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.fpetrola.z80.bytecode.tests.GameInvokerScrolling</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
         </plugins>
     </build>
 </project>
