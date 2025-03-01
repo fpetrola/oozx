@@ -67,10 +67,10 @@ public class GameInvokerScrolling {
     screen.addKeyListener(new KeyAdapter() {
       public void keyTyped(KeyEvent e) {
         if (e.getKeyChar() == '1') {
-          scrollingScreenComponent.scale += 0.04f;
+          scrollingScreenComponent.scale += 0.07f;
         }
         if (e.getKeyChar() == '2') {
-          scrollingScreenComponent.scale -= 0.04f;
+          scrollingScreenComponent.scale -= 0.07f;
         }
       }
     });
@@ -86,8 +86,6 @@ public class GameInvokerScrolling {
 
   private static GameTile createGame(TileSpec tileSpec) {
     ZxGame1 zxGame1 = new ZxGame1() {
-
-      private int t1;
 
       public void $38562() {
         if (isMain())
