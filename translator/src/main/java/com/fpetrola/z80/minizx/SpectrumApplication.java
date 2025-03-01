@@ -276,14 +276,26 @@ public abstract class SpectrumApplication<T> {
     return new int[]{HL, DE, BC};
   }
 
+//  public void ldir() {
+//    while (BC() != 0) {
+//      wMem(DE(), mem(HL()));
+////      mem[DE()] = mem[HL()];
+//      BC(BC() - 1);
+//      HL(HL() + 1);
+//      DE(DE() + 1);
+//    }
+//  }
+
   public void ldir() {
-    while (BC() != 0) {
-      wMem(DE(), mem(HL()));
-//      mem[DE()] = mem[HL()];
-      BC(BC() - 1);
-      HL(HL() + 1);
-      DE(DE() + 1);
+    int bc = BC();
+    int de = DE();
+    int hl = HL();
+    while (bc-- != 0) {
+      wMem(de++, mem(hl++));
     }
+    BC(bc);
+    HL(hl);
+    DE(de);
   }
 
   public void lddr() {

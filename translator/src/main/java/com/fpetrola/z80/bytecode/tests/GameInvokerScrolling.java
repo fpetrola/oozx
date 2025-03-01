@@ -40,14 +40,6 @@ public class GameInvokerScrolling {
 
     List<TileSpec> tileSpecs = new ArrayList<>();
 
-//    int room = 25;
-//    int i = 5;
-//    for (int x = 0; x < i; x++) {
-//      for (int y = 0; y < i; y++) {
-//        tileSpecs.add(new TileSpec(room++, x, y));
-//      }
-//    }
-
     int[][] rows = {
         {47, 47, 47, 47, 47, 47, 47, 47, 47, 50, 47, 47, 47, 47, 47, 47, 47, 47},
         {47, 47, 47, 47, 47, 47, 48, 18, 17, 16, 15, 14, 44, 47, 47, 47, 47, 47},
@@ -63,7 +55,6 @@ public class GameInvokerScrolling {
     for (int j = 0; j < rows.length; j++) {
       for (int k = 0; k < rows[j].length; k++) {
         int room = rows[j][k];
-//        room= 57;
         tileSpecs.add(new TileSpec(room, k, j));
       }
     }
@@ -182,41 +173,9 @@ public class GameInvokerScrolling {
           }
           getMem()[33824] = tileSpec.room;
         }
-//        getMem()[34255] = 200;
-//        getMem()[34259] = 128;
 
         super.$35090();
       }
-//
-//      @Override
-//      public void $35563() {
-//      }
-//
-//      public void $37974() {
-//        super.$37974();
-//        getMem()[34251] = 999999999;
-//        getMem()[34272] = 1000000;
-//      }
-
-
-//      @Override
-//      public void $36288() {
-//        A = A & 3;
-//        F = A << 1;
-//        C = A;
-//        A = rlc(A);
-//        A = rlc(A);
-//        A = rlc(A);
-//        A = A + C & 255;
-//        int var11 = A + 160;
-//        A = var11 & 255;
-//        F = var11;
-//        E = A;
-//        D = 128;
-//        A = mem(DE(), 36300);
-//        wMem(IX(), A  & 0xF7, 36301);
-//        IX(IX() + 1 & 65535);
-//      }
 
       public void $37310() {
         super.$37310();
@@ -301,29 +260,7 @@ public class GameInvokerScrolling {
         return this == mainGameTile.zxGame;
       }
 
-      public int in(int port) {
-        if (isMain())
-          return super.in(port);
-        else
-          return 1;
-      }
-
-      @Override
-      public void ldir() {
-        int bc = BC();
-        int de = DE();
-        int hl = HL();
-        while (bc-- != 0) {
-          wMem(de++, mem(hl++));
-        }
-        BC(bc);
-        HL(hl);
-        DE(de);
-      }
-
       public int in(int port, int pc) {
-//        if (t1++ % 1 == 0)
-//          doDelay();
         if (isMain())
           return super.in(port, pc);
         else
@@ -336,24 +273,6 @@ public class GameInvokerScrolling {
           delay(100L);
         }
       }
-
-//      public void ldir() {
-////        System.arraycopy(mem, HL(), mem, DE(), BC());
-//        int de= DE();
-//        int hl= HL();
-//        for (int i = 0; i < BC(); i++) {
-//          de = DE() + i;
-//          hl = HL() + i;
-//          int i1 = mem[hl];
-//          WordNumber value = createValue(i1);
-//          mem[de]= i1;
-//          writeListener.writtingMemoryAt(createValue(de), value);
-//        }
-//
-//        BC(0);
-//        DE(de);
-//        HL(hl);
-//      }
     };
 
     zxGame1.getMem()[33824] = tileSpec.room;
