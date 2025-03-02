@@ -23,17 +23,15 @@ import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.fpetrola.z80.minizx.ZXScreenComponent;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import org.easymock.bytebuddy.implementation.bind.annotation.*;
 
 import javax.swing.*;
-import java.lang.reflect.Method;
 
 public class GameInvoker {
   public static void main(String[] args) throws InstantiationException {
-    ZxGame1 zxGame1 = new ZxGame1(){
+    DD0 zxGame1 = new DD0(){
       public int in(int port, int pc) {
         try {
-          Thread.sleep(2L);
+          Thread.sleep(20L);
         } catch (InterruptedException e) {
           throw new RuntimeException(e);
         }
@@ -50,7 +48,7 @@ public class GameInvoker {
     }).start();
     MiniZX.createScreen(((DefaultMiniZXIO) SpectrumApplication.io).miniZXKeyboard, zxScreenComponent);
 
-    zxGame1.$35090();
+    zxGame1.$C804();
 
 //    ZxGame1 o= new ZxGame1();
 //    o = ClassProxyHelper.createGameInstance(ZxGame1.class);

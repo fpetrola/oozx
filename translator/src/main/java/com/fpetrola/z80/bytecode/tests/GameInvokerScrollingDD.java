@@ -30,7 +30,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameInvokerScrolling {
+public class GameInvokerScrollingDD {
   private static GameTile<WordNumber, MiniZX> mainGameTile = createGame(new TileSpec(33, 9, 3));
   private static List<GameTile<WordNumber, MiniZX>> gameList;
   private static boolean roomChanged;
@@ -59,7 +59,7 @@ public class GameInvokerScrolling {
     }
 
 
-    gameList = tileSpecs.stream().map(ts -> (GameTile<WordNumber, MiniZX>) createGame(ts)).toList();
+    gameList = tileSpecs.stream().map(ts -> createGame(ts)).toList();
 
     ScrollingScreenComponent scrollingScreenComponent = new ScrollingScreenComponent(gameList, mainGameTile);
     JFrame screen = MiniZX.createScreen(((DefaultMiniZXIO) SpectrumApplication.io).miniZXKeyboard, scrollingScreenComponent);
@@ -79,84 +79,19 @@ public class GameInvokerScrolling {
     System.setProperty("jdk.virtualThreadScheduler.maxPoolSize", "1000");
 
 
-    Thread.startVirtualThread(() -> ((JSW0)mainGameTile.zxGame).$35090());
-    gameList.forEach(g -> Thread.startVirtualThread(() -> ((JSW0)g.zxGame).$35090()));
+    Thread.startVirtualThread(() -> ((DD0) mainGameTile.zxGame).$C804());
+    gameList.forEach(g -> Thread.startVirtualThread(() -> ((DD0) g.zxGame).$C804()));
   }
 
   private static GameTile<WordNumber, MiniZX> createGame(TileSpec tileSpec) {
-    JSW0 zxGame1 = new JSW0() {
+    DD0 zxGame1 = new DD0() {
 
-      public void $38562() {
-        if (isMain())
-          super.$38562();
+      @Override
+      public void $CA5B() {
+        //super.$CA5B();
       }
 
-      public void $38430() {
-        if (isMain())
-          super.$38430();
-      }
-
-      public void $38528() {
-        if (isMain())
-          super.$38528();
-      }
-
-      public void $38601() {
-        if (isMain())
-          super.$38601();
-      }
-
-      public void $35211() {
-        if (isMain())
-          super.$35211();
-      }
-
-      public void $36307() {
-        if (isMain())
-          super.$36307();
-      }
-
-      public void $36508() {
-        if (isMain())
-          super.$36508();
-      }
-
-      public void $38344() {
-        if (isMain())
-          super.$38344();
-      }
-
-      public void $38545() {
-        if (isMain())
-          super.$38545();
-      }
-
-      public void $38276() {
-        if (isMain())
-          super.$38276();
-      }
-
-      public void $38504() {
-        if (isMain())
-          super.$38504();
-      }
-
-      public void $35563() {
-        if (isMain())
-          super.$35563();
-      }
-
-      public void $38064() {
-        if (isMain())
-          super.$38064();
-      }
-
-      public void $38196() {
-        if (isMain())
-          super.$38196();
-      }
-
-      public void $35090() {
+      public void $C804() {
         if (getMem()[33824] == 47) {
           for (int i = 16384; i < 23296; i++) {
             wMem(i, 0, -1);
@@ -165,20 +100,18 @@ public class GameInvokerScrolling {
         }
 
         if (!isMain()) {
-          for (int i = 40192; i < 40448; i++) {
+          for (int i = 0x633A; i < 0x648A; i++) {
+            getMem()[i] = 0;
+          }
+          for (int i = 0x648A; i < 0x65DA; i++) {
             getMem()[i] = 0;
           }
           getMem()[33824] = tileSpec.room;
         }
-
-        super.$35090();
+        super.$C804();
       }
 
-      public void $37310() {
-        super.$37310();
-      }
 
-      @Override
       public int mem(int address, int pc) {
 
 //        if (pc == 35401 && !isMain()) {
@@ -187,13 +120,14 @@ public class GameInvokerScrolling {
 //        }
         int value = super.mem(address, pc);
 
-        if (pc == 35401) {
-          delay(50L);
+        if (pc == 0xDE55) {
+          delay(30L);
           while (!tileSpec.visible) {
             delay(10000L);
           }
         }
-        if (roomChanged && isMain() && address == 34271 && pc == 35328) {
+
+        if (roomChanged && isMain() && pc == 0xCBBD) {
           roomChanged = false;
           mainGameTile.x = tileSpec.x;
           mainGameTile.y = tileSpec.y;
@@ -218,6 +152,11 @@ public class GameInvokerScrolling {
 
       public void wMem(int address, int value, int pc) {
         value = changeEnterRoom(value, pc);
+
+        if (!isMain() && pc == 0xCBBD) {
+          A= tileSpec.room;
+          value=A;
+        }
 
         if (isMain() && pc == 35205 && roomChanged) {
           for (int i = 0; i < gameList.size(); i++) {

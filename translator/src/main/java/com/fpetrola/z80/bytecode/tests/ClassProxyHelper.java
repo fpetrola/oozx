@@ -31,7 +31,7 @@ import java.lang.reflect.Method;
 
 public class ClassProxyHelper {
   static <T extends SpectrumApplication> T createGameInstance(Class<T> superType) throws InstantiationException {
-    ZxGame1 o;
+    JSW0 o;
     try {
       Class<?> type = new ByteBuddy()
           .subclass(superType)
@@ -40,7 +40,7 @@ public class ClassProxyHelper {
           .load(superType.getClassLoader())
           .getLoaded();
 
-      o = (ZxGame1) type.newInstance();
+      o = (JSW0) type.newInstance();
     } catch (IllegalAccessException e) {
       throw new RuntimeException(e);
     }

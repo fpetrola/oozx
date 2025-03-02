@@ -18,6 +18,8 @@
 
 package com.fpetrola.z80.bytecode.tests;
 
+import com.fpetrola.z80.minizx.MiniZX;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 import org.imgscalr.Scalr;
 
 import javax.swing.*;
@@ -29,8 +31,8 @@ import java.awt.image.BufferedImageOp;
 import java.util.List;
 
 public class ScrollingScreenComponent extends JComponent {
-  private final List<GameTile> zxScreenComponent;
-  private final GameTile mainGameTile;
+  private final List<GameTile<WordNumber, MiniZX>> zxScreenComponent;
+  private final GameTile<WordNumber, MiniZX> mainGameTile;
 
   private DoublePoint currentTranslate;
   public double scale;
@@ -38,7 +40,7 @@ public class ScrollingScreenComponent extends JComponent {
   private int combinedHeight;
   private double lastScale;
 
-  public ScrollingScreenComponent(List<GameTile> zxScreenComponent, GameTile mainGameTile) {
+  public ScrollingScreenComponent(List<GameTile<WordNumber, MiniZX>> zxScreenComponent, GameTile mainGameTile) {
     this.zxScreenComponent = zxScreenComponent;
     this.mainGameTile = mainGameTile;
     setPreferredSize(new Dimension(256 * 4, 192 * 3));
@@ -52,7 +54,7 @@ public class ScrollingScreenComponent extends JComponent {
     int yTiles = 7;
 
     double tileWidth = 256;
-    double tileHeight = 128;
+    double tileHeight = 165;
 
     BufferedImage combined = getCombinedImage(xTiles, (int) tileWidth, yTiles, (int) tileHeight);
 

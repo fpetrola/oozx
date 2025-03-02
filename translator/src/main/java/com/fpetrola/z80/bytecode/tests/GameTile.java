@@ -18,18 +18,19 @@
 
 package com.fpetrola.z80.bytecode.tests;
 
+import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.ZXScreenComponent;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class GameTile<T extends WordNumber> extends ZXScreenComponent<T> {
-  public final ZxGame1 zxGame;
+public class GameTile<T extends WordNumber, G extends MiniZX> extends ZXScreenComponent<T> {
+  public final G zxGame;
   public final ZXScreenComponent<T> zxScreenComponent;
   public int x;
   public  int y;
   public final TileSpec tileSpec;
   public boolean visible;
 
-  public GameTile(ZxGame1 zxGame, ZXScreenComponent<T> zxScreenComponent, TileSpec tileSpec) {
+  public GameTile(G zxGame, ZXScreenComponent<T> zxScreenComponent, TileSpec tileSpec) {
     this.zxGame = zxGame;
     this.zxScreenComponent = zxScreenComponent;
     this.x = tileSpec.x;
