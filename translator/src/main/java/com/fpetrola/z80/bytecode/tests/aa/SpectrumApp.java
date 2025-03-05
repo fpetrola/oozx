@@ -69,7 +69,9 @@ public abstract class SpectrumApp<T> {
     } else if (mem[address] == 0x06) {
       B = mem[address + 1];
     } else if (mem[address] == 0x11) {
-      DE(mem16(address + 1));
+      int value = mem16(address + 1);
+      D = value >> 8;
+      E = value & 0xFF;
     } else if (mem[address] == 0x3E) {
       A = mem[address + 1];
     } else if (mem[address] == 0x01) {
@@ -119,8 +121,11 @@ public abstract class SpectrumApp<T> {
 
   public void exHLDE() {
     int temp1 = HL();
-    HL(DE());
-    DE(temp1);
+    int value = DE();
+    H = value >> 8;
+    L = value & 0xFF;
+    D = temp1 >> 8;
+    E = temp1 & 0xFF;
   }
 
   public int exx() {
@@ -131,11 +136,13 @@ public abstract class SpectrumApp<T> {
 
     int temp2 = DEx();
     DEx(DE());
-    DE(temp2);
+    D = temp2 >> 8;
+    E = temp2 & 0xFF;
 
     int temp3 = HLx();
     HLx(HL());
-    HL(temp3);
+    H = temp3 >> 8;
+    L = temp3 & 0xFF;
     return temp1;
   }
 
@@ -284,8 +291,12 @@ public abstract class SpectrumApp<T> {
       int value = BC() - 1;
       B = value >> 8;
       C = value & 0xFF;
-      HL(HL() + 1);
-      DE(DE() + 1);
+      int value2 = HL() + 1;
+      H = value2 >> 8;
+      L = value2 & 0xFF;
+      int value1 = DE() + 1;
+      D = value1 >> 8;
+      E = value1 & 0xFF;
     }
   }
 
@@ -294,8 +305,12 @@ public abstract class SpectrumApp<T> {
     int value = BC() - 1;
     B = value >> 8;
     C = value & 0xFF;
-    HL(HL() + 1);
-    DE(DE() + 1);
+    int value2 = HL() + 1;
+    H = value2 >> 8;
+    L = value2 & 0xFF;
+    int value1 = DE() + 1;
+    D = value1 >> 8;
+    E = value1 & 0xFF;
     if (BC() == 0)
       F = -1;
     else
@@ -308,8 +323,12 @@ public abstract class SpectrumApp<T> {
       int value = BC() - 1;
       B = value >> 8;
       C = value & 0xFF;
-      HL(HL() - 1);
-      DE(DE() - 1);
+      int value2 = HL() - 1;
+      H = value2 >> 8;
+      L = value2 & 0xFF;
+      int value1 = DE() - 1;
+      D = value1 >> 8;
+      E = value1 & 0xFF;
     }
   }
 
@@ -330,32 +349,14 @@ public abstract class SpectrumApp<T> {
       int value = BC() - 1;
       B = value >> 8;
       C = value & 0xFF;
-      HL(HL() + 1);
+      int value1 = HL() + 1;
+      H = value1 >> 8;
+      L = value1 & 0xFF;
     } while (BC() != 0 && result != (A & 0xff));
   }
 
   public void cpdr() {
 
-  }
-
-  public void DE(int value) {
-    D = value >> 8;
-    E = value & 0xFF;
-  }
-
-  public void HL(int value) {
-    H = value >> 8;
-    L = value & 0xFF;
-  }
-
-  public void IX(int value) {
-    IXH = value >> 8;
-    IXL = value & 0xFF;
-  }
-
-  public void IY(int value) {
-    IYH = value >> 8;
-    IYL = value & 0xFF;
   }
 
   public int pair(int a, int f) {
