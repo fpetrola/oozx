@@ -108,7 +108,9 @@ public abstract class SpectrumApp<T> {
   public int exAF(int AF) {
     int temp1 = AFx();
     AFx(AF());
-    AF(temp1);
+    AF(temp1 & 0xffff);
+    A = AF() >> 8;
+    // F = AF & 0xFF;
     return temp1;
   }
 
@@ -186,12 +188,6 @@ public abstract class SpectrumApp<T> {
   }
 
   private void updateRegisters(int AF, int BC, int DE, int HL, int IX, int IY, int A, int F, int B, int C, int D, int E, int H, int L, int IXL, int IXH, int IYL, int IYH) {
-    this.AF = AF;
-    this.BC = BC;
-    this.DE = DE;
-    this.HL = HL;
-    this.IX = IX;
-    this.IY = IY;
     this.A = A;
     this.F = F;
     this.B = B;
@@ -331,39 +327,33 @@ public abstract class SpectrumApp<T> {
   }
 
   public void AF(int value) {
-    AF = value & 0xffff;
-    A = AF >> 8;
-    // F = AF & 0xFF;
+    A = value >> 8;
+    F = value & 0xFF;
   }
 
   public void BC(int value) {
-    BC = value & 0xffff;
-    B = BC >> 8;
-    C = BC & 0xFF;
+    B = value >> 8;
+    C = value & 0xFF;
   }
 
   public void DE(int value) {
-    DE = value & 0xffff;
-    D = DE >> 8;
-    E = DE & 0xFF;
+    D = value >> 8;
+    E = value & 0xFF;
   }
 
   public void HL(int value) {
-    HL = value & 0xffff;
-    H = HL >> 8;
-    L = HL & 0xFF;
+    H = value >> 8;
+    L = value & 0xFF;
   }
 
   public void IX(int value) {
-    IX = value & 0xffff;
-    IXH = IX >> 8;
-    IXL = IX & 0xFF;
+    IXH = value >> 8;
+    IXL = value & 0xFF;
   }
 
   public void IY(int value) {
-    IY = value & 0xffff;
-    IYH = IY >> 8;
-    IYL = IY & 0xFF;
+    IYH = value >> 8;
+    IYL = value & 0xFF;
   }
 
   public int pair(int a, int f) {
@@ -424,25 +414,6 @@ public abstract class SpectrumApp<T> {
     carry = ~carry;
   }
 
-  public void update16Registers() {
-    AF(pair(A, F));
-    BC(pair(B, C));
-    DE(pair(D, E));
-    HL(pair(H, L));
-    IX(pair(IXH, IXL));
-    IY(pair(IYH, IYL));
-
-    AFx(pair(Ax, Fx));
-    BCx(pair(Bx, Cx));
-    DEx(pair(Dx, Ex));
-    HLx(pair(Hx, Lx));
-  }
-
-
-  public int AF;
-  public int BC;
-  public int DE;
-  public int HL;
   public int Ax;
   public int Fx;
   public int Bx;
@@ -455,8 +426,6 @@ public abstract class SpectrumApp<T> {
   public int BCx;
   public int DEx;
   public int HLx;
-  public int IX;
-  public int IY;
   public int PC;
   public int SP;
   public int I;
