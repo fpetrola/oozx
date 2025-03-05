@@ -16,24 +16,18 @@
  *
  */
 
-package com.fpetrola.z80.bytecode.tests;
+package com.fpetrola.z80.transform.a;
 
-import com.fpetrola.z80.minizx.sync.DefaultSyncChecker;
-import org.easymock.bytebuddy.implementation.bind.annotation.*;
+import com.github.javaparser.ast.expr.Expression;
 
-import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
-public class GameInvoker {
-  public static void main(String[] args) throws InstantiationException {
-    ZxGame1C zxGame1 = new ZxGame1C();
-//    zxGame1.setSyncChecker(new DefaultSyncChecker());
-//    zxGame1.$34762(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0);
-//    zxGame1.$8185();
-    zxGame1.$35090();
-
-//    ZxGame1 o= new ZxGame1();
-//    o = ClassProxyHelper.createGameInstance(ZxGame1.class);
-//    zxGame1.$C804();
-//    zxGame1.$8185();
+class FieldUsageData {
+  public Class<?> fieldType;
+  public String initializer;
+  boolean isReadBeforeWrite;
+    boolean isModified;
+    List<Expression> readUsages = new ArrayList<>();
+    List<Expression> writeUsages = new ArrayList<>();
   }
-}

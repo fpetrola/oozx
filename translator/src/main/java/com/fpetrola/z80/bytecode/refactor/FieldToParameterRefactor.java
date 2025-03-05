@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.bytecode.refactor;
 
-import com.fpetrola.z80.bytecode.tests.ZxGame1;
+import com.fpetrola.z80.bytecode.tests.aa.ZxGame1;
 import org.objectweb.asm.*;
 
 import java.util.ArrayList;

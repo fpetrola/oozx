@@ -86,6 +86,13 @@
             <artifactId>darklaf-core</artifactId>
             <version>3.0.2</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.javaparser</groupId>
+            <artifactId>javaparser-core</artifactId>
+            <version>3.26.3</version>
+        </dependency>
+
     </dependencies>
 
     <build>

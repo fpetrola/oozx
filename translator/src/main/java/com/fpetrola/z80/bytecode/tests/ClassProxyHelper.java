@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.bytecode.tests;
 
+import com.fpetrola.z80.bytecode.tests.aa.ZxGame1;
 import com.fpetrola.z80.minizx.NotSolvedStackException;
 import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.fpetrola.z80.minizx.StackException;
