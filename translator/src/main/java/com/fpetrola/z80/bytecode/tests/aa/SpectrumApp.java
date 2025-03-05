@@ -73,7 +73,9 @@ public abstract class SpectrumApp<T> {
     } else if (mem[address] == 0x3E) {
       A = mem[address + 1];
     } else if (mem[address] == 0x01) {
-      BC(mem16(address + 1));
+      int value = mem16(address + 1);
+      B = value >> 8;
+      C = value & 0xFF;
     } else if (mem[address] == 0xCD) {
       invokeMethod(mem16(address + 1));
     }
@@ -108,7 +110,8 @@ public abstract class SpectrumApp<T> {
   public int exAF(int AF) {
     int temp1 = AFx();
     AFx(AF());
-    AF(temp1 & 0xffff);
+    A = (temp1 & 0xffff) >> 8;
+    F = temp1 & 0xffff & 0xFF;
     A = AF() >> 8;
     // F = AF & 0xFF;
     return temp1;
@@ -123,7 +126,8 @@ public abstract class SpectrumApp<T> {
   public int exx() {
     int temp1 = BCx();
     BCx(BC());
-    BC(temp1);
+    B = temp1 >> 8;
+    C = temp1 & 0xFF;
 
     int temp2 = DEx();
     DEx(DE());
@@ -277,7 +281,9 @@ public abstract class SpectrumApp<T> {
     while (BC() != 0) {
 //      wMem(DE(), mem(HL()));
       mem[DE()] = mem[HL()];
-      BC(BC() - 1);
+      int value = BC() - 1;
+      B = value >> 8;
+      C = value & 0xFF;
       HL(HL() + 1);
       DE(DE() + 1);
     }
@@ -285,7 +291,9 @@ public abstract class SpectrumApp<T> {
 
   public void ldi() {
     mem[DE()] = mem[HL()];
-    BC(BC() - 1);
+    int value = BC() - 1;
+    B = value >> 8;
+    C = value & 0xFF;
     HL(HL() + 1);
     DE(DE() + 1);
     if (BC() == 0)
@@ -297,7 +305,9 @@ public abstract class SpectrumApp<T> {
   public void lddr() {
     while (BC() != 0) {
       wMem(DE(), mem(HL()));
-      BC(BC() - 1);
+      int value = BC() - 1;
+      B = value >> 8;
+      C = value & 0xFF;
       HL(HL() - 1);
       DE(DE() - 1);
     }
@@ -317,23 +327,15 @@ public abstract class SpectrumApp<T> {
     int result = -1;
     do {
       result = mem(HL());
-      BC(BC() - 1);
+      int value = BC() - 1;
+      B = value >> 8;
+      C = value & 0xFF;
       HL(HL() + 1);
     } while (BC() != 0 && result != (A & 0xff));
   }
 
   public void cpdr() {
 
-  }
-
-  public void AF(int value) {
-    A = value >> 8;
-    F = value & 0xFF;
-  }
-
-  public void BC(int value) {
-    B = value >> 8;
-    C = value & 0xFF;
   }
 
   public void DE(int value) {

@@ -58,7 +58,8 @@ public class ZxGame1 extends SpectrumApp {
               this.H = this.A;
               this.L = 0;
               DE(32768);
-              BC(256);
+              B = 256 >> 8;
+              C = 256 & 0xFF;
               ldir();
               IX(33008);
               DE(33024);
@@ -80,14 +81,16 @@ public class ZxGame1 extends SpectrumApp {
                 int var386 = HL();
                 int var387 = HL() + var386 & 65535;
                 HL(var387);
-                BC(2);
+                B = 2 >> 8;
+                C = 2 & 0xFF;
                 ldir();
                 int var388 = IX() + 1;
                 int var389 = mem(var388, 35130);
                 this.C = var389;
                 int var390 = HL();
                 wMem(var390, this.C, 35133);
-                BC(6);
+                B = 6 >> 8;
+                C = 6 & 0xFF;
                 ldir();
                 int var391 = IX() + 1 & 65535;
                 IX(var391);
@@ -100,12 +103,14 @@ public class ZxGame1 extends SpectrumApp {
 
               HL(34255);
               DE(34263);
-              BC(7);
+              B = 7 >> 8;
+              C = 7 & 0xFF;
               ldir();
               $36147();
               HL(20480);
               DE(20481);
-              BC(2047);
+              B = 2047 >> 8;
+              C = 2047 & 0xFF;
               int var394 = HL();
               wMem(var394, 0, 35169);
               ldir();
@@ -127,11 +132,13 @@ public class ZxGame1 extends SpectrumApp {
               $35211();
               HL(24064);
               DE(23552);
-              BC(512);
+              B = 512 >> 8;
+              C = 512 & 0xFF;
               ldir();
               HL(28672);
               DE(24576);
-              BC(4096);
+              B = 4096 >> 8;
+              C = 4096 & 0xFF;
               ldir();
               $37056();
               var232 = mem(34271, 35273);
@@ -178,7 +185,8 @@ public class ZxGame1 extends SpectrumApp {
             while(true) {
               HL(24576);
               DE(16384);
-              BC(4096);
+              B = 4096 >> 8;
+              C = 4096 & 0xFF;
               ldir();
               int var3 = mem(34271, 35328);
               this.A = var3;
@@ -222,7 +230,8 @@ public class ZxGame1 extends SpectrumApp {
                 this.F = var374;
                 HL(23552);
                 DE(23553);
-                BC(511);
+                B = 511 >> 8;
+                C = 511 & 0xFF;
                 int var375 = HL();
                 wMem(var375, this.A, 35363);
                 ldir();
@@ -230,7 +239,8 @@ public class ZxGame1 extends SpectrumApp {
 
               HL(23552);
               DE(22528);
-              BC(512);
+              B = 512 >> 8;
+              C = 512 & 0xFF;
               ldir();
               IX(34175);
               DE(20601);
@@ -332,7 +342,8 @@ public class ZxGame1 extends SpectrumApp {
                   }
                 }
 
-                BC(65278);
+                B = 65278 >> 8;
+                C = 65278 & 0xFF;
                 var17 = BC();
                 var18 = in(var17, 35502);
                 this.A = var18;
@@ -353,7 +364,8 @@ public class ZxGame1 extends SpectrumApp {
                   break;
                 }
               } else {
-                BC(65278);
+                B = 65278 >> 8;
+                C = 65278 & 0xFF;
                 var17 = BC();
                 var18 = in(var17, 35502);
                 this.A = var18;
@@ -419,7 +431,8 @@ public class ZxGame1 extends SpectrumApp {
                     if(this.F != 0) {
                       HL(39424);
                       DE(23040);
-                      BC(256);
+                      B = 256 >> 8;
+                      C = 256 & 0xFF;
                       ldir();
                       var104 = mem(32990, 35602);
                       this.A = var104;
@@ -460,7 +473,8 @@ public class ZxGame1 extends SpectrumApp {
                   if(this.F != 0) {
                     HL(39424);
                     DE(23040);
-                    BC(256);
+                    B = 256 >> 8;
+                    C = 256 & 0xFF;
                     ldir();
                     var104 = mem(32990, 35602);
                     this.A = var104;
@@ -497,7 +511,8 @@ public class ZxGame1 extends SpectrumApp {
                 do {
                   HL(22528);
                   DE(22529);
-                  BC(511);
+                  B = 511 >> 8;
+                  C = 511 & 0xFF;
                   int var107 = HL();
                   wMem(var107, this.A, 35852);
                   ldir();
@@ -580,14 +595,16 @@ public class ZxGame1 extends SpectrumApp {
                   this.F = var215;
                   HL(34263);
                   DE(34255);
-                  BC(7);
+                  B = 7 >> 8;
+                  C = 7 & 0xFF;
                   ldir();
                   continue label357;
                 }
 
                 HL(16384);
                 DE(16385);
-                BC(4095);
+                B = 4095 >> 8;
+                C = 4095 & 0xFF;
                 int var137 = HL();
                 wMem(var137, 0, 35923);
                 ldir();
@@ -618,7 +635,8 @@ public class ZxGame1 extends SpectrumApp {
                   this.F = var143;
                   this.L = this.A;
                   int var144 = BC() + 1 & 65535;
-                  BC(var144);
+                  B = var144 >> 8;
+                  C = var144 & 0xFF;
                   int var145 = BC();
                   int var146 = mem(var145, 35964);
                   this.A = var146;
@@ -639,7 +657,8 @@ public class ZxGame1 extends SpectrumApp {
                   this.A = 0;
                   int var151 = this.A << 1;
                   this.F = var151;
-                  BC(64);
+                  B = 64 >> 8;
+                  C = 64 & 0xFF;
 
                   do {
                     int var152 = this.A ^ 24;
@@ -660,7 +679,8 @@ public class ZxGame1 extends SpectrumApp {
 
                   HL(22528);
                   DE(22529);
-                  BC(511);
+                  B = 511 >> 8;
+                  C = 511 & 0xFF;
                   int var156 = mem(34276, 36004);
                   this.A = var156;
                   int var157 = this.A & 12;
@@ -708,7 +728,8 @@ public class ZxGame1 extends SpectrumApp {
                 this.C = 4;
                 DE(16594);
                 $38528();
-                BC(0);
+                B = 0 >> 8;
+                C = 0 & 0xFF;
                 this.D = 6;
 
                 do {
@@ -908,7 +929,8 @@ public class ZxGame1 extends SpectrumApp {
                 int var311 = mem(32990, 35676);
                 this.A = var311;
                 this.E = this.D;
-                BC(3);
+                B = 3 >> 8;
+                C = 3 & 0xFF;
                 int var312 = this.E - 1 & 255;
                 this.E = var312;
                 this.F = var312;
@@ -961,7 +983,8 @@ public class ZxGame1 extends SpectrumApp {
                 }
               }
 
-              BC(61438);
+              B = 61438 >> 8;
+              C = 61438 & 0xFF;
               int var227 = BC();
               int var228 = in(var227, 35699);
               this.A = var228;
@@ -985,7 +1008,8 @@ public class ZxGame1 extends SpectrumApp {
                 int var282 = this.A - 10;
                 this.F = var282;
                 if(this.F == 0) {
-                  BC(63486);
+                  B = 63486 >> 8;
+                  C = 63486 & 0xFF;
                   int var283 = BC();
                   int var284 = in(var283, 35723);
                   this.A = var284;
@@ -1031,7 +1055,8 @@ public class ZxGame1 extends SpectrumApp {
                     int var247 = DE();
                     int var248 = IX() + var247 & 65535;
                     IX(var248);
-                    BC(64510);
+                    B = 64510 >> 8;
+                    C = 64510 & 0xFF;
                     int var249 = BC();
                     int var250 = in(var249, 35775);
                     this.A = var250;
@@ -1102,11 +1127,13 @@ public class ZxGame1 extends SpectrumApp {
               $35211();
               HL(24064);
               DE(23552);
-              BC(512);
+              B = 512 >> 8;
+              C = 512 & 0xFF;
               ldir();
               HL(28672);
               DE(24576);
-              BC(4096);
+              B = 4096 >> 8;
+              C = 4096 & 0xFF;
               ldir();
               $37056();
               var232 = mem(34271, 35273);
@@ -1203,16 +1230,19 @@ public class ZxGame1 extends SpectrumApp {
             while(true) {
               HL(16384);
               DE(16385);
-              BC(6143);
+              B = 6143 >> 8;
+              C = 6143 & 0xFF;
               int var40 = HL();
               wMem(var40, 0, 34844);
               ldir();
               HL(38912);
-              BC(768);
+              B = 768 >> 8;
+              C = 768 & 0xFF;
               ldir();
               HL(23136);
               DE(23137);
-              BC(31);
+              B = 31 >> 8;
+              C = 31 & 0xFF;
               int var41 = HL();
               wMem(var41, 70, 34865);
               ldir();
@@ -1314,7 +1344,8 @@ public class ZxGame1 extends SpectrumApp {
                 this.F = var46;
               } while(this.F != 0);
 
-              BC(31);
+              B = 31 >> 8;
+              C = 31 & 0xFF;
               this.A = 0;
               int var47 = this.A << 1;
               this.F = var47;
@@ -1355,7 +1386,8 @@ public class ZxGame1 extends SpectrumApp {
                 $35563();
                 HL(23136);
                 DE(23137);
-                BC(31);
+                B = 31 >> 8;
+                C = 31 & 0xFF;
                 int var56 = HL();
                 wMem(var56, 79, 35009);
                 ldir();
@@ -1381,7 +1413,8 @@ public class ZxGame1 extends SpectrumApp {
                 this.A = var64;
                 this.F = var63;
                 $38622();
-                BC(45054);
+                B = 45054 >> 8;
+                C = 45054 & 0xFF;
                 int var65 = BC();
                 int var66 = in(var65, 35046);
                 this.A = var66;
@@ -1411,11 +1444,13 @@ public class ZxGame1 extends SpectrumApp {
 
             HL(34181);
             DE(34175);
-            BC(6);
+            B = 6 >> 8;
+            C = 6 & 0xFF;
             ldir();
             HL(39424);
             DE(23040);
-            BC(256);
+            B = 256 >> 8;
+            C = 256 & 0xFF;
             ldir();
           }
         }
@@ -1462,7 +1497,8 @@ public class ZxGame1 extends SpectrumApp {
         this.D = 157;
         $37974();
         int var14 = pop();
-        BC(var14);
+        B = var14 >> 8;
+        C = var14 & 0xFF;
         int var15 = pop();
         HL(var15);
         int var16 = HL() + 1 & 65535;
@@ -1546,7 +1582,8 @@ public class ZxGame1 extends SpectrumApp {
       int var2 = mem(var1, 36174);
       this.A = var2;
       HL(32928);
-      BC(54);
+      B = 54 >> 8;
+      C = 54 & 0xFF;
       cpir();
       this.C = this.E;
       this.B = 8;
@@ -2073,7 +2110,8 @@ public class ZxGame1 extends SpectrumApp {
           }
         }
 
-        BC(57342);
+        B = 57342 >> 8;
+        C = 57342 & 0xFF;
         int var7 = BC();
         int var8 = in(var7, 36605);
         this.A = var8;
@@ -2104,7 +2142,8 @@ public class ZxGame1 extends SpectrumApp {
         int var21 = this.A << 1;
         this.F = var21;
         this.E = this.A;
-        BC(64510);
+        B = 64510 >> 8;
+        C = 64510 & 0xFF;
         int var22 = BC();
         int var23 = in(var22, 36624);
         this.A = var23;
@@ -2173,7 +2212,8 @@ public class ZxGame1 extends SpectrumApp {
         int var55 = this.A << 1;
         this.F = var55;
         if(this.F != 0) {
-          BC(31);
+          B = 31 >> 8;
+          C = 31 & 0xFF;
           int var242 = BC();
           int var243 = in(var242, 36667);
           this.A = var243;
@@ -2239,7 +2279,8 @@ public class ZxGame1 extends SpectrumApp {
         int var68 = mem(var67, 36713);
         this.A = var68;
         wMem(34256, this.A, 36714);
-        BC(32510);
+        B = 32510 >> 8;
+        C = 32510 & 0xFF;
         int var69 = BC();
         int var70 = in(var69, 36720);
         this.A = var70;
@@ -2265,7 +2306,8 @@ public class ZxGame1 extends SpectrumApp {
               break label226;
             }
 
-            BC(31);
+            B = 31 >> 8;
+            C = 31 & 0xFF;
             int var236 = BC();
             int var237 = in(var236, 36745);
             this.A = var237;
@@ -2360,13 +2402,15 @@ public class ZxGame1 extends SpectrumApp {
 
         int var157 = mem(34257, 36828);
         this.A = var157;
-        BC(0);
+        B = 0 >> 8;
+        C = 0 & 0xFF;
         int var158 = this.A - 0;
         this.F = var158;
         if(this.F == 0) {
           int var204 = mem16(34259, 36838);
           HL(var204);
-          BC(0);
+          B = 0 >> 8;
+          C = 0 & 0xFF;
           int var205 = mem(32986, 36844);
           this.A = var205;
           int var206 = this.A - 1 & 255;
@@ -2392,13 +2436,15 @@ public class ZxGame1 extends SpectrumApp {
           int var216 = this.A - var215;
           this.F = var216;
           if(this.F == 0) {
-            BC(32);
+            B = 32 >> 8;
+            C = 32 & 0xFF;
             int var217 = mem(32986, 36865);
             this.A = var217;
             int var218 = this.A << 1;
             this.F = var218;
             if(this.F == 0) {
-              BC(65504);
+              B = 65504 >> 8;
+              C = 65504 & 0xFF;
             }
           }
         }
@@ -2519,7 +2565,8 @@ public class ZxGame1 extends SpectrumApp {
 
       int var87 = mem(34257, 36942);
       this.A = var87;
-      BC(0);
+      B = 0 >> 8;
+      C = 0 & 0xFF;
       int var88 = this.A << 1;
       this.F = var88;
       if(this.F == 0) {
@@ -2550,13 +2597,15 @@ public class ZxGame1 extends SpectrumApp {
         int var151 = this.A - var150;
         this.F = var151;
         if(this.F == 0) {
-          BC(32);
+          B = 32 >> 8;
+          C = 32 & 0xFF;
           int var152 = mem(32986, 36975);
           this.A = var152;
           int var153 = this.A << 1;
           this.F = var153;
           if(this.F != 0) {
-            BC(65504);
+            B = 65504 >> 8;
+            C = 65504 & 0xFF;
           }
         }
       }
@@ -3311,7 +3360,8 @@ public class ZxGame1 extends SpectrumApp {
                 wMem(var196, this.A, 37536);
               }
             } else {
-              BC(640);
+              B = 640 >> 8;
+              C = 640 & 0xFF;
               int var199 = mem(32990, 37458);
               this.A = var199;
 
@@ -4192,7 +4242,8 @@ public class ZxGame1 extends SpectrumApp {
 
         this.D = 166;
         IX(33488);
-        BC(4124);
+        B = 4124 >> 8;
+        C = 4124 & 0xFF;
         $38504();
         HL(1799);
         int var16 = HL();
@@ -4558,7 +4609,8 @@ public class ZxGame1 extends SpectrumApp {
         return;
       }
 
-      BC(100);
+      B = 100 >> 8;
+      C = 100 & 0xFF;
       this.A = 0;
       int var4 = this.A << 1;
       this.F = var4;
@@ -4629,7 +4681,8 @@ public class ZxGame1 extends SpectrumApp {
       }
     }
 
-    BC(45054);
+    B = 45054 >> 8;
+    C = 45054 & 0xFF;
     int var3 = BC();
     int var4 = in(var3, 38615);
     this.A = var4;

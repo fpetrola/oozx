@@ -45,7 +45,7 @@ public class ClassProxyHelper {
     } catch (IllegalAccessException e) {
       throw new RuntimeException(e);
     }
-    return (T) o;
+    return  null;
   }
 
   static Object invokeMethod(Object self, Method method, Object[] args, Method superMethod) throws Throwable {
