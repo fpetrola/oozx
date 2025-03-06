@@ -26,22 +26,23 @@ import java.io.FileNotFoundException;
 
 public class FieldRefactoringTool {
   public static void main(String[] args) throws FileNotFoundException {
-    CompilationUnit cu = StaticJavaParser.parse(new File("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/translator/src/main/java/com/fpetrola/z80/bytecode/tests/ZxGame1.java"));
+    CompilationUnit cu = StaticJavaParser.parse(new File("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/translator/src/main/java/com/fpetrola/z80/bytecode/tests/aa/ZxGame1.java"));
     CompilationUnit refactor = new FieldRefactoringTool().refactor(cu);
     System.out.println(refactor);
   }
 
 
   public CompilationUnit refactor(CompilationUnit cu) {
+
     // Step 1: Analyze field usage in execution order
     ExecutionOrderVisitor executionOrderVisitor = new ExecutionOrderVisitor();
     cu.accept(executionOrderVisitor, null);
 
     // Step 2: Refactor methods
     FieldRefactoringVisitor refactoringVisitor = new FieldRefactoringVisitor(
-        executionOrderVisitor.fieldReadBeforeWrite,
-        executionOrderVisitor.fieldWriteBeforeRead,
-        executionOrderVisitor.modifiedFields
+        executionOrderVisitor.fieldsInfo.fieldReadBeforeWrite,
+        executionOrderVisitor.fieldsInfo.fieldWriteBeforeRead,
+        executionOrderVisitor.fieldsInfo.modifiedFields
     );
     cu.accept(refactoringVisitor, null);
 

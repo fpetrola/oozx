@@ -19,24 +19,19 @@
 package com.fpetrola.z80.transform.b;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.stmt.*;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
-import java.util.*;
-
 public class ExecutionOrderVisitor extends VoidVisitorAdapter<Void> {
 
-  public final Map<String, Boolean> fieldReadBeforeWrite = new HashMap<>();
-  public final Map<String, Boolean> fieldWriteBeforeRead = new HashMap<>();
-  public final Set<String> modifiedFields = new HashSet<>();
+  public final FieldsInfo fieldsInfo = new FieldsInfo();
 
   @Override
   public void visit(MethodDeclaration method, Void arg) {
     // Reset state for each method
-    fieldReadBeforeWrite.clear();
-    fieldWriteBeforeRead.clear();
-    modifiedFields.clear();
+    fieldsInfo.fieldReadBeforeWrite.clear();
+    fieldsInfo.fieldWriteBeforeRead.clear();
+    fieldsInfo.modifiedFields.clear();
 
     // Visit statements in execution order
     method.getBody().ifPresent(body -> body.getStatements().forEach(stmt -> stmt.accept(this, arg)));
@@ -48,8 +43,8 @@ public class ExecutionOrderVisitor extends VoidVisitorAdapter<Void> {
   @Override
   public void visit(FieldAccessExpr expr, Void arg) {
     String fieldName = expr.getNameAsString();
-    if (!fieldWriteBeforeRead.containsKey(fieldName)) {
-      fieldReadBeforeWrite.put(fieldName, true);
+    if (!fieldsInfo.fieldWriteBeforeRead.containsKey(fieldName)) {
+      fieldsInfo.fieldReadBeforeWrite.put(fieldName, true);
     }
     super.visit(expr, arg);
   }
@@ -58,8 +53,8 @@ public class ExecutionOrderVisitor extends VoidVisitorAdapter<Void> {
   public void visit(AssignExpr expr, Void arg) {
     if (expr.getTarget().isFieldAccessExpr()) {
       String fieldName = expr.getTarget().asFieldAccessExpr().getNameAsString();
-      fieldWriteBeforeRead.put(fieldName, true);
-      modifiedFields.add(fieldName);
+      fieldsInfo.fieldWriteBeforeRead.put(fieldName, true);
+      fieldsInfo.modifiedFields.add(fieldName);
     } else
       super.visit(expr, arg);
   }

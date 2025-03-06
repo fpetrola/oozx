@@ -59,11 +59,11 @@ public abstract class SpectrumApp<T> {
 
   public void executeMutantCode(int address) {
     if (mem[address] == 0x77) {
-      wMem(HL(), A, address);
+      wMem(((H & 0xFF) << 8) | (L & 0xFF), A, address);
     } else if (mem[address] == 0x7E) {
-      A = mem(HL(), address);
+      A = mem(((H & 0xFF) << 8) | (L & 0xFF), address);
     } else if (mem[address] == 0x12) {
-      wMem(DE(), A, address);
+      wMem(((D & 0xFF) << 8) | (E & 0xFF), A, address);
     } else if (mem[address] == 0x16) {
       D = mem[address + 1];
     } else if (mem[address] == 0x06) {
@@ -120,8 +120,8 @@ public abstract class SpectrumApp<T> {
   }
 
   public void exHLDE() {
-    int temp1 = HL();
-    int value = DE();
+    int temp1 = ((H & 0xFF) << 8) | (L & 0xFF);
+    int value = ((D & 0xFF) << 8) | (E & 0xFF);
     H = value >> 8;
     L = value & 0xFF;
     D = temp1 >> 8;
@@ -130,17 +130,17 @@ public abstract class SpectrumApp<T> {
 
   public int exx() {
     int temp1 = BCx();
-    BCx(BC());
+    BCx(((B & 0xFF) << 8) | (C & 0xFF));
     B = temp1 >> 8;
     C = temp1 & 0xFF;
 
     int temp2 = DEx();
-    DEx(DE());
+    DEx(((D & 0xFF) << 8) | (E & 0xFF));
     D = temp2 >> 8;
     E = temp2 & 0xFF;
 
     int temp3 = HLx();
-    HLx(HL());
+    HLx(((H & 0xFF) << 8) | (L & 0xFF));
     H = temp3 >> 8;
     L = temp3 & 0xFF;
     return temp1;
@@ -285,48 +285,48 @@ public abstract class SpectrumApp<T> {
   }
 
   public void ldir() {
-    while (BC() != 0) {
-//      wMem(DE(), mem(HL()));
-      mem[DE()] = mem[HL()];
-      int value = BC() - 1;
+    while ((((B & 0xFF) << 8) | (C & 0xFF)) != 0) {
+      //      wMem(DE(), mem(HL()));
+      mem[((D & 0xFF) << 8) | (E & 0xFF)] = mem[((H & 0xFF) << 8) | (L & 0xFF)];
+      int value = (((B & 0xFF) << 8) | (C & 0xFF)) - 1;
       B = value >> 8;
       C = value & 0xFF;
-      int value2 = HL() + 1;
+      int value2 = (((H & 0xFF) << 8) | (L & 0xFF)) + 1;
       H = value2 >> 8;
       L = value2 & 0xFF;
-      int value1 = DE() + 1;
+      int value1 = (((D & 0xFF) << 8) | (E & 0xFF)) + 1;
       D = value1 >> 8;
       E = value1 & 0xFF;
     }
   }
 
   public void ldi() {
-    mem[DE()] = mem[HL()];
-    int value = BC() - 1;
+    mem[((D & 0xFF) << 8) | (E & 0xFF)] = mem[((H & 0xFF) << 8) | (L & 0xFF)];
+    int value = (((B & 0xFF) << 8) | (C & 0xFF)) - 1;
     B = value >> 8;
     C = value & 0xFF;
-    int value2 = HL() + 1;
+    int value2 = (((H & 0xFF) << 8) | (L & 0xFF)) + 1;
     H = value2 >> 8;
     L = value2 & 0xFF;
-    int value1 = DE() + 1;
+    int value1 = (((D & 0xFF) << 8) | (E & 0xFF)) + 1;
     D = value1 >> 8;
     E = value1 & 0xFF;
-    if (BC() == 0)
+    if ((((B & 0xFF) << 8) | (C & 0xFF)) == 0)
       F = -1;
     else
       F = 1;
   }
 
   public void lddr() {
-    while (BC() != 0) {
-      wMem(DE(), mem(HL()));
-      int value = BC() - 1;
+    while ((((B & 0xFF) << 8) | (C & 0xFF)) != 0) {
+      wMem(((D & 0xFF) << 8) | (E & 0xFF), mem(((H & 0xFF) << 8) | (L & 0xFF)));
+      int value = (((B & 0xFF) << 8) | (C & 0xFF)) - 1;
       B = value >> 8;
       C = value & 0xFF;
-      int value2 = HL() - 1;
+      int value2 = (((H & 0xFF) << 8) | (L & 0xFF)) - 1;
       H = value2 >> 8;
       L = value2 & 0xFF;
-      int value1 = DE() - 1;
+      int value1 = (((D & 0xFF) << 8) | (E & 0xFF)) - 1;
       D = value1 >> 8;
       E = value1 & 0xFF;
     }
@@ -345,14 +345,14 @@ public abstract class SpectrumApp<T> {
   public void cpir() {
     int result = -1;
     do {
-      result = mem(HL());
-      int value = BC() - 1;
+      result = mem(((H & 0xFF) << 8) | (L & 0xFF));
+      int value = (((B & 0xFF) << 8) | (C & 0xFF)) - 1;
       B = value >> 8;
       C = value & 0xFF;
-      int value1 = HL() + 1;
+      int value1 = (((H & 0xFF) << 8) | (L & 0xFF)) + 1;
       H = value1 >> 8;
       L = value1 & 0xFF;
-    } while (BC() != 0 && result != (A & 0xff));
+    } while ((((B & 0xFF) << 8) | (C & 0xFF)) != 0 && result != (A & 0xff));
   }
 
   public void cpdr() {
@@ -474,18 +474,6 @@ public abstract class SpectrumApp<T> {
     return ((A & 0xFF) << 8) | (F & 0xFF);
   }
 
-  public int BC() {
-    return ((B & 0xFF) << 8) | (C & 0xFF);
-  }
-
-  public int DE() {
-    return ((D & 0xFF) << 8) | (E & 0xFF);
-  }
-
-  public int HL() {
-    return ((H & 0xFF) << 8) | (L & 0xFF);
-  }
-
   public int AFx() {
     return ((Ax & 0xFF) << 8) | (Fx & 0xFF);
   }
@@ -500,14 +488,6 @@ public abstract class SpectrumApp<T> {
 
   public int HLx() {
     return ((Hx & 0xFF) << 8) | (Lx & 0xFF);
-  }
-
-  public int IX() {
-    return ((IXH & 0xFF) << 8) | (IXL & 0xFF);
-  }
-
-  public int IY() {
-    return ((IYH & 0xFF) << 8) | (IYL & 0xFF);
   }
 
   public int[] getMem() {
