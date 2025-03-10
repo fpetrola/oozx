@@ -26,6 +26,7 @@ public abstract class AbstractInstruction<T extends WordNumber> implements Instr
   protected int length = 1;
   protected int cyclesCost = 4;
   private T nextPC = null;
+  private int rdelta;
 
   protected AbstractInstruction() {
     cyclesCost += 1;
@@ -61,6 +62,14 @@ public abstract class AbstractInstruction<T extends WordNumber> implements Instr
 
   public T getNextPC() {
     return nextPC;
+  }
+
+  public void setRDelta(int rdelta) {
+    this.rdelta= rdelta;
+  }
+
+  public int getRDelta() {
+    return rdelta;
   }
 
   @Override

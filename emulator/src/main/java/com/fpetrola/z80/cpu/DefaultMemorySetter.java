@@ -18,6 +18,24 @@
 
 package com.fpetrola.z80.cpu;
 
-public interface MemorySetter {
-  void setData(byte[] result);
+import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.opcodes.references.WordNumber;
+
+public class DefaultMemorySetter implements MemorySetter {
+  private final Memory<? extends WordNumber> memory;
+  private final byte[] rom;
+
+  public <T extends WordNumber> DefaultMemorySetter(Memory<T> memory, byte[] rom) {
+    this.memory = memory;
+    this.rom = rom;
+  }
+
+  @Override
+  public void setData(byte[] result) {
+    for (int i = 0; i <result.length; i++) {
+      int data = ((i < 16384) ? rom[i] : result[i]) & 0xff;
+      WordNumber value = WordNumber.createValue(data);
+      memory.getData()[i]= value.and(0xff);
+    }
+  }
 }

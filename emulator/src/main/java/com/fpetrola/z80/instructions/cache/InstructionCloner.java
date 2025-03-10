@@ -57,6 +57,9 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
     if (length != length1)
       cloned.incrementLengthBy(length - length1);
 
+    if (instruction instanceof AbstractInstruction<T> abstractInstruction) {
+      cloned.setRDelta(abstractInstruction.getRDelta());
+    }
     if (cloned == null) {
       throw new RuntimeException("clone not supported for: " + instruction.getClass());
     }

@@ -44,127 +44,7 @@ public class ZxGame1E extends MiniZX {
                 continue;
               }
 
-              int var376 = mem(33824, 35090);
-              this.A = var376;
-              int var377 = this.A | 192;
-              this.A = var377;
-              int var378 = this.A << 1;
-              this.F = var378;
-              this.H = this.A;
-              this.L = 0;
-              DE(32768);
-              BC(256);
-              ldir();
-              IX(33008);
-              DE(33024);
-              this.A = 8;
-
-              do {
-                int var379 = IX() + 0;
-                int var380 = mem(var379, 35115);
-                this.L = var380;
-                int var381 = this.L & -129;
-                this.L = var381;
-                this.H = 20;
-                int var382 = HL();
-                int var383 = HL() + var382 & 65535;
-                HL(var383);
-                int var384 = HL();
-                int var385 = HL() + var384 & 65535;
-                HL(var385);
-                int var386 = HL();
-                int var387 = HL() + var386 & 65535;
-                HL(var387);
-                BC(2);
-                ldir();
-                int var388 = IX() + 1;
-                int var389 = mem(var388, 35130);
-                this.C = var389;
-                int var390 = HL();
-                wMem(var390, this.C, 35133);
-                BC(6);
-                ldir();
-                int var391 = IX() + 1 & 65535;
-                IX(var391);
-                int var392 = IX() + 1 & 65535;
-                IX(var392);
-                int var393 = this.A - 1 & 255;
-                this.A = var393;
-                this.F = var393;
-              } while(this.F != 0);
-
-              HL(34255);
-              DE(34263);
-              BC(7);
-              ldir();
-              $36147();
-              HL(20480);
-              DE(20481);
-              BC(2047);
-              int var394 = HL();
-              wMem(var394, 0, 35169);
-              ldir();
-              IX(32896);
-              this.C = 32;
-              DE(20480);
-              $38528();
-              IX(34132);
-              DE(20576);
-              this.C = 32;
-              $38528();
-              int var395 = mem(32990, 35197);
-              this.A = var395;
-              this.C = 254;
-              this.A = 0;
-              int var396 = this.A << 1;
-              this.F = var396;
-              wMem(34262, this.A, 35205);
-              $35211();
-              HL(24064);
-              DE(23552);
-              BC(512);
-              ldir();
-              HL(28672);
-              DE(24576);
-              BC(4096);
-              ldir();
-              $37056();
-              var232 = mem(34271, 35273);
-              this.A = var232;
-              var233 = this.A - 3;
-              this.F = var233;
-              if(this.F != 0) {
-                $36307();
-              }
-
-              var234 = mem(34255, 35281);
-              this.A = var234;
-              var235 = this.A - 225;
-              this.F = var235;
-              if(this.F >= 0) {
-                $38064();
-              }
-
-              var236 = mem(34271, 35289);
-              this.A = var236;
-              var237 = this.A - 3;
-              this.F = var237;
-              if(this.F != 0) {
-                $38344();
-              }
-
-              var238 = mem(34271, 35297);
-              this.A = var238;
-              var239 = this.A - 2;
-              this.F = var239;
-              if(this.F == 0) {
-                $38276();
-              }
-
-              $38196();
-              $37310();
-              $38137();
-              $37841();
+              extracted();
             } else {
               this.A = 255;
               wMem(34257, this.A, 37050);
@@ -197,31 +77,7 @@ public class ZxGame1E extends MiniZX {
               this.A = var13;
               int var14 = this.A << 1;
               this.F = var14;
-              if(this.F != 0) {
-                int var366 = this.A - 1 & 255;
-                this.A = var366;
-                this.F = var366;
-                wMem(34253, this.A, 35346);
-                int var367 = this.A;
-                int var368 = rlc(var367);
-                this.A = var368;
-                int var369 = this.A;
-                int var370 = rlc(var369);
-                this.A = var370;
-                int var371 = this.A;
-                int var372 = rlc(var371);
-                this.A = var372;
-                int var373 = this.A & 56;
-                this.A = var373;
-                int var374 = this.A << 1;
-                this.F = var374;
-                HL(23552);
-                DE(23553);
-                BC(511);
-                int var375 = HL();
-                wMem(var375, this.A, 35363);
-                ldir();
-              }
+              if(this.F != 0) extracted14();
 
               HL(23552);
               DE(22528);
@@ -249,126 +105,8 @@ public class ZxGame1E extends MiniZX {
               int var22;
               int var23;
               int var24;
-              if(this.F == 0) {
-                IX(34175);
-                int var333 = IX() + 4;
-                int var334 = mem(var333, 35414) + 1 & 255;
-                wMem(var333, var334, 35414);
-                this.F = var334;
-                int var335 = IX() + 4;
-                int var336 = mem(var335, 35417);
-                this.A = var336;
-                int var337 = this.A - 58;
-                this.F = var337;
-                if(this.F == 0) {
-                  int var338 = IX() + 4;
-                  wMem(var338, 48, 35424);
-                  int var339 = IX() + 3;
-                  int var340 = mem(var339, 35428) + 1 & 255;
-                  wMem(var339, var340, 35428);
-                  this.F = var340;
-                  int var341 = IX() + 3;
-                  int var342 = mem(var341, 35431);
-                  this.A = var342;
-                  int var343 = this.A - 54;
-                  this.F = var343;
-                  if(this.F == 0) {
-                    int var344 = IX() + 3;
-                    wMem(var344, 48, 35438);
-                    int var345 = IX() + 0;
-                    int var346 = mem(var345, 35442);
-                    this.A = var346;
-                    int var347 = this.A - 49;
-                    this.F = var347;
-                    if(this.F == 0) {
-                      int var355 = IX() + 1;
-                      int var356 = mem(var355, 35449) + 1 & 255;
-                      wMem(var355, var356, 35449);
-                      this.F = var356;
-                      int var357 = IX() + 1;
-                      int var358 = mem(var357, 35452);
-                      this.A = var358;
-                      int var359 = this.A - 51;
-                      this.F = var359;
-                      if(this.F == 0) {
-                        int var360 = IX() + 5;
-                        int var361 = mem(var360, 35459);
-                        this.A = var361;
-                        int var362 = this.A - 112;
-                        this.F = var362;
-                        if(this.F == 0) {
-                          break;
-                        }
-
-                        int var363 = IX() + 0;
-                        wMem(var363, 32, 35467);
-                        int var364 = IX() + 1;
-                        wMem(var364, 49, 35471);
-                        int var365 = IX() + 5;
-                        wMem(var365, 112, 35475);
-                      }
-                    } else {
-                      int var348 = IX() + 1;
-                      int var349 = mem(var348, 35481) + 1 & 255;
-                      wMem(var348, var349, 35481);
-                      this.F = var349;
-                      int var350 = IX() + 1;
-                      int var351 = mem(var350, 35484);
-                      this.A = var351;
-                      int var352 = this.A - 58;
-                      this.F = var352;
-                      if(this.F == 0) {
-                        int var353 = IX() + 1;
-                        wMem(var353, 48, 35491);
-                        int var354 = IX() + 0;
-                        wMem(var354, 49, 35495);
-                      }
-                    }
-                  }
-                }
-
-                BC(65278);
-                var17 = BC();
-                var18 = in(var17, 35502);
-                this.A = var18;
-                this.E = this.A;
-                this.B = 127;
-                var19 = BC();
-                var20 = in(var19, 35507);
-                this.A = var20;
-                var21 = this.A | this.E;
-                this.A = var21;
-                var22 = this.A << 1;
-                this.F = var22;
-                var23 = this.A & 1;
-                this.A = var23;
-                var24 = this.A << 1;
-                this.F = var24;
-                if(this.F == 0) {
-                  break;
-                }
-              } else {
-                BC(65278);
-                var17 = BC();
-                var18 = in(var17, 35502);
-                this.A = var18;
-                this.E = this.A;
-                this.B = 127;
-                var19 = BC();
-                var20 = in(var19, 35507);
-                this.A = var20;
-                var21 = this.A | this.E;
-                this.A = var21;
-                var22 = this.A << 1;
-                this.F = var22;
-                var23 = this.A & 1;
-                this.A = var23;
-                var24 = this.A << 1;
-                this.F = var24;
-                if(this.F == 0) {
-                  break;
-                }
-              }
+              if(this.F == 0) if (extracted2()) break;
+              else if (extracted3()) break;
 
               int var97 = mem(34272, 35515);
               this.A = var97;
@@ -386,100 +124,9 @@ public class ZxGame1E extends MiniZX {
               int var325;
               int var326;
               int var327;
-              if(this.F != 0) {
-                this.B = 253;
-                int var328 = BC();
-                int var329 = in(var328, 35526);
-                this.A = var329;
-                int var330 = this.A & 31;
-                this.A = var330;
-                int var331 = this.A << 1;
-                this.F = var331;
-                int var332 = this.A - 31;
-                this.F = var332;
-                if(this.F != 0) {
-                  DE(0);
-
-                  while(true) {
-                    this.B = 2;
-                    var99 = BC();
-                    var100 = in(var99, 35539);
-                    this.A = var100;
-                    var101 = this.A & 31;
-                    this.A = var101;
-                    var102 = this.A << 1;
-                    this.F = var102;
-                    var103 = this.A - 31;
-                    this.F = var103;
-                    if(this.F != 0) {
-                      HL(39424);
-                      DE(23040);
-                      BC(256);
-                      ldir();
-                      var104 = mem(32990, 35602);
-                      this.A = var104;
-                      break;
-                    }
-
-                    var324 = this.E + 1 & 255;
-                    this.E = var324;
-                    this.F = var324;
-                    if(this.F == 0) {
-                      var325 = this.D + 1 & 255;
-                      this.D = var325;
-                      this.F = var325;
-                      if(this.F == 0) {
-                        var326 = mem(34275, 35553);
-                        this.A = var326;
-                        var327 = this.A - 10;
-                        this.F = var327;
-                        if(this.F != 0) {
-                          $35563();
-                        }
-                      }
-                    }
-                  }
-                }
-              } else {
-                while(true) {
-                  this.B = 2;
-                  var99 = BC();
-                  var100 = in(var99, 35539);
-                  this.A = var100;
-                  var101 = this.A & 31;
-                  this.A = var101;
-                  var102 = this.A << 1;
-                  this.F = var102;
-                  var103 = this.A - 31;
-                  this.F = var103;
-                  if(this.F != 0) {
-                    HL(39424);
-                    DE(23040);
-                    BC(256);
-                    ldir();
-                    var104 = mem(32990, 35602);
-                    this.A = var104;
-                    break;
-                  }
-
-                  var324 = this.E + 1 & 255;
-                  this.E = var324;
-                  this.F = var324;
-                  if(this.F == 0) {
-                    var325 = this.D + 1 & 255;
-                    this.D = var325;
-                    this.F = var325;
-                    if(this.F == 0) {
-                      var326 = mem(34275, 35553);
-                      this.A = var326;
-                      var327 = this.A - 10;
-                      this.F = var327;
-                      if(this.F != 0) {
-                        $35563();
-                      }
-                    }
-                  }
-                }
+              if(this.F != 0) extracted4();
+              else {
+                while(true) if (extracted5()) break;
               }
 
               int var105 = mem(34257, 35607);
@@ -489,77 +136,7 @@ public class ZxGame1E extends MiniZX {
               if(this.F == 0) {
                 this.A = 71;
 
-                do {
-                  HL(22528);
-                  DE(22529);
-                  BC(511);
-                  int var107 = HL();
-                  wMem(var107, this.A, 35852);
-                  ldir();
-                  this.E = this.A;
-                  int var108 = ~this.A;
-                  this.A = var108;
-                  this.F = this.A;
-                  int var109 = this.A & 7;
-                  this.A = var109;
-                  int var110 = this.A << 1;
-                  this.F = var110;
-                  int var111 = this.A;
-                  int var112 = rlc(var111);
-                  this.A = var112;
-                  int var113 = this.A;
-                  int var114 = rlc(var113);
-                  this.A = var114;
-                  int var115 = this.A;
-                  int var116 = rlc(var115);
-                  this.A = var116;
-                  int var117 = this.A | 7;
-                  this.A = var117;
-                  int var118 = this.A << 1;
-                  this.F = var118;
-                  this.D = this.A;
-                  this.C = this.E;
-                  int var119 = this.C;
-                  int var120 = rrc(var119);
-                  this.C = var120;
-                  int var121 = this.C;
-                  int var122 = rrc(var121);
-                  this.C = var122;
-                  int var123 = this.C;
-                  int var124 = rrc(var123);
-                  this.C = var124;
-                  int var125 = this.A | 16;
-                  this.A = var125;
-                  int var126 = this.A << 1;
-                  this.F = var126;
-                  this.A = 0;
-                  int var127 = this.A << 1;
-                  this.F = var127;
-
-                  do {
-                    int var128 = this.A ^ 24;
-                    this.A = var128;
-                    int var129 = this.A << 1;
-                    this.F = var129;
-                    this.B = this.D;
-
-                    do {
-                      int var130 = this.B - 1 & 255;
-                      this.B = var130;
-                    } while(this.B != 0);
-
-                    int var131 = this.C - 1 & 255;
-                    this.C = var131;
-                    this.F = var131;
-                  } while(this.F != 0);
-
-                  this.A = this.E;
-                  int var132 = this.A - 1 & 255;
-                  this.A = var132;
-                  this.F = var132;
-                  int var133 = this.A - 63;
-                  this.F = var133;
-                } while(this.F != 0);
+                do extracted6(); while(this.F != 0);
 
                 HL(34252);
                 int var134 = HL();
@@ -568,15 +145,7 @@ public class ZxGame1E extends MiniZX {
                 int var136 = this.A << 1;
                 this.F = var136;
                 if(this.F != 0) {
-                  int var214 = HL();
-                  int var215 = mem(var214, 35899) - 1 & 255;
-                  int var216 = HL();
-                  wMem(var216, var215, 35899);
-                  this.F = var215;
-                  HL(34263);
-                  DE(34255);
-                  BC(7);
-                  ldir();
+                  extracted7();
                   continue label357;
                 }
 
@@ -599,101 +168,7 @@ public class ZxGame1E extends MiniZX {
                 this.C = 0;
                 $37974();
 
-                do {
-                  int var139 = mem(34276, 35953);
-                  this.A = var139;
-                  this.C = this.A;
-                  this.B = 130;
-                  int var140 = BC();
-                  int var141 = mem(var140, 35959);
-                  this.A = var141;
-                  int var142 = this.A | 15;
-                  this.A = var142;
-                  int var143 = this.A << 1;
-                  this.F = var143;
-                  this.L = this.A;
-                  int var144 = BC() + 1 & 65535;
-                  BC(var144);
-                  int var145 = BC();
-                  int var146 = mem(var145, 35964);
-                  this.A = var146;
-                  int var147 = this.A - 32;
-                  int var148 = var147 & 255;
-                  this.A = var148;
-                  this.F = var147;
-                  this.H = this.A;
-                  DE(40000);
-                  this.C = 0;
-                  $37974();
-                  int var149 = mem(34276, 35976);
-                  this.A = var149;
-                  int var150 = ~this.A;
-                  this.A = var150;
-                  this.F = this.A;
-                  this.E = this.A;
-                  this.A = 0;
-                  int var151 = this.A << 1;
-                  this.F = var151;
-                  BC(64);
-
-                  do {
-                    int var152 = this.A ^ 24;
-                    this.A = var152;
-                    int var153 = this.A << 1;
-                    this.F = var153;
-                    this.B = this.E;
-
-                    do {
-                      int var154 = this.B - 1 & 255;
-                      this.B = var154;
-                    } while(this.B != 0);
-
-                    int var155 = this.C - 1 & 255;
-                    this.C = var155;
-                    this.F = var155;
-                  } while(this.F != 0);
-
-                  HL(22528);
-                  DE(22529);
-                  BC(511);
-                  int var156 = mem(34276, 36004);
-                  this.A = var156;
-                  int var157 = this.A & 12;
-                  this.A = var157;
-                  int var158 = this.A << 1;
-                  this.F = var158;
-                  int var159 = this.A;
-                  int var160 = rlc(var159);
-                  this.A = var160;
-                  int var161 = this.A | 71;
-                  this.A = var161;
-                  int var162 = this.A << 1;
-                  this.F = var162;
-                  int var163 = HL();
-                  wMem(var163, this.A, 36012);
-                  ldir();
-                  int var164 = this.A & 250;
-                  this.A = var164;
-                  int var165 = this.A << 1;
-                  this.F = var165;
-                  int var166 = this.A | 2;
-                  this.A = var166;
-                  int var167 = this.A << 1;
-                  this.F = var167;
-                  wMem(22991, this.A, 36019);
-                  wMem(22992, this.A, 36022);
-                  wMem(23023, this.A, 36025);
-                  wMem(23024, this.A, 36028);
-                  int var168 = mem(34276, 36031);
-                  this.A = var168;
-                  int var169 = this.A + 4;
-                  int var170 = var169 & 255;
-                  this.A = var170;
-                  this.F = var169;
-                  wMem(34276, this.A, 36036);
-                  int var171 = this.A - 196;
-                  this.F = var171;
-                } while(this.F != 0);
+                do extracted8(); while(this.F != 0);
 
                 IX(34164);
                 this.C = 4;
@@ -706,440 +181,11 @@ public class ZxGame1E extends MiniZX {
                 BC(0);
                 this.D = 6;
 
-                do {
-                  do {
-                    do {
-                      int var172 = this.B - 1 & 255;
-                      this.B = var172;
-                    } while(this.B != 0);
-
-                    this.A = this.C;
-                    int var173 = this.A & 7;
-                    this.A = var173;
-                    int var174 = this.A << 1;
-                    this.F = var174;
-                    int var175 = this.A | 64;
-                    this.A = var175;
-                    int var176 = this.A << 1;
-                    this.F = var176;
-                    wMem(22730, this.A, 36079);
-                    int var177 = this.A + 1 & 255;
-                    this.A = var177;
-                    this.F = var177;
-                    int var178 = this.A & 7;
-                    this.A = var178;
-                    int var179 = this.A << 1;
-                    this.F = var179;
-                    int var180 = this.A | 64;
-                    this.A = var180;
-                    int var181 = this.A << 1;
-                    this.F = var181;
-                    wMem(22731, this.A, 36087);
-                    int var182 = this.A + 1 & 255;
-                    this.A = var182;
-                    this.F = var182;
-                    int var183 = this.A & 7;
-                    this.A = var183;
-                    int var184 = this.A << 1;
-                    this.F = var184;
-                    int var185 = this.A | 64;
-                    this.A = var185;
-                    int var186 = this.A << 1;
-                    this.F = var186;
-                    wMem(22732, this.A, 36095);
-                    int var187 = this.A + 1 & 255;
-                    this.A = var187;
-                    this.F = var187;
-                    int var188 = this.A & 7;
-                    this.A = var188;
-                    int var189 = this.A << 1;
-                    this.F = var189;
-                    int var190 = this.A | 64;
-                    this.A = var190;
-                    int var191 = this.A << 1;
-                    this.F = var191;
-                    wMem(22733, this.A, 36103);
-                    int var192 = this.A + 1 & 255;
-                    this.A = var192;
-                    this.F = var192;
-                    int var193 = this.A & 7;
-                    this.A = var193;
-                    int var194 = this.A << 1;
-                    this.F = var194;
-                    int var195 = this.A | 64;
-                    this.A = var195;
-                    int var196 = this.A << 1;
-                    this.F = var196;
-                    wMem(22738, this.A, 36111);
-                    int var197 = this.A + 1 & 255;
-                    this.A = var197;
-                    this.F = var197;
-                    int var198 = this.A & 7;
-                    this.A = var198;
-                    int var199 = this.A << 1;
-                    this.F = var199;
-                    int var200 = this.A | 64;
-                    this.A = var200;
-                    int var201 = this.A << 1;
-                    this.F = var201;
-                    wMem(22739, this.A, 36119);
-                    int var202 = this.A + 1 & 255;
-                    this.A = var202;
-                    this.F = var202;
-                    int var203 = this.A & 7;
-                    this.A = var203;
-                    int var204 = this.A << 1;
-                    this.F = var204;
-                    int var205 = this.A | 64;
-                    this.A = var205;
-                    int var206 = this.A << 1;
-                    this.F = var206;
-                    wMem(22740, this.A, 36127);
-                    int var207 = this.A + 1 & 255;
-                    this.A = var207;
-                    this.F = var207;
-                    int var208 = this.A & 7;
-                    this.A = var208;
-                    int var209 = this.A << 1;
-                    this.F = var209;
-                    int var210 = this.A | 64;
-                    this.A = var210;
-                    int var211 = this.A << 1;
-                    this.F = var211;
-                    wMem(22741, this.A, 36135);
-                    int var212 = this.C - 1 & 255;
-                    this.C = var212;
-                    this.F = var212;
-                  } while(this.F != 0);
-
-                  int var213 = this.D - 1 & 255;
-                  this.D = var213;
-                  this.F = var213;
-                } while(this.F != 0);
+                do extracted9(); while(this.F != 0);
                 break;
               }
 
-              this.B = 191;
-              HL(34274);
-              int var217 = BC();
-              int var218 = in(var217, 35620);
-              this.A = var218;
-              int var219 = this.A & 31;
-              this.A = var219;
-              int var220 = this.A << 1;
-              this.F = var220;
-              int var221 = this.A - 31;
-              this.F = var221;
-              if(this.F != 0) {
-                int var317 = HL();
-                int var318 = mem(var317, 35628) & 1;
-                this.F = var318;
-                if(this.F == 0) {
-                  int var319 = HL();
-                  int var320 = mem(var319, 35632);
-                  this.A = var320;
-                  int var321 = this.A ^ 3;
-                  this.A = var321;
-                  int var322 = this.A << 1;
-                  this.F = var322;
-                  int var323 = HL();
-                  wMem(var323, this.A, 35635);
-                }
-              } else {
-                int var222 = HL();
-                int var223 = mem(var222, 35638) & -2;
-                int var224 = HL();
-                wMem(var224, var223, 35638);
-              }
-
-              int var225 = HL();
-              int var226 = mem(var225, 35640) & 2;
-              this.F = var226;
-              if(this.F == 0) {
-                this.A = 0;
-                int var290 = this.A << 1;
-                this.F = var290;
-                wMem(34272, this.A, 35645);
-                int var291 = mem(34273, 35648);
-                this.A = var291;
-                int var292 = this.A + 1 & 255;
-                this.A = var292;
-                this.F = var292;
-                wMem(34273, this.A, 35652);
-                int var293 = this.A & 126;
-                this.A = var293;
-                int var294 = this.A << 1;
-                this.F = var294;
-                int var295 = this.A;
-                int var296 = rrc(var295);
-                this.A = var296;
-                this.E = this.A;
-                this.D = 0;
-                HL(34399);
-                int var297 = DE();
-                int var298 = HL() + var297 & 65535;
-                HL(var298);
-                int var299 = mem(34252, 35665);
-                this.A = var299;
-                int var300 = this.A;
-                int var301 = rlc(var300);
-                this.A = var301;
-                int var302 = this.A;
-                int var303 = rlc(var302);
-                this.A = var303;
-                int var304 = this.A - 28;
-                int var305 = var304 & 255;
-                this.A = var305;
-                this.F = var304;
-                int var306 = -this.A & 255;
-                this.A = var306;
-                int var307 = HL();
-                int var308 = mem(var307, 35674);
-                int var309 = this.A + var308;
-                int var310 = var309 & 255;
-                this.A = var310;
-                this.F = var309;
-                this.D = this.A;
-                int var311 = mem(32990, 35676);
-                this.A = var311;
-                this.E = this.D;
-                BC(3);
-                int var312 = this.E - 1 & 255;
-                this.E = var312;
-                this.F = var312;
-                int var315;
-                int var316;
-                if(this.F == 0) {
-                  this.E = this.D;
-                  var315 = this.A ^ 24;
-                  this.A = var315;
-                  var316 = this.A << 1;
-                  this.F = var316;
-                }
-
-                label349:
-                while(true) {
-                  while(true) {
-                    int var313 = this.B - 1 & 255;
-                    this.B = var313;
-                    if(this.B == 0) {
-                      int var314 = this.C - 1 & 255;
-                      this.C = var314;
-                      this.F = var314;
-                      if(this.F == 0) {
-                        break label349;
-                      }
-
-                      var312 = this.E - 1 & 255;
-                      this.E = var312;
-                      this.F = var312;
-                      if(this.F == 0) {
-                        this.E = this.D;
-                        var315 = this.A ^ 24;
-                        this.A = var315;
-                        var316 = this.A << 1;
-                        this.F = var316;
-                      }
-                    } else {
-                      var312 = this.E - 1 & 255;
-                      this.E = var312;
-                      this.F = var312;
-                      if(this.F == 0) {
-                        this.E = this.D;
-                        var315 = this.A ^ 24;
-                        this.A = var315;
-                        var316 = this.A << 1;
-                        this.F = var316;
-                      }
-                    }
-                  }
-                }
-              }
-
-              BC(61438);
-              int var227 = BC();
-              int var228 = in(var227, 35699);
-              this.A = var228;
-              int var229 = this.A & 2;
-              this.F = var229;
-              if(this.F == 0) {
-                int var275 = this.A & 16;
-                this.A = var275;
-                int var276 = this.A << 1;
-                this.F = var276;
-                int var277 = this.A ^ 16;
-                this.A = var277;
-                int var278 = this.A << 1;
-                this.F = var278;
-                int var279 = this.A;
-                int var280 = rlc(var279);
-                this.A = var280;
-                this.D = this.A;
-                int var281 = mem(34275, 35712);
-                this.A = var281;
-                int var282 = this.A - 10;
-                this.F = var282;
-                if(this.F == 0) {
-                  BC(63486);
-                  int var283 = BC();
-                  int var284 = in(var283, 35723);
-                  this.A = var284;
-                  int var285 = ~this.A;
-                  this.A = var285;
-                  this.F = this.A;
-                  int var286 = this.A & 31;
-                  this.A = var286;
-                  int var287 = this.A << 1;
-                  this.F = var287;
-                  int var288 = this.A | this.D;
-                  this.A = var288;
-                  int var289 = this.A << 1;
-                  this.F = var289;
-                  wMem(33824, this.A, 35729);
-                  continue label357;
-                }
-              }
-
-              int var230 = mem(34275, 35735);
-              this.A = var230;
-              int var231 = this.A - 10;
-              this.F = var231;
-              if(this.F != 0) {
-                int var240 = mem(33824, 35743);
-                this.A = var240;
-                int var241 = this.A - 28;
-                this.F = var241;
-                if(this.F == 0) {
-                  int var242 = mem(34255, 35751);
-                  this.A = var242;
-                  int var243 = this.A - 208;
-                  this.F = var243;
-                  if(this.F == 0) {
-                    int var244 = mem(34275, 35759);
-                    this.A = var244;
-                    int var245 = this.A;
-                    int var246 = rlc(var245);
-                    this.A = var246;
-                    this.E = this.A;
-                    this.D = 0;
-                    IX(34279);
-                    int var247 = DE();
-                    int var248 = IX() + var247 & 65535;
-                    IX(var248);
-                    BC(64510);
-                    int var249 = BC();
-                    int var250 = in(var249, 35775);
-                    this.A = var250;
-                    int var251 = this.A & 31;
-                    this.A = var251;
-                    int var252 = this.A << 1;
-                    this.F = var252;
-                    int var253 = IX() + 0;
-                    int var254 = mem(var253, 35779);
-                    int var255 = this.A - var254;
-                    this.F = var255;
-                    if(this.F != 0) {
-                      int var270 = this.A - 31;
-                      this.F = var270;
-                      if(this.F != 0) {
-                        int var271 = IX() + -2;
-                        int var272 = mem(var271, 35789);
-                        int var273 = this.A - var272;
-                        this.F = var273;
-                        if(this.F != 0) {
-                          this.A = 0;
-                          int var274 = this.A << 1;
-                          this.F = var274;
-                          wMem(34275, this.A, 35796);
-                        }
-                      }
-                    } else {
-                      this.B = 223;
-                      int var256 = BC();
-                      int var257 = in(var256, 35804);
-                      this.A = var257;
-                      int var258 = this.A & 31;
-                      this.A = var258;
-                      int var259 = this.A << 1;
-                      this.F = var259;
-                      int var260 = IX() + 1;
-                      int var261 = mem(var260, 35808);
-                      int var262 = this.A - var261;
-                      this.F = var262;
-                      if(this.F != 0) {
-                        int var265 = this.A - 31;
-                        this.F = var265;
-                        if(this.F != 0) {
-                          int var266 = IX() + -1;
-                          int var267 = mem(var266, 35818);
-                          int var268 = this.A - var267;
-                          this.F = var268;
-                          if(this.F != 0) {
-                            this.A = 0;
-                            int var269 = this.A << 1;
-                            this.F = var269;
-                            wMem(34275, this.A, 35825);
-                          }
-                        }
-                      } else {
-                        int var263 = mem(34275, 35831);
-                        this.A = var263;
-                        int var264 = this.A + 1 & 255;
-                        this.A = var264;
-                        this.F = var264;
-                        wMem(34275, this.A, 35835);
-                      }
-                    }
-                  }
-                }
-              }
-
-              $35211();
-              HL(24064);
-              DE(23552);
-              BC(512);
-              ldir();
-              HL(28672);
-              DE(24576);
-              BC(4096);
-              ldir();
-              $37056();
-              var232 = mem(34271, 35273);
-              this.A = var232;
-              var233 = this.A - 3;
-              this.F = var233;
-              if(this.F != 0) {
-                $36307();
-              }
-
-              var234 = mem(34255, 35281);
-              this.A = var234;
-              var235 = this.A - 225;
-              this.F = var235;
-              if(this.F >= 0) {
-                $38064();
-              }
-
-              var236 = mem(34271, 35289);
-              this.A = var236;
-              var237 = this.A - 3;
-              this.F = var237;
-              if(this.F != 0) {
-                $38344();
-              }
-
-              var238 = mem(34271, 35297);
-              this.A = var238;
-              var239 = this.A - 2;
-              this.F = var239;
-              if(this.F == 0) {
-                $38276();
-              }
-
-              $38196();
-              $37310();
-              $38137();
-              $37841();
+              if (extracted18()) continue label357;
             }
 
             this.A = 0;
@@ -1178,15 +224,7 @@ public class ZxGame1E extends MiniZX {
             this.L = this.A;
             wMem(34270, this.A, 34822);
 
-            do {
-              int var33 = HL();
-              int var34 = mem(var33, 34825) | 64;
-              int var35 = HL();
-              wMem(var35, var34, 34825);
-              int var36 = this.L + 1 & 255;
-              this.L = var36;
-              this.F = var36;
-            } while(this.F != 0);
+            do extracted15(); while(this.F != 0);
 
             HL(34274);
             int var37 = HL();
@@ -1217,114 +255,14 @@ public class ZxGame1E extends MiniZX {
               $38528();
               DE(22528);
 
-              do {
-                int var42 = DE();
-                int var43 = mem(var42, 34884);
-                this.A = var43;
-                int var44 = this.A << 1;
-                this.F = var44;
-                if(this.F != 0) {
-                  int var73 = this.A - 211;
-                  this.F = var73;
-                  if(this.F != 0) {
-                    int var74 = this.A - 9;
-                    this.F = var74;
-                    if(this.F != 0) {
-                      int var75 = this.A - 45;
-                      this.F = var75;
-                      if(this.F != 0) {
-                        int var76 = this.A - 36;
-                        this.F = var76;
-                        if(this.F != 0) {
-                          this.C = 0;
-                          int var77 = this.A - 8;
-                          this.F = var77;
-                          if(this.F != 0) {
-                            int var93 = this.A - 41;
-                            this.F = var93;
-                            if(this.F != 0) {
-                              int var94 = this.A - 44;
-                              this.F = var94;
-                              if(this.F != 0) {
-                                int var96 = this.A - 5;
-                                this.F = var96;
-                                if(this.F != 0) {
-                                  this.C = 16;
-                                }
-                              } else {
-                                this.A = 37;
-                                int var95 = DE();
-                                wMem(var95, this.A, 34928);
-                              }
-                            }
-                          }
-
-                          this.A = this.E;
-                          int var78 = this.A & 1;
-                          this.A = var78;
-                          int var79 = this.A << 1;
-                          this.F = var79;
-                          int var80 = this.A;
-                          int var81 = rlc(var80);
-                          this.A = var81;
-                          int var82 = this.A;
-                          int var83 = rlc(var82);
-                          this.A = var83;
-                          int var84 = this.A;
-                          int var85 = rlc(var84);
-                          this.A = var85;
-                          int var86 = this.A | this.C;
-                          this.A = var86;
-                          int var87 = this.A << 1;
-                          this.F = var87;
-                          this.C = this.A;
-                          this.B = 0;
-                          HL(33841);
-                          int var88 = BC();
-                          int var89 = HL() + var88 & 65535;
-                          HL(var89);
-                          int var90 = DE();
-                          push(var90);
-                          int var91 = this.D & 1;
-                          this.F = var91;
-                          this.D = 64;
-                          if(this.F != 0) {
-                            this.D = 72;
-                          }
-
-                          this.B = 8;
-                          $38555();
-                          int var92 = pop();
-                          DE(var92);
-                        }
-                      }
-                    }
-                  }
-                }
-
-                int var45 = DE() + 1 & 65535;
-                DE(var45);
-                this.A = this.D;
-                int var46 = this.A - 90;
-                this.F = var46;
-              } while(this.F != 0);
+              do extracted16(); while(this.F != 0);
 
               BC(31);
               this.A = 0;
               int var47 = this.A << 1;
               this.F = var47;
 
-              do {
-                int var48 = BC();
-                int var49 = in(var48, 34970);
-                this.E = var49;
-                int var50 = this.A | this.E;
-                this.A = var50;
-                int var51 = this.A << 1;
-                this.F = var51;
-                int var52 = this.B - 1 & 255;
-                this.B = var52;
-              } while(this.B != 0);
+              do extracted17(); while(this.B != 0);
 
               int var53 = this.A & 32;
               this.A = var53;
@@ -1421,6 +359,1174 @@ public class ZxGame1E extends MiniZX {
         }
       }
     }
+  }
+
+  private boolean extracted18() {
+    int var234;
+    int var237;
+    int var233;
+    int var232;
+    int var238;
+    int var236;
+    int var235;
+    int var239;
+    this.B = 191;
+    HL(34274);
+    int var217 = BC();
+    int var218 = in(var217, 35620);
+    this.A = var218;
+    int var219 = this.A & 31;
+    this.A = var219;
+    int var220 = this.A << 1;
+    this.F = var220;
+    int var221 = this.A - 31;
+    this.F = var221;
+    if(this.F != 0) extracted10();
+    else {
+      int var222 = HL();
+      int var223 = mem(var222, 35638) & -2;
+      int var224 = HL();
+      wMem(var224, var223, 35638);
+    }
+
+    int var225 = HL();
+    int var226 = mem(var225, 35640) & 2;
+    this.F = var226;
+    if(this.F == 0) extracted11();
+
+    BC(61438);
+    int var227 = BC();
+    int var228 = in(var227, 35699);
+    this.A = var228;
+    int var229 = this.A & 2;
+    this.F = var229;
+    if(this.F == 0) if (extracted12()) return true;
+
+    int var230 = mem(34275, 35735);
+    this.A = var230;
+    int var231 = this.A - 10;
+    this.F = var231;
+    if(this.F != 0) extracted13();
+
+    $35211();
+    HL(24064);
+    DE(23552);
+    BC(512);
+    ldir();
+    HL(28672);
+    DE(24576);
+    BC(4096);
+    ldir();
+    $37056();
+    var232 = mem(34271, 35273);
+    this.A = var232;
+    var233 = this.A - 3;
+    this.F = var233;
+    if(this.F != 0) {
+      $36307();
+    }
+
+    var234 = mem(34255, 35281);
+    this.A = var234;
+    var235 = this.A - 225;
+    this.F = var235;
+    if(this.F >= 0) {
+      $38064();
+    }
+
+    var236 = mem(34271, 35289);
+    this.A = var236;
+    var237 = this.A - 3;
+    this.F = var237;
+    if(this.F != 0) {
+      $38344();
+    }
+
+    var238 = mem(34271, 35297);
+    this.A = var238;
+    var239 = this.A - 2;
+    this.F = var239;
+    if(this.F == 0) {
+      $38276();
+    }
+
+    $38196();
+    $37310();
+    $38137();
+    $37841();
+    return false;
+  }
+
+  private void extracted17() {
+    int var48 = BC();
+    int var49 = in(var48, 34970);
+    this.E = var49;
+    int var50 = this.A | this.E;
+    this.A = var50;
+    int var51 = this.A << 1;
+    this.F = var51;
+    int var52 = this.B - 1 & 255;
+    this.B = var52;
+  }
+
+  private void extracted16() {
+    int var42 = DE();
+    int var43 = mem(var42, 34884);
+    this.A = var43;
+    int var44 = this.A << 1;
+    this.F = var44;
+    if(this.F != 0) {
+      int var73 = this.A - 211;
+      this.F = var73;
+      if(this.F != 0) {
+        int var74 = this.A - 9;
+        this.F = var74;
+        if(this.F != 0) {
+          int var75 = this.A - 45;
+          this.F = var75;
+          if(this.F != 0) {
+            int var76 = this.A - 36;
+            this.F = var76;
+            if(this.F != 0) {
+              this.C = 0;
+              int var77 = this.A - 8;
+              this.F = var77;
+              if(this.F != 0) {
+                int var93 = this.A - 41;
+                this.F = var93;
+                if(this.F != 0) {
+                  int var94 = this.A - 44;
+                  this.F = var94;
+                  if(this.F != 0) {
+                    int var96 = this.A - 5;
+                    this.F = var96;
+                    if(this.F != 0) {
+                      this.C = 16;
+                    }
+                  } else {
+                    this.A = 37;
+                    int var95 = DE();
+                    wMem(var95, this.A, 34928);
+                  }
+                }
+              }
+
+              this.A = this.E;
+              int var78 = this.A & 1;
+              this.A = var78;
+              int var79 = this.A << 1;
+              this.F = var79;
+              int var80 = this.A;
+              int var81 = rlc(var80);
+              this.A = var81;
+              int var82 = this.A;
+              int var83 = rlc(var82);
+              this.A = var83;
+              int var84 = this.A;
+              int var85 = rlc(var84);
+              this.A = var85;
+              int var86 = this.A | this.C;
+              this.A = var86;
+              int var87 = this.A << 1;
+              this.F = var87;
+              this.C = this.A;
+              this.B = 0;
+              HL(33841);
+              int var88 = BC();
+              int var89 = HL() + var88 & 65535;
+              HL(var89);
+              int var90 = DE();
+              push(var90);
+              int var91 = this.D & 1;
+              this.F = var91;
+              this.D = 64;
+              if(this.F != 0) {
+                this.D = 72;
+              }
+
+              this.B = 8;
+              $38555();
+              int var92 = pop();
+              DE(var92);
+            }
+          }
+        }
+      }
+    }
+
+    int var45 = DE() + 1 & 65535;
+    DE(var45);
+    this.A = this.D;
+    int var46 = this.A - 90;
+    this.F = var46;
+  }
+
+  private void extracted15() {
+    int var33 = HL();
+    int var34 = mem(var33, 34825) | 64;
+    int var35 = HL();
+    wMem(var35, var34, 34825);
+    int var36 = this.L + 1 & 255;
+    this.L = var36;
+    this.F = var36;
+  }
+
+  private void extracted14() {
+    int var366 = this.A - 1 & 255;
+    this.A = var366;
+    this.F = var366;
+    wMem(34253, this.A, 35346);
+    int var367 = this.A;
+    int var368 = rlc(var367);
+    this.A = var368;
+    int var369 = this.A;
+    int var370 = rlc(var369);
+    this.A = var370;
+    int var371 = this.A;
+    int var372 = rlc(var371);
+    this.A = var372;
+    int var373 = this.A & 56;
+    this.A = var373;
+    int var374 = this.A << 1;
+    this.F = var374;
+    HL(23552);
+    DE(23553);
+    BC(511);
+    int var375 = HL();
+    wMem(var375, this.A, 35363);
+    ldir();
+  }
+
+  private void extracted13() {
+    int var240 = mem(33824, 35743);
+    this.A = var240;
+    int var241 = this.A - 28;
+    this.F = var241;
+    if(this.F == 0) {
+      int var242 = mem(34255, 35751);
+      this.A = var242;
+      int var243 = this.A - 208;
+      this.F = var243;
+      if(this.F == 0) {
+        int var244 = mem(34275, 35759);
+        this.A = var244;
+        int var245 = this.A;
+        int var246 = rlc(var245);
+        this.A = var246;
+        this.E = this.A;
+        this.D = 0;
+        IX(34279);
+        int var247 = DE();
+        int var248 = IX() + var247 & 65535;
+        IX(var248);
+        BC(64510);
+        int var249 = BC();
+        int var250 = in(var249, 35775);
+        this.A = var250;
+        int var251 = this.A & 31;
+        this.A = var251;
+        int var252 = this.A << 1;
+        this.F = var252;
+        int var253 = IX() + 0;
+        int var254 = mem(var253, 35779);
+        int var255 = this.A - var254;
+        this.F = var255;
+        if(this.F != 0) {
+          int var270 = this.A - 31;
+          this.F = var270;
+          if(this.F != 0) {
+            int var271 = IX() + -2;
+            int var272 = mem(var271, 35789);
+            int var273 = this.A - var272;
+            this.F = var273;
+            if(this.F != 0) {
+              this.A = 0;
+              int var274 = this.A << 1;
+              this.F = var274;
+              wMem(34275, this.A, 35796);
+            }
+          }
+        } else {
+          this.B = 223;
+          int var256 = BC();
+          int var257 = in(var256, 35804);
+          this.A = var257;
+          int var258 = this.A & 31;
+          this.A = var258;
+          int var259 = this.A << 1;
+          this.F = var259;
+          int var260 = IX() + 1;
+          int var261 = mem(var260, 35808);
+          int var262 = this.A - var261;
+          this.F = var262;
+          if(this.F != 0) {
+            int var265 = this.A - 31;
+            this.F = var265;
+            if(this.F != 0) {
+              int var266 = IX() + -1;
+              int var267 = mem(var266, 35818);
+              int var268 = this.A - var267;
+              this.F = var268;
+              if(this.F != 0) {
+                this.A = 0;
+                int var269 = this.A << 1;
+                this.F = var269;
+                wMem(34275, this.A, 35825);
+              }
+            }
+          } else {
+            int var263 = mem(34275, 35831);
+            this.A = var263;
+            int var264 = this.A + 1 & 255;
+            this.A = var264;
+            this.F = var264;
+            wMem(34275, this.A, 35835);
+          }
+        }
+      }
+    }
+  }
+
+  private boolean extracted12() {
+    int var275 = this.A & 16;
+    this.A = var275;
+    int var276 = this.A << 1;
+    this.F = var276;
+    int var277 = this.A ^ 16;
+    this.A = var277;
+    int var278 = this.A << 1;
+    this.F = var278;
+    int var279 = this.A;
+    int var280 = rlc(var279);
+    this.A = var280;
+    this.D = this.A;
+    int var281 = mem(34275, 35712);
+    this.A = var281;
+    int var282 = this.A - 10;
+    this.F = var282;
+    if(this.F == 0) {
+      BC(63486);
+      int var283 = BC();
+      int var284 = in(var283, 35723);
+      this.A = var284;
+      int var285 = ~this.A;
+      this.A = var285;
+      this.F = this.A;
+      int var286 = this.A & 31;
+      this.A = var286;
+      int var287 = this.A << 1;
+      this.F = var287;
+      int var288 = this.A | this.D;
+      this.A = var288;
+      int var289 = this.A << 1;
+      this.F = var289;
+      wMem(33824, this.A, 35729);
+      return true;
+    }
+    return false;
+  }
+
+  private void extracted11() {
+    this.A = 0;
+    int var290 = this.A << 1;
+    this.F = var290;
+    wMem(34272, this.A, 35645);
+    int var291 = mem(34273, 35648);
+    this.A = var291;
+    int var292 = this.A + 1 & 255;
+    this.A = var292;
+    this.F = var292;
+    wMem(34273, this.A, 35652);
+    int var293 = this.A & 126;
+    this.A = var293;
+    int var294 = this.A << 1;
+    this.F = var294;
+    int var295 = this.A;
+    int var296 = rrc(var295);
+    this.A = var296;
+    this.E = this.A;
+    this.D = 0;
+    HL(34399);
+    int var297 = DE();
+    int var298 = HL() + var297 & 65535;
+    HL(var298);
+    int var299 = mem(34252, 35665);
+    this.A = var299;
+    int var300 = this.A;
+    int var301 = rlc(var300);
+    this.A = var301;
+    int var302 = this.A;
+    int var303 = rlc(var302);
+    this.A = var303;
+    int var304 = this.A - 28;
+    int var305 = var304 & 255;
+    this.A = var305;
+    this.F = var304;
+    int var306 = -this.A & 255;
+    this.A = var306;
+    int var307 = HL();
+    int var308 = mem(var307, 35674);
+    int var309 = this.A + var308;
+    int var310 = var309 & 255;
+    this.A = var310;
+    this.F = var309;
+    this.D = this.A;
+    int var311 = mem(32990, 35676);
+    this.A = var311;
+    this.E = this.D;
+    BC(3);
+    int var312 = this.E - 1 & 255;
+    this.E = var312;
+    this.F = var312;
+    int var315;
+    int var316;
+    if(this.F == 0) {
+      this.E = this.D;
+      var315 = this.A ^ 24;
+      this.A = var315;
+      var316 = this.A << 1;
+      this.F = var316;
+    }
+
+    label349:
+    while(true) {
+      while(true) {
+        int var313 = this.B - 1 & 255;
+        this.B = var313;
+        if(this.B == 0) {
+          int var314 = this.C - 1 & 255;
+          this.C = var314;
+          this.F = var314;
+          if(this.F == 0) {
+            break label349;
+          }
+
+          var312 = this.E - 1 & 255;
+          this.E = var312;
+          this.F = var312;
+          if(this.F == 0) {
+            this.E = this.D;
+            var315 = this.A ^ 24;
+            this.A = var315;
+            var316 = this.A << 1;
+            this.F = var316;
+          }
+        } else {
+          var312 = this.E - 1 & 255;
+          this.E = var312;
+          this.F = var312;
+          if(this.F == 0) {
+            this.E = this.D;
+            var315 = this.A ^ 24;
+            this.A = var315;
+            var316 = this.A << 1;
+            this.F = var316;
+          }
+        }
+      }
+    }
+  }
+
+  private void extracted10() {
+    int var317 = HL();
+    int var318 = mem(var317, 35628) & 1;
+    this.F = var318;
+    if(this.F == 0) {
+      int var319 = HL();
+      int var320 = mem(var319, 35632);
+      this.A = var320;
+      int var321 = this.A ^ 3;
+      this.A = var321;
+      int var322 = this.A << 1;
+      this.F = var322;
+      int var323 = HL();
+      wMem(var323, this.A, 35635);
+    }
+  }
+
+  private void extracted9() {
+    do {
+      do {
+        int var172 = this.B - 1 & 255;
+        this.B = var172;
+      } while(this.B != 0);
+
+      this.A = this.C;
+      int var173 = this.A & 7;
+      this.A = var173;
+      int var174 = this.A << 1;
+      this.F = var174;
+      int var175 = this.A | 64;
+      this.A = var175;
+      int var176 = this.A << 1;
+      this.F = var176;
+      wMem(22730, this.A, 36079);
+      int var177 = this.A + 1 & 255;
+      this.A = var177;
+      this.F = var177;
+      int var178 = this.A & 7;
+      this.A = var178;
+      int var179 = this.A << 1;
+      this.F = var179;
+      int var180 = this.A | 64;
+      this.A = var180;
+      int var181 = this.A << 1;
+      this.F = var181;
+      wMem(22731, this.A, 36087);
+      int var182 = this.A + 1 & 255;
+      this.A = var182;
+      this.F = var182;
+      int var183 = this.A & 7;
+      this.A = var183;
+      int var184 = this.A << 1;
+      this.F = var184;
+      int var185 = this.A | 64;
+      this.A = var185;
+      int var186 = this.A << 1;
+      this.F = var186;
+      wMem(22732, this.A, 36095);
+      int var187 = this.A + 1 & 255;
+      this.A = var187;
+      this.F = var187;
+      int var188 = this.A & 7;
+      this.A = var188;
+      int var189 = this.A << 1;
+      this.F = var189;
+      int var190 = this.A | 64;
+      this.A = var190;
+      int var191 = this.A << 1;
+      this.F = var191;
+      wMem(22733, this.A, 36103);
+      int var192 = this.A + 1 & 255;
+      this.A = var192;
+      this.F = var192;
+      int var193 = this.A & 7;
+      this.A = var193;
+      int var194 = this.A << 1;
+      this.F = var194;
+      int var195 = this.A | 64;
+      this.A = var195;
+      int var196 = this.A << 1;
+      this.F = var196;
+      wMem(22738, this.A, 36111);
+      int var197 = this.A + 1 & 255;
+      this.A = var197;
+      this.F = var197;
+      int var198 = this.A & 7;
+      this.A = var198;
+      int var199 = this.A << 1;
+      this.F = var199;
+      int var200 = this.A | 64;
+      this.A = var200;
+      int var201 = this.A << 1;
+      this.F = var201;
+      wMem(22739, this.A, 36119);
+      int var202 = this.A + 1 & 255;
+      this.A = var202;
+      this.F = var202;
+      int var203 = this.A & 7;
+      this.A = var203;
+      int var204 = this.A << 1;
+      this.F = var204;
+      int var205 = this.A | 64;
+      this.A = var205;
+      int var206 = this.A << 1;
+      this.F = var206;
+      wMem(22740, this.A, 36127);
+      int var207 = this.A + 1 & 255;
+      this.A = var207;
+      this.F = var207;
+      int var208 = this.A & 7;
+      this.A = var208;
+      int var209 = this.A << 1;
+      this.F = var209;
+      int var210 = this.A | 64;
+      this.A = var210;
+      int var211 = this.A << 1;
+      this.F = var211;
+      wMem(22741, this.A, 36135);
+      int var212 = this.C - 1 & 255;
+      this.C = var212;
+      this.F = var212;
+    } while(this.F != 0);
+
+    int var213 = this.D - 1 & 255;
+    this.D = var213;
+    this.F = var213;
+  }
+
+  private void extracted8() {
+    int var139 = mem(34276, 35953);
+    this.A = var139;
+    this.C = this.A;
+    this.B = 130;
+    int var140 = BC();
+    int var141 = mem(var140, 35959);
+    this.A = var141;
+    int var142 = this.A | 15;
+    this.A = var142;
+    int var143 = this.A << 1;
+    this.F = var143;
+    this.L = this.A;
+    int var144 = BC() + 1 & 65535;
+    BC(var144);
+    int var145 = BC();
+    int var146 = mem(var145, 35964);
+    this.A = var146;
+    int var147 = this.A - 32;
+    int var148 = var147 & 255;
+    this.A = var148;
+    this.F = var147;
+    this.H = this.A;
+    DE(40000);
+    this.C = 0;
+    $37974();
+    int var149 = mem(34276, 35976);
+    this.A = var149;
+    int var150 = ~this.A;
+    this.A = var150;
+    this.F = this.A;
+    this.E = this.A;
+    this.A = 0;
+    int var151 = this.A << 1;
+    this.F = var151;
+    BC(64);
+
+    do {
+      int var152 = this.A ^ 24;
+      this.A = var152;
+      int var153 = this.A << 1;
+      this.F = var153;
+      this.B = this.E;
+
+      do {
+        int var154 = this.B - 1 & 255;
+        this.B = var154;
+      } while(this.B != 0);
+
+      int var155 = this.C - 1 & 255;
+      this.C = var155;
+      this.F = var155;
+    } while(this.F != 0);
+
+    HL(22528);
+    DE(22529);
+    BC(511);
+    int var156 = mem(34276, 36004);
+    this.A = var156;
+    int var157 = this.A & 12;
+    this.A = var157;
+    int var158 = this.A << 1;
+    this.F = var158;
+    int var159 = this.A;
+    int var160 = rlc(var159);
+    this.A = var160;
+    int var161 = this.A | 71;
+    this.A = var161;
+    int var162 = this.A << 1;
+    this.F = var162;
+    int var163 = HL();
+    wMem(var163, this.A, 36012);
+    ldir();
+    int var164 = this.A & 250;
+    this.A = var164;
+    int var165 = this.A << 1;
+    this.F = var165;
+    int var166 = this.A | 2;
+    this.A = var166;
+    int var167 = this.A << 1;
+    this.F = var167;
+    wMem(22991, this.A, 36019);
+    wMem(22992, this.A, 36022);
+    wMem(23023, this.A, 36025);
+    wMem(23024, this.A, 36028);
+    int var168 = mem(34276, 36031);
+    this.A = var168;
+    int var169 = this.A + 4;
+    int var170 = var169 & 255;
+    this.A = var170;
+    this.F = var169;
+    wMem(34276, this.A, 36036);
+    int var171 = this.A - 196;
+    this.F = var171;
+  }
+
+  private void extracted7() {
+    int var214 = HL();
+    int var215 = mem(var214, 35899) - 1 & 255;
+    int var216 = HL();
+    wMem(var216, var215, 35899);
+    this.F = var215;
+    HL(34263);
+    DE(34255);
+    BC(7);
+    ldir();
+    return;
+  }
+
+  private void extracted6() {
+    HL(22528);
+    DE(22529);
+    BC(511);
+    int var107 = HL();
+    wMem(var107, this.A, 35852);
+    ldir();
+    this.E = this.A;
+    int var108 = ~this.A;
+    this.A = var108;
+    this.F = this.A;
+    int var109 = this.A & 7;
+    this.A = var109;
+    int var110 = this.A << 1;
+    this.F = var110;
+    int var111 = this.A;
+    int var112 = rlc(var111);
+    this.A = var112;
+    int var113 = this.A;
+    int var114 = rlc(var113);
+    this.A = var114;
+    int var115 = this.A;
+    int var116 = rlc(var115);
+    this.A = var116;
+    int var117 = this.A | 7;
+    this.A = var117;
+    int var118 = this.A << 1;
+    this.F = var118;
+    this.D = this.A;
+    this.C = this.E;
+    int var119 = this.C;
+    int var120 = rrc(var119);
+    this.C = var120;
+    int var121 = this.C;
+    int var122 = rrc(var121);
+    this.C = var122;
+    int var123 = this.C;
+    int var124 = rrc(var123);
+    this.C = var124;
+    int var125 = this.A | 16;
+    this.A = var125;
+    int var126 = this.A << 1;
+    this.F = var126;
+    this.A = 0;
+    int var127 = this.A << 1;
+    this.F = var127;
+
+    do {
+      int var128 = this.A ^ 24;
+      this.A = var128;
+      int var129 = this.A << 1;
+      this.F = var129;
+      this.B = this.D;
+
+      do {
+        int var130 = this.B - 1 & 255;
+        this.B = var130;
+      } while(this.B != 0);
+
+      int var131 = this.C - 1 & 255;
+      this.C = var131;
+      this.F = var131;
+    } while(this.F != 0);
+
+    this.A = this.E;
+    int var132 = this.A - 1 & 255;
+    this.A = var132;
+    this.F = var132;
+    int var133 = this.A - 63;
+    this.F = var133;
+  }
+
+  private boolean extracted5() {
+    int var103;
+    int var99;
+    int var100;
+    int var326;
+    int var327;
+    int var104;
+    int var101;
+    int var324;
+    int var102;
+    int var325;
+    this.B = 2;
+    var99 = BC();
+    var100 = in(var99, 35539);
+    this.A = var100;
+    var101 = this.A & 31;
+    this.A = var101;
+    var102 = this.A << 1;
+    this.F = var102;
+    var103 = this.A - 31;
+    this.F = var103;
+    if(this.F != 0) {
+      HL(39424);
+      DE(23040);
+      BC(256);
+      ldir();
+      var104 = mem(32990, 35602);
+      this.A = var104;
+      return true;
+    }
+
+    var324 = this.E + 1 & 255;
+    this.E = var324;
+    this.F = var324;
+    if(this.F == 0) {
+      var325 = this.D + 1 & 255;
+      this.D = var325;
+      this.F = var325;
+      if(this.F == 0) {
+        var326 = mem(34275, 35553);
+        this.A = var326;
+        var327 = this.A - 10;
+        this.F = var327;
+        if(this.F != 0) {
+          $35563();
+        }
+      }
+    }
+    return false;
+  }
+
+  private void extracted4() {
+    int var103;
+    int var99;
+    int var104;
+    int var324;
+    int var101;
+    int var326;
+    int var100;
+    int var102;
+    int var327;
+    int var325;
+    this.B = 253;
+    int var328 = BC();
+    int var329 = in(var328, 35526);
+    this.A = var329;
+    int var330 = this.A & 31;
+    this.A = var330;
+    int var331 = this.A << 1;
+    this.F = var331;
+    int var332 = this.A - 31;
+    this.F = var332;
+    if(this.F != 0) {
+      DE(0);
+
+      while(true) {
+        this.B = 2;
+        var99 = BC();
+        var100 = in(var99, 35539);
+        this.A = var100;
+        var101 = this.A & 31;
+        this.A = var101;
+        var102 = this.A << 1;
+        this.F = var102;
+        var103 = this.A - 31;
+        this.F = var103;
+        if(this.F != 0) {
+          HL(39424);
+          DE(23040);
+          BC(256);
+          ldir();
+          var104 = mem(32990, 35602);
+          this.A = var104;
+          break;
+        }
+
+        var324 = this.E + 1 & 255;
+        this.E = var324;
+        this.F = var324;
+        if(this.F == 0) {
+          var325 = this.D + 1 & 255;
+          this.D = var325;
+          this.F = var325;
+          if(this.F == 0) {
+            var326 = mem(34275, 35553);
+            this.A = var326;
+            var327 = this.A - 10;
+            this.F = var327;
+            if(this.F != 0) {
+              $35563();
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private boolean extracted3() {
+    int var22;
+    int var23;
+    int var21;
+    int var18;
+    int var24;
+    int var19;
+    int var17;
+    int var20;
+    BC(65278);
+    var17 = BC();
+    var18 = in(var17, 35502);
+    this.A = var18;
+    this.E = this.A;
+    this.B = 127;
+    var19 = BC();
+    var20 = in(var19, 35507);
+    this.A = var20;
+    var21 = this.A | this.E;
+    this.A = var21;
+    var22 = this.A << 1;
+    this.F = var22;
+    var23 = this.A & 1;
+    this.A = var23;
+    var24 = this.A << 1;
+    this.F = var24;
+    if(this.F == 0) {
+      return true;
+    }
+    return false;
+  }
+
+  private boolean extracted2() {
+    int var23;
+    int var21;
+    int var24;
+    int var22;
+    int var17;
+    int var20;
+    int var18;
+    int var19;
+    IX(34175);
+    int var333 = IX() + 4;
+    int var334 = mem(var333, 35414) + 1 & 255;
+    wMem(var333, var334, 35414);
+    this.F = var334;
+    int var335 = IX() + 4;
+    int var336 = mem(var335, 35417);
+    this.A = var336;
+    int var337 = this.A - 58;
+    this.F = var337;
+    if(this.F == 0) {
+      int var338 = IX() + 4;
+      wMem(var338, 48, 35424);
+      int var339 = IX() + 3;
+      int var340 = mem(var339, 35428) + 1 & 255;
+      wMem(var339, var340, 35428);
+      this.F = var340;
+      int var341 = IX() + 3;
+      int var342 = mem(var341, 35431);
+      this.A = var342;
+      int var343 = this.A - 54;
+      this.F = var343;
+      if(this.F == 0) if (extracted1()) return true;
+    }
+
+    BC(65278);
+    var17 = BC();
+    var18 = in(var17, 35502);
+    this.A = var18;
+    this.E = this.A;
+    this.B = 127;
+    var19 = BC();
+    var20 = in(var19, 35507);
+    this.A = var20;
+    var21 = this.A | this.E;
+    this.A = var21;
+    var22 = this.A << 1;
+    this.F = var22;
+    var23 = this.A & 1;
+    this.A = var23;
+    var24 = this.A << 1;
+    this.F = var24;
+    if(this.F == 0) {
+      return true;
+    }
+    return false;
+  }
+
+  private boolean extracted1() {
+    int var344 = IX() + 3;
+    wMem(var344, 48, 35438);
+    int var345 = IX() + 0;
+    int var346 = mem(var345, 35442);
+    this.A = var346;
+    int var347 = this.A - 49;
+    this.F = var347;
+    if(this.F == 0) {
+      int var355 = IX() + 1;
+      int var356 = mem(var355, 35449) + 1 & 255;
+      wMem(var355, var356, 35449);
+      this.F = var356;
+      int var357 = IX() + 1;
+      int var358 = mem(var357, 35452);
+      this.A = var358;
+      int var359 = this.A - 51;
+      this.F = var359;
+      if(this.F == 0) {
+        int var360 = IX() + 5;
+        int var361 = mem(var360, 35459);
+        this.A = var361;
+        int var362 = this.A - 112;
+        this.F = var362;
+        if(this.F == 0) {
+          return true;
+        }
+
+        int var363 = IX() + 0;
+        wMem(var363, 32, 35467);
+        int var364 = IX() + 1;
+        wMem(var364, 49, 35471);
+        int var365 = IX() + 5;
+        wMem(var365, 112, 35475);
+      }
+    } else {
+      int var348 = IX() + 1;
+      int var349 = mem(var348, 35481) + 1 & 255;
+      wMem(var348, var349, 35481);
+      this.F = var349;
+      int var350 = IX() + 1;
+      int var351 = mem(var350, 35484);
+      this.A = var351;
+      int var352 = this.A - 58;
+      this.F = var352;
+      if(this.F == 0) {
+        int var353 = IX() + 1;
+        wMem(var353, 48, 35491);
+        int var354 = IX() + 0;
+        wMem(var354, 49, 35495);
+      }
+    }
+    return false;
+  }
+
+  private void extracted() {
+    int var235;
+    int var234;
+    int var232;
+    int var236;
+    int var239;
+    int var233;
+    int var237;
+    int var238;
+    int var376 = mem(33824, 35090);
+    this.A = var376;
+    int var377 = this.A | 192;
+    this.A = var377;
+    int var378 = this.A << 1;
+    this.F = var378;
+    this.H = this.A;
+    this.L = 0;
+    DE(32768);
+    BC(256);
+    ldir();
+    IX(33008);
+    DE(33024);
+    this.A = 8;
+
+    do {
+      int var379 = IX() + 0;
+      int var380 = mem(var379, 35115);
+      this.L = var380;
+      int var381 = this.L & -129;
+      this.L = var381;
+      this.H = 20;
+      int var382 = HL();
+      int var383 = HL() + var382 & 65535;
+      HL(var383);
+      int var384 = HL();
+      int var385 = HL() + var384 & 65535;
+      HL(var385);
+      int var386 = HL();
+      int var387 = HL() + var386 & 65535;
+      HL(var387);
+      BC(2);
+      ldir();
+      int var388 = IX() + 1;
+      int var389 = mem(var388, 35130);
+      this.C = var389;
+      int var390 = HL();
+      wMem(var390, this.C, 35133);
+      BC(6);
+      ldir();
+      int var391 = IX() + 1 & 65535;
+      IX(var391);
+      int var392 = IX() + 1 & 65535;
+      IX(var392);
+      int var393 = this.A - 1 & 255;
+      this.A = var393;
+      this.F = var393;
+    } while(this.F != 0);
+
+    HL(34255);
+    DE(34263);
+    BC(7);
+    ldir();
+    $36147();
+    HL(20480);
+    DE(20481);
+    BC(2047);
+    int var394 = HL();
+    wMem(var394, 0, 35169);
+    ldir();
+    IX(32896);
+    this.C = 32;
+    DE(20480);
+    $38528();
+    IX(34132);
+    DE(20576);
+    this.C = 32;
+    $38528();
+    int var395 = mem(32990, 35197);
+    this.A = var395;
+    this.C = 254;
+    this.A = 0;
+    int var396 = this.A << 1;
+    this.F = var396;
+    wMem(34262, this.A, 35205);
+    $35211();
+    HL(24064);
+    DE(23552);
+    BC(512);
+    ldir();
+    HL(28672);
+    DE(24576);
+    BC(4096);
+    ldir();
+    $37056();
+    var232 = mem(34271, 35273);
+    this.A = var232;
+    var233 = this.A - 3;
+    this.F = var233;
+    if(this.F != 0) {
+      $36307();
+    }
+
+    var234 = mem(34255, 35281);
+    this.A = var234;
+    var235 = this.A - 225;
+    this.F = var235;
+    if(this.F >= 0) {
+      $38064();
+    }
+
+    var236 = mem(34271, 35289);
+    this.A = var236;
+    var237 = this.A - 3;
+    this.F = var237;
+    if(this.F != 0) {
+      $38344();
+    }
+
+    var238 = mem(34271, 35297);
+    this.A = var238;
+    var239 = this.A - 2;
+    this.F = var239;
+    if(this.F == 0) {
+      $38276();
+    }
+
+    $38196();
+    $37310();
+    $38137();
+    $37841();
   }
 
   public void $35211() {

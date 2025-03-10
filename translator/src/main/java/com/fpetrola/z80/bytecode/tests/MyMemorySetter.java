@@ -16,8 +16,24 @@
  *
  */
 
-package com.fpetrola.z80.cpu;
+package com.fpetrola.z80.bytecode.tests;
 
-public interface MemorySetter {
-  void setData(byte[] result);
+import com.fpetrola.z80.cpu.MemorySetter;
+import com.fpetrola.z80.minizx.SpectrumApplication;
+import com.fpetrola.z80.opcodes.references.WordNumber;
+
+public class MyMemorySetter implements MemorySetter {
+  private final SpectrumApplication spectrumApplication;
+
+  public MyMemorySetter(SpectrumApplication spectrumApplication) {
+    this.spectrumApplication = spectrumApplication;
+  }
+
+  public void setData(byte[] result) {
+    for (int i = 0; i < result.length; i++) {
+      if (i >= 16384) {
+        spectrumApplication.mem[i] = result[i];
+      }
+    }
+  }
 }

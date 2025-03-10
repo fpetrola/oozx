@@ -51,6 +51,10 @@ public abstract class SpectrumApplication<T> {
     this.nextAddress = nextAddress;
   }
 
+  public int getNextAddress() {
+    return nextAddress;
+  }
+
   public int nextAddress = 0;
   public int initial;
 
@@ -64,7 +68,7 @@ public abstract class SpectrumApplication<T> {
     return Arrays.stream(integers).anyMatch(a -> a == nextAddress);
   }
 
-  public void pc(int address) {
+  public void pc(int address, int rdelta) {
   }
 
   public void executeMutantCode(int address) {
@@ -144,21 +148,21 @@ public abstract class SpectrumApplication<T> {
   }
 
   public void push(int value) {
-    if (SP != INITIAL_SP_VALUE) {
-      wMem16(SP, value);
-      SP -= 2;
-    } else
+//    if (SP != INITIAL_SP_VALUE) {
+//      wMem16(SP, value);
+//      SP -= 2;
+//    } else
       stack.push(value);
 //    if (stack.size() > 100)
 //      System.out.println("mmmmmm push");
   }
 
   public int pop() {
-    if (SP != INITIAL_SP_VALUE) {
-      int i = mem16(SP);
-      SP += 2;
-      return i;
-    } else
+//    if (SP != INITIAL_SP_VALUE) {
+//      int i = mem16(SP);
+//      SP += 2;
+//      return i;
+//    } else
       return stack.pop();
   }
 
@@ -264,7 +268,7 @@ public abstract class SpectrumApplication<T> {
     getMem()[address] = value & 0xff;
   }
 
-  public void waitNanos(int i) {
+  public static void waitNanos(int i) {
     long start = System.nanoTime();
     while (start + i >= System.nanoTime()) ;
   }

@@ -190,7 +190,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
       var pcValue = pc.read().intValue();
       ready = isReady(pcValue);
 
-      if (pcValue == 0x81B4)
+      if (pcValue == 34493)
         System.out.println("aca!");
       if (!ready) {
         var routineExecution = routineExecutorHandler.getCurrentRoutineExecution();

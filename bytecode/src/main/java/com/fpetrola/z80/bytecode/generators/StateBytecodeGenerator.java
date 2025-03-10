@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.bytecode.generators;
 
+import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.bytecode.generators.helpers.BytecodeGenerationContext;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.minizx.emulation.GameData;
@@ -81,9 +82,17 @@ public class StateBytecodeGenerator {
       getProgramBytesMaker.return_(base64Memory);
     }
 
-    enhanceGameData(gameData);
+//    enhanceGameData(gameData);
 
     BytecodeGenerationContext bytecodeGenerationContext = new BytecodeGenerationContext(routineManager, classMaker, state.getPc(), symbolicExecutionAdapter, gameData);
+
+//    Routine routine1 = routineManager.getRoutines().stream().filter(r -> r.getEntryPoint() == 34463).findFirst().get();
+//    Block block = routine1.getBlocks().get(0);
+//    routine1.removeBlock(block);
+//    routine1.setEntryPoint(34762);
+//    routineManager.addRoutine(new Routine(block, 34463, true));
+////    routine1.split(34762);
+
     List<Routine> routines = routineManager.getRoutinesInDepth();
 
     RoutineBytecodeGenerator routineBytecodeGenerator1 = new RoutineBytecodeGenerator(bytecodeGenerationContext, null);

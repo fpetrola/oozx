@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.fpetrola.z80.helpers.Helper.createMD5;
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 @SuppressWarnings("ALL")
 @RunWith(TestRunner.class)
@@ -201,8 +202,10 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
   @Test
   public void testWillyCheckingRoutines() {
     Helper.hex = false;
-    String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
-    stepUntilComplete(35090);
+//    String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
+    String base64Memory = getMemoryInBase64FromFile("file:////home/fernando/detodo/desarrollo/m/zx/roms/jswB.z80");
+
+    stepUntilComplete(34463);
 
     String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "JetSetWilly");
     actual = RemoteZ80Translator.improveSource(actual);
@@ -278,6 +281,9 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
     String first = Helper.getSnapshotFile(url);
     State<T> state = realCodeBytecodeCreationBase.getState();
     SnapshotLoader.setupStateWithSnapshot(getDefaultRegistersSetter(), first, state);
+//    T[] data = realCodeBytecodeCreationBase.getState().getMemory().getData();
+//    data[34498] = createValue(34476 & 0xff);
+//    data[34497] = createValue((34476 >> 8) & 0xff);
     return SnapshotHelper.getBase64Memory(realCodeBytecodeCreationBase.getState());
   }
 

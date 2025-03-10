@@ -95,7 +95,7 @@ public class RoutineFinder<T extends WordNumber> {
 
 //      System.out.println("PC: %s -> routine: %s".formatted(Helper.formatAddress(pcValue), currentRoutine));
 
-      if (pcValue == 0xB902 )
+      if (pcValue == 0xB902)
         System.out.print("");
       try {
         processedPcs.add(pcValue);
@@ -249,6 +249,9 @@ public class RoutineFinder<T extends WordNumber> {
         if (instruction instanceof Call) {
           routineManager.callers2.put(conditionalInstruction.getNextPC().intValue(), pcValue);
         } else if (!(instruction instanceof Ret<?>)) {
+//          routineManager.callees.put(35211, 34762);
+//          routineManager.callers.put(34762, 35211);
+
           routineManager.callers.put(conditionalInstruction.getNextPC().intValue(), pcValue);
           routineManager.callees.put(pcValue, conditionalInstruction.getNextPC().intValue());
         }

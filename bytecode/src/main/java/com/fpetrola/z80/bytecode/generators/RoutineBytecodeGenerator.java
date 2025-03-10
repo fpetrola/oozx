@@ -20,10 +20,10 @@ package com.fpetrola.z80.bytecode.generators;
 
 import com.fpetrola.z80.bytecode.generators.helpers.*;
 import com.fpetrola.z80.helpers.Helper;
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.minizx.NotSolvedStackException;
 import com.fpetrola.z80.minizx.StackException;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Plain16BitRegister;
@@ -31,6 +31,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineVisitor;
+import org.apache.commons.collections4.MultiSet;
 import org.cojen.maker.Field;
 import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
@@ -151,7 +152,15 @@ public class RoutineBytecodeGenerator {
         if (mutantCodeInInstruction(instruction, address)) {
           mm.invoke("executeMutantCode", address);
         } else {
-//          mm.invoke("pc", context.pc.read().intValue());
+          if (context.pc.read().intValue() == 35278)
+            System.out.println("agasgasg");
+          if (instruction instanceof AbstractInstruction<?> abstractInstruction) {
+            int rDelta = abstractInstruction.getRDelta();
+//            if (rDelta < 0)
+//              System.out.println("adgagadg");
+            mm.invoke("pc", context.pc.read().intValue(), rDelta);
+          } else
+            System.out.println("dsggag");
           InstructionsBytecodeGenerator instructionsBytecodeGenerator = new InstructionsBytecodeGenerator(mm, label, RoutineBytecodeGenerator.this, address, pendingFlag);
           instruction.accept(instructionsBytecodeGenerator);
           pendingFlag = instructionsBytecodeGenerator.pendingFlag;
@@ -200,22 +209,50 @@ public class RoutineBytecodeGenerator {
 
     if (!returnPoints.isEmpty() || !returnPointsDropped.isEmpty()) {
 //      returnPoints = returnPoints.stream().filter(i -> routine.contains(i)).toList();
-      mm.catch_(label1, StackException.class, (Variable exception) -> {
-        ArrayList<Integer> points = new ArrayList<>(returnPoints);
-        points.addAll(returnPointsDropped);
-        int size = points.size();
-        Variable value = mm.new_(int[].class, size);
 
-        for (int i = 0; i < size; i++) {
-          value.aset(i, points.get(i));
-        }
-        mm.invoke("isOwnAddress", exception, value).ifTrue(label1::goto_);
-        exception.throw_();
+      Set<Integer> keys = new HashSet<>(routine.getReturnPoints().keys());
+      keys.forEach(entry -> {
+        Integer key = entry;
+        Label tryStart = getLabel(key);
+        Label tryEnd = getLabel(key + 3);
+        Label cont = getLabel(key + 3).goto_();
+        var e = mm.catch_(tryStart, tryEnd, StackException.class);
+        Variable nextAddress = e.invoke("getNextPC");
+
+        Collection<Integer> integers = routine.getReturnPoints().get(key);
+        integers.forEach(i -> {
+          nextAddress.ifEq(i, () -> {
+            Label label3 = getLabel(i);
+            if (label3 != null)
+              label3.goto_();
+            else {
+              e.invoke("setNextPC", i + 1);
+              e.throw_();
+            }
+          });
+        });
+        tryEnd.goto_();
       });
+
+
+//      mm.catch_(label10, StackException.class, (Variable exception) -> {
+//        ArrayList<Integer> points = new ArrayList<>(returnPoints);
+//        points.addAll(returnPointsDropped);
+//        int size = points.size();
+//        Variable value = mm.new_(int[].class, size);
+//
+//        for (int i = 0; i < size; i++) {
+//          value.aset(i, points.get(i));
+//        }
+//        mm.invoke("isOwnAddress", exception, value).ifTrue(() -> {
+////          label1.goto_();
+//          mm.invoke("DE");
+//        });
+//        exception.throw_();
+//      });
     }
 
-    invokeReturnPoints();
-
+//    invokeReturnPoints(labels.get(routine.getEntryPoint()));
   }
 
   private boolean mutantCodeInInstruction(Instruction instruction, int address) {
@@ -384,8 +421,7 @@ public class RoutineBytecodeGenerator {
     mm.return_();
   }
 
-  void invokeReturnPoints() {
-    Label label2 = labels.get(routine.getEntryPoint());
+  void invokeReturnPoints(Label label2) {
     List<Integer> i = routine.getReturnPoints().values().stream().toList();
     List<Integer> integers = new ArrayList<>(new HashSet<>(i));
 //    label2.insert(() -> {

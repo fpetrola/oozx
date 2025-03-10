@@ -18,10 +18,8 @@
 
 package com.fpetrola.z80.minizx;
 
-import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.ide.rzx.InputRecordingBlock;
 import com.fpetrola.z80.ide.rzx.RzxFile;
-import com.fpetrola.z80.minizx.emulation.InterruptionListener;
 import com.fpetrola.z80.minizx.emulation.OutListener;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
@@ -31,25 +29,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
+
 public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
   public MiniZXKeyboard miniZXKeyboard;
   private Register<T> pc;
-
   private int currentFrameIndex;
-
-  private RzxFile rzxFile;
-  private OOZ80 ooz80;
   private InputRecordingBlock.Frame currentFrame;
-  private int fetchCounter;
   private LinkedList<Byte> inputs = new LinkedList<>();
-  private volatile boolean interruption = false;
   private InputRecordingBlock inputRecordingBlock;
   private List<InputRecordingBlock.Frame> frames;
-  private volatile boolean lastInterruption = true;
-  private boolean noInputs;
   private long lastCount;
   private byte lastPoll;
   private List<OutListener> outListeners = new ArrayList<>();
+  private int fetchCounter;
 
   public RZXPlayerIO() {
     miniZXKeyboard = new MiniZXKeyboard();
@@ -64,46 +57,30 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
   }
 
   public void out(T port, T value) {
-    outListeners.forEach(l-> l.outAt(port, value));
+    outListeners.forEach(l -> l.outAt(port, value));
   }
 
   public synchronized T in(T port) {
-    return WordNumber.createValue(performIn(port.intValue()));
+    if (currentFrame == null)
+      return createValue(0);
+    else {
+      T value = createValue(performIn(port.intValue()));
+//      if (value.intValue() != -65)
+//        System.out.println("");
+      return value;
+    }
   }
 
   private int performIn(int port) {
     return getNextInput();
-//    if (currentFrame.returnValues.length == 0)
-//      return 0;
-//
-//    if (returnValuesIndex >= currentFrame.returnValues.length) {
-//      System.out.println("error");
-//      return currentFrame.returnValues[currentFrame.returnValues.length - 1];
-//    } else {
-//      byte value = currentFrame.returnValues[returnValuesIndex++];
-//      return value;
-//    }
-//
-//    if ((port & 0x0001) == 0) {
-//      int earBit = 191;
-//      return miniZXKeyboard.readKeyboardPort(port, true) & earBit;
-//    }
-//
-//    return 0 & 0xff;
   }
 
   private byte getNextInput() {
-//    while (inputs.isEmpty()) {
-//      ++currentFrameIndex;
-//      changeFrame();
-//    }
-
     if (inputs.isEmpty()) {
       ++currentFrameIndex;
       changeFrame();
     }
     Byte poll = inputs.poll();
-    noInputs = inputs.isEmpty();
     if (poll == null)
       return lastPoll;
     else
@@ -119,24 +96,15 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
     this.pc = pc;
   }
 
-  public void setup(RzxFile rzxFile, OOZ80 ooz80) {
-    this.rzxFile = rzxFile;
+  public void setup(RzxFile rzxFile) {
     inputRecordingBlock = rzxFile.getInputRecordingBlock();
     frames = inputRecordingBlock.frames;
-    this.ooz80 = ooz80;
     currentFrameIndex = 0;
     lastCount = inputRecordingBlock.tStates;
+    lastPoll= 0;
+    fetchCounter= 0;
+    inputs.clear();
     changeFrame();
-
-//    ObservableRegister<T> registerR = (ObservableRegister<T>) ooz80.getState().getRegisterR();
-//    registerR.addIncrementWriteListener(value -> {
-//      fetchCounter++;
-//      if (fetchCounter >= currentFrame.fetchCounter) {
-//        ++currentFrameIndex;
-//        changeFrame();
-//      }
-//    });
-//    registerR.listening(true);
   }
 
   private void changeFrame() {
@@ -147,7 +115,6 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
       for (int i = 0; i < currentFrame.returnValues.length; i++) {
         inputs.add(currentFrame.returnValues[i]);
       }
-      fetchCounter = 0;
     } else
       inputs.add((byte) 0);
   }
@@ -159,13 +126,17 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
 
   public Predicate<Integer> getInterruptionCondition() {
     return (i) -> {
-      if (i - lastCount + 1 > currentFrame.fetchCounter) {
-        ++currentFrameIndex;
-        changeFrame();
-        lastCount = i;
-        return true;
-      } else
-        return false;
+      fetchCounter = i;
+      if (currentFrame != null)
+        if (i - lastCount + 1 > currentFrame.fetchCounter) {
+          ++currentFrameIndex;
+          changeFrame();
+          lastCount = i;
+          return true;
+        } else
+          return false;
+
+      return false;
     };
   }
 }

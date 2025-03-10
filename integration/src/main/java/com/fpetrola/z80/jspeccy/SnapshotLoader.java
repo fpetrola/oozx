@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.jspeccy;
 
+import com.fpetrola.z80.cpu.DefaultMemorySetter;
 import com.fpetrola.z80.cpu.MemorySetter;
 import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.memory.Memory;
@@ -35,14 +36,13 @@ public class SnapshotLoader {
       SnapshotFile snap = new SnapshotZ80();
       SpectrumState spectrumState = snap.load(file);
 
-      return setupStateFromSpectrumState(spectrumState, registersSetter, state);
+      return setupStateFromSpectrumState(spectrumState, registersSetter, new DefaultMemorySetter(state.getMemory(), MiniZXWithEmulationBase.createROM()));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  public static <T extends WordNumber> byte[] setupStateFromSpectrumState(SpectrumState spectrumState, RegistersSetter registersSetter, State<T> state) {
-    MemorySetter memorySetter = new MemorySetter(state.getMemory(), MiniZXWithEmulationBase.createROM());
+  public static <T extends WordNumber> byte[] setupStateFromSpectrumState(SpectrumState spectrumState, RegistersSetter registersSetter, MemorySetter memorySetter) {
 
     setZ80State(registersSetter, spectrumState.getZ80State());
 //      registersBase.setZ80State(spectrumState.getZ80State());

@@ -20,6 +20,7 @@ package com.fpetrola.z80.se.instructions;
 
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
+import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.opcodes.references.*;
@@ -87,11 +88,23 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
 //          target.write((T) new DirectAccessWordNumber(aLU8Assign.intValue(), pc.read().intValue(), address.intValue()));
 //          return cyclesCost;
 //        } else
-          return super.execute();
+        return super.execute();
       }
 
       protected String getName() {
         return "Ld_";
+      }
+    };
+  }
+
+  @Override
+  public JP JP(ImmutableOpcodeReference target, Condition condition) {
+    return new JP(target, condition, pc) {
+      public WordNumber calculateJumpAddress() {
+        WordNumber wordNumber = super.calculateJumpAddress();
+        if (wordNumber.intValue() == 40838)
+          wordNumber= WordNumber.createValue(34463);
+        return wordNumber;
       }
     };
   }

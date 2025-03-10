@@ -19,6 +19,10 @@
 package com.fpetrola.z80.minizx;
 
 public class StackException extends RuntimeException {
+  public void setNextPC(int nextPC) {
+    this.nextPC = nextPC;
+  }
+
   private int nextPC;
 
   public StackException(int nextPC) {

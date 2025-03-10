@@ -243,15 +243,18 @@ public class EmulatedMiniZX<T extends WordNumber> {
   }
 
   private void useRzx(RegistersBase registersBase, State<T> state, MiniZXIO io) {
-    String url = rzxFile;
+    setupRzx(registersBase, io, rzxFile, new DefaultMemorySetter(state.getMemory(), MiniZXWithEmulationBase.createROM()));
+  }
 
+  public static void setupRzx(RegistersSetter registersBase, MiniZXIO io, String rzxFile1, MemorySetter memorySetter) {
+    String url = rzxFile1;
     RzxFile rzxFile = new RzxParser().parseFile(url);
     SpectrumState spectrumState = RzxParser.loadSnapshot(rzxFile);
-    SnapshotLoader.setupStateFromSpectrumState(spectrumState, registersBase, state);
+    SnapshotLoader.setupStateFromSpectrumState(spectrumState, registersBase, memorySetter);
 //    SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
 
     if (io instanceof RZXPlayerIO<?> rzxPlayerIO)
-      rzxPlayerIO.setup(rzxFile, ooz80);
+      rzxPlayerIO.setup(rzxFile);
   }
 
 }

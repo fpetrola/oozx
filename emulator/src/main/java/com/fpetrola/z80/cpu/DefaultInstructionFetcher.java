@@ -21,6 +21,7 @@ package com.fpetrola.z80.cpu;
 import com.fpetrola.z80.instructions.cache.InstructionCloner;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
@@ -28,6 +29,7 @@ import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 
@@ -51,7 +53,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   private Instruction<T> prefetchedInstruction;
   protected int rdelta;
   private boolean prefetch = false;
-  protected Register<T> registerR;
+  protected DefaultRegisterBankFactory.RRegister<T> registerR;
   private Memory<T> memory;
 
   public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
@@ -62,7 +64,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     pcValue = state.getPc().read();
     this.instructionFactory = instructionFactory;
     this.clone = clone;
-    this.registerR = state.getRegisterR();
+    this.registerR = (DefaultRegisterBankFactory.RRegister<T>) state.getRegisterR();
     this.memory = state.getMemory();
   }
 
@@ -85,7 +87,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   @Override
   public Instruction<T> fetchNextInstruction() {
     fetchListeners.forEach(FetchListener::beforeFetch);
-    int rValue = registerR.read().intValue();
+    int rValue = registerR.read2().intValue();
     registerR.increment();
     pcValue = state.getPc().read();
 
@@ -94,10 +96,13 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
       prefetchedInstruction = currentInstruction;
     } else {
       currentInstruction = prefetchedInstruction;
-      registerR.write(createValue(registerR.read().intValue() + rdelta));
+      registerR.write(createValue(registerR.read2().intValue() + rdelta));
     }
 
-    rdelta = registerR.read().intValue() - rValue;
+    rdelta = registerR.read2().intValue() - rValue;
+//    if (rdelta < 0)
+//      System.out.println("adgagadg");
+    ((AbstractInstruction) currentInstruction).setRDelta(rdelta);
 
     return currentInstruction;
   }

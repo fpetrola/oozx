@@ -31,6 +31,10 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
     io = new DefaultMiniZXIO();
   }
 
+  public SyncSpectrumApplication(MiniZXIO miniZXIO) {
+    io= miniZXIO;
+  }
+
   public int mem(int address, int pc) {
     waitNanos(delay);
     syncChecker.checkSyncJava(address, 0, pc);

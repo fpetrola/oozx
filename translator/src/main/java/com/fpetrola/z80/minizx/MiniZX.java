@@ -24,16 +24,38 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyListener;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @SuppressWarnings("ALL")
-public abstract class MiniZX extends SyncSpectrumApplication {
+public abstract class MiniZX extends SpectrumApplication {
+  private Predicate<Integer> interruptionCondition;
+  protected int fetchCounter;
+  public int pc;
+
   public MiniZX() {
     init();
   }
 
+  public MiniZX(MiniZXIO miniZXIO) {
+    io = miniZXIO;
+    init();
+  }
+
+  public MiniZX(MiniZXIO miniZXIO, Predicate<Integer> interruptionCondition) {
+    this(miniZXIO);
+    this.interruptionCondition = interruptionCondition;
+  }
+
+  @Override
+  public void pc(int address, int rdelta) {
+    pc = address;
+    interruptionCondition.test(fetchCounter);
+    fetchCounter += rdelta;
+  }
+
   public void init() {
     this.mem = new int[65536];
-    MiniZX.createScreen(((DefaultMiniZXIO) io).miniZXKeyboard, new MiniZXScreen(this.getMemFunction()));
+    MiniZX.createScreen(((MiniZXIO) io).getMiniZXKeyboard(), new MiniZXScreen(this.getMemFunction()));
     final byte[] rom = MiniZXWithEmulationBase.createROM();
     final byte[] bytes = MiniZXWithEmulationBase.gzipDecompressFromBase64(this.getProgramBytes());
     for (int i = 0; i < 65536; ++i) {
@@ -42,14 +64,16 @@ public abstract class MiniZX extends SyncSpectrumApplication {
 
     customizeMemory();
 
-    syncChecker.init(this);
+//    syncChecker.init(this);
   }
 
   protected void customizeMemory() {
   }
 
   protected Function<Integer, Integer> getMemFunction() {
-    return index -> syncChecker.getByteFromEmu(index);
+//    return index -> syncChecker.getByteFromEmu(index);
+    return index -> mem[index];
+
   }
 
   protected abstract String getProgramBytes();
