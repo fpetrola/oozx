@@ -27,7 +27,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @SuppressWarnings("ALL")
-public abstract class MiniZX extends SpectrumApplication {
+public abstract class MiniZX extends SyncSpectrumApplication {
   private Predicate<Integer> interruptionCondition;
   protected int fetchCounter;
   public int pc;
@@ -49,7 +49,8 @@ public abstract class MiniZX extends SpectrumApplication {
   @Override
   public void pc(int address, int rdelta) {
     pc = address;
-    interruptionCondition.test(fetchCounter);
+    if (interruptionCondition != null)
+      interruptionCondition.test(fetchCounter);
     fetchCounter += rdelta;
   }
 
@@ -64,15 +65,15 @@ public abstract class MiniZX extends SpectrumApplication {
 
     customizeMemory();
 
-//    syncChecker.init(this);
+    syncChecker.init(this);
   }
 
   protected void customizeMemory() {
   }
 
   protected Function<Integer, Integer> getMemFunction() {
-//    return index -> syncChecker.getByteFromEmu(index);
-    return index -> mem[index];
+    return index -> syncChecker.getByteFromEmu(index);
+//    return index -> mem[index];
 
   }
 

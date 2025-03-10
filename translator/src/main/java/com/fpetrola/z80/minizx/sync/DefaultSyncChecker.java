@@ -31,6 +31,7 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.*;
 import com.fpetrola.z80.spy.ObservableRegister;
+import heros.fieldsens.structs.FactAtStatement;
 
 import java.util.*;
 
@@ -103,11 +104,11 @@ public class DefaultSyncChecker implements SyncChecker {
     });
     var state = new State<T>(io, bank, new MockedMemory(true));
     observablePC = (ObservableRegister) state.getPc();
-    observablePC.addRegisterWriteListener((v, i) -> {
-      Instruction<WordNumber> instructionAt = ooz80.getInstructionExecutor().getInstructionAt(v.intValue());
-      if (!(instructionAt instanceof RepeatingInstruction<WordNumber>))
-        checkSyncEmu(-1, -1, v.intValue(), false);
-    });
+//    observablePC.addRegisterWriteListener((v, i) -> {
+//      Instruction<WordNumber> instructionAt = ooz80.getInstructionExecutor().getInstructionAt(v.intValue());
+//      if (!(instructionAt instanceof RepeatingInstruction<WordNumber>))
+//        checkSyncEmu(-1, -1, v.intValue(), false);
+//    });
 //    observablePC.addIncrementWriteListener(v -> {
 //      int pc1 = observablePC.read().intValue();
 //      Instruction<WordNumber> instructionAt = ooz80.getInstructionExecutor().getInstructionAt(pc1);
@@ -120,7 +121,7 @@ public class DefaultSyncChecker implements SyncChecker {
   }
 
   public DefaultSyncChecker() {
-    com.fpetrola.z80.helpers.Helper.hex = true;
+    com.fpetrola.z80.helpers.Helper.hex = false;
     DefaultMiniZXIO io = (DefaultMiniZXIO) SpectrumApplication.io;
     SpectrumApplication.io = io;
     ooz80 = createOOZ80(io);
@@ -161,7 +162,7 @@ public class DefaultSyncChecker implements SyncChecker {
 //      System.out.println("not matching at: " + formatAddress(value.intValue()));
 //    }
 
-    WordNumber value = createValue(0x8185);
+    WordNumber value = createValue(34463);
     pc.write(value);
     observablePC.setListening(true);
 
@@ -170,7 +171,7 @@ public class DefaultSyncChecker implements SyncChecker {
 
   @Override
   public void checkSyncEmu(int address, int value, int pc, boolean write) {
-//    System.out.println("sync emu: " + formatAddress(pc));
+    System.out.println("sync emu: " + formatAddress(pc));
     syncEmuCounter++;
     while (checking == 0 || syncEmuCounter > maxwait) ;
     if (checking != pc)
@@ -183,7 +184,7 @@ public class DefaultSyncChecker implements SyncChecker {
 
   @Override
   public void checkSyncJava(int address, int value, int pc) {
-//    System.out.println("sync java: " + formatAddress(pc));
+    System.out.println("sync java: " + formatAddress(pc));
     syncEmuCounter++;
     checking = pc;
     while (checking != 0 || syncJavaCounter > maxwait) ;

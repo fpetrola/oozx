@@ -141,10 +141,10 @@ public class MiniZXAndEmulation {
       }
     });
 
-    if (write) {
+    if (write|| true) {
       WordNumber[] data = state1.getMemory().getData();
-      if (!true) {
-        for (int i = 16384; i < 0xFB10; i++)
+      if (true) {
+        for (int i = 0; i < 0xFB10; i++)
 //      int i = address;
           checkMem(data, i, differences);
       } else {
@@ -217,7 +217,7 @@ public class MiniZXAndEmulation {
   private void checkMem(WordNumber[] data, int i, boolean[] differences) {
     int i1 = data[i].intValue() & 0xFF;
     int i2 = spectrumApplication.getMem()[i] & 0xff;
-    if (i != 0xa83B && i != 0xa83c)
+//    if (i != 0xa83B && i != 0xa83c)
       if (i1 != i2) {
         System.out.println("mem diff at: " + formatAddress(i) + ": " + formatAddress(i1) + " - " + formatAddress(i2));
         differences[0] = true;

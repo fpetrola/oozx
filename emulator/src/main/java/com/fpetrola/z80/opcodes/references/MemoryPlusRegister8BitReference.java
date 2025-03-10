@@ -83,11 +83,14 @@ public class MemoryPlusRegister8BitReference<T extends WordNumber> implements Op
   }
 
   public byte fetchRelative() {
+    memory.disableReadListener();
     T dd = memory.read(pc.read().plus(valueDelta), 0);
     if (fetchedRelative != dd) {
       fetchedRelative = dd;
     }
-    return (byte) fetchedRelative.intValue();
+    byte b = (byte) fetchedRelative.intValue();
+    memory.enableReadListener();
+    return b;
   }
 
   public String toString() {

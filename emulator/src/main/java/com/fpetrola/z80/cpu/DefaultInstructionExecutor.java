@@ -67,9 +67,9 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
       Memory memory = state.getMemory();
       T pcValue = state.getPc().read();
 
-//      if(pcValue.intValue() == 35128){
-//        System.out.println("sddssdggsdgg3333");
-//      }
+      if(pcValue.intValue() == 38555){
+        System.out.println("sddssdggsdgg3333");
+      }
       memory.read(createValue(-1), 1);
 //      executingInstructions.add(instruction);
 //      allInstructions.add(instruction);
@@ -86,9 +86,7 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
 
       T nextPC = abstractInstruction.getNextPC();
 
-//      String toString = new ToStringInstructionVisitor<T>().createToString(instruction);
-//      String x = String.format("%04X", pcValue.intValue()) + ": " + toString + " -> " + nextPC;
-//      System.out.println(x);
+      printPC(instruction, pcValue, nextPC);
 
       if (nextPC == null)
         nextPC = pcValue.plus(instruction.getLength());
@@ -103,6 +101,12 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
     }
 
     return instruction;
+  }
+
+  private void printPC(Instruction<T> instruction, T pcValue, T nextPC) {
+    String toString = new ToStringInstructionVisitor<T>().createToString(instruction);
+    String x = String.format("%04d", pcValue.intValue()) + ": " + toString + " -> " + nextPC;
+    System.out.println(x);
   }
 
   @Override
