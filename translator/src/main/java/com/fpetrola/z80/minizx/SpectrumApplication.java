@@ -19,21 +19,20 @@
 package com.fpetrola.z80.minizx;
 
 import com.fpetrola.z80.cpu.IO;
+import com.fpetrola.z80.minizx.sync.SyncChecker;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Stack;
 
 public abstract class SpectrumApplication<T> {
-  public ZxGameGraphics zxGameGraphics= new ZxGameGraphics();
-  public ZxGameScreen zxGameScreen= new ZxGameScreen();
-  public ZxGameAttributes zxGameAttributes= new ZxGameAttributes();
-  public ZxGameCharacters zxGameCharacters= new ZxGameCharacters();
-  public ZxGameSounds zxGameSounds= new ZxGameSounds();
-  public ZxGameStatus zxGameStatus= new ZxGameStatus();
+  public SyncChecker syncChecker = new SyncChecker() {
+    public int getByteFromEmu(Integer index) {
+      return mem[index];
+    }
+  };
 
-  public static final int INITIAL_SP_VALUE = 0xfc00;
+  public static final int INITIAL_SP_VALUE = 1234;
   public int A;
   public int F;
   public int B;
@@ -51,10 +50,6 @@ public abstract class SpectrumApplication<T> {
     this.nextAddress = nextAddress;
   }
 
-  public int getNextAddress() {
-    return nextAddress;
-  }
-
   public int nextAddress = 0;
   public int initial;
 
@@ -63,12 +58,10 @@ public abstract class SpectrumApplication<T> {
   private final Stack<Integer> stack = new Stack<>();
   protected int carry;
 
+
   public boolean isOwnAddress(StackException stackException, int... integers) {
     nextAddress = stackException.getNextPC();
     return Arrays.stream(integers).anyMatch(a -> a == nextAddress);
-  }
-
-  public void pc(int address, int rdelta) {
   }
 
   public void executeMutantCode(int address) {
@@ -80,29 +73,9 @@ public abstract class SpectrumApplication<T> {
       wMem(DE(), A, address);
     } else if (mem[address] == 0x16) {
       D = mem[address + 1];
-    } else if (mem[address] == 0x06) {
-      B = mem[address + 1];
-    } else if (mem[address] == 0x11) {
-      DE(mem16(address + 1));
-    } else if (mem[address] == 0x3E) {
-      A = mem[address + 1];
-    } else if (mem[address] == 0x01) {
-      BC(mem16(address + 1));
-    } else if (mem[address] == 0xCD) {
-      invokeMethod(mem16(address + 1));
     }
 
 //    System.out.println("mutant at: " + address);
-  }
-
-  private void invokeMethod(int address) {
-    try {
-      String formatted = "$%04X".formatted(address);
-      Method method = getClass().getMethod(formatted);
-      method.invoke(this);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
   }
 
   public void SP(int value) {
@@ -152,7 +125,7 @@ public abstract class SpectrumApplication<T> {
 //      wMem16(SP, value);
 //      SP -= 2;
 //    } else
-      stack.push(value);
+    stack.push(value);
 //    if (stack.size() > 100)
 //      System.out.println("mmmmmm push");
   }
@@ -163,7 +136,7 @@ public abstract class SpectrumApplication<T> {
 //      SP += 2;
 //      return i;
 //    } else
-      return stack.pop();
+    return stack.pop();
   }
 
   public int carry(int f) {
@@ -179,6 +152,7 @@ public abstract class SpectrumApplication<T> {
 
   public SpectrumApplication() {
     Arrays.fill(getMem(), 0);
+    io = new DefaultMiniZXIO();
   }
 
   public int in(int port, int pc) {
@@ -302,25 +276,30 @@ public abstract class SpectrumApplication<T> {
     return new int[]{HL, DE, BC};
   }
 
-  public void ldir() {
-    while (BC() != 0) {
+//  public void ldir() {
+//    while (BC() != 0) {
 //      wMem(DE(), mem(HL()));
-      mem[DE()] = mem[HL()];
-      BC(BC() - 1);
-      HL(HL() + 1);
-      DE(DE() + 1);
-    }
+////      mem[DE()] = mem[HL()];
+//      BC(BC() - 1);
+//      HL(HL() + 1);
+//      DE(DE() + 1);
+//    }
+//  }
+
+  public void pc(int address, int rdelta) {
   }
 
-  public void ldi() {
-    mem[DE()] = mem[HL()];
-    BC(BC() - 1);
-    HL(HL() + 1);
-    DE(DE() + 1);
-    if (BC() == 0)
-      F = -1;
-    else
-      F = 1;
+  public void ldir() {
+    int bc = BC();
+    int de = DE();
+    int hl = HL();
+    while (bc-- != 0) {
+      pc(35326, 16);
+      wMem(de++, mem(hl++));
+    }
+    BC(bc);
+    HL(hl);
+    DE(de);
   }
 
   public void lddr() {
@@ -344,11 +323,11 @@ public abstract class SpectrumApplication<T> {
 
   public void cpir() {
     int result = -1;
-    do {
+    while (BC() != 0 && result != A) {
       result = mem(HL());
       BC(BC() - 1);
       HL(HL() + 1);
-    } while (BC() != 0 && result != (A & 0xff));
+    }
   }
 
   public void cpdr() {
@@ -358,7 +337,7 @@ public abstract class SpectrumApplication<T> {
   public void AF(int value) {
     AF = value & 0xffff;
     A = AF >> 8;
-    // F = AF & 0xFF;
+    F = AF & 0xFF;
   }
 
   public void BC(int value) {
@@ -425,7 +404,7 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int rl(int a) {
-    int lastCarry = carry & 0x01;
+    int lastCarry = carry(F) & 0x01;
     F = carry = (a & 128) >> 7;
     return ((a << 1) & 0xfe) | lastCarry;
   }
@@ -437,7 +416,7 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int sr(int a) {
-    F = carry = (a & 1);
+    F = carry = (a & 1) >> 7;
     return ((a & 0xff) >> 1);
   }
 

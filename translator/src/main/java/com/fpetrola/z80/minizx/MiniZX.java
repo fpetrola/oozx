@@ -27,7 +27,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @SuppressWarnings("ALL")
-public abstract class MiniZX extends SyncSpectrumApplication {
+public abstract class MiniZX extends SpectrumApplication {
   private Predicate<Integer> interruptionCondition;
   protected int fetchCounter;
   public int pc;
@@ -46,7 +46,6 @@ public abstract class MiniZX extends SyncSpectrumApplication {
     this.interruptionCondition = interruptionCondition;
   }
 
-  @Override
   public void pc(int address, int rdelta) {
     pc = address;
     if (interruptionCondition != null)

@@ -50,22 +50,22 @@ public class GameInvoker {
 //    JetSetWilly spectrumApplication = new JetSetWilly(miniZXIO, interruptionCondition);
 //    EmulatedMiniZX.setupRzx(new MyRegistersSetter(spectrumApplication), miniZXIO, url, new MyMemorySetter(spectrumApplication));
 
-    DefaultMiniZXIO<WordNumber> rzxPlayerIO = new DefaultMiniZXIO<>();
-    JetSetWilly zxGame2 = new JetSetWilly(rzxPlayerIO, interruptionCondition) {
-      @Override
-      public void pc(int address, int rdelta) {
-        SpectrumApplication.waitNanos(7000);
-        super.pc(address, rdelta);
-      }
-    };
-    zxGame2.$34463();
+//    DefaultMiniZXIO<WordNumber> rzxPlayerIO = new DefaultMiniZXIO<>();
+//    JetSetWilly zxGame2 = new JetSetWilly(rzxPlayerIO, interruptionCondition) {
+//      @Override
+//      public void pc(int address, int rdelta) {
+////        SpectrumApplication.waitNanos(7000);
+//        super.pc(address, rdelta);
+//      }
+//    };
+//    zxGame2.$34463();
 
 
     JetSetWilly zxGame1 = new JetSetWilly(miniZXIO, interruptionCondition) {
       private boolean initializing = true;
 
       public void pc(int address, int rdelta) {
-        SpectrumApplication.waitNanos(3000);
+        SpectrumApplication.waitNanos(2000);
 
         if (initializing) {
           if (address == 34629)

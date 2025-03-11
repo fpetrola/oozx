@@ -30,7 +30,7 @@ import java.util.function.Predicate;
 public class GameInvoker3 {
   public static void main(String[] args) throws InstantiationException {
     JetSetWilly zxGame1 = new JetSetWilly(new DefaultMiniZXIO<>(), i -> false);
-    zxGame1.setSyncChecker(new DefaultSyncChecker());
+//    zxGame1.setSyncChecker(new DefaultSyncChecker());
     zxGame1.$34463();
   }
 }
