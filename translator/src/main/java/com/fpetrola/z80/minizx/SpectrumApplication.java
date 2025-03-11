@@ -33,18 +33,18 @@ public abstract class SpectrumApplication<T> {
   };
 
   public static final int INITIAL_SP_VALUE = 1234;
-  public int A;
-  public int F;
-  public int B;
-  public int C;
-  public int D;
-  public int E;
-  public int H;
-  public int L;
-  public int IXH;
-  public int IXL;
-  public int IYH;
-  public int IYL;
+  private int A;
+  private int F;
+  private int B;
+  private int C;
+  private int D;
+  private int E;
+  private int H;
+  private int L;
+  private int IXH;
+  private int IXL;
+  private int IYH;
+  private int IYL;
 
   public void setNextAddress(int nextAddress) {
     this.nextAddress = nextAddress;
@@ -463,7 +463,7 @@ public abstract class SpectrumApplication<T> {
   public int IY;
   public int PC;
   public int SP = INITIAL_SP_VALUE;
-  public int I;
+  private int I;
 
   public int R() {
     return R;
@@ -473,7 +473,7 @@ public abstract class SpectrumApplication<T> {
     R = r;
   }
 
-  public int R;
+  private int R;
   public int IR;
   public int VIRTUAL;
   public int MEMPTR;
@@ -548,5 +548,117 @@ public abstract class SpectrumApplication<T> {
 
   public int in(int port) {
     return io.in(WordNumber.createValue(port)).intValue();
+  }
+
+  public int A() {
+    return A;
+  }
+
+  public void A(int a) {
+    A = a;
+  }
+
+  public int F() {
+    return F;
+  }
+
+  public void F(int f) {
+    F = f;
+  }
+
+  public int B() {
+    return B;
+  }
+
+  public void B(int b) {
+    B = b;
+  }
+
+  public int C() {
+    return C;
+  }
+
+  public void C(int c) {
+    C = c;
+  }
+
+  public int D() {
+    return D;
+  }
+
+  public void D(int d) {
+    D = d;
+  }
+
+  public int E() {
+    return E;
+  }
+
+  public void E(int e) {
+    E = e;
+  }
+
+  public int H() {
+    return H;
+  }
+
+  public void H(int h) {
+    H = h;
+  }
+
+  public int L() {
+    return L;
+  }
+
+  public void L(int l) {
+    L = l;
+  }
+
+  public int IXH() {
+    return IXH;
+  }
+
+  public void IXH(int IXH) {
+    this.IXH = IXH;
+  }
+
+  public int IXL() {
+    return IXL;
+  }
+
+  public void IXL(int IXL) {
+    this.IXL = IXL;
+  }
+
+  public int IYH() {
+    return IYH;
+  }
+
+  public void IYH(int IYH) {
+    this.IYH = IYH;
+  }
+
+  public int IYL() {
+    return IYL;
+  }
+
+  public void IYL(int IYL) {
+    this.IYL = IYL;
+  }
+
+  public int I() {
+    return I;
+  }
+
+  public void I(int i) {
+    I = i;
+  }
+
+  public int getR() {
+    return R;
+  }
+
+  public void setR(int r) {
+    R = r;
   }
 }

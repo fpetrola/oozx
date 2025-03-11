@@ -35,7 +35,7 @@ public class MyRegistersSetter implements RegistersSetter {
 
   @Override
   public void setFlags(int regF) {
-    spectrumApplication.F = regF;
+    spectrumApplication.F(regF);
   }
 
   @Override
@@ -45,40 +45,40 @@ public class MyRegistersSetter implements RegistersSetter {
 
   @Override
   public void setRegA(int value) {
-    spectrumApplication.A = value;
+    spectrumApplication.A(value);
   }
 
   @Override
   public void setRegB(int value) {
-    spectrumApplication.B = value;
+    spectrumApplication.B(value);
   }
 
   @Override
   public void setRegC(int value) {
-    spectrumApplication.C = value;
+    spectrumApplication.C(value);
   }
 
   @Override
   public void setRegD(int value) {
-    spectrumApplication.D = value;
+    spectrumApplication.D(value);
 
   }
 
   @Override
   public void setRegE(int value) {
-    spectrumApplication.E = value;
+    spectrumApplication.E(value);
 
   }
 
   @Override
   public void setRegH(int value) {
-    spectrumApplication.H = value;
+    spectrumApplication.H(value);
 
   }
 
   @Override
   public void setRegL(int value) {
-    spectrumApplication.L = value;
+    spectrumApplication.L(value);
 
   }
 
@@ -167,13 +167,13 @@ public class MyRegistersSetter implements RegistersSetter {
 
   @Override
   public void setRegI(int value) {
-    spectrumApplication.I = value;
+    spectrumApplication.I(value);
 
   }
 
   @Override
   public void setRegR(int value) {
-    spectrumApplication.R = value;
+    spectrumApplication.setR(value);
 
   }
 
@@ -185,7 +185,7 @@ public class MyRegistersSetter implements RegistersSetter {
 
   @Override
   public void setCarryFlag(boolean carryState) {
-    spectrumApplication.F = (spectrumApplication.F & 0xFE) | (carryState ? 1 : 0);
+    spectrumApplication.F((spectrumApplication.F() & 0xFE) | (carryState ? 1 : 0));
 
   }
 

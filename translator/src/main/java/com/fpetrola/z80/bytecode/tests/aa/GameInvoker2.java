@@ -26,7 +26,7 @@ public class GameInvoker2 {
 //    zxGame1.setSyncChecker(new DefaultSyncChecker());
 //    zxGame1.$34762(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0);
 //    zxGame1.$8185();
-    zxGame1.$35090();
+//    zxGame1.$35090();
 
 //    ZxGame1 o= new ZxGame1();
 //    o = ClassProxyHelper.createGameInstance(ZxGame1.class);

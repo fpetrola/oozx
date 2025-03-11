@@ -18,17 +18,11 @@
 
 package com.fpetrola.z80.bytecode.tests;
 
-import com.fpetrola.z80.cpu.RegistersSetter;
-import com.fpetrola.z80.minizx.DefaultMiniZXIO;
 import com.fpetrola.z80.minizx.RZXPlayerIO;
 import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
-import com.fpetrola.z80.minizx.sync.DefaultSyncChecker;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import fj.test.Bool;
-import org.easymock.bytebuddy.implementation.bind.annotation.*;
 
-import java.lang.reflect.Method;
 import java.util.function.Predicate;
 
 public class GameInvoker {
@@ -69,18 +63,18 @@ public class GameInvoker {
 
         if (initializing) {
           if (address == 34629)
-            F = 0;
+            F(0);
 
           if (address == 34637)
-            F = 1;
+            F(1);
 
           if (address == 34720)
-            F = 1;
+            F(1);
 
           if (address == 34726)
-            F = 1;
+            F(1);
           if (address == 34732)
-            F = 1;
+            F(1);
 
           if (address == 34738) {
             EmulatedMiniZX.setupRzx(new MyRegistersSetter(this), miniZXIO, url, new MyMemorySetter(this));
