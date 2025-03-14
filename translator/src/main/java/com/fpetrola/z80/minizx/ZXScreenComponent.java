@@ -39,7 +39,7 @@ public class ZXScreenComponent<T extends WordNumber> extends JComponent {
 
     Thread consumerThread = new Thread(() -> {
       while (true) {
-        if (!threadSafeQueue.empty()) {
+        if (!threadSafeQueue.isEmpty()) {
           Runnable item = threadSafeQueue.poll();
           if (item != null)
             item.run();

@@ -18,8 +18,6 @@
 
 package com.fpetrola.z80.minizx;
 
-import java.util.Queue;
-
 public class SimpleQueue<E> {
   int index = 0;
   int head = 0;
@@ -29,6 +27,10 @@ public class SimpleQueue<E> {
 
 
   public SimpleQueue(int size) {
+    init(size);
+  }
+
+  private void init(int size) {
     this.size = size;
     data = (E[]) new Object[size];
   }
@@ -46,7 +48,11 @@ public class SimpleQueue<E> {
     return value;
   }
 
-  public boolean empty() {
+  public boolean isEmpty() {
     return counter == 0;
+  }
+
+  public void clear() {
+    init(size);
   }
 }

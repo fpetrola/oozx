@@ -19,6 +19,7 @@
 package com.fpetrola.z80.minizx;
 
 import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulationBase;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,8 +30,7 @@ import java.util.function.Predicate;
 @SuppressWarnings("ALL")
 public abstract class MiniZX extends SpectrumApplication {
   private Predicate<Integer> interruptionCondition;
-  protected int fetchCounter;
-  public int pc;
+  public int fetchCounter;
 
   public MiniZX() {
     init();
@@ -47,7 +47,13 @@ public abstract class MiniZX extends SpectrumApplication {
   }
 
   public void pc(int address, int rdelta) {
-    pc = address;
+//    super.pc(address, rdelta);
+//    if (address > 0) {
+//      int stackDelta = getStackDelta();
+//      if (stackDelta != 0)
+//        System.out.println(address);
+//    }
+
     if (interruptionCondition != null)
       interruptionCondition.test(fetchCounter);
     fetchCounter += rdelta;

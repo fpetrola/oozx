@@ -22,8 +22,8 @@ import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.minizx.sync.SyncChecker;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-import java.util.Arrays;
-import java.util.Stack;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class SpectrumApplication<T> {
   public SyncChecker syncChecker = new SyncChecker() {
@@ -33,6 +33,7 @@ public abstract class SpectrumApplication<T> {
   };
 
   public static final int INITIAL_SP_VALUE = 1234;
+  public Deque<Integer> methodStack = new ArrayDeque<>();
   private int A;
   private int F;
   private int B;
@@ -45,6 +46,7 @@ public abstract class SpectrumApplication<T> {
   private int IXL;
   private int IYH;
   private int IYL;
+  private int lastStackDepth;
 
   public void setNextAddress(int nextAddress) {
     this.nextAddress = nextAddress;
@@ -287,6 +289,21 @@ public abstract class SpectrumApplication<T> {
 //  }
 
   public void pc(int address, int rdelta) {
+    int stackDelta = getStackDelta();
+    PC = address;
+//    System.out.println(stackDelta);
+  }
+
+  public int getStackDelta() {
+    int stackDepth = methodStack.size();
+    int stackDelta = 0;
+    if (lastStackDepth != stackDepth)
+      if (stackDepth > lastStackDepth)
+        stackDelta = 1;
+      else
+        stackDelta = -1;
+    lastStackDepth = stackDepth;
+    return stackDelta;
   }
 
   public void ldir() {
@@ -294,7 +311,7 @@ public abstract class SpectrumApplication<T> {
     int de = DE();
     int hl = HL();
     while (bc-- != 0) {
-      pc(35326, 16);
+      pc(-1, 16);
       wMem(de++, mem(hl++));
     }
     BC(bc);

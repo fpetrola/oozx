@@ -32,6 +32,7 @@ import com.fpetrola.z80.minizx.emulation.finders.MultimapAdapter;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
+import com.fpetrola.z80.transformations.Base64Utils;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 import com.google.gson.Gson;
 import io.exemplary.guice.Modules;
@@ -41,7 +42,11 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -69,6 +74,39 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
   public GameBytecodeCreationTests(RoutinesDriverConfigurator driverConfigurator) {
     realCodeBytecodeCreationBase = driverConfigurator.getRealCodeBytecodeCreationBase();
     this.driverConfigurator = driverConfigurator;
+  }
+
+
+  @Test
+  public void testPacman() {
+    Helper.hex = true;
+
+    try {
+      String content = Files.readString(Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/pacman-memory.txt"));
+      byte[] bytes = Base64Utils.gzipDecompressFromBase64(content);
+
+
+      State<T> state = realCodeBytecodeCreationBase.getState();
+
+      T[] data = state.getMemory().getData();
+
+      for (int i = 0; i < data.length; i++) {
+        int aByte = bytes[i] & 0xff;
+        data[i]= createValue(aByte);
+      }
+
+      int i = 12288;
+      state.getPc().write(createValue(i));
+
+      stepUntilComplete(i);
+
+      String actual = generateAndDecompile(content, getRoutineManager().getRoutines(), ".", "JetSetWilly");
+      actual = RemoteZ80Translator.improveSource(actual);
+
+      Assert.assertEquals("", actual);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Test
@@ -121,10 +159,10 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
   public void testTranslateEmlynToJava2() {
     int emulateUntil = 0xC804;
     EmulatedMiniZX.setRzxFile("/home/fernando/detodo/desarrollo/m/zx/roms/recordings/emlyn/emlyn3.rzx");
-    StackAnalyzer.collecting= true;
-    emulateUntil= 23451;
+    StackAnalyzer.collecting = true;
+    emulateUntil = 23451;
     String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, emulateUntil, "file:////home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
-    StackAnalyzer.collecting= false;
+    StackAnalyzer.collecting = false;
 
     StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
 
@@ -137,7 +175,7 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
     Helper.hex = true;
     addDynamicInvocations(stackAnalyzer, "{38257=[38282, 38307, 38323, 38332, 38316], 51063=[51648, 52056, 51265, 52417, 55011, 51653], 46923=[47657, 38058, 47475, 47047], 38110=[56880, 44643, 46020, 45288, 43866, 48939, 43964, 49758], 38222=[56880]}");
 
-     base64Memory = getMemoryInBase64FromFile("file:////home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
+    base64Memory = getMemoryInBase64FromFile("file:////home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
     stepUntilComplete(0xb542);
 
     List<Routine> routines = getRoutineManager().getRoutines();

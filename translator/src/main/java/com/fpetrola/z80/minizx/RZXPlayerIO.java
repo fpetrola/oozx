@@ -36,7 +36,7 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
   private Register<T> pc;
   private int currentFrameIndex;
   private InputRecordingBlock.Frame currentFrame;
-  private LinkedList<Byte> inputs = new LinkedList<>();
+  private SimpleQueue<Byte> inputs = new SimpleQueue<>(1000000);
   private InputRecordingBlock inputRecordingBlock;
   private List<InputRecordingBlock.Frame> frames;
   private long lastCount;
@@ -57,7 +57,7 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
   }
 
   public void out(T port, T value) {
-    outListeners.forEach(l -> l.outAt(port, value));
+//    outListeners.forEach(l -> l.outAt(port, value));
   }
 
   public synchronized T in(T port) {
@@ -101,8 +101,8 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
     frames = inputRecordingBlock.frames;
     currentFrameIndex = 0;
     lastCount = inputRecordingBlock.tStates;
-    lastPoll= 0;
-    fetchCounter= 0;
+    lastPoll = 0;
+    fetchCounter = 0;
     inputs.clear();
     changeFrame();
   }
@@ -115,8 +115,12 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
       for (int i = 0; i < currentFrame.returnValues.length; i++) {
         inputs.add(currentFrame.returnValues[i]);
       }
-    } else
+    } else {
+      if (inputs.isEmpty()) {
+        throw new RuntimeException("rzx finished");
+      }
       inputs.add((byte) 0);
+    }
   }
 
   private void printFrameCount() {
