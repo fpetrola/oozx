@@ -29,6 +29,7 @@
     <modules>
         <module>emulator</module>
         <module>zx-rzx</module>
+        <module>machine</module>
         <module>translation</module>
     </modules>
 
