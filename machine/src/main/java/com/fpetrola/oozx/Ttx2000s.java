@@ -18,11 +18,14 @@
 
 package com.fpetrola.oozx;
 
+public class Ttx2000s {
+  public static boolean paged;
 
-public class Scld {
-  public static ScldDec lastDec= new ScldDec();
+  public static byte sramRead(int address) {
+    return 0;
+  }
 
-  public static ScldDec fromByte(long modeData) {
-    return null;
+  public static void sramWrite(int address, byte b) {
+
   }
 }

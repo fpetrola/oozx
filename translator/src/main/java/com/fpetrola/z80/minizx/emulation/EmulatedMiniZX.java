@@ -28,7 +28,6 @@ import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.spy.NullInstructionSpy;
-import com.fpetrola.z80.transformations.VirtualRegisterFactory;
 
 import java.util.function.Function;
 
@@ -54,21 +53,21 @@ public class EmulatedMiniZX<T extends WordNumber> {
     new EmulatedMiniZX("file:///home/fernando/dynamitedan1.z80", 1000, true, -1, true).start();
   }
 
-  public <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
+  public static <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
     var state = new State(io, new DefaultRegisterBankFactory().createBank(), new MockedMemory(true));
     io.setPc(state.getPc());
     return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)));
   }
 
-  protected Function<Integer, Integer> getMemFunction() {
-    return index -> ooz80.getState().getMemory().read(WordNumber.createValue(index), 0).intValue();
+  public static Function<Integer, Integer> getMemFunction(OOZ80<?> ooz81) {
+    return index -> ooz81.getState().getMemory().read(WordNumber.createValue(index), 0).intValue();
   }
 
   public void start() {
     MiniZXIO io = new MiniZXIO();
     ooz80 = createOOZ80(io);
     if (showScreen)
-      MiniZX.createScreen(io.miniZXKeyboard, this.getMemFunction());
+      MiniZX.createScreen(io.miniZXKeyboard, this.getMemFunction(ooz80));
 
     RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
 

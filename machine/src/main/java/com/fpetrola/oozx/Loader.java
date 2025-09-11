@@ -18,11 +18,12 @@
 
 package com.fpetrola.oozx;
 
+public class Loader {
+  public static void frame(long frameLength) {
 
-public class Scld {
-  public static ScldDec lastDec= new ScldDec();
+  }
 
-  public static ScldDec fromByte(long modeData) {
-    return null;
+  public static void detectLoader() {
+
   }
 }

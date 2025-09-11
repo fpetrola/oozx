@@ -18,11 +18,12 @@
 
 package com.fpetrola.oozx;
 
+public class Pentagon {
+  public static void pentagon1024MemoryportWrite(int i, byte b) {
 
-public class Scld {
-  public static ScldDec lastDec= new ScldDec();
+  }
 
-  public static ScldDec fromByte(long modeData) {
-    return null;
+  public static void pentagon1024V22MemoryportWrite(int i, byte b) {
+
   }
 }

@@ -18,7 +18,12 @@
 
 package com.fpetrola.oozx;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 public class Debugger {
+  public static DebuggerMode mode;
+
   public static void addTimeEvents() {
 
   }
@@ -27,7 +32,23 @@ public class Debugger {
 
   }
 
-  public static void systemVariableRegister(String debuggerTypeString, String frameCountName, Object getFrameCount, Object o) {
+  public static void systemVariableRegister(String debuggerTypeString, String frameCountName, Supplier<Long> getFrameCount, Consumer<Long> o) {
+
+  }
+
+  public static int getExitCode() {
+    return 0;
+  }
+
+  public static void registerStartup() {
+    StartupManager.registerNoDependencies(StartupManagerModule.DEBUGGER,
+        null, null, null);
+  }
+
+  public static void commandEvaluate(String debuggerCommand) {
+  }
+
+  public static void check(DebuggerBreakpointType debuggerBreakpointType, int address) {
 
   }
 }

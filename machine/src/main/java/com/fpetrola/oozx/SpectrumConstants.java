@@ -18,5 +18,6 @@
 
 package com.fpetrola.oozx;
 
-public class LibspectrumSnap {
+public interface SpectrumConstants {
+  int SPECTRUM_RAM_PAGES = 65;
 }

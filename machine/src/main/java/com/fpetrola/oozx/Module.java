@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx;import java.util.*;
 
-// Assuming LibspectrumSnap is a ported class from libspectrum.h
+// Assuming Libspectrum.Snap is a ported class from libspectrum.h
 // Functional interfaces replace function pointers
 
 @FunctionalInterface
@@ -33,32 +33,32 @@ interface ModuleRomcsFn {
 
 @FunctionalInterface
 interface ModuleSnapshotEnabledFn {
-    void apply(LibspectrumSnap snap);
+    void apply(Libspectrum.Snap snap);
 }
 
 @FunctionalInterface
 interface ModuleSnapshotFromFn {
-    void apply(LibspectrumSnap snap);
+    void apply(Libspectrum.Snap snap);
 }
 
 @FunctionalInterface
 interface ModuleSnapshotToFn {
-    void apply(LibspectrumSnap snap);
+    void apply(Libspectrum.Snap snap);
 }
 
-class ModuleInfo {
-    ModuleResetFn reset;
-    ModuleRomcsFn romcs;
-    ModuleSnapshotEnabledFn snapshotEnabled;
-    ModuleSnapshotFromFn snapshotFrom;
-    ModuleSnapshotToFn snapshotTo;
-}
+//class ModuleInfo {
+//    ModuleResetFn reset;
+//    ModuleRomcsFn romcs;
+//    ModuleSnapshotEnabledFn snapshotEnabled;
+//    ModuleSnapshotFromFn snapshotFrom;
+//    ModuleSnapshotToFn snapshotTo;
+//}
 
 public class Module {
 
     private static LinkedList<ModuleInfo> registeredModules = null;
 
-    public static int moduleRegister(ModuleInfo module) {
+    public static int register(ModuleInfo module) {
         if (registeredModules == null) {
             registeredModules = new LinkedList<>();
         }
@@ -73,7 +73,7 @@ public class Module {
         }
     }
 
-    public static void moduleReset(int hardReset) {
+    public static void reset(int hardReset) {
         if (registeredModules == null) return;
         for (ModuleInfo module : registeredModules) {
             if (module.reset != null) {
@@ -82,7 +82,7 @@ public class Module {
         }
     }
 
-    public static void moduleRomcs() {
+    public static void romcs() {
         if (registeredModules == null) return;
         for (ModuleInfo module : registeredModules) {
             if (module.romcs != null) {
@@ -91,7 +91,7 @@ public class Module {
         }
     }
 
-    public static void moduleSnapshotEnabled(LibspectrumSnap snap) {
+    public static void moduleSnapshotEnabled(Libspectrum.Snap snap) {
         if (registeredModules == null) return;
         for (ModuleInfo module : registeredModules) {
             if (module.snapshotEnabled != null) {
@@ -100,21 +100,25 @@ public class Module {
         }
     }
 
-    public static void moduleSnapshotFrom(LibspectrumSnap snap) {
+    public static void moduleSnapshotFrom(Libspectrum.Snap snap) {
         if (registeredModules == null) return;
         for (ModuleInfo module : registeredModules) {
             if (module.snapshotFrom != null) {
-                module.snapshotFrom.apply(snap);
+                module.snapshotFrom.accept(snap);
             }
         }
     }
 
-    public static void moduleSnapshotTo(LibspectrumSnap snap) {
+    public static void moduleSnapshotTo(Libspectrum.Snap snap) {
         if (registeredModules == null) return;
         for (ModuleInfo module : registeredModules) {
             if (module.snapshotTo != null) {
-                module.snapshotTo.apply(snap);
+                module.snapshotTo.accept(snap);
             }
         }
+    }
+
+    public static void end() {
+
     }
 }

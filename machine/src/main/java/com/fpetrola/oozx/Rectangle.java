@@ -31,5 +31,6 @@ public class Rectangle {
   }
 
   public static void endLine(int y) {
+
   }
 }

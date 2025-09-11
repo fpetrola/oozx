@@ -18,11 +18,8 @@
 
 package com.fpetrola.oozx;
 
-
-public class Scld {
-  public static ScldDec lastDec= new ScldDec();
-
-  public static ScldDec fromByte(long modeData) {
-    return null;
+public class Unittests {
+  public static int run() {
+    return 0;
   }
 }

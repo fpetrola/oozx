@@ -19,6 +19,67 @@
 package com.fpetrola.oozx;
 
 public class Libspectrum {
+  public static Object errorFunction;
+
+  public static void snapSetOut128Memoryport(Snap snap, byte lastByte) {
+  }
+
+  public static void snapSetOutPlus3Memoryport(Snap snap, byte lastByte2) {
+  }
+
+  public static void snapSetPages(Snap snap, int i, byte[] buffer) {
+  }
+
+  public static void end() {
+  }
+
+  public static void creatorFree(LibspectrumCreator creator) {
+
+  }
+
+  public static int creatorSetCustom(LibspectrumCreator creator, byte[] bytes, int length) {
+    return 0;
+  }
+
+  public static Object version() {
+    return null;
+  }
+
+  public static String gcryptVersion() {
+    return null;
+  }
+
+  public static int creatorSetMinor(LibspectrumCreator creator, int i) {
+    return 0;
+  }
+
+  public static int creatorSetMajor(LibspectrumCreator creator, int i) {
+    return 0;
+  }
+
+  public static int creatorSetProgram(LibspectrumCreator creator, String fuse) {
+    return 0;
+  }
+
+  public static LibspectrumCreator creatorAlloc() {
+    return null;
+  }
+
+  public static boolean checkVersion(String libspectrumMinVersion) {
+    return false;
+  }
+
+  public static int init() {
+    return 0;
+  }
+
+  enum Machine {
+    _48,
+    // Other machine types as needed
+    UNKNOWN;
+  }
+  public static MachineCapability MachineCapability;
+
   public static long timingsProcessorSpeed(int machine) {
     return 0;
   }
@@ -49,5 +110,80 @@ public class Libspectrum {
 
   public static long timingsTopLeftPixel(int machine) {
     return 0;
+  }
+
+  public static byte snapOutUla(Snap snap) {
+    return 0;
+  }
+
+  public static long snapTstates(Snap snap) {
+    return 0;
+  }
+
+  public static boolean snapIssue2(Snap snap) {
+    return false;
+  }
+
+  public static void snapSetOutUla(Snap snap, byte lastByte) {
+
+  }
+
+  public static void snapSetTstates(Snap snap, long tstates) {
+
+  }
+
+  public static void snapSetIssue2(Snap snap, boolean issue2) {
+
+  }
+
+  public static byte snapOut128Memoryport(Snap snap) {
+    return 0;
+  }
+
+  public static byte snapOutPlus3Memoryport(Snap snap) {
+    return 0;
+  }
+
+  public static byte[] snapPages(Snap snap, int i) {
+    return null;
+  }
+
+  public static boolean snapCustomRom(Snap snap) {
+    return false;
+  }
+
+  public static int snapCustomRomPages(Snap snap) {
+    return 0;
+  }
+
+  public static byte[] snapRoms(Snap snap, int i) {
+    return null;
+  }
+
+  public static int snapRomLength(Snap snap, int i) {
+    return 0;
+  }
+
+  public static void snapSetCustomRom(Snap snap, boolean b) {
+
+  }
+
+  public static void snapSetRoms(Snap snap, int currentRomNum, byte[] currentRom) {
+
+  }
+
+  public static void snapSetRomLength(Snap snap, int currentRomNum, int romLength) {
+
+  }
+
+  public static void snapSetCustomRomPages(Snap snap, int currentRomNum) {
+
+  }
+
+  public static int machineCapabilities(Machine machine) {
+    return 0;
+  }
+
+  public class Snap {
   }
 }

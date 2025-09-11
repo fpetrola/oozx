@@ -24,4 +24,24 @@ public class Sound {
   public static void frame() {
 
   }
+
+  public static void beeper(long tstates, int i) {
+
+  }
+
+  public static void end() {
+
+  }
+
+  public static void init(String soundDevice) {
+
+  }
+
+  public static void pause() {
+
+  }
+
+  public static void unpause() {
+
+  }
 }

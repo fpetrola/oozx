@@ -26,4 +26,19 @@ public class Utils {
   public static String safeStrdup(String simpleideMasterFile) {
     return simpleideMasterFile;
   }
+
+  public static int readAuxiliaryFile(String filename, File rom, AuxiliaryType auxiliaryType) {
+    return 0;
+  }
+
+  public static void closeFile(File rom) {
+
+  }
+
+  public enum AuxiliaryType {ROM}
+
+  public static class File {
+    public int length;
+    public byte[] buffer;
+  }
 }

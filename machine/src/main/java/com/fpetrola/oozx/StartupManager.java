@@ -79,7 +79,8 @@ public class StartupManager {
                 if (registeredModule.dependencies.isEmpty()) {
                     if (registeredModule.initFn != null) {
                         error = registeredModule.initFn.apply(registeredModule.initContext);
-                        if (error != 0) return error;
+                        if (error != 0)
+                            return error;
                     }
 
                     if (registeredModule.endFn != null) {

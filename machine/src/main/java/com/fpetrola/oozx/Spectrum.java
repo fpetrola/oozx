@@ -43,14 +43,48 @@ package com.fpetrola.oozx;// Assuming the following classes are ported:
 // - Z80
 // Use int for libspectrum_byte (0-255), long for libspectrum_dword
 
+
 public class Spectrum {
-
-    // 1040 KB of RAM
-    public static byte[][] RAM = new int[SpectrumConstants.SPECTRUM_RAM_PAGES][0x4000];
-
     // How many tstates have elapsed since the last interrupt?
     public static long tstates;
+
+    // RAM array: 65 pages of 16KB each (from SPECTRUM_RAM_PAGES)
+    public static byte[][] RAM = new byte[Memory.SPECTRUM_RAM_PAGES][0x4000];
+
+    // Functional interface for checking if a port is handled by the ULA
+    @FunctionalInterface
+    interface PortFromUlaFunction {
+        boolean apply(int port);
+    }
+
+    // Functional interface for contention delay calculation
+    @FunctionalInterface
+    interface ContentionDelayFunction {
+        int apply(long time);
+    }
+
+    // Structure to hold RAM information
+    public static class RamInfo {
+        PortFromUlaFunction portFromUla; // Is this port result supplied by the ULA?
+        ContentionDelayFunction contendDelay; // Delay with MREQ active
+        ContentionDelayFunction contendDelayNoMreq; // Delay without MREQ
+        boolean locked; // Is the memory configuration locked?
+        int currentPage; // Current paged memory page
+        int currentRom; // Current paged ROM
+        byte lastByte; // Last byte sent to the 128K port
+        byte lastByte2; // Last byte sent to +3 port
+        boolean special; // Is a +3 special config in use?
+        boolean romcs; // Is the /ROMCS line low?
+        int validPages; // Available RAM pages
+    }
+
+    // Instance of RamInfo
+    public static RamInfo ramInfo = new RamInfo();
+
+
+
     public static int memoryCurrentScreen;
+    public static MemoryPage[] memoryMapRead;
 
     // Contention patterns
     private static int[] contentionPattern65432100 = {5, 4, 3, 2, 1, 0, 0, 6};
@@ -68,17 +102,13 @@ public class Spectrum {
     // Count of frames since last reset
     private static long framesSinceReset;
 
-    private static void spectrumReset(int hardReset) {
+    private static void spectrumReset(int a) {
         framesSinceReset = 0;
     }
 
-    private static ModuleInfo moduleInfo = new ModuleInfo() {{
-        reset = Spectrum::spectrumReset;
-        romcs = null;
-        snapshotEnabled = null;
-        snapshotFrom = null;
-        snapshotTo = null;
-    }};
+    private static ModuleInfo moduleInfo = new ModuleInfo(
+         Spectrum::spectrumReset,  null, null, null, null);
+    ;
 
     private static void spectrumFrameEventFn(long lastTstates, int type, Object userData) {
         if (Rzx.playback) EventManager.eventForceEvents();
@@ -100,14 +130,14 @@ public class Spectrum {
     private static int spectrumInit(Object context) {
         spectrumFrameEvent = EventManager.eventRegister(Spectrum::spectrumFrameEventFn, "End of frame");
 
-        Module.moduleRegister(moduleInfo);
+        Module.register(moduleInfo);
 
         Debugger.systemVariableRegister(DEBUGGER_TYPE_STRING, FRAME_COUNT_NAME, Spectrum::getFrameCount, null);
 
         return 0;
     }
 
-    public static void spectrumRegisterStartup() {
+    public static void registerStartup() {
         StartupManagerModule[] dependencies = {
             StartupManagerModule.DEBUGGER,
             StartupManagerModule.EVENT,
@@ -167,11 +197,11 @@ public class Spectrum {
         return timings[tstatesThroughLine % 8];
     }
 
-    public static int spectrumContendDelay65432100(long time) {
+    public static int contendDelay65432100(long time) {
         return contendDelayCommon(time, contentionPattern65432100, 1);
     }
 
-    public static int spectrumContendDelay76543210(long time) {
+    public static int contendDelay76543210(long time) {
         return contendDelayCommon(time, contentionPattern76543210, 4);
     }
 

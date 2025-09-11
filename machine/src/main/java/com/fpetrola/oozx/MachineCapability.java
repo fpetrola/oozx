@@ -18,11 +18,10 @@
 
 package com.fpetrola.oozx;
 
-
-public class Scld {
-  public static ScldDec lastDec= new ScldDec();
-
-  public static ScldDec fromByte(long modeData) {
-    return null;
-  }
+public class MachineCapability {
+  public static final int PLUS3_MEMORY = 1;
+  public static final int _128_MEMORY = 2;
+  public static final int PENT1024_MEMORY = 3;
+  public static final int SCORP_MEMORY = 4;
+  public static final int TIMEX_VIDEO = 5;
 }

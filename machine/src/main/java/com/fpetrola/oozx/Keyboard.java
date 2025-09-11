@@ -18,11 +18,12 @@
 
 package com.fpetrola.oozx;
 
+public class Keyboard {
+  public static void registerStartup() {
 
-public class Scld {
-  public static ScldDec lastDec= new ScldDec();
+  }
 
-  public static ScldDec fromByte(long modeData) {
-    return null;
+  public static byte read(int i) {
+    return 0;
   }
 }

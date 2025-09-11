@@ -28,4 +28,12 @@ public class Movie {
   public static void addArea(int i, int i1, int i2, int screenHeight) {
 
   }
+
+  public static void stop() {
+
+  }
+
+  public static void init() {
+
+  }
 }

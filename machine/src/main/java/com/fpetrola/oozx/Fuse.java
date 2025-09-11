@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx;import java.util.*;
 
+import static com.fpetrola.oozx.StartupManagerModule.Z80;
+
 // Assuming ported dependencies:
 // - Libspectrum (with LibspectrumSnap, LibspectrumCreator, error handling)
 // - Compat (osname, etc.)
@@ -54,6 +56,8 @@ package com.fpetrola.oozx;import java.util.*;
 
 public class Fuse {
 
+    private static final String FUSE_COPYRIGHT = "";
+    private static final String VERSION = "";
     // What name were we called under?
     public static String progname;
 
@@ -66,6 +70,10 @@ public class Fuse {
     // The creator information we'll store in file formats that support this
     public static LibspectrumCreator creator;
     public static long tstates;
+
+    public static void abort() {
+
+    }
 
     // The various types of file we may want to run on startup
     static class StartFiles {
@@ -93,52 +101,44 @@ public class Fuse {
         String[] mdr = new String[8];
     }
 
-    // Context for the display startup routine
-    static class DisplayStartupContext {
-        int[] argc;
-        String[][] argv;
-    }
-
     private static final String LIBSPECTRUM_MIN_VERSION = "0.5.0";
 
-    public static int main(String[] args) {
+    public static void main(String[] args) {
         int r;
 
         // Windows-specific error mode setting (simplified, assume handled by environment)
         // Wii-specific fatInitDefault (assume handled by environment)
 
-        if (fuseInit(args)) {
+        if (fuseInit(args) != 0) {
             System.err.println(progname + ": error initialising -- giving up!");
-            return 1;
+            throw new RuntimeException("1");
         }
 
         if (Settings.current.showHelp || Settings.current.showVersion) {
-            return 0;
+            throw new RuntimeException("help");
         }
 
         if (Settings.current.unittests) {
             r = Unittests.run();
         } else {
             while (!exiting) {
-                Z80.doOpcodes();
+                com.fpetrola.oozx.Z80.doOpcodes();
                 EventManager.eventDoEvents();
             }
             r = Debugger.getExitCode();
         }
 
         fuseEnd();
-
-        return r;
     }
 
     private static int fuseLibspectrumInit(Object context) {
-        if (Libspectrum.checkVersion(LIBSPECTRUM_MIN_VERSION)) {
-            if (Libspectrum.init() != 0) return 1;
-        } else {
-            Ui.error(UiError.ERROR, "libspectrum version %s found, but %s required",
-                    Libspectrum.version(), LIBSPECTRUM_MIN_VERSION);
-            return 1;
-        }
+//        if (Libspectrum.checkVersion(LIBSPECTRUM_MIN_VERSION)) {
+//            if (Libspectrum.init() != 0) return 1;
+//        } else {
+//            Ui.error(UiError.ERROR, "libspectrum version %s found, but %s required",
+//                    Libspectrum.version(), LIBSPECTRUM_MIN_VERSION);
+//            return 1;
+//        }
         return 0;
     }
 
@@ -174,66 +174,66 @@ public class Fuse {
                 Fuse::setuidInit, null, null);
     }
 
-    private static int runStartupManager(int[] argc, String[][] argv) {
+    private static int runStartupManager(String[] argv) {
         StartupManager.init();
 
-        DisplayStartupContext displayContext = new DisplayStartupContext();
-        displayContext.argc = argc;
+        Display.DisplayStartupContext displayContext = new Display.DisplayStartupContext();
+        displayContext.argc = argv.length;
         displayContext.argv = argv;
 
-        Ay.registerStartup();
-        Beta.registerStartup();
+//        Ay.registerStartup();
+//        Beta.registerStartup();
         creatorRegisterStartup();
-        Covox.registerStartup();
+//        Covox.registerStartup();
         Debugger.registerStartup();
-        Didaktik.registerStartup();
-        Disciple.registerStartup();
+//        Didaktik.registerStartup();
+//        Disciple.registerStartup();
         Display.registerStartup(displayContext);
-        Divide.registerStartup();
-        Divmmc.registerStartup();
+//        Divide.registerStartup();
+//        Divmmc.registerStartup();
         EventManager.registerStartup();
-        Fdd.registerStartup();
-        Fuller.registerStartup();
-        If1.registerStartup();
-        If2.registerStartup();
-        Joystick.registerStartup();
-        Kempmouse.registerStartup();
+//        Fdd.registerStartup();
+//        Fuller.registerStartup();
+//        If1.registerStartup();
+//        If2.registerStartup();
+//        Joystick.registerStartup();
+//        Kempmouse.registerStartup();
         Keyboard.registerStartup();
         libspectrumRegisterStartup();
         libxml2RegisterStartup();
         Machine.registerStartup();
-        MachinesPeriph.registerStartup();
-        Melodik.registerStartup();
+//        MachinesPeriph.registerStartup();
+//        Melodik.registerStartup();
         Memory.registerStartup();
-        Mempool.registerStartup();
-        Multiface.registerStartup();
-        Opus.registerStartup();
-        PhantomTypist.registerStartup();
-        Plusd.registerStartup();
-        Printer.registerStartup();
-        Profile.registerStartup();
-        Psg.registerStartup();
-        Rzx.registerStartup();
-        Scld.registerStartup();
-        Screenshot.registerStartup();
+//        Mempool.registerStartup();
+//        Multiface.registerStartup();
+//        Opus.registerStartup();
+//        PhantomTypist.registerStartup();
+//        Plusd.registerStartup();
+//        Printer.registerStartup();
+//        Profile.registerStartup();
+//        Psg.registerStartup();
+//        Rzx.registerStartup();
+//        Scld.registerStartup();
+//        Screenshot.registerStartup();
         Settings.registerStartup();
         setuidRegisterStartup();
-        Simpleide.registerStartup();
-        Slt.registerStartup();
-        Sound.registerStartup();
-        Speccyboot.registerStartup();
-        Specdrum.registerStartup();
-        Spectranet.registerStartup();
+//        Simpleide.registerStartup();
+//        Slt.registerStartup();
+//        Sound.registerStartup();
+//        Speccyboot.registerStartup();
+//        Specdrum.registerStartup();
+//        Spectranet.registerStartup();
         Spectrum.registerStartup();
-        Tape.registerStartup();
-        Ttx2000s.registerStartup();
-        Timer.registerStartup();
+//        Tape.registerStartup();
+//        Ttx2000s.registerStartup();
+//        Timer.registerStartup();
         Ula.registerStartup();
-        Usource.registerStartup();
-        Z80.registerStartup();
-        Zxatasp.registerStartup();
-        Zxcf.registerStartup();
-        Zxmmc.registerStartup();
+//        Usource.registerStartup();
+        com.fpetrola.oozx.Z80.registerStartup();
+//        Zxatasp.registerStartup();
+//        Zxcf.registerStartup();
+//        Zxmmc.registerStartup();
 
         return StartupManager.run();
     }
@@ -248,7 +248,7 @@ public class Fuse {
 
         progname = args.length > 0 ? args[0] : "fuse";
 
-        Libspectrum.errorFunction = Ui::libspectrumError;
+//        Libspectrum.errorFunction = Ui::libspectrumError;
 
         // Wii-specific display init (assume handled by Display)
         if (Display.init(args) != 0) return 1;
@@ -268,10 +268,10 @@ public class Fuse {
 
         fuseShowCopyright();
 
-        int[] argc = {args.length};
-        String[][] argv = {args};
-        if (runStartupManager(argc, argv) != 0) return 1;
+        String[] argv = args;
+        if (runStartupManager(argv) != 0) return 1;
 
+        Settings.current.startMachine= "48";
         error = Machine.selectId(Settings.current.startMachine);
         if (error != 0) return error;
 
@@ -292,48 +292,52 @@ public class Fuse {
         return 0;
     }
 
+    private static int parseNonoptionArgs(String[] args, int firstArg, StartFiles startFiles) {
+        return 0;
+    }
+
     private static int creatorInit(Object context) {
-        int[] version = new int[4];
-        String osname = new String(new char[192]);
-        final int CUSTOM_SIZE = 256;
-
-        try {
-            String[] parts = VERSION.split("\\.");
-            for (int i = 0; i < Math.min(parts.length, 4); i++) {
-                version[i] = Math.min(Integer.parseInt(parts[i]), 0xff);
-            }
-        } catch (NumberFormatException e) {
-            Ui.error(UiError.ERROR, "Invalid version format: %s", VERSION);
-            return 1;
-        }
-
-        if (Compat.osname(osname) != 0) return 1;
-
-        creator = Libspectrum.creatorAlloc();
-
-        if (Libspectrum.creatorSetProgram(creator, "Fuse") != 0) {
-            creator = null;
-            return 1;
-        }
-
-        if (Libspectrum.creatorSetMajor(creator, version[0] * 0x100 + version[1]) != 0) {
-            creator = null;
-            return 1;
-        }
-
-        if (Libspectrum.creatorSetMinor(creator, version[2] * 0x100 + version[3]) != 0) {
-            creator = null;
-            return 1;
-        }
-
-        String gcryptVersion = Libspectrum.gcryptVersion() != null ? Libspectrum.gcryptVersion() : "not available";
-        String custom = String.format("gcrypt: %s\nlibspectrum: %s\nuname: %s",
-                gcryptVersion, Libspectrum.version(), osname);
-
-        if (Libspectrum.creatorSetCustom(creator, custom.getBytes(), custom.length()) != 0) {
-            creator = null;
-            return 1;
-        }
+//        int[] version = new int[4];
+//        String osname = new String(new char[192]);
+//        final int CUSTOM_SIZE = 256;
+//
+//        try {
+//            String[] parts = VERSION.split("\\.");
+//            for (int i = 0; i < Math.min(parts.length, 4); i++) {
+//                version[i] = Math.min(Integer.parseInt(parts[i]), 0xff);
+//            }
+//        } catch (NumberFormatException e) {
+//            Ui.error(UiError.ERROR, "Invalid version format: %s", VERSION);
+//            return 1;
+//        }
+//
+//        if (Compat.osname(osname) != 0) return 1;
+//
+//        creator = Libspectrum.creatorAlloc();
+//
+//        if (Libspectrum.creatorSetProgram(creator, "Fuse") != 0) {
+//            creator = null;
+//            return 1;
+//        }
+//
+//        if (Libspectrum.creatorSetMajor(creator, version[0] * 0x100 + version[1]) != 0) {
+//            creator = null;
+//            return 1;
+//        }
+//
+//        if (Libspectrum.creatorSetMinor(creator, version[2] * 0x100 + version[3]) != 0) {
+//            creator = null;
+//            return 1;
+//        }
+//
+//        String gcryptVersion = Libspectrum.gcryptVersion() != null ? Libspectrum.gcryptVersion() : "not available";
+//        String custom = String.format("gcrypt: %s\nlibspectrum: %s\nuname: %s",
+//                gcryptVersion, Libspectrum.version(), osname);
+//
+//        if (Libspectrum.creatorSetCustom(creator, custom.getBytes(), custom.length()) != 0) {
+//            creator = null;
+//            return 1;
+//        }
 
         return 0;
     }
@@ -463,135 +467,135 @@ public class Fuse {
         return 0;
     }
 
-    private static int parseNonoptionArgs(String[] args, int firstArg, StartFiles startFiles) {
-        for (int i = firstArg; i < args.length; i++) {
-            String filename = args[i];
-
-            UtilsFile file = new UtilsFile();
-            int error = Utils.readFile(filename, file);
-            if (error != 0) return error;
-
-            LibspectrumIdType type = new LibspectrumIdType();
-            LibspectrumClassType classType = new LibspectrumClassType();
-            error = Libspectrum.identifyFileWithClass(type, classType, filename, file.buffer, file.length);
-            if (error != 0) {
-                Utils.closeFile(file);
-                return error;
-            }
-
-            switch (classType.getValue()) {
-                case LibspectrumClassType.CARTRIDGE_TIMEX:
-                    startFiles.dock = filename;
-                    break;
-
-                case LibspectrumClassType.CARTRIDGE_IF2:
-                    startFiles.if2 = filename;
-                    break;
-
-                case LibspectrumClassType.HARDDISK:
-                    if (Settings.current.zxcfActive) {
-                        startFiles.zxcf = filename;
-                    } else if (Settings.current.zxataspActive) {
-                        startFiles.zxataspMaster = filename;
-                    } else if (Settings.current.simpleideActive) {
-                        startFiles.simpleideMaster = filename;
-                    } else if (Settings.current.divideEnabled) {
-                        startFiles.divideMaster = filename;
-                    } else if (Settings.current.divmmcEnabled) {
-                        startFiles.divmmc = filename;
-                    } else if (Settings.current.zxmmcEnabled) {
-                        startFiles.zxmmc = filename;
-                    } else {
-                        Settings.current.zxcfActive = true;
-                        startFiles.zxcf = filename;
-                    }
-                    break;
-
-                case LibspectrumClassType.DISK_PLUS3:
-                    startFiles.diskPlus3 = filename;
-                    break;
-
-                case LibspectrumClassType.DISK_OPUS:
-                    startFiles.diskOpus = filename;
-                    break;
-
-                case LibspectrumClassType.DISK_DIDAKTIK:
-                    startFiles.diskDidaktik80 = filename;
-                    break;
-
-                case LibspectrumClassType.DISK_PLUSD:
-                    if (Periph.isActive(PeriphType.DISCIPLE)) {
-                        startFiles.diskDisciple = filename;
-                    } else {
-                        startFiles.diskPlusd = filename;
-                    }
-                    break;
-
-                case LibspectrumClassType.DISK_TRDOS:
-                    startFiles.diskBeta = filename;
-                    break;
-
-                case LibspectrumClassType.DISK_GENERIC:
-                    if ((Machine.current.capabilities & LibspectrumMachineCapability.PLUS3_DISK) != 0) {
-                        startFiles.diskPlus3 = filename;
-                    } else if ((Machine.current.capabilities & LibspectrumMachineCapability.TRDOS_DISK) != 0) {
-                        startFiles.diskBeta = filename;
-                    } else {
-                        if (Periph.isActive(PeriphType.BETA128)) {
-                            startFiles.diskBeta = filename;
-                        } else if (Periph.isActive(PeriphType.PLUSD)) {
-                            startFiles.diskPlusd = filename;
-                        } else if (Periph.isActive(PeriphType.DIDAKTIK80)) {
-                            startFiles.diskDidaktik80 = filename;
-                        } else if (Periph.isActive(PeriphType.DISCIPLE)) {
-                            startFiles.diskDisciple = filename;
-                        } else if (Periph.isActive(PeriphType.OPUS)) {
-                            startFiles.diskOpus = filename;
-                        }
-                    }
-                    break;
-
-                case LibspectrumClassType.RECORDING:
-                    startFiles.playback = filename;
-                    break;
-
-                case LibspectrumClassType.SNAPSHOT:
-                    startFiles.snapshot = filename;
-                    break;
-
-                case LibspectrumClassType.MICRODRIVE:
-                    for (int j = 0; j < 8; j++) {
-                        if (startFiles.mdr[j] == null) {
-                            startFiles.mdr[j] = filename;
-                            break;
-                        }
-                    }
-                    break;
-
-                case LibspectrumClassType.TAPE:
-                    startFiles.tape = filename;
-                    break;
-
-                case LibspectrumClassType.AUXILIARY:
-                    if (type.getValue() == LibspectrumIdType.AUX_POK) {
-                        Pokemem.setPokfile(filename);
-                    }
-                    break;
-
-                case LibspectrumClassType.UNKNOWN:
-                    Ui.error(UiError.WARNING, "couldn't identify '%s'; ignoring it", filename);
-                    break;
-
-                default:
-                    Ui.error(UiError.ERROR, "parse_nonoption_args: unknown file class %d", classType.getValue());
-                    break;
-            }
-
-            Utils.closeFile(file);
-        }
-
-        return 0;
-    }
+//    private static int parseNonoptionArgs(String[] args, int firstArg, StartFiles startFiles) {
+//        for (int i = firstArg; i < args.length; i++) {
+//            String filename = args[i];
+//
+//            UtilsFile file = new UtilsFile();
+//            int error = Utils.readFile(filename, file);
+//            if (error != 0) return error;
+//
+//            LibspectrumIdType type = new LibspectrumIdType();
+//            LibspectrumClassType classType = new LibspectrumClassType();
+//            error = Libspectrum.identifyFileWithClass(type, classType, filename, file.buffer, file.length);
+//            if (error != 0) {
+//                Utils.closeFile(file);
+//                return error;
+//            }
+//
+//            switch (classType.getValue()) {
+//                case LibspectrumClassType.CARTRIDGE_TIMEX:
+//                    startFiles.dock = filename;
+//                    break;
+//
+//                case LibspectrumClassType.CARTRIDGE_IF2:
+//                    startFiles.if2 = filename;
+//                    break;
+//
+//                case LibspectrumClassType.HARDDISK:
+//                    if (Settings.current.zxcfActive) {
+//                        startFiles.zxcf = filename;
+//                    } else if (Settings.current.zxataspActive) {
+//                        startFiles.zxataspMaster = filename;
+//                    } else if (Settings.current.simpleideActive) {
+//                        startFiles.simpleideMaster = filename;
+//                    } else if (Settings.current.divideEnabled) {
+//                        startFiles.divideMaster = filename;
+//                    } else if (Settings.current.divmmcEnabled) {
+//                        startFiles.divmmc = filename;
+//                    } else if (Settings.current.zxmmcEnabled) {
+//                        startFiles.zxmmc = filename;
+//                    } else {
+//                        Settings.current.zxcfActive = true;
+//                        startFiles.zxcf = filename;
+//                    }
+//                    break;
+//
+//                case LibspectrumClassType.DISK_PLUS3:
+//                    startFiles.diskPlus3 = filename;
+//                    break;
+//
+//                case LibspectrumClassType.DISK_OPUS:
+//                    startFiles.diskOpus = filename;
+//                    break;
+//
+//                case LibspectrumClassType.DISK_DIDAKTIK:
+//                    startFiles.diskDidaktik80 = filename;
+//                    break;
+//
+//                case LibspectrumClassType.DISK_PLUSD:
+//                    if (Periph.isActive(PeriphType.DISCIPLE)) {
+//                        startFiles.diskDisciple = filename;
+//                    } else {
+//                        startFiles.diskPlusd = filename;
+//                    }
+//                    break;
+//
+//                case LibspectrumClassType.DISK_TRDOS:
+//                    startFiles.diskBeta = filename;
+//                    break;
+//
+//                case LibspectrumClassType.DISK_GENERIC:
+//                    if ((Machine.current.capabilities & LibspectrumMachineCapability.PLUS3_DISK) != 0) {
+//                        startFiles.diskPlus3 = filename;
+//                    } else if ((Machine.current.capabilities & LibspectrumMachineCapability.TRDOS_DISK) != 0) {
+//                        startFiles.diskBeta = filename;
+//                    } else {
+//                        if (Periph.isActive(PeriphType.BETA128)) {
+//                            startFiles.diskBeta = filename;
+//                        } else if (Periph.isActive(PeriphType.PLUSD)) {
+//                            startFiles.diskPlusd = filename;
+//                        } else if (Periph.isActive(PeriphType.DIDAKTIK80)) {
+//                            startFiles.diskDidaktik80 = filename;
+//                        } else if (Periph.isActive(PeriphType.DISCIPLE)) {
+//                            startFiles.diskDisciple = filename;
+//                        } else if (Periph.isActive(PeriphType.OPUS)) {
+//                            startFiles.diskOpus = filename;
+//                        }
+//                    }
+//                    break;
+//
+//                case LibspectrumClassType.RECORDING:
+//                    startFiles.playback = filename;
+//                    break;
+//
+//                case LibspectrumClassType.SNAPSHOT:
+//                    startFiles.snapshot = filename;
+//                    break;
+//
+//                case LibspectrumClassType.MICRODRIVE:
+//                    for (int j = 0; j < 8; j++) {
+//                        if (startFiles.mdr[j] == null) {
+//                            startFiles.mdr[j] = filename;
+//                            break;
+//                        }
+//                    }
+//                    break;
+//
+//                case LibspectrumClassType.TAPE:
+//                    startFiles.tape = filename;
+//                    break;
+//
+//                case LibspectrumClassType.AUXILIARY:
+//                    if (type.getValue() == LibspectrumIdType.AUX_POK) {
+//                        Pokemem.setPokfile(filename);
+//                    }
+//                    break;
+//
+//                case LibspectrumClassType.UNKNOWN:
+//                    Ui.error(UiError.WARNING, "couldn't identify '%s'; ignoring it", filename);
+//                    break;
+//
+//                default:
+//                    Ui.error(UiError.ERROR, "parse_nonoption_args: unknown file class %d", classType.getValue());
+//                    break;
+//            }
+//
+//            Utils.closeFile(file);
+//        }
+//
+//        return 0;
+//    }
 
     private static int doStartFiles(StartFiles startFiles) {
         int autoload = startFiles.snapshot == null ? Tape.canAutoload() : 0;
@@ -674,63 +678,63 @@ public class Fuse {
             }
         }
 
-        if (startFiles.simpleideMaster != null) {
-            error = Simpleide.insert(startFiles.simpleideMaster, LibspectrumIdeType.MASTER);
-            Simpleide.reset(0);
-            if (error != 0) return error;
-        }
-
-        if (startFiles.simpleideSlave != null) {
-            error = Simpleide.insert(startFiles.simpleideSlave, LibspectrumIdeType.SLAVE);
-            Simpleide.reset(0);
-            if (error != 0) return error;
-        }
-
-        if (startFiles.zxataspMaster != null) {
-            error = Zxatasp.insert(startFiles.zxataspMaster, LibspectrumIdeType.MASTER);
-            if (error != 0) return error;
-        }
-
-        if (startFiles.zxataspSlave != null) {
-            error = Zxatasp.insert(startFiles.zxataspSlave, LibspectrumIdeType.SLAVE);
-            if (error != 0) return error;
-        }
-
-        if (startFiles.zxcf != null) {
-            error = Zxcf.insert(startFiles.zxcf);
-            if (error != 0) return error;
-        }
-
-        if (startFiles.divideMaster != null) {
-            error = Divide.insert(startFiles.divideMaster, LibspectrumIdeType.MASTER);
-            if (error != 0) return error;
-        }
-
-        if (startFiles.divideSlave != null) {
-            error = Divide.insert(startFiles.divideSlave, LibspectrumIdeType.SLAVE);
-            if (error != 0) return error;
-        }
-
-        if (startFiles.divmmc != null) {
-            error = Divmmc.insert(startFiles.divmmc);
-            if (error != 0) return error;
-        }
-
-        if (startFiles.zxmmc != null) {
-            error = Zxmmc.insert(startFiles.zxmmc);
-            if (error != 0) return error;
-        }
-
-        if (startFiles.playback != null) {
-            boolean checkSnapshot = startFiles.snapshot == null;
-            error = Rzx.startPlayback(startFiles.playback, checkSnapshot);
-            if (error != 0) return error;
-        }
-
-        if (startFiles.recording != null) {
-            error = Rzx.startRecording(startFiles.recording, Settings.current.embedSnapshot);
-            if (error != 0) return error;
-        }
+//        if (startFiles.simpleideMaster != null) {
+//            error = Simpleide.insert(startFiles.simpleideMaster, LibspectrumIdeType.MASTER);
+//            Simpleide.reset(0);
+//            if (error != 0) return error;
+//        }
+//
+//        if (startFiles.simpleideSlave != null) {
+//            error = Simpleide.insert(startFiles.simpleideSlave, LibspectrumIdeType.SLAVE);
+//            Simpleide.reset(0);
+//            if (error != 0) return error;
+//        }
+//
+//        if (startFiles.zxataspMaster != null) {
+//            error = Zxatasp.insert(startFiles.zxataspMaster, LibspectrumIdeType.MASTER);
+//            if (error != 0) return error;
+//        }
+//
+//        if (startFiles.zxataspSlave != null) {
+//            error = Zxatasp.insert(startFiles.zxataspSlave, LibspectrumIdeType.SLAVE);
+//            if (error != 0) return error;
+//        }
+//
+//        if (startFiles.zxcf != null) {
+//            error = Zxcf.insert(startFiles.zxcf);
+//            if (error != 0) return error;
+//        }
+//
+//        if (startFiles.divideMaster != null) {
+//            error = Divide.insert(startFiles.divideMaster, LibspectrumIdeType.MASTER);
+//            if (error != 0) return error;
+//        }
+//
+//        if (startFiles.divideSlave != null) {
+//            error = Divide.insert(startFiles.divideSlave, LibspectrumIdeType.SLAVE);
+//            if (error != 0) return error;
+//        }
+//
+//        if (startFiles.divmmc != null) {
+//            error = Divmmc.insert(startFiles.divmmc);
+//            if (error != 0) return error;
+//        }
+//
+//        if (startFiles.zxmmc != null) {
+//            error = Zxmmc.insert(startFiles.zxmmc);
+//            if (error != 0) return error;
+//        }
+//
+//        if (startFiles.playback != null) {
+//            boolean checkSnapshot = startFiles.snapshot == null;
+//            error = Rzx.startPlayback(startFiles.playback, checkSnapshot);
+//            if (error != 0) return error;
+//        }
+//
+//        if (startFiles.recording != null) {
+//            error = Rzx.startRecording(startFiles.recording, Settings.current.embedSnapshot);
+//            if (error != 0) return error;
+//        }
 
         return 0;
     }
@@ -740,10 +744,10 @@ public class Fuse {
         StartupManager.runEnd();
         Periph.end();
         Ui.end();
-        UiMedia.driveEnd();
+//        UiMedia.driveEnd();
         Module.end();
-        Pokemem.end();
-        Svg.captureEnd();
+//        Pokemem.end();
+//        Svg.captureEnd();
         Libspectrum.end();
         return 0;
     }

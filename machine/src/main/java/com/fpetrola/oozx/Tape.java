@@ -18,11 +18,11 @@
 
 package com.fpetrola.oozx;
 
+public class Tape {
+  public static boolean microphone
+      ;
 
-public class Scld {
-  public static ScldDec lastDec= new ScldDec();
-
-  public static ScldDec fromByte(long modeData) {
-    return null;
+  public static int canAutoload() {
+    return 0;
   }
 }

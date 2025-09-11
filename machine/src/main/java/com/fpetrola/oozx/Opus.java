@@ -18,11 +18,15 @@
 
 package com.fpetrola.oozx;
 
+public class Opus {
+  public static boolean active
+      ;
 
-public class Scld {
-  public static ScldDec lastDec= new ScldDec();
+  public static byte read(int address) {
+    return 0;
+  }
 
-  public static ScldDec fromByte(long modeData) {
-    return null;
+  public static void write(int address, byte b) {
+
   }
 }

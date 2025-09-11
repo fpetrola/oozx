@@ -18,11 +18,6 @@
 
 package com.fpetrola.oozx;
 
-
-public class Scld {
-  public static ScldDec lastDec= new ScldDec();
-
-  public static ScldDec fromByte(long modeData) {
-    return null;
-  }
+public class Constants {
+  public static final int ALTDFILE_OFFSET = 0x2000;
 }

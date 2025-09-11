@@ -20,4 +20,6 @@ package com.fpetrola.oozx;
 
 public class UiError {
   public static final String ERROR = "ui error";
+  public static final String INFO = "ui info";
+  public static final String WARNING = "ui warning";
 }

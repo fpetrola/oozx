@@ -76,7 +76,7 @@ public enum StartupManagerModule {
     Z80,
     ZXATASP,
     ZXCF,
-    ZXMMC
+    ZXMMC;
 }
 
 // Functional interfaces for init and end callbacks

@@ -18,46 +18,20 @@
 
 package com.fpetrola.oozx;
 
-public class Ui {
-  public static boolean mousePresent;
-  public static Object mouseGrabbed;
+public class Spectranet {
+  public static boolean paged;
+  public static boolean w5100PagedA;
+  public static boolean w5100PagedB;
 
-  public static int init(int argc, String[] argv) {
+  public static byte w5100Read(MemoryPage mapping, int address) {
     return 0;
   }
 
-  public static void error(String error, String s, int size) {
+  public static void flashRomWrite(int address, byte b) {
 
   }
 
-  public static void event() {
-
-  }
-
-  public static void errorFrame() {
-
-  }
-
-  public static void error(String error, String s) {
-
-  }
-
-  public static void error(String error, String s, String id) {
-
-  }
-
-  public static void error(String error, String s, String filename, int length, int expectedLength) {
-
-  }
-
-  public static void end() {
-  }
-
-  public static Object mouseGrab(int i) {
-    return null;
-  }
-
-  public static void error(String error, String s, Object version, String libspectrumMinVersion) {
+  public static void w5100Write(MemoryPage mapping, int address, byte b) {
 
   }
 }

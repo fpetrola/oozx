@@ -29,4 +29,12 @@ public class UiDisplay {
   public static void frameEnd() {
 
   }
+
+  public static int end() {
+    return 0;
+  }
+
+  public static int init(int width, int height) {
+    return 0;
+  }
 }

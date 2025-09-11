@@ -22,4 +22,8 @@ public class Timer {
   public static void estimateSpeed() {
 
   }
+
+  public static int estimateReset() {
+    return 0;
+  }
 }

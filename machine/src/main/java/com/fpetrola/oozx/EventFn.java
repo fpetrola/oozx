@@ -217,7 +217,7 @@ class EventManager {
     }
 
     // Clear the event stack
-    public static void eventReset() {
+    public static void reset() {
         eventList.clear();
 
         eventNextEvent = EVENT_NO_EVENTS;
@@ -246,11 +246,11 @@ class EventManager {
 
     // Tidy-up function called at end of emulation
     private static void eventEnd() {
-        eventReset();
+        reset();
         registeredEventsFree();
     }
 
-    public static void eventRegisterStartup() {
+    public static void registerStartup() {
         StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};
         StartupManager.register(StartupManagerModule.EVENT, dependencies, EventManager::eventInit, null, EventManager::eventEnd);
     }

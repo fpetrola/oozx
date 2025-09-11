@@ -19,5 +19,5 @@
 package com.fpetrola.oozx;
 
 public class ScldDec {
-  public ScldName name;
+  public ScldName name= new ScldName();
 }

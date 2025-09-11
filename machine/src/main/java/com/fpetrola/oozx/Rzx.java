@@ -21,8 +21,19 @@ package com.fpetrola.oozx;
 public class Rzx {
   public static boolean playback
       ;
+  public static boolean recording;
+  public static boolean competitionMode;
 
   public static void frame() {
+
+  }
+
+  public static int stopRecording() {
+
+    return 0;
+  }
+
+  public static void stopPlayback(boolean b) {
 
   }
 }

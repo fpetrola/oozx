@@ -136,21 +136,21 @@ public class Display {
     }
 
     public static DisplayDirtyFn dirty;
-    public static DisplayWriteIfDirtyFn writeIfDirty;
-    public static DisplayDirtyFlashingFn dirtyFlashing;
+    public static DisplayWriteIfDirtyFn writeIfDirty= Display::writeIfDirtySinclair;
+    public static DisplayDirtyFlashingFn dirtyFlashing= Display::dirtyFlashingSinclair;
 
     private static List<BorderChange> borderChanges = new ArrayList<>();
     private static int borderChangesLast;
 
     public static class DisplayStartupContext {
-        int[] argc;
-        String[][] argv;
+        int argc;
+        String[] argv;
     }
 
-    public static int init(int[] argc, String[][] argv) {
+    public static int init(String[] argv) {
         int i, j, k, x, y;
 
-        if (Ui.init(argc, argv) != 0) return 1;
+        if (Ui.init(argv.length, argv) != 0) return 1;
 
         // Set up the 'all pixels must be refreshed' marker
         allDirty = 0;
@@ -200,7 +200,7 @@ public class Display {
 
     private static int initWrapper(Object context) {
         DisplayStartupContext typedContext = (DisplayStartupContext) context;
-        return init(typedContext.argc, typedContext.argv);
+        return init(typedContext.argv);
     }
 
     public static void registerStartup(DisplayStartupContext context) {

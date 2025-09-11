@@ -18,11 +18,12 @@
 
 package com.fpetrola.oozx;
 
+public class PhantomTypist {
+  public static void frame() {
 
-public class Scld {
-  public static ScldDec lastDec= new ScldDec();
+  }
 
-  public static ScldDec fromByte(long modeData) {
-    return null;
+  public static byte ulaRead(int port) {
+    return 0;
   }
 }

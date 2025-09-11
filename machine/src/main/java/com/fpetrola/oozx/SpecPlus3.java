@@ -18,11 +18,8 @@
 
 package com.fpetrola.oozx;
 
+public class SpecPlus3 {
+  public static void memoryport2WriteInternal(int i, byte value) {
 
-public class Scld {
-  public static ScldDec lastDec= new ScldDec();
-
-  public static ScldDec fromByte(long modeData) {
-    return null;
   }
 }
