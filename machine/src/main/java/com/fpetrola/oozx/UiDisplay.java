@@ -20,14 +20,15 @@ package com.fpetrola.oozx;
 
 public class UiDisplay {
   public static void plot8(int start, int y, byte b, byte b1, byte colour) {
-
+    System.out.println("plot8 " + start + " " + y + " " + (b & 0xFF) + " " + (b1 & 0xFF) + " " + (colour & 0xFF));
   }
 
   public static void area(int i, int i1, int i2, int i3) {
+    System.out.println("area " + i + " " + i1 + " " + i2 + " " + i3);
   }
 
   public static void frameEnd() {
-
+//    System.out.println("frameEnd");
   }
 
   public static int end() {

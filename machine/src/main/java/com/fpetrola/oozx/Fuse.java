@@ -69,7 +69,6 @@ public class Fuse {
 
     // The creator information we'll store in file formats that support this
     public static LibspectrumCreator creator;
-    public static long tstates;
 
     public static void abort() {
 

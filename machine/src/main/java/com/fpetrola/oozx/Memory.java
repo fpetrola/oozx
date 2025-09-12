@@ -89,7 +89,7 @@ public class Memory {
         }
     }
 
-    private static List<MemoryPoolEntry> pool;
+    private static List<MemoryPoolEntry> pool= new ArrayList<>();
 
     // Current screen and mask
     public static int currentScreen;
@@ -434,6 +434,7 @@ public class Memory {
     // Reset custom ROM flags
     public static void reset() {
         for (int i = 0; i < SPECTRUM_ROM_PAGES * PAGES_IN_16K; i++) {
+            mapRom[i]= new MemoryPage();
             mapRom[i].saveToSnapshot = false;
         }
     }

@@ -152,6 +152,7 @@ public class Spectrum {
         EventManager.eventFrame(frameLength);
         Debugger.breakpointReduceTstates(frameLength);
         tstates -= frameLength;
+
         if (Z80.interruptsEnabledAt >= 0) {
             Z80.interruptsEnabledAt -= frameLength;
         }

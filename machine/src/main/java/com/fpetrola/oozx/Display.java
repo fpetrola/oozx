@@ -523,7 +523,7 @@ public class Display {
     }
 
     private static void updateUiScreen() {
-        int frameCountLocal = frameCount;
+        int frameCountLocal = 0;
         frameCountLocal++;
         int scale = Machine.current.timex ? 2 : 1;
 
@@ -552,7 +552,6 @@ public class Display {
             Rectangle.inactiveCount = 0;
             UiDisplay.frameEnd();
         }
-        frameCount = frameCountLocal;
     }
 
     public static int frame() {

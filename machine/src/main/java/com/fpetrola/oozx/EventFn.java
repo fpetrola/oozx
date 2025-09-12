@@ -139,7 +139,7 @@ class EventManager {
 
     // Do all events which have passed
     public static int eventDoEvents() {
-        while (eventNextEvent <= Fuse.tstates) { // Assume Fuse.tstates
+        while (eventNextEvent <= Spectrum.tstates) { // Assume Fuse.tstates
             Event ptr = eventList.getFirst();
             EventDescriptor descriptor = registeredEvents.get(ptr.type);
 
@@ -182,7 +182,7 @@ class EventManager {
     // Force all events between now and the next interrupt to happen
     public static void eventForceEvents() {
         while (eventNextEvent < Machine.current.timings.tstatesPerFrame) { // Assume Machine.current
-            Fuse.tstates = eventNextEvent;
+            Spectrum.tstates = eventNextEvent;
             eventDoEvents();
         }
     }
