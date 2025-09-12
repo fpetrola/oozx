@@ -18,9 +18,9 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.screen.FuseScreen;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.cpu.Z80Cpu;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
@@ -31,6 +31,10 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
 import fuse.tstates.PhaseProcessor;
+
+import javax.swing.*;
+import java.awt.event.KeyListener;
+import java.util.function.Function;
 
 public class Z80 {
   public static long interruptsEnabledAt;
@@ -45,7 +49,10 @@ public class Z80 {
 
     MiniZXIO io = new MiniZXIO();
     ooz80 = EmulatedMiniZX.createOOZ80(io);
-    MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
+//    MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
+    byte[][] bytes = new byte[1000][1000];
+    createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80), bytes);
+    UiDisplay.screenMatrix = bytes;
 
     RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
 
@@ -57,6 +64,15 @@ public class Z80 {
     memory.addMemoryReadListener(new AddStatesMemoryReadListener<>(phaseProcessor));
     memory.addMemoryWriteListener(new AddStatesMemoryWriteListener<>(phaseProcessor));
     SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
+
+    updateScreen();
+
+    memory.addMemoryWriteListener((address, value) -> {
+      com.fpetrola.oozx.Memory.writeByte(address.intValue(), (byte) value.intValue());
+      if (address.intValue() >= 0x4000 && address.intValue() < 0x8000) {
+        Spectrum.RAM[0][address.intValue()-0x4000] = (byte) value.intValue();
+      }
+    });
   }
 
   public static void doOpcodes() {
@@ -66,6 +82,23 @@ public class Z80 {
       ooz80.execute();
       tstates += (ooz80.getState().tstates - startTstates);
     }
-    Spectrum.tstates+= tstates;
+    Spectrum.tstates += tstates;
+  }
+
+  private static void updateScreen() {
+    WordNumber[] data = ooz80.getState().getMemory().getData();
+    for (int i = 0; i < 0x4000; i++) {
+      Spectrum.RAM[0][i] = (byte) data[i + 0x4000].intValue();
+    }
+  }
+
+  public static void createScreen(KeyListener keyListener, Function<Integer, Integer> memFunction, byte[][] bytes) {
+    JFrame frame = new JFrame("Fuse ZX Spectrum");
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setContentPane(new FuseScreen(memFunction, bytes));
+    frame.setLocationRelativeTo(null);
+    frame.pack();
+    frame.setVisible(true);
+    frame.addKeyListener(keyListener);
   }
 }

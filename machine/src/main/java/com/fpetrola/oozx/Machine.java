@@ -127,6 +127,7 @@ public class Machine {
 
     setConstTimings(machine);
     machine.timings.tstatesPerFrame = 69888;
+    machine.timings.tstatesPerLine= 224;
 
     machine.capabilities = Libspectrum.machineCapabilities(machine.machine);
 

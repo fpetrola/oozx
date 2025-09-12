@@ -283,9 +283,9 @@ public class Display {
 
         if (x < WIDTH_COLS) {
             bitMask = allDirty;
-            bitMask >>= x;
+            bitMask >>>= x;
             bitMask <<= x + (32 - end);
-            bitMask >>= (32 - end);
+            bitMask >>>= (32 - end);
             dirty = (maybeDirty[y] & bitMask) >> x;
             maybeDirty[y] &= ~bitMask;
         } else {
@@ -541,7 +541,7 @@ public class Display {
                 redrawAll = false;
             } else {
                 for (int i = 0; i < Rectangle.inactiveCount; i++) {
-                    Rectangle rect = Rectangle.inactive[i];
+                    Rectangle.Rect rect = Rectangle.inactive.get(i);
                     if (Movie.recording) {
                         Movie.addArea(rect.x, rect.y, rect.w, rect.h);
                     }

@@ -19,12 +19,18 @@
 package com.fpetrola.oozx;
 
 public class UiDisplay {
-  public static void plot8(int start, int y, byte b, byte b1, byte colour) {
-    System.out.println("plot8 " + start + " " + y + " " + (b & 0xFF) + " " + (b1 & 0xFF) + " " + (colour & 0xFF));
+  public static byte[][] screenMatrix;
+
+  public static void plot8(int x, int y, byte data, byte ink, byte paper) {
+    for (int i = 0; i < 8; i++) {
+      int i1 = data & (0x80 >> i);
+      screenMatrix[x * 8 + i][y] = i1 != 0 ? ink : paper;
+    }
+//    System.out.println("plot8 " + x + " " + y + " " + (data & 0xFF) + " " + (ink & 0xFF) + " " + (paper & 0xFF));
   }
 
   public static void area(int i, int i1, int i2, int i3) {
-    System.out.println("area " + i + " " + i1 + " " + i2 + " " + i3);
+//    System.out.println("area " + i + " " + i1 + " " + i2 + " " + i3);
   }
 
   public static void frameEnd() {
