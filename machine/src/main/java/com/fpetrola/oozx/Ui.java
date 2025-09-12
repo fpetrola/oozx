@@ -20,7 +20,7 @@ package com.fpetrola.oozx;
 
 public class Ui {
   public static boolean mousePresent;
-  public static Object mouseGrabbed;
+  public static boolean mouseGrabbed;
 
   public static int init(int argc, String[] argv) {
     return 0;
@@ -53,11 +53,21 @@ public class Ui {
   public static void end() {
   }
 
-  public static Object mouseGrab(int i) {
-    return null;
+  public static boolean mouseGrab(boolean i) {
+    return i;
   }
 
   public static void error(String error, String s, Object version, String libspectrumMinVersion) {
 
   }
+
+  public static void menuActivate(MenuItem menuItem, boolean cartridge) {
+
+  }
+
+  public static boolean mouseRelease(boolean b) {
+    return false;
+  }
+
+  public enum MenuItem {MEDIA_CARTRIDGE_DOCK, MEDIA_CARTRIDGE_IF2, MEDIA_IDE, MEDIA_IDE_SIMPLE8BIT, MEDIA_IDE_ZXATASP, MEDIA_IDE_ZXCF, MEDIA_IDE_DIVIDE, MEDIA_IDE_DIVMMC, MEDIA_IDE_ZXMMC, MEDIA_IF1, MEDIA_CARTRIDGE}
 }

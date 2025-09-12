@@ -18,12 +18,17 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.z80.minizx.MiniZXKeyboard;
+
 public class Keyboard {
+  public static MiniZXKeyboard keyboard;
+
   public static void registerStartup() {
 
   }
 
   public static byte read(int i) {
-    return 0;
+    int i1 = keyboard.readKeyboardPort(i, true);
+    return (byte) i1;
   }
 }

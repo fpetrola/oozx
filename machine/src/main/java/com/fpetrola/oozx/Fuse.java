@@ -283,7 +283,7 @@ public class Fuse {
 
         Debugger.commandEvaluate(Settings.current.debuggerCommand);
 
-        if (Ui.mousePresent) Ui.mouseGrabbed = Ui.mouseGrab(1);
+        if (Ui.mousePresent) Ui.mouseGrabbed = Ui.mouseGrab(true);
 
         emulationPaused = 0;
         Movie.init();

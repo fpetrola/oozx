@@ -568,7 +568,7 @@ enum TrapType {
 
 enum DebuggerBreakpointType {
     READ,
-    WRITE
+    PORT_READ, PORT_WRITE, WRITE
 }
 
 enum DebuggerMode {

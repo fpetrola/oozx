@@ -19,6 +19,7 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.screen.FuseScreen;
+import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.jspeccy.RegistersBase;
@@ -47,12 +48,23 @@ public class Z80 {
   public static void registerStartup() {
     Machine.reset(false);
 
-    MiniZXIO io = new MiniZXIO();
+    MiniZXIO io = new MiniZXIO() {
+      public synchronized WordNumber in(WordNumber port) {
+        byte b = Periph.readPort(port.intValue());
+        return WordNumber.createValue(b);
+      }
+
+      public void out(WordNumber port, WordNumber value) {
+        Periph.writePort(port.intValue(), (byte) value.intValue());
+      }
+    };
     ooz80 = EmulatedMiniZX.createOOZ80(io);
 //    MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
     byte[][] bytes = new byte[1000][1000];
     createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80), bytes);
     UiDisplay.screenMatrix = bytes;
+
+    Keyboard.keyboard= io.miniZXKeyboard;
 
     RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
 
@@ -70,9 +82,11 @@ public class Z80 {
     memory.addMemoryWriteListener((address, value) -> {
       com.fpetrola.oozx.Memory.writeByte(address.intValue(), (byte) value.intValue());
       if (address.intValue() >= 0x4000 && address.intValue() < 0x8000) {
-        Spectrum.RAM[0][address.intValue()-0x4000] = (byte) value.intValue();
+        Spectrum.RAM[0][address.intValue() - 0x4000] = (byte) value.intValue();
       }
     });
+
+    IO<?> io1 = state.getIo();
   }
 
   public static void doOpcodes() {

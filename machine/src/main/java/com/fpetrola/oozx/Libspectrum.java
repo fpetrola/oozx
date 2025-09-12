@@ -76,7 +76,7 @@ public class Libspectrum {
   enum Machine {
     _48,
     // Other machine types as needed
-    UNKNOWN;
+    UNKNOWN, _128, PLUS2;
   }
   public static MachineCapability MachineCapability;
 
@@ -185,5 +185,8 @@ public class Libspectrum {
   }
 
   public class Snap {
+  }
+
+  public class Error extends RuntimeException {
   }
 }

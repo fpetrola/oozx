@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx;
 
+import java.util.Arrays;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -83,27 +84,27 @@ public class Ula {
     );
 
     // Peripheral ports for ULA
-    private static final PeriphPort[] ulaPorts = {
-            new PeriphPort(0x0001, 0x0000, Ula::read, Ula::write),
-            new PeriphPort(0, 0, null, null)
+    private static final Periph.Port[] ulaPorts = {
+            new Periph.Port(0x0001, 0x0000, Ula::read, Ula::write),
+            new Periph.Port(0, 0, null, null)
     };
 
-    private static final Periph ulaPeriph = new Periph(
+    private static final Periph.Peripheral ulaPeriph = new Periph.Peripheral(
             null, // option
-            ulaPorts,
+        Arrays.asList(ulaPorts),
             false, // hardReset
             null // activate
     );
 
     // Peripheral ports for full decode
-    private static final PeriphPort[] ulaPortsFullDecode = {
-            new PeriphPort(0x00ff, 0x00fe, Ula::read, Ula::write),
-            new PeriphPort(0, 0, null, null)
+    private static final Periph.Port[] ulaPortsFullDecode = {
+            new Periph.Port(0x00ff, 0x00fe, Ula::read, Ula::write),
+            new Periph.Port(0, 0, null, null)
     };
 
-    private static final Periph ulaPeriphFullDecode = new Periph(
+    private static final Periph.Peripheral ulaPeriphFullDecode = new Periph.Peripheral(
             null, // option
-            ulaPortsFullDecode,
+            Arrays.asList(ulaPortsFullDecode),
             false, // hardReset
             null // activate
     );
@@ -147,8 +148,8 @@ public class Ula {
     private static int init(Object context) {
         Module.register(ulaModuleInfo);
 
-        Periph.register(PeriphType.ULA, ulaPeriph);
-        Periph.register(PeriphType.ULA_FULL_DECODE, ulaPeriphFullDecode);
+        Periph.register(Periph.Type.ULA, ulaPeriph);
+        Periph.register(Periph.Type.ULA_FULL_DECODE, ulaPeriphFullDecode);
 
         Debugger.systemVariableRegister(
                 DEBUGGER_TYPE_STRING, LAST_BYTE_DETAIL_STRING, Ula::getLastByte, null);
@@ -273,53 +274,4 @@ class ModuleInfo {
         this.snapshotFrom = snapshotFrom;
         this.snapshotTo = snapshotTo;
     }
-}
-
-class PeriphPort {
-    int mask;
-    int value;
-    BiFunction<Integer, byte[], Byte> read; // Returns byte, takes port and attached array
-    BiConsumer<Integer, Byte> write; // Takes port and byte
-
-    PeriphPort(int mask, int value, BiFunction<Integer, byte[], Byte> read, BiConsumer<Integer, Byte> write) {
-        this.mask = mask;
-        this.value = value;
-        this.read = read;
-        this.write = write;
-    }
-}
-
-class Periph {
-    Object option;
-    PeriphPort[] ports;
-    boolean hardReset;
-    Runnable activate;
-
-    Periph(Object option, PeriphPort[] ports, boolean hardReset, Runnable activate) {
-        this.option = option;
-        this.ports = ports;
-        this.hardReset = hardReset;
-        this.activate = activate;
-    }
-
-    public static void clear() {
-
-    }
-
-    public static void update() {
-
-    }
-
-    public static void register(PeriphType periphType, Periph ulaPeriph) {
-
-    }
-
-    public static void end() {
-
-    }
-}
-
-enum PeriphType {
-    ULA,
-    ULA_FULL_DECODE
 }

@@ -51,4 +51,12 @@ public class Debugger {
   public static void check(DebuggerBreakpointType debuggerBreakpointType, int address) {
 
   }
+
+  public static int eventRegister(String typeString, String pageEventString) {
+    return 0;
+  }
+
+  public enum BreakpointType {
+    PORT_READ
+  }
 }

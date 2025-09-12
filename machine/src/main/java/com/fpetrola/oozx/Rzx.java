@@ -36,4 +36,12 @@ public class Rzx {
   public static void stopPlayback(boolean b) {
 
   }
+
+  public static byte playback() {
+    return 0;
+  }
+
+  public static void storeByte(byte value) {
+
+  }
 }

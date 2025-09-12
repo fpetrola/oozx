@@ -24,4 +24,5 @@ public class MachineCapability {
   public static final int PENT1024_MEMORY = 3;
   public static final int SCORP_MEMORY = 4;
   public static final int TIMEX_VIDEO = 5;
+  public static final int TIMEX_DOCK = 6;
 }
