@@ -23,18 +23,23 @@ import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.util.function.Function;
 
 public class FuseScreen extends JPanel {
   protected final Function<Integer, Integer> screenMemory;
   private final byte[][] screenMatrix;
+  private final BufferedImage screenBuffer;
   private double zoom = 2;
   Color[] colors = {Color.BLACK, Color.BLUE, Color.RED, Color.MAGENTA, Color.GREEN, Color.CYAN, Color.YELLOW, Color.WHITE};
+  private int width = 256 + 48 + 48;
+  private int height = 192 + 64 + 56;
 
   public FuseScreen(Function<Integer, Integer> screenMemory, byte[][] screenMatrix) {
     this.screenMemory = screenMemory;
     this.screenMatrix = screenMatrix;
-    setPreferredSize(new Dimension((int) (256+100 * zoom), (int) (192+100 * zoom)));
+    setPreferredSize(new Dimension((int) (256 + 100 * zoom), (int) (192 + 100 * zoom)));
+    this.screenBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
     new Timer(20, e -> {
       repaint();
@@ -50,28 +55,16 @@ public class FuseScreen extends JPanel {
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
 
-    Graphics2D g2d = (Graphics2D) g.create();
-    AffineTransform at = new AffineTransform();
-    at.scale(zoom, zoom);
-    g2d.setTransform(at);
-
-    for (int x = 0; x < 256+48+48; x++) {
-      for (int y = 0; y < 192+64+56; y++) {
+    for (int x = 0; x < width; x++) {
+      for (int y = 0; y < height; y++) {
         byte screenMatrix1 = screenMatrix[x][y];
         int zxColorCode = screenMatrix1;
-        g2d.setColor(zxColorCode >= 8 ? colors[zxColorCode - 8] : colors[zxColorCode].darker());
-        g2d.fillRect(x, y, 1, 1);
+
+        Color c = zxColorCode >= 8 ? colors[zxColorCode - 8] : colors[zxColorCode].darker();
+        screenBuffer.setRGB(x, y, c.getRGB());
       }
     }
 
-//    for (int i = 0; i < newScreen.length; i++) {
-//      double x = i % 256;
-//      double y = i / 256;
-//
-//      int zxColorCode = newScreen[i];
-//      g2d.setColor(zxColorCode >= 8 ? colors[zxColorCode - 8] : colors[zxColorCode].darker());
-//      g2d.fillRect((int) x, (int) y, 1, 1);
-//    }
-    g2d.dispose();
+    g.drawImage(screenBuffer, 0, 0, getWidth(), getHeight(), null);
   }
 }

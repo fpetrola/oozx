@@ -23,16 +23,18 @@ import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class MockedMemory<T extends WordNumber> implements Memory<T> {
   protected T[] data = (T[]) new WordNumber[0x10000];
-  private MemoryWriteListener memoryWriteListener;
+  private List<MemoryWriteListener> memoryWriteListener = new ArrayList<>();
   private boolean readOnly;
   private MemoryReadListener memoryReadListener;
   private MemoryReadListener lastMemoryReadListener;
-  private MemoryWriteListener lastMemoryWriteListener;
+  private List<MemoryWriteListener> lastMemoryWriteListener= new ArrayList<>();
   private boolean canDisable;
   protected T[] cachedValues = (T[]) new WordNumber[0x10000];
 
@@ -49,7 +51,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
     T cachedValue = null;
     //FIXME: para que????
 
-    boolean b = fetching == 1|| address.intValue() < 0 || (cachedValue = cachedValues[address.intValue()]) != value;
+    boolean b = fetching == 1 || address.intValue() < 0 || (cachedValue = cachedValues[address.intValue()]) != value;
     if (memoryReadListener != null && b) {
       memoryReadListener.readingMemoryAt(address, value, 0, fetching);
       if (address.intValue() >= 0)
@@ -82,8 +84,8 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   @Override
   public void write(T address, T value) {
     if (!readOnly) {
-      if (memoryWriteListener != null)
-        memoryWriteListener.writtingMemoryAt(address, value);
+      if (!memoryWriteListener.isEmpty())
+        memoryWriteListener.forEach(l -> l.writtingMemoryAt(address, value));
 //      if (address.intValue() == 23548)
 //        System.out.println("");
       if (address.intValue() < 0x10000)
@@ -103,7 +105,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
 
   @Override
   public void addMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener) {
-    this.memoryWriteListener = memoryWriteListener;
+    this.memoryWriteListener.add(memoryWriteListener);
   }
 
   @Override

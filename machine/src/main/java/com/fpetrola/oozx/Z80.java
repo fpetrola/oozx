@@ -19,13 +19,14 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.screen.FuseScreen;
+import com.fpetrola.oozx.screen.ZXScreenComponent;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.minizx.MiniZX;
+import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -35,7 +36,8 @@ import fuse.tstates.PhaseProcessor;
 
 import javax.swing.*;
 import java.awt.event.KeyListener;
-import java.util.function.Function;
+
+import static com.fpetrola.z80.opcodes.references.WordNumber.*;
 
 public class Z80 {
   public static long interruptsEnabledAt;
@@ -51,7 +53,7 @@ public class Z80 {
     MiniZXIO io = new MiniZXIO() {
       public synchronized WordNumber in(WordNumber port) {
         byte b = Periph.readPort(port.intValue());
-        return WordNumber.createValue(b);
+        return createValue(b);
       }
 
       public void out(WordNumber port, WordNumber value) {
@@ -59,9 +61,10 @@ public class Z80 {
       }
     };
     ooz80 = EmulatedMiniZX.createOOZ80(io);
+
 //    MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
     byte[][] bytes = new byte[1000][1000];
-    createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80), bytes);
+    createScreen(io.miniZXKeyboard, new FuseScreen(EmulatedMiniZX.getMemFunction(ooz80), bytes));
     UiDisplay.screenMatrix = bytes;
 
     Keyboard.keyboard = io.miniZXKeyboard;
@@ -87,6 +90,13 @@ public class Z80 {
     });
 
     IO<?> io1 = state.getIo();
+//    ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent<>();
+//    MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
+//    memory.addMemoryWriteListener(writeListener);
+//    createScreen(io.miniZXKeyboard, zxScreenComponent);
+//    for (int address = 0x4000; address <= 0x8000; address++) {
+//      writeListener.writtingMemoryAt(createValue(address), memory.read(createValue(address), 0));
+//    }
   }
 
   public static void doOpcodes() {
@@ -106,10 +116,10 @@ public class Z80 {
     }
   }
 
-  public static void createScreen(KeyListener keyListener, Function<Integer, Integer> memFunction, byte[][] bytes) {
+  public static void createScreen(KeyListener keyListener, JComponent contentPane) {
     JFrame frame = new JFrame("Fuse ZX Spectrum");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setContentPane(new FuseScreen(memFunction, bytes));
+    frame.setContentPane(contentPane);
     frame.setLocationRelativeTo(null);
     frame.pack();
     frame.setVisible(true);
