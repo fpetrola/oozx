@@ -23,11 +23,15 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.spy.NullInstructionSpy;
+import fuse.tstates.AddStatesMemoryReadListener;
+import fuse.tstates.AddStatesMemoryWriteListener;
+import fuse.tstates.PhaseProcessor;
 
 import java.util.function.Function;
 
@@ -50,7 +54,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
   }
 
   public static void main(String[] args) {
-    new EmulatedMiniZX("file:///home/fernando/dynamitedan1.z80", 1000, true, -1, true).start();
+    new EmulatedMiniZX("file:///home/fernando/dynamitedan1.z80", 1, true, -1, true).start();
   }
 
   public static <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
@@ -74,6 +78,11 @@ public class EmulatedMiniZX<T extends WordNumber> {
     String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
     State<T> state = ooz80.getState();
     SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
+
+//    PhaseProcessor<T> phaseProcessor = new PhaseProcessor<>(ooz80);
+//    Memory<T> memory = state.getMemory();
+//    memory.addMemoryReadListener(new AddStatesMemoryReadListener<>(phaseProcessor));
+//    memory.addMemoryWriteListener(new AddStatesMemoryWriteListener<>(phaseProcessor));
 
     if (inThread)
       new Thread(this::emulate).start();

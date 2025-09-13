@@ -36,7 +36,7 @@ public class FuseScreen extends JPanel {
     this.screenMatrix = screenMatrix;
     setPreferredSize(new Dimension((int) (256+100 * zoom), (int) (192+100 * zoom)));
 
-    new Timer(200, e -> {
+    new Timer(20, e -> {
       repaint();
     }).start();
 

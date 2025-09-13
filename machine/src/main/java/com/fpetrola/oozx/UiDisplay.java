@@ -29,7 +29,13 @@ public class UiDisplay {
 //    System.out.println("plot8 " + x + " " + y + " " + (data & 0xFF) + " " + (ink & 0xFF) + " " + (paper & 0xFF));
   }
 
-  public static void area(int i, int i1, int i2, int i3) {
+  public static void area(int x, int y, int w, int h) {
+//    for (int i = 0; i < w; i++) {
+//      for (int j = 0; j < h; j++) {
+//        screenMatrix[x + i][y + j] = 0;
+//      }
+//    }
+
 //    System.out.println("area " + i + " " + i1 + " " + i2 + " " + i3);
   }
 

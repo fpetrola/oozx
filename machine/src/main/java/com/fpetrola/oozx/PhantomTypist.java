@@ -24,6 +24,6 @@ public class PhantomTypist {
   }
 
   public static byte ulaRead(int port) {
-    return 0;
+    return (byte) 0xff;
   }
 }

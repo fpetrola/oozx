@@ -18,24 +18,12 @@
 
 package com.fpetrola.oozx;
 
-public class SpecPlus3 {
-  public static void memoryport2WriteInternal(int i, byte value) {
-
-  }
-
-  public static void memoryport2Write(int i, byte b) {
-
-  }
-
-  public static byte fdcRead(int i, byte[] bytes) {
+public class Tc2068 {
+  public static byte ayRegisterportRead(int i, byte[] bytes) {
     return 0;
   }
 
-  public static void fdcWrite(int i, byte b) {
-
-  }
-
-  public static byte fdcStatus(int i, byte[] bytes) {
+  public static byte ayDataportRead(int i, byte[] bytes) {
     return 0;
   }
 }

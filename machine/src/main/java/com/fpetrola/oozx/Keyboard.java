@@ -27,8 +27,10 @@ public class Keyboard {
 
   }
 
-  public static byte read(int i) {
-    int i1 = keyboard.readKeyboardPort(i, true);
-    return (byte) i1;
+  public static byte read(int port) {
+    int port1 = port << 8;
+    int earBit = 191;
+    return (byte) (keyboard.readKeyboardPort(port1, true) & earBit);
+
   }
 }

@@ -37,7 +37,7 @@ public class Spec48 {
 
     // Initialize the Spectrum 48K machine
     public static int init(FuseMachineInfo machine) {
-        machine.machine = Libspectrum.Machine._48;
+        machine.machine = Libspectrum.Machine._48K;
         machine.id = "48";
 
         machine.reset = Spec48::reset;
@@ -128,12 +128,42 @@ public class Spec48 {
 //    }
 //}
 
-class MachinesPeriph {
-    static void machinesPeriph48() {
-        // Implementation to be provided
-    }
-}
-
 class Beta {
     static boolean builtin;
+
+    public static void crWrite(int i, byte b) {
+
+    }
+
+    public static byte trRead(int i, byte[] bytes) {
+        return 0;
+    }
+
+    public static void trWrite(int i, byte b) {
+
+    }
+
+    public static byte secRead(int i, byte[] bytes) {
+        return 0;
+    }
+
+    public static void secWrite(int i, byte b) {
+
+    }
+
+    public static byte drRead(int i, byte[] bytes) {
+        return 0;
+    }
+
+    public static void drWrite(int i, byte b) {
+
+    }
+
+    public static void spWrite(int i, byte b) {
+
+    }
+
+    public static byte spRead(int i, byte[] bytes) {
+        return 0;
+    }
 }

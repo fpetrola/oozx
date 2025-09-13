@@ -26,4 +26,12 @@ public class Pentagon {
   public static void pentagon1024V22MemoryportWrite(int i, byte b) {
 
   }
+
+  public static byte select1fRead(int i, byte[] bytes) {
+    return 0;
+  }
+
+  public static byte selectFfRead(int i, byte[] bytes) {
+    return 0;
+  }
 }

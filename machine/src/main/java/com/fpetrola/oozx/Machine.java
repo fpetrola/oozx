@@ -37,7 +37,7 @@ interface UnattachedPortFn {
 class FuseMachineInfo {
   Spectrum.RamInfo ramInfo = new Spectrum.RamInfo();
 
-  Libspectrum.Machine machine = Libspectrum.Machine._48; // libspectrum_machine
+  Libspectrum.Machine machine = Libspectrum.Machine._48K; // libspectrum_machine
   String id; // Used to select from command line
   int capabilities; // Capabilities of this machine
 
@@ -150,8 +150,8 @@ public class Machine {
 
         if (error == 0) return 0;
 
-        if (type != Libspectrum.Machine._48.ordinal()) {
-          error = select(Libspectrum.Machine._48.ordinal());
+        if (type != Libspectrum.Machine._48K.ordinal()) {
+          error = select(Libspectrum.Machine._48K.ordinal());
         }
 
         if (error != 0) {

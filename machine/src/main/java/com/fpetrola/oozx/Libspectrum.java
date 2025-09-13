@@ -72,11 +72,10 @@ public class Libspectrum {
   public static int init() {
     return 0;
   }
-
   enum Machine {
-    _48,
-    // Other machine types as needed
-    UNKNOWN, _128, PLUS2;
+    _48K, TC2048, _128K, PLUS2, PENTAGON, PLUS2A, PLUS3, UNKNOWN,
+    _16K, TC2068, SCORPION, PLUS3E, SE, TS2068, PENTAGON_512K,
+    PENTAGON_1024K, _48K_NTSC, _128KE
   }
   public static MachineCapability MachineCapability;
 

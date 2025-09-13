@@ -261,7 +261,7 @@ public class Periph {
 
         // Special case for 128K/+2 machines
         if ((port & 0x8002) == 0 &&
-                (Machine.current.machine == Libspectrum.Machine._128 ||
+                (Machine.current.machine == Libspectrum.Machine._128K ||
                         Machine.current.machine == Libspectrum.Machine.PLUS2)) {
             writePortInternal(0x7ffd, b);
         }

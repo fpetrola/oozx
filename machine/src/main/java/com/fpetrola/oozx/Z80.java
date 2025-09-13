@@ -55,7 +55,7 @@ public class Z80 {
       }
 
       public void out(WordNumber port, WordNumber value) {
-        Periph.writePort(port.intValue(), (byte) value.intValue());
+//        Periph.writePort(port.intValue(), (byte) value.intValue());
       }
     };
     ooz80 = EmulatedMiniZX.createOOZ80(io);
@@ -64,15 +64,15 @@ public class Z80 {
     createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80), bytes);
     UiDisplay.screenMatrix = bytes;
 
-    Keyboard.keyboard= io.miniZXKeyboard;
+    Keyboard.keyboard = io.miniZXKeyboard;
 
     RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
 
     String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile("file:///home/fernando/dynamitedan1.z80");
     State<?> state = ooz80.getState();
+    Memory<WordNumber> memory = (Memory<WordNumber>) state.getMemory();
 
     PhaseProcessor<WordNumber> phaseProcessor = new PhaseProcessor<>(ooz80);
-    Memory<WordNumber> memory = (Memory<WordNumber>) state.getMemory();
     memory.addMemoryReadListener(new AddStatesMemoryReadListener<>(phaseProcessor));
     memory.addMemoryWriteListener(new AddStatesMemoryWriteListener<>(phaseProcessor));
     SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);

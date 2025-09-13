@@ -122,7 +122,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
         nextPC = (T) jumpInstruction.getNextPC();
       }
 
-      String x = String.format("%04X", pcValue.intValue()) + ": " + opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt] + " -> " + nextPC;
+//      String x = String.format("%04X", pcValue.intValue()) + ": " + opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt] + " -> " + nextPC;
 //      System.out.println(x);
 
 
