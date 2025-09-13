@@ -12,6 +12,7 @@
 
     <name>ide</name>
     <modules>
+        <module>spectrum</module>
         <module>core</module>
     </modules>
 
