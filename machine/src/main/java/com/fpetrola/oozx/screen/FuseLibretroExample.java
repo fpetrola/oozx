@@ -19,119 +19,13 @@
 package com.fpetrola.oozx.screen;
 
 import com.sun.jna.*;
-import com.sun.jna.ptr.*;
 
 import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
 
 public class FuseLibretroExample {
-
-  // --- Structs de libretro ---
-  public static class retro_game_info extends Structure {
-
-    public String path;
-    public Pointer data; // puede ser null si usamos path
-    public NativeLong size;
-    public String meta;
-
-    @Override
-    protected List<String> getFieldOrder() {
-      return List.of("path", "data", "size", "meta");
-    }
-  }
-
-  // --- Callbacks ---
-  public interface retro_environment_t extends Callback {
-    boolean invoke(int cmd, Pointer data);
-  }
-
-  public interface retro_video_refresh_t extends Callback {
-    void invoke(Pointer data, int width, int height, long pitch);
-  }
-
-  public interface retro_audio_sample_t extends Callback {
-    void invoke(short left, short right);
-  }
-
-  public interface retro_audio_sample_batch_t extends Callback {
-    long invoke(ShortByReference data, long frames);
-  }
-
-  public interface retro_input_poll_t extends Callback {
-    void invoke();
-  }
-
-  public interface retro_input_state_t extends Callback {
-    short invoke(int port, int device, int index, int id);
-  }
-
-  // --- API de libretro ---
-  public interface LibretroCore extends Library {
-    LibretroCore INSTANCE = Native.load("/home/fernando/detodo/desarrollo/m/zx/emus/fuse-libretro/fuse_libretro.so", LibretroCore.class);
-
-    void retro_init();
-
-    void retro_deinit();
-
-    int retro_api_version();
-
-    void retro_set_environment(retro_environment_t cb);
-
-    void retro_set_video_refresh(retro_video_refresh_t cb);
-
-    void retro_set_audio_sample(retro_audio_sample_t cb);
-
-    void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb);
-
-    void retro_set_input_poll(retro_input_poll_t cb);
-
-    void retro_set_input_state(retro_input_state_t cb);
-
-    void retro_get_system_info(Pointer info);
-
-    void retro_get_system_av_info(Pointer avInfo);
-
-    boolean retro_load_game(retro_game_info game);
-
-    void retro_unload_game();
-
-    void retro_run();
-
-    void retro_reset();
-
-    Pointer retro_get_memory_data(int id);
-
-    long retro_get_memory_size(int id);
-
-    void fuse_set_show_frame(boolean v);
-
-    int fuse_get_show_frame();
-  }
-
-  public static class RetroMessageExt extends Structure {
-
-    public RetroMessageExt(Pointer data) {
-      super(data);
-    }
-
-    // campos en el mismo orden que en C
-    public String msg;          // const char* (JNA lo convierte automáticamente en String UTF-8)
-    public int frames;          // unsigned -> int alcanza
-    public int priority;        // unsigned -> int
-    public int level;           // enum retro_log_level (usar int)
-    public int target;          // enum retro_message_target
-    public int type;            // enum retro_message_type
-    public int id;
-
-    @Override
-    protected List<String> getFieldOrder() {
-      return Arrays.asList("msg", "frames", "priority", "level", "target", "type", "id");
-    }
-  }
 
   public static void main(String[] args) throws IOException {
     LibretroCore core = LibretroCore.INSTANCE;
@@ -156,7 +50,7 @@ public class FuseLibretroExample {
       return (short) 0xff;
     });
 
-    loadGame1(core, "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
+    loadGame(core, "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
 
     new Timer(20, e -> {
       core.retro_run();
@@ -166,18 +60,21 @@ public class FuseLibretroExample {
 //        System.out.println("Ejecución terminada.");
   }
 
-  private static void loadGame1(LibretroCore core, String gamePath) throws IOException {
+  private static void loadGame(LibretroCore core, String gamePath) throws IOException {
     byte[] romBytes = Files.readAllBytes(Path.of(gamePath));
     Memory buffer = new Memory(romBytes.length);
     buffer.write(0, romBytes, 0, romBytes.length);
 
     retro_game_info game = new retro_game_info();
     game.path = gamePath;
-    game.data = buffer; // dejamos que lo lea del archivo
+    game.data = buffer;
     game.size = new NativeLong(buffer.size());
     game.meta = null;
 
-    loadGame(core, game, gamePath);
+    if (!core.retro_load_game(game)) {
+      throw new RuntimeException("No se pudo cargar el snapshot " + gamePath);
+    }
+    System.out.println("Juego cargado: " + gamePath);
   }
 
   private static SpectrumPanel getSpectrumPanel() {
@@ -188,13 +85,6 @@ public class FuseLibretroExample {
     frame.pack();
     frame.setVisible(true);
     return panel;
-  }
-
-  private static void loadGame(LibretroCore core, retro_game_info game, String gamePath) {
-    if (!core.retro_load_game(game)) {
-      throw new RuntimeException("No se pudo cargar el snapshot " + gamePath);
-    }
-    System.out.println("Juego cargado: " + gamePath);
   }
 
   private static void extracted(LibretroCore core) {
