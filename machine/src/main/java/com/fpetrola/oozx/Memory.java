@@ -385,7 +385,7 @@ public class Memory {
 
     // Map ROMCS
     public static void romcsMap() {
-        if (!Machine.current.ram.romcs) return;
+        if (!Machine.current.ramInfo.romcs) return;
         Module.romcs();
     }
 
@@ -485,8 +485,8 @@ public class Memory {
 
     // Save memory to snapshot
     private static void toSnapshot(Libspectrum.Snap snap) {
-        Libspectrum.snapSetOut128Memoryport(snap, Machine.current.ram.lastByte);
-        Libspectrum.snapSetOutPlus3Memoryport(snap, Machine.current.ram.lastByte2);
+        Libspectrum.snapSetOut128Memoryport(snap, Machine.current.ramInfo.lastByte);
+        Libspectrum.snapSetOutPlus3Memoryport(snap, Machine.current.ramInfo.lastByte2);
 
         for (int i = 0; i < 64; i++) {
             if (Spectrum.RAM[i] != null) {

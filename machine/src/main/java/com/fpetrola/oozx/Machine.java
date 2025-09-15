@@ -48,8 +48,6 @@ class FuseMachineInfo {
   MachineTimings timings = new MachineTimings(); // How long do things take to happen?
   long[] lineTimes = new long[Display.SCREEN_HEIGHT + 1]; // Redraw line y this many tstates after interrupt
 
-  Spectrum.RamInfo ram = new Spectrum.RamInfo(); // How do we access memory, and what's currently paged in
-
   UnattachedPortFn unattachedPort; // What to return if we read from a port which isn't attached to anything
 
 //    Ayinfo ay = new Ayinfo(); // The AY-3-8912 chip
@@ -126,8 +124,8 @@ public class Machine {
     machineTypes.add(machine);
 
     setConstTimings(machine);
-    machine.timings.tstatesPerFrame = 69888;
-    machine.timings.tstatesPerLine= 224;
+//    machine.timings.tstatesPerFrame = 69888;
+//    machine.timings.tstatesPerLine= 224;
 
     machine.capabilities = Libspectrum.machineCapabilities(machine.machine);
 
@@ -226,6 +224,7 @@ public class Machine {
     Sound.init(Settings.current.soundDevice);
 
     machine.reset.run();
+    Machine.reset(false);
 //        if (error != 0) return error;
 
 //        Ui.menuActivate(UiMenuItem.MEDIA_CARTRIDGE_DOCK_EJECT, 0);
@@ -295,13 +294,13 @@ public class Machine {
 //        Tape.stop();
 
     Memory.poolFree();
-    current = new FuseMachineInfo();
-    current.reset = () -> {
-    };
-    current.ram = new Spectrum.RamInfo();
-    current.ram.romcs = false;
-    current.memoryMap = () -> {
-    };
+//    current = new FuseMachineInfo();
+//    current.reset = () -> {
+//    };
+//    current.ram = new Spectrum.RamInfo();
+//    current.ram.romcs = false;
+//    current.memoryMap = () -> {
+//    };
     setVariableTimings(current);
 
     Memory.reset();
@@ -315,8 +314,8 @@ public class Machine {
 //        if (error != 0) return error;
 
     for (int i = 0; i < (int) current.timings.tstatesPerFrame; i++) {
-      Ula.contention[i] = (byte) current.ram.contendDelay.apply(i);
-      Ula.contentionNoMreq[i] = (byte) current.ram.contendDelayNoMreq.apply(i);
+      Ula.contention[i] = (byte) current.ramInfo.contendDelay.apply(i);
+      Ula.contentionNoMreq[i] = (byte) current.ramInfo.contendDelayNoMreq.apply(i);
     }
 
 //        Ui.menuDiskUpdate();
@@ -327,17 +326,17 @@ public class Machine {
   }
 
   private static void setConstTimings(FuseMachineInfo machine) {
-    machine.timings.processorSpeed = Libspectrum.timingsProcessorSpeed(machine.machine.ordinal());
-    machine.timings.leftBorder = Libspectrum.timingsLeftBorder(machine.machine.ordinal());
-    machine.timings.horizontalScreen = Libspectrum.timingsHorizontalScreen(machine.machine.ordinal());
-    machine.timings.rightBorder = Libspectrum.timingsRightBorder(machine.machine.ordinal());
-    machine.timings.tstatesPerLine = Libspectrum.timingsTstatesPerLine(machine.machine.ordinal());
-    machine.timings.interruptLength = Libspectrum.timingsInterruptLength(machine.machine.ordinal());
-    machine.timings.tstatesPerFrame = Libspectrum.timingsTstatesPerFrame(machine.machine.ordinal());
+    machine.timings.processorSpeed = Timings.processorSpeed(machine.machine);
+    machine.timings.leftBorder = Timings.leftBorder(machine.machine);
+    machine.timings.horizontalScreen = Timings.horizontalScreen(machine.machine);
+    machine.timings.rightBorder = Timings.rightBorder(machine.machine);
+    machine.timings.tstatesPerLine = Timings.tstatesPerLine(machine.machine);
+    machine.timings.interruptLength = Timings.interruptLength(machine.machine);
+    machine.timings.tstatesPerFrame = Timings.tstatesPerFrame(machine.machine);
   }
 
   private static void setVariableTimings(FuseMachineInfo machine) {
-    machine.lineTimes[0] = Libspectrum.timingsTopLeftPixel(machine.machine.ordinal()) -
+    machine.lineTimes[0] = Timings.topLeftPixel(machine.machine) -
         Display.BORDER_HEIGHT * machine.timings.tstatesPerLine -
         4 * Display.BORDER_WIDTH_COLS;
 

@@ -30,13 +30,15 @@ public class UiDisplay {
   }
 
   public static void area(int x, int y, int w, int h) {
-//    for (int i = 0; i < w; i++) {
-//      for (int j = 0; j < h; j++) {
-//        screenMatrix[x + i][y + j] = 0;
+//    if (w == 0 || h == 0)
+//      System.err.println("WARNING: UiDisplay.area called with w>0 or h>0: " + w + "x" + h);
+//    for (int i = x; i < x + w ; i++) {
+//      for (int j = y; j < y + h ; j++) {
+//        screenMatrix[i][j] = 0;
 //      }
 //    }
 
-//    System.out.println("area " + i + " " + i1 + " " + i2 + " " + i3);
+//    System.out.println("area " + x + " " + y + " " + w + " " + h);
   }
 
   public static void frameEnd() {

@@ -42,13 +42,15 @@ import static com.fpetrola.z80.opcodes.references.WordNumber.*;
 public class Z80 {
   public static long interruptsEnabledAt;
   private static OOZ80<WordNumber> ooz80;
+  private static int tstates = 0;
 
   public static void interrupt() {
-
+    tstates = 0;
+    ooz80.execute();
   }
 
   public static void registerStartup() {
-    Machine.reset(false);
+//    Machine.reset(false);
 
     MiniZXIO io = new MiniZXIO() {
       public synchronized WordNumber in(WordNumber port) {
@@ -57,7 +59,7 @@ public class Z80 {
       }
 
       public void out(WordNumber port, WordNumber value) {
-//        Periph.writePort(port.intValue(), (byte) value.intValue());
+        Periph.writePort(port.intValue(), (byte) value.intValue());
       }
     };
     ooz80 = EmulatedMiniZX.createOOZ80(io);
@@ -71,7 +73,9 @@ public class Z80 {
 
     RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
 
-    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile("file:///home/fernando/dynamitedan1.z80");
+    String url = "file:///home/fernando/dynamitedan1.z80";
+    url= "file:///home/fernando/detodo/desarrollo/m/zx/roms/aqua.z80";
+    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
     State<?> state = ooz80.getState();
     Memory<WordNumber> memory = (Memory<WordNumber>) state.getMemory();
 
@@ -101,7 +105,6 @@ public class Z80 {
 
   public static void doOpcodes() {
     int startTstates = ooz80.getState().tstates;
-    int tstates = 0;
     while (tstates < EventManager.eventNextEvent) {
       ooz80.execute();
       tstates += (ooz80.getState().tstates - startTstates);

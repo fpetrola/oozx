@@ -135,12 +135,11 @@ public class Display {
         void apply();
     }
 
-    public static DisplayDirtyFn dirty;
+    public static DisplayDirtyFn dirty = Display::dirtySinclair;
     public static DisplayWriteIfDirtyFn writeIfDirty= Display::writeIfDirtySinclair;
     public static DisplayDirtyFlashingFn dirtyFlashing= Display::dirtyFlashingSinclair;
 
     private static List<BorderChange> borderChanges = new ArrayList<>();
-    private static int borderChangesLast;
 
     public static class DisplayStartupContext {
         int argc;
@@ -189,7 +188,6 @@ public class Display {
 
         refreshAll();
 
-        borderChangesLast = 0;
         borderChanges.clear();
         int error = addBorderSentinel();
         if (error != 0) return error;
@@ -283,9 +281,11 @@ public class Display {
 
         if (x < WIDTH_COLS) {
             bitMask = allDirty;
-            bitMask >>>= x;
+//            if (x!= 0)
+//                System.out.println("adgdgdg");
+            bitMask >>= x;
             bitMask <<= x + (32 - end);
-            bitMask >>>= (32 - end);
+            bitMask >>= (32 - end);
             dirty = (maybeDirty[y] & bitMask) >> x;
             maybeDirty[y] &= ~bitMask;
         } else {
@@ -395,7 +395,6 @@ public class Display {
     private static BorderChange allocChange() {
         BorderChange change = new BorderChange();
         borderChanges.add(change);
-        borderChangesLast++;
         return change;
     }
 
@@ -513,21 +512,19 @@ public class Display {
         endSentinel.y = BORDER_CHANGE_END_SENTINEL.y;
         endSentinel.colour = BORDER_CHANGE_END_SENTINEL.colour;
 
-        for (int pos = 0; pos < borderChangesLast - 1; pos++) {
+        for (int pos = 0; pos < borderChanges.size() - 1; pos++) {
             doBorderChange(borderChanges.get(pos), borderChanges.get(pos + 1));
         }
 
-        borderChangesLast = 0;
         borderChanges.clear();
         addBorderSentinel();
     }
+    static int frameCountLocal = 0;
 
     private static void updateUiScreen() {
-        int frameCountLocal = 0;
-        frameCountLocal++;
         int scale = Machine.current.timex ? 2 : 1;
 
-        if (Settings.current.frameRate <= frameCountLocal) {
+        if (Settings.current.frameRate <= ++frameCountLocal) {
             frameCountLocal = 0;
             if (Movie.recording) {
                 Movie.startFrame();
@@ -540,16 +537,14 @@ public class Display {
                 UiDisplay.area(0, 0, scale * ASPECT_WIDTH, scale * SCREEN_HEIGHT);
                 redrawAll = false;
             } else {
-                for (int i = 0; i < Rectangle.inactiveCount; i++) {
-                    Rectangle.Rect rect = Rectangle.inactive.get(i);
+                for (Rect rect : Rectangle.inactive) {
                     if (Movie.recording) {
-                        Movie.addArea(rect.x, rect.y, rect.w, rect.h);
+                        Movie.addArea(rect.x, rect.y, rect.getW(), rect.getH());
                     }
-                    UiDisplay.area(8 * scale * rect.x, scale * rect.y, 8 * scale * rect.w, scale * rect.h);
+                    UiDisplay.area(8 * scale * rect.x, scale * rect.y, 8 * scale * rect.getW(), scale * rect.getH());
                 }
             }
 
-            Rectangle.inactiveCount = 0;
             UiDisplay.frameEnd();
         }
     }

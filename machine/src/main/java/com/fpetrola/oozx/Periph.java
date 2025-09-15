@@ -255,8 +255,8 @@ public class Periph {
 
     // Read a byte from a port, taking the appropriate time
     public static byte readPort(int port) {
-//        Ula.contendPortEarly(port);
-//        Ula.contendPortLate(port);
+        Ula.contendPortEarly(port);
+        Ula.contendPortLate(port);
         byte b = readPortInternal(port);
 
         // Special case for 128K/+2 machines
@@ -323,7 +323,7 @@ public class Periph {
     public static void writePort(int port, byte b) {
         Ula.contendPortEarly(port);
         writePortInternal(port, b);
-//        Ula.contendPortLate(port);
+        Ula.contendPortLate(port);
         Spectrum.tstates++;
     }
 

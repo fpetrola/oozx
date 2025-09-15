@@ -126,7 +126,7 @@ public class Ula {
 
     // Adapter for debugger to get 7ffd
     private static long get7ffd() {
-        return Machine.current.ram.lastByte & 0xFF;
+        return Machine.current.ramInfo.lastByte & 0xFF;
     }
 
     // Adapter for debugger to set 7ffd
@@ -136,7 +136,7 @@ public class Ula {
 
     // Adapter for debugger to get 1ffd
     private static long get1ffd() {
-        return Machine.current.ram.lastByte2 & 0xFF;
+        return Machine.current.ramInfo.lastByte2 & 0xFF;
     }
 
     // Adapter for debugger to set 1ffd
@@ -241,7 +241,7 @@ public class Ula {
 
     // Handle contention for port access (late phase)
     public static void contendPortLate(int port) {
-        if (Machine.current.ram.portFromUla.apply(port)) {
+        if (Machine.current.ramInfo.portFromUla.apply(port)) {
             Spectrum.tstates += contentionNoMreq[(int) Spectrum.tstates];
             Spectrum.tstates += 2;
         } else {

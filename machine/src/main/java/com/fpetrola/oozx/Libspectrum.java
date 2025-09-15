@@ -37,36 +37,8 @@ public class Libspectrum {
 
   }
 
-  public static int creatorSetCustom(LibspectrumCreator creator, byte[] bytes, int length) {
-    return 0;
-  }
-
   public static Object version() {
     return null;
-  }
-
-  public static String gcryptVersion() {
-    return null;
-  }
-
-  public static int creatorSetMinor(LibspectrumCreator creator, int i) {
-    return 0;
-  }
-
-  public static int creatorSetMajor(LibspectrumCreator creator, int i) {
-    return 0;
-  }
-
-  public static int creatorSetProgram(LibspectrumCreator creator, String fuse) {
-    return 0;
-  }
-
-  public static LibspectrumCreator creatorAlloc() {
-    return null;
-  }
-
-  public static boolean checkVersion(String libspectrumMinVersion) {
-    return false;
   }
 
   public static int init() {
@@ -78,38 +50,6 @@ public class Libspectrum {
     PENTAGON_1024K, _48K_NTSC, _128KE
   }
   public static MachineCapability MachineCapability;
-
-  public static long timingsProcessorSpeed(int machine) {
-    return 0;
-  }
-
-  public static int timingsLeftBorder(int machine) {
-    return machine;
-  }
-
-  public static int timingsHorizontalScreen(int machine) {
-    return 0;
-  }
-
-  public static int timingsRightBorder(int machine) {
-    return 0;
-  }
-
-  public static int timingsTstatesPerLine(int machine) {
-    return 0;
-  }
-
-  public static int timingsInterruptLength(int machine) {
-    return 0;
-  }
-
-  public static long timingsTstatesPerFrame(int machine) {
-    return 0;
-  }
-
-  public static long timingsTopLeftPixel(int machine) {
-    return 0;
-  }
 
   public static byte snapOutUla(Snap snap) {
     return 0;
