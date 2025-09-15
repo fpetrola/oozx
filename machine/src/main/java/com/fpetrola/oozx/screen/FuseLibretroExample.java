@@ -23,7 +23,6 @@ import com.sun.jna.ptr.*;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -135,16 +134,6 @@ public class FuseLibretroExample {
   }
 
   public static void main(String[] args) throws IOException {
-    args = new String[]{"/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80"};
-    if (args.length < 1) {
-      System.err.println("Uso: java FuseLibretroExample <juego.z80>");
-      System.exit(1);
-    }
-
-    SpectrumPanel panel = getSpectrumPanel();
-
-
-    String gamePath = args[0];
     LibretroCore core = LibretroCore.INSTANCE;
 
     core.retro_set_environment((cmd, data) -> {
@@ -155,20 +144,9 @@ public class FuseLibretroExample {
       }
       return true;
     });
-    // Inicializar core
 
-//    System.out.println("Core inicializado. API version = " + core.retro_api_version());
-//
-////        core.fuse_set_show_frame(true);
-//
-//
-
-//    core.retro_init();
-
-    core.retro_set_video_refresh((data, w, h, pitch) -> {
-      panel.updateFrame(data, w, h, pitch);
-//            System.out.println("Frame recibido: " + w + "x" + h);
-    });
+    SpectrumPanel panel = getSpectrumPanel();
+    core.retro_set_video_refresh(panel::updateFrame);
 
     core.retro_set_audio_sample((l, r) -> { /* ignoramos */ });
     core.retro_set_audio_sample_batch((data, frames) -> frames);
@@ -178,14 +156,21 @@ public class FuseLibretroExample {
       return (short) 0xff;
     });
 
-    byte[] romBytes = Files.readAllBytes(Path.of(gamePath));
+    loadGame1(core, "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
 
-    // reservar memoria nativa y copiar el contenido
+    new Timer(20, e -> {
+      core.retro_run();
+    }).start();
+//        core.retro_unload_game();
+//        core.retro_deinit();
+//        System.out.println("Ejecución terminada.");
+  }
+
+  private static void loadGame1(LibretroCore core, String gamePath) throws IOException {
+    byte[] romBytes = Files.readAllBytes(Path.of(gamePath));
     Memory buffer = new Memory(romBytes.length);
     buffer.write(0, romBytes, 0, romBytes.length);
 
-
-    // Cargar juego
     retro_game_info game = new retro_game_info();
     game.path = gamePath;
     game.data = buffer; // dejamos que lo lea del archivo
@@ -193,22 +178,6 @@ public class FuseLibretroExample {
     game.meta = null;
 
     loadGame(core, game, gamePath);
-//    core.retro_reset();
-
-    new Timer(20, e -> {
-      core.retro_run();
-//            extracted(core);
-    }).start();
-//
-//        // Ejecutar algunos frames
-//        for (int i = 0; i < 6000; i++) { // 1 segundo a 60 fps
-//            core.retro_run();
-//        }
-
-    // Descargar y terminar
-//        core.retro_unload_game();
-//        core.retro_deinit();
-//        System.out.println("Ejecución terminada.");
   }
 
   private static SpectrumPanel getSpectrumPanel() {
