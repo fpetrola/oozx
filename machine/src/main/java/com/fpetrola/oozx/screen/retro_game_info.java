@@ -24,11 +24,10 @@ import com.sun.jna.Structure;
 
 import java.util.List;
 
-// --- Structs de libretro ---
 public class retro_game_info extends Structure {
 
   public String path;
-  public Pointer data; // puede ser null si usamos path
+  public Pointer data;
   public NativeLong size;
   public String meta;
 
