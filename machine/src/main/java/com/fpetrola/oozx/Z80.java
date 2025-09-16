@@ -74,7 +74,7 @@ public class Z80 {
     RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
 
     String url = "file:///home/fernando/dynamitedan1.z80";
-    url= "file:///home/fernando/detodo/desarrollo/m/zx/roms/aqua.z80";
+    url= "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
     String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
     State<?> state = ooz80.getState();
     Memory<WordNumber> memory = (Memory<WordNumber>) state.getMemory();

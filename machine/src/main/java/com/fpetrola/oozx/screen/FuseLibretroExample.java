@@ -27,7 +27,9 @@ import java.nio.file.Path;
 
 public class FuseLibretroExample {
 
-  public static void main(String[] args) throws IOException {
+  private static int acounter;
+
+  public static void main(String[] args) throws IOException, InterruptedException {
     LibretroCore core = LibretroCore.INSTANCE;
 
     core.retro_set_environment((cmd, data) -> {
@@ -35,6 +37,10 @@ public class FuseLibretroExample {
         RetroMessageExt msg = new RetroMessageExt(data);
         msg.read();
         System.out.println(msg.msg);
+      } else if (cmd == 1235 && acounter++ % 1 == 0) {
+        EmulatorState msg = new EmulatorState(data);
+        msg.read();
+        System.out.println(msg.tstates & 0xffffff);
       }
       return true;
     });
@@ -47,12 +53,12 @@ public class FuseLibretroExample {
     core.retro_set_input_poll(() -> {
     });
     core.retro_set_input_state((port, device, index, id) -> {
-      return (short) 0xff;
+      return (short) 0x00;
     });
 
     loadGame(core, "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
-
-    new Timer(20, e -> {
+    core.retro_init();
+    new Timer(10, e -> {
       core.retro_run();
     }).start();
 //        core.retro_unload_game();

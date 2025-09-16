@@ -47,6 +47,8 @@ public class Z80Loader {
         short libspectrum_snap_sp(libspectrum_snap snap);
         byte  libspectrum_snap_a (libspectrum_snap snap);
         byte  libspectrum_snap_f (libspectrum_snap snap);
+        int libspectrum_snap_tstates (libspectrum_snap snap);
+
     }
 
     public static final int LIBSPECTRUM_ID_SNAPSHOT_Z80 = 3;
@@ -82,12 +84,14 @@ public class Z80Loader {
         int sp = lib.libspectrum_snap_sp(snap) & 0xFFFF;
         int a  = lib.libspectrum_snap_a(snap) & 0xFF;
         int f  = lib.libspectrum_snap_f(snap) & 0xFF;
+        int tstates  = lib.libspectrum_snap_tstates(snap);
 
         System.out.printf("Snapshot cargado: %s%n", filePath);
         System.out.printf("PC = 0x%04X%n", pc);
         System.out.printf("SP = 0x%04X%n", sp);
         System.out.printf("A  = 0x%02X%n", a);
         System.out.printf("F  = 0x%02X%n", f);
+        System.out.printf("TStates = %d%n", tstates);
 
         lib.libspectrum_snap_free(snap);
         lib.libspectrum_end();

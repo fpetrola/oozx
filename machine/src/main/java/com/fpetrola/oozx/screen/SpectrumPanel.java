@@ -60,7 +60,7 @@ public class SpectrumPanel extends JPanel {
     }
 
     image.setRGB(0, 0, width, height, pixels, 0, width);
-
+//    System.out.println("hola1");
     SwingUtilities.invokeLater(this::repaint);
   }
 
