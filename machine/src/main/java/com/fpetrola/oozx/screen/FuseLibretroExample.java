@@ -56,7 +56,7 @@ public class FuseLibretroExample {
       return (short) 0x00;
     });
 
-    loadGame(core, "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
+    loadGame(core, "/home/fernando/detodo/desarrollo/m/zx/roms/dynamitedan.z80");
     core.retro_init();
     new Timer(10, e -> {
       core.retro_run();

@@ -39,6 +39,8 @@ public class SnapshotLoader {
       SnapshotFile snap = new SnapshotZ80();
       SpectrumState snapState = snap.load(file);
 
+      state.tstates= snapState.getTstates();
+
       setZ80State(registersSetter, snapState.getZ80State());
 //      registersBase.setZ80State(snapState.getZ80State());
 

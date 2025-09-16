@@ -19,6 +19,7 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.screen.FuseScreen;
+import com.fpetrola.oozx.screen.Z80Loader;
 import com.fpetrola.oozx.screen.ZXScreenComponent;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.OOZ80;
@@ -74,8 +75,8 @@ public class Z80 {
     RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
 
     String url = "file:///home/fernando/dynamitedan1.z80";
-    url= "file:///home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
-    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
+    url = "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
+    String first = url; //com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
     State<?> state = ooz80.getState();
     Memory<WordNumber> memory = (Memory<WordNumber>) state.getMemory();
 
@@ -84,6 +85,11 @@ public class Z80 {
     memory.addMemoryWriteListener(new AddStatesMemoryWriteListener<>(phaseProcessor));
     SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
 
+    Z80Loader.LibSpectrum lib = Z80Loader.LibSpectrum.INSTANCE;
+    Z80Loader.libspectrum_snap snap = Z80Loader.getLibspectrumSnap(lib, url);
+
+    state.tstates = lib.libspectrum_snap_tstates(snap);
+    tstates = state.tstates;
     updateScreen();
 
     memory.addMemoryWriteListener((address, value) -> {
