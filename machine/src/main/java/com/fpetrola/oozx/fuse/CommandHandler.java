@@ -19,11 +19,26 @@
 package com.fpetrola.oozx.fuse;
 
 public class CommandHandler {
-  public void addCommand(EmulatorCommand writeMemoryCommand) {
+  FuseLibretroExample fuseLibretroExample = new FuseLibretroExample();
 
+  public CommandHandler() {
+    fuseLibretroExample.init();
+  }
+
+  public void addNoResultCommand(EmulatorCommand emulatorCommand) {
+    fuseLibretroExample.commandQueue.add(emulatorCommand);
   }
 
   public int executeCommand(EmulatorCommand emulatorCommand) {
-    return 0;
+    fuseLibretroExample.commandQueue.add(emulatorCommand);
+    while (true) {
+      if (!fuseLibretroExample.resultQueue.empty()) {
+        EmulatorCommandResult item = fuseLibretroExample.resultQueue.poll();
+        if (item.getCommand() != emulatorCommand)
+          throw new IllegalStateException("Unexpected command result");
+
+        return item.getValue();
+      }
+    }
   }
 }

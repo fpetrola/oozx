@@ -153,12 +153,6 @@
             <version>1.15.11</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <version>5.7.0</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

@@ -27,6 +27,8 @@ import java.nio.file.Path;
 
 public class FuseLibretroExample {
   LibretroCore core = LibretroCore.INSTANCE;
+  public SimpleQueue<EmulatorCommand> commandQueue = new SimpleQueue<>(100);
+  public SimpleQueue<EmulatorCommandResult> resultQueue = new SimpleQueue<>(100);
 
   private int acounter;
   static SpectrumPanel panel = getSpectrumPanel();
@@ -36,7 +38,7 @@ public class FuseLibretroExample {
     fuseLibretroExample.init();
   }
 
-  private void init() throws IOException {
+  public void init() {
 
     core.retro_set_environment((cmd, data) -> {
       if (cmd == 1234) {
@@ -82,7 +84,11 @@ public class FuseLibretroExample {
       return (short) 0x00;
     });
 
-    loadGame(core, "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
+    try {
+      loadGame(core, "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
     core.retro_init();
     new Timer(10, e -> {
       core.retro_run();

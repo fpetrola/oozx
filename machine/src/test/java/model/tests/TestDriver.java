@@ -48,11 +48,11 @@ public class TestDriver {
   }
 
   public void writeMemory(int address, byte value) {
-    commandHandler.addCommand(new WriteMemoryCommand(address, value));
+    commandHandler.addNoResultCommand(new WriteMemoryCommand(address, value));
   }
 
   public void updatePC(int value) {
-    commandHandler.addCommand(new ChangePCCommand(value));
+    commandHandler.addNoResultCommand(new ChangePCCommand(value));
   }
 
   public void setFinished(boolean finished) {
