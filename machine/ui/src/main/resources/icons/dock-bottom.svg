@@ -1,0 +1,10 @@
+<svg id="emoji" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+  <g id="color">
+    <rect x="12" y="12" width="48" height="30" fill="#92d3f5"/>
+    <rect x="12" y="46" width="48" height="14" fill="#d22f27"/>
+  </g>
+  <g id="line" fill="none" stroke="#000" stroke-width="4" stroke-linejoin="round">
+    <rect x="12" y="12" width="48" height="30"/>
+    <rect x="12" y="46" width="48" height="14"/>
+  </g>
+</svg>
