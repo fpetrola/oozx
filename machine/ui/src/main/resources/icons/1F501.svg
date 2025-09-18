@@ -1,0 +1,12 @@
+<svg id="emoji" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+  <g id="color">
+    <path fill="#61b2e4" d="M50 14 L62 24 L50 34 Z"/>
+    <path fill="#61b2e4" d="M22 38 L10 48 L22 58 Z"/>
+  </g>
+  <g id="line" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 40 V30 a6 6 0 0 1 6 -6 H50"/>
+    <path d="M56 32 V42 a6 6 0 0 1 -6 6 H22"/>
+    <path d="M50 14 L62 24 L50 34 Z"/>
+    <path d="M22 38 L10 48 L22 58 Z"/>
+  </g>
+</svg>
