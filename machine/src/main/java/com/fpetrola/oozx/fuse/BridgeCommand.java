@@ -16,23 +16,28 @@
  *
  */
 
-package com.fpetrola.oozx.screen;
+package com.fpetrola.oozx.fuse;
 
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
 import java.util.List;
 
-public class retro_game_info extends Structure {
+// BridgeCommand con el discriminante
+public class BridgeCommand extends Structure {
+  public int type;       // CommandType
+  public CommandData data;
 
-  public String path;
-  public Pointer data;
-  public NativeLong size;
-  public String meta;
+  public BridgeCommand(Pointer commands) {
+    super(commands);
+  }
+
+  public BridgeCommand(){
+
+  }
 
   @Override
   protected List<String> getFieldOrder() {
-    return List.of("path", "data", "size", "meta");
+    return List.of("type", "data");
   }
 }

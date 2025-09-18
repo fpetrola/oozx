@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.oozx.screen;
+package com.fpetrola.oozx.fuse;
 
 import com.sun.jna.*;
 
@@ -26,11 +26,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class FuseLibretroExample {
+  LibretroCore core = LibretroCore.INSTANCE;
 
-  private static int acounter;
+  private int acounter;
+  static SpectrumPanel panel = getSpectrumPanel();
 
-  public static void main(String[] args) throws IOException, InterruptedException {
-    LibretroCore core = LibretroCore.INSTANCE;
+  public static void main(String[] args) throws Exception {
+    FuseLibretroExample fuseLibretroExample = new FuseLibretroExample();
+    fuseLibretroExample.init();
+  }
+
+  private void init() throws IOException {
 
     core.retro_set_environment((cmd, data) -> {
       if (cmd == 1234) {
@@ -40,13 +46,33 @@ public class FuseLibretroExample {
       } else if (cmd == 1235 && acounter++ % 1 == 0) {
         EmulatorState msg = new EmulatorState(data);
         msg.read();
-        System.out.println(msg.tstates & 0xffffff);
+//        System.out.println(msg.tstates & 0xffffff);
       }
       return true;
     });
+    core.retro_set_video_refresh((data1, width, height, pitch) -> {
+      panel.updateFrame(data1, width, height, pitch);
+    });
 
-    SpectrumPanel panel = getSpectrumPanel();
-    core.retro_set_video_refresh(panel::updateFrame);
+    core.retro_set_bridge_command((cmd, data) -> {
+//      EmulatorState msg = new EmulatorState(data);
+//      msg.read();
+//      System.out.println(msg.tstates & 0xffffff);
+      int i = ++acounter % 3;
+      // Respuesta
+      BridgeResponse resp = new BridgeResponse();
+      if (i == 2) {
+        resp.count = new NativeLong(0);
+        return resp;
+      } else {
+        int i1 = core.retro_api_version();
+        System.out.println(i1);
+        addCommands(resp, createWriteMemoryCommand(), createChangePCCommand());
+        resp.write();
+      }
+
+      return resp;
+    });
 
     core.retro_set_audio_sample((l, r) -> { /* ignoramos */ });
     core.retro_set_audio_sample_batch((data, frames) -> frames);
@@ -56,7 +82,7 @@ public class FuseLibretroExample {
       return (short) 0x00;
     });
 
-    loadGame(core, "/home/fernando/detodo/desarrollo/m/zx/roms/dynamitedan.z80");
+    loadGame(core, "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
     core.retro_init();
     new Timer(10, e -> {
       core.retro_run();
@@ -64,6 +90,42 @@ public class FuseLibretroExample {
 //        core.retro_unload_game();
 //        core.retro_deinit();
 //        System.out.println("Ejecución terminada.");
+  }
+
+  private static void addCommands(BridgeResponse resp, BridgeCommand... commands) {
+    BridgeCommand[] cmds = (BridgeCommand[]) (new BridgeCommand()).toArray(commands.length);
+    for (int i = 0; i < commands.length; i++) {
+      setCommandAt(cmds, i, commands[i]);
+    }
+
+    resp.count = new NativeLong(commands.length);
+    resp.commands = cmds[0].getPointer();
+  }
+
+  private static void setCommandAt(BridgeCommand[] cmds, int x, BridgeCommand cmd1) {
+    cmds[x].type = cmd1.type;
+    cmds[x].data = cmd1.data;
+    cmds[x].write();
+  }
+
+  private static BridgeCommand createChangePCCommand() {
+    BridgeCommand cmd2 = new BridgeCommand();
+    cmd2.type = CommandType.CMD_CHANGE_PC;
+    cmd2.data = new CommandData();
+    cmd2.data.setType(ChangePCCommand.class);
+    cmd2.data.changePC = new ChangePCCommand(0x5678);
+    cmd2.data.changePC.write();
+    return cmd2;
+  }
+
+  private static BridgeCommand createWriteMemoryCommand() {
+    BridgeCommand cmd1 = new BridgeCommand();
+    cmd1.type = CommandType.CMD_WRITE_MEMORY;
+    cmd1.data = new CommandData();
+    cmd1.data.setType(WriteMemoryCommand.class);
+    cmd1.data.writeMemory = new WriteMemoryCommand(1234, (byte) 42);
+    cmd1.data.writeMemory.write();
+    return cmd1;
   }
 
   private static void loadGame(LibretroCore core, String gamePath) throws IOException {
@@ -84,12 +146,16 @@ public class FuseLibretroExample {
   }
 
   private static SpectrumPanel getSpectrumPanel() {
-    SpectrumPanel panel = new SpectrumPanel(320, 240); // tamaño inicial, se ajustará después
-    JFrame frame = new JFrame("ZX Spectrum via Libretro");
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.add(panel);
-    frame.pack();
-    frame.setVisible(true);
+    SpectrumPanel panel = new SpectrumPanel(320, 240);
+
+    SwingUtilities.invokeLater(() -> {
+      JFrame frame = new JFrame("ZX Spectrum via Libretro");
+      frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      frame.add(panel);
+      frame.pack();
+      frame.setVisible(true);
+    });
+
     return panel;
   }
 

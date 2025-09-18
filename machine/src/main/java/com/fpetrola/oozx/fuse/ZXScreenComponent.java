@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.oozx.screen;
+package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.opcodes.references.WordNumber;

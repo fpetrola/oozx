@@ -16,37 +16,22 @@
  *
  */
 
-package com.fpetrola.oozx.screen;
+package com.fpetrola.oozx.fuse;
 
-import java.util.Queue;
+import com.sun.jna.Structure;
 
-public class SimpleQueue<E> {
-  int index = 0;
-  int head = 0;
-  int size = 100;
-  volatile int counter = 0;
-  E[] data;
+import java.util.List;
 
+// ChangePCCommand
+public class ChangePCCommand extends Structure implements EmulatorCommand {
+  public int pc;
 
-  public SimpleQueue(int size) {
-    this.size = size;
-    data = (E[]) new Object[size];
+  public ChangePCCommand(int value) {
+    pc= value;
   }
 
-  public void add(E e) {
-    data[index] = e;
-    index = (index + 1) % size;
-    counter++;
-  }
-
-  public E poll() {
-    E value = data[head];
-    head = (head + 1) % size;
-    counter--;
-    return value;
-  }
-
-  public boolean empty() {
-    return counter == 0;
+  @Override
+  protected List<String> getFieldOrder() {
+    return List.of("pc");
   }
 }

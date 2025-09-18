@@ -18,16 +18,14 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.screen.FuseScreen;
-import com.fpetrola.oozx.screen.Z80Loader;
-import com.fpetrola.oozx.screen.ZXScreenComponent;
+import com.fpetrola.oozx.fuse.FuseScreen;
+import com.fpetrola.oozx.fuse.Z80Loader;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.opcodes.references.WordNumber;

@@ -16,28 +16,11 @@
  *
  */
 
-package com.fpetrola.oozx.screen;
+package model.tests;
 
-import com.sun.jna.*;
+import com.fpetrola.oozx.fuse.EmulatorCommand;
 
-public class EmulatorState extends Structure {
-    public EmulatorState(Pointer data) {
-        super(data);
-    }
-
-    public short pc;
-    public short sp;
-    public short af, bc, de, hl;
-    public short iy, ix;
-    public byte ime;
-    public byte halted;
-    public int tstates;
-
-    @Override
-    protected java.util.List<String> getFieldOrder() {
-        return java.util.Arrays.asList(
-            "pc", "sp", "af", "bc", "de", "hl", "iy", "ix",
-            "ime", "halted", "tstates"
-        );
-    }
+public class SetRegisterValue implements EmulatorCommand {
+  public SetRegisterValue(String name, int value) {
+  }
 }

@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.oozx.screen;
+package com.fpetrola.oozx.fuse;
 
 import com.sun.jna.*;
 

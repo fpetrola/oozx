@@ -16,31 +16,23 @@
  *
  */
 
-package com.fpetrola.oozx.screen;
+package com.fpetrola.oozx.fuse;
 
+import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
-import java.util.Arrays;
 import java.util.List;
 
-public class RetroMessageExt extends Structure {
+public class retro_game_info extends Structure {
 
-  public RetroMessageExt(Pointer data) {
-    super(data);
-  }
-
-  // campos en el mismo orden que en C
-  public String msg;          // const char* (JNA lo convierte automáticamente en String UTF-8)
-  public int frames;          // unsigned -> int alcanza
-  public int priority;        // unsigned -> int
-  public int level;           // enum retro_log_level (usar int)
-  public int target;          // enum retro_message_target
-  public int type;            // enum retro_message_type
-  public int id;
+  public String path;
+  public Pointer data;
+  public NativeLong size;
+  public String meta;
 
   @Override
   protected List<String> getFieldOrder() {
-    return Arrays.asList("msg", "frames", "priority", "level", "target", "type", "id");
+    return List.of("path", "data", "size", "meta");
   }
 }

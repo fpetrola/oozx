@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.oozx.screen;
+package com.fpetrola.oozx.fuse;
 
 import com.sun.jna.*;
 
@@ -60,12 +60,9 @@ public class SpectrumPanel extends JPanel {
     }
 
     image.setRGB(0, 0, width, height, pixels, 0, width);
-//    System.out.println("hola1");
     SwingUtilities.invokeLater(this::repaint);
   }
 
-
-  @Override
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
     if (image != null) {

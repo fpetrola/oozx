@@ -16,13 +16,12 @@
  *
  */
 
-package com.fpetrola.oozx.screen;
+package com.fpetrola.oozx.fuse;
 
-import com.sun.jna.Callback;
-import com.sun.jna.Library;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
+import com.sun.jna.*;
 import com.sun.jna.ptr.ShortByReference;
+
+import java.util.List;
 
 // --- API de libretro ---
 public interface LibretroCore extends Library {
@@ -33,6 +32,8 @@ public interface LibretroCore extends Library {
   void retro_deinit();
 
   int retro_api_version();
+
+  void retro_set_bridge_command(bridge_command cb);
 
   void retro_set_environment(retro_environment_t cb);
 
@@ -66,7 +67,10 @@ public interface LibretroCore extends Library {
 
   int fuse_get_show_frame();
 
-  // --- Callbacks ---
+  public interface bridge_command extends Callback {
+    BridgeResponse invoke(int cmd, Pointer data);
+  }
+
   public interface retro_environment_t extends Callback {
     boolean invoke(int cmd, Pointer data);
   }
