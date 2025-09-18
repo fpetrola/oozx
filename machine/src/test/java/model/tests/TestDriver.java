@@ -1,9 +1,6 @@
 package model.tests;
 
-import com.fpetrola.oozx.fuse.ChangePCCommand;
-import com.fpetrola.oozx.fuse.CommandHandler;
-import com.fpetrola.oozx.fuse.GetPCCommand;
-import com.fpetrola.oozx.fuse.WriteMemoryCommand;
+import com.fpetrola.oozx.fuse.*;
 import machine.MachineTypes;
 
 import java.util.Queue;
@@ -52,7 +49,7 @@ public class TestDriver {
   }
 
   public void updatePC(int value) {
-    commandHandler.addNoResultCommand(new ChangePCCommand(value));
+    setRegister("PC", value);
   }
 
   public void setFinished(boolean finished) {
@@ -111,7 +108,7 @@ public class TestDriver {
   }
 
   public void setRegister(String name, int value) {
-    commandHandler.executeCommand(new SetRegisterValue(name, value));
+    commandHandler.addNoResultCommand(new SetRegisterValue(name, value));
   }
 
   public void setConnectedLEC(boolean b) {

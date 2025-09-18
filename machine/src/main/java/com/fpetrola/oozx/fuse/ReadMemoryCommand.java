@@ -16,11 +16,12 @@
  *
  */
 
-package model.tests;
+package com.fpetrola.oozx.fuse;
 
-import com.fpetrola.oozx.fuse.EmulatorCommand;
+public class ReadMemoryCommand implements EmulatorCommand {
+  private final int address;
 
-public class SetRegisterValue implements EmulatorCommand {
-  public SetRegisterValue(String name, int value) {
+  public ReadMemoryCommand(int address) {
+    this.address = address;
   }
 }

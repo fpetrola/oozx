@@ -32,6 +32,7 @@ public class FuseLibretroExample {
 
   private int acounter;
   static SpectrumPanel panel = getSpectrumPanel();
+  private LibretroCore.bridge_command bridgeCommand;
 
   public static void main(String[] args) throws Exception {
     FuseLibretroExample fuseLibretroExample = new FuseLibretroExample();
@@ -56,25 +57,43 @@ public class FuseLibretroExample {
       panel.updateFrame(data1, width, height, pitch);
     });
 
-    core.retro_set_bridge_command((cmd, data) -> {
-//      EmulatorState msg = new EmulatorState(data);
-//      msg.read();
-//      System.out.println(msg.tstates & 0xffffff);
-      int i = ++acounter % 3;
-      // Respuesta
-      BridgeResponse resp = new BridgeResponse();
-      if (i == 2) {
-        resp.count = new NativeLong(0);
-        return resp;
-      } else {
-        int i1 = core.retro_api_version();
-        System.out.println(i1);
-        addCommands(resp, createWriteMemoryCommand(), createChangePCCommand());
-        resp.write();
+    bridgeCommand = (cmd, data) -> {
+      EmulatorState msg = new EmulatorState(data);
+      msg.read();
+      System.out.println(msg.tstates & 0xffffff);
+      while (!commandQueue.empty()) {
+        System.out.println("processing command...");
+
+        EmulatorCommand command = commandQueue.poll();
+        if (command != null) {
+          if (command instanceof ContinueExecutionCommand) {
+            return createBridgeResponse();
+          } else {
+            int value = executeCommand(command);
+            if (value != -1)
+              resultQueue.add(new EmulatorCommandResult(command, value));
+          }
+        }
       }
 
-      return resp;
-    });
+      return createBridgeResponse();
+
+//      int i = ++acounter % 3;
+//      // Respuesta
+//      BridgeResponse resp = new BridgeResponse();
+//      if (i == 2) {
+//        resp.count = new NativeLong(0);
+//        return resp;
+//      } else {
+//        int i1 = core.retro_api_version();
+//        System.out.println(i1);
+//        addCommands(resp, createWriteMemoryCommand(new WriteMemoryCommand(1234, (byte) 42)), createChangePCCommand());
+//        resp.write();
+//      }
+//
+//      return resp;
+    };
+    core.retro_set_bridge_command(bridgeCommand);
 
     core.retro_set_audio_sample((l, r) -> { /* ignoramos */ });
     core.retro_set_audio_sample_batch((data, frames) -> frames);
@@ -96,6 +115,28 @@ public class FuseLibretroExample {
 //        core.retro_unload_game();
 //        core.retro_deinit();
 //        System.out.println("Ejecución terminada.");
+  }
+
+  private BridgeResponse createBridgeResponse() {
+    BridgeResponse resp = new BridgeResponse();
+    resp.count = new NativeLong(0);
+    return resp;
+  }
+
+  private int executeCommand(EmulatorCommand command) {
+    if (command instanceof WriteMemoryCommand writeMemory) {
+      core.retro_set_memory_data(writeMemory.address, writeMemory.value);
+      return -1;
+    } else if (command instanceof SetRegisterValue setRegisterValue) {
+      core.retro_set_register_data(setRegisterValue.name, setRegisterValue.value);
+      return -1;
+    }
+
+    return -1;
+  }
+
+  private BridgeCommand createCommandWrapper(EmulatorCommand command) {
+    return null;
   }
 
   private static void addCommands(BridgeResponse resp, BridgeCommand... commands) {
@@ -124,12 +165,12 @@ public class FuseLibretroExample {
     return cmd2;
   }
 
-  private static BridgeCommand createWriteMemoryCommand() {
+  private static BridgeCommand createWriteMemoryCommand(WriteMemoryCommand writeMemory) {
     BridgeCommand cmd1 = new BridgeCommand();
     cmd1.type = CommandType.CMD_WRITE_MEMORY;
     cmd1.data = new CommandData();
     cmd1.data.setType(WriteMemoryCommand.class);
-    cmd1.data.writeMemory = new WriteMemoryCommand(1234, (byte) 42);
+    cmd1.data.writeMemory = writeMemory;
     cmd1.data.writeMemory.write();
     return cmd1;
   }

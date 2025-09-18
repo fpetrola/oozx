@@ -61,7 +61,11 @@ public interface LibretroCore extends Library {
 
   Pointer retro_get_memory_data(int id);
 
+  void retro_set_memory_data(int address, int id);
+
   long retro_get_memory_size(int id);
+
+  void retro_set_register_data(String register, int value);
 
   void fuse_set_show_frame(boolean v);
 

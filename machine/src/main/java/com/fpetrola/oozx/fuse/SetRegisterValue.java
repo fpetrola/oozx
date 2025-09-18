@@ -16,11 +16,14 @@
  *
  */
 
-package model.tests;
+package com.fpetrola.oozx.fuse;
 
-import com.fpetrola.oozx.fuse.EmulatorCommand;
+public class SetRegisterValue implements EmulatorCommand {
+  public final String name;
+  public final int value;
 
-public class GetRegisterValue implements EmulatorCommand {
-  public GetRegisterValue(String name) {
+  public SetRegisterValue(String name, int value) {
+    this.name = name;
+    this.value = value;
   }
 }
