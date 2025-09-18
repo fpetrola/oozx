@@ -32,7 +32,7 @@ public class BridgeCommand extends Structure {
     super(commands);
   }
 
-  public BridgeCommand(){
+  public BridgeCommand() {
 
   }
 

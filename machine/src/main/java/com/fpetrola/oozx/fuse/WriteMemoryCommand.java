@@ -27,6 +27,9 @@ public class WriteMemoryCommand extends Structure implements EmulatorCommand {
   public int address;
   public byte value;
 
+  public WriteMemoryCommand() {
+  }
+
   public WriteMemoryCommand(int address, byte value) {
     this.address = address;
     this.value = value;

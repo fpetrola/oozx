@@ -26,6 +26,9 @@ import java.util.List;
 public class ChangePCCommand extends Structure implements EmulatorCommand {
   public int pc;
 
+  public ChangePCCommand() {
+  }
+
   public ChangePCCommand(int value) {
     pc= value;
   }
