@@ -1,0 +1,183 @@
+/*
+ *
+ *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *      http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *
+ */
+
+package com.fpetrola.oozx.fuse;
+
+import com.fpetrola.oozx.*;
+import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.RegisterName;
+import com.sun.jna.Pointer;
+
+public class LocalLibretroCore implements LibretroCore {
+
+  public LocalLibretroCore() {
+    Fuse.fuseInit(new String[]{});
+  }
+
+  public int retro_get_beam_x() {
+    return getBeam()[0];
+  }
+
+  private int[] getBeam() {
+    int[] beam = new int[2];
+    Display.getBeamPosition(beam);
+    return beam;
+  }
+
+  public int retro_get_beam_y() {
+    return getBeam()[1];
+  }
+
+  public void retro_init() {
+
+  }
+
+  public void retro_deinit() {
+
+  }
+
+  public int retro_api_version() {
+    return 0;
+  }
+
+  public void retro_set_bridge_command(bridge_command bridgeCommand) {
+    Z80.bridgeCommand = bridgeCommand;
+  }
+
+  public void retro_set_environment(retro_environment_t cb) {
+
+  }
+
+  public void retro_set_video_refresh(retro_video_refresh_t cb) {
+
+  }
+
+  public void retro_set_audio_sample(retro_audio_sample_t cb) {
+
+  }
+
+  public void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb) {
+
+  }
+
+  public void retro_set_input_poll(retro_input_poll_t cb) {
+
+  }
+
+  public void retro_set_input_state(retro_input_state_t cb) {
+
+  }
+
+  public void retro_get_system_info(Pointer info) {
+
+  }
+
+  public void retro_get_system_av_info(Pointer avInfo) {
+
+  }
+
+  public boolean retro_load_game(retro_game_info game) {
+    return true;
+  }
+
+  public void retro_unload_game() {
+
+  }
+
+  public void retro_run() {
+    com.fpetrola.oozx.Z80.doOpcodes();
+    EventManager.eventDoEvents();
+  }
+
+  public void retro_reset() {
+
+  }
+
+  public int retro_get_memory_data(int id) {
+    return getMemory().read(WordNumber.createValue(id), 0).intValue();
+  }
+
+  private Memory<WordNumber> getMemory() {
+    return getState().getMemory();
+  }
+
+  private State<WordNumber> getState() {
+    return Z80.ooz80.getState();
+  }
+
+  public int retro_get_memory_data_contended(int id) {
+    return getMemory().read(WordNumber.createValue(id), 0).intValue();
+  }
+
+  public void retro_set_memory_data(int address, int id) {
+    getMemory().write(WordNumber.createValue(address), WordNumber.createValue(id));
+  }
+
+  public void retro_set_memory_data_contended(int address, int id) {
+    getMemory().write(WordNumber.createValue(address), WordNumber.createValue(id));
+  }
+
+  public long retro_get_memory_size(int id) {
+    return 0;
+  }
+
+  public void retro_set_register_data(String register, int value) {
+    if (register.equals("tstates")) {
+      Spectrum.tstates = value;
+    } else
+      getRegister(register).write(WordNumber.createValue(value));
+  }
+
+  public int retro_get_register_data(String register) {
+    if (register.equals("tstates")) {
+      return (int) Spectrum.tstates;
+    } else
+      return getRegister(register).read().intValue();
+  }
+
+  private Register<WordNumber> getRegister(String register) {
+    return getState().getRegister(RegisterName.valueOf(register));
+  }
+
+  public void fuse_set_show_frame(boolean v) {
+
+  }
+
+  public int fuse_get_show_frame() {
+    return 0;
+  }
+
+  public void retro_write_port(int port, int value) {
+    getState().getIo().out(WordNumber.createValue(port), WordNumber.createValue(value));
+  }
+
+  public void retro_select_machine(String type) {
+
+  }
+
+  public void retro_if1_page(boolean in) {
+
+  }
+
+  public int retro_read_lan_port() {
+    return 0;
+  }
+}

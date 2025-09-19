@@ -318,7 +318,7 @@ public class Display {
         criticalRegionX = beamX;
     }
 
-    private static void getBeamPosition(int[] beam) {
+    public static void getBeamPosition(int[] beam) {
         if (Spectrum.tstates < Machine.current.lineTimes[0]) {
             beam[0] = beam[1] = -1;
             return;

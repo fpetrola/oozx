@@ -18,11 +18,16 @@
 
 package com.fpetrola.oozx.fuse;
 
+import com.fpetrola.oozx.Fuse;
+
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 public class CommandHandler {
+  static FuseLibretroExample fuseLibretroExample = new FuseLibretroExample();
+  static LibretroCore core = fuseLibretroExample.core;
+
   private List<EmulatorCommand> commandQueue = Collections.synchronizedList(new LinkedList<>());
   private List<EmulatorCommandResult> resultQueue = Collections.synchronizedList(new LinkedList<>());
 
@@ -30,9 +35,9 @@ public class CommandHandler {
   }
 
   public static CommandHandler createCommandHandler() {
-    FuseLibretroExample fuseLibretroExample = new FuseLibretroExample();
     CommandHandler commandHandler = new CommandHandler();
-    fuseLibretroExample.init(commandHandler);
+    core= new LocalLibretroCore();
+    fuseLibretroExample.init(commandHandler, core);
     return commandHandler;
   }
 
@@ -76,4 +81,5 @@ public class CommandHandler {
     commandQueue.clear();
     resultQueue.clear();
   }
+
 }

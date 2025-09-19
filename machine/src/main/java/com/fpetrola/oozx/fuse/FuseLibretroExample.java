@@ -32,17 +32,15 @@ public class FuseLibretroExample {
   static SpectrumPanel panel = getSpectrumPanel();
   private LibretroCore.bridge_command bridgeCommand;
   private EmulatorCommand lastCommand;
-  private CommandHandler commandHandler;
 
   public static void main(String[] args) throws Exception {
     FuseLibretroExample fuseLibretroExample = new FuseLibretroExample();
     CommandHandler.createCommandHandler();
   }
 
-  public void init(CommandHandler commandHandler) {
-    this.commandHandler = commandHandler;
+  public void init(CommandHandler commandHandler, LibretroCore aCore) {
 
-    core.retro_set_environment((cmd, data) -> {
+    aCore.retro_set_environment((cmd, data) -> {
       if (cmd == 1234) {
         RetroMessageExt msg = new RetroMessageExt(data);
         msg.read();
@@ -54,7 +52,7 @@ public class FuseLibretroExample {
       }
       return true;
     });
-    core.retro_set_video_refresh((data1, width, height, pitch) -> {
+    aCore.retro_set_video_refresh((data1, width, height, pitch) -> {
       panel.updateFrame(data1, width, height, pitch);
     });
 
@@ -74,7 +72,7 @@ public class FuseLibretroExample {
               lastCommand = command;
               return createBridgeResponse();
             } else {
-              Integer value = executeCommand(command);
+              Integer value = executeCommand(command, aCore);
               if (value != null) {
                 commandHandler.addResultFor(command, value);
               }
@@ -83,28 +81,28 @@ public class FuseLibretroExample {
         }
       }
     };
-    core.retro_set_bridge_command(bridgeCommand);
+    aCore.retro_set_bridge_command(bridgeCommand);
 
-    core.retro_set_audio_sample((l, r) -> { /* ignoramos */ });
-    core.retro_set_audio_sample_batch((data, frames) -> frames);
-    core.retro_set_input_poll(() -> {
+    aCore.retro_set_audio_sample((l, r) -> { /* ignoramos */ });
+    aCore.retro_set_audio_sample_batch((data, frames) -> frames);
+    aCore.retro_set_input_poll(() -> {
     });
-    core.retro_set_input_state((port, device, index, id) -> {
+    aCore.retro_set_input_state((port, device, index, id) -> {
       return (short) 0x00;
     });
 
-    core.retro_init();
+    aCore.retro_init();
 
     try {
-      loadGame(core, "/home/fernando/detodo/desarrollo/m/zx/roms/aqua.z80");
+      loadGame(aCore, "/home/fernando/detodo/desarrollo/m/zx/roms/aqua.z80");
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
     new Timer(10, e -> {
-      core.retro_run();
+      aCore.retro_run();
     }).start();
-//        core.retro_unload_game();
-//        core.retro_deinit();
+//        aCore.retro_unload_game();
+//        aCore.retro_deinit();
 //        System.out.println("Ejecución terminada.");
   }
 
@@ -114,7 +112,7 @@ public class FuseLibretroExample {
     return resp;
   }
 
-  private Integer executeCommand(EmulatorCommand command) {
+  private Integer executeCommand(EmulatorCommand command, LibretroCore core) {
     if (command instanceof WriteMemoryCommand writeMemory) {
       if (writeMemory.contended) {
         core.retro_set_memory_data_contended(writeMemory.address, writeMemory.value);

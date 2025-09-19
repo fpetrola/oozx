@@ -19,6 +19,7 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.FuseScreen;
+import com.fpetrola.oozx.fuse.LibretroCore;
 import com.fpetrola.oozx.fuse.Z80Loader;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.OOZ80;
@@ -40,7 +41,8 @@ import static com.fpetrola.z80.opcodes.references.WordNumber.*;
 
 public class Z80 {
   public static long interruptsEnabledAt;
-  private static OOZ80<WordNumber> ooz80;
+  public static OOZ80<WordNumber> ooz80;
+  public static LibretroCore.bridge_command bridgeCommand;
   private static int tstates = 0;
 
   public static void interrupt() {
@@ -110,6 +112,7 @@ public class Z80 {
   public static void doOpcodes() {
     int startTstates = ooz80.getState().tstates;
     while (tstates < EventManager.eventNextEvent) {
+      bridgeCommand.invoke(0, null);
       ooz80.execute();
       tstates += (ooz80.getState().tstates - startTstates);
     }

@@ -237,7 +237,7 @@ public class Fuse {
         return StartupManager.run();
     }
 
-    private static int fuseInit(String[] args) {
+    public static int fuseInit(String[] args) {
         int error, firstArg;
         String startScaler;
         StartFiles startFiles = new StartFiles();
