@@ -23,5 +23,5 @@ import com.sun.jna.Union;
 // Union de datos
 public class CommandData extends Union {
   public WriteMemoryCommand writeMemory;
-  public ChangePCCommand changePC;
+  public SetRegisterValue changePC;
 }

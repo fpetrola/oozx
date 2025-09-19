@@ -19,9 +19,18 @@
 package com.fpetrola.oozx.fuse;
 
 public class ReadMemoryCommand implements EmulatorCommand {
-  private final int address;
+  public final int address;
+  public final boolean contended;
 
-  public ReadMemoryCommand(int address) {
+  public ReadMemoryCommand(int address, boolean contended) {
     this.address = address;
+    this.contended = contended;
+  }
+
+  public String toString() {
+    return "ReadMemoryCommand{" +
+        "address=" + String.format("%04X", address) +
+        ", contended=" + contended +
+        '}';
   }
 }

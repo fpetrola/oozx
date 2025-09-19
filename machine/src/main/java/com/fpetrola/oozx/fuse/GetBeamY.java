@@ -18,5 +18,5 @@
 
 package com.fpetrola.oozx.fuse;
 
-public class GetPCCommand implements EmulatorCommand {
+public class GetBeamY implements EmulatorCommand {
 }

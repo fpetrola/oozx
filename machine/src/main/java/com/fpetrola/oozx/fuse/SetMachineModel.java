@@ -18,23 +18,10 @@
 
 package com.fpetrola.oozx.fuse;
 
-import com.sun.jna.Structure;
+public class SetMachineModel implements EmulatorCommand {
+  public final String model;
 
-import java.util.List;
-
-// ChangePCCommand
-public class ChangePCCommand extends Structure implements EmulatorCommand {
-  public int pc;
-
-  public ChangePCCommand() {
-  }
-
-  public ChangePCCommand(int value) {
-    pc= value;
-  }
-
-  @Override
-  protected List<String> getFieldOrder() {
-    return List.of("pc");
+  public SetMachineModel(String model) {
+    this.model = model;
   }
 }

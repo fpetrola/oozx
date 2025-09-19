@@ -58,7 +58,7 @@ public class ConnectedMicrodrive implements IMicrodrive {
   @Override
   public byte readData() {
 //    return (byte) testDriver.spectrum.getInterface1().readDataPort();
-    return 0;
+    return 123;
   }
 
   @Override

@@ -18,27 +18,58 @@
 
 package com.fpetrola.oozx.fuse;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
 public class CommandHandler {
+  private List<EmulatorCommand> commandQueue = Collections.synchronizedList(new LinkedList<>());
+  private List<EmulatorCommandResult> resultQueue = Collections.synchronizedList(new LinkedList<>());
   FuseLibretroExample fuseLibretroExample = new FuseLibretroExample();
 
   public CommandHandler() {
-    fuseLibretroExample.init();
+    fuseLibretroExample.init(this);
   }
 
   public void addNoResultCommand(EmulatorCommand emulatorCommand) {
-    fuseLibretroExample.commandQueue.add(emulatorCommand);
+    commandQueue.add(emulatorCommand);
   }
 
   public int executeCommand(EmulatorCommand emulatorCommand) {
-    fuseLibretroExample.commandQueue.add(emulatorCommand);
+    if (!resultQueue.isEmpty()) {
+      System.out.println("eh!!!!1111");
+    }
+    commandQueue.add(emulatorCommand);
     while (true) {
-      if (!fuseLibretroExample.resultQueue.empty()) {
-        EmulatorCommandResult item = fuseLibretroExample.resultQueue.poll();
+      if (!resultQueue.isEmpty()) {
+        EmulatorCommandResult item = resultQueue.remove(0);
         if (item.getCommand() != emulatorCommand)
           throw new IllegalStateException("Unexpected command result");
 
         return item.getValue();
       }
     }
+  }
+
+  public void addResultFor(EmulatorCommand lastCommand, int i) {
+    resultQueue.add(new EmulatorCommandResult(lastCommand, i));
+  }
+
+  public boolean noCommands() {
+    return commandQueue.isEmpty();
+  }
+
+  public EmulatorCommand pollCommand() {
+    EmulatorCommand poll = commandQueue.remove(0);
+    if (poll == null)
+      return null;
+    System.out.println("processing command: " + poll);
+    return poll;
+  }
+
+  public void reset() {
+    commandQueue.clear();
+    resultQueue.clear();
   }
 }

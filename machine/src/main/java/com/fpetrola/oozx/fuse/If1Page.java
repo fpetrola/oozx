@@ -18,19 +18,10 @@
 
 package com.fpetrola.oozx.fuse;
 
-public class SetRegisterValue implements EmulatorCommand {
-  public final String name;
-  public final int value;
+public class If1Page implements EmulatorCommand {
+  public final boolean in;
 
-  public SetRegisterValue(String name, int value) {
-    this.name = name;
-    this.value = value;
-  }
-
-  public String toString() {
-    return "SetRegisterValue{" +
-            "name='" + name + '\'' +
-            ", value=" + String.format("%02X", value) +
-            '}';
+  public If1Page(boolean in) {
+    this.in = in;
   }
 }

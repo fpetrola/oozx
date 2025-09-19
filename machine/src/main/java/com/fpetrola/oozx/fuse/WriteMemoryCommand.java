@@ -25,18 +25,24 @@ import java.util.List;
 // WriteMemoryCommand
 public class WriteMemoryCommand extends Structure implements EmulatorCommand {
   public int address;
-  public byte value;
+  public int value;
+  public boolean contended;
 
-  public WriteMemoryCommand() {
-  }
-
-  public WriteMemoryCommand(int address, byte value) {
+  public WriteMemoryCommand(int address, int value, boolean contended) {
     this.address = address;
     this.value = value;
+    this.contended = contended;
   }
 
   @Override
   protected List<String> getFieldOrder() {
     return List.of("address", "value");
+  }
+
+  public String toString() {
+    return "WriteMemoryCommand{" +
+            "address=" + String.format("%04X", address) +
+            ", value=" + String.format("%02X", value) +
+            '}';
   }
 }

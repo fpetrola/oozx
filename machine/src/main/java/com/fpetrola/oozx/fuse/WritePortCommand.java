@@ -18,19 +18,14 @@
 
 package com.fpetrola.oozx.fuse;
 
-public class SetRegisterValue implements EmulatorCommand {
-  public final String name;
+public class WritePortCommand implements EmulatorCommand {
+  public final int port;
   public final int value;
+  public final boolean contended;
 
-  public SetRegisterValue(String name, int value) {
-    this.name = name;
+  public WritePortCommand(int port, int value, boolean contended) {
+    this.port = port;
     this.value = value;
-  }
-
-  public String toString() {
-    return "SetRegisterValue{" +
-            "name='" + name + '\'' +
-            ", value=" + String.format("%02X", value) +
-            '}';
+    this.contended = contended;
   }
 }

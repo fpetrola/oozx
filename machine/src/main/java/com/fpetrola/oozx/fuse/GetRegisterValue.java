@@ -19,6 +19,15 @@
 package com.fpetrola.oozx.fuse;
 
 public class GetRegisterValue implements EmulatorCommand {
+  public final String name;
+
   public GetRegisterValue(String name) {
+    this.name = name;
+  }
+
+  public String toString() {
+    return "GetRegisterValue{" +
+            "name='" + name + '\'' +
+            '}';
   }
 }

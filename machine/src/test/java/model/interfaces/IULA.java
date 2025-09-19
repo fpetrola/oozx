@@ -18,4 +18,16 @@ public interface IULA {
   int getContentionDelay(int address, int tStates, String model);
 
   int getIOContentionDelay(int port, int tStates, String model);
+
+  int getVerticalPosition();
+
+  int getHorizontalPosition();
+
+  int getBorderColor();
+
+  int getBeeperState();
+
+  void setKeyboardRow(byte b, byte b1);
+
+  boolean isInterruptActive();
 }

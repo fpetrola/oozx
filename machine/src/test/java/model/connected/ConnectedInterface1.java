@@ -103,7 +103,7 @@ public class ConnectedInterface1 implements IZXInterface1 {
   @Override
   public byte getRxData() {
 //    return (byte) testDriver.spectrum.getInterface1().readLanPort();
-    return 0;
+    return testDriver.readLanPort();
   }
 
   @Override
@@ -129,7 +129,8 @@ public class ConnectedInterface1 implements IZXInterface1 {
   }
 
   @Override
-  public void pageROMIn() {
+  public void pageROMIn(boolean in) {
+    testDriver.if1Page(in);
 //    testDriver.spectrum.getMemory().pageIF1Rom();
   }
 

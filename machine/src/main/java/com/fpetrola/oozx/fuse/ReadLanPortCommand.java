@@ -18,19 +18,5 @@
 
 package com.fpetrola.oozx.fuse;
 
-public class SetRegisterValue implements EmulatorCommand {
-  public final String name;
-  public final int value;
-
-  public SetRegisterValue(String name, int value) {
-    this.name = name;
-    this.value = value;
-  }
-
-  public String toString() {
-    return "SetRegisterValue{" +
-            "name='" + name + '\'' +
-            ", value=" + String.format("%02X", value) +
-            '}';
-  }
+public class ReadLanPortCommand implements EmulatorCommand {
 }

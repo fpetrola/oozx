@@ -19,8 +19,8 @@
 package com.fpetrola.oozx.fuse;
 
 public class SimpleQueue<E> {
-  int index = 0;
-  int head = 0;
+  volatile int index = 0;
+  volatile int head = 0;
   int size = 100;
   volatile int counter = 0;
   E[] data;
@@ -46,5 +46,12 @@ public class SimpleQueue<E> {
 
   public boolean empty() {
     return counter == 0;
+  }
+
+  public void clear() {
+    data = (E[]) new Object[size];
+    index = 0;
+    counter = 0;
+    head = 0;
   }
 }

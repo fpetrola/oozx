@@ -25,6 +25,9 @@ import java.util.List;
 
 // --- API de libretro ---
 public interface LibretroCore extends Library {
+  int retro_get_beam_x();
+  int retro_get_beam_y();
+
   LibretroCore INSTANCE = Native.load("/home/fernando/detodo/desarrollo/m/zx/emus/fuse-libretro/fuse_libretro.so", LibretroCore.class);
 
   void retro_init();
@@ -59,17 +62,27 @@ public interface LibretroCore extends Library {
 
   void retro_reset();
 
-  Pointer retro_get_memory_data(int id);
+  int retro_get_memory_data(int id);
+  int retro_get_memory_data_contended(int id);
 
   void retro_set_memory_data(int address, int id);
+  void retro_set_memory_data_contended(int address, int id);
 
   long retro_get_memory_size(int id);
 
   void retro_set_register_data(String register, int value);
+  int retro_get_register_data(String register);
 
   void fuse_set_show_frame(boolean v);
 
   int fuse_get_show_frame();
+
+  void retro_write_port(int port, int value);
+  void retro_select_machine(String type);
+
+  void retro_if1_page(boolean in);
+
+  int retro_read_lan_port();
 
   public interface bridge_command extends Callback {
     BridgeResponse invoke(int cmd, Pointer data);

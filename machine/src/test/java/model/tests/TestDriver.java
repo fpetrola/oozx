@@ -24,7 +24,7 @@ public class TestDriver {
       throw new RuntimeException("Test complete");
     } else {
       if (!instructions.isEmpty()) {
-        address= commandHandler.executeCommand(new GetPCCommand());
+        address= (int) commandHandler.executeCommand(new GetRegisterValue("PC"));
         SintheticInstruction instruction = instructions.element();
         executingInstruction= true;
         int writeIndex = address;
@@ -41,11 +41,11 @@ public class TestDriver {
   }
 
   public void addOpcodeAt(int address, byte value) {
-    writeMemory(address, value);
+    writeMemory(address, value, false);
   }
 
-  public void writeMemory(int address, byte value) {
-    commandHandler.addNoResultCommand(new WriteMemoryCommand(address, value));
+  public void writeMemory(int address, int value, boolean contended) {
+    commandHandler.addNoResultCommand(new WriteMemoryCommand(address, value, contended));
   }
 
   public void updatePC(int value) {
@@ -58,17 +58,24 @@ public class TestDriver {
 
   public void addInstruction(byte... bytes) {
 //    System.out.println("tstates before add instruction: " + tstates);
-    instructions.offer(new SintheticInstruction(bytes));
+//    instructions.offer(new SintheticInstruction(bytes));
+
+    int writeIndex = getRegister("PC");
+    for (byte b : bytes) {
+      writeMemory(writeIndex++, b, false);
+    }
   }
 
   public void waitExecution() {
-    while (!instructions.isEmpty()) {
-      try {
-        Thread.sleep(2);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    }
+    int i = (int) commandHandler.executeCommand(new ContinueExecutionCommand());
+//
+//    while (!instructions.isEmpty()) {
+//      try {
+//        Thread.sleep(2);
+//      } catch (InterruptedException e) {
+//        e.printStackTrace();
+//      }
+//    }
 //    System.out.println("tstates after wait: " + tstates);
   }
 
@@ -85,6 +92,7 @@ public class TestDriver {
   }
 
   public void reset() {
+    commandHandler.reset();
     clearInstructions();
     setFinished(false);
     skipFetch = true;
@@ -99,12 +107,12 @@ public class TestDriver {
     return executingInstruction;
   }
 
-  public byte readMemory(int address) {
-    return (byte) commandHandler.executeCommand(new ReadMemoryCommand(address));
+  public byte readMemory(int address, boolean contended) {
+    return (byte) commandHandler.executeCommand(new ReadMemoryCommand(address, contended));
   }
 
   public int getRegister(String name) {
-    return commandHandler.executeCommand(new GetRegisterValue(name));
+    return (int) commandHandler.executeCommand(new GetRegisterValue(name));
   }
 
   public void setRegister(String name, int value) {
@@ -124,11 +132,12 @@ public class TestDriver {
   }
 
   public int getTstates() {
-    return 0;
+    int i = (int) commandHandler.executeCommand(new GetRegisterValue("tstates"));
+    return i;
   }
 
   public void setTstates(int tStates) {
-
+    commandHandler.addNoResultCommand(new SetRegisterValue("tstates", tStates));
   }
 
   public void resetZ80() {
@@ -137,5 +146,29 @@ public class TestDriver {
 
   public void selectHardwareModel(MachineTypes machineTypes) {
 
+  }
+
+  public void writePort(int port, int value) {
+    commandHandler.addNoResultCommand(new WritePortCommand(port, value, false));
+  }
+
+  public void setModel(String model) {
+    commandHandler.addNoResultCommand(new SetMachineModel(model));
+  }
+
+  public void if1Page(boolean in) {
+    commandHandler.addNoResultCommand(new If1Page(in));
+  }
+
+  public byte readLanPort() {
+    return (byte) commandHandler.executeCommand(new ReadLanPortCommand());
+  }
+
+  public int getBeamX() {
+    return (int) commandHandler.executeCommand(new GetBeamX());
+  }
+
+  public int getBeamY() {
+    return (int) commandHandler.executeCommand(new GetBeamY());
   }
 }

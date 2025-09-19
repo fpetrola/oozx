@@ -12,12 +12,12 @@ public class ConnectedMemory implements IMemory {
 
   @Override
   public byte read(int address) {
-    return testDriver.readMemory(address);
+    return testDriver.readMemory(address, true);
   }
 
   @Override
   public void write(int address, byte value) {
-    testDriver.writeMemory(address, value);
+    testDriver.writeMemory(address, value, true);
   }
 
   @Override
@@ -47,14 +47,15 @@ public class ConnectedMemory implements IMemory {
 
   @Override
   public void setPage(int slot, int bank) {
-    int regBC = testDriver.getRegister("BC");
-    int regA = testDriver.getRegister("A");
-    testDriver.setRegister("BC", 0x7FFD);
-    testDriver.setRegister("A", bank);
-    testDriver.addInstruction((byte) 0xED, (byte) 0x79); // OUT (C),A
-    testDriver.waitExecution();
-    testDriver.setRegister("BC", regBC);
-    testDriver.setRegister("A", regA);
+    testDriver.writePort(0x7FFD, bank);
+//    int regBC = testDriver.getRegister("BC");
+//    int regA = testDriver.getRegister("A");
+//    testDriver.setRegister("BC", 0x7FFD);
+//    testDriver.setRegister("A", bank);
+//    testDriver.addInstruction((byte) 0xED, (byte) 0x79); // OUT (C),A
+//    testDriver.waitExecution();
+//    testDriver.setRegister("BC", regBC);
+//    testDriver.setRegister("A", regA);
   }
 
   @Override

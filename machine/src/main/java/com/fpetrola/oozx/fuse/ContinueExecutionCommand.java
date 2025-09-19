@@ -19,4 +19,7 @@
 package com.fpetrola.oozx.fuse;
 
 public class ContinueExecutionCommand implements EmulatorCommand{
+  public String toString() {
+    return "ContinueExecutionCommand{}";
+  }
 }

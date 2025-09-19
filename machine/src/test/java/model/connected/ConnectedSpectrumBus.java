@@ -45,6 +45,7 @@ public class ConnectedSpectrumBus implements ISpectrumBus {
   @Override
   public void writePort(int port, byte value) {
     testDriver.addInstruction((byte) 0x3E, value);
+    testDriver.waitExecution();
     testDriver.addInstruction((byte) 0xD3, (byte) port);
     testDriver.waitExecution();
 //    for (IPeripheral p : peripherals) {
@@ -73,7 +74,7 @@ public class ConnectedSpectrumBus implements ISpectrumBus {
   public void handleError(String errorMessage) {
     for (IPeripheral p : peripherals) {
       if (p instanceof IZXInterface1) {
-        ((IZXInterface1) p).pageROMIn();
+        ((IZXInterface1) p).pageROMIn(true);
       }
     }
   }

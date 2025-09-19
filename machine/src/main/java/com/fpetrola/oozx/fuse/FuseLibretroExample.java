@@ -27,19 +27,20 @@ import java.nio.file.Path;
 
 public class FuseLibretroExample {
   LibretroCore core = LibretroCore.INSTANCE;
-  public SimpleQueue<EmulatorCommand> commandQueue = new SimpleQueue<>(100);
-  public SimpleQueue<EmulatorCommandResult> resultQueue = new SimpleQueue<>(100);
 
   private int acounter;
   static SpectrumPanel panel = getSpectrumPanel();
   private LibretroCore.bridge_command bridgeCommand;
+  private EmulatorCommand lastCommand;
+  private CommandHandler commandHandler;
 
   public static void main(String[] args) throws Exception {
     FuseLibretroExample fuseLibretroExample = new FuseLibretroExample();
-    fuseLibretroExample.init();
+    new CommandHandler();
   }
 
-  public void init() {
+  public void init(CommandHandler commandHandler) {
+    this.commandHandler = commandHandler;
 
     core.retro_set_environment((cmd, data) -> {
       if (cmd == 1234) {
@@ -58,40 +59,29 @@ public class FuseLibretroExample {
     });
 
     bridgeCommand = (cmd, data) -> {
-      EmulatorState msg = new EmulatorState(data);
-      msg.read();
-      System.out.println(msg.tstates & 0xffffff);
-      while (!commandQueue.empty()) {
-        System.out.println("processing command...");
-
-        EmulatorCommand command = commandQueue.poll();
-        if (command != null) {
-          if (command instanceof ContinueExecutionCommand) {
-            return createBridgeResponse();
-          } else {
-            int value = executeCommand(command);
-            if (value != -1)
-              resultQueue.add(new EmulatorCommandResult(command, value));
+//      EmulatorState msg = new EmulatorState(data);
+//      msg.read();
+//      System.out.println(msg.tstates & 0xffffff);
+      if (lastCommand != null && lastCommand instanceof ContinueExecutionCommand) {
+        commandHandler.addResultFor(lastCommand, 0);
+        lastCommand = null;
+      }
+      while (true) {
+        if (!commandHandler.noCommands()) {
+          EmulatorCommand command = commandHandler.pollCommand();
+          if (command != null) {
+            if (command instanceof ContinueExecutionCommand) {
+              lastCommand = command;
+              return createBridgeResponse();
+            } else {
+              Integer value = executeCommand(command);
+              if (value != null) {
+                commandHandler.addResultFor(command, value);
+              }
+            }
           }
         }
       }
-
-      return createBridgeResponse();
-
-//      int i = ++acounter % 3;
-//      // Respuesta
-//      BridgeResponse resp = new BridgeResponse();
-//      if (i == 2) {
-//        resp.count = new NativeLong(0);
-//        return resp;
-//      } else {
-//        int i1 = core.retro_api_version();
-//        System.out.println(i1);
-//        addCommands(resp, createWriteMemoryCommand(new WriteMemoryCommand(1234, (byte) 42)), createChangePCCommand());
-//        resp.write();
-//      }
-//
-//      return resp;
     };
     core.retro_set_bridge_command(bridgeCommand);
 
@@ -103,12 +93,13 @@ public class FuseLibretroExample {
       return (short) 0x00;
     });
 
+    core.retro_init();
+
     try {
-      loadGame(core, "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
+      loadGame(core, "/home/fernando/detodo/desarrollo/m/zx/roms/aqua.z80");
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    core.retro_init();
     new Timer(10, e -> {
       core.retro_run();
     }).start();
@@ -123,16 +114,46 @@ public class FuseLibretroExample {
     return resp;
   }
 
-  private int executeCommand(EmulatorCommand command) {
+  private Integer executeCommand(EmulatorCommand command) {
     if (command instanceof WriteMemoryCommand writeMemory) {
-      core.retro_set_memory_data(writeMemory.address, writeMemory.value);
-      return -1;
+      if (writeMemory.contended) {
+        core.retro_set_memory_data_contended(writeMemory.address, writeMemory.value);
+      } else
+        core.retro_set_memory_data(writeMemory.address, writeMemory.value);
+      return null;
+    } else if (command instanceof ReadMemoryCommand readMemoryCommand) {
+      if (readMemoryCommand.contended) {
+        return core.retro_get_memory_data_contended(readMemoryCommand.address);
+      } else
+        return core.retro_get_memory_data(readMemoryCommand.address);
+    } else if (command instanceof ContinueExecutionCommand) {
+      return null;
     } else if (command instanceof SetRegisterValue setRegisterValue) {
       core.retro_set_register_data(setRegisterValue.name, setRegisterValue.value);
-      return -1;
+      return null;
+    } else if (command instanceof GetRegisterValue getRegisterValue) {
+      return core.retro_get_register_data(getRegisterValue.name);
+    } else if (command instanceof WritePortCommand writePortCommand) {
+      if (writePortCommand.contended) {
+        core.retro_write_port(writePortCommand.port, writePortCommand.value);
+      } else
+        core.retro_write_port(writePortCommand.port, writePortCommand.value);
+      return null;
+    } else if (command instanceof SetMachineModel setMachineModel) {
+      core.retro_select_machine(setMachineModel.model);
+      return null;
+    } else if (command instanceof If1Page if1PageIn) {
+        core.retro_if1_page(if1PageIn.in);
+      return null;
+    } else if (command instanceof ReadLanPortCommand readLanPortCommand) {
+      return core.retro_read_lan_port();
+    } else if (command instanceof GetBeamX getBeamPosition) {
+      return core.retro_get_beam_x();
+    } else if (command instanceof GetBeamY getBeamPosition) {
+      return core.retro_get_beam_y();
     }
 
-    return -1;
+    return null;
   }
 
   private BridgeCommand createCommandWrapper(EmulatorCommand command) {
@@ -159,9 +180,9 @@ public class FuseLibretroExample {
     BridgeCommand cmd2 = new BridgeCommand();
     cmd2.type = CommandType.CMD_CHANGE_PC;
     cmd2.data = new CommandData();
-    cmd2.data.setType(ChangePCCommand.class);
-    cmd2.data.changePC = new ChangePCCommand(0x5678);
-    cmd2.data.changePC.write();
+    cmd2.data.setType(SetRegisterValue.class);
+    cmd2.data.changePC = new SetRegisterValue("PC", 0x5678);
+//    cmd2.data.changePC.write();
     return cmd2;
   }
 
@@ -208,7 +229,7 @@ public class FuseLibretroExample {
 
   private static void extracted(LibretroCore core) {
     // Obtener puntero a la RAM
-    Pointer ramPtr = core.retro_get_memory_data(0);
+    int ramPtr = core.retro_get_memory_data(0);
     long ramSize = core.retro_get_memory_size(0);
 
     System.out.println("Tamaño de RAM expuesta: " + ramSize + " bytes");
@@ -218,7 +239,7 @@ public class FuseLibretroExample {
     int screenSize = 6912;
 
     byte[] screenData = new byte[screenSize];
-    ramPtr.read(screenOffset, screenData, 0, screenSize);
+//    ramPtr.read(screenOffset, screenData, 0, screenSize);
 
     System.out.println("Leídos " + screenData.length + " bytes de la pantalla");
 

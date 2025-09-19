@@ -1,8 +1,6 @@
 package model.tests;
 
 import com.fpetrola.oozx.fuse.CommandHandler;
-import model.concrete.ConcreteMicrodrive;
-import model.concrete.ConcreteZXInterface1;
 import model.connected.*;
 import model.interfaces.IMicrodrive;
 import model.interfaces.ISpectrumBus;
@@ -26,7 +24,7 @@ public class ZXInterface1Tests {
     @BeforeAll
     public static void beforeall() {
         testDriver = new TestDriver(new CommandHandler());
-        bus = new ConnectedSpectrumBus(new ConnectedMemory(testDriver), new ConnectedULA(), testDriver);
+        bus = new ConnectedSpectrumBus(new ConnectedMemory(testDriver), new ConnectedULA(testDriver), testDriver);
         interface1 = new ConnectedInterface1(testDriver);
         microdrive1 = new ConnectedMicrodrive(testDriver);
         microdrive2 = new ConnectedMicrodrive(testDriver);
@@ -232,7 +230,7 @@ public class ZXInterface1Tests {
 
     @Test
     void testROMPagingOnError() {
-        interface1.pageROMIn();
+        interface1.pageROMIn(true);
         bus.handleError("Test error");
         assertTrue(interface1.isROMPagedIn());
     }
@@ -267,8 +265,8 @@ public class ZXInterface1Tests {
         // Assume set by internal logic, test read
         testSelectMicrodrive1();
         // Stub set
-        ((ConcreteZXInterface1) interface1).gapDetected = true;
-        ((ConcreteZXInterface1) interface1).syncDetected = true;
+//        ((ConcreteZXInterface1) interface1).gapDetected = true;
+//        ((ConcreteZXInterface1) interface1).syncDetected = true;
         byte status = bus.readPort(0xEF);
         assertTrue((status & 0x02) != 0); // Gap bit 1
         assertTrue((status & 0x01) != 0); // Sync bit 0
@@ -300,7 +298,7 @@ public class ZXInterface1Tests {
     @Disabled
     @Test
     void testWriteProtectOnlyWhenSelected() {
-        ((ConcreteMicrodrive) microdrive1).setWriteProtect(true);
+//        ((ConcreteMicrodrive) microdrive1).setWriteProtect(true);
         byte status = bus.readPort(0xEF); // No select
         assertFalse((status & 0x04) != 0);
         testSelectMicrodrive1();

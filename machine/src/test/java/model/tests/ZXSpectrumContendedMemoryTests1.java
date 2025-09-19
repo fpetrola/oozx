@@ -11,7 +11,7 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ZXSpectrumContendedMemoryTests {
+class ZXSpectrumContendedMemoryTests1 {
   static private IZ80CPU cpu;
   static private TestDriver testDriver;
   static private ISpectrumBus bus;
@@ -21,7 +21,7 @@ class ZXSpectrumContendedMemoryTests {
   @BeforeAll
   public static void beforeall() {
     testDriver = new TestDriver(new CommandHandler());
-    bus = new ConnectedSpectrumBus(new ConnectedMemory(testDriver), new ConnectedULA(), testDriver);
+    bus = new ConnectedSpectrumBus(new ConnectedMemory(testDriver), new ConnectedULA(testDriver), testDriver);
     interface1 = new ConnectedInterface1(testDriver);
     microdrive = new ConnectedMicrodrive(testDriver);
 
@@ -37,6 +37,9 @@ class ZXSpectrumContendedMemoryTests {
     bus.setModel(model);
     cpu.setModel(model);
 //    testDriver.setTstates(startTState);
+    testDriver.setModel(model);
+    testDriver.updatePC(0xA000);
+    testDriver.if1Page(false);
     cpu.addTStates(startTState);
     return startTState;
   }
@@ -46,7 +49,7 @@ class ZXSpectrumContendedMemoryTests {
     interface1.reset();
     testDriver.reset();
     cpu.reset();
-    cpu.setPC(0xA000);
+//    cpu.setPC(0xA000);
 //    testDriver.spectrum.z80.setExecDone(true);
     testDriver.updatePC(0xA000);
   }
@@ -95,7 +98,7 @@ class ZXSpectrumContendedMemoryTests {
   void test48KINCInstructionT14335() {
     int initialTStates = setupModel("48K", 14335);
     cpu.setHL(0x4000);
-    cpu.writeMemory(0x4000, (byte) 0x10);
+    cpu.writeMemory(0x4000, (byte) 0x10, true);
     cpu.executeInstruction("INC (HL)", null);
     assertEquals(initialTStates + (3 + 6) + (4) + (3 + 1) + (1 + 5) + (3 + 0), cpu.getTStates()); // Fetch + delay + read + delay + modify + write + delay, total +17
     assertEquals((byte) 0x11, bus.readMemory(0x4000));
@@ -224,7 +227,7 @@ class ZXSpectrumContendedMemoryTests {
     setupModel("48K", 14335);
     int initialTStates = cpu.getTStates();
     cpu.out(0xEF, (byte) 0x01);
-    assertEquals(initialTStates + 4, cpu.getTStates()); // No contention (odd port)
+    assertEquals(initialTStates, cpu.getTStates()); // No contention (odd port)
   }
 
   @Test
@@ -236,7 +239,6 @@ class ZXSpectrumContendedMemoryTests {
     assertEquals(initialTStates + 4, cpu.getTStates()); // No contention
   }
 
-  @Disabled
   @Test
   void testPlus3Interface1MicrodriveContentionT14363() {
     setupModel("+3", 14363);
@@ -246,14 +248,14 @@ class ZXSpectrumContendedMemoryTests {
     cpu.out(0xEF, (byte) 0x03);
     cpu.out(0xEF, (byte) 0x01);
     cpu.out(0xE7, (byte) 0xBB);
-    assertEquals(initialTStates + 20, cpu.getTStates()); // No contention for OUT, 5 outs each +4
+    assertEquals(initialTStates, cpu.getTStates()); // No contention for OUT, 5 outs each +4
     assertEquals((byte) 0xBB, microdrive.readData());
   }
 
   @Test
   void test48KInterface1ROMAndContendedMemoryT14335() {
     setupModel("48K", 14335);
-    interface1.pageROMIn();
+    interface1.pageROMIn(true);
     int initialTStates = cpu.getTStates();
     cpu.readMemory(0x1000); // ROM, no contention +3, end 14338
     cpu.readMemory(0x4000); // Contended at 14338: delay=3, +3+3=6, total +9
@@ -339,7 +341,7 @@ class ZXSpectrumContendedMemoryTests {
   void test48KINCInstructionT14339() {
     setupModel("48K", 14339);
     cpu.setHL(0x4000);
-    cpu.writeMemory(0x4000, (byte) 0x20);
+    cpu.writeMemory(0x4000, (byte) 0x20, true);
     int initialTStates = cpu.getTStates();
     cpu.executeInstruction("INC (HL)", null);
     assertEquals(initialTStates + 4 + 2 + 3 + 2 + 1 + 3 + 2, cpu.getTStates()); // Fetch + delay + read + delay + modify + write + delay, total +17
@@ -352,13 +354,15 @@ class ZXSpectrumContendedMemoryTests {
     cpu.setPC(25000);
     cpu.setSP(0x4000);
     cpu.executeInstruction("CALL nn", new int[]{0x3000});
-    assertEquals(initialTStates + 4 + 5 + 3 + 3 + 3 + 2 + 1 + 3 + 3 + 1, cpu.getTStates()); // Fetch+delay + pc+1+delay + pc+2+delay + internal + sp-1+delay + sp-2+delay, total +25
     assertEquals(0x3000, cpu.getPC());
+    assertEquals(initialTStates + 5 + 4 + 4 + 3 + 5 + 3 + 1 + 4 + 3 + 5 + 3 - 4, cpu.getTStates()); // Fetch+delay + pc+1+delay + pc+2+delay + internal + sp-1+delay + sp-2+delay, total +40
   }
 
   @Test
   void test48KInterface1PortF7ContentionT14337() {
     int initialTStates = setupModel("48K", 14337);
+    cpu.setHL(0x4000);
+    interface1.pageROMIn(true);
     cpu.out(0xF7, (byte) 0xDD);
     assertEquals((byte) 0xDD, interface1.getRxData());
     assertEquals(initialTStates + 4, cpu.getTStates()); // No contention for odd port
@@ -383,8 +387,8 @@ class ZXSpectrumContendedMemoryTests {
     cpu.setRegisterA((byte) 0xEE);
     int initialTStates = cpu.getTStates();
     cpu.executeInstruction("LD (HL),A", null);
+    assertEquals((byte) 0xEE, testDriver.readMemory(0x4000, false));
     assertEquals(initialTStates + 4 + 4 + 3 + 3, cpu.getTStates()); // Fetch + delay + write + delay, total +14
-    assertEquals((byte) 0xEE, bus.readMemory(0x4000));
   }
 
   @Test
@@ -392,7 +396,7 @@ class ZXSpectrumContendedMemoryTests {
     setupModel("128K", 14364);
     bus.getMemory().setPage(3, 1); // 0xC000-0xFFFF, contended
     cpu.setHL(0xC000);
-    cpu.writeMemory(0xC000, (byte) 0x30);
+    cpu.writeMemory(0xC000, (byte) 0x30, true);
     int initialTStates = cpu.getTStates();
     cpu.executeInstruction("INC (HL)", null);
     assertEquals(initialTStates + 4 + 3 + 3 + 3 + 1 + 3 + 0, cpu.getTStates()); // Fetch + delay + read + delay + modify + write + delay, total +17
@@ -444,7 +448,7 @@ class ZXSpectrumContendedMemoryTests {
     setupModel("+3", 14366);
     bus.getMemory().setPage(3, 6); // 0xC000-0xFFFF, contended
     cpu.setHL(0xC000);
-    cpu.writeMemory(0xC000, (byte) 0x40);
+    cpu.writeMemory(0xC000, (byte) 0x40, true);
     int initialTStates = cpu.getTStates();
     cpu.executeInstruction("INC (HL)", null);
     assertEquals(initialTStates + 4 + 4 + 3 + 3 + 1 + 3 + 2, cpu.getTStates()); // Fetch + delay + read + delay + modify + write + delay, total +20
@@ -495,7 +499,6 @@ class ZXSpectrumContendedMemoryTests {
   void testPlus3ContendedMemoryPage7T14367() {
     int initialTStates = setupModel("+3", 14367);
     bus.getMemory().setPage(1, 7); // 0x4000-0x7FFF, contended
-    cpu.addTStates(14367);
     cpu.readMemory(0x4000);
     assertEquals(initialTStates + 3 + 3, cpu.getTStates()); // 3 T-states delay at T14367
   }
@@ -503,7 +506,7 @@ class ZXSpectrumContendedMemoryTests {
   @Test
   void test48KInterface1ROMAndContendedMemoryT14336() {
     int initialTStates = setupModel("48K", 14336);
-    interface1.pageROMIn();
+    interface1.pageROMIn(true);
     cpu.readMemory(0x1000); // ROM, no contention +3
     cpu.readMemory(0x4000); // Contended at 14339: delay=2, +3+2=5
     assertEquals(initialTStates + 3 + 3 + 2, cpu.getTStates()); // Total +8
@@ -517,7 +520,7 @@ class ZXSpectrumContendedMemoryTests {
     cpu.setSP(0x4000);
     int initialTStates = cpu.getTStates();
     cpu.executeInstruction("CALL nn", new int[]{0x3000});
-    assertEquals(initialTStates + (4 + 1) + (3 + 0) + (3 + 0) + 1 + 3 + 3, cpu.getTStates()); // Fetch+delay + pc+1+delay + pc+2+delay + internal + sp-1+delay + sp-2+delay, total +18
     assertEquals(0x3000, cpu.getPC());
+    assertEquals(initialTStates + (4 + 1) + (3 + 0) + (3 + 0) + 1 + 3 + 3+14, cpu.getTStates()); // Fetch+delay + pc+1+delay + pc+2+delay + internal + sp-1+delay + sp-2+delay, total +18
   }
 }

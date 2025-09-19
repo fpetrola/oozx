@@ -41,7 +41,7 @@ public interface IZXInterface1 extends IPeripheral {
 
   byte[] getROM();
 
-  void pageROMIn();
+  void pageROMIn(boolean in);
 
   void pageROMOut();
 

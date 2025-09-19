@@ -77,15 +77,17 @@ public class ConnectedZ80CPU implements IZ80CPU {
 
   @Override
   public void out(int port, byte value) {
-    // OUT (c),A
-    int regBC = getRegBC();
-    int regA = getRegA();
-    setRegBC(port);
-    setRegisterA(value);
-    testDriver.addInstruction((byte) 0xED, (byte) 0x79); // OUT (C),A
-    testDriver.waitExecution();
-    setRegBC(regBC);
-    setRegisterA(regA);
+    testDriver.writePort(port, value);
+//
+//    // OUT (c),A
+//    int regBC = getRegBC();
+//    int regA = getRegA();
+//    setRegBC(port);
+//    setRegisterA(value);
+//    testDriver.addInstruction((byte) 0xED, (byte) 0x79); // OUT (C),A
+//    testDriver.waitExecution();
+//    setRegBC(regBC);
+//    setRegisterA(regA);
   }
 
   private void setRegBC(int port) {
@@ -102,12 +104,13 @@ public class ConnectedZ80CPU implements IZ80CPU {
 
   @Override
   public byte readMemory(int address) {
-    int regHL = getRegHL();
-    setHL(address);
-    testDriver.addInstruction((byte) 0x7E); // LD A,(HL)
-    testDriver.waitExecution();
-    setHL(regHL);
-    return (byte) getRegA();
+    return testDriver.readMemory(address, true);
+//    int regHL = getRegHL();
+//    setHL(address);
+//    testDriver.addInstruction((byte) 0x7E); // LD A,(HL)
+//    testDriver.waitExecution();
+//    setHL(regHL);
+//    return (byte) getRegA();
 //    return testDriver.spectrum.getMemory().readByte(address);
   }
 
@@ -116,15 +119,17 @@ public class ConnectedZ80CPU implements IZ80CPU {
   }
 
   @Override
-  public void writeMemory(int address, byte value) {
-    int regHL = getRegHL();
-    int regA = getRegA();
-    setHL(address);
-    setRegisterA(value);
-    testDriver.addInstruction((byte) 0x77); // LD (HL),A
-    testDriver.waitExecution();
-    setHL(regHL);
-    setRegisterA(regA);
+  public void writeMemory(int address, byte value, boolean contended) {
+    testDriver.writeMemory(address, value, contended);
+
+//    int regHL = getRegHL();
+//    int regA = getRegA();
+//    setHL(address);
+//    setRegisterA(value);
+//    testDriver.addInstruction((byte) 0x77); // LD (HL),A
+//    testDriver.waitExecution();
+//    setHL(regHL);
+//    setRegisterA(regA);
   }
 
   @Override
