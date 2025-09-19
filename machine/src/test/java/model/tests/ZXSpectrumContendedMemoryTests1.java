@@ -40,7 +40,7 @@ class ZXSpectrumContendedMemoryTests1 {
     testDriver.setModel(model);
     testDriver.updatePC(0xA000);
     testDriver.if1Page(false);
-    cpu.addTStates(startTState);
+    cpu.setTStates(startTState);
     return startTState;
   }
 
@@ -175,7 +175,7 @@ class ZXSpectrumContendedMemoryTests1 {
   void testPlus3ContendedMemoryPage6T14361() {
     setupModel("+3", 14361);
     bus.getMemory().setPage(3, 6); // 0xC000-0xFFFF
-    cpu.addTStates(14361);
+    cpu.setTStates(14361);
     int initialTStates = cpu.getTStates();
     cpu.readMemory(0xC000);
     assertEquals(initialTStates + 3 + 1, cpu.getTStates()); // 1 T-state delay (per +3 pattern)
@@ -185,7 +185,7 @@ class ZXSpectrumContendedMemoryTests1 {
   void testPlus3ContendedMemoryT14363() {
     setupModel("+3", 14363);
     bus.getMemory().setPage(1, 5);
-    cpu.addTStates(14363);
+    cpu.setTStates(14363);
     int initialTStates = cpu.getTStates();
     cpu.readMemory(0x4000);
     assertEquals(initialTStates + 3 + 7, cpu.getTStates()); // 7 T-states delay
@@ -426,7 +426,7 @@ class ZXSpectrumContendedMemoryTests1 {
   void testPlus3ContendedMemoryPage4T14364() {
     int initialTStates = setupModel("+3", 14364);
     bus.getMemory().setPage(3, 4); // 0xC000-0xFFFF, contended
-    cpu.addTStates(14364);
+    cpu.setTStates(14364);
     cpu.readMemory(0xC000);
     assertEquals(initialTStates + 3 + 6, cpu.getTStates()); // 6 T-states delay at T14364
   }

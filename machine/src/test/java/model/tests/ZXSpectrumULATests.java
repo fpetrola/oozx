@@ -58,7 +58,7 @@ class ZXSpectrumULATests {
     cpu.setModel(model);
 //    testDriver.setTstates(startTState);
     testDriver.setModel(model);
-    cpu.addTStates(startTState);
+    cpu.setTStates(startTState);
     return startTState;
   }
 
@@ -88,7 +88,12 @@ class ZXSpectrumULATests {
   @Test
   void testBeamPositionAfterOneLine() {
     setupModel("48K", 0);
-    cpu.addTStates(224);
+    for (int i = 0; i < 20000; i++) {
+      cpu.setTStates(i);
+      System.out.println("tstates: " + cpu.getTStates() + " - vpos: " + ula.getVerticalPosition() + " - hpos: " + ula.getHorizontalPosition());
+    }
+
+    cpu.setTStates(224);
     assertEquals(1, ula.getVerticalPosition());
     assertEquals(0, ula.getHorizontalPosition());
   }
@@ -182,7 +187,7 @@ class ZXSpectrumULATests {
   void testInterruptAtFrameEnd() {
     setupModel("48K", 69887);
     assertFalse(ula.isInterruptActive());
-    cpu.addTStates(1);
+    cpu.setTStates(1);
     assertTrue(ula.isInterruptActive());
   }
 
@@ -196,7 +201,7 @@ class ZXSpectrumULATests {
   void testInterruptDuration() {
     setupModel("48K", 69888);
     assertTrue(ula.isInterruptActive());
-    cpu.addTStates(32);
+    cpu.setTStates(32);
     assertFalse(ula.isInterruptActive()); // Assuming active for 32 t-states
   }
 

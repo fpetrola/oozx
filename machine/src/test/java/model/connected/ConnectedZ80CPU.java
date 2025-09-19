@@ -138,8 +138,13 @@ public class ConnectedZ80CPU implements IZ80CPU {
   }
 
   @Override
-  public void addTStates(int tStates) {
+  public void setTStates(int tStates) {
     testDriver.setTstates(tStates);
+  }
+
+  @Override
+  public void addTStates2(int tStates) {
+    testDriver.setTstates(getTStates() + tStates);
   }
 
   @Override
