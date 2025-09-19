@@ -60,7 +60,6 @@ class ZXSpectrumBeamBatchTests {
 
   @AfterAll
   static void tearDown() {
-    testDriver.setFinished(true);
   }
 
   // Test for pre-frame negative positions (punctual cases)

@@ -167,10 +167,7 @@ public class ConnectedZ80CPU implements IZ80CPU {
         break;
     }
 
-    testDriver.setSkipFetch(false);
     testDriver.waitExecution();
-    testDriver.setSkipFetch(true);
-//    testDriver.spectrum.clock.addTstates(4);
   }
 }
 

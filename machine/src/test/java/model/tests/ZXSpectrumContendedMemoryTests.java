@@ -57,7 +57,6 @@ class ZXSpectrumContendedMemoryTests {
 
   @AfterAll
   static void tearDown() {
-    testDriver.setFinished(true);
   }
 
   // 48K Early Timing Tests

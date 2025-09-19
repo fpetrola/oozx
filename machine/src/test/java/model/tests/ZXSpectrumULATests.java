@@ -74,7 +74,6 @@ class ZXSpectrumULATests {
 
   @AfterAll
   static void tearDown() {
-    testDriver.setFinished(true);
   }
 
   // Beam Position Tests

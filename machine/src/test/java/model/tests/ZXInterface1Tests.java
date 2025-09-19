@@ -37,8 +37,6 @@ public class ZXInterface1Tests {
     @BeforeEach
     void setUp() {
         interface1.reset();
-        testDriver.clearInstructions();
-        testDriver.setFinished(false);
     }
 
 
