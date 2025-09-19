@@ -3,9 +3,6 @@ package model.tests;
 import com.fpetrola.oozx.fuse.*;
 import machine.MachineTypes;
 
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
-
 public class TestDriver {
   private final CommandHandler commandHandler;
 
@@ -22,9 +19,6 @@ public class TestDriver {
   }
 
   public void addInstruction(byte... bytes) {
-//    System.out.println("tstates before add instruction: " + tstates);
-//    instructions.offer(new SintheticInstruction(bytes));
-
     int writeIndex = getRegister("PC");
     for (byte b : bytes) {
       writeMemory(writeIndex++, b, false);
