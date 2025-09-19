@@ -21,15 +21,19 @@ package com.fpetrola.oozx.fuse;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 public class CommandHandler {
   private List<EmulatorCommand> commandQueue = Collections.synchronizedList(new LinkedList<>());
   private List<EmulatorCommandResult> resultQueue = Collections.synchronizedList(new LinkedList<>());
-  FuseLibretroExample fuseLibretroExample = new FuseLibretroExample();
 
-  public CommandHandler() {
-    fuseLibretroExample.init(this);
+  private CommandHandler() {
+  }
+
+  public static CommandHandler createCommandHandler() {
+    FuseLibretroExample fuseLibretroExample = new FuseLibretroExample();
+    CommandHandler commandHandler = new CommandHandler();
+    fuseLibretroExample.init(commandHandler);
+    return commandHandler;
   }
 
   public void addNoResultCommand(EmulatorCommand emulatorCommand) {

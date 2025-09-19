@@ -58,8 +58,7 @@ public class TestDriver {
   }
 
   public int getTstates() {
-    int i = (int) commandHandler.executeCommand(new GetRegisterValue("tstates"));
-    return i;
+    return commandHandler.executeCommand(new GetRegisterValue("tstates"));
   }
 
   public void setTstates(int tStates) {

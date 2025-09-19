@@ -20,7 +20,7 @@ class ZXSpectrumContendedMemoryTests {
 
   @BeforeAll
   public static void beforeall() {
-    testDriver = new TestDriver(new CommandHandler());
+    testDriver = new TestDriver(CommandHandler.createCommandHandler());
     bus = new ConnectedSpectrumBus(new ConnectedMemory(testDriver), new ConnectedULA(testDriver), testDriver);
     interface1 = new ConnectedInterface1(testDriver);
     microdrive = new ConnectedMicrodrive(testDriver);

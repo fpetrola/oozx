@@ -16,7 +16,7 @@ class ZXSpectrumLECExpansionTests {
 
     @BeforeAll
     public static void beforeall() {
-        testDriver = new TestDriver(new CommandHandler());
+        testDriver = new TestDriver(CommandHandler.createCommandHandler());
         memory = new ConnectedMemory(testDriver);
     }
 

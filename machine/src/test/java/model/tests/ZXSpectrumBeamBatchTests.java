@@ -35,7 +35,7 @@ class ZXSpectrumBeamBatchTests {
 
   @BeforeAll
   public static void beforeall() {
-    testDriver = new TestDriver(new CommandHandler());
+    testDriver = new TestDriver(CommandHandler.createCommandHandler());
     bus = new ConnectedSpectrumBus(new ConnectedMemory(testDriver), new ConnectedULA(testDriver), testDriver);
     ula = bus.getULA();
 

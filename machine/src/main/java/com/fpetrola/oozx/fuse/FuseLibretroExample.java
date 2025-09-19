@@ -36,7 +36,7 @@ public class FuseLibretroExample {
 
   public static void main(String[] args) throws Exception {
     FuseLibretroExample fuseLibretroExample = new FuseLibretroExample();
-    new CommandHandler();
+    CommandHandler.createCommandHandler();
   }
 
   public void init(CommandHandler commandHandler) {
