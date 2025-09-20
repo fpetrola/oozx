@@ -201,7 +201,7 @@ public class Fuse {
         libspectrumRegisterStartup();
         libxml2RegisterStartup();
         Machine.registerStartup();
-//        MachinesPeriph.registerStartup();
+        MachinesPeriph.registerStartup();
 //        Melodik.registerStartup();
         Memory.registerStartup();
 //        Mempool.registerStartup();

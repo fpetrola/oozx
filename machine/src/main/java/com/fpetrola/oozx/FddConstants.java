@@ -18,12 +18,17 @@
 
 package com.fpetrola.oozx;
 
-public class MachineCapability {
-  public static final int PLUS3_MEMORY = 1;
-  public static final int _128_MEMORY = 2;
-  public static final int PENT1024_MEMORY = 3;
-  public static final int SCORP_MEMORY = 4;
-  public static final int TIMEX_VIDEO = 5;
-  public static final int TIMEX_DOCK = 6;
-  public static final int PLUS3_DISK = 7;
+interface FddConstants {
+    int FDD_LOAD_FACT = 2;
+    int FDD_HEAD_FACT = 16;
+    int FDD_STEP_FACT = 34;
+    int FDD_MAX_TRACK = 99;
+    int FDD_TRACK_TRESHOLD = 10;
+    int FDD_LAST_ERROR = 4;
+    int FDD_SHUGART = 0;
+    int FDD_TYPE_NONE = 1;
+    int FDD_GEOM = 111;
+    int FDD_OK = 1;
+    int FDD_NONE = 2;
+    int FDD_RDONLY = 3;
 }

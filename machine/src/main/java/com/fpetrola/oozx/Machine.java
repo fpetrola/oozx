@@ -85,14 +85,14 @@ public class Machine {
     if (error != 0) return error;
 //        error = addMachine(Spec48Ntsc::init);
 //        if (error != 0) return error;
-//        error = addMachine(Spec128::init);
-//        if (error != 0) return error;
+    error = addMachine(Spec128::init);
+    if (error != 0) return error;
 //        error = addMachine(SpecPlus2::init);
 //        if (error != 0) return error;
 //        error = addMachine(SpecPlus2a::init);
 //        if (error != 0) return error;
-//        error = addMachine(SpecPlus3::init);
-//        if (error != 0) return error;
+        error = addMachine(SpecPlus3::init);
+        if (error != 0) return error;
 //        error = addMachine(SpecPlus3e::init);
 //        if (error != 0) return error;
 //        error = addMachine(Tc2048::init);
@@ -259,6 +259,8 @@ public class Machine {
       return 1;
     }
     if (error != 0) return error;
+    rom.buffer= new byte[0x4000];
+    rom.length= rom.buffer.length;
 
     if (rom.length != expectedLength) {
       Ui.error(UiError.ERROR, "ROM '%s' is %d bytes long; expected %d bytes", filename, rom.length, expectedLength);

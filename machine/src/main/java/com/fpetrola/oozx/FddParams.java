@@ -18,12 +18,15 @@
 
 package com.fpetrola.oozx;
 
-public class MachineCapability {
-  public static final int PLUS3_MEMORY = 1;
-  public static final int _128_MEMORY = 2;
-  public static final int PENT1024_MEMORY = 3;
-  public static final int SCORP_MEMORY = 4;
-  public static final int TIMEX_VIDEO = 5;
-  public static final int TIMEX_DOCK = 6;
-  public static final int PLUS3_DISK = 7;
+class FddParams {
+    public static FddParams[] fddParams;
+    int enabled;
+    int heads;
+    int cylinders;
+
+    public FddParams(int enabled, int heads, int cylinders) {
+        this.enabled = enabled;
+        this.heads = heads;
+        this.cylinders = cylinders;
+    }
 }

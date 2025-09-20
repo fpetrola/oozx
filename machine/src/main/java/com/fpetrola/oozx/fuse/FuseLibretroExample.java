@@ -81,6 +81,8 @@ public class FuseLibretroExample {
         }
       }
     };
+
+//    bridgeCommand= (cmd, data) -> null;
     aCore.retro_set_bridge_command(bridgeCommand);
 
     aCore.retro_set_audio_sample((l, r) -> { /* ignoramos */ });

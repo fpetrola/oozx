@@ -32,9 +32,9 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   protected T[] data = (T[]) new WordNumber[0x10000];
   private List<MemoryWriteListener> memoryWriteListener = new ArrayList<>();
   private boolean readOnly;
-  private MemoryReadListener memoryReadListener;
-  private MemoryReadListener lastMemoryReadListener;
-  private List<MemoryWriteListener> lastMemoryWriteListener= new ArrayList<>();
+  private List<MemoryReadListener> memoryReadListener = new ArrayList<>();
+  private List<MemoryReadListener> lastMemoryReadListener = new ArrayList<>();
+  private List<MemoryWriteListener> lastMemoryWriteListener = new ArrayList<>();
   private boolean canDisable;
   protected T[] cachedValues = (T[]) new WordNumber[0x10000];
 
@@ -52,10 +52,10 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
     //FIXME: para que????
 
     boolean b = fetching == 1 || address.intValue() < 0 || (cachedValue = cachedValues[address.intValue()]) != value;
-    if (memoryReadListener != null && b) {
-      memoryReadListener.readingMemoryAt(address, value, 0, fetching);
-      if (address.intValue() >= 0)
-        cachedValues[address.intValue()] = value;
+    if (!memoryReadListener.isEmpty() && b) {
+      memoryReadListener.forEach(l -> l.readingMemoryAt(address, value, 0, fetching));
+//      if (address.intValue() >= 0)
+//        cachedValues[address.intValue()] = value;
     }
 
     return value;
@@ -63,8 +63,8 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
 
   public T read(T address, int delta, int fetching) {
     T value = doRead(address);
-    if (memoryReadListener != null)
-      memoryReadListener.readingMemoryAt(address, value, delta, fetching);
+    if (!memoryReadListener.isEmpty())
+      memoryReadListener.forEach(l -> l.readingMemoryAt(address, value, delta, fetching));
 
     return value;
   }
@@ -122,7 +122,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
 
   @Override
   public void addMemoryReadListener(MemoryReadListener<T> memoryReadListener) {
-    this.memoryReadListener = memoryReadListener;
+    this.memoryReadListener.add(memoryReadListener);
   }
 
   @Override
@@ -142,10 +142,8 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   @Override
   public void disableReadListener() { //FIXME: para que era???
     if (canDisable) {
-      if (memoryReadListener != null) {
-        lastMemoryReadListener = memoryReadListener;
-        memoryReadListener = null;
-      }
+      lastMemoryReadListener = memoryReadListener;
+      memoryReadListener = new ArrayList<>();
     }
   }
 
@@ -160,7 +158,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   public void disableWriteListener() {
     if (canDisable) {
       lastMemoryWriteListener = memoryWriteListener;
-      memoryWriteListener = null;
+      memoryWriteListener = new ArrayList<>();
     }
   }
 

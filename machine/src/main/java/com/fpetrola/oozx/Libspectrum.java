@@ -44,7 +44,7 @@ public class Libspectrum {
   public static int init() {
     return 0;
   }
-  enum Machine {
+  public enum Machine {
     _48K, TC2048, _128K, PLUS2, PENTAGON, PLUS2A, PLUS3, UNKNOWN,
     _16K, TC2068, SCORPION, PLUS3E, SE, TS2068, PENTAGON_512K,
     PENTAGON_1024K, _48K_NTSC, _128KE

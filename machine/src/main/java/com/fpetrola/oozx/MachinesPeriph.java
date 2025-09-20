@@ -46,8 +46,8 @@ public class MachinesPeriph {
 
     // Port definitions for +3 memory
     private static final List<Periph.Port> plus3MemoryPorts = List.of(
-            new Periph.Port(0xc002, 0x4000, null, Spec128::memoryportWrite),
-            new Periph.Port(0xf002, 0x1000, null, SpecPlus3::memoryport2Write),
+            new Periph.Port(0xc002, 0x4000, null, Spec128::memoryPortWrite),
+            new Periph.Port(0xf002, 0x1000, null, SpecPlus3::memoryPort2Write),
             new Periph.Port(0, 0, null, null)
     );
 

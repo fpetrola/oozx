@@ -131,7 +131,7 @@ public class Ula {
 
     // Adapter for debugger to set 7ffd
     private static void set7ffd(long value) {
-        Spec128.memoryportWrite(0, (byte) value);
+        Spec128.memoryPortWrite(0, (byte) value);
     }
 
     // Adapter for debugger to get 1ffd
@@ -141,7 +141,7 @@ public class Ula {
 
     // Adapter for debugger to set 1ffd
     private static void set1ffd(long value) {
-        SpecPlus3.memoryport2WriteInternal(0, (byte) value);
+        SpecPlus3.memoryPort2WriteInternal(0, (byte) value);
     }
 
     // Initialize ULA module

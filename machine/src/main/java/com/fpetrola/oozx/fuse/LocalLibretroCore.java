@@ -28,6 +28,8 @@ import com.sun.jna.Pointer;
 
 public class LocalLibretroCore implements LibretroCore {
 
+  public static boolean contended= true;
+
   public LocalLibretroCore() {
     Fuse.fuseInit(new String[]{});
   }
@@ -111,10 +113,6 @@ public class LocalLibretroCore implements LibretroCore {
 
   }
 
-  public int retro_get_memory_data(int id) {
-    return getMemory().read(WordNumber.createValue(id), 0).intValue();
-  }
-
   private Memory<WordNumber> getMemory() {
     return getState().getMemory();
   }
@@ -123,16 +121,30 @@ public class LocalLibretroCore implements LibretroCore {
     return Z80.ooz80.getState();
   }
 
+  public int retro_get_memory_data(int id) {
+    contended= false;
+    int i = getMemory().read(WordNumber.createValue(id), 0).intValue();
+    contended= true;
+    return i;
+  }
+
   public int retro_get_memory_data_contended(int id) {
-    return getMemory().read(WordNumber.createValue(id), 0).intValue();
+    contended= true;
+    int i = getMemory().read(WordNumber.createValue(id), 0).intValue();
+    contended= true;
+    return i;
   }
 
   public void retro_set_memory_data(int address, int id) {
+    contended= false;
     getMemory().write(WordNumber.createValue(address), WordNumber.createValue(id));
+    contended= true;
   }
 
   public void retro_set_memory_data_contended(int address, int id) {
+    contended= true;
     getMemory().write(WordNumber.createValue(address), WordNumber.createValue(id));
+    contended= true;
   }
 
   public long retro_get_memory_size(int id) {
@@ -142,6 +154,7 @@ public class LocalLibretroCore implements LibretroCore {
   public void retro_set_register_data(String register, int value) {
     if (register.equals("tstates")) {
       Spectrum.tstates = value;
+      Z80.ooz80.getState().tstates= value;
     } else
       getRegister(register).write(WordNumber.createValue(value));
   }
@@ -167,10 +180,25 @@ public class LocalLibretroCore implements LibretroCore {
 
   public void retro_write_port(int port, int value) {
     getState().getIo().out(WordNumber.createValue(port), WordNumber.createValue(value));
+//    Periph.writePortInternal(port, (byte) value);
   }
 
-  public void retro_select_machine(String type) {
+  public void retro_select_machine(String name) {
+      Libspectrum.Machine a = Libspectrum.Machine._48K;
 
+      if (name.equals("48K")) {
+        a = Libspectrum.Machine._48K;
+      } else if (name.equals("48K NTSC")) {
+        a = Libspectrum.Machine._48K_NTSC;
+      } else if (name.equals("128K")) {
+        a = Libspectrum.Machine._128K;
+      } else if (name.equals("PLUS2")) {
+        a = Libspectrum.Machine.PLUS2;
+      } else if (name.equals("+3")) {
+        a = Libspectrum.Machine.PLUS3;
+      }
+
+      Machine.select(a.ordinal());
   }
 
   public void retro_if1_page(boolean in) {

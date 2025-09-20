@@ -40,6 +40,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   protected Z80Cpu<T> cpu;
   protected Phase phase;
   protected T address;
+  public long initialTStates;
 
   public PhaseProcessorBase(Z80Cpu<T> cpu) {
     this.cpu = cpu;
@@ -59,7 +60,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
     }
   }
 
-  private void getAddEvent(Event time1) {
+  protected void getAddEvent(Event time1) {
     getState().addEvent(time1);
   }
 

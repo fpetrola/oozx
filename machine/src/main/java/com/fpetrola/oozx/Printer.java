@@ -22,4 +22,8 @@ public class Printer {
   public static void frame() {
 
   }
+
+  public static void parallelStrobeWrite(int i) {
+
+  }
 }

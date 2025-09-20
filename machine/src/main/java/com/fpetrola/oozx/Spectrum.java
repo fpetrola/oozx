@@ -179,7 +179,7 @@ public class Spectrum {
         return 0;
     }
 
-    public static int spectrumContendDelayNone(long time) {
+    public static int contendDelayNone(long time) {
         return 0;
     }
 

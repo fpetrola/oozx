@@ -398,11 +398,11 @@ public class Memory {
             Pentagon.pentagon1024V22MemoryportWrite(0xeff7, Libspectrum.snapOutPlus3Memoryport(snap));
         } else {
             if ((capabilities & Libspectrum.MachineCapability._128_MEMORY) != 0) {
-                Spec128.memoryportWrite(0x7ffd, Libspectrum.snapOut128Memoryport(snap));
+                Spec128.memoryPortWrite(0x7ffd, Libspectrum.snapOut128Memoryport(snap));
             }
             if ((capabilities & Libspectrum.MachineCapability.PLUS3_MEMORY) != 0 ||
                     (capabilities & Libspectrum.MachineCapability.SCORP_MEMORY) != 0) {
-                SpecPlus3.memoryport2WriteInternal(0x1ffd, Libspectrum.snapOutPlus3Memoryport(snap));
+                SpecPlus3.memoryPort2WriteInternal(0x1ffd, Libspectrum.snapOutPlus3Memoryport(snap));
             }
         }
 

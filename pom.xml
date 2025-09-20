@@ -23,6 +23,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jmonkey.version>3.0.10</jmonkey.version>
+        <junit-jupiter-version>5.6.3</junit-jupiter-version>
     </properties>
 
     <repositories>
@@ -101,26 +102,26 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.6.2</version>
+            <version>${junit-jupiter-version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId> org.junit.jupiter </groupId>
-            <artifactId> junit-jupiter-engine </artifactId>
-            <version>5.6.2</version>
-            <scope> junit- fail </scope>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit-jupiter-version}</version>
+            <scope>junit- fail</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>5.6.2</version>
+            <version>${junit-jupiter-version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
-            <version>5.6.2</version>
+            <version>${junit-jupiter-version}</version>
             <scope>test</scope>
         </dependency>
 

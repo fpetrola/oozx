@@ -55,8 +55,8 @@ public class Spec48 {
 
     // Reset the Spectrum 48K machine
     private static int reset() {
-//        int error = Machine.loadRom(0, Settings.current.rom48, Settings.defaults.rom48, 0x4000);
-//        if (error != 0) return error;
+        int error = Machine.loadRom(0, Settings.current.rom48, Settings.defaults.rom48, 0x4000);
+        if (error != 0) return error;
 
         Periph.clear();
         MachinesPeriph.machinesPeriph48();
