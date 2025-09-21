@@ -47,19 +47,24 @@ public interface Memory<T> {
 
   void write(T address, T value);
 
-  boolean compare();
+  default boolean compare() {
+    return false;
+  }
 
-  void update();
+  default void update() {
+  }
 
-  void addMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener);
+  default void addMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener){};
 
-  void removeMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener);
+  default void removeMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener){};
 
   void reset();
 
-  void addMemoryReadListener(MemoryReadListener<T> memoryReadListener);
+  default void addMemoryReadListener(MemoryReadListener<T> memoryReadListener) {
+  }
 
-  void removeMemoryReadListener(MemoryReadListener<T> memoryReadListener);
+  default void removeMemoryReadListener(MemoryReadListener<T> memoryReadListener) {
+  }
 
   default T[] getData() {
     return (T[]) new WordNumber[0];

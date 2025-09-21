@@ -47,8 +47,10 @@ public class MemptrUpdater<T extends WordNumber> {
         }
 
         public boolean visitingCall(Call tCall) {
+          Memory16BitReference memory16BitReference = (Memory16BitReference) tCall.getPositionOpcodeReference(); //FIXME: arreglar hack
           T jumpAddress2 = (T) tCall.calculateJumpAddress();
           memptr.write(jumpAddress2);
+          memory16BitReference.getMemory().reset();
 
           return false;
         }

@@ -21,21 +21,18 @@ package com.fpetrola.z80.opcodes.decoder.table;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.RegisterName;
-
-import static com.fpetrola.z80.registers.RegisterName.IXH;
-import static com.fpetrola.z80.registers.RegisterName.IXL;
 
 public class DDCBFDCBPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
 
   private final RegisterName ixy;
 
-  public DDCBFDCBPrefixTableOpCodeGenerator(State state, RegisterName ixy, RegisterName ixyh, RegisterName ixyl, OpcodeReference a, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory) {
-    super(state, ixy, ixyh, ixyl, a, opcodeConditions, instructionFactory);
+  public DDCBFDCBPrefixTableOpCodeGenerator(State state, RegisterName ixy, RegisterName ixyh, RegisterName ixyl, OpcodeReference a, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, Memory memoryForOpcodes) {
+    super(state, ixy, ixyh, ixyl, a, opcodeConditions, instructionFactory, memoryForOpcodes);
     this.ixy = ixy;
   }
 

@@ -19,6 +19,7 @@
 package com.fpetrola.z80.opcodes.references;
 
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 
@@ -27,9 +28,11 @@ import static com.fpetrola.z80.registers.RegisterName.PC;
 public class OpcodeTargets<T> {
 
   private final State state;
+  private final Memory memoryForOpcode;
 
-  public OpcodeTargets(State state) {
+  public OpcodeTargets(State state, Memory memoryForOpcode) {
     this.state = state;
+    this.memoryForOpcode = memoryForOpcode;
   }
 
   public ImmutableOpcodeReference c(int value) {
@@ -53,7 +56,7 @@ public class OpcodeTargets<T> {
   }
 
   public OpcodeReference iRRn(int valueDelta, ImmutableOpcodeReference r) {
-    return new MemoryPlusRegister8BitReference(r, state.getMemory(), r(PC), valueDelta);
+    return new MemoryPlusRegister8BitReference(r, memoryForOpcode, r(PC), valueDelta);
   }
 
   public OpcodeReference iiRR(RegisterName name) {
@@ -66,11 +69,11 @@ public class OpcodeTargets<T> {
   }
 
   public ImmutableOpcodeReference n(int delta) {
-    return new Memory8BitReference(state.getMemory(), r(PC), delta);
+    return new Memory8BitReference(memoryForOpcode, r(PC), delta);
   }
 
   public ImmutableOpcodeReference nn(int delta) {
-    return new Memory16BitReference(state.getMemory(), r(PC), delta);
+    return new Memory16BitReference(memoryForOpcode, r(PC), delta);
   }
 
   public OpcodeReference iinn(int delta) {

@@ -21,6 +21,7 @@ package com.fpetrola.z80.base;
 import com.fpetrola.z80.bytecode.DefaultZ80InstructionDriver;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.opcodes.decoder.table.MemoryForOpcodes;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
@@ -49,7 +50,7 @@ public class CPUExecutionContext<T extends WordNumber> extends DefaultZ80Instruc
     this.z80.reset();
     this.z80.getInstructionFetcher().reset();
     spy.doContinue();
-    ot = new OpcodeTargets(getState());
+    ot = new OpcodeTargets(getState(), new MemoryForOpcodes(getState().getMemory()));
     flag = getState().getFlag();
     opc = opcodeConditions;
   }

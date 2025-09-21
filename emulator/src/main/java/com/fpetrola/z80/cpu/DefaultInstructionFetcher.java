@@ -22,11 +22,11 @@ import com.fpetrola.z80.instructions.cache.InstructionCloner;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
+import com.fpetrola.z80.opcodes.decoder.table.MemoryForOpcodes;
 import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -52,6 +52,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   public Instruction<T> instruction2;
   private boolean noRepeat;
   private boolean clone;
+  private final Memory<T> memoryForOpcode;
 
 //  {
 //    try {
@@ -69,11 +70,13 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     this.state = aState;
     this.instructionExecutor = instructionExecutor;
     this.noRepeat = noRepeat;
+    memoryForOpcode = new MemoryForOpcodes(this.state.getMemory());
     tableFactory = () -> createOpcodesTables(opcodeConditions, fetchInstructionFactory, instructionFactory);
     createOpcodeTables();
     pcValue = state.getPc().read();
     this.instructionFactory = instructionFactory;
     this.clone= clone;
+//    memoryForOpcode= this.state.getMemory();
   }
 
   protected void createOpcodeTables() {
@@ -81,7 +84,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   }
 
   public TableBasedOpCodeDecoder createOpcodesTables(OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionFactory instructionFactory) {
-    return new TableBasedOpCodeDecoder<T>(this.state, opcodeConditions, fetchInstructionFactory, instructionFactory);
+    return new TableBasedOpCodeDecoder<T>(this.state, opcodeConditions, fetchInstructionFactory, instructionFactory, memoryForOpcode);
   }
 
   @Override
@@ -96,6 +99,8 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     Instruction<T> baseInstruction2 = getBaseInstruction2(opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt]);
     if (clone)
       baseInstruction2 = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction2);
+    else
+      memoryForOpcode.reset();
     
     instruction2 = baseInstruction2;
     this.instruction = baseInstruction2;
