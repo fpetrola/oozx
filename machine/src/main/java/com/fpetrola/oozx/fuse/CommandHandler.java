@@ -18,8 +18,6 @@
 
 package com.fpetrola.oozx.fuse;
 
-import com.fpetrola.oozx.Fuse;
-
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,7 +43,7 @@ public class CommandHandler {
     commandQueue.add(emulatorCommand);
   }
 
-  public int executeCommand(EmulatorCommand emulatorCommand) {
+  public Object executeCommand(EmulatorCommand emulatorCommand) {
     if (!resultQueue.isEmpty()) {
       System.out.println("eh!!!!1111");
     }
@@ -61,7 +59,7 @@ public class CommandHandler {
     }
   }
 
-  public void addResultFor(EmulatorCommand lastCommand, int i) {
+  public void addResultFor(EmulatorCommand lastCommand, Object i) {
     resultQueue.add(new EmulatorCommandResult(lastCommand, i));
   }
 

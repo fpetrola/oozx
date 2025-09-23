@@ -34,15 +34,15 @@ public class TestDriver {
   }
 
   public byte readMemory(int address, boolean contended) {
-    return (byte) commandHandler.executeCommand(new ReadMemoryCommand(address, contended));
+    return (byte) (int) commandHandler.executeCommand(new ReadMemoryCommand(address, contended));
   }
 
   public int getRegister(String name) {
-    return commandHandler.executeCommand(new GetRegisterValue(name)) & 0xffff;
+    return (int) commandHandler.executeCommand(new GetRegisterValue(name)) & 0xffff;
   }
 
   public int getTstatesHistory() {
-    return commandHandler.executeCommand(new GetTStatesHistory());
+    return (int) commandHandler.executeCommand(new GetTStatesHistory());
   }
 
   public void tstatesHistoryInit() {
@@ -66,7 +66,7 @@ public class TestDriver {
   }
 
   public int getTstates() {
-    return commandHandler.executeCommand(new GetRegisterValue("tstates"));
+    return (int) commandHandler.executeCommand(new GetRegisterValue("tstates"));
   }
 
   public void setTstates(int tStates) {

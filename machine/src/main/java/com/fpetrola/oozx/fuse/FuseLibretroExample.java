@@ -76,7 +76,7 @@ public class FuseLibretroExample {
               lastCommand = command;
               return createBridgeResponse();
             } else {
-              Integer value = executeCommand(command, aCore);
+              Object value = executeCommand(command, aCore);
               if (value != null) {
                 commandHandler.addResultFor(command, value);
               }

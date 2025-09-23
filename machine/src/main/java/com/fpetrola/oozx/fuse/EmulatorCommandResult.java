@@ -19,15 +19,15 @@
 package com.fpetrola.oozx.fuse;
 
 public class EmulatorCommandResult {
-  private int value;
+  private Object value;
   private EmulatorCommand command;
 
-  public EmulatorCommandResult(EmulatorCommand command, int value) {
+  public EmulatorCommandResult(EmulatorCommand command, Object value) {
     this.command = command;
     this.value = value;
   }
 
-  public int getValue() {
+  public Object getValue() {
     return value;
   }
 
