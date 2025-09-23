@@ -486,6 +486,7 @@ public class ZXSpectrumContendedMemoryTests {
 
   @Test
   void testPlus3INCInstructionT14366() {
+    testDriver.tstatesHistoryInit();
     setupModel("+3", 14366);
     bus.getMemory().setPage(3, 6); // 0xC000-0xFFFF, contended
     cpu.setHL(0xC000);
@@ -495,8 +496,10 @@ public class ZXSpectrumContendedMemoryTests {
     int i = 4 + 4 + 3 + 3 + 1 + 3 + 2 - 5 + 1;
 //    int i = (4 + 0) + 3 + 3 + 1 + 3 + 2 - 5;
 //    i+= 8;
+
     assertEquals(initialTStates + i, cpu.getTStates()); // Fetch + delay + read + delay + modify + write + delay, total +20
     assertEquals((byte) 0x41, testDriver.readMemory(0xC000, true));
+    int tstatesHistory = testDriver.getTstatesHistory();
   }
 
   @Test

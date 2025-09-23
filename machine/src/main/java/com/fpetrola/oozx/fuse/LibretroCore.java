@@ -21,6 +21,7 @@ package com.fpetrola.oozx.fuse;
 import com.sun.jna.*;
 import com.sun.jna.ptr.ShortByReference;
 
+import java.util.Arrays;
 import java.util.List;
 
 // --- API de libretro ---
@@ -111,4 +112,33 @@ public interface LibretroCore extends Library {
   public interface retro_input_state_t extends Callback {
     short invoke(int port, int device, int index, int id);
   }
+
+ public class KVPair extends Structure {
+   public KVPair(Pointer pData) {
+     super(pData);
+   }
+
+   public static class ByReference extends KVPair implements Structure.ByReference {
+     public ByReference(Pointer pData) {
+       super(pData);
+     }
+   }
+    public static class ByValue extends KVPair implements Structure.ByValue {
+      public ByValue(Pointer pData) {
+        super(pData);
+      }
+    }
+
+   public String description;
+   public int key;
+   public int value;
+
+    @Override
+    protected List<String> getFieldOrder() {
+      return Arrays.asList("description", "key", "value");
+    }
+  }
+
+  Pointer retro_tstates_history();
+  void retro_tstates_history_init();
 }

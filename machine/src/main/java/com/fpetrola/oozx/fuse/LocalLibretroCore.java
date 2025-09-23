@@ -207,4 +207,14 @@ public class LocalLibretroCore implements LibretroCore {
   public int retro_read_lan_port() {
     return 0;
   }
+
+  @Override
+  public Pointer retro_tstates_history() {
+    return null;
+  }
+
+  @Override
+  public void retro_tstates_history_init() {
+
+  }
 }

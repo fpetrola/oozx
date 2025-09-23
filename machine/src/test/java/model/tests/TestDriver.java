@@ -41,6 +41,14 @@ public class TestDriver {
     return commandHandler.executeCommand(new GetRegisterValue(name)) & 0xffff;
   }
 
+  public int getTstatesHistory() {
+    return commandHandler.executeCommand(new GetTStatesHistory());
+  }
+
+  public void tstatesHistoryInit() {
+    commandHandler.addNoResultCommand(new TStatesHistoryInit());
+  }
+
   public void setRegister(String name, int value) {
     commandHandler.addNoResultCommand(new SetRegisterValue(name, value));
   }

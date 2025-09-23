@@ -36,7 +36,7 @@ public class CommandHandler {
 
   public static CommandHandler createCommandHandler() {
     CommandHandler commandHandler = new CommandHandler();
-    core= new LocalLibretroCore();
+//    core= new LocalLibretroCore();
     fuseLibretroExample.init(commandHandler, core);
     return commandHandler;
   }

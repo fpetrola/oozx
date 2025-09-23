@@ -18,12 +18,16 @@
 
 package com.fpetrola.oozx.fuse;
 
+import com.fpetrola.oozx.fuse.LibretroCore.KVPair;
 import com.sun.jna.*;
 
 import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class FuseLibretroExample {
   LibretroCore core = LibretroCore.INSTANCE;
@@ -151,6 +155,23 @@ public class FuseLibretroExample {
       return core.retro_get_beam_x();
     } else if (command instanceof GetBeamY getBeamPosition) {
       return core.retro_get_beam_y();
+    } else if (command instanceof GetTStatesHistory getTStatesHistory) {
+      Pointer pData = core.retro_tstates_history();
+
+      KVPair first = new KVPair(pData);
+      KVPair[] pairs = (KVPair[]) first.toArray(40);
+
+      Map<Integer, Integer> out= new TreeMap<>();
+      for (KVPair kv : pairs) {
+        kv.read(); // garantiza que los campos están sincronizados desde la memoria nativa
+        out.put(kv.key, kv.value);
+        System.out.println(kv.description);
+      }
+      
+      return 1;
+    } else if (command instanceof TStatesHistoryInit getTStatesHistory) {
+      core.retro_tstates_history_init();
+      return null;
     }
 
     return null;
