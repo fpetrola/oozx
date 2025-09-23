@@ -71,6 +71,26 @@ public class ConnectedZ80CPU implements IZ80CPU {
   }
 
   @Override
+  public void setBC(int i) {
+    testDriver.setRegister("BC", i);
+  }
+
+  @Override
+  public int getHL() {
+    return testDriver.getRegister("HL");
+  }
+
+  @Override
+  public int getDE() {
+    return testDriver.getRegister("DE");
+  }
+
+  @Override
+  public void setIR(int i) {
+    testDriver.setRegister("IR", i);
+  }
+
+  @Override
   public byte in(int port) {
     return -1;
   }
@@ -164,6 +184,12 @@ public class ConnectedZ80CPU implements IZ80CPU {
         break;
       case "CALL nn":
         testDriver.addInstruction((byte) 0xCD, (byte) (operands[0] & 0xFF), (byte) ((operands[0] >> 8) & 0xFF));
+        break;
+      case "ADD HL,BC":
+        testDriver.addInstruction((byte) 0x09);
+        break;
+      case "INC DE":
+        testDriver.addInstruction((byte) 0x13);
         break;
     }
 

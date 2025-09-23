@@ -41,18 +41,7 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
       boolean pendingEvent = lastEvents != null;
 
       Runnable lastEvents1 = () -> {
-        int time1;
-        if (fetching != 0)
-          time1 = 4 - (fetching == 2 ? 1 : 0);
-        else
-          time1 = 3;
-
-
-        phaseProcessor.addMultipleMc(1, time1, 0, address.intValue());
-        phaseProcessor.addMr(address, value);
-
-        phaseProcessor.setAddress(address);
-        phaseProcessor.processPhase(new AfterMR());
+        processEvent(address, value, fetching);
       };
 
       boolean requiresDelay = fetching == 2 || delta == 3;
@@ -68,5 +57,28 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
       if (requiresDelay)
         lastEvents = lastEvents1;
     }
+  }
+
+  protected void processEvent(T address, T value, int fetching) {
+    int time1 = getTime(fetching);
+
+    addMc(address, time1);
+    phaseProcessor.addMr(address, value);
+
+    phaseProcessor.setAddress(address);
+    phaseProcessor.processPhase(new AfterMR());
+  }
+
+  protected void addMc(T address, int time1) {
+    phaseProcessor.addMultipleMc(1, time1, 0, address.intValue());
+  }
+
+  protected int getTime(int fetching) {
+    int time1;
+    if (fetching != 0)
+      time1 = 4 - (fetching == 2 ? 1 : 0);
+    else
+      time1 = 3;
+    return time1;
   }
 }

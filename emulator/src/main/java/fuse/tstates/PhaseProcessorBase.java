@@ -54,9 +54,9 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
     return cpu.getState();
   }
 
-  public void addMultipleMc(int x, int time1, int delta, int i1) {
+  public void addMultipleMc(int x, int time1, int delta, int baseAddress) {
     for (int i = 0; i < x; i++) {
-      getAddEvent(new Event(time1, "MC", i1 + delta, null));
+      getAddEvent(new Event(time1, "MC", baseAddress + delta, null));
     }
   }
 

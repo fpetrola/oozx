@@ -24,5 +24,13 @@ public interface IZ80CPU {
     void setSP(int i);
 
     void setDE(int i);
+
+    void setBC(int i);
+
+    int getHL();
+
+    int getDE();
+
+    void setIR(int i);
 }
 

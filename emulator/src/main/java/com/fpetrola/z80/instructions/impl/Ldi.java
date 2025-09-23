@@ -57,8 +57,8 @@ public class Ldi<T extends WordNumber> extends BlockInstruction<T> {
   }
 
   public int execute() {
-    memory.disableReadListener();
-    memory.disableWriteListener();
+//    memory.disableReadListener();
+//    memory.disableWriteListener();
     T read = memory.read(hl.read(), 0);
     memory.write(de.read(), read);
 
@@ -66,8 +66,8 @@ public class Ldi<T extends WordNumber> extends BlockInstruction<T> {
     bc.decrement();
 
     flagOperation(read);
-    memory.enableReadListener();
-    memory.enableWriteListener();
+//    memory.enableReadListener();
+//    memory.enableWriteListener();
 
     return 1;
   }

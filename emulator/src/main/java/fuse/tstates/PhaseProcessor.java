@@ -280,7 +280,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   private Optional<Boolean> matchesTstate(int i) {
-    long l = getState().tstates - initialTStates;
+    long l = getState().tstates2 - initialTStates;
     return Optional.ofNullable(l == i ? true : null);
   }
 
@@ -288,7 +288,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   public boolean visitingCall(Call tCall) {
     phase.accept(new DefaultPhaseVisitor() {
       public void visit(BeforeWrite beforeWrite) {
-        matchesTstate(10).ifPresent(x -> addMc(1, IR, 1));
+        matchesTstate(10).ifPresent(x -> addMc(1, PC, 2));
       }
     });
 

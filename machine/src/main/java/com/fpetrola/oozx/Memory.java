@@ -20,7 +20,10 @@ package com.fpetrola.oozx;// Memory.java: Memory access routines
 // Author contact information:
 // E-mail: philip-fuse@shadowmagic.org.uk
 
+import java.text.MessageFormat;
 import java.util.*;
+
+import static java.text.MessageFormat.format;
 
 // Assuming ported dependencies:
 // - Libspectrum (Snap, Machine, MachineCapability)
@@ -292,7 +295,10 @@ public class Memory {
         }
 
         if (mapping.contended) {
-            Spectrum.tstates += Ula.contention[(int) Spectrum.tstates];
+            byte tstates = Ula.contention[(int) Spectrum.tstates];
+            if (tstates > 0)
+                System.out.println(format("{0} -> adding readByte tstates: {1}", Spectrum.tstates, tstates));
+          Spectrum.tstates += tstates;
         }
         Spectrum.tstates += 3;
 
@@ -325,8 +331,14 @@ public class Memory {
             Debugger.check(DebuggerBreakpointType.WRITE, address);
         }
 
+        boolean b1 = !Machine.current.id.equals("plus3");
+        if (!b1)
+            System.out.println("SDGsddsh...");
         if (mapping.contended) {
-            Spectrum.tstates += Ula.contention[(int) Spectrum.tstates];
+            byte tstates = Ula.contention[(int) Spectrum.tstates];
+            if (tstates > 0)
+                System.out.println(format("{0} -> adding writeByte tstates: {1}", Spectrum.tstates, tstates));
+          Spectrum.tstates += tstates;
         }
         Spectrum.tstates += 3;
 

@@ -38,7 +38,7 @@ public class TestDriver {
   }
 
   public int getRegister(String name) {
-    return (int) commandHandler.executeCommand(new GetRegisterValue(name));
+    return commandHandler.executeCommand(new GetRegisterValue(name)) & 0xffff;
   }
 
   public void setRegister(String name, int value) {

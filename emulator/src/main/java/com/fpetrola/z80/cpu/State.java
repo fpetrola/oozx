@@ -32,11 +32,13 @@ import java.util.stream.Stream;
 import static com.fpetrola.z80.cpu.State.InterruptionMode.IM0;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.*;
+import static java.text.MessageFormat.format;
 
 public class State<T extends WordNumber> {
   private RunState runState;
   private final ArrayList<Event> events = new ArrayList<>();
   public long tstates;
+  public long tstates2;
 
   public long getTStatesSinceCpuStart() {
     return tstates;
@@ -49,12 +51,17 @@ public class State<T extends WordNumber> {
   public void addEvent(Event event) {
     int time = event.getTime();
     event.setTime((int) tstates);
+    if (time > 0)
+      System.out.println(format("{0} -> adding event tstates: {1}", tstates, time));
     tstates += time;
+
+    tstates2 += time;
     events.add(event);
   }
 
   public void reset() {
     tstates = 0;
+    tstates2 = 0;
     getEvents().clear();
     Stream.of(values()).forEach(r -> r(r).write(createValue(0xFFFF)));
     getRegister(IR).write(createValue(0));

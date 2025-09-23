@@ -19,6 +19,7 @@
 package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.*;
+import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -28,7 +29,7 @@ import com.sun.jna.Pointer;
 
 public class LocalLibretroCore implements LibretroCore {
 
-  public static boolean contended= true;
+  public static boolean noContended = false;
 
   public LocalLibretroCore() {
     Fuse.fuseInit(new String[]{});
@@ -122,29 +123,27 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public int retro_get_memory_data(int id) {
-    contended= false;
+    noContended = true;
     int i = getMemory().read(WordNumber.createValue(id), 0).intValue();
-    contended= true;
+    noContended = false;
     return i;
   }
 
   public int retro_get_memory_data_contended(int id) {
-    contended= true;
     int i = getMemory().read(WordNumber.createValue(id), 0).intValue();
-    contended= true;
     return i;
   }
 
   public void retro_set_memory_data(int address, int id) {
-    contended= false;
+    noContended = true;
     getMemory().write(WordNumber.createValue(address), WordNumber.createValue(id));
-    contended= true;
+    noContended = false;
   }
 
   public void retro_set_memory_data_contended(int address, int id) {
-    contended= true;
+    DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) Z80.ooz80.getInstructionFetcher();
+    instructionFetcher.instruction2 = null;
     getMemory().write(WordNumber.createValue(address), WordNumber.createValue(id));
-    contended= true;
   }
 
   public long retro_get_memory_size(int id) {
@@ -154,7 +153,7 @@ public class LocalLibretroCore implements LibretroCore {
   public void retro_set_register_data(String register, int value) {
     if (register.equals("tstates")) {
       Spectrum.tstates = value;
-      Z80.ooz80.getState().tstates= value;
+      Z80.ooz80.getState().tstates = value;
     } else
       getRegister(register).write(WordNumber.createValue(value));
   }
@@ -184,21 +183,21 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_select_machine(String name) {
-      Libspectrum.Machine a = Libspectrum.Machine._48K;
+    Libspectrum.Machine a = Libspectrum.Machine._48K;
 
-      if (name.equals("48K")) {
-        a = Libspectrum.Machine._48K;
-      } else if (name.equals("48K NTSC")) {
-        a = Libspectrum.Machine._48K_NTSC;
-      } else if (name.equals("128K")) {
-        a = Libspectrum.Machine._128K;
-      } else if (name.equals("PLUS2")) {
-        a = Libspectrum.Machine.PLUS2;
-      } else if (name.equals("+3")) {
-        a = Libspectrum.Machine.PLUS3;
-      }
+    if (name.equals("48K")) {
+      a = Libspectrum.Machine._48K;
+    } else if (name.equals("48K NTSC")) {
+      a = Libspectrum.Machine._48K_NTSC;
+    } else if (name.equals("128K")) {
+      a = Libspectrum.Machine._128K;
+    } else if (name.equals("PLUS2")) {
+      a = Libspectrum.Machine.PLUS2;
+    } else if (name.equals("+3")) {
+      a = Libspectrum.Machine.PLUS3;
+    }
 
-      Machine.select(a.ordinal());
+    Machine.select(a.ordinal());
   }
 
   public void retro_if1_page(boolean in) {
