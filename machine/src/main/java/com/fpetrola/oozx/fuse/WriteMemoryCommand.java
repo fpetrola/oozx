@@ -23,7 +23,7 @@ import com.sun.jna.Structure;
 import java.util.List;
 
 // WriteMemoryCommand
-public class WriteMemoryCommand extends Structure implements EmulatorCommand {
+public class WriteMemoryCommand extends Structure implements EmulatorCommand<Object> {
   public int address;
   public int value;
   public boolean contended;
@@ -44,5 +44,14 @@ public class WriteMemoryCommand extends Structure implements EmulatorCommand {
             "address=" + String.format("%04X", address) +
             ", value=" + String.format("%02X", value) +
             '}';
+  }
+
+  public Object execute(LibretroCore core) {
+    if (contended) {
+      core.retro_set_memory_data_contended(address, value);
+    } else
+      core.retro_set_memory_data(address, value);
+
+    return null;
   }
 }

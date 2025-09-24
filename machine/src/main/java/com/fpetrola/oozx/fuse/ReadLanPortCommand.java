@@ -18,5 +18,8 @@
 
 package com.fpetrola.oozx.fuse;
 
-public class ReadLanPortCommand implements EmulatorCommand {
+public class ReadLanPortCommand implements EmulatorCommand<Integer> {
+  public Integer execute(LibretroCore core) {
+    return core.retro_read_lan_port();
+  }
 }

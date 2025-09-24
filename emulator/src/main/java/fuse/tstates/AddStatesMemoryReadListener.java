@@ -70,7 +70,7 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
   }
 
   protected void addMc(T address, int time1) {
-    phaseProcessor.addMultipleMc(1, time1, 0, address.intValue());
+    phaseProcessor.addMultipleMc(1, time1, 0, address.intValue(), "readbyte");
   }
 
   protected int getTime(int fetching) {

@@ -3,6 +3,8 @@ package model.tests;
 import com.fpetrola.oozx.fuse.*;
 import machine.MachineTypes;
 
+import java.util.List;
+
 public class TestDriver {
   private final CommandHandler commandHandler;
 
@@ -41,8 +43,8 @@ public class TestDriver {
     return (int) commandHandler.executeCommand(new GetRegisterValue(name)) & 0xffff;
   }
 
-  public int getTstatesHistory() {
-    return (int) commandHandler.executeCommand(new GetTStatesHistory());
+  public List<TStateUpdate> getTstatesHistory() {
+    return (List<TStateUpdate>) commandHandler.executeCommand(new GetTStatesHistory());
   }
 
   public void tstatesHistoryInit() {

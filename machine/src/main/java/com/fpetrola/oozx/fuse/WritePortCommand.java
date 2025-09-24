@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx.fuse;
 
-public class WritePortCommand implements EmulatorCommand {
+public class WritePortCommand implements EmulatorCommand<Object> {
   public final int port;
   public final int value;
   public final boolean contended;
@@ -27,5 +27,14 @@ public class WritePortCommand implements EmulatorCommand {
     this.port = port;
     this.value = value;
     this.contended = contended;
+  }
+
+  public Object execute(LibretroCore core) {
+    if (contended) {
+      core.retro_write_port(port, value);
+    } else
+      core.retro_write_port(port, value);
+
+    return null;
   }
 }

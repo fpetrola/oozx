@@ -18,10 +18,7 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.fuse.FuseScreen;
-import com.fpetrola.oozx.fuse.LibretroCore;
-import com.fpetrola.oozx.fuse.LocalLibretroCore;
-import com.fpetrola.oozx.fuse.Z80Loader;
+import com.fpetrola.oozx.fuse.*;
 import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.OOZ80;
@@ -35,6 +32,7 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
 import fuse.tstates.PhaseProcessor;
+import fuse.tstates.phases.BeforeWrite;
 
 import javax.swing.*;
 import java.awt.event.KeyListener;
@@ -85,19 +83,41 @@ public class Z80 {
     Memory<WordNumber> memory = (Memory<WordNumber>) state.getMemory();
 
     phaseProcessor = new PhaseProcessor<>(ooz80) {
-      public void addMultipleMc(int x, int time1, int delta, int baseAddress) {
+      public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
         for (int i = 0; i < x; i++) {
           int address = baseAddress + delta;
           boolean b1 = !Machine.current.id.equals("plus3");
           if (b1 && mapRead[baseAddress >> PAGE_SIZE_LOGARITHM].contended) {
             byte tstates = Ula.contentionNoMreq[(int) state.tstates];
-            if (tstates > 0)
-              System.out.println("adding Ula.contentionNoMreq: "+ tstates);
-            state.tstates += tstates;
+            if (tstates > 0) {
+              LocalLibretroCore.getTstatesUpdates().add(new TStateUpdate((int) getState().tstates, tstates, "ula contend_read_no_mreq"));
+              state.tstates += tstates;
+            }
           }
-          getAddEvent(new Event(time1, "MC", baseAddress + delta, null));
+          getAddEvent(new Event(time1, "MC", baseAddress + delta, null, description));
         }
         //        Spectrum.tstates= state.tstates;
+      }
+
+      @Override
+      protected void getAddEvent(Event event) {
+        if (event.getTime() > 0) {
+          String description = getDescription(event);
+          LocalLibretroCore.getTstatesUpdates().add(new TStateUpdate((int) getState().tstates, event.getTime(), description));
+        }
+        getState().addEvent(event);
+      }
+
+      private String getDescription(Event event) {
+        if (event.description != null)
+          return event.description;
+
+        return switch (event.getType()) {
+          case "MR" -> "contend_read";
+          case "MW" -> "contend_write";
+          case "MC" -> processing ? "contend_read_no_mreq" : "contend_read";
+          default -> "unknown";
+        };
       }
     };
 
@@ -114,7 +134,7 @@ public class Z80 {
       private void processUlaContention(WordNumber address) {
         Spectrum.tstates = state.tstates;
         com.fpetrola.oozx.Memory.readByte(address.intValue());
-        Spectrum.tstates -= 3;
+//        Spectrum.tstates -= 3;
         state.tstates = Spectrum.tstates;
       }
 
@@ -127,16 +147,18 @@ public class Z80 {
         if (LocalLibretroCore.noContended)
           return;
 
+        this.phaseProcessor.processPhase(new BeforeWrite());
         processUlaContention(address, value);
+        this.phaseProcessor.addMultipleMc(1, 3, 0, address.intValue(), "writebyte");
+        this.phaseProcessor.addMw(address, value);
 
-        super.writtingMemoryAt(address, value);
         Spectrum.tstates = state.tstates;
       }
 
       private void processUlaContention(WordNumber address, WordNumber value) {
         Spectrum.tstates = state.tstates;
         com.fpetrola.oozx.Memory.writeByte(address.intValue(), (byte) value.intValue());
-        Spectrum.tstates -= 3;
+//        Spectrum.tstates -= 3;
         state.tstates = Spectrum.tstates;
       }
     });

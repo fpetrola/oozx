@@ -18,16 +18,13 @@
 
 package com.fpetrola.oozx.fuse;
 
-import com.fpetrola.oozx.fuse.LibretroCore.KVPair;
 import com.sun.jna.*;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
 
 public class FuseLibretroExample {
   LibretroCore core = LibretroCore.INSTANCE;
@@ -118,59 +115,38 @@ public class FuseLibretroExample {
     return resp;
   }
 
-  private Integer executeCommand(EmulatorCommand command, LibretroCore core) {
+  private Object executeCommand(EmulatorCommand command, LibretroCore core) {
     if (command instanceof WriteMemoryCommand writeMemory) {
-      if (writeMemory.contended) {
-        core.retro_set_memory_data_contended(writeMemory.address, writeMemory.value);
-      } else
-        core.retro_set_memory_data(writeMemory.address, writeMemory.value);
+      writeMemory.execute(core);
       return null;
     } else if (command instanceof ReadMemoryCommand readMemoryCommand) {
-      if (readMemoryCommand.contended) {
-        return core.retro_get_memory_data_contended(readMemoryCommand.address);
-      } else
-        return core.retro_get_memory_data(readMemoryCommand.address);
+      return readMemoryCommand.execute(core);
     } else if (command instanceof ContinueExecutionCommand) {
       return null;
     } else if (command instanceof SetRegisterValue setRegisterValue) {
-      core.retro_set_register_data(setRegisterValue.name, setRegisterValue.value);
+      setRegisterValue.execute(core);
       return null;
     } else if (command instanceof GetRegisterValue getRegisterValue) {
-      return core.retro_get_register_data(getRegisterValue.name);
+      return getRegisterValue.execute(core);
     } else if (command instanceof WritePortCommand writePortCommand) {
-      if (writePortCommand.contended) {
-        core.retro_write_port(writePortCommand.port, writePortCommand.value);
-      } else
-        core.retro_write_port(writePortCommand.port, writePortCommand.value);
+      writePortCommand.execute(core);
       return null;
     } else if (command instanceof SetMachineModel setMachineModel) {
-      core.retro_select_machine(setMachineModel.model);
+      setMachineModel.execute(core);
       return null;
     } else if (command instanceof If1Page if1PageIn) {
-        core.retro_if1_page(if1PageIn.in);
+      if1PageIn.execute(core);
       return null;
     } else if (command instanceof ReadLanPortCommand readLanPortCommand) {
-      return core.retro_read_lan_port();
+      return readLanPortCommand.execute(core);
     } else if (command instanceof GetBeamX getBeamPosition) {
-      return core.retro_get_beam_x();
+      return getBeamPosition.execute(core);
     } else if (command instanceof GetBeamY getBeamPosition) {
-      return core.retro_get_beam_y();
+      return getBeamPosition.execute(core);
     } else if (command instanceof GetTStatesHistory getTStatesHistory) {
-      Pointer pData = core.retro_tstates_history();
-
-      KVPair first = new KVPair(pData);
-      KVPair[] pairs = (KVPair[]) first.toArray(40);
-
-      Map<Integer, Integer> out= new TreeMap<>();
-      for (KVPair kv : pairs) {
-        kv.read(); // garantiza que los campos están sincronizados desde la memoria nativa
-        out.put(kv.key, kv.value);
-        System.out.println(kv.description);
-      }
-      
-      return 1;
+      return getTStatesHistory.execute(core);
     } else if (command instanceof TStatesHistoryInit getTStatesHistory) {
-      core.retro_tstates_history_init();
+      getTStatesHistory.execute(core);
       return null;
     }
 

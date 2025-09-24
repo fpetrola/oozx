@@ -18,5 +18,9 @@
 
 package com.fpetrola.oozx.fuse;
 
-public class TStatesHistoryInit implements EmulatorCommand {
+public class TStatesHistoryInit implements EmulatorCommand<Object> {
+  public Object execute(LibretroCore core) {
+    core.retro_tstates_history_init();
+    return null;
+  }
 }

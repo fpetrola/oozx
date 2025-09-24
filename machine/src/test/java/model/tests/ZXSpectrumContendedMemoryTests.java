@@ -1,12 +1,15 @@
 package model.tests;
 
 import com.fpetrola.oozx.fuse.CommandHandler;
+import com.fpetrola.oozx.fuse.TStateUpdate;
 import model.connected.*;
 import model.interfaces.IMicrodrive;
 import model.interfaces.ISpectrumBus;
 import model.interfaces.IZ80CPU;
 import model.interfaces.IZXInterface1;
 import org.junit.jupiter.api.*;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -52,6 +55,7 @@ public class ZXSpectrumContendedMemoryTests {
 //    cpu.setPC(0xA000);
 //    testDriver.spectrum.z80.setExecDone(true);
     testDriver.updatePC(0xA000);
+    testDriver.tstatesHistoryInit();
   }
 
 
@@ -91,6 +95,15 @@ public class ZXSpectrumContendedMemoryTests {
     cpu.executeInstruction("LD (HL),A", null);
     assertEquals(initialTStates + 4 + 6 + 3 + 4, cpu.getTStates()); // Fetch + delay + write + delay, total +17
     assertEquals((byte) 0xAA, bus.readMemory(26000));
+
+    assertTStatesHistory("""
+        [TStateUpdate{key=14335, value=6, description='ula readbyte'}
+        , TStateUpdate{key=14341, value=4, description='readbyte'}
+        , TStateUpdate{key=14345, value=4, description='ula writebyte'}
+        , TStateUpdate{key=14349, value=3, description='writebyte'}
+        , TStateUpdate{key=14352, value=5, description='ula readbyte'}
+        , TStateUpdate{key=14357, value=3, description='readbyte'}
+        ]""");
   }
 
   @Test
@@ -101,6 +114,19 @@ public class ZXSpectrumContendedMemoryTests {
     cpu.executeInstruction("INC (HL)", null);
     assertEquals(initialTStates + (3 + 6) + (4) + (3 + 1) + (1 + 5) + (3 + 0), cpu.getTStates()); // Fetch + delay + read + delay + modify + write + delay, total +17
     assertEquals((byte) 0x11, bus.readMemory(0x4000));
+
+    assertTStatesHistory("""
+        [TStateUpdate{key=14335, value=6, description='ula writebyte'}
+        , TStateUpdate{key=14341, value=3, description='writebyte'}
+        , TStateUpdate{key=14344, value=4, description='readbyte'}
+        , TStateUpdate{key=14348, value=1, description='ula readbyte'}
+        , TStateUpdate{key=14349, value=3, description='readbyte'}
+        , TStateUpdate{key=14352, value=5, description='ula contend_read_no_mreq'}
+        , TStateUpdate{key=14357, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14358, value=3, description='writebyte'}
+        , TStateUpdate{key=14361, value=4, description='ula readbyte'}
+        , TStateUpdate{key=14365, value=3, description='readbyte'}
+        ]""");
   }
 
   @Test
@@ -130,6 +156,14 @@ public class ZXSpectrumContendedMemoryTests {
     cpu.executeInstruction("LD (HL),A", null);
     assertEquals(initialTStates + 4 + 6 + 3 + 4, cpu.getTStates()); // Fetch + delay + write + delay, total +17 (early equivalent)
     assertEquals((byte) 0xBB, bus.readMemory(26000));
+    assertTStatesHistory("""
+        [TStateUpdate{key=14335, value=6, description='ula readbyte'}
+        , TStateUpdate{key=14341, value=4, description='readbyte'}
+        , TStateUpdate{key=14345, value=4, description='ula writebyte'}
+        , TStateUpdate{key=14349, value=3, description='writebyte'}
+        , TStateUpdate{key=14352, value=5, description='ula readbyte'}
+        , TStateUpdate{key=14357, value=3, description='readbyte'}
+        ]""");
   }
 
   // 128K/+2 Tests
@@ -497,9 +531,22 @@ public class ZXSpectrumContendedMemoryTests {
 //    int i = (4 + 0) + 3 + 3 + 1 + 3 + 2 - 5;
 //    i+= 8;
 
+    assertTStatesHistory("""
+        [TStateUpdate{key=14366, value=4, description='ula writebyte'}
+        , TStateUpdate{key=14370, value=3, description='writebyte'}
+        , TStateUpdate{key=14373, value=4, description='readbyte'}
+        , TStateUpdate{key=14377, value=1, description='ula readbyte'}
+        , TStateUpdate{key=14378, value=3, description='readbyte'}
+        , TStateUpdate{key=14381, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14382, value=4, description='ula writebyte'}
+        , TStateUpdate{key=14386, value=3, description='writebyte'}
+        ]""");
     assertEquals(initialTStates + i, cpu.getTStates()); // Fetch + delay + read + delay + modify + write + delay, total +20
     assertEquals((byte) 0x41, testDriver.readMemory(0xC000, true));
-    int tstatesHistory = testDriver.getTstatesHistory();
+  }
+
+  private void assertTStatesHistory(String x) {
+    assertEquals(x.trim(), testDriver.getTstatesHistory().toString().trim());
   }
 
   @Test
@@ -512,6 +559,18 @@ public class ZXSpectrumContendedMemoryTests {
     cpu.executeInstruction("CALL nn", new int[]{0x3000});
     assertEquals(initialTStates + (4 + 6) + (3 + 5) + (3 + 4) + 1 + 3 + 3, cpu.getTStates()); // Fetch+delay + pc+1+delay + pc+2+delay + internal + sp-1+delay + sp-2+delay, total +29
     assertEquals(0x3000, cpu.getPC());
+
+    assertTStatesHistory("""
+        [TStateUpdate{key=14364, value=6, description='ula readbyte'}
+        , TStateUpdate{key=14370, value=4, description='readbyte'}
+        , TStateUpdate{key=14374, value=4, description='ula readbyte'}
+        , TStateUpdate{key=14378, value=3, description='readbyte'}
+        , TStateUpdate{key=14381, value=5, description='ula readbyte'}
+        , TStateUpdate{key=14386, value=3, description='readbyte'}
+        , TStateUpdate{key=14389, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14390, value=3, description='writebyte'}
+        , TStateUpdate{key=14393, value=3, description='writebyte'}
+        ]""");
   }
 
   // Mixed Model Tests
@@ -612,6 +671,7 @@ public class ZXSpectrumContendedMemoryTests {
   // 128K Tests
   @Test
   void test128KAddHLBCT14361() {
+    testDriver.tstatesHistoryInit();
     int initialTStates = setupModel("128K", 14361);
     cpu.setHL(0x1234);
     cpu.setBC(0x5678);
@@ -619,6 +679,20 @@ public class ZXSpectrumContendedMemoryTests {
     cpu.executeInstruction("ADD HL,BC", null);
     assertEquals(initialTStates + 11 + 20, cpu.getTStates(), "T-states for ADD HL,BC");
     assertEquals(0x68AC, cpu.getHL(), "HL value after ADD");
+    assertTStatesHistory("""
+        [TStateUpdate{key=14361, value=4, description='readbyte'}
+        , TStateUpdate{key=14365, value=2, description='ula contend_read_no_mreq'}
+        , TStateUpdate{key=14367, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14368, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14369, value=6, description='ula contend_read_no_mreq'}
+        , TStateUpdate{key=14375, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14376, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14377, value=6, description='ula contend_read_no_mreq'}
+        , TStateUpdate{key=14383, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14384, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14385, value=6, description='ula contend_read_no_mreq'}
+        , TStateUpdate{key=14391, value=1, description='contend_read_no_mreq'}
+        ]""");
   }
 
   @Test
@@ -693,7 +767,7 @@ public class ZXSpectrumContendedMemoryTests {
     cpu.setRegisterA((byte) 0xBB);
     cpu.executeInstruction("ADD HL,BC", null); // 11 T-states
     cpu.executeInstruction("LD (HL),A", null); // 7 + contention (1 at T=14361+11=14372)
-    assertEquals(initialTStates + 11 + 7 + 1 +1, cpu.getTStates(), "T-states with contention");
+    assertEquals(initialTStates + 11 + 7 + 1 + 1, cpu.getTStates(), "T-states with contention");
     assertEquals((byte) 0xBB, bus.readMemory(0xC001), "Memory value after LD");
   }
 

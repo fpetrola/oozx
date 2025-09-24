@@ -18,10 +18,15 @@
 
 package com.fpetrola.oozx.fuse;
 
-public class If1Page implements EmulatorCommand {
+public class If1Page implements EmulatorCommand<Object> {
   public final boolean in;
 
   public If1Page(boolean in) {
     this.in = in;
+  }
+
+  public Object execute(LibretroCore core) {
+    core.retro_if1_page(in);
+    return null;
   }
 }

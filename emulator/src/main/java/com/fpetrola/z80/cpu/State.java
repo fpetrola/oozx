@@ -51,8 +51,9 @@ public class State<T extends WordNumber> {
   public void addEvent(Event event) {
     int time = event.getTime();
     event.setTime((int) tstates);
-    if (time > 0)
+    if (time > 0) {
       System.out.println(format("{0} -> adding event tstates: {1}", tstates, time));
+    }
     tstates += time;
 
     tstates2 += time;

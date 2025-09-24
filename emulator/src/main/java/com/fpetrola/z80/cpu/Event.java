@@ -22,6 +22,7 @@ import java.util.Objects;
 
 // Represents a memory or port event in the output file
 public class Event {
+    public String description;
     private int time;
     private String type; // MR, MW, MC, PR, PW, PC
     private int address;
@@ -32,6 +33,11 @@ public class Event {
         this.type = type;
         this.address = address;
         this.data = data;
+    }
+
+    public Event(int time1, String mc, int address, Integer data, String description) {
+        this(time1, mc, address, data);
+        this.description= description;
     }
 
     public int getTime() {

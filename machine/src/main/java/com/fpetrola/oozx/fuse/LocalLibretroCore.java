@@ -27,12 +27,24 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.sun.jna.Pointer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LocalLibretroCore implements LibretroCore {
 
   public static boolean noContended = false;
+  private static List<TStateUpdate> tstatesUpdates= new ArrayList<>();
 
   public LocalLibretroCore() {
     Fuse.fuseInit(new String[]{});
+  }
+
+  public static List<TStateUpdate> getTstatesUpdates() {
+    return tstatesUpdates;
+  }
+
+  public static void setTstatesUpdates(List<TStateUpdate> tstatesUpdates) {
+    LocalLibretroCore.tstatesUpdates = tstatesUpdates;
   }
 
   public int retro_get_beam_x() {
@@ -215,6 +227,6 @@ public class LocalLibretroCore implements LibretroCore {
 
   @Override
   public void retro_tstates_history_init() {
-
+    LocalLibretroCore.tstatesUpdates.clear();
   }
 }

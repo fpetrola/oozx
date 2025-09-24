@@ -18,24 +18,22 @@
 
 package com.fpetrola.oozx.fuse;
 
-public class SetRegisterValue implements EmulatorCommand<Object> {
-  public final String name;
+public class TStateUpdate {
+  public final int key;
   public final int value;
+  public final String description;
 
-  public SetRegisterValue(String name, int value) {
-    this.name = name;
+  public TStateUpdate(int key, int value, String description) {
+    this.key = key;
     this.value = value;
+    this.description = description;
   }
 
   public String toString() {
-    return "SetRegisterValue{" +
-            "name='" + name + '\'' +
-            ", value=" + String.format("%02X", value) +
-            '}';
-  }
-
-  public Object execute(LibretroCore core) {
-    core.retro_set_register_data(name, value);
-    return null;
+    return "TStateUpdate{" +
+        "key=" + key +
+        ", value=" + value +
+        ", description='" + description + '\'' +
+        "}\n";
   }
 }

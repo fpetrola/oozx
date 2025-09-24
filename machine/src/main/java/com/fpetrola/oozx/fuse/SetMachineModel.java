@@ -18,10 +18,15 @@
 
 package com.fpetrola.oozx.fuse;
 
-public class SetMachineModel implements EmulatorCommand {
+public class SetMachineModel implements EmulatorCommand<Object> {
   public final String model;
 
   public SetMachineModel(String model) {
     this.model = model;
+  }
+
+  public Object execute(LibretroCore core) {
+    core.retro_select_machine(model);
+    return null;
   }
 }

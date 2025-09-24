@@ -41,6 +41,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   protected Phase phase;
   protected T address;
   public long initialTStates;
+  protected boolean processing;
 
   public PhaseProcessorBase(Z80Cpu<T> cpu) {
     this.cpu = cpu;
@@ -54,9 +55,9 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
     return cpu.getState();
   }
 
-  public void addMultipleMc(int x, int time1, int delta, int baseAddress) {
+  public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
     for (int i = 0; i < x; i++) {
-      getAddEvent(new Event(time1, "MC", baseAddress + delta, null));
+      getAddEvent(new Event(time1, "MC", baseAddress + delta, null, description));
     }
   }
 
@@ -70,9 +71,9 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
 
   public void addMc14Or19(T address) {
     if (getState().tstates == 14) {
-      addMultipleMc(2, 1, 3, getRegister(PC).read().intValue());
+      addMultipleMc(2, 1, 3, getRegister(PC).read().intValue(), null);
     } else if (getState().tstates == 19) {
-      addMultipleMc(1, 1, 0, address.intValue());
+      addMultipleMc(1, 1, 0, address.intValue(), null);
     }
   }
 
@@ -97,14 +98,17 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   }
 
   protected void addMc(int times, RegisterName registerName, int delta) {
-    addMultipleMc(times, 1, delta, getRegister(registerName).read().intValue());
+    addMultipleMc(times, 1, delta, getRegister(registerName).read().intValue(), null);
   }
 
   public void processPhase(Phase phase) {
+    processing = true;
     DefaultInstructionFetcher<T> instructionFetcher = (DefaultInstructionFetcher<T>) cpu.getInstructionFetcher();
     Instruction<T> instruction2 = instructionFetcher.instruction2;
     setPhase(phase);
     if (instruction2 != null)
       instruction2.accept(this);
+
+    processing = false;
   }
 }

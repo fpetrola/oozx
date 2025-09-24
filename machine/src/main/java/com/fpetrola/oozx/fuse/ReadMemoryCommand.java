@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx.fuse;
 
-public class ReadMemoryCommand implements EmulatorCommand {
+public class ReadMemoryCommand implements EmulatorCommand<Integer> {
   public final int address;
   public final boolean contended;
 
@@ -32,5 +32,12 @@ public class ReadMemoryCommand implements EmulatorCommand {
         "address=" + String.format("%04X", address) +
         ", contended=" + contended +
         '}';
+  }
+
+  public Integer execute(LibretroCore core) {
+    if (contended) {
+      return core.retro_get_memory_data_contended(address);
+    } else
+      return core.retro_get_memory_data(address);
   }
 }

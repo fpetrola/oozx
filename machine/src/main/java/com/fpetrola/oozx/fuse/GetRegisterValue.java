@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx.fuse;
 
-public class GetRegisterValue implements EmulatorCommand {
+public class GetRegisterValue implements EmulatorCommand<Integer> {
   public final String name;
 
   public GetRegisterValue(String name) {
@@ -29,5 +29,9 @@ public class GetRegisterValue implements EmulatorCommand {
     return "GetRegisterValue{" +
             "name='" + name + '\'' +
             '}';
+  }
+
+  public Integer execute(LibretroCore core) {
+    return core.retro_get_register_data(name);
   }
 }

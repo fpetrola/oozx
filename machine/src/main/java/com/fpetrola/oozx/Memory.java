@@ -20,7 +20,9 @@ package com.fpetrola.oozx;// Memory.java: Memory access routines
 // Author contact information:
 // E-mail: philip-fuse@shadowmagic.org.uk
 
-import java.text.MessageFormat;
+import com.fpetrola.oozx.fuse.LocalLibretroCore;
+import com.fpetrola.oozx.fuse.TStateUpdate;
+
 import java.util.*;
 
 import static java.text.MessageFormat.format;
@@ -296,11 +298,14 @@ public class Memory {
 
         if (mapping.contended) {
             byte tstates = Ula.contention[(int) Spectrum.tstates];
-            if (tstates > 0)
-                System.out.println(format("{0} -> adding readByte tstates: {1}", Spectrum.tstates, tstates));
+            if (tstates > 0) {
+              System.out.println(format("{0} -> adding readByte tstates: {1}", Spectrum.tstates, tstates));
+              LocalLibretroCore.getTstatesUpdates().add(new TStateUpdate((int) Spectrum.tstates, tstates, "ula readbyte"));
+            }
           Spectrum.tstates += tstates;
         }
-        Spectrum.tstates += 3;
+//      LocalLibretroCore.tstatesUpdates.add(new TStateUpdate((int) Spectrum.tstates, 3, "readbyte"));
+//      Spectrum.tstates += 3;
 
         if (Opus.active && address >= 0x2800 && address < 0x3800) {
             return Opus.read(address);
@@ -336,11 +341,14 @@ public class Memory {
             System.out.println("SDGsddsh...");
         if (mapping.contended) {
             byte tstates = Ula.contention[(int) Spectrum.tstates];
-            if (tstates > 0)
-                System.out.println(format("{0} -> adding writeByte tstates: {1}", Spectrum.tstates, tstates));
+            if (tstates > 0) {
+//              System.out.println(format("{0} -> adding writeByte tstates: {1}", Spectrum.tstates, tstates));
+              LocalLibretroCore.getTstatesUpdates().add(new TStateUpdate((int) Spectrum.tstates, tstates, "ula writebyte"));
+            }
           Spectrum.tstates += tstates;
         }
-        Spectrum.tstates += 3;
+//      LocalLibretroCore.getTstatesUpdates().add(new TStateUpdate((int) Spectrum.tstates, 3, "writebyte"));
+//      Spectrum.tstates += 3;
 
         writeByteInternal(address, b);
     }

@@ -18,5 +18,28 @@
 
 package com.fpetrola.oozx.fuse;
 
-public class GetTStatesHistory implements EmulatorCommand {
+import com.sun.jna.Pointer;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
+  public List<TStateUpdate> execute(LibretroCore core) {
+    Pointer pData = core.retro_tstates_history();
+    List<TStateUpdate> out = new ArrayList<>();
+    if (pData == null) {
+      out.addAll(LocalLibretroCore.getTstatesUpdates());
+    } else {
+      LibretroCore.KVPair first = new LibretroCore.KVPair(pData);
+      LibretroCore.KVPair[] pairs = (LibretroCore.KVPair[]) first.toArray(40);
+
+      for (LibretroCore.KVPair kv : pairs) {
+        kv.read();
+        String description = kv.description;
+        if (description != null && !"empty".equals(description))
+          out.add(new TStateUpdate(kv.key, kv.value, description));
+      }
+    }
+    return out;
+  }
 }

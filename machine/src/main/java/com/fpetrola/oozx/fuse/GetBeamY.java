@@ -18,5 +18,8 @@
 
 package com.fpetrola.oozx.fuse;
 
-public class GetBeamY implements EmulatorCommand {
+public class GetBeamY implements EmulatorCommand<Integer> {
+  public Integer execute(LibretroCore core) {
+    return core.retro_get_beam_y();
+  }
 }

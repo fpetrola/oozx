@@ -18,5 +18,8 @@
 
 package com.fpetrola.oozx.fuse;
 
-public interface EmulatorCommand {
+public interface EmulatorCommand<R> {
+  default R execute(LibretroCore core){
+    return null;
+  }
 }
