@@ -3,19 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.fpetrola</groupId>
-        <artifactId>oozx</artifactId>
+        <artifactId>media</artifactId>
         <version>0.0.2-alu-SNAPSHOT</version>
     </parent>
 
-    <artifactId>machine</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>media-tape</artifactId>
+    <packaging>jar</packaging>
 
-    <name>ide</name>
-    <modules>
-        <module>spectrum</module>
-        <module>core</module>
-        <module>ui</module>
-        <module>media</module>
-    </modules>
-
+    <name>The tape deck: TAP, TZX and CSW, the EAR line, and the loader that types LOAD</name>
 </project>
