@@ -20,11 +20,6 @@ public class ConnectedSpectrumBus implements ISpectrumBus {
   }
 
   @Override
-  public void setModel(String model) {
-    this.model = model;
-  }
-
-  @Override
   public void connectComponent(IComponent component) {
     component.connectToBus(this);
     if (component instanceof IPeripheral) {

@@ -34,8 +34,6 @@ public class ZXSpectrumContendedMemoryTests {
   }
 
   private int setupModel(String model, int startTState) {
-    bus.setModel(model);
-    cpu.setModel(model);
 //    testDriver.setTstates(startTState);
     testDriver.setModel(model);
     testDriver.updatePC(0xA000);

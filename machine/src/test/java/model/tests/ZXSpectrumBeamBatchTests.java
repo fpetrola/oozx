@@ -44,7 +44,6 @@ class ZXSpectrumBeamBatchTests {
   }
 
   private int setupModel(String model, int startTState) {
-    bus.setModel(model);
 //    cpu.setModel(model);
     testDriver.setModel(model);
     cpu.setTStates(startTState);

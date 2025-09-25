@@ -79,10 +79,6 @@ public class TestDriver {
 
   }
 
-  public void selectHardwareModel(MachineTypes machineTypes) {
-
-  }
-
   public void writePort(int port, int value) {
     commandHandler.addNoResultCommand(new WritePortCommand(port, value, false));
   }

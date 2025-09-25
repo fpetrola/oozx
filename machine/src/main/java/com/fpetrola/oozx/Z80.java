@@ -47,12 +47,41 @@ public class Z80 {
   public static LibretroCore.bridge_command bridgeCommand;
   private static PhaseProcessor<WordNumber> phaseProcessor;
 
+  private static final ModuleInfo z80ModuleInfo = new ModuleInfo(
+      Z80::reset, // reset
+      null, // romcs
+      null, // snapshotEnabled
+      Z80::fromSnapshot, // snapshotFrom
+      Z80::toSnapshot // snapshotTo
+  );
+
+  private static void reset(int i) {
+    ooz80.reset();
+  }
+
+  private static void toSnapshot(Libspectrum.Snap snap) {
+
+  }
+
+  private static void fromSnapshot(Libspectrum.Snap snap) {
+
+  }
+
   public static void interrupt() {
     ooz80.getState().tstates = Spectrum.tstates;
     ooz80.interruption();
+    ooz80.getState().tstates = 0;
+    Spectrum.tstates = ooz80.getState().tstates;
   }
 
   public static void registerStartup() {
+    StartupManagerModule[] dependencies = {
+        StartupManagerModule.DEBUGGER,
+        StartupManagerModule.EVENT,
+        StartupManagerModule.SETUID
+    };
+    StartupManager.register(StartupManagerModule.Z80, dependencies, Z80::init, null, null);
+
 //    Machine.reset(false);
 
     MiniZXIO io = new MiniZXIO() {
@@ -132,7 +161,6 @@ public class Z80 {
       private void processUlaContention(WordNumber address) {
         Spectrum.tstates = state.tstates;
         com.fpetrola.oozx.Memory.readByte(address.intValue());
-//        Spectrum.tstates -= 3;
         state.tstates = Spectrum.tstates;
       }
 
@@ -156,7 +184,6 @@ public class Z80 {
       private void processUlaContention(WordNumber address, WordNumber value) {
         Spectrum.tstates = state.tstates;
         com.fpetrola.oozx.Memory.writeByte(address.intValue(), (byte) value.intValue());
-//        Spectrum.tstates -= 3;
         state.tstates = Spectrum.tstates;
       }
     });
@@ -178,9 +205,27 @@ public class Z80 {
 //    }
   }
 
+  private static int init(Object o) {
+    int z80_interrupt_event = EventManager.eventRegister(Z80::z80_interrupt_event_fn, "Retriggered interrupt");
+    int z80_nmi_event = EventManager.eventRegister(Z80::z80_nmi, "Non-maskable interrupt");
+    int z80_nmos_iff2_event = EventManager.eventRegister(null, "IFF2 update dummy event");
+
+    Module.register(z80ModuleInfo);
+
+//    z80_debugger_variables_init();
+    return 0;
+  }
+
+  private static void z80_nmi(long l, int i, Object o) {
+
+  }
+
+  private static void z80_interrupt_event_fn(long l, int i, Object o) {
+    ooz80.interruption();
+  }
+
   public static void doOpcodes() {
     ooz80.getState().tstates = Spectrum.tstates;
-    long startTstates = ooz80.getState().tstates;
     while (Spectrum.tstates < EventManager.eventNextEvent) {
       bridgeCommand.invoke(0, null);
       ooz80.getState().tstates = Spectrum.tstates;
@@ -189,9 +234,8 @@ public class Z80 {
       phaseProcessor.initialTStates = Spectrum.tstates;
       ooz80.execute();
       Spectrum.tstates = ooz80.getState().tstates;
-//      tstates += (ooz80.getState().tstates - startTstates);
     }
-//    Spectrum.tstates += tstates;
+    Spectrum.tstates = ooz80.getState().tstates;
   }
 
   private static void updateScreen() {

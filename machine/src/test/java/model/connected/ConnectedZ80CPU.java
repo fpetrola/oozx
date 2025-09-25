@@ -11,24 +11,7 @@ public class ConnectedZ80CPU implements IZ80CPU {
   public ConnectedZ80CPU(TestDriver testDriver) {
     this.testDriver = testDriver;
   }
-
-  @Override
-  public void setModel(String model) {
-    switch (model) {
-      case "48K":
-        testDriver.selectHardwareModel(MachineTypes.SPECTRUM48K);
-        break;
-      case "128K":
-        testDriver.selectHardwareModel(MachineTypes.SPECTRUM128K);
-        break;
-      case "+3":
-        testDriver.selectHardwareModel(MachineTypes.SPECTRUMPLUS3);
-        break;
-      default:
-        throw new IllegalArgumentException("Unsupported model: " + model);
-    }
-  }
-
+  
   @Override
   public void reset() {
     testDriver.resetZ80();

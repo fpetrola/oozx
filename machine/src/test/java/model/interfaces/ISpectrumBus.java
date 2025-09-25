@@ -1,8 +1,6 @@
 package model.interfaces;
 
 public interface ISpectrumBus {
-  void setModel(String model);
-
   void connectComponent(IComponent component);
 
   byte readPort(int port);

@@ -27,6 +27,8 @@ package com.fpetrola.oozx;// Assuming ported dependencies:
 // - Display (dirtySinclair, writeIfDirtySinclair, dirtyFlashingSinclair)
 // - Beta (builtin)
 
+import java.util.Arrays;
+
 public class Spec48 {
 
     // Check if a port is handled by the ULA

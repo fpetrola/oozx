@@ -2,8 +2,6 @@ package model.interfaces;
 
 // Core Components
 public interface IZ80CPU {
-    void setModel(String model);
-
     void reset();
     void executeCycle();
     int getPC();
