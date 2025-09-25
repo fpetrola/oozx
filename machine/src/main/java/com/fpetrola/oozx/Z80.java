@@ -54,9 +54,11 @@ public class Z80 {
       Z80::fromSnapshot, // snapshotFrom
       Z80::toSnapshot // snapshotTo
   );
+  private static MiniZXIO io;
 
   private static void reset(int i) {
     ooz80.reset();
+    loadSnap();
   }
 
   private static void toSnapshot(Libspectrum.Snap snap) {
@@ -81,10 +83,11 @@ public class Z80 {
         StartupManagerModule.SETUID
     };
     StartupManager.register(StartupManagerModule.Z80, dependencies, Z80::init, null, null);
-
 //    Machine.reset(false);
+  }
 
-    MiniZXIO io = new MiniZXIO() {
+  private static void init2() {
+    io = new MiniZXIO() {
       public synchronized WordNumber in(WordNumber port) {
         byte b = Periph.readPort(port.intValue());
         return createValue(b);
@@ -96,19 +99,40 @@ public class Z80 {
     };
     ooz80 = EmulatedMiniZX.createOOZ80(io);
 
-//    MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
     byte[][] bytes = new byte[1000][1000];
     createScreen(io.miniZXKeyboard, new FuseScreen(EmulatedMiniZX.getMemFunction(ooz80), bytes));
     UiDisplay.screenMatrix = bytes;
-
     Keyboard.keyboard = io.miniZXKeyboard;
 
-    RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
+    setupMemory();
+  }
 
+  private static void loadSnap() {
+    State<?> state = ooz80.getState();
+
+    RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
     String url = "file:///home/fernando/dynamitedan1.z80";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/aqua.z80";
     String first = url; //com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
+    SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
+    Z80Loader.LibSpectrum lib = Z80Loader.LibSpectrum.INSTANCE;
+    Z80Loader.libspectrum_snap snap = Z80Loader.getLibspectrumSnap(lib, url);
+    state.tstates = lib.libspectrum_snap_tstates(snap);
+    updateScreen();
+
+    IO<?> io1 = state.getIo();
+//    ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent<>();
+//    MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
+//    memory.addMemoryWriteListener(writeListener);
+//    createScreen(io.miniZXKeyboard, zxScreenComponent);
+//    for (int address = 0x4000; address <= 0x8000; address++) {
+//      writeListener.writtingMemoryAt(createValue(address), memory.read(createValue(address), 0));
+//    }
+  }
+
+  private static void setupMemory() {
     State<?> state = ooz80.getState();
+
     Memory<WordNumber> memory = (Memory<WordNumber>) state.getMemory();
 
     phaseProcessor = new PhaseProcessor<>(ooz80) {
@@ -187,22 +211,6 @@ public class Z80 {
         state.tstates = Spectrum.tstates;
       }
     });
-    SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
-
-    Z80Loader.LibSpectrum lib = Z80Loader.LibSpectrum.INSTANCE;
-    Z80Loader.libspectrum_snap snap = Z80Loader.getLibspectrumSnap(lib, url);
-
-    state.tstates = lib.libspectrum_snap_tstates(snap);
-    updateScreen();
-
-    IO<?> io1 = state.getIo();
-//    ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent<>();
-//    MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
-//    memory.addMemoryWriteListener(writeListener);
-//    createScreen(io.miniZXKeyboard, zxScreenComponent);
-//    for (int address = 0x4000; address <= 0x8000; address++) {
-//      writeListener.writtingMemoryAt(createValue(address), memory.read(createValue(address), 0));
-//    }
   }
 
   private static int init(Object o) {
@@ -213,6 +221,9 @@ public class Z80 {
     Module.register(z80ModuleInfo);
 
 //    z80_debugger_variables_init();
+
+    init2();
+
     return 0;
   }
 
@@ -221,7 +232,7 @@ public class Z80 {
   }
 
   private static void z80_interrupt_event_fn(long l, int i, Object o) {
-    ooz80.interruption();
+//    ooz80.interruption();
   }
 
   public static void doOpcodes() {
