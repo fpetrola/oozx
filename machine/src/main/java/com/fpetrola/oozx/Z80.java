@@ -26,6 +26,7 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -55,10 +56,13 @@ public class Z80 {
       Z80::toSnapshot // snapshotTo
   );
   private static MiniZXIO io;
+  private static boolean initialized;
 
   private static void reset(int i) {
     ooz80.reset();
-    loadSnap();
+    String url = "file:///home/fernando/dynamitedan1.z80";
+    url = "/home/fernando/detodo/desarrollo/m/zx/roms/aqua.z80";
+//    loadSnap(url);
   }
 
   private static void toSnapshot(Libspectrum.Snap snap) {
@@ -71,7 +75,10 @@ public class Z80 {
 
   public static void interrupt() {
     ooz80.getState().tstates = Spectrum.tstates;
-    ooz80.interruption();
+    int i = Timings.interruptLength(Machine.current.machine);
+    if (ooz80.getState().isIff1() && ooz80.getState().tstates < i) {
+      ooz80.interruption();
+    }
     ooz80.getState().tstates = 0;
     Spectrum.tstates = ooz80.getState().tstates;
   }
@@ -100,19 +107,22 @@ public class Z80 {
     ooz80 = EmulatedMiniZX.createOOZ80(io);
 
     byte[][] bytes = new byte[1000][1000];
-    createScreen(io.miniZXKeyboard, new FuseScreen(EmulatedMiniZX.getMemFunction(ooz80), bytes));
+    if (FuseLibretroExample.noTest) {
+      MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
+
+      createScreen(io.miniZXKeyboard, new FuseScreen(EmulatedMiniZX.getMemFunction(ooz80), bytes));
+    }
     UiDisplay.screenMatrix = bytes;
     Keyboard.keyboard = io.miniZXKeyboard;
 
     setupMemory();
   }
 
-  private static void loadSnap() {
+  public static void loadSnap(String url) {
     State<?> state = ooz80.getState();
 
     RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
-    String url = "file:///home/fernando/dynamitedan1.z80";
-    url = "/home/fernando/detodo/desarrollo/m/zx/roms/aqua.z80";
+
     String first = url; //com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
     SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
     Z80Loader.LibSpectrum lib = Z80Loader.LibSpectrum.INSTANCE;
@@ -138,11 +148,14 @@ public class Z80 {
     phaseProcessor = new PhaseProcessor<>(ooz80) {
       public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
         for (int i = 0; i < x; i++) {
-          if (mapRead[baseAddress >> PAGE_SIZE_LOGARITHM].contended) {
-            byte tstates = Ula.contentionNoMreq[(int) state.tstates];
-            if (tstates > 0) {
-              LocalLibretroCore.getTstatesUpdates().add(new TStateUpdate((int) getState().tstates, tstates, "ula " + (description != null ? description : "contend_read_no_mreq")));
-              state.tstates += tstates;
+          MemoryPage memoryPage = mapRead[baseAddress >> PAGE_SIZE_LOGARITHM];
+          if (memoryPage != null && memoryPage.contended) {
+            if (state.tstates < Ula.contentionNoMreq.length) {
+              byte tstates = Ula.contentionNoMreq[(int) state.tstates];
+              if (tstates > 0) {
+                GetTStatesHistory.getTstatesUpdates().add(new TStateUpdate((int) getState().tstates, tstates, "ula " + (description != null ? description : "contend_read_no_mreq")));
+                state.tstates += tstates;
+              }
             }
           }
           getAddEvent(new Event(time1, "MC", baseAddress + delta, null, description));
@@ -154,7 +167,7 @@ public class Z80 {
       protected void getAddEvent(Event event) {
         if (event.getTime() > 0) {
           String description = getDescription(event);
-          LocalLibretroCore.getTstatesUpdates().add(new TStateUpdate((int) getState().tstates, event.getTime(), description));
+          GetTStatesHistory.getTstatesUpdates().add(new TStateUpdate((int) getState().tstates, event.getTime(), description));
         }
         getState().addEvent(event);
       }
@@ -174,7 +187,7 @@ public class Z80 {
 
     memory.addMemoryReadListener(new AddStatesMemoryReadListener<>(phaseProcessor) {
       protected void processEvent(WordNumber address, WordNumber value, int fetching) {
-        if (LocalLibretroCore.noContended)
+        if (LocalLibretroCore.noContended || !initialized())
           return;
 
         processUlaContention(address);
@@ -194,7 +207,7 @@ public class Z80 {
     });
     memory.addMemoryWriteListener(new AddStatesMemoryWriteListener<>(phaseProcessor) {
       public void writtingMemoryAt(WordNumber address, WordNumber value) {
-        if (LocalLibretroCore.noContended)
+        if (LocalLibretroCore.noContended || !initialized())
           return;
 
         this.phaseProcessor.processPhase(new BeforeWrite());
@@ -213,6 +226,10 @@ public class Z80 {
     });
   }
 
+  private static boolean initialized() {
+    return mapRead[0] != null && Ula.contention != null;
+  }
+
   private static int init(Object o) {
     int z80_interrupt_event = EventManager.eventRegister(Z80::z80_interrupt_event_fn, "Retriggered interrupt");
     int z80_nmi_event = EventManager.eventRegister(Z80::z80_nmi, "Non-maskable interrupt");
@@ -223,6 +240,8 @@ public class Z80 {
 //    z80_debugger_variables_init();
 
     init2();
+
+    initialized = true;
 
     return 0;
   }

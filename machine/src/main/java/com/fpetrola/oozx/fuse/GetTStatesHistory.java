@@ -24,11 +24,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
+  static List<TStateUpdate> tstatesUpdates = new ArrayList<>();
+
+  public static List<TStateUpdate> getTstatesUpdates() {
+    if (FuseLibretroExample.noTest)
+      tstatesUpdates.clear();
+    return tstatesUpdates;
+  }
+
+  public static void setTstatesUpdates(List<TStateUpdate> tstatesUpdates) {
+    GetTStatesHistory.tstatesUpdates = tstatesUpdates;
+  }
+
   public List<TStateUpdate> execute(LibretroCore core) {
     Pointer pData = core.retro_tstates_history();
     List<TStateUpdate> out = new ArrayList<>();
     if (pData == null) {
-      out.addAll(LocalLibretroCore.getTstatesUpdates());
+      out.addAll(getTstatesUpdates());
     } else {
       LibretroCore.KVPair first = new LibretroCore.KVPair(pData);
       LibretroCore.KVPair[] pairs = (LibretroCore.KVPair[]) first.toArray(40);

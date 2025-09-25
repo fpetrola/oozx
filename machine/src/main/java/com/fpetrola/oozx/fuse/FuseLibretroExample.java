@@ -30,9 +30,10 @@ public class FuseLibretroExample {
   LibretroCore core = LibretroCore.INSTANCE;
 
   private int acounter;
-  static SpectrumPanel panel = getSpectrumPanel();
+  static SpectrumPanel panel;
   private LibretroCore.bridge_command bridgeCommand;
   private EmulatorCommand lastCommand;
+  public static boolean noTest;
 
   public static void main(String[] args) throws Exception {
     FuseLibretroExample fuseLibretroExample = new FuseLibretroExample();
@@ -40,7 +41,8 @@ public class FuseLibretroExample {
   }
 
   public void init(CommandHandler commandHandler, LibretroCore aCore) {
-
+    if (noTest)
+      panel = getSpectrumPanel();
     aCore.retro_set_environment((cmd, data) -> {
       if (cmd == 1234) {
         RetroMessageExt msg = new RetroMessageExt(data);
@@ -54,7 +56,8 @@ public class FuseLibretroExample {
       return true;
     });
     aCore.retro_set_video_refresh((data1, width, height, pitch) -> {
-      panel.updateFrame(data1, width, height, pitch);
+      if (noTest)
+        panel.updateFrame(data1, width, height, pitch);
     });
 
     bridgeCommand = (cmd, data) -> {
@@ -83,7 +86,8 @@ public class FuseLibretroExample {
       }
     };
 
-//    bridgeCommand= (cmd, data) -> null;
+    if (noTest)
+      bridgeCommand = (cmd, data) -> null;
     aCore.retro_set_bridge_command(bridgeCommand);
 
     aCore.retro_set_audio_sample((l, r) -> { /* ignoramos */ });
@@ -97,7 +101,7 @@ public class FuseLibretroExample {
     aCore.retro_init();
 
     try {
-      loadGame(aCore, "/home/fernando/detodo/desarrollo/m/zx/roms/aqua.z80");
+      loadGame(aCore, "/home/fernando/detodo/desarrollo/m/zx/roms/jsw3.z80");
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
