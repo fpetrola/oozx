@@ -1,15 +1,12 @@
 package model.tests;
 
 import com.fpetrola.oozx.fuse.CommandHandler;
-import com.fpetrola.oozx.fuse.TStateUpdate;
 import model.connected.*;
 import model.interfaces.IMicrodrive;
 import model.interfaces.ISpectrumBus;
 import model.interfaces.IZ80CPU;
 import model.interfaces.IZXInterface1;
 import org.junit.jupiter.api.*;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -654,20 +651,6 @@ public class ZXSpectrumContendedMemoryTests {
     assertEquals(initialTStates + 11 + 7 + 23, cpu.getTStates(), "T-states with contention");
   }
 
-//  @Test
-//  void test48KDynamicContentionDelays() {
-//    int[] delays = {6, 5, 4, 3, 2, 1, 0, 0};
-//    for (int i = 0; i < delays.length; i++) {
-//      int t = 14335 + i;
-//      int initialTStates = setupModel("48K", t);
-//      cpu.setDE(0x1234);
-//      cpu.executeInstruction("INC DE", null); // 6 T-states
-//      cpu.readMemory(0x4000); // 3 + delay
-//      assertEquals(initialTStates + 6 + 3 + delays[i], cpu.getTStates(), "T-states at t=" + t);
-//      assertEquals(0x1235, cpu.getDE(), "DE value at t=" + t);
-//    }
-//  }
-
   // 128K Tests
   @Test
   void test128KAddHLBCT14361() {
@@ -719,22 +702,6 @@ public class ZXSpectrumContendedMemoryTests {
     assertEquals(initialTStates + 6 + 7 + 6 + 2 - 4, cpu.getTStates(), "T-states with contention");
   }
 
-//  @Test
-//  void test128KDynamicContentionDelays() {
-//    int[] delays = {6, 5, 4, 3, 2, 1, 0, 0};
-//    for (int i = 0; i < delays.length; i++) {
-//      int t = 14361 + i;
-//      int initialTStates = setupModel("128K", t);
-//      bus.getMemory().setPage(3, 1); // Contended page
-//      cpu.setHL(0xC000);
-//      cpu.setBC(0x0001);
-//      cpu.executeInstruction("ADD HL,BC", null); // 11 T-states
-//      cpu.readMemory(0xC000); // 3 + delay
-//      assertEquals(initialTStates + 11 + 3 + delays[i], cpu.getTStates(), "T-states at t=" + t);
-//      assertEquals(0xC001, cpu.getHL(), "HL value at t=" + t);
-//    }
-//  }
-
   // +3 Tests
   @Test
   void testPlus3AddHLBCT14361() {
@@ -771,18 +738,115 @@ public class ZXSpectrumContendedMemoryTests {
     assertEquals((byte) 0xBB, bus.readMemory(0xC001), "Memory value after LD");
   }
 
-//  @Test
-//  void testPlus3DynamicContentionDelays() {
-//    int[] delays = {1, 7, 6, 5, 4, 3, 2, 1};
-//    for (int i = 0; i < delays.length; i++) {
-//      int t = 14361 + i;
-//      int initialTStates = setupModel("+3", t);
-//      bus.getMemory().setPage(1, 5); // Contended page
-//      cpu.setDE(0x1234);
-//      cpu.executeInstruction("INC DE", null); // 6 T-states
-//      cpu.readMemory(0x4000); // 3 + delay
-//      assertEquals(initialTStates + 6 + 3 + delays[i], cpu.getTStates(), "T-states at t=" + t);
-//      assertEquals(0x1235, cpu.getDE(), "DE value at t=" + t);
-//    }
-//  }
+  @Test
+  void test48KDJNZJumpTakenT14335() {
+    int initialTStates = setupModel("48K", 14335);
+    cpu.setB((byte) 0x02);
+    cpu.setPC(0xA000);
+    cpu.executeInstruction("DJNZ n", 0x10); // Jump to PC+0x10
+    assertEquals(0xA010 + 2, cpu.getPC(), "PC after DJNZ");
+    assertEquals(0x01, cpu.getB(), "B after DJNZ");
+
+    assertTStatesHistory("""
+        [TStateUpdate{key=14335, value=4, description='readbyte'}
+        , TStateUpdate{key=14339, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14340, value=3, description='readbyte'}
+        , TStateUpdate{key=14343, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14344, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14345, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14346, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14347, value=1, description='contend_read_no_mreq'}
+        ]""");
+
+    assertEquals(initialTStates + 4 + 6 + 3, cpu.getTStates(), "T-states for DJNZ jump taken"); // Fetch + delay + offset read + delay
+  }
+
+  @Test
+  void test48KDJNZNoJumpT14335() {
+    int initialTStates = setupModel("48K", 14335);
+    cpu.setB((byte) 0x01);
+    cpu.setPC(0xA000);
+    cpu.executeInstruction("DJNZ n", new int[]{0x10});
+    assertEquals(initialTStates + 4 + 6 + 3 - 5, cpu.getTStates(), "T-states for DJNZ no jump"); // Fetch + delay + offset read + delay
+    assertEquals(0xA002, cpu.getPC(), "PC after DJNZ");
+    assertEquals(0x00, cpu.getB(), "B after DJNZ");
+
+    assertTStatesHistory("""
+        [TStateUpdate{key=14335, value=4, description='readbyte'}
+        , TStateUpdate{key=14339, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14340, value=3, description='readbyte'}
+        ]""");
+  }
+
+  @Test
+  void test48KJPZTakenT14335() {
+    int initialTStates = setupModel("48K", 14335);
+    cpu.setZeroFlag(true);
+    cpu.setPC(0xA000);
+    cpu.executeInstruction("JP Z,nn", 0x3000);
+    assertEquals(0x3000, cpu.getPC(), "PC after JP Z");
+    assertEquals(initialTStates + 4 + 6 + 3 + 5 + 3 + 4 - 11 - 4, cpu.getTStates(), "T-states for JP Z taken"); // Fetch + delay + low byte + delay + high byte + delay
+
+    assertTStatesHistory("""
+        [TStateUpdate{key=14335, value=4, description='readbyte'}
+        , TStateUpdate{key=14339, value=3, description='readbyte'}
+        , TStateUpdate{key=14342, value=3, description='readbyte'}
+        ]""");
+  }
+
+  @Test
+  void test48KLDIRT14335() {
+    int initialTStates = setupModel("48K", 14335);
+    cpu.setHL(0x4000);
+    cpu.setDE(0x6000);
+    cpu.setBC(0x0002);
+    cpu.writeMemory(0x4000, (byte) 0xA1, true);
+    cpu.writeMemory(0x4001, (byte) 0xA2, true);
+    cpu.executeInstruction("LDIR");
+    cpu.executeInstruction("LDIR");
+    int tStates = 4 + 6 + 4 + 3 + 5 + 3 + 4 + 2 + 5 + 2 + 75; // Fetch ED + fetch B0 + read + delay + write + delay + extra (x2 iterations)
+
+    assertEquals(0x0000, cpu.getBC(), "BC after LDIR");
+    assertEquals(0x4002, cpu.getHL(), "HL after LDIR");
+    assertEquals(0x6002, cpu.getDE(), "DE after LDIR");
+    assertEquals((byte) 0xA1, bus.readMemory(0x6000), "Memory at DE");
+    assertEquals((byte) 0xA2, bus.readMemory(0x6001), "Memory at DE+1");
+    assertEquals(initialTStates + tStates, cpu.getTStates(), "T-states for LDIR");
+
+    assertTStatesHistory("""
+        [TStateUpdate{key=14335, value=6, description='ula writebyte'}
+        , TStateUpdate{key=14341, value=3, description='writebyte'}
+        , TStateUpdate{key=14344, value=5, description='ula writebyte'}
+        , TStateUpdate{key=14349, value=3, description='writebyte'}
+        , TStateUpdate{key=14352, value=4, description='readbyte'}
+        , TStateUpdate{key=14356, value=4, description='readbyte'}
+        , TStateUpdate{key=14360, value=5, description='ula readbyte'}
+        , TStateUpdate{key=14365, value=3, description='readbyte'}
+        , TStateUpdate{key=14368, value=5, description='ula writebyte'}
+        , TStateUpdate{key=14373, value=3, description='writebyte'}
+        , TStateUpdate{key=14376, value=5, description='ula contend_write_no_mreq'}
+        , TStateUpdate{key=14381, value=1, description='contend_write_no_mreq'}
+        , TStateUpdate{key=14382, value=1, description='contend_write_no_mreq'}
+        , TStateUpdate{key=14383, value=6, description='ula contend_write_no_mreq'}
+        , TStateUpdate{key=14389, value=1, description='contend_write_no_mreq'}
+        , TStateUpdate{key=14390, value=1, description='contend_write_no_mreq'}
+        , TStateUpdate{key=14391, value=6, description='ula contend_write_no_mreq'}
+        , TStateUpdate{key=14397, value=1, description='contend_write_no_mreq'}
+        , TStateUpdate{key=14398, value=1, description='contend_write_no_mreq'}
+        , TStateUpdate{key=14399, value=6, description='ula contend_write_no_mreq'}
+        , TStateUpdate{key=14405, value=1, description='contend_write_no_mreq'}
+        , TStateUpdate{key=14406, value=4, description='readbyte'}
+        , TStateUpdate{key=14410, value=4, description='readbyte'}
+        , TStateUpdate{key=14414, value=3, description='readbyte'}
+        , TStateUpdate{key=14417, value=4, description='ula writebyte'}
+        , TStateUpdate{key=14421, value=3, description='writebyte'}
+        , TStateUpdate{key=14424, value=5, description='ula contend_write_no_mreq'}
+        , TStateUpdate{key=14429, value=1, description='contend_write_no_mreq'}
+        , TStateUpdate{key=14430, value=1, description='contend_write_no_mreq'}
+        , TStateUpdate{key=14431, value=6, description='ula readbyte'}
+        , TStateUpdate{key=14437, value=3, description='readbyte'}
+        , TStateUpdate{key=14440, value=5, description='ula readbyte'}
+        , TStateUpdate{key=14445, value=3, description='readbyte'}
+        ]""");
+  }
 }

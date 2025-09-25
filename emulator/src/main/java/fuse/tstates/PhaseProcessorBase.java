@@ -97,8 +97,8 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
     return ld.getTarget().equals(getRegister(SP)) && ld.getSource() instanceof Register<T2>;
   }
 
-  protected void addMc(int times, RegisterName registerName, int delta) {
-    addMultipleMc(times, 1, delta, getRegister(registerName).read().intValue(), null);
+  protected void addMc(int times, RegisterName registerName, int delta, String description) {
+    addMultipleMc(times, 1, delta, getRegister(registerName).read().intValue(), description);
   }
 
   public void processPhase(Phase phase) {

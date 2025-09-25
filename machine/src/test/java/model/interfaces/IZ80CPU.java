@@ -17,7 +17,7 @@ public interface IZ80CPU {
     int getTStates();
     void setTStates(int tStates);
     void addTStates2(int tStates);
-    void executeInstruction(String opcode, int[] operands); // Simulate specific instructions
+    void executeInstruction(String opcode, int... operands); // Simulate specific instructions
 
     void setHL(int i);
 
@@ -32,5 +32,13 @@ public interface IZ80CPU {
     int getDE();
 
     void setIR(int i);
+
+    void setB(int b);
+
+    int getB();
+
+    void setZeroFlag(boolean b);
+
+    int getBC();
 }
 

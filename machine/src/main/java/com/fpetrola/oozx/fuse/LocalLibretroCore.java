@@ -40,6 +40,7 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public static List<TStateUpdate> getTstatesUpdates() {
+//    tstatesUpdates.clear();
     return tstatesUpdates;
   }
 

@@ -91,6 +91,40 @@ public class ConnectedZ80CPU implements IZ80CPU {
   }
 
   @Override
+  public void setB(int b) {
+    setHighRegister(b, "BC");
+  }
+
+  @Override
+  public int getB() {
+    return getHigh("BC");
+  }
+
+  @Override
+  public void setZeroFlag(boolean b) {
+//    if (b)
+//      executeInstruction("XOR A");
+//    else {
+      int af = testDriver.getRegister("AF");
+      testDriver.setRegister("AF", b ? (af | 64) : af & ~64);
+//    }
+  }
+
+  @Override
+  public int getBC() {
+    return testDriver.getRegister("BC");
+  }
+
+  private int getHigh(String bc) {
+    return (testDriver.getRegister(bc) & 0xffff) >> 8;
+  }
+
+  private void setHighRegister(int value8, String register16BitsName) {
+    int value16 = testDriver.getRegister(register16BitsName);
+    testDriver.setRegister(register16BitsName, (value8 & 0xff) << 8 | (value16 & 0xff));
+  }
+
+  @Override
   public byte in(int port) {
     return -1;
   }
@@ -168,7 +202,7 @@ public class ConnectedZ80CPU implements IZ80CPU {
   }
 
   @Override
-  public void executeInstruction(String opcode, int[] operands) {
+  public void executeInstruction(String opcode, int... operands) {
     switch (opcode) {
       case "LD (HL),A":
         testDriver.addInstruction((byte) 0x77);
@@ -191,6 +225,25 @@ public class ConnectedZ80CPU implements IZ80CPU {
       case "INC DE":
         testDriver.addInstruction((byte) 0x13);
         break;
+      case "DJNZ n":
+        testDriver.addInstruction((byte) 0x10, (byte) operands[0]);
+        break;
+      case "XOR A":
+        testDriver.addInstruction((byte) 0xAF);
+        break;
+      case "DEC A":
+        testDriver.addInstruction((byte) 0x3D);
+        break;
+      case "JP Z,nn":
+        testDriver.addInstruction((byte) 0xCA, (byte) (operands[0] & 0xFF), (byte) ((operands[0] >> 8) & 0xFF));
+        break;
+
+      case "LDIR":
+        testDriver.addInstruction((byte) 0xED, (byte) 0xB0);
+        break;
+
+      default:
+        throw new RuntimeException("instruction not found");
     }
 
     testDriver.waitExecution();

@@ -77,7 +77,7 @@ public class Z80 {
     RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
 
     String url = "file:///home/fernando/dynamitedan1.z80";
-    url = "/home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80";
+    url = "/home/fernando/detodo/desarrollo/m/zx/roms/aqua.z80";
     String first = url; //com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
     State<?> state = ooz80.getState();
     Memory<WordNumber> memory = (Memory<WordNumber>) state.getMemory();
@@ -85,12 +85,10 @@ public class Z80 {
     phaseProcessor = new PhaseProcessor<>(ooz80) {
       public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
         for (int i = 0; i < x; i++) {
-          int address = baseAddress + delta;
-          boolean b1 = !Machine.current.id.equals("plus3");
-          if (b1 && mapRead[baseAddress >> PAGE_SIZE_LOGARITHM].contended) {
+          if (mapRead[baseAddress >> PAGE_SIZE_LOGARITHM].contended) {
             byte tstates = Ula.contentionNoMreq[(int) state.tstates];
             if (tstates > 0) {
-              LocalLibretroCore.getTstatesUpdates().add(new TStateUpdate((int) getState().tstates, tstates, "ula contend_read_no_mreq"));
+              LocalLibretroCore.getTstatesUpdates().add(new TStateUpdate((int) getState().tstates, tstates, "ula " + (description != null ? description : "contend_read_no_mreq")));
               state.tstates += tstates;
             }
           }

@@ -299,7 +299,7 @@ public class Memory {
         if (mapping.contended) {
             byte tstates = Ula.contention[(int) Spectrum.tstates];
             if (tstates > 0) {
-              System.out.println(format("{0} -> adding readByte tstates: {1}", Spectrum.tstates, tstates));
+//              System.out.println(format("{0} -> adding readByte tstates: {1}", Spectrum.tstates, tstates));
               LocalLibretroCore.getTstatesUpdates().add(new TStateUpdate((int) Spectrum.tstates, tstates, "ula readbyte"));
             }
           Spectrum.tstates += tstates;
@@ -336,9 +336,6 @@ public class Memory {
             Debugger.check(DebuggerBreakpointType.WRITE, address);
         }
 
-        boolean b1 = !Machine.current.id.equals("plus3");
-        if (!b1)
-            System.out.println("SDGsddsh...");
         if (mapping.contended) {
             byte tstates = Ula.contention[(int) Spectrum.tstates];
             if (tstates > 0) {

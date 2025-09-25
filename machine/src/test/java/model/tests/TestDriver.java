@@ -96,7 +96,7 @@ public class TestDriver {
   }
 
   public byte readLanPort() {
-    return (byte) commandHandler.executeCommand(new ReadLanPortCommand());
+    return (byte) (int) commandHandler.executeCommand(new ReadLanPortCommand());
   }
 
   public int getBeamX() {
