@@ -11,7 +11,7 @@ public class ConnectedZ80CPU implements IZ80CPU {
   public ConnectedZ80CPU(TestDriver testDriver) {
     this.testDriver = testDriver;
   }
-  
+
   @Override
   public void reset() {
     testDriver.resetZ80();
@@ -96,6 +96,11 @@ public class ConnectedZ80CPU implements IZ80CPU {
   @Override
   public int getBC() {
     return testDriver.getRegister("BC");
+  }
+
+  @Override
+  public void step() {
+    testDriver.step();
   }
 
   private int getHigh(String bc) {

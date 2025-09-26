@@ -1,7 +1,6 @@
 package model.tests;
 
 import com.fpetrola.oozx.fuse.*;
-import machine.MachineTypes;
 
 import java.util.List;
 
@@ -101,5 +100,15 @@ public class TestDriver {
 
   public int getBeamY() {
     return (int) commandHandler.executeCommand(new GetBeamY());
+  }
+
+  public void loadSnapshot(String fileName) {
+    commandHandler.addNoResultCommand(new LoadSnapshot(fileName));
+  }
+
+  public void step() {
+    commandHandler.executeCommand(new ContinueExecutionCommand());
+
+//    commandHandler.addNoResultCommand(new StepCommand());
   }
 }

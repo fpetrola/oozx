@@ -33,7 +33,7 @@ public class FuseLibretroExample {
   static SpectrumPanel panel;
   private LibretroCore.bridge_command bridgeCommand;
   private EmulatorCommand lastCommand;
-  public static boolean noTest;
+  public static boolean noTest = false;
 
   public static void main(String[] args) throws Exception {
     FuseLibretroExample fuseLibretroExample = new FuseLibretroExample();
@@ -100,12 +100,8 @@ public class FuseLibretroExample {
 
     aCore.retro_init();
 
-    try {
-      loadGame(aCore, "/home/fernando/detodo/desarrollo/m/zx/roms/jsw3.z80");
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    new Timer(10, e -> {
+//    loadGame(aCore, "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
+    new Timer(40, e -> {
       aCore.retro_run();
     }).start();
 //        aCore.retro_unload_game();
@@ -120,41 +116,7 @@ public class FuseLibretroExample {
   }
 
   private Object executeCommand(EmulatorCommand command, LibretroCore core) {
-    if (command instanceof WriteMemoryCommand writeMemory) {
-      writeMemory.execute(core);
-      return null;
-    } else if (command instanceof ReadMemoryCommand readMemoryCommand) {
-      return readMemoryCommand.execute(core);
-    } else if (command instanceof ContinueExecutionCommand) {
-      return null;
-    } else if (command instanceof SetRegisterValue setRegisterValue) {
-      setRegisterValue.execute(core);
-      return null;
-    } else if (command instanceof GetRegisterValue getRegisterValue) {
-      return getRegisterValue.execute(core);
-    } else if (command instanceof WritePortCommand writePortCommand) {
-      writePortCommand.execute(core);
-      return null;
-    } else if (command instanceof SetMachineModel setMachineModel) {
-      setMachineModel.execute(core);
-      return null;
-    } else if (command instanceof If1Page if1PageIn) {
-      if1PageIn.execute(core);
-      return null;
-    } else if (command instanceof ReadLanPortCommand readLanPortCommand) {
-      return readLanPortCommand.execute(core);
-    } else if (command instanceof GetBeamX getBeamPosition) {
-      return getBeamPosition.execute(core);
-    } else if (command instanceof GetBeamY getBeamPosition) {
-      return getBeamPosition.execute(core);
-    } else if (command instanceof GetTStatesHistory getTStatesHistory) {
-      return getTStatesHistory.execute(core);
-    } else if (command instanceof TStatesHistoryInit getTStatesHistory) {
-      getTStatesHistory.execute(core);
-      return null;
-    }
-
-    return null;
+    return command.execute(core);
   }
 
   private BridgeCommand createCommandWrapper(EmulatorCommand command) {
@@ -197,21 +159,25 @@ public class FuseLibretroExample {
     return cmd1;
   }
 
-  private static void loadGame(LibretroCore core, String gamePath) throws IOException {
-    byte[] romBytes = Files.readAllBytes(Path.of(gamePath));
-    Memory buffer = new Memory(romBytes.length);
-    buffer.write(0, romBytes, 0, romBytes.length);
+  public static void loadGame(LibretroCore core, String gamePath) {
+    try {
+      byte[] romBytes = Files.readAllBytes(Path.of(gamePath));
+      Memory buffer = new Memory(romBytes.length);
+      buffer.write(0, romBytes, 0, romBytes.length);
 
-    retro_game_info game = new retro_game_info();
-    game.path = gamePath;
-    game.data = buffer;
-    game.size = new NativeLong(buffer.size());
-    game.meta = null;
+      retro_game_info game = new retro_game_info();
+      game.path = gamePath;
+      game.data = buffer;
+      game.size = new NativeLong(buffer.size());
+      game.meta = null;
 
-    if (!core.retro_load_game(game)) {
-      throw new RuntimeException("No se pudo cargar el snapshot " + gamePath);
+      if (!core.retro_load_game(game)) {
+        throw new RuntimeException("No se pudo cargar el snapshot " + gamePath);
+      }
+      System.out.println("Juego cargado: " + gamePath);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
-    System.out.println("Juego cargado: " + gamePath);
   }
 
   private static SpectrumPanel getSpectrumPanel() {

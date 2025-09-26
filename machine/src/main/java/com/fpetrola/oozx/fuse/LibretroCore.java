@@ -113,32 +113,6 @@ public interface LibretroCore extends Library {
     short invoke(int port, int device, int index, int id);
   }
 
- public class KVPair extends Structure {
-   public KVPair(Pointer pData) {
-     super(pData);
-   }
-
-   public static class ByReference extends KVPair implements Structure.ByReference {
-     public ByReference(Pointer pData) {
-       super(pData);
-     }
-   }
-    public static class ByValue extends KVPair implements Structure.ByValue {
-      public ByValue(Pointer pData) {
-        super(pData);
-      }
-    }
-
-   public String description;
-   public int key;
-   public int value;
-
-    @Override
-    protected List<String> getFieldOrder() {
-      return Arrays.asList("description", "key", "value");
-    }
-  }
-
   Pointer retro_tstates_history();
   void retro_tstates_history_init();
 }

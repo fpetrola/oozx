@@ -18,25 +18,16 @@
 
 package com.fpetrola.oozx.fuse;
 
-public class TStateUpdate {
-  public final int key;
-  public final int value;
-  public final String description;
-  public final int pc;
+public class LoadSnapshot implements EmulatorCommand {
+  private final String fileName;
 
-  public TStateUpdate(int key, int value, String description, int pc) {
-    this.key = key;
-    this.value = value;
-    this.description = description;
-    this.pc = pc;
+  public LoadSnapshot(String fileName) {
+    this.fileName = fileName;
   }
 
-  public String toString() {
-    return "TStateUpdate{" +
-        "key=" + key +
-        ", value=" + value +
-        ", description='" + description + '\'' +
-        ", pc='" + pc + '\'' +
-        "}\n";
+  @Override
+  public Object execute(LibretroCore core) {
+    FuseLibretroExample.loadGame(core, fileName);
+    return EmulatorCommand.super.execute(core);
   }
 }

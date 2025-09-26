@@ -42,14 +42,14 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
     if (pData == null) {
       out.addAll(getTstatesUpdates());
     } else {
-      LibretroCore.KVPair first = new LibretroCore.KVPair(pData);
-      LibretroCore.KVPair[] pairs = (LibretroCore.KVPair[]) first.toArray(40);
+      KVPair first = new KVPair(pData);
+      KVPair[] pairs = (KVPair[]) first.toArray(1000);
 
-      for (LibretroCore.KVPair kv : pairs) {
+      for (KVPair kv : pairs) {
         kv.read();
         String description = kv.description;
         if (description != null && !"empty".equals(description))
-          out.add(new TStateUpdate(kv.key, kv.value, description));
+          out.add(new TStateUpdate(kv.key, kv.value, description, kv.pc));
       }
     }
     return out;

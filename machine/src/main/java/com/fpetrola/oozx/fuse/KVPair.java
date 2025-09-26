@@ -18,25 +18,36 @@
 
 package com.fpetrola.oozx.fuse;
 
-public class TStateUpdate {
-  public final int key;
-  public final int value;
-  public final String description;
-  public final int pc;
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
 
-  public TStateUpdate(int key, int value, String description, int pc) {
-    this.key = key;
-    this.value = value;
-    this.description = description;
-    this.pc = pc;
+import java.util.Arrays;
+import java.util.List;
+
+public class KVPair extends Structure {
+  public KVPair(Pointer pData) {
+    super(pData);
   }
 
-  public String toString() {
-    return "TStateUpdate{" +
-        "key=" + key +
-        ", value=" + value +
-        ", description='" + description + '\'' +
-        ", pc='" + pc + '\'' +
-        "}\n";
+  public static class ByReference extends KVPair implements Structure.ByReference {
+    public ByReference(Pointer pData) {
+      super(pData);
+    }
+  }
+
+  public static class ByValue extends KVPair implements Structure.ByValue {
+    public ByValue(Pointer pData) {
+      super(pData);
+    }
+  }
+
+  public String description;
+  public int key;
+  public int value;
+  public int pc;
+
+  @Override
+  protected List<String> getFieldOrder() {
+    return Arrays.asList("description", "key", "value", "pc");
   }
 }

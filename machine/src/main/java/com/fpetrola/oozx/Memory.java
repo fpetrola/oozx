@@ -300,7 +300,7 @@ public class Memory {
         byte tstates = Ula.contention[(int) Spectrum.tstates];
         if (tstates > 0) {
 //              System.out.println(format("{0} -> adding readByte tstates: {1}", Spectrum.tstates, tstates));
-          GetTStatesHistory.getTstatesUpdates().add(new TStateUpdate((int) Spectrum.tstates, tstates, "ula readbyte"));
+          GetTStatesHistory.getTstatesUpdates().add(new TStateUpdate((int) Spectrum.tstates, tstates, "ula readbyte", Z80.ooz80.getState().getPc().read().intValue()));
         }
         Spectrum.tstates += tstates;
       }
@@ -342,7 +342,7 @@ public class Memory {
       byte tstates = Ula.contention[(int) Spectrum.tstates];
       if (tstates > 0) {
 //              System.out.println(format("{0} -> adding writeByte tstates: {1}", Spectrum.tstates, tstates));
-        GetTStatesHistory.getTstatesUpdates().add(new TStateUpdate((int) Spectrum.tstates, tstates, "ula writebyte"));
+        GetTStatesHistory.getTstatesUpdates().add(new TStateUpdate((int) Spectrum.tstates, tstates, "ula writebyte", Z80.ooz80.getState().getPc().read().intValue()));
       }
       Spectrum.tstates += tstates;
     }

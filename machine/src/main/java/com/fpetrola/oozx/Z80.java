@@ -107,7 +107,7 @@ public class Z80 {
     ooz80 = EmulatedMiniZX.createOOZ80(io);
 
     byte[][] bytes = new byte[1000][1000];
-    if (FuseLibretroExample.noTest) {
+    if (true || FuseLibretroExample.noTest) {
       MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
 
       createScreen(io.miniZXKeyboard, new FuseScreen(EmulatedMiniZX.getMemFunction(ooz80), bytes));
@@ -128,6 +128,7 @@ public class Z80 {
     Z80Loader.LibSpectrum lib = Z80Loader.LibSpectrum.INSTANCE;
     Z80Loader.libspectrum_snap snap = Z80Loader.getLibspectrumSnap(lib, url);
     state.tstates = lib.libspectrum_snap_tstates(snap);
+    Spectrum.tstates= state.tstates;
     updateScreen();
 
     IO<?> io1 = state.getIo();
@@ -153,7 +154,7 @@ public class Z80 {
             if (state.tstates < Ula.contentionNoMreq.length) {
               byte tstates = Ula.contentionNoMreq[(int) state.tstates];
               if (tstates > 0) {
-                GetTStatesHistory.getTstatesUpdates().add(new TStateUpdate((int) getState().tstates, tstates, "ula " + (description != null ? description : "contend_read_no_mreq")));
+                GetTStatesHistory.getTstatesUpdates().add(new TStateUpdate((int) getState().tstates, tstates, "ula " + (description != null ? description : "contend_read_no_mreq"), Z80.ooz80.getState().getPc().read().intValue()));
                 state.tstates += tstates;
               }
             }
@@ -167,7 +168,7 @@ public class Z80 {
       protected void getAddEvent(Event event) {
         if (event.getTime() > 0) {
           String description = getDescription(event);
-          GetTStatesHistory.getTstatesUpdates().add(new TStateUpdate((int) getState().tstates, event.getTime(), description));
+          GetTStatesHistory.getTstatesUpdates().add(new TStateUpdate((int) getState().tstates, event.getTime(), description, Z80.ooz80.getState().getPc().read().intValue()));
         }
         getState().addEvent(event);
       }
