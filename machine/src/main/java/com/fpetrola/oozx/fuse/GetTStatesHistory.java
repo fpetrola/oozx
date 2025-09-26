@@ -43,7 +43,7 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
       out.addAll(getTstatesUpdates());
     } else {
       KVPair first = new KVPair(pData);
-      KVPair[] pairs = (KVPair[]) first.toArray(100000);
+      KVPair[] pairs = (KVPair[]) first.toArray(10000);
 
       for (KVPair kv : pairs) {
         kv.read();
