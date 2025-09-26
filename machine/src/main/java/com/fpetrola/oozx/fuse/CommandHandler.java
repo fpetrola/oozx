@@ -71,7 +71,7 @@ public class CommandHandler {
     EmulatorCommand poll = commandQueue.remove(0);
     if (poll == null)
       return null;
-    System.out.println("processing command: " + poll);
+//    System.out.println("processing command: " + poll);
     return poll;
   }
 

@@ -848,12 +848,11 @@ public class ZXSpectrumContendedMemoryTests {
         ]""");
   }
 
-  @Disabled
   @Test
   void test48KExecuteGame() {
     int initialTStates = setupModel("48K", 40000);
     testDriver.loadSnapshot("/home/fernando/detodo/desarrollo/m/zx/roms/jsw3.z80");
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 500; i++) {
       cpu.step();
     }
 //    assertEquals(initialTStates + 4 + 6 + 3 + 4, cpu.getTStates()); // Fetch + delay + write + delay, total +17
