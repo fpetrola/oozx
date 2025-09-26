@@ -108,7 +108,7 @@ public class Z80 {
 
     byte[][] bytes = new byte[1000][1000];
     if (true || FuseLibretroExample.noTest) {
-      MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
+//      MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
 
       createScreen(io.miniZXKeyboard, new FuseScreen(EmulatedMiniZX.getMemFunction(ooz80), bytes));
     }

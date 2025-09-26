@@ -98,7 +98,7 @@ public class ZXSpectrumContendedMemoryTests {
         , TStateUpdate{key=14349, value=3, description='writebyte'}
         , TStateUpdate{key=14352, value=5, description='ula readbyte'}
         , TStateUpdate{key=14357, value=3, description='readbyte'}
-        ]""");
+        ]""", testDriver);
   }
 
   @Test
@@ -121,7 +121,7 @@ public class ZXSpectrumContendedMemoryTests {
         , TStateUpdate{key=14358, value=3, description='writebyte'}
         , TStateUpdate{key=14361, value=4, description='ula readbyte'}
         , TStateUpdate{key=14365, value=3, description='readbyte'}
-        ]""");
+        ]""", testDriver);
   }
 
   @Test
@@ -158,7 +158,7 @@ public class ZXSpectrumContendedMemoryTests {
         , TStateUpdate{key=14349, value=3, description='writebyte'}
         , TStateUpdate{key=14352, value=5, description='ula readbyte'}
         , TStateUpdate{key=14357, value=3, description='readbyte'}
-        ]""");
+        ]""", testDriver);
   }
 
   // 128K/+2 Tests
@@ -535,13 +535,13 @@ public class ZXSpectrumContendedMemoryTests {
         , TStateUpdate{key=14381, value=1, description='contend_read_no_mreq'}
         , TStateUpdate{key=14382, value=4, description='ula writebyte'}
         , TStateUpdate{key=14386, value=3, description='writebyte'}
-        ]""");
+        ]""", testDriver);
     assertEquals(initialTStates + i, cpu.getTStates()); // Fetch + delay + read + delay + modify + write + delay, total +20
     assertEquals((byte) 0x41, testDriver.readMemory(0xC000, true));
   }
 
-  private void assertTStatesHistory(String x) {
-    assertEquals(x.trim(), testDriver.getTstatesHistory().toString().trim());
+  public static void assertTStatesHistory(String x, TestDriver testDriver1) {
+    assertEquals(x.trim(), testDriver1.getTstatesHistory().toString().trim());
   }
 
   @Test
@@ -565,7 +565,7 @@ public class ZXSpectrumContendedMemoryTests {
         , TStateUpdate{key=14389, value=1, description='contend_read_no_mreq'}
         , TStateUpdate{key=14390, value=3, description='writebyte'}
         , TStateUpdate{key=14393, value=3, description='writebyte'}
-        ]""");
+        ]""", testDriver);
   }
 
   // Mixed Model Tests
@@ -673,7 +673,7 @@ public class ZXSpectrumContendedMemoryTests {
         , TStateUpdate{key=14384, value=1, description='contend_read_no_mreq'}
         , TStateUpdate{key=14385, value=6, description='ula contend_read_no_mreq'}
         , TStateUpdate{key=14391, value=1, description='contend_read_no_mreq'}
-        ]""");
+        ]""", testDriver);
   }
 
   @Test
@@ -754,7 +754,7 @@ public class ZXSpectrumContendedMemoryTests {
         , TStateUpdate{key=14345, value=1, description='contend_read_no_mreq'}
         , TStateUpdate{key=14346, value=1, description='contend_read_no_mreq'}
         , TStateUpdate{key=14347, value=1, description='contend_read_no_mreq'}
-        ]""");
+        ]""", testDriver);
 
     assertEquals(initialTStates + 4 + 6 + 3, cpu.getTStates(), "T-states for DJNZ jump taken"); // Fetch + delay + offset read + delay
   }
@@ -773,7 +773,7 @@ public class ZXSpectrumContendedMemoryTests {
         [TStateUpdate{key=14335, value=4, description='readbyte'}
         , TStateUpdate{key=14339, value=1, description='contend_read_no_mreq'}
         , TStateUpdate{key=14340, value=3, description='readbyte'}
-        ]""");
+        ]""", testDriver);
   }
 
   @Test
@@ -789,7 +789,7 @@ public class ZXSpectrumContendedMemoryTests {
         [TStateUpdate{key=14335, value=4, description='readbyte'}
         , TStateUpdate{key=14339, value=3, description='readbyte'}
         , TStateUpdate{key=14342, value=3, description='readbyte'}
-        ]""");
+        ]""", testDriver);
   }
 
   @Test
@@ -845,61 +845,6 @@ public class ZXSpectrumContendedMemoryTests {
         , TStateUpdate{key=14437, value=3, description='readbyte'}
         , TStateUpdate{key=14440, value=5, description='ula readbyte'}
         , TStateUpdate{key=14445, value=3, description='readbyte'}
-        ]""");
+        ]""", testDriver);
   }
-
-  @Test
-  void test48KExecuteGame() {
-    int initialTStates = setupModel("48K", 40000);
-    testDriver.loadSnapshot("/home/fernando/detodo/desarrollo/m/zx/roms/jsw3.z80");
-    for (int i = 0; i < 30; i++) {
-      cpu.step();
-    }
-//    assertEquals(initialTStates + 4 + 6 + 3 + 4, cpu.getTStates()); // Fetch + delay + write + delay, total +17
-//    assertEquals((byte) 0xAA, bus.readMemory(26000));
-
-    assertTStatesHistory("""
-        [TStateUpdate{key=40000, value=3, description='writebyte'}
-                 , TStateUpdate{key=40004, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40008, value=4, description='readbyte'}
-                 , TStateUpdate{key=40012, value=4, description='readbyte'}
-                 , TStateUpdate{key=40015, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40016, value=3, description='readbyte'}
-                 , TStateUpdate{key=40017, value=3, description='readbyte'}
-                 , TStateUpdate{key=40018, value=3, description='readbyte'}
-                 , TStateUpdate{key=40019, value=3, description='writebyte'}
-                 , TStateUpdate{key=40020, value=4, description='readbyte'}
-                 , TStateUpdate{key=40023, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40027, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40031, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40034, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40037, value=3, description='readbyte'}
-                 , TStateUpdate{key=40038, value=3, description='readbyte'}
-                 , TStateUpdate{key=40039, value=3, description='readbyte'}
-                 , TStateUpdate{key=40042, value=3, description='writebyte'}
-                 , TStateUpdate{key=40046, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40050, value=4, description='readbyte'}
-                 , TStateUpdate{key=40053, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40054, value=4, description='readbyte'}
-                 , TStateUpdate{key=40055, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40056, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40057, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40058, value=3, description='readbyte'}
-                 , TStateUpdate{key=40061, value=3, description='writebyte'}
-                 , TStateUpdate{key=40065, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40068, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40072, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40075, value=4, description='readbyte'}
-                 , TStateUpdate{key=40078, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40082, value=3, description='writebyte'}
-                 , TStateUpdate{key=40083, value=4, description='readbyte'}
-                 , TStateUpdate{key=40084, value=3, description='writebyte'}
-                 , TStateUpdate{key=40085, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40086, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40087, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40088, value=1, description='contend_write_no_mreq'}
-                 , TStateUpdate{key=40089, value=1, description='contend_write_no_mreq'}
-                 ]""");
-  }
-
 }

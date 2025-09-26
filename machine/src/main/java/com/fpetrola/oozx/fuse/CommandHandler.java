@@ -23,8 +23,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class CommandHandler {
-  static FuseLibretroExample fuseLibretroExample = new FuseLibretroExample();
-  static LibretroCore core = fuseLibretroExample.core;
+  public static FuseLibretroExample fuseLibretroExample = new FuseLibretroExample();
+  public  static LibretroCore core = fuseLibretroExample.core;
 
   private List<EmulatorCommand> commandQueue = Collections.synchronizedList(new LinkedList<>());
   private List<EmulatorCommandResult> resultQueue = Collections.synchronizedList(new LinkedList<>());
@@ -33,9 +33,13 @@ public class CommandHandler {
   }
 
   public static CommandHandler createCommandHandler() {
+//    core = new LocalLibretroCore();
+    return createCommandHandler(core);
+  }
+
+  public static CommandHandler createCommandHandler(LibretroCore core1) {
     CommandHandler commandHandler = new CommandHandler();
-//    core= new LocalLibretroCore();
-    fuseLibretroExample.init(commandHandler, core);
+    fuseLibretroExample.init(commandHandler, core1);
     return commandHandler;
   }
 

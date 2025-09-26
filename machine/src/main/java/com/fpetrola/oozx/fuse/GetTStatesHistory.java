@@ -37,21 +37,44 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
   }
 
   public List<TStateUpdate> execute(LibretroCore core) {
-    Pointer pData = core.retro_tstates_history();
-    List<TStateUpdate> out = new ArrayList<>();
-    if (pData == null) {
-      out.addAll(getTstatesUpdates());
-    } else {
-      KVPair first = new KVPair(pData);
-      KVPair[] pairs = (KVPair[]) first.toArray(10000);
+    return getTStateUpdates(core);
+  }
 
-      for (KVPair kv : pairs) {
-        kv.read();
-        String description = kv.description;
-        if (description != null && !"empty".equals(description))
-          out.add(new TStateUpdate(kv.key, kv.value, description, kv.pc));
-      }
+  public static List<TStateUpdate> getTStateUpdates(LibretroCore core) {
+    Pointer pData = core.retro_tstates_history();
+    if (pData == null) {
+      return getLocalTStateUpdates(core);
+    } else {
+      return getRemoteTStateUpdates(core, pData);
     }
+  }
+
+  public static List<TStateUpdate> getLocalTStateUpdates(LibretroCore core) {
+    List<TStateUpdate> out = new ArrayList<>();
+    out.addAll(getTstatesUpdates());
+    return out;
+  }
+
+  public static List<TStateUpdate> getRemoteTStateUpdates(LibretroCore core, Pointer pData) {
+    if (pData != null)
+      return getRemoteTStateUpdates2(core);
+    else
+      return new ArrayList<>();
+  }
+
+  public static List<TStateUpdate> getRemoteTStateUpdates2(LibretroCore core) {
+    Pointer pData1 = core.retro_tstates_history();
+    KVPair first = new KVPair(pData1);
+    KVPair[] pairs = (KVPair[]) first.toArray(1000);
+
+    List<TStateUpdate> out = new ArrayList<>();
+    for (KVPair kv : pairs) {
+      kv.read();
+      String description = kv.description;
+      if (description != null && !"empty".equals(description))
+        out.add(new TStateUpdate(kv.key, kv.value, description, kv.pc));
+    }
+
     return out;
   }
 }
