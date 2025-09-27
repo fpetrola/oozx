@@ -18,7 +18,7 @@
 
 package model.tests;
 
-import com.fpetrola.oozx.fuse.CommandHandler;
+import com.fpetrola.oozx.fuse.DefaultCommandHandler;
 import model.connected.*;
 import model.interfaces.IULA;
 import model.interfaces.ISpectrumBus;
@@ -35,7 +35,7 @@ class ZXSpectrumBeamBatchTests {
 
   @BeforeAll
   public static void beforeall() {
-    testDriver = new TestDriver(CommandHandler.createCommandHandler());
+    testDriver = new TestDriver(DefaultCommandHandler.createCommandHandler());
     bus = new ConnectedSpectrumBus(new ConnectedMemory(testDriver), new ConnectedULA(testDriver), testDriver);
     ula = bus.getULA();
 

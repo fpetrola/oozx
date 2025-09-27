@@ -14,11 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ZXSpectrumContendedMemoryTests2 {
-  static private IZ80CPU cpu;
   static private TestDriver testDriver;
-  static private ISpectrumBus bus;
-  static private IZXInterface1 interface1;
-  static private IMicrodrive microdrive;
   private static LocalLibretroCore localLibretroCore;
   private static LibretroCore remoteCore;
 
@@ -26,34 +22,23 @@ public class ZXSpectrumContendedMemoryTests2 {
   public static void beforeall() {
     localLibretroCore = new LocalLibretroCore();
     remoteCore = FuseLibretroConnector.core;
-    LibretroCoreMultiplexor libretroCoreMultiplexor = new LibretroCoreMultiplexor(localLibretroCore, remoteCore);
-    CommandHandler commandHandler = CommandHandler.createCommandHandler(libretroCoreMultiplexor);
+    CommandHandler commandHandler1 = DefaultCommandHandler.createCommandHandler(localLibretroCore);
+    CommandHandler commandHandler2 = DefaultCommandHandler.createCommandHandler(remoteCore);
 
-    testDriver = new TestDriver(commandHandler);
-    bus = new ConnectedSpectrumBus(new ConnectedMemory(testDriver), new ConnectedULA(testDriver), testDriver);
-    interface1 = new ConnectedInterface1(testDriver);
-    microdrive = new ConnectedMicrodrive(testDriver);
+//    LibretroCoreMultiplexor libretroCoreMultiplexor = new LibretroCoreMultiplexor(localLibretroCore, remoteCore);
+    CommandHandlerMultiplexor commandHandlerMultiplexor = new CommandHandlerMultiplexor(commandHandler1, commandHandler2);
 
-    bus.connectComponent(interface1);
-    interface1.connectMicrodrive(microdrive);
-
-    cpu = new ConnectedZ80CPU(testDriver);
-    bus.getULA().setScreenActive(true);
+    testDriver = new TestDriver(commandHandlerMultiplexor);
   }
 
   private int setupModel(String model, int startTState) {
     testDriver.setModel(model);
-    testDriver.updatePC(0xA000);
-    testDriver.if1Page(false);
-    cpu.setTStates(startTState);
     return startTState;
   }
 
   @BeforeEach
   void setUp() {
-    interface1.reset();
     testDriver.reset();
-    cpu.reset();
     testDriver.updatePC(0xA000);
     testDriver.tstatesHistoryInit();
   }
@@ -68,7 +53,7 @@ public class ZXSpectrumContendedMemoryTests2 {
     int initialTStates = setupModel("48K", 40000);
     testDriver.loadSnapshot("/home/fernando/detodo/desarrollo/m/zx/roms/jsw3.z80");
     for (int i = 0; i < 30; i++) {
-      cpu.step();
+      testDriver.step();
     }
 //    assertEquals(initialTStates + 4 + 6 + 3 + 4, cpu.getTStates()); // Fetch + delay + write + delay, total +17
 //    assertEquals((byte) 0xAA, bus.readMemory(26000));

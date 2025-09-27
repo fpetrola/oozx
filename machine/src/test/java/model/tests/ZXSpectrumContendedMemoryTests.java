@@ -1,6 +1,6 @@
 package model.tests;
 
-import com.fpetrola.oozx.fuse.CommandHandler;
+import com.fpetrola.oozx.fuse.DefaultCommandHandler;
 import model.connected.*;
 import model.interfaces.IMicrodrive;
 import model.interfaces.ISpectrumBus;
@@ -20,7 +20,7 @@ public class ZXSpectrumContendedMemoryTests {
 
   @BeforeAll
   public static void beforeall() {
-    testDriver = new TestDriver(CommandHandler.createCommandHandler());
+    testDriver = new TestDriver(DefaultCommandHandler.createCommandHandler());
     bus = new ConnectedSpectrumBus(new ConnectedMemory(testDriver), new ConnectedULA(testDriver), testDriver);
     interface1 = new ConnectedInterface1(testDriver);
     microdrive = new ConnectedMicrodrive(testDriver);

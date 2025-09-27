@@ -31,10 +31,10 @@ public class FuseLibretroConnector {
   public static boolean noTest = false;
 
   public static void main(String[] args) {
-    CommandHandler.createCommandHandler();
+    DefaultCommandHandler.createCommandHandler();
   }
 
-  public void init(CommandHandler commandHandler, LibretroCore aCore) {
+  public void init(DefaultCommandHandler commandHandler, LibretroCore aCore) {
     SpectrumPanel panel = getSpectrumPanel(noTest);
     aCore.retro_set_environment((cmd, data) -> true);
     aCore.retro_set_video_refresh((data1, width, height, pitch) -> {
@@ -45,7 +45,7 @@ public class FuseLibretroConnector {
     LibretroCore.bridge_command bridgeCommand;
 
     bridgeCommand = (cmd, data) -> {
-      CommandHandler commandHandler1 = commandHandler;
+      DefaultCommandHandler commandHandler1 = commandHandler;
       if (commandHandler1.lastCommand instanceof ContinueExecutionCommand) {
         commandHandler1.addResultFor(commandHandler1.lastCommand, 0);
         commandHandler1.lastCommand = null;

@@ -18,70 +18,16 @@
 
 package com.fpetrola.oozx.fuse;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+public interface CommandHandler {
+  void addNoResultCommand(EmulatorCommand emulatorCommand);
 
-public class CommandHandler {
-  EmulatorCommand lastCommand;
+  Object executeCommand(EmulatorCommand emulatorCommand);
 
-  private List<EmulatorCommand> commandQueue = Collections.synchronizedList(new LinkedList<>());
-  private List<EmulatorCommandResult> resultQueue = Collections.synchronizedList(new LinkedList<>());
+  void addResultFor(EmulatorCommand lastCommand, Object i);
 
-  private CommandHandler() {
-  }
+  boolean noCommands();
 
-  public static CommandHandler createCommandHandler() {
-//    core = new LocalLibretroCore();
-    return createCommandHandler(FuseLibretroConnector.core);
-  }
+  EmulatorCommand pollCommand();
 
-  public static CommandHandler createCommandHandler(LibretroCore core1) {
-    CommandHandler commandHandler = new CommandHandler();
-    FuseLibretroConnector fuseLibretroConnector = new FuseLibretroConnector();
-    fuseLibretroConnector.init(commandHandler, core1);
-    return commandHandler;
-  }
-
-  public void addNoResultCommand(EmulatorCommand emulatorCommand) {
-    commandQueue.add(emulatorCommand);
-  }
-
-  public Object executeCommand(EmulatorCommand emulatorCommand) {
-    if (!resultQueue.isEmpty()) {
-      System.out.println("eh!!!!1111");
-    }
-    commandQueue.add(emulatorCommand);
-    while (true) {
-      if (!resultQueue.isEmpty()) {
-        EmulatorCommandResult item = resultQueue.remove(0);
-        if (item.getCommand() != emulatorCommand)
-          throw new IllegalStateException("Unexpected command result");
-
-        return item.getValue();
-      }
-    }
-  }
-
-  public void addResultFor(EmulatorCommand lastCommand, Object i) {
-    resultQueue.add(new EmulatorCommandResult(lastCommand, i));
-  }
-
-  public boolean noCommands() {
-    return commandQueue.isEmpty();
-  }
-
-  public EmulatorCommand pollCommand() {
-    EmulatorCommand poll = commandQueue.remove(0);
-    if (poll == null)
-      return null;
-//    System.out.println("processing command: " + poll);
-    return poll;
-  }
-
-  public void reset() {
-    commandQueue.clear();
-    resultQueue.clear();
-  }
-
+  void reset();
 }
