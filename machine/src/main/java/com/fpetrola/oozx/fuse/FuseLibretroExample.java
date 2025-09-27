@@ -31,7 +31,6 @@ public class FuseLibretroExample {
   public static boolean noTest = false;
 
   public static void main(String[] args) {
-    FuseLibretroExample fuseLibretroExample = new FuseLibretroExample();
     CommandHandler.createCommandHandler();
   }
 
