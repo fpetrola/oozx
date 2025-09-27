@@ -27,7 +27,7 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
   static List<TStateUpdate> tstatesUpdates = new ArrayList<>();
 
   public static List<TStateUpdate> getTstatesUpdates() {
-    if (FuseLibretroExample.noTest)
+    if (FuseLibretroConnector.noTest)
       tstatesUpdates.clear();
     return tstatesUpdates;
   }

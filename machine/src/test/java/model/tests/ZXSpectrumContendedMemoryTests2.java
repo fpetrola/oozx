@@ -25,7 +25,7 @@ public class ZXSpectrumContendedMemoryTests2 {
   @BeforeAll
   public static void beforeall() {
     localLibretroCore = new LocalLibretroCore();
-    remoteCore = CommandHandler.core;
+    remoteCore = FuseLibretroConnector.core;
     LibretroCoreMultiplexor libretroCoreMultiplexor = new LibretroCoreMultiplexor(localLibretroCore, remoteCore);
     CommandHandler commandHandler = CommandHandler.createCommandHandler(libretroCoreMultiplexor);
 

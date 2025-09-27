@@ -26,8 +26,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class FuseLibretroExample {
-  LibretroCore core = LibretroCore.INSTANCE;
+public class FuseLibretroConnector {
+  public static LibretroCore core = LibretroCore.INSTANCE;
   public static boolean noTest = false;
 
   public static void main(String[] args) {

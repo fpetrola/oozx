@@ -27,7 +27,7 @@ public class LoadSnapshot implements EmulatorCommand {
 
   @Override
   public Object execute(LibretroCore core) {
-    FuseLibretroExample.loadGame(core, fileName);
+    FuseLibretroConnector.loadGame(core, fileName);
     return EmulatorCommand.super.execute(core);
   }
 }

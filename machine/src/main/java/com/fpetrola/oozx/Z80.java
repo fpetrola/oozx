@@ -26,7 +26,6 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -107,7 +106,7 @@ public class Z80 {
     ooz80 = EmulatedMiniZX.createOOZ80(io);
 
     byte[][] bytes = new byte[1000][1000];
-    if (true || FuseLibretroExample.noTest) {
+    if (true || FuseLibretroConnector.noTest) {
 //      MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
 
       createScreen(io.miniZXKeyboard, new FuseScreen(EmulatedMiniZX.getMemFunction(ooz80), bytes));
