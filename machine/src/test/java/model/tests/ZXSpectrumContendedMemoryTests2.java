@@ -1,11 +1,6 @@
 package model.tests;
 
 import com.fpetrola.oozx.fuse.*;
-import model.connected.*;
-import model.interfaces.IMicrodrive;
-import model.interfaces.ISpectrumBus;
-import model.interfaces.IZ80CPU;
-import model.interfaces.IZXInterface1;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
@@ -14,7 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ZXSpectrumContendedMemoryTests2 {
-  static private TestDriver testDriver;
+  static private TestDriver testDriver1;
+  static private TestDriver testDriver2;
   private static LocalLibretroCore localLibretroCore;
   private static LibretroCore remoteCore;
 
@@ -25,22 +21,16 @@ public class ZXSpectrumContendedMemoryTests2 {
     CommandHandler commandHandler1 = DefaultCommandHandler.createCommandHandler(localLibretroCore);
     CommandHandler commandHandler2 = DefaultCommandHandler.createCommandHandler(remoteCore);
 
-//    LibretroCoreMultiplexor libretroCoreMultiplexor = new LibretroCoreMultiplexor(localLibretroCore, remoteCore);
-    CommandHandlerMultiplexor commandHandlerMultiplexor = new CommandHandlerMultiplexor(commandHandler1, commandHandler2);
-
-    testDriver = new TestDriver(commandHandlerMultiplexor);
-  }
-
-  private int setupModel(String model, int startTState) {
-    testDriver.setModel(model);
-    return startTState;
+    testDriver1 = new TestDriver(commandHandler1);
+    testDriver2 = new TestDriver(commandHandler2);
   }
 
   @BeforeEach
   void setUp() {
-    testDriver.reset();
-    testDriver.updatePC(0xA000);
-    testDriver.tstatesHistoryInit();
+    testDriver1.reset();
+    testDriver1.tstatesHistoryInit();
+    testDriver2.reset();
+    testDriver2.tstatesHistoryInit();
   }
 
 
@@ -50,17 +40,32 @@ public class ZXSpectrumContendedMemoryTests2 {
 
   @Test
   void test48KExecuteGame() {
-    int initialTStates = setupModel("48K", 40000);
-    testDriver.loadSnapshot("/home/fernando/detodo/desarrollo/m/zx/roms/jsw3.z80");
-    for (int i = 0; i < 30; i++) {
-      testDriver.step();
+    testDriver1.setModel("48K");
+    testDriver1.loadSnapshot("/home/fernando/detodo/desarrollo/m/zx/roms/jsw3.z80");
+
+    testDriver2.setModel("48K");
+    testDriver2.loadSnapshot("/home/fernando/detodo/desarrollo/m/zx/roms/jsw3.z80");
+
+
+    for (int i = 0; i < 200; i++) {
+      testDriver1.tstatesHistoryInit();
+      testDriver2.tstatesHistoryInit();
+      for (int j = 0; j <10; j++) {
+        testDriver1.step();
+        testDriver2.step();
+      }
+
+      List<TStateUpdate> tStateUpdates = GetTStatesHistory.getLocalTStateUpdates(localLibretroCore);
+      List<TStateUpdate> tStateUpdates2 = GetTStatesHistory.getRemoteTStateUpdates2(remoteCore);
+
+//      assertEquals(tStateUpdates.toString(), tStateUpdates2.toString());
+      assertEquals( tStateUpdates2, tStateUpdates);
+      int key = tStateUpdates.get(tStateUpdates.size()-1).key;
+      System.out.println(key);
     }
 //    assertEquals(initialTStates + 4 + 6 + 3 + 4, cpu.getTStates()); // Fetch + delay + write + delay, total +17
 //    assertEquals((byte) 0xAA, bus.readMemory(26000));
 
-
-    List<TStateUpdate> tStateUpdates = GetTStatesHistory.getLocalTStateUpdates(localLibretroCore);
-    List<TStateUpdate> tStateUpdates2 = GetTStatesHistory.getRemoteTStateUpdates2(remoteCore);
 
 
     ZXSpectrumContendedMemoryTests.assertTStatesHistory("""
@@ -104,7 +109,7 @@ public class ZXSpectrumContendedMemoryTests2 {
                  , TStateUpdate{key=40087, value=1, description='contend_write_no_mreq'}
                  , TStateUpdate{key=40088, value=1, description='contend_write_no_mreq'}
                  , TStateUpdate{key=40089, value=1, description='contend_write_no_mreq'}
-                 ]""", testDriver);
+                 ]""", testDriver1);
   }
 
 }

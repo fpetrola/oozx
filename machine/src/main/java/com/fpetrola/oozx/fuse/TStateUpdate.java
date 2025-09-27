@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.fuse;
 
+import java.util.Objects;
+
 public class TStateUpdate {
   public final int key;
   public final int value;
@@ -38,5 +40,16 @@ public class TStateUpdate {
         ", description='" + description + '\'' +
 //        ", pc='" + pc + '\'' +
         "}\n";
+  }
+
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    TStateUpdate that = (TStateUpdate) o;
+    return key == that.key && value == that.value && Objects.equals(description, that.description);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(key, value, description);
   }
 }

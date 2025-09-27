@@ -25,6 +25,11 @@ import javax.swing.Timer;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class FuseLibretroConnector {
   public static LibretroCore core = LibretroCore.INSTANCE;
@@ -82,10 +87,12 @@ public class FuseLibretroConnector {
 
     aCore.retro_init();
 
-//    loadGame(aCore, "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
-    new Timer(40, e -> {
-      aCore.retro_run();
-    }).start();
+
+    //    loadGame(aCore, "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
+
+    newSingleThreadScheduledExecutor()
+        .scheduleAtFixedRate(() ->
+            aCore.retro_run(), 0, 40, MILLISECONDS);
 //        aCore.retro_unload_game();
 //        aCore.retro_deinit();
 //        System.out.println("Ejecución terminada.");
