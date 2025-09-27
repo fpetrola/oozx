@@ -25,6 +25,7 @@ import java.util.List;
 public class CommandHandler {
   public static FuseLibretroExample fuseLibretroExample = new FuseLibretroExample();
   public  static LibretroCore core = fuseLibretroExample.core;
+  EmulatorCommand lastCommand;
 
   private List<EmulatorCommand> commandQueue = Collections.synchronizedList(new LinkedList<>());
   private List<EmulatorCommandResult> resultQueue = Collections.synchronizedList(new LinkedList<>());

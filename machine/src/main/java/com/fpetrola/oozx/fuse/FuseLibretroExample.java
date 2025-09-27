@@ -28,11 +28,6 @@ import java.nio.file.Path;
 
 public class FuseLibretroExample {
   LibretroCore core = LibretroCore.INSTANCE;
-
-  private int acounter;
-  static SpectrumPanel panel;
-  private LibretroCore.bridge_command bridgeCommand;
-  private EmulatorCommand lastCommand;
   public static boolean noTest = false;
 
   public static void main(String[] args) {
@@ -41,30 +36,32 @@ public class FuseLibretroExample {
   }
 
   public void init(CommandHandler commandHandler, LibretroCore aCore) {
-    if (noTest)
-      panel = getSpectrumPanel();
+    SpectrumPanel panel = getSpectrumPanel(noTest);
     aCore.retro_set_environment((cmd, data) -> true);
     aCore.retro_set_video_refresh((data1, width, height, pitch) -> {
       if (noTest)
         panel.updateFrame(data1, width, height, pitch);
     });
 
+    LibretroCore.bridge_command bridgeCommand;
+
     bridgeCommand = (cmd, data) -> {
-      if (lastCommand != null && lastCommand instanceof ContinueExecutionCommand) {
-        commandHandler.addResultFor(lastCommand, 0);
-        lastCommand = null;
+      CommandHandler commandHandler1 = commandHandler;
+      if (commandHandler1.lastCommand instanceof ContinueExecutionCommand) {
+        commandHandler1.addResultFor(commandHandler1.lastCommand, 0);
+        commandHandler1.lastCommand = null;
       }
       while (true) {
-        if (!commandHandler.noCommands()) {
-          EmulatorCommand command = commandHandler.pollCommand();
+        if (!commandHandler1.noCommands()) {
+          EmulatorCommand command = commandHandler1.pollCommand();
           if (command != null) {
             if (command instanceof ContinueExecutionCommand) {
-              lastCommand = command;
+              commandHandler1.lastCommand = command;
               return createBridgeResponse();
             } else {
               Object value = command.execute(aCore);
               if (value != null) {
-                commandHandler.addResultFor(command, value);
+                commandHandler1.addResultFor(command, value);
               }
             }
           }
@@ -122,16 +119,17 @@ public class FuseLibretroExample {
     }
   }
 
-  private static SpectrumPanel getSpectrumPanel() {
+  private static SpectrumPanel getSpectrumPanel(boolean noTest) {
     SpectrumPanel panel = new SpectrumPanel(320, 240);
 
-    SwingUtilities.invokeLater(() -> {
-      JFrame frame = new JFrame("ZX Spectrum via Libretro");
-      frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-      frame.add(panel);
-      frame.pack();
-      frame.setVisible(true);
-    });
+    if (noTest)
+      SwingUtilities.invokeLater(() -> {
+        JFrame frame = new JFrame("ZX Spectrum via Libretro");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(panel);
+        frame.pack();
+        frame.setVisible(true);
+      });
 
     return panel;
   }
