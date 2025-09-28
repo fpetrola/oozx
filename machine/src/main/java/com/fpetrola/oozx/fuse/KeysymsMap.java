@@ -16,21 +16,14 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse;
 
-import com.fpetrola.z80.minizx.MiniZXKeyboard;
+class KeysymsMap {
+    int ui; // libspectrum_dword
+    Input.InputKey fuse;
 
-public class Keyboard {
-  public static MiniZXKeyboard keyboard;
-
-  public static void registerStartup() {
-
-  }
-
-  public static byte read(int port) {
-    int port1 = port << 8;
-    int earBit = 191;
-    return (byte) (keyboard.readKeyboardPort(port1, true) & earBit);
-
-  }
+    KeysymsMap(int ui, Input.InputKey fuse) {
+        this.ui = ui;
+        this.fuse = fuse;
+    }
 }

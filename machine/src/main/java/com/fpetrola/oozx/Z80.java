@@ -26,6 +26,7 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -95,7 +96,10 @@ public class Z80 {
   private static void init2() {
     io = new MiniZXIO() {
       public synchronized WordNumber in(WordNumber port) {
+//        short invoke = LocalLibretroCore.retroInputStateT.invoke(port.intValue(), 0, 0, 0);
+        Spectrum.tstates= ooz80.getState().tstates;
         byte b = Periph.readPort(port.intValue());
+        ooz80.getState().tstates= Spectrum.tstates;
         return createValue(b);
       }
 
@@ -107,12 +111,13 @@ public class Z80 {
 
     byte[][] bytes = new byte[1000][1000];
     if (true || FuseLibretroConnector.noTest) {
-//      MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
+      JFrame screen1 = MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
 
-      createScreen(io.miniZXKeyboard, new FuseScreen(EmulatedMiniZX.getMemFunction(ooz80), bytes));
+//      JFrame screen = createScreen(io.miniZXKeyboard, new FuseScreen(EmulatedMiniZX.getMemFunction(ooz80), bytes));
+      new SwingKeyboard(screen1);
     }
     UiDisplay.screenMatrix = bytes;
-    Keyboard.keyboard = io.miniZXKeyboard;
+//    Keyboard0.keyboard = io.miniZXKeyboard;
 
     setupMemory();
   }
@@ -153,7 +158,7 @@ public class Z80 {
             if (state.tstates < Ula.contentionNoMreq.length) {
               byte tstates = Ula.contentionNoMreq[(int) state.tstates];
               if (tstates > 0) {
-                GetTStatesHistory.getTstatesUpdates().add(new TStateUpdate((int) getState().tstates, tstates, "ula " + (description != null ? description : "contend_read_no_mreq"), Z80.ooz80.getState().getPc().read().intValue()));
+                GetTStatesHistory.addTStateUpdate(tstates, "ula " + (description != null ? description : "contend_read_no_mreq"), (int) getState().tstates);
                 state.tstates += tstates;
               }
             }
@@ -167,7 +172,7 @@ public class Z80 {
       protected void getAddEvent(Event event) {
         if (event.getTime() > 0) {
           String description = getDescription(event);
-          GetTStatesHistory.getTstatesUpdates().add(new TStateUpdate((int) getState().tstates, event.getTime(), description, Z80.ooz80.getState().getPc().read().intValue()));
+          GetTStatesHistory.addTStateUpdate((byte) event.getTime(), description, (int) getState().tstates);
         }
         getState().addEvent(event);
       }
@@ -275,7 +280,7 @@ public class Z80 {
     }
   }
 
-  public static void createScreen(KeyListener keyListener, JComponent contentPane) {
+  public static JFrame createScreen(KeyListener keyListener, JComponent contentPane) {
     JFrame frame = new JFrame("Fuse ZX Spectrum");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setContentPane(contentPane);
@@ -283,5 +288,6 @@ public class Z80 {
     frame.pack();
     frame.setVisible(true);
     frame.addKeyListener(keyListener);
+    return frame;
   }
 }

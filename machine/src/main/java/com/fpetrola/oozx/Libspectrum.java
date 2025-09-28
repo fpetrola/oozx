@@ -18,7 +18,28 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.Joystick;
+
 public class Libspectrum {
+  public enum LibspectrumJoystick {
+    LIBSPECTRUM_JOYSTICK_CURSOR,
+    LIBSPECTRUM_JOYSTICK_KEMPSTON,
+    LIBSPECTRUM_JOYSTICK_SINCLAIR_1,
+    LIBSPECTRUM_JOYSTICK_SINCLAIR_2,
+    LIBSPECTRUM_JOYSTICK_TIMEX_1,
+    LIBSPECTRUM_JOYSTICK_TIMEX_2,
+    LIBSPECTRUM_JOYSTICK_FULLER
+  }
+
+  public static final int LIBSPECTRUM_JOYSTICK_INPUT_NONE = 0;
+  public static final int LIBSPECTRUM_JOYSTICK_INPUT_KEYBOARD = 1;
+  public static final int LIBSPECTRUM_JOYSTICK_INPUT_JOYSTICK_1 = 2;
+  public static final int LIBSPECTRUM_JOYSTICK_INPUT_JOYSTICK_2 = 3;
+
+  public static String joystickName(LibspectrumJoystick joystick) {
+    return joystick.toString();
+  }
+
   public static Object errorFunction;
 
   public static void snapSetOut128Memoryport(Snap snap, byte lastByte) {
@@ -124,6 +145,29 @@ public class Libspectrum {
   }
 
   public class Snap {
+    public int joystickActiveCount() {
+      return 0;
+    }
+
+    public Joystick.JoystickType joystickList(int i) {
+      return null;
+    }
+
+    public int joystickInputs(int i) {
+      return 0;
+    }
+
+    public void setJoystickInputs(int i, int i1) {
+
+    }
+
+    public void setJoystickList(int numJoysticks, Joystick.JoystickType libspectrumType) {
+
+    }
+
+    public void setJoystickActiveCount(int i) {
+
+    }
   }
 
   public class Error extends RuntimeException {

@@ -33,18 +33,19 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class FuseLibretroConnector {
   public static LibretroCore core = LibretroCore.INSTANCE;
-  public static boolean noTest = false;
+  public static boolean noTest = true;
 
   public static void main(String[] args) {
+    new FuseLibretroConnector();
     DefaultCommandHandler.createCommandHandler();
   }
 
   public void init(DefaultCommandHandler commandHandler, LibretroCore aCore) {
-    SpectrumPanel panel = getSpectrumPanel(noTest);
+//    SpectrumPanel panel = getSpectrumPanel(noTest);
     aCore.retro_set_environment((cmd, data) -> true);
     aCore.retro_set_video_refresh((data1, width, height, pitch) -> {
-      if (noTest)
-        panel.updateFrame(data1, width, height, pitch);
+//      if (noTest)
+//        panel.updateFrame(data1, width, height, pitch);
     });
 
     LibretroCore.bridge_command bridgeCommand;
@@ -82,17 +83,27 @@ public class FuseLibretroConnector {
     aCore.retro_set_input_poll(() -> {
     });
     aCore.retro_set_input_state((port, device, index, id) -> {
+//      System.out.printf("%d %d %d %d %d\n", port, device, index, id, port & 0xff);
       return (short) 0x00;
     });
 
     aCore.retro_init();
 
 
-    //    loadGame(aCore, "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
+    loadGame(aCore, "/home/fernando/detodo/desarrollo/m/zx/roms/dynamitedan.z80");
 
-    newSingleThreadScheduledExecutor()
-        .scheduleAtFixedRate(() ->
-            aCore.retro_run(), 0, 40, MILLISECONDS);
+    while (true)
+    {
+      aCore.retro_run();
+    }
+
+//    new Timer(40, (a) -> {
+//      aCore.retro_run();
+//    }).start();
+
+//    newSingleThreadScheduledExecutor()
+//        .scheduleAtFixedRate(() ->
+//            aCore.retro_run(), 0, 40, MILLISECONDS);
 //        aCore.retro_unload_game();
 //        aCore.retro_deinit();
 //        System.out.println("Ejecución terminada.");

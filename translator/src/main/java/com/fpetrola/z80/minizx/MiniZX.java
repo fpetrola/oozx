@@ -53,7 +53,7 @@ public abstract class MiniZX extends SyncSpectrumApplication {
 
   protected abstract String getProgramBytes();
 
-  public static void createScreen(KeyListener keyListener, Function<Integer, Integer> memFunction) {
+  public static JFrame createScreen(KeyListener keyListener, Function<Integer, Integer> memFunction) {
     JFrame frame = new JFrame("Mini ZX Spectrum");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setContentPane(new MiniZXScreen(memFunction));
@@ -61,6 +61,7 @@ public abstract class MiniZX extends SyncSpectrumApplication {
     frame.pack();
     frame.setVisible(true);
     frame.addKeyListener(keyListener);
+    return frame;
   }
 
 }

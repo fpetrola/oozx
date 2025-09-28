@@ -94,12 +94,12 @@ public class Periph {
 
     // Functional interfaces for port read/write
     @FunctionalInterface
-    interface PortReadFunction {
+    public interface PortReadFunction {
         byte apply(int port, byte[] attached);
     }
 
     @FunctionalInterface
-    interface PortWriteFunction {
+    public interface PortWriteFunction {
         void apply(int port, byte data);
     }
 
@@ -115,7 +115,7 @@ public class Periph {
         PortReadFunction read;
         PortWriteFunction write;
 
-        Port(int mask, int value, PortReadFunction read, PortWriteFunction write) {
+        public Port(int mask, int value, PortReadFunction read, PortWriteFunction write) {
             this.mask = mask;
             this.value = value;
             this.read = read;
@@ -130,7 +130,7 @@ public class Periph {
         boolean hardReset; // Hard reset required when added/removed
         ActivateFunction activate; // Function called when peripheral is activated
 
-        Peripheral(boolean[] option, List<Port> ports, boolean hardReset, ActivateFunction activate) {
+        public Peripheral(boolean[] option, List<Port> ports, boolean hardReset, ActivateFunction activate) {
             this.option = option;
             this.ports = ports;
             this.hardReset = hardReset;

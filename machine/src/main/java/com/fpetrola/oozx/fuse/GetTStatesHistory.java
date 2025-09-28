@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx.fuse;
 
+import com.fpetrola.oozx.Z80;
 import com.sun.jna.Pointer;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ import java.util.List;
 public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
   static List<TStateUpdate> tstatesUpdates = new ArrayList<>();
 
-  public static List<TStateUpdate> getTstatesUpdates() {
+  private static List<TStateUpdate> getTstatesUpdates() {
     if (FuseLibretroConnector.noTest)
       tstatesUpdates.clear();
     return tstatesUpdates;
@@ -34,6 +35,10 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
 
   public static void setTstatesUpdates(List<TStateUpdate> tstatesUpdates) {
     GetTStatesHistory.tstatesUpdates = tstatesUpdates;
+  }
+
+  public static void addTStateUpdate(byte tstatesToAdd, String description, int tstates) {
+    getTstatesUpdates().add(new TStateUpdate(tstates, tstatesToAdd, description, Z80.ooz80.getState().getPc().read().intValue()));
   }
 
   public List<TStateUpdate> execute(LibretroCore core) {

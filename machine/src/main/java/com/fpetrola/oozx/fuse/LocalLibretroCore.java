@@ -30,6 +30,7 @@ import com.sun.jna.Pointer;
 public class LocalLibretroCore implements LibretroCore {
 
   public static boolean noContended = false;
+  public static retro_input_state_t retroInputStateT;
 
   public LocalLibretroCore() {
     Fuse.fuseInit(new String[]{});
@@ -85,8 +86,8 @@ public class LocalLibretroCore implements LibretroCore {
 
   }
 
-  public void retro_set_input_state(retro_input_state_t cb) {
-
+  public void retro_set_input_state(retro_input_state_t retroInputStateT) {
+    this.retroInputStateT= retroInputStateT;
   }
 
   public void retro_get_system_info(Pointer info) {

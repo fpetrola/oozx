@@ -16,18 +16,14 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse;
 
-public class UiJoystick {
-  public static void poll() {
+public class SpectrumKeys {
+    KeyboardKeyName key1;
+    KeyboardKeyName key2;
 
-  }
-
-  public static int init() {
-    return 0;
-  }
-
-  public static void end() {
-
-  }
+    SpectrumKeys(KeyboardKeyName key1, KeyboardKeyName key2) {
+        this.key1 = key1;
+        this.key2 = key2;
+    }
 }

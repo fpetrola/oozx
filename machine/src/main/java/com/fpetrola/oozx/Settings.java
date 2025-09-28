@@ -26,6 +26,8 @@ package com.fpetrola.oozx;// settings.java: Handling configuration settings
 // - StartupManager, StartupManagerModule
 // - Other necessary classes for file handling (e.g., Utils)
 
+import com.fpetrola.oozx.fuse.Joystick;
+
 public class Settings {
 
   public static void setString(String startMachine, String id) {
@@ -92,43 +94,43 @@ public class Settings {
     public boolean joyKempston;
     public boolean joyPrompt;
     public String joystick1;
-    public boolean joystick1Fire1;
-    public boolean joystick1Fire10;
-    public boolean joystick1Fire11;
-    public boolean joystick1Fire12;
-    public boolean joystick1Fire13;
-    public boolean joystick1Fire14;
-    public boolean joystick1Fire15;
-    public boolean joystick1Fire2;
-    public boolean joystick1Fire3;
-    public boolean joystick1Fire4;
-    public boolean joystick1Fire5;
-    public boolean joystick1Fire6;
-    public boolean joystick1Fire7;
-    public boolean joystick1Fire8;
-    public boolean joystick1Fire9;
-    public int joystick1Output;
+    public int joystick1Fire1;
+    public int joystick1Fire10;
+    public int joystick1Fire11;
+    public int joystick1Fire12;
+    public int joystick1Fire13;
+    public int joystick1Fire14;
+    public int joystick1Fire15;
+    public int joystick1Fire2;
+    public int joystick1Fire3;
+    public int joystick1Fire4;
+    public int joystick1Fire5;
+    public int joystick1Fire6;
+    public int joystick1Fire7;
+    public int joystick1Fire8;
+    public int joystick1Fire9;
+    public Joystick.JoystickType joystick1Output;
     public String joystick2;
-    public boolean joystick2Fire1;
-    public boolean joystick2Fire10;
-    public boolean joystick2Fire11;
-    public boolean joystick2Fire12;
-    public boolean joystick2Fire13;
-    public boolean joystick2Fire14;
-    public boolean joystick2Fire15;
-    public boolean joystick2Fire2;
-    public boolean joystick2Fire3;
-    public boolean joystick2Fire4;
-    public boolean joystick2Fire5;
-    public boolean joystick2Fire6;
-    public boolean joystick2Fire7;
-    public boolean joystick2Fire8;
-    public boolean joystick2Fire9;
-    public int joystick2Output;
+    public int joystick2Fire1;
+    public int joystick2Fire10;
+    public int joystick2Fire11;
+    public int joystick2Fire12;
+    public int joystick2Fire13;
+    public int joystick2Fire14;
+    public int joystick2Fire15;
+    public int joystick2Fire2;
+    public int joystick2Fire3;
+    public int joystick2Fire4;
+    public int joystick2Fire5;
+    public int joystick2Fire6;
+    public int joystick2Fire7;
+    public int joystick2Fire8;
+    public int joystick2Fire9;
+    public Joystick.JoystickType joystick2Output;
     public int joystickKeyboardDown;
     public int joystickKeyboardFire;
     public int joystickKeyboardLeft;
-    public int joystickKeyboardOutput;
+    public Joystick.JoystickType joystickKeyboardOutput;
     public int joystickKeyboardRight;
     public int joystickKeyboardUp;
     public boolean kempstonMouse;

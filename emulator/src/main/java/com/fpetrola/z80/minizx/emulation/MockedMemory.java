@@ -50,6 +50,8 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
     T value = doRead(address);
     T cachedValue = null;
     //FIXME: para que????
+    if (fetching== 10)
+      return value;
 
     boolean b = fetching == 1|| address.intValue() < 0 || (cachedValue = cachedValues[address.intValue()]) != value;
     if (memoryReadListener != null && b) {

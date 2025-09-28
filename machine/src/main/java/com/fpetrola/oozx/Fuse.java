@@ -16,9 +16,11 @@
  *
  */
 
-package com.fpetrola.oozx;import java.util.*;
+package com.fpetrola.oozx;
 
-import static com.fpetrola.oozx.StartupManagerModule.Z80;
+import com.fpetrola.oozx.fuse.Keyboard;
+
+import java.util.*;
 
 // Assuming ported dependencies:
 // - Libspectrum (with LibspectrumSnap, LibspectrumCreator, error handling)

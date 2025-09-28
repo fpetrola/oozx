@@ -23,6 +23,10 @@ import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
   public static <T1 extends WordNumber> T1 read16Bits(Memory<T1> memory, T1 address) {
     return Memory.read16Bits(memory, address);
@@ -112,18 +116,18 @@ public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
   }
 
   private final Memory<T> memory;
-  protected T[] cachedValues = (T[]) new WordNumber[0x10000];
+  protected Map<Integer, T> cachedValues = new HashMap<>();
 
   public MemoryForOpcodes(Memory<T> memory) {
     this.memory = memory;
   }
 
   public T read(T address, int fetching) {
-    if (cachedValues[address.intValue()] != null)
-      return cachedValues[address.intValue()];
+    if (cachedValues.containsKey(address.intValue()))
+      return cachedValues.get(address.intValue());
     else {
       T value = memory.read(address, fetching);
-      cachedValues[address.intValue()] = value;
+      cachedValues.put(address.intValue(), value);
       return value;
     }
   }
@@ -134,6 +138,6 @@ public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
   }
 
   public void reset() {
-    cachedValues = (T[]) new WordNumber[0x10000];
+    cachedValues.clear();
   }
 }

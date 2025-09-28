@@ -16,18 +16,14 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse;
 
-public class UiJoystick {
-  public static void poll() {
+class KeyBit {
+    int port;
+    byte bit;
 
-  }
-
-  public static int init() {
-    return 0;
-  }
-
-  public static void end() {
-
-  }
+    KeyBit(int port, byte bit) {
+        this.port = port;
+        this.bit = bit;
+    }
 }

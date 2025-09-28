@@ -18,16 +18,22 @@
 
 package com.fpetrola.oozx;
 
-public class UiJoystick {
-  public static void poll() {
+import java.util.function.Consumer;
 
-  }
+// Assuming supporting classes
+public class ModuleInfo {
+    ModuleResetFn reset;
+    ModuleRomcsFn romcs;
+    ModuleSnapshotEnabledFn snapshotEnabled;
+    Consumer<Libspectrum.Snap> snapshotFrom;
+    Consumer<Libspectrum.Snap> snapshotTo;
 
-  public static int init() {
-    return 0;
-  }
-
-  public static void end() {
-
-  }
+    public ModuleInfo(ModuleResetFn reset, ModuleRomcsFn romcs, ModuleSnapshotEnabledFn snapshotEnabled,
+               Consumer<Libspectrum.Snap> snapshotFrom, Consumer<Libspectrum.Snap> snapshotTo) {
+        this.reset = reset;
+        this.romcs = romcs;
+        this.snapshotEnabled = snapshotEnabled;
+        this.snapshotFrom = snapshotFrom;
+        this.snapshotTo = snapshotTo;
+    }
 }

@@ -18,9 +18,9 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.Keyboard;
+
 import java.util.Arrays;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 // Assuming ported dependencies:
@@ -182,7 +182,7 @@ public class Ula {
         Loader.detectLoader();
 
         r &= PhantomTypist.ulaRead(port);
-        r &= Keyboard.read(port >> 8);
+        r &= Keyboard.read((byte) (port >> 8));
         if (Tape.microphone) r ^= 0x40;
 
         return r;
@@ -258,20 +258,3 @@ public class Ula {
     }
 }
 
-// Assuming supporting classes
-class ModuleInfo {
-    ModuleResetFn reset;
-    ModuleRomcsFn romcs;
-    ModuleSnapshotEnabledFn snapshotEnabled;
-    Consumer<Libspectrum.Snap> snapshotFrom;
-    Consumer<Libspectrum.Snap> snapshotTo;
-
-    ModuleInfo(ModuleResetFn reset, ModuleRomcsFn romcs, ModuleSnapshotEnabledFn snapshotEnabled,
-               Consumer<Libspectrum.Snap> snapshotFrom, Consumer<Libspectrum.Snap> snapshotTo) {
-        this.reset = reset;
-        this.romcs = romcs;
-        this.snapshotEnabled = snapshotEnabled;
-        this.snapshotFrom = snapshotFrom;
-        this.snapshotTo = snapshotTo;
-    }
-}

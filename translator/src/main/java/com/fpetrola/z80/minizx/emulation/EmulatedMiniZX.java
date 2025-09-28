@@ -64,7 +64,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
   }
 
   public static Function<Integer, Integer> getMemFunction(OOZ80<?> ooz81) {
-    return index -> ooz81.getState().getMemory().read(WordNumber.createValue(index), 0).intValue();
+    return index -> ooz81.getState().getMemory().read(WordNumber.createValue(index), 10).intValue();
   }
 
   public void start() {

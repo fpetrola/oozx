@@ -23,6 +23,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class DefaultCommandHandler implements CommandHandler {
+  public static LibretroCore core;
+
   EmulatorCommand lastCommand;
 
   private List<EmulatorCommand> commandQueue = Collections.synchronizedList(new LinkedList<>());
@@ -32,8 +34,8 @@ public class DefaultCommandHandler implements CommandHandler {
   }
 
   public static CommandHandler createCommandHandler() {
-//    core = new LocalLibretroCore();
-    return createCommandHandler(FuseLibretroConnector.core);
+    core = new LocalLibretroCore();
+    return createCommandHandler(core);
   }
 
   public static CommandHandler createCommandHandler(LibretroCore core1) {

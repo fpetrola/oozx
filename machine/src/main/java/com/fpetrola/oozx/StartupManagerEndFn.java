@@ -18,16 +18,7 @@
 
 package com.fpetrola.oozx;
 
-public class UiJoystick {
-  public static void poll() {
-
-  }
-
-  public static int init() {
-    return 0;
-  }
-
-  public static void end() {
-
-  }
+@FunctionalInterface
+public interface StartupManagerEndFn {
+    void apply();
 }

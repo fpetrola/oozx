@@ -1,5 +1,6 @@
 package model.tests;
 
+import com.fpetrola.oozx.Spectrum;
 import com.fpetrola.oozx.fuse.*;
 import org.junit.jupiter.api.*;
 
@@ -50,22 +51,25 @@ public class ZXSpectrumContendedMemoryTests2 {
     for (int i = 0; i < 200; i++) {
       testDriver1.tstatesHistoryInit();
       testDriver2.tstatesHistoryInit();
-      for (int j = 0; j <10; j++) {
+      for (int j = 0; j < 10; j++) {
         testDriver1.step();
         testDriver2.step();
+        if (Spectrum.tstates > 62080 && Spectrum.tstates < 62087 ) {
+          System.out.println("sdsdgsdgdg");
+        }
       }
 
       List<TStateUpdate> tStateUpdates = GetTStatesHistory.getLocalTStateUpdates(localLibretroCore);
       List<TStateUpdate> tStateUpdates2 = GetTStatesHistory.getRemoteTStateUpdates2(remoteCore);
 
+
 //      assertEquals(tStateUpdates.toString(), tStateUpdates2.toString());
-      assertEquals( tStateUpdates2, tStateUpdates);
-      int key = tStateUpdates.get(tStateUpdates.size()-1).key;
+      assertEquals(tStateUpdates2, tStateUpdates);
+      int key = tStateUpdates.get(tStateUpdates.size() - 1).key;
       System.out.println(key);
     }
 //    assertEquals(initialTStates + 4 + 6 + 3 + 4, cpu.getTStates()); // Fetch + delay + write + delay, total +17
 //    assertEquals((byte) 0xAA, bus.readMemory(26000));
-
 
 
     ZXSpectrumContendedMemoryTests.assertTStatesHistory("""

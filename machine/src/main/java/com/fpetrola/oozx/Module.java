@@ -22,21 +22,6 @@ package com.fpetrola.oozx;import java.util.*;
 // Functional interfaces replace function pointers
 
 @FunctionalInterface
-interface ModuleResetFn {
-    void apply(int hardReset);
-}
-
-@FunctionalInterface
-interface ModuleRomcsFn {
-    void apply();
-}
-
-@FunctionalInterface
-interface ModuleSnapshotEnabledFn {
-    void apply(Libspectrum.Snap snap);
-}
-
-@FunctionalInterface
 interface ModuleSnapshotFromFn {
     void apply(Libspectrum.Snap snap);
 }

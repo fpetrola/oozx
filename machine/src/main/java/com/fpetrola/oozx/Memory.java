@@ -21,7 +21,6 @@ package com.fpetrola.oozx;// Memory.java: Memory access routines
 // E-mail: philip-fuse@shadowmagic.org.uk
 
 import com.fpetrola.oozx.fuse.GetTStatesHistory;
-import com.fpetrola.oozx.fuse.TStateUpdate;
 
 import java.util.*;
 
@@ -300,7 +299,7 @@ public class Memory {
         byte tstates = Ula.contention[(int) Spectrum.tstates];
         if (tstates > 0) {
 //              System.out.println(format("{0} -> adding readByte tstates: {1}", Spectrum.tstates, tstates));
-          GetTStatesHistory.getTstatesUpdates().add(new TStateUpdate((int) Spectrum.tstates, tstates, "ula readbyte", Z80.ooz80.getState().getPc().read().intValue()));
+          GetTStatesHistory.addTStateUpdate(tstates, "ula readbyte", (int) Spectrum.tstates);
         }
         Spectrum.tstates += tstates;
       }
@@ -342,7 +341,7 @@ public class Memory {
       byte tstates = Ula.contention[(int) Spectrum.tstates];
       if (tstates > 0) {
 //              System.out.println(format("{0} -> adding writeByte tstates: {1}", Spectrum.tstates, tstates));
-        GetTStatesHistory.getTstatesUpdates().add(new TStateUpdate((int) Spectrum.tstates, tstates, "ula writebyte", Z80.ooz80.getState().getPc().read().intValue()));
+        GetTStatesHistory.addTStateUpdate(tstates, "ula writebyte", (int) Spectrum.tstates);
       }
       Spectrum.tstates += tstates;
     }

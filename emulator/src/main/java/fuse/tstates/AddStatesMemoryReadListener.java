@@ -50,7 +50,8 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
       }
 
       if (pendingEvent) {
-        lastEvents.run();
+        if (lastEvents != null)
+          lastEvents.run();
         lastEvents = null;
       }
 

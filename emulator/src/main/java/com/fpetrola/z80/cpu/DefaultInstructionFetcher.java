@@ -107,7 +107,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     memory.enableReadListener();
 
     try {
-      lastInstructions.add(new ExecutedInstruction(pcValue.intValue(), this.instruction));
+//      lastInstructions.add(new ExecutedInstruction(pcValue.intValue(), this.instruction));
 
 //      if (pcValue.intValue() == 0xE667)
 //        System.out.println("");

@@ -18,16 +18,19 @@
 
 package com.fpetrola.oozx;
 
-public class UiJoystick {
-  public static void poll() {
+import com.fpetrola.z80.minizx.MiniZXKeyboard;
+
+public class Keyboard0 {
+  public static MiniZXKeyboard keyboard;
+
+  public static void registerStartup() {
 
   }
 
-  public static int init() {
-    return 0;
-  }
-
-  public static void end() {
+  public static byte read(int port) {
+    int port1 = port << 8;
+    int earBit = 191;
+    return (byte) (keyboard.readKeyboardPort(port1, true) & earBit);
 
   }
 }

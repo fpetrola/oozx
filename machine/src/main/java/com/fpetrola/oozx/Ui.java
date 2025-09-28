@@ -18,7 +18,39 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.Joystick;
+
 public class Ui {
+  public static int widgetLevel;
+
+  public static void widgetKeyhandler(int value) {
+
+  }
+
+  public static void popupMenu(int value) {
+
+  }
+
+  // Error levels
+  public enum UIErrorLevel {
+    UI_ERROR_INFO,
+    UI_ERROR_WARNING,
+    UI_ERROR_ERROR
+  }
+
+  public enum UIConfirmJoystick {
+    UI_CONFIRM_JOYSTICK_NONE,
+    UI_CONFIRM_JOYSTICK_KEYBOARD,
+    UI_CONFIRM_JOYSTICK_JOYSTICK_1,
+    UI_CONFIRM_JOYSTICK_JOYSTICK_2
+  }
+
+  // Confirm joystick (from Joystick.java)
+  public static UIConfirmJoystick confirmJoystick(Joystick.JoystickType joystick, int inputs) {
+    // Placeholder: Show joystick configuration dialog
+    return UIConfirmJoystick.UI_CONFIRM_JOYSTICK_NONE;
+  }
+
   public static boolean mousePresent;
   public static boolean mouseGrabbed;
 
@@ -26,7 +58,7 @@ public class Ui {
     return 0;
   }
 
-  public static void error(String error, String s, int size) {
+  public static void error(Object error, String s, int size) {
 
   }
 
@@ -38,7 +70,7 @@ public class Ui {
 
   }
 
-  public static void error(String error, String s) {
+  public static void error(Object error, String s) {
 
   }
 
@@ -57,7 +89,7 @@ public class Ui {
     return i;
   }
 
-  public static void error(String error, String s, Object version, String libspectrumMinVersion) {
+  public static void error(Object error, String s, Object version, String libspectrumMinVersion) {
 
   }
 
@@ -67,6 +99,10 @@ public class Ui {
 
   public static boolean mouseRelease(boolean b) {
     return false;
+  }
+
+  public static void mouseSuspend() {
+
   }
 
   public enum MenuItem {MEDIA_CARTRIDGE_DOCK, MEDIA_CARTRIDGE_IF2, MEDIA_IDE, MEDIA_IDE_SIMPLE8BIT, MEDIA_IDE_ZXATASP, MEDIA_IDE_ZXCF, MEDIA_IDE_DIVIDE, MEDIA_IDE_DIVMMC, MEDIA_IDE_ZXMMC, MEDIA_IF1, MEDIA_CARTRIDGE}

@@ -79,17 +79,6 @@ public enum StartupManagerModule {
     ZXMMC;
 }
 
-// Functional interfaces for init and end callbacks
-@FunctionalInterface
-interface StartupManagerInitFn {
-    int apply(Object context);
-}
-
-@FunctionalInterface
-interface StartupManagerEndFn {
-    void apply();
-}
-
 // Class to represent a registered module
 class RegisteredModule {
     StartupManagerModule module;
