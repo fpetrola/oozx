@@ -93,7 +93,8 @@ public class Rectangle {
 
   // Move all rectangles not updated on this line to the inactive list
   public static void endLine(int y) {
-    for (Rect rect : active) {
+    for (Iterator<Rect> iterator = active.iterator(); iterator.hasNext(); ) {
+      Rect rect = iterator.next();
       if (rect == null) continue;
 
       // Skip if this rectangle was updated this line
@@ -103,6 +104,7 @@ public class Rectangle {
 
       // Check for merge with inactive list if frame skip is enabled
       if (Settings.current.frameRate > 1 && compareAndMergeRectangles(rect)) {
+        iterator.remove();
         rect.setH(0); // Mark as done
         continue;
       }

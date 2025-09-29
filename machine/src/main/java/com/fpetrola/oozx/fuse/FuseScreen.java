@@ -21,10 +21,8 @@ package com.fpetrola.oozx.fuse;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.function.Function;
 
 public class FuseScreen extends JPanel {
-  protected final Function<Integer, Integer> screenMemory;
   private final byte[][] screenMatrix;
   private final BufferedImage screenBuffer;
   private double zoom = 2;
@@ -32,8 +30,7 @@ public class FuseScreen extends JPanel {
   private int width = 256 + 48 + 48;
   private int height = 192 + 64 + 56;
 
-  public FuseScreen(Function<Integer, Integer> screenMemory, byte[][] screenMatrix) {
-    this.screenMemory = screenMemory;
+  public FuseScreen(byte[][] screenMatrix) {
     this.screenMatrix = screenMatrix;
     setPreferredSize(new Dimension((int) (256 + 100 * zoom), (int) (192 + 100 * zoom)));
     this.screenBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);

@@ -319,15 +319,16 @@ public class Display {
     }
 
     public static void getBeamPosition(int[] beam) {
-        if (Spectrum.tstates < Machine.current.lineTimes[0]) {
+        long tstates = Spectrum.tstates;
+        if (tstates < Machine.current.lineTimes[0]) {
             beam[0] = beam[1] = -1;
             return;
         }
 
-        beam[1] = (int) ((Spectrum.tstates - Machine.current.lineTimes[0]) / Machine.current.timings.tstatesPerLine);
+        beam[1] = (int) ((tstates - Machine.current.lineTimes[0]) / Machine.current.timings.tstatesPerLine);
 
         if (beam[1] >= 0 && beam[1] <= SCREEN_HEIGHT) {
-            beam[0] = (int) ((Spectrum.tstates - Machine.current.lineTimes[beam[1]]) / 4);
+            beam[0] = (int) ((tstates - Machine.current.lineTimes[beam[1]]) / 4);
         } else {
             beam[0] = 0;
         }
@@ -534,7 +535,7 @@ public class Display {
                 if (Movie.recording) {
                     Movie.addArea(0, 0, ASPECT_WIDTH >> 3, SCREEN_HEIGHT);
                 }
-                UiDisplay.area(0, 0, scale * ASPECT_WIDTH, scale * SCREEN_HEIGHT);
+                //UiDisplay.area(0, 0, scale * ASPECT_WIDTH, scale * SCREEN_HEIGHT);
                 redrawAll = false;
             } else {
                 for (Rect rect : Rectangle.inactive) {
@@ -544,6 +545,8 @@ public class Display {
                     UiDisplay.area(8 * scale * rect.x, scale * rect.y, 8 * scale * rect.getW(), scale * rect.getH());
                 }
             }
+
+            Rectangle.inactive.clear();
 
             UiDisplay.frameEnd();
         }

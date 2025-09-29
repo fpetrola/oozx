@@ -26,7 +26,6 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -97,9 +96,9 @@ public class Z80 {
     io = new MiniZXIO() {
       public synchronized WordNumber in(WordNumber port) {
 //        short invoke = LocalLibretroCore.retroInputStateT.invoke(port.intValue(), 0, 0, 0);
-        Spectrum.tstates= ooz80.getState().tstates;
+        Spectrum.tstates = ooz80.getState().tstates;
         byte b = Periph.readPort(port.intValue());
-        ooz80.getState().tstates= Spectrum.tstates;
+        ooz80.getState().tstates = Spectrum.tstates;
         return createValue(b);
       }
 
@@ -111,10 +110,10 @@ public class Z80 {
 
     byte[][] bytes = new byte[1000][1000];
     if (true || FuseLibretroConnector.noTest) {
-      JFrame screen1 = MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
+//      JFrame screen1 = MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
 
-//      JFrame screen = createScreen(io.miniZXKeyboard, new FuseScreen(EmulatedMiniZX.getMemFunction(ooz80), bytes));
-      new SwingKeyboard(screen1);
+      JFrame screen = createScreen(io.miniZXKeyboard, new FuseScreen(bytes));
+      new SwingKeyboard(screen);
     }
     UiDisplay.screenMatrix = bytes;
 //    Keyboard0.keyboard = io.miniZXKeyboard;
@@ -132,7 +131,7 @@ public class Z80 {
     Z80Loader.LibSpectrum lib = Z80Loader.LibSpectrum.INSTANCE;
     Z80Loader.libspectrum_snap snap = Z80Loader.getLibspectrumSnap(lib, url);
     state.tstates = lib.libspectrum_snap_tstates(snap);
-    Spectrum.tstates= state.tstates;
+    Spectrum.tstates = state.tstates;
     updateScreen();
 
     IO<?> io1 = state.getIo();
@@ -216,6 +215,7 @@ public class Z80 {
           return;
 
         this.phaseProcessor.processPhase(new BeforeWrite());
+
         processUlaContention(address, value);
         this.phaseProcessor.addMultipleMc(1, 3, 0, address.intValue(), "writebyte");
         this.phaseProcessor.addMw(address, value);
@@ -225,7 +225,9 @@ public class Z80 {
 
       private void processUlaContention(WordNumber address, WordNumber value) {
         Spectrum.tstates = state.tstates;
-        com.fpetrola.oozx.Memory.writeByte(address.intValue(), (byte) value.intValue());
+        com.fpetrola.oozx.Memory.writeByte(address.intValue(), (byte) (value.intValue() & 0xff));
+        ooz80.getState().getMemory().getData()[address.intValue()] = value;
+        updateScreen();
         state.tstates = Spectrum.tstates;
       }
     });
@@ -276,7 +278,9 @@ public class Z80 {
   private static void updateScreen() {
     WordNumber[] data = ooz80.getState().getMemory().getData();
     for (int i = 0; i < 0x4000; i++) {
-      Spectrum.RAM[0][i] = (byte) data[i + 0x4000].intValue();
+      WordNumber datum = data[i + 0x4000];
+      if (datum != null)
+        Spectrum.RAM[0][i] = (byte) (datum.intValue() & 0xff);
     }
   }
 
