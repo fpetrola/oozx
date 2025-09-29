@@ -36,6 +36,7 @@ public class FuseLibretroConnector {
   public static boolean noTest;
 
   public static void main(String[] args) {
+    noTest= true;
     new FuseLibretroConnector();
     DefaultCommandHandler.createCommandHandler();
   }
@@ -91,7 +92,7 @@ public class FuseLibretroConnector {
 //    aCore.retro_api_version();
     aCore.retro_init();
 
-//    loadGame(aCore, "/home/fernando/detodo/desarrollo/m/zx/roms/aqua.z80");
+    loadGame(aCore, "/home/fernando/detodo/desarrollo/m/zx/roms/aqua.z80");
 
 //    while (true)
 //    {

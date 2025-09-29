@@ -35,7 +35,7 @@ public class DefaultCommandHandler implements CommandHandler {
 
   public static CommandHandler createCommandHandler() {
     core= FuseLibretroConnector.core;
-//    core = new LocalLibretroCore();
+    core = new LocalLibretroCore();
     return createCommandHandler(core);
   }
 
