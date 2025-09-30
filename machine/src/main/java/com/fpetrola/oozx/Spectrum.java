@@ -84,12 +84,6 @@ public class Spectrum {
 
 
     public static int memoryCurrentScreen;
-    public static MemoryPage[] memoryMapRead= new MemoryPage[0x1000];
-    static {
-        for (int i = 0; i < 0x1000; i++) {
-            memoryMapRead[i] = new MemoryPage();
-        }
-    }
     // Contention patterns
     private static int[] contentionPattern65432100 = {5, 4, 3, 2, 1, 0, 0, 6};
     private static int[] contentionPattern76543210 = {5, 4, 3, 2, 1, 0, 7, 6};

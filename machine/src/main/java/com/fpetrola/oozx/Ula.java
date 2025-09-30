@@ -234,7 +234,8 @@ public class Ula {
 
   // Handle contention for port access (early phase)
   public static void contendPortEarly(int port) {
-    if (Spectrum.memoryMapRead[port >> Memory.PAGE_SIZE_LOGARITHM].contended) {
+//    System.out.println("port2 "+ port);
+    if (Memory.mapRead[port >> Memory.PAGE_SIZE_LOGARITHM].contended) {
       GetTStatesHistory.addTStateUpdate(contentionNoMreq[(int) Spectrum.tstates], "ula_contend_port_early", (int) Spectrum.tstates);
       Spectrum.tstates += contentionNoMreq[(int) Spectrum.tstates];
     }
@@ -249,7 +250,7 @@ public class Ula {
       Spectrum.tstates += contentionNoMreq[(int) Spectrum.tstates];
       Spectrum.tstates += 2;
     } else {
-      if (Spectrum.memoryMapRead[port >> Memory.PAGE_SIZE_LOGARITHM].contended) {
+      if (Memory.mapRead[port >> Memory.PAGE_SIZE_LOGARITHM].contended) {
         GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) Spectrum.tstates] + 1), "ula_contend_port_late", (int) Spectrum.tstates);
         Spectrum.tstates += contentionNoMreq[(int) Spectrum.tstates];
         Spectrum.tstates++;
@@ -259,7 +260,7 @@ public class Ula {
         GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) Spectrum.tstates] ), "ula_contend_port_late", (int) Spectrum.tstates);
         Spectrum.tstates += contentionNoMreq[(int) Spectrum.tstates];
       } else {
-        GetTStatesHistory.addTStateUpdate((byte) 2, " contend_port_late", (int) Spectrum.tstates);
+        GetTStatesHistory.addTStateUpdate((byte) 2, "contend_port_late", (int) Spectrum.tstates);
         Spectrum.tstates += 2;
       }
     }
