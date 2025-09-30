@@ -35,7 +35,7 @@ public class TableBasedOpCodeDecoder<T> implements OpCodeDecoder {
   InstructionFactory instructionFactory;
 
   public TableBasedOpCodeDecoder(State state, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionFactory instructionFactory, Memory memoryForOpcode) {
-    memoryForOpcode= state.getMemory();
+//    memoryForOpcode= state.getMemory();
     this.instructionFactory = instructionFactory;
     OpcodeTargets opcodeTargets = new OpcodeTargets(state, memoryForOpcode);
     OpcodeReference a = opcodeTargets.iRR(HL);

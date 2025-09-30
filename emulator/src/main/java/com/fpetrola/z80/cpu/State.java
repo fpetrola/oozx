@@ -57,7 +57,7 @@ public class State<T extends WordNumber> {
     tstates += time;
 
     tstates2 += time;
-//    events.add(event);
+    events.add(event);
   }
 
   public void reset() {

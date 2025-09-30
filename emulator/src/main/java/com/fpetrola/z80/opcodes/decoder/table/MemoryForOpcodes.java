@@ -42,7 +42,14 @@ public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
 
   @Override
   public T read(T address, int delta, int fetching) {
-    return memory.read(address, delta, fetching);
+    if (cachedValues.containsKey(address.intValue()))
+      return cachedValues.get(address.intValue());
+    else {
+      T value = memory.read(address, delta, fetching);
+      if (!memory.isReadListenersDisabled())
+        cachedValues.put(address.intValue(), value);
+      return value;
+    }
   }
 
   @Override

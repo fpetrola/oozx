@@ -56,6 +56,7 @@ public class Z80 {
   );
   private static MiniZXIO io;
   private static boolean initialized;
+  private static int z80_interrupt_event;
 
   private static void reset(int i) {
     ooz80.reset();
@@ -76,9 +77,13 @@ public class Z80 {
     ooz80.getState().tstates = Spectrum.tstates;
     int i = Timings.interruptLength(Machine.current.machine);
     if (ooz80.getState().isIff1() && ooz80.getState().tstates < i) {
+//      if (ooz80.getState().tstates == Z80.interruptsEnabledAt) {
+//        EventManager.eventAdd(ooz80.getState().tstates + 1, z80_interrupt_event);
+//        return;
+//      }
       ooz80.interruption();
     }
-    ooz80.getState().tstates = 0;
+//    ooz80.getState().tstates = 0;
     Spectrum.tstates = ooz80.getState().tstates;
   }
 
@@ -103,7 +108,9 @@ public class Z80 {
       }
 
       public void out(WordNumber port, WordNumber value) {
-        Periph.writePortInternal(port.intValue(), (byte) value.intValue());
+        Spectrum.tstates = ooz80.getState().tstates;
+        Periph.writePort(port.intValue(), (byte) value.intValue());
+        ooz80.getState().tstates = Spectrum.tstates;
       }
     };
     ooz80 = EmulatedMiniZX.createOOZ80(io);
@@ -132,6 +139,7 @@ public class Z80 {
     Z80Loader.libspectrum_snap snap = Z80Loader.getLibspectrumSnap(lib, url);
     state.tstates = lib.libspectrum_snap_tstates(snap);
     Spectrum.tstates = state.tstates;
+    interruptsEnabledAt= -1;
     updateScreen();
 
     IO<?> io1 = state.getIo();
@@ -220,6 +228,8 @@ public class Z80 {
         this.phaseProcessor.addMultipleMc(1, 3, 0, address.intValue(), "writebyte");
         this.phaseProcessor.addMw(address, value);
 
+        updateScreen();
+
         Spectrum.tstates = state.tstates;
       }
 
@@ -227,7 +237,6 @@ public class Z80 {
         Spectrum.tstates = state.tstates;
         com.fpetrola.oozx.Memory.writeByte(address.intValue(), (byte) (value.intValue() & 0xff));
         ooz80.getState().getMemory().getData()[address.intValue()] = value;
-        updateScreen();
         state.tstates = Spectrum.tstates;
       }
     });
@@ -238,7 +247,7 @@ public class Z80 {
   }
 
   private static int init(Object o) {
-    int z80_interrupt_event = EventManager.eventRegister(Z80::z80_interrupt_event_fn, "Retriggered interrupt");
+    z80_interrupt_event = EventManager.eventRegister(Z80::z80_interrupt_event_fn, "Retriggered interrupt");
     int z80_nmi_event = EventManager.eventRegister(Z80::z80_nmi, "Non-maskable interrupt");
     int z80_nmos_iff2_event = EventManager.eventRegister(null, "IFF2 update dummy event");
 
@@ -275,7 +284,7 @@ public class Z80 {
     Spectrum.tstates = ooz80.getState().tstates;
   }
 
-  private static void updateScreen() {
+  public static void updateScreen() {
     WordNumber[] data = ooz80.getState().getMemory().getData();
     for (int i = 0; i < 0x4000; i++) {
       WordNumber datum = data[i + 0x4000];

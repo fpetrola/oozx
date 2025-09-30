@@ -4,6 +4,7 @@ import com.fpetrola.oozx.Spectrum;
 import com.fpetrola.oozx.fuse.*;
 import org.junit.jupiter.api.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -47,29 +48,47 @@ public class ZXSpectrumContendedMemoryTests2 {
     testDriver2.setModel("48K");
     testDriver2.loadSnapshot("/home/fernando/detodo/desarrollo/m/zx/roms/jsw3.z80");
 
+    List<TStateUpdate> localtStateUpdates = new ArrayList<>();
+    List<TStateUpdate> remotetStateUpdates = new ArrayList<>();
 
-    for (int i = 0; i < 200; i++) {
+
+    for (int i = 0; i < 2000; i++) {
       testDriver1.tstatesHistoryInit();
       testDriver2.tstatesHistoryInit();
       for (int j = 0; j < 10; j++) {
         testDriver1.step();
         testDriver2.step();
-        if (Spectrum.tstates > 62080 && Spectrum.tstates < 62087 ) {
-          System.out.println("sdsdgsdgdg");
-        }
+//        if (Spectrum.tstates > 62080 && Spectrum.tstates < 62087 ) {
+//          System.out.println("sdsdgsdgdg");
+//        }
       }
 
       List<TStateUpdate> tStateUpdates = GetTStatesHistory.getLocalTStateUpdates(localLibretroCore);
       List<TStateUpdate> tStateUpdates2 = GetTStatesHistory.getRemoteTStateUpdates2(remoteCore);
 
+      localtStateUpdates.addAll(tStateUpdates);
+      remotetStateUpdates.addAll(tStateUpdates2);
 
+      if (tStateUpdates.size() != tStateUpdates2.size()) {
+        System.out.println("Different size at step " + i);
+        System.out.println("Local: " + tStateUpdates);
+        System.out.println("Remote: " + tStateUpdates2);
+//        assertEquals(tStateUpdates2, tStateUpdates);
+      }
+//      assertEquals(tStateUpdates2.size(), tStateUpdates.size());
+
+//      for (int j = 0; j < tStateUpdates.size(); j++) {
+//        assertEquals(tStateUpdates2.get(j), tStateUpdates.get(j));
+//      }
 //      assertEquals(tStateUpdates.toString(), tStateUpdates2.toString());
-      assertEquals(tStateUpdates2, tStateUpdates);
+//      System.out.println(tStateUpdates.get(0).pc);
+//      assertEquals(tStateUpdates2, tStateUpdates);
       int key = tStateUpdates.get(tStateUpdates.size() - 1).key;
       System.out.println(key);
     }
 //    assertEquals(initialTStates + 4 + 6 + 3 + 4, cpu.getTStates()); // Fetch + delay + write + delay, total +17
 //    assertEquals((byte) 0xAA, bus.readMemory(26000));
+      assertEquals(localtStateUpdates, remotetStateUpdates);
 
 
     ZXSpectrumContendedMemoryTests.assertTStatesHistory("""

@@ -40,7 +40,6 @@ public class Out<T extends WordNumber> extends TargetSourceInstruction<T, Immuta
     private final IO<T> io;
     public final ImmutableOpcodeReference target;
     private final Register<T> a;
-    private T read;
 
     public OutPortOpcodeReference(IO<T> io, ImmutableOpcodeReference target, Register<T> a) {
       this.io = io;
@@ -53,6 +52,8 @@ public class Out<T extends WordNumber> extends TargetSourceInstruction<T, Immuta
     }
 
     private T getRead() {
+      T read = null;
+
       if (read == null) {
         read = (T) target.read();
         if (!(target instanceof Register<?>))

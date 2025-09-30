@@ -24,7 +24,6 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -37,6 +36,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   private List<MemoryWriteListener> lastMemoryWriteListener = new ArrayList<>();
   private boolean canDisable;
   protected T[] cachedValues = (T[]) new WordNumber[0x10000];
+  private boolean readListenersDisabled;
 
   public MockedMemory(boolean canDisable1) {
     this.canDisable = false;
@@ -144,6 +144,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   @Override
   public void disableReadListener() { //FIXME: para que era???
     if (canDisable) {
+      readListenersDisabled= true;
       if (memoryReadListener != null) {
         lastMemoryReadListener = memoryReadListener;
         memoryReadListener = null;
@@ -154,6 +155,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   @Override
   public void enableReadListener() {
     if (canDisable) {
+      readListenersDisabled= false;
       memoryReadListener = lastMemoryReadListener;
     }
   }
@@ -181,5 +183,10 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   @Override
   public boolean canDisable() {
     return canDisable;
+  }
+
+  @Override
+  public boolean isReadListenersDisabled() {
+    return readListenersDisabled;
   }
 }

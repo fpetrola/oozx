@@ -180,7 +180,9 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_write_port(int port, int value) {
-    getState().getIo().out(WordNumber.createValue(port), WordNumber.createValue(value));
+    Periph.writePortInternal(port, (byte)value);
+
+//    getState().getIo().out(WordNumber.createValue(port), WordNumber.createValue(value));
 //    Periph.writePortInternal(port, (byte) value);
   }
 

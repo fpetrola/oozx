@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx.fuse;
 
+import com.fpetrola.oozx.Z80;
 import com.sun.jna.*;
 
 import javax.swing.*;
@@ -42,12 +43,15 @@ public class FuseLibretroConnector {
   }
 
   public void init(DefaultCommandHandler commandHandler, LibretroCore aCore) {
+//    core.retro_set_register_data("name", 1);
+//    core.retro_tstates_history_init();
+
     SpectrumPanel panel = getSpectrumPanel(noTest);
-    aCore.retro_set_environment((cmd, data) -> true);
     aCore.retro_set_video_refresh((data1, width, height, pitch) -> {
       if (noTest)
         panel.updateFrame(data1, width, height, pitch);
     });
+    aCore.retro_set_environment((cmd, data) -> true);
 
     LibretroCore.bridge_command bridgeCommand;
 
@@ -92,7 +96,7 @@ public class FuseLibretroConnector {
 //    aCore.retro_api_version();
     aCore.retro_init();
 
-    loadGame(aCore, "/home/fernando/detodo/desarrollo/m/zx/roms/aqua.z80");
+    loadGame(aCore, "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
 
 //    while (true)
 //    {
@@ -104,8 +108,9 @@ public class FuseLibretroConnector {
 //    }).start();
 
     newSingleThreadScheduledExecutor()
-        .scheduleAtFixedRate(() ->
-            aCore.retro_run(), 0, 40, MILLISECONDS);
+        .scheduleAtFixedRate(() -> {
+          aCore.retro_run();
+        }, 0, 40, MILLISECONDS);
 //        aCore.retro_unload_game();
 //        aCore.retro_deinit();
 //        System.out.println("Ejecución terminada.");

@@ -96,4 +96,8 @@ public interface Memory<T> {
       getData()[i] = d;
     }
   }
+
+  default boolean isReadListenersDisabled() {
+    return false;
+  }
 }
