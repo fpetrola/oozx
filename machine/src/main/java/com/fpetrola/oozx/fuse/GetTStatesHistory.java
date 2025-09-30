@@ -38,8 +38,8 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
   }
 
   public static void addTStateUpdate(byte tstatesToAdd, String description, int tstates) {
-//    if (tstates == 62113)
-//      System.out.println("addTStateUpdate");
+    if (tstates == 59710)
+      System.out.println("addTStateUpdate");
     if (tstatesToAdd != 0)
       getTstatesUpdates().add(new TStateUpdate(tstates, tstatesToAdd, description, Z80.ooz80.getState().getPc().read().intValue()));
   }

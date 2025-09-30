@@ -81,6 +81,9 @@ public class Z80 {
 //        EventManager.eventAdd(ooz80.getState().tstates + 1, z80_interrupt_event);
 //        return;
 //      }
+
+      GetTStatesHistory.addTStateUpdate((byte) 7, "interrupt", (int) ooz80.getState().tstates);
+      ooz80.getState().tstates+= 7;
       ooz80.interruption();
     }
 //    ooz80.getState().tstates = 0;
