@@ -38,9 +38,10 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
   }
 
   public static void addTStateUpdate(byte tstatesToAdd, String description, int tstates) {
-    if (tstates == 22175)
-      System.out.println("addTStateUpdate");
-    getTstatesUpdates().add(new TStateUpdate(tstates, tstatesToAdd, description, Z80.ooz80.getState().getPc().read().intValue()));
+//    if (tstates == 62113)
+//      System.out.println("addTStateUpdate");
+    if (tstatesToAdd != 0)
+      getTstatesUpdates().add(new TStateUpdate(tstates, tstatesToAdd, description, Z80.ooz80.getState().getPc().read().intValue()));
   }
 
   public List<TStateUpdate> execute(LibretroCore core) {
