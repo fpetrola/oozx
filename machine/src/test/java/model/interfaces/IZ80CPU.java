@@ -40,5 +40,9 @@ public interface IZ80CPU {
     int getBC();
 
     void step();
+
+    void setIX(int value);
+
+    boolean isZeroFlag();
 }
 

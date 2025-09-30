@@ -180,7 +180,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public boolean visitingBit(BIT<T> bit) {
-    phase.acceptAfterExecution(afterExecution -> isIndirectHL(bit).ifPresent(x -> addMc(1, HL, 0, null)));
+    phase.acceptAfterExecution(afterExecution -> isIndirect(bit).ifPresent(x -> addMc(1, x.intValue(), 0, null)));
     return false;
   }
 
@@ -276,11 +276,6 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction parameterizedBinaryAluInstruction) {
     phase.acceptAfterMR(p -> matchesTstate(11).ifPresent(x -> addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null)));
-  }
-
-  private Optional<Boolean> matchesTstate(int i) {
-    long l = getState().tstates2 - initialTStates;
-    return Optional.ofNullable(l == i ? true : null);
   }
 
 

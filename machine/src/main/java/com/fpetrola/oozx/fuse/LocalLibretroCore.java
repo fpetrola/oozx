@@ -27,6 +27,8 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.sun.jna.Pointer;
 
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
+
 public class LocalLibretroCore implements LibretroCore {
 
   public static boolean noContended = false;
@@ -126,26 +128,26 @@ public class LocalLibretroCore implements LibretroCore {
 
   public int retro_get_memory_data(int id) {
     noContended = true;
-    int i = getMemory().read(WordNumber.createValue(id), 0).intValue();
+    int i = getMemory().getData()[id].intValue();
     noContended = false;
     return i;
   }
 
   public int retro_get_memory_data_contended(int id) {
-    int i = getMemory().read(WordNumber.createValue(id), 0).intValue();
+    int i = getMemory().read(createValue(id), 0).intValue();
     return i;
   }
 
   public void retro_set_memory_data(int address, int id) {
     noContended = true;
-    getMemory().write(WordNumber.createValue(address), WordNumber.createValue(id));
+    getMemory().write(createValue(address), createValue(id));
     noContended = false;
   }
 
   public void retro_set_memory_data_contended(int address, int id) {
     DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) Z80.ooz80.getInstructionFetcher();
     instructionFetcher.instruction2 = null;
-    getMemory().write(WordNumber.createValue(address), WordNumber.createValue(id));
+    getMemory().write(createValue(address), createValue(id));
   }
 
   public long retro_get_memory_size(int id) {
@@ -157,7 +159,7 @@ public class LocalLibretroCore implements LibretroCore {
       Spectrum.tstates = value;
       Z80.ooz80.getState().tstates = value;
     } else
-      getRegister(register).write(WordNumber.createValue(value));
+      getRegister(register).write(createValue(value));
   }
 
   public int retro_get_register_data(String register) {

@@ -8,8 +8,7 @@ import model.interfaces.IZ80CPU;
 import model.interfaces.IZXInterface1;
 import org.junit.jupiter.api.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ZXSpectrumContendedMemoryTests {
   static private IZ80CPU cpu;
@@ -108,7 +107,7 @@ public class ZXSpectrumContendedMemoryTests {
     cpu.writeMemory(0x4000, (byte) 0x10, true);
     cpu.executeInstruction("INC (HL)", null);
     assertEquals(initialTStates + (3 + 6) + (4) + (3 + 1) + (1 + 5) + (3 + 0), cpu.getTStates()); // Fetch + delay + read + delay + modify + write + delay, total +17
-    assertEquals((byte) 0x11, bus.readMemory(0x4000));
+    assertEquals((byte) 0x11, testDriver.readMemory(0x4000, false));
 
     assertTStatesHistory("""
         [TStateUpdate{key=14335, value=6, description='ula writebyte'}
@@ -119,8 +118,6 @@ public class ZXSpectrumContendedMemoryTests {
         , TStateUpdate{key=14352, value=5, description='ula contend_read_no_mreq'}
         , TStateUpdate{key=14357, value=1, description='contend_read_no_mreq'}
         , TStateUpdate{key=14358, value=3, description='writebyte'}
-        , TStateUpdate{key=14361, value=4, description='ula readbyte'}
-        , TStateUpdate{key=14365, value=3, description='readbyte'}
         ]""", testDriver);
   }
 
@@ -924,4 +921,29 @@ public class ZXSpectrumContendedMemoryTests {
     assertEquals(16402, cpu.getPC(), "PC after JR");
   }
 
+  // 48K Tests
+  @Test
+  void test48KBit7IX3_BitSet_T14335() {
+    int initialTStates = setupModel("48K", 14335);
+    cpu.setIX(0x3FFD); // IX+3 = 0x4000 (contended)
+    cpu.writeMemory(0x4000, (byte) 0x80, true); // Bit 7 set
+    cpu.executeInstruction("BIT 7,(IX+3)", null);
+    assertTStatesHistory("""
+        [TStateUpdate{key=14335, value=6, description='ula writebyte'}
+        , TStateUpdate{key=14341, value=3, description='writebyte'}
+        , TStateUpdate{key=14344, value=4, description='readbyte'}
+        , TStateUpdate{key=14348, value=4, description='readbyte'}
+        , TStateUpdate{key=14352, value=3, description='readbyte'}
+        , TStateUpdate{key=14355, value=3, description='readbyte'}
+        , TStateUpdate{key=14358, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14359, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14360, value=5, description='ula readbyte'}
+        , TStateUpdate{key=14365, value=3, description='readbyte'}
+        , TStateUpdate{key=14368, value=5, description='ula contend_read_no_mreq'}
+        , TStateUpdate{key=14373, value=1, description='contend_read_no_mreq'}
+        ]""");
+    assertEquals(14374, cpu.getTStates(), "T-states for BIT 7,(IX+3)");
+    assertFalse(cpu.isZeroFlag(), "Z flag should be 0 (bit 7 set)");
+    assertEquals((byte) 0x80, bus.readMemory(0x4000), "Memory unchanged");
+  }
 }

@@ -103,6 +103,16 @@ public class ConnectedZ80CPU implements IZ80CPU {
     testDriver.step();
   }
 
+  @Override
+  public void setIX(int value) {
+    testDriver.setRegister("IX", value);
+  }
+
+  @Override
+  public boolean isZeroFlag() {
+    return (testDriver.getRegister("AF") & 0x40) != 0;
+  }
+
   private int getHigh(String bc) {
     return (testDriver.getRegister(bc) & 0xffff) >> 8;
   }
@@ -292,6 +302,15 @@ public class ConnectedZ80CPU implements IZ80CPU {
         testDriver.addInstruction((byte) 0xDC,
             (byte) (operands[0] & 0xFF),
             (byte) ((operands[0] >> 8) & 0xFF));
+        break;
+
+      case "BIT 7,(IX+3)":
+        testDriver.addInstruction(
+            (byte) 0xDD,
+            (byte) 0xCB,
+            (byte) 0x03,   // desplazamiento +3
+            (byte) 0x7E    // BIT 7,(HL)
+        );
         break;
 
       default:
