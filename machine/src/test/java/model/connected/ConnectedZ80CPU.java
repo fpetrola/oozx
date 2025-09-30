@@ -205,7 +205,9 @@ public class ConnectedZ80CPU implements IZ80CPU {
         testDriver.addInstruction((byte) 0xDB, (byte) operands[0]);
         break;
       case "CALL nn":
-        testDriver.addInstruction((byte) 0xCD, (byte) (operands[0] & 0xFF), (byte) ((operands[0] >> 8) & 0xFF));
+        testDriver.addInstruction((byte) 0xCD,
+            (byte) (operands[0] & 0xFF),
+            (byte) ((operands[0] >> 8) & 0xFF));
         break;
       case "ADD HL,BC":
         testDriver.addInstruction((byte) 0x09);
@@ -223,15 +225,77 @@ public class ConnectedZ80CPU implements IZ80CPU {
         testDriver.addInstruction((byte) 0x3D);
         break;
       case "JP Z,nn":
-        testDriver.addInstruction((byte) 0xCA, (byte) (operands[0] & 0xFF), (byte) ((operands[0] >> 8) & 0xFF));
+        testDriver.addInstruction((byte) 0xCA,
+            (byte) (operands[0] & 0xFF),
+            (byte) ((operands[0] >> 8) & 0xFF));
         break;
-
       case "LDIR":
         testDriver.addInstruction((byte) 0xED, (byte) 0xB0);
         break;
 
+      // === JR family ===
+      case "JR n":
+        testDriver.addInstruction((byte) 0x18, (byte) operands[0]);
+        break;
+      case "JR NZ,n":
+        testDriver.addInstruction((byte) 0x20, (byte) operands[0]);
+        break;
+      case "JR Z,n":
+        testDriver.addInstruction((byte) 0x28, (byte) operands[0]);
+        break;
+      case "JR NC,n":
+        testDriver.addInstruction((byte) 0x30, (byte) operands[0]);
+        break;
+      case "JR C,n":
+        testDriver.addInstruction((byte) 0x38, (byte) operands[0]);
+        break;
+
+      // === JP family ===
+      case "JP nn":
+        testDriver.addInstruction((byte) 0xC3,
+            (byte) (operands[0] & 0xFF),
+            (byte) ((operands[0] >> 8) & 0xFF));
+        break;
+      case "JP NZ,nn":
+        testDriver.addInstruction((byte) 0xC2,
+            (byte) (operands[0] & 0xFF),
+            (byte) ((operands[0] >> 8) & 0xFF));
+        break;
+      case "JP NC,nn":
+        testDriver.addInstruction((byte) 0xD2,
+            (byte) (operands[0] & 0xFF),
+            (byte) ((operands[0] >> 8) & 0xFF));
+        break;
+      case "JP C,nn":
+        testDriver.addInstruction((byte) 0xDA,
+            (byte) (operands[0] & 0xFF),
+            (byte) ((operands[0] >> 8) & 0xFF));
+        break;
+
+      // === CALL family ===
+      case "CALL NZ,nn":
+        testDriver.addInstruction((byte) 0xC4,
+            (byte) (operands[0] & 0xFF),
+            (byte) ((operands[0] >> 8) & 0xFF));
+        break;
+      case "CALL Z,nn":
+        testDriver.addInstruction((byte) 0xCC,
+            (byte) (operands[0] & 0xFF),
+            (byte) ((operands[0] >> 8) & 0xFF));
+        break;
+      case "CALL NC,nn":
+        testDriver.addInstruction((byte) 0xD4,
+            (byte) (operands[0] & 0xFF),
+            (byte) ((operands[0] >> 8) & 0xFF));
+        break;
+      case "CALL C,nn":
+        testDriver.addInstruction((byte) 0xDC,
+            (byte) (operands[0] & 0xFF),
+            (byte) ((operands[0] >> 8) & 0xFF));
+        break;
+
       default:
-        throw new RuntimeException("instruction not found");
+        throw new RuntimeException("instruction not found: " + opcode);
     }
 
     testDriver.waitExecution();

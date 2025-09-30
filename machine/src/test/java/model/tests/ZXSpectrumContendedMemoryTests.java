@@ -544,6 +544,10 @@ public class ZXSpectrumContendedMemoryTests {
     assertEquals(x.trim(), testDriver1.getTstatesHistory().toString().trim());
   }
 
+  public static void assertTStatesHistory(String x) {
+    assertEquals(x.trim(), testDriver.getTstatesHistory().toString().trim());
+  }
+
   @Test
   void testPlus3CALLInstructionT14364() {
     setupModel("+3", 14364);
@@ -847,4 +851,77 @@ public class ZXSpectrumContendedMemoryTests {
         , TStateUpdate{key=14445, value=3, description='readbyte'}
         ]""", testDriver);
   }
+
+  // 48K Tests
+  @Test
+  void test48KJR_NZ_T14335() {
+    setupModel("48K", 14335);
+    cpu.setZeroFlag(false);
+    cpu.setPC(0x4000);
+    cpu.executeInstruction("JR NZ,n", 0x10);
+    assertTStatesHistory("""
+        [TStateUpdate{key=14335, value=6, description='ula readbyte'}
+        , TStateUpdate{key=14341, value=4, description='readbyte'}
+        , TStateUpdate{key=14345, value=4, description='ula readbyte'}
+        , TStateUpdate{key=14349, value=3, description='readbyte'}
+        , TStateUpdate{key=14352, value=5, description='ula contend_read_no_mreq'}
+        , TStateUpdate{key=14357, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14358, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14359, value=6, description='ula contend_read_no_mreq'}
+        , TStateUpdate{key=14365, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14366, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14367, value=6, description='ula contend_read_no_mreq'}
+        , TStateUpdate{key=14373, value=1, description='contend_read_no_mreq'}
+        ]""");
+    assertEquals(14374, cpu.getTStates(), "T-states for JR NZ taken");
+    assertEquals(16402, cpu.getPC(), "PC after JR NZ");
+  }
+
+  @Test
+  void test48KJR_Z_T14335() {
+    setupModel("48K", 14335);
+    cpu.setZeroFlag(true);
+    cpu.setPC(0x4000);
+    cpu.executeInstruction("JR Z,n", 0x10);
+    assertTStatesHistory("""
+        [TStateUpdate{key=14335, value=6, description='ula readbyte'}
+        , TStateUpdate{key=14341, value=4, description='readbyte'}
+        , TStateUpdate{key=14345, value=4, description='ula readbyte'}
+        , TStateUpdate{key=14349, value=3, description='readbyte'}
+        , TStateUpdate{key=14352, value=5, description='ula contend_read_no_mreq'}
+        , TStateUpdate{key=14357, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14358, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14359, value=6, description='ula contend_read_no_mreq'}
+        , TStateUpdate{key=14365, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14366, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14367, value=6, description='ula contend_read_no_mreq'}
+        , TStateUpdate{key=14373, value=1, description='contend_read_no_mreq'}
+        ]""");
+    assertEquals(14374, cpu.getTStates(), "T-states for JR Z taken");
+    assertEquals(16402, cpu.getPC(), "PC after JR Z");
+  }
+
+  @Test
+  void test48KJR_Unconditional_T14335() {
+    int initialTStates = setupModel("48K", 14335);
+    cpu.setPC(0x4000);
+    cpu.executeInstruction("JR n", new int[]{0x10});
+    assertTStatesHistory("""
+        [TStateUpdate{key=14335, value=6, description='ula readbyte'}
+        , TStateUpdate{key=14341, value=4, description='readbyte'}
+        , TStateUpdate{key=14345, value=4, description='ula readbyte'}
+        , TStateUpdate{key=14349, value=3, description='readbyte'}
+        , TStateUpdate{key=14352, value=5, description='ula contend_read_no_mreq'}
+        , TStateUpdate{key=14357, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14358, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14359, value=6, description='ula contend_read_no_mreq'}
+        , TStateUpdate{key=14365, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14366, value=1, description='contend_read_no_mreq'}
+        , TStateUpdate{key=14367, value=6, description='ula contend_read_no_mreq'}
+        , TStateUpdate{key=14373, value=1, description='contend_read_no_mreq'}
+        ]""");
+    assertEquals(14374, cpu.getTStates(), "T-states for JR");
+    assertEquals(16402, cpu.getPC(), "PC after JR");
+  }
+
 }

@@ -140,7 +140,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public void visitingJR(JR jr) {
-    phase.acceptAfterExecution(afterExecution -> addForRelativeJump(jr, HL, IR, 0));
+    phase.acceptAfterExecution(afterExecution -> addForRelativeJump(jr, PC, PC, 1));
   }
 
   public boolean visitingDjnz(DJNZ<T> djnz) {
