@@ -69,7 +69,9 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
 
   @Override
   public void interruption() {
+    getState().setINTLine(true);
     doInt();
+    getState().setINTLine(false);
   }
 
   private void doInt() {
@@ -81,10 +83,10 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
     }
 
     state.getRegisterR().increment();
+    Push.doPush(pc.read(), state.getRegisterSP(), state.getMemory());
     state.setIff1(false);
     state.setIff2(false);
 
-    Push.doPush(pc.read(), state.getRegisterSP(), state.getMemory());
     T value = state.getInterruptionMode() == IM2 ? Memory.read16Bits(state.getMemory(), (state.getRegI().read().left(8)).or(0xff)) : createValue(0x0038);
     pc.write(value);
     state.getMemptr().write(value);

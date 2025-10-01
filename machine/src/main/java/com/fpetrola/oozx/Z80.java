@@ -111,7 +111,7 @@ public class Z80 {
       public void enableInterrupt() {
         super.enableInterrupt();
         Z80.interruptsEnabledAt = tstates;
-        EventManager.eventAdd(tstates+1, Z80.z80_interrupt_event);
+        EventManager.eventAdd(tstates + 1, Z80.z80_interrupt_event);
       }
     };
     io.setPc(state.getPc());
@@ -244,9 +244,11 @@ public class Z80 {
         if (LocalLibretroCore.noContended || !initialized())
           return;
 
-        this.phaseProcessor.processPhase(new BeforeWrite());
+        if (!ooz80.getState().isIntLine()) {
+          this.phaseProcessor.processPhase(new BeforeWrite());
+          processUlaContention(address, value);
+        }
 
-        processUlaContention(address, value);
         this.phaseProcessor.addMultipleMc(1, 3, 0, address.intValue(), "writebyte");
         this.phaseProcessor.addMw(address, value);
 

@@ -44,7 +44,7 @@ public class ZXSpectrumContendedMemoryTests2 {
   @Test
   void test48KExecuteGame() {
     String model = "48K";
-    String fileName = "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
+    String fileName = "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn2.z80";
 
     testDriver1.setModel(model);
     testDriver1.loadSnapshot(fileName);
