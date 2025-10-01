@@ -31,8 +31,6 @@ public class EI<T extends WordNumber> extends AbstractInstruction<T> {
   }
 
   public int execute() {
-    if (state.getPc().read().intValue() != 0x9A3F)
-      System.out.println("dsgsdghd");
     state.enableInterrupt();
     return 4;
   }

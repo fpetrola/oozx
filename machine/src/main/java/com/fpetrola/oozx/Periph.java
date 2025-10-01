@@ -268,7 +268,7 @@ public class Periph {
 
         Spectrum.tstates++;
 
-        return -1;
+        return b;
     }
 
     // Read a byte from a port, taking no time

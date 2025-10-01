@@ -46,10 +46,10 @@ public class FuseLibretroConnector {
 //    core.retro_set_register_data("name", 1);
 //    core.retro_tstates_history_init();
 
-    SpectrumPanel panel = getSpectrumPanel(noTest);
+//    SpectrumPanel panel = getSpectrumPanel(noTest);
     aCore.retro_set_video_refresh((data1, width, height, pitch) -> {
-      if (noTest)
-        panel.updateFrame(data1, width, height, pitch);
+//      if (noTest)
+//        panel.updateFrame(data1, width, height, pitch);
     });
     aCore.retro_set_environment((cmd, data) -> true);
 

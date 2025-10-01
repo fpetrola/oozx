@@ -27,6 +27,7 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
@@ -63,6 +64,8 @@ public class Z80 {
   private static MiniZXIO io;
   private static boolean initialized;
   private static int z80_interrupt_event;
+  static ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent<>();
+  static MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
 
   private static void reset(int i) {
     ooz80.reset();
@@ -140,6 +143,9 @@ public class Z80 {
     byte[][] bytes = new byte[1000][1000];
     if (true || FuseLibretroConnector.noTest) {
 //      JFrame screen1 = MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
+//      JFrame screen = createScreen(io.miniZXKeyboard, zxScreenComponent);
+
+      updateScreen2();
 
       JFrame screen = createScreen(io.miniZXKeyboard, new FuseScreen(bytes));
       new SwingKeyboard(screen);
@@ -148,6 +154,13 @@ public class Z80 {
 //    Keyboard0.keyboard = io.miniZXKeyboard;
 
     setupMemory();
+  }
+
+  private static void updateScreen2() {
+//    for (int i = 0x4000; i <= 0x5FFF; i++) {
+//      WordNumber datum = ooz80.getState().getMemory().getData()[i];
+//      writeListener.writtingMemoryAt(createValue(i), createValue(datum != null ? datum.intValue() : 0));
+//    }
   }
 
   public static void loadSnap(String url) {
@@ -163,6 +176,7 @@ public class Z80 {
     Spectrum.tstates = state.tstates;
     interruptsEnabledAt = -1;
     updateScreen();
+    updateScreen2();
 
     IO<?> io1 = state.getIo();
 //    ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent<>();
@@ -252,7 +266,11 @@ public class Z80 {
         this.phaseProcessor.addMultipleMc(1, 3, 0, address.intValue(), "writebyte");
         this.phaseProcessor.addMw(address, value);
 
-        updateScreen();
+        WordNumber[] data = ooz80.getState().getMemory().getData();
+        if (address.intValue() >= 0x4000 && address.intValue() < 0x5FFF) {
+          writeListener.writtingMemoryAt(address, value);
+          Spectrum.RAM[0][address.intValue() - 0x4000] = (byte) (data[address.intValue()].intValue() & 0xff);
+        }
 
         Spectrum.tstates = state.tstates;
       }
