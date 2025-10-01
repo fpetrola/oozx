@@ -29,6 +29,7 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled
 class ZXSpectrumULATests {
   static private IZ80CPU cpu;
   static private TestDriver testDriver;

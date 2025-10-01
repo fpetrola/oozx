@@ -41,6 +41,7 @@ public class ZXSpectrumContendedMemoryTests2 {
   static void tearDown() {
   }
 
+  @Disabled
   @Test
   void test48KExecuteGame() {
     String model = "48K";

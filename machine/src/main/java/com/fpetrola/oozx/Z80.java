@@ -139,10 +139,10 @@ public class Z80 {
 
     byte[][] bytes = new byte[1000][1000];
     if (true || FuseLibretroConnector.noTest) {
-      JFrame screen1 = MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
+//      JFrame screen1 = MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
 
-//      JFrame screen = createScreen(io.miniZXKeyboard, new FuseScreen(bytes));
-//      new SwingKeyboard(screen);
+      JFrame screen = createScreen(io.miniZXKeyboard, new FuseScreen(bytes));
+      new SwingKeyboard(screen);
     }
     UiDisplay.screenMatrix = bytes;
 //    Keyboard0.keyboard = io.miniZXKeyboard;
