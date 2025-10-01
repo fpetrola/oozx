@@ -29,7 +29,7 @@ public class AluOperationBase {
   protected final int FLAG_Z = 0x0040;
   protected final int FLAG_S = 0x0080;
 
-  protected int F;
+  public int F;
   protected int Q;
 
   public AluOperationBase() {

@@ -29,30 +29,52 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class Sbc16<T extends WordNumber> extends Binary16BitsOperation<T> {
-  public static final AluOperation sbc16TableAluOperation = new TableAluOperation() {
-    public int execute(int value1, int value2, int carry) {
-      int i = value1 & 0x33;
-      i |= i << 1 & 0x04;
-      int result1 = i << 11 & 0x1A800;
-      int lookup = (value1 << 8 & 0x8800) >> 11 |
-          (value1 << 9 & 0x8800) >> 10 |
-          (result1 & 0x8800) >> 9;
-      F = ((result1 & 0x10000) != 0 ? FLAG_C : 0) |
-          FLAG_N | overflowSubTable(lookup >> 4) |
-          (result1 >> 8 & (FLAG_3 | FLAG_5 | FLAG_S)) |
-          halfCarrySubTable(lookup & 0x07) |
-          (value2 != 0 ? 0 : FLAG_Z);
-      Q = F;
-      return F;
-    }
+  public static final AluOperation sbc16TableAluOperation = new AluOperation() {
+//    public int execute(int value1, int value2, int carry) {
+//      int i = value1 & 0x33;
+//      i |= i << 1 & 0x04;
+//      int result1 = i << 11 & 0x1A800;
+//      int lookup = (value1 << 8 & 0x8800) >> 11 |
+//          (value1 << 9 & 0x8800) >> 10 |
+//          (result1 & 0x8800) >> 9;
+//      F = ((result1 & 0x10000) != 0 ? FLAG_C : 0) |
+//          FLAG_N | overflowSubTable(lookup >> 4) |
+//          (result1 >> 8 & (FLAG_3 | FLAG_5 | FLAG_S)) |
+//          halfCarrySubTable(lookup & 0x07) |
+//          (value2 != 0 ? 0 : FLAG_Z);
+//      Q = F;
+//      return F;
+//    }
 
+    public int execute(int HL, int value, int carry) {
+      F = carry & 0xFF;
+      int sub16temp = HL - (value) - (F & FLAG_C);
+      int lookup = ((HL & 0x8800) >> 11) |
+          (((value) & 0x8800) >> 10) |
+          ((sub16temp & 0x8800) >> 9);
+      HL = sub16temp;
+      int H = (HL >> 8) & 0xff;
+      F = ((sub16temp & 0x10000) != 0 ? FLAG_C : 0) |
+          FLAG_N | overflowSubTable(lookup >> 4) |
+          (H & (FLAG_3 | FLAG_5 | FLAG_S)) |
+          halfCarrySubTable(lookup & 0x07) |
+          (HL != 0 ? 0 : FLAG_Z);
+      Q = F;
+
+      return sub16temp & 0xffff;
+    }
   };
 
   public Sbc16(OpcodeReference<T> target, ImmutableOpcodeReference<T> source, Register<T> flag) {
-    super(target, source, flag, (f0, a, b) ->
-        calculate(f0, b, a,
-            (v1, v2, f) -> v1 - v2 - (f & 1),
-            (f1, value3, value2, result1) -> sbc16TableAluOperation.executeWithCarry(createValue(result1 != 0 ? 1 : 0), createValue(value3), f0)));
+    super(target, source, flag, (f0, a, b) -> {
+//      return calculate(f0, b, a,
+//          (v1, v2, f) -> v1 - v2 - (f & 1),
+//          (f1, value3, value2, result1) -> sbc16TableAluOperation.executeWithCarry(createValue(result1 != 0 ? 1 : 0), createValue(value3), f0));
+
+      int execute = sbc16TableAluOperation.execute(b.intValue(), a.intValue(), flag.read().intValue());
+      flag.write(WordNumber.createValue(sbc16TableAluOperation.F));
+      return createValue(execute & 0xffff);
+    });
   }
 
   public void accept(InstructionVisitor visitor) {

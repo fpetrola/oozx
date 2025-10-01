@@ -39,7 +39,11 @@ public class RLA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
   };
 
   public RLA(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, regA) -> rlaTableAluOperation.executeWithCarry(regA, tFlagRegister));
+    super(target, flag, (tFlagRegister, regA) -> {
+      T value = WordNumber.createValue(rlaTableAluOperation.execute(regA.intValue(), tFlagRegister.read().intValue()) & 0xff);
+      tFlagRegister.write(WordNumber.createValue(rlaTableAluOperation.F));
+      return value;
+    });
     this.flag = flag;
   }
 

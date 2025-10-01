@@ -27,9 +27,8 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RRCA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
-  public static final AluOperation rrcaTableAluOperation = new TableAluOperation() {
+  public static final AluOperation rrcaTableAluOperation = new AluOperation() {
     public int execute(int A, int flag) {
-      F= flag;
       F = ( F & ( FLAG_P | FLAG_Z | FLAG_S ) ) | ( A & FLAG_C );
       A = ( A >> 1) | ( A << 7 );
       F |= ( A & ( FLAG_3 | FLAG_5 ) );
@@ -39,7 +38,9 @@ public class RRCA<T extends WordNumber> extends ParameterizedUnaryAluInstruction
   };
 
   public RRCA(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, regA) -> rrcaTableAluOperation.executeWithCarry(regA, tFlagRegister));
+    super(target, flag, (tFlagRegister, regA) -> {
+      return rrcaTableAluOperation.executeWithCarry(regA, tFlagRegister).and(0xff);
+    });
   }
 
 

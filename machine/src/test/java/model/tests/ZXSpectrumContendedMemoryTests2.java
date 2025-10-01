@@ -62,6 +62,23 @@ public class ZXSpectrumContendedMemoryTests2 {
       for (int j = 0; j < 10; j++) {
         testDriver1.step();
         testDriver2.step();
+
+        int r1 = testDriver1.getRegister("R") & 0x7F;
+        int r2 = testDriver2.getRegister("R") & 0x7F;
+        assertEquals(r1, r2, "R differs at step " + i + ", substep " + j);
+
+        int a1 = testDriver1.getRegister("AF");
+        int a2 = testDriver2.getRegister("AF");
+
+        int pc1 = testDriver1.getRegister("PC");
+        int pc2 = testDriver2.getRegister("PC");
+
+        if (a1 != a2) {
+          System.out.println("Difference at step " + i + ", substep " + j + ", PC=" + pc1 + "/" + pc2 + ", AF=" + a1 + "/" + a2);
+          System.out.println("Local TStates updates: " + GetTStatesHistory.getLocalTStateUpdates(localLibretroCore));
+          System.out.println("Remote TStates updates: " + GetTStatesHistory.getRemoteTStateUpdates2(remoteCore));
+        }
+        assertEquals(a1, a2, "A differs at step " + i + ", substep " + j + ", PC=" + pc1 + "/" + pc2);
 //        if (Spectrum.tstates > 62080 && Spectrum.tstates < 62087 ) {
 //          System.out.println("sdsdgsdgdg");
 //        }

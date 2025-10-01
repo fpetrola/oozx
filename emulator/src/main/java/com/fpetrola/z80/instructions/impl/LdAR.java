@@ -28,9 +28,8 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class LdAR<T extends WordNumber> extends Ld<T> {
-  public static final AluOperation ldarTableAluOperation = new TableAluOperation() {
+  public static final AluOperation ldarTableAluOperation = new AluOperation() {
     public int execute(int R, int A, int IFF2) {
-      F = 1;
       A = R & 0xff;
       F = (F & FLAG_C) | sz53Table(A) | (IFF2 != 0 ? FLAG_V : 0);
       Q = F;
@@ -48,8 +47,9 @@ public class LdAR<T extends WordNumber> extends Ld<T> {
     T value = source.read();
     T reg_A = target.read();
     boolean iff2 = state.isIff2();
-    T ldar = ldarTableAluOperation.executeWithCarry2(reg_A, value, iff2 ? 1 : 0, flag);
-
+    ldarTableAluOperation.F = flag.read().intValue();
+    int ldar = ldarTableAluOperation.execute(value.intValue(), reg_A.intValue(), iff2 ? 1 : 0);
+    flag.write(WordNumber.createValue(ldarTableAluOperation.F));
     target.write(value);
 
     return cyclesCost;

@@ -89,7 +89,7 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_set_input_state(retro_input_state_t retroInputStateT) {
-    this.retroInputStateT= retroInputStateT;
+    this.retroInputStateT = retroInputStateT;
   }
 
   public void retro_get_system_info(Pointer info) {
@@ -165,6 +165,8 @@ public class LocalLibretroCore implements LibretroCore {
   public int retro_get_register_data(String register) {
     if (register.equals("tstates")) {
       return (int) Spectrum.tstates;
+    } else if (register.equals("R")) {
+      return getRegister(register).read().intValue();
     } else
       return getRegister(register).read().intValue();
   }
@@ -182,7 +184,7 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_write_port(int port, int value) {
-    Periph.writePortInternal(port, (byte)value);
+    Periph.writePortInternal(port, (byte) value);
 
 //    getState().getIo().out(WordNumber.createValue(port), WordNumber.createValue(value));
 //    Periph.writePortInternal(port, (byte) value);
