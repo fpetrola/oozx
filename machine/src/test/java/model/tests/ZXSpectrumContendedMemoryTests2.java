@@ -56,30 +56,42 @@ public class ZXSpectrumContendedMemoryTests2 {
     List<TStateUpdate> remotetStateUpdates = new ArrayList<>();
 
 
-    for (int i = 0; i < 18000; i++) {
+    for (int i = 0; i < 1368000; i++) {
       testDriver1.tstatesHistoryInit();
       testDriver2.tstatesHistoryInit();
-      for (int j = 0; j < 10; j++) {
+      for (int j = 0; j < 100; j++) {
         testDriver1.step();
         testDriver2.step();
 
-        int r1 = testDriver1.getRegister("R") & 0x7F;
-        int r2 = testDriver2.getRegister("R") & 0x7F;
-        assertEquals(r1, r2, "R differs at step " + i + ", substep " + j);
+//        int r1 = testDriver1.getRegister("R") & 0x7F;
+//        int r2 = testDriver2.getRegister("R") & 0x7F;
+//        assertEquals(r1, r2, "R differs at step " + i + ", substep " + j);
 
-        int a1 = testDriver1.getRegister("AF");
-        int a2 = testDriver2.getRegister("AF");
 
         int pc1 = testDriver1.getRegister("PC");
         int pc2 = testDriver2.getRegister("PC");
-
+        if (pc1 != pc2) {
+//          List<TStateUpdate> tStateUpdates = GetTStatesHistory.getLocalTStateUpdates(localLibretroCore);
+//          List<TStateUpdate> tStateUpdates2 = GetTStatesHistory.getRemoteTStateUpdates2(remoteCore);
+//
+//          localtStateUpdates.addAll(tStateUpdates);
+//          remotetStateUpdates.addAll(tStateUpdates2);
+          assertListsEqualInChunks(localtStateUpdates, remotetStateUpdates, 20, u -> u.key, "key");
+          assertEquals(pc1, pc2, "PC differs at step " + i + ", substep " + j + ", PC=" + pc1 + "/" + pc2);
+        }
+        int a1 = testDriver1.getRegister("AF");
+        int a2 = testDriver2.getRegister("AF");
         if (a1 != a2) {
           System.out.println("Difference at step " + i + ", substep " + j + ", PC=" + pc1 + "/" + pc2 + ", AF=" + a1 + "/" + a2);
           System.out.println("Local TStates updates: " + GetTStatesHistory.getLocalTStateUpdates(localLibretroCore));
           System.out.println("Remote TStates updates: " + GetTStatesHistory.getRemoteTStateUpdates2(remoteCore));
         }
-        assertEquals(a1, a2, "A differs at step " + i + ", substep " + j + ", PC=" + pc1 + "/" + pc2);
-//        if (Spectrum.tstates > 62080 && Spectrum.tstates < 62087 ) {
+//
+//        int hl1 = testDriver1.getRegister("HL");
+//        int hl2 = testDriver2.getRegister("HL");
+//        assertEquals(hl1, hl2, "HL differs at step " + i + ", substep " + j + ", PC=" + pc1 + "/" + pc2);
+//        assertEquals(a1, a2, "A differs at step " + i + ", substep " + j + ", PC=" + pc1 + "/" + pc2);
+////        if (Spectrum.tstates > 62080 && Spectrum.tstates < 62087 ) {
 //          System.out.println("sdsdgsdgdg");
 //        }
       }

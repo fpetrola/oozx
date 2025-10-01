@@ -37,7 +37,7 @@ public class FuseLibretroConnector {
   public static boolean noTest;
 
   public static void main(String[] args) {
-    noTest= true;
+    noTest = true;
     new FuseLibretroConnector();
     DefaultCommandHandler.createCommandHandler();
   }
@@ -109,8 +109,9 @@ public class FuseLibretroConnector {
 
     newSingleThreadScheduledExecutor()
         .scheduleAtFixedRate(() -> {
-          aCore.retro_run();
-        }, 0, 40, MILLISECONDS);
+          while (true)
+            aCore.retro_run();
+        }, 0, 1, MILLISECONDS);
 //        aCore.retro_unload_game();
 //        aCore.retro_deinit();
 //        System.out.println("Ejecución terminada.");

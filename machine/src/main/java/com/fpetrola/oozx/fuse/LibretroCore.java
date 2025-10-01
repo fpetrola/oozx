@@ -115,4 +115,8 @@ public interface LibretroCore extends Library {
 
   Pointer retro_tstates_history();
   void retro_tstates_history_init();
+
+  default boolean retro_is_intruption_enabled(){
+      return false;
+  }
 }

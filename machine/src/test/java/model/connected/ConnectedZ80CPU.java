@@ -113,6 +113,16 @@ public class ConnectedZ80CPU implements IZ80CPU {
     return (testDriver.getRegister("AF") & 0x40) != 0;
   }
 
+  @Override
+  public boolean getInterruptEnable() {
+    return testDriver.isIFF1();
+  }
+
+  @Override
+  public int getSP() {
+    return testDriver.getRegister("SP");
+  }
+
   private int getHigh(String bc) {
     return (testDriver.getRegister(bc) & 0xffff) >> 8;
   }
@@ -243,6 +253,47 @@ public class ConnectedZ80CPU implements IZ80CPU {
         testDriver.addInstruction((byte) 0xED, (byte) 0xB0);
         break;
 
+      // === nuevos ===
+      case "LD SP,nn":
+        testDriver.addInstruction((byte) 0x31,
+            (byte) (operands[0] & 0xFF),
+            (byte) ((operands[0] >> 8) & 0xFF));
+        break;
+      case "IM 0":
+        testDriver.addInstruction((byte) 0xED, (byte) 0x46);
+        break;
+      case "IM 1":
+        testDriver.addInstruction((byte) 0xED, (byte) 0x56);
+        break;
+      case "IM 2":
+        testDriver.addInstruction((byte) 0xED, (byte) 0x5E);
+        break;
+      case "EI":
+        testDriver.addInstruction((byte) 0xFB);
+        break;
+      case "DI":
+        testDriver.addInstruction((byte) 0xF3);
+        break;
+      case "NOP":
+        testDriver.addInstruction((byte) 0x00);
+        break;
+      case "LD A,n":
+        testDriver.addInstruction((byte) 0x3E, (byte) operands[0]);
+        break;
+      case "LD I,A":
+        testDriver.addInstruction((byte) 0xED, (byte) 0x47);
+        break;
+      case "LD (nn),A":
+        testDriver.addInstruction((byte) 0x32,
+            (byte) (operands[0] & 0xFF),
+            (byte) ((operands[0] >> 8) & 0xFF));
+        break;
+      case "LD A,(nn)":
+        testDriver.addInstruction((byte) 0x3A,
+            (byte) (operands[0] & 0xFF),
+            (byte) ((operands[0] >> 8) & 0xFF));
+        break;
+
       // === JR family ===
       case "JR n":
         testDriver.addInstruction((byte) 0x18, (byte) operands[0]);
@@ -319,5 +370,6 @@ public class ConnectedZ80CPU implements IZ80CPU {
 
     testDriver.waitExecution();
   }
+
 }
 

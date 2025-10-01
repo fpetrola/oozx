@@ -111,4 +111,8 @@ public class TestDriver {
 
 //    commandHandler.addNoResultCommand(new StepCommand());
   }
+
+  public boolean isIFF1() {
+    return (boolean) commandHandler.executeCommand(new IsInterruptionEnabled());
+  }
 }

@@ -225,4 +225,9 @@ public class LocalLibretroCore implements LibretroCore {
   public void retro_tstates_history_init() {
     GetTStatesHistory.tstatesUpdates.clear();
   }
+
+  @Override
+  public boolean retro_is_intruption_enabled() {
+    return Z80.ooz80.getState().isIff1();
+  }
 }

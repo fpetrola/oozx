@@ -16,29 +16,11 @@
  *
  */
 
-package com.fpetrola.z80.instructions.impl;
+package com.fpetrola.oozx.fuse;
 
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
-import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+public class IsInterruptionEnabled implements EmulatorCommand {
+  public Object execute(LibretroCore core) {
 
-public class EI<T extends WordNumber> extends AbstractInstruction<T> {
-  private final State<T> state;
-
-  public EI(State state) {
-    this.state = state;
+    return EmulatorCommand.super.execute(core);
   }
-
-  public int execute() {
-    if (state.getPc().read().intValue() != 0x9A3F)
-      System.out.println("dsgsdghd");
-    state.enableInterrupt();
-    return 4;
-  }
-
-  public void accept(InstructionVisitor visitor) {
-    visitor.visitEI(this);
-  }
-
 }

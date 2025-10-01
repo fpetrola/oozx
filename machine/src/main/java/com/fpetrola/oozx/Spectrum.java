@@ -157,7 +157,7 @@ public class Spectrum {
 
         if (Sound.enabled) Sound.frame();
 
-        if (Display.frame() != 0) return 1;
+//        if (Display.frame() != 0) return 1;
         if (Profile.active) Profile.frame(frameLength);
         Printer.frame();
 

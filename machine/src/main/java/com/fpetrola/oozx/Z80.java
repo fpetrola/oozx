@@ -23,12 +23,18 @@ import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
+import com.fpetrola.z80.minizx.emulation.Helper;
+import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
+import com.fpetrola.z80.spy.NullInstructionSpy;
 import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
 import fuse.tstates.PhaseProcessor;
@@ -83,7 +89,7 @@ public class Z80 {
 //      }
 
       GetTStatesHistory.addTStateUpdate((byte) 7, "interrupt", (int) ooz80.getState().tstates);
-      ooz80.getState().tstates+= 7;
+      ooz80.getState().tstates += 7;
       ooz80.interruption();
     }
 //    ooz80.getState().tstates = 0;
@@ -99,6 +105,19 @@ public class Z80 {
     StartupManager.register(StartupManagerModule.Z80, dependencies, Z80::init, null, null);
 //    Machine.reset(false);
   }
+
+  public static <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
+    var state = new State(io, new DefaultRegisterBankFactory().createBank(), new MockedMemory(true)) {
+      public void enableInterrupt() {
+        super.enableInterrupt();
+        Z80.interruptsEnabledAt = tstates;
+        EventManager.eventAdd(tstates+1, Z80.z80_interrupt_event);
+      }
+    };
+    io.setPc(state.getPc());
+    return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)));
+  }
+
 
   private static void init2() {
     io = new MiniZXIO() {
@@ -116,14 +135,14 @@ public class Z80 {
         ooz80.getState().tstates = Spectrum.tstates;
       }
     };
-    ooz80 = EmulatedMiniZX.createOOZ80(io);
+    ooz80 = createOOZ80(io);
 
     byte[][] bytes = new byte[1000][1000];
     if (true || FuseLibretroConnector.noTest) {
-//      JFrame screen1 = MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
+      JFrame screen1 = MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
 
-      JFrame screen = createScreen(io.miniZXKeyboard, new FuseScreen(bytes));
-      new SwingKeyboard(screen);
+//      JFrame screen = createScreen(io.miniZXKeyboard, new FuseScreen(bytes));
+//      new SwingKeyboard(screen);
     }
     UiDisplay.screenMatrix = bytes;
 //    Keyboard0.keyboard = io.miniZXKeyboard;
@@ -142,7 +161,7 @@ public class Z80 {
     Z80Loader.libspectrum_snap snap = Z80Loader.getLibspectrumSnap(lib, url);
     state.tstates = lib.libspectrum_snap_tstates(snap);
     Spectrum.tstates = state.tstates;
-    interruptsEnabledAt= -1;
+    interruptsEnabledAt = -1;
     updateScreen();
 
     IO<?> io1 = state.getIo();
@@ -270,7 +289,7 @@ public class Z80 {
   }
 
   private static void z80_interrupt_event_fn(long l, int i, Object o) {
-//    ooz80.interruption();
+    Z80.interrupt();
   }
 
   public static void doOpcodes() {

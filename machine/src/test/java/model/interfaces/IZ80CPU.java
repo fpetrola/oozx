@@ -44,5 +44,9 @@ public interface IZ80CPU {
     void setIX(int value);
 
     boolean isZeroFlag();
+
+    boolean getInterruptEnable();
+
+    int getSP();
 }
 

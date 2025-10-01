@@ -207,4 +207,9 @@ public class LibretroCoreMultiplexor implements LibretroCore {
     public void retro_tstates_history_init() {
         delegates.forEach(LibretroCore::retro_tstates_history_init);
     }
+
+    @Override
+    public boolean retro_is_intruption_enabled() {
+        return delegates.get(0).retro_is_intruption_enabled();
+    }
 }

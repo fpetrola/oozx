@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class SCF<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
-  public static final AluOperation scfTableAluOperation = new TableAluOperation() {
+  public static final AluOperation scfTableAluOperation = new AluOperation() {
     public int execute(int flag, int A, int carry) {
       F = flag;
       F = F & (FLAG_P | FLAG_Z | FLAG_S) | A & (FLAG_3 | FLAG_5) | FLAG_C;
@@ -40,7 +40,8 @@ public class SCF<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
   }
 
   public int execute() {
-    scfTableAluOperation.executeWithCarry(target.read(), flag.read(), flag);
+    scfTableAluOperation.execute(flag.read().intValue(), target.read().intValue(), 1);
+    flag.write(WordNumber.createValue(scfTableAluOperation.F));
     return 4;
   }
 
