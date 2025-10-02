@@ -16,6 +16,7 @@
         <module>core</module>
         <module>ui</module>
         <module>media</module>
+        <module>machines/ula</module>
     </modules>
 
 </project>
