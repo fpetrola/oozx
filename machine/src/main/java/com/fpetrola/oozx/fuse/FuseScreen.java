@@ -20,6 +20,8 @@ package com.fpetrola.oozx.fuse;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 
 public class FuseScreen extends JPanel {
@@ -35,15 +37,16 @@ public class FuseScreen extends JPanel {
     setPreferredSize(new Dimension((int) (width * zoom), (int) (height * zoom)));
     this.screenBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
-    new Timer(20, e -> {
+    new Timer(10, e -> {
       repaint();
     }).start();
 
-//    this.addComponentListener(new ComponentAdapter() {
-//      public void componentResized(ComponentEvent e) {
-//        zoom = (e.getComponent().getSize().getWidth() / (128));
-//      }
-//    });
+    addComponentListener(new ComponentAdapter() {
+      public void componentResized(ComponentEvent event) {
+        Rectangle b = event.getComponent().getBounds();
+        event.getComponent().setBounds(b.x, b.y, b.width, b.width * 3 / 4);
+      }
+    });
   }
 
   protected void paintComponent(Graphics g) {
@@ -51,11 +54,8 @@ public class FuseScreen extends JPanel {
 
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
-        byte screenMatrix1 = screenMatrix[x][y];
-        int zxColorCode = screenMatrix1;
-
-        Color c = zxColorCode >= 8 ? colors[zxColorCode - 8] : colors[zxColorCode].darker();
-        screenBuffer.setRGB(x, y, c.getRGB());
+        int zxColorCode = screenMatrix[x][y];
+        screenBuffer.setRGB(x, y, (zxColorCode >= 8 ? colors[zxColorCode - 8] : colors[zxColorCode].darker()).getRGB());
       }
     }
 
