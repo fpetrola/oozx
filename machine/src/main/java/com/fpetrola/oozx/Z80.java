@@ -139,7 +139,7 @@ public class Z80 {
     ooz80 = createOOZ80(io);
 
     byte[][] bytes = new byte[1000][1000];
-    if (true || FuseLibretroConnector.noTest) {
+    if (FuseLibretroConnector.noTest) {
 //      JFrame screen1 = MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
 //      JFrame screen = createScreen(io.miniZXKeyboard, zxScreenComponent);
 
