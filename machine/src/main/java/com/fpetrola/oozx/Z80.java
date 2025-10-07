@@ -268,8 +268,6 @@ public class Z80 {
         this.phaseProcessor.addMw(address, value);
         Spectrum.tstates = state.tstates;
 
-//        updateOne(address, value);
-//        update2(address.intValue());
         int address1 = address.intValue();
         if (address1 >= 0x4000 && address1 < 0x6000) {
           com.fpetrola.oozx.Memory.writeByteInternal(address1, (byte) (value.intValue() & 0xff));
@@ -285,44 +283,6 @@ public class Z80 {
         state.tstates = Spectrum.tstates;
       }
     });
-  }
-
-  private static void update2(int address) {
-    WordNumber[] data = ooz80.getState().getMemory().getData();
-    if (!init) {
-//      init = true;
-      for (int i = 0; i < 0x1EA0; i++) {
-//      if (address >= 0x4000 && address < 0x6000) {
-//        int i = address - 0x4000;
-        {
-          writeBy(i, data);
-        }
-      }
-    } else {
-      if (address >= 0x4000 && address < 0x6000) {
-        int i = address - 0x4000;
-        writeBy(i, data);
-      }
-    }
-  }
-
-  private static void writeBy(int i, WordNumber[] data) {
-    int sa = i + 0x4000;
-    WordNumber datum = data[sa];
-    byte b = datum != null ? (byte) (datum.intValue() & 0xff) : 0;
-
-    byte[] mapping = Spectrum.RAM[currentScreen];
-    mapping[i] = b;
-    com.fpetrola.oozx.Memory.writeByteInternal(sa, b);
-  }
-
-  private static void updateOne(WordNumber address, WordNumber value) {
-    WordNumber[] data = ooz80.getState().getMemory().getData();
-    int j = 6000;
-    if (address.intValue() >= 0x4000 + 100 + j && address.intValue() < 0x4000 + 2000 + j) {
-//          writeListener.writtingMemoryAt(address, value);
-      Spectrum.RAM[com.fpetrola.oozx.Memory.currentScreen][address.intValue() - 0x4000] = (byte) (value.intValue() & 0xff);
-    }
   }
 
   private static boolean initialized() {
@@ -363,14 +323,6 @@ public class Z80 {
       phaseProcessor.initialTStates = Spectrum.tstates;
       ooz80.execute();
       Spectrum.tstates = ooz80.getState().tstates;
-    }
-  }
-
-  public static void updateScreen() {
-    WordNumber[] data = ooz80.getState().getMemory().getData();
-    for (int i = 0; i < 0x2000; i++) {
-      WordNumber datum = data[i + 0x4000];
-      Spectrum.RAM[com.fpetrola.oozx.Memory.currentScreen][i] = datum != null ? (byte) (datum.intValue() & 0xff) : 0;
     }
   }
 

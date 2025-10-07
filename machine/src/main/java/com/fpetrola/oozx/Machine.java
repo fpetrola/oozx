@@ -242,7 +242,7 @@ public class Machine {
     for (MemoryPage page : Arrays.asList(bankMap).subList(pageNum * Memory.PAGES_IN_16K, pageNum * Memory.PAGES_IN_16K + length / Memory.PAGE_SIZE)) {
       page.offset = offset;
       page.pageNum = pageNum;
-      page.page = Arrays.copyOfRange(data, offset, offset + Memory.PAGE_SIZE);
+      page.setPage(Arrays.copyOfRange(data, offset, offset + Memory.PAGE_SIZE));
       page.writable = false;
       page.saveToSnapshot = custom;
       offset += Memory.PAGE_SIZE;

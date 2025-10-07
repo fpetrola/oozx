@@ -139,7 +139,7 @@ public class Memory {
     for (int i = 0; i < SPECTRUM_RAM_PAGES; i++) {
       for (int j = 0; j < PAGES_IN_16K; j++) {
         MemoryPage page = mapRam[i * PAGES_IN_16K + j] = new MemoryPage();
-        page.page = Spectrum.RAM[i];
+        page.setPage(Spectrum.RAM, i, j * PAGE_SIZE);
         page.pageNum = i;
         page.offset = j * PAGE_SIZE;
         page.writable = true;
@@ -324,7 +324,7 @@ public class Memory {
         return Ttx2000s.sramRead(address);
       }
 
-      return mapping.page[address & PAGE_SIZE_MASK];
+      return mapping.getPage().get(address & PAGE_SIZE_MASK);
     } else return 0;
   }
 
@@ -356,14 +356,14 @@ public class Memory {
     int bank = address >>> PAGE_SIZE_LOGARITHM;
     MemoryPage mapping = mapWrite[bank];
     int offset = address & PAGE_SIZE_MASK;
-    byte[] memory = mapping.page;
+    ArrayPointer memory = mapping.getPage();
 
     int offset2 = offset + mapping.offset;
 
     if (mapping.source == sourceRam &&
         mapping.pageNum == currentScreen &&
         (offset2 & screenMask) < 0x1b00 &&
-        memory[offset] != b) {
+        memory.get(offset) != b) {
       Display.dirty.apply(offset2);
     }
   }
@@ -393,11 +393,11 @@ public class Memory {
     if (Opus.active && address >= 0x2800 && address < 0x3800) {
       Opus.write(address, b);
     } else if (mapping.writable || (mapping.source != sourceNone && Settings.current.writableRoms)) {
-      int offset = address & (0x4000 - 1);
-      byte[] memory = mapping.page;
+      int offset = address & PAGE_SIZE_MASK;
+      ArrayPointer memory = mapping.getPage();
 
       displayDirty.apply(address, b);
-      memory[offset] = b;
+      memory.set(offset,  b);
     }
   }
 
@@ -469,7 +469,7 @@ public class Memory {
     int romLength = 0;
 
     for (int i = 0; i < SPECTRUM_ROM_PAGES * PAGES_IN_16K; i++) {
-      if (mapRom[i].page != null) {
+      if (mapRom[i].getPage() != null) {
         if (currentPageNum != mapRom[i].pageNum) {
           if (currentRom != null) {
             Libspectrum.snapSetRoms(snap, currentRomNum, currentRom);
@@ -480,12 +480,12 @@ public class Memory {
 
           romLength = PAGE_SIZE;
           currentRom = new byte[romLength];
-          System.arraycopy(mapRom[i].page, 0, currentRom, 0, PAGE_SIZE);
+          System.arraycopy(mapRom[i].getPage(), 0, currentRom, 0, PAGE_SIZE);
           currentPageNum = mapRom[i].pageNum;
         } else {
           byte[] newRom = new byte[romLength + PAGE_SIZE];
           System.arraycopy(currentRom, 0, newRom, 0, romLength);
-          System.arraycopy(mapRom[i].page, 0, newRom, romLength, PAGE_SIZE);
+          System.arraycopy(mapRom[i].getPage(), 0, newRom, romLength, PAGE_SIZE);
           currentRom = newRom;
           romLength += PAGE_SIZE;
         }
@@ -566,17 +566,6 @@ public class Memory {
 //                return false;
 //        }
 //    }
-}
-
-// Supporting classes and enums
-class MemoryPage {
-  byte[] page; // The data for this page
-  boolean writable; // Can we write to this data?
-  boolean contended; // Are reads/writes to this page contended?
-  int source; // Where did this page come from?
-  boolean saveToSnapshot; // Should this page be saved to snapshots?
-  int pageNum; // Which page from the source
-  int offset; // How far into the page this chunk starts
 }
 
 enum TrapType {
