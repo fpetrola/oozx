@@ -252,7 +252,7 @@ public class Fuse {
 //        Libspectrum.errorFunction = Ui::libspectrumError;
 
         // Wii-specific display init (assume handled by Display)
-        if (Display.init(args) != 0) return 1;
+//        if (Display.init(args) != 0) return 1;
 
         firstArg = Settings.init(args);
         if (firstArg < 0) return 1;

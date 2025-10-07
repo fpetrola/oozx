@@ -27,12 +27,12 @@ public class FuseScreen extends JPanel {
   private final BufferedImage screenBuffer;
   private double zoom = 2;
   Color[] colors = {Color.BLACK, Color.BLUE, Color.RED, Color.MAGENTA, Color.GREEN, Color.CYAN, Color.YELLOW, Color.WHITE};
-  private int width = 256 + 48 + 48;
-  private int height = 192 + 64 + 56;
+  private int width = 256 + 48 + 48- 32;
+  private int height = 192 + 64 + 56 - 56;
 
   public FuseScreen(byte[][] screenMatrix) {
     this.screenMatrix = screenMatrix;
-    setPreferredSize(new Dimension((int) (256 + 100 * zoom), (int) (192 + 100 * zoom)));
+    setPreferredSize(new Dimension((int) (width * zoom), (int) (height * zoom)));
     this.screenBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
     new Timer(20, e -> {

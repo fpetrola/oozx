@@ -28,9 +28,7 @@ import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.memory.MemoryWriteListener;
-import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
-import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -44,8 +42,7 @@ import fuse.tstates.phases.BeforeWrite;
 import javax.swing.*;
 import java.awt.event.KeyListener;
 
-import static com.fpetrola.oozx.Memory.PAGE_SIZE_LOGARITHM;
-import static com.fpetrola.oozx.Memory.mapRead;
+import static com.fpetrola.oozx.Memory.*;
 import static com.fpetrola.z80.opcodes.references.WordNumber.*;
 
 public class Z80 {
@@ -66,6 +63,7 @@ public class Z80 {
   private static int z80_interrupt_event;
   static ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent<>();
   static MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
+  private static boolean init;
 
   private static void reset(int i) {
     ooz80.reset();
@@ -175,8 +173,11 @@ public class Z80 {
     state.tstates = lib.libspectrum_snap_tstates(snap);
     Spectrum.tstates = state.tstates;
     interruptsEnabledAt = -1;
-    updateScreen();
-    updateScreen2();
+
+    updateMemory();
+//    updateScreen();
+//    updateScreen2();
+    Display.refreshAll();
 
     IO<?> io1 = state.getIo();
 //    ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent<>();
@@ -196,7 +197,7 @@ public class Z80 {
     phaseProcessor = new PhaseProcessor<>(ooz80) {
       public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
         for (int i = 0; i < x; i++) {
-          MemoryPage memoryPage = mapRead[baseAddress >> PAGE_SIZE_LOGARITHM];
+          MemoryPage memoryPage = mapRead[baseAddress >>> PAGE_SIZE_LOGARITHM];
           if (memoryPage != null && memoryPage.contended) {
             if (state.tstates < Ula.contentionNoMreq.length) {
               byte tstates = Ula.contentionNoMreq[(int) state.tstates];
@@ -265,14 +266,16 @@ public class Z80 {
 
         this.phaseProcessor.addMultipleMc(1, 3, 0, address.intValue(), "writebyte");
         this.phaseProcessor.addMw(address, value);
+        Spectrum.tstates = state.tstates;
 
-        WordNumber[] data = ooz80.getState().getMemory().getData();
-        if (address.intValue() >= 0x4000 && address.intValue() < 0x5FFF) {
-          writeListener.writtingMemoryAt(address, value);
-          Spectrum.RAM[0][address.intValue() - 0x4000] = (byte) (data[address.intValue()].intValue() & 0xff);
+//        updateOne(address, value);
+//        update2(address.intValue());
+        int address1 = address.intValue();
+        if (address1 >= 0x4000 && address1 < 0x6000) {
+          com.fpetrola.oozx.Memory.writeByteInternal(address1, (byte) (value.intValue() & 0xff));
+//        Display.refreshAll();
         }
 
-        Spectrum.tstates = state.tstates;
       }
 
       private void processUlaContention(WordNumber address, WordNumber value) {
@@ -282,6 +285,44 @@ public class Z80 {
         state.tstates = Spectrum.tstates;
       }
     });
+  }
+
+  private static void update2(int address) {
+    WordNumber[] data = ooz80.getState().getMemory().getData();
+    if (!init) {
+//      init = true;
+      for (int i = 0; i < 0x1EA0; i++) {
+//      if (address >= 0x4000 && address < 0x6000) {
+//        int i = address - 0x4000;
+        {
+          writeBy(i, data);
+        }
+      }
+    } else {
+      if (address >= 0x4000 && address < 0x6000) {
+        int i = address - 0x4000;
+        writeBy(i, data);
+      }
+    }
+  }
+
+  private static void writeBy(int i, WordNumber[] data) {
+    int sa = i + 0x4000;
+    WordNumber datum = data[sa];
+    byte b = datum != null ? (byte) (datum.intValue() & 0xff) : 0;
+
+    byte[] mapping = Spectrum.RAM[currentScreen];
+    mapping[i] = b;
+    com.fpetrola.oozx.Memory.writeByteInternal(sa, b);
+  }
+
+  private static void updateOne(WordNumber address, WordNumber value) {
+    WordNumber[] data = ooz80.getState().getMemory().getData();
+    int j = 6000;
+    if (address.intValue() >= 0x4000 + 100 + j && address.intValue() < 0x4000 + 2000 + j) {
+//          writeListener.writtingMemoryAt(address, value);
+      Spectrum.RAM[com.fpetrola.oozx.Memory.currentScreen][address.intValue() - 0x4000] = (byte) (value.intValue() & 0xff);
+    }
   }
 
   private static boolean initialized() {
@@ -323,15 +364,24 @@ public class Z80 {
       ooz80.execute();
       Spectrum.tstates = ooz80.getState().tstates;
     }
-    Spectrum.tstates = ooz80.getState().tstates;
   }
 
   public static void updateScreen() {
     WordNumber[] data = ooz80.getState().getMemory().getData();
-    for (int i = 0; i < 0x4000; i++) {
+    for (int i = 0; i < 0x2000; i++) {
       WordNumber datum = data[i + 0x4000];
-      if (datum != null)
-        Spectrum.RAM[0][i] = (byte) (datum.intValue() & 0xff);
+      Spectrum.RAM[com.fpetrola.oozx.Memory.currentScreen][i] = datum != null ? (byte) (datum.intValue() & 0xff) : 0;
+    }
+  }
+
+  public static void updateMemory() {
+    WordNumber[] data = ooz80.getState().getMemory().getData();
+    for (int i = 0x4000; i < 0x8000; i++) {
+      WordNumber datum = data[i];
+//      int bank = i >>> PAGE_SIZE_LOGARITHM;
+//      byte[] mapping = Spectrum.RAM[currentScreen];
+//      mapping[i - 0x4000] = datum != null ? (byte) (datum.intValue() & 0xff) : 0;
+      writeByteInternal(i, datum != null ? (byte) (datum.intValue() & 0xff) : 0);
     }
   }
 

@@ -139,7 +139,7 @@ public class Memory {
     for (int i = 0; i < SPECTRUM_RAM_PAGES; i++) {
       for (int j = 0; j < PAGES_IN_16K; j++) {
         MemoryPage page = mapRam[i * PAGES_IN_16K + j] = new MemoryPage();
-        page.page = Spectrum.RAM[i] != null ? Spectrum.RAM[i] : new byte[PAGE_SIZE];
+        page.page = Spectrum.RAM[i];
         page.pageNum = i;
         page.offset = j * PAGE_SIZE;
         page.writable = true;
@@ -252,7 +252,7 @@ public class Memory {
   // Map 2K of memory for reading, writing, or both
   public static void map2kReadWrite(int address, MemoryPage[] source, int pageNum, boolean mapRead, boolean mapWrite) {
     for (int i = 0; i < PAGES_IN_2K; i++) {
-      int pageOffset = (address >> PAGE_SIZE_LOGARITHM) + i;
+      int pageOffset = (address >>> PAGE_SIZE_LOGARITHM) + i;
       MemoryPage page = source[pageNum * PAGES_IN_2K + i];
       if (mapRead) Memory.mapRead[pageOffset] = page;
       if (mapWrite) Memory.mapWrite[pageOffset] = page;
@@ -286,51 +286,51 @@ public class Memory {
 
   // Read a byte from memory
   public static byte readByte(int address) {
-    int bank = address >> PAGE_SIZE_LOGARITHM;
+    int bank = address >>> PAGE_SIZE_LOGARITHM;
     MemoryPage mapping = mapRead[bank];
 
-    if (mapping!= null){
-    if (Debugger.mode != DebuggerMode.INACTIVE) {
-      Debugger.check(DebuggerBreakpointType.READ, address);
-    }
-
-    if (mapping!= null && mapping.contended) {
-      if (Spectrum.tstates < Ula.contention.length) {
-        byte tstates = Ula.contention[(int) Spectrum.tstates];
-        if (tstates > 0) {
-//              System.out.println(format("{0} -> adding readByte tstates: {1}", Spectrum.tstates, tstates));
-          GetTStatesHistory.addTStateUpdate(tstates, "ula readbyte", (int) Spectrum.tstates);
-        }
-        Spectrum.tstates += tstates;
+    if (mapping != null) {
+      if (Debugger.mode != DebuggerMode.INACTIVE) {
+        Debugger.check(DebuggerBreakpointType.READ, address);
       }
-    }
+
+      if (mapping != null && mapping.contended) {
+        if (Spectrum.tstates < Ula.contention.length) {
+          byte tstates = Ula.contention[(int) Spectrum.tstates];
+          if (tstates > 0) {
+//              System.out.println(format("{0} -> adding readByte tstates: {1}", Spectrum.tstates, tstates));
+            GetTStatesHistory.addTStateUpdate(tstates, "ula readbyte", (int) Spectrum.tstates);
+          }
+          Spectrum.tstates += tstates;
+        }
+      }
 //      LocalLibretroCore.tstatesUpdates.add(new TStateUpdate((int) Spectrum.tstates, 3, "readbyte"));
 //      Spectrum.tstates += 3;
 
-    if (Opus.active && address >= 0x2800 && address < 0x3800) {
-      return Opus.read(address);
-    }
-
-    if (Spectranet.paged) {
-      if (Spectranet.w5100PagedA && address >= 0x1000 && address < 0x2000) {
-        return Spectranet.w5100Read(mapping, address);
+      if (Opus.active && address >= 0x2800 && address < 0x3800) {
+        return Opus.read(address);
       }
-      if (Spectranet.w5100PagedB && address >= 0x2000 && address < 0x3000) {
-        return Spectranet.w5100Read(mapping, address);
+
+      if (Spectranet.paged) {
+        if (Spectranet.w5100PagedA && address >= 0x1000 && address < 0x2000) {
+          return Spectranet.w5100Read(mapping, address);
+        }
+        if (Spectranet.w5100PagedB && address >= 0x2000 && address < 0x3000) {
+          return Spectranet.w5100Read(mapping, address);
+        }
       }
-    }
 
-    if (Ttx2000s.paged && address >= 0x2000 && address < 0x4000) {
-      return Ttx2000s.sramRead(address);
-    }
+      if (Ttx2000s.paged && address >= 0x2000 && address < 0x4000) {
+        return Ttx2000s.sramRead(address);
+      }
 
-    return mapping.page[address & PAGE_SIZE_MASK];
+      return mapping.page[address & PAGE_SIZE_MASK];
     } else return 0;
   }
 
   // Write a byte to memory
   public static void writeByte(int address, byte b) {
-    int bank = address >> PAGE_SIZE_LOGARITHM;
+    int bank = address >>> PAGE_SIZE_LOGARITHM;
     MemoryPage mapping = mapWrite[bank];
 
     if (Debugger.mode != DebuggerMode.INACTIVE) {
@@ -348,12 +348,12 @@ public class Memory {
 //      LocalLibretroCore.getTstatesUpdates().add(new TStateUpdate((int) Spectrum.tstates, 3, "writebyte"));
 //      Spectrum.tstates += 3;
 
-    writeByteInternal(address, b);
+//    writeByteInternal(address, b);
   }
 
   // Handle dirty display for Sinclair mode
   public static void displayDirtySinclair(int address, byte b) {
-    int bank = address >> PAGE_SIZE_LOGARITHM;
+    int bank = address >>> PAGE_SIZE_LOGARITHM;
     MemoryPage mapping = mapWrite[bank];
     int offset = address & PAGE_SIZE_MASK;
     byte[] memory = mapping.page;
@@ -370,7 +370,7 @@ public class Memory {
 
   // Write a byte to memory (internal)
   public static void writeByteInternal(int address, byte b) {
-    int bank = address >> PAGE_SIZE_LOGARITHM;
+    int bank = address >>> PAGE_SIZE_LOGARITHM;
     MemoryPage mapping = mapWrite[bank];
 
     if (Spectranet.paged) {
@@ -393,7 +393,7 @@ public class Memory {
     if (Opus.active && address >= 0x2800 && address < 0x3800) {
       Opus.write(address, b);
     } else if (mapping.writable || (mapping.source != sourceNone && Settings.current.writableRoms)) {
-      int offset = address & PAGE_SIZE_MASK;
+      int offset = address & (0x4000 - 1);
       byte[] memory = mapping.page;
 
       displayDirty.apply(address, b);

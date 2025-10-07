@@ -51,7 +51,9 @@ public class FuseLibretroConnector {
 //      if (noTest)
 //        panel.updateFrame(data1, width, height, pitch);
     });
-    aCore.retro_set_environment((cmd, data) -> true);
+    aCore.retro_set_environment((cmd, data) -> {
+      return true;
+    });
 
     LibretroCore.bridge_command bridgeCommand;
 

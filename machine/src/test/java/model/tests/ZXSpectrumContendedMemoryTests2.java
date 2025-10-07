@@ -41,7 +41,7 @@ public class ZXSpectrumContendedMemoryTests2 {
   static void tearDown() {
   }
 
-  @Disabled
+  //  @Disabled
   @Test
   void test48KExecuteGame() {
     String model = "48K";
@@ -60,7 +60,7 @@ public class ZXSpectrumContendedMemoryTests2 {
     for (int i = 0; i < 1368000; i++) {
       testDriver1.tstatesHistoryInit();
       testDriver2.tstatesHistoryInit();
-      for (int j = 0; j < 100; j++) {
+      for (int j = 0; j < 20; j++) {
         testDriver1.step();
         testDriver2.step();
 
@@ -100,6 +100,9 @@ public class ZXSpectrumContendedMemoryTests2 {
       List<TStateUpdate> tStateUpdates = GetTStatesHistory.getLocalTStateUpdates(localLibretroCore);
       List<TStateUpdate> tStateUpdates2 = GetTStatesHistory.getRemoteTStateUpdates2(remoteCore);
 
+      if (!tStateUpdates2.isEmpty() || !tStateUpdates.isEmpty()) {
+        System.out.println(" Step " + i + ": PC=" + tStateUpdates.get(0).pc + ", TStates=" + tStateUpdates.get(0).key + " -> " + tStateUpdates.get(tStateUpdates.size() - 1).key + ", updates=" + tStateUpdates.size());
+      }
       localtStateUpdates.addAll(tStateUpdates);
       remotetStateUpdates.addAll(tStateUpdates2);
 
@@ -119,6 +122,7 @@ public class ZXSpectrumContendedMemoryTests2 {
 //      assertEquals(tStateUpdates2, tStateUpdates);
 //      int key = tStateUpdates.get(tStateUpdates.size() - 1).key;
 //      System.out.println(key);
+      assertListsEqualInChunks(tStateUpdates, tStateUpdates2, 20, u -> u.key, "key");
     }
 //    assertEquals(initialTStates + 4 + 6 + 3 + 4, cpu.getTStates()); // Fetch + delay + write + delay, total +17
 //    assertEquals((byte) 0xAA, bus.readMemory(26000));
@@ -140,10 +144,26 @@ public class ZXSpectrumContendedMemoryTests2 {
       return;
     }
 
+    if (expected.size() != actual.size()) {
+      String format = String.format(
+          "Lists have different sizes: expected %d, but was %d",
+          expected.size(), actual.size()
+      );
+      System.out.println(format);
+    }
+
     // Iterate through lists in chunks
     for (int i = 0; i < expected.size(); i += chunkSize) {
       int endIndex = Math.min(i + chunkSize, expected.size());
       List<T> expectedChunk = expected.subList(i, endIndex);
+
+      if (endIndex > actual.size()) {
+        String format = String.format(
+            "Actual list is shorter than expected at chunk starting index %d to %d: expected size %d, but was %d",
+            i, endIndex - 1, expected.size(), actual.size()
+        );
+        System.out.println(format);
+      }
       List<T> actualChunk = actual.subList(i, endIndex);
 
       // Check if chunks are equal
@@ -256,5 +276,28 @@ public class ZXSpectrumContendedMemoryTests2 {
       );
     }
   }
+
+  @Test
+  void test48KExecuteGame2() {
+    String model = "48K";
+    String fileName = "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
+
+    testDriver1.setModel(model);
+    testDriver1.loadSnapshot(fileName);
+
+    for (int i = 0; i < 1368000; i++) {
+      testDriver1.tstatesHistoryInit();
+      testDriver2.tstatesHistoryInit();
+      for (int j = 0; j < 100; j++) {
+        testDriver1.step();
+
+//        int pc1 = testDriver1.getRegister("PC");
+//        if (pc1 == 0) {
+//          System.out.println("sdsdgsdgdg");
+//        }
+      }
+    }
+  }
+
 
 }

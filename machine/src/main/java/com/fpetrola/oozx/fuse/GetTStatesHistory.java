@@ -38,13 +38,17 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
   }
 
   public static void addTStateUpdate(byte tstatesToAdd, String description, int tstates) {
-    int pc = Z80.ooz80.getState().getPc().read().intValue();
-//    if (tstates == 20 && pc == 50758) {
-//      System.out.println("addTStateUpdate");
+//    int pc = Z80.ooz80.getState().getPc().read().intValue();
+////    if (tstates == 20 && pc == 50758) {
+////      System.out.println("addTStateUpdate");
+////    }
+//
+//    boolean a = description.startsWith("uidisplay_plot8:");
+////a= true;
+//    if (a) {
+//      if (tstatesToAdd != 0)
+//        getTstatesUpdates().add(new TStateUpdate(tstates, tstatesToAdd & 0Xff, description, pc));
 //    }
-    if (tstatesToAdd != 0) {
-      getTstatesUpdates().add(new TStateUpdate(tstates, tstatesToAdd, description, pc));
-    }
   }
 
   public List<TStateUpdate> execute(LibretroCore core) {
@@ -76,7 +80,7 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
   public static List<TStateUpdate> getRemoteTStateUpdates2(LibretroCore core) {
     Pointer pData1 = core.retro_tstates_history();
     KVPair first = new KVPair(pData1);
-    KVPair[] pairs = (KVPair[]) first.toArray(1000);
+    KVPair[] pairs = (KVPair[]) first.toArray(2000);
 
     List<TStateUpdate> out = new ArrayList<>();
     for (KVPair kv : pairs) {

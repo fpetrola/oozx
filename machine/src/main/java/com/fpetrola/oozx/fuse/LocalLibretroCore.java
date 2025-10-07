@@ -35,7 +35,6 @@ public class LocalLibretroCore implements LibretroCore {
   public static retro_input_state_t retroInputStateT;
 
   public LocalLibretroCore() {
-    Fuse.fuseInit(new String[]{});
   }
 
   public int retro_get_beam_x() {
@@ -53,7 +52,7 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_init() {
-
+    Fuse.fuseInit(new String[]{});
   }
 
   public void retro_deinit() {

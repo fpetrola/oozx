@@ -83,7 +83,6 @@ public class Spectrum {
 
 
 
-    public static int memoryCurrentScreen;
     // Contention patterns
     private static int[] contentionPattern65432100 = {5, 4, 3, 2, 1, 0, 0, 6};
     private static int[] contentionPattern76543210 = {5, 4, 3, 2, 1, 0, 7, 6};

@@ -18,10 +18,17 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.GetTStatesHistory;
+
+import static java.lang.String.format;
+
 public class UiDisplay {
   public static byte[][] screenMatrix;
 
   public static void plot8(int x, int y, byte data, byte ink, byte paper) {
+    String format = format("uidisplay_plot8: x=%d y=%d data=%02x ink=%d paper=%d", x, y, data, ink, paper);// Formatea el string
+    GetTStatesHistory.addTStateUpdate((byte) (data&0xff), format, (int) Spectrum.tstates);
+
     for (int i = 0; i < 8; i++) {
       int i1 = data & (0x80 >> i);
       screenMatrix[x * 8 + i][y] = i1 != 0 ? ink : paper;

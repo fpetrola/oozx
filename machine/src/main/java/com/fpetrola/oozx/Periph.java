@@ -267,7 +267,7 @@ public class Periph {
         }
 
         Spectrum.tstates++;
-
+//        b= -1;
         return b;
     }
 

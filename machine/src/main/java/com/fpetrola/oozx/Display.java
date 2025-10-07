@@ -72,7 +72,7 @@ public class Display {
 
     // Stores the pixel, attribute, and SCLD screen mode information used to
     // draw each 8x1 group of pixels (including border) last frame
-    public static long[] lastScreen = new long[SCREEN_WIDTH_COLS * SCREEN_HEIGHT];
+    public static int[] lastScreen = new int[SCREEN_WIDTH_COLS * SCREEN_HEIGHT];
 
     // Offsets as to where the data and the attributes for each pixel line start
     public static int[] lineStart = new int[HEIGHT];
@@ -96,7 +96,7 @@ public class Display {
     private static long[] isDirty = new long[SCREEN_HEIGHT];
 
     // Which eight-pixel chunks on each line may need to be redisplayed
-    private static long[] maybeDirty = new long[HEIGHT];
+    private static int[] maybeDirty = new int[HEIGHT];
 
     // This value signifies that the entire line must be redisplayed
     private static long allDirty;
@@ -230,7 +230,7 @@ public class Display {
             } else {
                 offset = attrStart[y] + x;
             }
-            attr = Spectrum.RAM[Spectrum.memoryCurrentScreen][offset];
+            attr = Spectrum.RAM[Memory.currentScreen][offset];
         }
         return (byte) attr;
     }
@@ -240,12 +240,12 @@ public class Display {
             int x = 0;
             while (isDirty[y] != 0) {
                 while ((isDirty[y] & 0x01) == 0) {
-                    isDirty[y] >>= 1;
+                    isDirty[y] >>>= 1;
                     x++;
                 }
                 int start = x;
                 do {
-                    isDirty[y] >>= 1;
+                    isDirty[y] >>>= 1;
                     x++;
                 } while ((isDirty[y] & 0x01) != 0);
                 Rectangle.add(y, start, x - start);
@@ -260,33 +260,34 @@ public class Display {
         int beamY = y + BORDER_HEIGHT;
         int offset = getOffset(x, y);
 
-        byte[] screen = Spectrum.RAM[Spectrum.memoryCurrentScreen];
+        byte[] screen = Spectrum.RAM[Memory.currentScreen];
         int data = screen[offset];
         byte data2 = getAttrByte(x, y);
 
-        long lastChunkDetail = ((long) (flashReversed ? 1 : 0) << 24) | ((data2 & 0xFF) << 8) | (data & 0xFF);
+        int lastChunkDetail = ((int) (flashReversed ? 1 : 0) << 24) | ((data2 & 0xFF) << 8) | (data & 0xFF);
         int index = beamX + beamY * SCREEN_WIDTH_COLS;
         if (lastScreen[index] != lastChunkDetail) {
             byte[] inkPaper = new byte[2];
             parseAttr(data2, inkPaper);
             byte ink = inkPaper[0], paper = inkPaper[1];
-            UiDisplay.plot8(beamX, beamY, (byte) data, ink, paper);
+//            System.err.printf("display_write_if_dirty_sinclair: x=%d y=%d data=%02x attr=%02x ink=%d paper=%d\n", x, y, data, data2, ink, paper );
+            UiDisplay.plot8(beamX, beamY, (byte) (data &0xff), ink, paper);
             lastScreen[index] = lastChunkDetail;
             isDirty[beamY] |= (1L << beamX);
         }
     }
 
     private static void copyCriticalRegionLine(int y, int x, int end) {
-        long bitMask, dirty;
+        int bitMask, dirty;
 
         if (x < WIDTH_COLS) {
-            bitMask = allDirty;
+            bitMask = (int) allDirty;
 //            if (x!= 0)
 //                System.out.println("adgdgdg");
-            bitMask >>= x;
+            bitMask >>>= x;
             bitMask <<= x + (32 - end);
-            bitMask >>= (32 - end);
-            dirty = (maybeDirty[y] & bitMask) >> x;
+            bitMask >>>= (32 - end);
+            dirty = (int) ((maybeDirty[y] & bitMask) >>> x);
             maybeDirty[y] &= ~bitMask;
         } else {
             dirty = 0;
@@ -294,12 +295,12 @@ public class Display {
 
         while (dirty != 0) {
             while ((dirty & 0x01) == 0) {
-                dirty >>= 1;
+                dirty >>>= 1;
                 x++;
             }
             do {
                 writeIfDirty.apply(x, y);
-                dirty >>= 1;
+                dirty >>>= 1;
                 x++;
             } while ((dirty & 0x01) != 0);
         }
@@ -362,7 +363,7 @@ public class Display {
         if (y > criticalRegionY || (y == criticalRegionY && x >= criticalRegionX)) {
             updateCritical(x, y);
         }
-        maybeDirty[y] |= (1L << x);
+        maybeDirty[y] |= (1 << x);
     }
 
     private static void dirty8(int offset) {
@@ -448,7 +449,7 @@ public class Display {
     }
 
     private static void setBorder(int y, int start, int end, int colour) {
-        long chunkDetail = (long) colour << 11;
+        int chunkDetail = (int) colour << 11;
         int index = start + y * SCREEN_WIDTH_COLS;
 
         for (; start < end; start++) {
@@ -574,7 +575,7 @@ public class Display {
     }
 
     public static void dirtyFlashingSinclair() {
-        byte[] screen = Spectrum.RAM[Spectrum.memoryCurrentScreen];
+        byte[] screen = Spectrum.RAM[Memory.currentScreen];
         for (int offset = 0x1800; offset < 0x1b00; offset++) {
             byte attr = screen[offset];
             if ((attr & 0x80) != 0) dirty64(offset);
@@ -583,7 +584,7 @@ public class Display {
 
     public static void refreshMainScreen() {
         for (int i = 0; i < HEIGHT; i++) {
-            maybeDirty[i] = allDirty;
+            maybeDirty[i] = (int) allDirty;
         }
     }
 
@@ -593,7 +594,7 @@ public class Display {
         for (int i = 0; i < SCREEN_HEIGHT; i++) {
             isDirty[i] = allDirty;
         }
-        Arrays.fill(lastScreen, 0xffffffffL);
+        Arrays.fill(lastScreen, 0xffffffff);
     }
 
     public static int getOffset(int x, int y) {
