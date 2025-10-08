@@ -298,13 +298,11 @@ public class Memory {
         if (Spectrum.tstates < Ula.contention.length) {
           byte tstates = Ula.contention[(int) Spectrum.tstates];
           if (tstates > 0) {
-//              System.out.println(format("{0} -> adding readByte tstates: {1}", Spectrum.tstates, tstates));
             GetTStatesHistory.addTStateUpdate(tstates, "ula readbyte", (int) Spectrum.tstates);
           }
           Spectrum.tstates += tstates;
         }
       }
-//      LocalLibretroCore.tstatesUpdates.add(new TStateUpdate((int) Spectrum.tstates, 3, "readbyte"));
 //      Spectrum.tstates += 3;
 
       if (Opus.active && address >= 0x2800 && address < 0x3800) {
@@ -340,12 +338,10 @@ public class Memory {
     if (mapping.contended) {
       byte tstates = Ula.contention[(int) Spectrum.tstates];
       if (tstates > 0) {
-//              System.out.println(format("{0} -> adding writeByte tstates: {1}", Spectrum.tstates, tstates));
         GetTStatesHistory.addTStateUpdate(tstates, "ula writebyte", (int) Spectrum.tstates);
       }
       Spectrum.tstates += tstates;
     }
-//      LocalLibretroCore.getTstatesUpdates().add(new TStateUpdate((int) Spectrum.tstates, 3, "writebyte"));
 //      Spectrum.tstates += 3;
 
 //    writeByteInternal(address, b);
