@@ -16,36 +16,26 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.peripherals;
 
-public class Sound {
-  public static boolean enabled = true;
+public class AY8912Type {
 
-  public static void frame() {
-//    Z80.audio.endFrame();
-//    Z80.audio.sendAudioFrame();
-  }
+    protected int soundMode;
 
-  public static void beeper(long tstates, int i) {
-//    Z80.audio.updateAudio((int) tstates, i);
-  }
+    /**
+     * Gets the value of the soundMode property.
+     * 
+     */
+    public int getSoundMode() {
+        return soundMode;
+    }
 
-  public static void end() {
-  }
+    /**
+     * Sets the value of the soundMode property.
+     * 
+     */
+    public void setSoundMode(int value) {
+        this.soundMode = value;
+    }
 
-  public static void init(String soundDevice) {
-
-  }
-
-  public static void pause() {
-
-  }
-
-  public static void unpause() {
-
-  }
-
-  public static void registerStartup() {
-
-  }
 }

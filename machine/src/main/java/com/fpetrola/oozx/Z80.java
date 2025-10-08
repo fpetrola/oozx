@@ -19,7 +19,7 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.*;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
+import com.fpetrola.oozx.fuse.peripherals.*;
 import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.OOZ80;
@@ -62,9 +62,10 @@ public class Z80 {
   private static MiniZXIO io;
   private static boolean initialized;
   private static int z80_interrupt_event;
-//  static ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent<>();
+  //  static ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent<>();
 //  static MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
   private static boolean init;
+  public static Audio audio;
 
   private static void reset(int i) {
     ooz80.reset();
@@ -145,6 +146,9 @@ public class Z80 {
 //      JFrame screen = createScreen(io.miniZXKeyboard, zxScreenComponent);
 
       updateScreen2();
+
+      audio = new Audio(new AY8912Type());
+      audio.open(MachineTypes.SPECTRUM48K, new AY8912(), false, 32000);
 
       JFrame screen = createScreen(io.miniZXKeyboard, new FuseScreen(bytes));
       new SwingKeyboard(screen);
@@ -337,13 +341,19 @@ public class Z80 {
   }
 
   public static JFrame createScreen(KeyListener keyListener, JComponent contentPane) {
-    JFrame frame = new JFrame("Fuse ZX Spectrum");
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setContentPane(contentPane);
-    frame.setLocationRelativeTo(null);
-    frame.pack();
-    frame.setVisible(true);
-    frame.addKeyListener(keyListener);
-    return frame;
+    EmulatorCore mockCore = new MockEmulatorCore(contentPane);
+    ZXSpectrumEmulatorUI ui = new ZXSpectrumEmulatorUI(mockCore);
+    ui.setVisible(true);
+    ui.addKeyListener(keyListener);
+
+//    JFrame frame = new JFrame("Fuse ZX Spectrum");
+//    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//    frame.setContentPane(contentPane);
+//    frame.setLocationRelativeTo(null);
+//    frame.pack();
+//    frame.setVisible(true);
+//    frame.addKeyListener(keyListener);
+
+    return ui;
   }
 }

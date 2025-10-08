@@ -36,4 +36,12 @@ public class Movie {
   public static void init() {
 
   }
+
+  public static void initSound(int soundFreq, int soundStereoAY) {
+
+  }
+
+  public static void addSound(short[] samples, int count) {
+
+  }
 }

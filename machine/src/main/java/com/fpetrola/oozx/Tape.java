@@ -25,4 +25,8 @@ public class Tape {
   public static int canAutoload() {
     return 0;
   }
+
+  public static boolean isPlaying() {
+    return false;
+  }
 }

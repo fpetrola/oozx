@@ -27,9 +27,9 @@ public class FuseMachineInfo {
 
   Runnable reset; // Reset function
 
-  boolean timex; // Timex machine (keyboard emulation/loading sounds etc.)
+  public boolean timex; // Timex machine (keyboard emulation/loading sounds etc.)
 
-  MachineTimings timings = new MachineTimings(); // How long do things take to happen?
+  public MachineTimings timings = new MachineTimings(); // How long do things take to happen?
   long[] lineTimes = new long[Display.SCREEN_HEIGHT + 1]; // Redraw line y this many tstates after interrupt
 
   public UnattachedPortFn unattachedPort; // What to return if we read from a port which isn't attached to anything

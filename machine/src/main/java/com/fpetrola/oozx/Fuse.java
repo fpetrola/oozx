@@ -223,7 +223,7 @@ public class Fuse {
         setuidRegisterStartup();
 //        Simpleide.registerStartup();
 //        Slt.registerStartup();
-//        Sound.registerStartup();
+        Sound.registerStartup();
 //        Speccyboot.registerStartup();
 //        Specdrum.registerStartup();
 //        Spectranet.registerStartup();

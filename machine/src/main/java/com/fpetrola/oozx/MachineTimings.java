@@ -25,5 +25,5 @@ public class MachineTimings {
     int rightBorder;
     int tstatesPerLine;
     int interruptLength;
-    long tstatesPerFrame;
+    public long tstatesPerFrame;
 }
