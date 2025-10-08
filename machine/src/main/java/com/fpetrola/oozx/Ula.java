@@ -20,9 +20,11 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.Keyboard;
+import com.fpetrola.oozx.fuse.peripherals.Periph;
+import com.fpetrola.oozx.fuse.peripherals.Peripheral;
+import com.fpetrola.oozx.fuse.peripherals.Port;
 
 import java.util.Arrays;
-import java.util.function.Consumer;
 
 // Assuming ported dependencies:
 // - Libspectrum (with Snap, MachineCapability)
@@ -85,12 +87,12 @@ public class Ula {
   );
 
   // Peripheral ports for ULA
-  private static final Periph.Port[] ulaPorts = {
-      new Periph.Port(0x0001, 0x0000, Ula::read, Ula::write),
-      new Periph.Port(0, 0, null, null)
+  private static final Port[] ulaPorts = {
+      new Port(0x0001, 0x0000, Ula::read, Ula::write),
+      new Port(0, 0, null, null)
   };
 
-  private static final Periph.Peripheral ulaPeriph = new Periph.Peripheral(
+  private static final Peripheral ulaPeriph = new Peripheral(
       null, // option
       Arrays.asList(ulaPorts),
       false, // hardReset
@@ -98,12 +100,12 @@ public class Ula {
   );
 
   // Peripheral ports for full decode
-  private static final Periph.Port[] ulaPortsFullDecode = {
-      new Periph.Port(0x00ff, 0x00fe, Ula::read, Ula::write),
-      new Periph.Port(0, 0, null, null)
+  private static final Port[] ulaPortsFullDecode = {
+      new Port(0x00ff, 0x00fe, Ula::read, Ula::write),
+      new Port(0, 0, null, null)
   };
 
-  private static final Periph.Peripheral ulaPeriphFullDecode = new Periph.Peripheral(
+  private static final Peripheral ulaPeriphFullDecode = new Peripheral(
       null, // option
       Arrays.asList(ulaPortsFullDecode),
       false, // hardReset

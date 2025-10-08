@@ -573,12 +573,3 @@ enum TrapType {
   _48K_ROM
 }
 
-enum DebuggerBreakpointType {
-  READ,
-  PORT_READ, PORT_WRITE, WRITE
-}
-
-enum DebuggerMode {
-  INACTIVE,
-  // Other modes as needed
-}

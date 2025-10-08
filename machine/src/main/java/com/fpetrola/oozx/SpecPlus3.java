@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.peripherals.Periph;
+
 public class SpecPlus3 {
   public static UPDFdc specplus3Fdc;
 //  public static Fdd[] specplus3Drives = new Fdd[SpecPlus3Constants.SPECPLUS3_NUM_DRIVES];

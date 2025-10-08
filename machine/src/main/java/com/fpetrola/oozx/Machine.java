@@ -29,38 +29,6 @@ import java.util.function.Function;
 // Use long for libspectrum_dword, int for libspectrum_byte/word
 // Functional interface for unattached_port_fn
 
-@FunctionalInterface
-interface UnattachedPortFn {
-  int apply();
-}
-
-class FuseMachineInfo {
-  Spectrum.RamInfo ramInfo = new Spectrum.RamInfo();
-
-  Libspectrum.Machine machine = Libspectrum.Machine._48K; // libspectrum_machine
-  String id; // Used to select from command line
-  int capabilities; // Capabilities of this machine
-
-  Runnable reset; // Reset function
-
-  boolean timex; // Timex machine (keyboard emulation/loading sounds etc.)
-
-  MachineTimings timings = new MachineTimings(); // How long do things take to happen?
-  long[] lineTimes = new long[Display.SCREEN_HEIGHT + 1]; // Redraw line y this many tstates after interrupt
-
-  UnattachedPortFn unattachedPort; // What to return if we read from a port which isn't attached to anything
-
-//    Ayinfo ay = new Ayinfo(); // The AY-3-8912 chip
-//
-//    SpecdrumInfo specdrum = new SpecdrumInfo(); // SpecDrum settings
-//
-//    CovoxInfo covox = new CovoxInfo(); // Covox settings
-
-  Runnable shutdown; // Shutdown function
-
-  Runnable memoryMap; // Memory map function
-}
-
 public class Machine {
 
   public static List<FuseMachineInfo> machineTypes = new ArrayList<>(); // All available machines

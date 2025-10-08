@@ -52,7 +52,7 @@ public class FuseTestParser<T extends WordNumber> {
   private State<T> state;
 
   public FuseTestParser(Path testDataDir) {
-    URL resource = FuseTestParser.class.getResource("/"+testDataDir.toString());
+    URL resource = FuseTestParser.class.getResource("/" + testDataDir.toString());
     File file = new File(resource.getFile());
     this.inFile = new File(file, "tests.in");
     this.expectedFile = new File(file, "tests.expected");
@@ -95,7 +95,12 @@ public class FuseTestParser<T extends WordNumber> {
     MockedMemory<T> memory = new MockedMemory(true);
 
     AddStatesIO io = new AddStatesIO();
-    state = new State<T>(io, memory);
+    state = new State<T>(io, memory) {
+      public void addEvent(Event event) {
+        super.addEvent(event);
+        events.add(event);
+      }
+    };
     io.setState(state);
     InstructionSpy spy = new MemptrUpdateInstructionSpy(state);
     DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory<WordNumber>(state);

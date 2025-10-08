@@ -63,24 +63,8 @@ public class Spectrum {
         int apply(long time);
     }
 
-    // Structure to hold RAM information
-    public static class RamInfo {
-        PortFromUlaFunction portFromUla; // Is this port result supplied by the ULA?
-        ContentionDelayFunction contendDelay; // Delay with MREQ active
-        ContentionDelayFunction contendDelayNoMreq; // Delay without MREQ
-        boolean locked; // Is the memory configuration locked?
-        int currentPage; // Current paged memory page
-        int currentRom; // Current paged ROM
-        byte lastByte; // Last byte sent to the 128K port
-        byte lastByte2; // Last byte sent to +3 port
-        boolean special; // Is a +3 special config in use?
-        boolean romcs; // Is the /ROMCS line low?
-        int validPages; // Available RAM pages
-    }
-
     // Instance of RamInfo
     public static RamInfo ramInfo = new RamInfo();
-
 
 
     // Contention patterns

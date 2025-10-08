@@ -36,7 +36,7 @@ import static java.text.MessageFormat.format;
 
 public class State<T extends WordNumber> {
   private RunState runState;
-  private final ArrayList<Event> events = new ArrayList<>();
+  protected final ArrayList<Event> events = new ArrayList<>();
   public long tstates;
   public long tstates2;
 
@@ -51,13 +51,8 @@ public class State<T extends WordNumber> {
   public void addEvent(Event event) {
     int time = event.getTime();
     event.setTime((int) tstates);
-//    if (time > 0) {
-//      System.out.println(format("{0} -> adding event tstates: {1}", tstates, time));
-//    }
     tstates += time;
-
     tstates2 += time;
-    events.add(event);
   }
 
   public void reset() {

@@ -38,16 +38,18 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
   }
 
   public static void addTStateUpdate(byte tstatesToAdd, String description, int tstates) {
-    int pc = Z80.ooz80.getState().getPc().read().intValue();
+    if (!FuseLibretroConnector.noTest) {
+      int pc = Z80.ooz80.getState().getPc().read().intValue();
 //    if (tstates == 20 && pc == 50758) {
 //      System.out.println("addTStateUpdate");
 //    }
 
-    boolean a = description.startsWith("uidisplay_plot8:");
+      boolean a = description.startsWith("uidisplay_plot8:");
 //a= true;
-    if (!a) {
-      if (tstatesToAdd != 0)
-        getTstatesUpdates().add(new TStateUpdate(tstates, tstatesToAdd & 0Xff, description, pc));
+      if (!a) {
+        if (tstatesToAdd != 0)
+          getTstatesUpdates().add(new TStateUpdate(tstates, tstatesToAdd & 0Xff, description, pc));
+      }
     }
   }
 

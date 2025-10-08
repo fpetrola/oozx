@@ -29,11 +29,11 @@ import java.util.function.Supplier;
 
 public class MockedMemory<T extends WordNumber> implements Memory<T> {
   protected T[] data = (T[]) new WordNumber[0x10000];
-  private List<MemoryWriteListener> memoryWriteListener = new ArrayList<>();
+  private MemoryWriteListener memoryWriteListener;
   private boolean readOnly;
-  protected List<MemoryReadListener> memoryReadListener = new ArrayList<>();
-  private List<MemoryReadListener> lastMemoryReadListener = new ArrayList<>();
-  private List<MemoryWriteListener> lastMemoryWriteListener = new ArrayList<>();
+  protected MemoryReadListener memoryReadListener;
+  private MemoryReadListener lastMemoryReadListener;
+  private MemoryWriteListener lastMemoryWriteListener;
   private boolean canDisable;
   protected T[] cachedValues = (T[]) new WordNumber[0x10000];
   private boolean readListenersDisabled;
@@ -50,12 +50,12 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
     T value = doRead(address);
     T cachedValue = null;
     //FIXME: para que????
-    if (fetching== 10)
+    if (fetching == 10)
       return value;
 
-    boolean b = fetching == 1|| address.intValue() < 0 || (cachedValue = cachedValues[address.intValue()]) != value;
+    boolean b = fetching == 1 || address.intValue() < 0 || (cachedValue = cachedValues[address.intValue()]) != value;
     if (memoryReadListener != null && b) {
-      memoryReadListener.forEach(l -> l.readingMemoryAt(address, value, 0, fetching));
+      memoryReadListener.readingMemoryAt(address, value, 0, fetching);
 //      if (address.intValue() >= 0)
 //        cachedValues[address.intValue()] = value;
     }
@@ -66,7 +66,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   public T read(T address, int delta, int fetching) {
     T value = doRead(address);
     if (memoryReadListener != null)
-      memoryReadListener.forEach(l -> l.readingMemoryAt(address, value, delta, fetching));
+      memoryReadListener.readingMemoryAt(address, value, delta, fetching);
 
     return value;
   }
@@ -87,7 +87,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   public void write(T address, T value) {
     if (!readOnly) {
       if (memoryWriteListener != null)
-        memoryWriteListener.forEach(l -> l.writtingMemoryAt(address, value));
+        memoryWriteListener.writtingMemoryAt(address, value);
 //      if (address.intValue() == 23548)
 //        System.out.println("");
       if (address.intValue() < 0x10000)
@@ -107,7 +107,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
 
   @Override
   public void addMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener) {
-    this.memoryWriteListener.add(memoryWriteListener);
+    this.memoryWriteListener = memoryWriteListener;
   }
 
   @Override
@@ -124,7 +124,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
 
   @Override
   public void addMemoryReadListener(MemoryReadListener<T> memoryReadListener) {
-    this.memoryReadListener.add(memoryReadListener);
+    this.memoryReadListener = memoryReadListener;
   }
 
   @Override
@@ -144,7 +144,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   @Override
   public void disableReadListener() { //FIXME: para que era???
     if (canDisable) {
-      readListenersDisabled= true;
+      readListenersDisabled = true;
       if (memoryReadListener != null) {
         lastMemoryReadListener = memoryReadListener;
         memoryReadListener = null;
@@ -155,7 +155,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   @Override
   public void enableReadListener() {
     if (canDisable) {
-      readListenersDisabled= false;
+      readListenersDisabled = false;
       memoryReadListener = lastMemoryReadListener;
     }
   }

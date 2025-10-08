@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.peripherals.Periph;
+
 public class Spec128 {
   // Initialize the Spectrum 128K machine
   public static int init(FuseMachineInfo machine) {

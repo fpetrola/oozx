@@ -20,6 +20,9 @@ package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
+import com.fpetrola.oozx.fuse.peripherals.Periph;
+import com.fpetrola.oozx.fuse.peripherals.Peripheral;
+import com.fpetrola.oozx.fuse.peripherals.Port;
 
 import java.util.List;
 
@@ -342,20 +345,20 @@ public class Joystick {
     );
 
     // Peripheral definitions
-    private static final Periph.Port[] kempstonStrictDecoding = {
-        new Periph.Port(0x00e0, 0x0000, Joystick::kempstonRead, null),
-        new Periph.Port(0, 0, null, null)
+    private static final Port[] kempstonStrictDecoding = {
+        new Port(0x00e0, 0x0000, Joystick::kempstonRead, null),
+        new Port(0, 0, null, null)
     };
 
-    private static final Periph.Peripheral kempstonStrictPeriph = new Periph.Peripheral(
+    private static final Peripheral kempstonStrictPeriph = new Peripheral(
         new boolean[]{Settings.current.joyKempston}, List.of(kempstonStrictDecoding), false, null
     );
 
-    private static final Periph.Port[] kempstonLooseDecoding = {
-        new Periph.Port(0x0020, 0x0000, Joystick::kempstonRead, null),
-        new Periph.Port(0, 0, null, null)};
+    private static final Port[] kempstonLooseDecoding = {
+        new Port(0x0020, 0x0000, Joystick::kempstonRead, null),
+        new Port(0, 0, null, null)};
 
-    private static final Periph.Peripheral kempstonLoosePeriph = new Periph.Peripheral(
+    private static final Peripheral kempstonLoosePeriph = new Peripheral(
         new boolean[]{Settings.current.joyKempston}, List.of(kempstonLooseDecoding), false, null
     );
 }

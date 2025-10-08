@@ -19,6 +19,7 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.*;
+import com.fpetrola.oozx.fuse.peripherals.Periph;
 import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.OOZ80;
@@ -61,8 +62,8 @@ public class Z80 {
   private static MiniZXIO io;
   private static boolean initialized;
   private static int z80_interrupt_event;
-  static ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent<>();
-  static MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
+//  static ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent<>();
+//  static MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
   private static boolean init;
 
   private static void reset(int i) {
@@ -266,14 +267,12 @@ public class Z80 {
 
         this.phaseProcessor.addMultipleMc(1, 3, 0, address.intValue(), "writebyte");
         this.phaseProcessor.addMw(address, value);
-        Spectrum.tstates = state.tstates;
 
         int address1 = address.intValue();
-        if (address1 >= 0x4000 && address1 < 0x6000) {
+        if (true || address1 >= 0x4000 && address1 < 0x5B00) {
+          Spectrum.tstates = state.tstates;
           com.fpetrola.oozx.Memory.writeByteInternal(address1, (byte) (value.intValue() & 0xff));
-//        Display.refreshAll();
         }
-
       }
 
       private void processUlaContention(WordNumber address, WordNumber value) {

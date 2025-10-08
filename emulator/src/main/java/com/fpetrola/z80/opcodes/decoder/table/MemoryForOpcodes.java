@@ -23,11 +23,9 @@ import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
+  private int counter;
+
   public static <T1 extends WordNumber> T1 read16Bits(Memory<T1> memory, T1 address) {
     return Memory.read16Bits(memory, address);
   }
@@ -42,14 +40,7 @@ public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
 
   @Override
   public T read(T address, int delta, int fetching) {
-    if (cachedValues.containsKey(address.intValue()))
-      return cachedValues.get(address.intValue());
-    else {
-      T value = memory.read(address, delta, fetching);
-      if (!memory.isReadListenersDisabled())
-        cachedValues.put(address.intValue(), value);
-      return value;
-    }
+    return read1(address, fetching, delta);
   }
 
   @Override
@@ -123,18 +114,32 @@ public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
   }
 
   private final Memory<T> memory;
-  protected Map<Integer, T> cachedValues = new HashMap<>();
+  protected WordNumber[] cachedData = new WordNumber[0x10000];
+  protected int[] cachedAddresses = new int[0x100];
 
   public MemoryForOpcodes(Memory<T> memory) {
     this.memory = memory;
   }
 
   public T read(T address, int fetching) {
-    if (cachedValues.containsKey(address.intValue()))
-      return cachedValues.get(address.intValue());
-    else {
-      T value = memory.read(address, fetching);
-      cachedValues.put(address.intValue(), value);
+    return read1(address, fetching, -1);
+  }
+
+  private T read1(T address, int fetching, int delta) {
+    int i = address.intValue();
+    if (cachedData[i] != null) {
+      return (T) cachedData[i];
+    } else {
+      T value;
+      if (delta == -1)
+        value = memory.read(address, fetching);
+      else {
+        value = memory.read(address, delta, fetching);
+        if (memory.isReadListenersDisabled())
+          return value;
+      }
+      cachedData[i] = value;
+      cachedAddresses[counter++] = i;
       return value;
     }
   }
@@ -145,6 +150,9 @@ public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
   }
 
   public void reset() {
-    cachedValues.clear();
+    while (counter > 0) {
+      cachedData[cachedAddresses[--counter]] = null;
+      cachedAddresses[counter] = 0;
+    }
   }
 }

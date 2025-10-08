@@ -16,116 +16,107 @@
  *
  */
 
-package com.fpetrola.oozx;import java.util.*;
+package com.fpetrola.oozx;
 
-// Assuming ported dependencies:
-// - Fuse (for emulator-specific functionality, if needed)
-// - StartupManager (StartupManagerModule, register)
-// - Pentagon (select1fRead, selectFfRead, pentagon1024MemoryportWrite, pentagon1024V22MemoryportWrite)
-// - Periph (Type, Present, Peripheral, Port, register, setPresent)
-// - Beta (crWrite, trRead, trWrite, secRead, secWrite, drRead, drWrite, spRead, spWrite)
-// - Spec128 (memoryportWrite)
-// - SpecPlus3 (memoryport2Write, fdcRead, fdcWrite, fdcStatus)
-// - Tc2068 (ayRegisterportRead, ayDataportRead)
-// - Ay (registerportWrite, dataportWrite)
-// - Machine (FuseMachineInfo, current)
+import com.fpetrola.oozx.fuse.peripherals.Periph;
+import com.fpetrola.oozx.fuse.peripherals.Peripheral;
+import com.fpetrola.oozx.fuse.peripherals.Port;
+
+import java.util.*;
 
 public class MachinesPeriph {
     // Port definitions for 128K memory
-    private static final List<Periph.Port> spec128MemoryPorts = List.of(
-            new Periph.Port(0x8002, 0x0000, null, (port, b) -> {
-                Machine.current.ramInfo.lastByte = b;
-                Machine.current.memoryMap.run();
-            }),
-            new Periph.Port(0, 0, null, null)
+    private static final List<Port> spec128MemoryPorts = List.of(
+            new Port(0x8002, 0x0000, null, Spec128::memoryPortWrite),
+            new Port(0, 0, null, null)
     );
 
-    private static final Periph.Peripheral spec128Memory = new Periph.Peripheral(
+    private static final Peripheral spec128Memory = new Peripheral(
             null, spec128MemoryPorts, false, null
     );
 
     // Port definitions for +3 memory
-    private static final List<Periph.Port> plus3MemoryPorts = List.of(
-            new Periph.Port(0xc002, 0x4000, null, Spec128::memoryPortWrite),
-            new Periph.Port(0xf002, 0x1000, null, SpecPlus3::memoryPort2Write),
-            new Periph.Port(0, 0, null, null)
+    private static final List<Port> plus3MemoryPorts = List.of(
+            new Port(0xc002, 0x4000, null, Spec128::memoryPortWrite),
+            new Port(0xf002, 0x1000, null, SpecPlus3::memoryPort2Write),
+            new Port(0, 0, null, null)
     );
 
-    private static final Periph.Peripheral plus3Memory = new Periph.Peripheral(
+    private static final Peripheral plus3Memory = new Peripheral(
             null, plus3MemoryPorts, false, null
     );
 
     // Port definitions for uPD765 FDC
-    private static final List<Periph.Port> upd765Ports = List.of(
-            new Periph.Port(0xf002, 0x3000, SpecPlus3::fdcRead, SpecPlus3::fdcWrite),
-            new Periph.Port(0xf002, 0x2000, SpecPlus3::fdcStatus, null),
-            new Periph.Port(0, 0, null, null)
+    private static final List<Port> upd765Ports = List.of(
+            new Port(0xf002, 0x3000, SpecPlus3::fdcRead, SpecPlus3::fdcWrite),
+            new Port(0xf002, 0x2000, SpecPlus3::fdcStatus, null),
+            new Port(0, 0, null, null)
     );
 
-    private static final Periph.Peripheral upd765 = new Periph.Peripheral(
+    private static final Peripheral upd765 = new Peripheral(
             null, upd765Ports, false, null
     );
 
     // Port definitions for Spectrum SE memory
-    private static final List<Periph.Port> seMemoryPorts = List.of(
-            new Periph.Port(0xffff, 0x7ffd, null, (port, b) -> {
+    private static final List<Port> seMemoryPorts = List.of(
+            new Port(0xffff, 0x7ffd, null, (port, b) -> {
                 Machine.current.ramInfo.lastByte = b;
                 Machine.current.memoryMap.run();
             }),
-            new Periph.Port(0, 0, null, null)
+            new Port(0, 0, null, null)
     );
 
-    private static final Periph.Peripheral seMemory = new Periph.Peripheral(
+    private static final Peripheral seMemory = new Peripheral(
             null, seMemoryPorts, false, null
     );
 
     // Port definitions for TC2068 AY chip with joystick
-    private static final List<Periph.Port> tc2068AyPorts = List.of(
-            new Periph.Port(0x00ff, 0x00f5, Tc2068::ayRegisterportRead, Ay::registerportWrite),
-            new Periph.Port(0x00ff, 0x00f6, Tc2068::ayDataportRead, Ay::dataportWrite),
-            new Periph.Port(0, 0, null, null)
+    private static final List<Port> tc2068AyPorts = List.of(
+            new Port(0x00ff, 0x00f5, Tc2068::ayRegisterportRead, Ay::registerportWrite),
+            new Port(0x00ff, 0x00f6, Tc2068::ayDataportRead, Ay::dataportWrite),
+            new Port(0, 0, null, null)
     );
 
-    private static final Periph.Peripheral tc2068Ay = new Periph.Peripheral(
+    private static final Peripheral tc2068Ay = new Peripheral(
             null, tc2068AyPorts, false, null
     );
 
     // Port definitions for Beta128 Pentagon
-    private static final List<Periph.Port> beta128PentagonPorts = List.of(
-            new Periph.Port(0x00ff, 0x001f, Pentagon::select1fRead, Beta::crWrite),
-            new Periph.Port(0x00ff, 0x003f, Beta::trRead, Beta::trWrite),
-            new Periph.Port(0x00ff, 0x005f, Beta::secRead, Beta::secWrite),
-            new Periph.Port(0x00ff, 0x007f, Beta::drRead, Beta::drWrite),
-            new Periph.Port(0x00ff, 0x00ff, Pentagon::selectFfRead, Beta::spWrite),
-            new Periph.Port(0, 0, null, null)
+    private static final List<Port> beta128PentagonPorts = List.of(
+            new Port(0x00ff, 0x001f, Pentagon::select1fRead, Beta::crWrite),
+            new Port(0x00ff, 0x003f, Beta::trRead, Beta::trWrite),
+            new Port(0x00ff, 0x005f, Beta::secRead, Beta::secWrite),
+            new Port(0x00ff, 0x007f, Beta::drRead, Beta::drWrite),
+            new Port(0x00ff, 0x00ff, Pentagon::selectFfRead, Beta::spWrite),
+            new Port(0, 0, null, null)
     );
 
-    private static final Periph.Peripheral beta128Pentagon = new Periph.Peripheral(
+    private static final Peripheral beta128Pentagon = new Peripheral(
             null, beta128PentagonPorts, false, null
     );
 
     // Port definitions for Beta128 Pentagon (late)
-    private static final List<Periph.Port> beta128PentagonLatePorts = List.of(
-            new Periph.Port(0x00ff, 0x001f, Pentagon::select1fRead, Beta::crWrite),
-            new Periph.Port(0x00ff, 0x003f, Beta::trRead, Beta::trWrite),
-            new Periph.Port(0x00ff, 0x005f, Beta::secRead, Beta::secWrite),
-            new Periph.Port(0x00ff, 0x007f, Beta::drRead, Beta::drWrite),
-            new Periph.Port(0x00ff, 0x00ff, Beta::spRead, Beta::spWrite),
-            new Periph.Port(0, 0, null, null)
+    private static final List<Port> beta128PentagonLatePorts = List.of(
+            new Port(0x00ff, 0x001f, Pentagon::select1fRead, Beta::crWrite),
+            new Port(0x00ff, 0x003f, Beta::trRead, Beta::trWrite),
+            new Port(0x00ff, 0x005f, Beta::secRead, Beta::secWrite),
+            new Port(0x00ff, 0x007f, Beta::drRead, Beta::drWrite),
+            new Port(0x00ff, 0x00ff, Beta::spRead, Beta::spWrite),
+            new Port(0, 0, null, null)
     );
 
-    private static final Periph.Peripheral beta128PentagonLate = new Periph.Peripheral(
+    private static final Peripheral beta128PentagonLate = new Peripheral(
             null, beta128PentagonLatePorts, false, null
     );
 
     // Port definitions for Pentagon 1024 memory
-    private static final List<Periph.Port> pentagon1024MemoryPorts = List.of(
-            new Periph.Port(0xc002, 0x4000, null, Pentagon::pentagon1024MemoryportWrite),
-            new Periph.Port(0xf008, 0xe000, null, Pentagon::pentagon1024V22MemoryportWrite),
-            new Periph.Port(0, 0, null, null)
+    private static final List<Port> pentagon1024MemoryPorts = List.of(
+            new Port(0xc002, 0x4000, null, Pentagon::pentagon1024MemoryportWrite),
+            new Port(0xf008, 0xe000, null, Pentagon::pentagon1024V22MemoryportWrite),
+            new Port(0, 0, null, null)
     );
 
-    private static final Periph.Peripheral pentagon1024Memory = new Periph.Peripheral(
+    private static final Peripheral pentagon1024Memory = new Peripheral(
             null, pentagon1024MemoryPorts, false, null
     );
 

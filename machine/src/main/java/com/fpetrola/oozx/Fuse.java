@@ -20,6 +20,7 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.Joystick;
 import com.fpetrola.oozx.fuse.Keyboard;
+import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 import java.util.*;
 

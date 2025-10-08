@@ -91,8 +91,6 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   public void fetchNextInstruction() {
     state.getRegisterR().increment();
     pcValue = state.getPc().read();
-    if (pcValue.intValue() == 0x8000)
-      System.out.println("dagdag");
     Memory<T> memory = state.getMemory();
     memory.disableReadListener();
     opcodeInt = memory.read(pcValue, 1).intValue();

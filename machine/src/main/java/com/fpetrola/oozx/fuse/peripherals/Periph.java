@@ -16,7 +16,11 @@
  *
  */
 
-package com.fpetrola.oozx;import java.util.*;
+package com.fpetrola.oozx.fuse.peripherals;
+
+import com.fpetrola.oozx.*;
+
+import java.util.*;
 
 // Assuming ported dependencies:
 // - Libspectrum (Machine, MachineCapability, Error, Rzx)
@@ -90,52 +94,6 @@ public class Periph {
         NEVER,
         OPTIONAL,
         ALWAYS
-    }
-
-    // Functional interfaces for port read/write
-    @FunctionalInterface
-    public interface PortReadFunction {
-        byte apply(int port, byte[] attached);
-    }
-
-    @FunctionalInterface
-    public interface PortWriteFunction {
-        void apply(int port, byte data);
-    }
-
-    @FunctionalInterface
-    interface ActivateFunction {
-        void apply();
-    }
-
-    // Structure for port response
-    public static class Port {
-        int mask;
-        int value;
-        PortReadFunction read;
-        PortWriteFunction write;
-
-        public Port(int mask, int value, PortReadFunction read, PortWriteFunction write) {
-            this.mask = mask;
-            this.value = value;
-            this.read = read;
-            this.write = write;
-        }
-    }
-
-    // Structure for peripheral information
-    public static class Peripheral {
-        boolean[] option; // Preferences option controlling this peripheral
-        List<Port> ports; // List of ports this peripheral responds to
-        boolean hardReset; // Hard reset required when added/removed
-        ActivateFunction activate; // Function called when peripheral is activated
-
-        public Peripheral(boolean[] option, List<Port> ports, boolean hardReset, ActivateFunction activate) {
-            this.option = option;
-            this.ports = ports;
-            this.hardReset = hardReset;
-            this.activate = activate;
-        }
     }
 
     // Private structure for peripheral data
