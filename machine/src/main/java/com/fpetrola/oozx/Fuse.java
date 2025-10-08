@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.Joystick;
 import com.fpetrola.oozx.fuse.Keyboard;
 
 import java.util.*;
@@ -197,7 +198,7 @@ public class Fuse {
 //        Fuller.registerStartup();
 //        If1.registerStartup();
 //        If2.registerStartup();
-//        Joystick.registerStartup();
+        Joystick.registerStartup();
 //        Kempmouse.registerStartup();
         Keyboard.registerStartup();
         libspectrumRegisterStartup();

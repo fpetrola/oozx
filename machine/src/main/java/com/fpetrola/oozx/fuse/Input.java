@@ -407,20 +407,21 @@ public class Input {
     }
 
 //    // Joystick emulation via keyboard
-//    boolean swallow = false;
-//    if (event.spectrumKey.ordinal() == Settings.current.joystickKeyboardUp) {
-//      swallow = Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_UP, true);
-//    } else if (event.spectrumKey.ordinal() == Settings.current.joystickKeyboardDown) {
-//      swallow = Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_DOWN, true);
-//    } else if (event.spectrumKey.ordinal() == Settings.current.joystickKeyboardLeft) {
-//      swallow = Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_LEFT, true);
-//    } else if (event.spectrumKey.ordinal() == Settings.current.joystickKeyboardRight) {
-//      swallow = Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_RIGHT, true);
-//    } else if (event.spectrumKey.ordinal() == Settings.current.joystickKeyboardFire) {
-//      swallow = Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE, true);
-//    }
-//
-//    if (swallow) return 0;
+    boolean swallow = false;
+    int ordinal = event.spectrumKey.getValue();
+    if (ordinal == Settings.current.joystickKeyboardUp) {
+      swallow = Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_UP, true);
+    } else if (ordinal == Settings.current.joystickKeyboardDown) {
+      swallow = Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_DOWN, true);
+    } else if (ordinal == Settings.current.joystickKeyboardLeft) {
+      swallow = Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_LEFT, true);
+    } else if (ordinal == Settings.current.joystickKeyboardRight) {
+      swallow = Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_RIGHT, true);
+    } else if (ordinal == Settings.current.joystickKeyboardFire) {
+      swallow = Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE, true);
+    }
+
+    if (swallow) return 0;
 
     // Handle keyboard press
     if (Settings.current.recreatedSpectrum) {
@@ -439,15 +440,17 @@ public class Input {
     }
 
     // Joystick emulation via keyboard
-    if (event.spectrumKey.ordinal() == Settings.current.joystickKeyboardUp) {
+    int value = event.spectrumKey.getValue();
+
+    if (value == Settings.current.joystickKeyboardUp) {
       Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_UP, false);
-    } else if (event.spectrumKey.ordinal() == Settings.current.joystickKeyboardDown) {
+    } else if (value == Settings.current.joystickKeyboardDown) {
       Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_DOWN, false);
-    } else if (event.spectrumKey.ordinal() == Settings.current.joystickKeyboardLeft) {
+    } else if (value == Settings.current.joystickKeyboardLeft) {
       Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_LEFT, false);
-    } else if (event.spectrumKey.ordinal() == Settings.current.joystickKeyboardRight) {
+    } else if (value == Settings.current.joystickKeyboardRight) {
       Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_RIGHT, false);
-    } else if (event.spectrumKey.ordinal() == Settings.current.joystickKeyboardFire) {
+    } else if (value == Settings.current.joystickKeyboardFire) {
       Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE, false);
     }
 
