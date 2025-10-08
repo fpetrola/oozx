@@ -23,10 +23,11 @@ import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
 
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
+
+@SuppressWarnings("unchecked")
 public class MockedMemory<T extends WordNumber> implements Memory<T> {
   protected T[] data = (T[]) new WordNumber[0x10000];
   private MemoryWriteListener memoryWriteListener;
@@ -46,11 +47,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   }
 
   public T read(T address, int fetching) {
-    T value = doRead(address);
-    if (memoryReadListener != null)
-      memoryReadListener.readingMemoryAt(address, value, 0, fetching);
-
-    return value;
+    return read(address, 0, fetching);
   }
 
   public T read(T address, int delta, int fetching) {
@@ -62,15 +59,8 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   }
 
   private T doRead(T address) {
-    T value = WordNumber.createValue(0);
-    if (address.intValue() >= 0) {
-      T datum = data[address.intValue()];
-      if (datum == null) {
-      } else {
-        value = datum;
-      }
-    }
-    return value;
+    int i = address.intValue();
+    return i >= 0 ? data[i] : createValue(0);
   }
 
   @Override
@@ -78,10 +68,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
     if (!readOnly) {
       if (memoryWriteListener != null)
         memoryWriteListener.writtingMemoryAt(address, value);
-//      if (address.intValue() == 23548)
-//        System.out.println("");
-      if (address.intValue() < 0x10000)
-        data[address.intValue()] = value.and(0xff);
+      data[address.intValue()] = value.and(0xff);
     }
   }
 
@@ -107,7 +94,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   @Override
   public void reset() {
     for (int i = 0; i < data.length; i++) {
-      data[i] = WordNumber.createValue(0);
+      data[i] = createValue(0);
     }
 //    Arrays.fill(data, WordNumber.createValue(0));
   }
