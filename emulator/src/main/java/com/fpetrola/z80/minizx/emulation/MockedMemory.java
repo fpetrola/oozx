@@ -47,10 +47,6 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
 
   public T read(T address, int fetching) {
     T value = doRead(address);
-    //FIXME: para que????
-    if (fetching == 10)
-      return value;
-
     if (memoryReadListener != null)
       memoryReadListener.readingMemoryAt(address, value, 0, fetching);
 
