@@ -35,7 +35,6 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   private MemoryReadListener lastMemoryReadListener;
   private MemoryWriteListener lastMemoryWriteListener;
   private boolean canDisable;
-  protected T[] cachedValues = (T[]) new WordNumber[0x10000];
   private boolean readListenersDisabled;
 
   public MockedMemory(boolean canDisable1) {
@@ -48,17 +47,12 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
 
   public T read(T address, int fetching) {
     T value = doRead(address);
-    T cachedValue = null;
     //FIXME: para que????
     if (fetching == 10)
       return value;
 
-    boolean b = fetching == 1 || address.intValue() < 0 || (cachedValue = cachedValues[address.intValue()]) != value;
-    if (memoryReadListener != null && b) {
+    if (memoryReadListener != null)
       memoryReadListener.readingMemoryAt(address, value, 0, fetching);
-//      if (address.intValue() >= 0)
-//        cachedValues[address.intValue()] = value;
-    }
 
     return value;
   }
