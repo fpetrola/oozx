@@ -20,9 +20,11 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
-public class LibspectrumStartupModule extends AbstractStartupModule {
-  public LibspectrumStartupModule() {
-    super(DisplayStartupModule.class);
+import java.util.ArrayList;
+
+public class EventStartupModule extends AbstractStartupModule {
+  public EventStartupModule() {
+    super(SetUidStartupModule.class);
   }
 
   public Object getInitContext() {
@@ -30,20 +32,21 @@ public class LibspectrumStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    //        if (Libspectrum.checkVersion(LIBSPECTRUM_MIN_VERSION)) {
-//            if (Libspectrum.init() != 0) return 1;
-//        } else {
-//            Ui.error(UiError.ERROR, "libspectrum version %s found, but %s required",
-//                    Libspectrum.version(), LIBSPECTRUM_MIN_VERSION);
-//            return 1;
-//        }
+    EventManager.registeredEvents = new ArrayList<>();
+
+    EventManager.eventTypeNull = EventManager.eventRegister(null, "[Deleted event]");
+
+    EventManager.eventNextEvent = EventManager.EVENT_NO_EVENTS;
+
     return 0;
   }
 
   public void endFn() {
+    EventManager.reset();
+    EventManager.registeredEventsFree();
   }
 
   public StartupManagerModule getStartupManagerModule() {
-    return StartupManagerModule.LIBSPECTRUM;
+    return StartupManagerModule.EVENT;
   }
 }

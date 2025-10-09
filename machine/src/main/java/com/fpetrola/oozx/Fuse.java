@@ -134,27 +134,16 @@ public class Fuse {
     fuseEnd();
   }
 
-  static int fuseLibspectrumInit(Object context) {
-//        if (Libspectrum.checkVersion(LIBSPECTRUM_MIN_VERSION)) {
-//            if (Libspectrum.init() != 0) return 1;
-//        } else {
-//            Ui.error(UiError.ERROR, "libspectrum version %s found, but %s required",
-//                    Libspectrum.version(), LIBSPECTRUM_MIN_VERSION);
-//            return 1;
-//        }
-    return 0;
-  }
-
   private static void libspectrumRegisterStartup() {
 //    reg2();
     StartupManager.register(new LibspectrumStartupModule());
   }
 
-  private static void reg2() {
-    StartupManagerModule[] dependencies = {StartupManagerModule.DISPLAY};
-    StartupManager.register(StartupManagerModule.LIBSPECTRUM, dependencies,
-        Fuse::fuseLibspectrumInit, null, null);
-  }
+//  private static void reg2() {
+//    StartupManagerModule[] dependencies = {StartupManagerModule.DISPLAY};
+//    StartupManager.register(StartupManagerModule.LIBSPECTRUM, dependencies,
+//        Fuse::fuseLibspectrumInit, null, null);
+//  }
 
   private static int libxml2Init(Object context) {
     // LIBXML_TEST_VERSION assumed handled in environment or Libspectrum

@@ -25,7 +25,7 @@ import java.util.ListIterator;
 // When will the next event happen?
 public class EventManager {
 
-    private static final long EVENT_NO_EVENTS = 0xffffffffL;
+    static final long EVENT_NO_EVENTS = 0xffffffffL;
 
     // A null event type
     public static int eventTypeNull;
@@ -43,17 +43,7 @@ public class EventManager {
         String description;
     }
 
-    private static ArrayList<EventDescriptor> registeredEvents;
-
-    private static int eventInit(Object context) {
-        registeredEvents = new ArrayList<>();
-
-        eventTypeNull = eventRegister(null, "[Deleted event]");
-
-        eventNextEvent = EVENT_NO_EVENTS;
-
-        return 0;
-    }
+    static ArrayList<EventDescriptor> registeredEvents;
 
     public static int eventRegister(EventFn fn, String description) {
         EventDescriptor descriptor = new EventDescriptor();
@@ -214,7 +204,7 @@ public class EventManager {
         return registeredEvents.get(type).description;
     }
 
-    private static void registeredEventsFree() {
+    static void registeredEventsFree() {
         if (registeredEvents == null) return;
 
         registeredEvents.clear();
@@ -222,13 +212,8 @@ public class EventManager {
     }
 
     // Tidy-up function called at end of emulation
-    private static void eventEnd() {
-        reset();
-        registeredEventsFree();
-    }
 
     public static void registerStartup() {
-        StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};
-        StartupManager.register(StartupManagerModule.EVENT, dependencies, EventManager::eventInit, null, EventManager::eventEnd);
+        StartupManager.register(new EventStartupModule());
     }
 }
