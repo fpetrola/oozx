@@ -20,9 +20,9 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
-public class SetUidStartupModule extends AbstractStartupModule {
-  public SetUidStartupModule() {
-    super(DisplayStartupModule.class, LibspectrumStartupModule.class);
+public class LibspectrumStartupModule extends AbstractStartupModule {
+  public LibspectrumStartupModule() {
+    super(DisplayStartupModule.class);
   }
 
   public Object getInitContext() {
@@ -30,16 +30,13 @@ public class SetUidStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    // Java does not typically run as root, so skip setuid logic
-    // If needed, implement platform-specific security handling
-    return 0;
+    return Fuse.fuseLibspectrumInit(initContext);
   }
 
   public void endFn() {
   }
 
-  @Override
   public StartupManagerModule getStartupManagerModule() {
-    return StartupManagerModule.SETUID;
+    return StartupManagerModule.LIBSPECTRUM;
   }
 }

@@ -134,7 +134,7 @@ public class Fuse {
     fuseEnd();
   }
 
-  private static int fuseLibspectrumInit(Object context) {
+  static int fuseLibspectrumInit(Object context) {
 //        if (Libspectrum.checkVersion(LIBSPECTRUM_MIN_VERSION)) {
 //            if (Libspectrum.init() != 0) return 1;
 //        } else {
@@ -146,6 +146,11 @@ public class Fuse {
   }
 
   private static void libspectrumRegisterStartup() {
+//    reg2();
+    StartupManager.register(new LibspectrumStartupModule());
+  }
+
+  private static void reg2() {
     StartupManagerModule[] dependencies = {StartupManagerModule.DISPLAY};
     StartupManager.register(StartupManagerModule.LIBSPECTRUM, dependencies,
         Fuse::fuseLibspectrumInit, null, null);
@@ -162,24 +167,18 @@ public class Fuse {
         Fuse::libxml2Init, null, null);
   }
 
-  static int setuidInit(Object context) {
-    // Java does not typically run as root, so skip setuid logic
-    // If needed, implement platform-specific security handling
-    return 0;
-  }
-
   private static void setuidRegisterStartup() {
 //    reg1();
     StartupManager.register(new SetUidStartupModule());
   }
 
-  private static void reg1() {
-    StartupManagerModule[] dependencies = {
-        StartupManagerModule.DISPLAY,
-        StartupManagerModule.LIBSPECTRUM
-    };
-    StartupManager.register(StartupManagerModule.SETUID, dependencies, Fuse::setuidInit, null, null);
-  }
+//  private static void reg1() {
+//    StartupManagerModule[] dependencies = {
+//        StartupManagerModule.DISPLAY,
+//        StartupManagerModule.LIBSPECTRUM
+//    };
+//    StartupManager.register(StartupManagerModule.SETUID, dependencies, Fuse::setuidInit, null, null);
+//  }
 
   private static int runStartupManager(String[] argv) {
     StartupManager.init();

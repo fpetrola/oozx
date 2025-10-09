@@ -54,7 +54,7 @@ public class Display {
   // The current border color
   public static byte loresBorder;
   public static byte hiresBorder;
-  private static byte lastBorder;
+  static byte lastBorder;
 
   // Stores the pixel, attribute, and SCLD screen mode information used to
   // draw each 8x1 group of pixels (including border) last frame
@@ -66,17 +66,17 @@ public class Display {
 
   // If you write to the byte at display_dirty_?table[n+0x4000], then
   // the eight pixels starting at (8*xtable[n],ytable[n]) must be replotted
-  private static int[] dirtyYtable = new int[WIDTH_COLS * HEIGHT];
-  private static int[] dirtyXtable = new int[WIDTH_COLS * HEIGHT];
+  static int[] dirtyYtable = new int[WIDTH_COLS * HEIGHT];
+  static int[] dirtyXtable = new int[WIDTH_COLS * HEIGHT];
 
   // If you write to the byte at display_dirty_?table2[n+0x5800], then
   // the 64 pixels starting at (8*xtable2[n],ytable2[n]) must be replotted
-  private static int[] dirtyYtable2 = new int[WIDTH_COLS * HEIGHT_ROWS];
-  private static int[] dirtyXtable2 = new int[WIDTH_COLS * HEIGHT_ROWS];
+  static int[] dirtyYtable2 = new int[WIDTH_COLS * HEIGHT_ROWS];
+  static int[] dirtyXtable2 = new int[WIDTH_COLS * HEIGHT_ROWS];
 
   // The number of frames mod 32 that have elapsed
-  private static int frameCount;
-  private static boolean flashReversed;
+  static int frameCount;
+  static boolean flashReversed;
 
   // Which eight-pixel chunks on each line (including border) need to be redisplayed
   private static long[] isDirty = new long[SCREEN_HEIGHT];
@@ -85,7 +85,7 @@ public class Display {
   private static int[] maybeDirty = new int[HEIGHT];
 
   // This value signifies that the entire line must be redisplayed
-  private static long allDirty;
+  static long allDirty;
 
   // Used to signify that we're redrawing the entire screen
   private static boolean redrawAll;
@@ -129,74 +129,24 @@ public class Display {
   public static DisplayWriteIfDirtyFn writeIfDirty = Display::writeIfDirtySinclair;
   public static DisplayDirtyFlashingFn dirtyFlashing = Display::dirtyFlashingSinclair;
 
-  private static List<BorderChange> borderChanges = new ArrayList<>();
+  static List<BorderChange> borderChanges = new ArrayList<>();
 
   public static class DisplayStartupContext {
     int argc;
     String[] argv;
   }
 
-  public static int init(String[] argv) {
-    int i, j, k, x, y;
-
-    if (Ui.init(argv.length, argv) != 0) return 1;
-
-    // Set up the 'all pixels must be refreshed' marker
-    allDirty = 0;
-    for (i = 0; i < SCREEN_WIDTH_COLS; i++) {
-      allDirty = (allDirty << 1) | 0x01;
-    }
-
-    for (i = 0; i < 3; i++) {
-      for (j = 0; j < 8; j++) {
-        for (k = 0; k < 8; k++) {
-          lineStart[(64 * i) + (8 * j) + k] = 32 * ((64 * i) + j + (k * 8));
-        }
-      }
-    }
-
-    for (y = 0; y < HEIGHT; y++) {
-      attrStart[y] = 6144 + (32 * (y / 8));
-    }
-
-    for (y = 0; y < HEIGHT; y++) {
-      for (x = 0; x < WIDTH_COLS; x++) {
-        dirtyYtable[lineStart[y] + x] = y;
-        dirtyXtable[lineStart[y] + x] = x;
-      }
-    }
-
-    for (y = 0; y < HEIGHT_ROWS; y++) {
-      for (x = 0; x < WIDTH_COLS; x++) {
-        dirtyYtable2[(32 * y) + x] = y * 8;
-        dirtyXtable2[(32 * y) + x] = x;
-      }
-    }
-
-    frameCount = 0;
-    flashReversed = false;
-
-    refreshAll();
-
-    borderChanges.clear();
-    int error = addBorderSentinel();
-    if (error != 0) return error;
-    lastBorder = Scld.lastDec.name.hires ? hiresBorder : loresBorder;
-
-    return 0;
-  }
-
-  private static int initWrapper(Object context) {
-    DisplayStartupContext typedContext = (DisplayStartupContext) context;
-    return init(typedContext.argv);
-  }
-
   public static void registerStartup(DisplayStartupContext context) {
     // The Wii has an explicit call to display_init for now
     // Assuming GEKKO is not defined
-    StartupManager.registerNoDependencies(StartupManagerModule.DISPLAY,
-        Display::initWrapper, context, null);
+//    reg1(context);
+    StartupManager.register(new DisplayStartupModule(context));
   }
+
+//  private static void reg1(DisplayStartupContext context) {
+//    StartupManager.registerNoDependencies(StartupManagerModule.DISPLAY,
+//        Display::initWrapper, context, null);
+//  }
 
   public static void dirtySinclair(int offset) {
     if (offset >= 0x1b00) return;
@@ -388,7 +338,7 @@ public class Display {
     return change;
   }
 
-  private static int addBorderSentinel() {
+  static int addBorderSentinel() {
     BorderChange sentinel = allocChange();
     sentinel.x = sentinel.y = 0;
     sentinel.colour = Scld.lastDec.name.hires ? hiresBorder : loresBorder;

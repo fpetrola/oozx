@@ -19,7 +19,6 @@
 package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.StartupManager;
-import com.fpetrola.oozx.StartupManagerModule;
 import com.fpetrola.oozx.StartupModule;
 
 import java.util.HashMap;
@@ -30,43 +29,12 @@ public class Keyboard {
   // Static fields
   public static byte[] returnValues = new byte[8]; // keyboard_return_values
   public static byte defaultValue = (byte) 0xFF; // keyboard_default_value
-  private static Map<Integer, KeyBit> keyboardData = new HashMap<>();
-  private static Map<Integer, SpectrumKeys> spectrumKeys = new HashMap<>();
-  private static Map<Integer, Input.InputKey> keysymsHash = new HashMap<>();
-  private static Map<Integer, String> keyText = new HashMap<>();
+  static Map<Integer, KeyBit> keyboardData = new HashMap<>();
+  static Map<Integer, SpectrumKeys> spectrumKeys = new HashMap<>();
+  static Map<Integer, Input.InputKey> keysymsHash = new HashMap<>();
+  static Map<Integer, String> keyText = new HashMap<>();
 
   // Initialize keyboard
-  public static int init(Object context) {
-    releaseAll();
-
-    // Populate keyboard_data
-    for (KeyInfo entry : KEYBOARD_DATA_TABLE) {
-      if (entry.key == KeyboardKeyName.KEYBOARD_NONE) break;
-      keyboardData.put(entry.key.getValue(), entry.bit);
-    }
-
-    // Populate spectrum_keys
-    for (SpectrumKeysWrapper entry : SPECTRUM_KEYS_TABLE) {
-      if (entry.input == Input.InputKey.INPUT_KEY_NONE) break;
-      int value = entry.input.getValue();
-      spectrumKeys.put(value, entry.spectrum);
-    }
-
-    KEYSYMS_MAP = SwingKeyboard.KEYSYMS_MAP;
-    // Populate keysyms_hash
-    for (KeysymsMap entry : KEYSYMS_MAP) {
-      if (entry.ui == 0) break;
-      keysymsHash.put(entry.ui, entry.fuse);
-    }
-
-    // Populate key_text
-    for (KeyText entry : KEY_TEXT_TABLE) {
-      if (entry.text == null) break;
-      keyText.put(entry.key.getValue(), entry.text);
-    }
-
-    return 0;
-  }
 
   // Clean up keyboard
   public static void end() {
@@ -147,7 +115,7 @@ public class Keyboard {
   }
 
   // Key mapping tables
-  private static final SpectrumKeysWrapper[] SPECTRUM_KEYS_TABLE = {
+  static final SpectrumKeysWrapper[] SPECTRUM_KEYS_TABLE = {
       new SpectrumKeysWrapper(Input.InputKey.INPUT_KEY_Escape, new SpectrumKeys(KeyboardKeyName.KEYBOARD_1, KeyboardKeyName.KEYBOARD_Caps)),
       new SpectrumKeysWrapper(Input.InputKey.INPUT_KEY_1, new SpectrumKeys(KeyboardKeyName.KEYBOARD_1, KeyboardKeyName.KEYBOARD_NONE)),
       new SpectrumKeysWrapper(Input.InputKey.INPUT_KEY_2, new SpectrumKeys(KeyboardKeyName.KEYBOARD_2, KeyboardKeyName.KEYBOARD_NONE)),
@@ -226,7 +194,7 @@ public class Keyboard {
       new SpectrumKeysWrapper(Input.InputKey.INPUT_KEY_NONE, new SpectrumKeys(KeyboardKeyName.KEYBOARD_NONE, KeyboardKeyName.KEYBOARD_NONE))
   };
 
-  private static final KeyInfo[] KEYBOARD_DATA_TABLE = {
+  static final KeyInfo[] KEYBOARD_DATA_TABLE = {
       new KeyInfo(KeyboardKeyName.KEYBOARD_1, new KeyBit(3, (byte) 0x01)),
       new KeyInfo(KeyboardKeyName.KEYBOARD_2, new KeyBit(3, (byte) 0x02)),
       new KeyInfo(KeyboardKeyName.KEYBOARD_3, new KeyBit(3, (byte) 0x04)),
@@ -270,7 +238,7 @@ public class Keyboard {
       new KeyInfo(KeyboardKeyName.KEYBOARD_NONE, new KeyBit(0, (byte) 0x00))
   };
 
-  private static final KeyText[] KEY_TEXT_TABLE = {
+  static final KeyText[] KEY_TEXT_TABLE = {
       new KeyText(KeyboardKeyName.KEYBOARD_NONE, "Nothing"),
       new KeyText(KeyboardKeyName.KEYBOARD_space, "Space"),
       new KeyText(KeyboardKeyName.KEYBOARD_0, "0"),
@@ -317,6 +285,6 @@ public class Keyboard {
   };
 
   // Placeholder for keysyms_map (to be populated based on UI-specific keysyms)
-  private static KeysymsMap[] KEYSYMS_MAP = {};
+  static KeysymsMap[] KEYSYMS_MAP = {};
 
 }
