@@ -18,14 +18,28 @@
 
 package com.fpetrola.oozx;
 
-public interface ZXModule {
-  void reset(int hardReset);
+class UlaZxModule implements ZXModule {
+  public void reset(int hardReset) {
 
-  void romcs();
+  }
 
-  void snapshotEnabled(Libspectrum.Snap snap);
+  public void romcs() {
 
-  void snapshotFrom(Libspectrum.Snap snap);
+  }
 
-  void snapshotTo(Libspectrum.Snap snap);
+  public void snapshotEnabled(Libspectrum.Snap snap) {
+
+  }
+
+  public void snapshotFrom(Libspectrum.Snap snap) {
+    Ula.write(0x00fe, Libspectrum.snapOutUla(snap));
+    Spectrum.tstates = Libspectrum.snapTstates(snap);
+    Settings.current.issue2 = Libspectrum.snapIssue2(snap);
+  }
+
+  public void snapshotTo(Libspectrum.Snap snap) {
+    Libspectrum.snapSetOutUla(snap, Ula.lastByte);
+    Libspectrum.snapSetTstates(snap, Spectrum.tstates);
+    Libspectrum.snapSetIssue2(snap, Settings.current.issue2);
+  }
 }

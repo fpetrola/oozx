@@ -24,9 +24,12 @@ public class Module {
 
   private static LinkedList<ZXModule> registeredModules = new LinkedList<>();
 
-  public static int register(ModuleInfo module) {
-    registeredModules.add(new ZXModule(module));
-    return 0;
+  public static void register(ModuleInfo module) {
+    register(new ZXModuleAdapter(module));
+  }
+
+  public static void register(ZXModule e) {
+    registeredModules.add(e);
   }
 
   public static void moduleEnd() {
@@ -53,21 +56,21 @@ public class Module {
   public static void moduleSnapshotEnabled(Libspectrum.Snap snap) {
     if (registeredModules == null) return;
     for (ZXModule module : registeredModules) {
-        module.snapshotEnabled(snap);
+      module.snapshotEnabled(snap);
     }
   }
 
   public static void moduleSnapshotFrom(Libspectrum.Snap snap) {
     if (registeredModules == null) return;
     for (ZXModule module : registeredModules) {
-        module.snapshotFrom(snap);
+      module.snapshotFrom(snap);
     }
   }
 
   public static void moduleSnapshotTo(Libspectrum.Snap snap) {
     if (registeredModules == null) return;
     for (ZXModule module : registeredModules) {
-        module.snapshotTo(snap);
+      module.snapshotTo(snap);
     }
   }
 

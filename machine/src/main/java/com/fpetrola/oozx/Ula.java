@@ -54,7 +54,7 @@ public class Ula {
   // And how much when it is inactive
   public static byte[] contentionNoMreq = new byte[CONTENTION_SIZE];
 
-  private static byte lastByte;
+  static byte lastByte;
 
   // What to return if no other input pressed; depends on the last byte output to the ULA
   private static byte defaultValue;
@@ -76,15 +76,6 @@ public class Ula {
   interface DebuggerSetter {
     void apply(long value);
   }
-
-  // Module info for ULA
-  private static final ModuleInfo ulaModuleInfo = new ModuleInfo(
-      null, // reset
-      null, // romcs
-      null, // snapshotEnabled
-      Ula::fromSnapshot, // snapshotFrom
-      Ula::toSnapshot // snapshotTo
-  );
 
   // Peripheral ports for ULA
   private static final Port[] ulaPorts = {
@@ -149,7 +140,7 @@ public class Ula {
 
   // Initialize ULA module
   private static int init(Object context) {
-    Module.register(ulaModuleInfo);
+    Module.register(new UlaZxModule());
 
     Periph.register(Periph.Type.ULA, ulaPeriph);
     Periph.register(Periph.Type.ULA_FULL_DECODE, ulaPeriphFullDecode);
@@ -192,7 +183,7 @@ public class Ula {
   }
 
   // Write to ULA port
-  private static void write(int port, byte b) {
+  static void write(int port, byte b) {
     lastByte = b;
 
     Display.setLoresBorder(b & 0x07);
@@ -221,18 +212,8 @@ public class Ula {
   }
 
   // Load ULA state from snapshot
-  private static void fromSnapshot(Libspectrum.Snap snap) {
-    write(0x00fe, Libspectrum.snapOutUla(snap));
-    Spectrum.tstates = Libspectrum.snapTstates(snap);
-    Settings.current.issue2 = Libspectrum.snapIssue2(snap);
-  }
 
   // Save ULA state to snapshot
-  private static void toSnapshot(Libspectrum.Snap snap) {
-    Libspectrum.snapSetOutUla(snap, lastByte);
-    Libspectrum.snapSetTstates(snap, Spectrum.tstates);
-    Libspectrum.snapSetIssue2(snap, Settings.current.issue2);
-  }
 
   // Handle contention for port access (early phase)
   public static void contendPortEarly(int port) {
@@ -259,7 +240,7 @@ public class Ula {
         GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) Spectrum.tstates] + 1), "ula_contend_port_late", (int) Spectrum.tstates);
         Spectrum.tstates += contentionNoMreq[(int) Spectrum.tstates];
         Spectrum.tstates++;
-        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) Spectrum.tstates] ), "ula_contend_port_late", (int) Spectrum.tstates);
+        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) Spectrum.tstates]), "ula_contend_port_late", (int) Spectrum.tstates);
         Spectrum.tstates += contentionNoMreq[(int) Spectrum.tstates];
       } else {
         GetTStatesHistory.addTStateUpdate((byte) 2, "contend_port_late", (int) Spectrum.tstates);
@@ -267,5 +248,6 @@ public class Ula {
       }
     }
   }
+
 }
 
