@@ -24,91 +24,91 @@ import java.util.List;
 
 public class StartupManager {
 
-    private static List<RegisteredModule> registeredModules;
-    private static List<StartupManagerEndFn> endFunctions;
+  private static List<StartupModule> registeredModules;
+  private static List<StartupManagerEndFn> endFunctions;
 
-    // Initialize the startup manager itself
-    public static void init() {
-        registeredModules = new ArrayList<>();
-        endFunctions = new ArrayList<>();
+  // Initialize the startup manager itself
+  public static void init() {
+    registeredModules = new ArrayList<>();
+    endFunctions = new ArrayList<>();
+  }
+
+  // Clean up the startup manager
+  private static void end() {
+    registeredModules.clear();
+    registeredModules = null;
+    endFunctions.clear();
+    endFunctions = null;
+  }
+
+  // Register a module with the startup manager
+  public static void register(StartupManagerModule module, StartupManagerModule[] dependencies,
+                              StartupManagerInitFn initFn, Object initContext, StartupManagerEndFn endFn) {
+    RegisteredModule registeredModule = new RegisteredModule(module, dependencies, initFn, initContext, endFn);
+    register(new StartupModuleAdapter(registeredModule));
+  }
+
+  public static void register(StartupModule e) {
+    registeredModules.add(e);
+  }
+
+  // Register a module with no dependencies with the startup manager
+  public static void registerNoDependencies(StartupManagerModule module,
+                                            StartupManagerInitFn initFn,
+                                            Object initContext,
+                                            StartupManagerEndFn endFn) {
+    register(module, null, initFn, initContext, endFn);
+  }
+
+  // Remove a dependency from all modules
+  private static void removeDependency(StartupModule module) {
+    for (StartupModule registeredModule : registeredModules) {
+      registeredModule.removeDependency(module);
     }
+  }
 
-    // Clean up the startup manager
-    private static void end() {
-        registeredModules.clear();
-        registeredModules = null;
-        endFunctions.clear();
-        endFunctions = null;
-    }
+  // Run all the registered init functions in the right order
+  public static int run() {
+    boolean progressMade;
+    int error;
 
-    // Register a module with the startup manager
-    public static void register(StartupManagerModule module, StartupManagerModule[] dependencies,
-                               StartupManagerInitFn initFn, Object initContext, StartupManagerEndFn endFn) {
-        RegisteredModule registeredModule = new RegisteredModule(module, dependencies, initFn, initContext, endFn);
-        registeredModules.add(registeredModule);
-    }
+    // Loop until we can't make any more progress
+    do {
+      progressMade = false;
+      Iterator<StartupModule> iterator = registeredModules.iterator();
 
-    // Register a module with no dependencies with the startup manager
-    public static void registerNoDependencies(StartupManagerModule module,
-                                             StartupManagerInitFn initFn,
-                                             Object initContext,
-                                             StartupManagerEndFn endFn) {
-        register(module, null, initFn, initContext, endFn);
-    }
+      while (iterator.hasNext()) {
+        StartupModule registeredModule = iterator.next();
 
-    // Remove a dependency from all modules
-    private static void removeDependency(StartupManagerModule module) {
-        for (RegisteredModule registeredModule : registeredModules) {
-            registeredModule.dependencies.remove(module);
+        if (registeredModule.getDependencies().isEmpty()) {
+          error = registeredModule.initFn(registeredModule.getInitContext());
+          if (error != 0)
+            return error;
+
+          endFunctions.add(registeredModule::endFn);
+
+          removeDependency(registeredModule);
+
+          iterator.remove();
+          progressMade = true;
         }
+      }
+    } while (progressMade && !registeredModules.isEmpty());
+
+    // If there are still any modules left to be called, that's an error
+    if (!registeredModules.isEmpty()) {
+      Ui.error(UiError.ERROR, "%d startup modules could not be called", registeredModules.size());
+      return 1;
     }
 
-    // Run all the registered init functions in the right order
-    public static int run() {
-        boolean progressMade;
-        int error;
+    return 0;
+  }
 
-        // Loop until we can't make any more progress
-        do {
-            progressMade = false;
-            Iterator<RegisteredModule> iterator = registeredModules.iterator();
-
-            while (iterator.hasNext()) {
-                RegisteredModule registeredModule = iterator.next();
-
-                if (registeredModule.dependencies.isEmpty()) {
-                    if (registeredModule.initFn != null) {
-                        error = registeredModule.initFn.apply(registeredModule.initContext);
-                        if (error != 0)
-                            return error;
-                    }
-
-                    if (registeredModule.endFn != null) {
-                        endFunctions.add(registeredModule.endFn);
-                    }
-
-                    removeDependency(registeredModule.module);
-
-                    iterator.remove();
-                    progressMade = true;
-                }
-            }
-        } while (progressMade && !registeredModules.isEmpty());
-
-        // If there are still any modules left to be called, that's an error
-        if (!registeredModules.isEmpty()) {
-            Ui.error(UiError.ERROR, "%d startup modules could not be called", registeredModules.size());
-            return 1;
-        }
-
-        return 0;
+  // Run all the end functions in inverse order of the init functions
+  public static void runEnd() {
+    for (int i = endFunctions.size() - 1; i >= 0; i--) {
+      endFunctions.get(i).apply();
     }
-
-    // Run all the end functions in inverse order of the init functions
-    public static void runEnd() {
-        for (int i = endFunctions.size() - 1; i >= 0; i--) {
-            endFunctions.get(i).apply();
-        }
-        end();
-    }
+    end();
+  }
 }

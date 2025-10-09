@@ -20,10 +20,10 @@ package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.StartupManager;
 import com.fpetrola.oozx.StartupManagerModule;
+import com.fpetrola.oozx.StartupModule;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 public class Keyboard {
 
@@ -78,12 +78,9 @@ public class Keyboard {
 
   // Register startup
   public static void registerStartup() {
-    StartupManagerModule[] dependencies = {
-        StartupManagerModule.LIBSPECTRUM,
-        StartupManagerModule.SETUID
-    };
-    StartupManager.register(StartupManagerModule.KEYBOARD,
-        dependencies, Keyboard::init, null, Keyboard::end);
+    //    StartupManager.register(StartupManagerModule.KEYBOARD, dependencies, Keyboard::init, null, Keyboard::end);
+    StartupModule startupModule = new KeyboardStartupModule();
+    StartupManager.register(startupModule);
   }
 
   // Read keyboard port
@@ -321,4 +318,5 @@ public class Keyboard {
 
   // Placeholder for keysyms_map (to be populated based on UI-specific keysyms)
   private static KeysymsMap[] KEYSYMS_MAP = {};
+
 }

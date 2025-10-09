@@ -60,81 +60,81 @@ import java.util.*;
 
 public class Fuse {
 
-    private static final String FUSE_COPYRIGHT = "";
-    private static final String VERSION = "";
-    // What name were we called under?
-    public static String progname;
+  private static final String FUSE_COPYRIGHT = "";
+  private static final String VERSION = "";
+  // What name were we called under?
+  public static String progname;
 
-    // A flag to say when we want to exit the emulator
-    public static boolean exiting;
+  // A flag to say when we want to exit the emulator
+  public static boolean exiting;
 
-    // Is Spectrum emulation currently paused, and if so, how many times?
-    public static int emulationPaused;
+  // Is Spectrum emulation currently paused, and if so, how many times?
+  public static int emulationPaused;
 
-    // The creator information we'll store in file formats that support this
-    public static LibspectrumCreator creator;
+  // The creator information we'll store in file formats that support this
+  public static LibspectrumCreator creator;
 
-    public static void abort() {
+  public static void abort() {
 
+  }
+
+  // The various types of file we may want to run on startup
+  static class StartFiles {
+    String diskPlus3;
+    String diskOpus;
+    String diskPlusd;
+    String diskBeta;
+    String diskDidaktik80;
+    String diskDisciple;
+    String dock;
+    String if2;
+    String playback;
+    String recording;
+    String snapshot;
+    String tape;
+    String simpleideMaster;
+    String simpleideSlave;
+    String zxataspMaster;
+    String zxataspSlave;
+    String zxcf;
+    String divideMaster;
+    String divideSlave;
+    String divmmc;
+    String zxmmc;
+    String[] mdr = new String[8];
+  }
+
+  private static final String LIBSPECTRUM_MIN_VERSION = "0.5.0";
+
+  public static void main(String[] args) {
+    int r;
+
+    // Windows-specific error mode setting (simplified, assume handled by environment)
+    // Wii-specific fatInitDefault (assume handled by environment)
+
+    if (fuseInit(args) != 0) {
+      System.err.println(progname + ": error initialising -- giving up!");
+      throw new RuntimeException("1");
     }
 
-    // The various types of file we may want to run on startup
-    static class StartFiles {
-        String diskPlus3;
-        String diskOpus;
-        String diskPlusd;
-        String diskBeta;
-        String diskDidaktik80;
-        String diskDisciple;
-        String dock;
-        String if2;
-        String playback;
-        String recording;
-        String snapshot;
-        String tape;
-        String simpleideMaster;
-        String simpleideSlave;
-        String zxataspMaster;
-        String zxataspSlave;
-        String zxcf;
-        String divideMaster;
-        String divideSlave;
-        String divmmc;
-        String zxmmc;
-        String[] mdr = new String[8];
+    if (Settings.current.showHelp || Settings.current.showVersion) {
+      throw new RuntimeException("help");
     }
 
-    private static final String LIBSPECTRUM_MIN_VERSION = "0.5.0";
-
-    public static void main(String[] args) {
-        int r;
-
-        // Windows-specific error mode setting (simplified, assume handled by environment)
-        // Wii-specific fatInitDefault (assume handled by environment)
-
-        if (fuseInit(args) != 0) {
-            System.err.println(progname + ": error initialising -- giving up!");
-            throw new RuntimeException("1");
-        }
-
-        if (Settings.current.showHelp || Settings.current.showVersion) {
-            throw new RuntimeException("help");
-        }
-
-        if (Settings.current.unittests) {
-            r = Unittests.run();
-        } else {
-            while (!exiting) {
-                com.fpetrola.oozx.Z80.doOpcodes();
-                EventManager.eventDoEvents();
-            }
-            r = Debugger.getExitCode();
-        }
-
-        fuseEnd();
+    if (Settings.current.unittests) {
+      r = Unittests.run();
+    } else {
+      while (!exiting) {
+        com.fpetrola.oozx.Z80.doOpcodes();
+        EventManager.eventDoEvents();
+      }
+      r = Debugger.getExitCode();
     }
 
-    private static int fuseLibspectrumInit(Object context) {
+    fuseEnd();
+  }
+
+  private static int fuseLibspectrumInit(Object context) {
 //        if (Libspectrum.checkVersion(LIBSPECTRUM_MIN_VERSION)) {
 //            if (Libspectrum.init() != 0) return 1;
 //        } else {
@@ -142,72 +142,76 @@ public class Fuse {
 //                    Libspectrum.version(), LIBSPECTRUM_MIN_VERSION);
 //            return 1;
 //        }
-        return 0;
-    }
+    return 0;
+  }
 
-    private static void libspectrumRegisterStartup() {
-        StartupManagerModule[] dependencies = {StartupManagerModule.DISPLAY};
-        StartupManager.register(StartupManagerModule.LIBSPECTRUM, dependencies,
-                Fuse::fuseLibspectrumInit, null, null);
-    }
+  private static void libspectrumRegisterStartup() {
+    StartupManagerModule[] dependencies = {StartupManagerModule.DISPLAY};
+    StartupManager.register(StartupManagerModule.LIBSPECTRUM, dependencies,
+        Fuse::fuseLibspectrumInit, null, null);
+  }
 
-    private static int libxml2Init(Object context) {
-        // LIBXML_TEST_VERSION assumed handled in environment or Libspectrum
-        return 0;
-    }
+  private static int libxml2Init(Object context) {
+    // LIBXML_TEST_VERSION assumed handled in environment or Libspectrum
+    return 0;
+  }
 
-    private static void libxml2RegisterStartup() {
-        StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};
-        StartupManager.register(StartupManagerModule.LIBXML2, dependencies,
-                Fuse::libxml2Init, null, null);
-    }
+  private static void libxml2RegisterStartup() {
+    StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};
+    StartupManager.register(StartupManagerModule.LIBXML2, dependencies,
+        Fuse::libxml2Init, null, null);
+  }
 
-    private static int setuidInit(Object context) {
-        // Java does not typically run as root, so skip setuid logic
-        // If needed, implement platform-specific security handling
-        return 0;
-    }
+  static int setuidInit(Object context) {
+    // Java does not typically run as root, so skip setuid logic
+    // If needed, implement platform-specific security handling
+    return 0;
+  }
 
-    private static void setuidRegisterStartup() {
-        StartupManagerModule[] dependencies = {
-            StartupManagerModule.DISPLAY,
-            StartupManagerModule.LIBSPECTRUM
-        };
-        StartupManager.register(StartupManagerModule.SETUID, dependencies,
-                Fuse::setuidInit, null, null);
-    }
+  private static void setuidRegisterStartup() {
+//    reg1();
+    StartupManager.register(new SetUidStartupModule());
+  }
 
-    private static int runStartupManager(String[] argv) {
-        StartupManager.init();
+  private static void reg1() {
+    StartupManagerModule[] dependencies = {
+        StartupManagerModule.DISPLAY,
+        StartupManagerModule.LIBSPECTRUM
+    };
+    StartupManager.register(StartupManagerModule.SETUID, dependencies, Fuse::setuidInit, null, null);
+  }
 
-        Display.DisplayStartupContext displayContext = new Display.DisplayStartupContext();
-        displayContext.argc = argv.length;
-        displayContext.argv = argv;
+  private static int runStartupManager(String[] argv) {
+    StartupManager.init();
+
+    Display.DisplayStartupContext displayContext = new Display.DisplayStartupContext();
+    displayContext.argc = argv.length;
+    displayContext.argv = argv;
 
 //        Ay.registerStartup();
 //        Beta.registerStartup();
-        creatorRegisterStartup();
+    creatorRegisterStartup();
 //        Covox.registerStartup();
-        Debugger.registerStartup();
+    Debugger.registerStartup();
 //        Didaktik.registerStartup();
 //        Disciple.registerStartup();
-        Display.registerStartup(displayContext);
+    Display.registerStartup(displayContext);
 //        Divide.registerStartup();
 //        Divmmc.registerStartup();
-        EventManager.registerStartup();
+    EventManager.registerStartup();
 //        Fdd.registerStartup();
 //        Fuller.registerStartup();
 //        If1.registerStartup();
 //        If2.registerStartup();
-        Joystick.registerStartup();
+    Joystick.registerStartup();
 //        Kempmouse.registerStartup();
-        Keyboard.registerStartup();
-        libspectrumRegisterStartup();
-        libxml2RegisterStartup();
-        Machine.registerStartup();
-        MachinesPeriph.registerStartup();
+    Keyboard.registerStartup();
+    libspectrumRegisterStartup();
+    libxml2RegisterStartup();
+    Machine.registerStartup();
+    MachinesPeriph.registerStartup();
 //        Melodik.registerStartup();
-        Memory.registerStartup();
+    Memory.registerStartup();
 //        Mempool.registerStartup();
 //        Multiface.registerStartup();
 //        Opus.registerStartup();
@@ -219,87 +223,87 @@ public class Fuse {
 //        Rzx.registerStartup();
 //        Scld.registerStartup();
 //        Screenshot.registerStartup();
-        Settings.registerStartup();
-        setuidRegisterStartup();
+    Settings.registerStartup();
+    setuidRegisterStartup();
 //        Simpleide.registerStartup();
 //        Slt.registerStartup();
-        Sound.registerStartup();
+    Sound.registerStartup();
 //        Speccyboot.registerStartup();
 //        Specdrum.registerStartup();
 //        Spectranet.registerStartup();
-        Spectrum.registerStartup();
+    Spectrum.registerStartup();
 //        Tape.registerStartup();
 //        Ttx2000s.registerStartup();
 //        Timer.registerStartup();
-        Ula.registerStartup();
+    Ula.registerStartup();
 //        Usource.registerStartup();
-        com.fpetrola.oozx.Z80.registerStartup();
+    com.fpetrola.oozx.Z80.registerStartup();
 //        Zxatasp.registerStartup();
 //        Zxcf.registerStartup();
 //        Zxmmc.registerStartup();
 
-        return StartupManager.run();
-    }
+    return StartupManager.run();
+  }
 
-    public static int fuseInit(String[] args) {
-        int error, firstArg;
-        String startScaler;
-        StartFiles startFiles = new StartFiles();
+  public static int fuseInit(String[] args) {
+    int error, firstArg;
+    String startScaler;
+    StartFiles startFiles = new StartFiles();
 
-        // Seed random number generator
-        new Random().setSeed(System.currentTimeMillis());
+    // Seed random number generator
+    new Random().setSeed(System.currentTimeMillis());
 
-        progname = args.length > 0 ? args[0] : "fuse";
+    progname = args.length > 0 ? args[0] : "fuse";
 
 //        Libspectrum.errorFunction = Ui::libspectrumError;
 
-        // Wii-specific display init (assume handled by Display)
+    // Wii-specific display init (assume handled by Display)
 //        if (Display.init(args) != 0) return 1;
 
-        firstArg = Settings.init(args);
-        if (firstArg < 0) return 1;
+    firstArg = Settings.init(args);
+    if (firstArg < 0) return 1;
 
-        if (Settings.current.showVersion) {
-            fuseShowVersion();
-            return 0;
-        } else if (Settings.current.showHelp) {
-            fuseShowHelp();
-            return 0;
-        }
-
-        startScaler = Utils.safeStrdup(Settings.current.startScalerMode);
-
-        fuseShowCopyright();
-
-        String[] argv = args;
-        if (runStartupManager(argv) != 0) return 1;
-
-        Settings.current.startMachine= "48";
-        error = Machine.selectId(Settings.current.startMachine);
-        if (error != 0) return error;
-
-        error = Scaler.selectId(startScaler);
-        if (error != 0) return error;
-
-        if (setupStartFiles(startFiles) != 0) return 1;
-        if (parseNonoptionArgs(args, firstArg, startFiles) != 0) return 1;
-        if (doStartFiles(startFiles) != 0) return 1;
-
-        Debugger.commandEvaluate(Settings.current.debuggerCommand);
-
-        if (Ui.mousePresent) Ui.mouseGrabbed = Ui.mouseGrab(true);
-
-        emulationPaused = 0;
-        Movie.init();
-
-        return 0;
+    if (Settings.current.showVersion) {
+      fuseShowVersion();
+      return 0;
+    } else if (Settings.current.showHelp) {
+      fuseShowHelp();
+      return 0;
     }
 
-    private static int parseNonoptionArgs(String[] args, int firstArg, StartFiles startFiles) {
-        return 0;
-    }
+    startScaler = Utils.safeStrdup(Settings.current.startScalerMode);
 
-    private static int creatorInit(Object context) {
+    fuseShowCopyright();
+
+    String[] argv = args;
+    if (runStartupManager(argv) != 0) return 1;
+
+    Settings.current.startMachine = "48";
+    error = Machine.selectId(Settings.current.startMachine);
+    if (error != 0) return error;
+
+    error = Scaler.selectId(startScaler);
+    if (error != 0) return error;
+
+    if (setupStartFiles(startFiles) != 0) return 1;
+    if (parseNonoptionArgs(args, firstArg, startFiles) != 0) return 1;
+    if (doStartFiles(startFiles) != 0) return 1;
+
+    Debugger.commandEvaluate(Settings.current.debuggerCommand);
+
+    if (Ui.mousePresent) Ui.mouseGrabbed = Ui.mouseGrab(true);
+
+    emulationPaused = 0;
+    Movie.init();
+
+    return 0;
+  }
+
+  private static int parseNonoptionArgs(String[] args, int firstArg, StartFiles startFiles) {
+    return 0;
+  }
+
+  private static int creatorInit(Object context) {
 //        int[] version = new int[4];
 //        String osname = new String(new char[192]);
 //        final int CUSTOM_SIZE = 256;
@@ -342,133 +346,133 @@ public class Fuse {
 //            return 1;
 //        }
 
-        return 0;
+    return 0;
+  }
+
+  private static void creatorEnd() {
+    if (creator != null) {
+      Libspectrum.creatorFree(creator);
+      creator = null;
+    }
+  }
+
+  private static void creatorRegisterStartup() {
+    StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};
+    StartupManager.register(StartupManagerModule.CREATOR, dependencies,
+        Fuse::creatorInit, null, Fuse::creatorEnd);
+  }
+
+  private static void fuseShowCopyright() {
+    System.out.println("\n");
+    fuseShowVersion();
+    System.out.printf(
+        FUSE_COPYRIGHT + "; see the file\n" +
+            "'AUTHORS' for more details.\n" +
+            "\n" +
+            "For help, please mail <fuse-emulator-devel@lists.sf.net> or use\n" +
+            "the forums at <http://sourceforge.net/p/fuse-emulator/discussion/>.\n" +
+            "\n" +
+            "This program is distributed in the hope that it will be useful,\n" +
+            "but WITHOUT ANY WARRANTY; without even the implied warranty of\n" +
+            "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n" +
+            "GNU General Public License for more details.\n\n");
+  }
+
+  private static void fuseShowVersion() {
+    System.out.println("The Free Unix Spectrum Emulator (Fuse) version " + VERSION + ".");
+  }
+
+  private static void fuseShowHelp() {
+    System.out.println("\n");
+    fuseShowVersion();
+    System.out.println(
+        "\nAvailable command-line options:\n\n" +
+            "Boolean options (use `--no-<option>' to turn off):\n\n" +
+            "--auto-load            Automatically load tape files when opened.\n" +
+            "--compress-rzx         Write RZX files out compressed.\n" +
+            "--issue2               Emulate an Issue 2 Spectrum.\n" +
+            "--kempston             Emulate the Kempston joystick on QAOP<space>.\n" +
+            "--loading-sound        Emulate the sound of tapes loading.\n" +
+            "--sound                Produce sound.\n" +
+            "--sound-force-8bit     Generate 8-bit sound even if 16-bit is available.\n" +
+            "--slt                  Turn SLT traps on.\n" +
+            "--traps                Turn tape traps on.\n\n" +
+            "Other options:\n\n" +
+            "--help                 This information.\n" +
+            "--machine <type>       Which machine should be emulated?\n" +
+            "--playback <filename>  Play back RZX file <filename>.\n" +
+            "--record <filename>    Record to RZX file <filename>.\n" +
+            "--separation <type>    Use ACB/ABC stereo for the AY-3-8912 sound chip.\n" +
+            "--snapshot <filename>  Load snapshot <filename>.\n" +
+            "--speed <percentage>   How fast should emulation run?\n" +
+            "--fb-mode <mode>       Which mode should be used for FB?\n" +
+            "--tape <filename>      Open tape file <filename>.\n" +
+            "--version              Print version number and exit.\n" +
+            "\n" +
+            "For help, please mail <fuse-emulator-devel@lists.sf.net> or use\n" +
+            "the forums at <http://sourceforge.net/p/fuse-emulator/discussion/>.\n" +
+            "For complete documentation, see the manual page of Fuse.\n\n");
+  }
+
+  public static int fuseEmulationPause() {
+    if (emulationPaused++ > 0) return 0;
+
+    if (Rzx.recording && Rzx.competitionMode) {
+      Ui.error(UiError.INFO, "Stopping competition mode RZX recording");
+      int error = Rzx.stopRecording();
+      if (error != 0) return error;
     }
 
-    private static void creatorEnd() {
-        if (creator != null) {
-            Libspectrum.creatorFree(creator);
-            creator = null;
-        }
-    }
+    Sound.pause();
+    return 0;
+  }
 
-    private static void creatorRegisterStartup() {
-        StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};
-        StartupManager.register(StartupManagerModule.CREATOR, dependencies,
-                Fuse::creatorInit, null, Fuse::creatorEnd);
-    }
+  public static int fuseEmulationUnpause() {
+    if (--emulationPaused > 0) return 0;
 
-    private static void fuseShowCopyright() {
-        System.out.println("\n");
-        fuseShowVersion();
-        System.out.printf(
-                FUSE_COPYRIGHT + "; see the file\n" +
-                        "'AUTHORS' for more details.\n" +
-                        "\n" +
-                        "For help, please mail <fuse-emulator-devel@lists.sf.net> or use\n" +
-                        "the forums at <http://sourceforge.net/p/fuse-emulator/discussion/>.\n" +
-                        "\n" +
-                        "This program is distributed in the hope that it will be useful,\n" +
-                        "but WITHOUT ANY WARRANTY; without even the implied warranty of\n" +
-                        "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n" +
-                        "GNU General Public License for more details.\n\n");
-    }
+    Sound.unpause();
 
-    private static void fuseShowVersion() {
-        System.out.println("The Free Unix Spectrum Emulator (Fuse) version " + VERSION + ".");
-    }
+    int error = Timer.estimateReset();
+    if (error != 0) return error;
 
-    private static void fuseShowHelp() {
-        System.out.println("\n");
-        fuseShowVersion();
-        System.out.println(
-                "\nAvailable command-line options:\n\n" +
-                        "Boolean options (use `--no-<option>' to turn off):\n\n" +
-                        "--auto-load            Automatically load tape files when opened.\n" +
-                        "--compress-rzx         Write RZX files out compressed.\n" +
-                        "--issue2               Emulate an Issue 2 Spectrum.\n" +
-                        "--kempston             Emulate the Kempston joystick on QAOP<space>.\n" +
-                        "--loading-sound        Emulate the sound of tapes loading.\n" +
-                        "--sound                Produce sound.\n" +
-                        "--sound-force-8bit     Generate 8-bit sound even if 16-bit is available.\n" +
-                        "--slt                  Turn SLT traps on.\n" +
-                        "--traps                Turn tape traps on.\n\n" +
-                        "Other options:\n\n" +
-                        "--help                 This information.\n" +
-                        "--machine <type>       Which machine should be emulated?\n" +
-                        "--playback <filename>  Play back RZX file <filename>.\n" +
-                        "--record <filename>    Record to RZX file <filename>.\n" +
-                        "--separation <type>    Use ACB/ABC stereo for the AY-3-8912 sound chip.\n" +
-                        "--snapshot <filename>  Load snapshot <filename>.\n" +
-                        "--speed <percentage>   How fast should emulation run?\n" +
-                        "--fb-mode <mode>       Which mode should be used for FB?\n" +
-                        "--tape <filename>      Open tape file <filename>.\n" +
-                        "--version              Print version number and exit.\n" +
-                        "\n" +
-                        "For help, please mail <fuse-emulator-devel@lists.sf.net> or use\n" +
-                        "the forums at <http://sourceforge.net/p/fuse-emulator/discussion/>.\n" +
-                        "For complete documentation, see the manual page of Fuse.\n\n");
-    }
+    return 0;
+  }
 
-    public static int fuseEmulationPause() {
-        if (emulationPaused++ > 0) return 0;
+  private static int setupStartFiles(StartFiles startFiles) {
+    startFiles.diskPlus3 = Settings.current.plus3diskFile;
+    startFiles.diskOpus = Settings.current.opusdiskFile;
+    startFiles.diskPlusd = Settings.current.plusddiskFile;
+    startFiles.diskDidaktik80 = Settings.current.didaktik80diskFile;
+    startFiles.diskDisciple = Settings.current.disciplediskFile;
+    startFiles.diskBeta = Settings.current.betadiskFile;
+    startFiles.dock = Settings.current.dckFile;
+    startFiles.if2 = Settings.current.if2File;
+    startFiles.playback = Settings.current.playbackFile;
+    startFiles.recording = Settings.current.recordFile;
+    startFiles.snapshot = Settings.current.snapshot;
+    startFiles.tape = Settings.current.tapeFile;
 
-        if (Rzx.recording && Rzx.competitionMode) {
-            Ui.error(UiError.INFO, "Stopping competition mode RZX recording");
-            int error = Rzx.stopRecording();
-            if (error != 0) return error;
-        }
+    startFiles.simpleideMaster = Utils.safeStrdup(Settings.current.simpleideMasterFile);
+    startFiles.simpleideSlave = Utils.safeStrdup(Settings.current.simpleideSlaveFile);
+    startFiles.zxataspMaster = Utils.safeStrdup(Settings.current.zxataspMasterFile);
+    startFiles.zxataspSlave = Utils.safeStrdup(Settings.current.zxataspSlaveFile);
+    startFiles.zxcf = Utils.safeStrdup(Settings.current.zxcfPriFile);
+    startFiles.divideMaster = Utils.safeStrdup(Settings.current.divideMasterFile);
+    startFiles.divideSlave = Utils.safeStrdup(Settings.current.divideSlaveFile);
+    startFiles.divmmc = Utils.safeStrdup(Settings.current.divmmcFile);
+    startFiles.zxmmc = Utils.safeStrdup(Settings.current.zxmmcFile);
 
-        Sound.pause();
-        return 0;
-    }
+    startFiles.mdr[0] = Settings.current.mdrFile;
+    startFiles.mdr[1] = Settings.current.mdrFile2;
+    startFiles.mdr[2] = Settings.current.mdrFile3;
+    startFiles.mdr[3] = Settings.current.mdrFile4;
+    startFiles.mdr[4] = Settings.current.mdrFile5;
+    startFiles.mdr[5] = Settings.current.mdrFile6;
+    startFiles.mdr[6] = Settings.current.mdrFile7;
+    startFiles.mdr[7] = Settings.current.mdrFile8;
 
-    public static int fuseEmulationUnpause() {
-        if (--emulationPaused > 0) return 0;
-
-        Sound.unpause();
-
-        int error = Timer.estimateReset();
-        if (error != 0) return error;
-
-        return 0;
-    }
-
-    private static int setupStartFiles(StartFiles startFiles) {
-        startFiles.diskPlus3 = Settings.current.plus3diskFile;
-        startFiles.diskOpus = Settings.current.opusdiskFile;
-        startFiles.diskPlusd = Settings.current.plusddiskFile;
-        startFiles.diskDidaktik80 = Settings.current.didaktik80diskFile;
-        startFiles.diskDisciple = Settings.current.disciplediskFile;
-        startFiles.diskBeta = Settings.current.betadiskFile;
-        startFiles.dock = Settings.current.dckFile;
-        startFiles.if2 = Settings.current.if2File;
-        startFiles.playback = Settings.current.playbackFile;
-        startFiles.recording = Settings.current.recordFile;
-        startFiles.snapshot = Settings.current.snapshot;
-        startFiles.tape = Settings.current.tapeFile;
-
-        startFiles.simpleideMaster = Utils.safeStrdup(Settings.current.simpleideMasterFile);
-        startFiles.simpleideSlave = Utils.safeStrdup(Settings.current.simpleideSlaveFile);
-        startFiles.zxataspMaster = Utils.safeStrdup(Settings.current.zxataspMasterFile);
-        startFiles.zxataspSlave = Utils.safeStrdup(Settings.current.zxataspSlaveFile);
-        startFiles.zxcf = Utils.safeStrdup(Settings.current.zxcfPriFile);
-        startFiles.divideMaster = Utils.safeStrdup(Settings.current.divideMasterFile);
-        startFiles.divideSlave = Utils.safeStrdup(Settings.current.divideSlaveFile);
-        startFiles.divmmc = Utils.safeStrdup(Settings.current.divmmcFile);
-        startFiles.zxmmc = Utils.safeStrdup(Settings.current.zxmmcFile);
-
-        startFiles.mdr[0] = Settings.current.mdrFile;
-        startFiles.mdr[1] = Settings.current.mdrFile2;
-        startFiles.mdr[2] = Settings.current.mdrFile3;
-        startFiles.mdr[3] = Settings.current.mdrFile4;
-        startFiles.mdr[4] = Settings.current.mdrFile5;
-        startFiles.mdr[5] = Settings.current.mdrFile6;
-        startFiles.mdr[6] = Settings.current.mdrFile7;
-        startFiles.mdr[7] = Settings.current.mdrFile8;
-
-        return 0;
-    }
+    return 0;
+  }
 
 //    private static int parseNonoptionArgs(String[] args, int firstArg, StartFiles startFiles) {
 //        for (int i = firstArg; i < args.length; i++) {
@@ -600,86 +604,86 @@ public class Fuse {
 //        return 0;
 //    }
 
-    private static int doStartFiles(StartFiles startFiles) {
-        int autoload = startFiles.snapshot == null ? Tape.canAutoload() : 0;
+  private static int doStartFiles(StartFiles startFiles) {
+    int autoload = startFiles.snapshot == null ? Tape.canAutoload() : 0;
 
-        if (startFiles.playback != null && startFiles.recording != null) {
-            Ui.error(UiError.WARNING, "can't do both input playback and recording; recording disabled");
-            startFiles.recording = null;
-        }
+    if (startFiles.playback != null && startFiles.recording != null) {
+      Ui.error(UiError.WARNING, "can't do both input playback and recording; recording disabled");
+      startFiles.recording = null;
+    }
 
-        if (startFiles.diskPlus3 != null && startFiles.diskBeta != null) {
-            Ui.error(UiError.WARNING, "can't use +3 and TR-DOS disks simultaneously; +3 disk ignored");
-            startFiles.diskPlus3 = null;
-        }
+    if (startFiles.diskPlus3 != null && startFiles.diskBeta != null) {
+      Ui.error(UiError.WARNING, "can't use +3 and TR-DOS disks simultaneously; +3 disk ignored");
+      startFiles.diskPlus3 = null;
+    }
 
-        if ((startFiles.diskPlus3 != null || startFiles.diskBeta != null) && startFiles.dock != null) {
-            Ui.error(UiError.WARNING, "can't use disks and the dock simultaneously; dock cartridge ignored");
-            startFiles.dock = null;
-        }
+    if ((startFiles.diskPlus3 != null || startFiles.diskBeta != null) && startFiles.dock != null) {
+      Ui.error(UiError.WARNING, "can't use disks and the dock simultaneously; dock cartridge ignored");
+      startFiles.dock = null;
+    }
 
-        if ((startFiles.diskPlus3 != null || startFiles.diskBeta != null) && startFiles.if2 != null) {
-            Ui.error(UiError.WARNING, "can't use disks and the Interface 2 simultaneously; cartridge ignored");
-            startFiles.if2 = null;
-        }
+    if ((startFiles.diskPlus3 != null || startFiles.diskBeta != null) && startFiles.if2 != null) {
+      Ui.error(UiError.WARNING, "can't use disks and the Interface 2 simultaneously; cartridge ignored");
+      startFiles.if2 = null;
+    }
 
-        int error;
-        if (startFiles.diskPlus3 != null) {
-            error = Utils.openFile(startFiles.diskPlus3, autoload, null);
-            if (error != 0) return error;
-        }
+    int error;
+    if (startFiles.diskPlus3 != null) {
+      error = Utils.openFile(startFiles.diskPlus3, autoload, null);
+      if (error != 0) return error;
+    }
 
-        if (startFiles.diskPlusd != null) {
-            error = Utils.openFile(startFiles.diskPlusd, autoload, null);
-            if (error != 0) return error;
-        }
+    if (startFiles.diskPlusd != null) {
+      error = Utils.openFile(startFiles.diskPlusd, autoload, null);
+      if (error != 0) return error;
+    }
 
-        if (startFiles.diskDidaktik80 != null) {
-            error = Utils.openFile(startFiles.diskDidaktik80, autoload, null);
-            if (error != 0) return error;
-        }
+    if (startFiles.diskDidaktik80 != null) {
+      error = Utils.openFile(startFiles.diskDidaktik80, autoload, null);
+      if (error != 0) return error;
+    }
 
-        if (startFiles.diskDisciple != null) {
-            error = Utils.openFile(startFiles.diskDisciple, autoload, null);
-            if (error != 0) return error;
-        }
+    if (startFiles.diskDisciple != null) {
+      error = Utils.openFile(startFiles.diskDisciple, autoload, null);
+      if (error != 0) return error;
+    }
 
-        if (startFiles.diskOpus != null) {
-            error = Utils.openFile(startFiles.diskOpus, autoload, null);
-            if (error != 0) return error;
-        }
+    if (startFiles.diskOpus != null) {
+      error = Utils.openFile(startFiles.diskOpus, autoload, null);
+      if (error != 0) return error;
+    }
 
-        if (startFiles.diskBeta != null) {
-            error = Utils.openFile(startFiles.diskBeta, autoload, null);
-            if (error != 0) return error;
-        }
+    if (startFiles.diskBeta != null) {
+      error = Utils.openFile(startFiles.diskBeta, autoload, null);
+      if (error != 0) return error;
+    }
 
-        if (startFiles.dock != null) {
-            error = Utils.openFile(startFiles.dock, autoload, null);
-            if (error != 0) return error;
-        }
+    if (startFiles.dock != null) {
+      error = Utils.openFile(startFiles.dock, autoload, null);
+      if (error != 0) return error;
+    }
 
-        if (startFiles.if2 != null) {
-            error = Utils.openFile(startFiles.if2, autoload, null);
-            if (error != 0) return error;
-        }
+    if (startFiles.if2 != null) {
+      error = Utils.openFile(startFiles.if2, autoload, null);
+      if (error != 0) return error;
+    }
 
-        if (startFiles.snapshot != null) {
-            error = Utils.openFile(startFiles.snapshot, autoload, null);
-            if (error != 0) return error;
-        }
+    if (startFiles.snapshot != null) {
+      error = Utils.openFile(startFiles.snapshot, autoload, null);
+      if (error != 0) return error;
+    }
 
-        if (startFiles.tape != null) {
-            error = Utils.openFile(startFiles.tape, autoload, null);
-            if (error != 0) return error;
-        }
+    if (startFiles.tape != null) {
+      error = Utils.openFile(startFiles.tape, autoload, null);
+      if (error != 0) return error;
+    }
 
-        for (int i = 0; i < 8; i++) {
-            if (startFiles.mdr[i] != null) {
-                error = Utils.openFile(startFiles.mdr[i], autoload, null);
-                if (error != 0) return error;
-            }
-        }
+    for (int i = 0; i < 8; i++) {
+      if (startFiles.mdr[i] != null) {
+        error = Utils.openFile(startFiles.mdr[i], autoload, null);
+        if (error != 0) return error;
+      }
+    }
 
 //        if (startFiles.simpleideMaster != null) {
 //            error = Simpleide.insert(startFiles.simpleideMaster, LibspectrumIdeType.MASTER);
@@ -739,24 +743,25 @@ public class Fuse {
 //            if (error != 0) return error;
 //        }
 
-        return 0;
-    }
+    return 0;
+  }
 
-    private static int fuseEnd() {
-        Movie.stop();
-        StartupManager.runEnd();
-        Periph.end();
-        Ui.end();
+  private static int fuseEnd() {
+    Movie.stop();
+    StartupManager.runEnd();
+    Periph.end();
+    Ui.end();
 //        UiMedia.driveEnd();
-        Module.end();
+    Module.end();
 //        Pokemem.end();
 //        Svg.captureEnd();
-        Libspectrum.end();
-        return 0;
-    }
+    Libspectrum.end();
+    return 0;
+  }
 
-    public static void fuseAbort() {
-        fuseEnd();
-        System.exit(1);
-    }
+  public static void fuseAbort() {
+    fuseEnd();
+    System.exit(1);
+  }
+
 }
