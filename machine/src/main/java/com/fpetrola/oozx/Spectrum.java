@@ -108,7 +108,7 @@ public class Spectrum {
         return framesSinceReset;
     }
 
-    private static int spectrumInit(Object context) {
+    static int spectrumInit(Object context) {
         spectrumFrameEvent = EventManager.eventRegister(Spectrum::spectrumFrameEventFn, "End of frame");
 
         Module.register(moduleInfo);
@@ -119,13 +119,18 @@ public class Spectrum {
     }
 
     public static void registerStartup() {
-        StartupManagerModule[] dependencies = {
-            StartupManagerModule.DEBUGGER,
-            StartupManagerModule.EVENT,
-            StartupManagerModule.SETUID
-        };
-        StartupManager.register(StartupManagerModule.SPECTRUM, dependencies, Spectrum::spectrumInit, null, null);
+        StartupManager.register(new SpectrumStartupModule());
+        //reg1();
     }
+
+//    private static void reg1() {
+//        StartupManagerModule[] dependencies = {
+//            StartupManagerModule.DEBUGGER,
+//            StartupManagerModule.EVENT,
+//            StartupManagerModule.SETUID
+//        };
+//        StartupManager.register(StartupManagerModule.SPECTRUM, dependencies, Spectrum::spectrumInit, null, null);
+//    }
 
     public static int spectrumFrame() {
         long frameLength = Rzx.playback ? tstates : Machine.current.timings.tstatesPerFrame;

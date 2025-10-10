@@ -41,8 +41,8 @@ public class Debugger {
   }
 
   public static void registerStartup() {
-    StartupManager.registerNoDependencies(StartupManagerModule.DEBUGGER,
-        null, null, null);
+//    StartupManager.registerNoDependencies(StartupManagerModule.DEBUGGER, null, null, null);
+    StartupManager.register(new DebuggerStartupModule());
   }
 
   public static void commandEvaluate(String debuggerCommand) {

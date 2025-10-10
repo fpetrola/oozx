@@ -161,12 +161,17 @@ public class Ula {
 
   // Register ULA with startup manager
   public static void registerStartup() {
-    StartupManagerModule[] dependencies = {
-        StartupManagerModule.DEBUGGER,
-        StartupManagerModule.SETUID
-    };
-    StartupManager.register(StartupManagerModule.ULA, dependencies, Ula::init, null, null);
+    //reg1();
+    StartupManager.register(new UlaStartupModule());
   }
+
+//  private static void reg1() {
+//    StartupManagerModule[] dependencies = {
+//        StartupManagerModule.DEBUGGER,
+//        StartupManagerModule.SETUID
+//    };
+//    StartupManager.register(StartupManagerModule.ULA, dependencies, Ula::init, null, null);
+//  }
 
   // Read from ULA port
   private static byte read(int port, byte[] attached) {

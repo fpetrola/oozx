@@ -36,15 +36,20 @@ public class Machine {
   public static FuseMachineInfo current; // The currently selected machine
 
   public static void registerStartup() {
-    StartupManagerModule[] dependencies = {
-        StartupManagerModule.MEMORY,
-        StartupManagerModule.SETUID
-    };
-    StartupManager.register(StartupManagerModule.MACHINE, dependencies,
-        Machine::initMachines, null, Machine::end);
+    // reg1();
+    StartupManager.register(new MachineStartupModule());
   }
 
-  private static int initMachines(Object context) {
+//  private static void reg1() {
+//    StartupManagerModule[] dependencies = {
+//        StartupManagerModule.MEMORY,
+//        StartupManagerModule.SETUID
+//    };
+//    StartupManager.register(StartupManagerModule.MACHINE, dependencies,
+//        Machine::initMachines, null, Machine::end);
+//  }
+
+  static int initMachines(Object context) {
     int error;
 
 //        error = addMachine(Spec16::init);
@@ -317,7 +322,7 @@ public class Machine {
     }
   }
 
-  private static void end() {
+  static void end() {
     for (int i = 0; i < machineTypes.size(); i++) {
       if (machineTypes.get(i).shutdown != null) machineTypes.get(i).shutdown.run();
     }

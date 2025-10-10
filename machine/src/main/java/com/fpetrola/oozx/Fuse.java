@@ -291,7 +291,7 @@ public class Fuse {
     return 0;
   }
 
-  private static int creatorInit(Object context) {
+  static int creatorInit(Object context) {
 //        int[] version = new int[4];
 //        String osname = new String(new char[192]);
 //        final int CUSTOM_SIZE = 256;
@@ -337,7 +337,7 @@ public class Fuse {
     return 0;
   }
 
-  private static void creatorEnd() {
+  static void creatorEnd() {
     if (creator != null) {
       Libspectrum.creatorFree(creator);
       creator = null;
@@ -345,10 +345,15 @@ public class Fuse {
   }
 
   private static void creatorRegisterStartup() {
-    StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};
-    StartupManager.register(StartupManagerModule.CREATOR, dependencies,
-        Fuse::creatorInit, null, Fuse::creatorEnd);
+    StartupManager.register(new CreatorStartupModule());
+//    reg3();
   }
+
+//  private static void reg3() {
+//    StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};
+//    StartupManager.register(StartupManagerModule.CREATOR, dependencies,
+//        Fuse::creatorInit, null, Fuse::creatorEnd);
+//  }
 
   private static void fuseShowCopyright() {
     System.out.println("\n");

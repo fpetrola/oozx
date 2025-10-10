@@ -100,14 +100,19 @@ public class Z80 {
   }
 
   public static void registerStartup() {
-    StartupManagerModule[] dependencies = {
-        StartupManagerModule.DEBUGGER,
-        StartupManagerModule.EVENT,
-        StartupManagerModule.SETUID
-    };
-    StartupManager.register(StartupManagerModule.Z80, dependencies, Z80::init, null, null);
-//    Machine.reset(false);
+//    reg1();
+    StartupManager.register(new Z80StartupModule());
   }
+
+//  private static void reg1() {
+//    StartupManagerModule[] dependencies = {
+//        StartupManagerModule.DEBUGGER,
+//        StartupManagerModule.EVENT,
+//        StartupManagerModule.SETUID
+//    };
+//    StartupManager.register(StartupManagerModule.Z80, dependencies, Z80::init, null, null);
+////    Machine.reset(false);
+//  }
 
   public static <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
     var state = new State(io, new DefaultRegisterBankFactory().createBank(), new MockedMemory(true)) {
@@ -292,7 +297,7 @@ public class Z80 {
     return mapRead[0] != null && Ula.contention != null;
   }
 
-  private static int init(Object o) {
+  static int init(Object o) {
     z80_interrupt_event = EventManager.eventRegister(Z80::z80_interrupt_event_fn, "Retriggered interrupt");
     int z80_nmi_event = EventManager.eventRegister(Z80::z80_nmi, "Non-maskable interrupt");
     int z80_nmos_iff2_event = EventManager.eventRegister(null, "IFF2 update dummy event");
