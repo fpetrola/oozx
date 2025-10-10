@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx;
 
+import com.google.common.base.Predicate;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -231,13 +233,13 @@ public class Display {
       dirty = 0;
     }
 
-    while (dirty != 0) {
+      while (dirty != 0) {
       while ((dirty & 0x01) == 0) {
         dirty >>>= 1;
         x++;
       }
       do {
-        writeIfDirty.apply(x, y);
+          writeIfDirty.apply(x, y);
         dirty >>>= 1;
         x++;
       } while ((dirty & 0x01) != 0);
@@ -257,25 +259,29 @@ public class Display {
     criticalRegionX = beamX;
   }
 
-  public static void getBeamPosition(int[] beam) {
+  public static int[] getBeamPosition() {
+    int[] beam = new int[2];
     long tstates = Spectrum.tstates;
-    if (tstates < Machine.current.lineTimes[0]) {
+    FuseMachineInfo current = Machine.current;
+    long[] lineTimes = current.lineTimes;
+
+    if (tstates < lineTimes[0]) {
       beam[0] = beam[1] = -1;
-      return;
+      return beam;
     }
 
-    beam[1] = (int) ((tstates - Machine.current.lineTimes[0]) / Machine.current.timings.tstatesPerLine);
+    beam[1] = (int) ((tstates - lineTimes[0]) / current.timings.tstatesPerLine);
 
     if (beam[1] >= 0 && beam[1] <= SCREEN_HEIGHT) {
-      beam[0] = (int) ((tstates - Machine.current.lineTimes[beam[1]]) / 4);
+      beam[0] = (int) ((tstates - lineTimes[beam[1]]) / 4);
     } else {
       beam[0] = 0;
     }
+    return beam;
   }
 
   public static void updateCritical(int x, int y) {
-    int[] beam = new int[2];
-    getBeamPosition(beam);
+    int[] beam = getBeamPosition();
     int beamX = beam[0] - BORDER_WIDTH_COLS;
     int beamY = beam[1] - BORDER_HEIGHT;
 
@@ -346,8 +352,7 @@ public class Display {
   }
 
   private static void pushBorderChange(int colour) {
-    int[] beam = new int[2];
-    getBeamPosition(beam);
+    int[] beam = getBeamPosition();
     int beamX = beam[0], beamY = beam[1];
 
     if (beamY >= SCREEN_HEIGHT) return;

@@ -43,9 +43,7 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   private int[] getBeam() {
-    int[] beam = new int[2];
-    Display.getBeamPosition(beam);
-    return beam;
+    return Display.getBeamPosition();
   }
 
   public int retro_get_beam_y() {
