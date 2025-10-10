@@ -22,7 +22,7 @@ import java.util.*;
 
 public class Module {
 
-  private static LinkedList<ZXModule> registeredModules = new LinkedList<>();
+  private static List<ZXModule> registeredModules = new LinkedList<>();
 
   public static void register(ModuleInfo module) {
     register(new ZXModuleAdapter(module));

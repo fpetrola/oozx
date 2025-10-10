@@ -26,24 +26,6 @@ import com.fpetrola.oozx.fuse.peripherals.Port;
 
 import java.util.Arrays;
 
-// Assuming ported dependencies:
-// - Libspectrum (with Snap, MachineCapability)
-// - Machine (FuseMachineInfo, current, ram)
-// - Display (setLoresBorder)
-// - Sound (beeper)
-// - Keyboard (read)
-// - Tape (microphone)
-// - Loader (detectLoader)
-// - Settings (SettingsInfo, current)
-// - Debugger (systemVariableRegister)
-// - Module (ModuleInfo, register)
-// - Periph (Periph, PeriphPort, PeriphType, register)
-// - PhantomTypist (ulaRead)
-// - Spec128 (memoryportWrite)
-// - SpecPlus3 (memoryport2WriteInternal)
-// - StartupManager (StartupManagerModule, register)
-// - Spectrum (tstates, memoryMapRead, MEMORY_PAGE_SIZE_LOGARITHM)
-
 public class Ula {
 
   public static final int CONTENTION_SIZE = 80000;

@@ -23,10 +23,6 @@ public class Utils {
     return 0;
   }
 
-  public static String safeStrdup(String simpleideMasterFile) {
-    return simpleideMasterFile;
-  }
-
   public static int readAuxiliaryFile(String filename, File rom, AuxiliaryType auxiliaryType) {
     return 0;
   }

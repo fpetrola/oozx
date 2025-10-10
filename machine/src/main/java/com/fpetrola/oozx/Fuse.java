@@ -259,7 +259,7 @@ public class Fuse {
       return 0;
     }
 
-    startScaler = Utils.safeStrdup(Settings.current.startScalerMode);
+    startScaler = Settings.current.startScalerMode;
 
     fuseShowCopyright();
 
@@ -445,15 +445,15 @@ public class Fuse {
     startFiles.snapshot = Settings.current.snapshot;
     startFiles.tape = Settings.current.tapeFile;
 
-    startFiles.simpleideMaster = Utils.safeStrdup(Settings.current.simpleideMasterFile);
-    startFiles.simpleideSlave = Utils.safeStrdup(Settings.current.simpleideSlaveFile);
-    startFiles.zxataspMaster = Utils.safeStrdup(Settings.current.zxataspMasterFile);
-    startFiles.zxataspSlave = Utils.safeStrdup(Settings.current.zxataspSlaveFile);
-    startFiles.zxcf = Utils.safeStrdup(Settings.current.zxcfPriFile);
-    startFiles.divideMaster = Utils.safeStrdup(Settings.current.divideMasterFile);
-    startFiles.divideSlave = Utils.safeStrdup(Settings.current.divideSlaveFile);
-    startFiles.divmmc = Utils.safeStrdup(Settings.current.divmmcFile);
-    startFiles.zxmmc = Utils.safeStrdup(Settings.current.zxmmcFile);
+    startFiles.simpleideMaster = Settings.current.simpleideMasterFile;
+    startFiles.simpleideSlave = Settings.current.simpleideSlaveFile;
+    startFiles.zxataspMaster = Settings.current.zxataspMasterFile;
+    startFiles.zxataspSlave = Settings.current.zxataspSlaveFile;
+    startFiles.zxcf = Settings.current.zxcfPriFile;
+    startFiles.divideMaster = Settings.current.divideMasterFile;
+    startFiles.divideSlave = Settings.current.divideSlaveFile;
+    startFiles.divmmc = Settings.current.divmmcFile;
+    startFiles.zxmmc = Settings.current.zxmmcFile;
 
     startFiles.mdr[0] = Settings.current.mdrFile;
     startFiles.mdr[1] = Settings.current.mdrFile2;

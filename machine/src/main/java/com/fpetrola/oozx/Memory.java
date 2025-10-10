@@ -182,7 +182,7 @@ public class Memory {
 
   // Register a new memory source
   public static int sourceRegister(String description) {
-    String copy = Utils.safeStrdup(description);
+    String copy = description;
     memorySources.add(copy);
     return memorySources.size() - 1;
   }
