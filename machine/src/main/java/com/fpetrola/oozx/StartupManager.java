@@ -23,9 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 
 public class StartupManager {
-
   private static List<StartupModule> registeredModules;
-  private static List<StartupManagerEndFn> endFunctions;
+  private static List<Runnable> endFunctions;
 
   // Initialize the startup manager itself
   public static void init() {
@@ -36,9 +35,7 @@ public class StartupManager {
   // Clean up the startup manager
   private static void end() {
     registeredModules.clear();
-    registeredModules = null;
     endFunctions.clear();
-    endFunctions = null;
   }
 
   public static void register(StartupModule e) {
@@ -92,7 +89,7 @@ public class StartupManager {
   // Run all the end functions in inverse order of the init functions
   public static void runEnd() {
     for (int i = endFunctions.size() - 1; i >= 0; i--) {
-      endFunctions.get(i).apply();
+      endFunctions.get(i).run();
     }
     end();
   }
