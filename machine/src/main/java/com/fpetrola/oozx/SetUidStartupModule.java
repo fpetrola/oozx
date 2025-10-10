@@ -38,8 +38,4 @@ public class SetUidStartupModule extends AbstractStartupModule {
   public void endFn() {
   }
 
-  @Override
-  public StartupManagerModule getStartupManagerModule() {
-    return StartupManagerModule.SETUID;
-  }
 }

@@ -37,7 +37,4 @@ public class MemoryStartupModule extends AbstractStartupModule {
     Memory.end();
   }
 
-  public StartupManagerModule getStartupManagerModule() {
-    return StartupManagerModule.MEMORY;
-  }
 }

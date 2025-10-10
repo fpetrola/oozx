@@ -46,7 +46,4 @@ public class EventStartupModule extends AbstractStartupModule {
     EventManager.registeredEventsFree();
   }
 
-  public StartupManagerModule getStartupManagerModule() {
-    return StartupManagerModule.EVENT;
-  }
 }

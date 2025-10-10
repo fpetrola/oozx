@@ -36,7 +36,4 @@ public class SpectrumStartupModule extends AbstractStartupModule {
   public void endFn() {
   }
 
-  public StartupManagerModule getStartupManagerModule() {
-    return StartupManagerModule.SPECTRUM;
-  }
 }

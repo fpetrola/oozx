@@ -38,7 +38,4 @@ public class UlaStartupModule extends AbstractStartupModule {
 
   }
 
-  public StartupManagerModule getStartupManagerModule() {
-    return StartupManagerModule.ULA;
-  }
 }

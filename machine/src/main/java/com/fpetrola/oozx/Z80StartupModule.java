@@ -36,7 +36,4 @@ public class Z80StartupModule extends AbstractStartupModule {
   public void endFn() {
   }
 
-  public StartupManagerModule getStartupManagerModule() {
-    return StartupManagerModule.Z80;
-  }
 }

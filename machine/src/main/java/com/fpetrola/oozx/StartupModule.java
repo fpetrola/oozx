@@ -30,17 +30,11 @@ public interface StartupModule {
   void endFn();
 
   default void removeDependency(StartupModule module) {
-    getDependencies().removeIf(d -> {
-      if (d.equals(module.getClass())) {
-        return true;
-      } else
-        return d == module.getStartupManagerModule();
-    });
+    getDependencies().removeIf(d -> d.equals(module.getClass()));
   }
 
   default Object getId() {
     return getClass();
   }
 
-  StartupManagerModule getStartupManagerModule();
 }

@@ -38,7 +38,4 @@ public class MachinesPeriphStartupModule extends AbstractStartupModule {
 
   }
 
-  public StartupManagerModule getStartupManagerModule() {
-    return StartupManagerModule.MACHINES_PERIPH;
-  }
 }

@@ -18,7 +18,6 @@
 
 package com.fpetrola.oozx.fuse;
 
-import com.fpetrola.oozx.StartupManagerModule;
 import com.fpetrola.oozx.StartupModule;
 
 import java.util.ArrayList;

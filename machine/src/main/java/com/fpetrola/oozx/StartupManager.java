@@ -41,23 +41,8 @@ public class StartupManager {
     endFunctions = null;
   }
 
-  // Register a module with the startup manager
-  public static void register(StartupManagerModule module, StartupManagerModule[] dependencies,
-                              StartupManagerInitFn initFn, Object initContext, StartupManagerEndFn endFn) {
-    RegisteredModule registeredModule = new RegisteredModule(module, dependencies, initFn, initContext, endFn);
-    register(new StartupModuleAdapter(registeredModule));
-  }
-
   public static void register(StartupModule e) {
     registeredModules.add(e);
-  }
-
-  // Register a module with no dependencies with the startup manager
-  public static void registerNoDependencies(StartupManagerModule module,
-                                            StartupManagerInitFn initFn,
-                                            Object initContext,
-                                            StartupManagerEndFn endFn) {
-    register(module, null, initFn, initContext, endFn);
   }
 
   // Remove a dependency from all modules

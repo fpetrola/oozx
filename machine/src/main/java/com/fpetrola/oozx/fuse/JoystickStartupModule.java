@@ -20,7 +20,6 @@ package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.LibspectrumStartupModule;
 import com.fpetrola.oozx.SetUidStartupModule;
-import com.fpetrola.oozx.StartupManagerModule;
 
 public class JoystickStartupModule extends AbstractStartupModule {
   public JoystickStartupModule() {
@@ -39,7 +38,4 @@ public class JoystickStartupModule extends AbstractStartupModule {
     Joystick.end();
   }
 
-  public StartupManagerModule getStartupManagerModule() {
-    return StartupManagerModule.JOYSTICK;
-  }
 }

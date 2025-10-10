@@ -35,7 +35,4 @@ public class DebuggerStartupModule extends AbstractStartupModule {
   public void endFn() {
   }
 
-  public StartupManagerModule getStartupManagerModule() {
-    return StartupManagerModule.DEBUGGER;
-  }
 }

@@ -38,7 +38,4 @@ public class MachineStartupModule extends AbstractStartupModule {
     Machine.end();
   }
 
-  public StartupManagerModule getStartupManagerModule() {
-    return StartupManagerModule.MACHINE;
-  }
 }

@@ -37,7 +37,4 @@ public class CreatorStartupModule extends AbstractStartupModule {
     Fuse.creatorEnd();
   }
 
-  public StartupManagerModule getStartupManagerModule() {
-    return StartupManagerModule.CREATOR;
-  }
 }

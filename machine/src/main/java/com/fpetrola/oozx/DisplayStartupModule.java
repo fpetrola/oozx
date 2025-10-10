@@ -86,7 +86,4 @@ public class DisplayStartupModule extends AbstractStartupModule {
   public void endFn() {
   }
 
-  public StartupManagerModule getStartupManagerModule() {
-    return StartupManagerModule.DISPLAY;
-  }
 }

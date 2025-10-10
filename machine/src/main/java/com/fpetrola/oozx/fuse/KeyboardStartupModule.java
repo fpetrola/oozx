@@ -20,7 +20,6 @@ package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.LibspectrumStartupModule;
 import com.fpetrola.oozx.SetUidStartupModule;
-import com.fpetrola.oozx.StartupManagerModule;
 
 public class KeyboardStartupModule extends AbstractStartupModule {
   public KeyboardStartupModule() {
@@ -67,7 +66,4 @@ public class KeyboardStartupModule extends AbstractStartupModule {
     Keyboard.end();
   }
 
-  public StartupManagerModule getStartupManagerModule() {
-    return StartupManagerModule.KEYBOARD;
-  }
 }
