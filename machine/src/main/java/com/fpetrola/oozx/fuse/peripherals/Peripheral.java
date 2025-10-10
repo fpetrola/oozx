@@ -18,24 +18,38 @@
 
 package com.fpetrola.oozx.fuse.peripherals;
 
+import java.util.Arrays;
 import java.util.List;
 
 // Structure for peripheral information
 public class Peripheral {
   public boolean[] option; // Preferences option controlling this peripheral
-  public List<Port> ports; // List of ports this peripheral responds to
+  public List<? extends PortHandler> ports; // List of ports this peripheral responds to
   public boolean hardReset; // Hard reset required when added/removed
   public ActivateFunction activate; // Function called when peripheral is activated
 
+  public Peripheral(Port... ports) {
+    this(Arrays.stream(ports).map(PortHandlerAdapter::new).toList());
+  }
+
   public Peripheral(boolean[] option, List<Port> ports, boolean hardReset, ActivateFunction activate) {
+    this(option, hardReset, activate);
+    this.ports = ports.stream().map(PortHandlerAdapter::new).toList();
+  }
+
+  public Peripheral(boolean[] option, boolean hardReset, ActivateFunction activate) {
     this.option = option;
-    this.ports = ports;
     this.hardReset = hardReset;
     this.activate = activate;
   }
 
+  public Peripheral(List<? extends PortHandler> ports) {
+    this(null, false, null);
+    this.ports = ports;
+  }
+
   @FunctionalInterface
   public interface ActivateFunction {
-      void apply();
+    void apply();
   }
 }

@@ -112,9 +112,9 @@ public class Periph {
     // Private structure for port response with peripheral type
     private static class PrivatePort {
         Type type;
-        Port port;
+        PortHandler port;
 
-        PrivatePort(Type type, Port port) {
+        PrivatePort(Type type, PortHandler port) {
             this.type = type;
             this.port = port;
         }
@@ -161,7 +161,7 @@ public class Periph {
             if (privatePeriph.peripheral.activate != null) {
                 privatePeriph.peripheral.activate.apply();
             }
-            for (Port port : privatePeriph.peripheral.ports) {
+            for (PortHandler port : privatePeriph.peripheral.ports) {
                 ports.add(new PrivatePort(type, port));
             }
         } else {
@@ -250,10 +250,10 @@ public class Periph {
         // Normal port read
         PeripheralData callbackInfo = new PeripheralData(port, (byte) 0x00, (byte) 0xff);
         for (PrivatePort privatePort : ports) {
-            Port portData = privatePort.port;
-            if (portData.read != null && (callbackInfo.port & portData.mask) == portData.value) {
+            PortHandler portData = privatePort.port;
+            if (portData.isReader() && (callbackInfo.port & portData.getMask()) == portData.getValue()) {
                 byte[] attached = new byte[]{0};
-                byte value = portData.read.apply(callbackInfo.port, attached);
+                byte value = portData.read(callbackInfo.port, attached);
                 callbackInfo.value &= (byte) (value | callbackInfo.attached);
                 callbackInfo.attached |= attached[0]!= 0 ? (byte) 0xff : 0;
             }
@@ -292,9 +292,9 @@ public class Periph {
 
         PeripheralData callbackInfo = new PeripheralData(port, (byte) 0, b);
         for (PrivatePort privatePort : ports) {
-            Port portData = privatePort.port;
-            if (portData.write != null && (callbackInfo.port & portData.mask) == portData.value) {
-                portData.write.apply(callbackInfo.port, callbackInfo.value);
+            PortHandler portData = privatePort.port;
+            if (portData.isWriter() && (callbackInfo.port & portData.getMask()) == portData.getValue()) {
+                portData.write(callbackInfo.port, callbackInfo.value);
             }
         }
     }

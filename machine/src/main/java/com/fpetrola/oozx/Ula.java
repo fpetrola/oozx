@@ -25,6 +25,7 @@ import com.fpetrola.oozx.fuse.peripherals.Peripheral;
 import com.fpetrola.oozx.fuse.peripherals.Port;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class Ula {
 
@@ -59,19 +60,8 @@ public class Ula {
     void apply(long value);
   }
 
-  private static final Peripheral ulaPeriph = new Peripheral(
-      null, // option
-      Arrays.asList(new Port(0x0001, 0x0000, Ula::read, Ula::write)),
-      false, // hardReset
-      null // activate
-  );
-
-  private static final Peripheral ulaPeriphFullDecode = new Peripheral(
-      null, // option
-      Arrays.asList(new Port(0x00ff, 0x00fe, Ula::read, Ula::write)),
-      false, // hardReset
-      null // activate
-  );
+  private static final Peripheral ulaPeriph = new Peripheral(new Port(0x0001, 0x0000, Ula::read, Ula::write));
+  private static final Peripheral ulaPeriphFullDecode = new Peripheral(new Port(0x00ff, 0x00fe, Ula::read, Ula::write));
 
   // Adapter for debugger to get last byte
   private static long getLastByte() {
