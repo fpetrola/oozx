@@ -59,28 +59,16 @@ public class Ula {
     void apply(long value);
   }
 
-  // Peripheral ports for ULA
-  private static final Port[] ulaPorts = {
-      new Port(0x0001, 0x0000, Ula::read, Ula::write),
-      new Port(0, 0, null, null)
-  };
-
   private static final Peripheral ulaPeriph = new Peripheral(
       null, // option
-      Arrays.asList(ulaPorts),
+      Arrays.asList(new Port(0x0001, 0x0000, Ula::read, Ula::write)),
       false, // hardReset
       null // activate
   );
 
-  // Peripheral ports for full decode
-  private static final Port[] ulaPortsFullDecode = {
-      new Port(0x00ff, 0x00fe, Ula::read, Ula::write),
-      new Port(0, 0, null, null)
-  };
-
   private static final Peripheral ulaPeriphFullDecode = new Peripheral(
       null, // option
-      Arrays.asList(ulaPortsFullDecode),
+      Arrays.asList(new Port(0x00ff, 0x00fe, Ula::read, Ula::write)),
       false, // hardReset
       null // activate
   );

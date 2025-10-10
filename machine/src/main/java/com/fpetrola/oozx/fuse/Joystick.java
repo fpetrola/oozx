@@ -351,8 +351,7 @@ public class Joystick {
 
     // Peripheral definitions
     private static final Port[] kempstonStrictDecoding = {
-        new Port(0x00e0, 0x0000, Joystick::kempstonRead, null),
-        new Port(0, 0, null, null)
+        new Port(0x00e0, 0x0000, Joystick::kempstonRead, null)
     };
 
     private static final Peripheral kempstonStrictPeriph = new Peripheral(
@@ -360,8 +359,7 @@ public class Joystick {
     );
 
     private static final Port[] kempstonLooseDecoding = {
-        new Port(0x0020, 0x0000, Joystick::kempstonRead, null),
-        new Port(0, 0, null, null)};
+        new Port(0x0020, 0x0000, Joystick::kempstonRead, null)};
 
     private static final Peripheral kempstonLoosePeriph = new Peripheral(
         new boolean[]{Settings.current.joyKempston}, List.of(kempstonLooseDecoding), false, null

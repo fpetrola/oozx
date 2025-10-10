@@ -162,7 +162,6 @@ public class Periph {
                 privatePeriph.peripheral.activate.apply();
             }
             for (Port port : privatePeriph.peripheral.ports) {
-                if (port.mask == 0) break; // End of port list
                 ports.add(new PrivatePort(type, port));
             }
         } else {
