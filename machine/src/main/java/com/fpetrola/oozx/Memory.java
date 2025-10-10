@@ -115,7 +115,7 @@ public class Memory {
   );
 
   // Initialize memory module
-  private static int init(Object context) {
+  static int init(Object context) {
     memorySources = new ArrayList<>();
 
     sourceRom = sourceRegister("ROM");
@@ -153,7 +153,7 @@ public class Memory {
   }
 
   // Clean up memory module
-  private static void end() {
+  static void end() {
     if (pool != null) {
       for (MemoryPoolEntry entry : pool) {
         // Java garbage collector handles memory deallocation
@@ -170,9 +170,15 @@ public class Memory {
 
   // Register memory module with startup manager
   public static void registerStartup() {
-    StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};
-    StartupManager.register(StartupManagerModule.MEMORY, dependencies, Memory::init, null, Memory::end);
+//    reg1();
+
+    StartupManager.register(new MemoryStartupModule());
   }
+
+//  private static void reg1() {
+//    StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};
+//    StartupManager.register(StartupManagerModule.MEMORY, dependencies, Memory::init, null, Memory::end);
+//  }
 
   // Register a new memory source
   public static int sourceRegister(String description) {

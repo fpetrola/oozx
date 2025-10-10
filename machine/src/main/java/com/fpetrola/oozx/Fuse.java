@@ -145,16 +145,16 @@ public class Fuse {
 //        Fuse::fuseLibspectrumInit, null, null);
 //  }
 
-  private static int libxml2Init(Object context) {
-    // LIBXML_TEST_VERSION assumed handled in environment or Libspectrum
-    return 0;
-  }
+//  private static int libxml2Init(Object context) {
+//    // LIBXML_TEST_VERSION assumed handled in environment or Libspectrum
+//    return 0;
+//  }
 
-  private static void libxml2RegisterStartup() {
-    StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};
-    StartupManager.register(StartupManagerModule.LIBXML2, dependencies,
-        Fuse::libxml2Init, null, null);
-  }
+//  private static void libxml2RegisterStartup() {
+//    StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};
+//    StartupManager.register(StartupManagerModule.LIBXML2, dependencies,
+//        Fuse::libxml2Init, null, null);
+//  }
 
   private static void setuidRegisterStartup() {
 //    reg1();
@@ -195,7 +195,7 @@ public class Fuse {
 //        Kempmouse.registerStartup();
     Keyboard.registerStartup();
     libspectrumRegisterStartup();
-    libxml2RegisterStartup();
+//    libxml2RegisterStartup();
     Machine.registerStartup();
     MachinesPeriph.registerStartup();
 //        Melodik.registerStartup();

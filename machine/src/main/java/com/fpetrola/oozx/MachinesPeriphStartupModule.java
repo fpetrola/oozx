@@ -20,10 +20,10 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
-public class MachineStartupModule extends AbstractStartupModule {
+public class MachinesPeriphStartupModule extends AbstractStartupModule {
 
-  public MachineStartupModule() {
-    super(MemoryStartupModule.class, SetUidStartupModule.class);
+  public MachinesPeriphStartupModule() {
+    super(SetUidStartupModule.class);
   }
 
   public Object getInitContext() {
@@ -31,14 +31,14 @@ public class MachineStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return Machine.initMachines(initContext);
+    return MachinesPeriph.init(initContext);
   }
 
   public void endFn() {
-    Machine.end();
+
   }
 
   public StartupManagerModule getStartupManagerModule() {
-    return StartupManagerModule.MACHINE;
+    return StartupManagerModule.MACHINES_PERIPH;
   }
 }
