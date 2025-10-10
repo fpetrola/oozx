@@ -139,7 +139,7 @@ public class Ula {
   }
 
   // Initialize ULA module
-  private static int init(Object context) {
+  static int init(Object context) {
     Module.register(new UlaZxModule());
 
     Periph.register(Periph.Type.ULA, ulaPeriph);

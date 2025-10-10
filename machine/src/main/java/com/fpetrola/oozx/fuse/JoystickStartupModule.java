@@ -16,14 +16,15 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse;
 
-import com.fpetrola.oozx.fuse.AbstractStartupModule;
+import com.fpetrola.oozx.LibspectrumStartupModule;
+import com.fpetrola.oozx.SetUidStartupModule;
+import com.fpetrola.oozx.StartupManagerModule;
 
-public class UlaStartupModule extends AbstractStartupModule {
-
-  public UlaStartupModule() {
-    super(DebuggerStartupModule.class, SetUidStartupModule.class);
+public class JoystickStartupModule extends AbstractStartupModule {
+  public JoystickStartupModule() {
+    super(LibspectrumStartupModule.class, SetUidStartupModule.class);
   }
 
   public Object getInitContext() {
@@ -31,14 +32,14 @@ public class UlaStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return Ula.init(initContext);
+    return Joystick.joystickInit(initContext);
   }
 
   public void endFn() {
-
+    Joystick.end();
   }
 
   public StartupManagerModule getStartupManagerModule() {
-    return StartupManagerModule.ULA;
+    return StartupManagerModule.JOYSTICK;
   }
 }

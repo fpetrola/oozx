@@ -102,16 +102,21 @@ public class Joystick {
 
     // Register startup
     public static void registerStartup() {
-        StartupManagerModule[] dependencies = {
-            StartupManagerModule.LIBSPECTRUM,
-            StartupManagerModule.SETUID
-        };
-        StartupManager.register(StartupManagerModule.JOYSTICK,
-                                dependencies, Joystick::joystickInit, null, Joystick::end);
+//        reg1();
+        StartupManager.register(new JoystickStartupModule());
     }
 
+//    private static void reg1() {
+//        StartupManagerModule[] dependencies = {
+//            StartupManagerModule.LIBSPECTRUM,
+//            StartupManagerModule.SETUID
+//        };
+//        StartupManager.register(StartupManagerModule.JOYSTICK,
+//                                dependencies, Joystick::joystickInit, null, Joystick::end);
+//    }
+
     // Initialize joysticks
-    private static int joystickInit(Object context) {
+    static int joystickInit(Object context) {
         joysticksSupported = UiJoystick.init();
         kempstonValue = timex1Value = timex2Value = 0x00;
         fullerValue = (byte) 0xff;
@@ -124,7 +129,7 @@ public class Joystick {
     }
 
     // Cleanup joysticks
-    private static void end() {
+    static void end() {
         UiJoystick.end();
     }
 
