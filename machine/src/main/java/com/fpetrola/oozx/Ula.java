@@ -23,9 +23,8 @@ import com.fpetrola.oozx.fuse.Keyboard;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 import com.fpetrola.oozx.fuse.peripherals.Peripheral;
 import com.fpetrola.oozx.fuse.peripherals.Port;
-
-import java.util.Arrays;
-import java.util.List;
+import com.fpetrola.oozx.fuse.ports.UlaFullDecodePortHandler;
+import com.fpetrola.oozx.fuse.ports.UlaPortHandler;
 
 public class Ula {
 
@@ -60,8 +59,8 @@ public class Ula {
     void apply(long value);
   }
 
-  private static final Peripheral ulaPeriph = new Peripheral(new Port(0x0001, 0x0000, Ula::read, Ula::write));
-  private static final Peripheral ulaPeriphFullDecode = new Peripheral(new Port(0x00ff, 0x00fe, Ula::read, Ula::write));
+  private static final Peripheral ulaPeriph = new Peripheral(new UlaPortHandler());
+  private static final Peripheral ulaPeriphFullDecode = new Peripheral(new UlaFullDecodePortHandler());
 
   // Adapter for debugger to get last byte
   private static long getLastByte() {
@@ -134,7 +133,7 @@ public class Ula {
 //  }
 
   // Read from ULA port
-  private static byte read(int port, byte[] attached) {
+  public static byte read(int port, byte[] attached) {
     byte r = defaultValue;
     attached[0] = (byte) 0xff;
 
@@ -148,7 +147,7 @@ public class Ula {
   }
 
   // Write to ULA port
-  static void write(int port, byte b) {
+  public static void write(int port, byte b) {
     lastByte = b;
 
     Display.setLoresBorder(b & 0x07);

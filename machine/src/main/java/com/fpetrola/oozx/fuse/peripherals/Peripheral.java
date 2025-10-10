@@ -37,6 +37,11 @@ public class Peripheral {
     this.ports = ports.stream().map(PortHandlerAdapter::new).toList();
   }
 
+  public Peripheral(boolean[] option, PortHandler... ports) {
+    this(option, false, null);
+    this.ports = List.of(ports);
+  }
+
   public Peripheral(boolean[] option, boolean hardReset, ActivateFunction activate) {
     this.option = option;
     this.hardReset = hardReset;
@@ -46,6 +51,11 @@ public class Peripheral {
   public Peripheral(List<? extends PortHandler> ports) {
     this(null, false, null);
     this.ports = ports;
+  }
+
+  public Peripheral(PortHandler... ports) {
+    this(null, false, null);
+    this.ports = Arrays.stream(ports).toList();
   }
 
   @FunctionalInterface

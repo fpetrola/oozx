@@ -18,10 +18,15 @@
 
 package com.fpetrola.oozx.fuse;
 
-import com.fpetrola.oozx.LibspectrumStartupModule;
-import com.fpetrola.oozx.SetUidStartupModule;
+import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.Module;
+import com.fpetrola.oozx.fuse.peripherals.Periph;
+import com.fpetrola.oozx.fuse.peripherals.Peripheral;
 
 public class JoystickStartupModule extends AbstractStartupModule {
+  Peripheral kempstonStrictPeriph = new Peripheral(new boolean[]{Settings.current.joyKempston}, new JoystickPortHandler(0x00e0, 0x0000));
+  Peripheral kempstonLoosePeriph = new Peripheral(new boolean[]{Settings.current.joyKempston}, new JoystickPortHandler(0x0020, 0x0000));
+
   public JoystickStartupModule() {
     super(LibspectrumStartupModule.class, SetUidStartupModule.class);
   }
@@ -31,7 +36,15 @@ public class JoystickStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return Joystick.joystickInit(initContext);
+    Joystick.joysticksSupported = UiJoystick.init();
+    Joystick.kempstonValue = Joystick.timex1Value = Joystick.timex2Value = 0x00;
+    Joystick.fullerValue = (byte) 0xff;
+
+    Module.register(Joystick.joystickModuleInfo);
+    Periph.register(Periph.Type.KEMPSTON, kempstonStrictPeriph);
+    Periph.register(Periph.Type.KEMPSTON_LOOSE, kempstonLoosePeriph);
+
+    return 0;
   }
 
   public void endFn() {
