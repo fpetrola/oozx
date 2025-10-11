@@ -25,80 +25,11 @@ import com.fpetrola.oozx.fuse.peripherals.Port;
 import java.util.*;
 
 public class MachinesPeriph {
-
-//  private static final Peripheral spec128Memory = new Peripheral(
-//      null, List.of(
-//          new Port(0x8002, 0x0000, null, Spec128::memoryPortWrite)
-//      ), false, null
-//  );
-
-//  private static final Peripheral plus3Memory = new Peripheral(
-//      null, List.of(
-//          new Port(0xc002, 0x4000, null, Spec128::memoryPortWrite),
-//          new Port(0xf002, 0x1000, null, SpecPlus3::memoryPort2Write)
-//      ), false, null
-//  );
-
-  private static final Peripheral upd765 = new Peripheral(
-      null, List.of(
-          new Port(0xf002, 0x3000, SpecPlus3::fdcRead, SpecPlus3::fdcWrite),
-          new Port(0xf002, 0x2000, SpecPlus3::fdcStatus, null)
-      ), false, null
-  );
-
-  private static final Peripheral seMemory = new Peripheral(
-      null, List.of(
-          new Port(0xffff, 0x7ffd, null, (port, b) -> {
-            Machine.current.ramInfo.lastByte = b;
-            Machine.current.memoryMap.run();
-          })
-      ), false, null
-  );
-
-  private static final Peripheral tc2068Ay = new Peripheral(
-      null, List.of(
-          new Port(0x00ff, 0x00f5, Tc2068::ayRegisterportRead, Ay::registerportWrite),
-          new Port(0x00ff, 0x00f6, Tc2068::ayDataportRead, Ay::dataportWrite)
-      ), false, null
-  );
-
-  private static final Peripheral beta128Pentagon = new Peripheral(
-      null, List.of(
-          new Port(0x00ff, 0x001f, Pentagon::select1fRead, Beta::crWrite),
-          new Port(0x00ff, 0x003f, Beta::trRead, Beta::trWrite),
-          new Port(0x00ff, 0x005f, Beta::secRead, Beta::secWrite),
-          new Port(0x00ff, 0x007f, Beta::drRead, Beta::drWrite),
-          new Port(0x00ff, 0x00ff, Pentagon::selectFfRead, Beta::spWrite)
-      ), false, null
-  );
-
-  private static final Peripheral beta128PentagonLate = new Peripheral(
-      null, List.of(
-          new Port(0x00ff, 0x001f, Pentagon::select1fRead, Beta::crWrite),
-          new Port(0x00ff, 0x003f, Beta::trRead, Beta::trWrite),
-          new Port(0x00ff, 0x005f, Beta::secRead, Beta::secWrite),
-          new Port(0x00ff, 0x007f, Beta::drRead, Beta::drWrite),
-          new Port(0x00ff, 0x00ff, Beta::spRead, Beta::spWrite)
-      ), false, null
-  );
-
-  private static final Peripheral pentagon1024Memory = new Peripheral(
-      null, List.of(
-          new Port(0xc002, 0x4000, null, Pentagon::pentagon1024MemoryportWrite),
-          new Port(0xf008, 0xe000, null, Pentagon::pentagon1024V22MemoryportWrite)
-      ), false, null
-  );
-
-  // Initialize machine-specific peripherals
   static int init(Object context) {
     Periph.register(new Spec128MemoryPeripheral());
     Periph.register(new SpecPlus3MemoryPeripheral());
-    Periph.register(Periph.Type.UPD765, upd765);
-    Periph.register(Periph.Type.SE_MEMORY, seMemory);
-    Periph.register(Periph.Type.AY_TIMEX_WITH_JOYSTICK, tc2068Ay);
-    Periph.register(Periph.Type.BETA128_PENTAGON, beta128Pentagon);
-    Periph.register(Periph.Type.BETA128_PENTAGON_LATE, beta128PentagonLate);
-    Periph.register(Periph.Type.PENTAGON1024_MEMORY, pentagon1024Memory);
+    Periph.register(new Upd765Peripheral());
+    Periph.register(new SeMemoryPeripheral());
     return 0;
   }
 

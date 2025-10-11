@@ -59,9 +59,6 @@ public class Ula {
     void apply(long value);
   }
 
-  private static final Peripheral ulaPeriph = new Peripheral(new UlaPortHandler());
-  private static final Peripheral ulaPeriphFullDecode = new Peripheral(new UlaFullDecodePortHandler());
-
   // Adapter for debugger to get last byte
   private static long getLastByte() {
     return lastByte & 0xFF;
@@ -100,9 +97,8 @@ public class Ula {
   // Initialize ULA module
   static int init(Object context) {
     Module.register(new UlaZxModule());
-
-    Periph.register(Periph.Type.ULA, ulaPeriph);
-    Periph.register(Periph.Type.ULA_FULL_DECODE, ulaPeriphFullDecode);
+    Periph.register(new UlaPeripheral());
+    Periph.register(new UlaFullDecodePeripheral());
 
     Debugger.systemVariableRegister(
         DEBUGGER_TYPE_STRING, LAST_BYTE_DETAIL_STRING, Ula::getLastByte, null);

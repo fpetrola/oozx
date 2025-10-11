@@ -25,21 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// Assuming ported dependencies:
-// - Libspectrum (Machine, MachineCapability, Error, Rzx)
-// - Debugger (DebuggerMode, BreakpointType, eventRegister)
-// - Event (add, EventType)
-// - Fuse (abort)
-// - If1 (updateMenu)
-// - Multiface (statusUpdate)
-// - Ula (contendPortEarly, contendPortLate)
-// - Rzx (playback, recording, storeByte, stopPlayback)
-// - Settings (SettingsInfo, current)
-// - Ui (MenuItem, menuActivate, mousePresent, mouseGrabbed, mouseGrab, mouseRelease)
-// - Machine (FuseMachineInfo, current, reset)
-// - SpecPlus3 (updateFdd)
-// - Spectrum (tstates, unattachedPort)
-
 public class Periph {
     // Enum for peripheral types
     public enum Type {
