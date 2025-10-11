@@ -220,29 +220,17 @@ public class Display {
   }
 
   private static void copyCriticalRegionLine(int y, int x, int end) {
-    int bitMask, dirty;
-
     if (x < WIDTH_COLS) {
-      bitMask = (int) allDirty;
-      bitMask >>>= x;
-      bitMask <<= x + (32 - end);
-      bitMask >>>= (32 - end);
-      dirty = (maybeDirty[y] & bitMask) >>> x;
+      int i = 32 - end;
+      int bitMask = (int) allDirty >>> x << (x + i) >>> i;
+      int dirty = (maybeDirty[y] & bitMask) >>> x;
       maybeDirty[y] &= ~bitMask;
-    } else {
-      dirty = 0;
-    }
-
       while (dirty != 0) {
-      while ((dirty & 0x01) == 0) {
-        dirty >>>= 1;
-        x++;
-      }
-      do {
+        if ((dirty & 0x01) != 0)
           writeIfDirty.apply(x, y);
         dirty >>>= 1;
         x++;
-      } while ((dirty & 0x01) != 0);
+      }
     }
   }
 
