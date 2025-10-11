@@ -20,7 +20,10 @@ package com.fpetrola.oozx.fuse.peripherals;
 
 import com.fpetrola.oozx.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 // Assuming ported dependencies:
 // - Libspectrum (Machine, MachineCapability, Error, Rzx)
@@ -100,9 +103,9 @@ public class Periph {
     private static class PrivatePeripheral {
         Present present;
         boolean active;
-        Peripheral peripheral;
+        ZxPeripheral peripheral;
 
-        PrivatePeripheral(Present present, boolean active, Peripheral peripheral) {
+        PrivatePeripheral(Present present, boolean active, ZxPeripheral peripheral) {
             this.present = present;
             this.active = active;
             this.peripheral = peripheral;
@@ -132,12 +135,18 @@ public class Periph {
 
     // Register a peripheral with the system
     public static void register(Type type, Peripheral peripheral) {
+        ZxPeripheralAdapter peripheral1 = new ZxPeripheralAdapter(type, peripheral);
+
+        register(peripheral1);
+    }
+
+    public static void register(ZxPeripheral zxPeripheral) {
         if (peripherals == null) {
             peripherals = new HashMap<>();
         }
 
-        PrivatePeripheral privatePeriph = new PrivatePeripheral(Present.NEVER, false, peripheral);
-        peripherals.put(type, privatePeriph);
+        PrivatePeripheral privatePeriph = new PrivatePeripheral(Present.NEVER, false, zxPeripheral);
+        peripherals.put(zxPeripheral.getType(), privatePeriph);
     }
 
     // Set whether a peripheral can be present on this machine
@@ -158,10 +167,10 @@ public class Periph {
         privatePeriph.active = active;
 
         if (active) {
-            if (privatePeriph.peripheral.activate != null) {
-                privatePeriph.peripheral.activate.apply();
+            if (privatePeriph.peripheral.canActivate()) {
+                privatePeriph.peripheral.activate();
             }
-            for (PortHandler port : privatePeriph.peripheral.ports) {
+            for (PortHandler port : privatePeriph.peripheral.getPorts()) {
                 ports.add(new PrivatePort(type, port));
             }
         } else {
@@ -348,8 +357,8 @@ public class Periph {
 
         peripherals.forEach((type, privatePeriph) -> {
             if (privatePeriph.present == Present.NEVER || privatePeriph.present == Present.OPTIONAL) {
-                if (privatePeriph.peripheral.option != null) {
-                    privatePeriph.peripheral.option[0] = false;
+                if (privatePeriph.peripheral.hasOption()) {
+                    privatePeriph.peripheral.getOption()[0] = false;
                 }
             }
         });
@@ -376,11 +385,11 @@ public class Periph {
         peripherals.forEach((type, privatePeriph) -> {
             boolean active = switch (privatePeriph.present) {
                 case NEVER -> false;
-                case OPTIONAL -> privatePeriph.peripheral.option != null && privatePeriph.peripheral.option[0];
+                case OPTIONAL -> privatePeriph.peripheral.hasOption() && privatePeriph.peripheral.getOption()[0];
                 case ALWAYS -> true;
             };
             boolean changed = activateType(type, active);
-            needsHardReset[0] |= changed && privatePeriph.peripheral.hardReset;
+            needsHardReset[0] |= changed && privatePeriph.peripheral.hasHardReset();
         });
 
         updatePeripheralsStatus();
@@ -403,10 +412,10 @@ public class Periph {
         peripherals.forEach((type, privatePeriph) -> {
             boolean active = switch (privatePeriph.present) {
                 case NEVER -> false;
-                case OPTIONAL -> privatePeriph.peripheral.option != null && privatePeriph.peripheral.option[0];
+                case OPTIONAL -> privatePeriph.peripheral.hasOption() && privatePeriph.peripheral.getOption()[0];
                 case ALWAYS -> true;
             };
-            boolean needsReset = privatePeriph != null && privatePeriph.active != active && privatePeriph.peripheral.hardReset;
+            boolean needsReset = privatePeriph != null && privatePeriph.active != active && privatePeriph.peripheral.hasHardReset();
             needsHardReset[0] |= needsReset;
         });
 

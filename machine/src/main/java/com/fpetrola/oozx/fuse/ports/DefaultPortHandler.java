@@ -48,4 +48,10 @@ public abstract class DefaultPortHandler implements PortHandler {
   public boolean isWriter() {
     return isWriter;
   }
+
+  public byte read(int port, byte[] attached) {
+    return -1;
+  }
+  public void write(int port, byte value) {
+  }
 }
