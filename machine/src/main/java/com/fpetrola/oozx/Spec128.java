@@ -25,6 +25,7 @@ public class Spec128 {
   private static Memory memory= Fuse.memory;
   private static Display display;
   private static Machine machine= Fuse.machine;
+  private static MachinesPeriph machinesPeriph= Fuse.machinesPeriph;
 
   // Initialize the Spectrum 128K machine
   public static int init(FuseMachineInfo machine) {
@@ -55,7 +56,7 @@ public class Spec128 {
     if (error != 0) return error;
 
     Periph.clear();
-    MachinesPeriph.machinesPeriph128();
+    machinesPeriph.machinesPeriph128();
     Periph.update();
 
     Beta.builtin = false;

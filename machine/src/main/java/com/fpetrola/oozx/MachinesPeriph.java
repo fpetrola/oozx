@@ -23,9 +23,13 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class MachinesPeriph {
 
-  private static Machine machine= Fuse.machine;
+  private Machine machine;
 
-  static int init(Object context) {
+  public MachinesPeriph(Machine machine) {
+    this.machine = machine;
+  }
+
+  int init(Object context) {
     Periph.register(new Spec128MemoryPeripheral());
     Periph.register(new SpecPlus3MemoryPeripheral());
     Periph.register(new Upd765Peripheral());
@@ -41,7 +45,7 @@ public class MachinesPeriph {
   }
 
   // Base peripherals available on all machines
-  private static void basePeripherals() {
+  private void basePeripherals() {
     Periph.setPresent(Periph.Type.DIVIDE, Periph.Present.OPTIONAL);
     Periph.setPresent(Periph.Type.DIVMMC, Periph.Present.OPTIONAL);
     Periph.setPresent(KempstonStrictPeripheral.class, Periph.Present.OPTIONAL);
@@ -55,7 +59,7 @@ public class MachinesPeriph {
   }
 
   // Base peripherals for 48K and 128K machines
-  private static void basePeripherals48128() {
+  private void basePeripherals48128() {
     basePeripherals();
     Periph.setPresent(Periph.Type.BETA128, Periph.Present.OPTIONAL);
     Periph.setPresent(Periph.Type.INTERFACE1, Periph.Present.OPTIONAL);
@@ -68,7 +72,7 @@ public class MachinesPeriph {
   }
 
   // Peripherals for 48K and similar machines
-  public static void machinesPeriph48() {
+  public void machinesPeriph48() {
     basePeripherals48128();
     Periph.setPresent(Periph.Type.FULLER, Periph.Present.OPTIONAL);
     Periph.setPresent(Periph.Type.MELODIK, Periph.Present.OPTIONAL);
@@ -80,14 +84,14 @@ public class MachinesPeriph {
   }
 
   // Peripherals for 128K and similar machines
-  public static void machinesPeriph128() {
+  public void machinesPeriph128() {
     basePeripherals48128();
     Periph.setPresent(Periph.Type.AY, Periph.Present.ALWAYS);
     Periph.setPresent(Spec128MemoryPeripheral.class, Periph.Present.ALWAYS);
   }
 
   // Peripherals for +3 and similar machines
-  public static void machinesPeriphPlus3() {
+  public void machinesPeriphPlus3() {
     basePeripherals();
     Periph.setPresent(Periph.Type.AY_PLUS3, Periph.Present.ALWAYS);
     Periph.setPresent(Periph.Type.MULTIFACE_3, Periph.Present.OPTIONAL);
@@ -97,7 +101,7 @@ public class MachinesPeriph {
   }
 
   // Peripherals for TC2068 and TS2068
-  public static void machinesPeriphTimex() {
+  public void machinesPeriphTimex() {
     basePeripherals();
     Periph.setPresent(UlaPeripheral.class, Periph.Present.NEVER);
     Periph.setPresent(UlaFullDecodePeripheral.class, Periph.Present.ALWAYS);
@@ -108,7 +112,7 @@ public class MachinesPeriph {
   }
 
   // Peripherals for Pentagon and Scorpion
-  public static void machinesPeriphPentagon() {
+  public void machinesPeriphPentagon() {
     basePeripherals();
     Periph.setPresent(Spec128MemoryPeripheral.class, Periph.Present.ALWAYS);
     Periph.setPresent(Periph.Type.AY, Periph.Present.ALWAYS);
@@ -118,13 +122,3 @@ public class MachinesPeriph {
   }
 }
 
-// Supporting classes (minimal definitions for context)
-class Ay {
-  static void registerportWrite(int port, byte data) {
-    // Implementation to be provided
-  }
-
-  static void dataportWrite(int port, byte data) {
-    // Implementation to be provided
-  }
-}

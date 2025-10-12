@@ -18,25 +18,13 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.fuse.AbstractStartupModule;
-
-public class MachinesPeriphStartupModule extends AbstractStartupModule {
-  private MachinesPeriph machinesPeriph;
-
-  public MachinesPeriphStartupModule(MachinesPeriph machinesPeriph) {
-    this.machinesPeriph = machinesPeriph;
+// Supporting classes (minimal definitions for context)
+class Ay {
+  static void registerportWrite(int port, byte data) {
+    // Implementation to be provided
   }
 
-  public Object getInitContext() {
-    return null;
+  static void dataportWrite(int port, byte data) {
+    // Implementation to be provided
   }
-
-  public int initFn(Object initContext) {
-    return machinesPeriph.init(initContext);
-  }
-
-  public void endFn() {
-
-  }
-
 }

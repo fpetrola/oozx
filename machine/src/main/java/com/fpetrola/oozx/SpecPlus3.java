@@ -26,6 +26,7 @@ public class SpecPlus3 {
   public static UPDFdc specplus3Fdc;
   private static Display display;
   private static Machine machine= Fuse.machine;
+  private static MachinesPeriph machinesPeriph= Fuse.machinesPeriph;
 //  public static Fdd[] specplus3Drives = new Fdd[SpecPlus3Constants.SPECPLUS3_NUM_DRIVES];
 
 //  public static UIMediaDriveInfo[] uiDrives = new UIMediaDriveInfo[]{
@@ -153,7 +154,7 @@ public class SpecPlus3 {
     if (error != 0) return error;
 
     Periph.clear();
-    MachinesPeriph.machinesPeriphPlus3();
+    machinesPeriph.machinesPeriphPlus3();
 
     Periph.setPresent(Periph.Type.UPD765, Periph.Present.ALWAYS);
 

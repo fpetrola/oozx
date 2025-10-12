@@ -26,6 +26,7 @@ public class Spec48 {
 
   private static Display display = Fuse.display;
   private static Machine machine= Fuse.machine;
+  private static MachinesPeriph machinesPeriph= Fuse.machinesPeriph;
 
   // Check if a port is handled by the ULA
   public static boolean portFromUla(int port) {
@@ -57,7 +58,7 @@ public class Spec48 {
     if (error != 0) return error;
 
     Periph.clear();
-    MachinesPeriph.machinesPeriph48();
+    machinesPeriph.machinesPeriph48();
     Periph.update();
 
     Beta.builtin = false;

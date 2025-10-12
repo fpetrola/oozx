@@ -54,6 +54,7 @@ public class Fuse {
   public static Machine machine = new Machine(eventManager, memory, display, ula);
   public static Joystick joystick = new Joystick(keyboard);
   public static Z80 z80= new Z80();
+  public static MachinesPeriph machinesPeriph = new MachinesPeriph(machine);
 
   public static void abort() {
 
@@ -124,7 +125,7 @@ public class Fuse {
         new KeyboardStartupModule(keyboard),
         new LibspectrumStartupModule(),
         new MachineStartupModule(machine),
-        new MachinesPeriphStartupModule(),
+        new MachinesPeriphStartupModule(machinesPeriph),
         new MemoryStartupModule(memory),
         new SpectrumStartupModule(),
         new UlaStartupModule(ula),
