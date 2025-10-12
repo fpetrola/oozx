@@ -37,59 +37,6 @@ public class Ula {
   // What to return if no other input pressed; depends on the last byte output to the ULA
   private static byte defaultValue;
 
-  // Debugger system variables
-  private static final String DEBUGGER_TYPE_STRING = "ula";
-  private static final String LAST_BYTE_DETAIL_STRING = "last";
-  private static final String TSTATES_DETAIL_STRING = "tstates";
-  private static final String MEM7FFD_DETAIL_STRING = "mem7ffd";
-  private static final String MEM1FFD_DETAIL_STRING = "mem1ffd";
-
-  // Functional interfaces for debugger system variables
-  @FunctionalInterface
-  interface DebuggerGetter {
-    long apply();
-  }
-
-  @FunctionalInterface
-  interface DebuggerSetter {
-    void apply(long value);
-  }
-
-  // Adapter for debugger to get last byte
-  private static long getLastByte() {
-    return lastByte & 0xFF;
-  }
-
-  // Adapter for debugger to get tstates
-  private static long getTstates() {
-    return Spectrum.tstates;
-  }
-
-  // Adapter for debugger to set tstates
-  private static void setTstates(long value) {
-    Spectrum.tstates = value;
-  }
-
-  // Adapter for debugger to get 7ffd
-  private static long get7ffd() {
-    return Machine.current.ramInfo.lastByte & 0xFF;
-  }
-
-  // Adapter for debugger to set 7ffd
-  private static void set7ffd(long value) {
-    Spec128.memoryPortWrite(0, (byte) value);
-  }
-
-  // Adapter for debugger to get 1ffd
-  private static long get1ffd() {
-    return Machine.current.ramInfo.lastByte2 & 0xFF;
-  }
-
-  // Adapter for debugger to set 1ffd
-  private static void set1ffd(long value) {
-    SpecPlus3.memoryPort2WriteInternal(0, (byte) value);
-  }
-
   // Initialize ULA module
   static int init(Object context) {
     Module.register(new UlaZxModule());
@@ -103,17 +50,8 @@ public class Ula {
 
   // Register ULA with startup manager
   public static void registerStartup() {
-    //reg1();
     StartupManager.register(new UlaStartupModule());
   }
-
-//  private static void reg1() {
-//    StartupManagerModule[] dependencies = {
-//        StartupManagerModule.DEBUGGER,
-//        StartupManagerModule.SETUID
-//    };
-//    StartupManager.register(StartupManagerModule.ULA, dependencies, Ula::init, null, null);
-//  }
 
   // Read from ULA port
   public static byte read(int port, byte[] attached) {
