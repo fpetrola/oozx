@@ -49,9 +49,6 @@ public class Ula {
   }
 
   // Register ULA with startup manager
-  public static void registerStartup() {
-    StartupManager.register(new UlaStartupModule());
-  }
 
   // Read from ULA port
   public static byte read(int port, byte[] attached) {

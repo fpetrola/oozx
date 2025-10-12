@@ -18,45 +18,11 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.fuse.Joystick;
-import com.fpetrola.oozx.fuse.Keyboard;
+import com.fpetrola.oozx.fuse.JoystickStartupModule;
+import com.fpetrola.oozx.fuse.KeyboardStartupModule;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 import java.util.*;
-
-// Assuming ported dependencies:
-// - Libspectrum (with LibspectrumSnap, LibspectrumCreator, error handling)
-// - Compat (osname, etc.)
-// - Debugger
-// - Display (DisplayStartupContext)
-// - EventManager
-// - Keyboard
-// - StartupManager, StartupManagerModule
-// - Machine, MachinesPeriph
-// - Memory
-// - Module
-// - Movie
-// - Mempool
-// - Ay, Dck, Beta, Didaktik, Fdd, Fuller, Divide, Divmmc, Simpleide, Zxatasp, Zxcf, Zxmmc
-// - Joystick, If1, If2, Kempmouse, Melodik, Multiface, Printer, Scld, Speccyboot, Spectranet, Ttx2000s, Ula, Usource
-// - PhantomTypist
-// - Pokemem
-// - Profile
-// - Psg
-// - Rzx
-// - Screenshot
-// - Settings
-// - Slt
-// - Snapshot
-// - Sound
-// - Spectrum
-// - Tape
-// - Timer
-// - Ui, UiMedia, Scaler
-// - Unittests
-// - Utils
-// - Z80
-// - Constants like VERSION, LIBSPECTRUM_MIN_VERSION, UI_SDL, USE_JOYSTICK, etc., in appropriate classes
 
 public class Fuse {
 
@@ -133,41 +99,6 @@ public class Fuse {
     fuseEnd();
   }
 
-  private static void libspectrumRegisterStartup() {
-//    reg2();
-    StartupManager.register(new LibspectrumStartupModule());
-  }
-
-//  private static void reg2() {
-//    StartupManagerModule[] dependencies = {StartupManagerModule.DISPLAY};
-//    StartupManager.register(StartupManagerModule.LIBSPECTRUM, dependencies,
-//        Fuse::fuseLibspectrumInit, null, null);
-//  }
-
-//  private static int libxml2Init(Object context) {
-//    // LIBXML_TEST_VERSION assumed handled in environment or Libspectrum
-//    return 0;
-//  }
-
-//  private static void libxml2RegisterStartup() {
-//    StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};
-//    StartupManager.register(StartupManagerModule.LIBXML2, dependencies,
-//        Fuse::libxml2Init, null, null);
-//  }
-
-  private static void setuidRegisterStartup() {
-//    reg1();
-    StartupManager.register(new SetUidStartupModule());
-  }
-
-//  private static void reg1() {
-//    StartupManagerModule[] dependencies = {
-//        StartupManagerModule.DISPLAY,
-//        StartupManagerModule.LIBSPECTRUM
-//    };
-//    StartupManager.register(StartupManagerModule.SETUID, dependencies, Fuse::setuidInit, null, null);
-//  }
-
   private static int runStartupManager(String[] argv) {
     StartupManager.init();
 
@@ -175,60 +106,27 @@ public class Fuse {
     displayContext.argc = argv.length;
     displayContext.argv = argv;
 
-//        Ay.registerStartup();
-//        Beta.registerStartup();
-    creatorRegisterStartup();
-//        Covox.registerStartup();
-//        Didaktik.registerStartup();
-//        Disciple.registerStartup();
-    Display.registerStartup(displayContext);
-//        Divide.registerStartup();
-//        Divmmc.registerStartup();
-    EventManager.registerStartup();
-//        Fdd.registerStartup();
-//        Fuller.registerStartup();
-//        If1.registerStartup();
-//        If2.registerStartup();
-    Joystick.registerStartup();
-//        Kempmouse.registerStartup();
-    Keyboard.registerStartup();
-    libspectrumRegisterStartup();
-//    libxml2RegisterStartup();
-    Machine.registerStartup();
-    MachinesPeriph.registerStartup();
-//        Melodik.registerStartup();
-    Memory.registerStartup();
-//        Mempool.registerStartup();
-//        Multiface.registerStartup();
-//        Opus.registerStartup();
-//        PhantomTypist.registerStartup();
-//        Plusd.registerStartup();
-//        Printer.registerStartup();
-//        Profile.registerStartup();
-//        Psg.registerStartup();
-//        Rzx.registerStartup();
-//        Scld.registerStartup();
-//        Screenshot.registerStartup();
-    Settings.registerStartup();
-    setuidRegisterStartup();
-//        Simpleide.registerStartup();
-//        Slt.registerStartup();
-    Sound.registerStartup();
-//        Speccyboot.registerStartup();
-//        Specdrum.registerStartup();
-//        Spectranet.registerStartup();
-    Spectrum.registerStartup();
-//        Tape.registerStartup();
-//        Ttx2000s.registerStartup();
-//        Timer.registerStartup();
-    Ula.registerStartup();
-//        Usource.registerStartup();
-    com.fpetrola.oozx.Z80.registerStartup();
-//        Zxatasp.registerStartup();
-//        Zxcf.registerStartup();
-//        Zxmmc.registerStartup();
+    List.of(
+        new CreatorStartupModule(),
+        new DisplayStartupModule(displayContext),
+        new EventStartupModule(),
+        new JoystickStartupModule(),
+        new KeyboardStartupModule(),
+        new LibspectrumStartupModule(),
+        new MachineStartupModule(),
+        new MachinesPeriphStartupModule(),
+        new MemoryStartupModule(),
+        new SetUidStartupModule(),
+        new SpectrumStartupModule(),
+        new UlaStartupModule(),
+        new Z80StartupModule()
+    ).forEach(StartupManager::register);
 
     return StartupManager.run();
+  }
+
+  private static void extracted(StartupModule e, List<StartupModule> moduleList) {
+    moduleList.add(e);
   }
 
   public static int fuseInit(String[] args) {
@@ -339,17 +237,6 @@ public class Fuse {
       creator = null;
     }
   }
-
-  private static void creatorRegisterStartup() {
-    StartupManager.register(new CreatorStartupModule());
-//    reg3();
-  }
-
-//  private static void reg3() {
-//    StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};
-//    StartupManager.register(StartupManagerModule.CREATOR, dependencies,
-//        Fuse::creatorInit, null, Fuse::creatorEnd);
-//  }
 
   private static void fuseShowCopyright() {
     System.out.println("\n");

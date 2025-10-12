@@ -95,10 +95,6 @@ public class Joystick {
   static byte fullerValue = (byte) 0xff;
 
   // Register startup
-  public static void registerStartup() {
-//        reg1();
-    StartupManager.register(new JoystickStartupModule());
-  }
 
 //    private static void reg1() {
 //        StartupManagerModule[] dependencies = {

@@ -18,8 +18,6 @@
 
 package com.fpetrola.oozx;
 
-import com.google.common.base.Predicate;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -138,14 +136,7 @@ public class Display {
     String[] argv;
   }
 
-  public static void registerStartup(DisplayStartupContext context) {
-    // The Wii has an explicit call to display_init for now
-    // Assuming GEKKO is not defined
-//    reg1(context);
-    StartupManager.register(new DisplayStartupModule(context));
-  }
-
-//  private static void reg1(DisplayStartupContext context) {
+  //  private static void reg1(DisplayStartupContext context) {
 //    StartupManager.registerNoDependencies(StartupManagerModule.DISPLAY,
 //        Display::initWrapper, context, null);
 //  }

@@ -35,12 +35,7 @@ public class Machine {
 
   public static FuseMachineInfo current; // The currently selected machine
 
-  public static void registerStartup() {
-    // reg1();
-    StartupManager.register(new MachineStartupModule());
-  }
-
-//  private static void reg1() {
+  //  private static void reg1() {
 //    StartupManagerModule[] dependencies = {
 //        StartupManagerModule.MEMORY,
 //        StartupManagerModule.SETUID

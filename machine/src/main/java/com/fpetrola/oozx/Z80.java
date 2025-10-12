@@ -91,12 +91,7 @@ public class Z80 {
     Spectrum.tstates = ooz80.getState().tstates;
   }
 
-  public static void registerStartup() {
-//    reg1();
-    StartupManager.register(new Z80StartupModule());
-  }
-
-//  private static void reg1() {
+  //  private static void reg1() {
 //    StartupManagerModule[] dependencies = {
 //        StartupManagerModule.DEBUGGER,
 //        StartupManagerModule.EVENT,

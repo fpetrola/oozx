@@ -113,12 +113,7 @@ public class Spectrum {
     return 0;
   }
 
-  public static void registerStartup() {
-    StartupManager.register(new SpectrumStartupModule());
-    //reg1();
-  }
-
-//    private static void reg1() {
+  //    private static void reg1() {
 //        StartupManagerModule[] dependencies = {
 //            StartupManagerModule.DEBUGGER,
 //            StartupManagerModule.EVENT,

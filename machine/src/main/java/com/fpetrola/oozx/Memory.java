@@ -66,7 +66,7 @@ public class Memory {
   public static final int SPECTRUM_ROM_PAGES = 4;
 
   // Memory sources
-  private static List<String> memorySources;
+  public static List<String> memorySources;
   public static int sourceRom;
   public static int sourceRam;
   public static int sourceDock;
@@ -81,7 +81,7 @@ public class Memory {
   public static MemoryPage[] mapRom = new MemoryPage[SPECTRUM_ROM_PAGES * PAGES_IN_16K];
 
   // Memory pool for allocated memory
-  private static class MemoryPoolEntry {
+  public static class MemoryPoolEntry {
     boolean persistent;
     byte[] memory;
 
@@ -91,7 +91,7 @@ public class Memory {
     }
   }
 
-  private static List<MemoryPoolEntry> pool = new ArrayList<>();
+  public static List<MemoryPoolEntry> pool = new ArrayList<>();
 
   // Current screen and mask
   public static int currentScreen;
@@ -106,64 +106,10 @@ public class Memory {
   public static MemoryDisplayDirtyFn displayDirty;
 
   // Initialize memory module
-  static int init(Object context) {
-    memorySources = new ArrayList<>();
-
-    sourceRom = sourceRegister("ROM");
-    sourceRam = sourceRegister("RAM");
-    sourceDock = sourceRegister("Timex Dock");
-    sourceExrom = sourceRegister("Timex EXROM");
-    sourceAny = sourceRegister("Absolute address");
-    sourceNone = sourceRegister("None");
-
-    pool = new ArrayList<>();
-
-    for (int i = 0; i < SPECTRUM_ROM_PAGES; i++) {
-      for (int j = 0; j < PAGES_IN_16K; j++) {
-        MemoryPage page = mapRom[i * PAGES_IN_16K + j] = new MemoryPage();
-        page.writable = false;
-        page.contended = false;
-        page.source = sourceRom;
-      }
-    }
-
-    for (int i = 0; i < SPECTRUM_RAM_PAGES; i++) {
-      for (int j = 0; j < PAGES_IN_16K; j++) {
-        MemoryPage page = mapRam[i * PAGES_IN_16K + j] = new MemoryPage();
-        page.setPage(Spectrum.RAM, i, j * PAGE_SIZE);
-        page.pageNum = i;
-        page.offset = j * PAGE_SIZE;
-        page.writable = true;
-        page.source = sourceRam;
-      }
-    }
-
-    Module.register(new MemoryModuleInfo());
-    return 0;
-  }
 
   // Clean up memory module
-  static void end() {
-    if (pool != null) {
-      for (MemoryPoolEntry entry : pool) {
-        // Java garbage collector handles memory deallocation
-      }
-      pool.clear();
-      pool = null;
-    }
-
-    if (memorySources != null) {
-      memorySources.clear();
-      memorySources = null;
-    }
-  }
 
   // Register memory module with startup manager
-  public static void registerStartup() {
-//    reg1();
-
-    StartupManager.register(new MemoryStartupModule());
-  }
 
 //  private static void reg1() {
 //    StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};
@@ -392,38 +338,6 @@ public class Memory {
   }
 
   // Load memory from snapshot
-  public static void fromSnapshot(Libspectrum.Snap snap) {
-    int capabilities = Machine.current.capabilities;
-
-    if ((capabilities & Libspectrum.MachineCapability.PENT1024_MEMORY) != 0) {
-      Pentagon.pentagon1024MemoryportWrite(0x7ffd, Libspectrum.snapOut128Memoryport(snap));
-      Pentagon.pentagon1024V22MemoryportWrite(0xeff7, Libspectrum.snapOutPlus3Memoryport(snap));
-    } else {
-      if ((capabilities & Libspectrum.MachineCapability._128_MEMORY) != 0) {
-        Spec128.memoryPortWrite(0x7ffd, Libspectrum.snapOut128Memoryport(snap));
-      }
-      if ((capabilities & Libspectrum.MachineCapability.PLUS3_MEMORY) != 0 ||
-          (capabilities & Libspectrum.MachineCapability.SCORP_MEMORY) != 0) {
-        SpecPlus3.memoryPort2WriteInternal(0x1ffd, Libspectrum.snapOutPlus3Memoryport(snap));
-      }
-    }
-
-    for (int i = 0; i < 64; i++) {
-      byte[] page = Libspectrum.snapPages(snap, i);
-      if (page != null) {
-        System.arraycopy(page, 0, Spectrum.RAM[i], 0, 0x4000);
-      }
-    }
-
-    if (Libspectrum.snapCustomRom(snap)) {
-      for (int i = 0; i < Libspectrum.snapCustomRomPages(snap) && i < 4; i++) {
-        byte[] rom = Libspectrum.snapRoms(snap, i);
-        if (rom != null) {
-          Machine.loadRomBankFromBuffer(mapRom, i, rom, Libspectrum.snapRomLength(snap, i), true);
-        }
-      }
-    }
-  }
 
   // Check if custom ROMs are loaded
   public static boolean customRom() {
@@ -442,7 +356,7 @@ public class Memory {
   }
 
   // Save ROMs to snapshot
-  private static void romToSnapshot(Libspectrum.Snap snap) {
+  public static void romToSnapshot(Libspectrum.Snap snap) {
     if (!customRom()) return;
 
     Libspectrum.snapSetCustomRom(snap, true);
@@ -486,20 +400,6 @@ public class Memory {
   }
 
   // Save memory to snapshot
-  public static void toSnapshot(Libspectrum.Snap snap) {
-    Libspectrum.snapSetOut128Memoryport(snap, Machine.current.ramInfo.lastByte);
-    Libspectrum.snapSetOutPlus3Memoryport(snap, Machine.current.ramInfo.lastByte2);
-
-    for (int i = 0; i < 64; i++) {
-      if (Spectrum.RAM[i] != null) {
-        byte[] buffer = new byte[0x4000];
-        System.arraycopy(Spectrum.RAM[i], 0, buffer, 0, 0x4000);
-        Libspectrum.snapSetPages(snap, i, buffer);
-      }
-    }
-
-    romToSnapshot(snap);
-  }
 
 //    // Check if in the right ROM for tape or other traps
 //    public static boolean trapCheckRom(TrapType type) {

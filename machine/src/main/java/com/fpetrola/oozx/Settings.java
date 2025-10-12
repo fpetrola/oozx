@@ -319,6 +319,4 @@ public class Settings {
     throw new UnsupportedOperationException("settings_write_config not implemented");
   }
 
-  public static void registerStartup() {
-  }
 }

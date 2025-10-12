@@ -20,6 +20,8 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
+import java.util.ArrayList;
+
 public class MemoryStartupModule extends AbstractStartupModule {
   public MemoryStartupModule() {
     super(SetUidStartupModule.class);
@@ -30,11 +32,54 @@ public class MemoryStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return Memory.init(initContext);
+    Memory.memorySources = new ArrayList<>();
+
+    Memory.sourceRom = Memory.sourceRegister("ROM");
+    Memory.sourceRam = Memory.sourceRegister("RAM");
+    Memory.sourceDock = Memory.sourceRegister("Timex Dock");
+    Memory.sourceExrom = Memory.sourceRegister("Timex EXROM");
+    Memory.sourceAny = Memory.sourceRegister("Absolute address");
+    Memory.sourceNone = Memory.sourceRegister("None");
+
+    Memory.pool = new ArrayList<>();
+
+    for (int i = 0; i < Memory.SPECTRUM_ROM_PAGES; i++) {
+      for (int j = 0; j < Memory.PAGES_IN_16K; j++) {
+        MemoryPage page = Memory.mapRom[i * Memory.PAGES_IN_16K + j] = new MemoryPage();
+        page.writable = false;
+        page.contended = false;
+        page.source = Memory.sourceRom;
+      }
+    }
+
+    for (int i = 0; i < Memory.SPECTRUM_RAM_PAGES; i++) {
+      for (int j = 0; j < Memory.PAGES_IN_16K; j++) {
+        MemoryPage page = Memory.mapRam[i * Memory.PAGES_IN_16K + j] = new MemoryPage();
+        page.setPage(Spectrum.RAM, i, j * Memory.PAGE_SIZE);
+        page.pageNum = i;
+        page.offset = j * Memory.PAGE_SIZE;
+        page.writable = true;
+        page.source = Memory.sourceRam;
+      }
+    }
+
+    Module.register(new MemoryModuleInfo());
+    return 0;
   }
 
   public void endFn() {
-    Memory.end();
+    if (Memory.pool != null) {
+      for (Memory.MemoryPoolEntry entry : Memory.pool) {
+        // Java garbage collector handles memory deallocation
+      }
+      Memory.pool.clear();
+      Memory.pool = null;
+    }
+
+    if (Memory.memorySources != null) {
+      Memory.memorySources.clear();
+      Memory.memorySources = null;
+    }
   }
 
 }

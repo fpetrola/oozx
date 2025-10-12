@@ -32,10 +32,6 @@ public class MachinesPeriph {
   }
 
   // Register startup for machine-specific peripherals
-  public static void registerStartup() {
-//        reg1();
-    StartupManager.register(new MachinesPeriphStartupModule());
-  }
 
   void reg1() {
 //        StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};

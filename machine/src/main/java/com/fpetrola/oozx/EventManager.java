@@ -213,7 +213,4 @@ public class EventManager {
 
     // Tidy-up function called at end of emulation
 
-    public static void registerStartup() {
-        StartupManager.register(new EventStartupModule());
-    }
 }

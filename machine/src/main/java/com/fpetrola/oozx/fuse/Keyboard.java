@@ -18,9 +18,6 @@
 
 package com.fpetrola.oozx.fuse;
 
-import com.fpetrola.oozx.StartupManager;
-import com.fpetrola.oozx.StartupModule;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,11 +42,6 @@ public class Keyboard {
   }
 
   // Register startup
-  public static void registerStartup() {
-    //    StartupManager.register(StartupManagerModule.KEYBOARD, dependencies, Keyboard::init, null, Keyboard::end);
-    StartupModule startupModule = new KeyboardStartupModule();
-    StartupManager.register(startupModule);
-  }
 
   // Read keyboard port
   public static byte read(byte porth) {
