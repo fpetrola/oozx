@@ -18,25 +18,19 @@
 
 package com.fpetrola.oozx.fuse.modules;
 
-import com.fpetrola.oozx.Machine;
-import com.fpetrola.oozx.Spec128;
-import com.fpetrola.oozx.Spec48;
-import com.fpetrola.oozx.SpecPlus3;
+import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
+import java.util.Arrays;
+
 public class MachineStartupModule extends AbstractStartupModule {
-
   private Machine machine;
-  private Spec48 spec48;
-  private Spec128 spec128;
-  private SpecPlus3 specPlus3;
+  private SpectrumType[] spectrumTypes;
 
-  public MachineStartupModule(Machine machine, Spec48 spec48, Spec128 spec128, SpecPlus3 specPlus3) {
+  public MachineStartupModule(Machine machine, SpectrumType... spectrumTypes) {
     super(MemoryStartupModule.class);
     this.machine = machine;
-    this.spec48 = spec48;
-    this.spec128 = spec128;
-    this.specPlus3 = specPlus3;
+    this.spectrumTypes = spectrumTypes;
   }
 
   public Object getInitContext() {
@@ -44,15 +38,9 @@ public class MachineStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    int error;
-
-    error = machine.addMachine(spec48::init);
-    if (error != 0) return error;
-    error = machine.addMachine(spec128::init);
-    if (error != 0) return error;
-    error = machine.addMachine(specPlus3::init);
-    if (error != 0) return error;
-
+    for (SpectrumType s : spectrumTypes) {
+      machine.addMachine(s::init);
+    }
     return 0;
   }
 

@@ -23,7 +23,7 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 import java.util.function.Supplier;
 
-public class Spec128 {
+public class Spec128 implements SpectrumType {
   private Memory memory = Fuse.memory;
   private Display display;
   private Supplier<FuseMachineInfo> machine = Fuse.fuseMachineInfoSupplier;

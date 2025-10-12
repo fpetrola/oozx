@@ -21,7 +21,7 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
-public class Spec48 {
+public class Spec48 implements SpectrumType {
   private Memory memory;
   private Display display;
   private Machine machine;
@@ -43,6 +43,7 @@ public class Spec48 {
   }
 
   // Initialize the Spectrum 48K machine
+  @Override
   public int init(FuseMachineInfo machine) {
     machine.machine = Libspectrum.Machine._48K;
     machine.id = "48";
