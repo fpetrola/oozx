@@ -21,7 +21,6 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
 public class UlaStartupModule extends AbstractStartupModule {
-
   private Ula ula;
 
   public UlaStartupModule(Ula ula) {
@@ -37,7 +36,5 @@ public class UlaStartupModule extends AbstractStartupModule {
   }
 
   public void endFn() {
-
   }
-
 }

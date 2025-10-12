@@ -25,6 +25,7 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
@@ -39,6 +40,7 @@ public class LocalLibretroCore implements LibretroCore {
   public static retro_input_state_t retroInputStateT;
   private Display display= Fuse.display;
   private Machine machine= Fuse.machine;
+  private Z80 z80= Fuse.z80;
 
   public LocalLibretroCore() {
   }
@@ -68,7 +70,7 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_set_bridge_command(bridge_command bridgeCommand) {
-    Z80.bridgeCommand = bridgeCommand;
+    z80.bridgeCommand = bridgeCommand;
   }
 
   public void retro_set_environment(retro_environment_t cb) {
@@ -104,7 +106,7 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public boolean retro_load_game(retro_game_info game) {
-    Z80.loadSnap(game.path);
+    z80.loadSnap(game.path);
     return true;
   }
 
@@ -113,7 +115,7 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_run() {
-    com.fpetrola.oozx.Z80.doOpcodes();
+    z80.doOpcodes();
     eventManager.eventDoEvents();
   }
 
@@ -126,7 +128,7 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   private State<WordNumber> getState() {
-    return Z80.ooz80.getState();
+    return z80.ooz80.getState();
   }
 
   public int retro_get_memory_data(int id) {
@@ -148,7 +150,7 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_set_memory_data_contended(int address, int id) {
-    DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) Z80.ooz80.getInstructionFetcher();
+    DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) z80.ooz80.getInstructionFetcher();
     instructionFetcher.instruction2 = null;
     getMemory().write(createValue(address), createValue(id));
   }
@@ -160,7 +162,7 @@ public class LocalLibretroCore implements LibretroCore {
   public void retro_set_register_data(String register, int value) {
     if (register.equals("tstates")) {
       Spectrum.tstates = value;
-      Z80.ooz80.getState().tstates = value;
+      z80.ooz80.getState().tstates = value;
     } else
       getRegister(register).write(createValue(value));
   }
@@ -231,6 +233,6 @@ public class LocalLibretroCore implements LibretroCore {
 
   @Override
   public boolean retro_is_intruption_enabled() {
-    return Z80.ooz80.getState().isIff1();
+    return z80.ooz80.getState().isIff1();
   }
 }

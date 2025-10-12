@@ -57,6 +57,7 @@ public class Spectrum {
   private static Display display= Fuse.display;
   private static EventManager eventManager= Fuse.eventManager;
   private static Machine machine= Fuse.machine;
+  private static Z80 z80= Fuse.z80;
 
   // Functional interface for checking if a port is handled by the ULA
   @FunctionalInterface
@@ -101,7 +102,7 @@ public class Spectrum {
     Rzx.frame();
     Psg.frame();
     spectrumFrame();
-    Z80.interrupt();
+    z80.interrupt();
     UiJoystick.poll();
     Timer.estimateSpeed();
     Ui.event();
@@ -135,8 +136,8 @@ public class Spectrum {
     eventManager.eventFrame(frameLength);
     tstates -= frameLength;
 
-    if (Z80.interruptsEnabledAt >= 0) {
-      Z80.interruptsEnabledAt -= frameLength;
+    if (z80.interruptsEnabledAt >= 0) {
+      z80.interruptsEnabledAt -= frameLength;
     }
 
     if (Sound.enabled) Sound.frame();

@@ -18,16 +18,24 @@
 
 package com.fpetrola.oozx;
 
+import org.mockito.Mockito;
+
 public class Z80ModuleInfo extends DefaultZxModuleInfo {
+  private Z80 z80;
+
+  public Z80ModuleInfo(Z80 z80) {
+    this.z80 = z80;
+  }
+
   public void reset(int hardReset) {
-    Z80.reset(hardReset);
+    z80.reset(hardReset);
   }
 
   public void snapshotFrom(Libspectrum.Snap snap) {
-    Z80.fromSnapshot(snap); // snapshotFrom
+    z80.fromSnapshot(snap); // snapshotFrom
   }
 
   public void snapshotTo(Libspectrum.Snap snap) {
-    Z80.toSnapshot(snap); // snapshotTo
+    z80.toSnapshot(snap); // snapshotTo
   }
 }

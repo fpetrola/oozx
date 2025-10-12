@@ -21,8 +21,11 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
 public class Z80StartupModule extends AbstractStartupModule {
-  public Z80StartupModule() {
+  private Z80 z80;
+
+  public Z80StartupModule(Z80 z80) {
     super(EventManagerStartupModule.class);
+    this.z80 = z80;
   }
 
   public Object getInitContext() {
@@ -30,7 +33,7 @@ public class Z80StartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return Z80.init(initContext);
+    return z80.init(initContext);
   }
 
   public void endFn() {

@@ -53,6 +53,7 @@ public class Fuse {
   public static EventManager eventManager = new EventManager(fuseMachineInfoSupplier);
   public static Machine machine = new Machine(eventManager, memory, display, ula);
   public static Joystick joystick = new Joystick(keyboard);
+  public static Z80 z80= new Z80();
 
   public static void abort() {
 
@@ -105,7 +106,7 @@ public class Fuse {
       r = Unittests.run();
     } else {
       while (!exiting) {
-        com.fpetrola.oozx.Z80.doOpcodes();
+        z80.doOpcodes();
         eventManager.eventDoEvents();
       }
     }
@@ -127,7 +128,7 @@ public class Fuse {
         new MemoryStartupModule(memory),
         new SpectrumStartupModule(),
         new UlaStartupModule(ula),
-        new Z80StartupModule()
+        new Z80StartupModule(z80)
     ).forEach(StartupManager::register);
 
     return StartupManager.run();

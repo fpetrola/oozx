@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx.fuse;
 
+import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.Z80;
 import com.sun.jna.Pointer;
 
@@ -26,6 +27,7 @@ import java.util.List;
 
 public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
   static List<TStateUpdate> tstatesUpdates = new ArrayList<>();
+  private static Z80 z80= Fuse.z80;
 
   private static List<TStateUpdate> getTstatesUpdates() {
     if (FuseLibretroConnector.noTest)
@@ -39,7 +41,7 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
 
   public static void addTStateUpdate(byte tstatesToAdd, String description, int tstates) {
     if (!FuseLibretroConnector.noTest) {
-      int pc = Z80.ooz80.getState().getPc().read().intValue();
+      int pc = z80.ooz80.getState().getPc().read().intValue();
 //    if (tstates == 20 && pc == 50758) {
 //      System.out.println("addTStateUpdate");
 //    }

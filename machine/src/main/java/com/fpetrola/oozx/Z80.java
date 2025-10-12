@@ -44,46 +44,45 @@ import fuse.tstates.phases.BeforeWrite;
 import javax.swing.*;
 import java.awt.event.KeyListener;
 
-import static com.fpetrola.oozx.Memory.*;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class Z80 {
-  private static EventManager eventManager= Fuse.eventManager;
-  private static com.fpetrola.oozx.Memory memory= Fuse.memory;
+  private EventManager eventManager = Fuse.eventManager;
+  private com.fpetrola.oozx.Memory memory = Fuse.memory;
 
-  public static long interruptsEnabledAt;
-  public static OOZ80<WordNumber> ooz80;
-  public static LibretroCore.bridge_command bridgeCommand;
-  private static PhaseProcessor<WordNumber> phaseProcessor;
+  public long interruptsEnabledAt;
+  public OOZ80<WordNumber> ooz80;
+  public LibretroCore.bridge_command bridgeCommand;
+  private PhaseProcessor<WordNumber> phaseProcessor;
 
-  private static MiniZXIO io;
-  private static boolean initialized;
-  private static int z80_interrupt_event;
-  //  static ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent<>();
-//  static MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
-  private static boolean init;
-  public static Audio audio;
-  private static Display display= Fuse.display;
-  private static Ula ula= Fuse.ula;
-  private static Machine machine= Fuse.machine;
-  private static Keyboard keyboard= Fuse.keyboard;
+  private MiniZXIO io;
+  private boolean initialized;
+  private int z80_interrupt_event;
+  //   ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent<>();
+//   MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
+  private boolean init;
+  public Audio audio;
+  private Display display = Fuse.display;
+  private Ula ula = Fuse.ula;
+  private Machine machine = Fuse.machine;
+  private Keyboard keyboard = Fuse.keyboard;
 
-  public static void reset(int i) {
+  public void reset(int i) {
     ooz80.reset();
     String url = "file:///home/fernando/dynamitedan1.z80";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/aqua.z80";
 //    loadSnap(url);
   }
 
-  public static void toSnapshot(Libspectrum.Snap snap) {
+  public void toSnapshot(Libspectrum.Snap snap) {
 
   }
 
-  public static void fromSnapshot(Libspectrum.Snap snap) {
+  public void fromSnapshot(Libspectrum.Snap snap) {
 
   }
 
-  public static void interrupt() {
+  public void interrupt() {
     ooz80.getState().tstates = Spectrum.tstates;
     int i = Timings.interruptLength(machine.current.machine);
     if (ooz80.getState().isIff1() && ooz80.getState().tstates < i) {
@@ -100,7 +99,7 @@ public class Z80 {
     Spectrum.tstates = ooz80.getState().tstates;
   }
 
-  //  private static void reg1() {
+  //  private  void reg1() {
 //    StartupManagerModule[] dependencies = {
 //        StartupManagerModule.DEBUGGER,
 //        StartupManagerModule.EVENT,
@@ -110,12 +109,12 @@ public class Z80 {
 
   ////    Machine.reset(false);
 //  }
-  public static <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
+  public <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
     var state = new State(io, new DefaultRegisterBankFactory().createBank(), new MockedMemory(true)) {
       public void enableInterrupt() {
         super.enableInterrupt();
-        Z80.interruptsEnabledAt = tstates;
-        eventManager.eventAdd(tstates + 1, Z80.z80_interrupt_event);
+        interruptsEnabledAt = tstates;
+        eventManager.eventAdd(tstates + 1, z80_interrupt_event);
       }
     };
     io.setPc(state.getPc());
@@ -123,7 +122,7 @@ public class Z80 {
   }
 
 
-  private static void init2() {
+  private void init2() {
     io = new MiniZXIO() {
       public synchronized WordNumber in(WordNumber port) {
 //        short invoke = LocalLibretroCore.retroInputStateT.invoke(port.intValue(), 0, 0, 0);
@@ -160,14 +159,14 @@ public class Z80 {
     setupMemory();
   }
 
-  private static void updateScreen2() {
+  private void updateScreen2() {
 //    for (int i = 0x4000; i <= 0x5FFF; i++) {
 //      WordNumber datum = ooz80.getState().getMemory().getData()[i];
 //      writeListener.writtingMemoryAt(createValue(i), createValue(datum != null ? datum.intValue() : 0));
 //    }
   }
 
-  public static void loadSnap(String url) {
+  public void loadSnap(String url) {
     State<?> state = ooz80.getState();
 
     RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
@@ -195,7 +194,7 @@ public class Z80 {
 //    }
   }
 
-  private static void setupMemory() {
+  private void setupMemory() {
     State<?> state = ooz80.getState();
 
     Memory<WordNumber> memory1 = (Memory<WordNumber>) state.getMemory();
@@ -289,16 +288,16 @@ public class Z80 {
     });
   }
 
-  private static boolean initialized() {
+  private boolean initialized() {
     return memory.mapRead[0] != null && ula.contention != null;
   }
 
-  static int init(Object o) {
-    z80_interrupt_event = eventManager.eventRegister(Z80::z80_interrupt_event_fn, "Retriggered interrupt");
-    int z80_nmi_event = eventManager.eventRegister(Z80::z80_nmi, "Non-maskable interrupt");
+  int init(Object o) {
+    z80_interrupt_event = eventManager.eventRegister(this::z80_interrupt_event_fn, "Retriggered interrupt");
+    int z80_nmi_event = eventManager.eventRegister(this::z80_nmi, "Non-maskable interrupt");
     int z80_nmos_iff2_event = eventManager.eventRegister(null, "IFF2 update dummy event");
 
-    Module.register(new Z80ModuleInfo());
+    Module.register(new Z80ModuleInfo(this));
 
 //    z80_debugger_variables_init();
 
@@ -309,15 +308,15 @@ public class Z80 {
     return 0;
   }
 
-  private static void z80_nmi(long l, int i, Object o) {
+  private void z80_nmi(long l, int i, Object o) {
 
   }
 
-  private static void z80_interrupt_event_fn(long l, int i, Object o) {
-    Z80.interrupt();
+  private void z80_interrupt_event_fn(long l, int i, Object o) {
+    interrupt();
   }
 
-  public static void doOpcodes() {
+  public void doOpcodes() {
     ooz80.getState().tstates = Spectrum.tstates;
     while (Spectrum.tstates < eventManager.eventNextEvent) {
       bridgeCommand.invoke(0, null);
@@ -330,7 +329,7 @@ public class Z80 {
     }
   }
 
-  public static void updateMemory() {
+  public void updateMemory() {
     WordNumber[] data = ooz80.getState().getMemory().getData();
     for (int i = 0x4000; i < 0x8000; i++) {
       WordNumber datum = data[i];
@@ -341,7 +340,7 @@ public class Z80 {
     }
   }
 
-  public static JFrame createScreen(KeyListener keyListener, JComponent contentPane) {
+  public JFrame createScreen(KeyListener keyListener, JComponent contentPane) {
     EmulatorCore mockCore = new MockEmulatorCore(contentPane);
     ZXSpectrumEmulatorUI ui = new ZXSpectrumEmulatorUI(mockCore);
     ui.setVisible(true);
