@@ -24,17 +24,22 @@ import com.fpetrola.oozx.fuse.modules.EventManager;
 import java.util.function.Supplier;
 
 public class Spectrum {
-  private Memory memory = Fuse.memory;
-  private Display display = Fuse.display;
-  private EventManager eventManager = Fuse.eventManager;
-  private Z80 z80 = Fuse.z80;
+  private Memory memory;
+  private Display display;
+  private EventManager eventManager;
+  private Z80 z80;
   private TStatesHolder tStatesHolder;
   private RAMHolder ramHolder;
-  private Supplier<FuseMachineInfo> fuseMachineInfoSupplier = Fuse.fuseMachineInfoSupplier;
+  private Supplier<FuseMachineInfo> fuseMachineInfoSupplier;
 
-  public Spectrum(TStatesHolder tStatesHolder, RAMHolder ramHolder) {
+  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, TStatesHolder tStatesHolder, RAMHolder ramHolder, Supplier<FuseMachineInfo> fuseMachineInfoSupplier) {
+    this.memory = memory;
+    this.display = display;
+    this.eventManager = eventManager;
+    this.z80 = z80;
     this.tStatesHolder = tStatesHolder;
     this.ramHolder = ramHolder;
+    this.fuseMachineInfoSupplier = fuseMachineInfoSupplier;
   }
 
   // Functional interface for checking if a port is handled by the ULA

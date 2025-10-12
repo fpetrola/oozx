@@ -76,7 +76,7 @@ public class Fuse {
   public static EventManager eventManager = new EventManager(fuseMachineInfoSupplier, tStatesHolder);
   public static Joystick joystick = new Joystick(keyboard);
   public static Z80 z80 = new Z80();
-  public static Spectrum spectrum = new Spectrum(tStatesHolder, ramHolder);
+  public static Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, tStatesHolder, ramHolder, fuseMachineInfoSupplier);
   public static Machine machine = new Machine(eventManager, memory, display, ula, tStatesHolder, spectrum);
   public static MachinesPeriph machinesPeriph = new MachinesPeriph(machine);
 
