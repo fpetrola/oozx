@@ -24,9 +24,11 @@ import java.util.ArrayList;
 
 public class MemoryStartupModule extends AbstractStartupModule {
   private final Memory memory;
+  private RAMHolder ramHolder;
 
-  public MemoryStartupModule(Memory memory) {
+  public MemoryStartupModule(Memory memory, RAMHolder ramHolder) {
     this.memory = memory;
+    this.ramHolder = ramHolder;
   }
 
   public Object getInitContext() {
@@ -57,7 +59,7 @@ public class MemoryStartupModule extends AbstractStartupModule {
     for (int i = 0; i < memory.SPECTRUM_RAM_PAGES; i++) {
       for (int j = 0; j < memory.PAGES_IN_16K; j++) {
         MemoryPage page = memory.mapRam[i * memory.PAGES_IN_16K + j] = new MemoryPage();
-        page.setPage(Spectrum.getRAM(), i, j * memory.PAGE_SIZE);
+        page.setPage(ramHolder.getRAM(), i, j * memory.PAGE_SIZE);
         page.pageNum = i;
         page.offset = j * memory.PAGE_SIZE;
         page.writable = true;
@@ -65,7 +67,7 @@ public class MemoryStartupModule extends AbstractStartupModule {
       }
     }
 
-    Module.register(new MemoryModuleInfo());
+    Module.register(new MemoryModuleInfo(ramHolder));
     return 0;
   }
 

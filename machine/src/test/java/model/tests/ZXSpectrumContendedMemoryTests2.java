@@ -1,6 +1,5 @@
 package model.tests;
 
-import com.fpetrola.oozx.Spectrum;
 import com.fpetrola.oozx.fuse.*;
 import org.junit.jupiter.api.*;
 

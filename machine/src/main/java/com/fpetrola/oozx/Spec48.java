@@ -27,6 +27,7 @@ public class Spec48 {
   private static Display display = Fuse.display;
   private static Machine machine= Fuse.machine;
   private static MachinesPeriph machinesPeriph= Fuse.machinesPeriph;
+  private static Spectrum spectrum= Fuse.spectrum;
 
   // Check if a port is handled by the ULA
   public static boolean portFromUla(int port) {
@@ -42,10 +43,10 @@ public class Spec48 {
     machine.reset = Spec48::reset;
     machine.timex = false;
     machine.ramInfo.portFromUla = Spec48::portFromUla;
-    machine.ramInfo.contendDelay = Spectrum::contendDelay65432100;
-    machine.ramInfo.contendDelayNoMreq = Spectrum::contendDelay65432100;
+    machine.ramInfo.contendDelay = spectrum::contendDelay65432100;
+    machine.ramInfo.contendDelayNoMreq = spectrum::contendDelay65432100;
     machine.ramInfo.validPages = 3;
-    machine.unattachedPort = Spectrum::spectrumUnattachedPort;
+    machine.unattachedPort = spectrum::spectrumUnattachedPort;
     machine.shutdown = null;
     machine.memoryMap = Spec48::memoryMap;
 

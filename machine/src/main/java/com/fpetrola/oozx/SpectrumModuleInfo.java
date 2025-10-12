@@ -19,7 +19,13 @@
 package com.fpetrola.oozx;
 
 public class SpectrumModuleInfo extends DefaultZxModuleInfo {
+  private Spectrum spectrum;
+
+  public SpectrumModuleInfo(Spectrum spectrum) {
+    this.spectrum = spectrum;
+  }
+
   public void reset(int hardReset) {
-    Spectrum.spectrumReset(hardReset);
+    spectrum.spectrumReset(hardReset);
   }
 }

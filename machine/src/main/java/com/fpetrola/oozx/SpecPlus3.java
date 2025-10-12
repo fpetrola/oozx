@@ -27,6 +27,7 @@ public class SpecPlus3 {
   private static Display display;
   private static Machine machine= Fuse.machine;
   private static MachinesPeriph machinesPeriph= Fuse.machinesPeriph;
+  private static Spectrum spectrum= Fuse.spectrum;
 //  public static Fdd[] specplus3Drives = new Fdd[SpecPlus3Constants.SPECPLUS3_NUM_DRIVES];
 
 //  public static UIMediaDriveInfo[] uiDrives = new UIMediaDriveInfo[]{
@@ -74,12 +75,12 @@ public class SpecPlus3 {
     machine.reset = SpecPlus3::reset;
     machine.timex = false;
     machine.ramInfo.portFromUla = SpecPlus3::portFromUla;
-    machine.ramInfo.contendDelay = Spectrum::contendDelay76543210;
-    machine.ramInfo.contendDelayNoMreq = Spectrum::contendDelayNone;
+    machine.ramInfo.contendDelay = spectrum::contendDelay76543210;
+    machine.ramInfo.contendDelayNoMreq = spectrum::contendDelayNone;
     machine.ramInfo.validPages = 8;
 
 //    machine.unattachedPort = Libretro.LIBRETRO ? Spectrum::spectrumUnattachedPortAmstrad : Spectrum::spectrumUnattachedPortNone;
-    machine.unattachedPort = Spectrum::spectrumUnattachedPortNone;
+    machine.unattachedPort = spectrum::spectrumUnattachedPortNone;
 
     specplus3765Init();
     specplus3MenuItems();

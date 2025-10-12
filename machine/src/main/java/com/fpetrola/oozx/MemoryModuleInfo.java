@@ -19,8 +19,13 @@
 package com.fpetrola.oozx;
 
 public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInfo {
-  private static Memory memory= Fuse.memory;
-  private Machine machine= Fuse.machine;
+  private static Memory memory = Fuse.memory;
+  private Machine machine = Fuse.machine;
+  private RAMHolder ramHolder;
+
+  public MemoryModuleInfo(RAMHolder ramHolder) {
+    this.ramHolder = ramHolder;
+  }
 
   public void snapshotFrom(Libspectrum.Snap snap) {
     // snapshotFrom
@@ -42,7 +47,7 @@ public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInf
     for (int i = 0; i < 64; i++) {
       byte[] page = Libspectrum.snapPages(snap, i);
       if (page != null) {
-        System.arraycopy(page, 0, Spectrum.getRAM()[i], 0, 0x4000);
+        System.arraycopy(page, 0, ramHolder.getRAM()[i], 0, 0x4000);
       }
     }
 
@@ -62,9 +67,9 @@ public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInf
     Libspectrum.snapSetOutPlus3Memoryport(snap, machine.current.ramInfo.lastByte2);
 
     for (int i = 0; i < 64; i++) {
-      if (Spectrum.getRAM()[i] != null) {
+      if (ramHolder.getRAM()[i] != null) {
         byte[] buffer = new byte[0x4000];
-        System.arraycopy(Spectrum.getRAM()[i], 0, buffer, 0, 0x4000);
+        System.arraycopy(ramHolder.getRAM()[i], 0, buffer, 0, 0x4000);
         Libspectrum.snapSetPages(snap, i, buffer);
       }
     }

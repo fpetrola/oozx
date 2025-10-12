@@ -150,8 +150,8 @@ public class Fuse {
         new LibspectrumStartupModule(),
         new MachineStartupModule(machine),
         new MachinesPeriphStartupModule(machinesPeriph),
-        new MemoryStartupModule(memory),
-        new SpectrumStartupModule(),
+        new MemoryStartupModule(memory, ramHolder),
+        new SpectrumStartupModule(spectrum),
         new UlaStartupModule(ula),
         new Z80StartupModule(z80)
     ).forEach(StartupManager::register);

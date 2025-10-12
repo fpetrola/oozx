@@ -23,25 +23,25 @@ import com.fpetrola.oozx.fuse.modules.EventManager;
 
 import java.util.function.Supplier;
 
-public class Spectrum  {
-  private static Memory memory = Fuse.memory;
-  private static Display display = Fuse.display;
-  private static EventManager eventManager = Fuse.eventManager;
-  private static Z80 z80 = Fuse.z80;
-  private static TStatesHolder tStatesHolder;
-  private static RAMHolder ramHolder;
-  private static Supplier<FuseMachineInfo> fuseMachineInfoSupplier = Fuse.fuseMachineInfoSupplier;
+public class Spectrum {
+  private Memory memory = Fuse.memory;
+  private Display display = Fuse.display;
+  private EventManager eventManager = Fuse.eventManager;
+  private Z80 z80 = Fuse.z80;
+  private TStatesHolder tStatesHolder;
+  private RAMHolder ramHolder;
+  private Supplier<FuseMachineInfo> fuseMachineInfoSupplier = Fuse.fuseMachineInfoSupplier;
 
   public Spectrum(TStatesHolder tStatesHolder, RAMHolder ramHolder) {
     this.tStatesHolder = tStatesHolder;
     this.ramHolder = ramHolder;
   }
 
-  public static byte[][] getRAM() {
+  public byte[][] getRAM() {
     return ramHolder.getRAM();
   }
 
-  public static void setRAM(byte[][] RAM) {
+  public void setRAM(byte[][] RAM) {
   }
 
   // Functional interface for checking if a port is handled by the ULA
@@ -57,26 +57,26 @@ public class Spectrum  {
   }
 
   // Instance of RamInfo
-  public static RamInfo ramInfo = new RamInfo();
+  public RamInfo ramInfo = new RamInfo();
 
 
   // Contention patterns
-  private static int[] contentionPattern65432100 = {5, 4, 3, 2, 1, 0, 0, 6};
-  private static int[] contentionPattern76543210 = {5, 4, 3, 2, 1, 0, 7, 6};
+  private int[] contentionPattern65432100 = {5, 4, 3, 2, 1, 0, 0, 6};
+  private int[] contentionPattern76543210 = {5, 4, 3, 2, 1, 0, 7, 6};
 
   // Event
-  public static int spectrumFrameEvent;
+  public int spectrumFrameEvent;
 
   // Debugger variable prefix
-  private static final String DEBUGGER_TYPE_STRING = "spectrum";
+  private final String DEBUGGER_TYPE_STRING = "spectrum";
 
   // Debugger variable for frame count
-  private static final String FRAME_COUNT_NAME = "frames";
+  private final String FRAME_COUNT_NAME = "frames";
 
   // Count of frames since last reset
-  private static long framesSinceReset;
+  private long framesSinceReset;
 
-  public static void spectrumReset(int a) {
+  public void spectrumReset(int a) {
     framesSinceReset = 0;
   }
 
@@ -88,7 +88,7 @@ public class Spectrum  {
     tStatesHolder.setTstates(tstates);
   }
 
-  private static void spectrumFrameEventFn(long lastTstates, int type, Object userData) {
+  private void spectrumFrameEventFn(long lastTstates, int type, Object userData) {
     if (Rzx.playback) eventManager.eventForceEvents();
     Rzx.frame();
     Psg.frame();
@@ -100,19 +100,19 @@ public class Spectrum  {
     Ui.errorFrame();
   }
 
-  private static long getFrameCount() {
+  private long getFrameCount() {
     return framesSinceReset;
   }
 
-  static int spectrumInit(Object context) {
-    spectrumFrameEvent = eventManager.eventRegister(Spectrum::spectrumFrameEventFn, "End of frame");
+  int spectrumInit(Object context) {
+    spectrumFrameEvent = eventManager.eventRegister(this::spectrumFrameEventFn, "End of frame");
 
-    Module.register(new SpectrumModuleInfo());
+    Module.register(new SpectrumModuleInfo(this));
 
     return 0;
   }
 
-  //    private static void reg1() {
+  //    private  void reg1() {
 //        StartupManagerModule[] dependencies = {
 //            StartupManagerModule.DEBUGGER,
 //            StartupManagerModule.EVENT,
@@ -121,7 +121,7 @@ public class Spectrum  {
 //        StartupManager.register(StartupManagerModule.SPECTRUM, dependencies, Spectrum::spectrumInit, null, null);
 //    }
 
-  public static int spectrumFrame() {
+  public int spectrumFrame() {
     long frameLength = Rzx.playback ? tStatesHolder.getTstates() : getCurrent().timings.tstatesPerFrame;
 
     eventManager.eventFrame(frameLength);
@@ -149,11 +149,11 @@ public class Spectrum  {
     return 0;
   }
 
-  public static int contendDelayNone(long time) {
+  public int contendDelayNone(long time) {
     return 0;
   }
 
-  private static int contendDelayCommon(long time, int[] timings, int offset) {
+  private int contendDelayCommon(long time, int[] timings, int offset) {
     int line = (int) ((time - getCurrent().lineTimes[0]) / getCurrent().timings.tstatesPerLine);
 
     int tstatesThroughLine = (int) (time - getCurrent().lineTimes[0] +
@@ -172,19 +172,19 @@ public class Spectrum  {
     return timings[tstatesThroughLine % 8];
   }
 
-  private static FuseMachineInfo getCurrent() {
+  private FuseMachineInfo getCurrent() {
     return fuseMachineInfoSupplier.get();
   }
 
-  public static int contendDelay65432100(long time) {
+  public int contendDelay65432100(long time) {
     return contendDelayCommon(time, contentionPattern65432100, 1);
   }
 
-  public static int contendDelay76543210(long time) {
+  public int contendDelay76543210(long time) {
     return contendDelayCommon(time, contentionPattern76543210, 4);
   }
 
-  public static int spectrumUnattachedPort() {
+  public int spectrumUnattachedPort() {
     if (tStatesHolder.getTstates() < getCurrent().lineTimes[display.BORDER_HEIGHT]) return 0xff;
 
     int line = (int) ((tStatesHolder.getTstates() - getCurrent().lineTimes[display.BORDER_HEIGHT]) /
@@ -224,7 +224,7 @@ public class Spectrum  {
     return 0; // Keep compiler happy
   }
 
-  public static int spectrumUnattachedPortNone() {
+  public int spectrumUnattachedPortNone() {
     return 0xff;
   }
 }

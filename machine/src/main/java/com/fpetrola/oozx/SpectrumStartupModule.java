@@ -21,8 +21,11 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
 public class SpectrumStartupModule extends AbstractStartupModule {
-  public SpectrumStartupModule() {
+  private Spectrum spectrum;
+
+  public SpectrumStartupModule(Spectrum spectrum) {
     super(EventManagerStartupModule.class);
+    this.spectrum = spectrum;
   }
 
   public Object getInitContext() {
@@ -30,7 +33,7 @@ public class SpectrumStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return Spectrum.spectrumInit(initContext);
+    return spectrum.spectrumInit(initContext);
   }
 
   public void endFn() {

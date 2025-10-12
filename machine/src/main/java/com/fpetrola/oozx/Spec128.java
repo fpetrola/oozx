@@ -26,6 +26,7 @@ public class Spec128 {
   private static Display display;
   private static Machine machine= Fuse.machine;
   private static MachinesPeriph machinesPeriph= Fuse.machinesPeriph;
+  private static Spectrum spectrum= Fuse.spectrum;
 
   // Initialize the Spectrum 128K machine
   public static int init(FuseMachineInfo machine) {
@@ -35,10 +36,10 @@ public class Spec128 {
     machine.reset = Spec128::reset;
     machine.timex = false;
     machine.ramInfo.portFromUla = Spec48::portFromUla;
-    machine.ramInfo.contendDelay = Spectrum::contendDelay65432100;
-    machine.ramInfo.contendDelayNoMreq = Spectrum::contendDelay65432100;
+    machine.ramInfo.contendDelay = spectrum::contendDelay65432100;
+    machine.ramInfo.contendDelayNoMreq = spectrum::contendDelay65432100;
     machine.ramInfo.validPages = 8;
-    machine.unattachedPort = Spectrum::spectrumUnattachedPort;
+    machine.unattachedPort = spectrum::spectrumUnattachedPort;
     machine.shutdown = null;
     machine.memoryMap = Spec128::memoryMap;
 
