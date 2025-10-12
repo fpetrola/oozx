@@ -26,6 +26,6 @@ import java.util.List;
 public class UlaFullDecodePeripheral extends AbstractZxPeripheral {
   public UlaFullDecodePeripheral() {
     super(Periph.Type.ULA_FULL_DECODE,
-        List.of(new UlaFullDecodePortHandler()));
+        List.of(new UlaFullDecodePortHandler(Fuse.ula)));
   }
 }

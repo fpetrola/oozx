@@ -22,8 +22,11 @@ import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
 public class UlaStartupModule extends AbstractStartupModule {
 
-  public UlaStartupModule() {
+  private Ula ula;
+
+  public UlaStartupModule(Ula ula) {
     super(SetUidStartupModule.class);
+    this.ula = ula;
   }
 
   public Object getInitContext() {
@@ -31,7 +34,7 @@ public class UlaStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return Ula.init(initContext);
+    return ula.init(initContext);
   }
 
   public void endFn() {

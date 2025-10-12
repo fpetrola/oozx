@@ -27,8 +27,6 @@ import com.fpetrola.oozx.fuse.modules.Display;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fpetrola.oozx.Fuse.memory;
-
 public class Memory {
 
   // Constants for memory page sizes
@@ -166,12 +164,12 @@ public class Memory {
   }
 
   // Map 2K of memory for reading, writing, or both
-  public void map2kReadWrite(int address, MemoryPage[] source, int pageNum, boolean mapRead, boolean mapWrite) {
+  public void map2kReadWrite(int address, MemoryPage[] source, int pageNum, boolean isMapRead, boolean isMapWrite) {
     for (int i = 0; i < PAGES_IN_2K; i++) {
       int pageOffset = (address >>> PAGE_SIZE_LOGARITHM) + i;
       MemoryPage page = source[pageNum * PAGES_IN_2K + i];
-      if (mapRead) memory.mapRead[pageOffset] = page;
-      if (mapWrite) memory.mapWrite[pageOffset] = page;
+      if (isMapRead) mapRead[pageOffset] = page;
+      if (isMapWrite) mapWrite[pageOffset] = page;
     }
   }
 
@@ -201,14 +199,14 @@ public class Memory {
   }
 
   // Read a byte from memory
-  public byte readByte(int address) {
+  public byte readByte(int address, Ula ula) {
     int bank = address >>> PAGE_SIZE_LOGARITHM;
     MemoryPage mapping = mapRead[bank];
 
     if (mapping != null) {
       if (mapping != null && mapping.contended) {
-        if (Spectrum.tstates < Ula.contention.length) {
-          byte tstates = Ula.contention[(int) Spectrum.tstates];
+        if (Spectrum.tstates < ula.contention.length) {
+          byte tstates = ula.contention[(int) Spectrum.tstates];
           if (tstates > 0) {
             GetTStatesHistory.addTStateUpdate(tstates, "ula readbyte", (int) Spectrum.tstates);
           }
@@ -239,12 +237,12 @@ public class Memory {
   }
 
   // Write a byte to memory
-  public void writeByte(int address, byte b) {
+  public void writeByte(int address, byte b, Ula ula) {
     int bank = address >>> PAGE_SIZE_LOGARITHM;
     MemoryPage mapping = mapWrite[bank];
 
     if (mapping.contended) {
-      byte tstates = Ula.contention[(int) Spectrum.tstates];
+      byte tstates = ula.contention[(int) Spectrum.tstates];
       if (tstates > 0) {
         GetTStatesHistory.addTStateUpdate(tstates, "ula writebyte", (int) Spectrum.tstates);
       }

@@ -30,6 +30,7 @@ import java.util.Map;
 
 public class Periph {
   private static EventManager eventManager= Fuse.eventManager;
+  private static Ula ula= Fuse.ula;
 
   // Enum for peripheral types
   public enum Type {
@@ -230,8 +231,8 @@ public class Periph {
 
   // Read a byte from a port, taking the appropriate time
   public static byte readPort(int port) {
-    Ula.contendPortEarly(port);
-    Ula.contendPortLate(port);
+    ula.contendPortEarly(port);
+    ula.contendPortLate(port);
     byte b = readPortInternal(port);
 
     // Special case for 128K/+2 machines
@@ -292,9 +293,9 @@ public class Periph {
 
   // Write a byte to a port, taking the appropriate time
   public static void writePort(int port, byte b) {
-    Ula.contendPortEarly(port);
+    ula.contendPortEarly(port);
     writePortInternal(port, b);
-    Ula.contendPortLate(port);
+    ula.contendPortLate(port);
     Spectrum.tstates++;
   }
 

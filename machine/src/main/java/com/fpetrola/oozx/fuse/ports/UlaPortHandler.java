@@ -19,17 +19,21 @@
 package com.fpetrola.oozx.fuse.ports;
 
 import com.fpetrola.oozx.Ula;
+import com.fpetrola.z80.memory.Memory;
 
 public class UlaPortHandler extends DefaultPortHandler {
-  public UlaPortHandler() {
+  private Ula ula;
+
+  public UlaPortHandler(Ula ula) {
     super(0x0001, 0x0000, true, true);
+    this.ula = ula;
   }
 
   public byte read(int port, byte[] attached) {
-    return Ula.read(port, attached);
+    return ula.read(port, attached);
   }
 
   public void write(int port, byte value) {
-    Ula.write(port, value);
+    ula.write(port, value);
   }
 }

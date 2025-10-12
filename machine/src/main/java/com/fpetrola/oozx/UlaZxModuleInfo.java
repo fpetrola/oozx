@@ -18,7 +18,15 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.z80.memory.Memory;
+
 class UlaZxModuleInfo implements ZXModuleInfo {
+  private Ula ula;
+
+  UlaZxModuleInfo(Ula ula) {
+    this.ula = ula;
+  }
+
   public void reset(int hardReset) {
 
   }
@@ -32,13 +40,13 @@ class UlaZxModuleInfo implements ZXModuleInfo {
   }
 
   public void snapshotFrom(Libspectrum.Snap snap) {
-    Ula.write(0x00fe, Libspectrum.snapOutUla(snap));
+    ula.write(0x00fe, Libspectrum.snapOutUla(snap));
     Spectrum.tstates = Libspectrum.snapTstates(snap);
     Settings.current.issue2 = Libspectrum.snapIssue2(snap);
   }
 
   public void snapshotTo(Libspectrum.Snap snap) {
-    Libspectrum.snapSetOutUla(snap, Ula.lastByte);
+    Libspectrum.snapSetOutUla(snap, ula.lastByte);
     Libspectrum.snapSetTstates(snap, Spectrum.tstates);
     Libspectrum.snapSetIssue2(snap, Settings.current.issue2);
   }

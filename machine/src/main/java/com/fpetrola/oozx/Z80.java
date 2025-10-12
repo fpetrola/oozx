@@ -64,6 +64,7 @@ public class Z80 {
   private static boolean init;
   public static Audio audio;
   private static Display display= Fuse.display;
+  private static Ula ula= Fuse.ula;
 
   public static void reset(int i) {
     ooz80.reset();
@@ -202,8 +203,8 @@ public class Z80 {
         for (int i = 0; i < x; i++) {
           MemoryPage memoryPage = memory.mapRead[baseAddress >>> PAGE_SIZE_LOGARITHM];
           if (memoryPage != null && memoryPage.contended) {
-            if (state.tstates < Ula.contentionNoMreq.length) {
-              byte tstates = Ula.contentionNoMreq[(int) state.tstates];
+            if (state.tstates < ula.contentionNoMreq.length) {
+              byte tstates = ula.contentionNoMreq[(int) state.tstates];
               if (tstates > 0) {
                 GetTStatesHistory.addTStateUpdate(tstates, "ula " + (description != null ? description : "contend_read_no_mreq"), (int) getState().tstates);
                 state.tstates += tstates;
@@ -249,7 +250,7 @@ public class Z80 {
 
       private void processUlaContention(WordNumber address) {
         Spectrum.tstates = state.tstates;
-        memory.readByte(address.intValue());
+        memory.readByte(address.intValue(), ula);
         state.tstates = Spectrum.tstates;
       }
 
@@ -279,7 +280,7 @@ public class Z80 {
 
       private void processUlaContention(WordNumber address, WordNumber value) {
         Spectrum.tstates = state.tstates;
-        memory.writeByte(address.intValue(), (byte) (value.intValue() & 0xff));
+        memory.writeByte(address.intValue(), (byte) (value.intValue() & 0xff), ula);
         ooz80.getState().getMemory().getData()[address.intValue()] = value;
         state.tstates = Spectrum.tstates;
       }
@@ -287,7 +288,7 @@ public class Z80 {
   }
 
   private static boolean initialized() {
-    return memory.mapRead[0] != null && Ula.contention != null;
+    return memory.mapRead[0] != null && ula.contention != null;
   }
 
   static int init(Object o) {

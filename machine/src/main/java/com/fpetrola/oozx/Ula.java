@@ -24,25 +24,30 @@ import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class Ula {
-  private static Memory memory= Fuse.memory;
+  private final Memory memory;
 
-  public static final int CONTENTION_SIZE = 80000;
+  public final int CONTENTION_SIZE = 80000;
 
   // How much contention do we get at every tstate when MREQ is active?
-  public static byte[] contention = new byte[CONTENTION_SIZE];
+  public byte[] contention = new byte[CONTENTION_SIZE];
 
   // And how much when it is inactive
-  public static byte[] contentionNoMreq = new byte[CONTENTION_SIZE];
+  public byte[] contentionNoMreq = new byte[CONTENTION_SIZE];
 
-  static byte lastByte;
+  byte lastByte;
 
   // What to return if no other input pressed; depends on the last byte output to the ULA
-  private static byte defaultValue;
-  private static Display display= Fuse.display;
+  private byte defaultValue;
+  private final Display display;
+
+  public Ula(Memory memory, Display display) {
+    this.memory = memory;
+    this.display = display;
+  }
 
   // Initialize ULA module
-  static int init(Object context) {
-    Module.register(new UlaZxModuleInfo());
+  int init(Object context) {
+    Module.register(new UlaZxModuleInfo(this));
     Periph.register(new UlaPeripheral());
     Periph.register(new UlaFullDecodePeripheral());
 
@@ -54,7 +59,7 @@ public class Ula {
   // Register ULA with startup manager
 
   // Read from ULA port
-  public static byte read(int port, byte[] attached) {
+  public byte read(int port, byte[] attached) {
     byte r = defaultValue;
     attached[0] = (byte) 0xff;
 
@@ -68,7 +73,7 @@ public class Ula {
   }
 
   // Write to ULA port
-  public static void write(int port, byte b) {
+  public void write(int port, byte b) {
     lastByte = b;
 
     display.setLoresBorder(b & 0x07);
@@ -87,12 +92,12 @@ public class Ula {
   }
 
   // Get the last byte written to the ULA
-  public static byte lastByte() {
+  public byte lastByte() {
     return lastByte;
   }
 
   // Get the tape level from the last byte
-  public static byte tapeLevel() {
+  public byte tapeLevel() {
     return (byte) (lastByte & 0x08);
   }
 
@@ -101,7 +106,7 @@ public class Ula {
   // Save ULA state to snapshot
 
   // Handle contention for port access (early phase)
-  public static void contendPortEarly(int port) {
+  public void contendPortEarly(int port) {
 //    System.out.println("port2 "+ port);
     if (memory.mapRead[port >>> memory.PAGE_SIZE_LOGARITHM].contended) {
       GetTStatesHistory.addTStateUpdate(contentionNoMreq[(int) Spectrum.tstates], "ula_contend_port_early", (int) Spectrum.tstates);
@@ -112,7 +117,7 @@ public class Ula {
   }
 
   // Handle contention for port access (late phase)
-  public static void contendPortLate(int port) {
+  public void contendPortLate(int port) {
     if (Machine.current.ramInfo.portFromUla.apply(port)) {
       GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) Spectrum.tstates] + 2), "ula_contend_port_late", (int) Spectrum.tstates);
       Spectrum.tstates += contentionNoMreq[(int) Spectrum.tstates];

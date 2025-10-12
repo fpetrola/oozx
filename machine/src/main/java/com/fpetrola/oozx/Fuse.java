@@ -44,6 +44,7 @@ public class Fuse {
   public static LibspectrumCreator creator;
   public static Memory memory= new Memory();
   public static Display display= new Display(memory);
+  public static Ula ula= new Ula(memory, display);
   public static EventManager eventManager= new EventManager();
 
   public static void abort() {
@@ -120,7 +121,7 @@ public class Fuse {
         new MemoryStartupModule(memory),
         new SetUidStartupModule(),
         new SpectrumStartupModule(),
-        new UlaStartupModule(),
+        new UlaStartupModule(ula),
         new Z80StartupModule()
     ).forEach(StartupManager::register);
 

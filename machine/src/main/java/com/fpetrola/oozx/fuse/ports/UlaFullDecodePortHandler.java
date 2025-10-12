@@ -21,15 +21,18 @@ package com.fpetrola.oozx.fuse.ports;
 import com.fpetrola.oozx.Ula;
 
 public class UlaFullDecodePortHandler extends DefaultPortHandler {
-  public UlaFullDecodePortHandler() {
+  private Ula ula;
+
+  public UlaFullDecodePortHandler(Ula ula) {
     super(0x00ff, 0x00fe, true, true);
+    this.ula = ula;
   }
 
   public byte read(int port, byte[] attached) {
-    return Ula.read(port, attached);
+    return ula.read(port, attached);
   }
 
   public void write(int port, byte value) {
-    Ula.write(port, value);
+    ula.write(port, value);
   }
 }

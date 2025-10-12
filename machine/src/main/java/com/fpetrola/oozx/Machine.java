@@ -42,6 +42,7 @@ public class Machine {
 
   public static FuseMachineInfo current; // The currently selected machine
   private static Display display= Fuse.display;
+  private static Ula ula= Fuse.ula;
 
   //  private static void reg1() {
 //    StartupManagerModule[] dependencies = {
@@ -292,8 +293,8 @@ public class Machine {
 //        if (error != 0) return error;
 
     for (int i = 0; i < (int) current.timings.tstatesPerFrame; i++) {
-      Ula.contention[i] = (byte) current.ramInfo.contendDelay.apply(i);
-      Ula.contentionNoMreq[i] = (byte) current.ramInfo.contendDelayNoMreq.apply(i);
+      ula.contention[i] = (byte) current.ramInfo.contendDelay.apply(i);
+      ula.contentionNoMreq[i] = (byte) current.ramInfo.contendDelayNoMreq.apply(i);
     }
 
 //        Ui.menuDiskUpdate();

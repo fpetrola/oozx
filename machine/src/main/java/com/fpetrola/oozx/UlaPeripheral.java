@@ -26,6 +26,6 @@ import java.util.List;
 public class UlaPeripheral extends AbstractZxPeripheral {
   public UlaPeripheral() {
     super(Periph.Type.ULA,
-        List.of(new UlaPortHandler()));
+        List.of(new UlaPortHandler(Fuse.ula)));
   }
 }
