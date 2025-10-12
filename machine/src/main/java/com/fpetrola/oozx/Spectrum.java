@@ -50,6 +50,7 @@ public class Spectrum {
 
   // RAM array: 65 pages of 16KB each (from SPECTRUM_RAM_PAGES)
   public static byte[][] RAM = new byte[Memory.SPECTRUM_RAM_PAGES][0x4000];
+  private static Display display= Fuse.display;
 
   // Functional interface for checking if a port is handled by the ULA
   @FunctionalInterface
@@ -134,7 +135,7 @@ public class Spectrum {
 
     if (Sound.enabled) Sound.frame();
 
-    if (Display.frame() != 0) return 1;
+    if (display.frame() != 0) return 1;
     if (Profile.active) Profile.frame(frameLength);
     Printer.frame();
 
@@ -158,12 +159,12 @@ public class Spectrum {
     int line = (int) ((time - Machine.current.lineTimes[0]) / Machine.current.timings.tstatesPerLine);
 
     int tstatesThroughLine = (int) (time - Machine.current.lineTimes[0] +
-        (Machine.current.timings.leftBorder - Display.BORDER_WIDTH_COLS * 4));
+        (Machine.current.timings.leftBorder - display.BORDER_WIDTH_COLS * 4));
 
     tstatesThroughLine %= Machine.current.timings.tstatesPerLine;
 
-    if (line < Display.BORDER_HEIGHT ||
-        line >= Display.BORDER_HEIGHT + Display.HEIGHT) return 0;
+    if (line < display.BORDER_HEIGHT ||
+        line >= display.BORDER_HEIGHT + display.HEIGHT) return 0;
 
     if (tstatesThroughLine < Machine.current.timings.leftBorder - offset) return 0;
 
@@ -182,16 +183,16 @@ public class Spectrum {
   }
 
   public static int spectrumUnattachedPort() {
-    if (tstates < Machine.current.lineTimes[Display.BORDER_HEIGHT]) return 0xff;
+    if (tstates < Machine.current.lineTimes[display.BORDER_HEIGHT]) return 0xff;
 
-    int line = (int) ((tstates - Machine.current.lineTimes[Display.BORDER_HEIGHT]) /
+    int line = (int) ((tstates - Machine.current.lineTimes[display.BORDER_HEIGHT]) /
         Machine.current.timings.tstatesPerLine);
 
-    if (line >= Display.HEIGHT) return 0xff;
+    if (line >= display.HEIGHT) return 0xff;
 
     int tstatesThroughLine = (int) (tstates -
-        Machine.current.lineTimes[Display.BORDER_HEIGHT + line] +
-        (Machine.current.timings.leftBorder - Display.BORDER_WIDTH_COLS * 4));
+        Machine.current.lineTimes[display.BORDER_HEIGHT + line] +
+        (Machine.current.timings.leftBorder - display.BORDER_WIDTH_COLS * 4));
 
     if (tstatesThroughLine < Machine.current.timings.leftBorder) return 0xff;
 
@@ -204,12 +205,12 @@ public class Spectrum {
       case 5:
         column++;
       case 3:
-        return RAM[Memory.currentScreen][Display.attrStart[line] + column];
+        return RAM[Memory.currentScreen][display.attrStart[line] + column];
 
       case 4:
         column++;
       case 2:
-        return RAM[Memory.currentScreen][Display.lineStart[line] + column];
+        return RAM[Memory.currentScreen][display.lineStart[line] + column];
 
       case 0:
       case 1:

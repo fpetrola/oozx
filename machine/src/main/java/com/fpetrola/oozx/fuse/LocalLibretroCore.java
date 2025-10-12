@@ -34,6 +34,7 @@ public class LocalLibretroCore implements LibretroCore {
 
   public static boolean noContended = false;
   public static retro_input_state_t retroInputStateT;
+  private Display display= Fuse.display;
 
   public LocalLibretroCore() {
   }
@@ -43,7 +44,7 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   private int[] getBeam() {
-    return Display.getBeamPosition();
+    return display.getBeamPosition();
   }
 
   public int retro_get_beam_y() {

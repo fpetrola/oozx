@@ -34,6 +34,7 @@ public class Machine {
   public static List<FuseMachineInfo> machineTypes = new ArrayList<>(); // All available machines
 
   public static FuseMachineInfo current; // The currently selected machine
+  private static Display display= Fuse.display;
 
   //  private static void reg1() {
 //    StartupManagerModule[] dependencies = {
@@ -180,11 +181,11 @@ public class Machine {
     capabilities = Libspectrum.machineCapabilities(machine.machine);
 
     if ((capabilities & Libspectrum.MachineCapability.TIMEX_VIDEO) != 0) {
-      width = Display.SCREEN_WIDTH;
-      height = 2 * Display.SCREEN_HEIGHT;
+      width = display.SCREEN_WIDTH;
+      height = 2 * display.SCREEN_HEIGHT;
     } else {
-      width = Display.ASPECT_WIDTH;
-      height = Display.SCREEN_HEIGHT;
+      width = display.ASPECT_WIDTH;
+      height = display.SCREEN_HEIGHT;
     }
 
     if (UiDisplay.init(width, height) != 0) return 1;
@@ -290,7 +291,7 @@ public class Machine {
 
 //        Ui.menuDiskUpdate();
 
-    Display.refreshAll();
+    display.refreshAll();
 
     return 0;
   }
@@ -307,12 +308,12 @@ public class Machine {
 
   private static void setVariableTimings(FuseMachineInfo machine) {
     machine.lineTimes[0] = Timings.topLeftPixel(machine.machine) -
-        Display.BORDER_HEIGHT * machine.timings.tstatesPerLine -
-        4 * Display.BORDER_WIDTH_COLS;
+        display.BORDER_HEIGHT * machine.timings.tstatesPerLine -
+        4 * display.BORDER_WIDTH_COLS;
 
     if (Settings.current.lateTimings) machine.lineTimes[0]++;
 
-    for (int y = 1; y < Display.SCREEN_HEIGHT + 1; y++) {
+    for (int y = 1; y < display.SCREEN_HEIGHT + 1; y++) {
       machine.lineTimes[y] = machine.lineTimes[y - 1] + machine.timings.tstatesPerLine;
     }
   }

@@ -58,6 +58,7 @@ public class Z80 {
 //  static MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
   private static boolean init;
   public static Audio audio;
+  private static Display display= Fuse.display;
 
   public static void reset(int i) {
     ooz80.reset();
@@ -174,7 +175,7 @@ public class Z80 {
     updateMemory();
 //    updateScreen();
 //    updateScreen2();
-    Display.refreshAll();
+    display.refreshAll();
 
     IO<?> io1 = state.getIo();
 //    ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent<>();

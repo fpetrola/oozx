@@ -79,6 +79,7 @@ public class Memory {
   public static MemoryPage[] mapWrite = new MemoryPage[PAGES_IN_64K];
   public static MemoryPage[] mapRam = new MemoryPage[SPECTRUM_RAM_PAGES * PAGES_IN_16K];
   public static MemoryPage[] mapRom = new MemoryPage[SPECTRUM_ROM_PAGES * PAGES_IN_16K];
+  private static Display display= Fuse.display;
 
   // Memory pool for allocated memory
   public static class MemoryPoolEntry {
@@ -294,7 +295,7 @@ public class Memory {
         mapping.pageNum == currentScreen &&
         (offset2 & screenMask) < 0x1b00 &&
         memory.get(offset) != b) {
-      Display.dirty.apply(offset2);
+      display.dirty.apply(offset2);
     }
   }
 

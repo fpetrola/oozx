@@ -30,7 +30,8 @@ public class FuseMachineInfo {
   public boolean timex; // Timex machine (keyboard emulation/loading sounds etc.)
 
   public MachineTimings timings = new MachineTimings(); // How long do things take to happen?
-  long[] lineTimes = new long[Display.SCREEN_HEIGHT + 1]; // Redraw line y this many tstates after interrupt
+  private Display display= Fuse.display;
+  long[] lineTimes = new long[display.SCREEN_HEIGHT + 1]; // Redraw line y this many tstates after interrupt
 
   public UnattachedPortFn unattachedPort; // What to return if we read from a port which isn't attached to anything
 

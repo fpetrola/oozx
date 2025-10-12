@@ -21,6 +21,8 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class Spec128 {
+  private static Display display;
+
   // Initialize the Spectrum 128K machine
   public static int init(FuseMachineInfo machine) {
     machine.machine = Libspectrum.Machine._128K;
@@ -128,8 +130,8 @@ public class Spec128 {
 
     // If screen changed, mark entire display file as dirty
     if (Memory.currentScreen != screen) {
-      Display.updateCritical(0, 0);
-      Display.refreshMainScreen();
+      display.updateCritical(0, 0);
+      display.refreshMainScreen();
       Memory.currentScreen = screen;
     }
 

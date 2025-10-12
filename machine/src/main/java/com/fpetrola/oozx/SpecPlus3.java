@@ -22,6 +22,7 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class SpecPlus3 {
   public static UPDFdc specplus3Fdc;
+  private static Display display;
 //  public static Fdd[] specplus3Drives = new Fdd[SpecPlus3Constants.SPECPLUS3_NUM_DRIVES];
 
 //  public static UIMediaDriveInfo[] uiDrives = new UIMediaDriveInfo[]{
@@ -258,8 +259,8 @@ public class SpecPlus3 {
     int rom = ((lastByte & 0x10) >> 4) | ((lastByte2 & 0x04) >> 1);
 
     if (Memory.currentScreen != screen) {
-      Display.dirtySinclair(0);
-      Display.writeIfDirtySinclair(0,0);
+      display.dirtySinclair(0);
+      display.writeIfDirtySinclair(0,0);
       Memory.currentScreen = screen;
     }
 

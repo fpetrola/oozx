@@ -25,81 +25,129 @@ import java.util.List;
 public class Display {
 
   // Constants for the width and height of the Speccy's screen
-  public static final int WIDTH_COLS = 32;
-  public static final int HEIGHT_ROWS = 24;
+  public final int WIDTH_COLS = 32;
+  public final int HEIGHT_ROWS = 24;
 
-  public static final int WIDTH = WIDTH_COLS * 16;
-  public static final int HEIGHT = HEIGHT_ROWS * 8;
+  public final int WIDTH = WIDTH_COLS * 16;
+  public final int HEIGHT = HEIGHT_ROWS * 8;
 
   // Constants for the width and height of the emulated border
-  public static final int BORDER_WIDTH_COLS = 4;
-  public static final int BORDER_HEIGHT_COLS = 3;
+  public final int BORDER_WIDTH_COLS = 4;
+  public final int BORDER_HEIGHT_COLS = 3;
 
-  public static final int BORDER_WIDTH = BORDER_WIDTH_COLS * 16;
-  public static final int BORDER_ASPECT_WIDTH = BORDER_WIDTH_COLS * 8;
-  public static final int BORDER_HEIGHT = BORDER_HEIGHT_COLS * 8;
+  public final int BORDER_WIDTH = BORDER_WIDTH_COLS * 16;
+  public final int BORDER_ASPECT_WIDTH = BORDER_WIDTH_COLS * 8;
+  public final int BORDER_HEIGHT = BORDER_HEIGHT_COLS * 8;
 
   // Constants for the width and height of the window we'll be displaying
-  public static final int SCREEN_WIDTH = WIDTH + 2 * BORDER_WIDTH;
-  public static final int SCREEN_HEIGHT = HEIGHT + 2 * BORDER_HEIGHT;
+  public final int SCREEN_WIDTH = WIDTH + 2 * BORDER_WIDTH;
+  public final int SCREEN_HEIGHT = HEIGHT + 2 * BORDER_HEIGHT;
 
-  public static final int SCREEN_WIDTH_COLS = WIDTH_COLS + 2 * BORDER_WIDTH_COLS;
+  public final int SCREEN_WIDTH_COLS = WIDTH_COLS + 2 * BORDER_WIDTH_COLS;
 
   // Aspect ratio corrected display width
-  public static final int ASPECT_WIDTH = SCREEN_WIDTH / 2;
+  public final int ASPECT_WIDTH = SCREEN_WIDTH / 2;
 
   // Set once we have initialized the UI
-  public static boolean uiInitialised;
+  public boolean uiInitialised;
 
   // The current border color
-  public static byte loresBorder;
-  public static byte hiresBorder;
-  static byte lastBorder;
+  private byte loresBorder;
+  private byte hiresBorder;
+  private byte lastBorder;
 
   // Stores the pixel, attribute, and SCLD screen mode information used to
   // draw each 8x1 group of pixels (including border) last frame
-  public static int[] lastScreen = new int[SCREEN_WIDTH_COLS * SCREEN_HEIGHT];
+  private int[] lastScreen = new int[SCREEN_WIDTH_COLS * SCREEN_HEIGHT];
 
   // Offsets as to where the data and the attributes for each pixel line start
-  public static int[] lineStart = new int[HEIGHT];
-  public static int[] attrStart = new int[HEIGHT];
+  public int[] lineStart = new int[HEIGHT];
+  public int[] attrStart = new int[HEIGHT];
 
   // If you write to the byte at display_dirty_?table[n+0x4000], then
   // the eight pixels starting at (8*xtable[n],ytable[n]) must be replotted
-  static int[] dirtyYtable = new int[WIDTH_COLS * HEIGHT];
-  static int[] dirtyXtable = new int[WIDTH_COLS * HEIGHT];
+  private int[] dirtyYtable = new int[WIDTH_COLS * HEIGHT];
+  private int[] dirtyXtable = new int[WIDTH_COLS * HEIGHT];
 
   // If you write to the byte at display_dirty_?table2[n+0x5800], then
   // the 64 pixels starting at (8*xtable2[n],ytable2[n]) must be replotted
-  static int[] dirtyYtable2 = new int[WIDTH_COLS * HEIGHT_ROWS];
-  static int[] dirtyXtable2 = new int[WIDTH_COLS * HEIGHT_ROWS];
+  private int[] dirtyYtable2 = new int[WIDTH_COLS * HEIGHT_ROWS];
+  private int[] dirtyXtable2 = new int[WIDTH_COLS * HEIGHT_ROWS];
 
   // The number of frames mod 32 that have elapsed
-  static int frameCount;
-  static boolean flashReversed;
+  private int frameCount;
+  private boolean flashReversed;
 
   // Which eight-pixel chunks on each line (including border) need to be redisplayed
-  private static long[] isDirty = new long[SCREEN_HEIGHT];
+  private long[] isDirty = new long[SCREEN_HEIGHT];
 
   // Which eight-pixel chunks on each line may need to be redisplayed
-  private static int[] maybeDirty = new int[HEIGHT];
+  private int[] maybeDirty = new int[HEIGHT];
 
   // This value signifies that the entire line must be redisplayed
-  static long allDirty;
+  private long allDirty;
 
   // Used to signify that we're redrawing the entire screen
-  private static boolean redrawAll;
+  private boolean redrawAll;
 
   // The last point at which we updated the screen display
-  private static int criticalRegionX;
-  private static int criticalRegionY;
+  private int criticalRegionX;
+  private int criticalRegionY;
+
+  public int init(Object initContext) {
+    int i, j, k, x, y;
+
+    // Set up the 'all pixels must be refreshed' marker
+    allDirty = 0;
+    for (i = 0; i < SCREEN_WIDTH_COLS; i++) {
+      allDirty = (allDirty << 1) | 0x01;
+    }
+
+    for (i = 0; i < 3; i++) {
+      for (j = 0; j < 8; j++) {
+        for (k = 0; k < 8; k++) {
+          lineStart[(64 * i) + (8 * j) + k] = 32 * ((64 * i) + j + (k * 8));
+        }
+      }
+    }
+
+    for (y = 0; y < HEIGHT; y++) {
+      attrStart[y] = 6144 + (32 * (y / 8));
+    }
+
+    for (y = 0; y < HEIGHT; y++) {
+      for (x = 0; x < WIDTH_COLS; x++) {
+        dirtyYtable[lineStart[y] + x] = y;
+        dirtyXtable[lineStart[y] + x] = x;
+      }
+    }
+
+    for (y = 0; y < HEIGHT_ROWS; y++) {
+      for (x = 0; x < WIDTH_COLS; x++) {
+        dirtyYtable2[(32 * y) + x] = y * 8;
+        dirtyXtable2[(32 * y) + x] = x;
+      }
+    }
+
+    frameCount = 0;
+    flashReversed = false;
+
+    refreshAll();
+
+    borderChanges.clear();
+    int error = addBorderSentinel();
+    if (error != 0) return error;
+    lastBorder = Scld.lastDec.name.hires ? hiresBorder : loresBorder;
+
+    return 0;
+  }
 
   // Structure for border change
-  private static class BorderChange {
+  private class BorderChange {
     int x, y, colour;
   }
 
-  private static final BorderChange BORDER_CHANGE_END_SENTINEL =
+  private final BorderChange BORDER_CHANGE_END_SENTINEL =
       new BorderChange() {{
         x = SCREEN_WIDTH_COLS;
         y = SCREEN_HEIGHT - 1;
@@ -107,7 +155,7 @@ public class Display {
       }};
 
   // The current border color array
-  private static int[][] currentBorder = new int[SCREEN_HEIGHT][SCREEN_WIDTH_COLS];
+  private int[][] currentBorder = new int[SCREEN_HEIGHT][SCREEN_WIDTH_COLS];
 
   // Functional interfaces for dirty handling
   @FunctionalInterface
@@ -125,23 +173,13 @@ public class Display {
     void apply();
   }
 
-  public static DisplayDirtyFn dirty = Display::dirtySinclair;
-  public static DisplayWriteIfDirtyFn writeIfDirty = Display::writeIfDirtySinclair;
-  public static DisplayDirtyFlashingFn dirtyFlashing = Display::dirtyFlashingSinclair;
+  public DisplayDirtyFn dirty = this::dirtySinclair;
+  public DisplayWriteIfDirtyFn writeIfDirty = this::writeIfDirtySinclair;
+  public DisplayDirtyFlashingFn dirtyFlashing = this::dirtyFlashingSinclair;
 
-  static List<BorderChange> borderChanges = new ArrayList<>();
+  List<BorderChange> borderChanges = new ArrayList<>();
 
-  public static class DisplayStartupContext {
-    int argc;
-    String[] argv;
-  }
-
-  //  private static void reg1(DisplayStartupContext context) {
-//    StartupManager.registerNoDependencies(StartupManagerModule.DISPLAY,
-//        Display::initWrapper, context, null);
-//  }
-
-  public static void dirtySinclair(int offset) {
+  public void dirtySinclair(int offset) {
     if (offset >= 0x1b00) return;
     if (offset < 0x1800) {
       dirty8(offset);
@@ -150,7 +188,7 @@ public class Display {
     }
   }
 
-  private static byte getAttrByte(int x, int y) {
+  private byte getAttrByte(int x, int y) {
     int attr;
     if (Scld.lastDec.name.hires) {
       attr = Hires.getAttr();
@@ -168,7 +206,7 @@ public class Display {
     return (byte) attr;
   }
 
-  private static void updateDirtyRects() {
+  private void updateDirtyRects() {
     for (int y = 0; y < SCREEN_HEIGHT; y++) {
       int x = 0;
       while (isDirty[y] != 0) {
@@ -188,7 +226,7 @@ public class Display {
     Rectangle.endLine(SCREEN_HEIGHT);
   }
 
-  public static void writeIfDirtySinclair(int x, int y) {
+  public void writeIfDirtySinclair(int x, int y) {
     int beamX = x + BORDER_WIDTH_COLS;
     int beamY = y + BORDER_HEIGHT;
     int offset = getOffset(x, y);
@@ -210,7 +248,7 @@ public class Display {
     }
   }
 
-  private static void copyCriticalRegionLine(int y, int x, int end) {
+  private void copyCriticalRegionLine(int y, int x, int end) {
     if (x < WIDTH_COLS) {
       int i = 32 - end;
       int bitMask = (int) allDirty >>> x << (x + i) >>> i;
@@ -225,7 +263,7 @@ public class Display {
     }
   }
 
-  private static void copyCriticalRegion(int beamX, int beamY) {
+  private void copyCriticalRegion(int beamX, int beamY) {
     if (criticalRegionY == beamY) {
       copyCriticalRegionLine(criticalRegionY, criticalRegionX, beamX);
     } else {
@@ -238,7 +276,7 @@ public class Display {
     criticalRegionX = beamX;
   }
 
-  public static int[] getBeamPosition() {
+  public int[] getBeamPosition() {
     int[] beam = new int[2];
     long tstates = Spectrum.tstates;
     FuseMachineInfo current = Machine.current;
@@ -259,7 +297,7 @@ public class Display {
     return beam;
   }
 
-  public static void updateCritical(int x, int y) {
+  public void updateCritical(int x, int y) {
     int[] beam = getBeamPosition();
     int beamX = beam[0] - BORDER_WIDTH_COLS;
     int beamY = beam[1] - BORDER_HEIGHT;
@@ -282,20 +320,20 @@ public class Display {
     }
   }
 
-  private static void dirtyChunk(int x, int y) {
+  private void dirtyChunk(int x, int y) {
     if (y > criticalRegionY || (y == criticalRegionY && x >= criticalRegionX)) {
       updateCritical(x, y);
     }
     maybeDirty[y] |= (1 << x);
   }
 
-  private static void dirty8(int offset) {
+  private void dirty8(int offset) {
     int x = dirtyXtable[offset];
     int y = dirtyYtable[offset];
     dirtyChunk(x, y);
   }
 
-  private static void dirty64(int offset) {
+  private void dirty64(int offset) {
     int x = dirtyXtable2[offset - 0x1800];
     int y = dirtyYtable2[offset - 0x1800];
     for (int i = 0; i < 8; i++) {
@@ -303,11 +341,11 @@ public class Display {
     }
   }
 
-  private static void getAttr(int x, int y, byte[] inkPaper) {
+  private void getAttr(int x, int y, byte[] inkPaper) {
     parseAttr(getAttrByte(x, y), inkPaper);
   }
 
-  public static void parseAttr(byte attr, byte[] inkPaper) {
+  public void parseAttr(byte attr, byte[] inkPaper) {
     if ((attr & 0x80) != 0 && flashReversed) {
       inkPaper[0] = (byte) ((attr & (0x0f << 3)) >> 3);
       inkPaper[1] = (byte) ((attr & 0x07) + ((attr & 0x40) >> 3));
@@ -317,20 +355,20 @@ public class Display {
     }
   }
 
-  private static BorderChange allocChange() {
+  private BorderChange allocChange() {
     BorderChange change = new BorderChange();
     borderChanges.add(change);
     return change;
   }
 
-  static int addBorderSentinel() {
+  int addBorderSentinel() {
     BorderChange sentinel = allocChange();
     sentinel.x = sentinel.y = 0;
     sentinel.colour = Scld.lastDec.name.hires ? hiresBorder : loresBorder;
     return 0;
   }
 
-  private static void pushBorderChange(int colour) {
+  private void pushBorderChange(int colour) {
     int[] beam = getBeamPosition();
     int beamX = beam[0], beamY = beam[1];
 
@@ -346,7 +384,7 @@ public class Display {
     change.colour = colour;
   }
 
-  private static void checkBorderChange() {
+  private void checkBorderChange() {
     if (Scld.lastDec.name.hires && hiresBorder != lastBorder) {
       pushBorderChange(hiresBorder);
       lastBorder = hiresBorder;
@@ -356,21 +394,21 @@ public class Display {
     }
   }
 
-  public static void setLoresBorder(int colour) {
+  public void setLoresBorder(int colour) {
     if (loresBorder != colour) {
       loresBorder = (byte) colour;
     }
     checkBorderChange();
   }
 
-  public static void setHiresBorder(int colour) {
+  public void setHiresBorder(int colour) {
     if (hiresBorder != colour) {
       hiresBorder = (byte) colour;
     }
     checkBorderChange();
   }
 
-  private static void setBorder(int y, int start, int end, int colour) {
+  private void setBorder(int y, int start, int end, int colour) {
     int chunkDetail = (int) colour << 11;
     int index = start + y * SCREEN_WIDTH_COLS;
 
@@ -384,7 +422,7 @@ public class Display {
     }
   }
 
-  private static void borderChangeWrite(int y, int start, int end, int colour) {
+  private void borderChangeWrite(int y, int start, int end, int colour) {
     if (y < BORDER_HEIGHT || y >= BORDER_HEIGHT + HEIGHT) {
       setBorder(y, start, end, colour);
       return;
@@ -401,15 +439,15 @@ public class Display {
     }
   }
 
-  private static void borderChangeLinePart(int y, int start, int end, int colour) {
+  private void borderChangeLinePart(int y, int start, int end, int colour) {
     borderChangeWrite(y, start, end, colour);
   }
 
-  private static void borderChangeLine(int y, int colour) {
+  private void borderChangeLine(int y, int colour) {
     borderChangeWrite(y, 0, SCREEN_WIDTH_COLS, colour);
   }
 
-  private static void doBorderChange(BorderChange first, BorderChange second) {
+  private void doBorderChange(BorderChange first, BorderChange second) {
     if (first.x != 0) {
       if (first.x != SCREEN_WIDTH_COLS) {
         borderChangeLinePart(first.y, first.x, SCREEN_WIDTH_COLS, first.colour);
@@ -430,7 +468,7 @@ public class Display {
     }
   }
 
-  private static void updateBorder() {
+  private void updateBorder() {
     BorderChange endSentinel = allocChange();
     endSentinel.x = BORDER_CHANGE_END_SENTINEL.x;
     endSentinel.y = BORDER_CHANGE_END_SENTINEL.y;
@@ -444,9 +482,9 @@ public class Display {
     addBorderSentinel();
   }
 
-  static int frameCountLocal = 0;
+  int frameCountLocal = 0;
 
-  private static void updateUiScreen() {
+  private void updateUiScreen() {
     int scale = Machine.current.timex ? 2 : 1;
 
     if (Settings.current.frameRate <= ++frameCountLocal) {
@@ -476,7 +514,7 @@ public class Display {
     }
   }
 
-  public static int frame() {
+  public int frame() {
     copyCriticalRegion(WIDTH_COLS, HEIGHT - 1);
     criticalRegionX = criticalRegionY = 0;
 
@@ -497,7 +535,7 @@ public class Display {
     return 0;
   }
 
-  public static void dirtyFlashingSinclair() {
+  public void dirtyFlashingSinclair() {
     byte[] screen = Spectrum.RAM[Memory.currentScreen];
     for (int offset = 0x1800; offset < 0x1b00; offset++) {
       byte attr = screen[offset];
@@ -505,26 +543,26 @@ public class Display {
     }
   }
 
-  public static void refreshMainScreen() {
+  public void refreshMainScreen() {
     Arrays.fill(maybeDirty, (int) allDirty);
   }
 
-  public static void refreshAll() {
+  public void refreshAll() {
     redrawAll = true;
     refreshMainScreen();
     Arrays.fill(isDirty, allDirty);
     Arrays.fill(lastScreen, 0xffffffff);
   }
 
-  public static int getOffset(int x, int y) {
+  public int getOffset(int x, int y) {
     return lineStart[y] + x;
   }
 
-  public static int getAddr(int x, int y) {
+  public int getAddr(int x, int y) {
     return Scld.lastDec.name.altdfile ? getOffset(x, y) + Constants.ALTDFILE_OFFSET : getOffset(x, y);
   }
 
-  public static int getPixel(int x, int y) {
+  public int getPixel(int x, int y) {
     byte[] inkPaper = new byte[2];
     byte data, data2;
     int mask = 1 << (7 - (x % 8));
@@ -558,12 +596,12 @@ public class Display {
     return (data & mask) != 0 ? inkPaper[0] : inkPaper[1];
   }
 
-  public static int dirtyBorder() {
+  public int dirtyBorder() {
     // Placeholder: Implement border dirty logic if needed
     return 0;
   }
 
-  public static void line() {
+  public void line() {
     // Placeholder: Implement line drawing logic if needed
   }
 }

@@ -22,6 +22,8 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class Spec48 {
 
+  private static Display display= Fuse.display;
+
   // Check if a port is handled by the ULA
   public static boolean portFromUla(int port) {
     // All even ports supplied by ULA
@@ -67,9 +69,9 @@ public class Spec48 {
 
   // Set up common display configuration
   public static void commonDisplaySetup() {
-    Display.dirty = Display::dirtySinclair;
-    Display.writeIfDirty = Display::writeIfDirtySinclair;
-    Display.dirtyFlashing = Display::dirtyFlashingSinclair;
+    display.dirty = display::dirtySinclair;
+    display.writeIfDirty = display::writeIfDirtySinclair;
+    display.dirtyFlashing = display::dirtyFlashingSinclair;
 
     Memory.displayDirty = Memory::displayDirtySinclair;
   }

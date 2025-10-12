@@ -39,6 +39,7 @@ public class Fuse {
 
   // The creator information we'll store in file formats that support this
   public static LibspectrumCreator creator;
+  public static Display display= new Display();
 
   public static void abort() {
 
@@ -99,16 +100,12 @@ public class Fuse {
     fuseEnd();
   }
 
-  private static int runStartupManager(String[] argv) {
+  private static int runStartupManager() {
     StartupManager.init();
-
-    Display.DisplayStartupContext displayContext = new Display.DisplayStartupContext();
-    displayContext.argc = argv.length;
-    displayContext.argv = argv;
 
     List.of(
         new CreatorStartupModule(),
-        new DisplayStartupModule(displayContext),
+        new DisplayStartupModule(display),
         new EventStartupModule(),
         new JoystickStartupModule(),
         new KeyboardStartupModule(),
@@ -160,7 +157,7 @@ public class Fuse {
     fuseShowCopyright();
 
     String[] argv = args;
-    if (runStartupManager(argv) != 0) return 1;
+    if (runStartupManager() != 0) return 1;
 
     Settings.current.startMachine = "48";
     error = Machine.selectId(Settings.current.startMachine);

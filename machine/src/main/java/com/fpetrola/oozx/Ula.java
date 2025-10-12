@@ -36,6 +36,7 @@ public class Ula {
 
   // What to return if no other input pressed; depends on the last byte output to the ULA
   private static byte defaultValue;
+  private static Display display= Fuse.display;
 
   // Initialize ULA module
   static int init(Object context) {
@@ -68,7 +69,7 @@ public class Ula {
   public static void write(int port, byte b) {
     lastByte = b;
 
-    Display.setLoresBorder(b & 0x07);
+    display.setLoresBorder(b & 0x07);
     Sound.beeper(Spectrum.tstates,
         ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || Tape.microphone ? 1 : 0));
 
