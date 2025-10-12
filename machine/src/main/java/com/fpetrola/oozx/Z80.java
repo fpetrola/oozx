@@ -44,12 +44,13 @@ import fuse.tstates.phases.BeforeWrite;
 
 import javax.swing.*;
 import java.awt.event.KeyListener;
+import java.util.function.Supplier;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class Z80 {
-  private EventManager eventManager = Fuse.eventManager;
-  private com.fpetrola.oozx.Memory memory = Fuse.memory;
+  private EventManager eventManager;
+  private com.fpetrola.oozx.Memory memory;
 
   public long interruptsEnabledAt;
   public OOZ80<WordNumber> ooz80;
@@ -63,11 +64,21 @@ public class Z80 {
 //   MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
   private boolean init;
   public Audio audio;
-  private Display display = Fuse.display;
-  private Ula ula = Fuse.ula;
-  private Machine machine = Fuse.machine;
-  private Keyboard keyboard = Fuse.keyboard;
-  private TStatesHolder tStatesHolder= Fuse.tStatesHolder;
+  private Display display;
+  private Ula ula;
+  private Supplier<FuseMachineInfo> machine;
+  private Keyboard keyboard;
+  private TStatesHolder tStatesHolder;
+
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<FuseMachineInfo> machine, Keyboard keyboard, TStatesHolder tStatesHolder) {
+    this.eventManager = eventManager;
+    this.memory = memory;
+    this.display = display;
+    this.ula = ula;
+    this.machine = machine;
+    this.keyboard = keyboard;
+    this.tStatesHolder = tStatesHolder;
+  }
 
   public void reset(int i) {
     ooz80.reset();
@@ -86,7 +97,7 @@ public class Z80 {
 
   public void interrupt() {
     ooz80.getState().tstates = tStatesHolder.getTstates();
-    int i = Timings.interruptLength(machine.current.machine);
+    int i = Timings.interruptLength(machine.get().machine);
     if (ooz80.getState().isIff1() && ooz80.getState().tstates < i) {
 //      if (ooz80.getState().tstates == Z80.interruptsEnabledAt) {
 //        EventManager.eventAdd(ooz80.getState().tstates + 1, z80_interrupt_event);
