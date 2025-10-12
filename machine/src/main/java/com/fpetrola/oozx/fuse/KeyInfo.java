@@ -18,11 +18,11 @@
 
 package com.fpetrola.oozx.fuse;
 
-class KeyInfo {
-    KeyboardKeyName key;
-    KeyBit bit;
+public class KeyInfo {
+    public KeyboardKeyName key;
+    public KeyBit bit;
 
-    KeyInfo(KeyboardKeyName key, KeyBit bit) {
+    public KeyInfo(KeyboardKeyName key, KeyBit bit) {
         this.key = key;
         this.bit = bit;
     }

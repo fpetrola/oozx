@@ -18,9 +18,9 @@
 
 package com.fpetrola.oozx.fuse;
 
-class KeysymsMap {
-    int ui; // libspectrum_dword
-    Input.InputKey fuse;
+public class KeysymsMap {
+    public int ui; // libspectrum_dword
+    public Input.InputKey fuse;
 
     KeysymsMap(int ui, Input.InputKey fuse) {
         this.ui = ui;

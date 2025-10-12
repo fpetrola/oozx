@@ -16,16 +16,16 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.modules;
 
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
-import com.fpetrola.oozx.fuse.modules.EventManager;
 
-public class EventManagerStartupModule extends AbstractStartupModule {
-  private final EventManager eventManager;
+public class DisplayStartupModule extends AbstractStartupModule {
+  private Display display;
 
-  public EventManagerStartupModule(EventManager eventManager) {
-    this.eventManager = eventManager;
+  public DisplayStartupModule(Display display) {
+    super();
+    this.display = display;
   }
 
   public Object getInitContext() {
@@ -33,10 +33,10 @@ public class EventManagerStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return eventManager.init();
+    return display.init(initContext);
   }
 
   public void endFn() {
-    eventManager.end();
   }
+
 }

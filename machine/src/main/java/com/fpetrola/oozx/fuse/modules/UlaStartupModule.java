@@ -16,16 +16,16 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.modules;
 
+import com.fpetrola.oozx.Ula;
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
-public class SpectrumStartupModule extends AbstractStartupModule {
-  private Spectrum spectrum;
+public class UlaStartupModule extends AbstractStartupModule {
+  private Ula ula;
 
-  public SpectrumStartupModule(Spectrum spectrum) {
-    super(EventManagerStartupModule.class);
-    this.spectrum = spectrum;
+  public UlaStartupModule(Ula ula) {
+    this.ula = ula;
   }
 
   public Object getInitContext() {
@@ -33,10 +33,9 @@ public class SpectrumStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return spectrum.spectrumInit(initContext);
+    return ula.init(initContext);
   }
 
   public void endFn() {
   }
-
 }

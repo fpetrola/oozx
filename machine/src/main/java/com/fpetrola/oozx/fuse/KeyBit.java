@@ -18,11 +18,11 @@
 
 package com.fpetrola.oozx.fuse;
 
-class KeyBit {
-    int port;
-    byte bit;
+public class KeyBit {
+    public int port;
+    public byte bit;
 
-    KeyBit(int port, byte bit) {
+    public KeyBit(int port, byte bit) {
         this.port = port;
         this.bit = bit;
     }

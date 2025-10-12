@@ -70,7 +70,7 @@ public class Spectrum {
     return framesSinceReset;
   }
 
-  int spectrumInit(Object context) {
+  public int spectrumInit(Object context) {
     spectrumFrameEvent = eventManager.eventRegister(this::spectrumFrameEventFn, "End of frame");
 
     Module.register(new SpectrumModuleInfo(this));

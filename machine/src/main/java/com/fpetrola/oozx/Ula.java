@@ -19,13 +19,11 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.GetTStatesHistory;
-import com.fpetrola.oozx.fuse.Keyboard;
+import com.fpetrola.oozx.fuse.modules.Keyboard;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 import java.util.function.Supplier;
-
-import static com.fpetrola.oozx.Fuse.tStatesHolder;
 
 public class Ula {
   private final Memory memory;
@@ -56,7 +54,7 @@ public class Ula {
   }
 
   // Initialize ULA module
-  int init(Object context) {
+  public int init(Object context) {
     Module.register(new UlaZxModuleInfo(this, tStatesHolder));
     Periph.register(new UlaPeripheral());
     Periph.register(new UlaFullDecodePeripheral());

@@ -16,15 +16,18 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.modules;
 
+import com.fpetrola.oozx.Machine;
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
-public class MachinesPeriphStartupModule extends AbstractStartupModule {
-  private MachinesPeriph machinesPeriph;
+public class MachineStartupModule extends AbstractStartupModule {
 
-  public MachinesPeriphStartupModule(MachinesPeriph machinesPeriph) {
-    this.machinesPeriph = machinesPeriph;
+  private Machine machine;
+
+  public MachineStartupModule(Machine machine) {
+    super(MemoryStartupModule.class);
+    this.machine = machine;
   }
 
   public Object getInitContext() {
@@ -32,11 +35,11 @@ public class MachinesPeriphStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return machinesPeriph.init(initContext);
+    return machine.initMachines(initContext);
   }
 
   public void endFn() {
-
+    machine.end();
   }
 
 }

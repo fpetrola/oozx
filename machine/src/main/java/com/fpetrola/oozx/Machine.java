@@ -55,7 +55,7 @@ public class Machine {
 //        Machine::initMachines, null, Machine::end);
 //  }
 
-  int initMachines(Object context) {
+  public int initMachines(Object context) {
     int error;
 
 //        error = addMachine(Spec16::init);
@@ -328,7 +328,7 @@ public class Machine {
     }
   }
 
-  void end() {
+  public void end() {
     for (int i = 0; i < machineTypes.size(); i++) {
       if (machineTypes.get(i).shutdown != null) machineTypes.get(i).shutdown.run();
     }

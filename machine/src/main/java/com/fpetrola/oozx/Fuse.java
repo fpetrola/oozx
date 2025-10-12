@@ -18,12 +18,9 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.fuse.Joystick;
-import com.fpetrola.oozx.fuse.JoystickStartupModule;
-import com.fpetrola.oozx.fuse.Keyboard;
-import com.fpetrola.oozx.fuse.KeyboardStartupModule;
-import com.fpetrola.oozx.fuse.modules.Display;
-import com.fpetrola.oozx.fuse.modules.EventManager;
+import com.fpetrola.oozx.fuse.modules.Joystick;
+import com.fpetrola.oozx.fuse.modules.*;
+import com.fpetrola.oozx.fuse.modules.Keyboard;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 import java.util.List;

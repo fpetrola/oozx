@@ -22,6 +22,8 @@ import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.UIErrorLevel;
 import com.fpetrola.oozx.Ui;
+import com.fpetrola.oozx.fuse.modules.Joystick;
+import com.fpetrola.oozx.fuse.modules.Keyboard;
 
 import java.util.Arrays;
 import java.util.HashMap;

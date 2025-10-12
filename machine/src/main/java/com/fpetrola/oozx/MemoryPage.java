@@ -21,12 +21,12 @@ package com.fpetrola.oozx;
 // Supporting classes and enums
 public class MemoryPage {
 //  private byte[] page; // The data for this page
-  boolean writable; // Can we write to this data?
-  boolean contended; // Are reads/writes to this page contended?
-  int source; // Where did this page come from?
+public boolean writable; // Can we write to this data?
+  public boolean contended; // Are reads/writes to this page contended?
+  public int source; // Where did this page come from?
   boolean saveToSnapshot; // Should this page be saved to snapshots?
-  int pageNum; // Which page from the source
-  int offset; // How far into the page this chunk starts
+  public int pageNum; // Which page from the source
+  public int offset; // How far into the page this chunk starts
   private ArrayPointer arrayPointer;
 
   public MemoryPage() {

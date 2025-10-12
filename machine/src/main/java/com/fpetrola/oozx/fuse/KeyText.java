@@ -18,11 +18,11 @@
 
 package com.fpetrola.oozx.fuse;
 
-class KeyText {
-    KeyboardKeyName key;
-    String text;
+public class KeyText {
+    public KeyboardKeyName key;
+    public String text;
 
-    KeyText(KeyboardKeyName key, String text) {
+    public KeyText(KeyboardKeyName key, String text) {
         this.key = key;
         this.text = text;
     }

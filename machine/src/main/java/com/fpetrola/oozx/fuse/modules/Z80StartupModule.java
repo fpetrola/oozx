@@ -16,8 +16,9 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.modules;
 
+import com.fpetrola.oozx.Z80;
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
 public class Z80StartupModule extends AbstractStartupModule {

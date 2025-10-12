@@ -21,6 +21,7 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.*;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
+import com.fpetrola.oozx.fuse.modules.Keyboard;
 import com.fpetrola.oozx.fuse.peripherals.*;
 import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.cpu.IO;
@@ -293,7 +294,7 @@ public class Z80 {
     return memory.mapRead[0] != null && ula.contention != null;
   }
 
-  int init(Object o) {
+  public int init(Object o) {
     z80_interrupt_event = eventManager.eventRegister(this::z80_interrupt_event_fn, "Retriggered interrupt");
     int z80_nmi_event = eventManager.eventRegister(this::z80_nmi, "Non-maskable interrupt");
     int z80_nmos_iff2_event = eventManager.eventRegister(null, "IFF2 update dummy event");

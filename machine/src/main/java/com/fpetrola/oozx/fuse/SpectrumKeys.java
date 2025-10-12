@@ -22,7 +22,7 @@ public class SpectrumKeys {
     KeyboardKeyName key1;
     KeyboardKeyName key2;
 
-    SpectrumKeys(KeyboardKeyName key1, KeyboardKeyName key2) {
+    public SpectrumKeys(KeyboardKeyName key1, KeyboardKeyName key2) {
         this.key1 = key1;
         this.key2 = key2;
     }

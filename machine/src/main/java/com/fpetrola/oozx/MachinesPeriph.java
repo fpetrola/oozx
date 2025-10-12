@@ -29,7 +29,7 @@ public class MachinesPeriph {
     this.machine = machine;
   }
 
-  int init(Object context) {
+  public int init(Object context) {
     Periph.register(new Spec128MemoryPeripheral());
     Periph.register(new SpecPlus3MemoryPeripheral());
     Periph.register(new Upd765Peripheral());

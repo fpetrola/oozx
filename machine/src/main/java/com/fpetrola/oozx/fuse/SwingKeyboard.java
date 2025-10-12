@@ -19,6 +19,7 @@
 package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.Ui;
+import com.fpetrola.oozx.fuse.modules.Keyboard;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;

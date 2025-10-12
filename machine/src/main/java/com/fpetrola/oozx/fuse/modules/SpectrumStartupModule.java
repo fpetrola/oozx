@@ -16,16 +16,17 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.modules;
 
-import com.fpetrola.oozx.LibspectrumStartupModule;
+import com.fpetrola.oozx.Spectrum;
+import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
-public class JoystickStartupModule extends AbstractStartupModule {
-  private Joystick joystick;
+public class SpectrumStartupModule extends AbstractStartupModule {
+  private Spectrum spectrum;
 
-  public JoystickStartupModule(Joystick joystick) {
-    super(LibspectrumStartupModule.class);
-    this.joystick = joystick;
+  public SpectrumStartupModule(Spectrum spectrum) {
+    super(EventManagerStartupModule.class);
+    this.spectrum = spectrum;
   }
 
   public Object getInitContext() {
@@ -33,11 +34,10 @@ public class JoystickStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return joystick.init();
+    return spectrum.spectrumInit(initContext);
   }
 
   public void endFn() {
-    joystick.end();
   }
 
 }

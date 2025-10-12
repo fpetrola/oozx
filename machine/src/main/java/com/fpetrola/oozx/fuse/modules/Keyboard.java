@@ -16,7 +16,9 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.modules;
+
+import com.fpetrola.oozx.fuse.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -279,7 +281,7 @@ public class Keyboard {
   // Placeholder for keysyms_map (to be populated based on UI-specific keysyms)
   static KeysymsMap[] KEYSYMS_MAP = {};
 
-  static int init() {
+  public static int init() {
     releaseAll();
 
     // Populate keyboard_data

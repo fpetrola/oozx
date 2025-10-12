@@ -26,7 +26,7 @@ package com.fpetrola.oozx;// settings.java: Handling configuration settings
 // - StartupManager, StartupManagerModule
 // - Other necessary classes for file handling (e.g., Utils)
 
-import com.fpetrola.oozx.fuse.Joystick;
+import com.fpetrola.oozx.fuse.modules.Joystick;
 
 public class Settings {
 

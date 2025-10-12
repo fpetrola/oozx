@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.fuse.Joystick;
+import com.fpetrola.oozx.fuse.modules.Joystick;
 
 public class Ui {
   public static int widgetLevel;

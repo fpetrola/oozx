@@ -16,10 +16,11 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.modules;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
+import com.fpetrola.oozx.fuse.*;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class Joystick {
@@ -37,7 +38,7 @@ public class Joystick {
     this.keyboard = keyboard;
   }
 
-  int init() {
+  public int init() {
     joysticksSupported = UiJoystick.init();
     kempstonValue = timex1Value = timex2Value = 0x00;
     fullerValue = (byte) 0xff;
@@ -124,7 +125,7 @@ public class Joystick {
   // Initialize joysticks
 
   // Cleanup joysticks
-  void end() {
+  public void end() {
     UiJoystick.end();
   }
 

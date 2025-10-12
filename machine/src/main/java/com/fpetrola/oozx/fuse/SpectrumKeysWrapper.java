@@ -18,11 +18,11 @@
 
 package com.fpetrola.oozx.fuse;
 
-class SpectrumKeysWrapper {
-    Input.InputKey input;
-    SpectrumKeys spectrum;
+public class SpectrumKeysWrapper {
+    public Input.InputKey input;
+    public SpectrumKeys spectrum;
 
-    SpectrumKeysWrapper(Input.InputKey input, SpectrumKeys spectrum) {
+    public SpectrumKeysWrapper(Input.InputKey input, SpectrumKeys spectrum) {
         this.input = input;
         this.spectrum = spectrum;
     }
