@@ -33,16 +33,21 @@ import com.sun.jna.Pointer;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class LocalLibretroCore implements LibretroCore {
-  private static EventManager eventManager= Fuse.eventManager;
+  private EventManager eventManager;
 
   public static boolean noContended = false;
   public static retro_input_state_t retroInputStateT;
-  private Display display= Fuse.display;
-  private Machine machine= Fuse.machine;
-  private Z80 z80= Fuse.z80;
-  private TStatesHolder tStatesHolder= Fuse.tStatesHolder;
+  private Display display;
+  private Machine machine;
+  private Z80 z80;
+  private TStatesHolder tStatesHolder;
 
-  public LocalLibretroCore() {
+  public LocalLibretroCore(EventManager eventManager, Display display, Machine machine, Z80 z80, TStatesHolder tStatesHolder) {
+    this.eventManager = eventManager;
+    this.display = display;
+    this.machine = machine;
+    this.z80 = z80;
+    this.tStatesHolder = tStatesHolder;
   }
 
   public int retro_get_beam_x() {

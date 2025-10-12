@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.fuse;
 
+import com.fpetrola.oozx.Fuse;
+
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,7 +35,7 @@ public class DefaultCommandHandler implements CommandHandler {
 
   public static CommandHandler createCommandHandler() {
     LibretroCore core = LibretroCore.INSTANCE;
-    core = new LocalLibretroCore();
+    core = new LocalLibretroCore(Fuse.eventManager, Fuse.display, Fuse.machine, Fuse.z80, Fuse.tStatesHolder);
     return createCommandHandler(core);
   }
 

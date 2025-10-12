@@ -1,5 +1,6 @@
 package model.tests;
 
+import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.fuse.*;
 import org.junit.jupiter.api.*;
 
@@ -19,7 +20,7 @@ public class ZXSpectrumContendedMemoryTests2 {
 
   @BeforeAll
   public static void beforeall() {
-    localLibretroCore = new LocalLibretroCore();
+    localLibretroCore = new LocalLibretroCore(Fuse.eventManager,Fuse.display, Fuse.machine, Fuse.z80, Fuse.tStatesHolder);
     remoteCore = FuseLibretroConnector.core;
     CommandHandler commandHandler1 = DefaultCommandHandler.createCommandHandler(localLibretroCore);
     CommandHandler commandHandler2 = DefaultCommandHandler.createCommandHandler(remoteCore);
