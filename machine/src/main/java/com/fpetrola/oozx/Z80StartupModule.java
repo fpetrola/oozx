@@ -22,7 +22,7 @@ import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
 public class Z80StartupModule extends AbstractStartupModule {
   public Z80StartupModule() {
-    super(DebuggerStartupModule.class, EventStartupModule.class, SetUidStartupModule.class);
+    super(EventStartupModule.class, SetUidStartupModule.class);
   }
 
   public Object getInitContext() {

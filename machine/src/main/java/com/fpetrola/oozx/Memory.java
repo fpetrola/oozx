@@ -286,10 +286,6 @@ public class Memory {
     MemoryPage mapping = mapRead[bank];
 
     if (mapping != null) {
-      if (Debugger.mode != DebuggerMode.INACTIVE) {
-        Debugger.check(DebuggerBreakpointType.READ, address);
-      }
-
       if (mapping != null && mapping.contended) {
         if (Spectrum.tstates < Ula.contention.length) {
           byte tstates = Ula.contention[(int) Spectrum.tstates];
@@ -326,10 +322,6 @@ public class Memory {
   public static void writeByte(int address, byte b) {
     int bank = address >>> PAGE_SIZE_LOGARITHM;
     MemoryPage mapping = mapWrite[bank];
-
-    if (Debugger.mode != DebuggerMode.INACTIVE) {
-      Debugger.check(DebuggerBreakpointType.WRITE, address);
-    }
 
     if (mapping.contended) {
       byte tstates = Ula.contention[(int) Spectrum.tstates];

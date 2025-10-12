@@ -128,7 +128,6 @@ public class Fuse {
         com.fpetrola.oozx.Z80.doOpcodes();
         EventManager.eventDoEvents();
       }
-      r = Debugger.getExitCode();
     }
 
     fuseEnd();
@@ -180,7 +179,6 @@ public class Fuse {
 //        Beta.registerStartup();
     creatorRegisterStartup();
 //        Covox.registerStartup();
-    Debugger.registerStartup();
 //        Didaktik.registerStartup();
 //        Disciple.registerStartup();
     Display.registerStartup(displayContext);
@@ -276,8 +274,6 @@ public class Fuse {
     if (setupStartFiles(startFiles) != 0) return 1;
     if (parseNonoptionArgs(args, firstArg, startFiles) != 0) return 1;
     if (doStartFiles(startFiles) != 0) return 1;
-
-    Debugger.commandEvaluate(Settings.current.debuggerCommand);
 
     if (Ui.mousePresent) Ui.mouseGrabbed = Ui.mouseGrab(true);
 

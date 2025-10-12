@@ -23,7 +23,7 @@ import com.fpetrola.oozx.fuse.AbstractStartupModule;
 public class UlaStartupModule extends AbstractStartupModule {
 
   public UlaStartupModule() {
-    super(DebuggerStartupModule.class, SetUidStartupModule.class);
+    super(SetUidStartupModule.class);
   }
 
   public Object getInitContext() {

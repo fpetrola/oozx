@@ -246,10 +246,6 @@ public class Periph {
 
   // Read a byte from a port, taking no time
   public static byte readPortInternal(int port) {
-    if (Debugger.mode != DebuggerMode.INACTIVE) {
-      Debugger.check(DebuggerBreakpointType.PORT_READ, port);
-    }
-
     // Handle RZX playback
     if (Rzx.playback) {
       try {
@@ -302,10 +298,6 @@ public class Periph {
 
   // Write a byte to a port, taking no time
   public static void writePortInternal(int port, byte b) {
-    if (Debugger.mode != DebuggerMode.INACTIVE) {
-      Debugger.check(DebuggerBreakpointType.PORT_WRITE, port);
-    }
-
     PeripheralData callbackInfo = new PeripheralData(port, (byte) 0, b);
     for (PrivatePort privatePort : ports) {
       PortHandler portData = privatePort.port;
@@ -428,11 +420,5 @@ public class Periph {
     });
 
     return needsHardReset[0];
-  }
-
-  // Register debugger page/unpage events for a peripheral
-  public static void registerPagingEvents(String typeString, int[] pageEvent, int[] unpageEvent) {
-    pageEvent[0] = Debugger.eventRegister(typeString, PAGE_EVENT_STRING);
-    unpageEvent[0] = Debugger.eventRegister(typeString, UNPAGE_EVENT_STRING);
   }
 }

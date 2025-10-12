@@ -97,7 +97,6 @@ public class Spectrum {
     Z80.interrupt();
     UiJoystick.poll();
     Timer.estimateSpeed();
-    Debugger.addTimeEvents();
     Ui.event();
     Ui.errorFrame();
   }
@@ -110,8 +109,6 @@ public class Spectrum {
     spectrumFrameEvent = EventManager.eventRegister(Spectrum::spectrumFrameEventFn, "End of frame");
 
     Module.register(new SpectrumModuleInfo());
-
-    Debugger.systemVariableRegister(DEBUGGER_TYPE_STRING, FRAME_COUNT_NAME, Spectrum::getFrameCount, null);
 
     return 0;
   }
@@ -134,7 +131,6 @@ public class Spectrum {
     long frameLength = Rzx.playback ? tstates : Machine.current.timings.tstatesPerFrame;
 
     EventManager.eventFrame(frameLength);
-    Debugger.breakpointReduceTstates(frameLength);
     tstates -= frameLength;
 
     if (Z80.interruptsEnabledAt >= 0) {

@@ -21,10 +21,6 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.Keyboard;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
-import com.fpetrola.oozx.fuse.peripherals.Peripheral;
-import com.fpetrola.oozx.fuse.peripherals.Port;
-import com.fpetrola.oozx.fuse.ports.UlaFullDecodePortHandler;
-import com.fpetrola.oozx.fuse.ports.UlaPortHandler;
 
 public class Ula {
 
@@ -99,15 +95,6 @@ public class Ula {
     Module.register(new UlaZxModule());
     Periph.register(new UlaPeripheral());
     Periph.register(new UlaFullDecodePeripheral());
-
-    Debugger.systemVariableRegister(
-        DEBUGGER_TYPE_STRING, LAST_BYTE_DETAIL_STRING, Ula::getLastByte, null);
-    Debugger.systemVariableRegister(
-        DEBUGGER_TYPE_STRING, TSTATES_DETAIL_STRING, Ula::getTstates, Ula::setTstates);
-    Debugger.systemVariableRegister(
-        DEBUGGER_TYPE_STRING, MEM7FFD_DETAIL_STRING, Ula::get7ffd, Ula::set7ffd);
-    Debugger.systemVariableRegister(
-        DEBUGGER_TYPE_STRING, MEM1FFD_DETAIL_STRING, Ula::get1ffd, Ula::set1ffd);
 
     defaultValue = (byte) 0xff;
 
