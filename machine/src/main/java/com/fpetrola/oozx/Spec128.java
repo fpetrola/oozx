@@ -23,13 +23,22 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 import java.util.function.Supplier;
 
-public class Spec128 implements SpectrumType {
-  private Memory memory = Fuse.memory;
+public class Spec128 implements SpectrumMachine {
+  private Memory memory;
   private Display display;
-  private Supplier<FuseMachineInfo> machine = Fuse.fuseMachineInfoSupplier;
-  private MachinesPeriph machinesPeriph = Fuse.machinesPeriph;
-  private Spectrum spectrum = Fuse.spectrum;
-  private Spec48 spec48 = Fuse.spec48;
+  private Supplier<FuseMachineInfo> machine;
+  private MachinesPeriph machinesPeriph;
+  private Spectrum spectrum;
+  private Spec48 spec48;
+
+  public Spec128(Memory memory, Display display, Supplier<FuseMachineInfo> machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48) {
+    this.memory = memory;
+    this.display = display;
+    this.machine = machine;
+    this.machinesPeriph = machinesPeriph;
+    this.spectrum = spectrum;
+    this.spec48 = spec48;
+  }
 
   // Initialize the Spectrum 128K machine
   public int init(FuseMachineInfo machine) {
@@ -50,7 +59,8 @@ public class Spec128 implements SpectrumType {
   }
 
   // Reset the Spectrum 128K machine
-  private int reset() {
+  @Override
+  public int reset() {
     // int error = Machine.loadRom(0, Settings.current.rom128_0, Settings.defaults.rom128_0, 0x4000);
     // if (error != 0) return error;
     // error = Machine.loadRom(1, Settings.current.rom128_1, Settings.defaults.rom128_1, 0x4000);
@@ -71,7 +81,7 @@ public class Spec128 implements SpectrumType {
   }
 
   // Common reset for Spectrum 128K
-  public int commonReset(boolean contention) {
+  private int commonReset(boolean contention) {
     FuseMachineInfo machineCurrent = machine.get();
 
     machineCurrent.ramInfo.locked = false;
@@ -114,21 +124,22 @@ public class Spec128 implements SpectrumType {
   }
 
   // Select ROM for 128K
-  public void selectRom(int rom) {
+  private void selectRom(int rom) {
     memory.map16k(0x0000, memory.mapRom, rom);
     FuseMachineInfo machineCurrent = machine.get();
     machineCurrent.ramInfo.currentRom = rom;
   }
 
   // Select RAM page for 128K
-  public void selectPage(int page) {
+  private void selectPage(int page) {
     memory.map16k(0xc000, memory.mapRam, page);
     FuseMachineInfo machineCurrent = machine.get();
     machineCurrent.ramInfo.currentPage = page;
   }
 
   // Map memory for Spectrum 128K
-  public int memoryMap() {
+  @Override
+  public void memoryMap() {
     FuseMachineInfo machineCurrent = machine.get();
     byte lastByte = machineCurrent.ramInfo.lastByte;
 
@@ -148,6 +159,5 @@ public class Spec128 implements SpectrumType {
 
     memory.romcsMap();
 
-    return 0;
   }
 }

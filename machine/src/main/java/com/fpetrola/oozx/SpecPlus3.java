@@ -21,7 +21,7 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
-public class SpecPlus3 implements SpectrumType {
+public class SpecPlus3 implements SpectrumMachine {
   private Memory memory;
   private UPDFdc specplus3Fdc;
   private Display display;
@@ -151,7 +151,7 @@ public class SpecPlus3 implements SpectrumType {
   }
 
   // Reset the Spectrum +3 machine
-  private int reset() {
+  public int reset() {
     int error = machine.loadRom(0, Settings.current.romPlus30, Settings.defaults.romPlus30, 0x4000);
     if (error != 0) return error;
     error = machine.loadRom(1, Settings.current.romPlus31, Settings.defaults.romPlus31, 0x4000);
@@ -264,7 +264,7 @@ public class SpecPlus3 implements SpectrumType {
   }
 
   // Map memory for +3
-  public int memoryMap() {
+  public void memoryMap() {
     FuseMachineInfo machineCurrent = machine.current;
     byte lastByte = machineCurrent.ramInfo.lastByte;
     byte lastByte2 = machineCurrent.ramInfo.lastByte2;
@@ -292,7 +292,6 @@ public class SpecPlus3 implements SpectrumType {
 
     memory.romcsMap();
 
-    return 0;
   }
 
   // Update menu items for +3 drives

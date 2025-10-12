@@ -77,7 +77,7 @@ public class Fuse {
   public static Machine machine = new Machine(eventManager, memory, display, ula, tStatesHolder, spectrum);
   public static MachinesPeriph machinesPeriph = new MachinesPeriph();
   public static Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum);
-  public static Spec128 spec128 = new Spec128();
+  public static Spec128 spec128 = new Spec128(memory, display, fuseMachineInfoSupplier, machinesPeriph, spectrum, spec48);
   public static SpecPlus3 specPlus3 = new SpecPlus3(memory, display, machine, machinesPeriph, spectrum, spec48);
 
   public static void abort() {

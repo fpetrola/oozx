@@ -21,16 +21,14 @@ package com.fpetrola.oozx.fuse.modules;
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
-import java.util.Arrays;
-
 public class MachineStartupModule extends AbstractStartupModule {
   private Machine machine;
-  private SpectrumType[] spectrumTypes;
+  private SpectrumMachine[] spectrumMachines;
 
-  public MachineStartupModule(Machine machine, SpectrumType... spectrumTypes) {
+  public MachineStartupModule(Machine machine, SpectrumMachine... spectrumMachines) {
     super(MemoryStartupModule.class);
     this.machine = machine;
-    this.spectrumTypes = spectrumTypes;
+    this.spectrumMachines = spectrumMachines;
   }
 
   public Object getInitContext() {
@@ -38,7 +36,7 @@ public class MachineStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    for (SpectrumType s : spectrumTypes) {
+    for (SpectrumMachine s : spectrumMachines) {
       machine.addMachine(s::init);
     }
     return 0;

@@ -21,7 +21,7 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
-public class Spec48 implements SpectrumType {
+public class Spec48 implements SpectrumMachine {
   private Memory memory;
   private Display display;
   private Machine machine;
@@ -62,7 +62,7 @@ public class Spec48 implements SpectrumType {
   }
 
   // Reset the Spectrum 48K machine
-  private int reset() {
+  public int reset() {
     int error = machine.loadRom(0, Settings.current.rom48, Settings.defaults.rom48, 0x4000);
     if (error != 0) return error;
 
@@ -107,9 +107,8 @@ public class Spec48 implements SpectrumType {
   }
 
   // Map memory for Spectrum 48K
-  public int memoryMap() {
+  public void memoryMap() {
     memory.map16k(0x0000, memory.mapRom, 0);
     memory.romcsMap();
-    return 0;
   }
 }

@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx;
 
-public interface SpectrumType {
+public interface SpectrumMachine {
   int init(FuseMachineInfo machine);
+  int reset();
+  void memoryMap();
 }
