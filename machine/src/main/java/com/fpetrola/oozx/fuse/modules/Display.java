@@ -99,11 +99,13 @@ public class Display {
   private int criticalRegionY;
   private Supplier<FuseMachineInfo> fuseMachineInfoSupplier;
   private TStatesHolder tStatesHolder;
+  private RAMHolder ramHolder;
 
-  public Display(Memory memory, Supplier<FuseMachineInfo> machine, TStatesHolder tStatesHolder) {
+  public Display(Memory memory, Supplier<FuseMachineInfo> machine, TStatesHolder tStatesHolder, RAMHolder ramHolder) {
     this.memory = memory;
     this.fuseMachineInfoSupplier = machine;
     this.tStatesHolder = tStatesHolder;
+    this.ramHolder = ramHolder;
   }
 
   public int init(Object initContext) {
@@ -213,7 +215,7 @@ public class Display {
       } else {
         offset = attrStart[y] + x;
       }
-      attr = Spectrum.RAM[memory.currentScreen][offset];
+      attr = ramHolder.getRAM()[memory.currentScreen][offset];
     }
     return (byte) attr;
   }
@@ -243,7 +245,7 @@ public class Display {
     int beamY = y + BORDER_HEIGHT;
     int offset = getOffset(x, y);
 
-    byte[] screen = Spectrum.RAM[memory.currentScreen];
+    byte[] screen = ramHolder.getRAM()[memory.currentScreen];
     int data = screen[offset];
     byte data2 = getAttrByte(x, y);
 
@@ -548,7 +550,7 @@ public class Display {
   }
 
   public void dirtyFlashingSinclair() {
-    byte[] screen = Spectrum.RAM[memory.currentScreen];
+    byte[] screen = ramHolder.getRAM()[memory.currentScreen];
     for (int offset = 0x1800; offset < 0x1b00; offset++) {
       byte attr = screen[offset];
       if ((attr & 0x80) != 0) dirty64(offset);

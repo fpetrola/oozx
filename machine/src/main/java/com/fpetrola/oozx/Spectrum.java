@@ -23,18 +23,25 @@ import com.fpetrola.oozx.fuse.modules.EventManager;
 
 import java.util.function.Supplier;
 
-public class Spectrum {
+public class Spectrum  {
   private static Memory memory = Fuse.memory;
-  // RAM array: 65 pages of 16KB each (from SPECTRUM_RAM_PAGES)
-  public static byte[][] RAM = new byte[memory.SPECTRUM_RAM_PAGES][0x4000];
   private static Display display = Fuse.display;
   private static EventManager eventManager = Fuse.eventManager;
   private static Z80 z80 = Fuse.z80;
   private static TStatesHolder tStatesHolder;
+  private static RAMHolder ramHolder;
   private static Supplier<FuseMachineInfo> fuseMachineInfoSupplier = Fuse.fuseMachineInfoSupplier;
 
-  public Spectrum(TStatesHolder tStatesHolder) {
+  public Spectrum(TStatesHolder tStatesHolder, RAMHolder ramHolder) {
     this.tStatesHolder = tStatesHolder;
+    this.ramHolder = ramHolder;
+  }
+
+  public static byte[][] getRAM() {
+    return ramHolder.getRAM();
+  }
+
+  public static void setRAM(byte[][] RAM) {
   }
 
   // Functional interface for checking if a port is handled by the ULA
@@ -118,7 +125,7 @@ public class Spectrum {
     long frameLength = Rzx.playback ? tStatesHolder.getTstates() : getCurrent().timings.tstatesPerFrame;
 
     eventManager.eventFrame(frameLength);
-    tStatesHolder.setTstates(tStatesHolder.getTstates()- frameLength);
+    tStatesHolder.setTstates(tStatesHolder.getTstates() - frameLength);
 
     if (z80.interruptsEnabledAt >= 0) {
       z80.interruptsEnabledAt -= frameLength;
@@ -200,12 +207,12 @@ public class Spectrum {
       case 5:
         column++;
       case 3:
-        return RAM[memory.currentScreen][display.attrStart[line] + column];
+        return ramHolder.getRAM()[memory.currentScreen][display.attrStart[line] + column];
 
       case 4:
         column++;
       case 2:
-        return RAM[memory.currentScreen][display.lineStart[line] + column];
+        return ramHolder.getRAM()[memory.currentScreen][display.lineStart[line] + column];
 
       case 0:
       case 1:

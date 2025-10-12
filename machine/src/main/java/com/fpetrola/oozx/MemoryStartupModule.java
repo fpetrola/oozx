@@ -57,7 +57,7 @@ public class MemoryStartupModule extends AbstractStartupModule {
     for (int i = 0; i < memory.SPECTRUM_RAM_PAGES; i++) {
       for (int j = 0; j < memory.PAGES_IN_16K; j++) {
         MemoryPage page = memory.mapRam[i * memory.PAGES_IN_16K + j] = new MemoryPage();
-        page.setPage(Spectrum.RAM, i, j * memory.PAGE_SIZE);
+        page.setPage(Spectrum.getRAM(), i, j * memory.PAGE_SIZE);
         page.pageNum = i;
         page.offset = j * memory.PAGE_SIZE;
         page.writable = true;

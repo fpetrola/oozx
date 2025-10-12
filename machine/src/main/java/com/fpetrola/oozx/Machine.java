@@ -35,13 +35,15 @@ public class Machine {
   public List<FuseMachineInfo> machineTypes = new ArrayList<>(); // All available machines
   public static FuseMachineInfo current; // The currently selected machine
   private TStatesHolder tStatesHolder;
+  private final Spectrum spectrum;
 
-  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, TStatesHolder tStatesHolder) {
+  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, TStatesHolder tStatesHolder, Spectrum spectrum) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
     this.ula = ula;
     this.tStatesHolder = tStatesHolder;
+    this.spectrum = spectrum;
   }
 
   //  private  void reg1() {
@@ -180,7 +182,7 @@ public class Machine {
 
     eventManager.reset();
 //        EventManager.eventAdd(0, Timer.event);
-    eventManager.eventAdd(machine.timings.tstatesPerFrame, Spectrum.spectrumFrameEvent);
+    eventManager.eventAdd(machine.timings.tstatesPerFrame, spectrum.spectrumFrameEvent);
 
     Sound.end();
 

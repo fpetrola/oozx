@@ -42,7 +42,7 @@ public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInf
     for (int i = 0; i < 64; i++) {
       byte[] page = Libspectrum.snapPages(snap, i);
       if (page != null) {
-        System.arraycopy(page, 0, Spectrum.RAM[i], 0, 0x4000);
+        System.arraycopy(page, 0, Spectrum.getRAM()[i], 0, 0x4000);
       }
     }
 
@@ -62,9 +62,9 @@ public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInf
     Libspectrum.snapSetOutPlus3Memoryport(snap, machine.current.ramInfo.lastByte2);
 
     for (int i = 0; i < 64; i++) {
-      if (Spectrum.RAM[i] != null) {
+      if (Spectrum.getRAM()[i] != null) {
         byte[] buffer = new byte[0x4000];
-        System.arraycopy(Spectrum.RAM[i], 0, buffer, 0, 0x4000);
+        System.arraycopy(Spectrum.getRAM()[i], 0, buffer, 0, 0x4000);
         Libspectrum.snapSetPages(snap, i, buffer);
       }
     }

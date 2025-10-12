@@ -25,7 +25,6 @@ import com.fpetrola.oozx.fuse.KeyboardStartupModule;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
-import ppg.spec.Spec;
 
 import java.util.List;
 import java.util.Random;
@@ -58,16 +57,28 @@ public class Fuse {
       this.tstates = tstates;
     }
   };
+  private static RAMHolder ramHolder = new RAMHolder() {
+    // RAM array: 65 pages of 16KB each (from SPECTRUM_RAM_PAGES)
+    private static byte[][] RAM = new byte[memory.SPECTRUM_RAM_PAGES][0x4000];
+
+    public byte[][] getRAM() {
+      return RAM;
+    }
+
+    public void setRAM(byte[][] RAM) {
+
+    }
+  };
   public static Memory memory = new Memory(fuseMachineInfoSupplier, tStatesHolder);
-  public static Display display = new Display(memory, fuseMachineInfoSupplier, tStatesHolder);
+  public static Display display = new Display(memory, fuseMachineInfoSupplier, tStatesHolder, ramHolder);
   public static Keyboard keyboard = new Keyboard();
   public static Ula ula = new Ula(memory, display, fuseMachineInfoSupplier, keyboard);
   public static EventManager eventManager = new EventManager(fuseMachineInfoSupplier, tStatesHolder);
-  public static Machine machine = new Machine(eventManager, memory, display, ula, tStatesHolder);
   public static Joystick joystick = new Joystick(keyboard);
   public static Z80 z80 = new Z80();
+  public static Spectrum spectrum = new Spectrum(tStatesHolder, ramHolder);
+  public static Machine machine = new Machine(eventManager, memory, display, ula, tStatesHolder, spectrum);
   public static MachinesPeriph machinesPeriph = new MachinesPeriph(machine);
-  public static Spectrum spectrum= new Spectrum(tStatesHolder);
 
   public static void abort() {
 
