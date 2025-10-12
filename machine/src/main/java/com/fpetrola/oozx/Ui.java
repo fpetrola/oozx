@@ -31,13 +31,6 @@ public class Ui {
 
   }
 
-  // Error levels
-  public enum UIErrorLevel {
-    UI_ERROR_INFO,
-    UI_ERROR_WARNING,
-    UI_ERROR_ERROR
-  }
-
   public enum UIConfirmJoystick {
     UI_CONFIRM_JOYSTICK_NONE,
     UI_CONFIRM_JOYSTICK_KEYBOARD,

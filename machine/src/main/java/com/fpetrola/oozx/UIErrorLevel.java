@@ -16,24 +16,11 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.fuse.ports.DefaultPortHandler;
-
-public class JoystickPortHandler extends DefaultPortHandler {
-  private Joystick joystick;
-
-  public JoystickPortHandler(int mask, int value, Joystick joystick) {
-    super(mask, value, true, false);
-    this.joystick = joystick;
-  }
-
-  @Override
-  public byte read(int port, byte[] attached) {
-    return joystick.kempstonRead(port, attached);
-  }
-
-  @Override
-  public void write(int port, byte value) {
-  }
+// Error levels
+public enum UIErrorLevel {
+  UI_ERROR_INFO,
+  UI_ERROR_WARNING,
+  UI_ERROR_ERROR
 }

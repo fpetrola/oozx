@@ -18,7 +18,9 @@
 
 package com.fpetrola.oozx.fuse;
 
+import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.Settings;
+import com.fpetrola.oozx.UIErrorLevel;
 import com.fpetrola.oozx.Ui;
 
 import java.util.Arrays;
@@ -26,6 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Input {
+
+  private static Joystick joystick= Fuse.joystick;
 
   // Enums and classes from Keyboard.java (repeated for completeness)
   public enum InputEventType {
@@ -338,7 +342,7 @@ public class Input {
       case INPUT_EVENT_JOYSTICK_RELEASE:
         return doJoystick((InputEventJoystick) event.types, false);
       default:
-        Ui.error(Ui.UIErrorLevel.UI_ERROR_ERROR, "Unknown input event type %d", event.type.ordinal());
+        Ui.error(UIErrorLevel.UI_ERROR_ERROR, "Unknown input event type %d", event.type.ordinal());
         return 1;
     }
   }
@@ -410,15 +414,15 @@ public class Input {
     boolean swallow = false;
     int ordinal = event.spectrumKey.getValue();
     if (ordinal == Settings.current.joystickKeyboardUp) {
-      swallow = Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_UP, true);
+      swallow = joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_UP, true);
     } else if (ordinal == Settings.current.joystickKeyboardDown) {
-      swallow = Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_DOWN, true);
+      swallow = joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_DOWN, true);
     } else if (ordinal == Settings.current.joystickKeyboardLeft) {
-      swallow = Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_LEFT, true);
+      swallow = joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_LEFT, true);
     } else if (ordinal == Settings.current.joystickKeyboardRight) {
-      swallow = Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_RIGHT, true);
+      swallow = joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_RIGHT, true);
     } else if (ordinal == Settings.current.joystickKeyboardFire) {
-      swallow = Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE, true);
+      swallow = joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE, true);
     }
 
     if (swallow) return 0;
@@ -443,15 +447,15 @@ public class Input {
     int value = event.spectrumKey.getValue();
 
     if (value == Settings.current.joystickKeyboardUp) {
-      Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_UP, false);
+      joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_UP, false);
     } else if (value == Settings.current.joystickKeyboardDown) {
-      Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_DOWN, false);
+      joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_DOWN, false);
     } else if (value == Settings.current.joystickKeyboardLeft) {
-      Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_LEFT, false);
+      joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_LEFT, false);
     } else if (value == Settings.current.joystickKeyboardRight) {
-      Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_RIGHT, false);
+      joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_RIGHT, false);
     } else if (value == Settings.current.joystickKeyboardFire) {
-      Joystick.press(Joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE, false);
+      joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE, false);
     }
 
     return 0;
@@ -563,7 +567,7 @@ public class Input {
         }
         break;
       default:
-        Ui.error(Ui.UIErrorLevel.UI_ERROR_ERROR, "getFireButtonKey: which = %d, button = %d", which, button.getValue()+"");
+        Ui.error(UIErrorLevel.UI_ERROR_ERROR, "getFireButtonKey: which = %d, button = %d", which, button.getValue()+"");
         throw new RuntimeException("Invalid joystick button");
     }
     int finalKey = key;
@@ -599,14 +603,14 @@ public class Input {
           button = Joystick.JoystickButton.JOYSTICK_BUTTON_RIGHT;
           break;
         default:
-          Ui.error(Ui.UIErrorLevel.UI_ERROR_ERROR, "doJoystick: unknown button %d", joystickEvent.button.getValue());
+          Ui.error(UIErrorLevel.UI_ERROR_ERROR, "doJoystick: unknown button %d", joystickEvent.button.getValue());
           throw new RuntimeException("Invalid joystick button");
       }
-      Joystick.press(which, button, press);
+      joystick.press(which, button, press);
     } else {
       KeyboardKeyName key = getFireButtonKey(which, joystickEvent.button);
       if (key == KeyboardKeyName.KEYBOARD_JOYSTICK_FIRE) {
-        Joystick.press(which, Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE, press);
+        joystick.press(which, Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE, press);
       } else {
         if (press) {
           Keyboard.press(key);

@@ -19,19 +19,30 @@
 package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.*;
-
-import static com.fpetrola.oozx.Ui.UIErrorLevel.UI_ERROR_ERROR;
-import static com.fpetrola.oozx.Ui.UIErrorLevel.UI_ERROR_INFO;
+import com.fpetrola.oozx.Module;
+import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class Joystick {
 
   // Constants
-  public static final int JOYSTICK_KEYBOARD = 2;
-  public static final int JOYSTICK_TYPE_COUNT = 8;
-  public static final int JOYSTICK_CONN_COUNT = 4;
+  public final int JOYSTICK_KEYBOARD = 2;
+  public final int JOYSTICK_TYPE_COUNT = 8;
+  public final int JOYSTICK_CONN_COUNT = 4;
 
   // Number of joysticks supported
-  public static int joysticksSupported = 0;
+  public int joysticksSupported = 0;
+
+  int init() {
+    joysticksSupported = UiJoystick.init();
+    kempstonValue = timex1Value = timex2Value = 0x00;
+    fullerValue = (byte) 0xff;
+
+    Module.register(new JoystickModuleInfo(this));
+    Periph.register(new KempstonStrictPeripheral(this));
+    Periph.register(new KempstonLoosePeriphPeripheral(this));
+
+    return 0;
+  }
 
   // Joystick types
   public enum JoystickType {
@@ -55,48 +66,48 @@ public class Joystick {
   }
 
   // Joystick names
-  public static final String[] JOYSTICK_NAME = {
+  public final String[] JOYSTICK_NAME = {
       "None", "Cursor", "Kempston", "Sinclair 1", "Sinclair 2",
       "Timex 1", "Timex 2", "Fuller"
   };
 
   // Joystick connection names
-  public static final String[] JOYSTICK_CONNECTION = {
+  public final String[] JOYSTICK_CONNECTION = {
       "None", "Keyboard", "Joystick 1", "Joystick 2"
   };
 
   // Bit masks for joystick types
-  private static final byte[] KEMPSTON_MASK = {0x02, 0x01, 0x08, 0x04, 0x10};
-  private static final byte[] TIMEX_MASK = {0x04, 0x08, 0x01, 0x02, (byte) 0x80};
+  private final byte[] KEMPSTON_MASK = {0x02, 0x01, 0x08, 0x04, 0x10};
+  private final byte[] TIMEX_MASK = {0x04, 0x08, 0x01, 0x02, (byte) 0x80};
 
   // Keys for joystick emulation
-  private static final KeyboardKeyName[] CURSOR_KEY = {
+  private final KeyboardKeyName[] CURSOR_KEY = {
       KeyboardKeyName.KEYBOARD_5, KeyboardKeyName.KEYBOARD_8,
       KeyboardKeyName.KEYBOARD_7, KeyboardKeyName.KEYBOARD_6,
       KeyboardKeyName.KEYBOARD_0
   };
 
-  private static final KeyboardKeyName[] SINCLAIR1_KEY = {
+  private final KeyboardKeyName[] SINCLAIR1_KEY = {
       KeyboardKeyName.KEYBOARD_6, KeyboardKeyName.KEYBOARD_7,
       KeyboardKeyName.KEYBOARD_9, KeyboardKeyName.KEYBOARD_8,
       KeyboardKeyName.KEYBOARD_0
   };
 
-  private static final KeyboardKeyName[] SINCLAIR2_KEY = {
+  private final KeyboardKeyName[] SINCLAIR2_KEY = {
       KeyboardKeyName.KEYBOARD_1, KeyboardKeyName.KEYBOARD_2,
       KeyboardKeyName.KEYBOARD_4, KeyboardKeyName.KEYBOARD_3,
       KeyboardKeyName.KEYBOARD_5
   };
 
   // Current joystick values
-  static byte kempstonValue = 0x00;
-  static byte timex1Value = 0x00;
-  static byte timex2Value = 0x00;
-  static byte fullerValue = (byte) 0xff;
+  byte kempstonValue = 0x00;
+  byte timex1Value = 0x00;
+  byte timex2Value = 0x00;
+  byte fullerValue = (byte) 0xff;
 
   // Register startup
 
-//    private static void reg1() {
+//    private  void reg1() {
 //        StartupManagerModule[] dependencies = {
 //            StartupManagerModule.LIBSPECTRUM,
 //            StartupManagerModule.SETUID
@@ -108,12 +119,12 @@ public class Joystick {
   // Initialize joysticks
 
   // Cleanup joysticks
-  static void end() {
+  void end() {
     UiJoystick.end();
   }
 
   // Handle joystick button press/release
-  public static boolean press(int which, JoystickButton button, boolean press) {
+  public boolean press(int which, JoystickButton button, boolean press) {
     JoystickType type;
     switch (which) {
       case 0:
@@ -190,28 +201,28 @@ public class Joystick {
         return false;
 
       default:
-        Ui.error(UI_ERROR_ERROR, "joystick_press: unknown joystick type %d", type.ordinal());
+        Ui.error(UIErrorLevel.UI_ERROR_ERROR, "joystick_press: unknown joystick type %d", type.ordinal());
         throw new RuntimeException("Unknown joystick type");
     }
   }
 
   // Read functions for specific interfaces
-  public static byte kempstonRead(int port, byte[] attached) {
+  public byte kempstonRead(int port, byte[] attached) {
     attached[0] = (byte) 0xff; // TODO: Verify correct value
     return kempstonValue;
   }
 
-  public static byte timexRead(int port, int which) {
+  public byte timexRead(int port, int which) {
     return which != 0 ? timex2Value : timex1Value;
   }
 
-  public static byte fullerRead(int port, byte[] attached) {
+  public byte fullerRead(int port, byte[] attached) {
     attached[0] = (byte) 0xff; // TODO: Verify correct value
     return fullerValue;
   }
 
   // Snapshot handling
-  public static void enabledSnapshot(Libspectrum.Snap snap) {
+  public void enabledSnapshot(Libspectrum.Snap snap) {
     int numJoysticks = snap.joystickActiveCount();
     for (int i = 0; i < numJoysticks; i++) {
       JoystickType fuseType;
@@ -238,7 +249,7 @@ public class Joystick {
           fuseType = JoystickType.JOYSTICK_TYPE_FULLER;
           break;
         default:
-          Ui.error(UI_ERROR_INFO, "Ignoring unsupported joystick in snapshot %s");
+          Ui.error(UIErrorLevel.UI_ERROR_INFO, "Ignoring unsupported joystick in snapshot %s");
           continue;
       }
 
@@ -268,7 +279,7 @@ public class Joystick {
     }
   }
 
-  public static void toSnapshot(Libspectrum.Snap snap) {
+  public void toSnapshot(Libspectrum.Snap snap) {
     if (Settings.current.joyKempston) {
       addJoystick(snap, JoystickType.JOYSTICK_TYPE_KEMPSTON, Libspectrum.LIBSPECTRUM_JOYSTICK_INPUT_NONE);
     }
@@ -277,7 +288,7 @@ public class Joystick {
     addJoystick(snap, Settings.current.joystick2Output, Libspectrum.LIBSPECTRUM_JOYSTICK_INPUT_JOYSTICK_2);
   }
 
-  private static void addJoystick(Libspectrum.Snap snap, JoystickType fuseType, int inputs) {
+  private void addJoystick(Libspectrum.Snap snap, JoystickType fuseType, int inputs) {
     JoystickType libspectrumType;
     switch (fuseType) {
       case JOYSTICK_TYPE_CURSOR:

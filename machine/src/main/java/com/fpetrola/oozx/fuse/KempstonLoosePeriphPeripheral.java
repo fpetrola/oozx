@@ -24,7 +24,7 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 import java.util.List;
 
 public class KempstonLoosePeriphPeripheral extends AbstractZxPeripheral {
-  public KempstonLoosePeriphPeripheral() {
-    super(Periph.Type.KEMPSTON_LOOSE, List.of(new JoystickPortHandler(0x0020, 0x0000)));
+  public KempstonLoosePeriphPeripheral(Joystick joystick) {
+    super(Periph.Type.KEMPSTON_LOOSE, List.of(new JoystickPortHandler(0x0020, 0x0000, joystick)));
   }
 }

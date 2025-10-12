@@ -18,15 +18,16 @@
 
 package com.fpetrola.oozx.fuse;
 
+import com.fpetrola.oozx.Fdd;
 import com.fpetrola.oozx.LibspectrumStartupModule;
-import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.SetUidStartupModule;
-import com.fpetrola.oozx.UiJoystick;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class JoystickStartupModule extends AbstractStartupModule {
-  public JoystickStartupModule() {
+  private Joystick joystick;
+
+  public JoystickStartupModule(Joystick joystick) {
     super(LibspectrumStartupModule.class, SetUidStartupModule.class);
+    this.joystick = joystick;
   }
 
   public Object getInitContext() {
@@ -34,19 +35,11 @@ public class JoystickStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    Joystick.joysticksSupported = UiJoystick.init();
-    Joystick.kempstonValue = Joystick.timex1Value = Joystick.timex2Value = 0x00;
-    Joystick.fullerValue = (byte) 0xff;
-
-    Module.register(new JoystickModuleInfo());
-    Periph.register(new KempstonStrictPeripheral());
-    Periph.register(new KempstonLoosePeriphPeripheral());
-
-    return 0;
+    return joystick.init();
   }
 
   public void endFn() {
-    Joystick.end();
+    joystick.end();
   }
 
 }

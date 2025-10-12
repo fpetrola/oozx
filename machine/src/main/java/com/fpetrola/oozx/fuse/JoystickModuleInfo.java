@@ -22,11 +22,17 @@ import com.fpetrola.oozx.DefaultZxModuleInfo;
 import com.fpetrola.oozx.Libspectrum;
 
 public class JoystickModuleInfo extends DefaultZxModuleInfo {
+  private Joystick joystick;
+
+  public JoystickModuleInfo(Joystick joystick) {
+    this.joystick = joystick;
+  }
+
   public void snapshotEnabled(Libspectrum.Snap snap) {
-    Joystick.enabledSnapshot(snap); // snapshot_enabled
+    joystick.enabledSnapshot(snap); // snapshot_enabled
   }
 
   public void snapshotTo(Libspectrum.Snap snap) {
-    Joystick.toSnapshot(snap); // snapshot_to
+    joystick.toSnapshot(snap); // snapshot_to
   }
 }

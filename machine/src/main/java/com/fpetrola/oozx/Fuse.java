@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.Joystick;
 import com.fpetrola.oozx.fuse.JoystickStartupModule;
 import com.fpetrola.oozx.fuse.KeyboardStartupModule;
 import com.fpetrola.oozx.fuse.modules.Display;
@@ -46,6 +47,7 @@ public class Fuse {
   public static Display display= new Display(memory);
   public static Ula ula= new Ula(memory, display);
   public static EventManager eventManager= new EventManager();
+  public static Joystick joystick= new Joystick();
 
   public static void abort() {
 
@@ -113,7 +115,7 @@ public class Fuse {
         new CreatorStartupModule(),
         new DisplayStartupModule(display),
         new EventManagerStartupModule(eventManager),
-        new JoystickStartupModule(),
+        new JoystickStartupModule(joystick),
         new KeyboardStartupModule(),
         new LibspectrumStartupModule(),
         new MachineStartupModule(),
