@@ -98,10 +98,12 @@ public class Display {
   private int criticalRegionX;
   private int criticalRegionY;
   private Supplier<FuseMachineInfo> fuseMachineInfoSupplier;
+  private TStatesHolder tStatesHolder;
 
-  public Display(Memory memory, Supplier<FuseMachineInfo> machine) {
+  public Display(Memory memory, Supplier<FuseMachineInfo> machine, TStatesHolder tStatesHolder) {
     this.memory = memory;
     this.fuseMachineInfoSupplier = machine;
+    this.tStatesHolder = tStatesHolder;
   }
 
   public int init(Object initContext) {
@@ -288,7 +290,7 @@ public class Display {
 
   public int[] getBeamPosition() {
     int[] beam = new int[2];
-    long tstates = Spectrum.tstates;
+    long tstates = tStatesHolder.getTstates();
     FuseMachineInfo current = fuseMachineInfoSupplier.get();
     long[] lineTimes = current.lineTimes;
 

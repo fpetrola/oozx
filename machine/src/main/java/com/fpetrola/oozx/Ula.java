@@ -25,6 +25,8 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 import java.util.function.Supplier;
 
+import static com.fpetrola.oozx.Fuse.tStatesHolder;
+
 public class Ula {
   private final Memory memory;
 
@@ -43,6 +45,7 @@ public class Ula {
   private final Display display;
   private final Supplier<FuseMachineInfo> currentMachineSupplier;
   private Keyboard keyboard;
+  private TStatesHolder tStatesHolder = Fuse.tStatesHolder;
 
 
   public Ula(Memory memory, Display display, Supplier<FuseMachineInfo> fuseMachineInfoSupplier, Keyboard keyboard) {
@@ -54,7 +57,7 @@ public class Ula {
 
   // Initialize ULA module
   int init(Object context) {
-    Module.register(new UlaZxModuleInfo(this));
+    Module.register(new UlaZxModuleInfo(this, tStatesHolder));
     Periph.register(new UlaPeripheral());
     Periph.register(new UlaFullDecodePeripheral());
 
@@ -84,7 +87,7 @@ public class Ula {
     lastByte = b;
 
     display.setLoresBorder(b & 0x07);
-    Sound.beeper(Spectrum.tstates,
+    Sound.beeper(tStatesHolder.getTstates(),
         ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || Tape.microphone ? 1 : 0));
 
     if (getCurrent().timex) {
@@ -120,32 +123,32 @@ public class Ula {
   public void contendPortEarly(int port) {
 //    System.out.println("port2 "+ port);
     if (memory.mapRead[port >>> memory.PAGE_SIZE_LOGARITHM].contended) {
-      GetTStatesHistory.addTStateUpdate(contentionNoMreq[(int) Spectrum.tstates], "ula_contend_port_early", (int) Spectrum.tstates);
-      Spectrum.tstates += contentionNoMreq[(int) Spectrum.tstates];
+      GetTStatesHistory.addTStateUpdate(contentionNoMreq[(int) tStatesHolder.getTstates()], "ula_contend_port_early", (int) tStatesHolder.getTstates());
+      tStatesHolder.setTstates(tStatesHolder.getTstates() + contentionNoMreq[(int) tStatesHolder.getTstates()]);
     }
-    GetTStatesHistory.addTStateUpdate((byte) 1, "contend_port_early", (int) Spectrum.tstates);
-    Spectrum.tstates++;
+    GetTStatesHistory.addTStateUpdate((byte) 1, "contend_port_early", (int) tStatesHolder.getTstates());
+    tStatesHolder.setTstates(tStatesHolder.getTstates() + 1);
   }
 
   // Handle contention for port access (late phase)
   public void contendPortLate(int port) {
     if (getCurrent().ramInfo.portFromUla.apply(port)) {
-      GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) Spectrum.tstates] + 2), "ula_contend_port_late", (int) Spectrum.tstates);
-      Spectrum.tstates += contentionNoMreq[(int) Spectrum.tstates];
-      Spectrum.tstates += 2;
+      GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) tStatesHolder.getTstates()] + 2), "ula_contend_port_late", (int) tStatesHolder.getTstates());
+      tStatesHolder.setTstates(tStatesHolder.getTstates() + contentionNoMreq[(int) tStatesHolder.getTstates()]);
+      tStatesHolder.setTstates(tStatesHolder.getTstates() + 2);
     } else {
       if (memory.mapRead[port >>> memory.PAGE_SIZE_LOGARITHM].contended) {
-        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) Spectrum.tstates] + 1), "ula_contend_port_late", (int) Spectrum.tstates);
-        Spectrum.tstates += contentionNoMreq[(int) Spectrum.tstates];
-        Spectrum.tstates++;
-        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) Spectrum.tstates] + 1), "ula_contend_port_late", (int) Spectrum.tstates);
-        Spectrum.tstates += contentionNoMreq[(int) Spectrum.tstates];
-        Spectrum.tstates++;
-        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) Spectrum.tstates]), "ula_contend_port_late", (int) Spectrum.tstates);
-        Spectrum.tstates += contentionNoMreq[(int) Spectrum.tstates];
+        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) tStatesHolder.getTstates()] + 1), "ula_contend_port_late", (int) tStatesHolder.getTstates());
+        tStatesHolder.setTstates(tStatesHolder.getTstates() + contentionNoMreq[(int) tStatesHolder.getTstates()]);
+        tStatesHolder.setTstates(tStatesHolder.getTstates() + 1);
+        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) tStatesHolder.getTstates()] + 1), "ula_contend_port_late", (int) tStatesHolder.getTstates());
+        tStatesHolder.setTstates(tStatesHolder.getTstates() + contentionNoMreq[(int) tStatesHolder.getTstates()]);
+        tStatesHolder.setTstates(tStatesHolder.getTstates() + 1);
+        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) tStatesHolder.getTstates()]), "ula_contend_port_late", (int) tStatesHolder.getTstates());
+        tStatesHolder.setTstates(tStatesHolder.getTstates() + contentionNoMreq[(int) tStatesHolder.getTstates()]);
       } else {
-        GetTStatesHistory.addTStateUpdate((byte) 2, "contend_port_late", (int) Spectrum.tstates);
-        Spectrum.tstates += 2;
+        GetTStatesHistory.addTStateUpdate((byte) 2, "contend_port_late", (int) tStatesHolder.getTstates());
+        tStatesHolder.setTstates(tStatesHolder.getTstates() + 2);
       }
     }
   }

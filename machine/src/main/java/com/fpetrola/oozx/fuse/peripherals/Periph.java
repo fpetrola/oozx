@@ -32,6 +32,7 @@ public class Periph {
   private static EventManager eventManager= Fuse.eventManager;
   private static Ula ula= Fuse.ula;
   private static Machine machine= Fuse.machine;
+  private static TStatesHolder tStatesHolder= Fuse.tStatesHolder;
 
   // Enum for peripheral types
   public enum Type {
@@ -243,7 +244,7 @@ public class Periph {
       writePortInternal(0x7ffd, b);
     }
 
-    Spectrum.tstates++;
+    tStatesHolder.setTstates(tStatesHolder.getTstates() + 1);
 //        b= -1;
     return b;
   }
@@ -257,8 +258,8 @@ public class Periph {
         return value;
       } catch (Libspectrum.Error error) {
         Rzx.stopPlayback(true);
-        //                EventManager.eventAdd(Spectrum.tstates, Event.Type.NULL);
-        eventManager.eventAdd(Spectrum.tstates, -1);
+        //                EventManager.eventAdd(tStatesHolder.tstates, Event.Type.NULL);
+        eventManager.eventAdd(tStatesHolder.getTstates(), -1);
         return readPortInternal(port); // Retry
       }
     }
@@ -297,7 +298,7 @@ public class Periph {
     ula.contendPortEarly(port);
     writePortInternal(port, b);
     ula.contendPortLate(port);
-    Spectrum.tstates++;
+    tStatesHolder.setTstates(tStatesHolder.getTstates() + 1);
   }
 
   // Write a byte to a port, taking no time

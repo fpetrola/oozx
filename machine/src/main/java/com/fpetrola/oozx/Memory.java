@@ -43,7 +43,7 @@ public class Memory {
   public final int PAGES_IN_12K = PAGES_IN_16K - PAGES_IN_4K;
 
   // Maximum number of 16KB RAM and ROM pages
-  public final int SPECTRUM_RAM_PAGES = 65; // 1040 KB for Pentagon 1024
+  public static final int SPECTRUM_RAM_PAGES = 65; // 1040 KB for Pentagon 1024
   public final int SPECTRUM_ROM_PAGES = 4;
 
   // Memory sources
@@ -61,9 +61,11 @@ public class Memory {
   public MemoryPage[] mapRam = new MemoryPage[SPECTRUM_RAM_PAGES * PAGES_IN_16K];
   public MemoryPage[] mapRom = new MemoryPage[SPECTRUM_ROM_PAGES * PAGES_IN_16K];
   private Supplier<FuseMachineInfo> fuseMachineInfoSupplier;
+  private TStatesHolder tStatesHolder;
 
-  public Memory(Supplier<FuseMachineInfo> machine) {
+  public Memory(Supplier<FuseMachineInfo> machine, TStatesHolder tStatesHolder) {
     this.fuseMachineInfoSupplier = machine;
+    this.tStatesHolder = tStatesHolder;
   }
 
   // Memory pool for allocated memory
@@ -208,15 +210,15 @@ public class Memory {
 
     if (mapping != null) {
       if (mapping != null && mapping.contended) {
-        if (Spectrum.tstates < ula.contention.length) {
-          byte tstates = ula.contention[(int) Spectrum.tstates];
+        if (tStatesHolder.getTstates() < ula.contention.length) {
+          byte tstates = ula.contention[(int) tStatesHolder.getTstates()];
           if (tstates > 0) {
-            GetTStatesHistory.addTStateUpdate(tstates, "ula readbyte", (int) Spectrum.tstates);
+            GetTStatesHistory.addTStateUpdate(tstates, "ula readbyte", (int) tStatesHolder.getTstates());
           }
-          Spectrum.tstates += tstates;
+          tStatesHolder.setTstates(tStatesHolder.getTstates() + tstates);
         }
       }
-//      Spectrum.tstates += 3;
+//      tStatesHolder.tstates += 3;
 
       if (Opus.active && address >= 0x2800 && address < 0x3800) {
         return Opus.read(address);
@@ -245,13 +247,13 @@ public class Memory {
     MemoryPage mapping = mapWrite[bank];
 
     if (mapping.contended) {
-      byte tstates = ula.contention[(int) Spectrum.tstates];
+      byte tstates = ula.contention[(int) tStatesHolder.getTstates()];
       if (tstates > 0) {
-        GetTStatesHistory.addTStateUpdate(tstates, "ula writebyte", (int) Spectrum.tstates);
+        GetTStatesHistory.addTStateUpdate(tstates, "ula writebyte", (int) tStatesHolder.getTstates());
       }
-      Spectrum.tstates += tstates;
+      tStatesHolder.setTstates(tStatesHolder.getTstates() + tstates);
     }
-//      Spectrum.tstates += 3;
+//      tStatesHolder.tstates += 3;
 
 //    writeByteInternal(address, b);
   }

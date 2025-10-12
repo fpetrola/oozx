@@ -34,12 +34,14 @@ public class Machine {
 
   public List<FuseMachineInfo> machineTypes = new ArrayList<>(); // All available machines
   public static FuseMachineInfo current; // The currently selected machine
+  private TStatesHolder tStatesHolder;
 
-  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula) {
+  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, TStatesHolder tStatesHolder) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
     this.ula = ula;
+    this.tStatesHolder = tStatesHolder;
   }
 
   //  private  void reg1() {
@@ -174,7 +176,7 @@ public class Machine {
 
     Settings.setString(Settings.current.startMachine, machine.id);
 
-    Spectrum.tstates = 0;
+    tStatesHolder.setTstates(0);
 
     eventManager.reset();
 //        EventManager.eventAdd(0, Timer.event);
@@ -274,7 +276,7 @@ public class Machine {
 //    current = new FuseMachineInfo();
 //    current.reset = () -> {
 //    };
-//    current.ram = new Spectrum.RamInfo();
+//    current.ram = new tStatesHolder.RamInfo();
 //    current.ram.romcs = false;
 //    current.memoryMap = () -> {
 //    };

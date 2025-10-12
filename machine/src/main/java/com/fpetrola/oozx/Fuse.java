@@ -25,6 +25,7 @@ import com.fpetrola.oozx.fuse.KeyboardStartupModule;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
+import ppg.spec.Spec;
 
 import java.util.List;
 import java.util.Random;
@@ -46,15 +47,27 @@ public class Fuse {
   // The creator information we'll store in file formats that support this
   public static LibspectrumCreator creator;
   public static Supplier<FuseMachineInfo> fuseMachineInfoSupplier = () -> Machine.current;
-  public static Memory memory = new Memory(fuseMachineInfoSupplier);
-  public static Display display = new Display(memory, fuseMachineInfoSupplier);
-  public static Keyboard keyboard= new Keyboard();
-  public static Ula ula =new Ula(memory, display, fuseMachineInfoSupplier, keyboard);
-  public static EventManager eventManager = new EventManager(fuseMachineInfoSupplier);
-  public static Machine machine = new Machine(eventManager, memory, display, ula);
+  public static TStatesHolder tStatesHolder = new TStatesHolder() {
+    private long tstates;
+
+    public long getTstates() {
+      return tstates;
+    }
+
+    public void setTstates(long tstates) {
+      this.tstates = tstates;
+    }
+  };
+  public static Memory memory = new Memory(fuseMachineInfoSupplier, tStatesHolder);
+  public static Display display = new Display(memory, fuseMachineInfoSupplier, tStatesHolder);
+  public static Keyboard keyboard = new Keyboard();
+  public static Ula ula = new Ula(memory, display, fuseMachineInfoSupplier, keyboard);
+  public static EventManager eventManager = new EventManager(fuseMachineInfoSupplier, tStatesHolder);
+  public static Machine machine = new Machine(eventManager, memory, display, ula, tStatesHolder);
   public static Joystick joystick = new Joystick(keyboard);
-  public static Z80 z80= new Z80();
+  public static Z80 z80 = new Z80();
   public static MachinesPeriph machinesPeriph = new MachinesPeriph(machine);
+  public static Spectrum spectrum= new Spectrum(tStatesHolder);
 
   public static void abort() {
 

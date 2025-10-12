@@ -16,48 +16,24 @@
  *
  */
 
-package com.fpetrola.oozx;// Assuming the following classes are ported:
-// - Libspectrum (with byte as int for unsigned, dword as long)
-// - Compat
-// - Debugger
-// - Display
-// - EventManager (from event.h)
-// - Keyboard
-// - StartupManager, StartupManagerModule
-// - Loader
-// - Machine
-// - Memory (with MEMORY_CURRENT_SCREEN, etc.)
-// - Module, ModuleInfo
-// - Printer
-// - Ula
-// - PhantomTypist
-// - Psg
-// - Profile
-// - Rzx
-// - Settings
-// - Sound
-// - SpectrumConstants (for SPECTRUM_RAM_PAGES, DISPLAY_BORDER_HEIGHT, etc.)
-// - Tape
-// - Timer
-// - Ui, UiJoystick
-// - Z80
-// Use int for libspectrum_byte (0-255), long for libspectrum_dword
-
+package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 
 public class Spectrum {
-  private static Memory memory= Fuse.memory;
-  // How many tstates have elapsed since the last interrupt?
-  public static long tstates;
-
+  private static Memory memory = Fuse.memory;
   // RAM array: 65 pages of 16KB each (from SPECTRUM_RAM_PAGES)
   public static byte[][] RAM = new byte[memory.SPECTRUM_RAM_PAGES][0x4000];
-  private static Display display= Fuse.display;
-  private static EventManager eventManager= Fuse.eventManager;
-  private static Machine machine= Fuse.machine;
-  private static Z80 z80= Fuse.z80;
+  private static Display display = Fuse.display;
+  private static EventManager eventManager = Fuse.eventManager;
+  private static Machine machine = Fuse.machine;
+  private static Z80 z80 = Fuse.z80;
+  private static TStatesHolder tStatesHolder;
+
+  public Spectrum(TStatesHolder tStatesHolder) {
+    this.tStatesHolder = tStatesHolder;
+  }
 
   // Functional interface for checking if a port is handled by the ULA
   @FunctionalInterface
@@ -95,7 +71,13 @@ public class Spectrum {
     framesSinceReset = 0;
   }
 
-  ;
+  public long getTstates() {
+    return tStatesHolder.getTstates();
+  }
+
+  public void setTstates(long tstates) {
+    tStatesHolder.setTstates(tstates);
+  }
 
   private static void spectrumFrameEventFn(long lastTstates, int type, Object userData) {
     if (Rzx.playback) eventManager.eventForceEvents();
@@ -131,10 +113,10 @@ public class Spectrum {
 //    }
 
   public static int spectrumFrame() {
-    long frameLength = Rzx.playback ? tstates : machine.current.timings.tstatesPerFrame;
+    long frameLength = Rzx.playback ? tStatesHolder.getTstates() : machine.current.timings.tstatesPerFrame;
 
     eventManager.eventFrame(frameLength);
-    tstates -= frameLength;
+    tStatesHolder.setTstates(tStatesHolder.getTstates()- frameLength);
 
     if (z80.interruptsEnabledAt >= 0) {
       z80.interruptsEnabledAt -= frameLength;
@@ -190,14 +172,14 @@ public class Spectrum {
   }
 
   public static int spectrumUnattachedPort() {
-    if (tstates < machine.current.lineTimes[display.BORDER_HEIGHT]) return 0xff;
+    if (tStatesHolder.getTstates() < machine.current.lineTimes[display.BORDER_HEIGHT]) return 0xff;
 
-    int line = (int) ((tstates - machine.current.lineTimes[display.BORDER_HEIGHT]) /
+    int line = (int) ((tStatesHolder.getTstates() - machine.current.lineTimes[display.BORDER_HEIGHT]) /
         machine.current.timings.tstatesPerLine);
 
     if (line >= display.HEIGHT) return 0xff;
 
-    int tstatesThroughLine = (int) (tstates -
+    int tstatesThroughLine = (int) (tStatesHolder.getTstates() -
         machine.current.lineTimes[display.BORDER_HEIGHT + line] +
         (machine.current.timings.leftBorder - display.BORDER_WIDTH_COLS * 4));
 

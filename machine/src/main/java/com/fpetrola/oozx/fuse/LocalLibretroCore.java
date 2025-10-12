@@ -25,7 +25,6 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
@@ -41,6 +40,7 @@ public class LocalLibretroCore implements LibretroCore {
   private Display display= Fuse.display;
   private Machine machine= Fuse.machine;
   private Z80 z80= Fuse.z80;
+  private TStatesHolder tStatesHolder= Fuse.tStatesHolder;
 
   public LocalLibretroCore() {
   }
@@ -161,7 +161,7 @@ public class LocalLibretroCore implements LibretroCore {
 
   public void retro_set_register_data(String register, int value) {
     if (register.equals("tstates")) {
-      Spectrum.tstates = value;
+      tStatesHolder.setTstates(value);
       z80.ooz80.getState().tstates = value;
     } else
       getRegister(register).write(createValue(value));
@@ -169,7 +169,7 @@ public class LocalLibretroCore implements LibretroCore {
 
   public int retro_get_register_data(String register) {
     if (register.equals("tstates")) {
-      return (int) Spectrum.tstates;
+      return (int) tStatesHolder.getTstates();
     } else if (register.equals("R")) {
       return getRegister(register).read().intValue();
     } else

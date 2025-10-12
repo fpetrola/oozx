@@ -18,13 +18,13 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.z80.memory.Memory;
-
 class UlaZxModuleInfo implements ZXModuleInfo {
   private Ula ula;
+  private TStatesHolder tStatesHolder;
 
-  UlaZxModuleInfo(Ula ula) {
+  UlaZxModuleInfo(Ula ula, TStatesHolder tStatesHolder) {
     this.ula = ula;
+    this.tStatesHolder = tStatesHolder;
   }
 
   public void reset(int hardReset) {
@@ -41,13 +41,13 @@ class UlaZxModuleInfo implements ZXModuleInfo {
 
   public void snapshotFrom(Libspectrum.Snap snap) {
     ula.write(0x00fe, Libspectrum.snapOutUla(snap));
-    Spectrum.tstates = Libspectrum.snapTstates(snap);
+    tStatesHolder.setTstates(Libspectrum.snapTstates(snap));
     Settings.current.issue2 = Libspectrum.snapIssue2(snap);
   }
 
   public void snapshotTo(Libspectrum.Snap snap) {
     Libspectrum.snapSetOutUla(snap, ula.lastByte);
-    Libspectrum.snapSetTstates(snap, Spectrum.tstates);
+    Libspectrum.snapSetTstates(snap, tStatesHolder.getTstates());
     Libspectrum.snapSetIssue2(snap, Settings.current.issue2);
   }
 }

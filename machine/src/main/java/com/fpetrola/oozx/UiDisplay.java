@@ -20,6 +20,7 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.GetTStatesHistory;
 
+import static com.fpetrola.oozx.Fuse.tStatesHolder;
 import static java.lang.String.format;
 
 public class UiDisplay {
@@ -27,7 +28,7 @@ public class UiDisplay {
 
   public static void plot8(int x, int y, byte data, byte ink, byte paper) {
     String format = format("uidisplay_plot8: x=%d y=%d data=%02x ink=%d paper=%d", x, y, data, ink, paper);// Formatea el string
-    GetTStatesHistory.addTStateUpdate((byte) (data&0xff), format, (int) Spectrum.tstates);
+    GetTStatesHistory.addTStateUpdate((byte) (data&0xff), format, (int) tStatesHolder.getTstates());
 
     for (int i = 0; i < 8; i++) {
       int i1 = data & (0x80 >> i);
