@@ -28,6 +28,7 @@ public class SpecPlus3 {
   private static Machine machine= Fuse.machine;
   private static MachinesPeriph machinesPeriph= Fuse.machinesPeriph;
   private static Spectrum spectrum= Fuse.spectrum;
+  private static Spec48 spec48= Fuse.spec48;
 //  public static Fdd[] specplus3Drives = new Fdd[SpecPlus3Constants.SPECPLUS3_NUM_DRIVES];
 
 //  public static UIMediaDriveInfo[] uiDrives = new UIMediaDriveInfo[]{
@@ -164,7 +165,7 @@ public class SpecPlus3 {
     specplus3765Reset();
     specplus3MenuItems();
 
-    Spec48.commonDisplaySetup();
+    spec48.commonDisplaySetup();
 
     return 0;
   }

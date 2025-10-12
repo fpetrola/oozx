@@ -21,12 +21,15 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
+import java.util.function.Supplier;
+
 public class Spec128 {
   private static Memory memory= Fuse.memory;
   private static Display display;
-  private static Machine machine= Fuse.machine;
+  private static Supplier<FuseMachineInfo> machine= Fuse.fuseMachineInfoSupplier;
   private static MachinesPeriph machinesPeriph= Fuse.machinesPeriph;
   private static Spectrum spectrum= Fuse.spectrum;
+  private static Spec48 spec48= Fuse.spec48;
 
   // Initialize the Spectrum 128K machine
   public static int init(FuseMachineInfo machine) {
@@ -35,7 +38,7 @@ public class Spec128 {
 
     machine.reset = Spec128::reset;
     machine.timex = false;
-    machine.ramInfo.portFromUla = Spec48::portFromUla;
+    machine.ramInfo.portFromUla = spec48::portFromUla;
     machine.ramInfo.contendDelay = spectrum::contendDelay65432100;
     machine.ramInfo.contendDelayNoMreq = spectrum::contendDelay65432100;
     machine.ramInfo.validPages = 8;
@@ -62,14 +65,14 @@ public class Spec128 {
 
     Beta.builtin = false;
 
-    Spec48.commonDisplaySetup();
+    spec48.commonDisplaySetup();
 
     return 0;
   }
 
   // Common reset for Spectrum 128K
   public static int commonReset(boolean contention) {
-    FuseMachineInfo machineCurrent = machine.current;
+    FuseMachineInfo machineCurrent = machine.get();
 
     machineCurrent.ramInfo.locked = false;
     machineCurrent.ramInfo.lastByte = 0;
@@ -99,7 +102,7 @@ public class Spec128 {
 
   // Write to the 128K memory port (0x7FFD)
   public static void memoryPortWrite(int port, byte b) {
-    FuseMachineInfo machineCurrent = machine.current;
+    FuseMachineInfo machineCurrent = machine.get();
 
     if (machineCurrent.ramInfo.locked) return;
 
@@ -113,20 +116,20 @@ public class Spec128 {
   // Select ROM for 128K
   public static void selectRom(int rom) {
     memory.map16k(0x0000, memory.mapRom, rom);
-    FuseMachineInfo machineCurrent = machine.current;
+    FuseMachineInfo machineCurrent = machine.get();
     machineCurrent.ramInfo.currentRom = rom;
   }
 
   // Select RAM page for 128K
   public static void selectPage(int page) {
     memory.map16k(0xc000, memory.mapRam, page);
-    FuseMachineInfo machineCurrent = machine.current;
+    FuseMachineInfo machineCurrent = machine.get();
     machineCurrent.ramInfo.currentPage = page;
   }
 
   // Map memory for Spectrum 128K
   public static int memoryMap() {
-    FuseMachineInfo machineCurrent = machine.current;
+    FuseMachineInfo machineCurrent = machine.get();
     byte lastByte = machineCurrent.ramInfo.lastByte;
 
     int page = lastByte & 0x07;

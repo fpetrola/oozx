@@ -55,46 +55,7 @@ public class Machine {
 //        Machine::initMachines, null, Machine::end);
 //  }
 
-  public int initMachines(Object context) {
-    int error;
-
-//        error = addMachine(Spec16::init);
-//        if (error != 0) return error;
-    error = addMachine(Spec48::init);
-    if (error != 0) return error;
-//        error = addMachine(Spec48Ntsc::init);
-//        if (error != 0) return error;
-    error = addMachine(Spec128::init);
-    if (error != 0) return error;
-//        error = addMachine(SpecPlus2::init);
-//        if (error != 0) return error;
-//        error = addMachine(SpecPlus2a::init);
-//        if (error != 0) return error;
-    error = addMachine(SpecPlus3::init);
-    if (error != 0) return error;
-//        error = addMachine(SpecPlus3e::init);
-//        if (error != 0) return error;
-//        error = addMachine(Tc2048::init);
-//        if (error != 0) return error;
-//        error = addMachine(Tc2068::init);
-//        if (error != 0) return error;
-//        error = addMachine(Ts2068::init);
-//        if (error != 0) return error;
-//        error = addMachine(Pentagon::init);
-//        if (error != 0) return error;
-//        error = addMachine(Pentagon512::init);
-//        if (error != 0) return error;
-//        error = addMachine(Pentagon1024::init);
-//        if (error != 0) return error;
-//        error = addMachine(Scorpion::init);
-//        if (error != 0) return error;
-//        error = addMachine(SpecSe::init);
-//        if (error != 0) return error;
-
-    return 0;
-  }
-
-  private int addMachine(Function<FuseMachineInfo, Integer> initFunction) {
+  public int addMachine(Function<FuseMachineInfo, Integer> initFunction) {
     FuseMachineInfo machine = new FuseMachineInfo();
 
     int error = initFunction.apply(machine);

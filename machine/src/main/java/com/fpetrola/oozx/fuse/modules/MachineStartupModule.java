@@ -19,15 +19,20 @@
 package com.fpetrola.oozx.fuse.modules;
 
 import com.fpetrola.oozx.Machine;
+import com.fpetrola.oozx.Spec128;
+import com.fpetrola.oozx.Spec48;
+import com.fpetrola.oozx.SpecPlus3;
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
 public class MachineStartupModule extends AbstractStartupModule {
 
   private Machine machine;
+  private Spec48 spec48;
 
-  public MachineStartupModule(Machine machine) {
+  public MachineStartupModule(Machine machine, Spec48 spec48) {
     super(MemoryStartupModule.class);
     this.machine = machine;
+    this.spec48 = spec48;
   }
 
   public Object getInitContext() {
@@ -35,7 +40,16 @@ public class MachineStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return machine.initMachines(initContext);
+    int error;
+
+    error = machine.addMachine(spec48::init);
+    if (error != 0) return error;
+    error = machine.addMachine(Spec128::init);
+    if (error != 0) return error;
+    error = machine.addMachine(SpecPlus3::init);
+    if (error != 0) return error;
+
+    return 0;
   }
 
   public void endFn() {

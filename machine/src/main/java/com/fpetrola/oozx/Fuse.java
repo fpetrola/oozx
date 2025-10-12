@@ -76,6 +76,7 @@ public class Fuse {
   public static Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, tStatesHolder, ramHolder, fuseMachineInfoSupplier);
   public static Machine machine = new Machine(eventManager, memory, display, ula, tStatesHolder, spectrum);
   public static MachinesPeriph machinesPeriph = new MachinesPeriph(machine);
+  public static Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum);
 
   public static void abort() {
 
@@ -145,7 +146,7 @@ public class Fuse {
         new JoystickStartupModule(joystick),
         new KeyboardStartupModule(keyboard),
         new LibspectrumStartupModule(),
-        new MachineStartupModule(machine),
+        new MachineStartupModule(machine, spec48),
         new MachinesPeriphStartupModule(machinesPeriph),
         new MemoryStartupModule(memory, ramHolder),
         new SpectrumStartupModule(spectrum),

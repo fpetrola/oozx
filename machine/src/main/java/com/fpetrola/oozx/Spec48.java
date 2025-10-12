@@ -22,39 +22,46 @@ import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class Spec48 {
-  private static Memory memory = Fuse.memory;
+  private Memory memory;
+  private Display display;
+  private Machine machine;
+  private MachinesPeriph machinesPeriph;
+  private Spectrum spectrum;
 
-  private static Display display = Fuse.display;
-  private static Machine machine= Fuse.machine;
-  private static MachinesPeriph machinesPeriph= Fuse.machinesPeriph;
-  private static Spectrum spectrum= Fuse.spectrum;
+  public Spec48(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum) {
+    this.memory = memory;
+    this.display = display;
+    this.machine = machine;
+    this.machinesPeriph = machinesPeriph;
+    this.spectrum = spectrum;
+  }
 
   // Check if a port is handled by the ULA
-  public static boolean portFromUla(int port) {
+  public boolean portFromUla(int port) {
     // All even ports supplied by ULA
     return (port & 0x0001) == 0;
   }
 
   // Initialize the Spectrum 48K machine
-  public static int init(FuseMachineInfo machine) {
+  public int init(FuseMachineInfo machine) {
     machine.machine = Libspectrum.Machine._48K;
     machine.id = "48";
 
-    machine.reset = Spec48::reset;
+    machine.reset = this::reset;
     machine.timex = false;
-    machine.ramInfo.portFromUla = Spec48::portFromUla;
+    machine.ramInfo.portFromUla = this::portFromUla;
     machine.ramInfo.contendDelay = spectrum::contendDelay65432100;
     machine.ramInfo.contendDelayNoMreq = spectrum::contendDelay65432100;
     machine.ramInfo.validPages = 3;
     machine.unattachedPort = spectrum::spectrumUnattachedPort;
     machine.shutdown = null;
-    machine.memoryMap = Spec48::memoryMap;
+    machine.memoryMap = this::memoryMap;
 
     return 0;
   }
 
   // Reset the Spectrum 48K machine
-  private static int reset() {
+  private int reset() {
     int error = machine.loadRom(0, Settings.current.rom48, Settings.defaults.rom48, 0x4000);
     if (error != 0) return error;
 
@@ -73,7 +80,7 @@ public class Spec48 {
   }
 
   // Set up common display configuration
-  public static void commonDisplaySetup() {
+  public void commonDisplaySetup() {
     display.dirty = display::dirtySinclair;
     display.writeIfDirty = display::writeIfDirtySinclair;
     display.dirtyFlashing = display::dirtyFlashingSinclair;
@@ -82,7 +89,7 @@ public class Spec48 {
   }
 
   // Common reset for Spectrum 48K
-  public static int commonReset() {
+  public int commonReset() {
     // 0x0000: ROM 0
     memory.map16k(0x0000, memory.mapRom, 0);
     // 0x4000: RAM 5, contended
@@ -99,7 +106,7 @@ public class Spec48 {
   }
 
   // Map memory for Spectrum 48K
-  public static int memoryMap() {
+  public int memoryMap() {
     memory.map16k(0x0000, memory.mapRom, 0);
     memory.romcsMap();
     return 0;
