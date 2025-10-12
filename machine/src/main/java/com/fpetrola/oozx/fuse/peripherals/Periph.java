@@ -26,390 +26,411 @@ import java.util.List;
 import java.util.Map;
 
 public class Periph {
-    // Enum for peripheral types
-    public enum Type {
-        UNKNOWN,
-        _128_MEMORY,
-        AY,
-        AY_FULL_DECODE,
-        AY_PLUS3,
-        AY_TIMEX,
-        AY_TIMEX_WITH_JOYSTICK,
-        BETA128,
-        BETA128_PENTAGON,
-        BETA128_PENTAGON_LATE,
-        COVOX_DD,
-        COVOX_FB,
-        DIVIDE,
-        DIVMMC,
-        PLUSD,
-        DIDAKTIK80,
-        DISCIPLE,
-        FULLER,
-        INTERFACE1,
-        INTERFACE2,
-        KEMPSTON,
-        KEMPSTON_LOOSE,
-        KEMPSTON_MOUSE,
-        MELODIK,
-        MULTIFACE_1,
-        MULTIFACE_128,
-        MULTIFACE_3,
-        OPUS,
-        PARALLEL_PRINTER,
-        PENTAGON1024_MEMORY,
-        PLUS3_MEMORY,
-        SCLD,
-        SE_MEMORY,
-        SIMPLEIDE,
-        SPECCYBOOT,
-        SPECDRUM,
-        SPECTRANET,
-        TTX2000S,
-        ULA,
-        ULA_FULL_DECODE,
-        UPD765,
-        USOURCE,
-        ZXATASP,
-        ZXCF,
-        ZXMMC,
-        ZXPRINTER,
-        ZXPRINTER_FULL_DECODE
+
+  // Enum for peripheral types
+  public enum Type {
+    UNKNOWN,
+    _128_MEMORY(Spec128MemoryPeripheral.class),
+    AY,
+    AY_FULL_DECODE,
+    AY_PLUS3,
+    AY_TIMEX,
+    AY_TIMEX_WITH_JOYSTICK,
+    BETA128,
+    BETA128_PENTAGON,
+    BETA128_PENTAGON_LATE,
+    COVOX_DD,
+    COVOX_FB,
+    DIVIDE,
+    DIVMMC,
+    PLUSD,
+    DIDAKTIK80,
+    DISCIPLE,
+    FULLER,
+    INTERFACE1,
+    INTERFACE2,
+    KEMPSTON,
+    KEMPSTON_LOOSE,
+    KEMPSTON_MOUSE,
+    MELODIK,
+    MULTIFACE_1,
+    MULTIFACE_128,
+    MULTIFACE_3,
+    OPUS,
+    PARALLEL_PRINTER,
+    PENTAGON1024_MEMORY,
+    PLUS3_MEMORY(SpecPlus3MemoryPeripheral.class),
+    SCLD,
+    SE_MEMORY,
+    SIMPLEIDE,
+    SPECCYBOOT,
+    SPECDRUM,
+    SPECTRANET,
+    TTX2000S,
+    ULA(UlaPeripheral.class),
+    ULA_FULL_DECODE(UlaFullDecodePeripheral.class),
+    UPD765,
+    USOURCE,
+    ZXATASP,
+    ZXCF,
+    ZXMMC,
+    ZXPRINTER,
+    ZXPRINTER_FULL_DECODE;
+
+    private final Class<? extends ZxPeripheral> aClass;
+
+    Type(Class<? extends ZxPeripheral> aClass) {
+      this.aClass = aClass;
     }
 
-    // Enum for peripheral presence
-    public enum Present {
-        NEVER,
-        OPTIONAL,
-        ALWAYS
+    Type() {
+      this(GenericZxPeripheral.class);
     }
 
-    // Private structure for peripheral data
-    private static class PrivatePeripheral {
-        Present present;
-        boolean active;
-        ZxPeripheral peripheral;
+    public Class<? extends ZxPeripheral> getZxPeripheralClass() {
+      return aClass;
+    }
+  }
 
-        PrivatePeripheral(Present present, boolean active, ZxPeripheral peripheral) {
-            this.present = present;
-            this.active = active;
-            this.peripheral = peripheral;
-        }
+  // Enum for peripheral presence
+  public enum Present {
+    NEVER,
+    OPTIONAL,
+    ALWAYS
+  }
+
+  // Private structure for peripheral data
+  private static class PrivatePeripheral {
+    Present present;
+    boolean active;
+    ZxPeripheral peripheral;
+
+    PrivatePeripheral(Present present, boolean active, ZxPeripheral peripheral) {
+      this.present = present;
+      this.active = active;
+      this.peripheral = peripheral;
+    }
+  }
+
+  // Private structure for port response with peripheral type
+  private static class PrivatePort {
+    Class<? extends ZxPeripheral> type;
+    PortHandler port;
+
+    PrivatePort(Class<? extends ZxPeripheral> type, PortHandler port) {
+      this.type = type;
+      this.port = port;
+    }
+  }
+
+  // All peripherals known to the system
+  private static Map<Class<? extends ZxPeripheral>, PrivatePeripheral> peripherals = null;
+
+  // List of currently active ports
+  private static List<PrivatePort> ports = new ArrayList<>();
+
+  // Strings for debugger events
+  private static final String PAGE_EVENT_STRING = "page";
+  private static final String UNPAGE_EVENT_STRING = "unpage";
+
+  // Register a peripheral with the system
+  public static void register(Type type, Peripheral peripheral) {
+    ZxPeripheralAdapter peripheral1 = new ZxPeripheralAdapter(type, peripheral);
+
+    register(peripheral1);
+  }
+
+  public static void register(ZxPeripheral zxPeripheral) {
+    if (peripherals == null) {
+      peripherals = new HashMap<>();
     }
 
-    // Private structure for port response with peripheral type
-    private static class PrivatePort {
-        Type type;
-        PortHandler port;
+    PrivatePeripheral privatePeriph = new PrivatePeripheral(Present.NEVER, false, zxPeripheral);
+    peripherals.put(zxPeripheral.getClass(), privatePeriph);
+  }
 
-        PrivatePort(Type type, PortHandler port) {
-            this.type = type;
-            this.port = port;
-        }
+  // Set whether a peripheral can be present on this machine
+  public static void setPresent(Type type, Present present) {
+    Class<? extends ZxPeripheral> zxPeripheralClass = type.getZxPeripheralClass();
+    setPresent(zxPeripheralClass, present);
+  }
+
+  public static void setPresent(Class<? extends ZxPeripheral> zxPeripheralClass, Present present) {
+    PrivatePeripheral typeData = peripherals.get(zxPeripheralClass);
+    if (typeData != null) {
+      typeData.present = present;
+    }
+  }
+
+  // Mark a specific peripheral as (in)active
+  public static boolean activateType(Class<? extends ZxPeripheral> type, boolean active) {
+    PrivatePeripheral privatePeriph = peripherals.get(type);
+    if (privatePeriph == null || privatePeriph.active == active) {
+      return false;
     }
 
-    // All peripherals known to the system
-    private static Map<Type, PrivatePeripheral> peripherals = null;
+    privatePeriph.active = active;
 
-    // List of currently active ports
-    private static List<PrivatePort> ports = new ArrayList<>();
-
-    // Strings for debugger events
-    private static final String PAGE_EVENT_STRING = "page";
-    private static final String UNPAGE_EVENT_STRING = "unpage";
-
-    // Register a peripheral with the system
-    public static void register(Type type, Peripheral peripheral) {
-        ZxPeripheralAdapter peripheral1 = new ZxPeripheralAdapter(type, peripheral);
-
-        register(peripheral1);
+    if (active) {
+      if (privatePeriph.peripheral.canActivate()) {
+        privatePeriph.peripheral.activate();
+      }
+      for (PortHandler port : privatePeriph.peripheral.getPorts()) {
+        ports.add(new PrivatePort(type, port));
+      }
+    } else {
+      ports.removeIf(p -> p.type == type);
     }
 
-    public static void register(ZxPeripheral zxPeripheral) {
-        if (peripherals == null) {
-            peripherals = new HashMap<>();
-        }
+    return true;
+  }
 
-        PrivatePeripheral privatePeriph = new PrivatePeripheral(Present.NEVER, false, zxPeripheral);
-        peripherals.put(zxPeripheral.getType(), privatePeriph);
+  // Check if a specific peripheral is active
+  public static boolean isActive(Type type) {
+    PrivatePeripheral typeData = peripherals.get(type);
+    return typeData != null && typeData.active;
+  }
+
+  // Empty out the list of peripherals
+  public static void clear() {
+    ports.clear();
+    if (peripherals != null) {
+      peripherals.forEach((type, data) -> {
+        data.present = Present.NEVER;
+        data.active = false;
+      });
+    }
+  }
+
+  // Clean up peripherals at the end of emulation
+  public static void end() {
+    ports.clear();
+    if (peripherals != null) {
+      peripherals.clear();
+      peripherals = null;
+    }
+  }
+
+  // Structure for peripheral data during read/write
+  private static class PeripheralData {
+    int port;
+    byte attached;
+    byte value;
+
+    PeripheralData(int port, byte attached, byte value) {
+      this.port = port;
+      this.attached = attached;
+      this.value = value;
+    }
+  }
+
+  // Read a byte from a port, taking the appropriate time
+  public static byte readPort(int port) {
+    Ula.contendPortEarly(port);
+    Ula.contendPortLate(port);
+    byte b = readPortInternal(port);
+
+    // Special case for 128K/+2 machines
+    if ((port & 0x8002) == 0 &&
+        (Machine.current.machine == Libspectrum.Machine._128K ||
+            Machine.current.machine == Libspectrum.Machine.PLUS2)) {
+      writePortInternal(0x7ffd, b);
     }
 
-    // Set whether a peripheral can be present on this machine
-    public static void setPresent(Type type, Present present) {
-        PrivatePeripheral typeData = peripherals.get(type);
-        if (typeData != null) {
-            typeData.present = present;
-        }
-    }
-
-    // Mark a specific peripheral as (in)active
-    public static boolean activateType(Type type, boolean active) {
-        PrivatePeripheral privatePeriph = peripherals.get(type);
-        if (privatePeriph == null || privatePeriph.active == active) {
-            return false;
-        }
-
-        privatePeriph.active = active;
-
-        if (active) {
-            if (privatePeriph.peripheral.canActivate()) {
-                privatePeriph.peripheral.activate();
-            }
-            for (PortHandler port : privatePeriph.peripheral.getPorts()) {
-                ports.add(new PrivatePort(type, port));
-            }
-        } else {
-            ports.removeIf(p -> p.type == type);
-        }
-
-        return true;
-    }
-
-    // Check if a specific peripheral is active
-    public static boolean isActive(Type type) {
-        PrivatePeripheral typeData = peripherals.get(type);
-        return typeData != null && typeData.active;
-    }
-
-    // Empty out the list of peripherals
-    public static void clear() {
-        ports.clear();
-        if (peripherals != null) {
-            peripherals.forEach((type, data) -> {
-                data.present = Present.NEVER;
-                data.active = false;
-            });
-        }
-    }
-
-    // Clean up peripherals at the end of emulation
-    public static void end() {
-        ports.clear();
-        if (peripherals != null) {
-            peripherals.clear();
-            peripherals = null;
-        }
-    }
-
-    // Structure for peripheral data during read/write
-    private static class PeripheralData {
-        int port;
-        byte attached;
-        byte value;
-
-        PeripheralData(int port, byte attached, byte value) {
-            this.port = port;
-            this.attached = attached;
-            this.value = value;
-        }
-    }
-
-    // Read a byte from a port, taking the appropriate time
-    public static byte readPort(int port) {
-        Ula.contendPortEarly(port);
-        Ula.contendPortLate(port);
-        byte b = readPortInternal(port);
-
-        // Special case for 128K/+2 machines
-        if ((port & 0x8002) == 0 &&
-                (Machine.current.machine == Libspectrum.Machine._128K ||
-                        Machine.current.machine == Libspectrum.Machine.PLUS2)) {
-            writePortInternal(0x7ffd, b);
-        }
-
-        Spectrum.tstates++;
+    Spectrum.tstates++;
 //        b= -1;
-        return b;
+    return b;
+  }
+
+  // Read a byte from a port, taking no time
+  public static byte readPortInternal(int port) {
+    if (Debugger.mode != DebuggerMode.INACTIVE) {
+      Debugger.check(DebuggerBreakpointType.PORT_READ, port);
     }
 
-    // Read a byte from a port, taking no time
-    public static byte readPortInternal(int port) {
-        if (Debugger.mode != DebuggerMode.INACTIVE) {
-            Debugger.check(DebuggerBreakpointType.PORT_READ, port);
+    // Handle RZX playback
+    if (Rzx.playback) {
+      try {
+        byte value = Rzx.playback();
+        return value;
+      } catch (Libspectrum.Error error) {
+        Rzx.stopPlayback(true);
+        //                EventManager.eventAdd(Spectrum.tstates, Event.Type.NULL);
+        EventManager.eventAdd(Spectrum.tstates, -1);
+        return readPortInternal(port); // Retry
+      }
+    }
+
+    // Normal port read
+    PeripheralData callbackInfo = new PeripheralData(port, (byte) 0x00, (byte) 0xff);
+    for (PrivatePort privatePort : ports) {
+      PortHandler portData = privatePort.port;
+      if (portData.isReader() && (callbackInfo.port & portData.getMask()) == portData.getValue()) {
+        byte[] attached = new byte[]{0};
+        byte value = portData.read(callbackInfo.port, attached);
+        callbackInfo.value &= (byte) (value | callbackInfo.attached);
+        callbackInfo.attached |= attached[0] != 0 ? (byte) 0xff : 0;
+      }
+    }
+
+    if (callbackInfo.attached != (byte) 0xff) {
+      callbackInfo.value = mergeFloatingBus(callbackInfo.value, callbackInfo.attached,
+          (byte) Machine.current.unattachedPort.apply());
+    }
+
+    if (Rzx.recording) {
+      Rzx.storeByte(callbackInfo.value);
+    }
+
+    return callbackInfo.value;
+  }
+
+  // Merge the read value with the floating bus
+  public static byte mergeFloatingBus(byte value, byte attached, byte floatingBus) {
+    return (byte) (value & (floatingBus | attached));
+  }
+
+  // Write a byte to a port, taking the appropriate time
+  public static void writePort(int port, byte b) {
+    Ula.contendPortEarly(port);
+    writePortInternal(port, b);
+    Ula.contendPortLate(port);
+    Spectrum.tstates++;
+  }
+
+  // Write a byte to a port, taking no time
+  public static void writePortInternal(int port, byte b) {
+    if (Debugger.mode != DebuggerMode.INACTIVE) {
+      Debugger.check(DebuggerBreakpointType.PORT_WRITE, port);
+    }
+
+    PeripheralData callbackInfo = new PeripheralData(port, (byte) 0, b);
+    for (PrivatePort privatePort : ports) {
+      PortHandler portData = privatePort.port;
+      if (portData.isWriter() && (callbackInfo.port & portData.getMask()) == portData.getValue()) {
+        portData.write(callbackInfo.port, callbackInfo.value);
+      }
+    }
+  }
+
+  // Update cartridge menu
+//    private static void updateCartridgeMenu() {
+//        boolean dock = (Machine.current.capabilities & Libspectrum.MachineCapability.TIMEX_DOCK) != 0;
+//        boolean if2 = isActive(Type.INTERFACE2);
+//        boolean cartridge = dock || if2;
+//
+//        Ui.menuActivate(Ui.MenuItem.MEDIA_CARTRIDGE, cartridge);
+//        Ui.menuActivate(Ui.MenuItem.MEDIA_CARTRIDGE_DOCK, dock);
+//        Ui.menuActivate(Ui.MenuItem.MEDIA_CARTRIDGE_IF2, if2);
+//    }
+//
+//    // Update IDE menu
+//    private static void updateIdeMenu() {
+//        boolean simpleide = Settings.current.simpleideActive;
+//        boolean zxatasp = Settings.current.zxataspActive;
+//        boolean zxcf = Settings.current.zxcfActive;
+//        boolean divide = Settings.current.divideEnabled;
+//        boolean divmmc = Settings.current.divmmcEnabled;
+//        boolean zxmmc = Settings.current.zxmmcEnabled;
+//        boolean ide = simpleide || zxatasp || zxcf || divide || divmmc || zxmmc;
+//
+//        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE, ide);
+//        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_SIMPLE8BIT, simpleide);
+//        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_ZXATASP, zxatasp);
+//        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_ZXCF, zxcf);
+//        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_DIVIDE, divide);
+//        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_DIVMMC, divmmc);
+//        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_ZXMMC, zxmmc);
+//    }
+
+//    // Update peripherals status
+//    private static void updatePeripheralsStatus() {
+//        Ui.menuActivate(Ui.MenuItem.MEDIA_IF1, isActive(Type.INTERFACE1));
+//        Ui.menuActivate(Ui.MenuItem.MEDIA_CARTRIDGE_IF2, isActive(Type.INTERFACE2));
+//        updateCartridgeMenu();
+//        updateIdeMenu();
+
+  ////        If1.updateMenu();
+  ////        Multiface.statusUpdate();
+  ////        SpecPlus3.updateFdd();
+//    }
+
+//    // Disable optional peripherals
+//    public static void disableOptional() {
+//        if (Ui.mousePresent && Ui.mouseGrabbed) {
+//            Ui.mouseGrabbed = Ui.mouseRelease(true);
+//        }
+//
+//        peripherals.forEach((type, privatePeriph) -> {
+//            if (privatePeriph.present == Present.NEVER || privatePeriph.present == Present.OPTIONAL) {
+//                if (privatePeriph.peripheral.hasOption()) {
+//                    privatePeriph.peripheral.getOption()[0] = false;
+//                }
+//            }
+//        });
+//
+//        updatePeripheralsStatus();
+//    }
+
+  // Update peripherals and determine if a hard reset is needed
+  public static boolean update() {
+    boolean[] needsHardReset = {false};
+
+    if (Ui.mousePresent) {
+      if (Settings.current.kempstonMouse) {
+        if (!Ui.mouseGrabbed) {
+          Ui.mouseGrabbed = Ui.mouseGrab(true);
         }
-
-        // Handle RZX playback
-        if (Rzx.playback) {
-            try {
-                byte value = Rzx.playback();
-                return value;
-            } catch (Libspectrum.Error error) {
-                Rzx.stopPlayback(true);
-                //                EventManager.eventAdd(Spectrum.tstates, Event.Type.NULL);
-                EventManager.eventAdd(Spectrum.tstates, -1);
-                return readPortInternal(port); // Retry
-            }
+      } else {
+        if (Ui.mouseGrabbed) {
+          Ui.mouseGrabbed = Ui.mouseRelease(true);
         }
-
-        // Normal port read
-        PeripheralData callbackInfo = new PeripheralData(port, (byte) 0x00, (byte) 0xff);
-        for (PrivatePort privatePort : ports) {
-            PortHandler portData = privatePort.port;
-            if (portData.isReader() && (callbackInfo.port & portData.getMask()) == portData.getValue()) {
-                byte[] attached = new byte[]{0};
-                byte value = portData.read(callbackInfo.port, attached);
-                callbackInfo.value &= (byte) (value | callbackInfo.attached);
-                callbackInfo.attached |= attached[0]!= 0 ? (byte) 0xff : 0;
-            }
-        }
-
-        if (callbackInfo.attached != (byte) 0xff) {
-            callbackInfo.value = mergeFloatingBus(callbackInfo.value, callbackInfo.attached,
-                (byte) Machine.current.unattachedPort.apply());
-        }
-
-        if (Rzx.recording) {
-            Rzx.storeByte(callbackInfo.value);
-        }
-
-        return callbackInfo.value;
+      }
     }
 
-    // Merge the read value with the floating bus
-    public static byte mergeFloatingBus(byte value, byte attached, byte floatingBus) {
-        return (byte) (value & (floatingBus | attached));
+    peripherals.forEach((type, privatePeriph) -> {
+      boolean active = switch (privatePeriph.present) {
+        case NEVER -> false;
+        case OPTIONAL -> privatePeriph.peripheral.hasOption() && privatePeriph.peripheral.getOption()[0];
+        case ALWAYS -> true;
+      };
+      boolean changed = activateType(privatePeriph.peripheral.getClass(), active);
+      needsHardReset[0] |= changed && privatePeriph.peripheral.hasHardReset();
+    });
+
+//        updatePeripheralsStatus();
+    Machine.current.memoryMap.run();
+
+    return needsHardReset[0];
+  }
+
+  // Perform post-update hook
+  public static void postHook() {
+    if (update()) {
+      Machine.reset(true);
     }
+  }
 
-    // Write a byte to a port, taking the appropriate time
-    public static void writePort(int port, byte b) {
-        Ula.contendPortEarly(port);
-        writePortInternal(port, b);
-        Ula.contendPortLate(port);
-        Spectrum.tstates++;
-    }
+  // Check if a hard reset is needed without activating/deactivating
+  public static boolean postCheck() {
+    boolean[] needsHardReset = {false};
 
-    // Write a byte to a port, taking no time
-    public static void writePortInternal(int port, byte b) {
-        if (Debugger.mode != DebuggerMode.INACTIVE) {
-            Debugger.check(DebuggerBreakpointType.PORT_WRITE, port);
-        }
+    peripherals.forEach((type, privatePeriph) -> {
+      boolean active = switch (privatePeriph.present) {
+        case NEVER -> false;
+        case OPTIONAL -> privatePeriph.peripheral.hasOption() && privatePeriph.peripheral.getOption()[0];
+        case ALWAYS -> true;
+      };
+      boolean needsReset = privatePeriph != null && privatePeriph.active != active && privatePeriph.peripheral.hasHardReset();
+      needsHardReset[0] |= needsReset;
+    });
 
-        PeripheralData callbackInfo = new PeripheralData(port, (byte) 0, b);
-        for (PrivatePort privatePort : ports) {
-            PortHandler portData = privatePort.port;
-            if (portData.isWriter() && (callbackInfo.port & portData.getMask()) == portData.getValue()) {
-                portData.write(callbackInfo.port, callbackInfo.value);
-            }
-        }
-    }
+    return needsHardReset[0];
+  }
 
-    // Update cartridge menu
-    private static void updateCartridgeMenu() {
-        boolean dock = (Machine.current.capabilities & Libspectrum.MachineCapability.TIMEX_DOCK) != 0;
-        boolean if2 = isActive(Type.INTERFACE2);
-        boolean cartridge = dock || if2;
-
-        Ui.menuActivate(Ui.MenuItem.MEDIA_CARTRIDGE, cartridge);
-        Ui.menuActivate(Ui.MenuItem.MEDIA_CARTRIDGE_DOCK, dock);
-        Ui.menuActivate(Ui.MenuItem.MEDIA_CARTRIDGE_IF2, if2);
-    }
-
-    // Update IDE menu
-    private static void updateIdeMenu() {
-        boolean simpleide = Settings.current.simpleideActive;
-        boolean zxatasp = Settings.current.zxataspActive;
-        boolean zxcf = Settings.current.zxcfActive;
-        boolean divide = Settings.current.divideEnabled;
-        boolean divmmc = Settings.current.divmmcEnabled;
-        boolean zxmmc = Settings.current.zxmmcEnabled;
-        boolean ide = simpleide || zxatasp || zxcf || divide || divmmc || zxmmc;
-
-        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE, ide);
-        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_SIMPLE8BIT, simpleide);
-        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_ZXATASP, zxatasp);
-        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_ZXCF, zxcf);
-        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_DIVIDE, divide);
-        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_DIVMMC, divmmc);
-        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_ZXMMC, zxmmc);
-    }
-
-    // Update peripherals status
-    private static void updatePeripheralsStatus() {
-        Ui.menuActivate(Ui.MenuItem.MEDIA_IF1, isActive(Type.INTERFACE1));
-        Ui.menuActivate(Ui.MenuItem.MEDIA_CARTRIDGE_IF2, isActive(Type.INTERFACE2));
-        updateCartridgeMenu();
-        updateIdeMenu();
-//        If1.updateMenu();
-//        Multiface.statusUpdate();
-//        SpecPlus3.updateFdd();
-    }
-
-    // Disable optional peripherals
-    public static void disableOptional() {
-        if (Ui.mousePresent && Ui.mouseGrabbed) {
-            Ui.mouseGrabbed = Ui.mouseRelease(true);
-        }
-
-        peripherals.forEach((type, privatePeriph) -> {
-            if (privatePeriph.present == Present.NEVER || privatePeriph.present == Present.OPTIONAL) {
-                if (privatePeriph.peripheral.hasOption()) {
-                    privatePeriph.peripheral.getOption()[0] = false;
-                }
-            }
-        });
-
-        updatePeripheralsStatus();
-    }
-
-    // Update peripherals and determine if a hard reset is needed
-    public static boolean update() {
-        boolean[] needsHardReset = {false};
-
-        if (Ui.mousePresent) {
-            if (Settings.current.kempstonMouse) {
-                if (!Ui.mouseGrabbed) {
-                    Ui.mouseGrabbed = Ui.mouseGrab(true);
-                }
-            } else {
-                if (Ui.mouseGrabbed) {
-                    Ui.mouseGrabbed = Ui.mouseRelease(true);
-                }
-            }
-        }
-
-        peripherals.forEach((type, privatePeriph) -> {
-            boolean active = switch (privatePeriph.present) {
-                case NEVER -> false;
-                case OPTIONAL -> privatePeriph.peripheral.hasOption() && privatePeriph.peripheral.getOption()[0];
-                case ALWAYS -> true;
-            };
-            boolean changed = activateType(type, active);
-            needsHardReset[0] |= changed && privatePeriph.peripheral.hasHardReset();
-        });
-
-        updatePeripheralsStatus();
-        Machine.current.memoryMap.run();
-
-        return needsHardReset[0];
-    }
-
-    // Perform post-update hook
-    public static void postHook() {
-        if (update()) {
-            Machine.reset(true);
-        }
-    }
-
-    // Check if a hard reset is needed without activating/deactivating
-    public static boolean postCheck() {
-        boolean[] needsHardReset = {false};
-
-        peripherals.forEach((type, privatePeriph) -> {
-            boolean active = switch (privatePeriph.present) {
-                case NEVER -> false;
-                case OPTIONAL -> privatePeriph.peripheral.hasOption() && privatePeriph.peripheral.getOption()[0];
-                case ALWAYS -> true;
-            };
-            boolean needsReset = privatePeriph != null && privatePeriph.active != active && privatePeriph.peripheral.hasHardReset();
-            needsHardReset[0] |= needsReset;
-        });
-
-        return needsHardReset[0];
-    }
-
-    // Register debugger page/unpage events for a peripheral
-    public static void registerPagingEvents(String typeString, int[] pageEvent, int[] unpageEvent) {
-        pageEvent[0] = Debugger.eventRegister(typeString, PAGE_EVENT_STRING);
-        unpageEvent[0] = Debugger.eventRegister(typeString, UNPAGE_EVENT_STRING);
-    }
+  // Register debugger page/unpage events for a peripheral
+  public static void registerPagingEvents(String typeString, int[] pageEvent, int[] unpageEvent) {
+    pageEvent[0] = Debugger.eventRegister(typeString, PAGE_EVENT_STRING);
+    unpageEvent[0] = Debugger.eventRegister(typeString, UNPAGE_EVENT_STRING);
+  }
 }

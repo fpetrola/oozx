@@ -19,12 +19,9 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.peripherals.Periph;
-import com.fpetrola.oozx.fuse.peripherals.Peripheral;
-import com.fpetrola.oozx.fuse.peripherals.Port;
-
-import java.util.*;
 
 public class MachinesPeriph {
+
   static int init(Object context) {
     Periph.register(new Spec128MemoryPeripheral());
     Periph.register(new SpecPlus3MemoryPeripheral());
@@ -39,7 +36,7 @@ public class MachinesPeriph {
     StartupManager.register(new MachinesPeriphStartupModule());
   }
 
-  private static void reg1() {
+  void reg1() {
 //        StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};
 //        StartupManager.register(StartupManagerModule.MACHINES_PERIPH, dependencies, MachinesPeriph::init, null, null);
   }
@@ -53,7 +50,7 @@ public class MachinesPeriph {
     Periph.setPresent(Periph.Type.SIMPLEIDE, Periph.Present.OPTIONAL);
     Periph.setPresent(Periph.Type.SPECCYBOOT, Periph.Present.OPTIONAL);
     Periph.setPresent(Periph.Type.SPECTRANET, Periph.Present.OPTIONAL);
-    Periph.setPresent(Periph.Type.ULA, Periph.Present.ALWAYS);
+    Periph.setPresent(UlaPeripheral.class, Periph.Present.ALWAYS);
     Periph.setPresent(Periph.Type.ZXATASP, Periph.Present.OPTIONAL);
     Periph.setPresent(Periph.Type.ZXCF, Periph.Present.OPTIONAL);
   }
@@ -87,7 +84,7 @@ public class MachinesPeriph {
   public static void machinesPeriph128() {
     basePeripherals48128();
     Periph.setPresent(Periph.Type.AY, Periph.Present.ALWAYS);
-    Periph.setPresent(Periph.Type._128_MEMORY, Periph.Present.ALWAYS);
+    Periph.setPresent(Spec128MemoryPeripheral.class, Periph.Present.ALWAYS);
   }
 
   // Peripherals for +3 and similar machines
@@ -114,10 +111,10 @@ public class MachinesPeriph {
   // Peripherals for Pentagon and Scorpion
   public static void machinesPeriphPentagon() {
     basePeripherals();
-    Periph.setPresent(Periph.Type._128_MEMORY, Periph.Present.ALWAYS);
+    Periph.setPresent(Spec128MemoryPeripheral.class, Periph.Present.ALWAYS);
     Periph.setPresent(Periph.Type.AY, Periph.Present.ALWAYS);
-    Periph.setPresent(Periph.Type.ULA, Periph.Present.NEVER);
-    Periph.setPresent(Periph.Type.ULA_FULL_DECODE, Periph.Present.ALWAYS);
+    Periph.setPresent(UlaPeripheral.class, Periph.Present.NEVER);
+    Periph.setPresent(UlaFullDecodePeripheral.class, Periph.Present.ALWAYS);
     Periph.setPresent(Periph.Type.KEMPSTON, Periph.Present.NEVER);
   }
 }
