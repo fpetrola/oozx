@@ -279,4 +279,35 @@ public class Keyboard {
   // Placeholder for keysyms_map (to be populated based on UI-specific keysyms)
   static KeysymsMap[] KEYSYMS_MAP = {};
 
+  static int init() {
+    releaseAll();
+
+    // Populate keyboard_data
+    for (KeyInfo entry : KEYBOARD_DATA_TABLE) {
+      if (entry.key == KeyboardKeyName.KEYBOARD_NONE) break;
+      keyboardData.put(entry.key.getValue(), entry.bit);
+    }
+
+    // Populate spectrum_keys
+    for (SpectrumKeysWrapper entry : SPECTRUM_KEYS_TABLE) {
+      if (entry.input == Input.InputKey.INPUT_KEY_NONE) break;
+      int value = entry.input.getValue();
+      spectrumKeys.put(value, entry.spectrum);
+    }
+
+    KEYSYMS_MAP = SwingKeyboard.KEYSYMS_MAP;
+    // Populate keysyms_hash
+    for (KeysymsMap entry : KEYSYMS_MAP) {
+      if (entry.ui == 0) break;
+      keysymsHash.put(entry.ui, entry.fuse);
+    }
+
+    // Populate key_text
+    for (KeyText entry : KEY_TEXT_TABLE) {
+      if (entry.text == null) break;
+      keyText.put(entry.key.getValue(), entry.text);
+    }
+
+    return 0;
+  }
 }

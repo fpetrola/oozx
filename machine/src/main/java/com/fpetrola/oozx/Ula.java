@@ -42,12 +42,14 @@ public class Ula {
   private byte defaultValue;
   private final Display display;
   private final Supplier<FuseMachineInfo> currentMachineSupplier;
+  private Keyboard keyboard;
 
 
-  public Ula(Memory memory, Display display, Supplier<FuseMachineInfo> fuseMachineInfoSupplier) {
+  public Ula(Memory memory, Display display, Supplier<FuseMachineInfo> fuseMachineInfoSupplier, Keyboard keyboard) {
     this.memory = memory;
     this.display = display;
     currentMachineSupplier = fuseMachineInfoSupplier;
+    this.keyboard = keyboard;
   }
 
   // Initialize ULA module
@@ -71,7 +73,7 @@ public class Ula {
     Loader.detectLoader();
 
     r &= PhantomTypist.ulaRead(port);
-    r &= Keyboard.read((byte) (port >> 8));
+    r &= keyboard.read((byte) (port >> 8));
     if (Tape.microphone) r ^= 0x40;
 
     return r;

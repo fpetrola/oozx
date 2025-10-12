@@ -31,6 +31,11 @@ public class Joystick {
 
   // Number of joysticks supported
   public int joysticksSupported = 0;
+  private Keyboard keyboard;
+
+  public Joystick(Keyboard keyboard) {
+    this.keyboard = keyboard;
+  }
 
   int init() {
     joysticksSupported = UiJoystick.init();
@@ -143,9 +148,9 @@ public class Joystick {
     switch (type) {
       case JOYSTICK_TYPE_CURSOR:
         if (press) {
-          Keyboard.press(CURSOR_KEY[button.ordinal()]);
+          keyboard.press(CURSOR_KEY[button.ordinal()]);
         } else {
-          Keyboard.release(CURSOR_KEY[button.ordinal()]);
+          keyboard.release(CURSOR_KEY[button.ordinal()]);
         }
         return true;
 
@@ -159,17 +164,17 @@ public class Joystick {
 
       case JOYSTICK_TYPE_SINCLAIR_1:
         if (press) {
-          Keyboard.press(SINCLAIR1_KEY[button.ordinal()]);
+          keyboard.press(SINCLAIR1_KEY[button.ordinal()]);
         } else {
-          Keyboard.release(SINCLAIR1_KEY[button.ordinal()]);
+          keyboard.release(SINCLAIR1_KEY[button.ordinal()]);
         }
         return true;
 
       case JOYSTICK_TYPE_SINCLAIR_2:
         if (press) {
-          Keyboard.press(SINCLAIR2_KEY[button.ordinal()]);
+          keyboard.press(SINCLAIR2_KEY[button.ordinal()]);
         } else {
-          Keyboard.release(SINCLAIR2_KEY[button.ordinal()]);
+          keyboard.release(SINCLAIR2_KEY[button.ordinal()]);
         }
         return true;
 

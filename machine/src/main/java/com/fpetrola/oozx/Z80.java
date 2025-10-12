@@ -66,6 +66,7 @@ public class Z80 {
   private static Display display= Fuse.display;
   private static Ula ula= Fuse.ula;
   private static Machine machine= Fuse.machine;
+  private static Keyboard keyboard= Fuse.keyboard;
 
   public static void reset(int i) {
     ooz80.reset();
@@ -151,7 +152,7 @@ public class Z80 {
       audio.open(MachineTypes.SPECTRUM48K, new AY8912(), false, 32000);
 
       JFrame screen = createScreen(io.miniZXKeyboard, new FuseScreen(bytes));
-      new SwingKeyboard(screen);
+      new SwingKeyboard(screen, keyboard);
     }
     UiDisplay.screenMatrix = bytes;
 //    Keyboard0.keyboard = io.miniZXKeyboard;

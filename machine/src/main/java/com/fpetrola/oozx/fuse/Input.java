@@ -30,6 +30,7 @@ import java.util.Map;
 public class Input {
 
   private static Joystick joystick= Fuse.joystick;
+  private static Keyboard keyboard= Fuse.keyboard;
 
   // Enums and classes from Keyboard.java (repeated for completeness)
   public enum InputEventType {
@@ -354,24 +355,24 @@ public class Input {
   }
 
   private static void sendKeyboardPress(InputKey keysym) {
-    SpectrumKeys ptr = Keyboard.getSpectrumKeys(keysym);
+    SpectrumKeys ptr = keyboard.getSpectrumKeys(keysym);
     if (ptr != null) {
-      Keyboard.press(ptr.key1);
-      Keyboard.press(ptr.key2);
+      keyboard.press(ptr.key1);
+      keyboard.press(ptr.key2);
     }
     if (useShiftedArrowKeys(keysym)) {
-      Keyboard.press(KeyboardKeyName.KEYBOARD_Caps);
+      keyboard.press(KeyboardKeyName.KEYBOARD_Caps);
     }
   }
 
   private static void sendKeyboardRelease(InputKey keysym) {
-    SpectrumKeys ptr = Keyboard.getSpectrumKeys(keysym);
+    SpectrumKeys ptr = keyboard.getSpectrumKeys(keysym);
     if (ptr != null) {
-      Keyboard.release(ptr.key1);
-      Keyboard.release(ptr.key2);
+      keyboard.release(ptr.key1);
+      keyboard.release(ptr.key2);
     }
     if (useShiftedArrowKeys(keysym)) {
-      Keyboard.release(KeyboardKeyName.KEYBOARD_Caps);
+      keyboard.release(KeyboardKeyName.KEYBOARD_Caps);
     }
   }
 
@@ -613,9 +614,9 @@ public class Input {
         joystick.press(which, Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE, press);
       } else {
         if (press) {
-          Keyboard.press(key);
+          keyboard.press(key);
         } else {
-          Keyboard.release(key);
+          keyboard.release(key);
         }
       }
     }
