@@ -20,6 +20,4 @@ package com.fpetrola.oozx;
 
 public interface RAMHolder {
   byte[][] getRAM();
-
-  void setRAM(byte[][] RAM);
 }

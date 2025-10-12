@@ -37,13 +37,6 @@ public class Spectrum {
     this.ramHolder = ramHolder;
   }
 
-  public byte[][] getRAM() {
-    return ramHolder.getRAM();
-  }
-
-  public void setRAM(byte[][] RAM) {
-  }
-
   // Functional interface for checking if a port is handled by the ULA
   @FunctionalInterface
   interface PortFromUlaFunction {
