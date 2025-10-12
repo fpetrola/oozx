@@ -151,7 +151,7 @@ public class Display {
     borderChanges.clear();
     int error = addBorderSentinel();
     if (error != 0) return error;
-    lastBorder = Scld.lastDec.name.hires ? hiresBorder : loresBorder;
+    lastBorder = loresBorder;
 
     return 0;
   }
@@ -204,19 +204,9 @@ public class Display {
 
   private byte getAttrByte(int x, int y) {
     int attr;
-    if (Scld.lastDec.name.hires) {
-      attr = Hires.getAttr();
-    } else {
-      int offset;
-      if (Scld.lastDec.name.b1) {
-        offset = lineStart[y] + x + Constants.ALTDFILE_OFFSET;
-      } else if (Scld.lastDec.name.altdfile) {
-        offset = attrStart[y] + x + Constants.ALTDFILE_OFFSET;
-      } else {
-        offset = attrStart[y] + x;
-      }
-      attr = ramHolder.getRAM()[memory.currentScreen][offset];
-    }
+    int offset;
+    offset = attrStart[y] + x;
+    attr = ramHolder.getRAM()[memory.currentScreen][offset];
     return (byte) attr;
   }
 
@@ -378,7 +368,7 @@ public class Display {
   int addBorderSentinel() {
     BorderChange sentinel = allocChange();
     sentinel.x = sentinel.y = 0;
-    sentinel.colour = Scld.lastDec.name.hires ? hiresBorder : loresBorder;
+    sentinel.colour = loresBorder;
     return 0;
   }
 
@@ -399,10 +389,7 @@ public class Display {
   }
 
   private void checkBorderChange() {
-    if (Scld.lastDec.name.hires && hiresBorder != lastBorder) {
-      pushBorderChange(hiresBorder);
-      lastBorder = hiresBorder;
-    } else if (!Scld.lastDec.name.hires && loresBorder != lastBorder) {
+    if (loresBorder != lastBorder) {
       pushBorderChange(loresBorder);
       lastBorder = loresBorder;
     }
@@ -573,7 +560,7 @@ public class Display {
   }
 
   public int getAddr(int x, int y) {
-    return Scld.lastDec.name.altdfile ? getOffset(x, y) + Constants.ALTDFILE_OFFSET : getOffset(x, y);
+    return getOffset(x, y);
   }
 
   public int getPixel(int x, int y) {
@@ -591,13 +578,8 @@ public class Display {
       data2 = (byte) ((lastScreen[index] & 0xff00) >> 8);
       long modeData = (lastScreen[index] & 0xff0000) >> 16;
 
-      if (Scld.fromByte(modeData).name.hires) {
-        if (x % 16 > 7) data = data2;
-        parseAttr(Hires.convertDec(modeData), inkPaper);
-      } else {
-        mask = 1 << (7 - ((x >> 1) % 8));
-        parseAttr(data2, inkPaper);
-      }
+      mask = 1 << (7 - ((x >> 1) % 8));
+      parseAttr(data2, inkPaper);
     } else {
       int column = x >> 3;
       index = column + y * SCREEN_WIDTH_COLS;
