@@ -105,15 +105,6 @@ public class Memory {
 
   public static MemoryDisplayDirtyFn displayDirty;
 
-  // Module info for memory
-  private static final ModuleInfo memoryModuleInfo = new ModuleInfo(
-      null, // reset
-      null, // romcs
-      null, // snapshotEnabled
-      Memory::fromSnapshot, // snapshotFrom
-      Memory::toSnapshot // snapshotTo
-  );
-
   // Initialize memory module
   static int init(Object context) {
     memorySources = new ArrayList<>();
@@ -147,8 +138,7 @@ public class Memory {
       }
     }
 
-    Module.register(memoryModuleInfo);
-
+    Module.register(new MemoryModuleInfo());
     return 0;
   }
 
@@ -410,7 +400,7 @@ public class Memory {
   }
 
   // Load memory from snapshot
-  private static void fromSnapshot(Libspectrum.Snap snap) {
+  public static void fromSnapshot(Libspectrum.Snap snap) {
     int capabilities = Machine.current.capabilities;
 
     if ((capabilities & Libspectrum.MachineCapability.PENT1024_MEMORY) != 0) {
@@ -504,7 +494,7 @@ public class Memory {
   }
 
   // Save memory to snapshot
-  private static void toSnapshot(Libspectrum.Snap snap) {
+  public static void toSnapshot(Libspectrum.Snap snap) {
     Libspectrum.snapSetOut128Memoryport(snap, Machine.current.ramInfo.lastByte);
     Libspectrum.snapSetOutPlus3Memoryport(snap, Machine.current.ramInfo.lastByte2);
 

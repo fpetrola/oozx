@@ -18,10 +18,8 @@
 
 package com.fpetrola.oozx.fuse;
 
-import com.fpetrola.oozx.LibspectrumStartupModule;
+import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
-import com.fpetrola.oozx.SetUidStartupModule;
-import com.fpetrola.oozx.UiJoystick;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class JoystickStartupModule extends AbstractStartupModule {
@@ -38,8 +36,7 @@ public class JoystickStartupModule extends AbstractStartupModule {
     Joystick.kempstonValue = Joystick.timex1Value = Joystick.timex2Value = 0x00;
     Joystick.fullerValue = (byte) 0xff;
 
-    Module.register(Joystick.joystickModuleInfo);
-
+    Module.register(new JoystickModuleInfo());
     Periph.register(new KempstonStrictPeripheral());
     Periph.register(new KempstonLoosePeriphPeripheral());
 

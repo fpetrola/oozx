@@ -24,10 +24,6 @@ public class Module {
 
   private static List<ZXModule> registeredModules = new LinkedList<>();
 
-  public static void register(ModuleInfo module) {
-    register(new ZXModuleAdapter(module));
-  }
-
   public static void register(ZXModule e) {
     registeredModules.add(e);
   }

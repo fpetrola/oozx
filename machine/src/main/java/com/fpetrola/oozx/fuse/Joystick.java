@@ -272,7 +272,7 @@ public class Joystick {
     }
   }
 
-  private static void toSnapshot(Libspectrum.Snap snap) {
+  public static void toSnapshot(Libspectrum.Snap snap) {
     if (Settings.current.joyKempston) {
       addJoystick(snap, JoystickType.JOYSTICK_TYPE_KEMPSTON, Libspectrum.LIBSPECTRUM_JOYSTICK_INPUT_NONE);
     }
@@ -322,14 +322,5 @@ public class Joystick {
     snap.setJoystickInputs(numJoysticks, inputs);
     snap.setJoystickActiveCount(numJoysticks + 1);
   }
-
-  // Module info for snapshot handling
-  static final ModuleInfo joystickModuleInfo = new ModuleInfo(
-      null, // reset
-      null, // romcs
-      Joystick::enabledSnapshot, // snapshot_enabled
-      null, // snapshot_from
-      Joystick::toSnapshot // snapshot_to
-  );
 
 }

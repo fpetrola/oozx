@@ -28,7 +28,6 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
@@ -52,13 +51,6 @@ public class Z80 {
   public static LibretroCore.bridge_command bridgeCommand;
   private static PhaseProcessor<WordNumber> phaseProcessor;
 
-  private static final ModuleInfo z80ModuleInfo = new ModuleInfo(
-      Z80::reset, // reset
-      null, // romcs
-      null, // snapshotEnabled
-      Z80::fromSnapshot, // snapshotFrom
-      Z80::toSnapshot // snapshotTo
-  );
   private static MiniZXIO io;
   private static boolean initialized;
   private static int z80_interrupt_event;
@@ -67,18 +59,18 @@ public class Z80 {
   private static boolean init;
   public static Audio audio;
 
-  private static void reset(int i) {
+  public static void reset(int i) {
     ooz80.reset();
     String url = "file:///home/fernando/dynamitedan1.z80";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/aqua.z80";
 //    loadSnap(url);
   }
 
-  private static void toSnapshot(Libspectrum.Snap snap) {
+  public static void toSnapshot(Libspectrum.Snap snap) {
 
   }
 
-  private static void fromSnapshot(Libspectrum.Snap snap) {
+  public static void fromSnapshot(Libspectrum.Snap snap) {
 
   }
 
@@ -111,9 +103,9 @@ public class Z80 {
 //        StartupManagerModule.SETUID
 //    };
 //    StartupManager.register(StartupManagerModule.Z80, dependencies, Z80::init, null, null);
-////    Machine.reset(false);
-//  }
 
+  ////    Machine.reset(false);
+//  }
   public static <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
     var state = new State(io, new DefaultRegisterBankFactory().createBank(), new MockedMemory(true)) {
       public void enableInterrupt() {
@@ -302,7 +294,7 @@ public class Z80 {
     int z80_nmi_event = EventManager.eventRegister(Z80::z80_nmi, "Non-maskable interrupt");
     int z80_nmos_iff2_event = EventManager.eventRegister(null, "IFF2 update dummy event");
 
-    Module.register(z80ModuleInfo);
+    Module.register(new Z80ModuleInfo());
 
 //    z80_debugger_variables_init();
 
