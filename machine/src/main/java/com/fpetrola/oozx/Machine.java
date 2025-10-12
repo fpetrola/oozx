@@ -26,25 +26,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-// Assuming ported dependencies:
-// - Libspectrum (with Machine, MachineCapabilities, Timings, Creator)
-// - Display (with SCREEN_HEIGHT, BORDER_HEIGHT, etc.)
-// - Peripherals (Ay, Covox, Specdrum)
-// - Spectrum (with Raminfo, UnattachedPortFn, etc.)
-// Use long for libspectrum_dword, int for libspectrum_byte/word
-// Functional interface for unattached_port_fn
-
 public class Machine {
-  private static EventManager eventManager= Fuse.eventManager;
-  private static Memory memory= Fuse.memory;
+  private EventManager eventManager;
+  private Memory memory;
+  private Display display;
+  private Ula ula;
 
-  public static List<FuseMachineInfo> machineTypes = new ArrayList<>(); // All available machines
-
+  public List<FuseMachineInfo> machineTypes = new ArrayList<>(); // All available machines
   public static FuseMachineInfo current; // The currently selected machine
-  private static Display display= Fuse.display;
-  private static Ula ula= Fuse.ula;
 
-  //  private static void reg1() {
+  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula) {
+    this.eventManager = eventManager;
+    this.memory = memory;
+    this.display = display;
+    this.ula = ula;
+  }
+
+  //  private  void reg1() {
 //    StartupManagerModule[] dependencies = {
 //        StartupManagerModule.MEMORY,
 //        StartupManagerModule.SETUID
@@ -53,7 +51,7 @@ public class Machine {
 //        Machine::initMachines, null, Machine::end);
 //  }
 
-  static int initMachines(Object context) {
+  int initMachines(Object context) {
     int error;
 
 //        error = addMachine(Spec16::init);
@@ -68,8 +66,8 @@ public class Machine {
 //        if (error != 0) return error;
 //        error = addMachine(SpecPlus2a::init);
 //        if (error != 0) return error;
-        error = addMachine(SpecPlus3::init);
-        if (error != 0) return error;
+    error = addMachine(SpecPlus3::init);
+    if (error != 0) return error;
 //        error = addMachine(SpecPlus3e::init);
 //        if (error != 0) return error;
 //        error = addMachine(Tc2048::init);
@@ -92,7 +90,7 @@ public class Machine {
     return 0;
   }
 
-  private static int addMachine(Function<FuseMachineInfo, Integer> initFunction) {
+  private int addMachine(Function<FuseMachineInfo, Integer> initFunction) {
     FuseMachineInfo machine = new FuseMachineInfo();
 
     int error = initFunction.apply(machine);
@@ -109,7 +107,7 @@ public class Machine {
     return 0;
   }
 
-  public static int select(int type) {
+  public int select(int type) {
     int i;
     int error;
 
@@ -145,7 +143,7 @@ public class Machine {
     return 1;
   }
 
-  public static int selectId(String id) {
+  public int selectId(String id) {
     int i;
     int error;
 
@@ -161,14 +159,14 @@ public class Machine {
     return 1;
   }
 
-  public static String getId(int type) {
+  public String getId(int type) {
     for (int i = 0; i < machineTypes.size(); i++) {
       if (machineTypes.get(i).machine.ordinal() == type) return machineTypes.get(i).id;
     }
     return null;
   }
 
-  private static int selectMachine(FuseMachineInfo machine) {
+  private int selectMachine(FuseMachineInfo machine) {
     int width, height;
     int capabilities;
 
@@ -201,7 +199,7 @@ public class Machine {
     Sound.init(Settings.current.soundDevice);
 
     machine.reset.run();
-    Machine.reset(false);
+    reset(false);
 //        if (error != 0) return error;
 
 //        Ui.menuActivate(UiMenuItem.MEDIA_CARTRIDGE_DOCK_EJECT, 0);
@@ -211,7 +209,7 @@ public class Machine {
     return 0;
   }
 
-  public static int loadRomBankFromBuffer(MemoryPage[] bankMap, int pageNum, byte[] buffer, int length, boolean custom) {
+  public int loadRomBankFromBuffer(MemoryPage[] bankMap, int pageNum, byte[] buffer, int length, boolean custom) {
     int offset = 0;
     byte[] data = new byte[length];
     System.arraycopy(buffer, 0, data, 0, length);
@@ -228,7 +226,7 @@ public class Machine {
     return 0;
   }
 
-  private static int loadRomBankFromFile(MemoryPage[] bankMap, int pageNum, String filename, int expectedLength, boolean custom) {
+  private int loadRomBankFromFile(MemoryPage[] bankMap, int pageNum, String filename, int expectedLength, boolean custom) {
     Utils.File rom = new Utils.File();
     int error = Utils.readAuxiliaryFile(filename, rom, Utils.AuxiliaryType.ROM);
     if (error == -1) {
@@ -236,8 +234,8 @@ public class Machine {
       return 1;
     }
     if (error != 0) return error;
-    rom.buffer= new byte[0x4000];
-    rom.length= rom.buffer.length;
+    rom.buffer = new byte[0x4000];
+    rom.length = rom.buffer.length;
 
     if (rom.length != expectedLength) {
       Ui.error(UiError.ERROR, "ROM '%s' is %d bytes long; expected %d bytes", filename, rom.length, expectedLength);
@@ -252,7 +250,7 @@ public class Machine {
     return error;
   }
 
-  public static int loadRomBank(MemoryPage[] bankMap, int pageNum, String filename, String fallback, int expectedLength) {
+  public int loadRomBank(MemoryPage[] bankMap, int pageNum, String filename, String fallback, int expectedLength) {
     boolean custom = fallback != null && !filename.equals(fallback);
     int retval = loadRomBankFromFile(bankMap, pageNum, filename, expectedLength, custom);
     if (retval != 0 && fallback != null && custom) {
@@ -261,11 +259,11 @@ public class Machine {
     return retval;
   }
 
-  public static int loadRom(int pageNum, String filename, String fallback, int expectedLength) {
+  public int loadRom(int pageNum, String filename, String fallback, int expectedLength) {
     return loadRomBank(memory.mapRom, pageNum, filename, fallback, expectedLength);
   }
 
-  public static int reset(boolean hardReset) {
+  public int reset(boolean hardReset) {
 //        Pokemem.clear();
 //
 //        Sound.ayReset();
@@ -304,7 +302,7 @@ public class Machine {
     return 0;
   }
 
-  private static void setConstTimings(FuseMachineInfo machine) {
+  private void setConstTimings(FuseMachineInfo machine) {
     machine.timings.processorSpeed = Timings.processorSpeed(machine.machine);
     machine.timings.leftBorder = Timings.leftBorder(machine.machine);
     machine.timings.horizontalScreen = Timings.horizontalScreen(machine.machine);
@@ -314,7 +312,7 @@ public class Machine {
     machine.timings.tstatesPerFrame = Timings.tstatesPerFrame(machine.machine);
   }
 
-  private static void setVariableTimings(FuseMachineInfo machine) {
+  private void setVariableTimings(FuseMachineInfo machine) {
     machine.lineTimes[0] = Timings.topLeftPixel(machine.machine) -
         display.BORDER_HEIGHT * machine.timings.tstatesPerLine -
         4 * display.BORDER_WIDTH_COLS;
@@ -326,7 +324,7 @@ public class Machine {
     }
   }
 
-  static void end() {
+  void end() {
     for (int i = 0; i < machineTypes.size(); i++) {
       if (machineTypes.get(i).shutdown != null) machineTypes.get(i).shutdown.run();
     }

@@ -31,6 +31,7 @@ import java.util.Map;
 public class Periph {
   private static EventManager eventManager= Fuse.eventManager;
   private static Ula ula= Fuse.ula;
+  private static Machine machine= Fuse.machine;
 
   // Enum for peripheral types
   public enum Type {
@@ -237,8 +238,8 @@ public class Periph {
 
     // Special case for 128K/+2 machines
     if ((port & 0x8002) == 0 &&
-        (Machine.current.machine == Libspectrum.Machine._128K ||
-            Machine.current.machine == Libspectrum.Machine.PLUS2)) {
+        (machine.current.machine == Libspectrum.Machine._128K ||
+            machine.current.machine == Libspectrum.Machine.PLUS2)) {
       writePortInternal(0x7ffd, b);
     }
 
@@ -276,7 +277,7 @@ public class Periph {
 
     if (callbackInfo.attached != (byte) 0xff) {
       callbackInfo.value = mergeFloatingBus(callbackInfo.value, callbackInfo.attached,
-          (byte) Machine.current.unattachedPort.apply());
+          (byte) machine.current.unattachedPort.apply());
     }
 
     if (Rzx.recording) {
@@ -396,7 +397,7 @@ public class Periph {
     });
 
 //        updatePeripheralsStatus();
-    Machine.current.memoryMap.run();
+    machine.current.memoryMap.run();
 
     return needsHardReset[0];
   }
@@ -404,7 +405,7 @@ public class Periph {
   // Perform post-update hook
   public static void postHook() {
     if (update()) {
-      Machine.reset(true);
+      machine.reset(true);
     }
   }
 

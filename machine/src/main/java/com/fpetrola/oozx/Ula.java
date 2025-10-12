@@ -23,6 +23,8 @@ import com.fpetrola.oozx.fuse.Keyboard;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
+import java.util.function.Supplier;
+
 public class Ula {
   private final Memory memory;
 
@@ -39,10 +41,13 @@ public class Ula {
   // What to return if no other input pressed; depends on the last byte output to the ULA
   private byte defaultValue;
   private final Display display;
+  private final Supplier<FuseMachineInfo> currentMachineSupplier;
 
-  public Ula(Memory memory, Display display) {
+
+  public Ula(Memory memory, Display display, Supplier<FuseMachineInfo> fuseMachineInfoSupplier) {
     this.memory = memory;
     this.display = display;
+    currentMachineSupplier = fuseMachineInfoSupplier;
   }
 
   // Initialize ULA module
@@ -80,15 +85,19 @@ public class Ula {
     Sound.beeper(Spectrum.tstates,
         ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || Tape.microphone ? 1 : 0));
 
-    if (Machine.current.timex) {
+    if (getCurrent().timex) {
       defaultValue = (byte) 0x5f;
-    } else if ((Machine.current.capabilities & Libspectrum.MachineCapability.PLUS3_MEMORY) != 0) {
+    } else if ((getCurrent().capabilities & Libspectrum.MachineCapability.PLUS3_MEMORY) != 0) {
       defaultValue = (byte) 0xbf;
-    } else if ((Machine.current.capabilities & Libspectrum.MachineCapability._128_MEMORY) != 0 || !Settings.current.issue2) {
+    } else if ((getCurrent().capabilities & Libspectrum.MachineCapability._128_MEMORY) != 0 || !Settings.current.issue2) {
       defaultValue = (byte) ((b & 0x10) != 0 ? 0xff : 0xbf);
     } else {
       defaultValue = (byte) ((b & 0x18) != 0 ? 0xff : 0xbf);
     }
+  }
+
+  private FuseMachineInfo getCurrent() {
+    return currentMachineSupplier.get();
   }
 
   // Get the last byte written to the ULA
@@ -118,7 +127,7 @@ public class Ula {
 
   // Handle contention for port access (late phase)
   public void contendPortLate(int port) {
-    if (Machine.current.ramInfo.portFromUla.apply(port)) {
+    if (getCurrent().ramInfo.portFromUla.apply(port)) {
       GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) Spectrum.tstates] + 2), "ula_contend_port_late", (int) Spectrum.tstates);
       Spectrum.tstates += contentionNoMreq[(int) Spectrum.tstates];
       Spectrum.tstates += 2;

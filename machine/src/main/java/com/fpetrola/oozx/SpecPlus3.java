@@ -25,6 +25,7 @@ public class SpecPlus3 {
   private static Memory memory= Fuse.memory;
   public static UPDFdc specplus3Fdc;
   private static Display display;
+  private static Machine machine= Fuse.machine;
 //  public static Fdd[] specplus3Drives = new Fdd[SpecPlus3Constants.SPECPLUS3_NUM_DRIVES];
 
 //  public static UIMediaDriveInfo[] uiDrives = new UIMediaDriveInfo[]{
@@ -139,13 +140,13 @@ public class SpecPlus3 {
 
   // Reset the Spectrum +3 machine
   private static int reset() {
-     int error = Machine.loadRom(0, Settings.current.romPlus30, Settings.defaults.romPlus30, 0x4000);
+     int error = machine.loadRom(0, Settings.current.romPlus30, Settings.defaults.romPlus30, 0x4000);
      if (error != 0) return error;
-     error = Machine.loadRom(1, Settings.current.romPlus31, Settings.defaults.romPlus31, 0x4000);
+     error = machine.loadRom(1, Settings.current.romPlus31, Settings.defaults.romPlus31, 0x4000);
      if (error != 0) return error;
-     error = Machine.loadRom(2, Settings.current.romPlus32, Settings.defaults.romPlus32, 0x4000);
+     error = machine.loadRom(2, Settings.current.romPlus32, Settings.defaults.romPlus32, 0x4000);
      if (error != 0) return error;
-     error = Machine.loadRom(3, Settings.current.romPlus33, Settings.defaults.romPlus33, 0x4000);
+     error = machine.loadRom(3, Settings.current.romPlus33, Settings.defaults.romPlus33, 0x4000);
      if (error != 0) return error;
 
      error = plus2aCommonReset();
@@ -168,7 +169,7 @@ public class SpecPlus3 {
 
   // Common reset for +2A/+3
   public static int plus2aCommonReset() {
-    FuseMachineInfo machineCurrent = Machine.current;
+    FuseMachineInfo machineCurrent = machine.current;
 
     machineCurrent.ramInfo.currentPage = 0;
     machineCurrent.ramInfo.currentRom = 0;
@@ -240,19 +241,19 @@ public class SpecPlus3 {
 //      Fdd.motorOn(specplus3Drives[1], (b & 0x08) != 0);
 //    }
 
-    Machine.current.ramInfo.lastByte2 = b;
+    machine.current.ramInfo.lastByte2 = b;
 
-    Machine.current.memoryMap.run();
+    machine.current.memoryMap.run();
   }
 
   public static void memoryPort2Write(int port, byte b) {
-    if (Machine.current.ramInfo.locked) return;
+    if (machine.current.ramInfo.locked) return;
     memoryPort2WriteInternal(port, b);
   }
 
   // Map memory for +3
   public static int memoryMap() {
-    FuseMachineInfo machineCurrent = Machine.current;
+    FuseMachineInfo machineCurrent = machine.current;
     byte lastByte = machineCurrent.ramInfo.lastByte;
     byte lastByte2 = machineCurrent.ramInfo.lastByte2;
 
@@ -321,7 +322,7 @@ public class SpecPlus3 {
 
   // Check if drive is available
   private static boolean uiDriveIsAvailable() {
-    return (Machine.current.capabilities & Libspectrum.MachineCapability.PLUS3_DISK) != 0;
+    return (machine.current.capabilities & Libspectrum.MachineCapability.PLUS3_DISK) != 0;
   }
 
 //  // Get parameters for drive A

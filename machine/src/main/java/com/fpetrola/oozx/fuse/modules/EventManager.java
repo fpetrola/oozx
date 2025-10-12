@@ -23,6 +23,7 @@ import com.fpetrola.oozx.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.util.function.Supplier;
 
 // When will the next event happen?
 public class EventManager {
@@ -39,6 +40,11 @@ public class EventManager {
 
   // An event ready to be reused
   private Event eventFree = null;
+  private Supplier<FuseMachineInfo> fuseMachineInfoSupplier;
+
+  public EventManager(Supplier<FuseMachineInfo> machine) {
+    this.fuseMachineInfoSupplier = machine;
+  }
 
   public int init() {
     registeredEvents = new ArrayList<>();
@@ -162,7 +168,7 @@ public class EventManager {
 
   // Force all events between now and the next interrupt to happen
   public void eventForceEvents() {
-    while (eventNextEvent < Machine.current.timings.tstatesPerFrame) { // Assume Machine.current
+    while (eventNextEvent < fuseMachineInfoSupplier.get().timings.tstatesPerFrame) { // Assume Machine.current
       Spectrum.tstates = eventNextEvent;
       eventDoEvents();
     }

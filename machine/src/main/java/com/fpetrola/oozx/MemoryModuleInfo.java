@@ -20,9 +20,11 @@ package com.fpetrola.oozx;
 
 public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInfo {
   private static Memory memory= Fuse.memory;
+  private Machine machine= Fuse.machine;
+
   public void snapshotFrom(Libspectrum.Snap snap) {
     // snapshotFrom
-    int capabilities = Machine.current.capabilities;
+    int capabilities = machine.current.capabilities;
 
     if ((capabilities & Libspectrum.MachineCapability.PENT1024_MEMORY) != 0) {
       Pentagon.pentagon1024MemoryportWrite(0x7ffd, Libspectrum.snapOut128Memoryport(snap));
@@ -48,7 +50,7 @@ public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInf
       for (int i = 0; i < Libspectrum.snapCustomRomPages(snap) && i < 4; i++) {
         byte[] rom = Libspectrum.snapRoms(snap, i);
         if (rom != null) {
-          Machine.loadRomBankFromBuffer(memory.mapRom, i, rom, Libspectrum.snapRomLength(snap, i), true);
+          machine.loadRomBankFromBuffer(memory.mapRom, i, rom, Libspectrum.snapRomLength(snap, i), true);
         }
       }
     }
@@ -56,8 +58,8 @@ public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInf
 
   public void snapshotTo(Libspectrum.Snap snap) {
     // snapshotTo
-    Libspectrum.snapSetOut128Memoryport(snap, Machine.current.ramInfo.lastByte);
-    Libspectrum.snapSetOutPlus3Memoryport(snap, Machine.current.ramInfo.lastByte2);
+    Libspectrum.snapSetOut128Memoryport(snap, machine.current.ramInfo.lastByte);
+    Libspectrum.snapSetOutPlus3Memoryport(snap, machine.current.ramInfo.lastByte2);
 
     for (int i = 0; i < 64; i++) {
       if (Spectrum.RAM[i] != null) {

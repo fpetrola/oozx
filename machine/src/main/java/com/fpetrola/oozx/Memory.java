@@ -26,6 +26,7 @@ import com.fpetrola.oozx.fuse.modules.Display;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class Memory {
 
@@ -59,8 +60,10 @@ public class Memory {
   public MemoryPage[] mapWrite = new MemoryPage[PAGES_IN_64K];
   public MemoryPage[] mapRam = new MemoryPage[SPECTRUM_RAM_PAGES * PAGES_IN_16K];
   public MemoryPage[] mapRom = new MemoryPage[SPECTRUM_ROM_PAGES * PAGES_IN_16K];
+  private Supplier<FuseMachineInfo> fuseMachineInfoSupplier;
 
-  public Memory() {
+  public Memory(Supplier<FuseMachineInfo> machine) {
+    this.fuseMachineInfoSupplier = machine;
   }
 
   // Memory pool for allocated memory
@@ -305,7 +308,7 @@ public class Memory {
 
   // Map ROMCS
   public void romcsMap() {
-    if (!Machine.current.ramInfo.romcs) return;
+    if (!fuseMachineInfoSupplier.get().ramInfo.romcs) return;
     Module.romcs();
   }
 

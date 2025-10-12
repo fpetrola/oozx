@@ -23,6 +23,7 @@ import com.fpetrola.oozx.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class Display {
   private final Memory memory;
@@ -96,9 +97,11 @@ public class Display {
   // The last point at which we updated the screen display
   private int criticalRegionX;
   private int criticalRegionY;
+  private Supplier<FuseMachineInfo> fuseMachineInfoSupplier;
 
-  public Display(Memory memory) {
+  public Display(Memory memory, Supplier<FuseMachineInfo> machine) {
     this.memory = memory;
+    this.fuseMachineInfoSupplier = machine;
   }
 
   public int init(Object initContext) {
@@ -286,7 +289,7 @@ public class Display {
   public int[] getBeamPosition() {
     int[] beam = new int[2];
     long tstates = Spectrum.tstates;
-    FuseMachineInfo current = Machine.current;
+    FuseMachineInfo current = fuseMachineInfoSupplier.get();
     long[] lineTimes = current.lineTimes;
 
     if (tstates < lineTimes[0]) {
@@ -492,7 +495,7 @@ public class Display {
   int frameCountLocal = 0;
 
   private void updateUiScreen() {
-    int scale = Machine.current.timex ? 2 : 1;
+    int scale = fuseMachineInfoSupplier.get().timex ? 2 : 1;
 
     if (Settings.current.frameRate <= ++frameCountLocal) {
       frameCountLocal = 0;
@@ -575,7 +578,7 @@ public class Display {
     int mask = 1 << (7 - (x % 8));
     int index;
 
-    if (Machine.current.timex) {
+    if (fuseMachineInfoSupplier.get().timex) {
       int column = x >> 4;
       y >>= 1;
       index = column + y * SCREEN_WIDTH_COLS;

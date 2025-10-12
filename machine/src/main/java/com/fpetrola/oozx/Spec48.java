@@ -25,6 +25,7 @@ public class Spec48 {
   private static Memory memory = Fuse.memory;
 
   private static Display display = Fuse.display;
+  private static Machine machine= Fuse.machine;
 
   // Check if a port is handled by the ULA
   public static boolean portFromUla(int port) {
@@ -52,7 +53,7 @@ public class Spec48 {
 
   // Reset the Spectrum 48K machine
   private static int reset() {
-    int error = Machine.loadRom(0, Settings.current.rom48, Settings.defaults.rom48, 0x4000);
+    int error = machine.loadRom(0, Settings.current.rom48, Settings.defaults.rom48, 0x4000);
     if (error != 0) return error;
 
     Periph.clear();

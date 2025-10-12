@@ -38,6 +38,7 @@ public class LocalLibretroCore implements LibretroCore {
   public static boolean noContended = false;
   public static retro_input_state_t retroInputStateT;
   private Display display= Fuse.display;
+  private Machine machine= Fuse.machine;
 
   public LocalLibretroCore() {
   }
@@ -207,7 +208,7 @@ public class LocalLibretroCore implements LibretroCore {
       a = Libspectrum.Machine.PLUS3;
     }
 
-    Machine.select(a.ordinal());
+    machine.select(a.ordinal());
   }
 
   public void retro_if1_page(boolean in) {

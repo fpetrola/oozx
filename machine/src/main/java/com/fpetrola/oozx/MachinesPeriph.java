@@ -23,11 +23,13 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class MachinesPeriph {
 
+  private static Machine machine= Fuse.machine;
+
   static int init(Object context) {
     Periph.register(new Spec128MemoryPeripheral());
     Periph.register(new SpecPlus3MemoryPeripheral());
     Periph.register(new Upd765Peripheral());
-    Periph.register(new SeMemoryPeripheral());
+    Periph.register(new SeMemoryPeripheral(machine));
     return 0;
   }
 

@@ -65,6 +65,7 @@ public class Z80 {
   public static Audio audio;
   private static Display display= Fuse.display;
   private static Ula ula= Fuse.ula;
+  private static Machine machine= Fuse.machine;
 
   public static void reset(int i) {
     ooz80.reset();
@@ -83,7 +84,7 @@ public class Z80 {
 
   public static void interrupt() {
     ooz80.getState().tstates = Spectrum.tstates;
-    int i = Timings.interruptLength(Machine.current.machine);
+    int i = Timings.interruptLength(machine.current.machine);
     if (ooz80.getState().isIff1() && ooz80.getState().tstates < i) {
 //      if (ooz80.getState().tstates == Z80.interruptsEnabledAt) {
 //        EventManager.eventAdd(ooz80.getState().tstates + 1, z80_interrupt_event);

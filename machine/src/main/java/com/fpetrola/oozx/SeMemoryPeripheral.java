@@ -23,7 +23,7 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 import java.util.List;
 
 public class SeMemoryPeripheral extends AbstractZxPeripheral {
-  public SeMemoryPeripheral() {
-    super(Periph.Type.SE_MEMORY, List.of(new SeMemoryPortHandler()));
+  public SeMemoryPeripheral(Machine machine) {
+    super(Periph.Type.SE_MEMORY, List.of(new SeMemoryPortHandler(machine)));
   }
 }

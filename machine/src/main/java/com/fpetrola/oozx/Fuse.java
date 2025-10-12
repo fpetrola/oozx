@@ -27,6 +27,7 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 import java.util.List;
 import java.util.Random;
+import java.util.function.Supplier;
 
 public class Fuse {
 
@@ -43,11 +44,13 @@ public class Fuse {
 
   // The creator information we'll store in file formats that support this
   public static LibspectrumCreator creator;
-  public static Memory memory= new Memory();
-  public static Display display= new Display(memory);
-  public static Ula ula= new Ula(memory, display);
-  public static EventManager eventManager= new EventManager();
-  public static Joystick joystick= new Joystick();
+  public static Supplier<FuseMachineInfo> fuseMachineInfoSupplier = () -> Machine.current;
+  public static Memory memory = new Memory(fuseMachineInfoSupplier);
+  public static Display display = new Display(memory, fuseMachineInfoSupplier);
+  public static Ula ula =new Ula(memory, display, fuseMachineInfoSupplier);
+  public static EventManager eventManager = new EventManager(fuseMachineInfoSupplier);
+  public static Machine machine = new Machine(eventManager, memory, display, ula);
+  public static Joystick joystick = new Joystick();
 
   public static void abort() {
 
@@ -118,7 +121,7 @@ public class Fuse {
         new JoystickStartupModule(joystick),
         new KeyboardStartupModule(),
         new LibspectrumStartupModule(),
-        new MachineStartupModule(),
+        new MachineStartupModule(machine),
         new MachinesPeriphStartupModule(),
         new MemoryStartupModule(memory),
         new SetUidStartupModule(),
@@ -168,7 +171,7 @@ public class Fuse {
     if (runStartupManager() != 0) return 1;
 
     Settings.current.startMachine = "48";
-    error = Machine.selectId(Settings.current.startMachine);
+    error = machine.selectId(Settings.current.startMachine);
     if (error != 0) return error;
 
     error = Scaler.selectId(startScaler);

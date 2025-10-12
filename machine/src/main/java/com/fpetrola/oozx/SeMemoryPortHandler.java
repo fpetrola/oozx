@@ -21,13 +21,16 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.ports.DefaultPortHandler;
 
 public class SeMemoryPortHandler extends DefaultPortHandler {
-  public SeMemoryPortHandler() {
+  private Machine machine;
+
+  public SeMemoryPortHandler(Machine machine) {
     super(0xffff, 0x7ffd, false, true);
+    this.machine = machine;
   }
 
   @Override
   public void write(int port, byte value) {
-    Machine.current.ramInfo.lastByte = value;
-    Machine.current.memoryMap.run();
+    machine.current.ramInfo.lastByte = value;
+    machine.current.memoryMap.run();
   }
 }

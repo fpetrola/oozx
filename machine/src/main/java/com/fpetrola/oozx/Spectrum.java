@@ -56,6 +56,7 @@ public class Spectrum {
   public static byte[][] RAM = new byte[memory.SPECTRUM_RAM_PAGES][0x4000];
   private static Display display= Fuse.display;
   private static EventManager eventManager= Fuse.eventManager;
+  private static Machine machine= Fuse.machine;
 
   // Functional interface for checking if a port is handled by the ULA
   @FunctionalInterface
@@ -129,7 +130,7 @@ public class Spectrum {
 //    }
 
   public static int spectrumFrame() {
-    long frameLength = Rzx.playback ? tstates : Machine.current.timings.tstatesPerFrame;
+    long frameLength = Rzx.playback ? tstates : machine.current.timings.tstatesPerFrame;
 
     eventManager.eventFrame(frameLength);
     tstates -= frameLength;
@@ -145,7 +146,7 @@ public class Spectrum {
     Printer.frame();
 
     if (!Rzx.playback) {
-      eventManager.eventAdd(Machine.current.timings.tstatesPerFrame, spectrumFrameEvent);
+      eventManager.eventAdd(machine.current.timings.tstatesPerFrame, spectrumFrameEvent);
     }
 
     Loader.frame(frameLength);
@@ -161,20 +162,20 @@ public class Spectrum {
   }
 
   private static int contendDelayCommon(long time, int[] timings, int offset) {
-    int line = (int) ((time - Machine.current.lineTimes[0]) / Machine.current.timings.tstatesPerLine);
+    int line = (int) ((time - machine.current.lineTimes[0]) / machine.current.timings.tstatesPerLine);
 
-    int tstatesThroughLine = (int) (time - Machine.current.lineTimes[0] +
-        (Machine.current.timings.leftBorder - display.BORDER_WIDTH_COLS * 4));
+    int tstatesThroughLine = (int) (time - machine.current.lineTimes[0] +
+        (machine.current.timings.leftBorder - display.BORDER_WIDTH_COLS * 4));
 
-    tstatesThroughLine %= Machine.current.timings.tstatesPerLine;
+    tstatesThroughLine %= machine.current.timings.tstatesPerLine;
 
     if (line < display.BORDER_HEIGHT ||
         line >= display.BORDER_HEIGHT + display.HEIGHT) return 0;
 
-    if (tstatesThroughLine < Machine.current.timings.leftBorder - offset) return 0;
+    if (tstatesThroughLine < machine.current.timings.leftBorder - offset) return 0;
 
-    if (tstatesThroughLine >= Machine.current.timings.leftBorder +
-        Machine.current.timings.horizontalScreen - offset) return 0;
+    if (tstatesThroughLine >= machine.current.timings.leftBorder +
+        machine.current.timings.horizontalScreen - offset) return 0;
 
     return timings[tstatesThroughLine % 8];
   }
@@ -188,23 +189,23 @@ public class Spectrum {
   }
 
   public static int spectrumUnattachedPort() {
-    if (tstates < Machine.current.lineTimes[display.BORDER_HEIGHT]) return 0xff;
+    if (tstates < machine.current.lineTimes[display.BORDER_HEIGHT]) return 0xff;
 
-    int line = (int) ((tstates - Machine.current.lineTimes[display.BORDER_HEIGHT]) /
-        Machine.current.timings.tstatesPerLine);
+    int line = (int) ((tstates - machine.current.lineTimes[display.BORDER_HEIGHT]) /
+        machine.current.timings.tstatesPerLine);
 
     if (line >= display.HEIGHT) return 0xff;
 
     int tstatesThroughLine = (int) (tstates -
-        Machine.current.lineTimes[display.BORDER_HEIGHT + line] +
-        (Machine.current.timings.leftBorder - display.BORDER_WIDTH_COLS * 4));
+        machine.current.lineTimes[display.BORDER_HEIGHT + line] +
+        (machine.current.timings.leftBorder - display.BORDER_WIDTH_COLS * 4));
 
-    if (tstatesThroughLine < Machine.current.timings.leftBorder) return 0xff;
+    if (tstatesThroughLine < machine.current.timings.leftBorder) return 0xff;
 
-    if (tstatesThroughLine >= Machine.current.timings.leftBorder +
-        Machine.current.timings.horizontalScreen) return 0xff;
+    if (tstatesThroughLine >= machine.current.timings.leftBorder +
+        machine.current.timings.horizontalScreen) return 0xff;
 
-    int column = ((tstatesThroughLine - Machine.current.timings.leftBorder) / 8) * 2;
+    int column = ((tstatesThroughLine - machine.current.timings.leftBorder) / 8) * 2;
 
     switch (tstatesThroughLine % 8) {
       case 5:

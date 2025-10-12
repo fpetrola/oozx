@@ -22,8 +22,11 @@ import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
 public class MachineStartupModule extends AbstractStartupModule {
 
-  public MachineStartupModule() {
+  private Machine machine;
+
+  public MachineStartupModule(Machine machine) {
     super(MemoryStartupModule.class, SetUidStartupModule.class);
+    this.machine = machine;
   }
 
   public Object getInitContext() {
@@ -31,11 +34,11 @@ public class MachineStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return Machine.initMachines(initContext);
+    return machine.initMachines(initContext);
   }
 
   public void endFn() {
-    Machine.end();
+    machine.end();
   }
 
 }
