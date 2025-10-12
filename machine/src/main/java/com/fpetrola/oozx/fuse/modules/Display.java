@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Display {
+  private final Memory memory;
 
   // Constants for the width and height of the Speccy's screen
   public final int WIDTH_COLS = 32;
@@ -96,7 +97,8 @@ public class Display {
   private int criticalRegionX;
   private int criticalRegionY;
 
-  public Display() {
+  public Display(Memory memory) {
+    this.memory = memory;
   }
 
   public int init(Object initContext) {
@@ -206,7 +208,7 @@ public class Display {
       } else {
         offset = attrStart[y] + x;
       }
-      attr = Spectrum.RAM[Memory.currentScreen][offset];
+      attr = Spectrum.RAM[memory.currentScreen][offset];
     }
     return (byte) attr;
   }
@@ -236,7 +238,7 @@ public class Display {
     int beamY = y + BORDER_HEIGHT;
     int offset = getOffset(x, y);
 
-    byte[] screen = Spectrum.RAM[Memory.currentScreen];
+    byte[] screen = Spectrum.RAM[memory.currentScreen];
     int data = screen[offset];
     byte data2 = getAttrByte(x, y);
 
@@ -541,7 +543,7 @@ public class Display {
   }
 
   public void dirtyFlashingSinclair() {
-    byte[] screen = Spectrum.RAM[Memory.currentScreen];
+    byte[] screen = Spectrum.RAM[memory.currentScreen];
     for (int offset = 0x1800; offset < 0x1b00; offset++) {
       byte attr = screen[offset];
       if ((attr & 0x80) != 0) dirty64(offset);

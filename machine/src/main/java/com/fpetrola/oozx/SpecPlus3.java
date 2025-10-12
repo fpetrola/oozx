@@ -22,6 +22,7 @@ import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class SpecPlus3 {
+  private static Memory memory= Fuse.memory;
   public static UPDFdc specplus3Fdc;
   private static Display display;
 //  public static Fdd[] specplus3Drives = new Fdd[SpecPlus3Constants.SPECPLUS3_NUM_DRIVES];
@@ -176,17 +177,17 @@ public class SpecPlus3 {
     machineCurrent.ramInfo.lastByte = 0;
     machineCurrent.ramInfo.lastByte2 = 0;
 
-    Memory.currentScreen = 5;
-    Memory.screenMask = 0xffff;
+    memory.currentScreen = 5;
+    memory.screenMask = 0xffff;
 
     // All memory comes from the home bank
-    for (int i = 0; i < Memory.PAGES_IN_64K; i++) {
-      Memory.mapRead[i].source = Memory.mapWrite[i].source = Memory.sourceRam;
+    for (int i = 0; i < memory.PAGES_IN_64K; i++) {
+      memory.mapRead[i].source = memory.mapWrite[i].source = memory.sourceRam;
     }
 
     // RAM pages 4, 5, 6, and 7 contended
     for (int i = 0; i < 8; i++) {
-      Memory.ramSet16kContention(i, i >= 4);
+      memory.ramSet16kContention(i, i >= 4);
     }
 
     return normalMemoryMap(0, 0);
@@ -194,10 +195,10 @@ public class SpecPlus3 {
 
   // Normal memory mapping
   private static int normalMemoryMap(int rom, int page) {
-    Memory.map16k(0x0000, Memory.mapRom, rom);
-    Memory.map16k(0x4000, Memory.mapRam, 5);
-    Memory.map16k(0x8000, Memory.mapRam, 2);
-    Memory.map16k(0xc000, Memory.mapRam, page);
+    memory.map16k(0x0000, memory.mapRom, rom);
+    memory.map16k(0x4000, memory.mapRam, 5);
+    memory.map16k(0x8000, memory.mapRam, 2);
+    memory.map16k(0xc000, memory.mapRam, page);
     return 0;
   }
 
@@ -224,10 +225,10 @@ public class SpecPlus3 {
 
   // Select special memory mapping
   private static void selectSpecialMap(int page1, int page2, int page3, int page4) {
-    Memory.map16k(0x0000, Memory.mapRam, page1);
-    Memory.map16k(0x4000, Memory.mapRam, page2);
-    Memory.map16k(0x8000, Memory.mapRam, page3);
-    Memory.map16k(0xc000, Memory.mapRam, page4);
+    memory.map16k(0x0000, memory.mapRam, page1);
+    memory.map16k(0x4000, memory.mapRam, page2);
+    memory.map16k(0x8000, memory.mapRam, page3);
+    memory.map16k(0xc000, memory.mapRam, page4);
   }
 
   // Write to the +3 memory port 2 (0x1FFD)
@@ -259,10 +260,10 @@ public class SpecPlus3 {
     int screen = (lastByte & 0x08) != 0 ? 7 : 5;
     int rom = ((lastByte & 0x10) >> 4) | ((lastByte2 & 0x04) >> 1);
 
-    if (Memory.currentScreen != screen) {
+    if (memory.currentScreen != screen) {
       display.dirtySinclair(0);
       display.writeIfDirtySinclair(0,0);
-      Memory.currentScreen = screen;
+      memory.currentScreen = screen;
     }
 
     if ((lastByte2 & 0x01) != 0) {
@@ -276,7 +277,7 @@ public class SpecPlus3 {
     machineCurrent.ramInfo.currentPage = page;
     machineCurrent.ramInfo.currentRom = rom;
 
-    Memory.romcsMap();
+    memory.romcsMap();
 
     return 0;
   }

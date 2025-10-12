@@ -42,7 +42,8 @@ public class Fuse {
 
   // The creator information we'll store in file formats that support this
   public static LibspectrumCreator creator;
-  public static Display display= new Display();
+  public static Memory memory= new Memory();
+  public static Display display= new Display(memory);
   public static EventManager eventManager= new EventManager();
 
   public static void abort() {
@@ -116,7 +117,7 @@ public class Fuse {
         new LibspectrumStartupModule(),
         new MachineStartupModule(),
         new MachinesPeriphStartupModule(),
-        new MemoryStartupModule(),
+        new MemoryStartupModule(memory),
         new SetUidStartupModule(),
         new SpectrumStartupModule(),
         new UlaStartupModule(),

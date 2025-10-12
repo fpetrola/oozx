@@ -22,8 +22,9 @@ import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class Spec48 {
+  private static Memory memory = Fuse.memory;
 
-  private static Display display= Fuse.display;
+  private static Display display = Fuse.display;
 
   // Check if a port is handled by the ULA
   public static boolean portFromUla(int port) {
@@ -60,8 +61,8 @@ public class Spec48 {
 
     Beta.builtin = false;
 
-    Memory.currentScreen = 5;
-    Memory.screenMask = 0xffff;
+    memory.currentScreen = 5;
+    memory.screenMask = 0xffff;
 
     commonDisplaySetup();
 
@@ -74,30 +75,30 @@ public class Spec48 {
     display.writeIfDirty = display::writeIfDirtySinclair;
     display.dirtyFlashing = display::dirtyFlashingSinclair;
 
-    Memory.displayDirty = Memory::displayDirtySinclair;
+    memory.displayDirty = memory::displayDirtySinclair;
   }
 
   // Common reset for Spectrum 48K
   public static int commonReset() {
     // 0x0000: ROM 0
-    Memory.map16k(0x0000, Memory.mapRom, 0);
+    memory.map16k(0x0000, memory.mapRom, 0);
     // 0x4000: RAM 5, contended
-    Memory.ramSet16kContention(5, true);
-    Memory.map16k(0x4000, Memory.mapRam, 5);
+    memory.ramSet16kContention(5, true);
+    memory.map16k(0x4000, memory.mapRam, 5);
     // 0x8000: RAM 2, not contended
-    Memory.ramSet16kContention(2, false);
-    Memory.map16k(0x8000, Memory.mapRam, 2);
+    memory.ramSet16kContention(2, false);
+    memory.map16k(0x8000, memory.mapRam, 2);
     // 0xc000: RAM 0, not contended
-    Memory.ramSet16kContention(0, false);
-    Memory.map16k(0xc000, Memory.mapRam, 0);
+    memory.ramSet16kContention(0, false);
+    memory.map16k(0xc000, memory.mapRam, 0);
 
     return 0;
   }
 
   // Map memory for Spectrum 48K
   public static int memoryMap() {
-    Memory.map16k(0x0000, Memory.mapRom, 0);
-    Memory.romcsMap();
+    memory.map16k(0x0000, memory.mapRom, 0);
+    memory.romcsMap();
     return 0;
   }
 }

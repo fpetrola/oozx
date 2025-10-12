@@ -48,11 +48,12 @@ import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 
 public class Spectrum {
+  private static Memory memory= Fuse.memory;
   // How many tstates have elapsed since the last interrupt?
   public static long tstates;
 
   // RAM array: 65 pages of 16KB each (from SPECTRUM_RAM_PAGES)
-  public static byte[][] RAM = new byte[Memory.SPECTRUM_RAM_PAGES][0x4000];
+  public static byte[][] RAM = new byte[memory.SPECTRUM_RAM_PAGES][0x4000];
   private static Display display= Fuse.display;
   private static EventManager eventManager= Fuse.eventManager;
 
@@ -209,12 +210,12 @@ public class Spectrum {
       case 5:
         column++;
       case 3:
-        return RAM[Memory.currentScreen][display.attrStart[line] + column];
+        return RAM[memory.currentScreen][display.attrStart[line] + column];
 
       case 4:
         column++;
       case 2:
-        return RAM[Memory.currentScreen][display.lineStart[line] + column];
+        return RAM[memory.currentScreen][display.lineStart[line] + column];
 
       case 0:
       case 1:

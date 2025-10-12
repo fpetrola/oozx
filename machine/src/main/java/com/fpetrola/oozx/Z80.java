@@ -49,6 +49,8 @@ import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class Z80 {
   private static EventManager eventManager= Fuse.eventManager;
+  private static com.fpetrola.oozx.Memory memory= Fuse.memory;
+
   public static long interruptsEnabledAt;
   public static OOZ80<WordNumber> ooz80;
   public static LibretroCore.bridge_command bridgeCommand;
@@ -193,12 +195,12 @@ public class Z80 {
   private static void setupMemory() {
     State<?> state = ooz80.getState();
 
-    Memory<WordNumber> memory = (Memory<WordNumber>) state.getMemory();
+    Memory<WordNumber> memory1 = (Memory<WordNumber>) state.getMemory();
 
     phaseProcessor = new PhaseProcessor<>(ooz80) {
       public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
         for (int i = 0; i < x; i++) {
-          MemoryPage memoryPage = mapRead[baseAddress >>> PAGE_SIZE_LOGARITHM];
+          MemoryPage memoryPage = memory.mapRead[baseAddress >>> PAGE_SIZE_LOGARITHM];
           if (memoryPage != null && memoryPage.contended) {
             if (state.tstates < Ula.contentionNoMreq.length) {
               byte tstates = Ula.contentionNoMreq[(int) state.tstates];
@@ -235,7 +237,7 @@ public class Z80 {
       }
     };
 
-    memory.addMemoryReadListener(new AddStatesMemoryReadListener<>(phaseProcessor) {
+    memory1.addMemoryReadListener(new AddStatesMemoryReadListener<>(phaseProcessor) {
       protected void processEvent(WordNumber address, WordNumber value, int fetching) {
         if (LocalLibretroCore.noContended || !initialized())
           return;
@@ -247,7 +249,7 @@ public class Z80 {
 
       private void processUlaContention(WordNumber address) {
         Spectrum.tstates = state.tstates;
-        com.fpetrola.oozx.Memory.readByte(address.intValue());
+        memory.readByte(address.intValue());
         state.tstates = Spectrum.tstates;
       }
 
@@ -255,7 +257,7 @@ public class Z80 {
         super.addMc(address, time1);
       }
     });
-    memory.addMemoryWriteListener(new AddStatesMemoryWriteListener<>(phaseProcessor) {
+    memory1.addMemoryWriteListener(new AddStatesMemoryWriteListener<>(phaseProcessor) {
       public void writtingMemoryAt(WordNumber address, WordNumber value) {
         if (LocalLibretroCore.noContended || !initialized())
           return;
@@ -271,13 +273,13 @@ public class Z80 {
         int address1 = address.intValue();
         if (true || address1 >= 0x4000 && address1 < 0x5B00) {
           Spectrum.tstates = state.tstates;
-          com.fpetrola.oozx.Memory.writeByteInternal(address1, (byte) (value.intValue() & 0xff));
+          memory.writeByteInternal(address1, (byte) (value.intValue() & 0xff), Fuse.display);
         }
       }
 
       private void processUlaContention(WordNumber address, WordNumber value) {
         Spectrum.tstates = state.tstates;
-        com.fpetrola.oozx.Memory.writeByte(address.intValue(), (byte) (value.intValue() & 0xff));
+        memory.writeByte(address.intValue(), (byte) (value.intValue() & 0xff));
         ooz80.getState().getMemory().getData()[address.intValue()] = value;
         state.tstates = Spectrum.tstates;
       }
@@ -285,7 +287,7 @@ public class Z80 {
   }
 
   private static boolean initialized() {
-    return mapRead[0] != null && Ula.contention != null;
+    return memory.mapRead[0] != null && Ula.contention != null;
   }
 
   static int init(Object o) {
@@ -332,7 +334,7 @@ public class Z80 {
 //      int bank = i >>> PAGE_SIZE_LOGARITHM;
 //      byte[] mapping = Spectrum.RAM[currentScreen];
 //      mapping[i - 0x4000] = datum != null ? (byte) (datum.intValue() & 0xff) : 0;
-      writeByteInternal(i, datum != null ? (byte) (datum.intValue() & 0xff) : 0);
+      memory.writeByteInternal(i, datum != null ? (byte) (datum.intValue() & 0xff) : 0, Fuse.display);
     }
   }
 

@@ -23,8 +23,11 @@ import com.fpetrola.oozx.fuse.AbstractStartupModule;
 import java.util.ArrayList;
 
 public class MemoryStartupModule extends AbstractStartupModule {
-  public MemoryStartupModule() {
+  private final Memory memory;
+
+  public MemoryStartupModule(Memory memory) {
     super(SetUidStartupModule.class);
+    this.memory = memory;
   }
 
   public Object getInitContext() {
@@ -32,34 +35,34 @@ public class MemoryStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    Memory.memorySources = new ArrayList<>();
+    memory.memorySources = new ArrayList<>();
 
-    Memory.sourceRom = Memory.sourceRegister("ROM");
-    Memory.sourceRam = Memory.sourceRegister("RAM");
-    Memory.sourceDock = Memory.sourceRegister("Timex Dock");
-    Memory.sourceExrom = Memory.sourceRegister("Timex EXROM");
-    Memory.sourceAny = Memory.sourceRegister("Absolute address");
-    Memory.sourceNone = Memory.sourceRegister("None");
+    memory.sourceRom = memory.sourceRegister("ROM");
+    memory.sourceRam = memory.sourceRegister("RAM");
+    memory.sourceDock = memory.sourceRegister("Timex Dock");
+    memory.sourceExrom = memory.sourceRegister("Timex EXROM");
+    memory.sourceAny = memory.sourceRegister("Absolute address");
+    memory.sourceNone = memory.sourceRegister("None");
 
-    Memory.pool = new ArrayList<>();
+    memory.pool = new ArrayList<>();
 
-    for (int i = 0; i < Memory.SPECTRUM_ROM_PAGES; i++) {
-      for (int j = 0; j < Memory.PAGES_IN_16K; j++) {
-        MemoryPage page = Memory.mapRom[i * Memory.PAGES_IN_16K + j] = new MemoryPage();
+    for (int i = 0; i < memory.SPECTRUM_ROM_PAGES; i++) {
+      for (int j = 0; j < memory.PAGES_IN_16K; j++) {
+        MemoryPage page = memory.mapRom[i * memory.PAGES_IN_16K + j] = new MemoryPage();
         page.writable = false;
         page.contended = false;
-        page.source = Memory.sourceRom;
+        page.source = memory.sourceRom;
       }
     }
 
-    for (int i = 0; i < Memory.SPECTRUM_RAM_PAGES; i++) {
-      for (int j = 0; j < Memory.PAGES_IN_16K; j++) {
-        MemoryPage page = Memory.mapRam[i * Memory.PAGES_IN_16K + j] = new MemoryPage();
-        page.setPage(Spectrum.RAM, i, j * Memory.PAGE_SIZE);
+    for (int i = 0; i < memory.SPECTRUM_RAM_PAGES; i++) {
+      for (int j = 0; j < memory.PAGES_IN_16K; j++) {
+        MemoryPage page = memory.mapRam[i * memory.PAGES_IN_16K + j] = new MemoryPage();
+        page.setPage(Spectrum.RAM, i, j * memory.PAGE_SIZE);
         page.pageNum = i;
-        page.offset = j * Memory.PAGE_SIZE;
+        page.offset = j * memory.PAGE_SIZE;
         page.writable = true;
-        page.source = Memory.sourceRam;
+        page.source = memory.sourceRam;
       }
     }
 
@@ -68,17 +71,17 @@ public class MemoryStartupModule extends AbstractStartupModule {
   }
 
   public void endFn() {
-    if (Memory.pool != null) {
-      for (Memory.MemoryPoolEntry entry : Memory.pool) {
+    if (memory.pool != null) {
+      for (Memory.MemoryPoolEntry entry : memory.pool) {
         // Java garbage collector handles memory deallocation
       }
-      Memory.pool.clear();
-      Memory.pool = null;
+      memory.pool.clear();
+      memory.pool = null;
     }
 
-    if (Memory.memorySources != null) {
-      Memory.memorySources.clear();
-      Memory.memorySources = null;
+    if (memory.memorySources != null) {
+      memory.memorySources.clear();
+      memory.memorySources = null;
     }
   }
 

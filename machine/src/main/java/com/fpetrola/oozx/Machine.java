@@ -36,6 +36,7 @@ import java.util.function.Function;
 
 public class Machine {
   private static EventManager eventManager= Fuse.eventManager;
+  private static Memory memory= Fuse.memory;
 
   public static List<FuseMachineInfo> machineTypes = new ArrayList<>(); // All available machines
 
@@ -214,13 +215,13 @@ public class Machine {
     byte[] data = new byte[length];
     System.arraycopy(buffer, 0, data, 0, length);
 
-    for (MemoryPage page : Arrays.asList(bankMap).subList(pageNum * Memory.PAGES_IN_16K, pageNum * Memory.PAGES_IN_16K + length / Memory.PAGE_SIZE)) {
+    for (MemoryPage page : Arrays.asList(bankMap).subList(pageNum * memory.PAGES_IN_16K, pageNum * memory.PAGES_IN_16K + length / memory.PAGE_SIZE)) {
       page.offset = offset;
       page.pageNum = pageNum;
-      page.setPage(Arrays.copyOfRange(data, offset, offset + Memory.PAGE_SIZE));
+      page.setPage(Arrays.copyOfRange(data, offset, offset + memory.PAGE_SIZE));
       page.writable = false;
       page.saveToSnapshot = custom;
-      offset += Memory.PAGE_SIZE;
+      offset += memory.PAGE_SIZE;
     }
 
     return 0;
@@ -260,7 +261,7 @@ public class Machine {
   }
 
   public static int loadRom(int pageNum, String filename, String fallback, int expectedLength) {
-    return loadRomBank(Memory.mapRom, pageNum, filename, fallback, expectedLength);
+    return loadRomBank(memory.mapRom, pageNum, filename, fallback, expectedLength);
   }
 
   public static int reset(boolean hardReset) {
@@ -270,7 +271,7 @@ public class Machine {
 //
 //        Tape.stop();
 
-    Memory.poolFree();
+    memory.poolFree();
 //    current = new FuseMachineInfo();
 //    current.reset = () -> {
 //    };
@@ -280,7 +281,7 @@ public class Machine {
 //    };
     setVariableTimings(current);
 
-    Memory.reset();
+    memory.reset();
 
     current.reset.run();
 //        if (error != 0) return error;

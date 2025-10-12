@@ -19,6 +19,7 @@
 package com.fpetrola.oozx;
 
 public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInfo {
+  private static Memory memory= Fuse.memory;
   public void snapshotFrom(Libspectrum.Snap snap) {
     // snapshotFrom
     int capabilities = Machine.current.capabilities;
@@ -47,7 +48,7 @@ public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInf
       for (int i = 0; i < Libspectrum.snapCustomRomPages(snap) && i < 4; i++) {
         byte[] rom = Libspectrum.snapRoms(snap, i);
         if (rom != null) {
-          Machine.loadRomBankFromBuffer(Memory.mapRom, i, rom, Libspectrum.snapRomLength(snap, i), true);
+          Machine.loadRomBankFromBuffer(memory.mapRom, i, rom, Libspectrum.snapRomLength(snap, i), true);
         }
       }
     }
@@ -66,6 +67,6 @@ public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInf
       }
     }
 
-    Memory.romToSnapshot(snap);
+    memory.romToSnapshot(snap);
   }
 }
