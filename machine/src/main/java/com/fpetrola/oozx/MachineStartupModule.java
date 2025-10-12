@@ -25,7 +25,7 @@ public class MachineStartupModule extends AbstractStartupModule {
   private Machine machine;
 
   public MachineStartupModule(Machine machine) {
-    super(MemoryStartupModule.class, SetUidStartupModule.class);
+    super(MemoryStartupModule.class);
     this.machine = machine;
   }
 

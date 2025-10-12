@@ -115,7 +115,6 @@ public class Fuse {
     StartupManager.init();
 
     List.of(
-        new CreatorStartupModule(),
         new DisplayStartupModule(display),
         new EventManagerStartupModule(eventManager),
         new JoystickStartupModule(joystick),
@@ -124,7 +123,6 @@ public class Fuse {
         new MachineStartupModule(machine),
         new MachinesPeriphStartupModule(),
         new MemoryStartupModule(memory),
-        new SetUidStartupModule(),
         new SpectrumStartupModule(),
         new UlaStartupModule(ula),
         new Z80StartupModule()
@@ -191,59 +189,6 @@ public class Fuse {
 
   private static int parseNonoptionArgs(String[] args, int firstArg, StartFiles startFiles) {
     return 0;
-  }
-
-  static int creatorInit(Object context) {
-//        int[] version = new int[4];
-//        String osname = new String(new char[192]);
-//        final int CUSTOM_SIZE = 256;
-//
-//        try {
-//            String[] parts = VERSION.split("\\.");
-//            for (int i = 0; i < Math.min(parts.length, 4); i++) {
-//                version[i] = Math.min(Integer.parseInt(parts[i]), 0xff);
-//            }
-//        } catch (NumberFormatException e) {
-//            Ui.error(UiError.ERROR, "Invalid version format: %s", VERSION);
-//            return 1;
-//        }
-//
-//        if (Compat.osname(osname) != 0) return 1;
-//
-//        creator = Libspectrum.creatorAlloc();
-//
-//        if (Libspectrum.creatorSetProgram(creator, "Fuse") != 0) {
-//            creator = null;
-//            return 1;
-//        }
-//
-//        if (Libspectrum.creatorSetMajor(creator, version[0] * 0x100 + version[1]) != 0) {
-//            creator = null;
-//            return 1;
-//        }
-//
-//        if (Libspectrum.creatorSetMinor(creator, version[2] * 0x100 + version[3]) != 0) {
-//            creator = null;
-//            return 1;
-//        }
-//
-//        String gcryptVersion = Libspectrum.gcryptVersion() != null ? Libspectrum.gcryptVersion() : "not available";
-//        String custom = String.format("gcrypt: %s\nlibspectrum: %s\nuname: %s",
-//                gcryptVersion, Libspectrum.version(), osname);
-//
-//        if (Libspectrum.creatorSetCustom(creator, custom.getBytes(), custom.length()) != 0) {
-//            creator = null;
-//            return 1;
-//        }
-
-    return 0;
-  }
-
-  static void creatorEnd() {
-    if (creator != null) {
-      Libspectrum.creatorFree(creator);
-      creator = null;
-    }
   }
 
   private static void fuseShowCopyright() {

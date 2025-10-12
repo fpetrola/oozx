@@ -19,11 +19,10 @@
 package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.LibspectrumStartupModule;
-import com.fpetrola.oozx.SetUidStartupModule;
 
 public class KeyboardStartupModule extends AbstractStartupModule {
   public KeyboardStartupModule() {
-    super(LibspectrumStartupModule.class, SetUidStartupModule.class);
+    super(LibspectrumStartupModule.class);
   }
 
   public Object getInitContext() {

@@ -31,7 +31,7 @@ import java.util.function.Supplier;
 public class Memory {
 
   // Constants for memory page sizes
-  public static final int PAGE_SIZE_LOGARITHM = 11;
+  public final int PAGE_SIZE_LOGARITHM = 11;
   public final int PAGE_SIZE = 1 << PAGE_SIZE_LOGARITHM;
   public final int PAGE_SIZE_MASK = PAGE_SIZE - 1;
   public final int PAGES_IN_64K = 1 << (16 - PAGE_SIZE_LOGARITHM);

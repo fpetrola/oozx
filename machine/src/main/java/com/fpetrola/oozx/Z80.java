@@ -202,7 +202,7 @@ public class Z80 {
     phaseProcessor = new PhaseProcessor<>(ooz80) {
       public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
         for (int i = 0; i < x; i++) {
-          MemoryPage memoryPage = memory.mapRead[baseAddress >>> PAGE_SIZE_LOGARITHM];
+          MemoryPage memoryPage = memory.mapRead[baseAddress >>> memory.PAGE_SIZE_LOGARITHM];
           if (memoryPage != null && memoryPage.contended) {
             if (state.tstates < ula.contentionNoMreq.length) {
               byte tstates = ula.contentionNoMreq[(int) state.tstates];

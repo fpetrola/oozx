@@ -18,15 +18,13 @@
 
 package com.fpetrola.oozx.fuse;
 
-import com.fpetrola.oozx.Fdd;
 import com.fpetrola.oozx.LibspectrumStartupModule;
-import com.fpetrola.oozx.SetUidStartupModule;
 
 public class JoystickStartupModule extends AbstractStartupModule {
   private Joystick joystick;
 
   public JoystickStartupModule(Joystick joystick) {
-    super(LibspectrumStartupModule.class, SetUidStartupModule.class);
+    super(LibspectrumStartupModule.class);
     this.joystick = joystick;
   }
 

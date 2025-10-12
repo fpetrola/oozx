@@ -25,7 +25,6 @@ public class UlaStartupModule extends AbstractStartupModule {
   private Ula ula;
 
   public UlaStartupModule(Ula ula) {
-    super(SetUidStartupModule.class);
     this.ula = ula;
   }
 

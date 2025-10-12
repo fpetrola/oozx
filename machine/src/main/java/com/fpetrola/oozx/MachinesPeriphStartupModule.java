@@ -23,7 +23,6 @@ import com.fpetrola.oozx.fuse.AbstractStartupModule;
 public class MachinesPeriphStartupModule extends AbstractStartupModule {
 
   public MachinesPeriphStartupModule() {
-    super(SetUidStartupModule.class);
   }
 
   public Object getInitContext() {

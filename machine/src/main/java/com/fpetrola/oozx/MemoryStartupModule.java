@@ -26,7 +26,6 @@ public class MemoryStartupModule extends AbstractStartupModule {
   private final Memory memory;
 
   public MemoryStartupModule(Memory memory) {
-    super(SetUidStartupModule.class);
     this.memory = memory;
   }
 

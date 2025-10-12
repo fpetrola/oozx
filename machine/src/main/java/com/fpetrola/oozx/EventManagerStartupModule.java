@@ -25,7 +25,6 @@ public class EventManagerStartupModule extends AbstractStartupModule {
   private final EventManager eventManager;
 
   public EventManagerStartupModule(EventManager eventManager) {
-    super(SetUidStartupModule.class);
     this.eventManager = eventManager;
   }
 
