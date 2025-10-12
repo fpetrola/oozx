@@ -38,6 +38,19 @@ public class EventManager {
     // An event ready to be reused
     private static Event eventFree = null;
 
+    static void init() {
+      registeredEvents = new ArrayList<>();
+
+      eventTypeNull = eventRegister(null, "[Deleted event]");
+
+      eventNextEvent = EVENT_NO_EVENTS;
+    }
+
+    static void end() {
+      reset();
+      registeredEventsFree();
+    }
+
     static class EventDescriptor {
         EventFn fn;
         String description;

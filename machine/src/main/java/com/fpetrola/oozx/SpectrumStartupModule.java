@@ -22,7 +22,7 @@ import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
 public class SpectrumStartupModule extends AbstractStartupModule {
   public SpectrumStartupModule() {
-    super(EventStartupModule.class, SetUidStartupModule.class);
+    super(EventManagerStartupModule.class, SetUidStartupModule.class);
   }
 
   public Object getInitContext() {

@@ -94,6 +94,9 @@ public class Display {
   private int criticalRegionX;
   private int criticalRegionY;
 
+  public Display() {
+  }
+
   public int init(Object initContext) {
     int i, j, k, x, y;
 

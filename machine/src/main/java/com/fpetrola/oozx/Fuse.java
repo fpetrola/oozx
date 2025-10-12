@@ -106,7 +106,7 @@ public class Fuse {
     List.of(
         new CreatorStartupModule(),
         new DisplayStartupModule(display),
-        new EventStartupModule(),
+        new EventManagerStartupModule(),
         new JoystickStartupModule(),
         new KeyboardStartupModule(),
         new LibspectrumStartupModule(),

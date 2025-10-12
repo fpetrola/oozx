@@ -20,10 +20,8 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
-import java.util.ArrayList;
-
-public class EventStartupModule extends AbstractStartupModule {
-  public EventStartupModule() {
+public class EventManagerStartupModule extends AbstractStartupModule {
+  public EventManagerStartupModule() {
     super(SetUidStartupModule.class);
   }
 
@@ -32,18 +30,13 @@ public class EventStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    EventManager.registeredEvents = new ArrayList<>();
-
-    EventManager.eventTypeNull = EventManager.eventRegister(null, "[Deleted event]");
-
-    EventManager.eventNextEvent = EventManager.EVENT_NO_EVENTS;
+    EventManager.init();
 
     return 0;
   }
 
   public void endFn() {
-    EventManager.reset();
-    EventManager.registeredEventsFree();
+    EventManager.end();
   }
 
 }
