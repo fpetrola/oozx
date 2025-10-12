@@ -19,6 +19,8 @@
 package com.fpetrola.oozx.fuse.peripherals;
 
 import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.fuse.KempstonLoosePeriphPeripheral;
+import com.fpetrola.oozx.fuse.KempstonStrictPeripheral;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,8 +51,8 @@ public class Periph {
     FULLER,
     INTERFACE1,
     INTERFACE2,
-    KEMPSTON,
-    KEMPSTON_LOOSE,
+    KEMPSTON(KempstonStrictPeripheral.class),
+    KEMPSTON_LOOSE(KempstonLoosePeriphPeripheral.class),
     KEMPSTON_MOUSE,
     MELODIK,
     MULTIFACE_1,
@@ -133,12 +135,12 @@ public class Periph {
   private static final String PAGE_EVENT_STRING = "page";
   private static final String UNPAGE_EVENT_STRING = "unpage";
 
-  // Register a peripheral with the system
-  public static void register(Type type, Peripheral peripheral) {
-    ZxPeripheralAdapter peripheral1 = new ZxPeripheralAdapter(type, peripheral);
-
-    register(peripheral1);
-  }
+//  // Register a peripheral with the system
+//  public static void register(Type type, Peripheral peripheral) {
+//    ZxPeripheralAdapter peripheral1 = new ZxPeripheralAdapter(type, peripheral);
+//
+//    register(peripheral1);
+//  }
 
   public static void register(ZxPeripheral zxPeripheral) {
     if (peripherals == null) {

@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.KempstonStrictPeripheral;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class MachinesPeriph {
@@ -45,7 +46,7 @@ public class MachinesPeriph {
   private static void basePeripherals() {
     Periph.setPresent(Periph.Type.DIVIDE, Periph.Present.OPTIONAL);
     Periph.setPresent(Periph.Type.DIVMMC, Periph.Present.OPTIONAL);
-    Periph.setPresent(Periph.Type.KEMPSTON, Periph.Present.OPTIONAL);
+    Periph.setPresent(KempstonStrictPeripheral.class, Periph.Present.OPTIONAL);
     Periph.setPresent(Periph.Type.KEMPSTON_MOUSE, Periph.Present.OPTIONAL);
     Periph.setPresent(Periph.Type.SIMPLEIDE, Periph.Present.OPTIONAL);
     Periph.setPresent(Periph.Type.SPECCYBOOT, Periph.Present.OPTIONAL);
@@ -93,15 +94,15 @@ public class MachinesPeriph {
     Periph.setPresent(Periph.Type.AY_PLUS3, Periph.Present.ALWAYS);
     Periph.setPresent(Periph.Type.MULTIFACE_3, Periph.Present.OPTIONAL);
     Periph.setPresent(Periph.Type.PARALLEL_PRINTER, Periph.Present.OPTIONAL);
-    Periph.setPresent(Periph.Type.PLUS3_MEMORY, Periph.Present.ALWAYS);
+    Periph.setPresent(SpecPlus3MemoryPeripheral.class, Periph.Present.ALWAYS);
     Periph.setPresent(Periph.Type.ZXMMC, Periph.Present.OPTIONAL);
   }
 
   // Peripherals for TC2068 and TS2068
   public static void machinesPeriphTimex() {
     basePeripherals();
-    Periph.setPresent(Periph.Type.ULA, Periph.Present.NEVER);
-    Periph.setPresent(Periph.Type.ULA_FULL_DECODE, Periph.Present.ALWAYS);
+    Periph.setPresent(UlaPeripheral.class, Periph.Present.NEVER);
+    Periph.setPresent(UlaFullDecodePeripheral.class, Periph.Present.ALWAYS);
     Periph.setPresent(Periph.Type.SCLD, Periph.Present.ALWAYS);
     Periph.setPresent(Periph.Type.AY_TIMEX_WITH_JOYSTICK, Periph.Present.ALWAYS);
     Periph.setPresent(Periph.Type.INTERFACE2, Periph.Present.OPTIONAL);
@@ -115,7 +116,7 @@ public class MachinesPeriph {
     Periph.setPresent(Periph.Type.AY, Periph.Present.ALWAYS);
     Periph.setPresent(UlaPeripheral.class, Periph.Present.NEVER);
     Periph.setPresent(UlaFullDecodePeripheral.class, Periph.Present.ALWAYS);
-    Periph.setPresent(Periph.Type.KEMPSTON, Periph.Present.NEVER);
+    Periph.setPresent(KempstonStrictPeripheral.class, Periph.Present.NEVER);
   }
 }
 
