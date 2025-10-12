@@ -46,6 +46,7 @@ import static com.fpetrola.oozx.Memory.*;
 import static com.fpetrola.z80.opcodes.references.WordNumber.*;
 
 public class Z80 {
+  private static EventManager eventManager= Fuse.eventManager;
   public static long interruptsEnabledAt;
   public static OOZ80<WordNumber> ooz80;
   public static LibretroCore.bridge_command bridgeCommand;
@@ -107,7 +108,7 @@ public class Z80 {
       public void enableInterrupt() {
         super.enableInterrupt();
         Z80.interruptsEnabledAt = tstates;
-        EventManager.eventAdd(tstates + 1, Z80.z80_interrupt_event);
+        eventManager.eventAdd(tstates + 1, Z80.z80_interrupt_event);
       }
     };
     io.setPc(state.getPc());
@@ -286,9 +287,9 @@ public class Z80 {
   }
 
   static int init(Object o) {
-    z80_interrupt_event = EventManager.eventRegister(Z80::z80_interrupt_event_fn, "Retriggered interrupt");
-    int z80_nmi_event = EventManager.eventRegister(Z80::z80_nmi, "Non-maskable interrupt");
-    int z80_nmos_iff2_event = EventManager.eventRegister(null, "IFF2 update dummy event");
+    z80_interrupt_event = eventManager.eventRegister(Z80::z80_interrupt_event_fn, "Retriggered interrupt");
+    int z80_nmi_event = eventManager.eventRegister(Z80::z80_nmi, "Non-maskable interrupt");
+    int z80_nmos_iff2_event = eventManager.eventRegister(null, "IFF2 update dummy event");
 
     Module.register(new Z80ModuleInfo());
 
@@ -311,7 +312,7 @@ public class Z80 {
 
   public static void doOpcodes() {
     ooz80.getState().tstates = Spectrum.tstates;
-    while (Spectrum.tstates < EventManager.eventNextEvent) {
+    while (Spectrum.tstates < eventManager.eventNextEvent) {
       bridgeCommand.invoke(0, null);
       ooz80.getState().tstates = Spectrum.tstates;
       ooz80.getState().tstates2 = Spectrum.tstates;

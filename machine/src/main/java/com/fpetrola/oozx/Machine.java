@@ -30,6 +30,7 @@ import java.util.function.Function;
 // Functional interface for unattached_port_fn
 
 public class Machine {
+  private static EventManager eventManager= Fuse.eventManager;
 
   public static List<FuseMachineInfo> machineTypes = new ArrayList<>(); // All available machines
 
@@ -170,9 +171,9 @@ public class Machine {
 
     Spectrum.tstates = 0;
 
-    EventManager.reset();
+    eventManager.reset();
 //        EventManager.eventAdd(0, Timer.event);
-    EventManager.eventAdd(machine.timings.tstatesPerFrame, Spectrum.spectrumFrameEvent);
+    eventManager.eventAdd(machine.timings.tstatesPerFrame, Spectrum.spectrumFrameEvent);
 
     Sound.end();
 

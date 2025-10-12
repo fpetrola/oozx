@@ -31,6 +31,7 @@ import com.sun.jna.Pointer;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class LocalLibretroCore implements LibretroCore {
+  private static EventManager eventManager= Fuse.eventManager;
 
   public static boolean noContended = false;
   public static retro_input_state_t retroInputStateT;
@@ -110,7 +111,7 @@ public class LocalLibretroCore implements LibretroCore {
 
   public void retro_run() {
     com.fpetrola.oozx.Z80.doOpcodes();
-    EventManager.eventDoEvents();
+    eventManager.eventDoEvents();
   }
 
   public void retro_reset() {

@@ -40,6 +40,7 @@ public class Fuse {
   // The creator information we'll store in file formats that support this
   public static LibspectrumCreator creator;
   public static Display display= new Display();
+  public static EventManager eventManager= new EventManager();
 
   public static void abort() {
 
@@ -93,7 +94,7 @@ public class Fuse {
     } else {
       while (!exiting) {
         com.fpetrola.oozx.Z80.doOpcodes();
-        EventManager.eventDoEvents();
+        eventManager.eventDoEvents();
       }
     }
 
@@ -106,7 +107,7 @@ public class Fuse {
     List.of(
         new CreatorStartupModule(),
         new DisplayStartupModule(display),
-        new EventManagerStartupModule(),
+        new EventManagerStartupModule(eventManager),
         new JoystickStartupModule(),
         new KeyboardStartupModule(),
         new LibspectrumStartupModule(),

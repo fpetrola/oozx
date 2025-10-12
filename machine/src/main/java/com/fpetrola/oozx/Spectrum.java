@@ -51,6 +51,7 @@ public class Spectrum {
   // RAM array: 65 pages of 16KB each (from SPECTRUM_RAM_PAGES)
   public static byte[][] RAM = new byte[Memory.SPECTRUM_RAM_PAGES][0x4000];
   private static Display display= Fuse.display;
+  private static EventManager eventManager= Fuse.eventManager;
 
   // Functional interface for checking if a port is handled by the ULA
   @FunctionalInterface
@@ -91,7 +92,7 @@ public class Spectrum {
   ;
 
   private static void spectrumFrameEventFn(long lastTstates, int type, Object userData) {
-    if (Rzx.playback) EventManager.eventForceEvents();
+    if (Rzx.playback) eventManager.eventForceEvents();
     Rzx.frame();
     Psg.frame();
     spectrumFrame();
@@ -107,7 +108,7 @@ public class Spectrum {
   }
 
   static int spectrumInit(Object context) {
-    spectrumFrameEvent = EventManager.eventRegister(Spectrum::spectrumFrameEventFn, "End of frame");
+    spectrumFrameEvent = eventManager.eventRegister(Spectrum::spectrumFrameEventFn, "End of frame");
 
     Module.register(new SpectrumModuleInfo());
 
@@ -126,7 +127,7 @@ public class Spectrum {
   public static int spectrumFrame() {
     long frameLength = Rzx.playback ? tstates : Machine.current.timings.tstatesPerFrame;
 
-    EventManager.eventFrame(frameLength);
+    eventManager.eventFrame(frameLength);
     tstates -= frameLength;
 
     if (Z80.interruptsEnabledAt >= 0) {
@@ -140,7 +141,7 @@ public class Spectrum {
     Printer.frame();
 
     if (!Rzx.playback) {
-      EventManager.eventAdd(Machine.current.timings.tstatesPerFrame, spectrumFrameEvent);
+      eventManager.eventAdd(Machine.current.timings.tstatesPerFrame, spectrumFrameEvent);
     }
 
     Loader.frame(frameLength);

@@ -21,8 +21,11 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
 public class EventManagerStartupModule extends AbstractStartupModule {
-  public EventManagerStartupModule() {
+  private final EventManager eventManager;
+
+  public EventManagerStartupModule(EventManager eventManager) {
     super(SetUidStartupModule.class);
+    this.eventManager = eventManager;
   }
 
   public Object getInitContext() {
@@ -30,13 +33,11 @@ public class EventManagerStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    EventManager.init();
-
-    return 0;
+    return eventManager.init();
   }
 
   public void endFn() {
-    EventManager.end();
+    eventManager.end();
   }
 
 }

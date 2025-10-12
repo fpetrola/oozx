@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Periph {
+  private static EventManager eventManager= Fuse.eventManager;
 
   // Enum for peripheral types
   public enum Type {
@@ -254,7 +255,7 @@ public class Periph {
       } catch (Libspectrum.Error error) {
         Rzx.stopPlayback(true);
         //                EventManager.eventAdd(Spectrum.tstates, Event.Type.NULL);
-        EventManager.eventAdd(Spectrum.tstates, -1);
+        eventManager.eventAdd(Spectrum.tstates, -1);
         return readPortInternal(port); // Retry
       }
     }
