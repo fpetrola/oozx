@@ -19,6 +19,7 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
+import com.fpetrola.oozx.fuse.modules.EventManager;
 
 public class EventManagerStartupModule extends AbstractStartupModule {
   private final EventManager eventManager;
@@ -39,5 +40,4 @@ public class EventManagerStartupModule extends AbstractStartupModule {
   public void endFn() {
     eventManager.end();
   }
-
 }

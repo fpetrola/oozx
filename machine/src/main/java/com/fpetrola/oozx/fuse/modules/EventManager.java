@@ -16,7 +16,9 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.modules;
+
+import com.fpetrola.oozx.*;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -38,14 +40,14 @@ public class EventManager {
   // An event ready to be reused
   private Event eventFree = null;
 
-  int init() {
+  public int init() {
     registeredEvents = new ArrayList<>();
     eventTypeNull = eventRegister(null, "[Deleted event]");
     eventNextEvent = EVENT_NO_EVENTS;
     return 0;
   }
 
-  void end() {
+  public void end() {
     reset();
     registeredEventsFree();
   }

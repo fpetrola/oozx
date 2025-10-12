@@ -16,7 +16,9 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.modules;
+
+import com.fpetrola.oozx.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -162,17 +164,17 @@ public class Display {
 
   // Functional interfaces for dirty handling
   @FunctionalInterface
-  interface DisplayDirtyFn {
+  public interface DisplayDirtyFn {
     void apply(int offset);
   }
 
   @FunctionalInterface
-  interface DisplayWriteIfDirtyFn {
+  public interface DisplayWriteIfDirtyFn {
     void apply(int x, int y);
   }
 
   @FunctionalInterface
-  interface DisplayDirtyFlashingFn {
+  public interface DisplayDirtyFlashingFn {
     void apply();
   }
 

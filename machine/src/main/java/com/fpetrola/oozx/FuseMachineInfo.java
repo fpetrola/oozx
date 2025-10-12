@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.modules.Display;
+
 public class FuseMachineInfo {
   RamInfo ramInfo = new RamInfo();
 
@@ -31,7 +33,7 @@ public class FuseMachineInfo {
 
   public MachineTimings timings = new MachineTimings(); // How long do things take to happen?
   private Display display= Fuse.display;
-  long[] lineTimes = new long[display.SCREEN_HEIGHT + 1]; // Redraw line y this many tstates after interrupt
+  public long[] lineTimes = new long[display.SCREEN_HEIGHT + 1]; // Redraw line y this many tstates after interrupt
 
   public UnattachedPortFn unattachedPort; // What to return if we read from a port which isn't attached to anything
 

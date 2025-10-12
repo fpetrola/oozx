@@ -16,29 +16,9 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx;
 
-import com.sun.jna.Pointer;
-import com.sun.jna.Structure;
-
-public class EmulatorState extends Structure {
-    public EmulatorState(Pointer data) {
-        super(data);
-    }
-
-    public short pc;
-    public short sp;
-    public short af, bc, de, hl;
-    public short iy, ix;
-    public byte ime;
-    public byte halted;
-    public int tstates;
-
-    @Override
-    protected java.util.List<String> getFieldOrder() {
-        return java.util.Arrays.asList(
-            "pc", "sp", "af", "bc", "de", "hl", "iy", "ix",
-            "ime", "halted", "tstates"
-        );
-    }
+@FunctionalInterface
+public interface GFunc {
+    void apply(Object data, Object userData);
 }

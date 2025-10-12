@@ -20,9 +20,12 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.JoystickStartupModule;
 import com.fpetrola.oozx.fuse.KeyboardStartupModule;
+import com.fpetrola.oozx.fuse.modules.Display;
+import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
-import java.util.*;
+import java.util.List;
+import java.util.Random;
 
 public class Fuse {
 

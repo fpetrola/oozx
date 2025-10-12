@@ -21,6 +21,7 @@ package com.fpetrola.oozx.fuse.peripherals;
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.KempstonLoosePeriphPeripheral;
 import com.fpetrola.oozx.fuse.KempstonStrictPeripheral;
+import com.fpetrola.oozx.fuse.modules.EventManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -21,8 +21,10 @@ package com.fpetrola.oozx;// Memory.java: Memory access routines
 // E-mail: philip-fuse@shadowmagic.org.uk
 
 import com.fpetrola.oozx.fuse.GetTStatesHistory;
+import com.fpetrola.oozx.fuse.modules.Display;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 // Assuming ported dependencies:
 // - Libspectrum (Snap, Machine, MachineCapability)

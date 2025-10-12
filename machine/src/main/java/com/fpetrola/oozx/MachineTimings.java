@@ -23,7 +23,7 @@ public class MachineTimings {
     int leftBorder;
     int horizontalScreen;
     int rightBorder;
-    int tstatesPerLine;
+    public int tstatesPerLine;
     int interruptLength;
     public long tstatesPerFrame;
 }

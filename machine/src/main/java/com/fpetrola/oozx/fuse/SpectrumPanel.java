@@ -18,11 +18,11 @@
 
 package com.fpetrola.oozx.fuse;
 
-import com.sun.jna.*;
+import com.sun.jna.Pointer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
 
 public class SpectrumPanel extends JPanel {
 

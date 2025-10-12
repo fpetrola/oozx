@@ -20,7 +20,6 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 import com.fpetrola.oozx.fuse.ports.UlaFullDecodePortHandler;
-import com.fpetrola.oozx.fuse.ports.UlaPortHandler;
 
 import java.util.List;
 

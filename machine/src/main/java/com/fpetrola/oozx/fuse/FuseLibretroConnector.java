@@ -18,16 +18,13 @@
 
 package com.fpetrola.oozx.fuse;
 
-import com.fpetrola.oozx.Z80;
-import com.sun.jna.*;
+import com.sun.jna.Memory;
+import com.sun.jna.NativeLong;
 
 import javax.swing.*;
-import javax.swing.Timer;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;

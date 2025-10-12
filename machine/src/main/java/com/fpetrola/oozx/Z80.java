@@ -19,6 +19,8 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.*;
+import com.fpetrola.oozx.fuse.modules.Display;
+import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.peripherals.*;
 import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.cpu.IO;
@@ -43,7 +45,7 @@ import javax.swing.*;
 import java.awt.event.KeyListener;
 
 import static com.fpetrola.oozx.Memory.*;
-import static com.fpetrola.z80.opcodes.references.WordNumber.*;
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class Z80 {
   private static EventManager eventManager= Fuse.eventManager;

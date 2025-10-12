@@ -18,7 +18,12 @@
 
 package com.fpetrola.oozx;
 
-import java.util.*;
+import com.fpetrola.oozx.fuse.modules.Display;
+import com.fpetrola.oozx.fuse.modules.EventManager;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
 
 // Assuming ported dependencies:

@@ -16,9 +16,7 @@
  *
  */
 
-package com.fpetrola.oozx;import java.util.*;
-
-// Assuming libspectrum is ported to Java (Libspectrum class with dword as long, new/free as new/null)
+package com.fpetrola.oozx;// Assuming libspectrum is ported to Java (Libspectrum class with dword as long, new/free as new/null)
 // Assuming infrastructure/startup_manager ported (StartupManager, StartupManagerModule)
 // Assuming fuse, ui, utils ported (Fuse, Ui, Utils)
 // Use LinkedList for GSList, ArrayList for GArray
@@ -26,20 +24,8 @@ package com.fpetrola.oozx;import java.util.*;
 // event_fn_t as functional interface
 
 @FunctionalInterface
-interface EventFn {
+public interface EventFn {
     void apply(long tstates, int type, Object userData);
-}
-
-@FunctionalInterface
-interface GFunc {
-    void apply(Object data, Object userData);
-}
-
-// Information about an event
-class Event {
-    long tstates;
-    int type;
-    Object userData;
 }
 
 // The function to be called when an event occurs

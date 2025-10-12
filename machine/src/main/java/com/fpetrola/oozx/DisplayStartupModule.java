@@ -19,6 +19,7 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
+import com.fpetrola.oozx.fuse.modules.Display;
 
 public class DisplayStartupModule extends AbstractStartupModule {
   private Display display;

@@ -18,11 +18,11 @@
 
 package com.fpetrola.oozx.fuse;
 
-import com.sun.jna.*;
+import com.sun.jna.Callback;
+import com.sun.jna.Library;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ShortByReference;
-
-import java.util.Arrays;
-import java.util.List;
 
 // --- API de libretro ---
 public interface LibretroCore extends Library {

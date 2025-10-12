@@ -20,7 +20,8 @@ package com.fpetrola.oozx;
 
 // Structure to represent a rectangle
 public class Rect {
-  int x, y; // Top-left corner
+  public int x;
+  public int y; // Top-left corner
   private int w;
   private int h; // Width and height
 

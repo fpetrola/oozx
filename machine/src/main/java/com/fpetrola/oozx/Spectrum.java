@@ -44,6 +44,9 @@ package com.fpetrola.oozx;// Assuming the following classes are ported:
 // Use int for libspectrum_byte (0-255), long for libspectrum_dword
 
 
+import com.fpetrola.oozx.fuse.modules.Display;
+import com.fpetrola.oozx.fuse.modules.EventManager;
+
 public class Spectrum {
   // How many tstates have elapsed since the last interrupt?
   public static long tstates;

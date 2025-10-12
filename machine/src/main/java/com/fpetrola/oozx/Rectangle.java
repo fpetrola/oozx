@@ -18,7 +18,9 @@ package com.fpetrola.oozx;// Rectangle.java: Routines for managing the set of sc
 // Author contact information:
 // E-mail: philip-fuse@shadowmagic.org.uk
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 // Assuming ported dependencies:
 // - Libspectrum (for renew-like functionality, if needed)

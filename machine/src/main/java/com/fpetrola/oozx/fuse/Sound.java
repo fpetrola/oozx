@@ -18,11 +18,6 @@
 
 package com.fpetrola.oozx.fuse;
 
-import com.fpetrola.oozx.*;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
-import com.fpetrola.oozx.fuse.peripherals.Peripheral;
-
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Supplier;
 

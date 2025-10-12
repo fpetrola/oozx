@@ -20,11 +20,11 @@ package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.Ui;
 
+import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.*;
 
 public class SwingKeyboard implements KeyListener {
 
