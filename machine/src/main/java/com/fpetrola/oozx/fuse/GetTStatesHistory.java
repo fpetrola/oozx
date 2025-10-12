@@ -27,7 +27,7 @@ import java.util.List;
 
 public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
   static List<TStateUpdate> tstatesUpdates = new ArrayList<>();
-  private static Z80 z80= Fuse.z80;
+  private static Z80 z80 = Fuse.z80;
 
   private static List<TStateUpdate> getTstatesUpdates() {
     if (FuseLibretroConnector.noTest)

@@ -228,9 +228,11 @@ public class SwingKeyboard implements KeyListener {
         new KeysymsMap(0, Input.InputKey.INPUT_KEY_NONE) // End marker
     };
     private Keyboard keyboard;
+    private Input input;
 
-    public SwingKeyboard(JFrame component, Keyboard keyboard) {
+    public SwingKeyboard(JFrame component, Keyboard keyboard, Input input) {
       this.keyboard = keyboard;
+      this.input = input;
       // Initialize unicode_keysyms_hash
         for (KeysymsMap entry : UNICODE_KEYSYMS_MAP) {
             if (entry.ui == 0) break;
@@ -281,7 +283,7 @@ public class SwingKeyboard implements KeyListener {
         // Only process if we have a valid keysym
         if (((Input.InputEventKey) fuseEvent.types).nativeKey != Input.InputKey.INPUT_KEY_NONE ||
             ((Input.InputEventKey) fuseEvent.types).spectrumKey != Input.InputKey.INPUT_KEY_NONE) {
-            Input.event(fuseEvent);
+            input.event(fuseEvent);
         }
     }
 
@@ -292,7 +294,7 @@ public class SwingKeyboard implements KeyListener {
 
         // Only process if we have a valid keysym
         if (((Input.InputEventKey) fuseEvent.types).spectrumKey != Input.InputKey.INPUT_KEY_NONE) {
-            Input.event(fuseEvent);
+            input.event(fuseEvent);
         }
     }
 

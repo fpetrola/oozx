@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.Input;
 import com.fpetrola.oozx.fuse.modules.Joystick;
 import com.fpetrola.oozx.fuse.modules.*;
 import com.fpetrola.oozx.fuse.modules.Keyboard;
@@ -72,7 +73,8 @@ public class Fuse {
   public static Ula ula = new Ula(memory, display, fuseMachineInfoSupplier, keyboard);
   public static EventManager eventManager = new EventManager(fuseMachineInfoSupplier, tStatesHolder);
   public static Joystick joystick = new Joystick(keyboard);
-  public static Z80 z80 = new Z80( eventManager, memory, display, ula, fuseMachineInfoSupplier, keyboard, tStatesHolder);
+  public static Input input = new Input(joystick, keyboard);
+  public static Z80 z80 = new Z80(eventManager, memory, display, ula, fuseMachineInfoSupplier, keyboard, tStatesHolder, input);
   public static Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, tStatesHolder, ramHolder, fuseMachineInfoSupplier);
   public static Machine machine = new Machine(eventManager, memory, display, ula, tStatesHolder, spectrum);
   public static MachinesPeriph machinesPeriph = new MachinesPeriph();

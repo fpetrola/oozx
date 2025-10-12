@@ -30,9 +30,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Input {
+  private Joystick joystick;
+  private Keyboard keyboard;
 
-  private static Joystick joystick= Fuse.joystick;
-  private static Keyboard keyboard= Fuse.keyboard;
+  public Input(Joystick joystick, Keyboard keyboard) {
+    this.joystick = joystick;
+    this.keyboard = keyboard;
+  }
 
   // Enums and classes from Keyboard.java (repeated for completeness)
   public enum InputEventType {
@@ -221,7 +225,7 @@ public class Input {
     }
   }
 
-  public static class InputEventJoystick {
+  public class InputEventJoystick {
     int which;
     InputKey button;
 
@@ -241,13 +245,13 @@ public class Input {
     }
   }
 
-  // Static fields for recreated Spectrum key mapping
-  private static int recreatedKeyDown = 0;
+  //  fields for recreated Spectrum key mapping
+  private int recreatedKeyDown = 0;
 
-  private static final Map<Integer, InputKey> RECREATED_DOWNKEY_MAP = new HashMap<>();
-  private static final Map<Integer, InputKey> RECREATED_UPKEY_MAP = new HashMap<>();
+  private final Map<Integer, InputKey> RECREATED_DOWNKEY_MAP = new HashMap<>();
+  private final Map<Integer, InputKey> RECREATED_UPKEY_MAP = new HashMap<>();
 
-  static {
+  {
     // Populate RECREATED_DOWNKEY_MAP
     RECREATED_DOWNKEY_MAP.put(InputKey.INPUT_KEY_a.getValue(), InputKey.INPUT_KEY_1);
     RECREATED_DOWNKEY_MAP.put(InputKey.INPUT_KEY_c.getValue(), InputKey.INPUT_KEY_2);
@@ -334,7 +338,7 @@ public class Input {
   }
 
   // Main event handling method
-  public static int event(InputEvent event) {
+  public int event(InputEvent event) {
     switch (event.type) {
       case INPUT_EVENT_KEYPRESS:
         return keypress((InputEventKey) event.types);
@@ -350,13 +354,13 @@ public class Input {
     }
   }
 
-  private static boolean useShiftedArrowKeys(InputKey keysym) {
+  private boolean useShiftedArrowKeys(InputKey keysym) {
     return Settings.current.keyboardArrowsShifted &&
         (keysym == InputKey.INPUT_KEY_Up || keysym == InputKey.INPUT_KEY_Down ||
             keysym == InputKey.INPUT_KEY_Left || keysym == InputKey.INPUT_KEY_Right);
   }
 
-  private static void sendKeyboardPress(InputKey keysym) {
+  private void sendKeyboardPress(InputKey keysym) {
     SpectrumKeys ptr = keyboard.getSpectrumKeys(keysym);
     if (ptr != null) {
       keyboard.press(ptr.key1);
@@ -367,7 +371,7 @@ public class Input {
     }
   }
 
-  private static void sendKeyboardRelease(InputKey keysym) {
+  private void sendKeyboardRelease(InputKey keysym) {
     SpectrumKeys ptr = keyboard.getSpectrumKeys(keysym);
     if (ptr != null) {
       keyboard.release(ptr.key1);
@@ -378,7 +382,7 @@ public class Input {
     }
   }
 
-  private static void recreatedKeypress(InputKey k) {
+  private void recreatedKeypress(InputKey k) {
     if (k == InputKey.INPUT_KEY_Shift_L) {
       recreatedKeyDown |= InputKey.INPUT_KEY_Shift_L.getValue();
     }
@@ -401,7 +405,7 @@ public class Input {
     }
   }
 
-  private static int keypress(InputEventKey event) {
+  private int keypress(InputEventKey event) {
 //    if (Ui.widgetLevel >= 0) {
 //      Ui.widgetKeyhandler(event.nativeKey.getValue());
 //      return 0;
@@ -441,7 +445,7 @@ public class Input {
     return 0;
   }
 
-  private static int keyrelease(InputEventKey event) {
+  private int keyrelease(InputEventKey event) {
     if (!Settings.current.recreatedSpectrum) {
       sendKeyboardRelease(event.spectrumKey);
     }
@@ -464,7 +468,7 @@ public class Input {
     return 0;
   }
 
-  private static KeyboardKeyName getFireButtonKey(int which, InputKey button) {
+  private KeyboardKeyName getFireButtonKey(int which, InputKey button) {
     int key = KeyboardKeyName.KEYBOARD_NONE.ordinal();
     switch (which) {
       case 0:
@@ -570,14 +574,14 @@ public class Input {
         }
         break;
       default:
-        Ui.error(UIErrorLevel.UI_ERROR_ERROR, "getFireButtonKey: which = %d, button = %d", which, button.getValue()+"");
+        Ui.error(UIErrorLevel.UI_ERROR_ERROR, "getFireButtonKey: which = %d, button = %d", which, button.getValue() + "");
         throw new RuntimeException("Invalid joystick button");
     }
     int finalKey = key;
     return Arrays.stream(KeyboardKeyName.values()).filter(k -> k.getValue() == finalKey).findFirst().get();
   }
 
-  private static int doJoystick(InputEventJoystick joystickEvent, boolean press) {
+  private int doJoystick(InputEventJoystick joystickEvent, boolean press) {
     if (Ui.widgetLevel >= 0) {
       if (press) Ui.widgetKeyhandler(joystickEvent.button.getValue());
       return 0;
