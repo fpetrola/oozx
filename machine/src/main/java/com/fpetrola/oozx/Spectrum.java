@@ -32,6 +32,12 @@ public class Spectrum {
   private RAMHolder ramHolder;
   private Supplier<FuseMachineInfo> fuseMachineInfoSupplier;
 
+  private final int[] contentionPattern65432100 = {5, 4, 3, 2, 1, 0, 0, 6};
+  private final int[] contentionPattern76543210 = {5, 4, 3, 2, 1, 0, 7, 6};
+
+  public int spectrumFrameEvent;
+  private long framesSinceReset;
+
   public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, TStatesHolder tStatesHolder, RAMHolder ramHolder, Supplier<FuseMachineInfo> fuseMachineInfoSupplier) {
     this.memory = memory;
     this.display = display;
@@ -41,20 +47,6 @@ public class Spectrum {
     this.ramHolder = ramHolder;
     this.fuseMachineInfoSupplier = fuseMachineInfoSupplier;
   }
-
-  interface PortFromUlaFunction {
-    boolean apply(int port);
-  }
-
-  interface ContentionDelayFunction {
-    int apply(long time);
-  }
-
-  private final int[] contentionPattern65432100 = {5, 4, 3, 2, 1, 0, 0, 6};
-  private final int[] contentionPattern76543210 = {5, 4, 3, 2, 1, 0, 7, 6};
-
-  public int spectrumFrameEvent;
-  private long framesSinceReset;
 
   public void spectrumReset(int a) {
     framesSinceReset = 0;

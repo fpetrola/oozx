@@ -20,9 +20,9 @@ package com.fpetrola.oozx;
 
 // Structure to hold RAM information
 public class RamInfo {
-  Spectrum.PortFromUlaFunction portFromUla; // Is this port result supplied by the ULA?
-  Spectrum.ContentionDelayFunction contendDelay; // Delay with MREQ active
-  Spectrum.ContentionDelayFunction contendDelayNoMreq; // Delay without MREQ
+  PortFromUlaFunction portFromUla; // Is this port result supplied by the ULA?
+  ContentionDelayFunction contendDelay; // Delay with MREQ active
+  ContentionDelayFunction contendDelayNoMreq; // Delay without MREQ
   boolean locked; // Is the memory configuration locked?
   int currentPage; // Current paged memory page
   int currentRom; // Current paged ROM
@@ -31,4 +31,12 @@ public class RamInfo {
   boolean special; // Is a +3 special config in use?
   boolean romcs; // Is the /ROMCS line low?
   int validPages; // Available RAM pages
+
+  interface PortFromUlaFunction {
+    boolean apply(int port);
+  }
+
+  interface ContentionDelayFunction {
+    int apply(long time);
+  }
 }
