@@ -88,14 +88,8 @@ public class Spectrum {
 
   private void spectrumFrameEventFn(long lastTstates, int type, Object userData) {
     if (Rzx.playback) eventManager.eventForceEvents();
-    Rzx.frame();
-    Psg.frame();
     spectrumFrame();
     z80.interrupt();
-    UiJoystick.poll();
-    Timer.estimateSpeed();
-    Ui.event();
-    Ui.errorFrame();
   }
 
   private long getFrameCount() {
