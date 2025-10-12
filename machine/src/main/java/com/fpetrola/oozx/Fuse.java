@@ -152,7 +152,7 @@ public class Fuse {
         new LibspectrumStartupModule(),
         new MachineStartupModule(machine, spec48, spec128, specPlus3),
         new MachinesPeriphStartupModule(machine, spec128, specPlus3),
-        new MemoryStartupModule(memory, ramHolder),
+        new MemoryStartupModule(memory, ramHolder, machine, spec128, specPlus3),
         new SpectrumStartupModule(spectrum),
         new UlaStartupModule(ula),
         new Z80StartupModule(z80)

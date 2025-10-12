@@ -18,7 +18,6 @@
 
 package com.fpetrola.oozx.fuse;
 
-import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.UIErrorLevel;
 import com.fpetrola.oozx.Ui;

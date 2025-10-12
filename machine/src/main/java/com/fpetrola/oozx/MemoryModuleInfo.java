@@ -19,14 +19,18 @@
 package com.fpetrola.oozx;
 
 public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInfo {
-  private static Memory memory = Fuse.memory;
-  private Machine machine = Fuse.machine;
+  private Memory memory;
+  private Machine machine;
   private RAMHolder ramHolder;
-  private Spec128 spec128= Fuse.spec128;
-  private SpecPlus3 specPlus3= Fuse.specPlus3;
+  private Spec128 spec128;
+  private SpecPlus3 specPlus3;
 
-  public MemoryModuleInfo(RAMHolder ramHolder) {
+  public MemoryModuleInfo(Memory memory, Machine machine, RAMHolder ramHolder, Spec128 spec128, SpecPlus3 specPlus3) {
+    this.memory = memory;
+    this.machine = machine;
     this.ramHolder = ramHolder;
+    this.spec128 = spec128;
+    this.specPlus3 = specPlus3;
   }
 
   public void snapshotFrom(Libspectrum.Snap snap) {

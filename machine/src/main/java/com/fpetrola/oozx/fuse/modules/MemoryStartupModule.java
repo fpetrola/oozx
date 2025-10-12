@@ -27,10 +27,16 @@ import java.util.ArrayList;
 public class MemoryStartupModule extends AbstractStartupModule {
   private final Memory memory;
   private RAMHolder ramHolder;
+  private Machine machine;
+  private Spec128 spec128;
+  private SpecPlus3 specPlus3;
 
-  public MemoryStartupModule(Memory memory, RAMHolder ramHolder) {
+  public MemoryStartupModule(Memory memory, RAMHolder ramHolder, Machine machine, Spec128 spec128, SpecPlus3 specPlus3) {
     this.memory = memory;
     this.ramHolder = ramHolder;
+    this.machine = machine;
+    this.spec128 = spec128;
+    this.specPlus3 = specPlus3;
   }
 
   public Object getInitContext() {
@@ -69,7 +75,7 @@ public class MemoryStartupModule extends AbstractStartupModule {
       }
     }
 
-    Module.register(new MemoryModuleInfo(ramHolder));
+    Module.register(new MemoryModuleInfo(memory, machine, ramHolder, spec128, specPlus3));
     return 0;
   }
 
