@@ -42,36 +42,18 @@ public class Spectrum {
     this.fuseMachineInfoSupplier = fuseMachineInfoSupplier;
   }
 
-  // Functional interface for checking if a port is handled by the ULA
-  @FunctionalInterface
   interface PortFromUlaFunction {
     boolean apply(int port);
   }
 
-  // Functional interface for contention delay calculation
-  @FunctionalInterface
   interface ContentionDelayFunction {
     int apply(long time);
   }
 
-  // Instance of RamInfo
-  public RamInfo ramInfo = new RamInfo();
+  private final int[] contentionPattern65432100 = {5, 4, 3, 2, 1, 0, 0, 6};
+  private final int[] contentionPattern76543210 = {5, 4, 3, 2, 1, 0, 7, 6};
 
-
-  // Contention patterns
-  private int[] contentionPattern65432100 = {5, 4, 3, 2, 1, 0, 0, 6};
-  private int[] contentionPattern76543210 = {5, 4, 3, 2, 1, 0, 7, 6};
-
-  // Event
   public int spectrumFrameEvent;
-
-  // Debugger variable prefix
-  private final String DEBUGGER_TYPE_STRING = "spectrum";
-
-  // Debugger variable for frame count
-  private final String FRAME_COUNT_NAME = "frames";
-
-  // Count of frames since last reset
   private long framesSinceReset;
 
   public void spectrumReset(int a) {
