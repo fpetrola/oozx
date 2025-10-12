@@ -78,6 +78,7 @@ public class Fuse {
   public static MachinesPeriph machinesPeriph = new MachinesPeriph();
   public static Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum);
   public static Spec128 spec128 = new Spec128();
+  public static SpecPlus3 specPlus3 = new SpecPlus3(memory, display, machine, machinesPeriph, spectrum, spec48);
 
   public static void abort() {
 
@@ -147,8 +148,8 @@ public class Fuse {
         new JoystickStartupModule(joystick),
         new KeyboardStartupModule(keyboard),
         new LibspectrumStartupModule(),
-        new MachineStartupModule(machine, spec48, spec128),
-        new MachinesPeriphStartupModule(machine, spec128),
+        new MachineStartupModule(machine, spec48, spec128, specPlus3),
+        new MachinesPeriphStartupModule(machine, spec128, specPlus3),
         new MemoryStartupModule(memory, ramHolder),
         new SpectrumStartupModule(spectrum),
         new UlaStartupModule(ula),

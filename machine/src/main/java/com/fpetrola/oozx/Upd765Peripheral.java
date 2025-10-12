@@ -23,10 +23,10 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 import java.util.List;
 
 public class Upd765Peripheral extends AbstractZxPeripheral {
-  public Upd765Peripheral() {
+  public Upd765Peripheral(SpecPlus3 specPlus3) {
     super(Periph.Type.UPD765, List.of(
-        new FdcPortHandler(0xf002, 0x3000),
-        new FdcStatusPortHandler(0xf002, 0x2000)
+        new FdcPortHandler(0xf002, 0x3000, specPlus3),
+        new FdcStatusPortHandler(0xf002, 0x2000, specPlus3)
     ));
   }
 }

@@ -29,12 +29,14 @@ public class MachineStartupModule extends AbstractStartupModule {
   private Machine machine;
   private Spec48 spec48;
   private Spec128 spec128;
+  private SpecPlus3 specPlus3;
 
-  public MachineStartupModule(Machine machine, Spec48 spec48, Spec128 spec128) {
+  public MachineStartupModule(Machine machine, Spec48 spec48, Spec128 spec128, SpecPlus3 specPlus3) {
     super(MemoryStartupModule.class);
     this.machine = machine;
     this.spec48 = spec48;
     this.spec128 = spec128;
+    this.specPlus3 = specPlus3;
   }
 
   public Object getInitContext() {
@@ -48,7 +50,7 @@ public class MachineStartupModule extends AbstractStartupModule {
     if (error != 0) return error;
     error = machine.addMachine(spec128::init);
     if (error != 0) return error;
-    error = machine.addMachine(SpecPlus3::init);
+    error = machine.addMachine(specPlus3::init);
     if (error != 0) return error;
 
     return 0;

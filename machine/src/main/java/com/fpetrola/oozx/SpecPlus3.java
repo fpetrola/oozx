@@ -22,16 +22,25 @@ import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class SpecPlus3 {
-  private static Memory memory= Fuse.memory;
-  public static UPDFdc specplus3Fdc;
-  private static Display display;
-  private static Machine machine= Fuse.machine;
-  private static MachinesPeriph machinesPeriph= Fuse.machinesPeriph;
-  private static Spectrum spectrum= Fuse.spectrum;
-  private static Spec48 spec48= Fuse.spec48;
-//  public static Fdd[] specplus3Drives = new Fdd[SpecPlus3Constants.SPECPLUS3_NUM_DRIVES];
+  private Memory memory;
+  private UPDFdc specplus3Fdc;
+  private Display display;
+  private Machine machine;
+  private MachinesPeriph machinesPeriph;
+  private Spectrum spectrum;
+  private Spec48 spec48;
 
-//  public static UIMediaDriveInfo[] uiDrives = new UIMediaDriveInfo[]{
+  public SpecPlus3(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48) {
+    this.memory = memory;
+    this.display = display;
+    this.machine = machine;
+    this.machinesPeriph = machinesPeriph;
+    this.spectrum = spectrum;
+    this.spec48 = spec48;
+  }
+//  public  Fdd[] specplus3Drives = new Fdd[SpecPlus3Constants.SPECPLUS3_NUM_DRIVES];
+
+//  public  UIMediaDriveInfo[] uiDrives = new UIMediaDriveInfo[]{
 //      new UIMediaDriveInfo(
 //          "+3 Disk A:",
 //          UIMediaConstants.UI_MEDIA_CONTROLLER_PLUS3,
@@ -63,19 +72,19 @@ public class SpecPlus3 {
 //  };
 
   // Check if a port is handled by the ULA
-  public static boolean portFromUla(int port) {
+  public boolean portFromUla(int port) {
     // No contended ports
     return false;
   }
 
   // Initialize the Spectrum +3 machine
-  public static int init(FuseMachineInfo machine) {
+  public int init(FuseMachineInfo machine) {
     machine.machine = Libspectrum.Machine.PLUS3;
     machine.id = "plus3";
 
-    machine.reset = SpecPlus3::reset;
+    machine.reset = this::reset;
     machine.timex = false;
-    machine.ramInfo.portFromUla = SpecPlus3::portFromUla;
+    machine.ramInfo.portFromUla = this::portFromUla;
     machine.ramInfo.contendDelay = spectrum::contendDelay76543210;
     machine.ramInfo.contendDelayNoMreq = spectrum::contendDelayNone;
     machine.ramInfo.validPages = 8;
@@ -86,19 +95,19 @@ public class SpecPlus3 {
     specplus3765Init();
     specplus3MenuItems();
 
-    machine.shutdown = SpecPlus3::shutdown;
-    machine.memoryMap = SpecPlus3::memoryMap;
+    machine.shutdown = this::shutdown;
+    machine.memoryMap = this::memoryMap;
 
     return 0;
   }
 
   // Update FDC settings
-  public static void specplus3765UpdateFdd() {
+  public void specplus3765UpdateFdd() {
     specplus3Fdc.speedlock = Settings.current.plus3DetectSpeedlock ? 0 : -1;
   }
 
   // Initialize FDC and drives
-  public static void specplus3765Init() {
+  public void specplus3765Init() {
 //    specplus3Fdc = UPDFdc.allocFdc(UPDFdc.UPD765A, UPDFdc.UPD_CLOCK_4MHZ);
 //    // +3 uses US0 pin to select drives: drive 2 := drive 0, drive 3 := drive 1
 //    specplus3Fdc.drive[0] = specplus3Drives[0];
@@ -116,7 +125,7 @@ public class SpecPlus3 {
 //    // Drive geometry autodetect
 //    Fdd.init(specplus3Drives[1], Fdd.FDD_SHUGART, null, false);
 
-    specplus3Fdc= new UPDFdc();
+    specplus3Fdc = new UPDFdc();
 
     specplus3Fdc.setIntrq = null;
     specplus3Fdc.resetIntrq = null;
@@ -132,7 +141,7 @@ public class SpecPlus3 {
   }
 
   // Reset FDC and drives
-  public static void specplus3765Reset() {
+  public void specplus3765Reset() {
 //    FddParams dt = FddParams.fddParams[Options.enumerateDiskoptionsDrivePlus3aType() + 1]; // +1 => no Disabled
     UPDFdc.masterReset(specplus3Fdc);
 //    Fdd.init(specplus3Drives[0], Fdd.FDD_SHUGART, dt, true);
@@ -142,17 +151,17 @@ public class SpecPlus3 {
   }
 
   // Reset the Spectrum +3 machine
-  private static int reset() {
-     int error = machine.loadRom(0, Settings.current.romPlus30, Settings.defaults.romPlus30, 0x4000);
-     if (error != 0) return error;
-     error = machine.loadRom(1, Settings.current.romPlus31, Settings.defaults.romPlus31, 0x4000);
-     if (error != 0) return error;
-     error = machine.loadRom(2, Settings.current.romPlus32, Settings.defaults.romPlus32, 0x4000);
-     if (error != 0) return error;
-     error = machine.loadRom(3, Settings.current.romPlus33, Settings.defaults.romPlus33, 0x4000);
-     if (error != 0) return error;
+  private int reset() {
+    int error = machine.loadRom(0, Settings.current.romPlus30, Settings.defaults.romPlus30, 0x4000);
+    if (error != 0) return error;
+    error = machine.loadRom(1, Settings.current.romPlus31, Settings.defaults.romPlus31, 0x4000);
+    if (error != 0) return error;
+    error = machine.loadRom(2, Settings.current.romPlus32, Settings.defaults.romPlus32, 0x4000);
+    if (error != 0) return error;
+    error = machine.loadRom(3, Settings.current.romPlus33, Settings.defaults.romPlus33, 0x4000);
+    if (error != 0) return error;
 
-     error = plus2aCommonReset();
+    error = plus2aCommonReset();
     if (error != 0) return error;
 
     Periph.clear();
@@ -171,7 +180,7 @@ public class SpecPlus3 {
   }
 
   // Common reset for +2A/+3
-  public static int plus2aCommonReset() {
+  public int plus2aCommonReset() {
     FuseMachineInfo machineCurrent = machine.current;
 
     machineCurrent.ramInfo.currentPage = 0;
@@ -198,7 +207,7 @@ public class SpecPlus3 {
   }
 
   // Normal memory mapping
-  private static int normalMemoryMap(int rom, int page) {
+  private int normalMemoryMap(int rom, int page) {
     memory.map16k(0x0000, memory.mapRom, rom);
     memory.map16k(0x4000, memory.mapRam, 5);
     memory.map16k(0x8000, memory.mapRam, 2);
@@ -207,7 +216,7 @@ public class SpecPlus3 {
   }
 
   // Special memory mapping
-  private static void specialMemoryMap(int which) {
+  private void specialMemoryMap(int which) {
     switch (which) {
       case 0:
         selectSpecialMap(0, 1, 2, 3);
@@ -228,7 +237,7 @@ public class SpecPlus3 {
   }
 
   // Select special memory mapping
-  private static void selectSpecialMap(int page1, int page2, int page3, int page4) {
+  private void selectSpecialMap(int page1, int page2, int page3, int page4) {
     memory.map16k(0x0000, memory.mapRam, page1);
     memory.map16k(0x4000, memory.mapRam, page2);
     memory.map16k(0x8000, memory.mapRam, page3);
@@ -236,7 +245,7 @@ public class SpecPlus3 {
   }
 
   // Write to the +3 memory port 2 (0x1FFD)
-  public static void memoryPort2WriteInternal(int port, byte b) {
+  public void memoryPort2WriteInternal(int port, byte b) {
     Printer.parallelStrobeWrite(b & 0x10);
 
 //    if ((Machine.current.capabilities & Libspectrum.MachineCapability.PLUS3_DISK) != 0) {
@@ -249,13 +258,13 @@ public class SpecPlus3 {
     machine.current.memoryMap.run();
   }
 
-  public static void memoryPort2Write(int port, byte b) {
+  public void memoryPort2Write(int port, byte b) {
     if (machine.current.ramInfo.locked) return;
     memoryPort2WriteInternal(port, b);
   }
 
   // Map memory for +3
-  public static int memoryMap() {
+  public int memoryMap() {
     FuseMachineInfo machineCurrent = machine.current;
     byte lastByte = machineCurrent.ramInfo.lastByte;
     byte lastByte2 = machineCurrent.ramInfo.lastByte2;
@@ -266,7 +275,7 @@ public class SpecPlus3 {
 
     if (memory.currentScreen != screen) {
       display.dirtySinclair(0);
-      display.writeIfDirtySinclair(0,0);
+      display.writeIfDirtySinclair(0, 0);
       memory.currentScreen = screen;
     }
 
@@ -287,30 +296,30 @@ public class SpecPlus3 {
   }
 
   // Update menu items for +3 drives
-  public static void specplus3MenuItems() {
+  public void specplus3MenuItems() {
 //    UIMedia.driveUpdateMenus(uiDrives[SpecPlus3Constants.SPECPLUS3_DRIVE_A], UIMediaConstants.UI_MEDIA_DRIVE_UPDATE_ALL);
 //    UIMedia.driveUpdateMenus(uiDrives[SpecPlus3Constants.SPECPLUS3_DRIVE_B], UIMediaConstants.UI_MEDIA_DRIVE_UPDATE_ALL);
   }
 
   // Read FDC status
-  public static byte fdcStatus(int port, byte[] attached) {
+  public byte fdcStatus(int port, byte[] attached) {
     attached[0] = (byte) 0xFF; // TODO: check this
     return UPDFdc.readStatus(specplus3Fdc);
   }
 
   // Read FDC data
-  public static byte fdcRead(int port, byte[] attached) {
+  public byte fdcRead(int port, byte[] attached) {
     attached[0] = (byte) 0xFF; // TODO: check this
     return UPDFdc.readData(specplus3Fdc);
   }
 
   // Write FDC data
-  public static void fdcWrite(int port, byte data) {
+  public void fdcWrite(int port, byte data) {
     UPDFdc.writeData(specplus3Fdc, data);
   }
 
 //  // Insert disk into +3 drive
-//  public static int diskInsert(int which, String filename, boolean autoload) {
+//  public  int diskInsert(int which, String filename, boolean autoload) {
 //    if (which >= SpecPlus3Constants.SPECPLUS3_NUM_DRIVES) {
 //      UI.error(UIMediaConstants.UI_ERROR_ERROR, "specplus3_disk_insert: unknown drive %d", which);
 //      throw new RuntimeException("Fuse abort: unknown drive");
@@ -319,27 +328,27 @@ public class SpecPlus3 {
 //  }
 
   // Get FDD for a specific drive
-//  public static Fdd getFdd(int which) {
+//  public  Fdd getFdd(int which) {
 //    return specplus3Drives[which];
 //  }
 
   // Check if drive is available
-  private static boolean uiDriveIsAvailable() {
+  private boolean uiDriveIsAvailable() {
     return (machine.current.capabilities & Libspectrum.MachineCapability.PLUS3_DISK) != 0;
   }
 
 //  // Get parameters for drive A
-//  private static FddParams uiDriveGetParamsA() {
+//  private  FddParams uiDriveGetParamsA() {
 //    return FddParams.fddParams[Options.enumerateDiskoptionsDrivePlus3aType() + 1];
 //  }
 //
 //  // Get parameters for drive B
-//  private static FddParams uiDriveGetParamsB() {
+//  private  FddParams uiDriveGetParamsB() {
 //    return FddParams.fddParams[Options.enumerateDiskoptionsDrivePlus3bType()];
 //  }
 //
 //  // Handle drive insertion
-//  private static int uiDriveInserted(UIMediaDriveInfo drive, boolean newDisk) {
+//  private  int uiDriveInserted(UIMediaDriveInfo drive, boolean newDisk) {
 //    if (newDisk) {
 //      Disk.preformat(drive.fdd.disk);
 //    }
@@ -347,14 +356,14 @@ public class SpecPlus3 {
 //  }
 //
 //  // Handle drive autoload
-//  private static int uiDriveAutoload() {
+//  private  int uiDriveAutoload() {
 //    Machine.reset(false);
 //    PhantomTypist.activateDisk();
 //    return 0;
 //  }
 
   // Shutdown the +3 machine
-  public static int shutdown() {
+  public int shutdown() {
     return 0;
   }
 }

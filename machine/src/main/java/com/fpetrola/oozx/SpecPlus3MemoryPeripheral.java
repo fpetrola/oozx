@@ -23,10 +23,10 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 import java.util.List;
 
 public class SpecPlus3MemoryPeripheral extends AbstractZxPeripheral {
-  public SpecPlus3MemoryPeripheral(Spec128 spec128) {
+  public SpecPlus3MemoryPeripheral(Spec128 spec128, SpecPlus3 specPlus3) {
     super(Periph.Type.PLUS3_MEMORY, List.of(
         new Spec128PortHandler(0xc002, 0x4000, spec128),
-        new SpecPlus3PortHandler(0xf002, 0x1000)
+        new SpecPlus3PortHandler(0xf002, 0x1000, specPlus3)
     ));
   }
 }

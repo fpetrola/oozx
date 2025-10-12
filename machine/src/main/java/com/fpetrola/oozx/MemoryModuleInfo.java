@@ -23,6 +23,7 @@ public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInf
   private Machine machine = Fuse.machine;
   private RAMHolder ramHolder;
   private Spec128 spec128= Fuse.spec128;
+  private SpecPlus3 specPlus3= Fuse.specPlus3;
 
   public MemoryModuleInfo(RAMHolder ramHolder) {
     this.ramHolder = ramHolder;
@@ -41,7 +42,7 @@ public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInf
       }
       if ((capabilities & Libspectrum.MachineCapability.PLUS3_MEMORY) != 0 ||
           (capabilities & Libspectrum.MachineCapability.SCORP_MEMORY) != 0) {
-        SpecPlus3.memoryPort2WriteInternal(0x1ffd, Libspectrum.snapOutPlus3Memoryport(snap));
+        specPlus3.memoryPort2WriteInternal(0x1ffd, Libspectrum.snapOutPlus3Memoryport(snap));
       }
     }
 

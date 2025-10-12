@@ -21,11 +21,14 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.ports.DefaultPortHandler;
 
 public class FdcStatusPortHandler extends DefaultPortHandler {
-  public FdcStatusPortHandler(int mask, int value) {
+  private SpecPlus3 specPlus3;
+
+  public FdcStatusPortHandler(int mask, int value, SpecPlus3 specPlus3) {
     super(mask, value, true, true);
+    this.specPlus3 = specPlus3;
   }
 
   public byte read(int port, byte[] attached) {
-    return SpecPlus3.fdcStatus(port, attached);
+    return specPlus3.fdcStatus(port, attached);
   }
 }
