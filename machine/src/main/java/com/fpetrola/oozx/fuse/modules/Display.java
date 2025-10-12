@@ -29,31 +29,31 @@ public class Display {
   private final Memory memory;
 
   // Constants for the width and height of the Speccy's screen
-  public final int WIDTH_COLS = 32;
-  public final int HEIGHT_ROWS = 24;
+  private final int WIDTH_COLS = 32;
+  private final int HEIGHT_ROWS = 24;
 
-  public final int WIDTH = WIDTH_COLS * 16;
+  private final int WIDTH = WIDTH_COLS * 16;
   public final int HEIGHT = HEIGHT_ROWS * 8;
 
   // Constants for the width and height of the emulated border
   public final int BORDER_WIDTH_COLS = 4;
-  public final int BORDER_HEIGHT_COLS = 3;
+  private final int BORDER_HEIGHT_COLS = 3;
 
-  public final int BORDER_WIDTH = BORDER_WIDTH_COLS * 16;
-  public final int BORDER_ASPECT_WIDTH = BORDER_WIDTH_COLS * 8;
+  private final int BORDER_WIDTH = BORDER_WIDTH_COLS * 16;
+  private final int BORDER_ASPECT_WIDTH = BORDER_WIDTH_COLS * 8;
   public final int BORDER_HEIGHT = BORDER_HEIGHT_COLS * 8;
 
   // Constants for the width and height of the window we'll be displaying
   public final int SCREEN_WIDTH = WIDTH + 2 * BORDER_WIDTH;
   public final int SCREEN_HEIGHT = HEIGHT + 2 * BORDER_HEIGHT;
 
-  public final int SCREEN_WIDTH_COLS = WIDTH_COLS + 2 * BORDER_WIDTH_COLS;
+  private final int SCREEN_WIDTH_COLS = WIDTH_COLS + 2 * BORDER_WIDTH_COLS;
 
   // Aspect ratio corrected display width
   public final int ASPECT_WIDTH = SCREEN_WIDTH / 2;
 
   // Set once we have initialized the UI
-  public boolean uiInitialised;
+  private boolean uiInitialised;
 
   // The current border color
   private byte loresBorder;
