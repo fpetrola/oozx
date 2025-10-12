@@ -18,14 +18,17 @@
 
 package com.fpetrola.oozx.fuse.modules;
 
-import com.fpetrola.oozx.MachinesPeriph;
+import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
+import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class MachinesPeriphStartupModule extends AbstractStartupModule {
-  private MachinesPeriph machinesPeriph;
+  private Machine machine;
+  private Spec128 spec128;
 
-  public MachinesPeriphStartupModule(MachinesPeriph machinesPeriph) {
-    this.machinesPeriph = machinesPeriph;
+  public MachinesPeriphStartupModule(Machine machine, Spec128 spec128) {
+    this.machine = machine;
+    this.spec128 = spec128;
   }
 
   public Object getInitContext() {
@@ -33,7 +36,11 @@ public class MachinesPeriphStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return machinesPeriph.init(initContext);
+    Periph.register(new Spec128MemoryPeripheral(spec128));
+    Periph.register(new SpecPlus3MemoryPeripheral(spec128));
+    Periph.register(new Upd765Peripheral());
+    Periph.register(new SeMemoryPeripheral(machine));
+    return 0;
   }
 
   public void endFn() {

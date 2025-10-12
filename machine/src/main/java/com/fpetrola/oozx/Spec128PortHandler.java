@@ -21,11 +21,14 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.ports.DefaultPortHandler;
 
 public class Spec128PortHandler extends DefaultPortHandler {
-  public Spec128PortHandler(int mask, int value) {
+  private Spec128 spec128;
+
+  public Spec128PortHandler(int mask, int value, Spec128 spec128) {
     super(mask, value, false, true);
+    this.spec128 = spec128;
   }
 
   public void write(int port, byte value) {
-    Spec128.memoryPortWrite(port, value);
+    spec128.memoryPortWrite(port, value);
   }
 }

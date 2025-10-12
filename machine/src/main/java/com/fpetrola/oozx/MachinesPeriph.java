@@ -23,18 +23,7 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class MachinesPeriph {
 
-  private Machine machine;
-
-  public MachinesPeriph(Machine machine) {
-    this.machine = machine;
-  }
-
-  public int init(Object context) {
-    Periph.register(new Spec128MemoryPeripheral());
-    Periph.register(new SpecPlus3MemoryPeripheral());
-    Periph.register(new Upd765Peripheral());
-    Periph.register(new SeMemoryPeripheral(machine));
-    return 0;
+  public MachinesPeriph() {
   }
 
   // Register startup for machine-specific peripherals

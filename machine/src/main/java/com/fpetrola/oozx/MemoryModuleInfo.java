@@ -22,6 +22,7 @@ public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInf
   private static Memory memory = Fuse.memory;
   private Machine machine = Fuse.machine;
   private RAMHolder ramHolder;
+  private Spec128 spec128= Fuse.spec128;
 
   public MemoryModuleInfo(RAMHolder ramHolder) {
     this.ramHolder = ramHolder;
@@ -36,7 +37,7 @@ public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInf
       Pentagon.pentagon1024V22MemoryportWrite(0xeff7, Libspectrum.snapOutPlus3Memoryport(snap));
     } else {
       if ((capabilities & Libspectrum.MachineCapability._128_MEMORY) != 0) {
-        Spec128.memoryPortWrite(0x7ffd, Libspectrum.snapOut128Memoryport(snap));
+        spec128.memoryPortWrite(0x7ffd, Libspectrum.snapOut128Memoryport(snap));
       }
       if ((capabilities & Libspectrum.MachineCapability.PLUS3_MEMORY) != 0 ||
           (capabilities & Libspectrum.MachineCapability.SCORP_MEMORY) != 0) {
