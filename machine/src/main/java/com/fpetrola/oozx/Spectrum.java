@@ -104,15 +104,6 @@ public class Spectrum {
     return 0;
   }
 
-  //    private  void reg1() {
-//        StartupManagerModule[] dependencies = {
-//            StartupManagerModule.DEBUGGER,
-//            StartupManagerModule.EVENT,
-//            StartupManagerModule.SETUID
-//        };
-//        StartupManager.register(StartupManagerModule.SPECTRUM, dependencies, Spectrum::spectrumInit, null, null);
-//    }
-
   public int spectrumFrame() {
     long frameLength = Rzx.playback ? tStatesHolder.getTstates() : getCurrent().timings.tstatesPerFrame;
 
