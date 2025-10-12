@@ -39,7 +39,7 @@ public class Ula {
 
   // Initialize ULA module
   static int init(Object context) {
-    Module.register(new UlaZxModule());
+    Module.register(new UlaZxModuleInfo());
     Periph.register(new UlaPeripheral());
     Periph.register(new UlaFullDecodePeripheral());
 

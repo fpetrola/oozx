@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx;
 
-public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModule {
+public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInfo {
   public void snapshotFrom(Libspectrum.Snap snap) {
     Memory.fromSnapshot(snap); // snapshotFrom
   }

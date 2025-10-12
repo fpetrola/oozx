@@ -22,9 +22,9 @@ import java.util.*;
 
 public class Module {
 
-  private static List<ZXModule> registeredModules = new LinkedList<>();
+  private static List<ZXModuleInfo> registeredModules = new LinkedList<>();
 
-  public static void register(ZXModule e) {
+  public static void register(ZXModuleInfo e) {
     registeredModules.add(e);
   }
 
@@ -37,35 +37,35 @@ public class Module {
 
   public static void reset(int hardReset) {
     if (registeredModules == null) return;
-    for (ZXModule module : registeredModules) {
+    for (ZXModuleInfo module : registeredModules) {
       module.reset(hardReset);
     }
   }
 
   public static void romcs() {
     if (registeredModules == null) return;
-    for (ZXModule module : registeredModules) {
+    for (ZXModuleInfo module : registeredModules) {
       module.romcs();
     }
   }
 
   public static void moduleSnapshotEnabled(Libspectrum.Snap snap) {
     if (registeredModules == null) return;
-    for (ZXModule module : registeredModules) {
+    for (ZXModuleInfo module : registeredModules) {
       module.snapshotEnabled(snap);
     }
   }
 
   public static void moduleSnapshotFrom(Libspectrum.Snap snap) {
     if (registeredModules == null) return;
-    for (ZXModule module : registeredModules) {
+    for (ZXModuleInfo module : registeredModules) {
       module.snapshotFrom(snap);
     }
   }
 
   public static void moduleSnapshotTo(Libspectrum.Snap snap) {
     if (registeredModules == null) return;
-    for (ZXModule module : registeredModules) {
+    for (ZXModuleInfo module : registeredModules) {
       module.snapshotTo(snap);
     }
   }

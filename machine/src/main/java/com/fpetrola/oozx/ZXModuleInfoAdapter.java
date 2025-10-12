@@ -18,19 +18,40 @@
 
 package com.fpetrola.oozx;
 
-public class DefaultZxModuleInfo implements ZXModuleInfo {
+public class ZXModuleInfoAdapter implements ZXModuleInfo {
+  private final ModuleInfo module;
+
+  public ZXModuleInfoAdapter(ModuleInfo module) {
+    this.module = module;
+  }
+
+  @Override
   public void reset(int hardReset) {
+    if (module.reset != null)
+      module.reset.apply(hardReset);
   }
 
+  @Override
   public void romcs() {
+    if (module.romcs != null)
+      module.romcs.apply();
   }
 
+  @Override
   public void snapshotEnabled(Libspectrum.Snap snap) {
+    if (module.snapshotEnabled != null)
+      module.snapshotEnabled.apply(snap);
   }
 
+  @Override
   public void snapshotFrom(Libspectrum.Snap snap) {
+    if (module.snapshotFrom != null)
+      module.snapshotFrom.accept(snap);
   }
 
+  @Override
   public void snapshotTo(Libspectrum.Snap snap) {
+    if (module.snapshotTo != null)
+      module.snapshotTo.accept(snap);
   }
 }
