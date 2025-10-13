@@ -52,10 +52,10 @@ public class Ula {
   private final IPeriph periph;
 
 
-  public Ula(Memory memory, Display display, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Keyboard keyboard, ZxClock zxClock, IPeriph periph) {
+  public Ula(Memory memory, Display display, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, ZxClock zxClock, IPeriph periph) {
     this.memory = memory;
     this.display = display;
-    currentMachineSupplier = fuseMachineInfoSupplier;
+    this.currentMachineSupplier = machineSupplier;
     this.keyboard = keyboard;
     this.zxClock = zxClock;
     this.periph = periph;
