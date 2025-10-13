@@ -25,7 +25,7 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
   private Memory memory;
   private UPDFdc specplus3Fdc;
   private Display display;
-  private Machine machine;
+  private Machine machine1;
   private MachinesPeriph machinesPeriph;
   private Spectrum spectrum;
   private Spec48 spec48;
@@ -35,7 +35,7 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
     super(display);
     this.memory = memory;
     this.display = display;
-    this.machine = machine;
+    this.machine1 = machine;
     this.machinesPeriph = machinesPeriph;
     this.spectrum = spectrum;
     this.spec48 = spec48;
@@ -82,24 +82,24 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
 
   // Initialize the Spectrum +3 machine
   public FuseMachineInfo init() {
-    fuseMachineInfo.machine = Libspectrum.Machine.PLUS3;
-    fuseMachineInfo.id = "plus3";
+    machine = Libspectrum.Machine.PLUS3;
+    id = "plus3";
 
-    fuseMachineInfo.reset = this::reset;
-    fuseMachineInfo.timex = false;
-    fuseMachineInfo.ramInfo.portFromUla = this::portFromUla;
-    fuseMachineInfo.ramInfo.contendDelay = spectrum::contendDelay76543210;
-    fuseMachineInfo.ramInfo.contendDelayNoMreq = spectrum::contendDelayNone;
-    fuseMachineInfo.ramInfo.validPages = 8;
+    reset = this::reset;
+    timex = false;
+    ramInfo.portFromUla = this::portFromUla;
+    ramInfo.contendDelay = spectrum::contendDelay76543210;
+    ramInfo.contendDelayNoMreq = spectrum::contendDelayNone;
+    ramInfo.validPages = 8;
 
 //    machine.unattachedPort = Libretro.LIBRETRO ? Spectrum::spectrumUnattachedPortAmstrad : Spectrum::spectrumUnattachedPortNone;
-    fuseMachineInfo.unattachedPort = spectrum::spectrumUnattachedPortNone;
+    unattachedPort = spectrum::spectrumUnattachedPortNone;
 
     specplus3765Init();
     specplus3MenuItems();
 
-    fuseMachineInfo.shutdown = this::shutdown;
-    fuseMachineInfo.memoryMap = this::memoryMap;
+    shutdown = this::shutdown;
+    memoryMap = this::memoryMap;
 
     return this;
   }
@@ -155,13 +155,13 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
 
   // Reset the Spectrum +3 machine
   public int reset() {
-    int error = machine.loadRom(0, Settings.current.romPlus30, Settings.defaults.romPlus30, 0x4000);
+    int error = machine1.loadRom(0, Settings.current.romPlus30, Settings.defaults.romPlus30, 0x4000);
     if (error != 0) return error;
-    error = machine.loadRom(1, Settings.current.romPlus31, Settings.defaults.romPlus31, 0x4000);
+    error = machine1.loadRom(1, Settings.current.romPlus31, Settings.defaults.romPlus31, 0x4000);
     if (error != 0) return error;
-    error = machine.loadRom(2, Settings.current.romPlus32, Settings.defaults.romPlus32, 0x4000);
+    error = machine1.loadRom(2, Settings.current.romPlus32, Settings.defaults.romPlus32, 0x4000);
     if (error != 0) return error;
-    error = machine.loadRom(3, Settings.current.romPlus33, Settings.defaults.romPlus33, 0x4000);
+    error = machine1.loadRom(3, Settings.current.romPlus33, Settings.defaults.romPlus33, 0x4000);
     if (error != 0) return error;
 
     error = plus2aCommonReset();
@@ -184,7 +184,7 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
 
   // Common reset for +2A/+3
   public int plus2aCommonReset() {
-    FuseMachineInfo machineCurrent = machine.current;
+    FuseMachineInfo machineCurrent = machine1.current;
 
     machineCurrent.ramInfo.currentPage = 0;
     machineCurrent.ramInfo.currentRom = 0;
@@ -256,19 +256,19 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
 //      Fdd.motorOn(specplus3Drives[1], (b & 0x08) != 0);
 //    }
 
-    machine.current.ramInfo.lastByte2 = b;
+    machine1.current.ramInfo.lastByte2 = b;
 
-    machine.current.memoryMap.run();
+    machine1.current.memoryMap.run();
   }
 
   public void memoryPort2Write(int port, byte b) {
-    if (machine.current.ramInfo.locked) return;
+    if (machine1.current.ramInfo.locked) return;
     memoryPort2WriteInternal(port, b);
   }
 
   // Map memory for +3
   public void memoryMap() {
-    FuseMachineInfo machineCurrent = machine.current;
+    FuseMachineInfo machineCurrent = machine1.current;
     byte lastByte = machineCurrent.ramInfo.lastByte;
     byte lastByte2 = machineCurrent.ramInfo.lastByte2;
 
@@ -336,7 +336,7 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
 
   // Check if drive is available
   private boolean uiDriveIsAvailable() {
-    return (machine.current.capabilities & Libspectrum.MachineCapability.PLUS3_DISK) != 0;
+    return (machine1.current.capabilities & Libspectrum.MachineCapability.PLUS3_DISK) != 0;
   }
 
 //  // Get parameters for drive A
