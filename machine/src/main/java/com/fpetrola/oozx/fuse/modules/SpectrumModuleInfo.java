@@ -20,7 +20,7 @@ package com.fpetrola.oozx.fuse.modules;
 
 import com.fpetrola.oozx.Spectrum;
 
-public class SpectrumModuleInfo extends DefaultZxModuleInfo {
+public class SpectrumModuleInfo implements ZXModuleInfo {
   private Spectrum spectrum;
 
   public SpectrumModuleInfo(Spectrum spectrum) {

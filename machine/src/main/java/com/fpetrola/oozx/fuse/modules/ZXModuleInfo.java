@@ -24,11 +24,15 @@ public interface ZXModuleInfo {
   default void reset(int hardReset) {
   }
 
-  void romcs();
+  default void romcs() {
+  }
 
-  void snapshotEnabled(Libspectrum.Snap snap);
+  default void snapshotEnabled(Libspectrum.Snap snap) {
+  }
 
-  void snapshotFrom(Libspectrum.Snap snap);
+  default void snapshotFrom(Libspectrum.Snap snap) {
+  }
 
-  void snapshotTo(Libspectrum.Snap snap);
+  default void snapshotTo(Libspectrum.Snap snap) {
+  }
 }

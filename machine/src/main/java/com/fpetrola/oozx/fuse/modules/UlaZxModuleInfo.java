@@ -22,7 +22,7 @@ import com.fpetrola.oozx.Libspectrum;
 import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.TStatesHolder;
 
-class UlaZxModuleInfo implements ZXModuleInfo {
+public class UlaZxModuleInfo implements ZXModuleInfo {
   private Ula ula;
   private TStatesHolder tStatesHolder;
 

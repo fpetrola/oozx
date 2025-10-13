@@ -21,7 +21,7 @@ package com.fpetrola.oozx.fuse.modules;
 import com.fpetrola.oozx.Libspectrum;
 import com.fpetrola.oozx.Z80;
 
-public class Z80ModuleInfo extends DefaultZxModuleInfo {
+public class Z80ModuleInfo implements ZXModuleInfo {
   private Z80 z80;
 
   public Z80ModuleInfo(Z80 z80) {

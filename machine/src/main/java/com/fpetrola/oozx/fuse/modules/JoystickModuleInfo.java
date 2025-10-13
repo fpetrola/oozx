@@ -20,7 +20,7 @@ package com.fpetrola.oozx.fuse.modules;
 
 import com.fpetrola.oozx.Libspectrum;
 
-public class JoystickModuleInfo extends DefaultZxModuleInfo {
+public class JoystickModuleInfo implements ZXModuleInfo {
   private Joystick joystick;
 
   public JoystickModuleInfo(Joystick joystick) {
