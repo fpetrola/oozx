@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 
 import static com.fpetrola.oozx.MachineCapability.*;
 
-public class Ula {
+public class Ula  implements ZxModule{
   private final Memory memory;
 
   public final int CONTENTION_SIZE = 80000;
@@ -70,6 +70,11 @@ public class Ula {
     defaultValue = (byte) 0xff;
 
     return 0;
+  }
+
+  @Override
+  public void end() {
+
   }
 
   // Register ULA with startup manager

@@ -16,27 +16,9 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.startup;
+package com.fpetrola.oozx.fuse.modules;
 
-import com.fpetrola.oozx.Spectrum;
-
-public class SpectrumStartupModule extends AbstractStartupModule {
-  private Spectrum spectrum;
-
-  public SpectrumStartupModule(Spectrum spectrum) {
-    super(EventManagerStartupModule.class);
-    this.spectrum = spectrum;
-  }
-
-  public Object getInitContext() {
-    return null;
-  }
-
-  public int initFn(Object initContext) {
-    return spectrum.init(initContext);
-  }
-
-  public void endFn() {
-  }
-
+public interface ZxModule {
+  int init(Object initContext);
+  void end();
 }

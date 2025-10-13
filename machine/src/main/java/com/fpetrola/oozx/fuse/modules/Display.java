@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class Display {
+public class Display implements ZxModule {
   private final Memory memory;
 
   // Constants for the width and height of the Speccy's screen
@@ -157,6 +157,11 @@ public class Display {
     lastBorder = loresBorder;
 
     return 0;
+  }
+
+  @Override
+  public void end() {
+
   }
 
   // Structure for border change

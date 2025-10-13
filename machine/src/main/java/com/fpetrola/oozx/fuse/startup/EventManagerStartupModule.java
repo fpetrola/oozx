@@ -32,7 +32,7 @@ public class EventManagerStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return eventManager.init();
+    return eventManager.init(initContext);
   }
 
   public void endFn() {

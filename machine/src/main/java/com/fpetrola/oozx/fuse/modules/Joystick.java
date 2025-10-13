@@ -25,7 +25,7 @@ import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.KempstonLoosePeriphPeripheral;
 import com.fpetrola.oozx.fuse.peripherals.KempstonStrictPeripheral;
 
-public class Joystick {
+public class Joystick implements ZxModule {
 
   // Constants
   public final int JOYSTICK_KEYBOARD = 2;
@@ -42,7 +42,7 @@ public class Joystick {
     this.periph = periph;
   }
 
-  public int init() {
+  public int init(Object initContext) {
     joysticksSupported = UiJoystick.init();
     kempstonValue = timex1Value = timex2Value = 0x00;
     fullerValue = (byte) 0xff;

@@ -23,7 +23,7 @@ import com.fpetrola.oozx.fuse.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Keyboard {
+public class Keyboard implements ZxModule {
 
   // Static fields
   public static byte[] returnValues = new byte[8]; // keyboard_return_values
@@ -36,7 +36,7 @@ public class Keyboard {
   // Initialize keyboard
 
   // Clean up keyboard
-  public static void end() {
+  public void end() {
     keyboardData.clear();
     spectrumKeys.clear();
     keysymsHash.clear();
@@ -281,7 +281,7 @@ public class Keyboard {
   // Placeholder for keysyms_map (to be populated based on UI-specific keysyms)
   static KeysymsMap[] KEYSYMS_MAP = {};
 
-  public static int init(Object initContext) {
+  public int init(Object initContext) {
     releaseAll();
 
     // Populate keyboard_data

@@ -23,12 +23,13 @@ import com.fpetrola.oozx.fuse.machine.TimingsHandler;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.modules.Ula;
+import com.fpetrola.oozx.fuse.modules.ZxModule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Machine {
+public class Machine  implements ZxModule {
   private EventManager eventManager;
   private Memory memory;
   private Display display;
@@ -230,6 +231,11 @@ public class Machine {
     for (int y = 1; y < display.SCREEN_HEIGHT + 1; y++) {
       machine.getLineTimes()[y] = machine.getLineTimes()[y - 1] + machine.getTimings().tstatesPerLine;
     }
+  }
+
+  @Override
+  public int init(Object initContext) {
+    return 0;
   }
 
   public void end() {

@@ -33,7 +33,7 @@ public class JoystickStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return joystick.init();
+    return joystick.init(initContext);
   }
 
   public void endFn() {

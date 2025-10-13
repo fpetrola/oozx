@@ -27,7 +27,7 @@ import java.util.ListIterator;
 import java.util.function.Supplier;
 
 // When will the next event happen?
-public class EventManager {
+public class EventManager implements ZxModule {
 
   final long EVENT_NO_EVENTS = 0xffffffffL;
 
@@ -49,13 +49,15 @@ public class EventManager {
     this.zxClock = zxClock;
   }
 
-  public int init() {
+  @Override
+  public int init(Object initContext) {
     registeredEvents = new ArrayList<>();
     eventTypeNull = eventRegister(null, "[Deleted event]");
     eventNextEvent = EVENT_NO_EVENTS;
     return 0;
   }
 
+  @Override
   public void end() {
     reset();
     registeredEventsFree();

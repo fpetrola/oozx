@@ -24,15 +24,14 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.Display;
-import com.fpetrola.oozx.fuse.modules.MemoryModuleInfo;
 import com.fpetrola.oozx.fuse.modules.Ula;
-import com.fpetrola.oozx.fuse.startup.MemoryStartupModule;
+import com.fpetrola.oozx.fuse.modules.ZxModule;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class Memory extends DefaultRAMHolder {
+public class Memory extends DefaultRAMHolder implements ZxModule {
 
   // Constants for memory page sizes
   public final int PAGE_SIZE_LOGARITHM = 11;

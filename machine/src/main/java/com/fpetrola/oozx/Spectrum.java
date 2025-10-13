@@ -19,14 +19,11 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
-import com.fpetrola.oozx.fuse.modules.Display;
-import com.fpetrola.oozx.fuse.modules.EventManager;
-import com.fpetrola.oozx.fuse.modules.SpectrumModuleInfo;
-import com.fpetrola.oozx.fuse.modules.Z80;
+import com.fpetrola.oozx.fuse.modules.*;
 
 import java.util.function.Supplier;
 
-public class Spectrum {
+public class Spectrum implements ZxModule {
   private Memory memory;
   private Display display;
   private EventManager eventManager;
@@ -72,12 +69,17 @@ public class Spectrum {
     return framesSinceReset;
   }
 
-  public int spectrumInit(Object context) {
+  public int init(Object context) {
     spectrumFrameEvent = eventManager.eventRegister(this::spectrumFrameEventFn, "End of frame");
 
     Module.register(new SpectrumModuleInfo(this));
 
     return 0;
+  }
+
+  @Override
+  public void end() {
+
   }
 
   public int spectrumFrame() {

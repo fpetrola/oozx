@@ -53,7 +53,7 @@ import java.util.function.Supplier;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
-public class Z80 {
+public class Z80 implements ZxModule {
   private EventManager eventManager;
   private com.fpetrola.oozx.Memory memory;
 
@@ -330,6 +330,11 @@ public class Z80 {
     initialized = true;
 
     return 0;
+  }
+
+  @Override
+  public void end() {
+
   }
 
   private void z80_nmi(long l, int i, Object o) {
