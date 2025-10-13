@@ -248,13 +248,7 @@ public class Machine {
   }
 
   private void setConstTimings(SpectrumMachine machine) {
-    machine.getTimings().processorSpeed = Timings.processorSpeed(machine.getMachine());
-    machine.getTimings().leftBorder = Timings.leftBorder(machine.getMachine());
-    machine.getTimings().horizontalScreen = Timings.horizontalScreen(machine.getMachine());
-    machine.getTimings().rightBorder = Timings.rightBorder(machine.getMachine());
-    machine.getTimings().tstatesPerLine = Timings.tstatesPerLine(machine.getMachine());
-    machine.getTimings().interruptLength = Timings.interruptLength(machine.getMachine());
-    machine.getTimings().tstatesPerFrame = Timings.tstatesPerFrame(machine.getMachine());
+    Timings.initMachineTimings(machine.getTimings(), machine.getMachine());
   }
 
   private void setVariableTimings(SpectrumMachine machine) {

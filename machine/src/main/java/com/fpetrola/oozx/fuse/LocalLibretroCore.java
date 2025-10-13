@@ -210,8 +210,6 @@ public class LocalLibretroCore implements LibretroCore {
 
     if (name.equals("48K")) {
       a = Libspectrum.Machine._48K;
-    } else if (name.equals("48K NTSC")) {
-      a = Libspectrum.Machine._48K_NTSC;
     } else if (name.equals("128K")) {
       a = Libspectrum.Machine._128K;
     } else if (name.equals("PLUS2")) {

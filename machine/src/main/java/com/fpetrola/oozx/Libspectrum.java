@@ -62,9 +62,10 @@ public class Libspectrum {
     return 0;
   }
   public enum Machine {
-    _48K, TC2048, _128K, PLUS2, PENTAGON, PLUS2A, PLUS3, UNKNOWN,
-    _16K, TC2068, SCORPION, PLUS3E, SE, TS2068, PENTAGON_512K,
-    PENTAGON_1024K, _48K_NTSC, _128KE
+    _48K,
+    _128K,
+    PLUS2,
+    PLUS3
   }
   public static MachineCapability MachineCapability;
 
