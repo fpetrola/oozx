@@ -22,7 +22,6 @@ import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.machine.Spec128;
 import com.fpetrola.oozx.fuse.machine.SpecPlus2;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
-import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.modules.Ula;
 import com.fpetrola.oozx.fuse.ports.PortHandler;
 
@@ -33,13 +32,11 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public class Periph {
-  private EventManager eventManager;
   private Ula ula;
   private Supplier<SpectrumMachine> machine;
   private ZxClock zxClock;
 
-  public Periph(EventManager eventManager, Ula ula, Supplier<SpectrumMachine> machine, ZxClock zxClock) {
-    this.eventManager = eventManager;
+  public Periph(Ula ula, Supplier<SpectrumMachine> machine, ZxClock zxClock) {
     this.ula = ula;
     this.machine = machine;
     this.zxClock = zxClock;

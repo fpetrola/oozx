@@ -41,7 +41,7 @@ public class Fuse {
   public Keyboard keyboard = new Keyboard();
   public Ula ula = new Ula(memory, display, spectrumMachineSupplier, keyboard, zxClock);
   public EventManager eventManager = new EventManager(spectrumMachineSupplier, zxClock);
-  public Periph periph = new Periph(eventManager, ula, spectrumMachineSupplier, zxClock);
+  public Periph periph = new Periph(ula, spectrumMachineSupplier, zxClock);
   public Joystick joystick = new Joystick(keyboard, periph);
   public Input input = new Input(joystick, keyboard);
   public Z80 z80 = new Z80(eventManager, memory, display, ula, spectrumMachineSupplier, keyboard, zxClock, input, periph, uiDisplay);
