@@ -37,17 +37,12 @@ public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInf
     // snapshotFrom
     int capabilities = machine.current.getCapabilities();
 
-    if ((capabilities & Libspectrum.MachineCapability.PENT1024_MEMORY) != 0) {
-      Pentagon.pentagon1024MemoryportWrite(0x7ffd, Libspectrum.snapOut128Memoryport(snap));
-      Pentagon.pentagon1024V22MemoryportWrite(0xeff7, Libspectrum.snapOutPlus3Memoryport(snap));
-    } else {
-      if ((capabilities & Libspectrum.MachineCapability._128_MEMORY) != 0) {
-        spec128.memoryPortWrite(0x7ffd, Libspectrum.snapOut128Memoryport(snap));
-      }
-      if ((capabilities & Libspectrum.MachineCapability.PLUS3_MEMORY) != 0 ||
-          (capabilities & Libspectrum.MachineCapability.SCORP_MEMORY) != 0) {
-        specPlus3.memoryPort2WriteInternal(0x1ffd, Libspectrum.snapOutPlus3Memoryport(snap));
-      }
+    if ((capabilities & Libspectrum.MachineCapability._128_MEMORY) != 0) {
+      spec128.memoryPortWrite(0x7ffd, Libspectrum.snapOut128Memoryport(snap));
+    }
+    if ((capabilities & Libspectrum.MachineCapability.PLUS3_MEMORY) != 0 ||
+        (capabilities & Libspectrum.MachineCapability.SCORP_MEMORY) != 0) {
+      specPlus3.memoryPort2WriteInternal(0x1ffd, Libspectrum.snapOutPlus3Memoryport(snap));
     }
 
     for (int i = 0; i < 64; i++) {

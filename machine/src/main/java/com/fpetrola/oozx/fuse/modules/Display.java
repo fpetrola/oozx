@@ -212,26 +212,6 @@ public class Display {
     return (byte) attr;
   }
 
-  private void updateDirtyRects() {
-    for (int y = 0; y < SCREEN_HEIGHT; y++) {
-      int x = 0;
-      while (isDirty[y] != 0) {
-        while ((isDirty[y] & 0x01) == 0) {
-          isDirty[y] >>>= 1;
-          x++;
-        }
-        int start = x;
-        do {
-          isDirty[y] >>>= 1;
-          x++;
-        } while ((isDirty[y] & 0x01) != 0);
-        Rectangle.add(y, start, x - start);
-      }
-      Rectangle.endLine(y);
-    }
-    Rectangle.endLine(SCREEN_HEIGHT);
-  }
-
   public void writeIfDirtySinclair(int x, int y) {
     int beamX = x + BORDER_WIDTH_COLS;
     int beamY = y + BORDER_HEIGHT;

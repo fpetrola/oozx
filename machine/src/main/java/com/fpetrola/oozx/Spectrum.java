@@ -91,7 +91,6 @@ public class Spectrum {
     if (Sound.enabled) Sound.frame();
 
     if (display.frame() != 0) return 1;
-    if (Profile.active) Profile.frame(frameLength);
     Printer.frame();
 
     if (!Rzx.playback) {
