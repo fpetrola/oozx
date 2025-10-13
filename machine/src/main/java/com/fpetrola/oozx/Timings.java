@@ -16,8 +16,7 @@
  *
  */
 
-package com.fpetrola.oozx;// Assuming ported dependencies:
-// - Libspectrum (Machine)
+package com.fpetrola.oozx;
 
 import java.util.HashMap;
 import java.util.Map;
