@@ -23,8 +23,6 @@ public interface IFuseMachineInfo {
 
   int getCapabilities();
 
-  void setCapabilities(int capabilities);
-
   MachineTimings getTimings();
 
   long[] getLineTimes();

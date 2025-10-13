@@ -50,7 +50,6 @@ public class Machine {
   public void addMachine(SpectrumMachine spectrumMachine) {
     machineTypes.add(spectrumMachine);
     setConstTimings(spectrumMachine);
-    spectrumMachine.setCapabilities(Libspectrum.machineCapabilities(spectrumMachine));
   }
 
   public int select(SpectrumMachine type) {

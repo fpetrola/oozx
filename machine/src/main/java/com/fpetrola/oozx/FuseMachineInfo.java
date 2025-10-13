@@ -31,6 +31,11 @@ public class FuseMachineInfo implements IFuseMachineInfo {
 
   public FuseMachineInfo(Display display) {
     lineTimes = new long[display.SCREEN_HEIGHT + 1];
+    configCapabilities();
+  }
+
+  void configCapabilities() {
+    setCapabilities(Libspectrum.machineCapabilities(this));
   }
 
   public RamInfo getRamInfo() {
