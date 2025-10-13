@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class Memory {
+public class Memory extends DefaultRAMHolder {
 
   // Constants for memory page sizes
   public final int PAGE_SIZE_LOGARITHM = 11;

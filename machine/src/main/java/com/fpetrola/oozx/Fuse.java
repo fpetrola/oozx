@@ -33,42 +33,19 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class Fuse {
-  public Supplier<SpectrumMachine> fuseMachineInfoSupplier = () -> Machine.current;
-  public ZxClock zxClock = new ZxClock() {
-    private long tstates;
-
-    public long getTstates() {
-      return tstates;
-    }
-
-    public void setTstates(long tstates) {
-      this.tstates = tstates;
-    }
-
-    @Override
-    public void addTstates(long tstatesToAdd) {
-      this.tstates+= tstatesToAdd;
-    }
-  };
-  private RAMHolder ramHolder = new RAMHolder() {
-    // RAM array: 65 pages of 16KB each (from SPECTRUM_RAM_PAGES)
-    private byte[][] RAM = new byte[memory.SPECTRUM_RAM_PAGES][0x4000];
-
-    public byte[][] getRAM() {
-      return RAM;
-    }
-  };
-  public Memory memory = new Memory(fuseMachineInfoSupplier, zxClock);
+  public Supplier<SpectrumMachine> spectrumMachineSupplier = () -> Machine.current;
+  public ZxClock zxClock = new DefaultZxClock();
+  public Memory memory = new Memory(spectrumMachineSupplier, zxClock);
   private UiDisplay uiDisplay = new UiDisplay(zxClock);
-  public Display display = new Display(memory, fuseMachineInfoSupplier, zxClock, ramHolder, uiDisplay);
+  public Display display = new Display(memory, spectrumMachineSupplier, zxClock, memory, uiDisplay);
   public Keyboard keyboard = new Keyboard();
-  public Ula ula = new Ula(memory, display, fuseMachineInfoSupplier, keyboard, zxClock);
-  public EventManager eventManager = new EventManager(fuseMachineInfoSupplier, zxClock);
-  public Periph periph = new Periph(eventManager, ula, fuseMachineInfoSupplier, zxClock);
+  public Ula ula = new Ula(memory, display, spectrumMachineSupplier, keyboard, zxClock);
+  public EventManager eventManager = new EventManager(spectrumMachineSupplier, zxClock);
+  public Periph periph = new Periph(eventManager, ula, spectrumMachineSupplier, zxClock);
   public Joystick joystick = new Joystick(keyboard, periph);
   public Input input = new Input(joystick, keyboard);
-  public Z80 z80 = new Z80(eventManager, memory, display, ula, fuseMachineInfoSupplier, keyboard, zxClock, input, periph, uiDisplay);
-  public Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, zxClock, ramHolder, fuseMachineInfoSupplier);
+  public Z80 z80 = new Z80(eventManager, memory, display, ula, spectrumMachineSupplier, keyboard, zxClock, input, periph, uiDisplay);
+  public Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, zxClock, memory, spectrumMachineSupplier);
   public Machine machine = new Machine(eventManager, memory, display, ula, zxClock, spectrum, uiDisplay);
   public MachinesPeriph machinesPeriph = new MachinesPeriph(periph);
   public Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum, periph);
@@ -86,7 +63,7 @@ public class Fuse {
         new LibspectrumStartupModule(),
         new MachineStartupModule(machine, spec48, spec128, specPlus3),
         new MachinesPeriphStartupModule(machine, spec128, specPlus3, periph),
-        new MemoryStartupModule(memory, ramHolder, machine, spec128, specPlus3),
+        new MemoryStartupModule(memory, machine, spec128, specPlus3),
         new SpectrumStartupModule(spectrum),
         new UlaStartupModule(ula, periph),
         new Z80StartupModule(z80)
@@ -100,4 +77,5 @@ public class Fuse {
     StartupManager.runEnd();
     periph.end();
   }
+
 }

@@ -28,14 +28,12 @@ import java.util.ArrayList;
 
 public class MemoryStartupModule extends AbstractStartupModule {
   private final Memory memory;
-  private RAMHolder ramHolder;
   private Machine machine;
   private Spec128 spec128;
   private SpecPlus3 specPlus3;
 
-  public MemoryStartupModule(Memory memory, RAMHolder ramHolder, Machine machine, Spec128 spec128, SpecPlus3 specPlus3) {
+  public MemoryStartupModule(Memory memory, Machine machine, Spec128 spec128, SpecPlus3 specPlus3) {
     this.memory = memory;
-    this.ramHolder = ramHolder;
     this.machine = machine;
     this.spec128 = spec128;
     this.specPlus3 = specPlus3;
@@ -69,7 +67,7 @@ public class MemoryStartupModule extends AbstractStartupModule {
     for (int i = 0; i < memory.SPECTRUM_RAM_PAGES; i++) {
       for (int j = 0; j < memory.PAGES_IN_16K; j++) {
         MemoryPage page = memory.mapRam[i * memory.PAGES_IN_16K + j] = new MemoryPage();
-        page.setPage(ramHolder.getRAM(), i, j * memory.PAGE_SIZE);
+        page.setPage(memory.getRAM(), i, j * memory.PAGE_SIZE);
         page.pageNum = i;
         page.offset = j * memory.PAGE_SIZE;
         page.writable = true;
@@ -77,7 +75,7 @@ public class MemoryStartupModule extends AbstractStartupModule {
       }
     }
 
-    Module.register(new MemoryModuleInfo(memory, machine, ramHolder, spec128, specPlus3));
+    Module.register(new MemoryModuleInfo(memory, machine, spec128, specPlus3));
     return 0;
   }
 

@@ -18,10 +18,18 @@
 
 package com.fpetrola.oozx;
 
-public interface ZxClock {
-  long getTstates();
+public class DefaultZxClock implements ZxClock {
+  private long tstates;
 
-  void setTstates(long tstates);
+  public long getTstates() {
+    return tstates;
+  }
 
-  void addTstates(long tstatesToAdd);
+  public void setTstates(long tstates) {
+    this.tstates = tstates;
+  }
+
+  public void addTstates(long tstatesToAdd) {
+    this.tstates += tstatesToAdd;
+  }
 }

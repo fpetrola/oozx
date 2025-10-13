@@ -25,14 +25,12 @@ import com.fpetrola.oozx.fuse.machine.SpecPlus3;
 public class MemoryModuleInfo implements ZXModuleInfo {
   private Memory memory;
   private Machine machine;
-  private RAMHolder ramHolder;
   private Spec128 spec128;
   private SpecPlus3 specPlus3;
 
-  public MemoryModuleInfo(Memory memory, Machine machine, RAMHolder ramHolder, Spec128 spec128, SpecPlus3 specPlus3) {
+  public MemoryModuleInfo(Memory memory, Machine machine, Spec128 spec128, SpecPlus3 specPlus3) {
     this.memory = memory;
     this.machine = machine;
-    this.ramHolder = ramHolder;
     this.spec128 = spec128;
     this.specPlus3 = specPlus3;
   }
@@ -52,7 +50,7 @@ public class MemoryModuleInfo implements ZXModuleInfo {
     for (int i = 0; i < 64; i++) {
       byte[] page = Libspectrum.snapPages(snap, i);
       if (page != null) {
-        System.arraycopy(page, 0, ramHolder.getRAM()[i], 0, 0x4000);
+        System.arraycopy(page, 0, memory.getRAM()[i], 0, 0x4000);
       }
     }
 
@@ -72,9 +70,9 @@ public class MemoryModuleInfo implements ZXModuleInfo {
     Libspectrum.snapSetOutPlus3Memoryport(snap, machine.current.getRamInfo().lastByte2);
 
     for (int i = 0; i < 64; i++) {
-      if (ramHolder.getRAM()[i] != null) {
+      if (memory.getRAM()[i] != null) {
         byte[] buffer = new byte[0x4000];
-        System.arraycopy(ramHolder.getRAM()[i], 0, buffer, 0, 0x4000);
+        System.arraycopy(memory.getRAM()[i], 0, buffer, 0, 0x4000);
         Libspectrum.snapSetPages(snap, i, buffer);
       }
     }

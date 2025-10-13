@@ -18,10 +18,11 @@
 
 package com.fpetrola.oozx;
 
-public interface ZxClock {
-  long getTstates();
+public class DefaultRAMHolder implements RAMHolder {
+  // RAM array: 65 pages of 16KB each (from SPECTRUM_RAM_PAGES)
+  private byte[][] RAM = new byte[Memory.SPECTRUM_RAM_PAGES][0x4000];
 
-  void setTstates(long tstates);
-
-  void addTstates(long tstatesToAdd);
+  public byte[][] getRAM() {
+    return RAM;
+  }
 }
