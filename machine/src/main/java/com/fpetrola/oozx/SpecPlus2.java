@@ -37,7 +37,6 @@ public class SpecPlus2 extends AbstractSpectrumMachine implements SpectrumMachin
     this.spec128 = spec128;
     this.spectrum = spectrum;
     this.periph = periph;
-    this.timex = false;
     this.ramInfo = new SpecPlus2RamInfo(8);
   }
 

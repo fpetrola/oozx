@@ -40,7 +40,6 @@ public class SpecPlus3 extends AbstractSpectrumMachine implements SpectrumMachin
     this.spectrum = spectrum;
     this.spec48 = spec48;
     this.periph = periph;
-    this.timex = false;
     this.ramInfo = new SpecPlus3RamInfo(8);
     specplus3765Init();
     specplus3MenuItems();

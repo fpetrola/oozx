@@ -37,7 +37,6 @@ public class Spec128 extends AbstractSpectrumMachine {
     this.spectrum = spectrum;
     this.spec48 = spec48;
     this.periph = periph;
-    this.timex = false;
     this.ramInfo = new Spec48RamInfo(this.spec48, 8);
   }
 

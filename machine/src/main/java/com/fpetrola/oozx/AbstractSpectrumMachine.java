@@ -22,30 +22,20 @@ import com.fpetrola.oozx.fuse.modules.Display;
 
 public abstract class AbstractSpectrumMachine implements SpectrumMachine {
   protected RamInfo ramInfo;
-  private int capabilities; // Capabilities of this machine
-  protected boolean timex; // Timex machine (keyboard emulation/loading sounds etc.)
   private MachineTimings timings = new MachineTimings(); // How long do things take to happen?
   private long[] lineTimes; // Redraw line y this many tstates after interrupt
 
   public AbstractSpectrumMachine(Display display) {
     lineTimes = new long[display.SCREEN_HEIGHT + 1];
-    configCapabilities();
   }
 
-  void configCapabilities() {
-    setCapabilities(Libspectrum.machineCapabilities(this));
-  }
 
   public RamInfo getRamInfo() {
     return ramInfo;
   }
 
   public int getCapabilities() {
-    return capabilities;
-  }
-
-  public void setCapabilities(int capabilities) {
-    this.capabilities = capabilities;
+    return Libspectrum.machineCapabilities(this);
   }
 
   public MachineTimings getTimings() {
