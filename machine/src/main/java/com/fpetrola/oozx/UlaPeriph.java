@@ -25,7 +25,7 @@ import com.fpetrola.oozx.fuse.peripherals.ZxPeripheral;
 
 public class UlaPeriph implements PeriphDelegate {
   private final Ula ula;
-  private ZxClock zxClock;
+  private final ZxClock zxClock;
   private final IPeriph periph;
 
   public UlaPeriph(Ula ula, ZxClock zxClock, IPeriph periph) {
