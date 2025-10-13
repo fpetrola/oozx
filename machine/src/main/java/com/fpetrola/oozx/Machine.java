@@ -290,7 +290,7 @@ public class Machine {
 
   public void end() {
     for (int i = 0; i < machineTypes.size(); i++) {
-      if (machineTypes.get(i).getShutdown() != null) machineTypes.get(i).getShutdown().run();
+      machineTypes.get(i).shutdown();
     }
 
     machineTypes = null;

@@ -23,4 +23,8 @@ public interface SpectrumMachine extends IFuseMachineInfo {
   int reset();
   void memoryMap();
   int unattachedPort();
+
+  default int shutdown() {
+    return 0;
+  }
 }

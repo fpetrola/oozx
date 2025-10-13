@@ -46,8 +46,6 @@ public class Spec128 extends FuseMachineInfo implements SpectrumMachine {
 
     setTimex(false);
     setRamInfo(new Spec48RamInfo(spec48, 8));
-    setShutdown(null);
-    setMemoryMap(this::memoryMap);
 
     return this;
   }

@@ -91,9 +91,6 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
     specplus3765Init();
     specplus3MenuItems();
 
-    setShutdown(this::shutdown);
-    setMemoryMap(this::memoryMap);
-
     return this;
   }
 

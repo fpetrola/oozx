@@ -41,21 +41,5 @@ public interface IFuseMachineInfo {
 
   MachineTimings getTimings();
 
-  void setTimings(MachineTimings timings);
-
   long[] getLineTimes();
-
-  void setLineTimes(long[] lineTimes);
-
-  Runnable getShutdown();
-
-  void setShutdown(Runnable shutdown);
-
-  Runnable getMemoryMap();
-
-  void setMemoryMap(Runnable memoryMap);
-
-  FuseMachineInfo getFuseMachineInfo();
-
-  void setFuseMachineInfo(FuseMachineInfo fuseMachineInfo);
 }

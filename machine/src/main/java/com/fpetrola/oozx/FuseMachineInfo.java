@@ -94,47 +94,7 @@ public class FuseMachineInfo implements IFuseMachineInfo {
   }
 
   @Override
-  public void setTimings(MachineTimings timings) {
-    this.timings = timings;
-  }
-
-  @Override
   public long[] getLineTimes() {
     return lineTimes;
-  }
-
-  @Override
-  public void setLineTimes(long[] lineTimes) {
-    this.lineTimes = lineTimes;
-  }
-
-  @Override
-  public Runnable getShutdown() {
-    return shutdown;
-  }
-
-  @Override
-  public void setShutdown(Runnable shutdown) {
-    this.shutdown = shutdown;
-  }
-
-  @Override
-  public Runnable getMemoryMap() {
-    return memoryMap;
-  }
-
-  @Override
-  public void setMemoryMap(Runnable memoryMap) {
-    this.memoryMap = memoryMap;
-  }
-
-  @Override
-  public FuseMachineInfo getFuseMachineInfo() {
-    return fuseMachineInfo;
-  }
-
-  @Override
-  public void setFuseMachineInfo(FuseMachineInfo fuseMachineInfo) {
-    this.fuseMachineInfo = fuseMachineInfo;
   }
 }
