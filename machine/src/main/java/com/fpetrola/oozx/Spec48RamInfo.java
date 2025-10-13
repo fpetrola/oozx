@@ -24,9 +24,6 @@ public class Spec48RamInfo extends RamInfo {
   public Spec48RamInfo(Spec48 spec48, int validPages) {
     this.spec48 = spec48;
     this.validPages = validPages;
-    portFromUla = this::portFromUla;
-    contendDelay = this::contendDelay;
-    contendDelayNoMreq = this::contendDelayNoMreq;
   }
 
   boolean portFromUla(int port) {

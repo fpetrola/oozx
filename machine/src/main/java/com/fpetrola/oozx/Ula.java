@@ -133,7 +133,7 @@ public class Ula {
 
   // Handle contention for port access (late phase)
   public void contendPortLate(int port) {
-    if (getCurrent().getRamInfo().portFromUla.apply(port)) {
+    if (getCurrent().getRamInfo().portFromUla(port)) {
       GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) tStatesHolder.getTstates()] + 2), "ula_contend_port_late", (int) tStatesHolder.getTstates());
       tStatesHolder.setTstates(tStatesHolder.getTstates() + contentionNoMreq[(int) tStatesHolder.getTstates()]);
       tStatesHolder.setTstates(tStatesHolder.getTstates() + 2);

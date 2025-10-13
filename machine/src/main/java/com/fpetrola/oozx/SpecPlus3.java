@@ -362,9 +362,6 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
   private class SpecPlus3RamInfo extends RamInfo {
     public SpecPlus3RamInfo(int validPages) {
       this.validPages = validPages;
-      portFromUla = this::portFromUla;
-      contendDelay = this::contendDelay;
-      contendDelayNoMreq = this::contendDelayNoMreq;
     }
 
     boolean portFromUla(int port) {

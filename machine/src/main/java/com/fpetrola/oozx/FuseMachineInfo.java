@@ -21,7 +21,7 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.modules.Display;
 
 public class FuseMachineInfo implements IFuseMachineInfo {
-  private RamInfo ramInfo = new RamInfo();
+  private RamInfo ramInfo;
   private Libspectrum.Machine machine = Libspectrum.Machine._48K; // libspectrum_machine
   private String id; // Used to select from command line
   private int capabilities; // Capabilities of this machine
