@@ -25,14 +25,16 @@ import java.util.Map;
 
 public class Timings {
 
-  static void initMachineTimings(com.fpetrola.oozx.MachineTimings timings, Libspectrum.Machine machine1) {
-    timings.processorSpeed = processorSpeed(machine1);
-    timings.leftBorder = leftBorder(machine1);
-    timings.horizontalScreen = horizontalScreen(machine1);
-    timings.rightBorder = rightBorder(machine1);
-    timings.tstatesPerLine = tstatesPerLine(machine1);
-    timings.interruptLength = interruptLength(machine1);
-    timings.tstatesPerFrame = tstatesPerFrame(machine1);
+  static void initMachineTimings(com.fpetrola.oozx.MachineTimings timings, SpectrumMachine machine) {
+    MachineTimings baseTiming = getBaseTiming(machine);
+
+    timings.processorSpeed = processorSpeed(baseTiming);
+    timings.leftBorder = leftBorder(baseTiming);
+    timings.horizontalScreen = horizontalScreen(baseTiming);
+    timings.rightBorder = rightBorder(baseTiming);
+    timings.tstatesPerLine = tstatesPerLine(baseTiming);
+    timings.interruptLength = interruptLength(baseTiming);
+    timings.tstatesPerFrame = tstatesPerFrame(baseTiming);
   }
 
   // Structure for frame timings
@@ -152,99 +154,100 @@ public class Timings {
   };
 
   // Get processor speed for a machine
-  public static long processorSpeed(Libspectrum.Machine machine) {
-    return getBaseTiming(machine).processorSpeed;
+  public static long processorSpeed(MachineTimings baseTiming) {
+    return baseTiming.processorSpeed;
   }
 
   // Get AY clock speed for a machine
-  public static long aySpeed(Libspectrum.Machine machine) {
-    return getBaseTiming(machine).aySpeed;
+  public static long aySpeed(MachineTimings baseTiming) {
+    return baseTiming.aySpeed;
   }
 
   // Get left border t-states
-  public static int leftBorder(Libspectrum.Machine machine) {
-    FrameTimings f = getBaseTiming(machine).frameTimings;
+  public static int leftBorder(MachineTimings baseTiming) {
+    FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.leftBorder : 0;
   }
 
   // Get horizontal screen t-states
-  public static int horizontalScreen(Libspectrum.Machine machine) {
-    FrameTimings f = getBaseTiming(machine).frameTimings;
+  public static int horizontalScreen(MachineTimings baseTiming) {
+    FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.horizontalScreen : 0;
   }
 
-  private static MachineTimings getBaseTiming(Libspectrum.Machine machine) {
+  public static MachineTimings getBaseTiming(SpectrumMachine spectrumMachine) {
+    Libspectrum.Machine machine1 = spectrumMachine.getMachine();
     Map<Libspectrum.Machine, MachineTimings> customTimings = new HashMap<>();
     Arrays.stream(Libspectrum.Machine.values()).forEach(m -> customTimings.put(m, BASE_TIMINGS[m.ordinal()]));
-    return customTimings.get(machine);
+    return customTimings.get(machine1);
   }
 
   // Get right border t-states
-  public static int rightBorder(Libspectrum.Machine machine) {
-    FrameTimings f = getBaseTiming(machine).frameTimings;
+  public static int rightBorder(MachineTimings baseTiming) {
+    FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.rightBorder : 0;
   }
 
   // Get horizontal retrace t-states
-  public static int horizontalRetrace(Libspectrum.Machine machine) {
-    FrameTimings f = getBaseTiming(machine).frameTimings;
+  public static int horizontalRetrace(MachineTimings baseTiming) {
+    FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.horizontalRetrace : 0;
   }
 
   // Get top border lines
-  public static int topBorder(Libspectrum.Machine machine) {
-    FrameTimings f = getBaseTiming(machine).frameTimings;
+  public static int topBorder(MachineTimings baseTiming) {
+    FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.topBorder : 0;
   }
 
   // Get vertical screen lines
-  public static int verticalScreen(Libspectrum.Machine machine) {
-    FrameTimings f = getBaseTiming(machine).frameTimings;
+  public static int verticalScreen(MachineTimings baseTiming) {
+    FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.verticalScreen : 0;
   }
 
   // Get bottom border lines
-  public static int bottomBorder(Libspectrum.Machine machine) {
-    FrameTimings f = getBaseTiming(machine).frameTimings;
+  public static int bottomBorder(MachineTimings baseTiming) {
+    FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.bottomBorder : 0;
   }
 
   // Get vertical retrace lines
-  public static int verticalRetrace(Libspectrum.Machine machine) {
-    FrameTimings f = getBaseTiming(machine).frameTimings;
+  public static int verticalRetrace(MachineTimings baseTiming) {
+    FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.verticalRetrace : 0;
   }
 
   // Get interrupt length in t-states
-  public static int interruptLength(Libspectrum.Machine machine) {
-    FrameTimings f = getBaseTiming(machine).frameTimings;
+  public static int interruptLength(MachineTimings baseTiming) {
+    FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.interruptLength : 0;
   }
 
   // Get t-states from interrupt to top-left pixel
-  public static int topLeftPixel(Libspectrum.Machine machine) {
-    FrameTimings f = getBaseTiming(machine).frameTimings;
+  public static int topLeftPixel(MachineTimings baseTiming) {
+    FrameTimings f = baseTiming.frameTimings;
     return f != null ? (int) f.topLeftPixel : 0;
   }
 
   // Get t-states per line
-  public static int tstatesPerLine(Libspectrum.Machine machine) {
-    FrameTimings f = getBaseTiming(machine).frameTimings;
+  public static int tstatesPerLine(MachineTimings baseTiming) {
+    FrameTimings f = baseTiming.frameTimings;
     if (f == null) return 0;
     return f.leftBorder + f.horizontalScreen + f.rightBorder + f.horizontalRetrace;
   }
 
   // Get lines per frame
-  public static int linesPerFrame(Libspectrum.Machine machine) {
-    FrameTimings f = getBaseTiming(machine).frameTimings;
+  public static int linesPerFrame(MachineTimings baseTiming) {
+    FrameTimings f = baseTiming.frameTimings;
     if (f == null) return 0;
     return f.topBorder + f.verticalScreen + f.bottomBorder + f.verticalRetrace;
   }
 
   // Get t-states per frame
-  public static long tstatesPerFrame(Libspectrum.Machine machine) {
-    FrameTimings f = getBaseTiming(machine).frameTimings;
+  public static long tstatesPerFrame(MachineTimings baseTiming) {
+    FrameTimings f = baseTiming.frameTimings;
     if (f == null) return 0;
-    return (long) tstatesPerLine(machine) * linesPerFrame(machine);
+    return (long) tstatesPerLine(baseTiming) * linesPerFrame(baseTiming);
   }
 }
