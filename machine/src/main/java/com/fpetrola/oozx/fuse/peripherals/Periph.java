@@ -19,8 +19,6 @@
 package com.fpetrola.oozx.fuse.peripherals;
 
 import com.fpetrola.oozx.*;
-import com.fpetrola.oozx.fuse.KempstonLoosePeriphPeripheral;
-import com.fpetrola.oozx.fuse.KempstonStrictPeripheral;
 import com.fpetrola.oozx.fuse.machine.Spec128;
 import com.fpetrola.oozx.fuse.machine.SpecPlus2;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;

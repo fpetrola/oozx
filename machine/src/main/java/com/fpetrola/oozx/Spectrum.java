@@ -99,7 +99,6 @@ public class Spectrum {
       eventManager.eventAdd(getCurrent().getTimings().tstatesPerFrame, spectrumFrameEvent);
     }
 
-    Loader.frame(frameLength);
     PhantomTypist.frame();
 
     framesSinceReset++;

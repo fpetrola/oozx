@@ -16,14 +16,15 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.peripherals;
 
-public class Loader {
-  public static void frame(long frameLength) {
+import com.fpetrola.oozx.Machine;
+import com.fpetrola.oozx.SeMemoryPortHandler;
 
-  }
+import java.util.List;
 
-  public static void detectLoader() {
-
+public class SeMemoryPeripheral extends AbstractZxPeripheral {
+  public SeMemoryPeripheral(Machine machine) {
+    super(Periph.Type.SE_MEMORY, List.of(new SeMemoryPortHandler(machine)));
   }
 }

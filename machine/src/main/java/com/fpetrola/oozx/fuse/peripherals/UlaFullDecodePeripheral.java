@@ -16,18 +16,16 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.peripherals;
 
-import com.fpetrola.oozx.fuse.machine.SpecPlus3;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
+import com.fpetrola.oozx.fuse.modules.Ula;
+import com.fpetrola.oozx.fuse.ports.UlaFullDecodePortHandler;
 
 import java.util.List;
 
-public class Upd765Peripheral extends AbstractZxPeripheral {
-  public Upd765Peripheral(SpecPlus3 specPlus3) {
-    super(Periph.Type.UPD765, List.of(
-        new FdcPortHandler(0xf002, 0x3000, specPlus3),
-        new FdcStatusPortHandler(0xf002, 0x2000, specPlus3)
-    ));
+public class UlaFullDecodePeripheral extends AbstractZxPeripheral {
+  public UlaFullDecodePeripheral(Ula ula) {
+    super(Periph.Type.ULA_FULL_DECODE,
+        List.of(new UlaFullDecodePortHandler(ula)));
   }
 }

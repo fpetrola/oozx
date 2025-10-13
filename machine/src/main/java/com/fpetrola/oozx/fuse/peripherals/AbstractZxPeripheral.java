@@ -16,10 +16,7 @@
  *
  */
 
-package com.fpetrola.oozx;
-
-import com.fpetrola.oozx.fuse.peripherals.Periph;
-import com.fpetrola.oozx.fuse.peripherals.PortHandler;
+package com.fpetrola.oozx.fuse.peripherals;
 
 import java.util.List;
 

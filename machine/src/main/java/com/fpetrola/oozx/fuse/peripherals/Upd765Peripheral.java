@@ -16,16 +16,19 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.peripherals;
 
-import com.fpetrola.oozx.AbstractZxPeripheral;
-import com.fpetrola.oozx.fuse.modules.Joystick;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
+import com.fpetrola.oozx.FdcPortHandler;
+import com.fpetrola.oozx.FdcStatusPortHandler;
+import com.fpetrola.oozx.fuse.machine.SpecPlus3;
 
 import java.util.List;
 
-public class KempstonStrictPeripheral extends AbstractZxPeripheral {
-  public KempstonStrictPeripheral(Joystick joystick) {
-    super(Periph.Type.KEMPSTON, List.of(new JoystickPortHandler(0x00e0, 0x0000, joystick)));
+public class Upd765Peripheral extends AbstractZxPeripheral {
+  public Upd765Peripheral(SpecPlus3 specPlus3) {
+    super(Periph.Type.UPD765, List.of(
+        new FdcPortHandler(0xf002, 0x3000, specPlus3),
+        new FdcStatusPortHandler(0xf002, 0x2000, specPlus3)
+    ));
   }
 }

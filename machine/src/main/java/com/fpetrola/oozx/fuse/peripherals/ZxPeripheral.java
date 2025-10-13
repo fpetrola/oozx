@@ -16,14 +16,20 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.peripherals;
 
-import com.fpetrola.oozx.fuse.peripherals.Periph;
+public interface ZxPeripheral {
+  Periph.Type getType();
 
-import java.util.List;
+  boolean canActivate();
 
-public class SeMemoryPeripheral extends AbstractZxPeripheral {
-  public SeMemoryPeripheral(Machine machine) {
-    super(Periph.Type.SE_MEMORY, List.of(new SeMemoryPortHandler(machine)));
-  }
+  void activate();
+
+  PortHandler[] getPorts();
+
+  boolean hasOption();
+
+  boolean[] getOption();
+
+  boolean hasHardReset();
 }

@@ -23,6 +23,8 @@ import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
+import com.fpetrola.oozx.fuse.peripherals.UlaFullDecodePeripheral;
+import com.fpetrola.oozx.fuse.peripherals.UlaPeripheral;
 
 import java.util.function.Supplier;
 
@@ -74,8 +76,6 @@ public class Ula {
   public byte read(int port, byte[] attached) {
     byte r = defaultValue;
     attached[0] = (byte) 0xff;
-
-    Loader.detectLoader();
 
     r &= PhantomTypist.ulaRead(port);
     r &= keyboard.read((byte) (port >> 8));

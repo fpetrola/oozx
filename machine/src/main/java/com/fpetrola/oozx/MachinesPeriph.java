@@ -18,8 +18,7 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.fuse.KempstonStrictPeripheral;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
+import com.fpetrola.oozx.fuse.peripherals.*;
 
 public class MachinesPeriph {
 

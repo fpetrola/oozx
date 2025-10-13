@@ -18,8 +18,6 @@
 
 package com.fpetrola.oozx.fuse.peripherals;
 
-import com.fpetrola.oozx.ZxPeripheral;
-
 public class ZxPeripheralAdapter implements ZxPeripheral {
   private final Periph.Type type;
   private final Peripheral peripheral;

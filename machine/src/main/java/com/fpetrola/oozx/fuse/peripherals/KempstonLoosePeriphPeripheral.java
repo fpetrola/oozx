@@ -16,11 +16,10 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.peripherals;
 
-import com.fpetrola.oozx.AbstractZxPeripheral;
+import com.fpetrola.oozx.fuse.JoystickPortHandler;
 import com.fpetrola.oozx.fuse.modules.Joystick;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 import java.util.List;
 

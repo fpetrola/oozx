@@ -16,17 +16,12 @@
  *
  */
 
-package com.fpetrola.oozx;
-
-import com.fpetrola.oozx.fuse.modules.Ula;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
-import com.fpetrola.oozx.fuse.ports.UlaFullDecodePortHandler;
+package com.fpetrola.oozx.fuse.peripherals;
 
 import java.util.List;
 
-public class UlaFullDecodePeripheral extends AbstractZxPeripheral {
-  public UlaFullDecodePeripheral(Ula ula) {
-    super(Periph.Type.ULA_FULL_DECODE,
-        List.of(new UlaFullDecodePortHandler(ula)));
+public class GenericZxPeripheral extends AbstractZxPeripheral {
+  public GenericZxPeripheral() {
+    super(Periph.Type.UNKNOWN, List.of());
   }
 }
