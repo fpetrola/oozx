@@ -21,6 +21,8 @@ package com.fpetrola.oozx.fuse.modules;
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
 
+import java.util.Arrays;
+
 public class MachineStartupModule extends AbstractStartupModule {
   private Machine machine;
   private SpectrumMachine[] spectrumMachines;
@@ -36,9 +38,7 @@ public class MachineStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    for (SpectrumMachine s : spectrumMachines) {
-      machine.addMachine(s);
-    }
+    Arrays.stream(spectrumMachines).forEach(machine::addMachine);
     return 0;
   }
 

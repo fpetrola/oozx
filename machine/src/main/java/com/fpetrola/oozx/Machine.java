@@ -56,7 +56,7 @@ public class Machine {
 //        Machine::initMachines, null, Machine::end);
 //  }
 
-  public int addMachine(SpectrumMachine spectrumMachine) {
+  public void addMachine(SpectrumMachine spectrumMachine) {
     machineTypes.add(spectrumMachine);
 
     setConstTimings(spectrumMachine);
@@ -65,7 +65,6 @@ public class Machine {
 
     spectrumMachine.setCapabilities(Libspectrum.machineCapabilities(spectrumMachine.getMachine()));
 
-    return 0;
   }
 
   public int select(int type) {
