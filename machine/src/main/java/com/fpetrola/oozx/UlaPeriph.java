@@ -23,57 +23,21 @@ import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 import com.fpetrola.oozx.fuse.peripherals.ZxPeripheral;
 
-public class UlaPeriph implements IPeriph {
+public class UlaPeriph implements PeriphDelegate {
   private final Ula ula;
   private ZxClock zxClock;
+  private final IPeriph periph;
 
-  @Override
-  public void register(ZxPeripheral zxPeripheral) {
-    periph.register(zxPeripheral);
+  public UlaPeriph(Ula ula, ZxClock zxClock, IPeriph periph) {
+    this.ula = ula;
+    this.zxClock = zxClock;
+    this.periph = periph;
   }
 
-  @Override
-  public void setPresent(Periph.Type type, Periph.Present present) {
-    periph.setPresent(type, present);
+  public IPeriph getPeriph() {
+    return periph;
   }
 
-  @Override
-  public void setPresent(Class<? extends ZxPeripheral> zxPeripheralClass, Periph.Present present) {
-    periph.setPresent(zxPeripheralClass, present);
-  }
-
-  @Override
-  public boolean activateType(Class<? extends ZxPeripheral> type, boolean active) {
-    return periph.activateType(type, active);
-  }
-
-  @Override
-  public boolean isActive(Periph.Type type) {
-    return periph.isActive(type);
-  }
-
-  @Override
-  public void clear() {
-    periph.clear();
-  }
-
-  @Override
-  public void end() {
-    periph.end();
-  }
-
-  public byte readPort(int port) {
-    ula.contendPortEarly(port);
-    ula.contendPortLate(port);
-    return periph.readPort(port);
-  }
-
-  @Override
-  public byte mergeFloatingBus(byte value, byte attached, byte floatingBus) {
-    return periph.mergeFloatingBus(value, attached, floatingBus);
-  }
-
-  @Override
   public void writePort(int port, byte b) {
     ula.contendPortEarly(port);
     writePortInternal(port, b);
@@ -81,51 +45,9 @@ public class UlaPeriph implements IPeriph {
     zxClock.addTstates(1);
   }
 
-  @Override
-  public void writePortInternal(int port, byte b) {
-    periph.writePortInternal(port, b);
-  }
-
-  //    }
-
-//    // Disable optional peripherals
-//    public  void disableOptional() {
-//        if (Ui.mousePresent && Ui.mouseGrabbed) {
-//            Ui.mouseGrabbed = Ui.mouseRelease(true);
-//        }
-//
-//        peripherals.forEach((type, privatePeriph) -> {
-//            if (privatePeriph.present == Present.NEVER || privatePeriph.present == Present.OPTIONAL) {
-//                if (privatePeriph.peripheral.hasOption()) {
-//                    privatePeriph.peripheral.getOption()[0] = false;
-//                }
-//            }
-//        });
-//
-//        updatePeripheralsStatus();
-//    }
-
-  // Update peripherals and determine if a hard reset is needed
-  @Override
-  public boolean update() {
-    return periph.update();
-  }
-
-  @Override
-  public void postHook() {
-    periph.postHook();
-  }
-
-  @Override
-  public boolean postCheck() {
-    return periph.postCheck();
-  }
-
-  private final IPeriph periph;
-
-  public UlaPeriph(Ula ula, ZxClock zxClock, IPeriph periph) {
-    this.ula = ula;
-    this.zxClock = zxClock;
-    this.periph = periph;
+  public byte readPort(int port) {
+    ula.contendPortEarly(port);
+    ula.contendPortLate(port);
+    return getPeriph().readPort(port);
   }
 }
