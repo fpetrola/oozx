@@ -21,7 +21,7 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
-public class Spec48 implements SpectrumMachine {
+public class Spec48 extends FuseMachineInfo implements SpectrumMachine {
   private Memory memory;
   private Display display;
   private Machine machine;
@@ -30,6 +30,7 @@ public class Spec48 implements SpectrumMachine {
   private Periph periph;
 
   public Spec48(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Periph periph) {
+    super(display);
     this.memory = memory;
     this.display = display;
     this.machine = machine;
@@ -44,23 +45,23 @@ public class Spec48 implements SpectrumMachine {
     return (port & 0x0001) == 0;
   }
 
-  // Initialize the Spectrum 48K machine
+  // Initialize the Spectrum 48K fuseMachineInfo
   @Override
-  public int init(FuseMachineInfo machine) {
-    machine.machine = Libspectrum.Machine._48K;
-    machine.id = "48";
+  public FuseMachineInfo init() {
+    fuseMachineInfo.machine = Libspectrum.Machine._48K;
+    fuseMachineInfo.id = "48";
 
-    machine.reset = this::reset;
-    machine.timex = false;
-    machine.ramInfo.portFromUla = this::portFromUla;
-    machine.ramInfo.contendDelay = spectrum::contendDelay65432100;
-    machine.ramInfo.contendDelayNoMreq = spectrum::contendDelay65432100;
-    machine.ramInfo.validPages = 3;
-    machine.unattachedPort = spectrum::spectrumUnattachedPort;
-    machine.shutdown = null;
-    machine.memoryMap = this::memoryMap;
+    fuseMachineInfo.reset = this::reset;
+    fuseMachineInfo.timex = false;
+    fuseMachineInfo.ramInfo.portFromUla = this::portFromUla;
+    fuseMachineInfo.ramInfo.contendDelay = spectrum::contendDelay65432100;
+    fuseMachineInfo.ramInfo.contendDelayNoMreq = spectrum::contendDelay65432100;
+    fuseMachineInfo.ramInfo.validPages = 3;
+    fuseMachineInfo.unattachedPort = spectrum::spectrumUnattachedPort;
+    fuseMachineInfo.shutdown = null;
+    fuseMachineInfo.memoryMap = this::memoryMap;
 
-    return 0;
+    return this;
   }
 
   // Reset the Spectrum 48K machine

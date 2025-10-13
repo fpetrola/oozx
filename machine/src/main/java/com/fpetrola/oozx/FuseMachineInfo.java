@@ -36,4 +36,6 @@ public class FuseMachineInfo {
   public FuseMachineInfo(Display display) {
     lineTimes = new long[display.SCREEN_HEIGHT + 1];
   }
+
+  protected FuseMachineInfo  fuseMachineInfo= this;
 }

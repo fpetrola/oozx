@@ -19,7 +19,7 @@
 package com.fpetrola.oozx;
 
 public interface SpectrumMachine {
-  int init(FuseMachineInfo machine);
+  FuseMachineInfo init();
   int reset();
   void memoryMap();
 }

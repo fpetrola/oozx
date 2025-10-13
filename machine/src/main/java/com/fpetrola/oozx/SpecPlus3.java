@@ -21,7 +21,7 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
-public class SpecPlus3 implements SpectrumMachine {
+public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
   private Memory memory;
   private UPDFdc specplus3Fdc;
   private Display display;
@@ -32,6 +32,7 @@ public class SpecPlus3 implements SpectrumMachine {
   private Periph periph;
 
   public SpecPlus3(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, Periph periph) {
+    super(display);
     this.memory = memory;
     this.display = display;
     this.machine = machine;
@@ -80,27 +81,27 @@ public class SpecPlus3 implements SpectrumMachine {
   }
 
   // Initialize the Spectrum +3 machine
-  public int init(FuseMachineInfo machine) {
-    machine.machine = Libspectrum.Machine.PLUS3;
-    machine.id = "plus3";
+  public FuseMachineInfo init() {
+    fuseMachineInfo.machine = Libspectrum.Machine.PLUS3;
+    fuseMachineInfo.id = "plus3";
 
-    machine.reset = this::reset;
-    machine.timex = false;
-    machine.ramInfo.portFromUla = this::portFromUla;
-    machine.ramInfo.contendDelay = spectrum::contendDelay76543210;
-    machine.ramInfo.contendDelayNoMreq = spectrum::contendDelayNone;
-    machine.ramInfo.validPages = 8;
+    fuseMachineInfo.reset = this::reset;
+    fuseMachineInfo.timex = false;
+    fuseMachineInfo.ramInfo.portFromUla = this::portFromUla;
+    fuseMachineInfo.ramInfo.contendDelay = spectrum::contendDelay76543210;
+    fuseMachineInfo.ramInfo.contendDelayNoMreq = spectrum::contendDelayNone;
+    fuseMachineInfo.ramInfo.validPages = 8;
 
 //    machine.unattachedPort = Libretro.LIBRETRO ? Spectrum::spectrumUnattachedPortAmstrad : Spectrum::spectrumUnattachedPortNone;
-    machine.unattachedPort = spectrum::spectrumUnattachedPortNone;
+    fuseMachineInfo.unattachedPort = spectrum::spectrumUnattachedPortNone;
 
     specplus3765Init();
     specplus3MenuItems();
 
-    machine.shutdown = this::shutdown;
-    machine.memoryMap = this::memoryMap;
+    fuseMachineInfo.shutdown = this::shutdown;
+    fuseMachineInfo.memoryMap = this::memoryMap;
 
-    return 0;
+    return this;
   }
 
   // Update FDC settings

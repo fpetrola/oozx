@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class Machine {
   private EventManager eventManager;
@@ -57,11 +58,8 @@ public class Machine {
 //        Machine::initMachines, null, Machine::end);
 //  }
 
-  public int addMachine(Function<FuseMachineInfo, Integer> initFunction) {
-    FuseMachineInfo machine = new FuseMachineInfo(display);
-
-    int error = initFunction.apply(machine);
-    if (error != 0) return error;
+  public int addMachine(Supplier<FuseMachineInfo> initFunction) {
+    FuseMachineInfo machine = initFunction.get();
 
     machineTypes.add(machine);
 

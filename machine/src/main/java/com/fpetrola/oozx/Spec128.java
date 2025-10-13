@@ -23,7 +23,7 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 import java.util.function.Supplier;
 
-public class Spec128 implements SpectrumMachine {
+public class Spec128 extends FuseMachineInfo implements SpectrumMachine {
   private Memory memory;
   private Display display;
   private Supplier<FuseMachineInfo> machine;
@@ -33,6 +33,7 @@ public class Spec128 implements SpectrumMachine {
   private Periph periph;
 
   public Spec128(Memory memory, Display display, Supplier<FuseMachineInfo> machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, Periph periph) {
+    super(display);
     this.memory = memory;
     this.display = display;
     this.machine = machine;
@@ -43,21 +44,21 @@ public class Spec128 implements SpectrumMachine {
   }
 
   // Initialize the Spectrum 128K machine
-  public int init(FuseMachineInfo machine) {
-    machine.machine = Libspectrum.Machine._128K;
-    machine.id = "128";
+  public FuseMachineInfo init() {
+    fuseMachineInfo.machine = Libspectrum.Machine._128K;
+    fuseMachineInfo.id = "128";
 
-    machine.reset = this::reset;
-    machine.timex = false;
-    machine.ramInfo.portFromUla = spec48::portFromUla;
-    machine.ramInfo.contendDelay = spectrum::contendDelay65432100;
-    machine.ramInfo.contendDelayNoMreq = spectrum::contendDelay65432100;
-    machine.ramInfo.validPages = 8;
-    machine.unattachedPort = spectrum::spectrumUnattachedPort;
-    machine.shutdown = null;
-    machine.memoryMap = this::memoryMap;
+    fuseMachineInfo.reset = this::reset;
+    fuseMachineInfo.timex = false;
+    fuseMachineInfo.ramInfo.portFromUla = spec48::portFromUla;
+    fuseMachineInfo.ramInfo.contendDelay = spectrum::contendDelay65432100;
+    fuseMachineInfo.ramInfo.contendDelayNoMreq = spectrum::contendDelay65432100;
+    fuseMachineInfo.ramInfo.validPages = 8;
+    fuseMachineInfo.unattachedPort = spectrum::spectrumUnattachedPort;
+    fuseMachineInfo.shutdown = null;
+    fuseMachineInfo.memoryMap = this::memoryMap;
 
-    return 0;
+    return this;
   }
 
   // Reset the Spectrum 128K machine
