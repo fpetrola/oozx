@@ -50,7 +50,6 @@ public class Spec48 extends AbstractSpectrumMachine implements SpectrumMachine {
   @Override
   public SpectrumMachine init() {
     this.machine = Libspectrum.Machine._48K;
-    this.id = "48";
     this.timex = false;
     this.ramInfo = new Spec48RamInfo(this, 3);
 

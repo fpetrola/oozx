@@ -43,7 +43,6 @@ public class Spec128 extends AbstractSpectrumMachine {
   // Initialize the Spectrum 128K machine
   public SpectrumMachine init() {
     this.machine = Libspectrum.Machine._128K;
-    this.id = "128";
     this.timex = false;
     this.ramInfo = new Spec48RamInfo(spec48, 8);
 

@@ -84,7 +84,6 @@ public class SpecPlus3 extends AbstractSpectrumMachine implements SpectrumMachin
   // Initialize the Spectrum +3 machine
   public SpectrumMachine init() {
     this.machine = Libspectrum.Machine.PLUS3;
-    this.id = "plus3";
     this.timex = false;
     this.ramInfo = new SpecPlus3RamInfo(8);
 

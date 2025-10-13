@@ -22,8 +22,6 @@ import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class SpecPlus2 extends AbstractSpectrumMachine implements SpectrumMachine {
-  private Memory memory;
-  private Display display;
   private Machine machine1;
   private MachinesPeriph machinesPeriph;
   private Spec48 spec48;
@@ -31,10 +29,8 @@ public class SpecPlus2 extends AbstractSpectrumMachine implements SpectrumMachin
   private Spectrum spectrum;
   private Periph periph;
 
-  public SpecPlus2(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spec48 spec48, Spec128 spec128, Spectrum spectrum, Periph periph) {
+  public SpecPlus2(Display display, Machine machine, MachinesPeriph machinesPeriph, Spec48 spec48, Spec128 spec128, Spectrum spectrum, Periph periph) {
     super(display);
-    this.memory = memory;
-    this.display = display;
     this.machine1 = machine;
     this.machinesPeriph = machinesPeriph;
     this.spec48 = spec48;
@@ -53,7 +49,6 @@ public class SpecPlus2 extends AbstractSpectrumMachine implements SpectrumMachin
   @Override
   public SpectrumMachine init() {
     this.machine = Libspectrum.Machine.PLUS2;
-    this.id = "plus2";
     this.timex = false;
     this.ramInfo = new SpecPlus2RamInfo(8);
 
