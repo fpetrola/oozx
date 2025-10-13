@@ -21,7 +21,7 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
-public class Spec128 extends FuseMachineInfo implements SpectrumMachine {
+public class Spec128 extends AbstractSpectrumMachine {
   private Memory memory;
   private Display display;
   private MachinesPeriph machinesPeriph;

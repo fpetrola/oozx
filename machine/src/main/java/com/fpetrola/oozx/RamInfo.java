@@ -18,28 +18,19 @@
 
 package com.fpetrola.oozx;
 
-// Structure to hold RAM information
 public abstract class RamInfo {
-  boolean locked; // Is the memory configuration locked?
-  int currentPage; // Current paged memory page
-  int currentRom; // Current paged ROM
-  byte lastByte; // Last byte sent to the 128K port
-  byte lastByte2; // Last byte sent to +3 port
-  boolean special; // Is a +3 special config in use?
-  boolean romcs; // Is the /ROMCS line low?
-  int validPages; // Available RAM pages
+  boolean locked;
+  int currentPage;
+  int currentRom;
+  byte lastByte;
+  byte lastByte2;
+  boolean special;
+  boolean romcs;
+  int validPages;
 
   abstract boolean portFromUla(int port);
 
   public abstract int contendDelay(long time);
 
   public abstract int contendDelayNoMreq(long time);
-
-  interface PortFromUlaFunction {
-    boolean apply(int port);
-  }
-
-  interface ContentionDelayFunction {
-    int apply(long time);
-  }
 }

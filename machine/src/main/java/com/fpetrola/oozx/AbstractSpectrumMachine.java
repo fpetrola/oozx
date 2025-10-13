@@ -20,7 +20,7 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.modules.Display;
 
-public class FuseMachineInfo implements IFuseMachineInfo {
+public abstract class AbstractSpectrumMachine implements SpectrumMachine {
   protected RamInfo ramInfo;
   protected Libspectrum.Machine machine = Libspectrum.Machine._48K; // libspectrum_machine
   protected String id; // Used to select from command line
@@ -29,7 +29,7 @@ public class FuseMachineInfo implements IFuseMachineInfo {
   private MachineTimings timings = new MachineTimings(); // How long do things take to happen?
   private long[] lineTimes; // Redraw line y this many tstates after interrupt
 
-  public FuseMachineInfo(Display display) {
+  public AbstractSpectrumMachine(Display display) {
     lineTimes = new long[display.SCREEN_HEIGHT + 1];
     configCapabilities();
   }

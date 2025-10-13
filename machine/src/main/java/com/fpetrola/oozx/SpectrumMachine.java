@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx;
 
-public interface SpectrumMachine extends IFuseMachineInfo {
+public interface SpectrumMachine {
   TimingsHandler.Timings getBaseTiming();
 
   SpectrumMachine init();
@@ -31,4 +31,12 @@ public interface SpectrumMachine extends IFuseMachineInfo {
 
   default void shutdown() {
   }
+
+  RamInfo getRamInfo();
+
+  int getCapabilities();
+
+  MachineTimings getTimings();
+
+  long[] getLineTimes();
 }
