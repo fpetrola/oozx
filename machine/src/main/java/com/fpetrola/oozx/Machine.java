@@ -58,7 +58,7 @@ public class Machine {
 //  }
 
   public int addMachine(Function<FuseMachineInfo, Integer> initFunction) {
-    FuseMachineInfo machine = new FuseMachineInfo();
+    FuseMachineInfo machine = new FuseMachineInfo(display);
 
     int error = initFunction.apply(machine);
     if (error != 0) return error;

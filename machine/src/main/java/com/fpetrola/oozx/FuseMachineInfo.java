@@ -32,8 +32,7 @@ public class FuseMachineInfo {
   public boolean timex; // Timex machine (keyboard emulation/loading sounds etc.)
 
   public MachineTimings timings = new MachineTimings(); // How long do things take to happen?
-  private Display display= Fuse.display;
-  public long[] lineTimes = new long[display.SCREEN_HEIGHT + 1]; // Redraw line y this many tstates after interrupt
+  public long[] lineTimes; // Redraw line y this many tstates after interrupt
 
   public UnattachedPortFn unattachedPort; // What to return if we read from a port which isn't attached to anything
 
@@ -46,4 +45,8 @@ public class FuseMachineInfo {
   Runnable shutdown; // Shutdown function
 
   public Runnable memoryMap; // Memory map function
+
+  public FuseMachineInfo(Display display) {
+    lineTimes = new long[display.SCREEN_HEIGHT + 1];
+  }
 }
