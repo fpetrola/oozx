@@ -25,6 +25,8 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 import java.util.function.Supplier;
 
+import static com.fpetrola.oozx.MachineCapability.*;
+
 public class Ula {
   private final Memory memory;
 
@@ -43,14 +45,15 @@ public class Ula {
   private final Display display;
   private final Supplier<FuseMachineInfo> currentMachineSupplier;
   private Keyboard keyboard;
-  private TStatesHolder tStatesHolder = Fuse.tStatesHolder;
+  private TStatesHolder tStatesHolder;
 
 
-  public Ula(Memory memory, Display display, Supplier<FuseMachineInfo> fuseMachineInfoSupplier, Keyboard keyboard) {
+  public Ula(Memory memory, Display display, Supplier<FuseMachineInfo> fuseMachineInfoSupplier, Keyboard keyboard, TStatesHolder tStatesHolder) {
     this.memory = memory;
     this.display = display;
     currentMachineSupplier = fuseMachineInfoSupplier;
     this.keyboard = keyboard;
+    this.tStatesHolder = tStatesHolder;
   }
 
   // Initialize ULA module
@@ -90,9 +93,9 @@ public class Ula {
 
     if (getCurrent().timex) {
       defaultValue = (byte) 0x5f;
-    } else if ((getCurrent().capabilities & Libspectrum.MachineCapability.PLUS3_MEMORY) != 0) {
+    } else if ((getCurrent().capabilities & PLUS3_MEMORY) != 0) {
       defaultValue = (byte) 0xbf;
-    } else if ((getCurrent().capabilities & Libspectrum.MachineCapability._128_MEMORY) != 0 || !Settings.current.issue2) {
+    } else if ((getCurrent().capabilities & _128_MEMORY) != 0 || !Settings.current.issue2) {
       defaultValue = (byte) ((b & 0x10) != 0 ? 0xff : 0xbf);
     } else {
       defaultValue = (byte) ((b & 0x18) != 0 ? 0xff : 0xbf);

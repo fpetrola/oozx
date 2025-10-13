@@ -70,7 +70,7 @@ public class Fuse {
   public static Memory memory = new Memory(fuseMachineInfoSupplier, tStatesHolder);
   public static Display display = new Display(memory, fuseMachineInfoSupplier, tStatesHolder, ramHolder);
   public static Keyboard keyboard = new Keyboard();
-  public static Ula ula = new Ula(memory, display, fuseMachineInfoSupplier, keyboard);
+  public static Ula ula = new Ula(memory, display, fuseMachineInfoSupplier, keyboard, tStatesHolder);
   public static EventManager eventManager = new EventManager(fuseMachineInfoSupplier, tStatesHolder);
   public static Periph periph = new Periph(eventManager, ula, fuseMachineInfoSupplier, tStatesHolder);
   public static Joystick joystick = new Joystick(keyboard, periph);
