@@ -22,28 +22,15 @@ import com.fpetrola.oozx.fuse.modules.Display;
 
 public class FuseMachineInfo {
   RamInfo ramInfo = new RamInfo();
-
   public Libspectrum.Machine machine = Libspectrum.Machine._48K; // libspectrum_machine
   String id; // Used to select from command line
   public int capabilities; // Capabilities of this machine
-
   Runnable reset; // Reset function
-
   public boolean timex; // Timex machine (keyboard emulation/loading sounds etc.)
-
   public MachineTimings timings = new MachineTimings(); // How long do things take to happen?
   public long[] lineTimes; // Redraw line y this many tstates after interrupt
-
   public UnattachedPortFn unattachedPort; // What to return if we read from a port which isn't attached to anything
-
-//    Ayinfo ay = new Ayinfo(); // The AY-3-8912 chip
-//
-//    SpecdrumInfo specdrum = new SpecdrumInfo(); // SpecDrum settings
-//
-//    CovoxInfo covox = new CovoxInfo(); // Covox settings
-
   Runnable shutdown; // Shutdown function
-
   public Runnable memoryMap; // Memory map function
 
   public FuseMachineInfo(Display display) {
