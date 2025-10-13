@@ -40,7 +40,11 @@ public class SpecPlus3 extends AbstractSpectrumMachine implements SpectrumMachin
     this.spectrum = spectrum;
     this.spec48 = spec48;
     this.periph = periph;
-    init();
+    this.machine = Libspectrum.Machine.PLUS3;
+    this.timex = false;
+    this.ramInfo = new SpecPlus3RamInfo(8);
+    specplus3765Init();
+    specplus3MenuItems();
   }
 //  public  Fdd[] specplus3Drives = new Fdd[SpecPlus3Constants.SPECPLUS3_NUM_DRIVES];
 
@@ -82,16 +86,6 @@ public class SpecPlus3 extends AbstractSpectrumMachine implements SpectrumMachin
   }
 
   // Initialize the Spectrum +3 machine
-  public SpectrumMachine init() {
-    this.machine = Libspectrum.Machine.PLUS3;
-    this.timex = false;
-    this.ramInfo = new SpecPlus3RamInfo(8);
-
-    specplus3765Init();
-    specplus3MenuItems();
-
-    return this;
-  }
 
   // Update FDC settings
   public void specplus3765UpdateFdd() {

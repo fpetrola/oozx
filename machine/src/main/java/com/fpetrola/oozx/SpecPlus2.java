@@ -37,7 +37,9 @@ public class SpecPlus2 extends AbstractSpectrumMachine implements SpectrumMachin
     this.spec128 = spec128;
     this.spectrum = spectrum;
     this.periph = periph;
-    init();
+    this.machine = Libspectrum.Machine.PLUS2;
+    this.timex = false;
+    this.ramInfo = new SpecPlus2RamInfo(8);
   }
 
   @Override
@@ -46,14 +48,6 @@ public class SpecPlus2 extends AbstractSpectrumMachine implements SpectrumMachin
   }
 
   // Initialize the Spectrum +2 machine
-  @Override
-  public SpectrumMachine init() {
-    this.machine = Libspectrum.Machine.PLUS2;
-    this.timex = false;
-    this.ramInfo = new SpecPlus2RamInfo(8);
-
-    return this;
-  }
 
   // Reset the Spectrum +2 machine
   public int reset() {

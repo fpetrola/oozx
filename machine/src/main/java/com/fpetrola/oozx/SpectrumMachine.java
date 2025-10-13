@@ -21,8 +21,6 @@ package com.fpetrola.oozx;
 public interface SpectrumMachine {
   TimingsHandler.Timings getBaseTiming();
 
-  SpectrumMachine init();
-
   int reset();
 
   void memoryMap();
