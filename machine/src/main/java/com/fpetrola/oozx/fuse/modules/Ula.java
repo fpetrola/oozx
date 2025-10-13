@@ -49,18 +49,20 @@ public class Ula {
   private final Supplier<SpectrumMachine> currentMachineSupplier;
   private Keyboard keyboard;
   private ZxClock zxClock;
+  private final IPeriph periph;
 
 
-  public Ula(Memory memory, Display display, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Keyboard keyboard, ZxClock zxClock) {
+  public Ula(Memory memory, Display display, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Keyboard keyboard, ZxClock zxClock, IPeriph periph) {
     this.memory = memory;
     this.display = display;
     currentMachineSupplier = fuseMachineInfoSupplier;
     this.keyboard = keyboard;
     this.zxClock = zxClock;
+    this.periph = periph;
   }
 
   // Initialize ULA module
-  public int init(Object context, IPeriph periph) {
+  public int init(Object context) {
     Module.register(new UlaZxModuleInfo(this, zxClock));
     periph.register(new UlaPeripheral(this));
     periph.register(new UlaFullDecodePeripheral(this));

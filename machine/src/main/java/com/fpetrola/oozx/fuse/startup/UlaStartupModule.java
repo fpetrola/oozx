@@ -19,15 +19,12 @@
 package com.fpetrola.oozx.fuse.startup;
 
 import com.fpetrola.oozx.fuse.modules.Ula;
-import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 public class UlaStartupModule extends AbstractStartupModule {
   private Ula ula;
-  private IPeriph periph;
 
-  public UlaStartupModule(Ula ula, IPeriph periph) {
+  public UlaStartupModule(Ula ula) {
     this.ula = ula;
-    this.periph = periph;
   }
 
   public Object getInitContext() {
@@ -35,7 +32,7 @@ public class UlaStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return ula.init(initContext, periph);
+    return ula.init(initContext);
   }
 
   public void endFn() {

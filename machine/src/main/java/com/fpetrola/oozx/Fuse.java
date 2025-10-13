@@ -40,9 +40,9 @@ public class Fuse {
   private UiDisplay uiDisplay = new UiDisplay(zxClock);
   public Display display = new Display(memory, spectrumMachineSupplier, zxClock, memory, uiDisplay);
   public Keyboard keyboard = new Keyboard();
-  public Ula ula = new Ula(memory, display, spectrumMachineSupplier, keyboard, zxClock);
-  public EventManager eventManager = new EventManager(spectrumMachineSupplier, zxClock);
   public IPeriph periph = new Periph(spectrumMachineSupplier, zxClock);
+  public Ula ula = new Ula(memory, display, spectrumMachineSupplier, keyboard, zxClock, periph);
+  public EventManager eventManager = new EventManager(spectrumMachineSupplier, zxClock);
   public IPeriph ulaPeriph = new UlaPeriph(ula, zxClock, periph);
   public Joystick joystick = new Joystick(keyboard, ulaPeriph);
   public Input input = new Input(joystick, keyboard);
@@ -67,7 +67,7 @@ public class Fuse {
         new MachinesPeriphStartupModule(machine, spec128, specPlus3, periph),
         new MemoryStartupModule(memory, machine, spec128, specPlus3),
         new SpectrumStartupModule(spectrum),
-        new UlaStartupModule(ula, periph),
+        new UlaStartupModule(ula),
         new Z80StartupModule(z80)
     ).forEach(StartupManager::register);
 
