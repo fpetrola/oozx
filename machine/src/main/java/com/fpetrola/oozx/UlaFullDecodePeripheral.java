@@ -24,8 +24,8 @@ import com.fpetrola.oozx.fuse.ports.UlaFullDecodePortHandler;
 import java.util.List;
 
 public class UlaFullDecodePeripheral extends AbstractZxPeripheral {
-  public UlaFullDecodePeripheral() {
+  public UlaFullDecodePeripheral(Ula ula) {
     super(Periph.Type.ULA_FULL_DECODE,
-        List.of(new UlaFullDecodePortHandler(Fuse.ula)));
+        List.of(new UlaFullDecodePortHandler(ula)));
   }
 }

@@ -60,7 +60,7 @@ public class Ula {
   public int init(Object context, Periph periph) {
     Module.register(new UlaZxModuleInfo(this, tStatesHolder));
     periph.register(new UlaPeripheral(this));
-    periph.register(new UlaFullDecodePeripheral());
+    periph.register(new UlaFullDecodePeripheral(this));
 
     defaultValue = (byte) 0xff;
 
