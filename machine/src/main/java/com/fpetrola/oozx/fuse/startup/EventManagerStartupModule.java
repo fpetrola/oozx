@@ -16,22 +16,15 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.modules;
+package com.fpetrola.oozx.fuse.startup;
 
-import com.fpetrola.oozx.*;
-import com.fpetrola.oozx.fuse.AbstractStartupModule;
-import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
+import com.fpetrola.oozx.fuse.modules.EventManager;
 
-import java.util.Arrays;
+public class EventManagerStartupModule extends AbstractStartupModule {
+  private final EventManager eventManager;
 
-public class MachineStartupModule extends AbstractStartupModule {
-  private Machine machine;
-  private SpectrumMachine[] spectrumMachines;
-
-  public MachineStartupModule(Machine machine, SpectrumMachine... spectrumMachines) {
-    super(MemoryStartupModule.class);
-    this.machine = machine;
-    this.spectrumMachines = spectrumMachines;
+  public EventManagerStartupModule(EventManager eventManager) {
+    this.eventManager = eventManager;
   }
 
   public Object getInitContext() {
@@ -39,12 +32,10 @@ public class MachineStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    Arrays.stream(spectrumMachines).forEach(machine::addMachine);
-    return 0;
+    return eventManager.init();
   }
 
   public void endFn() {
-    machine.end();
+    eventManager.end();
   }
-
 }

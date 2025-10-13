@@ -16,15 +16,16 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.modules;
+package com.fpetrola.oozx.fuse.startup;
 
-import com.fpetrola.oozx.fuse.AbstractStartupModule;
+import com.fpetrola.oozx.fuse.modules.Joystick;
 
-public class EventManagerStartupModule extends AbstractStartupModule {
-  private final EventManager eventManager;
+public class JoystickStartupModule extends AbstractStartupModule {
+  private Joystick joystick;
 
-  public EventManagerStartupModule(EventManager eventManager) {
-    this.eventManager = eventManager;
+  public JoystickStartupModule(Joystick joystick) {
+    super(LibspectrumStartupModule.class);
+    this.joystick = joystick;
   }
 
   public Object getInitContext() {
@@ -32,10 +33,11 @@ public class EventManagerStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return eventManager.init();
+    return joystick.init();
   }
 
   public void endFn() {
-    eventManager.end();
+    joystick.end();
   }
+
 }

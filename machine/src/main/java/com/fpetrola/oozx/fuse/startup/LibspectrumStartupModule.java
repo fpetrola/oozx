@@ -16,16 +16,11 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.modules;
+package com.fpetrola.oozx.fuse.startup;
 
-import com.fpetrola.oozx.fuse.AbstractStartupModule;
-
-public class JoystickStartupModule extends AbstractStartupModule {
-  private Joystick joystick;
-
-  public JoystickStartupModule(Joystick joystick) {
-    super(LibspectrumStartupModule.class);
-    this.joystick = joystick;
+public class LibspectrumStartupModule extends AbstractStartupModule {
+  public LibspectrumStartupModule() {
+    super(DisplayStartupModule.class);
   }
 
   public Object getInitContext() {
@@ -33,11 +28,17 @@ public class JoystickStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return joystick.init();
+    //        if (Libspectrum.checkVersion(LIBSPECTRUM_MIN_VERSION)) {
+//            if (Libspectrum.init() != 0) return 1;
+//        } else {
+//            Ui.error(UiError.ERROR, "libspectrum version %s found, but %s required",
+//                    Libspectrum.version(), LIBSPECTRUM_MIN_VERSION);
+//            return 1;
+//        }
+    return 0;
   }
 
   public void endFn() {
-    joystick.end();
   }
 
 }

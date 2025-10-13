@@ -16,16 +16,16 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.modules;
+package com.fpetrola.oozx.fuse.startup;
 
-import com.fpetrola.oozx.fuse.AbstractStartupModule;
+import com.fpetrola.oozx.fuse.modules.Display;
 
-public class KeyboardStartupModule extends AbstractStartupModule {
-  private Keyboard keyboard;
+public class DisplayStartupModule extends AbstractStartupModule {
+  private Display display;
 
-  public KeyboardStartupModule(Keyboard keyboard) {
-    super(LibspectrumStartupModule.class);
-    this.keyboard = keyboard;
+  public DisplayStartupModule(Display display) {
+    super();
+    this.display = display;
   }
 
   public Object getInitContext() {
@@ -33,11 +33,10 @@ public class KeyboardStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return keyboard.init(initContext);
+    return display.init(initContext);
   }
 
   public void endFn() {
-    keyboard.end();
   }
 
 }

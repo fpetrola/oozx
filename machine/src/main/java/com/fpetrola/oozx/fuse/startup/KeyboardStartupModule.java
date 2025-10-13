@@ -16,21 +16,28 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.startup;
 
-import com.fpetrola.oozx.StartupModule;
+import com.fpetrola.oozx.fuse.modules.Keyboard;
 
-import java.util.ArrayList;
-import java.util.List;
+public class KeyboardStartupModule extends AbstractStartupModule {
+  private Keyboard keyboard;
 
-public abstract class AbstractStartupModule implements StartupModule {
-  protected List<Object> dependencies;
-
-  public AbstractStartupModule(Object... modules) {
-    dependencies = new ArrayList<>(List.of(modules));
+  public KeyboardStartupModule(Keyboard keyboard) {
+    super(LibspectrumStartupModule.class);
+    this.keyboard = keyboard;
   }
 
-  public List<?> getDependencies() {
-    return dependencies;
+  public Object getInitContext() {
+    return null;
   }
+
+  public int initFn(Object initContext) {
+    return keyboard.init(initContext);
+  }
+
+  public void endFn() {
+    keyboard.end();
+  }
+
 }

@@ -16,7 +16,10 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.startup;
+
+import com.fpetrola.oozx.Ui;
+import com.fpetrola.oozx.UiError;
 
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -16,25 +16,21 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.modules;
+package com.fpetrola.oozx.fuse.startup;
 
 import com.fpetrola.oozx.*;
-import com.fpetrola.oozx.fuse.AbstractStartupModule;
-import com.fpetrola.oozx.fuse.machine.Spec128;
-import com.fpetrola.oozx.fuse.machine.SpecPlus3;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
+import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 
-public class MachinesPeriphStartupModule extends AbstractStartupModule {
+import java.util.Arrays;
+
+public class MachineStartupModule extends AbstractStartupModule {
   private Machine machine;
-  private Spec128 spec128;
-  private SpecPlus3 specPlus3;
-  private Periph periph;
+  private SpectrumMachine[] spectrumMachines;
 
-  public MachinesPeriphStartupModule(Machine machine, Spec128 spec128, SpecPlus3 specPlus3, Periph periph) {
+  public MachineStartupModule(Machine machine, SpectrumMachine... spectrumMachines) {
+    super(MemoryStartupModule.class);
     this.machine = machine;
-    this.spec128 = spec128;
-    this.specPlus3 = specPlus3;
-    this.periph = periph;
+    this.spectrumMachines = spectrumMachines;
   }
 
   public Object getInitContext() {
@@ -42,15 +38,12 @@ public class MachinesPeriphStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    periph.register(new Spec128MemoryPeripheral(spec128));
-    periph.register(new SpecPlus3MemoryPeripheral(spec128, specPlus3));
-    periph.register(new Upd765Peripheral(specPlus3));
-    periph.register(new SeMemoryPeripheral(machine));
+    Arrays.stream(spectrumMachines).forEach(machine::addMachine);
     return 0;
   }
 
   public void endFn() {
-
+    machine.end();
   }
 
 }

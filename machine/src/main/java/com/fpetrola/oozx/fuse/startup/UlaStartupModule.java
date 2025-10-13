@@ -16,13 +16,18 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.modules;
+package com.fpetrola.oozx.fuse.startup;
 
-import com.fpetrola.oozx.fuse.AbstractStartupModule;
+import com.fpetrola.oozx.Ula;
+import com.fpetrola.oozx.fuse.peripherals.Periph;
 
-public class LibspectrumStartupModule extends AbstractStartupModule {
-  public LibspectrumStartupModule() {
-    super(DisplayStartupModule.class);
+public class UlaStartupModule extends AbstractStartupModule {
+  private Ula ula;
+  private Periph periph;
+
+  public UlaStartupModule(Ula ula, Periph periph) {
+    this.ula = ula;
+    this.periph = periph;
   }
 
   public Object getInitContext() {
@@ -30,17 +35,9 @@ public class LibspectrumStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    //        if (Libspectrum.checkVersion(LIBSPECTRUM_MIN_VERSION)) {
-//            if (Libspectrum.init() != 0) return 1;
-//        } else {
-//            Ui.error(UiError.ERROR, "libspectrum version %s found, but %s required",
-//                    Libspectrum.version(), LIBSPECTRUM_MIN_VERSION);
-//            return 1;
-//        }
-    return 0;
+    return ula.init(initContext, periph);
   }
 
   public void endFn() {
   }
-
 }

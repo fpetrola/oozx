@@ -16,25 +16,27 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.startup;
 
-import java.util.List;
+import com.fpetrola.oozx.Spectrum;
 
-public interface StartupModule {
-  List<?> getDependencies();
+public class SpectrumStartupModule extends AbstractStartupModule {
+  private Spectrum spectrum;
 
-  Object getInitContext();
-
-  int initFn(Object initContext);
-
-  void endFn();
-
-  default void removeDependency(StartupModule module) {
-    getDependencies().removeIf(d -> d.equals(module.getClass()));
+  public SpectrumStartupModule(Spectrum spectrum) {
+    super(EventManagerStartupModule.class);
+    this.spectrum = spectrum;
   }
 
-  default Object getId() {
-    return getClass();
+  public Object getInitContext() {
+    return null;
+  }
+
+  public int initFn(Object initContext) {
+    return spectrum.spectrumInit(initContext);
+  }
+
+  public void endFn() {
   }
 
 }

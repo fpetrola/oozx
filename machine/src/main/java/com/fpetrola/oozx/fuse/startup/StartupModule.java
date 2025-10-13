@@ -16,27 +16,25 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.modules;
+package com.fpetrola.oozx.fuse.startup;
 
-import com.fpetrola.oozx.fuse.AbstractStartupModule;
+import java.util.List;
 
-public class DisplayStartupModule extends AbstractStartupModule {
-  private Display display;
+public interface StartupModule {
+  List<?> getDependencies();
 
-  public DisplayStartupModule(Display display) {
-    super();
-    this.display = display;
+  Object getInitContext();
+
+  int initFn(Object initContext);
+
+  void endFn();
+
+  default void removeDependency(StartupModule module) {
+    getDependencies().removeIf(d -> d.equals(module.getClass()));
   }
 
-  public Object getInitContext() {
-    return null;
-  }
-
-  public int initFn(Object initContext) {
-    return display.init(initContext);
-  }
-
-  public void endFn() {
+  default Object getId() {
+    return getClass();
   }
 
 }

@@ -16,28 +16,19 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.modules;
+package com.fpetrola.oozx.fuse.startup;
 
-import com.fpetrola.oozx.Spectrum;
-import com.fpetrola.oozx.fuse.AbstractStartupModule;
+import java.util.ArrayList;
+import java.util.List;
 
-public class SpectrumStartupModule extends AbstractStartupModule {
-  private Spectrum spectrum;
+public abstract class AbstractStartupModule implements StartupModule {
+  protected List<Object> dependencies;
 
-  public SpectrumStartupModule(Spectrum spectrum) {
-    super(EventManagerStartupModule.class);
-    this.spectrum = spectrum;
+  public AbstractStartupModule(Object... modules) {
+    dependencies = new ArrayList<>(List.of(modules));
   }
 
-  public Object getInitContext() {
-    return null;
+  public List<?> getDependencies() {
+    return dependencies;
   }
-
-  public int initFn(Object initContext) {
-    return spectrum.spectrumInit(initContext);
-  }
-
-  public void endFn() {
-  }
-
 }
