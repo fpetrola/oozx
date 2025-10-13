@@ -112,7 +112,7 @@ public class Spec48 extends FuseMachineInfo implements SpectrumMachine {
     return spectrum.spectrumUnattachedPort();
   }
 
-  public Timings.MachineTimings getBaseTiming() {
-    return new Timings.MachineTimings(3500000, 0, Timings.FERRANTI_5C_6C);
+  public TimingsHandler.Timings getBaseTiming() {
+    return new TimingsHandler.Timings(3500000, 0, TimingsHandler.FERRANTI_5C_6C);
   }
 }

@@ -381,7 +381,7 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
     return spectrum.spectrumUnattachedPortNone();
   }
 
-  public Timings.MachineTimings getBaseTiming() {
-    return  new Timings.MachineTimings(3546900, 1773400, Timings.AMSTRAD_ASIC);
+  public TimingsHandler.Timings getBaseTiming() {
+    return  new TimingsHandler.Timings(3546900, 1773400, TimingsHandler.AMSTRAD_ASIC);
   }
 }

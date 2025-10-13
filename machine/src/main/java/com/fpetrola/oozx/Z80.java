@@ -104,7 +104,7 @@ public class Z80 {
 
   public void interrupt() {
     ooz80.getState().tstates = tStatesHolder.getTstates();
-    int i = Timings.interruptLength(machine.get().getBaseTiming());
+    int i = TimingsHandler.interruptLength(machine.get().getBaseTiming());
     if (ooz80.getState().isIff1() && ooz80.getState().tstates < i) {
 //      if (ooz80.getState().tstates == Z80.interruptsEnabledAt) {
 //        EventManager.eventAdd(ooz80.getState().tstates + 1, z80_interrupt_event);

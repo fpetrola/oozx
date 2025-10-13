@@ -18,10 +18,10 @@
 
 package com.fpetrola.oozx;
 
-public class Timings {
+public class TimingsHandler {
 
   static void initMachineTimings(com.fpetrola.oozx.MachineTimings timings, SpectrumMachine machine) {
-    MachineTimings baseTiming = machine.getBaseTiming();
+    Timings baseTiming = machine.getBaseTiming();
 
     timings.processorSpeed = processorSpeed(baseTiming);
     timings.leftBorder = leftBorder(baseTiming);
@@ -124,12 +124,12 @@ public class Timings {
   );
 
   // Structure for machine timings
-  public static class MachineTimings {
+  public static class Timings {
     final long processorSpeed; // Processor speed in Hz
     final long aySpeed; // AY clock speed in Hz
     final FrameTimings frameTimings;
 
-    MachineTimings(long processorSpeed, long aySpeed, FrameTimings frameTimings) {
+    Timings(long processorSpeed, long aySpeed, FrameTimings frameTimings) {
       this.processorSpeed = processorSpeed;
       this.aySpeed = aySpeed;
       this.frameTimings = frameTimings;
@@ -137,91 +137,91 @@ public class Timings {
   }
 
   // Get processor speed for a machine
-  public static long processorSpeed(MachineTimings baseTiming) {
+  public static long processorSpeed(Timings baseTiming) {
     return baseTiming.processorSpeed;
   }
 
   // Get AY clock speed for a machine
-  public static long aySpeed(MachineTimings baseTiming) {
+  public static long aySpeed(Timings baseTiming) {
     return baseTiming.aySpeed;
   }
 
   // Get left border t-states
-  public static int leftBorder(MachineTimings baseTiming) {
+  public static int leftBorder(Timings baseTiming) {
     FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.leftBorder : 0;
   }
 
   // Get horizontal screen t-states
-  public static int horizontalScreen(MachineTimings baseTiming) {
+  public static int horizontalScreen(Timings baseTiming) {
     FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.horizontalScreen : 0;
   }
 
   // Get right border t-states
-  public static int rightBorder(MachineTimings baseTiming) {
+  public static int rightBorder(Timings baseTiming) {
     FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.rightBorder : 0;
   }
 
   // Get horizontal retrace t-states
-  public static int horizontalRetrace(MachineTimings baseTiming) {
+  public static int horizontalRetrace(Timings baseTiming) {
     FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.horizontalRetrace : 0;
   }
 
   // Get top border lines
-  public static int topBorder(MachineTimings baseTiming) {
+  public static int topBorder(Timings baseTiming) {
     FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.topBorder : 0;
   }
 
   // Get vertical screen lines
-  public static int verticalScreen(MachineTimings baseTiming) {
+  public static int verticalScreen(Timings baseTiming) {
     FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.verticalScreen : 0;
   }
 
   // Get bottom border lines
-  public static int bottomBorder(MachineTimings baseTiming) {
+  public static int bottomBorder(Timings baseTiming) {
     FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.bottomBorder : 0;
   }
 
   // Get vertical retrace lines
-  public static int verticalRetrace(MachineTimings baseTiming) {
+  public static int verticalRetrace(Timings baseTiming) {
     FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.verticalRetrace : 0;
   }
 
   // Get interrupt length in t-states
-  public static int interruptLength(MachineTimings baseTiming) {
+  public static int interruptLength(Timings baseTiming) {
     FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.interruptLength : 0;
   }
 
   // Get t-states from interrupt to top-left pixel
-  public static int topLeftPixel(MachineTimings baseTiming) {
+  public static int topLeftPixel(Timings baseTiming) {
     FrameTimings f = baseTiming.frameTimings;
     return f != null ? (int) f.topLeftPixel : 0;
   }
 
   // Get t-states per line
-  public static int tstatesPerLine(MachineTimings baseTiming) {
+  public static int tstatesPerLine(Timings baseTiming) {
     FrameTimings f = baseTiming.frameTimings;
     if (f == null) return 0;
     return f.leftBorder + f.horizontalScreen + f.rightBorder + f.horizontalRetrace;
   }
 
   // Get lines per frame
-  public static int linesPerFrame(MachineTimings baseTiming) {
+  public static int linesPerFrame(Timings baseTiming) {
     FrameTimings f = baseTiming.frameTimings;
     if (f == null) return 0;
     return f.topBorder + f.verticalScreen + f.bottomBorder + f.verticalRetrace;
   }
 
   // Get t-states per frame
-  public static long tstatesPerFrame(MachineTimings baseTiming) {
+  public static long tstatesPerFrame(Timings baseTiming) {
     FrameTimings f = baseTiming.frameTimings;
     if (f == null) return 0;
     return (long) tstatesPerLine(baseTiming) * linesPerFrame(baseTiming);

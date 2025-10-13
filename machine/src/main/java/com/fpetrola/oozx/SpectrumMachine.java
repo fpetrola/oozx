@@ -19,7 +19,7 @@
 package com.fpetrola.oozx;
 
 public interface SpectrumMachine extends IFuseMachineInfo {
-  Timings.MachineTimings getBaseTiming();
+  TimingsHandler.Timings getBaseTiming();
 
   SpectrumMachine init();
 
