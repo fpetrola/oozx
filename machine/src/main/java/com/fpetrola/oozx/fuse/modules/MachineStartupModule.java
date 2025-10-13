@@ -37,7 +37,7 @@ public class MachineStartupModule extends AbstractStartupModule {
 
   public int initFn(Object initContext) {
     for (SpectrumMachine s : spectrumMachines) {
-      machine.addMachine(s::init);
+      machine.addMachine(s);
     }
     return 0;
   }

@@ -40,6 +40,7 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
     this.spectrum = spectrum;
     this.spec48 = spec48;
     this.periph = periph;
+    init();
   }
 //  public  Fdd[] specplus3Drives = new Fdd[SpecPlus3Constants.SPECPLUS3_NUM_DRIVES];
 
@@ -82,11 +83,10 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
 
   // Initialize the Spectrum +3 machine
   public SpectrumMachine init() {
-    setMachine(Libspectrum.Machine.PLUS3);
-    setId("plus3");
-
-    setTimex(false);
-    setRamInfo(new SpecPlus3RamInfo(8));
+    this.machine = Libspectrum.Machine.PLUS3;
+    this.id = "plus3";
+    this.timex = false;
+    this.ramInfo = new SpecPlus3RamInfo(8);
 
     specplus3765Init();
     specplus3MenuItems();

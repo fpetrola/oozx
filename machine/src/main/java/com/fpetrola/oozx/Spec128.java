@@ -37,15 +37,15 @@ public class Spec128 extends FuseMachineInfo implements SpectrumMachine {
     this.spectrum = spectrum;
     this.spec48 = spec48;
     this.periph = periph;
+    init();
   }
 
   // Initialize the Spectrum 128K machine
   public SpectrumMachine init() {
-    setMachine(Libspectrum.Machine._128K);
-    setId("128");
-
-    setTimex(false);
-    setRamInfo(new Spec48RamInfo(spec48, 8));
+    this.machine = Libspectrum.Machine._128K;
+    this.id = "128";
+    this.timex = false;
+    this.ramInfo = new Spec48RamInfo(spec48, 8);
 
     return this;
   }

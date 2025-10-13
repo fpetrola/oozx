@@ -21,12 +21,12 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.modules.Display;
 
 public class FuseMachineInfo implements IFuseMachineInfo {
-  private RamInfo ramInfo;
-  private Libspectrum.Machine machine = Libspectrum.Machine._48K; // libspectrum_machine
-  private String id; // Used to select from command line
+  protected RamInfo ramInfo;
+  protected Libspectrum.Machine machine = Libspectrum.Machine._48K; // libspectrum_machine
+  protected String id; // Used to select from command line
   private int capabilities; // Capabilities of this machine
   private Runnable reset; // Reset function
-  private boolean timex; // Timex machine (keyboard emulation/loading sounds etc.)
+  protected boolean timex; // Timex machine (keyboard emulation/loading sounds etc.)
   private MachineTimings timings = new MachineTimings(); // How long do things take to happen?
   private long[] lineTimes; // Redraw line y this many tstates after interrupt
   private Runnable shutdown; // Shutdown function
@@ -36,16 +36,9 @@ public class FuseMachineInfo implements IFuseMachineInfo {
     lineTimes = new long[display.SCREEN_HEIGHT + 1];
   }
 
-  private FuseMachineInfo  fuseMachineInfo= this;
-
   @Override
   public RamInfo getRamInfo() {
     return ramInfo;
-  }
-
-  @Override
-  public void setRamInfo(RamInfo ramInfo) {
-    this.ramInfo = ramInfo;
   }
 
   @Override
@@ -54,18 +47,8 @@ public class FuseMachineInfo implements IFuseMachineInfo {
   }
 
   @Override
-  public void setMachine(Libspectrum.Machine machine) {
-    this.machine = machine;
-  }
-
-  @Override
   public String getId() {
     return id;
-  }
-
-  @Override
-  public void setId(String id) {
-    this.id = id;
   }
 
   @Override
@@ -81,11 +64,6 @@ public class FuseMachineInfo implements IFuseMachineInfo {
   @Override
   public boolean isTimex() {
     return timex;
-  }
-
-  @Override
-  public void setTimex(boolean timex) {
-    this.timex = timex;
   }
 
   @Override

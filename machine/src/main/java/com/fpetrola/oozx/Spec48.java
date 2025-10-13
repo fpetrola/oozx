@@ -37,6 +37,7 @@ public class Spec48 extends FuseMachineInfo implements SpectrumMachine {
     this.machinesPeriph = machinesPeriph;
     this.spectrum = spectrum;
     this.periph = periph;
+    init();
   }
 
   // Check if a port is handled by the ULA
@@ -48,12 +49,10 @@ public class Spec48 extends FuseMachineInfo implements SpectrumMachine {
   // Initialize the Spectrum 48K fuseMachineInfo
   @Override
   public SpectrumMachine init() {
-    setMachine(Libspectrum.Machine._48K);
-    setId("48");
-
-    setTimex(false);
-
-    setRamInfo(new Spec48RamInfo(this, 3));
+    this.machine = Libspectrum.Machine._48K;
+    this.id = "48";
+    this.timex = false;
+    this.ramInfo = new Spec48RamInfo(this, 3);
 
     return this;
   }

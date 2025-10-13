@@ -20,12 +20,10 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
-import ppg.spec.Spec;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class Machine {
   private EventManager eventManager;
@@ -58,16 +56,14 @@ public class Machine {
 //        Machine::initMachines, null, Machine::end);
 //  }
 
-  public int addMachine(Supplier<SpectrumMachine> initFunction) {
-    SpectrumMachine machine = initFunction.get();
+  public int addMachine(SpectrumMachine spectrumMachine) {
+    machineTypes.add(spectrumMachine);
 
-    machineTypes.add(machine);
-
-    setConstTimings(machine);
+    setConstTimings(spectrumMachine);
 //    machine.timings.tstatesPerFrame = 69888;
 //    machine.timings.tstatesPerLine= 224;
 
-    machine.setCapabilities(Libspectrum.machineCapabilities(machine.getMachine()));
+    spectrumMachine.setCapabilities(Libspectrum.machineCapabilities(spectrumMachine.getMachine()));
 
     return 0;
   }
