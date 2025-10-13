@@ -21,22 +21,18 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
-import java.util.function.Supplier;
-
 public class Spec128 extends FuseMachineInfo implements SpectrumMachine {
   private Memory memory;
   private Display display;
-  private Supplier<FuseMachineInfo> machine;
   private MachinesPeriph machinesPeriph;
   private Spectrum spectrum;
   private Spec48 spec48;
   private Periph periph;
 
-  public Spec128(Memory memory, Display display, Supplier<FuseMachineInfo> machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, Periph periph) {
+  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, Periph periph) {
     super(display);
     this.memory = memory;
     this.display = display;
-    this.machine = machine;
     this.machinesPeriph = machinesPeriph;
     this.spectrum = spectrum;
     this.spec48 = spec48;
@@ -45,18 +41,18 @@ public class Spec128 extends FuseMachineInfo implements SpectrumMachine {
 
   // Initialize the Spectrum 128K machine
   public FuseMachineInfo init() {
-    fuseMachineInfo.machine = Libspectrum.Machine._128K;
-    fuseMachineInfo.id = "128";
+    machine = Libspectrum.Machine._128K;
+    id = "128";
 
-    fuseMachineInfo.reset = this::reset;
-    fuseMachineInfo.timex = false;
-    fuseMachineInfo.ramInfo.portFromUla = spec48::portFromUla;
-    fuseMachineInfo.ramInfo.contendDelay = spectrum::contendDelay65432100;
-    fuseMachineInfo.ramInfo.contendDelayNoMreq = spectrum::contendDelay65432100;
-    fuseMachineInfo.ramInfo.validPages = 8;
-    fuseMachineInfo.unattachedPort = spectrum::spectrumUnattachedPort;
-    fuseMachineInfo.shutdown = null;
-    fuseMachineInfo.memoryMap = this::memoryMap;
+    reset = this::reset;
+    timex = false;
+    ramInfo.portFromUla = spec48::portFromUla;
+    ramInfo.contendDelay = spectrum::contendDelay65432100;
+    ramInfo.contendDelayNoMreq = spectrum::contendDelay65432100;
+    ramInfo.validPages = 8;
+    unattachedPort = spectrum::spectrumUnattachedPort;
+    shutdown = null;
+    memoryMap = this::memoryMap;
 
     return this;
   }
@@ -85,13 +81,11 @@ public class Spec128 extends FuseMachineInfo implements SpectrumMachine {
 
   // Common reset for Spectrum 128K
   private int commonReset(boolean contention) {
-    FuseMachineInfo machineCurrent = machine.get();
+    ramInfo.locked = false;
+    ramInfo.lastByte = 0;
 
-    machineCurrent.ramInfo.locked = false;
-    machineCurrent.ramInfo.lastByte = 0;
-
-    machineCurrent.ramInfo.currentPage = 0;
-    machineCurrent.ramInfo.currentRom = 0;
+    ramInfo.currentPage = 0;
+    ramInfo.currentRom = 0;
 
     memory.currentScreen = 5;
     memory.screenMask = 0xffff;
@@ -115,36 +109,31 @@ public class Spec128 extends FuseMachineInfo implements SpectrumMachine {
 
   // Write to the 128K memory port (0x7FFD)
   public void memoryPortWrite(int port, byte b) {
-    FuseMachineInfo machineCurrent = machine.get();
+    if (ramInfo.locked) return;
 
-    if (machineCurrent.ramInfo.locked) return;
-
-    machineCurrent.ramInfo.lastByte = b;
+    ramInfo.lastByte = b;
 
     memoryMap();
 
-    machineCurrent.ramInfo.locked = (b & 0x20) != 0;
+    ramInfo.locked = (b & 0x20) != 0;
   }
 
   // Select ROM for 128K
   private void selectRom(int rom) {
     memory.map16k(0x0000, memory.mapRom, rom);
-    FuseMachineInfo machineCurrent = machine.get();
-    machineCurrent.ramInfo.currentRom = rom;
+    ramInfo.currentRom = rom;
   }
 
   // Select RAM page for 128K
   private void selectPage(int page) {
     memory.map16k(0xc000, memory.mapRam, page);
-    FuseMachineInfo machineCurrent = machine.get();
-    machineCurrent.ramInfo.currentPage = page;
+    ramInfo.currentPage = page;
   }
 
   // Map memory for Spectrum 128K
   @Override
   public void memoryMap() {
-    FuseMachineInfo machineCurrent = machine.get();
-    byte lastByte = machineCurrent.ramInfo.lastByte;
+    byte lastByte = ramInfo.lastByte;
 
     int page = lastByte & 0x07;
     int screen = (lastByte & 0x08) != 0 ? 7 : 5;
