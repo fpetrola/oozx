@@ -28,14 +28,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class Fuse {
-
-  // A flag to say when we want to exit the emulator
-  public static boolean exiting;
-
-  // Is Spectrum emulation currently paused, and if so, how many times?
-  public static int emulationPaused;
-
-  // The creator information we'll store in file formats that support this
   public static Supplier<FuseMachineInfo> fuseMachineInfoSupplier = () -> Machine.current;
   public static TStatesHolder tStatesHolder = new TStatesHolder() {
     private long tstates;
@@ -55,10 +47,6 @@ public class Fuse {
     public byte[][] getRAM() {
       return RAM;
     }
-
-    public void setRAM(byte[][] RAM) {
-
-    }
   };
   public static Memory memory = new Memory(fuseMachineInfoSupplier, tStatesHolder);
   private static UiDisplay uiDisplay = new UiDisplay(tStatesHolder);
@@ -76,32 +64,6 @@ public class Fuse {
   public static Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum, periph);
   public static Spec128 spec128 = new Spec128(memory, display, fuseMachineInfoSupplier, machinesPeriph, spectrum, spec48, periph);
   public static SpecPlus3 specPlus3 = new SpecPlus3(memory, display, machine, machinesPeriph, spectrum, spec48, periph);
-
-  // The various types of file we may want to run on startup
-  static class StartFiles {
-    String diskPlus3;
-    String diskOpus;
-    String diskPlusd;
-    String diskBeta;
-    String diskDidaktik80;
-    String diskDisciple;
-    String dock;
-    String if2;
-    String playback;
-    String recording;
-    String snapshot;
-    String tape;
-    String simpleideMaster;
-    String simpleideSlave;
-    String zxataspMaster;
-    String zxataspSlave;
-    String zxcf;
-    String divideMaster;
-    String divideSlave;
-    String divmmc;
-    String zxmmc;
-    String[] mdr = new String[8];
-  }
 
   private static int runStartupManager() {
     StartupManager.init();
@@ -123,83 +85,15 @@ public class Fuse {
     return StartupManager.run();
   }
 
-  private static void extracted(StartupModule e, List<StartupModule> moduleList) {
-    moduleList.add(e);
-  }
-
   public static int fuseInit() {
-    int error;
-    StartFiles startFiles = new StartFiles();
-
-    if (runStartupManager() != 0) return 1;
-
-    error = machine.selectId("48");
-    if (error != 0) return error;
-
-    if (setupStartFiles(startFiles) != 0) return 1;
-
-    emulationPaused = 0;
-    Movie.init();
-
-    return 0;
-  }
-
-  private static int parseNonoptionArgs(String[] args, int firstArg, StartFiles startFiles) {
-    return 0;
-  }
-
-  private static int setupStartFiles(StartFiles startFiles) {
-    startFiles.diskPlus3 = Settings.current.plus3diskFile;
-    startFiles.diskOpus = Settings.current.opusdiskFile;
-    startFiles.diskPlusd = Settings.current.plusddiskFile;
-    startFiles.diskDidaktik80 = Settings.current.didaktik80diskFile;
-    startFiles.diskDisciple = Settings.current.disciplediskFile;
-    startFiles.diskBeta = Settings.current.betadiskFile;
-    startFiles.dock = Settings.current.dckFile;
-    startFiles.if2 = Settings.current.if2File;
-    startFiles.playback = Settings.current.playbackFile;
-    startFiles.recording = Settings.current.recordFile;
-    startFiles.snapshot = Settings.current.snapshot;
-    startFiles.tape = Settings.current.tapeFile;
-
-    startFiles.simpleideMaster = Settings.current.simpleideMasterFile;
-    startFiles.simpleideSlave = Settings.current.simpleideSlaveFile;
-    startFiles.zxataspMaster = Settings.current.zxataspMasterFile;
-    startFiles.zxataspSlave = Settings.current.zxataspSlaveFile;
-    startFiles.zxcf = Settings.current.zxcfPriFile;
-    startFiles.divideMaster = Settings.current.divideMasterFile;
-    startFiles.divideSlave = Settings.current.divideSlaveFile;
-    startFiles.divmmc = Settings.current.divmmcFile;
-    startFiles.zxmmc = Settings.current.zxmmcFile;
-
-    startFiles.mdr[0] = Settings.current.mdrFile;
-    startFiles.mdr[1] = Settings.current.mdrFile2;
-    startFiles.mdr[2] = Settings.current.mdrFile3;
-    startFiles.mdr[3] = Settings.current.mdrFile4;
-    startFiles.mdr[4] = Settings.current.mdrFile5;
-    startFiles.mdr[5] = Settings.current.mdrFile6;
-    startFiles.mdr[6] = Settings.current.mdrFile7;
-    startFiles.mdr[7] = Settings.current.mdrFile8;
-
+    runStartupManager();
+    machine.selectId("48");
     return 0;
   }
 
   public static int fuseEnd() {
-    Movie.stop();
     StartupManager.runEnd();
     periph.end();
-    Ui.end();
-//        UiMedia.driveEnd();
-    Module.end();
-//        Pokemem.end();
-//        Svg.captureEnd();
-    Libspectrum.end();
     return 0;
   }
-
-  public static void fuseAbort() {
-    fuseEnd();
-    System.exit(1);
-  }
-
 }
