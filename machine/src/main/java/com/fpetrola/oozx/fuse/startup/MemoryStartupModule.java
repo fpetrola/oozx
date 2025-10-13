@@ -24,8 +24,6 @@ import com.fpetrola.oozx.fuse.machine.Spec128;
 import com.fpetrola.oozx.fuse.machine.SpecPlus3;
 import com.fpetrola.oozx.fuse.modules.MemoryModuleInfo;
 
-import java.util.ArrayList;
-
 public class MemoryStartupModule extends AbstractStartupModule {
   private final Memory memory;
   private Machine machine;
@@ -44,54 +42,13 @@ public class MemoryStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    memory.memorySources = new ArrayList<>();
-
-    memory.sourceRom = memory.sourceRegister("ROM");
-    memory.sourceRam = memory.sourceRegister("RAM");
-    memory.sourceDock = memory.sourceRegister("Timex Dock");
-    memory.sourceExrom = memory.sourceRegister("Timex EXROM");
-    memory.sourceAny = memory.sourceRegister("Absolute address");
-    memory.sourceNone = memory.sourceRegister("None");
-
-    memory.pool = new ArrayList<>();
-
-    for (int i = 0; i < memory.SPECTRUM_ROM_PAGES; i++) {
-      for (int j = 0; j < memory.PAGES_IN_16K; j++) {
-        MemoryPage page = memory.mapRom[i * memory.PAGES_IN_16K + j] = new MemoryPage();
-        page.writable = false;
-        page.contended = false;
-        page.source = memory.sourceRom;
-      }
-    }
-
-    for (int i = 0; i < memory.SPECTRUM_RAM_PAGES; i++) {
-      for (int j = 0; j < memory.PAGES_IN_16K; j++) {
-        MemoryPage page = memory.mapRam[i * memory.PAGES_IN_16K + j] = new MemoryPage();
-        page.setPage(memory.getRAM(), i, j * memory.PAGE_SIZE);
-        page.pageNum = i;
-        page.offset = j * memory.PAGE_SIZE;
-        page.writable = true;
-        page.source = memory.sourceRam;
-      }
-    }
-
+    int init = memory.init(this);
     Module.register(new MemoryModuleInfo(memory, machine, spec128, specPlus3));
-    return 0;
+    return init;
   }
 
   public void endFn() {
-    if (memory.pool != null) {
-      for (Memory.MemoryPoolEntry entry : memory.pool) {
-        // Java garbage collector handles memory deallocation
-      }
-      memory.pool.clear();
-      memory.pool = null;
-    }
-
-    if (memory.memorySources != null) {
-      memory.memorySources.clear();
-      memory.memorySources = null;
-    }
+    memory.end();
   }
 
 }

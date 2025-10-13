@@ -24,7 +24,9 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.Display;
+import com.fpetrola.oozx.fuse.modules.MemoryModuleInfo;
 import com.fpetrola.oozx.fuse.modules.Ula;
+import com.fpetrola.oozx.fuse.startup.MemoryStartupModule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +70,56 @@ public class Memory extends DefaultRAMHolder {
   public Memory(Supplier<SpectrumMachine> machine, ZxClock zxClock) {
     this.fuseMachineInfoSupplier = machine;
     this.zxClock = zxClock;
+  }
+
+  public int init(Object initContext) {
+    memorySources = new ArrayList<>();
+
+    sourceRom = sourceRegister("ROM");
+    sourceRam = sourceRegister("RAM");
+    sourceDock = sourceRegister("Timex Dock");
+    sourceExrom = sourceRegister("Timex EXROM");
+    sourceAny = sourceRegister("Absolute address");
+    sourceNone = sourceRegister("None");
+
+    pool = new ArrayList<>();
+
+    for (int i = 0; i < SPECTRUM_ROM_PAGES; i++) {
+      for (int j = 0; j < PAGES_IN_16K; j++) {
+        MemoryPage page = mapRom[i * PAGES_IN_16K + j] = new MemoryPage();
+        page.writable = false;
+        page.contended = false;
+        page.source = sourceRom;
+      }
+    }
+
+    for (int i = 0; i < SPECTRUM_RAM_PAGES; i++) {
+      for (int j = 0; j < PAGES_IN_16K; j++) {
+        MemoryPage page = mapRam[i * PAGES_IN_16K + j] = new MemoryPage();
+        page.setPage(getRAM(), i, j * PAGE_SIZE);
+        page.pageNum = i;
+        page.offset = j * PAGE_SIZE;
+        page.writable = true;
+        page.source = sourceRam;
+      }
+    }
+
+    return 0;
+  }
+
+  public void end() {
+    if (pool != null) {
+      for (MemoryPoolEntry entry : pool) {
+        // Java garbage collector handles memory deallocation
+      }
+      pool.clear();
+      pool = null;
+    }
+
+    if (memorySources != null) {
+      memorySources.clear();
+      memorySources = null;
+    }
   }
 
   // Memory pool for allocated memory
