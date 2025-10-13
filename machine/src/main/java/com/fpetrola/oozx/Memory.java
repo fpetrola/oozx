@@ -220,23 +220,6 @@ public class Memory {
       }
 //      tStatesHolder.tstates += 3;
 
-      if (Opus.active && address >= 0x2800 && address < 0x3800) {
-        return Opus.read(address);
-      }
-
-      if (Spectranet.paged) {
-        if (Spectranet.w5100PagedA && address >= 0x1000 && address < 0x2000) {
-          return Spectranet.w5100Read(mapping, address);
-        }
-        if (Spectranet.w5100PagedB && address >= 0x2000 && address < 0x3000) {
-          return Spectranet.w5100Read(mapping, address);
-        }
-      }
-
-      if (Ttx2000s.paged && address >= 0x2000 && address < 0x4000) {
-        return Ttx2000s.sramRead(address);
-      }
-
       return mapping.getPage().get(address & PAGE_SIZE_MASK);
     } else return 0;
   }
@@ -280,26 +263,7 @@ public class Memory {
     int bank = address >>> PAGE_SIZE_LOGARITHM;
     MemoryPage mapping = mapWrite[bank];
 
-    if (Spectranet.paged) {
-      Spectranet.flashRomWrite(address, b);
-      if (Spectranet.w5100PagedA && address >= 0x1000 && address < 0x2000) {
-        Spectranet.w5100Write(mapping, address, b);
-        return;
-      }
-      if (Spectranet.w5100PagedB && address >= 0x2000 && address < 0x3000) {
-        Spectranet.w5100Write(mapping, address, b);
-        return;
-      }
-    }
-
-    if (Ttx2000s.paged && address >= 0x2000 && address < 0x4000) {
-      Ttx2000s.sramWrite(address, b);
-      return;
-    }
-
-    if (Opus.active && address >= 0x2800 && address < 0x3800) {
-      Opus.write(address, b);
-    } else if (mapping.writable || (mapping.source != sourceNone && Settings.current.writableRoms)) {
+    if (mapping.writable || (mapping.source != sourceNone && Settings.current.writableRoms)) {
       int offset = address & PAGE_SIZE_MASK;
       ArrayPointer memory = mapping.getPage();
 
