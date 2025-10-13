@@ -50,10 +50,10 @@ public class Machine {
   public void addMachine(SpectrumMachine spectrumMachine) {
     machineTypes.add(spectrumMachine);
     setConstTimings(spectrumMachine);
-    spectrumMachine.setCapabilities(Libspectrum.machineCapabilities(spectrumMachine.getMachine()));
+    spectrumMachine.setCapabilities(Libspectrum.machineCapabilities(spectrumMachine));
   }
 
-  public int select(int type) {
+  public int select(SpectrumMachine type) {
     int i;
     int error;
 
@@ -63,15 +63,10 @@ public class Machine {
     Movie.stop();
 
     for (i = 0; i < machineTypes.size(); i++) {
-      if (machineTypes.get(i).getMachine().ordinal() == type) {
-        int location = i;
+      if (machineTypes.get(i) == type) {
         error = selectMachine(machineTypes.get(i));
 
         if (error == 0) return 0;
-
-        if (type != Libspectrum.Machine._48K.ordinal()) {
-          error = select(Libspectrum.Machine._48K.ordinal());
-        }
 
         if (error != 0) {
           Ui.error(UiError.ERROR, "can't select 48K machine. Giving up.");
@@ -84,7 +79,7 @@ public class Machine {
       }
     }
 
-    Ui.error(UiError.ERROR, "machine type %d unknown", type);
+    Ui.error(UiError.ERROR, "machine type %d unknown", type.getId());
     return 1;
   }
 
@@ -129,7 +124,7 @@ public class Machine {
 
     if (uiDisplay.end() != 0) return 1;
 
-    capabilities = Libspectrum.machineCapabilities(machine.getMachine());
+    capabilities = Libspectrum.machineCapabilities(machine);
 
     if ((capabilities & Libspectrum.MachineCapability.TIMEX_VIDEO) != 0) {
       width = display.SCREEN_WIDTH;

@@ -137,7 +137,7 @@ public class Libspectrum {
 
   }
 
-  public static int machineCapabilities(Machine machine) {
+  public static int machineCapabilities(SpectrumMachine machine) {
     return 0;
   }
 

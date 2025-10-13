@@ -206,19 +206,13 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_select_machine(String name) {
-    Libspectrum.Machine a = Libspectrum.Machine._48K;
-
-    if (name.equals("48K")) {
-      a = Libspectrum.Machine._48K;
-    } else if (name.equals("128K")) {
-      a = Libspectrum.Machine._128K;
-    } else if (name.equals("PLUS2")) {
-      a = Libspectrum.Machine.PLUS2;
-    } else if (name.equals("+3")) {
-      a = Libspectrum.Machine.PLUS3;
-    }
-
-    machine.select(a.ordinal());
+    SpectrumMachine spectrumMachine = switch (name) {
+      case "48K" -> fuse.spec48;
+      case "128K" -> fuse.spec128;
+      case "+3" -> fuse.specPlus3;
+      default -> fuse.spec48;
+    };
+    machine.select(spectrumMachine);
   }
 
   public void retro_if1_page(boolean in) {

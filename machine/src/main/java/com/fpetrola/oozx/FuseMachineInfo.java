@@ -25,53 +25,42 @@ public class FuseMachineInfo implements IFuseMachineInfo {
   protected Libspectrum.Machine machine = Libspectrum.Machine._48K; // libspectrum_machine
   protected String id; // Used to select from command line
   private int capabilities; // Capabilities of this machine
-  private Runnable reset; // Reset function
   protected boolean timex; // Timex machine (keyboard emulation/loading sounds etc.)
   private MachineTimings timings = new MachineTimings(); // How long do things take to happen?
   private long[] lineTimes; // Redraw line y this many tstates after interrupt
-  private Runnable shutdown; // Shutdown function
-  private Runnable memoryMap; // Memory map function
 
   public FuseMachineInfo(Display display) {
     lineTimes = new long[display.SCREEN_HEIGHT + 1];
   }
 
-  @Override
   public RamInfo getRamInfo() {
     return ramInfo;
   }
 
-  @Override
   public Libspectrum.Machine getMachine() {
     return machine;
   }
 
-  @Override
   public String getId() {
     return id;
   }
 
-  @Override
   public int getCapabilities() {
     return capabilities;
   }
 
-  @Override
   public void setCapabilities(int capabilities) {
     this.capabilities = capabilities;
   }
 
-  @Override
   public boolean isTimex() {
     return timex;
   }
 
-  @Override
   public MachineTimings getTimings() {
     return timings;
   }
 
-  @Override
   public long[] getLineTimes() {
     return lineTimes;
   }
