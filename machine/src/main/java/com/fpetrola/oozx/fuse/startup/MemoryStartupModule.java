@@ -22,6 +22,7 @@ import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.fuse.machine.Spec128;
 import com.fpetrola.oozx.fuse.machine.SpecPlus3;
+import com.fpetrola.oozx.fuse.modules.MemoryModuleInfo;
 
 import java.util.ArrayList;
 

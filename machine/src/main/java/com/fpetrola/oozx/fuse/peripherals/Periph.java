@@ -25,6 +25,7 @@ import com.fpetrola.oozx.fuse.machine.Spec128;
 import com.fpetrola.oozx.fuse.machine.SpecPlus2;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.EventManager;
+import com.fpetrola.oozx.fuse.modules.Ula;
 
 import java.util.ArrayList;
 import java.util.HashMap;

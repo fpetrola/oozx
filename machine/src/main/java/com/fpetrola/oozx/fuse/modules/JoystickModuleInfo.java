@@ -16,26 +16,22 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.modules;
 
-import org.mockito.Mockito;
+import com.fpetrola.oozx.Libspectrum;
 
-public class Z80ModuleInfo extends DefaultZxModuleInfo {
-  private Z80 z80;
+public class JoystickModuleInfo extends DefaultZxModuleInfo {
+  private Joystick joystick;
 
-  public Z80ModuleInfo(Z80 z80) {
-    this.z80 = z80;
+  public JoystickModuleInfo(Joystick joystick) {
+    this.joystick = joystick;
   }
 
-  public void reset(int hardReset) {
-    z80.reset(hardReset);
-  }
-
-  public void snapshotFrom(Libspectrum.Snap snap) {
-    z80.fromSnapshot(snap); // snapshotFrom
+  public void snapshotEnabled(Libspectrum.Snap snap) {
+    joystick.enabledSnapshot(snap); // snapshot_enabled
   }
 
   public void snapshotTo(Libspectrum.Snap snap) {
-    z80.toSnapshot(snap); // snapshotTo
+    joystick.toSnapshot(snap); // snapshot_to
   }
 }

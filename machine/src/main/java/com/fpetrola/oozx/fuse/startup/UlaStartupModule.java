@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx.fuse.startup;
 
-import com.fpetrola.oozx.Ula;
+import com.fpetrola.oozx.fuse.modules.Ula;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class UlaStartupModule extends AbstractStartupModule {

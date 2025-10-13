@@ -16,10 +16,13 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.modules;
+
+import com.fpetrola.oozx.Libspectrum;
 
 public interface ZXModuleInfo {
-  void reset(int hardReset);
+  default void reset(int hardReset) {
+  }
 
   void romcs();
 

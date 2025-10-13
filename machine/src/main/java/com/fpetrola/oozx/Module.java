@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.modules.ZXModuleInfo;
+
 import java.util.LinkedList;
 import java.util.List;
 

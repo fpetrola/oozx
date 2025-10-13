@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx.fuse.ports;
 
-import com.fpetrola.oozx.Ula;
+import com.fpetrola.oozx.fuse.modules.Ula;
 
 public class UlaFullDecodePortHandler extends DefaultPortHandler {
   private Ula ula;

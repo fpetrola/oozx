@@ -16,42 +16,38 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.modules;
 
-public class ZXModuleInfoAdapter implements ZXModuleInfo {
-  private final ModuleInfo module;
+import com.fpetrola.oozx.Libspectrum;
+import com.fpetrola.oozx.Settings;
+import com.fpetrola.oozx.TStatesHolder;
 
-  public ZXModuleInfoAdapter(ModuleInfo module) {
-    this.module = module;
+class UlaZxModuleInfo implements ZXModuleInfo {
+  private Ula ula;
+  private TStatesHolder tStatesHolder;
+
+  UlaZxModuleInfo(Ula ula, TStatesHolder tStatesHolder) {
+    this.ula = ula;
+    this.tStatesHolder = tStatesHolder;
   }
 
-  @Override
-  public void reset(int hardReset) {
-    if (module.reset != null)
-      module.reset.apply(hardReset);
-  }
-
-  @Override
   public void romcs() {
-    if (module.romcs != null)
-      module.romcs.apply();
+
   }
 
-  @Override
   public void snapshotEnabled(Libspectrum.Snap snap) {
-    if (module.snapshotEnabled != null)
-      module.snapshotEnabled.apply(snap);
+
   }
 
-  @Override
   public void snapshotFrom(Libspectrum.Snap snap) {
-    if (module.snapshotFrom != null)
-      module.snapshotFrom.accept(snap);
+    ula.write(0x00fe, Libspectrum.snapOutUla(snap));
+    tStatesHolder.setTstates(Libspectrum.snapTstates(snap));
+    Settings.current.issue2 = Libspectrum.snapIssue2(snap);
   }
 
-  @Override
   public void snapshotTo(Libspectrum.Snap snap) {
-    if (module.snapshotTo != null)
-      module.snapshotTo.accept(snap);
+    Libspectrum.snapSetOutUla(snap, ula.lastByte);
+    Libspectrum.snapSetTstates(snap, tStatesHolder.getTstates());
+    Libspectrum.snapSetIssue2(snap, Settings.current.issue2);
   }
 }

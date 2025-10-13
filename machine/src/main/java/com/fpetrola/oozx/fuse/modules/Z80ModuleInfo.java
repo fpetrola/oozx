@@ -16,38 +16,27 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.modules;
 
-class UlaZxModuleInfo implements ZXModuleInfo {
-  private Ula ula;
-  private TStatesHolder tStatesHolder;
+import com.fpetrola.oozx.Libspectrum;
+import com.fpetrola.oozx.Z80;
 
-  UlaZxModuleInfo(Ula ula, TStatesHolder tStatesHolder) {
-    this.ula = ula;
-    this.tStatesHolder = tStatesHolder;
+public class Z80ModuleInfo extends DefaultZxModuleInfo {
+  private Z80 z80;
+
+  public Z80ModuleInfo(Z80 z80) {
+    this.z80 = z80;
   }
 
   public void reset(int hardReset) {
-
-  }
-
-  public void romcs() {
-
-  }
-
-  public void snapshotEnabled(Libspectrum.Snap snap) {
-
+    z80.reset(hardReset);
   }
 
   public void snapshotFrom(Libspectrum.Snap snap) {
-    ula.write(0x00fe, Libspectrum.snapOutUla(snap));
-    tStatesHolder.setTstates(Libspectrum.snapTstates(snap));
-    Settings.current.issue2 = Libspectrum.snapIssue2(snap);
+    z80.fromSnapshot(snap); // snapshotFrom
   }
 
   public void snapshotTo(Libspectrum.Snap snap) {
-    Libspectrum.snapSetOutUla(snap, ula.lastByte);
-    Libspectrum.snapSetTstates(snap, tStatesHolder.getTstates());
-    Libspectrum.snapSetIssue2(snap, Settings.current.issue2);
+    z80.toSnapshot(snap); // snapshotTo
   }
 }

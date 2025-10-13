@@ -24,6 +24,7 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.Display;
+import com.fpetrola.oozx.fuse.modules.Ula;
 
 import java.util.ArrayList;
 import java.util.List;

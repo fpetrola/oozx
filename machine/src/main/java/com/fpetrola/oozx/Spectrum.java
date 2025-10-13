@@ -21,6 +21,7 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
+import com.fpetrola.oozx.fuse.modules.SpectrumModuleInfo;
 
 import java.util.function.Supplier;
 

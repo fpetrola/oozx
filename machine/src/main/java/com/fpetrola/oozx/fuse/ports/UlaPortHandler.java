@@ -18,8 +18,7 @@
 
 package com.fpetrola.oozx.fuse.ports;
 
-import com.fpetrola.oozx.Ula;
-import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.oozx.fuse.modules.Ula;
 
 public class UlaPortHandler extends DefaultPortHandler {
   private Ula ula;

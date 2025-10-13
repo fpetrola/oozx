@@ -16,8 +16,9 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.modules;
 
+import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.machine.Spec128;
 import com.fpetrola.oozx.fuse.machine.SpecPlus3;
 
