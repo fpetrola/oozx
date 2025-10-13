@@ -20,7 +20,7 @@ package com.fpetrola.oozx.fuse.machine;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.modules.Display;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
+import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 public class SpecPlus2 extends AbstractSpectrumMachine {
   private Machine machine1;
@@ -28,9 +28,9 @@ public class SpecPlus2 extends AbstractSpectrumMachine {
   private Spec48 spec48;
   private Spec128 spec128;
   private Spectrum spectrum;
-  private Periph periph;
+  private IPeriph periph;
 
-  public SpecPlus2(Display display, Machine machine, MachinesPeriph machinesPeriph, Spec48 spec48, Spec128 spec128, Spectrum spectrum, Periph periph) {
+  public SpecPlus2(Display display, Machine machine, MachinesPeriph machinesPeriph, Spec48 spec48, Spec128 spec128, Spectrum spectrum, IPeriph periph) {
     super(display);
     this.machine1 = machine;
     this.machinesPeriph = machinesPeriph;

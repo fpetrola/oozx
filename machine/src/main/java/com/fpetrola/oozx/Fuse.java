@@ -26,6 +26,7 @@ import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.Joystick;
 import com.fpetrola.oozx.fuse.modules.*;
 import com.fpetrola.oozx.fuse.modules.Keyboard;
+import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 import com.fpetrola.oozx.fuse.startup.*;
 
@@ -41,16 +42,17 @@ public class Fuse {
   public Keyboard keyboard = new Keyboard();
   public Ula ula = new Ula(memory, display, spectrumMachineSupplier, keyboard, zxClock);
   public EventManager eventManager = new EventManager(spectrumMachineSupplier, zxClock);
-  public Periph periph = new Periph(ula, spectrumMachineSupplier, zxClock);
-  public Joystick joystick = new Joystick(keyboard, periph);
+  public IPeriph periph = new Periph(spectrumMachineSupplier, zxClock);
+  public IPeriph ulaPeriph = new UlaPeriph(ula, zxClock, periph);
+  public Joystick joystick = new Joystick(keyboard, ulaPeriph);
   public Input input = new Input(joystick, keyboard);
-  public Z80 z80 = new Z80(eventManager, memory, display, ula, spectrumMachineSupplier, keyboard, zxClock, input, periph, uiDisplay);
+  public Z80 z80 = new Z80(eventManager, memory, display, ula, spectrumMachineSupplier, keyboard, zxClock, input, ulaPeriph, uiDisplay);
   public Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, zxClock, memory, spectrumMachineSupplier);
   public Machine machine = new Machine(eventManager, memory, display, ula, zxClock, spectrum, uiDisplay);
-  public MachinesPeriph machinesPeriph = new MachinesPeriph(periph);
-  public Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum, periph);
-  public Spec128 spec128 = new Spec128(memory, display, machinesPeriph, spectrum, spec48, periph);
-  public SpecPlus3 specPlus3 = new SpecPlus3(memory, display, machine, machinesPeriph, spectrum, spec48, periph);
+  public MachinesPeriph machinesPeriph = new MachinesPeriph(ulaPeriph);
+  public Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum, ulaPeriph);
+  public Spec128 spec128 = new Spec128(memory, display, machinesPeriph, spectrum, spec48, ulaPeriph);
+  public SpecPlus3 specPlus3 = new SpecPlus3(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph);
 
   public void fuseInit() {
     StartupManager.init();

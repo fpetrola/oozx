@@ -21,9 +21,9 @@ package com.fpetrola.oozx.fuse.modules;
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.fuse.*;
+import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.KempstonLoosePeriphPeripheral;
 import com.fpetrola.oozx.fuse.peripherals.KempstonStrictPeripheral;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class Joystick {
 
@@ -35,9 +35,9 @@ public class Joystick {
   // Number of joysticks supported
   public int joysticksSupported = 0;
   private Keyboard keyboard;
-  private Periph periph;
+  private IPeriph periph;
 
-  public Joystick(Keyboard keyboard, Periph periph) {
+  public Joystick(Keyboard keyboard, IPeriph periph) {
     this.keyboard = keyboard;
     this.periph = periph;
   }

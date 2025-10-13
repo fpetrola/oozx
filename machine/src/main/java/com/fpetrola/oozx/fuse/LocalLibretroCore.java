@@ -24,7 +24,7 @@ import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.modules.Z80;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
+import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.Memory;
@@ -44,10 +44,10 @@ public class LocalLibretroCore implements LibretroCore {
   private Machine machine;
   private Z80 z80;
   private ZxClock zxClock;
-  private Periph periph;
+  private IPeriph periph;
   private Fuse fuse;
 
-  public LocalLibretroCore(EventManager eventManager, Display display, Machine machine, Z80 z80, ZxClock zxClock, Periph periph, Fuse fuse) {
+  public LocalLibretroCore(EventManager eventManager, Display display, Machine machine, Z80 z80, ZxClock zxClock, IPeriph periph, Fuse fuse) {
     this.eventManager = eventManager;
     this.display = display;
     this.machine = machine;

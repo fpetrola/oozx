@@ -22,7 +22,7 @@ import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
+import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.UlaFullDecodePeripheral;
 import com.fpetrola.oozx.fuse.peripherals.UlaPeripheral;
 
@@ -60,7 +60,7 @@ public class Ula {
   }
 
   // Initialize ULA module
-  public int init(Object context, Periph periph) {
+  public int init(Object context, IPeriph periph) {
     Module.register(new UlaZxModuleInfo(this, zxClock));
     periph.register(new UlaPeripheral(this));
     periph.register(new UlaFullDecodePeripheral(this));

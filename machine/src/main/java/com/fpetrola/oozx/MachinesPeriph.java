@@ -22,9 +22,9 @@ import com.fpetrola.oozx.fuse.peripherals.*;
 
 public class MachinesPeriph {
 
-  private Periph periph;
+  private IPeriph periph;
 
-  public MachinesPeriph(Periph periph) {
+  public MachinesPeriph(IPeriph periph) {
     this.periph = periph;
   }
 

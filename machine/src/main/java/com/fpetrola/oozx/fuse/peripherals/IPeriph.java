@@ -16,28 +16,21 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.startup;
+package com.fpetrola.oozx.fuse.peripherals;
 
-import com.fpetrola.oozx.fuse.modules.Ula;
-import com.fpetrola.oozx.fuse.peripherals.IPeriph;
-
-public class UlaStartupModule extends AbstractStartupModule {
-  private Ula ula;
-  private IPeriph periph;
-
-  public UlaStartupModule(Ula ula, IPeriph periph) {
-    this.ula = ula;
-    this.periph = periph;
-  }
-
-  public Object getInitContext() {
-    return null;
-  }
-
-  public int initFn(Object initContext) {
-    return ula.init(initContext, periph);
-  }
-
-  public void endFn() {
-  }
+public interface IPeriph {
+  void register(ZxPeripheral zxPeripheral);
+  void setPresent(Periph.Type type, Periph.Present present);
+  void setPresent(Class<? extends ZxPeripheral> zxPeripheralClass, Periph.Present present);
+  boolean activateType(Class<? extends ZxPeripheral> type, boolean active);
+  boolean isActive(Periph.Type type);
+  void clear();
+  void end();
+  byte readPort(int port);
+  byte mergeFloatingBus(byte value, byte attached, byte floatingBus);
+  void writePort(int port, byte b);
+  void writePortInternal(int port, byte b);
+  boolean update();
+  void postHook();
+  boolean postCheck();
 }

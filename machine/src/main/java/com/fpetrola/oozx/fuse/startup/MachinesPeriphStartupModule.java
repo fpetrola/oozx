@@ -27,9 +27,9 @@ public class MachinesPeriphStartupModule extends AbstractStartupModule {
   private Machine machine;
   private Spec128 spec128;
   private SpecPlus3 specPlus3;
-  private Periph periph;
+  private IPeriph periph;
 
-  public MachinesPeriphStartupModule(Machine machine, Spec128 spec128, SpecPlus3 specPlus3, Periph periph) {
+  public MachinesPeriphStartupModule(Machine machine, Spec128 spec128, SpecPlus3 specPlus3, IPeriph periph) {
     this.machine = machine;
     this.spec128 = spec128;
     this.specPlus3 = specPlus3;

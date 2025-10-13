@@ -22,7 +22,6 @@ import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.machine.Spec128;
 import com.fpetrola.oozx.fuse.machine.SpecPlus2;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
-import com.fpetrola.oozx.fuse.modules.Ula;
 import com.fpetrola.oozx.fuse.ports.PortHandler;
 
 import java.util.ArrayList;
@@ -31,13 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class Periph {
-  private Ula ula;
+public class Periph implements IPeriph {
   private Supplier<SpectrumMachine> machine;
   private ZxClock zxClock;
 
-  public Periph(Ula ula, Supplier<SpectrumMachine> machine, ZxClock zxClock) {
-    this.ula = ula;
+  public Periph(Supplier<SpectrumMachine> machine, ZxClock zxClock) {
     this.machine = machine;
     this.zxClock = zxClock;
   }
@@ -155,6 +152,7 @@ public class Periph {
 //    register(peripheral1);
 //  }
 
+  @Override
   public void register(ZxPeripheral zxPeripheral) {
     if (peripherals == null) {
       peripherals = new HashMap<>();
@@ -165,11 +163,13 @@ public class Periph {
   }
 
   // Set whether a peripheral can be present on this machine
+  @Override
   public void setPresent(Type type, Present present) {
     Class<? extends ZxPeripheral> zxPeripheralClass = type.getZxPeripheralClass();
     setPresent(zxPeripheralClass, present);
   }
 
+  @Override
   public void setPresent(Class<? extends ZxPeripheral> zxPeripheralClass, Present present) {
     PrivatePeripheral typeData = peripherals.get(zxPeripheralClass);
     if (typeData != null) {
@@ -178,6 +178,7 @@ public class Periph {
   }
 
   // Mark a specific peripheral as (in)active
+  @Override
   public boolean activateType(Class<? extends ZxPeripheral> type, boolean active) {
     PrivatePeripheral privatePeriph = peripherals.get(type);
     if (privatePeriph == null || privatePeriph.active == active) {
@@ -201,12 +202,14 @@ public class Periph {
   }
 
   // Check if a specific peripheral is active
+  @Override
   public boolean isActive(Type type) {
     PrivatePeripheral typeData = peripherals.get(type);
     return typeData != null && typeData.active;
   }
 
   // Empty out the list of peripherals
+  @Override
   public void clear() {
     ports.clear();
     if (peripherals != null) {
@@ -218,6 +221,7 @@ public class Periph {
   }
 
   // Clean up peripherals at the end of emulation
+  @Override
   public void end() {
     ports.clear();
     if (peripherals != null) {
@@ -240,9 +244,8 @@ public class Periph {
   }
 
   // Read a byte from a port, taking the appropriate time
+  @Override
   public byte readPort(int port) {
-    ula.contendPortEarly(port);
-    ula.contendPortLate(port);
     byte b = readPortInternal(port);
 
     // Special case for 128K/+2 machines
@@ -258,7 +261,7 @@ public class Periph {
   }
 
   // Read a byte from a port, taking no time
-  public byte readPortInternal(int port) {
+  private byte readPortInternal(int port) {
     // Handle RZX playback
 
     // Normal port read
@@ -282,19 +285,20 @@ public class Periph {
   }
 
   // Merge the read value with the floating bus
+  @Override
   public byte mergeFloatingBus(byte value, byte attached, byte floatingBus) {
     return (byte) (value & (floatingBus | attached));
   }
 
   // Write a byte to a port, taking the appropriate time
+  @Override
   public void writePort(int port, byte b) {
-    ula.contendPortEarly(port);
     writePortInternal(port, b);
-    ula.contendPortLate(port);
     zxClock.addTstates(1);
   }
 
   // Write a byte to a port, taking no time
+  @Override
   public void writePortInternal(int port, byte b) {
     PeripheralData callbackInfo = new PeripheralData(port, (byte) 0, b);
     for (PrivatePort privatePort : ports) {
@@ -342,10 +346,7 @@ public class Periph {
 //        updateCartridgeMenu();
 //        updateIdeMenu();
 
-  ////        If1.updateMenu();
-  ////        Multiface.statusUpdate();
-  ////        SpecPlus3.updateFdd();
-//    }
+  //    }
 
 //    // Disable optional peripherals
 //    public  void disableOptional() {
@@ -397,6 +398,7 @@ public class Periph {
   }
 
   // Perform post-update hook
+  @Override
   public void postHook() {
     if (update()) {
 //      machine.reset(true);
@@ -404,6 +406,7 @@ public class Periph {
   }
 
   // Check if a hard reset is needed without activating/deactivating
+  @Override
   public boolean postCheck() {
     boolean[] needsHardReset = {false};
 

@@ -75,10 +75,10 @@ public class Z80 {
   private Keyboard keyboard;
   private ZxClock zxClock;
   private Input input;
-  private Periph periph;
+  private IPeriph periph;
   private UiDisplay uiDisplay;
 
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machine, Keyboard keyboard, ZxClock zxClock, Input input, Periph periph, UiDisplay uiDisplay) {
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machine, Keyboard keyboard, ZxClock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
