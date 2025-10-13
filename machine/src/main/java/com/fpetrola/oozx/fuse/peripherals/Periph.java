@@ -286,7 +286,7 @@ public class Periph {
 
     if (callbackInfo.attached != (byte) 0xff) {
       callbackInfo.value = mergeFloatingBus(callbackInfo.value, callbackInfo.attached,
-          (byte) machine.get().getUnattachedPort().apply());
+          (byte) machine.get().unattachedPort());
     }
 
     if (Rzx.recording) {

@@ -88,9 +88,6 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
     setTimex(false);
     setRamInfo(new SpecPlus3RamInfo(8));
 
-//    machine.unattachedPort = Libretro.LIBRETRO ? Spectrum::spectrumUnattachedPortAmstrad : Spectrum::spectrumUnattachedPortNone;
-    setUnattachedPort(spectrum::spectrumUnattachedPortNone);
-
     specplus3765Init();
     specplus3MenuItems();
 
@@ -368,9 +365,9 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
   private class SpecPlus3RamInfo extends RamInfo {
     public SpecPlus3RamInfo(int validPages) {
       this.validPages = validPages;
-      portFromUla= this::portFromUla;
-      contendDelay= this::contendDelay;
-      contendDelayNoMreq= this::contendDelayNoMreq;
+      portFromUla = this::portFromUla;
+      contendDelay = this::contendDelay;
+      contendDelayNoMreq = this::contendDelayNoMreq;
     }
 
     boolean portFromUla(int port) {
@@ -384,5 +381,9 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
     public int contendDelayNoMreq(long time) {
       return spectrum.contendDelayNone(time);
     }
+  }
+
+  public int unattachedPort() {
+    return spectrum.spectrumUnattachedPortNone();
   }
 }

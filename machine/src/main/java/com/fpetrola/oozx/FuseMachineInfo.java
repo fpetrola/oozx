@@ -29,7 +29,6 @@ public class FuseMachineInfo implements IFuseMachineInfo {
   private boolean timex; // Timex machine (keyboard emulation/loading sounds etc.)
   private MachineTimings timings = new MachineTimings(); // How long do things take to happen?
   private long[] lineTimes; // Redraw line y this many tstates after interrupt
-  private UnattachedPortFn unattachedPort; // What to return if we read from a port which isn't attached to anything
   private Runnable shutdown; // Shutdown function
   private Runnable memoryMap; // Memory map function
 
@@ -107,16 +106,6 @@ public class FuseMachineInfo implements IFuseMachineInfo {
   @Override
   public void setLineTimes(long[] lineTimes) {
     this.lineTimes = lineTimes;
-  }
-
-  @Override
-  public UnattachedPortFn getUnattachedPort() {
-    return unattachedPort;
-  }
-
-  @Override
-  public void setUnattachedPort(UnattachedPortFn unattachedPort) {
-    this.unattachedPort = unattachedPort;
   }
 
   @Override

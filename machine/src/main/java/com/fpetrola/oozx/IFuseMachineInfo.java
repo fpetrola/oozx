@@ -47,10 +47,6 @@ public interface IFuseMachineInfo {
 
   void setLineTimes(long[] lineTimes);
 
-  UnattachedPortFn getUnattachedPort();
-
-  void setUnattachedPort(UnattachedPortFn unattachedPort);
-
   Runnable getShutdown();
 
   void setShutdown(Runnable shutdown);

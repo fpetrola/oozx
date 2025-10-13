@@ -55,7 +55,6 @@ public class Spec48 extends FuseMachineInfo implements SpectrumMachine {
 
     setRamInfo(new Spec48RamInfo(this, 3));
 
-    setUnattachedPort(spectrum::spectrumUnattachedPort);
     setShutdown(null);
     setMemoryMap(this::memoryMap);
 
@@ -113,4 +112,7 @@ public class Spec48 extends FuseMachineInfo implements SpectrumMachine {
     memory.romcsMap();
   }
 
+  public int unattachedPort() {
+    return spectrum.spectrumUnattachedPort();
+  }
 }
