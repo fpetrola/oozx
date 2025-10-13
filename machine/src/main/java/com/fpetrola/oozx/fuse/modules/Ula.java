@@ -48,20 +48,20 @@ public class Ula {
   private final Display display;
   private final Supplier<SpectrumMachine> currentMachineSupplier;
   private Keyboard keyboard;
-  private TStatesHolder tStatesHolder;
+  private ZxClock zxClock;
 
 
-  public Ula(Memory memory, Display display, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Keyboard keyboard, TStatesHolder tStatesHolder) {
+  public Ula(Memory memory, Display display, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Keyboard keyboard, ZxClock zxClock) {
     this.memory = memory;
     this.display = display;
     currentMachineSupplier = fuseMachineInfoSupplier;
     this.keyboard = keyboard;
-    this.tStatesHolder = tStatesHolder;
+    this.zxClock = zxClock;
   }
 
   // Initialize ULA module
   public int init(Object context, Periph periph) {
-    Module.register(new UlaZxModuleInfo(this, tStatesHolder));
+    Module.register(new UlaZxModuleInfo(this, zxClock));
     periph.register(new UlaPeripheral(this));
     periph.register(new UlaFullDecodePeripheral(this));
 
@@ -89,7 +89,7 @@ public class Ula {
     lastByte = b;
 
     display.setLoresBorder(b & 0x07);
-    Sound.beeper(tStatesHolder.getTstates(),
+    Sound.beeper(zxClock.getTstates(),
         ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || Tape.microphone ? 1 : 0));
 
     if ((getCurrent().getCapabilities() & PLUS3_MEMORY) != 0) {
@@ -123,32 +123,32 @@ public class Ula {
   public void contendPortEarly(int port) {
 //    System.out.println("port2 "+ port);
     if (memory.mapRead[port >>> memory.PAGE_SIZE_LOGARITHM].contended) {
-      GetTStatesHistory.addTStateUpdate(contentionNoMreq[(int) tStatesHolder.getTstates()], "ula_contend_port_early", (int) tStatesHolder.getTstates());
-      tStatesHolder.setTstates(tStatesHolder.getTstates() + contentionNoMreq[(int) tStatesHolder.getTstates()]);
+      GetTStatesHistory.addTStateUpdate(contentionNoMreq[(int) zxClock.getTstates()], "ula_contend_port_early", (int) zxClock.getTstates());
+      zxClock.addTstates(contentionNoMreq[(int) zxClock.getTstates()]);
     }
-    GetTStatesHistory.addTStateUpdate((byte) 1, "contend_port_early", (int) tStatesHolder.getTstates());
-    tStatesHolder.setTstates(tStatesHolder.getTstates() + 1);
+    GetTStatesHistory.addTStateUpdate((byte) 1, "contend_port_early", (int) zxClock.getTstates());
+    zxClock.addTstates(1);
   }
 
   // Handle contention for port access (late phase)
   public void contendPortLate(int port) {
     if (getCurrent().getRamInfo().portFromUla(port)) {
-      GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) tStatesHolder.getTstates()] + 2), "ula_contend_port_late", (int) tStatesHolder.getTstates());
-      tStatesHolder.setTstates(tStatesHolder.getTstates() + contentionNoMreq[(int) tStatesHolder.getTstates()]);
-      tStatesHolder.setTstates(tStatesHolder.getTstates() + 2);
+      GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) zxClock.getTstates()] + 2), "ula_contend_port_late", (int) zxClock.getTstates());
+      zxClock.addTstates(contentionNoMreq[(int) zxClock.getTstates()]);
+      zxClock.addTstates(2);
     } else {
       if (memory.mapRead[port >>> memory.PAGE_SIZE_LOGARITHM].contended) {
-        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) tStatesHolder.getTstates()] + 1), "ula_contend_port_late", (int) tStatesHolder.getTstates());
-        tStatesHolder.setTstates(tStatesHolder.getTstates() + contentionNoMreq[(int) tStatesHolder.getTstates()]);
-        tStatesHolder.setTstates(tStatesHolder.getTstates() + 1);
-        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) tStatesHolder.getTstates()] + 1), "ula_contend_port_late", (int) tStatesHolder.getTstates());
-        tStatesHolder.setTstates(tStatesHolder.getTstates() + contentionNoMreq[(int) tStatesHolder.getTstates()]);
-        tStatesHolder.setTstates(tStatesHolder.getTstates() + 1);
-        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) tStatesHolder.getTstates()]), "ula_contend_port_late", (int) tStatesHolder.getTstates());
-        tStatesHolder.setTstates(tStatesHolder.getTstates() + contentionNoMreq[(int) tStatesHolder.getTstates()]);
+        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) zxClock.getTstates()] + 1), "ula_contend_port_late", (int) zxClock.getTstates());
+        zxClock.addTstates(contentionNoMreq[(int) zxClock.getTstates()]);
+        zxClock.addTstates(1);
+        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) zxClock.getTstates()] + 1), "ula_contend_port_late", (int) zxClock.getTstates());
+        zxClock.addTstates(contentionNoMreq[(int) zxClock.getTstates()]);
+        zxClock.addTstates(1);
+        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) zxClock.getTstates()]), "ula_contend_port_late", (int) zxClock.getTstates());
+        zxClock.addTstates(contentionNoMreq[(int) zxClock.getTstates()]);
       } else {
-        GetTStatesHistory.addTStateUpdate((byte) 2, "contend_port_late", (int) tStatesHolder.getTstates());
-        tStatesHolder.setTstates(tStatesHolder.getTstates() + 2);
+        GetTStatesHistory.addTStateUpdate((byte) 2, "contend_port_late", (int) zxClock.getTstates());
+        zxClock.addTstates( 2);
       }
     }
   }

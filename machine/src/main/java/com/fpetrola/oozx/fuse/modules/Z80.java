@@ -21,7 +21,7 @@ package com.fpetrola.oozx.fuse.modules;
 import com.fpetrola.oozx.Libspectrum;
 import com.fpetrola.oozx.MemoryPage;
 import com.fpetrola.oozx.Module;
-import com.fpetrola.oozx.TStatesHolder;
+import com.fpetrola.oozx.ZxClock;
 import com.fpetrola.oozx.UiDisplay;
 import com.fpetrola.oozx.fuse.*;
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
@@ -73,19 +73,19 @@ public class Z80 {
   private Ula ula;
   private Supplier<SpectrumMachine> machine;
   private Keyboard keyboard;
-  private TStatesHolder tStatesHolder;
+  private ZxClock zxClock;
   private Input input;
   private Periph periph;
   private UiDisplay uiDisplay;
 
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machine, Keyboard keyboard, TStatesHolder tStatesHolder, Input input, Periph periph, UiDisplay uiDisplay) {
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machine, Keyboard keyboard, ZxClock zxClock, Input input, Periph periph, UiDisplay uiDisplay) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
     this.ula = ula;
     this.machine = machine;
     this.keyboard = keyboard;
-    this.tStatesHolder = tStatesHolder;
+    this.zxClock = zxClock;
     this.input = input;
     this.periph = periph;
     this.uiDisplay = uiDisplay;
@@ -107,7 +107,7 @@ public class Z80 {
   }
 
   public void interrupt() {
-    ooz80.getState().tstates = tStatesHolder.getTstates();
+    ooz80.getState().tstates = zxClock.getTstates();
     int i = TimingsHandler.interruptLength(machine.get().getBaseTiming());
     if (ooz80.getState().isIff1() && ooz80.getState().tstates < i) {
 //      if (ooz80.getState().tstates == Z80.interruptsEnabledAt) {
@@ -120,7 +120,7 @@ public class Z80 {
       ooz80.interruption();
     }
 //    ooz80.getState().tstates = 0;
-    tStatesHolder.setTstates(ooz80.getState().tstates);
+    zxClock.setTstates(ooz80.getState().tstates);
   }
 
   //  private  void reg1() {
@@ -150,16 +150,16 @@ public class Z80 {
     io = new MiniZXIO() {
       public synchronized WordNumber in(WordNumber port) {
 //        short invoke = LocalLibretroCore.retroInputStateT.invoke(port.intValue(), 0, 0, 0);
-        tStatesHolder.setTstates(ooz80.getState().tstates);
+        zxClock.setTstates(ooz80.getState().tstates);
         byte b = periph.readPort(port.intValue());
-        ooz80.getState().tstates = tStatesHolder.getTstates();
+        ooz80.getState().tstates = zxClock.getTstates();
         return createValue(b);
       }
 
       public void out(WordNumber port, WordNumber value) {
-        tStatesHolder.setTstates(ooz80.getState().tstates);
+        zxClock.setTstates(ooz80.getState().tstates);
         periph.writePort(port.intValue(), (byte) value.intValue());
-        ooz80.getState().tstates = tStatesHolder.getTstates();
+        ooz80.getState().tstates = zxClock.getTstates();
       }
     };
     ooz80 = createOOZ80(io);
@@ -200,7 +200,7 @@ public class Z80 {
     Z80Loader.LibSpectrum lib = Z80Loader.LibSpectrum.INSTANCE;
     Z80Loader.libspectrum_snap snap = Z80Loader.getLibspectrumSnap(lib, url);
     state.tstates = lib.libspectrum_snap_tstates(snap);
-    tStatesHolder.setTstates(state.tstates);
+    zxClock.setTstates(state.tstates);
     interruptsEnabledAt = -1;
 
     updateMemory();
@@ -270,13 +270,13 @@ public class Z80 {
 
         processUlaContention(address);
         super.processEvent(address, value, fetching);
-        tStatesHolder.setTstates(state.tstates);
+        zxClock.setTstates(state.tstates);
       }
 
       private void processUlaContention(WordNumber address) {
-        tStatesHolder.setTstates(state.tstates);
+        zxClock.setTstates(state.tstates);
         memory.readByte(address.intValue(), ula);
-        state.tstates = tStatesHolder.getTstates();
+        state.tstates = zxClock.getTstates();
       }
 
       protected void addMc(WordNumber address, int time1) {
@@ -298,16 +298,16 @@ public class Z80 {
 
         int address1 = address.intValue();
         if (true || address1 >= 0x4000 && address1 < 0x5B00) {
-          tStatesHolder.setTstates(state.tstates);
+          zxClock.setTstates(state.tstates);
           memory.writeByteInternal(address1, (byte) (value.intValue() & 0xff), display);
         }
       }
 
       private void processUlaContention(WordNumber address, WordNumber value) {
-        tStatesHolder.setTstates(state.tstates);
+        zxClock.setTstates(state.tstates);
         memory.writeByte(address.intValue(), (byte) (value.intValue() & 0xff), ula);
         ooz80.getState().getMemory().getData()[address.intValue()] = value;
-        state.tstates = tStatesHolder.getTstates();
+        state.tstates = zxClock.getTstates();
       }
     });
   }
@@ -341,15 +341,15 @@ public class Z80 {
   }
 
   public void doOpcodes() {
-    ooz80.getState().tstates = tStatesHolder.getTstates();
-    while (tStatesHolder.getTstates() < eventManager.eventNextEvent) {
+    ooz80.getState().tstates = zxClock.getTstates();
+    while (zxClock.getTstates() < eventManager.eventNextEvent) {
       bridgeCommand.invoke(0, null);
-      ooz80.getState().tstates = tStatesHolder.getTstates();
-      ooz80.getState().tstates2 = tStatesHolder.getTstates();
+      ooz80.getState().tstates = zxClock.getTstates();
+      ooz80.getState().tstates2 = zxClock.getTstates();
 //      System.out.printf("Event processed, tstates: %d\n", tStatesHolder.tstates);
-      phaseProcessor.initialTStates = tStatesHolder.getTstates();
+      phaseProcessor.initialTStates = zxClock.getTstates();
       ooz80.execute();
-      tStatesHolder.setTstates(ooz80.getState().tstates);
+      zxClock.setTstates(ooz80.getState().tstates);
     }
   }
 

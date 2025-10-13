@@ -43,16 +43,16 @@ public class LocalLibretroCore implements LibretroCore {
   private Display display;
   private Machine machine;
   private Z80 z80;
-  private TStatesHolder tStatesHolder;
+  private ZxClock zxClock;
   private Periph periph;
   private Fuse fuse;
 
-  public LocalLibretroCore(EventManager eventManager, Display display, Machine machine, Z80 z80, TStatesHolder tStatesHolder, Periph periph, Fuse fuse) {
+  public LocalLibretroCore(EventManager eventManager, Display display, Machine machine, Z80 z80, ZxClock zxClock, Periph periph, Fuse fuse) {
     this.eventManager = eventManager;
     this.display = display;
     this.machine = machine;
     this.z80 = z80;
-    this.tStatesHolder = tStatesHolder;
+    this.zxClock = zxClock;
     this.periph = periph;
     this.fuse = fuse;
   }
@@ -173,7 +173,7 @@ public class LocalLibretroCore implements LibretroCore {
 
   public void retro_set_register_data(String register, int value) {
     if (register.equals("tstates")) {
-      tStatesHolder.setTstates(value);
+      zxClock.setTstates(value);
       z80.ooz80.getState().tstates = value;
     } else
       getRegister(register).write(createValue(value));
@@ -181,7 +181,7 @@ public class LocalLibretroCore implements LibretroCore {
 
   public int retro_get_register_data(String register) {
     if (register.equals("tstates")) {
-      return (int) tStatesHolder.getTstates();
+      return (int) zxClock.getTstates();
     } else if (register.equals("R")) {
       return getRegister(register).read().intValue();
     } else

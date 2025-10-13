@@ -36,13 +36,13 @@ public class Periph {
   private EventManager eventManager;
   private Ula ula;
   private Supplier<SpectrumMachine> machine;
-  private TStatesHolder tStatesHolder;
+  private ZxClock zxClock;
 
-  public Periph(EventManager eventManager, Ula ula, Supplier<SpectrumMachine> machine, TStatesHolder tStatesHolder) {
+  public Periph(EventManager eventManager, Ula ula, Supplier<SpectrumMachine> machine, ZxClock zxClock) {
     this.eventManager = eventManager;
     this.ula = ula;
     this.machine = machine;
-    this.tStatesHolder = tStatesHolder;
+    this.zxClock = zxClock;
   }
 
   // Enum for peripheral types
@@ -255,7 +255,7 @@ public class Periph {
       writePortInternal(0x7ffd, b);
     }
 
-    tStatesHolder.setTstates(tStatesHolder.getTstates() + 1);
+    zxClock.addTstates(1);
 //        b= -1;
     return b;
   }
@@ -294,7 +294,7 @@ public class Periph {
     ula.contendPortEarly(port);
     writePortInternal(port, b);
     ula.contendPortLate(port);
-    tStatesHolder.setTstates(tStatesHolder.getTstates() + 1);
+    zxClock.addTstates(1);
   }
 
   // Write a byte to a port, taking no time

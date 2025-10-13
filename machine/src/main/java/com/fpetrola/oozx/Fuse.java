@@ -34,7 +34,7 @@ import java.util.function.Supplier;
 
 public class Fuse {
   public Supplier<SpectrumMachine> fuseMachineInfoSupplier = () -> Machine.current;
-  public TStatesHolder tStatesHolder = new TStatesHolder() {
+  public ZxClock zxClock = new ZxClock() {
     private long tstates;
 
     public long getTstates() {
@@ -43,6 +43,11 @@ public class Fuse {
 
     public void setTstates(long tstates) {
       this.tstates = tstates;
+    }
+
+    @Override
+    public void addTstates(long tstatesToAdd) {
+      this.tstates+= tstatesToAdd;
     }
   };
   private RAMHolder ramHolder = new RAMHolder() {
@@ -53,18 +58,18 @@ public class Fuse {
       return RAM;
     }
   };
-  public Memory memory = new Memory(fuseMachineInfoSupplier, tStatesHolder);
-  private UiDisplay uiDisplay = new UiDisplay(tStatesHolder);
-  public Display display = new Display(memory, fuseMachineInfoSupplier, tStatesHolder, ramHolder, uiDisplay);
+  public Memory memory = new Memory(fuseMachineInfoSupplier, zxClock);
+  private UiDisplay uiDisplay = new UiDisplay(zxClock);
+  public Display display = new Display(memory, fuseMachineInfoSupplier, zxClock, ramHolder, uiDisplay);
   public Keyboard keyboard = new Keyboard();
-  public Ula ula = new Ula(memory, display, fuseMachineInfoSupplier, keyboard, tStatesHolder);
-  public EventManager eventManager = new EventManager(fuseMachineInfoSupplier, tStatesHolder);
-  public Periph periph = new Periph(eventManager, ula, fuseMachineInfoSupplier, tStatesHolder);
+  public Ula ula = new Ula(memory, display, fuseMachineInfoSupplier, keyboard, zxClock);
+  public EventManager eventManager = new EventManager(fuseMachineInfoSupplier, zxClock);
+  public Periph periph = new Periph(eventManager, ula, fuseMachineInfoSupplier, zxClock);
   public Joystick joystick = new Joystick(keyboard, periph);
   public Input input = new Input(joystick, keyboard);
-  public Z80 z80 = new Z80(eventManager, memory, display, ula, fuseMachineInfoSupplier, keyboard, tStatesHolder, input, periph, uiDisplay);
-  public Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, tStatesHolder, ramHolder, fuseMachineInfoSupplier);
-  public Machine machine = new Machine(eventManager, memory, display, ula, tStatesHolder, spectrum, uiDisplay);
+  public Z80 z80 = new Z80(eventManager, memory, display, ula, fuseMachineInfoSupplier, keyboard, zxClock, input, periph, uiDisplay);
+  public Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, zxClock, ramHolder, fuseMachineInfoSupplier);
+  public Machine machine = new Machine(eventManager, memory, display, ula, zxClock, spectrum, uiDisplay);
   public MachinesPeriph machinesPeriph = new MachinesPeriph(periph);
   public Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum, periph);
   public Spec128 spec128 = new Spec128(memory, display, machinesPeriph, spectrum, spec48, periph);

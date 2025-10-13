@@ -63,11 +63,11 @@ public class Memory {
   public MemoryPage[] mapRam = new MemoryPage[SPECTRUM_RAM_PAGES * PAGES_IN_16K];
   public MemoryPage[] mapRom = new MemoryPage[SPECTRUM_ROM_PAGES * PAGES_IN_16K];
   private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
-  private TStatesHolder tStatesHolder;
+  private ZxClock zxClock;
 
-  public Memory(Supplier<SpectrumMachine> machine, TStatesHolder tStatesHolder) {
+  public Memory(Supplier<SpectrumMachine> machine, ZxClock zxClock) {
     this.fuseMachineInfoSupplier = machine;
-    this.tStatesHolder = tStatesHolder;
+    this.zxClock = zxClock;
   }
 
   // Memory pool for allocated memory
@@ -212,12 +212,12 @@ public class Memory {
 
     if (mapping != null) {
       if (mapping != null && mapping.contended) {
-        if (tStatesHolder.getTstates() < ula.contention.length) {
-          byte tstates = ula.contention[(int) tStatesHolder.getTstates()];
+        if (zxClock.getTstates() < ula.contention.length) {
+          byte tstates = ula.contention[(int) zxClock.getTstates()];
           if (tstates > 0) {
-            GetTStatesHistory.addTStateUpdate(tstates, "ula readbyte", (int) tStatesHolder.getTstates());
+            GetTStatesHistory.addTStateUpdate(tstates, "ula readbyte", (int) zxClock.getTstates());
           }
-          tStatesHolder.setTstates(tStatesHolder.getTstates() + tstates);
+          zxClock.addTstates(tstates);
         }
       }
 //      tStatesHolder.tstates += 3;
@@ -232,11 +232,11 @@ public class Memory {
     MemoryPage mapping = mapWrite[bank];
 
     if (mapping.contended) {
-      byte tstates = ula.contention[(int) tStatesHolder.getTstates()];
+      byte tstates = ula.contention[(int) zxClock.getTstates()];
       if (tstates > 0) {
-        GetTStatesHistory.addTStateUpdate(tstates, "ula writebyte", (int) tStatesHolder.getTstates());
+        GetTStatesHistory.addTStateUpdate(tstates, "ula writebyte", (int) zxClock.getTstates());
       }
-      tStatesHolder.setTstates(tStatesHolder.getTstates() + tstates);
+      zxClock.addTstates(tstates);
     }
 //      tStatesHolder.tstates += 3;
 

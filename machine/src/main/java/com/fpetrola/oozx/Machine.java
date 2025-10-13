@@ -36,16 +36,16 @@ public class Machine {
 
   public List<SpectrumMachine> machineTypes = new ArrayList<>(); // All available machines
   public static SpectrumMachine current; // The currently selected machine
-  private TStatesHolder tStatesHolder;
+  private ZxClock zxClock;
   private final Spectrum spectrum;
   private UiDisplay uiDisplay;
 
-  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, TStatesHolder tStatesHolder, Spectrum spectrum, UiDisplay uiDisplay) {
+  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, ZxClock zxClock, Spectrum spectrum, UiDisplay uiDisplay) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
     this.ula = ula;
-    this.tStatesHolder = tStatesHolder;
+    this.zxClock = zxClock;
     this.spectrum = spectrum;
     this.uiDisplay = uiDisplay;
   }
@@ -88,7 +88,7 @@ public class Machine {
 
     Settings.setString(Settings.current.startMachine, machine.getClass().getSimpleName());
 
-    tStatesHolder.setTstates(0);
+    zxClock.setTstates(0);
 
     eventManager.reset();
 //        EventManager.eventAdd(0, Timer.event);

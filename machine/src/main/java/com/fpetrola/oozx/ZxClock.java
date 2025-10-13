@@ -18,7 +18,8 @@
 
 package com.fpetrola.oozx;
 
-public interface TStatesHolder {
+public interface ZxClock {
   long getTstates();
   void setTstates(long tstates);
+  void addTstates(long tstatesToAdd);
 }

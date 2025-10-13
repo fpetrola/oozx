@@ -20,15 +20,15 @@ package com.fpetrola.oozx.fuse.modules;
 
 import com.fpetrola.oozx.Libspectrum;
 import com.fpetrola.oozx.Settings;
-import com.fpetrola.oozx.TStatesHolder;
+import com.fpetrola.oozx.ZxClock;
 
 public class UlaZxModuleInfo implements ZXModuleInfo {
   private Ula ula;
-  private TStatesHolder tStatesHolder;
+  private ZxClock zxClock;
 
-  UlaZxModuleInfo(Ula ula, TStatesHolder tStatesHolder) {
+  UlaZxModuleInfo(Ula ula, ZxClock zxClock) {
     this.ula = ula;
-    this.tStatesHolder = tStatesHolder;
+    this.zxClock = zxClock;
   }
 
   public void romcs() {
@@ -41,13 +41,13 @@ public class UlaZxModuleInfo implements ZXModuleInfo {
 
   public void snapshotFrom(Libspectrum.Snap snap) {
     ula.write(0x00fe, Libspectrum.snapOutUla(snap));
-    tStatesHolder.setTstates(Libspectrum.snapTstates(snap));
+    zxClock.setTstates(Libspectrum.snapTstates(snap));
     Settings.current.issue2 = Libspectrum.snapIssue2(snap);
   }
 
   public void snapshotTo(Libspectrum.Snap snap) {
     Libspectrum.snapSetOutUla(snap, ula.lastByte);
-    Libspectrum.snapSetTstates(snap, tStatesHolder.getTstates());
+    Libspectrum.snapSetTstates(snap, zxClock.getTstates());
     Libspectrum.snapSetIssue2(snap, Settings.current.issue2);
   }
 }

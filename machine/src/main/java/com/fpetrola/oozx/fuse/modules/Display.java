@@ -99,14 +99,14 @@ public class Display {
   private int criticalRegionX;
   private int criticalRegionY;
   private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
-  private TStatesHolder tStatesHolder;
+  private ZxClock zxClock;
   private RAMHolder ramHolder;
   private UiDisplay uiDisplay;
 
-  public Display(Memory memory, Supplier<SpectrumMachine> machine, TStatesHolder tStatesHolder, RAMHolder ramHolder, UiDisplay uiDisplay) {
+  public Display(Memory memory, Supplier<SpectrumMachine> machine, ZxClock zxClock, RAMHolder ramHolder, UiDisplay uiDisplay) {
     this.memory = memory;
     this.fuseMachineInfoSupplier = machine;
-    this.tStatesHolder = tStatesHolder;
+    this.zxClock = zxClock;
     this.ramHolder = ramHolder;
     this.uiDisplay = uiDisplay;
   }
@@ -265,7 +265,7 @@ public class Display {
 
   public int[] getBeamPosition() {
     int[] beam = new int[2];
-    long tstates = tStatesHolder.getTstates();
+    long tstates = zxClock.getTstates();
     SpectrumMachine current = fuseMachineInfoSupplier.get();
     long[] lineTimes = current.getLineTimes();
 

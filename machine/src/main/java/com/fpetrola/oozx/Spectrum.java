@@ -31,7 +31,7 @@ public class Spectrum {
   private Display display;
   private EventManager eventManager;
   private Z80 z80;
-  private TStatesHolder tStatesHolder;
+  private ZxClock zxClock;
   private RAMHolder ramHolder;
   private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
 
@@ -41,12 +41,12 @@ public class Spectrum {
   public int spectrumFrameEvent;
   private long framesSinceReset;
 
-  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, TStatesHolder tStatesHolder, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier) {
+  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, ZxClock zxClock, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier) {
     this.memory = memory;
     this.display = display;
     this.eventManager = eventManager;
     this.z80 = z80;
-    this.tStatesHolder = tStatesHolder;
+    this.zxClock = zxClock;
     this.ramHolder = ramHolder;
     this.fuseMachineInfoSupplier = fuseMachineInfoSupplier;
   }
@@ -56,11 +56,11 @@ public class Spectrum {
   }
 
   public long getTstates() {
-    return tStatesHolder.getTstates();
+    return zxClock.getTstates();
   }
 
   public void setTstates(long tstates) {
-    tStatesHolder.setTstates(tstates);
+    zxClock.setTstates(tstates);
   }
 
   private void spectrumFrameEventFn(long lastTstates, int type, Object userData) {
@@ -84,7 +84,7 @@ public class Spectrum {
     long frameLength = getCurrent().getTimings().tstatesPerFrame;
 
     eventManager.eventFrame(frameLength);
-    tStatesHolder.setTstates(tStatesHolder.getTstates() - frameLength);
+    zxClock.addTstates(-frameLength);
 
     if (z80.interruptsEnabledAt >= 0) {
       z80.interruptsEnabledAt -= frameLength;
@@ -139,14 +139,14 @@ public class Spectrum {
   }
 
   public int spectrumUnattachedPort() {
-    if (tStatesHolder.getTstates() < getCurrent().getLineTimes()[display.BORDER_HEIGHT]) return 0xff;
+    if (zxClock.getTstates() < getCurrent().getLineTimes()[display.BORDER_HEIGHT]) return 0xff;
 
-    int line = (int) ((tStatesHolder.getTstates() - getCurrent().getLineTimes()[display.BORDER_HEIGHT]) /
+    int line = (int) ((zxClock.getTstates() - getCurrent().getLineTimes()[display.BORDER_HEIGHT]) /
         getCurrent().getTimings().tstatesPerLine);
 
     if (line >= display.HEIGHT) return 0xff;
 
-    int tstatesThroughLine = (int) (tStatesHolder.getTstates() -
+    int tstatesThroughLine = (int) (zxClock.getTstates() -
         getCurrent().getLineTimes()[display.BORDER_HEIGHT + line] +
         (getCurrent().getTimings().leftBorder - display.BORDER_WIDTH_COLS * 4));
 
