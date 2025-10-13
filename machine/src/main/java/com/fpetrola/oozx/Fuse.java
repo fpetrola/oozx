@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class Fuse {
-  public static Supplier<FuseMachineInfo> fuseMachineInfoSupplier = () -> Machine.current;
-  public static TStatesHolder tStatesHolder = new TStatesHolder() {
+  public Supplier<FuseMachineInfo> fuseMachineInfoSupplier = () -> Machine.current;
+  public TStatesHolder tStatesHolder = new TStatesHolder() {
     private long tstates;
 
     public long getTstates() {
@@ -40,32 +40,32 @@ public class Fuse {
       this.tstates = tstates;
     }
   };
-  private static RAMHolder ramHolder = new RAMHolder() {
+  private RAMHolder ramHolder = new RAMHolder() {
     // RAM array: 65 pages of 16KB each (from SPECTRUM_RAM_PAGES)
-    private static byte[][] RAM = new byte[memory.SPECTRUM_RAM_PAGES][0x4000];
+    private byte[][] RAM = new byte[memory.SPECTRUM_RAM_PAGES][0x4000];
 
     public byte[][] getRAM() {
       return RAM;
     }
   };
-  public static Memory memory = new Memory(fuseMachineInfoSupplier, tStatesHolder);
-  private static UiDisplay uiDisplay = new UiDisplay(tStatesHolder);
-  public static Display display = new Display(memory, fuseMachineInfoSupplier, tStatesHolder, ramHolder, uiDisplay);
-  public static Keyboard keyboard = new Keyboard();
-  public static Ula ula = new Ula(memory, display, fuseMachineInfoSupplier, keyboard, tStatesHolder);
-  public static EventManager eventManager = new EventManager(fuseMachineInfoSupplier, tStatesHolder);
-  public static Periph periph = new Periph(eventManager, ula, fuseMachineInfoSupplier, tStatesHolder);
-  public static Joystick joystick = new Joystick(keyboard, periph);
-  public static Input input = new Input(joystick, keyboard);
-  public static Z80 z80 = new Z80(eventManager, memory, display, ula, fuseMachineInfoSupplier, keyboard, tStatesHolder, input, periph, uiDisplay);
-  public static Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, tStatesHolder, ramHolder, fuseMachineInfoSupplier);
-  public static Machine machine = new Machine(eventManager, memory, display, ula, tStatesHolder, spectrum, uiDisplay);
-  public static MachinesPeriph machinesPeriph = new MachinesPeriph(periph);
-  public static Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum, periph);
-  public static Spec128 spec128 = new Spec128(memory, display, fuseMachineInfoSupplier, machinesPeriph, spectrum, spec48, periph);
-  public static SpecPlus3 specPlus3 = new SpecPlus3(memory, display, machine, machinesPeriph, spectrum, spec48, periph);
+  public Memory memory = new Memory(fuseMachineInfoSupplier, tStatesHolder);
+  private UiDisplay uiDisplay = new UiDisplay(tStatesHolder);
+  public Display display = new Display(memory, fuseMachineInfoSupplier, tStatesHolder, ramHolder, uiDisplay);
+  public Keyboard keyboard = new Keyboard();
+  public Ula ula = new Ula(memory, display, fuseMachineInfoSupplier, keyboard, tStatesHolder);
+  public EventManager eventManager = new EventManager(fuseMachineInfoSupplier, tStatesHolder);
+  public Periph periph = new Periph(eventManager, ula, fuseMachineInfoSupplier, tStatesHolder);
+  public Joystick joystick = new Joystick(keyboard, periph);
+  public Input input = new Input(joystick, keyboard);
+  public Z80 z80 = new Z80(eventManager, memory, display, ula, fuseMachineInfoSupplier, keyboard, tStatesHolder, input, periph, uiDisplay);
+  public Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, tStatesHolder, ramHolder, fuseMachineInfoSupplier);
+  public Machine machine = new Machine(eventManager, memory, display, ula, tStatesHolder, spectrum, uiDisplay);
+  public MachinesPeriph machinesPeriph = new MachinesPeriph(periph);
+  public Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum, periph);
+  public Spec128 spec128 = new Spec128(memory, display, fuseMachineInfoSupplier, machinesPeriph, spectrum, spec48, periph);
+  public SpecPlus3 specPlus3 = new SpecPlus3(memory, display, machine, machinesPeriph, spectrum, spec48, periph);
 
-  private static int runStartupManager() {
+  public void fuseInit() {
     StartupManager.init();
 
     List.of(
@@ -82,18 +82,12 @@ public class Fuse {
         new Z80StartupModule(z80)
     ).forEach(StartupManager::register);
 
-    return StartupManager.run();
-  }
-
-  public static int fuseInit() {
-    runStartupManager();
+    StartupManager.run();
     machine.selectId("48");
-    return 0;
   }
 
-  public static int fuseEnd() {
+  public void fuseEnd() {
     StartupManager.runEnd();
     periph.end();
-    return 0;
   }
 }

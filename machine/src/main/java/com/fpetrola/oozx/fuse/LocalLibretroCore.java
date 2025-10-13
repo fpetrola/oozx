@@ -43,14 +43,16 @@ public class LocalLibretroCore implements LibretroCore {
   private Z80 z80;
   private TStatesHolder tStatesHolder;
   private Periph periph;
+  private Fuse fuse;
 
-  public LocalLibretroCore(EventManager eventManager, Display display, Machine machine, Z80 z80, TStatesHolder tStatesHolder, Periph periph) {
+  public LocalLibretroCore(EventManager eventManager, Display display, Machine machine, Z80 z80, TStatesHolder tStatesHolder, Periph periph, Fuse fuse) {
     this.eventManager = eventManager;
     this.display = display;
     this.machine = machine;
     this.z80 = z80;
     this.tStatesHolder = tStatesHolder;
     this.periph = periph;
+    this.fuse = fuse;
   }
 
   public int retro_get_beam_x() {
@@ -66,11 +68,11 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_init() {
-    Fuse.fuseInit();
+    fuse.fuseInit();
   }
 
   public void retro_deinit() {
-    Fuse.fuseEnd();
+    fuse.fuseEnd();
   }
 
   public int retro_api_version() {

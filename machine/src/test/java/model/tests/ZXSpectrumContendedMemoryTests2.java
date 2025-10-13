@@ -23,7 +23,8 @@ public class ZXSpectrumContendedMemoryTests2 {
 
   @BeforeAll
   public static void beforeall() {
-    localLibretroCore = new LocalLibretroCore(Fuse.eventManager,Fuse.display, Fuse.machine, Fuse.z80, Fuse.tStatesHolder, Fuse.periph);
+    Fuse fuse = new Fuse();
+    localLibretroCore = new LocalLibretroCore(fuse.eventManager, fuse.display, fuse.machine, fuse.z80, fuse.tStatesHolder, fuse.periph, fuse);
     remoteCore = FuseLibretroConnector.core;
     CommandHandler commandHandler1 = DefaultCommandHandler.createCommandHandler(localLibretroCore);
     CommandHandler commandHandler2 = DefaultCommandHandler.createCommandHandler(remoteCore);
