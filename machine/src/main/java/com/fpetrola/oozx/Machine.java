@@ -47,24 +47,10 @@ public class Machine {
     this.uiDisplay = uiDisplay;
   }
 
-  //  private  void reg1() {
-//    StartupManagerModule[] dependencies = {
-//        StartupManagerModule.MEMORY,
-//        StartupManagerModule.SETUID
-//    };
-//    StartupManager.register(StartupManagerModule.MACHINE, dependencies,
-//        Machine::initMachines, null, Machine::end);
-//  }
-
   public void addMachine(SpectrumMachine spectrumMachine) {
     machineTypes.add(spectrumMachine);
-
     setConstTimings(spectrumMachine);
-//    machine.timings.tstatesPerFrame = 69888;
-//    machine.timings.tstatesPerLine= 224;
-
     spectrumMachine.setCapabilities(Libspectrum.machineCapabilities(spectrumMachine.getMachine()));
-
   }
 
   public int select(int type) {
