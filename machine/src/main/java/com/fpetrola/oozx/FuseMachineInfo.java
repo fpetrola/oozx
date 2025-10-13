@@ -80,16 +80,6 @@ public class FuseMachineInfo implements IFuseMachineInfo {
   }
 
   @Override
-  public Runnable getReset() {
-    return reset;
-  }
-
-  @Override
-  public void setReset(Runnable reset) {
-    this.reset = reset;
-  }
-
-  @Override
   public boolean isTimex() {
     return timex;
   }

@@ -44,7 +44,6 @@ public class Spec128 extends FuseMachineInfo implements SpectrumMachine {
     setMachine(Libspectrum.Machine._128K);
     setId("128");
 
-    setReset(this::reset);
     setTimex(false);
     setRamInfo(new Spec48RamInfo(spec48, 8));
     setUnattachedPort(spectrum::spectrumUnattachedPort);

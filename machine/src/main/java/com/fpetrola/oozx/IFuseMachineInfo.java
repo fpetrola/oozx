@@ -35,10 +35,6 @@ public interface IFuseMachineInfo {
 
   void setCapabilities(int capabilities);
 
-  Runnable getReset();
-
-  void setReset(Runnable reset);
-
   boolean isTimex();
 
   void setTimex(boolean timex);

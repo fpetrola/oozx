@@ -51,7 +51,6 @@ public class Spec48 extends FuseMachineInfo implements SpectrumMachine {
     setMachine(Libspectrum.Machine._48K);
     setId("48");
 
-    setReset(this::reset);
     setTimex(false);
 
     setRamInfo(new Spec48RamInfo(this, 3));

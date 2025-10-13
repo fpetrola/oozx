@@ -85,7 +85,6 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
     setMachine(Libspectrum.Machine.PLUS3);
     setId("plus3");
 
-    setReset(this::reset);
     setTimex(false);
     setRamInfo(new SpecPlus3RamInfo(8));
 

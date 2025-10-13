@@ -162,7 +162,7 @@ public class Machine {
 
     Sound.init(Settings.current.soundDevice);
 
-    machine.getReset().run();
+    machine.reset();
     reset(false);
 //        if (error != 0) return error;
 
@@ -246,7 +246,7 @@ public class Machine {
 
     memory.reset();
 
-    current.getReset().run();
+    current.reset();
 //        if (error != 0) return error;
 
     Module.reset(hardReset ? 1 : 0);
