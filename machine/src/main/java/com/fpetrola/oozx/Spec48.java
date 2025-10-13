@@ -47,18 +47,18 @@ public class Spec48 extends FuseMachineInfo implements SpectrumMachine {
 
   // Initialize the Spectrum 48K fuseMachineInfo
   @Override
-  public FuseMachineInfo init() {
-    machine = Libspectrum.Machine._48K;
-    id = "48";
+  public SpectrumMachine init() {
+    setMachine(Libspectrum.Machine._48K);
+    setId("48");
 
-    reset = this::reset;
-    timex = false;
+    setReset(this::reset);
+    setTimex(false);
 
-    ramInfo = new Spec48RamInfo(this, 3);
+    setRamInfo(new Spec48RamInfo(this, 3));
 
-    unattachedPort = spectrum::spectrumUnattachedPort;
-    shutdown = null;
-    memoryMap = this::memoryMap;
+    setUnattachedPort(spectrum::spectrumUnattachedPort);
+    setShutdown(null);
+    setMemoryMap(this::memoryMap);
 
     return this;
   }

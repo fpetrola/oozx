@@ -18,8 +18,8 @@
 
 package com.fpetrola.oozx;
 
-public interface SpectrumMachine {
-  FuseMachineInfo init();
+public interface SpectrumMachine extends IFuseMachineInfo {
+  SpectrumMachine init();
   int reset();
   void memoryMap();
 }

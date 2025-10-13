@@ -32,10 +32,10 @@ import java.util.function.Supplier;
 public class Periph {
   private EventManager eventManager;
   private Ula ula;
-  private Supplier<FuseMachineInfo> machine;
+  private Supplier<SpectrumMachine> machine;
   private TStatesHolder tStatesHolder;
 
-  public Periph(EventManager eventManager, Ula ula, Supplier<FuseMachineInfo> machine, TStatesHolder tStatesHolder) {
+  public Periph(EventManager eventManager, Ula ula, Supplier<SpectrumMachine> machine, TStatesHolder tStatesHolder) {
     this.eventManager = eventManager;
     this.ula = ula;
     this.machine = machine;
@@ -247,8 +247,8 @@ public class Periph {
 
     // Special case for 128K/+2 machines
     if ((port & 0x8002) == 0 &&
-        (machine.get().machine == Libspectrum.Machine._128K ||
-            machine.get().machine == Libspectrum.Machine.PLUS2)) {
+        (machine.get().getMachine() == Libspectrum.Machine._128K ||
+            machine.get().getMachine() == Libspectrum.Machine.PLUS2)) {
       writePortInternal(0x7ffd, b);
     }
 
@@ -286,7 +286,7 @@ public class Periph {
 
     if (callbackInfo.attached != (byte) 0xff) {
       callbackInfo.value = mergeFloatingBus(callbackInfo.value, callbackInfo.attached,
-          (byte) machine.get().unattachedPort.apply());
+          (byte) machine.get().getUnattachedPort().apply());
     }
 
     if (Rzx.recording) {
@@ -406,7 +406,7 @@ public class Periph {
     });
 
 //        updatePeripheralsStatus();
-    machine.get().memoryMap.run();
+    machine.get().getMemoryMap().run();
 
     return needsHardReset[0];
   }

@@ -20,22 +20,142 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.modules.Display;
 
-public class FuseMachineInfo {
-  RamInfo ramInfo = new RamInfo();
-  public Libspectrum.Machine machine = Libspectrum.Machine._48K; // libspectrum_machine
-  String id; // Used to select from command line
-  public int capabilities; // Capabilities of this machine
-  Runnable reset; // Reset function
-  public boolean timex; // Timex machine (keyboard emulation/loading sounds etc.)
-  public MachineTimings timings = new MachineTimings(); // How long do things take to happen?
-  public long[] lineTimes; // Redraw line y this many tstates after interrupt
-  public UnattachedPortFn unattachedPort; // What to return if we read from a port which isn't attached to anything
-  Runnable shutdown; // Shutdown function
-  public Runnable memoryMap; // Memory map function
+public class FuseMachineInfo implements IFuseMachineInfo {
+  private RamInfo ramInfo = new RamInfo();
+  private Libspectrum.Machine machine = Libspectrum.Machine._48K; // libspectrum_machine
+  private String id; // Used to select from command line
+  private int capabilities; // Capabilities of this machine
+  private Runnable reset; // Reset function
+  private boolean timex; // Timex machine (keyboard emulation/loading sounds etc.)
+  private MachineTimings timings = new MachineTimings(); // How long do things take to happen?
+  private long[] lineTimes; // Redraw line y this many tstates after interrupt
+  private UnattachedPortFn unattachedPort; // What to return if we read from a port which isn't attached to anything
+  private Runnable shutdown; // Shutdown function
+  private Runnable memoryMap; // Memory map function
 
   public FuseMachineInfo(Display display) {
     lineTimes = new long[display.SCREEN_HEIGHT + 1];
   }
 
-  protected FuseMachineInfo  fuseMachineInfo= this;
+  private FuseMachineInfo  fuseMachineInfo= this;
+
+  @Override
+  public RamInfo getRamInfo() {
+    return ramInfo;
+  }
+
+  @Override
+  public void setRamInfo(RamInfo ramInfo) {
+    this.ramInfo = ramInfo;
+  }
+
+  @Override
+  public Libspectrum.Machine getMachine() {
+    return machine;
+  }
+
+  @Override
+  public void setMachine(Libspectrum.Machine machine) {
+    this.machine = machine;
+  }
+
+  @Override
+  public String getId() {
+    return id;
+  }
+
+  @Override
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  @Override
+  public int getCapabilities() {
+    return capabilities;
+  }
+
+  @Override
+  public void setCapabilities(int capabilities) {
+    this.capabilities = capabilities;
+  }
+
+  @Override
+  public Runnable getReset() {
+    return reset;
+  }
+
+  @Override
+  public void setReset(Runnable reset) {
+    this.reset = reset;
+  }
+
+  @Override
+  public boolean isTimex() {
+    return timex;
+  }
+
+  @Override
+  public void setTimex(boolean timex) {
+    this.timex = timex;
+  }
+
+  @Override
+  public MachineTimings getTimings() {
+    return timings;
+  }
+
+  @Override
+  public void setTimings(MachineTimings timings) {
+    this.timings = timings;
+  }
+
+  @Override
+  public long[] getLineTimes() {
+    return lineTimes;
+  }
+
+  @Override
+  public void setLineTimes(long[] lineTimes) {
+    this.lineTimes = lineTimes;
+  }
+
+  @Override
+  public UnattachedPortFn getUnattachedPort() {
+    return unattachedPort;
+  }
+
+  @Override
+  public void setUnattachedPort(UnattachedPortFn unattachedPort) {
+    this.unattachedPort = unattachedPort;
+  }
+
+  @Override
+  public Runnable getShutdown() {
+    return shutdown;
+  }
+
+  @Override
+  public void setShutdown(Runnable shutdown) {
+    this.shutdown = shutdown;
+  }
+
+  @Override
+  public Runnable getMemoryMap() {
+    return memoryMap;
+  }
+
+  @Override
+  public void setMemoryMap(Runnable memoryMap) {
+    this.memoryMap = memoryMap;
+  }
+
+  @Override
+  public FuseMachineInfo getFuseMachineInfo() {
+    return fuseMachineInfo;
+  }
+
+  @Override
+  public void setFuseMachineInfo(FuseMachineInfo fuseMachineInfo) {
+    this.fuseMachineInfo = fuseMachineInfo;
+  }
 }

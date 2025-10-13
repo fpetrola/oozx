@@ -40,16 +40,16 @@ public class Spec128 extends FuseMachineInfo implements SpectrumMachine {
   }
 
   // Initialize the Spectrum 128K machine
-  public FuseMachineInfo init() {
-    machine = Libspectrum.Machine._128K;
-    id = "128";
+  public SpectrumMachine init() {
+    setMachine(Libspectrum.Machine._128K);
+    setId("128");
 
-    reset = this::reset;
-    timex = false;
-    ramInfo = new Spec48RamInfo(spec48, 8);
-    unattachedPort = spectrum::spectrumUnattachedPort;
-    shutdown = null;
-    memoryMap = this::memoryMap;
+    setReset(this::reset);
+    setTimex(false);
+    setRamInfo(new Spec48RamInfo(spec48, 8));
+    setUnattachedPort(spectrum::spectrumUnattachedPort);
+    setShutdown(null);
+    setMemoryMap(this::memoryMap);
 
     return this;
   }
@@ -78,11 +78,11 @@ public class Spec128 extends FuseMachineInfo implements SpectrumMachine {
 
   // Common reset for Spectrum 128K
   private int commonReset(boolean contention) {
-    ramInfo.locked = false;
-    ramInfo.lastByte = 0;
+    getRamInfo().locked = false;
+    getRamInfo().lastByte = 0;
 
-    ramInfo.currentPage = 0;
-    ramInfo.currentRom = 0;
+    getRamInfo().currentPage = 0;
+    getRamInfo().currentRom = 0;
 
     memory.currentScreen = 5;
     memory.screenMask = 0xffff;
@@ -106,31 +106,31 @@ public class Spec128 extends FuseMachineInfo implements SpectrumMachine {
 
   // Write to the 128K memory port (0x7FFD)
   public void memoryPortWrite(int port, byte b) {
-    if (ramInfo.locked) return;
+    if (getRamInfo().locked) return;
 
-    ramInfo.lastByte = b;
+    getRamInfo().lastByte = b;
 
     memoryMap();
 
-    ramInfo.locked = (b & 0x20) != 0;
+    getRamInfo().locked = (b & 0x20) != 0;
   }
 
   // Select ROM for 128K
   private void selectRom(int rom) {
     memory.map16k(0x0000, memory.mapRom, rom);
-    ramInfo.currentRom = rom;
+    getRamInfo().currentRom = rom;
   }
 
   // Select RAM page for 128K
   private void selectPage(int page) {
     memory.map16k(0xc000, memory.mapRam, page);
-    ramInfo.currentPage = page;
+    getRamInfo().currentPage = page;
   }
 
   // Map memory for Spectrum 128K
   @Override
   public void memoryMap() {
-    byte lastByte = ramInfo.lastByte;
+    byte lastByte = getRamInfo().lastByte;
 
     int page = lastByte & 0x07;
     int screen = (lastByte & 0x08) != 0 ? 7 : 5;

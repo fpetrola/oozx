@@ -20,11 +20,11 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
+import ppg.spec.Spec;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Machine {
@@ -33,8 +33,8 @@ public class Machine {
   private Display display;
   private Ula ula;
 
-  public List<FuseMachineInfo> machineTypes = new ArrayList<>(); // All available machines
-  public static FuseMachineInfo current; // The currently selected machine
+  public List<SpectrumMachine> machineTypes = new ArrayList<>(); // All available machines
+  public static SpectrumMachine current; // The currently selected machine
   private TStatesHolder tStatesHolder;
   private final Spectrum spectrum;
   private UiDisplay uiDisplay;
@@ -58,8 +58,8 @@ public class Machine {
 //        Machine::initMachines, null, Machine::end);
 //  }
 
-  public int addMachine(Supplier<FuseMachineInfo> initFunction) {
-    FuseMachineInfo machine = initFunction.get();
+  public int addMachine(Supplier<SpectrumMachine> initFunction) {
+    SpectrumMachine machine = initFunction.get();
 
     machineTypes.add(machine);
 
@@ -67,7 +67,7 @@ public class Machine {
 //    machine.timings.tstatesPerFrame = 69888;
 //    machine.timings.tstatesPerLine= 224;
 
-    machine.capabilities = Libspectrum.machineCapabilities(machine.machine);
+    machine.setCapabilities(Libspectrum.machineCapabilities(machine.getMachine()));
 
     return 0;
   }
@@ -82,7 +82,7 @@ public class Machine {
     Movie.stop();
 
     for (i = 0; i < machineTypes.size(); i++) {
-      if (machineTypes.get(i).machine.ordinal() == type) {
+      if (machineTypes.get(i).getMachine().ordinal() == type) {
         int location = i;
         error = selectMachine(machineTypes.get(i));
 
@@ -112,7 +112,7 @@ public class Machine {
     int error;
 
     for (i = 0; i < machineTypes.size(); i++) {
-      if (machineTypes.get(i).id.equals(id)) {
+      if (machineTypes.get(i).getId().equals(id)) {
         error = selectMachine(machineTypes.get(i));
         if (error != 0) return error;
         return 0;
@@ -125,30 +125,30 @@ public class Machine {
 
   public String getId(int type) {
     for (int i = 0; i < machineTypes.size(); i++) {
-      if (machineTypes.get(i).machine.ordinal() == type) return machineTypes.get(i).id;
+      if (machineTypes.get(i).getMachine().ordinal() == type) return machineTypes.get(i).getId();
     }
     return null;
   }
 
-  private int selectMachine(FuseMachineInfo machine) {
+  private int selectMachine(SpectrumMachine machine) {
     int width, height;
     int capabilities;
 
     current = machine;
 
-    Settings.setString(Settings.current.startMachine, machine.id);
+    Settings.setString(Settings.current.startMachine, machine.getId());
 
     tStatesHolder.setTstates(0);
 
     eventManager.reset();
 //        EventManager.eventAdd(0, Timer.event);
-    eventManager.eventAdd(machine.timings.tstatesPerFrame, spectrum.spectrumFrameEvent);
+    eventManager.eventAdd(machine.getTimings().tstatesPerFrame, spectrum.spectrumFrameEvent);
 
     Sound.end();
 
     if (uiDisplay.end() != 0) return 1;
 
-    capabilities = Libspectrum.machineCapabilities(machine.machine);
+    capabilities = Libspectrum.machineCapabilities(machine.getMachine());
 
     if ((capabilities & Libspectrum.MachineCapability.TIMEX_VIDEO) != 0) {
       width = display.SCREEN_WIDTH;
@@ -162,7 +162,7 @@ public class Machine {
 
     Sound.init(Settings.current.soundDevice);
 
-    machine.reset.run();
+    machine.getReset().run();
     reset(false);
 //        if (error != 0) return error;
 
@@ -246,17 +246,17 @@ public class Machine {
 
     memory.reset();
 
-    current.reset.run();
+    current.getReset().run();
 //        if (error != 0) return error;
 
     Module.reset(hardReset ? 1 : 0);
 
-    current.memoryMap.run();
+    current.getMemoryMap().run();
 //        if (error != 0) return error;
 
-    for (int i = 0; i < (int) current.timings.tstatesPerFrame; i++) {
-      ula.contention[i] = (byte) current.ramInfo.contendDelay.apply(i);
-      ula.contentionNoMreq[i] = (byte) current.ramInfo.contendDelayNoMreq.apply(i);
+    for (int i = 0; i < (int) current.getTimings().tstatesPerFrame; i++) {
+      ula.contention[i] = (byte) current.getRamInfo().contendDelay.apply(i);
+      ula.contentionNoMreq[i] = (byte) current.getRamInfo().contendDelayNoMreq.apply(i);
     }
 
 //        Ui.menuDiskUpdate();
@@ -266,31 +266,31 @@ public class Machine {
     return 0;
   }
 
-  private void setConstTimings(FuseMachineInfo machine) {
-    machine.timings.processorSpeed = Timings.processorSpeed(machine.machine);
-    machine.timings.leftBorder = Timings.leftBorder(machine.machine);
-    machine.timings.horizontalScreen = Timings.horizontalScreen(machine.machine);
-    machine.timings.rightBorder = Timings.rightBorder(machine.machine);
-    machine.timings.tstatesPerLine = Timings.tstatesPerLine(machine.machine);
-    machine.timings.interruptLength = Timings.interruptLength(machine.machine);
-    machine.timings.tstatesPerFrame = Timings.tstatesPerFrame(machine.machine);
+  private void setConstTimings(SpectrumMachine machine) {
+    machine.getTimings().processorSpeed = Timings.processorSpeed(machine.getMachine());
+    machine.getTimings().leftBorder = Timings.leftBorder(machine.getMachine());
+    machine.getTimings().horizontalScreen = Timings.horizontalScreen(machine.getMachine());
+    machine.getTimings().rightBorder = Timings.rightBorder(machine.getMachine());
+    machine.getTimings().tstatesPerLine = Timings.tstatesPerLine(machine.getMachine());
+    machine.getTimings().interruptLength = Timings.interruptLength(machine.getMachine());
+    machine.getTimings().tstatesPerFrame = Timings.tstatesPerFrame(machine.getMachine());
   }
 
-  private void setVariableTimings(FuseMachineInfo machine) {
-    machine.lineTimes[0] = Timings.topLeftPixel(machine.machine) -
-        display.BORDER_HEIGHT * machine.timings.tstatesPerLine -
+  private void setVariableTimings(SpectrumMachine machine) {
+    machine.getLineTimes()[0] = Timings.topLeftPixel(machine.getMachine()) -
+        display.BORDER_HEIGHT * machine.getTimings().tstatesPerLine -
         4 * display.BORDER_WIDTH_COLS;
 
-    if (Settings.current.lateTimings) machine.lineTimes[0]++;
+    if (Settings.current.lateTimings) machine.getLineTimes()[0]++;
 
     for (int y = 1; y < display.SCREEN_HEIGHT + 1; y++) {
-      machine.lineTimes[y] = machine.lineTimes[y - 1] + machine.timings.tstatesPerLine;
+      machine.getLineTimes()[y] = machine.getLineTimes()[y - 1] + machine.getTimings().tstatesPerLine;
     }
   }
 
   public void end() {
     for (int i = 0; i < machineTypes.size(); i++) {
-      if (machineTypes.get(i).shutdown != null) machineTypes.get(i).shutdown.run();
+      if (machineTypes.get(i).getShutdown() != null) machineTypes.get(i).getShutdown().run();
     }
 
     machineTypes = null;

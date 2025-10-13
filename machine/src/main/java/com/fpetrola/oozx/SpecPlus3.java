@@ -81,22 +81,22 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
   }
 
   // Initialize the Spectrum +3 machine
-  public FuseMachineInfo init() {
-    machine = Libspectrum.Machine.PLUS3;
-    id = "plus3";
+  public SpectrumMachine init() {
+    setMachine(Libspectrum.Machine.PLUS3);
+    setId("plus3");
 
-    reset = this::reset;
-    timex = false;
-    ramInfo = new SpecPlus3RamInfo(8);
+    setReset(this::reset);
+    setTimex(false);
+    setRamInfo(new SpecPlus3RamInfo(8));
 
 //    machine.unattachedPort = Libretro.LIBRETRO ? Spectrum::spectrumUnattachedPortAmstrad : Spectrum::spectrumUnattachedPortNone;
-    unattachedPort = spectrum::spectrumUnattachedPortNone;
+    setUnattachedPort(spectrum::spectrumUnattachedPortNone);
 
     specplus3765Init();
     specplus3MenuItems();
 
-    shutdown = this::shutdown;
-    memoryMap = this::memoryMap;
+    setShutdown(this::shutdown);
+    setMemoryMap(this::memoryMap);
 
     return this;
   }
@@ -181,14 +181,14 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
 
   // Common reset for +2A/+3
   public int plus2aCommonReset() {
-    FuseMachineInfo machineCurrent = machine1.current;
+    SpectrumMachine machineCurrent = machine1.current;
 
-    machineCurrent.ramInfo.currentPage = 0;
-    machineCurrent.ramInfo.currentRom = 0;
-    machineCurrent.ramInfo.locked = false;
-    machineCurrent.ramInfo.special = false;
-    machineCurrent.ramInfo.lastByte = 0;
-    machineCurrent.ramInfo.lastByte2 = 0;
+    machineCurrent.getRamInfo().currentPage = 0;
+    machineCurrent.getRamInfo().currentRom = 0;
+    machineCurrent.getRamInfo().locked = false;
+    machineCurrent.getRamInfo().special = false;
+    machineCurrent.getRamInfo().lastByte = 0;
+    machineCurrent.getRamInfo().lastByte2 = 0;
 
     memory.currentScreen = 5;
     memory.screenMask = 0xffff;
@@ -253,21 +253,21 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
 //      Fdd.motorOn(specplus3Drives[1], (b & 0x08) != 0);
 //    }
 
-    machine1.current.ramInfo.lastByte2 = b;
+    machine1.current.getRamInfo().lastByte2 = b;
 
-    machine1.current.memoryMap.run();
+    machine1.current.getMemoryMap().run();
   }
 
   public void memoryPort2Write(int port, byte b) {
-    if (machine1.current.ramInfo.locked) return;
+    if (machine1.current.getRamInfo().locked) return;
     memoryPort2WriteInternal(port, b);
   }
 
   // Map memory for +3
   public void memoryMap() {
-    FuseMachineInfo machineCurrent = machine1.current;
-    byte lastByte = machineCurrent.ramInfo.lastByte;
-    byte lastByte2 = machineCurrent.ramInfo.lastByte2;
+    SpectrumMachine machineCurrent = machine1.current;
+    byte lastByte = machineCurrent.getRamInfo().lastByte;
+    byte lastByte2 = machineCurrent.getRamInfo().lastByte2;
 
     int page = lastByte & 0x07;
     int screen = (lastByte & 0x08) != 0 ? 7 : 5;
@@ -280,15 +280,15 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
     }
 
     if ((lastByte2 & 0x01) != 0) {
-      machineCurrent.ramInfo.special = true;
+      machineCurrent.getRamInfo().special = true;
       specialMemoryMap((lastByte2 & 0x06) >> 1);
     } else {
-      machineCurrent.ramInfo.special = false;
+      machineCurrent.getRamInfo().special = false;
       normalMemoryMap(rom, page);
     }
 
-    machineCurrent.ramInfo.currentPage = page;
-    machineCurrent.ramInfo.currentRom = rom;
+    machineCurrent.getRamInfo().currentPage = page;
+    machineCurrent.getRamInfo().currentRom = rom;
 
     memory.romcsMap();
 
@@ -333,7 +333,7 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
 
   // Check if drive is available
   private boolean uiDriveIsAvailable() {
-    return (machine1.current.capabilities & Libspectrum.MachineCapability.PLUS3_DISK) != 0;
+    return (machine1.current.getCapabilities() & Libspectrum.MachineCapability.PLUS3_DISK) != 0;
   }
 
 //  // Get parameters for drive A

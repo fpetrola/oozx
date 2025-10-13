@@ -30,7 +30,7 @@ public class SeMemoryPortHandler extends DefaultPortHandler {
 
   @Override
   public void write(int port, byte value) {
-    machine.current.ramInfo.lastByte = value;
-    machine.current.memoryMap.run();
+    machine.current.getRamInfo().lastByte = value;
+    machine.current.getMemoryMap().run();
   }
 }

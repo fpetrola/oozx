@@ -35,7 +35,7 @@ public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInf
 
   public void snapshotFrom(Libspectrum.Snap snap) {
     // snapshotFrom
-    int capabilities = machine.current.capabilities;
+    int capabilities = machine.current.getCapabilities();
 
     if ((capabilities & Libspectrum.MachineCapability.PENT1024_MEMORY) != 0) {
       Pentagon.pentagon1024MemoryportWrite(0x7ffd, Libspectrum.snapOut128Memoryport(snap));
@@ -69,8 +69,8 @@ public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInf
 
   public void snapshotTo(Libspectrum.Snap snap) {
     // snapshotTo
-    Libspectrum.snapSetOut128Memoryport(snap, machine.current.ramInfo.lastByte);
-    Libspectrum.snapSetOutPlus3Memoryport(snap, machine.current.ramInfo.lastByte2);
+    Libspectrum.snapSetOut128Memoryport(snap, machine.current.getRamInfo().lastByte);
+    Libspectrum.snapSetOutPlus3Memoryport(snap, machine.current.getRamInfo().lastByte2);
 
     for (int i = 0; i < 64; i++) {
       if (ramHolder.getRAM()[i] != null) {

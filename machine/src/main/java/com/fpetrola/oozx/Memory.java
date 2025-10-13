@@ -60,10 +60,10 @@ public class Memory {
   public MemoryPage[] mapWrite = new MemoryPage[PAGES_IN_64K];
   public MemoryPage[] mapRam = new MemoryPage[SPECTRUM_RAM_PAGES * PAGES_IN_16K];
   public MemoryPage[] mapRom = new MemoryPage[SPECTRUM_ROM_PAGES * PAGES_IN_16K];
-  private Supplier<FuseMachineInfo> fuseMachineInfoSupplier;
+  private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
   private TStatesHolder tStatesHolder;
 
-  public Memory(Supplier<FuseMachineInfo> machine, TStatesHolder tStatesHolder) {
+  public Memory(Supplier<SpectrumMachine> machine, TStatesHolder tStatesHolder) {
     this.fuseMachineInfoSupplier = machine;
     this.tStatesHolder = tStatesHolder;
   }
@@ -310,7 +310,7 @@ public class Memory {
 
   // Map ROMCS
   public void romcsMap() {
-    if (!fuseMachineInfoSupplier.get().ramInfo.romcs) return;
+    if (!fuseMachineInfoSupplier.get().getRamInfo().romcs) return;
     Module.romcs();
   }
 

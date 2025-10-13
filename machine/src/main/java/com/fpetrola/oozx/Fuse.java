@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class Fuse {
-  public Supplier<FuseMachineInfo> fuseMachineInfoSupplier = () -> Machine.current;
+  public Supplier<SpectrumMachine> fuseMachineInfoSupplier = () -> Machine.current;
   public TStatesHolder tStatesHolder = new TStatesHolder() {
     private long tstates;
 

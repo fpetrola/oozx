@@ -40,10 +40,10 @@ public class EventManager {
 
   // An event ready to be reused
   private Event eventFree = null;
-  private Supplier<FuseMachineInfo> fuseMachineInfoSupplier;
+  private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
   private TStatesHolder tStatesHolder;
 
-  public EventManager(Supplier<FuseMachineInfo> machine, TStatesHolder tStatesHolder) {
+  public EventManager(Supplier<SpectrumMachine> machine, TStatesHolder tStatesHolder) {
     this.fuseMachineInfoSupplier = machine;
     this.tStatesHolder = tStatesHolder;
   }
@@ -170,7 +170,7 @@ public class EventManager {
 
   // Force all events between now and the next interrupt to happen
   public void eventForceEvents() {
-    while (eventNextEvent < fuseMachineInfoSupplier.get().timings.tstatesPerFrame) { // Assume Machine.current
+    while (eventNextEvent < fuseMachineInfoSupplier.get().getTimings().tstatesPerFrame) { // Assume Machine.current
       tStatesHolder.setTstates(eventNextEvent);
       eventDoEvents();
     }

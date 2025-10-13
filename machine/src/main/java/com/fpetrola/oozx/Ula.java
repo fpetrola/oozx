@@ -43,12 +43,12 @@ public class Ula {
   // What to return if no other input pressed; depends on the last byte output to the ULA
   private byte defaultValue;
   private final Display display;
-  private final Supplier<FuseMachineInfo> currentMachineSupplier;
+  private final Supplier<SpectrumMachine> currentMachineSupplier;
   private Keyboard keyboard;
   private TStatesHolder tStatesHolder;
 
 
-  public Ula(Memory memory, Display display, Supplier<FuseMachineInfo> fuseMachineInfoSupplier, Keyboard keyboard, TStatesHolder tStatesHolder) {
+  public Ula(Memory memory, Display display, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Keyboard keyboard, TStatesHolder tStatesHolder) {
     this.memory = memory;
     this.display = display;
     currentMachineSupplier = fuseMachineInfoSupplier;
@@ -91,18 +91,18 @@ public class Ula {
     Sound.beeper(tStatesHolder.getTstates(),
         ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || Tape.microphone ? 1 : 0));
 
-    if (getCurrent().timex) {
+    if (getCurrent().isTimex()) {
       defaultValue = (byte) 0x5f;
-    } else if ((getCurrent().capabilities & PLUS3_MEMORY) != 0) {
+    } else if ((getCurrent().getCapabilities() & PLUS3_MEMORY) != 0) {
       defaultValue = (byte) 0xbf;
-    } else if ((getCurrent().capabilities & _128_MEMORY) != 0 || !Settings.current.issue2) {
+    } else if ((getCurrent().getCapabilities() & _128_MEMORY) != 0 || !Settings.current.issue2) {
       defaultValue = (byte) ((b & 0x10) != 0 ? 0xff : 0xbf);
     } else {
       defaultValue = (byte) ((b & 0x18) != 0 ? 0xff : 0xbf);
     }
   }
 
-  private FuseMachineInfo getCurrent() {
+  private SpectrumMachine getCurrent() {
     return currentMachineSupplier.get();
   }
 
@@ -133,7 +133,7 @@ public class Ula {
 
   // Handle contention for port access (late phase)
   public void contendPortLate(int port) {
-    if (getCurrent().ramInfo.portFromUla.apply(port)) {
+    if (getCurrent().getRamInfo().portFromUla.apply(port)) {
       GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) tStatesHolder.getTstates()] + 2), "ula_contend_port_late", (int) tStatesHolder.getTstates());
       tStatesHolder.setTstates(tStatesHolder.getTstates() + contentionNoMreq[(int) tStatesHolder.getTstates()]);
       tStatesHolder.setTstates(tStatesHolder.getTstates() + 2);

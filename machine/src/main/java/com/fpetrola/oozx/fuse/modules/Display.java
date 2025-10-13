@@ -97,12 +97,12 @@ public class Display {
   // The last point at which we updated the screen display
   private int criticalRegionX;
   private int criticalRegionY;
-  private Supplier<FuseMachineInfo> fuseMachineInfoSupplier;
+  private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
   private TStatesHolder tStatesHolder;
   private RAMHolder ramHolder;
   private UiDisplay uiDisplay;
 
-  public Display(Memory memory, Supplier<FuseMachineInfo> machine, TStatesHolder tStatesHolder, RAMHolder ramHolder, UiDisplay uiDisplay) {
+  public Display(Memory memory, Supplier<SpectrumMachine> machine, TStatesHolder tStatesHolder, RAMHolder ramHolder, UiDisplay uiDisplay) {
     this.memory = memory;
     this.fuseMachineInfoSupplier = machine;
     this.tStatesHolder = tStatesHolder;
@@ -285,15 +285,15 @@ public class Display {
   public int[] getBeamPosition() {
     int[] beam = new int[2];
     long tstates = tStatesHolder.getTstates();
-    FuseMachineInfo current = fuseMachineInfoSupplier.get();
-    long[] lineTimes = current.lineTimes;
+    SpectrumMachine current = fuseMachineInfoSupplier.get();
+    long[] lineTimes = current.getLineTimes();
 
     if (tstates < lineTimes[0]) {
       beam[0] = beam[1] = -1;
       return beam;
     }
 
-    beam[1] = (int) ((tstates - lineTimes[0]) / current.timings.tstatesPerLine);
+    beam[1] = (int) ((tstates - lineTimes[0]) / current.getTimings().tstatesPerLine);
 
     if (beam[1] >= 0 && beam[1] <= SCREEN_HEIGHT) {
       beam[0] = (int) ((tstates - lineTimes[beam[1]]) / 4);
@@ -539,7 +539,7 @@ public class Display {
     int mask = 1 << (7 - (x % 8));
     int index;
 
-    if (fuseMachineInfoSupplier.get().timex) {
+    if (fuseMachineInfoSupplier.get().isTimex()) {
       int column = x >> 4;
       y >>= 1;
       index = column + y * SCREEN_WIDTH_COLS;

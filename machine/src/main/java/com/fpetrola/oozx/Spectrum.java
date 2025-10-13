@@ -30,7 +30,7 @@ public class Spectrum {
   private Z80 z80;
   private TStatesHolder tStatesHolder;
   private RAMHolder ramHolder;
-  private Supplier<FuseMachineInfo> fuseMachineInfoSupplier;
+  private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
 
   private final int[] contentionPattern65432100 = {5, 4, 3, 2, 1, 0, 0, 6};
   private final int[] contentionPattern76543210 = {5, 4, 3, 2, 1, 0, 7, 6};
@@ -38,7 +38,7 @@ public class Spectrum {
   public int spectrumFrameEvent;
   private long framesSinceReset;
 
-  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, TStatesHolder tStatesHolder, RAMHolder ramHolder, Supplier<FuseMachineInfo> fuseMachineInfoSupplier) {
+  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, TStatesHolder tStatesHolder, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier) {
     this.memory = memory;
     this.display = display;
     this.eventManager = eventManager;
@@ -79,7 +79,7 @@ public class Spectrum {
   }
 
   public int spectrumFrame() {
-    long frameLength = Rzx.playback ? tStatesHolder.getTstates() : getCurrent().timings.tstatesPerFrame;
+    long frameLength = Rzx.playback ? tStatesHolder.getTstates() : getCurrent().getTimings().tstatesPerFrame;
 
     eventManager.eventFrame(frameLength);
     tStatesHolder.setTstates(tStatesHolder.getTstates() - frameLength);
@@ -95,7 +95,7 @@ public class Spectrum {
     Printer.frame();
 
     if (!Rzx.playback) {
-      eventManager.eventAdd(getCurrent().timings.tstatesPerFrame, spectrumFrameEvent);
+      eventManager.eventAdd(getCurrent().getTimings().tstatesPerFrame, spectrumFrameEvent);
     }
 
     Loader.frame(frameLength);
@@ -111,25 +111,25 @@ public class Spectrum {
   }
 
   private int contendDelayCommon(long time, int[] timings, int offset) {
-    int line = (int) ((time - getCurrent().lineTimes[0]) / getCurrent().timings.tstatesPerLine);
+    int line = (int) ((time - getCurrent().getLineTimes()[0]) / getCurrent().getTimings().tstatesPerLine);
 
-    int tstatesThroughLine = (int) (time - getCurrent().lineTimes[0] +
-        (getCurrent().timings.leftBorder - display.BORDER_WIDTH_COLS * 4));
+    int tstatesThroughLine = (int) (time - getCurrent().getLineTimes()[0] +
+        (getCurrent().getTimings().leftBorder - display.BORDER_WIDTH_COLS * 4));
 
-    tstatesThroughLine %= getCurrent().timings.tstatesPerLine;
+    tstatesThroughLine %= getCurrent().getTimings().tstatesPerLine;
 
     if (line < display.BORDER_HEIGHT ||
         line >= display.BORDER_HEIGHT + display.HEIGHT) return 0;
 
-    if (tstatesThroughLine < getCurrent().timings.leftBorder - offset) return 0;
+    if (tstatesThroughLine < getCurrent().getTimings().leftBorder - offset) return 0;
 
-    if (tstatesThroughLine >= getCurrent().timings.leftBorder +
-        getCurrent().timings.horizontalScreen - offset) return 0;
+    if (tstatesThroughLine >= getCurrent().getTimings().leftBorder +
+        getCurrent().getTimings().horizontalScreen - offset) return 0;
 
     return timings[tstatesThroughLine % 8];
   }
 
-  private FuseMachineInfo getCurrent() {
+  private SpectrumMachine getCurrent() {
     return fuseMachineInfoSupplier.get();
   }
 
@@ -142,23 +142,23 @@ public class Spectrum {
   }
 
   public int spectrumUnattachedPort() {
-    if (tStatesHolder.getTstates() < getCurrent().lineTimes[display.BORDER_HEIGHT]) return 0xff;
+    if (tStatesHolder.getTstates() < getCurrent().getLineTimes()[display.BORDER_HEIGHT]) return 0xff;
 
-    int line = (int) ((tStatesHolder.getTstates() - getCurrent().lineTimes[display.BORDER_HEIGHT]) /
-        getCurrent().timings.tstatesPerLine);
+    int line = (int) ((tStatesHolder.getTstates() - getCurrent().getLineTimes()[display.BORDER_HEIGHT]) /
+        getCurrent().getTimings().tstatesPerLine);
 
     if (line >= display.HEIGHT) return 0xff;
 
     int tstatesThroughLine = (int) (tStatesHolder.getTstates() -
-        getCurrent().lineTimes[display.BORDER_HEIGHT + line] +
-        (getCurrent().timings.leftBorder - display.BORDER_WIDTH_COLS * 4));
+        getCurrent().getLineTimes()[display.BORDER_HEIGHT + line] +
+        (getCurrent().getTimings().leftBorder - display.BORDER_WIDTH_COLS * 4));
 
-    if (tstatesThroughLine < getCurrent().timings.leftBorder) return 0xff;
+    if (tstatesThroughLine < getCurrent().getTimings().leftBorder) return 0xff;
 
-    if (tstatesThroughLine >= getCurrent().timings.leftBorder +
-        getCurrent().timings.horizontalScreen) return 0xff;
+    if (tstatesThroughLine >= getCurrent().getTimings().leftBorder +
+        getCurrent().getTimings().horizontalScreen) return 0xff;
 
-    int column = ((tstatesThroughLine - getCurrent().timings.leftBorder) / 8) * 2;
+    int column = ((tstatesThroughLine - getCurrent().getTimings().leftBorder) / 8) * 2;
 
     switch (tstatesThroughLine % 8) {
       case 5:

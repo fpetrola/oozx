@@ -67,14 +67,14 @@ public class Z80 {
   public Audio audio;
   private Display display;
   private Ula ula;
-  private Supplier<FuseMachineInfo> machine;
+  private Supplier<SpectrumMachine> machine;
   private Keyboard keyboard;
   private TStatesHolder tStatesHolder;
   private Input input;
   private Periph periph;
   private UiDisplay uiDisplay;
 
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<FuseMachineInfo> machine, Keyboard keyboard, TStatesHolder tStatesHolder, Input input, Periph periph, UiDisplay uiDisplay) {
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machine, Keyboard keyboard, TStatesHolder tStatesHolder, Input input, Periph periph, UiDisplay uiDisplay) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
@@ -104,7 +104,7 @@ public class Z80 {
 
   public void interrupt() {
     ooz80.getState().tstates = tStatesHolder.getTstates();
-    int i = Timings.interruptLength(machine.get().machine);
+    int i = Timings.interruptLength(machine.get().getMachine());
     if (ooz80.getState().isIff1() && ooz80.getState().tstates < i) {
 //      if (ooz80.getState().tstates == Z80.interruptsEnabledAt) {
 //        EventManager.eventAdd(ooz80.getState().tstates + 1, z80_interrupt_event);
