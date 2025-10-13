@@ -406,7 +406,7 @@ public class Periph {
     });
 
 //        updatePeripheralsStatus();
-    machine.get().getMemoryMap().run();
+    machine.get().memoryMap();
 
     return needsHardReset[0];
   }

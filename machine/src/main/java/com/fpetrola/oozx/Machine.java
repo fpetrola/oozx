@@ -251,7 +251,7 @@ public class Machine {
 
     Module.reset(hardReset ? 1 : 0);
 
-    current.getMemoryMap().run();
+    current.memoryMap();
 //        if (error != 0) return error;
 
     for (int i = 0; i < (int) current.getTimings().tstatesPerFrame; i++) {

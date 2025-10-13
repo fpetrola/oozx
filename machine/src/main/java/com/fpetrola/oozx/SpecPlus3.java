@@ -251,7 +251,7 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
 
     machine1.current.getRamInfo().lastByte2 = b;
 
-    machine1.current.getMemoryMap().run();
+    machine1.current.memoryMap();
   }
 
   public void memoryPort2Write(int port, byte b) {
