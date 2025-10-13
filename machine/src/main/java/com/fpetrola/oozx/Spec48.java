@@ -37,7 +37,6 @@ public class Spec48 extends AbstractSpectrumMachine implements SpectrumMachine {
     this.machinesPeriph = machinesPeriph;
     this.spectrum = spectrum;
     this.periph = periph;
-    this.machine = Libspectrum.Machine._48K;
     this.timex = false;
     this.ramInfo = new Spec48RamInfo(this, 3);
   }
