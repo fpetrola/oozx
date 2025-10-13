@@ -295,7 +295,7 @@ public class Z80 {
         int address1 = address.intValue();
         if (true || address1 >= 0x4000 && address1 < 0x5B00) {
           tStatesHolder.setTstates(state.tstates);
-          memory.writeByteInternal(address1, (byte) (value.intValue() & 0xff), Fuse.display);
+          memory.writeByteInternal(address1, (byte) (value.intValue() & 0xff), display);
         }
       }
 
@@ -356,7 +356,7 @@ public class Z80 {
 //      int bank = i >>> PAGE_SIZE_LOGARITHM;
 //      byte[] mapping = tStatesHolder.RAM[currentScreen];
 //      mapping[i - 0x4000] = datum != null ? (byte) (datum.intValue() & 0xff) : 0;
-      memory.writeByteInternal(i, datum != null ? (byte) (datum.intValue() & 0xff) : 0, Fuse.display);
+      memory.writeByteInternal(i, datum != null ? (byte) (datum.intValue() & 0xff) : 0, display);
     }
   }
 

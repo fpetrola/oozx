@@ -68,7 +68,7 @@ public class Fuse {
     }
   };
   public static Memory memory = new Memory(fuseMachineInfoSupplier, tStatesHolder);
-  private static UiDisplay uiDisplay= new UiDisplay(tStatesHolder);
+  private static UiDisplay uiDisplay = new UiDisplay(tStatesHolder);
   public static Display display = new Display(memory, fuseMachineInfoSupplier, tStatesHolder, ramHolder, uiDisplay);
   public static Keyboard keyboard = new Keyboard();
   public static Ula ula = new Ula(memory, display, fuseMachineInfoSupplier, keyboard, tStatesHolder);
