@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.machine.Spec128;
 import com.fpetrola.oozx.fuse.ports.DefaultPortHandler;
 
 public class Spec128PortHandler extends DefaultPortHandler {

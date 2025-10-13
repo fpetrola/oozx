@@ -22,6 +22,7 @@ package com.fpetrola.oozx;
 // E-mail: philip-fuse@shadowmagic.org.uk
 
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
+import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.Display;
 
 import java.util.ArrayList;
@@ -87,7 +88,7 @@ public class Memory {
 
   // Functional interface for dirty display handling
   @FunctionalInterface
-  interface MemoryDisplayDirtyFn {
+  public interface MemoryDisplayDirtyFn {
     void apply(int address, byte b, Display display);
   }
 

@@ -19,6 +19,10 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.Input;
+import com.fpetrola.oozx.fuse.machine.Spec128;
+import com.fpetrola.oozx.fuse.machine.Spec48;
+import com.fpetrola.oozx.fuse.machine.SpecPlus3;
+import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.Joystick;
 import com.fpetrola.oozx.fuse.modules.*;
 import com.fpetrola.oozx.fuse.modules.Keyboard;

@@ -19,6 +19,7 @@
 package com.fpetrola.oozx.fuse.modules;
 
 import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 
 import java.util.ArrayList;
 import java.util.Arrays;

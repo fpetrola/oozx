@@ -16,12 +16,12 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.machine;
 
 public class MachineTimings {
     long processorSpeed;
-    int leftBorder;
-    int horizontalScreen;
+    public int leftBorder;
+    public int horizontalScreen;
     int rightBorder;
     public int tstatesPerLine;
     int interruptLength;

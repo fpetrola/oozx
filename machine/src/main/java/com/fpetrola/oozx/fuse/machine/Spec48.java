@@ -16,8 +16,9 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.machine;
 
+import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
@@ -26,7 +27,7 @@ public class Spec48 extends AbstractSpectrumMachine {
   private Display display;
   private Machine machine1;
   private MachinesPeriph machinesPeriph;
-  protected Spectrum spectrum;
+  public Spectrum spectrum;
   private Periph periph;
 
   public Spec48(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Periph periph) {

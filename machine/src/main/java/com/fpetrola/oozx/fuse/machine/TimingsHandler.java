@@ -16,11 +16,11 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.machine;
 
 public class TimingsHandler {
 
-  static void initMachineTimings(com.fpetrola.oozx.MachineTimings timings, SpectrumMachine machine) {
+  public static void initMachineTimings(MachineTimings timings, SpectrumMachine machine) {
     Timings baseTiming = machine.getBaseTiming();
 
     timings.processorSpeed = processorSpeed(baseTiming);

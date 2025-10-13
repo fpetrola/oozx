@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.machine;
 
 public interface SpectrumMachine {
   TimingsHandler.Timings getBaseTiming();

@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.machine.RamInfo;
+import com.fpetrola.oozx.fuse.machine.Spec48;
+
 public class Spec48RamInfo extends RamInfo {
   private final Spec48 spec48;
 
@@ -26,7 +29,7 @@ public class Spec48RamInfo extends RamInfo {
     this.validPages = validPages;
   }
 
-  boolean portFromUla(int port) {
+  public boolean portFromUla(int port) {
     return spec48.portFromUla(port);
   }
 

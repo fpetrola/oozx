@@ -16,19 +16,19 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.machine;
 
 public abstract class RamInfo {
   boolean locked;
   int currentPage;
   int currentRom;
-  byte lastByte;
-  byte lastByte2;
+  public byte lastByte;
+  public byte lastByte2;
   boolean special;
-  boolean romcs;
-  int validPages;
+  public boolean romcs;
+  protected int validPages;
 
-  abstract boolean portFromUla(int port);
+  public abstract boolean portFromUla(int port);
 
   public abstract int contendDelay(long time);
 

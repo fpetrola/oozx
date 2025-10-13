@@ -115,7 +115,7 @@ public class UPDFdc {
     int readId;                     // Searching an IDAM
     UpdFdcAmType idMark;            // ID mark type
     int lastSectorRead;             // For Speedlock 'random' sector hack
-    int speedlock;                  // For Speedlock hack, -1 to disable
+    public int speedlock;                  // For Speedlock hack, -1 to disable
     int dataOffset;                 // State during transfer
     int cycle;                      // Read/write cycle number
     int delData;                    // READ/WRITE deleted data
@@ -138,10 +138,10 @@ public class UPDFdc {
     byte[] statusRegister = new byte[4]; // Status registers
     byte[] senseIntRes = new byte[2]; // Result bytes for SENSE INTERRUPT
     int crc;                        // CRC value
-    Runnable setIntrq;              // Set INTRQ callback
-    Runnable resetIntrq;            // Reset INTRQ callback
-    Runnable setDatarq;             // Set DATARQ callback
-    Runnable resetDatarq;           // Reset DATARQ callback
+    public Runnable setIntrq;              // Set INTRQ callback
+    public Runnable resetIntrq;            // Reset INTRQ callback
+    public Runnable setDatarq;             // Set DATARQ callback
+    public Runnable resetDatarq;           // Reset DATARQ callback
 
     // Initialize FDC events
     public static void initEvents() {

@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.machine.Spec128;
+import com.fpetrola.oozx.fuse.machine.SpecPlus3;
+
 public class MemoryModuleInfo extends DefaultZxModuleInfo implements ZXModuleInfo {
   private Memory memory;
   private Machine machine;

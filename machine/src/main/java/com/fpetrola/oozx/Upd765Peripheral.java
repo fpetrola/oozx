@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.machine.SpecPlus3;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 import java.util.List;
