@@ -29,14 +29,16 @@ public class SpecPlus3 implements SpectrumMachine {
   private MachinesPeriph machinesPeriph;
   private Spectrum spectrum;
   private Spec48 spec48;
+  private Periph periph;
 
-  public SpecPlus3(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48) {
+  public SpecPlus3(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, Periph periph) {
     this.memory = memory;
     this.display = display;
     this.machine = machine;
     this.machinesPeriph = machinesPeriph;
     this.spectrum = spectrum;
     this.spec48 = spec48;
+    this.periph = periph;
   }
 //  public  Fdd[] specplus3Drives = new Fdd[SpecPlus3Constants.SPECPLUS3_NUM_DRIVES];
 
@@ -164,12 +166,12 @@ public class SpecPlus3 implements SpectrumMachine {
     error = plus2aCommonReset();
     if (error != 0) return error;
 
-    Periph.clear();
+    periph.clear();
     machinesPeriph.machinesPeriphPlus3();
 
-    Periph.setPresent(Periph.Type.UPD765, Periph.Present.ALWAYS);
+    periph.setPresent(Periph.Type.UPD765, Periph.Present.ALWAYS);
 
-    Periph.update();
+    periph.update();
 
     specplus3765Reset();
     specplus3MenuItems();

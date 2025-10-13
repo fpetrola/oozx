@@ -30,14 +30,16 @@ public class Spec128 implements SpectrumMachine {
   private MachinesPeriph machinesPeriph;
   private Spectrum spectrum;
   private Spec48 spec48;
+  private Periph periph;
 
-  public Spec128(Memory memory, Display display, Supplier<FuseMachineInfo> machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48) {
+  public Spec128(Memory memory, Display display, Supplier<FuseMachineInfo> machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, Periph periph) {
     this.memory = memory;
     this.display = display;
     this.machine = machine;
     this.machinesPeriph = machinesPeriph;
     this.spectrum = spectrum;
     this.spec48 = spec48;
+    this.periph = periph;
   }
 
   // Initialize the Spectrum 128K machine
@@ -69,9 +71,9 @@ public class Spec128 implements SpectrumMachine {
     int error = commonReset(true);
     if (error != 0) return error;
 
-    Periph.clear();
+    periph.clear();
     machinesPeriph.machinesPeriph128();
-    Periph.update();
+    periph.update();
 
     Beta.builtin = false;
 

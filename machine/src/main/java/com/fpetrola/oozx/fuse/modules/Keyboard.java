@@ -281,7 +281,7 @@ public class Keyboard {
   // Placeholder for keysyms_map (to be populated based on UI-specific keysyms)
   static KeysymsMap[] KEYSYMS_MAP = {};
 
-  public static int init() {
+  public static int init(Object initContext) {
     releaseAll();
 
     // Populate keyboard_data

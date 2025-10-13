@@ -20,12 +20,15 @@ package com.fpetrola.oozx.fuse.modules;
 
 import com.fpetrola.oozx.Ula;
 import com.fpetrola.oozx.fuse.AbstractStartupModule;
+import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 public class UlaStartupModule extends AbstractStartupModule {
   private Ula ula;
+  private Periph periph;
 
-  public UlaStartupModule(Ula ula) {
+  public UlaStartupModule(Ula ula, Periph periph) {
     this.ula = ula;
+    this.periph = periph;
   }
 
   public Object getInitContext() {
@@ -33,7 +36,7 @@ public class UlaStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return ula.init(initContext);
+    return ula.init(initContext, periph);
   }
 
   public void endFn() {

@@ -70,8 +70,9 @@ public class Z80 {
   private Keyboard keyboard;
   private TStatesHolder tStatesHolder;
   private Input input;
+  private Periph periph;
 
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<FuseMachineInfo> machine, Keyboard keyboard, TStatesHolder tStatesHolder, Input input) {
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<FuseMachineInfo> machine, Keyboard keyboard, TStatesHolder tStatesHolder, Input input, Periph periph) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
@@ -80,6 +81,7 @@ public class Z80 {
     this.keyboard = keyboard;
     this.tStatesHolder = tStatesHolder;
     this.input = input;
+    this.periph = periph;
   }
 
   public void reset(int i) {
@@ -142,14 +144,14 @@ public class Z80 {
       public synchronized WordNumber in(WordNumber port) {
 //        short invoke = LocalLibretroCore.retroInputStateT.invoke(port.intValue(), 0, 0, 0);
         tStatesHolder.setTstates(ooz80.getState().tstates);
-        byte b = Periph.readPort(port.intValue());
+        byte b = periph.readPort(port.intValue());
         ooz80.getState().tstates = tStatesHolder.getTstates();
         return createValue(b);
       }
 
       public void out(WordNumber port, WordNumber value) {
         tStatesHolder.setTstates(ooz80.getState().tstates);
-        Periph.writePort(port.intValue(), (byte) value.intValue());
+        periph.writePort(port.intValue(), (byte) value.intValue());
         ooz80.getState().tstates = tStatesHolder.getTstates();
       }
     };

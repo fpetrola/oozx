@@ -72,15 +72,16 @@ public class Fuse {
   public static Keyboard keyboard = new Keyboard();
   public static Ula ula = new Ula(memory, display, fuseMachineInfoSupplier, keyboard);
   public static EventManager eventManager = new EventManager(fuseMachineInfoSupplier, tStatesHolder);
-  public static Joystick joystick = new Joystick(keyboard);
+  public static Periph periph = new Periph(eventManager, ula, fuseMachineInfoSupplier, tStatesHolder);
+  public static Joystick joystick = new Joystick(keyboard, periph);
   public static Input input = new Input(joystick, keyboard);
-  public static Z80 z80 = new Z80(eventManager, memory, display, ula, fuseMachineInfoSupplier, keyboard, tStatesHolder, input);
+  public static Z80 z80 = new Z80(eventManager, memory, display, ula, fuseMachineInfoSupplier, keyboard, tStatesHolder, input, periph);
   public static Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, tStatesHolder, ramHolder, fuseMachineInfoSupplier);
   public static Machine machine = new Machine(eventManager, memory, display, ula, tStatesHolder, spectrum);
-  public static MachinesPeriph machinesPeriph = new MachinesPeriph();
-  public static Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum);
-  public static Spec128 spec128 = new Spec128(memory, display, fuseMachineInfoSupplier, machinesPeriph, spectrum, spec48);
-  public static SpecPlus3 specPlus3 = new SpecPlus3(memory, display, machine, machinesPeriph, spectrum, spec48);
+  public static MachinesPeriph machinesPeriph = new MachinesPeriph(periph);
+  public static Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum, periph);
+  public static Spec128 spec128 = new Spec128(memory, display, fuseMachineInfoSupplier, machinesPeriph, spectrum, spec48, periph);
+  public static SpecPlus3 specPlus3 = new SpecPlus3(memory, display, machine, machinesPeriph, spectrum, spec48, periph);
 
   public static void abort() {
 
@@ -151,10 +152,10 @@ public class Fuse {
         new KeyboardStartupModule(keyboard),
         new LibspectrumStartupModule(),
         new MachineStartupModule(machine, spec48, spec128, specPlus3),
-        new MachinesPeriphStartupModule(machine, spec128, specPlus3),
+        new MachinesPeriphStartupModule(machine, spec128, specPlus3, periph),
         new MemoryStartupModule(memory, ramHolder, machine, spec128, specPlus3),
         new SpectrumStartupModule(spectrum),
-        new UlaStartupModule(ula),
+        new UlaStartupModule(ula, periph),
         new Z80StartupModule(z80)
     ).forEach(StartupManager::register);
 
@@ -390,7 +391,7 @@ public class Fuse {
 //                    break;
 //
 //                case LibspectrumClassType.DISK_PLUSD:
-//                    if (Periph.isActive(PeriphType.DISCIPLE)) {
+//                    if (periph.isActive(PeriphType.DISCIPLE)) {
 //                        startFiles.diskDisciple = filename;
 //                    } else {
 //                        startFiles.diskPlusd = filename;
@@ -407,15 +408,15 @@ public class Fuse {
 //                    } else if ((Machine.current.capabilities & LibspectrumMachineCapability.TRDOS_DISK) != 0) {
 //                        startFiles.diskBeta = filename;
 //                    } else {
-//                        if (Periph.isActive(PeriphType.BETA128)) {
+//                        if (periph.isActive(PeriphType.BETA128)) {
 //                            startFiles.diskBeta = filename;
-//                        } else if (Periph.isActive(PeriphType.PLUSD)) {
+//                        } else if (periph.isActive(PeriphType.PLUSD)) {
 //                            startFiles.diskPlusd = filename;
-//                        } else if (Periph.isActive(PeriphType.DIDAKTIK80)) {
+//                        } else if (periph.isActive(PeriphType.DIDAKTIK80)) {
 //                            startFiles.diskDidaktik80 = filename;
-//                        } else if (Periph.isActive(PeriphType.DISCIPLE)) {
+//                        } else if (periph.isActive(PeriphType.DISCIPLE)) {
 //                            startFiles.diskDisciple = filename;
-//                        } else if (Periph.isActive(PeriphType.OPUS)) {
+//                        } else if (periph.isActive(PeriphType.OPUS)) {
 //                            startFiles.diskOpus = filename;
 //                        }
 //                    }
@@ -608,7 +609,7 @@ public class Fuse {
   private static int fuseEnd() {
     Movie.stop();
     StartupManager.runEnd();
-    Periph.end();
+    periph.end();
     Ui.end();
 //        UiMedia.driveEnd();
     Module.end();

@@ -27,13 +27,15 @@ public class Spec48 implements SpectrumMachine {
   private Machine machine;
   private MachinesPeriph machinesPeriph;
   private Spectrum spectrum;
+  private Periph periph;
 
-  public Spec48(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum) {
+  public Spec48(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Periph periph) {
     this.memory = memory;
     this.display = display;
     this.machine = machine;
     this.machinesPeriph = machinesPeriph;
     this.spectrum = spectrum;
+    this.periph = periph;
   }
 
   // Check if a port is handled by the ULA
@@ -66,9 +68,9 @@ public class Spec48 implements SpectrumMachine {
     int error = machine.loadRom(0, Settings.current.rom48, Settings.defaults.rom48, 0x4000);
     if (error != 0) return error;
 
-    Periph.clear();
+    periph.clear();
     machinesPeriph.machinesPeriph48();
-    Periph.update();
+    periph.update();
 
     Beta.builtin = false;
 

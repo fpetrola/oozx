@@ -41,13 +41,15 @@ public class LocalLibretroCore implements LibretroCore {
   private Machine machine;
   private Z80 z80;
   private TStatesHolder tStatesHolder;
+  private Periph periph;
 
-  public LocalLibretroCore(EventManager eventManager, Display display, Machine machine, Z80 z80, TStatesHolder tStatesHolder) {
+  public LocalLibretroCore(EventManager eventManager, Display display, Machine machine, Z80 z80, TStatesHolder tStatesHolder, Periph periph) {
     this.eventManager = eventManager;
     this.display = display;
     this.machine = machine;
     this.z80 = z80;
     this.tStatesHolder = tStatesHolder;
+    this.periph = periph;
   }
 
   public int retro_get_beam_x() {
@@ -194,7 +196,7 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_write_port(int port, int value) {
-    Periph.writePortInternal(port, (byte) value);
+    periph.writePortInternal(port, (byte) value);
 
 //    getState().getIo().out(WordNumber.createValue(port), WordNumber.createValue(value));
 //    Periph.writePortInternal(port, (byte) value);

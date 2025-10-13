@@ -26,11 +26,13 @@ public class MachinesPeriphStartupModule extends AbstractStartupModule {
   private Machine machine;
   private Spec128 spec128;
   private SpecPlus3 specPlus3;
+  private Periph periph;
 
-  public MachinesPeriphStartupModule(Machine machine, Spec128 spec128, SpecPlus3 specPlus3) {
+  public MachinesPeriphStartupModule(Machine machine, Spec128 spec128, SpecPlus3 specPlus3, Periph periph) {
     this.machine = machine;
     this.spec128 = spec128;
     this.specPlus3 = specPlus3;
+    this.periph = periph;
   }
 
   public Object getInitContext() {
@@ -38,10 +40,10 @@ public class MachinesPeriphStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    Periph.register(new Spec128MemoryPeripheral(spec128));
-    Periph.register(new SpecPlus3MemoryPeripheral(spec128, specPlus3));
-    Periph.register(new Upd765Peripheral(specPlus3));
-    Periph.register(new SeMemoryPeripheral(machine));
+    periph.register(new Spec128MemoryPeripheral(spec128));
+    periph.register(new SpecPlus3MemoryPeripheral(spec128, specPlus3));
+    periph.register(new Upd765Peripheral(specPlus3));
+    periph.register(new SeMemoryPeripheral(machine));
     return 0;
   }
 

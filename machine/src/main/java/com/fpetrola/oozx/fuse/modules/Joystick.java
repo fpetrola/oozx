@@ -33,9 +33,11 @@ public class Joystick {
   // Number of joysticks supported
   public int joysticksSupported = 0;
   private Keyboard keyboard;
+  private Periph periph;
 
-  public Joystick(Keyboard keyboard) {
+  public Joystick(Keyboard keyboard, Periph periph) {
     this.keyboard = keyboard;
+    this.periph = periph;
   }
 
   public int init() {
@@ -44,8 +46,8 @@ public class Joystick {
     fullerValue = (byte) 0xff;
 
     Module.register(new JoystickModuleInfo(this));
-    Periph.register(new KempstonStrictPeripheral(this));
-    Periph.register(new KempstonLoosePeriphPeripheral(this));
+    periph.register(new KempstonStrictPeripheral(this));
+    periph.register(new KempstonLoosePeriphPeripheral(this));
 
     return 0;
   }

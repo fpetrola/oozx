@@ -33,7 +33,7 @@ public class KeyboardStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    return keyboard.init();
+    return keyboard.init(initContext);
   }
 
   public void endFn() {
