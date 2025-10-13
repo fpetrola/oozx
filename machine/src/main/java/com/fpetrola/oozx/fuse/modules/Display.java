@@ -100,12 +100,14 @@ public class Display {
   private Supplier<FuseMachineInfo> fuseMachineInfoSupplier;
   private TStatesHolder tStatesHolder;
   private RAMHolder ramHolder;
+  private UiDisplay uiDisplay;
 
-  public Display(Memory memory, Supplier<FuseMachineInfo> machine, TStatesHolder tStatesHolder, RAMHolder ramHolder) {
+  public Display(Memory memory, Supplier<FuseMachineInfo> machine, TStatesHolder tStatesHolder, RAMHolder ramHolder, UiDisplay uiDisplay) {
     this.memory = memory;
     this.fuseMachineInfoSupplier = machine;
     this.tStatesHolder = tStatesHolder;
     this.ramHolder = ramHolder;
+    this.uiDisplay = uiDisplay;
   }
 
   public int init(Object initContext) {
@@ -246,7 +248,7 @@ public class Display {
       parseAttr(data2, inkPaper);
       byte ink = inkPaper[0], paper = inkPaper[1];
 //            System.err.printf("display_write_if_dirty_sinclair: x=%d y=%d data=%02x attr=%02x ink=%d paper=%d\n", x, y, data, data2, ink, paper );
-      UiDisplay.plot8(beamX, beamY, (byte) (data & 0xff), ink, paper);
+      uiDisplay.plot8(beamX, beamY, (byte) (data & 0xff), ink, paper);
       lastScreen[index] = lastChunkDetail;
       isDirty[beamY] |= (1L << beamX);
     }
@@ -415,7 +417,7 @@ public class Display {
 
     for (; start < end; start++) {
       if (lastScreen[index] != chunkDetail) {
-        UiDisplay.plot8(start, y, (byte) 0x00, (byte) 0, (byte) colour);
+        uiDisplay.plot8(start, y, (byte) 0x00, (byte) 0, (byte) colour);
         lastScreen[index] = chunkDetail;
         isDirty[y] |= (1L << start);
       }
@@ -481,38 +483,6 @@ public class Display {
 
     borderChanges.clear();
     addBorderSentinel();
-  }
-
-  int frameCountLocal = 0;
-
-  private void updateUiScreen() {
-    int scale = fuseMachineInfoSupplier.get().timex ? 2 : 1;
-
-    if (Settings.current.frameRate <= ++frameCountLocal) {
-      frameCountLocal = 0;
-      if (Movie.recording) {
-        Movie.startFrame();
-      }
-
-      if (redrawAll) {
-        if (Movie.recording) {
-          Movie.addArea(0, 0, ASPECT_WIDTH >> 3, SCREEN_HEIGHT);
-        }
-        //UiDisplay.area(0, 0, scale * ASPECT_WIDTH, scale * SCREEN_HEIGHT);
-        redrawAll = false;
-      } else {
-        for (Rect rect : Rectangle.inactive) {
-          if (Movie.recording) {
-            Movie.addArea(rect.x, rect.y, rect.getW(), rect.getH());
-          }
-          UiDisplay.area(8 * scale * rect.x, scale * rect.y, 8 * scale * rect.getW(), scale * rect.getH());
-        }
-      }
-
-      Rectangle.inactive.clear();
-
-      UiDisplay.frameEnd();
-    }
   }
 
   public int frame() {

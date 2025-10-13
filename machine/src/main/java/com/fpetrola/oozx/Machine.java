@@ -36,14 +36,16 @@ public class Machine {
   public static FuseMachineInfo current; // The currently selected machine
   private TStatesHolder tStatesHolder;
   private final Spectrum spectrum;
+  private UiDisplay uiDisplay;
 
-  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, TStatesHolder tStatesHolder, Spectrum spectrum) {
+  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, TStatesHolder tStatesHolder, Spectrum spectrum, UiDisplay uiDisplay) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
     this.ula = ula;
     this.tStatesHolder = tStatesHolder;
     this.spectrum = spectrum;
+    this.uiDisplay = uiDisplay;
   }
 
   //  private  void reg1() {
@@ -94,7 +96,6 @@ public class Machine {
 
         if (error != 0) {
           Ui.error(UiError.ERROR, "can't select 48K machine. Giving up.");
-          Fuse.abort();
         } else {
           Ui.error(UiError.INFO, "selecting 48K machine");
           return 0;
@@ -147,7 +148,7 @@ public class Machine {
 
     Sound.end();
 
-    if (UiDisplay.end() != 0) return 1;
+    if (uiDisplay.end() != 0) return 1;
 
     capabilities = Libspectrum.machineCapabilities(machine.machine);
 
@@ -159,7 +160,7 @@ public class Machine {
       height = display.SCREEN_HEIGHT;
     }
 
-    if (UiDisplay.init(width, height) != 0) return 1;
+    if (uiDisplay.init(width, height) != 0) return 1;
 
     Sound.init(Settings.current.soundDevice);
 

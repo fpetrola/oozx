@@ -68,24 +68,21 @@ public class Fuse {
     }
   };
   public static Memory memory = new Memory(fuseMachineInfoSupplier, tStatesHolder);
-  public static Display display = new Display(memory, fuseMachineInfoSupplier, tStatesHolder, ramHolder);
+  private static UiDisplay uiDisplay= new UiDisplay(tStatesHolder);
+  public static Display display = new Display(memory, fuseMachineInfoSupplier, tStatesHolder, ramHolder, uiDisplay);
   public static Keyboard keyboard = new Keyboard();
   public static Ula ula = new Ula(memory, display, fuseMachineInfoSupplier, keyboard, tStatesHolder);
   public static EventManager eventManager = new EventManager(fuseMachineInfoSupplier, tStatesHolder);
   public static Periph periph = new Periph(eventManager, ula, fuseMachineInfoSupplier, tStatesHolder);
   public static Joystick joystick = new Joystick(keyboard, periph);
   public static Input input = new Input(joystick, keyboard);
-  public static Z80 z80 = new Z80(eventManager, memory, display, ula, fuseMachineInfoSupplier, keyboard, tStatesHolder, input, periph);
+  public static Z80 z80 = new Z80(eventManager, memory, display, ula, fuseMachineInfoSupplier, keyboard, tStatesHolder, input, periph, uiDisplay);
   public static Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, tStatesHolder, ramHolder, fuseMachineInfoSupplier);
-  public static Machine machine = new Machine(eventManager, memory, display, ula, tStatesHolder, spectrum);
+  public static Machine machine = new Machine(eventManager, memory, display, ula, tStatesHolder, spectrum, uiDisplay);
   public static MachinesPeriph machinesPeriph = new MachinesPeriph(periph);
   public static Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum, periph);
   public static Spec128 spec128 = new Spec128(memory, display, fuseMachineInfoSupplier, machinesPeriph, spectrum, spec48, periph);
   public static SpecPlus3 specPlus3 = new SpecPlus3(memory, display, machine, machinesPeriph, spectrum, spec48, periph);
-
-  public static void abort() {
-
-  }
 
   // The various types of file we may want to run on startup
   static class StartFiles {

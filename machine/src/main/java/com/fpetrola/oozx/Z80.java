@@ -72,8 +72,9 @@ public class Z80 {
   private TStatesHolder tStatesHolder;
   private Input input;
   private Periph periph;
+  private UiDisplay uiDisplay;
 
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<FuseMachineInfo> machine, Keyboard keyboard, TStatesHolder tStatesHolder, Input input, Periph periph) {
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<FuseMachineInfo> machine, Keyboard keyboard, TStatesHolder tStatesHolder, Input input, Periph periph, UiDisplay uiDisplay) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
@@ -83,6 +84,7 @@ public class Z80 {
     this.tStatesHolder = tStatesHolder;
     this.input = input;
     this.periph = periph;
+    this.uiDisplay = uiDisplay;
   }
 
   public void reset(int i) {
@@ -171,7 +173,7 @@ public class Z80 {
       JFrame screen = createScreen(io.miniZXKeyboard, new FuseScreen(bytes));
       new SwingKeyboard(screen, keyboard, input);
     }
-    UiDisplay.screenMatrix = bytes;
+    uiDisplay.screenMatrix = bytes;
 //    Keyboard0.keyboard = io.miniZXKeyboard;
 
     setupMemory();

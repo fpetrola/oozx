@@ -20,15 +20,19 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 
-import static com.fpetrola.oozx.Fuse.tStatesHolder;
 import static java.lang.String.format;
 
 public class UiDisplay {
-  public static byte[][] screenMatrix;
+  public byte[][] screenMatrix;
+  private TStatesHolder tStatesHolder;
 
-  public static void plot8(int x, int y, byte data, byte ink, byte paper) {
+  public UiDisplay(TStatesHolder tStatesHolder) {
+    this.tStatesHolder = tStatesHolder;
+  }
+
+  public void plot8(int x, int y, byte data, byte ink, byte paper) {
     String format = format("uidisplay_plot8: x=%d y=%d data=%02x ink=%d paper=%d", x, y, data, ink, paper);// Formatea el string
-    GetTStatesHistory.addTStateUpdate((byte) (data&0xff), format, (int) tStatesHolder.getTstates());
+    GetTStatesHistory.addTStateUpdate((byte) (data & 0xff), format, (int) tStatesHolder.getTstates());
 
     for (int i = 0; i < 8; i++) {
       int i1 = data & (0x80 >> i);
@@ -37,7 +41,7 @@ public class UiDisplay {
 //    System.out.println("plot8 " + x + " " + y + " " + (data & 0xFF) + " " + (ink & 0xFF) + " " + (paper & 0xFF));
   }
 
-  public static void area(int x, int y, int w, int h) {
+  public void area(int x, int y, int w, int h) {
 //    if (w == 0 || h == 0)
 //      System.err.println("WARNING: UiDisplay.area called with w>0 or h>0: " + w + "x" + h);
 //    for (int i = x; i < x + w ; i++) {
@@ -49,15 +53,15 @@ public class UiDisplay {
 //    System.out.println("area " + x + " " + y + " " + w + " " + h);
   }
 
-  public static void frameEnd() {
+  public void frameEnd() {
 //    System.out.println("frameEnd");
   }
 
-  public static int end() {
+  public int end() {
     return 0;
   }
 
-  public static int init(int width, int height) {
+  public int init(int width, int height) {
     return 0;
   }
 }
