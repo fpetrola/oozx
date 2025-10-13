@@ -539,25 +539,12 @@ public class Display {
     int mask = 1 << (7 - (x % 8));
     int index;
 
-    if (fuseMachineInfoSupplier.get().isTimex()) {
-      int column = x >> 4;
-      y >>= 1;
-      index = column + y * SCREEN_WIDTH_COLS;
+    int column = x >> 3;
+    index = column + y * SCREEN_WIDTH_COLS;
 
-      data = (byte) (lastScreen[index] & 0xff);
-      data2 = (byte) ((lastScreen[index] & 0xff00) >> 8);
-      long modeData = (lastScreen[index] & 0xff0000) >> 16;
-
-      mask = 1 << (7 - ((x >> 1) % 8));
-      parseAttr(data2, inkPaper);
-    } else {
-      int column = x >> 3;
-      index = column + y * SCREEN_WIDTH_COLS;
-
-      data = (byte) (lastScreen[index] & 0xff);
-      data2 = (byte) ((lastScreen[index] & 0xff00) >> 8);
-      parseAttr(data2, inkPaper);
-    }
+    data = (byte) (lastScreen[index] & 0xff);
+    data2 = (byte) ((lastScreen[index] & 0xff00) >> 8);
+    parseAttr(data2, inkPaper);
 
     return (data & mask) != 0 ? inkPaper[0] : inkPaper[1];
   }

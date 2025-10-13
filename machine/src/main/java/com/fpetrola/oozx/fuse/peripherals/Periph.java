@@ -247,8 +247,8 @@ public class Periph {
 
     // Special case for 128K/+2 machines
     if ((port & 0x8002) == 0 &&
-        (machine.get().getMachine() == Libspectrum.Machine._128K ||
-            machine.get().getMachine() == Libspectrum.Machine.PLUS2)) {
+        (machine.get().getClass() == Spec128.class ||
+            machine.get().getClass() == SpecPlus2.class)) {
       writePortInternal(0x7ffd, b);
     }
 

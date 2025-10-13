@@ -91,9 +91,7 @@ public class Ula {
     Sound.beeper(tStatesHolder.getTstates(),
         ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || Tape.microphone ? 1 : 0));
 
-    if (getCurrent().isTimex()) {
-      defaultValue = (byte) 0x5f;
-    } else if ((getCurrent().getCapabilities() & PLUS3_MEMORY) != 0) {
+    if ((getCurrent().getCapabilities() & PLUS3_MEMORY) != 0) {
       defaultValue = (byte) 0xbf;
     } else if ((getCurrent().getCapabilities() & _128_MEMORY) != 0 || !Settings.current.issue2) {
       defaultValue = (byte) ((b & 0x10) != 0 ? 0xff : 0xbf);

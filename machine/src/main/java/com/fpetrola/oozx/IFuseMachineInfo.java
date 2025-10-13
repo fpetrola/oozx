@@ -21,15 +21,9 @@ package com.fpetrola.oozx;
 public interface IFuseMachineInfo {
   RamInfo getRamInfo();
 
-  Libspectrum.Machine getMachine();
-
-  String getId();
-
   int getCapabilities();
 
   void setCapabilities(int capabilities);
-
-  boolean isTimex();
 
   MachineTimings getTimings();
 

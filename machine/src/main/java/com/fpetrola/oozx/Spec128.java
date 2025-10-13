@@ -73,7 +73,7 @@ public class Spec128 extends FuseMachineInfo implements SpectrumMachine {
   }
 
   // Common reset for Spectrum 128K
-  private int commonReset(boolean contention) {
+  public int commonReset(boolean contention) {
     getRamInfo().locked = false;
     getRamInfo().lastByte = 0;
 

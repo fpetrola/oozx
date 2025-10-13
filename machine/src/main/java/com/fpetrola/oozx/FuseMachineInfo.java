@@ -37,24 +37,12 @@ public class FuseMachineInfo implements IFuseMachineInfo {
     return ramInfo;
   }
 
-  public Libspectrum.Machine getMachine() {
-    return machine;
-  }
-
-  public String getId() {
-    return id;
-  }
-
   public int getCapabilities() {
     return capabilities;
   }
 
   public void setCapabilities(int capabilities) {
     this.capabilities = capabilities;
-  }
-
-  public boolean isTimex() {
-    return timex;
   }
 
   public MachineTimings getTimings() {

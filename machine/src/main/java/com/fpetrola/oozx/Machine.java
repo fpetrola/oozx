@@ -79,31 +79,8 @@ public class Machine {
       }
     }
 
-    Ui.error(UiError.ERROR, "machine type %d unknown", type.getId());
+    Ui.error(UiError.ERROR, "machine type %d unknown", type.getClass().getName());
     return 1;
-  }
-
-  public int selectId(String id) {
-    int i;
-    int error;
-
-    for (i = 0; i < machineTypes.size(); i++) {
-      if (machineTypes.get(i).getId().equals(id)) {
-        error = selectMachine(machineTypes.get(i));
-        if (error != 0) return error;
-        return 0;
-      }
-    }
-
-    Ui.error(UiError.ERROR, "Machine id '%s' unknown", id);
-    return 1;
-  }
-
-  public String getId(int type) {
-    for (int i = 0; i < machineTypes.size(); i++) {
-      if (machineTypes.get(i).getMachine().ordinal() == type) return machineTypes.get(i).getId();
-    }
-    return null;
   }
 
   private int selectMachine(SpectrumMachine machine) {
@@ -112,7 +89,7 @@ public class Machine {
 
     current = machine;
 
-    Settings.setString(Settings.current.startMachine, machine.getId());
+    Settings.setString(Settings.current.startMachine, machine.getClass().getSimpleName());
 
     tStatesHolder.setTstates(0);
 
