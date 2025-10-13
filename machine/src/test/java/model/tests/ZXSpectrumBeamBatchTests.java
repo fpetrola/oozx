@@ -18,7 +18,7 @@
 
 package model.tests;
 
-import com.fpetrola.oozx.fuse.DefaultCommandHandler;
+import com.fpetrola.oozx.fuse.bridge.DefaultCommandHandler;
 import model.connected.*;
 import model.interfaces.IULA;
 import model.interfaces.ISpectrumBus;

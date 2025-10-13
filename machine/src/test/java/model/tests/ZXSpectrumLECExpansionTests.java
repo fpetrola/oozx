@@ -1,6 +1,6 @@
 package model.tests;
 
-import com.fpetrola.oozx.fuse.DefaultCommandHandler;
+import com.fpetrola.oozx.fuse.bridge.DefaultCommandHandler;
 import model.connected.ConnectedMemory;
 import org.junit.jupiter.api.*;
 

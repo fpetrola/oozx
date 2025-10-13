@@ -16,9 +16,7 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
-
-import com.fpetrola.oozx.fuse.bridge.EmulatorCommand;
+package com.fpetrola.oozx.fuse.bridge;
 
 public interface CommandHandler {
   void addNoResultCommand(EmulatorCommand emulatorCommand);

@@ -16,17 +16,20 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.bridge;
 
 import com.fpetrola.oozx.Fuse;
-import com.fpetrola.oozx.fuse.bridge.EmulatorCommand;
+import com.fpetrola.oozx.fuse.EmulatorCommandResult;
+import com.fpetrola.oozx.fuse.FuseLibretroConnector;
+import com.fpetrola.oozx.fuse.LibretroCore;
+import com.fpetrola.oozx.fuse.LocalLibretroCore;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 public class DefaultCommandHandler implements CommandHandler {
-  EmulatorCommand lastCommand;
+  public EmulatorCommand lastCommand;
 
   private List<EmulatorCommand> commandQueue = Collections.synchronizedList(new LinkedList<>());
   private List<EmulatorCommandResult> resultQueue = Collections.synchronizedList(new LinkedList<>());
