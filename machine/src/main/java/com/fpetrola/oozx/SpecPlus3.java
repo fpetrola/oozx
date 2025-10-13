@@ -355,8 +355,7 @@ public class SpecPlus3 extends FuseMachineInfo implements SpectrumMachine {
 //  }
 
   // Shutdown the +3 machine
-  public int shutdown() {
-    return 0;
+  public void shutdown() {
   }
 
   private class SpecPlus3RamInfo extends RamInfo {
