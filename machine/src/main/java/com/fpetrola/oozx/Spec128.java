@@ -46,10 +46,7 @@ public class Spec128 extends FuseMachineInfo implements SpectrumMachine {
 
     reset = this::reset;
     timex = false;
-    ramInfo.portFromUla = spec48::portFromUla;
-    ramInfo.contendDelay = spectrum::contendDelay65432100;
-    ramInfo.contendDelayNoMreq = spectrum::contendDelay65432100;
-    ramInfo.validPages = 8;
+    ramInfo = new Spec48RamInfo(spec48, 8);
     unattachedPort = spectrum::spectrumUnattachedPort;
     shutdown = null;
     memoryMap = this::memoryMap;

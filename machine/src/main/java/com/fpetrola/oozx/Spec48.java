@@ -26,7 +26,7 @@ public class Spec48 extends FuseMachineInfo implements SpectrumMachine {
   private Display display;
   private Machine machine1;
   private MachinesPeriph machinesPeriph;
-  private Spectrum spectrum;
+  protected Spectrum spectrum;
   private Periph periph;
 
   public Spec48(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Periph periph) {
@@ -53,10 +53,9 @@ public class Spec48 extends FuseMachineInfo implements SpectrumMachine {
 
     reset = this::reset;
     timex = false;
-    ramInfo.portFromUla = this::portFromUla;
-    ramInfo.contendDelay = spectrum::contendDelay65432100;
-    ramInfo.contendDelayNoMreq = spectrum::contendDelay65432100;
-    ramInfo.validPages = 3;
+
+    ramInfo = new Spec48RamInfo(this, 3);
+
     unattachedPort = spectrum::spectrumUnattachedPort;
     shutdown = null;
     memoryMap = this::memoryMap;
@@ -114,4 +113,5 @@ public class Spec48 extends FuseMachineInfo implements SpectrumMachine {
     memory.map16k(0x0000, memory.mapRom, 0);
     memory.romcsMap();
   }
+
 }
