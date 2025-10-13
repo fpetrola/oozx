@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.fuse.peripherals;
 
+import com.fpetrola.oozx.fuse.ports.PortHandler;
+
 import java.util.List;
 
 public class AbstractZxPeripheral implements ZxPeripheral {

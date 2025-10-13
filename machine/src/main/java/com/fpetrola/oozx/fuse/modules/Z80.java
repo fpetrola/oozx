@@ -16,13 +16,17 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.modules;
 
+import com.fpetrola.oozx.Libspectrum;
+import com.fpetrola.oozx.MemoryPage;
+import com.fpetrola.oozx.Module;
+import com.fpetrola.oozx.TStatesHolder;
+import com.fpetrola.oozx.UiDisplay;
 import com.fpetrola.oozx.fuse.*;
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.machine.TimingsHandler;
-import com.fpetrola.oozx.fuse.modules.*;
 import com.fpetrola.oozx.fuse.peripherals.*;
 import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.cpu.IO;

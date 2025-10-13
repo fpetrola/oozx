@@ -19,7 +19,7 @@
 package com.fpetrola.oozx.fuse.peripherals;
 
 import com.fpetrola.oozx.Machine;
-import com.fpetrola.oozx.SeMemoryPortHandler;
+import com.fpetrola.oozx.fuse.ports.SeMemoryPortHandler;
 
 import java.util.List;
 

@@ -16,18 +16,11 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.peripherals;
+package com.fpetrola.oozx.fuse.modules;
 
-public interface PortHandler {
-  byte read(int port, byte[] attached);
-
-  int getMask();
-
-  int getValue();
-
-  boolean isReader();
-
-  boolean isWriter();
-
-  void write(int port, byte value);
+// Information about an event
+public class Event {
+    public long tstates;
+    public int type;
+    public Object userData;
 }

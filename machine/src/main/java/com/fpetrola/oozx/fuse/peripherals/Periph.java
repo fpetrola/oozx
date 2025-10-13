@@ -24,6 +24,7 @@ import com.fpetrola.oozx.fuse.machine.SpecPlus2;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.modules.Ula;
+import com.fpetrola.oozx.fuse.ports.PortHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -262,17 +263,6 @@ public class Periph {
   // Read a byte from a port, taking no time
   public byte readPortInternal(int port) {
     // Handle RZX playback
-    if (Rzx.playback) {
-      try {
-        byte value = Rzx.playback();
-        return value;
-      } catch (Libspectrum.Error error) {
-        Rzx.stopPlayback(true);
-        //                EventManager.eventAdd(tStatesHolder.tstates, Event.Type.NULL);
-        eventManager.eventAdd(tStatesHolder.getTstates(), -1);
-        return readPortInternal(port); // Retry
-      }
-    }
 
     // Normal port read
     PeripheralData callbackInfo = new PeripheralData(port, (byte) 0x00, (byte) 0xff);
@@ -289,10 +279,6 @@ public class Periph {
     if (callbackInfo.attached != (byte) 0xff) {
       callbackInfo.value = mergeFloatingBus(callbackInfo.value, callbackInfo.attached,
           (byte) machine.get().unattachedPort());
-    }
-
-    if (Rzx.recording) {
-      Rzx.storeByte(callbackInfo.value);
     }
 
     return callbackInfo.value;

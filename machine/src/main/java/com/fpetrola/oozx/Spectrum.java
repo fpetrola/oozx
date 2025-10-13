@@ -22,6 +22,7 @@ import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.modules.SpectrumModuleInfo;
+import com.fpetrola.oozx.fuse.modules.Z80;
 
 import java.util.function.Supplier;
 
@@ -63,7 +64,6 @@ public class Spectrum {
   }
 
   private void spectrumFrameEventFn(long lastTstates, int type, Object userData) {
-    if (Rzx.playback) eventManager.eventForceEvents();
     spectrumFrame();
     z80.interrupt();
   }
@@ -81,7 +81,7 @@ public class Spectrum {
   }
 
   public int spectrumFrame() {
-    long frameLength = Rzx.playback ? tStatesHolder.getTstates() : getCurrent().getTimings().tstatesPerFrame;
+    long frameLength = getCurrent().getTimings().tstatesPerFrame;
 
     eventManager.eventFrame(frameLength);
     tStatesHolder.setTstates(tStatesHolder.getTstates() - frameLength);
@@ -93,11 +93,8 @@ public class Spectrum {
     if (Sound.enabled) Sound.frame();
 
     if (display.frame() != 0) return 1;
-    Printer.frame();
 
-    if (!Rzx.playback) {
-      eventManager.eventAdd(getCurrent().getTimings().tstatesPerFrame, spectrumFrameEvent);
-    }
+    eventManager.eventAdd(getCurrent().getTimings().tstatesPerFrame, spectrumFrameEvent);
 
     PhantomTypist.frame();
 

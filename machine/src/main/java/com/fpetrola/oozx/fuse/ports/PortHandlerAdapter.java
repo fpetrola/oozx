@@ -18,38 +18,42 @@
 
 package com.fpetrola.oozx.fuse.ports;
 
-public abstract class DefaultPortHandler implements PortHandler {
-  protected int mask;
-  protected int value;
-  protected boolean isReader;
-  protected boolean isWriter;
+import com.fpetrola.oozx.fuse.peripherals.Port;
 
-  public DefaultPortHandler(int mask1, int value1, boolean isReader, boolean isWriter) {
-    mask = mask1;
-    value = value1;
-    this.isReader = isReader;
-    this.isWriter = isWriter;
+public class PortHandlerAdapter implements PortHandler {
+  private final Port port;
+
+  public PortHandlerAdapter(Port port) {
+    this.port = port;
   }
 
+  @Override
+  public byte read(int portNumber, byte[] attached) {
+    return port.read.apply(portNumber, attached);
+  }
+
+  @Override
   public int getMask() {
-    return mask;
+    return port.mask;
   }
 
+  @Override
   public int getValue() {
-    return value;
+    return port.value;
   }
 
+  @Override
   public boolean isReader() {
-    return isReader;
+    return port.read != null;
   }
 
+  @Override
   public boolean isWriter() {
-    return isWriter;
+    return port.write != null;
   }
 
-  public byte read(int port, byte[] attached) {
-    return -1;
-  }
-  public void write(int port, byte value) {
+  @Override
+  public void write(int portNumber, byte value) {
+    port.write.apply(portNumber, value);
   }
 }

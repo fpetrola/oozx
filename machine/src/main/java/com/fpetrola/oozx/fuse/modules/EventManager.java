@@ -215,13 +215,6 @@ public class EventManager {
     eventFree = null; // GC
   }
 
-  // Call a user-supplied function for every event in the current list
-  public void eventForeach(GFunc function, Object userData) {
-    for (Event event : eventList) {
-      function.apply(event, userData);
-    }
-  }
-
   // A textual representation of each event type
   public String eventName(int type) {
     return registeredEvents.get(type).description;

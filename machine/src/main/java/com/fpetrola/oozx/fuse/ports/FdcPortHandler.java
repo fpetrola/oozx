@@ -16,9 +16,23 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.ports;
 
-@FunctionalInterface
-public interface GFunc {
-    void apply(Object data, Object userData);
+import com.fpetrola.oozx.fuse.machine.SpecPlus3;
+
+public class FdcPortHandler extends DefaultPortHandler {
+  private SpecPlus3 specPlus3;
+
+  public FdcPortHandler(int mask, int value, SpecPlus3 specPlus3) {
+    super(mask, value, true, true);
+    this.specPlus3 = specPlus3;
+  }
+
+  public byte read(int port, byte[] attached) {
+    return specPlus3.fdcRead(port, attached);
+  }
+
+  public void write(int port, byte value) {
+    specPlus3.fdcWrite(port, value);
+  }
 }

@@ -16,20 +16,19 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.ports;
 
-import com.fpetrola.oozx.fuse.machine.SpecPlus3;
-import com.fpetrola.oozx.fuse.ports.DefaultPortHandler;
+import com.fpetrola.oozx.fuse.machine.Spec128;
 
-public class SpecPlus3PortHandler extends DefaultPortHandler {
-  private SpecPlus3 specPlus3;
+public class Spec128PortHandler extends DefaultPortHandler {
+  private Spec128 spec128;
 
-  public SpecPlus3PortHandler(int mask, int value, SpecPlus3 specPlus3) {
+  public Spec128PortHandler(int mask, int value, Spec128 spec128) {
     super(mask, value, false, true);
-    this.specPlus3 = specPlus3;
+    this.spec128 = spec128;
   }
 
   public void write(int port, byte value) {
-    specPlus3.memoryPort2Write(port, value);
+    spec128.memoryPortWrite(port, value);
   }
 }

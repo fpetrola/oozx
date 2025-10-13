@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.fuse.peripherals;
 
+import com.fpetrola.oozx.fuse.ports.PortHandler;
+
 public interface ZxPeripheral {
   Periph.Type getType();
 

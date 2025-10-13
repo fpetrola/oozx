@@ -231,8 +231,6 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
 
   // Write to the +3 memory port 2 (0x1FFD)
   public void memoryPort2WriteInternal(int port, byte b) {
-    Printer.parallelStrobeWrite(b & 0x10);
-
 //    if ((Machine.current.capabilities & Libspectrum.MachineCapability.PLUS3_DISK) != 0) {
 //      Fdd.motorOn(specplus3Drives[0], (b & 0x08) != 0);
 //      Fdd.motorOn(specplus3Drives[1], (b & 0x08) != 0);

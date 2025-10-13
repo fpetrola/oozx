@@ -16,32 +16,21 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.ports;
 
-public class Rzx {
-  public static boolean playback
-      ;
-  public static boolean recording;
-  public static boolean competitionMode;
+import com.fpetrola.oozx.Machine;
 
-  public static void frame() {
+public class SeMemoryPortHandler extends DefaultPortHandler {
+  private Machine machine;
 
+  public SeMemoryPortHandler(Machine machine) {
+    super(0xffff, 0x7ffd, false, true);
+    this.machine = machine;
   }
 
-  public static int stopRecording() {
-
-    return 0;
-  }
-
-  public static void stopPlayback(boolean b) {
-
-  }
-
-  public static byte playback() {
-    return 0;
-  }
-
-  public static void storeByte(byte value) {
-
+  @Override
+  public void write(int port, byte value) {
+    machine.current.getRamInfo().lastByte = value;
+    machine.current.memoryMap();
   }
 }

@@ -16,18 +16,18 @@
  *
  */
 
-package com.fpetrola.oozx;// Assuming libspectrum is ported to Java (Libspectrum class with dword as long, new/free as new/null)
-// Assuming infrastructure/startup_manager ported (StartupManager, StartupManagerModule)
-// Assuming fuse, ui, utils ported (Fuse, Ui, Utils)
-// Use LinkedList for GSList, ArrayList for GArray
-// GFunc as functional interface
-// event_fn_t as functional interface
+package com.fpetrola.oozx.fuse.ports;
 
-@FunctionalInterface
-public interface EventFn {
-    void apply(long tstates, int type, Object userData);
+public interface PortHandler {
+  byte read(int port, byte[] attached);
+
+  int getMask();
+
+  int getValue();
+
+  boolean isReader();
+
+  boolean isWriter();
+
+  void write(int port, byte value);
 }
-
-// The function to be called when an event occurs
-// (Defined as EventFn above)
-

@@ -16,9 +16,18 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.modules;// Assuming libspectrum is ported to Java (Libspectrum class with dword as long, new/free as new/null)
+// Assuming infrastructure/startup_manager ported (StartupManager, StartupManagerModule)
+// Assuming fuse, ui, utils ported (Fuse, Ui, Utils)
+// Use LinkedList for GSList, ArrayList for GArray
+// GFunc as functional interface
+// event_fn_t as functional interface
 
 @FunctionalInterface
-public interface ModuleResetFn {
-    void apply(int hardReset);
+public interface EventFn {
+    void apply(long tstates, int type, Object userData);
 }
+
+// The function to be called when an event occurs
+// (Defined as EventFn above)
+

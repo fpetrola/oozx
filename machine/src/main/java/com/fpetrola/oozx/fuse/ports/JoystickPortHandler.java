@@ -16,42 +16,24 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.peripherals;
+package com.fpetrola.oozx.fuse.ports;
 
-public class PortHandlerAdapter implements PortHandler {
-  private final Port port;
+import com.fpetrola.oozx.fuse.modules.Joystick;
 
-  public PortHandlerAdapter(Port port) {
-    this.port = port;
+public class JoystickPortHandler extends DefaultPortHandler {
+  private Joystick joystick;
+
+  public JoystickPortHandler(int mask, int value, Joystick joystick) {
+    super(mask, value, true, false);
+    this.joystick = joystick;
   }
 
   @Override
-  public byte read(int portNumber, byte[] attached) {
-    return port.read.apply(portNumber, attached);
+  public byte read(int port, byte[] attached) {
+    return joystick.kempstonRead(port, attached);
   }
 
   @Override
-  public int getMask() {
-    return port.mask;
-  }
-
-  @Override
-  public int getValue() {
-    return port.value;
-  }
-
-  @Override
-  public boolean isReader() {
-    return port.read != null;
-  }
-
-  @Override
-  public boolean isWriter() {
-    return port.write != null;
-  }
-
-  @Override
-  public void write(int portNumber, byte value) {
-    port.write.apply(portNumber, value);
+  public void write(int port, byte value) {
   }
 }

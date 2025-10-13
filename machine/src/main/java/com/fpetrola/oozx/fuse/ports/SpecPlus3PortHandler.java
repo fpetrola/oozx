@@ -16,25 +16,19 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.ports;
 
-import com.fpetrola.oozx.fuse.modules.Joystick;
-import com.fpetrola.oozx.fuse.ports.DefaultPortHandler;
+import com.fpetrola.oozx.fuse.machine.SpecPlus3;
 
-public class JoystickPortHandler extends DefaultPortHandler {
-  private Joystick joystick;
+public class SpecPlus3PortHandler extends DefaultPortHandler {
+  private SpecPlus3 specPlus3;
 
-  public JoystickPortHandler(int mask, int value, Joystick joystick) {
-    super(mask, value, true, false);
-    this.joystick = joystick;
+  public SpecPlus3PortHandler(int mask, int value, SpecPlus3 specPlus3) {
+    super(mask, value, false, true);
+    this.specPlus3 = specPlus3;
   }
 
-  @Override
-  public byte read(int port, byte[] attached) {
-    return joystick.kempstonRead(port, attached);
-  }
-
-  @Override
   public void write(int port, byte value) {
+    specPlus3.memoryPort2Write(port, value);
   }
 }

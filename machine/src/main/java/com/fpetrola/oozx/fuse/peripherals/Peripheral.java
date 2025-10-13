@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx.fuse.peripherals;
 
+import com.fpetrola.oozx.fuse.ports.PortHandler;
+import com.fpetrola.oozx.fuse.ports.PortHandlerAdapter;
+
 import java.util.Arrays;
 import java.util.List;
 

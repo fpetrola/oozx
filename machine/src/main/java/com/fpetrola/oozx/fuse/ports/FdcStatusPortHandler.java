@@ -16,10 +16,9 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.ports;
 
 import com.fpetrola.oozx.fuse.machine.SpecPlus3;
-import com.fpetrola.oozx.fuse.ports.DefaultPortHandler;
 
 public class FdcStatusPortHandler extends DefaultPortHandler {
   private SpecPlus3 specPlus3;

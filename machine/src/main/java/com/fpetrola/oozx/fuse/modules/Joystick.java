@@ -265,8 +265,7 @@ public class Joystick {
 
       if (Settings.current.joystickKeyboardOutput != fuseType &&
           Settings.current.joystick1Output != fuseType &&
-          Settings.current.joystick2Output != fuseType &&
-          !Rzx.playback) {
+          Settings.current.joystick2Output != fuseType) {
         Ui.UIConfirmJoystick result = Ui.confirmJoystick(snap.joystickList(i), snap.joystickInputs(i));
         switch (result) {
           case UI_CONFIRM_JOYSTICK_KEYBOARD:

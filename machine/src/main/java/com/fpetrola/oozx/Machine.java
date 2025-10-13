@@ -59,11 +59,6 @@ public class Machine {
     int i;
     int error;
 
-    Rzx.stopRecording();
-    Rzx.stopPlayback(true);
-
-    Movie.stop();
-
     for (i = 0; i < machineTypes.size(); i++) {
       if (machineTypes.get(i) == type) {
         error = selectMachine(machineTypes.get(i));

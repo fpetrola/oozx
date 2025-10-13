@@ -18,8 +18,8 @@
 
 package com.fpetrola.oozx.fuse.peripherals;
 
-import com.fpetrola.oozx.FdcPortHandler;
-import com.fpetrola.oozx.FdcStatusPortHandler;
+import com.fpetrola.oozx.fuse.ports.FdcPortHandler;
+import com.fpetrola.oozx.fuse.ports.FdcStatusPortHandler;
 import com.fpetrola.oozx.fuse.machine.SpecPlus3;
 
 import java.util.List;

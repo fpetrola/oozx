@@ -16,24 +16,25 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.machine;
 
-import com.fpetrola.oozx.fuse.machine.SpecPlus3;
-import com.fpetrola.oozx.fuse.ports.DefaultPortHandler;
+public class Spec48RamInfo extends RamInfo {
+  private final Spec48 spec48;
 
-public class FdcPortHandler extends DefaultPortHandler {
-  private SpecPlus3 specPlus3;
-
-  public FdcPortHandler(int mask, int value, SpecPlus3 specPlus3) {
-    super(mask, value, true, true);
-    this.specPlus3 = specPlus3;
+  public Spec48RamInfo(Spec48 spec48, int validPages) {
+    this.spec48 = spec48;
+    this.validPages = validPages;
   }
 
-  public byte read(int port, byte[] attached) {
-    return specPlus3.fdcRead(port, attached);
+  public boolean portFromUla(int port) {
+    return spec48.portFromUla(port);
   }
 
-  public void write(int port, byte value) {
-    specPlus3.fdcWrite(port, value);
+  public int contendDelay(long time) {
+    return spec48.spectrum.contendDelay65432100(time);
+  }
+
+  public int contendDelayNoMreq(long time) {
+    return spec48.spectrum.contendDelay65432100(time);
   }
 }
