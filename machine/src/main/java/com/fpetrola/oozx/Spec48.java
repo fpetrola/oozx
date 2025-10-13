@@ -24,7 +24,7 @@ import com.fpetrola.oozx.fuse.peripherals.Periph;
 public class Spec48 extends FuseMachineInfo implements SpectrumMachine {
   private Memory memory;
   private Display display;
-  private Machine machine;
+  private Machine machine1;
   private MachinesPeriph machinesPeriph;
   private Spectrum spectrum;
   private Periph periph;
@@ -33,7 +33,7 @@ public class Spec48 extends FuseMachineInfo implements SpectrumMachine {
     super(display);
     this.memory = memory;
     this.display = display;
-    this.machine = machine;
+    this.machine1 = machine;
     this.machinesPeriph = machinesPeriph;
     this.spectrum = spectrum;
     this.periph = periph;
@@ -48,25 +48,25 @@ public class Spec48 extends FuseMachineInfo implements SpectrumMachine {
   // Initialize the Spectrum 48K fuseMachineInfo
   @Override
   public FuseMachineInfo init() {
-    fuseMachineInfo.machine = Libspectrum.Machine._48K;
-    fuseMachineInfo.id = "48";
+    machine = Libspectrum.Machine._48K;
+    id = "48";
 
-    fuseMachineInfo.reset = this::reset;
-    fuseMachineInfo.timex = false;
-    fuseMachineInfo.ramInfo.portFromUla = this::portFromUla;
-    fuseMachineInfo.ramInfo.contendDelay = spectrum::contendDelay65432100;
-    fuseMachineInfo.ramInfo.contendDelayNoMreq = spectrum::contendDelay65432100;
-    fuseMachineInfo.ramInfo.validPages = 3;
-    fuseMachineInfo.unattachedPort = spectrum::spectrumUnattachedPort;
-    fuseMachineInfo.shutdown = null;
-    fuseMachineInfo.memoryMap = this::memoryMap;
+    reset = this::reset;
+    timex = false;
+    ramInfo.portFromUla = this::portFromUla;
+    ramInfo.contendDelay = spectrum::contendDelay65432100;
+    ramInfo.contendDelayNoMreq = spectrum::contendDelay65432100;
+    ramInfo.validPages = 3;
+    unattachedPort = spectrum::spectrumUnattachedPort;
+    shutdown = null;
+    memoryMap = this::memoryMap;
 
     return this;
   }
 
   // Reset the Spectrum 48K machine
   public int reset() {
-    int error = machine.loadRom(0, Settings.current.rom48, Settings.defaults.rom48, 0x4000);
+    int error = machine1.loadRom(0, Settings.current.rom48, Settings.defaults.rom48, 0x4000);
     if (error != 0) return error;
 
     periph.clear();
