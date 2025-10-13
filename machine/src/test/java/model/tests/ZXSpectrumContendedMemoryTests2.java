@@ -2,6 +2,7 @@ package model.tests;
 
 import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.fuse.*;
+import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;

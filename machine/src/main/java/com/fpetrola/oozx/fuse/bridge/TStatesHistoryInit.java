@@ -16,10 +16,13 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.bridge;
 
-public class ReadLanPortCommand implements EmulatorCommand<Integer> {
-  public Integer execute(LibretroCore core) {
-    return core.retro_read_lan_port();
+import com.fpetrola.oozx.fuse.LibretroCore;
+
+public class TStatesHistoryInit implements EmulatorCommand<Object> {
+  public Object execute(LibretroCore core) {
+    core.retro_tstates_history_init();
+    return null;
   }
 }

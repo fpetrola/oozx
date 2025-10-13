@@ -16,11 +16,12 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.bridge;
 
-public class IsInterruptionEnabled implements EmulatorCommand {
-  public Object execute(LibretroCore core) {
+import com.fpetrola.oozx.fuse.LibretroCore;
 
-    return EmulatorCommand.super.execute(core);
+public class GetBeamY implements EmulatorCommand<Integer> {
+  public Integer execute(LibretroCore core) {
+    return core.retro_get_beam_y();
   }
 }

@@ -16,25 +16,24 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.bridge;
 
-public class WritePortCommand implements EmulatorCommand<Object> {
-  public final int port;
-  public final int value;
-  public final boolean contended;
+import com.fpetrola.oozx.fuse.LibretroCore;
 
-  public WritePortCommand(int port, int value, boolean contended) {
-    this.port = port;
-    this.value = value;
-    this.contended = contended;
+public class GetRegisterValue implements EmulatorCommand<Integer> {
+  public final String name;
+
+  public GetRegisterValue(String name) {
+    this.name = name;
   }
 
-  public Object execute(LibretroCore core) {
-    if (contended) {
-      core.retro_write_port(port, value);
-    } else
-      core.retro_write_port(port, value);
+  public String toString() {
+    return "GetRegisterValue{" +
+            "name='" + name + '\'' +
+            '}';
+  }
 
-    return null;
+  public Integer execute(LibretroCore core) {
+    return core.retro_get_register_data(name);
   }
 }

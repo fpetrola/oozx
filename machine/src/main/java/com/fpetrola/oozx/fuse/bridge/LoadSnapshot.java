@@ -16,10 +16,21 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.bridge;
 
-public class ContinueExecutionCommand implements EmulatorCommand{
-  public String toString() {
-    return "ContinueExecutionCommand{}";
+import com.fpetrola.oozx.fuse.FuseLibretroConnector;
+import com.fpetrola.oozx.fuse.LibretroCore;
+
+public class LoadSnapshot implements EmulatorCommand {
+  private final String fileName;
+
+  public LoadSnapshot(String fileName) {
+    this.fileName = fileName;
+  }
+
+  @Override
+  public Object execute(LibretroCore core) {
+    FuseLibretroConnector.loadGame(core, fileName);
+    return EmulatorCommand.super.execute(core);
   }
 }

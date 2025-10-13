@@ -19,6 +19,7 @@
 package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.Fuse;
+import com.fpetrola.oozx.fuse.bridge.EmulatorCommand;
 
 import java.util.Collections;
 import java.util.LinkedList;

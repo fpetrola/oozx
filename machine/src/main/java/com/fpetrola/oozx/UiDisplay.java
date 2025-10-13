@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.fuse.GetTStatesHistory;
+import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 
 import static com.fpetrola.oozx.Fuse.tStatesHolder;
 import static java.lang.String.format;

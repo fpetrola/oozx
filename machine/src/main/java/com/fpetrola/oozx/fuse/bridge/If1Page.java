@@ -16,28 +16,19 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.bridge;
 
-public class ReadMemoryCommand implements EmulatorCommand<Integer> {
-  public final int address;
-  public final boolean contended;
+import com.fpetrola.oozx.fuse.LibretroCore;
 
-  public ReadMemoryCommand(int address, boolean contended) {
-    this.address = address;
-    this.contended = contended;
+public class If1Page implements EmulatorCommand<Object> {
+  public final boolean in;
+
+  public If1Page(boolean in) {
+    this.in = in;
   }
 
-  public String toString() {
-    return "ReadMemoryCommand{" +
-        "address=" + String.format("%04X", address) +
-        ", contended=" + contended +
-        '}';
-  }
-
-  public Integer execute(LibretroCore core) {
-    if (contended) {
-      return core.retro_get_memory_data_contended(address);
-    } else
-      return core.retro_get_memory_data(address);
+  public Object execute(LibretroCore core) {
+    core.retro_if1_page(in);
+    return null;
   }
 }

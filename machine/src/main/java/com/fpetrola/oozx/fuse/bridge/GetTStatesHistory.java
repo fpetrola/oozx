@@ -16,17 +16,21 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.bridge;
 
 import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.Z80;
+import com.fpetrola.oozx.fuse.FuseLibretroConnector;
+import com.fpetrola.oozx.fuse.KVPair;
+import com.fpetrola.oozx.fuse.LibretroCore;
+import com.fpetrola.oozx.fuse.TStateUpdate;
 import com.sun.jna.Pointer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
-  static List<TStateUpdate> tstatesUpdates = new ArrayList<>();
+  public static List<TStateUpdate> tstatesUpdates = new ArrayList<>();
   private static Z80 z80 = Fuse.z80;
 
   private static List<TStateUpdate> getTstatesUpdates() {

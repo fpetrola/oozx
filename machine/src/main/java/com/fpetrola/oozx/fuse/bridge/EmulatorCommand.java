@@ -16,17 +16,12 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.bridge;
 
-public class SetMachineModel implements EmulatorCommand<Object> {
-  public final String model;
+import com.fpetrola.oozx.fuse.LibretroCore;
 
-  public SetMachineModel(String model) {
-    this.model = model;
-  }
-
-  public Object execute(LibretroCore core) {
-    core.retro_select_machine(model);
+public interface EmulatorCommand<R> {
+  default R execute(LibretroCore core){
     return null;
   }
 }

@@ -16,7 +16,9 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.bridge;
+
+import com.fpetrola.oozx.fuse.LibretroCore;
 
 public class SetRegisterValue implements EmulatorCommand<Object> {
   public final String name;

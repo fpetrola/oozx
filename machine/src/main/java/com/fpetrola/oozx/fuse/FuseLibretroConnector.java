@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.fuse;
 
+import com.fpetrola.oozx.fuse.bridge.ContinueExecutionCommand;
+import com.fpetrola.oozx.fuse.bridge.EmulatorCommand;
 import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
 

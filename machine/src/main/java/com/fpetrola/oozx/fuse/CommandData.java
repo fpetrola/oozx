@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.fuse;
 
+import com.fpetrola.oozx.fuse.bridge.SetRegisterValue;
+import com.fpetrola.oozx.fuse.bridge.WriteMemoryCommand;
 import com.sun.jna.Union;
 
 // Union de datos

@@ -16,18 +16,12 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.bridge;
 
-public class LoadSnapshot implements EmulatorCommand {
-  private final String fileName;
+import com.fpetrola.oozx.fuse.LibretroCore;
 
-  public LoadSnapshot(String fileName) {
-    this.fileName = fileName;
-  }
-
-  @Override
+public class StepCommand implements EmulatorCommand {
   public Object execute(LibretroCore core) {
-    FuseLibretroConnector.loadGame(core, fileName);
     return EmulatorCommand.super.execute(core);
   }
 }

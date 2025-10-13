@@ -16,10 +16,10 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.bridge;
 
-public class GetBeamY implements EmulatorCommand<Integer> {
-  public Integer execute(LibretroCore core) {
-    return core.retro_get_beam_y();
+public class ContinueExecutionCommand implements EmulatorCommand{
+  public String toString() {
+    return "ContinueExecutionCommand{}";
   }
 }

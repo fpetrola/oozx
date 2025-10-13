@@ -16,11 +16,19 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.bridge;
 
-public class TStatesHistoryInit implements EmulatorCommand<Object> {
+import com.fpetrola.oozx.fuse.LibretroCore;
+
+public class SetMachineModel implements EmulatorCommand<Object> {
+  public final String model;
+
+  public SetMachineModel(String model) {
+    this.model = model;
+  }
+
   public Object execute(LibretroCore core) {
-    core.retro_tstates_history_init();
+    core.retro_select_machine(model);
     return null;
   }
 }

@@ -16,22 +16,30 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.bridge;
 
-public class GetRegisterValue implements EmulatorCommand<Integer> {
-  public final String name;
+import com.fpetrola.oozx.fuse.LibretroCore;
 
-  public GetRegisterValue(String name) {
-    this.name = name;
+public class ReadMemoryCommand implements EmulatorCommand<Integer> {
+  public final int address;
+  public final boolean contended;
+
+  public ReadMemoryCommand(int address, boolean contended) {
+    this.address = address;
+    this.contended = contended;
   }
 
   public String toString() {
-    return "GetRegisterValue{" +
-            "name='" + name + '\'' +
-            '}';
+    return "ReadMemoryCommand{" +
+        "address=" + String.format("%04X", address) +
+        ", contended=" + contended +
+        '}';
   }
 
   public Integer execute(LibretroCore core) {
-    return core.retro_get_register_data(name);
+    if (contended) {
+      return core.retro_get_memory_data_contended(address);
+    } else
+      return core.retro_get_memory_data(address);
   }
 }

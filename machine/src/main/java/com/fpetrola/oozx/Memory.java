@@ -21,7 +21,7 @@ package com.fpetrola.oozx;
 // Author contact information:
 // E-mail: philip-fuse@shadowmagic.org.uk
 
-import com.fpetrola.oozx.fuse.GetTStatesHistory;
+import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.modules.Display;
 
 import java.util.ArrayList;

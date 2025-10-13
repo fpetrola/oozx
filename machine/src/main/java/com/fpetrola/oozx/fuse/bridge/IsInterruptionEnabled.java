@@ -16,10 +16,13 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.bridge;
 
-public class StepCommand implements EmulatorCommand {
+import com.fpetrola.oozx.fuse.LibretroCore;
+
+public class IsInterruptionEnabled implements EmulatorCommand {
   public Object execute(LibretroCore core) {
+
     return EmulatorCommand.super.execute(core);
   }
 }

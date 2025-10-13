@@ -16,17 +16,27 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.bridge;
 
-public class If1Page implements EmulatorCommand<Object> {
-  public final boolean in;
+import com.fpetrola.oozx.fuse.LibretroCore;
 
-  public If1Page(boolean in) {
-    this.in = in;
+public class WritePortCommand implements EmulatorCommand<Object> {
+  public final int port;
+  public final int value;
+  public final boolean contended;
+
+  public WritePortCommand(int port, int value, boolean contended) {
+    this.port = port;
+    this.value = value;
+    this.contended = contended;
   }
 
   public Object execute(LibretroCore core) {
-    core.retro_if1_page(in);
+    if (contended) {
+      core.retro_write_port(port, value);
+    } else
+      core.retro_write_port(port, value);
+
     return null;
   }
 }

@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.fuse;
 
+import com.fpetrola.oozx.fuse.bridge.EmulatorCommand;
+
 import java.util.Arrays;
 import java.util.List;
 

@@ -1,6 +1,7 @@
 package model.tests;
 
 import com.fpetrola.oozx.fuse.*;
+import com.fpetrola.oozx.fuse.bridge.*;
 
 import java.util.List;
 

@@ -16,10 +16,12 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.bridge;
 
-public class GetBeamX implements EmulatorCommand<Integer> {
+import com.fpetrola.oozx.fuse.LibretroCore;
+
+public class ReadLanPortCommand implements EmulatorCommand<Integer> {
   public Integer execute(LibretroCore core) {
-    return core.retro_get_beam_x();
+    return core.retro_read_lan_port();
   }
 }

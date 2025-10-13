@@ -19,6 +19,7 @@
 package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.peripherals.Periph;

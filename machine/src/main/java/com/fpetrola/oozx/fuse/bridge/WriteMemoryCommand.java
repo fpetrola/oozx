@@ -16,8 +16,9 @@
  *
  */
 
-package com.fpetrola.oozx.fuse;
+package com.fpetrola.oozx.fuse.bridge;
 
+import com.fpetrola.oozx.fuse.LibretroCore;
 import com.sun.jna.Structure;
 
 import java.util.List;
