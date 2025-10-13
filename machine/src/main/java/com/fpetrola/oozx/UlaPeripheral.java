@@ -24,8 +24,8 @@ import com.fpetrola.oozx.fuse.ports.UlaPortHandler;
 import java.util.List;
 
 public class UlaPeripheral extends AbstractZxPeripheral {
-  public UlaPeripheral() {
+  public UlaPeripheral(Ula ula) {
     super(Periph.Type.ULA,
-        List.of(new UlaPortHandler(Fuse.ula)));
+        List.of(new UlaPortHandler(ula)));
   }
 }
