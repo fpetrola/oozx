@@ -20,7 +20,7 @@ package com.fpetrola.oozx;
 
 public interface SpectrumMachine extends IFuseMachineInfo {
   default Timings.MachineTimings getBaseTiming() {
-    return Timings.BASE_TIMINGS[getMachine().ordinal()];
+    return Timings.getTiming(this);
   }
 
   SpectrumMachine init();

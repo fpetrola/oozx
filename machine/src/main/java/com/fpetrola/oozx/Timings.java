@@ -19,6 +19,9 @@
 package com.fpetrola.oozx;// Assuming ported dependencies:
 // - Libspectrum (Machine)
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Timings {
 
   static void initMachineTimings(com.fpetrola.oozx.MachineTimings timings, SpectrumMachine machine) {
@@ -31,6 +34,15 @@ public class Timings {
     timings.tstatesPerLine = tstatesPerLine(baseTiming);
     timings.interruptLength = interruptLength(baseTiming);
     timings.tstatesPerFrame = tstatesPerFrame(baseTiming);
+  }
+
+  static MachineTimings getTiming(SpectrumMachine machine) {
+    Map<Class<? extends SpectrumMachine>, MachineTimings> customTimings = new HashMap<>();
+    customTimings.put(Spec48.class, BASE_TIMINGS[Libspectrum.Machine._48K.ordinal()]);
+    customTimings.put(Spec128.class, BASE_TIMINGS[Libspectrum.Machine._128K.ordinal()]);
+    customTimings.put(SpecPlus3.class, BASE_TIMINGS[Libspectrum.Machine.PLUS3.ordinal()]);
+
+    return customTimings.get(machine.getClass());
   }
 
   // Structure for frame timings
