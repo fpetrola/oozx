@@ -281,9 +281,6 @@ public class Settings {
     public boolean zxmmcEnabled;
     public String zxmmcFile;
     public boolean zxprinter;
-
-    public boolean showHelp;
-    public boolean showVersion;
   }
 
   public static SettingsInfo current = new SettingsInfo();

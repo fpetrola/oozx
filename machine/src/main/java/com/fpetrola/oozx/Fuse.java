@@ -30,8 +30,6 @@ import java.util.function.Supplier;
 
 public class Fuse {
 
-  private static final String FUSE_COPYRIGHT = "";
-  private static final String VERSION = "";
   // What name were we called under?
   public static String progname;
 
@@ -110,21 +108,12 @@ public class Fuse {
     String[] mdr = new String[8];
   }
 
-  private static final String LIBSPECTRUM_MIN_VERSION = "0.5.0";
-
   public static void main(String[] args) {
     int r;
-
-    // Windows-specific error mode setting (simplified, assume handled by environment)
-    // Wii-specific fatInitDefault (assume handled by environment)
 
     if (fuseInit(args) != 0) {
       System.err.println(progname + ": error initialising -- giving up!");
       throw new RuntimeException("1");
-    }
-
-    if (Settings.current.showHelp || Settings.current.showVersion) {
-      throw new RuntimeException("help");
     }
 
     if (Settings.current.unittests) {
@@ -181,17 +170,7 @@ public class Fuse {
     firstArg = Settings.init(args);
     if (firstArg < 0) return 1;
 
-    if (Settings.current.showVersion) {
-      fuseShowVersion();
-      return 0;
-    } else if (Settings.current.showHelp) {
-      fuseShowHelp();
-      return 0;
-    }
-
     startScaler = Settings.current.startScalerMode;
-
-    fuseShowCopyright();
 
     String[] argv = args;
     if (runStartupManager() != 0) return 1;
@@ -216,82 +195,6 @@ public class Fuse {
   }
 
   private static int parseNonoptionArgs(String[] args, int firstArg, StartFiles startFiles) {
-    return 0;
-  }
-
-  private static void fuseShowCopyright() {
-    System.out.println("\n");
-    fuseShowVersion();
-    System.out.printf(
-        FUSE_COPYRIGHT + "; see the file\n" +
-            "'AUTHORS' for more details.\n" +
-            "\n" +
-            "For help, please mail <fuse-emulator-devel@lists.sf.net> or use\n" +
-            "the forums at <http://sourceforge.net/p/fuse-emulator/discussion/>.\n" +
-            "\n" +
-            "This program is distributed in the hope that it will be useful,\n" +
-            "but WITHOUT ANY WARRANTY; without even the implied warranty of\n" +
-            "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n" +
-            "GNU General Public License for more details.\n\n");
-  }
-
-  private static void fuseShowVersion() {
-    System.out.println("The Free Unix Spectrum Emulator (Fuse) version " + VERSION + ".");
-  }
-
-  private static void fuseShowHelp() {
-    System.out.println("\n");
-    fuseShowVersion();
-    System.out.println(
-        "\nAvailable command-line options:\n\n" +
-            "Boolean options (use `--no-<option>' to turn off):\n\n" +
-            "--auto-load            Automatically load tape files when opened.\n" +
-            "--compress-rzx         Write RZX files out compressed.\n" +
-            "--issue2               Emulate an Issue 2 Spectrum.\n" +
-            "--kempston             Emulate the Kempston joystick on QAOP<space>.\n" +
-            "--loading-sound        Emulate the sound of tapes loading.\n" +
-            "--sound                Produce sound.\n" +
-            "--sound-force-8bit     Generate 8-bit sound even if 16-bit is available.\n" +
-            "--slt                  Turn SLT traps on.\n" +
-            "--traps                Turn tape traps on.\n\n" +
-            "Other options:\n\n" +
-            "--help                 This information.\n" +
-            "--machine <type>       Which machine should be emulated?\n" +
-            "--playback <filename>  Play back RZX file <filename>.\n" +
-            "--record <filename>    Record to RZX file <filename>.\n" +
-            "--separation <type>    Use ACB/ABC stereo for the AY-3-8912 sound chip.\n" +
-            "--snapshot <filename>  Load snapshot <filename>.\n" +
-            "--speed <percentage>   How fast should emulation run?\n" +
-            "--fb-mode <mode>       Which mode should be used for FB?\n" +
-            "--tape <filename>      Open tape file <filename>.\n" +
-            "--version              Print version number and exit.\n" +
-            "\n" +
-            "For help, please mail <fuse-emulator-devel@lists.sf.net> or use\n" +
-            "the forums at <http://sourceforge.net/p/fuse-emulator/discussion/>.\n" +
-            "For complete documentation, see the manual page of Fuse.\n\n");
-  }
-
-  public static int fuseEmulationPause() {
-    if (emulationPaused++ > 0) return 0;
-
-    if (Rzx.recording && Rzx.competitionMode) {
-      Ui.error(UiError.INFO, "Stopping competition mode RZX recording");
-      int error = Rzx.stopRecording();
-      if (error != 0) return error;
-    }
-
-    Sound.pause();
-    return 0;
-  }
-
-  public static int fuseEmulationUnpause() {
-    if (--emulationPaused > 0) return 0;
-
-    Sound.unpause();
-
-    int error = Timer.estimateReset();
-    if (error != 0) return error;
-
     return 0;
   }
 
