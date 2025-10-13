@@ -19,9 +19,16 @@
 package com.fpetrola.oozx;
 
 public interface SpectrumMachine extends IFuseMachineInfo {
+  default Timings.MachineTimings getBaseTiming() {
+    return Timings.BASE_TIMINGS[getMachine().ordinal()];
+  }
+
   SpectrumMachine init();
+
   int reset();
+
   void memoryMap();
+
   int unattachedPort();
 
   default int shutdown() {

@@ -19,14 +19,10 @@
 package com.fpetrola.oozx;// Assuming ported dependencies:
 // - Libspectrum (Machine)
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 public class Timings {
 
   static void initMachineTimings(com.fpetrola.oozx.MachineTimings timings, SpectrumMachine machine) {
-    MachineTimings baseTiming = getBaseTiming(machine);
+    MachineTimings baseTiming = machine.getBaseTiming();
 
     timings.processorSpeed = processorSpeed(baseTiming);
     timings.leftBorder = leftBorder(baseTiming);
@@ -142,7 +138,7 @@ public class Timings {
   }
 
   // Base timings for each machine
-  private static final MachineTimings[] BASE_TIMINGS = {
+  public static final MachineTimings[] BASE_TIMINGS = {
       // 48K
       new MachineTimings(3500000, 0, FERRANTI_5C_6C),
       // 128K
@@ -173,13 +169,6 @@ public class Timings {
   public static int horizontalScreen(MachineTimings baseTiming) {
     FrameTimings f = baseTiming.frameTimings;
     return f != null ? f.horizontalScreen : 0;
-  }
-
-  public static MachineTimings getBaseTiming(SpectrumMachine spectrumMachine) {
-    Libspectrum.Machine machine1 = spectrumMachine.getMachine();
-    Map<Libspectrum.Machine, MachineTimings> customTimings = new HashMap<>();
-    Arrays.stream(Libspectrum.Machine.values()).forEach(m -> customTimings.put(m, BASE_TIMINGS[m.ordinal()]));
-    return customTimings.get(machine1);
   }
 
   // Get right border t-states

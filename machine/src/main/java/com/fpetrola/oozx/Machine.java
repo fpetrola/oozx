@@ -252,7 +252,7 @@ public class Machine {
   }
 
   private void setVariableTimings(SpectrumMachine machine) {
-    machine.getLineTimes()[0] = Timings.topLeftPixel(Timings.getBaseTiming(machine)) -
+    machine.getLineTimes()[0] = Timings.topLeftPixel(machine.getBaseTiming()) -
         display.BORDER_HEIGHT * machine.getTimings().tstatesPerLine -
         4 * display.BORDER_WIDTH_COLS;
 
