@@ -25,13 +25,9 @@ import com.fpetrola.oozx.fuse.modules.Keyboard;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 
 import java.util.List;
-import java.util.Random;
 import java.util.function.Supplier;
 
 public class Fuse {
-
-  // What name were we called under?
-  public static String progname;
 
   // A flag to say when we want to exit the emulator
   public static boolean exiting;
@@ -40,7 +36,6 @@ public class Fuse {
   public static int emulationPaused;
 
   // The creator information we'll store in file formats that support this
-  public static LibspectrumCreator creator;
   public static Supplier<FuseMachineInfo> fuseMachineInfoSupplier = () -> Machine.current;
   public static TStatesHolder tStatesHolder = new TStatesHolder() {
     private long tstates;
@@ -108,20 +103,6 @@ public class Fuse {
     String[] mdr = new String[8];
   }
 
-  public static void main(String[] args) {
-    if (fuseInit(args) != 0) {
-      System.err.println(progname + ": error initialising -- giving up!");
-      throw new RuntimeException("1");
-    }
-
-    while (!exiting) {
-      z80.doOpcodes();
-      eventManager.eventDoEvents();
-    }
-
-    fuseEnd();
-  }
-
   private static int runStartupManager() {
     StartupManager.init();
 
@@ -146,40 +127,16 @@ public class Fuse {
     moduleList.add(e);
   }
 
-  public static int fuseInit(String[] args) {
-    int error, firstArg;
-    String startScaler;
+  public static int fuseInit() {
+    int error;
     StartFiles startFiles = new StartFiles();
 
-    // Seed random number generator
-    new Random().setSeed(System.currentTimeMillis());
-
-    progname = args.length > 0 ? args[0] : "fuse";
-
-//        Libspectrum.errorFunction = Ui::libspectrumError;
-
-    // Wii-specific display init (assume handled by Display)
-//        if (Display.init(args) != 0) return 1;
-
-    firstArg = Settings.init(args);
-    if (firstArg < 0) return 1;
-
-    startScaler = Settings.current.startScalerMode;
-
-    String[] argv = args;
     if (runStartupManager() != 0) return 1;
 
-    Settings.current.startMachine = "48";
-    error = machine.selectId(Settings.current.startMachine);
-    if (error != 0) return error;
-
-    error = Scaler.selectId(startScaler);
+    error = machine.selectId("48");
     if (error != 0) return error;
 
     if (setupStartFiles(startFiles) != 0) return 1;
-    if (parseNonoptionArgs(args, firstArg, startFiles) != 0) return 1;
-
-    if (Ui.mousePresent) Ui.mouseGrabbed = Ui.mouseGrab(true);
 
     emulationPaused = 0;
     Movie.init();
@@ -227,7 +184,7 @@ public class Fuse {
     return 0;
   }
 
-  private static int fuseEnd() {
+  public static int fuseEnd() {
     Movie.stop();
     StartupManager.runEnd();
     periph.end();

@@ -66,11 +66,11 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_init() {
-    Fuse.fuseInit(new String[]{});
+    Fuse.fuseInit();
   }
 
   public void retro_deinit() {
-
+    Fuse.fuseEnd();
   }
 
   public int retro_api_version() {

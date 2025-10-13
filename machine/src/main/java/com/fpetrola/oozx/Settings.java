@@ -288,10 +288,6 @@ public class Settings {
 
   public static final int SETTINGS_ROM_COUNT = 30;
 
-  public static int init(String[] args) {
-    return 0;
-  }
-
   public static void defaults(SettingsInfo settings) {
     throw new UnsupportedOperationException("settings_defaults not implemented");
   }

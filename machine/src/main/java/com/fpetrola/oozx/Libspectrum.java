@@ -54,10 +54,6 @@ public class Libspectrum {
   public static void end() {
   }
 
-  public static void creatorFree(LibspectrumCreator creator) {
-
-  }
-
   public static Object version() {
     return null;
   }
