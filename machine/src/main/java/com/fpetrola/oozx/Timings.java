@@ -18,9 +18,6 @@
 
 package com.fpetrola.oozx;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class Timings {
 
   static void initMachineTimings(com.fpetrola.oozx.MachineTimings timings, SpectrumMachine machine) {
@@ -33,15 +30,6 @@ public class Timings {
     timings.tstatesPerLine = tstatesPerLine(baseTiming);
     timings.interruptLength = interruptLength(baseTiming);
     timings.tstatesPerFrame = tstatesPerFrame(baseTiming);
-  }
-
-  static MachineTimings getTiming(SpectrumMachine machine) {
-    Map<Class<? extends SpectrumMachine>, MachineTimings> customTimings = new HashMap<>();
-    customTimings.put(Spec48.class, BASE_TIMINGS[Libspectrum.Machine._48K.ordinal()]);
-    customTimings.put(Spec128.class, BASE_TIMINGS[Libspectrum.Machine._128K.ordinal()]);
-    customTimings.put(SpecPlus3.class, BASE_TIMINGS[Libspectrum.Machine.PLUS3.ordinal()]);
-
-    return customTimings.get(machine.getClass());
   }
 
   // Structure for frame timings
@@ -81,31 +69,31 @@ public class Timings {
   }
 
   // Frame timing constants
-  private static final FrameTimings FERRANTI_5C_6C = new FrameTimings(
+  public static final FrameTimings FERRANTI_5C_6C = new FrameTimings(
       24, 128, 24, 48, // Horizontal: 224 clocks per line
       48, 192, 48, 24, // Vertical: 312 lines per frame
       32, 14336
   );
 
-  private static final FrameTimings FERRANTI_60HZ = new FrameTimings(
+  public static final FrameTimings FERRANTI_60HZ = new FrameTimings(
       24, 128, 24, 48, // Horizontal: 224 clocks per line
       24, 192, 25, 23, // Vertical: 264 lines per frame
       32, 8960
   );
 
-  private static final FrameTimings FERRANTI_7C = new FrameTimings(
+  public static final FrameTimings FERRANTI_7C = new FrameTimings(
       24, 128, 24, 52, // Horizontal: 228 clocks per line
       48, 192, 48, 23, // Vertical: 311 lines per frame
       36, 14362
   );
 
-  private static final FrameTimings AMSTRAD_ASIC = new FrameTimings(
+  public static final FrameTimings AMSTRAD_ASIC = new FrameTimings(
       24, 128, 24, 52, // Horizontal: 228 clocks per line
       48, 192, 48, 23, // Vertical: 311 lines per frame
       32, 14365
   );
 
-  private static final FrameTimings TIMEX_SCLD_50HZ = new FrameTimings(
+  public static final FrameTimings TIMEX_SCLD_50HZ = new FrameTimings(
       24, 128, 24, 48, // Horizontal: 224 clocks per line
       48, 192, 48, 24, // Vertical: 312 lines per frame
       32, 14321
@@ -147,18 +135,6 @@ public class Timings {
       this.frameTimings = frameTimings;
     }
   }
-
-  // Base timings for each machine
-  public static final MachineTimings[] BASE_TIMINGS = {
-      // 48K
-      new MachineTimings(3500000, 0, FERRANTI_5C_6C),
-      // 128K
-      new MachineTimings(3546900, 1773400, FERRANTI_7C),
-      // +2
-      new MachineTimings(3546900, 1773400, FERRANTI_7C),
-      // +3
-      new MachineTimings(3546900, 1773400, AMSTRAD_ASIC)
-  };
 
   // Get processor speed for a machine
   public static long processorSpeed(MachineTimings baseTiming) {
