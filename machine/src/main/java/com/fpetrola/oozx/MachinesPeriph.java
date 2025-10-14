@@ -28,13 +28,6 @@ public class MachinesPeriph {
     this.periph = periph;
   }
 
-  // Register startup for machine-specific peripherals
-
-  void reg1() {
-//        StartupManagerModule[] dependencies = {StartupManagerModule.SETUID};
-//        StartupManager.register(StartupManagerModule.MACHINES_PERIPH, dependencies, MachinesPeriph::init, null, null);
-  }
-
   // Base peripherals available on all machines
   private void basePeripherals() {
     periph.setPresent(Periph.Type.DIVIDE, Periph.Present.OPTIONAL);
