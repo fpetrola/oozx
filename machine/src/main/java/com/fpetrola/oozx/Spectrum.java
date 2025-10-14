@@ -52,14 +52,6 @@ public class Spectrum implements ZxModule {
     framesSinceReset = 0;
   }
 
-  public long getTstates() {
-    return zxClock.getTstates();
-  }
-
-  public void setTstates(long tstates) {
-    zxClock.setTstates(tstates);
-  }
-
   private void spectrumFrameEventFn(long lastTstates, int type, Object userData) {
     spectrumFrame();
     z80.interrupt();
