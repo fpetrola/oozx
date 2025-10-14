@@ -18,7 +18,8 @@
 
 package com.fpetrola.oozx.fuse;
 
-import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.Fuse;
+import com.fpetrola.oozx.Machine;
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.Display;
@@ -27,6 +28,7 @@ import com.fpetrola.oozx.fuse.modules.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.cpu.Z80Clock;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
@@ -43,16 +45,16 @@ public class LocalLibretroCore implements LibretroCore {
   private Display display;
   private Machine machine;
   private Z80 z80;
-  private ZxClock zxClock;
+  private Z80Clock z80Clock;
   private IPeriph periph;
   private Fuse fuse;
 
-  public LocalLibretroCore(EventManager eventManager, Display display, Machine machine, Z80 z80, ZxClock zxClock, IPeriph periph, Fuse fuse) {
+  public LocalLibretroCore(EventManager eventManager, Display display, Machine machine, Z80 z80, Z80Clock z80Clock, IPeriph periph, Fuse fuse) {
     this.eventManager = eventManager;
     this.display = display;
     this.machine = machine;
     this.z80 = z80;
-    this.zxClock = zxClock;
+    this.z80Clock = z80Clock;
     this.periph = periph;
     this.fuse = fuse;
   }
@@ -173,15 +175,15 @@ public class LocalLibretroCore implements LibretroCore {
 
   public void retro_set_register_data(String register, int value) {
     if (register.equals("tstates")) {
-      zxClock.setTstates(value);
-      z80.ooz80.getState().tstates = value;
+      z80Clock.setTstates(value);
+      z80.ooz80.getState().setTstates(value);
     } else
       getRegister(register).write(createValue(value));
   }
 
   public int retro_get_register_data(String register) {
     if (register.equals("tstates")) {
-      return (int) zxClock.getTstates();
+      return (int) z80Clock.getTstates();
     } else if (register.equals("R")) {
       return getRegister(register).read().intValue();
     } else

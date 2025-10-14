@@ -24,6 +24,7 @@ import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.modules.Ula;
 import com.fpetrola.oozx.fuse.modules.ZxModule;
+import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,16 +38,16 @@ public class Machine  implements ZxModule {
 
   public List<SpectrumMachine> machineTypes = new ArrayList<>(); // All available machines
   public static SpectrumMachine current; // The currently selected machine
-  private ZxClock zxClock;
+  private Z80Clock z80Clock;
   private final Spectrum spectrum;
   private UiDisplay uiDisplay;
 
-  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, ZxClock zxClock, Spectrum spectrum, UiDisplay uiDisplay) {
+  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, Z80Clock z80Clock, Spectrum spectrum, UiDisplay uiDisplay) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
     this.ula = ula;
-    this.zxClock = zxClock;
+    this.z80Clock = z80Clock;
     this.spectrum = spectrum;
     this.uiDisplay = uiDisplay;
   }
@@ -89,7 +90,7 @@ public class Machine  implements ZxModule {
 
     Settings.setString(Settings.current.startMachine, machine.getClass().getSimpleName());
 
-    zxClock.setTstates(0);
+    z80Clock.setTstates(0);
 
     eventManager.reset();
 //        EventManager.eventAdd(0, Timer.event);

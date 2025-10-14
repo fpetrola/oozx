@@ -20,17 +20,16 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.modules.Ula;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
-import com.fpetrola.oozx.fuse.peripherals.ZxPeripheral;
+import com.fpetrola.z80.cpu.Z80Clock;
 
 public class UlaPeriph implements PeriphDelegate {
   private final Ula ula;
-  private final ZxClock zxClock;
+  private final Z80Clock z80Clock;
   private final IPeriph periph;
 
-  public UlaPeriph(Ula ula, ZxClock zxClock, IPeriph periph) {
+  public UlaPeriph(Ula ula, Z80Clock z80Clock, IPeriph periph) {
     this.ula = ula;
-    this.zxClock = zxClock;
+    this.z80Clock = z80Clock;
     this.periph = periph;
   }
 
@@ -42,7 +41,7 @@ public class UlaPeriph implements PeriphDelegate {
     ula.contendPortEarly(port);
     writePortInternal(port, b);
     ula.contendPortLate(port);
-    zxClock.addTstates(1);
+    z80Clock.addTstates(1);
   }
 
   public byte readPort(int port) {

@@ -20,15 +20,15 @@ package com.fpetrola.oozx.fuse.modules;
 
 import com.fpetrola.oozx.Libspectrum;
 import com.fpetrola.oozx.Settings;
-import com.fpetrola.oozx.ZxClock;
+import com.fpetrola.z80.cpu.Z80Clock;
 
 public class UlaZxModuleInfo implements ZXModuleInfo {
   private Ula ula;
-  private ZxClock zxClock;
+  private Z80Clock z80Clock;
 
-  UlaZxModuleInfo(Ula ula, ZxClock zxClock) {
+  UlaZxModuleInfo(Ula ula, Z80Clock z80Clock) {
     this.ula = ula;
-    this.zxClock = zxClock;
+    this.z80Clock = z80Clock;
   }
 
   public void snapshotEnabled(Libspectrum.Snap snap) {
@@ -37,13 +37,13 @@ public class UlaZxModuleInfo implements ZXModuleInfo {
 
   public void snapshotFrom(Libspectrum.Snap snap) {
     ula.write(0x00fe, Libspectrum.snapOutUla(snap));
-    zxClock.setTstates(Libspectrum.snapTstates(snap));
+    z80Clock.setTstates(Libspectrum.snapTstates(snap));
     Settings.current.issue2 = Libspectrum.snapIssue2(snap);
   }
 
   public void snapshotTo(Libspectrum.Snap snap) {
     Libspectrum.snapSetOutUla(snap, ula.lastByte);
-    Libspectrum.snapSetTstates(snap, zxClock.getTstates());
+    Libspectrum.snapSetTstates(snap, z80Clock.getTstates());
     Libspectrum.snapSetIssue2(snap, Settings.current.issue2);
   }
 }

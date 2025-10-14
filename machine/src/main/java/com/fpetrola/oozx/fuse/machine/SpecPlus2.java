@@ -18,7 +18,10 @@
 
 package com.fpetrola.oozx.fuse.machine;
 
-import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.Machine;
+import com.fpetrola.oozx.MachinesPeriph;
+import com.fpetrola.oozx.Settings;
+import com.fpetrola.oozx.Spectrum;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 

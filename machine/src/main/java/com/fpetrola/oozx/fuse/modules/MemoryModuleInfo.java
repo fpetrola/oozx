@@ -18,7 +18,9 @@
 
 package com.fpetrola.oozx.fuse.modules;
 
-import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.Libspectrum;
+import com.fpetrola.oozx.Machine;
+import com.fpetrola.oozx.Memory;
 import com.fpetrola.oozx.fuse.machine.Spec128;
 import com.fpetrola.oozx.fuse.machine.SpecPlus3;
 

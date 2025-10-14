@@ -16,9 +16,9 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.z80.cpu;
 
-public interface ZxClock {
+public interface Z80Clock {
   long getTstates();
 
   void setTstates(long tstates);

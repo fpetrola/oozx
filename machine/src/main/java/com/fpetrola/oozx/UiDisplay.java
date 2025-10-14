@@ -19,20 +19,21 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
+import com.fpetrola.z80.cpu.Z80Clock;
 
 import static java.lang.String.format;
 
 public class UiDisplay {
   public byte[][] screenMatrix;
-  private ZxClock zxClock;
+  private Z80Clock z80Clock;
 
-  public UiDisplay(ZxClock zxClock) {
-    this.zxClock = zxClock;
+  public UiDisplay(Z80Clock z80Clock) {
+    this.z80Clock = z80Clock;
   }
 
   public void plot8(int x, int y, byte data, byte ink, byte paper) {
     String format = format("uidisplay_plot8: x=%d y=%d data=%02x ink=%d paper=%d", x, y, data, ink, paper);// Formatea el string
-    GetTStatesHistory.addTStateUpdate((byte) (data & 0xff), format, (int) zxClock.getTstates());
+    GetTStatesHistory.addTStateUpdate((byte) (data & 0xff), format, (int) z80Clock.getTstates());
 
     for (int i = 0; i < 8; i++) {
       int i1 = data & (0x80 >> i);

@@ -25,10 +25,12 @@ import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.UlaFullDecodePeripheral;
 import com.fpetrola.oozx.fuse.peripherals.UlaPeripheral;
+import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.function.Supplier;
 
-import static com.fpetrola.oozx.MachineCapability.*;
+import static com.fpetrola.oozx.MachineCapability.PLUS3_MEMORY;
+import static com.fpetrola.oozx.MachineCapability._128_MEMORY;
 
 public class Ula  implements ZxModule{
   private final Memory memory;
@@ -48,22 +50,22 @@ public class Ula  implements ZxModule{
   private final Display display;
   private final Supplier<SpectrumMachine> currentMachineSupplier;
   private Keyboard keyboard;
-  private ZxClock zxClock;
+  private Z80Clock z80Clock;
   private final IPeriph periph;
 
 
-  public Ula(Memory memory, Display display, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, ZxClock zxClock, IPeriph periph) {
+  public Ula(Memory memory, Display display, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, Z80Clock z80Clock, IPeriph periph) {
     this.memory = memory;
     this.display = display;
     this.currentMachineSupplier = machineSupplier;
     this.keyboard = keyboard;
-    this.zxClock = zxClock;
+    this.z80Clock = z80Clock;
     this.periph = periph;
   }
 
   // Initialize ULA module
   public int init(Object context) {
-    Module.register(new UlaZxModuleInfo(this, zxClock));
+    Module.register(new UlaZxModuleInfo(this, z80Clock));
     periph.register(new UlaPeripheral(this));
     periph.register(new UlaFullDecodePeripheral(this));
 
@@ -96,7 +98,7 @@ public class Ula  implements ZxModule{
     lastByte = b;
 
     display.setLoresBorder(b & 0x07);
-    Sound.beeper(zxClock.getTstates(),
+    Sound.beeper(z80Clock.getTstates(),
         ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || Tape.microphone ? 1 : 0));
 
     if ((getCurrent().getCapabilities() & PLUS3_MEMORY) != 0) {
@@ -130,32 +132,32 @@ public class Ula  implements ZxModule{
   public void contendPortEarly(int port) {
 //    System.out.println("port2 "+ port);
     if (memory.mapRead[port >>> memory.PAGE_SIZE_LOGARITHM].contended) {
-      GetTStatesHistory.addTStateUpdate(contentionNoMreq[(int) zxClock.getTstates()], "ula_contend_port_early", (int) zxClock.getTstates());
-      zxClock.addTstates(contentionNoMreq[(int) zxClock.getTstates()]);
+      GetTStatesHistory.addTStateUpdate(contentionNoMreq[(int) z80Clock.getTstates()], "ula_contend_port_early", (int) z80Clock.getTstates());
+      z80Clock.addTstates(contentionNoMreq[(int) z80Clock.getTstates()]);
     }
-    GetTStatesHistory.addTStateUpdate((byte) 1, "contend_port_early", (int) zxClock.getTstates());
-    zxClock.addTstates(1);
+    GetTStatesHistory.addTStateUpdate((byte) 1, "contend_port_early", (int) z80Clock.getTstates());
+    z80Clock.addTstates(1);
   }
 
   // Handle contention for port access (late phase)
   public void contendPortLate(int port) {
     if (getCurrent().getRamInfo().portFromUla(port)) {
-      GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) zxClock.getTstates()] + 2), "ula_contend_port_late", (int) zxClock.getTstates());
-      zxClock.addTstates(contentionNoMreq[(int) zxClock.getTstates()]);
-      zxClock.addTstates(2);
+      GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) z80Clock.getTstates()] + 2), "ula_contend_port_late", (int) z80Clock.getTstates());
+      z80Clock.addTstates(contentionNoMreq[(int) z80Clock.getTstates()]);
+      z80Clock.addTstates(2);
     } else {
       if (memory.mapRead[port >>> memory.PAGE_SIZE_LOGARITHM].contended) {
-        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) zxClock.getTstates()] + 1), "ula_contend_port_late", (int) zxClock.getTstates());
-        zxClock.addTstates(contentionNoMreq[(int) zxClock.getTstates()]);
-        zxClock.addTstates(1);
-        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) zxClock.getTstates()] + 1), "ula_contend_port_late", (int) zxClock.getTstates());
-        zxClock.addTstates(contentionNoMreq[(int) zxClock.getTstates()]);
-        zxClock.addTstates(1);
-        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) zxClock.getTstates()]), "ula_contend_port_late", (int) zxClock.getTstates());
-        zxClock.addTstates(contentionNoMreq[(int) zxClock.getTstates()]);
+        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) z80Clock.getTstates()] + 1), "ula_contend_port_late", (int) z80Clock.getTstates());
+        z80Clock.addTstates(contentionNoMreq[(int) z80Clock.getTstates()]);
+        z80Clock.addTstates(1);
+        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) z80Clock.getTstates()] + 1), "ula_contend_port_late", (int) z80Clock.getTstates());
+        z80Clock.addTstates(contentionNoMreq[(int) z80Clock.getTstates()]);
+        z80Clock.addTstates(1);
+        GetTStatesHistory.addTStateUpdate((byte) (contentionNoMreq[(int) z80Clock.getTstates()]), "ula_contend_port_late", (int) z80Clock.getTstates());
+        z80Clock.addTstates(contentionNoMreq[(int) z80Clock.getTstates()]);
       } else {
-        GetTStatesHistory.addTStateUpdate((byte) 2, "contend_port_late", (int) zxClock.getTstates());
-        zxClock.addTstates( 2);
+        GetTStatesHistory.addTStateUpdate((byte) 2, "contend_port_late", (int) z80Clock.getTstates());
+        z80Clock.addTstates( 2);
       }
     }
   }

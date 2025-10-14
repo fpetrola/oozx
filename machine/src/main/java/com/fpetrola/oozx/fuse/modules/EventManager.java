@@ -18,8 +18,8 @@
 
 package com.fpetrola.oozx.fuse.modules;
 
-import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
+import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -42,11 +42,11 @@ public class EventManager implements ZxModule {
   // An event ready to be reused
   private Event eventFree = null;
   private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
-  private ZxClock zxClock;
+  private Z80Clock z80Clock;
 
-  public EventManager(Supplier<SpectrumMachine> machine, ZxClock zxClock) {
+  public EventManager(Supplier<SpectrumMachine> machine, Z80Clock z80Clock) {
     this.fuseMachineInfoSupplier = machine;
-    this.zxClock = zxClock;
+    this.z80Clock = z80Clock;
   }
 
   @Override
@@ -131,7 +131,7 @@ public class EventManager implements ZxModule {
 
   // Do all events which have passed
   public int eventDoEvents() {
-    while (eventNextEvent <= zxClock.getTstates()) { // Assume Fuse.tstates
+    while (eventNextEvent <= z80Clock.getTstates()) { // Assume Fuse.tstates
       Event ptr = eventList.getFirst();
       EventDescriptor descriptor = registeredEvents.get(ptr.type);
 
@@ -174,7 +174,7 @@ public class EventManager implements ZxModule {
   // Force all events between now and the next interrupt to happen
   public void eventForceEvents() {
     while (eventNextEvent < fuseMachineInfoSupplier.get().getTimings().tstatesPerFrame) { // Assume Machine.current
-      zxClock.setTstates(eventNextEvent);
+      z80Clock.setTstates(eventNextEvent);
       eventDoEvents();
     }
   }

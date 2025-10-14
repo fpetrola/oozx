@@ -18,11 +18,13 @@
 
 package com.fpetrola.oozx.fuse.peripherals;
 
-import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.Settings;
+import com.fpetrola.oozx.Ui;
 import com.fpetrola.oozx.fuse.machine.Spec128;
 import com.fpetrola.oozx.fuse.machine.SpecPlus2;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.ports.PortHandler;
+import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,11 +34,11 @@ import java.util.function.Supplier;
 
 public class Periph implements IPeriph {
   private Supplier<SpectrumMachine> machine;
-  private ZxClock zxClock;
+  private Z80Clock z80Clock;
 
-  public Periph(Supplier<SpectrumMachine> machine, ZxClock zxClock) {
+  public Periph(Supplier<SpectrumMachine> machine, Z80Clock z80Clock) {
     this.machine = machine;
-    this.zxClock = zxClock;
+    this.z80Clock = z80Clock;
   }
 
   // Enum for peripheral types
@@ -255,7 +257,7 @@ public class Periph implements IPeriph {
       writePortInternal(0x7ffd, b);
     }
 
-    zxClock.addTstates(1);
+    z80Clock.addTstates(1);
 //        b= -1;
     return b;
   }
@@ -294,7 +296,7 @@ public class Periph implements IPeriph {
   @Override
   public void writePort(int port, byte b) {
     writePortInternal(port, b);
-    zxClock.addTstates(1);
+    z80Clock.addTstates(1);
   }
 
   // Write a byte to a port, taking no time

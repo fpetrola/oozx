@@ -18,8 +18,11 @@
 
 package com.fpetrola.oozx.fuse.modules;
 
-import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.Memory;
+import com.fpetrola.oozx.RAMHolder;
+import com.fpetrola.oozx.UiDisplay;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
+import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -99,14 +102,14 @@ public class Display implements ZxModule {
   private int criticalRegionX;
   private int criticalRegionY;
   private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
-  private ZxClock zxClock;
+  private Z80Clock z80Clock;
   private RAMHolder ramHolder;
   private UiDisplay uiDisplay;
 
-  public Display(Memory memory, Supplier<SpectrumMachine> machine, ZxClock zxClock, RAMHolder ramHolder, UiDisplay uiDisplay) {
+  public Display(Memory memory, Supplier<SpectrumMachine> machine, Z80Clock z80Clock, RAMHolder ramHolder, UiDisplay uiDisplay) {
     this.memory = memory;
     this.fuseMachineInfoSupplier = machine;
-    this.zxClock = zxClock;
+    this.z80Clock = z80Clock;
     this.ramHolder = ramHolder;
     this.uiDisplay = uiDisplay;
   }
@@ -270,7 +273,7 @@ public class Display implements ZxModule {
 
   public int[] getBeamPosition() {
     int[] beam = new int[2];
-    long tstates = zxClock.getTstates();
+    long tstates = z80Clock.getTstates();
     SpectrumMachine current = fuseMachineInfoSupplier.get();
     long[] lineTimes = current.getLineTimes();
 

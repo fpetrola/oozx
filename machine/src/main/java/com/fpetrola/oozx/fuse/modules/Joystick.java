@@ -20,7 +20,7 @@ package com.fpetrola.oozx.fuse.modules;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
-import com.fpetrola.oozx.fuse.*;
+import com.fpetrola.oozx.fuse.KeyboardKeyName;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.KempstonLoosePeriphPeripheral;
 import com.fpetrola.oozx.fuse.peripherals.KempstonStrictPeripheral;

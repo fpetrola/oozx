@@ -39,7 +39,7 @@ public class AddStatesIO<T extends WordNumber> implements IO<T> {
     if ((port.intValue() & 0xc000) == 0x4000) {
       addPCEvent(port, 1);
     } else
-      getState().tstates++;
+      getState().clock.addTstates(1);
   }
 
   private void addPCEvent(WordNumber port, int time) {
@@ -53,7 +53,7 @@ public class AddStatesIO<T extends WordNumber> implements IO<T> {
         addPCEvent(port, 1);
         addPCEvent(port, 1);
       } else {
-        getState().tstates += 3;
+        getState().clock.addTstates(3);
       }
     } else {
       addPCEvent(port, 3);

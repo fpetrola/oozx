@@ -16,9 +16,9 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.z80.cpu;
 
-public class DefaultZxClock implements ZxClock {
+public class DefaultZ80Clock implements Z80Clock {
   private long tstates;
 
   public long getTstates() {

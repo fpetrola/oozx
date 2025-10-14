@@ -26,6 +26,7 @@ import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.Ula;
 import com.fpetrola.oozx.fuse.modules.ZxModule;
+import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,9 +65,9 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   public MemoryPage[] mapRam = new MemoryPage[SPECTRUM_RAM_PAGES * PAGES_IN_16K];
   public MemoryPage[] mapRom = new MemoryPage[SPECTRUM_ROM_PAGES * PAGES_IN_16K];
   private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
-  private ZxClock zxClock;
+  private Z80Clock zxClock;
 
-  public Memory(Supplier<SpectrumMachine> machine, ZxClock zxClock) {
+  public Memory(Supplier<SpectrumMachine> machine, Z80Clock zxClock) {
     this.fuseMachineInfoSupplier = machine;
     this.zxClock = zxClock;
   }

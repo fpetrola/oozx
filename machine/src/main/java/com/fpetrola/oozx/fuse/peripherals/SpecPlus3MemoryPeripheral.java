@@ -18,10 +18,10 @@
 
 package com.fpetrola.oozx.fuse.peripherals;
 
-import com.fpetrola.oozx.fuse.ports.Spec128PortHandler;
-import com.fpetrola.oozx.fuse.ports.SpecPlus3PortHandler;
 import com.fpetrola.oozx.fuse.machine.Spec128;
 import com.fpetrola.oozx.fuse.machine.SpecPlus3;
+import com.fpetrola.oozx.fuse.ports.Spec128PortHandler;
+import com.fpetrola.oozx.fuse.ports.SpecPlus3PortHandler;
 
 import java.util.List;
 
