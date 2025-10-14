@@ -263,12 +263,10 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
     MemoryPage mapping = mapRead[bank];
 
     if (mapping != null) {
-      if (mapping != null && mapping.contended) {
+      if (mapping.contended) {
         if (zxClock.getTstates() < ula.contention.length) {
           byte tstates = ula.contention[(int) zxClock.getTstates()];
-          if (tstates > 0) {
-            GetTStatesHistory.addTStateUpdate(tstates, "ula readbyte", (int) zxClock.getTstates());
-          }
+          GetTStatesHistory.addTStateUpdate(tstates, "ula readbyte", (int) zxClock.getTstates());
           zxClock.addTstates(tstates);
         }
       }
@@ -285,9 +283,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
 
     if (mapping.contended) {
       byte tstates = ula.contention[(int) zxClock.getTstates()];
-      if (tstates > 0) {
-        GetTStatesHistory.addTStateUpdate(tstates, "ula writebyte", (int) zxClock.getTstates());
-      }
+      GetTStatesHistory.addTStateUpdate(tstates, "ula writebyte", (int) zxClock.getTstates());
       zxClock.addTstates(tstates);
     }
 //      tStatesHolder.tstates += 3;

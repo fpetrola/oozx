@@ -282,7 +282,6 @@ public class Z80 implements ZxModule {
 
       private void processUlaContention(WordNumber address, WordNumber value) {
         memory.writeByte(address.intValue(), (byte) (value.intValue() & 0xff), ula);
-        ooz80.getState().getMemory().getData()[address.intValue()] = value;
       }
     });
   }
