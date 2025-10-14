@@ -16,14 +16,28 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.machine;
+package com.fpetrola.oozx.fuse.startup;
 
-public class MachineTimings {
-    public long processorSpeed;
-    public int leftBorder;
-    public int horizontalScreen;
-    int rightBorder;
-    public int tstatesPerLine;
-    int interruptLength;
-    public long tstatesPerFrame;
+import com.fpetrola.oozx.fuse.modules.Timer;
+
+public class TimerStartupModule extends AbstractStartupModule {
+  private Timer timer;
+
+  public TimerStartupModule(Timer timer) {
+    super(EventManagerStartupModule.class);
+    this.timer = timer;
+  }
+
+  public Object getInitContext() {
+    return null;
+  }
+
+  public int initFn(Object initContext) {
+    return timer.init(initContext);
+  }
+
+  public void endFn() {
+    timer.end();
+  }
+
 }

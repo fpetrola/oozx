@@ -20,10 +20,7 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.machine.TimingsHandler;
-import com.fpetrola.oozx.fuse.modules.Display;
-import com.fpetrola.oozx.fuse.modules.EventManager;
-import com.fpetrola.oozx.fuse.modules.Ula;
-import com.fpetrola.oozx.fuse.modules.ZxModule;
+import com.fpetrola.oozx.fuse.modules.*;
 import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.ArrayList;
@@ -41,8 +38,9 @@ public class Machine  implements ZxModule {
   private Z80Clock z80Clock;
   private final Spectrum spectrum;
   private UiDisplay uiDisplay;
+  private Timer timer;
 
-  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, Z80Clock z80Clock, Spectrum spectrum, UiDisplay uiDisplay) {
+  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, Z80Clock z80Clock, Spectrum spectrum, UiDisplay uiDisplay, Timer timer) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
@@ -50,6 +48,7 @@ public class Machine  implements ZxModule {
     this.z80Clock = z80Clock;
     this.spectrum = spectrum;
     this.uiDisplay = uiDisplay;
+    this.timer = timer;
   }
 
   public void addMachine(SpectrumMachine spectrumMachine) {
@@ -94,6 +93,7 @@ public class Machine  implements ZxModule {
 
     eventManager.reset();
 //        EventManager.eventAdd(0, Timer.event);
+    timer.addEvent();
     eventManager.eventAdd(machine.getTimings().tstatesPerFrame, spectrum.spectrumFrameEvent);
 
     Sound.end();

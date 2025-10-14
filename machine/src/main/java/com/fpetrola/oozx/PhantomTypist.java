@@ -26,4 +26,8 @@ public class PhantomTypist {
   public static byte ulaRead(int port) {
     return (byte) 0xff;
   }
+
+  public static boolean isActive() {
+    return false;
+  }
 }

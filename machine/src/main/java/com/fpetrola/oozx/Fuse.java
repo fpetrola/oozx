@@ -48,9 +48,11 @@ public class Fuse {
   public IPeriph ulaPeriph = new UlaPeriph(ula, zxClock, periph);
   public Joystick joystick = new Joystick(keyboard, ulaPeriph);
   public Input input = new Input(joystick, keyboard);
-  public Z80 z80 = new Z80(eventManager, memory, display, ula, spectrumMachineSupplier, keyboard, zxClock, input, ulaPeriph, uiDisplay);
-  public Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, zxClock, memory, spectrumMachineSupplier);
-  public Machine machine = new Machine(eventManager, memory, display, ula, zxClock, spectrum, uiDisplay);
+  private Sound sound = new Sound();
+  private Timer timer = new Timer(eventManager, spectrumMachineSupplier, sound);
+  public Z80 z80 = new Z80(eventManager, memory, display, ula, spectrumMachineSupplier, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer);
+  public Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, zxClock, memory, spectrumMachineSupplier, timer);
+  public Machine machine = new Machine(eventManager, memory, display, ula, zxClock, spectrum, uiDisplay, timer);
   public MachinesPeriph machinesPeriph = new MachinesPeriph(ulaPeriph);
   public Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum, ulaPeriph);
   public Spec128 spec128 = new Spec128(memory, display, machinesPeriph, spectrum, spec48, ulaPeriph);
@@ -69,6 +71,7 @@ public class Fuse {
         new MachinesPeriphStartupModule(machine, spec128, specPlus3, periph),
         new MemoryStartupModule(memory, machine, spec128, specPlus3),
         new SpectrumStartupModule(spectrum),
+        new TimerStartupModule(timer),
         new UlaStartupModule(ula),
         new Z80StartupModule(z80)
     ).forEach(StartupManager::register);

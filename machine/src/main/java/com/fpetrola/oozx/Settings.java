@@ -81,7 +81,7 @@ public class Settings {
     public String drivePlusd1Type;
     public String drivePlusd2Type;
     public boolean embedSnapshot;
-    public int emulationSpeed;
+    public int emulationSpeed= 100;
     public boolean fastload;
     public int fbMode;
     public int frameRate;

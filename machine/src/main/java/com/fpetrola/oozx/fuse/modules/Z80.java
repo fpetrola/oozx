@@ -18,15 +18,14 @@
 
 package com.fpetrola.oozx.fuse.modules;
 
-import com.fpetrola.oozx.Libspectrum;
-import com.fpetrola.oozx.MemoryPage;
+import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
-import com.fpetrola.oozx.UiDisplay;
 import com.fpetrola.oozx.fuse.*;
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.machine.TimingsHandler;
 import com.fpetrola.oozx.fuse.peripherals.*;
+import com.fpetrola.oozx.fuse.startup.TimerStartupModule;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
@@ -74,8 +73,10 @@ public class Z80 implements ZxModule {
   private Input input;
   private IPeriph periph;
   private UiDisplay uiDisplay;
+  private volatile boolean emulatorPaused;
+  private Timer timer;
 
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machine, Keyboard keyboard, Z80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay) {
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machine, Keyboard keyboard, Z80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
@@ -86,6 +87,7 @@ public class Z80 implements ZxModule {
     this.input = input;
     this.periph = periph;
     this.uiDisplay = uiDisplay;
+    this.timer = timer;
   }
 
   public void reset(int i) {
@@ -330,6 +332,7 @@ public class Z80 implements ZxModule {
 
   public void doOpcodes() {
     while (zxClock.getTstates() < eventManager.eventNextEvent) {
+      while (emulatorPaused) Thread.onSpinWait();
       bridgeCommand.invoke(0, null);
       ooz80.getState().tstates2 = zxClock.getTstates();
       phaseProcessor.initialTStates = zxClock.getTstates();
@@ -346,7 +349,23 @@ public class Z80 implements ZxModule {
   }
 
   public JFrame createScreen(KeyListener keyListener, JComponent contentPane) {
-    EmulatorCore mockCore = new MockEmulatorCore(contentPane);
+    EmulatorCore mockCore = new MockEmulatorCore(contentPane) {
+      public void pauseEmulation() {
+        emulatorPaused = !emulatorPaused;
+      }
+
+      @Override
+      public void resumeEmulation() {
+        emulatorPaused = false;
+      }
+
+      public void setGeneralOption(String option, Object value) {
+        if (option.equals("turbo")) {
+          Settings.current.emulationSpeed = (boolean) value ? 20000 : 100;
+          timer.addEvent();
+        }
+      }
+    };
     ZXSpectrumEmulatorUI ui = new ZXSpectrumEmulatorUI(mockCore);
     ui.setVisible(true);
     ui.addKeyListener(keyListener);

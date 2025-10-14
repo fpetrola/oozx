@@ -31,6 +31,10 @@ public class Ui {
 
   }
 
+  public static void statusbarUpdateSpeed(float currentSpeed) {
+    currentSpeed++;
+  }
+
   public enum UIConfirmJoystick {
     UI_CONFIRM_JOYSTICK_NONE,
     UI_CONFIRM_JOYSTICK_KEYBOARD,
