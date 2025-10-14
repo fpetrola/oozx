@@ -31,10 +31,6 @@ public class UlaZxModuleInfo implements ZXModuleInfo {
     this.zxClock = zxClock;
   }
 
-  public void romcs() {
-
-  }
-
   public void snapshotEnabled(Libspectrum.Snap snap) {
 
   }
