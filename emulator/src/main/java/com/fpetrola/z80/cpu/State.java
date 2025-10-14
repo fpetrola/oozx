@@ -50,7 +50,11 @@ public class State<T extends WordNumber> {
   public void addEvent(Event event) {
     int time = event.getTime();
     event.setTime((int) getTstates());
-    setTstates(getTstates() + time);
+    addEventNumber(time);
+  }
+
+  public void addEventNumber(int time) {
+    clock.addTstates(time);
     tstates2 += time;
   }
 

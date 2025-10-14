@@ -112,7 +112,7 @@ public class Z80 implements ZxModule {
 //      }
 
       GetTStatesHistory.addTStateUpdate((byte) 7, "interrupt", (int) zxClock.getTstates());
-      zxClock.addTstates( 7);
+      zxClock.addTstates(7);
       ooz80.interruption();
     }
 //    ooz80.getState().tstates = 0;
@@ -137,7 +137,7 @@ public class Z80 implements ZxModule {
       }
     };
 
-    state.clock= zxClock;
+    state.clock = zxClock;
     io.setPc(state.getPc());
     return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)));
   }
@@ -205,19 +205,28 @@ public class Z80 implements ZxModule {
     Memory<WordNumber> memory1 = (Memory<WordNumber>) state.getMemory();
 
     phaseProcessor = new PhaseProcessor<>(ooz80) {
+      @Override
+      public void addMw(WordNumber address, WordNumber value) {
+//        getState().clock.addTstates(1);
+      }
+
       public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
+        MemoryPage memoryPage = memory.mapRead[baseAddress >>> memory.PAGE_SIZE_LOGARITHM];
+        boolean memoryContended = memoryPage != null && memoryPage.contended;
         for (int i = 0; i < x; i++) {
-          MemoryPage memoryPage = memory.mapRead[baseAddress >>> memory.PAGE_SIZE_LOGARITHM];
-          if (memoryPage != null && memoryPage.contended) {
+          if (memoryContended) {
             if (zxClock.getTstates() < ula.contentionNoMreq.length) {
               byte tstates = ula.contentionNoMreq[(int) zxClock.getTstates()];
-              if (tstates > 0) {
-                GetTStatesHistory.addTStateUpdate(tstates, "ula " + (description != null ? description : "contend_read_no_mreq"), (int) zxClock.getTstates());
-                zxClock.addTstates( tstates);
-              }
+              GetTStatesHistory.addTStateUpdate(tstates, "ula " + (description != null ? description : "contend_read_no_mreq"), (int) zxClock.getTstates());
+              zxClock.addTstates(tstates);
             }
           }
-          getAddEvent(new Event(time1, "MC", baseAddress + delta, null, description));
+
+          if (FuseLibretroConnector.noTest) {
+            getState().addEventNumber(time1);
+          } else {
+            getAddEvent(new Event(time1, "MC", baseAddress + delta, null, description));
+          }
         }
         //        tStatesHolder.tstates= state.tstates;
       }
