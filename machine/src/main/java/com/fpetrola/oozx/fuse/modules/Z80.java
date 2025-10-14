@@ -105,14 +105,14 @@ public class Z80 implements ZxModule {
 
   public void interrupt() {
     int i = TimingsHandler.interruptLength(machine.get().getBaseTiming());
-    if (ooz80.getState().isIff1() && ooz80.getState().clock.getTstates() < i) {
+    if (ooz80.getState().isIff1() && zxClock.getTstates() < i) {
 //      if (ooz80.getState().tstates == Z80.interruptsEnabledAt) {
 //        EventManager.eventAdd(ooz80.getState().tstates + 1, z80_interrupt_event);
 //        return;
 //      }
 
-      GetTStatesHistory.addTStateUpdate((byte) 7, "interrupt", (int) ooz80.getState().clock.getTstates());
-      ooz80.getState().clock.addTstates( 7);
+      GetTStatesHistory.addTStateUpdate((byte) 7, "interrupt", (int) zxClock.getTstates());
+      zxClock.addTstates( 7);
       ooz80.interruption();
     }
 //    ooz80.getState().tstates = 0;
@@ -192,7 +192,7 @@ public class Z80 implements ZxModule {
     SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
     Z80Loader.LibSpectrum lib = Z80Loader.LibSpectrum.INSTANCE;
     Z80Loader.libspectrum_snap snap = Z80Loader.getLibspectrumSnap(lib, url);
-    state.setTstates(lib.libspectrum_snap_tstates(snap));
+    state.clock.setTstates(lib.libspectrum_snap_tstates(snap));
     interruptsEnabledAt = -1;
 
     updateMemory();
@@ -220,11 +220,11 @@ public class Z80 implements ZxModule {
         for (int i = 0; i < x; i++) {
           MemoryPage memoryPage = memory.mapRead[baseAddress >>> memory.PAGE_SIZE_LOGARITHM];
           if (memoryPage != null && memoryPage.contended) {
-            if (state.clock.getTstates() < ula.contentionNoMreq.length) {
-              byte tstates = ula.contentionNoMreq[(int) state.clock.getTstates()];
+            if (zxClock.getTstates() < ula.contentionNoMreq.length) {
+              byte tstates = ula.contentionNoMreq[(int) zxClock.getTstates()];
               if (tstates > 0) {
-                GetTStatesHistory.addTStateUpdate(tstates, "ula " + (description != null ? description : "contend_read_no_mreq"), (int) getState().clock.getTstates());
-                state.clock.addTstates( tstates);
+                GetTStatesHistory.addTStateUpdate(tstates, "ula " + (description != null ? description : "contend_read_no_mreq"), (int) zxClock.getTstates());
+                zxClock.addTstates( tstates);
               }
             }
           }
@@ -237,7 +237,7 @@ public class Z80 implements ZxModule {
       protected void getAddEvent(Event event) {
         if (event.getTime() > 0) {
           String description = getDescription(event);
-          GetTStatesHistory.addTStateUpdate((byte) event.getTime(), description, (int) getState().clock.getTstates());
+          GetTStatesHistory.addTStateUpdate((byte) event.getTime(), description, (int) zxClock.getTstates());
         }
         getState().addEvent(event);
       }

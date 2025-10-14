@@ -68,11 +68,11 @@ public class State<T extends WordNumber> {
     Stream.of(values()).forEach(r -> getRegister(r).write(state.getRegister(r).read()));
   }
 
-  public long getTstates() {
+  private long getTstates() {
     return clock.getTstates();
   }
 
-  public void setTstates(long tstates) {
+  private void setTstates(long tstates) {
     clock.setTstates(tstates);
   }
 

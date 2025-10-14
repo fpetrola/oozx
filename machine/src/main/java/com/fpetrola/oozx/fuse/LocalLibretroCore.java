@@ -176,7 +176,7 @@ public class LocalLibretroCore implements LibretroCore {
   public void retro_set_register_data(String register, int value) {
     if (register.equals("tstates")) {
       z80Clock.setTstates(value);
-      z80.ooz80.getState().setTstates(value);
+      z80.ooz80.getState().clock.setTstates(value);
     } else
       getRegister(register).write(createValue(value));
   }
