@@ -162,8 +162,6 @@ public class Z80 implements ZxModule {
 //      JFrame screen1 = MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
 //      JFrame screen = createScreen(io.miniZXKeyboard, zxScreenComponent);
 
-      updateScreen2();
-
       audio = new Audio(new AY8912Type());
       audio.open(MachineTypes.SPECTRUM48K, new AY8912(), false, 32000);
 
@@ -174,13 +172,6 @@ public class Z80 implements ZxModule {
 //    Keyboard0.keyboard = io.miniZXKeyboard;
 
     setupMemory();
-  }
-
-  private void updateScreen2() {
-//    for (int i = 0x4000; i <= 0x5FFF; i++) {
-//      WordNumber datum = ooz80.getState().getMemory().getData()[i];
-//      writeListener.writtingMemoryAt(createValue(i), createValue(datum != null ? datum.intValue() : 0));
-//    }
   }
 
   public void loadSnap(String url) {
@@ -196,8 +187,6 @@ public class Z80 implements ZxModule {
     interruptsEnabledAt = -1;
 
     updateMemory();
-//    updateScreen();
-//    updateScreen2();
     display.refreshAll();
 
     IO<?> io1 = state.getIo();
@@ -335,7 +324,6 @@ public class Z80 implements ZxModule {
     while (zxClock.getTstates() < eventManager.eventNextEvent) {
       bridgeCommand.invoke(0, null);
       ooz80.getState().tstates2 = zxClock.getTstates();
-//      System.out.printf("Event processed, tstates: %d\n", tStatesHolder.tstates);
       phaseProcessor.initialTStates = zxClock.getTstates();
       ooz80.execute();
     }
@@ -345,9 +333,6 @@ public class Z80 implements ZxModule {
     WordNumber[] data = ooz80.getState().getMemory().getData();
     for (int i = 0x4000; i < 0x8000; i++) {
       WordNumber datum = data[i];
-//      int bank = i >>> PAGE_SIZE_LOGARITHM;
-//      byte[] mapping = tStatesHolder.RAM[currentScreen];
-//      mapping[i - 0x4000] = datum != null ? (byte) (datum.intValue() & 0xff) : 0;
       memory.writeByteInternal(i, datum != null ? (byte) (datum.intValue() & 0xff) : 0, display);
     }
   }
