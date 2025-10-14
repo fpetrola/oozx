@@ -50,6 +50,7 @@ import java.util.function.Supplier;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class Z80 implements ZxModule {
+  public static double emulationSpeed;
   private EventManager eventManager;
   private com.fpetrola.oozx.Memory memory;
 
@@ -75,6 +76,7 @@ public class Z80 implements ZxModule {
   private UiDisplay uiDisplay;
   private volatile boolean emulatorPaused;
   private Timer timer;
+  public static EmulatorCore mockCore;
 
   public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machine, Keyboard keyboard, Z80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer) {
     this.eventManager = eventManager;
@@ -234,6 +236,10 @@ public class Z80 implements ZxModule {
       }
 
       @Override
+      public void addMr(WordNumber address, WordNumber value) {
+      }
+
+      @Override
       protected void getAddEvent(Event event) {
         if (event.getTime() > 0) {
           String description = getDescription(event);
@@ -349,21 +355,39 @@ public class Z80 implements ZxModule {
   }
 
   public JFrame createScreen(KeyListener keyListener, JComponent contentPane) {
-    EmulatorCore mockCore = new MockEmulatorCore(contentPane) {
+    mockCore = new MockEmulatorCore(contentPane) {
+      private boolean turbo;
+
       public void pauseEmulation() {
         emulatorPaused = !emulatorPaused;
+        notifyPauseStateChange(emulatorPaused);
       }
 
       @Override
       public void resumeEmulation() {
         emulatorPaused = false;
+        notifyPauseStateChange(emulatorPaused);
       }
 
       public void setGeneralOption(String option, Object value) {
         if (option.equals("turbo")) {
-          Settings.current.emulationSpeed = (boolean) value ? 20000 : 100;
+          turbo= !turbo;
+          int emulationSpeed = (boolean) value ? 10000 : 100;
+          Settings.current.emulationSpeed = emulationSpeed;
           timer.addEvent();
+          notifyTurboModeChange(turbo);
+          notifyEmulationSpeedChange(Z80.emulationSpeed);
         }
+      }
+
+      @Override
+      public double getEmulationSpeed() {
+        return Settings.current.emulationSpeed;
+      }
+
+      @Override
+      public boolean isTurboMode() {
+        return turbo;
       }
     };
     ZXSpectrumEmulatorUI ui = new ZXSpectrumEmulatorUI(mockCore);

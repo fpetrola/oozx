@@ -19,6 +19,8 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.modules.Joystick;
+import com.fpetrola.oozx.fuse.modules.Z80;
+import com.fpetrola.oozx.fuse.peripherals.MockEmulatorCore;
 
 public class Ui {
   public static int widgetLevel;
@@ -32,7 +34,7 @@ public class Ui {
   }
 
   public static void statusbarUpdateSpeed(float currentSpeed) {
-    currentSpeed++;
+    ((MockEmulatorCore) Z80.mockCore).notifyEmulationSpeedChange(currentSpeed);
   }
 
   public enum UIConfirmJoystick {

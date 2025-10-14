@@ -20,7 +20,6 @@ package com.fpetrola.oozx.fuse.peripherals;
 
 import javax.swing.*;
 
-// Interface for the emulator core (decoupled)
 public interface EmulatorCore {
     void startEmulation();
     void stopEmulation();
@@ -39,6 +38,10 @@ public interface EmulatorCore {
     void setGeneralOption(String option, Object value);
     // Add more as needed for peripherals, etc.
     void addEmulatorListener(EmulatorListener listener);
-
+    double getEmulationSpeed(); // New: Get emulation speed
+    String getCurrentModel(); // New: Get current machine model
+    boolean isPaused(); // New: Check if paused
+    boolean isTurboMode(); // New: Check if turbo mode is on
+    String getTapeStatus(); // New: Get tape status
     JComponent getPanel();
 }

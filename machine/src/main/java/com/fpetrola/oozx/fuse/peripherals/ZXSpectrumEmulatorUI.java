@@ -29,15 +29,24 @@ import java.awt.event.KeyEvent;
 // Listener for core events to UI
 interface EmulatorListener {
   void onEmulationStateChanged(String state);
-
   void onError(String message);
+  void onEmulationSpeedChanged(double speed);
+  void onModelChanged(String model);
+  void onPauseStateChanged(boolean paused);
+  void onTurboModeChanged(boolean turbo);
+  void onTapeStatusChanged(String status);
 }
+
 
 // Main UI class
 public class ZXSpectrumEmulatorUI extends JFrame {
   private EmulatorCore emulatorCore;
   private JLabel statusLabel;
-  private boolean turbo;
+  private JLabel speedLabel;
+  private JLabel modelLabel;
+  private JLabel pauseLabel;
+  private JLabel turboLabel;
+  private JLabel tapeLabel;
 
   public ZXSpectrumEmulatorUI(EmulatorCore core) {
     this.emulatorCore = core;
@@ -56,28 +65,16 @@ public class ZXSpectrumEmulatorUI extends JFrame {
     // Main Panel (mock emulator screen)
     JComponent mainPanel = core.getPanel();
     mainPanel.setBackground(Color.BLACK);
-    // Simulate screen with a label or canvas
     JLabel screenLabel = new JLabel("Mock Emulator Screen");
     screenLabel.setForeground(Color.WHITE);
     mainPanel.add(screenLabel);
     add(mainPanel, BorderLayout.CENTER);
 
     // Status bar
-    statusLabel = new JLabel("Status: Ready");
-    add(statusLabel, BorderLayout.SOUTH);
+    JPanel statusBar = createStatusBar();
+    add(statusBar, BorderLayout.SOUTH);
 
-    // Add listener to core
-    emulatorCore.addEmulatorListener(new EmulatorListener() {
-      @Override
-      public void onEmulationStateChanged(String state) {
-        statusLabel.setText("Status: " + state);
-      }
 
-      @Override
-      public void onError(String message) {
-        JOptionPane.showMessageDialog(ZXSpectrumEmulatorUI.this, message, "Error", JOptionPane.ERROR_MESSAGE);
-      }
-    });
   }
 
   private JMenuBar createMenuBar() {
@@ -156,7 +153,6 @@ public class ZXSpectrumEmulatorUI extends JFrame {
     modelGroup.add(model128K);
     modelSubMenu.add(model128K);
 
-    // Add more models like +2, +3, Pentagon, etc.
     JRadioButtonMenuItem modelPlus2 = new JRadioButtonMenuItem("+2");
     modelPlus2.addActionListener(e -> emulatorCore.setMachineModel("+2"));
     modelGroup.add(modelPlus2);
@@ -203,7 +199,6 @@ public class ZXSpectrumEmulatorUI extends JFrame {
     zxPrinter.addActionListener(e -> emulatorCore.setPeripheralOption("zx_printer", zxPrinter.isSelected()));
     peripheralsSubMenu.add(zxPrinter);
 
-    // Add more: Interface 1, Microdrive, etc.
     JCheckBoxMenuItem interface1 = new JCheckBoxMenuItem("Interface 1");
     interface1.addActionListener(e -> emulatorCore.setPeripheralOption("interface1", interface1.isSelected()));
     peripheralsSubMenu.add(interface1);
@@ -215,7 +210,6 @@ public class ZXSpectrumEmulatorUI extends JFrame {
     AbstractAction insertTape = new AbstractAction("Insert Tape...") {
       @Override
       public void actionPerformed(ActionEvent e) {
-        // Mock insert tape
         JFileChooser fc = new JFileChooser();
         if (fc.showOpenDialog(ZXSpectrumEmulatorUI.this) == JFileChooser.APPROVE_OPTION) {
           emulatorCore.setStorageOption("tape", fc.getSelectedFile().getPath());
@@ -227,7 +221,6 @@ public class ZXSpectrumEmulatorUI extends JFrame {
     AbstractAction insertDisk = new AbstractAction("Insert Disk...") {
       @Override
       public void actionPerformed(ActionEvent e) {
-        // Mock insert disk
         JFileChooser fc = new JFileChooser();
         if (fc.showOpenDialog(ZXSpectrumEmulatorUI.this) == JFileChooser.APPROVE_OPTION) {
           emulatorCore.setStorageOption("disk", fc.getSelectedFile().getPath());
@@ -341,7 +334,6 @@ public class ZXSpectrumEmulatorUI extends JFrame {
 
     toolBar.addSeparator();
 
-    // Quick config buttons - using placeholders as no specific icons
     Icon modelIcon = UIManager.getIcon("Tree.openIcon");
     JButton model48KButton = new JButton(modelIcon);
     model48KButton.setToolTipText("Switch to 48K Model");
@@ -353,11 +345,10 @@ public class ZXSpectrumEmulatorUI extends JFrame {
     model128KButton.addActionListener(e -> emulatorCore.setMachineModel("128K"));
     toolBar.add(model128KButton);
 
-    // More buttons: e.g., turbo, fullscreen, etc.
     Icon turboIcon = UIManager.getIcon("OptionPane.warningIcon");
     JButton turboButton = new JButton(turboIcon);
     turboButton.setToolTipText("Toggle Turbo Mode");
-    turboButton.addActionListener(e -> emulatorCore.setGeneralOption("turbo", turbo = !turbo)); // Mock
+    turboButton.addActionListener(e -> emulatorCore.setGeneralOption("turbo", !emulatorCore.isTurboMode()));
     toolBar.add(turboButton);
 
     Icon fullscreenIcon = UIManager.getIcon("Tree.leafIcon");
@@ -369,9 +360,123 @@ public class ZXSpectrumEmulatorUI extends JFrame {
     return toolBar;
   }
 
+  private JPanel createStatusBar() {
+    JPanel statusBar = new JPanel();
+    statusBar.setBorder(BorderFactory.createEtchedBorder());
+    GroupLayout layout = new GroupLayout(statusBar);
+    statusBar.setLayout(layout);
+    layout.setAutoCreateGaps(true);
+    layout.setAutoCreateContainerGaps(true);
+
+    // Fixed height for all components
+    int componentHeight = 20;
+
+    // State Label
+    JLabel statusLabel = new JLabel("State: Ready");
+    statusLabel.setPreferredSize(new Dimension(100, componentHeight));
+
+    // Speed Progress Bar
+    JProgressBar speedBar = new JProgressBar(0, 1000); // Max 4x speed
+    speedBar.setValue((int)(emulatorCore.getEmulationSpeed() ));
+    speedBar.setStringPainted(true);
+    speedBar.setString(String.format("%.2fx", emulatorCore.getEmulationSpeed()));
+    speedBar.setPreferredSize(new Dimension(150, componentHeight));
+
+    // Model Combo
+    String[] models = {"16K", "48K", "128K", "+2", "+3", "Pentagon"};
+    JComboBox<String> modelCombo = new JComboBox<>(models);
+    modelCombo.setSelectedItem(emulatorCore.getCurrentModel());
+    modelCombo.setPreferredSize(new Dimension(120, componentHeight));
+    modelCombo.addActionListener(e -> emulatorCore.setMachineModel((String) modelCombo.getSelectedItem()));
+
+    // Pause Indicator (LED-like)
+    JLabel pauseIndicator = new JLabel(emulatorCore.isPaused() ? "Paused" : "Running");
+    pauseIndicator.setOpaque(true);
+    pauseIndicator.setBackground(emulatorCore.isPaused() ? Color.RED : Color.GREEN);
+    pauseIndicator.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+    pauseIndicator.setPreferredSize(new Dimension(componentHeight, componentHeight));
+    pauseIndicator.setToolTipText(emulatorCore.isPaused() ? "Paused" : "Running");
+
+    // Turbo Indicator
+    JLabel turboIndicator = new JLabel(emulatorCore.isTurboMode() ? "✔ Turbo" : "✘ Turbo");
+    turboIndicator.setForeground(emulatorCore.isTurboMode() ? Color.BLUE : Color.GRAY);
+    turboIndicator.setPreferredSize(new Dimension(80, componentHeight));
+
+    // Tape Status
+    JLabel tapeStatusLabel = new JLabel();
+    tapeStatusLabel.setIcon(emulatorCore.getTapeStatus().equals("Loaded") ?
+        UIManager.getIcon("OptionPane.informationIcon") :
+        UIManager.getIcon("OptionPane.warningIcon"));
+    tapeStatusLabel.setPreferredSize(new Dimension(80, componentHeight));
+    tapeStatusLabel.setToolTipText("Tape: " + emulatorCore.getTapeStatus());
+
+    // Bind data to components
+    emulatorCore.addEmulatorListener(new EmulatorListener() {
+      @Override
+      public void onEmulationStateChanged(String state) {
+        statusLabel.setText("State: " + state);
+      }
+
+      @Override
+      public void onError(String message) {}
+
+      @Override
+      public void onEmulationSpeedChanged(double speed) {
+        speedBar.setValue((int)(speed));
+        speedBar.setString(String.format("%.2fx", speed));
+      }
+
+      @Override
+      public void onModelChanged(String model) {
+        modelCombo.setSelectedItem(model);
+      }
+
+      @Override
+      public void onPauseStateChanged(boolean paused) {
+        pauseIndicator.setBackground(paused ? Color.RED : Color.GREEN);
+        pauseIndicator.setText(paused ? "Paused" : "Running");
+        pauseIndicator.setToolTipText(paused ? "Paused" : "Running");
+      }
+
+      @Override
+      public void onTurboModeChanged(boolean turbo) {
+        turboIndicator.setText(turbo ? "✔ Turbo" : "✘ Turbo");
+        turboIndicator.setForeground(turbo ? Color.BLUE : Color.GRAY);
+      }
+
+      @Override
+      public void onTapeStatusChanged(String status) {
+        tapeStatusLabel.setIcon(status.equals("Loaded") ?
+            UIManager.getIcon("OptionPane.informationIcon") :
+            UIManager.getIcon("OptionPane.warningIcon"));
+        tapeStatusLabel.setToolTipText("Tape: " + status);
+      }
+    });
+
+    layout.setHorizontalGroup(layout.createSequentialGroup()
+        .addComponent(statusLabel)
+        .addComponent(speedBar)
+        .addComponent(modelCombo)
+        .addComponent(pauseIndicator)
+        .addComponent(turboIndicator)
+        .addComponent(tapeStatusLabel)
+    );
+
+    layout.setVerticalGroup(layout.createParallelGroup(Alignment.CENTER)
+        .addComponent(statusLabel)
+        .addComponent(speedBar)
+        .addComponent(modelCombo)
+        .addComponent(pauseIndicator)
+        .addComponent(turboIndicator)
+        .addComponent(tapeStatusLabel)
+    );
+
+    return statusBar;
+  }
+
   public static void main(String[] args) {
     SwingUtilities.invokeLater(() -> {
-      EmulatorCore mockCore = new MockEmulatorCore(new JPanel());
+      EmulatorCore mockCore = new MockEmulatorCore(null);
       ZXSpectrumEmulatorUI ui = new ZXSpectrumEmulatorUI(mockCore);
       ui.setVisible(true);
     });
@@ -434,24 +539,19 @@ class SettingsDialog extends JDialog {
 
   private JPanel createVideoPanel() {
     JPanel panel = new JPanel();
-
-    // Use GroupLayout
     GroupLayout layout = new GroupLayout(panel);
     panel.setLayout(layout);
     layout.setAutoCreateGaps(true);
     layout.setAutoCreateContainerGaps(true);
 
-    // Show Border
     JLabel borderLabel = new JLabel("Show Border:");
     JCheckBox borderCheck = new JCheckBox();
     borderCheck.addActionListener(e -> emulatorCore.setVideoOption("border", borderCheck.isSelected()));
 
-    // Scanlines
     JLabel scanlinesLabel = new JLabel("Scanlines:");
     JCheckBox scanlinesCheck = new JCheckBox();
     scanlinesCheck.addActionListener(e -> emulatorCore.setVideoOption("scanlines", scanlinesCheck.isSelected()));
 
-    // Brightness
     JLabel brightnessLabel = new JLabel("Brightness:");
     JSlider brightnessSlider = new JSlider(0, 100, 50);
     brightnessSlider.addChangeListener(new ChangeListener() {
@@ -462,7 +562,6 @@ class SettingsDialog extends JDialog {
       }
     });
 
-    // Contrast
     JLabel contrastLabel = new JLabel("Contrast:");
     JSlider contrastSlider = new JSlider(0, 100, 50);
     contrastSlider.addChangeListener(new ChangeListener() {
@@ -473,35 +572,29 @@ class SettingsDialog extends JDialog {
       }
     });
 
-    // ULA Type
     JLabel ulaTypeLabel = new JLabel("ULA Type:");
     String[] ulaTypes = {"Standard", "Timex", "Pentagon"};
     JComboBox<String> ulaTypeCombo = new JComboBox<>(ulaTypes);
     ulaTypeCombo.addActionListener(e -> emulatorCore.setVideoOption("ula_type", ulaTypeCombo.getSelectedItem()));
 
-    // Display Filter
     JLabel filterLabel = new JLabel("Display Filter:");
     String[] filters = {"None", "TV2x", "TV3x", "HQ2x", "HQ3x", "Dot Matrix", "PAL TV"};
     JComboBox<String> filterCombo = new JComboBox<>(filters);
     filterCombo.addActionListener(e -> emulatorCore.setVideoOption("filter", filterCombo.getSelectedItem()));
 
-    // Aspect Ratio
     JLabel aspectLabel = new JLabel("Preserve Aspect Ratio:");
     JCheckBox aspectCheck = new JCheckBox();
     aspectCheck.addActionListener(e -> emulatorCore.setVideoOption("aspect_ratio", aspectCheck.isSelected()));
 
-    // Scaling Method
     JLabel scalingLabel = new JLabel("Scaling Method:");
     String[] scalings = {"Nearest Neighbor", "Bilinear", "Bicubic"};
     JComboBox<String> scalingCombo = new JComboBox<>(scalings);
     scalingCombo.addActionListener(e -> emulatorCore.setVideoOption("scaling", scalingCombo.getSelectedItem()));
 
-    // Snow Effect
     JLabel snowLabel = new JLabel("Snow Effect:");
     JCheckBox snowCheck = new JCheckBox();
     snowCheck.addActionListener(e -> emulatorCore.setVideoOption("snow", snowCheck.isSelected()));
 
-    // Horizontal groups
     layout.setHorizontalGroup(layout.createSequentialGroup()
         .addGroup(layout.createParallelGroup(Alignment.LEADING)
             .addComponent(borderLabel)
@@ -525,7 +618,6 @@ class SettingsDialog extends JDialog {
             .addComponent(snowCheck))
     );
 
-    // Vertical groups
     layout.setVerticalGroup(layout.createSequentialGroup()
         .addGroup(layout.createParallelGroup(Alignment.BASELINE)
             .addComponent(borderLabel)
@@ -561,13 +653,11 @@ class SettingsDialog extends JDialog {
 
   private JPanel createAudioPanel() {
     JPanel panel = new JPanel();
-
     GroupLayout layout = new GroupLayout(panel);
     panel.setLayout(layout);
     layout.setAutoCreateGaps(true);
     layout.setAutoCreateContainerGaps(true);
 
-    // Volume
     JLabel volumeLabel = new JLabel("Master Volume:");
     JSlider volumeSlider = new JSlider(0, 100, 50);
     volumeSlider.addChangeListener(new ChangeListener() {
@@ -578,12 +668,10 @@ class SettingsDialog extends JDialog {
       }
     });
 
-    // AY Chip
     JLabel ayChipLabel = new JLabel("AY Chip Emulation:");
     JCheckBox ayCheck = new JCheckBox();
     ayCheck.addActionListener(e -> emulatorCore.setAudioOption("ay", ayCheck.isSelected()));
 
-    // Beeper Volume
     JLabel beeperVolumeLabel = new JLabel("Beeper Volume:");
     JSlider beeperVolumeSlider = new JSlider(0, 100, 50);
     beeperVolumeSlider.addChangeListener(new ChangeListener() {
@@ -594,7 +682,6 @@ class SettingsDialog extends JDialog {
       }
     });
 
-    // AY Volume
     JLabel ayVolumeLabel = new JLabel("AY Volume:");
     JSlider ayVolumeSlider = new JSlider(0, 100, 50);
     ayVolumeSlider.addChangeListener(new ChangeListener() {
@@ -605,19 +692,16 @@ class SettingsDialog extends JDialog {
       }
     });
 
-    // Stereo Separation
     JLabel stereoLabel = new JLabel("AY Stereo Separation:");
     String[] stereos = {"None", "ABC", "ACB", "Mono"};
     JComboBox<String> stereoCombo = new JComboBox<>(stereos);
     stereoCombo.addActionListener(e -> emulatorCore.setAudioOption("stereo_separation", stereoCombo.getSelectedItem()));
 
-    // Sample Rate
     JLabel sampleRateLabel = new JLabel("Sample Rate:");
     String[] rates = {"22050 Hz", "44100 Hz", "48000 Hz"};
     JComboBox<String> sampleRateCombo = new JComboBox<>(rates);
     sampleRateCombo.addActionListener(e -> emulatorCore.setAudioOption("sample_rate", sampleRateCombo.getSelectedItem()));
 
-    // High Quality Beeper
     JLabel hqBeeperLabel = new JLabel("High Quality Beeper:");
     JCheckBox hqBeeperCheck = new JCheckBox();
     hqBeeperCheck.addActionListener(e -> emulatorCore.setAudioOption("hq_beeper", hqBeeperCheck.isSelected()));
@@ -670,25 +754,21 @@ class SettingsDialog extends JDialog {
 
   private JPanel createInputPanel() {
     JPanel panel = new JPanel();
-
     GroupLayout layout = new GroupLayout(panel);
     panel.setLayout(layout);
     layout.setAutoCreateGaps(true);
     layout.setAutoCreateContainerGaps(true);
 
-    // Keyboard Layout
     JLabel keyboardLabel = new JLabel("Keyboard Layout:");
     String[] keyboards = {"QWERTY", "AZERTY", "Spanish", "Russian"};
     JComboBox<String> keyboardCombo = new JComboBox<>(keyboards);
     keyboardCombo.addActionListener(e -> emulatorCore.setInputOption("keyboard_layout", keyboardCombo.getSelectedItem()));
 
-    // Joystick Type
     JLabel joystickLabel = new JLabel("Joystick Type:");
     String[] joysticks = {"None", "Kempston", "Sinclair 1", "Sinclair 2", "Cursor", "Fuller"};
     JComboBox<String> joystickCombo = new JComboBox<>(joysticks);
     joystickCombo.addActionListener(e -> emulatorCore.setInputOption("joystick", joystickCombo.getSelectedItem()));
 
-    // Keyboard Issue
     JLabel issueLabel = new JLabel("Keyboard Issue:");
     ButtonGroup issueGroup = new ButtonGroup();
     JRadioButton issue2 = new JRadioButton("Issue 2");
@@ -698,12 +778,10 @@ class SettingsDialog extends JDialog {
     issue3.addActionListener(e -> emulatorCore.setInputOption("keyboard_issue", "3"));
     issueGroup.add(issue3);
 
-    // Mouse Emulation
     JLabel mouseLabel = new JLabel("Emulate Mouse:");
     JCheckBox mouseCheck = new JCheckBox();
     mouseCheck.addActionListener(e -> emulatorCore.setInputOption("mouse", mouseCheck.isSelected()));
 
-    // Joystick Prompt
     JLabel joystickPromptLabel = new JLabel("Joystick Keyboard Prompt:");
     JCheckBox joystickPromptCheck = new JCheckBox();
     joystickPromptCheck.addActionListener(e -> emulatorCore.setInputOption("joystick_prompt", joystickPromptCheck.isSelected()));
@@ -749,45 +827,37 @@ class SettingsDialog extends JDialog {
 
   private JPanel createStoragePanel() {
     JPanel panel = new JPanel();
-
     GroupLayout layout = new GroupLayout(panel);
     panel.setLayout(layout);
     layout.setAutoCreateGaps(true);
     layout.setAutoCreateContainerGaps(true);
 
-    // Tape Loading Speed
     JLabel tapeSpeedLabel = new JLabel("Tape Loading Speed:");
     String[] tapeSpeeds = {"Normal", "Fast", "Turbo"};
     JComboBox<String> tapeSpeedCombo = new JComboBox<>(tapeSpeeds);
     tapeSpeedCombo.addActionListener(e -> emulatorCore.setStorageOption("tape_speed", tapeSpeedCombo.getSelectedItem()));
 
-    // Disk Interface
     JLabel diskTypeLabel = new JLabel("Disk Interface:");
     String[] diskTypes = {"None", "+3", "Beta 128", "Opus", "TRDOS"};
     JComboBox<String> diskTypeCombo = new JComboBox<>(diskTypes);
     diskTypeCombo.addActionListener(e -> emulatorCore.setStorageOption("disk_interface", diskTypeCombo.getSelectedItem()));
 
-    // Fast Load Tapes
     JLabel fastLoadLabel = new JLabel("Accelerate Tape Loading:");
     JCheckBox fastLoadCheck = new JCheckBox();
     fastLoadCheck.addActionListener(e -> emulatorCore.setStorageOption("fast_load", fastLoadCheck.isSelected()));
 
-    // Auto Load Tapes
     JLabel autoLoadLabel = new JLabel("Auto Load Tapes:");
     JCheckBox autoLoadCheck = new JCheckBox();
     autoLoadCheck.addActionListener(e -> emulatorCore.setStorageOption("auto_load", autoLoadCheck.isSelected()));
 
-    // Trap Tape Loading
     JLabel trapLoadLabel = new JLabel("Trap Tape Loading:");
     JCheckBox trapLoadCheck = new JCheckBox();
     trapLoadCheck.addActionListener(e -> emulatorCore.setStorageOption("trap_load", trapLoadCheck.isSelected()));
 
-    // Microdrive Emulation
     JLabel microdriveLabel = new JLabel("Emulate Microdrives:");
     JCheckBox microdriveCheck = new JCheckBox();
     microdriveCheck.addActionListener(e -> emulatorCore.setStorageOption("microdrive", microdriveCheck.isSelected()));
 
-    // Write Protect Disks
     JLabel writeProtectLabel = new JLabel("Write Protect Disks:");
     JCheckBox writeProtectCheck = new JCheckBox();
     writeProtectCheck.addActionListener(e -> emulatorCore.setStorageOption("write_protect", writeProtectCheck.isSelected()));
@@ -840,19 +910,16 @@ class SettingsDialog extends JDialog {
 
   private JPanel createMachinePanel() {
     JPanel panel = new JPanel();
-
     GroupLayout layout = new GroupLayout(panel);
     panel.setLayout(layout);
     layout.setAutoCreateGaps(true);
     layout.setAutoCreateContainerGaps(true);
 
-    // Machine Model
     JLabel modelLabel = new JLabel("Machine Model:");
     String[] models = {"16K", "48K", "48K NTSC", "128K", "+2", "+2A", "+3", "TC2048", "TC2068", "TS2068", "Pentagon 128", "Pentagon 512", "Pentagon 1024", "Scorpion ZS 256", "Spectrum SE"};
     JComboBox<String> modelCombo = new JComboBox<>(models);
     modelCombo.addActionListener(e -> emulatorCore.setMachineModel((String) modelCombo.getSelectedItem()));
 
-    // Custom ROM
     JLabel romLabel = new JLabel("Custom ROM:");
     JTextField romField = new JTextField(20);
     JButton browseButton = new JButton("Browse...");
@@ -864,17 +931,14 @@ class SettingsDialog extends JDialog {
       }
     });
 
-    // Late Timings
     JLabel lateTimingsLabel = new JLabel("Late Timings:");
     JCheckBox lateTimingsCheck = new JCheckBox();
     lateTimingsCheck.addActionListener(e -> emulatorCore.setGeneralOption("late_timings", lateTimingsCheck.isSelected()));
 
-    // Memory Contention
     JLabel contentionLabel = new JLabel("Memory Contention:");
     JCheckBox contentionCheck = new JCheckBox();
     contentionCheck.addActionListener(e -> emulatorCore.setGeneralOption("contention", contentionCheck.isSelected()));
 
-    // High Resolution
     JLabel highResLabel = new JLabel("High Resolution Mode:");
     JCheckBox highResCheck = new JCheckBox();
     highResCheck.addActionListener(e -> emulatorCore.setGeneralOption("high_res", highResCheck.isSelected()));
@@ -920,43 +984,35 @@ class SettingsDialog extends JDialog {
 
   private JPanel createPeripheralsPanel() {
     JPanel panel = new JPanel();
-
     GroupLayout layout = new GroupLayout(panel);
     panel.setLayout(layout);
     layout.setAutoCreateGaps(true);
     layout.setAutoCreateContainerGaps(true);
 
-    // ZX Interface 1
     JLabel if1Label = new JLabel("ZX Interface 1:");
     JCheckBox if1Check = new JCheckBox();
     if1Check.addActionListener(e -> emulatorCore.setPeripheralOption("if1", if1Check.isSelected()));
 
-    // ZX Interface 2
     JLabel if2Label = new JLabel("ZX Interface 2:");
     JCheckBox if2Check = new JCheckBox();
     if2Check.addActionListener(e -> emulatorCore.setPeripheralOption("if2", if2Check.isSelected()));
 
-    // ZX Printer
     JLabel printerLabel = new JLabel("ZX Printer:");
     JCheckBox printerCheck = new JCheckBox();
     printerCheck.addActionListener(e -> emulatorCore.setPeripheralOption("printer", printerCheck.isSelected()));
 
-    // Kempston Mouse
     JLabel kempstonMouseLabel = new JLabel("Kempston Mouse:");
     JCheckBox kempstonMouseCheck = new JCheckBox();
     kempstonMouseCheck.addActionListener(e -> emulatorCore.setPeripheralOption("kempston_mouse", kempstonMouseCheck.isSelected()));
 
-    // Fuller Box
     JLabel fullerLabel = new JLabel("Fuller Box:");
     JCheckBox fullerCheck = new JCheckBox();
     fullerCheck.addActionListener(e -> emulatorCore.setPeripheralOption("fuller", fullerCheck.isSelected()));
 
-    // Melodik AY
     JLabel melodikLabel = new JLabel("Melodik AY:");
     JCheckBox melodikCheck = new JCheckBox();
     melodikCheck.addActionListener(e -> emulatorCore.setPeripheralOption("melodik", melodikCheck.isSelected()));
 
-    // SpecDrum
     JLabel specdrumLabel = new JLabel("SpecDrum:");
     JCheckBox specdrumCheck = new JCheckBox();
     specdrumCheck.addActionListener(e -> emulatorCore.setPeripheralOption("specdrum", specdrumCheck.isSelected()));
@@ -1009,33 +1065,27 @@ class SettingsDialog extends JDialog {
 
   private JPanel createGeneralPanel() {
     JPanel panel = new JPanel();
-
     GroupLayout layout = new GroupLayout(panel);
     panel.setLayout(layout);
     layout.setAutoCreateGaps(true);
     layout.setAutoCreateContainerGaps(true);
 
-    // Turbo Mode
     JLabel turboLabel = new JLabel("Turbo Mode:");
     JCheckBox turboCheck = new JCheckBox();
     turboCheck.addActionListener(e -> emulatorCore.setGeneralOption("turbo", turboCheck.isSelected()));
 
-    // Frame Rate
     JLabel frameRateLabel = new JLabel("Frame Rate:");
     JSpinner frameRateSpinner = new JSpinner(new SpinnerNumberModel(50, 1, 100, 1));
     frameRateSpinner.addChangeListener(e -> emulatorCore.setGeneralOption("frame_rate", frameRateSpinner.getValue()));
 
-    // Confirm Actions
     JLabel confirmLabel = new JLabel("Confirm Actions:");
     JCheckBox confirmCheck = new JCheckBox();
     confirmCheck.addActionListener(e -> emulatorCore.setGeneralOption("confirm_actions", confirmCheck.isSelected()));
 
-    // Embed Snapshot
     JLabel embedLabel = new JLabel("Embed Snapshot:");
     JCheckBox embedCheck = new JCheckBox();
     embedCheck.addActionListener(e -> emulatorCore.setGeneralOption("embed_snapshot", embedCheck.isSelected()));
 
-    // Strict Aspect
     JLabel strictAspectLabel = new JLabel("Strict Aspect Ratio:");
     JCheckBox strictAspectCheck = new JCheckBox();
     strictAspectCheck.addActionListener(e -> emulatorCore.setGeneralOption("strict_aspect", strictAspectCheck.isSelected()));
@@ -1076,7 +1126,6 @@ class SettingsDialog extends JDialog {
     return panel;
   }
 }
-
 // About Dialog
 class AboutDialog extends JDialog {
   public AboutDialog(Frame owner) {
