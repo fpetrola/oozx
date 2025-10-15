@@ -89,7 +89,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     registerR.increment();
     pcValue = pc.read();
     memory.disableReadListener();
-    opcodeInt = memory.read(pcValue, 1).intValue();
+    opcodeInt = memoryForOpcode.read(pcValue, 1).intValue();
     memoryForOpcode.reset();
     try {
       Instruction<T> baseInstruction = processToBase(opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt]);
