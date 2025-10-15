@@ -59,7 +59,7 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
   private Instruction<T> processTargetSource(Instruction<T> instruction, Instruction<T> existentCloned) {
     instructionTransformer.virtualRegisterFactory.getRegisterNameBuilder().setCurrentAddress(getAddressOf(instruction));
 
-    Instruction<T> baseInstruction = DefaultInstructionFetcher.getBaseInstruction(instruction);
+    Instruction<T> baseInstruction = DefaultInstructionFetcher.processToBase(instruction);
     DefaultInstructionFetcher.processToBase(instruction);
     instructionTransformer.setCurrentInstruction(baseInstruction);
     Instruction<T> cloned;

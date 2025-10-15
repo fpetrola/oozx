@@ -128,14 +128,6 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     }
   }
 
-  public static <T extends WordNumber> Instruction<T> getBaseInstruction(Instruction<T> instruction) {
-    while (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
-      instruction = fetchNextOpcodeInstruction.findNextOpcode();
-    }
-
-    return instruction;
-  }
-
   public static <T extends WordNumber> Instruction<T> processToBase(Instruction<T> instruction) {
     while (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
       fetchNextOpcodeInstruction.update();

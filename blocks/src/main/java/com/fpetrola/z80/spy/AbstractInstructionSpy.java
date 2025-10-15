@@ -31,7 +31,7 @@ import com.fpetrola.z80.registers.Register;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static com.fpetrola.z80.cpu.DefaultInstructionFetcher.getBaseInstruction;
+import static com.fpetrola.z80.cpu.DefaultInstructionFetcher.processToBase;
 
 public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstructionSpy<T> implements ComplexInstructionSpy<T> {
 
@@ -139,7 +139,7 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
 //    lastExecutionPoint.instruction = cloned;
 
     if (fetchedMemory[lastExecutionPoint.pc] == null) {
-      Instruction baseInstruction = getBaseInstruction(lastExecutionPoint.instruction);
+      Instruction baseInstruction = processToBase(lastExecutionPoint.instruction);
       Instruction<T> cloned = instructionCloner.clone(baseInstruction);
 //    System.out.println(cloned);
       for (int i = 0; i < cloned.getLength(); i++) {
@@ -153,7 +153,7 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
     lastExecutionPoint.instruction = fetchedMemory[lastExecutionPoint.pc];
 
     if (executionStep != null)
-      executionStep.setInstruction(getBaseInstruction(instruction));
+      executionStep.setInstruction(processToBase(instruction));
     // executionStep.setInstruction(lastExecutionPoint.instruction);
 
     if (capturing) {

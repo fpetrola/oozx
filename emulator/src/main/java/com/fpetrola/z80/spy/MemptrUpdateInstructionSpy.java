@@ -32,12 +32,10 @@ public class MemptrUpdateInstructionSpy<T extends WordNumber> implements Instruc
   }
 
   public void beforeExecution(Instruction<T> instruction) {
-    Instruction<T> baseInstruction = DefaultInstructionFetcher.getBaseInstruction(instruction);
-    memptrUpdater.updateBefore(baseInstruction);
+    memptrUpdater.updateBefore(instruction);
   }
 
   public void afterExecution(Instruction<T> instruction) {
-    Instruction<T> baseInstruction = DefaultInstructionFetcher.getBaseInstruction(instruction);
-    memptrUpdater.updateAfter(baseInstruction);
+    memptrUpdater.updateAfter(instruction);
   }
 }
