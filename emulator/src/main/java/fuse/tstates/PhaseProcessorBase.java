@@ -41,7 +41,6 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   protected Z80Cpu<T> cpu;
   protected Phase phase;
   protected T address;
-  public long initialTStates;
   protected boolean processing;
 
   public PhaseProcessorBase(Z80Cpu<T> cpu) {
@@ -92,7 +91,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   }
 
   protected Optional<Boolean> matchesTstate(int i) {
-    long l = getState().localTstates - initialTStates;
+    long l = getState().localTstates;
     return Optional.ofNullable(l == i ? true : null);
   }
 
