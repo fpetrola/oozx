@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
+import com.fpetrola.z80.helpers.CollectionHandler;
 import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.memory.Memory;
@@ -30,11 +31,11 @@ import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 @SuppressWarnings("unchecked")
 public class MockedMemory<T extends WordNumber> implements Memory<T> {
   protected T[] data = (T[]) new WordNumber[0x10000];
-  private MemoryWriteListener memoryWriteListener;
+  private CollectionHandler<MemoryWriteListener> memoryWriteListener = new CollectionHandler<>();
+  protected CollectionHandler<MemoryReadListener> memoryReadListener= new CollectionHandler<>();
+  private CollectionHandler<MemoryReadListener> lastMemoryReadListener;
+  private CollectionHandler<MemoryWriteListener> lastMemoryWriteListener;
   private boolean readOnly;
-  protected MemoryReadListener memoryReadListener;
-  private MemoryReadListener lastMemoryReadListener;
-  private MemoryWriteListener lastMemoryWriteListener;
   private boolean canDisable;
   private boolean readListenersDisabled;
 
@@ -53,7 +54,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   public T read(T address, int delta, int fetching) {
     T value = doRead(address);
     if (memoryReadListener != null)
-      memoryReadListener.readingMemoryAt(address, value, delta, fetching);
+      memoryReadListener.forAll(l -> l.readingMemoryAt(address, value, delta, fetching));
 
     return value;
   }
@@ -67,7 +68,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   public void write(T address, T value) {
     if (!readOnly) {
       if (memoryWriteListener != null)
-        memoryWriteListener.writtingMemoryAt(address, value);
+        memoryWriteListener.forAll(l -> l.writtingMemoryAt(address, value));
       data[address.intValue()] = value.and(0xff);
     }
   }
@@ -84,7 +85,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
 
   @Override
   public void addMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener) {
-    this.memoryWriteListener = memoryWriteListener;
+    this.memoryWriteListener.add(memoryWriteListener);
   }
 
   @Override
@@ -101,7 +102,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
 
   @Override
   public void addMemoryReadListener(MemoryReadListener<T> memoryReadListener) {
-    this.memoryReadListener = memoryReadListener;
+    this.memoryReadListener.add(memoryReadListener);
   }
 
   @Override
