@@ -30,6 +30,7 @@ import com.fpetrola.z80.opcodes.decoder.table.MemoryForOpcodes;
 import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Register;
 
 import java.io.FileWriter;
 import java.util.*;
@@ -46,21 +47,15 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   protected int opcodeInt;
   protected T pcValue;
   protected final InstructionExecutor<T> instructionExecutor;
-  FileWriter fileWriter;
   List<ExecutedInstruction> lastInstructions = new ArrayList<>();
   protected Supplier<TableBasedOpCodeDecoder> tableFactory;
   public Instruction<T> instruction2;
   private boolean noRepeat;
   private boolean clone;
   private final Memory<T> memoryForOpcode;
-
-//  {
-//    try {
-//      fileWriter = new FileWriter(Z80B.FILE);
-//    } catch (IOException e) {
-//      throw new RuntimeException(e);
-//    }
-//  }
+  private Register<T> pc;
+  private Register<T> registerR;
+  private Memory<T> memory;
 
   public DefaultInstructionFetcher(State aState, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat1) {
     this(aState, new OpcodeConditions(aState.getFlag(), aState.getRegister(B)), fetchInstructionFactory, instructionExecutor, instructionFactory, noRepeat1, false);
@@ -76,7 +71,9 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     pcValue = state.getPc().read();
     this.instructionFactory = instructionFactory;
     this.clone= clone;
-//    memoryForOpcode= this.state.getMemory();
+    memory = state.getMemory();
+    registerR = state.getRegisterR();
+    pc = state.getPc();
   }
 
   protected void createOpcodeTables() {
@@ -89,9 +86,8 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   @Override
   public void fetchNextInstruction() {
-    state.getRegisterR().increment();
-    pcValue = state.getPc().read();
-    Memory<T> memory = state.getMemory();
+    registerR.increment();
+    pcValue = pc.read();
     memory.disableReadListener();
     opcodeInt = memory.read(pcValue, 1).intValue();
     Instruction<T> baseInstruction2 = getBaseInstruction2(opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt]);
@@ -107,13 +103,9 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     try {
 //      lastInstructions.add(new ExecutedInstruction(pcValue.intValue(), this.instruction));
 
-//      if (pcValue.intValue() == 0xE667)
-//        System.out.println("");
       memory.read(WordNumber.createValue(-1), 1);
       Instruction<T> executedInstruction = this.instructionExecutor.execute(instruction2);
       memory.read(WordNumber.createValue(-2), 1);
-
-      // fileWriter.write(x + "\n");
 
       this.instruction = getBaseInstruction(executedInstruction);
 
