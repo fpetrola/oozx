@@ -25,7 +25,6 @@ import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.machine.TimingsHandler;
 import com.fpetrola.oozx.fuse.peripherals.*;
-import com.fpetrola.oozx.fuse.startup.TimerStartupModule;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
@@ -44,9 +43,6 @@ import fuse.tstates.PhaseProcessor;
 import fuse.tstates.phases.BeforeWrite;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.KeyListener;
 import java.util.function.Supplier;
 
@@ -343,7 +339,7 @@ public class Z80 implements ZxModule {
     while (zxClock.getTstates() < eventManager.eventNextEvent) {
       while (emulatorPaused) Thread.onSpinWait();
       bridgeCommand.invoke(0, null);
-      ooz80.getState().tstates2 = zxClock.getTstates();
+      ooz80.getState().localTstates = zxClock.getTstates();
       phaseProcessor.initialTStates = zxClock.getTstates();
       ooz80.execute();
     }

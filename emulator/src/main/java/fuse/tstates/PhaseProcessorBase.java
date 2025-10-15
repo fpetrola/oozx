@@ -27,7 +27,6 @@ import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.TargetInstruction;
 import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
-import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
@@ -93,7 +92,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   }
 
   protected Optional<Boolean> matchesTstate(int i) {
-    long l = getState().tstates2 - initialTStates;
+    long l = getState().localTstates - initialTStates;
     return Optional.ofNullable(l == i ? true : null);
   }
 

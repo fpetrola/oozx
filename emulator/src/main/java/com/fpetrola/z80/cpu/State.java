@@ -36,7 +36,7 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 public class State<T extends WordNumber> {
   private RunState runState;
   protected final ArrayList<Event> events = new ArrayList<>();
-  public long tstates2;
+  public long localTstates;
   public Z80Clock clock = new DefaultZ80Clock();
 
   public long getTStatesSinceCpuStart() {
@@ -55,12 +55,12 @@ public class State<T extends WordNumber> {
 
   public void addEventNumber(int time) {
     clock.addTstates(time);
-    tstates2 += time;
+    localTstates += time;
   }
 
   public void reset() {
     setTstates(0);
-    tstates2 = 0;
+    localTstates = 0;
     getEvents().clear();
     Stream.of(values()).forEach(r -> r(r).write(createValue(0xFFFF)));
     getRegister(IR).write(createValue(0));
