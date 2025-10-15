@@ -56,11 +56,7 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
   }
 
   public int execute() {
-    spy.pause();
-    update();
-    Instruction<T> instruction = findNextOpcode();
-    spy.doContinue();
-    instruction.execute();
+    findNextOpcode().execute();
     return 4;
   }
 
@@ -69,14 +65,8 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
       registerR.increment();
   }
 
-  public Instruction findNextOpcode() {
-    spy.pause();
-    Memory<T> memory = memoryForOpcodes;
-    int opcodeInt = memory.read(pc.read().plus(incPc - 1 + length), incPc).intValue();
-    Instruction instruction = table[opcodeInt];
-    spy.flipOpcode(instruction, opcodeInt);
-    spy.doContinue();
-    return instruction;
+  public Instruction<T> findNextOpcode() {
+    return (Instruction<T>) table[memoryForOpcodes.read(pc.read().plus(incPc - 1 + length), incPc).intValue()];
   }
 
   public String toString() {
