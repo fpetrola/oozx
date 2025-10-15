@@ -20,6 +20,7 @@ package com.fpetrola.z80.opcodes.decoder.table;
 
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.spy.InstructionSpy;
 
@@ -32,7 +33,7 @@ public class FetchNextOpcodeInstructionFactory<T> {
     this.state = state;
   }
 
-  public DefaultFetchNextOpcodeInstruction createFetchInstruction(Instruction<T>[] opcodesTable, String name, int incPc) {
-    return new DefaultFetchNextOpcodeInstruction(this.state, opcodesTable, incPc, name, this.spy);
+  public DefaultFetchNextOpcodeInstruction createFetchInstruction(Instruction<T>[] opcodesTable, String name, int incPc, Memory<T> memoryForOpcodes) {
+    return new DefaultFetchNextOpcodeInstruction(this.state, opcodesTable, incPc, name, this.spy, memoryForOpcodes);
   }
 }

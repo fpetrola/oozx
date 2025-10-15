@@ -47,7 +47,6 @@ public abstract class TableOpCodeGenerator<T> extends OpcodeTargets<T> {
   protected Instruction<T>[][] bli;
   protected List<Function<ImmutableOpcodeReference, Instruction<T>>> alu;
   protected List<RotFactory> rot;
-  protected State s;
   protected int[] im;
   protected int x;
   protected int y;
@@ -63,7 +62,6 @@ public abstract class TableOpCodeGenerator<T> extends OpcodeTargets<T> {
     super(state, memoryForOpcodes);
     this.i = instructionFactory;
 
-    this.s = state;
     this.main16BitRegister = main16BitRegister;
     this.mainHigh8BitRegister = mainHigh8BitRegister;
     this.mainLow8BitRegister = mainLow8BitRegister;

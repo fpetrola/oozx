@@ -51,10 +51,6 @@ public abstract class AbstractInstruction<T extends WordNumber> implements Instr
     this.length = length;
   }
 
-  public State getState() {
-    return null;
-  }
-
   public void setNextPC(T address) {
     this.nextPC = address;
   }

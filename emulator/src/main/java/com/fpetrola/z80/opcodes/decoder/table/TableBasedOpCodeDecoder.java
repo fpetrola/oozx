@@ -34,22 +34,22 @@ public class TableBasedOpCodeDecoder<T> implements OpCodeDecoder {
   Instruction[] opcodes = new Instruction[0x100];
   InstructionFactory instructionFactory;
 
-  public TableBasedOpCodeDecoder(State state, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionFactory instructionFactory, Memory memoryForOpcode) {
-//    memoryForOpcode= state.getMemory();
+  public TableBasedOpCodeDecoder(State state, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionFactory instructionFactory, Memory memoryForOpcodes) {
+//    memoryForOpcodes= state.getMemory();
     this.instructionFactory = instructionFactory;
-    OpcodeTargets opcodeTargets = new OpcodeTargets(state, memoryForOpcode);
+    OpcodeTargets opcodeTargets = new OpcodeTargets(state, memoryForOpcodes);
     OpcodeReference a = opcodeTargets.iRR(HL);
-    Instruction<T> edOpcode = fetchInstructionFactory.createFetchInstruction(new EDPrefixTableOpCodeGenerator(state, a, opcodeConditions, this.instructionFactory, memoryForOpcode).getOpcodesTable(), "ED", 1);
-    Instruction<T> cbOpcode = fetchInstructionFactory.createFetchInstruction(new CBPrefixTableOpCodeGenerator(state, a, opcodeConditions, this.instructionFactory, memoryForOpcode).getOpcodesTable(), "CB", 1);
-    Instruction<T> ddOpcode = fetchInstructionFactory.createFetchInstruction(fillDDFD(state, IX, IXH, IXL, opcodeTargets.iRRn(IX, false, 2), opcodeConditions, fetchInstructionFactory, memoryForOpcode), "DD", 1);
-    Instruction<T> fdOpcode = fetchInstructionFactory.createFetchInstruction(fillDDFD(state, IY, IYH, IYL, opcodeTargets.iRRn(IY, false, 2), opcodeConditions, fetchInstructionFactory, memoryForOpcode), "FD", 1);
-    UnprefixedTableOpCodeGenerator unprefixedTableOpCodeGenerator = new UnprefixedTableOpCodeGenerator(1, state, cbOpcode, ddOpcode, edOpcode, fdOpcode, HL, H, L, a, opcodeConditions, this.instructionFactory, memoryForOpcode);
+    Instruction<T> edOpcode = fetchInstructionFactory.createFetchInstruction(new EDPrefixTableOpCodeGenerator(state, a, opcodeConditions, this.instructionFactory, memoryForOpcodes).getOpcodesTable(), "ED", 1, memoryForOpcodes);
+    Instruction<T> cbOpcode = fetchInstructionFactory.createFetchInstruction(new CBPrefixTableOpCodeGenerator(state, a, opcodeConditions, this.instructionFactory, memoryForOpcodes).getOpcodesTable(), "CB", 1, memoryForOpcodes);
+    Instruction<T> ddOpcode = fetchInstructionFactory.createFetchInstruction(fillDDFD(state, IX, IXH, IXL, opcodeTargets.iRRn(IX, false, 2), opcodeConditions, fetchInstructionFactory, memoryForOpcodes), "DD", 1, memoryForOpcodes);
+    Instruction<T> fdOpcode = fetchInstructionFactory.createFetchInstruction(fillDDFD(state, IY, IYH, IYL, opcodeTargets.iRRn(IY, false, 2), opcodeConditions, fetchInstructionFactory, memoryForOpcodes), "FD", 1, memoryForOpcodes);
+    UnprefixedTableOpCodeGenerator unprefixedTableOpCodeGenerator = new UnprefixedTableOpCodeGenerator(1, state, cbOpcode, ddOpcode, edOpcode, fdOpcode, HL, H, L, a, opcodeConditions, this.instructionFactory, memoryForOpcodes);
     opcodes = unprefixedTableOpCodeGenerator.getOpcodesTable();
   }
 
-  private Instruction<T>[] fillDDFD(State s, RegisterName registerName, final RegisterName highRegisterName, final RegisterName lowRegisterName, OpcodeReference a, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchNextOpcodeInstructionFactory, Memory memoryForOpcode) {
-    Instruction<T> cbOpcode = fetchNextOpcodeInstructionFactory.createFetchInstruction(new DDCBFDCBPrefixTableOpCodeGenerator(s, registerName, highRegisterName, lowRegisterName, a, opcodeConditions, instructionFactory, memoryForOpcode).getOpcodesTable(), "DDFDCB", 2);
-    UnprefixedTableOpCodeGenerator ddTableOpCodeGenerator = new IndexerRegisterTableOpCodeGenerator(s, cbOpcode, this.instructionFactory.Nop(), this.instructionFactory.Nop(), this.instructionFactory.Nop(), registerName, highRegisterName, lowRegisterName, a, lowRegisterName, highRegisterName, registerName, opcodeConditions, instructionFactory, memoryForOpcode);
+  private Instruction<T>[] fillDDFD(State s, RegisterName registerName, final RegisterName highRegisterName, final RegisterName lowRegisterName, OpcodeReference a, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchNextOpcodeInstructionFactory, Memory memoryForOpcodes) {
+    Instruction<T> cbOpcode = fetchNextOpcodeInstructionFactory.createFetchInstruction(new DDCBFDCBPrefixTableOpCodeGenerator(s, registerName, highRegisterName, lowRegisterName, a, opcodeConditions, instructionFactory, memoryForOpcodes).getOpcodesTable(), "DDFDCB", 2, memoryForOpcodes);
+    UnprefixedTableOpCodeGenerator ddTableOpCodeGenerator = new IndexerRegisterTableOpCodeGenerator(s, cbOpcode, this.instructionFactory.Nop(), this.instructionFactory.Nop(), this.instructionFactory.Nop(), registerName, highRegisterName, lowRegisterName, a, lowRegisterName, highRegisterName, registerName, opcodeConditions, instructionFactory, memoryForOpcodes);
     return ddTableOpCodeGenerator.getOpcodesTable();
   }
 

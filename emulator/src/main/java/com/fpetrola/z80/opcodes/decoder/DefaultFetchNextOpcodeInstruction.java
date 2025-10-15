@@ -22,6 +22,7 @@ import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.opcodes.decoder.table.MemoryForOpcodes;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
@@ -30,32 +31,28 @@ import com.fpetrola.z80.spy.InstructionSpy;
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
 public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends AbstractInstruction<T> implements FetchNextOpcodeInstruction<T> {
-
-  @Override
-  public State<T> getState() {
-    return state;
-  }
-
-  private final State<T> state;
+  private boolean incrementR;
   private final Register<T> pc;
   private final Instruction[] table;
-  private final int incPc;
   private final String name;
+  public final Memory<T> memoryForOpcodes;
+  private final int incPc;
   private final InstructionSpy spy;
   private final Register registerR;
 
-  public DefaultFetchNextOpcodeInstruction(State state, Instruction[] table, int incPc, String name, InstructionSpy spy) {
-    this.state = state;
+  public DefaultFetchNextOpcodeInstruction(State state, Instruction[] table, int incPc, String name, InstructionSpy spy, Memory<T> memoryForOpcodes) {
     this.table = table;
+    this.name = name;
+    this.memoryForOpcodes = memoryForOpcodes;
     for (int i = 0; i < table.length; i++) {
       if (table[i] != null)
         ((AbstractInstruction) table[i]).setLength(table[i].getLength() + 1);
     }
     this.incPc = incPc;
-    this.name = name;
     this.spy = spy;
     this.registerR = state.getRegister(RegisterName.R);
     this.pc = state.getRegister(PC);
+    incrementR = name.length() == 2;
   }
 
   public int execute() {
@@ -68,18 +65,16 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
   }
 
   public void update() {
-    if (name.length() == 2)
+    if (incrementR)
       registerR.increment();
   }
 
   public Instruction findNextOpcode() {
     spy.pause();
-    Memory<T> memory = state.getMemory();
-    //memory.disableReadListener();
+    Memory<T> memory = memoryForOpcodes;
     int opcodeInt = memory.read(pc.read().plus(incPc - 1 + length), incPc).intValue();
     Instruction instruction = table[opcodeInt];
     spy.flipOpcode(instruction, opcodeInt);
-    // memory.enableReadListener();
     spy.doContinue();
     return instruction;
   }

@@ -70,7 +70,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     createOpcodeTables();
     pcValue = state.getPc().read();
     this.instructionFactory = instructionFactory;
-    this.clone= clone;
+    this.clone = clone;
     memory = state.getMemory();
     registerR = state.getRegisterR();
     pc = state.getPc();
@@ -90,12 +90,12 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     pcValue = pc.read();
     memory.disableReadListener();
     opcodeInt = memory.read(pcValue, 1).intValue();
-    Instruction<T> baseInstruction2 = getBaseInstruction2(opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt]);
+    memoryForOpcode.reset();
+    Instruction<T> baseInstruction2 = processToBase(opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt]);
+
     if (clone)
       baseInstruction2 = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction2);
-    else
-      memoryForOpcode.reset();
-    
+
     instruction2 = baseInstruction2;
     this.instruction = baseInstruction2;
     memory.enableReadListener();
@@ -133,25 +133,11 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   public static <T extends WordNumber> Instruction<T> getBaseInstruction(Instruction<T> instruction) {
     while (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
-      Memory memory = fetchNextOpcodeInstruction.getState().getMemory();
-      boolean lastCanDiable = memory.canDisable();
-      memory.canDisable(true);
-      memory.disableReadListener();
-      instruction = fetchNextOpcodeInstruction.findNextOpcode();
-      memory.enableReadListener();
-      memory.canDisable(lastCanDiable);
-    }
-    return instruction;
-  }
-
-  public static <T extends WordNumber> Instruction<T> getBaseInstruction2(Instruction<T> instruction) {
-    while (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
-      fetchNextOpcodeInstruction.update();
       instruction = fetchNextOpcodeInstruction.findNextOpcode();
     }
+
     return instruction;
   }
-
 
   public static <T extends WordNumber> Instruction<T> processToBase(Instruction<T> instruction) {
     while (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
