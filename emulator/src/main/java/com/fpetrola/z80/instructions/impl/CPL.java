@@ -46,7 +46,7 @@ public class CPL<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
 
   @Override
   public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitingCpl(this);
+    if (!visitor.visitingCpl(this))
+      super.accept(visitor);
   }
 }

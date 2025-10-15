@@ -134,7 +134,7 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_reset() {
-
+    z80.reset(0);
   }
 
   private Memory<WordNumber> getMemory() {

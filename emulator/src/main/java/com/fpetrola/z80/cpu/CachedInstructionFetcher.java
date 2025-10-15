@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.cpu;
 
+import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.types.JumpInstruction;
@@ -29,8 +30,8 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstructionFetcher<T> {
   protected InstructionCache<T> instructionCache;
 
-  public CachedInstructionFetcher(State aState, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor) {
-    super(aState, opcodeConditions, fetchInstructionFactory, instructionExecutor, new DefaultInstructionFactory(aState), false, false);
+  public CachedInstructionFetcher(State aState, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone) {
+    super(aState, opcodeConditions, fetchInstructionFactory, instructionExecutor, instructionFactory, noRepeat, false);
     instructionCache = new InstructionCache(aState.getMemory(), new DefaultInstructionFactory(aState));
   }
 
@@ -52,8 +53,8 @@ public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstr
       state.getPc().write(nextPC);
     } else {
       super.fetchNextInstruction();
-      if (cacheEntry == null || !cacheEntry.isMutable())
-        instructionCache.cacheInstruction(pcValue, this.lastExecutedInstruction);
+//      if (cacheEntry == null || !cacheEntry.isMutable())
+//        instructionCache.cacheInstruction(pcValue, this.lastExecutedInstruction);
     }
   }
 

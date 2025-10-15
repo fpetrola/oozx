@@ -76,7 +76,7 @@ public class TestDriver {
   }
 
   public void resetZ80() {
-
+    commandHandler.addNoResultCommand(new ResetCPU());
   }
 
   public void writePort(int port, int value) {

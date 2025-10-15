@@ -24,6 +24,7 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class InstructionCache<T extends WordNumber> {
@@ -93,7 +94,7 @@ public class InstructionCache<T extends WordNumber> {
     return cacheEntries;
   }
 
-  private final Runnable[] cacheInvalidators = new Runnable[0x10000];
+  private Runnable[] cacheInvalidators = new Runnable[0x10000];
 
   private final InstructionCloner instructionCloner;
 
@@ -110,6 +111,7 @@ public class InstructionCache<T extends WordNumber> {
 
   public void reset() {
     opcodesCache = getCacheEntries();
+    Arrays.fill(cacheInvalidators, null);
   }
 
   public CacheEntry getCacheEntryAt(T pcValue) {

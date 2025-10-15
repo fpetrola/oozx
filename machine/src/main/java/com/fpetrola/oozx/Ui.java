@@ -20,6 +20,7 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.modules.Joystick;
 import com.fpetrola.oozx.fuse.modules.Z80;
+import com.fpetrola.oozx.fuse.peripherals.EmulatorCore;
 import com.fpetrola.oozx.fuse.peripherals.MockEmulatorCore;
 
 import javax.swing.*;
@@ -37,7 +38,9 @@ public class Ui {
 
   public static void statusbarUpdateSpeed(float currentSpeed) {
     SwingUtilities.invokeLater(() -> {
-      ((MockEmulatorCore) Z80.mockCore).notifyEmulationSpeedChange(currentSpeed);
+      EmulatorCore mockCore = Z80.mockCore;
+      if (mockCore != null)
+        ((MockEmulatorCore) mockCore).notifyEmulationSpeedChange(currentSpeed);
     });
   }
 
