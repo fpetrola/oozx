@@ -107,7 +107,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
       Instruction<T> executedInstruction = this.instructionExecutor.execute(instruction2);
       memory.read(WordNumber.createValue(-2), 1);
 
-      this.instruction = getBaseInstruction(executedInstruction);
+      this.instruction = executedInstruction;
 
       T nextPC = null;
       if (noRepeat && this.instruction instanceof RepeatingInstruction repeatingInstruction)
