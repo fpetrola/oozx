@@ -73,10 +73,6 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
     return "STRING:DefaultFetchNextOpcodeInstruction";//findNextOpcode().toString();
   }
 
-  public int getIncPc() {
-    return incPc;
-  }
-
   public Instruction[] getTable() {
     return table;
   }
