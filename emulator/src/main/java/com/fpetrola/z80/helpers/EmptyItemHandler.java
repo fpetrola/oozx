@@ -15,33 +15,24 @@
  *  * limitations under the License.
  *
  */
+
 package com.fpetrola.z80.helpers;
 
 import java.util.List;
 
-public class CollectionHandler<T> {
-  protected ItemHandler<T> currentInvoker = new EmptyItemHandler<>();
-
-  public CollectionHandler() {
+public class EmptyItemHandler<T> implements ItemHandler<T> {
+  public void execute(ItemInvoker<T> invoker) {
   }
 
-  public void add(T item) {
-    currentInvoker = currentInvoker.add(item);
-  }
-
-  public void forAll(ItemInvoker<T> invoker) {
-    currentInvoker.execute(invoker);
+  public ItemHandler<T> add(T item) {
+    return new SingleItemInvoker<T>(item);
   }
 
   public List<T> getList() {
-    return currentInvoker.getList();
+    return List.of();
   }
 
-  public void remove(T item) {
-    currentInvoker = currentInvoker.remove(item);
-  }
-
-  public void removeAll() {
-    currentInvoker = new EmptyItemHandler<>();
+  public ItemHandler<T> remove(T item) {
+    return this;
   }
 }

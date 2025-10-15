@@ -31,10 +31,10 @@ import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 @SuppressWarnings("unchecked")
 public class MockedMemory<T extends WordNumber> implements Memory<T> {
   protected T[] data = (T[]) new WordNumber[0x10000];
-  private CollectionHandler<MemoryWriteListener> memoryWriteListener = new CollectionHandler<>();
-  protected CollectionHandler<MemoryReadListener> memoryReadListener= new CollectionHandler<>();
-  private CollectionHandler<MemoryReadListener> lastMemoryReadListener;
-  private CollectionHandler<MemoryWriteListener> lastMemoryWriteListener;
+  private CollectionHandler<MemoryWriteListener<T>> memoryWriteListener = new CollectionHandler<>();
+  protected CollectionHandler<MemoryReadListener<T>> memoryReadListener = new CollectionHandler<>();
+  private CollectionHandler<MemoryReadListener<T>> lastMemoryReadListener;
+  private CollectionHandler<MemoryWriteListener<T>> lastMemoryWriteListener;
   private boolean readOnly;
   private boolean canDisable;
   private boolean readListenersDisabled;

@@ -15,33 +15,37 @@
  *  * limitations under the License.
  *
  */
+
 package com.fpetrola.z80.helpers;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class CollectionHandler<T> {
-  protected ItemHandler<T> currentInvoker = new EmptyItemHandler<>();
+public class MultipleItemsInvoker<T> implements ItemHandler<T> {
+  protected List<T> multipleItems = new ArrayList<>();
 
-  public CollectionHandler() {
+  public MultipleItemsInvoker(T... items) {
+    multipleItems.addAll(List.of(items));
   }
 
-  public void add(T item) {
-    currentInvoker = currentInvoker.add(item);
+  public void execute(ItemInvoker<T> invoker) {
+    for (T multipleItem : multipleItems) invoker.invoke(multipleItem);
   }
 
-  public void forAll(ItemInvoker<T> invoker) {
-    currentInvoker.execute(invoker);
+  public ItemHandler<T> add(T item) {
+    multipleItems.add(item);
+    return this;
   }
 
   public List<T> getList() {
-    return currentInvoker.getList();
+    return multipleItems;
   }
 
-  public void remove(T item) {
-    currentInvoker = currentInvoker.remove(item);
-  }
-
-  public void removeAll() {
-    currentInvoker = new EmptyItemHandler<>();
+  public ItemHandler<T> remove(T item) {
+    multipleItems.remove(item);
+    if (multipleItems.size() == 1) {
+      return new SingleItemInvoker<>(multipleItems.get(0));
+    } else
+      return this;
   }
 }
