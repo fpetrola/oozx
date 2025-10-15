@@ -119,7 +119,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
 
       if (nextPC == null)
-        nextPC = pcValue.plus(getBaseInstruction(opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt]).getLength());
+        nextPC = pcValue.plus(lastExecutedInstruction.getLength());
 
       state.getPc().write(nextPC);
     } catch (Exception e) {
