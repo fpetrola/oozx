@@ -92,14 +92,15 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     opcodeInt = memory.read(pcValue, 1).intValue();
     memoryForOpcode.reset();
     Instruction<T> baseInstruction = processToBase(opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt]);
+    int rdelta = registerR.read().intValue() - rValue;
+    ((AbstractInstruction) baseInstruction).setRDelta(rdelta);
 
-    if (clone)
+    if (clone) {
       baseInstruction = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction);
+//      registerR.write(createValue(registerR.read().intValue() + ((AbstractInstruction) baseInstruction).getRDelta()));
+    }
 
     lastExecutedInstruction = baseInstruction;
-
-    int rdelta = registerR.read().intValue() - rValue;
-    ((AbstractInstruction) lastExecutedInstruction).setRDelta(rdelta);
 
     memory.enableReadListener();
 
