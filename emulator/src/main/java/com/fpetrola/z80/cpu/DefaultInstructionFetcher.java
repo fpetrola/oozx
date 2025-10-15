@@ -35,6 +35,7 @@ import com.fpetrola.z80.registers.Register;
 import java.util.*;
 import java.util.function.Supplier;
 
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.B;
 
 public class DefaultInstructionFetcher<T extends WordNumber> implements InstructionFetcher {
@@ -84,6 +85,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   @Override
   public void fetchNextInstruction() {
+    int rValue = registerR.read().intValue();
     registerR.increment();
     pcValue = pc.read();
     memory.disableReadListener();
@@ -95,6 +97,10 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
       baseInstruction = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction);
 
     lastExecutedInstruction = baseInstruction;
+
+    int rdelta = registerR.read().intValue() - rValue;
+    ((AbstractInstruction) lastExecutedInstruction).setRDelta(rdelta);
+
     memory.enableReadListener();
 
     try {
