@@ -37,16 +37,7 @@ public class FuseScreen extends JPanel {
     setPreferredSize(new Dimension((int) (width * zoom), (int) (height * zoom)));
     this.screenBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
-    new Timer(10, e -> {
-      repaint();
-    }).start();
-
-    addComponentListener(new ComponentAdapter() {
-      public void componentResized(ComponentEvent event) {
-        Rectangle b = event.getComponent().getBounds();
-        event.getComponent().setBounds(b.x, b.y, b.width, b.width * 3 / 4);
-      }
-    });
+    new Timer(10, e -> repaint()).start();
   }
 
   protected void paintComponent(Graphics g) {

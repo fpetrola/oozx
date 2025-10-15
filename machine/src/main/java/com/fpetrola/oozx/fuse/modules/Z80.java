@@ -44,6 +44,9 @@ import fuse.tstates.PhaseProcessor;
 import fuse.tstates.phases.BeforeWrite;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyListener;
 import java.util.function.Supplier;
 
@@ -377,6 +380,7 @@ public class Z80 implements ZxModule {
           timer.addEvent();
           notifyTurboModeChange(turbo);
           notifyEmulationSpeedChange(Z80.emulationSpeed);
+//          timer.estimateReset();
         }
       }
 
@@ -393,6 +397,12 @@ public class Z80 implements ZxModule {
     ZXSpectrumEmulatorUI ui = new ZXSpectrumEmulatorUI(mockCore);
     ui.setVisible(true);
     ui.addKeyListener(keyListener);
+//    ui.addComponentListener(new ComponentAdapter() {
+//      public void componentResized(ComponentEvent event) {
+//        Rectangle b = event.getComponent().getBounds();
+//        event.getComponent().setBounds(b.x, b.y, b.width, b.width * 3 / 4);
+//      }
+//    });
 
 //    JFrame frame = new JFrame("Fuse ZX Spectrum");
 //    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
