@@ -91,7 +91,8 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     memory.disableReadListener();
     opcodeInt = memory.read(pcValue, 1).intValue();
     memoryForOpcode.reset();
-    Instruction<T> baseInstruction = processToBase(opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt]);
+    try {
+      Instruction<T> baseInstruction = processToBase(opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt]);
     int rdelta = registerR.read().intValue() - rValue;
     ((AbstractInstruction) baseInstruction).setRDelta(rdelta);
 
@@ -104,7 +105,6 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
     memory.enableReadListener();
 
-    try {
 //      lastInstructions.add(new ExecutedInstruction(pcValue.intValue(), this.instruction));
 
       memory.read(WordNumber.createValue(-1), 1);
