@@ -32,7 +32,6 @@ import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-import java.io.FileWriter;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -41,7 +40,6 @@ import static com.fpetrola.z80.registers.RegisterName.B;
 public class DefaultInstructionFetcher<T extends WordNumber> implements InstructionFetcher {
   private final InstructionFactory instructionFactory;
   protected State<T> state;
-  protected Instruction<T> instruction;
   protected Instruction<T>[] opcodesTables;
 
   protected int opcodeInt;
@@ -49,7 +47,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   protected final InstructionExecutor<T> instructionExecutor;
   List<ExecutedInstruction> lastInstructions = new ArrayList<>();
   protected Supplier<TableBasedOpCodeDecoder> tableFactory;
-  public Instruction<T> instruction2;
+  protected Instruction<T> lastExecutedInstruction;
   private boolean noRepeat;
   private boolean clone;
   private final Memory<T> memoryForOpcode;
@@ -91,29 +89,28 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     memory.disableReadListener();
     opcodeInt = memory.read(pcValue, 1).intValue();
     memoryForOpcode.reset();
-    Instruction<T> baseInstruction2 = processToBase(opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt]);
+    Instruction<T> baseInstruction = processToBase(opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt]);
 
     if (clone)
-      baseInstruction2 = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction2);
+      baseInstruction = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction);
 
-    instruction2 = baseInstruction2;
-    this.instruction = baseInstruction2;
+    lastExecutedInstruction = baseInstruction;
     memory.enableReadListener();
 
     try {
 //      lastInstructions.add(new ExecutedInstruction(pcValue.intValue(), this.instruction));
 
       memory.read(WordNumber.createValue(-1), 1);
-      Instruction<T> executedInstruction = this.instructionExecutor.execute(instruction2);
+      Instruction<T> executedInstruction = this.instructionExecutor.execute(getLastExecutedInstruction());
       memory.read(WordNumber.createValue(-2), 1);
 
-      this.instruction = executedInstruction;
+      lastExecutedInstruction = executedInstruction;
 
       T nextPC = null;
-      if (noRepeat && this.instruction instanceof RepeatingInstruction repeatingInstruction)
+      if (noRepeat && lastExecutedInstruction instanceof RepeatingInstruction repeatingInstruction)
         repeatingInstruction.setNextPC(null);
 
-      if (this.instruction instanceof AbstractInstruction jumpInstruction) {
+      if (lastExecutedInstruction instanceof AbstractInstruction jumpInstruction) {
         nextPC = (T) jumpInstruction.getNextPC();
       }
 
@@ -150,5 +147,13 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   @Override
   public void reset() {
     instructionExecutor.reset();
+  }
+
+  public Instruction<T> getLastExecutedInstruction() {
+    return lastExecutedInstruction;
+  }
+
+  public void setLastExecutedInstruction(Instruction<T> instruction) {
+    lastExecutedInstruction = instruction;
   }
 }

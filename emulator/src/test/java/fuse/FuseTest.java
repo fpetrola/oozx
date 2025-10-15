@@ -107,6 +107,6 @@ public class FuseTest<T extends WordNumber> {
   public void run() {
     cpu.execute();
     cpu.getState().getPc().write(createValue(0));
-    name = ((FuseTestParser.MyDefaultInstructionFetcher) cpu.getInstructionFetcher()).getLastInstruction().toString();
+    name = ((FuseTestParser.MyDefaultInstructionFetcher) cpu.getInstructionFetcher()).getLastExecutedInstruction().toString();
   }
 }

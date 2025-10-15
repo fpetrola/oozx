@@ -165,7 +165,7 @@ public class LocalLibretroCore implements LibretroCore {
 
   public void retro_set_memory_data_contended(int address, int id) {
     DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) z80.ooz80.getInstructionFetcher();
-    instructionFetcher.instruction2 = null;
+    instructionFetcher.setLastExecutedInstruction(null);
     getMemory().write(createValue(address), createValue(id));
   }
 

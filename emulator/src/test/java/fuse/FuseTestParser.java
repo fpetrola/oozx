@@ -118,10 +118,6 @@ public class FuseTestParser<T extends WordNumber> {
       super(state, new OpcodeConditions(state.getFlag(), state.getRegister(RegisterName.B)), new FetchNextOpcodeInstructionFactory(spy, state), new SpyInstructionExecutor(spy, state), instructionFactory, false, false);
     }
 
-    public Instruction getLastInstruction() {
-      return instruction;
-    }
-
     public void reset() {
       super.reset();
       createOpcodeTables();
