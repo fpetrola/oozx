@@ -123,7 +123,6 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
       state.getPc().write(nextPC);
     } catch (Exception e) {
-      e.printStackTrace();
       state.setRunState(State.RunState.STATE_STOPPED_BREAK);
     }
   }
