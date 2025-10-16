@@ -214,15 +214,12 @@ public class Z80 implements ZxModule {
       }
 
       public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
-        MemoryPage memoryPage = memory.mapRead[baseAddress >>> memory.PAGE_SIZE_LOGARITHM];
-        boolean memoryContended = memoryPage != null && memoryPage.contended;
+        boolean memoryContended = memory.mapRead[baseAddress >>> memory.PAGE_SIZE_LOGARITHM].contended;
         for (int i = 0; i < x; i++) {
           if (memoryContended) {
-            if (zxClock.getTstates() < ula.contentionNoMreq.length) {
-              byte tstates = ula.contentionNoMreq[(int) zxClock.getTstates()];
-              GetTStatesHistory.addTStateUpdate(tstates, "ula " + (description != null ? description : "contend_read_no_mreq"), (int) zxClock.getTstates());
-              zxClock.addTstates(tstates);
-            }
+            byte tstates = ula.contentionNoMreq[(int) zxClock.getTstates()];
+            GetTStatesHistory.addTStateUpdate(tstates, "ula " + (description != null ? description : "contend_read_no_mreq"), (int) zxClock.getTstates());
+            zxClock.addTstates(tstates);
           }
 
           if (FuseLibretroConnector.noTest) {
@@ -369,7 +366,7 @@ public class Z80 implements ZxModule {
 
       public void setGeneralOption(String option, Object value) {
         if (option.equals("turbo")) {
-          turbo= !turbo;
+          turbo = !turbo;
           int emulationSpeed = (boolean) value ? 10000 : 100;
           Settings.current.emulationSpeed = emulationSpeed;
           timer.addEvent();
