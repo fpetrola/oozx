@@ -31,6 +31,8 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
+import fuse.tstates.phases.BeforeExecution;
+import fuse.tstates.phases.DefaultPhaseVisitor;
 import fuse.tstates.phases.Phase;
 
 import java.util.Optional;
@@ -42,6 +44,8 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   protected Phase phase;
   protected T address;
   protected boolean processing;
+  protected int readCount;
+  protected int writeCount;
 
   public PhaseProcessorBase(Z80Cpu<T> cpu) {
     this.cpu = cpu;
@@ -73,6 +77,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
     matchesTstate(14).ifPresent(x -> {
       addMultipleMc(2, 1, 3, getRegister(PC).read().intValue(), null);
     });
+
     matchesTstate(19).ifPresent(x -> {
       addMultipleMc(1, 1, 0, address.intValue(), null);
     });
@@ -111,6 +116,16 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
 
   public void setPhase(Phase phase) {
     this.phase = phase;
+    phase.accept(new DefaultPhaseVisitor() {
+      public void visit(BeforeExecution beforeExecution) {
+        reset();
+      }
+    });
+  }
+
+  private void reset() {
+    readCount = 0;
+    writeCount = 0;
   }
 
   public <T2 extends WordNumber> boolean isLdSP(Ld<T2> ld) {

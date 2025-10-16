@@ -67,6 +67,7 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
     phaseProcessor.addMr(address, value);
 
     phaseProcessor.setAddress(address);
+    phaseProcessor.readCount++;
     phaseProcessor.processPhase(new AfterMR());
   }
 

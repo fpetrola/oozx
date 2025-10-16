@@ -26,6 +26,8 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.phases.*;
 
+import java.util.function.Consumer;
+
 import static com.fpetrola.z80.registers.RegisterName.*;
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
@@ -125,14 +127,17 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       }
 
       public void visit(AfterMR afterMR) {
-        matchesTstate(11).ifPresent(x -> {
+        Consumer<Boolean> booleanConsumer = x -> {
           boolean b = ld.getSource() instanceof Register<T> && !ld.getSource().equals(getRegister(IX));
           b |= ld.getSource() instanceof MemoryPlusRegister8BitReference<T>;
           b &= !(ld.getTarget() instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference && indirectMemory16BitReference.target instanceof Memory16BitReference<T>);
-          if ((!ld.getTarget().equals(getRegister(SP))) && b) {
+          boolean b1 = !ld.getTarget().equals(getRegister(SP));
+          if (b1 && b && !(ld.getTarget() instanceof IndirectMemory8BitReference<T>)) {
             addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null);
           }
-        });
+        };
+        if (readCount == 1)
+          booleanConsumer.accept(true);
       }
     });
   }
@@ -171,7 +176,8 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
         public void visit(BeforeWrite beforeWrite) {
           int i = ex.getSource().equals(getRegister(HL)) && indirectMemory16BitReference.target.equals(getRegister(SP)) ? 10 : 14;
-          matchesTstate(i).ifPresent(x -> addMc(1, SP, 1, null));
+          if (writeCount == 1)
+            addMc(1, SP, 1, null);
         }
       });
     }
@@ -239,7 +245,11 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public boolean addIfIndirectHL(TargetInstruction<T> targetInstruction) {
-    isIndirectHL(targetInstruction).ifPresent((x) -> matchesTstate(11).ifPresent(x2 -> addMultipleMc(1, 1, 0, getRegister(HL).read().intValue(), null)));
+    isIndirectHL(targetInstruction).ifPresent((x) -> {
+      matchesTstate(11).ifPresent(x2 -> {
+        addMultipleMc(1, 1, 0, getRegister(HL).read().intValue(), null);
+      });
+    });
     return false;
   }
 
@@ -257,7 +267,8 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     phase.accept(new DefaultPhaseVisitor() {
       public void visit(AfterMR afterExecution) {
         if (dec.getTarget() instanceof MemoryPlusRegister8BitReference<T>) {
-          matchesTstate(11).ifPresent(x -> addMultipleMc(5, 1, 2, getRegister(PC).read().intValue(), null));
+          if (readCount == 1)
+            addMultipleMc(5, 1, 2, getRegister(PC).read().intValue(), null);
         }
       }
 
@@ -273,14 +284,20 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction parameterizedBinaryAluInstruction) {
-    phase.acceptAfterMR(p -> matchesTstate(11).ifPresent(x -> addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null)));
+    phase.acceptAfterMR(p -> {
+      if (readCount == 1) {
+        if (parameterizedBinaryAluInstruction.getSource() instanceof MemoryPlusRegister8BitReference<?>)
+          addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null);
+      }
+    });
   }
 
 
   public boolean visitingCall(Call tCall) {
     phase.accept(new DefaultPhaseVisitor() {
       public void visit(BeforeWrite beforeWrite) {
-        matchesTstate(10).ifPresent(x -> addMc(1, PC, 2, null));
+        if (writeCount == 1)
+          addMc(1, PC, 2, null);
       }
     });
 

@@ -30,6 +30,7 @@ public class AddStatesMemoryWriteListener<T extends WordNumber> implements Memor
   }
 
   public void writtingMemoryAt(T address, T value) {
+    phaseProcessor.writeCount++;
     phaseProcessor.processPhase(new BeforeWrite());
     phaseProcessor.addMultipleMc(1, 3, 0, address.intValue(), "writebyte");
     phaseProcessor.addMw(address, value);
