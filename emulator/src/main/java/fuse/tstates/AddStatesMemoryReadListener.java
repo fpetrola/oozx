@@ -21,7 +21,7 @@ package fuse.tstates;
 import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import fuse.tstates.phases.AfterExecution;
-import fuse.tstates.phases.AfterFetch;
+import fuse.tstates.phases.BeforeExecution;
 import fuse.tstates.phases.AfterMR;
 
 public class AddStatesMemoryReadListener<T extends WordNumber> implements MemoryReadListener<T> {
@@ -34,7 +34,7 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
 
   public void readingMemoryAt(T address, T value, int delta, int fetching) {
     if (address.intValue() == -1) {
-      phaseProcessor.processPhase(new AfterFetch());
+      phaseProcessor.processPhase(new BeforeExecution());
     } else if (address.intValue() == -2) {
       phaseProcessor.processPhase(new AfterExecution());
     } else {

@@ -26,8 +26,6 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.phases.*;
 
-import java.util.Optional;
-
 import static com.fpetrola.z80.registers.RegisterName.*;
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
@@ -58,7 +56,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   private void addResultAfterFetch(final int time) {
     phase.accept(new DefaultPhaseVisitor() {
-      public void visit(AfterFetch afterFetch) {
+      public void visit(BeforeExecution beforeExecution) {
         addMc(time, IR, 0, null);
       }
     });
@@ -90,7 +88,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   public boolean visitRepeatingInstruction(RepeatingInstruction<T> instruction) {
     DefaultPhaseVisitor visitor = new DefaultPhaseVisitor() {
-      public void visit(AfterFetch afterFetch) {
+      public void visit(BeforeExecution afterFetch) {
         lastAddress = instruction instanceof Ldir<T> || instruction instanceof Lddr<T> ? getRegister(DE).read().intValue() : getRegister(HL).read().intValue();
       }
 
@@ -109,7 +107,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   public void visitingLd(Ld<T> ld) {
     phase.accept(new DefaultPhaseVisitor() {
-      public void visit(AfterFetch afterFetch) {
+      public void visit(BeforeExecution beforeExecution) {
         int times = 0;
         if (isLdSP(ld))
           times = 2;
@@ -145,7 +143,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   public boolean visitingDjnz(DJNZ<T> djnz) {
     phase.accept(new DefaultPhaseVisitor() {
-      public void visit(AfterFetch afterFetch) {
+      public void visit(BeforeExecution beforeExecution) {
         addMc(1, IR, 0, null);
       }
 

@@ -18,7 +18,7 @@
 
 package fuse.tstates.phases;
 
-public class AfterFetch implements Phase {
+public class BeforeExecution implements Phase {
     public void accept(PhaseVisitor visitor) {
         visitor.visit(this);
     }

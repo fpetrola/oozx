@@ -19,9 +19,9 @@
 package fuse.tstates.phases;
 
 public interface PhaseVisitor {
-   void visit(AfterExecution afterExecution);
+  void visit(BeforeExecution beforeExecution);
 
-  void visit(AfterFetch afterFetch);
+   void visit(AfterExecution afterExecution);
 
   void visit(AfterMR afterMR);
 

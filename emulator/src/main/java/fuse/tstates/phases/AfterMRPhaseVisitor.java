@@ -22,7 +22,7 @@ public interface AfterMRPhaseVisitor extends PhaseVisitor {
   default void visit(AfterExecution afterExecution) {
   }
 
-  default void visit(AfterFetch afterFetch) {
+  default void visit(BeforeExecution beforeExecution) {
 
   }
 

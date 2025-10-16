@@ -23,7 +23,7 @@ public interface DefaultPhaseVisitor extends PhaseVisitor {
 
   }
 
-  default void visit(AfterFetch afterFetch) {
+  default void visit(BeforeExecution beforeExecution) {
 
   }
 
