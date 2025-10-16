@@ -145,6 +145,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   @Override
   public void reset() {
     instructionExecutor.reset();
+    lastExecutedInstruction= null;
   }
 
   public Instruction<T> getLastExecutedInstruction() {

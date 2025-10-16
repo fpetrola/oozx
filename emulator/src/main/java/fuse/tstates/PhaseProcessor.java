@@ -270,7 +270,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public boolean visitRLD(RLD<T> rld) {
-    phase.acceptAfterMR(p -> matchesTstate(11).ifPresent(x -> addMultipleMc(4, 1, 0, getRegister(HL).read().intValue(), null)));
+    phase.acceptAfterMR(p -> addMultipleMc(4, 1, 0, getRegister(HL).read().intValue(), null));
     return false;
   }
 
