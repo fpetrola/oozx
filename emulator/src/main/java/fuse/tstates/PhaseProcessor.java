@@ -60,17 +60,21 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     });
   }
 
-  public void visitingInc16(Inc16 tInc16) {
+  private void incDec16addMc() {
     phase.acceptAfterExecution(afterExecution -> addMc(2, IR, 0, null));
+  }
+
+  public void visitingInc16(Inc16 tInc16) {
+    incDec16addMc();
+  }
+
+  public void visitingDec16(Dec16 tDec16) {
+    incDec16addMc();
   }
 
   public boolean visitingSbc16(Sbc16<T> sbc16) {
     addResultAfterFetch(7);
     return false;
-  }
-
-  public void visitingDec16(Dec16 tDec16) {
-    phase.acceptAfterExecution(afterExecution -> addMc(2, IR, 0, null));
   }
 
   public void visitPush(Push push) {
@@ -108,8 +112,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
         int times = 0;
         if (isLdSP(ld))
           times = 2;
-
-        if (ld.getTarget().equals(getRegister(I)) || ld.getTarget().equals(getRegister(R)) || ld instanceof LdAI<T> || ld instanceof LdAR<T>)
+        else if (ld.getTarget().equals(getRegister(I)) || ld.getTarget().equals(getRegister(R)) || ld instanceof LdAI<T> || ld instanceof LdAR<T>)
           times = 1;
 
         addMc(times, IR, 0, null);
