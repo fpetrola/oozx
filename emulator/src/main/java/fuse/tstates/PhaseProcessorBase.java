@@ -45,7 +45,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   protected T address;
   protected boolean processing;
   protected int readCount;
-  protected int writeCount;
+  public int writeCount;
 
   public PhaseProcessorBase(Z80Cpu<T> cpu) {
     this.cpu = cpu;

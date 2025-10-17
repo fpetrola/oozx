@@ -276,6 +276,7 @@ public class Z80 implements ZxModule {
     });
     memory1.addMemoryWriteListener(new AddStatesMemoryWriteListener<>(phaseProcessor) {
       public void writtingMemoryAt(WordNumber address, WordNumber value) {
+        phaseProcessor.writeCount++;
         if (LocalLibretroCore.noContended || !initialized())
           return;
 
