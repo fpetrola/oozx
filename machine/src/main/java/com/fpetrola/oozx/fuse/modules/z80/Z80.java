@@ -199,12 +199,12 @@ public class Z80 implements ZxModule {
           return;
 
         if (!ooz80.getState().isIntLine()) {
-          this.phaseProcessor.processPhase(new BeforeWrite());
+          phaseProcessor.processPhase(new BeforeWrite());
           memory.writeByte(address.intValue(), (byte) (value.intValue() & 0xff), ula);
         }
 
-        this.phaseProcessor.addMultipleMc(1, 3, 0, address.intValue(), "writebyte");
-        this.phaseProcessor.addMw(address, value);
+        phaseProcessor.addMultipleMc(1, 3, 0, address.intValue(), "writebyte");
+        phaseProcessor.addMw(address, value);
 
         int address1 = address.intValue();
         if (true || address1 >= 0x4000 && address1 < 0x5B00) {
