@@ -240,8 +240,7 @@ public class Z80 implements ZxModule {
       @Override
       protected void getAddEvent(Event event) {
         if (event.getTime() > 0) {
-          String description = getDescription(event);
-          GetTStatesHistory.addTStateUpdate((byte) event.getTime(), description, (int) zxClock.getTstates());
+          GetTStatesHistory.addTStateUpdate((byte) event.getTime(), getDescription(event), (int) zxClock.getTstates());
         }
         getState().addEvent(event);
       }
