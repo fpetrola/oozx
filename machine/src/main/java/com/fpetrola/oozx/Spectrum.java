@@ -20,6 +20,7 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.*;
+import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.function.Supplier;

@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.modules;
+package com.fpetrola.oozx.fuse.modules.z80;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
@@ -24,9 +24,10 @@ import com.fpetrola.oozx.fuse.*;
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.machine.TimingsHandler;
+import com.fpetrola.oozx.fuse.modules.*;
+import com.fpetrola.oozx.fuse.modules.Timer;
 import com.fpetrola.oozx.fuse.peripherals.*;
 import com.fpetrola.z80.cpu.*;
-import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
@@ -51,7 +52,7 @@ import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 public class Z80 implements ZxModule {
   public static double emulationSpeed;
   private EventManager eventManager;
-  private com.fpetrola.oozx.Memory memory;
+  public com.fpetrola.oozx.Memory memory;
 
   public long interruptsEnabledAt;
   public OOZ80<WordNumber> ooz80;
@@ -66,15 +67,15 @@ public class Z80 implements ZxModule {
   private boolean init;
   public Audio audio;
   private Display display;
-  private Ula ula;
+  public Ula ula;
   private Supplier<SpectrumMachine> machine;
   private Keyboard keyboard;
-  private Z80Clock zxClock;
+  public Z80Clock zxClock;
   private Input input;
   private IPeriph periph;
   private UiDisplay uiDisplay;
   private volatile boolean emulatorPaused;
-  private Timer timer;
+  private com.fpetrola.oozx.fuse.modules.Timer timer;
   public static EmulatorCore mockCore;
 
   public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machine, Keyboard keyboard, Z80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer) {
@@ -93,9 +94,6 @@ public class Z80 implements ZxModule {
 
   public void reset(int i) {
     ooz80.reset();
-    String url = "file:///home/fernando/dynamitedan1.z80";
-    url = "/home/fernando/detodo/desarrollo/m/zx/roms/aqua.z80";
-//    loadSnap(url);
   }
 
   public void toSnapshot(Libspectrum.Snap snap) {
@@ -109,28 +107,12 @@ public class Z80 implements ZxModule {
   public void interrupt() {
     int i = TimingsHandler.interruptLength(machine.get().getBaseTiming());
     if (ooz80.getState().isIff1() && zxClock.getTstates() < i) {
-//      if (ooz80.getState().tstates == Z80.interruptsEnabledAt) {
-//        EventManager.eventAdd(ooz80.getState().tstates + 1, z80_interrupt_event);
-//        return;
-//      }
-
       GetTStatesHistory.addTStateUpdate((byte) 7, "interrupt", (int) zxClock.getTstates());
       zxClock.addTstates(7);
       ooz80.interruption();
     }
-//    ooz80.getState().tstates = 0;
   }
 
-  //  private  void reg1() {
-//    StartupManagerModule[] dependencies = {
-//        StartupManagerModule.DEBUGGER,
-//        StartupManagerModule.EVENT,
-//        StartupManagerModule.SETUID
-//    };
-//    StartupManager.register(StartupManagerModule.Z80, dependencies, Z80::init, null, null);
-
-  ////    Machine.reset(false);
-//  }
   public <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
     var state = new State(io, new DefaultRegisterBankFactory().createBank(), new MockedMemory(true)) {
       public void enableInterrupt() {
@@ -149,7 +131,6 @@ public class Z80 implements ZxModule {
   private void init2() {
     io = new MiniZXIO() {
       public synchronized WordNumber in(WordNumber port) {
-//        short invoke = LocalLibretroCore.retroInputStateT.invoke(port.intValue(), 0, 0, 0);
         byte b = periph.readPort(port.intValue());
         return createValue(b);
       }
@@ -191,15 +172,6 @@ public class Z80 implements ZxModule {
 
     updateMemory();
     display.refreshAll();
-
-    IO<?> io1 = state.getIo();
-//    ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent<>();
-//    MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
-//    memory.addMemoryWriteListener(writeListener);
-//    createScreen(io.miniZXKeyboard, zxScreenComponent);
-//    for (int address = 0x4000; address <= 0x8000; address++) {
-//      writeListener.writtingMemoryAt(createValue(address), memory.read(createValue(address), 0));
-//    }
   }
 
   private void setupMemory() {
@@ -207,56 +179,7 @@ public class Z80 implements ZxModule {
 
     Memory<WordNumber> memory1 = (Memory<WordNumber>) state.getMemory();
 
-    phaseProcessor = new PhaseProcessor<>(ooz80) {
-      public void addMw(WordNumber address, WordNumber value) {
-//        getState().clock.addTstates(1);
-      }
-
-      public void addMr(WordNumber address, WordNumber value) {
-      }
-
-      public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
-        boolean memoryContended = memory.mapRead[baseAddress >>> memory.PAGE_SIZE_LOGARITHM].contended;
-        for (int i = 0; i < x; i++) {
-          if (memoryContended) {
-            byte tstates = ula.contentionNoMreq[(int) zxClock.getTstates()];
-            GetTStatesHistory.addTStateUpdate(tstates, "ula " + (description != null ? description : "contend_read_no_mreq"), (int) zxClock.getTstates());
-            zxClock.addTstates(tstates);
-          }
-
-          addSingleMc(time1, delta, baseAddress, description);
-        }
-        //        tStatesHolder.tstates= state.tstates;
-      }
-
-      public void addSingleMc(int time1, int delta, int baseAddress, String description) {
-        if (FuseLibretroConnector.noTest) {
-          getState().addEventNumber(time1);
-        } else {
-          super.addSingleMc(time1, delta, baseAddress, description);
-        }
-      }
-
-      @Override
-      protected void getAddEvent(Event event) {
-        if (event.getTime() > 0) {
-          GetTStatesHistory.addTStateUpdate((byte) event.getTime(), getDescription(event), (int) zxClock.getTstates());
-        }
-        getState().addEvent(event);
-      }
-
-      private String getDescription(Event event) {
-        if (event.description != null)
-          return event.description;
-
-        return switch (event.getType()) {
-          case "MR" -> "contend_read";
-          case "MW" -> "contend_write";
-          case "MC" -> "contend_read_no_mreq";
-          default -> "unknown";
-        };
-      }
-    };
+    phaseProcessor = new FusePhaseProcessor(this);
 
     memory1.addMemoryReadListener(new AddStatesMemoryReadListener<>(phaseProcessor) {
       protected void processEvent(WordNumber address, WordNumber value, int fetching) {
@@ -407,4 +330,5 @@ public class Z80 implements ZxModule {
 
     return ui;
   }
+
 }
