@@ -33,6 +33,7 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
+import com.google.common.base.Supplier;
 import com.sun.jna.Pointer;
 
 import java.util.ArrayList;
@@ -147,26 +148,28 @@ public class LocalLibretroCore implements LibretroCore {
     return z80.ooz80.getState();
   }
 
-  public int retro_get_memory_data(int id) {
+  private int executePreservingTstates(Supplier<Integer> supplier) {
     List<TStateUpdate> tstatesUpdates = new ArrayList<>(GetTStatesHistory.tstatesUpdates);
     long tstates = z80Clock.getTstates();
-    int i = getMemory().getData()[id].intValue();
+    int result = supplier.get();
     z80Clock.setTstates(tstates);
     GetTStatesHistory.tstatesUpdates = tstatesUpdates;
-    return i;
+    return result;
   }
 
-  public int retro_get_memory_data_contended(int id) {
-    int i = getMemory().read(createValue(id), 0).intValue();
-    return i;
+  public int retro_get_memory_data(int id) {
+    return executePreservingTstates(() -> getMemory().getData()[id].intValue());
   }
 
   public void retro_set_memory_data(int address, int id) {
-    List<TStateUpdate> tstatesUpdates = new ArrayList<>(GetTStatesHistory.tstatesUpdates);
-    long tstates = z80Clock.getTstates();
-    getMemory().write(createValue(address), createValue(id));
-    z80Clock.setTstates(tstates);
-    GetTStatesHistory.tstatesUpdates = tstatesUpdates;
+    executePreservingTstates(() -> {
+      getMemory().write(createValue(address), createValue(id));
+      return 0;
+    });
+  }
+
+  public int retro_get_memory_data_contended(int id) {
+    return getMemory().read(createValue(id), 0).intValue();
   }
 
   public void retro_set_memory_data_contended(int address, int id) {
