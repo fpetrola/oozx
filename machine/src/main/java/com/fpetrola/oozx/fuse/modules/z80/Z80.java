@@ -186,13 +186,11 @@ public class Z80 implements ZxModule {
         if (LocalLibretroCore.noContended || !initialized())
           return;
 
-        processUlaContention(address);
+        memory.readByte(address.intValue(), ula);
+
         super.processEvent(address, value, fetching);
       }
 
-      private void processUlaContention(WordNumber address) {
-        memory.readByte(address.intValue(), ula);
-      }
     });
     memory1.addMemoryWriteListener(new AddStatesMemoryWriteListener<>(phaseProcessor) {
       public void writtingMemoryAt(WordNumber address, WordNumber value) {
@@ -202,7 +200,7 @@ public class Z80 implements ZxModule {
 
         if (!ooz80.getState().isIntLine()) {
           this.phaseProcessor.processPhase(new BeforeWrite());
-          processUlaContention(address, value);
+          memory.writeByte(address.intValue(), (byte) (value.intValue() & 0xff), ula);
         }
 
         this.phaseProcessor.addMultipleMc(1, 3, 0, address.intValue(), "writebyte");
@@ -214,9 +212,6 @@ public class Z80 implements ZxModule {
         }
       }
 
-      private void processUlaContention(WordNumber address, WordNumber value) {
-        memory.writeByte(address.intValue(), (byte) (value.intValue() & 0xff), ula);
-      }
     });
   }
 
