@@ -253,7 +253,7 @@ public class Z80 implements ZxModule {
         return switch (event.getType()) {
           case "MR" -> "contend_read";
           case "MW" -> "contend_write";
-          case "MC" -> processing ? "contend_read_no_mreq" : "contend_read";
+          case "MC" -> "contend_read_no_mreq";
           default -> "unknown";
         };
       }
