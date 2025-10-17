@@ -183,11 +183,6 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     }
   }
 
-  public boolean visitingBit(BIT<T> bit) {
-    phase.acceptAfterExecution(afterExecution -> isIndirect(bit).ifPresent(x -> addMc(1, x.intValue(), 0, null)));
-    return false;
-  }
-
   public boolean visitOuti(Outi<T> outi) {
     addIfNextPC(outi);
     return false;
@@ -228,16 +223,23 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return false;
   }
 
+  @Override
   public void visitingBitOperation(BitOperation tBitOperation) {
     phase.acceptAfterMR(p -> {
-      if (!(tBitOperation instanceof RES<?> || tBitOperation instanceof SET<?>) || !addIfIndirectHL(tBitOperation))
-        addMc14Or19(address);
+      if (!addIfIndirectHL(tBitOperation)) {
+        if (readCount == 2)
+          addMultipleMc(2, 1, 3, getRegister(PC).read().intValue(), null);
+
+        if (readCount == 3)
+          addMultipleMc(1, 1, 0, address.intValue(), null);
+      }
     });
   }
 
   public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction parameterizedUnaryAluInstruction) {
     phase.acceptAfterMR(p -> {
-      addIfIndirectHL(parameterizedUnaryAluInstruction);
+      if (!(parameterizedUnaryAluInstruction instanceof Inc<?>) && !(parameterizedUnaryAluInstruction instanceof Dec<?>))
+        addIfIndirectHL(parameterizedUnaryAluInstruction);
       addMc14Or19(address);
     });
 
@@ -246,9 +248,8 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   public boolean addIfIndirectHL(TargetInstruction<T> targetInstruction) {
     isIndirectHL(targetInstruction).ifPresent((x) -> {
-      matchesTstate(11).ifPresent(x2 -> {
+      if (readCount == 1)
         addMultipleMc(1, 1, 0, getRegister(HL).read().intValue(), null);
-      });
     });
     return false;
   }

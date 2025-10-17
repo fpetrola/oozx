@@ -258,7 +258,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   }
 
   // Read a byte from memory
-  public byte readByte(int address, Ula ula) {
+  public void readByte(int address, Ula ula) {
     int bank = address >>> PAGE_SIZE_LOGARITHM;
     MemoryPage mapping = mapRead[bank];
 
@@ -272,8 +272,8 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
       }
 //      tStatesHolder.tstates += 3;
 
-      return mapping.getPage().get(address & PAGE_SIZE_MASK);
-    } else return 0;
+//      mapping.getPage().get(address & PAGE_SIZE_MASK);
+    }
   }
 
   // Write a byte to memory

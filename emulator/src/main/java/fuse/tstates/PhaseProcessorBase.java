@@ -36,6 +36,7 @@ import fuse.tstates.phases.DefaultPhaseVisitor;
 import fuse.tstates.phases.Phase;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
@@ -74,13 +75,17 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   }
 
   public void addMc14Or19(T address) {
-    matchesTstate(14).ifPresent(x -> {
+    Consumer<Boolean> booleanConsumer = x -> {
       addMultipleMc(2, 1, 3, getRegister(PC).read().intValue(), null);
-    });
+    };
+//    if (readCount == 5)
+//      booleanConsumer.accept(true);
+    matchesTstate(14).ifPresent(booleanConsumer);
 
-    matchesTstate(19).ifPresent(x -> {
+    Consumer<Boolean> booleanConsumer1 = x -> {
       addMultipleMc(1, 1, 0, address.intValue(), null);
-    });
+    };
+    matchesTstate(19).ifPresent(booleanConsumer1);
   }
 
   protected Register<T> getRegister(RegisterName registerName) {
