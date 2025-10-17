@@ -193,10 +193,6 @@ public class Z80 implements ZxModule {
       private void processUlaContention(WordNumber address) {
         memory.readByte(address.intValue(), ula);
       }
-
-      protected void addMc(WordNumber address, int time1) {
-        super.addMc(address, time1);
-      }
     });
     memory1.addMemoryWriteListener(new AddStatesMemoryWriteListener<>(phaseProcessor) {
       public void writtingMemoryAt(WordNumber address, WordNumber value) {
