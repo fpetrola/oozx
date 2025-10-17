@@ -219,7 +219,10 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public boolean visitLdOperation(LdOperation ldOperation) {
-    phase.acceptAfterMR(p -> addMc14Or19(address));
+    phase.acceptAfterMR(p -> {
+      if (readCount == 4)
+        addMultipleMc(1, 1, 0, address.intValue(), null);
+    });
     return false;
   }
 
@@ -238,9 +241,15 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction parameterizedUnaryAluInstruction) {
     phase.acceptAfterMR(p -> {
-      if (!(parameterizedUnaryAluInstruction instanceof Inc<?>) && !(parameterizedUnaryAluInstruction instanceof Dec<?>))
+      boolean notInc = !(parameterizedUnaryAluInstruction instanceof Inc<?>) && !(parameterizedUnaryAluInstruction instanceof Dec<?>);
+      if (notInc)
         addIfIndirectHL(parameterizedUnaryAluInstruction);
-      addMc14Or19(address);
+
+      if (readCount == 2 && notInc)
+        addMultipleMc(2, 1, 3, getRegister(PC).read().intValue(), null);
+
+      if (readCount == (notInc ? 3 : 2))
+        addMultipleMc(1, 1, 0, address.intValue(), null);
     });
 
     return false;

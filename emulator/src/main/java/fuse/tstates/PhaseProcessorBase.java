@@ -36,7 +36,6 @@ import fuse.tstates.phases.DefaultPhaseVisitor;
 import fuse.tstates.phases.Phase;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
@@ -74,20 +73,6 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
     getAddEvent(new Event(0, "MR", address.intValue(), value.intValue()));
   }
 
-  public void addMc14Or19(T address) {
-    Consumer<Boolean> booleanConsumer = x -> {
-      addMultipleMc(2, 1, 3, getRegister(PC).read().intValue(), null);
-    };
-//    if (readCount == 5)
-//      booleanConsumer.accept(true);
-    matchesTstate(14).ifPresent(booleanConsumer);
-
-    Consumer<Boolean> booleanConsumer1 = x -> {
-      addMultipleMc(1, 1, 0, address.intValue(), null);
-    };
-    matchesTstate(19).ifPresent(booleanConsumer1);
-  }
-
   protected Register<T> getRegister(RegisterName registerName) {
     return getState().getRegister(registerName);
   }
@@ -98,25 +83,6 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
 
   public Optional<Boolean> isIndirectHL(TargetInstruction<T> targetInstruction) {
     return Optional.ofNullable(targetInstruction.getTarget() instanceof IndirectMemory8BitReference<?> indirectMemory8BitReference && indirectMemory8BitReference.getTarget() instanceof Register<?> register && register.getName().equals(HL.name()) ? true : null);
-  }
-
-  protected Optional<Boolean> matchesTstate(int i) {
-    long l = getState().localTstates;
-    return Optional.ofNullable(l == i ? true : null);
-  }
-
-  public Optional<T> isIndirect(TargetInstruction<T> targetInstruction) {
-    OpcodeReference<T> target = targetInstruction.getTarget();
-    T value;
-    if (target instanceof IndirectMemory8BitReference<T> indirectMemory8BitReference) {
-      value = indirectMemory8BitReference.getTarget().read();
-//    } else if (target instanceof MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
-//      byte b = (byte) memoryPlusRegister8BitReference.fetchedRelative.intValue();
-//      value = memoryPlusRegister8BitReference.getTarget().read().plus(b);
-    } else {
-      value = null;
-    }
-    return Optional.ofNullable(value);
   }
 
   public void setPhase(Phase phase) {

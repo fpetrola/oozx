@@ -272,7 +272,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
       }
 //      tStatesHolder.tstates += 3;
 
-//      mapping.getPage().get(address & PAGE_SIZE_MASK);
+      mapping.getPage().get(address & PAGE_SIZE_MASK);
     }
   }
 
