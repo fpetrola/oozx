@@ -25,8 +25,6 @@ import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.phases.*;
 
-import java.util.Optional;
-
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> {
@@ -222,28 +220,23 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   @Override
   public void visitingBitOperation(BitOperation tBitOperation) {
+    unaryInstructionAddMc(tBitOperation);
+  }
+
+  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction parameterizedUnaryAluInstruction) {
+    unaryInstructionAddMc(parameterizedUnaryAluInstruction);
+    return false;
+  }
+
+  private void unaryInstructionAddMc(TargetInstruction targetInstruction) {
     phase.acceptAfterMR(p -> {
-      if (!addIfIndirectHL(tBitOperation)) {
+      if (!addIfIndirectHL(targetInstruction)) {
         if (readCount == 2)
           addMultipleMc(2, 1, 3, getRegister(PC).read().intValue(), null);
-
-        if (readCount == 3)
+        else if (readCount == 3)
           addMultipleMc(1, 1, 0, address.intValue(), null);
       }
     });
-  }
-
-
-  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction parameterizedUnaryAluInstruction) {
-    phase.acceptAfterMR(p -> {
-      addIfIndirectHL(parameterizedUnaryAluInstruction);
-      if (readCount == 2)
-        addMultipleMc(2, 1, 3, getRegister(PC).read().intValue(), null);
-      else if (readCount == 3)
-        addMultipleMc(1, 1, 0, address.intValue(), null);
-    });
-
-    return false;
   }
 
   public boolean addIfIndirectHL(TargetInstruction<T> targetInstruction) {
