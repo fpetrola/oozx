@@ -233,16 +233,13 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     });
   }
 
+
   public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction parameterizedUnaryAluInstruction) {
     phase.acceptAfterMR(p -> {
-      boolean notInc = !(parameterizedUnaryAluInstruction instanceof Inc<?>) && !(parameterizedUnaryAluInstruction instanceof Dec<?>);
-      if (notInc)
-        addIfIndirectHL(parameterizedUnaryAluInstruction);
-
-      if (readCount == 2 && notInc)
+      addIfIndirectHL(parameterizedUnaryAluInstruction);
+      if (readCount == 2)
         addMultipleMc(2, 1, 3, getRegister(PC).read().intValue(), null);
-
-      if (readCount == (notInc ? 3 : 2))
+      else if (readCount == 3)
         addMultipleMc(1, 1, 0, address.intValue(), null);
     });
 
@@ -259,12 +256,12 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   public boolean visitingInc(Inc<T> tInc) {
     addDecInc(tInc);
-    return super.visitingInc(tInc);
+    return true;
   }
 
   public boolean visitingDec(Dec<T> dec) {
     addDecInc(dec);
-    return super.visitingDec(dec);
+    return true;
   }
 
   private void addDecInc(TargetInstruction<T> dec) {
@@ -279,6 +276,11 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       public void visit(BeforeWrite beforeWrite) {
         isIndirectHL(dec).ifPresent(x -> addMc(1, HL, 0, null));
       }
+    });
+
+    phase.acceptAfterMR(p -> {
+      if (readCount == 2)
+        addMultipleMc(1, 1, 0, address.intValue(), null);
     });
   }
 
