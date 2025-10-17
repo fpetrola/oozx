@@ -337,7 +337,6 @@ public class Z80 implements ZxModule {
     while (zxClock.getTstates() < eventManager.eventNextEvent) {
       while (emulatorPaused) Thread.onSpinWait();
       bridgeCommand.invoke(0, null);
-      ooz80.getState().localTstates = 0;
       ooz80.execute();
     }
   }
