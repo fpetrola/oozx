@@ -208,9 +208,11 @@ public class Z80 implements ZxModule {
     Memory<WordNumber> memory1 = (Memory<WordNumber>) state.getMemory();
 
     phaseProcessor = new PhaseProcessor<>(ooz80) {
-      @Override
       public void addMw(WordNumber address, WordNumber value) {
 //        getState().clock.addTstates(1);
+      }
+
+      public void addMr(WordNumber address, WordNumber value) {
       }
 
       public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
@@ -222,17 +224,17 @@ public class Z80 implements ZxModule {
             zxClock.addTstates(tstates);
           }
 
-          if (FuseLibretroConnector.noTest) {
-            getState().addEventNumber(time1);
-          } else {
-            addSingleMc(time1, delta, baseAddress, description);
-          }
+          addSingleMc(time1, delta, baseAddress, description);
         }
         //        tStatesHolder.tstates= state.tstates;
       }
 
-      @Override
-      public void addMr(WordNumber address, WordNumber value) {
+      public void addSingleMc(int time1, int delta, int baseAddress, String description) {
+        if (FuseLibretroConnector.noTest) {
+          getState().addEventNumber(time1);
+        } else {
+          super.addSingleMc(time1, delta, baseAddress, description);
+        }
       }
 
       @Override
