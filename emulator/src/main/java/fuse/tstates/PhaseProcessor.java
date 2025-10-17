@@ -18,18 +18,16 @@
 
 package fuse.tstates;
 
-import com.fpetrola.z80.cpu.*;
+import com.fpetrola.z80.cpu.Z80Cpu;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.*;
-import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.phases.*;
 
-import java.util.function.Consumer;
+import java.util.Optional;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
-import static com.fpetrola.z80.registers.RegisterName.PC;
 
 public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> {
   public PhaseProcessor(Z80Cpu<T> cpu) {
@@ -106,7 +104,6 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return false;
   }
 
-
   public void visitingLd(Ld<T> ld) {
     phase.accept(new DefaultPhaseVisitor() {
       public void visit(BeforeExecution beforeExecution) {
@@ -127,17 +124,14 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       }
 
       public void visit(AfterMR afterMR) {
-        Consumer<Boolean> booleanConsumer = x -> {
-          boolean b = ld.getSource() instanceof Register<T> && !ld.getSource().equals(getRegister(IX));
-          b |= ld.getSource() instanceof MemoryPlusRegister8BitReference<T>;
-          b &= !(ld.getTarget() instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference && indirectMemory16BitReference.target instanceof Memory16BitReference<T>);
-          boolean b1 = !ld.getTarget().equals(getRegister(SP));
-          if (b1 && b && !(ld.getTarget() instanceof IndirectMemory8BitReference<T>)) {
-            addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null);
+        if (readCount == 1) {
+          if (!(ld.getSource() instanceof Memory8BitReference<T>)) {
+            if (ld.getSource() instanceof MemoryPlusRegister8BitReference<T>
+                || ld.getTarget() instanceof MemoryPlusRegister8BitReference<T>) {
+              addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null);
+            }
           }
-        };
-        if (readCount == 1)
-          booleanConsumer.accept(true);
+        }
       }
     });
   }
