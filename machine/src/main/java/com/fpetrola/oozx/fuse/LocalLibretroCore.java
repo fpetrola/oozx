@@ -35,12 +35,14 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.sun.jna.Pointer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class LocalLibretroCore implements LibretroCore {
   private EventManager eventManager;
 
-  public static boolean noContended = false;
   public static retro_input_state_t retroInputStateT;
   private Display display;
   private Machine machine;
@@ -146,9 +148,11 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public int retro_get_memory_data(int id) {
-    noContended = true;
+    List<TStateUpdate> tstatesUpdates = new ArrayList<>(GetTStatesHistory.tstatesUpdates);
+    long tstates = z80Clock.getTstates();
     int i = getMemory().getData()[id].intValue();
-    noContended = false;
+    z80Clock.setTstates(tstates);
+    GetTStatesHistory.tstatesUpdates = tstatesUpdates;
     return i;
   }
 
@@ -158,9 +162,11 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_set_memory_data(int address, int id) {
-    noContended = true;
+    List<TStateUpdate> tstatesUpdates = new ArrayList<>(GetTStatesHistory.tstatesUpdates);
+    long tstates = z80Clock.getTstates();
     getMemory().write(createValue(address), createValue(id));
-    noContended = false;
+    z80Clock.setTstates(tstates);
+    GetTStatesHistory.tstatesUpdates = tstatesUpdates;
   }
 
   public void retro_set_memory_data_contended(int address, int id) {

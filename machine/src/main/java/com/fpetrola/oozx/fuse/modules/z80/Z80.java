@@ -183,11 +183,7 @@ public class Z80 implements ZxModule {
 
     memory1.addMemoryReadListener(new AddStatesMemoryReadListener<>(phaseProcessor) {
       protected void processEvent(WordNumber address, WordNumber value, int fetching) {
-        if (LocalLibretroCore.noContended || !initialized())
-          return;
-
         memory.readByte(address.intValue(), ula);
-
         super.processEvent(address, value, fetching);
       }
 
@@ -195,9 +191,6 @@ public class Z80 implements ZxModule {
     memory1.addMemoryWriteListener(new AddStatesMemoryWriteListener<>(phaseProcessor) {
       public void writtingMemoryAt(WordNumber address, WordNumber value) {
         phaseProcessor.writeCount++;
-        if (LocalLibretroCore.noContended || !initialized())
-          return;
-
         if (!ooz80.getState().isIntLine()) {
           phaseProcessor.processPhase(new BeforeWrite());
           memory.writeByte(address.intValue(), (byte) (value.intValue() & 0xff), ula);
