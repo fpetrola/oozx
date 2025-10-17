@@ -443,7 +443,7 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   }
 
   @Override
-  public boolean visitLdd(Ldd ldd) {
+  public boolean visitLdd(Ldd<T> ldd) {
     setCloned(instructionFactory.Ldd(), ldd);
     return true;
   }

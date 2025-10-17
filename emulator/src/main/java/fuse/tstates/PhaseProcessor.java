@@ -122,12 +122,10 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       }
 
       public void visit(AfterMR afterMR) {
-        if (readCount == 1) {
-          if (!(ld.getSource() instanceof Memory8BitReference<T>)) {
-            if (ld.getSource() instanceof MemoryPlusRegister8BitReference<T>
-                || ld.getTarget() instanceof MemoryPlusRegister8BitReference<T>) {
-              addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null);
-            }
+        if (!(ld.getSource() instanceof Memory8BitReference<T>)) {
+          if (ld.getSource() instanceof MemoryPlusRegister8BitReference<T>
+              || ld.getTarget() instanceof MemoryPlusRegister8BitReference<T>) {
+            add5TStates();
           }
         }
       }
@@ -192,21 +190,21 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     });
   }
 
-  public boolean visitLdd(Ldd ldd) {
-    phase.acceptAfterExecution(p -> addMc(2, DE, 1, null));
-    return true;
-  }
-
-  public void visitLdi(Ldi<T> tLdi) {
+  public void visitLdi(Ldi<T> ldi) {
     phase.acceptAfterExecution(p -> addMc(2, DE, -1, "contend_write_no_mreq"));
   }
 
+  public boolean visitLdd(Ldd<T> ldd) {
+    phase.acceptAfterExecution(p -> addMc(2, DE, 1, "contend_write_no_mreq"));
+    return true;
+  }
+
   public void visitCpi(Cpi<T> cpi) {
-    phase.acceptAfterExecution(p -> addMc(5, HL, -1, null));
+    phase.acceptAfterExecution(p -> addMc(5, HL, -1, "contend_write_no_mreq"));
   }
 
   public boolean visitCpd(Cpd<T> cpd) {
-    phase.acceptAfterExecution(p -> addMc(5, HL, 1, null));
+    phase.acceptAfterExecution(p -> addMc(5, HL, 1, "contend_write_no_mreq"));
     return true;
   }
 
@@ -284,11 +282,14 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction parameterizedBinaryAluInstruction) {
     phase.acceptAfterMR(p -> {
-      if (readCount == 1) {
-        if (parameterizedBinaryAluInstruction.getSource() instanceof MemoryPlusRegister8BitReference<?>)
-          addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null);
-      }
+      if (parameterizedBinaryAluInstruction.getSource() instanceof MemoryPlusRegister8BitReference<?>)
+        add5TStates();
     });
+  }
+
+  private void add5TStates() {
+    if (readCount == 1)
+      addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null);
   }
 
 

@@ -397,7 +397,7 @@ public interface InstructionVisitor<T extends WordNumber, R> {
     return false;
   }
 
-  default boolean visitLdd(Ldd ldd) {
+  default boolean visitLdd(Ldd<T> ldd) {
     return false;
   }
 
