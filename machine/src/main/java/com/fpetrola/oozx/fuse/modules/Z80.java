@@ -225,7 +225,7 @@ public class Z80 implements ZxModule {
           if (FuseLibretroConnector.noTest) {
             getState().addEventNumber(time1);
           } else {
-            getAddEvent(new Event(time1, "MC", baseAddress + delta, null, description));
+            addSingleMc(time1, delta, baseAddress, description);
           }
         }
         //        tStatesHolder.tstates= state.tstates;

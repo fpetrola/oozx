@@ -27,7 +27,6 @@ import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.TargetInstruction;
 import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
-import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
@@ -61,8 +60,12 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
 
   public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
     for (int i = 0; i < x; i++) {
-      getAddEvent(new Event(time1, "MC", baseAddress + delta, null, description));
+      addSingleMc(time1, delta, baseAddress, description);
     }
+  }
+
+  public void addSingleMc(int time1, int delta, int baseAddress, String description) {
+    getAddEvent(new Event(time1, "MC", baseAddress + delta, null, description));
   }
 
   protected void getAddEvent(Event time1) {
