@@ -221,16 +221,16 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public boolean visitingInc(Inc<T> tInc) {
-    addDecInc(tInc);
+    addMcForDecInc(tInc);
     return true;
   }
 
   public boolean visitingDec(Dec<T> dec) {
-    addDecInc(dec);
+    addMcForDecInc(dec);
     return true;
   }
 
-  private void addDecInc(TargetInstruction<T> instruction) {
+  private void addMcForDecInc(TargetInstruction<T> instruction) {
     phase.accept(new DefaultPhaseVisitor() {
       public void visit(AfterMR afterExecution) {
         if (isMemoryPlus(instruction.getTarget())) {
