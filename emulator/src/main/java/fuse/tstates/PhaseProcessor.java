@@ -133,14 +133,13 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public void visitEx(Ex<T> ex) {
-    if (ex.getTarget() instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
+    if (ex.getTarget() instanceof IndirectMemory16BitReference<T>) {
       phase.accept(new DefaultPhaseVisitor() {
         public void visit(AfterExecution afterExecution) {
           addMc(2, SP, 0, "contend_write_no_mreq");
         }
 
         public void visit(BeforeWrite beforeWrite) {
-          int i = ex.getSource().equals(getRegister(HL)) && indirectMemory16BitReference.target.equals(getRegister(SP)) ? 10 : 14;
           if (writeCount == 0)
             addMc(1, SP, 1, null);
         }
