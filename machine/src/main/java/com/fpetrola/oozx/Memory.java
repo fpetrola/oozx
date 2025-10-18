@@ -21,12 +21,10 @@ package com.fpetrola.oozx;
 // Author contact information:
 // E-mail: philip-fuse@shadowmagic.org.uk
 
-import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.Ula;
 import com.fpetrola.oozx.fuse.modules.ZxModule;
-import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,9 +63,9 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   public MemoryPage[] mapRam = new MemoryPage[SPECTRUM_RAM_PAGES * PAGES_IN_16K];
   public MemoryPage[] mapRom = new MemoryPage[SPECTRUM_ROM_PAGES * PAGES_IN_16K];
   private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
-  private Z80Clock zxClock;
+  private SpectrumZ80Clock zxClock;
 
-  public Memory(Supplier<SpectrumMachine> machine, Z80Clock zxClock) {
+  public Memory(Supplier<SpectrumMachine> machine, SpectrumZ80Clock zxClock) {
     this.fuseMachineInfoSupplier = machine;
     this.zxClock = zxClock;
   }
@@ -260,7 +258,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   // Read a byte from memory
   public void readByte(int address, Ula ula) {
     if (mapRead[address >>> PAGE_SIZE_LOGARITHM].contended) {
-      zxClock.addTstates(ula.contention[(int) zxClock.getTstates()]);
+      zxClock.addTStates(ula.contention[zxClock.getTStates()], "ula readbyte");
     }
 //      tStatesHolder.tstates += 3;
 
@@ -270,7 +268,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   // Write a byte to memory
   public void writeByte(int address, byte b, Ula ula) {
     if (mapWrite[address >>> PAGE_SIZE_LOGARITHM].contended) {
-      zxClock.addTstates(ula.contention[(int) zxClock.getTstates()]);
+      zxClock.addTStates(ula.contention[zxClock.getTStates()], "ula writebyte");
     }
 //      tStatesHolder.tstates += 3;
 

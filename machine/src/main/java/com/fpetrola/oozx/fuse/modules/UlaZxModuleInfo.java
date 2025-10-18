@@ -37,13 +37,13 @@ public class UlaZxModuleInfo implements ZXModuleInfo {
 
   public void snapshotFrom(Libspectrum.Snap snap) {
     ula.write(0x00fe, Libspectrum.snapOutUla(snap));
-    z80Clock.setTstates(Libspectrum.snapTstates(snap));
+    z80Clock.setTStates(Libspectrum.snapTstates(snap));
     Settings.current.issue2 = Libspectrum.snapIssue2(snap);
   }
 
   public void snapshotTo(Libspectrum.Snap snap) {
     Libspectrum.snapSetOutUla(snap, ula.lastByte);
-    Libspectrum.snapSetTstates(snap, z80Clock.getTstates());
+    Libspectrum.snapSetTstates(snap, z80Clock.getTStates());
     Libspectrum.snapSetIssue2(snap, Settings.current.issue2);
   }
 }

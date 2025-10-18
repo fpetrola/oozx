@@ -83,7 +83,7 @@ public class Spectrum implements ZxModule {
     int frameLength = getCurrent().getTimings().tstatesPerFrame;
 
     eventManager.eventFrame(frameLength);
-    z80Clock.addTstates(-frameLength);
+    z80Clock.addTStates(-frameLength);
 
     if (z80.interruptsEnabledAt >= 0) {
       z80.interruptsEnabledAt -= frameLength;
@@ -138,14 +138,14 @@ public class Spectrum implements ZxModule {
   }
 
   public int spectrumUnattachedPort() {
-    if (z80Clock.getTstates() < getCurrent().getLineTimes()[display.BORDER_HEIGHT]) return 0xff;
+    if (z80Clock.getTStates() < getCurrent().getLineTimes()[display.BORDER_HEIGHT]) return 0xff;
 
-    int line = (int) ((z80Clock.getTstates() - getCurrent().getLineTimes()[display.BORDER_HEIGHT]) /
+    int line = (int) ((z80Clock.getTStates() - getCurrent().getLineTimes()[display.BORDER_HEIGHT]) /
         getCurrent().getTimings().tstatesPerLine);
 
     if (line >= display.HEIGHT) return 0xff;
 
-    int tstatesThroughLine = (int) (z80Clock.getTstates() -
+    int tstatesThroughLine = (int) (z80Clock.getTStates() -
         getCurrent().getLineTimes()[display.BORDER_HEIGHT + line] +
         (getCurrent().getTimings().leftBorder - display.BORDER_WIDTH_COLS * 4));
 

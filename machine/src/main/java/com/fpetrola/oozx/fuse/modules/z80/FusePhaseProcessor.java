@@ -43,9 +43,8 @@ class FusePhaseProcessor extends PhaseProcessor<WordNumber> {
     boolean memoryContended = z80.memory.mapRead[baseAddress >>> z80.memory.PAGE_SIZE_LOGARITHM].contended;
     for (int i = 0; i < x; i++) {
       if (memoryContended) {
-        byte tstates = z80.ula.contentionNoMreq[(int) z80.zxClock.getTstates()];
-        GetTStatesHistory.addTStateUpdate(tstates, "ula " + (description != null ? description : "contend_read_no_mreq"), (int) z80.zxClock.getTstates());
-        z80.zxClock.addTstates(tstates);
+        byte tstates = z80.ula.contentionNoMreq[(int) z80.zxClock.getTStates()];
+        z80.zxClock.addTStates(tstates, "ula " + (description != null ? description : "contend_read_no_mreq"));
       }
 
       addSingleMc(time1, delta, baseAddress, description);
@@ -64,7 +63,7 @@ class FusePhaseProcessor extends PhaseProcessor<WordNumber> {
   @Override
   protected void getAddEvent(Event event) {
     if (event.getTime() > 0) {
-      GetTStatesHistory.addTStateUpdate((byte) event.getTime(), getDescription(event), (int) z80.zxClock.getTstates());
+      GetTStatesHistory.addTStateUpdate((byte) event.getTime(), getDescription(event), (int) z80.zxClock.getTStates());
     }
     getState().addEvent(event);
   }

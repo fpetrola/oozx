@@ -30,7 +30,6 @@ import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 import com.fpetrola.oozx.fuse.startup.*;
-import com.fpetrola.z80.cpu.DefaultZ80Clock;
 import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.List;
@@ -38,7 +37,7 @@ import java.util.function.Supplier;
 
 public class Fuse {
   public Supplier<SpectrumMachine> spectrumMachineSupplier = () -> Machine.current;
-  public Z80Clock zxClock = new DefaultZ80Clock();
+  public SpectrumZ80Clock zxClock = new SpectrumZ80Clock();
   public Memory memory = new Memory(spectrumMachineSupplier, zxClock);
   private UiDisplay uiDisplay = new UiDisplay(zxClock);
   public Display display = new Display(memory, spectrumMachineSupplier, zxClock, memory, uiDisplay);
@@ -85,5 +84,4 @@ public class Fuse {
     StartupManager.runEnd();
     periph.end();
   }
-
 }

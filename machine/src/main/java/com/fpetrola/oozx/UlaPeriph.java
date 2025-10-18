@@ -41,7 +41,7 @@ public class UlaPeriph implements PeriphDelegate {
     ula.contendPortEarly(port);
     writePortInternal(port, b);
     ula.contendPortLate(port);
-    z80Clock.addTstates(1);
+    z80Clock.addTStates(1);
   }
 
   public byte readPort(int port) {

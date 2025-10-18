@@ -273,7 +273,7 @@ public class Display implements ZxModule {
 
   public int[] getBeamPosition() {
     int[] beam = new int[2];
-    long tstates = z80Clock.getTstates();
+    long tstates = z80Clock.getTStates();
     SpectrumMachine current = fuseMachineInfoSupplier.get();
     long[] lineTimes = current.getLineTimes();
 

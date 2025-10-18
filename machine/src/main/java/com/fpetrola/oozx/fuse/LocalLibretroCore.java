@@ -150,9 +150,9 @@ public class LocalLibretroCore implements LibretroCore {
 
   private int executePreservingTstates(Supplier<Integer> supplier) {
     List<TStateUpdate> tstatesUpdates = new ArrayList<>(GetTStatesHistory.tstatesUpdates);
-    int tstates = z80Clock.getTstates();
+    int tstates = z80Clock.getTStates();
     int result = supplier.get();
-    z80Clock.setTstates(tstates);
+    z80Clock.setTStates(tstates);
     GetTStatesHistory.tstatesUpdates = tstatesUpdates;
     return result;
   }
@@ -184,15 +184,15 @@ public class LocalLibretroCore implements LibretroCore {
 
   public void retro_set_register_data(String register, int value) {
     if (register.equals("tstates")) {
-      z80Clock.setTstates(value);
-      z80.ooz80.getState().clock.setTstates(value);
+      z80Clock.setTStates(value);
+      z80.ooz80.getState().clock.setTStates(value);
     } else
       getRegister(register).write(createValue(value));
   }
 
   public int retro_get_register_data(String register) {
     if (register.equals("tstates")) {
-      return (int) z80Clock.getTstates();
+      return (int) z80Clock.getTStates();
     } else if (register.equals("R")) {
       return getRegister(register).read().intValue();
     } else

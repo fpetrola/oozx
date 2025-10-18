@@ -53,7 +53,7 @@ public class State<T extends WordNumber> {
   }
 
   public void addEventNumber(int time) {
-    clock.addTstates(time);
+    clock.addTStates(time);
   }
 
   public void reset() {
@@ -70,11 +70,11 @@ public class State<T extends WordNumber> {
   }
 
   private long getTstates() {
-    return clock.getTstates();
+    return clock.getTStates();
   }
 
   private void setTstates(int tstates) {
-    clock.setTstates(tstates);
+    clock.setTStates(tstates);
   }
 
   public enum InterruptionMode {IM0, IM1, IM2}

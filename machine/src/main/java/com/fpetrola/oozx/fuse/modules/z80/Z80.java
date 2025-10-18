@@ -41,7 +41,6 @@ import com.fpetrola.z80.spy.NullInstructionSpy;
 import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
 import fuse.tstates.PhaseProcessor;
-import fuse.tstates.phases.BeforeWrite;
 
 import javax.swing.*;
 import java.awt.event.KeyListener;
@@ -69,7 +68,7 @@ public class Z80 implements ZxModule {
   public Ula ula;
   private Supplier<SpectrumMachine> machine;
   private Keyboard keyboard;
-  public Z80Clock zxClock;
+  public SpectrumZ80Clock zxClock;
   private Input input;
   private IPeriph periph;
   private UiDisplay uiDisplay;
@@ -77,7 +76,7 @@ public class Z80 implements ZxModule {
   private com.fpetrola.oozx.fuse.modules.Timer timer;
   public static EmulatorCore mockCore;
 
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machine, Keyboard keyboard, Z80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer) {
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machine, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
@@ -105,9 +104,9 @@ public class Z80 implements ZxModule {
 
   public void interrupt() {
     int i = TimingsHandler.interruptLength(machine.get().getBaseTiming());
-    if (ooz80.getState().isIff1() && zxClock.getTstates() < i) {
-      GetTStatesHistory.addTStateUpdate((byte) 7, "interrupt", (int) zxClock.getTstates());
-      zxClock.addTstates(7);
+    if (ooz80.getState().isIff1() && zxClock.getTStates() < i) {
+      GetTStatesHistory.addTStateUpdate((byte) 7, "interrupt", (int) zxClock.getTStates());
+      zxClock.addTStates(7);
       ooz80.interruption();
     }
   }
@@ -116,8 +115,8 @@ public class Z80 implements ZxModule {
     var state = new State(io, new DefaultRegisterBankFactory().createBank(), new MockedMemory(true)) {
       public void enableInterrupt() {
         super.enableInterrupt();
-        interruptsEnabledAt = clock.getTstates();
-        eventManager.eventAdd(clock.getTstates() + 1, z80_interrupt_event);
+        interruptsEnabledAt = clock.getTStates();
+        eventManager.eventAdd(clock.getTStates() + 1, z80_interrupt_event);
       }
     };
 
@@ -166,7 +165,7 @@ public class Z80 implements ZxModule {
     SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
     Z80Loader.LibSpectrum lib = Z80Loader.LibSpectrum.INSTANCE;
     Z80Loader.libspectrum_snap snap = Z80Loader.getLibspectrumSnap(lib, url);
-    state.clock.setTstates(lib.libspectrum_snap_tstates(snap));
+    state.clock.setTStates(lib.libspectrum_snap_tstates(snap));
     interruptsEnabledAt = -1;
 
     updateMemory();
@@ -225,7 +224,7 @@ public class Z80 implements ZxModule {
   }
 
   public void doOpcodes() {
-    while (zxClock.getTstates() < eventManager.eventNextEvent) {
+    while (zxClock.getTStates() < eventManager.eventNextEvent) {
       while (emulatorPaused) Thread.onSpinWait();
       bridgeCommand.invoke(0, null);
       ooz80.execute();

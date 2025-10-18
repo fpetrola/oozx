@@ -131,7 +131,7 @@ public class EventManager implements ZxModule {
 
   // Do all events which have passed
   public int eventDoEvents() {
-    while (eventNextEvent <= z80Clock.getTstates()) { // Assume Fuse.tstates
+    while (eventNextEvent <= z80Clock.getTStates()) { // Assume Fuse.tstates
       Event ptr = eventList.getFirst();
       EventDescriptor descriptor = registeredEvents.get(ptr.type);
 
@@ -174,7 +174,7 @@ public class EventManager implements ZxModule {
   // Force all events between now and the next interrupt to happen
   public void eventForceEvents() {
     while (eventNextEvent < fuseMachineInfoSupplier.get().getTimings().tstatesPerFrame) { // Assume Machine.current
-      z80Clock.setTstates(eventNextEvent);
+      z80Clock.setTStates(eventNextEvent);
       eventDoEvents();
     }
   }

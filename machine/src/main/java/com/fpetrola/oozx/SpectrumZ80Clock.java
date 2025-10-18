@@ -16,12 +16,18 @@
  *
  */
 
-package com.fpetrola.z80.cpu;
+package com.fpetrola.oozx;
 
-public interface Z80Clock {
-  int getTStates();
+import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
+import com.fpetrola.z80.cpu.DefaultZ80Clock;
 
-  void setTStates(int tstates);
+public class SpectrumZ80Clock extends DefaultZ80Clock {
+  public void addTStates(int tStatesToAdd, String description) {
+    GetTStatesHistory.addTStateUpdate(tStatesToAdd, description, tStates);
+    addTStates(tStatesToAdd);
+  }
 
-  void addTStates(int tstatesToAdd);
+  public void log(String description, byte data) {
+    GetTStatesHistory.addTStateUpdate(data, description, tStates);
+  }
 }

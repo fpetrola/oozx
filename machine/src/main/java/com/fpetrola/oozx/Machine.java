@@ -89,7 +89,7 @@ public class Machine  implements ZxModule {
 
     Settings.setString(Settings.current.startMachine, machine.getClass().getSimpleName());
 
-    z80Clock.setTstates(0);
+    z80Clock.setTStates(0);
 
     eventManager.reset();
 //        EventManager.eventAdd(0, Timer.event);

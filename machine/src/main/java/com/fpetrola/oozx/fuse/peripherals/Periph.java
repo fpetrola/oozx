@@ -257,7 +257,7 @@ public class Periph implements IPeriph {
       writePortInternal(0x7ffd, b);
     }
 
-    z80Clock.addTstates(1);
+    z80Clock.addTStates(1);
 //        b= -1;
     return b;
   }
@@ -296,7 +296,7 @@ public class Periph implements IPeriph {
   @Override
   public void writePort(int port, byte b) {
     writePortInternal(port, b);
-    z80Clock.addTstates(1);
+    z80Clock.addTStates(1);
   }
 
   // Write a byte to a port, taking no time
