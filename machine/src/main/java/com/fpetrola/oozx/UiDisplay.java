@@ -29,7 +29,7 @@ public class UiDisplay {
   }
 
   public void plot8(int x, int y, byte data, byte ink, byte paper) {
-    z80Clock.log(format("uidisplay_plot8: x=%d y=%d data=%02x ink=%d paper=%d", x, y, data, ink, paper), (byte) (data & 0xff));
+//    z80Clock.log(format("uidisplay_plot8: x=%d y=%d data=%02x ink=%d paper=%d", x, y, data, ink, paper), (byte) (data & 0xff));
 
     for (int i = 0; i < 8; i++) {
       int i1 = data & (0x80 >> i);
