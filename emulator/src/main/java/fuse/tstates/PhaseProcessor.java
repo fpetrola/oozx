@@ -184,22 +184,25 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     });
   }
 
+  private boolean addForBlockInstruction(int times, RegisterName registerName, int delta) {
+    phase.acceptAfterExecution(p -> addMc(times, registerName, delta, "contend_write_no_mreq"));
+    return true;
+  }
+
   public void visitLdi(Ldi<T> ldi) {
-    phase.acceptAfterExecution(p -> addMc(2, DE, -1, "contend_write_no_mreq"));
+    addForBlockInstruction(2, DE, -1);
   }
 
   public boolean visitLdd(Ldd<T> ldd) {
-    phase.acceptAfterExecution(p -> addMc(2, DE, 1, "contend_write_no_mreq"));
-    return true;
+    return addForBlockInstruction(2, DE, 1);
   }
 
   public void visitCpi(Cpi<T> cpi) {
-    phase.acceptAfterExecution(p -> addMc(5, HL, -1, "contend_write_no_mreq"));
+    addForBlockInstruction(5, HL, -1);
   }
 
   public boolean visitCpd(Cpd<T> cpd) {
-    phase.acceptAfterExecution(p -> addMc(5, HL, 1, "contend_write_no_mreq"));
-    return true;
+    return addForBlockInstruction(5, HL, 1);
   }
 
   public boolean visitLdOperation(LdOperation ldOperation) {
