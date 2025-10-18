@@ -189,22 +189,16 @@ public class Z80 implements ZxModule {
 
     });
     memory1.addMemoryWriteListener(new AddStatesMemoryWriteListener<>(phaseProcessor) {
-      public void writtingMemoryAt(WordNumber address, WordNumber value) {
-        phaseProcessor.writeCount++;
-        if (!ooz80.getState().isIntLine()) {
-          phaseProcessor.processPhase(new BeforeWrite());
-          memory.writeByte(address.intValue(), (byte) (value.intValue() & 0xff), ula);
-        }
+      protected void doWrite(WordNumber address, WordNumber value) {
+        memory.writeByte(address.intValue(), (byte) (value.intValue() & 0xff), ula);
+      }
 
-        phaseProcessor.addMultipleMc(1, 3, 0, address.intValue(), "writebyte");
-        phaseProcessor.addMw(address, value);
-
+      protected void doEnd(WordNumber address, WordNumber value) {
         int address1 = address.intValue();
         if (true || address1 >= 0x4000 && address1 < 0x5B00) {
           memory.writeByteInternal(address1, (byte) (value.intValue() & 0xff), display);
         }
       }
-
     });
   }
 
