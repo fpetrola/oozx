@@ -231,7 +231,7 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   }
 
   @Override
-  public void visitEx(Ex ex) {
+  public void visitEx(Ex<T> ex) {
     setCloned(instructionFactory.Ex(clone(ex.getTarget()), clone(ex.getSource())), ex);
   }
 

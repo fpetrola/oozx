@@ -269,7 +269,7 @@ public class DefaultInstructionFactory<T extends WordNumber> implements Instruct
 
   @Override
   public Ex Ex(OpcodeReference target, OpcodeReference source) {
-    return new Ex<T>(target, source);
+    return new Ex(target, source, flag);
   }
 
   @Override
