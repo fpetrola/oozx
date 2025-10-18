@@ -61,6 +61,7 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
   }
 
   protected void processEvent(T address, T value, int fetching) {
+    doRead(address, value, fetching);
     int time1 = getTime(fetching);
 
     addMc(address, time1);
@@ -69,6 +70,10 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
     phaseProcessor.setAddress(address);
     phaseProcessor.readCount++;
     phaseProcessor.processPhase(new AfterMR());
+  }
+
+  protected void doRead(T address, T value, int fetching) {
+
   }
 
   protected void addMc(T address, int time1) {

@@ -182,11 +182,9 @@ public class Z80 implements ZxModule {
     phaseProcessor = new FusePhaseProcessor(this);
 
     memory1.addMemoryReadListener(new AddStatesMemoryReadListener<>(phaseProcessor) {
-      protected void processEvent(WordNumber address, WordNumber value, int fetching) {
+      protected void doRead(WordNumber address, WordNumber value, int fetching) {
         memory.readByte(address.intValue(), ula);
-        super.processEvent(address, value, fetching);
       }
-
     });
     memory1.addMemoryWriteListener(new AddStatesMemoryWriteListener<>(phaseProcessor) {
       protected void doWrite(WordNumber address, WordNumber value) {
