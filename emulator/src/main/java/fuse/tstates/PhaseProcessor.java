@@ -229,12 +229,12 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   private void addMcForDecInc(TargetInstruction<T> instruction) {
     phase.accept(new DefaultPhaseVisitor() {
       public void visit(AfterMR afterExecution) {
-        if (isMemoryPlus(instruction.getTarget())) {
+        isMemoryPlusOptional(instruction.getTarget()).ifPresent(x -> {
           switch (readCount) {
             case 1 -> addMultipleMc(5, 1, 2, getRegister(PC).read().intValue(), null);
             case 2 -> addMultipleMc(1, 1, 0, address.intValue(), null);
           }
-        }
+        });
       }
 
       public void visit(BeforeWrite beforeWrite) {
@@ -249,10 +249,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction<T> parameterizedBinaryAluInstruction) {
-    phase.acceptAfterMR(p -> {
-      if (isMemoryPlus(parameterizedBinaryAluInstruction.getSource()))
-        add5TStates();
-    });
+    phase.acceptAfterMR(p -> isMemoryPlusOptional(parameterizedBinaryAluInstruction.getSource()).ifPresent(x -> add5TStates()));
   }
 
   private void add5TStates() {
