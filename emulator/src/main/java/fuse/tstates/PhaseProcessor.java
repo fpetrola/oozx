@@ -71,20 +71,19 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
     phase.accept(new DefaultPhaseVisitor() {
       public void visit(AfterExecution afterExecution) {
-        int lastAddress = 0;
-        if (instruction instanceof Outdr<T> || instruction instanceof Outir<T>)
-          lastAddress = valueOf(BC);
-        else if (instruction instanceof Ldir<T>) {
-          lastAddress = valueOf(DE) - 1;
-        } else if (instruction instanceof Lddr<T>) {
-          lastAddress = valueOf(DE) + 1;
-        } else if (instruction instanceof Cpir<T> || instruction instanceof Inir<T>) {
-          lastAddress = valueOf(HL) - 1;
-        } else if (instruction instanceof Cpdr<T> || instruction instanceof Indr<T>) {
-          lastAddress = valueOf(HL) + 1;
-        }
-        if (instruction.getNextPC() != null)
+        if (instruction.getNextPC() != null) {
+          int lastAddress;
+          if (instruction instanceof Outdr<T> || instruction instanceof Outir<T>)
+            lastAddress = valueOf(BC);
+          else if (instruction instanceof Cpir<T> || instruction instanceof Inir<T>) {
+            lastAddress = valueOf(HL) - 1;
+          } else if (instruction instanceof Cpdr<T> || instruction instanceof Indr<T>) {
+            lastAddress = valueOf(HL) + 1;
+          } else
+            lastAddress = valueOf(DE) + (instruction instanceof Ldir<T> ? -1 : 1);
+
           addMultipleMc(5, 1, 0, lastAddress, "contend_write_no_mreq");
+        }
       }
     });
     return false;
@@ -202,8 +201,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   private boolean addMcForTargetFlagInstruction(DefaultTargetFlagInstruction<T> instruction1) {
     phase.acceptAfterMR(p -> {
       switch (readCount) {
-        case 1 ->
-            isIndirectHL(instruction1).ifPresent((x) -> addMultipleMc(1, 1, 0, valueOf(HL), null));
+        case 1 -> isIndirectHL(instruction1).ifPresent((x) -> addMultipleMc(1, 1, 0, valueOf(HL), null));
         case 2 ->
             isMemoryPlusOptional(instruction1.getTarget()).ifPresent(x -> addMultipleMc(2, 1, 3, valueOf(PC), null));
         case 3 ->
