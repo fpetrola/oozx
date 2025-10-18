@@ -68,7 +68,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   public boolean visitRepeatingInstruction(RepeatingInstruction<T> instruction) {
     instruction.getInstructionToRepeat().accept(this);
-    
+
     phase.accept(new DefaultPhaseVisitor() {
       public void visit(BeforeExecution afterFetch) {
         lastAddress = getRegister(instruction instanceof Ldir<T> || instruction instanceof Lddr<T> ? DE : HL).read().intValue();
@@ -126,11 +126,10 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   private void addForRelativeJump(ConditionalInstruction<T, ?> conditionalInstruction) {
-    int baseAddress = getRegister(PC).read().intValue();
     if (conditionalInstruction.getNextPC() != null) {
-      addMultipleMc(5, 1, 1, baseAddress, null);
+      addMultipleMc(5, 1, 1, getRegister(PC).read().intValue(), null);
     } else {
-      addMultipleMc(1, 3, 1, baseAddress, "readbyte");
+      addMultipleMc(1, 3, 1, getRegister(PC).read().intValue(), "readbyte");
     }
   }
 
