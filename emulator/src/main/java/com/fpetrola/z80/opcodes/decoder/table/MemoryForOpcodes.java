@@ -30,14 +30,6 @@ public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
     return Memory.read16Bits(memory, address);
   }
 
-  public static <T1 extends WordNumber> void write16Bits(Memory<T1> memory, T1 value, T1 address) {
-    Memory.write16Bits(memory, value, address);
-  }
-
-  public static <T1 extends WordNumber> void write16BitsR(Memory<T1> memory, T1 value, T1 address) {
-    Memory.write16BitsR(memory, value, address);
-  }
-
   @Override
   public T read(T address, int delta, int fetching) {
     return read1(address, fetching, delta);

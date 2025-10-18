@@ -20,8 +20,12 @@ package com.fpetrola.z80.opcodes.references;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.registers.Register;
+
+import java.util.function.BiConsumer;
 
 public final class IndirectMemory16BitReference<T extends WordNumber> implements OpcodeReference<T> {
+  private final BiConsumer<T, T> memoryWriter;
   public ImmutableOpcodeReference<T> target;
   public T address;
 
@@ -31,9 +35,14 @@ public final class IndirectMemory16BitReference<T extends WordNumber> implements
 
   private final Memory<T> memory;
 
-  public IndirectMemory16BitReference(ImmutableOpcodeReference target, Memory memory) {
+  public IndirectMemory16BitReference(ImmutableOpcodeReference<T> target, Memory<T> memory) {
     this.target = target;
     this.memory = memory;
+
+    if (target instanceof Register<?> register && register.getName().equals("SP"))
+      memoryWriter = (value, address) -> Memory.write16Bits(memory, value, address);
+    else
+      memoryWriter = (value, address) -> Memory.write16BitsR(memory, value, address);
   }
 
   public T read() {
@@ -44,10 +53,7 @@ public final class IndirectMemory16BitReference<T extends WordNumber> implements
 
   public void write(T value) {
     address = target.read();
-    if (target.toString().equals("SP"))
-      Memory.write16Bits(memory, value, address);
-    else
-      Memory.write16BitsR(memory, value, address);
+    memoryWriter.accept(value, address);
   }
 
   public String toString() {
