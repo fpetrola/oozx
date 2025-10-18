@@ -25,7 +25,7 @@ package com.fpetrola.oozx.fuse.modules;// Assuming libspectrum is ported to Java
 
 @FunctionalInterface
 public interface EventFn {
-    void apply(int tstates, int type, Object userData);
+    void apply(long tstates, int type, Object userData);
 }
 
 // The function to be called when an event occurs

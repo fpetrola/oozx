@@ -21,12 +21,12 @@ package com.fpetrola.oozx.fuse;
 import java.util.Objects;
 
 public class TStateUpdate {
-  public final int key;
+  public final long key;
   public final int value;
   public final String description;
   public final int pc;
 
-  public TStateUpdate(int key, int value, String description, int pc) {
+  public TStateUpdate(long key, int value, String description, int pc) {
     this.key = key;
     this.value = value;
     this.description = description;

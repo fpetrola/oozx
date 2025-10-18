@@ -140,12 +140,12 @@ public class Ula implements ZxModule {
   public void contendPortLate(int port) {
     String ulaContendPortLate = "ula_contend_port_late";
     if (getCurrent().getRamInfo().portFromUla(port)) {
-      z80Clock.addTStates((contentionNoMreq[z80Clock.getTStates()] + 2), ulaContendPortLate);
+      z80Clock.addTStates((contentionNoMreq[(int) z80Clock.getTStates()] + 2), ulaContendPortLate);
     } else {
       if (memory.mapRead[port >>> memory.PAGE_SIZE_LOGARITHM].contended) {
-        z80Clock.addTStates((contentionNoMreq[z80Clock.getTStates()] + 1), ulaContendPortLate);
-        z80Clock.addTStates((contentionNoMreq[z80Clock.getTStates()] + 1), ulaContendPortLate);
-        z80Clock.addTStates(contentionNoMreq[z80Clock.getTStates()], ulaContendPortLate);
+        z80Clock.addTStates((contentionNoMreq[(int) z80Clock.getTStates()] + 1), ulaContendPortLate);
+        z80Clock.addTStates((contentionNoMreq[(int) z80Clock.getTStates()] + 1), ulaContendPortLate);
+        z80Clock.addTStates(contentionNoMreq[(int) z80Clock.getTStates()], ulaContendPortLate);
       } else {
         z80Clock.addTStates(2, "contend_port_late");
       }

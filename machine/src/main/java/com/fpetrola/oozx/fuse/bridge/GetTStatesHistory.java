@@ -40,7 +40,7 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
     GetTStatesHistory.tstatesUpdates = tstatesUpdates;
   }
 
-  public static void addTStateUpdate(int tstatesToAdd, String description, int tstates) {
+  public static void addTStateUpdate(int tstatesToAdd, String description, long tstates) {
     if (!FuseLibretroConnector.noTest) {
 //      int pc = z80.ooz80.getState().getPc().read().intValue();
       int pc = 0;

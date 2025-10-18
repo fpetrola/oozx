@@ -34,7 +34,7 @@ public class EventManager implements ZxModule {
   // A null event type
   public int eventTypeNull;
 
-  public int eventNextEvent;
+  public long eventNextEvent;
 
   // The actual list of events
   private LinkedList<Event> eventList = new LinkedList<>();
@@ -89,7 +89,7 @@ public class EventManager implements ZxModule {
   }
 
   // Add an event at the correct place in the event list
-  public void eventAddWithData(int eventTime, int type, Object userData) {
+  public void eventAddWithData(long eventTime, int type, Object userData) {
     Event ptr;
 
     if (eventFree != null) {
@@ -125,7 +125,7 @@ public class EventManager implements ZxModule {
     }
   }
 
-  public void eventAdd(int eventTime, int type) {
+  public void eventAdd(long eventTime, int type) {
     eventAddWithData(eventTime, type, null);
   }
 

@@ -258,7 +258,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   // Read a byte from memory
   public void readByte(int address, Ula ula) {
     if (mapRead[address >>> PAGE_SIZE_LOGARITHM].contended) {
-      zxClock.addTStates(ula.contention[zxClock.getTStates()], "ula readbyte");
+      zxClock.addTStates(ula.contention[(int) zxClock.getTStates()], "ula readbyte");
     }
 //      tStatesHolder.tstates += 3;
 
@@ -268,7 +268,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   // Write a byte to memory
   public void writeByte(int address, byte b, Ula ula) {
     if (mapWrite[address >>> PAGE_SIZE_LOGARITHM].contended) {
-      zxClock.addTStates(ula.contention[zxClock.getTStates()], "ula writebyte");
+      zxClock.addTStates(ula.contention[(int) zxClock.getTStates()], "ula writebyte");
     }
 //      tStatesHolder.tstates += 3;
 

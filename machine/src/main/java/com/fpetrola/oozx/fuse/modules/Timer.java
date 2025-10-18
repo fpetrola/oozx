@@ -124,14 +124,14 @@ public class Timer implements ZxModule {
   }
 
   // Frame handling
-  public void frame(int lastTstates, int event, Object userData) {
+  public void frame(long lastTstates, int event, Object userData) {
     if (Sound.enabled && Settings.current.sound) {
       frameCallbackSound(lastTstates);
       return;
     }
 
     if (Settings.current.fastload && fastloadingActive()) {
-      int nextCheckTime = lastTstates + getCurrent().getTimings().tstatesPerFrame;
+      long nextCheckTime = lastTstates + getCurrent().getTimings().tstatesPerFrame;
       eventManager.eventAdd(nextCheckTime, timerEvent);
     } else {
       float speed = Math.max(Settings.current.emulationSpeed, 1) / 100.0f;
@@ -160,7 +160,7 @@ public class Timer implements ZxModule {
   }
 
   // Sound-based frame callback
-  private void frameCallbackSound(int lastTstates) {
+  private void frameCallbackSound(long lastTstates) {
     // Placeholder for SOUND_FIFO implementation
         /*
         for (;;) {
