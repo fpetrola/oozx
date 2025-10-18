@@ -113,10 +113,6 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     });
   }
 
-  private Optional<Boolean> matchesReadCount(int i) {
-    return Optional.ofNullable(readCount == i ? true : null);
-  }
-
   public void visitingJR(JR jr) {
     phase.acceptAfterExecution(afterExecution -> addForRelativeJump(jr));
   }

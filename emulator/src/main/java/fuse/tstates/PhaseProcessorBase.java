@@ -142,4 +142,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
     return Optional.ofNullable(isMemoryPlus(target) ? true : null);
   }
 
+  protected Optional<Boolean> matchesReadCount(int i) {
+    return Optional.ofNullable(readCount == i ? true : null);
+  }
 }
