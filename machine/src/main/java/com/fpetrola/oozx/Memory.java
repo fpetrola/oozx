@@ -261,7 +261,6 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
       zxClock.addTStates(ula.contention[(int) zxClock.getTStates()], "ula readbyte");
     }
 //      tStatesHolder.tstates += 3;
-
 //    mapping.getPage().get(address & PAGE_SIZE_MASK);
   }
 
@@ -271,7 +270,6 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
       zxClock.addTStates(ula.contention[(int) zxClock.getTStates()], "ula writebyte");
     }
 //      tStatesHolder.tstates += 3;
-
 //    writeByteInternal(address, b);
   }
 

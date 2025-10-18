@@ -68,12 +68,12 @@ public class FusePhaseProcessor extends PhaseProcessor<WordNumber> {
   private String getDescription(Event event) {
     if (event.description != null)
       return event.description;
-
-    return switch (event.getType()) {
-      case "MR" -> "contend_read";
-      case "MW" -> "contend_write";
-      case "MC" -> "contend_read_no_mreq";
-      default -> "unknown";
-    };
+    else
+      return switch (event.getType()) {
+        case "MR" -> "contend_read";
+        case "MW" -> "contend_write";
+        case "MC" -> "contend_read_no_mreq";
+        default -> "unknown";
+      };
   }
 }

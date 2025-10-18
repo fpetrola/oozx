@@ -189,10 +189,7 @@ public class Z80 implements ZxModule {
       }
 
       protected void doEnd(WordNumber address, WordNumber value) {
-        int address1 = address.intValue();
-        if (true || address1 >= 0x4000 && address1 < 0x5B00) {
-          memory.writeByteInternal(address1, (byte) (value.intValue() & 0xff), display);
-        }
+        memory.writeByteInternal(address.intValue(), (byte) (value.intValue() & 0xff), display);
       }
     });
   }
