@@ -23,7 +23,7 @@ import com.fpetrola.z80.cpu.DefaultZ80Clock;
 
 public class SpectrumZ80Clock extends DefaultZ80Clock {
   public void addTStates(int tStatesToAdd, String description) {
-    GetTStatesHistory.addTStateUpdate(tStatesToAdd, description, tStates);
+    log(description, (byte) tStatesToAdd);
     addTStates(tStatesToAdd);
   }
 
