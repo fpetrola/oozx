@@ -198,36 +198,31 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return false;
   }
 
-  @Override
-  public boolean visitingBitOperation(BitOperation<T> tBitOperation) {
-    phase.acceptAfterMR(p -> {
-      switch (readCount) {
-        case 1 ->
-            isIndirectHL(tBitOperation).ifPresent((x) -> addMultipleMc(1, 1, 0, getRegister(HL).read().intValue(), null));
-        case 2 -> addMultipleMc(2, 1, 3, getRegister(PC).read().intValue(), null);
-        case 3 -> addMultipleMc(1, 1, 0, address.intValue(), null);
-      }
-    });
-    return true;
+  public boolean visitingBitOperation(BitOperation<T> instruction) {
+    return addMcForTargetFlagInstruction(instruction);
   }
 
-  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction<T> instruction) {
+  private boolean addMcForTargetFlagInstruction(DefaultTargetFlagInstruction<T> instruction1) {
     phase.acceptAfterMR(p -> {
       switch (readCount) {
         case 1 ->
-            isIndirectHL(instruction).ifPresent((x) -> addMultipleMc(1, 1, 0, getRegister(HL).read().intValue(), null));
+            isIndirectHL(instruction1).ifPresent((x) -> addMultipleMc(1, 1, 0, getRegister(HL).read().intValue(), null));
         case 2 -> {
-          if (isMemoryPlus(instruction.getTarget()))
+          if (isMemoryPlus(instruction1.getTarget()))
             addMultipleMc(2, 1, 3, getRegister(PC).read().intValue(), null);
         }
         case 3 -> {
-          if (isMemoryPlus(instruction.getTarget()))
+          if (isMemoryPlus(instruction1.getTarget()))
             addMultipleMc(1, 1, 0, address.intValue(), null);
         }
       }
     });
 
-    return false;
+    return true;
+  }
+
+  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction<T> instruction) {
+    return addMcForTargetFlagInstruction(instruction);
   }
 
   public boolean visitingInc(Inc<T> tInc) {
