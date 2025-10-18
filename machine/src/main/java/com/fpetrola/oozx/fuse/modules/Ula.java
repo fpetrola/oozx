@@ -124,13 +124,7 @@ public class Ula implements ZxModule {
     return (byte) (lastByte & 0x08);
   }
 
-  // Load ULA state from snapshot
-
-  // Save ULA state to snapshot
-
-  // Handle contention for port access (early phase)
   public void contendPortEarly(int port) {
-//    System.out.println("port2 "+ port);
     if (memory.mapRead[port >>> memory.PAGE_SIZE_LOGARITHM].contended) {
       z80Clock.addTStates(contentionNoMreq[(int) z80Clock.getTStates()], "ula_contend_port_early");
     }

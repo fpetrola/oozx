@@ -26,6 +26,7 @@ import com.sun.jna.Pointer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
   public static List<TStateUpdate> tstatesUpdates = new ArrayList<>();
@@ -40,7 +41,7 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
     GetTStatesHistory.tstatesUpdates = tstatesUpdates;
   }
 
-  public static void addTStateUpdate(int tstatesToAdd, String description, long tstates) {
+  public static void addTStateUpdate(int tstatesToAdd, Supplier<String> description, long tstates) {
     if (!FuseLibretroConnector.noTest) {
 //      int pc = z80.ooz80.getState().getPc().read().intValue();
       int pc = 0;
@@ -48,11 +49,12 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
 //      System.out.println("addTStateUpdate");
 //    }
 
-      boolean a = description.startsWith("uidisplay_plot8:");
+      String s = description.get();
+      boolean a = s.startsWith("uidisplay_plot8:");
 //a= true;
       if (!a) {
         if (tstatesToAdd != 0)
-          getTstatesUpdates().add(new TStateUpdate(tstates, tstatesToAdd & 0Xff, description, pc));
+          getTstatesUpdates().add(new TStateUpdate(tstates, tstatesToAdd & 0Xff, s, pc));
       }
     }
   }
