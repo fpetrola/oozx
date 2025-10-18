@@ -25,6 +25,8 @@ import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.phases.*;
 
+import java.util.Optional;
+
 import static com.fpetrola.z80.registers.RegisterName.*;
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
@@ -101,11 +103,14 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
       public void visit(AfterMR afterMR) {
         if (!isMemory8BitReference(ld.getSource()) && (isMemoryPlus(ld.getSource()) || isMemoryPlus(ld.getTarget()))) {
-          if (readCount == 1)
-            addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null);
+          matchesReadCount(1).ifPresent(x -> addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null));
         }
       }
     });
+  }
+
+  private Optional<Boolean> matchesReadCount(int i) {
+    return Optional.ofNullable(readCount == i ? true : null);
   }
 
   public void visitingJR(JR jr) {
@@ -142,8 +147,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
       public void visit(BeforeWrite beforeWrite) {
         if (ex.getTarget() instanceof IndirectMemory16BitReference<T>)
-          if (writeCount == 0)
-            addMc(1, SP, 1, null);
+          writeCountIsZero().ifPresent(x -> addMc(1, SP, 1, null));
       }
     });
   }
@@ -187,10 +191,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public boolean visitLdOperation(LdOperation ldOperation) {
-    phase.acceptAfterMR(p -> {
-      if (readCount == 4)
-        addMultipleMc(1, 1, 0, address.intValue(), null);
-    });
+    phase.acceptAfterMR(p -> matchesReadCount(4).ifPresent(x -> addMultipleMc(1, 1, 0, address.intValue(), null)));
     return false;
   }
 
@@ -251,20 +252,22 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction<T> instruction) {
     phase.acceptAfterMR(p -> isMemoryPlusOptional(instruction.getSource()).ifPresent(x -> {
-      if (readCount == 1)
-        addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null);
+      matchesReadCount(1).ifPresent(x2 -> addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null));
     }));
   }
 
   public boolean visitingCall(Call tCall) {
     phase.accept(new DefaultPhaseVisitor() {
       public void visit(BeforeWrite beforeWrite) {
-        if (writeCount == 0)
-          addMc(1, PC, 2, null);
+        writeCountIsZero().ifPresent(x -> addMc(1, PC, 2, null));
       }
     });
 
     return super.visitingCall(tCall);
+  }
+
+  private Optional<Boolean> writeCountIsZero() {
+    return Optional.ofNullable(writeCount == 0 ? true : null);
   }
 
   private boolean addMcBeforeExecution(final int time) {
