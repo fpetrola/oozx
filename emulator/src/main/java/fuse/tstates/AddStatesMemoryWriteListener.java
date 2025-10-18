@@ -18,7 +18,6 @@
 
 package fuse.tstates;
 
-import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import fuse.tstates.phases.BeforeWrite;
@@ -31,10 +30,9 @@ public class AddStatesMemoryWriteListener<T extends WordNumber> implements Memor
   }
 
   public void writtingMemoryAt(T address, T value) {
-    phaseProcessor.writeCount++;
-
     if (!phaseProcessor.getState().isIntLine()) {
       phaseProcessor.processPhase(new BeforeWrite());
+      phaseProcessor.writeCount++;
       doWrite(address, value);
     }
     phaseProcessor.addMultipleMc(1, 3, 0, address.intValue(), "writebyte");
@@ -43,7 +41,6 @@ public class AddStatesMemoryWriteListener<T extends WordNumber> implements Memor
   }
 
   protected void doEnd(T address, T value) {
-
   }
 
   protected void doWrite(T address, T value) {

@@ -170,7 +170,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
         public void visit(BeforeWrite beforeWrite) {
           int i = ex.getSource().equals(getRegister(HL)) && indirectMemory16BitReference.target.equals(getRegister(SP)) ? 10 : 14;
-          if (writeCount == 1)
+          if (writeCount == 0)
             addMc(1, SP, 1, null);
         }
       });
@@ -301,7 +301,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   public boolean visitingCall(Call tCall) {
     phase.accept(new DefaultPhaseVisitor() {
       public void visit(BeforeWrite beforeWrite) {
-        if (writeCount == 1)
+        if (writeCount == 0)
           addMc(1, PC, 2, null);
       }
     });
