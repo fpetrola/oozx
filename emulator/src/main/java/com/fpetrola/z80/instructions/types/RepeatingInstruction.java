@@ -24,11 +24,11 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterPair;
 
 public class RepeatingInstruction<T extends WordNumber> extends AbstractInstruction<T> implements JumpInstruction<T> {
-  protected Instruction<T> instructionToRepeat;
+  protected BlockInstruction<T> instructionToRepeat;
   private ImmutableOpcodeReference<T> pc;
   protected RegisterPair<T> bc;
 
-  public RepeatingInstruction(Instruction<T> instructionToRepeat, ImmutableOpcodeReference<T> pc, RegisterPair<T> bc) {
+  public RepeatingInstruction(BlockInstruction<T> instructionToRepeat, ImmutableOpcodeReference<T> pc, RegisterPair<T> bc) {
     this.instructionToRepeat = instructionToRepeat;
     this.pc = pc;
     this.bc = bc;
@@ -50,11 +50,11 @@ public class RepeatingInstruction<T extends WordNumber> extends AbstractInstruct
       super.accept(visitor);
   }
 
-  public Instruction<T> getInstructionToRepeat() {
+  public BlockInstruction<T> getInstructionToRepeat() {
     return instructionToRepeat;
   }
 
-  public void setInstructionToRepeat(Instruction<T> instructionToRepeat) {
+  public void setInstructionToRepeat(BlockInstruction<T> instructionToRepeat) {
     this.instructionToRepeat = instructionToRepeat;
   }
 

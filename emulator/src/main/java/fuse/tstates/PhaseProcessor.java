@@ -151,21 +151,36 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     });
   }
 
+  public boolean visitInir(Inir inir) {
+    return addIfNextPC(inir.getInstructionToRepeat());
+  }
+
+  public boolean visitOutir(Outir outir) {
+    return addIfNextPC(outir.getInstructionToRepeat());
+  }
+
   public boolean visitOuti(Outi<T> outi) {
-    addIfNextPC(outi);
-    return false;
+    return addMcBeforeExecution(1);
+  }
+
+  public boolean visitOutd(Outd<T> outi) {
+    return addMcBeforeExecution(1);
   }
 
   public boolean visitIni(Ini<T> tIni) {
-    addIfNextPC(tIni);
-    return false;
+    return addMcBeforeExecution(1);
   }
 
-  private void addIfNextPC(BlockInstruction<T> blockInstruction) {
+  public boolean visitInd(Ind<T> tInd) {
+    return addMcBeforeExecution(1);
+  }
+
+  private boolean addIfNextPC(BlockInstruction<T> blockInstruction) {
     phase.acceptAfterExecution(afterExecution -> {
       if (blockInstruction.getNextPC() != null)
         addMc(5, BC, 0, null);
     });
+    return false;
   }
 
   private boolean addForBlockInstruction(int times, RegisterName registerName, int delta) {
