@@ -18,8 +18,6 @@
 
 package com.fpetrola.oozx;
 
-import static java.lang.String.format;
-
 public class UiDisplay {
   public byte[][] screenMatrix;
   private SpectrumZ80Clock z80Clock;
@@ -31,27 +29,14 @@ public class UiDisplay {
   public void plot8(int x, int y, byte data, byte ink, byte paper) {
 //    z80Clock.log(format("uidisplay_plot8: x=%d y=%d data=%02x ink=%d paper=%d", x, y, data, ink, paper), (byte) (data & 0xff));
 
-    for (int i = 0; i < 8; i++) {
-      int i1 = data & (0x80 >> i);
-      screenMatrix[x * 8 + i][y] = i1 != 0 ? ink : paper;
-    }
-//    System.out.println("plot8 " + x + " " + y + " " + (data & 0xFF) + " " + (ink & 0xFF) + " " + (paper & 0xFF));
+    for (int i = 0; i < 8; i++)
+      screenMatrix[(x << 3) + i][y] = (data & (0x80 >> i)) != 0 ? ink : paper;
   }
 
   public void area(int x, int y, int w, int h) {
-//    if (w == 0 || h == 0)
-//      System.err.println("WARNING: UiDisplay.area called with w>0 or h>0: " + w + "x" + h);
-//    for (int i = x; i < x + w ; i++) {
-//      for (int j = y; j < y + h ; j++) {
-//        screenMatrix[i][j] = 0;
-//      }
-//    }
-
-//    System.out.println("area " + x + " " + y + " " + w + " " + h);
   }
 
   public void frameEnd() {
-//    System.out.println("frameEnd");
   }
 
   public int end() {
