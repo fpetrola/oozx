@@ -24,7 +24,7 @@ import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import fuse.tstates.PhaseProcessor;
 
-class FusePhaseProcessor extends PhaseProcessor<WordNumber> {
+public class FusePhaseProcessor extends PhaseProcessor<WordNumber> {
   private final Z80 z80;
 
   public FusePhaseProcessor(Z80 z80) {
@@ -62,10 +62,9 @@ class FusePhaseProcessor extends PhaseProcessor<WordNumber> {
 
   @Override
   protected void getAddEvent(Event event) {
-    if (event.getTime() > 0) {
-      GetTStatesHistory.addTStateUpdate((byte) event.getTime(), getDescription(event), (int) z80.zxClock.getTStates());
-    }
-    getState().addEvent(event);
+    event.description= getDescription(event);
+    z80.zxClock.addTStates(event.getTime(), event.description);
+//    getState().addEvent(event);
   }
 
   private String getDescription(Event event) {
