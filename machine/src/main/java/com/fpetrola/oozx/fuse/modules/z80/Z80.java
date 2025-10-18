@@ -105,8 +105,7 @@ public class Z80 implements ZxModule {
   public void interrupt() {
     int i = TimingsHandler.interruptLength(machine.get().getBaseTiming());
     if (ooz80.getState().isIff1() && zxClock.getTStates() < i) {
-      GetTStatesHistory.addTStateUpdate((byte) 7, "interrupt", (int) zxClock.getTStates());
-      zxClock.addTStates(7);
+      zxClock.addTStates(7, "interrupt");
       ooz80.interruption();
     }
   }
@@ -257,7 +256,7 @@ public class Z80 implements ZxModule {
       public void setGeneralOption(String option, Object value) {
         if (option.equals("turbo")) {
           turbo = !turbo;
-          int emulationSpeed = (boolean) value ? 10000 : 100;
+          int emulationSpeed = (boolean) value ? 15000 : 100;
           Settings.current.emulationSpeed = emulationSpeed;
           timer.addEvent();
           notifyTurboModeChange(turbo);
