@@ -202,14 +202,10 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       switch (readCount) {
         case 1 ->
             isIndirectHL(instruction1).ifPresent((x) -> addMultipleMc(1, 1, 0, getRegister(HL).read().intValue(), null));
-        case 2 -> {
-          if (isMemoryPlus(instruction1.getTarget()))
-            addMultipleMc(2, 1, 3, getRegister(PC).read().intValue(), null);
-        }
-        case 3 -> {
-          if (isMemoryPlus(instruction1.getTarget()))
-            addMultipleMc(1, 1, 0, address.intValue(), null);
-        }
+        case 2 ->
+            isMemoryPlusOptional(instruction1.getTarget()).ifPresent(x -> addMultipleMc(2, 1, 3, getRegister(PC).read().intValue(), null));
+        case 3 ->
+            isMemoryPlusOptional(instruction1.getTarget()).ifPresent(x -> addMultipleMc(1, 1, 0, address.intValue(), null));
       }
     });
 

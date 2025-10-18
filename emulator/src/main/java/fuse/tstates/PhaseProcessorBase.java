@@ -137,4 +137,9 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   protected boolean isMemoryPlus(ImmutableOpcodeReference<T> target) {
     return target instanceof MemoryPlusRegister8BitReference<T>;
   }
+
+  protected Optional<Boolean> isMemoryPlusOptional(ImmutableOpcodeReference<T> target) {
+    return Optional.ofNullable(isMemoryPlus(target) ? true : null);
+  }
+
 }
