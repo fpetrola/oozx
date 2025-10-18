@@ -60,7 +60,6 @@ public class Z80 implements ZxModule {
   private PhaseProcessor<WordNumber> phaseProcessor;
 
   private MiniZXIO io;
-  private boolean initialized;
   private int z80_interrupt_event;
   //   ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent<>();
 //   MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
@@ -200,10 +199,6 @@ public class Z80 implements ZxModule {
     });
   }
 
-  private boolean initialized() {
-    return memory.mapRead[0] != null && ula.contention != null;
-  }
-
   public int init(Object o) {
     z80_interrupt_event = eventManager.eventRegister(this::z80_interrupt_event_fn, "Retriggered interrupt");
     int z80_nmi_event = eventManager.eventRegister(this::z80_nmi, "Non-maskable interrupt");
@@ -211,11 +206,7 @@ public class Z80 implements ZxModule {
 
     Module.register(new Z80ModuleInfo(this));
 
-//    z80_debugger_variables_init();
-
     init2();
-
-    initialized = true;
 
     return 0;
   }
