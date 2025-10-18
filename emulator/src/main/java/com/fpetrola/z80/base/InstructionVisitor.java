@@ -169,7 +169,7 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default boolean visitingBitOperation(BitOperation tBitOperation) {
+  default boolean visitingBitOperation(BitOperation<T> tBitOperation) {
     return false;
   }
 

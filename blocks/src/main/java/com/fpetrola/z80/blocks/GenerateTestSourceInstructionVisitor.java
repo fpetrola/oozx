@@ -114,7 +114,7 @@ public class GenerateTestSourceInstructionVisitor implements InstructionVisitor<
   }
 
   @Override
-  public boolean visitingBitOperation(BitOperation targetSourceInstruction) {
+  public boolean visitingBitOperation(BitOperation<WordNumber> targetSourceInstruction) {
     add("add(new " + targetSourceInstruction.getClass().getSimpleName() + " (");
     targetSourceInstruction.getTarget().accept(getWordNumberDummyInstructionVisitor());
     add(", " + targetSourceInstruction.getN() + ", f()));");

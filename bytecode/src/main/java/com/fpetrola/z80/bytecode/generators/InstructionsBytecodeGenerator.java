@@ -262,7 +262,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   @Override
-  public boolean visitingBitOperation(BitOperation bit) {
+  public boolean visitingBitOperation(BitOperation<T> bit) {
 //    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.and(bit.getN())), byteCodeGenerator);
 //    bit.accept(visitor);
 //    processFlag(bit, visitor);

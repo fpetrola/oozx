@@ -81,7 +81,7 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<Wo
   }
 
   @Override
-  public boolean visitingBitOperation(BitOperation tBitOperation) {
+  public boolean visitingBitOperation(BitOperation<WordNumber> tBitOperation) {
     variableAction.accept(sourceVariable, targetVariable);
     return false;
   }
