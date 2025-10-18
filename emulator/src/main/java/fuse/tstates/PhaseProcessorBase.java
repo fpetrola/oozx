@@ -27,11 +27,8 @@ import com.fpetrola.z80.instructions.impl.Dec;
 import com.fpetrola.z80.instructions.impl.Inc;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetInstruction;
-import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
-import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.phases.BeforeExecution;
@@ -84,19 +81,6 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
     return !(targetInstruction instanceof Inc) && !(targetInstruction instanceof Dec);
   }
 
-  public void addMc14Or19(T address, Instruction<T> instruction, boolean notIncDec) {
-    boolean isMemoryPlus = instruction instanceof ParameterizedUnaryAluInstruction<T> parameterizedUnaryAluInstruction && parameterizedUnaryAluInstruction.getTarget() instanceof MemoryPlusRegister8BitReference<T>;
-
-    if (readCount == 2 && notIncDec && isMemoryPlus)
-      addMultipleMc(2, 1, 3, getRegister(PC).read().intValue(), null);
-
-
-    if (isMemoryPlus)
-      if (readCount == (!notIncDec ? 2 : 3))
-        addMultipleMc(1, 1, 0, address.intValue(), null);
-
-  }
-
   protected Register<T> getRegister(RegisterName registerName) {
     return getState().getRegister(registerName);
   }
@@ -144,5 +128,13 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
       instruction2.accept(this);
 
     processing = false;
+  }
+
+  protected boolean isMemory8BitReference(ImmutableOpcodeReference<T> source) {
+    return source instanceof Memory8BitReference<T>;
+  }
+
+  protected boolean isMemoryPlus(ImmutableOpcodeReference<T> target) {
+    return target instanceof MemoryPlusRegister8BitReference<T>;
   }
 }
