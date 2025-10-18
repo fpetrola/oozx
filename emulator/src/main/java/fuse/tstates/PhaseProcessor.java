@@ -73,15 +73,15 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       public void visit(AfterExecution afterExecution) {
         int lastAddress = 0;
         if (instruction instanceof Outdr<T> || instruction instanceof Outir<T>)
-          lastAddress = getRegister(BC).read().intValue();
+          lastAddress = valueOf(BC);
         else if (instruction instanceof Ldir<T>) {
-          lastAddress = getRegister(DE).read().intValue() - 1;
+          lastAddress = valueOf(DE) - 1;
         } else if (instruction instanceof Lddr<T>) {
-          lastAddress = getRegister(DE).read().intValue() + 1;
+          lastAddress = valueOf(DE) + 1;
         } else if (instruction instanceof Cpir<T> || instruction instanceof Inir<T>) {
-          lastAddress = getRegister(HL).read().intValue() - 1;
+          lastAddress = valueOf(HL) - 1;
         } else if (instruction instanceof Cpdr<T> || instruction instanceof Indr<T>) {
-          lastAddress = getRegister(HL).read().intValue() + 1;
+          lastAddress = valueOf(HL) + 1;
         }
         if (instruction.getNextPC() != null)
           addMultipleMc(5, 1, 0, lastAddress, "contend_write_no_mreq");
@@ -107,7 +107,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
       public void visit(AfterMR afterMR) {
         if (!isMemory8BitReference(ld.getSource()) && (isMemoryPlus(ld.getSource()) || isMemoryPlus(ld.getTarget()))) {
-          matchesReadCount(1).ifPresent(x -> addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null));
+          matchesReadCount(1).ifPresent(x -> addMultipleMc(5, 1, 0, valueOf(IR), null));
         }
       }
     });
@@ -132,9 +132,9 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   private void addForRelativeJump(ConditionalInstruction<T, ?> conditionalInstruction) {
     if (conditionalInstruction.getNextPC() != null) {
-      addMultipleMc(5, 1, 1, getRegister(PC).read().intValue(), null);
+      addMultipleMc(5, 1, 1, valueOf(PC), null);
     } else {
-      addMultipleMc(1, 3, 1, getRegister(PC).read().intValue(), "readbyte");
+      addMultipleMc(1, 3, 1, valueOf(PC), "readbyte");
     }
   }
 
@@ -203,9 +203,9 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     phase.acceptAfterMR(p -> {
       switch (readCount) {
         case 1 ->
-            isIndirectHL(instruction1).ifPresent((x) -> addMultipleMc(1, 1, 0, getRegister(HL).read().intValue(), null));
+            isIndirectHL(instruction1).ifPresent((x) -> addMultipleMc(1, 1, 0, valueOf(HL), null));
         case 2 ->
-            isMemoryPlusOptional(instruction1.getTarget()).ifPresent(x -> addMultipleMc(2, 1, 3, getRegister(PC).read().intValue(), null));
+            isMemoryPlusOptional(instruction1.getTarget()).ifPresent(x -> addMultipleMc(2, 1, 3, valueOf(PC), null));
         case 3 ->
             isMemoryPlusOptional(instruction1.getTarget()).ifPresent(x -> addMultipleMc(1, 1, 0, address.intValue(), null));
       }
@@ -233,7 +233,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       public void visit(AfterMR afterExecution) {
         isMemoryPlusOptional(instruction.getTarget()).ifPresent(x -> {
           switch (readCount) {
-            case 1 -> addMultipleMc(5, 1, 2, getRegister(PC).read().intValue(), null);
+            case 1 -> addMultipleMc(5, 1, 2, valueOf(PC), null);
             case 2 -> addMultipleMc(1, 1, 0, address.intValue(), null);
           }
         });
@@ -246,13 +246,13 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public boolean visitRLD(RLD<T> rld) {
-    phase.acceptAfterMR(p -> addMultipleMc(4, 1, 0, getRegister(HL).read().intValue(), null));
+    phase.acceptAfterMR(p -> addMultipleMc(4, 1, 0, valueOf(HL), null));
     return false;
   }
 
   public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction<T> instruction) {
     phase.acceptAfterMR(p -> isMemoryPlusOptional(instruction.getSource()).ifPresent(x -> {
-      matchesReadCount(1).ifPresent(x2 -> addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null));
+      matchesReadCount(1).ifPresent(x2 -> addMultipleMc(5, 1, 0, valueOf(IR), null));
     }));
   }
 

@@ -145,4 +145,8 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   protected Optional<Boolean> matchesReadCount(int i) {
     return Optional.ofNullable(readCount == i ? true : null);
   }
+
+  protected int valueOf(RegisterName registerName) {
+    return getRegister(registerName).read().intValue();
+  }
 }
