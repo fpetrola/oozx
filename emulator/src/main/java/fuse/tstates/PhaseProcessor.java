@@ -301,7 +301,6 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null);
   }
 
-
   public boolean visitingCall(Call tCall) {
     phase.accept(new DefaultPhaseVisitor() {
       public void visit(BeforeWrite beforeWrite) {
