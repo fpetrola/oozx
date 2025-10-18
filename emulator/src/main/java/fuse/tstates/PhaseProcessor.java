@@ -135,18 +135,18 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public void visitEx(Ex<T> ex) {
-    if (ex.getTarget() instanceof IndirectMemory16BitReference<T>) {
-      phase.accept(new DefaultPhaseVisitor() {
-        public void visit(AfterExecution afterExecution) {
+    phase.accept(new DefaultPhaseVisitor() {
+      public void visit(AfterExecution afterExecution) {
+        if (ex.getTarget() instanceof IndirectMemory16BitReference<T>)
           addMc(2, SP, 0, "contend_write_no_mreq");
-        }
+      }
 
-        public void visit(BeforeWrite beforeWrite) {
+      public void visit(BeforeWrite beforeWrite) {
+        if (ex.getTarget() instanceof IndirectMemory16BitReference<T>)
           if (writeCount == 0)
             addMc(1, SP, 1, null);
-        }
-      });
-    }
+      }
+    });
   }
 
   public boolean visitOuti(Outi<T> outi) {
