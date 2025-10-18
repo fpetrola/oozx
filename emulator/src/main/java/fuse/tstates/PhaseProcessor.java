@@ -31,8 +31,6 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
 public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> {
-  int lastAddress;
-
   public PhaseProcessor(Z80Cpu<T> cpu) {
     super(cpu);
   }
@@ -72,13 +70,19 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     instruction.getInstructionToRepeat().accept(this);
 
     phase.accept(new DefaultPhaseVisitor() {
-      public void visit(BeforeExecution afterFetch) {
-        lastAddress = getRegister(instruction instanceof Ldir<T> || instruction instanceof Lddr<T> ? DE : HL).read().intValue();
-      }
-
       public void visit(AfterExecution afterExecution) {
+        int lastAddress = 0;
         if (instruction instanceof Outdr<T> || instruction instanceof Outir<T>)
           lastAddress = getRegister(BC).read().intValue();
+        else if (instruction instanceof Ldir<T>) {
+          lastAddress = getRegister(DE).read().intValue() - 1;
+        } else if (instruction instanceof Lddr<T>) {
+          lastAddress = getRegister(DE).read().intValue() + 1;
+        } else if (instruction instanceof Cpir<T> || instruction instanceof Inir<T>) {
+          lastAddress = getRegister(HL).read().intValue() - 1;
+        } else if (instruction instanceof Cpdr<T> || instruction instanceof Indr<T>) {
+          lastAddress = getRegister(HL).read().intValue() + 1;
+        }
         if (instruction.getNextPC() != null)
           addMultipleMc(5, 1, 0, lastAddress, "contend_write_no_mreq");
       }
