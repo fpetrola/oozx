@@ -209,7 +209,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
     cloned1.setTarget(createRegisterReplacement(cloned1.getTarget(), cloned1, new VirtualFetcher()));
   }
 
-  public void visitingBitOperation(BitOperation bitOperation) {
+  public boolean visitingBitOperation(BitOperation bitOperation) {
     boolean isBIT = bitOperation instanceof BIT;
     Constructor<?>[] constructors = bitOperation.getClass().getConstructors();
     try {
@@ -232,6 +232,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
     cloned1.setTarget(createRegisterReplacement(cloned1.getTarget(), cloned1, virtualFetcher));
     if (isBIT)
       cloned1.setFlag(createRegisterReplacement(cloned1.getFlag(), cloned1, virtualFetcher));
+    return isBIT;
   }
 
   public void visitingRst(RST rst) {

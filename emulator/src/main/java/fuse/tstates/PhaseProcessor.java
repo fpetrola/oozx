@@ -18,7 +18,7 @@
 
 package fuse.tstates;
 
-import com.fpetrola.z80.cpu.Z80Cpu;
+import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.*;
@@ -26,6 +26,7 @@ import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.phases.*;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
+import static com.fpetrola.z80.registers.RegisterName.PC;
 
 public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> {
   public PhaseProcessor(Z80Cpu<T> cpu) {
@@ -220,29 +221,30 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   @Override
-  public void visitingBitOperation(BitOperation tBitOperation) {
-    unaryInstructionAddMc(tBitOperation);
-  }
-
-  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction parameterizedUnaryAluInstruction) {
-    unaryInstructionAddMc(parameterizedUnaryAluInstruction);
-    return false;
-  }
-
-  private void unaryInstructionAddMc(TargetInstruction targetInstruction) {
+  public boolean visitingBitOperation(BitOperation tBitOperation) {
     phase.acceptAfterMR(p -> {
-      if (!addIfIndirectHL(targetInstruction)) {
+      if (!addIfIndirectHL(tBitOperation)) {
         if (readCount == 2)
           addMultipleMc(2, 1, 3, getRegister(PC).read().intValue(), null);
         else if (readCount == 3)
           addMultipleMc(1, 1, 0, address.intValue(), null);
       }
     });
+    return true;
+  }
+
+  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction parameterizedUnaryAluInstruction) {
+    phase.acceptAfterMR(p -> {
+      addIfIndirectHL(parameterizedUnaryAluInstruction);
+      addMc14Or19(address, parameterizedUnaryAluInstruction);
+    });
+
+    return false;
   }
 
   public boolean addIfIndirectHL(TargetInstruction<T> targetInstruction) {
     isIndirectHL(targetInstruction).ifPresent((x) -> {
-      if (readCount == 1)
+      if (readCount == 1 && isNotIncDec(targetInstruction))
         addMultipleMc(1, 1, 0, getRegister(HL).read().intValue(), null);
     });
     return false;
@@ -273,8 +275,8 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     });
 
     phase.acceptAfterMR(p -> {
-      if (readCount == 2)
-        addMultipleMc(1, 1, 0, address.intValue(), null);
+      if (!addIfIndirectHL(dec))
+        addMc14Or19(address, dec);
     });
   }
 

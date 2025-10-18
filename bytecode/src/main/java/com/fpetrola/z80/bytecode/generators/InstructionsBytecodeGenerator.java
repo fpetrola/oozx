@@ -262,7 +262,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   @Override
-  public void visitingBitOperation(BitOperation bit) {
+  public boolean visitingBitOperation(BitOperation bit) {
 //    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.and(bit.getN())), byteCodeGenerator);
 //    bit.accept(visitor);
 //    processFlag(bit, visitor);
@@ -274,6 +274,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
       bit.accept(new VariableHandlingInstructionVisitor((s, t) -> flag.set(t.and(1 << bit.getN())), routineByteCodeGenerator));
     }
 //    tBitOperation.accept(new VariableHandlingInstructionVisitor((s, t) -> t.and(tBitOperation.getN()), byteCodeGenerator));
+    return false;
   }
 
   public boolean visitingInc(Inc inc) {

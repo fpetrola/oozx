@@ -23,10 +23,15 @@ import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.cpu.Z80Cpu;
+import com.fpetrola.z80.instructions.impl.Dec;
+import com.fpetrola.z80.instructions.impl.Inc;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetInstruction;
 import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
+import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
+import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
@@ -74,6 +79,23 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
 
   public void addMr(T address, T value) {
     getAddEvent(new Event(0, "MR", address.intValue(), value.intValue()));
+  }
+
+  protected boolean isNotIncDec(Instruction<T> targetInstruction) {
+    return !(targetInstruction instanceof Inc) && !(targetInstruction instanceof Dec);
+  }
+
+  public void addMc14Or19(T address, Instruction<T> instruction) {
+    boolean isParameterizedUnaryAluInstruction = instruction instanceof ParameterizedUnaryAluInstruction<T> parameterizedUnaryAluInstruction && parameterizedUnaryAluInstruction.getTarget() instanceof MemoryPlusRegister8BitReference<T>;
+
+    if (readCount == 2 && isNotIncDec(instruction) && isParameterizedUnaryAluInstruction)
+      addMultipleMc(2, 1, 3, getRegister(PC).read().intValue(), null);
+
+
+    if (isParameterizedUnaryAluInstruction)
+      if (readCount == (!isNotIncDec(instruction) ? 2 : 3))
+        addMultipleMc(1, 1, 0, address.intValue(), null);
+
   }
 
   protected Register<T> getRegister(RegisterName registerName) {

@@ -165,9 +165,10 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
   }
 
   @Override
-  public void visitingBitOperation(BitOperation tBitOperation) {
+  public boolean visitingBitOperation(BitOperation tBitOperation) {
     executeAction(tBitOperation.getFlag());
     executeAction(tBitOperation.getTarget());
+    return false;
   }
 
   @Override

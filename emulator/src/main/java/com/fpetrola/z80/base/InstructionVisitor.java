@@ -169,8 +169,8 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default void visitingBitOperation(BitOperation tBitOperation) {
-
+  default boolean visitingBitOperation(BitOperation tBitOperation) {
+    return false;
   }
 
   default void visitingPop(Pop pop) {
