@@ -160,7 +160,7 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction parameterizedUnaryAluInstruction) {
+  default boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction<T> parameterizedUnaryAluInstruction) {
 
     return false;
   }

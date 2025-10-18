@@ -86,7 +86,7 @@ public abstract class InstructionTransformerBase<T extends WordNumber> implement
   }
 
   @Override
-  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction parameterizedUnaryAluInstruction) {
+  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction<T> parameterizedUnaryAluInstruction) {
     Constructor<?>[] constructors = parameterizedUnaryAluInstruction.getClass().getConstructors();
     try {
       AbstractInstruction cloned1 = (AbstractInstruction) constructors[0].newInstance(clone(parameterizedUnaryAluInstruction.getTarget()), parameterizedUnaryAluInstruction.getFlag());

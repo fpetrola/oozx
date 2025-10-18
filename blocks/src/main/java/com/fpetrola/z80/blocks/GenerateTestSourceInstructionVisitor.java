@@ -122,7 +122,7 @@ public class GenerateTestSourceInstructionVisitor implements InstructionVisitor<
   }
 
   @Override
-  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction dec) {
+  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction<WordNumber> dec) {
     add("add(new " + dec.getClass().getSimpleName() + " (");
     dec.getTarget().accept(getWordNumberDummyInstructionVisitor());
     add(", f()));");

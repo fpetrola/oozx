@@ -83,7 +83,7 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
     executeAction(tDec16.getTarget());
   }
 
-  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction parameterizedUnaryAluInstruction) {
+  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction<T> parameterizedUnaryAluInstruction) {
     executeAction(parameterizedUnaryAluInstruction.getTarget());
     executeAction(parameterizedUnaryAluInstruction.getFlag());
     return false;
