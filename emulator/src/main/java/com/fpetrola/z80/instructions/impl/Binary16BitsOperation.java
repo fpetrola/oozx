@@ -48,7 +48,7 @@ public class Binary16BitsOperation<T extends WordNumber> extends ParameterizedBi
   }
 
   public void accept(InstructionVisitor visitor) {
-    if (!visitor.visitingOperation16Bits(this))
+    if (!visitor.visiting16BitsOperation(this))
       super.accept(visitor);
   }
 

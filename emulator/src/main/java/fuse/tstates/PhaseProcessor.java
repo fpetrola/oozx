@@ -43,22 +43,17 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return false;
   }
 
-  public boolean visitingAdc16(Adc16<T> tAdc16) {
-    addResultAfterFetch(7);
-    return false;
+  public boolean visiting16BitsOperation(Binary16BitsOperation<T> binary16BitsOperation) {
+    return addResultAfterFetch(7);
   }
 
-  public boolean visitingAdd16(Add16 tAdd16) {
-    addResultAfterFetch(7);
-    return false;
-  }
-
-  private void addResultAfterFetch(final int time) {
+  private boolean addResultAfterFetch(final int time) {
     phase.accept(new DefaultPhaseVisitor() {
       public void visit(BeforeExecution beforeExecution) {
         addMc(time, IR, 0, null);
       }
     });
+    return true;
   }
 
   private void incDec16addMc() {
@@ -71,11 +66,6 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   public void visitingDec16(Dec16 tDec16) {
     incDec16addMc();
-  }
-
-  public boolean visitingSbc16(Sbc16<T> sbc16) {
-    addResultAfterFetch(7);
-    return false;
   }
 
   public void visitPush(Push push) {
