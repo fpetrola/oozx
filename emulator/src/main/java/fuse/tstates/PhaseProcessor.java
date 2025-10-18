@@ -100,8 +100,10 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       }
 
       public void visit(AfterMR afterMR) {
-        if (!isMemory8BitReference(ld.getSource()) && (isMemoryPlus(ld.getSource()) || isMemoryPlus(ld.getTarget())))
-          add5TStates();
+        if (!isMemory8BitReference(ld.getSource()) && (isMemoryPlus(ld.getSource()) || isMemoryPlus(ld.getTarget()))) {
+          if (readCount == 1)
+            addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null);
+        }
       }
     });
   }
@@ -248,13 +250,11 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return false;
   }
 
-  public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction<T> parameterizedBinaryAluInstruction) {
-    phase.acceptAfterMR(p -> isMemoryPlusOptional(parameterizedBinaryAluInstruction.getSource()).ifPresent(x -> add5TStates()));
-  }
-
-  private void add5TStates() {
-    if (readCount == 1)
-      addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null);
+  public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction<T> instruction) {
+    phase.acceptAfterMR(p -> isMemoryPlusOptional(instruction.getSource()).ifPresent(x -> {
+      if (readCount == 1)
+        addMultipleMc(5, 1, 0, getRegister(IR).read().intValue(), null);
+    }));
   }
 
   public boolean visitingCall(Call tCall) {
