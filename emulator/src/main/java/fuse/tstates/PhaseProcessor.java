@@ -29,6 +29,8 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
 public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> {
+  int lastAddress;
+
   public PhaseProcessor(Z80Cpu<T> cpu) {
     super(cpu);
   }
@@ -63,8 +65,6 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     if (blockInstruction instanceof Ini || blockInstruction instanceof Outi)
       addMcBeforeExecution(1);
   }
-
-  int lastAddress;
 
   public boolean visitRepeatingInstruction(RepeatingInstruction<T> instruction) {
     PhaseVisitor visitor = new DefaultPhaseVisitor() {
