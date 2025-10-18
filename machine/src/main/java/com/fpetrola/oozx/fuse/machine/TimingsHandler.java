@@ -221,9 +221,9 @@ public class TimingsHandler {
   }
 
   // Get t-states per frame
-  public static long tstatesPerFrame(Timings baseTiming) {
+  public static int tstatesPerFrame(Timings baseTiming) {
     FrameTimings f = baseTiming.frameTimings;
     if (f == null) return 0;
-    return (long) tstatesPerLine(baseTiming) * linesPerFrame(baseTiming);
+    return (int) tstatesPerLine(baseTiming) * linesPerFrame(baseTiming);
   }
 }

@@ -80,7 +80,7 @@ public class Spectrum implements ZxModule {
   }
 
   public int spectrumFrame() {
-    long frameLength = getCurrent().getTimings().tstatesPerFrame;
+    int frameLength = getCurrent().getTimings().tstatesPerFrame;
 
     eventManager.eventFrame(frameLength);
     z80Clock.addTstates(-frameLength);

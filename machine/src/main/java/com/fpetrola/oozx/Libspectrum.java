@@ -74,7 +74,7 @@ public class Libspectrum {
     return 0;
   }
 
-  public static long snapTstates(Snap snap) {
+  public static int snapTstates(Snap snap) {
     return 0;
   }
 

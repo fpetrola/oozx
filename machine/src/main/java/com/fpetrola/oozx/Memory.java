@@ -259,32 +259,18 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
 
   // Read a byte from memory
   public void readByte(int address, Ula ula) {
-    int bank = address >>> PAGE_SIZE_LOGARITHM;
-    MemoryPage mapping = mapRead[bank];
-
-    if (mapping != null) {
-      if (mapping.contended) {
-        if (zxClock.getTstates() < ula.contention.length) {
-          byte tstates = ula.contention[(int) zxClock.getTstates()];
-          GetTStatesHistory.addTStateUpdate(tstates, "ula readbyte", (int) zxClock.getTstates());
-          zxClock.addTstates(tstates);
-        }
-      }
+    if (mapRead[address >>> PAGE_SIZE_LOGARITHM].contended) {
+      zxClock.addTstates(ula.contention[(int) zxClock.getTstates()]);
+    }
 //      tStatesHolder.tstates += 3;
 
-      mapping.getPage().get(address & PAGE_SIZE_MASK);
-    }
+//    mapping.getPage().get(address & PAGE_SIZE_MASK);
   }
 
   // Write a byte to memory
   public void writeByte(int address, byte b, Ula ula) {
-    int bank = address >>> PAGE_SIZE_LOGARITHM;
-    MemoryPage mapping = mapWrite[bank];
-
-    if (mapping.contended) {
-      byte tstates = ula.contention[(int) zxClock.getTstates()];
-      GetTStatesHistory.addTStateUpdate(tstates, "ula writebyte", (int) zxClock.getTstates());
-      zxClock.addTstates(tstates);
+    if (mapWrite[address >>> PAGE_SIZE_LOGARITHM].contended) {
+      zxClock.addTstates(ula.contention[(int) zxClock.getTstates()]);
     }
 //      tStatesHolder.tstates += 3;
 
@@ -310,15 +296,10 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
 
   // Write a byte to memory (internal)
   public void writeByteInternal(int address, byte b, Display display) {
-    int bank = address >>> PAGE_SIZE_LOGARITHM;
-    MemoryPage mapping = mapWrite[bank];
-
+    MemoryPage mapping = mapWrite[address >>> PAGE_SIZE_LOGARITHM];
     if (mapping.writable || (mapping.source != sourceNone && Settings.current.writableRoms)) {
-      int offset = address & PAGE_SIZE_MASK;
-      ArrayPointer memory = mapping.getPage();
-
       displayDirty.apply(address, b, display);
-      memory.set(offset, b);
+      mapping.getPage().set(address & PAGE_SIZE_MASK, b);
     }
   }
 

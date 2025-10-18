@@ -150,7 +150,7 @@ public class LocalLibretroCore implements LibretroCore {
 
   private int executePreservingTstates(Supplier<Integer> supplier) {
     List<TStateUpdate> tstatesUpdates = new ArrayList<>(GetTStatesHistory.tstatesUpdates);
-    long tstates = z80Clock.getTstates();
+    int tstates = z80Clock.getTstates();
     int result = supplier.get();
     z80Clock.setTstates(tstates);
     GetTStatesHistory.tstatesUpdates = tstatesUpdates;

@@ -20,7 +20,7 @@ package com.fpetrola.oozx.fuse.modules;
 
 // Information about an event
 public class Event {
-    public long tstates;
+    public int tstates;
     public int type;
     public Object userData;
 }

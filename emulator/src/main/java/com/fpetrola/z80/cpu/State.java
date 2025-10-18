@@ -73,7 +73,7 @@ public class State<T extends WordNumber> {
     return clock.getTstates();
   }
 
-  private void setTstates(long tstates) {
+  private void setTstates(int tstates) {
     clock.setTstates(tstates);
   }
 

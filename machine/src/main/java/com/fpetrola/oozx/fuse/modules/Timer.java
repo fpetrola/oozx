@@ -124,14 +124,14 @@ public class Timer implements ZxModule {
   }
 
   // Frame handling
-  public void frame(long lastTstates, int event, Object userData) {
+  public void frame(int lastTstates, int event, Object userData) {
     if (Sound.enabled && Settings.current.sound) {
       frameCallbackSound(lastTstates);
       return;
     }
 
     if (Settings.current.fastload && fastloadingActive()) {
-      long nextCheckTime = lastTstates + getCurrent().getTimings().tstatesPerFrame;
+      int nextCheckTime = lastTstates + getCurrent().getTimings().tstatesPerFrame;
       eventManager.eventAdd(nextCheckTime, timerEvent);
     } else {
       float speed = Math.max(Settings.current.emulationSpeed, 1) / 100.0f;
@@ -153,14 +153,14 @@ public class Timer implements ZxModule {
         return;
       }
       double difference = currentTime - startTime;
-      long tstates = (long) (((difference + TEN_MS / 1000.0) * getCurrent().getTimings().processorSpeed) * speed + 0.5);
+      int tstates = (int) (((difference + TEN_MS / 1000.0) * getCurrent().getTimings().processorSpeed) * speed + 0.5);
       eventManager.eventAdd(lastTstates + tstates, timerEvent);
       startTime = currentTime + TEN_MS / 1000.0;
     }
   }
 
   // Sound-based frame callback
-  private void frameCallbackSound(long lastTstates) {
+  private void frameCallbackSound(int lastTstates) {
     // Placeholder for SOUND_FIFO implementation
         /*
         for (;;) {
