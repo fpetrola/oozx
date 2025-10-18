@@ -165,7 +165,7 @@ public interface InstructionVisitor<T extends WordNumber, R> {
     return false;
   }
 
-  default void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction parameterizedBinaryAluInstruction) {
+  default void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction<T> parameterizedBinaryAluInstruction) {
 
   }
 

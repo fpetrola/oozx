@@ -370,7 +370,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
 
 
   @Override
-  public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction parameterizedBinaryAluInstruction) {
+  public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction<T> parameterizedBinaryAluInstruction) {
     super.visitingParameterizedBinaryAluInstruction(parameterizedBinaryAluInstruction);
     ParameterizedBinaryAluInstruction cloned1 = (ParameterizedBinaryAluInstruction) cloned;
     VirtualFetcher virtualFetcher = new VirtualFetcher();

@@ -47,10 +47,6 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return addMcBeforeExecution(7);
   }
 
-  private void addMcAfterExecution() {
-    phase.acceptAfterExecution(afterExecution -> addMc(2, IR, 0, null));
-  }
-
   public void visitingInc16(Inc16 tInc16) {
     addMcAfterExecution();
   }
@@ -162,9 +158,9 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return false;
   }
 
-  private void addIfNextPC(BlockInstruction<T> tIni) {
+  private void addIfNextPC(BlockInstruction<T> blockInstruction) {
     phase.acceptAfterExecution(afterExecution -> {
-      if (tIni.getNextPC() != null)
+      if (blockInstruction.getNextPC() != null)
         addMc(5, BC, 0, null);
     });
   }
@@ -257,7 +253,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return false;
   }
 
-  public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction parameterizedBinaryAluInstruction) {
+  public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction<T> parameterizedBinaryAluInstruction) {
     phase.acceptAfterMR(p -> {
       if (isMemoryPlus(parameterizedBinaryAluInstruction.getSource()))
         add5TStates();
@@ -281,11 +277,11 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   private boolean addMcBeforeExecution(final int time) {
-    phase.accept(new DefaultPhaseVisitor() {
-      public void visit(BeforeExecution beforeExecution) {
-        addMc(time, IR, 0, null);
-      }
-    });
+    phase.acceptBeforeExecution(beforeExecution -> addMc(time, IR, 0, null));
     return true;
+  }
+
+  private void addMcAfterExecution() {
+    phase.acceptAfterExecution(afterExecution -> addMc(2, IR, 0, null));
   }
 }

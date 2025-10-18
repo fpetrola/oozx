@@ -90,7 +90,7 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
   }
 
   @Override
-  public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction parameterizedBinaryAluInstruction) {
+  public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction<T> parameterizedBinaryAluInstruction) {
     executeAction(parameterizedBinaryAluInstruction.getTarget());
     executeAction(parameterizedBinaryAluInstruction.getSource());
     executeAction(parameterizedBinaryAluInstruction.getFlag());
