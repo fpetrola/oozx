@@ -67,7 +67,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   int lastAddress;
 
   public boolean visitRepeatingInstruction(RepeatingInstruction<T> instruction) {
-    DefaultPhaseVisitor visitor = new DefaultPhaseVisitor() {
+    PhaseVisitor visitor = new DefaultPhaseVisitor() {
       public void visit(BeforeExecution afterFetch) {
         lastAddress = getRegister(instruction instanceof Ldir<T> || instruction instanceof Lddr<T> ? DE : HL).read().intValue();
       }
