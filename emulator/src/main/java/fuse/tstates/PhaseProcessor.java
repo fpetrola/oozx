@@ -67,7 +67,9 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public boolean visitRepeatingInstruction(RepeatingInstruction<T> instruction) {
-    PhaseVisitor visitor = new DefaultPhaseVisitor() {
+    instruction.getInstructionToRepeat().accept(this);
+    
+    phase.accept(new DefaultPhaseVisitor() {
       public void visit(BeforeExecution afterFetch) {
         lastAddress = getRegister(instruction instanceof Ldir<T> || instruction instanceof Lddr<T> ? DE : HL).read().intValue();
       }
@@ -78,9 +80,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
         if (instruction.getNextPC() != null)
           addMultipleMc(5, 1, 0, lastAddress, "contend_write_no_mreq");
       }
-    };
-    instruction.getInstructionToRepeat().accept(PhaseProcessor.this);
-    phase.accept(visitor);
+    });
     return false;
   }
 
