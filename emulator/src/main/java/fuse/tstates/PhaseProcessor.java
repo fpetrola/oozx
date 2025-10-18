@@ -151,38 +151,6 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     });
   }
 
-  public boolean visitInir(Inir inir) {
-    return addIfNextPC(inir.getInstructionToRepeat());
-  }
-
-  public boolean visitOutir(Outir outir) {
-    return addIfNextPC(outir.getInstructionToRepeat());
-  }
-
-  public boolean visitOuti(Outi<T> outi) {
-    return addMcBeforeExecution(1);
-  }
-
-  public boolean visitOutd(Outd<T> outi) {
-    return addMcBeforeExecution(1);
-  }
-
-  public boolean visitIni(Ini<T> tIni) {
-    return addMcBeforeExecution(1);
-  }
-
-  public boolean visitInd(Ind<T> tInd) {
-    return addMcBeforeExecution(1);
-  }
-
-  private boolean addIfNextPC(BlockInstruction<T> blockInstruction) {
-    phase.acceptAfterExecution(afterExecution -> {
-      if (blockInstruction.getNextPC() != null)
-        addMc(5, BC, 0, null);
-    });
-    return false;
-  }
-
   private boolean addForBlockInstruction(int times, RegisterName registerName, int delta) {
     phase.acceptAfterExecution(p -> addMc(times, registerName, delta, "contend_write_no_mreq"));
     return true;
@@ -202,6 +170,22 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   public boolean visitCpd(Cpd<T> cpd) {
     return addForBlockInstruction(5, HL, 1);
+  }
+
+  public boolean visitOuti(Outi<T> outi) {
+    return addMcBeforeExecution(1);
+  }
+
+  public boolean visitOutd(Outd<T> outi) {
+    return addMcBeforeExecution(1);
+  }
+
+  public boolean visitIni(Ini<T> tIni) {
+    return addMcBeforeExecution(1);
+  }
+
+  public boolean visitInd(Ind<T> tInd) {
+    return addMcBeforeExecution(1);
   }
 
   public boolean visitLdOperation(LdOperation ldOperation) {
