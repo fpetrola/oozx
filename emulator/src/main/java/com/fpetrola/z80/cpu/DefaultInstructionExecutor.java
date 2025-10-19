@@ -22,105 +22,67 @@ import com.fpetrola.z80.helpers.CollectionHandler;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
-import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.minizx.emulation.ToStringInstructionVisitor;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.ExecutionListener;
 import com.google.inject.Inject;
 
-import java.util.*;
-
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
 
 public class DefaultInstructionExecutor<T extends WordNumber> implements InstructionExecutor<T> {
   private final Register<T> pc;
-  private final State<T> state;
   private final Set<Instruction<T>> executingInstructions = new HashSet<>();
   private final Map<Integer, Instruction<T>> instructions = new HashMap<>();
   private final CollectionHandler<ExecutionListener<T>> executionListeners = new CollectionHandler<>();
-  public static final List<Instruction<?>> allInstructions = new LinkedList<>();
 
-  private boolean noRepeat;
-  private Memory<T> memory;
-
-  @Override
-  public void setNoRepeat(boolean noRepeat) {
-    this.noRepeat = noRepeat;
-  }
+  private final Consumer<Instruction<T>> afterExecutionAction;
 
   @Inject
-  public DefaultInstructionExecutor(State state, boolean noRepeat) {
+  public DefaultInstructionExecutor(State<T> state, boolean noRepeat) {
     this.pc = state.getPc();
-    this.state = state;
-    this.noRepeat = noRepeat;
-    memory = this.state.getMemory();
-  }
-
-  @Override
-  public Instruction<T> getInstructionAt(int address) {
-    return instructions.get(address);
-  }
-
-  @Override
-  public Instruction<T> execute(Instruction<T> instruction) {
-    try {
-      AbstractInstruction<T> abstractInstruction = (AbstractInstruction<T>) instruction;
-      abstractInstruction.setNextPC(null);
-      T pcValue = pc.read();
-
-      beforeExecution(instruction);
-      instruction.execute();
-      afterExecution(instruction);
-
-      if (noRepeat && instruction instanceof RepeatingInstruction repeatingInstruction) {
+    afterExecutionAction = noRepeat ? (instruction1 -> {
+      if (instruction1 instanceof RepeatingInstruction<?> repeatingInstruction)
         repeatingInstruction.setNextPC(null);
-      }
+    }) : ((a) -> {
+    });
+  }
 
-      T nextPC = abstractInstruction.getNextPC();
+  public Instruction<T> execute(Instruction<T> instruction) {
 
-//      printPC(instruction, pcValue, nextPC);
+    executionListeners.forAll(i -> i.beforeExecution(instruction));
 
-      if (nextPC == null)
-        nextPC = pcValue.plus(instruction.getLength());
-//      else
-//        abstractInstruction.setNextPC(null);
+    instruction.execute();
 
-      pc.write(nextPC);
-    } catch (Exception e) {
-      e.printStackTrace();
-      state.setRunState(State.RunState.STATE_STOPPED_BREAK);
-    }
+    executionListeners.forAll(i -> i.afterExecution(instruction));
+
+    afterExecutionAction.accept(instruction);
+
+    T nextPC = ((AbstractInstruction<T>) instruction).getNextPC();
+    if (nextPC == null)
+      nextPC = pc.read().plus(instruction.getLength());
+
+    pc.write(nextPC);
 
     return instruction;
   }
 
-  private void printPC(Instruction<T> instruction, T pcValue, T nextPC) {
-    String toString = new ToStringInstructionVisitor<T>().createToString(instruction);
-    String x = String.format("%04d", pcValue.intValue()) + ": " + toString + " -> " + nextPC;
-    System.out.println(x);
-  }
-
-  @Override
-  public boolean isExecuting(Instruction<T> instruction) {
-    return executingInstructions.contains(instruction);
-  }
-
-  @Override
   public void addExecutionListener(ExecutionListener<T> executionListener) {
     executionListeners.add(executionListener);
   }
 
-  @Override
   public void addTopExecutionListener(ExecutionListener<T> executionListener) {
 //    executionListeners.add(executionListener);
   }
 
-  public void beforeExecution(Instruction<T> instruction) {
-    executionListeners.forAll(i -> i.beforeExecution(instruction));
+  public boolean isExecuting(Instruction<T> instruction) {
+    return executingInstructions.contains(instruction);
   }
 
-  public void afterExecution(Instruction<T> instruction) {
-    executionListeners.forAll(i -> i.afterExecution(instruction));
+  public Instruction<T> getInstructionAt(int address) {
+    return instructions.get(address);
   }
 }

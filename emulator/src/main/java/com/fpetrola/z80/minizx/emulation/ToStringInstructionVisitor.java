@@ -170,4 +170,10 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
   public void visitBlockInstruction(BlockInstruction blockInstruction) {
     result = getInstructionName(blockInstruction);
   }
+
+  public static <T extends WordNumber>  void printPC(Instruction<T> instruction, T pcValue, T nextPC) {
+    String toString = new ToStringInstructionVisitor<T>().createToString(instruction);
+    String x = String.format("%04d", pcValue.intValue()) + ": " + toString + " -> " + nextPC;
+    System.out.println(x);
+  }
 }
