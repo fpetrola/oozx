@@ -376,7 +376,7 @@ public class ZXSpectrumEmulatorUI extends JFrame {
     statusLabel.setPreferredSize(new Dimension(100, componentHeight));
 
     // Speed Progress Bar
-    JProgressBar speedBar = new JProgressBar(0, 1000); // Max 4x speed
+    JProgressBar speedBar = new JProgressBar(0, 2000); // Max 4x speed
     speedBar.setValue((int)(emulatorCore.getEmulationSpeed() ));
     speedBar.setStringPainted(true);
     speedBar.setString(String.format("%.2fx", emulatorCore.getEmulationSpeed()));

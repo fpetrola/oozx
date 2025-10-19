@@ -32,7 +32,7 @@ public class SingleItemInvoker<T> implements ItemHandler<T> {
   }
 
   public ItemHandler<T> add(T item) {
-    return new MultipleItemsInvoker<T>(this.item, item);
+    return new MultipleItemsInvoker<T>(List.of(this.item, item));
   }
 
   public List<T> getList() {

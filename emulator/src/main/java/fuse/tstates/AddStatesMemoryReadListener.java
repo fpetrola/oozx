@@ -33,31 +33,23 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
   }
 
   public void readingMemoryAt(T address, T value, int delta, int fetching) {
-    if (address.intValue() == -1) {
-      phaseProcessor.processPhase(new BeforeExecution());
-    } else if (address.intValue() == -2) {
-      phaseProcessor.processPhase(new AfterExecution());
-    } else {
-      boolean pendingEvent = lastEvents != null;
 
-      Runnable lastEvents1 = () -> {
-        processEvent(address, value, fetching);
-      };
+    Runnable lastEvents1 = () -> {
+      processEvent(address, value, fetching);
+    };
 
-      boolean requiresDelay = fetching == 2 || delta == 3;
-      if (!requiresDelay) {
-        lastEvents1.run();
-      }
-
-      if (pendingEvent) {
-        if (lastEvents != null)
-          lastEvents.run();
-        lastEvents = null;
-      }
-
-      if (requiresDelay)
-        lastEvents = lastEvents1;
+    boolean requiresDelay = fetching == 2 || delta == 3;
+    if (!requiresDelay) {
+      lastEvents1.run();
     }
+
+    if (lastEvents != null) {
+      lastEvents.run();
+      lastEvents = null;
+    }
+
+    if (requiresDelay)
+      lastEvents = lastEvents1;
   }
 
   protected void processEvent(T address, T value, int fetching) {

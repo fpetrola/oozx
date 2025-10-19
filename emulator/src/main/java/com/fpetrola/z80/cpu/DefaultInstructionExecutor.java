@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.cpu;
 
+import com.fpetrola.z80.helpers.CollectionHandler;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
@@ -36,8 +37,8 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
   private final Register<T> pc;
   private final State<T> state;
   private final Set<Instruction<T>> executingInstructions = new HashSet<>();
-  private Map<Integer, Instruction<T>> instructions = new HashMap<>();
-  private List<ExecutionListener<T>> executionListeners = new ArrayList<>();
+  private final Map<Integer, Instruction<T>> instructions = new HashMap<>();
+  private final CollectionHandler<ExecutionListener<T>> executionListeners = new CollectionHandler<>();
   public static final List<Instruction<?>> allInstructions = new LinkedList<>();
 
   private boolean noRepeat;
@@ -66,17 +67,11 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
     try {
       AbstractInstruction<T> abstractInstruction = (AbstractInstruction<T>) instruction;
       abstractInstruction.setNextPC(null);
-      T pcValue = state.getPc().read();
+      T pcValue = pc.read();
 
-      memory.read(createValue(-1), 1);
-//      executingInstructions.add(instruction);
-//      allInstructions.add(instruction);
       beforeExecution(instruction);
       instruction.execute();
       afterExecution(instruction);
-//      instructions.put(pc.read().intValue(), instruction);
-//      executingInstructions.remove(instruction);
-      memory.read(createValue(-2), 1);
 
       if (noRepeat && instruction instanceof RepeatingInstruction repeatingInstruction) {
         repeatingInstruction.setNextPC(null);
@@ -91,7 +86,7 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
 //      else
 //        abstractInstruction.setNextPC(null);
 
-      state.getPc().write(nextPC);
+      pc.write(nextPC);
     } catch (Exception e) {
       e.printStackTrace();
       state.setRunState(State.RunState.STATE_STOPPED_BREAK);
@@ -112,22 +107,20 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
   }
 
   @Override
-  public void addExecutionListener(ExecutionListener executionListener) {
+  public void addExecutionListener(ExecutionListener<T> executionListener) {
     executionListeners.add(executionListener);
   }
 
   @Override
   public void addTopExecutionListener(ExecutionListener<T> executionListener) {
-    executionListeners.add(0, executionListener);
+//    executionListeners.add(executionListener);
   }
 
   public void beforeExecution(Instruction<T> instruction) {
-    for (int i = 0, executionListenersSize = executionListeners.size(); i < executionListenersSize; i++)
-      executionListeners.get(i).beforeExecution(instruction);
+    executionListeners.forAll(i -> i.beforeExecution(instruction));
   }
 
   public void afterExecution(Instruction<T> instruction) {
-    for (int i = 0, executionListenersSize = executionListeners.size(); i < executionListenersSize; i++)
-      executionListeners.get(i).afterExecution(instruction);
+    executionListeners.forAll(i -> i.afterExecution(instruction));
   }
 }

@@ -24,8 +24,8 @@ import java.util.List;
 public class MultipleItemsInvoker<T> implements ItemHandler<T> {
   protected List<T> multipleItems = new ArrayList<>();
 
-  public MultipleItemsInvoker(T... items) {
-    multipleItems.addAll(List.of(items));
+  public MultipleItemsInvoker(List<T> items) {
+    multipleItems.addAll(items);
   }
 
   public void execute(ItemInvoker<T> invoker) {
