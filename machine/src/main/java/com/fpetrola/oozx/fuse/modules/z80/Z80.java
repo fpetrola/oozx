@@ -115,7 +115,7 @@ public class Z80 implements ZxModule {
   }
 
   public <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
-    var state = new State(io, new DefaultRegisterBankFactory().createBank(), new MockedMemory(true)) {
+    var state = new State<T>(io, new DefaultRegisterBankFactory<T>().createBank(), new MockedMemory<T>(true)) {
       public void enableInterrupt() {
         super.enableInterrupt();
         interruptsEnabledAt = clock.getTStates();
@@ -180,6 +180,8 @@ public class Z80 implements ZxModule {
 
     Memory<WordNumber> memory1 = (Memory<WordNumber>) state.getMemory();
 
+    phaseProcessor = new FusePhaseProcessor(this);
+
     ooz80.getInstructionExecutor().addExecutionListener(new ExecutionListener<>() {
       public void beforeExecution(Instruction<WordNumber> instruction) {
         phaseProcessor.processPhase(new BeforeExecution());
@@ -189,8 +191,6 @@ public class Z80 implements ZxModule {
         phaseProcessor.processPhase(new AfterExecution());
       }
     });
-
-    phaseProcessor = new FusePhaseProcessor(this);
 
     memory1.addMemoryReadListener(new AddStatesMemoryReadListener<>(phaseProcessor) {
       protected void doRead(WordNumber address, WordNumber value, int fetching) {

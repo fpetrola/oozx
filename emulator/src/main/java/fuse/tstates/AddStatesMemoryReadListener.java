@@ -20,8 +20,6 @@ package fuse.tstates;
 
 import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import fuse.tstates.phases.AfterExecution;
-import fuse.tstates.phases.BeforeExecution;
 import fuse.tstates.phases.AfterMR;
 
 public class AddStatesMemoryReadListener<T extends WordNumber> implements MemoryReadListener<T> {
@@ -33,10 +31,7 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
   }
 
   public void readingMemoryAt(T address, T value, int delta, int fetching) {
-
-    Runnable lastEvents1 = () -> {
-      processEvent(address, value, fetching);
-    };
+    Runnable lastEvents1 = () -> processEvent(address, value, fetching);
 
     boolean requiresDelay = fetching == 2 || delta == 3;
     if (!requiresDelay) {
@@ -54,9 +49,8 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
 
   protected void processEvent(T address, T value, int fetching) {
     doRead(address, value, fetching);
-    int time1 = getTime(fetching);
 
-    addMc(address, time1);
+    addMc(address, getTime(fetching));
     phaseProcessor.addMr(address, value);
 
     phaseProcessor.setAddress(address);
@@ -65,7 +59,6 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
   }
 
   protected void doRead(T address, T value, int fetching) {
-
   }
 
   protected void addMc(T address, int time1) {
@@ -73,11 +66,6 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
   }
 
   protected int getTime(int fetching) {
-    int time1;
-    if (fetching != 0)
-      time1 = 4 - (fetching == 2 ? 1 : 0);
-    else
-      time1 = 3;
-    return time1;
+    return fetching != 0 ? 4 - (fetching == 2 ? 1 : 0) : 3;
   }
 }
