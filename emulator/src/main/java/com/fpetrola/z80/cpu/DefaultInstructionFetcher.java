@@ -38,7 +38,7 @@ import java.util.function.Supplier;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
-public class DefaultInstructionFetcher<T extends WordNumber> implements InstructionFetcher {
+public class DefaultInstructionFetcher<T extends WordNumber> implements InstructionFetcher<T> {
   protected final InstructionFactory instructionFactory;
   protected State<T> state;
   protected Instruction<T>[] opcodesTables;
@@ -154,7 +154,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   }
 
   @Override
-  public void addFetchListener(FetchListener fetchListener) {
+  public void addFetchListener(FetchListener<T> fetchListener) {
     fetchListeners.add(fetchListener);
   }
 

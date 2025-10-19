@@ -20,16 +20,16 @@ package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.types.Instruction;
 
-public interface InstructionFetcher {
+public interface InstructionFetcher<T> {
 
   default void setPrefetch(boolean prefetch) {
   }
 
-  Instruction<?> fetchNextInstruction();
+  Instruction<T> fetchNextInstruction();
 
   void reset();
 
-  default void addFetchListener(FetchListener fetchListener) {
+  default void addFetchListener(FetchListener<T> fetchListener) {
   }
 
   default void afterExecute(Instruction<?> currentInstruction) {

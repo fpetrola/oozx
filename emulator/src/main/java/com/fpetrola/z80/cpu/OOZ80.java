@@ -20,7 +20,6 @@ package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.impl.EI;
 import com.fpetrola.z80.instructions.impl.Push;
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -30,11 +29,11 @@ import static com.fpetrola.z80.cpu.State.InterruptionMode.IM2;
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
-  protected InstructionFetcher instructionFetcher;
+  protected InstructionFetcher<T> instructionFetcher;
   private final InstructionExecutor<T> instructionExecutor;
   protected State<T> state;
 
-  public OOZ80(State aState, InstructionFetcher instructionFetcher, InstructionExecutor<T> instructionExecutor) {
+  public OOZ80(State<T> aState, InstructionFetcher<T> instructionFetcher, InstructionExecutor<T> instructionExecutor) {
     this.state = aState;
     this.instructionFetcher = instructionFetcher;
     this.instructionExecutor = instructionExecutor;
@@ -71,14 +70,15 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
   }
 
   public Instruction<T> execute(int cycles) {
-    Instruction<T> currentInstruction = (Instruction<T>) instructionFetcher.fetchNextInstruction();
     try {
+      Instruction<T> currentInstruction = instructionFetcher.fetchNextInstruction();
       instructionExecutor.execute(currentInstruction);
+      instructionFetcher.afterExecute(currentInstruction);
+      return currentInstruction;
     } catch (Exception e) {
       state.setRunState(State.RunState.STATE_STOPPED_BREAK);
+      return null;
     }
-    instructionFetcher.afterExecute(currentInstruction);
-    return currentInstruction;
   }
 
   @Override
@@ -116,7 +116,7 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
   }
 
   @Override
-  public InstructionFetcher getInstructionFetcher() {
+  public InstructionFetcher<T> getInstructionFetcher() {
     return instructionFetcher;
   }
 

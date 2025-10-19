@@ -29,7 +29,7 @@ public interface Z80Cpu<T extends WordNumber> {
 
   void endInterruption();
 
-  InstructionFetcher getInstructionFetcher();
+  InstructionFetcher<T> getInstructionFetcher();
 
   State<T> getState();
 
