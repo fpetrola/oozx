@@ -19,7 +19,6 @@
 package com.fpetrola.oozx.fuse.modules.z80;
 
 import com.fpetrola.oozx.fuse.FuseLibretroConnector;
-import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import fuse.tstates.PhaseProcessor;

@@ -26,6 +26,7 @@ import com.fpetrola.z80.cpu.Z80Cpu;
 import com.fpetrola.z80.instructions.impl.Dec;
 import com.fpetrola.z80.instructions.impl.Inc;
 import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.TargetInstruction;
 import com.fpetrola.z80.opcodes.references.*;
@@ -35,6 +36,7 @@ import fuse.tstates.phases.BeforeExecution;
 import fuse.tstates.phases.DefaultPhaseVisitor;
 import fuse.tstates.phases.Phase;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
@@ -148,5 +150,18 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
 
   protected int valueOf(RegisterName registerName) {
     return getRegister(registerName).read().intValue();
+  }
+
+  protected Optional<Boolean> hasJumped(AbstractInstruction<T> instruction) {
+    return Optional.ofNullable(instruction.getNextPC() != null ? true : null);
+  }
+
+  protected void switchByReadCount(Runnable... runnables) {
+    if (runnables.length > readCount - 1)
+      List.of(runnables).get(readCount - 1).run();
+  }
+
+  protected Optional<Boolean> writeCountIsZero() {
+    return Optional.ofNullable(writeCount == 0 ? true : null);
   }
 }
