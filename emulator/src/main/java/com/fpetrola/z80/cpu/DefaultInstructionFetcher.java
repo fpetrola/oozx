@@ -127,7 +127,6 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   }
 
   public Instruction<T> fetchInstruction(T address) {
-    memory.disableReadListener();
     int opcodeInt = memory.read(address, 1).intValue();
     memoryForOpcode.reset();
     Instruction<T> opcodesTable = opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt];
@@ -135,7 +134,6 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     if (clone)
       baseInstruction2 = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction2);
 
-    memory.enableReadListener();
     Instruction<T> finalBaseInstruction = baseInstruction2;
     fetchListeners.forAll(l -> l.instructionFetchedAt(address, finalBaseInstruction));
     return baseInstruction2;
