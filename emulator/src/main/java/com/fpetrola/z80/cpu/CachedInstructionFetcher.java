@@ -31,17 +31,17 @@ public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstr
   protected InstructionCache<T> instructionCache;
 
   public CachedInstructionFetcher(State aState, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone) {
-    super(aState, opcodeConditions, fetchInstructionFactory, instructionExecutor, instructionFactory, noRepeat, false);
+    super(aState, instructionFactory, noRepeat, false);
     instructionCache = new InstructionCache(aState.getMemory(), new DefaultInstructionFactory(aState));
   }
 
-  public void fetchNextInstruction() {
+  public Instruction<T> fetchNextInstruction() {
     pcValue = state.getPc().read();
 
     InstructionCache.CacheEntry cacheEntry = instructionCache.getCacheEntryAt(pcValue);
     if (cacheEntry != null && !cacheEntry.isMutable()) {
       Instruction<T> instruction = cacheEntry.getOpcode();
-      instructionExecutor.execute(instruction);
+//      instructionExecutor.execute(instruction);
 
       T nextPC = null;
       if (instruction instanceof JumpInstruction jumpInstruction)
@@ -56,6 +56,7 @@ public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstr
 //      if (cacheEntry == null || !cacheEntry.isMutable())
 //        instructionCache.cacheInstruction(pcValue, this.lastExecutedInstruction);
     }
+    return null;
   }
 
   public void reset() {

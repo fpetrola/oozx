@@ -18,20 +18,14 @@
 
 package com.fpetrola.z80.cpu;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.instructions.types.Instruction;
 
-public interface Z80Cpu<T extends WordNumber> {
-  void reset();
+public interface FetchListener<T> {
+  default void instructionFetchedAt(T value, Instruction<T> instruction) {
 
-  void execute();
+  }
 
-  void interruption();
+  default void beforeFetch() {
 
-  void endInterruption();
-
-  InstructionFetcher getInstructionFetcher();
-
-  State<T> getState();
-
-  InstructionExecutor<T> getInstructionExecutor();
+  }
 }

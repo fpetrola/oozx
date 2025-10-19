@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
+import com.fpetrola.z80.cpu.DefaultInstructionExecutor;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
@@ -60,7 +61,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
   public static <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
     var state = new State(io, new DefaultRegisterBankFactory().createBank(), new MockedMemory(true));
     io.setPc(state.getPc());
-    return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)));
+    return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)), new DefaultInstructionExecutor(state, false));
   }
 
   public static Function<Integer, Integer> getMemFunction(OOZ80<?> ooz81) {

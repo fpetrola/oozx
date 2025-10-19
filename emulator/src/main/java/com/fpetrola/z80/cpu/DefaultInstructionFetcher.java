@@ -19,10 +19,10 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.cache.InstructionCloner;
+import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
@@ -30,49 +30,53 @@ import com.fpetrola.z80.opcodes.decoder.table.MemoryForOpcodes;
 import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.RegisterName;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-import static com.fpetrola.z80.registers.RegisterName.B;
 
 public class DefaultInstructionFetcher<T extends WordNumber> implements InstructionFetcher {
-  private final InstructionFactory instructionFactory;
+  protected final InstructionFactory instructionFactory;
   protected State<T> state;
   protected Instruction<T>[] opcodesTables;
-
-  protected int opcodeInt;
   protected T pcValue;
-  protected final InstructionExecutor<T> instructionExecutor;
-  List<ExecutedInstruction> lastInstructions = new ArrayList<>();
   protected Supplier<TableBasedOpCodeDecoder> tableFactory;
-  protected Instruction<T> lastExecutedInstruction;
-  private boolean noRepeat;
+  public Instruction<T> currentInstruction;
+
   private boolean clone;
   private final Memory<T> memoryForOpcode;
-  private Register<T> pc;
-  private Register<T> registerR;
+  private List<FetchListener> fetchListeners = new ArrayList<>();
+  private int prefetchPC = -1;
+  private Instruction<T> prefetchedInstruction;
+  protected int rdelta;
+  private boolean prefetch = false;
+  protected DefaultRegisterBankFactory.RRegister<T> registerR;
   private Memory<T> memory;
 
-  public DefaultInstructionFetcher(State aState, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat1) {
-    this(aState, new OpcodeConditions(aState.getFlag(), aState.getRegister(B)), fetchInstructionFactory, instructionExecutor, instructionFactory, noRepeat1, false);
-  }
-
-  public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone) {
+  public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
     this.state = aState;
-    this.instructionExecutor = instructionExecutor;
-    this.noRepeat = noRepeat;
-    memoryForOpcode = new MemoryForOpcodes(this.state.getMemory());
-    tableFactory = () -> createOpcodesTables(opcodeConditions, fetchInstructionFactory, instructionFactory);
+    this.prefetch = prefetch;
+    memoryForOpcode = new MemoryForOpcodes<>(this.state.getMemory());
+    tableFactory = () -> createOpcodesTables(opcodeConditions, instructionFactory.getFetchNextOpcodeInstructionFactory(), instructionFactory);
     createOpcodeTables();
     pcValue = state.getPc().read();
     this.instructionFactory = instructionFactory;
     this.clone = clone;
-    memory = state.getMemory();
-    registerR = state.getRegisterR();
-    pc = state.getPc();
+    this.registerR = (DefaultRegisterBankFactory.RRegister<T>) state.getRegisterR();
+    this.memory = state.getMemory();
+  }
+
+  public DefaultInstructionFetcher(State aState, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
+    this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), instructionFactory, clone, prefetch);
+  }
+
+  public DefaultInstructionFetcher(State aState, boolean clone, boolean prefetch) {
+    this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), new DefaultInstructionFactory(aState), clone, prefetch);
   }
 
   protected void createOpcodeTables() {
@@ -84,55 +88,68 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   }
 
   @Override
-  public void fetchNextInstruction() {
+  public Instruction<T> fetchNextInstruction() {
+    fetchListeners.forEach(FetchListener::beforeFetch);
     int rValue = registerR.read().intValue();
     registerR.increment();
-    pcValue = pc.read();
-    memory.disableReadListener();
-    opcodeInt = memoryForOpcode.read(pcValue, 1).intValue();
-    memoryForOpcode.reset();
-    try {
-      Instruction<T> baseInstruction = processToBase(opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt]);
-    int rdelta = registerR.read().intValue() - rValue;
-    ((AbstractInstruction) baseInstruction).setRDelta(rdelta);
+    pcValue = state.getPc().read();
 
-    if (clone) {
-      baseInstruction = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction);
-//      registerR.write(createValue(registerR.read().intValue() + ((AbstractInstruction) baseInstruction).getRDelta()));
+    if (prefetchPC != pcValue.intValue()) {
+      currentInstruction = fetchInstruction(pcValue);
+      prefetchedInstruction = currentInstruction;
+    } else {
+      currentInstruction = prefetchedInstruction;
+      registerR.write(createValue(registerR.read().intValue() + rdelta));
     }
 
-    lastExecutedInstruction = baseInstruction;
+    rdelta = registerR.read().intValue() - rValue;
+//    if (rdelta < 0)
+//      System.out.println("adgagadg");
+    ((AbstractInstruction) currentInstruction).setRDelta(rdelta);
 
-    memory.enableReadListener();
+    return currentInstruction;
+  }
 
-//      lastInstructions.add(new ExecutedInstruction(pcValue.intValue(), this.instruction));
-
-      memory.read(WordNumber.createValue(-1), 1);
-      Instruction<T> executedInstruction = this.instructionExecutor.execute(getLastExecutedInstruction());
-      memory.read(WordNumber.createValue(-2), 1);
-
-      lastExecutedInstruction = executedInstruction;
-
-      T nextPC = null;
-      if (noRepeat && lastExecutedInstruction instanceof RepeatingInstruction repeatingInstruction)
-        repeatingInstruction.setNextPC(null);
-
-      if (lastExecutedInstruction instanceof AbstractInstruction jumpInstruction) {
-        nextPC = (T) jumpInstruction.getNextPC();
+  @Override
+  public void afterExecute(Instruction<?> currentInstruction) {
+    try {
+      if (prefetch) {
+        int rValue = registerR.read().intValue();
+        T nextPC = createValue(0);
+        prefetchedInstruction = fetchInstruction(nextPC);
+        prefetchPC = nextPC.intValue();
+        rdelta = registerR.read().intValue() - rValue;
+        registerR.write(createValue(rValue));
       }
-
-//      String x = String.format("%04X", pcValue.intValue()) + ": " + opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt] + " -> " + nextPC;
-//      System.out.println(x);
-
-
-      if (nextPC == null)
-        nextPC = pcValue.plus(lastExecutedInstruction.getLength());
-
-      state.getPc().write(nextPC);
     } catch (Exception e) {
+      e.printStackTrace();
       state.setRunState(State.RunState.STATE_STOPPED_BREAK);
     }
   }
+
+  public Instruction<T> fetchInstruction(T address) {
+    memory.disableReadListener();
+    int opcodeInt = memory.read(address, 1).intValue();
+    memoryForOpcode.reset();
+    Instruction<T> opcodesTable = opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt];
+    Instruction<T> baseInstruction2 = getBaseInstruction2(opcodesTable);
+    if (clone)
+      baseInstruction2 = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction2);
+
+    memory.enableReadListener();
+    Instruction<T> finalBaseInstruction = baseInstruction2;
+    fetchListeners.forEach(l -> l.instructionFetchedAt(address, finalBaseInstruction));
+    return baseInstruction2;
+  }
+
+  public static <T extends WordNumber> Instruction<T> getBaseInstruction2(Instruction<T> instruction) {
+    while (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
+      fetchNextOpcodeInstruction.update();
+      instruction = fetchNextOpcodeInstruction.findNextOpcode();
+    }
+    return instruction;
+  }
+
 
   public static <T extends WordNumber> Instruction<T> processToBase(Instruction<T> instruction) {
     while (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
@@ -144,15 +161,28 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   @Override
   public void reset() {
-    instructionExecutor.reset();
-    lastExecutedInstruction= null;
+    currentInstruction= null;
+  }
+
+  @Override
+  public void addFetchListener(FetchListener fetchListener) {
+    fetchListeners.add(fetchListener);
+  }
+
+  @Override
+  public void setPrefetch(boolean prefetch) {
+    this.prefetch = prefetch;
+  }
+
+  public void setClone(boolean clone) {
+    this.clone = clone;
   }
 
   public Instruction<T> getLastExecutedInstruction() {
-    return lastExecutedInstruction;
+    return currentInstruction;
   }
 
   public void setLastExecutedInstruction(Instruction<T> instruction) {
-    lastExecutedInstruction = instruction;
+    currentInstruction = instruction;
   }
 }

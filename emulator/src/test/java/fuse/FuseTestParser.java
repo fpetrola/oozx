@@ -20,7 +20,6 @@ package fuse;
 
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
@@ -102,10 +101,11 @@ public class FuseTestParser<T extends WordNumber> {
       }
     };
     io.setState(state);
-    InstructionSpy spy = new MemptrUpdateInstructionSpy(state);
+    InstructionSpy<WordNumber> spy = new MemptrUpdateInstructionSpy(state);
     DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory<WordNumber>(state);
     instructionFetcher = new MyDefaultInstructionFetcher(state, spy, instructionFactory);
-    cpu = (OOZ80<WordNumber>) new OOZ80(state, instructionFetcher);
+    cpu = (OOZ80<WordNumber>) new OOZ80(state, instructionFetcher, new DefaultInstructionExecutor(state, false));
+    spy.addExecutionListeners(cpu.getInstructionExecutor());
 
     PhaseProcessor<T> phaseProcessor = new PhaseProcessor<>((Z80Cpu<T>) cpu);
     memory.addMemoryReadListener(new AddStatesMemoryReadListener<T>(phaseProcessor));
@@ -115,7 +115,7 @@ public class FuseTestParser<T extends WordNumber> {
 
   public static class MyDefaultInstructionFetcher extends DefaultInstructionFetcher {
     public MyDefaultInstructionFetcher(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory) {
-      super(state, new OpcodeConditions(state.getFlag(), state.getRegister(RegisterName.B)), new FetchNextOpcodeInstructionFactory(spy, state), new SpyInstructionExecutor(spy, state), instructionFactory, false, false);
+      super(state, new OpcodeConditions(state.getFlag(), state.getRegister(RegisterName.B)), instructionFactory, false, false);
     }
 
     public void reset() {

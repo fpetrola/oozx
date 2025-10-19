@@ -121,7 +121,7 @@ public class Z80 implements ZxModule {
 
     state.clock = zxClock;
     io.setPc(state.getPc());
-    return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)));
+    return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)), new DefaultInstructionExecutor(state, false));
   }
 
 

@@ -19,8 +19,13 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.spy.ExecutionListener;
 
-public interface InstructionExecutor<T> {
+public interface InstructionExecutor<T extends WordNumber> {
+  default void setNoRepeat(boolean noRepeat) {
+  }
+
   Instruction<T> getInstructionAt(int address);
 
   Instruction<T> execute(Instruction<T> instruction);
@@ -28,5 +33,11 @@ public interface InstructionExecutor<T> {
   boolean isExecuting(Instruction<T> instruction);
 
   default void reset() {
+  }
+
+  default void addExecutionListener(ExecutionListener<T> executionListener) {
+  }
+
+  default void addTopExecutionListener(ExecutionListener<T> executionListener) {
   }
 }

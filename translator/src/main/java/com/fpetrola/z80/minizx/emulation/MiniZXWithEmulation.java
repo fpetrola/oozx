@@ -18,17 +18,14 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
-import com.fpetrola.z80.cpu.OOZ80;
+import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.cpu.MockedIO;
 import com.fpetrola.z80.minizx.SpectrumApplication;
-import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.Condition;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -317,7 +314,7 @@ public class MiniZXWithEmulation {
         };
       }
     };
-    var z80 = new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), instructionFactory));
+    var z80 = new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), instructionFactory), new DefaultInstructionExecutor(state, false));
     return z80;
   }
 

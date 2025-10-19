@@ -156,7 +156,7 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
     routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
 //    InstructionFetcher instructionFetcher1 = new TransformerInstructionFetcher(state1, transformerInstructionExecutor1);
     InstructionFetcher instructionFetcher1 = new InstructionFetcherForTest<>(state1, instructionExecutor);
-    OOZ80 z80 = new OOZ80(state1, instructionFetcher1);
+    OOZ80 z80 = new OOZ80(state1, instructionFetcher1, instructionExecutor);
     return new CPUExecutionContext<T>(spy, z80, opcodeConditions);
   }
 
@@ -165,7 +165,7 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Inject
   @Singleton
   public FetchNextOpcodeInstructionFactory getMutableOpcodeConditions(State state1, InstructionSpy spy) {
-    return new FetchNextOpcodeInstructionFactory(spy, state1);
+    return new FetchNextOpcodeInstructionFactory(state1);
   }
 
   @Provides

@@ -29,6 +29,10 @@ public class OpcodeConditions {
     this.b = b;
   }
 
+  public static OpcodeConditions createOpcodeConditions(Register flag, Register b) {
+    return new OpcodeConditions(flag, b);
+  }
+
   public ConditionAlwaysTrue t() {
     return new ConditionAlwaysTrue();
   }

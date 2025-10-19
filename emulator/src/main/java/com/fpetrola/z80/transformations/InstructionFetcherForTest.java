@@ -45,11 +45,12 @@ public class InstructionFetcherForTest<T extends WordNumber> implements Instruct
     this.instructionExecutor = instructionExecutor;
   }
 
-  public void fetchNextInstruction() {
+  public Instruction<?> fetchNextInstruction() {
     Instruction<T> instruction = instructions.get(pc.read().intValue());
     Instruction execute = instructionExecutor.execute(instruction);
 //    System.out.println(execute);
     updatePC(instruction);
+    return instruction;
   }
 
   protected void updatePC(Instruction<T> instruction) {

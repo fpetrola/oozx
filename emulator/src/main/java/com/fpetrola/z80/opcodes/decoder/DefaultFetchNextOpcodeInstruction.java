@@ -22,11 +22,9 @@ import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.decoder.table.MemoryForOpcodes;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
-import com.fpetrola.z80.spy.InstructionSpy;
 
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
@@ -37,10 +35,9 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
   private final String name;
   public final Memory<T> memoryForOpcodes;
   private final int incPc;
-  private final InstructionSpy spy;
   private final Register registerR;
 
-  public DefaultFetchNextOpcodeInstruction(State state, Instruction[] table, int incPc, String name, InstructionSpy spy, Memory<T> memoryForOpcodes) {
+  public DefaultFetchNextOpcodeInstruction(State state, Instruction[] table, int incPc, String name, Memory<T> memoryForOpcodes) {
     this.table = table;
     this.name = name;
     this.memoryForOpcodes = memoryForOpcodes;
@@ -49,7 +46,6 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
         ((AbstractInstruction) table[i]).setLength(table[i].getLength() + 1);
     }
     this.incPc = incPc;
-    this.spy = spy;
     this.registerR = state.getRegister(RegisterName.R);
     this.pc = state.getRegister(PC);
     incrementR = name.length() == 2;

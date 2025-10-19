@@ -40,7 +40,7 @@ public class DebugEnabledOOZ80<T extends WordNumber> extends OOZ80<T> {
   public RegisterBank registerBank;
 
   public DebugEnabledOOZ80(State aState, DefaultInstructionFetcher instructionFetcher1) {
-    super(aState, instructionFetcher1);
+    super(aState, instructionFetcher1, null);
     opCodeHandler2 = createOpCodeHandler(aState);
   }
 
@@ -49,7 +49,7 @@ public class DebugEnabledOOZ80<T extends WordNumber> extends OOZ80<T> {
 
     registerBank = new SpyRegisterBankFactory(spy).createBank();
     State state2 = new State(aState.getIo(), registerBank, spy.wrapMemory(aState.getMemory()));
-    OpCodeDecoder decoder1 = new TableBasedOpCodeDecoder<T>(state2, new OpcodeConditions(state2.getFlag(), state2.getRegister(B)), new FetchNextOpcodeInstructionFactory(spy, state2), new DefaultInstructionFactory(state2), new MemoryForOpcodes(state2.getMemory()));
+    OpCodeDecoder decoder1 = new TableBasedOpCodeDecoder<T>(state2, new OpcodeConditions(state2.getFlag(), state2.getRegister(B)), new FetchNextOpcodeInstructionFactory(state2), new DefaultInstructionFactory(state2), new MemoryForOpcodes(state2.getMemory()));
 //    new ByExtensionOpCodeDecoder(state2, spy2).compareOpcodesGenerators(state2, spy2, decoder1);
 
     return decoder1;
