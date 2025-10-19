@@ -40,6 +40,7 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.spy.ExecutionListener;
 import com.fpetrola.z80.spy.NullInstructionSpy;
+import fuse.PhaseProcessorExecutionListener;
 import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
 import fuse.tstates.PhaseProcessor;
@@ -182,15 +183,7 @@ public class Z80 implements ZxModule {
 
     phaseProcessor = new FusePhaseProcessor(this);
 
-    ooz80.getInstructionExecutor().addExecutionListener(new ExecutionListener<>() {
-      public void beforeExecution(Instruction<WordNumber> instruction) {
-        phaseProcessor.processPhase(new BeforeExecution());
-      }
-
-      public void afterExecution(Instruction<WordNumber> instruction) {
-        phaseProcessor.processPhase(new AfterExecution());
-      }
-    });
+    ooz80.getInstructionExecutor().addExecutionListener(new PhaseProcessorExecutionListener<>(phaseProcessor));
 
     memory1.addMemoryReadListener(new AddStatesMemoryReadListener<>(phaseProcessor) {
       protected void doRead(WordNumber address, WordNumber value, int fetching) {

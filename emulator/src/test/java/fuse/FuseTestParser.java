@@ -20,12 +20,9 @@ package fuse;
 
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
-import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.RegisterName;
-import com.fpetrola.z80.spy.ExecutionListener;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.spy.MemptrUpdateInstructionSpy;
@@ -33,8 +30,6 @@ import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
 import fuse.tstates.AddStatesIO;
 import fuse.tstates.PhaseProcessor;
-import fuse.tstates.phases.AfterExecution;
-import fuse.tstates.phases.BeforeExecution;
 
 import java.io.File;
 import java.io.IOException;
@@ -113,15 +108,7 @@ public class FuseTestParser<T extends WordNumber> {
 
     PhaseProcessor<T> phaseProcessor = new PhaseProcessor<>((Z80Cpu<T>) cpu);
 
-    cpu.getInstructionExecutor().addExecutionListener(new ExecutionListener<>() {
-      public void beforeExecution(Instruction<WordNumber> instruction) {
-        phaseProcessor.processPhase(new BeforeExecution());
-      }
-
-      public void afterExecution(Instruction<WordNumber> instruction) {
-        phaseProcessor.processPhase(new AfterExecution());
-      }
-    });
+    cpu.getInstructionExecutor().addExecutionListener(new PhaseProcessorExecutionListener(phaseProcessor));
     memory.addMemoryReadListener(new AddStatesMemoryReadListener<T>(phaseProcessor));
     memory.addMemoryWriteListener(new AddStatesMemoryWriteListener<T>(phaseProcessor));
     return cpu;
