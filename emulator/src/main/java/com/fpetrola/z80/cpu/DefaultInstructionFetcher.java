@@ -105,7 +105,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     rdelta = registerR.read().intValue() - rValue;
 //    if (rdelta < 0)
 //      System.out.println("adgagadg");
-    ((AbstractInstruction) currentInstruction).setRDelta(rdelta);
+//    ((AbstractInstruction) currentInstruction).setRDelta(rdelta);
 
     return currentInstruction;
   }
