@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.cpu;
 
+import com.fpetrola.z80.helpers.CollectionHandler;
 import com.fpetrola.z80.instructions.cache.InstructionCloner;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
@@ -48,7 +49,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   private boolean clone;
   private final Memory<T> memoryForOpcode;
-  private List<FetchListener> fetchListeners = new ArrayList<>();
+  private final CollectionHandler<FetchListener<T>> fetchListeners = new CollectionHandler<>();
   private int prefetchPC = -1;
   private Instruction<T> prefetchedInstruction;
   protected int rdelta;
@@ -87,7 +88,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   @Override
   public Instruction<T> fetchNextInstruction() {
-    fetchListeners.forEach(FetchListener::beforeFetch);
+    fetchListeners.forAll(FetchListener::beforeFetch);
     int rValue = registerR.read().intValue();
     registerR.increment();
     pcValue = state.getPc().read();
@@ -136,12 +137,12 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
     memory.enableReadListener();
     Instruction<T> finalBaseInstruction = baseInstruction2;
-    fetchListeners.forEach(l -> l.instructionFetchedAt(address, finalBaseInstruction));
+    fetchListeners.forAll(l -> l.instructionFetchedAt(address, finalBaseInstruction));
     return baseInstruction2;
   }
 
   public static <T extends WordNumber> Instruction<T> processToBase(Instruction<T> instruction) {
-    while (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
+    while (instruction instanceof DefaultFetchNextOpcodeInstruction<T> fetchNextOpcodeInstruction) {
       fetchNextOpcodeInstruction.update();
       instruction = fetchNextOpcodeInstruction.findNextOpcode();
     }
