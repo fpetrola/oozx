@@ -21,7 +21,6 @@ package com.fpetrola.z80.cpu;
 import com.fpetrola.z80.instructions.cache.InstructionCloner;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
@@ -31,7 +30,6 @@ import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
-import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 
 import java.util.ArrayList;
@@ -132,7 +130,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     int opcodeInt = memory.read(address, 1).intValue();
     memoryForOpcode.reset();
     Instruction<T> opcodesTable = opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt];
-    Instruction<T> baseInstruction2 = getBaseInstruction2(opcodesTable);
+    Instruction<T> baseInstruction2 = processToBase(opcodesTable);
     if (clone)
       baseInstruction2 = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction2);
 
@@ -141,15 +139,6 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     fetchListeners.forEach(l -> l.instructionFetchedAt(address, finalBaseInstruction));
     return baseInstruction2;
   }
-
-  public static <T extends WordNumber> Instruction<T> getBaseInstruction2(Instruction<T> instruction) {
-    while (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
-      fetchNextOpcodeInstruction.update();
-      instruction = fetchNextOpcodeInstruction.findNextOpcode();
-    }
-    return instruction;
-  }
-
 
   public static <T extends WordNumber> Instruction<T> processToBase(Instruction<T> instruction) {
     while (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
