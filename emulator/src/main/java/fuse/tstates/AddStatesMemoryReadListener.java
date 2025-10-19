@@ -50,7 +50,7 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
   protected void processEvent(T address, T value, int fetching) {
     doRead(address, value, fetching);
 
-    addMc(address, getTime(fetching));
+    addMc(address, fetching == 1 ? 4 : 3);
     phaseProcessor.addMr(address, value);
 
     phaseProcessor.setAddress(address);
@@ -63,9 +63,5 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
 
   protected void addMc(T address, int time1) {
     phaseProcessor.addMultipleMc(1, time1, 0, address.intValue(), "readbyte");
-  }
-
-  protected int getTime(int fetching) {
-    return fetching != 0 ? 4 - (fetching == 2 ? 1 : 0) : 3;
   }
 }
