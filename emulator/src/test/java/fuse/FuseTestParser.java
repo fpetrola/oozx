@@ -30,6 +30,10 @@ import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
 import fuse.tstates.AddStatesIO;
 import fuse.tstates.PhaseProcessor;
+import fuse.tstates.phases.AfterExecution;
+import fuse.tstates.phases.AfterMR;
+import fuse.tstates.phases.BeforeExecution;
+import fuse.tstates.phases.BeforeWrite;
 
 import java.io.File;
 import java.io.IOException;
@@ -106,7 +110,17 @@ public class FuseTestParser<T extends WordNumber> {
     cpu = (OOZ80<WordNumber>) new OOZ80(state, instructionFetcher, new DefaultInstructionExecutor(state, false));
     spy.addExecutionListeners(cpu.getInstructionExecutor());
 
-    PhaseProcessor<T> phaseProcessor = new PhaseProcessor<>((Z80Cpu<T>) cpu);
+    PhaseProcessor<T> phaseProcessor = new PhaseProcessor<>((Z80Cpu<T>) cpu){
+      protected void addMc(int times, int address, int delta, String description) {
+        super.addMc(times, address, delta, description);
+      }
+    };
+
+//    phaseProcessor.processPhase(new BeforeExecution());
+//    phaseProcessor.processPhase(new AfterMR());
+//    phaseProcessor.processPhase(new BeforeWrite());
+//    phaseProcessor.processPhase(new AfterExecution());
+
 
     cpu.getInstructionExecutor().addExecutionListener(new PhaseProcessorExecutionListener(phaseProcessor));
     memory.addMemoryReadListener(new AddStatesMemoryReadListener<T>(phaseProcessor));
