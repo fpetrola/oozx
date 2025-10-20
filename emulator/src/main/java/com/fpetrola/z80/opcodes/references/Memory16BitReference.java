@@ -57,10 +57,8 @@ public class Memory16BitReference<T extends WordNumber> implements OpcodeReferen
   }
 
   protected T fetchAddress() {
-    memory.disableReadListener();
     T pcValue = pc.read().plus(delta);
     fetchedAddress = Memory.read16Bits(memory, pcValue);
-    memory.enableReadListener();
 
     return fetchedAddress;
   }

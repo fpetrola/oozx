@@ -31,13 +31,10 @@ import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 @SuppressWarnings("unchecked")
 public class MockedMemory<T extends WordNumber> implements Memory<T> {
   protected T[] data = (T[]) new WordNumber[0x10000];
-  private CollectionHandler<MemoryWriteListener<T>> memoryWriteListener = new CollectionHandler<>();
+  private final CollectionHandler<MemoryWriteListener<T>> memoryWriteListener = new CollectionHandler<>();
   protected CollectionHandler<MemoryReadListener<T>> memoryReadListener = new CollectionHandler<>();
-  private CollectionHandler<MemoryReadListener<T>> lastMemoryReadListener;
-  private CollectionHandler<MemoryWriteListener<T>> lastMemoryWriteListener;
   private boolean readOnly;
   private boolean canDisable;
-  private boolean readListenersDisabled;
 
   public MockedMemory(boolean canDisable1) {
     this.canDisable = false;
@@ -53,8 +50,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
 
   public T read(T address, int delta, int fetching) {
     T value = doRead(address);
-    if (memoryReadListener != null)
-      memoryReadListener.forAll(l -> l.readingMemoryAt(address, value, delta, fetching));
+    memoryReadListener.forAll(l -> l.readingMemoryAt(address, value, delta, fetching));
 
     return value;
   }
@@ -67,8 +63,7 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   @Override
   public void write(T address, T value) {
     if (!readOnly) {
-      if (memoryWriteListener != null)
-        memoryWriteListener.forAll(l -> l.writtingMemoryAt(address, value));
+      memoryWriteListener.forAll(l -> l.writtingMemoryAt(address, value));
       data[address.intValue()] = value.and(0xff);
     }
   }
@@ -121,36 +116,22 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
 
   @Override
   public void disableReadListener() { //FIXME: para que era???
-    if (canDisable) {
-      readListenersDisabled = true;
-      if (memoryReadListener != null) {
-        lastMemoryReadListener = memoryReadListener;
-        memoryReadListener = null;
-      }
-    }
+    if (canDisable) memoryReadListener.disable();
   }
 
   @Override
   public void enableReadListener() {
-    if (canDisable) {
-      readListenersDisabled = false;
-      memoryReadListener = lastMemoryReadListener;
-    }
+    if (canDisable) memoryReadListener.enable();
   }
 
   @Override
   public void disableWriteListener() {
-    if (canDisable) {
-      lastMemoryWriteListener = memoryWriteListener;
-      memoryWriteListener = null;
-    }
+    if (canDisable) memoryWriteListener.disable();
   }
 
   @Override
   public void enableWriteListener() {
-    if (canDisable) {
-      memoryWriteListener = lastMemoryWriteListener;
-    }
+    if (canDisable) memoryWriteListener.enable();
   }
 
   @Override
@@ -165,6 +146,6 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
 
   @Override
   public boolean isReadListenersDisabled() {
-    return readListenersDisabled;
+    return !memoryReadListener.isEnabled();
   }
 }

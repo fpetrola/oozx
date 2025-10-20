@@ -21,6 +21,8 @@ import java.util.List;
 
 public class CollectionHandler<T> {
   protected ItemHandler<T> currentInvoker = new EmptyItemHandler<>();
+  private boolean enabled = true;
+  private ItemHandler<T> lastInvoker;
 
   public CollectionHandler() {
   }
@@ -43,5 +45,23 @@ public class CollectionHandler<T> {
 
   public void removeAll() {
     currentInvoker = new EmptyItemHandler<>();
+  }
+
+  public void disable() {
+    enabled = false;
+    lastInvoker = currentInvoker;
+    currentInvoker = new EmptyItemHandler<>();
+  }
+
+  public void enable() {
+    enabled = true;
+    if (lastInvoker != null) {
+      currentInvoker = lastInvoker;
+      lastInvoker = null;
+    }
+  }
+
+  public boolean isEnabled() {
+    return enabled;
   }
 }

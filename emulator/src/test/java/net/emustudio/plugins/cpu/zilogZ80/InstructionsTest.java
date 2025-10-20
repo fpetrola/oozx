@@ -83,7 +83,6 @@ public class InstructionsTest {
       cpu = new CpuImpl(PLUGIN_ID, applicationApi, PluginSettings.UNAVAILABLE, ooz80);
 
       MockedMemory<WordNumber> memory1 = (MockedMemory<WordNumber>) this.cpu.ooz80.getState().getMemory();
-      memory1.canDisable(false);
       memory.init(memory1);
       assertTrue(cpuContext.hasCaptured());
 

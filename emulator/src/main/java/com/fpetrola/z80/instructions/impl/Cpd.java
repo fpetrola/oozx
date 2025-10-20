@@ -49,13 +49,9 @@ public class Cpd<T extends WordNumber> extends Cpi<T> {
   }
 
   public int execute() {
-    memory.disableReadListener();
-    memory.disableWriteListener();
     bc.decrement();
     flagOperation(bc.read());
     next();
-    memory.enableReadListener();
-    memory.enableWriteListener();
     return 1;
   }
 

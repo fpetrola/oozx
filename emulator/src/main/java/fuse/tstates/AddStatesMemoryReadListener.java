@@ -35,8 +35,8 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
 
     boolean requiresDelay = fetching == 2 || delta == 3;
     if (!requiresDelay) {
-      lastEvents1.run();
-    }
+    lastEvents1.run();
+  }
 
     if (lastEvents != null) {
       lastEvents.run();
