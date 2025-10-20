@@ -48,7 +48,7 @@ public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstr
         nextPC = (T) jumpInstruction.getNextPC();
 
       if (nextPC == null)
-        nextPC = pcValue.plus(processToBase(instruction).getLength());
+        nextPC = pcValue.plus(MultiOpcodeFetcher.processToBase(instruction).getLength());
 
       state.getPc().write(nextPC);
     } else {

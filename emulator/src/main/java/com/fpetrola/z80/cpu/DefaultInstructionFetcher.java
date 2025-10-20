@@ -24,31 +24,19 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
-import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
-import com.fpetrola.z80.opcodes.decoder.table.MemoryForOpcodes;
-import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.registers.RegisterName;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
-
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class DefaultInstructionFetcher<T extends WordNumber> implements InstructionFetcher<T> {
-  protected final InstructionFactory instructionFactory;
+  protected final MultiOpcodeFetcher<T> multiOpcodeFetcher;
   protected State<T> state;
-  protected Instruction<T>[] opcodesTables;
   protected T pcValue;
-  protected Supplier<TableBasedOpCodeDecoder> tableFactory;
   public Instruction<T> currentInstruction;
 
-  private boolean clone;
-  private final Memory<T> memoryForOpcode;
   private final CollectionHandler<FetchListener<T>> fetchListeners = new CollectionHandler<>();
   private int prefetchPC = -1;
   private Instruction<T> prefetchedInstruction;
@@ -60,12 +48,8 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
     this.state = aState;
     this.prefetch = prefetch;
-    memoryForOpcode = new MemoryForOpcodes<>(this.state.getMemory());
-    tableFactory = () -> createOpcodesTables(opcodeConditions, instructionFactory.getFetchNextOpcodeInstructionFactory(), instructionFactory);
-    createOpcodeTables();
+    multiOpcodeFetcher = new MultiOpcodeFetcher<T>(instructionFactory, state, opcodeConditions, clone);
     pcValue = state.getPc().read();
-    this.instructionFactory = instructionFactory;
-    this.clone = clone;
     this.registerR = (DefaultRegisterBankFactory.RRegister<T>) state.getRegisterR();
     this.memory = state.getMemory();
   }
@@ -76,14 +60,6 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   public DefaultInstructionFetcher(State aState, boolean clone, boolean prefetch) {
     this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), new DefaultInstructionFactory(aState), clone, prefetch);
-  }
-
-  protected void createOpcodeTables() {
-    opcodesTables = tableFactory.get().getOpcodeLookupTable();
-  }
-
-  public TableBasedOpCodeDecoder createOpcodesTables(OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionFactory instructionFactory) {
-    return new TableBasedOpCodeDecoder<T>(this.state, opcodeConditions, fetchInstructionFactory, instructionFactory, memoryForOpcode);
   }
 
   @Override
@@ -128,28 +104,20 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   public Instruction<T> fetchInstruction(T address) {
     int opcodeInt = memory.read(address, 1).intValue();
-    memoryForOpcode.reset();
-    Instruction<T> opcodesTable = opcodesTables[this.state.isHalted() ? 0x76 : opcodeInt];
-    Instruction<T> baseInstruction2 = processToBase(opcodesTable);
-    if (clone)
-      baseInstruction2 = new InstructionCloner<T, T>(instructionFactory).clone(baseInstruction2);
+    Instruction<T> fetchedInstruction = multiOpcodeFetcher.fetchInstruction(opcodeInt);
+    if (multiOpcodeFetcher.clone)
+      fetchedInstruction = new InstructionCloner<T, T>(multiOpcodeFetcher.instructionFactory).clone(fetchedInstruction);
 
-    Instruction<T> finalBaseInstruction = baseInstruction2;
+    Instruction<T> finalBaseInstruction = fetchedInstruction;
     fetchListeners.forAll(l -> l.instructionFetchedAt(address, finalBaseInstruction));
-    return baseInstruction2;
+    return fetchedInstruction;
   }
 
-  public static <T extends WordNumber> Instruction<T> processToBase(Instruction<T> instruction) {
-    while (instruction instanceof DefaultFetchNextOpcodeInstruction<T> fetchNextOpcodeInstruction) {
-      fetchNextOpcodeInstruction.update();
-      instruction = fetchNextOpcodeInstruction.findNextOpcode();
-    }
-    return instruction;
-  }
 
   @Override
   public void reset() {
-    currentInstruction= null;
+    currentInstruction = null;
+    multiOpcodeFetcher.reset();
   }
 
   @Override
@@ -163,7 +131,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   }
 
   public void setClone(boolean clone) {
-    this.clone = clone;
+    multiOpcodeFetcher.setClone(clone);
   }
 
   public Instruction<T> getLastExecutedInstruction() {

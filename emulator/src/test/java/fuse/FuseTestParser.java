@@ -30,10 +30,6 @@ import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
 import fuse.tstates.AddStatesIO;
 import fuse.tstates.PhaseProcessor;
-import fuse.tstates.phases.AfterExecution;
-import fuse.tstates.phases.AfterMR;
-import fuse.tstates.phases.BeforeExecution;
-import fuse.tstates.phases.BeforeWrite;
 
 import java.io.File;
 import java.io.IOException;
@@ -135,7 +131,7 @@ public class FuseTestParser<T extends WordNumber> {
 
     public void reset() {
       super.reset();
-      createOpcodeTables();
+      multiOpcodeFetcher.createOpcodeTables();
     }
 
   }

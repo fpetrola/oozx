@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.spy;
 
+import com.fpetrola.z80.cpu.MultiOpcodeFetcher;
 import com.fpetrola.z80.cpu.Z80Cpu;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.Ret;
@@ -30,8 +31,6 @@ import com.fpetrola.z80.registers.Register;
 
 import java.util.*;
 import java.util.function.Supplier;
-
-import static com.fpetrola.z80.cpu.DefaultInstructionFetcher.processToBase;
 
 public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstructionSpy<T> implements ComplexInstructionSpy<T> {
 
@@ -139,7 +138,7 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
 //    lastExecutionPoint.instruction = cloned;
 
     if (fetchedMemory[lastExecutionPoint.pc] == null) {
-      Instruction baseInstruction = processToBase(lastExecutionPoint.instruction);
+      Instruction baseInstruction = MultiOpcodeFetcher.processToBase(lastExecutionPoint.instruction);
       Instruction<T> cloned = instructionCloner.clone(baseInstruction);
 //    System.out.println(cloned);
       for (int i = 0; i < cloned.getLength(); i++) {
@@ -153,7 +152,7 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
     lastExecutionPoint.instruction = fetchedMemory[lastExecutionPoint.pc];
 
     if (executionStep != null)
-      executionStep.setInstruction(processToBase(instruction));
+      executionStep.setInstruction(MultiOpcodeFetcher.processToBase(instruction));
     // executionStep.setInstruction(lastExecutionPoint.instruction);
 
     if (capturing) {
