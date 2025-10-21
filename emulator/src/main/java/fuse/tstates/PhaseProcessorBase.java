@@ -122,7 +122,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   }
 
   public void processPhase(Phase phase) {
-    System.out.println("Phase: " + phase.getClass().getSimpleName());
+//    System.out.println("Phase: " + phase.getClass().getSimpleName());
     processing = true;
     DefaultInstructionFetcher<T> instructionFetcher = (DefaultInstructionFetcher<T>) cpu.getInstructionFetcher();
     Instruction<T> instruction2 = instructionFetcher.getLastExecutedInstruction();

@@ -30,7 +30,7 @@ public class AddStatesMemoryWriteListener<T extends WordNumber> implements Memor
   }
 
   public void writtingMemoryAt(T address, T value) {
-    System.out.printf("writtingMemoryAt: address= %s - value= %s %n", address, value);
+//    System.out.printf("writtingMemoryAt: address= %s - value= %s %n", address, value);
     if (!phaseProcessor.getState().isIntLine()) {
       phaseProcessor.processPhase(new BeforeWrite());
       phaseProcessor.writeCount++;

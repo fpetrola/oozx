@@ -47,7 +47,7 @@ public class State<T extends WordNumber> {
   }
 
   public void addEvent(Event event) {
-    System.out.println(event);
+//    System.out.println(event);
     int time = event.getTime();
     event.setTime((int) getTstates());
     addEventNumber(time);

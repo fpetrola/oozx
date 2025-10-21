@@ -23,9 +23,7 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import fuse.tstates.phases.AfterMR;
 
 public class AddStatesMemoryReadListener<T extends WordNumber> implements MemoryReadListener<T> {
-  private Runnable lastEvents;
   private final PhaseProcessor<T> phaseProcessor;
-  public static boolean test1 = true;
 
   public AddStatesMemoryReadListener(PhaseProcessor<T> phaseProcessor) {
     this.phaseProcessor = phaseProcessor;
@@ -33,53 +31,16 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
 
   public void readingMemoryAt(T address, T value, int delta, int fetching) {
 //    System.out.printf("readingMemoryAt: address= %s - value= %s - delta= %d - fetching= %d %n", address, value, delta, fetching);
-    Runnable lastEvents1 = () -> processEvent(address, value, fetching);
-
-    if (test1)
-      lastEvents1.run();
-    else
-      extracted(delta, fetching, lastEvents1);
-  }
-
-  private void extracted(int delta, int fetching, Runnable lastEvents1) {
-    boolean requiresDelay;
-    if (fetching == 2) {
-      requiresDelay = true;
-    } else if (delta == 3) {
-      requiresDelay = true;
-    } else {
-      requiresDelay = false;
-    }
-    if (!requiresDelay) {
-      lastEvents1.run();
-    }
-
-    if (lastEvents != null) {
-      lastEvents.run();
-      lastEvents = null;
-    }
-
-    if (requiresDelay)
-      lastEvents = lastEvents1;
-  }
-
-  protected void processEvent(T address, T value, int fetching) {
-    System.out.printf("processEvent: address= %s - value= %s - fetching= %d %n", address, value, fetching);
-
+    //    System.out.printf("processEvent: address= %s - value= %s - fetching= %d %n", address, value, fetching);
     doRead(address, value, fetching);
 
-    addMc(address, fetching == 1 ? 4 : 3);
+    phaseProcessor.addMultipleMc(1, fetching == 1 ? 4 : 3, 0, address.intValue(), "readbyte");
     phaseProcessor.addMr(address, value);
-
     phaseProcessor.setAddress(address);
     phaseProcessor.readCount++;
     phaseProcessor.processPhase(new AfterMR());
   }
 
   protected void doRead(T address, T value, int fetching) {
-  }
-
-  protected void addMc(T address, int time1) {
-    phaseProcessor.addMultipleMc(1, time1, 0, address.intValue(), "readbyte");
   }
 }

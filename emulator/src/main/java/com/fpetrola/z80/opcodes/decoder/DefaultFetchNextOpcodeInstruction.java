@@ -27,7 +27,8 @@ import com.fpetrola.z80.opcodes.references.Memory8BitReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
-import fuse.tstates.AddStatesMemoryReadListener;
+
+import java.util.function.Consumer;
 
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
@@ -39,6 +40,8 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
   public final Memory<T> memoryForOpcodes;
   private final int incPc;
   private final Register registerR;
+  private Consumer<T> inc2Consumer;
+  private Consumer<T> inc1Consumer;
 
   public DefaultFetchNextOpcodeInstruction(State state, Instruction[] table, int incPc, String name, Memory<T> memoryForOpcodes) {
     this.table = table;
@@ -52,6 +55,18 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
     this.registerR = state.getRegister(RegisterName.R);
     this.pc = state.getRegister(PC);
     incrementR = name.length() == 2;
+
+    Consumer<T> nullConsumer = (a) -> {
+    };
+    if (incPc == 2) {
+      inc2Consumer = plus1 -> memoryForOpcodes.read(plus1.minus1(), 0);
+    } else
+      inc2Consumer = nullConsumer;
+
+    if (incPc == 1)
+      inc1Consumer = plus1 -> memoryForOpcodes.read(plus1.plus1(), 0);
+    else
+      inc1Consumer = nullConsumer;
   }
 
   public int execute() {
@@ -69,19 +84,12 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
   }
 
   public Instruction<T> findNextOpcode2() {
-    if (name.equals("DDFDCB")) {
-//      memoryForOpcodes.read(pc.read().plus(2), 0);
-    } else {
-    }
     T plus = pc.read().plus(incPc - 1 + length);
-    if (incPc == 2 && AddStatesMemoryReadListener.test1)
-      memoryForOpcodes.read(plus.minus1(), 0);
-    int i = memoryForOpcodes.read(plus, incPc).intValue();
-    Instruction<T> instruction = table[i];
-    if (incPc == 1 && AddStatesMemoryReadListener.test1)
-      if (instruction instanceof Ld ld && ld.getSource() instanceof Memory8BitReference<?>) {
-        memoryForOpcodes.read(plus.plus1(), 0);
-      }
+    inc2Consumer.accept(plus);
+    Instruction<T> instruction = table[memoryForOpcodes.read(plus, incPc).intValue()];
+    if (instruction instanceof Ld<T> ld && ld.getSource() instanceof Memory8BitReference<T>)
+      inc1Consumer.accept(plus);
+
     return instruction;
   }
 
