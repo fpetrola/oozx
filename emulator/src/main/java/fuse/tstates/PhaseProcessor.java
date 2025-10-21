@@ -218,17 +218,15 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   private boolean processTargetInstruction(TargetInstruction<T> instruction) {
 //    System.out.println("readCount: " + readCount);
-    Optional<Boolean> instruction1 = isIndirectHL(instruction);
-    OpcodeReference<T> target = instruction.getTarget();
     phase.acceptBeforeExecution(p -> {
       if (readCount == 0)
-        isMemoryPlusOptional(target).ifPresent(x -> addMultipleMc(2, 1, 3, valueOf(PC), null));
+        isMemoryPlusOptional(instruction.getTarget()).ifPresent(x -> addMultipleMc(2, 1, 3, valueOf(PC), null));
     });
 
     phase.acceptAfterMR(p -> {
       if (readCount == 1) {
-        isMemoryPlusOptional(target).ifPresent(x -> addMultipleMc(1, 1, 0, address.intValue(), null));
-        instruction1.ifPresent((x) -> addMultipleMc(1, 1, 0, valueOf(HL), null));
+        isMemoryPlusOptional(instruction.getTarget()).ifPresent(x -> addMultipleMc(1, 1, 0, address.intValue(), null));
+        isIndirectHL(instruction).ifPresent((x) -> addMultipleMc(1, 1, 0, valueOf(HL), null));
       }
     });
 
