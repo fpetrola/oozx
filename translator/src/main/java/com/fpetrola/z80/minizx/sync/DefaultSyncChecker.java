@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.minizx.sync;
 
-import com.fpetrola.z80.analysis.sprites.AddressRange;
 import com.fpetrola.z80.cpu.DefaultInstructionExecutor;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
@@ -27,7 +26,6 @@ import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulation;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
-import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -38,10 +36,8 @@ import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 
 import java.util.*;
-import java.util.concurrent.Semaphore;
 
 import static com.fpetrola.z80.helpers.Helper.formatAddress;
-import static com.fpetrola.z80.registers.RegisterName.R;
 
 public class DefaultSyncChecker implements SyncChecker {
   public static final int maxwait = 100;
@@ -115,7 +111,7 @@ public class DefaultSyncChecker implements SyncChecker {
     memory.addMemoryWriteListener((address, value) -> {
       checkSyncEmu(address.intValue(), value.intValue(), pc.read().intValue(), true);
     });
-    memory.addMemoryReadListener((address, value, delta, fetching) -> {
+    memory.addMemoryReadListener((address, value, fetching) -> {
       if (address.intValue() >= 0) {
         if (fetching == 0) {
 //          System.out.println("read memory at: " + com.fpetrola.z80.helpers.Helper.formatAddress(address.intValue()));

@@ -29,7 +29,7 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
     this.phaseProcessor = phaseProcessor;
   }
 
-  public void readingMemoryAt(T address, T value, int delta, int fetching) {
+  public void readingMemoryAt(T address, T value, int fetching) {
 //    System.out.printf("readingMemoryAt: address= %s - value= %s - delta= %d - fetching= %d %n", address, value, delta, fetching);
     //    System.out.printf("processEvent: address= %s - value= %s - fetching= %d %n", address, value, fetching);
     doRead(address, value, fetching);
