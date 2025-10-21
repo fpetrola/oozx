@@ -22,15 +22,16 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class FetchNextOpcodeInstructionFactory<T> {
-  private final State state;
+public class FetchNextOpcodeInstructionFactory<T extends WordNumber> {
+  private final State<T> state;
 
-  public FetchNextOpcodeInstructionFactory(State state) {
+  public FetchNextOpcodeInstructionFactory(State<T> state) {
     this.state = state;
   }
 
-  public DefaultFetchNextOpcodeInstruction createFetchInstruction(Instruction<T>[] opcodesTable, String name, int incPc, Memory<T> memoryForOpcodes) {
-    return new DefaultFetchNextOpcodeInstruction(this.state, opcodesTable, incPc, name, memoryForOpcodes);
+  public DefaultFetchNextOpcodeInstruction<T> createFetchInstruction(Instruction<T>[] opcodesTable, String name, int incPc, Memory<T> memoryForOpcodes) {
+    return new DefaultFetchNextOpcodeInstruction<>(this.state, opcodesTable, incPc, name, memoryForOpcodes);
   }
 }

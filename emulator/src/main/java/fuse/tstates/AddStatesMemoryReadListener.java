@@ -33,7 +33,14 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
   public void readingMemoryAt(T address, T value, int delta, int fetching) {
     Runnable lastEvents1 = () -> processEvent(address, value, fetching);
 
-    boolean requiresDelay = fetching == 2 || delta == 3;
+    boolean requiresDelay;
+    if (fetching == 2) {
+      requiresDelay = true;
+    } else if (delta == 3) {
+      requiresDelay = true;
+    } else {
+      requiresDelay = false;
+    }
     if (!requiresDelay) {
     lastEvents1.run();
   }

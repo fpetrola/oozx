@@ -65,6 +65,19 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
     return (Instruction<T>) table[memoryForOpcodes.read(pc.read().plus(incPc - 1 + length), incPc).intValue()];
   }
 
+  public Instruction<T> findNextOpcode2() {
+    if (name.equals("DDFDCB")) {
+//      memoryForOpcodes.read(pc.read().plus(2), 0);
+    } else {
+    }
+    T plus = pc.read().plus(incPc - 1 + length);
+//    if (incPc == 2)
+//      memoryForOpcodes.read(plus.minus1(), 0);
+    int i = memoryForOpcodes.read(plus, incPc).intValue();
+    Instruction<T> instruction = table[i];
+    return instruction;
+  }
+
   public String toString() {
     return "STRING:DefaultFetchNextOpcodeInstruction";//findNextOpcode().toString();
   }

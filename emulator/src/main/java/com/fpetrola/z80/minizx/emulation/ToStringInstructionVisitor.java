@@ -22,10 +22,7 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
-import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.Memory8BitReference;
-import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 
 public class ToStringInstructionVisitor<T extends WordNumber> implements InstructionVisitor<T, String> {
@@ -171,9 +168,35 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
     result = getInstructionName(blockInstruction);
   }
 
-  public static <T extends WordNumber>  void printPC(Instruction<T> instruction, T pcValue, T nextPC) {
+  public static <T extends WordNumber> void printPC(Instruction<T> instruction, T pcValue, T nextPC) {
     String toString = new ToStringInstructionVisitor<T>().createToString(instruction);
     String x = String.format("%04d", pcValue.intValue()) + ": " + toString + " -> " + nextPC;
     System.out.println(x);
+  }
+
+
+  @Override
+  public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
+    byte dd = (byte) (memoryPlusRegister8BitReference.fetchedRelative != null ? memoryPlusRegister8BitReference.fetchedRelative.intValue() : 0);
+    String string2 = (dd > 0 ? "+" : "-") + Helper.formatAddress(Math.abs(dd));
+    String string = memoryPlusRegister8BitReference.getTarget().toString();
+    result = "(" + string + string2 + ")";
+  }
+
+  @Override
+  public void visitIndirectMemory8BitReference(IndirectMemory8BitReference<T> indirectMemory8BitReference) {
+    result = "(" + indirectMemory8BitReference.target + ")";
+  }
+
+  @Override
+  public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
+    result = "(" + indirectMemory16BitReference.target + ")";
+  }
+
+  @Override
+  public boolean visitLdOperation(LdOperation ldOperation) {
+    String toString = new ToStringInstructionVisitor<T>().createToString(ldOperation.getInstruction());
+    result = "LD " + ldOperation.getTarget().toString() + ", " + toString;
+    return true;
   }
 }

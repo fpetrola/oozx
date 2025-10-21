@@ -70,7 +70,11 @@ public class MultiOpcodeFetcher<T extends WordNumber> {
   public Instruction<T> fetchInstruction(int opcodeInt) {
     memoryForOpcode.reset();
     Instruction<T> opcodesTable = opcodesTables[state.isHalted() ? 0x76 : opcodeInt];
-    return MultiOpcodeFetcher.processToBase(opcodesTable);
+    while (opcodesTable instanceof DefaultFetchNextOpcodeInstruction<T> fetchNextOpcodeInstruction) {
+      fetchNextOpcodeInstruction.update();
+      opcodesTable = fetchNextOpcodeInstruction.findNextOpcode2();
+    }
+    return opcodesTable;
   }
 
   public void reset() {

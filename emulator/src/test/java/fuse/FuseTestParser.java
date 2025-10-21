@@ -44,6 +44,7 @@ import java.util.stream.Collectors;
 
 public class FuseTestParser<T extends WordNumber> {
   private final File inFile;
+  private final File namesFile;
   private final File expectedFile;
   private Z80Cpu<WordNumber> cpu;
   private DefaultInstructionFetcher instructionFetcher;
@@ -53,11 +54,16 @@ public class FuseTestParser<T extends WordNumber> {
     URL resource = FuseTestParser.class.getResource("/" + testDataDir.toString());
     File file = new File(resource.getFile());
     this.inFile = new File(file, "tests.in");
+    this.namesFile = new File(file, "tests.names");
     this.expectedFile = new File(file, "tests.expected");
   }
 
   public List<FuseTest> getTests() {
     try {
+      List<String> namesLines = Files.readAllLines(namesFile.toPath()).stream()
+          .filter(line -> !line.trim().isEmpty())
+          .collect(Collectors.toList());
+
       List<String> inLines = Files.readAllLines(inFile.toPath()).stream()
           .filter(line -> !line.trim().isEmpty())
           .collect(Collectors.toList());
@@ -66,6 +72,7 @@ public class FuseTestParser<T extends WordNumber> {
       Iterator<String> iterator = inLines.iterator();
 
       Z80Cpu z80Cpu = getZ80Cpu();
+      int lineNumber = 0;
 
       while (iterator.hasNext()) {
         String testId = iterator.next();
@@ -78,10 +85,11 @@ public class FuseTestParser<T extends WordNumber> {
           memory.append("\n").append(line);
         }
 
-        FuseTest fuseTest = new FuseTest(testId, registers, state, memory.toString(), z80Cpu);
-        fuseTest.initCpu();
-        fuseTest.run();
+        FuseTest fuseTest = new FuseTest(testId, registers, state, memory.toString(), z80Cpu, namesLines, lineNumber);
+//        fuseTest.initCpu();
+//        fuseTest.run();
         tests.add(fuseTest);
+        lineNumber++;
       }
       return tests;
     } catch (IOException e) {
@@ -106,7 +114,7 @@ public class FuseTestParser<T extends WordNumber> {
     cpu = (OOZ80<WordNumber>) new OOZ80(state, instructionFetcher, new DefaultInstructionExecutor(state, false));
     spy.addExecutionListeners(cpu.getInstructionExecutor());
 
-    PhaseProcessor<T> phaseProcessor = new PhaseProcessor<>((Z80Cpu<T>) cpu){
+    PhaseProcessor<T> phaseProcessor = new PhaseProcessor<>((Z80Cpu<T>) cpu) {
       protected void addMc(int times, int address, int delta, String description) {
         super.addMc(times, address, delta, description);
       }

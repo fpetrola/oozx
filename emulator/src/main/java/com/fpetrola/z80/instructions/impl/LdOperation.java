@@ -28,6 +28,14 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class LdOperation<T extends WordNumber> extends AbstractInstruction<T> {
+  public Instruction<T> getInstruction() {
+    return instruction;
+  }
+
+  public OpcodeReference<T> getTarget() {
+    return target;
+  }
+
   protected Instruction<T> instruction;
   protected OpcodeReference<T> target;
 

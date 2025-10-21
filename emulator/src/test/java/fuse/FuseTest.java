@@ -19,6 +19,8 @@
 package fuse;
 
 import com.fpetrola.z80.cpu.*;
+import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.minizx.emulation.ToStringInstructionVisitor;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
 
@@ -36,14 +38,18 @@ public class FuseTest<T extends WordNumber> {
   public final String memory;
   public final String testId;
   public Z80Cpu<T> cpu;
+  private final List<String> namesLines;
+  private final int lineNumber;
   private String name = "";
 
-  public FuseTest(String testId, String registers, String state, String memory, Z80Cpu<T> z80Cpu) {
+  public FuseTest(String testId, String registers, String state, String memory, Z80Cpu<T> z80Cpu, List<String> namesLines, int lineNumber) {
     this.testId = testId;
     this.registers = registers;
     this.state = state;
     this.memory = memory;
     cpu = z80Cpu;
+    this.namesLines = namesLines;
+    this.lineNumber = lineNumber;
   }
 
   public void initCpu() {
@@ -88,9 +94,14 @@ public class FuseTest<T extends WordNumber> {
 
   @Override
   public String toString() {
-    return name + "   [id='" + testId + '\'' +
-        ", memory='" + memory.replace(" -1", " | ") + '\'' +
-        ']';
+    return namesLines.get(lineNumber);
+//    return getStringFromExecution();
+  }
+
+  private String getStringFromExecution() {
+    String replace = memory.substring(6).replace(" -1", " | ");
+    replace = replace.substring(0, replace.length() - 3);
+    return "   id=%-10s     ->     %-30s     [memory='%s']".formatted("\"" + testId + "\"", name, replace);
   }
 
   public boolean run(int expectedPc) {
@@ -107,6 +118,11 @@ public class FuseTest<T extends WordNumber> {
   public void run() {
     cpu.execute();
     cpu.getState().getPc().write(createValue(0));
-    name = ((FuseTestParser.MyDefaultInstructionFetcher) cpu.getInstructionFetcher()).getLastExecutedInstruction().toString();
+
+    Instruction lastExecutedInstruction = ((FuseTestParser.MyDefaultInstructionFetcher) cpu.getInstructionFetcher()).getLastExecutedInstruction();
+    String toString = new ToStringInstructionVisitor<>().createToString(lastExecutedInstruction);
+    if (toString.trim().equals("A"))
+      System.out.println("adgdg");
+    name = toString;
   }
 }

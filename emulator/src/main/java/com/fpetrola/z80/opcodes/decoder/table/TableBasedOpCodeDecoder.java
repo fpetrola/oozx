@@ -30,20 +30,21 @@ import com.fpetrola.z80.registers.RegisterName;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class TableBasedOpCodeDecoder<T> implements OpCodeDecoder {
   Instruction[] opcodes = new Instruction[0x100];
   InstructionFactory instructionFactory;
 
-  public TableBasedOpCodeDecoder(State state, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionFactory instructionFactory, Memory memoryForOpcodes) {
+  public TableBasedOpCodeDecoder(State state, OpcodeConditions oc, FetchNextOpcodeInstructionFactory fif, InstructionFactory instructionFactory, Memory memoryForOpcodes) {
 //    memoryForOpcodes= state.getMemory();
     this.instructionFactory = instructionFactory;
     OpcodeTargets opcodeTargets = new OpcodeTargets(state, memoryForOpcodes);
     OpcodeReference a = opcodeTargets.iRR(HL);
-    Instruction<T> edOpcode = fetchInstructionFactory.createFetchInstruction(new EDPrefixTableOpCodeGenerator(state, a, opcodeConditions, this.instructionFactory, memoryForOpcodes).getOpcodesTable(), "ED", 1, memoryForOpcodes);
-    Instruction<T> cbOpcode = fetchInstructionFactory.createFetchInstruction(new CBPrefixTableOpCodeGenerator(state, a, opcodeConditions, this.instructionFactory, memoryForOpcodes).getOpcodesTable(), "CB", 1, memoryForOpcodes);
-    Instruction<T> ddOpcode = fetchInstructionFactory.createFetchInstruction(fillDDFD(state, IX, IXH, IXL, opcodeTargets.iRRn(IX, false, 2), opcodeConditions, fetchInstructionFactory, memoryForOpcodes), "DD", 1, memoryForOpcodes);
-    Instruction<T> fdOpcode = fetchInstructionFactory.createFetchInstruction(fillDDFD(state, IY, IYH, IYL, opcodeTargets.iRRn(IY, false, 2), opcodeConditions, fetchInstructionFactory, memoryForOpcodes), "FD", 1, memoryForOpcodes);
-    UnprefixedTableOpCodeGenerator unprefixedTableOpCodeGenerator = new UnprefixedTableOpCodeGenerator(1, state, cbOpcode, ddOpcode, edOpcode, fdOpcode, HL, H, L, a, opcodeConditions, this.instructionFactory, memoryForOpcodes);
+    Instruction<T> edOpcode = fif.createFetchInstruction(new EDPrefixTableOpCodeGenerator(state, a, oc, this.instructionFactory, memoryForOpcodes).getOpcodesTable(), "ED", 1, memoryForOpcodes);
+    Instruction<T> cbOpcode = fif.createFetchInstruction(new CBPrefixTableOpCodeGenerator(state, a, oc, this.instructionFactory, memoryForOpcodes).getOpcodesTable(), "CB", 1, memoryForOpcodes);
+    Instruction<T> ddOpcode = fif.createFetchInstruction(fillDDFD(state, IX, IXH, IXL, opcodeTargets.iRRn(IX, false, 2), oc, fif, memoryForOpcodes), "DD", 1, memoryForOpcodes);
+    Instruction<T> fdOpcode = fif.createFetchInstruction(fillDDFD(state, IY, IYH, IYL, opcodeTargets.iRRn(IY, false, 2), oc, fif, memoryForOpcodes), "FD", 1, memoryForOpcodes);
+    UnprefixedTableOpCodeGenerator unprefixedTableOpCodeGenerator = new UnprefixedTableOpCodeGenerator(1, state, cbOpcode, ddOpcode, edOpcode, fdOpcode, HL, H, L, a, oc, this.instructionFactory, memoryForOpcodes);
     opcodes = unprefixedTableOpCodeGenerator.getOpcodesTable();
   }
 
