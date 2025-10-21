@@ -18,10 +18,12 @@
 
 package com.fpetrola.z80.opcodes.decoder;
 
+import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.opcodes.references.Memory8BitReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
@@ -76,6 +78,10 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
       memoryForOpcodes.read(plus.minus1(), 0);
     int i = memoryForOpcodes.read(plus, incPc).intValue();
     Instruction<T> instruction = table[i];
+    if (incPc == 1 && AddStatesMemoryReadListener.test1)
+      if (instruction instanceof Ld ld && ld.getSource() instanceof Memory8BitReference<?>) {
+        memoryForOpcodes.read(plus.plus1(), 0);
+      }
     return instruction;
   }
 
