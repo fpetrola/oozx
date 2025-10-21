@@ -35,7 +35,7 @@ public abstract class TargetSourceInstruction<T extends WordNumber, S extends Im
   }
 
   public String toString() {
-    return super.toString() + ", " + source;
+    return super.toString() + ", " + "source";
   }
 
   public S getSource() {

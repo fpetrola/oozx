@@ -40,6 +40,6 @@ public abstract class DefaultTargetInstruction<T extends WordNumber> extends Abs
 
   @Override
   public String toString() {
-    return super.toString() + " " + getTarget().toString();
+    return super.toString() + " " + getTarget().getClass().getSimpleName().toString();
   }
 }
