@@ -198,7 +198,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public boolean visitingBitOperation(BitOperation<T> instruction) {
-    return extracted(instruction.getTarget(), isIndirectHL(instruction), addMcForTargetFlagInstruction(instruction));
+    return processTargetInstruction(instruction);
   }
 
   private boolean addMcForTargetFlagInstruction(DefaultTargetFlagInstruction<T> instruction1) {
@@ -213,20 +213,21 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction<T> instruction) {
-    return extracted(instruction.getTarget(), isIndirectHL(instruction), addMcForTargetFlagInstruction(instruction));
+    return processTargetInstruction(instruction);
   }
 
-  private boolean extracted(OpcodeReference<T> instruction, Optional<Boolean> instruction1, boolean instruction2) {
+  private boolean processTargetInstruction(TargetInstruction<T> instruction) {
 //    System.out.println("readCount: " + readCount);
-
+    Optional<Boolean> instruction1 = isIndirectHL(instruction);
+    OpcodeReference<T> target = instruction.getTarget();
     phase.acceptBeforeExecution(p -> {
       if (readCount == 0)
-        isMemoryPlusOptional(instruction).ifPresent(x -> addMultipleMc(2, 1, 3, valueOf(PC), null));
+        isMemoryPlusOptional(target).ifPresent(x -> addMultipleMc(2, 1, 3, valueOf(PC), null));
     });
 
     phase.acceptAfterMR(p -> {
       if (readCount == 1) {
-        isMemoryPlusOptional(instruction).ifPresent(x -> addMultipleMc(1, 1, 0, address.intValue(), null));
+        isMemoryPlusOptional(target).ifPresent(x -> addMultipleMc(1, 1, 0, address.intValue(), null));
         instruction1.ifPresent((x) -> addMultipleMc(1, 1, 0, valueOf(HL), null));
       }
     });
