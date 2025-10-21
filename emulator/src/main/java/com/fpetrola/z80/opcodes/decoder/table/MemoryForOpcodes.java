@@ -31,8 +31,8 @@ public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
   }
 
   @Override
-  public T read(T address, int delta, int fetching) {
-    return read1(address, fetching, delta);
+  public T read(T address, int fetching) {
+    return read1(address, fetching);
   }
 
   @Override
@@ -113,23 +113,15 @@ public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
     this.memory = memory;
   }
 
-  public T read(T address, int fetching) {
-    return read1(address, fetching, -1);
-  }
-
-  private T read1(T address, int fetching, int delta) {
+  private T read1(T address, int fetching) {
     int i = address.intValue();
     if (cachedData[i] != null) {
       return (T) cachedData[i];
     } else {
       T value;
-      if (delta == -1)
-        value = memory.read(address, fetching);
-      else {
-        value = memory.read(address, delta, fetching);
-        if (memory.isReadListenersDisabled())
-          return value;
-      }
+      value = memory.read(address, fetching);
+      if (memory.isReadListenersDisabled())
+        return value;
       cachedData[i] = value;
       cachedAddresses[counter++] = i;
       return value;

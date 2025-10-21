@@ -20,8 +20,6 @@ package com.fpetrola.z80.memory;
 
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-import java.util.Arrays;
-
 public interface Memory<T> {
 
   static <T extends WordNumber> T read16Bits(Memory<T> memory, T address) {
@@ -40,10 +38,6 @@ public interface Memory<T> {
   }
 
   T read(T address, int fetching);
-
-  default T read(T address, int delta, int fetching) {
-    return read(address, fetching);
-  }
 
   void write(T address, T value);
 

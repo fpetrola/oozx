@@ -45,10 +45,6 @@ public class MockedMemory<T extends WordNumber> implements Memory<T> {
   }
 
   public T read(T address, int fetching) {
-    return read(address, 0, fetching);
-  }
-
-  public T read(T address, int delta, int fetching) {
     T value = doRead(address);
     memoryReadListener.forAll(l -> l.readingMemoryAt(address, value, fetching));
 
