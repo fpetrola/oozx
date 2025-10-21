@@ -25,6 +25,8 @@ import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.phases.*;
 
+import java.util.Optional;
+
 import static com.fpetrola.z80.registers.RegisterName.*;
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
@@ -196,20 +198,50 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public boolean visitingBitOperation(BitOperation<T> instruction) {
-    return addMcForTargetFlagInstruction(instruction);
+    return extracted(instruction.getTarget(), isIndirectHL(instruction), addMcForTargetFlagInstruction(instruction));
   }
 
   private boolean addMcForTargetFlagInstruction(DefaultTargetFlagInstruction<T> instruction1) {
-    phase.acceptAfterMR(p -> switchByReadCount(
-        () -> isIndirectHL(instruction1).ifPresent((x) -> addMultipleMc(1, 1, 0, valueOf(HL), null)),
-        () -> isMemoryPlusOptional(instruction1.getTarget()).ifPresent(x -> addMultipleMc(2, 1, 3, valueOf(PC), null)),
-        () -> isMemoryPlusOptional(instruction1.getTarget()).ifPresent(x -> addMultipleMc(1, 1, 0, address.intValue(), null))));
+    System.out.println("readCount: " + readCount);
+
+    if (AddStatesMemoryReadListener.test1)
+      phase.acceptBeforeExecution(p -> switchByReadCount(
+          () -> isIndirectHL(instruction1).ifPresent((x) -> addMultipleMc(1, 1, 0, valueOf(HL), null)),
+          () -> isMemoryPlusOptional(instruction1.getTarget()).ifPresent(x -> addMultipleMc(2, 1, 3, valueOf(PC), null)),
+          () -> isMemoryPlusOptional(instruction1.getTarget()).ifPresent(x -> addMultipleMc(1, 1, 0, address.intValue(), null))));
+    else
+      phase.acceptAfterMR(p -> switchByReadCount(
+          () -> isIndirectHL(instruction1).ifPresent((x) -> addMultipleMc(1, 1, 0, valueOf(HL), null)),
+          () -> isMemoryPlusOptional(instruction1.getTarget()).ifPresent(x -> addMultipleMc(2, 1, 3, valueOf(PC), null)),
+          () -> isMemoryPlusOptional(instruction1.getTarget()).ifPresent(x -> addMultipleMc(1, 1, 0, address.intValue(), null))));
+
 
     return true;
   }
 
   public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction<T> instruction) {
-    return addMcForTargetFlagInstruction(instruction);
+    return extracted(instruction.getTarget(), isIndirectHL(instruction), addMcForTargetFlagInstruction(instruction));
+  }
+
+  private boolean extracted(OpcodeReference<T> instruction, Optional<Boolean> instruction1, boolean instruction2) {
+    System.out.println("readCount: " + readCount);
+
+    if (AddStatesMemoryReadListener.test1) {
+      phase.acceptBeforeExecution(p -> {
+        if (readCount == 0)
+          isMemoryPlusOptional(instruction).ifPresent(x -> addMultipleMc(2, 1, 3, valueOf(PC), null));
+      });
+
+      phase.acceptAfterMR(p -> {
+        if (readCount == 1) {
+          isMemoryPlusOptional(instruction).ifPresent(x -> addMultipleMc(1, 1, 0, address.intValue(), null));
+          instruction1.ifPresent((x) -> addMultipleMc(1, 1, 0, valueOf(HL), null));
+        }
+      });
+    } else
+      return instruction2;
+
+    return true;
   }
 
   public boolean visitingInc(Inc<T> tInc) {

@@ -25,6 +25,7 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
+import fuse.tstates.AddStatesMemoryReadListener;
 
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
@@ -71,8 +72,8 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
     } else {
     }
     T plus = pc.read().plus(incPc - 1 + length);
-//    if (incPc == 2)
-//      memoryForOpcodes.read(plus.minus1(), 0);
+    if (incPc == 2 && AddStatesMemoryReadListener.test1)
+      memoryForOpcodes.read(plus.minus1(), 0);
     int i = memoryForOpcodes.read(plus, incPc).intValue();
     Instruction<T> instruction = table[i];
     return instruction;

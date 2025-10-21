@@ -122,6 +122,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   }
 
   public void processPhase(Phase phase) {
+    System.out.println("Phase: " + phase.getClass().getSimpleName());
     processing = true;
     DefaultInstructionFetcher<T> instructionFetcher = (DefaultInstructionFetcher<T>) cpu.getInstructionFetcher();
     Instruction<T> instruction2 = instructionFetcher.getLastExecutedInstruction();
@@ -157,8 +158,9 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   }
 
   protected void switchByReadCount(Runnable... runnables) {
-    if (runnables.length > readCount - 1)
-      List.of(runnables).get(readCount - 1).run();
+    int i = readCount - 1;
+    if (i >= 0 && runnables.length > i)
+      List.of(runnables).get(i).run();
   }
 
   protected Optional<Boolean> writeCountIsZero() {
