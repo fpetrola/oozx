@@ -97,11 +97,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
 
   public void setPhase(Phase phase) {
     this.phase = phase;
-    phase.accept(new DefaultPhaseVisitor() {
-      public void visit(BeforeExecution beforeExecution) {
-        reset();
-      }
-    });
+    phase.acceptBeforeExecution((e) -> reset());
   }
 
   private void reset() {
