@@ -253,7 +253,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
     cloned1.setTarget(createRegisterReplacement(cloned1.getTarget(), cloned1, new VirtualFetcher()));
   }
 
-  public void visitLdir(Ldir ldir) {
+  public boolean visitLdir(Ldir ldir) {
     setCloned(instructionFactory.Ldir(), ldir);
     Ldir cloned1 = (Ldir) cloned;
 
@@ -268,6 +268,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
     instructionToRepeat.setFlag(createRegisterReplacement(instructionToRepeat.getFlag(), cloned1, virtualFetcher));
 
     cloned1.setInstructionToRepeat(instructionToRepeat);
+    return false;
   }
 
   @Override

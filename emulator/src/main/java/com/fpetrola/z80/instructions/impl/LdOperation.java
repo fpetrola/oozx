@@ -64,9 +64,9 @@ public class LdOperation<T extends WordNumber> extends AbstractInstruction<T> {
 
   @Override
   public void accept(InstructionVisitor visitor) {
-    instruction.accept(visitor);
-    target.accept(visitor);
     if (!visitor.visitLdOperation(this)) {
+      instruction.accept(visitor);
+      target.accept(visitor);
       super.accept(visitor);
     }
   }

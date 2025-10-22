@@ -147,9 +147,10 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
   }
 
   @Override
-  public void visitLdir(Ldir ldir) {
+  public boolean visitLdir(Ldir ldir) {
     Ldi instructionToRepeat = (Ldi) ldir.getInstructionToRepeat();
     executeAction(instructionToRepeat.getDe());
+    return false;
   }
 
   @Override

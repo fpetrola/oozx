@@ -77,10 +77,6 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
     getAddEvent(new Event(0, "MR", address.intValue(), value.intValue()));
   }
 
-  protected boolean isNotIncDec(Instruction<T> targetInstruction) {
-    return !(targetInstruction instanceof Inc) && !(targetInstruction instanceof Dec);
-  }
-
   protected Register<T> getRegister(RegisterName registerName) {
     return getState().getRegister(registerName);
   }
@@ -95,7 +91,6 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
 
   public void setPhase(Phase phase) {
     this.phase = phase;
-    phase.acceptBeforeExecution((e) -> reset());
   }
 
   private void reset() {
@@ -118,11 +113,14 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   public void processPhase(Phase phase) {
 //    System.out.println("Phase: " + phase.getClass().getSimpleName());
     processing = true;
-    DefaultInstructionFetcher<T> instructionFetcher = (DefaultInstructionFetcher<T>) cpu.getInstructionFetcher();
-    Instruction<T> instruction2 = instructionFetcher.getLastExecutedInstruction();
-    setPhase(phase);
+    PhaseInterceptor phase1 = new PhaseInterceptor(phase);
+    phase.acceptBeforeExecution((e) -> reset());
+    setPhase(phase1);
+    Instruction<T> instruction2 = ((DefaultInstructionFetcher<T>) cpu.getInstructionFetcher()).getLastExecutedInstruction();
     if (instruction2 != null)
       instruction2.accept(this);
+
+    phase1.accept(phase1.getVisitor());
 
     processing = false;
   }

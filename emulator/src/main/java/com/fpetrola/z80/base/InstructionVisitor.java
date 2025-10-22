@@ -262,8 +262,9 @@ public interface InstructionVisitor<T extends WordNumber, R> {
     return false;
   }
 
-  default void visitLdir(Ldir<T> ldir) {
+  default boolean visitLdir(Ldir<T> ldir) {
 
+    return false;
   }
 
   default boolean visitLddr(Lddr<T> lddr) {

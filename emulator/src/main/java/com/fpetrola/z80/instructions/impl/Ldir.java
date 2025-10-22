@@ -40,7 +40,7 @@ public class Ldir<T extends WordNumber> extends RepeatingInstruction<T> {
 
   @Override
   public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitLdir(this);
+    if (!visitor.visitLdir(this))
+      super.accept(visitor);
   }
 }

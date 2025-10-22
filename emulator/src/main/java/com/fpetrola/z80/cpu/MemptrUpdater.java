@@ -225,8 +225,9 @@ public class MemptrUpdater<T extends WordNumber> {
             return false;
           }
 
-          public void visitLdir(Ldir<T> ldir) {
+          public boolean visitLdir(Ldir<T> ldir) {
             incIfNextPC(0);
+            return false;
           }
 
           public boolean visitCpir(Cpir<T> cpir) {

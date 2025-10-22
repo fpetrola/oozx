@@ -222,8 +222,9 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   }
 
   @Override
-  public void visitLdir(Ldir ldir) {
+  public boolean visitLdir(Ldir ldir) {
     setCloned(instructionFactory.Ldir(), ldir);
+    return false;
   }
 
   @Override

@@ -627,9 +627,10 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   @Override
-  public void visitLdir(Ldir ldir) {
+  public boolean visitLdir(Ldir ldir) {
     String methodName = ((RepeatingInstruction) ldir).getClass().getSimpleName().toLowerCase();
     invokeLdir(methodName);
+    return false;
   }
 
   protected void invokeLdir(String methodName) {

@@ -25,6 +25,9 @@ import com.fpetrola.z80.opcodes.references.ConditionAlwaysTrue;
 import com.fpetrola.z80.opcodes.references.IndirectMemory16BitReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
+import fuse.tstates.phases.AfterExecutionPhaseVisitor;
+import fuse.tstates.phases.AfterMRPhaseVisitor;
+import fuse.tstates.phases.BeforeExecutionPhaseVisitor;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
@@ -44,7 +47,8 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public boolean visiting16BitsOperation(Binary16BitsOperation<T> binary16BitsOperation) {
-    return addMcBeforeExecution(7);
+    addMcBeforeExecution(7);
+    return true;
   }
 
   public void visitingInc16(Inc16 tInc16) {
@@ -98,36 +102,65 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public boolean visitRepeatingInstruction(RepeatingInstruction<T> instruction) {
-    instruction.getInstructionToRepeat().accept(this);
+//    instruction.getInstructionToRepeat().accept(this);
 
     int delta;
     RegisterName registerName;
+    int times;
+
     if (instruction instanceof Outdr<T> || instruction instanceof Outir<T>) {
       registerName = BC;
       delta = 0;
-    } else if (instruction instanceof Cpir<T> || instruction instanceof Inir<T>) {
+      times = 0;
+    } else if (instruction instanceof Inir<T>) {
       delta = -1;
       registerName = HL;
-    } else if (instruction instanceof Cpdr<T> || instruction instanceof Indr<T>) {
+      times = 0;
+    } else if (instruction instanceof Indr<T>) {
       delta = 1;
       registerName = HL;
+      times = 0;
+    } else if (instruction instanceof Cpir<T>) {
+      delta = -1;
+      registerName = HL;
+      times = 5;
+    } else if (instruction instanceof Cpdr<T>) {
+      delta = 1;
+      registerName = HL;
+      times = 5;
     } else if (instruction instanceof Ldir<T>) {
       registerName = DE;
       delta = -1;
+      times = 2;
     } else {
       registerName = DE;
       delta = 1;
+      times = 2;
     }
 
-    phase.acceptAfterExecution((a) ->
-        hasJumped(instruction).ifPresent(x -> addMultipleMc(5, 1, 0, valueOf(registerName) + delta, "contend_write_no_mreq")));
+    if (times > 0) {
+      phase.acceptAfterExecution((a) -> {
+        getAfterExecutionPhaseVisitorForBlock(times, registerName, delta).visit(a);
+        hasJumped(instruction).ifPresent(x -> addMultipleMc(5, 1, 0, valueOf(registerName) + delta, "contend_write_no_mreq"));
+      });
+    } else {
+      addMcBeforeExecution(1);
+      phase.acceptAfterExecution((a) -> {
+        hasJumped(instruction).ifPresent(x -> addMultipleMc(5, 1, 0, valueOf(registerName) + delta, "contend_write_no_mreq"));
+      });
+    }
 
     return false;
   }
 
-  private boolean addForBlockInstruction(int times, RegisterName registerName, int delta) {
-    phase.acceptAfterExecution(p -> addMc(times, registerName, delta, "contend_write_no_mreq"));
-    return true;
+  private AfterExecutionPhaseVisitor addForBlockInstruction(int times, RegisterName registerName, int delta) {
+    AfterExecutionPhaseVisitor contendWriteNoMreq = getAfterExecutionPhaseVisitorForBlock(times, registerName, delta);
+    phase.acceptAfterExecution(contendWriteNoMreq);
+    return contendWriteNoMreq;
+  }
+
+  private AfterExecutionPhaseVisitor getAfterExecutionPhaseVisitorForBlock(int times, RegisterName registerName, int delta) {
+    return p -> addMc(times, registerName, delta, "contend_write_no_mreq");
   }
 
   public void visitBlockInstruction(BlockInstruction blockInstruction) {
@@ -135,38 +168,45 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   }
 
   public boolean visitLdi(Ldi<T> ldi) {
-    return addForBlockInstruction(2, DE, -1);
+    addForBlockInstruction(2, DE, -1);
+    return true;
   }
 
   public boolean visitLdd(Ldd<T> ldd) {
-    return addForBlockInstruction(2, DE, 1);
+    addForBlockInstruction(2, DE, 1);
+    return true;
   }
 
   public boolean visitCpi(Cpi<T> cpi) {
-    return addForBlockInstruction(5, HL, -1);
+    addForBlockInstruction(5, HL, -1);
+    return true;
   }
 
   public boolean visitCpd(Cpd<T> cpd) {
-    return addForBlockInstruction(5, HL, 1);
+    addForBlockInstruction(5, HL, 1);
+    return true;
   }
 
   public boolean visitLdOperation(LdOperation ldOperation) {
-    phase.acceptAfterMR(p -> {
+    AfterMRPhaseVisitor afterMRPhaseVisitor = p -> {
       if (readCount == 4)
         addMultipleMc(1, 1, 0, address.intValue(), null);
-    });
-    return false;
+    };
+    processTargetInstruction((TargetInstruction<T>) ldOperation.getInstruction(), afterMRPhaseVisitor);
+    return true;
   }
 
   public boolean visitingBitOperation(BitOperation<T> instruction) {
-    return processTargetInstruction(instruction);
+    return processTargetInstruction(instruction, (e) -> {
+    });
   }
 
   public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction<T> instruction) {
-    return processTargetInstruction(instruction);
+    return processTargetInstruction(instruction, (e) -> {
+    });
   }
 
-  private boolean processTargetInstruction(TargetInstruction<T> instruction) {
+  private boolean processTargetInstruction(TargetInstruction<T> instruction, AfterMRPhaseVisitor afterMRPhaseVisitor) {
     isMemoryPlusOptional(instruction.getTarget()).ifPresent(x -> {
       phase.acceptBeforeExecution((e -> {
         if (readCount == 0)
@@ -177,6 +217,8 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
         if (readCount == 1) {
           addMultipleMc(1, 1, 0, address.intValue(), null);
         }
+
+        afterMRPhaseVisitor.visit(e);
       }));
     });
 
@@ -184,6 +226,8 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       phase.acceptAfterMR(e -> {
         if (readCount == 1)
           addMultipleMc(1, 1, 0, valueOf(HL), null);
+
+        afterMRPhaseVisitor.visit(e);
       });
     });
 
@@ -226,9 +270,10 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return false;
   }
 
-  private boolean addMcBeforeExecution(final int time) {
-    phase.acceptBeforeExecution(beforeExecution -> addMc(time, IR, 0, null));
-    return true;
+  private BeforeExecutionPhaseVisitor addMcBeforeExecution(final int time) {
+    BeforeExecutionPhaseVisitor beforeExecutionPhaseVisitor = beforeExecution -> addMc(time, IR, 0, null);
+    phase.acceptBeforeExecution(beforeExecutionPhaseVisitor);
+    return beforeExecutionPhaseVisitor;
   }
 
   private void addMcAfterExecution() {
