@@ -37,6 +37,7 @@ public class MultiOpcodeFetcher<T extends WordNumber> {
   public Supplier<TableBasedOpCodeDecoder<T>> tableFactory;
   public boolean clone;
   private final Memory<T> memoryForOpcode;
+  private Memory<T> memory;
 
   public MultiOpcodeFetcher(InstructionFactory<T> instructionFactory, State<T> state, OpcodeConditions opcodeConditions, boolean clone) {
     this.instructionFactory = instructionFactory;
@@ -45,6 +46,7 @@ public class MultiOpcodeFetcher<T extends WordNumber> {
     memoryForOpcode = new MemoryForOpcodes<T>(this.state.getMemory());
     tableFactory = () -> createOpcodesTables(opcodeConditions, instructionFactory.getFetchNextOpcodeInstructionFactory(), instructionFactory);
     createOpcodeTables();
+    memory = state.getMemory();
   }
 
   public void createOpcodeTables() {
@@ -67,9 +69,9 @@ public class MultiOpcodeFetcher<T extends WordNumber> {
     this.clone = clone;
   }
 
-  public Instruction<T> fetchInstruction(int opcodeInt) {
+  public Instruction<T> fetchInstruction(T address) {
     memoryForOpcode.reset();
-    Instruction<T> opcodesTable = opcodesTables[state.isHalted() ? 0x76 : opcodeInt];
+    Instruction<T> opcodesTable = opcodesTables[state.isHalted() ? 0x76 : memory.read(address, 1).intValue()];
     while (opcodesTable instanceof DefaultFetchNextOpcodeInstruction<T> fetchNextOpcodeInstruction) {
       fetchNextOpcodeInstruction.update();
       opcodesTable = fetchNextOpcodeInstruction.findNextOpcode2();
