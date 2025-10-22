@@ -18,14 +18,15 @@
 
 package fuse.tstates;
 
-import com.fpetrola.z80.cpu.*;
+import com.fpetrola.z80.cpu.Z80Cpu;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
-import com.fpetrola.z80.opcodes.references.*;
+import com.fpetrola.z80.opcodes.references.ConditionAlwaysTrue;
+import com.fpetrola.z80.opcodes.references.IndirectMemory16BitReference;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
-import static com.fpetrola.z80.registers.RegisterName.PC;
 
 public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> {
   public PhaseProcessor(Z80Cpu<T> cpu) {
@@ -56,34 +57,6 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   public void visitPush(Push push) {
     addMcBeforeExecution(1);
-  }
-
-  public boolean visitRepeatingInstruction(RepeatingInstruction<T> instruction) {
-    instruction.getInstructionToRepeat().accept(this);
-
-    int delta;
-    RegisterName registerName;
-    if (instruction instanceof Outdr<T> || instruction instanceof Outir<T>) {
-      registerName = BC;
-      delta = 0;
-    } else if (instruction instanceof Cpir<T> || instruction instanceof Inir<T>) {
-      delta = -1;
-      registerName = HL;
-    } else if (instruction instanceof Cpdr<T> || instruction instanceof Indr<T>) {
-      delta = 1;
-      registerName = HL;
-    } else if (instruction instanceof Ldir<T>) {
-      registerName = DE;
-      delta = -1;
-    } else {
-      registerName = DE;
-      delta = 1;
-    }
-
-    phase.acceptAfterExecution((a) ->
-        hasJumped(instruction).ifPresent(x -> addMultipleMc(5, 1, 0, valueOf(registerName) + delta, "contend_write_no_mreq")));
-
-    return false;
   }
 
   public void visitingLd(Ld<T> ld) {
@@ -122,6 +95,34 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
     if (ex.getTarget() instanceof IndirectMemory16BitReference<T>)
       phase.acceptBeforeWrite((e) -> writeCountIsZero().ifPresent(x -> addMc(1, SP, 1, null)));
+  }
+
+  public boolean visitRepeatingInstruction(RepeatingInstruction<T> instruction) {
+    instruction.getInstructionToRepeat().accept(this);
+
+    int delta;
+    RegisterName registerName;
+    if (instruction instanceof Outdr<T> || instruction instanceof Outir<T>) {
+      registerName = BC;
+      delta = 0;
+    } else if (instruction instanceof Cpir<T> || instruction instanceof Inir<T>) {
+      delta = -1;
+      registerName = HL;
+    } else if (instruction instanceof Cpdr<T> || instruction instanceof Indr<T>) {
+      delta = 1;
+      registerName = HL;
+    } else if (instruction instanceof Ldir<T>) {
+      registerName = DE;
+      delta = -1;
+    } else {
+      registerName = DE;
+      delta = 1;
+    }
+
+    phase.acceptAfterExecution((a) ->
+        hasJumped(instruction).ifPresent(x -> addMultipleMc(5, 1, 0, valueOf(registerName) + delta, "contend_write_no_mreq")));
+
+    return false;
   }
 
   private boolean addForBlockInstruction(int times, RegisterName registerName, int delta) {
