@@ -19,44 +19,48 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.instructions.types.JumpInstruction;
 import com.fpetrola.z80.instructions.cache.InstructionCache;
-import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
-import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import fuse.tstates.PhaseInterceptor;
 
 public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstructionFetcher<T> {
   protected InstructionCache<T> instructionCache;
+  private Instruction<T> cached;
 
-  public CachedInstructionFetcher(State aState, OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor<T> instructionExecutor, InstructionFactory instructionFactory, boolean noRepeat, boolean clone) {
-    super(aState, instructionFactory, noRepeat, false);
+  public CachedInstructionFetcher(State aState, InstructionFactory instructionFactory, boolean clone) {
+    super(aState, instructionFactory, clone, false);
     instructionCache = new InstructionCache(aState.getMemory(), new DefaultInstructionFactory(aState));
   }
 
   public Instruction<T> fetchNextInstruction() {
     pcValue = state.getPc().read();
+    Instruction<T> result;
 
     InstructionCache.CacheEntry cacheEntry = instructionCache.getCacheEntryAt(pcValue);
     if (cacheEntry != null && !cacheEntry.isMutable()) {
-      Instruction<T> instruction = cacheEntry.getOpcode();
-//      instructionExecutor.execute(instruction);
-
-      T nextPC = null;
-      if (instruction instanceof JumpInstruction jumpInstruction)
-        nextPC = (T) jumpInstruction.getNextPC();
-
-      if (nextPC == null)
-        nextPC = pcValue.plus(MultiOpcodeFetcher.processToBase(instruction).getLength());
-
-      state.getPc().write(nextPC);
+      cached = cacheEntry.getOpcode();
+      result= cached;
+      result = super.fetchNextInstruction();
+//      result = cacheEntry.getOpcode();
     } else {
-      super.fetchNextInstruction();
-//      if (cacheEntry == null || !cacheEntry.isMutable())
-//        instructionCache.cacheInstruction(pcValue, this.lastExecutedInstruction);
+      cached = null;
+      result = super.fetchNextInstruction();
+      if (cacheEntry == null || !cacheEntry.isMutable())
+        instructionCache.cacheInstruction(pcValue, result);
     }
-    return null;
+    return result;
+  }
+
+  protected void setupPhaseInterceptor(AbstractInstruction<T> fetchedInstruction) {
+    if (cached != null) {
+      PhaseInterceptor phaseInterceptor = cached.getPhaseInterceptor();
+      tPhaseProcessor.setPhase(phaseInterceptor);
+      fetchedInstruction.setPhaseInterceptor(phaseInterceptor);
+    } else
+      super.setupPhaseInterceptor(fetchedInstruction);
   }
 
   public void reset() {

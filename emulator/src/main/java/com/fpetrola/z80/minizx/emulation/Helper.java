@@ -20,13 +20,11 @@ package com.fpetrola.z80.minizx.emulation;
 
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.MemptrUpdateInstructionSpy;
-
-import static com.fpetrola.z80.registers.RegisterName.B;
 
 public class Helper {
   public static <T extends WordNumber> OOZ80<T> createOOZ80(IO<T> io) {
@@ -36,7 +34,7 @@ public class Helper {
 
   public static DefaultInstructionFetcher getInstructionFetcher(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory) {
     SpyInstructionExecutor instructionExecutor1 = new SpyInstructionExecutor(spy, state);
-    return new DefaultInstructionFetcher(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), instructionFactory, false, false);
-//    return new CachedInstructionFetcher(state, new OpcodeConditions(state.getFlag(), state.getRegister(B)), new FetchNextOpcodeInstructionFactory(spy, state), instructionExecutor1, instructionFactory, false, false);
+    return new DefaultInstructionFetcher(state, instructionFactory, false, false);
+//    return new CachedInstructionFetcher(state, instructionFactory, false);
   }
 }

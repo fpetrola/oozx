@@ -22,6 +22,7 @@ import com.fpetrola.z80.helpers.CollectionHandler;
 import com.fpetrola.z80.instructions.cache.InstructionCloner;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
@@ -110,9 +111,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     int opcodeInt = memory.read(address, 1).intValue();
     Instruction<T> fetchedInstruction = multiOpcodeFetcher.fetchInstruction(opcodeInt);
 
-    PhaseInterceptor phase1 = fetchedInstruction.getPhaseInterceptor();
-    tPhaseProcessor.setPhase(phase1);
-    fetchedInstruction.accept(tPhaseProcessor);
+    setupPhaseInterceptor((AbstractInstruction<T>) fetchedInstruction);
 
     if (multiOpcodeFetcher.clone)
       fetchedInstruction = new InstructionCloner<T, T>(multiOpcodeFetcher.instructionFactory).clone(fetchedInstruction);
@@ -120,6 +119,12 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     Instruction<T> finalBaseInstruction = fetchedInstruction;
     fetchListeners.forAll(l -> l.instructionFetchedAt(address, finalBaseInstruction));
     return fetchedInstruction;
+  }
+
+  protected void setupPhaseInterceptor(AbstractInstruction<T> fetchedInstruction) {
+    PhaseInterceptor phase1 = fetchedInstruction.getPhaseInterceptor();
+    tPhaseProcessor.setPhase(phase1);
+    fetchedInstruction.accept(tPhaseProcessor);
   }
 
 

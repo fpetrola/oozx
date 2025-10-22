@@ -28,6 +28,11 @@ public abstract class AbstractInstruction<T extends WordNumber> implements Instr
   protected int cyclesCost = 4;
   private T nextPC = null;
   private int rdelta;
+
+  public void setPhaseInterceptor(PhaseInterceptor phaseInterceptor) {
+    this.phaseInterceptor = phaseInterceptor;
+  }
+
   private PhaseInterceptor phaseInterceptor = new PhaseInterceptor();
 
   protected AbstractInstruction() {

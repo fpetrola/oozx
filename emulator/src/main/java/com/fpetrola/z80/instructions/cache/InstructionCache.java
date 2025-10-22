@@ -104,8 +104,8 @@ public class InstructionCache<T extends WordNumber> {
   }
 
   public void cacheInstruction(T pcValue, Instruction<T> instruction) {
-    Instruction<T> clone = instructionCloner.clone(instruction);
-    opcodesCache.set(pcValue.intValue(), new CacheEntry(clone));
+//    Instruction<T> clone = instructionCloner.clone(instruction);
+    opcodesCache.set(pcValue.intValue(), new CacheEntry(instruction));
     new InstructionCacheInvalidator(pcValue, instruction.getLength()).set();
   }
 
