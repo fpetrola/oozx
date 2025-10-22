@@ -86,8 +86,9 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   }
 
   @Override
-  public void visitCpi(Cpi<T> cpi) {
+  public boolean visitCpi(Cpi<T> cpi) {
     setCloned(instructionFactory.Cpi(), cpi);
+    return false;
   }
 
   @Override
@@ -215,8 +216,9 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   }
 
   @Override
-  public void visitLdi(Ldi tLdi) {
+  public boolean visitLdi(Ldi tLdi) {
     setCloned(instructionFactory.Ldi(), tLdi);
+    return false;
   }
 
   @Override

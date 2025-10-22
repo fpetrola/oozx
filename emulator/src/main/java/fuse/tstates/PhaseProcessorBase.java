@@ -32,8 +32,6 @@ import com.fpetrola.z80.instructions.types.TargetInstruction;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
-import fuse.tstates.phases.BeforeExecution;
-import fuse.tstates.phases.DefaultPhaseVisitor;
 import fuse.tstates.phases.Phase;
 
 import java.util.List;
@@ -139,10 +137,6 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
 
   protected Optional<Boolean> isMemoryPlusOptional(OpcodeReferenceBase target) {
     return Optional.ofNullable(isMemoryPlus(target) ? true : null);
-  }
-
-  protected Optional<Boolean> matchesReadCount(int i) {
-    return Optional.ofNullable(readCount == i ? true : null);
   }
 
   protected int valueOf(RegisterName registerName) {

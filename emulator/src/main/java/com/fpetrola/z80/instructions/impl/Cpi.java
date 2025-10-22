@@ -68,7 +68,7 @@ public class Cpi<T extends WordNumber> extends BlockInstruction<T> {
 
 
   public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitCpi(this);
+    if (!visitor.visitCpi(this))
+      super.accept(visitor);
   }
 }

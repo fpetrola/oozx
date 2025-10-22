@@ -23,9 +23,6 @@ import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.RegisterName;
-import fuse.tstates.phases.*;
-
-import java.util.Optional;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 import static com.fpetrola.z80.registers.RegisterName.PC;
@@ -59,11 +56,6 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   public void visitPush(Push push) {
     addMcBeforeExecution(1);
-  }
-
-  public void visitBlockInstruction(BlockInstruction blockInstruction) {
-    if (blockInstruction instanceof Ini || blockInstruction instanceof Outi)
-      addMcBeforeExecution(1);
   }
 
   public boolean visitRepeatingInstruction(RepeatingInstruction<T> instruction) {
@@ -137,40 +129,31 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return true;
   }
 
-  public void visitLdi(Ldi<T> ldi) {
-    addForBlockInstruction(2, DE, -1);
+  public void visitBlockInstruction(BlockInstruction blockInstruction) {
+    addMcBeforeExecution(1);
+  }
+
+  public boolean visitLdi(Ldi<T> ldi) {
+    return addForBlockInstruction(2, DE, -1);
   }
 
   public boolean visitLdd(Ldd<T> ldd) {
     return addForBlockInstruction(2, DE, 1);
   }
 
-  public void visitCpi(Cpi<T> cpi) {
-    addForBlockInstruction(5, HL, -1);
+  public boolean visitCpi(Cpi<T> cpi) {
+    return addForBlockInstruction(5, HL, -1);
   }
 
   public boolean visitCpd(Cpd<T> cpd) {
     return addForBlockInstruction(5, HL, 1);
   }
 
-  public boolean visitOuti(Outi<T> outi) {
-    return addMcBeforeExecution(1);
-  }
-
-  public boolean visitOutd(Outd<T> outi) {
-    return addMcBeforeExecution(1);
-  }
-
-  public boolean visitIni(Ini<T> tIni) {
-    return addMcBeforeExecution(1);
-  }
-
-  public boolean visitInd(Ind<T> tInd) {
-    return addMcBeforeExecution(1);
-  }
-
   public boolean visitLdOperation(LdOperation ldOperation) {
-    phase.acceptAfterMR(p -> matchesReadCount(4).ifPresent(x -> addMultipleMc(1, 1, 0, address.intValue(), null)));
+    phase.acceptAfterMR(p -> {
+      if (readCount == 4)
+        addMultipleMc(1, 1, 0, address.intValue(), null);
+    });
     return false;
   }
 

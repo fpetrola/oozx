@@ -84,20 +84,22 @@ public abstract class RegisterFinderInstructionVisitor implements InstructionVis
     ex.getTarget().accept(this);
   }
 
-  public void visitLdi(Ldi blockInstruction) {
+  public boolean visitLdi(Ldi blockInstruction) {
     isTarget = true;
     blockInstruction.getBc().accept(this);
     blockInstruction.getHl().accept(this);
     blockInstruction.getDe().accept(this);
     blockInstruction.getFlag().accept(this);
+    return false;
   }
 
   @Override
-  public void visitCpi(Cpi cpi) {
+  public boolean visitCpi(Cpi cpi) {
     isTarget = true;
     cpi.getBc().accept(this);
     cpi.getHl().accept(this);
     cpi.getFlag().accept(this);
+    return false;
   }
 
   @Override

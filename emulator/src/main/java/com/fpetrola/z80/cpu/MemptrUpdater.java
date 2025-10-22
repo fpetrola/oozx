@@ -88,8 +88,9 @@ public class MemptrUpdater<T extends WordNumber> {
           return false;
         }
 
-        public void visitCpi(Cpi<T> cpi) {
+        public boolean visitCpi(Cpi<T> cpi) {
           memptr.write(memptr.read().plus(1));
+          return false;
         }
 
         public boolean visitCpd(Cpd<T> cpd) {

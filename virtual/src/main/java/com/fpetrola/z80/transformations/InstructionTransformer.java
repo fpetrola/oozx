@@ -288,7 +288,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
   }
 
   @Override
-  public void visitLdi(Ldi tLdi) {
+  public boolean visitLdi(Ldi tLdi) {
     setCloned(instructionFactory.Ldi(), tLdi);
     Ldi cloned1 = (Ldi) cloned;
 
@@ -297,6 +297,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
     cloned1.setHl(createRegisterReplacement(cloned1.getHl(), cloned1, virtualFetcher));
     cloned1.setDe(createRegisterReplacement(cloned1.getDe(), cloned1, virtualFetcher));
     cloned1.setFlag(createRegisterReplacement(cloned1.getFlag(), cloned1, virtualFetcher));
+    return false;
   }
 
   @Override

@@ -279,8 +279,8 @@ public interface InstructionVisitor<T extends WordNumber, R> {
     return false;
   }
 
-  default void visitLdi(Ldi<T> tLdi) {
-
+  default boolean visitLdi(Ldi<T> tLdi) {
+    return false;
   }
 
   default void visitBNotZeroCondition(BNotZeroCondition bNotZeroCondition) {
@@ -342,8 +342,8 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default void visitCpi(Cpi<T> cpi) {
-
+  default boolean visitCpi(Cpi<T> cpi) {
+    return false;
   }
 
   default boolean visitingSll(SLL sll) {

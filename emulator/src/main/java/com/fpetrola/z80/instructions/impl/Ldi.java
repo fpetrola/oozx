@@ -82,7 +82,7 @@ public class Ldi<T extends WordNumber> extends BlockInstruction<T> {
   }
 
   public void accept(InstructionVisitor visitor) {
-    super.accept(visitor);
-    visitor.visitLdi(this);
+    if (!visitor.visitLdi(this))
+      super.accept(visitor);
   }
 }
