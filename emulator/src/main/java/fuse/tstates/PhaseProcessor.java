@@ -18,6 +18,8 @@
 
 package fuse.tstates;
 
+import com.fpetrola.z80.cpu.InstructionFetcher;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.cpu.Z80Cpu;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
@@ -32,8 +34,8 @@ import fuse.tstates.phases.BeforeExecutionPhaseVisitor;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> {
-  public PhaseProcessor(Z80Cpu<T> cpu) {
-    super(cpu);
+  public PhaseProcessor(InstructionFetcher<T> instructionFetcher, State<T> state) {
+    super(instructionFetcher, state);
   }
 
   public void visitingRst(RST rst) {

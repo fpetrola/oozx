@@ -46,7 +46,7 @@ public class FuseTestParser<T extends WordNumber> {
   private final File inFile;
   private final File namesFile;
   private final File expectedFile;
-  private Z80Cpu<WordNumber> cpu;
+  private Z80Cpu<T> cpu;
   private DefaultInstructionFetcher instructionFetcher;
   private State<T> state;
 
@@ -111,14 +111,11 @@ public class FuseTestParser<T extends WordNumber> {
     InstructionSpy<WordNumber> spy = new MemptrUpdateInstructionSpy(state);
     DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory<WordNumber>(state);
     instructionFetcher = new MyDefaultInstructionFetcher(state, spy, instructionFactory);
-    cpu = (OOZ80<WordNumber>) new OOZ80(state, instructionFetcher, new DefaultInstructionExecutor(state, false));
+    cpu = (OOZ80<T>) new OOZ80<T>(state, instructionFetcher, new DefaultInstructionExecutor(state, false));
     spy.addExecutionListeners(cpu.getInstructionExecutor());
 
-    PhaseProcessor<T> phaseProcessor = new PhaseProcessor<>((Z80Cpu<T>) cpu) {
-      protected void addMc(int times, int address, int delta, String description) {
-        super.addMc(times, address, delta, description);
-      }
-    };
+//    PhaseProcessor<T> phaseProcessor = new PhaseProcessor<T>(cpu.getInstructionFetcher(), cpu.getState());
+    PhaseProcessor<T> phaseProcessor = (PhaseProcessor<T>) DefaultInstructionFetcher.tPhaseProcessor;
 
 //    phaseProcessor.processPhase(new BeforeExecution());
 //    phaseProcessor.processPhase(new AfterMR());

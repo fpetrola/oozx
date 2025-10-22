@@ -21,12 +21,14 @@ package com.fpetrola.z80.instructions.types;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import fuse.tstates.PhaseInterceptor;
 
 public abstract class AbstractInstruction<T extends WordNumber> implements Instruction<T> {
   protected int length = 1;
   protected int cyclesCost = 4;
   private T nextPC = null;
   private int rdelta;
+  private PhaseInterceptor phaseInterceptor = new PhaseInterceptor();
 
   protected AbstractInstruction() {
     cyclesCost += 1;
@@ -42,6 +44,10 @@ public abstract class AbstractInstruction<T extends WordNumber> implements Instr
 
   public int getLength() {
     return length;
+  }
+
+  public PhaseInterceptor getPhaseInterceptor() {
+    return phaseInterceptor;
   }
 
   public void incrementLengthBy(int by) {

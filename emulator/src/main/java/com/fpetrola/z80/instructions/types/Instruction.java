@@ -19,6 +19,7 @@
 package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
+import fuse.tstates.PhaseInterceptor;
 
 public interface Instruction<T> {
   int execute();
@@ -26,4 +27,6 @@ public interface Instruction<T> {
   int getLength();
 
   void accept(InstructionVisitor<?, ?> visitor);
+
+  PhaseInterceptor getPhaseInterceptor();
 }

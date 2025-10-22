@@ -19,12 +19,7 @@
 package fuse.tstates;
 
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
-import com.fpetrola.z80.cpu.Event;
-import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.cpu.Z80Cpu;
-import com.fpetrola.z80.instructions.impl.Dec;
-import com.fpetrola.z80.instructions.impl.Inc;
+import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
@@ -40,15 +35,17 @@ import java.util.Optional;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 public abstract class PhaseProcessorBase<T extends WordNumber> implements InstructionVisitor<T, Integer> {
-  protected Z80Cpu<T> cpu;
   protected Phase phase;
   protected T address;
   protected boolean processing;
   protected int readCount;
   public int writeCount;
+  private InstructionFetcher<T> instructionFetcher;
+  private State<T> state;
 
-  public PhaseProcessorBase(Z80Cpu<T> cpu) {
-    this.cpu = cpu;
+  public PhaseProcessorBase(InstructionFetcher<T> instructionFetcher, State<T> state) {
+    this.instructionFetcher = instructionFetcher;
+    this.state = state;
   }
 
   public void addMw(T address, T value) {
@@ -56,7 +53,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   }
 
   protected State<T> getState() {
-    return cpu.getState();
+    return state;
   }
 
   public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
@@ -113,15 +110,15 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   public void processPhase(Phase phase) {
 //    System.out.println("Phase: " + phase.getClass().getSimpleName());
     processing = true;
-    PhaseInterceptor phase1 = new PhaseInterceptor(phase);
     phase.acceptBeforeExecution((e) -> reset());
-    setPhase(phase1);
-    Instruction<T> instruction2 = ((DefaultInstructionFetcher<T>) cpu.getInstructionFetcher()).getLastExecutedInstruction();
-    if (instruction2 != null)
-      instruction2.accept(this);
+    Instruction<T> lastExecutedInstruction = ((DefaultInstructionFetcher<T>) instructionFetcher).getLastExecutedInstruction();
 
-    phase1.accept(phase1.getVisitor());
-
+    if (lastExecutedInstruction != null) {
+      PhaseInterceptor phase1 = lastExecutedInstruction.getPhaseInterceptor();
+      setPhase(phase1);
+//      lastExecutedInstruction.accept(this);
+      phase1.execute(phase);
+    }
     processing = false;
   }
 

@@ -182,6 +182,7 @@ public class Z80 implements ZxModule {
     Memory<WordNumber> memory1 = (Memory<WordNumber>) state.getMemory();
 
     phaseProcessor = new FusePhaseProcessor(this);
+    DefaultInstructionFetcher.tPhaseProcessor = phaseProcessor;
 
     ooz80.getInstructionExecutor().addExecutionListener(new PhaseProcessorExecutionListener<>(phaseProcessor));
 

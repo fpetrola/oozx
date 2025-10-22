@@ -18,11 +18,9 @@
 
 package fuse.tstates;
 
-import com.fpetrola.z80.helpers.CollectionHandler;
 import fuse.tstates.phases.*;
 
 public class PhaseInterceptor implements Phase {
-  private final Phase phase;
   private final PhaseVisitor visitor;
   private BeforeExecutionPhaseVisitor beforeExecutionPhaseVisitors = (e) -> {
   };
@@ -33,13 +31,11 @@ public class PhaseInterceptor implements Phase {
   private AfterExecutionPhaseVisitor afterExecutionPhaseVisitors = (e) -> {
   };
 
-  public PhaseInterceptor(Phase phase) {
-    this.phase = phase;
+  public PhaseInterceptor() {
     this.visitor = getVisitor();
   }
 
   public void accept(PhaseVisitor visitor) {
-    phase.accept(visitor);
   }
 
   public void acceptAfterExecution(AfterExecutionPhaseVisitor visitor) {
@@ -76,5 +72,9 @@ public class PhaseInterceptor implements Phase {
         beforeWritePhaseVisitors.visit(beforeWrite);
       }
     };
+  }
+
+  public void execute(Phase phase) {
+    phase.accept(visitor);
   }
 }

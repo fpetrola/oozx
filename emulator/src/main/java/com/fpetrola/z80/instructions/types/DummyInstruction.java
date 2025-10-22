@@ -20,6 +20,7 @@ package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import fuse.tstates.PhaseInterceptor;
 
 public class DummyInstruction<T extends WordNumber> implements Instruction<T> {
   @Override
@@ -34,5 +35,10 @@ public class DummyInstruction<T extends WordNumber> implements Instruction<T> {
 
   @Override
   public void accept(InstructionVisitor<?, ?> visitor) {
+  }
+
+  @Override
+  public PhaseInterceptor getPhaseInterceptor() {
+    return null;
   }
 }

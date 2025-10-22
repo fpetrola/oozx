@@ -28,6 +28,8 @@ import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.registers.RegisterName;
+import fuse.tstates.PhaseInterceptor;
+import fuse.tstates.PhaseProcessor;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
@@ -44,6 +46,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   private boolean prefetch = false;
   protected DefaultRegisterBankFactory.RRegister<T> registerR;
   private Memory<T> memory;
+  public static PhaseProcessor<?> tPhaseProcessor;
 
   public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
     this.state = aState;
@@ -52,6 +55,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     pcValue = state.getPc().read();
     this.registerR = (DefaultRegisterBankFactory.RRegister<T>) state.getRegisterR();
     this.memory = state.getMemory();
+    tPhaseProcessor = new PhaseProcessor<>(this, state);
   }
 
   public DefaultInstructionFetcher(State aState, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
@@ -105,6 +109,11 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   public Instruction<T> fetchInstruction(T address) {
     int opcodeInt = memory.read(address, 1).intValue();
     Instruction<T> fetchedInstruction = multiOpcodeFetcher.fetchInstruction(opcodeInt);
+
+    PhaseInterceptor phase1 = fetchedInstruction.getPhaseInterceptor();
+    tPhaseProcessor.setPhase(phase1);
+    fetchedInstruction.accept(tPhaseProcessor);
+
     if (multiOpcodeFetcher.clone)
       fetchedInstruction = new InstructionCloner<T, T>(multiOpcodeFetcher.instructionFactory).clone(fetchedInstruction);
 

@@ -27,7 +27,7 @@ public class FusePhaseProcessor extends PhaseProcessor<WordNumber> {
   private final Z80 z80;
 
   public FusePhaseProcessor(Z80 z80) {
-    super(z80.ooz80);
+    super(z80.ooz80.getInstructionFetcher(), z80.ooz80.getState());
     this.z80 = z80;
   }
 
