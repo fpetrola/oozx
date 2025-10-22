@@ -106,7 +106,6 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   public Instruction<T> fetchInstruction(T address) {
     Instruction<T> fetchedInstruction = multiOpcodeFetcher.fetchInstruction(address);
-
     setupPhaseInterceptor((AbstractInstruction<T>) fetchedInstruction);
 
     if (multiOpcodeFetcher.clone)

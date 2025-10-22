@@ -37,7 +37,7 @@ public class MultiOpcodeFetcher<T extends WordNumber> {
   public Supplier<TableBasedOpCodeDecoder<T>> tableFactory;
   public boolean clone;
   private final Memory<T> memoryForOpcode;
-  private Memory<T> memory;
+  private final Memory<T> memory;
 
   public MultiOpcodeFetcher(InstructionFactory<T> instructionFactory, State<T> state, OpcodeConditions opcodeConditions, boolean clone) {
     this.instructionFactory = instructionFactory;
@@ -55,14 +55,6 @@ public class MultiOpcodeFetcher<T extends WordNumber> {
 
   public TableBasedOpCodeDecoder<T> createOpcodesTables(OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory<T> fetchInstructionFactory, InstructionFactory<T> instructionFactory) {
     return new TableBasedOpCodeDecoder<T>(state, opcodeConditions, fetchInstructionFactory, instructionFactory, memoryForOpcode);
-  }
-
-  public static <T extends WordNumber> Instruction<T> processToBase(Instruction<T> instruction) {
-    while (instruction instanceof DefaultFetchNextOpcodeInstruction<T> fetchNextOpcodeInstruction) {
-      fetchNextOpcodeInstruction.update();
-      instruction = fetchNextOpcodeInstruction.findNextOpcode();
-    }
-    return instruction;
   }
 
   public void setClone(boolean clone) {

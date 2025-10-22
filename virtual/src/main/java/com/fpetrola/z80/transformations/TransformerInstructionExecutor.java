@@ -20,12 +20,12 @@ package com.fpetrola.z80.transformations;
 
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.cpu.MultiOpcodeFetcher;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.spy.AbstractInstructionSpy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,8 +59,8 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
   private Instruction<T> processTargetSource(Instruction<T> instruction, Instruction<T> existentCloned) {
     instructionTransformer.virtualRegisterFactory.getRegisterNameBuilder().setCurrentAddress(getAddressOf(instruction));
 
-    Instruction<T> baseInstruction = MultiOpcodeFetcher.processToBase(instruction);
-    MultiOpcodeFetcher.processToBase(instruction);
+    Instruction<T> baseInstruction = AbstractInstructionSpy.processToBase(instruction);
+    AbstractInstructionSpy.processToBase(instruction);
     instructionTransformer.setCurrentInstruction(baseInstruction);
     Instruction<T> cloned;
     cloned = instructionTransformer.clone(baseInstruction);

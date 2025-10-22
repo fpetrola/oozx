@@ -18,12 +18,12 @@
 
 package com.fpetrola.z80.spy;
 
-import com.fpetrola.z80.cpu.MultiOpcodeFetcher;
 import com.fpetrola.z80.cpu.Z80Cpu;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.references.ConditionAlwaysTrue;
 import com.fpetrola.z80.opcodes.references.ExecutionPoint;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -43,6 +43,14 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
   private final LinkedList<ExecutionPoint> executionPoints = new LinkedList<>();
   protected int enabledExecutionNumber;
   private final Set<Integer> mutantCode = new HashSet<>();
+
+  public static <T extends WordNumber> Instruction<T> processToBase(Instruction<T> instruction) {
+    while (instruction instanceof DefaultFetchNextOpcodeInstruction<T> fetchNextOpcodeInstruction) {
+      fetchNextOpcodeInstruction.update();
+      instruction = fetchNextOpcodeInstruction.findNextOpcode();
+    }
+    return instruction;
+  }
 
   @Override
   public boolean isReadAccessCapture() {
@@ -138,7 +146,7 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
 //    lastExecutionPoint.instruction = cloned;
 
     if (fetchedMemory[lastExecutionPoint.pc] == null) {
-      Instruction baseInstruction = MultiOpcodeFetcher.processToBase(lastExecutionPoint.instruction);
+      Instruction baseInstruction = processToBase(lastExecutionPoint.instruction);
       Instruction<T> cloned = instructionCloner.clone(baseInstruction);
 //    System.out.println(cloned);
       for (int i = 0; i < cloned.getLength(); i++) {
@@ -152,7 +160,7 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
     lastExecutionPoint.instruction = fetchedMemory[lastExecutionPoint.pc];
 
     if (executionStep != null)
-      executionStep.setInstruction(MultiOpcodeFetcher.processToBase(instruction));
+      executionStep.setInstruction(processToBase(instruction));
     // executionStep.setInstruction(lastExecutionPoint.instruction);
 
     if (capturing) {
