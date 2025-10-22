@@ -268,7 +268,8 @@ public class Periph implements IPeriph {
 
     // Normal port read
     PeripheralData callbackInfo = new PeripheralData(port, (byte) 0x00, (byte) 0xff);
-    for (PrivatePort privatePort : ports) {
+    for (int i = 0, portsSize = ports.size(); i < portsSize; i++) {
+      PrivatePort privatePort = ports.get(i);
       PortHandler portData = privatePort.port;
       if (portData.isReader() && (callbackInfo.port & portData.getMask()) == portData.getValue()) {
         byte[] attached = new byte[]{0};
@@ -303,7 +304,8 @@ public class Periph implements IPeriph {
   @Override
   public void writePortInternal(int port, byte b) {
     PeripheralData callbackInfo = new PeripheralData(port, (byte) 0, b);
-    for (PrivatePort privatePort : ports) {
+    for (int i = 0, portsSize = ports.size(); i < portsSize; i++) {
+      PrivatePort privatePort = ports.get(i);
       PortHandler portData = privatePort.port;
       if (portData.isWriter() && (callbackInfo.port & portData.getMask()) == portData.getValue()) {
         portData.write(callbackInfo.port, callbackInfo.value);

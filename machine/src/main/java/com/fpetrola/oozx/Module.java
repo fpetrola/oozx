@@ -20,12 +20,13 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.modules.ZXModuleInfo;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Module {
 
-  private static List<ZXModuleInfo> registeredModules = new LinkedList<>();
+  private static List<ZXModuleInfo> registeredModules = new ArrayList<>();
 
   public static void register(ZXModuleInfo e) {
     registeredModules.add(e);

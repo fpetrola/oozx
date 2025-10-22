@@ -23,6 +23,7 @@ import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.function.Supplier;
 
@@ -37,7 +38,7 @@ public class EventManager implements ZxModule {
   public long eventNextEvent;
 
   // The actual list of events
-  private LinkedList<Event> eventList = new LinkedList<>();
+  private List<Event> eventList = new ArrayList<>();
 
   // An event ready to be reused
   private Event eventFree = null;
@@ -164,7 +165,8 @@ public class EventManager implements ZxModule {
 
   // Called at end of frame to reduce T-state count of all entries
   public void eventFrame(long tstatesPerFrame) {
-    for (Event event : eventList) {
+    for (int i = 0, eventListSize = eventList.size(); i < eventListSize; i++) {
+      Event event = eventList.get(i);
       eventReduceTstates(event, tstatesPerFrame);
     }
 

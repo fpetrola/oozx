@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.machine.MachineTimings;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.*;
 import com.fpetrola.oozx.fuse.modules.z80.Z80;
@@ -107,20 +108,22 @@ public class Spectrum implements ZxModule {
   }
 
   private int contendDelayCommon(long time, int[] timings, int offset) {
-    int line = (int) ((time - getCurrent().getLineTimes()[0]) / getCurrent().getTimings().tstatesPerLine);
+    SpectrumMachine spectrumMachine = getCurrent();
 
-    int tstatesThroughLine = (int) (time - getCurrent().getLineTimes()[0] +
-        (getCurrent().getTimings().leftBorder - display.BORDER_WIDTH_COLS * 4));
+    int line = (int) ((time - spectrumMachine.getLineTimes()[0]) / spectrumMachine.getTimings().tstatesPerLine);
 
-    tstatesThroughLine %= getCurrent().getTimings().tstatesPerLine;
+    int tstatesThroughLine = (int) (time - spectrumMachine.getLineTimes()[0] +
+        (spectrumMachine.getTimings().leftBorder - display.BORDER_WIDTH_COLS * 4));
+
+    tstatesThroughLine %= spectrumMachine.getTimings().tstatesPerLine;
 
     if (line < display.BORDER_HEIGHT ||
         line >= display.BORDER_HEIGHT + display.HEIGHT) return 0;
 
-    if (tstatesThroughLine < getCurrent().getTimings().leftBorder - offset) return 0;
+    if (tstatesThroughLine < spectrumMachine.getTimings().leftBorder - offset) return 0;
 
-    if (tstatesThroughLine >= getCurrent().getTimings().leftBorder +
-        getCurrent().getTimings().horizontalScreen - offset) return 0;
+    if (tstatesThroughLine >= spectrumMachine.getTimings().leftBorder +
+        spectrumMachine.getTimings().horizontalScreen - offset) return 0;
 
     return timings[tstatesThroughLine % 8];
   }
@@ -138,35 +141,28 @@ public class Spectrum implements ZxModule {
   }
 
   public int spectrumUnattachedPort() {
-    if (z80Clock.getTStates() < getCurrent().getLineTimes()[display.BORDER_HEIGHT]) return 0xff;
+    SpectrumMachine spectrumMachine = getCurrent();
+    MachineTimings timings = spectrumMachine.getTimings();
+    long[] lineTimes = spectrumMachine.getLineTimes();
 
-    int line = (int) ((z80Clock.getTStates() - getCurrent().getLineTimes()[display.BORDER_HEIGHT]) /
-        getCurrent().getTimings().tstatesPerLine);
-
+    if (z80Clock.getTStates() < lineTimes[display.BORDER_HEIGHT]) return 0xff;
+    int line = (int) ((z80Clock.getTStates() - lineTimes[display.BORDER_HEIGHT]) / timings.tstatesPerLine);
     if (line >= display.HEIGHT) return 0xff;
-
-    int tstatesThroughLine = (int) (z80Clock.getTStates() -
-        getCurrent().getLineTimes()[display.BORDER_HEIGHT + line] +
-        (getCurrent().getTimings().leftBorder - display.BORDER_WIDTH_COLS * 4));
-
-    if (tstatesThroughLine < getCurrent().getTimings().leftBorder) return 0xff;
-
-    if (tstatesThroughLine >= getCurrent().getTimings().leftBorder +
-        getCurrent().getTimings().horizontalScreen) return 0xff;
-
-    int column = ((tstatesThroughLine - getCurrent().getTimings().leftBorder) / 8) * 2;
+    int tstatesThroughLine = (int) (z80Clock.getTStates() - lineTimes[display.BORDER_HEIGHT + line] + (timings.leftBorder - display.BORDER_WIDTH_COLS * 4));
+    if (tstatesThroughLine < timings.leftBorder) return 0xff;
+    if (tstatesThroughLine >= timings.leftBorder + timings.horizontalScreen) return 0xff;
+    int column = ((tstatesThroughLine - timings.leftBorder) / 8) * 2;
+    byte[] bytes = ramHolder.getRAM()[memory.currentScreen];
 
     switch (tstatesThroughLine % 8) {
       case 5:
         column++;
       case 3:
-        return ramHolder.getRAM()[memory.currentScreen][display.attrStart[line] + column];
-
+        return bytes[display.attrStart[line] + column];
       case 4:
         column++;
       case 2:
-        return ramHolder.getRAM()[memory.currentScreen][display.lineStart[line] + column];
-
+        return bytes[display.lineStart[line] + column];
       case 0:
       case 1:
       case 6:
