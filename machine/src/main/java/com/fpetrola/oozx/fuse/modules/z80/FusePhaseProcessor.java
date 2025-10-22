@@ -41,9 +41,8 @@ public class FusePhaseProcessor extends PhaseProcessor<WordNumber> {
   public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
     boolean memoryContended = z80.memory.mapRead[baseAddress >>> z80.memory.PAGE_SIZE_LOGARITHM].contended;
     for (int i = 0; i < x; i++) {
-      if (memoryContended) {
-        z80.zxClock.addTStates(z80.ula.contentionNoMreq[(int) z80.zxClock.getTStates()], () -> "ula " + (description != null ? description : "contend_read_no_mreq"));
-      }
+      if (memoryContended)
+        z80.ula.addUlaStates(0, () -> "ula " + (description != null ? description : "contend_read_no_mreq"));
 
       addSingleMc(time1, delta, baseAddress, description);
     }

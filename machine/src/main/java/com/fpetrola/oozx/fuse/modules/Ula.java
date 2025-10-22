@@ -20,12 +20,10 @@ package com.fpetrola.oozx.fuse.modules;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
-import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.UlaFullDecodePeripheral;
 import com.fpetrola.oozx.fuse.peripherals.UlaPeripheral;
-import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.function.Supplier;
 
@@ -52,6 +50,8 @@ public class Ula implements ZxModule {
   private Keyboard keyboard;
   private SpectrumZ80Clock z80Clock;
   private final IPeriph periph;
+  private String contendPortLate = "contend_port_late";
+  private String contendPortEarly = "contend_port_early";
 
 
   public Ula(Memory memory, Display display, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock z80Clock, IPeriph periph) {
@@ -126,24 +126,31 @@ public class Ula implements ZxModule {
 
   public void contendPortEarly(int port) {
     if (memory.mapRead[port >>> memory.PAGE_SIZE_LOGARITHM].contended) {
-      z80Clock.addTStates(contentionNoMreq[(int) z80Clock.getTStates()], "ula_contend_port_early");
+      addUlaStates(0, contendPortEarly);
     }
-    z80Clock.addTStates((byte) 1, "contend_port_early");
+    z80Clock.addTStates((byte) 1, contendPortEarly);
   }
 
   public void contendPortLate(int port) {
-    String ulaContendPortLate = "ula_contend_port_late";
     if (getCurrent().getRamInfo().portFromUla(port)) {
-      z80Clock.addTStates((contentionNoMreq[(int) z80Clock.getTStates()] + 2), ulaContendPortLate);
+      addUlaStates(2, contendPortLate);
     } else {
       if (memory.mapRead[port >>> memory.PAGE_SIZE_LOGARITHM].contended) {
-        z80Clock.addTStates((contentionNoMreq[(int) z80Clock.getTStates()] + 1), ulaContendPortLate);
-        z80Clock.addTStates((contentionNoMreq[(int) z80Clock.getTStates()] + 1), ulaContendPortLate);
-        z80Clock.addTStates(contentionNoMreq[(int) z80Clock.getTStates()], ulaContendPortLate);
+        addUlaStates(1, contendPortLate);
+        addUlaStates(1, contendPortLate);
+        addUlaStates(0, contendPortLate);
       } else {
-        z80Clock.addTStates(2, "contend_port_late");
+        z80Clock.addTStates(2, contendPortLate);
       }
     }
+  }
+
+  private void addUlaStates(int i, String description) {
+    addUlaStates(i, () -> "ula_" + description);
+  }
+
+  public void addUlaStates(int states, Supplier<String> descriptionSupplier) {
+    z80Clock.addTStates(contentionNoMreq[(int) z80Clock.getTStates()] + states, descriptionSupplier);
   }
 
 }
