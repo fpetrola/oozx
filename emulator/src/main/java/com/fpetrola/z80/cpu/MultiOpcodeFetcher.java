@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.cpu;
 
+import com.fpetrola.z80.instructions.cache.InstructionCloner;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
@@ -63,12 +64,16 @@ public class MultiOpcodeFetcher<T extends WordNumber> {
 
   public Instruction<T> fetchInstruction(T address) {
     memoryForOpcode.reset();
-    Instruction<T> opcodesTable = opcodesTables[state.isHalted() ? 0x76 : memory.read(address, 1).intValue()];
-    while (opcodesTable instanceof DefaultFetchNextOpcodeInstruction<T> fetchNextOpcodeInstruction) {
+    Instruction<T> fetchedInstruction = opcodesTables[state.isHalted() ? 0x76 : memory.read(address, 1).intValue()];
+    while (fetchedInstruction instanceof DefaultFetchNextOpcodeInstruction<T> fetchNextOpcodeInstruction) {
       fetchNextOpcodeInstruction.update();
-      opcodesTable = fetchNextOpcodeInstruction.findNextOpcode2();
+      fetchedInstruction = fetchNextOpcodeInstruction.findNextOpcode2();
     }
-    return opcodesTable;
+
+    if (clone)
+      fetchedInstruction = new InstructionCloner<T, T>(instructionFactory).clone(fetchedInstruction);
+
+    return fetchedInstruction;
   }
 
   public void reset() {

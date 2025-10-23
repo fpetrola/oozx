@@ -107,12 +107,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   public Instruction<T> fetchInstruction(T address) {
     Instruction<T> fetchedInstruction = multiOpcodeFetcher.fetchInstruction(address);
     setupPhaseInterceptor((AbstractInstruction<T>) fetchedInstruction);
-
-    if (multiOpcodeFetcher.clone)
-      fetchedInstruction = new InstructionCloner<T, T>(multiOpcodeFetcher.instructionFactory).clone(fetchedInstruction);
-
-    Instruction<T> finalBaseInstruction = fetchedInstruction;
-    fetchListeners.forAll(l -> l.instructionFetchedAt(address, finalBaseInstruction));
+    fetchListeners.forAll(l -> l.instructionFetchedAt(address, fetchedInstruction));
     return fetchedInstruction;
   }
 
