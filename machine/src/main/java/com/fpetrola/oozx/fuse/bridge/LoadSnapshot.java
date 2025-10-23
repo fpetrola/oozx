@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx.fuse.bridge;
 
-import com.fpetrola.oozx.fuse.FuseLibretroConnector;
+import com.fpetrola.oozx.fuse.OOSpectrumConnector;
 import com.fpetrola.oozx.fuse.LibretroCore;
 
 public class LoadSnapshot implements EmulatorCommand {
@@ -30,7 +30,7 @@ public class LoadSnapshot implements EmulatorCommand {
 
   @Override
   public Object execute(LibretroCore core) {
-    FuseLibretroConnector.loadGame(core, fileName);
+    OOSpectrumConnector.loadGame(core, fileName);
     return EmulatorCommand.super.execute(core);
   }
 }

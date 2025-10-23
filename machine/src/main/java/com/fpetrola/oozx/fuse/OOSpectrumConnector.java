@@ -32,13 +32,13 @@ import java.nio.file.Path;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class FuseLibretroConnector {
+public class OOSpectrumConnector {
   public static LibretroCore core = LibretroCore.INSTANCE;
   public static boolean noTest;
 
   public static void main(String[] args) {
     noTest = true;
-    new FuseLibretroConnector();
+    new OOSpectrumConnector();
     DefaultCommandHandler.createCommandHandler();
   }
 

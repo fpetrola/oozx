@@ -20,6 +20,7 @@ package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.cache.InstructionCloner;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
@@ -28,12 +29,15 @@ import com.fpetrola.z80.opcodes.decoder.table.MemoryForOpcodes;
 import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
+import com.fpetrola.z80.registers.Register;
 
 import java.util.function.Supplier;
 
 public class MultiOpcodeFetcher<T extends WordNumber> {
   public final InstructionFactory<T> instructionFactory;
   private final State<T> state;
+  private final Register<T> registerR;
   public Instruction<T>[] opcodesTables;
   public Supplier<TableBasedOpCodeDecoder<T>> tableFactory;
   public boolean clone;
@@ -48,6 +52,7 @@ public class MultiOpcodeFetcher<T extends WordNumber> {
     tableFactory = () -> createOpcodesTables(opcodeConditions, instructionFactory.getFetchNextOpcodeInstructionFactory(), instructionFactory);
     createOpcodeTables();
     memory = state.getMemory();
+    this.registerR = (DefaultRegisterBankFactory.RRegister<T>) state.getRegisterR();
   }
 
   public void createOpcodeTables() {
@@ -63,12 +68,15 @@ public class MultiOpcodeFetcher<T extends WordNumber> {
   }
 
   public Instruction<T> fetchInstruction(T address) {
+    int rValue = registerR.read().intValue();
     memoryForOpcode.reset();
     Instruction<T> fetchedInstruction = opcodesTables[state.isHalted() ? 0x76 : memory.read(address, 1).intValue()];
     while (fetchedInstruction instanceof DefaultFetchNextOpcodeInstruction<T> fetchNextOpcodeInstruction) {
       fetchNextOpcodeInstruction.update();
       fetchedInstruction = fetchNextOpcodeInstruction.findNextOpcode2();
     }
+    int rdelta = registerR.read().intValue() - rValue;
+    ((AbstractInstruction<?>)fetchedInstruction).setRDelta(rdelta);
 
     if (clone)
       fetchedInstruction = new InstructionCloner<T, T>(instructionFactory).clone(fetchedInstruction);

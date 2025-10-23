@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx.fuse.bridge;
 
-import com.fpetrola.oozx.fuse.FuseLibretroConnector;
+import com.fpetrola.oozx.fuse.OOSpectrumConnector;
 import com.fpetrola.oozx.fuse.KVPair;
 import com.fpetrola.oozx.fuse.LibretroCore;
 import com.fpetrola.oozx.fuse.TStateUpdate;
@@ -32,7 +32,7 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
   public static List<TStateUpdate> tstatesUpdates = new ArrayList<>();
 
   private static List<TStateUpdate> getTstatesUpdates() {
-    if (FuseLibretroConnector.noTest)
+    if (OOSpectrumConnector.noTest)
       tstatesUpdates.clear();
     return tstatesUpdates;
   }
@@ -42,7 +42,7 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
   }
 
   public static void addTStateUpdate(int tstatesToAdd, Supplier<String> description, long tstates) {
-    if (!FuseLibretroConnector.noTest) {
+    if (!OOSpectrumConnector.noTest) {
 //      int pc = z80.ooz80.getState().getPc().read().intValue();
       int pc = 0;
 //    if (tstates == 20 && pc == 50758) {

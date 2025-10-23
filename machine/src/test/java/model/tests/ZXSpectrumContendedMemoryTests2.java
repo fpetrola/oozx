@@ -25,7 +25,7 @@ public class ZXSpectrumContendedMemoryTests2 {
   public static void beforeall() {
     Fuse fuse = new Fuse();
     localLibretroCore = new LocalLibretroCore(fuse.eventManager, fuse.display, fuse.machine, fuse.z80, fuse.zxClock, fuse.periph, fuse);
-    remoteCore = FuseLibretroConnector.core;
+    remoteCore = OOSpectrumConnector.core;
     CommandHandler commandHandler1 = DefaultCommandHandler.createCommandHandler(localLibretroCore);
     CommandHandler commandHandler2 = DefaultCommandHandler.createCommandHandler(remoteCore);
 

@@ -21,7 +21,6 @@ package com.fpetrola.oozx.fuse.modules.z80;
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.fuse.*;
-import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.machine.TimingsHandler;
 import com.fpetrola.oozx.fuse.modules.*;
@@ -29,7 +28,6 @@ import com.fpetrola.oozx.fuse.modules.Timer;
 import com.fpetrola.oozx.fuse.peripherals.*;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
@@ -38,14 +36,11 @@ import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
-import com.fpetrola.z80.spy.ExecutionListener;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 import fuse.PhaseProcessorExecutionListener;
 import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
 import fuse.tstates.PhaseProcessor;
-import fuse.tstates.phases.AfterExecution;
-import fuse.tstates.phases.BeforeExecution;
 
 import javax.swing.*;
 import java.awt.event.KeyListener;
@@ -144,7 +139,7 @@ public class Z80 implements ZxModule {
     ooz80 = createOOZ80(io);
 
     byte[][] bytes = new byte[1000][1000];
-    if (FuseLibretroConnector.noTest) {
+    if (OOSpectrumConnector.noTest) {
 //      JFrame screen1 = MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
 //      JFrame screen = createScreen(io.miniZXKeyboard, zxScreenComponent);
 

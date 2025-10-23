@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx.fuse.modules.z80;
 
-import com.fpetrola.oozx.fuse.FuseLibretroConnector;
+import com.fpetrola.oozx.fuse.OOSpectrumConnector;
 import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import fuse.tstates.PhaseProcessor;
@@ -49,7 +49,7 @@ public class FusePhaseProcessor extends PhaseProcessor<WordNumber> {
   }
 
   public void addSingleMc(int time1, int delta, int baseAddress, String description) {
-    if (FuseLibretroConnector.noTest) {
+    if (OOSpectrumConnector.noTest) {
       getState().addEventNumber(time1);
     } else {
       super.addSingleMc(time1, delta, baseAddress, description);

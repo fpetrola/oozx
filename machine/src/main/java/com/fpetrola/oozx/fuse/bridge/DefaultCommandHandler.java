@@ -20,7 +20,7 @@ package com.fpetrola.oozx.fuse.bridge;
 
 import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.fuse.EmulatorCommandResult;
-import com.fpetrola.oozx.fuse.FuseLibretroConnector;
+import com.fpetrola.oozx.fuse.OOSpectrumConnector;
 import com.fpetrola.oozx.fuse.LibretroCore;
 import com.fpetrola.oozx.fuse.LocalLibretroCore;
 
@@ -46,8 +46,8 @@ public class DefaultCommandHandler implements CommandHandler {
 
   public static CommandHandler createCommandHandler(LibretroCore core1) {
     DefaultCommandHandler commandHandler = new DefaultCommandHandler();
-    FuseLibretroConnector fuseLibretroConnector = new FuseLibretroConnector();
-    fuseLibretroConnector.init(commandHandler, core1);
+    OOSpectrumConnector OOSpectrumConnector = new OOSpectrumConnector();
+    OOSpectrumConnector.init(commandHandler, core1);
     return commandHandler;
   }
 
