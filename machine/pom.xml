@@ -18,6 +18,7 @@
         <module>media</module>
         <module>machines/ula</module>
         <module>host</module>
+        <module>machines/ay</module>
     </modules>
 
 </project>
