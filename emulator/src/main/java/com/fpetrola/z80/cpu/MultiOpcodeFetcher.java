@@ -76,10 +76,12 @@ public class MultiOpcodeFetcher<T extends WordNumber> {
       fetchedInstruction = fetchNextOpcodeInstruction.findNextOpcode2();
     }
     int rdelta = registerR.read().intValue() - rValue;
-    ((AbstractInstruction<?>)fetchedInstruction).setRDelta(rdelta);
+    AbstractInstruction<?> fetchedInstruction1 = (AbstractInstruction<?>) fetchedInstruction;
+    fetchedInstruction1.setRDelta(rdelta);
 
-    if (clone)
+    if (clone) {
       fetchedInstruction = new InstructionCloner<T, T>(instructionFactory).clone(fetchedInstruction);
+    }
 
     return fetchedInstruction;
   }

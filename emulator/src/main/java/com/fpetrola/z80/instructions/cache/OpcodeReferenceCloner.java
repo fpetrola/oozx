@@ -61,22 +61,19 @@ public class OpcodeReferenceCloner<T extends WordNumber> implements InstructionV
 
   @Override
   public boolean visitMemory8BitReference(Memory8BitReference<T> memory8BitReference) {
-    T read = memory8BitReference.read();
-    setResult(new CachedMemory8BitReference(memory8BitReference.fetchedAddress, memory8BitReference.getMemory(), memory8BitReference.getPc(), memory8BitReference.getDelta()));
+    setResult(new Memory8BitReference(memory8BitReference.getMemory(), memory8BitReference.getPc(), memory8BitReference.getDelta()));
     return false;
   }
 
   @Override
   public boolean visitMemory16BitReference(Memory16BitReference<T> memory16BitReference) {
-    T read = memory16BitReference.read();
-    setResult(new CachedMemory16BitReference<>(memory16BitReference.fetchedAddress, memory16BitReference.getMemory(), memory16BitReference.getPc(), memory16BitReference.getDelta()));
+    setResult(new Memory16BitReference<>(memory16BitReference.getMemory(), memory16BitReference.getPc(), memory16BitReference.getDelta()));
     return false;
   }
 
   @Override
   public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
-    T read = memoryPlusRegister8BitReference.read();
-    setResult(new CachedMemoryPlusRegister8BitReference<>(memoryPlusRegister8BitReference.fetchedRelative, memoryPlusRegister8BitReference.getTarget(), memoryPlusRegister8BitReference.getMemory(), memoryPlusRegister8BitReference.getPc(), memoryPlusRegister8BitReference.getValueDelta()));
+    setResult(new MemoryPlusRegister8BitReference<>(memoryPlusRegister8BitReference.getTarget(), memoryPlusRegister8BitReference.getMemory(), memoryPlusRegister8BitReference.getPc(), memoryPlusRegister8BitReference.getValueDelta()));
   }
 
   public boolean visitRegister(Register register) {

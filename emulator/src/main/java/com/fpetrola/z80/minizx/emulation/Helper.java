@@ -33,7 +33,6 @@ public class Helper {
   }
 
   public static DefaultInstructionFetcher getInstructionFetcher(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory) {
-    SpyInstructionExecutor instructionExecutor1 = new SpyInstructionExecutor(spy, state);
     return new DefaultInstructionFetcher(state, instructionFactory, false, false);
 //    return new CachedInstructionFetcher(state, instructionFactory, false);
   }
