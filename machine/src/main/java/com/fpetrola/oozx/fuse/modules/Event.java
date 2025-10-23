@@ -23,4 +23,10 @@ public class Event {
     public long tstates;
     public int type;
     public Object userData;
+
+    public Event(long tstates, int type, Object userData) {
+        this.tstates = tstates;
+        this.type = type;
+        this.userData = userData;
+    }
 }

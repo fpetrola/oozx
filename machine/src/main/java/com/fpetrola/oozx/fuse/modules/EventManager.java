@@ -38,10 +38,8 @@ public class EventManager implements ZxModule {
   public long eventNextEvent;
 
   // The actual list of events
-  private List<Event> eventList = new ArrayList<>();
+  private List<Event> eventList = new LinkedList<>();
 
-  // An event ready to be reused
-  private Event eventFree = null;
   private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
   private Z80Clock z80Clock;
 
@@ -91,37 +89,27 @@ public class EventManager implements ZxModule {
 
   // Add an event at the correct place in the event list
   public void eventAddWithData(long eventTime, int type, Object userData) {
-    Event ptr;
-
-    if (eventFree != null) {
-      ptr = eventFree;
-      eventFree = null;
-    } else {
-      ptr = new Event();
-    }
-
-    ptr.tstates = eventTime;
-    ptr.type = type;
-    ptr.userData = userData;
+    Event newEvent = new Event(eventTime, type, userData);
 
     if (eventTime < eventNextEvent) {
       eventNextEvent = eventTime;
-      eventList.addFirst(ptr);
+      eventList.addFirst(newEvent);
     } else {
       // Insert sorted
       ListIterator<Event> iterator = eventList.listIterator();
+
       boolean added = false;
       while (iterator.hasNext()) {
         Event current = iterator.next();
-        if (eventAddCmp(ptr, current) < 0) {
+        if (eventAddCmp(newEvent, current) < 0) {
           iterator.previous();
-          iterator.add(ptr);
+          iterator.add(newEvent);
           added = true;
           break;
         }
       }
       if (!added) {
-        eventList.addLast(ptr);
+        eventList.addLast(newEvent);
       }
     }
   }
@@ -132,12 +120,9 @@ public class EventManager implements ZxModule {
 
   // Do all events which have passed
   public int eventDoEvents() {
-    while (eventNextEvent <= z80Clock.getTStates()) { // Assume Fuse.tstates
-      Event ptr = eventList.getFirst();
-      EventDescriptor descriptor = registeredEvents.get(ptr.type);
-
-      // Remove the event from the list *before* processing
-      eventList.removeFirst();
+    while (eventNextEvent <= z80Clock.getTStates()) {
+      Event firstEvent = eventList.removeFirst();
+      EventDescriptor descriptor = registeredEvents.get(firstEvent.type);
 
       if (eventList.isEmpty()) {
         eventNextEvent = EVENT_NO_EVENTS;
@@ -146,13 +131,7 @@ public class EventManager implements ZxModule {
       }
 
       if (descriptor.fn != null) {
-        descriptor.fn.apply(ptr.tstates, ptr.type, ptr.userData);
-      }
-
-      if (eventFree != null) {
-        // No free in Java, GC handles
-      } else {
-        eventFree = ptr;
+        descriptor.fn.apply(firstEvent.tstates, firstEvent.type, firstEvent.userData);
       }
     }
 
@@ -202,21 +181,15 @@ public class EventManager implements ZxModule {
 
   // Remove all events of a specific type and user data from the stack
   public void eventRemoveTypeUserData(int type, Object userData) {
-    Event template = new Event();
-    template.type = type;
-    template.userData = userData;
+    Event template = new Event(-1, type, userData);
     for (Event event : eventList) {
       setEventNullWithUserData(event, template);
     }
   }
 
-  // Clear the event stack
   public void reset() {
     eventList.clear();
-
     eventNextEvent = EVENT_NO_EVENTS;
-
-    eventFree = null; // GC
   }
 
   // A textual representation of each event type
@@ -230,7 +203,4 @@ public class EventManager implements ZxModule {
     registeredEvents.clear();
     registeredEvents = null;
   }
-
-  // Tidy-up function called at end of emulation
-
 }
