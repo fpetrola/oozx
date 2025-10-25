@@ -88,7 +88,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return false;
   }
 
-  private void addForRelativeJump(ConditionalInstruction<T, ?> conditionalInstruction) {
+  private void addForRelativeJump(JumpInstruction<T> conditionalInstruction) {
     hasJumped(conditionalInstruction).ifPresentOrElse(
         (a) -> addMultipleMc(5, 1, 1, valueOf(PC), null),
         () -> addMultipleMc(1, 3, 1, valueOf(PC), "readbyte")

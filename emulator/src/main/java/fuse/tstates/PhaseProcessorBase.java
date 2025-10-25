@@ -23,6 +23,7 @@ import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.instructions.types.JumpInstruction;
 import com.fpetrola.z80.instructions.types.TargetInstruction;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
@@ -138,7 +139,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
     return getRegister(registerName).read().intValue();
   }
 
-  protected Optional<Boolean> hasJumped(AbstractInstruction<T> instruction) {
+  protected Optional<Boolean> hasJumped(JumpInstruction<T> instruction) {
     return Optional.ofNullable(instruction.getNextPC() != null ? true : null);
   }
 

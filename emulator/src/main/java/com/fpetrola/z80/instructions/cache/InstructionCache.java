@@ -52,7 +52,7 @@ public class InstructionCache<T extends WordNumber> {
       this.opcode = opcode;
     }
 
-    public Instruction<T> getOpcode() {
+    public Instruction<T> getInstruction() {
       return opcode;
     }
 
@@ -96,17 +96,17 @@ public class InstructionCache<T extends WordNumber> {
 
   private Runnable[] cacheInvalidators = new Runnable[0x10000];
 
-  private final InstructionCloner instructionCloner;
+  private final InstructionCloner<T, T> instructionCloner;
 
-  public InstructionCache(Memory memory, DefaultInstructionFactory instructionFactory) {
-    instructionCloner = new InstructionCloner(instructionFactory);
-    memory.addMemoryWriteListener(new CacheInvalidatorMemoryWriteListener(cacheInvalidators));
+  public InstructionCache(Memory<T> memory, DefaultInstructionFactory<T> instructionFactory) {
+    instructionCloner = new InstructionCloner<>(instructionFactory);
+    memory.addMemoryWriteListener(new CacheInvalidatorMemoryWriteListener<>(cacheInvalidators));
   }
 
   public void cacheInstruction(T pcValue, Instruction<T> instruction) {
-//    Instruction<T> clone = instructionCloner.clone(instruction);
-    opcodesCache.set(pcValue.intValue(), new CacheEntry(instruction));
-    new InstructionCacheInvalidator(pcValue, instruction.getLength()).set();
+    Instruction<T> clone = instructionCloner.clone(instruction);
+    opcodesCache.set(pcValue.intValue(), new CacheEntry(clone));
+    new InstructionCacheInvalidator(pcValue, clone.getLength()).set();
   }
 
   public void reset() {

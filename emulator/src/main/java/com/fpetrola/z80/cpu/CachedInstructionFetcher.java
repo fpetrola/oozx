@@ -30,19 +30,19 @@ public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstr
   protected InstructionCache<T> instructionCache;
   private Instruction<T> cached;
 
-  public CachedInstructionFetcher(State aState, InstructionFactory instructionFactory, boolean clone) {
+  public CachedInstructionFetcher(State<T> aState, InstructionFactory<T> instructionFactory, boolean clone) {
     super(aState, instructionFactory, clone, false);
-    instructionCache = new InstructionCache(aState.getMemory(), new DefaultInstructionFactory(aState));
+    instructionCache = new InstructionCache<>(aState.getMemory(), new DefaultInstructionFactory<>(aState));
   }
 
   public Instruction<T> fetchNextInstruction() {
     pcValue = state.getPc().read();
     Instruction<T> result;
 
-    InstructionCache.CacheEntry cacheEntry = instructionCache.getCacheEntryAt(pcValue);
+    InstructionCache<T>.CacheEntry cacheEntry = instructionCache.getCacheEntryAt(pcValue);
     if (cacheEntry != null && !cacheEntry.isMutable()) {
-      cached = cacheEntry.getOpcode();
-      result= cached;
+      cached = cacheEntry.getInstruction();
+      result = cached;
       result = super.fetchNextInstruction();
 //      result = cacheEntry.getOpcode();
     } else {

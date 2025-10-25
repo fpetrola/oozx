@@ -24,7 +24,7 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public abstract class TargetSourceInstruction<T extends WordNumber, S extends ImmutableOpcodeReference<T>> extends DefaultTargetFlagInstruction<T> {
+public abstract class TargetSourceInstruction<T extends WordNumber, S extends ImmutableOpcodeReference<T>> extends DefaultTargetFlagInstruction<T> implements SourceInstruction<T, S> {
   protected S source;
 
   public TargetSourceInstruction(OpcodeReference<T> target, S source, Register<T> flag) {
@@ -38,14 +38,17 @@ public abstract class TargetSourceInstruction<T extends WordNumber, S extends Im
     return super.toString() + ", " + "source";
   }
 
+  @Override
   public S getSource() {
     return source;
   }
 
+  @Override
   public void setSource(S source) {
     this.source = source;
   }
 
+  @Override
   public void accept(InstructionVisitor visitor) {
     visitor.visitingFlag(getFlag(), this);
     visitor.visitingSource(getSource(), this);
