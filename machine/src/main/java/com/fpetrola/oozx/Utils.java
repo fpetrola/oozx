@@ -18,12 +18,25 @@
 
 package com.fpetrola.oozx;
 
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+
 public class Utils {
   public static int openFile(String dock, int autoload, Object o) {
     return 0;
   }
 
   public static int readAuxiliaryFile(String filename, File rom, AuxiliaryType auxiliaryType) {
+    try {
+      URL resource = Utils.class.getResource("/" + filename);
+      rom.buffer = FileUtils.readFileToByteArray(new java.io.File(resource.getFile()));
+      rom.length = rom.buffer.length;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
     return 0;
   }
 

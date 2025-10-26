@@ -150,8 +150,8 @@ public class Machine  implements ZxModule {
       return 1;
     }
     if (error != 0) return error;
-    rom.buffer = new byte[0x4000];
-    rom.length = rom.buffer.length;
+//    rom.buffer = new byte[0x4000];
+//    rom.length = rom.buffer.length;
 
     if (rom.length != expectedLength) {
       Ui.error(UiError.ERROR, "ROM '%s' is %d bytes long; expected %d bytes", filename, rom.length, expectedLength);

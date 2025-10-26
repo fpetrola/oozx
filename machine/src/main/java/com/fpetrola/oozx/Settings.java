@@ -173,7 +173,7 @@ public class Settings {
     public String rom1280;
     public String rom1281;
     public String rom16;
-    public String rom48;
+    public String rom48= "roms/48.rom";
     public String romBeta128;
     public String romDidaktik80;
     public String romDisciple;
