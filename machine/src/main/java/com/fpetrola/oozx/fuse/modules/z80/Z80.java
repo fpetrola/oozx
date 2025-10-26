@@ -143,8 +143,7 @@ public class Z80 implements ZxModule {
   private void init2() {
     io = new MiniZXIO() {
       public synchronized WordNumber in(WordNumber port) {
-        byte b = periph.readPort(port.intValue());
-        return createValue(b);
+        return createValue(periph.readPort(port.intValue()));
       }
 
       public void out(WordNumber port, WordNumber value) {
