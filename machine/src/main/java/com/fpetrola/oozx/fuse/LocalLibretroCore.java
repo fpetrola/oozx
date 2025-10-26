@@ -158,7 +158,7 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public int retro_get_memory_data(int id) {
-    return executePreservingTstates(() -> getMemory().getData()[id].intValue());
+    return executePreservingTstates(() -> getMemory().read(createValue(id), 0).intValue());
   }
 
   public void retro_set_memory_data(int address, int id) {

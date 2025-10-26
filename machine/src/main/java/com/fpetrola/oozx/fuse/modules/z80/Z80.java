@@ -123,7 +123,7 @@ public class Z80 implements ZxModule {
       }
 
       public void reset() {
-
+        memory.reset();
       }
     };
     var state = new State<T>(io, new DefaultRegisterBankFactory<T>().createBank(), memory1) {

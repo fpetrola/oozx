@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Machine  implements ZxModule {
+public class Machine implements ZxModule {
   private EventManager eventManager;
   private Memory memory;
   private Display display;
@@ -144,7 +144,7 @@ public class Machine  implements ZxModule {
 
   private int loadRomBankFromFile(MemoryPage[] bankMap, int pageNum, String filename, int expectedLength, boolean custom) {
     Utils.File rom = new Utils.File();
-    int error = Utils.readAuxiliaryFile(filename, rom, Utils.AuxiliaryType.ROM);
+    int error = Utils.readAuxiliaryFile("roms/" + filename, rom, Utils.AuxiliaryType.ROM);
     if (error == -1) {
       Ui.error(UiError.ERROR, "couldn't find ROM '%s'", filename);
       return 1;

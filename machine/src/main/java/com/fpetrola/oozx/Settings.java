@@ -173,7 +173,7 @@ public class Settings {
     public String rom1280;
     public String rom1281;
     public String rom16;
-    public String rom48= "roms/48.rom";
+    public String rom48= "48.rom";
     public String romBeta128;
     public String romDidaktik80;
     public String romDisciple;
@@ -199,10 +199,10 @@ public class Settings {
     public String romPlus2a1;
     public String romPlus2a2;
     public String romPlus2a3;
-    public String romPlus30;
-    public String romPlus31;
-    public String romPlus32;
-    public String romPlus33;
+    public String romPlus30= "plus3-0.rom";
+    public String romPlus31= "plus3-1.rom";
+    public String romPlus32= "plus3-2.rom";
+    public String romPlus33= "plus3-3.rom";
     public String romPlus3e0;
     public String romPlus3e1;
     public String romPlus3e2;
