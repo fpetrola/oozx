@@ -76,6 +76,7 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
       instructionFetcher.afterExecute(currentInstruction);
       return currentInstruction;
     } catch (Exception e) {
+      e.printStackTrace();
       state.setRunState(State.RunState.STATE_STOPPED_BREAK);
       return null;
     }

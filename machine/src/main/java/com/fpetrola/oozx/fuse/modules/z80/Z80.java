@@ -32,6 +32,7 @@ import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.minizx.MiniZXIO;
+import com.fpetrola.z80.minizx.emulation.AbstractMemory;
 import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -111,7 +112,21 @@ public class Z80 implements ZxModule {
   }
 
   public <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
-    var state = new State<T>(io, new DefaultRegisterBankFactory<T>().createBank(), new MockedMemory<T>(true)) {
+    Memory<T> memory1 = new AbstractMemory<T>() {
+      protected T doRead(T address) {
+        byte b = memory.readByteInternal(address.intValue());
+        return createValue(b & 0xff);
+      }
+
+      protected void doWrite(int address, T value) {
+        memory.writeByteInternal2(address, (byte) value.intValue());
+      }
+
+      public void reset() {
+
+      }
+    };
+    var state = new State<T>(io, new DefaultRegisterBankFactory<T>().createBank(), memory1) {
       public void enableInterrupt() {
         super.enableInterrupt();
         interruptsEnabledAt = clock.getTStates();
@@ -231,11 +246,18 @@ public class Z80 implements ZxModule {
   }
 
   public void updateMemory() {
-    WordNumber[] data = ooz80.getState().getMemory().getData();
+    Memory<WordNumber> memory1 = ooz80.getState().getMemory();
+
+    memory1.canDisable(true);
+    memory1.disableReadListener();
+
     for (int i = 0x4000; i < 0x8000; i++) {
-      WordNumber datum = data[i];
+      WordNumber datum = memory1.read(createValue(i), 0);
       memory.writeByteInternal(i, datum != null ? (byte) (datum.intValue() & 0xff) : 0, display);
     }
+
+    memory1.enableReadListener();
+    memory1.canDisable(false);
   }
 
   public JFrame createScreen(KeyListener keyListener, JComponent contentPane) {

@@ -264,6 +264,11 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
 //    mapping.getPage().get(address & PAGE_SIZE_MASK);
   }
 
+  public byte readByteInternal(int address) {
+    MemoryPage mapping = mapRead[address >>> PAGE_SIZE_LOGARITHM];
+    return mapping.getPage().get(address & PAGE_SIZE_MASK);
+  }
+
   // Write a byte to memory
   public void writeByte(int address, byte b, Ula ula) {
     if (mapWrite[address >>> PAGE_SIZE_LOGARITHM].contended) {
@@ -295,6 +300,13 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
     MemoryPage mapping = mapWrite[address >>> PAGE_SIZE_LOGARITHM];
     if (mapping.writable || (mapping.source != sourceNone && Settings.current.writableRoms)) {
       displayDirty.apply(address, b, display);
+      mapping.getPage().set(address & PAGE_SIZE_MASK, b);
+    }
+  }
+
+  public void writeByteInternal2(int address, byte b) {
+    MemoryPage mapping = mapWrite[address >>> PAGE_SIZE_LOGARITHM];
+    if (mapping.writable || (mapping.source != sourceNone && Settings.current.writableRoms)) {
       mapping.getPage().set(address & PAGE_SIZE_MASK, b);
     }
   }

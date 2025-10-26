@@ -31,10 +31,14 @@ public class MemorySetter {
   }
 
   public void setData(byte[] result) {
-    for (int i = 0; i <result.length; i++) {
+    memory.canDisable(true);
+    memory.disableWriteListener();
+    for (int i = 0; i < result.length; i++) {
       int data = ((i < 16384) ? rom[i] : result[i]) & 0xff;
       WordNumber value = WordNumber.createValue(data);
-      memory.getData()[i]= value.and(0xff);
+      memory.write(WordNumber.createValue(i), value.and(0xff));
     }
+    memory.enableWriteListener();
+    memory.canDisable(false);
   }
 }
