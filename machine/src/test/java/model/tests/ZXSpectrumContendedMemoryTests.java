@@ -88,7 +88,7 @@ public class ZXSpectrumContendedMemoryTests {
     cpu.setRegisterA((byte) 0xAA);
     cpu.executeInstruction("LD (HL),A", null);
     assertEquals(initialTStates + 4 + 6 + 3 + 4, cpu.getTStates()); // Fetch + delay + write + delay, total +17
-    assertEquals((byte) 0xAA, bus.readMemory(26000));
+    assertEquals(0xAA, bus.readMemory(26000));
 
     assertTStatesHistory("""
         [TStateUpdate{key=14335, value=6, description='ula readbyte'}
@@ -147,7 +147,7 @@ public class ZXSpectrumContendedMemoryTests {
     int initialTStates = cpu.getTStates();
     cpu.executeInstruction("LD (HL),A", null);
     assertEquals(initialTStates + 4 + 6 + 3 + 4, cpu.getTStates()); // Fetch + delay + write + delay, total +17 (early equivalent)
-    assertEquals((byte) 0xBB, bus.readMemory(26000));
+    assertEquals(0xBB, bus.readMemory(26000));
     assertTStatesHistory("""
         [TStateUpdate{key=14335, value=6, description='ula readbyte'}
         , TStateUpdate{key=14341, value=4, description='readbyte'}
@@ -407,7 +407,7 @@ public class ZXSpectrumContendedMemoryTests {
     cpu.setRegisterA((byte) 0xCC);
     cpu.executeInstruction("LD (HL),A", null);
     assertEquals(initialTStates + 4 + 3 + 4 + 3, cpu.getTStates()); // Fetch + delay + write + delay, total +13
-    assertEquals((byte) 0xCC, bus.readMemory(0x4000));
+    assertEquals(0xCC, bus.readMemory(0x4000));
   }
 
   @Test
@@ -507,7 +507,7 @@ public class ZXSpectrumContendedMemoryTests {
 //    int i = 4 + 5 + 3 + 4;
     int i = 16;
     assertEquals(initialTStates + i, cpu.getTStates()); // Fetch + delay + write + delay, total +16
-    assertEquals((byte) 0xFF, bus.readMemory(0x4000));
+    assertEquals( 0xFF, bus.readMemory(0x4000));
   }
 
   @Test
@@ -734,7 +734,7 @@ public class ZXSpectrumContendedMemoryTests {
     cpu.executeInstruction("ADD HL,BC", null); // 11 T-states
     cpu.executeInstruction("LD (HL),A", null); // 7 + contention (1 at T=14361+11=14372)
     assertEquals(initialTStates + 11 + 7 + 1 + 1, cpu.getTStates(), "T-states with contention");
-    assertEquals((byte) 0xBB, bus.readMemory(0xC001), "Memory value after LD");
+    assertEquals(0xBB, bus.readMemory(0xC001), "Memory value after LD");
   }
 
   @Test
@@ -808,8 +808,8 @@ public class ZXSpectrumContendedMemoryTests {
     assertEquals(0x0000, cpu.getBC(), "BC after LDIR");
     assertEquals(0x4002, cpu.getHL(), "HL after LDIR");
     assertEquals(0x6002, cpu.getDE(), "DE after LDIR");
-    assertEquals((byte) 0xA1, bus.readMemory(0x6000), "Memory at DE");
-    assertEquals((byte) 0xA2, bus.readMemory(0x6001), "Memory at DE+1");
+    assertEquals(0xA1, bus.readMemory(0x6000), "Memory at DE");
+    assertEquals(0xA2, bus.readMemory(0x6001), "Memory at DE+1");
     assertEquals(initialTStates + tStates, cpu.getTStates(), "T-states for LDIR");
 
     assertTStatesHistory("""
@@ -944,6 +944,6 @@ public class ZXSpectrumContendedMemoryTests {
         ]""");
     assertEquals(14374, cpu.getTStates(), "T-states for BIT 7,(IX+3)");
     assertFalse(cpu.isZeroFlag(), "Z flag should be 0 (bit 7 set)");
-    assertEquals((byte) 0x80, bus.readMemory(0x4000), "Memory unchanged");
+    assertEquals(0x80, bus.readMemory(0x4000), "Memory unchanged");
   }
 }

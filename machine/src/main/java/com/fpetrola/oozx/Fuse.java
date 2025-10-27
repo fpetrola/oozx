@@ -30,7 +30,6 @@ import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 import com.fpetrola.oozx.fuse.startup.*;
-import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -55,7 +54,7 @@ public class Fuse {
   public Machine machine = new Machine(eventManager, memory, display, ula, zxClock, spectrum, uiDisplay, timer);
   public MachinesPeriph machinesPeriph = new MachinesPeriph(ulaPeriph);
   public Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum, ulaPeriph);
-  public Spec128 spec128 = new Spec128(memory, display, machinesPeriph, spectrum, spec48, ulaPeriph);
+  public Spec128 spec128 = new Spec128(memory, display, machinesPeriph, spectrum, spec48, ulaPeriph, machine);
   public SpecPlus3 specPlus3 = new SpecPlus3(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph);
 
   public void fuseInit() {
@@ -77,7 +76,7 @@ public class Fuse {
     ).forEach(StartupManager::register);
 
     StartupManager.run();
-    machine.select(spec48);
+    machine.select(specPlus3);
   }
 
   public void fuseEnd() {

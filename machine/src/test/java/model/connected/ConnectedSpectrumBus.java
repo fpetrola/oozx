@@ -51,8 +51,8 @@ public class ConnectedSpectrumBus implements ISpectrumBus {
   }
 
   @Override
-  public byte readMemory(int address) {
-    return memory.read(address);
+  public int readMemory(int address) {
+    return memory.read(address) & 0xff;
   }
 
   @Override
@@ -82,5 +82,10 @@ public class ConnectedSpectrumBus implements ISpectrumBus {
   @Override
   public IMemory getMemory() {
     return memory;
+  }
+
+  @Override
+  public int mergeFloatingBus(int i, int i1, int i2) {
+    return 0;
   }
 }

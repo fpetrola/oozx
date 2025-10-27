@@ -37,6 +37,7 @@ import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
+import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 import fuse.PhaseProcessorExecutionListener;
 import fuse.tstates.AddStatesMemoryReadListener;
@@ -48,6 +49,7 @@ import java.awt.event.KeyListener;
 import java.util.function.Supplier;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
+import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class Z80 implements ZxModule {
   public static double emulationSpeed;
@@ -91,8 +93,28 @@ public class Z80 implements ZxModule {
     this.timer = timer;
   }
 
-  public void reset(int i) {
+  public void reset(int hardReset) {
     ooz80.reset();
+
+    State<WordNumber> state = ooz80.getState();
+
+    state.getRegister(AF).write(createValue(0xffff));
+    state.getRegister(AFx).write(createValue(0xffff));
+    state.getRegister(BC).write(createValue(0));
+    state.getRegister(DE).write(createValue(0));
+    state.getRegister(HLx).write(createValue(0)); state.getRegister(BC).write(createValue(0));
+    state.getRegister(DEx).write(createValue(0));
+    state.getRegister(HLx).write(createValue(0));
+    state.getRegister(IX).write(createValue(0));
+    state.getRegister(IY).write(createValue(0));
+    state.getRegister(PC).write(createValue(0));
+    state.getRegister(SP).write(createValue(0xffff));
+
+
+    state.getRegister(I).write(createValue(0));
+    state.getRegister(R).write(createValue(0));
+
+    interruptsEnabledAt = -1;
   }
 
   public void toSnapshot(Libspectrum.Snap snap) {
@@ -151,6 +173,7 @@ public class Z80 implements ZxModule {
       }
     };
     ooz80 = createOOZ80(io);
+    zxClock.setPc(ooz80.getState().getPc());
 
     byte[][] bytes = new byte[1000][1000];
     if (OOSpectrumConnector.noTest) {

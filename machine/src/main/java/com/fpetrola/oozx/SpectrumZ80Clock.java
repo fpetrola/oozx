@@ -20,10 +20,14 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.z80.cpu.DefaultZ80Clock;
+import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Register;
 
 import java.util.function.Supplier;
 
 public class SpectrumZ80Clock extends DefaultZ80Clock {
+  private Register<WordNumber> pc;
+
   public void addTStates(int tStatesToAdd, String description) {
     log(() -> description, (byte) tStatesToAdd);
     addTStates(tStatesToAdd);
@@ -35,6 +39,10 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
   }
 
   public void log(Supplier<String> description, byte data) {
-    GetTStatesHistory.addTStateUpdate(data, description, tStates);
+    GetTStatesHistory.addTStateUpdate(data, description, tStates, pc);
+  }
+
+  public void setPc(Register<WordNumber> pc) {
+    this.pc = pc;
   }
 }

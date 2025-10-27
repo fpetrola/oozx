@@ -63,6 +63,11 @@ public class ConnectedMemory implements IMemory {
     return 0;
   }
 
+  @Override
+  public int getROMBank() {
+    return 0;
+  }
+
   public void enableLEC(boolean b) {
     testDriver.setConnectedLEC(b);
   }

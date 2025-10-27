@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx.fuse;
 
+import com.fpetrola.oozx.MemoryPage;
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
@@ -85,6 +86,16 @@ public interface LibretroCore extends Library {
 
   int retro_read_lan_port();
 
+  MemoryPageStructure retro_get_memory_map_read(int index);
+  int retro_get_memory_map_write(int index);
+  int retro_get_memory_map_read_source(int index);
+  int retro_get_memory_map_write_source(int index);
+
+  int retro_get_memory_map_read_page_num(int index);
+  int retro_get_memory_map_write_page_num(int index);
+
+  int retro_get_current_screen();
+  int retro_ram_locked();
   public interface bridge_command extends Callback {
     BridgeResponse invoke(int cmd, Pointer data);
   }

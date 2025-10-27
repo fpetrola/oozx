@@ -19,7 +19,7 @@
 package com.fpetrola.oozx.fuse.machine;
 
 public abstract class RamInfo {
-  boolean locked;
+  public boolean locked;
   int currentPage;
   int currentRom;
   public byte lastByte;

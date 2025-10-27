@@ -16,19 +16,23 @@
  *
  */
 
-package com.fpetrola.oozx;
+package model.tests;
 
-public interface FddConstants {
-    int FDD_LOAD_FACT = 2;
-    int FDD_HEAD_FACT = 16;
-    int FDD_STEP_FACT = 34;
-    int FDD_MAX_TRACK = 99;
-    int FDD_TRACK_TRESHOLD = 10;
-    int FDD_LAST_ERROR = 4;
-    int FDD_SHUGART = 0;
-    int FDD_TYPE_NONE = 1;
-    int FDD_GEOM = 111;
-    int FDD_OK = 1;
-    int FDD_NONE = 2;
-    int FDD_RDONLY = 3;
+import com.fpetrola.oozx.MemoryPage;
+import com.fpetrola.oozx.fuse.LibretroCore;
+import com.fpetrola.oozx.fuse.bridge.EmulatorCommand;
+
+public class GetMemoryMapWrite implements EmulatorCommand {
+  private int i;
+
+  public GetMemoryMapWrite(int i) {
+    this.i = i;
+  }
+
+  public Object execute(LibretroCore core) {
+    MemoryPage memoryPage = new MemoryPage();
+    memoryPage.pageNum= core.retro_get_memory_map_write_page_num(i);
+    memoryPage.source= core.retro_get_memory_map_write_source(i);
+    return memoryPage;
+  }
 }

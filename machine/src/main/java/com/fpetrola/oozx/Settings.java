@@ -170,8 +170,8 @@ public class Settings {
     public boolean rawSNet;
     public String recordFile;
     public boolean recreatedSpectrum;
-    public String rom1280;
-    public String rom1281;
+    public String rom1280= "128-0.rom";
+    public String rom1281= "128-1.rom";
     public String rom16;
     public String rom48= "48.rom";
     public String romBeta128;

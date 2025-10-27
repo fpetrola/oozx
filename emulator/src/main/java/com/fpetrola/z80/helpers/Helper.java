@@ -31,6 +31,7 @@ import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class Helper {
@@ -84,6 +85,12 @@ public class Helper {
       return String.format("%032x", new BigInteger(1, md5.digest()));
     } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  public static <T1> void fillArrayWith(T1[] mapRead, Supplier<T1> o) {
+    for (int i = 0; i < mapRead.length; i++) {
+      mapRead[i]= o.get();
     }
   }
 }

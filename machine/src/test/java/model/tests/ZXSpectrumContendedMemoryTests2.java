@@ -20,6 +20,7 @@ public class ZXSpectrumContendedMemoryTests2 {
   static private TestDriver testDriver2;
   private static LocalLibretroCore localLibretroCore;
   private static LibretroCore remoteCore;
+  private int i4;
 
   @BeforeAll
   public static void beforeall() {
@@ -49,14 +50,14 @@ public class ZXSpectrumContendedMemoryTests2 {
   //  @Disabled
   @Test
   void test48KExecuteGame() {
-    String model = "48K";
+    String model = "+3";
     String fileName = "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn2.z80";
 
     testDriver1.setModel(model);
-    testDriver1.loadSnapshot(fileName);
+//    testDriver1.loadSnapshot(fileName);
 
     testDriver2.setModel(model);
-    testDriver2.loadSnapshot(fileName);
+//    testDriver2.loadSnapshot(fileName);
 
     List<TStateUpdate> localtStateUpdates = new ArrayList<>();
     List<TStateUpdate> remotetStateUpdates = new ArrayList<>();
@@ -76,6 +77,8 @@ public class ZXSpectrumContendedMemoryTests2 {
 
         int pc1 = testDriver1.getRegister("PC");
         int pc2 = testDriver2.getRegister("PC");
+//        if (i4++ % 1000 == 0)
+//        System.out.printf("%H %n", pc1);
         if (pc1 != pc2) {
 //          List<TStateUpdate> tStateUpdates = GetTStatesHistory.getLocalTStateUpdates(localLibretroCore);
 //          List<TStateUpdate> tStateUpdates2 = GetTStatesHistory.getRemoteTStateUpdates2(remoteCore);

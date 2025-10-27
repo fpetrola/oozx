@@ -1,12 +1,15 @@
 package model.tests;
 
+import com.fpetrola.oozx.MemoryPage;
 import com.fpetrola.oozx.fuse.*;
 import com.fpetrola.oozx.fuse.bridge.*;
 
+import java.util.EventObject;
 import java.util.List;
 
 public class TestDriver {
   private final CommandHandler commandHandler;
+  private String model;
 
   public TestDriver(CommandHandler commandHandler) {
     this.commandHandler = commandHandler;
@@ -84,6 +87,7 @@ public class TestDriver {
   }
 
   public void setModel(String model) {
+    this.model = model;
     commandHandler.addNoResultCommand(new SetMachineModel(model));
   }
 
@@ -115,5 +119,97 @@ public class TestDriver {
 
   public boolean isIFF1() {
     return (boolean) commandHandler.executeCommand(new IsInterruptionEnabled());
+  }
+
+  public String getModel() {
+    return model;
+  }
+
+  public boolean isLateTimings() {
+    return false;
+  }
+
+  public long getULAContention(int i) {
+    return 0;
+  }
+
+  public int getCurrentScreen() {
+    return (int) commandHandler.executeCommand(new GetCurrentScreen());
+  }
+
+  public int readUnattachedPort(int i) {
+    return 0;
+  }
+
+  public int mergeFloatingBus(int i, int i1, int i2) {
+    return 0;
+  }
+
+  public int registerMemoryPool() {
+    return 0;
+  }
+
+  public int getMemoryPoolCount() {
+    return 0;
+  }
+
+  public int getPoolSize(int pool1) {
+    return 0;
+  }
+
+  public MemoryPage getMemoryMapRead(int i) {
+    return (MemoryPage) commandHandler.executeCommand(new GetMemoryMapRead(i));
+  }
+
+  public MemoryPage getMemoryMapWrite(int i) {
+    return (MemoryPage) commandHandler.executeCommand(new GetMemoryMapWrite(i));
+  }
+
+  public void malloc(int pool1, int i) {
+
+  }
+
+  public void mallocN(int pool1, int i, int i1) {
+
+  }
+
+  public void freePool(int pool1) {
+
+  }
+
+  public boolean isRamLocked() {
+    return false;
+  }
+
+  public int getMempoolPools() {
+    return 0;
+  }
+
+  public int mempoolRegisterPool() {
+    return 0;
+  }
+
+  public int getMempoolPoolSize(int pool1) {
+    return 0;
+  }
+
+  public void mempoolMalloc(int pool1, int i) {
+
+  }
+
+  public void mempoolMallocN(int pool1, int i, int i1) {
+
+  }
+
+  public void mempoolNew(int pool1, String word, int i) {
+
+  }
+
+  public void mempoolFree(int pool1) {
+
+  }
+
+  public int getRamLocked() {
+    return (int) commandHandler.executeCommand(new GetRamLocked());
   }
 }

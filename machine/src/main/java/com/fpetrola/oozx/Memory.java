@@ -25,6 +25,7 @@ import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.Ula;
 import com.fpetrola.oozx.fuse.modules.ZxModule;
+import com.fpetrola.z80.helpers.Helper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +69,8 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   public Memory(Supplier<SpectrumMachine> machine, SpectrumZ80Clock zxClock) {
     this.fuseMachineInfoSupplier = machine;
     this.zxClock = zxClock;
+    Helper.fillArrayWith(mapRead, MemoryPage::new);
+    Helper.fillArrayWith(mapWrite, MemoryPage::new);
   }
 
   public int init(Object initContext) {
@@ -122,8 +125,8 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
 
   // Memory pool for allocated memory
   public class MemoryPoolEntry {
-    boolean persistent;
-    byte[] memory;
+    public boolean persistent;
+    public byte[] memory;
 
     MemoryPoolEntry(boolean persistent, byte[] memory) {
       this.persistent = persistent;

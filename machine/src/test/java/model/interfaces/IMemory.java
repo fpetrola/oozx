@@ -18,4 +18,6 @@ public interface IMemory {
   void setPage(int slot, int bank); // For 128K/+2/+3 paging
 
   int getPage(int bank);
+
+  int getROMBank();
 }

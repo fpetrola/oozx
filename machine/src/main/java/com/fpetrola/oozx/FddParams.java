@@ -18,15 +18,21 @@
 
 package com.fpetrola.oozx;
 
-class FddParams {
-    public static FddParams[] fddParams;
-    int enabled;
-    int heads;
-    int cylinders;
+import com.fpetrola.z80.helpers.Helper;
 
-    public FddParams(int enabled, int heads, int cylinders) {
-        this.enabled = enabled;
-        this.heads = heads;
-        this.cylinders = cylinders;
-    }
+public class FddParams {
+  public static FddParams[] fddParams = new FddParams[10];
+
+  public int enabled;
+  int heads;
+  int cylinders;
+
+  public FddParams() {
+  }
+
+  public FddParams(int enabled, int heads, int cylinders) {
+    this.enabled = enabled;
+    this.heads = heads;
+    this.cylinders = cylinders;
+  }
 }

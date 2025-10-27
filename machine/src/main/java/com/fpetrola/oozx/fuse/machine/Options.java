@@ -16,19 +16,14 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.machine;
 
-public interface FddConstants {
-    int FDD_LOAD_FACT = 2;
-    int FDD_HEAD_FACT = 16;
-    int FDD_STEP_FACT = 34;
-    int FDD_MAX_TRACK = 99;
-    int FDD_TRACK_TRESHOLD = 10;
-    int FDD_LAST_ERROR = 4;
-    int FDD_SHUGART = 0;
-    int FDD_TYPE_NONE = 1;
-    int FDD_GEOM = 111;
-    int FDD_OK = 1;
-    int FDD_NONE = 2;
-    int FDD_RDONLY = 3;
+public class Options {
+  public static int enumerateDiskoptionsDrivePlus3aType() {
+    return 0;
+  }
+
+  public static int enumerateDiskoptionsDrivePlus3bType() {
+    return 0;
+  }
 }

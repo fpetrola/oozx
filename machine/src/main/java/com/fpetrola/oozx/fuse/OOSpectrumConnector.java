@@ -98,7 +98,7 @@ public class OOSpectrumConnector {
 //    aCore.retro_api_version();
     aCore.retro_init();
 
-    loadGame(aCore, "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
+//    loadGame(aCore, "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
 
 //    while (true)
 //    {

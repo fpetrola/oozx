@@ -16,34 +16,22 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse;
 
-public class ArrayPointer {
-  private byte[][] ram = new byte[1][1];
-  private int i;
-  private int j;
+import com.sun.jna.Structure;
 
-  public ArrayPointer(byte[] page) {
-    ram[0] = page;
-  }
+import java.util.List;
 
-  public ArrayPointer(byte[][] ram, int i, int j) {
-    this.ram = ram;
-    this.i = i;
-    this.j = j;
-  }
+public class MemoryPageStructure extends Structure {
+  public int writable; // Can we write to this data?
+  public int contended; // Are reads/writes to this page contended?
+  public int source; // Where did this page come from?
+  public int save_to_snapshot; // Should this page be saved to snapshots?
+  public int page_num; // Which page from the source
+  public int offset; // How far into the page this chunk starts
 
-  public ArrayPointer(byte[] ram, int i, int j) {
-    this.ram[0] = ram;
-    this.i = i;
-    this.j = j;
-  }
-
-  public byte get(int i2) {
-    return ram[i][j + i2];
-  }
-
-  public void set(int offset, byte b) {
-    ram[i][j + offset] = b;
+  @Override
+  protected List<String> getFieldOrder() {
+    return List.of("writable", "contended", "source", "save_to_snapshot", "page_num", "offset");
   }
 }

@@ -20,6 +20,7 @@ package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.Machine;
+import com.fpetrola.oozx.MemoryPage;
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.Display;
@@ -235,6 +236,49 @@ public class LocalLibretroCore implements LibretroCore {
   public int retro_read_lan_port() {
     return 0;
   }
+
+  @Override
+  public MemoryPageStructure retro_get_memory_map_read(int i) {
+//    return fuse.memory.mapRead[i];
+    return null;
+  }
+
+  @Override
+  public int retro_get_memory_map_write(int i) {
+//    return fuse.memory.mapWrite[i];
+    return 0;
+  }
+
+  @Override
+  public int retro_get_memory_map_read_source(int index) {
+    return fuse.memory.mapRead[index].source;
+  }
+
+  @Override
+  public int retro_get_memory_map_write_source(int index) {
+    return fuse.memory.mapWrite[index].source;
+  }
+
+  @Override
+  public int retro_get_memory_map_read_page_num(int index) {
+    return fuse.memory.mapRead[index].pageNum;
+  }
+
+  @Override
+  public int retro_get_memory_map_write_page_num(int index) {
+    return fuse.memory.mapWrite[index].pageNum;
+  }
+
+  @Override
+  public int retro_get_current_screen() {
+    return fuse.memory.currentScreen;
+  }
+
+  @Override
+  public int retro_ram_locked() {
+    return fuse.machine.current.getRamInfo().locked ? 1 : 0;
+  }
+
 
   @Override
   public Pointer retro_tstates_history() {

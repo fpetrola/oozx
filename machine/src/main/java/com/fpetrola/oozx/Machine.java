@@ -133,7 +133,7 @@ public class Machine implements ZxModule {
     for (MemoryPage page : Arrays.asList(bankMap).subList(pageNum * memory.PAGES_IN_16K, pageNum * memory.PAGES_IN_16K + length / memory.PAGE_SIZE)) {
       page.offset = offset;
       page.pageNum = pageNum;
-      page.setPage(Arrays.copyOfRange(data, offset, offset + memory.PAGE_SIZE));
+      page.setPage(data, 0, offset);
       page.writable = false;
       page.saveToSnapshot = custom;
       offset += memory.PAGE_SIZE;

@@ -76,7 +76,7 @@ public class Fdd {
     int cBpt;               // Bytes per track
     UPDFdc fdc;             // Associated FDC
     Runnable fdcIndex;      // FDC index callback
-    Disk disk;              // Disk data
+    public Disk disk= new Disk();              // Disk data
     int data;               // Current data byte (with flags)
     int marks;              // Data marks (FM, weak)
 

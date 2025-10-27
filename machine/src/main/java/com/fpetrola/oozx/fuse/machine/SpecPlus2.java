@@ -26,7 +26,6 @@ import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 public class SpecPlus2 extends AbstractSpectrumMachine {
-  private Machine machine1;
   private MachinesPeriph machinesPeriph;
   private Spec48 spec48;
   private Spec128 spec128;
@@ -34,8 +33,7 @@ public class SpecPlus2 extends AbstractSpectrumMachine {
   private IPeriph periph;
 
   public SpecPlus2(Display display, Machine machine, MachinesPeriph machinesPeriph, Spec48 spec48, Spec128 spec128, Spectrum spectrum, IPeriph periph) {
-    super(display);
-    this.machine1 = machine;
+    super(display, machine);
     this.machinesPeriph = machinesPeriph;
     this.spec48 = spec48;
     this.spec128 = spec128;
@@ -55,9 +53,9 @@ public class SpecPlus2 extends AbstractSpectrumMachine {
   public int reset() {
     int error;
 
-    error = machine1.loadRom(0, Settings.current.romPlus20, Settings.defaults.romPlus20, 0x4000);
+    error = machine.loadRom(0, Settings.current.romPlus20, Settings.defaults.romPlus20, 0x4000);
     if (error != 0) return error;
-    error = machine1.loadRom(1, Settings.current.romPlus21, Settings.defaults.romPlus21, 0x4000);
+    error = machine.loadRom(1, Settings.current.romPlus21, Settings.defaults.romPlus21, 0x4000);
     if (error != 0) return error;
 
     error = spec128.commonReset(true);

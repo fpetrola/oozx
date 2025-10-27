@@ -7,7 +7,7 @@ public interface ISpectrumBus {
 
   void writePort(int port, byte value);
 
-  byte readMemory(int address);
+  int readMemory(int address);
 
   void writeMemory(int address, byte value);
 
@@ -18,4 +18,6 @@ public interface ISpectrumBus {
   IULA getULA();
 
   IMemory getMemory();
+
+  int mergeFloatingBus(int i, int i1, int i2);
 }

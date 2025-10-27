@@ -41,7 +41,20 @@ public boolean writable; // Can we write to this data?
     arrayPointer = new ArrayPointer(page);
   }
 
+  public void setPage(byte[] page, int i, int j) {
+//    this.page = page;
+    arrayPointer = new ArrayPointer(page, i, j);
+  }
+
   public void setPage(byte[][] ram, int i, int j) {
     arrayPointer = new ArrayPointer(ram, i, j);
+  }
+
+  public int getSource() {
+    return source;
+  }
+
+  public int getPageNum() {
+    return pageNum;
   }
 }

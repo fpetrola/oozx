@@ -18,9 +18,7 @@
 
 package com.fpetrola.oozx.fuse.machine;
 
-import com.fpetrola.oozx.MachinesPeriph;
-import com.fpetrola.oozx.Memory;
-import com.fpetrola.oozx.Spectrum;
+import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
@@ -32,8 +30,8 @@ public class Spec128 extends AbstractSpectrumMachine {
   private Spec48 spec48;
   private IPeriph periph;
 
-  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph) {
-    super(display);
+  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph, Machine machine) {
+    super(display, machine);
     this.memory = memory;
     this.display = display;
     this.machinesPeriph = machinesPeriph;
@@ -47,13 +45,14 @@ public class Spec128 extends AbstractSpectrumMachine {
 
   // Reset the Spectrum 128K machine
   @Override
-  public int reset() {
-    // int error = Machine.loadRom(0, Settings.current.rom128_0, Settings.defaults.rom128_0, 0x4000);
-    // if (error != 0) return error;
-    // error = Machine.loadRom(1, Settings.current.rom128_1, Settings.defaults.rom128_1, 0x4000);
-    // if (error != 0) return error;
 
-    int error = commonReset(true);
+  public int reset() {
+    int error = machine.loadRom(0, Settings.current.rom1280, Settings.defaults.rom1280, 0x4000);
+    if (error != 0) return error;
+    error = machine.loadRom(1, Settings.current.rom1281, Settings.defaults.rom1281, 0x4000);
+    if (error != 0) return error;
+
+    error = commonReset(true);
     if (error != 0) return error;
 
     periph.clear();
@@ -69,11 +68,11 @@ public class Spec128 extends AbstractSpectrumMachine {
 
   // Common reset for Spectrum 128K
   public int commonReset(boolean contention) {
-    getRamInfo().locked = false;
-    getRamInfo().lastByte = 0;
+    getCurrentRamInfo().locked = false;
+    getCurrentRamInfo().lastByte = 0;
 
-    getRamInfo().currentPage = 0;
-    getRamInfo().currentRom = 0;
+    getCurrentRamInfo().currentPage = 0;
+    getCurrentRamInfo().currentRom = 0;
 
     memory.currentScreen = 5;
     memory.screenMask = 0xffff;
@@ -97,31 +96,31 @@ public class Spec128 extends AbstractSpectrumMachine {
 
   // Write to the 128K memory port (0x7FFD)
   public void memoryPortWrite(int port, byte b) {
-    if (getRamInfo().locked) return;
+    if (getCurrentRamInfo().locked) return;
 
-    getRamInfo().lastByte = b;
+    getCurrentRamInfo().lastByte = b;
 
     memoryMap();
 
-    getRamInfo().locked = (b & 0x20) != 0;
+    getCurrentRamInfo().locked = (b & 0x20) != 0;
   }
 
   // Select ROM for 128K
   private void selectRom(int rom) {
     memory.map16k(0x0000, memory.mapRom, rom);
-    getRamInfo().currentRom = rom;
+    getCurrentRamInfo().currentRom = rom;
   }
 
   // Select RAM page for 128K
   private void selectPage(int page) {
     memory.map16k(0xc000, memory.mapRam, page);
-    getRamInfo().currentPage = page;
+    getCurrentRamInfo().currentPage = page;
   }
 
   // Map memory for Spectrum 128K
   @Override
   public void memoryMap() {
-    byte lastByte = getRamInfo().lastByte;
+    byte lastByte = getCurrentRamInfo().lastByte;
 
     int page = lastByte & 0x07;
     int screen = (lastByte & 0x08) != 0 ? 7 : 5;

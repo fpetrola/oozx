@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.z80.helpers.Helper;
+
 public class UPDFdc {
 
     // Enums
@@ -91,7 +93,12 @@ public class UPDFdc {
 
     // FDC structure
     Fdd currentDrive;               // Current drive
-    Fdd[] drive = new Fdd[4];       // UPD765 controls 4 drives
+    public Fdd[] drive = new Fdd[4];       // UPD765 controls 4 drives
+    {
+        Helper.fillArrayWith(drive, Fdd::new);
+    }
+
+
     UpdType type;                   // UPD765A or UPD765B
     UpdClock clock;                 // Clock rate (4/8 MHz)
     int stpRate;                    // Stepping rate (ms)
@@ -198,4 +205,5 @@ public class UPDFdc {
             // Handle execution phase
         }
     }
+
 }

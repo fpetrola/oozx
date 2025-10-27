@@ -18,10 +18,10 @@
 
 package com.fpetrola.oozx;
 
-class Disk {
-    static final int DISK_FLAG_PLUS3_CPC = 1;
+public class Disk {
+    public static final int DISK_FLAG_PLUS3_CPC = 1;
     static final int DISK_HD = 1; // Placeholder for density
-    int flag;
+    public int flag;
     int sides;         // Number of sides (1 or 2)
     int cylinders;     // Number of cylinders
     int wrprot;        // Write protect flag

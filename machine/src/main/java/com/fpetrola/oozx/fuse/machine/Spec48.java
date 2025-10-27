@@ -25,16 +25,14 @@ import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 public class Spec48 extends AbstractSpectrumMachine {
   private Memory memory;
   private Display display;
-  private Machine machine1;
   private MachinesPeriph machinesPeriph;
   public Spectrum spectrum;
   private IPeriph periph;
 
   public Spec48(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, IPeriph periph) {
-    super(display);
+    super(display, machine);
     this.memory = memory;
     this.display = display;
-    this.machine1 = machine;
     this.machinesPeriph = machinesPeriph;
     this.spectrum = spectrum;
     this.periph = periph;
@@ -51,7 +49,7 @@ public class Spec48 extends AbstractSpectrumMachine {
 
   // Reset the Spectrum 48K machine
   public int reset() {
-    int error = machine1.loadRom(0, Settings.current.rom48, Settings.defaults.rom48, 0x4000);
+    int error = machine.loadRom(0, Settings.current.rom48, Settings.defaults.rom48, 0x4000);
     if (error != 0) return error;
 
     periph.clear();
