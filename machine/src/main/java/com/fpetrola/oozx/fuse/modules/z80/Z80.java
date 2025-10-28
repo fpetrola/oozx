@@ -79,7 +79,7 @@ public class Z80 implements ZxModule {
   private UiDisplay uiDisplay;
   private volatile boolean emulatorPaused;
   private com.fpetrola.oozx.fuse.modules.Timer timer;
-  public static EmulatorCore mockCore;
+  public EmulatorCore mockCore;
   private Supplier<Machine> machine;
   private Runnable changeMachine;
 
@@ -277,9 +277,9 @@ public class Z80 implements ZxModule {
       }
     }
 
-    if (changeMachine!= null) {
+    if (changeMachine != null) {
       changeMachine.run();
-      changeMachine= null;
+      changeMachine = null;
     }
   }
 

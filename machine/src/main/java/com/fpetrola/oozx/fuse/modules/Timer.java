@@ -20,6 +20,7 @@ package com.fpetrola.oozx.fuse.modules;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
+import com.fpetrola.oozx.fuse.modules.z80.Z80;
 
 import java.util.function.Supplier;
 
@@ -65,7 +66,7 @@ public class Timer implements ZxModule {
   }
 
   // Estimate emulation speed
-  public int estimateSpeed() {
+  public int estimateSpeed(Z80 z80) {
     if (framesUntilUpdate-- > 0) {
       return 0;
     }
@@ -81,7 +82,7 @@ public class Timer implements ZxModule {
       currentSpeed = (float) (10 * 100.0 / (currentTime - storedTimes[nextStoredTime]));
     }
 
-    Ui.statusbarUpdateSpeed(currentSpeed);
+    Ui.statusbarUpdateSpeed(currentSpeed, z80);
 
     storedTimes[nextStoredTime] = currentTime;
     nextStoredTime = (nextStoredTime + 1) % 10;

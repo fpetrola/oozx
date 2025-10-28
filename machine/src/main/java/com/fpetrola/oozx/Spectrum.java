@@ -60,7 +60,7 @@ public class Spectrum implements ZxModule {
   private void spectrumFrameEventFn(long lastTstates, int type, Object userData) {
     spectrumFrame();
     z80.interrupt();
-    timer.estimateSpeed();
+    timer.estimateSpeed(z80);
   }
 
   private long getFrameCount() {
