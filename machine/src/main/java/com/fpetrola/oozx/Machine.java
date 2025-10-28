@@ -41,7 +41,7 @@ public class Machine implements ZxModule {
   }
 
   public List<SpectrumMachine> machineTypes = new ArrayList<>(); // All available machines
-  public static SpectrumMachine current; // The currently selected machine
+  public SpectrumMachine current; // The currently selected machine
   private Z80Clock z80Clock;
   private final Spectrum spectrum;
   private UiDisplay uiDisplay;

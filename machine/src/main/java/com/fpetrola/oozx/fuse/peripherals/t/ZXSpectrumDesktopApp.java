@@ -54,7 +54,7 @@ class EmulatorInternalFrame extends JInternalFrame {
     JComponent mainPanel = core.getPanel();
     mainPanel.setBackground(Color.BLACK);
     String text = "Emulator Screen - " + core.getCurrentModel();
-    JLabel screenLabel = new JLabel("");
+    JLabel screenLabel = new JLabel(text);
     screenLabel.setForeground(Color.WHITE);
     mainPanel.add(screenLabel);
     add(mainPanel, BorderLayout.CENTER);

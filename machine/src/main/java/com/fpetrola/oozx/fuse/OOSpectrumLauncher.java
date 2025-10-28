@@ -23,11 +23,12 @@ import com.fpetrola.oozx.fuse.peripherals.t.ZXSpectrumDesktopApp;
 
 import java.util.concurrent.ScheduledExecutorService;
 
+import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class OOSpectrumLauncher {
-  private ScheduledExecutorService scheduledExecutorService = newSingleThreadScheduledExecutor();
+  private ScheduledExecutorService scheduledExecutorService = newScheduledThreadPool(10);
 
   public static void main(String[] args) {
     OOSpectrumLauncher ooSpectrumLauncher = new OOSpectrumLauncher();
@@ -56,7 +57,7 @@ public class OOSpectrumLauncher {
         fuse.z80.doOpcodes();
         fuse.eventManager.eventDoEvents();
       }
-    }, 0, 1, MILLISECONDS);
+    }, 0, 10, MILLISECONDS);
 
     return fuse;
   }

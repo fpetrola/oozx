@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class Fuse {
-  public Supplier<SpectrumMachine> spectrumMachineSupplier = () -> Machine.current;
+  public Supplier<SpectrumMachine> spectrumMachineSupplier = () -> getMachine().current;
   public SpectrumZ80Clock zxClock = new SpectrumZ80Clock();
   private Module module= new Module();
   public Memory memory = new Memory(spectrumMachineSupplier, zxClock, module);
