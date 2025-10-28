@@ -38,6 +38,8 @@ import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.spy.NullInstructionSpy;
+import com.github.weisj.darklaf.LafManager;
+import com.github.weisj.darklaf.theme.DarculaTheme;
 import fuse.PhaseProcessorExecutionListener;
 import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
@@ -375,6 +377,8 @@ public class Z80 implements ZxModule {
 
       }
     });
+
+//    LafManager.install(new DarculaTheme());
 
     ZXSpectrumDesktopApp app = new ZXSpectrumDesktopApp(mockCore);
     app.setVisible(true);

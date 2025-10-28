@@ -57,6 +57,9 @@ class EmulatorInternalFrame extends JInternalFrame {
     mainPanel.add(screenLabel);
     add(mainPanel, BorderLayout.CENTER);
 
+
+    JToolBar toolBar = createToolBar();
+    add(toolBar, BorderLayout.NORTH);
     // Status bar
     JPanel statusBar = createStatusBar();
     add(statusBar, BorderLayout.SOUTH);
@@ -75,7 +78,7 @@ class EmulatorInternalFrame extends JInternalFrame {
 
       @Override
       public void onEmulationSpeedChanged(double speed) {
-        speedBar.setValue((int) (speed * 100));
+        speedBar.setValue((int) (speed * 1));
         speedBar.setString(String.format("%.2fx", speed));
       }
 
@@ -120,8 +123,8 @@ class EmulatorInternalFrame extends JInternalFrame {
     statusLabel = new JLabel("State: Ready");
     statusLabel.setPreferredSize(new Dimension(100, componentHeight));
 
-    speedBar = new JProgressBar(0, 400);
-    speedBar.setValue((int) (emulatorCore.getEmulationSpeed() * 100));
+    speedBar = new JProgressBar(0, 2500);
+    speedBar.setValue((int) (emulatorCore.getEmulationSpeed() * 1));
     speedBar.setStringPainted(true);
     speedBar.setString(String.format("%.2fx", emulatorCore.getEmulationSpeed()));
     speedBar.setPreferredSize(new Dimension(150, componentHeight));
@@ -169,6 +172,104 @@ class EmulatorInternalFrame extends JInternalFrame {
     );
 
     return statusBar;
+  }
+
+  private JToolBar createToolBar() {
+    JToolBar toolBar = new JToolBar();
+    toolBar.setFloatable(false);
+
+    // Use built-in Swing icons
+    Icon openIcon = UIManager.getIcon("FileView.fileIcon");
+    JButton openButton = new JButton(openIcon);
+    openButton.setToolTipText("Open File");
+    openButton.addActionListener(e -> {
+      JFileChooser fc = new JFileChooser();
+      if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+        emulatorCore.loadFile(fc.getSelectedFile().getPath());
+      }
+    });
+    toolBar.add(openButton);
+
+    Icon saveIcon = UIManager.getIcon("FileChooser.newFolderIcon");
+    JButton saveStateButton = new JButton(saveIcon);
+    saveStateButton.setToolTipText("Save State");
+    saveStateButton.addActionListener(e -> {
+      JFileChooser fc = new JFileChooser();
+      if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+        emulatorCore.saveState(fc.getSelectedFile().getPath());
+      }
+    });
+    toolBar.add(saveStateButton);
+
+    Icon loadIcon = UIManager.getIcon("FileChooser.upFolderIcon");
+    JButton loadStateButton = new JButton(loadIcon);
+    loadStateButton.setToolTipText("Load State");
+    loadStateButton.addActionListener(e -> {
+      JFileChooser fc = new JFileChooser();
+      if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+        emulatorCore.loadState(fc.getSelectedFile().getPath());
+      }
+    });
+    toolBar.add(loadStateButton);
+
+    toolBar.addSeparator();
+
+    Icon startIcon = UIManager.getIcon("OptionPane.informationIcon");
+    JButton startButton = new JButton(startIcon);
+    startButton.setToolTipText("Start Emulation");
+    startButton.addActionListener(e -> emulatorCore.startEmulation());
+    toolBar.add(startButton);
+
+    Icon stopIcon = UIManager.getIcon("OptionPane.errorIcon");
+    JButton stopButton = new JButton(stopIcon);
+    stopButton.setToolTipText("Stop Emulation");
+    stopButton.addActionListener(e -> emulatorCore.stopEmulation());
+    toolBar.add(stopButton);
+
+    Icon pauseIcon = UIManager.getIcon("OptionPane.warningIcon");
+    JButton pauseButton = new JButton(pauseIcon);
+    pauseButton.setToolTipText("Pause Emulation");
+    pauseButton.addActionListener(e -> emulatorCore.pauseEmulation());
+    toolBar.add(pauseButton);
+
+    Icon resumeIcon = UIManager.getIcon("OptionPane.questionIcon");
+    JButton resumeButton = new JButton(resumeIcon);
+    resumeButton.setToolTipText("Resume Emulation");
+    resumeButton.addActionListener(e -> emulatorCore.resumeEmulation());
+    toolBar.add(resumeButton);
+
+    Icon resetIcon = UIManager.getIcon("Tree.closedIcon");
+    JButton resetButton = new JButton(resetIcon);
+    resetButton.setToolTipText("Reset Emulation");
+    resetButton.addActionListener(e -> emulatorCore.resetEmulation());
+    toolBar.add(resetButton);
+
+    toolBar.addSeparator();
+
+    Icon modelIcon = UIManager.getIcon("Tree.openIcon");
+    JButton model48KButton = new JButton(modelIcon);
+    model48KButton.setToolTipText("Switch to 48K Model");
+    model48KButton.addActionListener(e -> emulatorCore.setMachineModel("Spectrum 48K"));
+    toolBar.add(model48KButton);
+
+    JButton model128KButton = new JButton(modelIcon);
+    model128KButton.setToolTipText("Switch to 128K Model");
+    model128KButton.addActionListener(e -> emulatorCore.setMachineModel("Spectrum 128K"));
+    toolBar.add(model128KButton);
+
+    Icon turboIcon = UIManager.getIcon("OptionPane.warningIcon");
+    JButton turboButton = new JButton(turboIcon);
+    turboButton.setToolTipText("Toggle Turbo Mode");
+    turboButton.addActionListener(e -> emulatorCore.setGeneralOption("turbo", !emulatorCore.isTurboMode()));
+    toolBar.add(turboButton);
+
+    Icon fullscreenIcon = UIManager.getIcon("Tree.leafIcon");
+    JButton fullscreenButton = new JButton(fullscreenIcon);
+    fullscreenButton.setToolTipText("Toggle Fullscreen");
+//    fullscreenButton.addActionListener(e -> setExtendedState(getExtendedState() == JFrame.MAXIMIZED_BOTH ? JFrame.NORMAL : JFrame.MAXIMIZED_BOTH));
+    toolBar.add(fullscreenButton);
+
+    return toolBar;
   }
 }
 
