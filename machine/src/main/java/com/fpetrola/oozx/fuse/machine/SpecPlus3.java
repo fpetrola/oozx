@@ -213,7 +213,7 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
 
     getCurrentRamInfo().lastByte2 = b;
 
-    memoryMap();
+    machine.current.memoryMap();
   }
 
   public void memoryPort2Write(int port, byte b) {

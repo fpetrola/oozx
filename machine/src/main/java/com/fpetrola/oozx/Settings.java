@@ -193,8 +193,8 @@ public class Settings {
     public String romPentagon0;
     public String romPentagon1;
     public String romPentagon2;
-    public String romPlus20;
-    public String romPlus21;
+    public String romPlus20= "plus2-0.rom";
+    public String romPlus21= "plus2-1.rom";
     public String romPlus2a0;
     public String romPlus2a1;
     public String romPlus2a2;

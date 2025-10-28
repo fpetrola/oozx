@@ -100,7 +100,7 @@ public class Spec128 extends AbstractSpectrumMachine {
 
     getCurrentRamInfo().lastByte = b;
 
-    memoryMap();
+    machine.current.memoryMap();
 
     getCurrentRamInfo().locked = (b & 0x20) != 0;
   }

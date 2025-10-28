@@ -19,10 +19,7 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.Input;
-import com.fpetrola.oozx.fuse.machine.Spec128;
-import com.fpetrola.oozx.fuse.machine.Spec48;
-import com.fpetrola.oozx.fuse.machine.SpecPlus3;
-import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
+import com.fpetrola.oozx.fuse.machine.*;
 import com.fpetrola.oozx.fuse.modules.Joystick;
 import com.fpetrola.oozx.fuse.modules.*;
 import com.fpetrola.oozx.fuse.modules.Keyboard;
@@ -56,6 +53,7 @@ public class Fuse {
   public Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum, ulaPeriph);
   public Spec128 spec128 = new Spec128(memory, display, machinesPeriph, spectrum, spec48, ulaPeriph, machine);
   public SpecPlus3 specPlus3 = new SpecPlus3(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph);
+  public SpecPlus2 specPlus2 = new SpecPlus2(memory, display, machine, machinesPeriph, spectrum, spec48, spec128, ulaPeriph);
 
   public void fuseInit() {
     StartupManager.init();
@@ -66,7 +64,7 @@ public class Fuse {
         new JoystickStartupModule(joystick),
         new KeyboardStartupModule(keyboard),
         new LibspectrumStartupModule(),
-        new MachineStartupModule(machine, spec48, spec128, specPlus3),
+        new MachineStartupModule(machine, spec48, spec128, specPlus3, specPlus2),
         new MachinesPeriphStartupModule(machine, spec128, specPlus3, periph),
         new MemoryStartupModule(memory, machine, spec128, specPlus3),
         new SpectrumStartupModule(spectrum),
@@ -76,7 +74,7 @@ public class Fuse {
     ).forEach(StartupManager::register);
 
     StartupManager.run();
-    machine.select(specPlus3);
+    machine.select(specPlus2);
   }
 
   public void fuseEnd() {
