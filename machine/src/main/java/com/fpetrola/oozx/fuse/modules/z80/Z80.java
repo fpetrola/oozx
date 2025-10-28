@@ -34,10 +34,8 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.emulation.AbstractMemory;
 import com.fpetrola.z80.minizx.emulation.Helper;
-import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
-import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 import fuse.PhaseProcessorExecutionListener;
 import fuse.tstates.AddStatesMemoryReadListener;
@@ -46,6 +44,7 @@ import fuse.tstates.PhaseProcessor;
 
 import javax.swing.*;
 import java.awt.event.KeyListener;
+import java.util.List;
 import java.util.function.Supplier;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
@@ -69,7 +68,7 @@ public class Z80 implements ZxModule {
   public Audio audio;
   private Display display;
   public Ula ula;
-  private Supplier<SpectrumMachine> machine;
+  private Supplier<SpectrumMachine> machineSupplier;
   private Keyboard keyboard;
   public SpectrumZ80Clock zxClock;
   private Input input;
@@ -78,19 +77,21 @@ public class Z80 implements ZxModule {
   private volatile boolean emulatorPaused;
   private com.fpetrola.oozx.fuse.modules.Timer timer;
   public static EmulatorCore mockCore;
+  private Supplier<Machine> machine;
 
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machine, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer) {
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer, Supplier<Machine> machine) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
     this.ula = ula;
-    this.machine = machine;
+    this.machineSupplier = machineSupplier;
     this.keyboard = keyboard;
     this.zxClock = zxClock;
     this.input = input;
     this.periph = periph;
     this.uiDisplay = uiDisplay;
     this.timer = timer;
+    this.machine = machine;
   }
 
   public void reset(int hardReset) {
@@ -102,7 +103,8 @@ public class Z80 implements ZxModule {
     state.getRegister(AFx).write(createValue(0xffff));
     state.getRegister(BC).write(createValue(0));
     state.getRegister(DE).write(createValue(0));
-    state.getRegister(HLx).write(createValue(0)); state.getRegister(BC).write(createValue(0));
+    state.getRegister(HLx).write(createValue(0));
+    state.getRegister(BC).write(createValue(0));
     state.getRegister(DEx).write(createValue(0));
     state.getRegister(HLx).write(createValue(0));
     state.getRegister(IX).write(createValue(0));
@@ -126,7 +128,7 @@ public class Z80 implements ZxModule {
   }
 
   public void interrupt() {
-    int i = TimingsHandler.interruptLength(machine.get().getBaseTiming());
+    int i = TimingsHandler.interruptLength(machineSupplier.get().getBaseTiming());
     if (ooz80.getState().isIff1() && zxClock.getTStates() < i) {
       zxClock.addTStates(7, "interrupt");
       ooz80.interruption();
@@ -319,6 +321,48 @@ public class Z80 implements ZxModule {
         return turbo;
       }
     };
+    mockCore.addEmulatorListener(new EmulatorListener() {
+      @Override
+      public void onEmulationStateChanged(String state) {
+
+      }
+
+      @Override
+      public void onError(String message) {
+
+      }
+
+      @Override
+      public void onEmulationSpeedChanged(double speed) {
+
+      }
+
+      @Override
+      public void onModelChanged(String model) {
+
+        Machine machine1 = machine.get();
+        List<SpectrumMachine> machineTypes = machine1.getMachineTypes();
+
+        machineTypes.stream().filter(m -> m.getName().equals(model)).forEach(m -> {
+          machine1.select(m);
+        });
+      }
+
+      @Override
+      public void onPauseStateChanged(boolean paused) {
+
+      }
+
+      @Override
+      public void onTurboModeChanged(boolean turbo) {
+
+      }
+
+      @Override
+      public void onTapeStatusChanged(String status) {
+
+      }
+    });
     ZXSpectrumEmulatorUI ui = new ZXSpectrumEmulatorUI(mockCore);
     ui.setVisible(true);
     ui.addKeyListener(keyListener);

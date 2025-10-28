@@ -16,27 +16,15 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.machine;
+package com.fpetrola.oozx.fuse.peripherals;
 
-public interface SpectrumMachine {
-  TimingsHandler.Timings getBaseTiming();
-
-  int reset();
-
-  void memoryMap();
-
-  int unattachedPort();
-
-  default void shutdown() {
-  }
-
-  RamInfo getRamInfo();
-
-  int getCapabilities();
-
-  MachineTimings getTimings();
-
-  long[] getLineTimes();
-
-  String getName();
+// Listener for core events to UI
+public interface EmulatorListener {
+  void onEmulationStateChanged(String state);
+  void onError(String message);
+  void onEmulationSpeedChanged(double speed);
+  void onModelChanged(String model);
+  void onPauseStateChanged(boolean paused);
+  void onTurboModeChanged(boolean turbo);
+  void onTapeStatusChanged(String status);
 }

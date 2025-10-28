@@ -144,6 +144,11 @@ public class Spec128 extends AbstractSpectrumMachine {
     return spectrum.spectrumUnattachedPort();
   }
 
+  @Override
+  public String getName() {
+    return "Spectrum 128K";
+  }
+
   public TimingsHandler.Timings getBaseTiming() {
     return new TimingsHandler.Timings(3546900, 1773400, TimingsHandler.FERRANTI_7C);
   }

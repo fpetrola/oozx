@@ -327,6 +327,11 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
   public void shutdown() {
   }
 
+  @Override
+  public String getName() {
+    return "Spectrum Plus 3";
+  }
+
   private class SpecPlus3RamInfo extends RamInfo {
     public SpecPlus3RamInfo(int validPages) {
       this.validPages = validPages;

@@ -110,6 +110,11 @@ public class SpecPlus2 extends AbstractSpectrumMachine {
     return spectrum.spectrumUnattachedPort();
   }
 
+  @Override
+  public String getName() {
+    return "Spectrum Plus 2";
+  }
+
   // ===================================================================
   // getBaseTiming()
   // ===================================================================

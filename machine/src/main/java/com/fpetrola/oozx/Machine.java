@@ -33,6 +33,10 @@ public class Machine implements ZxModule {
   private Display display;
   private Ula ula;
 
+  public List<SpectrumMachine> getMachineTypes() {
+    return machineTypes;
+  }
+
   public List<SpectrumMachine> machineTypes = new ArrayList<>(); // All available machines
   public static SpectrumMachine current; // The currently selected machine
   private Z80Clock z80Clock;

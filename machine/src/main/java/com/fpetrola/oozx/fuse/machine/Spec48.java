@@ -102,6 +102,11 @@ public class Spec48 extends AbstractSpectrumMachine {
     return spectrum.spectrumUnattachedPort();
   }
 
+  @Override
+  public String getName() {
+    return "Spectrum 48K";
+  }
+
   public TimingsHandler.Timings getBaseTiming() {
     return new TimingsHandler.Timings(3500000, 0, TimingsHandler.FERRANTI_5C_6C);
   }

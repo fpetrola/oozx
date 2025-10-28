@@ -46,7 +46,12 @@ public class Fuse {
   public Input input = new Input(joystick, keyboard);
   private Sound sound = new Sound();
   private Timer timer = new Timer(eventManager, spectrumMachineSupplier, sound);
-  public Z80 z80 = new Z80(eventManager, memory, display, ula, spectrumMachineSupplier, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer);
+  public Z80 z80 = new Z80(eventManager, memory, display, ula, spectrumMachineSupplier, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer, () -> getMachine());
+
+  private Machine getMachine() {
+    return machine;
+  }
+
   public Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, zxClock, memory, spectrumMachineSupplier, timer);
   public Machine machine = new Machine(eventManager, memory, display, ula, zxClock, spectrum, uiDisplay, timer);
   public MachinesPeriph machinesPeriph = new MachinesPeriph(ulaPeriph);

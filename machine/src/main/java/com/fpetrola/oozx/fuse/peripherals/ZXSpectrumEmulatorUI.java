@@ -26,17 +26,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
-// Listener for core events to UI
-interface EmulatorListener {
-  void onEmulationStateChanged(String state);
-  void onError(String message);
-  void onEmulationSpeedChanged(double speed);
-  void onModelChanged(String model);
-  void onPauseStateChanged(boolean paused);
-  void onTurboModeChanged(boolean turbo);
-  void onTapeStatusChanged(String status);
-}
-
 
 // Main UI class
 public class ZXSpectrumEmulatorUI extends JFrame {
@@ -65,7 +54,7 @@ public class ZXSpectrumEmulatorUI extends JFrame {
     // Main Panel (mock emulator screen)
     JComponent mainPanel = core.getPanel();
     mainPanel.setBackground(Color.BLACK);
-    JLabel screenLabel = new JLabel("Mock Emulator Screen");
+    JLabel screenLabel = new JLabel("");
     screenLabel.setForeground(Color.WHITE);
     mainPanel.add(screenLabel);
     add(mainPanel, BorderLayout.CENTER);
@@ -144,22 +133,22 @@ public class ZXSpectrumEmulatorUI extends JFrame {
     JMenu modelSubMenu = new JMenu("Select Model");
     ButtonGroup modelGroup = new ButtonGroup();
     JRadioButtonMenuItem model48K = new JRadioButtonMenuItem("48K");
-    model48K.addActionListener(e -> emulatorCore.setMachineModel("48K"));
+    model48K.addActionListener(e -> emulatorCore.setMachineModel("Spectrum 48K"));
     modelGroup.add(model48K);
     modelSubMenu.add(model48K);
 
     JRadioButtonMenuItem model128K = new JRadioButtonMenuItem("128K");
-    model128K.addActionListener(e -> emulatorCore.setMachineModel("128K"));
+    model128K.addActionListener(e -> emulatorCore.setMachineModel("Spectrum 128K"));
     modelGroup.add(model128K);
     modelSubMenu.add(model128K);
 
     JRadioButtonMenuItem modelPlus2 = new JRadioButtonMenuItem("+2");
-    modelPlus2.addActionListener(e -> emulatorCore.setMachineModel("+2"));
+    modelPlus2.addActionListener(e -> emulatorCore.setMachineModel("Spectrum Plus 2"));
     modelGroup.add(modelPlus2);
     modelSubMenu.add(modelPlus2);
 
     JRadioButtonMenuItem modelPlus3 = new JRadioButtonMenuItem("+3");
-    modelPlus3.addActionListener(e -> emulatorCore.setMachineModel("+3"));
+    modelPlus3.addActionListener(e -> emulatorCore.setMachineModel("Spectrum Plus 3"));
     modelGroup.add(modelPlus3);
     modelSubMenu.add(modelPlus3);
 
@@ -337,12 +326,12 @@ public class ZXSpectrumEmulatorUI extends JFrame {
     Icon modelIcon = UIManager.getIcon("Tree.openIcon");
     JButton model48KButton = new JButton(modelIcon);
     model48KButton.setToolTipText("Switch to 48K Model");
-    model48KButton.addActionListener(e -> emulatorCore.setMachineModel("48K"));
+    model48KButton.addActionListener(e -> emulatorCore.setMachineModel("Spectrum 48K"));
     toolBar.add(model48KButton);
 
     JButton model128KButton = new JButton(modelIcon);
     model128KButton.setToolTipText("Switch to 128K Model");
-    model128KButton.addActionListener(e -> emulatorCore.setMachineModel("128K"));
+    model128KButton.addActionListener(e -> emulatorCore.setMachineModel("Spectrum 128K"));
     toolBar.add(model128KButton);
 
     Icon turboIcon = UIManager.getIcon("OptionPane.warningIcon");
@@ -383,7 +372,7 @@ public class ZXSpectrumEmulatorUI extends JFrame {
     speedBar.setPreferredSize(new Dimension(150, componentHeight));
 
     // Model Combo
-    String[] models = {"16K", "48K", "128K", "+2", "+3", "Pentagon"};
+    String[] models = {"Spectrum 16K", "Spectrum 48K", "Spectrum 128K", "Spectrum Plus 2", "Spectrum Plus 3", "Pentagon"};
     JComboBox<String> modelCombo = new JComboBox<>(models);
     modelCombo.setSelectedItem(emulatorCore.getCurrentModel());
     modelCombo.setPreferredSize(new Dimension(120, componentHeight));
@@ -451,6 +440,8 @@ public class ZXSpectrumEmulatorUI extends JFrame {
             UIManager.getIcon("OptionPane.warningIcon"));
         tapeStatusLabel.setToolTipText("Tape: " + status);
       }
+
+
     });
 
     layout.setHorizontalGroup(layout.createSequentialGroup()
