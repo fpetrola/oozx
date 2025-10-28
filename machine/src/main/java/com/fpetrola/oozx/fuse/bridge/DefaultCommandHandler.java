@@ -40,7 +40,7 @@ public class DefaultCommandHandler implements CommandHandler {
   public static CommandHandler createCommandHandler() {
     Fuse fuse = new Fuse();
     LibretroCore core = LibretroCore.INSTANCE;
-    core = new LocalLibretroCore(fuse.eventManager, fuse.display, fuse.machine, fuse.z80, fuse.zxClock, fuse.periph, fuse);
+//    core = new LocalLibretroCore(fuse.eventManager, fuse.display, fuse.machine, fuse.z80, fuse.zxClock, fuse.periph, fuse);
     return createCommandHandler(core);
   }
 
