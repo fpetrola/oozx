@@ -189,7 +189,8 @@ public class Z80 implements ZxModule {
       audio = new Audio(new AY8912Type());
       audio.open(MachineTypes.SPECTRUM48K, new AY8912(), false, 32000);
 
-      JFrame screen = createScreen(io.miniZXKeyboard, new FuseScreen(bytes));
+      FuseScreen contentPane = new FuseScreen(bytes);
+      JFrame screen = createScreen(io.miniZXKeyboard, contentPane);
       new SwingKeyboard(screen, keyboard, input);
     }
     uiDisplay.screenMatrix = bytes;

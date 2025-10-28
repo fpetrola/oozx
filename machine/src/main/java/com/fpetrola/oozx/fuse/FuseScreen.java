@@ -20,6 +20,8 @@ package com.fpetrola.oozx.fuse;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.stream.IntStream;
 
@@ -30,8 +32,8 @@ public class FuseScreen extends JPanel {
   Color[] lightColors = {Color.BLACK, Color.BLUE, Color.RED, Color.MAGENTA, Color.GREEN, Color.CYAN, Color.YELLOW, Color.WHITE};
   Color[] darkColors = new Color[8];
 
-  private int width = 256 + 48 + 48- 32;
-  private int height = 192 + 64 + 56 - 56;
+  private int width = 256 + 48 + 48 - 32;
+  private int height = 192 + 64 + 56 - 56 - 20;
 
   public FuseScreen(byte[][] screenMatrix) {
     IntStream.range(0, 8).forEach(i -> darkColors[i] = lightColors[i].darker());
@@ -52,6 +54,52 @@ public class FuseScreen extends JPanel {
       }
     }
 
-    g.drawImage(screenBuffer, 0, 0, getWidth(), getHeight(), null);
+//    g.drawImage(screenBuffer, 0, 0, getWidth(), getHeight(), null);
+
+    BufferedImage image = screenBuffer;
+
+    if (image != null) {
+
+      int imgWidth, imgHeight;
+      double contRatio = (double) getWidth() / (double) getHeight();
+      double imgRatio = (double) image.getWidth(this) / (double) image.getHeight(this);
+
+      //width limited
+      if (contRatio < imgRatio) {
+        imgWidth = getWidth();
+        imgHeight = (int) (getWidth() / imgRatio);
+        //height limited
+      } else {
+        imgWidth = (int) (getHeight() * imgRatio);
+        imgHeight = getHeight();
+      }
+
+      double i = (imgWidth * 1000f / image.getWidth(this) * 1000f) / 10000f;
+      boolean b = i % 100f < 30f;
+//      System.out.println(i + " -> " + b);
+      double ceil = Math.ceil(i / 100f) - 1;
+      if (b && ceil > 0) {
+        imgWidth = (int) (ceil * image.getWidth(this));
+        imgHeight = (int) (ceil * image.getHeight(this));
+      }
+        BufferedImage scaledImage = getScaledImage(image, imgWidth, imgHeight, b);
+      //to center
+      int x = (int) (((double) getWidth() / 2) - ((double) imgWidth / 2));
+      int y = (int) (((double) getHeight() / 2) - ((double) imgHeight / 2));
+      g.drawImage(scaledImage, x, y, this);
+    }
+
+  }
+
+  public static BufferedImage getScaledImage(BufferedImage image, int width, int height, boolean b) {
+    int imageWidth = image.getWidth();
+    int imageHeight = image.getHeight();
+
+    double scaleX = (double) width / imageWidth;
+    double scaleY = (double) height / imageHeight;
+    AffineTransform scaleTransform = AffineTransform.getScaleInstance(scaleX, scaleY);
+    AffineTransformOp bilinearScaleOp = new AffineTransformOp(scaleTransform, b ? AffineTransformOp.TYPE_NEAREST_NEIGHBOR : AffineTransformOp.TYPE_BILINEAR);
+
+    return bilinearScaleOp.filter(image, new BufferedImage(width, height, image.getType()));
   }
 }

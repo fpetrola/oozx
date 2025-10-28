@@ -52,7 +52,8 @@ class EmulatorInternalFrame extends JInternalFrame {
 
     JComponent mainPanel = core.getPanel();
     mainPanel.setBackground(Color.BLACK);
-    JLabel screenLabel = new JLabel("Mock Emulator Screen - " + core.getCurrentModel());
+    String text = "Emulator Screen - " + core.getCurrentModel();
+    JLabel screenLabel = new JLabel("");
     screenLabel.setForeground(Color.WHITE);
     mainPanel.add(screenLabel);
     add(mainPanel, BorderLayout.CENTER);
@@ -118,40 +119,93 @@ class EmulatorInternalFrame extends JInternalFrame {
     layout.setAutoCreateGaps(true);
     layout.setAutoCreateContainerGaps(true);
 
+    // Fixed height for all components
     int componentHeight = 20;
 
+    // State Label
     statusLabel = new JLabel("State: Ready");
     statusLabel.setPreferredSize(new Dimension(100, componentHeight));
 
-    speedBar = new JProgressBar(0, 2500);
-    speedBar.setValue((int) (emulatorCore.getEmulationSpeed() * 1));
+    // Speed Progress Bar
+    speedBar = new JProgressBar(0, 2000); // Max 4x speed
+    speedBar.setValue((int) (emulatorCore.getEmulationSpeed()));
     speedBar.setStringPainted(true);
     speedBar.setString(String.format("%.2fx", emulatorCore.getEmulationSpeed()));
     speedBar.setPreferredSize(new Dimension(150, componentHeight));
 
+    // Model Combo
     String[] models = {"Spectrum 16K", "Spectrum 48K", "Spectrum 128K", "Spectrum Plus 2", "Spectrum Plus 3", "Pentagon"};
     modelCombo = new JComboBox<>(models);
     modelCombo.setSelectedItem(emulatorCore.getCurrentModel());
     modelCombo.setPreferredSize(new Dimension(120, componentHeight));
     modelCombo.addActionListener(e -> emulatorCore.setMachineModel((String) modelCombo.getSelectedItem()));
 
-    pauseIndicator = new JLabel();
+    // Pause Indicator (LED-like)
+    pauseIndicator = new JLabel(emulatorCore.isPaused() ? "Paused" : "Running");
     pauseIndicator.setOpaque(true);
     pauseIndicator.setBackground(emulatorCore.isPaused() ? Color.RED : Color.GREEN);
     pauseIndicator.setBorder(BorderFactory.createLineBorder(Color.BLACK));
     pauseIndicator.setPreferredSize(new Dimension(componentHeight, componentHeight));
     pauseIndicator.setToolTipText(emulatorCore.isPaused() ? "Paused" : "Running");
 
-    turboIndicator = new JLabel(emulatorCore.isTurboMode() ? "Turbo On" : "Turbo Off");
+    // Turbo Indicator
+    turboIndicator = new JLabel(emulatorCore.isTurboMode() ? "✔ Turbo" : "✘ Turbo");
     turboIndicator.setForeground(emulatorCore.isTurboMode() ? Color.BLUE : Color.GRAY);
     turboIndicator.setPreferredSize(new Dimension(80, componentHeight));
 
+    // Tape Status
     tapeStatusLabel = new JLabel();
     tapeStatusLabel.setIcon(emulatorCore.getTapeStatus().equals("Loaded") ?
         UIManager.getIcon("OptionPane.informationIcon") :
         UIManager.getIcon("OptionPane.warningIcon"));
     tapeStatusLabel.setPreferredSize(new Dimension(80, componentHeight));
     tapeStatusLabel.setToolTipText("Tape: " + emulatorCore.getTapeStatus());
+
+    // Bind data to components
+    emulatorCore.addEmulatorListener(new EmulatorListener() {
+      @Override
+      public void onEmulationStateChanged(String state) {
+        statusLabel.setText("State: " + state);
+      }
+
+      @Override
+      public void onError(String message) {
+      }
+
+      @Override
+      public void onEmulationSpeedChanged(double speed) {
+        speedBar.setValue((int) (speed));
+        speedBar.setString(String.format("%.2fx", speed));
+      }
+
+      @Override
+      public void onModelChanged(String model) {
+        modelCombo.setSelectedItem(model);
+      }
+
+      @Override
+      public void onPauseStateChanged(boolean paused) {
+        pauseIndicator.setBackground(paused ? Color.RED : Color.GREEN);
+        pauseIndicator.setText(paused ? "Paused" : "Running");
+        pauseIndicator.setToolTipText(paused ? "Paused" : "Running");
+      }
+
+      @Override
+      public void onTurboModeChanged(boolean turbo) {
+        turboIndicator.setText(turbo ? "✔ Turbo" : "✘ Turbo");
+        turboIndicator.setForeground(turbo ? Color.BLUE : Color.GRAY);
+      }
+
+      @Override
+      public void onTapeStatusChanged(String status) {
+        tapeStatusLabel.setIcon(status.equals("Loaded") ?
+            UIManager.getIcon("OptionPane.informationIcon") :
+            UIManager.getIcon("OptionPane.warningIcon"));
+        tapeStatusLabel.setToolTipText("Tape: " + status);
+      }
+
+
+    });
 
     layout.setHorizontalGroup(layout.createSequentialGroup()
         .addComponent(statusLabel)
@@ -346,12 +400,15 @@ public class ZXSpectrumDesktopApp extends JFrame {
     int x = (emulatorCount * 30) % 400;
     int y = (emulatorCount * 30) % 400;
     EmulatorInternalFrame frame = new EmulatorInternalFrame(core, x, y);
-    frame.addComponentListener(new ComponentAdapter() {
-      public void componentResized(ComponentEvent event) {
-        Rectangle b = event.getComponent().getBounds();
-        event.getComponent().setBounds(b.x, b.y, b.width, b.width * 3 / 4);
-      }
-    });
+//    frame.addComponentListener(new ComponentAdapter() {
+//      public void componentResized(ComponentEvent event) {
+//        Rectangle bounds = core1.getPanel().getBounds();
+//        Rectangle b = event.getComponent().getBounds();
+//        double v = b.getHeight() / bounds.getHeight();
+//        double ceil = Math.ceil(v * 10)/10;
+//        event.getComponent().setBounds(b.x, b.y, b.width, (int) (b.width * 3f / 4f * ceil));
+//      }
+//    });
     desktop.add(frame);
     frame.setVisible(true);
     emulatorCount++;
