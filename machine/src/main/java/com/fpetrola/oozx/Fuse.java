@@ -82,7 +82,7 @@ public class Fuse {
     ).forEach(StartupManager::register);
 
     StartupManager.run();
-    machine.select(specPlus2);
+    machine.select(spec48);
   }
 
   public void fuseEnd() {

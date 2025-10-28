@@ -26,6 +26,7 @@ import com.fpetrola.oozx.fuse.machine.TimingsHandler;
 import com.fpetrola.oozx.fuse.modules.*;
 import com.fpetrola.oozx.fuse.modules.Timer;
 import com.fpetrola.oozx.fuse.peripherals.*;
+import com.fpetrola.oozx.fuse.peripherals.t.ZXSpectrumDesktopApp;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
@@ -78,6 +79,7 @@ public class Z80 implements ZxModule {
   private com.fpetrola.oozx.fuse.modules.Timer timer;
   public static EmulatorCore mockCore;
   private Supplier<Machine> machine;
+  private Runnable changeMachine;
 
   public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer, Supplier<Machine> machine) {
     this.eventManager = eventManager;
@@ -265,7 +267,16 @@ public class Z80 implements ZxModule {
     while (zxClock.getTStates() < eventManager.eventNextEvent) {
       while (emulatorPaused) Thread.onSpinWait();
       bridgeCommand.invoke(0, null);
-      ooz80.execute();
+      try {
+        ooz80.execute();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    if (changeMachine!= null) {
+      changeMachine.run();
+      changeMachine= null;
     }
   }
 
@@ -339,13 +350,14 @@ public class Z80 implements ZxModule {
 
       @Override
       public void onModelChanged(String model) {
+        changeMachine = () -> {
+          Machine machine1 = machine.get();
+          List<SpectrumMachine> machineTypes = machine1.getMachineTypes();
 
-        Machine machine1 = machine.get();
-        List<SpectrumMachine> machineTypes = machine1.getMachineTypes();
-
-        machineTypes.stream().filter(m -> m.getName().equals(model)).forEach(m -> {
-          machine1.select(m);
-        });
+          machineTypes.stream().filter(m -> m.getName().equals(model)).forEach(m -> {
+            machine1.select(m);
+          });
+        };
       }
 
       @Override
@@ -363,15 +375,15 @@ public class Z80 implements ZxModule {
 
       }
     });
-    ZXSpectrumEmulatorUI ui = new ZXSpectrumEmulatorUI(mockCore);
-    ui.setVisible(true);
-    ui.addKeyListener(keyListener);
-//    ui.addComponentListener(new ComponentAdapter() {
-//      public void componentResized(ComponentEvent event) {
-//        Rectangle b = event.getComponent().getBounds();
-//        event.getComponent().setBounds(b.x, b.y, b.width, b.width * 3 / 4);
-//      }
-//    });
+
+    ZXSpectrumDesktopApp app = new ZXSpectrumDesktopApp(mockCore);
+    app.setVisible(true);
+    // Create first emulator
+    app.createNewEmulator(mockCore);
+
+//    ZXSpectrumEmulatorUI ui = new ZXSpectrumEmulatorUI(mockCore);
+//    ui.setVisible(true);
+//    ui.addKeyListener(keyListener);
 
 //    JFrame frame = new JFrame("Fuse ZX Spectrum");
 //    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -381,7 +393,7 @@ public class Z80 implements ZxModule {
 //    frame.setVisible(true);
 //    frame.addKeyListener(keyListener);
 
-    return ui;
+    return app;
   }
 
 }
