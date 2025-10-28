@@ -191,7 +191,7 @@ public class Z80 implements ZxModule {
 
       FuseScreen contentPane = new FuseScreen(bytes);
       JFrame screen = createScreen(io.miniZXKeyboard, contentPane);
-      new SwingKeyboard(screen, keyboard, input);
+//      new SwingKeyboard(screen, keyboard, input);
     }
     uiDisplay.screenMatrix = bytes;
 //    Keyboard0.keyboard = io.miniZXKeyboard;
@@ -381,10 +381,8 @@ public class Z80 implements ZxModule {
 
 //    LafManager.install(new DarculaTheme());
 
-    ZXSpectrumDesktopApp app = new ZXSpectrumDesktopApp(mockCore);
-    app.setVisible(true);
     // Create first emulator
-    app.createNewEmulator(mockCore);
+//    zxSpectrumDesktopApp.createNewEmulator(mockCore);
 
 //    ZXSpectrumEmulatorUI ui = new ZXSpectrumEmulatorUI(mockCore);
 //    ui.setVisible(true);
@@ -398,7 +396,7 @@ public class Z80 implements ZxModule {
 //    frame.setVisible(true);
 //    frame.addKeyListener(keyListener);
 
-    return app;
+    return null;
   }
 
 }

@@ -19,7 +19,8 @@
 package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.Fuse;
-import com.fpetrola.oozx.fuse.bridge.DefaultCommandHandler;
+import com.fpetrola.oozx.fuse.peripherals.EmulatorCore;
+import com.fpetrola.oozx.fuse.peripherals.t.ZXSpectrumDesktopApp;
 
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -35,7 +36,18 @@ public class OOSpectrumLauncher {
   }
 
   public void init() {
-    OOSpectrumConnector.noTest= true;
+    OOSpectrumConnector.noTest = true;
+
+    ZXSpectrumDesktopApp zxSpectrumDesktopApp = new ZXSpectrumDesktopApp(() -> {
+      Fuse fuse = createFuse();
+      return fuse.z80.mockCore;
+    });
+    zxSpectrumDesktopApp.setVisible(true);
+
+//    createFuse();
+  }
+
+  private Fuse createFuse() {
     Fuse fuse = new Fuse();
     fuse.fuseInit();
     fuse.z80.bridgeCommand = (a, b) -> null;
@@ -46,6 +58,8 @@ public class OOSpectrumLauncher {
         fuse.eventManager.eventDoEvents();
       }
     }, 0, 1, MILLISECONDS);
+
+    return fuse;
   }
 
 }

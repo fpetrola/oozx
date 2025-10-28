@@ -29,6 +29,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
+import java.util.function.Supplier;
 
 
 // Emulator Internal Frame
@@ -329,11 +330,11 @@ class EmulatorInternalFrame extends JInternalFrame {
 
 // Main Desktop Application
 public class ZXSpectrumDesktopApp extends JFrame {
-  private final EmulatorCore mockCore;
+  private final Supplier<EmulatorCore> mockCore;
   private JDesktopPane desktop;
   private int emulatorCount = 0;
 
-  public ZXSpectrumDesktopApp(EmulatorCore mockCore) {
+  public ZXSpectrumDesktopApp(Supplier<EmulatorCore> mockCore) {
     this.mockCore = mockCore;
     setTitle("ZX Spectrum Multi-Emulator");
     setSize(1200, 800);
@@ -356,7 +357,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
     AbstractAction newEmulatorAction = new AbstractAction("New Emulator") {
       @Override
       public void actionPerformed(ActionEvent e) {
-        createNewEmulator(new MockEmulatorCore(mockCore.getPanel()));
+        EmulatorCore emulatorCore = mockCore.get();
+        createNewEmulator(emulatorCore);
       }
     };
     fileMenu.add(newEmulatorAction);

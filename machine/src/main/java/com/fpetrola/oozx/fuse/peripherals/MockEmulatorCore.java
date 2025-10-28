@@ -179,9 +179,10 @@ public class MockEmulatorCore implements EmulatorCore {
   }
 
   private void notifyModelChange(String model) {
-    for (EmulatorListener listener : listeners) {
-      listener.onModelChanged(model);
-    }
+      for (EmulatorListener listener : listeners) {
+        listener.onModelChanged(model);
+      }
+
   }
 
   public void notifyPauseStateChange(boolean paused) {
