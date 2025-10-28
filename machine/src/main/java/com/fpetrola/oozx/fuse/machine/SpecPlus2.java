@@ -120,6 +120,6 @@ public class SpecPlus2 extends AbstractSpectrumMachine {
   // ===================================================================
   @Override
   public TimingsHandler.Timings getBaseTiming() {
-    return new TimingsHandler.Timings(3546900, 1773400, TimingsHandler.AMSTRAD_ASIC);
+    return new TimingsHandler.Timings(3546900, 1773400, TimingsHandler.FERRANTI_7C);
   }
 }

@@ -21,6 +21,7 @@ package com.fpetrola.oozx.fuse;
 import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.Machine;
 import com.fpetrola.oozx.MemoryPage;
+import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.Display;
@@ -278,6 +279,21 @@ public class LocalLibretroCore implements LibretroCore {
   @Override
   public int retro_ram_locked() {
     return fuse.machine.current.getRamInfo().locked ? 1 : 0;
+  }
+
+  @Override
+  public int retro_get_ula_contention(int i) {
+    return fuse.ula.contention[i];
+  }
+
+  @Override
+  public void retro_set_late_timings(int b) {
+    Settings.current.lateTimings = b != 0;
+  }
+
+  @Override
+  public int retro_get_late_timings() {
+    return Settings.current.lateTimings ? 1 : 0;
   }
 
 

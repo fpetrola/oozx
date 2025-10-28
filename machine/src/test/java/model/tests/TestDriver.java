@@ -126,11 +126,11 @@ public class TestDriver {
   }
 
   public boolean isLateTimings() {
-    return false;
+    return (boolean) commandHandler.executeCommand(new GetLateTimings());
   }
 
   public long getULAContention(int i) {
-    return 0;
+    return (int) commandHandler.executeCommand(new GetUlaContention(i));
   }
 
   public int getCurrentScreen() {
@@ -211,5 +211,9 @@ public class TestDriver {
 
   public int getRamLocked() {
     return (int) commandHandler.executeCommand(new GetRamLocked());
+  }
+
+  public void setLateTimings(boolean b) {
+    commandHandler.addNoResultCommand(new SetLateTimings(b));
   }
 }

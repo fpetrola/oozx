@@ -18,7 +18,6 @@
 
 package com.fpetrola.oozx.fuse;
 
-import com.fpetrola.oozx.MemoryPage;
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
@@ -96,6 +95,13 @@ public interface LibretroCore extends Library {
 
   int retro_get_current_screen();
   int retro_ram_locked();
+
+  int retro_get_ula_contention(int i);
+
+  void retro_set_late_timings(int b);
+
+  int retro_get_late_timings();
+
   public interface bridge_command extends Callback {
     BridgeResponse invoke(int cmd, Pointer data);
   }

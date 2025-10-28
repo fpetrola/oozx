@@ -77,7 +77,7 @@ public class FuseUnitTests3 {
     // ===================================================================
     void unittests_run() {
         int r = 0;
-//        r += contention_test();
+        r += contention_test();
 //        r += floating_bus_test();
 //        r += floating_bus_merge_test();
 //        r += mempool_test();
