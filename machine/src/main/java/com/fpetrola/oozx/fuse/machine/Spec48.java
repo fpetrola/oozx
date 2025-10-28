@@ -98,7 +98,7 @@ public class Spec48 extends AbstractSpectrumMachine {
     memory.romcsMap();
   }
 
-  public int unattachedPort() {
+  public int unattachedPort(int port) {
     return spectrum.spectrumUnattachedPort();
   }
 

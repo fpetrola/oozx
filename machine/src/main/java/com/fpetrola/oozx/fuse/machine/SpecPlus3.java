@@ -350,7 +350,7 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
     }
   }
 
-  public int unattachedPort() {
+  public int unattachedPort(int port) {
     return spectrum.spectrumUnattachedPortNone();
   }
 

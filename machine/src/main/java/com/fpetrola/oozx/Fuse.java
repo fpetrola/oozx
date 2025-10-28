@@ -59,6 +59,9 @@ public class Fuse {
   public Spec128 spec128 = new Spec128(memory, display, machinesPeriph, spectrum, spec48, ulaPeriph, machine);
   public SpecPlus3 specPlus3 = new SpecPlus3(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph);
   public SpecPlus2 specPlus2 = new SpecPlus2(memory, display, machine, machinesPeriph, spectrum, spec48, spec128, ulaPeriph);
+  public SpecPlus2A specPlus2a = new SpecPlus2A(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph, specPlus3);
+  public SpecPlus3E specPlus3e = new SpecPlus3E(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph, specPlus3);
+  public Spec48Ntsc spec48Ntsc = new Spec48Ntsc(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph);
 
   public void fuseInit() {
     StartupManager.init();
@@ -69,7 +72,7 @@ public class Fuse {
         new JoystickStartupModule(joystick),
         new KeyboardStartupModule(keyboard),
         new LibspectrumStartupModule(),
-        new MachineStartupModule(machine, spec48, spec128, specPlus3, specPlus2),
+        new MachineStartupModule(machine, spec48, spec128, specPlus3, specPlus2, specPlus2a, specPlus3e, spec48Ntsc),
         new MachinesPeriphStartupModule(machine, spec128, specPlus3, periph),
         new MemoryStartupModule(memory, machine, spec128, specPlus3),
         new SpectrumStartupModule(spectrum),

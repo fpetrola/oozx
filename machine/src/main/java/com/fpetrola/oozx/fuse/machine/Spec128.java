@@ -140,7 +140,7 @@ public class Spec128 extends AbstractSpectrumMachine {
 
   }
 
-  public int unattachedPort() {
+  public int unattachedPort(int port) {
     return spectrum.spectrumUnattachedPort();
   }
 

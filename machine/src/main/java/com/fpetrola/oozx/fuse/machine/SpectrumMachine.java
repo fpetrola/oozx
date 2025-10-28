@@ -25,7 +25,7 @@ public interface SpectrumMachine {
 
   void memoryMap();
 
-  int unattachedPort();
+  int unattachedPort(int port);
 
   default void shutdown() {
   }

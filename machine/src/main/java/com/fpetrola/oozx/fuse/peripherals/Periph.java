@@ -281,7 +281,7 @@ public class Periph implements IPeriph {
 
     if (callbackInfo.attached != (byte) 0xff) {
       callbackInfo.value = mergeFloatingBus(callbackInfo.value, callbackInfo.attached,
-          (byte) machine.get().unattachedPort());
+          (byte) machine.get().unattachedPort(port));
     }
 
     return callbackInfo.value;

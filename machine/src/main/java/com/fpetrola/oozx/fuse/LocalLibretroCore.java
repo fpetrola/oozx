@@ -226,6 +226,9 @@ public class LocalLibretroCore implements LibretroCore {
       case "128K" -> fuse.spec128;
       case "+3" -> fuse.specPlus3;
       case "+2" -> fuse.specPlus2;
+      case "+2A" -> fuse.specPlus2a;
+      case "+3E" -> fuse.specPlus3e;
+      case "48K_NTSC" -> fuse.spec48Ntsc;
       default -> fuse.spec48;
     };
     machine.select(spectrumMachine);

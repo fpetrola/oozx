@@ -176,4 +176,107 @@ public class Spectrum implements ZxModule {
   public int spectrumUnattachedPortNone() {
     return 0xff;
   }
+
+
+  private static byte lastFloatingBusAmstradValue = (byte) 0xFF;
+
+  /**
+   * Implementa el comportamiento del "floating bus" en máquinas Amstrad (+2A, +3)
+   * Referencias:
+   *   http://sky.relative-path.com/zx/floating_bus.html
+   *   https://sinclair.wiki.zxnet.co.uk/wiki/Floating_bus
+   *   Ramsoft Floating Bus Technical Guide
+   *
+   * Probado con:
+   *   - A Yankee in Irak 1.3.3
+   *   - Mr. Kung Fu 1.3 (+2A/+3)
+   *   - MONJAS 1.6 (ES/EN)
+   *   - Hell Yeah! v210131
+   *   - Sidewize (+2A/+3 fix)
+   */
+  public byte unattachedPortAmstrad(int port) {
+    SpectrumMachine spectrumMachine = getCurrent();
+
+    int game = 1; // 1 = modo "juego" (devuelve 0xFF en idle), 0 = modo "emulación precisa"
+    int line;
+    long tstatesThroughLine, column;
+
+    // Check port pattern: 1 + (4 * n)
+    if (port <= 1 || port > 0x1000 || ((port - 1) & 3) != 0) {
+      lastFloatingBusAmstradValue = (byte) 0xFF;
+      return (byte) 0xFF;
+    }
+
+    long tstates = z80Clock.getTStates();
+
+    // Top border?
+    if (tstates < spectrumMachine.getLineTimes()[display.BORDER_HEIGHT]) {
+      lastFloatingBusAmstradValue = (byte) 0xFF;
+      return (byte) 0xFF;
+    }
+
+    // Linea relativa al inicio de pantalla
+    line = (int) ((tstates - spectrumMachine.getLineTimes()[display.BORDER_HEIGHT]) /
+        spectrumMachine.getTimings().tstatesPerLine);
+
+    // Lower border?
+    if (line >= display.HEIGHT) {
+      lastFloatingBusAmstradValue = (byte) 0xFF;
+      return game == 1 ? (byte) 0xFF : lastFloatingBusAmstradValue;
+    }
+
+    // Posición dentro de la línea
+    tstatesThroughLine = tstates -
+        spectrumMachine.getLineTimes()[(int) (display.BORDER_HEIGHT + line)] +
+        (spectrumMachine.getTimings().leftBorder - display.BORDER_WIDTH_COLS * 4);
+
+    // Left border?
+    if (tstatesThroughLine < spectrumMachine.getTimings().leftBorder) {
+      return game == 1 ? (byte) 0xFF : lastFloatingBusAmstradValue;
+    }
+
+    // Right border o retrace?
+    if (tstatesThroughLine >= spectrumMachine.getTimings().leftBorder + spectrumMachine.getTimings().horizontalScreen) {
+      return game == 1 ? (byte) 0xFF : lastFloatingBusAmstradValue;
+    }
+
+    // Columna en pantalla (2 bytes por celda)
+    column = ((tstatesThroughLine - spectrumMachine.getTimings().leftBorder) / 8) * 2;
+
+    int screen = memory.currentScreen;
+    int[] displayLineStart = display.lineStart;
+    int[] displayAttrStart = display.attrStart;
+
+    switch ((int) ((tstatesThroughLine - game) % 8)) {
+      case 5:
+        column++; // Attribute byte
+      case 3:
+        lastFloatingBusAmstradValue = (byte) (ramHolder.getRAM()[screen][(int) (displayAttrStart[line] + column)] | 0x01);
+        return lastFloatingBusAmstradValue;
+
+      case 4:
+        column++; // Screen data
+      case 2:
+        lastFloatingBusAmstradValue = (byte) (ramHolder.getRAM()[screen][(int) (displayLineStart[line] + column)] | 0x01);
+        return lastFloatingBusAmstradValue;
+
+      case 0:
+      case 1:
+      case 6:
+      case 7: // Idle bus
+        return game == 1 ? (byte) 0xFF : lastFloatingBusAmstradValue;
+
+      default:
+        return game == 1 ? (byte) 0xFF : lastFloatingBusAmstradValue;
+    }
+  }
+
+  // Getter para pruebas unitarias
+  public static byte getLastFloatingBusAmstradValue() {
+    return lastFloatingBusAmstradValue;
+  }
+
+  public static void resetLastFloatingBus() {
+    lastFloatingBusAmstradValue = (byte) 0xFF;
+  }
 }

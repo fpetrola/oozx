@@ -106,7 +106,7 @@ public class SpecPlus2 extends AbstractSpectrumMachine {
   // unattachedPort()
   // ===================================================================
   @Override
-  public int unattachedPort() {
+  public int unattachedPort(int port) {
     return spectrum.spectrumUnattachedPort();
   }
 
