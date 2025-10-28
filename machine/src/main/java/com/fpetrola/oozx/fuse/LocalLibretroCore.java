@@ -20,7 +20,6 @@ package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.Machine;
-import com.fpetrola.oozx.MemoryPage;
 import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
@@ -77,11 +76,11 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_init() {
-    fuse.fuseInit();
+    fuse.init();
   }
 
   public void retro_deinit() {
-    fuse.fuseEnd();
+    fuse.end();
   }
 
   public int retro_api_version() {

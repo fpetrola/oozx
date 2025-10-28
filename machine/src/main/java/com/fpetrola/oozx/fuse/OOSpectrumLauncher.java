@@ -19,7 +19,6 @@
 package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.Fuse;
-import com.fpetrola.oozx.fuse.peripherals.EmulatorCore;
 import com.fpetrola.oozx.fuse.peripherals.t.ZXSpectrumDesktopApp;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -49,7 +48,7 @@ public class OOSpectrumLauncher {
 
   private Fuse createFuse() {
     Fuse fuse = new Fuse();
-    fuse.fuseInit();
+    fuse.init();
     fuse.z80.bridgeCommand = (a, b) -> null;
 
     scheduledExecutorService.scheduleAtFixedRate(() -> {

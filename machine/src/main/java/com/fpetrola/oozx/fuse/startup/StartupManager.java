@@ -26,34 +26,34 @@ import java.util.Iterator;
 import java.util.List;
 
 public class StartupManager {
-  private static List<StartupModule> registeredModules;
-  private static List<Runnable> endFunctions;
+  private List<StartupModule> registeredModules;
+  private List<Runnable> endFunctions;
 
   // Initialize the startup manager itself
-  public static void init() {
+  public void init() {
     registeredModules = new ArrayList<>();
     endFunctions = new ArrayList<>();
   }
 
   // Clean up the startup manager
-  private static void end() {
+  private void end() {
     registeredModules.clear();
     endFunctions.clear();
   }
 
-  public static void register(StartupModule e) {
+  public void register(StartupModule e) {
     registeredModules.add(e);
   }
 
   // Remove a dependency from all modules
-  private static void removeDependency(StartupModule module) {
+  private void removeDependency(StartupModule module) {
     for (StartupModule registeredModule : registeredModules) {
       registeredModule.removeDependency(module);
     }
   }
 
   // Run all the registered init functions in the right order
-  public static int run() {
+  public int run() {
     boolean progressMade;
     int error;
 
@@ -90,7 +90,7 @@ public class StartupManager {
   }
 
   // Run all the end functions in inverse order of the init functions
-  public static void runEnd() {
+  public void runEnd() {
     for (int i = endFunctions.size() - 1; i >= 0; i--) {
       endFunctions.get(i).run();
     }

@@ -47,6 +47,7 @@ public class Fuse {
   private Sound sound = new Sound();
   private Timer timer = new Timer(eventManager, spectrumMachineSupplier, sound);
   public Z80 z80 = new Z80(eventManager, memory, display, ula, spectrumMachineSupplier, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer, () -> getMachine());
+  private StartupManager startupManager = new StartupManager();
 
   private Machine getMachine() {
     return machine;
@@ -63,8 +64,8 @@ public class Fuse {
   public SpecPlus3E specPlus3e = new SpecPlus3E(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph, specPlus3);
   public Spec48Ntsc spec48Ntsc = new Spec48Ntsc(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph);
 
-  public void fuseInit() {
-    StartupManager.init();
+  public void init() {
+    startupManager.init();
 
     List.of(
         new DisplayStartupModule(display),
@@ -79,14 +80,14 @@ public class Fuse {
         new TimerStartupModule(timer),
         new UlaStartupModule(ula),
         new Z80StartupModule(z80)
-    ).forEach(StartupManager::register);
+    ).forEach(startupManager::register);
 
-    StartupManager.run();
+    startupManager.run();
     machine.select(spec48);
   }
 
-  public void fuseEnd() {
-    StartupManager.runEnd();
+  public void end() {
+    startupManager.runEnd();
     periph.end();
   }
 }
