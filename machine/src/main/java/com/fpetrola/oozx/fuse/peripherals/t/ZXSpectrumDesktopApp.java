@@ -45,7 +45,7 @@ class EmulatorInternalFrame extends JInternalFrame {
   public EmulatorInternalFrame(EmulatorCore core, int x, int y) {
     super("ZX Spectrum Emulator", true, true, true, true);
     this.emulatorCore = core;
-    setSize(800, 600);
+    setSize(500, 400);
     setLocation(x, y);
 
     // Main Panel (emulator screen)
@@ -54,7 +54,7 @@ class EmulatorInternalFrame extends JInternalFrame {
     JComponent mainPanel = core.getPanel();
     mainPanel.setBackground(Color.BLACK);
     String text = "Emulator Screen - " + core.getCurrentModel();
-    JLabel screenLabel = new JLabel(text);
+    JLabel screenLabel = new JLabel("");
     screenLabel.setForeground(Color.WHITE);
     mainPanel.add(screenLabel);
     add(mainPanel, BorderLayout.CENTER);

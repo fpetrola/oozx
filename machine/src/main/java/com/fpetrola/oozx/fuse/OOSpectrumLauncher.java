@@ -20,6 +20,8 @@ package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.fuse.peripherals.t.ZXSpectrumDesktopApp;
+import com.github.weisj.darklaf.LafManager;
+import com.github.weisj.darklaf.theme.DarculaTheme;
 
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -37,6 +39,7 @@ public class OOSpectrumLauncher {
 
   public void init() {
     OOSpectrumConnector.noTest = true;
+    LafManager.install(new DarculaTheme());
 
     ZXSpectrumDesktopApp zxSpectrumDesktopApp = new ZXSpectrumDesktopApp(() -> {
       Fuse fuse = createFuse();

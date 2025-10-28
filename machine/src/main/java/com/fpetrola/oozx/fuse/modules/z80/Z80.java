@@ -382,8 +382,6 @@ public class Z80 implements ZxModule {
       }
     });
 
-//    LafManager.install(new DarculaTheme());
-
     // Create first emulator
 //    zxSpectrumDesktopApp.createNewEmulator(mockCore);
 
