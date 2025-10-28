@@ -36,10 +36,12 @@ public class Joystick implements ZxModule {
   public int joysticksSupported = 0;
   private Keyboard keyboard;
   private IPeriph periph;
+  private Module module;
 
-  public Joystick(Keyboard keyboard, IPeriph periph) {
+  public Joystick(Keyboard keyboard, IPeriph periph, Module module) {
     this.keyboard = keyboard;
     this.periph = periph;
+    this.module = module;
   }
 
   public int init(Object initContext) {
@@ -47,7 +49,7 @@ public class Joystick implements ZxModule {
     kempstonValue = timex1Value = timex2Value = 0x00;
     fullerValue = (byte) 0xff;
 
-    Module.register(new JoystickModuleInfo(this));
+    module.register(new JoystickModuleInfo(this));
     periph.register(new KempstonStrictPeripheral(this));
     periph.register(new KempstonLoosePeriphPeripheral(this));
 

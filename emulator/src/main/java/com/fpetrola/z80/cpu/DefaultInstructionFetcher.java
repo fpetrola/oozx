@@ -45,7 +45,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   protected int rdelta;
   private boolean prefetch = false;
   protected DefaultRegisterBankFactory.RRegister<T> registerR;
-  public static PhaseProcessor<?> tPhaseProcessor;
+  public PhaseProcessor<?> tPhaseProcessor;
 
   public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
     this.state = aState;

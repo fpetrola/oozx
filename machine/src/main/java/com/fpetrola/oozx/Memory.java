@@ -65,10 +65,12 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   public MemoryPage[] mapRom = new MemoryPage[SPECTRUM_ROM_PAGES * PAGES_IN_16K];
   private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
   private SpectrumZ80Clock zxClock;
+  private Module module;
 
-  public Memory(Supplier<SpectrumMachine> machine, SpectrumZ80Clock zxClock) {
+  public Memory(Supplier<SpectrumMachine> machine, SpectrumZ80Clock zxClock, Module module) {
     this.fuseMachineInfoSupplier = machine;
     this.zxClock = zxClock;
+    this.module = module;
     Helper.fillArrayWith(mapRead, MemoryPage::new);
     Helper.fillArrayWith(mapWrite, MemoryPage::new);
   }
@@ -317,7 +319,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   // Map ROMCS
   public void romcsMap() {
     if (!fuseMachineInfoSupplier.get().getRamInfo().romcs) return;
-    Module.romcs();
+    module.romcs();
   }
 
   // Load memory from snapshot

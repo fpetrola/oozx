@@ -52,20 +52,22 @@ public class Ula implements ZxModule {
   private final IPeriph periph;
   private String contendPortLate = "contend_port_late";
   private String contendPortEarly = "contend_port_early";
+  private Module module;
 
 
-  public Ula(Memory memory, Display display, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock z80Clock, IPeriph periph) {
+  public Ula(Memory memory, Display display, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock z80Clock, IPeriph periph, Module module) {
     this.memory = memory;
     this.display = display;
     this.currentMachineSupplier = machineSupplier;
     this.keyboard = keyboard;
     this.z80Clock = z80Clock;
     this.periph = periph;
+    this.module = module;
   }
 
   // Initialize ULA module
   public int init(Object context) {
-    Module.register(new UlaZxModuleInfo(this, z80Clock));
+    module.register(new UlaZxModuleInfo(this, z80Clock));
     periph.register(new UlaPeripheral(this));
     periph.register(new UlaFullDecodePeripheral(this));
 

@@ -30,12 +30,14 @@ public class MemoryStartupModule extends AbstractStartupModule {
   private Machine machine;
   private Spec128 spec128;
   private SpecPlus3 specPlus3;
+  private Module module;
 
-  public MemoryStartupModule(Memory memory, Machine machine, Spec128 spec128, SpecPlus3 specPlus3) {
+  public MemoryStartupModule(Memory memory, Machine machine, Spec128 spec128, SpecPlus3 specPlus3, Module module) {
     this.memory = memory;
     this.machine = machine;
     this.spec128 = spec128;
     this.specPlus3 = specPlus3;
+    this.module = module;
   }
 
   public Object getInitContext() {
@@ -44,7 +46,7 @@ public class MemoryStartupModule extends AbstractStartupModule {
 
   public int initFn(Object initContext) {
     int init = memory.init(this);
-    Module.register(new MemoryModuleInfo(memory, machine, spec128, specPlus3));
+    module.register(new MemoryModuleInfo(memory, machine, spec128, specPlus3));
     return init;
   }
 

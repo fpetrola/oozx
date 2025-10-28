@@ -115,7 +115,7 @@ public class FuseTestParser<T extends WordNumber> {
     spy.addExecutionListeners(cpu.getInstructionExecutor());
 
 //    PhaseProcessor<T> phaseProcessor = new PhaseProcessor<T>(cpu.getInstructionFetcher(), cpu.getState());
-    PhaseProcessor<T> phaseProcessor = (PhaseProcessor<T>) DefaultInstructionFetcher.tPhaseProcessor;
+    PhaseProcessor<T> phaseProcessor = (PhaseProcessor<T>) instructionFetcher.tPhaseProcessor;
 
 //    phaseProcessor.processPhase(new BeforeExecution());
 //    phaseProcessor.processPhase(new AfterMR());

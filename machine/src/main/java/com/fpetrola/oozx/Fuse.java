@@ -34,27 +34,28 @@ import java.util.function.Supplier;
 public class Fuse {
   public Supplier<SpectrumMachine> spectrumMachineSupplier = () -> Machine.current;
   public SpectrumZ80Clock zxClock = new SpectrumZ80Clock();
-  public Memory memory = new Memory(spectrumMachineSupplier, zxClock);
+  private Module module= new Module();
+  public Memory memory = new Memory(spectrumMachineSupplier, zxClock, module);
   private UiDisplay uiDisplay = new UiDisplay(zxClock);
   public Display display = new Display(memory, spectrumMachineSupplier, zxClock, memory, uiDisplay);
   public Keyboard keyboard = new Keyboard();
   public IPeriph periph = new Periph(spectrumMachineSupplier, zxClock);
-  public Ula ula = new Ula(memory, display, spectrumMachineSupplier, keyboard, zxClock, periph);
+  public Ula ula = new Ula(memory, display, spectrumMachineSupplier, keyboard, zxClock, periph, module);
   public EventManager eventManager = new EventManager(spectrumMachineSupplier, zxClock);
   public IPeriph ulaPeriph = new UlaPeriph(ula, zxClock, periph);
-  public Joystick joystick = new Joystick(keyboard, ulaPeriph);
+  public Joystick joystick = new Joystick(keyboard, ulaPeriph, module);
   public Input input = new Input(joystick, keyboard);
   private Sound sound = new Sound();
   private Timer timer = new Timer(eventManager, spectrumMachineSupplier, sound);
-  public Z80 z80 = new Z80(eventManager, memory, display, ula, spectrumMachineSupplier, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer, () -> getMachine());
+  public Z80 z80 = new Z80(eventManager, memory, display, ula, spectrumMachineSupplier, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer, () -> getMachine(), module);
   private StartupManager startupManager = new StartupManager();
 
   private Machine getMachine() {
     return machine;
   }
 
-  public Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, zxClock, memory, spectrumMachineSupplier, timer);
-  public Machine machine = new Machine(eventManager, memory, display, ula, zxClock, spectrum, uiDisplay, timer);
+  public Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, zxClock, memory, spectrumMachineSupplier, timer, module);
+  public Machine machine = new Machine(eventManager, memory, display, ula, zxClock, spectrum, uiDisplay, timer, module);
   public MachinesPeriph machinesPeriph = new MachinesPeriph(ulaPeriph);
   public Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum, ulaPeriph);
   public Spec128 spec128 = new Spec128(memory, display, machinesPeriph, spectrum, spec48, ulaPeriph, machine);
@@ -75,7 +76,7 @@ public class Fuse {
         new LibspectrumStartupModule(),
         new MachineStartupModule(machine, spec48, spec128, specPlus3, specPlus2, specPlus2a, specPlus3e, spec48Ntsc),
         new MachinesPeriphStartupModule(machine, spec128, specPlus3, periph),
-        new MemoryStartupModule(memory, machine, spec128, specPlus3),
+        new MemoryStartupModule(memory, machine, spec128, specPlus3, module),
         new SpectrumStartupModule(spectrum),
         new TimerStartupModule(timer),
         new UlaStartupModule(ula),

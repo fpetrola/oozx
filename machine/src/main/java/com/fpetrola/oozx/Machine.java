@@ -21,7 +21,9 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.machine.TimingsHandler;
 import com.fpetrola.oozx.fuse.modules.*;
+import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.Z80Clock;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +34,7 @@ public class Machine implements ZxModule {
   private Memory memory;
   private Display display;
   private Ula ula;
+  private Module module;
 
   public List<SpectrumMachine> getMachineTypes() {
     return machineTypes;
@@ -44,11 +47,12 @@ public class Machine implements ZxModule {
   private UiDisplay uiDisplay;
   private Timer timer;
 
-  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, Z80Clock z80Clock, Spectrum spectrum, UiDisplay uiDisplay, Timer timer) {
+  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, Z80Clock z80Clock, Spectrum spectrum, UiDisplay uiDisplay, Timer timer, Module module) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
     this.ula = ula;
+    this.module = module;
     this.z80Clock = z80Clock;
     this.spectrum = spectrum;
     this.uiDisplay = uiDisplay;
@@ -205,7 +209,7 @@ public class Machine implements ZxModule {
     current.reset();
 //        if (error != 0) return error;
 
-    Module.reset(hardReset ? 1 : 0);
+    module.reset(hardReset ? 1 : 0);
 
     current.memoryMap();
 //        if (error != 0) return error;

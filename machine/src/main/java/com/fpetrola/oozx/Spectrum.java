@@ -41,8 +41,9 @@ public class Spectrum implements ZxModule {
   public int spectrumFrameEvent;
   private long framesSinceReset;
   private Timer timer;
+  private Module module;
 
-  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, Z80Clock z80Clock, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer) {
+  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, Z80Clock z80Clock, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
     this.memory = memory;
     this.display = display;
     this.eventManager = eventManager;
@@ -51,6 +52,7 @@ public class Spectrum implements ZxModule {
     this.ramHolder = ramHolder;
     this.fuseMachineInfoSupplier = fuseMachineInfoSupplier;
     this.timer = timer;
+    this.module = module;
   }
 
   public void spectrumReset(int a) {
@@ -70,7 +72,7 @@ public class Spectrum implements ZxModule {
   public int init(Object context) {
     spectrumFrameEvent = eventManager.eventRegister(this::spectrumFrameEventFn, "End of frame");
 
-    Module.register(new SpectrumModuleInfo(this));
+    module.register(new SpectrumModuleInfo(this));
 
     return 0;
   }

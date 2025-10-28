@@ -25,56 +25,55 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Module {
+  private List<ZXModuleInfo> registeredModules = new ArrayList<>();
 
-  private static List<ZXModuleInfo> registeredModules = new ArrayList<>();
-
-  public static void register(ZXModuleInfo e) {
+  public void register(ZXModuleInfo e) {
     registeredModules.add(e);
   }
 
-  public static void moduleEnd() {
+  public void moduleEnd() {
     if (registeredModules != null) {
       registeredModules.clear();
       registeredModules = null;
     }
   }
 
-  public static void reset(int hardReset) {
+  public void reset(int hardReset) {
     if (registeredModules == null) return;
     for (ZXModuleInfo module : registeredModules) {
       module.reset(hardReset);
     }
   }
 
-  public static void romcs() {
+  public void romcs() {
     if (registeredModules == null) return;
     for (ZXModuleInfo module : registeredModules) {
       module.romcs();
     }
   }
 
-  public static void moduleSnapshotEnabled(Libspectrum.Snap snap) {
+  public void moduleSnapshotEnabled(Libspectrum.Snap snap) {
     if (registeredModules == null) return;
     for (ZXModuleInfo module : registeredModules) {
       module.snapshotEnabled(snap);
     }
   }
 
-  public static void moduleSnapshotFrom(Libspectrum.Snap snap) {
+  public void moduleSnapshotFrom(Libspectrum.Snap snap) {
     if (registeredModules == null) return;
     for (ZXModuleInfo module : registeredModules) {
       module.snapshotFrom(snap);
     }
   }
 
-  public static void moduleSnapshotTo(Libspectrum.Snap snap) {
+  public void moduleSnapshotTo(Libspectrum.Snap snap) {
     if (registeredModules == null) return;
     for (ZXModuleInfo module : registeredModules) {
       module.snapshotTo(snap);
     }
   }
 
-  public static void end() {
+  public void end() {
 
   }
 }

@@ -82,8 +82,9 @@ public class Z80 implements ZxModule {
   public EmulatorCore mockCore;
   private Supplier<Machine> machine;
   private Runnable changeMachine;
+  private Module module;
 
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer, Supplier<Machine> machine) {
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer, Supplier<Machine> machine, Module module) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
@@ -96,6 +97,7 @@ public class Z80 implements ZxModule {
     this.uiDisplay = uiDisplay;
     this.timer = timer;
     this.machine = machine;
+    this.module = module;
   }
 
   public void reset(int hardReset) {
@@ -221,7 +223,8 @@ public class Z80 implements ZxModule {
     Memory<WordNumber> memory1 = (Memory<WordNumber>) state.getMemory();
 
     phaseProcessor = new FusePhaseProcessor(this);
-    DefaultInstructionFetcher.tPhaseProcessor = phaseProcessor;
+    DefaultInstructionFetcher<WordNumber> instructionFetcher = (DefaultInstructionFetcher<WordNumber>) ooz80.getInstructionFetcher();
+    instructionFetcher.tPhaseProcessor = phaseProcessor;
 
     ooz80.getInstructionExecutor().addExecutionListener(new PhaseProcessorExecutionListener<>(phaseProcessor));
 
@@ -246,7 +249,7 @@ public class Z80 implements ZxModule {
     int z80_nmi_event = eventManager.eventRegister(this::z80_nmi, "Non-maskable interrupt");
     int z80_nmos_iff2_event = eventManager.eventRegister(null, "IFF2 update dummy event");
 
-    Module.register(new Z80ModuleInfo(this));
+    module.register(new Z80ModuleInfo(this));
 
     init2();
 
