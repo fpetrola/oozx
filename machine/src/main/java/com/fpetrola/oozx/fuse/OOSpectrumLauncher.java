@@ -19,11 +19,11 @@
 package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.Fuse;
-import com.fpetrola.oozx.fuse.peripherals.EmulatorCore;
 import com.fpetrola.oozx.fuse.peripherals.t.ZXSpectrumDesktopApp;
 import com.github.weisj.darklaf.LafManager;
-import com.github.weisj.darklaf.theme.DarculaTheme;
+import com.github.weisj.darklaf.theme.SolarizedLightTheme;
 
+import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static java.util.concurrent.Executors.newScheduledThreadPool;
@@ -40,21 +40,24 @@ public class OOSpectrumLauncher {
 
   public void init() {
     OOSpectrumConnector.noTest = true;
-//    LafManager.install(new DarculaTheme());
+    LafManager.install(new SolarizedLightTheme());
 
     ZXSpectrumDesktopApp zxSpectrumDesktopApp = new ZXSpectrumDesktopApp(() -> {
-      Fuse fuse = createFuse();
+      String[] games = {"emlyn.z80", "dynamitedan.z80", "equinox.z80", "tge.z80"};
+
+      Random random = new Random();
+      int index = random.nextInt(games.length);
+      Fuse fuse = createFuse("/home/fernando/detodo/desarrollo/m/zx/roms/" + games[index]);
       return fuse.z80.mockCore;
     });
     zxSpectrumDesktopApp.setVisible(true);
-
-
-//    createFuse();
   }
 
-  private Fuse createFuse() {
+  private Fuse createFuse(String s) {
     Fuse fuse = new Fuse();
     fuse.init();
+    fuse.z80.loadSnap(s);
+
     fuse.z80.bridgeCommand = (a, b) -> null;
 
     scheduledExecutorService.scheduleAtFixedRate(() -> {
