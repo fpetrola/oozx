@@ -26,7 +26,6 @@ import com.fpetrola.oozx.fuse.machine.TimingsHandler;
 import com.fpetrola.oozx.fuse.modules.*;
 import com.fpetrola.oozx.fuse.modules.Timer;
 import com.fpetrola.oozx.fuse.peripherals.*;
-import com.fpetrola.oozx.fuse.peripherals.t.ZXSpectrumDesktopApp;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
@@ -38,8 +37,6 @@ import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.spy.NullInstructionSpy;
-import com.github.weisj.darklaf.LafManager;
-import com.github.weisj.darklaf.theme.DarculaTheme;
 import fuse.PhaseProcessorExecutionListener;
 import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
@@ -84,8 +81,9 @@ public class Z80 implements ZxModule {
   private Runnable changeMachine;
   private Module module;
   private Fuse fuse;
+  private Settings settings;
 
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer, Supplier<Machine> machine, Module module, Fuse fuse) {
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer, Supplier<Machine> machine, Module module, Fuse fuse, Settings settings) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
@@ -100,6 +98,7 @@ public class Z80 implements ZxModule {
     this.machine = machine;
     this.module = module;
     this.fuse = fuse;
+    this.settings = settings;
   }
 
   public void reset(int hardReset) {
@@ -326,7 +325,7 @@ public class Z80 implements ZxModule {
         if (option.equals("turbo")) {
           turbo = !turbo;
           int emulationSpeed = (boolean) value ? 15000 : 100;
-          Settings.current.emulationSpeed = emulationSpeed;
+          settings.current.emulationSpeed = emulationSpeed;
           timer.addEvent();
           notifyTurboModeChange(turbo);
           notifyEmulationSpeedChange(Z80.emulationSpeed);
@@ -336,7 +335,7 @@ public class Z80 implements ZxModule {
 
       @Override
       public double getEmulationSpeed() {
-        return Settings.current.emulationSpeed;
+        return settings.current.emulationSpeed;
       }
 
       @Override

@@ -30,8 +30,8 @@ public class Spec128 extends AbstractSpectrumMachine {
   private Spec48 spec48;
   private IPeriph periph;
 
-  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph, Machine machine) {
-    super(display, machine);
+  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph, Machine machine, Settings settings) {
+    super(display, machine, settings);
     this.memory = memory;
     this.display = display;
     this.machinesPeriph = machinesPeriph;
@@ -47,9 +47,9 @@ public class Spec128 extends AbstractSpectrumMachine {
   @Override
 
   public int reset() {
-    int error = machine.loadRom(0, Settings.current.rom1280, Settings.defaults.rom1280, 0x4000);
+    int error = machine.loadRom(0, settings.current.rom1280, settings.defaults.rom1280, 0x4000);
     if (error != 0) return error;
-    error = machine.loadRom(1, Settings.current.rom1281, Settings.defaults.rom1281, 0x4000);
+    error = machine.loadRom(1, settings.current.rom1281, settings.defaults.rom1281, 0x4000);
     if (error != 0) return error;
 
     error = commonReset(true);

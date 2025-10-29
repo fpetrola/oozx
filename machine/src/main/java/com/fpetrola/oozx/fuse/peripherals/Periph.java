@@ -35,10 +35,12 @@ import java.util.function.Supplier;
 public class Periph implements IPeriph {
   private Supplier<SpectrumMachine> machine;
   private Z80Clock z80Clock;
+  private Settings settings;
 
-  public Periph(Supplier<SpectrumMachine> machine, Z80Clock z80Clock) {
+  public Periph(Supplier<SpectrumMachine> machine, Z80Clock z80Clock, Settings settings) {
     this.machine = machine;
     this.z80Clock = z80Clock;
+    this.settings = settings;
   }
 
   // Enum for peripheral types
@@ -374,7 +376,7 @@ public class Periph implements IPeriph {
     boolean[] needsHardReset = {false};
 
     if (Ui.mousePresent) {
-      if (Settings.current.kempstonMouse) {
+      if (settings.current.kempstonMouse) {
         if (!Ui.mouseGrabbed) {
           Ui.mouseGrabbed = Ui.mouseGrab(true);
         }

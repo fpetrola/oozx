@@ -35,6 +35,7 @@ public class Machine implements ZxModule {
   private Display display;
   private Ula ula;
   private Module module;
+  private Settings settings;
 
   public List<SpectrumMachine> getMachineTypes() {
     return machineTypes;
@@ -47,7 +48,7 @@ public class Machine implements ZxModule {
   private UiDisplay uiDisplay;
   private Timer timer;
 
-  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, Z80Clock z80Clock, Spectrum spectrum, UiDisplay uiDisplay, Timer timer, Module module) {
+  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, Z80Clock z80Clock, Spectrum spectrum, UiDisplay uiDisplay, Timer timer, Module module, Settings settings) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
@@ -57,6 +58,7 @@ public class Machine implements ZxModule {
     this.spectrum = spectrum;
     this.uiDisplay = uiDisplay;
     this.timer = timer;
+    this.settings = settings;
   }
 
   public void addMachine(SpectrumMachine spectrumMachine) {
@@ -95,7 +97,7 @@ public class Machine implements ZxModule {
 
     current = machine;
 
-    Settings.setString(Settings.current.startMachine, machine.getClass().getSimpleName());
+    settings.setString(settings.current.startMachine, machine.getClass().getSimpleName());
 
     z80Clock.setTStates(0);
 
@@ -120,7 +122,7 @@ public class Machine implements ZxModule {
 
     if (uiDisplay.init(width, height) != 0) return 1;
 
-    Sound.init(Settings.current.soundDevice);
+    Sound.init(settings.current.soundDevice);
 
     machine.reset();
     reset(false);
@@ -235,7 +237,7 @@ public class Machine implements ZxModule {
         display.BORDER_HEIGHT * machine.getTimings().tstatesPerLine -
         4 * display.BORDER_WIDTH_COLS;
 
-    if (Settings.current.lateTimings) machine.getLineTimes()[0]++;
+    if (settings.current.lateTimings) machine.getLineTimes()[0]++;
 
     for (int y = 1; y < display.SCREEN_HEIGHT + 1; y++) {
       machine.getLineTimes()[y] = machine.getLineTimes()[y - 1] + machine.getTimings().tstatesPerLine;

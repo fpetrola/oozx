@@ -53,9 +53,9 @@ public class Ula implements ZxModule {
   private String contendPortLate = "contend_port_late";
   private String contendPortEarly = "contend_port_early";
   private Module module;
+  private Settings settings;
 
-
-  public Ula(Memory memory, Display display, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock z80Clock, IPeriph periph, Module module) {
+  public Ula(Memory memory, Display display, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock z80Clock, IPeriph periph, Module module, Settings settings) {
     this.memory = memory;
     this.display = display;
     this.currentMachineSupplier = machineSupplier;
@@ -63,11 +63,12 @@ public class Ula implements ZxModule {
     this.z80Clock = z80Clock;
     this.periph = periph;
     this.module = module;
+    this.settings = settings;
   }
 
   // Initialize ULA module
   public int init(Object context) {
-    module.register(new UlaZxModuleInfo(this, z80Clock));
+    module.register(new UlaZxModuleInfo(this, z80Clock, settings));
     periph.register(new UlaPeripheral(this));
     periph.register(new UlaFullDecodePeripheral(this));
 
@@ -105,7 +106,7 @@ public class Ula implements ZxModule {
 
     if ((getCurrent().getCapabilities() & PLUS3_MEMORY) != 0) {
       defaultValue = (byte) 0xbf;
-    } else if ((getCurrent().getCapabilities() & _128_MEMORY) != 0 || !Settings.current.issue2) {
+    } else if ((getCurrent().getCapabilities() & _128_MEMORY) != 0 || !settings.current.issue2) {
       defaultValue = (byte) ((b & 0x10) != 0 ? 0xff : 0xbf);
     } else {
       defaultValue = (byte) ((b & 0x18) != 0 ? 0xff : 0xbf);

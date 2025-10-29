@@ -25,10 +25,12 @@ import com.fpetrola.z80.cpu.Z80Clock;
 public class UlaZxModuleInfo implements ZXModuleInfo {
   private Ula ula;
   private Z80Clock z80Clock;
+  private Settings settings;
 
-  UlaZxModuleInfo(Ula ula, Z80Clock z80Clock) {
+  UlaZxModuleInfo(Ula ula, Z80Clock z80Clock, Settings settings) {
     this.ula = ula;
     this.z80Clock = z80Clock;
+    this.settings = settings;
   }
 
   public void snapshotEnabled(Libspectrum.Snap snap) {
@@ -38,12 +40,12 @@ public class UlaZxModuleInfo implements ZXModuleInfo {
   public void snapshotFrom(Libspectrum.Snap snap) {
     ula.write(0x00fe, Libspectrum.snapOutUla(snap));
     z80Clock.setTStates(Libspectrum.snapTstates(snap));
-    Settings.current.issue2 = Libspectrum.snapIssue2(snap);
+    settings.current.issue2 = Libspectrum.snapIssue2(snap);
   }
 
   public void snapshotTo(Libspectrum.Snap snap) {
     Libspectrum.snapSetOutUla(snap, ula.lastByte);
     Libspectrum.snapSetTstates(snap, z80Clock.getTStates());
-    Libspectrum.snapSetIssue2(snap, Settings.current.issue2);
+    Libspectrum.snapSetIssue2(snap, settings.current.issue2);
   }
 }

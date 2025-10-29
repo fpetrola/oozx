@@ -31,8 +31,8 @@ public class Spec48Ntsc extends AbstractSpectrumMachine {
   private Spec48 spec48;
   private IPeriph periph;
 
-  public Spec48Ntsc(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph) {
-    super(display, machine);
+  public Spec48Ntsc(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph, Settings settings) {
+    super(display, machine, settings);
     this.memory = memory;
     this.display = display;
     this.machinesPeriph = machinesPeriph;
@@ -50,7 +50,7 @@ public class Spec48Ntsc extends AbstractSpectrumMachine {
     int error;
 
     // Cargar ROM 0 (0x0000-0x3FFF)
-    error = machine.loadRom(0, Settings.current.rom48, Settings.defaults.rom48, 0x4000);
+    error = machine.loadRom(0, settings.current.rom48, settings.defaults.rom48, 0x4000);
     if (error != 0) return error;
 
     // Limpiar y configurar periféricos 48K

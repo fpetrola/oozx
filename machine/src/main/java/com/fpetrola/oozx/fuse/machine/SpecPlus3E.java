@@ -33,8 +33,8 @@ public class SpecPlus3E extends AbstractSpectrumMachine {
   private IPeriph periph;
   private SpecPlus3 specPlus3;
 
-  public SpecPlus3E(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph, SpecPlus3 specPlus3) {
-    super(display, machine);
+  public SpecPlus3E(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph, SpecPlus3 specPlus3, Settings settings) {
+    super(display, machine, settings);
     this.memory = memory;
     this.display = display;
     this.machinesPeriph = machinesPeriph;
@@ -60,19 +60,19 @@ public class SpecPlus3E extends AbstractSpectrumMachine {
     int error;
 
     // Cargar ROM 0 (0x0000-0x3FFF)
-    error = machine.loadRom(0, Settings.current.romPlus3e0, Settings.defaults.romPlus3e0, 0x4000);
+    error = machine.loadRom(0, settings.current.romPlus3e0, settings.defaults.romPlus3e0, 0x4000);
     if (error != 0) return error;
 
     // Cargar ROM 1 (0x4000-0x7FFF)
-    error = machine.loadRom(1, Settings.current.romPlus3e1, Settings.defaults.romPlus3e1, 0x4000);
+    error = machine.loadRom(1, settings.current.romPlus3e1, settings.defaults.romPlus3e1, 0x4000);
     if (error != 0) return error;
 
     // Cargar ROM 2 (0x8000-0xBFFF)
-    error = machine.loadRom(2, Settings.current.romPlus3e2, Settings.defaults.romPlus3e2, 0x4000);
+    error = machine.loadRom(2, settings.current.romPlus3e2, settings.defaults.romPlus3e2, 0x4000);
     if (error != 0) return error;
 
     // Cargar ROM 3 (0xC000-0xFFFF)
-    error = machine.loadRom(3, Settings.current.romPlus3e3, Settings.defaults.romPlus3e3, 0x4000);
+    error = machine.loadRom(3, settings.current.romPlus3e3, settings.defaults.romPlus3e3, 0x4000);
     if (error != 0) return error;
 
     // Reset común de +2A/+3

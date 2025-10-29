@@ -32,15 +32,20 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
   private Spectrum spectrum;
   private Spec48 spec48;
   private IPeriph periph;
+  private Fdd fdd;
+  private UPDFdc uPDFdc;
 
-  public SpecPlus3(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph) {
-    super(display, machine);
+  public SpecPlus3(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph, Settings settings, Fdd fdd, UPDFdc uPDFdc) {
+    super(display, machine, settings);
     this.memory = memory;
     this.display = display;
     this.machinesPeriph = machinesPeriph;
     this.spectrum = spectrum;
     this.spec48 = spec48;
     this.periph = periph;
+    this.fdd = fdd;
+    this.uPDFdc = uPDFdc;
+    this.settings = settings;
     this.ramInfo = new SpecPlus3RamInfo(8);
     specplus3765Init();
     specplus3MenuItems();
@@ -59,12 +64,12 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
 
   // Update FDC settings
   public void specplus3765UpdateFdd() {
-    specplus3Fdc.speedlock = Settings.current.plus3DetectSpeedlock ? 0 : -1;
+    specplus3Fdc.speedlock = settings.current.plus3DetectSpeedlock ? 0 : -1;
   }
 
   // Initialize FDC and drives
   public void specplus3765Init() {
-    specplus3Fdc = UPDFdc.allocFdc(UPDFdc.UpdType.UPD765A, UPDFdc.UpdClock.UPD_CLOCK_4MHZ);
+    specplus3Fdc = uPDFdc.allocFdc(UPDFdc.UpdType.UPD765A, UPDFdc.UpdClock.UPD_CLOCK_4MHZ);
     // +3 uses US0 pin to select drives: drive 2 := drive 0, drive 3 := drive 1
     specplus3Fdc.drive[0] = specplus3Drives[0];
     specplus3Fdc.drive[1] = specplus3Drives[1];
@@ -72,18 +77,18 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
     specplus3Fdc.drive[3] = specplus3Drives[1];
 
     for (int i = 0; i < SpecPlus3Constants.SPECPLUS3_NUM_DRIVES; i++) {
-      specplus3Drives[i] = new Fdd();
+      specplus3Drives[i] = new Fdd(settings);
       specplus3Drives[i].disk.flag = Disk.DISK_FLAG_PLUS3_CPC;
     }
 
     // Built-in drive 1 head 42 track
     Helper.fillArrayWith(FddParams.fddParams, FddParams::new);
 
-    Fdd.init(specplus3Drives[0], Fdd.FDD_SHUGART, FddParams.fddParams[1], false);
+    fdd.init(specplus3Drives[0], fdd.FDD_SHUGART, FddParams.fddParams[1], false);
     // Drive geometry autodetect
-    Fdd.init(specplus3Drives[1], Fdd.FDD_SHUGART, null, false);
+    fdd.init(specplus3Drives[1], fdd.FDD_SHUGART, null, false);
 
-    specplus3Fdc = new UPDFdc();
+    specplus3Fdc = new UPDFdc(settings);
 
     specplus3Fdc.setIntrq = null;
     specplus3Fdc.resetIntrq = null;
@@ -101,22 +106,22 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
   // Reset FDC and drives
   public void specplus3765Reset() {
     FddParams dt = FddParams.fddParams[Options.enumerateDiskoptionsDrivePlus3aType() + 1]; // +1 => no Disabled
-    UPDFdc.masterReset(specplus3Fdc);
-    Fdd.init(specplus3Drives[0], Fdd.FDD_SHUGART, dt, true);
+    uPDFdc.masterReset(specplus3Fdc);
+    fdd.init(specplus3Drives[0], fdd.FDD_SHUGART, dt, true);
 
     dt = FddParams.fddParams[Options.enumerateDiskoptionsDrivePlus3bType()];
-    Fdd.init(specplus3Drives[1], dt.enabled != 0 ? Fdd.FDD_SHUGART : FddConstants.FDD_TYPE_NONE, dt, true);
+    fdd.init(specplus3Drives[1], dt.enabled != 0 ? fdd.FDD_SHUGART : FddConstants.FDD_TYPE_NONE, dt, true);
   }
 
   // Reset the Spectrum +3 machine
   public int reset() {
-    int error = machine.loadRom(0, Settings.current.romPlus30, Settings.defaults.romPlus30, 0x4000);
+    int error = machine.loadRom(0, settings.current.romPlus30, settings.defaults.romPlus30, 0x4000);
     if (error != 0) return error;
-    error = machine.loadRom(1, Settings.current.romPlus31, Settings.defaults.romPlus31, 0x4000);
+    error = machine.loadRom(1, settings.current.romPlus31, settings.defaults.romPlus31, 0x4000);
     if (error != 0) return error;
-    error = machine.loadRom(2, Settings.current.romPlus32, Settings.defaults.romPlus32, 0x4000);
+    error = machine.loadRom(2, settings.current.romPlus32, settings.defaults.romPlus32, 0x4000);
     if (error != 0) return error;
-    error = machine.loadRom(3, Settings.current.romPlus33, Settings.defaults.romPlus33, 0x4000);
+    error = machine.loadRom(3, settings.current.romPlus33, settings.defaults.romPlus33, 0x4000);
     if (error != 0) return error;
 
     error = plus2aCommonReset();
@@ -207,8 +212,8 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
     boolean b1 = (machine.current.getCapabilities() & Libspectrum.MachineCapability.PLUS3_DISK) != 0;
     b1= true;
     if (b1) {
-      Fdd.motorOn(specplus3Drives[0], (b & 0x08) != 0);
-      Fdd.motorOn(specplus3Drives[1], (b & 0x08) != 0);
+      fdd.motorOn(specplus3Drives[0], (b & 0x08) != 0);
+      fdd.motorOn(specplus3Drives[1], (b & 0x08) != 0);
     }
 
     getCurrentRamInfo().lastByte2 = b;
@@ -263,20 +268,20 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
   // Read FDC status
   public byte fdcStatus(int port, byte[] attached) {
     attached[0] = (byte) 0xFF; // TODO: check this
-    return UPDFdc.readStatus(specplus3Fdc);
+    return uPDFdc.readStatus(specplus3Fdc);
   }
 
   // Read FDC data
   public byte fdcRead(int port, byte[] attached) {
     attached[0] = (byte) 0xFF; // TODO: check this
-    byte b = UPDFdc.readData(specplus3Fdc);
+    byte b = uPDFdc.readData(specplus3Fdc);
     b= -1;
     return b;
   }
 
   // Write FDC data
   public void fdcWrite(int port, byte data) {
-    UPDFdc.writeData(specplus3Fdc, data);
+    uPDFdc.writeData(specplus3Fdc, data);
   }
 
 //  // Insert disk into +3 drive

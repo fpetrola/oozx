@@ -32,8 +32,8 @@ public class SpecPlus2A extends AbstractSpectrumMachine {
   private IPeriph periph;
   private SpecPlus3 specPlus3;
 
-  public SpecPlus2A(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph, SpecPlus3 specPlus3) {
-    super(display, machine);
+  public SpecPlus2A(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph, SpecPlus3 specPlus3, Settings settings) {
+    super(display, machine, settings);
     this.memory = memory;
     this.display = display;
     this.machinesPeriph = machinesPeriph;
@@ -41,6 +41,7 @@ public class SpecPlus2A extends AbstractSpectrumMachine {
     this.spec48 = spec48;
     this.periph = periph;
     this.specPlus3 = specPlus3;
+    this.settings = settings;
     this.ramInfo = new SpecPlus2ARamInfo(8);
     init();
   }
@@ -58,19 +59,19 @@ public class SpecPlus2A extends AbstractSpectrumMachine {
     int error;
 
     // Cargar ROM 0 (0x0000-0x3FFF)
-    error = machine.loadRom(0, Settings.current.romPlus2a0, Settings.defaults.romPlus2a0, 0x4000);
+    error = machine.loadRom(0, settings.current.romPlus2a0, settings.defaults.romPlus2a0, 0x4000);
     if (error != 0) return error;
 
     // Cargar ROM 1 (0x4000-0x7FFF)
-    error = machine.loadRom(1, Settings.current.romPlus2a1, Settings.defaults.romPlus2a1, 0x4000);
+    error = machine.loadRom(1, settings.current.romPlus2a1, settings.defaults.romPlus2a1, 0x4000);
     if (error != 0) return error;
 
     // Cargar ROM 2 (0x8000-0xBFFF)
-    error = machine.loadRom(2, Settings.current.romPlus2a2, Settings.defaults.romPlus2a2, 0x4000);
+    error = machine.loadRom(2, settings.current.romPlus2a2, settings.defaults.romPlus2a2, 0x4000);
     if (error != 0) return error;
 
     // Cargar ROM 3 (0xC000-0xFFFF)
-    error = machine.loadRom(3, Settings.current.romPlus2a3, Settings.defaults.romPlus2a3, 0x4000);
+    error = machine.loadRom(3, settings.current.romPlus2a3, settings.defaults.romPlus2a3, 0x4000);
     if (error != 0) return error;
 
     // Reset común de +2A/+3

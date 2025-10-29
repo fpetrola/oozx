@@ -29,13 +29,14 @@ public class Spec48 extends AbstractSpectrumMachine {
   public Spectrum spectrum;
   private IPeriph periph;
 
-  public Spec48(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, IPeriph periph) {
-    super(display, machine);
+  public Spec48(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, IPeriph periph, Settings settings) {
+    super(display, machine, settings);
     this.memory = memory;
     this.display = display;
     this.machinesPeriph = machinesPeriph;
     this.spectrum = spectrum;
     this.periph = periph;
+    this.settings = settings;
     this.ramInfo = new Spec48RamInfo(this, 3);
   }
 
@@ -49,7 +50,7 @@ public class Spec48 extends AbstractSpectrumMachine {
 
   // Reset the Spectrum 48K machine
   public int reset() {
-    int error = machine.loadRom(0, Settings.current.rom48, Settings.defaults.rom48, 0x4000);
+    int error = machine.loadRom(0, settings.current.rom48, settings.defaults.rom48, 0x4000);
     if (error != 0) return error;
 
     periph.clear();

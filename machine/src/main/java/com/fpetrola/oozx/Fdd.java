@@ -22,9 +22,14 @@ import java.util.Random;
 
 public class Fdd {
 
-    public static final int FDD_SHUGART = 1;
+    public  final int FDD_SHUGART = 1;
+    private  Settings settings;
 
-    // Enums
+  public Fdd(Settings settings) {
+    this.settings = settings;
+  }
+
+  // Enums
     public enum FddWrite {
         FDD_READ,
         FDD_WRITE
@@ -36,7 +41,7 @@ public class Fdd {
     }
 
     // Error messages
-    public static final String[] FDD_ERROR = {
+    public  final String[] FDD_ERROR = {
         "OK",
         "invalid disk geometry",
         "read only disk",
@@ -45,7 +50,7 @@ public class Fdd {
     };
 
     // FDD parameters
-    public static final FddParams[] FDD_PARAMS = {
+    public  final FddParams[] FDD_PARAMS = {
         new FddParams(0, 0, 0), // Disabled
         new FddParams(1, 1, 40), // Single-sided 40 track
         new FddParams(1, 2, 40), // Double-sided 80 track
@@ -80,14 +85,14 @@ public class Fdd {
     int data;               // Current data byte (with flags)
     int marks;              // Data marks (FM, weak)
 
-    // Static fields
-    private static int fddMotor = 0; // To manage 'disk' icon
-    private static int motorEvent;
-    private static int indexEvent;
-    private static final Random random = new Random();
+    //  fields
+    private  int fddMotor = 0; // To manage 'disk' icon
+    private  int motorEvent;
+    private  int indexEvent;
+    private  final Random random = new Random();
 
     // Initialize FDD events
-    public static int initEvents(Object context) {
+    public  int initEvents(Object context) {
 //        motorEvent = Event.register(Fdd::fddEvent, "FDD motor on");
 //        indexEvent = Event.register(Fdd::fddEvent, "FDD index");
 //
@@ -98,7 +103,7 @@ public class Fdd {
     }
 
     // Register startup
-    public static void registerStartup() {
+    public  void registerStartup() {
 //        StartupManager.Module[] dependencies = {
 //            StartupManager.Module.STARTUP_MANAGER_MODULE_EVENT,
 //            StartupManager.Module.STARTUP_MANAGER_MODULE_SETUID
@@ -108,7 +113,7 @@ public class Fdd {
     }
 
     // Get error string
-    public static String strerror(int error) {
+    public  String strerror(int error) {
         if (error >= FddConstants.FDD_LAST_ERROR) {
             error = FddConstants.FDD_LAST_ERROR - 1;
         }
@@ -116,7 +121,7 @@ public class Fdd {
     }
 
     // Set disk data
-    private static void setData(Fdd d, int fact) {
+    private  void setData(Fdd d, int fact) {
         int head = d.upsidedown != 0 ? 1 - d.cHead : d.cHead;
 
         if (d.loaded == 0) {
@@ -145,7 +150,7 @@ public class Fdd {
     }
 
     // Initialize FDD
-    public static int init(Fdd d, int type, FddParams dt, boolean reinit) {
+    public  int init(Fdd d, int type, FddParams dt, boolean reinit) {
         int upsidedown = d.upsidedown;
         int loaded = d.loaded;
         int selected = d.selected;
@@ -174,7 +179,7 @@ public class Fdd {
             d.autoGeom = 1;
         }
         d.fddHeads = dt.heads;
-        d.fddCylinders = dt.cylinders == 80 ? Settings.current.drive80MaxTrack : Settings.current.drive40MaxTrack;
+        d.fddCylinders = dt.cylinders == 80 ? settings.current.drive80MaxTrack : settings.current.drive40MaxTrack;
         if (reinit) {
             d.selected = selected;
             d.doReadWeak = doReadWeak;
@@ -192,7 +197,7 @@ public class Fdd {
     }
 
     // Turn motor on/off
-    public static void motorOn(Fdd d, boolean on) {
+    public  void motorOn(Fdd d, boolean on) {
         if (d.loaded == 0) {
             return;
         }
@@ -217,7 +222,7 @@ public class Fdd {
     }
 
     // Load/unload head
-    public static void headLoad(Fdd d, boolean load) {
+    public  void headLoad(Fdd d, boolean load) {
         if (d.loaded == 0) {
             return;
         }
@@ -230,7 +235,7 @@ public class Fdd {
     }
 
     // Select drive
-    public static void select(Fdd d, boolean select) {
+    public  void select(Fdd d, boolean select) {
         d.selected = select ? 1 : 0;
         if (d.type == FddConstants.FDD_SHUGART) {
             headLoad(d, d.selected != 0);
@@ -238,7 +243,7 @@ public class Fdd {
     }
 
     // Load disk into FDD
-    public static int load(Fdd d, boolean upsidedown) {
+    public  int load(Fdd d, boolean upsidedown) {
         if (d.type == FddConstants.FDD_TYPE_NONE) {
             return d.status = FddConstants.FDD_NONE;
         }
@@ -249,8 +254,8 @@ public class Fdd {
 
         if (d.autoGeom != 0) {
             d.fddHeads = d.disk.sides;
-            d.fddCylinders = d.disk.cylinders > Settings.current.drive40MaxTrack ?
-                             Settings.current.drive80MaxTrack : Settings.current.drive40MaxTrack;
+            d.fddCylinders = d.disk.cylinders > settings.current.drive40MaxTrack ?
+                settings.current.drive80MaxTrack : settings.current.drive40MaxTrack;
         }
 
         if (d.disk.cylinders > d.fddCylinders + FddConstants.FDD_TRACK_TRESHOLD) {
@@ -278,7 +283,7 @@ public class Fdd {
     }
 
     // Unload disk from FDD
-    public static void unload(Fdd d) {
+    public  void unload(Fdd d) {
         d.ready = d.loaded = d.dskchg = d.hdout = 0;
         d.index = d.wrprot = 1;
         motorOn(d, false);
@@ -288,7 +293,7 @@ public class Fdd {
     }
 
     // Set current head
-    public static void setHead(Fdd d, int head) {
+    public  void setHead(Fdd d, int head) {
         if (d.fddHeads == 1) {
             return;
         }
@@ -301,7 +306,7 @@ public class Fdd {
     }
 
     // Step to next/previous track
-    public static void step(Fdd d, FddDir direction) {
+    public  void step(Fdd d, FddDir direction) {
         if (direction == FddDir.FDD_STEP_OUT) {
             if (d.cCylinder > 0) {
                 d.cCylinder--;
@@ -319,7 +324,7 @@ public class Fdd {
     }
 
     // Read/write next byte from/to sector
-    private static int readWriteData(Fdd d, FddWrite write) {
+    private  int readWriteData(Fdd d, FddWrite write) {
         if (d.selected == 0 || d.ready == 0 || d.loadhead == 0 || d.disk.track == null) {
             if (d.loaded != 0 && d.motoron != 0) {
                 if (d.disk.i >= d.cBpt) {
@@ -377,17 +382,17 @@ public class Fdd {
     }
 
     // Read next byte from sector
-    public static int readData(Fdd d) {
+    public  int readData(Fdd d) {
         return readWriteData(d, FddWrite.FDD_READ);
     }
 
     // Write next byte to sector
-    public static int writeData(Fdd d) {
+    public  int writeData(Fdd d) {
         return readWriteData(d, FddWrite.FDD_WRITE);
     }
 
     // Flip disk
-    public static void flip(Fdd d, boolean upsidedown) {
+    public  void flip(Fdd d, boolean upsidedown) {
         if (d.loaded == 0) {
             return;
         }
@@ -396,7 +401,7 @@ public class Fdd {
     }
 
     // Set write protect
-    public static void wrprot(Fdd d, boolean wrprot) {
+    public  void wrprot(Fdd d, boolean wrprot) {
         if (d.loaded == 0) {
             return;
         }
@@ -404,7 +409,7 @@ public class Fdd {
     }
 
     // Wait for index hole
-    public static void waitIndexHole(Fdd d) {
+    public  void waitIndexHole(Fdd d) {
         if (d.selected == 0 || d.ready == 0) {
             return;
         }
@@ -413,7 +418,7 @@ public class Fdd {
     }
 
     // Handle FDD events
-    private static void fddEvent(long lastTstates, int event, Object userData) {
+    private  void fddEvent(long lastTstates, int event, Object userData) {
         Fdd d = (Fdd) userData;
 
         if (event == motorEvent) {

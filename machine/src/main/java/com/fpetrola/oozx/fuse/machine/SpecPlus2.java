@@ -22,8 +22,8 @@ public class SpecPlus2 extends AbstractSpectrumMachine {
   private Spec128 spec128;
   private IPeriph periph;
 
-  public SpecPlus2(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, Spec128 spec128, IPeriph periph) {
-    super(display, machine);
+  public SpecPlus2(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, Spec128 spec128, IPeriph periph, Settings settings) {
+    super(display, machine, settings);
     this.memory = memory;
     this.display = display;
     this.machinesPeriph = machinesPeriph;
@@ -48,11 +48,11 @@ public class SpecPlus2 extends AbstractSpectrumMachine {
     int error;
 
     // Cargar ROM 0 (0x0000-0x3FFF)
-    error = machine.loadRom(0, Settings.current.romPlus20, Settings.defaults.romPlus20, 0x4000);
+    error = machine.loadRom(0, settings.current.romPlus20, settings.defaults.romPlus20, 0x4000);
     if (error != 0) return error;
 
     // Cargar ROM 1 (0x4000-0x7FFF)
-    error = machine.loadRom(1, Settings.current.romPlus21, Settings.defaults.romPlus21, 0x4000);
+    error = machine.loadRom(1, settings.current.romPlus21, settings.defaults.romPlus21, 0x4000);
     if (error != 0) return error;
 
     // Reset común de 128K (con RAM lock = 1)

@@ -31,10 +31,12 @@ import java.util.Map;
 public class Input {
   private Joystick joystick;
   private Keyboard keyboard;
+  private Settings settings;
 
-  public Input(Joystick joystick, Keyboard keyboard) {
+  public Input(Joystick joystick, Keyboard keyboard, Settings settings) {
     this.joystick = joystick;
     this.keyboard = keyboard;
+    this.settings = settings;
   }
 
   // Enums and classes from Keyboard.java (repeated for completeness)
@@ -354,7 +356,7 @@ public class Input {
   }
 
   private boolean useShiftedArrowKeys(InputKey keysym) {
-    return Settings.current.keyboardArrowsShifted &&
+    return settings.current.keyboardArrowsShifted &&
         (keysym == InputKey.INPUT_KEY_Up || keysym == InputKey.INPUT_KEY_Down ||
             keysym == InputKey.INPUT_KEY_Left || keysym == InputKey.INPUT_KEY_Right);
   }
@@ -419,22 +421,22 @@ public class Input {
 //    // Joystick emulation via keyboard
     boolean swallow = false;
     int ordinal = event.spectrumKey.getValue();
-    if (ordinal == Settings.current.joystickKeyboardUp) {
+    if (ordinal == settings.current.joystickKeyboardUp) {
       swallow = joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_UP, true);
-    } else if (ordinal == Settings.current.joystickKeyboardDown) {
+    } else if (ordinal == settings.current.joystickKeyboardDown) {
       swallow = joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_DOWN, true);
-    } else if (ordinal == Settings.current.joystickKeyboardLeft) {
+    } else if (ordinal == settings.current.joystickKeyboardLeft) {
       swallow = joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_LEFT, true);
-    } else if (ordinal == Settings.current.joystickKeyboardRight) {
+    } else if (ordinal == settings.current.joystickKeyboardRight) {
       swallow = joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_RIGHT, true);
-    } else if (ordinal == Settings.current.joystickKeyboardFire) {
+    } else if (ordinal == settings.current.joystickKeyboardFire) {
       swallow = joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE, true);
     }
 
     if (swallow) return 0;
 
     // Handle keyboard press
-    if (Settings.current.recreatedSpectrum) {
+    if (settings.current.recreatedSpectrum) {
       recreatedKeypress(event.spectrumKey);
     } else {
       sendKeyboardPress(event.spectrumKey);
@@ -445,22 +447,22 @@ public class Input {
   }
 
   private int keyrelease(InputEventKey event) {
-    if (!Settings.current.recreatedSpectrum) {
+    if (!settings.current.recreatedSpectrum) {
       sendKeyboardRelease(event.spectrumKey);
     }
 
     // Joystick emulation via keyboard
     int value = event.spectrumKey.getValue();
 
-    if (value == Settings.current.joystickKeyboardUp) {
+    if (value == settings.current.joystickKeyboardUp) {
       joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_UP, false);
-    } else if (value == Settings.current.joystickKeyboardDown) {
+    } else if (value == settings.current.joystickKeyboardDown) {
       joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_DOWN, false);
-    } else if (value == Settings.current.joystickKeyboardLeft) {
+    } else if (value == settings.current.joystickKeyboardLeft) {
       joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_LEFT, false);
-    } else if (value == Settings.current.joystickKeyboardRight) {
+    } else if (value == settings.current.joystickKeyboardRight) {
       joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_RIGHT, false);
-    } else if (value == Settings.current.joystickKeyboardFire) {
+    } else if (value == settings.current.joystickKeyboardFire) {
       joystick.press(joystick.JOYSTICK_KEYBOARD, Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE, false);
     }
 
@@ -473,49 +475,49 @@ public class Input {
       case 0:
         switch (button) {
           case INPUT_JOYSTICK_FIRE_1:
-            key = Settings.current.joystick1Fire1;
+            key = settings.current.joystick1Fire1;
             break;
           case INPUT_JOYSTICK_FIRE_2:
-            key = Settings.current.joystick1Fire2;
+            key = settings.current.joystick1Fire2;
             break;
           case INPUT_JOYSTICK_FIRE_3:
-            key = Settings.current.joystick1Fire3;
+            key = settings.current.joystick1Fire3;
             break;
           case INPUT_JOYSTICK_FIRE_4:
-            key = Settings.current.joystick1Fire4;
+            key = settings.current.joystick1Fire4;
             break;
           case INPUT_JOYSTICK_FIRE_5:
-            key = Settings.current.joystick1Fire5;
+            key = settings.current.joystick1Fire5;
             break;
           case INPUT_JOYSTICK_FIRE_6:
-            key = Settings.current.joystick1Fire6;
+            key = settings.current.joystick1Fire6;
             break;
           case INPUT_JOYSTICK_FIRE_7:
-            key = Settings.current.joystick1Fire7;
+            key = settings.current.joystick1Fire7;
             break;
           case INPUT_JOYSTICK_FIRE_8:
-            key = Settings.current.joystick1Fire8;
+            key = settings.current.joystick1Fire8;
             break;
           case INPUT_JOYSTICK_FIRE_9:
-            key = Settings.current.joystick1Fire9;
+            key = settings.current.joystick1Fire9;
             break;
           case INPUT_JOYSTICK_FIRE_10:
-            key = Settings.current.joystick1Fire10;
+            key = settings.current.joystick1Fire10;
             break;
           case INPUT_JOYSTICK_FIRE_11:
-            key = Settings.current.joystick1Fire11;
+            key = settings.current.joystick1Fire11;
             break;
           case INPUT_JOYSTICK_FIRE_12:
-            key = Settings.current.joystick1Fire12;
+            key = settings.current.joystick1Fire12;
             break;
           case INPUT_JOYSTICK_FIRE_13:
-            key = Settings.current.joystick1Fire13;
+            key = settings.current.joystick1Fire13;
             break;
           case INPUT_JOYSTICK_FIRE_14:
-            key = Settings.current.joystick1Fire14;
+            key = settings.current.joystick1Fire14;
             break;
           case INPUT_JOYSTICK_FIRE_15:
-            key = Settings.current.joystick1Fire15;
+            key = settings.current.joystick1Fire15;
             break;
           default:
             break;
@@ -524,49 +526,49 @@ public class Input {
       case 1:
         switch (button) {
           case INPUT_JOYSTICK_FIRE_1:
-            key = Settings.current.joystick2Fire1;
+            key = settings.current.joystick2Fire1;
             break;
           case INPUT_JOYSTICK_FIRE_2:
-            key = Settings.current.joystick2Fire2;
+            key = settings.current.joystick2Fire2;
             break;
           case INPUT_JOYSTICK_FIRE_3:
-            key = Settings.current.joystick2Fire3;
+            key = settings.current.joystick2Fire3;
             break;
           case INPUT_JOYSTICK_FIRE_4:
-            key = Settings.current.joystick2Fire4;
+            key = settings.current.joystick2Fire4;
             break;
           case INPUT_JOYSTICK_FIRE_5:
-            key = Settings.current.joystick2Fire5;
+            key = settings.current.joystick2Fire5;
             break;
           case INPUT_JOYSTICK_FIRE_6:
-            key = Settings.current.joystick2Fire6;
+            key = settings.current.joystick2Fire6;
             break;
           case INPUT_JOYSTICK_FIRE_7:
-            key = Settings.current.joystick2Fire7;
+            key = settings.current.joystick2Fire7;
             break;
           case INPUT_JOYSTICK_FIRE_8:
-            key = Settings.current.joystick2Fire8;
+            key = settings.current.joystick2Fire8;
             break;
           case INPUT_JOYSTICK_FIRE_9:
-            key = Settings.current.joystick2Fire9;
+            key = settings.current.joystick2Fire9;
             break;
           case INPUT_JOYSTICK_FIRE_10:
-            key = Settings.current.joystick2Fire10;
+            key = settings.current.joystick2Fire10;
             break;
           case INPUT_JOYSTICK_FIRE_11:
-            key = Settings.current.joystick2Fire11;
+            key = settings.current.joystick2Fire11;
             break;
           case INPUT_JOYSTICK_FIRE_12:
-            key = Settings.current.joystick2Fire12;
+            key = settings.current.joystick2Fire12;
             break;
           case INPUT_JOYSTICK_FIRE_13:
-            key = Settings.current.joystick2Fire13;
+            key = settings.current.joystick2Fire13;
             break;
           case INPUT_JOYSTICK_FIRE_14:
-            key = Settings.current.joystick2Fire14;
+            key = settings.current.joystick2Fire14;
             break;
           case INPUT_JOYSTICK_FIRE_15:
-            key = Settings.current.joystick2Fire15;
+            key = settings.current.joystick2Fire15;
             break;
           default:
             break;

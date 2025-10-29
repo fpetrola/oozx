@@ -20,6 +20,7 @@ package com.fpetrola.oozx.fuse.machine;
 
 import com.fpetrola.oozx.Libspectrum;
 import com.fpetrola.oozx.Machine;
+import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.fuse.modules.Display;
 
 public abstract class AbstractSpectrumMachine implements SpectrumMachine {
@@ -27,10 +28,12 @@ public abstract class AbstractSpectrumMachine implements SpectrumMachine {
   protected Machine machine;
   private MachineTimings timings = new MachineTimings(); // How long do things take to happen?
   private long[] lineTimes; // Redraw line y this many tstates after interrupt
+  protected Settings settings;
 
-  public AbstractSpectrumMachine(Display display, Machine machine) {
+  public AbstractSpectrumMachine(Display display, Machine machine, Settings settings) {
     lineTimes = new long[display.SCREEN_HEIGHT + 1];
     this.machine = machine;
+    this.settings = settings;
   }
 
 

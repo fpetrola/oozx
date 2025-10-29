@@ -37,11 +37,13 @@ public class Joystick implements ZxModule {
   private Keyboard keyboard;
   private IPeriph periph;
   private Module module;
+  private Settings settings;
 
-  public Joystick(Keyboard keyboard, IPeriph periph, Module module) {
+  public Joystick(Keyboard keyboard, IPeriph periph, Module module, Settings settings) {
     this.keyboard = keyboard;
     this.periph = periph;
     this.module = module;
+    this.settings = settings;
   }
 
   public int init(Object initContext) {
@@ -140,13 +142,13 @@ public class Joystick implements ZxModule {
     JoystickType type;
     switch (which) {
       case 0:
-        type = Settings.current.joystick1Output;
+        type = settings.current.joystick1Output;
         break;
       case 1:
-        type = Settings.current.joystick2Output;
+        type = settings.current.joystick2Output;
         break;
       case JOYSTICK_KEYBOARD:
-        type = Settings.current.joystickKeyboardOutput;
+        type = settings.current.joystickKeyboardOutput;
         break;
       default:
         return false;
@@ -265,19 +267,19 @@ public class Joystick implements ZxModule {
           continue;
       }
 
-      if (Settings.current.joystickKeyboardOutput != fuseType &&
-          Settings.current.joystick1Output != fuseType &&
-          Settings.current.joystick2Output != fuseType) {
+      if (settings.current.joystickKeyboardOutput != fuseType &&
+          settings.current.joystick1Output != fuseType &&
+          settings.current.joystick2Output != fuseType) {
         Ui.UIConfirmJoystick result = Ui.confirmJoystick(snap.joystickList(i), snap.joystickInputs(i));
         switch (result) {
           case UI_CONFIRM_JOYSTICK_KEYBOARD:
-            Settings.current.joystickKeyboardOutput = fuseType;
+            settings.current.joystickKeyboardOutput = fuseType;
             break;
           case UI_CONFIRM_JOYSTICK_JOYSTICK_1:
-            Settings.current.joystick1Output = fuseType;
+            settings.current.joystick1Output = fuseType;
             break;
           case UI_CONFIRM_JOYSTICK_JOYSTICK_2:
-            Settings.current.joystick2Output = fuseType;
+            settings.current.joystick2Output = fuseType;
             break;
           case UI_CONFIRM_JOYSTICK_NONE:
             break;
@@ -285,18 +287,18 @@ public class Joystick implements ZxModule {
       }
 
       if (fuseType == JoystickType.JOYSTICK_TYPE_KEMPSTON) {
-        Settings.current.joyKempston = true;
+        settings.current.joyKempston = true;
       }
     }
   }
 
   public void toSnapshot(Libspectrum.Snap snap) {
-    if (Settings.current.joyKempston) {
+    if (settings.current.joyKempston) {
       addJoystick(snap, JoystickType.JOYSTICK_TYPE_KEMPSTON, Libspectrum.LIBSPECTRUM_JOYSTICK_INPUT_NONE);
     }
-    addJoystick(snap, Settings.current.joystickKeyboardOutput, Libspectrum.LIBSPECTRUM_JOYSTICK_INPUT_KEYBOARD);
-    addJoystick(snap, Settings.current.joystick1Output, Libspectrum.LIBSPECTRUM_JOYSTICK_INPUT_JOYSTICK_1);
-    addJoystick(snap, Settings.current.joystick2Output, Libspectrum.LIBSPECTRUM_JOYSTICK_INPUT_JOYSTICK_2);
+    addJoystick(snap, settings.current.joystickKeyboardOutput, Libspectrum.LIBSPECTRUM_JOYSTICK_INPUT_KEYBOARD);
+    addJoystick(snap, settings.current.joystick1Output, Libspectrum.LIBSPECTRUM_JOYSTICK_INPUT_JOYSTICK_1);
+    addJoystick(snap, settings.current.joystick2Output, Libspectrum.LIBSPECTRUM_JOYSTICK_INPUT_JOYSTICK_2);
   }
 
   private void addJoystick(Libspectrum.Snap snap, JoystickType fuseType, int inputs) {

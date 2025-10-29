@@ -66,11 +66,13 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
   private SpectrumZ80Clock zxClock;
   private Module module;
+  private Settings settings;
 
-  public Memory(Supplier<SpectrumMachine> machine, SpectrumZ80Clock zxClock, Module module) {
+  public Memory(Supplier<SpectrumMachine> machine, SpectrumZ80Clock zxClock, Module module, Settings settings) {
     this.fuseMachineInfoSupplier = machine;
     this.zxClock = zxClock;
     this.module = module;
+    this.settings = settings;
     Helper.fillArrayWith(mapRead, MemoryPage::new);
     Helper.fillArrayWith(mapWrite, MemoryPage::new);
   }
@@ -303,7 +305,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   // Write a byte to memory (internal)
   public void writeByteInternal(int address, byte b, Display display) {
     MemoryPage mapping = mapWrite[address >>> PAGE_SIZE_LOGARITHM];
-    if (mapping.writable || (mapping.source != sourceNone && Settings.current.writableRoms)) {
+    if (mapping.writable || (mapping.source != sourceNone && settings.current.writableRoms)) {
       displayDirty.apply(address, b, display);
       mapping.getPage().set(address & PAGE_SIZE_MASK, b);
     }
@@ -311,7 +313,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
 
   public void writeByteInternal2(int address, byte b) {
     MemoryPage mapping = mapWrite[address >>> PAGE_SIZE_LOGARITHM];
-    if (mapping.writable || (mapping.source != sourceNone && Settings.current.writableRoms)) {
+    if (mapping.writable || (mapping.source != sourceNone && settings.current.writableRoms)) {
       mapping.getPage().set(address & PAGE_SIZE_MASK, b);
     }
   }

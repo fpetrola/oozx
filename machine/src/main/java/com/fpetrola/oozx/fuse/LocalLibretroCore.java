@@ -290,12 +290,12 @@ public class LocalLibretroCore implements LibretroCore {
 
   @Override
   public void retro_set_late_timings(int b) {
-    Settings.current.lateTimings = b != 0;
+    fuse.settings.current.lateTimings = b != 0;
   }
 
   @Override
   public int retro_get_late_timings() {
-    return Settings.current.lateTimings ? 1 : 0;
+    return fuse.settings.current.lateTimings ? 1 : 0;
   }
 
 

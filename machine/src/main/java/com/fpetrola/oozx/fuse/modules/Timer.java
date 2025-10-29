@@ -37,11 +37,13 @@ public class Timer implements ZxModule {
   private double startTime = 0.0;
   private int timerEvent = 0;
   private static final int TEN_MS = 10;
+  private Settings settings;
 
-  public Timer(EventManager eventManager, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Sound sound) {
+  public Timer(EventManager eventManager, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Sound sound, Settings settings) {
     this.eventManager = eventManager;
     this.fuseMachineInfoSupplier = fuseMachineInfoSupplier;
     this.sound = sound;
+    this.settings = settings;
   }
 
   @Override
@@ -77,7 +79,7 @@ public class Timer implements ZxModule {
     }
 
     if (samples < 10) {
-      currentSpeed = Settings.current.emulationSpeed;
+      currentSpeed = settings.current.emulationSpeed;
     } else {
       currentSpeed = (float) (10 * 100.0 / (currentTime - storedTimes[nextStoredTime]));
     }
@@ -106,14 +108,14 @@ public class Timer implements ZxModule {
 
   // Start fastloading
   public void startFastloading() {
-    if (Settings.current.fastload) {
+    if (settings.current.fastload) {
       sound.pause();
     }
   }
 
   // Stop fastloading
   public void stopFastloading() {
-    if (Settings.current.fastload) {
+    if (settings.current.fastload) {
       sound.unpause();
       estimateReset();
     }
@@ -126,16 +128,16 @@ public class Timer implements ZxModule {
 
   // Frame handling
   public void frame(long lastTstates, int event, Object userData) {
-    if (Sound.enabled && Settings.current.sound) {
+    if (Sound.enabled && settings.current.sound) {
       frameCallbackSound(lastTstates);
       return;
     }
 
-    if (Settings.current.fastload && fastloadingActive()) {
+    if (settings.current.fastload && fastloadingActive()) {
       long nextCheckTime = lastTstates + getCurrent().getTimings().tstatesPerFrame;
       eventManager.eventAdd(nextCheckTime, timerEvent);
     } else {
-      float speed = Math.max(Settings.current.emulationSpeed, 1) / 100.0f;
+      float speed = Math.max(settings.current.emulationSpeed, 1) / 100.0f;
       while (true) {
         double currentTime = getTime();
         if (currentTime < 0) {

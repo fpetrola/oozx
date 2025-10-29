@@ -30,11 +30,11 @@ import com.fpetrola.oozx.fuse.modules.Joystick;
 
 public class Settings {
 
-  public static void setString(String startMachine, String id) {
+  public  void setString(String startMachine, String id) {
 
   }
 
-  public static class SettingsInfo {
+  public  class SettingsInfo {
     public boolean accelerateLoader;
     public boolean aspectHint;
     public boolean autoLoad;
@@ -283,32 +283,32 @@ public class Settings {
     public boolean zxprinter;
   }
 
-  public static SettingsInfo current = new SettingsInfo();
-  public static SettingsInfo defaults = new SettingsInfo();
+  public  SettingsInfo current = new SettingsInfo();
+  public  SettingsInfo defaults = new SettingsInfo();
 
-  public static final int SETTINGS_ROM_COUNT = 30;
+  public  final int SETTINGS_ROM_COUNT = 30;
 
-  public static void defaults(SettingsInfo settings) {
+  public  void defaults(SettingsInfo settings) {
     throw new UnsupportedOperationException("settings_defaults not implemented");
   }
 
-  public static void copy(SettingsInfo dest, SettingsInfo src) {
+  public  void copy(SettingsInfo dest, SettingsInfo src) {
     throw new UnsupportedOperationException("settings_copy not implemented");
   }
 
-  public static String[] getRomSetting(SettingsInfo settings, int which, boolean isPeripheral) {
+  public  String[] getRomSetting(SettingsInfo settings, int which, boolean isPeripheral) {
     throw new UnsupportedOperationException("settings_get_rom_setting not implemented");
   }
 
-  public static void setString(String[] stringSetting, String value) {
+  public  void setString(String[] stringSetting, String value) {
     throw new UnsupportedOperationException("settings_set_string not implemented");
   }
 
-  public static int free(SettingsInfo settings) {
+  public  int free(SettingsInfo settings) {
     throw new UnsupportedOperationException("settings_free not implemented");
   }
 
-  public static int writeConfig(SettingsInfo settings) {
+  public  int writeConfig(SettingsInfo settings) {
     throw new UnsupportedOperationException("settings_write_config not implemented");
   }
 
