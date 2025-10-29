@@ -16,7 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 // Emulator Internal Frame
 class EmulatorInternalFrame extends JInternalFrame {
@@ -324,18 +324,20 @@ class GameSearchResult {
   String url;
   String screenshot1;
   String screenshot2;
+  String filename;
 
-  public GameSearchResult(String title, String url, String screenshot1, String screenshot2) {
+  public GameSearchResult(String title, String url, String screenshot1, String screenshot2, String filename) {
     this.title = title;
     this.url = url;
     this.screenshot1 = screenshot1;
     this.screenshot2 = screenshot2;
+    this.filename = filename;
   }
 }
 
 // --- NEW: Game Browser Listener Interface ---
 interface GameBrowserListener {
-  void onGameSelected(String gameUrl);
+  void onGameSelected(GameSearchResult gameUrl);
 
   void onViewDetails(String gameUrl);
 
@@ -422,11 +424,28 @@ class GameBrowserInternalFrame extends JInternalFrame {
 
           screenshots.add(filename);
         });
-        String baseTitle = game.title;
+        List<String> files = new ArrayList<>();
+
+        game.releases.forEach(s -> {
+          s.files.forEach(f -> {
+            if (f.format != null) {
+              System.out.println(f.format);
+              if (f.format.equals("Snapshot (Z80)")) {
+                String filename = "https://worldofspectrum.net" + f.path;
+                if (f.path.startsWith("/zxdb"))
+                  filename = "https://zxinfo.dk/media" + f.path;
+                files.add(filename);
+              }
+            }
+          });
+        });
 
         String screenshot1 = getString(screenshots, 0);
         String screenshot2 = getString(screenshots, 1);
-        results.add(new GameSearchResult(baseTitle, "http://example.com/game/" + query, screenshot1, screenshot2));
+        if (!files.isEmpty()) {
+          String s = !files.isEmpty() ? files.get(0) : null;
+          results.add(new GameSearchResult(game.title, "http://example.com/game/" + query, screenshot1, screenshot2, s));
+        }
       }
     }
     return results;
@@ -520,7 +539,7 @@ class GameBrowserInternalFrame extends JInternalFrame {
       @Override
       public void mouseClicked(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
-          listener.onGameSelected(result.url);
+          listener.onGameSelected(result);
         }
       }
     };
@@ -528,8 +547,8 @@ class GameBrowserInternalFrame extends JInternalFrame {
     imgLabel1.addMouseListener(mouseAdapter);
     imgLabel2.addMouseListener(mouseAdapter);
 
-    loadItem.addActionListener(e -> listener.onGameSelected(result.url));
-    detailsItem.addActionListener(e -> listener.onViewDetails(result.url));
+    loadItem.addActionListener(e -> listener.onGameSelected(result));
+    detailsItem.addActionListener(e -> listener.onViewDetails(result.title));
     favoriteItem.addActionListener(e -> listener.onAddToFavorites(result.url));
     downloadItem.addActionListener(e -> listener.onDownloadGame(result.url));
 
@@ -554,12 +573,12 @@ class GameBrowserInternalFrame extends JInternalFrame {
 
 // --- UPDATED: ZXSpectrumDesktopApp with Game Browser ---
 public class ZXSpectrumDesktopApp extends JFrame {
-  private final Supplier<EmulatorCore> mockCore;
+  private final Function<String, EmulatorCore> mockCore;
   private JDesktopPane desktop;
   private int emulatorCount = 0;
   private GameBrowserInternalFrame gameBrowser;
 
-  public ZXSpectrumDesktopApp(Supplier<EmulatorCore> mockCore) {
+  public ZXSpectrumDesktopApp(Function<String, EmulatorCore> mockCore) {
     this.mockCore = mockCore;
     setTitle("ZX Spectrum Multi-Emulator");
     setSize(1200, 800);
@@ -586,7 +605,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     AbstractAction newEmulatorAction = new AbstractAction("New Emulator") {
       @Override
       public void actionPerformed(ActionEvent e) {
-        EmulatorCore emulatorCore = mockCore.get();
+        EmulatorCore emulatorCore = mockCore.apply("");
         createNewEmulator(emulatorCore);
       }
     };
@@ -638,7 +657,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     JButton newEmulatorBtn = new JButton(newEmulatorIcon);
     newEmulatorBtn.setToolTipText("New Emulator");
     newEmulatorBtn.addActionListener(e -> {
-      EmulatorCore core = mockCore.get();
+      EmulatorCore core = mockCore.apply("");
       createNewEmulator(core);
     });
     toolBar.add(newEmulatorBtn);
@@ -656,21 +675,21 @@ public class ZXSpectrumDesktopApp extends JFrame {
     if (gameBrowser == null || gameBrowser.isClosed()) {
       gameBrowser = new GameBrowserInternalFrame(new GameBrowserListener() {
         @Override
-        public void onGameSelected(String gameUrl) {
+        public void onGameSelected(GameSearchResult gameSearchResult) {
           // Find or create an emulator and load the game
-          EmulatorInternalFrame target = getActiveEmulatorOrCreateNew();
+          EmulatorInternalFrame target = getActiveEmulatorOrCreateNew(gameSearchResult);
           if (target != null) {
             // In real app: download and load ROM/tape
-            JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-                "Loading game from: " + gameUrl + "\n(Feature to be implemented)",
-                "Load Game", JOptionPane.INFORMATION_MESSAGE);
+//            JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+//                "Loading game from: " + gameSearchResult + "",
+//                "Load Game", JOptionPane.INFORMATION_MESSAGE);
           }
         }
 
         @Override
         public void onViewDetails(String gameUrl) {
           JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-              "Game Details: " + gameUrl + "\n(Details view coming soon)",
+              "Game Details: " + gameUrl + "",
               "Game Details", JOptionPane.INFORMATION_MESSAGE);
         }
 
@@ -703,28 +722,29 @@ public class ZXSpectrumDesktopApp extends JFrame {
     }
   }
 
-  private EmulatorInternalFrame getActiveEmulatorOrCreateNew() {
-    JInternalFrame[] frames = desktop.getAllFrames();
-    for (JInternalFrame frame : frames) {
-      if (frame instanceof EmulatorInternalFrame && frame.isVisible()) {
-        try {
-          frame.setSelected(true);
-          return (EmulatorInternalFrame) frame;
-        } catch (java.beans.PropertyVetoException ex) {
-        }
-      }
-    }
+  private EmulatorInternalFrame getActiveEmulatorOrCreateNew(GameSearchResult gameSearchResult) {
+//    JInternalFrame[] frames = desktop.getAllFrames();
+//    for (JInternalFrame frame : frames) {
+//      if (frame instanceof EmulatorInternalFrame && frame.isVisible()) {
+//        try {
+//          frame.setSelected(true);
+//          return (EmulatorInternalFrame) frame;
+//        } catch (java.beans.PropertyVetoException ex) {
+//        }
+//      }
+//    }
     // Create new if none active
-    EmulatorCore core = mockCore.get();
-    EmulatorInternalFrame newFrame = new EmulatorInternalFrame(core, 100, 100);
-    desktop.add(newFrame);
-    newFrame.setVisible(true);
+    EmulatorCore core = mockCore.apply(gameSearchResult.filename);
+    EmulatorInternalFrame newFrame = createNewEmulator(core);
+//    EmulatorInternalFrame newFrame = new EmulatorInternalFrame(core, 100, 100);
+//    desktop.add(newFrame);
+//    newFrame.setVisible(true);
     return newFrame;
   }
 
   // ... (rest of the methods: createNewEmulator, cascadeWindows, tileWindows remain unchanged)
 
-  public void createNewEmulator(EmulatorCore core1) {
+  public EmulatorInternalFrame createNewEmulator(EmulatorCore core1) {
     EmulatorCore core = core1;
     int x = (emulatorCount * 30) % 400;
     int y = (emulatorCount * 30) % 400;
@@ -754,6 +774,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     desktop.add(frame);
     frame.setVisible(true);
     emulatorCount++;
+    return frame;
   }
 
 
