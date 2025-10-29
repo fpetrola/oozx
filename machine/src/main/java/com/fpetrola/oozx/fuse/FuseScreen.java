@@ -41,7 +41,7 @@ public class FuseScreen extends JPanel {
     setPreferredSize(new Dimension((int) (width * zoom), (int) (height * zoom)));
     this.screenBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
-    new Timer(10, e -> {
+    new Timer(30, e -> {
       repaint();
     }).start();
   }
