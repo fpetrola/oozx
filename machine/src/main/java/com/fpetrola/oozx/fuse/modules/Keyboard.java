@@ -26,12 +26,12 @@ import java.util.Map;
 public class Keyboard implements ZxModule {
 
   // Static fields
-  public static byte[] returnValues = new byte[8]; // keyboard_return_values
-  public static byte defaultValue = (byte) 0xFF; // keyboard_default_value
-  static Map<Integer, KeyBit> keyboardData = new HashMap<>();
-  static Map<Integer, SpectrumKeys> spectrumKeys = new HashMap<>();
-  static Map<Integer, Input.InputKey> keysymsHash = new HashMap<>();
-  static Map<Integer, String> keyText = new HashMap<>();
+  public byte[] returnValues = new byte[8]; // keyboard_return_values
+  public byte defaultValue = (byte) 0xFF; // keyboard_default_value
+  Map<Integer, KeyBit> keyboardData = new HashMap<>();
+  Map<Integer, SpectrumKeys> spectrumKeys = new HashMap<>();
+  Map<Integer, Input.InputKey> keysymsHash = new HashMap<>();
+  Map<Integer, String> keyText = new HashMap<>();
 
   // Initialize keyboard
 
@@ -46,7 +46,7 @@ public class Keyboard implements ZxModule {
   // Register startup
 
   // Read keyboard port
-  public static byte read(byte porth) {
+  public byte read(byte porth) {
     byte data = (byte) 0xFF;
     for (int i = 0; i < 8; i++, porth >>= 1) {
       if ((porth & 0x01) == 0) {
@@ -57,7 +57,7 @@ public class Keyboard implements ZxModule {
   }
 
   // Press a key
-  public static void press(KeyboardKeyName key) {
+  public void press(KeyboardKeyName key) {
     KeyBit ptr = keyboardData.get(key.getValue());
     if (ptr != null) {
       returnValues[ptr.port] &= ~ptr.bit;
@@ -65,7 +65,7 @@ public class Keyboard implements ZxModule {
   }
 
   // Release a key
-  public static void release(KeyboardKeyName key) {
+  public void release(KeyboardKeyName key) {
     KeyBit ptr = keyboardData.get(key.getValue());
     if (ptr != null) {
       returnValues[ptr.port] |= ptr.bit;
@@ -73,7 +73,7 @@ public class Keyboard implements ZxModule {
   }
 
   // Release all keys
-  public static int releaseAll() {
+  public int releaseAll() {
     for (int i = 0; i < 8; i++) {
       returnValues[i] = (byte) 0xFF;
     }
@@ -81,22 +81,22 @@ public class Keyboard implements ZxModule {
   }
 
   // Get Spectrum keys for input key
-  public static SpectrumKeys getSpectrumKeys(Input.InputKey keysym) {
+  public SpectrumKeys getSpectrumKeys(Input.InputKey keysym) {
     return spectrumKeys.get(keysym.getValue());
   }
 
   // Remap UI keysym to Fuse input key
-  public static Input.InputKey remap(int uiKeysym) {
+  public Input.InputKey remap(int uiKeysym) {
     return keysymsHash.getOrDefault(uiKeysym, Input.InputKey.INPUT_KEY_NONE);
   }
 
   // Get textual representation of a key
-  public static String keyText(KeyboardKeyName key) {
+  public String keyText(KeyboardKeyName key) {
     return keyText.getOrDefault(key.getValue(), "[Unknown key]");
   }
 
   // Simulate keypress for ULA read
-  public static byte simulateKeypress(byte porth, KeyboardKeyName key) {
+  public byte simulateKeypress(byte porth, KeyboardKeyName key) {
     byte r = (byte) 0xFF;
     KeyBit data = keyboardData.get(key.getValue());
     if (data != null) {

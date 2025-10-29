@@ -21,7 +21,6 @@ package com.fpetrola.oozx.fuse;
 import com.fpetrola.oozx.Ui;
 import com.fpetrola.oozx.fuse.modules.Keyboard;
 
-import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.HashMap;
@@ -230,7 +229,7 @@ public class SwingKeyboard implements KeyListener {
     private Keyboard keyboard;
     private Input input;
 
-    public SwingKeyboard(JFrame component, Keyboard keyboard, Input input) {
+    public SwingKeyboard(Keyboard keyboard, Input input) {
       this.keyboard = keyboard;
       this.input = input;
       // Initialize unicode_keysyms_hash
@@ -243,9 +242,9 @@ public class SwingKeyboard implements KeyListener {
         // No direct equivalent to SDL_EnableKeyRepeat in Swing; relies on system settings
 
         // Register this as a KeyListener to the component
-        component.addKeyListener(this);
-        component.setFocusable(true);
-        component.requestFocusInWindow();
+//        component.addKeyListener(this);
+//        component.setFocusable(true);
+//        component.requestFocusInWindow();
     }
 
     public void end() {

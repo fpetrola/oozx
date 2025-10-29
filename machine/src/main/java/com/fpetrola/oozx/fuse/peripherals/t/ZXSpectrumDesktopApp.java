@@ -25,10 +25,7 @@ import com.fpetrola.oozx.fuse.peripherals.MockEmulatorCore;
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.util.function.Supplier;
 
 
@@ -411,6 +408,34 @@ public class ZXSpectrumDesktopApp extends JFrame {
 //        event.getComponent().setBounds(b.x, b.y, b.width, (int) (b.width * 3f / 4f * ceil));
 //      }
 //    });
+
+    frame.setFocusable(true);
+    KeyListener keyListener = core1.getKeyListener();
+    frame.addFocusListener(new FocusListener() {
+      public void focusGained(FocusEvent e) {
+        System.out.println("focusGained:" + keyListener);
+        extracted("before focusGained");
+        getParent().addKeyListener(keyListener);
+        extracted("after focusGained");
+      }
+
+      public void focusLost(FocusEvent e) {
+        System.out.println("focusLost:" + keyListener);
+        extracted("before focusLost");
+        getParent().removeKeyListener(keyListener);
+        extracted("after focusLost");
+      }
+
+      private void extracted(String text) {
+        KeyListener[] keyListeners = getParent().getKeyListeners();
+        System.out.println(text + ": " + keyListeners.length);
+      }
+
+      private Container getParent() {
+        return frame;
+      }
+    });
+//    frame.requestFocusInWindow();
     desktop.add(frame);
     frame.setVisible(true);
     emulatorCount++;

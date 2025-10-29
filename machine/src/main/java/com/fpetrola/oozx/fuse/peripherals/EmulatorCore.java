@@ -19,6 +19,7 @@
 package com.fpetrola.oozx.fuse.peripherals;
 
 import javax.swing.*;
+import java.awt.event.KeyListener;
 
 public interface EmulatorCore {
     void startEmulation();
@@ -44,4 +45,6 @@ public interface EmulatorCore {
     boolean isTurboMode(); // New: Check if turbo mode is on
     String getTapeStatus(); // New: Get tape status
     JComponent getPanel();
+
+    KeyListener getKeyListener();
 }

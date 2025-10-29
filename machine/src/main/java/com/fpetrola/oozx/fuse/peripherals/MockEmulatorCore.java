@@ -18,7 +18,10 @@
 
 package com.fpetrola.oozx.fuse.peripherals;
 
+import com.fpetrola.oozx.fuse.SwingKeyboard;
+
 import javax.swing.*;
+import java.awt.event.KeyListener;
 
 // Mock implementation of the core
 public class MockEmulatorCore implements EmulatorCore {
@@ -208,5 +211,10 @@ public class MockEmulatorCore implements EmulatorCore {
   @Override
   public JComponent getPanel() {
     return contentPane;
+  }
+
+  @Override
+  public KeyListener getKeyListener() {
+    return null;
   }
 }

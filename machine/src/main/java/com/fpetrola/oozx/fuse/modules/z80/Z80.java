@@ -83,8 +83,9 @@ public class Z80 implements ZxModule {
   private Supplier<Machine> machine;
   private Runnable changeMachine;
   private Module module;
+  private Fuse fuse;
 
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer, Supplier<Machine> machine, Module module) {
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer, Supplier<Machine> machine, Module module, Fuse fuse) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
@@ -98,6 +99,7 @@ public class Z80 implements ZxModule {
     this.timer = timer;
     this.machine = machine;
     this.module = module;
+    this.fuse = fuse;
   }
 
   public void reset(int hardReset) {
@@ -304,6 +306,10 @@ public class Z80 implements ZxModule {
   public JFrame createScreen(KeyListener keyListener, JComponent contentPane) {
     mockCore = new MockEmulatorCore(contentPane) {
       private boolean turbo;
+
+      public KeyListener getKeyListener() {
+        return new SwingKeyboard(fuse.keyboard, fuse.input);
+      }
 
       public void pauseEmulation() {
         emulatorPaused = !emulatorPaused;
