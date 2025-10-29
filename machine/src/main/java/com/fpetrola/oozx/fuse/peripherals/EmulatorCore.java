@@ -47,4 +47,6 @@ public interface EmulatorCore {
     JComponent getPanel();
 
     KeyListener getKeyListener();
+
+    void finishEmulation();
 }

@@ -217,4 +217,9 @@ public class MockEmulatorCore implements EmulatorCore {
   public KeyListener getKeyListener() {
     return null;
   }
+
+  @Override
+  public void finishEmulation() {
+
+  }
 }

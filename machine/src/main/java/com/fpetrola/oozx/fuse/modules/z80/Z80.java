@@ -310,6 +310,11 @@ public class Z80 implements ZxModule {
         return new SwingKeyboard(fuse.keyboard, fuse.input);
       }
 
+      @Override
+      public void finishEmulation() {
+        fuse.alive= false;
+      }
+
       public void pauseEmulation() {
         emulatorPaused = !emulatorPaused;
         notifyPauseStateChange(emulatorPaused);

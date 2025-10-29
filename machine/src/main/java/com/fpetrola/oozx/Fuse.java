@@ -35,6 +35,7 @@ public class Fuse {
   public Supplier<SpectrumMachine> spectrumMachineSupplier = () -> getMachine().current;
   public SpectrumZ80Clock zxClock = new SpectrumZ80Clock();
   public Settings settings= new Settings();
+  public boolean alive= true;
   private Module module= new Module();
   public Memory memory = new Memory(spectrumMachineSupplier, zxClock, module, settings);
   private UiDisplay uiDisplay = new UiDisplay(zxClock);

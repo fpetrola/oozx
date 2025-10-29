@@ -40,10 +40,10 @@ public class OOSpectrumLauncher {
 
   public void init() {
     OOSpectrumConnector.noTest = true;
-    LafManager.install(new SolarizedLightTheme());
+//    LafManager.install(new SolarizedLightTheme());
 
     ZXSpectrumDesktopApp zxSpectrumDesktopApp = new ZXSpectrumDesktopApp(() -> {
-      String[] games = {"emlyn.z80", "dynamitedan.z80", "equinox.z80", "tge.z80"};
+      String[] games = {"emlyn.z80", "dynamitedan.z80", "equinox.z80", "tge.z80", "wally.z80", "jsw.z80"};
 
       Random random = new Random();
       int index = random.nextInt(games.length);
@@ -60,12 +60,12 @@ public class OOSpectrumLauncher {
 
     fuse.z80.bridgeCommand = (a, b) -> null;
 
-    scheduledExecutorService.scheduleAtFixedRate(() -> {
-      while (true) {
+    scheduledExecutorService.schedule(() -> {
+      while (fuse.alive) {
         fuse.z80.doOpcodes();
         fuse.eventManager.eventDoEvents();
       }
-    }, 0, 10, MILLISECONDS);
+    }, 0, MILLISECONDS);
 
     return fuse;
   }

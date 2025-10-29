@@ -154,6 +154,9 @@ public class Joystick implements ZxModule {
         return false;
     }
 
+    if (type == null)
+      type= JoystickType.JOYSTICK_TYPE_KEMPSTON;
+
     switch (type) {
       case JOYSTICK_TYPE_CURSOR:
         if (press) {

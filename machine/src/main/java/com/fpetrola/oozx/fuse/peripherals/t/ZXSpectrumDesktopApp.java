@@ -24,6 +24,8 @@ import com.fpetrola.oozx.fuse.peripherals.MockEmulatorCore;
 
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.function.Supplier;
@@ -130,6 +132,7 @@ class EmulatorInternalFrame extends JInternalFrame {
     speedBar.setStringPainted(true);
     speedBar.setString(String.format("%.2fx", emulatorCore.getEmulationSpeed()));
     speedBar.setPreferredSize(new Dimension(150, componentHeight));
+    speedBar.setMinimumSize(new Dimension(100, componentHeight - 30));
 
     // Model Combo
     String[] models = {"Spectrum 16K", "Spectrum 48K", "Spectrum 128K", "Spectrum Plus 2", "Spectrum Plus 3", "Pentagon"};
@@ -140,10 +143,11 @@ class EmulatorInternalFrame extends JInternalFrame {
 
     // Pause Indicator (LED-like)
     pauseIndicator = new JLabel(emulatorCore.isPaused() ? "Paused" : "Running");
+    pauseIndicator.setHorizontalAlignment(JLabel.CENTER);
     pauseIndicator.setOpaque(true);
     pauseIndicator.setBackground(emulatorCore.isPaused() ? Color.RED : Color.GREEN);
     pauseIndicator.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-    pauseIndicator.setPreferredSize(new Dimension(componentHeight, componentHeight));
+    pauseIndicator.setMinimumSize(new Dimension(100, componentHeight + 4));
     pauseIndicator.setToolTipText(emulatorCore.isPaused() ? "Paused" : "Running");
 
     // Turbo Indicator
@@ -154,8 +158,8 @@ class EmulatorInternalFrame extends JInternalFrame {
     // Tape Status
     tapeStatusLabel = new JLabel();
     tapeStatusLabel.setIcon(emulatorCore.getTapeStatus().equals("Loaded") ?
-        UIManager.getIcon("OptionPane.informationIcon") :
-        UIManager.getIcon("OptionPane.warningIcon"));
+        UIManager.getIcon("FileChooser.upFolderIcon") :
+        UIManager.getIcon("FileChooser.newFolderIcon"));
     tapeStatusLabel.setPreferredSize(new Dimension(80, componentHeight));
     tapeStatusLabel.setToolTipText("Tape: " + emulatorCore.getTapeStatus());
 
@@ -233,6 +237,7 @@ class EmulatorInternalFrame extends JInternalFrame {
     // Use built-in Swing icons
     Icon openIcon = UIManager.getIcon("FileView.fileIcon");
     JButton openButton = new JButton(openIcon);
+    openButton.setPreferredSize(new Dimension(40, 40));
     openButton.setToolTipText("Open File");
     openButton.addActionListener(e -> {
       JFileChooser fc = new JFileChooser();
@@ -244,6 +249,7 @@ class EmulatorInternalFrame extends JInternalFrame {
 
     Icon saveIcon = UIManager.getIcon("FileChooser.newFolderIcon");
     JButton saveStateButton = new JButton(saveIcon);
+    saveStateButton.setPreferredSize(new Dimension(40, 40));
     saveStateButton.setToolTipText("Save State");
     saveStateButton.addActionListener(e -> {
       JFileChooser fc = new JFileChooser();
@@ -266,25 +272,25 @@ class EmulatorInternalFrame extends JInternalFrame {
 
     toolBar.addSeparator();
 
-    Icon startIcon = UIManager.getIcon("OptionPane.informationIcon");
+    Icon startIcon = UIManager.getIcon("FileChooser.upFolderIcon");
     JButton startButton = new JButton(startIcon);
     startButton.setToolTipText("Start Emulation");
     startButton.addActionListener(e -> emulatorCore.startEmulation());
     toolBar.add(startButton);
 
-    Icon stopIcon = UIManager.getIcon("OptionPane.errorIcon");
+    Icon stopIcon = UIManager.getIcon("FileChooser.upFolderIcon");
     JButton stopButton = new JButton(stopIcon);
     stopButton.setToolTipText("Stop Emulation");
     stopButton.addActionListener(e -> emulatorCore.stopEmulation());
     toolBar.add(stopButton);
 
-    Icon pauseIcon = UIManager.getIcon("OptionPane.warningIcon");
+    Icon pauseIcon = UIManager.getIcon("FileChooser.upFolderIcon");
     JButton pauseButton = new JButton(pauseIcon);
     pauseButton.setToolTipText("Pause Emulation");
     pauseButton.addActionListener(e -> emulatorCore.pauseEmulation());
     toolBar.add(pauseButton);
 
-    Icon resumeIcon = UIManager.getIcon("OptionPane.questionIcon");
+    Icon resumeIcon = UIManager.getIcon("FileChooser.upFolderIcon");
     JButton resumeButton = new JButton(resumeIcon);
     resumeButton.setToolTipText("Resume Emulation");
     resumeButton.addActionListener(e -> emulatorCore.resumeEmulation());
@@ -309,7 +315,7 @@ class EmulatorInternalFrame extends JInternalFrame {
     model128KButton.addActionListener(e -> emulatorCore.setMachineModel("Spectrum 128K"));
     toolBar.add(model128KButton);
 
-    Icon turboIcon = UIManager.getIcon("OptionPane.warningIcon");
+    Icon turboIcon = UIManager.getIcon("FileChooser.upFolderIcon");
     JButton turboButton = new JButton(turboIcon);
     turboButton.setToolTipText("Toggle Turbo Mode");
     turboButton.addActionListener(e -> emulatorCore.setGeneralOption("turbo", !emulatorCore.isTurboMode()));
@@ -399,6 +405,11 @@ public class ZXSpectrumDesktopApp extends JFrame {
     int x = (emulatorCount * 30) % 400;
     int y = (emulatorCount * 30) % 400;
     EmulatorInternalFrame frame = new EmulatorInternalFrame(core, x, y);
+    frame.addInternalFrameListener(new InternalFrameAdapter() {
+      public void internalFrameClosed(InternalFrameEvent e) {
+        core1.finishEmulation();
+      }
+    });
 //    frame.addComponentListener(new ComponentAdapter() {
 //      public void componentResized(ComponentEvent event) {
 //        Rectangle bounds = core1.getPanel().getBounds();
@@ -413,22 +424,11 @@ public class ZXSpectrumDesktopApp extends JFrame {
     KeyListener keyListener = core1.getKeyListener();
     frame.addFocusListener(new FocusListener() {
       public void focusGained(FocusEvent e) {
-        System.out.println("focusGained:" + keyListener);
-        extracted("before focusGained");
         getParent().addKeyListener(keyListener);
-        extracted("after focusGained");
       }
 
       public void focusLost(FocusEvent e) {
-        System.out.println("focusLost:" + keyListener);
-        extracted("before focusLost");
         getParent().removeKeyListener(keyListener);
-        extracted("after focusLost");
-      }
-
-      private void extracted(String text) {
-        KeyListener[] keyListeners = getParent().getKeyListeners();
-        System.out.println(text + ": " + keyListeners.length);
       }
 
       private Container getParent() {
