@@ -1,35 +1,22 @@
-/*
- *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *      http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
- *
- */
-
 package com.fpetrola.oozx.fuse.peripherals.t;
 
+import com.fpetrola.oozx.api.GameEntry;
+import com.fpetrola.oozx.api.Hit;
+import com.fpetrola.oozx.api.ZxInfoApiHandler;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorCore;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorListener;
-import com.fpetrola.oozx.fuse.peripherals.MockEmulatorCore;
 
 import javax.swing.*;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.function.Supplier;
-
 
 // Emulator Internal Frame
 class EmulatorInternalFrame extends JInternalFrame {
@@ -218,7 +205,7 @@ class EmulatorInternalFrame extends JInternalFrame {
         .addComponent(tapeStatusLabel)
     );
 
-    layout.setVerticalGroup(layout.createParallelGroup(Alignment.CENTER)
+    layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
         .addComponent(statusLabel)
         .addComponent(speedBar)
         .addComponent(modelCombo)
@@ -331,11 +318,246 @@ class EmulatorInternalFrame extends JInternalFrame {
   }
 }
 
-// Main Desktop Application
+// --- NEW: Game Search Result Model ---
+class GameSearchResult {
+  String title;
+  String url;
+  String screenshot1;
+  String screenshot2;
+
+  public GameSearchResult(String title, String url, String screenshot1, String screenshot2) {
+    this.title = title;
+    this.url = url;
+    this.screenshot1 = screenshot1;
+    this.screenshot2 = screenshot2;
+  }
+}
+
+// --- NEW: Game Browser Listener Interface ---
+interface GameBrowserListener {
+  void onGameSelected(String gameUrl);
+
+  void onViewDetails(String gameUrl);
+
+  void onAddToFavorites(String gameUrl);
+
+  void onDownloadGame(String gameUrl);
+}
+
+// --- NEW: Game Browser Internal Frame ---
+class GameBrowserInternalFrame extends JInternalFrame {
+  private JTextField searchField;
+  private JPanel resultsPanel;
+  private GameBrowserListener listener;
+
+  public GameBrowserInternalFrame(GameBrowserListener listener) {
+    super("Game Browser", true, true, true, true);
+    this.listener = listener;
+    setSize(560, 600);
+    setLocation(50, 50);
+
+    JPanel topPanel = new JPanel();
+    topPanel.setLayout(new BorderLayout());
+    topPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+    searchField = new JTextField();
+    searchField.setFont(new Font("Arial", Font.PLAIN, 16));
+    JButton searchButton = new JButton("Search");
+    searchButton.setPreferredSize(new Dimension(100, 30));
+
+    topPanel.add(searchField, BorderLayout.CENTER);
+    topPanel.add(searchButton, BorderLayout.EAST);
+
+    add(topPanel, BorderLayout.NORTH);
+
+    resultsPanel = new JPanel();
+    resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
+    resultsPanel.setBackground(Color.WHITE);
+
+    JScrollPane scrollPane = new JScrollPane(resultsPanel);
+    scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+    scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+    add(scrollPane, BorderLayout.CENTER);
+
+    searchButton.addActionListener(e -> performSearch());
+    searchField.addActionListener(e -> performSearch());
+  }
+
+  private void performSearch() {
+    String query = searchField.getText().trim();
+    if (query.isEmpty()) return;
+
+    // Clear previous results
+    resultsPanel.removeAll();
+
+    SwingUtilities.invokeLater(() -> {
+      // Mock search results (in real app, this would be async from web)
+      List<GameSearchResult> mockResults = createMockResults(query);
+
+      for (GameSearchResult result : mockResults) {
+        JPanel gameRow = createGameRow(result);
+        resultsPanel.add(gameRow);
+        resultsPanel.add(Box.createVerticalStrut(10));
+      }
+
+      resultsPanel.revalidate();
+      resultsPanel.repaint();
+    });
+  }
+
+  private List<GameSearchResult> createMockResults(String query) {
+    List<Hit> search = new ZxInfoApiHandler().search(query);
+
+    List<GameSearchResult> results = new ArrayList<>();
+
+    for (Hit hit : search) {
+      GameEntry game = hit._source;
+      if (game.contentType.equals("SOFTWARE")) {
+        List<String> screenshots = new ArrayList<>();
+        game.screens.forEach(s -> {
+          String filename = "https://worldofspectrum.net" + s.url;
+          if (s.url.startsWith("/zxscreens"))
+            filename = "https://zxinfo.dk/media" + s.url;
+
+          screenshots.add(filename);
+        });
+        String baseTitle = game.title;
+
+        String screenshot1 = getString(screenshots, 0);
+        String screenshot2 = getString(screenshots, 1);
+        results.add(new GameSearchResult(baseTitle, "http://example.com/game/" + query, screenshot1, screenshot2));
+      }
+    }
+    return results;
+  }
+
+  private String getString(List<String> screenshots, int x) {
+    return screenshots.size() > x ? screenshots.get(x) : "https://i.sstatic.net/wAz1X.gif";
+  }
+
+  private GameData getGameData() {
+    String text = "https://worldofspectrum.net/pub/sinclair/screens/in-game/e/EveryonesAWally.gif";
+    ImageIcon img1 = getImageIcon(text);
+//      ImageIcon img1 = createPlaceholderImage(256, 192, Color.LIGHT_GRAY, text);
+    String text1 = "https://worldofspectrum.net/pub/sinclair/screens/in-game/e/EveryonesAWally.gif";
+//      ImageIcon img2 = createPlaceholderImage(256, 192, Color.GRAY, text1);
+//    ImageIcon img2 = new ImageIcon(url);
+    GameData gameData = new GameData(img1, img1);
+    return gameData;
+  }
+
+  private ImageIcon getImageIcon(String text) {
+    try {
+      return new ImageIcon(new URL(text));
+    } catch (MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private record GameData(ImageIcon img1, ImageIcon img2) {
+  }
+
+  private ImageIcon createPlaceholderImage(int w, int h, Color bg, String text) {
+    BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+    Graphics2D g = img.createGraphics();
+    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    g.setColor(bg);
+    g.fillRect(0, 0, w, h);
+    g.setColor(Color.BLACK);
+    g.drawRect(0, 0, w - 1, h - 1);
+    g.setFont(new Font("Arial", Font.BOLD, 16));
+    FontMetrics fm = g.getFontMetrics();
+    int x = (w - fm.stringWidth(text)) / 2;
+    int y = (h - fm.getHeight()) / 2 + fm.getAscent();
+    g.drawString(text, x, y);
+    g.dispose();
+    return new ImageIcon(img);
+  }
+
+  private JPanel createGameRow(GameSearchResult result) {
+    JPanel row = new JPanel();
+    row.setLayout(new BoxLayout(row, BoxLayout.X_AXIS));
+    row.setBorder(BorderFactory.createCompoundBorder(
+        BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+        BorderFactory.createEmptyBorder(5, 5, 5, 5)
+    ));
+    row.setBackground(Color.WHITE);
+
+    JLabel imgLabel1 = new JLabel();
+    loadLazyImage(imgLabel1, result.screenshot1);
+    imgLabel1.setAlignmentY(Component.TOP_ALIGNMENT);
+    JLabel imgLabel2 = new JLabel();
+    loadLazyImage(imgLabel2, result.screenshot2);
+    imgLabel2.setAlignmentY(Component.TOP_ALIGNMENT);
+
+    // Context menu
+    JPopupMenu contextMenu = new JPopupMenu();
+    JMenuItem loadItem = new JMenuItem("Load Game");
+    JMenuItem detailsItem = new JMenuItem("View Details");
+    JMenuItem favoriteItem = new JMenuItem("Add to Favorites");
+    JMenuItem downloadItem = new JMenuItem("Download");
+    contextMenu.add(loadItem);
+    contextMenu.add(detailsItem);
+    contextMenu.add(favoriteItem);
+    contextMenu.add(downloadItem);
+
+    MouseAdapter mouseAdapter = new MouseAdapter() {
+      @Override
+      public void mousePressed(MouseEvent e) {
+        if (e.isPopupTrigger()) showPopup(e);
+      }
+
+      @Override
+      public void mouseReleased(MouseEvent e) {
+        if (e.isPopupTrigger()) showPopup(e);
+      }
+
+      private void showPopup(MouseEvent e) {
+        contextMenu.show(e.getComponent(), e.getX(), e.getY());
+      }
+
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
+          listener.onGameSelected(result.url);
+        }
+      }
+    };
+
+    imgLabel1.addMouseListener(mouseAdapter);
+    imgLabel2.addMouseListener(mouseAdapter);
+
+    loadItem.addActionListener(e -> listener.onGameSelected(result.url));
+    detailsItem.addActionListener(e -> listener.onViewDetails(result.url));
+    favoriteItem.addActionListener(e -> listener.onAddToFavorites(result.url));
+    downloadItem.addActionListener(e -> listener.onDownloadGame(result.url));
+
+    row.add(imgLabel1);
+    row.add(Box.createHorizontalStrut(10));
+    row.add(imgLabel2);
+    row.add(Box.createHorizontalGlue());
+
+    return row;
+  }
+
+  private void loadLazyImage(JLabel imgLabel1, String screenshot1) {
+    LazyImageIconLoader lazyImageIconLoader = new LazyImageIconLoader(imgLabel1, screenshot1);
+    lazyImageIconLoader.execute();
+  }
+
+  public void setSearchQuery(String query) {
+    searchField.setText(query);
+    performSearch();
+  }
+}
+
+// --- UPDATED: ZXSpectrumDesktopApp with Game Browser ---
 public class ZXSpectrumDesktopApp extends JFrame {
   private final Supplier<EmulatorCore> mockCore;
   private JDesktopPane desktop;
   private int emulatorCount = 0;
+  private GameBrowserInternalFrame gameBrowser;
 
   public ZXSpectrumDesktopApp(Supplier<EmulatorCore> mockCore) {
     this.mockCore = mockCore;
@@ -349,6 +571,10 @@ public class ZXSpectrumDesktopApp extends JFrame {
     // Menu Bar
     JMenuBar menuBar = createMenuBar();
     setJMenuBar(menuBar);
+
+    // Toolbar
+    JToolBar toolBar = createMainToolBar();
+    add(toolBar, BorderLayout.NORTH);
   }
 
   private JMenuBar createMenuBar() {
@@ -365,6 +591,10 @@ public class ZXSpectrumDesktopApp extends JFrame {
       }
     };
     fileMenu.add(newEmulatorAction);
+
+    JMenuItem gameBrowserMenuItem = new JMenuItem("Game Browser...");
+    gameBrowserMenuItem.addActionListener(e -> openGameBrowser());
+    fileMenu.add(gameBrowserMenuItem);
 
     AbstractAction exitAction = new AbstractAction("Exit") {
       @Override
@@ -400,6 +630,100 @@ public class ZXSpectrumDesktopApp extends JFrame {
     return menuBar;
   }
 
+  private JToolBar createMainToolBar() {
+    JToolBar toolBar = new JToolBar();
+    toolBar.setFloatable(false);
+
+    Icon newEmulatorIcon = UIManager.getIcon("FileView.computerIcon");
+    JButton newEmulatorBtn = new JButton(newEmulatorIcon);
+    newEmulatorBtn.setToolTipText("New Emulator");
+    newEmulatorBtn.addActionListener(e -> {
+      EmulatorCore core = mockCore.get();
+      createNewEmulator(core);
+    });
+    toolBar.add(newEmulatorBtn);
+
+    Icon gameBrowserIcon = UIManager.getIcon("FileView.directoryIcon");
+    JButton gameBrowserBtn = new JButton(gameBrowserIcon);
+    gameBrowserBtn.setToolTipText("Open Game Browser");
+    gameBrowserBtn.addActionListener(e -> openGameBrowser());
+    toolBar.add(gameBrowserBtn);
+
+    return toolBar;
+  }
+
+  private void openGameBrowser() {
+    if (gameBrowser == null || gameBrowser.isClosed()) {
+      gameBrowser = new GameBrowserInternalFrame(new GameBrowserListener() {
+        @Override
+        public void onGameSelected(String gameUrl) {
+          // Find or create an emulator and load the game
+          EmulatorInternalFrame target = getActiveEmulatorOrCreateNew();
+          if (target != null) {
+            // In real app: download and load ROM/tape
+            JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+                "Loading game from: " + gameUrl + "\n(Feature to be implemented)",
+                "Load Game", JOptionPane.INFORMATION_MESSAGE);
+          }
+        }
+
+        @Override
+        public void onViewDetails(String gameUrl) {
+          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+              "Game Details: " + gameUrl + "\n(Details view coming soon)",
+              "Game Details", JOptionPane.INFORMATION_MESSAGE);
+        }
+
+        @Override
+        public void onAddToFavorites(String gameUrl) {
+          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+              "Added to favorites: " + gameUrl,
+              "Favorites", JOptionPane.INFORMATION_MESSAGE);
+        }
+
+        @Override
+        public void onDownloadGame(String gameUrl) {
+          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+              "Downloading: " + gameUrl + "\n(Download feature coming soon)",
+              "Download", JOptionPane.INFORMATION_MESSAGE);
+        }
+      });
+      desktop.add(gameBrowser);
+      gameBrowser.setVisible(true);
+      try {
+        gameBrowser.setSelected(true);
+      } catch (java.beans.PropertyVetoException ex) {
+      }
+    } else {
+      try {
+        gameBrowser.setSelected(true);
+        gameBrowser.toFront();
+      } catch (java.beans.PropertyVetoException ex) {
+      }
+    }
+  }
+
+  private EmulatorInternalFrame getActiveEmulatorOrCreateNew() {
+    JInternalFrame[] frames = desktop.getAllFrames();
+    for (JInternalFrame frame : frames) {
+      if (frame instanceof EmulatorInternalFrame && frame.isVisible()) {
+        try {
+          frame.setSelected(true);
+          return (EmulatorInternalFrame) frame;
+        } catch (java.beans.PropertyVetoException ex) {
+        }
+      }
+    }
+    // Create new if none active
+    EmulatorCore core = mockCore.get();
+    EmulatorInternalFrame newFrame = new EmulatorInternalFrame(core, 100, 100);
+    desktop.add(newFrame);
+    newFrame.setVisible(true);
+    return newFrame;
+  }
+
+  // ... (rest of the methods: createNewEmulator, cascadeWindows, tileWindows remain unchanged)
+
   public void createNewEmulator(EmulatorCore core1) {
     EmulatorCore core = core1;
     int x = (emulatorCount * 30) % 400;
@@ -410,15 +734,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
         core1.finishEmulation();
       }
     });
-//    frame.addComponentListener(new ComponentAdapter() {
-//      public void componentResized(ComponentEvent event) {
-//        Rectangle bounds = core1.getPanel().getBounds();
-//        Rectangle b = event.getComponent().getBounds();
-//        double v = b.getHeight() / bounds.getHeight();
-//        double ceil = Math.ceil(v * 10)/10;
-//        event.getComponent().setBounds(b.x, b.y, b.width, (int) (b.width * 3f / 4f * ceil));
-//      }
-//    });
 
     frame.setFocusable(true);
     KeyListener keyListener = core1.getKeyListener();
@@ -435,11 +750,12 @@ public class ZXSpectrumDesktopApp extends JFrame {
         return frame;
       }
     });
-//    frame.requestFocusInWindow();
+
     desktop.add(frame);
     frame.setVisible(true);
     emulatorCount++;
   }
+
 
   private void cascadeWindows() {
     JInternalFrame[] frames = desktop.getAllFrames();
@@ -504,11 +820,10 @@ public class ZXSpectrumDesktopApp extends JFrame {
   }
 
   public static void main(String[] args) {
-    SwingUtilities.invokeLater(() -> {
-      ZXSpectrumDesktopApp app = new ZXSpectrumDesktopApp(null);
-      app.setVisible(true);
-      // Create first emulator
-      app.createNewEmulator(new MockEmulatorCore(null));
-    });
+//        SwingUtilities.invokeLater(() -> {
+//            ZXSpectrumDesktopApp app = new ZXSpectrumDesktopApp(() -> new MockEmulatorCore(null));
+//            app.setVisible(true);
+//            app.createNewEmulator(new MockEmulatorCore(null));
+//        });
   }
 }

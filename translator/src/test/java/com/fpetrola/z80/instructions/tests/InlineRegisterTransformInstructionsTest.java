@@ -1057,7 +1057,7 @@ public class InlineRegisterTransformInstructionsTest<T extends WordNumber> exten
               int var25 = AF & 255;
               int var26 = var50 << 8;
               AF = var25 | var26;
-              return this.result(AF, BC, DE, HL, IX, IY, var50, F, B, C, D, A, H, L, IXL, IXH, IYL, IYH);
+              return this.gameData(AF, BC, DE, HL, IX, IY, var50, F, B, C, D, A, H, L, IXL, IXH, IYL, IYH);
            }
         }
         """, generateAndDecompile());
