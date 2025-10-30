@@ -27,7 +27,7 @@ import java.util.zip.*;
 
 public class DownloadAndUnzip {
 
-  private static final Path TMP_DIR = Paths.get("/tmp");
+  private static final Path TMP_DIR = Paths.get(System.getProperty("java.io.tmpdir"));
 
   public static void main(String[] args) {
     new DownloadAndUnzip().unzip("https://zxinfo.dk/media/zxdb/sinclair/entries/0030743/BigBrother.z80.zip");

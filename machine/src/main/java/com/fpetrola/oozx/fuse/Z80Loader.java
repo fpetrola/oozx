@@ -76,9 +76,17 @@ public class Z80Loader {
         throw new RuntimeException("Error cargando snapshot: " + err);
       }
       System.out.printf("Snapshot cargado: %s%n", filePath);
+//      lib.libspectrum_snap_free(snap);
       return snap;
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static int  getTstates(LibSpectrum lib, String url) {
+    Z80Loader.libspectrum_snap snap = Z80Loader.getLibspectrumSnap(lib, url);
+    int tstates = lib.libspectrum_snap_tstates(snap);
+    lib.libspectrum_snap_free(snap);
+    return tstates;
   }
 }

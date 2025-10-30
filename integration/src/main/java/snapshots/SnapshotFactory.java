@@ -25,7 +25,7 @@ public class SnapshotFactory {
             case ".sp":
                 return new SnapshotSP();
             default:
-                return new SnapshotZ80();
+                return null;
         }
     }
 }

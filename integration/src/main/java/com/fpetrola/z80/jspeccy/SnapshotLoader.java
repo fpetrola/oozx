@@ -31,31 +31,31 @@ import java.io.File;
 public class SnapshotLoader {
   public static <T extends WordNumber> byte[] setupStateWithSnapshot(RegistersSetter registersSetter, String fileName, State<T> state) {
     MemorySetter memorySetter = new MemorySetter(state.getMemory(), MiniZXWithEmulationBase.createROM());
-    WordNumber[] data = new WordNumber[0x10000];
 
     try {
       File file = new File(fileName);
+      byte[] result = null;
 
       SnapshotFile snapshot = SnapshotFactory.getSnapshot(file);
 
-      SpectrumState snapState = snapshot.load(file);
+      if (snapshot != null) {
+        result = new byte[0x10000];
+        SpectrumState snapState = snapshot.load(file);
 
-      state.clock.setTStates(snapState.getTstates());
+        state.clock.setTStates(snapState.getTstates());
 
-      setZ80State(registersSetter, snapState.getZ80State());
+        setZ80State(registersSetter, snapState.getZ80State());
 //      registersBase.setZ80State(snapState.getZ80State());
 
-      MemoryState memoryState = snapState.getMemoryState();
+        MemoryState memoryState = snapState.getMemoryState();
+        byte[][] ram = memoryState.getRam();
+        int position = 16384;
+        position = copyPage(ram, 5, position, result);
+        position = copyPage(ram, 2, position, result);
+        copyPage(ram, 0, position, result);
+        memorySetter.setData(result);
+      }
 
-      byte[][] ram = memoryState.getRam();
-      byte[] result = new byte[0x10000];
-
-      int position = 16384;
-      position = copyPage(ram, 5, position, result);
-      position = copyPage(ram, 2, position, result);
-      copyPage(ram, 0, position, result);
-
-      memorySetter.setData(result);
       return result;
     } catch (Exception e) {
       throw new RuntimeException(e);

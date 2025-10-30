@@ -212,14 +212,15 @@ public class Z80 implements ZxModule {
     RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
 
     String first = url; //com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
-    SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
-    LibSpectrum lib = LibSpectrum.INSTANCE;
-    Z80Loader.libspectrum_snap snap = Z80Loader.getLibspectrumSnap(lib, url);
-    state.clock.setTStates(lib.libspectrum_snap_tstates(snap));
-    interruptsEnabledAt = -1;
+    byte[] bytes = SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
+    if (bytes != null) {
+      int tstates = Z80Loader.getTstates(LibSpectrum.INSTANCE, url);
+      state.clock.setTStates(tstates);
+      interruptsEnabledAt = -1;
 
-    updateMemory();
-    display.refreshAll();
+      updateMemory();
+      display.refreshAll();
+    }
   }
 
   private void setupMemory() {
