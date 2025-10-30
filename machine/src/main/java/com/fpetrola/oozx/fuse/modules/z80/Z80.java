@@ -25,6 +25,7 @@ import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.machine.TimingsHandler;
 import com.fpetrola.oozx.fuse.modules.*;
 import com.fpetrola.oozx.fuse.modules.Timer;
+import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.peripherals.*;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
@@ -44,6 +45,7 @@ import fuse.tstates.PhaseProcessor;
 
 import javax.swing.*;
 import java.awt.event.KeyListener;
+import java.io.File;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -82,8 +84,9 @@ public class Z80 implements ZxModule {
   private Module module;
   private Fuse fuse;
   private Settings settings;
+  private Tape tape;
 
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer, Supplier<Machine> machine, Module module, Fuse fuse, Settings settings) {
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer, Supplier<Machine> machine, Module module, Fuse fuse, Settings settings, Tape tape) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
@@ -99,6 +102,7 @@ public class Z80 implements ZxModule {
     this.module = module;
     this.fuse = fuse;
     this.settings = settings;
+    this.tape = tape;
   }
 
   public void reset(int hardReset) {
@@ -209,7 +213,7 @@ public class Z80 implements ZxModule {
 
     String first = url; //com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
     SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
-    Z80Loader.LibSpectrum lib = Z80Loader.LibSpectrum.INSTANCE;
+    LibSpectrum lib = LibSpectrum.INSTANCE;
     Z80Loader.libspectrum_snap snap = Z80Loader.getLibspectrumSnap(lib, url);
     state.clock.setTStates(lib.libspectrum_snap_tstates(snap));
     interruptsEnabledAt = -1;
@@ -312,7 +316,7 @@ public class Z80 implements ZxModule {
 
       @Override
       public void finishEmulation() {
-        fuse.alive= false;
+        fuse.alive = false;
       }
 
       public void pauseEmulation() {
@@ -351,7 +355,12 @@ public class Z80 implements ZxModule {
     mockCore.addEmulatorListener(new EmulatorListener() {
       @Override
       public void onEmulationStateChanged(String state) {
-
+        SwingUtilities.invokeLater(() -> {
+          if (state.equals("Reset")) {
+            tape.insert(new File("/tmp/zxinfo_extracted/SOLARINV.TAP"));
+            tape.play(true);
+          }
+        });
       }
 
       @Override

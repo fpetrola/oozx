@@ -39,4 +39,8 @@ public interface SpectrumMachine {
   long[] getLineTimes();
 
   String getName();
+
+  default void reset(boolean b){
+    reset();
+  }
 }

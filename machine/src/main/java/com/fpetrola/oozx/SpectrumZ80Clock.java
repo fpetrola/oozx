@@ -19,14 +19,35 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
+import com.fpetrola.oozx.fuse.modules.tape.Log1;
+import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.z80.cpu.DefaultZ80Clock;
+import com.fpetrola.z80.helpers.CollectionHandler;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import machine.ClockTimeoutListener;
 
+import java.util.ConcurrentModificationException;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
 public class SpectrumZ80Clock extends DefaultZ80Clock {
+
+  private int timeout;
+  private CollectionHandler<ClockTimeoutListener> clockListeners = new CollectionHandler<>();
+
   private Register<WordNumber> pc;
+
+  public void setTStates(long tStates) {
+    super.setTStates(tStates);
+//    timeout = 0;
+  }
+
+  public void addTStates(int tStatesToAdd) {
+    super.addTStates(tStatesToAdd);
+    timeOutProcess(tStatesToAdd);
+  }
 
   public void addTStates(int tStatesToAdd, String description) {
     log(() -> description, (byte) tStatesToAdd);
@@ -38,11 +59,49 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
     addTStates(tStatesToAdd);
   }
 
+  private void timeOutProcess(int tStatesToAdd) {
+    if (timeout > 0 && tStatesToAdd >= 0) {
+      timeout -= tStatesToAdd;
+
+      if (timeout > 60000)
+        System.out.println("max1");
+      if (timeout <= 0) {
+        int res = timeout;
+        clockListeners.forAll(ClockTimeoutListener::clockTimeout);
+
+        if (timeout > 0) {
+          new Log1().trace("Timeout: {}, res: {}", timeout, res);
+          timeout += res;
+        }
+      }
+    }
+  }
+
   public void log(Supplier<String> description, byte data) {
     GetTStatesHistory.addTStateUpdate(data, description, tStates, pc);
   }
 
   public void setPc(Register<WordNumber> pc) {
     this.pc = pc;
+  }
+
+  public void setTimeout(int ntstates) {
+    if (this.timeout > 0) {
+      throw new ConcurrentModificationException("A timeout is in progress. Can't set another timeout!");
+    }
+
+    this.timeout = Math.max(ntstates, 10);
+  }
+
+  public void addClockTimeoutListener(Tape tape) {
+    clockListeners.add(tape);
+  }
+
+  public void removeClockTimeoutListener(Tape tape) {
+    clockListeners.remove(tape);
+  }
+
+  public long getAbsTstates() {
+    return tStates;
   }
 }

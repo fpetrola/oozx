@@ -55,8 +55,8 @@ public class LazyImageIconLoader extends SwingWorker<ImageIcon, Void> {
     int width = image.getWidth(null);
     int height = image.getHeight(null);
     if (width > 0 && height > 0) {
-      float scale = 1.5f;
-      image = image.getScaledInstance((int) (width / scale), (int) (height / scale), Image.SCALE_SMOOTH);
+      float scale = 1f;
+      image = image.getScaledInstance((int) (width / scale), (int) (height / scale), Image.SCALE_FAST);
     }
     return new ImageIcon(image);
   }

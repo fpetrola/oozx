@@ -23,6 +23,8 @@ import com.fpetrola.oozx.fuse.machine.*;
 import com.fpetrola.oozx.fuse.modules.Joystick;
 import com.fpetrola.oozx.fuse.modules.*;
 import com.fpetrola.oozx.fuse.modules.Keyboard;
+import com.fpetrola.oozx.fuse.modules.tape.Tape;
+import com.fpetrola.oozx.fuse.modules.tape.TapeSettingsType;
 import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
@@ -42,14 +44,15 @@ public class Fuse {
   public Display display = new Display(memory, spectrumMachineSupplier, zxClock, memory, uiDisplay);
   public Keyboard keyboard = new Keyboard();
   public IPeriph periph = new Periph(spectrumMachineSupplier, zxClock, settings);
-  public Ula ula = new Ula(memory, display, spectrumMachineSupplier, keyboard, zxClock, periph, module, settings);
+  private Tape tape= new Tape(new TapeSettingsType(), zxClock);
+  public Ula ula = new Ula(memory, display, spectrumMachineSupplier, keyboard, zxClock, periph, module, settings, tape);
   public EventManager eventManager = new EventManager(spectrumMachineSupplier, zxClock);
   public IPeriph ulaPeriph = new UlaPeriph(ula, zxClock, periph);
   public Joystick joystick = new Joystick(keyboard, ulaPeriph, module, settings);
   public Input input = new Input(joystick, keyboard, settings);
   private Sound sound = new Sound();
-  private Timer timer = new Timer(eventManager, spectrumMachineSupplier, sound, settings);
-  public Z80 z80 = new Z80(eventManager, memory, display, ula, spectrumMachineSupplier, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer, () -> getMachine(), module, this, settings);
+  private Timer timer = new Timer(eventManager, spectrumMachineSupplier, sound, settings, tape);
+  public Z80 z80 = new Z80(eventManager, memory, display, ula, spectrumMachineSupplier, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer, () -> getMachine(), module, this, settings, tape);
   private StartupManager startupManager = new StartupManager();
 
   private Machine getMachine() {

@@ -48,9 +48,13 @@ public class OOSpectrumLauncher {
     ZXSpectrumDesktopApp zxSpectrumDesktopApp = new ZXSpectrumDesktopApp((filename) -> {
 //      extracted();
 
-      Path unzip = new DownloadAndUnzip().unzip(filename);
+      String string = null;
+      if (!filename.isBlank()) {
+        Path unzip = new DownloadAndUnzip().unzip(filename);
 //      String snapshotFile = Helper.getSnapshotFile(filename);
-      Fuse fuse = createFuse(unzip.toAbsolutePath().toString());
+        string = unzip.toAbsolutePath().toString();
+      }
+      Fuse fuse = createFuse(string);
       return fuse.z80.mockCore;
     });
     zxSpectrumDesktopApp.setVisible(true);
@@ -67,7 +71,8 @@ public class OOSpectrumLauncher {
   private Fuse createFuse(String s) {
     Fuse fuse = new Fuse();
     fuse.init();
-    fuse.z80.loadSnap(s);
+    if (s != null)
+      fuse.z80.loadSnap(s);
 
     fuse.z80.bridgeCommand = (a, b) -> null;
 

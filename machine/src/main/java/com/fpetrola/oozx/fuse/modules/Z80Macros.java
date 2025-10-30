@@ -16,24 +16,42 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.modules;
 
-import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
+public class Z80Macros {
+  public static int BC = 1;
+  public static int DE = 1;
+  public static int HL = 1;
+  public static int AF = 1;
+  public static int IX = 1;
+  public static int PC = 1;
+  public static int FLAG_C = 1;
+  public static int AF_ = 4;
+  public static int A = 3;
+  public static int F = 3;
+  public static int B = 2;
+  public static int C = 5;
+  public static int D = 2;
+  public static int E = 5;
+  public static int H = 2;
+  public static int L = 5;
+  public int A_() {
+    return 0;
+  }
 
-public class PhantomTypist {
-  public static void frame() {
+  public int F_() {
+    return 0;
+  }
+
+  public int DE() {
+    return 0;
+  }
+
+  public void CP(int i) {
 
   }
 
-  public static byte ulaRead(int port) {
-    return (byte) 0xff;
-  }
-
-  public static boolean isActive() {
-    return false;
-  }
-
-  public void activate(SpectrumMachine hardware, boolean needsCode) {
+  public void INC(int b) {
 
   }
 }

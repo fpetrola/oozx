@@ -18,8 +18,12 @@
 
 package com.fpetrola.oozx.fuse.modules;
 
-import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.PhantomTypist;
+import com.fpetrola.oozx.Settings;
+import com.fpetrola.oozx.Sound;
+import com.fpetrola.oozx.Ui;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
+import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.modules.z80.Z80;
 
 import java.util.function.Supplier;
@@ -38,12 +42,14 @@ public class Timer implements ZxModule {
   private int timerEvent = 0;
   private static final int TEN_MS = 10;
   private Settings settings;
+  private Tape tape;
 
-  public Timer(EventManager eventManager, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Sound sound, Settings settings) {
+  public Timer(EventManager eventManager, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Sound sound, Settings settings, Tape tape) {
     this.eventManager = eventManager;
     this.fuseMachineInfoSupplier = fuseMachineInfoSupplier;
     this.sound = sound;
     this.settings = settings;
+    this.tape = tape;
   }
 
   @Override
@@ -123,7 +129,7 @@ public class Timer implements ZxModule {
 
   // Check if fastloading is active
   public boolean fastloadingActive() {
-    return Tape.isPlaying() || PhantomTypist.isActive();
+    return tape.isPlaying() || PhantomTypist.isActive();
   }
 
   // Frame handling

@@ -21,6 +21,7 @@ package com.fpetrola.oozx.fuse.modules;
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
+import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.UlaFullDecodePeripheral;
 import com.fpetrola.oozx.fuse.peripherals.UlaPeripheral;
@@ -54,8 +55,9 @@ public class Ula implements ZxModule {
   private String contendPortEarly = "contend_port_early";
   private Module module;
   private Settings settings;
+  private Tape tape;
 
-  public Ula(Memory memory, Display display, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock z80Clock, IPeriph periph, Module module, Settings settings) {
+  public Ula(Memory memory, Display display, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock z80Clock, IPeriph periph, Module module, Settings settings, com.fpetrola.oozx.fuse.modules.tape.Tape tape) {
     this.memory = memory;
     this.display = display;
     this.currentMachineSupplier = machineSupplier;
@@ -64,6 +66,7 @@ public class Ula implements ZxModule {
     this.periph = periph;
     this.module = module;
     this.settings = settings;
+    this.tape = tape;
   }
 
   // Initialize ULA module
@@ -90,8 +93,16 @@ public class Ula implements ZxModule {
     attached[0] = (byte) 0xff;
 
     r &= PhantomTypist.ulaRead(port);
-    r &= keyboard.read((byte) (port >> 8));
-    if (Tape.microphone) r ^= 0x40;
+    byte read = keyboard.read((byte) (port >> 8));
+    r &= read;
+    if (tape.microphone) r ^= 0x40;
+
+    int earBit = tape.getEarBit();
+    if (tape.isTapeRunning()) {
+//        if (earBit != 0xff)
+//          System.out.println("dasgag");
+      r = (byte) earBit;
+    }
 
     return r;
   }
@@ -102,7 +113,7 @@ public class Ula implements ZxModule {
 
     display.setLoresBorder(b & 0x07);
     Sound.beeper(z80Clock.getTStates(),
-        ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || Tape.microphone ? 1 : 0));
+        ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || tape.microphone ? 1 : 0));
 
     if ((getCurrent().getCapabilities() & PLUS3_MEMORY) != 0) {
       defaultValue = (byte) 0xbf;

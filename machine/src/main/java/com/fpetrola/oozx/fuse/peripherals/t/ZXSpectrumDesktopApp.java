@@ -430,7 +430,8 @@ class GameBrowserInternalFrame extends JInternalFrame {
           s.files.forEach(f -> {
             if (f.format != null) {
               System.out.println(f.format);
-              List<String> anObject = List.of("Snapshot (Z80)", "Tape (TAP)", "Perfect tape (TZX)");
+              List<String> anObject = List.of("Snapshot (Z80)", "Snapshot (SNA)", "Tape (TAP)", "Perfect tape (TZX)");
+//              List<String> anObject = List.of("Snapshot (Z80)", "Snapshot (SNA)");
               if (anObject.contains(f.format)) {
                 String filename = "https://worldofspectrum.net" + f.path;
                 if (f.path.startsWith("/zxdb"))
@@ -453,14 +454,17 @@ class GameBrowserInternalFrame extends JInternalFrame {
   }
 
   private String getString(List<String> screenshots, int x) {
-    return screenshots.size() > x ? screenshots.get(x) : "https://i.sstatic.net/wAz1X.gif";
+    if (x == -1)
+      return "https://i.sstatic.net/wAz1X.gif";
+    else
+      return screenshots.size() > x ? screenshots.get(x) : getString(screenshots, x - 1);
   }
 
   private GameData getGameData() {
     String text = "https://worldofspectrum.net/pub/sinclair/screens/in-game/e/EveryonesAWally.gif";
     ImageIcon img1 = getImageIcon(text);
 //      ImageIcon img1 = createPlaceholderImage(256, 192, Color.LIGHT_GRAY, text);
-    String text1 = "https://worldofspectrum.net/pub/sinclair/screens/in-game/e/EveryonesAWally.gif";
+//    String text1 = "https://worldofspectrum.net/pub/sinclair/screens/in-game/e/EveryonesAWally.gif";
 //      ImageIcon img2 = createPlaceholderImage(256, 192, Color.GRAY, text1);
 //    ImageIcon img2 = new ImageIcon(url);
     GameData gameData = new GameData(img1, img1);

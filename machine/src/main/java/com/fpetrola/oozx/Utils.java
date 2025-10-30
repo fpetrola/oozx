@@ -44,6 +44,10 @@ public class Utils {
 
   }
 
+  public static int readFile(String filename, File file) {
+    return 0;
+  }
+
   public enum AuxiliaryType {ROM}
 
   public static class File {

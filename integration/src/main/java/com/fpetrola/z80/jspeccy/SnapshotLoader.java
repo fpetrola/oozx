@@ -36,8 +36,9 @@ public class SnapshotLoader {
     try {
       File file = new File(fileName);
 
-      SnapshotFile snap = new SnapshotZ80();
-      SpectrumState snapState = snap.load(file);
+      SnapshotFile snapshot = SnapshotFactory.getSnapshot(file);
+
+      SpectrumState snapState = snapshot.load(file);
 
       state.clock.setTStates(snapState.getTstates());
 

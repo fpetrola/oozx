@@ -18,10 +18,9 @@
 
 package com.fpetrola.oozx.fuse;
 
-import com.sun.jna.Library;
-import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.PointerType;
+import com.sun.jna.ptr.IntByReference;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,37 +31,9 @@ public class Z80Loader {
   public static class libspectrum_snap extends PointerType {
   }
 
-  public interface LibSpectrum extends Library {
-    LibSpectrum INSTANCE = Native.load("spectrum", LibSpectrum.class);
-
-    int libspectrum_init();
-
-    void libspectrum_end();
-
-    libspectrum_snap libspectrum_snap_alloc();
-
-    int libspectrum_snap_free(libspectrum_snap snap);
-
-    int libspectrum_snap_read(libspectrum_snap snap,
-                              byte[] buffer,
-                              NativeLong length,
-                              int type,
-                              String filename);
-
-    // Getters de registros
-    short libspectrum_snap_pc(libspectrum_snap snap);
-
-    short libspectrum_snap_sp(libspectrum_snap snap);
-
-    byte libspectrum_snap_a(libspectrum_snap snap);
-
-    byte libspectrum_snap_f(libspectrum_snap snap);
-
-    int libspectrum_snap_tstates(libspectrum_snap snap);
-
+  public static class libspectrum_tape extends PointerType {
   }
 
-  public static final int LIBSPECTRUM_ID_SNAPSHOT_Z80 = 3;
 
   public static void main(String[] args) throws IOException {
 
@@ -93,11 +64,13 @@ public class Z80Loader {
         throw new RuntimeException("Error en libspectrum_init");
       }
 
+//      lib.libspectrum_tape_position(new IntByReference(1), new libspectrum_tape());
+//      libspectrum_tape libspectrumTape = lib.libspectrum_tape_alloc();
       libspectrum_snap snap = lib.libspectrum_snap_alloc();
 
       int err = lib.libspectrum_snap_read(snap, data,
           new NativeLong(data.length),
-          LIBSPECTRUM_ID_SNAPSHOT_Z80,
+          LibSpectrum.LIBSPECTRUM_ID_SNAPSHOT_Z80,
           filePath);
       if (err != 0) {
         throw new RuntimeException("Error cargando snapshot: " + err);

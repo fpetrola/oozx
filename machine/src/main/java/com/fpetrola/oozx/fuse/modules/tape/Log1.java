@@ -16,17 +16,24 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.modules.tape;
 
-public class Tape {
-  public static boolean microphone
-      ;
+import java.io.File;
+import java.io.FileNotFoundException;
 
-  public static int canAutoload() {
-    return 0;
+public class Log1 {
+  public void info(String format) {
+
   }
 
-  public static boolean isPlaying() {
-    return false;
+  public void error(String s, Object... fileName) {
+  }
+
+  public void warn(String s) {
+
+  }
+
+  public void trace(String s, int timeout, int res) {
+
   }
 }
