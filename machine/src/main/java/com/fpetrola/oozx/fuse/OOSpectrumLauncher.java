@@ -43,7 +43,7 @@ public class OOSpectrumLauncher {
 
   public void init() {
     OOSpectrumConnector.noTest = true;
-//    LafManager.install(new SolarizedLightTheme());
+    LafManager.install(new SolarizedLightTheme());
 
     ZXSpectrumDesktopApp zxSpectrumDesktopApp = new ZXSpectrumDesktopApp((filename) -> {
 //      extracted();

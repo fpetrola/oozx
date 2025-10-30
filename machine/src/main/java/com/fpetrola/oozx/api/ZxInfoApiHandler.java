@@ -18,7 +18,7 @@ public class ZxInfoApiHandler {
     Client client = ClientBuilder.newClient();
     ResteasyWebTarget target = (ResteasyWebTarget) client.target(BASE_URL);
     ZxInfoClient zxClient = target.proxy(ZxInfoClient.class);
-    SearchResponse response = zxClient.searchGames(everyoneWally, 50, 0);
+    SearchResponse response = zxClient.searchGames(everyoneWally, 150, 0);
 
 //    for (Hit hit : response.hits.hits) {
 //      GameEntry game = hit._source;

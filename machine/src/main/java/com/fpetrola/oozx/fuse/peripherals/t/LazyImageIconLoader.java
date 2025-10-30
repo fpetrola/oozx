@@ -20,11 +20,13 @@ package com.fpetrola.oozx.fuse.peripherals.t;
 
 import javax.swing.*;
 import java.awt.Image;
+import java.awt.event.MouseAdapter;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 public class LazyImageIconLoader extends SwingWorker<ImageIcon, Void> {
   private JLabel targetLabel;
+  private MouseAdapter mouseAdapter;
   private URL imageUrl;
 
   public LazyImageIconLoader(JLabel label, URL url) {
@@ -35,8 +37,9 @@ public class LazyImageIconLoader extends SwingWorker<ImageIcon, Void> {
     targetLabel.setText("Loading image...");
   }
 
-  public LazyImageIconLoader(JLabel label, String url) {
+  public LazyImageIconLoader(JLabel label, String url, MouseAdapter mouseAdapter) {
     this.targetLabel = label;
+    this.mouseAdapter = mouseAdapter;
     try {
       this.imageUrl = new URL(url);
     } catch (MalformedURLException e) {
@@ -49,6 +52,12 @@ public class LazyImageIconLoader extends SwingWorker<ImageIcon, Void> {
   protected ImageIcon doInBackground() throws Exception {
     // Load the image in a background thread
     Image image = new ImageIcon(imageUrl).getImage();
+    int width = image.getWidth(null);
+    int height = image.getHeight(null);
+    if (width > 0 && height > 0) {
+      float scale = 1.5f;
+      image = image.getScaledInstance((int) (width / scale), (int) (height / scale), Image.SCALE_SMOOTH);
+    }
     return new ImageIcon(image);
   }
 
@@ -56,6 +65,8 @@ public class LazyImageIconLoader extends SwingWorker<ImageIcon, Void> {
   protected void done() {
     try {
       ImageIcon loadedIcon = get(); // Get the result from doInBackground
+      targetLabel.addMouseListener(mouseAdapter);
+
       targetLabel.setIcon(loadedIcon);
       targetLabel.setText(null); // Clear loading text
     } catch (Exception e) {

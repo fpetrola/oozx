@@ -430,7 +430,8 @@ class GameBrowserInternalFrame extends JInternalFrame {
           s.files.forEach(f -> {
             if (f.format != null) {
               System.out.println(f.format);
-              if (f.format.equals("Snapshot (Z80)")) {
+              List<String> anObject = List.of("Snapshot (Z80)", "Tape (TAP)", "Perfect tape (TZX)");
+              if (anObject.contains(f.format)) {
                 String filename = "https://worldofspectrum.net" + f.path;
                 if (f.path.startsWith("/zxdb"))
                   filename = "https://zxinfo.dk/media" + f.path;
@@ -501,13 +502,24 @@ class GameBrowserInternalFrame extends JInternalFrame {
         BorderFactory.createLineBorder(Color.LIGHT_GRAY),
         BorderFactory.createEmptyBorder(5, 5, 5, 5)
     ));
+    MouseAdapter l = new MouseAdapter() {
+      public void mouseEntered(MouseEvent e) {
+        Color color = UIManager.getColor("List.selectionBackground");
+        row.setBackground(color);
+      }
+
+      public void mouseExited(MouseEvent e) {
+        row.setBackground(Color.WHITE);
+      }
+    };
+    row.addMouseListener(l);
     row.setBackground(Color.WHITE);
 
     JLabel imgLabel1 = new JLabel();
-    loadLazyImage(imgLabel1, result.screenshot1);
+    loadLazyImage(imgLabel1, result.screenshot1, l);
     imgLabel1.setAlignmentY(Component.TOP_ALIGNMENT);
     JLabel imgLabel2 = new JLabel();
-    loadLazyImage(imgLabel2, result.screenshot2);
+    loadLazyImage(imgLabel2, result.screenshot2, l);
     imgLabel2.setAlignmentY(Component.TOP_ALIGNMENT);
 
     // Context menu
@@ -560,8 +572,8 @@ class GameBrowserInternalFrame extends JInternalFrame {
     return row;
   }
 
-  private void loadLazyImage(JLabel imgLabel1, String screenshot1) {
-    LazyImageIconLoader lazyImageIconLoader = new LazyImageIconLoader(imgLabel1, screenshot1);
+  private void loadLazyImage(JLabel imgLabel1, String screenshot1, MouseAdapter mouseAdapter) {
+    LazyImageIconLoader lazyImageIconLoader = new LazyImageIconLoader(imgLabel1, screenshot1, mouseAdapter);
     lazyImageIconLoader.execute();
   }
 
