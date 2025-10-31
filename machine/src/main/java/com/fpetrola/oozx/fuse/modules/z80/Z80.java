@@ -268,7 +268,7 @@ public class Z80 implements ZxModule {
   }
 
   private void z80_nmi(long l, int i, Object o) {
-
+    System.out.println("Z80 NMI");
   }
 
   private void z80_interrupt_event_fn(long l, int i, Object o) {

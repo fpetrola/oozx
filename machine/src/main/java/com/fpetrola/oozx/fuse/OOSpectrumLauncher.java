@@ -21,7 +21,6 @@ package com.fpetrola.oozx.fuse;
 import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.fuse.peripherals.t.DownloadAndUnzip;
 import com.fpetrola.oozx.fuse.peripherals.t.ZXSpectrumDesktopApp;
-import com.fpetrola.z80.helpers.Helper;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.SolarizedLightTheme;
 
@@ -46,26 +45,29 @@ public class OOSpectrumLauncher {
     LafManager.install(new SolarizedLightTheme());
 
     ZXSpectrumDesktopApp zxSpectrumDesktopApp = new ZXSpectrumDesktopApp((filename) -> {
-//      extracted();
-
       String string = null;
-      if (!filename.isBlank()) {
-        Path unzip = new DownloadAndUnzip().unzip(filename);
-//      String snapshotFile = Helper.getSnapshotFile(filename);
-        string = unzip.toAbsolutePath().toString();
-      }
+      string = extracted();
+
+//      if (!filename.isBlank()) {
+//        Path unzip = new DownloadAndUnzip().unzip(filename);
+////      String snapshotFile = Helper.getSnapshotFile(filename);
+//        string = unzip.toAbsolutePath().toString();
+//      }
       Fuse fuse = createFuse(string);
       return fuse.z80.mockCore;
     });
     zxSpectrumDesktopApp.setVisible(true);
   }
 
-  private void extracted() {
-    String[] games = {"emlyn.z80", "dynamitedan.z80", "equinox.z80", "tge.z80", "wally.z80", "jsw.z80"};
+  private String extracted() {
+//    String[] games = {"emlyn.z80", "dynamitedan.z80", "equinox.z80", "tge.z80", "wally.z80", "jsw.z80"};
+//    String[] games = {"rickdangerous.z80"};
+    String[] games = {"emlyn.z80"};
 
     Random random = new Random();
     int index = random.nextInt(games.length);
     String s = "/home/fernando/detodo/desarrollo/m/zx/roms/" + games[index];
+    return s;
   }
 
   private Fuse createFuse(String s) {

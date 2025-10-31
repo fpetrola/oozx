@@ -70,7 +70,13 @@ public class MultiOpcodeFetcher<T extends WordNumber> {
   public Instruction<T> fetchInstruction(T address) {
     int rValue = registerR.read().intValue();
     memoryForOpcode.reset();
-    Instruction<T> fetchedInstruction = opcodesTables[state.isHalted() ? 0x76 : memory.read(address, 1).intValue()];
+    int i;
+//    if (state.isHalted())
+//      i = 0x76;
+//    else
+      i = memory.read(address, 1).intValue();
+
+    Instruction<T> fetchedInstruction = opcodesTables[i];
     while (fetchedInstruction instanceof DefaultFetchNextOpcodeInstruction<T> fetchNextOpcodeInstruction) {
       fetchNextOpcodeInstruction.update();
       fetchedInstruction = fetchNextOpcodeInstruction.findNextOpcode2();

@@ -36,7 +36,8 @@ public class Halt<T extends WordNumber> extends AbstractInstruction<T> implement
   public int execute() {
     if (!state.isHalted()) {
       state.setHalted(true);
-      setNextPC(WordNumber.createValue(0));
+//      state.getPc().decrement();
+      setNextPC(state.getPc().read());
     }
 
     return 4;

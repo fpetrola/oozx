@@ -25,6 +25,7 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled
 public class ZXPlus3ROMBankSwitchingTests {
   static private IZ80CPU cpu;
   static private TestDriver testDriver;

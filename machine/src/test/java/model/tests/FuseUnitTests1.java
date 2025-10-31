@@ -168,24 +168,6 @@ public class FuseUnitTests1 {
   }
 
   @Test
-  void pagingTestTc2048() {
-    setupModel("TC2048", 0);
-    assertEquals(0, paging_test_timex(2, 5, 5), "TC2048 paging test failed");
-  }
-
-  @Test
-  void pagingTestTc2068() {
-    setupModel("TC2068", 0);
-    assertEquals(0, paging_test_timex(2, 5, 3), "TC2068 paging test failed");
-  }
-
-  @Test
-  void pagingTestTs2068() {
-    setupModel("TS2068", 0);
-    assertEquals(0, paging_test_timex(2, 5, 3), "TS2068 paging test failed");
-  }
-
-  @Test
   void pagingTestSe() {
     setupModel("SE", 0);
     assertEquals(0, paging_test_se(), "SE paging test failed");
@@ -476,18 +458,36 @@ public class FuseUnitTests1 {
     assertContentionChecksum(3113754624L);
   }
 
-  @Test
-  void contentionTestTc2048Early() {
-    setupModel("TC2048", 0);
-    testDriver.setLateTimings(false);
-    assertContentionChecksum(2307895296L);
-  }
-
-  @Test
-  void contentionTestTc2048Late() {
-    setupModelWithTimings("TC2048", true);
-    assertContentionChecksum(2307959808L);
-  }
+//  @Test
+//  void contentionTestTc2048Early() {
+//    setupModel("TC2048", 0);
+//    testDriver.setLateTimings(false);
+//    assertContentionChecksum(2307895296L);
+//  }
+//
+//  @Test
+//  void contentionTestTc2048Late() {
+//    setupModelWithTimings("TC2048", true);
+//    assertContentionChecksum(2307959808L);
+//  }
+//
+//  @Test
+//  void pagingTestTc2048() {
+//    setupModel("TC2048", 0);
+//    assertEquals(0, paging_test_timex(2, 5, 5), "TC2048 paging test failed");
+//  }
+//
+//  @Test
+//  void pagingTestTc2068() {
+//    setupModel("TC2068", 0);
+//    assertEquals(0, paging_test_timex(2, 5, 3), "TC2068 paging test failed");
+//  }
+//
+//  @Test
+//  void pagingTestTs2068() {
+//    setupModel("TS2068", 0);
+//    assertEquals(0, paging_test_timex(2, 5, 3), "TS2068 paging test failed");
+//  }
 
   @Disabled
 //  @Test

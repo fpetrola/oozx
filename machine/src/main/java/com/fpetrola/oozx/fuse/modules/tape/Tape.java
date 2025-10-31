@@ -79,7 +79,7 @@ public class Tape implements machine.ClockTimeoutListener {
     private byte byteTmp;
     private int cswPulses;
     private final SpectrumZ80Clock clock;
-    private Log1 log;
+    private Log1 log= new Log1();
 
     public boolean isPlaying() {
         return isTapePlaying();

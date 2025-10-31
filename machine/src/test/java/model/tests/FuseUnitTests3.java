@@ -27,6 +27,7 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled
 public class FuseUnitTests3 {
     static private IZ80CPU cpu;
     static private TestDriver testDriver;

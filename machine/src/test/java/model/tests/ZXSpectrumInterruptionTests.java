@@ -66,8 +66,8 @@ public class ZXSpectrumInterruptionTests {
 //    assertTrue(cpu.getInterruptEnable(), "Interrupts enabled");
     assertEquals(0x0038, cpu.getPC(), "PC jumps to IM 1 ISR");
     assertEquals(0x5FFE, cpu.getSP(), "SP after stack push");
-    assertEquals((byte) 0xA0, bus.readMemory(0x5FFF), "High byte of return address");
-    assertEquals((byte) 0x07, bus.readMemory(0x5FFE), "Low byte of return address");
+    assertEquals(0xA0, bus.readMemory(0x5FFF), "High byte of return address");
+    assertEquals(0x07, bus.readMemory(0x5FFE), "Low byte of return address");
     assertTStatesHistory("""
         [TStateUpdate{key=69886, value=4, description='readbyte'}
         , TStateUpdate{key=69890, value=3, description='readbyte'}
@@ -157,8 +157,8 @@ public class ZXSpectrumInterruptionTests {
         ]""", testDriver);
     assertEquals(0x2040, cpu.getPC(), "PC jumps to ISR");
     assertEquals(0x5FFE, cpu.getSP(), "SP after stack push");
-    assertEquals((byte) 0xA0, bus.readMemory(0x5FFF), "High byte of return address");
-    assertEquals((byte) 0x15, bus.readMemory(0x5FFE), "Low byte of return address");
+    assertEquals(0xA0, bus.readMemory(0x5FFF), "High byte of return address");
+    assertEquals(0x15, bus.readMemory(0x5FFE), "Low byte of return address");
     assertEquals(55, cpu.getTStates(), "T-states for IM 2 interrupt");
   }
 }
