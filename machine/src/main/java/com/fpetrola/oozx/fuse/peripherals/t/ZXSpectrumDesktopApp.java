@@ -430,12 +430,13 @@ class GameBrowserInternalFrame extends JInternalFrame {
           s.files.forEach(f -> {
             if (f.format != null) {
               System.out.println(f.format);
-              List<String> anObject = List.of("Snapshot (Z80)", "Snapshot (SNA)", "Tape (TAP)", "Perfect tape (TZX)");
+//              List<String> anObject = List.of("Snapshot (Z80)", "Snapshot (SNA)", "Tape (TAP)", "Perfect tape (TZX)");
+              List<String> anObject = List.of("Snapshot (Z80)", "Snapshot (SNA)", "Perfect tape (TZX)");
 //              List<String> anObject = List.of("Snapshot (Z80)", "Snapshot (SNA)");
               if (anObject.contains(f.format)) {
                 String filename = "https://worldofspectrum.net" + f.path;
                 if (f.path.startsWith("/zxdb"))
-                  filename = "https://zxinfo.dk/media" + f.path;
+                  filename = "https://spectrumcomputing.co.uk" + f.path;
                 files.add(filename);
               }
             }

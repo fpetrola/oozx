@@ -63,8 +63,8 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
     if (timeout > 0 && tStatesToAdd >= 0) {
       timeout -= tStatesToAdd;
 
-      if (timeout > 60000)
-        System.out.println("max1");
+//      if (timeout > 60000)
+//        System.out.println("max1");
       if (timeout <= 0) {
         int res = timeout;
         clockListeners.forAll(ClockTimeoutListener::clockTimeout);

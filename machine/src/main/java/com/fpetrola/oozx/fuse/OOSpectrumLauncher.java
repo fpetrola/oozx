@@ -19,15 +19,21 @@
 package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.Fuse;
+import com.fpetrola.oozx.fuse.modules.tape.Log1;
+import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.peripherals.t.DownloadAndUnzip;
 import com.fpetrola.oozx.fuse.peripherals.t.ZXSpectrumDesktopApp;
+import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.SolarizedLightTheme;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
 
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -70,11 +76,67 @@ public class OOSpectrumLauncher {
     return s;
   }
 
-  private Fuse createFuse(String s) {
+  // Spectrum system variables
+  private static final int LAST_K = 23560;
+  private static final int FLAGS = 23611;
+
+  private void doAutoLoadTape(Memory<WordNumber> memory, float coe, Runnable runnable) {
+    boolean autoLoadTape = false;
+    Runnable task = () -> {
+      try {
+        wait1(1100, coe);
+        long endFrame = 100;
+//        while (clock.getFrames() < endFrame) {
+//          TimeUnit.MILLISECONDS.sleep(20);
+//        }
+
+        if (endFrame == 100) {
+          memory.write(createValue(LAST_K), createValue(0xEF)); // LOAD keyword
+          memory.write(createValue(FLAGS), (memory.read(createValue(FLAGS), 0).or(0x20))); // LOAD keyword
+          wait1(30, coe);
+          memory.write(createValue(LAST_K), createValue(0x22)); // LOAD keyword
+          memory.write(createValue(FLAGS), (memory.read(createValue(FLAGS), 0).or(0x20))); // LOAD keyword
+          wait1(30, coe);
+          memory.write(createValue(LAST_K), createValue(0x22)); // LOAD keyword
+          memory.write(createValue(FLAGS), (memory.read(createValue(FLAGS), 0).or(0x20))); // LOAD keyword
+          wait1(30, coe);
+        }
+        memory.write(createValue(LAST_K), createValue(0x0D)); // LOAD keyword
+        memory.write(createValue(FLAGS), (memory.read(createValue(FLAGS), 0).or(0x20))); // LOAD keyword
+        wait1(3000, coe);
+
+        runnable.run();
+      } catch (final InterruptedException ex) {
+        new Log1().error("", ex);
+      }
+    };
+
+    new Thread(task).start();
+  }
+
+  private void wait1(int i, float coe) throws InterruptedException {
+    Thread.sleep((long) (i * coe));
+  }
+
+  private Fuse createFuse(String filename) {
     Fuse fuse = new Fuse();
     fuse.init();
-    if (s != null)
-      fuse.z80.loadSnap(s);
+
+    boolean isTape;
+    if (filename != null) {
+      isTape = filename.toLowerCase().contains("tzx") || filename.toLowerCase().contains("tap");
+      if (isTape) {
+        Tape tape = fuse.tape;
+        tape.stop();
+        tape.eject();
+        doAutoLoadTape(fuse.z80.ooz80.getState().getMemory(), 1f, ()->{
+          tape.insert(new File(filename));
+          tape.play(false);
+        });
+
+      } else
+        fuse.z80.loadSnap(filename);
+    }
 
     fuse.z80.bridgeCommand = (a, b) -> null;
 

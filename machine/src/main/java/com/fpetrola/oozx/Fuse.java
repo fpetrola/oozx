@@ -44,7 +44,7 @@ public class Fuse {
   public Display display = new Display(memory, spectrumMachineSupplier, zxClock, memory, uiDisplay);
   public Keyboard keyboard = new Keyboard();
   public IPeriph periph = new Periph(spectrumMachineSupplier, zxClock, settings);
-  private Tape tape= new Tape(new TapeSettingsType(), zxClock);
+  public Tape tape= new Tape(new TapeSettingsType(), zxClock);
   public Ula ula = new Ula(memory, display, spectrumMachineSupplier, keyboard, zxClock, periph, module, settings, tape);
   public EventManager eventManager = new EventManager(spectrumMachineSupplier, zxClock);
   public IPeriph ulaPeriph = new UlaPeriph(ula, zxClock, periph);
