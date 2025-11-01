@@ -61,6 +61,10 @@ public class TraceableWordNumber implements WordNumber {
     return execute(new PlusOperation(this, i));
   }
 
+  public <T extends WordNumber> T minus(T i) {
+    return (T) createInstance((value - i.intValue()));
+  }
+
   @Override
   public <T extends WordNumber> T minus1() {
     return execute(new MinusOperation(this, 1));
@@ -74,6 +78,18 @@ public class TraceableWordNumber implements WordNumber {
   @Override
   public <T extends WordNumber> T right(int i) {
     return execute(new RightOperation(this, i));
+  }
+
+  @Override
+  public <T extends WordNumber> T rightAndAssign(int i) {
+    value >>>= i;
+    return (T) this;
+  }
+
+  @Override
+  public <T extends WordNumber> T leftAndAssign(int i) {
+    value <<= i;
+    return (T) this;
   }
 
   @Override
@@ -150,6 +166,16 @@ public class TraceableWordNumber implements WordNumber {
   @Override
   public WordNumber aluOperation(WordNumber value, String name) {
     return execute(createAluOperation(value, name));
+  }
+
+  @Override
+  public void increment() {
+    value++;
+  }
+
+  @Override
+  public void decrement() {
+    value--;
   }
 
   @Override

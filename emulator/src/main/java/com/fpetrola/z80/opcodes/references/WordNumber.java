@@ -35,11 +35,16 @@ public interface WordNumber extends Comparable {
     return plus(1);
   }
 
+  <T extends WordNumber> T minus(T i);
+
   <T extends WordNumber> T minus1();
 
   <T extends WordNumber> T left(int i);
 
   <T extends WordNumber> T right(int i);
+
+  <T extends WordNumber> T rightAndAssign(int i);
+  <T extends WordNumber> T leftAndAssign(int i);
 
   <T extends WordNumber> T or(int i);
 
@@ -68,4 +73,7 @@ public interface WordNumber extends Comparable {
   default <T extends WordNumber> T createInstance(int value) {
     return WordNumber.createValue(value);
   }
+
+  void increment();
+  void decrement();
 }

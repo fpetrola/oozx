@@ -20,9 +20,9 @@ package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.Machine;
-import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
+import com.fpetrola.oozx.fuse.modules.BeanPosition;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.modules.z80.Z80;
@@ -64,15 +64,15 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public int retro_get_beam_x() {
-    return getBeam()[0];
+    return getBeam().x;
   }
 
-  private int[] getBeam() {
+  private BeanPosition getBeam() {
     return display.getBeamPosition();
   }
 
   public int retro_get_beam_y() {
-    return getBeam()[1];
+    return getBeam().y;
   }
 
   public void retro_init() {

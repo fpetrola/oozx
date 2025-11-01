@@ -21,7 +21,6 @@ package fuse.tstates;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.impl.Ld;
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.JumpInstruction;
 import com.fpetrola.z80.instructions.types.TargetInstruction;
@@ -30,7 +29,6 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.phases.Phase;
 
-import java.util.List;
 import java.util.Optional;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
@@ -146,7 +144,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   protected void switchByReadCount(Runnable... runnables) {
     int i = readCount - 1;
     if (i >= 0 && runnables.length > i)
-      List.of(runnables).get(i).run();
+      runnables[i].run();
   }
 
   protected Optional<Boolean> writeCountIsZero() {

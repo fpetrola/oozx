@@ -21,7 +21,6 @@ package com.fpetrola.z80.registers;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class Plain16BitRegister<T extends WordNumber> implements Register<T> {
-
   protected T data;
   private final String name;
 
@@ -38,7 +37,7 @@ public class Plain16BitRegister<T extends WordNumber> implements Register<T> {
   }
 
   public void write(T value) {
-      this.data = value;
+    this.data = value;
   }
 
   public String toString() {
@@ -46,11 +45,11 @@ public class Plain16BitRegister<T extends WordNumber> implements Register<T> {
   }
 
   public void increment() {
-    data = data.plus(1);
+    data.increment();
   }
 
   public void decrement() {
-    data = data.minus1();
+    data.decrement();
   }
 
   public int getLength() {

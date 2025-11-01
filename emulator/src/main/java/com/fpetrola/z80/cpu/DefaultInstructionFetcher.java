@@ -27,6 +27,7 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.PhaseInterceptor;
 import fuse.tstates.PhaseProcessor;
@@ -46,6 +47,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   private boolean prefetch = false;
   protected DefaultRegisterBankFactory.RRegister<T> registerR;
   public PhaseProcessor<?> tPhaseProcessor;
+  private Register<T> pc;
 
   public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
     this.state = aState;
@@ -53,6 +55,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     multiOpcodeFetcher = new MultiOpcodeFetcher<T>(instructionFactory, state, opcodeConditions, clone);
     pcValue = state.getPc().read();
     this.registerR = (DefaultRegisterBankFactory.RRegister<T>) state.getRegisterR();
+    this.pc = state.getPc();
     tPhaseProcessor = new PhaseProcessor<>(this, state);
   }
 
@@ -69,7 +72,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     fetchListeners.forAll(FetchListener::beforeFetch);
     int rValue = registerR.read().intValue();
     registerR.increment();
-    pcValue = state.getPc().read();
+    pcValue = pc.read();
 
     if (prefetchPC != pcValue.intValue()) {
       currentInstruction = fetchInstruction(pcValue);
@@ -113,8 +116,13 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   protected void setupPhaseInterceptor(AbstractInstruction<T> fetchedInstruction) {
     PhaseInterceptor phase1 = fetchedInstruction.getPhaseInterceptor();
-    tPhaseProcessor.setPhase(phase1);
-    fetchedInstruction.accept(tPhaseProcessor);
+    if (!phase1.isReady()) {
+      tPhaseProcessor.setPhase(phase1);
+      fetchedInstruction.accept(tPhaseProcessor);
+      phase1.ready();
+    } else {
+      int a = 1;
+    }
   }
 
 

@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.opcodes.references;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class IntegerWordNumber implements WordNumber {
@@ -37,6 +36,10 @@ public class IntegerWordNumber implements WordNumber {
     return new IntegerWordNumber(value & 0xFFFF);
   }
 
+  public <T extends WordNumber> T minus(T i) {
+    return (T) createInstance((value - i.intValue()));
+  }
+
   @Override
   public <T extends WordNumber> T minus1() {
     return (T) createInstance((value - 1));
@@ -50,6 +53,18 @@ public class IntegerWordNumber implements WordNumber {
   @Override
   public <T extends WordNumber> T right(int i) {
     return (T) createInstance((value >>> i));
+  }
+
+  @Override
+  public <T extends WordNumber> T rightAndAssign(int i) {
+    value >>>= i;
+    return (T) this;
+  }
+
+  @Override
+  public <T extends WordNumber> T leftAndAssign(int i) {
+    value <<= i;
+    return (T) this;
   }
 
   @Override
@@ -115,6 +130,16 @@ public class IntegerWordNumber implements WordNumber {
   @Override
   public <T extends WordNumber> List<T> getFirstReadOperation() {
     return (List<T>) List.of(this);
+  }
+
+  @Override
+  public void increment() {
+    value++;
+  }
+
+  @Override
+  public void decrement() {
+    value--;
   }
 
   public String toString() {

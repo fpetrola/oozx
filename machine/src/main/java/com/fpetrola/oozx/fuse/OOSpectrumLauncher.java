@@ -52,13 +52,14 @@ public class OOSpectrumLauncher {
 
     ZXSpectrumDesktopApp zxSpectrumDesktopApp = new ZXSpectrumDesktopApp((filename) -> {
       String string = null;
-      string = extracted();
 
-//      if (!filename.isBlank()) {
-//        Path unzip = new DownloadAndUnzip().unzip(filename);
-////      String snapshotFile = Helper.getSnapshotFile(filename);
-//        string = unzip.toAbsolutePath().toString();
-//      }
+      if (false) {
+        string = extracted();
+      } else if (!filename.isBlank()) {
+        Path unzip = new DownloadAndUnzip().unzip(filename);
+//      String snapshotFile = Helper.getSnapshotFile(filename);
+        string = unzip.toAbsolutePath().toString();
+      }
       Fuse fuse = createFuse(string);
       return fuse.z80.mockCore;
     });
@@ -129,7 +130,7 @@ public class OOSpectrumLauncher {
         Tape tape = fuse.tape;
         tape.stop();
         tape.eject();
-        doAutoLoadTape(fuse.z80.ooz80.getState().getMemory(), 1f, ()->{
+        doAutoLoadTape(fuse.z80.ooz80.getState().getMemory(), 1f, () -> {
           tape.insert(new File(filename));
           tape.play(false);
         });

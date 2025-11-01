@@ -20,6 +20,8 @@ package com.fpetrola.z80.registers;
 
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
+
 public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> implements RegisterPair<T> {
   protected final R high;
   protected final R low;
@@ -69,32 +71,28 @@ public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> 
   }
 
   public void increment() {
-    T plus = low.read().plus(1);
-    low.write(plus);
-    if (plus.intValue() < 0x100)
+    low.increment();
+    if (low.read().intValue() < 0x100)
       return;
-    low.write(WordNumber.createValue(0));
-    T plus1 = high.read().plus(1);
-    high.write(plus1);
-    if (plus1.intValue() < 0x100)
+    low.write(createValue(0));
+    high.read().increment();
+    if (high.read().intValue() < 0x100)
       return;
-    high.write(WordNumber.createValue(0));
+    high.write(createValue(0));
   }
 
   public void decrement() {
     T lowValue = low.read();
     if (lowValue.isNotZero()) {
-      T minus = lowValue.minus1();
-      low.write(minus);
+      lowValue.decrement();
     } else {
-      low.write(WordNumber.createValue(0xff));
+      low.write(createValue(0xff));
       T highValue = high.read();
       if (highValue.isNotZero()) {
-        T minus1 = highValue.minus1();
-        high.write(minus1);
+        highValue.decrement();
         return;
       }
-      high.write(WordNumber.createValue(0xff));
+      high.write(createValue(0xff));
     }
   }
 

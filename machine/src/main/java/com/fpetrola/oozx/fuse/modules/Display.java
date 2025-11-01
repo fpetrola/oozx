@@ -271,47 +271,47 @@ public class Display implements ZxModule {
     criticalRegionX = beamX;
   }
 
-  public int[] getBeamPosition() {
-    int[] beam = new int[2];
+  public BeanPosition getBeamPosition() {
+    BeanPosition beam = new BeanPosition();
     long tstates = z80Clock.getTStates();
     SpectrumMachine current = fuseMachineInfoSupplier.get();
     long[] lineTimes = current.getLineTimes();
 
     if (tstates < lineTimes[0]) {
-      beam[0] = beam[1] = -1;
+      beam.x = beam.y = -1;
       return beam;
     }
 
-    beam[1] = (int) ((tstates - lineTimes[0]) / current.getTimings().tstatesPerLine);
+    beam.y = (int) ((tstates - lineTimes[0]) / current.getTimings().tstatesPerLine);
 
-    if (beam[1] >= 0 && beam[1] <= SCREEN_HEIGHT) {
-      beam[0] = (int) ((tstates - lineTimes[beam[1]]) / 4);
+    if (beam.y >= 0 && beam.y <= SCREEN_HEIGHT) {
+      beam.x = (int) ((tstates - lineTimes[beam.y]) / 4);
     } else {
-      beam[0] = 0;
+      beam.x = 0;
     }
     return beam;
   }
 
   public void updateCritical(int x, int y) {
-    int[] beam = getBeamPosition();
-    int beamX = beam[0] - BORDER_WIDTH_COLS;
-    int beamY = beam[1] - BORDER_HEIGHT;
+    BeanPosition beam = getBeamPosition();
+    beam.x = beam.x - BORDER_WIDTH_COLS;
+    beam.y = beam.y - BORDER_HEIGHT;
 
-    if (beamY < 0) {
-      beamX = beamY = 0;
-    } else if (beamY >= HEIGHT) {
-      beamX = WIDTH_COLS;
-      beamY = HEIGHT - 1;
+    if (beam.y < 0) {
+      beam.x = beam.y = 0;
+    } else if (beam.y >= HEIGHT) {
+      beam.x = WIDTH_COLS;
+      beam.y = HEIGHT - 1;
     }
 
-    if (beamX < 0) {
-      beamX = 0;
-    } else if (beamX > WIDTH_COLS) {
-      beamX = WIDTH_COLS;
+    if (beam.x < 0) {
+      beam.x = 0;
+    } else if (beam.x > WIDTH_COLS) {
+      beam.x = WIDTH_COLS;
     }
 
-    if (y < beamY || (y == beamY && x < beamX)) {
-      copyCriticalRegion(beamX, beamY);
+    if (y < beam.y || (y == beam.y && x < beam.x)) {
+      copyCriticalRegion(beam.x, beam.y);
     }
   }
 
@@ -364,18 +364,17 @@ public class Display implements ZxModule {
   }
 
   private void pushBorderChange(int colour) {
-    int[] beam = getBeamPosition();
-    int beamX = beam[0], beamY = beam[1];
+    BeanPosition beam = getBeamPosition();
 
-    if (beamY >= SCREEN_HEIGHT) return;
+    if (beam.y >= SCREEN_HEIGHT) return;
 
-    if (beamX < 0) beamX = 0;
-    if (beamX > SCREEN_WIDTH_COLS) beamX = SCREEN_WIDTH_COLS;
-    if (beamY < 0) beamY = 0;
+    if (beam.x < 0) beam.x = 0;
+    if (beam.x > SCREEN_WIDTH_COLS) beam.x = SCREEN_WIDTH_COLS;
+    if (beam.y < 0) beam.y = 0;
 
     BorderChange change = allocChange();
-    change.x = beamX;
-    change.y = beamY;
+    change.x = beam.x;
+    change.y = beam.y;
     change.colour = colour;
   }
 

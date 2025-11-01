@@ -20,12 +20,12 @@ package fuse.tstates;
 
 import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.cpu.Z80Cpu;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.ConditionAlwaysTrue;
 import com.fpetrola.z80.opcodes.references.IndirectMemory16BitReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.phases.AfterExecutionPhaseVisitor;
 import fuse.tstates.phases.AfterMRPhaseVisitor;
@@ -34,6 +34,11 @@ import fuse.tstates.phases.BeforeExecutionPhaseVisitor;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> {
+
+  private Register<T> registerI = getRegister(I);
+  private Register<T> registerR = getRegister(R);
+  private Register<T> registerIR = getRegister(IR);
+
   public PhaseProcessor(InstructionFetcher<T> instructionFetcher, State<T> state) {
     super(instructionFetcher, state);
   }
@@ -68,14 +73,14 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   public void visitingLd(Ld<T> ld) {
     if (isLdSP(ld))
       phase.acceptBeforeExecution((e) -> addMc(2, IR, 0, null));
-    else if (ld.getTarget().equals(getRegister(I)) || ld.getTarget().equals(getRegister(R)) || ld instanceof LdAI<T> || ld instanceof LdAR<T>)
+    else if (ld.getTarget().equals(registerI) || ld.getTarget().equals(registerR) || ld instanceof LdAI<T> || ld instanceof LdAR<T>)
       phase.acceptBeforeExecution((e) -> addMc(1, IR, 0, null));
 
     if (isMemoryPlus(ld.getTarget()) && isMemory8BitReference(ld.getSource()))
       phase.acceptBeforeWrite((e) -> addMc(2, PC, 3, null));
 
     if (!isMemory8BitReference(ld.getSource()) && (isMemoryPlus(ld.getSource()) || isMemoryPlus(ld.getTarget())))
-      phase.acceptAfterMR((e) -> switchByReadCount(() -> addMultipleMc(5, 1, 0, valueOf(IR), null)));
+      phase.acceptAfterMR((e) -> switchByReadCount(() -> addMultipleMc(5, 1, 0, registerIR.read().intValue(), null)));
   }
 
   public void visitingJR(JR jr) {

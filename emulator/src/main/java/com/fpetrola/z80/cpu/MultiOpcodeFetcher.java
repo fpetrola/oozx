@@ -68,22 +68,16 @@ public class MultiOpcodeFetcher<T extends WordNumber> {
   }
 
   public Instruction<T> fetchInstruction(T address) {
-    int rValue = registerR.read().intValue();
+//    T rValue = registerR.read();
     memoryForOpcode.reset();
-    int i;
-//    if (state.isHalted())
-//      i = 0x76;
-//    else
-      i = memory.read(address, 1).intValue();
 
-    Instruction<T> fetchedInstruction = opcodesTables[i];
+    Instruction<T> fetchedInstruction = opcodesTables[memory.read(address, 1).intValue()];
     while (fetchedInstruction instanceof DefaultFetchNextOpcodeInstruction<T> fetchNextOpcodeInstruction) {
       fetchNextOpcodeInstruction.update();
       fetchedInstruction = fetchNextOpcodeInstruction.findNextOpcode2();
     }
-    int rdelta = registerR.read().intValue() - rValue;
-    AbstractInstruction<?> fetchedInstruction1 = (AbstractInstruction<?>) fetchedInstruction;
-    fetchedInstruction1.setRDelta(rdelta);
+//    T rdelta = registerR.read().minus(rValue);
+//    ((AbstractInstruction<?>) fetchedInstruction).setRDelta(rdelta.intValue());
 
     if (clone) {
       fetchedInstruction = new InstructionCloner<T, T>(instructionFactory).clone(fetchedInstruction);

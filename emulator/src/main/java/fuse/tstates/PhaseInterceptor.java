@@ -30,6 +30,7 @@ public class PhaseInterceptor implements Phase {
   };
   private AfterExecutionPhaseVisitor afterExecutionPhaseVisitors = (e) -> {
   };
+  private boolean ready= false;
 
   public PhaseInterceptor() {
     this.visitor = getVisitor();
@@ -76,5 +77,13 @@ public class PhaseInterceptor implements Phase {
 
   public void execute(Phase phase) {
     phase.accept(visitor);
+  }
+
+  public void ready() {
+    ready= true;
+  }
+
+  public boolean isReady() {
+    return ready;
   }
 }
