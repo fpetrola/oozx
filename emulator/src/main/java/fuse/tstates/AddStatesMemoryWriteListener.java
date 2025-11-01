@@ -24,6 +24,7 @@ import fuse.tstates.phases.BeforeWrite;
 
 public class AddStatesMemoryWriteListener<T extends WordNumber> implements MemoryWriteListener<T> {
   protected final PhaseProcessor<T> phaseProcessor;
+  private BeforeWrite phase = new BeforeWrite();
 
   public AddStatesMemoryWriteListener(PhaseProcessor<T> phaseProcessor1) {
     phaseProcessor = phaseProcessor1;
@@ -32,7 +33,7 @@ public class AddStatesMemoryWriteListener<T extends WordNumber> implements Memor
   public void writtingMemoryAt(T address, T value) {
 //    System.out.printf("writtingMemoryAt: address= %s - value= %s %n", address, value);
     if (!phaseProcessor.getState().isIntLine()) {
-      phaseProcessor.processPhase(new BeforeWrite());
+      phaseProcessor.processPhase(phase);
     }
     doWrite(address, value);
     phaseProcessor.writeCount++;

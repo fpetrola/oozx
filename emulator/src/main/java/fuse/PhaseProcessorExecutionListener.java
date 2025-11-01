@@ -27,16 +27,18 @@ import fuse.tstates.phases.BeforeExecution;
 
 public class PhaseProcessorExecutionListener<T extends WordNumber> implements ExecutionListener<T> {
   private final PhaseProcessor<T> phaseProcessor;
+  private AfterExecution afterExecution = new AfterExecution();
+  private BeforeExecution beforeExecution = new BeforeExecution();
 
   public PhaseProcessorExecutionListener(PhaseProcessor<T> phaseProcessor) {
     this.phaseProcessor = phaseProcessor;
   }
 
   public void beforeExecution(Instruction<T> instruction) {
-    phaseProcessor.processPhase(new BeforeExecution());
+    phaseProcessor.processPhase(beforeExecution);
   }
 
   public void afterExecution(Instruction<T> instruction) {
-    phaseProcessor.processPhase(new AfterExecution());
+    phaseProcessor.processPhase(afterExecution);
   }
 }

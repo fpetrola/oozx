@@ -24,6 +24,7 @@ import fuse.tstates.phases.AfterMR;
 
 public class AddStatesMemoryReadListener<T extends WordNumber> implements MemoryReadListener<T> {
   private final PhaseProcessor<T> phaseProcessor;
+  private AfterMR afterMR = new AfterMR();
 
   public AddStatesMemoryReadListener(PhaseProcessor<T> phaseProcessor) {
     this.phaseProcessor = phaseProcessor;
@@ -38,7 +39,7 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
     phaseProcessor.addMr(address, value);
     phaseProcessor.setAddress(address);
     phaseProcessor.readCount++;
-    phaseProcessor.processPhase(new AfterMR());
+    phaseProcessor.processPhase(afterMR);
   }
 
   protected void doRead(T address, T value, int fetching) {
