@@ -50,7 +50,7 @@ public class CPUExecutionContext<T extends WordNumber> extends DefaultZ80Instruc
     this.z80.reset();
     this.z80.getInstructionFetcher().reset();
     spy.doContinue();
-    ot = new OpcodeTargets(getState(), new MemoryForOpcodes(getState().getMemory()));
+    ot = new OpcodeTargets(getState(), new MemoryForOpcodes(getState().getMemory(), getState()));
     flag = getState().getFlag();
     opc = opcodeConditions;
   }

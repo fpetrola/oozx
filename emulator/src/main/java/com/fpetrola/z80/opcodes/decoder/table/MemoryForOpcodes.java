@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.opcodes.decoder.table;
 
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.memory.MemoryWriteListener;
@@ -106,11 +107,13 @@ public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
   }
 
   private final Memory<T> memory;
+  private final State<T> state;
   protected WordNumber[] cachedData = new WordNumber[0x10000];
   protected int[] cachedAddresses = new int[0x100];
 
-  public MemoryForOpcodes(Memory<T> memory) {
+  public MemoryForOpcodes(Memory<T> memory, State<T> state) {
     this.memory = memory;
+    this.state = state;
   }
 
   private T read1(T address, int fetching) {
@@ -118,8 +121,7 @@ public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
     if (cachedData[i] != null) {
       return (T) cachedData[i];
     } else {
-      T value;
-      value = memory.read(address, fetching);
+      T value = memory.read(address, fetching);
       if (memory.isReadListenersDisabled())
         return value;
       cachedData[i] = value;
@@ -136,7 +138,6 @@ public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
   public void reset() {
     while (counter > 0) {
       cachedData[cachedAddresses[--counter]] = null;
-      cachedAddresses[counter] = 0;
     }
   }
 }

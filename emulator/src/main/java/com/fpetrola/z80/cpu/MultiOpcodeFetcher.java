@@ -41,14 +41,14 @@ public class MultiOpcodeFetcher<T extends WordNumber> {
   public Instruction<T>[] opcodesTables;
   public Supplier<TableBasedOpCodeDecoder<T>> tableFactory;
   public boolean clone;
-  private final Memory<T> memoryForOpcode;
+  private final MemoryForOpcodes<T> memoryForOpcode;
   private final Memory<T> memory;
 
   public MultiOpcodeFetcher(InstructionFactory<T> instructionFactory, State<T> state, OpcodeConditions opcodeConditions, boolean clone) {
     this.instructionFactory = instructionFactory;
     this.state = state;
     this.clone = clone;
-    memoryForOpcode = new MemoryForOpcodes<T>(this.state.getMemory());
+    memoryForOpcode = new MemoryForOpcodes<T>(this.state.getMemory(), this.state);
     tableFactory = () -> createOpcodesTables(opcodeConditions, instructionFactory.getFetchNextOpcodeInstructionFactory(), instructionFactory);
     createOpcodeTables();
     memory = state.getMemory();

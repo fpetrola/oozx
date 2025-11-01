@@ -30,10 +30,12 @@ import machine.ClockTimeoutListener;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class SpectrumZ80Clock extends DefaultZ80Clock {
-
+  private Consumer<Integer> timeoutProcessor = (tStates) -> {
+  };
   private int timeout;
   private CollectionHandler<ClockTimeoutListener> clockListeners = new CollectionHandler<>();
 
@@ -46,7 +48,7 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
 
   public void addTStates(int tStatesToAdd) {
     super.addTStates(tStatesToAdd);
-    timeOutProcess(tStatesToAdd);
+    timeoutProcessor.accept(tStatesToAdd);
   }
 
   public void addTStates(int tStatesToAdd, String description) {
@@ -88,9 +90,10 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
   public void setTimeout(int ntstates) {
     if (this.timeout > 0) {
       throw new ConcurrentModificationException("A timeout is in progress. Can't set another timeout!");
+    } else{
+      this.timeout = Math.max(ntstates, 10);
+      timeoutProcessor = this::timeOutProcess;
     }
-
-    this.timeout = Math.max(ntstates, 10);
   }
 
   public void addClockTimeoutListener(Tape tape) {

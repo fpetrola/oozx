@@ -69,7 +69,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
 
   @Override
   public Instruction<T> fetchNextInstruction() {
-    fetchListeners.forAll(FetchListener::beforeFetch);
+//    fetchListeners.forAll(FetchListener::beforeFetch);
     int rValue = registerR.read().intValue();
     registerR.increment();
     pcValue = pc.read();
@@ -110,7 +110,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   public Instruction<T> fetchInstruction(T address) {
     Instruction<T> fetchedInstruction = multiOpcodeFetcher.fetchInstruction(address);
     setupPhaseInterceptor((AbstractInstruction<T>) fetchedInstruction);
-    fetchListeners.forAll(l -> l.instructionFetchedAt(address, fetchedInstruction));
+//    fetchListeners.forAll(l -> l.instructionFetchedAt(address, fetchedInstruction));
     return fetchedInstruction;
   }
 

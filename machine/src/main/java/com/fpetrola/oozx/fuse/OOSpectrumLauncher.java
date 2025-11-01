@@ -53,7 +53,7 @@ public class OOSpectrumLauncher {
     ZXSpectrumDesktopApp zxSpectrumDesktopApp = new ZXSpectrumDesktopApp((filename) -> {
       String string = null;
 
-      if (false) {
+      if (filename.isBlank()) {
         string = extracted();
       } else if (!filename.isBlank()) {
         Path unzip = new DownloadAndUnzip().unzip(filename);

@@ -41,10 +41,12 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   public int writeCount;
   private InstructionFetcher<T> instructionFetcher;
   private State<T> state;
+  private Register<T> registerSP;
 
   public PhaseProcessorBase(InstructionFetcher<T> instructionFetcher, State<T> state) {
     this.instructionFetcher = instructionFetcher;
     this.state = state;
+    this.registerSP = getRegister(SP);
   }
 
   public void addMw(T address, T value) {
@@ -95,11 +97,11 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   }
 
   public boolean isLdSP(Ld<T> ld) {
-    return ld.getTarget().equals(getRegister(SP)) && ld.getSource() instanceof Register<T>;
+    return ld.getTarget().equals(registerSP) && ld.getSource() instanceof Register<T>;
   }
 
-  protected void addMc(int times, RegisterName registerName, int delta, String description) {
-    addMultipleMc(times, 1, delta, getRegister(registerName).read().intValue(), description);
+  protected void addMc2(int times, int delta, String description, Register<T> register) {
+    addMultipleMc(times, 1, delta, valueOf(register), description);
   }
 
   protected void addMc(int times, int address, int delta, String description) {
@@ -133,8 +135,8 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
     return Optional.ofNullable(isMemoryPlus(target) ? true : null);
   }
 
-  protected int valueOf(RegisterName registerName) {
-    return getRegister(registerName).read().intValue();
+  protected int valueOf(Register<T> register) {
+    return register.read().intValue();
   }
 
   protected Optional<Boolean> hasJumped(JumpInstruction<T> instruction) {
