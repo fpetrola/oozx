@@ -153,8 +153,8 @@ public class Z80 implements ZxModule {
         return createValue(b & 0xff);
       }
 
-      protected void doWrite(int address, T value) {
-        memory.writeByteInternal2(address, (byte) value.intValue());
+      protected void doWrite(T address, T value) {
+        memory.writeByteInternal2(address.intValue(), (byte) value.intValue());
       }
 
       public void reset() {

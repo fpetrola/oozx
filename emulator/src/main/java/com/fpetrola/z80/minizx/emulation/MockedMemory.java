@@ -43,14 +43,14 @@ public class MockedMemory<T extends WordNumber> extends AbstractMemory<T> {
   }
 
   @Override
-  protected void doWrite(int address, T value) {
-    data[address] = value;
+  protected void doWrite(T address, T value) {
+    data[address.intValue()] = value.and(0xff);
   }
 
   @Override
   public void reset() {
     for (int i = 0; i < data.length; i++) {
-      doWrite(i, createValue(0));
+      doWrite(createValue(i), createValue(0));
     }
 //    Arrays.fill(data, WordNumber.createValue(0));
   }

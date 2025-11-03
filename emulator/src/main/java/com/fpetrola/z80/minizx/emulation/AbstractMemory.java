@@ -24,7 +24,7 @@ import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public abstract class AbstractMemory<T extends WordNumber> implements Memory<T> {
+public abstract class AbstractMemory<T> implements Memory<T> {
   protected final CollectionHandler<MemoryWriteListener<T>> memoryWriteListener = new CollectionHandler<>();
   protected CollectionHandler<MemoryReadListener<T>> memoryReadListener = new CollectionHandler<>();
   protected boolean canDisable;
@@ -47,7 +47,7 @@ public abstract class AbstractMemory<T extends WordNumber> implements Memory<T> 
   public void write(T address, T value) {
     if (!readOnly) {
       memoryWriteListener.forAll(l -> l.writtingMemoryAt(address, value));
-      doWrite(address.intValue(), value.and(0xff));
+      doWrite(address, value);
     }
   }
 
@@ -119,5 +119,5 @@ public abstract class AbstractMemory<T extends WordNumber> implements Memory<T> 
     return !memoryReadListener.isEnabled();
   }
 
-  protected abstract void doWrite(int address, T value);
+  protected abstract void doWrite(T address, T value);
 }
