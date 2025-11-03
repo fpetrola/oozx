@@ -39,14 +39,7 @@ public class Dec<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
   };
 
   public Dec(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, value) -> dec8TableAluOperation.executeWithCarry(value, tFlagRegister));
-  }
-
-  public int execute() {
-    final T value2 = target.read();
-    T execute = unaryAluOperation.execute(flag, value2);
-    target.write(execute);
-    return cyclesCost;
+    super(target, flag, dec8TableAluOperation);
   }
 
   public void accept(InstructionVisitor visitor) {

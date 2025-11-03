@@ -39,16 +39,8 @@ public class Inc<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
   };
 
   public Inc(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, value) -> inc8TableAluOperation.executeWithCarry(value, tFlagRegister));
+    super(target, flag, inc8TableAluOperation);
     this.flag = flag;
-  }
-
-  @Override
-  public int execute() {
-    final T value2 = target.read();
-    T execute = unaryAluOperation.execute(flag, value2);
-    target.write(execute);
-    return cyclesCost;
   }
 
   public void accept(InstructionVisitor visitor) {
