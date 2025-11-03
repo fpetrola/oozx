@@ -194,7 +194,7 @@ public class MemptrUpdater<T extends WordNumber> {
         if (tOut.getTarget() instanceof Out.OutPortOpcodeReference<?> outPortOpcodeReference) {
           if (outPortOpcodeReference.target instanceof Register<?>)
             memptr.write(((T) tOut.getTarget().read()).plus(1));
-          if (outPortOpcodeReference.target instanceof Memory8BitReference<?> memory8BitReference) {
+          else if (outPortOpcodeReference.target instanceof Memory8BitReference<?> memory8BitReference) {
             memptr.write(tOut.getSource().read().left(8));
             T and = memptr.read().or(tOut.getTarget().read().plus(1).and(0xff));
             memptr.write(and);
