@@ -39,7 +39,7 @@ public class SRL<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
   };
 
   public SRL(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, temp1) -> srlTableAluOperation.executeWithCarry(temp1, tFlagRegister));
+    super(target, flag, srlTableAluOperation);
   }
 
   public void accept(InstructionVisitor visitor) {

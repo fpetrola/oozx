@@ -38,7 +38,7 @@ public class RRC<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
   };
 
   public RRC(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, temp1) -> rrcTableAluOperation.executeWithCarry(temp1, tFlagRegister));
+    super(target, flag, rrcTableAluOperation);
   }
 
   public void accept(InstructionVisitor visitor) {

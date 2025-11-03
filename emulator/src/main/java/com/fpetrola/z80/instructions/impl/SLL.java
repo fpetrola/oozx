@@ -41,11 +41,6 @@ public class SLL<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
     super(target, flag, sllTableAluOperation);
   }
 
-  @Override
-  public int execute() {
-    return super.execute();
-  }
-
   public void accept(InstructionVisitor visitor) {
     if (!visitor.visitingSll(this))
       super.accept(visitor);
