@@ -26,6 +26,8 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
+
 public class Cp<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
   public static final TableAluOperation cpTableAluOperation = new TableAluOperation() {
     public int execute(int A, int value, int carry) {
@@ -44,14 +46,14 @@ public class Cp<T extends WordNumber> extends ParameterizedBinaryAluInstruction<
   };
 
   public Cp(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
-    super(target, source, flag, (tFlagRegister, v, reg_A) -> cpTableAluOperation.executeWithoutCarry(v, reg_A, tFlagRegister));
+    super(target, source, flag, cpTableAluOperation);
   }
 
-  public int execute() {
-    final T value1 = target.read();
-    final T value2 = source.read();
-    binaryAluOperation.execute(flag, value2, value1);
-    return cyclesCost;
+  protected T doExecute(T value1, T value2) {
+    return super.doExecute(value2, value1);
+  }
+
+  protected void assignTarget(T execute) {
   }
 
   @Override

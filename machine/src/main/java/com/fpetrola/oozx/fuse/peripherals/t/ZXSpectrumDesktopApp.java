@@ -114,7 +114,7 @@ class EmulatorInternalFrame extends JInternalFrame {
     statusLabel.setPreferredSize(new Dimension(100, componentHeight));
 
     // Speed Progress Bar
-    speedBar = new JProgressBar(0, 2000); // Max 4x speed
+    speedBar = new JProgressBar(0, 3000); // Max 4x speed
     speedBar.setValue((int) (emulatorCore.getEmulationSpeed()));
     speedBar.setStringPainted(true);
     speedBar.setString(String.format("%.2f%%", emulatorCore.getEmulationSpeed()));

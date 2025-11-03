@@ -45,10 +45,16 @@ public class ParameterizedBinaryAluInstruction<T> extends TargetSourceInstructio
   }
 
   public int execute() {
-    final T value1 = source.read();
-    final T value2 = target.read();
-    target.write(binaryAluOperation.execute(flag, value1, value2));
+    assignTarget(doExecute(source.read(), target.read()));
     return cyclesCost;
+  }
+
+  protected T doExecute(T value1, T value2) {
+    return binaryAluOperation.execute(flag, value1, value2);
+  }
+
+  protected void assignTarget(T execute) {
+    target.write(execute);
   }
 
   public <T1> BinaryAluOperation<T1> getTBinaryAluOperation(TableAluOperation tableAluOperation) {

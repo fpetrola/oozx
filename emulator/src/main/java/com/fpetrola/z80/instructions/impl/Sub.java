@@ -41,7 +41,11 @@ public class Sub<T extends WordNumber> extends ParameterizedBinaryAluInstruction
   };
 
   public Sub(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
-    super(target, source, flag, (tFlagRegister, value, reg_A) -> sub8TableAluOperation.executeWithoutCarry(value, reg_A, tFlagRegister));
+    super(target, source, flag,  sub8TableAluOperation);
+  }
+
+  protected T doExecute(T value1, T value2) {
+    return super.doExecute(value2, value1);
   }
 
   @Override

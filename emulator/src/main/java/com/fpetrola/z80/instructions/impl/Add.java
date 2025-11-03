@@ -43,18 +43,9 @@ public class Add<T extends WordNumber> extends ParameterizedBinaryAluInstruction
   };
 
   public Add(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
-    super(target, source, flag, (tFlagRegister, value, regA) -> add8TableAluOperation.executeWithoutCarry(value, regA, tFlagRegister));
+    super(target, source, flag, add8TableAluOperation);
   }
 
-  @Override
-  public int execute() {
-    final T value1 = source.read();
-    final T value2 = target.read();
-    target.write(binaryAluOperation.execute(flag, value1, value2));
-    return cyclesCost;
-  }
-
-  @Override
   public void accept(InstructionVisitor visitor) {
     if (!visitor.visitingAdd(this))
       super.accept(visitor);
