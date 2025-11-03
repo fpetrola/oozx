@@ -23,10 +23,22 @@ import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class Neg<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
+
+public class Neg<T> extends ParameterizedUnaryAluInstruction<T> {
   public Neg(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, reg_A) -> Sub.sub8TableAluOperation.executeWithoutCarry(reg_A, WordNumber.createValue(0), tFlagRegister));
+    super(target, flag, Sub.sub8TableAluOperation);
+  }
+
+  @Override
+  public UnaryAluOperation getTUnaryAluOperation(TableAluOperation tableAluOperation) {
+    return (tFlagRegister, a) -> {
+      int[] i = tableAluOperation.executeWithoutCarry2(((WordNumber) a).intValue(), 0);
+      flag.write(createValue(i[1]));
+      return createValue(i[0]);
+    };
   }
 
   @Override

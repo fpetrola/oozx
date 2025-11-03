@@ -47,11 +47,6 @@ public class Adc<T extends WordNumber> extends ParameterizedBinaryAluInstruction
   }
 
   @Override
-  public int execute() {
-    return super.execute();
-  }
-
-  @Override
   public void accept(InstructionVisitor visitor) {
     super.accept(visitor);
     visitor.visitingAdc(this);

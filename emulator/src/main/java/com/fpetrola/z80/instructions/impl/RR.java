@@ -39,7 +39,7 @@ public class RR<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T
   };
 
   public RR(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, temp1) -> rrTableAluOperation.executeWithCarry(temp1, tFlagRegister));
+    super(target, flag, rrTableAluOperation);
   }
 
   public void accept(InstructionVisitor visitor) {

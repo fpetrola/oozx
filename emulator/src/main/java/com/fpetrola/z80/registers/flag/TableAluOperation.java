@@ -75,4 +75,11 @@ public class TableAluOperation extends AluOperation {
     int data1 = table[regA << 8 | (value & 0xff)];
     return new int[]{data1 >> 16, data1 & 0xFF};
   }
+
+  public int[] executeWithCarry2(int regA, Register<?> flag) {
+    Register<WordNumber> flag1 = (Register<WordNumber>) flag;
+    int i = flag1.read().intValue();
+    int data1 = table[(i & 0x01) << 8 | (regA & 0xff)];
+    return new int[]{data1 >> 16, data1 & 0xFF};
+  }
 }

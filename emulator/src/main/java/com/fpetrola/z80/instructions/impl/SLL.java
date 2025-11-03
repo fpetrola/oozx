@@ -38,7 +38,12 @@ public class SLL<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
   };
 
   public SLL(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, temp1) -> sllTableAluOperation.executeWithCarry(temp1, tFlagRegister));
+    super(target, flag, sllTableAluOperation);
+  }
+
+  @Override
+  public int execute() {
+    return super.execute();
   }
 
   public void accept(InstructionVisitor visitor) {
