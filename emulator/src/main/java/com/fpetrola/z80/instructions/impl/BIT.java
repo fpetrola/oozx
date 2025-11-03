@@ -43,7 +43,9 @@ public class BIT<T extends WordNumber> extends BitOperation<T> {
   }
 
   public int execute() {
-    tBitAluOperation.execute(target, flag, n);
+    int f = tBitAluOperation.execute2(n, flag.read().intValue(), target.read().intValue());
+    flag.write(WordNumber.createValue(f));
+
     return cyclesCost;
   }
 
@@ -63,17 +65,13 @@ public class BIT<T extends WordNumber> extends BitOperation<T> {
         addressP = () -> memptr.read().intValue() >>> 8;
     }
 
-    public void execute(OpcodeReference<T> target, Register<T> flag, int bit) {
-      final int value = target.read().intValue();
+    public int execute2(int bit, int F, int value1) {
       int address = addressP.getAsInt();
-      F = flag.read().intValue();
-
       F = (F & FLAG_C) | FLAG_H | (address & (FLAG_3 | FLAG_5));
-      if (((value) & (0x01 << (bit))) == 0) F |= FLAG_P | FLAG_Z;
-      if ((bit) == 7 && ((value) & 0x80) != 0) F |= FLAG_S;
+      if (((value1) & (0x01 << (bit))) == 0) F |= FLAG_P | FLAG_Z;
+      if ((bit) == 7 && ((value1) & 0x80) != 0) F |= FLAG_S;
       Q = F;
-
-      flag.write(WordNumber.createValue(F));
+      return F;
     }
 
   }
