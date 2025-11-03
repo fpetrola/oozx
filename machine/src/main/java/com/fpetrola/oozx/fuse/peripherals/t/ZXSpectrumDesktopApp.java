@@ -67,7 +67,7 @@ class EmulatorInternalFrame extends JInternalFrame {
       @Override
       public void onEmulationSpeedChanged(double speed) {
         speedBar.setValue((int) (speed * 1));
-        speedBar.setString(String.format("%.2fx", speed));
+        speedBar.setString(String.format("%.2f%%", speed));
       }
 
       @Override
@@ -117,7 +117,7 @@ class EmulatorInternalFrame extends JInternalFrame {
     speedBar = new JProgressBar(0, 2000); // Max 4x speed
     speedBar.setValue((int) (emulatorCore.getEmulationSpeed()));
     speedBar.setStringPainted(true);
-    speedBar.setString(String.format("%.2fx", emulatorCore.getEmulationSpeed()));
+    speedBar.setString(String.format("%.2f%%", emulatorCore.getEmulationSpeed()));
     speedBar.setPreferredSize(new Dimension(150, componentHeight));
     speedBar.setMinimumSize(new Dimension(100, componentHeight - 30));
 
@@ -164,7 +164,7 @@ class EmulatorInternalFrame extends JInternalFrame {
       @Override
       public void onEmulationSpeedChanged(double speed) {
         speedBar.setValue((int) (speed));
-        speedBar.setString(String.format("%.2fx", speed));
+        speedBar.setString(String.format("%.2f%%", speed));
       }
 
       @Override
