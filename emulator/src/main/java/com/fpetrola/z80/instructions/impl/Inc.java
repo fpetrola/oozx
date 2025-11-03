@@ -40,7 +40,6 @@ public class Inc<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
 
   public Inc(OpcodeReference target, Register<T> flag) {
     super(target, flag, inc8TableAluOperation);
-    this.flag = flag;
   }
 
   public void accept(InstructionVisitor visitor) {

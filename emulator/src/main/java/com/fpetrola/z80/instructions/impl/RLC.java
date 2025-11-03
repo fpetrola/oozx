@@ -37,14 +37,7 @@ public class RLC<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
   };
 
   public RLC(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, temp1) -> rlcTableAluOperation1.executeWithCarry(temp1, tFlagRegister));
-  }
-
-  public int execute() {
-    final T value2 = target.read();
-    T execute = unaryAluOperation.execute(flag, value2);
-    target.write(execute);
-    return cyclesCost;
+    super(target, flag, rlcTableAluOperation1);
   }
 
   public void accept(InstructionVisitor visitor) {

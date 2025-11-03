@@ -38,7 +38,7 @@ public class SLA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
   };
 
   public SLA(OpcodeReference<T> target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, temp1) -> slaTableAluOperation.executeWithCarry(temp1, tFlagRegister));
+    super(target, flag, slaTableAluOperation);
   }
 
   public void accept(InstructionVisitor visitor) {

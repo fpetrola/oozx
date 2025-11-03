@@ -24,11 +24,14 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
+
 public class ParameterizedUnaryAluInstruction<T> extends DefaultTargetFlagInstruction<T> {
   public ParameterizedUnaryAluInstruction(OpcodeReference target, Register<T> flag, TableAluOperation tableAluOperation) {
     super(target, flag);
     this.unaryAluOperation = getTUnaryAluOperation(tableAluOperation);
-    this.flag = flag;  }
+    this.flag = flag;
+  }
 
   public interface UnaryAluOperation<T> {
     T execute(Register<T> flag, T value);
@@ -54,10 +57,12 @@ public class ParameterizedUnaryAluInstruction<T> extends DefaultTargetFlagInstru
   }
 
   public UnaryAluOperation getTUnaryAluOperation(TableAluOperation rrTableAluOperation1) {
-    return (tFlagRegister, temp1) -> {
-      int[] ints = rrTableAluOperation1.executeWithCarry2(((WordNumber)temp1).intValue(), tFlagRegister);
-      flag.write(WordNumber.createValue(ints[1]));
-      return WordNumber.createValue(ints[0]);
+    return (tFlagRegister, a) -> {
+      int regA = ((WordNumber) a).intValue();
+      int flagValue = ((WordNumber) flag.read()).intValue();
+      int[] ints = rrTableAluOperation1.executeWithCarry2(regA, flagValue);
+      flag.write(createValue(ints[1]));
+      return createValue(ints[0]);
     };
   }
 
