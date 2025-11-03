@@ -27,20 +27,23 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
+import java.util.function.IntSupplier;
+
 public class BIT<T extends WordNumber> extends BitOperation<T> {
+  private BitAluOperation<T> tBitAluOperation;
   public Register<T> getMemptr() {
     return memptr;
   }
-
   private final Register<T> memptr;
 
   public BIT(OpcodeReference<T> target, int n, Register<T> flag, Register<T> memptr) {
     super(target, n, flag);
     this.memptr = memptr;
+    tBitAluOperation = new BitAluOperation<>(target, memptr);
   }
 
   public int execute() {
-    new BitAluOperation<T>().execute(WordNumber.createValue(n), target, flag, memptr);
+    tBitAluOperation.execute(target, flag, n);
     return cyclesCost;
   }
 
@@ -50,17 +53,20 @@ public class BIT<T extends WordNumber> extends BitOperation<T> {
   }
 
   private static class BitAluOperation<T extends WordNumber> extends TableAluOperation {
-    public void execute(T bit_, OpcodeReference<T> target, Register<T> flag, Register<T> memptr) {
-      final int value = target.read().intValue();
+    private IntSupplier addressP;
 
-      int address = value;
+    public BitAluOperation(OpcodeReference<T> target, Register<T> memptr) {
+      addressP = () -> target.read().intValue();
       if (target instanceof MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference)
-        address = memoryPlusRegister8BitReference.getTarget().read().plus(memoryPlusRegister8BitReference.fetchRelative()).intValue() >> 8;
+        addressP = () -> memoryPlusRegister8BitReference.getTarget().read().plus(memoryPlusRegister8BitReference.fetchRelative()).intValue() >> 8;
       else if (target instanceof IndirectMemory8BitReference<T>)
-        address = memptr.read().intValue() >>> 8;
+        addressP = () -> memptr.read().intValue() >>> 8;
+    }
 
+    public void execute(OpcodeReference<T> target, Register<T> flag, int bit) {
+      final int value = target.read().intValue();
+      int address = addressP.getAsInt();
       F = flag.read().intValue();
-      int bit = bit_.intValue();
 
       F = (F & FLAG_C) | FLAG_H | (address & (FLAG_3 | FLAG_5));
       if (((value) & (0x01 << (bit))) == 0) F |= FLAG_P | FLAG_Z;

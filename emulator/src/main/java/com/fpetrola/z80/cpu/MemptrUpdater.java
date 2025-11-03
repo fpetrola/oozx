@@ -39,28 +39,12 @@ public class MemptrUpdater<T extends WordNumber> {
   public void updateBefore(Instruction<T> instruction) {
     if (instruction != null)
       instruction.accept(new InstructionVisitor<T, Integer>() {
-        public void visitingLd(Ld<T> ld) {
-          if (ld.getTarget() instanceof MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
-            if (ld.getSource() instanceof Memory8BitReference<T> memory8BitReference) {
-          //    memoryPlusRegister8BitReference.fetchRelative();
-            }
-          }
-        }
-
-        public boolean visitingBit(BIT<T> bit) {
-          if (bit.getTarget() instanceof MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
-//              memoryPlusRegister8BitReference.fetchRelative();
-          }
-          return false;
-        }
-
         public boolean visitRLD(RLD<T> rld) {
           memptr.write(rld.getHl().read().plus(1));
           return false;
         }
 
         public boolean visitingCall(Call tCall) {
-          Memory16BitReference memory16BitReference = (Memory16BitReference) tCall.getPositionOpcodeReference(); //FIXME: arreglar hack
           T jumpAddress2 = (T) tCall.calculateJumpAddress();
           memptr.write(jumpAddress2);
           return false;
