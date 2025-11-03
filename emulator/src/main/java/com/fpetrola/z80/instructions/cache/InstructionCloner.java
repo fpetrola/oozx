@@ -508,8 +508,8 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
     setCloned(instructionFactory.Xor(clone(xor.getSource())), xor);
   }
 
-  public void visitingRst(RST rst) {
-    setCloned(instructionFactory.RST(rst.getP()), rst);
+  public void visitingRst(RST<T> rst) {
+    setCloned(instructionFactory.RST(rst.getP().intValue()), rst);
   }
 
   public void visitingIm(IM im) {

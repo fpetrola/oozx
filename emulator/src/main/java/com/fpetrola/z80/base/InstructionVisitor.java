@@ -140,7 +140,7 @@ public interface InstructionVisitor<T extends WordNumber, R> {
     return false;
   }
 
-  default void visitingRst(RST rst) {
+  default void visitingRst(RST<T> rst) {
 
   }
 

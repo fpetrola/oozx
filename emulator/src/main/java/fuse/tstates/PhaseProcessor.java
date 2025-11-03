@@ -47,7 +47,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     super(instructionFetcher, state);
   }
 
-  public void visitingRst(RST rst) {
+  public void visitingRst(RST<T> rst) {
     addMcBeforeExecution(1);
   }
 

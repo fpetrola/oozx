@@ -235,7 +235,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
     return isBIT;
   }
 
-  public void visitingRst(RST rst) {
+  public void visitingRst(RST<T> rst) {
     setCloned(instructionFactory.RST(rst.getP()), rst);
   }
 

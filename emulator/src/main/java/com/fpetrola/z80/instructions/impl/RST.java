@@ -27,12 +27,12 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
 public class RST<T extends WordNumber> extends AbstractInstruction<T>  implements JumpInstruction<T> {
-  private final int p;
+  private final T p;
   private final ImmutableOpcodeReference<T> pc;
   private final Register<T> sp;
   private final Memory<T> memory;
 
-  public RST(int p, ImmutableOpcodeReference<T> pc, Register<T> sp, Memory<T> memory) {
+  public RST(T p, ImmutableOpcodeReference<T> pc, Register<T> sp, Memory<T> memory) {
     this.p = p;
     this.pc = pc;
     this.sp = sp;
@@ -41,7 +41,7 @@ public class RST<T extends WordNumber> extends AbstractInstruction<T>  implement
 
   public int execute() {
     Push.doPush(pc.read().plus1(), sp, memory);
-    setNextPC(WordNumber.createValue(p & 0xFFFF));
+    setNextPC(p);
     return 5 + 3 + 3;
   }
 
@@ -49,7 +49,7 @@ public class RST<T extends WordNumber> extends AbstractInstruction<T>  implement
     return "RST " + String.format("%02X", p);
   }
 
-  public int getP() {
+  public T getP() {
     return p;
   }
 

@@ -430,7 +430,7 @@ public class DefaultInstructionFactory<T extends WordNumber> implements Instruct
 
   @Override
   public RST RST(int p) {
-    return new RST<T>(p, pc, sp, memory);
+    return new RST<T>(WordNumber.createValue((p &0xFFFF)), pc, sp, memory);
   }
 
   @Override

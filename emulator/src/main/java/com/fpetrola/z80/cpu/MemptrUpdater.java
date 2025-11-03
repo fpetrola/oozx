@@ -202,7 +202,7 @@ public class MemptrUpdater<T extends WordNumber> {
         memptr.write(nextPC == null ? WordNumber.createValue(0) : nextPC);
       }
 
-      public void visitingRst(RST rst) {
+      public void visitingRst(RST<T> rst) {
         memptr.write((T) rst.getNextPC());
       }
 
