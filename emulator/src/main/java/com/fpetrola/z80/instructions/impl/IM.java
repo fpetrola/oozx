@@ -24,9 +24,9 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.cpu.State.InterruptionMode;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class IM<T extends WordNumber> extends AbstractInstruction<T> {
+public class IM<T> extends AbstractInstruction<T> {
   int mode;
-  private final State<T> state;
+  private final State<?> state;
 
   public IM(State state, int mode) {
     this.state = state;

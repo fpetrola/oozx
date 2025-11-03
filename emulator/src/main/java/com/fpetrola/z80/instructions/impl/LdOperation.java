@@ -27,7 +27,7 @@ import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class LdOperation<T extends WordNumber> extends AbstractInstruction<T> {
+public class LdOperation<T> extends AbstractInstruction<T> {
   public Instruction<T> getInstruction() {
     return instruction;
   }
@@ -49,8 +49,8 @@ public class LdOperation<T extends WordNumber> extends AbstractInstruction<T> {
     instruction.execute();
     if (instruction instanceof TargetInstruction<T> targetInstruction) {
       T read;
-      if (targetInstruction.getTarget() instanceof MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
-        read = memoryPlusRegister8BitReference.value;
+      if (targetInstruction.getTarget() instanceof MemoryPlusRegister8BitReference<?> memoryPlusRegister8BitReference) {
+        read = (T) memoryPlusRegister8BitReference.value;
       } else
         read = targetInstruction.getTarget().read();
       target.write(read);

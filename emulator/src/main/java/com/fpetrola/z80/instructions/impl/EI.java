@@ -23,8 +23,8 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class EI<T extends WordNumber> extends AbstractInstruction<T> {
-  private final State<T> state;
+public class EI<T> extends AbstractInstruction<T> {
+  private final State<?> state;
 
   public EI(State state) {
     this.state = state;

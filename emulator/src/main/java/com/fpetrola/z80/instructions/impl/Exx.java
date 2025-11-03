@@ -23,7 +23,7 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class Exx<T extends WordNumber> extends AbstractInstruction<T> {
+public class Exx<T> extends AbstractInstruction<T> {
   public Register<T> getBc() {
     return bc;
   }
