@@ -18,8 +18,8 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;

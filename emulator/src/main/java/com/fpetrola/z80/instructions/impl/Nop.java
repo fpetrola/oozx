@@ -18,8 +18,8 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class Nop<T extends WordNumber> extends AbstractInstruction<T> {

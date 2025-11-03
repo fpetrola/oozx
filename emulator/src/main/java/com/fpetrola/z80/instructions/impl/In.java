@@ -19,8 +19,8 @@
 package com.fpetrola.z80.instructions.impl;
 
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.cpu.IO;
+import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;

@@ -22,9 +22,8 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.*;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Xor<T> extends ParameterizedBinaryAluInstruction<T> {
   protected static final TableAluOperation xorTableAluOperation = new TableAluOperation() {

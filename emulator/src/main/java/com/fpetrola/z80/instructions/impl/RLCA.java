@@ -23,7 +23,6 @@ import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RLCA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {

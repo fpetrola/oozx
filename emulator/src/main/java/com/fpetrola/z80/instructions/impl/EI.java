@@ -18,10 +18,9 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 
 public class EI<T> extends AbstractInstruction<T> {
   private final State<?> state;

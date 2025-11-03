@@ -18,8 +18,8 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.opcodes.references.Condition;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;

@@ -25,7 +25,6 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
-import org.apache.commons.lang3.function.TriFunction;
 
 import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 

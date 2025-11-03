@@ -18,12 +18,11 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class CCF<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
   public static final AluOperation ccfTableAluOperation = new AluOperation() {

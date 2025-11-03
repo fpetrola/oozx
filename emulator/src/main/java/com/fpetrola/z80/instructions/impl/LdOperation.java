@@ -22,10 +22,8 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.TargetInstruction;
-import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class LdOperation<T> extends AbstractInstruction<T> {
   public Instruction<T> getInstruction() {

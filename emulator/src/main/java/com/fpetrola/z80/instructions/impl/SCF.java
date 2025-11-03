@@ -23,7 +23,6 @@ import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class SCF<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
   public static final AluOperation scfTableAluOperation = new AluOperation() {

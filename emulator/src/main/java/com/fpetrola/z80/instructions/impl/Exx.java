@@ -18,9 +18,8 @@
 
 package com.fpetrola.z80.instructions.impl;
 
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.opcodes.references.WordNumber;
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.registers.Register;
 
 public class Exx<T> extends AbstractInstruction<T> {
