@@ -25,7 +25,7 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class Inc<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
+public class Inc<T> extends ParameterizedUnaryAluInstruction<T> {
   public static final TableAluOperation inc8TableAluOperation = new TableAluOperation() {
     public int execute(int value, int carry) {
       F = carry;
