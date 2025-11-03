@@ -21,11 +21,10 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class RRCA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
+public class RRCA<T> extends ParameterizedUnaryAluInstruction<T> {
   public static final TableAluOperation rrcaTableAluOperation = new TableAluOperation() {
     public int execute(int A, int flag) {
       F = ( F & ( FLAG_P | FLAG_Z | FLAG_S ) ) | ( A & FLAG_C );

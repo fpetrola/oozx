@@ -21,11 +21,10 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class SLA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
+public class SLA<T> extends ParameterizedUnaryAluInstruction<T> {
   public static final TableAluOperation slaTableAluOperation = new TableAluOperation() {
     public int execute(int value, int carry) {
       F = value >> 7;

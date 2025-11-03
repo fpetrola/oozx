@@ -24,7 +24,7 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class Ex<T extends WordNumber> extends TargetSourceInstruction<T, OpcodeReference<T>> {
+public class Ex<T> extends TargetSourceInstruction<T, OpcodeReference<T>> {
   public Ex(OpcodeReference<T> target, OpcodeReference<T> source, Register<T> flag1) {
     super(target, source, flag1);
   }
