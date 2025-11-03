@@ -56,7 +56,7 @@ public class DAA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
   };
 
   public DAA(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, reg_A) -> daaTableAluOperation.executeWithCarry(reg_A, tFlagRegister.read(), tFlagRegister));
+    super(target, flag, (reg_A) -> daaTableAluOperation.executeWithCarry(reg_A, flag.read(), flag));
   }
 
   public void accept(InstructionVisitor visitor) {

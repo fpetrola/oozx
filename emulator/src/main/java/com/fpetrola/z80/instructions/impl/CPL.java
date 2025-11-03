@@ -24,7 +24,6 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class CPL<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
   public static final AluOperation cplTableAluOperation = new AluOperation() {
@@ -39,9 +38,7 @@ public class CPL<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
   };
 
   public CPL(OpcodeReference target, Register<T> flag) {
-    super(target, flag, (tFlagRegister, regA) -> {
-      return cplTableAluOperation.executeWithCarry(regA, tFlagRegister);
-    });
+    super(target, flag, (regA) -> cplTableAluOperation.executeWithCarry(regA, flag));
   }
 
   @Override

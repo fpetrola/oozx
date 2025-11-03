@@ -34,7 +34,7 @@ public class ParameterizedUnaryAluInstruction<T> extends DefaultTargetFlagInstru
   }
 
   public interface UnaryAluOperation<T> {
-    T execute(Register<T> flag, T value);
+    T execute(T value);
   }
 
   protected UnaryAluOperation<T> unaryAluOperation;
@@ -53,11 +53,11 @@ public class ParameterizedUnaryAluInstruction<T> extends DefaultTargetFlagInstru
   }
 
   protected T doExecute(T value2) {
-    return unaryAluOperation.execute(flag, value2);
+    return unaryAluOperation.execute(value2);
   }
 
   public UnaryAluOperation getTUnaryAluOperation(TableAluOperation rrTableAluOperation1) {
-    return (tFlagRegister, a) -> {
+    return (a) -> {
       int regA = ((WordNumber) a).intValue();
       int flagValue = ((WordNumber) flag.read()).intValue();
       int[] ints = rrTableAluOperation1.executeWithCarry2(regA, flagValue);
