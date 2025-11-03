@@ -24,7 +24,7 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public abstract class TargetSourceInstruction<T extends WordNumber, S extends ImmutableOpcodeReference<T>> extends DefaultTargetFlagInstruction<T> implements SourceInstruction<T, S> {
+public abstract class TargetSourceInstruction<T, S extends ImmutableOpcodeReference<T>> extends DefaultTargetFlagInstruction<T> implements SourceInstruction<T, S> {
   protected S source;
 
   public TargetSourceInstruction(OpcodeReference<T> target, S source, Register<T> flag) {

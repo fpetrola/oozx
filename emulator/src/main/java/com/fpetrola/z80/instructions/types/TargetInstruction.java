@@ -22,7 +22,7 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public interface TargetInstruction<T extends WordNumber> extends Instruction<T> {
+public interface TargetInstruction<T> extends Instruction<T> {
   OpcodeReference<T> getTarget();
   void setTarget(OpcodeReference<T> target);
 

@@ -24,6 +24,8 @@ import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.function.BiFunction;
 
+import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
+
 public class TableAluOperation extends AluOperation {
   protected int[] table;
 
@@ -49,21 +51,28 @@ public class TableAluOperation extends AluOperation {
     }
   }
 
-  public <T extends WordNumber> T executeWithoutCarry(T value, T regA, Register<T> flag) {
-    int data1 = table[(regA.left(8)).or(value).intValue()];
-    flag.write(WordNumber.createValue(data1 & 0xFF));
-    return regA.createInstance(data1 >> 16);
+  public <T> T executeWithoutCarry(T value, T regA, Register<T> flag) {
+    WordNumber regA1 = (WordNumber) regA;
+    WordNumber value1 = (WordNumber) value;
+    int data1 = table[(regA1.left(8)).or(value1).intValue()];
+    flag.write(createValue(data1 & 0xFF));
+    return regA1.createInstance(data1 >> 16);
   }
 
   public <T extends WordNumber> T executeWithCarry(T regA, Register<T> flag) {
     int data1 = table[((flag.read().intValue() & 0x01) << 8) | (regA.intValue() & 0xff)];
-    flag.write(WordNumber.createValue(data1 & 0xFF));
+    flag.write(createValue(data1 & 0xFF));
     return regA.createInstance(data1 >> 16);
   }
 
   public <T extends WordNumber> T executeWithCarry2(T value, T regA, int carry, Register<T> flag) {
     int data1 = table[(regA.left(8)).or(value).intValue() | ((carry & 1) << 16)];
-    flag.write(WordNumber.createValue(data1 & 0xFF));
+    flag.write(createValue(data1 & 0xFF));
     return regA.createInstance(data1 >> 16);
+  }
+
+  public int[] executeWithoutCarry2(int value, int regA) {
+    int data1 = table[regA << 8 | (value & 0xff)];
+    return new int[]{data1 >> 16, data1 & 0xFF};
   }
 }

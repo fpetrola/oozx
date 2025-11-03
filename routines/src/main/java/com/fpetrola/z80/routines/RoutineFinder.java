@@ -112,7 +112,7 @@ public class RoutineFinder<T extends WordNumber> {
   }
 
   private void processCallInstruction(Instruction instruction) {
-    WordNumber nextPC = ((ConditionalInstruction) lastInstruction).getNextPC();
+    WordNumber nextPC = (WordNumber) ((ConditionalInstruction) lastInstruction).getNextPC();
     if (nextPC != null) {
 //      System.out.printf("CALL: %H%n", nextPC.intValue());
       createOrUpdateCurrentRoutine(nextPC.intValue(), instruction.getLength());
@@ -120,8 +120,9 @@ public class RoutineFinder<T extends WordNumber> {
   }
 
   private void processRetInstruction(Ret ret) {
-    if (ret.getNextPC() != null) {
-      this.currentRoutine = routineManager.findRoutineAt(ret.getNextPC().intValue() - 1);
+    WordNumber nextPC = (WordNumber) ret.getNextPC();
+    if (nextPC != null) {
+      this.currentRoutine = routineManager.findRoutineAt(nextPC.intValue() - 1);
     }
   }
 

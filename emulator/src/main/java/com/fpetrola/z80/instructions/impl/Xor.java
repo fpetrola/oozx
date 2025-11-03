@@ -26,8 +26,8 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.*;
 
-public class Xor<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
-  protected static final AluOperation xorTableAluOperation = new TableAluOperation() {
+public class Xor<T> extends ParameterizedBinaryAluInstruction<T> {
+  protected static final TableAluOperation xorTableAluOperation = new TableAluOperation() {
     public int execute(int A, int value, int carry) {
       A ^= (value);
       F = sz53pTable(A);
@@ -37,15 +37,7 @@ public class Xor<T extends WordNumber> extends ParameterizedBinaryAluInstruction
   };
 
   public Xor(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
-    super(target, source, flag, (flag1, value1, value2) -> xorTableAluOperation.executeWithoutCarry(value2, value1, flag1));
-  }
-
-  @Override
-  public int execute() {
-    final T value1 = source.read();
-    final T value2 = target.read();
-    target.write(binaryAluOperation.execute(flag, value1, value2));
-    return cyclesCost;
+    super(target, source, flag, xorTableAluOperation);
   }
 
   public void accept(InstructionVisitor visitor) {

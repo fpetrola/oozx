@@ -21,7 +21,7 @@ package com.fpetrola.z80.instructions.types;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public abstract class DefaultTargetInstruction<T extends WordNumber> extends AbstractInstruction<T> implements TargetInstruction<T> {
+public abstract class DefaultTargetInstruction<T> extends AbstractInstruction<T> implements TargetInstruction<T> {
   protected OpcodeReference<T> target;
 
   public DefaultTargetInstruction(OpcodeReference<T> target) {

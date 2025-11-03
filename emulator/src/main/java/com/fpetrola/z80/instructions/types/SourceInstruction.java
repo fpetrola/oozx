@@ -22,7 +22,7 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public interface SourceInstruction<T extends WordNumber, S extends ImmutableOpcodeReference<T>> {
+public interface SourceInstruction<T, S extends ImmutableOpcodeReference<T>> {
   S getSource();
   void setSource(S source);
 }

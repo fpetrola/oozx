@@ -23,7 +23,7 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import fuse.tstates.PhaseInterceptor;
 
-public abstract class AbstractInstruction<T extends WordNumber> implements Instruction<T> {
+public abstract class AbstractInstruction<T> implements Instruction<T> {
   protected int length = 1;
   protected int cyclesCost = 4;
   private T nextPC = null;
