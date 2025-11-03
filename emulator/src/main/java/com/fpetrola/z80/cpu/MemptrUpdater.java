@@ -73,12 +73,12 @@ public class MemptrUpdater<T extends WordNumber> {
         }
 
         public boolean visitCpi(Cpi<T> cpi) {
-          memptr.write(memptr.read().plus(1));
+          memptr.increment();
           return false;
         }
 
         public boolean visitCpd(Cpd<T> cpd) {
-          memptr.write(memptr.read().plus(-1));
+          memptr.decrement();
           return true;
         }
 

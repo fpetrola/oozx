@@ -140,6 +140,7 @@ public class IntegerWordNumber implements WordNumber {
   @Override
   public void decrement() {
     value--;
+    value &= 0xffff;
   }
 
   public String toString() {
