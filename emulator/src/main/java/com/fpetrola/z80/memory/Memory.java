@@ -37,6 +37,10 @@ public interface Memory {
 
   int read(int address, int fetching);
 
+  default int readFetching(int address) {
+    return read(address, 1);
+  }
+
   void write(int address, int value);
 
   default boolean compare() {

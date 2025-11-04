@@ -18,16 +18,16 @@
 
 package com.fpetrola.z80.opcodes.decoder;
 
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.Memory8BitReference;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 
-import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
@@ -39,23 +39,23 @@ public class DefaultFetchNextOpcodeInstruction extends AbstractInstruction imple
   public final Memory memoryForOpcodes;
   private final int incPc;
   private final Register registerR;
-  private Consumer<Integer> inc2Consumer;
-  private Consumer<Integer> inc1Consumer;
+  private IntConsumer inc2Consumer;
+  private IntConsumer inc1Consumer;
 
   public DefaultFetchNextOpcodeInstruction(State state, Instruction[] table, int incPc, String name, Memory memoryForOpcodes) {
     this.table = table;
     this.name = name;
     this.memoryForOpcodes = memoryForOpcodes;
-    for (int i = 0; i < table.length; i++) {
-      if (table[i] != null)
-        ((AbstractInstruction) table[i]).setLength(table[i].getLength() + 1);
+    for (Instruction instruction : table) {
+      if (instruction != null)
+        ((AbstractInstruction) instruction).setLength(instruction.getLength() + 1);
     }
     this.incPc = incPc;
     this.registerR = state.getRegister(RegisterName.R);
     this.pc = state.getRegister(PC);
     incrementR = name.length() == 2;
 
-    Consumer<Integer> nullConsumer = (a) -> {
+    IntConsumer nullConsumer = (a) -> {
     };
     if (incPc == 2) {
       inc2Consumer = plus1 -> memoryForOpcodes.read((plus1 - 1) & 0xFFFF, 0);
@@ -79,13 +79,11 @@ public class DefaultFetchNextOpcodeInstruction extends AbstractInstruction imple
   }
 
   public Instruction findNextOpcode() {
-    Integer wordNumber = pc.read();
-    return (Instruction) table[memoryForOpcodes.read((wordNumber + incPc - 1 + length) & 0xFFFF, incPc)];
+    return table[memoryForOpcodes.read((pc.read() + incPc - 1 + length) & 0xFFFF, incPc)];
   }
 
   public Instruction findNextOpcode2() {
-    Integer wordNumber = pc.read();
-    int plus =(wordNumber + incPc - 1 + length) & 0xFFFF;
+    int plus = (pc.read() + incPc - 1 + length) & 0xFFFF;
     inc2Consumer.accept(plus);
     Instruction instruction = table[memoryForOpcodes.read(plus, incPc)];
     if (instruction instanceof Ld ld && ld.getSource() instanceof Memory8BitReference)
