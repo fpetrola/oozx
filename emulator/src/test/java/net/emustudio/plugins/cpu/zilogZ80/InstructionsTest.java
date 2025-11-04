@@ -112,12 +112,12 @@ public class InstructionsTest {
     private final Map<Integer, FakeByteDevice> devices = new HashMap<>();
 
     public T in(T port) {
-      FakeByteDevice fakeByteDevice = devices.get(port.value);
+      FakeByteDevice fakeByteDevice = devices.get(port.valueXYZ);
       return (T) new WordNumber(fakeByteDevice.getValue());
     }
 
     public void out(T port, T value) {
-      devices.get(port.value).setValue((byte) value.value);
+      devices.get(port.valueXYZ).setValue((byte) value.valueXYZ);
     }
 
     public void addDevice(int port, FakeByteDevice device) {

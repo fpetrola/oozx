@@ -236,7 +236,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
   }
 
   public void visitingRst(RST<T> rst) {
-    setCloned(instructionFactory.RST(rst.getP().value), rst);
+    setCloned(instructionFactory.RST(rst.getP().valueXYZ), rst);
   }
 
   public void visitPush(Push push) {

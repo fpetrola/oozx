@@ -59,12 +59,12 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
     Consumer<T> nullConsumer = (a) -> {
     };
     if (incPc == 2) {
-      inc2Consumer = plus1 -> memoryForOpcodes.read((T) (WordNumber) new WordNumber((plus1.value - 1) & 0xFFFF), 0);
+      inc2Consumer = plus1 -> memoryForOpcodes.read((T) (WordNumber) new WordNumber((plus1.valueXYZ - 1) & 0xFFFF), 0);
     } else
       inc2Consumer = nullConsumer;
 
     if (incPc == 1)
-      inc1Consumer = plus1 -> memoryForOpcodes.read((T) (WordNumber) new WordNumber((plus1.value + 1) & 0xFFFF), 0);
+      inc1Consumer = plus1 -> memoryForOpcodes.read((T) (WordNumber) new WordNumber((plus1.valueXYZ + 1) & 0xFFFF), 0);
     else
       inc1Consumer = nullConsumer;
   }
@@ -81,14 +81,14 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
 
   public Instruction<T> findNextOpcode() {
     WordNumber wordNumber = pc.read();
-    return (Instruction<T>) table[memoryForOpcodes.read((T) (WordNumber) new WordNumber((wordNumber.value + incPc - 1 + length) & 0xFFFF), incPc).value];
+    return (Instruction<T>) table[memoryForOpcodes.read((T) (WordNumber) new WordNumber((wordNumber.valueXYZ + incPc - 1 + length) & 0xFFFF), incPc).valueXYZ];
   }
 
   public Instruction<T> findNextOpcode2() {
     WordNumber wordNumber = pc.read();
-    T plus = (T) (WordNumber) new WordNumber((wordNumber.value + incPc - 1 + length) & 0xFFFF);
+    T plus = (T) (WordNumber) new WordNumber((wordNumber.valueXYZ + incPc - 1 + length) & 0xFFFF);
     inc2Consumer.accept(plus);
-    Instruction<T> instruction = table[memoryForOpcodes.read(plus, incPc).value];
+    Instruction<T> instruction = table[memoryForOpcodes.read(plus, incPc).valueXYZ];
     if (instruction instanceof Ld<T> ld && ld.getSource() instanceof Memory8BitReference<T>)
       inc1Consumer.accept(plus);
 

@@ -31,22 +31,22 @@ final class IOImplementation<T extends WordNumber> implements IO<T> {
   }
 
   public void out(T port, T value) {
-    memIoOps.outPort(port.value, value.value);
+    memIoOps.outPort(port.valueXYZ, value.valueXYZ);
   }
 
   public T in(T port) {
-    T value = (T) new WordNumber(memIoOps.inPort(port.value));
+    T value = (T) new WordNumber(memIoOps.inPort(port.valueXYZ));
     //if (value.intValue() != 255 && value.intValue() != 191)
     //if (port.intValue() == 49150)
 
-    int port1 = ports[port.value];
-    if (value.value != port1) {
-      if (port.value == 31) {
-        System.out.println(port + "= " + value.value);
+    int port1 = ports[port.valueXYZ];
+    if (value.valueXYZ != port1) {
+      if (port.valueXYZ == 31) {
+        System.out.println(port + "= " + value.valueXYZ);
       }
     }
 
-    ports[port.value]= value.value;
+    ports[port.valueXYZ]= value.valueXYZ;
 
     return value;
   }

@@ -509,7 +509,7 @@ public class InstructionCloner<T extends WordNumber, R> implements InstructionVi
   }
 
   public void visitingRst(RST<T> rst) {
-    setCloned(instructionFactory.RST(rst.getP().value), rst);
+    setCloned(instructionFactory.RST(rst.getP().valueXYZ), rst);
   }
 
   public void visitingIm(IM im) {

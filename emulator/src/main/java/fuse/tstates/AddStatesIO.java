@@ -34,19 +34,19 @@ public class AddStatesIO<T extends WordNumber> implements IO<T> {
   }
 
   void contend_port_preio(WordNumber port) {
-    if ((port.value & 0xc000) == 0x4000) {
+    if ((port.valueXYZ & 0xc000) == 0x4000) {
       addPCEvent(port, 1);
     } else
       getState().clock.addTStates(1);
   }
 
   private void addPCEvent(WordNumber port, int time) {
-    getState().addEvent(new Event(time, "PC", port.value, null));
+    getState().addEvent(new Event(time, "PC", port.valueXYZ, null));
   }
 
   void contend_port_postio(WordNumber port) {
-    if ((port.value & 0x0001) != 0) {
-      if ((port.value & 0xc000) == 0x4000) {
+    if ((port.valueXYZ & 0x0001) != 0) {
+      if ((port.valueXYZ & 0xc000) == 0x4000) {
         addPCEvent(port, 1);
         addPCEvent(port, 1);
         addPCEvent(port, 1);
@@ -63,16 +63,16 @@ public class AddStatesIO<T extends WordNumber> implements IO<T> {
   }
 
   public T in(T port) {
-    T value = (T) new WordNumber(port.value >> 8);
+    T value = (T) new WordNumber(port.valueXYZ >> 8);
     contend_port_preio(port);
-    getState().addEvent(new Event(0, "PR", port.value, value.value));
+    getState().addEvent(new Event(0, "PR", port.valueXYZ, value.valueXYZ));
     contend_port_postio(port);
     return value;
   }
 
   public void out(T port, T value) {
     contend_port_preio(port);
-    getState().addEvent(new Event(0, "PW", port.value, value.value));
+    getState().addEvent(new Event(0, "PW", port.valueXYZ, value.valueXYZ));
     contend_port_postio(port);
   }
 }

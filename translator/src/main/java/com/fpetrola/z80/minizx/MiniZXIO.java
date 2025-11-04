@@ -37,7 +37,7 @@ public class MiniZXIO implements IO<WordNumber> {
   }
 
   private WordNumber in0(WordNumber port) {
-    WordNumber value = (WordNumber) new WordNumber(performIn(port.value));
+    WordNumber value = (WordNumber) new WordNumber(performIn(port.valueXYZ));
     return value;
 //      int portNumber = port.intValue();
 //      //  portNumber = portNumber & 0xff;

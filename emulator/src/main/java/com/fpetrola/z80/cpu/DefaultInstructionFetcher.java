@@ -67,19 +67,19 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   @Override
   public Instruction<T> fetchNextInstruction() {
 //    fetchListeners.forAll(FetchListener::beforeFetch);
-    int rValue = registerR.read().value;
+    int rValue = registerR.read().valueXYZ;
     registerR.increment();
     pcValue = pc.read();
 
-    if (prefetchPC != pcValue.value) {
+    if (prefetchPC != pcValue.valueXYZ) {
       currentInstruction = fetchInstruction(pcValue);
       prefetchedInstruction = currentInstruction;
     } else {
       currentInstruction = prefetchedInstruction;
-      registerR.write((T) new WordNumber(registerR.read().value + rdelta));
+      registerR.write((T) new WordNumber(registerR.read().valueXYZ + rdelta));
     }
 
-    rdelta = registerR.read().value - rValue;
+    rdelta = registerR.read().valueXYZ - rValue;
 //    if (rdelta < 0)
 //      System.out.println("adgagadg");
 //    ((AbstractInstruction) currentInstruction).setRDelta(rdelta);
@@ -91,11 +91,11 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   public void afterExecute(Instruction<?> currentInstruction) {
     try {
       if (prefetch) {
-        int rValue = registerR.read().value;
+        int rValue = registerR.read().valueXYZ;
         T nextPC = (T) new WordNumber(0);
         prefetchedInstruction = fetchInstruction(nextPC);
-        prefetchPC = nextPC.value;
-        rdelta = registerR.read().value - rValue;
+        prefetchPC = nextPC.valueXYZ;
+        rdelta = registerR.read().valueXYZ - rValue;
         registerR.write((T) new WordNumber(rValue));
       }
     } catch (Exception e) {

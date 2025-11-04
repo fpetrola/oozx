@@ -46,8 +46,8 @@ public class LdAR<T extends WordNumber> extends Ld<T> {
     T value = source.read();
     T reg_A = target.read();
     boolean iff2 = state.isIff2();
-    ldarTableAluOperation.F = flag.read().value;
-    int ldar = ldarTableAluOperation.execute(value.value, reg_A.value, iff2 ? 1 : 0);
+    ldarTableAluOperation.F = flag.read().valueXYZ;
+    int ldar = ldarTableAluOperation.execute(value.valueXYZ, reg_A.valueXYZ, iff2 ? 1 : 0);
     flag.write((T) new WordNumber(ldarTableAluOperation.F));
     target.write(value);
 

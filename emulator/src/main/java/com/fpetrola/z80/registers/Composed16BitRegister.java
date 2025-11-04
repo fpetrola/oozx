@@ -47,14 +47,14 @@ public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> 
 
   public T read() {
     WordNumber wordNumber = high.read();
-    WordNumber number = ((WordNumber) (WordNumber) new WordNumber((wordNumber.value << 8) & 0xFFFF));
-    int i = low.read().value & 0xFFFF;
-    return (T) (WordNumber) new WordNumber((number.value | i) & 0xFFFF);
+    WordNumber number = ((WordNumber) (WordNumber) new WordNumber((wordNumber.valueXYZ << 8) & 0xFFFF));
+    int i = low.read().valueXYZ & 0xFFFF;
+    return (T) (WordNumber) new WordNumber((number.valueXYZ | i) & 0xFFFF);
   }
 
   public void write(T value) {
-    this.high.write((T) (WordNumber) new WordNumber((value.value >>> 8) & 0xFFFF));
-    this.low.write((T) (WordNumber) new WordNumber((value.value & 0xFF) & 0xFFFF));
+    this.high.write((T) (WordNumber) new WordNumber((value.valueXYZ >>> 8) & 0xFFFF));
+    this.low.write((T) (WordNumber) new WordNumber((value.valueXYZ & 0xFF) & 0xFFFF));
   }
 
   public R getHigh() {
@@ -73,26 +73,26 @@ public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> 
 
   public void increment() {
     low.increment();
-    if (low.read().value < 0x100)
+    if (low.read().valueXYZ < 0x100)
       return;
     low.write((T) new WordNumber(0));
-    high.read().value++;
-    if (high.read().value < 0x100)
+    high.read().valueXYZ++;
+    if (high.read().valueXYZ < 0x100)
       return;
     high.write((T) new WordNumber(0));
   }
 
   public void decrement() {
     T lowValue = low.read();
-    if (lowValue.value != 0) {
-      lowValue.value--;
-      lowValue.value &= 0xffff;
+    if (lowValue.valueXYZ != 0) {
+      lowValue.valueXYZ--;
+      lowValue.valueXYZ &= 0xffff;
     } else {
       low.write((T) new WordNumber(0xff));
       T highValue = high.read();
-      if (highValue.value != 0) {
-        highValue.value--;
-        highValue.value &= 0xffff;
+      if (highValue.valueXYZ != 0) {
+        highValue.valueXYZ--;
+        highValue.valueXYZ &= 0xffff;
         return;
       }
       high.write((T) new WordNumber(0xff));

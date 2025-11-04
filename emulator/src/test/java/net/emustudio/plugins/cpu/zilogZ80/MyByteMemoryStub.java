@@ -39,7 +39,7 @@ public class MyByteMemoryStub extends ByteMemoryStub {
     memory = memory1;
     memory1.addMemoryWriteListener(new MemoryWriteListener<WordNumber>() {
       public void writtingMemoryAt(WordNumber address, WordNumber value) {
-        MyByteMemoryStub.super.write(address.value, (byte) value.value);
+        MyByteMemoryStub.super.write(address.valueXYZ, (byte) value.valueXYZ);
       }
     });
   }
@@ -88,7 +88,7 @@ public class MyByteMemoryStub extends ByteMemoryStub {
     if (read == null) {
       return 0;
     } else {
-      return (byte) read.value;
+      return (byte) read.valueXYZ;
     }
   }
 }

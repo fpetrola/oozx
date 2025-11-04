@@ -36,7 +36,7 @@ public class PopReturnCallAddressAction<T extends WordNumber> extends BasicAddre
 
   public boolean processBranch(Instruction instruction) {
     if (lastRoutineExecution.hasPendingPoints()) {
-      int jumpAddress = ((Call) instruction).getJumpAddress().value;
+      int jumpAddress = ((Call) instruction).getJumpAddress().valueXYZ;
       routineExecutorHandler.createRoutineExecution(jumpAddress);
       return true;
     } else {

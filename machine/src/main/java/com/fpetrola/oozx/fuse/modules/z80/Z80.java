@@ -148,12 +148,12 @@ public class Z80 implements ZxModule {
   public <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
     Memory<T> memory1 = new AbstractMemory<T>() {
       protected T doRead(T address) {
-        byte b = memory.readByteInternal(address.value);
+        byte b = memory.readByteInternal(address.valueXYZ);
         return (T) new WordNumber(b & 0xff);
       }
 
       protected void doWrite(T address, T value) {
-        memory.writeByteInternal2(address.value, (byte) value.value);
+        memory.writeByteInternal2(address.valueXYZ, (byte) value.valueXYZ);
       }
 
       public void reset() {
@@ -177,11 +177,11 @@ public class Z80 implements ZxModule {
   private void init2() {
     io = new MiniZXIO() {
       public synchronized WordNumber in(WordNumber port) {
-        return (WordNumber) new WordNumber(periph.readPort(port.value));
+        return (WordNumber) new WordNumber(periph.readPort(port.valueXYZ));
       }
 
       public void out(WordNumber port, WordNumber value) {
-        periph.writePort(port.value, (byte) value.value);
+        periph.writePort(port.valueXYZ, (byte) value.valueXYZ);
       }
     };
     ooz80 = createOOZ80(io);
@@ -235,16 +235,16 @@ public class Z80 implements ZxModule {
 
     memory1.addMemoryReadListener(new AddStatesMemoryReadListener<>(phaseProcessor) {
       protected void doRead(WordNumber address, WordNumber value, int fetching) {
-        memory.readByte(address.value, ula);
+        memory.readByte(address.valueXYZ, ula);
       }
     });
     memory1.addMemoryWriteListener(new AddStatesMemoryWriteListener<>(phaseProcessor) {
       protected void doWrite(WordNumber address, WordNumber value) {
-        memory.writeByte(address.value, (byte) (value.value & 0xff), ula);
+        memory.writeByte(address.valueXYZ, (byte) (value.valueXYZ & 0xff), ula);
       }
 
       protected void doEnd(WordNumber address, WordNumber value) {
-        memory.writeByteInternal(address.value, (byte) (value.value & 0xff), display);
+        memory.writeByteInternal(address.valueXYZ, (byte) (value.valueXYZ & 0xff), display);
       }
     });
   }
@@ -299,7 +299,7 @@ public class Z80 implements ZxModule {
 
     for (int i = 0x4000; i < 0x8000; i++) {
       WordNumber datum = memory1.read((WordNumber) new WordNumber(i), 0);
-      memory.writeByteInternal(i, datum != null ? (byte) (datum.value & 0xff) : 0, display);
+      memory.writeByteInternal(i, datum != null ? (byte) (datum.valueXYZ & 0xff) : 0, display);
     }
 
     memory1.enableReadListener();

@@ -174,20 +174,20 @@ public class CpuRunnerImpl extends CpuRunner<CpuImpl> {
   @Override
   public int getPC() {
     Register<WordNumber> pc = cpuImpl.ooz80.getState().getPc();
-    return pc.read().value;
+    return pc.read().valueXYZ;
     //return cpu.getEngine().PC;
   }
 
   @Override
   public int getSP() {
     Register<WordNumber> sp = cpuImpl.ooz80.getState().getRegisterSP();
-    return sp.read().value;
+    return sp.read().valueXYZ;
   }
 
   public void setFlags2(int mask) {
     Register<WordNumber> flag = cpuImpl.ooz80.getState().getRegister(RegisterName.AFx);
     WordNumber wordNumber = flag.read();
-    flag.write((WordNumber) (WordNumber) new WordNumber((wordNumber.value | mask) & 0xFFFF));
+    flag.write((WordNumber) (WordNumber) new WordNumber((wordNumber.valueXYZ | mask) & 0xFFFF));
   }
 
   public void resetFlags() {
@@ -208,7 +208,7 @@ public class CpuRunnerImpl extends CpuRunner<CpuImpl> {
 
   public static int getFlagsStatic(CpuImpl cpuImpl1) {
     Register<WordNumber> flag = cpuImpl1.ooz80.getState().getFlag();
-    return flag.read().value;
+    return flag.read().valueXYZ;
   }
 
   public int getFlags2() {
@@ -217,14 +217,14 @@ public class CpuRunnerImpl extends CpuRunner<CpuImpl> {
 
   public static int getFlagsStatic2(CpuImpl cpuImpl1) {
     Register<WordNumber> flag = cpuImpl1.ooz80.getState().getRegister(RegisterName.Fx);
-    return flag.read().value;
+    return flag.read().valueXYZ;
   }
 
   @Override
   public void setFlags(int mask) {
     Register<WordNumber> flag = cpuImpl.ooz80.getState().getFlag();
     WordNumber wordNumber = flag.read();
-    flag.write((WordNumber) (WordNumber) new WordNumber((wordNumber.value | mask) & 0xFFFF));
+    flag.write((WordNumber) (WordNumber) new WordNumber((wordNumber.valueXYZ | mask) & 0xFFFF));
     //cpu.getEngine().flags |= mask;
   }
 
@@ -293,7 +293,7 @@ public class CpuRunnerImpl extends CpuRunner<CpuImpl> {
         throw new IllegalArgumentException("Expected value between <0,3> !");
     }
 
-    return result.value & 0xff;
+    return result.valueXYZ & 0xff;
   }
 
 
@@ -330,7 +330,7 @@ public class CpuRunnerImpl extends CpuRunner<CpuImpl> {
         throw new IllegalArgumentException("Expected value between <0,3> !");
     }
 
-    return result.value & 0xff;
+    return result.valueXYZ & 0xff;
   }
 
   @Override

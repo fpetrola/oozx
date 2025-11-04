@@ -41,7 +41,7 @@ public class ConditionFlag<T extends WordNumber> extends ConditionBase {
   }
 
   public boolean conditionMet(Instruction instruction) {
-    return filterCondition(negate != ((register.read().value & flag) == flag), instruction);
+    return filterCondition(negate != ((register.read().valueXYZ & flag) == flag), instruction);
   }
 
   public Register<T> getRegister() {

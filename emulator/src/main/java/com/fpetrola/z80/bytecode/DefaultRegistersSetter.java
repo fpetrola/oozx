@@ -173,11 +173,11 @@ public class DefaultRegistersSetter<T extends WordNumber> implements RegistersSe
     Register<T> f = getFlag();
     if (carryState) {
       WordNumber wordNumber = f.read();
-      f.write((T) (WordNumber) new WordNumber((wordNumber.value | 0x01) & 0xFFFF));
+      f.write((T) (WordNumber) new WordNumber((wordNumber.valueXYZ | 0x01) & 0xFFFF));
     }
     else {
       WordNumber wordNumber = f.read();
-      f.write((T) (WordNumber) new WordNumber((wordNumber.value & 0xFE) & 0xFFFF));
+      f.write((T) (WordNumber) new WordNumber((wordNumber.valueXYZ & 0xFE) & 0xFFFF));
     }
   }
 

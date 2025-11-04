@@ -48,7 +48,7 @@ public class RoutineFinder<T extends WordNumber> {
 
   public void checkBeforeExecution(Instruction<T> instruction, int pcValue, State<T> state) {
     if (instruction instanceof Ld<T> ld && ld.getTarget() instanceof Register<?> register && register.getName().equals(SP.name())) {
-      int value = ld.getSource().read().value;
+      int value = ld.getSource().read().valueXYZ;
 
 //      int sp = state.getRegisterSP().read().intValue();
 //
@@ -83,11 +83,11 @@ public class RoutineFinder<T extends WordNumber> {
 
       if (lastInstruction instanceof JP<T> jp && jp.getPositionOpcodeReference() instanceof Register<T> register) {
         T t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
-        if (t.value == lastPc + 1) {
+        if (t.valueXYZ == lastPc + 1) {
 //          boolean syntheticReturnAddress = routineManager.getDataflowService().isSyntheticReturnAddress();
           WordNumber nextPC = register.read();
           if (nextPC != null) {
-            createOrUpdateCurrentRoutine(nextPC.value, instruction.getLength());
+            createOrUpdateCurrentRoutine(nextPC.valueXYZ, instruction.getLength());
           }
         }
       }
@@ -115,20 +115,20 @@ public class RoutineFinder<T extends WordNumber> {
     WordNumber nextPC = (WordNumber) ((ConditionalInstruction) lastInstruction).getNextPC();
     if (nextPC != null) {
 //      System.out.printf("CALL: %H%n", nextPC.intValue());
-      createOrUpdateCurrentRoutine(nextPC.value, instruction.getLength());
+      createOrUpdateCurrentRoutine(nextPC.valueXYZ, instruction.getLength());
     }
   }
 
   private void processRetInstruction(Ret ret) {
     WordNumber nextPC = (WordNumber) ret.getNextPC();
     if (nextPC != null) {
-      this.currentRoutine = routineManager.findRoutineAt(nextPC.value - 1);
+      this.currentRoutine = routineManager.findRoutineAt(nextPC.valueXYZ - 1);
     }
   }
 
   private void processPopInstruction(int pcValue, IPopReturnAddress popReturnAddress) {
     ReturnAddressWordNumber returnAddress1 = popReturnAddress.getReturnAddress();
-    Routine returnRoutine = routineManager.findRoutineAt(returnAddress1.value - 1);
+    Routine returnRoutine = routineManager.findRoutineAt(returnAddress1.valueXYZ - 1);
     if (returnRoutine != null) {
       if (popReturnAddress.getPreviousPc() != -1) {
         currentRoutine.getVirtualPop().put(popReturnAddress.getPreviousPc(), popReturnAddress.getPopAddress());
@@ -167,10 +167,10 @@ public class RoutineFinder<T extends WordNumber> {
     if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction) {
       if (conditionalInstruction.getNextPC() != null)
         if (instruction instanceof Call) {
-          routineManager.callers2.put(conditionalInstruction.getNextPC().value, pcValue);
+          routineManager.callers2.put(conditionalInstruction.getNextPC().valueXYZ, pcValue);
         } else if (!(instruction instanceof Ret<?>)) {
-          routineManager.callers.put(conditionalInstruction.getNextPC().value, pcValue);
-          routineManager.callees.put(pcValue, conditionalInstruction.getNextPC().value);
+          routineManager.callers.put(conditionalInstruction.getNextPC().valueXYZ, pcValue);
+          routineManager.callees.put(pcValue, conditionalInstruction.getNextPC().valueXYZ);
         }
     }
   }

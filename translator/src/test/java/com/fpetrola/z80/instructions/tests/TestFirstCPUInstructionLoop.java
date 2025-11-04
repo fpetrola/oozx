@@ -53,9 +53,9 @@ public class TestFirstCPUInstructionLoop<T extends WordNumber> extends BaseInstr
     assertLoopNumber(0, 16);
     assertLoopNumber(1, 8);
     assertLoopNumber(2, 4);
-    assertEquals(11, r(PC).read().value);
+    assertEquals(11, r(PC).read().valueXYZ);
     step();
-    assertEquals(257, r(PC).read().value);
+    assertEquals(257, r(PC).read().valueXYZ);
   }
 
   @Test
@@ -93,50 +93,50 @@ public class TestFirstCPUInstructionLoop<T extends WordNumber> extends BaseInstr
   }
 
   private void assertLoopNumber(int increment, int memoryValue) {
-    assertEquals(6, r(PC).read().value);
+    assertEquals(6, r(PC).read().valueXYZ);
     step();
-    assertEquals(memoryValue, r(A).read().value);
+    assertEquals(memoryValue, r(A).read().valueXYZ);
     step();
-    assertEquals(memoryValue, mem().read(r(DE).read(), 0).value);
+    assertEquals(memoryValue, mem().read(r(DE).read(), 0).valueXYZ);
     step();
-    assertEquals(14369 + increment, r(HL).read().value);
+    assertEquals(14369 + increment, r(HL).read().valueXYZ);
     step();
-    assertEquals(3 + increment, r(D).read().value);
-    assertEquals(10, r(PC).read().value);
+    assertEquals(3 + increment, r(D).read().valueXYZ);
+    assertEquals(10, r(PC).read().valueXYZ);
     step();
   }
 
   private void assertLoopSetup() {
     r(A).write((T) new WordNumber(4));
     step();
-    assertEquals(7, r(H).read().value);
+    assertEquals(7, r(H).read().valueXYZ);
     step();
-    assertEquals(4, r(L).read().value);
+    assertEquals(4, r(L).read().valueXYZ);
     step();
-    assertEquals(3592, r(HL).read().value);
+    assertEquals(3592, r(HL).read().valueXYZ);
     step();
-    assertEquals(3592 * 2, r(HL).read().value);
+    assertEquals(3592 * 2, r(HL).read().valueXYZ);
     step();
-    assertEquals(3592 * 4, r(HL).read().value);
+    assertEquals(3592 * 4, r(HL).read().valueXYZ);
     step();
-    assertEquals(3, r(B).read().value);
+    assertEquals(3, r(B).read().valueXYZ);
   }
 
 
   private void assertCompositeLoop(Register<T> vr1, Register<T> counter, int bValue, int memoryReadValue, int indexValue, int dValue, int readAddress, Register<T> vr2A) {
     step();
 
-    assertEquals(memoryReadValue, mem().read((T) new WordNumber(readAddress), 0).value);
-    assertEquals(indexValue, vr1.read().value);
+    assertEquals(memoryReadValue, mem().read((T) new WordNumber(readAddress), 0).valueXYZ);
+    assertEquals(indexValue, vr1.read().valueXYZ);
 
     step();
-    assertEquals(indexValue + 1, vr1.read().value);
-    assertEquals(dValue, vr2A.read().value);
+    assertEquals(indexValue + 1, vr1.read().valueXYZ);
+    assertEquals(dValue, vr2A.read().valueXYZ);
 
     step();
-    assertEquals(dValue + 1, vr2A.read().value);
+    assertEquals(dValue + 1, vr2A.read().valueXYZ);
 
     step();
-    assertEquals(bValue - 1, counter.read().value);
+    assertEquals(bValue - 1, counter.read().valueXYZ);
   }
 }

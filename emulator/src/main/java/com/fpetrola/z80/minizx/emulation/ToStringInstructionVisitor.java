@@ -65,7 +65,7 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
     conditionalInstruction.calculateJumpAddress();
     WordNumber jumpAddress = conditionalInstruction.getJumpAddress();
     String string = conditionalInstruction.getCondition().toString();
-    String s = " " + ((!string.isEmpty()) ? string + ", " : "") + (jumpAddress != null ? Helper.formatAddress(jumpAddress.value) : 0);
+    String s = " " + ((!string.isEmpty()) ? string + ", " : "") + (jumpAddress != null ? Helper.formatAddress(jumpAddress.valueXYZ) : 0);
     if (conditionalInstruction instanceof Ret<?>)
       s = " " + ((!string.isEmpty()) ? string : "");
 
@@ -75,7 +75,7 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
   public boolean visitingDjnz(DJNZ<T> conditionalInstruction) {
     conditionalInstruction.calculateJumpAddress();
     WordNumber jumpAddress = conditionalInstruction.getJumpAddress();
-    result = getInstructionName(conditionalInstruction) + " " + (jumpAddress != null ? Helper.formatAddress(jumpAddress.value) : 0);
+    result = getInstructionName(conditionalInstruction) + " " + (jumpAddress != null ? Helper.formatAddress(jumpAddress.valueXYZ) : 0);
     return true;
   }
 
@@ -88,7 +88,7 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
   }
 
   public boolean visitMemory8BitReference(Memory8BitReference<T> memory8BitReference) {
-    result = Helper.formatAddress(memory8BitReference.read().value);
+    result = Helper.formatAddress(memory8BitReference.read().valueXYZ);
     return true;
   }
 
@@ -170,14 +170,14 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
 
   public static <T extends WordNumber> void printPC(Instruction<T> instruction, T pcValue, T nextPC) {
     String toString = new ToStringInstructionVisitor<T>().createToString(instruction);
-    String x = String.format("%04d", pcValue.value) + ": " + toString + " -> " + nextPC;
+    String x = String.format("%04d", pcValue.valueXYZ) + ": " + toString + " -> " + nextPC;
     System.out.println(x);
   }
 
 
   @Override
   public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
-    byte dd = (byte) (memoryPlusRegister8BitReference.fetchedRelative != null ? memoryPlusRegister8BitReference.fetchedRelative.value : 0);
+    byte dd = (byte) (memoryPlusRegister8BitReference.fetchedRelative != null ? memoryPlusRegister8BitReference.fetchedRelative.valueXYZ : 0);
     String string2 = (dd > 0 ? "+" : "-") + Helper.formatAddress(Math.abs(dd));
     String string = memoryPlusRegister8BitReference.getTarget().toString();
     result = "(" + string + string2 + ")";

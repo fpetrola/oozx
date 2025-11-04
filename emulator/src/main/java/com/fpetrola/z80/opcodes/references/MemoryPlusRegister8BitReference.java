@@ -70,7 +70,7 @@ public class MemoryPlusRegister8BitReference<T extends WordNumber> implements Op
   public T read() {
     T read = target.read();
     byte i = fetchRelative();
-    address = (T) (WordNumber) new WordNumber((read.value + (int) i) & 0xFFFF);
+    address = (T) (WordNumber) new WordNumber((read.valueXYZ + (int) i) & 0xFFFF);
     value = memory.read(address, 0);
     return value;
   }
@@ -78,22 +78,22 @@ public class MemoryPlusRegister8BitReference<T extends WordNumber> implements Op
   public void write(T value) {
     byte i = fetchRelative();
     WordNumber wordNumber = target.read();
-    address = (T) (WordNumber) new WordNumber((wordNumber.value + (int) i) & 0xFFFF);
+    address = (T) (WordNumber) new WordNumber((wordNumber.valueXYZ + (int) i) & 0xFFFF);
     this.value= value;
     memory.write(address, value);
   }
 
   public byte fetchRelative() {
     WordNumber wordNumber = pc.read();
-    T dd = memory.read((T) (WordNumber) new WordNumber((wordNumber.value + valueDelta) & 0xFFFF), 0);
+    T dd = memory.read((T) (WordNumber) new WordNumber((wordNumber.valueXYZ + valueDelta) & 0xFFFF), 0);
     if (fetchedRelative != dd) {
       fetchedRelative = dd;
     }
-    return (byte) fetchedRelative.value;
+    return (byte) fetchedRelative.valueXYZ;
   }
 
   public String toString() {
-    byte dd = (byte) (fetchedRelative!=null? fetchedRelative.value : 0);
+    byte dd = (byte) (fetchedRelative!=null? fetchedRelative.valueXYZ : 0);
     String string2 = (dd > 0 ? "+" : "-") + Helper.formatAddress(Math.abs(dd));
     String string = "IXY";// target.toString();
     return "(" + string + string2 + ")";

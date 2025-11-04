@@ -33,8 +33,8 @@ public class ConditionalInstructionAddressAction<T extends WordNumber> extends A
     ConditionalInstruction instruction1 = (ConditionalInstruction) instruction;
     instruction1.calculateJumpAddress();
     WordNumber jumpAddress = instruction1.getJumpAddress();
-    if (jumpAddress != null && routineExecutionHandler.getPc().read().value > 16384) {
-      if (jumpAddress.value < 16384) {
+    if (jumpAddress != null && routineExecutionHandler.getPc().read().valueXYZ > 16384) {
+      if (jumpAddress.valueXYZ < 16384) {
         return branch = false;
       }
     }

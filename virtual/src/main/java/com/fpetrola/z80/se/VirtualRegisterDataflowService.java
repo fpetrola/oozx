@@ -45,7 +45,7 @@ public class VirtualRegisterDataflowService<T extends WordNumber> implements Dat
       Ld<T> instruction = (Ld<T>) low.instruction;
       if (instruction.getSource() instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
         ImmutableOpcodeReference<T> target1 = indirectMemory16BitReference.target;
-        pointerAddress = target1.read().value;
+        pointerAddress = target1.read().valueXYZ;
         System.out.println("indirectMemory16BitReference: " + target1);
       }
     } else if (register.read() instanceof DirectAccessWordNumber directAccessWordNumber) {

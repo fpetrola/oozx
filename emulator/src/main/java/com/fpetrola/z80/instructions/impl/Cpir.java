@@ -37,7 +37,7 @@ public class Cpir<T extends WordNumber> extends RepeatingInstruction<T> {
   }
 
   protected boolean checkLoopCondition() {
-    return (flag.read().value & Flags.ZERO_FLAG) == 0 && bc.read().value != 0;
+    return (flag.read().valueXYZ & Flags.ZERO_FLAG) == 0 && bc.read().valueXYZ != 0;
   }
 
   @Override

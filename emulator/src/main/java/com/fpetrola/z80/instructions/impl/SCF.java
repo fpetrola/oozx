@@ -39,7 +39,7 @@ public class SCF<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
   }
 
   public int execute() {
-    scfTableAluOperation.execute(flag.read().value, target.read().value, 1);
+    scfTableAluOperation.execute(flag.read().valueXYZ, target.read().valueXYZ, 1);
     flag.write((T) new WordNumber(scfTableAluOperation.F));
     return 4;
   }

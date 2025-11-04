@@ -64,7 +64,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   private SEInstructionFactory sEInstructionFactory;
 
   public int getPcValue() {
-    return pc.read().value;
+    return pc.read().valueXYZ;
   }
 
   public void reset() {
@@ -127,7 +127,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     this.minimalValidCodeAddress = minimalValidCodeAddress;
     memoryReadOnly(false, state);
 
-    registerSP = state.getRegisterSP().read().value;
+    registerSP = state.getRegisterSP().read().valueXYZ;
 
     routineExecutorHandler.createRoutineExecution(firstAddress);
     pc = state.getPc();
@@ -140,19 +140,19 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     SEInstructionFactory.dynamicJP.forEach((pc, dj) -> {
       for (int j = 0; j < writeMemoryReferences.size(); j++) {
         WriteMemoryReference w = writeMemoryReferences.get(j);
-        if (w.address.value == dj.pointerAddress()) {
+        if (w.address.valueXYZ == dj.pointerAddress()) {
           WriteMemoryReference w2 = writeMemoryReferences.get(j + 1);
-          if (w2.address.value == dj.pointerAddress() + 1) {
-            int value = w2.value.value * 256 + w.value.value;
+          if (w2.address.valueXYZ == dj.pointerAddress() + 1) {
+            int value = w2.value.valueXYZ * 256 + w.value.valueXYZ;
             dj.addCase(value);
           }
         }
       }
     });
     writeMemoryReferences.forEach(wmr -> {
-      Routine routineAt = routineManager.findRoutineAt(wmr.address.value);
+      Routine routineAt = routineManager.findRoutineAt(wmr.address.valueXYZ);
       if (routineAt != null) {
-        mutantAddress.add(wmr.address.value);
+        mutantAddress.add(wmr.address.valueXYZ);
       }
     });
   }
@@ -227,7 +227,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     nextSP = 0;
 
     while (!ready) {
-      var pcValue = pc.read().value;
+      var pcValue = pc.read().valueXYZ;
       ready = isReady(pcValue);
 
       if (!ready) {
@@ -248,7 +248,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           if (!routineExecution.hasActionAt(pcValue))
             routineExecution.createAndAddGenericAction(pcValue);
 
-          updatePcRegister(routineExecution.getAddressAction(pcValue).getNext(pcValue, pc.read().value));
+          updatePcRegister(routineExecution.getAddressAction(pcValue).getNext(pcValue, pc.read().valueXYZ));
 
           ready = routineExecutorHandler.isEmpty();
         }
@@ -280,7 +280,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   public void checkNextSP() {
-    if (nextSP == state.getRegisterSP().read().value) {
+    if (nextSP == state.getRegisterSP().read().valueXYZ) {
       System.out.print("");
     }
   }

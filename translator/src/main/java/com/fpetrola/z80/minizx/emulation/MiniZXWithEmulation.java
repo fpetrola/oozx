@@ -76,7 +76,7 @@ public class MiniZXWithEmulation {
           WordNumber read = (WordNumber) register.read();
           if (read != null) {
             Field field = spectrumApplication.getClass().getField(n.name());
-            field.set(spectrumApplication, read.value);
+            field.set(spectrumApplication, read.valueXYZ);
           }
         }
       } catch (Exception e) {
@@ -95,7 +95,7 @@ public class MiniZXWithEmulation {
       if (datum == null)
         datum = (WordNumber) new WordNumber(0);
 
-      spectrumApplication.getMem()[i] = (byte) datum.value;
+      spectrumApplication.getMem()[i] = (byte) datum.valueXYZ;
     }
   }
 
@@ -160,7 +160,7 @@ public class MiniZXWithEmulation {
   private int checkField(RegisterName n, Register<WordNumber> register, boolean[] differences) throws NoSuchFieldException, IllegalAccessException {
     Field field = spectrumApplication.getClass().getField(n.name());
     int o = (Integer) field.get(spectrumApplication);
-    int registerValue = register.read().value;
+    int registerValue = register.read().valueXYZ;
 
     if (register.read() != null && o != registerValue) {
       differences[0] = true;
@@ -217,7 +217,7 @@ public class MiniZXWithEmulation {
   }
 
   private void checkMem(WordNumber[] data, int i, boolean[] differences) {
-    int i1 = data[i].value & 0xFF;
+    int i1 = data[i].valueXYZ & 0xFF;
     int i2 = spectrumApplication.getMem()[i] & 0xff;
     if (i1 != i2) {
       System.out.println("mem diff at: " + formatAddress(i) + ": " + formatAddress(i1) + " - " + formatAddress(i2));
@@ -246,7 +246,7 @@ public class MiniZXWithEmulation {
             if (condition.conditionMet(this)) {
               final T value = Memory.read16Bits(memory, sp.read());
 
-              if (nextRetAddress.value == value.value) {
+              if (nextRetAddress.valueXYZ == value.valueXYZ) {
                 nextRetAddress = (T) new WordNumber(0);
                 Map<String, Integer> writtenRegisters = Map.of();
                 int address = 0;
@@ -279,11 +279,11 @@ public class MiniZXWithEmulation {
 
             T jumpAddress2 = calculateJumpAddress();
             if (condition.conditionMet(this)) {
-              Runnable runnable = convertedRoutines.get(jumpAddress.value);
+              Runnable runnable = convertedRoutines.get(jumpAddress.valueXYZ);
               if (runnable != null) {
                 WordNumber wordNumber = pc.read();
-                T retAddress = (T) (WordNumber) new WordNumber((wordNumber.value + length) & 0xFFFF);
-                retAddress = (T) new ReturnAddressWordNumber(retAddress.value, pc.read().value);
+                T retAddress = (T) (WordNumber) new WordNumber((wordNumber.valueXYZ + length) & 0xFFFF);
+                retAddress = (T) new ReturnAddressWordNumber(retAddress.valueXYZ, pc.read().valueXYZ);
                 if (!replacing)
                   Push.doPush(retAddress, sp, memory);
                 try {
@@ -360,7 +360,7 @@ public class MiniZXWithEmulation {
   private byte[] t1(WordNumber[] data) {
     byte[] d1 = new byte[0x10000];
     for (int i = 0; i < d1.length; i++) {
-      d1[i] = (byte) (data[i].value & 0xff);
+      d1[i] = (byte) (data[i].valueXYZ & 0xff);
     }
     String s = Base64Utils.gzipArrayCompressToBase64(d1);
     return d1;

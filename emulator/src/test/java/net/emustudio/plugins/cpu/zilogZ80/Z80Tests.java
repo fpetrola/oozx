@@ -21,7 +21,6 @@
 
 package net.emustudio.plugins.cpu.zilogZ80;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
 import net.emustudio.plugins.cpu.zilogZ80.suite.ByteTestBuilder;
 import net.emustudio.plugins.cpu.zilogZ80.suite.CpuRunnerImpl;
@@ -420,10 +419,10 @@ public class Z80Tests extends InstructionsTest {
         int rrBC = (CpuRunnerImpl.getRegister(REG_B, cpu) << 8) | CpuRunnerImpl.getRegister(REG_C, cpu);
         int rrDE = (CpuRunnerImpl.getRegister(REG_D, cpu) << 8) | CpuRunnerImpl.getRegister(REG_E, cpu);
         int rrHL = (CpuRunnerImpl.getRegister(REG_H, cpu) << 8) | CpuRunnerImpl.getRegister(REG_L, cpu);
-      int rrIX = cpu.ooz80.getState().getRegister(RegisterName.IX).read().value & 0xffff;
-      int rrIY = cpu.ooz80.getState().getRegister(RegisterName.IY).read().value & 0xffff;
-      int rrPC = cpu.ooz80.getState().getRegister(RegisterName.PC).read().value & 0xffff;
-      int rrSP = cpu.ooz80.getState().getRegister(RegisterName.SP).read().value & 0xffff;
+      int rrIX = cpu.ooz80.getState().getRegister(RegisterName.IX).read().valueXYZ & 0xffff;
+      int rrIY = cpu.ooz80.getState().getRegister(RegisterName.IY).read().valueXYZ & 0xffff;
+      int rrPC = cpu.ooz80.getState().getRegister(RegisterName.PC).read().valueXYZ & 0xffff;
+      int rrSP = cpu.ooz80.getState().getRegister(RegisterName.SP).read().valueXYZ & 0xffff;
         int rrMemHL = memory.read(rHL) & 0xFF;
 
         int i = (int) crc16(new byte[]{

@@ -44,7 +44,7 @@ public final class MemorySpy<T extends WordNumber> implements Memory<T> {
   }
 
   public void write(T address, T value) {
-    int key = address.value & 0xFFFF;
+    int key = address.valueXYZ & 0xFFFF;
     Integer times = map.get(key);
     if (times != null)
       times = times + 1;

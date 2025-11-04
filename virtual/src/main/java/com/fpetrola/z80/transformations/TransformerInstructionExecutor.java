@@ -65,11 +65,11 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
     Instruction<T> cloned;
     cloned = instructionTransformer.clone(baseInstruction);
     if (existentCloned == null) {
-      clonedInstructions.put(pc.read().value, cloned);
+      clonedInstructions.put(pc.read().valueXYZ, cloned);
     } else
       cloned = existentCloned;
 
-    instructions.put(pc.read().value, baseInstruction);
+    instructions.put(pc.read().valueXYZ, baseInstruction);
 
     resetter.executeAction(cloned);
 
@@ -78,7 +78,7 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
 
   @Override
   public Instruction<T> execute(Instruction<T> instruction) {
-    Instruction<T> existentCloned = clonedInstructions.get(pc.read().value);
+    Instruction<T> existentCloned = clonedInstructions.get(pc.read().valueXYZ);
     Instruction<T> cloned = processTargetSource(instruction, existentCloned);
 
 //    if (pc.read().intValue() == 34480)
@@ -173,7 +173,7 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
   }
 
   private int getAddressOf(Instruction instruction) {
-    return pc.read().value;
+    return pc.read().valueXYZ;
   }
 
   @Override

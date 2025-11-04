@@ -90,8 +90,8 @@ public class ZXScreenComponent<T extends WordNumber> extends JComponent {
 
   public MemoryWriteListener<T> getWriteListener() {
     return (address, value) -> {
-      int address1 = address.value;
-      int value1 = value.value;
+      int address1 = address.valueXYZ;
+      int value1 = value.valueXYZ;
 
       threadSafeQueue.add(() -> onMemoryWrite(address1, value1));
     };

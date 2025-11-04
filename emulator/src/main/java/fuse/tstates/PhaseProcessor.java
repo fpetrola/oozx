@@ -94,7 +94,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
     if (!isMemory8BitReference(ld.getSource()) && (isMemoryPlus(ld.getSource()) || isMemoryPlus(ld.getTarget())))
       phase.acceptAfterMR((e) -> switchByReadCount(() -> {
-        addMultipleMc(5, 1, 0, registerIR.read().value, null);
+        addMultipleMc(5, 1, 0, registerIR.read().valueXYZ, null);
       }));
   }
 
@@ -107,22 +107,22 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
         if (b || indirectMemory8BitReference1.getTarget() instanceof Memory16BitReference<T>)
           afterExecutionActions.add(() -> {
             WordNumber wordNumber = ld.getSource().read();
-            WordNumber wordNumber1 = (WordNumber) (WordNumber) new WordNumber((indirectMemory8BitReference1.address.value + 1) & 0xFFFF);
-            WordNumber number = ((WordNumber) (WordNumber) new WordNumber((wordNumber.value << 8) & 0xFFFF));
-            int i = ((T) (WordNumber) new WordNumber((wordNumber1.value & 0xff) & 0xFFFF)).value & 0xFFFF;
-            memptr.write((T) (WordNumber) new WordNumber((number.value | i) & 0xFFFF));
+            WordNumber wordNumber1 = (WordNumber) (WordNumber) new WordNumber((indirectMemory8BitReference1.address.valueXYZ + 1) & 0xFFFF);
+            WordNumber number = ((WordNumber) (WordNumber) new WordNumber((wordNumber.valueXYZ << 8) & 0xFFFF));
+            int i = ((T) (WordNumber) new WordNumber((wordNumber1.valueXYZ & 0xff) & 0xFFFF)).valueXYZ & 0xFFFF;
+            memptr.write((T) (WordNumber) new WordNumber((number.valueXYZ | i) & 0xFFFF));
           });
       }
 
       public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
         afterExecutionActions.add(() -> {
-          memptr.write((T) (WordNumber) new WordNumber((indirectMemory16BitReference.address.value + 1) & 0xFFFF));
+          memptr.write((T) (WordNumber) new WordNumber((indirectMemory16BitReference.address.valueXYZ + 1) & 0xFFFF));
         });
       }
 
       public boolean visitMemory16BitReference(Memory16BitReference<T> memory16BitReference) {
         afterExecutionActions.add(() -> {
-          memptr.write((T) (WordNumber) new WordNumber((memory16BitReference.fetchedAddress.value + 2) & 0xFFFF));
+          memptr.write((T) (WordNumber) new WordNumber((memory16BitReference.fetchedAddress.valueXYZ + 2) & 0xFFFF));
         });
         return false;
       }
@@ -132,13 +132,13 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
         boolean b = indirectMemory8BitReference.target instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"));
         if (b || indirectMemory8BitReference.getTarget() instanceof Memory16BitReference<?>)
           afterExecutionActions.add(() -> {
-            memptr.write((T) (WordNumber) new WordNumber((indirectMemory8BitReference.address.value + 1) & 0xFFFF));
+            memptr.write((T) (WordNumber) new WordNumber((indirectMemory8BitReference.address.valueXYZ + 1) & 0xFFFF));
           });
       }
 
       public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
         afterExecutionActions.add(() -> {
-          memptr.write((T) (WordNumber) new WordNumber((indirectMemory16BitReference.address.value + 1) & 0xFFFF));
+          memptr.write((T) (WordNumber) new WordNumber((indirectMemory16BitReference.address.valueXYZ + 1) & 0xFFFF));
         });
       }
     });
@@ -241,14 +241,14 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       phase.acceptAfterExecution((a) -> {
         getAfterExecutionPhaseVisitorForBlock(times, delta, registerName).visit(a);
         hasJumped(instruction).ifPresent(x -> {
-          addMultipleMc(5, 1, 0, registerName.read().value + delta, "contend_write_no_mreq");
+          addMultipleMc(5, 1, 0, registerName.read().valueXYZ + delta, "contend_write_no_mreq");
         });
       });
     } else {
       addMcBeforeExecution(1);
       phase.acceptAfterExecution((a) -> {
         hasJumped(instruction).ifPresent(x -> {
-          addMultipleMc(5, 1, 0, registerName.read().value + delta, "contend_write_no_mreq");
+          addMultipleMc(5, 1, 0, registerName.read().valueXYZ + delta, "contend_write_no_mreq");
         });
       });
     }
@@ -293,7 +293,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   public boolean visitLdOperation(LdOperation ldOperation) {
     AfterMRPhaseVisitor afterMRPhaseVisitor = p -> {
       if (readCount == 4) {
-        addMultipleMc(1, 1, 0, address.value, null);
+        addMultipleMc(1, 1, 0, address.valueXYZ, null);
       }
     };
     processTargetInstruction((TargetInstruction<T>) ldOperation.getInstruction(), afterMRPhaseVisitor);
@@ -319,7 +319,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
       phase.acceptAfterMR((e -> {
         if (readCount == 1) {
-          addMultipleMc(1, 1, 0, address.value, null);
+          addMultipleMc(1, 1, 0, address.valueXYZ, null);
         }
 
         afterMRPhaseVisitor.visit(e);
@@ -357,7 +357,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       switchByReadCount(
           () -> addMultipleMc(5, 1, 2, valueOf(registerPC), null),
           () -> {
-            addMultipleMc(1, 1, 0, address.value, null);
+            addMultipleMc(1, 1, 0, address.valueXYZ, null);
           }
       );
     })));

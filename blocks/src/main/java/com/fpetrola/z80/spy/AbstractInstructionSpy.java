@@ -111,9 +111,9 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
     Register pc = state.getPc();
     T pcValue = (T) pc.read();
 
-    if (pcValue.value <= 0xFFFF) {
+    if (pcValue.valueXYZ <= 0xFFFF) {
       executionNumber++;
-      lastExecutionPoint = new ExecutionPoint(executionNumber, instruction, pcValue.value);
+      lastExecutionPoint = new ExecutionPoint(executionNumber, instruction, pcValue.valueXYZ);
       addExecutionPoint(lastExecutionPoint);
 
       if (enableResquested && enableIfReturningFromRoutine(instruction)) {
@@ -126,7 +126,7 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
         executionStep = new ExecutionStep(memory);
         executionStep.setInstruction(instruction);
         executionStep.description = instruction.toString();
-        executionStep.pcValue = pcValue.value;
+        executionStep.pcValue = pcValue.valueXYZ;
       }
     }
   }
@@ -168,7 +168,7 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
 
       if (!executionStep.writeMemoryReferences.isEmpty()) {
         executionStep.writeMemoryReferences.stream().forEach(wmr -> {
-          int i = wmr.address.value;
+          int i = wmr.address.valueXYZ;
           if (fetchedMemory[i] != null && i >= 16384 && i != 65535) {
             mutantCode.add(i);
             System.out.println("mutant: " + mutantCode);
@@ -186,7 +186,7 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
         T key = writeMemoryReference.address;
         List<ExecutionStep<T>> value = memoryChanges.get(key);
         if (value == null) {
-          memoryChanges.put(key.value, value = new ArrayList<>());
+          memoryChanges.put(key.valueXYZ, value = new ArrayList<>());
         }
 
         value.add(0, step);

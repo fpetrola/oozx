@@ -48,7 +48,7 @@ public interface Z80InstructionDriver<T extends WordNumber> {
   default int readMemAt(int i) {
     T read = mem().read((T) new WordNumber(i), 0);
     assertNotNull(read);
-    return read.value;
+    return read.valueXYZ;
   }
 
   default void step(int i) {

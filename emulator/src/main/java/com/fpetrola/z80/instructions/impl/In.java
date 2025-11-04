@@ -71,8 +71,8 @@ public class In<T extends WordNumber> extends TargetSourceInstruction<T, Immutab
     boolean equalsN = !(source instanceof Register);
     if (equalsN) {
       WordNumber wordNumber = a.read();
-      int i = ((T) (WordNumber) new WordNumber((wordNumber.value << 8) & 0xFFFF)).value & 0xFFFF;
-      port = (T) (WordNumber) new WordNumber((port.value | i) & 0xFFFF);
+      int i = ((T) (WordNumber) new WordNumber((wordNumber.valueXYZ << 8) & 0xFFFF)).valueXYZ & 0xFFFF;
+      port = (T) (WordNumber) new WordNumber((port.valueXYZ | i) & 0xFFFF);
     } else {
       port = bc.read();
     }

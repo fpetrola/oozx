@@ -34,7 +34,7 @@ public class PushReturnAddress<T extends WordNumber> extends Push<T> {
   }
 
   public int execute() {
-    doPush((T) new WordNumber(target.read().value), sp, memory);
+    doPush((T) new WordNumber(target.read().valueXYZ), sp, memory);
     symbolicExecutionAdapter.checkNextSP();
 
     return 5 + cyclesCost;

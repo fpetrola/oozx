@@ -39,7 +39,7 @@ public class Flags {
    * @param set  if true will set, unset otherwise
    */
   public final static <T extends WordNumber> void setFlag(Register<T> r, int flag, boolean set) {
-    final int currentFlags = r.read().value;
+    final int currentFlags = r.read().valueXYZ;
 
     if (set) {
       r.write((T) new WordNumber(currentFlags | flag));
@@ -57,7 +57,7 @@ public class Flags {
    */
   public final static <T extends WordNumber> boolean getFlag(Register<T> r, int flag) {
 
-    final int currentFlags = r.read().value;
+    final int currentFlags = r.read().valueXYZ;
 
     return ((currentFlags & flag) == flag);
 
@@ -74,7 +74,7 @@ public class Flags {
    * @param value a value that will be used as reference for the flags
    */
   public final static <T extends WordNumber> void copyFrom(Register<T> r, int flag, int value) {
-    final int currentFlag = r.read().value & ~(flag);
+    final int currentFlag = r.read().valueXYZ & ~(flag);
     r.write((T) new WordNumber(currentFlag | (value & flag)));
   }
 

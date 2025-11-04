@@ -315,7 +315,7 @@ public class RoutineBytecodeGenerator {
     if (context.syncEnabled) {
       List<Object> params = new ArrayList<>();
       params.add(variable1);
-      params.add(lastMemPc.read().value);
+      params.add(lastMemPc.read().valueXYZ);
       addOtherMemSyncParameters(params);
       return mm.invoke("mem" + bits, params.toArray());
     } else {
@@ -333,7 +333,7 @@ public class RoutineBytecodeGenerator {
       List<Object> params = new ArrayList<>();
       params.add(variable1);
       params.add(o1);
-      params.add(lastMemPc.read().value);
+      params.add(lastMemPc.read().valueXYZ);
       addOtherMemSyncParameters(params);
 
       mm.invoke("wMem" + bits, params.toArray());

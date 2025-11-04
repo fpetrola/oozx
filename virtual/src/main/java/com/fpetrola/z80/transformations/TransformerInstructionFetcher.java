@@ -31,7 +31,7 @@ public class TransformerInstructionFetcher<T extends WordNumber> extends Instruc
   }
 
   public Instruction<?> fetchNextInstruction() {
-    updatePC(instructionExecutor.execute(instructions.get(pc.read().value)));
+    updatePC(instructionExecutor.execute(instructions.get(pc.read().valueXYZ)));
     return null;
   }
 

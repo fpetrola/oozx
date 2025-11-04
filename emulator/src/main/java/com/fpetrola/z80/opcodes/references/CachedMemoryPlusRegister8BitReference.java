@@ -28,6 +28,6 @@ public class CachedMemoryPlusRegister8BitReference<T extends WordNumber> extends
   }
 
   public byte fetchRelative() {
-    return (byte) fetchedRelative.value;
+    return (byte) fetchedRelative.valueXYZ;
   }
 }

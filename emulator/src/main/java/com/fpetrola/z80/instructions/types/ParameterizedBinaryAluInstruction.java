@@ -57,8 +57,8 @@ public class ParameterizedBinaryAluInstruction<T> extends TargetSourceInstructio
 
   public <T1> BinaryAluOperation<T1> getTBinaryAluOperation(TableAluOperation tableAluOperation) {
     return (tFlagRegister, a, value) -> {
-      int value1 = ((WordNumber) value).value;
-      int regA = ((WordNumber) a).value;
+      int value1 = ((WordNumber) value).valueXYZ;
+      int regA = ((WordNumber) a).valueXYZ;
       int[] i = tableAluOperation.executeWithoutCarry2(value1, regA);
       flag.write((T) new WordNumber(i[1]));
       return (T1) new WordNumber(i[0]);

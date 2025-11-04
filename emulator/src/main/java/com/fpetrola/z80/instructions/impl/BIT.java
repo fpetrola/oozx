@@ -43,7 +43,7 @@ public class BIT<T extends WordNumber> extends BitOperation<T> {
   }
 
   public int execute() {
-    int f = tBitAluOperation.execute2(n, flag.read().value, target.read().value);
+    int f = tBitAluOperation.execute2(n, flag.read().valueXYZ, target.read().valueXYZ);
     flag.write((T) new WordNumber(f));
 
     return cyclesCost;
@@ -59,17 +59,17 @@ public class BIT<T extends WordNumber> extends BitOperation<T> {
 
     public BitAluOperation(OpcodeReference<T> target, Register<T> memptr) {
       addressP = () -> {
-        return target.read().value;
+        return target.read().valueXYZ;
       };
       if (target instanceof MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference)
         addressP = () -> {
           WordNumber wordNumber = memoryPlusRegister8BitReference.getTarget().read();
           int i = memoryPlusRegister8BitReference.fetchRelative();
-          return ((WordNumber) (WordNumber) new WordNumber((wordNumber.value + i) & 0xFFFF)).value >> 8;
+          return ((WordNumber) (WordNumber) new WordNumber((wordNumber.valueXYZ + i) & 0xFFFF)).valueXYZ >> 8;
         };
       else if (target instanceof IndirectMemory8BitReference<T>)
         addressP = () -> {
-          return memptr.read().value >>> 8;
+          return memptr.read().valueXYZ >>> 8;
         };
     }
 

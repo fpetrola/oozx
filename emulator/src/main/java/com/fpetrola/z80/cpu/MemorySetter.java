@@ -36,7 +36,7 @@ public class MemorySetter<T> {
     for (int i = 0; i < result.length; i++) {
       int data = ((i < 16384) ? rom[i] : result[i]) & 0xff;
       WordNumber value = (WordNumber) new WordNumber(data);
-      memory.write((T) new WordNumber(i), (T) new WordNumber((value.value & 0xff) & 0xFFFF));
+      memory.write((T) new WordNumber(i), (T) new WordNumber((value.valueXYZ & 0xff) & 0xFFFF));
     }
     memory.enableWriteListener();
     memory.canDisable(false);

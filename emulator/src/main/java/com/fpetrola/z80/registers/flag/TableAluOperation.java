@@ -52,23 +52,23 @@ public class TableAluOperation extends AluOperation {
   public <T> T executeWithoutCarry(T value, T regA, Register<T> flag) {
     WordNumber regA1 = (WordNumber) regA;
     WordNumber value1 = (WordNumber) value;
-    WordNumber number = ((WordNumber) (WordNumber) new WordNumber((regA1.value << 8) & 0xFFFF));
-    int i = value1.value & 0xFFFF;
-    int data1 = table[((WordNumber) (WordNumber) new WordNumber((number.value | i) & 0xFFFF)).value];
+    WordNumber number = ((WordNumber) (WordNumber) new WordNumber((regA1.valueXYZ << 8) & 0xFFFF));
+    int i = value1.valueXYZ & 0xFFFF;
+    int data1 = table[((WordNumber) (WordNumber) new WordNumber((number.valueXYZ | i) & 0xFFFF)).valueXYZ];
     flag.write((T) new WordNumber(data1 & 0xFF));
     return (T) (WordNumber) new WordNumber(data1 >> 16 & 0xFFFF);
   }
 
   public <T extends WordNumber> T executeWithCarry(T regA, Register<T> flag) {
-    int data1 = table[((flag.read().value & 0x01) << 8) | (regA.value & 0xff)];
+    int data1 = table[((flag.read().valueXYZ & 0x01) << 8) | (regA.valueXYZ & 0xff)];
     flag.write((T) new WordNumber(data1 & 0xFF));
     return (T) (WordNumber) new WordNumber(data1 >> 16 & 0xFFFF);
   }
 
   public <T extends WordNumber> T executeWithCarry2(T value, T regA, int carry, Register<T> flag) {
-    WordNumber number = ((WordNumber) (WordNumber) new WordNumber((regA.value << 8) & 0xFFFF));
-    int i = value.value & 0xFFFF;
-    int data1 = table[((T) (WordNumber) new WordNumber((number.value | i) & 0xFFFF)).value | ((carry & 1) << 16)];
+    WordNumber number = ((WordNumber) (WordNumber) new WordNumber((regA.valueXYZ << 8) & 0xFFFF));
+    int i = value.valueXYZ & 0xFFFF;
+    int data1 = table[((T) (WordNumber) new WordNumber((number.valueXYZ | i) & 0xFFFF)).valueXYZ | ((carry & 1) << 16)];
     flag.write((T) new WordNumber(data1 & 0xFF));
     return (T) (WordNumber) new WordNumber(data1 >> 16 & 0xFFFF);
   }

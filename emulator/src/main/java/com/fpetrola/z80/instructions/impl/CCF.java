@@ -39,7 +39,7 @@ public class CCF<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
   }
 
   public int execute() {
-    ccfTableAluOperation.execute(flag.read().value, target.read().value, 1);
+    ccfTableAluOperation.execute(flag.read().valueXYZ, target.read().valueXYZ, 1);
     flag.write((T) new WordNumber(ccfTableAluOperation.F));
     return 4;
   }

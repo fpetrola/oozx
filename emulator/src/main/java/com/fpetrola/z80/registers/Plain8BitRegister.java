@@ -45,12 +45,12 @@ public class Plain8BitRegister<T extends WordNumber> implements Register<T> {
   }
 
   public void increment() {
-    this.data.value++;
+    this.data.valueXYZ++;
   }
 
   public void decrement() {
-    WordNumber wordNumber = ((WordNumber) (WordNumber) new WordNumber((data.value - 1) & 0xFFFF));
-    this.data = (T) (WordNumber) new WordNumber((wordNumber.value & 0xFF) & 0xFFFF);
+    WordNumber wordNumber = ((WordNumber) (WordNumber) new WordNumber((data.valueXYZ - 1) & 0xFFFF));
+    this.data = (T) (WordNumber) new WordNumber((wordNumber.valueXYZ & 0xFF) & 0xFFFF);
   }
 
   public int getLength() {

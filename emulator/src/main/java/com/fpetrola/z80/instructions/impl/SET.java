@@ -32,7 +32,7 @@ public class SET<T extends WordNumber> extends BitOperation<T> {
 
   public int execute() {
     WordNumber wordNumber = target.read();
-    target.write((T) (WordNumber) new WordNumber((wordNumber.value | 1 << n) & 0xFFFF));
+    target.write((T) (WordNumber) new WordNumber((wordNumber.valueXYZ | 1 << n) & 0xFFFF));
     return cyclesCost;
   }
 

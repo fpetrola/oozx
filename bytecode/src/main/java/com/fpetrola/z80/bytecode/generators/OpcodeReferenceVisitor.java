@@ -37,7 +37,7 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
 
   @Override
   public void visitOpcodeReference(OpcodeReference opcodeReference) {
-    result = ((WordNumber) opcodeReference.read()).value;
+    result = ((WordNumber) opcodeReference.read()).valueXYZ;
   }
 
   public Object getResult() {
@@ -51,12 +51,12 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
   }
 
   public void visitConstantOpcodeReference(ConstantOpcodeReference<T> constantOpcodeReference) {
-    result = constantOpcodeReference.read().value;
+    result = constantOpcodeReference.read().valueXYZ;
   }
 
   public void visitMemoryAccessOpcodeReference(MemoryAccessOpcodeReference<T> memoryAccessOpcodeReference) {
     Variable memoryField = routineByteCodeGenerator.getField("memory");
-    int o = memoryAccessOpcodeReference.getC().read().value;
+    int o = memoryAccessOpcodeReference.getC().read().valueXYZ;
     if (isTarget) result = new WriteArrayVariable(routineByteCodeGenerator, () -> o, "");
     else result = getFromMemory(o);
   }
@@ -81,7 +81,7 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
   public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
     Object variable;
     if (indirectMemory8BitReference.getTarget() instanceof Memory16BitReference<?> memory16BitReference) {
-      variable = memory16BitReference.read().value;
+      variable = memory16BitReference.read().valueXYZ;
     } else {
       Register target = (Register) indirectMemory8BitReference.getTarget();
       OpcodeReferenceVisitor opcodeReferenceVisitor = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
@@ -104,7 +104,7 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
   public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
     Object variable;
     if (indirectMemory16BitReference.target instanceof Memory16BitReference<?> memory16BitReference) {
-      variable = memory16BitReference.read().value;
+      variable = memory16BitReference.read().valueXYZ;
     } else {
       Register target = (Register) indirectMemory16BitReference.target;
       OpcodeReferenceVisitor opcodeReferenceVisitor = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
@@ -124,7 +124,7 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
 
   @Override
   public void visitImmutableOpcodeReference(ImmutableOpcodeReference immutableOpcodeReference) {
-    result = ((WordNumber) ((T) immutableOpcodeReference.read())).value;
+    result = ((WordNumber) ((T) immutableOpcodeReference.read())).valueXYZ;
   }
 
   public <T> Variable process(Register<T> register) {

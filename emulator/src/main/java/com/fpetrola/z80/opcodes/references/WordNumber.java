@@ -19,9 +19,9 @@
 package com.fpetrola.z80.opcodes.references;
 
 public class WordNumber {
-  public int value;
+  public int valueXYZ;
 
   public WordNumber(int aValue) {
-    this.value = aValue;
+    this.valueXYZ = aValue;
   }
 }

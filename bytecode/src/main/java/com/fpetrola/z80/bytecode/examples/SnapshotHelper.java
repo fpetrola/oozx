@@ -37,7 +37,7 @@ public class SnapshotHelper {
       if (wordNumber == null) {
         i1 = 0;
       } else {
-        i1 = wordNumber.value;
+        i1 = wordNumber.valueXYZ;
       }
       data[i] = (byte) i1;
     }

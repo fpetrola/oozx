@@ -36,10 +36,10 @@ public class Binary16BitsOperation<T extends WordNumber> extends ParameterizedBi
   }
 
   protected static <T extends WordNumber> T calculate(Register<T> tFlagRegister, T a, T b, TriFunction<Integer, Integer, Integer, Integer> operation, Binary16BitsAluOperation<T> action, TriFunction<Integer, Integer, Integer, Integer> compressFunction) {
-    int value1 = a.value;
-    int value2 = b.value;
+    int value1 = a.valueXYZ;
+    int value2 = b.valueXYZ;
     T flagValue = tFlagRegister.read();
-    int result = operation.apply(value1, value2, flagValue.value);
+    int result = operation.apply(value1, value2, flagValue.valueXYZ);
     value1 = compressFunction.apply(value1, value2, result);
     action.execute(tFlagRegister, value1, value2, result);
     return (T) new WordNumber(result & 0xffff);

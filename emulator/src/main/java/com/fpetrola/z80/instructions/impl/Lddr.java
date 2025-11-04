@@ -30,7 +30,7 @@ public class Lddr<T extends WordNumber> extends RepeatingInstruction<T> {
   }
 
   protected boolean checkLoopCondition() {
-    return bc.read().value != 0;
+    return bc.read().valueXYZ != 0;
   }
 
   @Override

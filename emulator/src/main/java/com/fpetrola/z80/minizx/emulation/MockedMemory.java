@@ -36,13 +36,13 @@ public class MockedMemory<T extends WordNumber> extends AbstractMemory<T> {
 
   @Override
   protected T doRead(T address) {
-    int i = address.value;
+    int i = address.valueXYZ;
     return i >= 0 ? data[i] : (T) new WordNumber(0);
   }
 
   @Override
   protected void doWrite(T address, T value) {
-    data[address.value] = (T) (WordNumber) new WordNumber((value.value & 0xff) & 0xFFFF);
+    data[address.valueXYZ] = (T) (WordNumber) new WordNumber((value.valueXYZ & 0xff) & 0xFFFF);
   }
 
   @Override

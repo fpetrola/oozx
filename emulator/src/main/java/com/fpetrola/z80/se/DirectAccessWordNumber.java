@@ -31,7 +31,7 @@ public class DirectAccessWordNumber extends WordNumber {
   }
 
   public <T extends WordNumber> T left(int i) {
-    return (T) (T) new WordNumber((value << i) & 0xFFFF);
+    return (T) (T) new WordNumber((valueXYZ << i) & 0xFFFF);
   }
 
   public WordNumber createInstance(int value) {

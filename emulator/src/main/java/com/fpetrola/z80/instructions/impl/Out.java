@@ -58,8 +58,8 @@ public class Out<T extends WordNumber> extends TargetSourceInstruction<T, Immuta
         read = (T) target.read();
         if (!(target instanceof Register<?>)) {
           WordNumber wordNumber = a.read();
-          int i = ((T) (WordNumber) new WordNumber((wordNumber.value << 8) & 0xFFFF)).value & 0xFFFF;
-          read = (T) (WordNumber) new WordNumber((read.value | i) & 0xFFFF);
+          int i = ((T) (WordNumber) new WordNumber((wordNumber.valueXYZ << 8) & 0xFFFF)).valueXYZ & 0xFFFF;
+          read = (T) (WordNumber) new WordNumber((read.valueXYZ | i) & 0xFFFF);
         }
       }
       return read;

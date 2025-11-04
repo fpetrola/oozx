@@ -63,7 +63,7 @@ public class Cpi<T extends WordNumber> extends BlockInstruction<T> {
   protected void flagOperation(T valueFromHL) {
     T value = memory.read(hl.read(), 0);
     T reg_A = a.read();
-    cpiTableAluOperation.executeWithCarry2(value, reg_A, bc.read().value != 0 ? 1 : 0, flag);
+    cpiTableAluOperation.executeWithCarry2(value, reg_A, bc.read().valueXYZ != 0 ? 1 : 0, flag);
   }
 
 

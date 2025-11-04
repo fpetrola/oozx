@@ -55,27 +55,27 @@ public class AluOperation extends AluOperationBase {
   }
 
   public <T extends WordNumber> T executeWithCarry(T regA, Register<T> flag) {
-    F = flag.read().value;
-    Integer result = biFunction.apply(regA.value, flag.read().value & 0x01);
+    F = flag.read().valueXYZ;
+    Integer result = biFunction.apply(regA.valueXYZ, flag.read().valueXYZ & 0x01);
     flag.write((T) new WordNumber(F));
     return (T) new WordNumber(result);
   }
 
   public <T extends WordNumber> T executeWithCarry(T value, T regA, Register<T> flag) {
-    F = flag.read().value;
-    return executeWithCarry2(value, regA, flag.read().value & 0x01, flag);
+    F = flag.read().valueXYZ;
+    return executeWithCarry2(value, regA, flag.read().valueXYZ & 0x01, flag);
   }
 
   public <T extends WordNumber> T executeWithCarry2(T value, T regA, int carry, Register<T> flag) {
-    F = flag.read().value;
-    Integer result = triFunction.apply(regA.value, value.value, carry & 1);
+    F = flag.read().valueXYZ;
+    Integer result = triFunction.apply(regA.valueXYZ, value.valueXYZ, carry & 1);
     flag.write((T) new WordNumber(F));
     return (T) new WordNumber(result);
   }
 
   public <T extends WordNumber> T executeWithoutCarry(T value, T regA, Register<T> flag) {
-    F = flag.read().value;
-    Integer result = triFunction.apply(regA.value, value.value, 0);
+    F = flag.read().valueXYZ;
+    Integer result = triFunction.apply(regA.valueXYZ, value.valueXYZ, 0);
     flag.write((T) new WordNumber(F));
     return (T) new WordNumber(result);
   }

@@ -62,7 +62,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
   public static <S extends WordNumber> Function<Integer, Integer> getMemFunction(OOZ80<S> ooz81) {
     return index -> {
-      return ooz81.getState().getMemory().read((S) new WordNumber(index), 10).value;
+      return ooz81.getState().getMemory().read((S) new WordNumber(index), 10).valueXYZ;
     };
   }
 
@@ -92,7 +92,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
   public void emulate() {
     int i = 0;
     while (true) {
-      if (!(ooz80.getState().getPc().read().value != emulateUntil)) break;
+      if (!(ooz80.getState().getPc().read().valueXYZ != emulateUntil)) break;
       if (i++ % (pause * 1000) == 0) this.ooz80.getState().setINTLine(true);
       else {
         if (i % pause == 0)
