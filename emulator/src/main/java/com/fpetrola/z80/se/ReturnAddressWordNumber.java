@@ -18,9 +18,10 @@
 
 package com.fpetrola.z80.se;
 
-import com.fpetrola.z80.opcodes.references.IntegerWordNumber;
 
-public class ReturnAddressWordNumber extends IntegerWordNumber {
+import com.fpetrola.z80.opcodes.references.WordNumber;
+
+public class ReturnAddressWordNumber extends WordNumber {
   public final int pc;
 
   public ReturnAddressWordNumber(int i, int pc) {
@@ -29,7 +30,7 @@ public class ReturnAddressWordNumber extends IntegerWordNumber {
   }
 
 
-  public IntegerWordNumber createInstance(int value) {
+  public WordNumber createInstance(int value) {
     return new ReturnAddressWordNumber(value & 0xFFFF, pc);
   }
 }

@@ -56,19 +56,19 @@ public class TableAluOperation extends AluOperation {
     WordNumber value1 = (WordNumber) value;
     int data1 = table[(regA1.left(8)).or(value1).intValue()];
     flag.write(createValue(data1 & 0xFF));
-    return regA1.createInstance(data1 >> 16);
+    return (T) regA1.createInstance(data1 >> 16);
   }
 
   public <T extends WordNumber> T executeWithCarry(T regA, Register<T> flag) {
     int data1 = table[((flag.read().intValue() & 0x01) << 8) | (regA.intValue() & 0xff)];
     flag.write(createValue(data1 & 0xFF));
-    return regA.createInstance(data1 >> 16);
+    return (T) regA.createInstance(data1 >> 16);
   }
 
   public <T extends WordNumber> T executeWithCarry2(T value, T regA, int carry, Register<T> flag) {
     int data1 = table[(regA.left(8)).or(value).intValue() | ((carry & 1) << 16)];
     flag.write(createValue(data1 & 0xFF));
-    return regA.createInstance(data1 >> 16);
+    return (T) regA.createInstance(data1 >> 16);
   }
 
   public int[] executeWithoutCarry2(int value, int regA) {

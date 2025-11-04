@@ -18,10 +18,9 @@
 
 package com.fpetrola.z80.se;
 
-import com.fpetrola.z80.opcodes.references.IntegerWordNumber;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class DirectAccessWordNumber extends IntegerWordNumber {
+public class DirectAccessWordNumber extends WordNumber {
   public final int pc;
   public final int address;
 
@@ -36,7 +35,7 @@ public class DirectAccessWordNumber extends IntegerWordNumber {
     return super.left(i);
   }
 
-  public IntegerWordNumber createInstance(int value) {
+  public WordNumber createInstance(int value) {
     return new DirectAccessWordNumber(value & 0xFFFF, pc, address);
   }
 }

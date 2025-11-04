@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.registers;
 
-import com.fpetrola.z80.opcodes.references.IntegerWordNumber;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
@@ -96,7 +95,7 @@ public class DefaultRegisterBankFactory<T extends WordNumber> {
     }
 
     public void write(T value) {
-      this.data = (T) new IntegerWordNumber(value.intValue());
+      this.data = (T) new WordNumber(value.intValue());
     }
   }
 
@@ -106,7 +105,7 @@ public class DefaultRegisterBankFactory<T extends WordNumber> {
     }
 
     public void write(T value) {
-      this.data = (T) new IntegerWordNumber(value.intValue());
+      this.data = (T) new WordNumber(value.intValue());
     }
   }
 
@@ -120,13 +119,13 @@ public class DefaultRegisterBankFactory<T extends WordNumber> {
     public void write(T value) {
       int regR = value.intValue() & 0x7f;
       regRbit7 = (value.intValue() > 0x7f);
-      super.write((T) new IntegerWordNumber(regR));
+      super.write((T) new WordNumber(regR));
     }
 
     public T read() {
       int regR = super.read().intValue();
       int result = regRbit7 ? (regR & 0x7f) | 0x80 : regR & 0x7f;
-      return (T) new IntegerWordNumber(result);
+      return (T) new WordNumber(result);
     }
   }
 }

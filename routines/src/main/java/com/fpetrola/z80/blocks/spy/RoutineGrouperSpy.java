@@ -34,7 +34,6 @@ import com.fpetrola.z80.metadata.GameMetadata;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.ExecutionPoint;
-import com.fpetrola.z80.opcodes.references.IntegerWordNumber;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.spy.AbstractInstructionSpy;
@@ -158,7 +157,7 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
         if (!isMutant) {
           boolean isConditional = executionStep.getInstruction() instanceof ConditionalInstruction;
           if (isConditional) {
-            z80.getState().getPc().write(new IntegerWordNumber(executionStep.pcValue));
+            z80.getState().getPc().write(new WordNumber(executionStep.pcValue));
             memorySpy.setMemory(new ReadOnlyMemoryImplementation(memory1));
             for (int i = 0; i < 2; i++) {
               z80.execute();
