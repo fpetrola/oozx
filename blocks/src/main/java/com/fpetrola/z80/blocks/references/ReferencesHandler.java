@@ -26,7 +26,6 @@ import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.metadata.DataStructure;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
@@ -37,7 +36,7 @@ import java.util.stream.Collectors;
 public class ReferencesHandler {
   public final DefaultBlock associatedBlock;
   public BlocksManager blocksManager;
-  public MultiValuedMap<Integer, BlockRelation> relationsBySourceAddress = new HashSetValuedHashMap<>();
+  public MultiValuedMap<java.lang.Integer, BlockRelation> relationsBySourceAddress = new HashSetValuedHashMap<>();
   Map<Long, DataStructure> dataStructures = new HashMap<>();
   private MemoryReadListener memoryReadListener;
 
@@ -119,15 +118,15 @@ public class ReferencesHandler {
 
   public void joinReferences(Block otherBlock) {
     ReferencesHandler otherBlockReferencesHandler = otherBlock.getReferencesHandler();
-    MultiValuedMap<Integer, BlockRelation> otherRelationsBySourceAddress = otherBlockReferencesHandler.relationsBySourceAddress;
-    Collection<Map.Entry<Integer, BlockRelation>> entries = new ArrayList<>(otherRelationsBySourceAddress.entries());
+    MultiValuedMap<java.lang.Integer, BlockRelation> otherRelationsBySourceAddress = otherBlockReferencesHandler.relationsBySourceAddress;
+    Collection<Map.Entry<java.lang.Integer, BlockRelation>> entries = new ArrayList<>(otherRelationsBySourceAddress.entries());
     entries.stream().forEach(c -> addBlockRelation(c.getValue()));
 
     otherRelationsBySourceAddress.clear();
   }
 
   public <T extends Block> List<BlockRelation> splitReferences(T otherBlock) {
-    Collection<Map.Entry<Integer, BlockRelation>> entries = relationsBySourceAddress.entries();
+    Collection<Map.Entry<java.lang.Integer, BlockRelation>> entries = relationsBySourceAddress.entries();
     List<BlockRelation> newBlockRelations = new ArrayList<>();
 
     entries.stream()
@@ -152,7 +151,7 @@ public class ReferencesHandler {
   }
 
   public List<Map.Entry<BlockRelation, ReferenceVersion>> findRelationsForCycle(int cycle) {
-    Collection<Map.Entry<Integer, BlockRelation>> entries = relationsBySourceAddress.entries();
+    Collection<Map.Entry<java.lang.Integer, BlockRelation>> entries = relationsBySourceAddress.entries();
     Map<BlockRelation, ReferenceVersion> collect = new HashMap<>();
     entries.stream()
         .filter(e -> isMine(e.getValue()))
@@ -175,17 +174,17 @@ public class ReferencesHandler {
     return entries1;
   }
 
-  public <T extends WordNumber> void removeDataObserver(Memory memory) {
+  public  void removeDataObserver(Memory memory) {
     memory.removeMemoryReadListener(memoryReadListener);
   }
 
-  public <T extends WordNumber> void addDataObserver(Memory memory, MemoryReadListener memoryReadListener1) {
+  public  void addDataObserver(Memory memory, MemoryReadListener memoryReadListener1) {
     memoryReadListener = memoryReadListener1;
     memory.addMemoryReadListener(memoryReadListener);
   }
 
   public Set<BlockRelation> getBlockRelations() {
-    Collection<Map.Entry<Integer, BlockRelation>> entries = relationsBySourceAddress.entries();
+    Collection<Map.Entry<java.lang.Integer, BlockRelation>> entries = relationsBySourceAddress.entries();
     Set<BlockRelation> blockRelations = new HashSet<>();
     entries.stream()
         .filter(e -> isMine(e.getValue()))
@@ -196,7 +195,7 @@ public class ReferencesHandler {
     return blockRelations;
   }
 
-  public <T extends WordNumber> boolean isDataBlock(int address) {
+  public  boolean isDataBlock(int address) {
     return blocksManager.findBlockAt(address) instanceof DataBlockType;
   }
 

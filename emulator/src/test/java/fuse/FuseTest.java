@@ -21,7 +21,6 @@ package fuse;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.minizx.emulation.ToStringInstructionVisitor;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
 
 import java.util.Arrays;
@@ -31,17 +30,17 @@ import java.util.stream.IntStream;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-public class FuseTest<T extends WordNumber> {
+public class FuseTest {
   public final String registers;
   public final String state;
   public final String memory;
   public final String testId;
-  public Z80Cpu<T> cpu;
+  public Z80Cpu cpu;
   private final List<String> namesLines;
   private final int lineNumber;
   private String name = "";
 
-  public FuseTest(String testId, String registers, String state, String memory, Z80Cpu<T> z80Cpu, List<String> namesLines, int lineNumber) {
+  public FuseTest(String testId, String registers, String state, String memory, Z80Cpu z80Cpu, List<String> namesLines, int lineNumber) {
     this.testId = testId;
     this.registers = registers;
     this.state = state;
@@ -54,19 +53,19 @@ public class FuseTest<T extends WordNumber> {
   public void initCpu() {
     cpu.reset();
 
-    List<Integer> registersArray = Arrays.stream(registers.split(" "))
-        .filter(s -> !s.isEmpty()).map(s -> Integer.parseInt(s, 16)).toList();
+    List<java.lang.Integer> registersArray = Arrays.stream(registers.split(" "))
+        .filter(s -> !s.isEmpty()).map(s -> java.lang.Integer.parseInt(s, 16)).toList();
 
     RegisterName[] registerNames = {AF, BC, DE, HL, AFx, BCx, DEx, HLx, IX, IY, SP, PC, MEMPTR};
 
     IntStream.range(0, registerNames.length)
         .forEach(i -> cpu.getState().getRegister(registerNames[i])
-            .write((T) new WordNumber(registersArray.get(i))));
+            .write(registersArray.get(i)));
 
-    List<Integer> stateArray = Arrays.stream(state.split(" ")).filter(s -> !s.isEmpty()).map(s -> Integer.parseInt(s, 16)).toList();
+    List<java.lang.Integer> stateArray = Arrays.stream(state.split(" ")).filter(s -> !s.isEmpty()).map(s -> java.lang.Integer.parseInt(s, 16)).toList();
 
-    cpu.getState().getRegister(I).write((T) new WordNumber(stateArray.get(0)));
-    cpu.getState().getRegister(R).write((T) new WordNumber(stateArray.get(1)));
+    cpu.getState().getRegister(I).write(stateArray.get(0));
+    cpu.getState().getRegister(R).write(stateArray.get(1));
     cpu.getState().setIff1(stateArray.get(2) != 0);
     cpu.getState().setIff2(stateArray.get(3) != 0);
     cpu.getState().setIntMode(State.InterruptionMode.values()[stateArray.get(4)]);
@@ -81,11 +80,11 @@ public class FuseTest<T extends WordNumber> {
 
     for (String memoryLine : memory.split("\n")) {
       if (!memoryLine.isBlank()) {
-        List<Integer> memoryArray = Arrays.stream(memoryLine.split(" ")).filter(s -> !s.equals("-1")).map(s -> Integer.parseInt(s, 16)).collect(Collectors.toList());
+        List<java.lang.Integer> memoryArray = Arrays.stream(memoryLine.split(" ")).filter(s -> !s.equals("-1")).map(s -> java.lang.Integer.parseInt(s, 16)).collect(Collectors.toList());
 
         int addr = memoryArray.get(0);
         for (int value : memoryArray.subList(1, memoryArray.size())) {
-          cpu.getState().getMemory().getData()[addr++] = (T) new WordNumber(value);
+          cpu.getState().getMemory().getData()[addr++] = value;
         }
       }
     }
@@ -108,7 +107,7 @@ public class FuseTest<T extends WordNumber> {
     int i;
     do {
       cpu.execute();
-      i = cpu.getState().getPc().read().valueXYZ;
+      i = cpu.getState().getPc().read();
 //      System.out.println("pc: " + i + " - expected: " + expectedPc + " - ticks: " + ticks);
     } while (i < expectedPc && ticks++ < 65536);
     return ticks < 65536;
@@ -116,10 +115,10 @@ public class FuseTest<T extends WordNumber> {
 
   public void run() {
     cpu.execute();
-    cpu.getState().getPc().write((T) new WordNumber(0));
+    cpu.getState().getPc().write(0);
 
     Instruction lastExecutedInstruction = ((FuseTestParser.MyDefaultInstructionFetcher) cpu.getInstructionFetcher()).getLastExecutedInstruction();
-    String toString = new ToStringInstructionVisitor<>().createToString(lastExecutedInstruction);
+    String toString = new ToStringInstructionVisitor().createToString(lastExecutedInstruction);
     if (toString.trim().equals("A"))
       System.out.println("adgdg");
     name = toString;

@@ -24,7 +24,6 @@ import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.cpu.IO;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import net.emustudio.cpu.testsuite.Generator;
 import net.emustudio.emulib.plugins.PluginInitializationException;
 import net.emustudio.emulib.plugins.memory.MemoryContext;
@@ -80,7 +79,7 @@ public class InstructionsTest {
       memory = new MyByteMemoryStub();
       cpu = new CpuImpl(PLUGIN_ID, applicationApi, PluginSettings.UNAVAILABLE, ooz80);
 
-      MockedMemory<WordNumber> memory1 = (MockedMemory<WordNumber>) this.cpu.ooz80.getState().getMemory();
+      MockedMemory memory1 = (MockedMemory) this.cpu.ooz80.getState().getMemory();
       memory.init(memory1);
       assertTrue(cpuContext.hasCaptured());
 
@@ -108,16 +107,16 @@ public class InstructionsTest {
     cpu.destroy();
   }
 
-  protected static class MyIO<T extends WordNumber> implements IO<T> {
-    private final Map<Integer, FakeByteDevice> devices = new HashMap<>();
+  protected static class MyIO implements IO {
+    private final Map<java.lang.Integer, FakeByteDevice> devices = new HashMap<>();
 
-    public T in(T port) {
-      FakeByteDevice fakeByteDevice = devices.get(port.valueXYZ);
-      return (T) new WordNumber(fakeByteDevice.getValue());
+    public int in(int port) {
+      FakeByteDevice fakeByteDevice = devices.get(port);
+      return fakeByteDevice.getValue();
     }
 
-    public void out(T port, T value) {
-      devices.get(port.valueXYZ).setValue((byte) value.valueXYZ);
+    public void out(int port, int value) {
+      devices.get(port).setValue((byte) value);
     }
 
     public void addDevice(int port, FakeByteDevice device) {

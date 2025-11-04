@@ -30,7 +30,7 @@ public class Single8BitRegisterVariable implements VariableDelegator {
   private final SmartComposed16BitRegisterVariable composedRegisterVariable;
   private final String nibble;
   private final RoutineBytecodeGenerator routineByteCodeGenerator;
-  private Register<?> register;
+  private Register register;
 
   public Single8BitRegisterVariable(MethodMaker methodMaker, Variable variable, SmartComposed16BitRegisterVariable composedRegister, String nibble, RoutineBytecodeGenerator routineByteCodeGenerator) {
     this.methodMaker = methodMaker;
@@ -41,7 +41,7 @@ public class Single8BitRegisterVariable implements VariableDelegator {
   }
 
   @Override
-  public void setRegister(Register<?> register) {
+  public void setRegister(Register register) {
     String name = variable.name();
     if (!register.getName().startsWith(name)) {
       throw new RuntimeException("no!");
@@ -73,7 +73,7 @@ public class Single8BitRegisterVariable implements VariableDelegator {
     variable.set(value);
   }
 
-  public Class<?> classType() {
+  public Class classType() {
     return int.class;
   }
 }

@@ -22,17 +22,16 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class Ld<T extends WordNumber> extends TargetSourceInstruction<T, ImmutableOpcodeReference<T>> {
-  public Ld(OpcodeReference<T> target, ImmutableOpcodeReference<T> source, Register<T> flag) {
+public class Ld extends TargetSourceInstruction<ImmutableOpcodeReference> {
+  public Ld(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
     super(target, source, flag);
   }
 
   public int execute() {
-    T value = source.read();
-    T aLU8Assign = value;
+    int value = source.read();
+    int aLU8Assign = value;
     target.write(aLU8Assign);
     return cyclesCost;
   }

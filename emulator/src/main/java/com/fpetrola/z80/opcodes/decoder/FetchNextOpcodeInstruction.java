@@ -20,6 +20,6 @@ package com.fpetrola.z80.opcodes.decoder;
 
 import com.fpetrola.z80.instructions.types.Instruction;
 
-public interface FetchNextOpcodeInstruction<T> extends Instruction<T> {
+public interface FetchNextOpcodeInstruction extends Instruction {
   Instruction[] getTable();
 }

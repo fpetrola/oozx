@@ -25,7 +25,6 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.registers.RegisterPair;
@@ -33,9 +32,9 @@ import com.fpetrola.z80.registers.RegisterPair;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class WrapperInstructionSpy<T extends WordNumber> implements InstructionSpy<T> {
+public abstract class WrapperInstructionSpy implements InstructionSpy {
   protected volatile boolean capturing;
-  protected ExecutionStep<T> executionStep;
+  protected ExecutionStep executionStep;
   protected MemorySpy memorySpy;
   protected boolean print = false;
   protected Memory memory;
@@ -59,12 +58,12 @@ public abstract class WrapperInstructionSpy<T extends WordNumber> implements Ins
 
     memorySpy.addMemoryWriteListener((address, value) -> {
       if (isCapturing())
-        addWriteMemoryReference((T) address, (T) value);
+        addWriteMemoryReference(address, value);
     });
 
     memorySpy.addMemoryReadListener((address, value, fetching) -> {
       if (isCapturing())
-        addReadMemoryReference((T) address, (T) value);
+        addReadMemoryReference(address, value);
     });
     return memorySpy;
   }
@@ -73,8 +72,8 @@ public abstract class WrapperInstructionSpy<T extends WordNumber> implements Ins
     return new OpcodeReferenceSpy(immutableOpcodeReference);
   }
 
-  public Register<T> wrapRegister(Register<T> register) {
-    Register<T> result = register;
+  public Register wrapRegister(Register register) {
+    Register result = register;
     if (!register.getName().equals(RegisterName.F.name())) {
       if (register instanceof RegisterPair) {
         result = new RegisterPairSpy(register);
@@ -82,20 +81,20 @@ public abstract class WrapperInstructionSpy<T extends WordNumber> implements Ins
         result = new RegisterSpy(register);
     }
 
-    if (result instanceof RegisterSpy<T> registerSpy) {
+    if (result instanceof RegisterSpy registerSpy) {
       registerSpy.addRegisterWriteListener(((value, isIncrement) -> {
         if (capturing)
-          addWriteReference(register.getName(), (T) value, isIncrement);
+          addWriteReference(register.getName(), value, isIncrement);
       }));
       registerSpy.addRegisterReadListener(((value) -> {
         if (capturing)
-          addReadReference(register.getName(), (T) value);
+          addReadReference(register.getName(), value);
       }));
     }
     return result;
   }
 
-  public void addWriteReference(String opcodeReference, T value, boolean isIncrement) {
+  public void addWriteReference(String opcodeReference, int value, boolean isIncrement) {
     if (capturing) {
       WriteOpcodeReference writeReference = executionStep.addWriteReference(opcodeReference, value, isIncrement, indirectReference);
       if (print)
@@ -103,7 +102,7 @@ public abstract class WrapperInstructionSpy<T extends WordNumber> implements Ins
     }
   }
 
-  public void addReadReference(String opcodeReference, T value) {
+  public void addReadReference(String opcodeReference, int value) {
     if (capturing) {
       ReadOpcodeReference readReference = executionStep.addReadReference(opcodeReference, value, indirectReference);
       if (print)
@@ -111,7 +110,7 @@ public abstract class WrapperInstructionSpy<T extends WordNumber> implements Ins
     }
   }
 
-  public void addWriteMemoryReference(T address, T value) {
+  public void addWriteMemoryReference(int address, int value) {
     if (capturing) {
       WriteMemoryReference writeMemoryReference = executionStep.addWriteMemoryReference(address, value, indirectReference);
       if (print)
@@ -120,9 +119,9 @@ public abstract class WrapperInstructionSpy<T extends WordNumber> implements Ins
     }
   }
 
-  public void addReadMemoryReference(T address, T value) {
+  public void addReadMemoryReference(int address, int value) {
     if (capturing) {
-      ReadMemoryReference<WordNumber> readMemoryReference = (ReadMemoryReference<WordNumber>) executionStep.addReadMemoryReference(address, value, indirectReference);
+      ReadMemoryReference readMemoryReference = executionStep.addReadMemoryReference(address, value, indirectReference);
       if (print)
         System.out.println(readMemoryReference);
 
@@ -145,12 +144,12 @@ public abstract class WrapperInstructionSpy<T extends WordNumber> implements Ins
   }
 
   @Override
-  public void beforeExecution(Instruction<T> instruction) {
+  public void beforeExecution(Instruction instruction) {
     executionListeners.forEach(l -> l.beforeExecution(instruction));
   }
 
   @Override
-  public void afterExecution(Instruction<T> instruction) {
+  public void afterExecution(Instruction instruction) {
     executionListeners.forEach(l -> l.afterExecution(instruction));
   }
 }

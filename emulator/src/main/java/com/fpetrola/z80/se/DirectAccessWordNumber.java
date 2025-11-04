@@ -18,23 +18,16 @@
 
 package com.fpetrola.z80.se;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
-public class DirectAccessWordNumber extends WordNumber {
+public class DirectAccessWordNumber  {
   public final int pc;
   public final int address;
 
   public DirectAccessWordNumber(int i, int pc, int address) {
-    super(i);
     this.pc = pc;
     this.address = address;
   }
 
-  public <T extends WordNumber> T left(int i) {
-    return (T) (T) new WordNumber((valueXYZ << i) & 0xFFFF);
-  }
-
-  public WordNumber createInstance(int value) {
+  public DirectAccessWordNumber createInstance(int value) {
     return new DirectAccessWordNumber(value & 0xFFFF, pc, address);
   }
 }

@@ -30,7 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ClassProxyHelper {
-  static <T extends SpectrumApplication> T createGameInstance(Class<T> superType) throws InstantiationException {
+  static <T extends SpectrumApplication> int createGameInstance(Class superType) throws InstantiationException {
     ZxGame1 o;
     try {
       Class<?> type = new ByteBuddy()
@@ -44,7 +44,7 @@ public class ClassProxyHelper {
     } catch (IllegalAccessException e) {
       throw new RuntimeException(e);
     }
-    return (T) o;
+    return -1;
   }
 
   static Object invokeMethod(Object self, Method method, Object[] args, Method superMethod) throws Throwable {

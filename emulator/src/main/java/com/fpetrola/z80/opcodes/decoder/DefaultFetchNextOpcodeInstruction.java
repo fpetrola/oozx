@@ -24,7 +24,6 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.Memory8BitReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 
@@ -32,18 +31,18 @@ import java.util.function.Consumer;
 
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
-public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends AbstractInstruction<T> implements FetchNextOpcodeInstruction<T> {
+public class DefaultFetchNextOpcodeInstruction extends AbstractInstruction implements FetchNextOpcodeInstruction {
   private boolean incrementR;
-  private final Register<T> pc;
+  private final Register pc;
   private final Instruction[] table;
   private final String name;
-  public final Memory<T> memoryForOpcodes;
+  public final Memory memoryForOpcodes;
   private final int incPc;
   private final Register registerR;
-  private Consumer<T> inc2Consumer;
-  private Consumer<T> inc1Consumer;
+  private Consumer<Integer> inc2Consumer;
+  private Consumer<Integer> inc1Consumer;
 
-  public DefaultFetchNextOpcodeInstruction(State state, Instruction[] table, int incPc, String name, Memory<T> memoryForOpcodes) {
+  public DefaultFetchNextOpcodeInstruction(State state, Instruction[] table, int incPc, String name, Memory memoryForOpcodes) {
     this.table = table;
     this.name = name;
     this.memoryForOpcodes = memoryForOpcodes;
@@ -56,15 +55,15 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
     this.pc = state.getRegister(PC);
     incrementR = name.length() == 2;
 
-    Consumer<T> nullConsumer = (a) -> {
+    Consumer<Integer> nullConsumer = (a) -> {
     };
     if (incPc == 2) {
-      inc2Consumer = plus1 -> memoryForOpcodes.read((T) (WordNumber) new WordNumber((plus1.valueXYZ - 1) & 0xFFFF), 0);
+      inc2Consumer = plus1 -> memoryForOpcodes.read((plus1 - 1) & 0xFFFF, 0);
     } else
       inc2Consumer = nullConsumer;
 
     if (incPc == 1)
-      inc1Consumer = plus1 -> memoryForOpcodes.read((T) (WordNumber) new WordNumber((plus1.valueXYZ + 1) & 0xFFFF), 0);
+      inc1Consumer = plus1 -> memoryForOpcodes.read((plus1 + 1) & 0xFFFF, 0);
     else
       inc1Consumer = nullConsumer;
   }
@@ -79,17 +78,17 @@ public class DefaultFetchNextOpcodeInstruction<T extends WordNumber> extends Abs
       registerR.increment();
   }
 
-  public Instruction<T> findNextOpcode() {
-    WordNumber wordNumber = pc.read();
-    return (Instruction<T>) table[memoryForOpcodes.read((T) (WordNumber) new WordNumber((wordNumber.valueXYZ + incPc - 1 + length) & 0xFFFF), incPc).valueXYZ];
+  public Instruction findNextOpcode() {
+    Integer wordNumber = pc.read();
+    return (Instruction) table[memoryForOpcodes.read((wordNumber + incPc - 1 + length) & 0xFFFF, incPc)];
   }
 
-  public Instruction<T> findNextOpcode2() {
-    WordNumber wordNumber = pc.read();
-    T plus = (T) (WordNumber) new WordNumber((wordNumber.valueXYZ + incPc - 1 + length) & 0xFFFF);
+  public Instruction findNextOpcode2() {
+    Integer wordNumber = pc.read();
+    int plus =(wordNumber + incPc - 1 + length) & 0xFFFF;
     inc2Consumer.accept(plus);
-    Instruction<T> instruction = table[memoryForOpcodes.read(plus, incPc).valueXYZ];
-    if (instruction instanceof Ld<T> ld && ld.getSource() instanceof Memory8BitReference<T>)
+    Instruction instruction = table[memoryForOpcodes.read(plus, incPc)];
+    if (instruction instanceof Ld ld && ld.getSource() instanceof Memory8BitReference)
       inc1Consumer.accept(plus);
 
     return instruction;

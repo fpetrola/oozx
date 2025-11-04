@@ -21,11 +21,10 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class RLD<T extends WordNumber> extends AbstractInstruction<T> {
+public class RLD extends AbstractInstruction {
   public static final TableAluOperation rldTableAluOperation = new TableAluOperation() {
     public int execute(int A, int value, int flag) {
       F = flag;
@@ -35,18 +34,18 @@ public class RLD<T extends WordNumber> extends AbstractInstruction<T> {
       return A;
     }
   };
-  protected final Register<T> a;
+  protected final Register a;
 
-  public Register<T> getHl() {
+  public Register getHl() {
     return hl;
   }
 
-  protected final Register<T> hl;
-  protected final Register<T> flag;
-  protected final Register<T> r;
-  protected final Memory<T> memory;
+  protected final Register hl;
+  protected final Register flag;
+  protected final Register r;
+  protected final Memory memory;
 
-  public RLD(Register<T> a, Register<T> hl, Register<T> flag, Register<T> r, Memory<T> memory) {
+  public RLD(Register a, Register hl, Register flag, Register r, Memory memory) {
     this.a = a;
     this.hl = hl;
     this.flag = flag;
@@ -55,25 +54,25 @@ public class RLD<T extends WordNumber> extends AbstractInstruction<T> {
   }
 
   public int execute() {
-    int reg_A = a.read().valueXYZ;
+    int reg_A = a.read();
     int nibble1 = (reg_A & 0x00F0) >> 4;
     int nibble2 = reg_A & 0x000F;
 
-    int temp = memory.read(hl.read(), 0).valueXYZ;
+    int temp = memory.read(hl.read(), 0);
     int nibble3 = (temp & 0x00F0) >> 4;
     int nibble4 = temp & 0x000F;
 
-    memory.write(hl.read(), (T) new WordNumber(getTemp1(nibble2, nibble3, nibble4)));
-    T value = (T) new WordNumber(getRegA1(nibble1, nibble4, nibble3));
+    memory.write(hl.read(), getTemp1(nibble2, nibble3, nibble4));
+    int value = getRegA1(nibble1, nibble4, nibble3);
 
-    executeAlu((T) new WordNumber(temp), (T) new WordNumber(reg_A));
+    executeAlu(temp, reg_A);
 
     a.write(value);
 
     return 1;
   }
 
-  protected void executeAlu(T value, T reg_A) {
+  protected void executeAlu(int value, int reg_A) {
     rldTableAluOperation.executeWithCarry(value, reg_A, flag);
   }
 

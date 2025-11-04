@@ -26,7 +26,7 @@ public class InputOutputDetector {
   public static void detectInputAndOutput(final Routine routine, Instruction instruction) {
     instruction.accept(new RegisterFinderInstructionVisitor() {
       public boolean visitRegister(Register register) {
-        if (register instanceof VirtualRegister<?> virtualRegister) {
+        if (register instanceof VirtualRegister virtualRegister) {
           addParameter(routine, virtualRegister);
           addReturnValue(routine, virtualRegister);
 //        addReturnValues(virtualRegister);
@@ -35,21 +35,21 @@ public class InputOutputDetector {
         return super.visitRegister(register);
       }
 
-      private void addParameters(VirtualRegister<?> virtualRegister) {
+      private void addParameters(VirtualRegister virtualRegister) {
         boolean isParameter = virtualRegister.getPreviousVersions().stream().anyMatch(previous -> routine.routineManager.findRoutineAt(previous.getRegisterLine()) != routine);
         if (isParameter)
           addParameter(routine, virtualRegister);
       }
 
-      private void addReturnValues(VirtualRegister<?> virtualRegister) {
+      private void addReturnValues(VirtualRegister virtualRegister) {
         boolean isReturnValue = virtualRegister.getDependants().stream().anyMatch(dependantRegister -> {
           boolean[] isReturnValue2 = new boolean[]{false};
           if (routine.routineManager.findRoutineAt(dependantRegister.getRegisterLine()) != routine.routineManager.findRoutineAt(virtualRegister.getRegisterLine())) {
-            if (dependantRegister instanceof Virtual8BitsRegister<?> dependantVirtual8BitsRegister) {
+            if (dependantRegister instanceof Virtual8BitsRegister dependantVirtual8BitsRegister) {
               checkReturn(routine, virtualRegister, dependantVirtual8BitsRegister, isReturnValue2);
-            } else if (dependantRegister instanceof VirtualComposed16BitRegister<?> virtualComposed16BitRegister) {
-              checkReturn(routine, (VirtualRegister<?>) virtualRegister, (Virtual8BitsRegister<?>) virtualComposed16BitRegister.getHigh(), isReturnValue2);
-              checkReturn(routine, (VirtualRegister<?>) virtualRegister, (Virtual8BitsRegister<?>) virtualComposed16BitRegister.getLow(), isReturnValue2);
+            } else if (dependantRegister instanceof VirtualComposed16BitRegister virtualComposed16BitRegister) {
+              checkReturn(routine, (VirtualRegister) virtualRegister, (Virtual8BitsRegister) virtualComposed16BitRegister.getHigh(), isReturnValue2);
+              checkReturn(routine, (VirtualRegister) virtualRegister, (Virtual8BitsRegister) virtualComposed16BitRegister.getLow(), isReturnValue2);
             } else
               System.out.println();
           }
@@ -61,8 +61,8 @@ public class InputOutputDetector {
     });
   }
 
-  private static void checkReturn(final Routine routine, VirtualRegister<?> virtualRegister, Virtual8BitsRegister<?> dependantVirtual8BitsRegister, boolean[] isReturnValue2) {
-    Instruction<?> instruction = dependantVirtual8BitsRegister.instruction;
+  private static void checkReturn(final Routine routine, VirtualRegister virtualRegister, Virtual8BitsRegister dependantVirtual8BitsRegister, boolean[] isReturnValue2) {
+    Instruction instruction = dependantVirtual8BitsRegister.instruction;
     instruction.accept(new RegisterFinderInstructionVisitor() {
       public boolean visitRegister(Register register) {
         boolean sameInitial = false;

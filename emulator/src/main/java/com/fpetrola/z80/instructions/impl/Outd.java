@@ -21,12 +21,11 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 
-public class Outd<T extends WordNumber> extends Outi<T> {
-  public Outd(RegisterPair<T> bc, RegisterPair<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
+public class Outd extends Outi {
+  public Outd(RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io) {
     super(bc, hl, flag, memory, io);
   }
 

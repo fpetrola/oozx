@@ -20,7 +20,6 @@ package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.actions.ExecutionStackStorage;
 
@@ -30,37 +29,37 @@ import java.util.Stack;
 
 import static com.fpetrola.z80.helpers.Helper.formatAddress;
 
-public class RoutineExecutorHandler<T extends WordNumber> {
-  private final Register<T> pc;
-  private Stack<Integer> stackFrames = new Stack<>();
-  private Map<Integer, RoutineExecution<T>> routineExecutions = new HashMap<>();
+public class RoutineExecutorHandler {
+  private final Register pc;
+  private Stack<java.lang.Integer> stackFrames = new Stack<>();
+  private Map<java.lang.Integer, RoutineExecution> routineExecutions = new HashMap<>();
 
-  private final State<T> state;
+  private final State state;
 
-  private ExecutionStackStorage<T> executionStackStorage;
+  private ExecutionStackStorage executionStackStorage;
 
-  private final DataflowService<T> dataflowService;
+  private final DataflowService dataflowService;
 
-  public RoutineExecutorHandler(State<T> state, ExecutionStackStorage executionStackStorage, DataflowService dataflowService) {
+  public RoutineExecutorHandler(State state, ExecutionStackStorage executionStackStorage, DataflowService dataflowService) {
     this.pc = state.getPc();
     this.state = state;
     this.executionStackStorage = executionStackStorage;
     this.dataflowService = dataflowService;
   }
 
-  public State<T> getState() {
+  public State getState() {
     return state;
   }
 
-  public DataflowService<T> getDataflowService() {
+  public DataflowService getDataflowService() {
     return dataflowService;
   }
 
-  public RoutineExecution<T> findRoutineExecutionAt(int address) {
+  public RoutineExecution findRoutineExecutionAt(int address) {
     return routineExecutions.get(address);
   }
 
-  public RoutineExecution<T> findRoutineExecutionContaining(int address) {
+  public RoutineExecution findRoutineExecutionContaining(int address) {
     return routineExecutions.values().stream().filter(r -> r.contains(address)).findFirst().get();
   }
 
@@ -72,17 +71,17 @@ public class RoutineExecutorHandler<T extends WordNumber> {
     System.out.println("Push frame: " + formatAddress(jumpAddress));
 
     stackFrames.push(jumpAddress);
-    RoutineExecution<T> routineExecution = routineExecutions.get(jumpAddress);
+    RoutineExecution routineExecution = routineExecutions.get(jumpAddress);
     if (routineExecution == null) {
-      routineExecutions.put(jumpAddress, routineExecution = new RoutineExecution<>(this, jumpAddress));
+      routineExecutions.put(jumpAddress, routineExecution = new RoutineExecution(this, jumpAddress));
     } else
       System.err.print("");
   }
 
   public Object popRoutineExecution() {
-    T t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
-    Integer pop = stackFrames.pop();
-    System.out.printf("Pop frame: %s, ret: %s%n", formatAddress(pop), formatAddress(t.valueXYZ));
+    int t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
+    java.lang.Integer pop = stackFrames.pop();
+    System.out.printf("Pop frame: %s, ret: %s%n", formatAddress(pop), formatAddress(t));
     return pop;
   }
 
@@ -95,19 +94,19 @@ public class RoutineExecutorHandler<T extends WordNumber> {
     return stackFrames.isEmpty();
   }
 
-  public RoutineExecution<T> getCurrentRoutineExecution() {
+  public RoutineExecution getCurrentRoutineExecution() {
     return routineExecutions.get(stackFrames.peek());
   }
 
-  public RoutineExecution<T> getCallerRoutineExecution() {
+  public RoutineExecution getCallerRoutineExecution() {
     return routineExecutions.get(stackFrames.get(stackFrames.size() - 2));
   }
 
-  public HashMap<Integer, RoutineExecution> getCopyListOfRoutineExecutions() {
+  public HashMap<java.lang.Integer, RoutineExecution> getCopyListOfRoutineExecutions() {
     return new HashMap<>(routineExecutions);
   }
 
-  public Register<T> getPc() {
+  public Register getPc() {
     return pc;
   }
 
@@ -115,7 +114,7 @@ public class RoutineExecutorHandler<T extends WordNumber> {
     return executionStackStorage;
   }
 
-  public void pushRoutineExecution(RoutineExecution<T> routineExecution) {
+  public void pushRoutineExecution(RoutineExecution routineExecution) {
     stackFrames.push(routineExecution.getStart());
   }
 }

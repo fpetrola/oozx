@@ -25,14 +25,13 @@ import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.decoder.table.MemoryForOpcodes;
 import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterBank;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 import com.fpetrola.z80.spy.SpyRegisterBankFactory;
 
 import static com.fpetrola.z80.registers.RegisterName.B;
 
-public class DebugEnabledOOZ80<T extends WordNumber> extends OOZ80<T> {
+public class DebugEnabledOOZ80 extends OOZ80 {
   protected OpCodeDecoder opCodeHandler2;
   protected volatile boolean continueExecution = true;
   protected volatile int till = 0xFFFFFFF;
@@ -49,7 +48,7 @@ public class DebugEnabledOOZ80<T extends WordNumber> extends OOZ80<T> {
 
     registerBank = new SpyRegisterBankFactory(spy).createBank();
     State state2 = new State(aState.getIo(), registerBank, spy.wrapMemory(aState.getMemory()));
-    OpCodeDecoder decoder1 = new TableBasedOpCodeDecoder<T>(state2, new OpcodeConditions(state2.getFlag(), state2.getRegister(B)), new FetchNextOpcodeInstructionFactory(state2), new DefaultInstructionFactory(state2), new MemoryForOpcodes(state2.getMemory(), getState()));
+    OpCodeDecoder decoder1 = new TableBasedOpCodeDecoder(state2, new OpcodeConditions(state2.getFlag(), state2.getRegister(B)), new FetchNextOpcodeInstructionFactory(state2), new DefaultInstructionFactory(state2), new MemoryForOpcodes(state2.getMemory(), getState()));
 //    new ByExtensionOpCodeDecoder(state2, spy2).compareOpcodesGenerators(state2, spy2, decoder1);
 
     return decoder1;
@@ -58,7 +57,7 @@ public class DebugEnabledOOZ80<T extends WordNumber> extends OOZ80<T> {
   public void execute() {
     try {
 
-      if (state.getPc().read().valueXYZ == till)
+      if (state.getPc().read() == till)
         continueExecution = false;
 
       if (state.isActiveNMI()) {
@@ -92,11 +91,11 @@ public class DebugEnabledOOZ80<T extends WordNumber> extends OOZ80<T> {
 
   public String decodeAt(int pc2) {
 //    String value = "";
-//    Plain16BitRegister<T> tempPC = new Plain16BitRegister<T>(PC);
-//    T value = WordNumber.createValue(pc2);
+//    Plain16BitRegister tempPC = new Plain16BitRegister(PC);
+//    int value = WordNumber.createValue(pc2);
 //    tempPC.write(value);
 //    int i = state.getMemory().read(tempPC.read()).intValue();
-//    Instruction<T> opcode1 = getOpCodeHandler().getOpcodeLookupTable()[i];
+//    Instruction opcode1 = getOpCodeHandler().getOpcodeLookupTable()[i];
 //    tempPC.increment(1);
 //    int length = opcode1.getLength();
 //    tempPC.write(value.plus(1));
@@ -114,8 +113,8 @@ public class DebugEnabledOOZ80<T extends WordNumber> extends OOZ80<T> {
   }
 
   public int getLenghtAt(int pc2) {
-    int i = state.getMemory().read((T) new WordNumber(pc2), 0).valueXYZ;
-    Instruction<T> opcode1 = createOpCodeHandler(state).getOpcodeLookupTable()[i];
+    int i = state.getMemory().read(pc2, 0);
+    Instruction opcode1 = createOpCodeHandler(state).getOpcodeLookupTable()[i];
     int length = opcode1.getLength();
     return length;
   }

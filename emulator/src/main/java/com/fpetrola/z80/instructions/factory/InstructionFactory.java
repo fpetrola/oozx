@@ -23,10 +23,10 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
 
-public interface InstructionFactory<T extends WordNumber> {
+public interface InstructionFactory {
   FetchNextOpcodeInstructionFactory getFetchNextOpcodeInstructionFactory();
 
-  DJNZ<T> DJNZ(BNotZeroCondition bnz, ImmutableOpcodeReference<T> target);
+  DJNZ DJNZ(BNotZeroCondition bnz, ImmutableOpcodeReference target);
 
   JP JP(ImmutableOpcodeReference target, Condition condition);
 
@@ -34,7 +34,7 @@ public interface InstructionFactory<T extends WordNumber> {
 
   JR JR(Condition condition, ImmutableOpcodeReference target);
 
-  Adc<T> Adc(OpcodeReference<T> target, ImmutableOpcodeReference<T> source);
+  Adc Adc(OpcodeReference target, ImmutableOpcodeReference source);
 
   Cpd Cpd();
 
@@ -68,7 +68,7 @@ public interface InstructionFactory<T extends WordNumber> {
 
   SET SET(OpcodeReference target, int n);
 
-  Cpir<T> Cpir();
+  Cpir Cpir();
 
   Cpdr Cpdr();
 
@@ -116,17 +116,17 @@ public interface InstructionFactory<T extends WordNumber> {
 
   Inc16 Inc16(OpcodeReference target);
 
-  Ld<T> Ld(OpcodeReference<T> target, ImmutableOpcodeReference<T> source);
+  Ld Ld(OpcodeReference target, ImmutableOpcodeReference source);
 
-  LdAR<T> LdAR(OpcodeReference<T> target, ImmutableOpcodeReference<T> source);
+  LdAR LdAR(OpcodeReference target, ImmutableOpcodeReference source);
 
-  LdAI<T> LdAI();
+  LdAI LdAI();
 
   Ldd Ldd();
 
   Ldi Ldi();
 
-  LdOperation<T> LdOperation(OpcodeReference target, Instruction<T> instruction);
+  LdOperation LdOperation(OpcodeReference target, Instruction instruction);
 
   Neg Neg(OpcodeReference target);
 
@@ -144,11 +144,11 @@ public interface InstructionFactory<T extends WordNumber> {
 
   RetN RetN(Condition condition);
 
-  RL<T> RL(OpcodeReference target);
+  RL RL(OpcodeReference target);
 
   RLA RLA();
 
-  RLC<T> RLC(OpcodeReference target);
+  RLC RLC(OpcodeReference target);
 
   RLCA RLCA();
 
@@ -168,7 +168,7 @@ public interface InstructionFactory<T extends WordNumber> {
 
   SCF SCF();
 
-  SLA SLA(OpcodeReference<T> target);
+  SLA SLA(OpcodeReference target);
 
   SLL SLL(OpcodeReference target);
 

@@ -29,19 +29,19 @@ import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 
 import java.util.function.Supplier;
 
-public class ContextDriverDelegator<T extends WordNumber> implements Z80ContextDriver<T> {
-  protected Z80ContextDriver<T> currentContext;
+public class ContextDriverDelegator implements Z80ContextDriver {
+  protected Z80ContextDriver currentContext;
 
-  public ContextDriverDelegator(Z80ContextDriver<T> currentContext) {
+  public ContextDriverDelegator(Z80ContextDriver currentContext) {
     this.currentContext = currentContext;
   }
 
-  public int add(Instruction<T> instruction) {
+  public int add(Instruction instruction) {
     return currentContext.add(instruction);
   }
 
   @Override
-  public State<T> getState() {
+  public State getState() {
     return currentContext.getState();
   }
 
@@ -56,44 +56,44 @@ public class ContextDriverDelegator<T extends WordNumber> implements Z80ContextD
     currentContext.reset();
   }
 
-  public Register<T> r(RegisterName registerName) {
+  public Register r(RegisterName registerName) {
     return currentContext.r(registerName);
   }
 
-  public RegisterPair<T> rp(RegisterName registerName) {
+  public RegisterPair rp(RegisterName registerName) {
     return currentContext.rp(registerName);
   }
 
-  public MockedMemory<T> mem() {
+  public MockedMemory mem() {
     return currentContext.mem();
   }
 
   @Override
-  public MockedMemory<T> initMem(Supplier<T[]> supplier) {
+  public MockedMemory initMem(Supplier<Integer[]> supplier) {
     return currentContext.initMem(supplier);
   }
 
 
-  public Register<T> f() {
+  public Register f() {
     return currentContext.f();
   }
 
   @Override
-  public Register<T> pc() {
+  public Register pc() {
     return currentContext.pc();
   }
 
 
-  public OpcodeReference iRR(Register<T> memoryReader) {
+  public OpcodeReference iRR(Register memoryReader) {
     return currentContext.iRR(memoryReader);
   }
 
   @Override
-  public OpcodeReference iRRn(Register<T> register, int plus) {
+  public OpcodeReference iRRn(Register register, int plus) {
     return currentContext.iRRn(register, plus);
   }
 
-  public ImmutableOpcodeReference<T> c(int value) {
+  public ImmutableOpcodeReference c(int value) {
     return currentContext.c(value);
   }
 
@@ -124,7 +124,7 @@ public class ContextDriverDelegator<T extends WordNumber> implements Z80ContextD
   }
 
 
-  public OpcodeReference iiRR(Register<T> memoryWriter) {
+  public OpcodeReference iiRR(Register memoryWriter) {
     return currentContext.iiRR(memoryWriter);
   }
 

@@ -19,9 +19,8 @@
 package com.fpetrola.z80.spy;
 
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public interface ExecutionListener<T extends WordNumber> {
-  void beforeExecution(Instruction<T> instruction);
-  void afterExecution(Instruction<T> instruction);
+public interface ExecutionListener {
+  void beforeExecution(Instruction instruction);
+  void afterExecution(Instruction instruction);
 }

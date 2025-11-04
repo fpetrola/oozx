@@ -25,7 +25,7 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class Cp<T> extends ParameterizedBinaryAluInstruction<T> {
+public class Cp extends ParameterizedBinaryAluInstruction {
   public static final TableAluOperation cpTableAluOperation = new TableAluOperation() {
     public int execute(int A, int value, int carry) {
       int cptemp = A - value;
@@ -42,15 +42,15 @@ public class Cp<T> extends ParameterizedBinaryAluInstruction<T> {
     }
   };
 
-  public Cp(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
+  public Cp(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
     super(target, source, flag, cpTableAluOperation);
   }
 
-  protected T doExecute(T value1, T value2) {
+  protected int doExecute(int value1, int value2) {
     return super.doExecute(value2, value1);
   }
 
-  protected void assignTarget(T execute) {
+  protected void assignTarget(int execute) {
   }
 
   @Override

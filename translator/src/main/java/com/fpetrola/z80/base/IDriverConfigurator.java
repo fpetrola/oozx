@@ -18,16 +18,15 @@
 
 package com.fpetrola.z80.base;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 
-public interface IDriverConfigurator<T extends WordNumber> {
-  RoutineFinderInstructionSpy<T> getRoutineFinderInstructionSpy();
+public interface IDriverConfigurator {
+  RoutineFinderInstructionSpy getRoutineFinderInstructionSpy();
 
-  CPUExecutionContext<T> getSecondContext();
+  CPUExecutionContext getSecondContext();
 
-  CPUExecutionContext<T> getFirstContext();
+  CPUExecutionContext getFirstContext();
 
   RoutineManager getRoutineManager();
 

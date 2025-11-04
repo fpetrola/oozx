@@ -33,43 +33,43 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class TransformerInstructionExecutor<T extends WordNumber> implements InstructionExecutor<T> {
-  private final Register<T> pc;
-  public final InstructionExecutor<T> instructionExecutor;
+public class TransformerInstructionExecutor implements InstructionExecutor {
+  private final Register pc;
+  public final InstructionExecutor instructionExecutor;
   private final boolean noRepeat;
 
-  public TransformerInstructionExecutor(Register<T> pc, InstructionExecutor<T> instructionExecutor, boolean noRepeat, InstructionTransformer<T> instructionTransformer) {
+  public TransformerInstructionExecutor(Register pc, InstructionExecutor instructionExecutor, boolean noRepeat, InstructionTransformer instructionTransformer) {
     this.pc = pc;
     this.instructionExecutor = instructionExecutor;
     this.noRepeat = noRepeat;
     this.instructionTransformer = instructionTransformer;
   }
 
-  private final InstructionTransformer<T> instructionTransformer;
-  private final InstructionActionExecutor<T> resetter = new InstructionActionExecutor<>(r -> r.reset());
-  private Map<Integer, Instruction<T>> clonedInstructions = new HashMap<>();
-  public Map<Integer, Instruction<T>> instructions = new HashMap<>();
-  public List<Instruction<T>> executed = new ArrayList<>();
+  private final InstructionTransformer instructionTransformer;
+  private final InstructionActionExecutor resetter = new InstructionActionExecutor(r -> r.reset());
+  private Map<java.lang.Integer, Instruction> clonedInstructions = new HashMap<>();
+  public Map<java.lang.Integer, Instruction> instructions = new HashMap<>();
+  public List<Instruction> executed = new ArrayList<>();
 
   @Override
-  public Instruction<T> getInstructionAt(int address) {
+  public Instruction getInstructionAt(int address) {
     return clonedInstructions.get(address);
   }
 
-  private Instruction<T> processTargetSource(Instruction<T> instruction, Instruction<T> existentCloned) {
+  private Instruction processTargetSource(Instruction instruction, Instruction existentCloned) {
     instructionTransformer.virtualRegisterFactory.getRegisterNameBuilder().setCurrentAddress(getAddressOf(instruction));
 
-    Instruction<T> baseInstruction = AbstractInstructionSpy.processToBase(instruction);
+    Instruction baseInstruction = AbstractInstructionSpy.processToBase(instruction);
     AbstractInstructionSpy.processToBase(instruction);
     instructionTransformer.setCurrentInstruction(baseInstruction);
-    Instruction<T> cloned;
+    Instruction cloned;
     cloned = instructionTransformer.clone(baseInstruction);
     if (existentCloned == null) {
-      clonedInstructions.put(pc.read().valueXYZ, cloned);
+      clonedInstructions.put(pc.read(), cloned);
     } else
       cloned = existentCloned;
 
-    instructions.put(pc.read().valueXYZ, baseInstruction);
+    instructions.put(pc.read(), baseInstruction);
 
     resetter.executeAction(cloned);
 
@@ -77,9 +77,9 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
   }
 
   @Override
-  public Instruction<T> execute(Instruction<T> instruction) {
-    Instruction<T> existentCloned = clonedInstructions.get(pc.read().valueXYZ);
-    Instruction<T> cloned = processTargetSource(instruction, existentCloned);
+  public Instruction execute(Instruction instruction) {
+    Instruction existentCloned = clonedInstructions.get(pc.read());
+    Instruction cloned = processTargetSource(instruction, existentCloned);
 
 //    if (pc.read().intValue() == 34480)
 //      System.out.print("");
@@ -97,10 +97,10 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
     return cloned;
   }
 
-  private boolean isConcreteInstruction(Instruction<T> cloned) {
+  private boolean isConcreteInstruction(Instruction cloned) {
     boolean[] b = new boolean[]{isConcrete(cloned)};
 
-    InstructionVisitor<WordNumber, ?> instructionVisitor = new InstructionVisitor<>() {
+    InstructionVisitor<?> instructionVisitor = new InstructionVisitor<Integer>() {
       public void visitingSource(ImmutableOpcodeReference source, TargetSourceInstruction targetSourceInstruction) {
         source.accept(this);
       }
@@ -117,11 +117,11 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
         b[0] = true;
       }
 
-      public void visitMemoryAccessOpcodeReference(MemoryAccessOpcodeReference<WordNumber> memoryAccessOpcodeReference) {
+      public void visitMemoryAccessOpcodeReference(MemoryAccessOpcodeReference memoryAccessOpcodeReference) {
         b[0] = true;
       }
 
-      public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<WordNumber> memoryPlusRegister8BitReference) {
+      public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference memoryPlusRegister8BitReference) {
         b[0] = true;
       }
 
@@ -162,18 +162,18 @@ public class TransformerInstructionExecutor<T extends WordNumber> implements Ins
     return b[0];
   }
 
-  private boolean isConcrete(Instruction<T> cloned) {
+  private boolean isConcrete(Instruction cloned) {
     return Stream.of(ConditionalInstruction.class, RST.class, In.class, Out.class, EI.class, DI.class)
         .anyMatch(c -> c.isAssignableFrom(cloned.getClass()));
   }
 
   @Override
-  public boolean isExecuting(Instruction<T> instruction) {
+  public boolean isExecuting(Instruction instruction) {
     return instructionExecutor.isExecuting(instruction);
   }
 
   private int getAddressOf(Instruction instruction) {
-    return pc.read().valueXYZ;
+    return pc.read();
   }
 
   @Override

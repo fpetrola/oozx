@@ -31,7 +31,7 @@ public class SmartComposed16BitRegisterVariable implements VariableDelegator {
   private final String name;
   private final Variable variable;
   private final RoutineBytecodeGenerator routineByteCodeGenerator;
-  private Register<?> register;
+  private Register register;
   private Single8BitRegisterVariable variableLow;
   private Single8BitRegisterVariable variableHigh;
 
@@ -43,7 +43,7 @@ public class SmartComposed16BitRegisterVariable implements VariableDelegator {
   }
 
   @Override
-  public void setRegister(Register<?> register) {
+  public void setRegister(Register register) {
     if (!register.getName().startsWith(name)) {
       throw new RuntimeException("no!");
     }
@@ -53,9 +53,9 @@ public class SmartComposed16BitRegisterVariable implements VariableDelegator {
 
   public Variable set(Object value) {
     Variable result = variable.set(RoutineBytecodeGenerator.getRealVariable(value));
-    VirtualComposed16BitRegister<?> currentRegister = (VirtualComposed16BitRegister<?>) register;
+    VirtualComposed16BitRegister currentRegister = (VirtualComposed16BitRegister) register;
 
-    IVirtual8BitsRegister<?> low = currentRegister.getLow();
+    IVirtual8BitsRegister low = currentRegister.getLow();
     boolean noOptimization = !routineByteCodeGenerator.context.optimize16Convertion;
 
     if (noOptimization || !low.getDependants().stream().anyMatch(VirtualRegister::isComposed2))
@@ -63,7 +63,7 @@ public class SmartComposed16BitRegisterVariable implements VariableDelegator {
     else
       System.out.println("low");
 
-    IVirtual8BitsRegister<?> high = currentRegister.getHigh();
+    IVirtual8BitsRegister high = currentRegister.getHigh();
     if (noOptimization || !high.getDependants().stream().anyMatch(VirtualRegister::isComposed2)) {
       variableHigh.directSet(variable.shr(8));
     } else
@@ -72,8 +72,8 @@ public class SmartComposed16BitRegisterVariable implements VariableDelegator {
   }
 
   public Variable getDelegate() {
-//    VirtualRegister<?> register1 = byteCodeGenerator.currentRegister;
-//    List<? extends VirtualRegister<?>> previousVersions = register1.getPreviousVersions();
+//    VirtualRegister register1 = byteCodeGenerator.currentRegister;
+//    List<? extends VirtualRegister> previousVersions = register1.getPreviousVersions();
 //    if (previousVersions.stream().allMatch(VirtualRegister::isMixRegister)) {
 //      Variable high = byteCodeGenerator.variables.get(name.charAt(0) + "");
 //      Variable low = byteCodeGenerator.variables.get(name.charAt(1) + "");
@@ -93,7 +93,7 @@ public class SmartComposed16BitRegisterVariable implements VariableDelegator {
 //    return methodMaker.invoke(name, value);
 //  }
 
-  public Class<?> classType() {
+  public Class classType() {
     return int.class;
   }
 

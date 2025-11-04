@@ -21,10 +21,9 @@ package com.fpetrola.z80.transformations;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class ByteCodeGeneratorVisitorLevel1<T extends WordNumber> implements InstructionVisitor<T, T> {
+public class ByteCodeGeneratorVisitorLevel1 implements InstructionVisitor<Integer> {
   private final GenerateByteCodeInDepth visitor = new GenerateByteCodeInDepth();
 
   public void visitingConditionalInstruction(ConditionalInstruction conditionalInstruction) {

@@ -20,18 +20,17 @@ package com.fpetrola.z80.spy;
 
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExecutionStep<T extends WordNumber> {
+public class ExecutionStep {
   public List<WriteOpcodeReference> writeReferences = new ArrayList<>();
   public List<ReadOpcodeReference> readReferences = new ArrayList<>();
-  public List<WriteMemoryReference<T>> writeMemoryReferences = new ArrayList<>();
-  public List<ReadMemoryReference<T>> readMemoryReferences = new ArrayList<>();
+  public List<WriteMemoryReference> writeMemoryReferences = new ArrayList<>();
+  public List<ReadMemoryReference> readMemoryReferences = new ArrayList<>();
   transient public List<Object> accessReferences = new ArrayList<>();
-  private transient Instruction<T> instruction;
+  private transient Instruction instruction;
   public String description;
   public int pcValue;
   final transient private Memory memory;
@@ -41,7 +40,7 @@ public class ExecutionStep<T extends WordNumber> {
     this.memory = memory;
   }
 
-  public WriteOpcodeReference addWriteReference(String opcodeReference, T value, boolean isIncrement, boolean indirectReference) {
+  public WriteOpcodeReference addWriteReference(String opcodeReference, int value, boolean isIncrement, boolean indirectReference) {
     WriteOpcodeReference e = new WriteOpcodeReference(opcodeReference, value, isIncrement, indirectReference);
     writeReferences.add(e);
     addAccessReference(e);
@@ -52,7 +51,7 @@ public class ExecutionStep<T extends WordNumber> {
     accessReferences.add(e);
   }
 
-  public ReadOpcodeReference addReadReference(String opcodeReference, T value, boolean indirectReference) {
+  public ReadOpcodeReference addReadReference(String opcodeReference, int value, boolean indirectReference) {
     ReadOpcodeReference e = new ReadOpcodeReference(opcodeReference, value, indirectReference);
     readReferences.add(e);
     addAccessReference(e);
@@ -66,15 +65,15 @@ public class ExecutionStep<T extends WordNumber> {
     readMemoryReferences.clear();
   }
 
-  public WriteMemoryReference addWriteMemoryReference(T address, T value, boolean indirectReference) {
+  public WriteMemoryReference addWriteMemoryReference(int address, int value, boolean indirectReference) {
     WriteMemoryReference e = new WriteMemoryReference(address, value, memory, indirectReference);
     writeMemoryReferences.add(e);
     addAccessReference(e);
     return e;
   }
 
-  public ReadMemoryReference<T> addReadMemoryReference(T address, T value, boolean indirectReference) {
-    ReadMemoryReference<T> e = new ReadMemoryReference<T>(address, value, memory, indirectReference);
+  public ReadMemoryReference addReadMemoryReference(int address, int value, boolean indirectReference) {
+    ReadMemoryReference e = new ReadMemoryReference(address, value, memory, indirectReference);
     readMemoryReferences.add(e);
     addAccessReference(e);
     return e;
@@ -88,11 +87,11 @@ public class ExecutionStep<T extends WordNumber> {
     this.i = i;
   }
 
-  public Instruction<T> getInstruction() {
+  public Instruction getInstruction() {
     return instruction;
   }
 
-  public void setInstruction(Instruction<T> instruction) {
+  public void setInstruction(Instruction instruction) {
     this.instruction = instruction;
   }
 }

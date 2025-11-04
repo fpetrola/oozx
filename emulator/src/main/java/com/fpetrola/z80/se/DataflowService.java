@@ -18,13 +18,12 @@
 
 package com.fpetrola.z80.se;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public interface DataflowService<T extends WordNumber> {
-  int findValueOrigin(Register<T> register);
+public interface DataflowService {
+  int findValueOrigin(Register register);
 
-  WordNumber findCurrentReturnAddress();
+  Integer findCurrentReturnAddress();
 
   boolean isSyntheticReturnAddress();
 }

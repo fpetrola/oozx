@@ -21,18 +21,17 @@ package com.fpetrola.z80.se.actions;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.Arrays;
 
-public class ExecutionStackStorage<T extends WordNumber> {
-  private T[] savedStack;
-  private final State<T> state;
+public class ExecutionStackStorage {
+  private Integer[] savedStack;
+  private final State state;
   private int savedSP;
   private boolean enabled = true;
   private int lastSP = 123;
 
-  public ExecutionStackStorage(State<T> state) {
+  public ExecutionStackStorage(State state) {
     this.state = state;
   }
 
@@ -45,16 +44,16 @@ public class ExecutionStackStorage<T extends WordNumber> {
 //      throw new RuntimeException("already stored");
   }
 
-  private void printStack(int savedSP1, T[] savedStack1, String prefix) {
+  private void printStack(int savedSP1, Integer[] savedStack1, String prefix) {
     System.out.printf(prefix + "stack: SP: %04X -> %s%n", savedSP1, printStack(savedStack1));
   }
 
   public void printStack() {
-    printStack(state.getRegisterSP().read().valueXYZ, createStackCopy(), "PC: %s ".formatted(Helper.formatAddress(state.getPc().read().valueXYZ)));
+    printStack(state.getRegisterSP().read(), createStackCopy(), "PC: %s ".formatted(Helper.formatAddress(state.getPc().read())));
   }
 
   public void restore() {
-    Memory<T> memory = state.getMemory();
+    Memory memory = state.getMemory();
     if (savedStack != null && enabled) {
 //      WordNumber[] currentStack = createStackCopy();
 
@@ -64,30 +63,30 @@ public class ExecutionStackStorage<T extends WordNumber> {
 
       for (int i = 0; i < savedStack.length; i++) {
         if ((savedSP + i) <= 65535)
-          memory.getData()[savedSP + i] = (T) savedStack[i];
+          memory.getData()[savedSP + i] = savedStack[i];
       }
 
       printStack(savedSP, savedStack, "restoring ");
 
 //      T[] savedStack3 = Arrays.copyOfRange(memory.getData(), savedSP, savedSP + 40);
 
-      state.getRegisterSP().write((T) new WordNumber(savedSP));
+      state.getRegisterSP().write(savedSP);
     }
   }
 
-  public T[] createStackCopy() {
-    Memory<T> memory = state.getMemory();
-    savedSP = state.getRegisterSP().read().valueXYZ;
+  public Integer[] createStackCopy() {
+    Memory memory = state.getMemory();
+    savedSP = state.getRegisterSP().read();
     int i = savedSP + 40;
     return Arrays.copyOfRange(memory.getData(), savedSP, Math.min(i, 65536));
   }
 
-  private String printStack(T[] savedStack1) {
+  private String printStack(Integer[] savedStack1) {
     StringBuilder result = new StringBuilder();
     result.append("[ ");
     for (int i = 0; i < savedStack1.length; i += 2) {
       if (i + 1 < savedStack1.length) {
-        int i1 = (savedStack1[i + 1].valueXYZ * 256) + savedStack1[i].valueXYZ;
+        int i1 = (savedStack1[i + 1] * 256) + savedStack1[i];
         result.append("%04X".formatted(i1));
         result.append(", ");
       }
@@ -99,8 +98,8 @@ public class ExecutionStackStorage<T extends WordNumber> {
     return result.toString();
   }
 
-  public ExecutionStackStorage<T> create() {
-    return new ExecutionStackStorage<>(state);
+  public ExecutionStackStorage create() {
+    return new ExecutionStackStorage(state);
   }
 
   public void disable() {
@@ -109,7 +108,7 @@ public class ExecutionStackStorage<T extends WordNumber> {
 
   public void changingSP(int value) {
     disable();
-    lastSP = state.getRegisterSP().read().valueXYZ;
+    lastSP = state.getRegisterSP().read();
   }
 
   private void enable() {

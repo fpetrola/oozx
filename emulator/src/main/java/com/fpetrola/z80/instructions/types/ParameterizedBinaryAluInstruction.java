@@ -21,23 +21,22 @@ package com.fpetrola.z80.instructions.types;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class ParameterizedBinaryAluInstruction<T> extends TargetSourceInstruction<T, ImmutableOpcodeReference<T>> {
-  public ParameterizedBinaryAluInstruction(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag, TableAluOperation tableAluOperation) {
+public class ParameterizedBinaryAluInstruction extends TargetSourceInstruction<ImmutableOpcodeReference> {
+  public ParameterizedBinaryAluInstruction(OpcodeReference target, ImmutableOpcodeReference source, Register flag, TableAluOperation tableAluOperation) {
     super(target, source, flag);
     this.binaryAluOperation = getTBinaryAluOperation(tableAluOperation);
   }
 
-  public interface BinaryAluOperation<T> {
-    T execute(Register<T> flag, T value1, T value2);
+  public interface BinaryAluOperation {
+    int execute(Register flag, int value1, int value2);
   }
 
-  protected BinaryAluOperation<T> binaryAluOperation;
+  protected BinaryAluOperation binaryAluOperation;
 
-  public ParameterizedBinaryAluInstruction(OpcodeReference<T> target, ImmutableOpcodeReference<T> source, Register<T> flag, BinaryAluOperation<T> binaryAluOperation) {
+  public ParameterizedBinaryAluInstruction(OpcodeReference target, ImmutableOpcodeReference source, Register flag, BinaryAluOperation binaryAluOperation) {
     super(target, source, flag);
     this.binaryAluOperation = binaryAluOperation;
   }
@@ -47,21 +46,21 @@ public class ParameterizedBinaryAluInstruction<T> extends TargetSourceInstructio
     return cyclesCost;
   }
 
-  protected T doExecute(T value1, T value2) {
+  protected int doExecute(int value1, int value2) {
     return binaryAluOperation.execute(flag, value1, value2);
   }
 
-  protected void assignTarget(T execute) {
+  protected void assignTarget(int execute) {
     target.write(execute);
   }
 
-  public <T1> BinaryAluOperation<T1> getTBinaryAluOperation(TableAluOperation tableAluOperation) {
+  public <T1> BinaryAluOperation getTBinaryAluOperation(TableAluOperation tableAluOperation) {
     return (tFlagRegister, a, value) -> {
-      int value1 = ((WordNumber) value).valueXYZ;
-      int regA = ((WordNumber) a).valueXYZ;
+      int value1 = ((Integer) value);
+      int regA = ((Integer) a);
       int[] i = tableAluOperation.executeWithoutCarry2(value1, regA);
-      flag.write((T) new WordNumber(i[1]));
-      return (T1) new WordNumber(i[0]);
+      flag.write(i[1]);
+      return i[0];
     };
   }
 

@@ -21,14 +21,13 @@ package com.fpetrola.z80.bytecode;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.Z80InstructionDriver;
 import com.fpetrola.z80.spy.MemorySpy;
 
 import java.util.function.Supplier;
 
-public abstract class DefaultZ80InstructionDriver<T extends WordNumber> implements Z80InstructionDriver<T> {
-  protected Z80Cpu<T> z80;
+public abstract class DefaultZ80InstructionDriver implements Z80InstructionDriver {
+  protected Z80Cpu z80;
 
   public DefaultZ80InstructionDriver(OOZ80 z80) {
     this.z80 = z80;
@@ -38,16 +37,16 @@ public abstract class DefaultZ80InstructionDriver<T extends WordNumber> implemen
     z80.execute();
   }
 
-  public MockedMemory<T> mem() {
-    return (MockedMemory<T>) (getState().getMemory() instanceof MemorySpy memorySpy ? memorySpy.getMemory() : getState().getMemory());
+  public MockedMemory mem() {
+    return (MockedMemory) (getState().getMemory() instanceof MemorySpy memorySpy ? memorySpy.getMemory() : getState().getMemory());
   }
 
-  public MockedMemory<T> initMem(Supplier<T[]> supplier) {
+  public MockedMemory initMem(Supplier<Integer[]> supplier) {
     mem().init(supplier);
     return mem();
   }
 
-  public State<T> getState() {
+  public State getState() {
     return z80.getState();
   }
 }

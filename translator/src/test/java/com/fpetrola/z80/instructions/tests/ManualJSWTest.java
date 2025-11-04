@@ -21,7 +21,6 @@ package com.fpetrola.z80.instructions.tests;
 import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.base.ManualBytecodeGenerationTest;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.google.inject.Inject;
 import io.exemplary.guice.Modules;
 import io.exemplary.guice.TestRunner;
@@ -35,7 +34,7 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 
 @RunWith(TestRunner.class)
 @Modules(TransformationsTestBaseModule.class)
-public class ManualJSWTest<T extends WordNumber> extends ManualBytecodeGenerationTest<T> {
+public class ManualJSWTest extends ManualBytecodeGenerationTest {
   @Inject
   public ManualJSWTest(DriverConfigurator tDriverConfigurator) {
     super(tDriverConfigurator);
@@ -43,7 +42,7 @@ public class ManualJSWTest<T extends WordNumber> extends ManualBytecodeGeneratio
 
   @Test
   public void testJSW2() {
-    pc().write((T) new WordNumber(37056));
+    pc().write(37056);
 
 
     int _246 = 102;

@@ -32,7 +32,6 @@ import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.DataflowService;
@@ -48,7 +47,7 @@ import com.google.inject.Singleton;
 
 import static com.fpetrola.z80.registers.RegisterName.B;
 
-public class BaseModule<T extends WordNumber> extends AbstractModule {
+public class BaseModule extends AbstractModule {
   @Provides
   @Singleton
   protected BlocksManager getBlocksManager() {
@@ -71,7 +70,7 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Provides
   @Inject
   private Memory getMemory(RoutineFinderInstructionSpy spy) {
-    return spy.wrapMemory(new MockedMemory<>(true));
+    return spy.wrapMemory(new MockedMemory(true));
   }
 
   protected void configure() {
@@ -85,14 +84,14 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Inject
   @Singleton
   private State getState(RoutineFinderInstructionSpy spy, Memory aMemory) {
-    return new State(new MockedIO(), new SpyRegisterBankFactory<>(spy).createBank(), aMemory);
+    return new State(new MockedIO(), new SpyRegisterBankFactory(spy).createBank(), aMemory);
   }
 
   @Provides
   @Inject
   @Singleton
   private RoutineFinderInstructionSpy getSpy(RoutineManager routineManager, BlocksManager blocksManager, RoutineFinder routineFinder1) {
-    return new RoutineFinderInstructionSpy<>(routineManager, blocksManager, routineFinder1);
+    return new RoutineFinderInstructionSpy(routineManager, blocksManager, routineFinder1);
   }
 
   @Provides
@@ -126,7 +125,7 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
 //  @Provides
 //  @Inject
 //  private TransformerInstructionExecutor getTransformerInstructionExecutor(State state1, SpyInstructionExecutor tInstructionExecutor, InstructionTransformer instructionTransformer) {
-//    return new TransformerInstructionExecutor<T>(state1.getPc(), tInstructionExecutor, true, instructionTransformer);
+//    return new TransformerInstructionExecutor(state1.getPc(), tInstructionExecutor, true, instructionTransformer);
 //  }
 
   @Provides
@@ -145,19 +144,19 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Provides
   @Inject
   private RegistersSetter getRegistersSetter(State state1, VirtualRegisterFactory virtualRegisterFactory) {
-    return new VirtualRegistersRegistersSetter<>(state1, virtualRegisterFactory);
+    return new VirtualRegistersRegistersSetter(state1, virtualRegisterFactory);
   }
 
   @Provides
   @Inject
   public CPUExecutionContext getSecondContext(State state1, RoutineManager routineManager, InstructionExecutor instructionExecutor1, InstructionTransformer instructionTransformer, MutableOpcodeConditions opcodeConditions, InstructionSpy spy, SymbolicExecutionAdapter symbolicExecutionAdapter1, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor instructionExecutor, DefaultInstructionFactory instructionFactory) {
-//    TransformerInstructionExecutor<T> transformerInstructionExecutor1 = new TransformerInstructionExecutor(state1.getPc(), instructionExecutor1, false, instructionTransformer);
+//    TransformerInstructionExecutor transformerInstructionExecutor1 = new TransformerInstructionExecutor(state1.getPc(), instructionExecutor1, false, instructionTransformer);
     RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> instructionExecutor1.getInstructionAt(address);
     routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
 //    InstructionFetcher instructionFetcher1 = new TransformerInstructionFetcher(state1, transformerInstructionExecutor1);
-    InstructionFetcher instructionFetcher1 = new InstructionFetcherForTest<>(state1, instructionExecutor);
+    InstructionFetcher instructionFetcher1 = new InstructionFetcherForTest(state1, instructionExecutor);
     OOZ80 z80 = new OOZ80(state1, instructionFetcher1, instructionExecutor);
-    return new CPUExecutionContext<T>(spy, z80, opcodeConditions);
+    return new CPUExecutionContext(spy, z80, opcodeConditions);
   }
 
 
@@ -179,6 +178,6 @@ public class BaseModule<T extends WordNumber> extends AbstractModule {
   @Inject
   @Singleton
   public VirtualRegisterFactory getVirtualRegisterFactory(InstructionExecutor instructionExecutor, RegisterNameBuilder registerNameBuilder, BlocksManager blocksManager) {
-    return new VirtualRegisterFactory<>(instructionExecutor, registerNameBuilder, blocksManager);
+    return new VirtualRegisterFactory(instructionExecutor, registerNameBuilder, blocksManager);
   }
 }

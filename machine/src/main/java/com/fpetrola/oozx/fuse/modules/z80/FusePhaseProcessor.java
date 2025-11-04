@@ -20,10 +20,9 @@ package com.fpetrola.oozx.fuse.modules.z80;
 
 import com.fpetrola.oozx.fuse.OOSpectrumConnector;
 import com.fpetrola.z80.cpu.Event;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import fuse.tstates.PhaseProcessor;
 
-public class FusePhaseProcessor extends PhaseProcessor<WordNumber> {
+public class FusePhaseProcessor extends PhaseProcessor {
   private final Z80 z80;
 
   public FusePhaseProcessor(Z80 z80) {
@@ -31,11 +30,11 @@ public class FusePhaseProcessor extends PhaseProcessor<WordNumber> {
     this.z80 = z80;
   }
 
-  public void addMw(WordNumber address, WordNumber value) {
+  public void addMw(Integer address, Integer value) {
 //        getState().clock.addTstates(1);
   }
 
-  public void addMr(WordNumber address, WordNumber value) {
+  public void addMr(Integer address, Integer value) {
   }
 
   public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {

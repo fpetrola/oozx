@@ -24,8 +24,8 @@ import com.fpetrola.z80.instructions.cache.ConditionPredicate;
 import com.fpetrola.z80.registers.Flags;
 import com.fpetrola.z80.registers.Register;
 
-public class ConditionFlag<T extends WordNumber> extends ConditionBase {
-  private Register<T> register;
+public class ConditionFlag extends ConditionBase {
+  private Register register;
   private final int flag;
   private final boolean negate;
 
@@ -41,14 +41,14 @@ public class ConditionFlag<T extends WordNumber> extends ConditionBase {
   }
 
   public boolean conditionMet(Instruction instruction) {
-    return filterCondition(negate != ((register.read().valueXYZ & flag) == flag), instruction);
+    return filterCondition(negate != ((register.read() & flag) == flag), instruction);
   }
 
-  public Register<T> getRegister() {
+  public Register getRegister() {
     return register;
   }
 
-  public void setRegister(Register<T> register) {
+  public void setRegister(Register register) {
     this.register = register;
   }
 

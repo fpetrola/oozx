@@ -22,20 +22,19 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.Condition;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class Ret<T extends WordNumber> extends ConditionalInstruction<T, Condition> {
-  private final Memory<T> memory;
-  private final Register<T> sp;
+public class Ret extends ConditionalInstruction<Condition> {
+  private final Memory memory;
+  private final Register sp;
 
-  public Ret(Condition condition, Register<T> sp, Memory<T> memory, Register<T> pc) {
+  public Ret(Condition condition, Register sp, Memory memory, Register pc) {
     super(sp, condition, pc);
     this.memory = memory;
     this.sp = sp;
   }
 
-  protected T beforeJump(T jumpAddress) {
+  protected int beforeJump(int jumpAddress) {
     return Pop.doPop(memory, sp);
   }
 

@@ -26,7 +26,6 @@ import com.fpetrola.z80.instructions.types.TargetInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import org.cojen.maker.Variable;
 
@@ -36,7 +35,7 @@ import java.util.function.BiConsumer;
 
 import static com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.getRealVariable;
 
-public class VariableHandlingInstructionVisitor implements InstructionVisitor<WordNumber, WordNumber> {
+public class VariableHandlingInstructionVisitor implements InstructionVisitor<Integer> {
   private final BiConsumer<Object, Variable> variableAction;
   protected Object sourceVariable;
   protected Variable targetVariable;
@@ -63,9 +62,9 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<Wo
     source.accept(opcodeReferenceVisitor);
     sourceVariable = opcodeReferenceVisitor.getResult();
 
-    int i = routineByteCodeGenerator.context.pc.read().valueXYZ;
-    Set<Integer> mutantAddress = (Set<Integer>) routineByteCodeGenerator.context.symbolicExecutionAdapter.getMutantAddress();
-    Optional<Integer> mutantCode = mutantAddress.stream()
+    int i = routineByteCodeGenerator.context.pc.read();
+    Set<java.lang.Integer> mutantAddress = (Set<java.lang.Integer>) routineByteCodeGenerator.context.symbolicExecutionAdapter.getMutantAddress();
+    Optional<java.lang.Integer> mutantCode = mutantAddress.stream()
         .filter(m -> m >= i && m < routineByteCodeGenerator.currentInstruction.getLength() + i).findFirst();
     if (mutantCode.isPresent()) {
       routineByteCodeGenerator.mm.invoke("executeMutantCode", mutantCode.get());
@@ -73,7 +72,7 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<Wo
     }
   }
 
-  public void visitingFlag(Register<WordNumber> flag, DefaultTargetFlagInstruction targetSourceInstruction) {
+  public void visitingFlag(Register flag, DefaultTargetFlagInstruction targetSourceInstruction) {
   }
 
   public void visitingTargetSourceInstruction(TargetSourceInstruction targetSourceInstruction) {
@@ -81,7 +80,7 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<Wo
   }
 
   @Override
-  public boolean visitingBitOperation(BitOperation<WordNumber> tBitOperation) {
+  public boolean visitingBitOperation(BitOperation tBitOperation) {
     variableAction.accept(sourceVariable, targetVariable);
     return false;
   }

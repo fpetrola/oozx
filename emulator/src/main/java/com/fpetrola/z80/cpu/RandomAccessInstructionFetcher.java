@@ -19,8 +19,7 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public interface RandomAccessInstructionFetcher<T extends WordNumber> {
-   Instruction<T> getInstructionAt(int i);
+public interface RandomAccessInstructionFetcher {
+   Instruction getInstructionAt(int i);
 }

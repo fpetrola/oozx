@@ -21,7 +21,6 @@ package com.fpetrola.z80.transformations;
 import com.fpetrola.z80.blocks.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
@@ -33,13 +32,13 @@ import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RoutineFinderInstructionSpy<T extends WordNumber> extends WrapperInstructionSpy<T> {
+public class RoutineFinderInstructionSpy extends WrapperInstructionSpy {
   private List<WriteMemoryReference> writeMemoryReferences = new ArrayList<>();
   private BlocksManager blocksManager;
   private RoutineFinder routineFinder;
   private final RoutineManager routineManager;
-  private final List<Instruction<T>> executedInstructions = new ArrayList<>();
-  private Instruction<T> lastInstruction;
+  private final List<Instruction> executedInstructions = new ArrayList<>();
+  private Instruction lastInstruction;
 
   private int lastPC;
 
@@ -69,29 +68,29 @@ public class RoutineFinderInstructionSpy<T extends WordNumber> extends WrapperIn
     return capturing;
   }
 
-  public void beforeExecution(Instruction<T> instruction) {
+  public void beforeExecution(Instruction instruction) {
     executedInstructions.add(instruction);
     executionStep = new ExecutionStep(memory);
     executionStep.setInstruction(instruction);
     executionStep.description = instruction.toString();
     super.beforeExecution(instruction);
     Register pc = state.getPc();
-    T pcValue = (T) pc.read();
-    int pcIntValue = pcValue.valueXYZ;
+    int pcValue =  pc.read();
+    int pcIntValue = pcValue;
     routineFinder.checkBeforeExecution(instruction, pcIntValue, state);
   }
 
   @Override
-  public void afterExecution(Instruction<T> instruction) {
+  public void afterExecution(Instruction instruction) {
     Register pc = state.getPc();
-    T pcValue = (T) pc.read();
-    int pcIntValue = pcValue.valueXYZ;
+    int pcValue =  pc.read();
+    int pcIntValue = pcValue;
     int instructionLength = instruction.getLength();
     if (instructionLength > 0) {
       routineFinder.checkExecution(instruction, pcIntValue, state);
       lastInstruction = instruction;
       super.afterExecution(instruction);
-      lastPC = pcValue.valueXYZ;
+      lastPC = pcValue;
     }
 
     getWriteMemoryReferences().addAll(executionStep.writeMemoryReferences);
@@ -105,7 +104,7 @@ public class RoutineFinderInstructionSpy<T extends WordNumber> extends WrapperIn
     return writeMemoryReferences;
   }
 
-  public List<Instruction<T>> getExecutedInstructions() {
+  public List<Instruction> getExecutedInstructions() {
     return executedInstructions;
   }
 }

@@ -22,7 +22,6 @@ import com.fpetrola.z80.base.CPUExecutionContext;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.transformations.*;
@@ -32,16 +31,16 @@ import java.util.List;
 import static java.util.Comparator.comparingInt;
 
 @SuppressWarnings("ALL")
-public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecutionContext<T> implements BytecodeGeneration {
+public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements BytecodeGeneration {
   public RoutineManager routineManager;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
-  private RegistersSetter<T> registersSetter;
+  private RegistersSetter registersSetter;
   private RandomAccessInstructionFetcher randomAccessInstructionFetcher;
 
   public RealCodeBytecodeCreationBase(RoutineFinderInstructionSpy routineFinderInstructionSpy1, RoutineManager routineManager1,
                                       InstructionExecutor instructionExecutor1,
                                       SymbolicExecutionAdapter executionAdapter, InstructionTransformer instructionCloner1,
-                                      InstructionExecutor<T> transformerInstructionExecutor1, OOZ80 z80, OpcodeConditions opcodeConditions, RegistersSetter<T> registersSetter1) {
+                                      InstructionExecutor transformerInstructionExecutor1, OOZ80 z80, OpcodeConditions opcodeConditions, RegistersSetter registersSetter1) {
     super(routineFinderInstructionSpy1, z80, opcodeConditions);
     routineManager = routineManager1;
 
@@ -89,7 +88,7 @@ public class RealCodeBytecodeCreationBase<T extends WordNumber> extends CPUExecu
     BytecodeGeneration.super.translateToJava(className, startMethod, getState(), !memoryInBase64.isBlank(), symbolicExecutionAdapter, memoryInBase64);
   }
 
-  public RegistersSetter<T> getRegistersSetter() {
+  public RegistersSetter getRegistersSetter() {
     return registersSetter;
   }
 }

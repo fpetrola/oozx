@@ -19,7 +19,6 @@
 package com.fpetrola.z80.bytecode;
 
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Composed16BitRegister;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
@@ -29,33 +28,33 @@ import com.fpetrola.z80.transformations.VirtualRegisterFactory;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-public class VirtualRegistersRegistersSetter<T extends WordNumber> extends DefaultRegistersSetter<T> {
+public class VirtualRegistersRegistersSetter extends DefaultRegistersSetter {
 
   private VirtualRegisterFactory virtualRegisterFactory;
 
-  public VirtualRegistersRegistersSetter(State<T> state, VirtualRegisterFactory virtualRegisterFactory) {
+  public VirtualRegistersRegistersSetter(State state, VirtualRegisterFactory virtualRegisterFactory) {
     super(state);
     this.virtualRegisterFactory = virtualRegisterFactory;
   }
 
   @Override
-  protected Register<T> getRegister(RegisterName registerName) {
-    Register<T> register = getState().getRegister(registerName);
-    Register<T> result;
+  protected Register getRegister(RegisterName registerName) {
+    Register register = getState().getRegister(registerName);
+    Register result;
 
     VirtualRegisterFactory virtualRegisterFactory = getVirtualRegisterFactory();
 
-    if (registerName != IY && registerName != IX && register instanceof RegisterPair<T>) {
-      RegisterPair<WordNumber> wordNumberRegisterPair = (RegisterPair<WordNumber>) register;
-      Register<T> high = (Register<T>) wordNumberRegisterPair.getHigh();
-      Register<T> h = (Register) virtualRegisterFactory.lastVirtualRegisters.get(high);
+    if (registerName != IY && registerName != IX && register instanceof RegisterPair) {
+      RegisterPair wordNumberRegisterPair = (RegisterPair) register;
+      Register high = (Register) wordNumberRegisterPair.getHigh();
+      Register h = (Register) virtualRegisterFactory.lastVirtualRegisters.get(high);
       h = h != null ? h : high;
-      Register<WordNumber> low = wordNumberRegisterPair.getLow();
-      Register<WordNumber> l = (VirtualRegister) virtualRegisterFactory.lastVirtualRegisters.get(low);
+      Register low = wordNumberRegisterPair.getLow();
+      Register l = (VirtualRegister) virtualRegisterFactory.lastVirtualRegisters.get(low);
       l = l != null ? l : low;
       result = new Composed16BitRegister<>(registerName, h, l);
     } else {
-      VirtualRegister<T> l = (VirtualRegister) virtualRegisterFactory.lastVirtualRegisters.get(register);
+      VirtualRegister l = (VirtualRegister) virtualRegisterFactory.lastVirtualRegisters.get(register);
       if (l != null) {
         result = l;
       } else {

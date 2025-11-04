@@ -23,39 +23,38 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 
-public class MemoryPlusRegister8BitReference<T extends WordNumber> implements OpcodeReference<T> {
+public class MemoryPlusRegister8BitReference implements OpcodeReference {
+  public int address;
+  public int value;
 
-  public T address;
-  public T value;
-
-  public Memory<T> getMemory() {
+  public Memory getMemory() {
     return memory;
   }
 
-  private Memory<T> memory;
+  private Memory memory;
 
-  public ImmutableOpcodeReference<T> getTarget() {
+  public ImmutableOpcodeReference getTarget() {
     return target;
   }
 
-  public void setTarget(ImmutableOpcodeReference<T> target) {
+  public void setTarget(ImmutableOpcodeReference target) {
     this.target = target;
   }
 
-  private ImmutableOpcodeReference<T> target;
+  private ImmutableOpcodeReference target;
 
   public int getValueDelta() {
     return valueDelta;
   }
 
   protected int valueDelta;
-  public T fetchedRelative;
+  public int fetchedRelative= -1;
 
-  public Register<T> getPc() {
+  public Register getPc() {
     return pc;
   }
 
-  private Register<T> pc;
+  private Register pc;
 
   public MemoryPlusRegister8BitReference() {
   }
@@ -67,33 +66,34 @@ public class MemoryPlusRegister8BitReference<T extends WordNumber> implements Op
     this.valueDelta = valueDelta;
   }
 
-  public T read() {
-    T read = target.read();
+  public int read() {
+    int read = target.read();
     byte i = fetchRelative();
-    address = (T) (WordNumber) new WordNumber((read.valueXYZ + (int) i) & 0xFFFF);
+    address = (read + (int) i) & 0xFFFF;
     value = memory.read(address, 0);
     return value;
   }
 
-  public void write(T value) {
+  public void write(int value) {
     byte i = fetchRelative();
-    WordNumber wordNumber = target.read();
-    address = (T) (WordNumber) new WordNumber((wordNumber.valueXYZ + (int) i) & 0xFFFF);
-    this.value= value;
+    Integer wordNumber = target.read();
+    address = (wordNumber + (int) i) & 0xFFFF;
+    this.value = value;
     memory.write(address, value);
   }
 
   public byte fetchRelative() {
-    WordNumber wordNumber = pc.read();
-    T dd = memory.read((T) (WordNumber) new WordNumber((wordNumber.valueXYZ + valueDelta) & 0xFFFF), 0);
+    Integer wordNumber = pc.read();
+    Integer i = (wordNumber + valueDelta) & 0xFFFF;
+    int dd = memory.read(i, 0);
     if (fetchedRelative != dd) {
       fetchedRelative = dd;
     }
-    return (byte) fetchedRelative.valueXYZ;
+    return (byte) (int) fetchedRelative;
   }
 
   public String toString() {
-    byte dd = (byte) (fetchedRelative!=null? fetchedRelative.valueXYZ : 0);
+    byte dd = (byte) (fetchedRelative != -1 ? fetchedRelative : 0);
     String string2 = (dd > 0 ? "+" : "-") + Helper.formatAddress(Math.abs(dd));
     String string = "IXY";// target.toString();
     return "(" + string + string2 + ")";
@@ -104,7 +104,7 @@ public class MemoryPlusRegister8BitReference<T extends WordNumber> implements Op
   }
 
   public Object clone() throws CloneNotSupportedException {
-    T lastFetchedRelative = fetchedRelative;
+    int lastFetchedRelative = fetchedRelative;
     return new CachedMemoryPlusRegister8BitReference(lastFetchedRelative, (ImmutableOpcodeReference) target.clone(), memory, pc, valueDelta);
   }
 

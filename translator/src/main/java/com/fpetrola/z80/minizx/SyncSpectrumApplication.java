@@ -20,9 +20,8 @@ package com.fpetrola.z80.minizx;
 
 import com.fpetrola.z80.bytecode.tests.ZxObject;
 import com.fpetrola.z80.minizx.sync.SyncChecker;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> {
+public abstract class SyncSpectrumApplication extends SpectrumApplication {
   public static final int delay = 25000;
   public SyncChecker syncChecker = new DummySyncChecker();
   protected ZxObject[] objectMemory = new ZxObject[0x10000];
@@ -70,13 +69,13 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
   @Override
   public int in(int port, int pc) {
     syncChecker.checkSyncInJava(port, pc);
-    return ((MiniZXIO)io).in2((WordNumber) new WordNumber(port)).valueXYZ;
+    return ((MiniZXIO)io).in2((Integer) new Integer(port));
   }
 
   @Override
   public int in(int port) {
     syncChecker.checkSyncInJava(port, -1);
-    return ((MiniZXIO)io).in2((WordNumber) new WordNumber(port)).valueXYZ;
+    return ((MiniZXIO)io).in2((Integer) new Integer(port));
   }
 
   protected void replaceWithObject(int address, int value) {
@@ -89,7 +88,7 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
   }
 
   public class DummySyncChecker implements SyncChecker {
-    public int getByteFromEmu(Integer index) {
+    public int getByteFromEmu(java.lang.Integer index) {
       return getMem()[index];
     }
   }

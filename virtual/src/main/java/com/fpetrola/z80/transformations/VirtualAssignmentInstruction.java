@@ -19,22 +19,21 @@
 package com.fpetrola.z80.transformations;
 
 import com.fpetrola.z80.instructions.types.DummyInstruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
 import java.util.function.Supplier;
 
-public class VirtualAssignmentInstruction<T extends WordNumber> extends DummyInstruction<T> {
+public class VirtualAssignmentInstruction extends DummyInstruction {
   private final Virtual8BitsRegister register;
-  private final Supplier<IVirtual8BitsRegister<T>> lastRegister;
+  private final Supplier<IVirtual8BitsRegister> lastRegister;
 
-  public VirtualAssignmentInstruction(Virtual8BitsRegister register, Supplier<IVirtual8BitsRegister<T>> lastRegister) {
+  public VirtualAssignmentInstruction(Virtual8BitsRegister register, Supplier<IVirtual8BitsRegister> lastRegister) {
     this.register = register;
     this.lastRegister = lastRegister;
   }
 
   public int execute() {
-    IVirtual8BitsRegister<T> tVirtualRegister = lastRegister.get();
+    IVirtual8BitsRegister tVirtualRegister = lastRegister.get();
     register.write(tVirtualRegister.read());
     register.lastVersionRead= tVirtualRegister;
     return 0;
@@ -44,7 +43,7 @@ public class VirtualAssignmentInstruction<T extends WordNumber> extends DummyIns
     return register;
   }
 
-  public Supplier<IVirtual8BitsRegister<T>> getLastRegister() {
+  public Supplier<IVirtual8BitsRegister> getLastRegister() {
     return lastRegister;
   }
 

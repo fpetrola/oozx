@@ -21,11 +21,10 @@ package com.fpetrola.z80.se.actions;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.ConditionAlwaysTrue;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.RoutineExecution;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 
-public class AddressActionDelegate<T extends WordNumber> extends BasicAddressAction<T> {
+public class AddressActionDelegate extends BasicAddressAction {
   private AddressAction addressAction;
 
   public AddressActionDelegate(int address2, RoutineExecutorHandler routineExecutorHandler) {
@@ -34,11 +33,11 @@ public class AddressActionDelegate<T extends WordNumber> extends BasicAddressAct
 
   public boolean processBranch(Instruction instruction) {
     if (addressAction == null) {
-      if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction)
+      if (instruction instanceof ConditionalInstruction<?> conditionalInstruction)
         alwaysTrue = conditionalInstruction.getCondition() instanceof ConditionAlwaysTrue;
 
       RoutineExecution routineExecution2 = routineExecutionHandler.getCurrentRoutineExecution();
-      addressAction = routineExecution2.createAddressAction(instruction, alwaysTrue, routineExecutionHandler.getPc().read().valueXYZ);
+      addressAction = routineExecution2.createAddressAction(instruction, alwaysTrue, routineExecutionHandler.getPc().read());
       routineExecution2.replaceAddressAction(addressAction);
     }
 

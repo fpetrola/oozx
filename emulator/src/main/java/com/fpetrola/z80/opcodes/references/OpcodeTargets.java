@@ -25,7 +25,7 @@ import com.fpetrola.z80.registers.RegisterName;
 
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
-public class OpcodeTargets<T> {
+public class OpcodeTargets {
 
   private final State state;
   private final Memory memoryForOpcode;
@@ -36,7 +36,7 @@ public class OpcodeTargets<T> {
   }
 
   public ImmutableOpcodeReference c(int value) {
-    return new ConstantOpcodeReference<T>((T) new WordNumber(value));
+    return new ConstantOpcodeReference(value);
   }
 
   public Register r(RegisterName name) {

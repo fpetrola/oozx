@@ -21,13 +21,12 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Plain8BitRegister;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class DAA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
+public class DAA extends ParameterizedUnaryAluInstruction {
   public final static AluOperation daaTableAluOperation = new TableAluOperation() {
     public int execute(int flag, int A, int flags) {
       F = flag;
@@ -37,14 +36,14 @@ public class DAA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
       if (((F & FLAG_H) != 0) || ((A & 0x0f) > 9)) add = 6;
       if (carry != 0 || (A > 0x99)) add |= 0x60;
       if (A > 0x99) carry = FLAG_C;
-      Register<WordNumber> f = new Plain8BitRegister<>("");
-      f.write((WordNumber) new WordNumber(F));
+      Register f = new Plain8BitRegister("");
+      f.write(F);
       if ((F & FLAG_N) != 0) {
-        A = Sub.sub8TableAluOperation.executeWithoutCarry((WordNumber) new WordNumber(add), (WordNumber) new WordNumber(A), f).valueXYZ;
+        A = Sub.sub8TableAluOperation.executeWithoutCarry(add, A, f);
       } else {
-        A = Add.add8TableAluOperation.executeWithoutCarry((WordNumber) new WordNumber(add), (WordNumber) new WordNumber(A), f).valueXYZ;
+        A = Add.add8TableAluOperation.executeWithoutCarry(add, A, f);
       }
-      F = f.read().valueXYZ;
+      F = f.read();
 
       F = (F & ~(FLAG_C | FLAG_P)) | carry | parityTable(A);
       Q = F;
@@ -53,7 +52,7 @@ public class DAA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
     }
   };
 
-  public DAA(OpcodeReference target, Register<T> flag) {
+  public DAA(OpcodeReference target, Register flag) {
     super(target, flag, (reg_A) -> daaTableAluOperation.executeWithCarry(reg_A, flag.read(), flag));
   }
 

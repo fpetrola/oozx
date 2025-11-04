@@ -19,29 +19,28 @@
 package fuse.tstates;
 
 import com.fpetrola.z80.memory.MemoryReadListener;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import fuse.tstates.phases.AfterMR;
 
-public class AddStatesMemoryReadListener<T extends WordNumber> implements MemoryReadListener<T> {
-  private final PhaseProcessor<T> phaseProcessor;
+public class AddStatesMemoryReadListener implements MemoryReadListener {
+  private final PhaseProcessor phaseProcessor;
   private AfterMR afterMR = new AfterMR();
 
-  public AddStatesMemoryReadListener(PhaseProcessor<T> phaseProcessor) {
+  public AddStatesMemoryReadListener(PhaseProcessor phaseProcessor) {
     this.phaseProcessor = phaseProcessor;
   }
 
-  public void readingMemoryAt(T address, T value, int fetching) {
+  public void readingMemoryAt(int address, int value, int fetching) {
 //    System.out.printf("readingMemoryAt: address= %s - value= %s - delta= %d - fetching= %d %n", address, value, delta, fetching);
     //    System.out.printf("processEvent: address= %s - value= %s - fetching= %d %n", address, value, fetching);
     doRead(address, value, fetching);
 
-    phaseProcessor.addMultipleMc(1, fetching == 1 ? 4 : 3, 0, address.valueXYZ, "readbyte");
+    phaseProcessor.addMultipleMc(1, fetching == 1 ? 4 : 3, 0, address, "readbyte");
     phaseProcessor.addMr(address, value);
     phaseProcessor.setAddress(address);
     phaseProcessor.readCount++;
     phaseProcessor.processPhase(afterMR);
   }
 
-  protected void doRead(T address, T value, int fetching) {
+  protected void doRead(int address, int value, int fetching) {
   }
 }

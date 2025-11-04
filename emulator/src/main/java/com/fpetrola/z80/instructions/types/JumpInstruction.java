@@ -18,6 +18,6 @@
 
 package com.fpetrola.z80.instructions.types;
 
-public interface JumpInstruction<T> extends Instruction<T> {
-  T getNextPC();
+public interface JumpInstruction extends Instruction {
+  Integer getNextPC();
 }

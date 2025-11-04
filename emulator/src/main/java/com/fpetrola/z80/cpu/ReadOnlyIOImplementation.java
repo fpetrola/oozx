@@ -18,20 +18,18 @@
 
 package com.fpetrola.z80.cpu;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
+public class ReadOnlyIOImplementation implements IO {
+  private final IO io;
 
-public class ReadOnlyIOImplementation<T extends WordNumber> implements IO<T> {
-  private final IO<T> io;
-
-  public ReadOnlyIOImplementation(IO<T> io) {
+  public ReadOnlyIOImplementation(IO io) {
     this.io = io;
   }
 
-  public T in(T port) {
-    return (T) new WordNumber(0);
+  public int in(int port) {
+    return 0;
   }
 
-  public void out(T port, T value) {
+  public void out(int port, int value) {
 
   }
 }

@@ -20,7 +20,7 @@ package com.fpetrola.z80.opcodes.references;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 
-public interface OpcodeReference<T> extends ImmutableOpcodeReference<T>, MutableOpcodeReference<T> {
+public interface OpcodeReference extends ImmutableOpcodeReference, MutableOpcodeReference {
   default void accept(InstructionVisitor instructionVisitor) {
     instructionVisitor.visitOpcodeReference(this);
   }

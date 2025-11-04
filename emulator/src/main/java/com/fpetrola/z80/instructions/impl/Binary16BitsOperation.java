@@ -22,27 +22,26 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import org.apache.commons.lang3.function.TriFunction;
 
-public class Binary16BitsOperation<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
-  public Binary16BitsOperation(OpcodeReference<T> target, ImmutableOpcodeReference<T> source, Register<T> flag, BinaryAluOperation<T> binaryAluOperation) {
+public class Binary16BitsOperation extends ParameterizedBinaryAluInstruction {
+  public Binary16BitsOperation(OpcodeReference target, ImmutableOpcodeReference source, Register flag, BinaryAluOperation binaryAluOperation) {
     super(target, source, flag, binaryAluOperation);
   }
 
-  protected static <T extends WordNumber> T calculate(Register<T> tFlagRegister, T a, T b, TriFunction<Integer, Integer, Integer, Integer> operation, Binary16BitsAluOperation<T>  action) {
+  protected static  int calculate(Register tFlagRegister, int a, int b, TriFunction<java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer> operation, Binary16BitsAluOperation  action) {
     return calculate(tFlagRegister, a, b, operation, action, (v1, v2, result1) -> ((v1 & 0x8800 | (v2 & 0x8800) >> 1) | (result1 & 0x1A800 | (result1 & 0x2000) >> 1) >> 3) >> 8);
   }
 
-  protected static <T extends WordNumber> T calculate(Register<T> tFlagRegister, T a, T b, TriFunction<Integer, Integer, Integer, Integer> operation, Binary16BitsAluOperation<T> action, TriFunction<Integer, Integer, Integer, Integer> compressFunction) {
-    int value1 = a.valueXYZ;
-    int value2 = b.valueXYZ;
-    T flagValue = tFlagRegister.read();
-    int result = operation.apply(value1, value2, flagValue.valueXYZ);
+  protected static  int calculate(Register tFlagRegister, int a, int b, TriFunction<java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer> operation, Binary16BitsAluOperation action, TriFunction<java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer> compressFunction) {
+    int value1 = a;
+    int value2 = b;
+    int flagValue = tFlagRegister.read();
+    int result = operation.apply(value1, value2, flagValue);
     value1 = compressFunction.apply(value1, value2, result);
     action.execute(tFlagRegister, value1, value2, result);
-    return (T) new WordNumber(result & 0xffff);
+    return result & 0xffff;
   }
 
   public void accept(InstructionVisitor visitor) {
@@ -50,7 +49,7 @@ public class Binary16BitsOperation<T extends WordNumber> extends ParameterizedBi
       super.accept(visitor);
   }
 
-  interface Binary16BitsAluOperation<T> {
-    T execute (Register<T> flag, int value1, int value2, int result);
+  interface Binary16BitsAluOperation {
+    int execute (Register flag, int value1, int value2, int result);
   }
 }

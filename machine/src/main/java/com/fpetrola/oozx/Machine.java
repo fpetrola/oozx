@@ -21,9 +21,7 @@ package com.fpetrola.oozx;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.machine.TimingsHandler;
 import com.fpetrola.oozx.fuse.modules.*;
-import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.Z80Clock;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.ArrayList;
 import java.util.Arrays;

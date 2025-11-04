@@ -19,13 +19,12 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class MemorySetter<T> {
-  private final Memory<T> memory;
+public class MemorySetter {
+  private final Memory memory;
   private final byte[] rom;
 
-  public MemorySetter(Memory<T> memory, byte[] rom) {
+  public MemorySetter(Memory memory, byte[] rom) {
     this.memory = memory;
     this.rom = rom;
   }
@@ -35,8 +34,8 @@ public class MemorySetter<T> {
     memory.disableWriteListener();
     for (int i = 0; i < result.length; i++) {
       int data = ((i < 16384) ? rom[i] : result[i]) & 0xff;
-      WordNumber value = (WordNumber) new WordNumber(data);
-      memory.write((T) new WordNumber(i), (T) new WordNumber((value.valueXYZ & 0xff) & 0xFFFF));
+      int value =data;
+      memory.write(i, (value & 0xff) & 0xFFFF);
     }
     memory.enableWriteListener();
     memory.canDisable(false);

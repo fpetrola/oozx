@@ -35,26 +35,26 @@ import java.util.List;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> {
+public class PhaseProcessor extends PhaseProcessorBase {
 
-  private Register<T> registerI = getRegister(I);
-  private Register<T> registerR = getRegister(R);
-  private Register<T> registerIR = getRegister(IR);
-  private Register<T> registerSP = getRegister(SP);
-  private Register<T> registerPC = getRegister(PC);
-  private Register<T> registerDE = getRegister(DE);
-  private Register<T> registerBC = getRegister(BC);
-  private Register<T> registerHL = getRegister(HL);
-  private Register<T> memptr;
+  private Register registerI = getRegister(I);
+  private Register registerR = getRegister(R);
+  private Register registerIR = getRegister(IR);
+  private Register registerSP = getRegister(SP);
+  private Register registerPC = getRegister(PC);
+  private Register registerDE = getRegister(DE);
+  private Register registerBC = getRegister(BC);
+  private Register registerHL = getRegister(HL);
+  private Register memptr;
   private Runnable dummyRunnable = () -> {
   };
 
-  public PhaseProcessor(InstructionFetcher<T> instructionFetcher, State<T> state) {
+  public PhaseProcessor(InstructionFetcher instructionFetcher, State state) {
     super(instructionFetcher, state);
     memptr = state.getMemptr();
   }
 
-  public void visitingRst(RST<T> rst) {
+  public void visitingRst(RST rst) {
     addMcBeforeExecution(1);
   }
 
@@ -64,7 +64,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return false;
   }
 
-  public boolean visiting16BitsOperation(Binary16BitsOperation<T> binary16BitsOperation) {
+  public boolean visiting16BitsOperation(Binary16BitsOperation binary16BitsOperation) {
     addMcBeforeExecution(7);
     return true;
   }
@@ -81,12 +81,12 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     addMcBeforeExecution(1);
   }
 
-  public void visitingLd(Ld<T> ld) {
+  public void visitingLd(Ld ld) {
     addAfterExecution(ld);
 
     if (isLdSP(ld))
       phase.acceptBeforeExecution((e) -> addMc2(2, 0, null, this.registerIR));
-    else if (ld.getTarget().equals(registerI) || ld.getTarget().equals(registerR) || ld instanceof LdAI<T> || ld instanceof LdAR<T>)
+    else if (ld.getTarget().equals(registerI) || ld.getTarget().equals(registerR) || ld instanceof LdAI || ld instanceof LdAR)
       phase.acceptBeforeExecution((e) -> addMc2(1, 0, null, this.registerIR));
 
     if (isMemoryPlus(ld.getTarget()) && isMemory8BitReference(ld.getSource()))
@@ -94,51 +94,51 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
     if (!isMemory8BitReference(ld.getSource()) && (isMemoryPlus(ld.getSource()) || isMemoryPlus(ld.getTarget())))
       phase.acceptAfterMR((e) -> switchByReadCount(() -> {
-        addMultipleMc(5, 1, 0, registerIR.read().valueXYZ, null);
+        addMultipleMc(5, 1, 0, registerIR.read(), null);
       }));
   }
 
-  private void addAfterExecution(Ld<T> ld) {
+  private void addAfterExecution(Ld ld) {
     final List<Runnable> afterExecutionActions = new ArrayList<>();
 
-    ld.getTarget().accept(new InstructionVisitor<T, T>() {
-      public void visitIndirectMemory8BitReference(IndirectMemory8BitReference<T> indirectMemory8BitReference1) {
+    ld.getTarget().accept(new InstructionVisitor<>() {
+      public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference1) {
         boolean b = indirectMemory8BitReference1.target instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"));
-        if (b || indirectMemory8BitReference1.getTarget() instanceof Memory16BitReference<T>)
+        if (b || indirectMemory8BitReference1.getTarget() instanceof Memory16BitReference)
           afterExecutionActions.add(() -> {
-            WordNumber wordNumber = ld.getSource().read();
-            WordNumber wordNumber1 = (WordNumber) (WordNumber) new WordNumber((indirectMemory8BitReference1.address.valueXYZ + 1) & 0xFFFF);
-            WordNumber number = ((WordNumber) (WordNumber) new WordNumber((wordNumber.valueXYZ << 8) & 0xFFFF));
-            int i = ((T) (WordNumber) new WordNumber((wordNumber1.valueXYZ & 0xff) & 0xFFFF)).valueXYZ & 0xFFFF;
-            memptr.write((T) (WordNumber) new WordNumber((number.valueXYZ | i) & 0xFFFF));
+            Integer wordNumber = ld.getSource().read();
+            Integer wordNumber1 = (indirectMemory8BitReference1.address + 1) & 0xFFFF;
+            Integer number = (wordNumber << 8) & 0xFFFF;
+            int i = ((wordNumber1 & 0xff) & 0xFFFF) & 0xFFFF;
+            memptr.write((number | i) & 0xFFFF);
           });
       }
 
       public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
         afterExecutionActions.add(() -> {
-          memptr.write((T) (WordNumber) new WordNumber((indirectMemory16BitReference.address.valueXYZ + 1) & 0xFFFF));
+          memptr.write((indirectMemory16BitReference.address + 1) & 0xFFFF);
         });
       }
 
-      public boolean visitMemory16BitReference(Memory16BitReference<T> memory16BitReference) {
+      public boolean visitMemory16BitReference(Memory16BitReference memory16BitReference) {
         afterExecutionActions.add(() -> {
-          memptr.write((T) (WordNumber) new WordNumber((memory16BitReference.fetchedAddress.valueXYZ + 2) & 0xFFFF));
+          memptr.write((memory16BitReference.fetchedAddress + 2) & 0xFFFF);
         });
         return false;
       }
     });
-    ld.getSource().accept(new InstructionVisitor<T, T>() {
-      public void visitIndirectMemory8BitReference(IndirectMemory8BitReference<T> indirectMemory8BitReference) {
+    ld.getSource().accept(new InstructionVisitor<>() {
+      public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
         boolean b = indirectMemory8BitReference.target instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"));
-        if (b || indirectMemory8BitReference.getTarget() instanceof Memory16BitReference<?>)
+        if (b || indirectMemory8BitReference.getTarget() instanceof Memory16BitReference)
           afterExecutionActions.add(() -> {
-            memptr.write((T) (WordNumber) new WordNumber((indirectMemory8BitReference.address.valueXYZ + 1) & 0xFFFF));
+            memptr.write((indirectMemory8BitReference.address + 1) & 0xFFFF);
           });
       }
 
       public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
         afterExecutionActions.add(() -> {
-          memptr.write((T) (WordNumber) new WordNumber((indirectMemory16BitReference.address.valueXYZ + 1) & 0xFFFF));
+          memptr.write((indirectMemory16BitReference.address + 1) & 0xFFFF);
         });
       }
     });
@@ -153,28 +153,28 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     phase.acceptAfterExecution(afterExecution -> addForRelativeJump(jr));
   }
 
-  public boolean visitingDjnz(DJNZ<T> djnz) {
+  public boolean visitingDjnz(DJNZ djnz) {
     phase.acceptBeforeExecution((e) -> addMc2(1, 0, null, this.registerIR));
     phase.acceptAfterExecution((e) -> addForRelativeJump(djnz));
     return false;
   }
 
-  private void addForRelativeJump(JumpInstruction<T> conditionalInstruction) {
+  private void addForRelativeJump(JumpInstruction conditionalInstruction) {
     hasJumped(conditionalInstruction).ifPresentOrElse(
         (a) -> addMultipleMc(5, 1, 1, valueOf(registerPC), null),
         () -> addMultipleMc(1, 3, 1, valueOf(registerPC), "readbyte")
     );
   }
 
-  public void visitEx(Ex<T> ex) {
+  public void visitEx(Ex ex) {
     final List<Runnable> afterExecutionActions = new ArrayList<>();
 
     if (ex.getTarget() instanceof IndirectMemory16BitReference indirectMemory16BitReference)
-      if (indirectMemory16BitReference.target instanceof Register<?> register && register.getName().equals(RegisterName.SP.name())) {
+      if (indirectMemory16BitReference.target instanceof Register register && register.getName().equals(RegisterName.SP.name())) {
         afterExecutionActions.add(() -> memptr.write(ex.getSource().read()));
       }
 
-    if (ex.getTarget() instanceof IndirectMemory16BitReference<T>) {
+    if (ex.getTarget() instanceof IndirectMemory16BitReference) {
       afterExecutionActions.add(() -> addMc2(2, 0, "contend_write_no_mreq", registerSP));
     }
 
@@ -183,7 +183,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       phase.acceptAfterExecution((e) -> runnable.run());
     }
 
-    if (ex.getTarget() instanceof IndirectMemory16BitReference<T>)
+    if (ex.getTarget() instanceof IndirectMemory16BitReference)
       phase.acceptBeforeWrite((e) -> writeCountIsZero().ifPresent(x -> addMc2(1, 1, null, registerSP)));
   }
 
@@ -200,34 +200,34 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return action;
   }
 
-  public boolean visitRepeatingInstruction(RepeatingInstruction<T> instruction) {
+  public boolean visitRepeatingInstruction(RepeatingInstruction instruction) {
 //    instruction.getInstructionToRepeat().accept(this);
 
     int delta;
-    Register<T> registerName;
+    Register registerName;
     int times;
 
-    if (instruction instanceof Outdr<T> || instruction instanceof Outir<T>) {
+    if (instruction instanceof Outdr || instruction instanceof Outir) {
       registerName = registerBC;
       delta = 0;
       times = 0;
-    } else if (instruction instanceof Inir<T>) {
+    } else if (instruction instanceof Inir) {
       delta = -1;
       registerName = this.registerHL;
       times = 0;
-    } else if (instruction instanceof Indr<T>) {
+    } else if (instruction instanceof Indr) {
       delta = 1;
       registerName = this.registerHL;
       times = 0;
-    } else if (instruction instanceof Cpir<T>) {
+    } else if (instruction instanceof Cpir) {
       delta = -1;
       registerName = this.registerHL;
       times = 5;
-    } else if (instruction instanceof Cpdr<T>) {
+    } else if (instruction instanceof Cpdr) {
       delta = 1;
       registerName = this.registerHL;
       times = 5;
-    } else if (instruction instanceof Ldir<T>) {
+    } else if (instruction instanceof Ldir) {
       registerName = registerDE;
       delta = -1;
       times = 2;
@@ -241,14 +241,14 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       phase.acceptAfterExecution((a) -> {
         getAfterExecutionPhaseVisitorForBlock(times, delta, registerName).visit(a);
         hasJumped(instruction).ifPresent(x -> {
-          addMultipleMc(5, 1, 0, registerName.read().valueXYZ + delta, "contend_write_no_mreq");
+          addMultipleMc(5, 1, 0, registerName.read() + delta, "contend_write_no_mreq");
         });
       });
     } else {
       addMcBeforeExecution(1);
       phase.acceptAfterExecution((a) -> {
         hasJumped(instruction).ifPresent(x -> {
-          addMultipleMc(5, 1, 0, registerName.read().valueXYZ + delta, "contend_write_no_mreq");
+          addMultipleMc(5, 1, 0, registerName.read() + delta, "contend_write_no_mreq");
         });
       });
     }
@@ -256,13 +256,13 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return false;
   }
 
-  private AfterExecutionPhaseVisitor addForBlockInstruction(int times, int delta, Register<T> register) {
+  private AfterExecutionPhaseVisitor addForBlockInstruction(int times, int delta, Register register) {
     AfterExecutionPhaseVisitor contendWriteNoMreq = getAfterExecutionPhaseVisitorForBlock(times, delta, register);
     phase.acceptAfterExecution(contendWriteNoMreq);
     return contendWriteNoMreq;
   }
 
-  private AfterExecutionPhaseVisitor getAfterExecutionPhaseVisitorForBlock(int times, int delta, Register<T> register) {
+  private AfterExecutionPhaseVisitor getAfterExecutionPhaseVisitorForBlock(int times, int delta, Register register) {
     return p -> addMc2(times, delta, "contend_write_no_mreq", register);
   }
 
@@ -270,22 +270,22 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     addMcBeforeExecution(1);
   }
 
-  public boolean visitLdi(Ldi<T> ldi) {
+  public boolean visitLdi(Ldi ldi) {
     addForBlockInstruction(2, -1, registerDE);
     return true;
   }
 
-  public boolean visitLdd(Ldd<T> ldd) {
+  public boolean visitLdd(Ldd ldd) {
     addForBlockInstruction(2, 1, registerDE);
     return true;
   }
 
-  public boolean visitCpi(Cpi<T> cpi) {
+  public boolean visitCpi(Cpi cpi) {
     addForBlockInstruction(5, -1, registerHL);
     return true;
   }
 
-  public boolean visitCpd(Cpd<T> cpd) {
+  public boolean visitCpd(Cpd cpd) {
     addForBlockInstruction(5, 1, registerHL);
     return true;
   }
@@ -293,24 +293,24 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
   public boolean visitLdOperation(LdOperation ldOperation) {
     AfterMRPhaseVisitor afterMRPhaseVisitor = p -> {
       if (readCount == 4) {
-        addMultipleMc(1, 1, 0, address.valueXYZ, null);
+        addMultipleMc(1, 1, 0, address, null);
       }
     };
-    processTargetInstruction((TargetInstruction<T>) ldOperation.getInstruction(), afterMRPhaseVisitor);
+    processTargetInstruction((TargetInstruction) ldOperation.getInstruction(), afterMRPhaseVisitor);
     return true;
   }
 
-  public boolean visitingBitOperation(BitOperation<T> instruction) {
+  public boolean visitingBitOperation(BitOperation instruction) {
     return processTargetInstruction(instruction, (e) -> {
     });
   }
 
-  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction<T> instruction) {
+  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction instruction) {
     return processTargetInstruction(instruction, (e) -> {
     });
   }
 
-  private boolean processTargetInstruction(TargetInstruction<T> instruction, AfterMRPhaseVisitor afterMRPhaseVisitor) {
+  private boolean processTargetInstruction(TargetInstruction instruction, AfterMRPhaseVisitor afterMRPhaseVisitor) {
     isMemoryPlusOptional(instruction.getTarget()).ifPresent(x -> {
       phase.acceptBeforeExecution((e -> {
         if (readCount == 0)
@@ -319,7 +319,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
       phase.acceptAfterMR((e -> {
         if (readCount == 1) {
-          addMultipleMc(1, 1, 0, address.valueXYZ, null);
+          addMultipleMc(1, 1, 0, address, null);
         }
 
         afterMRPhaseVisitor.visit(e);
@@ -338,26 +338,26 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     return true;
   }
 
-  private Register<T> getRegisterHL() {
+  private Register getRegisterHL() {
     return this.registerHL;
   }
 
-  public boolean visitingInc(Inc<T> tInc) {
+  public boolean visitingInc(Inc tInc) {
     addMcForDecInc(tInc);
     return true;
   }
 
-  public boolean visitingDec(Dec<T> dec) {
+  public boolean visitingDec(Dec dec) {
     addMcForDecInc(dec);
     return true;
   }
 
-  private void addMcForDecInc(TargetInstruction<T> instruction) {
+  private void addMcForDecInc(TargetInstruction instruction) {
     isMemoryPlusOptional(instruction.getTarget()).ifPresent(x -> phase.acceptAfterMR((e -> {
       switchByReadCount(
           () -> addMultipleMc(5, 1, 2, valueOf(registerPC), null),
           () -> {
-            addMultipleMc(1, 1, 0, address.valueXYZ, null);
+            addMultipleMc(1, 1, 0, address, null);
           }
       );
     })));
@@ -365,12 +365,12 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     isIndirectHL(instruction).ifPresent((x) -> phase.acceptBeforeWrite(e -> addMc2(1, 0, null, registerHL)));
   }
 
-  public boolean visitRLD(RLD<T> rld) {
+  public boolean visitRLD(RLD rld) {
     phase.acceptAfterMR(p -> addMultipleMc(4, 1, 0, valueOf(registerHL), null));
     return false;
   }
 
-  public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction<T> instruction) {
+  public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction instruction) {
     isMemoryPlusOptional(instruction.getSource()).ifPresent(x ->
         phase.acceptAfterMR((e -> switchByReadCount(() -> addMultipleMc(5, 1, 0, valueOf(registerIR), null)))));
   }

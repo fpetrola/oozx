@@ -21,58 +21,57 @@ package com.fpetrola.z80.instructions.types;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 
-public abstract class BlockInstruction<T extends WordNumber> extends AbstractInstruction<T> {
-  public RegisterPair<T> getBc() {
+public abstract class BlockInstruction extends AbstractInstruction {
+  public RegisterPair getBc() {
     return bc;
   }
 
-  public void setBc(RegisterPair<T> bc) {
+  public void setBc(RegisterPair bc) {
     this.bc = bc;
   }
 
-  public RegisterPair<T> getHl() {
+  public RegisterPair getHl() {
     return hl;
   }
 
-  public void setHl(RegisterPair<T> hl) {
+  public void setHl(RegisterPair hl) {
     this.hl = hl;
   }
 
-  public Register<T> getFlag() {
+  public Register getFlag() {
     return flag;
   }
 
-  public void setFlag(Register<T> flag) {
+  public void setFlag(Register flag) {
     this.flag = flag;
   }
 
-  public Memory<T> getMemory() {
+  public Memory getMemory() {
     return memory;
   }
 
-  public void setMemory(Memory<T> memory) {
+  public void setMemory(Memory memory) {
     this.memory = memory;
   }
 
-  public IO<T> getIo() {
+  public IO getIo() {
     return io;
   }
 
-  public void setIo(IO<T> io) {
+  public void setIo(IO io) {
     this.io = io;
   }
 
-  protected RegisterPair<T> bc;
-  protected RegisterPair<T> hl;
-  protected Register<T> flag;
-  protected Memory<T> memory;
-  protected IO<T> io;
+  protected RegisterPair bc;
+  protected RegisterPair hl;
+  protected Register flag;
+  protected Memory memory;
+  protected IO io;
 
-  public BlockInstruction(RegisterPair<T> bc, RegisterPair<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
+  public BlockInstruction(RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io) {
     this.bc = bc;
     this.hl = hl;
     this.flag = flag;
@@ -80,7 +79,7 @@ public abstract class BlockInstruction<T extends WordNumber> extends AbstractIns
     this.io = io;
   }
 
-  protected abstract void flagOperation(T valueFromHL);
+  protected abstract void flagOperation(int valueFromHL);
 
   protected void next() {
     hl.increment();

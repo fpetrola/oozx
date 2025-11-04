@@ -20,12 +20,11 @@ package com.fpetrola.z80.instructions.impl;
 
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class LdAI<T extends WordNumber> extends Ld<T> {
+public class LdAI extends Ld {
   public static final AluOperation ldaiTableAluOperation = new TableAluOperation() {
     public int execute(int I, int A, int IFF2) {
       A = I;
@@ -34,18 +33,18 @@ public class LdAI<T extends WordNumber> extends Ld<T> {
       return F;
     }
   };
-  private final State<T> state;
+  private final State state;
 
-  public LdAI(OpcodeReference<T> target, OpcodeReference<T> source, Register<T> flag, State<T> state) {
+  public LdAI(OpcodeReference target, OpcodeReference source, Register flag, State state) {
     super(target, source, flag);
     this.state = state;
   }
 
   public int execute() {
-    T value = source.read();
-    T reg_A = target.read();
+    int value = source.read();
+    int reg_A = target.read();
     boolean iff2 = state.isIff2();
-    T ldar = ldaiTableAluOperation.executeWithCarry2(reg_A, value, iff2 ? 1 : 0, flag);
+    int ldar = ldaiTableAluOperation.executeWithCarry2(reg_A, value, iff2 ? 1 : 0, flag);
 
     target.write(value);
 

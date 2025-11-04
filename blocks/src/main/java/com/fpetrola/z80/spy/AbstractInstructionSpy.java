@@ -26,26 +26,25 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.references.ConditionAlwaysTrue;
 import com.fpetrola.z80.opcodes.references.ExecutionPoint;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
 import java.util.*;
 import java.util.function.Supplier;
 
-public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstructionSpy<T> implements ComplexInstructionSpy<T> {
+public class AbstractInstructionSpy extends WrapperInstructionSpy implements ComplexInstructionSpy {
 
   protected boolean enabled;
   protected List<ExecutionStep> executionSteps = new ArrayList<>();
 
-  protected Map<Integer, List<ExecutionStep<T>>> memoryChanges = new HashMap<>();
+  protected Map<java.lang.Integer, List<ExecutionStep>> memoryChanges = new HashMap<>();
   private Instruction lastInstruction;
   private ExecutionPoint lastExecutionPoint;
   private final LinkedList<ExecutionPoint> executionPoints = new LinkedList<>();
   protected int enabledExecutionNumber;
-  private final Set<Integer> mutantCode = new HashSet<>();
+  private final Set<java.lang.Integer> mutantCode = new HashSet<>();
 
-  public static <T extends WordNumber> Instruction<T> processToBase(Instruction<T> instruction) {
-    while (instruction instanceof DefaultFetchNextOpcodeInstruction<T> fetchNextOpcodeInstruction) {
+  public static  Instruction processToBase(Instruction instruction) {
+    while (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
       fetchNextOpcodeInstruction.update();
       instruction = fetchNextOpcodeInstruction.findNextOpcode();
     }
@@ -105,15 +104,15 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
     return capturing;
   }
 
-  public void beforeExecution(Instruction<T> instruction) {
+  public void beforeExecution(Instruction instruction) {
     super.beforeExecution(instruction);
 
     Register pc = state.getPc();
-    T pcValue = (T) pc.read();
+    int pcValue = pc.read();
 
-    if (pcValue.valueXYZ <= 0xFFFF) {
+    if (pcValue <= 0xFFFF) {
       executionNumber++;
-      lastExecutionPoint = new ExecutionPoint(executionNumber, instruction, pcValue.valueXYZ);
+      lastExecutionPoint = new ExecutionPoint(executionNumber, instruction, pcValue);
       addExecutionPoint(lastExecutionPoint);
 
       if (enableResquested && enableIfReturningFromRoutine(instruction)) {
@@ -126,7 +125,7 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
         executionStep = new ExecutionStep(memory);
         executionStep.setInstruction(instruction);
         executionStep.description = instruction.toString();
-        executionStep.pcValue = pcValue.valueXYZ;
+        executionStep.pcValue = pcValue;
       }
     }
   }
@@ -141,13 +140,13 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
       executionPoints.remove();
   }
 
-  public void afterExecution(Instruction<T> instruction) {
+  public void afterExecution(Instruction instruction) {
     super.afterExecution(instruction);
 //    lastExecutionPoint.instruction = cloned;
 
     if (fetchedMemory[lastExecutionPoint.pc] == null) {
       Instruction baseInstruction = processToBase(lastExecutionPoint.instruction);
-      Instruction<T> cloned = instructionCloner.clone(baseInstruction);
+      Instruction cloned = instructionCloner.clone(baseInstruction);
 //    System.out.println(cloned);
       for (int i = 0; i < cloned.getLength(); i++) {
         int i1 = lastExecutionPoint.pc + i;
@@ -168,7 +167,7 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
 
       if (!executionStep.writeMemoryReferences.isEmpty()) {
         executionStep.writeMemoryReferences.stream().forEach(wmr -> {
-          int i = wmr.address.valueXYZ;
+          int i = wmr.address;
           if (fetchedMemory[i] != null && i >= 16384 && i != 65535) {
             mutantCode.add(i);
             System.out.println("mutant: " + mutantCode);
@@ -180,13 +179,13 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
     }
   }
 
-  protected void addMemoryChanges(ExecutionStep<T> step) {
+  protected void addMemoryChanges(ExecutionStep step) {
     if (!step.writeMemoryReferences.isEmpty()) {
-      for (WriteMemoryReference<T> writeMemoryReference : step.writeMemoryReferences) {
-        T key = writeMemoryReference.address;
-        List<ExecutionStep<T>> value = memoryChanges.get(key);
+      for (WriteMemoryReference writeMemoryReference : step.writeMemoryReferences) {
+        int key = writeMemoryReference.address;
+        List<ExecutionStep> value = memoryChanges.get(key);
         if (value == null) {
-          memoryChanges.put(key.valueXYZ, value = new ArrayList<>());
+          memoryChanges.put(key, value = new ArrayList<>());
         }
 
         value.add(0, step);
@@ -228,7 +227,7 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
     return false;
   }
 
-  public void flipOpcode(Instruction<T> instruction, int opcodeInt) {
+  public void flipOpcode(Instruction instruction, int opcodeInt) {
     if (capturing) {
       executionStep.setInstruction(instruction);
       if (print)
@@ -278,9 +277,9 @@ public class AbstractInstructionSpy<T extends WordNumber> extends WrapperInstruc
     indirectReference = true;
   }
 
-  public <T> T executeInPause(Supplier<T> object) {
+  public  int executeInPause(Supplier<Integer> object) {
     pause();
-    T t = object.get();
+    int t = object.get();
     doContinue();
     return t;
   }

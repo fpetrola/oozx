@@ -24,19 +24,18 @@ import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.actions.*;
 
 import java.util.*;
 
-public class RoutineExecution<T extends WordNumber> {
-  private final RoutineExecutorHandler<T> routineExecutorHandler;
+public class RoutineExecution {
+  private final RoutineExecutorHandler routineExecutorHandler;
   private int retInstruction = -1;
   private int start;
-  private Map<Integer, AddressAction> actions = new HashMap<>();
+  private Map<java.lang.Integer, AddressAction> actions = new HashMap<>();
 
-  public RoutineExecution(RoutineExecutorHandler<T> routineExecutorHandler, int start) {
+  public RoutineExecution(RoutineExecutorHandler routineExecutorHandler, int start) {
     this.routineExecutorHandler = routineExecutorHandler;
     this.start = start;
   }
@@ -90,7 +89,7 @@ public class RoutineExecution<T extends WordNumber> {
     return addressAction1;
   }
 
-  public <T extends WordNumber> AddressAction createAddressAction(Instruction<Boolean> instruction, boolean alwaysTrue, int pcValue) {
+  public  AddressAction createAddressAction(Instruction instruction, boolean alwaysTrue, int pcValue) {
     if (instruction instanceof Ret) {
       return new RetAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler);
     } else if (instruction instanceof Call call) {

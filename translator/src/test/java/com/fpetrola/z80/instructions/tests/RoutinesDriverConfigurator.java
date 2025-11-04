@@ -22,14 +22,13 @@ import com.fpetrola.z80.base.CPUExecutionContext;
 import com.fpetrola.z80.base.DriverConfigurator;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
 import com.fpetrola.z80.cpu.*;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.transformations.InstructionTransformer;
 import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 import com.google.inject.Inject;
 
-public class RoutinesDriverConfigurator<T extends WordNumber> extends DriverConfigurator<T> {
+public class RoutinesDriverConfigurator extends DriverConfigurator {
 
   private OOZ80 z80;
 
@@ -42,7 +41,7 @@ public class RoutinesDriverConfigurator<T extends WordNumber> extends DriverConf
 
   public RealCodeBytecodeCreationBase getRealCodeBytecodeCreationBase() {
     OOZ80 z80 = new OOZ80(state1, symbolicExecutionAdapter.createInstructionFetcher(spy, state1, transformerInstructionExecutor, opcodeConditions), transformerInstructionExecutor);
-    return new RealCodeBytecodeCreationBase<T>(spy, routineManager, instructionExecutor1, symbolicExecutionAdapter, instructionTransformer, transformerInstructionExecutor, z80, this.opcodeConditions, registersSetter);
+    return new RealCodeBytecodeCreationBase(spy, routineManager, instructionExecutor1, symbolicExecutionAdapter, instructionTransformer, transformerInstructionExecutor, z80, this.opcodeConditions, registersSetter);
   }
 
   @Override

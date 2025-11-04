@@ -21,13 +21,12 @@ package com.fpetrola.z80.instructions.types;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public abstract class TargetSourceInstruction<T, S extends ImmutableOpcodeReference<T>> extends DefaultTargetFlagInstruction<T> implements SourceInstruction<T, S> {
+public abstract class TargetSourceInstruction<S extends ImmutableOpcodeReference> extends DefaultTargetFlagInstruction implements SourceInstruction<S> {
   protected S source;
 
-  public TargetSourceInstruction(OpcodeReference<T> target, S source, Register<T> flag) {
+  public TargetSourceInstruction(OpcodeReference target, S source, Register flag) {
     super(target, flag);
     this.source = source;
     incrementLengthBy(source.getLength());

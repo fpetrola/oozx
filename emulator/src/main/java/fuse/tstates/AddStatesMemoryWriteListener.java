@@ -19,32 +19,31 @@
 package fuse.tstates;
 
 import com.fpetrola.z80.memory.MemoryWriteListener;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import fuse.tstates.phases.BeforeWrite;
 
-public class AddStatesMemoryWriteListener<T extends WordNumber> implements MemoryWriteListener<T> {
-  protected final PhaseProcessor<T> phaseProcessor;
+public class AddStatesMemoryWriteListener implements MemoryWriteListener {
+  protected final PhaseProcessor phaseProcessor;
   private BeforeWrite phase = new BeforeWrite();
 
-  public AddStatesMemoryWriteListener(PhaseProcessor<T> phaseProcessor1) {
+  public AddStatesMemoryWriteListener(PhaseProcessor phaseProcessor1) {
     phaseProcessor = phaseProcessor1;
   }
 
-  public void writtingMemoryAt(T address, T value) {
+  public void writtingMemoryAt(int address, int value) {
 //    System.out.printf("writtingMemoryAt: address= %s - value= %s %n", address, value);
     if (!phaseProcessor.getState().isIntLine()) {
       phaseProcessor.processPhase(phase);
     }
     doWrite(address, value);
     phaseProcessor.writeCount++;
-    phaseProcessor.addMultipleMc(1, 3, 0, address.valueXYZ, "writebyte");
+    phaseProcessor.addMultipleMc(1, 3, 0, address, "writebyte");
     phaseProcessor.addMw(address, value);
     doEnd(address, value);
   }
 
-  protected void doEnd(T address, T value) {
+  protected void doEnd(int address, int value) {
   }
 
-  protected void doWrite(T address, T value) {
+  protected void doWrite(int address, int value) {
   }
 }

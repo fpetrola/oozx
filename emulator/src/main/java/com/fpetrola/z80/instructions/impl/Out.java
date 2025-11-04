@@ -23,11 +23,10 @@ import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class Out<T extends WordNumber> extends TargetSourceInstruction<T, ImmutableOpcodeReference<T>> {
-  public Out(ImmutableOpcodeReference source, OutPortOpcodeReference outPortOpcodeReference, Register<T> flag) {
+public class Out extends TargetSourceInstruction<ImmutableOpcodeReference> {
+  public Out(ImmutableOpcodeReference source, OutPortOpcodeReference outPortOpcodeReference, Register flag) {
     super(outPortOpcodeReference, source, flag);
   }
 
@@ -36,36 +35,36 @@ public class Out<T extends WordNumber> extends TargetSourceInstruction<T, Immuta
     return cyclesCost;
   }
 
-  public static class OutPortOpcodeReference<T extends WordNumber> implements OpcodeReference<T> {
-    private final IO<T> io;
+  public static class OutPortOpcodeReference implements OpcodeReference {
+    private final IO io;
     public final ImmutableOpcodeReference target;
-    private final Register<T> a;
+    private final Register a;
 
-    public OutPortOpcodeReference(IO<T> io, ImmutableOpcodeReference target, Register<T> a) {
+    public OutPortOpcodeReference(IO io, ImmutableOpcodeReference target, Register a) {
       this.io = io;
       this.target = target;
       this.a = a;
     }
 
-    public void write(T value) {
+    public void write(int value) {
       io.out(getRead(), value);
     }
 
-    private T getRead() {
-      T read = null;
+    private int getRead() {
+      Integer read = null;
 
       if (read == null) {
-        read = (T) target.read();
-        if (!(target instanceof Register<?>)) {
-          WordNumber wordNumber = a.read();
-          int i = ((T) (WordNumber) new WordNumber((wordNumber.valueXYZ << 8) & 0xFFFF)).valueXYZ & 0xFFFF;
-          read = (T) (WordNumber) new WordNumber((read.valueXYZ | i) & 0xFFFF);
+        read = target.read();
+        if (!(target instanceof Register)) {
+          Integer wordNumber = a.read();
+          int i = ((wordNumber << 8) & 0xFFFF) & 0xFFFF;
+          read = (read | i) & 0xFFFF;
         }
       }
       return read;
     }
 
-    public T read() {
+    public int read() {
       return getRead();
     }
 

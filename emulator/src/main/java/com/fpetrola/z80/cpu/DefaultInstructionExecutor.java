@@ -22,7 +22,6 @@ import com.fpetrola.z80.helpers.CollectionHandler;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.ExecutionListener;
 import com.google.inject.Inject;
@@ -33,25 +32,25 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class DefaultInstructionExecutor<T extends WordNumber> implements InstructionExecutor<T> {
-  private final Register<T> pc;
-  private final Set<Instruction<T>> executingInstructions = new HashSet<>();
-  private final Map<Integer, Instruction<T>> instructions = new HashMap<>();
-  private final CollectionHandler<ExecutionListener<T>> executionListeners = new CollectionHandler<>();
+public class DefaultInstructionExecutor implements InstructionExecutor {
+  private final Register pc;
+  private final Set<Instruction> executingInstructions = new HashSet<>();
+  private final Map<java.lang.Integer, Instruction> instructions = new HashMap<>();
+  private final CollectionHandler<ExecutionListener> executionListeners = new CollectionHandler<>();
 
-  private final Consumer<Instruction<T>> afterExecutionAction;
+  private final Consumer<Instruction> afterExecutionAction;
 
   @Inject
-  public DefaultInstructionExecutor(State<T> state, boolean noRepeat) {
+  public DefaultInstructionExecutor(State state, boolean noRepeat) {
     this.pc = state.getPc();
     afterExecutionAction = noRepeat ? (instruction1 -> {
-      if (instruction1 instanceof RepeatingInstruction<?> repeatingInstruction)
+      if (instruction1 instanceof RepeatingInstruction repeatingInstruction)
         repeatingInstruction.setNextPC(null);
     }) : ((a) -> {
     });
   }
 
-  public Instruction<T> execute(Instruction<T> instruction) {
+  public Instruction execute(Instruction instruction) {
 
     executionListeners.forAll(i -> i.beforeExecution(instruction));
 
@@ -61,11 +60,11 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
 
     afterExecutionAction.accept(instruction);
 
-    T nextPC = ((AbstractInstruction<T>) instruction).getNextPC();
+    Integer nextPC = ((AbstractInstruction) instruction).getNextPC();
     if (nextPC == null) {
-      WordNumber wordNumber = pc.read();
+      Integer wordNumber = pc.read();
       int i = instruction.getLength();
-      nextPC = (T) (WordNumber) new WordNumber((wordNumber.valueXYZ + i) & 0xFFFF);
+      nextPC = (wordNumber + i) & 0xFFFF;
     }
 
     pc.write(nextPC);
@@ -73,19 +72,19 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
     return instruction;
   }
 
-  public void addExecutionListener(ExecutionListener<T> executionListener) {
+  public void addExecutionListener(ExecutionListener executionListener) {
     executionListeners.add(executionListener);
   }
 
-  public void addTopExecutionListener(ExecutionListener<T> executionListener) {
+  public void addTopExecutionListener(ExecutionListener executionListener) {
 //    executionListeners.add(executionListener);
   }
 
-  public boolean isExecuting(Instruction<T> instruction) {
+  public boolean isExecuting(Instruction instruction) {
     return executingInstructions.contains(instruction);
   }
 
-  public Instruction<T> getInstructionAt(int address) {
+  public Instruction getInstructionAt(int address) {
     return instructions.get(address);
   }
 }

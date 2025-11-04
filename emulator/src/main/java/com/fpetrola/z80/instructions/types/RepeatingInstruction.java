@@ -20,15 +20,14 @@ package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterPair;
 
-public class RepeatingInstruction<T extends WordNumber> extends AbstractInstruction<T> implements JumpInstruction<T> {
-  protected BlockInstruction<T> instructionToRepeat;
-  private ImmutableOpcodeReference<T> pc;
-  protected RegisterPair<T> bc;
+public class RepeatingInstruction extends AbstractInstruction implements JumpInstruction {
+  protected BlockInstruction instructionToRepeat;
+  private ImmutableOpcodeReference pc;
+  protected RegisterPair bc;
 
-  public RepeatingInstruction(BlockInstruction<T> instructionToRepeat, ImmutableOpcodeReference<T> pc, RegisterPair<T> bc) {
+  public RepeatingInstruction(BlockInstruction instructionToRepeat, ImmutableOpcodeReference pc, RegisterPair bc) {
     this.instructionToRepeat = instructionToRepeat;
     this.pc = pc;
     this.bc = bc;
@@ -41,7 +40,7 @@ public class RepeatingInstruction<T extends WordNumber> extends AbstractInstruct
   }
 
   protected boolean checkLoopCondition() {
-    return bc.getHigh().read().valueXYZ != 0;
+    return bc.getHigh().read() != 0;
   }
 
   @Override
@@ -50,27 +49,27 @@ public class RepeatingInstruction<T extends WordNumber> extends AbstractInstruct
       super.accept(visitor);
   }
 
-  public BlockInstruction<T> getInstructionToRepeat() {
+  public BlockInstruction getInstructionToRepeat() {
     return instructionToRepeat;
   }
 
-  public void setInstructionToRepeat(BlockInstruction<T> instructionToRepeat) {
+  public void setInstructionToRepeat(BlockInstruction instructionToRepeat) {
     this.instructionToRepeat = instructionToRepeat;
   }
 
-  public ImmutableOpcodeReference<T> getPc() {
+  public ImmutableOpcodeReference getPc() {
     return pc;
   }
 
-  public void setPc(ImmutableOpcodeReference<T> pc) {
+  public void setPc(ImmutableOpcodeReference pc) {
     this.pc = pc;
   }
 
-  public RegisterPair<T> getBc() {
+  public RegisterPair getBc() {
     return bc;
   }
 
-  public void setBc(RegisterPair<T> bc) {
+  public void setBc(RegisterPair bc) {
     this.bc = bc;
   }
 }

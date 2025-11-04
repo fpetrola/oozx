@@ -23,28 +23,29 @@ import com.fpetrola.z80.instructions.types.BitOperation;
 import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 import java.util.function.IntSupplier;
 
-public class BIT<T extends WordNumber> extends BitOperation<T> {
-  private BitAluOperation<T> tBitAluOperation;
-  public Register<T> getMemptr() {
+public class BIT extends BitOperation {
+  private BitAluOperation tBitAluOperation;
+
+  public Register getMemptr() {
     return memptr;
   }
-  private final Register<T> memptr;
 
-  public BIT(OpcodeReference<T> target, int n, Register<T> flag, Register<T> memptr) {
+  private final Register memptr;
+
+  public BIT(OpcodeReference target, int n, Register flag, Register memptr) {
     super(target, n, flag);
     this.memptr = memptr;
-    tBitAluOperation = new BitAluOperation<>(target, memptr);
+    tBitAluOperation = new BitAluOperation(target, memptr);
   }
 
   public int execute() {
-    int f = tBitAluOperation.execute2(n, flag.read().valueXYZ, target.read().valueXYZ);
-    flag.write((T) new WordNumber(f));
+    int f = tBitAluOperation.execute2(n, flag.read(), target.read());
+    flag.write(f);
 
     return cyclesCost;
   }
@@ -54,22 +55,22 @@ public class BIT<T extends WordNumber> extends BitOperation<T> {
       super.accept(visitor);
   }
 
-  private static class BitAluOperation<T extends WordNumber> extends TableAluOperation {
+  private static class BitAluOperation extends TableAluOperation {
     private IntSupplier addressP;
 
-    public BitAluOperation(OpcodeReference<T> target, Register<T> memptr) {
+    public BitAluOperation(OpcodeReference target, Register memptr) {
       addressP = () -> {
-        return target.read().valueXYZ;
+        return target.read();
       };
-      if (target instanceof MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference)
+      if (target instanceof MemoryPlusRegister8BitReference memoryPlusRegister8BitReference)
         addressP = () -> {
-          WordNumber wordNumber = memoryPlusRegister8BitReference.getTarget().read();
+          Integer wordNumber = memoryPlusRegister8BitReference.getTarget().read();
           int i = memoryPlusRegister8BitReference.fetchRelative();
-          return ((WordNumber) (WordNumber) new WordNumber((wordNumber.valueXYZ + i) & 0xFFFF)).valueXYZ >> 8;
+          return ((wordNumber + i) & 0xFFFF) >> 8;
         };
-      else if (target instanceof IndirectMemory8BitReference<T>)
+      else if (target instanceof IndirectMemory8BitReference)
         addressP = () -> {
-          return memptr.read().valueXYZ >>> 8;
+          return memptr.read() >>> 8;
         };
     }
 

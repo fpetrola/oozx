@@ -27,7 +27,6 @@ import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.minizx.StackException;
 import com.fpetrola.z80.opcodes.references.ConditionFlag;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.instructions.SEInstructionFactory;
 import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
@@ -39,7 +38,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 @SuppressWarnings("ALL")
-public class InstructionsBytecodeGenerator<T extends WordNumber> implements InstructionVisitor<T, T> {
+public class InstructionsBytecodeGenerator implements InstructionVisitor<Object> {
   protected final MethodMaker methodMaker;
   protected final RoutineBytecodeGenerator routineByteCodeGenerator;
   private final int address;
@@ -56,21 +55,21 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   @Override
   public void visitPush(Push push) {
-    Register<T> target = (Register<T>) push.getTarget();
+    Register target = (Register) push.getTarget();
     methodMaker.invoke("push", routineByteCodeGenerator.getExistingVariable(target).get());
   }
 
   @Override
   public void visitingPop(Pop pop) {
-    Register<T> target = (Register<T>) pop.getTarget();
+    Register target = (Register) pop.getTarget();
     routineByteCodeGenerator.getExistingVariable(target).set(methodMaker.invoke("pop"));
   }
 
   @Override
   public void visitEx(Ex ex) {
-    Register<T> source = (Register<T>) ex.getSource();
+    Register source = (Register) ex.getSource();
     String sourceName = source.getName();
-    if (ex.getTarget() instanceof Register<?> target) {
+    if (ex.getTarget() instanceof Register target) {
       if (sourceName.startsWith("AF")) {
         exAF(target);
       } else if (!sourceName.startsWith("DE")) {
@@ -80,12 +79,12 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
       ex_iSP_Reg(ex, sourceName);
   }
 
-  private void exAF(Register<?> target) {
+  private void exAF(Register target) {
     Variable variable = routineByteCodeGenerator.variables.get("AF");
     invokeExAF(target, variable);
   }
 
-  protected void invokeExAF(Register<?> target, Variable variable) {
+  protected void invokeExAF(Register target, Variable variable) {
     Variable invoke = methodMaker.invoke("exAF", RoutineBytecodeGenerator.getRealVariable(variable));
   }
 
@@ -145,10 +144,10 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   public void visitIn(In in) {
     in.accept(new VariableHandlingInstructionVisitor((s, t) -> {
       Object realVariable = RoutineBytecodeGenerator.getRealVariable(s);
-      if (realVariable instanceof Integer integer)
+      if (realVariable instanceof java.lang.Integer integer)
         realVariable = routineByteCodeGenerator.variables.get("A").shl(8).or(integer);
 
-      t.set(methodMaker.invoke("in", realVariable, routineByteCodeGenerator.context.pc.read().valueXYZ));
+      t.set(methodMaker.invoke("in", realVariable, routineByteCodeGenerator.context.pc.read()));
     }, routineByteCodeGenerator));
   }
 
@@ -262,12 +261,12 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   @Override
-  public boolean visitingBitOperation(BitOperation<T> bit) {
+  public boolean visitingBitOperation(BitOperation bit) {
 //    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.and(bit.getN())), byteCodeGenerator);
 //    bit.accept(visitor);
 //    processFlag(bit, visitor);
 
-    if (bit instanceof BIT<?>) {
+    if (bit instanceof BIT) {
       OpcodeReferenceVisitor instructionVisitor2 = new OpcodeReferenceVisitor(true, routineByteCodeGenerator);
       bit.getFlag().accept(instructionVisitor2);
       Variable flag = (Variable) instructionVisitor2.getResult();
@@ -475,7 +474,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   public boolean visitingCall(Call call) {
-    int jumpLabel = call.getJumpAddress().valueXYZ;
+    int jumpLabel = call.getJumpAddress();
     if (routineByteCodeGenerator.getMethod(jumpLabel) != null)
       createIfs(call, () -> {
         routineByteCodeGenerator.invokeTransformedMethod(jumpLabel);
@@ -487,7 +486,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   private void createIfs(Instruction instruction, Runnable runnable) {
     OpcodeReferenceVisitor opcodeReferenceVisitor = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
-    if (instruction instanceof DJNZ<?> djnz) {
+    if (instruction instanceof DJNZ djnz) {
       processDjnz(runnable, djnz, opcodeReferenceVisitor);
     } else if (instruction instanceof ConditionalInstruction conditionalInstruction && conditionalInstruction.getCondition() instanceof ConditionFlag conditionFlag)
       processExistingCondition(runnable, conditionalInstruction, conditionFlag, opcodeReferenceVisitor);
@@ -499,7 +498,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
     }
   }
 
-  private void processDjnz(Runnable runnable, DJNZ<?> djnz, OpcodeReferenceVisitor opcodeReferenceVisitor) {
+  private void processDjnz(Runnable runnable, DJNZ djnz, OpcodeReferenceVisitor opcodeReferenceVisitor) {
     Variable result = opcodeReferenceVisitor.process((Register) djnz.getCondition().getB());
     Variable and = result.sub(1).and(0xFF);
     result.set(and);
@@ -507,7 +506,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   private void processExistingCondition(Runnable runnable, ConditionalInstruction conditionalInstruction, ConditionFlag conditionFlag, OpcodeReferenceVisitor opcodeReferenceVisitor) {
-    if (routineByteCodeGenerator.context.pc.read().valueXYZ == 0xD9AC)
+    if (routineByteCodeGenerator.context.pc.read() == 0xD9AC)
       System.out.println("break");
     Variable f = opcodeReferenceVisitor.process((Register) conditionFlag.getRegister());
     String string = conditionalInstruction.getCondition().toString();
@@ -515,10 +514,10 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
     Variable targetVariable = null;
     if (previousPendingFlag != null) {
       FlagInstruction targetFlagInstruction = previousPendingFlag.targetFlagInstruction;
-      routineByteCodeGenerator.lastMemPc.write((WordNumber) new WordNumber(previousPendingFlag.address));
+      routineByteCodeGenerator.lastMemPc.write((Integer) new Integer(previousPendingFlag.address));
 
-      if (targetFlagInstruction instanceof Cp<?> cp) {
-        ImmutableOpcodeReference<WordNumber> source1 = (ImmutableOpcodeReference<WordNumber>) cp.getSource();
+      if (targetFlagInstruction instanceof Cp cp) {
+        ImmutableOpcodeReference source1 = (ImmutableOpcodeReference) cp.getSource();
         if (previousPendingFlag.sourceVariableSupplier == null) {
           OpcodeReferenceVisitor opcodeReferenceVisitor2 = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
           source1.accept(opcodeReferenceVisitor2);
@@ -526,8 +525,8 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
         } else {
           source = previousPendingFlag.sourceVariableSupplier.get();
         }
-        if (targetFlagInstruction instanceof TargetInstruction<?> targetInstruction) {
-          OpcodeReferenceVisitor<WordNumber> variableAdapter = new OpcodeReferenceVisitor<>(true, routineByteCodeGenerator);
+        if (targetFlagInstruction instanceof TargetInstruction targetInstruction) {
+          OpcodeReferenceVisitor variableAdapter = new OpcodeReferenceVisitor(true, routineByteCodeGenerator);
           targetInstruction.getTarget().accept(variableAdapter);
           targetVariable = (Variable) variableAdapter.getResult();
         }
@@ -596,7 +595,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   public void visitingConditionalInstruction(ConditionalInstruction conditionalInstruction) {
     conditionalInstruction.calculateJumpAddress();
 
-    int i = conditionalInstruction.getJumpAddress().valueXYZ;
+    int i = conditionalInstruction.getJumpAddress();
     Label label1 = routineByteCodeGenerator.getLabel(i);
     if (label1 != null)
       createIfs(conditionalInstruction, () -> label1.goto_());
@@ -666,11 +665,11 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   @Override
-  public boolean visitingJP(JP<T> jp) {
-    if (jp.getPositionOpcodeReference() instanceof Register<T> register) {
-      Map<Integer, JPRegisterAddressAction.DynamicJPData> dynamicJP = SEInstructionFactory.dynamicJP;
+  public boolean visitingJP(JP jp) {
+    if (jp.getPositionOpcodeReference() instanceof Register register) {
+      Map<java.lang.Integer, JPRegisterAddressAction.DynamicJPData> dynamicJP = SEInstructionFactory.dynamicJP;
       dynamicJP.forEach((djpc, dj) -> {
-        if (djpc == routineByteCodeGenerator.context.pc.read().valueXYZ) {
+        if (djpc == routineByteCodeGenerator.context.pc.read()) {
           dj.cases.forEach(c -> {
             Variable existingVariable = routineByteCodeGenerator.getExistingVariable(register);
             existingVariable.ifEq(c, () -> {

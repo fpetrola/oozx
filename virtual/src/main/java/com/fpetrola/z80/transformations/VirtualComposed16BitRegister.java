@@ -21,7 +21,6 @@ package com.fpetrola.z80.transformations;
 import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Composed16BitRegister;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -29,13 +28,13 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VirtualComposed16BitRegister<T extends WordNumber> extends Composed16BitRegister<T, IVirtual8BitsRegister<T>> implements VirtualRegister<T> {
+public class VirtualComposed16BitRegister extends Composed16BitRegister<IVirtual8BitsRegister> implements VirtualRegister {
   private final int currentAddress;
   private final Scope scope = new Scope();
   private final VirtualRegisterVersionHandler versionHandler;
   private final BlocksManager blocksManager;
 
-  public VirtualComposed16BitRegister(int currentAddress, String virtualRegisterName, IVirtual8BitsRegister<T> virtualH, IVirtual8BitsRegister<T> virtualL, VirtualRegisterVersionHandler versionHandler, boolean composed, BlocksManager blocksManager) {
+  public VirtualComposed16BitRegister(int currentAddress, String virtualRegisterName, IVirtual8BitsRegister virtualH, IVirtual8BitsRegister virtualL, VirtualRegisterVersionHandler versionHandler, boolean composed, BlocksManager blocksManager) {
     super(virtualRegisterName, virtualH, virtualL);
     this.currentAddress = currentAddress;
     this.versionHandler = versionHandler;
@@ -50,7 +49,7 @@ public class VirtualComposed16BitRegister<T extends WordNumber> extends Composed
   }
 
   @Override
-  public List<VirtualRegister<T>> getPreviousVersions() {
+  public List<VirtualRegister> getPreviousVersions() {
     return getVirtualRegisters(low.getPreviousVersions(), high.getPreviousVersions());
   }
 
@@ -59,11 +58,11 @@ public class VirtualComposed16BitRegister<T extends WordNumber> extends Composed
     return blocksManager;
   }
 
-  private List<VirtualRegister<T>> getVirtualRegisters(List<VirtualRegister<T>> previousVersionsL, List<VirtualRegister<T>> previousVersionsH) {
-    List<VirtualRegister<T>> list = new ArrayList<>();
+  private List<VirtualRegister> getVirtualRegisters(List<VirtualRegister> previousVersionsL, List<VirtualRegister> previousVersionsH) {
+    List<VirtualRegister> list = new ArrayList<>();
     for (int i = 0, previousVersionsLSize = previousVersionsL.size(); i < previousVersionsLSize; i++) {
-      VirtualRegister<T> pL = previousVersionsL.get(i);
-      VirtualRegister<T> pH = previousVersionsH.isEmpty() ? high : previousVersionsH.get(Math.min(i, previousVersionsH.size() - 1));
+      VirtualRegister pL = previousVersionsL.get(i);
+      VirtualRegister pH = previousVersionsH.isEmpty() ? high : previousVersionsH.get(Math.min(i, previousVersionsH.size() - 1));
 
       String nameL = pL.getName();
       String nameH = pH.getName();
@@ -76,7 +75,7 @@ public class VirtualComposed16BitRegister<T extends WordNumber> extends Composed
 
       finalName = fixIndexNames(finalName);
 
-      list.add(new VirtualComposed16BitRegister<T>(Math.min(pL.getAddress(), pH.getAddress()), finalName, (IVirtual8BitsRegister<T>) pH, (IVirtual8BitsRegister<T>) pL, versionHandler, false, getBlocksManager()));
+      list.add(new VirtualComposed16BitRegister(Math.min(pL.getAddress(), pH.getAddress()), finalName, (IVirtual8BitsRegister) pH, (IVirtual8BitsRegister) pL, versionHandler, false, getBlocksManager()));
     }
     return list;
   }
@@ -119,7 +118,7 @@ public class VirtualComposed16BitRegister<T extends WordNumber> extends Composed
   }
 
   @Override
-  public List<VirtualRegister<T>> getDependants() {
+  public List<VirtualRegister> getDependants() {
     return getVirtualRegisters(low.getDependants(), high.getDependants());
   }
 
@@ -151,7 +150,7 @@ public class VirtualComposed16BitRegister<T extends WordNumber> extends Composed
 
     if (o == null || getClass() != o.getClass()) return false;
 
-    VirtualComposed16BitRegister<?> that = (VirtualComposed16BitRegister<?>) o;
+    VirtualComposed16BitRegister that = (VirtualComposed16BitRegister) o;
 
     return new EqualsBuilder().append(toString(), that.toString()).isEquals();
   }
@@ -166,7 +165,7 @@ public class VirtualComposed16BitRegister<T extends WordNumber> extends Composed
     return isLdTarget(high) || isLdTarget(low);
   }
 
-  private boolean isLdTarget(IVirtual8BitsRegister<T> high1) {
+  private boolean isLdTarget(IVirtual8BitsRegister high1) {
     Instruction instruction = ((Virtual8BitsRegister) high1).instruction;
 
     if (instruction instanceof Ld ld) {

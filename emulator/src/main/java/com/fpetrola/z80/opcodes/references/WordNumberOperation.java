@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.opcodes.references;
 
-public interface WordNumberOperation<T extends WordNumber> {
+public interface WordNumberOperation {
   int execute();
 
   int getI();

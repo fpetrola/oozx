@@ -21,13 +21,12 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class Cpd<T extends WordNumber> extends Cpi<T> {
+public class Cpd extends Cpi {
   public static final AluOperation cpdTableAluOperation = new TableAluOperation() {
     public int execute(int A, int value, int BC) {
       int bytetemp = A - value;
@@ -44,7 +43,7 @@ public class Cpd<T extends WordNumber> extends Cpi<T> {
     }
   };
 
-  public Cpd(Register<T> a, Register flag, RegisterPair<T> bc, RegisterPair<T> hl, Memory<T> memory, IO<T> io) {
+  public Cpd(Register a, Register flag, RegisterPair bc, RegisterPair hl, Memory memory, IO io) {
     super(a, flag, bc, hl, memory, io);
   }
 
@@ -59,11 +58,11 @@ public class Cpd<T extends WordNumber> extends Cpi<T> {
     hl.decrement();
   }
 
-  protected void flagOperation(T valueFromHL) {
-    int lastCarry = flag.read().valueXYZ & 1;
-    cpdTableAluOperation.executeWithCarry2(memory.read(hl.read(), 0), a.read(), bc.read().valueXYZ != 0 ? 1 : 0, flag);
-    WordNumber wordNumber = flag.read();
-    flag.write((T) (WordNumber) new WordNumber((wordNumber.valueXYZ | lastCarry) & 0xFFFF));
+  protected void flagOperation(int valueFromHL) {
+    int lastCarry = flag.read() & 1;
+    cpdTableAluOperation.executeWithCarry2(memory.read(hl.read(), 0), a.read(), bc.read() != 0 ? 1 : 0, flag);
+    Integer wordNumber = flag.read();
+    flag.write((wordNumber | lastCarry) & 0xFFFF);
   }
 
   public void accept(InstructionVisitor visitor) {

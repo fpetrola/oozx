@@ -24,7 +24,7 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class RRCA<T> extends ParameterizedUnaryAluInstruction<T> {
+public class RRCA extends ParameterizedUnaryAluInstruction {
   public static final TableAluOperation rrcaTableAluOperation = new TableAluOperation() {
     public int execute(int A, int flag) {
       F = ( F & ( FLAG_P | FLAG_Z | FLAG_S ) ) | ( A & FLAG_C );
@@ -35,7 +35,7 @@ public class RRCA<T> extends ParameterizedUnaryAluInstruction<T> {
     }
   };
 
-  public RRCA(OpcodeReference target, Register<T> flag) {
+  public RRCA(OpcodeReference target, Register flag) {
     super(target, flag, rrcaTableAluOperation);
   }
 

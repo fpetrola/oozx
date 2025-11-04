@@ -27,13 +27,13 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-public class CBPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
+public class CBPrefixTableOpCodeGenerator extends TableOpCodeGenerator {
 
   public CBPrefixTableOpCodeGenerator(State state, OpcodeReference a, OpcodeConditions opc1, InstructionFactory instructionFactory, Memory memoryForOpcodes) {
     super(state, HL, H, L, a, opc1, instructionFactory, memoryForOpcodes);
   }
 
-  protected Instruction<T> getOpcode() {
+  protected Instruction getOpcode() {
     return select(rot.get(y).create(r[z], 0), i.BIT(r[z], y), i.RES(r[z], y), i.SET(r[z], y))[x];
   }
 }

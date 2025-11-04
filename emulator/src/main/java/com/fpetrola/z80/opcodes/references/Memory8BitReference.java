@@ -22,11 +22,11 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 
-public class Memory8BitReference<T extends WordNumber> implements ImmutableOpcodeReference<T> {
-  private final Memory<T> memory;
+public class Memory8BitReference implements ImmutableOpcodeReference {
+  private final Memory memory;
   private final int delta;
-  public T fetchedAddress;
-  private final Register<T> pc;
+  public Integer fetchedAddress;
+  private final Register pc;
 
   public Memory8BitReference(Memory memory, Register pc, int delta) {
     this.memory = memory;
@@ -37,34 +37,34 @@ public class Memory8BitReference<T extends WordNumber> implements ImmutableOpcod
   public int getDelta() {
     return delta;
   }
-  public Memory<T> getMemory() {
+  public Memory getMemory() {
     return memory;
   }
 
-  public Register<T> getPc() {
+  public Register getPc() {
     return pc;
   }
 
-  public T read() {
-    WordNumber wordNumber = fetchAddress();
-    return memory.read((T) (WordNumber) new WordNumber((wordNumber.valueXYZ + delta) & 0xFFFF), 0);
+  public int read() {
+    Integer wordNumber = fetchAddress();
+    return memory.read((wordNumber + delta) & 0xFFFF, 0);
   }
 
-  public void write(T value) {
+  public void write(int value) {
     memory.write(fetchAddress(), value);
   }
 
-  protected T fetchAddress() {
+  protected int fetchAddress() {
     return fetchedAddress = pc.read();
   }
 
   public String toString() {
-    T read = fetchedAddress;
+    Integer read = fetchedAddress;
     //return read == null ? "" : "0x" + Helper.convertToHex(read.intValue()) + "";
     if (read == null) {
       return "";
     } else {
-      return read.valueXYZ + "";
+      return read + "";
     }
   }
 

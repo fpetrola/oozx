@@ -18,11 +18,9 @@
 
 package com.fpetrola.z80.instructions.types;
 
-import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public interface SourceInstruction<T, S extends ImmutableOpcodeReference<T>> {
+public interface SourceInstruction<S extends ImmutableOpcodeReference> {
   S getSource();
   void setSource(S source);
 }

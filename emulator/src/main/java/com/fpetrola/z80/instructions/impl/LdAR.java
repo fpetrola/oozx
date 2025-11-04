@@ -22,11 +22,10 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class LdAR<T extends WordNumber> extends Ld<T> {
+public class LdAR extends Ld {
   public static final AluOperation ldarTableAluOperation = new AluOperation() {
     public int execute(int R, int A, int IFF2) {
       A = R & 0xff;
@@ -35,20 +34,20 @@ public class LdAR<T extends WordNumber> extends Ld<T> {
       return F;
     }
   };
-  private final State<T> state;
+  private final State state;
 
-  public LdAR(OpcodeReference<T> target, ImmutableOpcodeReference<T> source, Register<T> flag, State<T> state) {
+  public LdAR(OpcodeReference target, ImmutableOpcodeReference source, Register flag, State state) {
     super(target, source, flag);
     this.state = state;
   }
 
   public int execute() {
-    T value = source.read();
-    T reg_A = target.read();
+    int value = source.read();
+    int reg_A = target.read();
     boolean iff2 = state.isIff2();
-    ldarTableAluOperation.F = flag.read().valueXYZ;
-    int ldar = ldarTableAluOperation.execute(value.valueXYZ, reg_A.valueXYZ, iff2 ? 1 : 0);
-    flag.write((T) new WordNumber(ldarTableAluOperation.F));
+    ldarTableAluOperation.F = flag.read();
+    int ldar = ldarTableAluOperation.execute(value, reg_A, iff2 ? 1 : 0);
+    flag.write(ldarTableAluOperation.F);
     target.write(value);
 
     return cyclesCost;

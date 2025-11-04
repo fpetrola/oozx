@@ -20,6 +20,6 @@ package com.fpetrola.z80.opcodes.decoder;
 
 import com.fpetrola.z80.instructions.types.Instruction;
 
-public interface OpCodeDecoder<T> {
-  Instruction<T>[] getOpcodeLookupTable();
+public interface OpCodeDecoder {
+  Instruction[] getOpcodeLookupTable();
 }

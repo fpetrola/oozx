@@ -24,7 +24,6 @@ import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.peripherals.t.DownloadAndUnzip;
 import com.fpetrola.oozx.fuse.peripherals.t.ZXSpectrumDesktopApp;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.SolarizedLightTheme;
 
@@ -80,7 +79,7 @@ public class OOSpectrumLauncher {
   private static final int LAST_K = 23560;
   private static final int FLAGS = 23611;
 
-  private void doAutoLoadTape(Memory<WordNumber> memory, float coe, Runnable runnable) {
+  private void doAutoLoadTape(Memory memory, float coe, Runnable runnable) {
     boolean autoLoadTape = false;
     Runnable task = () -> {
       try {
@@ -91,22 +90,22 @@ public class OOSpectrumLauncher {
 //        }
 
         if (endFrame == 100) {
-          memory.write((WordNumber) new WordNumber(LAST_K), (WordNumber) new WordNumber(0xEF)); // LOAD keyword
-          WordNumber wordNumber2 = memory.read((WordNumber) new WordNumber(FLAGS), 0);
-          memory.write((WordNumber) new WordNumber(FLAGS), ((WordNumber) (WordNumber) new WordNumber((wordNumber2.valueXYZ | 0x20) & 0xFFFF))); // LOAD keyword
+          memory.write(LAST_K, 0xEF); // LOAD keyword
+          Integer wordNumber2 = memory.read(FLAGS, 0);
+          memory.write(FLAGS, ((Integer) (wordNumber2 | 0x20) & 0xFFFF)); // LOAD keyword
           wait1(30, coe);
-          memory.write((WordNumber) new WordNumber(LAST_K), (WordNumber) new WordNumber(0x22)); // LOAD keyword
-          WordNumber wordNumber1 = memory.read((WordNumber) new WordNumber(FLAGS), 0);
-          memory.write((WordNumber) new WordNumber(FLAGS), ((WordNumber) (WordNumber) new WordNumber((wordNumber1.valueXYZ | 0x20) & 0xFFFF))); // LOAD keyword
+          memory.write(LAST_K, 0x22); // LOAD keyword
+          Integer wordNumber1 = memory.read(FLAGS, 0);
+          memory.write(FLAGS, ((Integer) (wordNumber1 | 0x20) & 0xFFFF)); // LOAD keyword
           wait1(30, coe);
-          memory.write((WordNumber) new WordNumber(LAST_K), (WordNumber) new WordNumber(0x22)); // LOAD keyword
-          WordNumber wordNumber = memory.read((WordNumber) new WordNumber(FLAGS), 0);
-          memory.write((WordNumber) new WordNumber(FLAGS), ((WordNumber) (WordNumber) new WordNumber((wordNumber.valueXYZ | 0x20) & 0xFFFF))); // LOAD keyword
+          memory.write(LAST_K, 0x22); // LOAD keyword
+          Integer wordNumber = memory.read(FLAGS, 0);
+          memory.write(FLAGS, ((Integer) (wordNumber | 0x20) & 0xFFFF)); // LOAD keyword
           wait1(30, coe);
         }
-        memory.write((WordNumber) new WordNumber(LAST_K), (WordNumber) new WordNumber(0x0D)); // LOAD keyword
-        WordNumber wordNumber = memory.read((WordNumber) new WordNumber(FLAGS), 0);
-        memory.write((WordNumber) new WordNumber(FLAGS), ((WordNumber) (WordNumber) new WordNumber((wordNumber.valueXYZ | 0x20) & 0xFFFF))); // LOAD keyword
+        memory.write(LAST_K, 0x0D); // LOAD keyword
+        Integer wordNumber = memory.read(FLAGS, 0);
+        memory.write(FLAGS, ((Integer) (wordNumber | 0x20) & 0xFFFF)); // LOAD keyword
         wait1(3000, coe);
 
         runnable.run();

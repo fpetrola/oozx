@@ -20,22 +20,21 @@ package com.fpetrola.z80.transformations;
 
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class TransformerInstructionFetcher<T extends WordNumber> extends InstructionFetcherForTest<T> {
-  private final TransformerInstructionExecutor<T> instructionExecutor1;
+public class TransformerInstructionFetcher extends InstructionFetcherForTest {
+  private final TransformerInstructionExecutor instructionExecutor1;
 
-  public TransformerInstructionFetcher(State<T> state, TransformerInstructionExecutor instructionExecutor) {
+  public TransformerInstructionFetcher(State state, TransformerInstructionExecutor instructionExecutor) {
     super(state, instructionExecutor);
     instructionExecutor1 = instructionExecutor;
   }
 
-  public Instruction<?> fetchNextInstruction() {
-    updatePC(instructionExecutor.execute(instructions.get(pc.read().valueXYZ)));
+  public Instruction fetchNextInstruction() {
+    updatePC(instructionExecutor.execute(instructions.get(pc.read())));
     return null;
   }
 
-  public Instruction<T> getTransformedInstructionAt(int i) {
+  public Instruction getTransformedInstructionAt(int i) {
     return instructionExecutor1.getInstructionAt(i);
   }
 }

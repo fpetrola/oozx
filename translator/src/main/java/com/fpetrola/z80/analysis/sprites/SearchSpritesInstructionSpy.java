@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fpetrola.z80.graph.CustomGraph;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.spy.*;
 
 import java.io.File;
@@ -30,10 +29,10 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 
-public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractInstructionSpy<T> implements ComplexInstructionSpy<T> {
+public class SearchSpritesInstructionSpy extends AbstractInstructionSpy implements ComplexInstructionSpy {
   private static final String FILE_TRACE_JSON = "game-trace.json";
 
-  private final class ExecutionStepAddressRange<T extends WordNumber> extends ExecutionStep<T> {
+  private final class ExecutionStepAddressRange extends ExecutionStep {
     private final AddressRange addressRange;
 
     private ExecutionStepAddressRange(AddressRange addressRange) {
@@ -47,7 +46,7 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
     }
   }
 
-  private final Set<Integer> spritesAt = new HashSet<>();
+  private final Set<java.lang.Integer> spritesAt = new HashSet<>();
   private State state;
   private CustomGraph customGraph;
 
@@ -68,10 +67,10 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
     return STEP_PROCESSOR_NOT_MATCHING;
   }
 
-  protected ExecutionStep walkReverse(Function<ExecutionStep, Integer> stepProcessor, ExecutionStep from) {
+  protected ExecutionStep walkReverse(Function<ExecutionStep, java.lang.Integer> stepProcessor, ExecutionStep from) {
     for (int i = from.i - 1; i >= 0; i--) {
       ExecutionStep step = executionSteps.get(i);
-      Integer apply = stepProcessor.apply(step);
+      java.lang.Integer apply = stepProcessor.apply(step);
       if (apply == STEP_PROCESSOR_CANCEL)
         return nullStep;
       else if (apply != STEP_PROCESSOR_NOT_MATCHING)
@@ -165,7 +164,7 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
   }
 
   private void updateSpriteBrowser() {
-    for (Integer address : spritesAt) {
+    for (java.lang.Integer address : spritesAt) {
       System.out.println("sprite at: " + address);
       for (int k = 0; k < 8; k++)
         bitsWritten[address * 8 + k] = true;
@@ -195,8 +194,8 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
     bitsWritten = new boolean[0x10000 * 8];
   }
 
-  private <T extends SpyReference> List<T> filterIndirect(List<T> writeMemoryReferences) {
-//    List<T> value = writeMemoryReferences.stream().filter(r -> !r.isIndirectReference()).collect(Collectors.toList());
+  private <T extends SpyReference> List filterIndirect(List writeMemoryReferences) {
+//    List value = writeMemoryReferences.stream().filter(r -> !r.isIndirectReference()).collect(Collectors.toList());
     return writeMemoryReferences;
   }
 
@@ -207,7 +206,7 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
     objectMapper.writeValue(new File(FILE_TRACE_JSON), resultContainer);
   }
 
-  private SpyReference getSource(ExecutionStep<T> executionStep) {
+  private SpyReference getSource(ExecutionStep executionStep) {
     if (!executionStep.readMemoryReferences.isEmpty()) {
       if (executionStep.readMemoryReferences.size() > 1)
         System.out.println("dsgsdagds");
@@ -232,17 +231,17 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
 
       List<ExecutionStep> originalSteps = findOriginalSourceOf(screenWritingStep, getSource(screenWritingStep), screenStep);
 
-      for (ExecutionStep<T> originalStep : originalSteps) {
+      for (ExecutionStep originalStep : originalSteps) {
         for (WriteMemoryReference writeMemoryReference : originalStep.writeMemoryReferences) {
-          addRangeEdge(originalStep, "s0", writeMemoryReference.address.valueXYZ);
+          addRangeEdge(originalStep, "s0", writeMemoryReference.address);
         }
-        for (ReadMemoryReference<T> readMemoryReference : originalStep.readMemoryReferences) {
-          int address = readMemoryReference.address.valueXYZ;
+        for (ReadMemoryReference readMemoryReference : originalStep.readMemoryReferences) {
+          int address = readMemoryReference.address;
           boolean found = address >= 0xB900 && address <= 0xB97F;
 
           if (found)
             System.out.println("sdgdsg");
-          addRangeEdge(originalStep, "s1", readMemoryReference.address.valueXYZ);
+          addRangeEdge(originalStep, "s1", readMemoryReference.address);
         }
       }
 
@@ -282,11 +281,11 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
     if (source == null)
       return true;
     else if (source instanceof ReadMemoryReference) {
-      ReadMemoryReference<WordNumber> readMemoryOpcodeReference = (ReadMemoryReference<WordNumber>) source;
-      if (readMemoryOpcodeReference.address.valueXYZ < 0x4000)
+      ReadMemoryReference readMemoryOpcodeReference = (ReadMemoryReference) source;
+      if (readMemoryOpcodeReference.address < 0x4000)
         return true;
       else {
-        return isSpriteAddress(readMemoryOpcodeReference.address.valueXYZ);
+        return isSpriteAddress(readMemoryOpcodeReference.address);
       }
     }
     return false;
@@ -305,16 +304,16 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
 
     while (currentStep != null) {
       if (source instanceof ReadMemoryReference) {
-        ReadMemoryReference<WordNumber> readMemoryOpcodeReference = (ReadMemoryReference<WordNumber>) source;
+        ReadMemoryReference readMemoryOpcodeReference = (ReadMemoryReference) source;
 
 //        if (readMemoryOpcodeReference.address == 27581) {
 //          System.out.println("AAAA");
 //        }
 
-        List<ExecutionStep<T>> list = memoryChanges.get(readMemoryOpcodeReference.address.valueXYZ);
+        List<ExecutionStep> list = memoryChanges.get(readMemoryOpcodeReference.address);
 
         int currentIndex = currentStep.i;
-        Optional<ExecutionStep<T>> first = list.stream().filter(step -> step.i < currentIndex).findFirst();
+        Optional<ExecutionStep> first = list.stream().filter(step -> step.i < currentIndex).findFirst();
 
         if (first.isPresent()) {
 //          for (int i = prev.i - 1; i > currentStep.i; i--) {
@@ -343,8 +342,8 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
     return results;
   }
 
-  private boolean targetIsEqual(ExecutionStep<T> currentStep, SpyReference source) {
-    for (WriteOpcodeReference<T> wr : currentStep.writeReferences) {
+  private boolean targetIsEqual(ExecutionStep currentStep, SpyReference source) {
+    for (WriteOpcodeReference wr : currentStep.writeReferences) {
       if (wr.sameReference(source))
         return true;
     }
@@ -374,7 +373,7 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
         else {
           boolean processChain = true;
           if (readMemoryReference instanceof ReadMemoryReference) {
-            ReadMemoryReference<WordNumber> readMemoryOpcodeReference = (ReadMemoryReference<WordNumber>) readMemoryReference;
+            ReadMemoryReference readMemoryOpcodeReference = (ReadMemoryReference) readMemoryReference;
             processChain = !readMemoryOpcodeReference.indirectReference;
           }
 
@@ -391,9 +390,9 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
 
   private boolean isScreenWriting(Object accessReference) {
     if (accessReference instanceof WriteMemoryReference) {
-      WriteMemoryReference<T> wr = (WriteMemoryReference) accessReference;
-      if (wr.address.valueXYZ < 0x4000) return false;
-      return wr.address.valueXYZ <= (0x5000);
+      WriteMemoryReference wr = (WriteMemoryReference) accessReference;
+      if (wr.address < 0x4000) return false;
+      return wr.address <= (0x5000);
     }
     return false;
   }

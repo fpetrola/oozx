@@ -28,7 +28,6 @@ import com.fpetrola.z80.blocks.references.ReferencesHandler;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.base.ManualBytecodeGenerationTest;
 import com.fpetrola.z80.cpu.IO;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.google.inject.Inject;
 import io.exemplary.guice.Modules;
 import io.exemplary.guice.TestRunner;
@@ -47,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Ignore
 @RunWith(TestRunner.class)
 @Modules(BaseModule.class)
-public class InlineRegisterTransformInstructionsTest<T extends WordNumber> extends ManualBytecodeGenerationTest<T> {
+public class InlineRegisterTransformInstructionsTest extends ManualBytecodeGenerationTest {
   private BlocksManager blocksManager;
 
   @Inject
@@ -986,11 +985,11 @@ public class InlineRegisterTransformInstructionsTest<T extends WordNumber> exten
   @Test
   public void testInBug() {
     IO io = new IO() {
-      public Object in(Object port) {
-        return null;
+      public int in(int port) {
+        return -1;
       }
 
-      public void out(Object port, Object value) {
+      public void out(int port, int value) {
       }
     };
     add(new Ld(r(A), c(3), f()));

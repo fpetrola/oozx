@@ -23,7 +23,6 @@ import com.fpetrola.z80.bytecode.generators.helpers.Single8BitRegisterVariable;
 import com.fpetrola.z80.bytecode.generators.helpers.SmartComposed16BitRegisterVariable;
 import com.fpetrola.z80.bytecode.generators.helpers.VariableDelegator;
 import com.fpetrola.z80.helpers.Helper;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;
 import com.fpetrola.z80.transformations.VirtualRegister;
@@ -35,7 +34,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 public class VirtualRoutineBytecodeGenerator extends RoutineBytecodeGenerator {
-  public Map<VirtualRegister<?>, VirtualRegister<?>> commonRegisters = new HashMap<>();
+  public Map<VirtualRegister, VirtualRegister> commonRegisters = new HashMap<>();
 
   public VirtualRoutineBytecodeGenerator(BytecodeGenerationContext bytecodeGenerationContext, Routine routine) {
     super(bytecodeGenerationContext, routine);
@@ -47,7 +46,7 @@ public class VirtualRoutineBytecodeGenerator extends RoutineBytecodeGenerator {
     return VirtualComposed16BitRegister.fixIndexNames(register.getName().replace(",", ""));
   }
 
-  public static VirtualRegister getTop(VirtualRegister<?> register) {
+  public static VirtualRegister getTop(VirtualRegister register) {
     VirtualRegister o = (VirtualRegister) register.getVersionHandler().versions.get(0);
     return o;
   }
@@ -71,19 +70,19 @@ public class VirtualRoutineBytecodeGenerator extends RoutineBytecodeGenerator {
     addLowHigh((SmartComposed16BitRegisterVariable) variables.get("IY"), "IYH", "IYL");
   }
 
-  public <T extends WordNumber> boolean variableExists(VirtualRegister register) {
+  public  boolean variableExists(VirtualRegister register) {
     register = VirtualRoutineBytecodeGenerator.getTop(register);
     Variable variable = variables.get(VirtualRoutineBytecodeGenerator.getRegisterName(register));
     return variable != null;
   }
 
-  public <T extends WordNumber> void createVariable(VirtualRegister register1) {
+  public  void createVariable(VirtualRegister register1) {
     VirtualRegister register = VirtualRoutineBytecodeGenerator.getTop(register1);
     String name = VirtualRoutineBytecodeGenerator.getRegisterName(register);
     registerByVariable.put(name, register);
   }
 
-  public <T extends WordNumber> Variable getVariable(VirtualRegister register1, Supplier<Object> value) {
+  public  Variable getVariable(VirtualRegister register1, Supplier<Object> value) {
     VirtualRegister register = VirtualRoutineBytecodeGenerator.getTop(register1);
 
     String name = VirtualRoutineBytecodeGenerator.getRegisterName(register);
@@ -107,8 +106,8 @@ public class VirtualRoutineBytecodeGenerator extends RoutineBytecodeGenerator {
     }
   }
 
-  public Label getBranchLabel(Integer minLine) {
-    Optional<Map.Entry<Integer, Label>> first = insertLabels.entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getKey)).filter(e -> e.getKey() >= minLine).findFirst();
+  public Label getBranchLabel(java.lang.Integer minLine) {
+    Optional<Map.Entry<java.lang.Integer, Label>> first = insertLabels.entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getKey)).filter(e -> e.getKey() >= minLine).findFirst();
     return first.get().getValue();
   }
 
@@ -191,7 +190,7 @@ public class VirtualRoutineBytecodeGenerator extends RoutineBytecodeGenerator {
     reg16.setLow(variableLow);
   }
 
-  public <T extends WordNumber> Variable getExistingVariable(VirtualRegister<?> register) {
+  public  Variable getExistingVariable(VirtualRegister register) {
     VirtualRegister topRegister = getTop(register);
     String registerName = getRegisterName(topRegister);
 

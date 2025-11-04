@@ -18,16 +18,14 @@
 
 package com.fpetrola.z80.transformations;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
 import java.util.function.Supplier;
 
-public class VirtualFetcher<T extends WordNumber> {
+public class VirtualFetcher {
   private boolean executing;
 
-  public T readFromVirtual(Supplier<Boolean> isExecuting,  Runnable instructionRunner, Supplier<T> resultSupplier, Supplier<T> lastValueSupplier) {
-    T t = resultSupplier.get();
-    if (t != null)
+  public int readFromVirtual(Supplier<Boolean> isExecuting,  Runnable instructionRunner, Supplier<Integer> resultSupplier, Supplier<Integer> lastValueSupplier) {
+    int t = resultSupplier.get();
+    if (t != -1)
       return t;
     else if (!isExecuting.get() && !executing) {
       executing = true;

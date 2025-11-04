@@ -23,42 +23,41 @@ import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class In<T extends WordNumber> extends TargetSourceInstruction<T, ImmutableOpcodeReference<T>> {
+public class In extends TargetSourceInstruction<ImmutableOpcodeReference> {
   public final static AluOperation inCTableAluOperation = new TableAluOperation() {
     public int execute(int value, int reg, int carry) {
       F = value;
-      F = ( F & FLAG_C) | sz53pTable((reg));
+      F = (F & FLAG_C) | sz53pTable((reg));
       Q = F;
       return reg;
     }
   };
 
-  public ImmutableOpcodeReference<T> getA() {
+  public ImmutableOpcodeReference getA() {
     return a;
   }
 
-  public void setA(ImmutableOpcodeReference<T> a) {
+  public void setA(ImmutableOpcodeReference a) {
     this.a = a;
   }
 
-  public ImmutableOpcodeReference<T> getBc() {
+  public ImmutableOpcodeReference getBc() {
     return bc;
   }
 
-  public void setBc(ImmutableOpcodeReference<T> bc) {
+  public void setBc(ImmutableOpcodeReference bc) {
     this.bc = bc;
   }
 
-  private ImmutableOpcodeReference<T> a;
-  private ImmutableOpcodeReference<T> bc;
-  private final IO<T> io;
+  private ImmutableOpcodeReference a;
+  private ImmutableOpcodeReference bc;
+  private final IO io;
 
-  public In(OpcodeReference target, ImmutableOpcodeReference source, ImmutableOpcodeReference<T> a, ImmutableOpcodeReference<T> bc, Register<T> flag, IO<T> io) {
+  public In(OpcodeReference target, ImmutableOpcodeReference source, ImmutableOpcodeReference a, ImmutableOpcodeReference bc, Register flag, IO io) {
     super(target, source, flag);
     this.a = a;
     this.bc = bc;
@@ -66,18 +65,18 @@ public class In<T extends WordNumber> extends TargetSourceInstruction<T, Immutab
   }
 
   public int execute() {
-    T port = source.read();
+    int port = source.read();
 
     boolean equalsN = !(source instanceof Register);
     if (equalsN) {
-      WordNumber wordNumber = a.read();
-      int i = ((T) (WordNumber) new WordNumber((wordNumber.valueXYZ << 8) & 0xFFFF)).valueXYZ & 0xFFFF;
-      port = (T) (WordNumber) new WordNumber((port.valueXYZ | i) & 0xFFFF);
+      Integer wordNumber = a.read();
+      int i = ((wordNumber << 8) & 0xFFFF) & 0xFFFF;
+      port = (port | i) & 0xFFFF;
     } else {
       port = bc.read();
     }
 
-    T value = io.in(port);
+    int value = io.in(port);
 
     target.write(value);
 

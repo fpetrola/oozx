@@ -21,20 +21,19 @@ package com.fpetrola.z80.base;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.MemoryAccessOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 import org.junit.Before;
 
 import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("ALL")
-public abstract class TwoZ80Driver<T extends WordNumber> extends ContextDriverDelegator<T> {
-  protected final IDriverConfigurator<T> driverConfigurator;
-  public Z80ContextDriver<T> firstContext;
-  public Z80ContextDriver<T> secondContext;
+public abstract class TwoZ80Driver extends ContextDriverDelegator {
+  protected final IDriverConfigurator driverConfigurator;
+  public Z80ContextDriver firstContext;
+  public Z80ContextDriver secondContext;
   public RoutineFinderInstructionSpy routineFinderInstructionSpy;
 
-  public TwoZ80Driver(IDriverConfigurator<T> driverConfigurator) {
+  public TwoZ80Driver(IDriverConfigurator driverConfigurator) {
     super(null);
     this.driverConfigurator = driverConfigurator;
     driverConfigurator.reset();
@@ -45,7 +44,7 @@ public abstract class TwoZ80Driver<T extends WordNumber> extends ContextDriverDe
   }
 
   @Before
-  public <T2 extends WordNumber> void setUp() {
+  public <T2 extends Integer> void setUp() {
     setUpMemory();
     driverConfigurator.reset();
   }
@@ -59,7 +58,7 @@ public abstract class TwoZ80Driver<T extends WordNumber> extends ContextDriverDe
   }
 
   protected void useBoth() {
-    currentContext = new ContextDriverMux<T>(firstContext, secondContext);
+    currentContext = new ContextDriverMux(firstContext, secondContext);
   }
 
   protected <J> J assertTypeAndCast(Class<? extends J> expected, Object i1) {
@@ -78,7 +77,7 @@ public abstract class TwoZ80Driver<T extends WordNumber> extends ContextDriverDe
 
   protected abstract void setUpMemory();
 
-  protected OpcodeReference mm(ImmutableOpcodeReference<T> c) {
+  protected OpcodeReference mm(ImmutableOpcodeReference c) {
     return new MemoryAccessOpcodeReference(c, this.mem());
   }
 

@@ -20,8 +20,8 @@ package com.fpetrola.z80.opcodes.references;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 
-public interface ImmutableOpcodeReference<T> extends OpcodeReferenceBase {
-  T read();
+public interface ImmutableOpcodeReference extends OpcodeReferenceBase {
+  int read();
 
   int getLength();
 

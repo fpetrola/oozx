@@ -18,20 +18,19 @@
 
 package com.fpetrola.z80.registers.flag;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
 public class IniAluOperation extends TableAluOperation {
-  protected <T extends WordNumber> T update(T value, T b, Register<T> c, int i) {
-    int initemp = value.valueXYZ & 0xff;
-    int C = c.read().valueXYZ & 0xff;
-    int B = b.valueXYZ & 0xff;
+  protected  int update(int value, int b, Register c, int i) {
+    int initemp = value & 0xff;
+    int C = c.read() & 0xff;
+    int B = b & 0xff;
     int initemp2 = (initemp + C + i) & 0xff;
     F = ((initemp & 0x80) != 0 ? FLAG_N : 0) |
         ((initemp2 < initemp) ? FLAG_H | FLAG_C : 0) |
         (parityTable((initemp2 & 0x07) ^ B) != 0 ? FLAG_P : 0) |
         sz53Table(B);
     Q = F;
-    return (T) new WordNumber(F);
+    return F;
   }
 }

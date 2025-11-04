@@ -22,17 +22,16 @@ import com.fpetrola.z80.instructions.impl.EI;
 import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
 import static com.fpetrola.z80.cpu.State.InterruptionMode.IM2;
 
-public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
-  protected InstructionFetcher<T> instructionFetcher;
-  private final InstructionExecutor<T> instructionExecutor;
-  protected State<T> state;
+public class OOZ80 implements Z80Cpu {
+  protected InstructionFetcher instructionFetcher;
+  private final InstructionExecutor instructionExecutor;
+  protected State state;
 
-  public OOZ80(State<T> aState, InstructionFetcher<T> instructionFetcher, InstructionExecutor<T> instructionExecutor) {
+  public OOZ80(State aState, InstructionFetcher instructionFetcher, InstructionExecutor instructionExecutor) {
     this.state = aState;
     this.instructionFetcher = instructionFetcher;
     this.instructionExecutor = instructionExecutor;
@@ -54,7 +53,7 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
     if (state.isIntLine() && state.isIff1() && !state.isPendingEI())
       interruption();
 
-    Instruction<T> instruction;
+    Instruction instruction;
     try {
       instruction = execute(1);
     } catch (Exception e) {
@@ -62,15 +61,15 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
       System.out.println("Invalid instruction");
       throw new RuntimeException(e);
     }
-    if (state.isPendingEI() && !(instruction instanceof EI<T>)) {
+    if (state.isPendingEI() && !(instruction instanceof EI)) {
       state.setPendingEI(false);
       endInterruption();
     }
   }
 
-  public Instruction<T> execute(int cycles) {
+  public Instruction execute(int cycles) {
     try {
-      Instruction<T> currentInstruction = instructionFetcher.fetchNextInstruction();
+      Instruction currentInstruction = instructionFetcher.fetchNextInstruction();
       instructionExecutor.execute(currentInstruction);
       instructionFetcher.afterExecute(currentInstruction);
       return currentInstruction;
@@ -89,7 +88,7 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
   }
 
   private void doInt() {
-    Register<T> pc = state.getPc();
+    Register pc = state.getPc();
 
     if (state.isHalted()) {
       state.setHalted(false);
@@ -101,13 +100,13 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
     state.setIff1(false);
     state.setIff2(false);
 
-    T value;
+    int value;
     if (state.getInterruptionMode() == IM2) {
-      WordNumber wordNumber = state.getRegI().read();
-      WordNumber wordNumber1 = ((WordNumber) (WordNumber) new WordNumber((wordNumber.valueXYZ << 8) & 0xFFFF));
-      value = Memory.read16Bits(state.getMemory(), (T) (WordNumber) new WordNumber((wordNumber1.valueXYZ | 0xff) & 0xFFFF));
+      int wordNumber = state.getRegI().read();
+      int wordNumber1 = (wordNumber << 8) & 0xFFFF;
+      value = Memory.read16Bits(state.getMemory(), (wordNumber1 | 0xff) & 0xFFFF);
     } else {
-      value = (T) new WordNumber(0x0038);
+      value = 0x0038;
     }
     pc.write(value);
     state.getMemptr().write(value);
@@ -123,17 +122,17 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
   }
 
   @Override
-  public InstructionFetcher<T> getInstructionFetcher() {
+  public InstructionFetcher getInstructionFetcher() {
     return instructionFetcher;
   }
 
   @Override
-  public State<T> getState() {
+  public State getState() {
     return state;
   }
 
   @Override
-  public InstructionExecutor<T> getInstructionExecutor() {
+  public InstructionExecutor getInstructionExecutor() {
     return instructionExecutor;
   }
 }

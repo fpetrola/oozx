@@ -21,21 +21,20 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Flags;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 
-public class Cpdr<T extends WordNumber> extends RepeatingInstruction<T> {
-  private final Register<T> flag;
+public class Cpdr extends RepeatingInstruction {
+  private final Register flag;
 
-  public Cpdr(ImmutableOpcodeReference<T> pc, RegisterPair<T> bc, Register<T> flag, Cpd cpd) {
+  public Cpdr(ImmutableOpcodeReference pc, RegisterPair bc, Register flag, Cpd cpd) {
     super(cpd, pc, bc);
     this.flag = flag;
   }
 
   protected boolean checkLoopCondition() {
-    return (flag.read().valueXYZ & Flags.ZERO_FLAG) == 0 && bc.read().valueXYZ != 0;
+    return (flag.read() & Flags.ZERO_FLAG) == 0 && bc.read() != 0;
   }
 
   @Override

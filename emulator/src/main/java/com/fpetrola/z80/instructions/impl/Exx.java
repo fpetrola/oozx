@@ -22,39 +22,39 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.registers.Register;
 
-public class Exx<T> extends AbstractInstruction<T> {
-  public Register<T> getBc() {
+public class Exx extends AbstractInstruction {
+  public Register getBc() {
     return bc;
   }
 
-  public Register<T> getDe() {
+  public Register getDe() {
     return de;
   }
 
-  public Register<T> getHl() {
+  public Register getHl() {
     return hl;
   }
 
-  public Register<T> get_bc() {
+  public Register get_bc() {
     return _bc;
   }
 
-  public Register<T> get_de() {
+  public Register get_de() {
     return _de;
   }
 
-  public Register<T> get_hl() {
+  public Register get_hl() {
     return _hl;
   }
 
-  private Register<T> bc;
-  private Register<T> de;
-  private Register<T> hl;
-  private Register<T> _bc;
-  private Register<T> _de;
-  private Register<T> _hl;
+  private Register bc;
+  private Register de;
+  private Register hl;
+  private Register _bc;
+  private Register _de;
+  private Register _hl;
 
-  public Exx(Register<T> bc, Register<T> de, Register<T> hl, Register<T> _bc, Register<T> _de, Register<T> _hl) {
+  public Exx(Register bc, Register de, Register hl, Register _bc, Register _de, Register _hl) {
     this.bc = bc;
     this.de = de;
     this.hl = hl;
@@ -64,7 +64,7 @@ public class Exx<T> extends AbstractInstruction<T> {
   }
 
   public int execute() {
-    T v1 = bc.read();
+    int v1 = bc.read();
     bc.write(_bc.read());
     _bc.write(v1);
 
@@ -84,27 +84,27 @@ public class Exx<T> extends AbstractInstruction<T> {
     visitor.visitExx(this);
   }
 
-  public void setBc(Register<T> bc) {
+  public void setBc(Register bc) {
     this.bc = bc;
   }
 
-  public void setDe(Register<T> de) {
+  public void setDe(Register de) {
     this.de = de;
   }
 
-  public void setHl(Register<T> hl) {
+  public void setHl(Register hl) {
     this.hl = hl;
   }
 
-  public void set_bc(Register<T> _bc) {
+  public void set_bc(Register _bc) {
     this._bc = _bc;
   }
 
-  public void set_de(Register<T> _de) {
+  public void set_de(Register _de) {
     this._de = _de;
   }
 
-  public void set_hl(Register<T> _hl) {
+  public void set_hl(Register _hl) {
     this._hl = _hl;
   }
 }

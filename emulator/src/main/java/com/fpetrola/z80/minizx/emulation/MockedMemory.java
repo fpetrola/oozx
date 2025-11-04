@@ -18,43 +18,41 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
 import java.util.function.Supplier;
 
 @SuppressWarnings("unchecked")
-public class MockedMemory<T extends WordNumber> extends AbstractMemory<T> {
-  protected T[] data = (T[]) new WordNumber[0x10000];
+public class MockedMemory extends AbstractMemory {
+  protected Integer[] data =  new Integer[0x10000];
 
   public MockedMemory(boolean canDisable1) {
     super();
   }
 
-  public void init(Supplier<T[]> supplier) {
+  public void init(Supplier<Integer[]> supplier) {
     data = supplier.get();
   }
 
   @Override
-  protected T doRead(T address) {
-    int i = address.valueXYZ;
-    return i >= 0 ? data[i] : (T) new WordNumber(0);
+  protected int doRead(int address) {
+    int i = address;
+    return i >= 0 ? data[i] : 0;
   }
 
   @Override
-  protected void doWrite(T address, T value) {
-    data[address.valueXYZ] = (T) (WordNumber) new WordNumber((value.valueXYZ & 0xff) & 0xFFFF);
+  protected void doWrite(int address, int value) {
+    data[address] = (value & 0xff) & 0xFFFF;
   }
 
   @Override
   public void reset() {
     for (int i = 0; i < data.length; i++) {
-      doWrite((T) new WordNumber(i), (T) new WordNumber(0));
+      doWrite(i, 0);
     }
 //    Arrays.fill(data, WordNumber.createValue(0));
   }
 
   @Override
-  public T[] getData() {
+  public Integer[] getData() {
     return data;
   }
 }

@@ -19,13 +19,12 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class ExecutedInstruction {
   private final int pc;
-  private final Instruction<? extends WordNumber> instruction;
+  private final Instruction instruction;
 
-  public <T extends WordNumber> ExecutedInstruction(int pc, Instruction<T> instruction) {
+  public  ExecutedInstruction(int pc, Instruction instruction) {
 
     this.pc = pc;
     this.instruction = instruction;

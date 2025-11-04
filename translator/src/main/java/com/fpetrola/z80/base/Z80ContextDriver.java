@@ -24,25 +24,25 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.registers.RegisterPair;
 
-public interface Z80ContextDriver<T extends WordNumber> extends Z80InstructionDriver<T> {
+public interface Z80ContextDriver extends Z80InstructionDriver {
 
   void reset();
 
-  Register<T> r(RegisterName registerName);
+  Register r(RegisterName registerName);
 
-  RegisterPair<T> rp(RegisterName registerName);
+  RegisterPair rp(RegisterName registerName);
 
-  Register<T> f();
+  Register f();
 
-  Register<T> pc();
+  Register pc();
 
-  OpcodeReference iRR(Register<T> memoryReader);
+  OpcodeReference iRR(Register memoryReader);
 
-  OpcodeReference iRRn(Register<T> register, int plus);
+  OpcodeReference iRRn(Register register, int plus);
 
   ImmutableOpcodeReference c(int value);
 
-  OpcodeReference iiRR(Register<T> memoryWriter);
+  OpcodeReference iiRR(Register memoryWriter);
 
   OpcodeReference iinn(int delta);
 

@@ -21,7 +21,6 @@ package com.fpetrola.z80.transformations;
 import com.fpetrola.z80.blocks.*;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
 public class ExecutionTracker implements BlockRoleVisitor {
   private final Instruction instruction;
@@ -52,7 +51,7 @@ public class ExecutionTracker implements BlockRoleVisitor {
       if (instruction instanceof ConditionalInstruction conditionalInstruction) {
         Block block1 = codeBlockType.getBlock();
         block1.setCompleted(true);
-        WordNumber jumpAddress = conditionalInstruction.calculateJumpAddress();
+        Integer jumpAddress = conditionalInstruction.calculateJumpAddress();
       }
 
       codeBlockType.addInstruction(instruction);

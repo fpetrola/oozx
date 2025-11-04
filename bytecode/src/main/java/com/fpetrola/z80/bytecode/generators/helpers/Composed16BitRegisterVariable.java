@@ -24,7 +24,7 @@ import org.cojen.maker.*;
 public class Composed16BitRegisterVariable implements VariableDelegator {
   private final MethodMaker methodMaker;
   private final String name;
-  private Register<?> register;
+  private Register register;
 
   public Composed16BitRegisterVariable(MethodMaker methodMaker, String name) {
     this.methodMaker = methodMaker;
@@ -40,7 +40,7 @@ public class Composed16BitRegisterVariable implements VariableDelegator {
   }
 
   @Override
-  public void setRegister(Register<?> register) {
+  public void setRegister(Register register) {
     this.register = register;
   }
 

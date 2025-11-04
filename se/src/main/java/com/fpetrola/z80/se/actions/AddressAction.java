@@ -18,13 +18,11 @@
 
 package com.fpetrola.z80.se.actions;
 
-import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 
-public class AddressAction<T extends WordNumber> {
-  protected final RoutineExecutorHandler<T> routineExecutionHandler;
+public class AddressAction {
+  protected final RoutineExecutorHandler routineExecutionHandler;
   protected Instruction instruction;
   protected boolean alwaysTrue;
   protected boolean branch;

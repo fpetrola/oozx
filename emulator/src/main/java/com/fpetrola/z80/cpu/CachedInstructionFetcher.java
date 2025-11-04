@@ -23,23 +23,22 @@ import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.cache.InstructionCache;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import fuse.tstates.PhaseInterceptor;
 
-public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstructionFetcher<T> {
-  protected InstructionCache<T> instructionCache;
-  private Instruction<T> cached;
+public class CachedInstructionFetcher extends DefaultInstructionFetcher {
+  protected InstructionCache instructionCache;
+  private Instruction cached;
 
-  public CachedInstructionFetcher(State<T> aState, InstructionFactory<T> instructionFactory, boolean clone) {
+  public CachedInstructionFetcher(State aState, InstructionFactory instructionFactory, boolean clone) {
     super(aState, instructionFactory, clone, false);
-    instructionCache = new InstructionCache<>(aState.getMemory(), new DefaultInstructionFactory<>(aState));
+    instructionCache = new InstructionCache(aState.getMemory(), new DefaultInstructionFactory(aState));
   }
 
-  public Instruction<T> fetchNextInstruction() {
+  public Instruction fetchNextInstruction() {
     pcValue = state.getPc().read();
-    Instruction<T> result;
+    Instruction result;
 
-    InstructionCache<T>.CacheEntry cacheEntry = instructionCache.getCacheEntryAt(pcValue);
+    InstructionCache.CacheEntry cacheEntry = instructionCache.getCacheEntryAt(pcValue);
     if (cacheEntry != null && !cacheEntry.isMutable()) {
       cached = cacheEntry.getInstruction();
       result = cached;
@@ -54,7 +53,7 @@ public class CachedInstructionFetcher<T extends WordNumber> extends DefaultInstr
     return result;
   }
 
-  protected void setupPhaseInterceptor(AbstractInstruction<T> fetchedInstruction) {
+  protected void setupPhaseInterceptor(AbstractInstruction fetchedInstruction) {
     if (cached != null) {
       PhaseInterceptor phaseInterceptor = cached.getPhaseInterceptor();
       tPhaseProcessor.setPhase(phaseInterceptor);

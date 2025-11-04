@@ -19,18 +19,15 @@
 package com.fpetrola.z80.se;
 
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
-public class ReturnAddressWordNumber extends WordNumber {
+public class ReturnAddressWordNumber  {
   public final int pc;
 
   public ReturnAddressWordNumber(int i, int pc) {
-    super(i);
     this.pc = pc;
   }
 
 
-  public WordNumber createInstance(int value) {
+  public ReturnAddressWordNumber createInstance(int value) {
     return new ReturnAddressWordNumber(value & 0xFFFF, pc);
   }
 }

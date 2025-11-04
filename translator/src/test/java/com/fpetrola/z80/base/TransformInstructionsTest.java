@@ -19,15 +19,14 @@
 package com.fpetrola.z80.base;
 
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
 import org.junit.Before;
 
-public class TransformInstructionsTest<T extends WordNumber> extends BaseInstructionLoopTest<T> {
+public class TransformInstructionsTest extends BaseInstructionLoopTest {
   protected int memPosition = 1000;
   protected int addedInstructions;
 
-  public TransformInstructionsTest(IDriverConfigurator<T> driverConfigurator) {
+  public TransformInstructionsTest(IDriverConfigurator driverConfigurator) {
     super(driverConfigurator);
   }
 
@@ -36,7 +35,7 @@ public class TransformInstructionsTest<T extends WordNumber> extends BaseInstruc
     super.setUp();
     useSecond();
     reset();
-    currentContext.r(RegisterName.PC).write((T) new WordNumber(0));
+    currentContext.r(RegisterName.PC).write(0);
   }
 
   @Override
@@ -46,7 +45,7 @@ public class TransformInstructionsTest<T extends WordNumber> extends BaseInstruc
   }
 
   @Override
-  public int add(Instruction<T> instruction) {
+  public int add(Instruction instruction) {
     addedInstructions++;
     return super.add(instruction);
   }

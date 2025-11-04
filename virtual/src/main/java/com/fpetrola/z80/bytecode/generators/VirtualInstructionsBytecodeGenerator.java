@@ -26,19 +26,18 @@ import com.fpetrola.z80.bytecode.generators.helpers.PendingFlagUpdate;
 import com.fpetrola.z80.bytecode.generators.helpers.SmartComposed16BitRegisterVariable;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineVisitor;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
-public class VirtualInstructionsBytecodeGenerator<T extends WordNumber> extends InstructionsBytecodeGenerator<T> {
+public class VirtualInstructionsBytecodeGenerator extends InstructionsBytecodeGenerator {
   public VirtualInstructionsBytecodeGenerator(MethodMaker methodMaker, int label, RoutineBytecodeGenerator routineByteCodeGenerator, int address, PendingFlagUpdate previousPendingFlag) {
     super(methodMaker, label, routineByteCodeGenerator, address, previousPendingFlag);
   }
 
-  protected void invokeExAF(Register<?> target, Variable variable) {
+  protected void invokeExAF(Register target, Variable variable) {
     if (variable instanceof SmartComposed16BitRegisterVariable existingVariable) {
       existingVariable.setRegister(target);
       Variable invoke = methodMaker.invoke("exAF", RoutineBytecodeGenerator.getRealVariable(existingVariable));
@@ -78,18 +77,18 @@ public class VirtualInstructionsBytecodeGenerator<T extends WordNumber> extends 
   private void createIfMethod(Instruction instruction, ConditionalInstruction conditionalInstruction) {
     BytecodeGenerationContext bytecodeGenerationContext = routineByteCodeGenerator.context;
     BlocksManager blocksManager = bytecodeGenerationContext.routineManager.blocksManager;
-    int startAddress = bytecodeGenerationContext.pc.read().valueXYZ + instruction.getLength();
-    int endAddress = conditionalInstruction.getJumpAddress().valueXYZ - 1;
+    int startAddress = bytecodeGenerationContext.pc.read() + instruction.getLength();
+    int endAddress = conditionalInstruction.getJumpAddress() - 1;
     if (startAddress < endAddress) {
-      int i = bytecodeGenerationContext.pc.read().valueXYZ;
+      int i = bytecodeGenerationContext.pc.read();
       Routine routine = new Routine(new DefaultBlock(startAddress, endAddress, new BlocksManager(new NullBlockChangesListener(), true)), startAddress, true);
       routine.setRoutineManager(bytecodeGenerationContext.routineManager);
       final boolean[] notContained = new boolean[1];
 
       routine.accept(new RoutineVisitor<Object>() {
         public void visitInstruction(int address, Instruction instruction) {
-          if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction1) {
-            if (!routine.contains(conditionalInstruction1.getJumpAddress().valueXYZ)) {
+          if (instruction instanceof ConditionalInstruction<?> conditionalInstruction1) {
+            if (!routine.contains(conditionalInstruction1.getJumpAddress())) {
               notContained[0] |= true;
             }
           }
@@ -110,7 +109,7 @@ public class VirtualInstructionsBytecodeGenerator<T extends WordNumber> extends 
 //            System.out.println("");
 //        }
         }
-        bytecodeGenerationContext.pc.write((WordNumber) new WordNumber(i));
+        bytecodeGenerationContext.pc.write(i);
       }
     }
   }

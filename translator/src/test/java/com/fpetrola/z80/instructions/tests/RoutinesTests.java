@@ -20,7 +20,6 @@ package com.fpetrola.z80.instructions.tests;
 
 import com.fpetrola.z80.base.ManualBytecodeGenerationTest;
 import com.fpetrola.z80.blocks.Block;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import io.exemplary.guice.Modules;
@@ -38,7 +37,7 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 @SuppressWarnings("ALL")
 @RunWith(TestRunner.class)
 @Modules(RoutinesModule.class)
-public class RoutinesTests<T extends WordNumber> extends ManualBytecodeGenerationTest<T> {
+public class RoutinesTests extends ManualBytecodeGenerationTest {
 
   private final RoutinesDriverConfigurator configurator;
 

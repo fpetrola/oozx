@@ -19,10 +19,9 @@
 package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import fuse.tstates.PhaseInterceptor;
 
-public class DummyInstruction<T extends WordNumber> implements Instruction<T> {
+public class DummyInstruction implements Instruction {
   @Override
   public int execute() {
     return 0;
@@ -34,7 +33,7 @@ public class DummyInstruction<T extends WordNumber> implements Instruction<T> {
   }
 
   @Override
-  public void accept(InstructionVisitor<?, ?> visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
   }
 
   @Override

@@ -21,20 +21,20 @@ package com.fpetrola.z80.spy;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 
-public class OpcodeReferenceSpy<T> implements OpcodeReference<T> {
+public class OpcodeReferenceSpy implements OpcodeReference {
   private final ImmutableOpcodeReference immutableOpcodeReference;
 
   public OpcodeReferenceSpy(ImmutableOpcodeReference immutableOpcodeReference) {
     this.immutableOpcodeReference = immutableOpcodeReference;
   }
 
-  public void write(T value) {
+  public void write(int value) {
     throw new RuntimeException("not implemented");
 //    spy.addWriteReference(opcodeReference, value, false);
 //    opcodeReference.write(value);
   }
 
-  public T read() {
+  public int read() {
     throw new RuntimeException("not implemented");
 
 //    int value = opcodeReference.read();

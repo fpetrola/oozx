@@ -20,13 +20,13 @@ package com.fpetrola.z80.opcodes.references;
 
 import com.fpetrola.z80.memory.Memory;
 
-public class CachedMemory16BitReference<T extends WordNumber> extends Memory16BitReference<T> {
-  public CachedMemory16BitReference(T lastFetchedAddress, Memory<T> memory, ImmutableOpcodeReference<T> pc, int delta) {
+public class CachedMemory16BitReference extends Memory16BitReference {
+  public CachedMemory16BitReference(int lastFetchedAddress, Memory memory, ImmutableOpcodeReference pc, int delta) {
     super(memory, pc, delta);
     this.fetchedAddress = lastFetchedAddress;
   }
 
-  protected T fetchAddress() {
+  protected int fetchAddress() {
     return fetchedAddress;
   }
 }

@@ -86,16 +86,16 @@ public class CpuVerifierImpl extends CpuVerifier {
 
     switch (registerPair) {
       case 0:
-        realValue = cpu.ooz80.getState().getRegister(RegisterName.BC).read().valueXYZ;
+        realValue = cpu.ooz80.getState().getRegister(RegisterName.BC).read();
         break;
       case 1:
-        realValue = cpu.ooz80.getState().getRegister(RegisterName.DE).read().valueXYZ;
+        realValue = cpu.ooz80.getState().getRegister(RegisterName.DE).read();
         break;
       case 2:
-        realValue = cpu.ooz80.getState().getRegister(RegisterName.HL).read().valueXYZ;
+        realValue = cpu.ooz80.getState().getRegister(RegisterName.HL).read();
         break;
       case 3:
-        realValue = cpu.ooz80.getState().getRegister(RegisterName.SP).read().valueXYZ;
+        realValue = cpu.ooz80.getState().getRegister(RegisterName.SP).read();
         break;
       default:
         throw new IllegalArgumentException("Expected value between <0,3> !");
@@ -113,16 +113,16 @@ public class CpuVerifierImpl extends CpuVerifier {
 
     switch (registerPair) {
       case 0:
-        realValue = cpu.ooz80.getState().getRegister(RegisterName.BCx).read().valueXYZ;
+        realValue = cpu.ooz80.getState().getRegister(RegisterName.BCx).read();
         break;
       case 1:
-        realValue = cpu.ooz80.getState().getRegister(RegisterName.DEx).read().valueXYZ;
+        realValue = cpu.ooz80.getState().getRegister(RegisterName.DEx).read();
         break;
       case 2:
-        realValue = cpu.ooz80.getState().getRegister(RegisterName.HLx).read().valueXYZ;
+        realValue = cpu.ooz80.getState().getRegister(RegisterName.HLx).read();
         break;
       case 3:
-        realValue = cpu.ooz80.getState().getRegister(RegisterName.SP).read().valueXYZ;
+        realValue = cpu.ooz80.getState().getRegister(RegisterName.SP).read();
         break;
       default:
         throw new IllegalArgumentException("Expected value between <0,3> !");
@@ -137,7 +137,7 @@ public class CpuVerifierImpl extends CpuVerifier {
   public void checkIX(int value) {
     value &= 0xFFFF;
 
-    int ix = cpu.ooz80.getState().getRegister(RegisterName.IX).read().valueXYZ;
+    int ix = cpu.ooz80.getState().getRegister(RegisterName.IX).read();
     assertEquals(
         String.format("Expected IX=%x, but was %x", value, ix),
         value, ix
@@ -146,7 +146,7 @@ public class CpuVerifierImpl extends CpuVerifier {
 
   public void checkIY(int value) {
     value &= 0xFFFF;
-    int iy = cpu.ooz80.getState().getRegister(RegisterName.IY).read().valueXYZ;
+    int iy = cpu.ooz80.getState().getRegister(RegisterName.IY).read();
 
     assertEquals(
         String.format("Expected IY=%x, but was %x", value, iy),
@@ -169,7 +169,7 @@ public class CpuVerifierImpl extends CpuVerifier {
   }
 
   public void checkPC(int PC) {
-    int pc = cpu.ooz80.getState().getPc().read().valueXYZ;
+    int pc = cpu.ooz80.getState().getPc().read();
     assertEquals(
         String.format("Expected PC=%04x, but was %04x", PC, pc),
         PC, pc
@@ -209,7 +209,7 @@ public class CpuVerifierImpl extends CpuVerifier {
   }
 
   public void checkI(int value) {
-    int i = cpu.ooz80.getState().getRegister(RegisterName.I).read().valueXYZ;
+    int i = cpu.ooz80.getState().getRegister(RegisterName.I).read();
     assertEquals(
         String.format("Expected I=%02x, but was %02x", value, i),
         value, i
@@ -217,7 +217,7 @@ public class CpuVerifierImpl extends CpuVerifier {
   }
 
   public void checkR(int value) {
-    int r = cpu.ooz80.getState().getRegister(RegisterName.R).read().valueXYZ;
+    int r = cpu.ooz80.getState().getRegister(RegisterName.R).read();
     assertEquals(
         String.format("Expected R=%02x, but was %02x", value, r),
         value, r

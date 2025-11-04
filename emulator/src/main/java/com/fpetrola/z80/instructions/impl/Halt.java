@@ -22,10 +22,9 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.JumpInstruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class Halt<T extends WordNumber> extends AbstractInstruction<T> implements JumpInstruction<T> {
-  private final State<T> state;
+public class Halt extends AbstractInstruction implements JumpInstruction {
+  private final State state;
 
   public Halt(State state) {
     this.state = state;

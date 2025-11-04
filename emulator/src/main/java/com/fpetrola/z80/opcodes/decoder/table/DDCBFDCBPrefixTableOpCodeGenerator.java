@@ -27,7 +27,7 @@ import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.RegisterName;
 
-public class DDCBFDCBPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
+public class DDCBFDCBPrefixTableOpCodeGenerator extends TableOpCodeGenerator {
 
   private final RegisterName ixy;
 
@@ -36,7 +36,7 @@ public class DDCBFDCBPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<
     this.ixy = ixy;
   }
 
-  protected Instruction<T> getOpcode() {
+  protected Instruction getOpcode() {
     OpcodeReference hlOrIx = r(main16BitRegister);
 
     Instruction result = null;

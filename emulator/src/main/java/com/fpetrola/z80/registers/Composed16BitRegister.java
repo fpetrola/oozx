@@ -18,9 +18,7 @@
 
 package com.fpetrola.z80.registers;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
-public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> implements RegisterPair<T> {
+public class Composed16BitRegister< R extends Register> implements RegisterPair {
   protected final R high;
   protected final R low;
   private String name;
@@ -45,16 +43,16 @@ public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> 
     this(name.name(), h, l);
   }
 
-  public T read() {
-    WordNumber wordNumber = high.read();
-    WordNumber number = ((WordNumber) (WordNumber) new WordNumber((wordNumber.valueXYZ << 8) & 0xFFFF));
-    int i = low.read().valueXYZ & 0xFFFF;
-    return (T) (WordNumber) new WordNumber((number.valueXYZ | i) & 0xFFFF);
+  public int read() {
+    Integer wordNumber = high.read();
+    Integer number = (wordNumber << 8) & 0xFFFF;
+    int i = low.read() & 0xFFFF;
+    return (number | i) & 0xFFFF;
   }
 
-  public void write(T value) {
-    this.high.write((T) (WordNumber) new WordNumber((value.valueXYZ >>> 8) & 0xFFFF));
-    this.low.write((T) (WordNumber) new WordNumber((value.valueXYZ & 0xFF) & 0xFFFF));
+  public void write(int value) {
+    this.high.write((value >>> 8) & 0xFFFF);
+    this.low.write((value & 0xFF) & 0xFFFF);
   }
 
   public R getHigh() {
@@ -73,29 +71,31 @@ public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> 
 
   public void increment() {
     low.increment();
-    if (low.read().valueXYZ < 0x100)
+    if (low.read() < 0x100)
       return;
-    low.write((T) new WordNumber(0));
-    high.read().valueXYZ++;
-    if (high.read().valueXYZ < 0x100)
+    low.write(0);
+    high.increment();
+    if (high.read() < 0x100)
       return;
-    high.write((T) new WordNumber(0));
+    high.write(0);
   }
 
   public void decrement() {
-    T lowValue = low.read();
-    if (lowValue.valueXYZ != 0) {
-      lowValue.valueXYZ--;
-      lowValue.valueXYZ &= 0xffff;
+    int lowValue = low.read();
+    if (lowValue != 0) {
+      lowValue--;
+      lowValue &= 0xffff;
+      low.write(lowValue);
     } else {
-      low.write((T) new WordNumber(0xff));
-      T highValue = high.read();
-      if (highValue.valueXYZ != 0) {
-        highValue.valueXYZ--;
-        highValue.valueXYZ &= 0xffff;
+      low.write(0xff);
+      int highValue = high.read();
+      if (highValue != 0) {
+        highValue--;
+        highValue &= 0xffff;
+        high.write(highValue);
         return;
       }
-      high.write((T) new WordNumber(0xff));
+      high.write(0xff);
     }
   }
 
@@ -103,7 +103,7 @@ public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> 
     return 0;
   }
 
-  public RegisterPair<T> clone() throws CloneNotSupportedException {
+  public RegisterPair clone() throws CloneNotSupportedException {
     return this;
   }
 

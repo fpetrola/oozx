@@ -20,11 +20,10 @@ package com.fpetrola.z80.instructions.impl;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class RRD<T extends WordNumber> extends RLD<T> {
+public class RRD extends RLD {
   public static final TableAluOperation rrdTableAluOperation = new TableAluOperation() {
     public int execute(int A, int value, int flag) {
       A = (A & 0xf0) | (value & 0x0f);
@@ -34,11 +33,11 @@ public class RRD<T extends WordNumber> extends RLD<T> {
     }
   };
 
-  public RRD(Register<T> a, Register<T> hl, Register<T> r, Register<T> flag, Memory<T> memory) {
+  public RRD(Register a, Register hl, Register r, Register flag, Memory memory) {
     super(a, hl, flag, r, memory);
   }
 
-  protected void executeAlu(T value, T reg_A) {
+  protected void executeAlu(int value, int reg_A) {
     rrdTableAluOperation.executeWithCarry(value, reg_A, flag);
   }
 

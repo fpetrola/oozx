@@ -18,24 +18,22 @@
 
 package com.fpetrola.z80.transformations;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class VirtualRegisterVersionHandler<T extends WordNumber> {
-  public List<VirtualRegister<T>> versions = new ArrayList<>();
+public class VirtualRegisterVersionHandler {
+  public List<VirtualRegister> versions = new ArrayList<>();
 
-  public void addVersion(VirtualRegister<T> virtualRegister) {
+  public void addVersion(VirtualRegister virtualRegister) {
     versions.add(virtualRegister);
   }
 
-  public VirtualRegister<T> getBiggestScopeFor(VirtualRegister<T> register) {
+  public VirtualRegister getBiggestScopeFor(VirtualRegister register) {
     if (versions.isEmpty())
       return register;
     else {
-      VirtualRegister<T> biggerScope = versions.stream().filter(r -> r.getScope().isIncluding(register)).sorted((o1, o2) -> o1.getRegisterLine() - o2.getRegisterLine()).max(Comparator.comparingInt(r -> r.getScope().size())).get();
+      VirtualRegister biggerScope = versions.stream().filter(r -> r.getScope().isIncluding(register)).sorted((o1, o2) -> o1.getRegisterLine() - o2.getRegisterLine()).max(Comparator.comparingInt(r -> r.getScope().size())).get();
       return biggerScope;
     }
   }

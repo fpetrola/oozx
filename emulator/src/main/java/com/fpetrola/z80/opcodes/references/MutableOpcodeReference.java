@@ -20,8 +20,8 @@ package com.fpetrola.z80.opcodes.references;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 
-public interface MutableOpcodeReference<T> extends OpcodeReferenceBase {
-  void write(T value);
+public interface MutableOpcodeReference extends OpcodeReferenceBase {
+  void write(int value);
 
   default void accept(InstructionVisitor instructionVisitor) {
     instructionVisitor.visitMutableOpcodeReference(this);

@@ -23,7 +23,6 @@ import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
 import java.util.ArrayList;
@@ -31,52 +30,52 @@ import java.util.List;
 
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
-public class InstructionFetcherForTest<T extends WordNumber> implements InstructionFetcher {
-  protected List<Instruction<T>> instructions = new ArrayList<>();
+public class InstructionFetcherForTest implements InstructionFetcher {
+  protected List<Instruction> instructions = new ArrayList<>();
   private int i;
-  protected Register<T> pc;
-  protected final State<T> state;
+  protected Register pc;
+  protected final State state;
   protected final InstructionExecutor instructionExecutor;
 
-  public InstructionFetcherForTest(State<T> state, InstructionExecutor instructionExecutor) {
+  public InstructionFetcherForTest(State state, InstructionExecutor instructionExecutor) {
     pc = state.getRegister(PC);
     this.state = state;
     this.instructionExecutor = instructionExecutor;
   }
 
-  public Instruction<?> fetchNextInstruction() {
-    Instruction<T> instruction = instructions.get(pc.read().valueXYZ);
+  public Instruction fetchNextInstruction() {
+    Instruction instruction = instructions.get(pc.read());
     Instruction execute = instructionExecutor.execute(instruction);
 //    System.out.println(execute);
     updatePC(instruction);
     return instruction;
   }
 
-  protected void updatePC(Instruction<T> instruction) {
-    T nextPC = null;
+  protected void updatePC(Instruction instruction) {
+    Integer nextPC = null;
     if (instruction instanceof AbstractInstruction jumpInstruction)
-      nextPC = (T) jumpInstruction.getNextPC();
+      nextPC = jumpInstruction.getNextPC();
 
     if (nextPC == null) {
-      WordNumber wordNumber = pc.read();
-      nextPC = (T) (WordNumber) new WordNumber((wordNumber.valueXYZ + 1) & 0xFFFF);
+      Integer wordNumber = pc.read();
+      nextPC = (wordNumber + 1) & 0xFFFF;
     }
 
     pc.write(nextPC);
   }
 
   public void reset() {
-    pc.write((T) new WordNumber(0));
+    pc.write(0);
     instructions.clear();
     instructionExecutor.reset();
   }
 
-  public int add(Instruction<T> instruction) {
+  public int add(Instruction instruction) {
     instructions.add(instruction);
     return instructions.size();
   }
 
-  public Instruction<T> getInstructionAt(int i) {
+  public Instruction getInstructionAt(int i) {
     return instructions.get(i);
   }
 

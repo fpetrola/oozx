@@ -18,33 +18,31 @@
 
 package com.fpetrola.z80.registers;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 @SuppressWarnings("ALL")
-public class RegisterBank<T extends WordNumber>  {
-  protected RegisterPair<T> af;
-  protected RegisterPair<T> bc;
-  protected RegisterPair<T> de;
-  protected RegisterPair<T> hl;
+public class RegisterBank  {
+  protected RegisterPair af;
+  protected RegisterPair bc;
+  protected RegisterPair de;
+  protected RegisterPair hl;
 
-  protected RegisterPair<T> _af;
-  protected RegisterPair<T> _bc;
-  protected RegisterPair<T> _de;
-  protected RegisterPair<T> _hl;
+  protected RegisterPair _af;
+  protected RegisterPair _bc;
+  protected RegisterPair _de;
+  protected RegisterPair _hl;
 
-  protected RegisterPair<T> ix;
-  protected RegisterPair<T> iy;
+  protected RegisterPair ix;
+  protected RegisterPair iy;
 
-  protected RegisterPair<T> ir;
+  protected RegisterPair ir;
 
-  protected Register<T> pc;
-  protected Register<T> sp;
+  protected Register pc;
+  protected Register sp;
 
-  protected Register<T> memptr;
-  protected Register<T> virtual;
+  protected Register memptr;
+  protected Register virtual;
 
   protected RegisterBank() {
   }

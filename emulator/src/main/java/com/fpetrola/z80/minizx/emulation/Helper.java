@@ -20,16 +20,13 @@ package com.fpetrola.z80.minizx.emulation;
 
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.opcodes.references.OpcodeConditions;
-import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.MemptrUpdateInstructionSpy;
 
 public class Helper {
-  public static <T extends WordNumber> OOZ80<T> createOOZ80(IO<T> io) {
-    var state = new State<T>(io, new MockedMemory<T>(true));
-    return new OOZ80<T>(state, getInstructionFetcher(state, new MemptrUpdateInstructionSpy<T>(state), new DefaultInstructionFactory<T>(state)), new DefaultInstructionExecutor<>(state, false));
+  public static  OOZ80 createOOZ80(IO io) {
+    var state = new State(io, new MockedMemory(true));
+    return new OOZ80(state, getInstructionFetcher(state, new MemptrUpdateInstructionSpy(state), new DefaultInstructionFactory(state)), new DefaultInstructionExecutor(state, false));
   }
 
   public static DefaultInstructionFetcher getInstructionFetcher(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory) {

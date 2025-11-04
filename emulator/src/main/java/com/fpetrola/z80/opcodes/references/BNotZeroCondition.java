@@ -23,27 +23,27 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.cache.ConditionPredicate;
 import com.fpetrola.z80.registers.Register;
 
-public class BNotZeroCondition<T extends WordNumber> extends ConditionBase {
-  public void setB(Register<T> b) {
+public class BNotZeroCondition extends ConditionBase {
+  public void setB(Register b) {
     this.b = b;
   }
 
-  private Register<T> b;
+  private Register b;
 
-  public BNotZeroCondition(Register<T> b, ConditionPredicate<Boolean> predicate) {
+  public BNotZeroCondition(Register b, ConditionPredicate<Boolean> predicate) {
     super(predicate);
     this.b = b;
   }
 
-  public BNotZeroCondition(Register<T> b) {
+  public BNotZeroCondition(Register b) {
     this(b, (b1, i) -> b1);
   }
 
   public boolean conditionMet(Instruction instruction) {
-    return filterCondition(b.read().valueXYZ != 0, instruction);
+    return filterCondition(b.read() != 0, instruction);
   }
 
-  public Register<T> getB() {
+  public Register getB() {
     return b;
   }
 

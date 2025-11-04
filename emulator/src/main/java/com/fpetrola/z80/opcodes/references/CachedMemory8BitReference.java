@@ -21,14 +21,14 @@ package com.fpetrola.z80.opcodes.references;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 
-public class CachedMemory8BitReference<T extends WordNumber> extends Memory8BitReference<T> {
-  public CachedMemory8BitReference(T lastFetchedAddress, Memory<T> memory, Register<T> pc, int delta) {
+public class CachedMemory8BitReference extends Memory8BitReference {
+  public CachedMemory8BitReference(int lastFetchedAddress, Memory memory, Register pc, int delta) {
     super(memory, pc, delta);
     this.fetchedAddress = lastFetchedAddress;
   }
 
   @Override
-  protected T fetchAddress() {
+  protected int fetchAddress() {
     return fetchedAddress;
   }
 }

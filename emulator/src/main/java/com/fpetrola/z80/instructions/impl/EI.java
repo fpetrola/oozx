@@ -22,8 +22,8 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 
-public class EI<T> extends AbstractInstruction<T> {
-  private final State<?> state;
+public class EI extends AbstractInstruction {
+  private final State state;
 
   public EI(State state) {
     this.state = state;

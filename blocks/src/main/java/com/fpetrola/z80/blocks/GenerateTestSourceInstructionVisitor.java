@@ -25,7 +25,7 @@ import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 
-public class GenerateTestSourceInstructionVisitor implements InstructionVisitor<WordNumber, Integer> {
+public class GenerateTestSourceInstructionVisitor implements InstructionVisitor<java.lang.Integer> {
   StringBuilder result = new StringBuilder();
   private final int startAddress;
 
@@ -45,14 +45,14 @@ public class GenerateTestSourceInstructionVisitor implements InstructionVisitor<
     result.append(string);
   }
 
-  private InstructionVisitor<WordNumber, ?> getWordNumberDummyInstructionVisitor() {
-    InstructionVisitor<WordNumber, ?> instructionVisitor = new InstructionVisitor<>() {
+  private InstructionVisitor< ?> getWordNumberDummyInstructionVisitor() {
+    InstructionVisitor< ?> instructionVisitor = new InstructionVisitor() {
       public boolean visitRegister(Register register) {
         add("r(" + register.getName() + ")");
         return false;
       }
 
-      public void visitConstantOpcodeReference(ConstantOpcodeReference<WordNumber> constantOpcodeReference) {
+      public void visitConstantOpcodeReference(ConstantOpcodeReference constantOpcodeReference) {
         add("c(" + constantOpcodeReference + ")");
       }
 
@@ -64,7 +64,7 @@ public class GenerateTestSourceInstructionVisitor implements InstructionVisitor<
         add("c(" + opcodeReference.toString() + ")");
       }
 
-      public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<WordNumber> memoryPlusRegister8BitReference) {
+      public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference memoryPlusRegister8BitReference) {
         add("iRRn(");
         memoryPlusRegister8BitReference.getTarget().accept(this);
         add(" , " + memoryPlusRegister8BitReference.fetchRelative() + ")");
@@ -103,18 +103,18 @@ public class GenerateTestSourceInstructionVisitor implements InstructionVisitor<
     String simpleName = conditionalInstruction.getClass().getSimpleName();
     String replace = conditionalInstruction.getCondition().toString().replace("FlipFlop: ", "");
     replace = replace.isBlank() ? ", t()" : ", " + replace.toLowerCase() + "()";
-    int jumpAddress = conditionalInstruction.calculateJumpAddress().valueXYZ;
+    int jumpAddress = conditionalInstruction.calculateJumpAddress();
     jumpAddress-= startAddress;
 
     if (conditionalInstruction instanceof JR) {
-      jumpAddress= ((WordNumber) conditionalInstruction.getPositionOpcodeReference().read()).valueXYZ;
+      jumpAddress= ((Integer) conditionalInstruction.getPositionOpcodeReference().read());
     }
     String s = "add(new " + simpleName + "(c(" + jumpAddress + ") " + replace + ", r(PC)));";
     add(s);
   }
 
   @Override
-  public boolean visitingBitOperation(BitOperation<WordNumber> targetSourceInstruction) {
+  public boolean visitingBitOperation(BitOperation targetSourceInstruction) {
     add("add(new " + targetSourceInstruction.getClass().getSimpleName() + " (");
     targetSourceInstruction.getTarget().accept(getWordNumberDummyInstructionVisitor());
     add(", " + targetSourceInstruction.getN() + ", f()));");
@@ -122,7 +122,7 @@ public class GenerateTestSourceInstructionVisitor implements InstructionVisitor<
   }
 
   @Override
-  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction<WordNumber> dec) {
+  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction dec) {
     add("add(new " + dec.getClass().getSimpleName() + " (");
     dec.getTarget().accept(getWordNumberDummyInstructionVisitor());
     add(", f()));");

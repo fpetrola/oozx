@@ -33,27 +33,27 @@ import java.util.Optional;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-public abstract class PhaseProcessorBase<T extends WordNumber> implements InstructionVisitor<T, Integer> {
+public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang.Integer> {
   protected Phase phase;
-  protected T address;
+  protected int address;
   protected boolean processing;
   protected int readCount;
   public int writeCount;
-  private InstructionFetcher<T> instructionFetcher;
-  private State<T> state;
-  private Register<T> registerSP;
+  private InstructionFetcher instructionFetcher;
+  private State state;
+  private Register registerSP;
 
-  public PhaseProcessorBase(InstructionFetcher<T> instructionFetcher, State<T> state) {
+  public PhaseProcessorBase(InstructionFetcher instructionFetcher, State state) {
     this.instructionFetcher = instructionFetcher;
     this.state = state;
     this.registerSP = getRegister(SP);
   }
 
-  public void addMw(T address, T value) {
-    getAddEvent(new Event(0, "MW", address.valueXYZ, value.valueXYZ));
+  public void addMw(int address, int value) {
+    getAddEvent(new Event(0, "MW", address, value));
   }
 
-  protected State<T> getState() {
+  protected State getState() {
     return state;
   }
 
@@ -71,20 +71,20 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
     getState().addEvent(time1);
   }
 
-  public void addMr(T address, T value) {
-    getAddEvent(new Event(0, "MR", address.valueXYZ, value.valueXYZ));
+  public void addMr(int address, int value) {
+    getAddEvent(new Event(0, "MR", address, value));
   }
 
-  protected Register<T> getRegister(RegisterName registerName) {
+  protected Register getRegister(RegisterName registerName) {
     return getState().getRegister(registerName);
   }
 
-  public void setAddress(T address) {
+  public void setAddress(int address) {
     this.address = address;
   }
 
-  public Optional<Boolean> isIndirectHL(TargetInstruction<T> targetInstruction) {
-    return Optional.ofNullable(targetInstruction.getTarget() instanceof IndirectMemory8BitReference<?> indirectMemory8BitReference && indirectMemory8BitReference.getTarget() instanceof Register<?> register && register.getName().equals(HL.name()) ? true : null);
+  public Optional<Boolean> isIndirectHL(TargetInstruction targetInstruction) {
+    return Optional.ofNullable(targetInstruction.getTarget() instanceof IndirectMemory8BitReference indirectMemory8BitReference && indirectMemory8BitReference.getTarget() instanceof Register register && register.getName().equals(HL.name()) ? true : null);
   }
 
   public void setPhase(Phase phase) {
@@ -96,11 +96,11 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
     writeCount = 0;
   }
 
-  public boolean isLdSP(Ld<T> ld) {
-    return ld.getTarget().equals(registerSP) && ld.getSource() instanceof Register<T>;
+  public boolean isLdSP(Ld ld) {
+    return ld.getTarget().equals(registerSP) && ld.getSource() instanceof Register;
   }
 
-  protected void addMc2(int times, int delta, String description, Register<T> register) {
+  protected void addMc2(int times, int delta, String description, Register register) {
     addMultipleMc(times, 1, delta, valueOf(register), description);
   }
 
@@ -112,7 +112,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
 //    System.out.println("Phase: " + phase.getClass().getSimpleName());
     processing = true;
     phase.acceptBeforeExecution((e) -> reset());
-    Instruction<T> lastExecutedInstruction = ((DefaultInstructionFetcher<T>) instructionFetcher).getLastExecutedInstruction();
+    Instruction lastExecutedInstruction = ((DefaultInstructionFetcher) instructionFetcher).getLastExecutedInstruction();
 
     if (lastExecutedInstruction != null) {
       PhaseInterceptor phase1 = lastExecutedInstruction.getPhaseInterceptor();
@@ -123,8 +123,8 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
     processing = false;
   }
 
-  protected boolean isMemory8BitReference(ImmutableOpcodeReference<T> source) {
-    return source instanceof Memory8BitReference<T>;
+  protected boolean isMemory8BitReference(ImmutableOpcodeReference source) {
+    return source instanceof Memory8BitReference;
   }
 
   protected boolean isMemoryPlus(OpcodeReferenceBase target) {
@@ -135,11 +135,11 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
     return Optional.ofNullable(isMemoryPlus(target) ? true : null);
   }
 
-  protected int valueOf(Register<T> register) {
-    return register.read().valueXYZ;
+  protected int valueOf(Register register) {
+    return register.read();
   }
 
-  protected Optional<Boolean> hasJumped(JumpInstruction<T> instruction) {
+  protected Optional<Boolean> hasJumped(JumpInstruction instruction) {
     return Optional.ofNullable(instruction.getNextPC() != null ? true : null);
   }
 

@@ -19,15 +19,14 @@
 package com.fpetrola.z80.base;
 
 import com.fpetrola.z80.bytecode.BytecodeGeneration;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
 import java.util.List;
 
-public abstract class ManualBytecodeGenerationTest<T extends WordNumber> extends TransformInstructionsTest<T> implements BytecodeGeneration {
-  public ManualBytecodeGenerationTest(DriverConfigurator<T> tDriverConfigurator) {
+public abstract class ManualBytecodeGenerationTest extends TransformInstructionsTest implements BytecodeGeneration {
+  public ManualBytecodeGenerationTest(DriverConfigurator tDriverConfigurator) {
     super(tDriverConfigurator);
   }
 

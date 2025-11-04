@@ -22,12 +22,12 @@ import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
 
 public class JumpLabelVisitor implements InstructionVisitor {
-  private int jumpLabel = 0;
+  private int jumpLabel = -1;
 
   public void visitingConditionalInstruction(ConditionalInstruction conditionalInstruction) {
     conditionalInstruction.calculateJumpAddress();
-    if (conditionalInstruction.getJumpAddress() != null) {
-      jumpLabel = conditionalInstruction.getJumpAddress().valueXYZ;
+    if (conditionalInstruction.getJumpAddress() != -1) {
+      jumpLabel = conditionalInstruction.getJumpAddress();
     } else {
       jumpLabel = -1;
     }

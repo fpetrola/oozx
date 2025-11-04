@@ -21,16 +21,15 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.DefaultTargetInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class Dec16<T extends WordNumber> extends DefaultTargetInstruction<T> {
+public class Dec16 extends DefaultTargetInstruction {
   public Dec16(OpcodeReference target) {
     super(target);
   }
 
   public int execute() {
-    WordNumber wordNumber = target.read();
-    target.write((T) (WordNumber) new WordNumber((wordNumber.valueXYZ - 1) & 0xFFFF));
+    Integer wordNumber = target.read();
+    target.write((wordNumber - 1) & 0xFFFF);
     return cyclesCost;
   }
 

@@ -18,15 +18,13 @@
 
 package com.fpetrola.z80.instructions.types;
 
-import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import fuse.tstates.PhaseInterceptor;
 
-public abstract class AbstractInstruction<T> implements Instruction<T> {
+public abstract class AbstractInstruction implements Instruction {
   protected int length = 1;
   protected int cyclesCost = 4;
-  private T nextPC = null;
+  private Integer nextPC = null;
   private int rdelta;
 
   public void setPhaseInterceptor(PhaseInterceptor phaseInterceptor) {
@@ -63,11 +61,11 @@ public abstract class AbstractInstruction<T> implements Instruction<T> {
     this.length = length;
   }
 
-  public void setNextPC(T address) {
+  public void setNextPC(Integer address) {
     this.nextPC = address;
   }
 
-  public T getNextPC() {
+  public Integer getNextPC() {
     return nextPC;
   }
 

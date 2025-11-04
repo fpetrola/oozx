@@ -24,34 +24,34 @@ import com.fpetrola.z80.registers.Register;
 
 import java.util.function.BiConsumer;
 
-public final class IndirectMemory16BitReference<T extends WordNumber> implements OpcodeReference<T> {
-  private final BiConsumer<T, T> memoryWriter;
-  public ImmutableOpcodeReference<T> target;
-  public T address;
+public final class IndirectMemory16BitReference implements OpcodeReference {
+  private final BiConsumer<Integer, Integer> memoryWriter;
+  public ImmutableOpcodeReference target;
+  public int address;
 
-  public Memory<T> getMemory() {
+  public Memory getMemory() {
     return memory;
   }
 
-  private final Memory<T> memory;
+  private final Memory memory;
 
-  public IndirectMemory16BitReference(ImmutableOpcodeReference<T> target, Memory<T> memory) {
+  public IndirectMemory16BitReference(ImmutableOpcodeReference target, Memory memory) {
     this.target = target;
     this.memory = memory;
 
-    if (target instanceof Register<?> register && register.getName().equals("SP"))
+    if (target instanceof Register register && register.getName().equals("SP"))
       memoryWriter = (value, address) -> Memory.write16Bits(memory, value, address);
     else
       memoryWriter = (value, address) -> Memory.write16BitsR(memory, value, address);
   }
 
-  public T read() {
+  public int read() {
     address = target.read();
-    T fetchAddress = Memory.read16Bits(memory, address);
+    int fetchAddress = Memory.read16Bits(memory, address);
     return fetchAddress;
   }
 
-  public void write(T value) {
+  public void write(int value) {
     address = target.read();
     memoryWriter.accept(value, address);
   }

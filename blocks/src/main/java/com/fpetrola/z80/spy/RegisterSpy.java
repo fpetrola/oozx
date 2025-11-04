@@ -18,48 +18,47 @@
 
 package com.fpetrola.z80.spy;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Plain16BitRegister;
 import com.fpetrola.z80.registers.Register;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class RegisterSpy<T extends WordNumber> extends Plain16BitRegister<T> {
+public class RegisterSpy extends Plain16BitRegister {
 
-  protected Register<T> register;
-  protected List<RegisterWriteListener<T>> registerWriteListeners= new ArrayList<>();
-  protected List<RegisterReadListener<T>> registerReadListeners= new ArrayList<>();
+  protected Register register;
+  protected List<RegisterWriteListener> registerWriteListeners= new ArrayList<>();
+  protected List<RegisterReadListener> registerReadListeners= new ArrayList<>();
 
-  public RegisterSpy(Register<T> register) {
+  public RegisterSpy(Register register) {
     super(register.getName());
     this.register = register;
   }
 
-  public T read() {
-    T value = register.read();
+  public int read() {
+    int value = register.read();
     registerReadListeners.forEach(l->l.readingRegister(value));
 
     return value;
   }
 
-  public void write(T value) {
+  public void write(int value) {
     registerWriteListeners.forEach(l -> l.writingRegister(value, false));
     register.write(value);
   }
 
   public void increment() {
     registerWriteListeners.forEach(l -> {
-      WordNumber wordNumber = register.read();
-      l.writingRegister((T) (WordNumber) new WordNumber((wordNumber.valueXYZ + 1) & 0xFFFF), true);
+      Integer wordNumber = register.read();
+      l.writingRegister((wordNumber + 1) & 0xFFFF, true);
     });
     register.increment();
   }
 
   public void decrement() {
     registerWriteListeners.forEach(l -> {
-      WordNumber wordNumber = register.read();
-      l.writingRegister((T) (WordNumber) new WordNumber((wordNumber.valueXYZ - 1) & 0xFFFF), true);
+      Integer wordNumber = register.read();
+      l.writingRegister((wordNumber - 1) & 0xFFFF, true);
     });
     register.decrement();
   }

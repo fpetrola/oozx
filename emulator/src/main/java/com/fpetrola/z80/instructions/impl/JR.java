@@ -22,22 +22,21 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.opcodes.references.Condition;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class JR<T extends WordNumber> extends ConditionalInstruction<T, Condition> {
+public class JR extends ConditionalInstruction<Condition> {
 
-  public JR(ImmutableOpcodeReference target, Condition condition, Register<T> pc) {
+  public JR(ImmutableOpcodeReference target, Condition condition, Register pc) {
     super(target, condition, pc);
   }
 
-  public T calculateJumpAddress() {
+  public int calculateJumpAddress() {
     return calculateRelativeJumpAddress();
   }
 
   protected int jumpIfConditionMatches() {
     if (condition.conditionMet(this)) {
-      T jumpAddress2 = calculateJumpAddress();
+      int jumpAddress2 = calculateJumpAddress();
       jumpAddress2 = beforeJump(jumpAddress2);
       setJumpAddress(jumpAddress2);
       setNextPC(jumpAddress2);

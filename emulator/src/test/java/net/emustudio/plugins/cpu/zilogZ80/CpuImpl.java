@@ -22,7 +22,6 @@ package net.emustudio.plugins.cpu.zilogZ80;
 
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
 import net.emustudio.emulib.plugins.PluginInitializationException;
 import net.emustudio.emulib.plugins.annotations.PLUGIN_TYPE;
@@ -54,14 +53,14 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 @SuppressWarnings("unused")
 public class CpuImpl extends AbstractCPU {
   private static final Logger LOGGER = LoggerFactory.getLogger(CpuImpl.class);
-  public final OOZ80<WordNumber> ooz80;
+  public final OOZ80 ooz80;
 
   private JPanel statusPanel;
   private Disassembler disassembler;
   private EmulatorEngine engine;
   private final ContextZ80Impl context = new ContextZ80Impl();
 
-  public CpuImpl(long pluginID, ApplicationApi applicationApi, PluginSettings settings, OOZ80<WordNumber> ooz80) {
+  public CpuImpl(long pluginID, ApplicationApi applicationApi, PluginSettings settings, OOZ80 ooz80) {
     super(pluginID, applicationApi, settings);
     this.ooz80 = ooz80;
     try {
@@ -96,11 +95,11 @@ public class CpuImpl extends AbstractCPU {
   }
 
   private void reset2() {
-    State<WordNumber> state = ooz80.getState();
-    Stream.of(RegisterName.values()).forEach(r -> state.r(r).write((WordNumber) new WordNumber(0)));
-    state.getRegister(IR).write((WordNumber) new WordNumber(0));
-    state.getRegister(AF).write((WordNumber) new WordNumber(0));
-    state.getRegister(SP).write((WordNumber) new WordNumber(0xFFFF));
+    State state = ooz80.getState();
+    Stream.of(RegisterName.values()).forEach(r -> state.r(r).write(0));
+    state.getRegister(IR).write(0);
+    state.getRegister(AF).write(0);
+    state.getRegister(SP).write(0xFFFF);
     state.setIntMode(IM0);
     state.setActiveNMI(false);
     state.setHalted(false);

@@ -19,9 +19,8 @@
 package com.fpetrola.z80.instructions.cache;
 
 import com.fpetrola.z80.memory.MemoryWriteListener;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class CacheInvalidatorMemoryWriteListener<T extends WordNumber>  implements MemoryWriteListener<T> {
+public class CacheInvalidatorMemoryWriteListener  implements MemoryWriteListener {
   public CacheInvalidatorMemoryWriteListener(Runnable[] cacheInvalidators) {
     this.cacheInvalidators = cacheInvalidators;
   }
@@ -29,8 +28,8 @@ public class CacheInvalidatorMemoryWriteListener<T extends WordNumber>  implemen
   private final Runnable[] cacheInvalidators;
 
   @Override
-  public void writtingMemoryAt(T address, T value) {
-    Runnable cacheInvalidator = cacheInvalidators[address.valueXYZ];
+  public void writtingMemoryAt(int address, int value) {
+    Runnable cacheInvalidator = cacheInvalidators[address];
     if (cacheInvalidator != null)
       cacheInvalidator.run();
   }

@@ -19,25 +19,24 @@
 package com.fpetrola.z80.minizx;
 
 import com.fpetrola.z80.cpu.IO;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
 import java.awt.event.KeyEvent;
 import java.util.*;
 
-public class MiniZXIO implements IO<WordNumber> {
+public class MiniZXIO implements IO {
   private final int[] ports = initPorts();
   private final List<PortInput> inputs = Collections.synchronizedList(new ArrayList<>());
   public MiniZXKeyboard miniZXKeyboard;
   public int javaPC;
-  private Register<WordNumber> pc;
+  private Register pc;
 
   public MiniZXIO() {
     miniZXKeyboard = new MiniZXKeyboard();
   }
 
-  private WordNumber in0(WordNumber port) {
-    WordNumber value = (WordNumber) new WordNumber(performIn(port.valueXYZ));
+  private Integer in0(Integer port) {
+    Integer value = performIn(port);
     return value;
 //      int portNumber = port.intValue();
 //      //  portNumber = portNumber & 0xff;
@@ -60,7 +59,7 @@ public class MiniZXIO implements IO<WordNumber> {
 //      }
   }
 
-  public void out(WordNumber port, WordNumber value) {
+  public void out(int port, int value) {
   }
 
   public void setCurrentKey(int e, boolean pressed) {
@@ -118,10 +117,10 @@ public class MiniZXIO implements IO<WordNumber> {
     return ports;
   }
 
-  public synchronized WordNumber in(WordNumber port) {
+  public synchronized int in(int port) {
     PortInput portInput = processLastInputs(port, inputs.stream().allMatch(i -> i.resultEmu == null));
 
-    WordNumber resultEmu = portInput.resultEmu;
+    Integer resultEmu = portInput.resultEmu;
     portInput.resultEmu = null;
     removeIfReady(portInput);
 
@@ -129,9 +128,9 @@ public class MiniZXIO implements IO<WordNumber> {
     return resultEmu;
   }
 
-  public synchronized WordNumber in2(WordNumber port) {
+  public synchronized Integer in2(Integer port) {
     PortInput portInput = processLastInputs(port, inputs.stream().allMatch(i -> i.resultJava == null));
-    WordNumber resultJava = portInput.resultJava;
+    Integer resultJava = portInput.resultJava;
 
     portInput.resultJava = null;
 
@@ -143,9 +142,9 @@ public class MiniZXIO implements IO<WordNumber> {
     return resultJava;
   }
 
-  private synchronized PortInput processLastInputs(WordNumber port, boolean readNew) {
+  private synchronized PortInput processLastInputs(Integer port, boolean readNew) {
     if (readNew) {
-      WordNumber in = in0(port);
+      Integer in = in0(port);
       if (in == null)
         System.out.println("dag");
       PortInput e = new PortInput(port, in);
@@ -184,11 +183,11 @@ public class MiniZXIO implements IO<WordNumber> {
   }
 
   public static class PortInput {
-    public WordNumber resultJava;
-    public WordNumber resultEmu;
-    public WordNumber port;
+    public Integer resultJava;
+    public Integer resultEmu;
+    public Integer port;
 
-    public PortInput(WordNumber port, WordNumber in) {
+    public PortInput(Integer port, Integer in) {
       this.port = port;
       this.resultJava = in;
       this.resultEmu = in;

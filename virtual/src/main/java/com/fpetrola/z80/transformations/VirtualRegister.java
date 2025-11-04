@@ -27,8 +27,8 @@ import com.fpetrola.z80.registers.Register;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public interface VirtualRegister<T> extends Register<T> {
-  List<VirtualRegister<T>> getPreviousVersions();
+public interface VirtualRegister extends Register {
+  List<VirtualRegister> getPreviousVersions();
 
   BlocksManager getBlocksManager();
 
@@ -42,7 +42,7 @@ public interface VirtualRegister<T> extends Register<T> {
   void saveData();
 
   default boolean hasNoPrevious() {
-    List<VirtualRegister<T>> previousVersions = getPreviousVersions();
+    List<VirtualRegister> previousVersions = getPreviousVersions();
     return /*previousVersions.size() == 1 && */previousVersions.get(0) instanceof InitialVirtualRegister;
   }
 
@@ -50,7 +50,7 @@ public interface VirtualRegister<T> extends Register<T> {
 
   Scope getScope();
 
-  List<VirtualRegister<T>> getDependants();
+  List<VirtualRegister> getDependants();
 
   default int getRegisterLine() {
     String name = getName();
@@ -62,16 +62,16 @@ public interface VirtualRegister<T> extends Register<T> {
     return i;
   }
 
-  default List<VirtualRegister<?>> getAncestorsOf() {
-    List<VirtualRegister<?>> result1 = new ArrayList<>();
+  default List<VirtualRegister> getAncestorsOf() {
+    List<VirtualRegister> result1 = new ArrayList<>();
     result1.add(this);
     getPreviousVersions().stream().filter(r1 -> r1.getRegisterLine() < getRegisterLine()).forEach(r1 -> result1.addAll(r1.getAncestorsOf()));
     return result1;
   }
 
-  default VirtualRegister<?> getParentPreviousVersion() {
+  default VirtualRegister getParentPreviousVersion() {
 //    return getRegisterLine(virtualRegister);
-    List<VirtualRegister<?>> ancestorsOf1 = getAncestorsOf();
+    List<VirtualRegister> ancestorsOf1 = getAncestorsOf();
     Collections.sort(ancestorsOf1, (c1, c2) -> c2.getRegisterLine() - c1.getRegisterLine());
 
     for (int i = 0; i < ancestorsOf1.size(); i++) {
@@ -84,10 +84,10 @@ public interface VirtualRegister<T> extends Register<T> {
 //    return ancestorsOf1.stream().map(r -> getRegisterLine(r)).min(Integer::compare).get();
   }
 
-  default VirtualRegister<T> adjustRegisterScope() {
-    VirtualRegister<T> result = this;
-    List<VirtualRegister<T>> previousVersions = getPreviousVersions();
-      VirtualRegister<T> tVirtualRegister = previousVersions.stream().min(Comparator.comparingInt(VirtualRegister::getRegisterLine)).get();
+  default VirtualRegister adjustRegisterScope() {
+    VirtualRegister result = this;
+    List<VirtualRegister> previousVersions = getPreviousVersions();
+      VirtualRegister tVirtualRegister = previousVersions.stream().min(Comparator.comparingInt(VirtualRegister::getRegisterLine)).get();
       previousVersions.stream().forEach(r -> tVirtualRegister.getScope().end = Math.max(tVirtualRegister.getScope().end, r.getScope().end));
       tVirtualRegister.getScope().end = Math.max(tVirtualRegister.getScope().end, this.getScope().end);
       result = tVirtualRegister;
@@ -100,14 +100,14 @@ public interface VirtualRegister<T> extends Register<T> {
       getScope().start = Math.min(result2.getRangeHandler().getStartAddress(), this.getScope().start);
 
     }
-//    VirtualRegister<?> result2 = getParentPreviousVersion();
+//    VirtualRegister result2 = getParentPreviousVersion();
 
 
     return result;
   }
 
   default Block getParentPreviousVersion2() {
-    List<VirtualRegister<T>> previousVersions = getPreviousVersions();
+    List<VirtualRegister> previousVersions = getPreviousVersions();
 
     List<Block> blocks = previousVersions.stream().map(r ->
         getBlocksManager().findBlockAt(r.getRegisterLine())

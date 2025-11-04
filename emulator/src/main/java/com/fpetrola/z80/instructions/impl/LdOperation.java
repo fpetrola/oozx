@@ -25,19 +25,19 @@ import com.fpetrola.z80.instructions.types.TargetInstruction;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 
-public class LdOperation<T> extends AbstractInstruction<T> {
-  public Instruction<T> getInstruction() {
+public class LdOperation extends AbstractInstruction {
+  public Instruction getInstruction() {
     return instruction;
   }
 
-  public OpcodeReference<T> getTarget() {
+  public OpcodeReference getTarget() {
     return target;
   }
 
-  protected Instruction<T> instruction;
-  protected OpcodeReference<T> target;
+  protected Instruction instruction;
+  protected OpcodeReference target;
 
-  public LdOperation(OpcodeReference target, Instruction<T> instruction) {
+  public LdOperation(OpcodeReference target, Instruction instruction) {
     this.target = target;
     this.instruction = instruction;
     incrementLengthBy(1);
@@ -45,10 +45,10 @@ public class LdOperation<T> extends AbstractInstruction<T> {
 
   public int execute() {
     instruction.execute();
-    if (instruction instanceof TargetInstruction<T> targetInstruction) {
-      T read;
-      if (targetInstruction.getTarget() instanceof MemoryPlusRegister8BitReference<?> memoryPlusRegister8BitReference) {
-        read = (T) memoryPlusRegister8BitReference.value;
+    if (instruction instanceof TargetInstruction targetInstruction) {
+      int read;
+      if (targetInstruction.getTarget() instanceof MemoryPlusRegister8BitReference memoryPlusRegister8BitReference) {
+        read = memoryPlusRegister8BitReference.value;
       } else
         read = targetInstruction.getTarget().read();
       target.write(read);

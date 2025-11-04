@@ -23,23 +23,20 @@ import com.fpetrola.oozx.fuse.modules.tape.Log1;
 import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.z80.cpu.DefaultZ80Clock;
 import com.fpetrola.z80.helpers.CollectionHandler;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import machine.ClockTimeoutListener;
 
 import java.util.ConcurrentModificationException;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class SpectrumZ80Clock extends DefaultZ80Clock {
-  private Consumer<Integer> timeoutProcessor = (tStates) -> {
+  private Consumer<java.lang.Integer> timeoutProcessor = (tStates) -> {
   };
   private int timeout;
   private CollectionHandler<ClockTimeoutListener> clockListeners = new CollectionHandler<>();
 
-  private Register<WordNumber> pc;
+  private Register pc;
 
   public void setTStates(long tStates) {
     super.setTStates(tStates);
@@ -83,7 +80,7 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
     GetTStatesHistory.addTStateUpdate(data, description, tStates, pc);
   }
 
-  public void setPc(Register<WordNumber> pc) {
+  public void setPc(Register pc) {
     this.pc = pc;
   }
 

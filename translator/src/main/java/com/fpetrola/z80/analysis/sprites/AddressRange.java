@@ -19,19 +19,18 @@
 package com.fpetrola.z80.analysis.sprites;
 
 import com.fpetrola.z80.helpers.Helper;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.spy.ExecutionStep;
 
-public class AddressRange<T extends WordNumber> {
-  private ExecutionStep<T>lastStep;
-  private int firstAddress = Integer.MAX_VALUE;
+public class AddressRange {
+  private ExecutionStep lastStep;
+  private int firstAddress = java.lang.Integer.MAX_VALUE;
   private int lastAddress = 0;
   int distance = 100;
 
   public AddressRange() {
   }
 
-  public AddressRange(int address, ExecutionStep<T> firstStep) {
+  public AddressRange(int address, ExecutionStep firstStep) {
     add(address, firstStep);
   }
 
@@ -39,7 +38,7 @@ public class AddressRange<T extends WordNumber> {
     return "[" + Helper.formatAddress(firstAddress) + "-" + Helper.formatAddress(lastAddress) + "]";
   }
 
-  public boolean canAdd(int address, ExecutionStep<T> step) {
+  public boolean canAdd(int address, ExecutionStep step) {
     if (lastStep == null)
       return true;
     else if (isInside(address))
@@ -47,7 +46,7 @@ public class AddressRange<T extends WordNumber> {
     else return Math.abs(firstAddress - address) < distance || Math.abs(lastAddress - address) < distance;
   }
 
-  public void add(int address, ExecutionStep<T> step) {
+  public void add(int address, ExecutionStep step) {
     lastStep = step;
     if (address < firstAddress)
       firstAddress = address;
@@ -56,7 +55,7 @@ public class AddressRange<T extends WordNumber> {
       lastAddress = address;
   }
 
-  public boolean mergeIfRequired(AddressRange<T> b) {
+  public boolean mergeIfRequired(AddressRange b) {
     boolean merged = isInside(b.firstAddress) || isInside(b.lastAddress);
 
     if (merged) {

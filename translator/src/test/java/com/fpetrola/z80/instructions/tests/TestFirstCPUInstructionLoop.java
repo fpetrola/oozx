@@ -22,7 +22,6 @@ import com.fpetrola.z80.base.BaseInstructionLoopTest;
 import com.fpetrola.z80.base.PlainDriverConfigurator;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.google.inject.Inject;
 import io.exemplary.guice.Modules;
@@ -35,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(TestRunner.class)
 @Modules(TransformationsTestBaseModule.class)
-public class TestFirstCPUInstructionLoop<T extends WordNumber> extends BaseInstructionLoopTest<T> {
+public class TestFirstCPUInstructionLoop extends BaseInstructionLoopTest {
 
   @Inject
   public TestFirstCPUInstructionLoop(PlainDriverConfigurator tDriverConfigurator) {
@@ -53,9 +52,9 @@ public class TestFirstCPUInstructionLoop<T extends WordNumber> extends BaseInstr
     assertLoopNumber(0, 16);
     assertLoopNumber(1, 8);
     assertLoopNumber(2, 4);
-    assertEquals(11, r(PC).read().valueXYZ);
+    assertEquals(11, r(PC).read());
     step();
-    assertEquals(257, r(PC).read().valueXYZ);
+    assertEquals(257, r(PC).read());
   }
 
   @Test
@@ -74,7 +73,7 @@ public class TestFirstCPUInstructionLoop<T extends WordNumber> extends BaseInstr
 
   private void createPlainExecution() {
     setUpMemory();
-    r(DE).write((T) new WordNumber(520));
+    r(DE).write(520);
 
     add(new Ld(r(H), c(7), f()));
     add(new Ld(r(L), r(A), f()));
@@ -93,50 +92,50 @@ public class TestFirstCPUInstructionLoop<T extends WordNumber> extends BaseInstr
   }
 
   private void assertLoopNumber(int increment, int memoryValue) {
-    assertEquals(6, r(PC).read().valueXYZ);
+    assertEquals(6, r(PC).read());
     step();
-    assertEquals(memoryValue, r(A).read().valueXYZ);
+    assertEquals(memoryValue, r(A).read());
     step();
-    assertEquals(memoryValue, mem().read(r(DE).read(), 0).valueXYZ);
+    assertEquals(memoryValue, mem().read(r(DE).read(), 0));
     step();
-    assertEquals(14369 + increment, r(HL).read().valueXYZ);
+    assertEquals(14369 + increment, r(HL).read());
     step();
-    assertEquals(3 + increment, r(D).read().valueXYZ);
-    assertEquals(10, r(PC).read().valueXYZ);
+    assertEquals(3 + increment, r(D).read());
+    assertEquals(10, r(PC).read());
     step();
   }
 
   private void assertLoopSetup() {
-    r(A).write((T) new WordNumber(4));
+    r(A).write(4);
     step();
-    assertEquals(7, r(H).read().valueXYZ);
+    assertEquals(7, r(H).read());
     step();
-    assertEquals(4, r(L).read().valueXYZ);
+    assertEquals(4, r(L).read());
     step();
-    assertEquals(3592, r(HL).read().valueXYZ);
+    assertEquals(3592, r(HL).read());
     step();
-    assertEquals(3592 * 2, r(HL).read().valueXYZ);
+    assertEquals(3592 * 2, r(HL).read());
     step();
-    assertEquals(3592 * 4, r(HL).read().valueXYZ);
+    assertEquals(3592 * 4, r(HL).read());
     step();
-    assertEquals(3, r(B).read().valueXYZ);
+    assertEquals(3, r(B).read());
   }
 
 
-  private void assertCompositeLoop(Register<T> vr1, Register<T> counter, int bValue, int memoryReadValue, int indexValue, int dValue, int readAddress, Register<T> vr2A) {
+  private void assertCompositeLoop(Register vr1, Register counter, int bValue, int memoryReadValue, int indexValue, int dValue, int readAddress, Register vr2A) {
     step();
 
-    assertEquals(memoryReadValue, mem().read((T) new WordNumber(readAddress), 0).valueXYZ);
-    assertEquals(indexValue, vr1.read().valueXYZ);
+    assertEquals(memoryReadValue, mem().read(readAddress, 0));
+    assertEquals(indexValue, vr1.read());
 
     step();
-    assertEquals(indexValue + 1, vr1.read().valueXYZ);
-    assertEquals(dValue, vr2A.read().valueXYZ);
+    assertEquals(indexValue + 1, vr1.read());
+    assertEquals(dValue, vr2A.read());
 
     step();
-    assertEquals(dValue + 1, vr2A.read().valueXYZ);
+    assertEquals(dValue + 1, vr2A.read());
 
     step();
-    assertEquals(bValue - 1, counter.read().valueXYZ);
+    assertEquals(bValue - 1, counter.read());
   }
 }

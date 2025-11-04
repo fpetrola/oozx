@@ -23,13 +23,12 @@ import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulationBase;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import snapshots.*;
 
 import java.io.File;
 
 public class SnapshotLoader {
-  public static <T extends WordNumber> byte[] setupStateWithSnapshot(RegistersSetter registersSetter, String fileName, State<T> state) {
+  public static  byte[] setupStateWithSnapshot(RegistersSetter registersSetter, String fileName, State state) {
     MemorySetter memorySetter = new MemorySetter(state.getMemory(), MiniZXWithEmulationBase.createROM());
 
     try {
@@ -62,7 +61,7 @@ public class SnapshotLoader {
     }
   }
 
-  private static <T extends WordNumber> int copyPage(byte[][] ram, int page, int position, byte[] result) {
+  private static  int copyPage(byte[][] ram, int page, int position, byte[] result) {
     if (ram[page] != null)
       for (int i = 0; i < ram[page].length; i++) {
         result[position++] = ram[page][i];
@@ -70,16 +69,16 @@ public class SnapshotLoader {
     return position;
   }
 
-  private static <T extends WordNumber> int copyPage2(byte[][] ram, int page, int position, State<T> state1) {
-    Memory<T> memory = state1.getMemory();
+  private static  int copyPage2(byte[][] ram, int page, int position, State state1) {
+    Memory memory = state1.getMemory();
     if (ram[page] != null)
       for (int i = 0; i < ram[page].length; i++) {
-        memory.write((T) new WordNumber(position++), (T) new WordNumber(ram[page][i]));
+        memory.write(position++, ram[page][i]);
       }
     return position;
   }
 
-  public static <T extends WordNumber> void setZ80State(RegistersSetter<T> registersBase, Z80State state) {
+  public static  void setZ80State(RegistersSetter registersBase, Z80State state) {
     registersBase.setRegA(state.getRegA());
     registersBase.setFlags(state.getRegF());
     registersBase.setRegB(state.getRegB());

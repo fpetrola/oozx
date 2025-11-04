@@ -24,7 +24,7 @@ import com.fpetrola.z80.opcodes.references.ExecutionPoint;
 
 import java.util.function.Supplier;
 
-public interface ComplexInstructionSpy<T> extends InstructionSpy<T> {
+public interface ComplexInstructionSpy extends InstructionSpy {
 
   default boolean isReadAccessCapture() {
     return false;
@@ -80,7 +80,7 @@ public interface ComplexInstructionSpy<T> extends InstructionSpy<T> {
   }
 
 
-  default <T> T executeInPause(Supplier<T> object) {
+  default  int executeInPause(Supplier<Integer> object) {
     return object.get();
   }
 

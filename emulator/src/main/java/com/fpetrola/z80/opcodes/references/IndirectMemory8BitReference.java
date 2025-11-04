@@ -21,30 +21,30 @@ package com.fpetrola.z80.opcodes.references;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
 
-public final class IndirectMemory8BitReference<T> implements OpcodeReference<T> {
+public final class IndirectMemory8BitReference implements OpcodeReference {
 
-  public ImmutableOpcodeReference<T> target;
-  public T address;
-  public T value;
+  public ImmutableOpcodeReference target;
+  public int address;
+  public int value;
 
-  public Memory<T> getMemory() {
+  public Memory getMemory() {
     return memory;
   }
 
-  private final Memory<T> memory;
+  private final Memory memory;
 
   public IndirectMemory8BitReference(ImmutableOpcodeReference target, Memory memory) {
     this.target = target;
     this.memory = memory;
   }
 
-  public T read() {
+  public int read() {
     address = target.read();
     value = memory.read(address, 0);
     return value;
   }
 
-  public void write(T value) {
+  public void write(int value) {
     address = target.read();
     memory.write(address, value);
   }
@@ -57,7 +57,7 @@ public final class IndirectMemory8BitReference<T> implements OpcodeReference<T> 
     return target.getLength();
   }
 
-  public ImmutableOpcodeReference<T> getTarget() {
+  public ImmutableOpcodeReference getTarget() {
     return target;
   }
 

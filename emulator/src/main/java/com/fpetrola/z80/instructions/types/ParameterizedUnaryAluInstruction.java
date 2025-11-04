@@ -20,47 +20,46 @@ package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class ParameterizedUnaryAluInstruction<T> extends DefaultTargetFlagInstruction<T> {
-  public ParameterizedUnaryAluInstruction(OpcodeReference target, Register<T> flag, TableAluOperation tableAluOperation) {
+public class ParameterizedUnaryAluInstruction extends DefaultTargetFlagInstruction {
+  public ParameterizedUnaryAluInstruction(OpcodeReference target, Register flag, TableAluOperation tableAluOperation) {
     super(target, flag);
     this.unaryAluOperation = getTUnaryAluOperation(tableAluOperation);
     this.flag = flag;
   }
 
-  public interface UnaryAluOperation<T> {
-    T execute(T value);
+  public interface UnaryAluOperation {
+    int execute(int value);
   }
 
-  protected UnaryAluOperation<T> unaryAluOperation;
+  protected UnaryAluOperation unaryAluOperation;
 
-  public ParameterizedUnaryAluInstruction(OpcodeReference<T> target, Register<T> flag, UnaryAluOperation<T> unaryAluOperation) {
+  public ParameterizedUnaryAluInstruction(OpcodeReference target, Register flag, UnaryAluOperation unaryAluOperation) {
     super(target, flag);
     this.unaryAluOperation = unaryAluOperation;
     this.flag = flag;
   }
 
   public int execute() {
-    final T value2 = target.read();
-    T execute = doExecute(value2);
+    final int value2 = target.read();
+    int execute = doExecute(value2);
     target.write(execute);
     return cyclesCost;
   }
 
-  protected T doExecute(T value2) {
+  protected int doExecute(int value2) {
     return unaryAluOperation.execute(value2);
   }
 
   public UnaryAluOperation getTUnaryAluOperation(TableAluOperation rrTableAluOperation1) {
     return (a) -> {
-      int regA = ((WordNumber) a).valueXYZ;
-      int flagValue = ((WordNumber) flag.read()).valueXYZ;
+      int regA = ((Integer) a);
+      int flagValue = ((Integer) flag.read());
       int[] ints = rrTableAluOperation1.executeWithCarry2(regA, flagValue);
-      flag.write((T) new WordNumber(ints[1]));
-      return (Object) new WordNumber(ints[0]);
+      flag.write(ints[1]);
+      return ints[0];
     };
   }
 

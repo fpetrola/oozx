@@ -26,14 +26,13 @@ import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 
 import java.util.function.Function;
 
-public class EmulatedMiniZX<T extends WordNumber> {
-  public OOZ80<T> ooz80;
+public class EmulatedMiniZX {
+  public OOZ80 ooz80;
   private int pause;
 
   private String url;
@@ -54,15 +53,15 @@ public class EmulatedMiniZX<T extends WordNumber> {
     new EmulatedMiniZX("file:///home/fernando/dynamitedan1.z80", 1, true, -1, true).start();
   }
 
-  public static <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
+  public static  OOZ80 createOOZ80(MiniZXIO io) {
     var state = new State(io, new DefaultRegisterBankFactory().createBank(), new MockedMemory(true));
     io.setPc(state.getPc());
-    return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)), new DefaultInstructionExecutor(state, false));
+    return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory(state)), new DefaultInstructionExecutor(state, false));
   }
 
-  public static <S extends WordNumber> Function<Integer, Integer> getMemFunction(OOZ80<S> ooz81) {
+  public static <S extends Integer> Function<java.lang.Integer, java.lang.Integer> getMemFunction(OOZ80 ooz81) {
     return index -> {
-      return ooz81.getState().getMemory().read((S) new WordNumber(index), 10).valueXYZ;
+      return ooz81.getState().getMemory().read(index, 10);
     };
   }
 
@@ -72,14 +71,14 @@ public class EmulatedMiniZX<T extends WordNumber> {
     if (showScreen)
       MiniZX.createScreen(io.miniZXKeyboard, this.getMemFunction(ooz80));
 
-    RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
+    RegistersBase registersBase = new RegistersBase(ooz80.getState());
 
     String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
-    State<T> state = ooz80.getState();
+    State state = ooz80.getState();
     SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
 
-//    PhaseProcessor<T> phaseProcessor = new PhaseProcessor<>(ooz80);
-//    Memory<T> memory = state.getMemory();
+//    PhaseProcessor phaseProcessor = new PhaseProcessor<>(ooz80);
+//    Memory memory = state.getMemory();
 //    memory.addMemoryReadListener(new AddStatesMemoryReadListener<>(phaseProcessor));
 //    memory.addMemoryWriteListener(new AddStatesMemoryWriteListener<>(phaseProcessor));
 
@@ -92,7 +91,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
   public void emulate() {
     int i = 0;
     while (true) {
-      if (!(ooz80.getState().getPc().read().valueXYZ != emulateUntil)) break;
+      if (!(ooz80.getState().getPc().read() != emulateUntil)) break;
       if (i++ % (pause * 1000) == 0) this.ooz80.getState().setINTLine(true);
       else {
         if (i % pause == 0)

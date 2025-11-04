@@ -18,6 +18,6 @@
 
 package com.fpetrola.z80.spy;
 
-public interface RegisterReadListener<T> {
-  void readingRegister(T value);
+public interface RegisterReadListener {
+  void readingRegister(int value);
 }

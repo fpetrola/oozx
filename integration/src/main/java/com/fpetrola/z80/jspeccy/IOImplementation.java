@@ -19,10 +19,9 @@
 package com.fpetrola.z80.jspeccy;
 
 import com.fpetrola.z80.cpu.IO;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import z80core.MemIoOps;
 
-final class IOImplementation<T extends WordNumber> implements IO<T> {
+final class IOImplementation implements IO {
   private final MemIoOps memIoOps;
   private final int[] ports = new int[0x10000];
 
@@ -30,23 +29,23 @@ final class IOImplementation<T extends WordNumber> implements IO<T> {
     this.memIoOps = memory;
   }
 
-  public void out(T port, T value) {
-    memIoOps.outPort(port.valueXYZ, value.valueXYZ);
+  public void out(int port, int value) {
+    memIoOps.outPort(port, value);
   }
 
-  public T in(T port) {
-    T value = (T) new WordNumber(memIoOps.inPort(port.valueXYZ));
+  public int in(int port) {
+    int value = memIoOps.inPort(port);
     //if (value.intValue() != 255 && value.intValue() != 191)
     //if (port.intValue() == 49150)
 
-    int port1 = ports[port.valueXYZ];
-    if (value.valueXYZ != port1) {
-      if (port.valueXYZ == 31) {
-        System.out.println(port + "= " + value.valueXYZ);
+    int port1 = ports[port];
+    if (value != port1) {
+      if (port == 31) {
+        System.out.println(port + "= " + value);
       }
     }
 
-    ports[port.valueXYZ]= value.valueXYZ;
+    ports[port]= value;
 
     return value;
   }

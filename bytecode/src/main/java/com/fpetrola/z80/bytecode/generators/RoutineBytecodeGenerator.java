@@ -24,7 +24,6 @@ import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.minizx.StackException;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Plain16BitRegister;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
@@ -43,19 +42,19 @@ public class RoutineBytecodeGenerator {
   public Map<String, Variable> registers = new HashMap<>();
   public Field memory;
   public MethodMaker mm;
-  private final Map<Integer, Label> labels = new HashMap<>();
-  protected final Set<Integer> positionedLabels = new HashSet<>();
+  private final Map<java.lang.Integer, Label> labels = new HashMap<>();
+  protected final Set<java.lang.Integer> positionedLabels = new HashSet<>();
   public final Routine routine;
-  public Register<WordNumber> lastMemPc = new Plain16BitRegister<WordNumber>("lastMemPc");
+  public Register lastMemPc = new Plain16BitRegister("lastMemPc");
 
   public Map<String, Variable> variables = new HashMap<>();
   public Map<String, Register> registerByVariable = new HashMap<>();
   public Map<Register, Variable> variablesByRegister = new HashMap<>();
-  protected final Map<Integer, Label> insertLabels = new HashMap<>();
+  protected final Map<java.lang.Integer, Label> insertLabels = new HashMap<>();
   public DefaultTargetFlagInstruction lastTargetFlagInstruction;
   private PendingFlagUpdate pendingFlag;
   public Instruction currentInstruction;
-  public Register<?> currentRegister;
+  public Register currentRegister;
 
   public static <S> S getRealVariable(S variable) {
     Object variable1 = variable;
@@ -93,27 +92,27 @@ public class RoutineBytecodeGenerator {
 
     List<Routine> routines = routine.getRoutineManager().getRoutines();
 
-    routine.accept(new RoutineVisitor<Integer>() {
+    routine.accept(new RoutineVisitor<java.lang.Integer>() {
       public void visitInstruction(int address, Instruction instruction) {
         {
           boolean contains = routine.contains(address);
           if (contains) {
-            context.pc.write((WordNumber) new WordNumber(address));
+            context.pc.write(address);
             int firstAddress = address;
 
             Runnable scopeAdjuster = () -> {
-              context.pc.write((WordNumber) new WordNumber(address));
+              context.pc.write(address);
 //                new InstructionActionExecutor<>(r -> r.adjustRegisterScope()).executeAction(instruction);
             };
 
             Runnable labelGenerator = () -> {
-              context.pc.write((WordNumber) new WordNumber(address));
+              context.pc.write(address);
               JumpLabelVisitor jumpLabelVisitor1 = new JumpLabelVisitor();
               instruction.accept(jumpLabelVisitor1);
               addLabel(address);
             };
             Runnable instructionGenerator = () -> {
-              context.pc.write((WordNumber) new WordNumber(address));
+              context.pc.write(address);
 
               if (address == 37527)
                 System.out.print("");
@@ -134,9 +133,9 @@ public class RoutineBytecodeGenerator {
       }
 
       private void generateInstruction(int address, Instruction instruction, int firstAddress) {
-        lastMemPc.write((WordNumber) new WordNumber(address));
+        lastMemPc.write(address);
 
-        if (!(instruction instanceof ConditionalInstruction<?, ?>) && pendingFlag != null) {
+        if (!(instruction instanceof ConditionalInstruction<?>) && pendingFlag != null) {
           if (!pendingFlag.processed)
             pendingFlag.update(false);
         }
@@ -193,7 +192,7 @@ public class RoutineBytecodeGenerator {
     Label label2 = mm.label();
     label2.here();
 
-    List<Integer> integers = routine.getReturnPoints().values().stream().toList();
+    List<java.lang.Integer> integers = routine.getReturnPoints().values().stream().toList();
     if (!integers.isEmpty())
       mm.catch_(label1, StackException.class, (Variable exception) -> {
         Variable value = mm.new_(int[].class, integers.size());
@@ -209,7 +208,7 @@ public class RoutineBytecodeGenerator {
   }
 
   private boolean mutantCodeInInstruction(Instruction instruction, int address) {
-    Set<Integer> mutantAddress = (Set<Integer>) context.symbolicExecutionAdapter.getMutantAddress();
+    Set<java.lang.Integer> mutantAddress = (Set<java.lang.Integer>) context.symbolicExecutionAdapter.getMutantAddress();
     return mutantAddress.stream().anyMatch(a1 -> a1 >= address && a1 < address + instruction.getLength());
   }
 
@@ -281,7 +280,7 @@ public class RoutineBytecodeGenerator {
     return context.cm.addMethod(void.class, methodName).public_();
   }
 
-  public <T extends WordNumber> Variable getField(String name) {
+  public  Variable getField(String name) {
     return registers.get(name);
   }
 
@@ -299,7 +298,7 @@ public class RoutineBytecodeGenerator {
     return set;
   }
 
-  public <T extends WordNumber> Variable getExistingVariable(Register<T> register) {
+  public  Variable getExistingVariable(Register register) {
     String registerName = register.getName().replace(",", "");
 
     Variable variable1 = variables.get(registerName);
@@ -315,7 +314,7 @@ public class RoutineBytecodeGenerator {
     if (context.syncEnabled) {
       List<Object> params = new ArrayList<>();
       params.add(variable1);
-      params.add(lastMemPc.read().valueXYZ);
+      params.add(lastMemPc.read());
       addOtherMemSyncParameters(params);
       return mm.invoke("mem" + bits, params.toArray());
     } else {
@@ -333,7 +332,7 @@ public class RoutineBytecodeGenerator {
       List<Object> params = new ArrayList<>();
       params.add(variable1);
       params.add(o1);
-      params.add(lastMemPc.read().valueXYZ);
+      params.add(lastMemPc.read());
       addOtherMemSyncParameters(params);
 
       mm.invoke("wMem" + bits, params.toArray());
@@ -342,7 +341,7 @@ public class RoutineBytecodeGenerator {
         mm.invoke("wMem" + bits, variable1, o1);
       else {
 //        memory.aset(variable1, o1);
-        memory.aset(variable1, o1 instanceof Variable variable2 ? variable2 : (Integer) o1 & 0xff);
+        memory.aset(variable1, o1 instanceof Variable variable2 ? variable2 : (java.lang.Integer) o1 & 0xff);
       }
     }
   }
@@ -376,19 +375,19 @@ public class RoutineBytecodeGenerator {
 
   void invokeReturnPoints() {
     Label label2 = labels.get(routine.getEntryPoint());
-    List<Integer> i = routine.getReturnPoints().values().stream().toList();
-    List<Integer> integers = new ArrayList<>(new HashSet<>(i));
+    List<java.lang.Integer> i = routine.getReturnPoints().values().stream().toList();
+    List<java.lang.Integer> integers = new ArrayList<>(new HashSet<>(i));
 //    label2.insert(() -> {
 //      Variable nextAddress = getField("nextAddress").get();
 //      nextAddress.ifNe(0, () -> throwStackException(nextAddress, NotSolvedStackException.class));
 //    });
     if (!integers.isEmpty()) {
-      List<Integer> integers1 = integers.subList(0, Math.min(1, integers.size() - 1));
+      List<java.lang.Integer> integers1 = integers.subList(0, Math.min(1, integers.size() - 1));
       integers.forEach(ga -> insertIfNextPc(ga, label2));
     }
   }
 
-  private void insertIfNextPc(Integer ga, Label label2) {
+  private void insertIfNextPc(java.lang.Integer ga, Label label2) {
     label2.insert(() -> {
       Variable isNextPC = mm.invoke("isNextPC", ga);
       isNextPC.ifTrue(() -> {

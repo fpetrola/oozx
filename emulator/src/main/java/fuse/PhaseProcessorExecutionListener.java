@@ -19,26 +19,25 @@
 package fuse;
 
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.spy.ExecutionListener;
 import fuse.tstates.PhaseProcessor;
 import fuse.tstates.phases.AfterExecution;
 import fuse.tstates.phases.BeforeExecution;
 
-public class PhaseProcessorExecutionListener<T extends WordNumber> implements ExecutionListener<T> {
-  private final PhaseProcessor<T> phaseProcessor;
+public class PhaseProcessorExecutionListener implements ExecutionListener {
+  private final PhaseProcessor phaseProcessor;
   private AfterExecution afterExecution = new AfterExecution();
   private BeforeExecution beforeExecution = new BeforeExecution();
 
-  public PhaseProcessorExecutionListener(PhaseProcessor<T> phaseProcessor) {
+  public PhaseProcessorExecutionListener(PhaseProcessor phaseProcessor) {
     this.phaseProcessor = phaseProcessor;
   }
 
-  public void beforeExecution(Instruction<T> instruction) {
+  public void beforeExecution(Instruction instruction) {
     phaseProcessor.processPhase(beforeExecution);
   }
 
-  public void afterExecution(Instruction<T> instruction) {
+  public void afterExecution(Instruction instruction) {
     phaseProcessor.processPhase(afterExecution);
   }
 }

@@ -20,16 +20,15 @@ package com.fpetrola.z80.bytecode;
 
 import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 
 import static com.fpetrola.z80.registers.RegisterName.F;
 
-public class DefaultRegistersSetter<T extends WordNumber> implements RegistersSetter<T> {
-  protected State<T> state;
+public class DefaultRegistersSetter implements RegistersSetter {
+  protected State state;
 
-  public DefaultRegistersSetter(State<T> state) {
+  public DefaultRegistersSetter(State state) {
     this.state = state;
   }
 
@@ -170,14 +169,14 @@ public class DefaultRegistersSetter<T extends WordNumber> implements RegistersSe
 
   @Override
   public final void setCarryFlag(boolean carryState) {
-    Register<T> f = getFlag();
+    Register f = getFlag();
     if (carryState) {
-      WordNumber wordNumber = f.read();
-      f.write((T) (WordNumber) new WordNumber((wordNumber.valueXYZ | 0x01) & 0xFFFF));
+      int wordNumber = f.read();
+      f.write((wordNumber | 0x01) & 0xFFFF);
     }
     else {
-      WordNumber wordNumber = f.read();
-      f.write((T) (WordNumber) new WordNumber((wordNumber.valueXYZ & 0xFE) & 0xFFFF));
+      int wordNumber = f.read();
+      f.write((wordNumber & 0xFE) & 0xFFFF);
     }
   }
 
@@ -265,23 +264,23 @@ public class DefaultRegistersSetter<T extends WordNumber> implements RegistersSe
     this.state.setPinReset(pinReset);
   }
 
-  protected Register<T> getRegister(RegisterName registerName) {
+  protected Register getRegister(RegisterName registerName) {
     return state.getRegister(registerName);
   }
 
-  public State<T> getState() {
+  public State getState() {
     return state;
   }
 
-  private T mask8(int value) {
-    return (T) new WordNumber(value & 0xff);
+  private int mask8(int value) {
+    return value & 0xff;
   }
 
-  protected T mask16(int word) {
-    return (T) new WordNumber(word & 0xffff);
+  protected int mask16(int word) {
+    return word & 0xffff;
   }
 
-  protected Register<T> getFlag() {
+  protected Register getFlag() {
     return getRegister(F);
     //return getState().getFlag();
   }

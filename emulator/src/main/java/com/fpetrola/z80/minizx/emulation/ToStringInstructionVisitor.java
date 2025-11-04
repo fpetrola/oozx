@@ -25,10 +25,10 @@ import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 
-public class ToStringInstructionVisitor<T extends WordNumber> implements InstructionVisitor<T, String> {
+public class ToStringInstructionVisitor implements InstructionVisitor<String> {
   String result;
 
-  public String createToString(Instruction<T> instruction) {
+  public String createToString(Instruction instruction) {
     instruction.accept(this);
     String result1 = getResult();
     if (result1 == null || result1.isEmpty())
@@ -45,7 +45,7 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
   }
 
   public void visitingTargetSourceInstruction(TargetSourceInstruction instruction) {
-    ToStringInstructionVisitor<T> instructionVisitor = new ToStringInstructionVisitor<>();
+    ToStringInstructionVisitor instructionVisitor = new ToStringInstructionVisitor();
     instruction.getTarget().accept(instructionVisitor);
     String targetString = instructionVisitor.getResult();
     instruction.getSource().accept(instructionVisitor);
@@ -63,19 +63,19 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
 
   public void visitingConditionalInstruction(ConditionalInstruction conditionalInstruction) {
     conditionalInstruction.calculateJumpAddress();
-    WordNumber jumpAddress = conditionalInstruction.getJumpAddress();
+    Integer jumpAddress = conditionalInstruction.getJumpAddress();
     String string = conditionalInstruction.getCondition().toString();
-    String s = " " + ((!string.isEmpty()) ? string + ", " : "") + (jumpAddress != null ? Helper.formatAddress(jumpAddress.valueXYZ) : 0);
-    if (conditionalInstruction instanceof Ret<?>)
+    String s = " " + ((!string.isEmpty()) ? string + ", " : "") + (jumpAddress != null ? Helper.formatAddress(jumpAddress) : 0);
+    if (conditionalInstruction instanceof Ret)
       s = " " + ((!string.isEmpty()) ? string : "");
 
     result = getInstructionName(conditionalInstruction) + s;
   }
 
-  public boolean visitingDjnz(DJNZ<T> conditionalInstruction) {
+  public boolean visitingDjnz(DJNZ conditionalInstruction) {
     conditionalInstruction.calculateJumpAddress();
-    WordNumber jumpAddress = conditionalInstruction.getJumpAddress();
-    result = getInstructionName(conditionalInstruction) + " " + (jumpAddress != null ? Helper.formatAddress(jumpAddress.valueXYZ) : 0);
+    Integer jumpAddress = conditionalInstruction.getJumpAddress();
+    result = getInstructionName(conditionalInstruction) + " " + (jumpAddress != null ? Helper.formatAddress(jumpAddress) : 0);
     return true;
   }
 
@@ -87,8 +87,8 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
     result = immutableOpcodeReference.toString();
   }
 
-  public boolean visitMemory8BitReference(Memory8BitReference<T> memory8BitReference) {
-    result = Helper.formatAddress(memory8BitReference.read().valueXYZ);
+  public boolean visitMemory8BitReference(Memory8BitReference memory8BitReference) {
+    result = Helper.formatAddress(memory8BitReference.read());
     return true;
   }
 
@@ -97,8 +97,8 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
     return true;
   }
 
-  public void visitEx(Ex<T> instruction) {
-    ToStringInstructionVisitor<T> instructionVisitor = new ToStringInstructionVisitor<>();
+  public void visitEx(Ex instruction) {
+    ToStringInstructionVisitor instructionVisitor = new ToStringInstructionVisitor();
     instruction.getTarget().accept(instructionVisitor);
     String targetString = instructionVisitor.getResult();
     instruction.getSource().accept(instructionVisitor);
@@ -108,7 +108,7 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
 
 
   public boolean visitingBitOperation(BitOperation tBitOperation) {
-    ToStringInstructionVisitor<T> instructionVisitor = new ToStringInstructionVisitor<>();
+    ToStringInstructionVisitor instructionVisitor = new ToStringInstructionVisitor();
     tBitOperation.getTarget().accept(instructionVisitor);
     String targetString = instructionVisitor.getResult();
 
@@ -125,7 +125,7 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
   }
 
   private void toStringForTargetInstruction(OpcodeReference opcodeReference, String instructionName) {
-    ToStringInstructionVisitor<T> instructionVisitor = new ToStringInstructionVisitor<>();
+    ToStringInstructionVisitor instructionVisitor = new ToStringInstructionVisitor();
     opcodeReference.accept(instructionVisitor);
     String targetString = instructionVisitor.getResult();
     result = instructionName + " " + targetString;
@@ -142,24 +142,24 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
   public boolean visitingAdd16(Add16 tAdd16) {
     toStringForTargetInstruction(tAdd16.getTarget(), "ADD");
     String result1 = result;
-    ToStringInstructionVisitor<T> instructionVisitor = new ToStringInstructionVisitor<>();
+    ToStringInstructionVisitor instructionVisitor = new ToStringInstructionVisitor();
     tAdd16.getSource().accept(instructionVisitor);
     String targetString = instructionVisitor.getResult();
     result = result + ", " + targetString;
     return true;
   }
 
-  public boolean visitingAdc16(Adc16<T> tAdc16) {
+  public boolean visitingAdc16(Adc16 tAdc16) {
     toStringForTargetInstruction(tAdc16.getTarget(), "ADC");
     return true;
   }
 
-  public boolean visitingSbc16(Sbc16<T> sbc16) {
+  public boolean visitingSbc16(Sbc16 sbc16) {
     toStringForTargetInstruction(sbc16.getTarget(), "SBC");
     return true;
   }
 
-  public boolean visitRepeatingInstruction(RepeatingInstruction<T> tRepeatingInstruction) {
+  public boolean visitRepeatingInstruction(RepeatingInstruction tRepeatingInstruction) {
     result = getInstructionName(tRepeatingInstruction);
     return true;
   }
@@ -168,23 +168,23 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
     result = getInstructionName(blockInstruction);
   }
 
-  public static <T extends WordNumber> void printPC(Instruction<T> instruction, T pcValue, T nextPC) {
-    String toString = new ToStringInstructionVisitor<T>().createToString(instruction);
-    String x = String.format("%04d", pcValue.valueXYZ) + ": " + toString + " -> " + nextPC;
+  public static  void printPC(Instruction instruction, int pcValue, int nextPC) {
+    String toString = new ToStringInstructionVisitor().createToString(instruction);
+    String x = String.format("%04d", pcValue) + ": " + toString + " -> " + nextPC;
     System.out.println(x);
   }
 
 
   @Override
-  public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
-    byte dd = (byte) (memoryPlusRegister8BitReference.fetchedRelative != null ? memoryPlusRegister8BitReference.fetchedRelative.valueXYZ : 0);
+  public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference memoryPlusRegister8BitReference) {
+    byte dd = (byte) (memoryPlusRegister8BitReference.fetchedRelative != -1 ? memoryPlusRegister8BitReference.fetchedRelative : 0);
     String string2 = (dd > 0 ? "+" : "-") + Helper.formatAddress(Math.abs(dd));
     String string = memoryPlusRegister8BitReference.getTarget().toString();
     result = "(" + string + string2 + ")";
   }
 
   @Override
-  public void visitIndirectMemory8BitReference(IndirectMemory8BitReference<T> indirectMemory8BitReference) {
+  public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
     result = "(" + indirectMemory8BitReference.target + ")";
   }
 
@@ -195,7 +195,7 @@ public class ToStringInstructionVisitor<T extends WordNumber> implements Instruc
 
   @Override
   public boolean visitLdOperation(LdOperation ldOperation) {
-    String toString = new ToStringInstructionVisitor<T>().createToString(ldOperation.getInstruction());
+    String toString = new ToStringInstructionVisitor().createToString(ldOperation.getInstruction());
     result = "LD " + ldOperation.getTarget().toString() + ", " + toString;
     return true;
   }

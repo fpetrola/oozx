@@ -19,19 +19,18 @@
 package com.fpetrola.z80.spy;
 
 import com.fpetrola.z80.helpers.Helper;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class WriteOpcodeReference<T extends WordNumber> extends AbstractSpyReference<T> implements Undoable {
+public class WriteOpcodeReference extends AbstractSpyReference implements Undoable {
 
   public String opcodeReference;
-  public T value;
+  public int value;
 //  private int lastValue;
   private boolean isIncrement;
 
   public WriteOpcodeReference() {
   }
 
-  public WriteOpcodeReference(String opcodeReference, T value, boolean isIncrement, boolean indirectReference) {
+  public WriteOpcodeReference(String opcodeReference, int value, boolean isIncrement, boolean indirectReference) {
     this.opcodeReference = opcodeReference;
     this.value = value;
     this.isIncrement = isIncrement;

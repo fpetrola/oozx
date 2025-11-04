@@ -36,38 +36,38 @@ import com.fpetrola.z80.se.actions.PushReturnAddress;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructionFactory<T> {
+public class SEInstructionFactory extends DefaultInstructionFactory {
   private final SymbolicExecutionAdapter symbolicExecutionAdapter;
-  public static Map<Integer, JPRegisterAddressAction.DynamicJPData> dynamicJP = new HashMap<>();
-  private final DataflowService<T> dataflowService;
+  public static Map<java.lang.Integer, JPRegisterAddressAction.DynamicJPData> dynamicJP = new HashMap<>();
+  private final DataflowService dataflowService;
 
   public void reset() {
     dynamicJP.clear();
-    SeJP.lastData= null;
+    SeJP.lastData = null;
   }
 
-  public SEInstructionFactory(SymbolicExecutionAdapter symbolicExecutionAdapter, State state, DataflowService<T> dataflowService1) {
+  public SEInstructionFactory(SymbolicExecutionAdapter symbolicExecutionAdapter, State state, DataflowService dataflowService1) {
     super(state);
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     dataflowService = dataflowService1;
   }
 
-  public Ld<T> Ld(OpcodeReference<T> target, ImmutableOpcodeReference<T> source) {
-    return new Ld<T>(target, source, flag) {
+  public Ld Ld(OpcodeReference target, ImmutableOpcodeReference source) {
+    return new Ld(target, source, flag) {
       public int execute() {
-//        if (target instanceof Register<T> register) {
+//        if (target instanceof Register register) {
 //          if (register.getName().equals(RegisterName.SP.name())) {
 //            symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().printStack();
 //            return 0;
 //          }
 //        }
 
-        if (target instanceof Register<T> register) {
+        if (target instanceof Register register) {
           if (register.getName().equals(RegisterName.SP.name())) {
-            System.out.println("LD SP at: " + Helper.formatAddress(pc.read().valueXYZ));
-            if (pc.read().valueXYZ != 0x8185) {
-              int i = source.read().valueXYZ;
-              if (source instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
+            System.out.println("LD SP at: " + Helper.formatAddress(pc.read()));
+            if (pc.read() != 0x8185) {
+              int i = source.read();
+              if (source instanceof IndirectMemory16BitReference indirectMemory16BitReference) {
                 symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().restoringSP(i);
               } else
                 symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().changingSP(i);
@@ -76,17 +76,17 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
           }
         }
 
-        if (source instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
-          T value = source.read();
-          T address = indirectMemory16BitReference.address;
-          T aLU8Assign = value;
-          target.write((T) new DirectAccessWordNumber(aLU8Assign.valueXYZ, pc.read().valueXYZ, address.valueXYZ));
+        if (source instanceof IndirectMemory16BitReference indirectMemory16BitReference) {
+          int value = source.read();
+          int address = indirectMemory16BitReference.address;
+          int aLU8Assign = value;
+//          target.write( new DirectAccessWordNumber(aLU8Assign, pc.read(), address));
           return 1;
-        } else if (source instanceof IndirectMemory8BitReference<T> indirectMemory8BitReference) {
-          T value = source.read();
-          T address = indirectMemory8BitReference.address;
-          T aLU8Assign = value;
-          target.write((T) new DirectAccessWordNumber(aLU8Assign.valueXYZ, pc.read().valueXYZ, address.valueXYZ));
+        } else if (source instanceof IndirectMemory8BitReference indirectMemory8BitReference) {
+          int value = source.read();
+          int address = indirectMemory8BitReference.address;
+          int aLU8Assign = value;
+//          target.write((T) new DirectAccessWordNumber(aLU8Assign, pc.read(), address));
           return cyclesCost;
         } else
           return super.execute();
@@ -99,7 +99,7 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
   }
 
   public Ret Ret(Condition condition) {
-    return new Ret<T>(condition, sp, memory, pc) {
+    return new Ret(condition, sp, memory, pc) {
       public int execute() {
 //            if (!getRoutineExecution().hasActionAt(getPcValue()))
 //              getRoutineExecution().replaceAddressAction(new RetAddressAction(getRoutineExecution(), getPcValue()));
@@ -129,11 +129,11 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
   }
 
   public Call Call(Condition condition, ImmutableOpcodeReference positionOpcodeReference) {
-    return new Call<T>(positionOpcodeReference, condition, pc, sp, this.state.getMemory()) {
-      public T beforeJump(T jumpAddress) {
-        WordNumber wordNumber = pc.read();
-        T value = (T) (WordNumber) new WordNumber((wordNumber.valueXYZ + length) & 0xFFFF);
-        value = (T) new ReturnAddressWordNumber(value.valueXYZ, pc.read().valueXYZ);
+    return new Call(positionOpcodeReference, condition, pc, sp, this.state.getMemory()) {
+      public int beforeJump(int jumpAddress) {
+        Integer wordNumber = pc.read();
+        int value = (wordNumber + length) & 0xFFFF;
+//        value = (T) new ReturnAddressWordNumber(value, pc.read());
         Push.doPush(value, sp, memory);
         return jumpAddress;
       }
@@ -144,17 +144,17 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
     };
   }
 
-  public class SeJP extends JP<T> {
+  public class SeJP extends JP {
 
-    public static WordNumber lastData;
+    public static Integer lastData;
 
     public SeJP(ImmutableOpcodeReference target, Condition condition) {
       super(target, condition, SEInstructionFactory.this.pc);
     }
 
 //    @Override
-//    public T calculateJumpAddress() {
-//      T t = super.calculateJumpAddress();
+//    public int calculateJumpAddress() {
+//      int t = super.calculateJumpAddress();
 //      if (pc.read().intValue() > 16384 && t.intValue() < 16384) {
 //        return jumpAddress = WordNumber.createValue(pc.read().intValue() + 3);
 //      } else {
@@ -164,21 +164,21 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
 
     @Override
     public int execute() {
-      if (positionOpcodeReference instanceof Register<T> register) {
+      if (positionOpcodeReference instanceof Register register) {
         boolean b = condition.conditionMet(this);
 
-        int pcValue = pc.read().valueXYZ;
+        int pcValue = pc.read();
         int pointerAddress = dataflowService.findValueOrigin(register);
         if (dynamicJP.get(pcValue) == null) {
-          dynamicJP.put(pcValue, new JPRegisterAddressAction.DynamicJPData(pcValue, register.read().valueXYZ, pointerAddress));
+          dynamicJP.put(pcValue, new JPRegisterAddressAction.DynamicJPData(pcValue, register.read(), pointerAddress));
         }
-        System.out.println("JP (HL): PC: %H, HL: %H".formatted(pcValue, register.read().valueXYZ));
+        System.out.println("JP (HL): PC: %H, HL: %H".formatted(pcValue, register.read()));
 //              Pop.doPop(memory, sp);
 //              setNextPC(createValue(pc.read().intValue() + 1));
         if (lastData == null)
           return super.execute();
         else {
-          setNextPC((T) lastData);
+          setNextPC(lastData);
           return 0;
         }
       } else

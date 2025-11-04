@@ -22,7 +22,6 @@ import com.fpetrola.z80.bytecode.generators.StateBytecodeGenerator;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.SpectrumApplication;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
@@ -37,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface BytecodeGeneration {
-  default <T extends WordNumber> String getDecompiledSource(String className, String targetFolder, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory) {
+  default  String getDecompiledSource(String className, String targetFolder, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory) {
     try {
       StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter, base64Memory);
       Map<String, byte[]> bytecode = bytecodeGenerator.getBytecode();

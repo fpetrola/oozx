@@ -23,23 +23,22 @@ package net.emustudio.plugins.cpu.zilogZ80;
 
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import net.emustudio.cpu.testsuite.memory.ByteMemoryStub;
 import net.emustudio.emulib.runtime.helpers.NumberUtils;
 
 public class MyByteMemoryStub extends ByteMemoryStub {
 
-  private Memory<WordNumber> memory;
+  private Memory memory;
 
   public MyByteMemoryStub() {
     super(NumberUtils.Strategy.LITTLE_ENDIAN);
   }
 
-  public void init(Memory<WordNumber> memory1) {
+  public void init(Memory memory1) {
     memory = memory1;
-    memory1.addMemoryWriteListener(new MemoryWriteListener<WordNumber>() {
-      public void writtingMemoryAt(WordNumber address, WordNumber value) {
-        MyByteMemoryStub.super.write(address.valueXYZ, (byte) value.valueXYZ);
+    memory1.addMemoryWriteListener(new MemoryWriteListener() {
+      public void writtingMemoryAt(int address, int value) {
+        MyByteMemoryStub.super.write(address, (byte) value);
       }
     });
   }
@@ -58,17 +57,17 @@ public class MyByteMemoryStub extends ByteMemoryStub {
   public void setMemory(short[] memory) {
     super.setMemory(memory);
     for (int i = 0; i < 0x10000; i++) {
-      getMemory().write((WordNumber) new WordNumber(i), (WordNumber) new WordNumber(memory[i]));
+      getMemory().write(i, memory[i]);
     }
   }
 
-  private Memory<WordNumber> getMemory() {
+  private Memory getMemory() {
     return memory;
   }
 
   @Override
   public void write(int memoryPosition, Byte value) {
-    getMemory().write((WordNumber) new WordNumber(memoryPosition), (WordNumber) new WordNumber((int) value));
+    getMemory().write(memoryPosition, (int) value);
     super.write(memoryPosition, value);
   }
 
@@ -84,11 +83,11 @@ public class MyByteMemoryStub extends ByteMemoryStub {
 
   @Override
   public Byte read(int memoryPosition) {
-    WordNumber read = getMemory().read((WordNumber) new WordNumber(memoryPosition), 0);
+    Integer read = getMemory().read(memoryPosition, 0);
     if (read == null) {
       return 0;
     } else {
-      return (byte) read.valueXYZ;
+      return (byte) (int)read;
     }
   }
 }

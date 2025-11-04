@@ -21,31 +21,30 @@ package com.fpetrola.z80.spy;
 import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public final class MemorySpy<T extends WordNumber> implements Memory<T> {
-  private Memory<T> memory;
+public final class MemorySpy implements Memory {
+  private Memory memory;
 
-  public Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+  public Map<java.lang.Integer, java.lang.Integer> map = new HashMap<java.lang.Integer, java.lang.Integer>();
 
   public MemorySpy() {
   }
 
-  public MemorySpy(Memory<T> memory) {
+  public MemorySpy(Memory memory) {
     this.memory = memory;
   }
 
   @Override
-  public T[] getData() {
+  public Integer[] getData() {
     return memory.getData();
   }
 
-  public void write(T address, T value) {
-    int key = address.valueXYZ & 0xFFFF;
-    Integer times = map.get(key);
+  public void write(int address, int value) {
+    int key = address & 0xFFFF;
+    java.lang.Integer times = map.get(key);
     if (times != null)
       times = times + 1;
     else
@@ -55,13 +54,13 @@ public final class MemorySpy<T extends WordNumber> implements Memory<T> {
     memory.write(address, value);
   }
 
-  public T read(T address, int fetching) {
-    T value = memory.read(address, 0);
+  public int read(int address, int fetching) {
+    int value = memory.read(address, 0);
     return value;
   }
 
   public int getAddressModificationsCounter(int address) {
-    Integer integer = map.get(address & 0xFFFF);
+    java.lang.Integer integer = map.get(address & 0xFFFF);
     return integer != null ? integer : 0;
   }
 

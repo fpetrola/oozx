@@ -22,18 +22,18 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.memory.Memory;
 
-public class Memory16BitReference<T extends WordNumber> implements OpcodeReference<T> {
-  private final Memory<T> memory;
-  public T fetchedAddress;
-  private final ImmutableOpcodeReference<T> pc;
+public class Memory16BitReference implements OpcodeReference {
+  private final Memory memory;
+  public int fetchedAddress;
+  private final ImmutableOpcodeReference pc;
   private final int delta;
 
 
-  public Memory<T> getMemory() {
+  public Memory getMemory() {
     return memory;
   }
 
-  public ImmutableOpcodeReference<T> getPc() {
+  public ImmutableOpcodeReference getPc() {
     return pc;
   }
 
@@ -47,29 +47,29 @@ public class Memory16BitReference<T extends WordNumber> implements OpcodeReferen
     this.delta = delta;
   }
 
-  public T read() {
+  public int read() {
     return fetchAddress();
   }
 
-  public void write(T value) {
-    T address = fetchAddress();
+  public void write(int value) {
+    int address = fetchAddress();
     Memory.write16Bits(memory, value, address);
   }
 
-  protected T fetchAddress() {
-    WordNumber wordNumber = pc.read();
-    T pcValue = (T) (WordNumber) new WordNumber((wordNumber.valueXYZ + delta) & 0xFFFF);
+  protected int fetchAddress() {
+    Integer wordNumber = pc.read();
+    int pcValue = (wordNumber + delta) & 0xFFFF;
     fetchedAddress = Memory.read16Bits(memory, pcValue);
 
     return fetchedAddress;
   }
 
   public String toString() {
-    T read = fetchedAddress;
+    Integer read = fetchedAddress;
     if (read == null) {
       return "";
     } else {
-      return "0x" + Helper.formatAddress(read.valueXYZ);
+      return "0x" + Helper.formatAddress(read);
     }
   }
 
@@ -83,7 +83,7 @@ public class Memory16BitReference<T extends WordNumber> implements OpcodeReferen
   }
 
   public Object clone() throws CloneNotSupportedException {
-    T lastFetchedAddress = fetchedAddress;
+    int lastFetchedAddress = fetchedAddress;
     return new CachedMemory16BitReference(lastFetchedAddress, memory, pc, delta);
   }
 

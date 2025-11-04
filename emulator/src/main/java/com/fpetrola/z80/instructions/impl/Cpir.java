@@ -21,23 +21,22 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Flags;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 
-public class Cpir<T extends WordNumber> extends RepeatingInstruction<T> {
-  private final Register<T> flag;
-  private final Register<T> bc;
+public class Cpir extends RepeatingInstruction {
+  private final Register flag;
+  private final Register bc;
 
-  public Cpir(Register<T> flag, RegisterPair<T> bc, ImmutableOpcodeReference<T> pc, Cpi cpi) {
+  public Cpir(Register flag, RegisterPair bc, ImmutableOpcodeReference pc, Cpi cpi) {
     super(cpi, pc, bc);
     this.flag = flag;
     this.bc = bc;
   }
 
   protected boolean checkLoopCondition() {
-    return (flag.read().valueXYZ & Flags.ZERO_FLAG) == 0 && bc.read().valueXYZ != 0;
+    return (flag.read() & Flags.ZERO_FLAG) == 0 && bc.read() != 0;
   }
 
   @Override

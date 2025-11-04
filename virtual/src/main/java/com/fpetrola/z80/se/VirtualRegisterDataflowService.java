@@ -23,43 +23,43 @@ import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.IndirectMemory16BitReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.transformations.Virtual8BitsRegister;
 import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;
 
-public class VirtualRegisterDataflowService<T extends WordNumber> implements DataflowService<T> {
-  private final State<T> state;
+public class VirtualRegisterDataflowService implements DataflowService {
+  private final State state;
 
-  public VirtualRegisterDataflowService(State<T> state) {
+  public VirtualRegisterDataflowService(State state) {
     this.state = state;
   }
 
   @Override
-  public int findValueOrigin(Register<T> register) {
+  public int findValueOrigin(Register register) {
     int pointerAddress = -1;
-    if (register instanceof VirtualComposed16BitRegister<T>) {
-      VirtualComposed16BitRegister<T> virtualComposed16BitRegister = (VirtualComposed16BitRegister<T>) register;
-      VirtualComposed16BitRegister<T> first = (VirtualComposed16BitRegister<T>) virtualComposed16BitRegister.getPreviousVersions().get(0);
-      Virtual8BitsRegister<T> low = (Virtual8BitsRegister<T>) first.getLow();
-      Ld<T> instruction = (Ld<T>) low.instruction;
-      if (instruction.getSource() instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference) {
-        ImmutableOpcodeReference<T> target1 = indirectMemory16BitReference.target;
-        pointerAddress = target1.read().valueXYZ;
-        System.out.println("indirectMemory16BitReference: " + target1);
-      }
-    } else if (register.read() instanceof DirectAccessWordNumber directAccessWordNumber) {
-      pointerAddress = directAccessWordNumber.address;
-    }
+//    if (register instanceof VirtualComposed16BitRegister) {
+//      VirtualComposed16BitRegister virtualComposed16BitRegister = (VirtualComposed16BitRegister) register;
+//      VirtualComposed16BitRegister first = (VirtualComposed16BitRegister) virtualComposed16BitRegister.getPreviousVersions().get(0);
+//      Virtual8BitsRegister low = (Virtual8BitsRegister) first.getLow();
+//      Ld instruction = (Ld) low.instruction;
+//      if (instruction.getSource() instanceof IndirectMemory16BitReference indirectMemory16BitReference) {
+//        ImmutableOpcodeReference target1 = indirectMemory16BitReference.target;
+//        pointerAddress = target1.read();
+//        System.out.println("indirectMemory16BitReference: " + target1);
+//      }
+//    } else if (register.read() instanceof DirectAccessWordNumber directAccessWordNumber) {
+//      pointerAddress = directAccessWordNumber.address;
+//    }
     return pointerAddress;
   }
 
-  public T findCurrentReturnAddress() {
-    return Memory.read16Bits(state.getMemory(), (T) state.getRegisterSP().read());
+  public Integer findCurrentReturnAddress() {
+    return Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
   }
 
   public boolean isSyntheticReturnAddress() {
-    T t = findCurrentReturnAddress();
-    return !(t instanceof ReturnAddressWordNumber);
+    int t = findCurrentReturnAddress();
+    boolean b = true; //!(t instanceof ReturnAddressWordNumber);
+    return b;
   }
 }

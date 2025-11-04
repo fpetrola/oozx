@@ -21,27 +21,26 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.IniAluOperation;
 
-public class Ind<T extends WordNumber> extends Ini<T> {
+public class Ind extends Ini {
   public static final AluOperation indTableAluOperation = new IniAluOperation() {
-    public <T extends WordNumber> T executeWithCarry(T value, T b, Register<T> c) {
+    public  int executeWithCarry(int value, int b, Register c) {
       return update(value, b, c, -1);
     }
   };
 
-  public Ind(RegisterPair<T> bc, RegisterPair<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
+  public Ind(RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io) {
     super(bc, hl, flag, memory, io);
   }
 
   public int execute() {
-    T port = bc.read();
-    T in = io.in(port);
-    T hlValue = hl.read();
+    int port = bc.read();
+    int in = io.in(port);
+    int hlValue = hl.read();
     memory.write(hlValue, in);
     next();
     bc.getHigh().decrement();
@@ -53,8 +52,8 @@ public class Ind<T extends WordNumber> extends Ini<T> {
     hl.decrement();
   }
 
-  protected void flagOperation(T valueFromHL) {
-    T t = indTableAluOperation.executeWithCarry(valueFromHL, bc.getHigh().read(), bc.getLow());
+  protected void flagOperation(int valueFromHL) {
+    int t = indTableAluOperation.executeWithCarry(valueFromHL, bc.getHigh().read(), bc.getLow());
     flag.write(t);
   }
 

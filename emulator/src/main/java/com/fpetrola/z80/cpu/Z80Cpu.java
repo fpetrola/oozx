@@ -18,9 +18,7 @@
 
 package com.fpetrola.z80.cpu;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
-public interface Z80Cpu<T extends WordNumber> {
+public interface Z80Cpu {
   void reset();
 
   void execute();
@@ -29,9 +27,9 @@ public interface Z80Cpu<T extends WordNumber> {
 
   void endInterruption();
 
-  InstructionFetcher<T> getInstructionFetcher();
+  InstructionFetcher getInstructionFetcher();
 
-  State<T> getState();
+  State getState();
 
-  InstructionExecutor<T> getInstructionExecutor();
+  InstructionExecutor getInstructionExecutor();
 }

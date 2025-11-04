@@ -21,21 +21,20 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class Neg<T> extends ParameterizedUnaryAluInstruction<T> {
-  public Neg(OpcodeReference target, Register<T> flag) {
+public class Neg extends ParameterizedUnaryAluInstruction {
+  public Neg(OpcodeReference target, Register flag) {
     super(target, flag, Sub.sub8TableAluOperation);
   }
 
   @Override
   public UnaryAluOperation getTUnaryAluOperation(TableAluOperation tableAluOperation) {
     return (a) -> {
-      int[] i = tableAluOperation.executeWithoutCarry2(((WordNumber) a).valueXYZ, 0);
-      flag.write((T) new WordNumber(i[1]));
-      return (Object) new WordNumber(i[0]);
+      int[] i = tableAluOperation.executeWithoutCarry2(((Integer) a), 0);
+      flag.write(i[1]);
+      return i[0];
     };
   }
 

@@ -48,23 +48,23 @@ import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 
 import java.util.*;
 
-public class SymbolicExecutionAdapter<T extends WordNumber> {
-  public final State<? extends WordNumber> state;
+public class SymbolicExecutionAdapter {
+  public final State state;
   private final RoutineManager routineManager;
   private final RoutineFinderInstructionSpy spy;
-  public final RoutineExecutorHandler<T> routineExecutorHandler;
+  public final RoutineExecutorHandler routineExecutorHandler;
   public int lastPc;
   private int registerSP;
   private int nextSP;
   private Z80InstructionDriver z80InstructionDriver;
   private int minimalValidCodeAddress;
-  private Set<Integer> mutantAddress = new HashSet<>();
-  private Register<T> pc;
+  private Set<java.lang.Integer> mutantAddress = new HashSet<>();
+  private Register pc;
   private DataflowService dataflowService;
   private SEInstructionFactory sEInstructionFactory;
 
   public int getPcValue() {
-    return pc.read().valueXYZ;
+    return pc.read();
   }
 
   public void reset() {
@@ -77,7 +77,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     sEInstructionFactory.reset();
   }
 
-  public SymbolicExecutionAdapter(State<T> state, RoutineManager routineManager, RoutineFinderInstructionSpy spy, DataflowService dataflowService1) {
+  public SymbolicExecutionAdapter(State state, RoutineManager routineManager, RoutineFinderInstructionSpy spy, DataflowService dataflowService1) {
     this.state = state;
     this.routineManager = routineManager;
     this.spy = spy;
@@ -93,18 +93,18 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     });
     mutantAddress.clear();
     dataflowService = dataflowService1;
-    routineExecutorHandler = new RoutineExecutorHandler<>(state, new ExecutionStackStorage<>(state), dataflowService);
+    routineExecutorHandler = new RoutineExecutorHandler(state, new ExecutionStackStorage(state), dataflowService);
   }
 
-  public InstructionFetcher createInstructionFetcher(InstructionSpy spy, State<T> state, InstructionExecutor<T> instructionExecutor, OpcodeConditions opcodeConditions) {
-    return new DefaultInstructionFetcher<T>(state, opcodeConditions, createInstructionFactory(state), true, true);
+  public InstructionFetcher createInstructionFetcher(InstructionSpy spy, State state, InstructionExecutor instructionExecutor, OpcodeConditions opcodeConditions) {
+    return new DefaultInstructionFetcher(state, opcodeConditions, createInstructionFactory(state), true, true);
   }
 
   public InstructionFactory createInstructionFactory(final State state) {
     return sEInstructionFactory= new SEInstructionFactory(this, state, dataflowService);
   }
 
-  public <T extends WordNumber> MutableOpcodeConditions createOpcodeConditions(State<T> state) {
+  public  MutableOpcodeConditions createOpcodeConditions(State state) {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
       System.out.printf("pc: %s -> %s%n", Helper.formatAddress(getPcValue()), instruction);
 
@@ -116,18 +116,18 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     });
   }
 
-  public void stepUntilComplete(Z80InstructionDriver z80InstructionDriver, State<T> state, int firstAddress, int minimalValidCodeAddress) {
+  public void stepUntilComplete(Z80InstructionDriver z80InstructionDriver, State state, int firstAddress, int minimalValidCodeAddress) {
     stepAllAndProcessPending(z80InstructionDriver, state, firstAddress, minimalValidCodeAddress);
     processPending();
     routineManager.createVirtualRoutines();
   }
 
-  private void stepAllAndProcessPending(Z80InstructionDriver z80InstructionDriver, State<T> state, int firstAddress, int minimalValidCodeAddress) {
+  private void stepAllAndProcessPending(Z80InstructionDriver z80InstructionDriver, State state, int firstAddress, int minimalValidCodeAddress) {
     this.z80InstructionDriver = z80InstructionDriver;
     this.minimalValidCodeAddress = minimalValidCodeAddress;
     memoryReadOnly(false, state);
 
-    registerSP = state.getRegisterSP().read().valueXYZ;
+    registerSP = state.getRegisterSP().read();
 
     routineExecutorHandler.createRoutineExecution(firstAddress);
     pc = state.getPc();
@@ -140,25 +140,25 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     SEInstructionFactory.dynamicJP.forEach((pc, dj) -> {
       for (int j = 0; j < writeMemoryReferences.size(); j++) {
         WriteMemoryReference w = writeMemoryReferences.get(j);
-        if (w.address.valueXYZ == dj.pointerAddress()) {
+        if (w.address == dj.pointerAddress()) {
           WriteMemoryReference w2 = writeMemoryReferences.get(j + 1);
-          if (w2.address.valueXYZ == dj.pointerAddress() + 1) {
-            int value = w2.value.valueXYZ * 256 + w.value.valueXYZ;
+          if (w2.address == dj.pointerAddress() + 1) {
+            int value = w2.value * 256 + w.value;
             dj.addCase(value);
           }
         }
       }
     });
     writeMemoryReferences.forEach(wmr -> {
-      Routine routineAt = routineManager.findRoutineAt(wmr.address.valueXYZ);
+      Routine routineAt = routineManager.findRoutineAt(wmr.address);
       if (routineAt != null) {
-        mutantAddress.add(wmr.address.valueXYZ);
+        mutantAddress.add(wmr.address);
       }
     });
   }
 
   private void processPending() {
-    Map<Integer, RoutineExecution> routineExecutions1 = routineExecutorHandler.getCopyListOfRoutineExecutions();
+    Map<java.lang.Integer, RoutineExecution> routineExecutions1 = routineExecutorHandler.getCopyListOfRoutineExecutions();
     routineExecutions1.entrySet().forEach(e -> {
       if (e.getValue().hasPendingPoints()) {
         executingPending(e.getValue().getNextPending().address);
@@ -170,16 +170,16 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
         if (jpRegisterAddressAction.dynamicJPData == null) {
           JPRegisterAddressAction.DynamicJPData dynamicJPData = SEInstructionFactory.dynamicJP.get(jpRegisterAddressAction.address);
           jpRegisterAddressAction.setDynamicJPData(dynamicJPData);
-          List<Integer> integers = routineManager.callers2.get(e.getValue().getStart());
+          List<java.lang.Integer> integers = routineManager.callers2.get(e.getValue().getStart());
           if (!integers.isEmpty()) {
-            Integer first1 = integers.get(0);
+            java.lang.Integer first1 = integers.get(0);
             int startAddress = first1;
             pushAddress(startAddress); //FiXME: calculate minimal ret to run
             pushAddress(startAddress);
             pushAddress(startAddress);
             pushAddress(startAddress);
             executingPending(jpRegisterAddressAction.address);
-//          stepAllAndProcessPending(z80InstructionDriver, (State<T>) state, first1, minimalValidCodeAddress);
+//          stepAllAndProcessPending(z80InstructionDriver, (State) state, first1, minimalValidCodeAddress);
           } else {
             solveUntrackedCases(dynamicJPData, jpRegisterAddressAction, dynamicJPData.pointer());
           }
@@ -195,7 +195,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     jpRegisterAddressAction.setDynamicJPData(dynamicJPData);
     int address = jpRegisterAddressAction.address;
     routineExecutorHandler.createRoutineExecution(pointer);
-    pc.write((T) new WordNumber(pointer));
+    pc.write(pointer);
     executeAllCode(z80InstructionDriver, pc);
     Routine routineAt = routineManager.findRoutineAt(pointer);
     if (routineAt != null) {
@@ -210,24 +210,24 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   private void executingPending(int address) {
-    RoutineExecution<T> routineExecutionAt = routineExecutorHandler.findRoutineExecutionContaining(address);
+    RoutineExecution routineExecutionAt = routineExecutorHandler.findRoutineExecutionContaining(address);
     routineExecutorHandler.pushRoutineExecution(routineExecutionAt);
-    pc.write((T) new WordNumber(address));
+    pc.write(address);
     executeAllCode(z80InstructionDriver, pc);
   }
 
   private void pushAddress(int startAddress) {
-    Register<WordNumber> registerSP1 = (Register<WordNumber>) state.getRegisterSP();
-    Memory<WordNumber> memory = (Memory<WordNumber>) state.getMemory();
-    Push.doPush((WordNumber) new WordNumber(startAddress), registerSP1, memory);
+    Register registerSP1 =  state.getRegisterSP();
+    Memory memory =  state.getMemory();
+    Push.doPush(startAddress, registerSP1, memory);
   }
 
-  private void executeAllCode(Z80InstructionDriver z80InstructionDriver, Register<T> pc) {
+  private void executeAllCode(Z80InstructionDriver z80InstructionDriver, Register pc) {
     var ready = false;
     nextSP = 0;
 
     while (!ready) {
-      var pcValue = pc.read().valueXYZ;
+      var pcValue = pc.read();
       ready = isReady(pcValue);
 
       if (!ready) {
@@ -248,7 +248,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           if (!routineExecution.hasActionAt(pcValue))
             routineExecution.createAndAddGenericAction(pcValue);
 
-          updatePcRegister(routineExecution.getAddressAction(pcValue).getNext(pcValue, pc.read().valueXYZ));
+          updatePcRegister(routineExecution.getAddressAction(pcValue).getNext(pcValue, pc.read()));
 
           ready = routineExecutorHandler.isEmpty();
         }
@@ -259,7 +259,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   private int updatePcRegister(int pcValue) {
     logPC(pcValue);
-    pc.write((T) new WordNumber(pcValue));
+    pc.write(pcValue);
     return pcValue;
   }
 
@@ -280,17 +280,17 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   public void checkNextSP() {
-    if (nextSP == state.getRegisterSP().read().valueXYZ) {
+    if (nextSP == state.getRegisterSP().read()) {
       System.out.print("");
     }
   }
 
   protected void memoryReadOnly(boolean readOnly, State state) {
-    MockedMemory<T> memory = (MockedMemory<T>) ((MemorySpy<T>) state.getMemory()).getMemory();
+    MockedMemory memory = (MockedMemory) ((MemorySpy) state.getMemory()).getMemory();
     memory.enableReadyOnly(readOnly);
   }
 
-  public Set<Integer> getMutantAddress() {
+  public Set<java.lang.Integer> getMutantAddress() {
     return mutantAddress;
   }
 

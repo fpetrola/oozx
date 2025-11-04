@@ -19,12 +19,11 @@
 package com.fpetrola.z80.minizx;
 
 import com.fpetrola.z80.cpu.IO;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.Arrays;
 import java.util.Stack;
 
-public abstract class SpectrumApplication<T> {
+public abstract class SpectrumApplication {
   public static final int INITIAL_SP_VALUE = 1234;
   public int A;
   public int F;
@@ -47,8 +46,8 @@ public abstract class SpectrumApplication<T> {
   public int initial;
 
   public int[] mem = new int[0x10000];
-  static public IO<WordNumber> io;
-  private final Stack<Integer> stack = new Stack<>();
+  static public IO io;
+  private final Stack<java.lang.Integer> stack = new Stack<>();
   protected int carry;
 
   public boolean isOwnAddress(StackException stackException, int... integers) {
@@ -147,7 +146,7 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int in(int port, int pc) {
-    return io.in((WordNumber) new WordNumber(port)).valueXYZ;
+    return io.in(port);
   }
 
   public int l(int value) {
@@ -522,6 +521,6 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int in(int port) {
-    return io.in((WordNumber) new WordNumber(port)).valueXYZ;
+    return io.in(port);
   }
 }

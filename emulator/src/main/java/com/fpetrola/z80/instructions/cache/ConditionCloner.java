@@ -33,11 +33,11 @@ public class ConditionCloner implements InstructionVisitor {
   }
 
   public void visitingConditionFlag(ConditionFlag conditionFlag) {
-    result = new ConditionFlag<>(instructionCloner.clone(conditionFlag.getRegister()), conditionFlag.getFlag(), conditionFlag.isNegate(), conditionFlag.isConditionMet);
+    result = new ConditionFlag(instructionCloner.clone(conditionFlag.getRegister()), conditionFlag.getFlag(), conditionFlag.isNegate(), conditionFlag.isConditionMet);
   }
 
   public void visitBNotZeroCondition(BNotZeroCondition bNotZeroCondition) {
-    result = new BNotZeroCondition<>(instructionCloner.clone(bNotZeroCondition.getB()), InstructionCloner.clone(bNotZeroCondition.isConditionMet));
+    result = new BNotZeroCondition(instructionCloner.clone(bNotZeroCondition.getB()), InstructionCloner.clone(bNotZeroCondition.isConditionMet));
   }
 
 

@@ -23,7 +23,6 @@ import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 import com.fpetrola.z80.se.instructions.SEInstructionFactory;
 
@@ -31,11 +30,11 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-public class JPRegisterAddressAction<T extends WordNumber> extends AddressAction<T> {
+public class JPRegisterAddressAction extends AddressAction {
   public DynamicJPData dynamicJPData;
-  private LinkedList<Integer> cases = new LinkedList<>();
+  private LinkedList<java.lang.Integer> cases = new LinkedList<>();
 
-  public JPRegisterAddressAction(Instruction<Boolean> instruction, int pcValue, boolean alwaysTrue, RoutineExecutorHandler routineExecutorHandler) {
+  public JPRegisterAddressAction(Instruction instruction, int pcValue, boolean alwaysTrue, RoutineExecutorHandler routineExecutorHandler) {
     super(pcValue, true, instruction, alwaysTrue, routineExecutorHandler);
   }
 
@@ -45,10 +44,10 @@ public class JPRegisterAddressAction<T extends WordNumber> extends AddressAction
     boolean doBranch = getDoBranch();
 
     if (doBranch) {
-      State<T> state = routineExecutionHandler.getState();
-      T t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
-      if (t.valueXYZ == address + 1) {
-        int jumpAddress = conditionalInstruction.calculateJumpAddress().valueXYZ;
+      State state = routineExecutionHandler.getState();
+      int t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
+      if (t == address + 1) {
+        int jumpAddress = conditionalInstruction.calculateJumpAddress();
         if (jumpAddress > 16384)
           routineExecutionHandler.createRoutineExecution(jumpAddress);
         else System.out.println("JP (HL) -> " + Helper.formatAddress(jumpAddress));
@@ -74,10 +73,10 @@ public class JPRegisterAddressAction<T extends WordNumber> extends AddressAction
   }
 
   public void pollCases() {
-    Integer poll = cases.poll();
+    java.lang.Integer poll = cases.poll();
     if (poll != null) {
       SEInstructionFactory.SeJP jp = (SEInstructionFactory.SeJP) instruction;
-      jp.lastData = (WordNumber) new WordNumber(poll);
+      jp.lastData = poll;
     }
   }
 
@@ -85,7 +84,7 @@ public class JPRegisterAddressAction<T extends WordNumber> extends AddressAction
     private final int pc;
     private final int pointer;
     private final int pointerAddress;
-    public Set<Integer> cases = new HashSet<>();
+    public Set<java.lang.Integer> cases = new HashSet<>();
 
     public DynamicJPData(int pc, int pointer, int pointerAddress) {
       this.pc = pc;

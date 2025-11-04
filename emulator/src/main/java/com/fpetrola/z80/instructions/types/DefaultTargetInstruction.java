@@ -19,22 +19,21 @@
 package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public abstract class DefaultTargetInstruction<T> extends AbstractInstruction<T> implements TargetInstruction<T> {
-  protected OpcodeReference<T> target;
+public abstract class DefaultTargetInstruction extends AbstractInstruction implements TargetInstruction {
+  protected OpcodeReference target;
 
-  public DefaultTargetInstruction(OpcodeReference<T> target) {
+  public DefaultTargetInstruction(OpcodeReference target) {
     this.target = target;
   }
 
   @Override
-  public OpcodeReference<T> getTarget() {
+  public OpcodeReference getTarget() {
     return target;
   }
 
   @Override
-  public void setTarget(OpcodeReference<T> target) {
+  public void setTarget(OpcodeReference target) {
     this.target = target;
   }
 

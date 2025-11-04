@@ -18,24 +18,22 @@
 
 package com.fpetrola.z80.spy;
 
-import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.MemptrUpdater;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class MemptrUpdateInstructionSpy<T extends WordNumber> implements InstructionSpy<T> {
-  MemptrUpdater<T> memptrUpdater;
+public class MemptrUpdateInstructionSpy implements InstructionSpy {
+  MemptrUpdater memptrUpdater;
 
-  public MemptrUpdateInstructionSpy(State<T> state) {
-    memptrUpdater = new MemptrUpdater<T>(state.getMemptr(), state.getMemory());
+  public MemptrUpdateInstructionSpy(State state) {
+    memptrUpdater = new MemptrUpdater(state.getMemptr(), state.getMemory());
   }
 
-  public void beforeExecution(Instruction<T> instruction) {
+  public void beforeExecution(Instruction instruction) {
     memptrUpdater.updateBefore(instruction);
   }
 
-  public void afterExecution(Instruction<T> instruction) {
+  public void afterExecution(Instruction instruction) {
     memptrUpdater.updateAfter(instruction);
   }
 }

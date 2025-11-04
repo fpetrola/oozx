@@ -34,18 +34,18 @@ import static com.fpetrola.z80.registers.Flags.*;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 @SuppressWarnings("ALL")
-public abstract class TableOpCodeGenerator<T> extends OpcodeTargets<T> {
+public abstract class TableOpCodeGenerator extends OpcodeTargets {
 
   protected OpcodeConditions opc;
 
-  protected abstract Instruction<T> getOpcode();
+  protected abstract Instruction getOpcode();
 
   protected OpcodeReference[] r;
   protected Register[] rp;
   protected OpcodeReference[] rp2;
   protected Condition[] cc;
-  protected Instruction<T>[][] bli;
-  protected List<Function<ImmutableOpcodeReference, Instruction<T>>> alu;
+  protected Instruction[][] bli;
+  protected List<Function<ImmutableOpcodeReference, Instruction>> alu;
   protected List<RotFactory> rot;
   protected int[] im;
   protected int x;
@@ -133,13 +133,13 @@ public abstract class TableOpCodeGenerator<T> extends OpcodeTargets<T> {
       p = (i & 0x30) >> 4;
       q = (i & 0x08) >> 3;
 
-      Instruction<T> opcode = getOpcode();
+      Instruction opcode = getOpcode();
       opcodes[i] = opcode;
     }
     return opcodes;
   }
 
-  protected Instruction<T>[] select(Instruction<T>... opcodes) {
+  protected Instruction[] select(Instruction... opcodes) {
     return opcodes;
   }
 

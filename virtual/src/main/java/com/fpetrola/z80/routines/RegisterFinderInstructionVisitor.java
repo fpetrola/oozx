@@ -25,7 +25,7 @@ import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 
 @SuppressWarnings("ALL")
-public abstract class RegisterFinderInstructionVisitor implements InstructionVisitor<WordNumber, Integer> {
+public abstract class RegisterFinderInstructionVisitor implements InstructionVisitor<Integer> {
   protected boolean isTarget;
   protected boolean isSource;
 
@@ -40,7 +40,7 @@ public abstract class RegisterFinderInstructionVisitor implements InstructionVis
     target.accept(this);
   }
 
-  public void visitingFlag(Register<WordNumber> flag, DefaultTargetFlagInstruction targetSourceInstruction) {
+  public void visitingFlag(Register flag, DefaultTargetFlagInstruction targetSourceInstruction) {
     isSource = true;
     isTarget = true;
     flag.accept(this);

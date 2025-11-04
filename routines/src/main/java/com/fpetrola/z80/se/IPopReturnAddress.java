@@ -18,10 +18,7 @@
 
 package com.fpetrola.z80.se;
 
-import com.fpetrola.z80.instructions.types.TargetInstruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
-public interface IPopReturnAddress<T extends WordNumber>  {
+public interface IPopReturnAddress  {
   ReturnAddressWordNumber getReturnAddress();
 
   int getPreviousPc();

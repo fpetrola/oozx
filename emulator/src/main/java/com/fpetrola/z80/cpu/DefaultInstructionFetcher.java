@@ -24,36 +24,35 @@ import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.PhaseInterceptor;
 import fuse.tstates.PhaseProcessor;
 
-public class DefaultInstructionFetcher<T extends WordNumber> implements InstructionFetcher<T> {
-  protected final MultiOpcodeFetcher<T> multiOpcodeFetcher;
-  protected State<T> state;
-  protected T pcValue;
-  public Instruction<T> currentInstruction;
+public class DefaultInstructionFetcher implements InstructionFetcher {
+  protected final MultiOpcodeFetcher multiOpcodeFetcher;
+  protected State state;
+  protected int pcValue;
+  public Instruction currentInstruction;
 
-  private final CollectionHandler<FetchListener<T>> fetchListeners = new CollectionHandler<>();
+  private final CollectionHandler<FetchListener> fetchListeners = new CollectionHandler();
   private int prefetchPC = -1;
-  private Instruction<T> prefetchedInstruction;
+  private Instruction prefetchedInstruction;
   protected int rdelta;
   private boolean prefetch = false;
-  protected DefaultRegisterBankFactory.RRegister<T> registerR;
-  public PhaseProcessor<?> tPhaseProcessor;
-  private Register<T> pc;
+  protected DefaultRegisterBankFactory.RRegister registerR;
+  public PhaseProcessor tPhaseProcessor;
+  private Register pc;
 
   public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
     this.state = aState;
     this.prefetch = prefetch;
-    multiOpcodeFetcher = new MultiOpcodeFetcher<T>(instructionFactory, state, opcodeConditions, clone);
+    multiOpcodeFetcher = new MultiOpcodeFetcher(instructionFactory, state, opcodeConditions, clone);
     pcValue = state.getPc().read();
-    this.registerR = (DefaultRegisterBankFactory.RRegister<T>) state.getRegisterR();
+    this.registerR = (DefaultRegisterBankFactory.RRegister) state.getRegisterR();
     this.pc = state.getPc();
-    tPhaseProcessor = new PhaseProcessor<>(this, state);
+    tPhaseProcessor = new PhaseProcessor(this, state);
   }
 
   public DefaultInstructionFetcher(State aState, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
@@ -65,21 +64,21 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   }
 
   @Override
-  public Instruction<T> fetchNextInstruction() {
+  public Instruction fetchNextInstruction() {
 //    fetchListeners.forAll(FetchListener::beforeFetch);
-    int rValue = registerR.read().valueXYZ;
+    int rValue = registerR.read();
     registerR.increment();
     pcValue = pc.read();
 
-    if (prefetchPC != pcValue.valueXYZ) {
+    if (prefetchPC != pcValue) {
       currentInstruction = fetchInstruction(pcValue);
       prefetchedInstruction = currentInstruction;
     } else {
       currentInstruction = prefetchedInstruction;
-      registerR.write((T) new WordNumber(registerR.read().valueXYZ + rdelta));
+      registerR.write(registerR.read() + rdelta);
     }
 
-    rdelta = registerR.read().valueXYZ - rValue;
+    rdelta = registerR.read() - rValue;
 //    if (rdelta < 0)
 //      System.out.println("adgagadg");
 //    ((AbstractInstruction) currentInstruction).setRDelta(rdelta);
@@ -88,15 +87,15 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   }
 
   @Override
-  public void afterExecute(Instruction<?> currentInstruction) {
+  public void afterExecute(Instruction currentInstruction) {
     try {
       if (prefetch) {
-        int rValue = registerR.read().valueXYZ;
-        T nextPC = (T) new WordNumber(0);
+        int rValue = registerR.read();
+        int nextPC = 0;
         prefetchedInstruction = fetchInstruction(nextPC);
-        prefetchPC = nextPC.valueXYZ;
-        rdelta = registerR.read().valueXYZ - rValue;
-        registerR.write((T) new WordNumber(rValue));
+        prefetchPC = nextPC;
+        rdelta = registerR.read() - rValue;
+        registerR.write(rValue);
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -104,14 +103,14 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     }
   }
 
-  public Instruction<T> fetchInstruction(T address) {
-    Instruction<T> fetchedInstruction = multiOpcodeFetcher.fetchInstruction(address);
-    setupPhaseInterceptor((AbstractInstruction<T>) fetchedInstruction);
+  public Instruction fetchInstruction(int address) {
+    Instruction fetchedInstruction = multiOpcodeFetcher.fetchInstruction(address);
+    setupPhaseInterceptor((AbstractInstruction) fetchedInstruction);
 //    fetchListeners.forAll(l -> l.instructionFetchedAt(address, fetchedInstruction));
     return fetchedInstruction;
   }
 
-  protected void setupPhaseInterceptor(AbstractInstruction<T> fetchedInstruction) {
+  protected void setupPhaseInterceptor(AbstractInstruction fetchedInstruction) {
     PhaseInterceptor phase1 = fetchedInstruction.getPhaseInterceptor();
     if (!phase1.isReady()) {
       tPhaseProcessor.setPhase(phase1);
@@ -130,7 +129,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   }
 
   @Override
-  public void addFetchListener(FetchListener<T> fetchListener) {
+  public void addFetchListener(FetchListener fetchListener) {
     fetchListeners.add(fetchListener);
   }
 
@@ -143,11 +142,11 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     multiOpcodeFetcher.setClone(clone);
   }
 
-  public Instruction<T> getLastExecutedInstruction() {
+  public Instruction getLastExecutedInstruction() {
     return currentInstruction;
   }
 
-  public void setLastExecutedInstruction(Instruction<T> instruction) {
+  public void setLastExecutedInstruction(Instruction instruction) {
     currentInstruction = instruction;
   }
 }

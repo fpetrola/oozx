@@ -30,7 +30,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 @SuppressWarnings("ALL")
-public class InstructionTransformer<T extends WordNumber> extends InstructionTransformerBase<T> {
+public class InstructionTransformer extends InstructionTransformerBase {
   public final VirtualRegisterFactory virtualRegisterFactory;
 
   public void setCurrentInstruction(Instruction currentInstruction) {
@@ -45,9 +45,9 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
   }
 
   @Override
-  public Instruction<T> clone(Instruction<T> instruction) {
+  public Instruction clone(Instruction instruction) {
     virtualRegisterFactory.initTransaction();
-    Instruction<T> cloned1 = super.clone(instruction);
+    Instruction cloned1 = super.clone(instruction);
     virtualRegisterFactory.endTransaction();
     return cloned1;
   }
@@ -80,7 +80,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
     cloned1.setTarget(createRegisterReplacement(cloned1.getTarget(), cloned1, new VirtualFetcher()));
   }
 
-  public boolean visitingDjnz(DJNZ<T> djnz) {
+  public boolean visitingDjnz(DJNZ djnz) {
     setCloned(instructionFactory.DJNZ(clone(djnz.getCondition()), clone(djnz.getPositionOpcodeReference())), djnz);
     DJNZ djnz1 = (DJNZ) cloned;
     djnz1.accept(new ConditionTransformerVisitor(new VirtualFetcher()));
@@ -132,7 +132,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
   }
 
   @Override
-  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction<T> parameterizedUnaryAluInstruction) {
+  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction parameterizedUnaryAluInstruction) {
     super.visitingParameterizedUnaryAluInstruction(parameterizedUnaryAluInstruction);
     ParameterizedUnaryAluInstruction cloned1 = (ParameterizedUnaryAluInstruction) cloned;
     VirtualFetcher virtualFetcher = new VirtualFetcher();
@@ -209,7 +209,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
     cloned1.setTarget(createRegisterReplacement(cloned1.getTarget(), cloned1, new VirtualFetcher()));
   }
 
-  public boolean visitingBitOperation(BitOperation<T> bitOperation) {
+  public boolean visitingBitOperation(BitOperation bitOperation) {
     boolean isBIT = bitOperation instanceof BIT;
     Constructor<?>[] constructors = bitOperation.getClass().getConstructors();
     try {
@@ -235,8 +235,8 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
     return isBIT;
   }
 
-  public void visitingRst(RST<T> rst) {
-    setCloned(instructionFactory.RST(rst.getP().valueXYZ), rst);
+  public void visitingRst(RST rst) {
+    setCloned(instructionFactory.RST(rst.getP()), rst);
   }
 
   public void visitPush(Push push) {
@@ -372,7 +372,7 @@ public class InstructionTransformer<T extends WordNumber> extends InstructionTra
 
 
   @Override
-  public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction<T> parameterizedBinaryAluInstruction) {
+  public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction parameterizedBinaryAluInstruction) {
     super.visitingParameterizedBinaryAluInstruction(parameterizedBinaryAluInstruction);
     ParameterizedBinaryAluInstruction cloned1 = (ParameterizedBinaryAluInstruction) cloned;
     VirtualFetcher virtualFetcher = new VirtualFetcher();

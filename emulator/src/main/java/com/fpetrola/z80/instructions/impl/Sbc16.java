@@ -21,11 +21,10 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class Sbc16<T extends WordNumber> extends Binary16BitsOperation<T> {
+public class Sbc16 extends Binary16BitsOperation {
   public static final AluOperation sbc16TableAluOperation = new AluOperation() {
 //    public int execute(int value1, int value2, int carry) {
 //      int i = value1 & 0x33;
@@ -62,15 +61,15 @@ public class Sbc16<T extends WordNumber> extends Binary16BitsOperation<T> {
     }
   };
 
-  public Sbc16(OpcodeReference<T> target, ImmutableOpcodeReference<T> source, Register<T> flag) {
+  public Sbc16(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
     super(target, source, flag, (f0, a, b) -> {
 //      return calculate(f0, b, a,
 //          (v1, v2, f) -> v1 - v2 - (f & 1),
 //          (f1, value3, value2, result1) -> sbc16TableAluOperation.executeWithCarry(createValue(result1 != 0 ? 1 : 0), createValue(value3), f0));
 
-      int execute = sbc16TableAluOperation.execute(b.valueXYZ, a.valueXYZ, flag.read().valueXYZ);
-      flag.write((T) new WordNumber(sbc16TableAluOperation.F));
-      return (T) new WordNumber(execute & 0xffff);
+      int execute = sbc16TableAluOperation.execute(b, a, flag.read());
+      flag.write(sbc16TableAluOperation.F);
+      return execute & 0xffff;
     });
   }
 

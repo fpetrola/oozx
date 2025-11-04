@@ -22,11 +22,10 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class Adc<T extends WordNumber> extends ParameterizedBinaryAluInstruction<T> {
+public class Adc extends ParameterizedBinaryAluInstruction {
   public static final TableAluOperation adc8TableAluOperation = new TableAluOperation() {
     public int execute(int A, int value, int carry) {
       F = carry;
@@ -42,7 +41,7 @@ public class Adc<T extends WordNumber> extends ParameterizedBinaryAluInstruction
       return A;
     }
   };
-  public Adc(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
+  public Adc(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
     super(target, source, flag, (tFlagRegister, value, regA) -> adc8TableAluOperation.executeWithCarry(value, regA, tFlagRegister));
   }
 

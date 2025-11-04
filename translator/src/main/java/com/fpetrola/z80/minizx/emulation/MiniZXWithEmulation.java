@@ -28,7 +28,6 @@ import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.Condition;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
@@ -46,14 +45,14 @@ import static com.fpetrola.z80.helpers.Helper.formatAddress;
 
 public class MiniZXWithEmulation {
   protected boolean replacing = false;
-  private State<WordNumber> state;
+  private State state;
 
-  public MiniZXWithEmulation(OOZ80<WordNumber> ooz80, SpectrumApplication spectrumApplication) {
+  public MiniZXWithEmulation(OOZ80 ooz80, SpectrumApplication spectrumApplication) {
     this.ooz80 = ooz80;
     this.spectrumApplication = spectrumApplication;
   }
 
-  private OOZ80<WordNumber> ooz80;
+  private OOZ80 ooz80;
   private final SpectrumApplication spectrumApplication;
 
   public void emulate() {
@@ -73,10 +72,10 @@ public class MiniZXWithEmulation {
         boolean fieldExists = Arrays.stream(spectrumApplication.getClass().getFields()).anyMatch(f -> f.getName().equals(n.name()));
         if (fieldExists) {
           Register register = ooz80.getState().getRegister(n);
-          WordNumber read = (WordNumber) register.read();
+          Integer read = (Integer) register.read();
           if (read != null) {
             Field field = spectrumApplication.getClass().getField(n.name());
-            field.set(spectrumApplication, read.valueXYZ);
+            field.set(spectrumApplication, read);
           }
         }
       } catch (Exception e) {
@@ -91,11 +90,11 @@ public class MiniZXWithEmulation {
     //spectrumApplication.mem = state.getMemory().getData();
     Object[] data = state.getMemory().getData();
     for (int i = 16384; i < 0xFFFF; i++) {
-      WordNumber datum = (WordNumber) data[i];
+      Integer datum = (Integer) data[i];
       if (datum == null)
-        datum = (WordNumber) new WordNumber(0);
+        datum = 0;
 
-      spectrumApplication.getMem()[i] = (byte) datum.valueXYZ;
+      spectrumApplication.getMem()[i] = (byte) (int) datum;
     }
   }
 
@@ -106,11 +105,11 @@ public class MiniZXWithEmulation {
         boolean fieldExists = Arrays.stream(spectrumApplication.getClass().getFields()).anyMatch(f -> f.getName().equals(n.name()));
         Register register = ooz80.getState().getRegister(n);
 
-        Object value = (Object) new WordNumber(0);
+        int value = 0;
         if (fieldExists) {
           Field field = spectrumApplication.getClass().getField(n.name());
-          Integer o = (Integer) field.get(spectrumApplication);
-          value = (Object) new WordNumber(o);
+          java.lang.Integer o = (java.lang.Integer) field.get(spectrumApplication);
+          value = o;
         }
         register.write(value);
       } catch (Exception e) {
@@ -121,13 +120,13 @@ public class MiniZXWithEmulation {
     copyMemoryStateBack(ooz80.getState());
   }
 
-  public boolean stateIsMatching(Map<String, Integer> writtenRegisters, int address, boolean write) {
+  public boolean stateIsMatching(Map<String, java.lang.Integer> writtenRegisters, int address, boolean write) {
     final boolean[] differences = {false};
     spectrumApplication.update16Registers();
 
     List<RegisterName> list = new ArrayList<>(Arrays.asList(RegisterName.values()));
     list.removeAll(Arrays.asList(RegisterName.PC, RegisterName.F, RegisterName.AF, RegisterName.Fx, RegisterName.AFx, RegisterName.SP, RegisterName.IR, RegisterName.I, RegisterName.R));
-    State<WordNumber> state1 = ooz80.getState();
+    State state1 = ooz80.getState();
 
 //    Stream<RegisterName> registerNameStream = writtenRegisters.keySet().stream().map(r -> RegisterName.valueOf(r));
     Stream<RegisterName> registerNameStream = list.stream();
@@ -136,9 +135,9 @@ public class MiniZXWithEmulation {
         try {
           boolean fieldExists = Arrays.stream(spectrumApplication.getClass().getFields()).anyMatch(f -> f.getName().equals(n.name()));
           if (fieldExists) {
-            Register<WordNumber> register = state1.getRegister(n);
+            Register register = state1.getRegister(n);
             int o = checkField(n, register, differences);
-            register.write((WordNumber) new WordNumber(o));
+            register.write(o);
           }
         } catch (Exception e) {
           differences[0] = false;
@@ -147,7 +146,7 @@ public class MiniZXWithEmulation {
     });
 
     if (write) {
-      WordNumber[] data = state1.getMemory().getData();
+      Integer[] data = state1.getMemory().getData();
 //    for (int i = 16384; i < 65520; i++)
       int i = address;
       checkMem(data, i, differences);
@@ -157,12 +156,12 @@ public class MiniZXWithEmulation {
     return !differences[0];
   }
 
-  private int checkField(RegisterName n, Register<WordNumber> register, boolean[] differences) throws NoSuchFieldException, IllegalAccessException {
+  private int checkField(RegisterName n, Register register, boolean[] differences) throws NoSuchFieldException, IllegalAccessException {
     Field field = spectrumApplication.getClass().getField(n.name());
-    int o = (Integer) field.get(spectrumApplication);
-    int registerValue = register.read().valueXYZ;
+    int o = (java.lang.Integer) field.get(spectrumApplication);
+    int registerValue = register.read();
 
-    if (register.read() != null && o != registerValue) {
+    if (register.read() != -1 && o != registerValue) {
       differences[0] = true;
     }
     if (differences[0]) {
@@ -216,8 +215,8 @@ public class MiniZXWithEmulation {
     return i;
   }
 
-  private void checkMem(WordNumber[] data, int i, boolean[] differences) {
-    int i1 = data[i].valueXYZ & 0xFF;
+  private void checkMem(Integer[] data, int i, boolean[] differences) {
+    int i1 = data[i] & 0xFF;
     int i2 = spectrumApplication.getMem()[i] & 0xff;
     if (i1 != i2) {
       System.out.println("mem diff at: " + formatAddress(i) + ": " + formatAddress(i1) + " - " + formatAddress(i2));
@@ -228,27 +227,27 @@ public class MiniZXWithEmulation {
   public void copyMemoryStateBack(State state) {
     Object[] data = state.getMemory().getData();
     for (int i = 0; i < 0xFFFF; i++) {
-      data[i] = (Object) new WordNumber(spectrumApplication.getMem()[i]);
+      data[i] = spectrumApplication.getMem()[i];
     }
   }
 
-  public <T extends WordNumber> OOZ80<T> createOOZ802(IO io) {
+  public OOZ80 createOOZ802(IO io) {
     var state = new State(io, new MockedMemory(true));
-    DefaultInstructionFactory<T> instructionFactory = new DefaultInstructionFactory<T>(state) {
-      private T nextRetAddress = (T) new WordNumber(0);
+    DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory(state) {
+      private int nextRetAddress = 0;
 
       @Override
       public Ret Ret(Condition condition) {
-        return new Ret<T>(condition, sp, memory, pc) {
+        return new Ret(condition, sp, memory, pc) {
           @Override
           public int execute() {
-            T jumpAddress2 = calculateJumpAddress();
+            int jumpAddress2 = calculateJumpAddress();
             if (condition.conditionMet(this)) {
-              final T value = Memory.read16Bits(memory, sp.read());
+              final int value = Memory.read16Bits(memory, sp.read());
 
-              if (nextRetAddress.valueXYZ == value.valueXYZ) {
-                nextRetAddress = (T) new WordNumber(0);
-                Map<String, Integer> writtenRegisters = Map.of();
+              if (nextRetAddress == value) {
+                nextRetAddress = 0;
+                Map<String, java.lang.Integer> writtenRegisters = Map.of();
                 int address = 0;
                 boolean write = true;
                 boolean stateIsMatching = stateIsMatching(writtenRegisters, address, write);
@@ -266,24 +265,24 @@ public class MiniZXWithEmulation {
         };
       }
 
-      private Map<Integer, Runnable> getConvertedRoutines() {
+      private Map<java.lang.Integer, Runnable> getConvertedRoutines() {
         return null;
       }
 
       @Override
       public Call Call(Condition condition, ImmutableOpcodeReference positionOpcodeReference) {
-        return new Call<T>(positionOpcodeReference, condition, pc, sp, state.getMemory()) {
+        return new Call(positionOpcodeReference, condition, pc, sp, state.getMemory()) {
           @Override
           public int execute() {
-            Map<Integer, Runnable> convertedRoutines = getConvertedRoutines();
+            Map<java.lang.Integer, Runnable> convertedRoutines = getConvertedRoutines();
 
-            T jumpAddress2 = calculateJumpAddress();
+            int jumpAddress2 = calculateJumpAddress();
             if (condition.conditionMet(this)) {
-              Runnable runnable = convertedRoutines.get(jumpAddress.valueXYZ);
+              Runnable runnable = convertedRoutines.get(jumpAddress);
               if (runnable != null) {
-                WordNumber wordNumber = pc.read();
-                T retAddress = (T) (WordNumber) new WordNumber((wordNumber.valueXYZ + length) & 0xFFFF);
-                retAddress = (T) new ReturnAddressWordNumber(retAddress.valueXYZ, pc.read().valueXYZ);
+                Integer wordNumber = pc.read();
+                int retAddress = (wordNumber + length) & 0xFFFF;
+//                retAddress = new ReturnAddressWordNumber(retAddress, pc.read());
                 if (!replacing)
                   Push.doPush(retAddress, sp, memory);
                 try {
@@ -357,10 +356,10 @@ public class MiniZXWithEmulation {
 //  }
 
 
-  private byte[] t1(WordNumber[] data) {
+  private byte[] t1(Integer[] data) {
     byte[] d1 = new byte[0x10000];
     for (int i = 0; i < d1.length; i++) {
-      d1[i] = (byte) (data[i].valueXYZ & 0xff);
+      d1[i] = (byte) (data[i] & 0xff);
     }
     String s = Base64Utils.gzipArrayCompressToBase64(d1);
     return d1;

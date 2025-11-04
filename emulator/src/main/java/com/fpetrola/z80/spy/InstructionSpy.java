@@ -28,8 +28,8 @@ import com.fpetrola.z80.registers.Composed16BitRegister;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterBank;
 
-public interface InstructionSpy<T> {
-  default void addExecutionListeners(InstructionExecutor<?> defaultInstructionExecutor) {
+public interface InstructionSpy {
+  default void addExecutionListeners(InstructionExecutor defaultInstructionExecutor) {
     defaultInstructionExecutor.addExecutionListener(new ExecutionListener() {
       public void beforeExecution(Instruction instruction) {
         InstructionSpy.this.beforeExecution(instruction);
@@ -41,35 +41,35 @@ public interface InstructionSpy<T> {
     });
   }
 
-  default RegisterBank wrapBank(RegisterBank<?> bank) {
+  default RegisterBank wrapBank(RegisterBank bank) {
     bank.getAll().forEach(r -> {
-      if (r instanceof Composed16BitRegister<?, ?> composed16BitRegister) {
-        wrapRegister((Register<T>) composed16BitRegister.getLow());
-        wrapRegister((Register<T>) composed16BitRegister.getHigh());
+      if (r instanceof Composed16BitRegister<?> composed16BitRegister) {
+        wrapRegister((Register) composed16BitRegister.getLow());
+        wrapRegister((Register) composed16BitRegister.getHigh());
       } else {
-        wrapRegister((Register<T>) r);
+        wrapRegister((Register) r);
       }
     });
     return bank;
   }
 
 
-  default Memory<T> wrapMemory(Memory<T> aMemory) {
+  default Memory wrapMemory(Memory aMemory) {
     return aMemory;
   }
 
-  default ImmutableOpcodeReference<T> wrapOpcodeReference(ImmutableOpcodeReference<T> immutableOpcodeReference) {
+  default ImmutableOpcodeReference wrapOpcodeReference(ImmutableOpcodeReference immutableOpcodeReference) {
     return immutableOpcodeReference;
   }
 
-  default Register<T> wrapRegister(Register<T> register) {
+  default Register wrapRegister(Register register) {
     return register;
   }
 
-  default void beforeExecution(Instruction<T> instruction) {
+  default void beforeExecution(Instruction instruction) {
   }
 
-  default void afterExecution(Instruction<T> instruction) {
+  default void afterExecution(Instruction instruction) {
 
   }
 
@@ -77,7 +77,7 @@ public interface InstructionSpy<T> {
 
   }
 
-  default void flipOpcode(Instruction<T> instruction, int opcodeInt) {
+  default void flipOpcode(Instruction instruction, int opcodeInt) {
 
   }
 

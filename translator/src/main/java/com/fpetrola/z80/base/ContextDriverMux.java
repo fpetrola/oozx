@@ -21,20 +21,19 @@ package com.fpetrola.z80.base;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.se.Z80InstructionDriver;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.function.Supplier;
 
-public class ContextDriverMux<T extends WordNumber> extends ContextDriverDelegator<T> {
-  private final Z80InstructionDriver<T> secondContext;
+public class ContextDriverMux extends ContextDriverDelegator {
+  private final Z80InstructionDriver secondContext;
 
-  public ContextDriverMux(Z80ContextDriver<T> firstContext, Z80InstructionDriver<T> secondContext) {
+  public ContextDriverMux(Z80ContextDriver firstContext, Z80InstructionDriver secondContext) {
     super(firstContext);
     this.secondContext = secondContext;
   }
 
   @Override
-  public int add(Instruction<T> instruction) {
+  public int add(Instruction instruction) {
     int add = super.add(instruction);
     secondContext.add(instruction);
     return add;
@@ -47,8 +46,8 @@ public class ContextDriverMux<T extends WordNumber> extends ContextDriverDelegat
   }
 
   @Override
-  public MockedMemory<T> initMem(Supplier<T[]> supplier) {
-    MockedMemory<T> result = super.initMem(supplier);
+  public MockedMemory initMem(Supplier<Integer[]> supplier) {
+    MockedMemory result = super.initMem(supplier);
     secondContext.initMem(supplier);
     return result;
   }

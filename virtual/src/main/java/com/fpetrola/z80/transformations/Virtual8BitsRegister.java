@@ -26,23 +26,22 @@ import com.fpetrola.z80.instructions.impl.In;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.instructions.types.*;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Plain8BitRegister;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegister<T> implements IVirtual8BitsRegister<T> {
+public class Virtual8BitsRegister extends Plain8BitRegister implements IVirtual8BitsRegister {
   private final int address;
   private final InstructionExecutor instructionExecutor;
-  public Instruction<T> instruction;
-  private final VirtualFetcher<T> virtualFetcher;
-  private final List<VirtualRegister<T>> previousVersions = new ArrayList<>();
-  protected T lastData;
+  public Instruction instruction;
+  private final VirtualFetcher virtualFetcher;
+  private final List<VirtualRegister> previousVersions = new ArrayList<>();
+  protected int lastData;
   protected int reads;
-  public IVirtual8BitsRegister<T> lastVersionRead;
-  private final Consumer<T> dataConsumer;
+  public IVirtual8BitsRegister lastVersionRead;
+  private final Consumer dataConsumer;
   private final VirtualRegisterVersionHandler versionHandler;
 
   @Override
@@ -52,9 +51,9 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
 
   private final BlocksManager blocksManager;
   public Instruction currentInstruction1;
-  private final List<VirtualRegister<T>> dependants = new ArrayList<>();
+  private final List<VirtualRegister> dependants = new ArrayList<>();
   private final Scope scope;
-  public VirtualComposed16BitRegister<T> virtualComposed16BitRegister;
+  public VirtualComposed16BitRegister virtualComposed16BitRegister;
 
   private boolean isComposed;
 
@@ -63,8 +62,8 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
     return instruction instanceof Ld;
   }
 
-  public Virtual8BitsRegister(int address, InstructionExecutor instructionExecutor, String name, Instruction<T> instruction,
-                              IVirtual8BitsRegister<T> previousVersion, VirtualFetcher<T> virtualFetcher, Consumer<T> dataConsumer,
+  public Virtual8BitsRegister(int address, InstructionExecutor instructionExecutor, String name, Instruction instruction,
+                              IVirtual8BitsRegister previousVersion, VirtualFetcher virtualFetcher, Consumer dataConsumer,
                               VirtualRegisterVersionHandler versionHandler, BlocksManager blocksManager, Instruction currentInstruction1) {
     super(name);
     this.address = address;
@@ -91,15 +90,15 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
     return lastVersionRead != null && previousVersions.size() > 1;
   }
 
-  public IVirtual8BitsRegister<T> getCurrentPreviousVersion() {
-    return previousVersions.isEmpty() ? null : (IVirtual8BitsRegister<T>) previousVersions.get(0);
+  public IVirtual8BitsRegister getCurrentPreviousVersion() {
+    return previousVersions.isEmpty() ? null : (IVirtual8BitsRegister) previousVersions.get(0);
   }
 
-  public T read() {
-    T t = virtualFetcher.readFromVirtual(() -> instructionExecutor.isExecuting(instruction), () -> instructionExecutor.execute(instruction), () -> data, () -> (lastVersionRead = getCurrentPreviousVersion()).readPrevious());
+  public int read() {
+    int t = virtualFetcher.readFromVirtual(() -> instructionExecutor.isExecuting(instruction), () -> instructionExecutor.execute(instruction), () -> data, () -> (lastVersionRead = getCurrentPreviousVersion()).readPrevious());
     if (data == t)
       reads++;
-    lastData = null;
+    lastData = -1;
     data = t;
 
     dataConsumer.accept(data);
@@ -108,9 +107,9 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
   }
 
   @Override
-  public void write(T value) {
+  public void write(int value) {
     super.write(value);
-    lastData = null;
+    lastData = -1;
     dataConsumer.accept(value);
   }
 
@@ -125,12 +124,12 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
   }
 
   public void reset() {
-    data = null;
+    data = -1;
     reads = 0;
   }
 
   @Override
-  public List<VirtualRegister<T>> getPreviousVersions() {
+  public List<VirtualRegister> getPreviousVersions() {
     return previousVersions;
   }
 
@@ -142,18 +141,18 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
   }
 
   @Override
-  public void set16BitsRegister(VirtualComposed16BitRegister<T> virtualComposed16BitRegister) {
+  public void set16BitsRegister(VirtualComposed16BitRegister virtualComposed16BitRegister) {
     if (this.virtualComposed16BitRegister == null)
       this.virtualComposed16BitRegister = virtualComposed16BitRegister;
   }
 
   @Override
-  public List<VirtualRegister<T>> getDependants() {
+  public List<VirtualRegister> getDependants() {
     return dependants;
   }
 
   @Override
-  public VirtualComposed16BitRegister<T> getVirtualComposed16BitRegister() {
+  public VirtualComposed16BitRegister getVirtualComposed16BitRegister() {
     return virtualComposed16BitRegister;
   }
 
@@ -169,33 +168,33 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
     // data = null;
   }
 
-  public T readPrevious() {
+  public int readPrevious() {
     Helper.breakInStackOverflow();
 
 //    if (data == null && lastData == null && reads == 0) {
-//      for (VirtualRegister<T> v1 : previousVersions) {
+//      for (VirtualRegister v1 : previousVersions) {
 //        if (v1 != this) {
-//          if (v1 instanceof MyVirtualRegister<T>)
+//          if (v1 instanceof MyVirtualRegister)
 //            return v1.read();
 //          else
-//            return ((Virtual8BitsRegister<T>) v1).readPrevious();
+//            return ((Virtual8BitsRegister) v1).readPrevious();
 //        }
 //      }
 //    }
 
-//    if (instruction instanceof Ld<T> || instruction instanceof In<T>) {
+//    if (instruction instanceof Ld || instruction instanceof In) {
 //      TargetSourceInstruction<T, ?> tt = (TargetSourceInstruction) instruction;
-//      if ((tt.getTarget() instanceof Register<T>) || tt.getTarget() instanceof IndirectMemory16BitReference<T> indirectMemory16BitReference && indirectMemory16BitReference.target instanceof Register<T>) {
-//        T result = lastData != null ? lastData : read();
+//      if ((tt.getTarget() instanceof Register) || tt.getTarget() instanceof IndirectMemory16BitReference indirectMemory16BitReference && indirectMemory16BitReference.target instanceof Register) {
+//        int result = lastData != null ? lastData : read();
 //        saveData();
 //        return result;
 //        //instruction.execute();
-//        // T value = WordNumber.createValue(ld.getSource().read().intValue());
+//        // int value = WordNumber.createValue(ld.getSource().read().intValue());
 //        // return data;
 //      }
 //    }
 
-    T result = lastData != null ? lastData : read();
+    int result = lastData != -1 ? lastData : read();
     return result;
   }
 
@@ -228,17 +227,17 @@ public class Virtual8BitsRegister<T extends WordNumber> extends Plain8BitRegiste
   public boolean isComposed() {
     boolean[] isReturnValue2 = {true};
 
-    if (instruction instanceof RepeatingInstruction<T>
-        || instruction instanceof BitOperation<T>
-//        || instruction instanceof Push<T>
-        || instruction instanceof In<T>
-        || instruction instanceof Ld<T>
-        || instruction instanceof ParameterizedBinaryAluInstruction<T>
-        || instruction instanceof ParameterizedUnaryAluInstruction<T>
-        || instruction instanceof VirtualAssignmentInstruction<T>)
+    if (instruction instanceof RepeatingInstruction
+        || instruction instanceof BitOperation
+//        || instruction instanceof Push
+        || instruction instanceof In
+        || instruction instanceof Ld
+        || instruction instanceof ParameterizedBinaryAluInstruction
+        || instruction instanceof ParameterizedUnaryAluInstruction
+        || instruction instanceof VirtualAssignmentInstruction)
       return false;
 
-    if (instruction instanceof Push<T>) {
+    if (instruction instanceof Push) {
       System.out.println("dsgsddgs");
     }
 

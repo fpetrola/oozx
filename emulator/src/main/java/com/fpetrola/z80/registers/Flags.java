@@ -18,8 +18,6 @@
 
 package com.fpetrola.z80.registers;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
 public class Flags {
 
   public final static int CARRY_FLAG = 0x01;
@@ -38,13 +36,13 @@ public class Flags {
    * @param flag flags to set
    * @param set  if true will set, unset otherwise
    */
-  public final static <T extends WordNumber> void setFlag(Register<T> r, int flag, boolean set) {
-    final int currentFlags = r.read().valueXYZ;
+  public final static  void setFlag(Register r, int flag, boolean set) {
+    final int currentFlags = r.read();
 
     if (set) {
-      r.write((T) new WordNumber(currentFlags | flag));
+      r.write(currentFlags | flag);
     } else {
-      r.write((T) new WordNumber(currentFlags & ~(flag)));
+      r.write(currentFlags & ~(flag));
     }
   }
 
@@ -55,9 +53,9 @@ public class Flags {
    * @param flag flags to check
    * @return true if all flags passed in flag param are set
    */
-  public final static <T extends WordNumber> boolean getFlag(Register<T> r, int flag) {
+  public final static  boolean getFlag(Register r, int flag) {
 
-    final int currentFlags = r.read().valueXYZ;
+    final int currentFlags = r.read();
 
     return ((currentFlags & flag) == flag);
 
@@ -73,9 +71,9 @@ public class Flags {
    * @param flag  flags to copy from value
    * @param value a value that will be used as reference for the flags
    */
-  public final static <T extends WordNumber> void copyFrom(Register<T> r, int flag, int value) {
-    final int currentFlag = r.read().valueXYZ & ~(flag);
-    r.write((T) new WordNumber(currentFlag | (value & flag)));
+  public final static  void copyFrom(Register r, int flag, int value) {
+    final int currentFlag = r.read() & ~(flag);
+    r.write(currentFlag | (value & flag));
   }
 
   public final static String toString(int flag) {

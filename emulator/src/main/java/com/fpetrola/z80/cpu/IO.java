@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.cpu;
 
-public interface IO<T> {
+public interface IO {
 
     /**
      * Read 8-bit data from the given port
@@ -26,7 +26,7 @@ public interface IO<T> {
      * @param port port to read the data
      * @return value available at the port
      */
-    T in(T port);
+    int in(int port);
 
     /**
      * Write 8-bit data into given port
@@ -34,5 +34,5 @@ public interface IO<T> {
      * @param port target port
      * @param value to be written
      */
-    void out(T port, T value);
+    void out(int port, int value);
 }

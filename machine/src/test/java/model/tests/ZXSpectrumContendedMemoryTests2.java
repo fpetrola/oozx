@@ -261,7 +261,7 @@ public class ZXSpectrumContendedMemoryTests2 {
     }
   }
 
-  public static <T> void assertListsEqualInChunks2(List<T> expected, List<T> actual, int chunkSize) {
+  public static  void assertListsEqualInChunks2(List expected, List actual, int chunkSize) {
 //    // Check if lists have the same size
 //    assertEquals(expected.size(), actual.size(), "Lists have different sizes");
 
@@ -273,8 +273,8 @@ public class ZXSpectrumContendedMemoryTests2 {
     // Iterate through lists in chunks
     for (int i = 0; i < expected.size(); i += chunkSize) {
       int endIndex = Math.min(i + chunkSize, expected.size());
-      List<T> expectedChunk = expected.subList(i, endIndex);
-      List<T> actualChunk = actual.subList(i, endIndex);
+      List expectedChunk = expected.subList(i, endIndex);
+      List actualChunk = actual.subList(i, endIndex);
 
       // Use assertEquals with a descriptive message
       assertEquals(

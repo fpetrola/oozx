@@ -18,10 +18,8 @@
 
 package com.fpetrola.z80.registers;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
-public class Plain16BitRegister<T extends WordNumber> implements Register<T> {
-  protected T data;
+public class Plain16BitRegister implements Register {
+  protected int data;
   private final String name;
 
   public Plain16BitRegister(String name) {
@@ -32,11 +30,11 @@ public class Plain16BitRegister<T extends WordNumber> implements Register<T> {
     this.name = name.name();
   }
 
-  public T read() {
+  public int read() {
     return data;
   }
 
-  public void write(T value) {
+  public void write(int value) {
     this.data = value;
   }
 
@@ -45,12 +43,12 @@ public class Plain16BitRegister<T extends WordNumber> implements Register<T> {
   }
 
   public void increment() {
-    data.valueXYZ++;
+    data++;
   }
 
   public void decrement() {
-    data.valueXYZ--;
-    data.valueXYZ &= 0xffff;
+    data--;
+    data &= 0xffff;
   }
 
   public int getLength() {

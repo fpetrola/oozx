@@ -18,13 +18,11 @@
 
 package com.fpetrola.z80.cpu;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
 public class MockedIO implements IO {
-  public Object in(Object port) {
-    return (Object) new WordNumber(123);
+  public int in(int port) {
+    return 123;
   }
 
-  public void out(Object port, Object value) {
+  public void out(int port, int value) {
   }
 }

@@ -43,7 +43,7 @@ public class FlipFLopConditionFlag {
     }
 
     @Override
-    public boolean test(Boolean aBoolean, Instruction<Boolean> instruction) {
+    public boolean test(Boolean aBoolean, Instruction instruction) {
       boolean result = state;
       state = !state;
 //    return Math.random() * 100 > 50;

@@ -23,7 +23,6 @@ import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import io.korhner.asciimg.image.AsciiImgCache;
@@ -45,18 +44,18 @@ import java.util.regex.Pattern;
 import static java.net.URI.create;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-public class RemoteZ80Translator<T extends WordNumber> {
-  private RealCodeBytecodeCreationBase<T> realCodeBytecodeCreationBase;
+public class RemoteZ80Translator {
+  private RealCodeBytecodeCreationBase realCodeBytecodeCreationBase;
 
 //  {
 //    InstructionSpy registerTransformerInstructionSpy1 = new NullInstructionSpy();
 //    State state1 = new State(new MockedIO(), new SpyRegisterBankFactory(registerTransformerInstructionSpy1).createBank(), registerTransformerInstructionSpy1.wrapMemory(new MockedMemory(true)));
 //    final RegisterTransformerInstructionSpy registerTransformerInstructionSpy2 = new RegisterTransformerInstructionSpy(RealCodeBytecodeCreationBase.routineManager);
-//    realCodeBytecodeCreationBase = new RealCodeBytecodeCreationBase<T>(registerTransformerInstructionSpy2, new RoutineManager(), state1, new SpyInstructionExecutor(registerTransformerInstructionSpy2));
+//    realCodeBytecodeCreationBase = new RealCodeBytecodeCreationBase(registerTransformerInstructionSpy2, new RoutineManager(), state1, new SpyInstructionExecutor(registerTransformerInstructionSpy2));
 //  }
 
   public static void main(String[] args) {
-    RemoteZ80Translator<WordNumber> remoteZ80Translator = new RemoteZ80Translator<>();
+    RemoteZ80Translator remoteZ80Translator = new RemoteZ80Translator();
 
     String action = "translate";
     String gameName = "jetsetwilly";
@@ -70,9 +69,9 @@ public class RemoteZ80Translator<T extends WordNumber> {
       action = args[0];
       gameName = args[1];
       url = args[2];
-      startRoutineAddress = Integer.parseInt(args[3]);
+      startRoutineAddress = java.lang.Integer.parseInt(args[3]);
       if (args.length > 4)
-        emulateUntil = Integer.parseInt(args[4]);
+        emulateUntil = java.lang.Integer.parseInt(args[4]);
     }
 
     System.out.println("\n\nTranslating: " + gameName + " " + url + " " + startRoutineAddress + "\n\n");
@@ -80,7 +79,7 @@ public class RemoteZ80Translator<T extends WordNumber> {
     remoteZ80Translator.translate(action, gameName, url, startRoutineAddress, screenURL, emulateUntil);
   }
 
-  public static <T extends WordNumber> String emulateUntil(RealCodeBytecodeCreationBase<T> realCodeBytecodeCreationBase, int address, String url) {
+  public static  String emulateUntil(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, int address, String url) {
     EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX(url, 1, false, address, false);
     emulatedMiniZX.start();
 
@@ -112,9 +111,9 @@ public class RemoteZ80Translator<T extends WordNumber> {
       base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, emulateUntil, url);
     } else {
       File tempFile = getRemoteFile(url, ".z80", "/tmp/" + gameName + ".z80");
-      State<T> state = realCodeBytecodeCreationBase.getState();
+      State state = realCodeBytecodeCreationBase.getState();
       SnapshotLoader.setupStateWithSnapshot(getDefaultRegistersSetter(), tempFile.getAbsolutePath(), state);
-      firstAddress = realCodeBytecodeCreationBase.getState().getPc().read().valueXYZ;
+      firstAddress = realCodeBytecodeCreationBase.getState().getPc().read();
       base64Memory = SnapshotHelper.getBase64Memory(realCodeBytecodeCreationBase.getState());
     }
 
@@ -145,7 +144,7 @@ public class RemoteZ80Translator<T extends WordNumber> {
     sourceCode = sourceCode.replaceAll("\\(\\(.*\\)this\\).", "");
     sourceCode = StringReplacer.replace(sourceCode, Pattern.compile("('\\\\u([0-9a-f]{4})')"), m -> {
       String group = m.group(2);
-      return String.valueOf(Integer.parseInt(group, 16));
+      return String.valueOf(java.lang.Integer.parseInt(group, 16));
     });
     return sourceCode;
   }
@@ -178,7 +177,7 @@ public class RemoteZ80Translator<T extends WordNumber> {
     realCodeBytecodeCreationBase.translateToJava(className, memoryInBase64, startMethod);
   }
 
-  public RegistersSetter<T> getDefaultRegistersSetter() {
+  public RegistersSetter getDefaultRegistersSetter() {
     return realCodeBytecodeCreationBase.getRegistersSetter();
   }
 }

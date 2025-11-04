@@ -25,7 +25,7 @@ import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import org.cojen.maker.Variable;
 
-public class OpcodeReferenceVisitor<T extends WordNumber> implements InstructionVisitor<T, Object> {
+public class OpcodeReferenceVisitor implements InstructionVisitor<Object> {
   private Object result;
   private final boolean isTarget;
   private final RoutineBytecodeGenerator routineByteCodeGenerator;
@@ -37,7 +37,7 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
 
   @Override
   public void visitOpcodeReference(OpcodeReference opcodeReference) {
-    result = ((WordNumber) opcodeReference.read()).valueXYZ;
+    result = ((Integer) opcodeReference.read());
   }
 
   public Object getResult() {
@@ -50,18 +50,18 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
     return true;
   }
 
-  public void visitConstantOpcodeReference(ConstantOpcodeReference<T> constantOpcodeReference) {
-    result = constantOpcodeReference.read().valueXYZ;
+  public void visitConstantOpcodeReference(ConstantOpcodeReference constantOpcodeReference) {
+    result = constantOpcodeReference.read();
   }
 
-  public void visitMemoryAccessOpcodeReference(MemoryAccessOpcodeReference<T> memoryAccessOpcodeReference) {
+  public void visitMemoryAccessOpcodeReference(MemoryAccessOpcodeReference memoryAccessOpcodeReference) {
     Variable memoryField = routineByteCodeGenerator.getField("memory");
-    int o = memoryAccessOpcodeReference.getC().read().valueXYZ;
+    int o = memoryAccessOpcodeReference.getC().read();
     if (isTarget) result = new WriteArrayVariable(routineByteCodeGenerator, () -> o, "");
     else result = getFromMemory(o);
   }
 
-  public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
+  public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference memoryPlusRegister8BitReference) {
     Register target = (Register) memoryPlusRegister8BitReference.getTarget();
     OpcodeReferenceVisitor opcodeReferenceVisitor = new OpcodeReferenceVisitor(isTarget, routineByteCodeGenerator);
     target.accept(opcodeReferenceVisitor);
@@ -80,8 +80,8 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
 
   public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
     Object variable;
-    if (indirectMemory8BitReference.getTarget() instanceof Memory16BitReference<?> memory16BitReference) {
-      variable = memory16BitReference.read().valueXYZ;
+    if (indirectMemory8BitReference.getTarget() instanceof Memory16BitReference memory16BitReference) {
+      variable = memory16BitReference.read();
     } else {
       Register target = (Register) indirectMemory8BitReference.getTarget();
       OpcodeReferenceVisitor opcodeReferenceVisitor = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
@@ -103,8 +103,8 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
   @Override
   public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
     Object variable;
-    if (indirectMemory16BitReference.target instanceof Memory16BitReference<?> memory16BitReference) {
-      variable = memory16BitReference.read().valueXYZ;
+    if (indirectMemory16BitReference.target instanceof Memory16BitReference memory16BitReference) {
+      variable = memory16BitReference.read();
     } else {
       Register target = (Register) indirectMemory16BitReference.target;
       OpcodeReferenceVisitor opcodeReferenceVisitor = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
@@ -124,10 +124,10 @@ public class OpcodeReferenceVisitor<T extends WordNumber> implements Instruction
 
   @Override
   public void visitImmutableOpcodeReference(ImmutableOpcodeReference immutableOpcodeReference) {
-    result = ((WordNumber) ((T) immutableOpcodeReference.read())).valueXYZ;
+    result = immutableOpcodeReference.read();
   }
 
-  public <T> Variable process(Register<T> register) {
+  public  Variable process(Register register) {
     register.accept(this);
     return (Variable) getResult();
   }

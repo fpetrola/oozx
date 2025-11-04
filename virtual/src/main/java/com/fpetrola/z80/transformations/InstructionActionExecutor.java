@@ -27,11 +27,11 @@ import com.fpetrola.z80.registers.Register;
 import java.util.function.Consumer;
 
 @SuppressWarnings("ALL")
-public class InstructionActionExecutor<T extends WordNumber> implements InstructionVisitor<T, Integer> {
+public class InstructionActionExecutor implements InstructionVisitor<java.lang.Integer> {
   private int tick;
-  private Consumer<VirtualRegister<?>> actionExecutor;
+  private Consumer<VirtualRegister> actionExecutor;
 
-  public InstructionActionExecutor(Consumer<VirtualRegister<?>> actionExecutor) {
+  public InstructionActionExecutor(Consumer<VirtualRegister> actionExecutor) {
     this.actionExecutor = actionExecutor;
   }
 
@@ -56,7 +56,7 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
   }
 
   public boolean visitRegister(Register register) {
-    if (register instanceof VirtualRegister<?> virtualRegister) {
+    if (register instanceof VirtualRegister virtualRegister) {
       actionExecutor.accept(virtualRegister);
     }
     return false;
@@ -69,7 +69,7 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
       executeAction(indirectMemory8BitReference.getTarget());
     } else if (cloneable instanceof IndirectMemory16BitReference indirectMemory16BitReference) {
       executeAction(indirectMemory16BitReference.target);
-    } else if (cloneable instanceof VirtualRegister<?> virtualRegister) {
+    } else if (cloneable instanceof VirtualRegister virtualRegister) {
       actionExecutor.accept(virtualRegister);
     }
   }
@@ -83,20 +83,20 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
     executeAction(tDec16.getTarget());
   }
 
-  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction<T> parameterizedUnaryAluInstruction) {
+  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction parameterizedUnaryAluInstruction) {
     executeAction(parameterizedUnaryAluInstruction.getTarget());
     executeAction(parameterizedUnaryAluInstruction.getFlag());
     return false;
   }
 
   @Override
-  public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction<T> parameterizedBinaryAluInstruction) {
+  public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction parameterizedBinaryAluInstruction) {
     executeAction(parameterizedBinaryAluInstruction.getTarget());
     executeAction(parameterizedBinaryAluInstruction.getSource());
     executeAction(parameterizedBinaryAluInstruction.getFlag());
   }
 
-  public boolean visitingDjnz(DJNZ<T> djnz) {
+  public boolean visitingDjnz(DJNZ djnz) {
     executeAction(djnz.getPositionOpcodeReference());
 
     djnz.accept(new ConditionVisitor());
@@ -166,7 +166,7 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
   }
 
   @Override
-  public boolean visitingBitOperation(BitOperation<T> tBitOperation) {
+  public boolean visitingBitOperation(BitOperation tBitOperation) {
     executeAction(tBitOperation.getFlag());
     executeAction(tBitOperation.getTarget());
     return false;
@@ -203,11 +203,11 @@ public class InstructionActionExecutor<T extends WordNumber> implements Instruct
   }
 
   @Override
-  public void visitingFlag(Register<T> flag, DefaultTargetFlagInstruction targetSourceInstruction) {
+  public void visitingFlag(Register flag, DefaultTargetFlagInstruction targetSourceInstruction) {
     executeAction(flag);
   }
 
-  public void executeAction(Instruction<T> instruction) {
+  public void executeAction(Instruction instruction) {
     instruction.accept(this);
   }
 

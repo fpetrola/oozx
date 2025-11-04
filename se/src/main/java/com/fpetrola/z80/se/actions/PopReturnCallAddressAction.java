@@ -20,15 +20,14 @@ package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.RoutineExecution;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 
-public class PopReturnCallAddressAction<T extends WordNumber> extends BasicAddressAction<T> {
-  private final RoutineExecutorHandler<T> routineExecutorHandler;
-  private final RoutineExecution<T> lastRoutineExecution;
+public class PopReturnCallAddressAction extends BasicAddressAction {
+  private final RoutineExecutorHandler routineExecutorHandler;
+  private final RoutineExecution lastRoutineExecution;
 
-  public PopReturnCallAddressAction(RoutineExecutorHandler<T> routineExecutorHandler, RoutineExecution<T> lastRoutineExecution, int pc1) {
+  public PopReturnCallAddressAction(RoutineExecutorHandler routineExecutorHandler, RoutineExecution lastRoutineExecution, int pc1) {
     super(pc1, routineExecutorHandler);
     this.routineExecutorHandler = routineExecutorHandler;
     this.lastRoutineExecution = lastRoutineExecution;
@@ -36,7 +35,7 @@ public class PopReturnCallAddressAction<T extends WordNumber> extends BasicAddre
 
   public boolean processBranch(Instruction instruction) {
     if (lastRoutineExecution.hasPendingPoints()) {
-      int jumpAddress = ((Call) instruction).getJumpAddress().valueXYZ;
+      int jumpAddress = ((Call) instruction).getJumpAddress();
       routineExecutorHandler.createRoutineExecution(jumpAddress);
       return true;
     } else {

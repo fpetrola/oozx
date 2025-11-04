@@ -21,17 +21,16 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class Ex<T> extends TargetSourceInstruction<T, OpcodeReference<T>> {
-  public Ex(OpcodeReference<T> target, OpcodeReference<T> source, Register<T> flag1) {
+public class Ex extends TargetSourceInstruction<OpcodeReference> {
+  public Ex(OpcodeReference target, OpcodeReference source, Register flag1) {
     super(target, source, flag1);
   }
 
   public int execute() {
-    final T v1 = target.read();
-    final T v2 = source.read();
+    final int v1 = target.read();
+    final int v2 = source.read();
     target.write(v2);
     source.write(v1);
     return cyclesCost;

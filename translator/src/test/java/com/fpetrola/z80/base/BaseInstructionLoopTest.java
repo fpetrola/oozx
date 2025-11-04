@@ -18,12 +18,10 @@
 
 package com.fpetrola.z80.base;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
 import java.util.Arrays;
 
-public class BaseInstructionLoopTest<T extends WordNumber> extends TwoZ80Driver<T> {
-  public BaseInstructionLoopTest(IDriverConfigurator<T> driverConfigurator) {
+public class BaseInstructionLoopTest extends TwoZ80Driver {
+  public BaseInstructionLoopTest(IDriverConfigurator driverConfigurator) {
     super(driverConfigurator);
   }
 
@@ -31,28 +29,28 @@ public class BaseInstructionLoopTest<T extends WordNumber> extends TwoZ80Driver<
   @Override
   protected void setUpMemory() {
     initMem(() -> {
-      WordNumber[] data = new WordNumber[0x10000];
-      Arrays.fill(data, (Object) new WordNumber(0));
+      Integer[] data = new Integer[0x10000];
+      Arrays.fill(data, 0);
       int base = 3592 * 4;
       base = 14368;
-      data[base] = (WordNumber) new WordNumber(16);
-      data[base + 1] = (WordNumber) new WordNumber(8);
-      data[base + 2] = (WordNumber) new WordNumber(4);
-      data[base + 3] = (WordNumber) new WordNumber(2);
-      data[0] = (WordNumber) new WordNumber(1);
-      data[1] = (WordNumber) new WordNumber(10);
-      data[2] = (WordNumber) new WordNumber(20);
-      data[3] = (WordNumber) new WordNumber(30);
-      data[0xFFFF] = (WordNumber) new WordNumber(1);
-      data[1000] = (WordNumber) new WordNumber(123);
-      data[100] = (WordNumber) new WordNumber(0);
-      data[101] = (WordNumber) new WordNumber(1);
-      data[102] = (WordNumber) new WordNumber(2);
-      data[300] = (WordNumber) new WordNumber(20);
-      data[301] = (WordNumber) new WordNumber(21);
-      data[302] = (WordNumber) new WordNumber(22);
+      data[base] = 16;
+      data[base + 1] = 8;
+      data[base + 2] = 4;
+      data[base + 3] = 2;
+      data[0] = 1;
+      data[1] = 10;
+      data[2] = 20;
+      data[3] = 30;
+      data[0xFFFF] = 1;
+      data[1000] = 123;
+      data[100] = 0;
+      data[101] = 1;
+      data[102] = 2;
+      data[300] = 20;
+      data[301] = 21;
+      data[302] = 22;
 
-      return (T[]) data;
+      return (Integer[]) data;
     });
   }
 }

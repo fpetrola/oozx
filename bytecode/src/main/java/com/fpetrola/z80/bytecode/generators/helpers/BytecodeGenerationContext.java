@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.bytecode.generators.helpers;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
@@ -33,14 +32,14 @@ public class BytecodeGenerationContext {
   public boolean optimize16Convertion = false;
   public ClassMaker cm;
   public Map<String, MethodMaker> methods;
-  public Register<WordNumber> pc;
+  public Register pc;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
   public boolean syncEnabled;
 
-  public BytecodeGenerationContext(RoutineManager routineManager, ClassMaker classMaker, Register<?> pc1, SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public BytecodeGenerationContext(RoutineManager routineManager, ClassMaker classMaker, Register pc1, SymbolicExecutionAdapter symbolicExecutionAdapter) {
     this.routineManager = routineManager;
     this.cm = classMaker;
-    this.pc = (Register<WordNumber>) pc1;
+    this.pc = pc1;
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     this.methods = new HashMap<>();
     this.syncEnabled = true;

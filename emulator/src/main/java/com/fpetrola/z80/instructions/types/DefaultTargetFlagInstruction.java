@@ -20,24 +20,23 @@ package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public abstract class DefaultTargetFlagInstruction<T> extends DefaultTargetInstruction<T> implements FlagInstruction<T> {
-  protected Register<T> flag;
+public abstract class DefaultTargetFlagInstruction extends DefaultTargetInstruction implements FlagInstruction {
+  protected Register flag;
 
-  public DefaultTargetFlagInstruction(OpcodeReference<T> target, Register<T> flag) {
+  public DefaultTargetFlagInstruction(OpcodeReference target, Register flag) {
     super(target);
     this.flag = flag;
     incrementLengthBy(target.getLength());
   }
 
   @Override
-  public Register<T> getFlag() {
+  public Register getFlag() {
     return flag;
   }
 
-  public void setFlag(Register<T> flag) {
+  public void setFlag(Register flag) {
     this.flag = flag;
   }
 

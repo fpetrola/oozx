@@ -18,32 +18,30 @@
 
 package com.fpetrola.z80.memory;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
+public interface Memory {
 
-public interface Memory<T> {
-
-  static <T extends WordNumber> T read16Bits(Memory<T> memory, T address) {
-    WordNumber wordNumber1 = memory.read(address, 0);
-    T and = (T) (WordNumber) new WordNumber((wordNumber1.valueXYZ & 0xff) & 0xFFFF);
-    WordNumber wordNumber = memory.read((T) (WordNumber) new WordNumber((address.valueXYZ + 1) & 0xFFFF), 0);
-    WordNumber number = ((WordNumber) (WordNumber) new WordNumber((wordNumber.valueXYZ << 8) & 0xFFFF));
-    int i = and.valueXYZ & 0xFFFF;
-    return (T) (WordNumber) new WordNumber((number.valueXYZ | i) & 0xFFFF);
+  static int read16Bits(Memory memory, int address) {
+    int wordNumber1 = memory.read(address, 0);
+    int and = (wordNumber1 & 0xff) & 0xFFFF;
+    int wordNumber = memory.read((address + 1) & 0xFFFF, 0);
+    int number = (wordNumber << 8) & 0xFFFF;
+    int i = and & 0xFFFF;
+    return (number | i) & 0xFFFF;
   }
 
-  static <T extends WordNumber> void write16Bits(Memory<T> memory, T value, T address) {
-    memory.write((T) (WordNumber) new WordNumber((address.valueXYZ + 1) & 0xFFFF), ((T) (WordNumber) new WordNumber((value.valueXYZ >>> 8) & 0xFFFF)));
-    memory.write(address, (T) (WordNumber) new WordNumber((value.valueXYZ & 0xFF) & 0xFFFF));
+  static void write16Bits(Memory memory, int value, int address) {
+    memory.write((address + 1) & 0xFFFF, ((value >>> 8) & 0xFFFF));
+    memory.write(address, (value & 0xFF) & 0xFFFF);
   }
 
-  static <T extends WordNumber> void write16BitsR(Memory<T> memory, T value, T address) {
-    memory.write(address, (T) (WordNumber) new WordNumber((value.valueXYZ & 0xFF) & 0xFFFF));
-    memory.write((T) (WordNumber) new WordNumber((address.valueXYZ + 1) & 0xFFFF), ((T) (WordNumber) new WordNumber((value.valueXYZ >>> 8) & 0xFFFF)));
+  static void write16BitsR(Memory memory, int value, int address) {
+    memory.write(address, (value & 0xFF) & 0xFFFF);
+    memory.write((address + 1) & 0xFFFF, ((value >>> 8) & 0xFFFF));
   }
 
-  T read(T address, int fetching);
+  int read(int address, int fetching);
 
-  void write(T address, T value);
+  void write(int address, int value);
 
   default boolean compare() {
     return false;
@@ -52,20 +50,26 @@ public interface Memory<T> {
   default void update() {
   }
 
-  default void addMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener){};
+  default void addMemoryWriteListener(MemoryWriteListener memoryWriteListener) {
+  }
 
-  default void removeMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener){};
+  ;
+
+  default void removeMemoryWriteListener(MemoryWriteListener memoryWriteListener) {
+  }
+
+  ;
 
   void reset();
 
-  default void addMemoryReadListener(MemoryReadListener<T> memoryReadListener) {
+  default void addMemoryReadListener(MemoryReadListener memoryReadListener) {
   }
 
-  default void removeMemoryReadListener(MemoryReadListener<T> memoryReadListener) {
+  default void removeMemoryReadListener(MemoryReadListener memoryReadListener) {
   }
 
-  default T[] getData() {
-    return (T[]) new WordNumber[0];
+  default Integer[] getData() {
+    return (Integer[]) new Integer[0];
   }
 
   default void disableReadListener() {
@@ -87,10 +91,10 @@ public interface Memory<T> {
     return false;
   }
 
-  default void copyFrom(Memory<T> memory) {
-    T[] data = memory.getData();
+  default void copyFrom(Memory memory) {
+    Integer[] data = memory.getData();
     for (int i = 0; i < data.length; i++) {
-      T d = data[i];
+      int d = data[i];
       getData()[i] = d;
     }
   }

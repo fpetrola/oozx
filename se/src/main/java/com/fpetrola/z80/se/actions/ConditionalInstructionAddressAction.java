@@ -20,21 +20,20 @@ package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 
-public class ConditionalInstructionAddressAction<T extends WordNumber> extends AddressAction<T> {
+public class ConditionalInstructionAddressAction extends AddressAction {
 
-  public ConditionalInstructionAddressAction(Instruction<Boolean> instruction, int pcValue, boolean alwaysTrue, RoutineExecutorHandler routineExecutorHandler) {
+  public ConditionalInstructionAddressAction(Instruction instruction, int pcValue, boolean alwaysTrue, RoutineExecutorHandler routineExecutorHandler) {
     super(pcValue, true, instruction, alwaysTrue, routineExecutorHandler);
   }
 
   public boolean processBranch(Instruction instruction) {
     ConditionalInstruction instruction1 = (ConditionalInstruction) instruction;
     instruction1.calculateJumpAddress();
-    WordNumber jumpAddress = instruction1.getJumpAddress();
-    if (jumpAddress != null && routineExecutionHandler.getPc().read().valueXYZ > 16384) {
-      if (jumpAddress.valueXYZ < 16384) {
+    Integer jumpAddress = instruction1.getJumpAddress();
+    if (jumpAddress != null && routineExecutionHandler.getPc().read() > 16384) {
+      if (jumpAddress < 16384) {
         return branch = false;
       }
     }

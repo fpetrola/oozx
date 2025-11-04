@@ -21,7 +21,6 @@ package com.fpetrola.z80.minizx.emulation;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.transformations.Base64Utils;
 import org.apache.commons.lang3.StringUtils;
 import snapshots.*;
@@ -35,7 +34,7 @@ import java.util.zip.GZIPInputStream;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class MiniZXWithEmulationBase {
-  protected static void loadSnapshotFromBase64(final State<WordNumber> state, String base64Z80File) {
+  protected static void loadSnapshotFromBase64(final State state, String base64Z80File) {
     try {
       SpectrumState snapState = MiniZXWithEmulationBase.getSpectrumStateFromBase64(base64Z80File);
       loadIntoMemory(state, snapState);
@@ -64,7 +63,7 @@ public class MiniZXWithEmulationBase {
     }
   }
 
-  protected void loadSnapshotFromFile(String fileName, final State<WordNumber> state) {
+  protected void loadSnapshotFromFile(String fileName, final State state) {
     try {
       File file = new File(fileName);
       SnapshotFile snap = SnapshotFactory.getSnapshot(file);
@@ -75,8 +74,8 @@ public class MiniZXWithEmulationBase {
     }
   }
 
-  private static void loadIntoMemory(State<WordNumber> state, SpectrumState snapState) {
-    RegistersBase registersBase = new RegistersBase<>(state);
+  private static void loadIntoMemory(State state, SpectrumState snapState) {
+    RegistersBase registersBase = new RegistersBase(state);
 
     registersBase.setZ80State(snapState.getZ80State());
 
@@ -98,7 +97,7 @@ public class MiniZXWithEmulationBase {
 
   private static int copyPage(byte[][] ram, int page, int position, Object[] data) {
     for (int i = 0; i < ram[page].length; i++) {
-      data[position++] = (Object) new WordNumber(ram[page][i]);
+      data[position++] = ram[page][i];
     }
     return position;
   }

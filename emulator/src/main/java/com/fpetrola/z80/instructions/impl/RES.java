@@ -21,19 +21,18 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.BitOperation;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class RES<T extends WordNumber> extends BitOperation<T> {
+public class RES extends BitOperation {
 
-  public RES(OpcodeReference target, int n, Register<T> flag) {
+  public RES(OpcodeReference target, int n, Register flag) {
     super(target, n, flag);
   }
 
   public int execute() {
-    WordNumber wordNumber = target.read();
+    Integer wordNumber = target.read();
     int i = ~(1 << n);
-    target.write((T) (WordNumber) new WordNumber((wordNumber.valueXYZ & i) & 0xFFFF));
+    target.write((wordNumber & i) & 0xFFFF);
     return cyclesCost;
   }
 

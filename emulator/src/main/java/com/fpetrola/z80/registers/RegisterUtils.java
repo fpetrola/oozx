@@ -22,7 +22,7 @@ import com.fpetrola.z80.memory.Memory;
 
 public final class RegisterUtils {
 
-    public static <T> T indirect(Memory<T> memory, Register<T> r) {
+    public static  int indirect(Memory memory, Register r) {
         return memory.read(r.read(), 0);
     }
 

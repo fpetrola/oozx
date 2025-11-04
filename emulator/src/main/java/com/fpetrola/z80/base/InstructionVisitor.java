@@ -24,7 +24,7 @@ import com.fpetrola.z80.opcodes.decoder.table.NullOpcodeReference;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 
-public interface InstructionVisitor<T extends WordNumber, R> {
+public interface InstructionVisitor<R> {
   default R getResult() {
     return null;
   }
@@ -57,7 +57,7 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default boolean visitingDec(Dec<T> dec) {
+  default boolean visitingDec(Dec dec) {
 
     return false;
   }
@@ -66,7 +66,7 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default boolean visitingInc(Inc<T> tInc) {
+  default boolean visitingInc(Inc tInc) {
 
     return false;
   }
@@ -118,16 +118,16 @@ public interface InstructionVisitor<T extends WordNumber, R> {
     return false;
   }
 
-  default boolean visitingBit(BIT<T> bit){
+  default boolean visitingBit(BIT bit){
     return false;
   }
 
-  default boolean visitingDjnz(DJNZ<T> djnz) {
+  default boolean visitingDjnz(DJNZ djnz) {
 
     return false;
   }
 
-  default void visitingLd(Ld<T> ld) {
+  default void visitingLd(Ld ld) {
 
   }
 
@@ -140,7 +140,7 @@ public interface InstructionVisitor<T extends WordNumber, R> {
     return false;
   }
 
-  default void visitingRst(RST<T> rst) {
+  default void visitingRst(RST rst) {
 
   }
 
@@ -160,16 +160,16 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction<T> parameterizedUnaryAluInstruction) {
+  default boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction parameterizedUnaryAluInstruction) {
 
     return false;
   }
 
-  default void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction<T> parameterizedBinaryAluInstruction) {
+  default void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction parameterizedBinaryAluInstruction) {
 
   }
 
-  default boolean visitingBitOperation(BitOperation<T> tBitOperation) {
+  default boolean visitingBitOperation(BitOperation tBitOperation) {
     return false;
   }
 
@@ -177,11 +177,11 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default boolean visitingJP(JP<T> jp) {
+  default boolean visitingJP(JP jp) {
     return false;
   }
 
-  default void visitingFlag(Register<T> flag, DefaultTargetFlagInstruction targetSourceInstruction) {
+  default void visitingFlag(Register flag, DefaultTargetFlagInstruction targetSourceInstruction) {
 
   }
 
@@ -202,30 +202,30 @@ public interface InstructionVisitor<T extends WordNumber, R> {
     return false;
   }
 
-  default void visitConstantOpcodeReference(ConstantOpcodeReference<T> constantOpcodeReference) {
+  default void visitConstantOpcodeReference(ConstantOpcodeReference constantOpcodeReference) {
 
   }
 
-  default void visitMemoryAccessOpcodeReference(MemoryAccessOpcodeReference<T> memoryAccessOpcodeReference) {
+  default void visitMemoryAccessOpcodeReference(MemoryAccessOpcodeReference memoryAccessOpcodeReference) {
 
   }
 
-  default void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference<T> memoryPlusRegister8BitReference) {
+  default void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference memoryPlusRegister8BitReference) {
 
   }
 
-  default void visitIndirectMemory8BitReference(IndirectMemory8BitReference<T> indirectMemory8BitReference) {
+  default void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
 
   }
 
-  default void visitEx(Ex<T> ex) {
+  default void visitEx(Ex ex) {
   }
 
-  default void visitIn(In<T> tIn) {
+  default void visitIn(In tIn) {
 
   }
 
-  default void visitOut(Out<T> tOut) {
+  default void visitOut(Out tOut) {
 
   }
 
@@ -257,17 +257,17 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default boolean visitRepeatingInstruction(RepeatingInstruction<T> tRepeatingInstruction) {
+  default boolean visitRepeatingInstruction(RepeatingInstruction tRepeatingInstruction) {
 
     return false;
   }
 
-  default boolean visitLdir(Ldir<T> ldir) {
+  default boolean visitLdir(Ldir ldir) {
 
     return false;
   }
 
-  default boolean visitLddr(Lddr<T> lddr) {
+  default boolean visitLddr(Lddr lddr) {
     return false;
   }
 
@@ -275,24 +275,24 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default boolean visitCpir(Cpir<T> cpir) {
+  default boolean visitCpir(Cpir cpir) {
 
     return false;
   }
 
-  default boolean visitLdi(Ldi<T> tLdi) {
+  default boolean visitLdi(Ldi tLdi) {
     return false;
   }
 
   default void visitBNotZeroCondition(BNotZeroCondition bNotZeroCondition) {
   }
 
-  default boolean visitingSbc16(Sbc16<T> sbc16) {
+  default boolean visitingSbc16(Sbc16 sbc16) {
 
     return false;
   }
 
-  default void visitingSbc(Sbc<T> sbc) {
+  default void visitingSbc(Sbc sbc) {
 
   }
 
@@ -300,7 +300,7 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default boolean visitingAdc16(Adc16<T> tAdc16) {
+  default boolean visitingAdc16(Adc16 tAdc16) {
     return false;
   }
 
@@ -316,11 +316,11 @@ public interface InstructionVisitor<T extends WordNumber, R> {
     return false;
   }
 
-  default boolean visitingRlc(RLC<T> rlc) {
+  default boolean visitingRlc(RLC rlc) {
     return false;
   }
 
-  default boolean visitingRrc(RRC<T> rrc) {
+  default boolean visitingRrc(RRC rrc) {
     return false;
   }
 
@@ -335,7 +335,7 @@ public interface InstructionVisitor<T extends WordNumber, R> {
     return false;
   }
 
-  default boolean visitingSra(SRA<T> tsra) {
+  default boolean visitingSra(SRA tsra) {
     return false;
   }
 
@@ -343,7 +343,7 @@ public interface InstructionVisitor<T extends WordNumber, R> {
 
   }
 
-  default boolean visitCpi(Cpi<T> cpi) {
+  default boolean visitCpi(Cpi cpi) {
     return false;
   }
 
@@ -370,47 +370,47 @@ public interface InstructionVisitor<T extends WordNumber, R> {
     return false;
   }
 
-  default boolean visitOuti(Outi<T> outi) {
+  default boolean visitOuti(Outi outi) {
     return false;
   }
 
-  default boolean visitOutd(Outd<T> outi) {
+  default boolean visitOutd(Outd outi) {
     return false;
   }
 
-  default boolean visitIni(Ini<T> tIni) {
+  default boolean visitIni(Ini tIni) {
     return false;
   }
 
-  default boolean visitInd(Ind<T> tInd) {
+  default boolean visitInd(Ind tInd) {
     return false;
   }
 
-  default boolean visitCpd(Cpd<T> cpd) {
+  default boolean visitCpd(Cpd cpd) {
     return false;
   }
 
-  default boolean visitRLD(RLD<T> rld) {
+  default boolean visitRLD(RLD rld) {
     return false;
   }
 
-  default boolean visitRRD(RRD<T> rrd) {
+  default boolean visitRRD(RRD rrd) {
     return false;
   }
 
-  default boolean visitLdd(Ldd<T> ldd) {
+  default boolean visitLdd(Ldd ldd) {
     return false;
   }
 
-  default boolean visitMemory16BitReference(Memory16BitReference<T> memory16BitReference) {
+  default boolean visitMemory16BitReference(Memory16BitReference memory16BitReference) {
     return false;
   }
 
-  default boolean visitMemory8BitReference(Memory8BitReference<T> memory8BitReference) {
+  default boolean visitMemory8BitReference(Memory8BitReference memory8BitReference) {
     return false;
   }
 
-  default boolean visiting16BitsOperation(Binary16BitsOperation<T> binary16BitsOperation) {
+  default boolean visiting16BitsOperation(Binary16BitsOperation binary16BitsOperation) {
     return false;
   }
 

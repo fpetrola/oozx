@@ -35,7 +35,6 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.emulation.AbstractMemory;
 import com.fpetrola.z80.minizx.emulation.Helper;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 import fuse.PhaseProcessorExecutionListener;
@@ -57,13 +56,13 @@ public class Z80 implements ZxModule {
   public com.fpetrola.oozx.Memory memory;
 
   public long interruptsEnabledAt;
-  public OOZ80<WordNumber> ooz80;
+  public OOZ80 ooz80;
   public LibretroCore.bridge_command bridgeCommand;
-  private PhaseProcessor<WordNumber> phaseProcessor;
+  private PhaseProcessor phaseProcessor;
 
   private MiniZXIO io;
   private int z80_interrupt_event;
-  //   ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent<>();
+  //   ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent();
 //   MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
   private boolean init;
   public Audio audio;
@@ -107,24 +106,24 @@ public class Z80 implements ZxModule {
   public void reset(int hardReset) {
     ooz80.reset();
 
-    State<WordNumber> state = ooz80.getState();
+    State state = ooz80.getState();
 
-    state.getRegister(AF).write((WordNumber) new WordNumber(0xffff));
-    state.getRegister(AFx).write((WordNumber) new WordNumber(0xffff));
-    state.getRegister(BC).write((WordNumber) new WordNumber(0));
-    state.getRegister(DE).write((WordNumber) new WordNumber(0));
-    state.getRegister(HLx).write((WordNumber) new WordNumber(0));
-    state.getRegister(BC).write((WordNumber) new WordNumber(0));
-    state.getRegister(DEx).write((WordNumber) new WordNumber(0));
-    state.getRegister(HLx).write((WordNumber) new WordNumber(0));
-    state.getRegister(IX).write((WordNumber) new WordNumber(0));
-    state.getRegister(IY).write((WordNumber) new WordNumber(0));
-    state.getRegister(PC).write((WordNumber) new WordNumber(0));
-    state.getRegister(SP).write((WordNumber) new WordNumber(0xffff));
+    state.getRegister(AF).write(0xffff);
+    state.getRegister(AFx).write(0xffff);
+    state.getRegister(BC).write(0);
+    state.getRegister(DE).write(0);
+    state.getRegister(HLx).write(0);
+    state.getRegister(BC).write(0);
+    state.getRegister(DEx).write(0);
+    state.getRegister(HLx).write(0);
+    state.getRegister(IX).write(0);
+    state.getRegister(IY).write(0);
+    state.getRegister(PC).write(0);
+    state.getRegister(SP).write(0xffff);
 
 
-    state.getRegister(I).write((WordNumber) new WordNumber(0));
-    state.getRegister(R).write((WordNumber) new WordNumber(0));
+    state.getRegister(I).write(0);
+    state.getRegister(R).write(0);
 
     interruptsEnabledAt = -1;
   }
@@ -145,22 +144,22 @@ public class Z80 implements ZxModule {
     }
   }
 
-  public <T extends WordNumber> OOZ80<T> createOOZ80(MiniZXIO io) {
-    Memory<T> memory1 = new AbstractMemory<T>() {
-      protected T doRead(T address) {
-        byte b = memory.readByteInternal(address.valueXYZ);
-        return (T) new WordNumber(b & 0xff);
+  public OOZ80 createOOZ80(MiniZXIO io) {
+    Memory memory1 = new AbstractMemory() {
+      protected int doRead(int address) {
+        byte b = memory.readByteInternal(address);
+        return b & 0xff;
       }
 
-      protected void doWrite(T address, T value) {
-        memory.writeByteInternal2(address.valueXYZ, (byte) value.valueXYZ);
+      protected void doWrite(int address, int value) {
+        memory.writeByteInternal2(address, (byte) value);
       }
 
       public void reset() {
         memory.reset();
       }
     };
-    var state = new State<T>(io, new DefaultRegisterBankFactory<T>().createBank(), memory1) {
+    var state = new State(io, new DefaultRegisterBankFactory().createBank(), memory1) {
       public void enableInterrupt() {
         super.enableInterrupt();
         interruptsEnabledAt = clock.getTStates();
@@ -170,18 +169,18 @@ public class Z80 implements ZxModule {
 
     state.clock = zxClock;
     io.setPc(state.getPc());
-    return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)), new DefaultInstructionExecutor(state, false));
+    return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory(state)), new DefaultInstructionExecutor(state, false));
   }
 
 
   private void init2() {
     io = new MiniZXIO() {
-      public synchronized WordNumber in(WordNumber port) {
-        return (WordNumber) new WordNumber(periph.readPort(port.valueXYZ));
+      public synchronized int in(int port) {
+        return periph.readPort(port);
       }
 
-      public void out(WordNumber port, WordNumber value) {
-        periph.writePort(port.valueXYZ, (byte) value.valueXYZ);
+      public void out(int port, int value) {
+        periph.writePort(port, (byte) value);
       }
     };
     ooz80 = createOOZ80(io);
@@ -206,9 +205,9 @@ public class Z80 implements ZxModule {
   }
 
   public void loadSnap(String url) {
-    State<?> state = ooz80.getState();
+    State state = ooz80.getState();
 
-    RegistersBase registersBase = new RegistersBase<>(ooz80.getState());
+    RegistersBase registersBase = new RegistersBase(ooz80.getState());
 
     String first = url; //com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
     byte[] bytes = SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
@@ -223,28 +222,28 @@ public class Z80 implements ZxModule {
   }
 
   private void setupMemory() {
-    State<?> state = ooz80.getState();
+    State state = ooz80.getState();
 
-    Memory<WordNumber> memory1 = (Memory<WordNumber>) state.getMemory();
+    Memory memory1 = (Memory) state.getMemory();
 
     phaseProcessor = new FusePhaseProcessor(this);
-    DefaultInstructionFetcher<WordNumber> instructionFetcher = (DefaultInstructionFetcher<WordNumber>) ooz80.getInstructionFetcher();
+    DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
     instructionFetcher.tPhaseProcessor = phaseProcessor;
 
-    ooz80.getInstructionExecutor().addExecutionListener(new PhaseProcessorExecutionListener<>(phaseProcessor));
+    ooz80.getInstructionExecutor().addExecutionListener(new PhaseProcessorExecutionListener(phaseProcessor));
 
-    memory1.addMemoryReadListener(new AddStatesMemoryReadListener<>(phaseProcessor) {
-      protected void doRead(WordNumber address, WordNumber value, int fetching) {
-        memory.readByte(address.valueXYZ, ula);
+    memory1.addMemoryReadListener(new AddStatesMemoryReadListener(phaseProcessor) {
+      protected void doRead(int address, int value, int fetching) {
+        memory.readByte(address, ula);
       }
     });
-    memory1.addMemoryWriteListener(new AddStatesMemoryWriteListener<>(phaseProcessor) {
-      protected void doWrite(WordNumber address, WordNumber value) {
-        memory.writeByte(address.valueXYZ, (byte) (value.valueXYZ & 0xff), ula);
+    memory1.addMemoryWriteListener(new AddStatesMemoryWriteListener(phaseProcessor) {
+      protected void doWrite(int address, int value) {
+        memory.writeByte(address, (byte) (value & 0xff), ula);
       }
 
-      protected void doEnd(WordNumber address, WordNumber value) {
-        memory.writeByteInternal(address.valueXYZ, (byte) (value.valueXYZ & 0xff), display);
+      protected void doEnd(int address, int value) {
+        memory.writeByteInternal(address, (byte) (value & 0xff), display);
       }
     });
   }
@@ -292,14 +291,14 @@ public class Z80 implements ZxModule {
   }
 
   public void updateMemory() {
-    Memory<WordNumber> memory1 = ooz80.getState().getMemory();
+    Memory memory1 = ooz80.getState().getMemory();
 
     memory1.canDisable(true);
     memory1.disableReadListener();
 
     for (int i = 0x4000; i < 0x8000; i++) {
-      WordNumber datum = memory1.read((WordNumber) new WordNumber(i), 0);
-      memory.writeByteInternal(i, datum != null ? (byte) (datum.valueXYZ & 0xff) : 0, display);
+      Integer datum = memory1.read(i, 0);
+      memory.writeByteInternal(i, datum != null ? (byte) (datum & 0xff) : 0, display);
     }
 
     memory1.enableReadListener();

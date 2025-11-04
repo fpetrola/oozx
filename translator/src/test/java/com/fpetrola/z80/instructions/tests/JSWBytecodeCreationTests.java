@@ -25,7 +25,6 @@ import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
 import io.exemplary.guice.Modules;
@@ -43,8 +42,8 @@ import static com.fpetrola.z80.helpers.Helper.createMD5;
 @SuppressWarnings("ALL")
 @RunWith(TestRunner.class)
 @Modules(RoutinesModule.class)
-public class JSWBytecodeCreationTests<T extends WordNumber> {
-  private final RealCodeBytecodeCreationBase<T> realCodeBytecodeCreationBase;
+public class JSWBytecodeCreationTests {
+  private final RealCodeBytecodeCreationBase realCodeBytecodeCreationBase;
   private final RoutinesDriverConfigurator driverConfigurator;
 
   @Before
@@ -179,7 +178,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
 
   private String getMemoryInBase64FromFile(String url) {
     String first = Helper.getSnapshotFile(url);
-    State<T> state = realCodeBytecodeCreationBase.getState();
+    State state = realCodeBytecodeCreationBase.getState();
     SnapshotLoader.setupStateWithSnapshot(getDefaultRegistersSetter(), first, state);
     return SnapshotHelper.getBase64Memory(realCodeBytecodeCreationBase.getState());
   }
@@ -205,7 +204,7 @@ public class JSWBytecodeCreationTests<T extends WordNumber> {
     realCodeBytecodeCreationBase.translateToJava(className, memoryInBase64, startMethod);
   }
 
-  protected RegistersSetter<T> getDefaultRegistersSetter() {
+  protected RegistersSetter getDefaultRegistersSetter() {
     return realCodeBytecodeCreationBase.getRegistersSetter();
   }
 }

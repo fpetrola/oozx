@@ -22,11 +22,10 @@ import com.fpetrola.z80.helpers.CollectionHandler;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.memory.MemoryWriteListener;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public abstract class AbstractMemory<T> implements Memory<T> {
-  protected final CollectionHandler<MemoryWriteListener<T>> memoryWriteListener = new CollectionHandler<>();
-  protected CollectionHandler<MemoryReadListener<T>> memoryReadListener = new CollectionHandler<>();
+public abstract class AbstractMemory implements Memory {
+  protected final CollectionHandler<MemoryWriteListener> memoryWriteListener = new CollectionHandler<>();
+  protected CollectionHandler<MemoryReadListener> memoryReadListener = new CollectionHandler<>();
   protected boolean canDisable;
   protected boolean readOnly;
 
@@ -34,17 +33,17 @@ public abstract class AbstractMemory<T> implements Memory<T> {
     this.canDisable = false;
   }
 
-  public T read(T address, int fetching) {
-    T value = doRead(address);
+  public int read(int address, int fetching) {
+    int value = doRead(address);
     memoryReadListener.forAll(l -> l.readingMemoryAt(address, value, fetching));
 
     return value;
   }
 
-  protected abstract T doRead(T address);
+  protected abstract int doRead(int address);
 
   @Override
-  public void write(T address, T value) {
+  public void write(int address, int value) {
     if (!readOnly) {
       memoryWriteListener.forAll(l -> l.writtingMemoryAt(address, value));
       doWrite(address, value);
@@ -62,21 +61,21 @@ public abstract class AbstractMemory<T> implements Memory<T> {
   }
 
   @Override
-  public void addMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener) {
+  public void addMemoryWriteListener(MemoryWriteListener memoryWriteListener) {
     this.memoryWriteListener.add(memoryWriteListener);
   }
 
   @Override
-  public void removeMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener) {
+  public void removeMemoryWriteListener(MemoryWriteListener memoryWriteListener) {
   }
 
   @Override
-  public void addMemoryReadListener(MemoryReadListener<T> memoryReadListener) {
+  public void addMemoryReadListener(MemoryReadListener memoryReadListener) {
     this.memoryReadListener.add(memoryReadListener);
   }
 
   @Override
-  public void removeMemoryReadListener(MemoryReadListener<T> memoryReadListener) {
+  public void removeMemoryReadListener(MemoryReadListener memoryReadListener) {
 
   }
 
@@ -119,5 +118,5 @@ public abstract class AbstractMemory<T> implements Memory<T> {
     return !memoryReadListener.isEnabled();
   }
 
-  protected abstract void doWrite(T address, T value);
+  protected abstract void doWrite(int address, int value);
 }

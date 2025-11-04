@@ -436,5 +436,5 @@ public interface VariableDelegator extends Variable {
     return getDelegate().methodMaker();
   }
 
-  void setRegister(Register<?> register);
+  void setRegister(Register register);
 }

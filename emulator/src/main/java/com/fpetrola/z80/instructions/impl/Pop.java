@@ -22,29 +22,28 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class Pop<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
-  protected final Register<T> sp;
-  protected final Memory<T> memory;
+public class Pop extends DefaultTargetFlagInstruction {
+  protected final Register sp;
+  protected final Memory memory;
 
-  public Pop(OpcodeReference target, Register<T> sp, Memory<T> memory, Register<T> flag) {
+  public Pop(OpcodeReference target, Register sp, Memory memory, Register flag) {
     super(target, flag);
     this.sp = sp;
     this.memory = memory;
   }
 
   public int execute() {
-    T value = doPop(memory, sp);
+    int value = doPop(memory, sp);
     target.write(value);
     return 5 + 3 + 3;
   }
 
-  public static <T extends WordNumber> T doPop(Memory<T> memory, Register<T> sp) {
-    final T value = Memory.read16Bits(memory, sp.read());
-    WordNumber wordNumber = sp.read();
-    sp.write((T) (WordNumber) new WordNumber((wordNumber.valueXYZ + 2) & 0xFFFF));
+  public static  int doPop(Memory memory, Register sp) {
+    final int value = Memory.read16Bits(memory, sp.read());
+    int wordNumber = sp.read();
+    sp.write((wordNumber + 2) & 0xFFFF);
     return value;
   }
 

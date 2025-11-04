@@ -18,14 +18,12 @@
 
 package com.fpetrola.z80.transformations;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
 public class Scope {
   public int start;
   public int end;
 
   public Scope() {
-    this(0, Integer.MAX_VALUE);
+    this(0, java.lang.Integer.MAX_VALUE);
   }
 
   public Scope(int start, int end) {
@@ -43,7 +41,7 @@ public class Scope {
     end = Math.max(end, address);
   }
 
-  public <T extends WordNumber> boolean isIncluding(VirtualRegister<T> register) {
+  public  boolean isIncluding(VirtualRegister register) {
     int registerLine = register.getRegisterLine();
     return registerLine >= start && registerLine <= end;
   }

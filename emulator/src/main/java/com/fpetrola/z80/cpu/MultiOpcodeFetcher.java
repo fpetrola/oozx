@@ -27,59 +27,58 @@ import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.decoder.table.MemoryForOpcodes;
 import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.registers.Register;
 
 import java.util.function.Supplier;
 
-public class MultiOpcodeFetcher<T extends WordNumber> {
-  public final InstructionFactory<T> instructionFactory;
-  private final State<T> state;
-  private final Register<T> registerR;
-  public Instruction<T>[] opcodesTables;
-  public Supplier<TableBasedOpCodeDecoder<T>> tableFactory;
+public class MultiOpcodeFetcher {
+  public final InstructionFactory instructionFactory;
+  private final State state;
+  private final Register registerR;
+  public Instruction[] opcodesTables;
+  public Supplier<TableBasedOpCodeDecoder> tableFactory;
   public boolean clone;
-  private final MemoryForOpcodes<T> memoryForOpcode;
-  private final Memory<T> memory;
+  private final MemoryForOpcodes memoryForOpcode;
+  private final Memory memory;
 
-  public MultiOpcodeFetcher(InstructionFactory<T> instructionFactory, State<T> state, OpcodeConditions opcodeConditions, boolean clone) {
+  public MultiOpcodeFetcher(InstructionFactory instructionFactory, State state, OpcodeConditions opcodeConditions, boolean clone) {
     this.instructionFactory = instructionFactory;
     this.state = state;
     this.clone = clone;
-    memoryForOpcode = new MemoryForOpcodes<T>(this.state.getMemory(), this.state);
+    memoryForOpcode = new MemoryForOpcodes(this.state.getMemory(), this.state);
     tableFactory = () -> createOpcodesTables(opcodeConditions, instructionFactory.getFetchNextOpcodeInstructionFactory(), instructionFactory);
     createOpcodeTables();
     memory = state.getMemory();
-    this.registerR = (DefaultRegisterBankFactory.RRegister<T>) state.getRegisterR();
+    this.registerR = (DefaultRegisterBankFactory.RRegister) state.getRegisterR();
   }
 
   public void createOpcodeTables() {
     opcodesTables = tableFactory.get().getOpcodeLookupTable();
   }
 
-  public TableBasedOpCodeDecoder<T> createOpcodesTables(OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory<T> fetchInstructionFactory, InstructionFactory<T> instructionFactory) {
-    return new TableBasedOpCodeDecoder<T>(state, opcodeConditions, fetchInstructionFactory, instructionFactory, memoryForOpcode);
+  public TableBasedOpCodeDecoder createOpcodesTables(OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionFactory instructionFactory) {
+    return new TableBasedOpCodeDecoder(state, opcodeConditions, fetchInstructionFactory, instructionFactory, memoryForOpcode);
   }
 
   public void setClone(boolean clone) {
     this.clone = clone;
   }
 
-  public Instruction<T> fetchInstruction(T address) {
-//    T rValue = registerR.read();
+  public Instruction fetchInstruction(int address) {
+//    int rValue = registerR.read();
     memoryForOpcode.reset();
 
-    Instruction<T> fetchedInstruction = opcodesTables[memory.read(address, 1).valueXYZ];
-    while (fetchedInstruction instanceof DefaultFetchNextOpcodeInstruction<T> fetchNextOpcodeInstruction) {
+    Instruction fetchedInstruction = opcodesTables[memory.read(address, 1)];
+    while (fetchedInstruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
       fetchNextOpcodeInstruction.update();
       fetchedInstruction = fetchNextOpcodeInstruction.findNextOpcode2();
     }
-//    T rdelta = registerR.read().minus(rValue);
+//    int rdelta = registerR.read().minus(rValue);
 //    ((AbstractInstruction<?>) fetchedInstruction).setRDelta(rdelta.intValue());
 
     if (clone) {
-      fetchedInstruction = new InstructionCloner<T, T>(instructionFactory).clone(fetchedInstruction);
+      fetchedInstruction = new InstructionCloner(instructionFactory).clone(fetchedInstruction);
     }
 
     return fetchedInstruction;

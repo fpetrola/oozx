@@ -18,11 +18,10 @@
 
 package com.fpetrola.z80.spy;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 
-public class RegisterPairSpy<T extends WordNumber> extends RegisterSpy<T> implements RegisterPair<T> {
+public class RegisterPairSpy extends RegisterSpy implements RegisterPair {
 
   public RegisterPairSpy(Register register) {
     super(register);
@@ -32,8 +31,8 @@ public class RegisterPairSpy<T extends WordNumber> extends RegisterSpy<T> implem
     return getPair().getHigh();
   }
 
-  private RegisterPair<T> getPair() {
-    return (RegisterPair<T>) register;
+  private RegisterPair getPair() {
+    return (RegisterPair) register;
   }
 
   public Register getLow() {

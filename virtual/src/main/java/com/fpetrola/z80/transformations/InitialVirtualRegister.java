@@ -19,19 +19,18 @@
 package com.fpetrola.z80.transformations;
 
 import com.fpetrola.z80.blocks.BlocksManager;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class InitialVirtualRegister<T extends WordNumber> implements IVirtual8BitsRegister<T> {
+public class InitialVirtualRegister implements IVirtual8BitsRegister {
 
-  private final Register<T> register;
+  private final Register register;
   private final VirtualRegisterVersionHandler versionHandler;
   private final BlocksManager blocksManager;
   private final Scope scope= new Scope(0, 0);
-  private VirtualComposed16BitRegister<T> virtualComposed16BitRegister;
+  private VirtualComposed16BitRegister virtualComposed16BitRegister;
 
   @Override
   public int getRegisterLine() {
@@ -54,7 +53,7 @@ public class InitialVirtualRegister<T extends WordNumber> implements IVirtual8Bi
   }
 
   @Override
-  public List<VirtualRegister<T>> getDependants() {
+  public List<VirtualRegister> getDependants() {
     return null;
   }
 
@@ -63,15 +62,15 @@ public class InitialVirtualRegister<T extends WordNumber> implements IVirtual8Bi
     return versionHandler;
   }
 
-  public InitialVirtualRegister(Register<T> register, VirtualRegisterVersionHandler versionHandler, BlocksManager blocksManager) {
+  public InitialVirtualRegister(Register register, VirtualRegisterVersionHandler versionHandler, BlocksManager blocksManager) {
     this.register = register;
     this.versionHandler = versionHandler;
     this.blocksManager = blocksManager;
-    register.write((T) new WordNumber(65535));
+    register.write(65535);
   }
 
   @Override
-  public List<VirtualRegister<T>> getPreviousVersions() {
+  public List<VirtualRegister> getPreviousVersions() {
     return new ArrayList<>();
   }
 
@@ -116,12 +115,12 @@ public class InitialVirtualRegister<T extends WordNumber> implements IVirtual8Bi
   }
 
   @Override
-  public void write(T value) {
+  public void write(int value) {
     throw new RuntimeException("not writable");
   }
 
   @Override
-  public T read() {
+  public int read() {
     return register.read();
   }
 
@@ -131,7 +130,7 @@ public class InitialVirtualRegister<T extends WordNumber> implements IVirtual8Bi
   }
 
   @Override
-  public T readPrevious() {
+  public int readPrevious() {
     return register.read();
   }
 
@@ -151,13 +150,13 @@ public class InitialVirtualRegister<T extends WordNumber> implements IVirtual8Bi
   }
 
   @Override
-  public void set16BitsRegister(VirtualComposed16BitRegister<T> virtualComposed16BitRegister) {
+  public void set16BitsRegister(VirtualComposed16BitRegister virtualComposed16BitRegister) {
     if (this.virtualComposed16BitRegister == null)
       this.virtualComposed16BitRegister = virtualComposed16BitRegister;
   }
 
   @Override
-  public VirtualComposed16BitRegister<T> getVirtualComposed16BitRegister() {
+  public VirtualComposed16BitRegister getVirtualComposed16BitRegister() {
     return virtualComposed16BitRegister;
   }
 }

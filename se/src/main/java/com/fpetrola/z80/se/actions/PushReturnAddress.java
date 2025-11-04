@@ -21,20 +21,19 @@ package com.fpetrola.z80.se.actions;
 import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
-public class PushReturnAddress<T extends WordNumber> extends Push<T> {
+public class PushReturnAddress extends Push {
   private final SymbolicExecutionAdapter symbolicExecutionAdapter;
 
-  public PushReturnAddress(SymbolicExecutionAdapter symbolicExecutionAdapter, OpcodeReference target, Register<T> sp, Memory<T> memory) {
+  public PushReturnAddress(SymbolicExecutionAdapter symbolicExecutionAdapter, OpcodeReference target, Register sp, Memory memory) {
     super(target, sp, memory);
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
   }
 
   public int execute() {
-    doPush((T) new WordNumber(target.read().valueXYZ), sp, memory);
+    doPush(target.read(), sp, memory);
     symbolicExecutionAdapter.checkNextSP();
 
     return 5 + cyclesCost;

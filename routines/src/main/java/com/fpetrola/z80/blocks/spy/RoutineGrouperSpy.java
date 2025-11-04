@@ -34,7 +34,6 @@ import com.fpetrola.z80.metadata.GameMetadata;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.ExecutionPoint;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.spy.AbstractInstructionSpy;
 import com.fpetrola.z80.spy.ComplexInstructionSpy;
@@ -46,7 +45,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstructionSpy<T> implements ComplexInstructionSpy<T> {
+public class RoutineGrouperSpy extends AbstractInstructionSpy implements ComplexInstructionSpy {
   private static final String FILE_TRACE_JSON = "game-metadata.json";
   private GameMetadata gameMetadata;
 
@@ -131,7 +130,7 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
     customGraph = new RoutineCustomGraph(graphFrame.graph);
   }
 
-  public void afterExecution(Instruction<T> instruction) {
+  public void afterExecution(Instruction instruction) {
     super.afterExecution(instruction);
 
     if (capturing) {
@@ -157,7 +156,7 @@ public class RoutineGrouperSpy<T extends WordNumber> extends AbstractInstruction
         if (!isMutant) {
           boolean isConditional = executionStep.getInstruction() instanceof ConditionalInstruction;
           if (isConditional) {
-            z80.getState().getPc().write(new WordNumber(executionStep.pcValue));
+            z80.getState().getPc().write(new Integer(executionStep.pcValue));
             memorySpy.setMemory(new ReadOnlyMemoryImplementation(memory1));
             for (int i = 0; i < 2; i++) {
               z80.execute();

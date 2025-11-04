@@ -26,19 +26,18 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterName;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-public class UnprefixedTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
-  private final Instruction<T> cbOpcode;
-  private final Instruction<T> ddOpcode;
-  private final Instruction<T> edOpcode;
-  private final Instruction<T> fdOpcode;
+public class UnprefixedTableOpCodeGenerator extends TableOpCodeGenerator {
+  private final Instruction cbOpcode;
+  private final Instruction ddOpcode;
+  private final Instruction edOpcode;
+  private final Instruction fdOpcode;
   private final int delta;
 
-  public UnprefixedTableOpCodeGenerator(int delta, State state, Instruction<T> cbOpcode, Instruction<T> ddOpcode, Instruction<T> edOpcode, Instruction<T> fdOpcode, RegisterName main16BitRegister, RegisterName mainHigh8BitRegister, RegisterName mainLow8BitRegister, OpcodeReference main16BitRegisterReference, OpcodeConditions opc1, InstructionFactory instructionFactory, Memory memoryForOpcodes) {
+  public UnprefixedTableOpCodeGenerator(int delta, State state, Instruction cbOpcode, Instruction ddOpcode, Instruction edOpcode, Instruction fdOpcode, RegisterName main16BitRegister, RegisterName mainHigh8BitRegister, RegisterName mainLow8BitRegister, OpcodeReference main16BitRegisterReference, OpcodeConditions opc1, InstructionFactory instructionFactory, Memory memoryForOpcodes) {
     super(state, main16BitRegister, mainHigh8BitRegister, mainLow8BitRegister, main16BitRegisterReference, opc1, instructionFactory, memoryForOpcodes);
     this.delta = delta;
     this.cbOpcode = cbOpcode;
@@ -127,7 +126,7 @@ public class UnprefixedTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
     return null;
   }
 
-  private OpcodeReference<WordNumber> inn() {
+  private OpcodeReference inn() {
     return inn(delta);
   }
 
@@ -135,7 +134,7 @@ public class UnprefixedTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
     return nn(delta);
   }
 
-  private OpcodeReference<WordNumber> iinn() {
+  private OpcodeReference iinn() {
     return iinn(delta);
   }
 

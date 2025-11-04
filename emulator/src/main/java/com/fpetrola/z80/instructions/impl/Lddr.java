@@ -21,16 +21,15 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterPair;
 
-public class Lddr<T extends WordNumber> extends RepeatingInstruction<T> {
-  public Lddr(ImmutableOpcodeReference<T> pc, RegisterPair<T> bc, Ldd ldd) {
+public class Lddr extends RepeatingInstruction {
+  public Lddr(ImmutableOpcodeReference pc, RegisterPair bc, Ldd ldd) {
     super(ldd, pc, bc);
   }
 
   protected boolean checkLoopCondition() {
-    return bc.read().valueXYZ != 0;
+    return bc.read() != 0;
   }
 
   @Override

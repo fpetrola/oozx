@@ -22,11 +22,10 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.opcodes.references.Condition;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class JP<T extends WordNumber> extends ConditionalInstruction<T, Condition> {
-  public JP(ImmutableOpcodeReference target, Condition condition, Register<T> pc) {
+public class JP extends ConditionalInstruction<Condition> {
+  public JP(ImmutableOpcodeReference target, Condition condition, Register pc) {
     super(target, condition, pc);
   }
 

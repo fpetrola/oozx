@@ -22,36 +22,35 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.instructions.types.BlockInstruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class Outi<T extends WordNumber> extends BlockInstruction<T> {
+public class Outi extends BlockInstruction {
   public static final AluOperation outiTableAluOperation = new TableAluOperation() {
-    public <T extends WordNumber> T executeWithCarry(T value, T b, Register<T> l) {
-      int outitemp = value.valueXYZ;
-      int B = b.valueXYZ;
-      int L = l.read().valueXYZ;
+    public  int executeWithCarry(int value, int b, Register l) {
+      int outitemp = value;
+      int B = b;
+      int L = l.read();
       int outitemp2 = (outitemp + L) & 0xff;
       F = ((outitemp & 0x80) != 0 ? FLAG_N : 0) |
           ((outitemp2 < outitemp) ? FLAG_H | FLAG_C : 0) |
           (parityTable((outitemp2 & 0x07) ^ B) != 0 ? FLAG_P : 0) |
           sz53Table(B);
       Q = F;
-      return (T) new WordNumber(F);
+      return F;
     }
   };
 
-  public Outi(RegisterPair<T> bc, RegisterPair<T> hl, Register<T> flag, Memory<T> memory, IO<T> io) {
+  public Outi(RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io) {
     super(bc, hl, flag, memory, io);
   }
 
   public int execute() {
-    T hlValue = hl.read();
-    T cValue = bc.getLow().read();
-    T valueFromHL = memory.read(hlValue, 0);
+    int hlValue = hl.read();
+    int cValue = bc.getLow().read();
+    int valueFromHL = memory.read(hlValue, 0);
     bc.getHigh().decrement();
     io.out(bc.read(), valueFromHL);
     next();
@@ -60,8 +59,8 @@ public class Outi<T extends WordNumber> extends BlockInstruction<T> {
     return 1;
   }
 
-  protected void flagOperation(T valueFromHL) {
-    T t = outiTableAluOperation.executeWithCarry(valueFromHL, bc.getHigh().read(), hl.getLow());
+  protected void flagOperation(int valueFromHL) {
+    int t = outiTableAluOperation.executeWithCarry(valueFromHL, bc.getHigh().read(), hl.getLow());
     flag.write(t);
   }
 

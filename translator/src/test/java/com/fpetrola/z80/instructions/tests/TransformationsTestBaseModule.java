@@ -20,7 +20,6 @@ package com.fpetrola.z80.instructions.tests;
 
 import com.fpetrola.z80.cpu.SpyInstructionExecutor;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.transformations.InstructionTransformer;
 import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 import com.fpetrola.z80.transformations.TransformerInstructionExecutor;
@@ -28,7 +27,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 
-public class TransformationsTestBaseModule<T extends WordNumber> extends BaseModule {
+public class TransformationsTestBaseModule extends BaseModule {
   @Provides
   @Inject
   @Singleton
@@ -39,6 +38,6 @@ public class TransformationsTestBaseModule<T extends WordNumber> extends BaseMod
   @Provides
   @Inject
   private TransformerInstructionExecutor getTransformerInstructionExecutor(State state1, SpyInstructionExecutor tInstructionExecutor, InstructionTransformer instructionTransformer) {
-    return new TransformerInstructionExecutor<T>(state1.getPc(), tInstructionExecutor, true, instructionTransformer);
+    return new TransformerInstructionExecutor(state1.getPc(), tInstructionExecutor, true, instructionTransformer);
   }
 }

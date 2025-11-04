@@ -18,18 +18,18 @@
 
 package com.fpetrola.z80.memory;
 
-public class ReadOnlyMemoryImplementation<T> implements Memory<T> {
-  protected Memory<T> memory;
+public class ReadOnlyMemoryImplementation implements Memory {
+  protected Memory memory;
 
   public ReadOnlyMemoryImplementation(Memory memory) {
     this.memory = memory;
   }
 
-  public T read(T address, int fetching) {
+  public int read(int address, int fetching) {
     return memory.read(address, 0);
   }
 
-  public void write(T address, T value) {
+  public void write(int address, int value) {
   }
 
   public boolean compare() {

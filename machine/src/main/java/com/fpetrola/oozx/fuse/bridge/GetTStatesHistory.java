@@ -22,7 +22,6 @@ import com.fpetrola.oozx.fuse.OOSpectrumConnector;
 import com.fpetrola.oozx.fuse.KVPair;
 import com.fpetrola.oozx.fuse.LibretroCore;
 import com.fpetrola.oozx.fuse.TStateUpdate;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.sun.jna.Pointer;
 
@@ -43,9 +42,9 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
     GetTStatesHistory.tstatesUpdates = tstatesUpdates;
   }
 
-  public static void addTStateUpdate(int tstatesToAdd, Supplier<String> description, long tstates, Register<WordNumber> pcRegister) {
+  public static void addTStateUpdate(int tstatesToAdd, Supplier<String> description, long tstates, Register pcRegister) {
     if (!OOSpectrumConnector.noTest) {
-      int pc = pcRegister.read().valueXYZ;
+      int pc = pcRegister.read();
 //      int pc = 0;
 //    if (tstates == 20 && pc == 50758) {
 //      System.out.println("addTStateUpdate");

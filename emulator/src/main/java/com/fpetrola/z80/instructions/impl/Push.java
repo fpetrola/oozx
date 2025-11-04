@@ -22,23 +22,22 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class Push<T extends WordNumber> extends AbstractInstruction<T> {
-  public OpcodeReference<T> getTarget() {
+public class Push extends AbstractInstruction {
+  public OpcodeReference getTarget() {
     return target;
   }
 
-  public void setTarget(OpcodeReference<T> target) {
+  public void setTarget(OpcodeReference target) {
     this.target = target;
   }
 
-  protected OpcodeReference<T> target;
-  protected final Register<T> sp;
-  protected final Memory<T> memory;
+  protected OpcodeReference target;
+  protected final Register sp;
+  protected final Memory memory;
 
-  public Push(OpcodeReference target, Register<T> sp, Memory<T> memory) {
+  public Push(OpcodeReference target, Register sp, Memory memory) {
     this.target = target;
     this.sp = sp;
     this.memory = memory;
@@ -49,9 +48,9 @@ public class Push<T extends WordNumber> extends AbstractInstruction<T> {
     return 5 + cyclesCost;
   }
 
-  public static <T extends WordNumber> void doPush(T value, Register<T> sp, Memory<T> memory) {
-    WordNumber wordNumber = sp.read();
-    sp.write((T) (WordNumber) new WordNumber((wordNumber.valueXYZ + -2) & 0xFFFF));
+  public static  void doPush(int value, Register sp, Memory memory) {
+    Integer wordNumber = sp.read();
+    sp.write((wordNumber + -2) & 0xFFFF);
     Memory.write16Bits(memory, value, sp.read());
   }
 

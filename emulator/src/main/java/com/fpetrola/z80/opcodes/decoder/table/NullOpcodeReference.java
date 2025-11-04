@@ -21,16 +21,16 @@ package com.fpetrola.z80.opcodes.decoder.table;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 
-public class NullOpcodeReference<T> implements OpcodeReference<T> {
-  public T read() {
-    return null;
+public class NullOpcodeReference implements OpcodeReference {
+  public int read() {
+    return -1;
   }
 
   public int getLength() {
     return 0;
   }
 
-  public void write(T value) {
+  public void write(int value) {
   }
 
   public Object clone() throws CloneNotSupportedException {

@@ -21,32 +21,31 @@ package fuse.tstates;
 import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class AddStatesIO<T extends WordNumber> implements IO<T> {
-  private State<T> state;
+public class AddStatesIO implements IO {
+  private State state;
 
   public AddStatesIO() {
   }
 
-  public void setState(State<T> state) {
+  public void setState(State state) {
     this.state = state;
   }
 
-  void contend_port_preio(WordNumber port) {
-    if ((port.valueXYZ & 0xc000) == 0x4000) {
+  void contend_port_preio(Integer port) {
+    if ((port & 0xc000) == 0x4000) {
       addPCEvent(port, 1);
     } else
       getState().clock.addTStates(1);
   }
 
-  private void addPCEvent(WordNumber port, int time) {
-    getState().addEvent(new Event(time, "PC", port.valueXYZ, null));
+  private void addPCEvent(Integer port, int time) {
+    getState().addEvent(new Event(time, "PC", port, null));
   }
 
-  void contend_port_postio(WordNumber port) {
-    if ((port.valueXYZ & 0x0001) != 0) {
-      if ((port.valueXYZ & 0xc000) == 0x4000) {
+  void contend_port_postio(Integer port) {
+    if ((port & 0x0001) != 0) {
+      if ((port & 0xc000) == 0x4000) {
         addPCEvent(port, 1);
         addPCEvent(port, 1);
         addPCEvent(port, 1);
@@ -58,21 +57,21 @@ public class AddStatesIO<T extends WordNumber> implements IO<T> {
     }
   }
 
-  private State<T> getState() {
+  private State getState() {
     return state;
   }
 
-  public T in(T port) {
-    T value = (T) new WordNumber(port.valueXYZ >> 8);
+  public int in(int port) {
+    int value = port >> 8;
     contend_port_preio(port);
-    getState().addEvent(new Event(0, "PR", port.valueXYZ, value.valueXYZ));
+    getState().addEvent(new Event(0, "PR", port, value));
     contend_port_postio(port);
     return value;
   }
 
-  public void out(T port, T value) {
+  public void out(int port, int value) {
     contend_port_preio(port);
-    getState().addEvent(new Event(0, "PW", port.valueXYZ, value.valueXYZ));
+    getState().addEvent(new Event(0, "PW", port, value));
     contend_port_postio(port);
   }
 }

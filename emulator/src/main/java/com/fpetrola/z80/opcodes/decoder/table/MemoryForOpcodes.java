@@ -22,17 +22,16 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.memory.MemoryWriteListener;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
-public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
+public class MemoryForOpcodes implements Memory {
   private int counter;
 
-  public static <T1 extends WordNumber> T1 read16Bits(Memory<T1> memory, T1 address) {
+  public static int read16Bits(Memory memory, int address) {
     return Memory.read16Bits(memory, address);
   }
 
   @Override
-  public T read(T address, int fetching) {
+  public int read(int address, int fetching) {
     return read1(address, fetching);
   }
 
@@ -47,27 +46,27 @@ public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
   }
 
   @Override
-  public void addMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener) {
+  public void addMemoryWriteListener(MemoryWriteListener memoryWriteListener) {
     memory.addMemoryWriteListener(memoryWriteListener);
   }
 
   @Override
-  public void removeMemoryWriteListener(MemoryWriteListener<T> memoryWriteListener) {
+  public void removeMemoryWriteListener(MemoryWriteListener memoryWriteListener) {
     memory.removeMemoryWriteListener(memoryWriteListener);
   }
 
   @Override
-  public void addMemoryReadListener(MemoryReadListener<T> memoryReadListener) {
+  public void addMemoryReadListener(MemoryReadListener memoryReadListener) {
     memory.addMemoryReadListener(memoryReadListener);
   }
 
   @Override
-  public void removeMemoryReadListener(MemoryReadListener<T> memoryReadListener) {
+  public void removeMemoryReadListener(MemoryReadListener memoryReadListener) {
     memory.removeMemoryReadListener(memoryReadListener);
   }
 
   @Override
-  public T[] getData() {
+  public Integer[] getData() {
     return memory.getData();
   }
 
@@ -102,26 +101,26 @@ public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
   }
 
   @Override
-  public void copyFrom(Memory<T> memory) {
+  public void copyFrom(Memory memory) {
     this.memory.copyFrom(memory);
   }
 
-  private final Memory<T> memory;
-  private final State<T> state;
-  protected WordNumber[] cachedData = new WordNumber[0x10000];
+  private final Memory memory;
+  private final State state;
+  protected Integer[] cachedData = new Integer[0x10000];
   protected int[] cachedAddresses = new int[0x100];
 
-  public MemoryForOpcodes(Memory<T> memory, State<T> state) {
+  public MemoryForOpcodes(Memory memory, State state) {
     this.memory = memory;
     this.state = state;
   }
 
-  private T read1(T address, int fetching) {
-    int i = address.valueXYZ;
+  private int read1(int address, int fetching) {
+    int i = address;
     if (cachedData[i] != null) {
-      return (T) cachedData[i];
+      return cachedData[i];
     } else {
-      T value = memory.read(address, fetching);
+      int value = memory.read(address, fetching);
       if (memory.isReadListenersDisabled())
         return value;
       cachedData[i] = value;
@@ -130,7 +129,7 @@ public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
     }
   }
 
-  public void write(T address, T value) {
+  public void write(int address, int value) {
     memory.write(address, value);
 //    cachedValues[address.intValue()] = null;
   }

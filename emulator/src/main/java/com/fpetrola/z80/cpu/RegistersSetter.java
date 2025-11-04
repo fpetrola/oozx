@@ -18,9 +18,7 @@
 
 package com.fpetrola.z80.cpu;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
-public interface RegistersSetter<T extends WordNumber> {
+public interface RegistersSetter {
   void setRegPC(int address);
 
   void setFlags(int regF);

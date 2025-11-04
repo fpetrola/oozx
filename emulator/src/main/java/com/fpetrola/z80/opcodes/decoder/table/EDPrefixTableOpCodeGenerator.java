@@ -27,13 +27,13 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-public class EDPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
+public class EDPrefixTableOpCodeGenerator extends TableOpCodeGenerator {
 
   public EDPrefixTableOpCodeGenerator(State state, OpcodeReference a, OpcodeConditions opc1, InstructionFactory instructionFactory, Memory memoryForOpcodes) {
     super(state, HL, H, L, a, opc1, instructionFactory, memoryForOpcodes);
   }
 
-  protected Instruction<T> getOpcode() {
+  protected Instruction getOpcode() {
     switch (x) {
     case 1:
       switch (z) {
@@ -61,7 +61,7 @@ public class EDPrefixTableOpCodeGenerator<T> extends TableOpCodeGenerator<T> {
     return null;
   }
 
-  private OpcodeReference<T> nullTarget() {
-    return new NullOpcodeReference<>();
+  private OpcodeReference nullTarget() {
+    return new NullOpcodeReference();
   }
 }

@@ -21,11 +21,10 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.RegisterPair;
 
-public class Inir<T extends WordNumber> extends RepeatingInstruction<T> {
-  public Inir(ImmutableOpcodeReference<T> pc, RegisterPair<T> bc, Ini ini) {
+public class Inir extends RepeatingInstruction {
+  public Inir(ImmutableOpcodeReference pc, RegisterPair bc, Ini ini) {
     super(ini, pc, bc);
   }
 

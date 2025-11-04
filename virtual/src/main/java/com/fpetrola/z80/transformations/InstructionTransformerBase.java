@@ -30,7 +30,7 @@ import com.fpetrola.z80.opcodes.references.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-public abstract class InstructionTransformerBase<T extends WordNumber> implements InstructionVisitor<T, T> {
+public abstract class InstructionTransformerBase implements InstructionVisitor {
   InstructionFactory instructionFactory;
   protected AbstractInstruction cloned;
 
@@ -38,7 +38,7 @@ public abstract class InstructionTransformerBase<T extends WordNumber> implement
     this.instructionFactory = instructionFactory;
   }
 
-  public Instruction<T> clone(Instruction<T> instruction) {
+  public Instruction clone(Instruction instruction) {
     cloned = null;
     instruction.accept(this);
     if (cloned == null) {
@@ -86,7 +86,7 @@ public abstract class InstructionTransformerBase<T extends WordNumber> implement
   }
 
   @Override
-  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction<T> parameterizedUnaryAluInstruction) {
+  public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction parameterizedUnaryAluInstruction) {
     Constructor<?>[] constructors = parameterizedUnaryAluInstruction.getClass().getConstructors();
     try {
       AbstractInstruction cloned1 = (AbstractInstruction) constructors[0].newInstance(clone(parameterizedUnaryAluInstruction.getTarget()), parameterizedUnaryAluInstruction.getFlag());
@@ -98,7 +98,7 @@ public abstract class InstructionTransformerBase<T extends WordNumber> implement
   }
 
   @Override
-  public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction<T> parameterizedBinaryAluInstruction) {
+  public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction parameterizedBinaryAluInstruction) {
     Constructor<?>[] constructors = parameterizedBinaryAluInstruction.getClass().getConstructors();
     try {
       AbstractInstruction cloned1 = (AbstractInstruction) constructors[0].newInstance(clone(parameterizedBinaryAluInstruction.getTarget()), clone(parameterizedBinaryAluInstruction.getSource()), parameterizedBinaryAluInstruction.getFlag());
@@ -115,7 +115,7 @@ public abstract class InstructionTransformerBase<T extends WordNumber> implement
     }
 
     public void visitingConditionFlag(ConditionFlag conditionFlag) {
-      result = new ConditionFlag<>(InstructionTransformerBase.this.clone(conditionFlag.getRegister()), conditionFlag.getFlag(), conditionFlag.isNegate(), InstructionCloner.clone(conditionFlag.isConditionMet));
+      result = new ConditionFlag(InstructionTransformerBase.this.clone(conditionFlag.getRegister()), conditionFlag.getFlag(), conditionFlag.isNegate(), InstructionCloner.clone(conditionFlag.isConditionMet));
     }
 
     public void visitingConditionAlwaysTrue(ConditionAlwaysTrue conditionAlwaysTrue) {

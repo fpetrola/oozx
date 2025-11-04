@@ -25,7 +25,7 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class Or<T> extends ParameterizedBinaryAluInstruction<T> {
+public class Or extends ParameterizedBinaryAluInstruction {
   public static final TableAluOperation orTableAluOperation = new TableAluOperation() {
     public int execute(int A, int value, int carry) {
       A |= (value);
@@ -35,7 +35,7 @@ public class Or<T> extends ParameterizedBinaryAluInstruction<T> {
     }
   };
 
-  public Or(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
+  public Or(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
     super(target, source, flag, orTableAluOperation);
   }
 

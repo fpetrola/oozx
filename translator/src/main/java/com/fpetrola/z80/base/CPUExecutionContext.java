@@ -33,10 +33,10 @@ import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 import static com.fpetrola.z80.registers.Flags.CARRY_FLAG;
 import static com.fpetrola.z80.registers.Flags.ZERO_FLAG;
 
-public class CPUExecutionContext<T extends WordNumber> extends DefaultZ80InstructionDriver<T> implements Z80ContextDriver<T> {
+public class CPUExecutionContext extends DefaultZ80InstructionDriver implements Z80ContextDriver {
   OpcodeTargets ot;
   OpcodeConditions opc;
-  Register<T> flag;
+  Register flag;
   protected InstructionSpy spy;
 
   public CPUExecutionContext(InstructionSpy spy, OOZ80 z80) {
@@ -65,7 +65,7 @@ public class CPUExecutionContext<T extends WordNumber> extends DefaultZ80Instruc
     return (InstructionFetcherForTest) z80.getInstructionFetcher();
   }
 
-  public int add(Instruction<T> instruction) {
+  public int add(Instruction instruction) {
     return getInstructionFetcherForTest().add(instruction);
   }
 
@@ -83,33 +83,33 @@ public class CPUExecutionContext<T extends WordNumber> extends DefaultZ80Instruc
   }
 
   @Override
-  public Register<T> r(RegisterName registerName) {
+  public Register r(RegisterName registerName) {
     return getState().r(registerName);
   }
 
   @Override
-  public RegisterPair<T> rp(RegisterName registerName) {
-    return (RegisterPair<T>) getState().r(registerName);
+  public RegisterPair rp(RegisterName registerName) {
+    return (RegisterPair) getState().r(registerName);
   }
 
   @Override
-  public Register<T> f() {
+  public Register f() {
     return flag;
   }
 
   @Override
-  public Register<T> pc() {
+  public Register pc() {
     return getState().getPc();
   }
 
   @Override
-  public OpcodeReference iRR(Register<T> memoryReader) {
+  public OpcodeReference iRR(Register memoryReader) {
     return ot.iRR(memoryReader);
   }
 
   @Override
-  public OpcodeReference iRRn(Register<T> register, int plus) {
-    return new CachedMemoryPlusRegister8BitReference((WordNumber) new WordNumber(plus), register, mem(), pc(), 0);
+  public OpcodeReference iRRn(Register register, int plus) {
+    return new CachedMemoryPlusRegister8BitReference((Integer) new Integer(plus), register, mem(), pc(), 0);
   }
 
   @Override
@@ -118,7 +118,7 @@ public class CPUExecutionContext<T extends WordNumber> extends DefaultZ80Instruc
   }
 
   @Override
-  public OpcodeReference iiRR(Register<T> memoryWriter) {
+  public OpcodeReference iiRR(Register memoryWriter) {
     return ot.iiRR(memoryWriter);
   }
 

@@ -19,7 +19,6 @@
 package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.z80.memory.MemoryWriteListener;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,7 +28,7 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ZXScreenComponent<T extends WordNumber> extends JComponent {
+public class ZXScreenComponent extends JComponent {
 
   private final BufferedImage screenBuffer;
   private final ZxAttribute[][] attributes;
@@ -88,10 +87,10 @@ public class ZXScreenComponent<T extends WordNumber> extends JComponent {
     g.drawImage(screenBuffer, 0, 0, getWidth(), getHeight(), null);
   }
 
-  public MemoryWriteListener<T> getWriteListener() {
+  public MemoryWriteListener getWriteListener() {
     return (address, value) -> {
-      int address1 = address.valueXYZ;
-      int value1 = value.valueXYZ;
+      int address1 = address;
+      int value1 = value;
 
       threadSafeQueue.add(() -> onMemoryWrite(address1, value1));
     };
@@ -99,7 +98,7 @@ public class ZXScreenComponent<T extends WordNumber> extends JComponent {
 
   public static class ZxAttribute {
     private final LineUpdater lineUpdater;
-    private Map<Integer, Integer> pixelValues = new HashMap<>();
+    private Map<java.lang.Integer, java.lang.Integer> pixelValues = new HashMap<>();
     private ZxColor zxColor;
   
     public ZxAttribute(LineUpdater lineUpdater) {
@@ -115,7 +114,7 @@ public class ZXScreenComponent<T extends WordNumber> extends JComponent {
       }
     }
   
-    private void updatePixels(int line, Integer pixelsValue) {
+    private void updatePixels(int line, java.lang.Integer pixelsValue) {
       for (int bit = 0; bit < 8 && pixelsValue != null; bit++) {
         lineUpdater.update(zxColor, pixelsValue, line, bit);
       }

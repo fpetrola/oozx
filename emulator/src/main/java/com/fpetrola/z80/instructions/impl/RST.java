@@ -23,16 +23,15 @@ import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.JumpInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class RST<T extends WordNumber> extends AbstractInstruction<T>  implements JumpInstruction<T> {
-  private final T p;
-  private final ImmutableOpcodeReference<T> pc;
-  private final Register<T> sp;
-  private final Memory<T> memory;
+public class RST extends AbstractInstruction implements JumpInstruction {
+  private final int p;
+  private final ImmutableOpcodeReference pc;
+  private final Register sp;
+  private final Memory memory;
 
-  public RST(T p, ImmutableOpcodeReference<T> pc, Register<T> sp, Memory<T> memory) {
+  public RST(int p, ImmutableOpcodeReference pc, Register sp, Memory memory) {
     this.p = p;
     this.pc = pc;
     this.sp = sp;
@@ -40,8 +39,8 @@ public class RST<T extends WordNumber> extends AbstractInstruction<T>  implement
   }
 
   public int execute() {
-    WordNumber wordNumber = pc.read();
-    Push.doPush((T) (WordNumber) new WordNumber((wordNumber.valueXYZ + 1) & 0xFFFF), sp, memory);
+    Integer wordNumber = pc.read();
+    Push.doPush((wordNumber + 1) & 0xFFFF, sp, memory);
     setNextPC(p);
     return 5 + 3 + 3;
   }
@@ -50,7 +49,7 @@ public class RST<T extends WordNumber> extends AbstractInstruction<T>  implement
     return "RST " + String.format("%02X", p);
   }
 
-  public T getP() {
+  public int getP() {
     return p;
   }
 

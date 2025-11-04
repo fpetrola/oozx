@@ -21,7 +21,6 @@ package com.fpetrola.z80.se;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 
 import java.util.List;
@@ -30,25 +29,25 @@ import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertNotNull;
 
-public interface Z80InstructionDriver<T extends WordNumber> {
-  int add(Instruction<T> instruction);
+public interface Z80InstructionDriver {
+  int add(Instruction instruction);
 
-  State<T> getState();
+  State getState();
 
   void step();
 
-  MockedMemory<T> mem();
+  MockedMemory mem();
 
-  MockedMemory<T> initMem(Supplier<T[]> supplier);
+  MockedMemory initMem(Supplier<Integer[]> supplier);
 
   Instruction getInstructionAt(int i);
 
-  Instruction<T> getTransformedInstructionAt(int i);
+  Instruction getTransformedInstructionAt(int i);
 
   default int readMemAt(int i) {
-    T read = mem().read((T) new WordNumber(i), 0);
+    int read = mem().read(i, 0);
     assertNotNull(read);
-    return read.valueXYZ;
+    return read;
   }
 
   default void step(int i) {

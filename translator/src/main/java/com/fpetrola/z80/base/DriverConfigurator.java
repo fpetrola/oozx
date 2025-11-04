@@ -20,26 +20,25 @@ package com.fpetrola.z80.base;
 
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.transformations.*;
 import com.google.inject.Inject;
 
-public class DriverConfigurator<T extends WordNumber> implements IDriverConfigurator<T> {
+public class DriverConfigurator implements IDriverConfigurator {
   protected final RoutineManager routineManager;
-  protected final RoutineFinderInstructionSpy<T> spy;
+  protected final RoutineFinderInstructionSpy spy;
   protected final InstructionExecutor instructionExecutor1;
-  protected State<T> state1;
+  protected State state1;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
   protected InstructionTransformer instructionTransformer;
-  protected InstructionExecutor<T> transformerInstructionExecutor;
+  protected InstructionExecutor transformerInstructionExecutor;
   protected OpcodeConditions opcodeConditions;
-  protected RegistersSetter<T> registersSetter;
-  private CPUExecutionContext<T> secondContext;
+  protected RegistersSetter registersSetter;
+  private CPUExecutionContext secondContext;
 
   @Override
-  public RoutineFinderInstructionSpy<T> getRoutineFinderInstructionSpy() {
+  public RoutineFinderInstructionSpy getRoutineFinderInstructionSpy() {
     return spy;
   }
 
@@ -64,12 +63,12 @@ public class DriverConfigurator<T extends WordNumber> implements IDriverConfigur
   }
 
   @Override
-  public CPUExecutionContext<T> getSecondContext() {
+  public CPUExecutionContext getSecondContext() {
     return secondContext;
   }
 
   @Override
-  public CPUExecutionContext<T> getFirstContext() {
+  public CPUExecutionContext getFirstContext() {
     return getSecondContext();
   }
 

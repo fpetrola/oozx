@@ -23,29 +23,28 @@ import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.Condition;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
-public class Call<T extends WordNumber> extends ConditionalInstruction<T, Condition> {
-  private final Register<T> sp;
-  protected final Memory<T> memory;
+public class Call extends ConditionalInstruction<Condition> {
+  private final Register sp;
+  protected final Memory memory;
 
-  public Call(ImmutableOpcodeReference positionOpcodeReference, Condition condition, Register<T> pc, Register<T> sp, Memory<T> memory) {
+  public Call(ImmutableOpcodeReference positionOpcodeReference, Condition condition, Register pc, Register sp, Memory memory) {
     super(positionOpcodeReference, condition, pc);
     this.sp = sp;
     this.memory = memory;
   }
 
-  public T beforeJump(T jumpAddress) {
-    WordNumber wordNumber = pc.read();
-    T value = (T) (WordNumber) new WordNumber((wordNumber.valueXYZ + length) & 0xFFFF);
+  public int beforeJump(int jumpAddress) {
+    Integer wordNumber = pc.read();
+    int value = (wordNumber + length) & 0xFFFF;
     Push.doPush(value, sp, memory);
     return jumpAddress;
   }
 
   @Override
   public int execute() {
-    T jumpAddress2 = calculateJumpAddress();
+    int jumpAddress2 = calculateJumpAddress();
     if (condition.conditionMet(this)) {
       jumpAddress2 = beforeJump(jumpAddress2);
       setJumpAddress(jumpAddress2);

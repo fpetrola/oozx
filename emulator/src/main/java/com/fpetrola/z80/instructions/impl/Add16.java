@@ -21,12 +21,11 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class Add16<T extends WordNumber> extends Binary16BitsOperation<T> {
+public class Add16 extends Binary16BitsOperation {
   public static final AluOperation add16TableAluOperation = new TableAluOperation() {
     public int execute(int flag, int value1AndAddition, int value2Bit0) {
       F = flag;
@@ -46,12 +45,12 @@ public class Add16<T extends WordNumber> extends Binary16BitsOperation<T> {
     }
   };
 
-  public Add16(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag) {
+  public Add16(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
     super(target, source, flag, (flag0, a, b) ->
         calculate(flag0, b, a,
             (v1, v2, f) -> v1 + v2,
             (flag1, value3, value2, result1) -> {
-              return add16TableAluOperation.executeWithCarry2((T) new WordNumber(value3), (T) new WordNumber(flag1.read().valueXYZ), value2 >> 11, flag0);
+              return add16TableAluOperation.executeWithCarry2(value3, flag1.read(), value2 >> 11, flag0);
             },
             (v3, v4, result2) -> (v3 & 0x0800) >> 4 | result2 >> 11));
   }

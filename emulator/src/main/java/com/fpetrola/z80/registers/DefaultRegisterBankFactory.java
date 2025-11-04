@@ -18,20 +18,18 @@
 
 package com.fpetrola.z80.registers;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-public class DefaultRegisterBankFactory<T extends WordNumber> {
+public class DefaultRegisterBankFactory {
 
   public DefaultRegisterBankFactory() {
   }
 
-  public <T> RegisterBank createBank() {
+  public  RegisterBank createBank() {
     return initBasicBank();
   }
 
-  public RegisterBank<T> initBasicBank() {
+  public RegisterBank initBasicBank() {
     RegisterBank registerBank = new RegisterBank();
 
     registerBank.af = createComposed16BitRegister(AF, create8BitRegister(A), createFlagRegister());
@@ -61,19 +59,19 @@ public class DefaultRegisterBankFactory<T extends WordNumber> {
     return new Plain8BitRegister(F.name());
   }
 
-  protected Register<T> createRRegister() {
-    return new RRegister<T>();
+  protected Register createRRegister() {
+    return new RRegister();
   }
 
-  protected Register<T> createAlwaysIntegerPlain8BitRegister(RegisterName registerName) {
-    return new AlwaysIntegerPlain8BitRegister<T>(registerName.name());
+  protected Register createAlwaysIntegerPlain8BitRegister(RegisterName registerName) {
+    return new AlwaysIntegerPlain8BitRegister(registerName.name());
   }
 
-  protected Register<T> create8BitRegister(RegisterName registerName) {
+  protected Register create8BitRegister(RegisterName registerName) {
     return new Plain8BitRegister(registerName.name());
   }
 
-  protected RegisterPair<T> createComposed16BitRegister(RegisterName registerName, Register<T> h, Register<T> l) {
+  protected RegisterPair createComposed16BitRegister(RegisterName registerName, Register h, Register l) {
     return new Composed16BitRegister<>(registerName.name(), h, l);
   }
 
@@ -81,51 +79,51 @@ public class DefaultRegisterBankFactory<T extends WordNumber> {
     return new AlwaysIntegerPlain16BitRegister(registerName.name());
   }
 
-  protected Register<T> createPlain16BitRegister(RegisterName registerName) {
-    return new Plain16BitRegister<T>(registerName.name());
+  protected Register createPlain16BitRegister(RegisterName registerName) {
+    return new Plain16BitRegister(registerName.name());
   }
 
   protected RegisterPair createComposed16BitRegister(RegisterName registerName, RegisterName h, RegisterName l) {
     return new Composed16BitRegister(registerName.name(), create8BitRegister(h), create8BitRegister(l));
   }
 
-  public static class AlwaysIntegerPlain8BitRegister<T extends WordNumber> extends Plain8BitRegister<T> {
+  public static class AlwaysIntegerPlain8BitRegister extends Plain8BitRegister {
     public AlwaysIntegerPlain8BitRegister(String registerName) {
       super(registerName);
     }
 
-    public void write(T value) {
-      this.data = (T) new WordNumber(value.valueXYZ);
+    public void write(int value) {
+      this.data = value;
     }
   }
 
-  public static class AlwaysIntegerPlain16BitRegister<T extends WordNumber> extends Plain16BitRegister<T> {
+  public static class AlwaysIntegerPlain16BitRegister extends Plain16BitRegister {
     public AlwaysIntegerPlain16BitRegister(String registerName) {
       super(registerName);
     }
 
-    public void write(T value) {
-      this.data = (T) new WordNumber(value.valueXYZ);
+    public void write(int value) {
+      this.data = value;
     }
   }
 
-  public static class RRegister<T extends WordNumber> extends AlwaysIntegerPlain8BitRegister<T> {
+  public static class RRegister extends AlwaysIntegerPlain8BitRegister {
     private boolean regRbit7;
 
     public RRegister() {
       super(RegisterName.R.name());
     }
 
-    public void write(T value) {
-      int regR = value.valueXYZ & 0x7f;
-      regRbit7 = (value.valueXYZ > 0x7f);
-      super.write((T) new WordNumber(regR));
+    public void write(int value) {
+      int regR = value & 0x7f;
+      regRbit7 = (value > 0x7f);
+      super.write(regR);
     }
 
-    public T read() {
-      int regR = super.read().valueXYZ;
+    public int read() {
+      int regR = super.read();
       int result = regRbit7 ? (regR & 0x7f) | 0x80 : regR & 0x7f;
-      return (T) new WordNumber(result);
+      return result;
     }
   }
 }

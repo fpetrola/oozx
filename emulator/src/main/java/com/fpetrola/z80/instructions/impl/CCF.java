@@ -20,11 +20,10 @@ package com.fpetrola.z80.instructions.impl;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
-public class CCF<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
+public class CCF extends DefaultTargetFlagInstruction {
   public static final AluOperation ccfTableAluOperation = new AluOperation() {
     public int execute(int flag, int A, int carry) {
       F = flag;
@@ -34,13 +33,13 @@ public class CCF<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
     }
   };
 
-  public CCF(Register flag, Register<T> a) {
+  public CCF(Register flag, Register a) {
     super(a, flag);
   }
 
   public int execute() {
-    ccfTableAluOperation.execute(flag.read().valueXYZ, target.read().valueXYZ, 1);
-    flag.write((T) new WordNumber(ccfTableAluOperation.F));
+    ccfTableAluOperation.execute(flag.read(), target.read(), 1);
+    flag.write(ccfTableAluOperation.F);
     return 4;
   }
 

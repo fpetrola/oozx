@@ -42,13 +42,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class FuseTestParser<T extends WordNumber> {
+public class FuseTestParser {
   private final File inFile;
   private final File namesFile;
   private final File expectedFile;
-  private Z80Cpu<T> cpu;
+  private Z80Cpu cpu;
   private DefaultInstructionFetcher instructionFetcher;
-  private State<T> state;
+  private State state;
 
   public FuseTestParser(Path testDataDir) {
     URL resource = FuseTestParser.class.getResource("/" + testDataDir.toString());
@@ -98,24 +98,24 @@ public class FuseTestParser<T extends WordNumber> {
   }
 
   private Z80Cpu getZ80Cpu() {
-    MockedMemory<T> memory = new MockedMemory(true);
+    MockedMemory memory = new MockedMemory(true);
 
     AddStatesIO io = new AddStatesIO();
-    state = new State<T>(io, memory) {
+    state = new State(io, memory) {
       public void addEvent(Event event) {
         super.addEvent(event);
         events.add(event);
       }
     };
     io.setState(state);
-    InstructionSpy<WordNumber> spy = new MemptrUpdateInstructionSpy(state);
-    DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory<WordNumber>(state);
+    InstructionSpy spy = new MemptrUpdateInstructionSpy(state);
+    DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory(state);
     instructionFetcher = new MyDefaultInstructionFetcher(state, spy, instructionFactory);
-    cpu = (OOZ80<T>) new OOZ80<T>(state, instructionFetcher, new DefaultInstructionExecutor(state, false));
+    cpu = (OOZ80) new OOZ80(state, instructionFetcher, new DefaultInstructionExecutor(state, false));
     spy.addExecutionListeners(cpu.getInstructionExecutor());
 
-//    PhaseProcessor<T> phaseProcessor = new PhaseProcessor<T>(cpu.getInstructionFetcher(), cpu.getState());
-    PhaseProcessor<T> phaseProcessor = (PhaseProcessor<T>) instructionFetcher.tPhaseProcessor;
+//    PhaseProcessor phaseProcessor = new PhaseProcessor(cpu.getInstructionFetcher(), cpu.getState());
+    PhaseProcessor phaseProcessor = (PhaseProcessor) instructionFetcher.tPhaseProcessor;
 
 //    phaseProcessor.processPhase(new BeforeExecution());
 //    phaseProcessor.processPhase(new AfterMR());
@@ -124,8 +124,8 @@ public class FuseTestParser<T extends WordNumber> {
 
 
     cpu.getInstructionExecutor().addExecutionListener(new PhaseProcessorExecutionListener(phaseProcessor));
-    memory.addMemoryReadListener(new AddStatesMemoryReadListener<T>(phaseProcessor));
-    memory.addMemoryWriteListener(new AddStatesMemoryWriteListener<T>(phaseProcessor));
+    memory.addMemoryReadListener(new AddStatesMemoryReadListener(phaseProcessor));
+    memory.addMemoryWriteListener(new AddStatesMemoryWriteListener(phaseProcessor));
     return cpu;
   }
 
@@ -194,10 +194,10 @@ public class FuseTestParser<T extends WordNumber> {
   // Helper to parse event in .expected file
   private Event parseEvent(String line) {
     String[] parts = line.trim().split(" ");
-    int time = Integer.parseInt(parts[0]);
+    int time = java.lang.Integer.parseInt(parts[0]);
     String type = parts[1];
-    int address = Integer.parseInt(parts[2], 16);
-    Integer data = parts.length > 3 ? Integer.parseInt(parts[3], 16) : null;
+    int address = java.lang.Integer.parseInt(parts[2], 16);
+    java.lang.Integer data = parts.length > 3 ? java.lang.Integer.parseInt(parts[3], 16) : null;
     return new Event(time, type, address, data);
   }
 

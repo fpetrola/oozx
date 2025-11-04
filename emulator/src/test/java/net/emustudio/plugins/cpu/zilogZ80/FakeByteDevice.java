@@ -20,7 +20,6 @@
  */
 package net.emustudio.plugins.cpu.zilogZ80;
 
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import net.emustudio.plugins.cpu.intel8080.api.Context8080;
 
 public class FakeByteDevice implements Context8080.CpuPortDevice {

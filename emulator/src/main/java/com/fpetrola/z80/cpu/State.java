@@ -19,7 +19,6 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterBank;
@@ -32,7 +31,7 @@ import java.util.stream.Stream;
 import static com.fpetrola.z80.cpu.State.InterruptionMode.IM0;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-public class State<T extends WordNumber> {
+public class State {
   private RunState runState;
   protected final ArrayList<Event> events = new ArrayList<>();
   public Z80Clock clock = new DefaultZ80Clock();
@@ -59,13 +58,13 @@ public class State<T extends WordNumber> {
   public void reset() {
     setTstates(0);
     getEvents().clear();
-    Stream.of(values()).forEach(r -> r(r).write((T) new WordNumber(0xFFFF)));
-    getRegister(IR).write((T) new WordNumber(0));
-    getRegister(AF).write((T) new WordNumber(0xFFFF));
+    Stream.of(values()).forEach(r -> r(r).write(0xFFFF));
+    getRegister(IR).write(0);
+    getRegister(AF).write(0xFFFF);
     setIntMode(IM0);
   }
 
-  public void setRegisters(State<T> state) {
+  public void setRegisters(State state) {
     Stream.of(values()).forEach(r -> getRegister(r).write(state.getRegister(r).read()));
   }
 
@@ -81,9 +80,9 @@ public class State<T extends WordNumber> {
 
   private InterruptionMode intMode;
 
-  private final RegisterBank<T> registers;
-  private final Memory<T> memory;
-  private final IO<T> io;
+  private final RegisterBank registers;
+  private final Memory memory;
+  private final IO io;
 
   private boolean halted;
   private boolean iff1;
@@ -104,15 +103,15 @@ public class State<T extends WordNumber> {
     this(io, new DefaultRegisterBankFactory().createBank(), memory);
   }
 
-  public Register<T> getFlag() {
+  public Register getFlag() {
     return getRegister(F);
   }
 
-  public Register<T> r(RegisterName name) {
+  public Register r(RegisterName name) {
     return this.registers.get(name);
   }
 
-  public Register<T> getRegister(RegisterName name) {
+  public Register getRegister(RegisterName name) {
     return this.registers.get(name);
   }
 
@@ -161,11 +160,11 @@ public class State<T extends WordNumber> {
     this.intMode = intMode;
   }
 
-  public Memory<T> getMemory() {
+  public Memory getMemory() {
     return memory;
   }
 
-  public IO<T> getIo() {
+  public IO getIo() {
     return io;
   }
 
@@ -210,23 +209,23 @@ public class State<T extends WordNumber> {
   }
 
 
-  public Register<T> getPc() {
+  public Register getPc() {
     return this.getRegister(PC);
   }
 
-  public Register<T> getMemptr() {
+  public Register getMemptr() {
     return this.getRegister(MEMPTR);
   }
 
-  public Register<T> getRegI() {
+  public Register getRegI() {
     return this.getRegister(I);
   }
 
-  public Register<T> getRegisterSP() {
+  public Register getRegisterSP() {
     return this.getRegister(SP);
   }
 
-  public Register<T> getRegisterR() {
+  public Register getRegisterR() {
     return this.getRegister(R);
   }
 

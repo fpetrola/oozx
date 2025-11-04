@@ -22,13 +22,12 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.instructions.types.BlockInstruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-public class Ldi<T extends WordNumber> extends BlockInstruction<T> {
+public class Ldi extends BlockInstruction {
   public static final AluOperation ldiTableAluOperation = new TableAluOperation() {
     public int execute(int value, int a, int bc) {
       value += a;
@@ -38,19 +37,19 @@ public class Ldi<T extends WordNumber> extends BlockInstruction<T> {
       return F;
     }
   };
-  protected final Register<T> a;
+  protected final Register a;
 
-  public Register<T> getDe() {
+  public Register getDe() {
     return de;
   }
 
-  public void setDe(Register<T> de) {
+  public void setDe(Register de) {
     this.de = de;
   }
 
-  protected Register<T> de;
+  protected Register de;
 
-  public Ldi(Register<T> de, RegisterPair<T> bc, RegisterPair<T> hl, Register<T> flag, Memory<T> memory, IO<T> io, Register<T> a) {
+  public Ldi(Register de, RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io, Register a) {
     super(bc, hl, flag, memory, io);
     this.de = de;
     this.a = a;
@@ -59,7 +58,7 @@ public class Ldi<T extends WordNumber> extends BlockInstruction<T> {
   public int execute() {
 //    memory.disableReadListener();
 //    memory.disableWriteListener();
-    T read = memory.read(hl.read(), 0);
+    int read = memory.read(hl.read(), 0);
     memory.write(de.read(), read);
 
     next();
@@ -72,8 +71,8 @@ public class Ldi<T extends WordNumber> extends BlockInstruction<T> {
     return 1;
   }
 
-  protected void flagOperation(T valueFromHL) {
-    flag.write(Ldd.lddTableAluOperation.executeWithCarry2(valueFromHL, a.read(), bc.read().valueXYZ != 0 ? 1 : 0, flag));
+  protected void flagOperation(int valueFromHL) {
+    flag.write(Ldd.lddTableAluOperation.executeWithCarry2(valueFromHL, a.read(), bc.read() != 0 ? 1 : 0, flag));
   }
 
   protected void next() {

@@ -31,7 +31,6 @@ import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.cpu.Z80Clock;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.google.common.base.Supplier;
@@ -139,15 +138,15 @@ public class LocalLibretroCore implements LibretroCore {
     z80.reset(0);
   }
 
-  private Memory<WordNumber> getMemory() {
+  private Memory getMemory() {
     return getState().getMemory();
   }
 
-  private State<WordNumber> getState() {
+  private State getState() {
     return z80.ooz80.getState();
   }
 
-  private int executePreservingTstates(Supplier<Integer> supplier) {
+  private int executePreservingTstates(Supplier<java.lang.Integer> supplier) {
     List<TStateUpdate> tstatesUpdates = new ArrayList<>(GetTStatesHistory.tstatesUpdates);
     long tstates = z80Clock.getTStates();
     int result = supplier.get();
@@ -158,25 +157,25 @@ public class LocalLibretroCore implements LibretroCore {
 
   public int retro_get_memory_data(int id) {
     return executePreservingTstates(() -> {
-      return getMemory().read((WordNumber) new WordNumber(id), 0).valueXYZ;
+      return getMemory().read(id, 0);
     });
   }
 
   public void retro_set_memory_data(int address, int id) {
     executePreservingTstates(() -> {
-      getMemory().write((WordNumber) new WordNumber(address), (WordNumber) new WordNumber(id));
+      getMemory().write(address, id);
       return 0;
     });
   }
 
   public int retro_get_memory_data_contended(int id) {
-    return getMemory().read((WordNumber) new WordNumber(id), 0).valueXYZ;
+    return getMemory().read(id, 0);
   }
 
   public void retro_set_memory_data_contended(int address, int id) {
     DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) z80.ooz80.getInstructionFetcher();
     instructionFetcher.setLastExecutedInstruction(null);
-    getMemory().write((WordNumber) new WordNumber(address), (WordNumber) new WordNumber(id));
+    getMemory().write(address, id);
   }
 
   public long retro_get_memory_size(int id) {
@@ -188,20 +187,20 @@ public class LocalLibretroCore implements LibretroCore {
       z80Clock.setTStates(value);
       z80.ooz80.getState().clock.setTStates(value);
     } else
-      getRegister(register).write((WordNumber) new WordNumber(value));
+      getRegister(register).write(value);
   }
 
   public int retro_get_register_data(String register) {
     if (register.equals("tstates")) {
       return (int) z80Clock.getTStates();
     } else if (register.equals("R")) {
-      return getRegister(register).read().valueXYZ;
+      return getRegister(register).read();
     } else {
-      return getRegister(register).read().valueXYZ;
+      return getRegister(register).read();
     }
   }
 
-  private Register<WordNumber> getRegister(String register) {
+  private Register getRegister(String register) {
     return getState().getRegister(RegisterName.valueOf(register));
   }
 
