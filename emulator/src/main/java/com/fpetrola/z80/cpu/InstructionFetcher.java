@@ -22,9 +22,6 @@ import com.fpetrola.z80.instructions.types.Instruction;
 
 public interface InstructionFetcher {
 
-  default void setPrefetch(boolean prefetch) {
-  }
-
   Instruction fetchNextInstruction();
 
   void reset();

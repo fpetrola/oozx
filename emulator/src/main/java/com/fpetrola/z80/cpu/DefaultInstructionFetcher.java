@@ -25,6 +25,7 @@ import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
+import com.fpetrola.z80.registers.DefaultRegisterBankFactory.RRegister;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.PhaseInterceptor;
@@ -32,7 +33,7 @@ import fuse.tstates.PhaseProcessor;
 
 public class DefaultInstructionFetcher implements InstructionFetcher {
   protected final MultiOpcodeFetcher multiOpcodeFetcher;
-  protected State state;
+  protected final State state;
   protected int pcValue;
   public Instruction currentInstruction;
 
@@ -40,17 +41,17 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
   private int prefetchPC = -1;
   private Instruction prefetchedInstruction;
   protected int rdelta;
-  private boolean prefetch = false;
-  protected DefaultRegisterBankFactory.RRegister registerR;
+  private final boolean prefetch;
+  protected final RRegister registerR;
   public PhaseProcessor tPhaseProcessor;
-  private Register pc;
+  private final Register pc;
 
   public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
     this.state = aState;
     this.prefetch = prefetch;
     multiOpcodeFetcher = new MultiOpcodeFetcher(instructionFactory, state, opcodeConditions, clone);
     pcValue = state.getPc().read();
-    this.registerR = (DefaultRegisterBankFactory.RRegister) state.getRegisterR();
+    this.registerR = (RRegister) state.getRegisterR();
     this.pc = state.getPc();
     tPhaseProcessor = new PhaseProcessor(this, state);
   }
@@ -131,11 +132,6 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
   @Override
   public void addFetchListener(FetchListener fetchListener) {
     fetchListeners.add(fetchListener);
-  }
-
-  @Override
-  public void setPrefetch(boolean prefetch) {
-    this.prefetch = prefetch;
   }
 
   public void setClone(boolean clone) {

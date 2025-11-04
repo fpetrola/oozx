@@ -32,15 +32,16 @@ import java.util.function.IntConsumer;
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
 public class DefaultFetchNextOpcodeInstruction extends AbstractInstruction implements FetchNextOpcodeInstruction {
-  private boolean incrementR;
+  private final boolean incrementR;
   private final Register pc;
   private final Instruction[] table;
   private final String name;
   public final Memory memoryForOpcodes;
   private final int incPc;
   private final Register registerR;
-  private IntConsumer inc2Consumer;
-  private IntConsumer inc1Consumer;
+  private final IntConsumer inc2Consumer;
+  private final IntConsumer inc1Consumer;
+  private final int increment;
 
   public DefaultFetchNextOpcodeInstruction(State state, Instruction[] table, int incPc, String name, Memory memoryForOpcodes) {
     this.table = table;
@@ -66,6 +67,8 @@ public class DefaultFetchNextOpcodeInstruction extends AbstractInstruction imple
       inc1Consumer = plus1 -> memoryForOpcodes.read((plus1 + 1) & 0xFFFF, 0);
     else
       inc1Consumer = nullConsumer;
+
+    increment= incPc - 1 + length;
   }
 
   public int execute() {
@@ -79,11 +82,11 @@ public class DefaultFetchNextOpcodeInstruction extends AbstractInstruction imple
   }
 
   public Instruction findNextOpcode() {
-    return table[memoryForOpcodes.read((pc.read() + incPc - 1 + length) & 0xFFFF, incPc)];
+    return table[memoryForOpcodes.read((pc.read() + increment) & 0xFFFF, incPc)];
   }
 
   public Instruction findNextOpcode2() {
-    int plus = (pc.read() + incPc - 1 + length) & 0xFFFF;
+    int plus = (pc.read() + increment) & 0xFFFF;
     inc2Consumer.accept(plus);
     Instruction instruction = table[memoryForOpcodes.read(plus, incPc)];
     if (instruction instanceof Ld ld && ld.getSource() instanceof Memory8BitReference)
