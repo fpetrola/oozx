@@ -41,7 +41,7 @@ public class DefaultFetchNextOpcodeInstruction extends AbstractInstruction imple
   private final Register registerR;
   private final IntConsumer inc2Consumer;
   private final IntConsumer inc1Consumer;
-  private final int increment;
+  private int increment;
 
   public DefaultFetchNextOpcodeInstruction(State state, Instruction[] table, int incPc, String name, Memory memoryForOpcodes) {
     this.table = table;
@@ -68,12 +68,26 @@ public class DefaultFetchNextOpcodeInstruction extends AbstractInstruction imple
     else
       inc1Consumer = nullConsumer;
 
-    increment= incPc - 1 + length;
+    calcIncrement();
+  }
+
+  private void calcIncrement() {
+    increment= this.incPc - 1 + length;
   }
 
   public int execute() {
     findNextOpcode().execute();
     return 4;
+  }
+
+  public void incrementLengthBy(int by) {
+    super.incrementLengthBy(by);
+    calcIncrement();
+  }
+
+  public void setLength(int length) {
+    super.setLength(length);
+    calcIncrement();
   }
 
   public void update() {
