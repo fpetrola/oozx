@@ -119,15 +119,12 @@ public class MemoryForOpcodes implements Memory {
   }
 
   private int read1(int address, int fetching) {
-    int i = address;
-    if (cachedData[i] != -1) {
-      return cachedData[i];
+    if (cachedData[address] != -1) {
+      return cachedData[address];
     } else {
       int value = memory.read(address, fetching);
-      if (memory.isReadListenersDisabled())
-        return value;
-      cachedData[i] = value;
-      cachedAddresses[counter++] = i;
+      cachedData[address] = value;
+      cachedAddresses[counter++] = address;
       return value;
     }
   }
