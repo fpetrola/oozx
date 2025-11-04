@@ -140,7 +140,7 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
   }
 
   protected Optional<Boolean> hasJumped(JumpInstruction instruction) {
-    return Optional.ofNullable(instruction.getNextPC() != null ? true : null);
+    return Optional.ofNullable(instruction.getNextPC() != -1 ? true : null);
   }
 
   protected void switchByReadCount(Runnable... runnables) {

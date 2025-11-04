@@ -39,32 +39,32 @@ public class MemptrUpdater {
     if (instruction != null)
       instruction.accept(new InstructionVisitor<java.lang.Integer>() {
         public boolean visitRLD(RLD rld) {
-          Integer wordNumber = rld.getHl().read();
-          memptr.write( (Integer) new Integer((wordNumber + 1) & 0xFFFF));
+          int wordNumber = rld.getHl().read();
+          memptr.write((wordNumber + 1) & 0xFFFF);
           return false;
         }
 
         public boolean visitingCall(Call tCall) {
-          int jumpAddress2 =  tCall.calculateJumpAddress();
+          int jumpAddress2 = tCall.calculateJumpAddress();
           memptr.write(jumpAddress2);
           return false;
         }
 
         public boolean visiting16BitsOperation(Binary16BitsOperation binary16BitsOperation) {
-          Integer wordNumber = ( binary16BitsOperation.getTarget().read());
-          memptr.write( (Integer) new Integer((wordNumber + 1) & 0xFFFF));
+          int wordNumber = (binary16BitsOperation.getTarget().read());
+          memptr.write((wordNumber + 1) & 0xFFFF);
           return false;
         }
 
         public boolean visitIni(Ini tIni) {
-          Integer wordNumber = tIni.getBc().read();
-          memptr.write( (Integer) new Integer((wordNumber + 1) & 0xFFFF));
+          int wordNumber = tIni.getBc().read();
+          memptr.write((wordNumber + 1) & 0xFFFF);
           return false;
         }
 
         public boolean visitInd(Ind tInd) {
           Integer wordNumber = tInd.getBc().read();
-          memptr.write( (Integer) new Integer((wordNumber + -1) & 0xFFFF));
+          memptr.write((Integer) new Integer((wordNumber + -1) & 0xFFFF));
           return true;
         }
 
@@ -88,8 +88,8 @@ public class MemptrUpdater {
         public void visitIn(In tOut) {
           tOut.getSource().accept(new InstructionVisitor<>() {
             public boolean visitRegister(Register register) {
-              Integer wordNumber = ( tOut.getSource().read());
-              memptr.write( (Integer) new Integer((wordNumber + 1) & 0xFFFF));
+              Integer wordNumber = (tOut.getSource().read());
+              memptr.write((Integer) new Integer((wordNumber + 1) & 0xFFFF));
               return false;
             }
 
@@ -97,8 +97,8 @@ public class MemptrUpdater {
               Integer wordNumber = tOut.getA().read();
               Integer number = ((Integer) (Integer) new Integer((wordNumber << 8) & 0xFFFF));
               int i = tOut.getSource().read() & 0xFFFF;
-              Integer wordNumber1 = ( (Integer) new Integer((number | i) & 0xFFFF));
-              memptr.write( (Integer) new Integer((wordNumber1 + 1) & 0xFFFF));
+              Integer wordNumber1 = ((Integer) new Integer((number | i) & 0xFFFF));
+              memptr.write((Integer) new Integer((wordNumber1 + 1) & 0xFFFF));
               return false;
             }
           });
@@ -110,7 +110,7 @@ public class MemptrUpdater {
     instruction.accept(new InstructionVisitor<java.lang.Integer>() {
 
       public void visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference memoryPlusRegister8BitReference) {
-        memptr.write( memoryPlusRegister8BitReference.address);
+        memptr.write(memoryPlusRegister8BitReference.address);
       }
 
       public void visitingTarget(OpcodeReference target, TargetInstruction targetInstruction) {
@@ -131,50 +131,49 @@ public class MemptrUpdater {
 
       public boolean visitOuti(Outi outi) {
         Integer wordNumber = outi.getBc().read();
-        memptr.write( (Integer) new Integer((wordNumber + 1) & 0xFFFF));
+        memptr.write((Integer) new Integer((wordNumber + 1) & 0xFFFF));
 
         return false;
       }
 
       public boolean visitOutd(Outd outd) {
         Integer wordNumber = outd.getBc().read();
-        memptr.write( (Integer) new Integer((wordNumber + -1) & 0xFFFF));
+        memptr.write((Integer) new Integer((wordNumber + -1) & 0xFFFF));
 
         return true;
       }
 
       public void visitingConditionalInstruction(ConditionalInstruction conditionalInstruction) {
-        Integer nextPC =  conditionalInstruction.getNextPC();
+        int nextPC = conditionalInstruction.getNextPC();
 
         if (conditionalInstruction instanceof Call) {
-          nextPC =  conditionalInstruction.getJumpAddress();
+          nextPC = conditionalInstruction.getJumpAddress();
         } else if (conditionalInstruction instanceof JP jp) {
           if (!(jp.getPositionOpcodeReference() instanceof Register))
-            nextPC =  conditionalInstruction.getJumpAddress();
+            nextPC = conditionalInstruction.getJumpAddress();
           else
-            nextPC = null;
+            nextPC = -1;
         }
-        memptr.write(nextPC == null ?  new Integer(0) : nextPC);
+        memptr.write(nextPC == -1 ? 0 : nextPC);
       }
 
       public void visitingRst(RST rst) {
-        memptr.write( rst.getNextPC());
+        memptr.write(rst.getNextPC());
       }
 
       public void visitOut(Out tOut) {
         if (tOut.getTarget() instanceof Out.OutPortOpcodeReference outPortOpcodeReference) {
           if (outPortOpcodeReference.target instanceof Register) {
-            Integer wordNumber = ( tOut.getTarget().read());
-            memptr.write( (Integer) new Integer((wordNumber + 1) & 0xFFFF));
-          }
-          else if (outPortOpcodeReference.target instanceof Memory8BitReference memory8BitReference) {
+            int wordNumber = (tOut.getTarget().read());
+            memptr.write((Integer) new Integer((wordNumber + 1) & 0xFFFF));
+          } else if (outPortOpcodeReference.target instanceof Memory8BitReference memory8BitReference) {
             Integer wordNumber = tOut.getSource().read();
-            memptr.write( (Integer) new Integer((wordNumber << 8) & 0xFFFF));
+            memptr.write((Integer) new Integer((wordNumber << 8) & 0xFFFF));
             Integer wordNumber2 = tOut.getTarget().read();
             Integer wordNumber1 = (Integer) (Integer) new Integer((wordNumber2 + 1) & 0xFFFF);
             Integer number = memptr.read();
-            int i = ( (Integer) new Integer((wordNumber1 & 0xff) & 0xFFFF)) & 0xFFFF;
-            int and =  (Integer) new Integer((number | i) & 0xFFFF);
+            int i = ((Integer) new Integer((wordNumber1 & 0xff) & 0xFFFF)) & 0xFFFF;
+            int and = (Integer) new Integer((number | i) & 0xFFFF);
             memptr.write(and);
           }
         }
@@ -203,13 +202,13 @@ public class MemptrUpdater {
           }
 
           private void incIfNextPC(int i) {
-            Integer nextPC = repeatingInstruction.getNextPC();
+            int nextPC = repeatingInstruction.getNextPC();
             int newValue;
-            if (nextPC != null) {
-              newValue =  (Integer) new Integer((nextPC + 1) & 0xFFFF);
+            if (nextPC != -1) {
+              newValue = (Integer) new Integer((nextPC + 1) & 0xFFFF);
             } else {
               Integer wordNumber = memptr.read();
-              newValue =  (Integer) new Integer((wordNumber + i) & 0xFFFF);
+              newValue = (Integer) new Integer((wordNumber + i) & 0xFFFF);
             }
             memptr.write(newValue);
           }

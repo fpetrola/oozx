@@ -24,7 +24,7 @@ import fuse.tstates.PhaseInterceptor;
 public abstract class AbstractInstruction implements Instruction {
   protected int length = 1;
   protected int cyclesCost = 4;
-  private Integer nextPC = null;
+  private int nextPC = -1;
   private int rdelta;
 
   public void setPhaseInterceptor(PhaseInterceptor phaseInterceptor) {
@@ -61,11 +61,11 @@ public abstract class AbstractInstruction implements Instruction {
     this.length = length;
   }
 
-  public void setNextPC(Integer address) {
+  public void setNextPC(int address) {
     this.nextPC = address;
   }
 
-  public Integer getNextPC() {
+  public int getNextPC() {
     return nextPC;
   }
 

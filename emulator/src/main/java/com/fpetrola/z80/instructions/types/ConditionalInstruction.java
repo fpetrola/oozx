@@ -52,7 +52,7 @@ public abstract class ConditionalInstruction<C extends Condition> extends Abstra
       setJumpAddress(jumpAddress2);
       setNextPC(jumpAddress2);
     } else
-      setNextPC(null);
+      setNextPC(-1);
 
     return cyclesCost;
   }
@@ -66,9 +66,7 @@ public abstract class ConditionalInstruction<C extends Condition> extends Abstra
   }
 
   public int calculateRelativeJumpAddress() {
-    Integer wordNumber = pc.read();
-    int i = length + (byte) positionOpcodeReference.read();
-    return jumpAddress = (wordNumber + i) & 0xFFFF;
+    return jumpAddress = (pc.read() + length + (byte) positionOpcodeReference.read()) & 0xFFFF;
   }
 
   public int getJumpAddress() {

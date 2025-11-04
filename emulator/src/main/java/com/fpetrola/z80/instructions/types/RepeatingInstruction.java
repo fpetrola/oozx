@@ -35,7 +35,7 @@ public class RepeatingInstruction extends AbstractInstruction implements JumpIns
 
   public int execute() {
     int execute = instructionToRepeat.execute();
-    setNextPC(checkLoopCondition() ? pc.read() : null);
+    setNextPC(checkLoopCondition() ? pc.read() : -1);
     return execute;
   }
 

@@ -164,7 +164,7 @@ public class RoutineFinder {
 
   private void updateCallers(Instruction instruction, int pcValue) {
     if (instruction instanceof ConditionalInstruction< ?> conditionalInstruction) {
-      if (conditionalInstruction.getNextPC() != null)
+      if (conditionalInstruction.getNextPC() != -1)
         if (instruction instanceof Call) {
           routineManager.callers2.put(conditionalInstruction.getNextPC(), pcValue);
         } else if (!(instruction instanceof Ret)) {

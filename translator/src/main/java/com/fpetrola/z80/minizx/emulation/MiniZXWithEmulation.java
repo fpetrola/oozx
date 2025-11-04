@@ -258,7 +258,7 @@ public class MiniZXWithEmulation {
               setJumpAddress(jumpAddress2);
               setNextPC(jumpAddress2);
             } else
-              setNextPC(null);
+              setNextPC(-1);
 
             return cyclesCost;
           }
@@ -290,7 +290,7 @@ public class MiniZXWithEmulation {
                   runnable.run();
                   if (replacing) {
                     copyStateBackToEmulation();
-                    setNextPC(null);
+                    setNextPC(-1);
                   }
                 } catch (Exception e) {
                   System.out.println("pum!");
@@ -306,7 +306,7 @@ public class MiniZXWithEmulation {
                 setNextPC(jumpAddress2);
               }
             } else
-              setNextPC(null);
+              setNextPC(-1);
 
             return 0;
           }

@@ -89,7 +89,7 @@ public class TransformerInstructionExecutor implements InstructionExecutor {
       instructionExecutor.execute(cloned);
 
     if (noRepeat && cloned instanceof RepeatingInstruction repeatingInstruction)
-      repeatingInstruction.setNextPC(null);
+      repeatingInstruction.setNextPC(-1);
 
     if (executed.isEmpty() || executed.get(executed.size() - 1) != cloned)
       executed.add(cloned);

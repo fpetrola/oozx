@@ -45,7 +45,7 @@ public class DefaultInstructionExecutor implements InstructionExecutor {
     this.pc = state.getPc();
     afterExecutionAction = noRepeat ? (instruction1 -> {
       if (instruction1 instanceof RepeatingInstruction repeatingInstruction)
-        repeatingInstruction.setNextPC(null);
+        repeatingInstruction.setNextPC(-1);
     }) : ((a) -> {
     });
   }
@@ -60,11 +60,9 @@ public class DefaultInstructionExecutor implements InstructionExecutor {
 
     afterExecutionAction.accept(instruction);
 
-    Integer nextPC = ((AbstractInstruction) instruction).getNextPC();
-    if (nextPC == null) {
-      Integer wordNumber = pc.read();
-      int i = instruction.getLength();
-      nextPC = (wordNumber + i) & 0xFFFF;
+    int nextPC = ((AbstractInstruction) instruction).getNextPC();
+    if (nextPC == -1) {
+      nextPC = (pc.read() + instruction.getLength()) & 0xFFFF;
     }
 
     pc.write(nextPC);

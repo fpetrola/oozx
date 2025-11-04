@@ -41,7 +41,7 @@ public class JR extends ConditionalInstruction<Condition> {
       setJumpAddress(jumpAddress2);
       setNextPC(jumpAddress2);
     } else
-      setNextPC(null);
+      setNextPC(-1);
 
     return cyclesCost;
   }
