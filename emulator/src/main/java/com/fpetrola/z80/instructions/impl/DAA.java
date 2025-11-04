@@ -42,11 +42,11 @@ public class DAA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
       Register<WordNumber> f = new Plain8BitRegister<>("");
       f.write(createValue(F));
       if ((F & FLAG_N) != 0) {
-        A = Sub.sub8TableAluOperation.executeWithoutCarry(createValue(add), createValue(A), f).intValue();
+        A = Sub.sub8TableAluOperation.executeWithoutCarry(createValue(add), createValue(A), f).value;
       } else {
-        A = Add.add8TableAluOperation.executeWithoutCarry(createValue(add), createValue(A), f).intValue();
+        A = Add.add8TableAluOperation.executeWithoutCarry(createValue(add), createValue(A), f).value;
       }
-      F = f.read().intValue();
+      F = f.read().value;
 
       F = (F & ~(FLAG_C | FLAG_P)) | carry | parityTable(A);
       Q = F;

@@ -63,7 +63,7 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<Wo
     source.accept(opcodeReferenceVisitor);
     sourceVariable = opcodeReferenceVisitor.getResult();
 
-    int i = routineByteCodeGenerator.context.pc.read().intValue();
+    int i = routineByteCodeGenerator.context.pc.read().value;
     Set<Integer> mutantAddress = (Set<Integer>) routineByteCodeGenerator.context.symbolicExecutionAdapter.getMutantAddress();
     Optional<Integer> mutantCode = mutantAddress.stream()
         .filter(m -> m >= i && m < routineByteCodeGenerator.currentInstruction.getLength() + i).findFirst();

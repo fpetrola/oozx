@@ -31,9 +31,9 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class Outi<T extends WordNumber> extends BlockInstruction<T> {
   public static final AluOperation outiTableAluOperation = new TableAluOperation() {
     public <T extends WordNumber> T executeWithCarry(T value, T b, Register<T> l) {
-      int outitemp = value.intValue();
-      int B = b.intValue();
-      int L = l.read().intValue();
+      int outitemp = value.value;
+      int B = b.value;
+      int L = l.read().value;
       int outitemp2 = (outitemp + L) & 0xff;
       F = ((outitemp & 0x80) != 0 ? FLAG_N : 0) |
           ((outitemp2 < outitemp) ? FLAG_H | FLAG_C : 0) |

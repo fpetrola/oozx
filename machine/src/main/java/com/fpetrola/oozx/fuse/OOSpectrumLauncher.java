@@ -93,17 +93,21 @@ public class OOSpectrumLauncher {
 
         if (endFrame == 100) {
           memory.write(createValue(LAST_K), createValue(0xEF)); // LOAD keyword
-          memory.write(createValue(FLAGS), (memory.read(createValue(FLAGS), 0).or(0x20))); // LOAD keyword
+          WordNumber wordNumber2 = memory.read(createValue(FLAGS), 0);
+          memory.write(createValue(FLAGS), ((WordNumber) WordNumber.<WordNumber>createValue((wordNumber2.value | 0x20) & 0xFFFF))); // LOAD keyword
           wait1(30, coe);
           memory.write(createValue(LAST_K), createValue(0x22)); // LOAD keyword
-          memory.write(createValue(FLAGS), (memory.read(createValue(FLAGS), 0).or(0x20))); // LOAD keyword
+          WordNumber wordNumber1 = memory.read(createValue(FLAGS), 0);
+          memory.write(createValue(FLAGS), ((WordNumber) WordNumber.<WordNumber>createValue((wordNumber1.value | 0x20) & 0xFFFF))); // LOAD keyword
           wait1(30, coe);
           memory.write(createValue(LAST_K), createValue(0x22)); // LOAD keyword
-          memory.write(createValue(FLAGS), (memory.read(createValue(FLAGS), 0).or(0x20))); // LOAD keyword
+          WordNumber wordNumber = memory.read(createValue(FLAGS), 0);
+          memory.write(createValue(FLAGS), ((WordNumber) WordNumber.<WordNumber>createValue((wordNumber.value | 0x20) & 0xFFFF))); // LOAD keyword
           wait1(30, coe);
         }
         memory.write(createValue(LAST_K), createValue(0x0D)); // LOAD keyword
-        memory.write(createValue(FLAGS), (memory.read(createValue(FLAGS), 0).or(0x20))); // LOAD keyword
+        WordNumber wordNumber = memory.read(createValue(FLAGS), 0);
+        memory.write(createValue(FLAGS), ((WordNumber) WordNumber.<WordNumber>createValue((wordNumber.value | 0x20) & 0xFFFF))); // LOAD keyword
         wait1(3000, coe);
 
         runnable.run();

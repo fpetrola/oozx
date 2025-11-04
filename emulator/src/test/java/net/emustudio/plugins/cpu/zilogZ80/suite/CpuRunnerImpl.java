@@ -175,19 +175,20 @@ public class CpuRunnerImpl extends CpuRunner<CpuImpl> {
   @Override
   public int getPC() {
     Register<WordNumber> pc = cpuImpl.ooz80.getState().getPc();
-    return pc.read().intValue();
+    return pc.read().value;
     //return cpu.getEngine().PC;
   }
 
   @Override
   public int getSP() {
     Register<WordNumber> sp = cpuImpl.ooz80.getState().getRegisterSP();
-    return sp.read().intValue();
+    return sp.read().value;
   }
 
   public void setFlags2(int mask) {
     Register<WordNumber> flag = cpuImpl.ooz80.getState().getRegister(RegisterName.AFx);
-    flag.write(flag.read().or(mask));
+    WordNumber wordNumber = flag.read();
+    flag.write((WordNumber) WordNumber.<WordNumber>createValue((wordNumber.value | mask) & 0xFFFF));
   }
 
   public void resetFlags() {
@@ -208,7 +209,7 @@ public class CpuRunnerImpl extends CpuRunner<CpuImpl> {
 
   public static int getFlagsStatic(CpuImpl cpuImpl1) {
     Register<WordNumber> flag = cpuImpl1.ooz80.getState().getFlag();
-    return flag.read().intValue();
+    return flag.read().value;
   }
 
   public int getFlags2() {
@@ -217,13 +218,14 @@ public class CpuRunnerImpl extends CpuRunner<CpuImpl> {
 
   public static int getFlagsStatic2(CpuImpl cpuImpl1) {
     Register<WordNumber> flag = cpuImpl1.ooz80.getState().getRegister(RegisterName.Fx);
-    return flag.read().intValue();
+    return flag.read().value;
   }
 
   @Override
   public void setFlags(int mask) {
     Register<WordNumber> flag = cpuImpl.ooz80.getState().getFlag();
-    flag.write(flag.read().or(mask));
+    WordNumber wordNumber = flag.read();
+    flag.write((WordNumber) WordNumber.<WordNumber>createValue((wordNumber.value | mask) & 0xFFFF));
     //cpu.getEngine().flags |= mask;
   }
 
@@ -292,7 +294,7 @@ public class CpuRunnerImpl extends CpuRunner<CpuImpl> {
         throw new IllegalArgumentException("Expected value between <0,3> !");
     }
 
-    return result.intValue() & 0xff;
+    return result.value & 0xff;
   }
 
 
@@ -329,7 +331,7 @@ public class CpuRunnerImpl extends CpuRunner<CpuImpl> {
         throw new IllegalArgumentException("Expected value between <0,3> !");
     }
 
-    return result.intValue() & 0xff;
+    return result.value & 0xff;
   }
 
   @Override

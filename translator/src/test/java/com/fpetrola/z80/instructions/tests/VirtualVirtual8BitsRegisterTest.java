@@ -48,7 +48,7 @@ public class VirtualVirtual8BitsRegisterTest<T extends WordNumber> extends Trans
     add(new Ld(mm(c(memPosition)), r(H), f()));
 
     step();
-    assertNotEquals(7, r(H).read().intValue());
+    assertNotEquals(7, r(H).read().value);
 
     step();
     assertEquals(7, readMemAt(memPosition));
@@ -61,10 +61,10 @@ public class VirtualVirtual8BitsRegisterTest<T extends WordNumber> extends Trans
     add(new Ld(mm(c(memPosition)), r(B), f()));
 
     step();
-    assertNotEquals(7, r(H).read().intValue());
+    assertNotEquals(7, r(H).read().value);
 
     step();
-    assertNotEquals(7, r(B).read().intValue());
+    assertNotEquals(7, r(B).read().value);
 
     step();
     assertEquals(7, readMemAt(memPosition));
@@ -78,11 +78,11 @@ public class VirtualVirtual8BitsRegisterTest<T extends WordNumber> extends Trans
     add(new Ld(mm(c(memPosition)), r(H), f()));
 
     step(2);
-    assertNotEquals(7, r(H).read().intValue());
+    assertNotEquals(7, r(H).read().value);
 
     step();
-    assertNotEquals(7, r(H).read().intValue());
-    assertNotEquals(8, r(H).read().intValue());
+    assertNotEquals(7, r(H).read().value);
+    assertNotEquals(8, r(H).read().value);
 
     step();
     assertEquals(8, readMemAt(memPosition));
@@ -123,7 +123,7 @@ public class VirtualVirtual8BitsRegisterTest<T extends WordNumber> extends Trans
     add(new Ld(mm(c(memPosition + 1)), r(C), f()));
 
     step(5);
-    assertNotEquals(4, r(C).read().intValue());
+    assertNotEquals(4, r(C).read().value);
     step();
     assertEquals(4, readMemAt(memPosition));
     step();
@@ -305,7 +305,7 @@ public class VirtualVirtual8BitsRegisterTest<T extends WordNumber> extends Trans
     assertEquals(10, readMemAt(257 + 1 + 1 + 1 + 1));
 
     T read = r(H).read();
-    assertNotEquals(7, read.intValue());
+    assertNotEquals(7, read.value);
   }
 
   @Test

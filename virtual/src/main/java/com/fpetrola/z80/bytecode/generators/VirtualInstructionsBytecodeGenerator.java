@@ -78,10 +78,10 @@ public class VirtualInstructionsBytecodeGenerator<T extends WordNumber> extends 
   private void createIfMethod(Instruction instruction, ConditionalInstruction conditionalInstruction) {
     BytecodeGenerationContext bytecodeGenerationContext = routineByteCodeGenerator.context;
     BlocksManager blocksManager = bytecodeGenerationContext.routineManager.blocksManager;
-    int startAddress = bytecodeGenerationContext.pc.read().intValue() + instruction.getLength();
-    int endAddress = conditionalInstruction.getJumpAddress().intValue() - 1;
+    int startAddress = bytecodeGenerationContext.pc.read().value + instruction.getLength();
+    int endAddress = conditionalInstruction.getJumpAddress().value - 1;
     if (startAddress < endAddress) {
-      int i = bytecodeGenerationContext.pc.read().intValue();
+      int i = bytecodeGenerationContext.pc.read().value;
       Routine routine = new Routine(new DefaultBlock(startAddress, endAddress, new BlocksManager(new NullBlockChangesListener(), true)), startAddress, true);
       routine.setRoutineManager(bytecodeGenerationContext.routineManager);
       final boolean[] notContained = new boolean[1];
@@ -89,7 +89,7 @@ public class VirtualInstructionsBytecodeGenerator<T extends WordNumber> extends 
       routine.accept(new RoutineVisitor<Object>() {
         public void visitInstruction(int address, Instruction instruction) {
           if (instruction instanceof ConditionalInstruction<?, ?> conditionalInstruction1) {
-            if (!routine.contains(conditionalInstruction1.getJumpAddress().intValue())) {
+            if (!routine.contains(conditionalInstruction1.getJumpAddress().value)) {
               notContained[0] |= true;
             }
           }

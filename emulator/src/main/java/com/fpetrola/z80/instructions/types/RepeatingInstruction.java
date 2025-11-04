@@ -41,7 +41,7 @@ public class RepeatingInstruction<T extends WordNumber> extends AbstractInstruct
   }
 
   protected boolean checkLoopCondition() {
-    return bc.getHigh().read().isNotZero();
+    return bc.getHigh().read().value != 0;
   }
 
   @Override

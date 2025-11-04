@@ -23,7 +23,6 @@ import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.minizx.NotSolvedStackException;
 import com.fpetrola.z80.minizx.StackException;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Plain16BitRegister;
@@ -38,8 +37,6 @@ import org.cojen.maker.Variable;
 
 import java.util.*;
 import java.util.function.Supplier;
-
-import static java.util.Comparator.comparingInt;
 
 public class RoutineBytecodeGenerator {
   public final BytecodeGenerationContext context;
@@ -318,7 +315,7 @@ public class RoutineBytecodeGenerator {
     if (context.syncEnabled) {
       List<Object> params = new ArrayList<>();
       params.add(variable1);
-      params.add(lastMemPc.read().intValue());
+      params.add(lastMemPc.read().value);
       addOtherMemSyncParameters(params);
       return mm.invoke("mem" + bits, params.toArray());
     } else {
@@ -336,7 +333,7 @@ public class RoutineBytecodeGenerator {
       List<Object> params = new ArrayList<>();
       params.add(variable1);
       params.add(o1);
-      params.add(lastMemPc.read().intValue());
+      params.add(lastMemPc.read().value);
       addOtherMemSyncParameters(params);
 
       mm.invoke("wMem" + bits, params.toArray());

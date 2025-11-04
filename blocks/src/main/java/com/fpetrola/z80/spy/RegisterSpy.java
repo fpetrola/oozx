@@ -49,12 +49,18 @@ public class RegisterSpy<T extends WordNumber> extends Plain16BitRegister<T> {
   }
 
   public void increment() {
-    registerWriteListeners.forEach(l -> l.writingRegister(register.read().plus1(), true));
+    registerWriteListeners.forEach(l -> {
+      WordNumber wordNumber = register.read();
+      l.writingRegister((T) WordNumber.<WordNumber>createValue((wordNumber.value + 1) & 0xFFFF), true);
+    });
     register.increment();
   }
 
   public void decrement() {
-    registerWriteListeners.forEach(l -> l.writingRegister(register.read().minus1(), true));
+    registerWriteListeners.forEach(l -> {
+      WordNumber wordNumber = register.read();
+      l.writingRegister((T) WordNumber.<WordNumber>createValue((wordNumber.value - 1) & 0xFFFF), true);
+    });
     register.decrement();
   }
 

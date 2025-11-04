@@ -37,7 +37,8 @@ public class Call<T extends WordNumber> extends ConditionalInstruction<T, Condit
   }
 
   public T beforeJump(T jumpAddress) {
-    T value = pc.read().plus(length);
+    WordNumber wordNumber = pc.read();
+    T value = (T) WordNumber.<WordNumber>createValue((wordNumber.value + length) & 0xFFFF);
     Push.doPush(value, sp, memory);
     return jumpAddress;
   }

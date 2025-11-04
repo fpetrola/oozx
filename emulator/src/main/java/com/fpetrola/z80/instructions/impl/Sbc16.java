@@ -70,7 +70,7 @@ public class Sbc16<T extends WordNumber> extends Binary16BitsOperation<T> {
 //          (v1, v2, f) -> v1 - v2 - (f & 1),
 //          (f1, value3, value2, result1) -> sbc16TableAluOperation.executeWithCarry(createValue(result1 != 0 ? 1 : 0), createValue(value3), f0));
 
-      int execute = sbc16TableAluOperation.execute(b.intValue(), a.intValue(), flag.read().intValue());
+      int execute = sbc16TableAluOperation.execute(b.value, a.value, flag.read().value);
       flag.write(WordNumber.createValue(sbc16TableAluOperation.F));
       return createValue(execute & 0xffff);
     });

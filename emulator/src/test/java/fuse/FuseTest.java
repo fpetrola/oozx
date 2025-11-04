@@ -109,7 +109,7 @@ public class FuseTest<T extends WordNumber> {
     int i;
     do {
       cpu.execute();
-      i = cpu.getState().getPc().read().intValue();
+      i = cpu.getState().getPc().read().value;
 //      System.out.println("pc: " + i + " - expected: " + expectedPc + " - ticks: " + ticks);
     } while (i < expectedPc && ticks++ < 65536);
     return ticks < 65536;

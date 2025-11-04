@@ -30,10 +30,10 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class Ldd<T extends WordNumber> extends Ldi<T> {
   public static final AluOperation lddTableAluOperation = new TableAluOperation() {
     public <T extends WordNumber> T executeWithCarry2(T value, T a, int bc, Register<T> flag) {
-      F = flag.read().intValue();
-      int A = a.intValue();
+      F = flag.read().value;
+      int A = a.value;
       int BC = bc;
-      int bytetemp = value.intValue();
+      int bytetemp = value.value;
       bytetemp += A;
       F = (F & (FLAG_C | FLAG_Z | FLAG_S)) | (BC != 0 ? FLAG_V : 0) |
           (bytetemp & FLAG_3) | ((bytetemp & 0x02) != 0 ? FLAG_5 : 0);
@@ -48,7 +48,7 @@ public class Ldd<T extends WordNumber> extends Ldi<T> {
   }
 
   protected void flagOperation(T valueFromHL) {
-    flag.write(lddTableAluOperation.executeWithCarry2(valueFromHL, a.read(), bc.read().intValue() != 0 ? 1 : 0, flag));
+    flag.write(lddTableAluOperation.executeWithCarry2(valueFromHL, a.read(), bc.read().value != 0 ? 1 : 0, flag));
   }
 
   protected void next() {

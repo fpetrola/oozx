@@ -50,7 +50,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   }
 
   public void addMw(T address, T value) {
-    getAddEvent(new Event(0, "MW", address.intValue(), value.intValue()));
+    getAddEvent(new Event(0, "MW", address.value, value.value));
   }
 
   protected State<T> getState() {
@@ -72,7 +72,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   }
 
   public void addMr(T address, T value) {
-    getAddEvent(new Event(0, "MR", address.intValue(), value.intValue()));
+    getAddEvent(new Event(0, "MR", address.value, value.value));
   }
 
   protected Register<T> getRegister(RegisterName registerName) {
@@ -136,7 +136,7 @@ public abstract class PhaseProcessorBase<T extends WordNumber> implements Instru
   }
 
   protected int valueOf(Register<T> register) {
-    return register.read().intValue();
+    return register.read().value;
   }
 
   protected Optional<Boolean> hasJumped(JumpInstruction<T> instruction) {

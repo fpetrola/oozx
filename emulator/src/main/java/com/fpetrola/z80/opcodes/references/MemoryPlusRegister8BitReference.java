@@ -70,28 +70,30 @@ public class MemoryPlusRegister8BitReference<T extends WordNumber> implements Op
   public T read() {
     T read = target.read();
     byte i = fetchRelative();
-    address = read.plus(i);
+    address = (T) WordNumber.<WordNumber>createValue((read.value + (int) i) & 0xFFFF);
     value = memory.read(address, 0);
     return value;
   }
 
   public void write(T value) {
     byte i = fetchRelative();
-    address = target.read().plus(i);
+    WordNumber wordNumber = target.read();
+    address = (T) WordNumber.<WordNumber>createValue((wordNumber.value + (int) i) & 0xFFFF);
     this.value= value;
     memory.write(address, value);
   }
 
   public byte fetchRelative() {
-    T dd = memory.read(pc.read().plus(valueDelta), 0);
+    WordNumber wordNumber = pc.read();
+    T dd = memory.read((T) WordNumber.<WordNumber>createValue((wordNumber.value + valueDelta) & 0xFFFF), 0);
     if (fetchedRelative != dd) {
       fetchedRelative = dd;
     }
-    return (byte) fetchedRelative.intValue();
+    return (byte) fetchedRelative.value;
   }
 
   public String toString() {
-    byte dd = (byte) (fetchedRelative!=null? fetchedRelative.intValue(): 0);
+    byte dd = (byte) (fetchedRelative!=null? fetchedRelative.value : 0);
     String string2 = (dd > 0 ? "+" : "-") + Helper.formatAddress(Math.abs(dd));
     String string = "IXY";// target.toString();
     return "(" + string + string2 + ")";

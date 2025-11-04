@@ -35,7 +35,7 @@ public class AddStatesMemoryReadListener<T extends WordNumber> implements Memory
     //    System.out.printf("processEvent: address= %s - value= %s - fetching= %d %n", address, value, fetching);
     doRead(address, value, fetching);
 
-    phaseProcessor.addMultipleMc(1, fetching == 1 ? 4 : 3, 0, address.intValue(), "readbyte");
+    phaseProcessor.addMultipleMc(1, fetching == 1 ? 4 : 3, 0, address.value, "readbyte");
     phaseProcessor.addMr(address, value);
     phaseProcessor.setAddress(address);
     phaseProcessor.readCount++;

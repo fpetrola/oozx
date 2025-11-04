@@ -23,18 +23,22 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 public interface Memory<T> {
 
   static <T extends WordNumber> T read16Bits(Memory<T> memory, T address) {
-    T and = memory.read(address, 0).and(0xff);
-    return memory.read(address.plus1(), 0).left(8).or(and);
+    WordNumber wordNumber1 = memory.read(address, 0);
+    T and = (T) WordNumber.<WordNumber>createValue((wordNumber1.value & 0xff) & 0xFFFF);
+    WordNumber wordNumber = memory.read((T) WordNumber.<WordNumber>createValue((address.value + 1) & 0xFFFF), 0);
+    WordNumber number = ((WordNumber) WordNumber.<WordNumber>createValue((wordNumber.value << 8) & 0xFFFF));
+    int i = and.value & 0xFFFF;
+    return (T) WordNumber.<WordNumber>createValue((number.value | i) & 0xFFFF);
   }
 
   static <T extends WordNumber> void write16Bits(Memory<T> memory, T value, T address) {
-    memory.write(address.plus1(), (value.right(8)));
-    memory.write(address, value.and(0xFF));
+    memory.write((T) WordNumber.<WordNumber>createValue((address.value + 1) & 0xFFFF), ((T) WordNumber.<WordNumber>createValue((value.value >>> 8) & 0xFFFF)));
+    memory.write(address, (T) WordNumber.<WordNumber>createValue((value.value & 0xFF) & 0xFFFF));
   }
 
   static <T extends WordNumber> void write16BitsR(Memory<T> memory, T value, T address) {
-    memory.write(address, value.and(0xFF));
-    memory.write(address.plus1(), (value.right(8)));
+    memory.write(address, (T) WordNumber.<WordNumber>createValue((value.value & 0xFF) & 0xFFFF));
+    memory.write((T) WordNumber.<WordNumber>createValue((address.value + 1) & 0xFFFF), ((T) WordNumber.<WordNumber>createValue((value.value >>> 8) & 0xFFFF)));
   }
 
   T read(T address, int fetching);

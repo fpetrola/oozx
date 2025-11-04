@@ -77,7 +77,7 @@ public class RoutineFinderInstructionSpy<T extends WordNumber> extends WrapperIn
     super.beforeExecution(instruction);
     Register pc = state.getPc();
     T pcValue = (T) pc.read();
-    int pcIntValue = pcValue.intValue();
+    int pcIntValue = pcValue.value;
     routineFinder.checkBeforeExecution(instruction, pcIntValue, state);
   }
 
@@ -85,13 +85,13 @@ public class RoutineFinderInstructionSpy<T extends WordNumber> extends WrapperIn
   public void afterExecution(Instruction<T> instruction) {
     Register pc = state.getPc();
     T pcValue = (T) pc.read();
-    int pcIntValue = pcValue.intValue();
+    int pcIntValue = pcValue.value;
     int instructionLength = instruction.getLength();
     if (instructionLength > 0) {
       routineFinder.checkExecution(instruction, pcIntValue, state);
       lastInstruction = instruction;
       super.afterExecution(instruction);
-      lastPC = pcValue.intValue();
+      lastPC = pcValue.value;
     }
 
     getWriteMemoryReferences().addAll(executionStep.writeMemoryReferences);

@@ -23,9 +23,9 @@ import com.fpetrola.z80.registers.Register;
 
 public class IniAluOperation extends TableAluOperation {
   protected <T extends WordNumber> T update(T value, T b, Register<T> c, int i) {
-    int initemp = value.intValue() & 0xff;
-    int C = c.read().intValue() & 0xff;
-    int B = b.intValue() & 0xff;
+    int initemp = value.value & 0xff;
+    int C = c.read().value & 0xff;
+    int B = b.value & 0xff;
     int initemp2 = (initemp + C + i) & 0xff;
     F = ((initemp & 0x80) != 0 ? FLAG_N : 0) |
         ((initemp2 < initemp) ? FLAG_H | FLAG_C : 0) |

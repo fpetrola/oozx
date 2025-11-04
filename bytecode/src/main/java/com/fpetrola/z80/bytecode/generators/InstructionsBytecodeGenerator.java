@@ -148,7 +148,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
       if (realVariable instanceof Integer integer)
         realVariable = routineByteCodeGenerator.variables.get("A").shl(8).or(integer);
 
-      t.set(methodMaker.invoke("in", realVariable, routineByteCodeGenerator.context.pc.read().intValue()));
+      t.set(methodMaker.invoke("in", realVariable, routineByteCodeGenerator.context.pc.read().value));
     }, routineByteCodeGenerator));
   }
 
@@ -475,7 +475,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   public boolean visitingCall(Call call) {
-    int jumpLabel = call.getJumpAddress().intValue();
+    int jumpLabel = call.getJumpAddress().value;
     if (routineByteCodeGenerator.getMethod(jumpLabel) != null)
       createIfs(call, () -> {
         routineByteCodeGenerator.invokeTransformedMethod(jumpLabel);
@@ -507,7 +507,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   private void processExistingCondition(Runnable runnable, ConditionalInstruction conditionalInstruction, ConditionFlag conditionFlag, OpcodeReferenceVisitor opcodeReferenceVisitor) {
-    if (routineByteCodeGenerator.context.pc.read().intValue() == 0xD9AC)
+    if (routineByteCodeGenerator.context.pc.read().value == 0xD9AC)
       System.out.println("break");
     Variable f = opcodeReferenceVisitor.process((Register) conditionFlag.getRegister());
     String string = conditionalInstruction.getCondition().toString();
@@ -596,7 +596,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   public void visitingConditionalInstruction(ConditionalInstruction conditionalInstruction) {
     conditionalInstruction.calculateJumpAddress();
 
-    int i = conditionalInstruction.getJumpAddress().intValue();
+    int i = conditionalInstruction.getJumpAddress().value;
     Label label1 = routineByteCodeGenerator.getLabel(i);
     if (label1 != null)
       createIfs(conditionalInstruction, () -> label1.goto_());
@@ -670,7 +670,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
     if (jp.getPositionOpcodeReference() instanceof Register<T> register) {
       Map<Integer, JPRegisterAddressAction.DynamicJPData> dynamicJP = SEInstructionFactory.dynamicJP;
       dynamicJP.forEach((djpc, dj) -> {
-        if (djpc == routineByteCodeGenerator.context.pc.read().intValue()) {
+        if (djpc == routineByteCodeGenerator.context.pc.read().value) {
           dj.cases.forEach(c -> {
             Variable existingVariable = routineByteCodeGenerator.getExistingVariable(register);
             existingVariable.ifEq(c, () -> {

@@ -50,7 +50,7 @@ public class ExecutionStackStorage<T extends WordNumber> {
   }
 
   public void printStack() {
-    printStack(state.getRegisterSP().read().intValue(), createStackCopy(), "PC: %s ".formatted(Helper.formatAddress(state.getPc().read().intValue())));
+    printStack(state.getRegisterSP().read().value, createStackCopy(), "PC: %s ".formatted(Helper.formatAddress(state.getPc().read().value)));
   }
 
   public void restore() {
@@ -77,7 +77,7 @@ public class ExecutionStackStorage<T extends WordNumber> {
 
   public T[] createStackCopy() {
     Memory<T> memory = state.getMemory();
-    savedSP = state.getRegisterSP().read().intValue();
+    savedSP = state.getRegisterSP().read().value;
     int i = savedSP + 40;
     return Arrays.copyOfRange(memory.getData(), savedSP, Math.min(i, 65536));
   }
@@ -87,7 +87,7 @@ public class ExecutionStackStorage<T extends WordNumber> {
     result.append("[ ");
     for (int i = 0; i < savedStack1.length; i += 2) {
       if (i + 1 < savedStack1.length) {
-        int i1 = (savedStack1[i + 1].intValue() * 256) + savedStack1[i].intValue();
+        int i1 = (savedStack1[i + 1].value * 256) + savedStack1[i].value;
         result.append("%04X".formatted(i1));
         result.append(", ");
       }
@@ -109,7 +109,7 @@ public class ExecutionStackStorage<T extends WordNumber> {
 
   public void changingSP(int value) {
     disable();
-    lastSP = state.getRegisterSP().read().intValue();
+    lastSP = state.getRegisterSP().read().value;
   }
 
   private void enable() {

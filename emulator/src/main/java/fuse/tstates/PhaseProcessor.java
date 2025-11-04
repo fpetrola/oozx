@@ -32,7 +32,6 @@ import fuse.tstates.phases.BeforeExecutionPhaseVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
@@ -94,7 +93,9 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       phase.acceptBeforeWrite((e) -> addMc2(2, 3, null, registerPC));
 
     if (!isMemory8BitReference(ld.getSource()) && (isMemoryPlus(ld.getSource()) || isMemoryPlus(ld.getTarget())))
-      phase.acceptAfterMR((e) -> switchByReadCount(() -> addMultipleMc(5, 1, 0, registerIR.read().intValue(), null)));
+      phase.acceptAfterMR((e) -> switchByReadCount(() -> {
+        addMultipleMc(5, 1, 0, registerIR.read().value, null);
+      }));
   }
 
   private void addAfterExecution(Ld<T> ld) {
@@ -104,15 +105,25 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       public void visitIndirectMemory8BitReference(IndirectMemory8BitReference<T> indirectMemory8BitReference1) {
         boolean b = indirectMemory8BitReference1.target instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"));
         if (b || indirectMemory8BitReference1.getTarget() instanceof Memory16BitReference<T>)
-          afterExecutionActions.add(() -> memptr.write(ld.getSource().read().left(8).or(indirectMemory8BitReference1.address.plus(1).and(0xff))));
+          afterExecutionActions.add(() -> {
+            WordNumber wordNumber = ld.getSource().read();
+            WordNumber wordNumber1 = (WordNumber) WordNumber.<WordNumber>createValue((indirectMemory8BitReference1.address.value + 1) & 0xFFFF);
+            WordNumber number = ((WordNumber) WordNumber.<WordNumber>createValue((wordNumber.value << 8) & 0xFFFF));
+            int i = ((T) WordNumber.<WordNumber>createValue((wordNumber1.value & 0xff) & 0xFFFF)).value & 0xFFFF;
+            memptr.write((T) WordNumber.<WordNumber>createValue((number.value | i) & 0xFFFF));
+          });
       }
 
       public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
-        afterExecutionActions.add(() -> memptr.write(indirectMemory16BitReference.address.plus(1)));
+        afterExecutionActions.add(() -> {
+          memptr.write((T) WordNumber.<WordNumber>createValue((indirectMemory16BitReference.address.value + 1) & 0xFFFF));
+        });
       }
 
       public boolean visitMemory16BitReference(Memory16BitReference<T> memory16BitReference) {
-        afterExecutionActions.add(() -> memptr.write(memory16BitReference.fetchedAddress.plus(2)));
+        afterExecutionActions.add(() -> {
+          memptr.write((T) WordNumber.<WordNumber>createValue((memory16BitReference.fetchedAddress.value + 2) & 0xFFFF));
+        });
         return false;
       }
     });
@@ -120,11 +131,15 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
       public void visitIndirectMemory8BitReference(IndirectMemory8BitReference<T> indirectMemory8BitReference) {
         boolean b = indirectMemory8BitReference.target instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"));
         if (b || indirectMemory8BitReference.getTarget() instanceof Memory16BitReference<?>)
-          afterExecutionActions.add(() -> memptr.write(((T) indirectMemory8BitReference.address).plus(1)));
+          afterExecutionActions.add(() -> {
+            memptr.write((T) WordNumber.<WordNumber>createValue((indirectMemory8BitReference.address.value + 1) & 0xFFFF));
+          });
       }
 
       public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
-        afterExecutionActions.add(() -> memptr.write(indirectMemory16BitReference.address.plus(1)));
+        afterExecutionActions.add(() -> {
+          memptr.write((T) WordNumber.<WordNumber>createValue((indirectMemory16BitReference.address.value + 1) & 0xFFFF));
+        });
       }
     });
 
@@ -225,12 +240,16 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     if (times > 0) {
       phase.acceptAfterExecution((a) -> {
         getAfterExecutionPhaseVisitorForBlock(times, delta, registerName).visit(a);
-        hasJumped(instruction).ifPresent(x -> addMultipleMc(5, 1, 0, registerName.read().intValue() + delta, "contend_write_no_mreq"));
+        hasJumped(instruction).ifPresent(x -> {
+          addMultipleMc(5, 1, 0, registerName.read().value + delta, "contend_write_no_mreq");
+        });
       });
     } else {
       addMcBeforeExecution(1);
       phase.acceptAfterExecution((a) -> {
-        hasJumped(instruction).ifPresent(x -> addMultipleMc(5, 1, 0, registerName.read().intValue() + delta, "contend_write_no_mreq"));
+        hasJumped(instruction).ifPresent(x -> {
+          addMultipleMc(5, 1, 0, registerName.read().value + delta, "contend_write_no_mreq");
+        });
       });
     }
 
@@ -273,8 +292,9 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
   public boolean visitLdOperation(LdOperation ldOperation) {
     AfterMRPhaseVisitor afterMRPhaseVisitor = p -> {
-      if (readCount == 4)
-        addMultipleMc(1, 1, 0, address.intValue(), null);
+      if (readCount == 4) {
+        addMultipleMc(1, 1, 0, address.value, null);
+      }
     };
     processTargetInstruction((TargetInstruction<T>) ldOperation.getInstruction(), afterMRPhaseVisitor);
     return true;
@@ -299,7 +319,7 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
 
       phase.acceptAfterMR((e -> {
         if (readCount == 1) {
-          addMultipleMc(1, 1, 0, address.intValue(), null);
+          addMultipleMc(1, 1, 0, address.value, null);
         }
 
         afterMRPhaseVisitor.visit(e);
@@ -336,7 +356,9 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
     isMemoryPlusOptional(instruction.getTarget()).ifPresent(x -> phase.acceptAfterMR((e -> {
       switchByReadCount(
           () -> addMultipleMc(5, 1, 2, valueOf(registerPC), null),
-          () -> addMultipleMc(1, 1, 0, address.intValue(), null)
+          () -> {
+            addMultipleMc(1, 1, 0, address.value, null);
+          }
       );
     })));
 

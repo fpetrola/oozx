@@ -45,7 +45,7 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
 
   public static void addTStateUpdate(int tstatesToAdd, Supplier<String> description, long tstates, Register<WordNumber> pcRegister) {
     if (!OOSpectrumConnector.noTest) {
-      int pc = pcRegister.read().intValue();
+      int pc = pcRegister.read().value;
 //      int pc = 0;
 //    if (tstates == 20 && pc == 50758) {
 //      System.out.println("addTStateUpdate");

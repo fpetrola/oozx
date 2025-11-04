@@ -70,7 +70,9 @@ public class In<T extends WordNumber> extends TargetSourceInstruction<T, Immutab
 
     boolean equalsN = !(source instanceof Register);
     if (equalsN) {
-      port = port.or(a.read().left(8));
+      WordNumber wordNumber = a.read();
+      int i = ((T) WordNumber.<WordNumber>createValue((wordNumber.value << 8) & 0xFFFF)).value & 0xFFFF;
+      port = (T) WordNumber.<WordNumber>createValue((port.value | i) & 0xFFFF);
     } else {
       port = bc.read();
     }

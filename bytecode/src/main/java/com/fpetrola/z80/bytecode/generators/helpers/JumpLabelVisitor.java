@@ -26,7 +26,11 @@ public class JumpLabelVisitor implements InstructionVisitor {
 
   public void visitingConditionalInstruction(ConditionalInstruction conditionalInstruction) {
     conditionalInstruction.calculateJumpAddress();
-    jumpLabel = conditionalInstruction.getJumpAddress() != null ? conditionalInstruction.getJumpAddress().intValue() : -1;
+    if (conditionalInstruction.getJumpAddress() != null) {
+      jumpLabel = conditionalInstruction.getJumpAddress().value;
+    } else {
+      jumpLabel = -1;
+    }
   }
 
   public int getJumpLabel() {

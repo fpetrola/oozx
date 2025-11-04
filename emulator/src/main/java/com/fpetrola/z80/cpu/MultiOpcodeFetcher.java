@@ -20,7 +20,6 @@ package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.cache.InstructionCloner;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
@@ -71,7 +70,7 @@ public class MultiOpcodeFetcher<T extends WordNumber> {
 //    T rValue = registerR.read();
     memoryForOpcode.reset();
 
-    Instruction<T> fetchedInstruction = opcodesTables[memory.read(address, 1).intValue()];
+    Instruction<T> fetchedInstruction = opcodesTables[memory.read(address, 1).value];
     while (fetchedInstruction instanceof DefaultFetchNextOpcodeInstruction<T> fetchNextOpcodeInstruction) {
       fetchNextOpcodeInstruction.update();
       fetchedInstruction = fetchNextOpcodeInstruction.findNextOpcode2();

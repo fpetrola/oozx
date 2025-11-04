@@ -24,15 +24,11 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
-import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.spy.NullInstructionSpy;
-import fuse.tstates.AddStatesMemoryReadListener;
-import fuse.tstates.AddStatesMemoryWriteListener;
-import fuse.tstates.PhaseProcessor;
 
 import java.util.function.Function;
 
@@ -65,7 +61,9 @@ public class EmulatedMiniZX<T extends WordNumber> {
   }
 
   public static Function<Integer, Integer> getMemFunction(OOZ80<?> ooz81) {
-    return index -> ooz81.getState().getMemory().read(WordNumber.createValue(index), 10).intValue();
+    return index -> {
+      return ooz81.getState().getMemory().read(WordNumber.createValue(index), 10).value;
+    };
   }
 
   public void start() {
@@ -93,7 +91,8 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
   public void emulate() {
     int i = 0;
-    while (ooz80.getState().getPc().read().intValue() != emulateUntil) {
+    while (true) {
+      if (!(ooz80.getState().getPc().read().value != emulateUntil)) break;
       if (i++ % (pause * 1000) == 0) this.ooz80.getState().setINTLine(true);
       else {
         if (i % pause == 0)

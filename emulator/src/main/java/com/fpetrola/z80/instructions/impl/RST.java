@@ -40,7 +40,8 @@ public class RST<T extends WordNumber> extends AbstractInstruction<T>  implement
   }
 
   public int execute() {
-    Push.doPush(pc.read().plus1(), sp, memory);
+    WordNumber wordNumber = pc.read();
+    Push.doPush((T) WordNumber.<WordNumber>createValue((wordNumber.value + 1) & 0xFFFF), sp, memory);
     setNextPC(p);
     return 5 + 3 + 3;
   }

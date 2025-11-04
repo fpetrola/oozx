@@ -18,9 +18,6 @@
 
 package com.fpetrola.z80.analysis.sprites;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fpetrola.z80.graph.CustomGraph;
 import com.fpetrola.z80.helpers.Helper;
@@ -237,15 +234,15 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
 
       for (ExecutionStep<T> originalStep : originalSteps) {
         for (WriteMemoryReference writeMemoryReference : originalStep.writeMemoryReferences) {
-          addRangeEdge(originalStep, "s0", writeMemoryReference.address.intValue());
+          addRangeEdge(originalStep, "s0", writeMemoryReference.address.value);
         }
         for (ReadMemoryReference<T> readMemoryReference : originalStep.readMemoryReferences) {
-          int address = readMemoryReference.address.intValue();
+          int address = readMemoryReference.address.value;
           boolean found = address >= 0xB900 && address <= 0xB97F;
 
           if (found)
             System.out.println("sdgdsg");
-          addRangeEdge(originalStep, "s1", readMemoryReference.address.intValue());
+          addRangeEdge(originalStep, "s1", readMemoryReference.address.value);
         }
       }
 
@@ -286,9 +283,11 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
       return true;
     else if (source instanceof ReadMemoryReference) {
       ReadMemoryReference<WordNumber> readMemoryOpcodeReference = (ReadMemoryReference<WordNumber>) source;
-      if (readMemoryOpcodeReference.address.intValue() < 0x4000)
+      if (readMemoryOpcodeReference.address.value < 0x4000)
         return true;
-      else return isSpriteAddress(readMemoryOpcodeReference.address.intValue());
+      else {
+        return isSpriteAddress(readMemoryOpcodeReference.address.value);
+      }
     }
     return false;
   }
@@ -312,7 +311,7 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
 //          System.out.println("AAAA");
 //        }
 
-        List<ExecutionStep<T>> list = memoryChanges.get(readMemoryOpcodeReference.address.intValue());
+        List<ExecutionStep<T>> list = memoryChanges.get(readMemoryOpcodeReference.address.value);
 
         int currentIndex = currentStep.i;
         Optional<ExecutionStep<T>> first = list.stream().filter(step -> step.i < currentIndex).findFirst();
@@ -393,7 +392,8 @@ public class SearchSpritesInstructionSpy<T extends WordNumber> extends AbstractI
   private boolean isScreenWriting(Object accessReference) {
     if (accessReference instanceof WriteMemoryReference) {
       WriteMemoryReference<T> wr = (WriteMemoryReference) accessReference;
-      return wr.address.intValue() >= 0x4000 && wr.address.intValue() <= (0x5000);
+      if (wr.address.value < 0x4000) return false;
+      return wr.address.value <= (0x5000);
     }
     return false;
   }

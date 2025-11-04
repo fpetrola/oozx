@@ -45,7 +45,7 @@ public class SePop<T extends WordNumber> extends Pop<T> implements IPopReturnAdd
     if (read instanceof ReturnAddressWordNumber returnAddressWordNumber) {
       RoutineExecutorHandler<T> routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
       var pc = routineExecutorHandler.getPc();
-      var pcValue = pc.read().intValue();
+      var pcValue = pc.read().value;
 
       previousPc = symbolicExecutionAdapter.lastPc;
       popAddress = pcValue;
@@ -55,7 +55,7 @@ public class SePop<T extends WordNumber> extends Pop<T> implements IPopReturnAdd
       var routineExecution = routineExecutorHandler.getCallerRoutineExecution();
 
       routineExecution.replaceAddressAction(new AddressActionDelegate<>(pcValue + 1, routineExecutorHandler));
-      routineExecution.replaceAddressAction(new AddressActionDelegate<>(returnAddressWordNumber.intValue(), routineExecutorHandler));
+      routineExecution.replaceAddressAction(new AddressActionDelegate<>(returnAddressWordNumber.value, routineExecutorHandler));
       lastRoutineExecution.replaceAddressAction(new BasicAddressAction<T>(popAddress, routineExecutorHandler, false));
       routineExecution.replaceAddressAction(new PopReturnCallAddressAction<>(routineExecutorHandler, lastRoutineExecution, returnAddressWordNumber.pc));
 

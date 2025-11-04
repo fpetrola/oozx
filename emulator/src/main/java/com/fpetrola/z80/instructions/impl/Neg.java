@@ -35,7 +35,7 @@ public class Neg<T> extends ParameterizedUnaryAluInstruction<T> {
   @Override
   public UnaryAluOperation getTUnaryAluOperation(TableAluOperation tableAluOperation) {
     return (a) -> {
-      int[] i = tableAluOperation.executeWithoutCarry2(((WordNumber) a).intValue(), 0);
+      int[] i = tableAluOperation.executeWithoutCarry2(((WordNumber) a).value, 0);
       flag.write(createValue(i[1]));
       return createValue(i[0]);
     };

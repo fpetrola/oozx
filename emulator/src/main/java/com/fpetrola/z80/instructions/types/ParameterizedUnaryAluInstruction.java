@@ -58,8 +58,8 @@ public class ParameterizedUnaryAluInstruction<T> extends DefaultTargetFlagInstru
 
   public UnaryAluOperation getTUnaryAluOperation(TableAluOperation rrTableAluOperation1) {
     return (a) -> {
-      int regA = ((WordNumber) a).intValue();
-      int flagValue = ((WordNumber) flag.read()).intValue();
+      int regA = ((WordNumber) a).value;
+      int flagValue = ((WordNumber) flag.read()).value;
       int[] ints = rrTableAluOperation1.executeWithCarry2(regA, flagValue);
       flag.write(createValue(ints[1]));
       return createValue(ints[0]);

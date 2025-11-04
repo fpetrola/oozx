@@ -171,10 +171,14 @@ public class DefaultRegistersSetter<T extends WordNumber> implements RegistersSe
   @Override
   public final void setCarryFlag(boolean carryState) {
     Register<T> f = getFlag();
-    if (carryState)
-      f.write(f.read().or(0x01));
-    else
-      f.write(f.read().and(0xFE));
+    if (carryState) {
+      WordNumber wordNumber = f.read();
+      f.write((T) WordNumber.<WordNumber>createValue((wordNumber.value | 0x01) & 0xFFFF));
+    }
+    else {
+      WordNumber wordNumber = f.read();
+      f.write((T) WordNumber.<WordNumber>createValue((wordNumber.value & 0xFE) & 0xFFFF));
+    }
   }
 
   @Override

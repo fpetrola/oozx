@@ -33,7 +33,12 @@ public class SnapshotHelper {
 
     for (int i = 0; i < ramEnd; i++) {
       WordNumber wordNumber = data1[i];
-      int i1 = wordNumber == null ? 0 : wordNumber.intValue();
+      int i1;
+      if (wordNumber == null) {
+        i1 = 0;
+      } else {
+        i1 = wordNumber.value;
+      }
       data[i] = (byte) i1;
     }
     return Base64Utils.gzipArrayCompressToBase64(data);

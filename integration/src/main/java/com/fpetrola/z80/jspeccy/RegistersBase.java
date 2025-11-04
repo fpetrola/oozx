@@ -44,75 +44,75 @@ public class RegistersBase<T extends WordNumber> extends DefaultRegistersSetter<
   }
 
   public final int getRegPC() {
-    return getState().getRegister(RegisterName.PC).read().intValue();
+    return getState().getRegister(RegisterName.PC).read().value;
   }
 
   public final int getRegA() {
-    return getRegister(RegisterName.A).read().intValue();
+    return getRegister(RegisterName.A).read().value;
   }
 
   public final int getRegB() {
-    return getRegister(RegisterName.B).read().intValue();
+    return getRegister(RegisterName.B).read().value;
   }
 
   public final int getRegC() {
-    return getRegister(RegisterName.C).read().intValue();
+    return getRegister(RegisterName.C).read().value;
   }
 
   public final int getRegD() {
-    return getRegister(RegisterName.D).read().intValue();
+    return getRegister(RegisterName.D).read().value;
   }
 
   public final int getRegE() {
-    return getRegister(RegisterName.E).read().intValue();
+    return getRegister(RegisterName.E).read().value;
   }
 
   public final int getRegH() {
-    return getRegister(RegisterName.H).read().intValue();
+    return getRegister(RegisterName.H).read().value;
   }
 
   public final int getRegL() {
-    return getRegister(RegisterName.L).read().intValue();
+    return getRegister(RegisterName.L).read().value;
   }
 
   public final int getRegAx() {
-    return getRegister(RegisterName.Ax).read().intValue();
+    return getRegister(RegisterName.Ax).read().value;
   }
 
   public final int getRegFx() {
-    return getRegister(RegisterName.Fx).read().intValue();
+    return getRegister(RegisterName.Fx).read().value;
   }
 
   public final int getRegBx() {
-    return getRegister(RegisterName.Bx).read().intValue();
+    return getRegister(RegisterName.Bx).read().value;
   }
 
   public final int getRegCx() {
-    return getRegister(RegisterName.Cx).read().intValue();
+    return getRegister(RegisterName.Cx).read().value;
   }
 
   public final int getRegDx() {
-    return getRegister(RegisterName.Dx).read().intValue();
+    return getRegister(RegisterName.Dx).read().value;
   }
 
   public final int getRegEx() {
-    return getRegister(RegisterName.Ex).read().intValue();
+    return getRegister(RegisterName.Ex).read().value;
   }
 
   public final int getRegHx() {
-    return getRegister(RegisterName.Hx).read().intValue();
+    return getRegister(RegisterName.Hx).read().value;
   }
 
   public final int getRegLx() {
-    return getRegister(RegisterName.Lx).read().intValue();
+    return getRegister(RegisterName.Lx).read().value;
   }
 
   public final int getRegAF() {
-    return getRegister(RegisterName.AF).read().intValue();
+    return getRegister(RegisterName.AF).read().value;
   }
 
   public final int getRegAFx() {
-    return getRegister(RegisterName.AFx).read().intValue();
+    return getRegister(RegisterName.AFx).read().value;
   }
 
   public final void setRegAFx(int word) {
@@ -120,43 +120,43 @@ public class RegistersBase<T extends WordNumber> extends DefaultRegistersSetter<
   }
 
   public final int getRegBC() {
-    return getRegister(RegisterName.BC).read().intValue();
+    return getRegister(RegisterName.BC).read().value;
   }
 
   public final int getFlags() {
-    return getFlag().read().intValue();
+    return getFlag().read().value;
   }
 
   public final int getRegHLx() {
-    return getRegister(RegisterName.HLx).read().intValue();
+    return getRegister(RegisterName.HLx).read().value;
   }
 
   public final int getRegSP() {
-    return getState().getRegister(RegisterName.SP).read().intValue();
+    return getState().getRegister(RegisterName.SP).read().value;
   }
 
   public final int getRegIX() {
-    return getRegister(RegisterName.IX).read().intValue();
+    return getRegister(RegisterName.IX).read().value;
   }
 
   public final int getRegIY() {
-    return getRegister(RegisterName.IY).read().intValue();
+    return getRegister(RegisterName.IY).read().value;
   }
 
   public final int getRegI() {
-    return getState().getRegister(RegisterName.I).read().intValue();
+    return getState().getRegister(RegisterName.I).read().value;
   }
 
   public final int getRegR() {
-    return getState().getRegister(RegisterName.R).read().intValue();
+    return getState().getRegister(RegisterName.R).read().value;
   }
 
   public final int getPairIR() {
-    return getState().getRegister(RegisterName.IR).read().intValue();
+    return getState().getRegister(RegisterName.IR).read().value;
   }
 
   public final int getMemPtr() {
-    return getState().getRegister(RegisterName.MEMPTR).read().intValue();
+    return getState().getRegister(RegisterName.MEMPTR).read().value;
   }
 
   public final boolean isCarryFlag() {
@@ -164,7 +164,7 @@ public class RegistersBase<T extends WordNumber> extends DefaultRegistersSetter<
   }
 
   public final int getRegDE() {
-    return getRegister(RegisterName.DE).read().intValue();
+    return getRegister(RegisterName.DE).read().value;
   }
 
   public final void setZ80State(Z80State state) {
@@ -293,11 +293,11 @@ public class RegistersBase<T extends WordNumber> extends DefaultRegistersSetter<
   }
 
   public int getMemptr() {
-    return state.getRegister(RegisterName.MEMPTR).read().intValue();
+    return state.getRegister(RegisterName.MEMPTR).read().value;
   }
 
   public int getDE() {
-    return getRegister(RegisterName.DE).read().intValue();
+    return getRegister(RegisterName.DE).read().value;
   }
 
   public boolean isActiveINT() {

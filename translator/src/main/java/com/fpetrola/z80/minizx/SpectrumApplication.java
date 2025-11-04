@@ -22,7 +22,6 @@ import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Stack;
 
 public abstract class SpectrumApplication<T> {
@@ -148,7 +147,7 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int in(int port, int pc) {
-    return io.in(WordNumber.createValue(port)).intValue();
+    return io.in(WordNumber.createValue(port)).value;
   }
 
   public int l(int value) {
@@ -523,6 +522,6 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int in(int port) {
-    return io.in(WordNumber.createValue(port)).intValue();
+    return io.in(WordNumber.createValue(port)).value;
   }
 }

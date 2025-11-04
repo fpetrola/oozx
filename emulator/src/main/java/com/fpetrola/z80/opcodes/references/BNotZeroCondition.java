@@ -40,7 +40,7 @@ public class BNotZeroCondition<T extends WordNumber> extends ConditionBase {
   }
 
   public boolean conditionMet(Instruction instruction) {
-    return filterCondition(b.read().isNotZero(), instruction);
+    return filterCondition(b.read().value != 0, instruction);
   }
 
   public Register<T> getB() {

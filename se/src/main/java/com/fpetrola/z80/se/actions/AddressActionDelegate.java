@@ -38,7 +38,7 @@ public class AddressActionDelegate<T extends WordNumber> extends BasicAddressAct
         alwaysTrue = conditionalInstruction.getCondition() instanceof ConditionAlwaysTrue;
 
       RoutineExecution routineExecution2 = routineExecutionHandler.getCurrentRoutineExecution();
-      addressAction = routineExecution2.createAddressAction(instruction, alwaysTrue, routineExecutionHandler.getPc().read().intValue());
+      addressAction = routineExecution2.createAddressAction(instruction, alwaysTrue, routineExecutionHandler.getPc().read().value);
       routineExecution2.replaceAddressAction(addressAction);
     }
 

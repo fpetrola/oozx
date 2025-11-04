@@ -159,7 +159,9 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public int retro_get_memory_data(int id) {
-    return executePreservingTstates(() -> getMemory().read(createValue(id), 0).intValue());
+    return executePreservingTstates(() -> {
+      return getMemory().read(createValue(id), 0).value;
+    });
   }
 
   public void retro_set_memory_data(int address, int id) {
@@ -170,7 +172,7 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public int retro_get_memory_data_contended(int id) {
-    return getMemory().read(createValue(id), 0).intValue();
+    return getMemory().read(createValue(id), 0).value;
   }
 
   public void retro_set_memory_data_contended(int address, int id) {
@@ -195,9 +197,10 @@ public class LocalLibretroCore implements LibretroCore {
     if (register.equals("tstates")) {
       return (int) z80Clock.getTStates();
     } else if (register.equals("R")) {
-      return getRegister(register).read().intValue();
-    } else
-      return getRegister(register).read().intValue();
+      return getRegister(register).read().value;
+    } else {
+      return getRegister(register).read().value;
+    }
   }
 
   private Register<WordNumber> getRegister(String register) {

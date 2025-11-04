@@ -19,7 +19,6 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.helpers.CollectionHandler;
-import com.fpetrola.z80.instructions.cache.InstructionCloner;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
@@ -70,19 +69,19 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   @Override
   public Instruction<T> fetchNextInstruction() {
 //    fetchListeners.forAll(FetchListener::beforeFetch);
-    int rValue = registerR.read().intValue();
+    int rValue = registerR.read().value;
     registerR.increment();
     pcValue = pc.read();
 
-    if (prefetchPC != pcValue.intValue()) {
+    if (prefetchPC != pcValue.value) {
       currentInstruction = fetchInstruction(pcValue);
       prefetchedInstruction = currentInstruction;
     } else {
       currentInstruction = prefetchedInstruction;
-      registerR.write(createValue(registerR.read().intValue() + rdelta));
+      registerR.write(createValue(registerR.read().value + rdelta));
     }
 
-    rdelta = registerR.read().intValue() - rValue;
+    rdelta = registerR.read().value - rValue;
 //    if (rdelta < 0)
 //      System.out.println("adgagadg");
 //    ((AbstractInstruction) currentInstruction).setRDelta(rdelta);
@@ -94,11 +93,11 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
   public void afterExecute(Instruction<?> currentInstruction) {
     try {
       if (prefetch) {
-        int rValue = registerR.read().intValue();
+        int rValue = registerR.read().value;
         T nextPC = createValue(0);
         prefetchedInstruction = fetchInstruction(nextPC);
-        prefetchPC = nextPC.intValue();
-        rdelta = registerR.read().intValue() - rValue;
+        prefetchPC = nextPC.value;
+        rdelta = registerR.read().value - rValue;
         registerR.write(createValue(rValue));
       }
     } catch (Exception e) {

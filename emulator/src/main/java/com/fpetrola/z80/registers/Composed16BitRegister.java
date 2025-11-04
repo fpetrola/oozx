@@ -48,12 +48,15 @@ public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> 
   }
 
   public T read() {
-    return (high.read().left(8)).or(low.read());
+    WordNumber wordNumber = high.read();
+    WordNumber number = ((WordNumber) WordNumber.<WordNumber>createValue((wordNumber.value << 8) & 0xFFFF));
+    int i = low.read().value & 0xFFFF;
+    return (T) WordNumber.<WordNumber>createValue((number.value | i) & 0xFFFF);
   }
 
   public void write(T value) {
-    this.high.write(value.right(8));
-    this.low.write(value.and(0xFF));
+    this.high.write((T) WordNumber.<WordNumber>createValue((value.value >>> 8) & 0xFFFF));
+    this.low.write((T) WordNumber.<WordNumber>createValue((value.value & 0xFF) & 0xFFFF));
   }
 
   public R getHigh() {
@@ -72,24 +75,26 @@ public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> 
 
   public void increment() {
     low.increment();
-    if (low.read().intValue() < 0x100)
+    if (low.read().value < 0x100)
       return;
     low.write(createValue(0));
-    high.read().increment();
-    if (high.read().intValue() < 0x100)
+    high.read().value++;
+    if (high.read().value < 0x100)
       return;
     high.write(createValue(0));
   }
 
   public void decrement() {
     T lowValue = low.read();
-    if (lowValue.isNotZero()) {
-      lowValue.decrement();
+    if (lowValue.value != 0) {
+      lowValue.value--;
+      lowValue.value &= 0xffff;
     } else {
       low.write(createValue(0xff));
       T highValue = high.read();
-      if (highValue.isNotZero()) {
-        highValue.decrement();
+      if (highValue.value != 0) {
+        highValue.value--;
+        highValue.value &= 0xffff;
         return;
       }
       high.write(createValue(0xff));

@@ -63,7 +63,7 @@ public class DefaultSyncChecker implements SyncChecker {
         return new Plain8BitRegister(registerName.name()) {
           public void write(WordNumber value) {
             super.write(value);
-            writtenRegisters.put(getName(), value.intValue());
+            writtenRegisters.put(getName(), value.value);
           }
         };
 
@@ -74,7 +74,7 @@ public class DefaultSyncChecker implements SyncChecker {
         return new RRegister<T>() {
           public T read() {
             T read = super.read();
-            int e = read.intValue();
+            int e = read.value;
             System.out.println("emu R: " + e);
             rValues.add(e);
             return read;
@@ -100,7 +100,7 @@ public class DefaultSyncChecker implements SyncChecker {
     WordNumber datum = ooz80.getState().getMemory().getData()[index];
     if (datum == null)
       datum = WordNumber.createValue(0);
-    return datum.intValue();
+    return datum.value;
   }
 
   @Override
@@ -109,13 +109,13 @@ public class DefaultSyncChecker implements SyncChecker {
     Register<WordNumber> pc = ooz80.getState().getPc();
     Memory<WordNumber> memory = ooz80.getState().getMemory();
     memory.addMemoryWriteListener((address, value) -> {
-      checkSyncEmu(address.intValue(), value.intValue(), pc.read().intValue(), true);
+      checkSyncEmu(address.value, value.value, pc.read().value, true);
     });
     memory.addMemoryReadListener((address, value, fetching) -> {
-      if (address.intValue() >= 0) {
+      if (address.value >= 0) {
         if (fetching == 0) {
 //          System.out.println("read memory at: " + com.fpetrola.z80.helpers.Helper.formatAddress(address.intValue()));
-          checkSyncEmu(address.intValue(), value.intValue(), pc.read().intValue(), false);
+          checkSyncEmu(address.value, value.value, pc.read().value, false);
         }
       }
     });

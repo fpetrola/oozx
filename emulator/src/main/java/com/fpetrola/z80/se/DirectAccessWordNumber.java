@@ -30,9 +30,8 @@ public class DirectAccessWordNumber extends WordNumber {
     this.address = address;
   }
 
-  @Override
   public <T extends WordNumber> T left(int i) {
-    return super.left(i);
+    return (T) WordNumber.<T>createValue((value << i) & 0xFFFF);
   }
 
   public WordNumber createInstance(int value) {

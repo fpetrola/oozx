@@ -102,7 +102,14 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
     state.setIff1(false);
     state.setIff2(false);
 
-    T value = state.getInterruptionMode() == IM2 ? Memory.read16Bits(state.getMemory(), (state.getRegI().read().left(8)).or(0xff)) : createValue(0x0038);
+    T value;
+    if (state.getInterruptionMode() == IM2) {
+      WordNumber wordNumber = state.getRegI().read();
+      WordNumber wordNumber1 = ((WordNumber) WordNumber.<WordNumber>createValue((wordNumber.value << 8) & 0xFFFF));
+      value = Memory.read16Bits(state.getMemory(), (T) WordNumber.<WordNumber>createValue((wordNumber1.value | 0xff) & 0xFFFF));
+    } else {
+      value = createValue(0x0038);
+    }
     pc.write(value);
     state.getMemptr().write(value);
   }

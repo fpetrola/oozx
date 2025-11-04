@@ -46,7 +46,8 @@ public class Memory8BitReference<T extends WordNumber> implements ImmutableOpcod
   }
 
   public T read() {
-    return memory.read(fetchAddress().plus(delta), 0);
+    WordNumber wordNumber = fetchAddress();
+    return memory.read((T) WordNumber.<WordNumber>createValue((wordNumber.value + delta) & 0xFFFF), 0);
   }
 
   public void write(T value) {
@@ -60,7 +61,11 @@ public class Memory8BitReference<T extends WordNumber> implements ImmutableOpcod
   public String toString() {
     T read = fetchedAddress;
     //return read == null ? "" : "0x" + Helper.convertToHex(read.intValue()) + "";
-    return read == null ? "" : read.intValue() + "";
+    if (read == null) {
+      return "";
+    } else {
+      return read.value + "";
+    }
   }
 
   public int getLength() {

@@ -18,16 +18,12 @@
 
 package com.fpetrola.z80.instructions.tests;
 
-import com.fpetrola.z80.base.DriverConfigurator;
-import com.fpetrola.z80.base.IDriverConfigurator;
 import com.fpetrola.z80.base.PlainDriverConfigurator;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.cpu.MockedIO;
 import com.fpetrola.z80.base.TransformInstructionsTest;
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.transformations.Virtual8BitsRegister;
 import com.google.inject.Inject;
 import io.exemplary.guice.Modules;
 import io.exemplary.guice.TestRunner;
@@ -61,7 +57,7 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
     step(4);
     assertEquals(8, readMemAt(memPosition));
     step(1);
-    assertEquals(2, r(PC).read().intValue());
+    assertEquals(2, r(PC).read().value);
     step(1);
     step(1);
     assertEquals(9, readMemAt(memPosition));
@@ -83,7 +79,7 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
     step(3);
 
     rangeClosed(0, 2).forEach(i -> {
-      assertEquals(3, r(PC).read().intValue());
+      assertEquals(3, r(PC).read().value);
       step();
       step();
       assertEquals(8 + i, readMemAt(memPosition));
@@ -92,7 +88,7 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
 
     step();
     assertEquals(10, readMemAt(memPosition + 1));
-    assertEquals(8, r(PC).read().intValue());
+    assertEquals(8, r(PC).read().value);
 
 
     List executedInstructions = getExecutedInstructions();
@@ -126,14 +122,14 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
 
     rangeClosed(1, 2).forEach(i -> {
       step();
-      assertEquals(2, r(PC).read().intValue());
+      assertEquals(2, r(PC).read().value);
       step();
       step();
       assertEquals(8 + i, readMemAt(memPosition));
     });
 
     step();
-    assertEquals(5, r(PC).read().intValue());
+    assertEquals(5, r(PC).read().value);
 
     List executedInstructions = getExecutedInstructions();
     executedInstructions.size();
@@ -153,14 +149,14 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
 
     rangeClosed(1, 2).forEach(i -> {
       step();
-      assertEquals(2, r(PC).read().intValue());
+      assertEquals(2, r(PC).read().value);
       step();
       step();
       assertEquals(3 - i, readMemAt(8 + i));
     });
 
     step();
-    assertEquals(5, r(PC).read().intValue());
+    assertEquals(5, r(PC).read().value);
 
     List executedInstructions = getExecutedInstructions();
     executedInstructions.size();
@@ -183,7 +179,7 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
     step(3);
 
     Runnable assertLoop = () -> rangeClosed(0, 2).forEach(i -> {
-      assertEquals(3, r(PC).read().intValue());
+      assertEquals(3, r(PC).read().value);
       step(2);
       assertEquals(8 + i, readMemAt(memPosition));
       step();
@@ -192,19 +188,19 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
     assertLoop.run();
 
     step();
-    assertEquals(1, r(PC).read().intValue());
+    assertEquals(1, r(PC).read().value);
     step(2);
 
     assertLoop.run();
 
-    assertEquals(7, r(PC).read().intValue());
+    assertEquals(7, r(PC).read().value);
     step();
-    assertEquals(1, r(PC).read().intValue());
+    assertEquals(1, r(PC).read().value);
     step();
 
     List executedInstructions = getExecutedInstructions();
     executedInstructions.size();
-    assertEquals(2, r(PC).read().intValue());
+    assertEquals(2, r(PC).read().value);
   }
 
 
@@ -252,20 +248,20 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
 
     Runnable assertExternalLoop = () -> {
       rangeClosed(1, 2).forEach(i -> {
-        assertEquals(4, r(PC).read().intValue());
+        assertEquals(4, r(PC).read().value);
         step(4);
       });
-      assertEquals(8, r(PC).read().intValue());
+      assertEquals(8, r(PC).read().value);
       step(2);
     };
 
     assertExternalLoop.run();
-    assertEquals(3, r(PC).read().intValue());
+    assertEquals(3, r(PC).read().value);
     step();
 
     assertExternalLoop.run();
 
-    assertEquals(10, r(PC).read().intValue());
+    assertEquals(10, r(PC).read().value);
     step(2);
 
     assertEquals(17, readMemAt(1000));
@@ -287,11 +283,11 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
     step(3);
 
     rangeClosed(1, 512).forEach(i -> {
-      assertEquals(3, r(PC).read().intValue());
+      assertEquals(3, r(PC).read().value);
       step(4);
     });
 
-    assertEquals(7, r(PC).read().intValue());
+    assertEquals(7, r(PC).read().value);
 
     List executedInstructions = getExecutedInstructions();
     executedInstructions.size();
@@ -319,7 +315,7 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
 
     assertEquals(22, readMemAt(102));
 
-    assertEquals(5, r(PC).read().intValue());
+    assertEquals(5, r(PC).read().value);
 
     List executedInstructions = getExecutedInstructions();
     executedInstructions.size();
@@ -347,7 +343,7 @@ public class ConditionalsTransformInstructionsTest<T extends WordNumber> extends
 
     assertEquals(22, readMemAt(102));
 
-    assertEquals(5, r(PC).read().intValue());
+    assertEquals(5, r(PC).read().value);
 
     List executedInstructions = getExecutedInstructions();
     executedInstructions.size();

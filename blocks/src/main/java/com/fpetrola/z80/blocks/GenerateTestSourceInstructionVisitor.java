@@ -103,11 +103,11 @@ public class GenerateTestSourceInstructionVisitor implements InstructionVisitor<
     String simpleName = conditionalInstruction.getClass().getSimpleName();
     String replace = conditionalInstruction.getCondition().toString().replace("FlipFlop: ", "");
     replace = replace.isBlank() ? ", t()" : ", " + replace.toLowerCase() + "()";
-    int jumpAddress = conditionalInstruction.calculateJumpAddress().intValue();
+    int jumpAddress = conditionalInstruction.calculateJumpAddress().value;
     jumpAddress-= startAddress;
 
     if (conditionalInstruction instanceof JR) {
-      jumpAddress= ((WordNumber) conditionalInstruction.getPositionOpcodeReference().read()).intValue();
+      jumpAddress= ((WordNumber) conditionalInstruction.getPositionOpcodeReference().read()).value;
     }
     String s = "add(new " + simpleName + "(c(" + jumpAddress + ") " + replace + ", r(PC)));";
     add(s);

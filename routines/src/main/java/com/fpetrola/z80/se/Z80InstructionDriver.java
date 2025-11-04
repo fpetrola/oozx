@@ -49,7 +49,7 @@ public interface Z80InstructionDriver<T extends WordNumber> {
   default int readMemAt(int i) {
     T read = mem().read(createValue(i), 0);
     assertNotNull(read);
-    return read.intValue();
+    return read.value;
   }
 
   default void step(int i) {

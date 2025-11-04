@@ -38,8 +38,6 @@ import net.emustudio.plugins.cpu.zilogZ80.suite.CpuVerifierImpl;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -114,12 +112,12 @@ public class InstructionsTest {
     private final Map<Integer, FakeByteDevice> devices = new HashMap<>();
 
     public T in(T port) {
-      FakeByteDevice fakeByteDevice = devices.get(port.intValue());
+      FakeByteDevice fakeByteDevice = devices.get(port.value);
       return WordNumber.createValue(fakeByteDevice.getValue());
     }
 
     public void out(T port, T value) {
-      devices.get(port.intValue()).setValue((byte) value.intValue());
+      devices.get(port.value).setValue((byte) value.value);
     }
 
     public void addDevice(int port, FakeByteDevice device) {

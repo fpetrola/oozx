@@ -18,21 +18,15 @@
 
 package com.fpetrola.z80.opcodes.references;
 
-import java.util.List;
-
 public class WordNumber {
-  private int value;
+  public int value;
 
   int compareTo(Object o) {
-    return intValue() - ((WordNumber) o).intValue();
+    return value - ((WordNumber) o).value;
   }
 
   public static <T> T createValue(int i) {
     return (T) new WordNumber(i);
-  }
-
-  public <T extends WordNumber> T plus1() {
-    return plus(1);
   }
 
 
@@ -40,121 +34,6 @@ public class WordNumber {
     this.value = aValue;
   }
 
-  
-  public <T extends WordNumber> T plus(int i) {
-    return (T) createInstance((value + i));
-  }
-
-  public <T extends WordNumber> WordNumber createInstance(int value) {
-    return new WordNumber(value & 0xFFFF);
-  }
-
-  public <T extends WordNumber> T minus(T i) {
-    return (T) createInstance((value - i.intValue()));
-  }
-
-  
-  public <T extends WordNumber> T minus1() {
-    return (T) createInstance((value - 1));
-  }
-
-  
-  public <T extends WordNumber> T left(int i) {
-    return (T) createInstance((value << i));
-  }
-
-  
-  public <T extends WordNumber> T right(int i) {
-    return (T) createInstance((value >>> i));
-  }
-
-  
-  public <T extends WordNumber> T rightAndAssign(int i) {
-    value >>>= i;
-    return (T) this;
-  }
-
-  
-  public <T extends WordNumber> T leftAndAssign(int i) {
-    value <<= i;
-    return (T) this;
-  }
-
-  
-  public <T extends WordNumber> T or(int i) {
-    return (T) createInstance((value | i));
-  }
-
-  public <T extends WordNumber> T xor(int i) {
-    return (T) createInstance((value ^ i));
-  }
-
-  
-  public <T extends WordNumber> T xor(T wordNumber) {
-    return xor(wordNumber.intValue() & 0xFFFF);
-  }
-
-  
-  public <T extends WordNumber> T and(T wordNumber) {
-    return and(wordNumber.intValue() & 0xFFFF);
-  }
-
-  
-  public <T extends WordNumber> T and(int i) {
-    return (T) createInstance((value & i));
-  }
-
-  
-  public <T extends WordNumber> T or(T wordNumber) {
-    return or(wordNumber.intValue() & 0xFFFF);
-  }
-
-  
-  public boolean isNotZero() {
-    return value != 0;
-  }
-
-  
-  public int intValue() {
-    return value;
-  }
-
-  
-  public <T extends WordNumber> T set(T value) {
-    this.value = value.intValue();
-    return value;
-  }
-
-  
-  public WordNumber aluOperation2(WordNumber value1, WordNumber value2, String name) {
-    return createInstance(value1.intValue());
-  }
-
-  
-  public WordNumber aluOperation(WordNumber value, String name) {
-    return createInstance(value.intValue());
-  }
-
-  
-  public <T extends WordNumber> T readOperation(T address, T value) {
-    return (T) createInstance(value.intValue());
-  }
-
-  
-  public <T extends WordNumber> List<T> getFirstReadOperation() {
-    return (List<T>) List.of(this);
-  }
-
-  
-  public void increment() {
-    value++;
-  }
-
-  
-  public void decrement() {
-    value--;
-    value &= 0xffff;
-  }
 
   public String toString() {
     return value + "";

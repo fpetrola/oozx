@@ -43,7 +43,8 @@ public class Pop<T extends WordNumber> extends DefaultTargetFlagInstruction<T> {
 
   public static <T extends WordNumber> T doPop(Memory<T> memory, Register<T> sp) {
     final T value = Memory.read16Bits(memory, sp.read());
-    sp.write(sp.read().plus(2));
+    WordNumber wordNumber = sp.read();
+    sp.write((T) WordNumber.<WordNumber>createValue((wordNumber.value + 2) & 0xFFFF));
     return value;
   }
 

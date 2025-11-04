@@ -45,11 +45,12 @@ public class Plain16BitRegister<T extends WordNumber> implements Register<T> {
   }
 
   public void increment() {
-    data.increment();
+    data.value++;
   }
 
   public void decrement() {
-    data.decrement();
+    data.value--;
+    data.value &= 0xffff;
   }
 
   public int getLength() {

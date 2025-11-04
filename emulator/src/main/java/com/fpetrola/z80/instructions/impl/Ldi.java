@@ -73,7 +73,7 @@ public class Ldi<T extends WordNumber> extends BlockInstruction<T> {
   }
 
   protected void flagOperation(T valueFromHL) {
-    flag.write(Ldd.lddTableAluOperation.executeWithCarry2(valueFromHL, a.read(), bc.read().intValue() != 0 ? 1 : 0, flag));
+    flag.write(Ldd.lddTableAluOperation.executeWithCarry2(valueFromHL, a.read(), bc.read().value != 0 ? 1 : 0, flag));
   }
 
   protected void next() {

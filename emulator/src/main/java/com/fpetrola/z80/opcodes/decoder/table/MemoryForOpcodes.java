@@ -117,7 +117,7 @@ public class MemoryForOpcodes<T extends WordNumber> implements Memory<T> {
   }
 
   private T read1(T address, int fetching) {
-    int i = address.intValue();
+    int i = address.value;
     if (cachedData[i] != null) {
       return (T) cachedData[i];
     } else {

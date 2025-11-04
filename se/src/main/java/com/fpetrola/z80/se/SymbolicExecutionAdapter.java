@@ -32,7 +32,6 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.Routine;
@@ -67,7 +66,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   private SEInstructionFactory sEInstructionFactory;
 
   public int getPcValue() {
-    return pc.read().intValue();
+    return pc.read().value;
   }
 
   public void reset() {
@@ -130,7 +129,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     this.minimalValidCodeAddress = minimalValidCodeAddress;
     memoryReadOnly(false, state);
 
-    registerSP = state.getRegisterSP().read().intValue();
+    registerSP = state.getRegisterSP().read().value;
 
     routineExecutorHandler.createRoutineExecution(firstAddress);
     pc = state.getPc();
@@ -143,19 +142,19 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     SEInstructionFactory.dynamicJP.forEach((pc, dj) -> {
       for (int j = 0; j < writeMemoryReferences.size(); j++) {
         WriteMemoryReference w = writeMemoryReferences.get(j);
-        if (w.address.intValue() == dj.pointerAddress()) {
+        if (w.address.value == dj.pointerAddress()) {
           WriteMemoryReference w2 = writeMemoryReferences.get(j + 1);
-          if (w2.address.intValue() == dj.pointerAddress() + 1) {
-            int value = w2.value.intValue() * 256 + w.value.intValue();
+          if (w2.address.value == dj.pointerAddress() + 1) {
+            int value = w2.value.value * 256 + w.value.value;
             dj.addCase(value);
           }
         }
       }
     });
     writeMemoryReferences.forEach(wmr -> {
-      Routine routineAt = routineManager.findRoutineAt(wmr.address.intValue());
+      Routine routineAt = routineManager.findRoutineAt(wmr.address.value);
       if (routineAt != null) {
-        mutantAddress.add(wmr.address.intValue());
+        mutantAddress.add(wmr.address.value);
       }
     });
   }
@@ -230,7 +229,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     nextSP = 0;
 
     while (!ready) {
-      var pcValue = pc.read().intValue();
+      var pcValue = pc.read().value;
       ready = isReady(pcValue);
 
       if (!ready) {
@@ -251,7 +250,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
           if (!routineExecution.hasActionAt(pcValue))
             routineExecution.createAndAddGenericAction(pcValue);
 
-          updatePcRegister(routineExecution.getAddressAction(pcValue).getNext(pcValue, pc.read().intValue()));
+          updatePcRegister(routineExecution.getAddressAction(pcValue).getNext(pcValue, pc.read().value));
 
           ready = routineExecutorHandler.isEmpty();
         }
@@ -283,7 +282,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   }
 
   public void checkNextSP() {
-    if (nextSP == state.getRegisterSP().read().intValue()) {
+    if (nextSP == state.getRegisterSP().read().value) {
       System.out.print("");
     }
   }

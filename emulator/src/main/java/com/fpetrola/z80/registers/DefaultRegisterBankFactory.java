@@ -95,7 +95,7 @@ public class DefaultRegisterBankFactory<T extends WordNumber> {
     }
 
     public void write(T value) {
-      this.data = (T) new WordNumber(value.intValue());
+      this.data = (T) new WordNumber(value.value);
     }
   }
 
@@ -105,7 +105,7 @@ public class DefaultRegisterBankFactory<T extends WordNumber> {
     }
 
     public void write(T value) {
-      this.data = (T) new WordNumber(value.intValue());
+      this.data = (T) new WordNumber(value.value);
     }
   }
 
@@ -117,13 +117,13 @@ public class DefaultRegisterBankFactory<T extends WordNumber> {
     }
 
     public void write(T value) {
-      int regR = value.intValue() & 0x7f;
-      regRbit7 = (value.intValue() > 0x7f);
+      int regR = value.value & 0x7f;
+      regRbit7 = (value.value > 0x7f);
       super.write((T) new WordNumber(regR));
     }
 
     public T read() {
-      int regR = super.read().intValue();
+      int regR = super.read().value;
       int result = regRbit7 ? (regR & 0x7f) | 0x80 : regR & 0x7f;
       return (T) new WordNumber(result);
     }

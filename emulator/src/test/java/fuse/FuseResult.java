@@ -92,7 +92,7 @@ public class FuseResult<T extends WordNumber> {
 
         int addr = memoryData[0];
         for (int value : Arrays.copyOfRange(memoryData, 1, memoryData.length)) {
-          int actual = cpu.getState().getMemory().getData()[addr++].intValue();
+          int actual = cpu.getState().getMemory().getData()[addr++].value;
           Assertions.assertEquals(value, actual, "Memory mismatch at address " + Integer.toHexString(addr - 1));
         }
       }
@@ -109,7 +109,7 @@ public class FuseResult<T extends WordNumber> {
   }
 
   private int getRegisterValue(Z80Cpu<T> cpu, RegisterName registerName) {
-    return cpu.getState().getRegister(registerName).read().intValue();
+    return cpu.getState().getRegister(registerName).read().value;
   }
 
   private void verifyRegisters(Z80Cpu<T> cpu) {

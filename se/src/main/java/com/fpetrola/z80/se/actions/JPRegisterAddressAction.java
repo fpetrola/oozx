@@ -47,8 +47,8 @@ public class JPRegisterAddressAction<T extends WordNumber> extends AddressAction
     if (doBranch) {
       State<T> state = routineExecutionHandler.getState();
       T t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
-      if (t.intValue() == address + 1) {
-        int jumpAddress = conditionalInstruction.calculateJumpAddress().intValue();
+      if (t.value == address + 1) {
+        int jumpAddress = conditionalInstruction.calculateJumpAddress().value;
         if (jumpAddress > 16384)
           routineExecutionHandler.createRoutineExecution(jumpAddress);
         else System.out.println("JP (HL) -> " + Helper.formatAddress(jumpAddress));

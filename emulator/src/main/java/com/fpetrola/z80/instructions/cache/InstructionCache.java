@@ -73,14 +73,15 @@ public class InstructionCache<T extends WordNumber> {
 
     public void run() {
       for (int j = 0; j < length; j++) {
-        opcodesCache.set(pcValue.intValue() + j, mutableOpcode);
-        cacheInvalidators[pcValue.intValue() + j] = null;
+        opcodesCache.set(pcValue.value + j, mutableOpcode);
+        cacheInvalidators[pcValue.value + j] = null;
       }
     }
 
     public void set() {
-      for (int j = 0; j < length; j++)
-        cacheInvalidators[pcValue.intValue() + j] = this;
+      for (int j = 0; j < length; j++) {
+        cacheInvalidators[pcValue.value + j] = this;
+      }
     }
   }
 
@@ -105,7 +106,7 @@ public class InstructionCache<T extends WordNumber> {
 
   public void cacheInstruction(T pcValue, Instruction<T> instruction) {
     Instruction<T> clone = instructionCloner.clone(instruction);
-    opcodesCache.set(pcValue.intValue(), new CacheEntry(clone));
+    opcodesCache.set(pcValue.value, new CacheEntry(clone));
     new InstructionCacheInvalidator(pcValue, clone.getLength()).set();
   }
 
@@ -115,9 +116,10 @@ public class InstructionCache<T extends WordNumber> {
   }
 
   public CacheEntry getCacheEntryAt(T pcValue) {
-    if (opcodesCache.size() <= pcValue.intValue())
+    if (opcodesCache.size() <= pcValue.value)
       return null;
-    else
-      return opcodesCache.get(pcValue.intValue());
+    else {
+      return opcodesCache.get(pcValue.value);
+    }
   }
 }

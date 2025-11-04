@@ -21,7 +21,6 @@ package com.fpetrola.z80.cpu;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.RegisterBank;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.google.inject.Inject;
 
@@ -52,7 +51,7 @@ public class SpyInstructionExecutor<T extends WordNumber> implements Instruction
     spy.beforeExecution(instruction);
     executingInstructions.add(instruction);
     instruction.execute();
-    instructions.put(pc.read().intValue(), instruction);
+    instructions.put(pc.read().value, instruction);
     executingInstructions.remove(instruction);
     spy.afterExecution(instruction);
     return instruction;

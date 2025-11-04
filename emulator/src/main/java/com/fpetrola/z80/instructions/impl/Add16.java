@@ -52,7 +52,9 @@ public class Add16<T extends WordNumber> extends Binary16BitsOperation<T> {
     super(target, source, flag, (flag0, a, b) ->
         calculate(flag0, b, a,
             (v1, v2, f) -> v1 + v2,
-            (flag1, value3, value2, result1) -> add16TableAluOperation.executeWithCarry2(createValue(value3), createValue(flag1.read().intValue()), value2 >> 11, flag0),
+            (flag1, value3, value2, result1) -> {
+              return add16TableAluOperation.executeWithCarry2(createValue(value3), createValue(flag1.read().value), value2 >> 11, flag0);
+            },
             (v3, v4, result2) -> (v3 & 0x0800) >> 4 | result2 >> 11));
   }
 
