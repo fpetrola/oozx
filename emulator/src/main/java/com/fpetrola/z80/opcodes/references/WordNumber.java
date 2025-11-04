@@ -21,21 +21,11 @@ package com.fpetrola.z80.opcodes.references;
 public class WordNumber {
   public int value;
 
-  int compareTo(Object o) {
-    return value - ((WordNumber) o).value;
-  }
-
   public static <T> T createValue(int i) {
     return (T) new WordNumber(i);
   }
 
-
   public WordNumber(int aValue) {
     this.value = aValue;
-  }
-
-
-  public String toString() {
-    return value + "";
   }
 }
