@@ -57,9 +57,7 @@ public class Memory16BitReference implements OpcodeReference {
   }
 
   protected int fetchAddress() {
-    Integer wordNumber = pc.read();
-    int pcValue = (wordNumber + delta) & 0xFFFF;
-    fetchedAddress = Memory.read16Bits(memory, pcValue);
+    fetchedAddress = Memory.read16Bits(memory, (pc.read() + delta) & 0xFFFF);
 
     return fetchedAddress;
   }

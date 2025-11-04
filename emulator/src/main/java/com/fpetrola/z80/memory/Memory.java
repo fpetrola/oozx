@@ -19,24 +19,20 @@
 package com.fpetrola.z80.memory;
 
 public interface Memory {
-
   static int read16Bits(Memory memory, int address) {
     int wordNumber1 = memory.read(address, 0);
-    int and = (wordNumber1 & 0xff) & 0xFFFF;
     int wordNumber = memory.read((address + 1) & 0xFFFF, 0);
-    int number = (wordNumber << 8) & 0xFFFF;
-    int i = and & 0xFFFF;
-    return (number | i) & 0xFFFF;
+    return ((wordNumber << 8) | wordNumber1);
   }
 
   static void write16Bits(Memory memory, int value, int address) {
-    memory.write((address + 1) & 0xFFFF, ((value >>> 8) & 0xFFFF));
-    memory.write(address, (value & 0xFF) & 0xFFFF);
+    memory.write((address + 1) & 0xFFFF, ((value >>> 8)));
+    memory.write(address, (value & 0xFF));
   }
 
   static void write16BitsR(Memory memory, int value, int address) {
-    memory.write(address, (value & 0xFF) & 0xFFFF);
-    memory.write((address + 1) & 0xFFFF, ((value >>> 8) & 0xFFFF));
+    memory.write(address, (value & 0xFF));
+    memory.write((address + 1) & 0xFFFF, ((value >>> 8)));
   }
 
   int read(int address, int fetching);
