@@ -108,17 +108,16 @@ public class MemoryForOpcodes implements Memory {
   }
 
   private final Memory memory;
-  private final State state;
-  protected int[] cachedData = new int[0x10000];
-  protected int[] cachedAddresses = new int[0x100];
+  protected final int[] cachedData = new int[0x10000];
+  protected final int[] cachedAddresses = new int[4];
 
   public MemoryForOpcodes(Memory memory, State state) {
     this.memory = memory;
-    this.state = state;
     Arrays.fill(cachedData, -1);
+    Arrays.fill(cachedAddresses, 0);
   }
 
-  private int read1(int address, int fetching) {
+  private int read1(final int address, final int fetching) {
     if (cachedData[address] != -1) {
       return cachedData[address];
     } else {
@@ -129,14 +128,13 @@ public class MemoryForOpcodes implements Memory {
     }
   }
 
-  public void write(int address, int value) {
+  public void write(final int address, final int value) {
     memory.write(address, value);
 //    cachedValues[address.intValue()] = null;
   }
 
   public void reset() {
-    while (counter > 0) {
-      cachedData[cachedAddresses[--counter]] = -1;
-    }
+    cachedData[cachedAddresses[0]] = cachedData[cachedAddresses[1]] = cachedData[cachedAddresses[2]] = cachedData[cachedAddresses[3]] = -1;
+    counter = 0;
   }
 }

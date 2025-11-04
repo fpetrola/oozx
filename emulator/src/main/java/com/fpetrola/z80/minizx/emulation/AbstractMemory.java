@@ -43,7 +43,7 @@ public abstract class AbstractMemory implements Memory {
   protected abstract int doRead(int address);
 
   @Override
-  public void write(int address, int value) {
+  public void write(final int address, final int value) {
     memoryWriteListener.forAll(l -> l.writtingMemoryAt(address, value));
     doWrite(address, value);
   }
