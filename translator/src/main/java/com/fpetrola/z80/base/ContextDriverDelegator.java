@@ -69,7 +69,7 @@ public class ContextDriverDelegator implements Z80ContextDriver {
   }
 
   @Override
-  public MockedMemory initMem(Supplier<Integer[]> supplier) {
+  public MockedMemory initMem(Supplier<int[]> supplier) {
     return currentContext.initMem(supplier);
   }
 

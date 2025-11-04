@@ -38,7 +38,7 @@ public final class MemorySpy implements Memory {
   }
 
   @Override
-  public Integer[] getData() {
+  public int[] getData() {
     return memory.getData();
   }
 

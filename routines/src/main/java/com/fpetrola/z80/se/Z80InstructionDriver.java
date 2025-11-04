@@ -38,7 +38,7 @@ public interface Z80InstructionDriver {
 
   MockedMemory mem();
 
-  MockedMemory initMem(Supplier<Integer[]> supplier);
+  MockedMemory initMem(Supplier<int[]> supplier);
 
   Instruction getInstructionAt(int i);
 

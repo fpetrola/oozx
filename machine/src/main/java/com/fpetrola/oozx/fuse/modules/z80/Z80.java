@@ -147,8 +147,7 @@ public class Z80 implements ZxModule {
   public OOZ80 createOOZ80(MiniZXIO io) {
     Memory memory1 = new AbstractMemory() {
       protected int doRead(int address) {
-        byte b = memory.readByteInternal(address);
-        return b & 0xff;
+        return memory.readByteInternal(address) & 0xff;
       }
 
       protected void doWrite(int address, int value) {
@@ -297,8 +296,8 @@ public class Z80 implements ZxModule {
     memory1.disableReadListener();
 
     for (int i = 0x4000; i < 0x8000; i++) {
-      Integer datum = memory1.read(i, 0);
-      memory.writeByteInternal(i, datum != null ? (byte) (datum & 0xff) : 0, display);
+      int datum = memory1.read(i, 0);
+      memory.writeByteInternal(i, (byte) (datum & 0xff), display);
     }
 
     memory1.enableReadListener();

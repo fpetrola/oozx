@@ -29,7 +29,7 @@ public class BaseInstructionLoopTest extends TwoZ80Driver {
   @Override
   protected void setUpMemory() {
     initMem(() -> {
-      Integer[] data = new Integer[0x10000];
+      int[] data = new int[0x10000];
       Arrays.fill(data, 0);
       int base = 3592 * 4;
       base = 14368;
@@ -50,7 +50,7 @@ public class BaseInstructionLoopTest extends TwoZ80Driver {
       data[301] = 21;
       data[302] = 22;
 
-      return (Integer[]) data;
+      return data;
     });
   }
 }

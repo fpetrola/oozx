@@ -22,13 +22,13 @@ import java.util.function.Supplier;
 
 @SuppressWarnings("unchecked")
 public class MockedMemory extends AbstractMemory {
-  protected Integer[] data =  new Integer[0x10000];
+  protected int[] data =  new int[0x10000];
 
   public MockedMemory(boolean canDisable1) {
     super();
   }
 
-  public void init(Supplier<Integer[]> supplier) {
+  public void init(Supplier<int[]> supplier) {
     data = supplier.get();
   }
 
@@ -40,7 +40,7 @@ public class MockedMemory extends AbstractMemory {
 
   @Override
   protected void doWrite(int address, int value) {
-    data[address] = (value & 0xff) & 0xFFFF;
+    data[address] = value & 0xff;
   }
 
   @Override
@@ -52,7 +52,7 @@ public class MockedMemory extends AbstractMemory {
   }
 
   @Override
-  public Integer[] getData() {
+  public int[] getData() {
     return data;
   }
 }

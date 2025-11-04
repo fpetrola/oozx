@@ -64,8 +64,8 @@ public interface Memory {
   default void removeMemoryReadListener(MemoryReadListener memoryReadListener) {
   }
 
-  default Integer[] getData() {
-    return (Integer[]) new Integer[0];
+  default int[] getData() {
+    return new int[0];
   }
 
   default void disableReadListener() {
@@ -88,7 +88,7 @@ public interface Memory {
   }
 
   default void copyFrom(Memory memory) {
-    Integer[] data = memory.getData();
+    int[] data = memory.getData();
     for (int i = 0; i < data.length; i++) {
       int d = data[i];
       getData()[i] = d;

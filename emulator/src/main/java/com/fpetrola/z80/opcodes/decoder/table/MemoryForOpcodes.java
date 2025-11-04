@@ -66,7 +66,7 @@ public class MemoryForOpcodes implements Memory {
   }
 
   @Override
-  public Integer[] getData() {
+  public int[] getData() {
     return memory.getData();
   }
 

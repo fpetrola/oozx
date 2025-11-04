@@ -25,15 +25,15 @@ import java.util.Arrays;
 
 public class SnapshotHelper {
   public static  String getBase64Memory(State state1) {
-    Integer[] data1 = state1.getMemory().getData();
+    int[] data1 = state1.getMemory().getData();
     int ramEnd = 0x10000;
     byte[] data = new byte[ramEnd];
     Arrays.fill(data, (byte) 0);
 
     for (int i = 0; i < ramEnd; i++) {
-      Integer wordNumber = data1[i];
+      int wordNumber = data1[i];
       int i1;
-      if (wordNumber == null) {
+      if (wordNumber == -1) {
         i1 = 0;
       } else {
         i1 = wordNumber;

@@ -81,7 +81,7 @@ public class MiniZXWithEmulationBase {
 
     MemoryState memoryState = snapState.getMemoryState();
     Memory memory = state.getMemory();
-    Object[] data = memory.getData();
+    int[] data = memory.getData();
 
     byte[][] ram = memoryState.getRam();
     int position = 16384;
@@ -95,7 +95,7 @@ public class MiniZXWithEmulationBase {
     return new SnapshotZ80().loadFromString(Base64Utils.gzipDecompressFromBase64(t1));
   }
 
-  private static int copyPage(byte[][] ram, int page, int position, Object[] data) {
+  private static int copyPage(byte[][] ram, int page, int position, int[] data) {
     for (int i = 0; i < ram[page].length; i++) {
       data[position++] = ram[page][i];
     }

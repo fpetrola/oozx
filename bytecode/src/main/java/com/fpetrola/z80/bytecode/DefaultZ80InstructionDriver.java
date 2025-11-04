@@ -41,7 +41,7 @@ public abstract class DefaultZ80InstructionDriver implements Z80InstructionDrive
     return (MockedMemory) (getState().getMemory() instanceof MemorySpy memorySpy ? memorySpy.getMemory() : getState().getMemory());
   }
 
-  public MockedMemory initMem(Supplier<Integer[]> supplier) {
+  public MockedMemory initMem(Supplier<int[]> supplier) {
     mem().init(supplier);
     return mem();
   }

@@ -88,7 +88,7 @@ public class MiniZXWithEmulation {
 
   public void copyMemoryState(State state) {
     //spectrumApplication.mem = state.getMemory().getData();
-    Object[] data = state.getMemory().getData();
+    int[] data = state.getMemory().getData();
     for (int i = 16384; i < 0xFFFF; i++) {
       Integer datum = (Integer) data[i];
       if (datum == null)
@@ -146,7 +146,7 @@ public class MiniZXWithEmulation {
     });
 
     if (write) {
-      Integer[] data = state1.getMemory().getData();
+      int[] data = state1.getMemory().getData();
 //    for (int i = 16384; i < 65520; i++)
       int i = address;
       checkMem(data, i, differences);
@@ -215,7 +215,7 @@ public class MiniZXWithEmulation {
     return i;
   }
 
-  private void checkMem(Integer[] data, int i, boolean[] differences) {
+  private void checkMem(int[] data, int i, boolean[] differences) {
     int i1 = data[i] & 0xFF;
     int i2 = spectrumApplication.getMem()[i] & 0xff;
     if (i1 != i2) {
@@ -225,7 +225,7 @@ public class MiniZXWithEmulation {
   }
 
   public void copyMemoryStateBack(State state) {
-    Object[] data = state.getMemory().getData();
+    int[] data = state.getMemory().getData();
     for (int i = 0; i < 0xFFFF; i++) {
       data[i] = spectrumApplication.getMem()[i];
     }

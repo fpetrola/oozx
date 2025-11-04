@@ -46,7 +46,7 @@ public class ContextDriverMux extends ContextDriverDelegator {
   }
 
   @Override
-  public MockedMemory initMem(Supplier<Integer[]> supplier) {
+  public MockedMemory initMem(Supplier<int[]> supplier) {
     MockedMemory result = super.initMem(supplier);
     secondContext.initMem(supplier);
     return result;

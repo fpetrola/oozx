@@ -25,7 +25,7 @@ import com.fpetrola.z80.memory.Memory;
 import java.util.Arrays;
 
 public class ExecutionStackStorage {
-  private Integer[] savedStack;
+  private int[] savedStack;
   private final State state;
   private int savedSP;
   private boolean enabled = true;
@@ -44,7 +44,7 @@ public class ExecutionStackStorage {
 //      throw new RuntimeException("already stored");
   }
 
-  private void printStack(int savedSP1, Integer[] savedStack1, String prefix) {
+  private void printStack(int savedSP1, int[] savedStack1, String prefix) {
     System.out.printf(prefix + "stack: SP: %04X -> %s%n", savedSP1, printStack(savedStack1));
   }
 
@@ -74,14 +74,14 @@ public class ExecutionStackStorage {
     }
   }
 
-  public Integer[] createStackCopy() {
+  public int[] createStackCopy() {
     Memory memory = state.getMemory();
     savedSP = state.getRegisterSP().read();
     int i = savedSP + 40;
     return Arrays.copyOfRange(memory.getData(), savedSP, Math.min(i, 65536));
   }
 
-  private String printStack(Integer[] savedStack1) {
+  private String printStack(int[] savedStack1) {
     StringBuilder result = new StringBuilder();
     result.append("[ ");
     for (int i = 0; i < savedStack1.length; i += 2) {
