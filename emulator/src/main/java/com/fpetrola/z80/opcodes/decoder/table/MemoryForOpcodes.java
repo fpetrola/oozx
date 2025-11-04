@@ -23,6 +23,8 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 
+import java.util.Arrays;
+
 public class MemoryForOpcodes implements Memory {
   private int counter;
 
@@ -107,17 +109,18 @@ public class MemoryForOpcodes implements Memory {
 
   private final Memory memory;
   private final State state;
-  protected Integer[] cachedData = new Integer[0x10000];
+  protected int[] cachedData = new int[0x10000];
   protected int[] cachedAddresses = new int[0x100];
 
   public MemoryForOpcodes(Memory memory, State state) {
     this.memory = memory;
     this.state = state;
+    Arrays.fill(cachedData, -1);
   }
 
   private int read1(int address, int fetching) {
     int i = address;
-    if (cachedData[i] != null) {
+    if (cachedData[i] != -1) {
       return cachedData[i];
     } else {
       int value = memory.read(address, fetching);
@@ -136,7 +139,7 @@ public class MemoryForOpcodes implements Memory {
 
   public void reset() {
     while (counter > 0) {
-      cachedData[cachedAddresses[--counter]] = null;
+      cachedData[cachedAddresses[--counter]] = -1;
     }
   }
 }
