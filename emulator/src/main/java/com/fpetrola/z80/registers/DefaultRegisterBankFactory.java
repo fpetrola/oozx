@@ -25,7 +25,7 @@ public class DefaultRegisterBankFactory {
   public DefaultRegisterBankFactory() {
   }
 
-  public  RegisterBank createBank() {
+  public RegisterBank createBank() {
     return initBasicBank();
   }
 
@@ -96,12 +96,11 @@ public class DefaultRegisterBankFactory {
 
     public void write(int value) {
       regRBit7 = (value > 0x7f);
-      super.write(value & 0x7f);
+      data = value & 0x7f;
     }
 
     public int read() {
-      int regR = super.read();
-      return regRBit7 ? (regR & 0x7f) | 0x80 : regR & 0x7f;
+      return regRBit7 ? (data & 0x7f) | 0x80 : data & 0x7f;
     }
   }
 }

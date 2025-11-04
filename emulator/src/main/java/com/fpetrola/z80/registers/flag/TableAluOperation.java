@@ -22,52 +22,47 @@ import com.fpetrola.z80.registers.Register;
 import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.function.BiFunction;
+import java.util.function.ToIntBiFunction;
 
 public class TableAluOperation extends AluOperation {
   protected int[] table;
 
-  protected void init(BiFunction<java.lang.Integer, java.lang.Integer, java.lang.Integer> biFunction) {
+  protected void init(ToIntBiFunction<Integer, Integer> biFunction) {
     table = new int[256 * 2];
     for (int a = 0; a < 256; a++) {
       for (int c = 0; c < 2; c++) {
-        java.lang.Integer aluResult = biFunction.apply(a, c);
+        int aluResult = biFunction.applyAsInt(a, c);
         table[((a & 0xff)) | (c << 8)] = ((aluResult & 0xff) << 16) + F;
       }
     }
   }
 
-  public void init(TriFunction<java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer> triFunction) {
+  public void init(ToIntTriFunction<java.lang.Integer, java.lang.Integer, java.lang.Integer> triFunction) {
     table = new int[256 * 256 * 2];
     for (int a = 0; a < 256; a++) {
       for (int value = 0; value < 256; value++) {
         for (int c = 0; c < 2; c++) {
-          java.lang.Integer aluResult = triFunction.apply(a, value, c);
+          int aluResult = triFunction.applyAsInt(a, value, c);
           table[((value & 0xff)) | (a << 8) | (c << 16)] = ((aluResult & 0xff) << 16) + F;
         }
       }
     }
   }
 
-  public  int executeWithoutCarry(int value, int regA, Register flag) {
-    int regA1 = regA;
-    int value1 = value;
-    int number = (regA1 << 8) & 0xFFFF;
-    int i = value1 & 0xFFFF;
-    int data1 = table[(number | i) & 0xFFFF];
+  public int executeWithoutCarry(int value, int regA, Register flag) {
+    int data1 = table[((regA << 8) & 0xFFFF | value & 0xFFFF) & 0xFFFF];
     flag.write(data1 & 0xFF);
     return data1 >> 16 & 0xFFFF;
   }
 
-  public  int executeWithCarry(int regA, Register flag) {
+  public int executeWithCarry(int regA, Register flag) {
     int data1 = table[((flag.read() & 0x01) << 8) | (regA & 0xff)];
     flag.write(data1 & 0xFF);
     return data1 >> 16 & 0xFFFF;
   }
 
-  public  int executeWithCarry2(int value, int regA, int carry, Register flag) {
-    Integer number = (regA << 8) & 0xFFFF;
-    int i = value & 0xFFFF;
-    int data1 = table[((number | i) & 0xFFFF) | ((carry & 1) << 16)];
+  public int executeWithCarry2(int value, int regA, int carry, Register flag) {
+    int data1 = table[(((regA << 8) & 0xFFFF | value & 0xFFFF) & 0xFFFF) | ((carry & 1) << 16)];
     flag.write(data1 & 0xFF);
     return data1 >> 16 & 0xFFFF;
   }

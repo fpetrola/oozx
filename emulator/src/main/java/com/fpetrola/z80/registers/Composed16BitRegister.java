@@ -80,19 +80,14 @@ public class Composed16BitRegister<R extends Register> implements RegisterPair {
   public void decrement() {
     int lowValue = low.read();
     if (lowValue != 0) {
-      lowValue--;
-      lowValue &= 0xffff;
-      low.write(lowValue);
+      low.write((lowValue - 1) & 0xffff);
     } else {
       low.write(0xff);
       int highValue = high.read();
       if (highValue != 0) {
-        highValue--;
-        highValue &= 0xffff;
-        high.write(highValue);
-        return;
-      }
-      high.write(0xff);
+        high.write((highValue - 1) & 0xffff);
+      } else
+        high.write(0xff);
     }
   }
 

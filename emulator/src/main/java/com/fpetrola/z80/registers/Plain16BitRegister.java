@@ -26,10 +26,6 @@ public class Plain16BitRegister implements Register {
     this.name = name;
   }
 
-  public Plain16BitRegister(RegisterName name) {
-    this.name = name.name();
-  }
-
   public int read() {
     return data;
   }

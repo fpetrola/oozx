@@ -67,25 +67,20 @@ public class MemoryPlusRegister8BitReference implements OpcodeReference {
   }
 
   public int read() {
-    int read = target.read();
-    byte i = fetchRelative();
-    address = (read + (int) i) & 0xFFFF;
+    address = (target.read() + (int) fetchRelative()) & 0xFFFF;
     value = memory.read(address, 0);
     return value;
   }
 
   public void write(int value) {
-    byte i = fetchRelative();
-    Integer wordNumber = target.read();
-    address = (wordNumber + (int) i) & 0xFFFF;
+    int wordNumber = target.read();
+    address = (wordNumber + (int) fetchRelative()) & 0xFFFF;
     this.value = value;
     memory.write(address, value);
   }
 
   public byte fetchRelative() {
-    Integer wordNumber = pc.read();
-    Integer i = (wordNumber + valueDelta) & 0xFFFF;
-    int dd = memory.read(i, 0);
+    int dd = memory.read((pc.read() + valueDelta) & 0xFFFF, 0);
     if (fetchedRelative != dd) {
       fetchedRelative = dd;
     }
