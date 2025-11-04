@@ -35,7 +35,7 @@ public class Plain8BitRegister implements Register {
   }
 
   public void write(int value) {
-      this.data = value;
+    this.data = value;
   }
 
   public String toString() {
@@ -47,8 +47,7 @@ public class Plain8BitRegister implements Register {
   }
 
   public void decrement() {
-    Integer wordNumber = ((data - 1) & 0xFFFF);
-    this.data =(wordNumber & 0xFF) & 0xFFFF;
+    this.data = (data - 1) & 0xFF;
   }
 
   public int getLength() {

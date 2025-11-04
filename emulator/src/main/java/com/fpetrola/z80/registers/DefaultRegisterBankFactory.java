@@ -64,7 +64,7 @@ public class DefaultRegisterBankFactory {
   }
 
   protected Register createAlwaysIntegerPlain8BitRegister(RegisterName registerName) {
-    return new AlwaysIntegerPlain8BitRegister(registerName.name());
+    return new Plain8BitRegister(registerName.name());
   }
 
   protected Register create8BitRegister(RegisterName registerName) {
@@ -76,7 +76,7 @@ public class DefaultRegisterBankFactory {
   }
 
   protected Register createAlwaysIntegerPlain16BitRegister(RegisterName registerName) {
-    return new AlwaysIntegerPlain16BitRegister(registerName.name());
+    return new Plain16BitRegister(registerName.name());
   }
 
   protected Register createPlain16BitRegister(RegisterName registerName) {
@@ -87,43 +87,21 @@ public class DefaultRegisterBankFactory {
     return new Composed16BitRegister(registerName.name(), create8BitRegister(h), create8BitRegister(l));
   }
 
-  public static class AlwaysIntegerPlain8BitRegister extends Plain8BitRegister {
-    public AlwaysIntegerPlain8BitRegister(String registerName) {
-      super(registerName);
-    }
-
-    public void write(int value) {
-      this.data = value;
-    }
-  }
-
-  public static class AlwaysIntegerPlain16BitRegister extends Plain16BitRegister {
-    public AlwaysIntegerPlain16BitRegister(String registerName) {
-      super(registerName);
-    }
-
-    public void write(int value) {
-      this.data = value;
-    }
-  }
-
-  public static class RRegister extends AlwaysIntegerPlain8BitRegister {
-    private boolean regRbit7;
+  public static class RRegister extends Plain8BitRegister {
+    private boolean regRBit7;
 
     public RRegister() {
       super(RegisterName.R.name());
     }
 
     public void write(int value) {
-      int regR = value & 0x7f;
-      regRbit7 = (value > 0x7f);
-      super.write(regR);
+      regRBit7 = (value > 0x7f);
+      super.write(value & 0x7f);
     }
 
     public int read() {
       int regR = super.read();
-      int result = regRbit7 ? (regR & 0x7f) | 0x80 : regR & 0x7f;
-      return result;
+      return regRBit7 ? (regR & 0x7f) | 0x80 : regR & 0x7f;
     }
   }
 }

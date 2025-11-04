@@ -30,9 +30,7 @@ public class Ld extends TargetSourceInstruction<ImmutableOpcodeReference> {
   }
 
   public int execute() {
-    int value = source.read();
-    int aLU8Assign = value;
-    target.write(aLU8Assign);
+    target.write(source.read());
     return cyclesCost;
   }
 

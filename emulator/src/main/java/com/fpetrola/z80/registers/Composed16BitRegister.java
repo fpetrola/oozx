@@ -18,7 +18,7 @@
 
 package com.fpetrola.z80.registers;
 
-public class Composed16BitRegister< R extends Register> implements RegisterPair {
+public class Composed16BitRegister<R extends Register> implements RegisterPair {
   protected final R high;
   protected final R low;
   private String name;
@@ -44,15 +44,12 @@ public class Composed16BitRegister< R extends Register> implements RegisterPair 
   }
 
   public int read() {
-    Integer wordNumber = high.read();
-    Integer number = (wordNumber << 8) & 0xFFFF;
-    int i = low.read() & 0xFFFF;
-    return (number | i) & 0xFFFF;
+    return high.read() << 8 | low.read();
   }
 
   public void write(int value) {
-    this.high.write((value >>> 8) & 0xFFFF);
-    this.low.write((value & 0xFF) & 0xFFFF);
+    this.high.write(value >>> 8);
+    this.low.write(value & 0xFF);
   }
 
   public R getHigh() {
