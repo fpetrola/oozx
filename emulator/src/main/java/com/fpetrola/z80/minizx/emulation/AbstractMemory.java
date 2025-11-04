@@ -25,7 +25,7 @@ import com.fpetrola.z80.memory.MemoryWriteListener;
 
 public abstract class AbstractMemory implements Memory {
   protected final CollectionHandler<MemoryWriteListener> memoryWriteListener = new CollectionHandler<>();
-  protected CollectionHandler<MemoryReadListener> memoryReadListener = new CollectionHandler<>();
+  protected final CollectionHandler<MemoryReadListener> memoryReadListener = new CollectionHandler<>();
   protected boolean canDisable;
   protected boolean readOnly;
 
@@ -44,10 +44,8 @@ public abstract class AbstractMemory implements Memory {
 
   @Override
   public void write(int address, int value) {
-    if (!readOnly) {
-      memoryWriteListener.forAll(l -> l.writtingMemoryAt(address, value));
-      doWrite(address, value);
-    }
+    memoryWriteListener.forAll(l -> l.writtingMemoryAt(address, value));
+    doWrite(address, value);
   }
 
   @Override
