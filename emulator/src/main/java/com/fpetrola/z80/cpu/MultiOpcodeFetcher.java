@@ -77,9 +77,9 @@ public class MultiOpcodeFetcher {
 //    int rdelta = registerR.read().minus(rValue);
 //    ((AbstractInstruction<?>) fetchedInstruction).setRDelta(rdelta.intValue());
 
-    if (clone) {
-      fetchedInstruction = new InstructionCloner(instructionFactory).clone(fetchedInstruction);
-    }
+//    if (clone) {
+//      fetchedInstruction = new InstructionCloner(instructionFactory).clone(fetchedInstruction);
+//    }
 
     return fetchedInstruction;
   }
