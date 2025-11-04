@@ -43,7 +43,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.fpetrola.z80.helpers.Helper.formatAddress;
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class MiniZXWithEmulation {
   protected boolean replacing = false;
@@ -94,7 +93,7 @@ public class MiniZXWithEmulation {
     for (int i = 16384; i < 0xFFFF; i++) {
       WordNumber datum = (WordNumber) data[i];
       if (datum == null)
-        datum = createValue(0);
+        datum = (WordNumber) new WordNumber(0);
 
       spectrumApplication.getMem()[i] = (byte) datum.value;
     }
@@ -107,11 +106,11 @@ public class MiniZXWithEmulation {
         boolean fieldExists = Arrays.stream(spectrumApplication.getClass().getFields()).anyMatch(f -> f.getName().equals(n.name()));
         Register register = ooz80.getState().getRegister(n);
 
-        Object value = createValue(0);
+        Object value = (Object) new WordNumber(0);
         if (fieldExists) {
           Field field = spectrumApplication.getClass().getField(n.name());
           Integer o = (Integer) field.get(spectrumApplication);
-          value = createValue(o);
+          value = (Object) new WordNumber(o);
         }
         register.write(value);
       } catch (Exception e) {
@@ -139,7 +138,7 @@ public class MiniZXWithEmulation {
           if (fieldExists) {
             Register<WordNumber> register = state1.getRegister(n);
             int o = checkField(n, register, differences);
-            register.write(createValue(o));
+            register.write((WordNumber) new WordNumber(o));
           }
         } catch (Exception e) {
           differences[0] = false;
@@ -229,14 +228,14 @@ public class MiniZXWithEmulation {
   public void copyMemoryStateBack(State state) {
     Object[] data = state.getMemory().getData();
     for (int i = 0; i < 0xFFFF; i++) {
-      data[i] = createValue(spectrumApplication.getMem()[i]);
+      data[i] = (Object) new WordNumber(spectrumApplication.getMem()[i]);
     }
   }
 
   public <T extends WordNumber> OOZ80<T> createOOZ802(IO io) {
     var state = new State(io, new MockedMemory(true));
     DefaultInstructionFactory<T> instructionFactory = new DefaultInstructionFactory<T>(state) {
-      private T nextRetAddress = createValue(0);
+      private T nextRetAddress = (T) new WordNumber(0);
 
       @Override
       public Ret Ret(Condition condition) {
@@ -248,7 +247,7 @@ public class MiniZXWithEmulation {
               final T value = Memory.read16Bits(memory, sp.read());
 
               if (nextRetAddress.value == value.value) {
-                nextRetAddress = createValue(0);
+                nextRetAddress = (T) new WordNumber(0);
                 Map<String, Integer> writtenRegisters = Map.of();
                 int address = 0;
                 boolean write = true;
@@ -283,7 +282,7 @@ public class MiniZXWithEmulation {
               Runnable runnable = convertedRoutines.get(jumpAddress.value);
               if (runnable != null) {
                 WordNumber wordNumber = pc.read();
-                T retAddress = (T) WordNumber.<WordNumber>createValue((wordNumber.value + length) & 0xFFFF);
+                T retAddress = (T) (WordNumber) new WordNumber((wordNumber.value + length) & 0xFFFF);
                 retAddress = (T) new ReturnAddressWordNumber(retAddress.value, pc.read().value);
                 if (!replacing)
                   Push.doPush(retAddress, sp, memory);

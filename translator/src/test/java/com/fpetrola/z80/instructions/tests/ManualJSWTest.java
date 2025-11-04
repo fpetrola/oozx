@@ -43,7 +43,7 @@ public class ManualJSWTest<T extends WordNumber> extends ManualBytecodeGeneratio
 
   @Test
   public void testJSW2() {
-    pc().write(WordNumber.createValue(37056));
+    pc().write((T) new WordNumber(37056));
 
 
     int _246 = 102;

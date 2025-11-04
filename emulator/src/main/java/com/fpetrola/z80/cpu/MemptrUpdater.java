@@ -40,7 +40,7 @@ public class MemptrUpdater<T extends WordNumber> {
       instruction.accept(new InstructionVisitor<T, Integer>() {
         public boolean visitRLD(RLD<T> rld) {
           WordNumber wordNumber = rld.getHl().read();
-          memptr.write((T) WordNumber.<WordNumber>createValue((wordNumber.value + 1) & 0xFFFF));
+          memptr.write((T) (WordNumber) new WordNumber((wordNumber.value + 1) & 0xFFFF));
           return false;
         }
 
@@ -52,19 +52,19 @@ public class MemptrUpdater<T extends WordNumber> {
 
         public boolean visiting16BitsOperation(Binary16BitsOperation<T> binary16BitsOperation) {
           WordNumber wordNumber = ((T) binary16BitsOperation.getTarget().read());
-          memptr.write((T) WordNumber.<WordNumber>createValue((wordNumber.value + 1) & 0xFFFF));
+          memptr.write((T) (WordNumber) new WordNumber((wordNumber.value + 1) & 0xFFFF));
           return false;
         }
 
         public boolean visitIni(Ini<T> tIni) {
           WordNumber wordNumber = tIni.getBc().read();
-          memptr.write((T) WordNumber.<WordNumber>createValue((wordNumber.value + 1) & 0xFFFF));
+          memptr.write((T) (WordNumber) new WordNumber((wordNumber.value + 1) & 0xFFFF));
           return false;
         }
 
         public boolean visitInd(Ind<T> tInd) {
           WordNumber wordNumber = tInd.getBc().read();
-          memptr.write((T) WordNumber.<WordNumber>createValue((wordNumber.value + -1) & 0xFFFF));
+          memptr.write((T) (WordNumber) new WordNumber((wordNumber.value + -1) & 0xFFFF));
           return true;
         }
 
@@ -89,16 +89,16 @@ public class MemptrUpdater<T extends WordNumber> {
           tOut.getSource().accept(new InstructionVisitor<T, T>() {
             public boolean visitRegister(Register register) {
               WordNumber wordNumber = ((T) tOut.getSource().read());
-              memptr.write((T) WordNumber.<WordNumber>createValue((wordNumber.value + 1) & 0xFFFF));
+              memptr.write((T) (WordNumber) new WordNumber((wordNumber.value + 1) & 0xFFFF));
               return false;
             }
 
             public boolean visitMemory8BitReference(Memory8BitReference<T> memory8BitReference) {
               WordNumber wordNumber = tOut.getA().read();
-              WordNumber number = ((WordNumber) WordNumber.<WordNumber>createValue((wordNumber.value << 8) & 0xFFFF));
+              WordNumber number = ((WordNumber) (WordNumber) new WordNumber((wordNumber.value << 8) & 0xFFFF));
               int i = tOut.getSource().read().value & 0xFFFF;
-              WordNumber wordNumber1 = ((T) WordNumber.<WordNumber>createValue((number.value | i) & 0xFFFF));
-              memptr.write((T) WordNumber.<WordNumber>createValue((wordNumber1.value + 1) & 0xFFFF));
+              WordNumber wordNumber1 = ((T) (WordNumber) new WordNumber((number.value | i) & 0xFFFF));
+              memptr.write((T) (WordNumber) new WordNumber((wordNumber1.value + 1) & 0xFFFF));
               return false;
             }
           });
@@ -131,14 +131,14 @@ public class MemptrUpdater<T extends WordNumber> {
 
       public boolean visitOuti(Outi<T> outi) {
         WordNumber wordNumber = outi.getBc().read();
-        memptr.write((T) WordNumber.<WordNumber>createValue((wordNumber.value + 1) & 0xFFFF));
+        memptr.write((T) (WordNumber) new WordNumber((wordNumber.value + 1) & 0xFFFF));
 
         return false;
       }
 
       public boolean visitOutd(Outd<T> outd) {
         WordNumber wordNumber = outd.getBc().read();
-        memptr.write((T) WordNumber.<WordNumber>createValue((wordNumber.value + -1) & 0xFFFF));
+        memptr.write((T) (WordNumber) new WordNumber((wordNumber.value + -1) & 0xFFFF));
 
         return true;
       }
@@ -154,7 +154,7 @@ public class MemptrUpdater<T extends WordNumber> {
           else
             nextPC = null;
         }
-        memptr.write(nextPC == null ? WordNumber.createValue(0) : nextPC);
+        memptr.write(nextPC == null ? (T) new WordNumber(0) : nextPC);
       }
 
       public void visitingRst(RST<T> rst) {
@@ -165,16 +165,16 @@ public class MemptrUpdater<T extends WordNumber> {
         if (tOut.getTarget() instanceof Out.OutPortOpcodeReference<?> outPortOpcodeReference) {
           if (outPortOpcodeReference.target instanceof Register<?>) {
             WordNumber wordNumber = ((T) tOut.getTarget().read());
-            memptr.write((T) WordNumber.<WordNumber>createValue((wordNumber.value + 1) & 0xFFFF));
+            memptr.write((T) (WordNumber) new WordNumber((wordNumber.value + 1) & 0xFFFF));
           }
           else if (outPortOpcodeReference.target instanceof Memory8BitReference<?> memory8BitReference) {
             WordNumber wordNumber = tOut.getSource().read();
-            memptr.write((T) WordNumber.<WordNumber>createValue((wordNumber.value << 8) & 0xFFFF));
+            memptr.write((T) (WordNumber) new WordNumber((wordNumber.value << 8) & 0xFFFF));
             WordNumber wordNumber2 = tOut.getTarget().read();
-            WordNumber wordNumber1 = (WordNumber) WordNumber.<WordNumber>createValue((wordNumber2.value + 1) & 0xFFFF);
+            WordNumber wordNumber1 = (WordNumber) (WordNumber) new WordNumber((wordNumber2.value + 1) & 0xFFFF);
             WordNumber number = memptr.read();
-            int i = ((T) WordNumber.<WordNumber>createValue((wordNumber1.value & 0xff) & 0xFFFF)).value & 0xFFFF;
-            T and = (T) WordNumber.<WordNumber>createValue((number.value | i) & 0xFFFF);
+            int i = ((T) (WordNumber) new WordNumber((wordNumber1.value & 0xff) & 0xFFFF)).value & 0xFFFF;
+            T and = (T) (WordNumber) new WordNumber((number.value | i) & 0xFFFF);
             memptr.write(and);
           }
         }
@@ -206,10 +206,10 @@ public class MemptrUpdater<T extends WordNumber> {
             T nextPC = repeatingInstruction.getNextPC();
             T newValue;
             if (nextPC != null) {
-              newValue = (T) WordNumber.<WordNumber>createValue((nextPC.value + 1) & 0xFFFF);
+              newValue = (T) (WordNumber) new WordNumber((nextPC.value + 1) & 0xFFFF);
             } else {
               WordNumber wordNumber = memptr.read();
-              newValue = (T) WordNumber.<WordNumber>createValue((wordNumber.value + i) & 0xFFFF);
+              newValue = (T) (WordNumber) new WordNumber((wordNumber.value + i) & 0xFFFF);
             }
             memptr.write(newValue);
           }

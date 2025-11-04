@@ -71,7 +71,7 @@ public class ExecutionStackStorage<T extends WordNumber> {
 
 //      T[] savedStack3 = Arrays.copyOfRange(memory.getData(), savedSP, savedSP + 40);
 
-      state.getRegisterSP().write(WordNumber.createValue(savedSP));
+      state.getRegisterSP().write((T) new WordNumber(savedSP));
     }
   }
 

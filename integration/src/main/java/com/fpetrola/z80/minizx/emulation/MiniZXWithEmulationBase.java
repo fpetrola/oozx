@@ -23,7 +23,6 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.transformations.Base64Utils;
-import com.fpetrola.z80.transformations.VirtualRegisterFactory;
 import org.apache.commons.lang3.StringUtils;
 import snapshots.*;
 
@@ -33,7 +32,6 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.zip.GZIPInputStream;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class MiniZXWithEmulationBase {
@@ -100,7 +98,7 @@ public class MiniZXWithEmulationBase {
 
   private static int copyPage(byte[][] ram, int page, int position, Object[] data) {
     for (int i = 0; i < ram[page].length; i++) {
-      data[position++] = createValue(ram[page][i]);
+      data[position++] = (Object) new WordNumber(ram[page][i]);
     }
     return position;
   }

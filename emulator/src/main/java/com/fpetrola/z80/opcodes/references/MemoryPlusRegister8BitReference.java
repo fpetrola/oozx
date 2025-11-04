@@ -70,7 +70,7 @@ public class MemoryPlusRegister8BitReference<T extends WordNumber> implements Op
   public T read() {
     T read = target.read();
     byte i = fetchRelative();
-    address = (T) WordNumber.<WordNumber>createValue((read.value + (int) i) & 0xFFFF);
+    address = (T) (WordNumber) new WordNumber((read.value + (int) i) & 0xFFFF);
     value = memory.read(address, 0);
     return value;
   }
@@ -78,14 +78,14 @@ public class MemoryPlusRegister8BitReference<T extends WordNumber> implements Op
   public void write(T value) {
     byte i = fetchRelative();
     WordNumber wordNumber = target.read();
-    address = (T) WordNumber.<WordNumber>createValue((wordNumber.value + (int) i) & 0xFFFF);
+    address = (T) (WordNumber) new WordNumber((wordNumber.value + (int) i) & 0xFFFF);
     this.value= value;
     memory.write(address, value);
   }
 
   public byte fetchRelative() {
     WordNumber wordNumber = pc.read();
-    T dd = memory.read((T) WordNumber.<WordNumber>createValue((wordNumber.value + valueDelta) & 0xFFFF), 0);
+    T dd = memory.read((T) (WordNumber) new WordNumber((wordNumber.value + valueDelta) & 0xFFFF), 0);
     if (fetchedRelative != dd) {
       fetchedRelative = dd;
     }

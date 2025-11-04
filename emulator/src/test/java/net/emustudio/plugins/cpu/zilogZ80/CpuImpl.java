@@ -45,7 +45,6 @@ import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
 import static com.fpetrola.z80.cpu.State.InterruptionMode.IM0;
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 @PluginRoot(
@@ -98,10 +97,10 @@ public class CpuImpl extends AbstractCPU {
 
   private void reset2() {
     State<WordNumber> state = ooz80.getState();
-    Stream.of(RegisterName.values()).forEach(r -> state.r(r).write(createValue(0)));
-    state.getRegister(IR).write(createValue(0));
-    state.getRegister(AF).write(createValue(0));
-    state.getRegister(SP).write(createValue(0xFFFF));
+    Stream.of(RegisterName.values()).forEach(r -> state.r(r).write((WordNumber) new WordNumber(0)));
+    state.getRegister(IR).write((WordNumber) new WordNumber(0));
+    state.getRegister(AF).write((WordNumber) new WordNumber(0));
+    state.getRegister(SP).write((WordNumber) new WordNumber(0xFFFF));
     state.setIntMode(IM0);
     state.setActiveNMI(false);
     state.setHalted(false);

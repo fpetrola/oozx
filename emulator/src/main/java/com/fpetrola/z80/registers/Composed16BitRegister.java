@@ -20,8 +20,6 @@ package com.fpetrola.z80.registers;
 
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-
 public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> implements RegisterPair<T> {
   protected final R high;
   protected final R low;
@@ -49,14 +47,14 @@ public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> 
 
   public T read() {
     WordNumber wordNumber = high.read();
-    WordNumber number = ((WordNumber) WordNumber.<WordNumber>createValue((wordNumber.value << 8) & 0xFFFF));
+    WordNumber number = ((WordNumber) (WordNumber) new WordNumber((wordNumber.value << 8) & 0xFFFF));
     int i = low.read().value & 0xFFFF;
-    return (T) WordNumber.<WordNumber>createValue((number.value | i) & 0xFFFF);
+    return (T) (WordNumber) new WordNumber((number.value | i) & 0xFFFF);
   }
 
   public void write(T value) {
-    this.high.write((T) WordNumber.<WordNumber>createValue((value.value >>> 8) & 0xFFFF));
-    this.low.write((T) WordNumber.<WordNumber>createValue((value.value & 0xFF) & 0xFFFF));
+    this.high.write((T) (WordNumber) new WordNumber((value.value >>> 8) & 0xFFFF));
+    this.low.write((T) (WordNumber) new WordNumber((value.value & 0xFF) & 0xFFFF));
   }
 
   public R getHigh() {
@@ -77,11 +75,11 @@ public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> 
     low.increment();
     if (low.read().value < 0x100)
       return;
-    low.write(createValue(0));
+    low.write((T) new WordNumber(0));
     high.read().value++;
     if (high.read().value < 0x100)
       return;
-    high.write(createValue(0));
+    high.write((T) new WordNumber(0));
   }
 
   public void decrement() {
@@ -90,14 +88,14 @@ public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> 
       lowValue.value--;
       lowValue.value &= 0xffff;
     } else {
-      low.write(createValue(0xff));
+      low.write((T) new WordNumber(0xff));
       T highValue = high.read();
       if (highValue.value != 0) {
         highValue.value--;
         highValue.value &= 0xffff;
         return;
       }
-      high.write(createValue(0xff));
+      high.write((T) new WordNumber(0xff));
     }
   }
 

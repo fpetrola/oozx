@@ -30,7 +30,7 @@ public class Dec16<T extends WordNumber> extends DefaultTargetInstruction<T> {
 
   public int execute() {
     WordNumber wordNumber = target.read();
-    target.write((T) WordNumber.<WordNumber>createValue((wordNumber.value - 1) & 0xFFFF));
+    target.write((T) (WordNumber) new WordNumber((wordNumber.value - 1) & 0xFFFF));
     return cyclesCost;
   }
 

@@ -98,22 +98,22 @@ public class RoutineBytecodeGenerator {
         {
           boolean contains = routine.contains(address);
           if (contains) {
-            context.pc.write(WordNumber.createValue(address));
+            context.pc.write((WordNumber) new WordNumber(address));
             int firstAddress = address;
 
             Runnable scopeAdjuster = () -> {
-              context.pc.write(WordNumber.createValue(address));
+              context.pc.write((WordNumber) new WordNumber(address));
 //                new InstructionActionExecutor<>(r -> r.adjustRegisterScope()).executeAction(instruction);
             };
 
             Runnable labelGenerator = () -> {
-              context.pc.write(WordNumber.createValue(address));
+              context.pc.write((WordNumber) new WordNumber(address));
               JumpLabelVisitor jumpLabelVisitor1 = new JumpLabelVisitor();
               instruction.accept(jumpLabelVisitor1);
               addLabel(address);
             };
             Runnable instructionGenerator = () -> {
-              context.pc.write(WordNumber.createValue(address));
+              context.pc.write((WordNumber) new WordNumber(address));
 
               if (address == 37527)
                 System.out.print("");
@@ -134,7 +134,7 @@ public class RoutineBytecodeGenerator {
       }
 
       private void generateInstruction(int address, Instruction instruction, int firstAddress) {
-        lastMemPc.write(WordNumber.createValue(address));
+        lastMemPc.write((WordNumber) new WordNumber(address));
 
         if (!(instruction instanceof ConditionalInstruction<?, ?>) && pendingFlag != null) {
           if (!pendingFlag.processed)

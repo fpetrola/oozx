@@ -51,7 +51,7 @@ public class Push<T extends WordNumber> extends AbstractInstruction<T> {
 
   public static <T extends WordNumber> void doPush(T value, Register<T> sp, Memory<T> memory) {
     WordNumber wordNumber = sp.read();
-    sp.write((T) WordNumber.<WordNumber>createValue((wordNumber.value + -2) & 0xFFFF));
+    sp.write((T) (WordNumber) new WordNumber((wordNumber.value + -2) & 0xFFFF));
     Memory.write16Bits(memory, value, sp.read());
   }
 

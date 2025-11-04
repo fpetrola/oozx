@@ -110,7 +110,7 @@ public class VirtualInstructionsBytecodeGenerator<T extends WordNumber> extends 
 //            System.out.println("");
 //        }
         }
-        bytecodeGenerationContext.pc.write(WordNumber.createValue(i));
+        bytecodeGenerationContext.pc.write((WordNumber) new WordNumber(i));
       }
     }
   }

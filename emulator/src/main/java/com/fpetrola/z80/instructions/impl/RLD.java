@@ -25,8 +25,6 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-
 public class RLD<T extends WordNumber> extends AbstractInstruction<T> {
   public static final TableAluOperation rldTableAluOperation = new TableAluOperation() {
     public int execute(int A, int value, int flag) {
@@ -65,10 +63,10 @@ public class RLD<T extends WordNumber> extends AbstractInstruction<T> {
     int nibble3 = (temp & 0x00F0) >> 4;
     int nibble4 = temp & 0x000F;
 
-    memory.write(hl.read(), createValue(getTemp1(nibble2, nibble3, nibble4)));
-    T value = createValue(getRegA1(nibble1, nibble4, nibble3));
+    memory.write(hl.read(), (T) new WordNumber(getTemp1(nibble2, nibble3, nibble4)));
+    T value = (T) new WordNumber(getRegA1(nibble1, nibble4, nibble3));
 
-    executeAlu(createValue(temp), createValue(reg_A));
+    executeAlu((T) new WordNumber(temp), (T) new WordNumber(reg_A));
 
     a.write(value);
 

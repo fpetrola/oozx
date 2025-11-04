@@ -31,8 +31,6 @@ import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.PhaseInterceptor;
 import fuse.tstates.PhaseProcessor;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-
 public class DefaultInstructionFetcher<T extends WordNumber> implements InstructionFetcher<T> {
   protected final MultiOpcodeFetcher<T> multiOpcodeFetcher;
   protected State<T> state;
@@ -78,7 +76,7 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
       prefetchedInstruction = currentInstruction;
     } else {
       currentInstruction = prefetchedInstruction;
-      registerR.write(createValue(registerR.read().value + rdelta));
+      registerR.write((T) new WordNumber(registerR.read().value + rdelta));
     }
 
     rdelta = registerR.read().value - rValue;
@@ -94,11 +92,11 @@ public class DefaultInstructionFetcher<T extends WordNumber> implements Instruct
     try {
       if (prefetch) {
         int rValue = registerR.read().value;
-        T nextPC = createValue(0);
+        T nextPC = (T) new WordNumber(0);
         prefetchedInstruction = fetchInstruction(nextPC);
         prefetchPC = nextPC.value;
         rdelta = registerR.read().value - rValue;
-        registerR.write(createValue(rValue));
+        registerR.write((T) new WordNumber(rValue));
       }
     } catch (Exception e) {
       e.printStackTrace();

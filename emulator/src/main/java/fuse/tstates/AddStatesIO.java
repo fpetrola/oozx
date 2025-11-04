@@ -23,8 +23,6 @@ import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-
 public class AddStatesIO<T extends WordNumber> implements IO<T> {
   private State<T> state;
 
@@ -65,7 +63,7 @@ public class AddStatesIO<T extends WordNumber> implements IO<T> {
   }
 
   public T in(T port) {
-    T value = createValue(port.value >> 8);
+    T value = (T) new WordNumber(port.value >> 8);
     contend_port_preio(port);
     getState().addEvent(new Event(0, "PR", port.value, value.value));
     contend_port_postio(port);

@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static org.junit.Assert.assertNotNull;
 
 public interface Z80InstructionDriver<T extends WordNumber> {
@@ -47,7 +46,7 @@ public interface Z80InstructionDriver<T extends WordNumber> {
   Instruction<T> getTransformedInstructionAt(int i);
 
   default int readMemAt(int i) {
-    T read = mem().read(createValue(i), 0);
+    T read = mem().read((T) new WordNumber(i), 0);
     assertNotNull(read);
     return read.value;
   }

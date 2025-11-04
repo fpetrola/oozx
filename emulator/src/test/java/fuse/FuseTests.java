@@ -18,19 +18,6 @@
 
 package fuse;
 
-import com.fpetrola.z80.cpu.*;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.minizx.emulation.MockedMemory;
-import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
-import com.fpetrola.z80.opcodes.references.OpcodeConditions;
-import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.registers.RegisterName;
-import com.fpetrola.z80.spy.NullInstructionSpy;
-import com.google.inject.AbstractModule;
-import fuse.parser.TestFileParser;
-import fuse.parser.TestInput;
-import fuse.parser.TestOutput;
 import io.exemplary.guice.Modules;
 import io.exemplary.guice.TestRunner;
 import org.junit.Test;
@@ -42,17 +29,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.runner.RunWith;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
-
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-import static com.fpetrola.z80.registers.RegisterName.B;
 
 @SuppressWarnings("ALL")
 @RunWith(TestRunner.class)

@@ -147,7 +147,7 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int in(int port, int pc) {
-    return io.in(WordNumber.createValue(port)).value;
+    return io.in((WordNumber) new WordNumber(port)).value;
   }
 
   public int l(int value) {
@@ -522,6 +522,6 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int in(int port) {
-    return io.in(WordNumber.createValue(port)).value;
+    return io.in((WordNumber) new WordNumber(port)).value;
   }
 }

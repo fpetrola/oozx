@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static net.emustudio.plugins.cpu.zilogZ80.EmulatorEngine.*;
 
 public class CpuRunnerImpl extends CpuRunner<CpuImpl> {
@@ -60,27 +59,27 @@ public class CpuRunnerImpl extends CpuRunner<CpuImpl> {
 
     switch (register) {
       case REG_B:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.B).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.B).write((WordNumber) new WordNumber(value));
         break;
 
       case REG_C:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.C).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.C).write((WordNumber) new WordNumber(value));
         break;
 
       case REG_D:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.D).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.D).write((WordNumber) new WordNumber(value));
         break;
       case REG_E:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.E).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.E).write((WordNumber) new WordNumber(value));
         break;
       case REG_H:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.H).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.H).write((WordNumber) new WordNumber(value));
         break;
       case REG_L:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.L).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.L).write((WordNumber) new WordNumber(value));
         break;
       case REG_A:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.A).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.A).write((WordNumber) new WordNumber(value));
         break;
       default:
         throw new IllegalArgumentException("Expected value between <0,3> !");
@@ -91,27 +90,27 @@ public class CpuRunnerImpl extends CpuRunner<CpuImpl> {
 
     switch (register) {
       case REG_B:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.Bx).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.Bx).write((WordNumber) new WordNumber(value));
         break;
 
       case REG_C:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.Cx).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.Cx).write((WordNumber) new WordNumber(value));
         break;
 
       case REG_D:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.Dx).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.Dx).write((WordNumber) new WordNumber(value));
         break;
       case REG_E:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.Ex).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.Ex).write((WordNumber) new WordNumber(value));
         break;
       case REG_H:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.Hx).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.Hx).write((WordNumber) new WordNumber(value));
         break;
       case REG_L:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.Lx).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.Lx).write((WordNumber) new WordNumber(value));
         break;
       case REG_A:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.Ax).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.Ax).write((WordNumber) new WordNumber(value));
         break;
       default:
         throw new IllegalArgumentException("Expected value between <0,3> !");
@@ -121,16 +120,16 @@ public class CpuRunnerImpl extends CpuRunner<CpuImpl> {
   public void setRegisterPair(int registerPair, int value) {
     switch (registerPair) {
       case 0:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.BC).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.BC).write((WordNumber) new WordNumber(value));
         break;
       case 1:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.DE).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.DE).write((WordNumber) new WordNumber(value));
         break;
       case 2:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.HL).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.HL).write((WordNumber) new WordNumber(value));
         break;
       case 3:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.SP).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.SP).write((WordNumber) new WordNumber(value));
         return;
       default:
         throw new IllegalArgumentException("Expected value between <0,3> !");
@@ -151,13 +150,13 @@ public class CpuRunnerImpl extends CpuRunner<CpuImpl> {
   public void setRegisterPair2(int registerPair, int value) {
     switch (registerPair) {
       case 0:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.BCx).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.BCx).write((WordNumber) new WordNumber(value));
         break;
       case 1:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.DEx).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.DEx).write((WordNumber) new WordNumber(value));
         break;
       case 2:
-        cpuImpl.ooz80.getState().getRegister(RegisterName.HLx).write(createValue(value));
+        cpuImpl.ooz80.getState().getRegister(RegisterName.HLx).write((WordNumber) new WordNumber(value));
         break;
       default:
         throw new IllegalArgumentException("Expected value between <0,2> !");
@@ -188,18 +187,18 @@ public class CpuRunnerImpl extends CpuRunner<CpuImpl> {
   public void setFlags2(int mask) {
     Register<WordNumber> flag = cpuImpl.ooz80.getState().getRegister(RegisterName.AFx);
     WordNumber wordNumber = flag.read();
-    flag.write((WordNumber) WordNumber.<WordNumber>createValue((wordNumber.value | mask) & 0xFFFF));
+    flag.write((WordNumber) (WordNumber) new WordNumber((wordNumber.value | mask) & 0xFFFF));
   }
 
   public void resetFlags() {
     Register<WordNumber> flag = cpuImpl.ooz80.getState().getFlag();
-    flag.write(createValue(0));
+    flag.write((WordNumber) new WordNumber(0));
     //cpu.getEngine().flags = 0;
   }
 
   public void resetFlags2() {
     Register<WordNumber> flag = cpuImpl.ooz80.getState().getRegister(RegisterName.AFx);
-    flag.write(createValue(0));
+    flag.write((WordNumber) new WordNumber(0));
   }
 
   @Override
@@ -225,28 +224,28 @@ public class CpuRunnerImpl extends CpuRunner<CpuImpl> {
   public void setFlags(int mask) {
     Register<WordNumber> flag = cpuImpl.ooz80.getState().getFlag();
     WordNumber wordNumber = flag.read();
-    flag.write((WordNumber) WordNumber.<WordNumber>createValue((wordNumber.value | mask) & 0xFFFF));
+    flag.write((WordNumber) (WordNumber) new WordNumber((wordNumber.value | mask) & 0xFFFF));
     //cpu.getEngine().flags |= mask;
   }
 
   public void setIX(int ix) {
-    cpuImpl.ooz80.getState().getRegister(RegisterName.IX).write(createValue(ix));
+    cpuImpl.ooz80.getState().getRegister(RegisterName.IX).write((WordNumber) new WordNumber(ix));
   }
 
   public void setI(int value) {
-    cpuImpl.ooz80.getState().getRegister(RegisterName.I).write(createValue(value & 0xFF));
+    cpuImpl.ooz80.getState().getRegister(RegisterName.I).write((WordNumber) new WordNumber(value & 0xFF));
   }
 
   public void setR(int value) {
-    cpuImpl.ooz80.getState().getRegister(RegisterName.R).write(createValue(value & 0xFF));
+    cpuImpl.ooz80.getState().getRegister(RegisterName.R).write((WordNumber) new WordNumber(value & 0xFF));
   }
 
   public void setIY(int iy) {
-    cpuImpl.ooz80.getState().getRegister(RegisterName.IY).write(createValue(iy));
+    cpuImpl.ooz80.getState().getRegister(RegisterName.IY).write((WordNumber) new WordNumber(iy));
   }
 
   public void setSP(int sp) {
-    cpuImpl.ooz80.getState().getRegister(RegisterName.SP).write(createValue(sp));
+    cpuImpl.ooz80.getState().getRegister(RegisterName.SP).write((WordNumber) new WordNumber(sp));
   }
 
   public void enableIFF2() {

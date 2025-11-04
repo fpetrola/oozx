@@ -65,7 +65,7 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
     if (nextPC == null) {
       WordNumber wordNumber = pc.read();
       int i = instruction.getLength();
-      nextPC = (T) WordNumber.<WordNumber>createValue((wordNumber.value + i) & 0xFFFF);
+      nextPC = (T) (WordNumber) new WordNumber((wordNumber.value + i) & 0xFFFF);
     }
 
     pc.write(nextPC);

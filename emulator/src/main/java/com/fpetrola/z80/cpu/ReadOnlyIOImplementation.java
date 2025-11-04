@@ -28,7 +28,7 @@ public class ReadOnlyIOImplementation<T extends WordNumber> implements IO<T> {
   }
 
   public T in(T port) {
-    return WordNumber.createValue(0);
+    return (T) new WordNumber(0);
   }
 
   public void out(T port, T value) {

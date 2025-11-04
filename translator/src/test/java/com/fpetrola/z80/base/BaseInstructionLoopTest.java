@@ -22,8 +22,6 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.Arrays;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-
 public class BaseInstructionLoopTest<T extends WordNumber> extends TwoZ80Driver<T> {
   public BaseInstructionLoopTest(IDriverConfigurator<T> driverConfigurator) {
     super(driverConfigurator);
@@ -34,25 +32,25 @@ public class BaseInstructionLoopTest<T extends WordNumber> extends TwoZ80Driver<
   protected void setUpMemory() {
     initMem(() -> {
       WordNumber[] data = new WordNumber[0x10000];
-      Arrays.fill(data, createValue(0));
+      Arrays.fill(data, (Object) new WordNumber(0));
       int base = 3592 * 4;
       base = 14368;
-      data[base] = createValue(16);
-      data[base + 1] = createValue(8);
-      data[base + 2] = createValue(4);
-      data[base + 3] = createValue(2);
-      data[0] = createValue(1);
-      data[1] = createValue(10);
-      data[2] = createValue(20);
-      data[3] = createValue(30);
-      data[0xFFFF] = createValue(1);
-      data[1000] = createValue(123);
-      data[100] = createValue(0);
-      data[101] = createValue(1);
-      data[102] = createValue(2);
-      data[300] = createValue(20);
-      data[301] = createValue(21);
-      data[302] = createValue(22);
+      data[base] = (WordNumber) new WordNumber(16);
+      data[base + 1] = (WordNumber) new WordNumber(8);
+      data[base + 2] = (WordNumber) new WordNumber(4);
+      data[base + 3] = (WordNumber) new WordNumber(2);
+      data[0] = (WordNumber) new WordNumber(1);
+      data[1] = (WordNumber) new WordNumber(10);
+      data[2] = (WordNumber) new WordNumber(20);
+      data[3] = (WordNumber) new WordNumber(30);
+      data[0xFFFF] = (WordNumber) new WordNumber(1);
+      data[1000] = (WordNumber) new WordNumber(123);
+      data[100] = (WordNumber) new WordNumber(0);
+      data[101] = (WordNumber) new WordNumber(1);
+      data[102] = (WordNumber) new WordNumber(2);
+      data[300] = (WordNumber) new WordNumber(20);
+      data[301] = (WordNumber) new WordNumber(21);
+      data[302] = (WordNumber) new WordNumber(22);
 
       return (T[]) data;
     });

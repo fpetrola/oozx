@@ -25,8 +25,6 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-
 public class PushReturnAddress<T extends WordNumber> extends Push<T> {
   private final SymbolicExecutionAdapter symbolicExecutionAdapter;
 
@@ -36,7 +34,7 @@ public class PushReturnAddress<T extends WordNumber> extends Push<T> {
   }
 
   public int execute() {
-    doPush(createValue(target.read().value), sp, memory);
+    doPush((T) new WordNumber(target.read().value), sp, memory);
     symbolicExecutionAdapter.checkNextSP();
 
     return 5 + cyclesCost;

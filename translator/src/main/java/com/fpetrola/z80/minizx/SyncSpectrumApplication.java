@@ -70,13 +70,13 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
   @Override
   public int in(int port, int pc) {
     syncChecker.checkSyncInJava(port, pc);
-    return ((MiniZXIO)io).in2(WordNumber.createValue(port)).value;
+    return ((MiniZXIO)io).in2((WordNumber) new WordNumber(port)).value;
   }
 
   @Override
   public int in(int port) {
     syncChecker.checkSyncInJava(port, -1);
-    return ((MiniZXIO)io).in2(WordNumber.createValue(port)).value;
+    return ((MiniZXIO)io).in2((WordNumber) new WordNumber(port)).value;
   }
 
   protected void replaceWithObject(int address, int value) {

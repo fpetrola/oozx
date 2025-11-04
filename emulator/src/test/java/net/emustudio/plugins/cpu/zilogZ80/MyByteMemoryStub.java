@@ -58,7 +58,7 @@ public class MyByteMemoryStub extends ByteMemoryStub {
   public void setMemory(short[] memory) {
     super.setMemory(memory);
     for (int i = 0; i < 0x10000; i++) {
-      getMemory().write(WordNumber.createValue(i), WordNumber.createValue(memory[i]));
+      getMemory().write((WordNumber) new WordNumber(i), (WordNumber) new WordNumber(memory[i]));
     }
   }
 
@@ -68,7 +68,7 @@ public class MyByteMemoryStub extends ByteMemoryStub {
 
   @Override
   public void write(int memoryPosition, Byte value) {
-    getMemory().write(WordNumber.createValue(memoryPosition), WordNumber.createValue(value));
+    getMemory().write((WordNumber) new WordNumber(memoryPosition), (WordNumber) new WordNumber((int) value));
     super.write(memoryPosition, value);
   }
 
@@ -84,7 +84,7 @@ public class MyByteMemoryStub extends ByteMemoryStub {
 
   @Override
   public Byte read(int memoryPosition) {
-    WordNumber read = getMemory().read(WordNumber.createValue(memoryPosition), 0);
+    WordNumber read = getMemory().read((WordNumber) new WordNumber(memoryPosition), 0);
     if (read == null) {
       return 0;
     } else {

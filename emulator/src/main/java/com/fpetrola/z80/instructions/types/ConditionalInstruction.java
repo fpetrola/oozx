@@ -69,7 +69,7 @@ public abstract class ConditionalInstruction<T extends WordNumber, C extends Con
   public T calculateRelativeJumpAddress() {
     WordNumber wordNumber = pc.read();
     int i = length + (byte) positionOpcodeReference.read().value;
-    return jumpAddress = (T) WordNumber.<WordNumber>createValue((wordNumber.value + i) & 0xFFFF);
+    return jumpAddress = (T) (WordNumber) new WordNumber((wordNumber.value + i) & 0xFFFF);
   }
 
   public T getJumpAddress() {

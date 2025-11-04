@@ -109,7 +109,7 @@ public class CPUExecutionContext<T extends WordNumber> extends DefaultZ80Instruc
 
   @Override
   public OpcodeReference iRRn(Register<T> register, int plus) {
-    return new CachedMemoryPlusRegister8BitReference(WordNumber.createValue(plus), register, mem(), pc(), 0);
+    return new CachedMemoryPlusRegister8BitReference((WordNumber) new WordNumber(plus), register, mem(), pc(), 0);
   }
 
   @Override

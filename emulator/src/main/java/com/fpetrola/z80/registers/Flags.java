@@ -42,9 +42,9 @@ public class Flags {
     final int currentFlags = r.read().value;
 
     if (set) {
-      r.write(WordNumber.createValue(currentFlags | flag));
+      r.write((T) new WordNumber(currentFlags | flag));
     } else {
-      r.write(WordNumber.createValue(currentFlags & ~(flag)));
+      r.write((T) new WordNumber(currentFlags & ~(flag)));
     }
   }
 
@@ -75,7 +75,7 @@ public class Flags {
    */
   public final static <T extends WordNumber> void copyFrom(Register<T> r, int flag, int value) {
     final int currentFlag = r.read().value & ~(flag);
-    r.write(WordNumber.createValue(currentFlag | (value & flag)));
+    r.write((T) new WordNumber(currentFlag | (value & flag)));
   }
 
   public final static String toString(int flag) {

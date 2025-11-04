@@ -30,7 +30,6 @@ import io.exemplary.guice.TestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.*;
 import static org.junit.Assert.assertEquals;
 
@@ -75,7 +74,7 @@ public class TestFirstCPUInstructionLoop<T extends WordNumber> extends BaseInstr
 
   private void createPlainExecution() {
     setUpMemory();
-    r(DE).write(createValue(520));
+    r(DE).write((T) new WordNumber(520));
 
     add(new Ld(r(H), c(7), f()));
     add(new Ld(r(L), r(A), f()));
@@ -108,7 +107,7 @@ public class TestFirstCPUInstructionLoop<T extends WordNumber> extends BaseInstr
   }
 
   private void assertLoopSetup() {
-    r(A).write(createValue(4));
+    r(A).write((T) new WordNumber(4));
     step();
     assertEquals(7, r(H).read().value);
     step();
@@ -127,7 +126,7 @@ public class TestFirstCPUInstructionLoop<T extends WordNumber> extends BaseInstr
   private void assertCompositeLoop(Register<T> vr1, Register<T> counter, int bValue, int memoryReadValue, int indexValue, int dValue, int readAddress, Register<T> vr2A) {
     step();
 
-    assertEquals(memoryReadValue, mem().read(createValue(readAddress), 0).value);
+    assertEquals(memoryReadValue, mem().read((T) new WordNumber(readAddress), 0).value);
     assertEquals(indexValue, vr1.read().value);
 
     step();

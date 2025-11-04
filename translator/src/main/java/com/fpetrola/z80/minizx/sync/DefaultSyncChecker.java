@@ -99,7 +99,7 @@ public class DefaultSyncChecker implements SyncChecker {
   public int getByteFromEmu(Integer index) {
     WordNumber datum = ooz80.getState().getMemory().getData()[index];
     if (datum == null)
-      datum = WordNumber.createValue(0);
+      datum = (WordNumber) new WordNumber(0);
     return datum.value;
   }
 
@@ -122,7 +122,7 @@ public class DefaultSyncChecker implements SyncChecker {
 
     miniZXWithEmulation = new MiniZXWithEmulation(ooz80, this.spectrumApplication);
     miniZXWithEmulation.copyStateBackToEmulation();
-    pc.write(WordNumber.createValue(0xC804));
+    pc.write((WordNumber) new WordNumber(0xC804));
     new Thread(() -> miniZXWithEmulation.emulate()).start();
   }
 

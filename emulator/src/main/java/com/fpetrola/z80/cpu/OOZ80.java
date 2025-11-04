@@ -26,7 +26,6 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 
 import static com.fpetrola.z80.cpu.State.InterruptionMode.IM2;
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 
 public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
   protected InstructionFetcher<T> instructionFetcher;
@@ -105,10 +104,10 @@ public class OOZ80<T extends WordNumber> implements Z80Cpu<T> {
     T value;
     if (state.getInterruptionMode() == IM2) {
       WordNumber wordNumber = state.getRegI().read();
-      WordNumber wordNumber1 = ((WordNumber) WordNumber.<WordNumber>createValue((wordNumber.value << 8) & 0xFFFF));
-      value = Memory.read16Bits(state.getMemory(), (T) WordNumber.<WordNumber>createValue((wordNumber1.value | 0xff) & 0xFFFF));
+      WordNumber wordNumber1 = ((WordNumber) (WordNumber) new WordNumber((wordNumber.value << 8) & 0xFFFF));
+      value = Memory.read16Bits(state.getMemory(), (T) (WordNumber) new WordNumber((wordNumber1.value | 0xff) & 0xFFFF));
     } else {
-      value = createValue(0x0038);
+      value = (T) new WordNumber(0x0038);
     }
     pc.write(value);
     state.getMemptr().write(value);

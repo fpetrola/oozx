@@ -39,7 +39,7 @@ public class Ldd<T extends WordNumber> extends Ldi<T> {
           (bytetemp & FLAG_3) | ((bytetemp & 0x02) != 0 ? FLAG_5 : 0);
       Q = F;
 
-      return WordNumber.createValue(F);
+      return (T) new WordNumber(F);
     }
   };
 

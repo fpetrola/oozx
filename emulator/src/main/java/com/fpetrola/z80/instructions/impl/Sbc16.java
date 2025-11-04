@@ -25,8 +25,6 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-
 public class Sbc16<T extends WordNumber> extends Binary16BitsOperation<T> {
   public static final AluOperation sbc16TableAluOperation = new AluOperation() {
 //    public int execute(int value1, int value2, int carry) {
@@ -71,8 +69,8 @@ public class Sbc16<T extends WordNumber> extends Binary16BitsOperation<T> {
 //          (f1, value3, value2, result1) -> sbc16TableAluOperation.executeWithCarry(createValue(result1 != 0 ? 1 : 0), createValue(value3), f0));
 
       int execute = sbc16TableAluOperation.execute(b.value, a.value, flag.read().value);
-      flag.write(WordNumber.createValue(sbc16TableAluOperation.F));
-      return createValue(execute & 0xffff);
+      flag.write((T) new WordNumber(sbc16TableAluOperation.F));
+      return (T) new WordNumber(execute & 0xffff);
     });
   }
 

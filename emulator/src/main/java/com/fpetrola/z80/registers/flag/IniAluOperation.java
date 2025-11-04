@@ -32,6 +32,6 @@ public class IniAluOperation extends TableAluOperation {
         (parityTable((initemp2 & 0x07) ^ B) != 0 ? FLAG_P : 0) |
         sz53Table(B);
     Q = F;
-    return WordNumber.createValue(F);
+    return (T) new WordNumber(F);
   }
 }

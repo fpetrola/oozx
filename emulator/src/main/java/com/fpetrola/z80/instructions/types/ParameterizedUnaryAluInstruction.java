@@ -24,8 +24,6 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-
 public class ParameterizedUnaryAluInstruction<T> extends DefaultTargetFlagInstruction<T> {
   public ParameterizedUnaryAluInstruction(OpcodeReference target, Register<T> flag, TableAluOperation tableAluOperation) {
     super(target, flag);
@@ -61,8 +59,8 @@ public class ParameterizedUnaryAluInstruction<T> extends DefaultTargetFlagInstru
       int regA = ((WordNumber) a).value;
       int flagValue = ((WordNumber) flag.read()).value;
       int[] ints = rrTableAluOperation1.executeWithCarry2(regA, flagValue);
-      flag.write(createValue(ints[1]));
-      return createValue(ints[0]);
+      flag.write((T) new WordNumber(ints[1]));
+      return (Object) new WordNumber(ints[0]);
     };
   }
 

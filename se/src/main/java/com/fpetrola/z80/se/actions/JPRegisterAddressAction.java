@@ -77,7 +77,7 @@ public class JPRegisterAddressAction<T extends WordNumber> extends AddressAction
     Integer poll = cases.poll();
     if (poll != null) {
       SEInstructionFactory.SeJP jp = (SEInstructionFactory.SeJP) instruction;
-      jp.lastData = WordNumber.createValue(poll);
+      jp.lastData = (WordNumber) new WordNumber(poll);
     }
   }
 

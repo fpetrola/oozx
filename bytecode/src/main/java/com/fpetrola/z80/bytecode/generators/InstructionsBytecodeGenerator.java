@@ -515,7 +515,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
     Variable targetVariable = null;
     if (previousPendingFlag != null) {
       FlagInstruction targetFlagInstruction = previousPendingFlag.targetFlagInstruction;
-      routineByteCodeGenerator.lastMemPc.write(WordNumber.createValue(previousPendingFlag.address));
+      routineByteCodeGenerator.lastMemPc.write((WordNumber) new WordNumber(previousPendingFlag.address));
 
       if (targetFlagInstruction instanceof Cp<?> cp) {
         ImmutableOpcodeReference<WordNumber> source1 = (ImmutableOpcodeReference<WordNumber>) cp.getSource();

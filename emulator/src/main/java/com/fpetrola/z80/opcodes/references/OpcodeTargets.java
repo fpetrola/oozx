@@ -36,7 +36,7 @@ public class OpcodeTargets<T> {
   }
 
   public ImmutableOpcodeReference c(int value) {
-    return new ConstantOpcodeReference<T>(WordNumber.createValue(value));
+    return new ConstantOpcodeReference<T>((T) new WordNumber(value));
   }
 
   public Register r(RegisterName name) {

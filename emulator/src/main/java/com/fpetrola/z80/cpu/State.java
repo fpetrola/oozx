@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.fpetrola.z80.cpu.State.InterruptionMode.IM0;
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class State<T extends WordNumber> {
@@ -60,9 +59,9 @@ public class State<T extends WordNumber> {
   public void reset() {
     setTstates(0);
     getEvents().clear();
-    Stream.of(values()).forEach(r -> r(r).write(createValue(0xFFFF)));
-    getRegister(IR).write(createValue(0));
-    getRegister(AF).write(createValue(0xFFFF));
+    Stream.of(values()).forEach(r -> r(r).write((T) new WordNumber(0xFFFF)));
+    getRegister(IR).write((T) new WordNumber(0));
+    getRegister(AF).write((T) new WordNumber(0xFFFF));
     setIntMode(IM0);
   }
 

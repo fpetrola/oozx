@@ -49,7 +49,6 @@ import java.io.File;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class Z80 implements ZxModule {
@@ -110,22 +109,22 @@ public class Z80 implements ZxModule {
 
     State<WordNumber> state = ooz80.getState();
 
-    state.getRegister(AF).write(createValue(0xffff));
-    state.getRegister(AFx).write(createValue(0xffff));
-    state.getRegister(BC).write(createValue(0));
-    state.getRegister(DE).write(createValue(0));
-    state.getRegister(HLx).write(createValue(0));
-    state.getRegister(BC).write(createValue(0));
-    state.getRegister(DEx).write(createValue(0));
-    state.getRegister(HLx).write(createValue(0));
-    state.getRegister(IX).write(createValue(0));
-    state.getRegister(IY).write(createValue(0));
-    state.getRegister(PC).write(createValue(0));
-    state.getRegister(SP).write(createValue(0xffff));
+    state.getRegister(AF).write((WordNumber) new WordNumber(0xffff));
+    state.getRegister(AFx).write((WordNumber) new WordNumber(0xffff));
+    state.getRegister(BC).write((WordNumber) new WordNumber(0));
+    state.getRegister(DE).write((WordNumber) new WordNumber(0));
+    state.getRegister(HLx).write((WordNumber) new WordNumber(0));
+    state.getRegister(BC).write((WordNumber) new WordNumber(0));
+    state.getRegister(DEx).write((WordNumber) new WordNumber(0));
+    state.getRegister(HLx).write((WordNumber) new WordNumber(0));
+    state.getRegister(IX).write((WordNumber) new WordNumber(0));
+    state.getRegister(IY).write((WordNumber) new WordNumber(0));
+    state.getRegister(PC).write((WordNumber) new WordNumber(0));
+    state.getRegister(SP).write((WordNumber) new WordNumber(0xffff));
 
 
-    state.getRegister(I).write(createValue(0));
-    state.getRegister(R).write(createValue(0));
+    state.getRegister(I).write((WordNumber) new WordNumber(0));
+    state.getRegister(R).write((WordNumber) new WordNumber(0));
 
     interruptsEnabledAt = -1;
   }
@@ -150,7 +149,7 @@ public class Z80 implements ZxModule {
     Memory<T> memory1 = new AbstractMemory<T>() {
       protected T doRead(T address) {
         byte b = memory.readByteInternal(address.value);
-        return createValue(b & 0xff);
+        return (T) new WordNumber(b & 0xff);
       }
 
       protected void doWrite(T address, T value) {
@@ -178,7 +177,7 @@ public class Z80 implements ZxModule {
   private void init2() {
     io = new MiniZXIO() {
       public synchronized WordNumber in(WordNumber port) {
-        return createValue(periph.readPort(port.value));
+        return (WordNumber) new WordNumber(periph.readPort(port.value));
       }
 
       public void out(WordNumber port, WordNumber value) {
@@ -299,7 +298,7 @@ public class Z80 implements ZxModule {
     memory1.disableReadListener();
 
     for (int i = 0x4000; i < 0x8000; i++) {
-      WordNumber datum = memory1.read(createValue(i), 0);
+      WordNumber datum = memory1.read((WordNumber) new WordNumber(i), 0);
       memory.writeByteInternal(i, datum != null ? (byte) (datum.value & 0xff) : 0, display);
     }
 

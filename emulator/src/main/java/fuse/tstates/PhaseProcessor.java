@@ -107,22 +107,22 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
         if (b || indirectMemory8BitReference1.getTarget() instanceof Memory16BitReference<T>)
           afterExecutionActions.add(() -> {
             WordNumber wordNumber = ld.getSource().read();
-            WordNumber wordNumber1 = (WordNumber) WordNumber.<WordNumber>createValue((indirectMemory8BitReference1.address.value + 1) & 0xFFFF);
-            WordNumber number = ((WordNumber) WordNumber.<WordNumber>createValue((wordNumber.value << 8) & 0xFFFF));
-            int i = ((T) WordNumber.<WordNumber>createValue((wordNumber1.value & 0xff) & 0xFFFF)).value & 0xFFFF;
-            memptr.write((T) WordNumber.<WordNumber>createValue((number.value | i) & 0xFFFF));
+            WordNumber wordNumber1 = (WordNumber) (WordNumber) new WordNumber((indirectMemory8BitReference1.address.value + 1) & 0xFFFF);
+            WordNumber number = ((WordNumber) (WordNumber) new WordNumber((wordNumber.value << 8) & 0xFFFF));
+            int i = ((T) (WordNumber) new WordNumber((wordNumber1.value & 0xff) & 0xFFFF)).value & 0xFFFF;
+            memptr.write((T) (WordNumber) new WordNumber((number.value | i) & 0xFFFF));
           });
       }
 
       public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
         afterExecutionActions.add(() -> {
-          memptr.write((T) WordNumber.<WordNumber>createValue((indirectMemory16BitReference.address.value + 1) & 0xFFFF));
+          memptr.write((T) (WordNumber) new WordNumber((indirectMemory16BitReference.address.value + 1) & 0xFFFF));
         });
       }
 
       public boolean visitMemory16BitReference(Memory16BitReference<T> memory16BitReference) {
         afterExecutionActions.add(() -> {
-          memptr.write((T) WordNumber.<WordNumber>createValue((memory16BitReference.fetchedAddress.value + 2) & 0xFFFF));
+          memptr.write((T) (WordNumber) new WordNumber((memory16BitReference.fetchedAddress.value + 2) & 0xFFFF));
         });
         return false;
       }
@@ -132,13 +132,13 @@ public class PhaseProcessor<T extends WordNumber> extends PhaseProcessorBase<T> 
         boolean b = indirectMemory8BitReference.target instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"));
         if (b || indirectMemory8BitReference.getTarget() instanceof Memory16BitReference<?>)
           afterExecutionActions.add(() -> {
-            memptr.write((T) WordNumber.<WordNumber>createValue((indirectMemory8BitReference.address.value + 1) & 0xFFFF));
+            memptr.write((T) (WordNumber) new WordNumber((indirectMemory8BitReference.address.value + 1) & 0xFFFF));
           });
       }
 
       public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
         afterExecutionActions.add(() -> {
-          memptr.write((T) WordNumber.<WordNumber>createValue((indirectMemory16BitReference.address.value + 1) & 0xFFFF));
+          memptr.write((T) (WordNumber) new WordNumber((indirectMemory16BitReference.address.value + 1) & 0xFFFF));
         });
       }
     });

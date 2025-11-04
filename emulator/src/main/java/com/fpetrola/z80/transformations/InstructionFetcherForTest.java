@@ -29,7 +29,6 @@ import com.fpetrola.z80.registers.Register;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.PC;
 
 public class InstructionFetcherForTest<T extends WordNumber> implements InstructionFetcher {
@@ -60,14 +59,14 @@ public class InstructionFetcherForTest<T extends WordNumber> implements Instruct
 
     if (nextPC == null) {
       WordNumber wordNumber = pc.read();
-      nextPC = (T) WordNumber.<WordNumber>createValue((wordNumber.value + 1) & 0xFFFF);
+      nextPC = (T) (WordNumber) new WordNumber((wordNumber.value + 1) & 0xFFFF);
     }
 
     pc.write(nextPC);
   }
 
   public void reset() {
-    pc.write(createValue(0));
+    pc.write((T) new WordNumber(0));
     instructions.clear();
     instructionExecutor.reset();
   }

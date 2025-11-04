@@ -173,11 +173,11 @@ public class DefaultRegistersSetter<T extends WordNumber> implements RegistersSe
     Register<T> f = getFlag();
     if (carryState) {
       WordNumber wordNumber = f.read();
-      f.write((T) WordNumber.<WordNumber>createValue((wordNumber.value | 0x01) & 0xFFFF));
+      f.write((T) (WordNumber) new WordNumber((wordNumber.value | 0x01) & 0xFFFF));
     }
     else {
       WordNumber wordNumber = f.read();
-      f.write((T) WordNumber.<WordNumber>createValue((wordNumber.value & 0xFE) & 0xFFFF));
+      f.write((T) (WordNumber) new WordNumber((wordNumber.value & 0xFE) & 0xFFFF));
     }
   }
 
@@ -274,11 +274,11 @@ public class DefaultRegistersSetter<T extends WordNumber> implements RegistersSe
   }
 
   private T mask8(int value) {
-    return WordNumber.createValue(value & 0xff);
+    return (T) new WordNumber(value & 0xff);
   }
 
   protected T mask16(int word) {
-    return WordNumber.createValue(word & 0xffff);
+    return (T) new WordNumber(word & 0xffff);
   }
 
   protected Register<T> getFlag() {

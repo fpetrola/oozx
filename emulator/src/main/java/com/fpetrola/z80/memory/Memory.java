@@ -24,21 +24,21 @@ public interface Memory<T> {
 
   static <T extends WordNumber> T read16Bits(Memory<T> memory, T address) {
     WordNumber wordNumber1 = memory.read(address, 0);
-    T and = (T) WordNumber.<WordNumber>createValue((wordNumber1.value & 0xff) & 0xFFFF);
-    WordNumber wordNumber = memory.read((T) WordNumber.<WordNumber>createValue((address.value + 1) & 0xFFFF), 0);
-    WordNumber number = ((WordNumber) WordNumber.<WordNumber>createValue((wordNumber.value << 8) & 0xFFFF));
+    T and = (T) (WordNumber) new WordNumber((wordNumber1.value & 0xff) & 0xFFFF);
+    WordNumber wordNumber = memory.read((T) (WordNumber) new WordNumber((address.value + 1) & 0xFFFF), 0);
+    WordNumber number = ((WordNumber) (WordNumber) new WordNumber((wordNumber.value << 8) & 0xFFFF));
     int i = and.value & 0xFFFF;
-    return (T) WordNumber.<WordNumber>createValue((number.value | i) & 0xFFFF);
+    return (T) (WordNumber) new WordNumber((number.value | i) & 0xFFFF);
   }
 
   static <T extends WordNumber> void write16Bits(Memory<T> memory, T value, T address) {
-    memory.write((T) WordNumber.<WordNumber>createValue((address.value + 1) & 0xFFFF), ((T) WordNumber.<WordNumber>createValue((value.value >>> 8) & 0xFFFF)));
-    memory.write(address, (T) WordNumber.<WordNumber>createValue((value.value & 0xFF) & 0xFFFF));
+    memory.write((T) (WordNumber) new WordNumber((address.value + 1) & 0xFFFF), ((T) (WordNumber) new WordNumber((value.value >>> 8) & 0xFFFF)));
+    memory.write(address, (T) (WordNumber) new WordNumber((value.value & 0xFF) & 0xFFFF));
   }
 
   static <T extends WordNumber> void write16BitsR(Memory<T> memory, T value, T address) {
-    memory.write(address, (T) WordNumber.<WordNumber>createValue((value.value & 0xFF) & 0xFFFF));
-    memory.write((T) WordNumber.<WordNumber>createValue((address.value + 1) & 0xFFFF), ((T) WordNumber.<WordNumber>createValue((value.value >>> 8) & 0xFFFF)));
+    memory.write(address, (T) (WordNumber) new WordNumber((value.value & 0xFF) & 0xFFFF));
+    memory.write((T) (WordNumber) new WordNumber((address.value + 1) & 0xFFFF), ((T) (WordNumber) new WordNumber((value.value >>> 8) & 0xFFFF)));
   }
 
   T read(T address, int fetching);

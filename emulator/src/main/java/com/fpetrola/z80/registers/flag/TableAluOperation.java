@@ -24,8 +24,6 @@ import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.function.BiFunction;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-
 public class TableAluOperation extends AluOperation {
   protected int[] table;
 
@@ -54,25 +52,25 @@ public class TableAluOperation extends AluOperation {
   public <T> T executeWithoutCarry(T value, T regA, Register<T> flag) {
     WordNumber regA1 = (WordNumber) regA;
     WordNumber value1 = (WordNumber) value;
-    WordNumber number = ((WordNumber) WordNumber.<WordNumber>createValue((regA1.value << 8) & 0xFFFF));
+    WordNumber number = ((WordNumber) (WordNumber) new WordNumber((regA1.value << 8) & 0xFFFF));
     int i = value1.value & 0xFFFF;
-    int data1 = table[((WordNumber) WordNumber.<WordNumber>createValue((number.value | i) & 0xFFFF)).value];
-    flag.write(createValue(data1 & 0xFF));
-    return (T) WordNumber.<WordNumber>createValue(data1 >> 16 & 0xFFFF);
+    int data1 = table[((WordNumber) (WordNumber) new WordNumber((number.value | i) & 0xFFFF)).value];
+    flag.write((T) new WordNumber(data1 & 0xFF));
+    return (T) (WordNumber) new WordNumber(data1 >> 16 & 0xFFFF);
   }
 
   public <T extends WordNumber> T executeWithCarry(T regA, Register<T> flag) {
     int data1 = table[((flag.read().value & 0x01) << 8) | (regA.value & 0xff)];
-    flag.write(createValue(data1 & 0xFF));
-    return (T) WordNumber.<WordNumber>createValue(data1 >> 16 & 0xFFFF);
+    flag.write((T) new WordNumber(data1 & 0xFF));
+    return (T) (WordNumber) new WordNumber(data1 >> 16 & 0xFFFF);
   }
 
   public <T extends WordNumber> T executeWithCarry2(T value, T regA, int carry, Register<T> flag) {
-    WordNumber number = ((WordNumber) WordNumber.<WordNumber>createValue((regA.value << 8) & 0xFFFF));
+    WordNumber number = ((WordNumber) (WordNumber) new WordNumber((regA.value << 8) & 0xFFFF));
     int i = value.value & 0xFFFF;
-    int data1 = table[((T) WordNumber.<WordNumber>createValue((number.value | i) & 0xFFFF)).value | ((carry & 1) << 16)];
-    flag.write(createValue(data1 & 0xFF));
-    return (T) WordNumber.<WordNumber>createValue(data1 >> 16 & 0xFFFF);
+    int data1 = table[((T) (WordNumber) new WordNumber((number.value | i) & 0xFFFF)).value | ((carry & 1) << 16)];
+    flag.write((T) new WordNumber(data1 & 0xFF));
+    return (T) (WordNumber) new WordNumber(data1 >> 16 & 0xFFFF);
   }
 
   public int[] executeWithoutCarry2(int value, int regA) {

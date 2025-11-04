@@ -36,7 +36,7 @@ public class TransformInstructionsTest<T extends WordNumber> extends BaseInstruc
     super.setUp();
     useSecond();
     reset();
-    currentContext.r(RegisterName.PC).write(WordNumber.createValue(0));
+    currentContext.r(RegisterName.PC).write((T) new WordNumber(0));
   }
 
   @Override

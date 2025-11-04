@@ -113,7 +113,7 @@ public class InstructionsTest {
 
     public T in(T port) {
       FakeByteDevice fakeByteDevice = devices.get(port.value);
-      return WordNumber.createValue(fakeByteDevice.getValue());
+      return (T) new WordNumber(fakeByteDevice.getValue());
     }
 
     public void out(T port, T value) {

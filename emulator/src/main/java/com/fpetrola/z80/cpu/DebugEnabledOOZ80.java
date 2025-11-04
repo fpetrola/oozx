@@ -114,7 +114,7 @@ public class DebugEnabledOOZ80<T extends WordNumber> extends OOZ80<T> {
   }
 
   public int getLenghtAt(int pc2) {
-    int i = state.getMemory().read(WordNumber.createValue(pc2), 0).value;
+    int i = state.getMemory().read((T) new WordNumber(pc2), 0).value;
     Instruction<T> opcode1 = createOpCodeHandler(state).getOpcodeLookupTable()[i];
     int length = opcode1.getLength();
     return length;

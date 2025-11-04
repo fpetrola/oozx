@@ -60,9 +60,9 @@ public class EmulatedMiniZX<T extends WordNumber> {
     return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory<T>(state)), new DefaultInstructionExecutor(state, false));
   }
 
-  public static Function<Integer, Integer> getMemFunction(OOZ80<?> ooz81) {
+  public static <S extends WordNumber> Function<Integer, Integer> getMemFunction(OOZ80<S> ooz81) {
     return index -> {
-      return ooz81.getState().getMemory().read(WordNumber.createValue(index), 10).value;
+      return ooz81.getState().getMemory().read((S) new WordNumber(index), 10).value;
     };
   }
 

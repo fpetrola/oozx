@@ -63,7 +63,7 @@ public class Cpd<T extends WordNumber> extends Cpi<T> {
     int lastCarry = flag.read().value & 1;
     cpdTableAluOperation.executeWithCarry2(memory.read(hl.read(), 0), a.read(), bc.read().value != 0 ? 1 : 0, flag);
     WordNumber wordNumber = flag.read();
-    flag.write((T) WordNumber.<WordNumber>createValue((wordNumber.value | lastCarry) & 0xFFFF));
+    flag.write((T) (WordNumber) new WordNumber((wordNumber.value | lastCarry) & 0xFFFF));
   }
 
   public void accept(InstructionVisitor visitor) {

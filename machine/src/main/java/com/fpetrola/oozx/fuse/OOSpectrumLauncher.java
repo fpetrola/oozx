@@ -33,7 +33,6 @@ import java.nio.file.Path;
 import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -92,22 +91,22 @@ public class OOSpectrumLauncher {
 //        }
 
         if (endFrame == 100) {
-          memory.write(createValue(LAST_K), createValue(0xEF)); // LOAD keyword
-          WordNumber wordNumber2 = memory.read(createValue(FLAGS), 0);
-          memory.write(createValue(FLAGS), ((WordNumber) WordNumber.<WordNumber>createValue((wordNumber2.value | 0x20) & 0xFFFF))); // LOAD keyword
+          memory.write((WordNumber) new WordNumber(LAST_K), (WordNumber) new WordNumber(0xEF)); // LOAD keyword
+          WordNumber wordNumber2 = memory.read((WordNumber) new WordNumber(FLAGS), 0);
+          memory.write((WordNumber) new WordNumber(FLAGS), ((WordNumber) (WordNumber) new WordNumber((wordNumber2.value | 0x20) & 0xFFFF))); // LOAD keyword
           wait1(30, coe);
-          memory.write(createValue(LAST_K), createValue(0x22)); // LOAD keyword
-          WordNumber wordNumber1 = memory.read(createValue(FLAGS), 0);
-          memory.write(createValue(FLAGS), ((WordNumber) WordNumber.<WordNumber>createValue((wordNumber1.value | 0x20) & 0xFFFF))); // LOAD keyword
+          memory.write((WordNumber) new WordNumber(LAST_K), (WordNumber) new WordNumber(0x22)); // LOAD keyword
+          WordNumber wordNumber1 = memory.read((WordNumber) new WordNumber(FLAGS), 0);
+          memory.write((WordNumber) new WordNumber(FLAGS), ((WordNumber) (WordNumber) new WordNumber((wordNumber1.value | 0x20) & 0xFFFF))); // LOAD keyword
           wait1(30, coe);
-          memory.write(createValue(LAST_K), createValue(0x22)); // LOAD keyword
-          WordNumber wordNumber = memory.read(createValue(FLAGS), 0);
-          memory.write(createValue(FLAGS), ((WordNumber) WordNumber.<WordNumber>createValue((wordNumber.value | 0x20) & 0xFFFF))); // LOAD keyword
+          memory.write((WordNumber) new WordNumber(LAST_K), (WordNumber) new WordNumber(0x22)); // LOAD keyword
+          WordNumber wordNumber = memory.read((WordNumber) new WordNumber(FLAGS), 0);
+          memory.write((WordNumber) new WordNumber(FLAGS), ((WordNumber) (WordNumber) new WordNumber((wordNumber.value | 0x20) & 0xFFFF))); // LOAD keyword
           wait1(30, coe);
         }
-        memory.write(createValue(LAST_K), createValue(0x0D)); // LOAD keyword
-        WordNumber wordNumber = memory.read(createValue(FLAGS), 0);
-        memory.write(createValue(FLAGS), ((WordNumber) WordNumber.<WordNumber>createValue((wordNumber.value | 0x20) & 0xFFFF))); // LOAD keyword
+        memory.write((WordNumber) new WordNumber(LAST_K), (WordNumber) new WordNumber(0x0D)); // LOAD keyword
+        WordNumber wordNumber = memory.read((WordNumber) new WordNumber(FLAGS), 0);
+        memory.write((WordNumber) new WordNumber(FLAGS), ((WordNumber) (WordNumber) new WordNumber((wordNumber.value | 0x20) & 0xFFFF))); // LOAD keyword
         wait1(3000, coe);
 
         runnable.run();

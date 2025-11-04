@@ -132,7 +132,7 @@ public class SEInstructionFactory<T extends WordNumber> extends DefaultInstructi
     return new Call<T>(positionOpcodeReference, condition, pc, sp, this.state.getMemory()) {
       public T beforeJump(T jumpAddress) {
         WordNumber wordNumber = pc.read();
-        T value = (T) WordNumber.<WordNumber>createValue((wordNumber.value + length) & 0xFFFF);
+        T value = (T) (WordNumber) new WordNumber((wordNumber.value + length) & 0xFFFF);
         value = (T) new ReturnAddressWordNumber(value.value, pc.read().value);
         Push.doPush(value, sp, memory);
         return jumpAddress;

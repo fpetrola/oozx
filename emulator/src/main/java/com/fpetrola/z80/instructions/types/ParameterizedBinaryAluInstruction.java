@@ -25,8 +25,6 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-
 public class ParameterizedBinaryAluInstruction<T> extends TargetSourceInstruction<T, ImmutableOpcodeReference<T>> {
   public ParameterizedBinaryAluInstruction(OpcodeReference target, ImmutableOpcodeReference source, Register<T> flag, TableAluOperation tableAluOperation) {
     super(target, source, flag);
@@ -62,8 +60,8 @@ public class ParameterizedBinaryAluInstruction<T> extends TargetSourceInstructio
       int value1 = ((WordNumber) value).value;
       int regA = ((WordNumber) a).value;
       int[] i = tableAluOperation.executeWithoutCarry2(value1, regA);
-      flag.write(createValue(i[1]));
-      return createValue(i[0]);
+      flag.write((T) new WordNumber(i[1]));
+      return (T1) new WordNumber(i[0]);
     };
   }
 

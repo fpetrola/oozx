@@ -74,7 +74,7 @@ public class SnapshotLoader {
     Memory<T> memory = state1.getMemory();
     if (ram[page] != null)
       for (int i = 0; i < ram[page].length; i++) {
-        memory.write(WordNumber.createValue(position++), WordNumber.createValue(ram[page][i]));
+        memory.write((T) new WordNumber(position++), (T) new WordNumber(ram[page][i]));
       }
     return position;
   }

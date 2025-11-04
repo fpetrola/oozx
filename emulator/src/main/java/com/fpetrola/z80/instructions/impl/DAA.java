@@ -27,8 +27,6 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-
 public class DAA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<T> {
   public final static AluOperation daaTableAluOperation = new TableAluOperation() {
     public int execute(int flag, int A, int flags) {
@@ -40,11 +38,11 @@ public class DAA<T extends WordNumber> extends ParameterizedUnaryAluInstruction<
       if (carry != 0 || (A > 0x99)) add |= 0x60;
       if (A > 0x99) carry = FLAG_C;
       Register<WordNumber> f = new Plain8BitRegister<>("");
-      f.write(createValue(F));
+      f.write((WordNumber) new WordNumber(F));
       if ((F & FLAG_N) != 0) {
-        A = Sub.sub8TableAluOperation.executeWithoutCarry(createValue(add), createValue(A), f).value;
+        A = Sub.sub8TableAluOperation.executeWithoutCarry((WordNumber) new WordNumber(add), (WordNumber) new WordNumber(A), f).value;
       } else {
-        A = Add.add8TableAluOperation.executeWithoutCarry(createValue(add), createValue(A), f).value;
+        A = Add.add8TableAluOperation.executeWithoutCarry((WordNumber) new WordNumber(add), (WordNumber) new WordNumber(A), f).value;
       }
       F = f.read().value;
 

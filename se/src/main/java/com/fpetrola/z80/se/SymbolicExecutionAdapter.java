@@ -48,8 +48,6 @@ import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 
 import java.util.*;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-
 public class SymbolicExecutionAdapter<T extends WordNumber> {
   public final State<? extends WordNumber> state;
   private final RoutineManager routineManager;
@@ -197,7 +195,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
     jpRegisterAddressAction.setDynamicJPData(dynamicJPData);
     int address = jpRegisterAddressAction.address;
     routineExecutorHandler.createRoutineExecution(pointer);
-    pc.write(createValue(pointer));
+    pc.write((T) new WordNumber(pointer));
     executeAllCode(z80InstructionDriver, pc);
     Routine routineAt = routineManager.findRoutineAt(pointer);
     if (routineAt != null) {
@@ -214,14 +212,14 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
   private void executingPending(int address) {
     RoutineExecution<T> routineExecutionAt = routineExecutorHandler.findRoutineExecutionContaining(address);
     routineExecutorHandler.pushRoutineExecution(routineExecutionAt);
-    pc.write(createValue(address));
+    pc.write((T) new WordNumber(address));
     executeAllCode(z80InstructionDriver, pc);
   }
 
   private void pushAddress(int startAddress) {
     Register<WordNumber> registerSP1 = (Register<WordNumber>) state.getRegisterSP();
     Memory<WordNumber> memory = (Memory<WordNumber>) state.getMemory();
-    Push.doPush(createValue(startAddress), registerSP1, memory);
+    Push.doPush((WordNumber) new WordNumber(startAddress), registerSP1, memory);
   }
 
   private void executeAllCode(Z80InstructionDriver z80InstructionDriver, Register<T> pc) {
@@ -261,7 +259,7 @@ public class SymbolicExecutionAdapter<T extends WordNumber> {
 
   private int updatePcRegister(int pcValue) {
     logPC(pcValue);
-    pc.write(createValue(pcValue));
+    pc.write((T) new WordNumber(pcValue));
     return pcValue;
   }
 

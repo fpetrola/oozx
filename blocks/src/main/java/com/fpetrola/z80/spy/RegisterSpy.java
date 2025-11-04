@@ -51,7 +51,7 @@ public class RegisterSpy<T extends WordNumber> extends Plain16BitRegister<T> {
   public void increment() {
     registerWriteListeners.forEach(l -> {
       WordNumber wordNumber = register.read();
-      l.writingRegister((T) WordNumber.<WordNumber>createValue((wordNumber.value + 1) & 0xFFFF), true);
+      l.writingRegister((T) (WordNumber) new WordNumber((wordNumber.value + 1) & 0xFFFF), true);
     });
     register.increment();
   }
@@ -59,7 +59,7 @@ public class RegisterSpy<T extends WordNumber> extends Plain16BitRegister<T> {
   public void decrement() {
     registerWriteListeners.forEach(l -> {
       WordNumber wordNumber = register.read();
-      l.writingRegister((T) WordNumber.<WordNumber>createValue((wordNumber.value - 1) & 0xFFFF), true);
+      l.writingRegister((T) (WordNumber) new WordNumber((wordNumber.value - 1) & 0xFFFF), true);
     });
     register.decrement();
   }

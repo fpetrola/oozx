@@ -22,8 +22,6 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.function.Supplier;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
-
 @SuppressWarnings("unchecked")
 public class MockedMemory<T extends WordNumber> extends AbstractMemory<T> {
   protected T[] data = (T[]) new WordNumber[0x10000];
@@ -39,18 +37,18 @@ public class MockedMemory<T extends WordNumber> extends AbstractMemory<T> {
   @Override
   protected T doRead(T address) {
     int i = address.value;
-    return i >= 0 ? data[i] : createValue(0);
+    return i >= 0 ? data[i] : (T) new WordNumber(0);
   }
 
   @Override
   protected void doWrite(T address, T value) {
-    data[address.value] = (T) WordNumber.<WordNumber>createValue((value.value & 0xff) & 0xFFFF);
+    data[address.value] = (T) (WordNumber) new WordNumber((value.value & 0xff) & 0xFFFF);
   }
 
   @Override
   public void reset() {
     for (int i = 0; i < data.length; i++) {
-      doWrite(createValue(i), createValue(0));
+      doWrite((T) new WordNumber(i), (T) new WordNumber(0));
     }
 //    Arrays.fill(data, WordNumber.createValue(0));
   }

@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class FuseTest<T extends WordNumber> {
@@ -62,12 +61,12 @@ public class FuseTest<T extends WordNumber> {
 
     IntStream.range(0, registerNames.length)
         .forEach(i -> cpu.getState().getRegister(registerNames[i])
-            .write(createValue(registersArray.get(i))));
+            .write((T) new WordNumber(registersArray.get(i))));
 
     List<Integer> stateArray = Arrays.stream(state.split(" ")).filter(s -> !s.isEmpty()).map(s -> Integer.parseInt(s, 16)).toList();
 
-    cpu.getState().getRegister(I).write(createValue(stateArray.get(0)));
-    cpu.getState().getRegister(R).write(createValue(stateArray.get(1)));
+    cpu.getState().getRegister(I).write((T) new WordNumber(stateArray.get(0)));
+    cpu.getState().getRegister(R).write((T) new WordNumber(stateArray.get(1)));
     cpu.getState().setIff1(stateArray.get(2) != 0);
     cpu.getState().setIff2(stateArray.get(3) != 0);
     cpu.getState().setIntMode(State.InterruptionMode.values()[stateArray.get(4)]);
@@ -86,7 +85,7 @@ public class FuseTest<T extends WordNumber> {
 
         int addr = memoryArray.get(0);
         for (int value : memoryArray.subList(1, memoryArray.size())) {
-          cpu.getState().getMemory().getData()[addr++] = createValue(value);
+          cpu.getState().getMemory().getData()[addr++] = (T) new WordNumber(value);
         }
       }
     }
@@ -117,7 +116,7 @@ public class FuseTest<T extends WordNumber> {
 
   public void run() {
     cpu.execute();
-    cpu.getState().getPc().write(createValue(0));
+    cpu.getState().getPc().write((T) new WordNumber(0));
 
     Instruction lastExecutedInstruction = ((FuseTestParser.MyDefaultInstructionFetcher) cpu.getInstructionFetcher()).getLastExecutedInstruction();
     String toString = new ToStringInstructionVisitor<>().createToString(lastExecutedInstruction);
