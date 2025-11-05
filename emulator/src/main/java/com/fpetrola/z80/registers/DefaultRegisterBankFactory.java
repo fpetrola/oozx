@@ -96,11 +96,12 @@ public class DefaultRegisterBankFactory {
 
     public void write(int value) {
       regRBit7 = (value > 0x7f);
-      data = value & 0x7f;
+      data = regRBit7 ? (value & 0x7f) | 0x80 : value & 0x7f;
     }
 
-    public int read() {
-      return regRBit7 ? (data & 0x7f) | 0x80 : data & 0x7f;
+    public void increment() {
+      super.increment();
+      data = regRBit7 ? (data & 0x7f) | 0x80 : data & 0x7f;
     }
   }
 }

@@ -19,13 +19,13 @@
 package com.fpetrola.z80.registers;
 
 public class Composed16BitRegister<R extends Register> implements RegisterPair {
-  protected final R high;
-  protected final R low;
+  protected final Plain8BitRegister high;
+  protected final Plain8BitRegister low;
   private String name;
 
   private Composed16BitRegister(String h, String l) {
-    high = (R) new Plain8BitRegister(h);
-    low = (R) new Plain8BitRegister(l);
+    high = new Plain8BitRegister(h);
+    low = new Plain8BitRegister(l);
   }
 
   public Composed16BitRegister(String name, String h, String l) {
@@ -34,8 +34,8 @@ public class Composed16BitRegister<R extends Register> implements RegisterPair {
   }
 
   public Composed16BitRegister(String name, Register h, Register l) {
-    high = (R) h;
-    low = (R) l;
+    high = (Plain8BitRegister) h;
+    low = (Plain8BitRegister) l;
     this.name = name;
   }
 
@@ -44,21 +44,21 @@ public class Composed16BitRegister<R extends Register> implements RegisterPair {
   }
 
   public int read() {
-    return high.read() << 8 | low.read();
+    return high.data << 8 | low.data;
   }
 
-  public void write(int value) {
-    this.high.write(value >>> 8);
-    this.low.write(value & 0xFF);
+  public void write(final int value) {
+    this.high.data = value >>> 8;
+    this.low.data = value & 0xFF;
   }
 
   public R getHigh() {
-    return this.high;
+    return (R) this.high;
   }
 
   @Override
   public R getLow() {
-    return this.low;
+    return (R) this.low;
   }
 
   @Override
@@ -67,28 +67,22 @@ public class Composed16BitRegister<R extends Register> implements RegisterPair {
   }
 
   public void increment() {
-    low.increment();
-    if (low.read() < 0x100)
+    if (++low.data < 0x100)
       return;
-    low.write(0);
-    high.increment();
-    if (high.read() < 0x100)
+    low.data = 0;
+    if (++high.data < 0x100)
       return;
-    high.write(0);
+    high.data = 0;
   }
 
   public void decrement() {
-    int lowValue = low.read();
-    if (lowValue != 0) {
-      low.write((lowValue - 1) & 0xffff);
-    } else {
-      low.write(0xff);
-      int highValue = high.read();
-      if (highValue != 0) {
-        high.write((highValue - 1) & 0xffff);
-      } else
-        high.write(0xff);
-    }
+    if (--low.data >= 0)
+      return;
+    low.data = 0xff;
+
+    if (--high.data >= 0)
+      return;
+    high.data = 0xff;
   }
 
   public int getLength() {
