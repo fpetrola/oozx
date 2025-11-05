@@ -34,6 +34,7 @@ public class PhaseProcessorExecutionListener implements ExecutionListener {
   }
 
   public void beforeExecution(Instruction instruction) {
+    phaseProcessor.reset();
     phaseProcessor.processPhase(beforeExecution);
   }
 

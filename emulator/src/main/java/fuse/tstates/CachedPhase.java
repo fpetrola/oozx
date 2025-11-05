@@ -20,8 +20,9 @@ package fuse.tstates;
 
 import fuse.tstates.phases.*;
 
-public class PhaseDecorator implements Phase {
+public class CachedPhase implements Phase {
   private final PhaseVisitor visitor;
+
   private BeforeExecutionPhaseVisitor beforeExecutionPhaseVisitors = (e) -> {
   };
   private AfterMRPhaseVisitor afterMRPhaseVisitors = (e) -> {
@@ -31,9 +32,9 @@ public class PhaseDecorator implements Phase {
   private AfterExecutionPhaseVisitor afterExecutionPhaseVisitors = (e) -> {
   };
   private boolean ready = false;
-  private boolean skippable = false;
+  private boolean skippable = true;
 
-  public PhaseDecorator() {
+  public CachedPhase() {
     this.visitor = getVisitor();
   }
 
@@ -42,18 +43,22 @@ public class PhaseDecorator implements Phase {
 
   public void acceptAfterExecution(AfterExecutionPhaseVisitor visitor) {
     afterExecutionPhaseVisitors = visitor;
+    skippable= false;
   }
 
   public void acceptAfterMR(AfterMRPhaseVisitor visitor) {
     afterMRPhaseVisitors = visitor;
+    skippable= false;
   }
 
   public void acceptBeforeExecution(BeforeExecutionPhaseVisitor visitor) {
     beforeExecutionPhaseVisitors = visitor;
+    skippable= false;
   }
 
   public void acceptBeforeWrite(BeforeWritePhaseVisitor visitor) {
     beforeWritePhaseVisitors = visitor;
+    skippable= false;
   }
 
   public PhaseVisitor getVisitor() {

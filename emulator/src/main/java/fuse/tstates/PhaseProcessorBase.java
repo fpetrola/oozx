@@ -105,7 +105,7 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
     this.phase = phase;
   }
 
-  private void reset() {
+  public void reset() {
     readCount = 0;
     writeCount = 0;
   }
@@ -123,17 +123,14 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
   }
 
   public void processPhase(Phase phase) {
-//    System.out.println("Phase: " + phase.getClass().getSimpleName());
     processing = true;
-    phase.acceptBeforeExecution((e) -> reset());
     Instruction lastExecutedInstruction = ((DefaultInstructionFetcher) instructionFetcher).getLastExecutedInstruction();
 
     if (lastExecutedInstruction != null) {
-      PhaseDecorator phase1 = lastExecutedInstruction.getPhaseInterceptor();
-      if (!phase1.isSkippable()) {
-        setPhase(phase1);
-//      lastExecutedInstruction.accept(this);
-        phase1.execute(phase);
+      CachedPhase cachedPhase = lastExecutedInstruction.getCachedPhase();
+      if (!cachedPhase.isSkippable()) {
+        setPhase(cachedPhase);
+        cachedPhase.execute(phase);
       }
     }
     processing = false;

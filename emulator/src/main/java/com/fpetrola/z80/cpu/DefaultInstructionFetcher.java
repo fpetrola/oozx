@@ -27,7 +27,7 @@ import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory.RRegister;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
-import fuse.tstates.PhaseDecorator;
+import fuse.tstates.CachedPhase;
 import fuse.tstates.PhaseProcessor;
 
 public class DefaultInstructionFetcher implements InstructionFetcher {
@@ -104,7 +104,7 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
   }
 
   protected void setupPhaseInterceptor(AbstractInstruction fetchedInstruction) {
-    PhaseDecorator phase1 = fetchedInstruction.getPhaseInterceptor();
+    CachedPhase phase1 = fetchedInstruction.getCachedPhase();
     if (!phase1.isReady()) {
       tPhaseProcessor.setPhase(phase1);
       fetchedInstruction.accept(tPhaseProcessor);
