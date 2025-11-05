@@ -70,14 +70,7 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
 //    int rValue = registerR.read();
     registerR.increment();
     pcValue = pc.read();
-
-    if (prefetchPC != pcValue) {
-      currentInstruction = fetchInstruction(pcValue);
-      prefetchedInstruction = currentInstruction;
-    } else {
-      currentInstruction = prefetchedInstruction;
-      registerR.write(registerR.read() + rdelta);
-    }
+    currentInstruction = fetchInstruction(pcValue);
 
 //    rdelta = registerR.read() - rValue;
 //    if (rdelta < 0)

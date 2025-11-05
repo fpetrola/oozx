@@ -34,43 +34,83 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class Fuse {
-  public Supplier<SpectrumMachine> spectrumMachineSupplier = () -> getMachine().current;
-  public SpectrumZ80Clock zxClock = new SpectrumZ80Clock();
-  public Settings settings= new Settings();
-  public boolean alive= true;
-  private Module module= new Module();
-  public Memory memory = new Memory(spectrumMachineSupplier, zxClock, module, settings);
-  private UiDisplay uiDisplay = new UiDisplay(zxClock);
-  public Display display = new Display(memory, spectrumMachineSupplier, zxClock, memory, uiDisplay);
-  public Keyboard keyboard = new Keyboard();
-  public IPeriph periph = new Periph(spectrumMachineSupplier, zxClock, settings);
-  public Tape tape= new Tape(new TapeSettingsType(), zxClock);
-  public Ula ula = new Ula(memory, display, spectrumMachineSupplier, keyboard, zxClock, periph, module, settings, tape);
-  public EventManager eventManager = new EventManager(spectrumMachineSupplier, zxClock);
-  public IPeriph ulaPeriph = new UlaPeriph(ula, zxClock, periph);
-  public Joystick joystick = new Joystick(keyboard, ulaPeriph, module, settings);
-  public Input input = new Input(joystick, keyboard, settings);
-  private Sound sound = new Sound();
-  private Timer timer = new Timer(eventManager, spectrumMachineSupplier, sound, settings, tape);
-  public Z80 z80 = new Z80(eventManager, memory, display, ula, spectrumMachineSupplier, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer, () -> getMachine(), module, this, settings, tape);
-  private StartupManager startupManager = new StartupManager();
+  public Supplier<SpectrumMachine> spectrumMachineSupplier;
+  public SpectrumZ80Clock zxClock;
+  public Settings settings;
+  public boolean alive;
+  private Module module;
+  public Memory memory;
+  private UiDisplay uiDisplay;
+  public Display display;
+  public Keyboard keyboard;
+  public IPeriph periph;
+  public Tape tape;
+  public Ula ula;
+  public EventManager eventManager;
+  public IPeriph ulaPeriph;
+  public Joystick joystick;
+  public Input input;
+  private Sound sound;
+  private Timer timer;
+  public Z80 z80;
+  private StartupManager startupManager;
+
+  public Spectrum spectrum;
+
+  public Machine machine;
+  public MachinesPeriph machinesPeriph;
+  public Spec48 spec48;
+  public Spec128 spec128;
+  private Fdd fdd;
+  private UPDFdc uPDFdc;
+  public SpecPlus3 specPlus3;
+  public SpecPlus2 specPlus2;
+  public SpecPlus2A specPlus2a;
+  public SpecPlus3E specPlus3e;
+  public Spec48Ntsc spec48Ntsc;
+
+  public Fuse() {
+    this(new SpectrumZ80Clock());
+  }
+
+  public Fuse(SpectrumZ80Clock spectrumZ80Clock) {
+    zxClock = spectrumZ80Clock;
+    spectrumMachineSupplier = () -> getMachine().current;
+    settings = new Settings();
+    startupManager = new StartupManager();
+    alive = true;
+    module = new Module();
+    memory = new Memory(spectrumMachineSupplier, zxClock, module, settings);
+    uiDisplay = new UiDisplay(zxClock);
+    display = new Display(memory, spectrumMachineSupplier, zxClock, memory, uiDisplay);
+    keyboard = new Keyboard();
+    periph = new Periph(spectrumMachineSupplier, zxClock, settings);
+    tape = new Tape(new TapeSettingsType(), zxClock);
+    ula = new Ula(memory, display, spectrumMachineSupplier, keyboard, zxClock, periph, module, settings, tape);
+    eventManager = new EventManager(spectrumMachineSupplier, zxClock);
+    ulaPeriph = new UlaPeriph(ula, zxClock, periph);
+    joystick = new Joystick(keyboard, ulaPeriph, module, settings);
+    input = new Input(joystick, keyboard, settings);
+    sound = new Sound();
+    timer = new Timer(eventManager, spectrumMachineSupplier, sound, settings, tape);
+    z80 = new Z80(eventManager, memory, display, ula, spectrumMachineSupplier, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer, () -> getMachine(), module, this, settings, tape);
+    spectrum = new Spectrum(memory, display, eventManager, z80, zxClock, memory, spectrumMachineSupplier, timer, module);
+    machine = new Machine(eventManager, memory, display, ula, zxClock, spectrum, uiDisplay, timer, module, settings);
+    machinesPeriph = new MachinesPeriph(ulaPeriph);
+    spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum, ulaPeriph, settings);
+    spec128 = new Spec128(memory, display, machinesPeriph, spectrum, spec48, ulaPeriph, machine, settings);
+    fdd = new Fdd(settings);
+    uPDFdc = new UPDFdc(settings);
+    specPlus3 = new SpecPlus3(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph, settings, fdd, uPDFdc);
+    specPlus2 = new SpecPlus2(memory, display, machine, machinesPeriph, spectrum, spec48, spec128, ulaPeriph, settings);
+    specPlus2a = new SpecPlus2A(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph, specPlus3, settings);
+    specPlus3e = new SpecPlus3E(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph, specPlus3, settings);
+    spec48Ntsc = new Spec48Ntsc(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph, settings);
+  }
 
   private Machine getMachine() {
     return machine;
   }
-
-  public Spectrum spectrum = new Spectrum(memory, display, eventManager, z80, zxClock, memory, spectrumMachineSupplier, timer, module);
-  public Machine machine = new Machine(eventManager, memory, display, ula, zxClock, spectrum, uiDisplay, timer, module, settings);
-  public MachinesPeriph machinesPeriph = new MachinesPeriph(ulaPeriph);
-  public Spec48 spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum, ulaPeriph, settings);
-  public Spec128 spec128 = new Spec128(memory, display, machinesPeriph, spectrum, spec48, ulaPeriph, machine, settings);
-  private Fdd fdd = new Fdd(settings);
-  private UPDFdc uPDFdc = new UPDFdc(settings);
-  public SpecPlus3 specPlus3 = new SpecPlus3(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph, settings, fdd, uPDFdc);
-  public SpecPlus2 specPlus2 = new SpecPlus2(memory, display, machine, machinesPeriph, spectrum, spec48, spec128, ulaPeriph, settings);
-  public SpecPlus2A specPlus2a = new SpecPlus2A(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph, specPlus3, settings);
-  public SpecPlus3E specPlus3e = new SpecPlus3E(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph, specPlus3, settings);
-  public Spec48Ntsc spec48Ntsc = new Spec48Ntsc(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph, settings);
 
   public void init() {
     startupManager.init();

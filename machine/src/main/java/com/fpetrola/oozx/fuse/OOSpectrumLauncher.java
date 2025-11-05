@@ -19,6 +19,7 @@
 package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.Fuse;
+import com.fpetrola.oozx.SpectrumZ80Clock;
 import com.fpetrola.oozx.fuse.modules.tape.Log1;
 import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.peripherals.t.DownloadAndUnzip;

@@ -70,7 +70,7 @@ public class OOZ80 implements Z80Cpu {
     try {
       Instruction currentInstruction = instructionFetcher.fetchNextInstruction();
       instructionExecutor.execute(currentInstruction);
-      instructionFetcher.afterExecute(currentInstruction);
+//      instructionFetcher.afterExecute(currentInstruction);
       return currentInstruction;
     } catch (Exception e) {
       e.printStackTrace();

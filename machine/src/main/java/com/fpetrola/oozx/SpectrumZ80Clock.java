@@ -36,21 +36,20 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
   private int timeout;
   private CollectionHandler<ClockTimeoutListener> clockListeners = new CollectionHandler<>();
 
-  private Register pc;
-
   public void setTStates(int tStates) {
     super.setTStates(tStates);
 //    timeout = 0;
   }
 
   public void addTStates(int tStatesToAdd) {
-    super.addTStates(tStatesToAdd);
+    this.tStates += tStatesToAdd;
     timeoutProcessor.accept(tStatesToAdd);
   }
 
   public void addTStates(int tStatesToAdd, String description) {
     log(() -> description, (byte) tStatesToAdd);
-    addTStates(tStatesToAdd);
+    this.tStates += tStatesToAdd;
+    timeoutProcessor.accept(tStatesToAdd);
   }
 
   public void addTStates(int tStatesToAdd, Supplier<String> description) {
@@ -77,11 +76,6 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
   }
 
   public void log(Supplier<String> description, byte data) {
-    GetTStatesHistory.addTStateUpdate(data, description, tStates, pc);
-  }
-
-  public void setPc(Register pc) {
-    this.pc = pc;
   }
 
   public void setTimeout(int ntstates) {

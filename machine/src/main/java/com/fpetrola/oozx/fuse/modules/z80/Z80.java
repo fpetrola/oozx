@@ -183,7 +183,6 @@ public class Z80 implements ZxModule {
       }
     };
     ooz80 = createOOZ80(io);
-    zxClock.setPc(ooz80.getState().getPc());
 
     byte[][] bytes = new byte[1000][1000];
     if (OOSpectrumConnector.noTest) {
