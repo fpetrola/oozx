@@ -185,7 +185,7 @@ public class ToStringInstructionVisitor implements InstructionVisitor<String> {
 
   @Override
   public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
-    result = "(" + indirectMemory8BitReference.target + ")";
+    result = "(" + indirectMemory8BitReference.getTarget() + ")";
   }
 
   @Override

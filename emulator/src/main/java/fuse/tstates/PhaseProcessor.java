@@ -103,7 +103,7 @@ public class PhaseProcessor extends PhaseProcessorBase {
 
     ld.getTarget().accept(new InstructionVisitor<>() {
       public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference1) {
-        boolean b = indirectMemory8BitReference1.target instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"));
+        boolean b = indirectMemory8BitReference1.getTarget() instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"));
         if (b || indirectMemory8BitReference1.getTarget() instanceof Memory16BitReference)
           afterExecutionActions.add(() -> {
             Integer wordNumber = ld.getSource().read();
@@ -129,7 +129,7 @@ public class PhaseProcessor extends PhaseProcessorBase {
     });
     ld.getSource().accept(new InstructionVisitor<>() {
       public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
-        boolean b = indirectMemory8BitReference.target instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"));
+        boolean b = indirectMemory8BitReference.getTarget() instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"));
         if (b || indirectMemory8BitReference.getTarget() instanceof Memory16BitReference)
           afterExecutionActions.add(() -> {
             memptr.write((indirectMemory8BitReference.address + 1) & 0xFFFF);

@@ -22,16 +22,9 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
 
 public final class IndirectMemory8BitReference implements OpcodeReference {
-
-  public ImmutableOpcodeReference target;
-  public int address;
-  public int value;
-
-  public Memory getMemory() {
-    return memory;
-  }
-
+  private final ImmutableOpcodeReference target;
   private final Memory memory;
+  public int address;
 
   public IndirectMemory8BitReference(ImmutableOpcodeReference target, Memory memory) {
     this.target = target;
@@ -40,8 +33,7 @@ public final class IndirectMemory8BitReference implements OpcodeReference {
 
   public int read() {
     address = target.read();
-    value = memory.read(address, 0);
-    return value;
+    return memory.read(address, 0);
   }
 
   public void write(int value) {
@@ -49,23 +41,27 @@ public final class IndirectMemory8BitReference implements OpcodeReference {
     memory.write(address, value);
   }
 
-  public String toString() {
-    return "(" + target + ")";
-  }
-
   public int getLength() {
     return target.getLength();
+  }
+
+  public Memory getMemory() {
+    return memory;
   }
 
   public ImmutableOpcodeReference getTarget() {
     return target;
   }
 
-  public Object clone() throws CloneNotSupportedException {
-    return new IndirectMemory8BitReference((ImmutableOpcodeReference) target.clone(), memory);
-  }
-
   public void accept(InstructionVisitor instructionVisitor) {
     instructionVisitor.visitIndirectMemory8BitReference(this);
+  }
+
+  public String toString() {
+    return "(" + target + ")";
+  }
+
+  public Object clone() throws CloneNotSupportedException {
+    return new IndirectMemory8BitReference((ImmutableOpcodeReference) target.clone(), memory);
   }
 }
