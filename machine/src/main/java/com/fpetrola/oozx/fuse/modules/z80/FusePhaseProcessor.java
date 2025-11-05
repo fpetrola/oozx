@@ -18,7 +18,6 @@
 
 package com.fpetrola.oozx.fuse.modules.z80;
 
-import com.fpetrola.oozx.fuse.OOSpectrumConnector;
 import com.fpetrola.z80.cpu.Event;
 import fuse.tstates.PhaseProcessor;
 
@@ -31,33 +30,21 @@ public class FusePhaseProcessor extends PhaseProcessor {
   }
 
   public void addMw(int address, int value) {
-//        getState().clock.addTstates(1);
   }
 
   public void addMr(int address, int value) {
   }
 
   public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
-    if (baseAddress > 0) {
-      boolean memoryContended = z80.memory.mapRead[baseAddress >>> z80.memory.PAGE_SIZE_LOGARITHM].contended;
-      for (int i = 0; i < x; i++) {
-        if (memoryContended)
-          z80.ula.addUlaStates(0, () -> "ula " + (description != null ? description : "contend_read_no_mreq"));
+    boolean memoryContended = z80.memory.mapRead[baseAddress >>> z80.memory.PAGE_SIZE_LOGARITHM].contended;
+    for (int i = 0; i < x; i++) {
+      if (memoryContended)
+        z80.ula.addUlaStates(0, () -> "ula " + (description != null ? description : "contend_read_no_mreq"));
 
-        addSingleMc(time1, delta, baseAddress, description);
-      }
+      addSingleMc(time1, delta, baseAddress, description);
     }
   }
 
-  public void addSingleMc(int time1, int delta, int baseAddress, String description) {
-    if (OOSpectrumConnector.noTest) {
-      getState().addEventNumber(time1);
-    } else {
-      super.addSingleMc(time1, delta, baseAddress, description);
-    }
-  }
-
-  @Override
   protected void getAddEvent(Event event) {
     event.description = getDescription(event);
     z80.zxClock.addTStates(event.getTime(), event.description);

@@ -222,9 +222,18 @@ public class Z80 implements ZxModule {
   private void setupMemory() {
     State state = ooz80.getState();
 
-    Memory memory1 = (Memory) state.getMemory();
+    Memory memory1 = state.getMemory();
 
-    phaseProcessor = new FusePhaseProcessor(this);
+
+    if (OOSpectrumConnector.noTest)
+      phaseProcessor = new FusePhaseProcessor(this) {
+        public void addSingleMc(int time1, int delta, int baseAddress, String description) {
+          getState().addEventNumber(time1);
+        }
+      };
+    else
+      phaseProcessor = new FusePhaseProcessor(this);
+
     DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
     instructionFetcher.tPhaseProcessor = phaseProcessor;
 
