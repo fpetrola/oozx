@@ -19,7 +19,7 @@
 package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
-import fuse.tstates.PhaseInterceptor;
+import fuse.tstates.PhaseDecorator;
 
 public abstract class AbstractInstruction implements Instruction {
   protected int length = 1;
@@ -27,11 +27,11 @@ public abstract class AbstractInstruction implements Instruction {
   private int nextPC = -1;
   private int rdelta;
 
-  public void setPhaseInterceptor(PhaseInterceptor phaseInterceptor) {
-    this.phaseInterceptor = phaseInterceptor;
+  public void setPhaseInterceptor(PhaseDecorator phaseDecorator) {
+    this.phaseDecorator = phaseDecorator;
   }
 
-  private PhaseInterceptor phaseInterceptor = new PhaseInterceptor();
+  private PhaseDecorator phaseDecorator = new PhaseDecorator();
 
   protected AbstractInstruction() {
     cyclesCost += 1;
@@ -49,8 +49,8 @@ public abstract class AbstractInstruction implements Instruction {
     return length;
   }
 
-  public PhaseInterceptor getPhaseInterceptor() {
-    return phaseInterceptor;
+  public PhaseDecorator getPhaseInterceptor() {
+    return phaseDecorator;
   }
 
   public void incrementLengthBy(int by) {

@@ -20,7 +20,7 @@ package fuse.tstates;
 
 import fuse.tstates.phases.*;
 
-public class PhaseInterceptor implements Phase {
+public class PhaseDecorator implements Phase {
   private final PhaseVisitor visitor;
   private BeforeExecutionPhaseVisitor beforeExecutionPhaseVisitors = (e) -> {
   };
@@ -30,9 +30,10 @@ public class PhaseInterceptor implements Phase {
   };
   private AfterExecutionPhaseVisitor afterExecutionPhaseVisitors = (e) -> {
   };
-  private boolean ready= false;
+  private boolean ready = false;
+  private boolean skippable = false;
 
-  public PhaseInterceptor() {
+  public PhaseDecorator() {
     this.visitor = getVisitor();
   }
 
@@ -80,10 +81,18 @@ public class PhaseInterceptor implements Phase {
   }
 
   public void ready() {
-    ready= true;
+    ready = true;
   }
 
   public boolean isReady() {
     return ready;
+  }
+
+  public void setSkippable(boolean skippable) {
+    this.skippable = skippable;
+  }
+
+  public boolean isSkippable() {
+    return skippable;
   }
 }

@@ -129,10 +129,12 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
     Instruction lastExecutedInstruction = ((DefaultInstructionFetcher) instructionFetcher).getLastExecutedInstruction();
 
     if (lastExecutedInstruction != null) {
-      PhaseInterceptor phase1 = lastExecutedInstruction.getPhaseInterceptor();
-      setPhase(phase1);
+      PhaseDecorator phase1 = lastExecutedInstruction.getPhaseInterceptor();
+      if (!phase1.isSkippable()) {
+        setPhase(phase1);
 //      lastExecutedInstruction.accept(this);
-      phase1.execute(phase);
+        phase1.execute(phase);
+      }
     }
     processing = false;
   }

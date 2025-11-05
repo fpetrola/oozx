@@ -23,7 +23,7 @@ import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.cache.InstructionCache;
-import fuse.tstates.PhaseInterceptor;
+import fuse.tstates.PhaseDecorator;
 
 public class CachedInstructionFetcher extends DefaultInstructionFetcher {
   protected InstructionCache instructionCache;
@@ -55,9 +55,9 @@ public class CachedInstructionFetcher extends DefaultInstructionFetcher {
 
   protected void setupPhaseInterceptor(AbstractInstruction fetchedInstruction) {
     if (cached != null) {
-      PhaseInterceptor phaseInterceptor = cached.getPhaseInterceptor();
-      tPhaseProcessor.setPhase(phaseInterceptor);
-      fetchedInstruction.setPhaseInterceptor(phaseInterceptor);
+      PhaseDecorator phaseDecorator = cached.getPhaseInterceptor();
+      tPhaseProcessor.setPhase(phaseDecorator);
+      fetchedInstruction.setPhaseInterceptor(phaseDecorator);
     } else
       super.setupPhaseInterceptor(fetchedInstruction);
   }

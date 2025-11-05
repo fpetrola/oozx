@@ -19,7 +19,7 @@
 package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
-import fuse.tstates.PhaseInterceptor;
+import fuse.tstates.PhaseDecorator;
 
 public class DummyInstruction implements Instruction {
   @Override
@@ -37,7 +37,7 @@ public class DummyInstruction implements Instruction {
   }
 
   @Override
-  public PhaseInterceptor getPhaseInterceptor() {
+  public PhaseDecorator getPhaseInterceptor() {
     return null;
   }
 }

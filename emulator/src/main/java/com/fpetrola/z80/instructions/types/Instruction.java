@@ -19,7 +19,7 @@
 package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
-import fuse.tstates.PhaseInterceptor;
+import fuse.tstates.PhaseDecorator;
 
 public interface Instruction {
   int execute();
@@ -28,5 +28,5 @@ public interface Instruction {
 
   void accept(InstructionVisitor<?> visitor);
 
-  PhaseInterceptor getPhaseInterceptor();
+  PhaseDecorator getPhaseInterceptor();
 }

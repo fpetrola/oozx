@@ -24,11 +24,10 @@ import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
-import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory.RRegister;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
-import fuse.tstates.PhaseInterceptor;
+import fuse.tstates.PhaseDecorator;
 import fuse.tstates.PhaseProcessor;
 
 public class DefaultInstructionFetcher implements InstructionFetcher {
@@ -105,7 +104,7 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
   }
 
   protected void setupPhaseInterceptor(AbstractInstruction fetchedInstruction) {
-    PhaseInterceptor phase1 = fetchedInstruction.getPhaseInterceptor();
+    PhaseDecorator phase1 = fetchedInstruction.getPhaseInterceptor();
     if (!phase1.isReady()) {
       tPhaseProcessor.setPhase(phase1);
       fetchedInstruction.accept(tPhaseProcessor);
