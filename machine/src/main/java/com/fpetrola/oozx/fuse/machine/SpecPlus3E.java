@@ -34,7 +34,7 @@ public class SpecPlus3E extends AbstractSpectrumMachine {
   private SpecPlus3 specPlus3;
 
   public SpecPlus3E(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph, SpecPlus3 specPlus3, Settings settings) {
-    super(display, machine, settings);
+    super(display, machine, settings, new SpecPlus3ERamInfo(8, spectrum, specPlus3));
     this.memory = memory;
     this.display = display;
     this.machinesPeriph = machinesPeriph;
@@ -42,7 +42,6 @@ public class SpecPlus3E extends AbstractSpectrumMachine {
     this.spec48 = spec48;
     this.periph = periph;
     this.specPlus3 = specPlus3;
-    this.ramInfo = new SpecPlus3ERamInfo(8);
     init();
   }
 
@@ -96,27 +95,6 @@ public class SpecPlus3E extends AbstractSpectrumMachine {
     spec48.commonDisplaySetup();
 
     return 0;
-  }
-
-  // ===================================================================
-  // RamInfo para +3e
-  // ===================================================================
-  private class SpecPlus3ERamInfo extends RamInfo {
-    public SpecPlus3ERamInfo(int validPages) {
-      this.validPages = validPages;
-    }
-
-    public boolean portFromUla(int port) {
-      return specPlus3.portFromUla(port);
-    }
-
-    public int contendDelay(long time) {
-      return spectrum.contendDelay76543210(time);
-    }
-
-    public int contendDelayNoMreq(long time) {
-      return spectrum.contendDelayNone(time);
-    }
   }
 
   public int unattachedPort(int port) {

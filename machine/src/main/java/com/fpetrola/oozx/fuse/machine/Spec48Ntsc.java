@@ -23,23 +23,19 @@ import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 public class Spec48Ntsc extends AbstractSpectrumMachine {
-
-  private Memory memory;
-  private Display display;
-  private MachinesPeriph machinesPeriph;
-  private Spectrum spectrum;
-  private Spec48 spec48;
-  private IPeriph periph;
+  private final Memory memory;
+  private final MachinesPeriph machinesPeriph;
+  private final Spectrum spectrum;
+  private final Spec48 spec48;
+  private final IPeriph periph;
 
   public Spec48Ntsc(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph, Settings settings) {
-    super(display, machine, settings);
+    super(display, machine, settings, new Spec48NtscRamInfo(3, spectrum));
     this.memory = memory;
-    this.display = display;
     this.machinesPeriph = machinesPeriph;
     this.spectrum = spectrum;
     this.spec48 = spec48;
     this.periph = periph;
-    this.ramInfo = new Spec48NtscRamInfo(3);
     init();
   }
 
@@ -69,13 +65,16 @@ public class Spec48Ntsc extends AbstractSpectrumMachine {
     return spec48.commonReset();
   }
 
-  private class Spec48NtscRamInfo extends RamInfo {
-    public Spec48NtscRamInfo(int validPages) {
+  private static class Spec48NtscRamInfo extends RamInfo {
+    private Spectrum spectrum;
+
+    public Spec48NtscRamInfo(int validPages, Spectrum spectrum) {
+      this.spectrum = spectrum;
       this.validPages = validPages;
     }
 
     public boolean portFromUla(int port) {
-      return spec48.portFromUla(port);
+      return Spec48.portFromUlaStatic(port);
     }
 
     public int contendDelay(long time) {

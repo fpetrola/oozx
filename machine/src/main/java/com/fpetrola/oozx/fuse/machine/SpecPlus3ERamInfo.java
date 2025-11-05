@@ -20,23 +20,28 @@ package com.fpetrola.oozx.fuse.machine;
 
 import com.fpetrola.oozx.Spectrum;
 
-public class Spec48RamInfo extends RamInfo {
+// ===================================================================
+// RamInfo para +3e
+// ===================================================================
+class SpecPlus3ERamInfo extends RamInfo {
+  private SpecPlus3 specPlus3;
   private Spectrum spectrum;
 
-  public Spec48RamInfo(Spectrum spectrum, int validPages) {
-    this.spectrum = spectrum;
+  public SpecPlus3ERamInfo(int validPages, Spectrum spectrum, SpecPlus3 specPlus3) {
     this.validPages = validPages;
+    this.spectrum = spectrum;
+    this.specPlus3 = specPlus3;
   }
 
   public boolean portFromUla(int port) {
-    return Spec48.portFromUlaStatic(port);
+    return specPlus3.portFromUla(port);
   }
 
   public int contendDelay(long time) {
-    return spectrum.contendDelay65432100(time);
+    return spectrum.contendDelay76543210(time);
   }
 
   public int contendDelayNoMreq(long time) {
-    return spectrum.contendDelay65432100(time);
+    return spectrum.contendDelayNone(time);
   }
 }

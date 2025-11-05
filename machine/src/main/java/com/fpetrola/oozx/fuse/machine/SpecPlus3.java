@@ -36,7 +36,7 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
   private UPDFdc uPDFdc;
 
   public SpecPlus3(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph, Settings settings, Fdd fdd, UPDFdc uPDFdc) {
-    super(display, machine, settings);
+    super(display, machine, settings, new SpecPlus3RamInfo(8, spectrum));
     this.memory = memory;
     this.display = display;
     this.machinesPeriph = machinesPeriph;
@@ -45,8 +45,6 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
     this.periph = periph;
     this.fdd = fdd;
     this.uPDFdc = uPDFdc;
-    this.settings = settings;
-    this.ramInfo = new SpecPlus3RamInfo(8);
     specplus3765Init();
     specplus3MenuItems();
   }
@@ -210,7 +208,7 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
   // Write to the +3 memory port 2 (0x1FFD)
   public void memoryPort2WriteInternal(int port, byte b) {
     boolean b1 = (machine.current.getCapabilities() & Libspectrum.MachineCapability.PLUS3_DISK) != 0;
-    b1= true;
+    b1 = true;
     if (b1) {
       fdd.motorOn(specplus3Drives[0], (b & 0x08) != 0);
       fdd.motorOn(specplus3Drives[1], (b & 0x08) != 0);
@@ -275,7 +273,7 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
   public byte fdcRead(int port, byte[] attached) {
     attached[0] = (byte) 0xFF; // TODO: check this
     byte b = uPDFdc.readData(specplus3Fdc);
-    b= -1;
+    b = -1;
     return b;
   }
 
@@ -337,13 +335,16 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
     return "Spectrum Plus 3";
   }
 
-  private class SpecPlus3RamInfo extends RamInfo {
-    public SpecPlus3RamInfo(int validPages) {
+  private static class SpecPlus3RamInfo extends RamInfo {
+    private Spectrum spectrum;
+
+    public SpecPlus3RamInfo(int validPages, Spectrum spectrum) {
+      this.spectrum = spectrum;
       this.validPages = validPages;
     }
 
     public boolean portFromUla(int port) {
-      return SpecPlus3.this.portFromUla(port);
+      return false;
     }
 
     public int contendDelay(long time) {

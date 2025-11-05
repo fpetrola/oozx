@@ -24,16 +24,17 @@ import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.fuse.modules.Display;
 
 public abstract class AbstractSpectrumMachine implements SpectrumMachine {
-  protected RamInfo ramInfo;
-  protected Machine machine;
-  private MachineTimings timings = new MachineTimings(); // How long do things take to happen?
-  private long[] lineTimes; // Redraw line y this many tstates after interrupt
-  protected Settings settings;
+  protected final Machine machine;
+  protected final MachineTimings timings = new MachineTimings(); // How long do things take to happen?
+  protected final long[] lineTimes; // Redraw line y this many tstates after interrupt
+  protected final Settings settings;
+  protected final RamInfo ramInfo;
 
-  public AbstractSpectrumMachine(Display display, Machine machine, Settings settings) {
+  public AbstractSpectrumMachine(Display display, Machine machine, Settings settings, RamInfo ramInfo) {
     lineTimes = new long[display.SCREEN_HEIGHT + 1];
     this.machine = machine;
     this.settings = settings;
+    this.ramInfo = ramInfo;
   }
 
 

@@ -23,22 +23,21 @@ import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 public class Spec128 extends AbstractSpectrumMachine {
-  private Memory memory;
-  private Display display;
-  private MachinesPeriph machinesPeriph;
-  private Spectrum spectrum;
-  private Spec48 spec48;
-  private IPeriph periph;
+  private final Memory memory;
+  private final Display display;
+  private final MachinesPeriph machinesPeriph;
+  private final Spectrum spectrum;
+  private final Spec48 spec48;
+  private final IPeriph periph;
 
   public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph, Machine machine, Settings settings) {
-    super(display, machine, settings);
+    super(display, machine, settings, new Spec48RamInfo(spectrum, 8));
     this.memory = memory;
     this.display = display;
     this.machinesPeriph = machinesPeriph;
     this.spectrum = spectrum;
     this.spec48 = spec48;
     this.periph = periph;
-    this.ramInfo = new Spec48RamInfo(this.spec48, 8);
   }
 
   // Initialize the Spectrum 128K machine

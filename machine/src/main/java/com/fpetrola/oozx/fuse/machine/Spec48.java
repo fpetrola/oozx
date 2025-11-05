@@ -23,26 +23,26 @@ import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 public class Spec48 extends AbstractSpectrumMachine {
-  private Memory memory;
-  private Display display;
-  private MachinesPeriph machinesPeriph;
+  private final Memory memory;
+  private final MachinesPeriph machinesPeriph;
   public Spectrum spectrum;
-  private IPeriph periph;
+  private final IPeriph periph;
 
   public Spec48(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, IPeriph periph, Settings settings) {
-    super(display, machine, settings);
+    super(display, machine, settings, new Spec48RamInfo(spectrum, 3));
     this.memory = memory;
-    this.display = display;
     this.machinesPeriph = machinesPeriph;
     this.spectrum = spectrum;
     this.periph = periph;
-    this.settings = settings;
-    this.ramInfo = new Spec48RamInfo(this, 3);
   }
 
   // Check if a port is handled by the ULA
   public boolean portFromUla(int port) {
     // All even ports supplied by ULA
+    return portFromUlaStatic(port);
+  }
+
+  public static boolean portFromUlaStatic(int port) {
     return (port & 0x0001) == 0;
   }
 

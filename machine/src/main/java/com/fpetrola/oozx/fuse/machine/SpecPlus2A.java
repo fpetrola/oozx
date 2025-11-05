@@ -23,9 +23,6 @@ import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 public class SpecPlus2A extends AbstractSpectrumMachine {
-
-  private Memory memory;
-  private Display display;
   private MachinesPeriph machinesPeriph;
   private Spectrum spectrum;
   private Spec48 spec48;
@@ -33,16 +30,12 @@ public class SpecPlus2A extends AbstractSpectrumMachine {
   private SpecPlus3 specPlus3;
 
   public SpecPlus2A(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph, SpecPlus3 specPlus3, Settings settings) {
-    super(display, machine, settings);
-    this.memory = memory;
-    this.display = display;
+    super(display, machine, settings, new SpecPlus2ARamInfo(8, spectrum));
     this.machinesPeriph = machinesPeriph;
     this.spectrum = spectrum;
     this.spec48 = spec48;
     this.periph = periph;
     this.specPlus3 = specPlus3;
-    this.settings = settings;
-    this.ramInfo = new SpecPlus2ARamInfo(8);
     init();
   }
 
@@ -92,14 +85,17 @@ public class SpecPlus2A extends AbstractSpectrumMachine {
   // ===================================================================
   // RamInfo para +2A
   // ===================================================================
-  private class SpecPlus2ARamInfo extends RamInfo {
-    public SpecPlus2ARamInfo(int validPages) {
+  private static class SpecPlus2ARamInfo extends RamInfo {
+    private Spectrum spectrum;
+
+    public SpecPlus2ARamInfo(int validPages, Spectrum spectrum) {
+      this.spectrum = spectrum;
       this.validPages = validPages;
     }
 
     @Override
     public boolean portFromUla(int port) {
-      return specPlus3.portFromUla(port);
+      return false;
     }
 
     @Override
