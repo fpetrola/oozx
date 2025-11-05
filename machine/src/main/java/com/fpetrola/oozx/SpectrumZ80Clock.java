@@ -38,7 +38,7 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
 
   private Register pc;
 
-  public void setTStates(long tStates) {
+  public void setTStates(int tStates) {
     super.setTStates(tStates);
 //    timeout = 0;
   }

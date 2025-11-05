@@ -138,12 +138,12 @@ public class EventManager implements ZxModule {
     return 0;
   }
 
-  private void eventReduceTstates(Event ptr, long tstatesPerFrame) {
+  private void eventReduceTstates(Event ptr, int tstatesPerFrame) {
     ptr.tstates -= tstatesPerFrame;
   }
 
   // Called at end of frame to reduce T-state count of all entries
-  public void eventFrame(long tstatesPerFrame) {
+  public void eventFrame(int tstatesPerFrame) {
     for (int i = 0, eventListSize = eventList.size(); i < eventListSize; i++) {
       Event event = eventList.get(i);
       eventReduceTstates(event, tstatesPerFrame);
@@ -155,7 +155,7 @@ public class EventManager implements ZxModule {
   // Force all events between now and the next interrupt to happen
   public void eventForceEvents() {
     while (eventNextEvent < fuseMachineInfoSupplier.get().getTimings().tstatesPerFrame) { // Assume Machine.current
-      z80Clock.setTStates(eventNextEvent);
+      z80Clock.setTStates((int) eventNextEvent);
       eventDoEvents();
     }
   }

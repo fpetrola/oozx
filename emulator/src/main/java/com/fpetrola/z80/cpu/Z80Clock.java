@@ -19,9 +19,9 @@
 package com.fpetrola.z80.cpu;
 
 public interface Z80Clock {
-  long getTStates();
+  int getTStates();
 
-  void setTStates(long tstates);
+  void setTStates(int tstates);
 
   void addTStates(int tstatesToAdd);
 }

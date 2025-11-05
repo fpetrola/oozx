@@ -19,13 +19,13 @@
 package com.fpetrola.z80.cpu;
 
 public class DefaultZ80Clock implements Z80Clock {
-  protected long tStates;
+  protected int tStates;
 
-  public long getTStates() {
+  public int getTStates() {
     return tStates;
   }
 
-  public void setTStates(long tStates) {
+  public void setTStates(int tStates) {
     this.tStates = tStates;
   }
 
