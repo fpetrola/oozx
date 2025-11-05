@@ -19,6 +19,7 @@
         <module>machines/ula</module>
         <module>host</module>
         <module>machines/ay</module>
+        <module>machines/memory</module>
     </modules>
 
 </project>
