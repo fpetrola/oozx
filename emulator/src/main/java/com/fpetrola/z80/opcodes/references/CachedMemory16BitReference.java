@@ -23,10 +23,9 @@ import com.fpetrola.z80.memory.Memory;
 public class CachedMemory16BitReference extends Memory16BitReference {
   public CachedMemory16BitReference(int lastFetchedAddress, Memory memory, ImmutableOpcodeReference pc, int delta) {
     super(memory, pc, delta);
-    this.fetchedAddress = lastFetchedAddress;
   }
 
   protected int fetchAddress() {
-    return fetchedAddress;
+    return 1;
   }
 }

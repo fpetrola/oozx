@@ -24,11 +24,9 @@ import com.fpetrola.z80.registers.Register;
 public class CachedMemory8BitReference extends Memory8BitReference {
   public CachedMemory8BitReference(int lastFetchedAddress, Memory memory, Register pc, int delta) {
     super(memory, pc, delta);
-    this.fetchedAddress = lastFetchedAddress;
   }
 
-  @Override
   protected int fetchAddress() {
-    return fetchedAddress;
+    return 1;
   }
 }

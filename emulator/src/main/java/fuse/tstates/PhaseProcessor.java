@@ -122,7 +122,7 @@ public class PhaseProcessor extends PhaseProcessorBase {
 
       public boolean visitMemory16BitReference(Memory16BitReference memory16BitReference) {
         afterExecutionActions.add(() -> {
-          memptr.write((memory16BitReference.fetchedAddress + 2) & 0xFFFF);
+          memptr.write((memory16BitReference.read() + 2) & 0xFFFF);
         });
         return false;
       }

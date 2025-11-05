@@ -24,10 +24,8 @@ import com.fpetrola.z80.memory.Memory;
 
 public class Memory16BitReference implements OpcodeReference {
   private final Memory memory;
-  public int fetchedAddress;
   private final ImmutableOpcodeReference pc;
   private final int delta;
-
 
   public Memory getMemory() {
     return memory;
@@ -48,22 +46,16 @@ public class Memory16BitReference implements OpcodeReference {
   }
 
   public int read() {
-    return fetchAddress();
+    return Memory.read16Bits(memory, (pc.read() + delta) & 0xFFFF);
   }
 
   public void write(int value) {
-    int address = fetchAddress();
+    int address = Memory.read16Bits(memory, (pc.read() + delta) & 0xFFFF);
     Memory.write16Bits(memory, value, address);
   }
 
-  protected int fetchAddress() {
-    fetchedAddress = Memory.read16Bits(memory, (pc.read() + delta) & 0xFFFF);
-
-    return fetchedAddress;
-  }
-
   public String toString() {
-    Integer read = fetchedAddress;
+    Integer read = 1;
     if (read == null) {
       return "";
     } else {
@@ -81,7 +73,7 @@ public class Memory16BitReference implements OpcodeReference {
   }
 
   public Object clone() throws CloneNotSupportedException {
-    int lastFetchedAddress = fetchedAddress;
+    int lastFetchedAddress = 1;
     return new CachedMemory16BitReference(lastFetchedAddress, memory, pc, delta);
   }
 

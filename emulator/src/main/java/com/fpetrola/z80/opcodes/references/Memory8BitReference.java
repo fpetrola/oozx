@@ -25,7 +25,6 @@ import com.fpetrola.z80.registers.Register;
 public class Memory8BitReference implements ImmutableOpcodeReference {
   private final Memory memory;
   private final int delta;
-  public Integer fetchedAddress;
   private final Register pc;
 
   public Memory8BitReference(Memory memory, Register pc, int delta) {
@@ -34,32 +33,16 @@ public class Memory8BitReference implements ImmutableOpcodeReference {
     this.delta = delta;
   }
 
-  public int getDelta() {
-    return delta;
-  }
-  public Memory getMemory() {
-    return memory;
-  }
-
-  public Register getPc() {
-    return pc;
-  }
-
   public int read() {
-    Integer wordNumber = fetchAddress();
-    return memory.read((wordNumber + delta) & 0xFFFF, 0);
+    return memory.read((pc.read() + delta) & 0xFFFF, 0);
   }
 
   public void write(int value) {
-    memory.write(fetchAddress(), value);
-  }
-
-  protected int fetchAddress() {
-    return fetchedAddress = pc.read();
+    memory.write(pc.read(), value);
   }
 
   public String toString() {
-    Integer read = fetchedAddress;
+    Integer read = 1;
     //return read == null ? "" : "0x" + Helper.convertToHex(read.intValue()) + "";
     if (read == null) {
       return "";
@@ -72,13 +55,25 @@ public class Memory8BitReference implements ImmutableOpcodeReference {
     return 1;
   }
 
+  public int getDelta() {
+    return delta;
+  }
+
+  public Memory getMemory() {
+    return memory;
+  }
+
+  public Register getPc() {
+    return pc;
+  }
+
   public void accept(InstructionVisitor instructionVisitor) {
     if (!instructionVisitor.visitMemory8BitReference(this))
       ImmutableOpcodeReference.super.accept(instructionVisitor);
   }
 
   public Object clone() throws CloneNotSupportedException {
-    return new CachedMemory8BitReference(fetchedAddress, memory, pc, delta);
+    return new CachedMemory8BitReference(-1, memory, pc, delta);
   }
 
 }
