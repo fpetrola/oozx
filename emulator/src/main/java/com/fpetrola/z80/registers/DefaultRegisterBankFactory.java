@@ -88,20 +88,19 @@ public class DefaultRegisterBankFactory {
   }
 
   public static class RRegister extends Plain8BitRegister {
-    private boolean regRBit7;
+    private int regRBit7;
 
     public RRegister() {
       super(RegisterName.R.name());
     }
 
     public void write(int value) {
-      regRBit7 = (value > 0x7f);
-      data = regRBit7 ? (value & 0x7f) | 0x80 : value & 0x7f;
+      regRBit7 = (value > 0x7f) ? 0x80 : 0;
+      data = (value & 0x7f) | regRBit7;
     }
 
-    public void increment() {
-      super.increment();
-      data = regRBit7 ? (data & 0x7f) | 0x80 : data & 0x7f;
+    public void increment() { //TODO: revisar regRBit7
+      data = (data + 1 & 0x7f) | regRBit7;
     }
   }
 }

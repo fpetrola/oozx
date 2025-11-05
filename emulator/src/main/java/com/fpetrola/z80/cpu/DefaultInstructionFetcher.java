@@ -67,7 +67,7 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
   @Override
   public Instruction fetchNextInstruction() {
 //    fetchListeners.forAll(FetchListener::beforeFetch);
-    int rValue = registerR.read();
+//    int rValue = registerR.read();
     registerR.increment();
     pcValue = pc.read();
 
@@ -79,7 +79,7 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
       registerR.write(registerR.read() + rdelta);
     }
 
-    rdelta = registerR.read() - rValue;
+//    rdelta = registerR.read() - rValue;
 //    if (rdelta < 0)
 //      System.out.println("adgagadg");
 //    ((AbstractInstruction) currentInstruction).setRDelta(rdelta);
