@@ -27,7 +27,7 @@ import java.util.function.ToIntBiFunction;
 public class TableAluOperation extends AluOperation {
   protected int[] table;
 
-  protected void init(ToIntBiFunction<Integer, Integer> biFunction) {
+  protected void init(ToIntBiFunction biFunction) {
     table = new int[256 * 2];
     for (int a = 0; a < 256; a++) {
       for (int c = 0; c < 2; c++) {
@@ -37,7 +37,7 @@ public class TableAluOperation extends AluOperation {
     }
   }
 
-  public void init(ToIntTriFunction<java.lang.Integer, java.lang.Integer, java.lang.Integer> triFunction) {
+  public void init(ToIntTriFunction triFunction) {
     table = new int[256 * 256 * 2];
     for (int a = 0; a < 256; a++) {
       for (int value = 0; value < 256; value++) {

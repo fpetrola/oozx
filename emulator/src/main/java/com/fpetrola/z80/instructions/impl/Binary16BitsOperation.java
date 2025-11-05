@@ -23,6 +23,7 @@ import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.flag.AluOperation;
 import org.apache.commons.lang3.function.TriFunction;
 
 public class Binary16BitsOperation extends ParameterizedBinaryAluInstruction {
@@ -30,16 +31,16 @@ public class Binary16BitsOperation extends ParameterizedBinaryAluInstruction {
     super(target, source, flag, binaryAluOperation);
   }
 
-  protected static  int calculate(Register tFlagRegister, int a, int b, TriFunction<java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer> operation, Binary16BitsAluOperation  action) {
+  protected static  int calculate(Register tFlagRegister, int a, int b, AluOperation.ToIntTriFunction operation, Binary16BitsAluOperation  action) {
     return calculate(tFlagRegister, a, b, operation, action, (v1, v2, result1) -> ((v1 & 0x8800 | (v2 & 0x8800) >> 1) | (result1 & 0x1A800 | (result1 & 0x2000) >> 1) >> 3) >> 8);
   }
 
-  protected static  int calculate(Register tFlagRegister, int a, int b, TriFunction<java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer> operation, Binary16BitsAluOperation action, TriFunction<java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer> compressFunction) {
+  protected static  int calculate(Register tFlagRegister, int a, int b, AluOperation.ToIntTriFunction operation, Binary16BitsAluOperation action, AluOperation.ToIntTriFunction compressFunction) {
     int value1 = a;
     int value2 = b;
     int flagValue = tFlagRegister.read();
-    int result = operation.apply(value1, value2, flagValue);
-    value1 = compressFunction.apply(value1, value2, result);
+    int result = operation.applyAsInt(value1, value2, flagValue);
+    value1 = compressFunction.applyAsInt(value1, value2, result);
     action.execute(tFlagRegister, value1, value2, result);
     return result & 0xffff;
   }
