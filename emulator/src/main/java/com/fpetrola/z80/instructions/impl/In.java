@@ -69,9 +69,7 @@ public class In extends TargetSourceInstruction<ImmutableOpcodeReference> {
 
     boolean equalsN = !(source instanceof Register);
     if (equalsN) {
-      Integer wordNumber = a.read();
-      int i = ((wordNumber << 8) & 0xFFFF) & 0xFFFF;
-      port = (port | i) & 0xFFFF;
+      port = (port | a.read() << 8) & 0xFFFF;
     } else {
       port = bc.read();
     }

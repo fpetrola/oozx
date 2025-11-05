@@ -39,8 +39,7 @@ public class RST extends AbstractInstruction implements JumpInstruction {
   }
 
   public int execute() {
-    Integer wordNumber = pc.read();
-    Push.doPush((wordNumber + 1) & 0xFFFF, sp, memory);
+    Push.doPush((pc.read() + 1) & 0xFFFF, sp, memory);
     setNextPC(p);
     return 5 + 3 + 3;
   }

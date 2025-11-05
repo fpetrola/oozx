@@ -51,15 +51,9 @@ public class Out extends TargetSourceInstruction<ImmutableOpcodeReference> {
     }
 
     private int getRead() {
-      Integer read = null;
-
-      if (read == null) {
-        read = target.read();
-        if (!(target instanceof Register)) {
-          Integer wordNumber = a.read();
-          int i = ((wordNumber << 8) & 0xFFFF) & 0xFFFF;
-          read = (read | i) & 0xFFFF;
-        }
+      int read = target.read();
+      if (!(target instanceof Register)) {
+        read = (read | a.read() << 8) & 0xFFFF;
       }
       return read;
     }

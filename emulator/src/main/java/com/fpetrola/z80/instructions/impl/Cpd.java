@@ -61,8 +61,7 @@ public class Cpd extends Cpi {
   protected void flagOperation(int valueFromHL) {
     int lastCarry = flag.read() & 1;
     cpdTableAluOperation.executeWithCarry2(memory.read(hl.read(), 0), a.read(), bc.read() != 0 ? 1 : 0, flag);
-    Integer wordNumber = flag.read();
-    flag.write((wordNumber | lastCarry) & 0xFFFF);
+    flag.write((flag.read() | lastCarry) & 0xFFFF);
   }
 
   public void accept(InstructionVisitor visitor) {

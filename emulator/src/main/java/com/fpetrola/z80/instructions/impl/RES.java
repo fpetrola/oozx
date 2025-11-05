@@ -30,9 +30,7 @@ public class RES extends BitOperation {
   }
 
   public int execute() {
-    Integer wordNumber = target.read();
-    int i = ~(1 << n);
-    target.write((wordNumber & i) & 0xFFFF);
+    target.write((target.read() & ~(1 << n)) & 0xFFFF);
     return cyclesCost;
   }
 

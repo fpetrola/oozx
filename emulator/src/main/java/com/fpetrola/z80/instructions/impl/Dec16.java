@@ -28,8 +28,7 @@ public class Dec16 extends DefaultTargetInstruction {
   }
 
   public int execute() {
-    Integer wordNumber = target.read();
-    target.write((wordNumber - 1) & 0xFFFF);
+    target.write((target.read() - 1) & 0xFFFF);
     return cyclesCost;
   }
 

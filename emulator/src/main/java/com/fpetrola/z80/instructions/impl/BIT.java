@@ -59,19 +59,11 @@ public class BIT extends BitOperation {
     private IntSupplier addressP;
 
     public BitAluOperation(OpcodeReference target, Register memptr) {
-      addressP = () -> {
-        return target.read();
-      };
+      addressP = () -> target.read();
       if (target instanceof MemoryPlusRegister8BitReference memoryPlusRegister8BitReference)
-        addressP = () -> {
-          Integer wordNumber = memoryPlusRegister8BitReference.getTarget().read();
-          int i = memoryPlusRegister8BitReference.fetchRelative();
-          return ((wordNumber + i) & 0xFFFF) >> 8;
-        };
+        addressP = () -> ((memoryPlusRegister8BitReference.getTarget().read() + (int) memoryPlusRegister8BitReference.fetchRelative()) & 0xFFFF) >> 8;
       else if (target instanceof IndirectMemory8BitReference)
-        addressP = () -> {
-          return memptr.read() >>> 8;
-        };
+        addressP = () -> memptr.read() >>> 8;
     }
 
     public int execute2(int bit, int F, int value1) {

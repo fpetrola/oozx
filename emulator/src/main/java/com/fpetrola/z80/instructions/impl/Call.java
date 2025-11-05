@@ -36,9 +36,7 @@ public class Call extends ConditionalInstruction<Condition> {
   }
 
   public int beforeJump(int jumpAddress) {
-    Integer wordNumber = pc.read();
-    int value = (wordNumber + length) & 0xFFFF;
-    Push.doPush(value, sp, memory);
+    Push.doPush((pc.read() + length) & 0xFFFF, sp, memory);
     return jumpAddress;
   }
 

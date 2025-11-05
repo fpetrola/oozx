@@ -30,8 +30,7 @@ public class SET extends BitOperation {
   }
 
   public int execute() {
-    Integer wordNumber = target.read();
-    target.write((wordNumber | 1 << n) & 0xFFFF);
+    target.write((target.read() | 1 << n) & 0xFFFF);
     return cyclesCost;
   }
 
