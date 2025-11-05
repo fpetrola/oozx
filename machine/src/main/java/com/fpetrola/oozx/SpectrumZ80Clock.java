@@ -36,7 +36,8 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
 
   public void addTStates(int tStatesToAdd) {
     this.tStates += tStatesToAdd;
-    timeoutProcessor.accept(tStatesToAdd);
+    if (timeout > 0)
+      timeoutProcessor.accept(tStatesToAdd);
   }
 
   public void addTStates(int tStatesToAdd, String description) {

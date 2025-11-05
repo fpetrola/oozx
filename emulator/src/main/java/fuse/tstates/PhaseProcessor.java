@@ -36,22 +36,8 @@ import java.util.List;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class PhaseProcessor extends PhaseProcessorBase {
-
-  private Register registerI = getRegister(I);
-  private Register registerR = getRegister(R);
-  private Register registerIR = getRegister(IR);
-  private Register registerSP = getRegister(SP);
-  private Register registerPC = getRegister(PC);
-  private Register registerDE = getRegister(DE);
-  private Register registerBC = getRegister(BC);
-  private Register registerHL = getRegister(HL);
-  private Register memptr;
-  private Runnable dummyRunnable = () -> {
-  };
-
   public PhaseProcessor(InstructionFetcher instructionFetcher, State state) {
     super(instructionFetcher, state);
-    memptr = state.getMemptr();
   }
 
   public void visitingRst(RST rst) {
@@ -105,25 +91,15 @@ public class PhaseProcessor extends PhaseProcessorBase {
       public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference1) {
         boolean b = indirectMemory8BitReference1.getTarget() instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"));
         if (b || indirectMemory8BitReference1.getTarget() instanceof Memory16BitReference)
-          afterExecutionActions.add(() -> {
-            Integer wordNumber = ld.getSource().read();
-            Integer wordNumber1 = (indirectMemory8BitReference1.address + 1) & 0xFFFF;
-            Integer number = (wordNumber << 8) & 0xFFFF;
-            int i = ((wordNumber1 & 0xff) & 0xFFFF) & 0xFFFF;
-            memptr.write((number | i) & 0xFFFF);
-          });
+          afterExecutionActions.add(() -> memptr.write(((ld.getSource().read() << 8) | indirectMemory8BitReference1.address + 1 & 0xff) & 0xFFFF));
       }
 
       public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
-        afterExecutionActions.add(() -> {
-          memptr.write((indirectMemory16BitReference.address + 1) & 0xFFFF);
-        });
+        afterExecutionActions.add(() -> memptr.write((indirectMemory16BitReference.address + 1) & 0xFFFF));
       }
 
       public boolean visitMemory16BitReference(Memory16BitReference memory16BitReference) {
-        afterExecutionActions.add(() -> {
-          memptr.write((memory16BitReference.read() + 2) & 0xFFFF);
-        });
+        afterExecutionActions.add(() -> memptr.write((memory16BitReference.read() + 2) & 0xFFFF));
         return false;
       }
     });
@@ -131,15 +107,11 @@ public class PhaseProcessor extends PhaseProcessorBase {
       public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
         boolean b = indirectMemory8BitReference.getTarget() instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"));
         if (b || indirectMemory8BitReference.getTarget() instanceof Memory16BitReference)
-          afterExecutionActions.add(() -> {
-            memptr.write((indirectMemory8BitReference.address + 1) & 0xFFFF);
-          });
+          afterExecutionActions.add(() -> memptr.write((indirectMemory8BitReference.address + 1) & 0xFFFF));
       }
 
       public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
-        afterExecutionActions.add(() -> {
-          memptr.write((indirectMemory16BitReference.address + 1) & 0xFFFF);
-        });
+        afterExecutionActions.add(() -> memptr.write((indirectMemory16BitReference.address + 1) & 0xFFFF));
       }
     });
 

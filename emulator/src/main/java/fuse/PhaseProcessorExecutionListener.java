@@ -26,8 +26,8 @@ import fuse.tstates.phases.BeforeExecution;
 
 public class PhaseProcessorExecutionListener implements ExecutionListener {
   private final PhaseProcessor phaseProcessor;
-  private AfterExecution afterExecution = new AfterExecution();
-  private BeforeExecution beforeExecution = new BeforeExecution();
+  private final AfterExecution afterExecution = new AfterExecution();
+  private final BeforeExecution beforeExecution = new BeforeExecution();
 
   public PhaseProcessorExecutionListener(PhaseProcessor phaseProcessor) {
     this.phaseProcessor = phaseProcessor;

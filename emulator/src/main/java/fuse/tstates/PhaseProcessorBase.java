@@ -34,19 +34,37 @@ import java.util.Optional;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang.Integer> {
+  public int writeCount;
   protected Phase phase;
   protected int address;
   protected boolean processing;
   protected int readCount;
-  public int writeCount;
-  private final InstructionFetcher instructionFetcher;
+  protected final InstructionFetcher instructionFetcher;
   protected final State state;
-  private final Register registerSP;
+  protected final Register registerI;
+  protected final Register registerR;
+  protected final Register registerIR;
+  protected final Register registerSP;
+  protected final Register registerPC;
+  protected final Register registerDE;
+  protected final Register registerBC;
+  protected final Register registerHL;
+  protected final Register memptr;
+  protected final Runnable dummyRunnable = () -> {
+  };
 
   public PhaseProcessorBase(InstructionFetcher instructionFetcher, State state) {
     this.instructionFetcher = instructionFetcher;
     this.state = state;
-    this.registerSP = getRegister(SP);
+    memptr = state.getMemptr();
+    registerI = getRegister(I);
+    registerR = getRegister(R);
+    registerIR = getRegister(IR);
+    registerSP = getRegister(SP);
+    registerPC = getRegister(PC);
+    registerDE = getRegister(DE);
+    registerBC = getRegister(BC);
+    registerHL = getRegister(HL);
   }
 
   public void addMw(int address, int value) {
