@@ -170,7 +170,7 @@ public class PhaseProcessor extends PhaseProcessorBase {
     final List<Runnable> afterExecutionActions = new ArrayList<>();
 
     if (ex.getTarget() instanceof IndirectMemory16BitReference indirectMemory16BitReference)
-      if (indirectMemory16BitReference.target instanceof Register register && register.getName().equals(RegisterName.SP.name())) {
+      if (indirectMemory16BitReference.getTarget() instanceof Register register && register.getName().equals(RegisterName.SP.name())) {
         afterExecutionActions.add(() -> memptr.write(ex.getSource().read()));
       }
 

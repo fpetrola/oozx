@@ -56,7 +56,7 @@ public class OpcodeReferenceCloner implements InstructionVisitor<ImmutableOpcode
 
   @Override
   public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
-    setResult(new IndirectMemory16BitReference(indirectMemory16BitReference.target, indirectMemory16BitReference.getMemory()));
+    setResult(new IndirectMemory16BitReference(indirectMemory16BitReference.getTarget(), indirectMemory16BitReference.getMemory()));
   }
 
   @Override

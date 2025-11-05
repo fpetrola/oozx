@@ -47,7 +47,7 @@ public class InstructionActionExecutor implements InstructionVisitor<java.lang.I
 
   @Override
   public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
-    indirectMemory16BitReference.target.accept(this);
+    indirectMemory16BitReference.getTarget().accept(this);
   }
 
   @Override
@@ -68,7 +68,7 @@ public class InstructionActionExecutor implements InstructionVisitor<java.lang.I
     } else if (cloneable instanceof IndirectMemory8BitReference indirectMemory8BitReference) {
       executeAction(indirectMemory8BitReference.getTarget());
     } else if (cloneable instanceof IndirectMemory16BitReference indirectMemory16BitReference) {
-      executeAction(indirectMemory16BitReference.target);
+      executeAction(indirectMemory16BitReference.getTarget());
     } else if (cloneable instanceof VirtualRegister virtualRegister) {
       actionExecutor.accept(virtualRegister);
     }

@@ -190,7 +190,7 @@ public class ToStringInstructionVisitor implements InstructionVisitor<String> {
 
   @Override
   public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
-    result = "(" + indirectMemory16BitReference.target + ")";
+    result = "(" + indirectMemory16BitReference.getTarget() + ")";
   }
 
   @Override

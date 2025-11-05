@@ -26,14 +26,9 @@ import java.util.function.BiConsumer;
 
 public final class IndirectMemory16BitReference implements OpcodeReference {
   private final BiConsumer<Integer, Integer> memoryWriter;
-  public ImmutableOpcodeReference target;
-  public int address;
-
-  public Memory getMemory() {
-    return memory;
-  }
-
+  private final ImmutableOpcodeReference target;
   private final Memory memory;
+  public int address;
 
   public IndirectMemory16BitReference(ImmutableOpcodeReference target, Memory memory) {
     this.target = target;
@@ -47,8 +42,7 @@ public final class IndirectMemory16BitReference implements OpcodeReference {
 
   public int read() {
     address = target.read();
-    int fetchAddress = Memory.read16Bits(memory, address);
-    return fetchAddress;
+    return Memory.read16Bits(memory, address);
   }
 
   public void write(int value) {
@@ -56,16 +50,24 @@ public final class IndirectMemory16BitReference implements OpcodeReference {
     memoryWriter.accept(value, address);
   }
 
-  public String toString() {
-    return "(" + target.toString() + ")";
+  public Memory getMemory() {
+    return memory;
   }
 
   public int getLength() {
     return target.getLength();
   }
 
+  public ImmutableOpcodeReference getTarget() {
+    return target;
+  }
+
   public Object clone() throws CloneNotSupportedException {
     return new IndirectMemory16BitReference((ImmutableOpcodeReference) target.clone(), memory);
+  }
+
+  public String toString() {
+    return "(" + target.toString() + ")";
   }
 
   public void accept(InstructionVisitor instructionVisitor) {

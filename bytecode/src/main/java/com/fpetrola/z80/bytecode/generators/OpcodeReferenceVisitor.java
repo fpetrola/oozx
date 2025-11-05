@@ -103,10 +103,10 @@ public class OpcodeReferenceVisitor implements InstructionVisitor<Object> {
   @Override
   public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
     Object variable;
-    if (indirectMemory16BitReference.target instanceof Memory16BitReference memory16BitReference) {
+    if (indirectMemory16BitReference.getTarget() instanceof Memory16BitReference memory16BitReference) {
       variable = memory16BitReference.read();
     } else {
-      Register target = (Register) indirectMemory16BitReference.target;
+      Register target = (Register) indirectMemory16BitReference.getTarget();
       OpcodeReferenceVisitor opcodeReferenceVisitor = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
       target.accept(opcodeReferenceVisitor);
 

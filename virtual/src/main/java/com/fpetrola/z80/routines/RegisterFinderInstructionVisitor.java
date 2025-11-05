@@ -62,7 +62,7 @@ public abstract class RegisterFinderInstructionVisitor implements InstructionVis
   }
 
   public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
-    indirectMemory16BitReference.target.accept(this);
+    indirectMemory16BitReference.getTarget().accept(this);
   }
 
   public void visitMemoryAccessOpcodeReference(MemoryAccessOpcodeReference memoryAccessOpcodeReference) {

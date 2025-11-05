@@ -355,12 +355,12 @@ public class InstructionTransformer extends InstructionTransformerBase {
 
       return (R) new IndirectMemory8BitReference(result, indirectMemory8BitReference.getMemory());
     } else if (cloneable instanceof IndirectMemory16BitReference indirectMemory16BitReference) {
-      OpcodeReference target1 = (OpcodeReference) indirectMemory16BitReference.target;
+      OpcodeReference target1 = (OpcodeReference) indirectMemory16BitReference.getTarget();
       ImmutableOpcodeReference result;
       if (target1 instanceof Register register) {
         result = virtualRegisterFactory.createVirtualRegister(null, register, virtualFetcher, currentInstruction);
       } else {
-        result = clone(indirectMemory16BitReference.target);
+        result = clone(indirectMemory16BitReference.getTarget());
       }
 
       return (R) new IndirectMemory16BitReference(result, indirectMemory16BitReference.getMemory());
