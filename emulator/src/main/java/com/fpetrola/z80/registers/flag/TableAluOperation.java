@@ -19,15 +19,11 @@
 package com.fpetrola.z80.registers.flag;
 
 import com.fpetrola.z80.registers.Register;
-import org.apache.commons.lang3.function.TriFunction;
-
-import java.util.function.BiFunction;
-import java.util.function.ToIntBiFunction;
 
 public class TableAluOperation extends AluOperation {
   protected int[] table;
 
-  protected void init(ToIntBiFunction biFunction) {
+  protected void init(ToPrimitiveIntBiFunction biFunction) {
     table = new int[256 * 2];
     for (int a = 0; a < 256; a++) {
       for (int c = 0; c < 2; c++) {
@@ -37,7 +33,7 @@ public class TableAluOperation extends AluOperation {
     }
   }
 
-  public void init(ToIntTriFunction triFunction) {
+  public void init(ToPrimitiveIntTriFunction triFunction) {
     table = new int[256 * 256 * 2];
     for (int a = 0; a < 256; a++) {
       for (int value = 0; value < 256; value++) {

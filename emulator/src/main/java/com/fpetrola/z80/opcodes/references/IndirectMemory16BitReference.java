@@ -21,11 +21,14 @@ package com.fpetrola.z80.opcodes.references;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.flag.PrimitiveIntBiFunction;
+import com.fpetrola.z80.registers.flag.ToPrimitiveIntBiFunction;
 
 import java.util.function.BiConsumer;
+import java.util.function.ToIntBiFunction;
 
 public final class IndirectMemory16BitReference implements OpcodeReference {
-  private final BiConsumer<Integer, Integer> memoryWriter;
+  private final PrimitiveIntBiFunction memoryWriter;
   private final ImmutableOpcodeReference target;
   private final Memory memory;
   public int address;
@@ -47,7 +50,7 @@ public final class IndirectMemory16BitReference implements OpcodeReference {
 
   public void write(int value) {
     address = target.read();
-    memoryWriter.accept(value, address);
+    memoryWriter.applyAsInt(value, address);
   }
 
   public Memory getMemory() {

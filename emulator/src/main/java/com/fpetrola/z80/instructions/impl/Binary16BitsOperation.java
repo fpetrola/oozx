@@ -23,19 +23,18 @@ import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.AluOperation;
-import org.apache.commons.lang3.function.TriFunction;
+import com.fpetrola.z80.registers.flag.ToPrimitiveIntTriFunction;
 
 public class Binary16BitsOperation extends ParameterizedBinaryAluInstruction {
   public Binary16BitsOperation(OpcodeReference target, ImmutableOpcodeReference source, Register flag, BinaryAluOperation binaryAluOperation) {
     super(target, source, flag, binaryAluOperation);
   }
 
-  protected static  int calculate(Register tFlagRegister, int a, int b, AluOperation.ToIntTriFunction operation, Binary16BitsAluOperation  action) {
+  protected static  int calculate(Register tFlagRegister, int a, int b, ToPrimitiveIntTriFunction operation, Binary16BitsAluOperation  action) {
     return calculate(tFlagRegister, a, b, operation, action, (v1, v2, result1) -> ((v1 & 0x8800 | (v2 & 0x8800) >> 1) | (result1 & 0x1A800 | (result1 & 0x2000) >> 1) >> 3) >> 8);
   }
 
-  protected static  int calculate(Register tFlagRegister, int a, int b, AluOperation.ToIntTriFunction operation, Binary16BitsAluOperation action, AluOperation.ToIntTriFunction compressFunction) {
+  protected static  int calculate(Register tFlagRegister, int a, int b, ToPrimitiveIntTriFunction operation, Binary16BitsAluOperation action, ToPrimitiveIntTriFunction compressFunction) {
     int value1 = a;
     int value2 = b;
     int flagValue = tFlagRegister.read();

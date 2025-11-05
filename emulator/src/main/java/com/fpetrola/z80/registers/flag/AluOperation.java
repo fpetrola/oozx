@@ -19,28 +19,16 @@
 package com.fpetrola.z80.registers.flag;
 
 import com.fpetrola.z80.registers.Register;
-import org.apache.commons.lang3.function.TriFunction;
-
-import java.util.function.BiFunction;
-import java.util.function.ToIntBiFunction;
 
 public class AluOperation extends AluOperationBase {
-  public interface ToIntTriFunction {
-    int applyAsInt(int t, int u, int v);
-  }
-
-  public interface ToIntBiFunction {
-    int applyAsInt(int t, int u);
-  }
-
   public AluOperation() {
     super();
     F = 0;
     if (execute(0, 0, 0) != -1) {
-      ToIntTriFunction triFunction = this::execute;
+      ToPrimitiveIntTriFunction triFunction = this::execute;
       init(triFunction);
     } else if (execute(0, 0) != -1) {
-      ToIntBiFunction biFunction = this::execute;
+      ToPrimitiveIntBiFunction biFunction = this::execute;
       init(biFunction);
     }
   }
@@ -53,10 +41,10 @@ public class AluOperation extends AluOperationBase {
     return -1;
   }
 
-  protected void init(ToIntBiFunction biFunction) {
+  protected void init(ToPrimitiveIntBiFunction biFunction) {
   }
 
-  public void init(ToIntTriFunction triFunction) {
+  public void init(ToPrimitiveIntTriFunction triFunction) {
   }
 
   public int executeWithCarry(int regA, Register flag) {
