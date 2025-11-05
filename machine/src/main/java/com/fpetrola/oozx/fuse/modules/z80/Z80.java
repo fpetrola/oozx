@@ -228,7 +228,7 @@ public class Z80 implements ZxModule {
     if (OOSpectrumConnector.noTest)
       phaseProcessor = new FusePhaseProcessor(this) {
         public void addSingleMc(int time1, int delta, int baseAddress, String description) {
-          getState().addEventNumber(time1);
+          this.state.addEventNumber(time1);
         }
       };
     else

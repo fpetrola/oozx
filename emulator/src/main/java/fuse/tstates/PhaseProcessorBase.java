@@ -39,9 +39,9 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
   protected boolean processing;
   protected int readCount;
   public int writeCount;
-  private InstructionFetcher instructionFetcher;
-  private State state;
-  private Register registerSP;
+  private final InstructionFetcher instructionFetcher;
+  protected final State state;
+  private final Register registerSP;
 
   public PhaseProcessorBase(InstructionFetcher instructionFetcher, State state) {
     this.instructionFetcher = instructionFetcher;
@@ -51,10 +51,6 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
 
   public void addMw(int address, int value) {
     getAddEvent(new Event(0, "MW", address, value));
-  }
-
-  protected State getState() {
-    return state;
   }
 
   public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
@@ -68,7 +64,7 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
   }
 
   protected void getAddEvent(Event time1) {
-    getState().addEvent(time1);
+    state.addEvent(time1);
   }
 
   public void addMr(int address, int value) {
@@ -76,7 +72,7 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
   }
 
   protected Register getRegister(RegisterName registerName) {
-    return getState().getRegister(registerName);
+    return state.getRegister(registerName);
   }
 
   public void setAddress(int address) {
