@@ -25,7 +25,6 @@ import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Ret;
-import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.IPopReturnAddress;
 import com.fpetrola.z80.se.ReturnAddressWordNumber;
@@ -81,7 +80,7 @@ public class RoutineFinder {
         createOrUpdateCurrentRoutine(pcValue, instruction.getLength());
 
       if (lastInstruction instanceof JP jp && jp.getPositionOpcodeReference() instanceof Register register) {
-        int t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
+        int t = state.getMemory().read16Bits(state.getRegisterSP().read());
         if (t == lastPc + 1) {
 //          boolean syntheticReturnAddress = routineManager.getDataflowService().isSyntheticReturnAddress();
           Integer nextPC = register.read();

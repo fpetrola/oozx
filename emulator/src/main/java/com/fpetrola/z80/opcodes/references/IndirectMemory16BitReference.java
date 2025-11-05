@@ -22,10 +22,6 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.PrimitiveIntBiFunction;
-import com.fpetrola.z80.registers.flag.ToPrimitiveIntBiFunction;
-
-import java.util.function.BiConsumer;
-import java.util.function.ToIntBiFunction;
 
 public final class IndirectMemory16BitReference implements OpcodeReference {
   private final PrimitiveIntBiFunction memoryWriter;
@@ -38,14 +34,14 @@ public final class IndirectMemory16BitReference implements OpcodeReference {
     this.memory = memory;
 
     if (target instanceof Register register && register.getName().equals("SP"))
-      memoryWriter = (value, address) -> Memory.write16Bits(memory, value, address);
+      memoryWriter = memory::write16Bits;
     else
-      memoryWriter = (value, address) -> Memory.write16BitsR(memory, value, address);
+      memoryWriter = memory::write16BitsReverse;
   }
 
   public int read() {
     address = target.read();
-    return Memory.read16Bits(memory, address);
+    return memory.read16Bits(address);
   }
 
   public void write(int value) {

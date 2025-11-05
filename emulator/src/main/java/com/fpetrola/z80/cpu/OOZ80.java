@@ -21,7 +21,6 @@ package com.fpetrola.z80.cpu;
 import com.fpetrola.z80.instructions.impl.EI;
 import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 
 import static com.fpetrola.z80.cpu.State.InterruptionMode.IM2;
@@ -104,7 +103,7 @@ public class OOZ80 implements Z80Cpu {
     if (state.getInterruptionMode() == IM2) {
       int wordNumber = state.getRegI().read();
       int wordNumber1 = (wordNumber << 8) & 0xFFFF;
-      value = Memory.read16Bits(state.getMemory(), (wordNumber1 | 0xff) & 0xFFFF);
+      value = state.getMemory().read16Bits((wordNumber1 | 0xff) & 0xFFFF);
     } else {
       value = 0x0038;
     }

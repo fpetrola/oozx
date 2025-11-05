@@ -39,7 +39,7 @@ public class SePop extends Pop implements IPopReturnAddress {
   public int execute() {
     setNextPC(-1);
     returnAddress = null;
-    var read = Memory.read16Bits(memory, sp.read());
+    var read = memory.read16Bits(sp.read());
 
 //    if (read instanceof ReturnAddressWordNumber returnAddressWordNumber) {
 //      RoutineExecutorHandler routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;

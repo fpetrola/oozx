@@ -22,7 +22,6 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 import com.fpetrola.z80.se.instructions.SEInstructionFactory;
 
@@ -45,7 +44,7 @@ public class JPRegisterAddressAction extends AddressAction {
 
     if (doBranch) {
       State state = routineExecutionHandler.getState();
-      int t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
+      int t = state.getMemory().read16Bits(state.getRegisterSP().read());
       if (t == address + 1) {
         int jumpAddress = conditionalInstruction.calculateJumpAddress();
         if (jumpAddress > 16384)

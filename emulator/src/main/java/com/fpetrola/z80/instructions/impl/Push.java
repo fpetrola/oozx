@@ -50,7 +50,7 @@ public class Push extends AbstractInstruction {
 
   public static void doPush(int value, Register sp, Memory memory) {
     sp.write((sp.read() - 2) & 0xFFFF);
-    Memory.write16Bits(memory, value, sp.read());
+    memory.write16Bits(value, sp.read());
   }
 
   @Override

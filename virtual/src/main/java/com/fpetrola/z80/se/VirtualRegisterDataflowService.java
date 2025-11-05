@@ -19,13 +19,7 @@
 package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.instructions.impl.Ld;
-import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
-import com.fpetrola.z80.opcodes.references.IndirectMemory16BitReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.transformations.Virtual8BitsRegister;
-import com.fpetrola.z80.transformations.VirtualComposed16BitRegister;
 
 public class VirtualRegisterDataflowService implements DataflowService {
   private final State state;
@@ -54,7 +48,7 @@ public class VirtualRegisterDataflowService implements DataflowService {
   }
 
   public Integer findCurrentReturnAddress() {
-    return Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
+    return state.getMemory().read16Bits(state.getRegisterSP().read());
   }
 
   public boolean isSyntheticReturnAddress() {

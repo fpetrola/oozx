@@ -29,7 +29,7 @@ public class MemoryForOpcodes implements Memory {
   private int counter;
 
   public static int read16Bits(Memory memory, int address) {
-    return Memory.read16Bits(memory, address);
+    return memory.read16Bits(address);
   }
 
   @Override

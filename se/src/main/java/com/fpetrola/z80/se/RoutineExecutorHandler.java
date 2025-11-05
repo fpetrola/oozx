@@ -19,7 +19,6 @@
 package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.actions.ExecutionStackStorage;
 
@@ -79,7 +78,7 @@ public class RoutineExecutorHandler {
   }
 
   public Object popRoutineExecution() {
-    int t = Memory.read16Bits(state.getMemory(), state.getRegisterSP().read());
+    int t = state.getMemory().read16Bits(state.getRegisterSP().read());
     java.lang.Integer pop = stackFrames.pop();
     System.out.printf("Pop frame: %s, ret: %s%n", formatAddress(pop), formatAddress(t));
     return pop;

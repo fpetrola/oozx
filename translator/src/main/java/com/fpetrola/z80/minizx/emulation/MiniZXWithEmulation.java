@@ -22,10 +22,8 @@ import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.instructions.impl.Ret;
-import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.minizx.SpectrumApplication;
-import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.Condition;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
@@ -243,7 +241,7 @@ public class MiniZXWithEmulation {
           public int execute() {
             int jumpAddress2 = calculateJumpAddress();
             if (condition.conditionMet(this)) {
-              final int value = Memory.read16Bits(memory, sp.read());
+              final int value = memory.read16Bits(sp.read());
 
               if (nextRetAddress == value) {
                 nextRetAddress = 0;
