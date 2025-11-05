@@ -28,6 +28,7 @@ import com.fpetrola.oozx.fuse.modules.Timer;
 import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.peripherals.*;
 import com.fpetrola.z80.cpu.*;
+import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
@@ -53,7 +54,7 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 public class Z80 implements ZxModule {
   public static double emulationSpeed;
   private EventManager eventManager;
-  public com.fpetrola.oozx.Memory memory;
+  public final com.fpetrola.oozx.Memory memory;
 
   public long interruptsEnabledAt;
   public OOZ80 ooz80;
@@ -67,7 +68,7 @@ public class Z80 implements ZxModule {
   private boolean init;
   public Audio audio;
   private Display display;
-  public Ula ula;
+  public final Ula ula;
   private Supplier<SpectrumMachine> machineSupplier;
   private Keyboard keyboard;
   public SpectrumZ80Clock zxClock;
@@ -230,9 +231,34 @@ public class Z80 implements ZxModule {
         public void addSingleMc(int time1, int delta, int baseAddress, String description) {
           this.state.addEventNumber(time1);
         }
+
+        protected Supplier<String> getAddMultipleMcStringSupplier(String description) {
+          return () -> "";
+        }
       };
     else
-      phaseProcessor = new FusePhaseProcessor(this);
+      phaseProcessor = new FusePhaseProcessor(this) {
+        protected void getAddEvent(Event event) {
+          event.description = getDescription(event);
+          zxClock.addTStates(event.getTime(), event.description);
+        }
+
+        private String getDescription(Event event) {
+          if (event.description != null)
+            return event.description;
+          else
+            return switch (event.getType()) {
+              case "MR" -> "contend_read";
+              case "MW" -> "contend_write";
+              case "MC" -> "contend_read_no_mreq";
+              default -> "unknown";
+            };
+        }
+
+        protected Supplier<String> getAddMultipleMcStringSupplier(String description) {
+          return () -> "ula " + (description != null ? description : "contend_read_no_mreq");
+        }
+      };
 
     DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
     instructionFetcher.tPhaseProcessor = phaseProcessor;

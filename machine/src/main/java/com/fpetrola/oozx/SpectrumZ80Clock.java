@@ -41,7 +41,8 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
 
   public void addTStates(int tStatesToAdd, String description) {
     this.tStates += tStatesToAdd;
-    timeoutProcessor.accept(tStatesToAdd);
+    if (timeout > 0)
+      timeoutProcessor.accept(tStatesToAdd);
   }
 
   public void addTStates(int tStatesToAdd, Supplier<String> description) {
@@ -69,7 +70,7 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
   public void setTimeout(int ntstates) {
     if (this.timeout > 0) {
       throw new ConcurrentModificationException("A timeout is in progress. Can't set another timeout!");
-    } else{
+    } else {
       this.timeout = Math.max(ntstates, 10);
       timeoutProcessor = this::timeOutProcess;
     }

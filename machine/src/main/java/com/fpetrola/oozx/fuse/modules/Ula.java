@@ -40,7 +40,7 @@ public class Ula implements ZxModule {
   public byte[] contention = new byte[CONTENTION_SIZE];
 
   // And how much when it is inactive
-  public byte[] contentionNoMreq = new byte[CONTENTION_SIZE];
+  public final byte[] contentionNoMreq = new byte[CONTENTION_SIZE];
 
   byte lastByte;
 
