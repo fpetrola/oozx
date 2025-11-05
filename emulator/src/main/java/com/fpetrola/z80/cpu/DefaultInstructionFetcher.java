@@ -109,8 +109,6 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
       tPhaseProcessor.setPhase(phase1);
       fetchedInstruction.accept(tPhaseProcessor);
       phase1.ready();
-    } else {
-      int a = 1;
     }
   }
 
