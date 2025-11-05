@@ -18,12 +18,10 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.modules.tape.Log1;
 import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.z80.cpu.DefaultZ80Clock;
 import com.fpetrola.z80.helpers.CollectionHandler;
-import com.fpetrola.z80.registers.Register;
 import machine.ClockTimeoutListener;
 
 import java.util.ConcurrentModificationException;
@@ -31,15 +29,10 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class SpectrumZ80Clock extends DefaultZ80Clock {
-  private Consumer<java.lang.Integer> timeoutProcessor = (tStates) -> {
+  protected Consumer<java.lang.Integer> timeoutProcessor = (tStates) -> {
   };
   private int timeout;
   private CollectionHandler<ClockTimeoutListener> clockListeners = new CollectionHandler<>();
-
-  public void setTStates(int tStates) {
-    super.setTStates(tStates);
-//    timeout = 0;
-  }
 
   public void addTStates(int tStatesToAdd) {
     this.tStates += tStatesToAdd;
@@ -47,13 +40,11 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
   }
 
   public void addTStates(int tStatesToAdd, String description) {
-    log(() -> description, (byte) tStatesToAdd);
     this.tStates += tStatesToAdd;
     timeoutProcessor.accept(tStatesToAdd);
   }
 
   public void addTStates(int tStatesToAdd, Supplier<String> description) {
-    log(description, (byte) tStatesToAdd);
     addTStates(tStatesToAdd);
   }
 
@@ -73,9 +64,6 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
         }
       }
     }
-  }
-
-  public void log(Supplier<String> description, byte data) {
   }
 
   public void setTimeout(int ntstates) {

@@ -30,8 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class DefaultCommandHandler implements CommandHandler {
-  private static Fuse fuse;
+public class DefaultCommandHandler extends FuseBaseForTests implements CommandHandler  {
   public EmulatorCommand lastCommand;
 
   private List<EmulatorCommand> commandQueue = Collections.synchronizedList(new LinkedList<>());
@@ -41,11 +40,7 @@ public class DefaultCommandHandler implements CommandHandler {
   }
 
   public static CommandHandler createCommandHandler() {
-    fuse = new Fuse(new SpectrumZ80Clock() {
-      public void log(Supplier<String> description, byte data) {
-        GetTStatesHistory.addTStateUpdate(data, description, tStates, fuse.z80.ooz80.getState().getPc());
-      }
-    });
+    initFuse();
     LibretroCore core = LibretroCore.INSTANCE;
     core = new LocalLibretroCore(fuse.eventManager, fuse.display, fuse.machine, fuse.z80, fuse.zxClock, fuse.periph, fuse);
     return createCommandHandler(core);

@@ -21,20 +21,18 @@ package model.tests;
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.LocalLibretroCore;
 import com.fpetrola.oozx.fuse.bridge.DefaultCommandHandler;
-import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
-import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
+import com.fpetrola.oozx.fuse.bridge.FuseBaseForTests;
 import com.fpetrola.oozx.fuse.modules.Ula;
 import model.connected.*;
 import model.interfaces.*;
 import org.junit.jupiter.api.*;
 
 import java.util.*;
-import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled
-public class FuseUnitTests {
+public class FuseUnitTests extends FuseBaseForTests {
 
   /* --------------------------------------------------------------------- */
   /*  Constantes exactas del código C original (Memory.java + unittests.c) */
@@ -57,15 +55,10 @@ public class FuseUnitTests {
   private static IZ80CPU cpu;
   private static ISpectrumBus bus;
   private static LocalLibretroCore localLibretroCore;
-  private static Fuse fuse;
 
   @BeforeAll
   public static void beforeAll() {
-    fuse = new Fuse(new SpectrumZ80Clock() {
-      public void log(Supplier<String> description, byte data) {
-        GetTStatesHistory.addTStateUpdate(data, description, tStates, fuse.z80.ooz80.getState().getPc());
-      }
-    });
+    initFuse();
     localLibretroCore = new LocalLibretroCore(fuse.eventManager, fuse.display, fuse.machine, fuse.z80, fuse.zxClock, fuse.periph, fuse);
 
     testDriver = new TestDriver(DefaultCommandHandler.createCommandHandler());
