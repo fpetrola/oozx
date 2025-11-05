@@ -30,11 +30,11 @@ public class FusePhaseProcessor extends PhaseProcessor {
     this.z80 = z80;
   }
 
-  public void addMw(Integer address, Integer value) {
+  public void addMw(int address, int value) {
 //        getState().clock.addTstates(1);
   }
 
-  public void addMr(Integer address, Integer value) {
+  public void addMr(int address, int value) {
   }
 
   public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
