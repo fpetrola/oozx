@@ -32,7 +32,6 @@ public class Spectrum implements ZxModule {
   private EventManager eventManager;
   private Z80 z80;
   private Z80Clock z80Clock;
-  private RAMHolder ramHolder;
   private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
 
   private final int[] contentionPattern65432100 = {5, 4, 3, 2, 1, 0, 0, 6};
@@ -42,6 +41,7 @@ public class Spectrum implements ZxModule {
   private long framesSinceReset;
   private Timer timer;
   private Module module;
+  private byte[][] ram;
 
   public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, Z80Clock z80Clock, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
     this.memory = memory;
@@ -49,10 +49,10 @@ public class Spectrum implements ZxModule {
     this.eventManager = eventManager;
     this.z80 = z80;
     this.z80Clock = z80Clock;
-    this.ramHolder = ramHolder;
     this.fuseMachineInfoSupplier = fuseMachineInfoSupplier;
     this.timer = timer;
     this.module = module;
+    this.ram = ramHolder.getRAM();
   }
 
   public void spectrumReset(int a) {
@@ -154,7 +154,7 @@ public class Spectrum implements ZxModule {
     if (tstatesThroughLine < timings.leftBorder) return 0xff;
     if (tstatesThroughLine >= timings.leftBorder + timings.horizontalScreen) return 0xff;
     int column = ((tstatesThroughLine - timings.leftBorder) / 8) * 2;
-    byte[] bytes = ramHolder.getRAM()[memory.currentScreen];
+    byte[] bytes = ram[memory.currentScreen];
 
     switch (tstatesThroughLine % 8) {
       case 5:
@@ -253,13 +253,13 @@ public class Spectrum implements ZxModule {
       case 5:
         column++; // Attribute byte
       case 3:
-        lastFloatingBusAmstradValue = (byte) (ramHolder.getRAM()[screen][(int) (displayAttrStart[line] + column)] | 0x01);
+        lastFloatingBusAmstradValue = (byte) (ram[screen][(int) (displayAttrStart[line] + column)] | 0x01);
         return lastFloatingBusAmstradValue;
 
       case 4:
         column++; // Screen data
       case 2:
-        lastFloatingBusAmstradValue = (byte) (ramHolder.getRAM()[screen][(int) (displayLineStart[line] + column)] | 0x01);
+        lastFloatingBusAmstradValue = (byte) (ram[screen][(int) (displayLineStart[line] + column)] | 0x01);
         return lastFloatingBusAmstradValue;
 
       case 0:

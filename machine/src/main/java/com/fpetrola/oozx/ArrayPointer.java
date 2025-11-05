@@ -19,17 +19,11 @@
 package com.fpetrola.oozx;
 
 public class ArrayPointer {
-  private final byte[][] ram;
-  private final int i;
+  private final byte[] ram;
   private final int j;
 
-  public ArrayPointer(byte[] page) {
-    this(new byte[][]{page}, 0, 0);
-  }
-
   public ArrayPointer(byte[][] ram, int i, int j) {
-    this.ram = ram;
-    this.i = i;
+    this.ram = ram[i];
     this.j = j;
   }
 
@@ -37,11 +31,11 @@ public class ArrayPointer {
     this(new byte[][]{ram}, i, j);
   }
 
-  public byte get(final int i2) {
-    return ram[i][j + i2];
+  public byte get(final int offset) {
+    return ram[j + offset];
   }
 
   public void set(final int offset, final byte b) {
-    ram[i][j + offset] = b;
+    ram[j + offset] = b;
   }
 }

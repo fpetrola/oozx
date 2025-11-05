@@ -20,29 +20,32 @@ package com.fpetrola.oozx;
 
 // Supporting classes and enums
 public class MemoryPage {
-//  private byte[] page; // The data for this page
-public boolean writable; // Can we write to this data?
+  //  private byte[] page; // The data for this page
+  public boolean writable; // Can we write to this data?
   public boolean contended; // Are reads/writes to this page contended?
   public int source; // Where did this page come from?
   boolean saveToSnapshot; // Should this page be saved to snapshots?
   public int pageNum; // Which page from the source
   public int offset; // How far into the page this chunk starts
-  private ArrayPointer arrayPointer;
+  private byte[] page;
 
   public MemoryPage() {
   }
 
-  public ArrayPointer getPage() {
-    return arrayPointer;
+  public byte get(final int index) {
+    return page[offset + index];
   }
 
-  public void setPage(byte[] page, int i, int j) {
-//    this.page = page;
-    arrayPointer = new ArrayPointer(page, i, j);
+  public void set(final int index, final byte value) {
+    page[offset + index] = value;
   }
 
-  public void setPage(byte[][] ram, int i, int j) {
-    arrayPointer = new ArrayPointer(ram, i, j);
+  public void setPage(byte[] page) {
+    this.page = page;
+  }
+
+  public void setPage(byte[][] ram, int i) {
+    this.page = ram[i];
   }
 
   public int getSource() {
@@ -51,5 +54,9 @@ public boolean writable; // Can we write to this data?
 
   public int getPageNum() {
     return pageNum;
+  }
+
+  public byte[] getPage() {
+    return page;
   }
 }

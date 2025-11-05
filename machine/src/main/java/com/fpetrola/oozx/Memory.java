@@ -59,14 +59,14 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   public int sourceNone;
 
   // Memory mappings
-  public MemoryPage[] mapRead = new MemoryPage[PAGES_IN_64K];
-  public MemoryPage[] mapWrite = new MemoryPage[PAGES_IN_64K];
-  public MemoryPage[] mapRam = new MemoryPage[SPECTRUM_RAM_PAGES * PAGES_IN_16K];
-  public MemoryPage[] mapRom = new MemoryPage[SPECTRUM_ROM_PAGES * PAGES_IN_16K];
-  private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
-  private SpectrumZ80Clock zxClock;
-  private Module module;
-  private Settings settings;
+  public final MemoryPage[] mapRead = new MemoryPage[PAGES_IN_64K];
+  public final MemoryPage[] mapWrite = new MemoryPage[PAGES_IN_64K];
+  public final MemoryPage[] mapRam = new MemoryPage[SPECTRUM_RAM_PAGES * PAGES_IN_16K];
+  public final MemoryPage[] mapRom = new MemoryPage[SPECTRUM_ROM_PAGES * PAGES_IN_16K];
+  private final Supplier<SpectrumMachine> fuseMachineInfoSupplier;
+  private final SpectrumZ80Clock zxClock;
+  private final Module module;
+  private final Settings settings;
 
   public Memory(Supplier<SpectrumMachine> machine, SpectrumZ80Clock zxClock, Module module, Settings settings) {
     this.fuseMachineInfoSupplier = machine;
@@ -101,7 +101,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
     for (int i = 0; i < SPECTRUM_RAM_PAGES; i++) {
       for (int j = 0; j < PAGES_IN_16K; j++) {
         MemoryPage page = mapRam[i * PAGES_IN_16K + j] = new MemoryPage();
-        page.setPage(getRAM(), i, j * PAGE_SIZE);
+        page.setPage(getRAM(), i);
         page.pageNum = i;
         page.offset = j * PAGE_SIZE;
         page.writable = true;
@@ -114,9 +114,6 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
 
   public void end() {
     if (pool != null) {
-      for (MemoryPoolEntry entry : pool) {
-        // Java garbage collector handles memory deallocation
-      }
       pool.clear();
       pool = null;
     }
@@ -146,8 +143,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
 
   // Register a new memory source
   public int sourceRegister(String description) {
-    String copy = description;
-    memorySources.add(copy);
+    memorySources.add(description);
     return memorySources.size() - 1;
   }
 
@@ -265,7 +261,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
 
   public byte readByteInternal(int address) {
     MemoryPage mapping = mapRead[address >>> PAGE_SIZE_LOGARITHM];
-    return mapping.getPage().get(address & PAGE_SIZE_MASK);
+    return mapping.get(address & PAGE_SIZE_MASK);
   }
 
   // Write a byte to memory
@@ -282,14 +278,9 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
     int bank = address >>> PAGE_SIZE_LOGARITHM;
     MemoryPage mapping = mapWrite[bank];
     int offset = address & PAGE_SIZE_MASK;
-    ArrayPointer arrayPointer = mapping.getPage();
-
     int offset2 = offset + mapping.offset;
 
-    if (mapping.source == sourceRam &&
-        mapping.pageNum == currentScreen &&
-        (offset2 & screenMask) < 0x1b00 &&
-        arrayPointer.get(offset) != b) {
+    if (mapping.source == sourceRam && mapping.pageNum == currentScreen && (offset2 & screenMask) < 0x1b00 && mapping.get(offset) != b) {
       display.dirtySinclair(offset2);
     }
   }
@@ -299,14 +290,14 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
     MemoryPage mapping = mapWrite[address >>> PAGE_SIZE_LOGARITHM];
     if (mapping.writable || (mapping.source != sourceNone && settings.current.writableRoms)) {
       displayDirtySinclair(address, b, display);
-      mapping.getPage().set(address & PAGE_SIZE_MASK, b);
+      mapping.set(address & PAGE_SIZE_MASK, b);
     }
   }
 
   public void writeByteInternal2(int address, byte b) {
     MemoryPage mapping = mapWrite[address >>> PAGE_SIZE_LOGARITHM];
     if (mapping.writable || (mapping.source != sourceNone && settings.current.writableRoms)) {
-      mapping.getPage().set(address & PAGE_SIZE_MASK, b);
+      mapping.set(address & PAGE_SIZE_MASK, b);
     }
   }
 

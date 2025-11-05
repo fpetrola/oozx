@@ -253,19 +253,19 @@ public class Display implements ZxModule {
 
   public BeanPosition getBeamPosition() {
     BeanPosition beam = new BeanPosition();
-    long tstates = z80Clock.getTStates();
     SpectrumMachine current = fuseMachineInfoSupplier.get();
     long[] lineTimes = current.getLineTimes();
 
-    if (tstates < lineTimes[0]) {
+    long tStates = z80Clock.getTStates();
+    if (tStates < lineTimes[0]) {
       beam.x = beam.y = -1;
       return beam;
     }
 
-    beam.y = (int) ((tstates - lineTimes[0]) / current.getTimings().tstatesPerLine);
+    beam.y = (int) ((tStates - lineTimes[0]) / current.getTimings().tstatesPerLine);
 
     if (beam.y >= 0 && beam.y <= SCREEN_HEIGHT) {
-      beam.x = (int) ((tstates - lineTimes[beam.y]) / 4);
+      beam.x = (int) ((tStates - lineTimes[beam.y]) / 4);
     } else {
       beam.x = 0;
     }
