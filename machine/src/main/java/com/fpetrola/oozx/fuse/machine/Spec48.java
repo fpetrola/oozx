@@ -69,11 +69,6 @@ public class Spec48 extends AbstractSpectrumMachine {
 
   // Set up common display configuration
   public void commonDisplaySetup() {
-    display.dirty = display::dirtySinclair;
-    display.writeIfDirty = display::writeIfDirtySinclair;
-    display.dirtyFlashing = display::dirtyFlashingSinclair;
-
-    memory.displayDirty = memory::displayDirtySinclair;
   }
 
   // Common reset for Spectrum 48K

@@ -144,14 +144,6 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   public int currentScreen;
   public int screenMask;
 
-  // Functional interface for dirty display handling
-  @FunctionalInterface
-  public interface MemoryDisplayDirtyFn {
-    void apply(int address, byte b, Display display);
-  }
-
-  public MemoryDisplayDirtyFn displayDirty;
-
   // Register a new memory source
   public int sourceRegister(String description) {
     String copy = description;
@@ -298,7 +290,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
         mapping.pageNum == currentScreen &&
         (offset2 & screenMask) < 0x1b00 &&
         arrayPointer.get(offset) != b) {
-      display.dirty.apply(offset2);
+      display.dirtySinclair(offset2);
     }
   }
 
@@ -306,7 +298,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   public void writeByteInternal(int address, byte b, Display display) {
     MemoryPage mapping = mapWrite[address >>> PAGE_SIZE_LOGARITHM];
     if (mapping.writable || (mapping.source != sourceNone && settings.current.writableRoms)) {
-      displayDirty.apply(address, b, display);
+      displayDirtySinclair(address, b, display);
       mapping.getPage().set(address & PAGE_SIZE_MASK, b);
     }
   }

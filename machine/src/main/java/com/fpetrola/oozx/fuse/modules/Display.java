@@ -66,7 +66,7 @@ public class Display implements ZxModule {
 
   // Stores the pixel, attribute, and SCLD screen mode information used to
   // draw each 8x1 group of pixels (including border) last frame
-  private int[] lastScreen = new int[SCREEN_WIDTH_COLS * SCREEN_HEIGHT];
+  private final int[] lastScreen = new int[SCREEN_WIDTH_COLS * SCREEN_HEIGHT];
 
   // Offsets as to where the data and the attributes for each pixel line start
   public int[] lineStart = new int[HEIGHT];
@@ -74,23 +74,23 @@ public class Display implements ZxModule {
 
   // If you write to the byte at display_dirty_?table[n+0x4000], then
   // the eight pixels starting at (8*xtable[n],ytable[n]) must be replotted
-  private int[] dirtyYtable = new int[WIDTH_COLS * HEIGHT];
-  private int[] dirtyXtable = new int[WIDTH_COLS * HEIGHT];
+  private final int[] dirtyYtable = new int[WIDTH_COLS * HEIGHT];
+  private final int[] dirtyXtable = new int[WIDTH_COLS * HEIGHT];
 
   // If you write to the byte at display_dirty_?table2[n+0x5800], then
   // the 64 pixels starting at (8*xtable2[n],ytable2[n]) must be replotted
-  private int[] dirtyYtable2 = new int[WIDTH_COLS * HEIGHT_ROWS];
-  private int[] dirtyXtable2 = new int[WIDTH_COLS * HEIGHT_ROWS];
+  private final int[] dirtyYtable2 = new int[WIDTH_COLS * HEIGHT_ROWS];
+  private final int[] dirtyXtable2 = new int[WIDTH_COLS * HEIGHT_ROWS];
 
   // The number of frames mod 32 that have elapsed
   private int frameCount;
   private boolean flashReversed;
 
   // Which eight-pixel chunks on each line (including border) need to be redisplayed
-  private long[] isDirty = new long[SCREEN_HEIGHT];
+  private final long[] isDirty = new long[SCREEN_HEIGHT];
 
   // Which eight-pixel chunks on each line may need to be redisplayed
-  private int[] maybeDirty = new int[HEIGHT];
+  private final int[] maybeDirty = new int[HEIGHT];
 
   // This value signifies that the entire line must be redisplayed
   private long allDirty;
@@ -101,17 +101,17 @@ public class Display implements ZxModule {
   // The last point at which we updated the screen display
   private int criticalRegionX;
   private int criticalRegionY;
-  private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
-  private Z80Clock z80Clock;
-  private RAMHolder ramHolder;
-  private UiDisplay uiDisplay;
+  private final Supplier<SpectrumMachine> fuseMachineInfoSupplier;
+  private final Z80Clock z80Clock;
+  private final UiDisplay uiDisplay;
+  private final byte[][] ram;
 
   public Display(Memory memory, Supplier<SpectrumMachine> machine, Z80Clock z80Clock, RAMHolder ramHolder, UiDisplay uiDisplay) {
     this.memory = memory;
     this.fuseMachineInfoSupplier = machine;
     this.z80Clock = z80Clock;
-    this.ramHolder = ramHolder;
     this.uiDisplay = uiDisplay;
+    this.ram = ramHolder.getRAM();
   }
 
   public int init(Object initContext) {
@@ -180,27 +180,7 @@ public class Display implements ZxModule {
       }};
 
   // The current border color array
-  private int[][] currentBorder = new int[SCREEN_HEIGHT][SCREEN_WIDTH_COLS];
-
-  // Functional interfaces for dirty handling
-  @FunctionalInterface
-  public interface DisplayDirtyFn {
-    void apply(int offset);
-  }
-
-  @FunctionalInterface
-  public interface DisplayWriteIfDirtyFn {
-    void apply(int x, int y);
-  }
-
-  @FunctionalInterface
-  public interface DisplayDirtyFlashingFn {
-    void apply();
-  }
-
-  public DisplayDirtyFn dirty = this::dirtySinclair;
-  public DisplayWriteIfDirtyFn writeIfDirty = this::writeIfDirtySinclair;
-  public DisplayDirtyFlashingFn dirtyFlashing = this::dirtyFlashingSinclair;
+  private final int[][] currentBorder = new int[SCREEN_HEIGHT][SCREEN_WIDTH_COLS];
 
   List<BorderChange> borderChanges = new ArrayList<>();
 
@@ -217,7 +197,7 @@ public class Display implements ZxModule {
     int attr;
     int offset;
     offset = attrStart[y] + x;
-    attr = ramHolder.getRAM()[memory.currentScreen][offset];
+    attr = ram[memory.currentScreen][offset];
     return (byte) attr;
   }
 
@@ -226,11 +206,11 @@ public class Display implements ZxModule {
     int beamY = y + BORDER_HEIGHT;
     int offset = getOffset(x, y);
 
-    byte[] screen = ramHolder.getRAM()[memory.currentScreen];
+    byte[] screen = ram[memory.currentScreen];
     int data = screen[offset];
     byte data2 = getAttrByte(x, y);
 
-    int lastChunkDetail = ((int) (flashReversed ? 1 : 0) << 24) | ((data2 & 0xFF) << 8) | (data & 0xFF);
+    int lastChunkDetail = ((flashReversed ? 1 : 0) << 24) | ((data2 & 0xFF) << 8) | (data & 0xFF);
     int index = beamX + beamY * SCREEN_WIDTH_COLS;
     if (lastScreen[index] != lastChunkDetail) {
       byte[] inkPaper = new byte[2];
@@ -251,7 +231,7 @@ public class Display implements ZxModule {
       maybeDirty[y] &= ~bitMask;
       while (dirty != 0) {
         if ((dirty & 0x01) != 0)
-          writeIfDirty.apply(x, y);
+          writeIfDirtySinclair(x, y);
         dirty >>>= 1;
         x++;
       }
@@ -484,10 +464,10 @@ public class Display implements ZxModule {
     frameCount++;
     if (frameCount == 16) {
       flashReversed = true;
-      dirtyFlashing.apply();
+      dirtyFlashingSinclair();
     } else if (frameCount == 32) {
       flashReversed = false;
-      dirtyFlashing.apply();
+      dirtyFlashingSinclair();
       frameCount = 0;
     }
 
@@ -495,7 +475,7 @@ public class Display implements ZxModule {
   }
 
   public void dirtyFlashingSinclair() {
-    byte[] screen = ramHolder.getRAM()[memory.currentScreen];
+    byte[] screen = ram[memory.currentScreen];
     for (int offset = 0x1800; offset < 0x1b00; offset++) {
       byte attr = screen[offset];
       if ((attr & 0x80) != 0) dirty64(offset);
