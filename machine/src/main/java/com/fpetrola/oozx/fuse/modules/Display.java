@@ -105,6 +105,7 @@ public class Display implements ZxModule {
   private final Z80Clock z80Clock;
   private final UiDisplay uiDisplay;
   private final byte[][] ram;
+  private final BeanPosition beam;
 
   public Display(Memory memory, Supplier<SpectrumMachine> machine, Z80Clock z80Clock, RAMHolder ramHolder, UiDisplay uiDisplay) {
     this.memory = memory;
@@ -112,6 +113,7 @@ public class Display implements ZxModule {
     this.z80Clock = z80Clock;
     this.uiDisplay = uiDisplay;
     this.ram = ramHolder.getRAM();
+    beam = new BeanPosition();
   }
 
   public int init(Object initContext) {
@@ -252,7 +254,6 @@ public class Display implements ZxModule {
   }
 
   public BeanPosition getBeamPosition() {
-    BeanPosition beam = new BeanPosition();
     SpectrumMachine current = fuseMachineInfoSupplier.get();
     long[] lineTimes = current.getLineTimes();
 
