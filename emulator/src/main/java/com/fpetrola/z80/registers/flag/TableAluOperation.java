@@ -62,9 +62,9 @@ public class TableAluOperation extends AluOperation {
   }
 
   public int executeWithCarry2(int value, int regA, int carry, Register flag) {
-    int data1 = table[(((regA << 8) & 0xFFFF | value & 0xFFFF) & 0xFFFF) | ((carry & 1) << 16)];
+    int data1 = table[(((regA << 8) | value) & 0xFFFF) | ((carry & 1) << 16)];
     flag.write(data1 & 0xFF);
-    return data1 >> 16 & 0xFFFF;
+    return data1 >> 16;
   }
 
   public int[] executeWithoutCarry2(int value, int regA) {

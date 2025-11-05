@@ -43,9 +43,7 @@ public class ParameterizedUnaryAluInstruction extends DefaultTargetFlagInstructi
   }
 
   public int execute() {
-    final int value2 = target.read();
-    int execute = doExecute(value2);
-    target.write(execute);
+    target.write(doExecute(target.read()));
     return cyclesCost;
   }
 
@@ -55,9 +53,7 @@ public class ParameterizedUnaryAluInstruction extends DefaultTargetFlagInstructi
 
   public UnaryAluOperation getTUnaryAluOperation(TableAluOperation rrTableAluOperation1) {
     return (a) -> {
-      int regA = ((Integer) a);
-      int flagValue = ((Integer) flag.read());
-      int[] ints = rrTableAluOperation1.executeWithCarry2(regA, flagValue);
+      int[] ints = rrTableAluOperation1.executeWithCarry2(a, flag.read());
       flag.write(ints[1]);
       return ints[0];
     };
