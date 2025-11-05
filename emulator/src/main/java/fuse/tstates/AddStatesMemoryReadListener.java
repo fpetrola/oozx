@@ -30,8 +30,6 @@ public class AddStatesMemoryReadListener implements MemoryReadListener {
   }
 
   public void readingMemoryAt(int address, int value, int fetching) {
-//    System.out.printf("readingMemoryAt: address= %s - value= %s - delta= %d - fetching= %d %n", address, value, delta, fetching);
-    //    System.out.printf("processEvent: address= %s - value= %s - fetching= %d %n", address, value, fetching);
     doRead(address, value, fetching);
 
     phaseProcessor.addMultipleMc(1, fetching == 1 ? 4 : 3, 0, address, "readbyte");

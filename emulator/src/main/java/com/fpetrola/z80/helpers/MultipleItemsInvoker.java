@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MultipleItemsInvoker<T> implements ItemHandler<T> {
-  protected List<T> multipleItems = new ArrayList<>();
+  protected final List<T> multipleItems = new ArrayList<>();
 
   public MultipleItemsInvoker(List<T> items) {
     multipleItems.addAll(items);
