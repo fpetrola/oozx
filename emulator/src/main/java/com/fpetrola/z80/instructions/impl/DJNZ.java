@@ -26,8 +26,7 @@ import com.fpetrola.z80.registers.Register;
 
 public class DJNZ extends ConditionalInstruction<BNotZeroCondition> {
   public DJNZ(ImmutableOpcodeReference target, BNotZeroCondition condition, Register pc) {
-    super(target, null, pc);
-    this.condition = condition;
+    super(target, condition, pc);
   }
 
   public void execute() {
@@ -39,8 +38,6 @@ public class DJNZ extends ConditionalInstruction<BNotZeroCondition> {
       setNextPC(jumpAddress2);
     } else
       setNextPC(-1);
-
-    
   }
 
   public int calculateJumpAddress() {

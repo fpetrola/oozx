@@ -25,16 +25,15 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class ParameterizedBinaryAluInstruction extends TargetSourceInstruction<ImmutableOpcodeReference> {
+  final protected BinaryAluOperation binaryAluOperation;
+
   public ParameterizedBinaryAluInstruction(OpcodeReference target, ImmutableOpcodeReference source, Register flag, TableAluOperation tableAluOperation) {
     super(target, source, flag);
     this.binaryAluOperation = getTBinaryAluOperation(tableAluOperation);
   }
-
   public interface BinaryAluOperation {
     int execute(Register flag, int value1, int value2);
   }
-
-  protected BinaryAluOperation binaryAluOperation;
 
   public ParameterizedBinaryAluInstruction(OpcodeReference target, ImmutableOpcodeReference source, Register flag, BinaryAluOperation binaryAluOperation) {
     super(target, source, flag);

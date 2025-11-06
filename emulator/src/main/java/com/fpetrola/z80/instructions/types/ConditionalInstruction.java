@@ -25,14 +25,10 @@ import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.registers.Register;
 
 public abstract class ConditionalInstruction<C extends Condition> extends AbstractInstruction implements JumpInstruction {
-  public void setPositionOpcodeReference(ImmutableOpcodeReference positionOpcodeReference) {
-    this.positionOpcodeReference = positionOpcodeReference;
-  }
-
-  protected ImmutableOpcodeReference positionOpcodeReference;
+  final protected ImmutableOpcodeReference positionOpcodeReference;
+  final protected C condition;
+  final protected Register pc;
   protected int jumpAddress;
-  protected C condition;
-  protected Register pc;
 
   public ConditionalInstruction(ImmutableOpcodeReference positionOpcodeReference, C condition, Register pc) {
     this.positionOpcodeReference = positionOpcodeReference;
@@ -84,13 +80,9 @@ public abstract class ConditionalInstruction<C extends Condition> extends Abstra
   }
 
   public String toString() {
-    //  return getClass().getSimpleName() + " " + ((condition.toString().length() > 0) ? condition.toString() + ", " : "") + (jumpAddress != null ? jumpAddress : positionOpcodeReference);
-//    return getName() + " " + ((condition.toString().length() > 0) ? condition.toString() + ", " : "") + (jumpAddress != null ? jumpAddress : calculateRelativeJumpAddress());
-    int jumpAddress1 = jumpAddress;
-    return getName() + " " + ((condition.toString().length() > 0) ? condition.toString() + ", " : "") + (jumpAddress1 != -1 ? Helper.formatAddress(jumpAddress1) : 0);
+    return getName() + " " + ((condition.toString().length() > 0) ? condition.toString() + ", " : "") + (jumpAddress != -1 ? Helper.formatAddress(jumpAddress) : 0);
   }
 
-  @Override
   public void accept(InstructionVisitor visitor) {
     condition.accept(visitor);
     visitor.visitingConditionalInstruction(this);

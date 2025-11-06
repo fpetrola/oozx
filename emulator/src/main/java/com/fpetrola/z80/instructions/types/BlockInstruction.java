@@ -25,51 +25,11 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 
 public abstract class BlockInstruction extends AbstractInstruction {
-  public RegisterPair getBc() {
-    return bc;
-  }
-
-  public void setBc(RegisterPair bc) {
-    this.bc = bc;
-  }
-
-  public RegisterPair getHl() {
-    return hl;
-  }
-
-  public void setHl(RegisterPair hl) {
-    this.hl = hl;
-  }
-
-  public Register getFlag() {
-    return flag;
-  }
-
-  public void setFlag(Register flag) {
-    this.flag = flag;
-  }
-
-  public Memory getMemory() {
-    return memory;
-  }
-
-  public void setMemory(Memory memory) {
-    this.memory = memory;
-  }
-
-  public IO getIo() {
-    return io;
-  }
-
-  public void setIo(IO io) {
-    this.io = io;
-  }
-
-  protected RegisterPair bc;
-  protected RegisterPair hl;
-  protected Register flag;
-  protected Memory memory;
-  protected IO io;
+  final protected RegisterPair bc;
+  final protected RegisterPair hl;
+  final protected Register flag;
+  final protected Memory memory;
+  final protected IO io;
 
   public BlockInstruction(RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io) {
     this.bc = bc;
@@ -87,5 +47,25 @@ public abstract class BlockInstruction extends AbstractInstruction {
 
   public void accept(InstructionVisitor visitor) {
     visitor.visitBlockInstruction(this);
+  }
+
+  public RegisterPair getBc() {
+    return bc;
+  }
+
+  public RegisterPair getHl() {
+    return hl;
+  }
+
+  public Register getFlag() {
+    return flag;
+  }
+
+  public Memory getMemory() {
+    return memory;
+  }
+
+  public IO getIo() {
+    return io;
   }
 }

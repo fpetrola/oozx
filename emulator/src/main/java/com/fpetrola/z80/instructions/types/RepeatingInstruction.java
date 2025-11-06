@@ -23,9 +23,9 @@ import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.registers.RegisterPair;
 
 public class RepeatingInstruction extends AbstractInstruction implements JumpInstruction {
-  protected BlockInstruction instructionToRepeat;
-  private ImmutableOpcodeReference pc;
-  protected RegisterPair bc;
+  final protected BlockInstruction instructionToRepeat;
+  final private ImmutableOpcodeReference pc;
+  final protected RegisterPair bc;
 
   public RepeatingInstruction(BlockInstruction instructionToRepeat, ImmutableOpcodeReference pc, RegisterPair bc) {
     this.instructionToRepeat = instructionToRepeat;
@@ -52,23 +52,11 @@ public class RepeatingInstruction extends AbstractInstruction implements JumpIns
     return instructionToRepeat;
   }
 
-  public void setInstructionToRepeat(BlockInstruction instructionToRepeat) {
-    this.instructionToRepeat = instructionToRepeat;
-  }
-
   public ImmutableOpcodeReference getPc() {
     return pc;
   }
 
-  public void setPc(ImmutableOpcodeReference pc) {
-    this.pc = pc;
-  }
-
   public RegisterPair getBc() {
     return bc;
-  }
-
-  public void setBc(RegisterPair bc) {
-    this.bc = bc;
   }
 }
