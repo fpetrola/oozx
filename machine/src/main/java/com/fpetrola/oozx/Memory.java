@@ -265,32 +265,35 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   }
 
   // Write a byte to memory
-  public void writeByte(int address, byte b, Ula ula) {
-    if (mapWrite[address >>> PAGE_SIZE_LOGARITHM].contended) {
+  public void writeByte(int address, byte b, Ula ula, Display display) {
+    MemoryPage memoryPage = mapWrite[address >>> PAGE_SIZE_LOGARITHM];
+    if (memoryPage.contended) {
       zxClock.addTStates(ula.contention[zxClock.getTStates()], "ula writebyte");
     }
-//      tStatesHolder.tstates += 3;
-//    writeByteInternal(address, b);
+    writeByteInternal(address, b, display, memoryPage);
   }
 
-  // Handle dirty display for Sinclair mode
-  public void displayDirtySinclair(int address, byte b, Display display) {
-    int bank = address >>> PAGE_SIZE_LOGARITHM;
-    MemoryPage mapping = mapWrite[bank];
-    int offset = address & PAGE_SIZE_MASK;
-    int offset2 = offset + mapping.offset;
-
-    if (mapping.source == sourceRam && mapping.pageNum == currentScreen && (offset2 & screenMask) < 0x1b00 && mapping.get(offset) != b) {
-      display.dirtySinclair(offset2);
+  private void writeByteInternal(int address, byte b, Display display, MemoryPage memoryPage) {
+    if (memoryPage.writable || (memoryPage.source != sourceNone && settings.current.writableRoms)) {
+      displayDirtySinclair(address, b, display);
+      memoryPage.set(address & PAGE_SIZE_MASK, b);
     }
   }
 
   // Write a byte to memory (internal)
   public void writeByteInternal(int address, byte b, Display display) {
-    MemoryPage mapping = mapWrite[address >>> PAGE_SIZE_LOGARITHM];
-    if (mapping.writable || (mapping.source != sourceNone && settings.current.writableRoms)) {
-      displayDirtySinclair(address, b, display);
-      mapping.set(address & PAGE_SIZE_MASK, b);
+    writeByteInternal(address, b, display, mapWrite[address >>> PAGE_SIZE_LOGARITHM]);
+  }
+
+  // Handle dirty display for Sinclair mode
+  public void displayDirtySinclair(final int address, final byte b, final Display display) {
+    final int bank = address >>> PAGE_SIZE_LOGARITHM;
+    final MemoryPage mapping = mapWrite[bank];
+    final int offset = address & PAGE_SIZE_MASK;
+    final int offset2 = offset + mapping.offset;
+
+    if (mapping.source == sourceRam && mapping.pageNum == currentScreen && (offset2 & screenMask) < 0x1b00 && mapping.get(offset) != b) {
+      display.dirtySinclair(offset2);
     }
   }
 

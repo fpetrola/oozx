@@ -272,11 +272,7 @@ public class Z80 implements ZxModule {
     });
     memory1.addMemoryWriteListener(new AddStatesMemoryWriteListener(phaseProcessor) {
       protected void doWrite(int address, int value) {
-        memory.writeByte(address, (byte) (value & 0xff), ula);
-      }
-
-      protected void doEnd(int address, int value) {
-        memory.writeByteInternal(address, (byte) (value & 0xff), display);
+        memory.writeByte(address, (byte) (value & 0xff), ula, display);
       }
     });
   }

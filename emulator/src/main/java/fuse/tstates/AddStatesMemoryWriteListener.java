@@ -38,10 +38,6 @@ public class AddStatesMemoryWriteListener implements MemoryWriteListener {
     phaseProcessor.writeCount++;
     phaseProcessor.addMultipleMc(1, 3, 0, address, "writebyte");
     phaseProcessor.addMw(address, value);
-    doEnd(address, value);
-  }
-
-  protected void doEnd(int address, int value) {
   }
 
   protected void doWrite(int address, int value) {
