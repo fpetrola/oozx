@@ -186,8 +186,7 @@ public class Display implements ZxModule {
 
   List<BorderChange> borderChanges = new ArrayList<>();
 
-  public void dirtySinclair(int offset) {
-    if (offset >= 0x1b00) return;
+  public void dirtySinclair(final int offset) {
     if (offset < 0x1800) {
       dirty8(offset);
     } else {

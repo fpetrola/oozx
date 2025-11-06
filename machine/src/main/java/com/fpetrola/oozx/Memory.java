@@ -259,13 +259,13 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
 //    mapping.getPage().get(address & PAGE_SIZE_MASK);
   }
 
-  public byte readByteInternal(int address) {
-    MemoryPage mapping = mapRead[address >>> PAGE_SIZE_LOGARITHM];
+  public byte readByteInternal(final int address) {
+    final MemoryPage mapping = mapRead[address >>> PAGE_SIZE_LOGARITHM];
     return mapping.get(address & PAGE_SIZE_MASK);
   }
 
   // Write a byte to memory
-  public void writeByte(int address, byte b, Ula ula, Display display) {
+  public void writeByte(final int address, final byte b, final Ula ula, final Display display) {
     MemoryPage memoryPage = mapWrite[address >>> PAGE_SIZE_LOGARITHM];
     if (memoryPage.contended) {
       zxClock.addTStates(ula.contention[zxClock.getTStates()], "ula writebyte");
@@ -273,10 +273,11 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
     writeByteInternal(address, b, display, memoryPage);
   }
 
-  private void writeByteInternal(int address, byte b, Display display, MemoryPage memoryPage) {
+  private void writeByteInternal(final int address, final byte value, final Display display, final MemoryPage memoryPage) {
     if (memoryPage.writable || (memoryPage.source != sourceNone && settings.current.writableRoms)) {
-      displayDirtySinclair(address, b, display);
-      memoryPage.set(address & PAGE_SIZE_MASK, b);
+      final int addressMasked = address & PAGE_SIZE_MASK;
+      displayDirtySinclair(addressMasked, value, display, memoryPage);
+      memoryPage.set(addressMasked, value);
     }
   }
 
@@ -286,13 +287,10 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   }
 
   // Handle dirty display for Sinclair mode
-  public void displayDirtySinclair(final int address, final byte b, final Display display) {
-    final int bank = address >>> PAGE_SIZE_LOGARITHM;
-    final MemoryPage mapping = mapWrite[bank];
-    final int offset = address & PAGE_SIZE_MASK;
-    final int offset2 = offset + mapping.offset;
+  public void displayDirtySinclair(final int address, final byte value, final Display display, final MemoryPage mapping) {
+    final int offset2 = address + mapping.offset;
 
-    if (mapping.source == sourceRam && mapping.pageNum == currentScreen && (offset2 & screenMask) < 0x1b00 && mapping.get(offset) != b) {
+    if (mapping.source == sourceRam && mapping.pageNum == currentScreen && (offset2 & screenMask) < 0x1b00 && mapping.get(address) != value) {
       display.dirtySinclair(offset2);
     }
   }

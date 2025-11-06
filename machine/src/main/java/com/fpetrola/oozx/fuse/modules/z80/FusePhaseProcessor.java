@@ -41,7 +41,7 @@ public class FusePhaseProcessor extends PhaseProcessor {
   public void addMultipleMc(final int x, final int time1, final int delta, final int baseAddress, final String description) {
     boolean memoryContended = z80.memory.mapRead[baseAddress >>> z80.memory.PAGE_SIZE_LOGARITHM].contended;
     for (int i = 0; i < x; i++) {
-      if (memoryContended) {
+    if (memoryContended) {
         z80.ula.addUlaStates(0, getAddMultipleMcStringSupplier(description));
       }
 
