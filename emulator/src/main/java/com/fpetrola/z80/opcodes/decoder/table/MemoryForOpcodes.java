@@ -26,7 +26,7 @@ import com.fpetrola.z80.memory.MemoryWriteListener;
 import java.util.Arrays;
 
 public class MemoryForOpcodes implements Memory {
-  private int counter;
+  private byte counter;
 
   public static int read16Bits(Memory memory, int address) {
     return memory.read16Bits(address);
@@ -134,7 +134,8 @@ public class MemoryForOpcodes implements Memory {
   }
 
   public void reset() {
-    cachedData[cachedAddresses[0]] = cachedData[cachedAddresses[1]] = cachedData[cachedAddresses[2]] = cachedData[cachedAddresses[3]] = -1;
-    counter = 0;
+    while (counter > 0) {
+      cachedData[cachedAddresses[--counter]] = -1;
+    }
   }
 }

@@ -148,7 +148,7 @@ public class Z80 implements ZxModule {
   public OOZ80 createOOZ80(MiniZXIO io) {
     Memory memory1 = new AbstractMemory() {
       protected int doRead(final int address) {
-        return memory.readByteInternal(address) & 0xff;
+        return memory.readByteInternal(address);
       }
 
       protected void doWrite(final int address, final int value) {

@@ -32,8 +32,8 @@ public class MemoryPage {
   public MemoryPage() {
   }
 
-  public byte get(final int index) {
-    return page[offset + index];
+  public int get(final int index) {
+    return page[offset + index] & 0xff;
   }
 
   public void set(final int index, final byte value) {

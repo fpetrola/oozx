@@ -259,7 +259,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
 //    mapping.getPage().get(address & PAGE_SIZE_MASK);
   }
 
-  public byte readByteInternal(final int address) {
+  public int readByteInternal(final int address) {
     final MemoryPage mapping = mapRead[address >>> PAGE_SIZE_LOGARITHM];
     return mapping.get(address & PAGE_SIZE_MASK);
   }
