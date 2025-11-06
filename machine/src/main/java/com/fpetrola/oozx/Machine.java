@@ -135,9 +135,11 @@ public class Machine implements ZxModule {
 
   public int loadRomBankFromBuffer(MemoryPage[] bankMap, int pageNum, byte[] buffer, int length, boolean custom) {
     int offset = 0;
-    byte[] data = new byte[length];
-    System.arraycopy(buffer, 0, data, 0, length);
+    int[] data = new int[length];
 
+    for (int i = 0; i < length; i++) {
+      data[i] = buffer[i] & 0xff;
+    }
     for (MemoryPage page : Arrays.asList(bankMap).subList(pageNum * memory.PAGES_IN_16K, pageNum * memory.PAGES_IN_16K + length / memory.PAGE_SIZE)) {
       page.offset = offset;
       page.pageNum = pageNum;

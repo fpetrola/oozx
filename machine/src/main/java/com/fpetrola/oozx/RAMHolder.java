@@ -19,5 +19,5 @@
 package com.fpetrola.oozx;
 
 public interface RAMHolder {
-  byte[][] getRAM();
+  int[][] getRAM();
 }

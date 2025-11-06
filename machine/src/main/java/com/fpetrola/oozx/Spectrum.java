@@ -41,7 +41,7 @@ public class Spectrum implements ZxModule {
   private long framesSinceReset;
   private Timer timer;
   private Module module;
-  private byte[][] ram;
+  private int[][] ram;
 
   public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, Z80Clock z80Clock, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
     this.memory = memory;
@@ -154,7 +154,7 @@ public class Spectrum implements ZxModule {
     if (tstatesThroughLine < timings.leftBorder) return 0xff;
     if (tstatesThroughLine >= timings.leftBorder + timings.horizontalScreen) return 0xff;
     int column = ((tstatesThroughLine - timings.leftBorder) / 8) * 2;
-    byte[] bytes = ram[memory.currentScreen];
+    int[] bytes = ram[memory.currentScreen];
 
     switch (tstatesThroughLine % 8) {
       case 5:

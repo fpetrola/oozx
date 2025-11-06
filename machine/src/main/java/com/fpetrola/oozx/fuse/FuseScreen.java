@@ -32,8 +32,8 @@ public class FuseScreen extends JPanel {
   Color[] lightColors = {Color.BLACK, Color.BLUE, Color.RED, Color.MAGENTA, Color.GREEN, Color.CYAN, Color.YELLOW, Color.WHITE};
   Color[] darkColors = new Color[8];
 
-  private int width = 256 + 48 + 48 - 32;
-  private int height = 192 + 64 + 56 - 56 - 20;
+  private final int width = 256 + 48 + 48 - 32;
+  private final int height = 192 + 64 + 56 - 56 - 20;
 
   public FuseScreen(byte[][] screenMatrix) {
     IntStream.range(0, 8).forEach(i -> darkColors[i] = lightColors[i].darker());

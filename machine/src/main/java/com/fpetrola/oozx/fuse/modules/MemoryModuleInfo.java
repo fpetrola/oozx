@@ -66,7 +66,7 @@ public class MemoryModuleInfo implements ZXModuleInfo {
     }
   }
 
-  private byte[][] getRam() {
+  private int[][] getRam() {
     return memory.getRAM();
   }
 

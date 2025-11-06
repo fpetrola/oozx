@@ -104,7 +104,7 @@ public class Display implements ZxModule {
   private final Supplier<SpectrumMachine> fuseMachineInfoSupplier;
   private final Z80Clock z80Clock;
   private final UiDisplay uiDisplay;
-  private final byte[][] ram;
+  private final int[][] ram;
   private final BeanPosition beam;
 
   public Display(Memory memory, Supplier<SpectrumMachine> machine, Z80Clock z80Clock, RAMHolder ramHolder, UiDisplay uiDisplay) {
@@ -207,7 +207,7 @@ public class Display implements ZxModule {
     int beamY = y + BORDER_HEIGHT;
     int offset = getOffset(x, y);
 
-    byte[] screen = ram[memory.currentScreen];
+    int[] screen = ram[memory.currentScreen];
     int data = screen[offset];
     byte data2 = getAttrByte(x, y);
 
@@ -475,9 +475,9 @@ public class Display implements ZxModule {
   }
 
   public void dirtyFlashingSinclair() {
-    byte[] screen = ram[memory.currentScreen];
+    int[] screen = ram[memory.currentScreen];
     for (int offset = 0x1800; offset < 0x1b00; offset++) {
-      byte attr = screen[offset];
+      int attr = screen[offset];
       if ((attr & 0x80) != 0) dirty64(offset);
     }
   }

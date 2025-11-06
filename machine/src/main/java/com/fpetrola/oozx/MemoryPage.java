@@ -27,24 +27,24 @@ public class MemoryPage {
   boolean saveToSnapshot; // Should this page be saved to snapshots?
   public int pageNum; // Which page from the source
   public int offset; // How far into the page this chunk starts
-  private byte[] page;
+  private int[] page;
 
   public MemoryPage() {
   }
 
   public int get(final int index) {
-    return page[offset + index] & 0xff;
+    return page[offset + index];
   }
 
   public void set(final int index, final byte value) {
-    page[offset + index] = value;
+    page[offset + index] = value & 0xff;
   }
 
-  public void setPage(byte[] page) {
+  public void setPage(int[] page) {
     this.page = page;
   }
 
-  public void setPage(byte[][] ram, int i) {
+  public void setPage(int[][] ram, int i) {
     this.page = ram[i];
   }
 
@@ -56,7 +56,7 @@ public class MemoryPage {
     return pageNum;
   }
 
-  public byte[] getPage() {
+  public int[] getPage() {
     return page;
   }
 }
