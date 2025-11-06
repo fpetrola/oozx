@@ -156,12 +156,6 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
     return Optional.ofNullable(instruction.getNextPC() != -1 ? true : null);
   }
 
-  protected void switchByReadCount(Runnable... runnables) {
-    int i = readCount - 1;
-    if (i >= 0 && runnables.length > i)
-      runnables[i].run();
-  }
-
   protected Optional<Boolean> writeCountIsZero() {
     return Optional.ofNullable(writeCount == 0 ? true : null);
   }

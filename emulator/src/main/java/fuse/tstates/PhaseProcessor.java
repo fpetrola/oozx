@@ -79,9 +79,10 @@ public class PhaseProcessor extends PhaseProcessorBase {
       phase.acceptBeforeWrite((e) -> addMc2(2, 3, null, registerPC));
 
     if (!isMemory8BitReference(ld.getSource()) && (isMemoryPlus(ld.getSource()) || isMemoryPlus(ld.getTarget())))
-      phase.acceptAfterMR((e) -> switchByReadCount(() -> {
-        addMultipleMc(5, 1, 0, registerIR.read(), null);
-      }));
+      phase.acceptAfterMR((e) -> {
+        if (readCount == 1)
+          addMultipleMc(5, 1, 0, registerIR.read(), null);
+      });
   }
 
   private void addAfterExecution(Ld ld) {
@@ -326,12 +327,11 @@ public class PhaseProcessor extends PhaseProcessorBase {
 
   private void addMcForDecInc(TargetInstruction instruction) {
     isMemoryPlusOptional(instruction.getTarget()).ifPresent(x -> phase.acceptAfterMR((e -> {
-      switchByReadCount(
-          () -> addMultipleMc(5, 1, 2, valueOf(registerPC), null),
-          () -> {
-            addMultipleMc(1, 1, 0, address, null);
-          }
-      );
+      if (readCount == 1) {
+        addMultipleMc(5, 1, 2, valueOf(registerPC), null);
+      } else if (readCount == 2) {
+        addMultipleMc(1, 1, 0, address, null);
+      }
     })));
 
     isIndirectHL(instruction).ifPresent((x) -> phase.acceptBeforeWrite(e -> addMc2(1, 0, null, registerHL)));
@@ -344,7 +344,9 @@ public class PhaseProcessor extends PhaseProcessorBase {
 
   public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction instruction) {
     isMemoryPlusOptional(instruction.getSource()).ifPresent(x ->
-        phase.acceptAfterMR((e -> switchByReadCount(() -> addMultipleMc(5, 1, 0, valueOf(registerIR), null)))));
+        phase.acceptAfterMR(e -> {
+          if (readCount == 1) addMultipleMc(5, 1, 2, valueOf(registerPC), null);
+        }));
   }
 
   public boolean visitingCall(Call tCall) {
