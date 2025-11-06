@@ -25,17 +25,17 @@ public class MemoryPlusRegister8BitReferenceSpy extends MemoryPlusRegister8BitRe
   private final MemoryPlusRegister8BitReference memoryPlusRegister8BitReference;
 
   public MemoryPlusRegister8BitReferenceSpy(MemoryPlusRegister8BitReference memoryPlusRegister8BitReference) {
-    super();
+    super(null, null, null, 0);
     this.memoryPlusRegister8BitReference = memoryPlusRegister8BitReference;
   }
 
-  public int read() {
-    return memoryPlusRegister8BitReference.read();
-  }
-
-  public void write(int value) {
-    memoryPlusRegister8BitReference.write(value);
-  }
+//  public int read() {
+//    return memoryPlusRegister8BitReference.read();
+//  }
+//
+//  public void write(int value) {
+//    memoryPlusRegister8BitReference.write(value);
+//  }
 
   public String toString() {
     return memoryPlusRegister8BitReference.toString();

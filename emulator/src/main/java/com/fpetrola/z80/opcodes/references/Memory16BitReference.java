@@ -45,11 +45,11 @@ public class Memory16BitReference implements OpcodeReference {
     this.delta = delta;
   }
 
-  public int read() {
+  final public int read() {
     return memory.read16Bits((pc.read() + delta) & 0xFFFF);
   }
 
-  public void write(int value) {
+  final public void write(int value) {
     int address = memory.read16Bits((pc.read() + delta) & 0xFFFF);
     memory.write16Bits(value, address);
   }

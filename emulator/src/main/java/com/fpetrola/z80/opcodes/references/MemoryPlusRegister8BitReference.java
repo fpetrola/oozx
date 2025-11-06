@@ -24,40 +24,14 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 
 public class MemoryPlusRegister8BitReference implements OpcodeReference {
+  final private Memory memory;
+  final private ImmutableOpcodeReference target;
+  final protected int valueDelta;
+  final private Register pc;
+
+  public int fetchedRelative = -1;
   public int address;
   public int value;
-
-  public Memory getMemory() {
-    return memory;
-  }
-
-  private Memory memory;
-
-  public ImmutableOpcodeReference getTarget() {
-    return target;
-  }
-
-  public void setTarget(ImmutableOpcodeReference target) {
-    this.target = target;
-  }
-
-  private ImmutableOpcodeReference target;
-
-  public int getValueDelta() {
-    return valueDelta;
-  }
-
-  protected int valueDelta;
-  public int fetchedRelative= -1;
-
-  public Register getPc() {
-    return pc;
-  }
-
-  private Register pc;
-
-  public MemoryPlusRegister8BitReference() {
-  }
 
   public MemoryPlusRegister8BitReference(ImmutableOpcodeReference target, Memory memory, Register pc, int valueDelta) {
     this.target = target;
@@ -66,25 +40,20 @@ public class MemoryPlusRegister8BitReference implements OpcodeReference {
     this.valueDelta = valueDelta;
   }
 
-  public int read() {
+  final public int read() {
     address = (target.read() + (int) fetchRelative()) & 0xFFFF;
     value = memory.read(address, 0);
     return value;
   }
 
-  public void write(int value) {
-    int wordNumber = target.read();
-    address = (wordNumber + (int) fetchRelative()) & 0xFFFF;
+  final public void write(int value) {
+    address = (target.read() + (int) fetchRelative()) & 0xFFFF;
     this.value = value;
     memory.write(address, value);
   }
 
   public byte fetchRelative() {
-    int dd = memory.read((pc.read() + valueDelta) & 0xFFFF, 0);
-    if (fetchedRelative != dd) {
-      fetchedRelative = dd;
-    }
-    return (byte) (int) fetchedRelative;
+    return (byte) memory.read((pc.read() + valueDelta) & 0xFFFF, 0);
   }
 
   public String toString() {
@@ -105,5 +74,21 @@ public class MemoryPlusRegister8BitReference implements OpcodeReference {
 
   public void accept(InstructionVisitor instructionVisitor) {
     instructionVisitor.visitMemoryPlusRegister8BitReference(this);
+  }
+
+  public ImmutableOpcodeReference getTarget() {
+    return target;
+  }
+
+  public Memory getMemory() {
+    return memory;
+  }
+
+  public int getValueDelta() {
+    return valueDelta;
+  }
+
+  public Register getPc() {
+    return pc;
   }
 }

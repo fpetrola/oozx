@@ -33,7 +33,6 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.emulation.AbstractMemory;
 import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
@@ -61,7 +60,7 @@ public class Z80 implements ZxModule {
   public LibretroCore.bridge_command bridgeCommand;
   private PhaseProcessor phaseProcessor;
 
-  private MiniZXIO io;
+  private IO io;
   private int z80_interrupt_event;
   //   ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent();
 //   MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
@@ -145,7 +144,7 @@ public class Z80 implements ZxModule {
     }
   }
 
-  public OOZ80 createOOZ80(MiniZXIO io) {
+  public OOZ80 createOOZ80(IO io) {
     Memory memory1 = new AbstractMemory() {
       protected int doRead(final int address) {
         return memory.readByteInternal(address);
@@ -168,14 +167,13 @@ public class Z80 implements ZxModule {
     };
 
     state.clock = zxClock;
-    io.setPc(state.getPc());
     return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory(state)), new DefaultInstructionExecutor(state, false));
   }
 
 
   private void init2() {
-    io = new MiniZXIO() {
-      public synchronized int in(int port) {
+    io = new IO() {
+      public int in(int port) {
         return periph.readPort(port);
       }
 
@@ -194,7 +192,7 @@ public class Z80 implements ZxModule {
       audio.open(MachineTypes.SPECTRUM48K, new AY8912(), false, 32000);
 
       FuseScreen contentPane = new FuseScreen(bytes);
-      JFrame screen = createScreen(io.miniZXKeyboard, contentPane);
+      JFrame screen = createScreen(null, contentPane);
 //      new SwingKeyboard(screen, keyboard, input);
     }
     uiDisplay.screenMatrix = bytes;

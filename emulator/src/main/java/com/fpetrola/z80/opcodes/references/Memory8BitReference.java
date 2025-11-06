@@ -33,11 +33,11 @@ public class Memory8BitReference implements ImmutableOpcodeReference {
     this.delta = delta;
   }
 
-  public int read() {
+  final public int read() {
     return memory.read((pc.read() + delta) & 0xFFFF, 0);
   }
 
-  public void write(int value) {
+  final public void write(int value) {
     memory.write(pc.read(), value);
   }
 
