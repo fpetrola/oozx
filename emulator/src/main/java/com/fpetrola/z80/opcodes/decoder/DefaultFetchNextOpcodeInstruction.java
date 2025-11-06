@@ -18,12 +18,12 @@
 
 package com.fpetrola.z80.opcodes.decoder;
 
+import com.fpetrola.z80.cpu.FetchedInstructionWrapper;
+import com.fpetrola.z80.cpu.MultiOpcodeFetcher;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.references.Memory8BitReference;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 
@@ -40,8 +40,8 @@ public class DefaultFetchNextOpcodeInstruction extends AbstractInstruction imple
   private final int incPc;
   private final Register registerR;
   private final IntConsumer inc2Consumer;
-  private final IntConsumer inc1Consumer;
   private int increment;
+  private final FetchedInstructionWrapper[] wrappers = new FetchedInstructionWrapper[0x100];
 
   public DefaultFetchNextOpcodeInstruction(State state, Instruction[] table, int incPc, String name, Memory memoryForOpcodes) {
     this.table = table;
@@ -63,16 +63,13 @@ public class DefaultFetchNextOpcodeInstruction extends AbstractInstruction imple
     } else
       inc2Consumer = nullConsumer;
 
-    if (incPc == 1)
-      inc1Consumer = plus1 -> memoryForOpcodes.read((plus1 + 1) & 0xFFFF, 0);
-    else
-      inc1Consumer = nullConsumer;
-
     calcIncrement();
+
+    MultiOpcodeFetcher.wrapInstructions(table, increment, pc, wrappers, incPc, incrementR, memoryForOpcodes);
   }
 
   private void calcIncrement() {
-    increment= this.incPc - 1 + length;
+    increment = this.incPc - 1 + length;
   }
 
   public int execute() {
@@ -99,14 +96,10 @@ public class DefaultFetchNextOpcodeInstruction extends AbstractInstruction imple
     return table[memoryForOpcodes.read((pc.read() + increment) & 0xFFFF, incPc)];
   }
 
-  public Instruction findNextOpcode2() {
+  public FetchedInstructionWrapper findNextOpcode2() {
     int plus = (pc.read() + increment) & 0xFFFF;
     inc2Consumer.accept(plus);
-    Instruction instruction = table[memoryForOpcodes.read(plus, incPc)];
-    if (instruction instanceof Ld ld && ld.getSource() instanceof Memory8BitReference)
-      inc1Consumer.accept(plus);
-
-    return instruction;
+    return wrappers[memoryForOpcodes.read(plus, incPc)];
   }
 
   public String toString() {

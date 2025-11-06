@@ -18,14 +18,15 @@
 
 package com.fpetrola.z80.cpu;
 
-import com.fpetrola.z80.instructions.cache.InstructionCloner;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
+import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.decoder.table.MemoryForOpcodes;
 import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
+import com.fpetrola.z80.opcodes.references.Memory8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.registers.Register;
@@ -36,25 +37,41 @@ public class MultiOpcodeFetcher {
   public final InstructionFactory instructionFactory;
   private final State state;
   private final Register registerR;
-  public Instruction[] opcodesTables;
+  public final FetchedInstructionWrapper[] opcodesTables = new FetchedInstructionWrapper[0x100];
   public Supplier<TableBasedOpCodeDecoder> tableFactory;
   public boolean clone;
   private final MemoryForOpcodes memoryForOpcode;
   private final Memory memory;
+  private final Register pc;
 
   public MultiOpcodeFetcher(InstructionFactory instructionFactory, State state, OpcodeConditions opcodeConditions, boolean clone) {
     this.instructionFactory = instructionFactory;
     this.state = state;
+    this.pc = state.getPc();
     this.clone = clone;
     memoryForOpcode = new MemoryForOpcodes(this.state.getMemory(), this.state);
     tableFactory = () -> createOpcodesTables(opcodeConditions, instructionFactory.getFetchNextOpcodeInstructionFactory(), instructionFactory);
     createOpcodeTables();
     memory = state.getMemory();
-    this.registerR = (DefaultRegisterBankFactory.RRegister) state.getRegisterR();
+    this.registerR = state.getRegisterR();
   }
 
   public void createOpcodeTables() {
-    opcodesTables = tableFactory.get().getOpcodeLookupTable();
+    wrapInstructions(tableFactory.get().getOpcodeLookupTable(), 0, pc, opcodesTables, -1, false, memory);
+  }
+
+  public static void wrapInstructions(Instruction[] instructions, int increment, Register pc, FetchedInstructionWrapper[] wrappers, int incPc, boolean incrementR, Memory memory) {
+    for (int i = 0; i < instructions.length; i++) {
+      Instruction instruction = instructions[i];
+      if (instruction != null) {
+        if (instruction instanceof Ld ld && ld.getSource() instanceof Memory8BitReference && incPc == 1) {
+          wrappers[i] = new LdSpecialWrapper(instruction, increment, pc, memory);
+        } else if (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
+          wrappers[i] = new FetchNextOpcodeInstructionWrapper(fetchNextOpcodeInstruction);
+        } else
+          wrappers[i] = new FetchedInstructionWrapper(instruction);
+      }
+    }
   }
 
   public TableBasedOpCodeDecoder createOpcodesTables(OpcodeConditions opcodeConditions, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionFactory instructionFactory) {
@@ -69,11 +86,8 @@ public class MultiOpcodeFetcher {
 //    int rValue = registerR.read();
     memoryForOpcode.reset();
 
-    Instruction fetchedInstruction = opcodesTables[memory.read(address, 1)];
-    while (fetchedInstruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
-      fetchNextOpcodeInstruction.update();
-      fetchedInstruction = fetchNextOpcodeInstruction.findNextOpcode2();
-    }
+    FetchedInstructionWrapper fetchedInstructionWrapper = opcodesTables[memory.read(address, 1)];
+
 //    int rdelta = registerR.read().minus(rValue);
 //    ((AbstractInstruction<?>) fetchedInstruction).setRDelta(rdelta.intValue());
 
@@ -81,7 +95,7 @@ public class MultiOpcodeFetcher {
 //      fetchedInstruction = new InstructionCloner(instructionFactory).clone(fetchedInstruction);
 //    }
 
-    return fetchedInstruction;
+    return fetchedInstructionWrapper.getInstruction();
   }
 
   public void reset() {
