@@ -22,5 +22,4 @@ import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 
 public interface SourceInstruction<S extends ImmutableOpcodeReference> {
   S getSource();
-  void setSource(S source);
 }

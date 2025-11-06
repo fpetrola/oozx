@@ -27,9 +27,8 @@ public class Dec16 extends DefaultTargetInstruction {
     super(target);
   }
 
-  public int execute() {
+  public void execute() {
     target.write((target.read() - 1) & 0xFFFF);
-    return cyclesCost;
   }
 
   @Override

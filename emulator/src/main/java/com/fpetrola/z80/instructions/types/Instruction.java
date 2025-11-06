@@ -22,7 +22,7 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import fuse.tstates.CachedPhase;
 
 public interface Instruction {
-  int execute();
+  void execute();
 
   int getLength();
 

@@ -30,9 +30,9 @@ public class Out extends TargetSourceInstruction<ImmutableOpcodeReference> {
     super(outPortOpcodeReference, source, flag);
   }
 
-  public int execute() {
+  public void execute() {
     target.write(source.read());
-    return cyclesCost;
+    
   }
 
   public static class OutPortOpcodeReference implements OpcodeReference {

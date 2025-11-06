@@ -23,7 +23,6 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 
 public interface TargetInstruction extends Instruction {
   OpcodeReference getTarget();
-  void setTarget(OpcodeReference target);
 
   @Override
   default void accept(InstructionVisitor visitor) {

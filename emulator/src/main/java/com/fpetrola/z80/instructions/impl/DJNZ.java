@@ -30,7 +30,7 @@ public class DJNZ extends ConditionalInstruction<BNotZeroCondition> {
     this.condition = condition;
   }
 
-  public int execute() {
+  public void execute() {
     condition.getB().decrement();
     if (condition.conditionMet(this)) {
       int jumpAddress2 = calculateJumpAddress();
@@ -40,7 +40,7 @@ public class DJNZ extends ConditionalInstruction<BNotZeroCondition> {
     } else
       setNextPC(-1);
 
-    return cyclesCost;
+    
   }
 
   public int calculateJumpAddress() {

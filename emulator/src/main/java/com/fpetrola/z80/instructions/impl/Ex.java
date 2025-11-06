@@ -28,12 +28,12 @@ public class Ex extends TargetSourceInstruction<OpcodeReference> {
     super(target, source, flag1);
   }
 
-  public int execute() {
+  public void execute() {
     final int v1 = target.read();
     final int v2 = source.read();
     target.write(v2);
     source.write(v1);
-    return cyclesCost;
+    
   }
 
   public void accept(InstructionVisitor visitor) {

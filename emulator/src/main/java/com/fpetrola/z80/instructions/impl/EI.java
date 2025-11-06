@@ -29,9 +29,8 @@ public class EI extends AbstractInstruction {
     this.state = state;
   }
 
-  public int execute() {
+  public void execute() {
     state.enableInterrupt();
-    return 4;
   }
 
   public void accept(InstructionVisitor visitor) {

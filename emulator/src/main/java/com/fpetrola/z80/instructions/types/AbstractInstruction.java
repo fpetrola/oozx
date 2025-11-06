@@ -23,7 +23,6 @@ import fuse.tstates.CachedPhase;
 
 public abstract class AbstractInstruction implements Instruction {
   protected int length = 1;
-  protected int cyclesCost = 4;
   private int nextPC = -1;
   private int rdelta;
 
@@ -34,7 +33,6 @@ public abstract class AbstractInstruction implements Instruction {
   private CachedPhase cachedPhase = new CachedPhase();
 
   protected AbstractInstruction() {
-    cyclesCost += 1;
   }
 
   public String toString() {

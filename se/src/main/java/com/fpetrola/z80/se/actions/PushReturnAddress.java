@@ -32,11 +32,9 @@ public class PushReturnAddress extends Push {
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
   }
 
-  public int execute() {
+  public void execute() {
     doPush(target.read(), sp, memory);
     symbolicExecutionAdapter.checkNextSP();
-
-    return 5 + cyclesCost;
   }
 
   protected String getName() {

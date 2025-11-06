@@ -24,30 +24,22 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
 
 public abstract class TargetSourceInstruction<S extends ImmutableOpcodeReference> extends DefaultTargetFlagInstruction implements SourceInstruction<S> {
-  protected S source;
+  final protected S source;
 
   public TargetSourceInstruction(OpcodeReference target, S source, Register flag) {
     super(target, flag);
     this.source = source;
     incrementLengthBy(source.getLength());
-    cyclesCost += 1;
   }
 
   public String toString() {
     return super.toString() + ", " + "source";
   }
 
-  @Override
   public S getSource() {
     return source;
   }
 
-  @Override
-  public void setSource(S source) {
-    this.source = source;
-  }
-
-  @Override
   public void accept(InstructionVisitor visitor) {
     visitor.visitingFlag(getFlag(), this);
     visitor.visitingSource(getSource(), this);

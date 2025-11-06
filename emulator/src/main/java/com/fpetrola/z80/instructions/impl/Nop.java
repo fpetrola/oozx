@@ -25,8 +25,7 @@ public class Nop extends AbstractInstruction {
   public Nop() {
   }
 
-  public int execute() {
-    return 4;
+  public void execute() {
   }
 
   @Override

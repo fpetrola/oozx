@@ -27,10 +27,10 @@ public class Inc16 extends DefaultTargetInstruction {
     super(target);
   }
 
-  public int execute() {
+  public void execute() {
     int read = target.read();
     target.write((read + 1) & 0xFFFF);
-    return cyclesCost;
+    
   }
 
   @Override

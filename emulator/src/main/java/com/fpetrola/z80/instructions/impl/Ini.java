@@ -38,7 +38,7 @@ public class Ini extends BlockInstruction {
     super(bc, hl, flag, memory, io);
   }
 
-  public int execute() {
+  public void execute() {
     int port = bc.read();
     int in = io.in(port);
     int cValue = bc.getLow().read();
@@ -47,7 +47,6 @@ public class Ini extends BlockInstruction {
     next();
     bc.getHigh().decrement();
     flagOperation(in);
-    return 1;
   }
 
   protected void flagOperation(int valueFromHL) {

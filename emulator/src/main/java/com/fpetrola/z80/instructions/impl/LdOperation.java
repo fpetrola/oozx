@@ -43,7 +43,7 @@ public class LdOperation extends AbstractInstruction {
     incrementLengthBy(1);
   }
 
-  public int execute() {
+  public void execute() {
     instruction.execute();
     if (instruction instanceof TargetInstruction targetInstruction) {
       int read;
@@ -53,7 +53,7 @@ public class LdOperation extends AbstractInstruction {
         read = targetInstruction.getTarget().read();
       target.write(read);
     }
-    return cyclesCost;
+    
   }
 
   public String toString() {

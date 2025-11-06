@@ -30,8 +30,8 @@ public class JP extends ConditionalInstruction<Condition> {
   }
 
   @Override
-  public int execute() {
-    return jumpIfConditionMatches();
+  public void execute() {
+    jumpIfConditionMatches();
   }
 
   public void accept(InstructionVisitor visitor) {

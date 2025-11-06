@@ -41,9 +41,8 @@ public class ParameterizedBinaryAluInstruction extends TargetSourceInstruction<I
     this.binaryAluOperation = binaryAluOperation;
   }
 
-  public int execute() {
+  public void execute() {
     assignTarget(doExecute(source.read(), target.read()));
-    return cyclesCost;
   }
 
   protected int doExecute(int value1, int value2) {

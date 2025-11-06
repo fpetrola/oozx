@@ -63,7 +63,7 @@ public class Exx extends AbstractInstruction {
     this._hl = _hl;
   }
 
-  public int execute() {
+  public void execute() {
     int v1 = bc.read();
     bc.write(_bc.read());
     _bc.write(v1);
@@ -75,8 +75,6 @@ public class Exx extends AbstractInstruction {
     v1 = hl.read();
     hl.write(_hl.read());
     _hl.write(v1);
-
-    return 4;
   }
 
   @Override

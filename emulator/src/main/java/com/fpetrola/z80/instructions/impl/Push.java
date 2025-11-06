@@ -43,9 +43,8 @@ public class Push extends AbstractInstruction {
     this.memory = memory;
   }
 
-  public int execute() {
+  public void execute() {
     doPush(target.read(), sp, memory);
-    return 5 + cyclesCost;
   }
 
   public static void doPush(int value, Register sp, Memory memory) {

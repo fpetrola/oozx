@@ -32,9 +32,8 @@ public class IM extends AbstractInstruction {
     this.mode = mode;
   }
 
-  public int execute() {
+  public void execute() {
     state.setIntMode(InterruptionMode.values()[mode]);
-    return 4;
   }
 
   public String toString() {

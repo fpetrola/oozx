@@ -32,12 +32,6 @@ public class Ldir extends RepeatingInstruction {
     return bc.read() != 0;
   }
 
-  @Override
-  public int execute() {
-    return super.execute();
-  }
-
-  @Override
   public void accept(InstructionVisitor visitor) {
     if (!visitor.visitLdir(this))
       super.accept(visitor);

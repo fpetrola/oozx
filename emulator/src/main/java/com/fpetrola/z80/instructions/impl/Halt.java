@@ -31,14 +31,12 @@ public class Halt extends AbstractInstruction implements JumpInstruction {
   }
 
   @Override
-  public int execute() {
+  public void execute() {
     if (!state.isHalted()) {
       state.setHalted(true);
 //      state.getPc().decrement();
       setNextPC(state.getPc().read());
     }
-
-    return 4;
   }
 
   public void accept(InstructionVisitor visitor) {

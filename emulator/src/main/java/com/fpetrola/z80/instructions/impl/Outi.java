@@ -47,7 +47,7 @@ public class Outi extends BlockInstruction {
     super(bc, hl, flag, memory, io);
   }
 
-  public int execute() {
+  public void execute() {
     int hlValue = hl.read();
     int cValue = bc.getLow().read();
     int valueFromHL = memory.read(hlValue, 0);
@@ -55,8 +55,6 @@ public class Outi extends BlockInstruction {
     io.out(bc.read(), valueFromHL);
     next();
     flagOperation(valueFromHL);
-
-    return 1;
   }
 
   protected void flagOperation(int valueFromHL) {

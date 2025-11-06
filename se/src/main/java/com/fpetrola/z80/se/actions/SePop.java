@@ -36,7 +36,7 @@ public class SePop extends Pop implements IPopReturnAddress {
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
   }
 
-  public int execute() {
+  public void execute() {
     setNextPC(-1);
     returnAddress = null;
     var read = memory.read16Bits(sp.read());
@@ -67,8 +67,6 @@ public class SePop extends Pop implements IPopReturnAddress {
 //      symbolicExecutionAdapter.checkNextSP();
 //      target.write(doPop(memory, sp));
 //    }
-
-    return 0;
   }
 
   protected String getName() {

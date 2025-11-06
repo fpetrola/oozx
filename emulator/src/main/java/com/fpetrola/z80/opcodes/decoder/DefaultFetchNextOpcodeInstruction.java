@@ -72,9 +72,8 @@ public class DefaultFetchNextOpcodeInstruction extends AbstractInstruction imple
     increment = this.incPc - 1 + length;
   }
 
-  public int execute() {
+  public void execute() {
     findNextOpcode().execute();
-    return 4;
   }
 
   public void incrementLengthBy(int by) {

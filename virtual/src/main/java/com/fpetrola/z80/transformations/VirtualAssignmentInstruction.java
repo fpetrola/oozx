@@ -32,11 +32,10 @@ public class VirtualAssignmentInstruction extends DummyInstruction {
     this.lastRegister = lastRegister;
   }
 
-  public int execute() {
+  public void execute() {
     IVirtual8BitsRegister tVirtualRegister = lastRegister.get();
     register.write(tVirtualRegister.read());
     register.lastVersionRead= tVirtualRegister;
-    return 0;
   }
 
   public Register getRegister() {

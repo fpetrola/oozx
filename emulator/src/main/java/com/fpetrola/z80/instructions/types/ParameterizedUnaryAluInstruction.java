@@ -27,7 +27,6 @@ public class ParameterizedUnaryAluInstruction extends DefaultTargetFlagInstructi
   public ParameterizedUnaryAluInstruction(OpcodeReference target, Register flag, TableAluOperation tableAluOperation) {
     super(target, flag);
     this.unaryAluOperation = getTUnaryAluOperation(tableAluOperation);
-    this.flag = flag;
   }
 
   public interface UnaryAluOperation {
@@ -39,12 +38,10 @@ public class ParameterizedUnaryAluInstruction extends DefaultTargetFlagInstructi
   public ParameterizedUnaryAluInstruction(OpcodeReference target, Register flag, UnaryAluOperation unaryAluOperation) {
     super(target, flag);
     this.unaryAluOperation = unaryAluOperation;
-    this.flag = flag;
   }
 
-  public int execute() {
+  public void execute() {
     target.write(doExecute(target.read()));
-    return cyclesCost;
   }
 
   protected int doExecute(int value2) {

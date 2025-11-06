@@ -41,11 +41,11 @@ public abstract class ConditionalInstruction<C extends Condition> extends Abstra
     incrementLengthBy(positionOpcodeReference.getLength());
   }
 
-  public int execute() {
-    return jumpIfConditionMatches();
+  public void execute() {
+    jumpIfConditionMatches();
   }
 
-  protected int jumpIfConditionMatches() {
+  protected void jumpIfConditionMatches() {
     int jumpAddress2 = calculateJumpAddress();
     if (condition.conditionMet(this)) {
       jumpAddress2 = beforeJump(jumpAddress2);
@@ -53,8 +53,6 @@ public abstract class ConditionalInstruction<C extends Condition> extends Abstra
       setNextPC(jumpAddress2);
     } else
       setNextPC(-1);
-
-    return cyclesCost;
   }
 
   public int calculateJumpAddress() {

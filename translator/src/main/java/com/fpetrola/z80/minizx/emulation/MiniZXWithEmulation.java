@@ -238,7 +238,7 @@ public class MiniZXWithEmulation {
       public Ret Ret(Condition condition) {
         return new Ret(condition, sp, memory, pc) {
           @Override
-          public int execute() {
+          public void execute() {
             int jumpAddress2 = calculateJumpAddress();
             if (condition.conditionMet(this)) {
               final int value = memory.read16Bits(sp.read());
@@ -258,7 +258,7 @@ public class MiniZXWithEmulation {
             } else
               setNextPC(-1);
 
-            return cyclesCost;
+            
           }
         };
       }
@@ -271,7 +271,7 @@ public class MiniZXWithEmulation {
       public Call Call(Condition condition, ImmutableOpcodeReference positionOpcodeReference) {
         return new Call(positionOpcodeReference, condition, pc, sp, state.getMemory()) {
           @Override
-          public int execute() {
+          public void execute() {
             Map<java.lang.Integer, Runnable> convertedRoutines = getConvertedRoutines();
 
             int jumpAddress2 = calculateJumpAddress();
@@ -305,8 +305,6 @@ public class MiniZXWithEmulation {
               }
             } else
               setNextPC(-1);
-
-            return 0;
           }
         };
       }

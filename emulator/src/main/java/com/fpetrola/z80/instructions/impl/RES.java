@@ -29,9 +29,9 @@ public class RES extends BitOperation {
     super(target, n, flag);
   }
 
-  public int execute() {
+  public void execute() {
     target.write((target.read() & ~(1 << n)) & 0xFFFF);
-    return cyclesCost;
+    
   }
 
   public void accept(InstructionVisitor visitor) {

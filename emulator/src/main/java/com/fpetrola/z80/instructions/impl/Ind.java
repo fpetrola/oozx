@@ -37,7 +37,7 @@ public class Ind extends Ini {
     super(bc, hl, flag, memory, io);
   }
 
-  public int execute() {
+  public void execute() {
     int port = bc.read();
     int in = io.in(port);
     int hlValue = hl.read();
@@ -45,7 +45,6 @@ public class Ind extends Ini {
     next();
     bc.getHigh().decrement();
     flagOperation(in);
-    return 1;
   }
 
   protected void next() {

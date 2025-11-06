@@ -29,9 +29,8 @@ public class DI extends AbstractInstruction {
     this.state = state;
   }
 
-  public int execute() {
+  public void execute() {
     state.resetInterrupt();
-    return 4;
   }
 
   @Override

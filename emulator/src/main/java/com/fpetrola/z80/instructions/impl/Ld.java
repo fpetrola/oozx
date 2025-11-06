@@ -29,9 +29,8 @@ public class Ld extends TargetSourceInstruction<ImmutableOpcodeReference> {
     super(target, source, flag);
   }
 
-  public int execute() {
+  public void execute() {
     target.write(source.read());
-    return cyclesCost;
   }
 
   public void accept(InstructionVisitor visitor) {

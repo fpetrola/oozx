@@ -64,7 +64,7 @@ public class In extends TargetSourceInstruction<ImmutableOpcodeReference> {
     this.io = io;
   }
 
-  public int execute() {
+  public void execute() {
     int port = source.read();
 
     boolean equalsN = !(source instanceof Register);
@@ -83,7 +83,7 @@ public class In extends TargetSourceInstruction<ImmutableOpcodeReference> {
     else
       flag.write(flag.read());
 
-    return cyclesCost;
+    
   }
 
   public void accept(InstructionVisitor visitor) {

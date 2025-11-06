@@ -21,23 +21,16 @@ package com.fpetrola.z80.instructions.types;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 
 public abstract class DefaultTargetInstruction extends AbstractInstruction implements TargetInstruction {
-  protected OpcodeReference target;
+  final protected OpcodeReference target;
 
   public DefaultTargetInstruction(OpcodeReference target) {
     this.target = target;
   }
 
-  @Override
   public OpcodeReference getTarget() {
     return target;
   }
 
-  @Override
-  public void setTarget(OpcodeReference target) {
-    this.target = target;
-  }
-
-  @Override
   public String toString() {
     return super.toString() + " " + getTarget().getClass().getSimpleName().toString();
   }

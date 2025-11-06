@@ -53,7 +53,7 @@ public class RLD extends AbstractInstruction {
     this.memory = memory;
   }
 
-  public int execute() {
+  public void execute() {
     int reg_A = a.read();
     int nibble1 = (reg_A & 0x00F0) >> 4;
     int nibble2 = reg_A & 0x000F;
@@ -68,8 +68,6 @@ public class RLD extends AbstractInstruction {
     executeAlu(temp, reg_A);
 
     a.write(value);
-
-    return 1;
   }
 
   protected void executeAlu(int value, int reg_A) {

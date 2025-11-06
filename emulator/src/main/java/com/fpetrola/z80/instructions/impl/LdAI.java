@@ -40,7 +40,7 @@ public class LdAI extends Ld {
     this.state = state;
   }
 
-  public int execute() {
+  public void execute() {
     int value = source.read();
     int reg_A = target.read();
     boolean iff2 = state.isIff2();
@@ -48,6 +48,6 @@ public class LdAI extends Ld {
 
     target.write(value);
 
-    return cyclesCost;
+    
   }
 }

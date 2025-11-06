@@ -52,11 +52,10 @@ public class Cpi extends BlockInstruction {
     this.a = a;
   }
 
-  public int execute() {
+  public void execute() {
     bc.decrement();
     flagOperation(bc.read());
     next();
-    return 1;
   }
 
   protected void flagOperation(int valueFromHL) {

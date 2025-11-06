@@ -23,7 +23,7 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
 
 public abstract class DefaultTargetFlagInstruction extends DefaultTargetInstruction implements FlagInstruction {
-  protected Register flag;
+  final protected Register flag;
 
   public DefaultTargetFlagInstruction(OpcodeReference target, Register flag) {
     super(target);
@@ -31,13 +31,8 @@ public abstract class DefaultTargetFlagInstruction extends DefaultTargetInstruct
     incrementLengthBy(target.getLength());
   }
 
-  @Override
   public Register getFlag() {
     return flag;
-  }
-
-  public void setFlag(Register flag) {
-    this.flag = flag;
   }
 
   public void accept(InstructionVisitor visitor) {

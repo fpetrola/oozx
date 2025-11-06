@@ -34,10 +34,9 @@ public class Pop extends DefaultTargetFlagInstruction {
     this.memory = memory;
   }
 
-  public int execute() {
+  public void execute() {
     int value = doPop(memory, sp);
     target.write(value);
-    return 5 + 3 + 3;
   }
 
   public static  int doPop(Memory memory, Register sp) {

@@ -23,8 +23,7 @@ import fuse.tstates.CachedPhase;
 
 public class DummyInstruction implements Instruction {
   @Override
-  public int execute() {
-    return 0;
+  public void execute() {
   }
 
   @Override

@@ -43,11 +43,11 @@ public class BIT extends BitOperation {
     tBitAluOperation = new BitAluOperation(target, memptr);
   }
 
-  public int execute() {
+  public void execute() {
     int f = tBitAluOperation.execute2(n, flag.read(), target.read());
     flag.write(f);
 
-    return cyclesCost;
+    
   }
 
   public void accept(InstructionVisitor visitor) {

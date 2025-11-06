@@ -41,7 +41,7 @@ public class Call extends ConditionalInstruction<Condition> {
   }
 
   @Override
-  public int execute() {
+  public void execute() {
     int jumpAddress2 = calculateJumpAddress();
     if (condition.conditionMet(this)) {
       jumpAddress2 = beforeJump(jumpAddress2);
@@ -50,7 +50,7 @@ public class Call extends ConditionalInstruction<Condition> {
     } else
       setNextPC(-1);
 
-    return cyclesCost;
+    
   }
 
   @Override

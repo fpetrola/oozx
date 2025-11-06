@@ -55,7 +55,7 @@ public class Ldi extends BlockInstruction {
     this.a = a;
   }
 
-  public int execute() {
+  public void execute() {
     int read = memory.read(hl.read(), 0);
     memory.write(de.read(), read);
 
@@ -63,8 +63,6 @@ public class Ldi extends BlockInstruction {
     bc.decrement();
 
     flagOperation(read);
-
-    return 1;
   }
 
   protected void flagOperation(int valueFromHL) {

@@ -47,11 +47,10 @@ public class Cpd extends Cpi {
     super(a, flag, bc, hl, memory, io);
   }
 
-  public int execute() {
+  public void execute() {
     bc.decrement();
     flagOperation(bc.read());
     next();
-    return 1;
   }
 
   protected void next() {

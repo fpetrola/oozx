@@ -26,8 +26,6 @@ import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.se.DataflowService;
-import com.fpetrola.z80.se.DirectAccessWordNumber;
-import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
 import com.fpetrola.z80.se.actions.SePop;
@@ -54,7 +52,7 @@ public class SEInstructionFactory extends DefaultInstructionFactory {
 
   public Ld Ld(OpcodeReference target, ImmutableOpcodeReference source) {
     return new Ld(target, source, flag) {
-      public int execute() {
+      public void execute() {
 //        if (target instanceof Register register) {
 //          if (register.getName().equals(RegisterName.SP.name())) {
 //            symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().printStack();
@@ -72,7 +70,6 @@ public class SEInstructionFactory extends DefaultInstructionFactory {
               } else
                 symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().changingSP(i);
             }
-            return 0;
           }
         }
 
@@ -81,15 +78,14 @@ public class SEInstructionFactory extends DefaultInstructionFactory {
           int address = indirectMemory16BitReference.address;
           int aLU8Assign = value;
 //          target.write( new DirectAccessWordNumber(aLU8Assign, pc.read(), address));
-          return 1;
         } else if (source instanceof IndirectMemory8BitReference indirectMemory8BitReference) {
           int value = source.read();
           int address = indirectMemory8BitReference.address;
           int aLU8Assign = value;
 //          target.write((T) new DirectAccessWordNumber(aLU8Assign, pc.read(), address));
-          return cyclesCost;
+
         } else
-          return super.execute();
+          super.execute();
       }
 
       protected String getName() {
@@ -100,13 +96,12 @@ public class SEInstructionFactory extends DefaultInstructionFactory {
 
   public Ret Ret(Condition condition) {
     return new Ret(condition, sp, memory, pc) {
-      public int execute() {
+      public void execute() {
 //            if (!getRoutineExecution().hasActionAt(getPcValue()))
 //              getRoutineExecution().replaceAddressAction(new RetAddressAction(getRoutineExecution(), getPcValue()));
 //            addressAction = getRoutineExecution().getActionInAddress(getPcValue());
 
-        int execute = super.execute();
-        return execute;
+        super.execute();
       }
 
       protected String getName() {
@@ -163,7 +158,7 @@ public class SEInstructionFactory extends DefaultInstructionFactory {
 //    }
 
     @Override
-    public int execute() {
+    public void execute() {
       if (positionOpcodeReference instanceof Register register) {
         boolean b = condition.conditionMet(this);
 
@@ -176,13 +171,12 @@ public class SEInstructionFactory extends DefaultInstructionFactory {
 //              Pop.doPop(memory, sp);
 //              setNextPC(createValue(pc.read().intValue() + 1));
         if (lastData == null)
-          return super.execute();
+          super.execute();
         else {
           setNextPC(lastData);
-          return 0;
         }
       } else
-        return super.execute();
+        super.execute();
     }
 
     protected String getName() {

@@ -34,7 +34,7 @@ public class JR extends ConditionalInstruction<Condition> {
     return calculateRelativeJumpAddress();
   }
 
-  protected int jumpIfConditionMatches() {
+  protected void jumpIfConditionMatches() {
     if (condition.conditionMet(this)) {
       int jumpAddress2 = calculateJumpAddress();
       jumpAddress2 = beforeJump(jumpAddress2);
@@ -43,7 +43,7 @@ public class JR extends ConditionalInstruction<Condition> {
     } else
       setNextPC(-1);
 
-    return cyclesCost;
+    
   }
 
 

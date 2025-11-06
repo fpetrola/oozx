@@ -31,8 +31,8 @@ public class RetN extends Ret {
     this.state = state;
   }
 
-  public int execute() {
+  public void execute() {
     state.setIff1(state.isIff2());
-    return super.execute();
+    super.execute();
   }
 }
