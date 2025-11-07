@@ -22,6 +22,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 
 public class Utils {
@@ -31,8 +32,10 @@ public class Utils {
 
   public static int readAuxiliaryFile(String filename, File rom, AuxiliaryType auxiliaryType) {
     try {
-      URL resource = Utils.class.getResource("/" + filename);
-      rom.buffer = FileUtils.readFileToByteArray(new java.io.File(resource.getFile()));
+      InputStream resource = Utils.class.getResourceAsStream("/" + filename);
+      java.io.File tempFile = java.io.File.createTempFile("aux", "rom");
+      FileUtils.copyToFile(resource, tempFile);
+      rom.buffer = FileUtils.readFileToByteArray(tempFile);
       rom.length = rom.buffer.length;
     } catch (IOException e) {
       throw new RuntimeException(e);
