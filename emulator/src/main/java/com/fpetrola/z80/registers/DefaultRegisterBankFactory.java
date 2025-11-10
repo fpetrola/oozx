@@ -32,22 +32,22 @@ public class DefaultRegisterBankFactory {
   public RegisterBank initBasicBank() {
     RegisterBank registerBank = new RegisterBank();
 
-    registerBank.af = createComposed16BitRegister(AF, create8BitRegister(A), createFlagRegister());
+    registerBank.af = createComposed16BitRegister(AF, A, F);
     registerBank.bc = createComposed16BitRegister(BC, B, C);
     registerBank.de = createComposed16BitRegister(DE, D, E);
     registerBank.hl = createComposed16BitRegister(HL, H, L);
 
-    registerBank._af = createComposed16BitRegister(AFx, Ax, Fx);
-    registerBank._bc = createComposed16BitRegister(BCx, Bx, Cx);
-    registerBank._de = createComposed16BitRegister(DEx, Dx, Ex);
-    registerBank._hl = createComposed16BitRegister(HLx, Hx, Lx);
+    registerBank._af = createInvertedComposed16BitRegister(AFx, Ax, Fx);
+    registerBank._bc = createInvertedComposed16BitRegister(BCx, Bx, Cx);
+    registerBank._de = createInvertedComposed16BitRegister(DEx, Dx, Ex);
+    registerBank._hl = createInvertedComposed16BitRegister(HLx, Hx, Lx);
 
-    registerBank.ix = createComposed16BitRegister(IX, IXH, IXL);
-    registerBank.iy = createComposed16BitRegister(IY, IYH, IYL);
-    registerBank.ir = createComposed16BitRegister(IR, createAlwaysIntegerPlain8BitRegister(I), createRRegister());
+    registerBank.ix = createInvertedComposed16BitRegister(IX, IXH, IXL);
+    registerBank.iy = createInvertedComposed16BitRegister(IY, IYH, IYL);
+    registerBank.ir = createComposed16BitRegister(IR, create8BitRegister(I), createRRegister());
 
-    registerBank.pc = createAlwaysIntegerPlain16BitRegister(PC);
-    registerBank.sp = createAlwaysIntegerPlain16BitRegister(SP);
+    registerBank.pc = createPlain16BitRegister(PC);
+    registerBank.sp = createPlain16BitRegister(SP);
 
     registerBank.memptr = createPlain16BitRegister(MEMPTR);
     registerBank.virtual = createPlain16BitRegister(VIRTUAL);
@@ -55,16 +55,8 @@ public class DefaultRegisterBankFactory {
     return registerBank;
   }
 
-  protected Register createFlagRegister() {
-    return new Plain8BitRegister(F.name());
-  }
-
   protected Register createRRegister() {
     return new RRegister();
-  }
-
-  protected Register createAlwaysIntegerPlain8BitRegister(RegisterName registerName) {
-    return new Plain8BitRegister(registerName.name());
   }
 
   protected Register create8BitRegister(RegisterName registerName) {
@@ -75,16 +67,16 @@ public class DefaultRegisterBankFactory {
     return new Composed16BitRegister<>(registerName.name(), h, l);
   }
 
-  protected Register createAlwaysIntegerPlain16BitRegister(RegisterName registerName) {
-    return new Plain16BitRegister(registerName.name());
-  }
-
   protected Register createPlain16BitRegister(RegisterName registerName) {
     return new Plain16BitRegister(registerName.name());
   }
 
   protected RegisterPair createComposed16BitRegister(RegisterName registerName, RegisterName h, RegisterName l) {
     return new Composed16BitRegister(registerName.name(), create8BitRegister(h), create8BitRegister(l));
+  }
+
+  protected RegisterPair createInvertedComposed16BitRegister(RegisterName registerName, RegisterName h, RegisterName l) {
+    return new InvertedComposed16BitRegister(registerName.name(), h, l);
   }
 
   public static class RRegister extends Plain8BitRegister {

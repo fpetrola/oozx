@@ -33,20 +33,12 @@ public class SpyRegisterBankFactory extends DefaultRegisterBankFactory {
     return spy.wrapRegister(super.createRRegister());
   }
 
-  protected Register createAlwaysIntegerPlain8BitRegister(RegisterName registerName) {
-    return spy.wrapRegister(super.createAlwaysIntegerPlain8BitRegister(registerName));
-  }
-
   protected Register create8BitRegister(RegisterName registerName) {
     return spy.wrapRegister(super.create8BitRegister(registerName));
   }
 
   protected RegisterPair createComposed16BitRegister(RegisterName registerName, Register h, Register l) {
     return (RegisterPair) spy.wrapRegister(super.createComposed16BitRegister(registerName, h, l));
-  }
-
-  protected Register createAlwaysIntegerPlain16BitRegister(RegisterName registerName) {
-    return spy.wrapRegister(super.createAlwaysIntegerPlain16BitRegister(registerName));
   }
 
   protected Register createPlain16BitRegister(RegisterName registerName) {
