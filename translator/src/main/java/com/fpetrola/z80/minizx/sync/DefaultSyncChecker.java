@@ -28,10 +28,7 @@ import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulation;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
-import com.fpetrola.z80.registers.Plain8BitRegister;
-import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.registers.*;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 
 import java.util.*;

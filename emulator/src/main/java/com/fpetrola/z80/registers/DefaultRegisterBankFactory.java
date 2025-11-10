@@ -79,20 +79,4 @@ public class DefaultRegisterBankFactory {
     return new InvertedComposed16BitRegister(registerName.name(), h, l);
   }
 
-  public static class RRegister extends Plain8BitRegister {
-    private int regRBit7;
-
-    public RRegister() {
-      super(RegisterName.R.name());
-    }
-
-    public void write(int value) {
-      regRBit7 = (value > 0x7f) ? 0x80 : 0;
-      data = (value & 0x7f) | regRBit7;
-    }
-
-    public void increment() { //TODO: revisar regRBit7
-      data = (data + 1 & 0x7f) | regRBit7;
-    }
-  }
 }

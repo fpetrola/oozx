@@ -89,10 +89,6 @@ public class Composed16BitRegister<R extends Register> implements RegisterPair {
     return 0;
   }
 
-  public RegisterPair clone() throws CloneNotSupportedException {
-    return this;
-  }
-
   public String getName() {
     return name;
   }

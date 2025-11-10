@@ -44,8 +44,4 @@ public class MemoryPlusRegister8BitReferenceSpy extends MemoryPlusRegister8BitRe
   public int getLength() {
     return memoryPlusRegister8BitReference.getLength();
   }
-
-  public Object clone() throws CloneNotSupportedException {
-    return new MemoryPlusRegister8BitReferenceSpy((MemoryPlusRegister8BitReference) memoryPlusRegister8BitReference.clone());
-  }
 }

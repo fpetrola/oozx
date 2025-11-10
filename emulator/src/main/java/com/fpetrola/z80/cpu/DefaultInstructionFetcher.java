@@ -24,7 +24,7 @@ import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
-import com.fpetrola.z80.registers.DefaultRegisterBankFactory.RRegister;
+import com.fpetrola.z80.registers.RRegister;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.CachedPhase;

@@ -50,10 +50,6 @@ public class InvertedComposed16BitRegister implements RegisterPair {
       public String getName() {
         return registerL.name();
       }
-
-      public Object clone() throws CloneNotSupportedException {
-        return null;
-      }
     };
 
     this.high = new Register() {
@@ -75,10 +71,6 @@ public class InvertedComposed16BitRegister implements RegisterPair {
 
       public String getName() {
         return registerH.name();
-      }
-
-      public Object clone() throws CloneNotSupportedException {
-        return null;
       }
 
       public int getLength() {
@@ -117,9 +109,5 @@ public class InvertedComposed16BitRegister implements RegisterPair {
 
   public void write(int value) {
     this.data = value & 0xFFFF;
-  }
-
-  public Object clone() throws CloneNotSupportedException {
-    return null;
   }
 }

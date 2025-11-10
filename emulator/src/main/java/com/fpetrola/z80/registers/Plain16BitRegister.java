@@ -51,10 +51,6 @@ public class Plain16BitRegister implements Register {
     return 0;
   }
 
-  public Object clone() throws CloneNotSupportedException {
-    return this;
-  }
-
   public String getName() {
     return name;
   }

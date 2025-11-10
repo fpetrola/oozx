@@ -16,10 +16,21 @@
  *
  */
 
-package com.fpetrola.z80.opcodes.references;
+package com.fpetrola.z80.registers;
 
-import com.fpetrola.z80.base.InstructionVisitor;
+public class RRegister extends Plain8BitRegister {
+  private int regRBit7;
 
-public interface OpcodeReferenceBase {
-  void accept(InstructionVisitor instructionVisitor);
+  public RRegister() {
+    super(RegisterName.R.name());
+  }
+
+  public void write(int value) {
+    regRBit7 = (value > 0x7f) ? 0x80 : 0;
+    data = (value & 0x7f) | regRBit7;
+  }
+
+  public void increment() { //TODO: revisar regRBit7
+    data = (data + 1 & 0x7f) | regRBit7;
+  }
 }

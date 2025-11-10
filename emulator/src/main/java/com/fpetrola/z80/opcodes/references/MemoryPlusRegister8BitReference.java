@@ -67,11 +67,6 @@ public class MemoryPlusRegister8BitReference implements OpcodeReference {
     return 1;
   }
 
-  public Object clone() throws CloneNotSupportedException {
-    int lastFetchedRelative = fetchedRelative;
-    return new CachedMemoryPlusRegister8BitReference(lastFetchedRelative, (ImmutableOpcodeReference) target.clone(), memory, pc, valueDelta);
-  }
-
   public void accept(InstructionVisitor instructionVisitor) {
     instructionVisitor.visitMemoryPlusRegister8BitReference(this);
   }

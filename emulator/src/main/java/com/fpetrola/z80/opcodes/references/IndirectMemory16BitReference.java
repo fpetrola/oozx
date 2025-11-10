@@ -61,10 +61,6 @@ public final class IndirectMemory16BitReference implements OpcodeReference {
     return target;
   }
 
-  public Object clone() throws CloneNotSupportedException {
-    return new IndirectMemory16BitReference((ImmutableOpcodeReference) target.clone(), memory);
-  }
-
   public String toString() {
     return "(" + target.toString() + ")";
   }

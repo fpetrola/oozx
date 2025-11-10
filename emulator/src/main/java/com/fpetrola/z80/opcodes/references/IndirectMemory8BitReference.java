@@ -60,8 +60,4 @@ public final class IndirectMemory8BitReference implements OpcodeReference {
   public String toString() {
     return "(" + target + ")";
   }
-
-  public Object clone() throws CloneNotSupportedException {
-    return new IndirectMemory8BitReference((ImmutableOpcodeReference) target.clone(), memory);
-  }
 }

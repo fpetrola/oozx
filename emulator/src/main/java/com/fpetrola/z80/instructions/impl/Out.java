@@ -66,10 +66,6 @@ public class Out extends TargetSourceInstruction<ImmutableOpcodeReference> {
       return target.getLength();
     }
 
-    public Object clone() throws CloneNotSupportedException {
-      return target.clone();
-    }
-
     public String toString() {
       return target.toString();
     }

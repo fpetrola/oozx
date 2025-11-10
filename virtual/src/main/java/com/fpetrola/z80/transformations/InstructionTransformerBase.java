@@ -64,7 +64,7 @@ public abstract class InstructionTransformerBase implements InstructionVisitor {
   public <R extends PublicCloneable> R clone(OpcodeReference opcodeReference) {
     try {
       opcodeReference.read();
-      return (R) opcodeReference.clone();
+      return (R) ((PublicCloneable) opcodeReference).clone();
     } catch (CloneNotSupportedException e) {
       throw new RuntimeException(e);
     }
@@ -73,7 +73,7 @@ public abstract class InstructionTransformerBase implements InstructionVisitor {
   public <R extends PublicCloneable> R clone(ImmutableOpcodeReference immutableOpcodeReference) {
     try {
       immutableOpcodeReference.read();
-      return (R) immutableOpcodeReference.clone();
+      return (R) ((PublicCloneable)immutableOpcodeReference).clone();
     } catch (CloneNotSupportedException e) {
       throw new RuntimeException(e);
     }

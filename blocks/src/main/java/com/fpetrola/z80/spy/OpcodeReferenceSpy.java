@@ -49,8 +49,4 @@ public class OpcodeReferenceSpy implements OpcodeReference {
   public int getLength() {
     return immutableOpcodeReference.getLength();
   }
-
-  public Object clone() throws CloneNotSupportedException {
-    return new OpcodeReferenceSpy((ImmutableOpcodeReference) immutableOpcodeReference.clone());
-  }
 }
