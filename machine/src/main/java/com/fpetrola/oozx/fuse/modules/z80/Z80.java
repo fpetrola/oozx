@@ -36,7 +36,6 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.minizx.emulation.AbstractMemory;
 import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
-import com.fpetrola.z80.registers.UnrolledRegisterBankFactory;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 import fuse.PhaseProcessorExecutionListener;
 import fuse.tstates.AddStatesMemoryReadListener;

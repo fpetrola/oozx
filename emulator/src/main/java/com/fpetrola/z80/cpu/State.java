@@ -97,7 +97,7 @@ public class State {
   }
 
   public State(IO io, Memory memory) {
-    this(io, new UnrolledRegisterBankFactory().createBank(), memory);
+    this(io, new DefaultRegisterBankFactory().createBank(), memory);
   }
 
   public Register getFlag() {
