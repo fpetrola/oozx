@@ -32,25 +32,25 @@ public class DefaultRegisterBankFactory {
   public RegisterBank initBasicBank() {
     RegisterBank registerBank = new RegisterBank();
 
-    registerBank.af = createComposed16BitRegister(AF, A, F);
-    registerBank.bc = createComposed16BitRegister(BC, B, C);
-    registerBank.de = createComposed16BitRegister(DE, D, E);
-    registerBank.hl = createComposed16BitRegister(HL, H, L);
+    registerBank.registerAf = createComposed16BitRegister(AF, A, F);
+    registerBank.registerBc = createComposed16BitRegister(BC, B, C);
+    registerBank.registerDe = createComposed16BitRegister(DE, D, E);
+    registerBank.registerHl = createComposed16BitRegister(HL, H, L);
 
-    registerBank._af = createInvertedComposed16BitRegister(AFx, Ax, Fx);
-    registerBank._bc = createInvertedComposed16BitRegister(BCx, Bx, Cx);
-    registerBank._de = createInvertedComposed16BitRegister(DEx, Dx, Ex);
-    registerBank._hl = createInvertedComposed16BitRegister(HLx, Hx, Lx);
+    registerBank.register_af = createInvertedComposed16BitRegister(AFx, Ax, Fx);
+    registerBank.register_bc = createInvertedComposed16BitRegister(BCx, Bx, Cx);
+    registerBank.register_de = createInvertedComposed16BitRegister(DEx, Dx, Ex);
+    registerBank.register_hl = createInvertedComposed16BitRegister(HLx, Hx, Lx);
 
-    registerBank.ix = createInvertedComposed16BitRegister(IX, IXH, IXL);
-    registerBank.iy = createInvertedComposed16BitRegister(IY, IYH, IYL);
-    registerBank.ir = createComposed16BitRegister(IR, create8BitRegister(I), createRRegister());
+    registerBank.registerIx = createInvertedComposed16BitRegister(IX, IXH, IXL);
+    registerBank.registerIy = createInvertedComposed16BitRegister(IY, IYH, IYL);
+    registerBank.registerIr = createComposed16BitRegister(IR, create8BitRegister(I), createRRegister());
 
-    registerBank.pc = createPlain16BitRegister(PC);
-    registerBank.sp = createPlain16BitRegister(SP);
+    registerBank.registerPc = createPlain16BitRegister(PC);
+    registerBank.registerSp = createPlain16BitRegister(SP);
 
-    registerBank.memptr = createPlain16BitRegister(MEMPTR);
-    registerBank.virtual = createPlain16BitRegister(VIRTUAL);
+    registerBank.registerMemptr = createPlain16BitRegister(MEMPTR);
+    registerBank.registerVirtual = createPlain16BitRegister(VIRTUAL);
 
     return registerBank;
   }

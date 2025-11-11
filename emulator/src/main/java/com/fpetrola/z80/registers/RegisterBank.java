@@ -23,26 +23,26 @@ import java.util.List;
 import java.util.stream.Collectors;
 @SuppressWarnings("ALL")
 public class RegisterBank  {
-  protected RegisterPair af;
-  protected RegisterPair bc;
-  protected RegisterPair de;
-  protected RegisterPair hl;
+  protected RegisterPair registerAf;
+  protected RegisterPair registerBc;
+  protected RegisterPair registerDe;
+  protected RegisterPair registerHl;
 
-  protected RegisterPair _af;
-  protected RegisterPair _bc;
-  protected RegisterPair _de;
-  protected RegisterPair _hl;
+  protected RegisterPair register_af;
+  protected RegisterPair register_bc;
+  protected RegisterPair register_de;
+  protected RegisterPair register_hl;
 
-  protected RegisterPair ix;
-  protected RegisterPair iy;
+  protected RegisterPair registerIx;
+  protected RegisterPair registerIy;
 
-  protected RegisterPair ir;
+  protected RegisterPair registerIr;
 
-  protected Register pc;
-  protected Register sp;
+  protected Register registerPc;
+  protected Register registerSp;
 
-  protected Register memptr;
-  protected Register virtual;
+  protected Register registerMemptr;
+  protected Register registerVirtual;
 
   protected RegisterBank() {
   }
@@ -50,79 +50,79 @@ public class RegisterBank  {
   public Register get(RegisterName name) {
     switch (name) {
       case A:
-        return this.af.getHigh();
+        return this.registerAf.getHigh();
       case F:
-        return this.af.getLow();
+        return this.registerAf.getLow();
       case B:
-        return this.bc.getHigh();
+        return this.registerBc.getHigh();
       case C:
-        return this.bc.getLow();
+        return this.registerBc.getLow();
       case D:
-        return this.de.getHigh();
+        return this.registerDe.getHigh();
       case E:
-        return this.de.getLow();
+        return this.registerDe.getLow();
       case H:
-        return this.hl.getHigh();
+        return this.registerHl.getHigh();
       case L:
-        return this.hl.getLow();
+        return this.registerHl.getLow();
       case IXH:
-        return this.ix.getHigh();
+        return this.registerIx.getHigh();
       case IXL:
-        return this.ix.getLow();
+        return this.registerIx.getLow();
       case IYH:
-        return this.iy.getHigh();
+        return this.registerIy.getHigh();
       case IYL:
-        return this.iy.getLow();
+        return this.registerIy.getLow();
       case AF:
-        return this.af;
+        return this.registerAf;
       case BC:
-        return this.bc;
+        return this.registerBc;
       case DE:
-        return this.de;
+        return this.registerDe;
       case HL:
-        return this.hl;
+        return this.registerHl;
       case PC:
-        return this.pc;
+        return this.registerPc;
       case SP:
-        return this.sp;
+        return this.registerSp;
       case IX:
-        return this.ix;
+        return this.registerIx;
       case IY:
-        return this.iy;
+        return this.registerIy;
       case I:
-        return this.ir.getHigh();
+        return this.registerIr.getHigh();
       case R:
-        return this.ir.getLow();
+        return this.registerIr.getLow();
       case IR:
-        return this.ir;
+        return this.registerIr;
       case MEMPTR:
-        return this.memptr;
+        return this.registerMemptr;
       case VIRTUAL:
-        return this.virtual;
+        return this.registerVirtual;
       case Ax:
-        return this._af.getHigh();
+        return this.register_af.getHigh();
       case Fx:
-        return this._af.getLow();
+        return this.register_af.getLow();
       case Bx:
-        return this._bc.getHigh();
+        return this.register_bc.getHigh();
       case Cx:
-        return this._bc.getLow();
+        return this.register_bc.getLow();
       case Dx:
-        return this._de.getHigh();
+        return this.register_de.getHigh();
       case Ex:
-        return this._de.getLow();
+        return this.register_de.getLow();
       case Hx:
-        return this._hl.getHigh();
+        return this.register_hl.getHigh();
       case Lx:
-        return this._hl.getLow();
+        return this.register_hl.getLow();
       case AFx:
-        return this._af;
+        return this.register_af;
       case BCx:
-        return this._bc;
+        return this.register_bc;
       case DEx:
-        return this._de;
+        return this.register_de;
       case HLx:
-        return this._hl;
+        return this.register_hl;
       default:
         return null;
     }

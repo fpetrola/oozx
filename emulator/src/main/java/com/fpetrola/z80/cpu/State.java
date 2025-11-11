@@ -19,10 +19,7 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
-import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.RegisterBank;
-import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.registers.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +97,7 @@ public class State {
   }
 
   public State(IO io, Memory memory) {
-    this(io, new DefaultRegisterBankFactory().createBank(), memory);
+    this(io, new UnrolledRegisterBankFactory().createBank(), memory);
   }
 
   public Register getFlag() {

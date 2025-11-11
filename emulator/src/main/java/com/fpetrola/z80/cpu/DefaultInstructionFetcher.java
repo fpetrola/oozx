@@ -41,7 +41,7 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
   private Instruction prefetchedInstruction;
   protected int rdelta;
   private final boolean prefetch;
-  protected final RRegister registerR;
+  protected final Register registerR;
   public PhaseProcessor tPhaseProcessor;
   private final Register pc;
 
@@ -50,7 +50,7 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
     this.prefetch = prefetch;
     multiOpcodeFetcher = new MultiOpcodeFetcher(instructionFactory, state, opcodeConditions, clone);
     pcValue = state.getPc().read();
-    this.registerR = (RRegister) state.getRegisterR();
+    this.registerR =  state.getRegisterR();
     this.pc = state.getPc();
     tPhaseProcessor = new PhaseProcessor(this, state);
   }
