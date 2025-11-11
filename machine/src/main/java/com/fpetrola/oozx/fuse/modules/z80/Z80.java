@@ -159,7 +159,7 @@ public class Z80 implements ZxModule {
         memory.reset();
       }
     };
-    var state = new State(io, new UnrolledRegisterBankFactory().createBank(), memory1) {
+    var state = new State(io, new DefaultRegisterBankFactory().createBank(), memory1) {
       public void enableInterrupt() {
         super.enableInterrupt();
         interruptsEnabledAt = clock.getTStates();
