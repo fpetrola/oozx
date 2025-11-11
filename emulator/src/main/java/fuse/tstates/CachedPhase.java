@@ -21,16 +21,12 @@ package fuse.tstates;
 import fuse.tstates.phases.*;
 
 public class CachedPhase implements Phase {
-  private final PhaseVisitor visitor;
+  private PhaseVisitor visitor;
+  private BeforeExecutionPhaseVisitor beforeExecutionPhaseVisitors;
+  private AfterMRPhaseVisitor afterMRPhaseVisitors;
+  private BeforeWritePhaseVisitor beforeWritePhaseVisitors;
+  private AfterExecutionPhaseVisitor afterExecutionPhaseVisitors;
 
-  private BeforeExecutionPhaseVisitor beforeExecutionPhaseVisitors = (e) -> {
-  };
-  private AfterMRPhaseVisitor afterMRPhaseVisitors = (e) -> {
-  };
-  private BeforeWritePhaseVisitor beforeWritePhaseVisitors = (e) -> {
-  };
-  private AfterExecutionPhaseVisitor afterExecutionPhaseVisitors = (e) -> {
-  };
   private boolean ready = false;
   private boolean skippable = true;
 
@@ -42,43 +38,27 @@ public class CachedPhase implements Phase {
   }
 
   public void acceptAfterExecution(AfterExecutionPhaseVisitor visitor) {
-    afterExecutionPhaseVisitors = visitor;
     skippable= false;
+    afterExecutionPhaseVisitors = visitor;
   }
 
   public void acceptAfterMR(AfterMRPhaseVisitor visitor) {
-    afterMRPhaseVisitors = visitor;
     skippable= false;
+    afterMRPhaseVisitors = visitor;
   }
 
   public void acceptBeforeExecution(BeforeExecutionPhaseVisitor visitor) {
-    beforeExecutionPhaseVisitors = visitor;
     skippable= false;
+    beforeExecutionPhaseVisitors = visitor;
   }
 
   public void acceptBeforeWrite(BeforeWritePhaseVisitor visitor) {
-    beforeWritePhaseVisitors = visitor;
     skippable= false;
+    beforeWritePhaseVisitors = visitor;
   }
 
   public PhaseVisitor getVisitor() {
-    return new PhaseVisitor() {
-      public void visit(BeforeExecution beforeExecution) {
-        beforeExecutionPhaseVisitors.visit(beforeExecution);
-      }
-
-      public void visit(AfterExecution afterExecution) {
-        afterExecutionPhaseVisitors.visit(afterExecution);
-      }
-
-      public void visit(AfterMR afterMR) {
-        afterMRPhaseVisitors.visit(afterMR);
-      }
-
-      public void visit(BeforeWrite beforeWrite) {
-        beforeWritePhaseVisitors.visit(beforeWrite);
-      }
-    };
+    return new ConfigurablePhaseVisitor();
   }
 
   public void execute(Phase phase) {
@@ -93,11 +73,29 @@ public class CachedPhase implements Phase {
     return ready;
   }
 
-  public void setSkippable(boolean skippable) {
-    this.skippable = skippable;
-  }
-
   public boolean isSkippable() {
     return skippable;
+  }
+
+  private class ConfigurablePhaseVisitor implements PhaseVisitor {
+    public void visit(BeforeExecution beforeExecution) {
+      if (beforeExecutionPhaseVisitors != null)
+        beforeExecutionPhaseVisitors.visit(beforeExecution);
+    }
+
+    public void visit(AfterExecution afterExecution) {
+      if (afterExecutionPhaseVisitors != null)
+        afterExecutionPhaseVisitors.visit(afterExecution);
+    }
+
+    public void visit(AfterMR afterMR) {
+      if (afterMRPhaseVisitors != null)
+        afterMRPhaseVisitors.visit(afterMR);
+    }
+
+    public void visit(BeforeWrite beforeWrite) {
+      if (beforeWritePhaseVisitors != null)
+        beforeWritePhaseVisitors.visit(beforeWrite);
+    }
   }
 }

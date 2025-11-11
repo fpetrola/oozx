@@ -50,8 +50,6 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
   protected final Register registerBC;
   protected final Register registerHL;
   protected final Register memptr;
-  protected final Runnable dummyRunnable = () -> {
-  };
 
   public PhaseProcessorBase(InstructionFetcher instructionFetcher, State state) {
     this.instructionFetcher = instructionFetcher;
@@ -131,6 +129,8 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
       if (!cachedPhase.isSkippable()) {
         setPhase(cachedPhase);
         cachedPhase.execute(phase);
+      } else {
+        int a = 1;
       }
     }
     processing = false;

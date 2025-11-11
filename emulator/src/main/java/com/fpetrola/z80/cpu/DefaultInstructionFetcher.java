@@ -50,7 +50,7 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
     this.prefetch = prefetch;
     multiOpcodeFetcher = new MultiOpcodeFetcher(instructionFactory, state, opcodeConditions, clone);
     pcValue = state.getPc().read();
-    this.registerR =  state.getRegisterR();
+    this.registerR = state.getRegisterR();
     this.pc = state.getPc();
     tPhaseProcessor = new PhaseProcessor(this, state);
   }
@@ -96,7 +96,7 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
     }
   }
 
-  public Instruction fetchInstruction(int address) {
+  private Instruction fetchInstruction(int address) {
     Instruction fetchedInstruction = multiOpcodeFetcher.fetchInstruction(address);
     setupPhaseInterceptor((AbstractInstruction) fetchedInstruction);
 //    fetchListeners.forAll(l -> l.instructionFetchedAt(address, fetchedInstruction));
