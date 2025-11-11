@@ -22,7 +22,6 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.types.JumpInstruction;
 import com.fpetrola.z80.instructions.types.TargetInstruction;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
@@ -150,10 +149,6 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
 
   protected int valueOf(Register register) {
     return register.read();
-  }
-
-  protected Optional<Boolean> hasJumped(JumpInstruction instruction) {
-    return Optional.ofNullable(instruction.getNextPC() != -1 ? true : null);
   }
 
   protected Optional<Boolean> writeCountIsZero() {

@@ -33,8 +33,6 @@ import fuse.tstates.phases.BeforeExecutionPhaseVisitor;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fpetrola.z80.registers.RegisterName.*;
-
 public class PhaseProcessor extends PhaseProcessorBase {
   public PhaseProcessor(InstructionFetcher instructionFetcher, State state) {
     super(instructionFetcher, state);
@@ -133,10 +131,11 @@ public class PhaseProcessor extends PhaseProcessorBase {
   }
 
   private void addForRelativeJump(JumpInstruction conditionalInstruction) {
-    hasJumped(conditionalInstruction).ifPresentOrElse(
-        (a) -> addMultipleMc(5, 1, 1, valueOf(registerPC), null),
-        () -> addMultipleMc(1, 3, 1, valueOf(registerPC), "readbyte")
-    );
+    if (conditionalInstruction.getNextPC() != -1) {
+      addMultipleMc(5, 1, 1, valueOf(registerPC), null);
+    } else {
+      addMultipleMc(1, 3, 1, valueOf(registerPC), "readbyte");
+    }
   }
 
   public void visitEx(Ex ex) {
@@ -213,16 +212,14 @@ public class PhaseProcessor extends PhaseProcessorBase {
     if (times > 0) {
       phase.acceptAfterExecution((a) -> {
         getAfterExecutionPhaseVisitorForBlock(times, delta, registerName).visit(a);
-        hasJumped(instruction).ifPresent(x -> {
+        if (instruction.getNextPC() != -1)
           addMultipleMc(5, 1, 0, registerName.read() + delta, "contend_write_no_mreq");
-        });
       });
     } else {
       addMcBeforeExecution(1);
       phase.acceptAfterExecution((a) -> {
-        hasJumped(instruction).ifPresent(x -> {
+        if (instruction.getNextPC() != -1)
           addMultipleMc(5, 1, 0, registerName.read() + delta, "contend_write_no_mreq");
-        });
       });
     }
 
@@ -354,10 +351,8 @@ public class PhaseProcessor extends PhaseProcessorBase {
     return false;
   }
 
-  private BeforeExecutionPhaseVisitor addMcBeforeExecution(final int time) {
-    BeforeExecutionPhaseVisitor beforeExecutionPhaseVisitor = beforeExecution -> addMc2(time, 0, null, this.registerIR);
-    phase.acceptBeforeExecution(beforeExecutionPhaseVisitor);
-    return beforeExecutionPhaseVisitor;
+  private void addMcBeforeExecution(final int time) {
+    phase.acceptBeforeExecution(beforeExecution -> addMc2(time, 0, null, this.registerIR));
   }
 
   private void addMcAfterExecution() {
