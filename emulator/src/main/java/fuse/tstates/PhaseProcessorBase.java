@@ -111,12 +111,8 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
     return ld.getTarget().equals(registerSP) && ld.getSource() instanceof Register;
   }
 
-  protected void addMc2(int times, int delta, String description, Register register) {
+  protected void addMc2(int times, int delta, Register register, String description) {
     addMultipleMc(times, 1, delta, valueOf(register), description);
-  }
-
-  protected void addMc(int times, int address, int delta, String description) {
-    addMultipleMc(times, 1, delta, address, description);
   }
 
   public void processPhase(Phase phase) {

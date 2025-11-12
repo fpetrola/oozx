@@ -31,6 +31,7 @@ import fuse.tstates.phases.AfterMRPhaseVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class PhaseProcessor extends PhaseProcessorBase {
   public PhaseProcessor(InstructionFetcher instructionFetcher, State state) {
@@ -68,12 +69,12 @@ public class PhaseProcessor extends PhaseProcessorBase {
     addAfterExecution(ld);
 
     if (isLdSP(ld))
-      phase.acceptBeforeExecution((e) -> addMc2(2, 0, null, this.registerIR));
+      phase.acceptBeforeExecution((e) -> addMc2(2, 0, this.registerIR, null));
     else if (ld.getTarget().equals(registerI) || ld.getTarget().equals(registerR) || ld instanceof LdAI || ld instanceof LdAR)
-      phase.acceptBeforeExecution((e) -> addMc2(1, 0, null, this.registerIR));
+      phase.acceptBeforeExecution((e) -> addMc2(1, 0, this.registerIR, null));
 
     if (isMemoryPlus(ld.getTarget()) && isMemory8BitReference(ld.getSource()))
-      phase.acceptBeforeWrite((e) -> addMc2(2, 3, null, registerPC));
+      phase.acceptBeforeWrite((e) -> addMc2(2, 3, registerPC, null));
 
     if (!isMemory8BitReference(ld.getSource()) && (isMemoryPlus(ld.getSource()) || isMemoryPlus(ld.getTarget())))
       phase.acceptAfterMR((e) -> {
@@ -124,7 +125,7 @@ public class PhaseProcessor extends PhaseProcessorBase {
   }
 
   public boolean visitingDjnz(DJNZ djnz) {
-    phase.acceptBeforeExecution((e) -> addMc2(1, 0, null, this.registerIR));
+    phase.acceptBeforeExecution((e) -> addMc2(1, 0, this.registerIR, null));
     phase.acceptAfterExecution((e) -> addForRelativeJump(djnz));
     return false;
   }
@@ -146,7 +147,7 @@ public class PhaseProcessor extends PhaseProcessorBase {
       }
 
     if (ex.getTarget() instanceof IndirectMemory16BitReference) {
-      afterExecutionActions.add(() -> addMc2(2, 0, "contend_write_no_mreq", registerSP));
+      afterExecutionActions.add(() -> addMc2(2, 0, registerSP, "contend_write_no_mreq"));
     }
 
     if (!afterExecutionActions.isEmpty()) {
@@ -155,7 +156,10 @@ public class PhaseProcessor extends PhaseProcessorBase {
     }
 
     if (ex.getTarget() instanceof IndirectMemory16BitReference)
-      phase.acceptBeforeWrite((e) -> writeCountIsZero().ifPresent(x -> addMc2(1, 1, null, registerSP)));
+      phase.acceptBeforeWrite((e) -> {
+        if (writeCount == 0)
+          addMc2(1, 1, registerSP, null);
+      });
   }
 
   private Runnable computeActions(List<Runnable> afterExecutionActions) {
@@ -223,7 +227,7 @@ public class PhaseProcessor extends PhaseProcessorBase {
   }
 
   private AfterExecutionPhaseVisitor getAfterExecutionPhaseVisitorForBlock(int times, int delta, Register register) {
-    return p -> addMc2(times, delta, "contend_write_no_mreq", register);
+    return p -> addMc2(times, delta, register, "contend_write_no_mreq");
   }
 
   public void visitBlockInstruction(BlockInstruction blockInstruction) {
@@ -321,7 +325,7 @@ public class PhaseProcessor extends PhaseProcessorBase {
       }
     })));
 
-    isIndirectHL(instruction).ifPresent((x) -> phase.acceptBeforeWrite(e -> addMc2(1, 0, null, registerHL)));
+    isIndirectHL(instruction).ifPresent((x) -> phase.acceptBeforeWrite(e -> addMc2(1, 0, registerHL, null)));
   }
 
   public boolean visitRLD(RLD rld) {
@@ -337,15 +341,18 @@ public class PhaseProcessor extends PhaseProcessorBase {
   }
 
   public boolean visitingCall(Call tCall) {
-    phase.acceptBeforeWrite(e -> writeCountIsZero().ifPresent(x -> addMc2(1, 2, null, registerPC)));
+    phase.acceptBeforeWrite(e -> {
+      if (writeCount == 0)
+        addMc2(1, 2, registerPC, null);
+    });
     return false;
   }
 
   private void addMcBeforeExecution(final int time) {
-    phase.acceptBeforeExecution(beforeExecution -> addMc2(time, 0, null, this.registerIR));
+    phase.acceptBeforeExecution(beforeExecution -> addMc2(time, 0, this.registerIR, null));
   }
 
   private void addMcAfterExecution() {
-    phase.acceptAfterExecution(afterExecution -> addMc2(2, 0, null, this.registerIR));
+    phase.acceptAfterExecution(afterExecution -> addMc2(2, 0, this.registerIR, null));
   }
 }
