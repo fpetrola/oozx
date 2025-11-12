@@ -28,7 +28,6 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.phases.AfterExecutionPhaseVisitor;
 import fuse.tstates.phases.AfterMRPhaseVisitor;
-import fuse.tstates.phases.BeforeExecutionPhaseVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -209,27 +208,18 @@ public class PhaseProcessor extends PhaseProcessorBase {
       times = 2;
     }
 
-    if (times > 0) {
-      phase.acceptAfterExecution((a) -> {
-        getAfterExecutionPhaseVisitorForBlock(times, delta, registerName).visit(a);
-        if (instruction.getNextPC() != -1)
-          addMultipleMc(5, 1, 0, registerName.read() + delta, "contend_write_no_mreq");
-      });
-    } else {
-      addMcBeforeExecution(1);
-      phase.acceptAfterExecution((a) -> {
-        if (instruction.getNextPC() != -1)
-          addMultipleMc(5, 1, 0, registerName.read() + delta, "contend_write_no_mreq");
-      });
-    }
+    phase.acceptAfterExecution((a) -> {
+      getAfterExecutionPhaseVisitorForBlock(times, delta, registerName).visit(a);
+      if (instruction.getNextPC() != -1)
+        addMultipleMc(5, 1, 0, registerName.read() + delta, "contend_write_no_mreq");
+    });
 
     return false;
   }
 
-  private AfterExecutionPhaseVisitor addForBlockInstruction(int times, int delta, Register register) {
+  private void addForBlockInstruction(int times, int delta, Register register) {
     AfterExecutionPhaseVisitor contendWriteNoMreq = getAfterExecutionPhaseVisitorForBlock(times, delta, register);
     phase.acceptAfterExecution(contendWriteNoMreq);
-    return contendWriteNoMreq;
   }
 
   private AfterExecutionPhaseVisitor getAfterExecutionPhaseVisitorForBlock(int times, int delta, Register register) {
