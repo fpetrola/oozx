@@ -19,16 +19,14 @@
 package fuse.tstates;
 
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.cpu.*;
-import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
+import com.fpetrola.z80.cpu.Event;
+import com.fpetrola.z80.cpu.InstructionFetcher;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.types.TargetInstruction;
-import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.phases.Phase;
-
-import java.util.Optional;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
@@ -74,11 +72,6 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
     }
   }
 
-  public void addMultipleMc(int x, int time1, int delta, Register register, String description) {
-    addMultipleMc(x, time1, delta, register.read(), description);
-  }
-
-
   public void addSingleMc(int time1, int delta, int baseAddress, String description) {
     getAddEvent(new Event(time1, "MC", baseAddress + delta, null, description));
   }
@@ -91,16 +84,12 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
     getAddEvent(new Event(0, "MR", address, value));
   }
 
-  protected Register getRegister(RegisterName registerName) {
+  private Register getRegister(RegisterName registerName) {
     return state.getRegister(registerName);
   }
 
   public void setAddress(int address) {
     this.address = address;
-  }
-
-  public Optional<Boolean> isIndirectHL(TargetInstruction targetInstruction) {
-    return Optional.ofNullable(targetInstruction.getTarget() instanceof IndirectMemory8BitReference indirectMemory8BitReference && indirectMemory8BitReference.getTarget() instanceof Register register && register.getName().equals(HL.name()) ? true : null);
   }
 
   public void setPhase(Phase phase) {
@@ -110,10 +99,6 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
   public void reset() {
     readCount = 0;
     writeCount = 0;
-  }
-
-  public boolean isLdSP(Ld ld) {
-    return ld.getTarget().equals(registerSP) && ld.getSource() instanceof Register;
   }
 
   public void processPhase(Phase phase) {
@@ -130,25 +115,5 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
       }
     }
     processing = false;
-  }
-
-  protected boolean isMemory8BitReference(ImmutableOpcodeReference source) {
-    return source instanceof Memory8BitReference;
-  }
-
-  protected boolean isMemoryPlus(OpcodeReferenceBase target) {
-    return target instanceof MemoryPlusRegister8BitReference;
-  }
-
-  protected Optional<Boolean> isMemoryPlusOptional(OpcodeReferenceBase target) {
-    return Optional.ofNullable(isMemoryPlus(target) ? true : null);
-  }
-
-  protected int valueOf(Register register) {
-    return register.read();
-  }
-
-  protected Optional<Boolean> writeCountIsZero() {
-    return Optional.ofNullable(writeCount == 0 ? true : null);
   }
 }

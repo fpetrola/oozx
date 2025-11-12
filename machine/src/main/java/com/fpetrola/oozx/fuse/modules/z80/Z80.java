@@ -235,28 +235,7 @@ public class Z80 implements ZxModule {
         }
       };
     else
-      phaseProcessor = new FusePhaseProcessor(this) {
-        protected void getAddEvent(Event event) {
-          event.description = getDescription(event);
-          zxClock.addTStates(event.getTime(), event.description);
-        }
-
-        private String getDescription(Event event) {
-          if (event.description != null)
-            return event.description;
-          else
-            return switch (event.getType()) {
-              case "MR" -> "contend_read";
-              case "MW" -> "contend_write";
-              case "MC" -> "contend_read_no_mreq";
-              default -> "unknown";
-            };
-        }
-
-        protected Supplier<String> getAddMultipleMcStringSupplier(String description) {
-          return () -> "ula " + (description != null ? description : "contend_read_no_mreq");
-        }
-      };
+      phaseProcessor = new TestFusePhaseProcessor();
 
     DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
     instructionFetcher.tPhaseProcessor = phaseProcessor;
@@ -445,4 +424,30 @@ public class Z80 implements ZxModule {
     return null;
   }
 
+  private class TestFusePhaseProcessor extends FusePhaseProcessor {
+    public TestFusePhaseProcessor() {
+      super(Z80.this);
+    }
+
+    protected void getAddEvent(Event event) {
+      event.description = getDescription(event);
+      zxClock.addTStates(event.getTime(), event.description);
+    }
+
+    private String getDescription(Event event) {
+      if (event.description != null)
+        return event.description;
+      else
+        return switch (event.getType()) {
+          case "MR" -> "contend_read";
+          case "MW" -> "contend_write";
+          case "MC" -> "contend_read_no_mreq";
+          default -> "unknown";
+        };
+    }
+
+    protected Supplier<String> getAddMultipleMcStringSupplier(String description) {
+      return () -> "ula " + (description != null ? description : "contend_read_no_mreq");
+    }
+  }
 }

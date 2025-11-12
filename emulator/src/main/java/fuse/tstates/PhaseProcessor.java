@@ -30,6 +30,9 @@ import fuse.tstates.phases.AfterMRPhaseVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import static com.fpetrola.z80.registers.RegisterName.HL;
 
 public class PhaseProcessor extends PhaseProcessorBase {
   private Register currentRegister;
@@ -37,6 +40,31 @@ public class PhaseProcessor extends PhaseProcessorBase {
   public PhaseProcessor(InstructionFetcher instructionFetcher, State state) {
     super(instructionFetcher, state);
   }
+
+  protected boolean isMemory8BitReference(ImmutableOpcodeReference source) {
+    return source instanceof Memory8BitReference;
+  }
+
+  protected boolean isMemoryPlus(OpcodeReferenceBase target) {
+    return target instanceof MemoryPlusRegister8BitReference;
+  }
+
+  protected Optional<Boolean> isMemoryPlusOptional(OpcodeReferenceBase target) {
+    return Optional.ofNullable(isMemoryPlus(target) ? true : null);
+  }
+
+  public boolean isLdSP(Ld ld) {
+    return ld.getTarget().equals(registerSP) && ld.getSource() instanceof Register;
+  }
+
+  public Optional<Boolean> isIndirectHL(TargetInstruction targetInstruction) {
+    return Optional.ofNullable(targetInstruction.getTarget() instanceof IndirectMemory8BitReference indirectMemory8BitReference && indirectMemory8BitReference.getTarget() instanceof Register register && register.getName().equals(HL.name()) ? true : null);
+  }
+
+  public void addMultipleMc(int x, int time1, int delta, Register register, String description) {
+    addMultipleMc(x, time1, delta, register.read(), description);
+  }
+
 
   public void visitingRst(RST rst) {
     addMcBeforeExecution(1);
