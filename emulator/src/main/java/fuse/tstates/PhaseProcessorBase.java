@@ -74,6 +74,11 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
     }
   }
 
+  public void addMultipleMc(int x, int time1, int delta, Register register, String description) {
+    addMultipleMc(x, time1, delta, register.read(), description);
+  }
+
+
   public void addSingleMc(int time1, int delta, int baseAddress, String description) {
     getAddEvent(new Event(time1, "MC", baseAddress + delta, null, description));
   }
@@ -109,10 +114,6 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
 
   public boolean isLdSP(Ld ld) {
     return ld.getTarget().equals(registerSP) && ld.getSource() instanceof Register;
-  }
-
-  protected void addMc2(int times, int delta, Register register, String description) {
-    addMultipleMc(times, 1, delta, valueOf(register), description);
   }
 
   public void processPhase(Phase phase) {
