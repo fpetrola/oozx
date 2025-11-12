@@ -26,7 +26,6 @@ import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
-import fuse.tstates.phases.AfterExecutionPhaseVisitor;
 import fuse.tstates.phases.AfterMRPhaseVisitor;
 
 import java.util.ArrayList;
@@ -70,9 +69,9 @@ public class PhaseProcessor extends PhaseProcessorBase {
     addAfterExecution(ld);
 
     if (isLdSP(ld))
-      phase.acceptBeforeExecution((e) -> addMultipleMCIR(2, 1, 0));
+      phase.acceptBeforeExecution((e) -> addMultipleMCIR(2));
     else if (ld.getTarget().equals(registerI) || ld.getTarget().equals(registerR) || ld instanceof LdAI || ld instanceof LdAR)
-      phase.acceptBeforeExecution((e) -> addMultipleMCIR(1, 1, 0));
+      phase.acceptBeforeExecution((e) -> addMultipleMCIR(1));
 
     if (isMemoryPlus(ld.getTarget()) && isMemory8BitReference(ld.getSource()))
       phase.acceptBeforeWrite((e) -> addMc2PC(2, 3));
@@ -80,12 +79,12 @@ public class PhaseProcessor extends PhaseProcessorBase {
     if (!isMemory8BitReference(ld.getSource()) && (isMemoryPlus(ld.getSource()) || isMemoryPlus(ld.getTarget())))
       phase.acceptAfterMR((e) -> {
         if (readCount == 1)
-          addMultipleMCIR(5, 1, 0);
+          addMultipleMCIR(5);
       });
   }
 
   private void addMc2PC(int times, int delta) {
-    addMultipleMCPc2(times, 1, delta);
+    addMultipleMCPc2(times, delta);
   }
 
   private void addAfterExecution(Ld ld) {
@@ -130,21 +129,21 @@ public class PhaseProcessor extends PhaseProcessorBase {
   }
 
   public boolean visitingDjnz(DJNZ djnz) {
-    phase.acceptBeforeExecution((e) -> addMultipleMCIR(1, 1, 0));
+    phase.acceptBeforeExecution((e) -> addMultipleMCIR(1));
     phase.acceptAfterExecution((e) -> addForRelativeJump(djnz));
     return false;
   }
 
   private void addForRelativeJump(JumpInstruction conditionalInstruction) {
     if (conditionalInstruction.getNextPC() != -1) {
-      addMultipleMCPc2(5, 1, 1);
+      addMultipleMCPc2(5, 1);
     } else {
-      addMultipleMCPC3(1, 3, 1);
+      addMultipleMCPC3();
     }
   }
 
-  private void addMultipleMCPC3(int x, int time1, int delta) {
-    addMultipleMc(x, time1, delta, registerPC, "readbyte");
+  private void addMultipleMCPC3() {
+    addMultipleMc(1, 3, 1, registerPC, "readbyte");
   }
 
   public void visitEx(Ex ex) {
@@ -158,7 +157,7 @@ public class PhaseProcessor extends PhaseProcessorBase {
     if (ex.getTarget() instanceof IndirectMemory16BitReference) {
       afterExecutionActions.add(() -> {
         currentRegister = registerSP;
-        addMultipleMCRegister(2, 1, 0);
+        addMultipleMCRegister(2, 0);
       });
     }
 
@@ -169,9 +168,15 @@ public class PhaseProcessor extends PhaseProcessorBase {
 
     if (ex.getTarget() instanceof IndirectMemory16BitReference)
       phase.acceptBeforeWrite((e) -> {
-        if (writeCount == 0)
-          addMultipleMc(1, 1, 1, registerSP, null);
+        if (writeCount == 0) {
+          currentRegister = registerSP;
+          addMultipleMcRegister();
+        }
       });
+  }
+
+  private void addMultipleMcRegister() {
+    addMultipleMc(1, 1, 1, currentRegister, null);
   }
 
   private Runnable computeActions(List<Runnable> afterExecutionActions) {
@@ -191,53 +196,50 @@ public class PhaseProcessor extends PhaseProcessorBase {
 //    instruction.getInstructionToRepeat().accept(this);
 
     int delta;
-    Register register;
     int times;
 
     if (instruction instanceof Outdr || instruction instanceof Outir) {
-      register = registerBC;
+      currentRegister = registerBC;
       delta = 0;
       times = 0;
     } else if (instruction instanceof Inir) {
       delta = -1;
-      register = this.registerHL;
+      currentRegister = this.registerHL;
       times = 0;
     } else if (instruction instanceof Indr) {
       delta = 1;
-      register = this.registerHL;
+      currentRegister = this.registerHL;
       times = 0;
     } else if (instruction instanceof Cpir) {
       delta = -1;
-      register = this.registerHL;
+      currentRegister = this.registerHL;
       times = 5;
     } else if (instruction instanceof Cpdr) {
       delta = 1;
-      register = this.registerHL;
+      currentRegister = this.registerHL;
       times = 5;
     } else if (instruction instanceof Ldir) {
-      register = registerDE;
+      currentRegister = registerDE;
       delta = -1;
       times = 2;
     } else {
-      register = registerDE;
+      currentRegister = registerDE;
       delta = 1;
       times = 2;
     }
 
     if (times > 0) {
       phase.acceptAfterExecution((a) -> {
-        currentRegister = register;
-        addMultipleMCRegister(times, 1, delta);
+        addMultipleMCRegister(times, delta);
         if (instruction.getNextPC() != -1) {
-          addMultipleMCRegister(5, 1, delta);
+          addMultipleMCRegister(5, delta);
         }
       });
     } else {
       addMcBeforeExecution(1);
       phase.acceptAfterExecution((a) -> {
         if (instruction.getNextPC() != -1) {
-          currentRegister = register;
-          addMultipleMCRegister(5, 1, delta);
+          addMultipleMCRegister(5, delta);
         }
       });
     }
@@ -245,15 +247,8 @@ public class PhaseProcessor extends PhaseProcessorBase {
     return false;
   }
 
-  private void addMultipleMCRegister(int x, int time1, int delta1) {
-    addMultipleMc(x, time1, delta1, currentRegister.read(), "contend_write_no_mreq");
-  }
-
-  private void addForBlockInstruction(int times, int delta, Register register) {
-    phase.acceptAfterExecution(p -> {
-      currentRegister = register;
-      addMultipleMCRegister(times, 1, delta);
-    });
+  private void addMultipleMCRegister(int x, int delta1) {
+    addMultipleMc(x, 1, delta1, currentRegister, "contend_write_no_mreq");
   }
 
   public void visitBlockInstruction(BlockInstruction blockInstruction) {
@@ -261,22 +256,34 @@ public class PhaseProcessor extends PhaseProcessorBase {
   }
 
   public boolean visitLdi(Ldi ldi) {
-    addForBlockInstruction(2, -1, registerDE);
+    phase.acceptAfterExecution(p -> {
+      currentRegister = registerDE;
+      addMultipleMCRegister(2, -1);
+    });
     return true;
   }
 
   public boolean visitLdd(Ldd ldd) {
-    addForBlockInstruction(2, 1, registerDE);
+    phase.acceptAfterExecution(p -> {
+      currentRegister = registerDE;
+      addMultipleMCRegister(2, 1);
+    });
     return true;
   }
 
   public boolean visitCpi(Cpi cpi) {
-    addForBlockInstruction(5, -1, registerHL);
+    phase.acceptAfterExecution(p -> {
+      currentRegister = registerHL;
+      addMultipleMCRegister(5, -1);
+    });
     return true;
   }
 
   public boolean visitCpd(Cpd cpd) {
-    addForBlockInstruction(5, 1, registerHL);
+    phase.acceptAfterExecution(p -> {
+      currentRegister = registerHL;
+      addMultipleMCRegister(5, 1);
+    });
     return true;
   }
 
@@ -308,7 +315,7 @@ public class PhaseProcessor extends PhaseProcessorBase {
     isMemoryPlusOptional(instruction.getTarget()).ifPresent(x -> {
       phase.acceptBeforeExecution((e -> {
         if (readCount == 0)
-          addMultipleMCPc2(2, 1, 3);
+          addMultipleMCPc2(2, 3);
       }));
 
       phase.acceptAfterMR((e -> {
@@ -323,7 +330,7 @@ public class PhaseProcessor extends PhaseProcessorBase {
     isIndirectHL(instruction).ifPresent((x) -> {
       phase.acceptAfterMR(e -> {
         if (readCount == 1)
-          addMultipleMCHL2(1, 1, 0);
+          addMultipleMCHL2(1);
 
         afterMRPhaseVisitor.visit(e);
       });
@@ -332,8 +339,8 @@ public class PhaseProcessor extends PhaseProcessorBase {
     return true;
   }
 
-  private void addMultipleMCPc2(int x, int time1, int delta) {
-    addMultipleMc(x, time1, delta, registerPC, null);
+  private void addMultipleMCPc2(int x, int delta) {
+    addMultipleMc(x, 1, delta, registerPC, null);
   }
 
   public boolean visitingInc(Inc tInc) {
@@ -349,28 +356,28 @@ public class PhaseProcessor extends PhaseProcessorBase {
   private void addMcForDecInc(TargetInstruction instruction) {
     isMemoryPlusOptional(instruction.getTarget()).ifPresent(x -> phase.acceptAfterMR((e -> {
       if (readCount == 1) {
-        addMultipleMCPc2(5, 1, 2);
+        addMultipleMCPc2(5, 2);
       } else if (readCount == 2) {
         addMultipleMcAddress();
       }
     })));
 
-    isIndirectHL(instruction).ifPresent((x) -> phase.acceptBeforeWrite(e -> addMultipleMCHL2(1, 1, 0)));
+    isIndirectHL(instruction).ifPresent((x) -> phase.acceptBeforeWrite(e -> addMultipleMCHL2(1)));
   }
 
   public boolean visitRLD(RLD rld) {
-    phase.acceptAfterMR(p -> addMultipleMCHL2(4, 1, 0));
+    phase.acceptAfterMR(p -> addMultipleMCHL2(4));
     return false;
   }
 
-  private void addMultipleMCHL2(int x, int time1, int delta) {
-    addMultipleMc(x, time1, delta, registerHL, null);
+  private void addMultipleMCHL2(int x) {
+    addMultipleMc(x, 1, 0, registerHL, null);
   }
 
   public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction instruction) {
     isMemoryPlusOptional(instruction.getSource()).ifPresent(x ->
         phase.acceptAfterMR(e -> {
-          if (readCount == 1) addMultipleMCPc2(5, 1, 2);
+          if (readCount == 1) addMultipleMCPc2(5, 2);
         }));
   }
 
@@ -383,14 +390,14 @@ public class PhaseProcessor extends PhaseProcessorBase {
   }
 
   private void addMcBeforeExecution(final int time) {
-    phase.acceptBeforeExecution(beforeExecution -> addMultipleMCIR(time, 1, 0));
+    phase.acceptBeforeExecution(beforeExecution -> addMultipleMCIR(time));
   }
 
-  private void addMultipleMCIR(int time, int time1, int delta) {
-    addMultipleMc(time, time1, delta, this.registerIR, null);
+  private void addMultipleMCIR(int time) {
+    addMultipleMc(time, 1, 0, this.registerIR, null);
   }
 
   private void addMcAfterExecution() {
-    phase.acceptAfterExecution(afterExecution -> addMultipleMCIR(2, 1, 0));
+    phase.acceptAfterExecution(afterExecution -> addMultipleMCIR(2));
   }
 }
