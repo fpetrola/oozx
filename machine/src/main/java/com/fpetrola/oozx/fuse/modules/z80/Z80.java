@@ -28,7 +28,6 @@ import com.fpetrola.oozx.fuse.modules.Timer;
 import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.peripherals.*;
 import com.fpetrola.z80.cpu.*;
-import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
@@ -58,7 +57,7 @@ public class Z80 implements ZxModule {
   public long interruptsEnabledAt;
   public OOZ80 ooz80;
   public LibretroCore.bridge_command bridgeCommand;
-  private PhaseProcessor phaseProcessor;
+  private TestFusePhaseProcessor phaseProcessor;
 
   private IO io;
   private int z80_interrupt_event;
@@ -235,7 +234,7 @@ public class Z80 implements ZxModule {
         }
       };
     else
-      phaseProcessor = new TestFusePhaseProcessor();
+      phaseProcessor = new TestFusePhaseProcessorZ80(this);
 
     DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
     instructionFetcher.tPhaseProcessor = phaseProcessor;
@@ -424,30 +423,4 @@ public class Z80 implements ZxModule {
     return null;
   }
 
-  private class TestFusePhaseProcessor extends FusePhaseProcessor {
-    public TestFusePhaseProcessor() {
-      super(Z80.this);
-    }
-
-    protected void getAddEvent(Event event) {
-      event.description = getDescription(event);
-      zxClock.addTStates(event.getTime(), event.description);
-    }
-
-    private String getDescription(Event event) {
-      if (event.description != null)
-        return event.description;
-      else
-        return switch (event.getType()) {
-          case "MR" -> "contend_read";
-          case "MW" -> "contend_write";
-          case "MC" -> "contend_read_no_mreq";
-          default -> "unknown";
-        };
-    }
-
-    protected Supplier<String> getAddMultipleMcStringSupplier(String description) {
-      return () -> "ula " + (description != null ? description : "contend_read_no_mreq");
-    }
-  }
 }

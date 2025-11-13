@@ -34,8 +34,8 @@ import java.util.Optional;
 
 import static com.fpetrola.z80.registers.RegisterName.HL;
 
-public class PhaseProcessor extends PhaseProcessorBase {
-  private Register currentRegister;
+public abstract class PhaseProcessor extends PhaseProcessorBase {
+  protected Register currentRegister;
 
   public PhaseProcessor(InstructionFetcher instructionFetcher, State state) {
     super(instructionFetcher, state);
@@ -59,10 +59,6 @@ public class PhaseProcessor extends PhaseProcessorBase {
 
   public Optional<Boolean> isIndirectHL(TargetInstruction targetInstruction) {
     return Optional.ofNullable(targetInstruction.getTarget() instanceof IndirectMemory8BitReference indirectMemory8BitReference && indirectMemory8BitReference.getTarget() instanceof Register register && register.getName().equals(HL.name()) ? true : null);
-  }
-
-  public void addMultipleMc(int x, int time1, int delta, Register register, String description) {
-    addMultipleMc(x, time1, delta, register.read(), description);
   }
 
   public void visitingRst(RST rst) {
@@ -169,10 +165,6 @@ public class PhaseProcessor extends PhaseProcessorBase {
     }
   }
 
-  private void addMultipleMCPC3() {
-    addMultipleMc(1, 3, 1, registerPC, "readbyte");
-  }
-
   public void visitEx(Ex ex) {
     final List<Runnable> afterExecutionActions = new ArrayList<>();
 
@@ -200,10 +192,6 @@ public class PhaseProcessor extends PhaseProcessorBase {
           addMultipleMcRegister();
         }
       });
-  }
-
-  private void addMultipleMcRegister() {
-    addMultipleMc(1, 1, 1, currentRegister, null);
   }
 
   private Runnable computeActions(List<Runnable> afterExecutionActions) {
@@ -274,10 +262,6 @@ public class PhaseProcessor extends PhaseProcessorBase {
     return false;
   }
 
-  private void addMultipleMCRegister(int x, int delta1) {
-    addMultipleMc(x, 1, delta1, currentRegister, "contend_write_no_mreq");
-  }
-
   public void visitBlockInstruction(BlockInstruction blockInstruction) {
     addMcBeforeExecution(1);
   }
@@ -324,10 +308,6 @@ public class PhaseProcessor extends PhaseProcessorBase {
     return true;
   }
 
-  private void addMultipleMcAddress() {
-    addMultipleMc(1, 1, 0, address, null);
-  }
-
   public boolean visitingBitOperation(BitOperation instruction) {
     return processTargetInstruction(instruction, (e) -> {
     });
@@ -366,10 +346,6 @@ public class PhaseProcessor extends PhaseProcessorBase {
     return true;
   }
 
-  private void addMultipleMCPc2(int x, int delta) {
-    addMultipleMc(x, 1, delta, registerPC, null);
-  }
-
   public boolean visitingInc(Inc tInc) {
     addMcForDecInc(tInc);
     return true;
@@ -397,10 +373,6 @@ public class PhaseProcessor extends PhaseProcessorBase {
     return false;
   }
 
-  private void addMultipleMCHL2(int x) {
-    addMultipleMc(x, 1, 0, registerHL, null);
-  }
-
   public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction instruction) {
     isMemoryPlusOptional(instruction.getSource()).ifPresent(x ->
         phase.acceptAfterMR(e -> {
@@ -420,11 +392,21 @@ public class PhaseProcessor extends PhaseProcessorBase {
     phase.acceptBeforeExecution(beforeExecution -> addMultipleMCIR(time));
   }
 
-  private void addMultipleMCIR(int time) {
-    addMultipleMc(time, 1, 0, this.registerIR, null);
-  }
-
   private void addMcAfterExecution() {
     phase.acceptAfterExecution(afterExecution -> addMultipleMCIR(2));
   }
+
+  protected abstract void addMultipleMcRegister();
+
+  protected abstract void addMultipleMCPC3();
+
+  protected abstract void addMultipleMCRegister(int x, int delta1);
+
+  protected abstract void addMultipleMcAddress();
+
+  protected abstract void addMultipleMCPc2(int x, int delta);
+
+  protected abstract void addMultipleMCHL2(int x);
+
+  protected abstract void addMultipleMCIR(int time);
 }

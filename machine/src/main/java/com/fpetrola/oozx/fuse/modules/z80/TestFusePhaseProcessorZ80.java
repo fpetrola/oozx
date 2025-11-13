@@ -18,23 +18,14 @@
 
 package com.fpetrola.oozx.fuse.modules.z80;
 
-import fuse.tstates.PhaseProcessor;
+import com.fpetrola.z80.cpu.Event;
 
-import java.util.function.Supplier;
-
-public class FusePhaseProcessor extends TestFusePhaseProcessor {
+public class TestFusePhaseProcessorZ80 extends TestFusePhaseProcessor {
   private final Z80 z80;
-  private final Supplier<String> stringSupplier = () -> "";
 
-  public FusePhaseProcessor(Z80 z80) {
+  public TestFusePhaseProcessorZ80(Z80 z80) {
     super(z80.ooz80.getInstructionFetcher(), z80.ooz80.getState());
     this.z80 = z80;
-  }
-
-  public void addMw(final int address, final int value) {
-  }
-
-  public void addMr(final int address, final int value) {
   }
 
   public void addMultipleMc(final int x, final int time1, final int delta, final int baseAddress, final String description) {
@@ -48,7 +39,8 @@ public class FusePhaseProcessor extends TestFusePhaseProcessor {
     }
   }
 
-  protected Supplier<String> getAddMultipleMcStringSupplier(final String description) {
-    return stringSupplier;
+  protected void getAddEvent(Event event) {
+    event.description = getDescription(event);
+    z80.zxClock.addTStates(event.getTime(), event.description);
   }
 }

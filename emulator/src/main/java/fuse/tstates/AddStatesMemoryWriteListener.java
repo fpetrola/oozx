@@ -18,14 +18,15 @@
 
 package fuse.tstates;
 
+import com.fpetrola.oozx.fuse.modules.z80.TestFusePhaseProcessor;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import fuse.tstates.phases.BeforeWrite;
 
 public class AddStatesMemoryWriteListener implements MemoryWriteListener {
-  protected final PhaseProcessor phaseProcessor;
+  protected final TestFusePhaseProcessor phaseProcessor;
   private final BeforeWrite phase = new BeforeWrite();
 
-  public AddStatesMemoryWriteListener(PhaseProcessor phaseProcessor1) {
+  public AddStatesMemoryWriteListener(TestFusePhaseProcessor phaseProcessor1) {
     phaseProcessor = phaseProcessor1;
   }
 

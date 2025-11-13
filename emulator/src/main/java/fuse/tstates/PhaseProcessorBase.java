@@ -66,12 +66,6 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
     getAddEvent(new Event(0, "MW", address, value));
   }
 
-  public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
-    for (int i = 0; i < x; i++) {
-      addSingleMc(time1, delta, baseAddress, description);
-    }
-  }
-
   public void addSingleMc(int time1, int delta, int baseAddress, String description) {
     getAddEvent(new Event(time1, "MC", baseAddress + delta, null, description));
   }

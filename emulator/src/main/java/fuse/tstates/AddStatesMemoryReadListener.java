@@ -18,14 +18,15 @@
 
 package fuse.tstates;
 
+import com.fpetrola.oozx.fuse.modules.z80.TestFusePhaseProcessor;
 import com.fpetrola.z80.memory.MemoryReadListener;
 import fuse.tstates.phases.AfterMR;
 
 public class AddStatesMemoryReadListener implements MemoryReadListener {
-  private final PhaseProcessor phaseProcessor;
+  private final TestFusePhaseProcessor phaseProcessor;
   private AfterMR afterMR = new AfterMR();
 
-  public AddStatesMemoryReadListener(PhaseProcessor phaseProcessor) {
+  public AddStatesMemoryReadListener(TestFusePhaseProcessor phaseProcessor) {
     this.phaseProcessor = phaseProcessor;
   }
 

@@ -18,6 +18,7 @@
 
 package fuse;
 
+import com.fpetrola.oozx.fuse.modules.z80.TestFusePhaseProcessor;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
@@ -115,7 +116,7 @@ public class FuseTestParser {
     spy.addExecutionListeners(cpu.getInstructionExecutor());
 
 //    PhaseProcessor phaseProcessor = new PhaseProcessor(cpu.getInstructionFetcher(), cpu.getState());
-    PhaseProcessor phaseProcessor = (PhaseProcessor) instructionFetcher.tPhaseProcessor;
+    TestFusePhaseProcessor phaseProcessor = (TestFusePhaseProcessor) instructionFetcher.tPhaseProcessor;
 
 //    phaseProcessor.processPhase(new BeforeExecution());
 //    phaseProcessor.processPhase(new AfterMR());

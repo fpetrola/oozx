@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.cpu;
 
+import com.fpetrola.oozx.fuse.modules.z80.TestFusePhaseProcessor;
 import com.fpetrola.z80.helpers.CollectionHandler;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
@@ -52,7 +53,7 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
     pcValue = state.getPc().read();
     this.registerR = state.getRegisterR();
     this.pc = state.getPc();
-    tPhaseProcessor = new PhaseProcessor(this, state);
+    tPhaseProcessor = new TestFusePhaseProcessor(this, state);
   }
 
   public DefaultInstructionFetcher(State aState, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
