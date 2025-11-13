@@ -26,6 +26,7 @@ import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.modules.z80.Z80;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 public class Timer implements ZxModule {
@@ -41,8 +42,9 @@ public class Timer implements ZxModule {
   private double startTime = 0.0;
   private int timerEvent = 0;
   private static final int TEN_MS = 10;
-  private Settings settings;
-  private Tape tape;
+  private final Settings settings;
+  private final Tape tape;
+  private boolean changeRequested = false;
 
   public Timer(EventManager eventManager, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Sound sound, Settings settings, Tape tape) {
     this.eventManager = eventManager;
@@ -107,6 +109,7 @@ public class Timer implements ZxModule {
     samples = 0;
     nextStoredTime = 0;
     framesUntilUpdate = 0;
+    Arrays.fill(storedTimes, 0);
     return 0;
   }
 
@@ -132,6 +135,10 @@ public class Timer implements ZxModule {
 
   // Frame handling
   public void frame(long lastTstates, int event, Object userData) {
+    if (changeRequested) {
+      changeRequested= false;
+      estimateReset();
+    }
     if (Sound.enabled && settings.current.sound) {
       frameCallbackSound(lastTstates);
       return;
@@ -197,5 +204,10 @@ public class Timer implements ZxModule {
 
   private SpectrumMachine getCurrent() {
     return fuseMachineInfoSupplier.get();
+  }
+
+  public void changeSpeed(int emulationSpeed) {
+    this.changeRequested = true;
+    eventManager.eventForceEvents();
   }
 }

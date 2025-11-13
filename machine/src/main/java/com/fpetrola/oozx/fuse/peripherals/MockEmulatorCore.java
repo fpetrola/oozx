@@ -28,7 +28,7 @@ public class MockEmulatorCore implements EmulatorCore {
   private double emulationSpeed = 1.0;
   private String currentModel = "48K";
   private boolean paused = false;
-  private boolean turboMode = false;
+  private boolean turboMode = true;
   private String tapeStatus = "Stopped";
 
   private  JComponent contentPane;
