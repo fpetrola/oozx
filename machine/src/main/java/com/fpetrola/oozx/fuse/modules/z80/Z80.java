@@ -231,7 +231,7 @@ public class Z80 implements ZxModule {
       phaseProcessor = new FusePhaseProcessor(this);
 
       memory1.addMemoryReadListener(new MemoryReadListener() {
-        private AfterMR afterMR = new AfterMR();
+        private final AfterMR afterMR = new AfterMR();
 
         public void readingMemoryAt(int address, int value, int fetching) {
           memory.readByte(address, ula);
@@ -245,7 +245,6 @@ public class Z80 implements ZxModule {
       memory1.addMemoryWriteListener(new MemoryWriteListener() {
         private final BeforeWrite phase = new BeforeWrite();
         public void writtingMemoryAt(int address, int value) {
-
           if (!phaseProcessor.state.isIntLine()) {
             phaseProcessor.processPhase(phase);
           }

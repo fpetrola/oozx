@@ -81,7 +81,7 @@ public class Fuse {
     alive = true;
     module = new Module();
     memory = new Memory(spectrumMachineSupplier, zxClock, module, settings);
-    uiDisplay = new UiDisplay(zxClock);
+    uiDisplay = new UiDisplay();
     display = new Display(memory, spectrumMachineSupplier, zxClock, memory, uiDisplay);
     keyboard = new Keyboard();
     periph = new Periph(spectrumMachineSupplier, zxClock, settings);

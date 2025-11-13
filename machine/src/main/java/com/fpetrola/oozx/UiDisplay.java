@@ -20,17 +20,38 @@ package com.fpetrola.oozx;
 
 public class UiDisplay {
   public byte[][] screenMatrix;
-  private SpectrumZ80Clock z80Clock;
+  private byte[] cache;
 
-  public UiDisplay(SpectrumZ80Clock z80Clock) {
-    this.z80Clock = z80Clock;
+  public UiDisplay() {
+    cache = createCache();
+  }
+
+  public void plot8B(int x, int y, byte data, byte ink, byte paper) {
+    final int xIndex = x << 3;
+    final int dataIndex = data & 0xff;
+    final int inkIndex = ink << 8;
+    final int paperIndex = paper << 12;
+    for (int i = 0; i < 8; i++) {
+      screenMatrix[xIndex + i][y] = cache[dataIndex | inkIndex | paperIndex | i << 0x10];
+    }
   }
 
   public void plot8(int x, int y, byte data, byte ink, byte paper) {
-//    z80Clock.log(format("uidisplay_plot8: x=%d y=%d data=%02x ink=%d paper=%d", x, y, data, ink, paper), (byte) (data & 0xff));
-
     for (int i = 0; i < 8; i++)
       screenMatrix[(x << 3) + i][y] = (data & (0x80 >> i)) != 0 ? ink : paper;
+  }
+
+  private byte[] createCache() {
+    byte[] cache = new byte[0x100 * 16 * 16 * 8];
+    for (int i = 0; i < 8; i++)
+      for (int data = 0; data < 256; data++) {
+        for (byte ink = 0; ink < 16; ink++) {
+          for (byte paper = 0; paper < 16; paper++) {
+            cache[data | ink << 8 | paper << 12 | i << 16] = ((data & (0x80 >> i)) != 0 ? ink : paper);
+          }
+        }
+      }
+    return cache;
   }
 
   public void area(int x, int y, int w, int h) {

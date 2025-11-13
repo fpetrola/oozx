@@ -18,22 +18,33 @@
 
 package com.fpetrola.oozx.fuse.modules.z80;
 
+import com.fpetrola.oozx.Memory;
+import com.fpetrola.oozx.MemoryPage;
+import com.fpetrola.oozx.SpectrumZ80Clock;
+import com.fpetrola.oozx.fuse.modules.Ula;
 import fuse.tstates.PhaseProcessor;
 
-public class FusePhaseProcessor extends PhaseProcessor {
-  private final Z80 z80;
+final public class FusePhaseProcessor extends PhaseProcessor {
+  private final Ula ula;
+  private final SpectrumZ80Clock zxClock;
+  private final int pageSizeLogarithm;
+  private final MemoryPage[] mapRead;
 
   public FusePhaseProcessor(Z80 z80) {
     super(z80.ooz80.getInstructionFetcher(), z80.ooz80.getState());
-    this.z80 = z80;
+    Memory memory = z80.memory;
+    ula = z80.ula;
+    zxClock = z80.zxClock;
+    pageSizeLogarithm = memory.PAGE_SIZE_LOGARITHM;
+    mapRead = memory.mapRead;
   }
 
-  private void addMultipleMc(int x, int time1) {
-    if (z80.memory.mapRead[address >>> z80.memory.PAGE_SIZE_LOGARITHM].contended) {
+  private void addMultipleMc(int x, int time) {
+    if (mapRead[address >>> pageSizeLogarithm].contended) {
       for (int i = 0; i < x; i++)
-        z80.ula.addUlaStates(time1);
+        ula.addUlaStates(time);
     } else
-      z80.zxClock.addTStates(time1 * x);
+      zxClock.addTStates(time * x);
   }
 
   protected void addMultipleMcRegister() {
