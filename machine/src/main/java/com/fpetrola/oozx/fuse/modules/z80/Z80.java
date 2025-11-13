@@ -32,8 +32,6 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.memory.MemoryReadListener;
-import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.minizx.emulation.AbstractMemory;
 import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
@@ -222,7 +220,7 @@ public class Z80 implements ZxModule {
   }
 
   private void setupExecutionFetcher() {
-    ooz80.getInstructionExecutor().addExecutionListener(new PhaseProcessorExecutionListener(phaseProcessor));
+    ooz80.getInstructionExecutor().setExecutionListener(new PhaseProcessorExecutionListener(phaseProcessor));
     DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
     instructionFetcher.tPhaseProcessor = phaseProcessor;
   }

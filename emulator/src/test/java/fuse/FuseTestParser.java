@@ -123,7 +123,7 @@ public class FuseTestParser {
 //    phaseProcessor.processPhase(new AfterExecution());
 
 
-    cpu.getInstructionExecutor().addExecutionListener(new PhaseProcessorExecutionListener(phaseProcessor));
+    cpu.getInstructionExecutor().setExecutionListener(new PhaseProcessorExecutionListener(phaseProcessor));
     memory.addMemoryReadListener(new AddStatesMemoryReadListener(phaseProcessor));
     memory.addMemoryWriteListener(new AddStatesMemoryWriteListener(phaseProcessor));
     return cpu;

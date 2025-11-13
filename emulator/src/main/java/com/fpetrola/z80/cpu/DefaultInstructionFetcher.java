@@ -37,7 +37,6 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
   protected int pcValue;
   public Instruction currentInstruction;
 
-  private final CollectionHandler<FetchListener> fetchListeners = new CollectionHandler();
   private int prefetchPC = -1;
   private Instruction prefetchedInstruction;
   protected int rdelta;
@@ -45,6 +44,7 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
   protected final Register registerR;
   public PhaseProcessor tPhaseProcessor;
   private final Register pc;
+  private FetchListener fetchListener;
 
   public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
     this.state = aState;
@@ -122,7 +122,7 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
 
   @Override
   public void addFetchListener(FetchListener fetchListener) {
-    fetchListeners.add(fetchListener);
+    this.fetchListener = fetchListener;
   }
 
   public void setClone(boolean clone) {

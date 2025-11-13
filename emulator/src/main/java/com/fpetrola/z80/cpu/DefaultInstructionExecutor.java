@@ -36,9 +36,10 @@ public class DefaultInstructionExecutor implements InstructionExecutor {
   private final Register pc;
   private final Set<Instruction> executingInstructions = new HashSet<>();
   private final Map<java.lang.Integer, Instruction> instructions = new HashMap<>();
-  private final CollectionHandler<ExecutionListener> executionListeners = new CollectionHandler<>();
 
   private final Consumer<Instruction> afterExecutionAction;
+  private ExecutionListener dummyExecutionListener= new DummyExecutionListener();
+  private ExecutionListener executionListener= dummyExecutionListener;
 
   @Inject
   public DefaultInstructionExecutor(State state, boolean noRepeat) {
@@ -51,12 +52,11 @@ public class DefaultInstructionExecutor implements InstructionExecutor {
   }
 
   public Instruction execute(Instruction instruction) {
-
-    executionListeners.forAll(i -> i.beforeExecution(instruction));
+    executionListener.beforeExecution(instruction);
 
     instruction.execute();
 
-    executionListeners.forAll(i -> i.afterExecution(instruction));
+    executionListener.afterExecution(instruction);
 
     afterExecutionAction.accept(instruction);
 
@@ -70,8 +70,22 @@ public class DefaultInstructionExecutor implements InstructionExecutor {
     return instruction;
   }
 
-  public void addExecutionListener(ExecutionListener executionListener) {
-    executionListeners.add(executionListener);
+  public void setExecutionListener(ExecutionListener executionListener) {
+    if (this.executionListener != dummyExecutionListener) {
+      CollectionHandler<ExecutionListener> collectionHandler = new CollectionHandler<>();
+      collectionHandler.add(this.executionListener);
+      collectionHandler.add(executionListener);
+      this.executionListener = new ExecutionListener() {
+        public void beforeExecution(Instruction instruction) {
+          collectionHandler.forAll(item -> item.beforeExecution(instruction));
+        }
+
+        public void afterExecution(Instruction instruction) {
+          collectionHandler.forAll(item -> item.afterExecution(instruction));
+        }
+      };
+    } else
+      this.executionListener = executionListener;
   }
 
   public void addTopExecutionListener(ExecutionListener executionListener) {
@@ -84,5 +98,13 @@ public class DefaultInstructionExecutor implements InstructionExecutor {
 
   public Instruction getInstructionAt(int address) {
     return instructions.get(address);
+  }
+
+  private static class DummyExecutionListener implements ExecutionListener {
+    public void beforeExecution(Instruction instruction) {
+    }
+
+    public void afterExecution(Instruction instruction) {
+    }
   }
 }

@@ -30,7 +30,7 @@ import com.fpetrola.z80.registers.RegisterBank;
 
 public interface InstructionSpy {
   default void addExecutionListeners(InstructionExecutor defaultInstructionExecutor) {
-    defaultInstructionExecutor.addExecutionListener(new ExecutionListener() {
+    defaultInstructionExecutor.setExecutionListener(new ExecutionListener() {
       public void beforeExecution(Instruction instruction) {
         InstructionSpy.this.beforeExecution(instruction);
       }
