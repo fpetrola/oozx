@@ -23,7 +23,7 @@ public class UiDisplay {
   private byte[] cache;
 
   public UiDisplay() {
-    cache = createCache();
+//    cache = createCache();
   }
 
   public void plot8B(int x, int y, byte data, byte ink, byte paper) {
