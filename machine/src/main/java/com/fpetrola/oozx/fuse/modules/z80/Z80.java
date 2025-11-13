@@ -86,6 +86,8 @@ public class Z80 implements ZxModule {
   private Fuse fuse;
   private Settings settings;
   private Tape tape;
+  private final byte[][] screenBytes = new byte[1000][1000];
+  private Memory memory1;
 
   public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer, Supplier<Machine> machine, Module module, Fuse fuse, Settings settings, Tape tape) {
     this.eventManager = eventManager;
@@ -147,8 +149,110 @@ public class Z80 implements ZxModule {
     }
   }
 
-  public OOZ80 createOOZ80(IO io) {
-    Memory memory1 = new AbstractMemory() {
+  private void initNoTest() {
+    createIO();
+
+    memory1 = new Memory() {
+      private boolean disabled;
+      private final AfterMR afterMR = new AfterMR();
+      private final BeforeWrite phase = new BeforeWrite();
+
+      public int read(int address, int fetching) {
+        int value = memory.readByteInternal(address);
+        if (!disabled) {
+          memory.readByte(address, ula);
+
+          zxClock.addTStates(fetching == 1 ? 4 : 3);
+          phaseProcessor.setAddress(address);
+          phaseProcessor.readCount++;
+          phaseProcessor.processPhase(afterMR);
+        }
+        return value;
+      }
+
+      public void write(int address, int value) {
+        if (!disabled) {
+          if (!phaseProcessor.state.isIntLine()) {
+            phaseProcessor.processPhase(phase);
+          }
+          memory.writeByte(address, (byte) (value & 0xff), ula, display);
+          phaseProcessor.writeCount++;
+          zxClock.addTStates(3);
+        }
+        memory.writeByteInternal2(address, (byte) value);
+      }
+
+      public void reset() {
+        memory.reset();
+      }
+
+      public void disableReadListener() {
+        disabled = true;
+      }
+
+      public void disableWriteListener() {
+        disabled = true;
+      }
+
+      public void enableReadListener() {
+        disabled = false;
+      }
+
+      public void enableWriteListener() {
+        disabled = false;
+      }
+    };
+    var state = createState(memory1);
+    createOOZ80(state);
+    createScreenNoTest();
+    phaseProcessor = new FusePhaseProcessor(this);
+
+    uiDisplay.screenMatrix = screenBytes;
+    setupExecutionFetcher();
+  }
+
+  private void initTest() {
+    createIO();
+    createMemoryTEst();
+    var state = createState(memory1);
+    createOOZ80(state);
+    uiDisplay.screenMatrix = screenBytes;
+    setupMemoryTEst();
+    setupExecutionFetcher();
+  }
+
+  private void setupExecutionFetcher() {
+    ooz80.getInstructionExecutor().addExecutionListener(new PhaseProcessorExecutionListener(phaseProcessor));
+    DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
+    instructionFetcher.tPhaseProcessor = phaseProcessor;
+  }
+
+  private void setupMemoryTEst() {
+    phaseProcessor = new TestFusePhaseProcessorZ80(this);
+    memory1.addMemoryReadListener(new AddStatesMemoryReadListener((TestFusePhaseProcessor) phaseProcessor) {
+      protected void doRead(int address, int value, int fetching) {
+        memory.readByte(address, ula);
+      }
+    });
+    memory1.addMemoryWriteListener(new AddStatesMemoryWriteListener((TestFusePhaseProcessor) phaseProcessor) {
+      protected void doWrite(int address, int value) {
+        memory.writeByte(address, (byte) (value & 0xff), ula, display);
+      }
+    });
+  }
+
+  private void createScreenNoTest() {
+    //      JFrame screen1 = MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
+//      JFrame screen = createScreen(io.miniZXKeyboard, zxScreenComponent);
+    audio = new Audio(new AY8912Type());
+    audio.open(MachineTypes.SPECTRUM48K, new AY8912(), false, 32000);
+    FuseScreen contentPane = new FuseScreen(screenBytes);
+    JFrame screen = createScreen(null, contentPane);
+//      new SwingKeyboard(screen, keyboard, input);
+  }
+
+  private void createMemoryTEst() {
+    memory1 = new AbstractMemory() {
       protected int doRead(final int address) {
         return memory.readByteInternal(address);
       }
@@ -161,20 +265,9 @@ public class Z80 implements ZxModule {
         memory.reset();
       }
     };
-    var state = new State(io, new DefaultRegisterBankFactory().createBank(), memory1) {
-      public void enableInterrupt() {
-        super.enableInterrupt();
-        interruptsEnabledAt = clock.getTStates();
-        eventManager.eventAdd(clock.getTStates() + 1, z80_interrupt_event);
-      }
-    };
-
-    state.clock = zxClock;
-    return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory(state)), new DefaultInstructionExecutor(state, false));
   }
 
-
-  private void init2() {
+  private void createIO() {
     io = new IO() {
       public int in(int port) {
         return periph.readPort(port);
@@ -184,24 +277,22 @@ public class Z80 implements ZxModule {
         periph.writePort(port, (byte) value);
       }
     };
-    ooz80 = createOOZ80(io);
+  }
 
-    byte[][] bytes = new byte[1000][1000];
-    if (OOSpectrumConnector.noTest) {
-//      JFrame screen1 = MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
-//      JFrame screen = createScreen(io.miniZXKeyboard, zxScreenComponent);
+  private void createOOZ80(State state1) {
+    ooz80 = new OOZ80(state1, Helper.getInstructionFetcher(state1, new NullInstructionSpy(), new DefaultInstructionFactory(state1)), new DefaultInstructionExecutor(state1, false));
+  }
 
-      audio = new Audio(new AY8912Type());
-      audio.open(MachineTypes.SPECTRUM48K, new AY8912(), false, 32000);
-
-      FuseScreen contentPane = new FuseScreen(bytes);
-      JFrame screen = createScreen(null, contentPane);
-//      new SwingKeyboard(screen, keyboard, input);
-    }
-    uiDisplay.screenMatrix = bytes;
-//    Keyboard0.keyboard = io.miniZXKeyboard;
-
-    setupMemory();
+  private State createState(Memory memory2) {
+    var state1 = new State(io, new DefaultRegisterBankFactory().createBank(), memory2) {
+      public void enableInterrupt() {
+        super.enableInterrupt();
+        interruptsEnabledAt = clock.getTStates();
+        eventManager.eventAdd(clock.getTStates() + 1, z80_interrupt_event);
+      }
+    };
+    state1.clock = zxClock;
+    return state1;
   }
 
   public void loadSnap(String url) {
@@ -221,56 +312,6 @@ public class Z80 implements ZxModule {
     }
   }
 
-  private void setupMemory() {
-    State state = ooz80.getState();
-
-    Memory memory1 = state.getMemory();
-
-    if (OOSpectrumConnector.noTest) {
-      phaseProcessor = new FusePhaseProcessor(this);
-
-      memory1.addMemoryReadListener(new MemoryReadListener() {
-        private final AfterMR afterMR = new AfterMR();
-
-        public void readingMemoryAt(int address, int value, int fetching) {
-          memory.readByte(address, ula);
-
-          zxClock.addTStates(fetching == 1 ? 4 : 3);
-          phaseProcessor.setAddress(address);
-          phaseProcessor.readCount++;
-          phaseProcessor.processPhase(afterMR);
-        }
-      });
-      memory1.addMemoryWriteListener(new MemoryWriteListener() {
-        private final BeforeWrite phase = new BeforeWrite();
-        public void writtingMemoryAt(int address, int value) {
-          if (!phaseProcessor.state.isIntLine()) {
-            phaseProcessor.processPhase(phase);
-          }
-          memory.writeByte(address, (byte) (value & 0xff), ula, display);
-          phaseProcessor.writeCount++;
-          zxClock.addTStates(3);
-        }
-      });
-    } else {
-      phaseProcessor = new TestFusePhaseProcessorZ80(this);
-      memory1.addMemoryReadListener(new AddStatesMemoryReadListener((TestFusePhaseProcessor) phaseProcessor) {
-        protected void doRead(int address, int value, int fetching) {
-          memory.readByte(address, ula);
-        }
-      });
-      memory1.addMemoryWriteListener(new AddStatesMemoryWriteListener((TestFusePhaseProcessor) phaseProcessor) {
-        protected void doWrite(int address, int value) {
-          memory.writeByte(address, (byte) (value & 0xff), ula, display);
-        }
-      });
-    }
-
-    ooz80.getInstructionExecutor().addExecutionListener(new PhaseProcessorExecutionListener(phaseProcessor));
-    DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
-    instructionFetcher.tPhaseProcessor = phaseProcessor;
-  }
-
   public int init(Object o) {
     z80_interrupt_event = eventManager.eventRegister(this::z80_interrupt_event_fn, "Retriggered interrupt");
     int z80_nmi_event = eventManager.eventRegister(this::z80_nmi, "Non-maskable interrupt");
@@ -278,14 +319,15 @@ public class Z80 implements ZxModule {
 
     module.register(new Z80ModuleInfo(this));
 
-    init2();
+    if (OOSpectrumConnector.noTest)
+      initNoTest();
+    else
+      initTest();
 
     return 0;
   }
 
-  @Override
   public void end() {
-
   }
 
   private void z80_nmi(long l, int i, Object o) {
@@ -325,7 +367,7 @@ public class Z80 implements ZxModule {
     }
 
 //    zxClock.setTStates(tStates);
-   // zxClock.addTStates(-zxClock.getTStates());
+    // zxClock.addTStates(-zxClock.getTStates());
     memory1.enableReadListener();
   }
 
