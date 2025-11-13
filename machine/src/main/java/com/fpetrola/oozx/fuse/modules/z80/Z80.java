@@ -53,7 +53,7 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class Z80 implements ZxModule {
   public static double emulationSpeed;
-  private EventManager eventManager;
+  private final EventManager eventManager;
   public final com.fpetrola.oozx.Memory memory;
 
   public long interruptsEnabledAt;
@@ -67,23 +67,23 @@ public class Z80 implements ZxModule {
 //   MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
   private boolean init;
   public Audio audio;
-  private Display display;
+  private final Display display;
   public final Ula ula;
-  private Supplier<SpectrumMachine> machineSupplier;
+  private final Supplier<SpectrumMachine> machineSupplier;
   private Keyboard keyboard;
   public SpectrumZ80Clock zxClock;
   private Input input;
-  private IPeriph periph;
-  private UiDisplay uiDisplay;
+  private final IPeriph periph;
+  private final UiDisplay uiDisplay;
   private volatile boolean emulatorPaused;
-  private com.fpetrola.oozx.fuse.modules.Timer timer;
+  private final com.fpetrola.oozx.fuse.modules.Timer timer;
   public EmulatorCore mockCore;
-  private Supplier<Machine> machine;
+  private final Supplier<Machine> machine;
   private Runnable changeMachine;
-  private Module module;
-  private Fuse fuse;
-  private Settings settings;
-  private Tape tape;
+  private final Module module;
+  private final Fuse fuse;
+  private final Settings settings;
+  private final Tape tape;
   private final byte[][] screenBytes = new byte[1000][1000];
   private Memory memory1;
 
