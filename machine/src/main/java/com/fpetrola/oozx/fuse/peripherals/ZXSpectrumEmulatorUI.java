@@ -255,6 +255,12 @@ public class ZXSpectrumEmulatorUI extends JFrame {
     JToolBar toolBar = new JToolBar();
     toolBar.setFloatable(false);
 
+    Icon turboIcon = UIManager.getIcon("OptionPane.errorIcon");
+    JButton turboButton = new JButton(turboIcon);
+    turboButton.setToolTipText("Toggle Turbo Mode");
+    turboButton.addActionListener(e -> emulatorCore.setGeneralOption("turbo", !emulatorCore.isTurboMode()));
+    toolBar.add(turboButton);
+
     // Use built-in Swing icons
     Icon openIcon = UIManager.getIcon("FileView.fileIcon");
     JButton openButton = new JButton(openIcon);
@@ -333,12 +339,6 @@ public class ZXSpectrumEmulatorUI extends JFrame {
     model128KButton.setToolTipText("Switch to 128K Model");
     model128KButton.addActionListener(e -> emulatorCore.setMachineModel("Spectrum 128K"));
     toolBar.add(model128KButton);
-
-    Icon turboIcon = UIManager.getIcon("OptionPane.warningIcon");
-    JButton turboButton = new JButton(turboIcon);
-    turboButton.setToolTipText("Toggle Turbo Mode");
-    turboButton.addActionListener(e -> emulatorCore.setGeneralOption("turbo", !emulatorCore.isTurboMode()));
-    toolBar.add(turboButton);
 
     Icon fullscreenIcon = UIManager.getIcon("Tree.leafIcon");
     JButton fullscreenButton = new JButton(fullscreenIcon);

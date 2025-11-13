@@ -221,6 +221,14 @@ class EmulatorInternalFrame extends JInternalFrame {
     JToolBar toolBar = new JToolBar();
     toolBar.setFloatable(false);
 
+    Icon turboIcon = UIManager.getIcon("FileChooser.upFolderIcon");
+    JButton turboButton = new JButton(turboIcon);
+    turboButton.setToolTipText("Toggle Turbo Mode");
+    turboButton.addActionListener(e -> emulatorCore.setGeneralOption("turbo", !emulatorCore.isTurboMode()));
+    toolBar.add(turboButton);
+
+    toolBar.addSeparator();
+
     // Use built-in Swing icons
     Icon openIcon = UIManager.getIcon("FileView.fileIcon");
     JButton openButton = new JButton(openIcon);
@@ -301,12 +309,6 @@ class EmulatorInternalFrame extends JInternalFrame {
     model128KButton.setToolTipText("Switch to 128K Model");
     model128KButton.addActionListener(e -> emulatorCore.setMachineModel("Spectrum 128K"));
     toolBar.add(model128KButton);
-
-    Icon turboIcon = UIManager.getIcon("FileChooser.upFolderIcon");
-    JButton turboButton = new JButton(turboIcon);
-    turboButton.setToolTipText("Toggle Turbo Mode");
-    turboButton.addActionListener(e -> emulatorCore.setGeneralOption("turbo", !emulatorCore.isTurboMode()));
-    toolBar.add(turboButton);
 
     Icon fullscreenIcon = UIManager.getIcon("Tree.leafIcon");
     JButton fullscreenButton = new JButton(fullscreenIcon);
