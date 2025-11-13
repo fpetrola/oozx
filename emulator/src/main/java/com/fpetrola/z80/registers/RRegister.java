@@ -19,10 +19,17 @@
 package com.fpetrola.z80.registers;
 
 public class RRegister extends Plain8BitRegister {
+  private int regRBit7;
+
   public RRegister() {
     super(RegisterName.R.name());
   }
 
+  public void write(int value) {
+    data = (value & 0x7f) | (regRBit7 = value & 0x80);
+  }
+
   public void increment() { //TODO: revisar regRBit7
-    data = ((data + 1) & 0x7F) | (data & 0x80);  }
+    data = (data + 1 & 0x7f) | regRBit7;
+  }
 }

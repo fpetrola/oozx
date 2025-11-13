@@ -141,7 +141,7 @@ public class Periph implements IPeriph {
   private Map<Class<? extends ZxPeripheral>, PrivatePeripheral> peripherals = null;
 
   // List of currently active ports
-  private ObjectArrayList ports = new ObjectArrayList();
+  private final ObjectArrayList ports = new ObjectArrayList();
 
   // Strings for debugger events
   private final String PAGE_EVENT_STRING = "page";
