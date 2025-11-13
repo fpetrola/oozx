@@ -20,11 +20,9 @@ package com.fpetrola.oozx.fuse.modules;
 
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.z80.cpu.Z80Clock;
+import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.function.Supplier;
 
 // When will the next event happen?
@@ -38,14 +36,17 @@ public class EventManager implements ZxModule {
   public long eventNextEvent;
 
   // The actual list of events
-  private List<Event> eventList = new LinkedList<>();
+//  private final List<Event> eventList = new LinkedList<>();
 
-  private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
-  private Z80Clock z80Clock;
+  private final Supplier<SpectrumMachine> fuseMachineInfoSupplier;
+  private final Z80Clock z80Clock;
+  private final SortedSet<Event> events;
 
   public EventManager(Supplier<SpectrumMachine> machine, Z80Clock z80Clock) {
     this.fuseMachineInfoSupplier = machine;
     this.z80Clock = z80Clock;
+    Comparator<Event> customComparator = this::eventAddCmp; // Placeholder, not used
+    events = new ObjectAVLTreeSet<>(customComparator);
   }
 
   @Override
@@ -81,37 +82,18 @@ public class EventManager implements ZxModule {
 
   private int eventAddCmp(Event a, Event b) {
     if (a.tstates != b.tstates) {
-      return Long.compare(a.tstates, b.tstates);
+      return (int) (a.tstates - b.tstates);
     } else {
-      return Integer.compare(a.type, b.type);
+      return a.type - b.type;
     }
   }
 
   // Add an event at the correct place in the event list
   public void eventAddWithData(long eventTime, int type, Object userData) {
-    Event newEvent = new Event(eventTime, type, userData);
-
     if (eventTime < eventNextEvent) {
       eventNextEvent = eventTime;
-      eventList.addFirst(newEvent);
-    } else {
-      // Insert sorted
-      ListIterator<Event> iterator = eventList.listIterator();
-
-      boolean added = false;
-      while (iterator.hasNext()) {
-        Event current = iterator.next();
-        if (eventAddCmp(newEvent, current) < 0) {
-          iterator.previous();
-          iterator.add(newEvent);
-          added = true;
-          break;
-        }
-      }
-      if (!added) {
-        eventList.addLast(newEvent);
-      }
     }
+    events.add(new Event(eventTime, type, userData));
   }
 
   public void eventAdd(long eventTime, int type) {
@@ -121,13 +103,13 @@ public class EventManager implements ZxModule {
   // Do all events which have passed
   public int eventDoEvents() {
     while (eventNextEvent <= z80Clock.getTStates()) {
-      Event firstEvent = eventList.removeFirst();
+      Event firstEvent = events.removeFirst();
       EventDescriptor descriptor = registeredEvents.get(firstEvent.type);
 
-      if (eventList.isEmpty()) {
+      if (events.isEmpty()) {
         eventNextEvent = EVENT_NO_EVENTS;
       } else {
-        eventNextEvent = eventList.getFirst().tstates;
+        eventNextEvent = events.getFirst().tstates;
       }
 
       if (descriptor.fn != null) {
@@ -144,12 +126,11 @@ public class EventManager implements ZxModule {
 
   // Called at end of frame to reduce T-state count of all entries
   public void eventFrame(int tstatesPerFrame) {
-    for (int i = 0, eventListSize = eventList.size(); i < eventListSize; i++) {
-      Event event = eventList.get(i);
+    for (Event event : events) {
       eventReduceTstates(event, tstatesPerFrame);
     }
 
-    eventNextEvent = eventList.isEmpty() ? EVENT_NO_EVENTS : eventList.getFirst().tstates;
+    eventNextEvent = events.isEmpty() ? EVENT_NO_EVENTS : events.getFirst().tstates;
   }
 
   // Force all events between now and the next interrupt to happen
@@ -174,7 +155,7 @@ public class EventManager implements ZxModule {
 
   // Remove all events of a specific type from the stack
   public void eventRemoveType(int type) {
-    for (Event event : eventList) {
+    for (Event event : events) {
       setEventNull(event, type);
     }
   }
@@ -182,13 +163,13 @@ public class EventManager implements ZxModule {
   // Remove all events of a specific type and user data from the stack
   public void eventRemoveTypeUserData(int type, Object userData) {
     Event template = new Event(-1, type, userData);
-    for (Event event : eventList) {
+    for (Event event : events) {
       setEventNullWithUserData(event, template);
     }
   }
 
   public void reset() {
-    eventList.clear();
+    events.clear();
     eventNextEvent = EVENT_NO_EVENTS;
   }
 
