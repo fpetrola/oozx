@@ -35,7 +35,6 @@ public class FuseBaseForTests {
       public void addTStates(int tStatesToAdd, String description) {
         log(() -> description, (byte) tStatesToAdd);
         this.tStates += tStatesToAdd;
-        timeoutProcessor.accept(tStatesToAdd);
       }
 
       public void addTStates(int tStatesToAdd, Supplier<String> description) {
