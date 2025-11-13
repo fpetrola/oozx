@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx;
 
+import java.util.Arrays;
+
 // Supporting classes and enums
 public class MemoryPage {
   //  private byte[] page; // The data for this page
@@ -45,7 +47,7 @@ public class MemoryPage {
   }
 
   public void setPage(int[][] ram, int i) {
-    this.page = ram[i];
+    setPage(ram[i]);
   }
 
   public int getSource() {

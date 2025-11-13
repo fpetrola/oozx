@@ -102,9 +102,9 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
     for (int i = 0; i < SPECTRUM_RAM_PAGES; i++) {
       for (int j = 0; j < PAGES_IN_16K; j++) {
         MemoryPage page = mapRam[i * PAGES_IN_16K + j] = new MemoryPage();
+        page.offset = j * PAGE_SIZE;
         page.setPage(getRAM(), i);
         page.pageNum = i;
-        page.offset = j * PAGE_SIZE;
         page.writable = true;
         page.source = sourceRam;
       }

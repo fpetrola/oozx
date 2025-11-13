@@ -41,9 +41,7 @@ public class FuseScreen extends JPanel {
     setPreferredSize(new Dimension((int) (width * zoom), (int) (height * zoom)));
     this.screenBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
-    new Timer(30, e -> {
-      repaint();
-    }).start();
+    new Timer(30, e -> SwingUtilities.invokeLater(this::repaint)).start();
   }
 
   protected void paintComponent(Graphics g) {
@@ -84,7 +82,7 @@ public class FuseScreen extends JPanel {
         imgWidth = (int) (ceil * image.getWidth(this));
         imgHeight = (int) (ceil * image.getHeight(this));
       }
-        BufferedImage scaledImage = getScaledImage(image, imgWidth, imgHeight, b);
+      BufferedImage scaledImage = getScaledImage(image, imgWidth, imgHeight, b);
       //to center
       int x = (int) (((double) getWidth() / 2) - ((double) imgWidth / 2));
       int y = (int) (((double) getHeight() / 2) - ((double) imgHeight / 2));
