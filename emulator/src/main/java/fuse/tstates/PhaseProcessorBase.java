@@ -31,13 +31,13 @@ import fuse.tstates.phases.Phase;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang.Integer> {
-  protected int writeCount;
+  public int writeCount;
   protected Phase phase;
   protected int address;
   protected boolean processing;
-  protected int readCount;
+  public int readCount;
   protected final InstructionFetcher instructionFetcher;
-  protected final State state;
+  public final State state;
   protected final Register registerI;
   protected final Register registerR;
   protected final Register registerIR;

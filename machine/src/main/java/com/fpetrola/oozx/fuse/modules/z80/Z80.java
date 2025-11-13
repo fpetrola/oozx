@@ -33,6 +33,8 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.memory.MemoryReadListener;
+import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.minizx.emulation.AbstractMemory;
 import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
@@ -41,6 +43,8 @@ import fuse.PhaseProcessorExecutionListener;
 import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
 import fuse.tstates.PhaseProcessor;
+import fuse.tstates.phases.AfterMR;
+import fuse.tstates.phases.BeforeWrite;
 
 import javax.swing.*;
 import java.awt.event.KeyListener;
@@ -58,7 +62,7 @@ public class Z80 implements ZxModule {
   public long interruptsEnabledAt;
   public OOZ80 ooz80;
   public LibretroCore.bridge_command bridgeCommand;
-  private TestFusePhaseProcessor phaseProcessor;
+  private PhaseProcessor phaseProcessor;
 
   private IO io;
   private int z80_interrupt_event;
@@ -223,39 +227,50 @@ public class Z80 implements ZxModule {
 
     Memory memory1 = state.getMemory();
 
+    if (OOSpectrumConnector.noTest) {
+      phaseProcessor = new FusePhaseProcessor(this);
 
-    if (OOSpectrumConnector.noTest)
-      phaseProcessor = new FusePhaseProcessor(this) {
-        public void addSingleMc(int time1, int delta, int baseAddress, String description) {
-          this.state.addEventNumber(time1);
-        }
+      memory1.addMemoryReadListener(new MemoryReadListener() {
+        private AfterMR afterMR = new AfterMR();
 
-        protected Supplier<String> getAddMultipleMcStringSupplier(String description) {
-          return () -> "";
-        }
+        public void readingMemoryAt(int address, int value, int fetching) {
+          memory.readByte(address, ula);
 
-        protected void getAddEvent(Event time1) {
-          state.addEvent(time1);
+          zxClock.addTStates(fetching == 1 ? 4 : 3);
+          phaseProcessor.setAddress(address);
+          phaseProcessor.readCount++;
+          phaseProcessor.processPhase(afterMR);
         }
-      };
-    else
+      });
+      memory1.addMemoryWriteListener(new MemoryWriteListener() {
+        private final BeforeWrite phase = new BeforeWrite();
+        public void writtingMemoryAt(int address, int value) {
+
+          if (!phaseProcessor.state.isIntLine()) {
+            phaseProcessor.processPhase(phase);
+          }
+          memory.writeByte(address, (byte) (value & 0xff), ula, display);
+          phaseProcessor.writeCount++;
+          zxClock.addTStates(3);
+        }
+      });
+    } else {
       phaseProcessor = new TestFusePhaseProcessorZ80(this);
-
-    DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
-    instructionFetcher.tPhaseProcessor = phaseProcessor;
+      memory1.addMemoryReadListener(new AddStatesMemoryReadListener((TestFusePhaseProcessor) phaseProcessor) {
+        protected void doRead(int address, int value, int fetching) {
+          memory.readByte(address, ula);
+        }
+      });
+      memory1.addMemoryWriteListener(new AddStatesMemoryWriteListener((TestFusePhaseProcessor) phaseProcessor) {
+        protected void doWrite(int address, int value) {
+          memory.writeByte(address, (byte) (value & 0xff), ula, display);
+        }
+      });
+    }
 
     ooz80.getInstructionExecutor().addExecutionListener(new PhaseProcessorExecutionListener(phaseProcessor));
-
-    memory1.addMemoryReadListener(new AddStatesMemoryReadListener(phaseProcessor) {
-      protected void doRead(int address, int value, int fetching) {
-        memory.readByte(address, ula);
-      }
-    });
-    memory1.addMemoryWriteListener(new AddStatesMemoryWriteListener(phaseProcessor) {
-      protected void doWrite(int address, int value) {
-        memory.writeByte(address, (byte) (value & 0xff), ula, display);
-      }
-    });
+    DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
+    instructionFetcher.tPhaseProcessor = phaseProcessor;
   }
 
   public int init(Object o) {

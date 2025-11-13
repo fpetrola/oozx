@@ -20,35 +20,53 @@ package com.fpetrola.oozx.fuse.modules.z80;
 
 import fuse.tstates.PhaseProcessor;
 
-import java.util.function.Supplier;
-
-public class FusePhaseProcessor extends TestFusePhaseProcessor {
+public class FusePhaseProcessor extends PhaseProcessor {
   private final Z80 z80;
-  private final Supplier<String> stringSupplier = () -> "";
 
   public FusePhaseProcessor(Z80 z80) {
     super(z80.ooz80.getInstructionFetcher(), z80.ooz80.getState());
     this.z80 = z80;
   }
 
-  public void addMw(final int address, final int value) {
+  private void addMultipleMc(int x, int time1) {
+    if (z80.memory.mapRead[address >>> z80.memory.PAGE_SIZE_LOGARITHM].contended) {
+      for (int i = 0; i < x; i++)
+        z80.ula.addUlaStates(time1);
+    } else
+      z80.zxClock.addTStates(time1 * x);
   }
 
-  public void addMr(final int address, final int value) {
+  protected void addMultipleMcRegister() {
+    address = currentRegister.read();
+    addMultipleMc(1, 1);
   }
 
-  public void addMultipleMc(final int x, final int time1, final int delta, final int baseAddress, final String description) {
-    boolean memoryContended = z80.memory.mapRead[baseAddress >>> z80.memory.PAGE_SIZE_LOGARITHM].contended;
-    for (int i = 0; i < x; i++) {
-      if (memoryContended) {
-        z80.ula.addUlaStates(0, getAddMultipleMcStringSupplier(description));
-      }
-
-      addSingleMc(time1, delta, baseAddress, description);
-    }
+  protected void addMultipleMCPC3() {
+    address = registerPC.read();
+    addMultipleMc(1, 3);
   }
 
-  protected Supplier<String> getAddMultipleMcStringSupplier(final String description) {
-    return stringSupplier;
+  protected void addMultipleMCRegister(int x, int delta1) {
+    address = currentRegister.read();
+    addMultipleMc(x, 1);
+  }
+
+  protected void addMultipleMcAddress() {
+    addMultipleMc(1, 1);
+  }
+
+  protected void addMultipleMCPc2(int x, int delta) {
+    address = registerPC.read();
+    addMultipleMc(x, 1);
+  }
+
+  protected void addMultipleMCHL2(int x) {
+    address = registerHL.read();
+    addMultipleMc(x, 1);
+  }
+
+  protected void addMultipleMCIR(int time) {
+    address = this.registerIR.read();
+    addMultipleMc(time, 1);
   }
 }

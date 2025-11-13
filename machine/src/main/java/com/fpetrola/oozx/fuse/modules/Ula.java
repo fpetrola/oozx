@@ -167,5 +167,9 @@ public class Ula implements ZxModule {
     z80Clock.addTStates(contentionNoMreq[z80Clock.getTStates()] + states, descriptionSupplier);
   }
 
+  public void addUlaStates(int states) {
+    z80Clock.addTStates(contentionNoMreq[z80Clock.getTStates()] + states);
+  }
+
 }
 
