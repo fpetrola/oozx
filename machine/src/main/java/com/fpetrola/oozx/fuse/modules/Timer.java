@@ -208,6 +208,6 @@ public class Timer implements ZxModule {
 
   public void changeSpeed(int emulationSpeed) {
     this.changeRequested = true;
-    eventManager.eventForceEvents();
+    eventManager.changeEventTime(70000, timerEvent);
   }
 }

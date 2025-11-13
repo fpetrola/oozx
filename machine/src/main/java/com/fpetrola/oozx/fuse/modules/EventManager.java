@@ -97,6 +97,16 @@ public class EventManager implements ZxModule {
     events.add(new Event(eventTime, type, userData));
   }
 
+  public void changeEventTime(long eventTime, int type) {
+    ArrayList<Event> events1 = new ArrayList<>(events);
+    for (Event event : events1) {
+      if (event.type == type) {
+        event.tstates= eventTime;
+        break;
+      }
+    }
+  }
+
   public void eventAdd(long eventTime, int type) {
     eventAddWithData(eventTime, type, null);
   }

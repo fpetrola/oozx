@@ -398,7 +398,7 @@ public class Z80 implements ZxModule {
           turbo = !turbo;
           int emulationSpeed = (boolean) value ? 15000 : 100;
           settings.current.emulationSpeed = emulationSpeed;
-//          timer.addEvent();
+          zxClock.addTStates(-zxClock.getTStates() + 60000);
           timer.changeSpeed(emulationSpeed);
           notifyTurboModeChange(turbo);
           notifyEmulationSpeedChange(Z80.emulationSpeed);
