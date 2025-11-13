@@ -29,20 +29,19 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class SpectrumZ80Clock extends DefaultZ80Clock {
-  protected Consumer<java.lang.Integer> timeoutProcessor = (tStates) -> {
-  };
+  protected Consumer<java.lang.Integer> timeoutProcessor;
   private int timeout;
   private CollectionHandler<ClockTimeoutListener> clockListeners = new CollectionHandler<>();
 
   public void addTStates(int tStatesToAdd) {
     this.tStates += tStatesToAdd;
-    if (timeout > 0)
+    if (timeoutProcessor != null)
       timeoutProcessor.accept(tStatesToAdd);
   }
 
   public void addTStates(int tStatesToAdd, String description) {
     this.tStates += tStatesToAdd;
-    if (timeout > 0)
+    if (timeoutProcessor != null)
       timeoutProcessor.accept(tStatesToAdd);
   }
 

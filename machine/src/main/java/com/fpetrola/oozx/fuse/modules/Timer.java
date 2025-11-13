@@ -74,14 +74,14 @@ public class Timer implements ZxModule {
   }
 
   // Estimate emulation speed
-  public int estimateSpeed(Z80 z80) {
+  public void estimateSpeed(Z80 z80) {
     if (framesUntilUpdate-- > 0) {
-      return 0;
+      return;
     }
 
     double currentTime = getTime();
     if (currentTime < 0) {
-      return 1;
+      return;
     }
 
     if (samples < 10) {
@@ -96,8 +96,6 @@ public class Timer implements ZxModule {
     nextStoredTime = (nextStoredTime + 1) % 10;
     framesUntilUpdate = (int) (getCurrent().getTimings().processorSpeed / getCurrent().getTimings().tstatesPerFrame) - 1;
     samples++;
-
-    return 0;
   }
 
   // Reset speed estimation

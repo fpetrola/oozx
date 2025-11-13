@@ -82,7 +82,7 @@ public class Spectrum implements ZxModule {
 
   }
 
-  public int spectrumFrame() {
+  public void spectrumFrame() {
     int frameLength = getCurrent().getTimings().tstatesPerFrame;
 
     eventManager.eventFrame(frameLength);
@@ -94,15 +94,13 @@ public class Spectrum implements ZxModule {
 
     if (Sound.enabled) Sound.frame();
 
-    if (display.frame() != 0) return 1;
+    if (display.frame() != 0) return;
 
     eventManager.eventAdd(getCurrent().getTimings().tstatesPerFrame, spectrumFrameEvent);
 
     PhantomTypist.frame();
 
     framesSinceReset++;
-
-    return 0;
   }
 
   public int contendDelayNone(long time) {
