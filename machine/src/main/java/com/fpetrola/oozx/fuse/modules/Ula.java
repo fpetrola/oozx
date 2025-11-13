@@ -37,7 +37,7 @@ public class Ula implements ZxModule {
   public final int CONTENTION_SIZE = 80000;
 
   // How much contention do we get at every tstate when MREQ is active?
-  public byte[] contention = new byte[CONTENTION_SIZE];
+  public final byte[] contention = new byte[CONTENTION_SIZE];
 
   // And how much when it is inactive
   public final byte[] contentionNoMreq = new byte[CONTENTION_SIZE];
@@ -48,14 +48,14 @@ public class Ula implements ZxModule {
   private byte defaultValue;
   private final Display display;
   private final Supplier<SpectrumMachine> currentMachineSupplier;
-  private Keyboard keyboard;
-  private SpectrumZ80Clock z80Clock;
+  private final Keyboard keyboard;
+  private final SpectrumZ80Clock z80Clock;
   private final IPeriph periph;
-  private String contendPortLate = "contend_port_late";
-  private String contendPortEarly = "contend_port_early";
-  private Module module;
-  private Settings settings;
-  private Tape tape;
+  private final String contendPortLate = "contend_port_late";
+  private final String contendPortEarly = "contend_port_early";
+  private final Module module;
+  private final Settings settings;
+  private final Tape tape;
 
   public Ula(Memory memory, Display display, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock z80Clock, IPeriph periph, Module module, Settings settings, com.fpetrola.oozx.fuse.modules.tape.Tape tape) {
     this.memory = memory;
