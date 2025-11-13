@@ -62,21 +62,6 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
     registerHL = getRegister(HL);
   }
 
-  public void addMw(int address, int value) {
-    getAddEvent(new Event(0, "MW", address, value));
-  }
-
-  public void addSingleMc(int time1, int delta, int baseAddress, String description) {
-    getAddEvent(new Event(time1, "MC", baseAddress + delta, null, description));
-  }
-
-  protected void getAddEvent(Event time1) {
-    state.addEvent(time1);
-  }
-
-  public void addMr(int address, int value) {
-    getAddEvent(new Event(0, "MR", address, value));
-  }
 
   private Register getRegister(RegisterName registerName) {
     return state.getRegister(registerName);

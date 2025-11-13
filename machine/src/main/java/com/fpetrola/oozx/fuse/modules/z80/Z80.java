@@ -28,6 +28,7 @@ import com.fpetrola.oozx.fuse.modules.Timer;
 import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.peripherals.*;
 import com.fpetrola.z80.cpu.*;
+import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
@@ -231,6 +232,10 @@ public class Z80 implements ZxModule {
 
         protected Supplier<String> getAddMultipleMcStringSupplier(String description) {
           return () -> "";
+        }
+
+        protected void getAddEvent(Event time1) {
+          state.addEvent(time1);
         }
       };
     else

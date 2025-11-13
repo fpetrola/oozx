@@ -32,6 +32,18 @@ public class TestFusePhaseProcessor  extends PhaseProcessor {
     super(instructionFetcher1, state1);
   }
 
+  public void addMw(int address, int value) {
+    getAddEvent(new Event(0, "MW", address, value));
+  }
+
+  public void addSingleMc(int time1, int delta, int baseAddress, String description) {
+    getAddEvent(new Event(time1, "MC", baseAddress + delta, null, description));
+  }
+
+  public void addMr(int address, int value) {
+    getAddEvent(new Event(0, "MR", address, value));
+  }
+
   protected void getAddEvent(Event event) {
     event.description = getDescription(event);
     state.addEvent(event);
