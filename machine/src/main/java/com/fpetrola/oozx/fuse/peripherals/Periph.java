@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx.fuse.peripherals;
 
+import cern.colt.list.ObjectArrayList;
 import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.Ui;
 import com.fpetrola.oozx.fuse.machine.Spec128;
@@ -26,10 +27,7 @@ import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.ports.PortHandler;
 import com.fpetrola.z80.cpu.Z80Clock;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class Periph implements IPeriph {
@@ -143,7 +141,7 @@ public class Periph implements IPeriph {
   private Map<Class<? extends ZxPeripheral>, PrivatePeripheral> peripherals = null;
 
   // List of currently active ports
-  private List<PrivatePort> ports = new ArrayList<>();
+  private ObjectArrayList ports = new ObjectArrayList();
 
   // Strings for debugger events
   private final String PAGE_EVENT_STRING = "page";
@@ -199,7 +197,14 @@ public class Periph implements IPeriph {
         ports.add(new PrivatePort(type, port));
       }
     } else {
-      ports.removeIf(p -> p.type == type);
+      ObjectArrayList toRemove = new ObjectArrayList();
+      for (int i = 0, portsSize = ports.size(); i < portsSize; i++) {
+        PrivatePort p = (PrivatePort) ports.get(i);
+        if (p.type == type) {
+          toRemove.add(p);
+        }
+      }
+      ports.removeAll(toRemove, true);
     }
 
     return true;
@@ -271,7 +276,7 @@ public class Periph implements IPeriph {
     // Normal port read
     PeripheralData callbackInfo = new PeripheralData(port, (byte) 0x00, (byte) 0xff);
     for (int i = 0, portsSize = ports.size(); i < portsSize; i++) {
-      PrivatePort privatePort = ports.get(i);
+      PrivatePort privatePort = (PrivatePort) ports.get(i);
       PortHandler portData = privatePort.port;
       if (portData.isReader() && (callbackInfo.port & portData.getMask()) == portData.getValue()) {
         byte[] attached = new byte[]{0};
@@ -307,7 +312,7 @@ public class Periph implements IPeriph {
   public void writePortInternal(int port, byte b) {
     PeripheralData callbackInfo = new PeripheralData(port, (byte) 0, b);
     for (int i = 0, portsSize = ports.size(); i < portsSize; i++) {
-      PrivatePort privatePort = ports.get(i);
+      PrivatePort privatePort = (PrivatePort) ports.get(i);
       PortHandler portData = privatePort.port;
       if (portData.isWriter() && (callbackInfo.port & portData.getMask()) == portData.getValue()) {
         portData.write(callbackInfo.port, callbackInfo.value);

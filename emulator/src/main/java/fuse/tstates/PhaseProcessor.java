@@ -18,6 +18,7 @@
 
 package fuse.tstates;
 
+import cern.colt.list.ObjectArrayList;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.cpu.State;
@@ -111,7 +112,7 @@ public abstract class PhaseProcessor extends PhaseProcessorBase {
   }
 
   private void addAfterExecution(Ld ld) {
-    final List<Runnable> afterExecutionActions = new ArrayList<>();
+    final ObjectArrayList afterExecutionActions = new ObjectArrayList();
 
     ld.getTarget().accept(new InstructionVisitor<>() {
       public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference1) {
@@ -147,7 +148,7 @@ public abstract class PhaseProcessor extends PhaseProcessorBase {
     }
   }
 
-  private void addToActions(List<Runnable> afterExecutionActions, Runnable runnable) {
+  private void addToActions(ObjectArrayList afterExecutionActions, Runnable runnable) {
     afterExecutionActions.add(runnable);
   }
 
@@ -170,7 +171,7 @@ public abstract class PhaseProcessor extends PhaseProcessorBase {
   }
 
   public void visitEx(Ex ex) {
-    final List<Runnable> afterExecutionActions = new ArrayList<>();
+    final ObjectArrayList afterExecutionActions = new ObjectArrayList();
 
     if (ex.getTarget() instanceof IndirectMemory16BitReference indirectMemory16BitReference)
       if (indirectMemory16BitReference.getTarget() instanceof Register register && register.getName().equals(RegisterName.SP.name())) {
@@ -198,11 +199,11 @@ public abstract class PhaseProcessor extends PhaseProcessorBase {
       });
   }
 
-  private Runnable computeActions(List<Runnable> afterExecutionActions) {
-    Runnable action = afterExecutionActions.get(0);
+  private Runnable computeActions(ObjectArrayList afterExecutionActions) {
+    Runnable action = (Runnable) afterExecutionActions.get(0);
     if (afterExecutionActions.size() == 2) {
-      Runnable action1 = afterExecutionActions.get(0);
-      Runnable action2 = afterExecutionActions.get(1);
+      Runnable action1 = (Runnable) afterExecutionActions.get(0);
+      Runnable action2 = (Runnable) afterExecutionActions.get(1);
       action = () -> {
         action1.run();
         action2.run();

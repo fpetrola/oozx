@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx.fuse.modules;
 
+import cern.colt.list.ObjectArrayList;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.z80.cpu.Z80Clock;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
@@ -51,7 +52,7 @@ public class EventManager implements ZxModule {
 
   @Override
   public int init(Object initContext) {
-    registeredEvents = new ArrayList<>();
+    registeredEvents = new ObjectArrayList();
     eventTypeNull = eventRegister(null, "[Deleted event]");
     eventNextEvent = EVENT_NO_EVENTS;
     return 0;
@@ -68,7 +69,7 @@ public class EventManager implements ZxModule {
     String description;
   }
 
-  ArrayList<EventDescriptor> registeredEvents;
+  ObjectArrayList registeredEvents;
 
   public int eventRegister(EventFn fn, String description) {
     EventDescriptor descriptor = new EventDescriptor();
@@ -104,7 +105,7 @@ public class EventManager implements ZxModule {
   public int eventDoEvents() {
     while (eventNextEvent <= z80Clock.getTStates()) {
       Event firstEvent = events.removeFirst();
-      EventDescriptor descriptor = registeredEvents.get(firstEvent.type);
+      EventDescriptor descriptor = (EventDescriptor) registeredEvents.get(firstEvent.type);
 
       if (events.isEmpty()) {
         eventNextEvent = EVENT_NO_EVENTS;
@@ -175,7 +176,7 @@ public class EventManager implements ZxModule {
 
   // A textual representation of each event type
   public String eventName(int type) {
-    return registeredEvents.get(type).description;
+    return ((EventDescriptor)registeredEvents.get(type)).description;
   }
 
   void registeredEventsFree() {

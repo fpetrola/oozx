@@ -26,6 +26,7 @@ import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.Ula;
 import com.fpetrola.oozx.fuse.modules.ZxModule;
 import com.fpetrola.z80.helpers.Helper;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,7 +136,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
     }
   }
 
-  public List<MemoryPoolEntry> pool = new ArrayList<>();
+  public List<MemoryPoolEntry> pool = new ObjectArrayList<>();
 
   // Current screen and mask
   public int currentScreen;
