@@ -88,7 +88,6 @@ public class DefaultSyncChecker implements SyncChecker {
     MiniZXIO io = (MiniZXIO) SpectrumApplication.io;
     SpectrumApplication.io = io;
     ooz80 = createOOZ80(io);
-    ooz80.getState().getMemory().canDisable(true);
   }
 
   @Override

@@ -26,11 +26,9 @@ import com.fpetrola.z80.memory.MemoryWriteListener;
 public abstract class AbstractMemory implements Memory {
   protected final CollectionHandler<MemoryWriteListener> memoryWriteListener = new CollectionHandler<>();
   protected final CollectionHandler<MemoryReadListener> memoryReadListener = new CollectionHandler<>();
-  protected boolean canDisable;
   protected boolean readOnly;
 
   public AbstractMemory() {
-    this.canDisable = false;
   }
 
   public int read(int address, int fetching) {
@@ -81,37 +79,22 @@ public abstract class AbstractMemory implements Memory {
     this.readOnly = readOnly;
   }
 
-  @Override
   public void disableReadListener() { //FIXME: para que era???
-    if (canDisable) memoryReadListener.disable();
+    memoryReadListener.disable();
   }
 
-  @Override
   public void enableReadListener() {
-    if (canDisable) memoryReadListener.enable();
+    memoryReadListener.enable();
   }
 
-  @Override
   public void disableWriteListener() {
-    if (canDisable) memoryWriteListener.disable();
+    memoryWriteListener.disable();
   }
 
-  @Override
   public void enableWriteListener() {
-    if (canDisable) memoryWriteListener.enable();
+    memoryWriteListener.enable();
   }
 
-  @Override
-  public void canDisable(boolean canDisable) {
-    this.canDisable = canDisable;
-  }
-
-  @Override
-  public boolean canDisable() {
-    return canDisable;
-  }
-
-  @Override
   public boolean isReadListenersDisabled() {
     return !memoryReadListener.isEnabled();
   }

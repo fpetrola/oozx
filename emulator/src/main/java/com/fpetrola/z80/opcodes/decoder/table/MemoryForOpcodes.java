@@ -93,16 +93,6 @@ public class MemoryForOpcodes implements Memory {
   }
 
   @Override
-  public void canDisable(boolean canDisable) {
-    memory.canDisable(canDisable);
-  }
-
-  @Override
-  public boolean canDisable() {
-    return memory.canDisable();
-  }
-
-  @Override
   public void copyFrom(Memory memory) {
     this.memory.copyFrom(memory);
   }

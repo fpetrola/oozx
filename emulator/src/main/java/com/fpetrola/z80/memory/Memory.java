@@ -84,13 +84,6 @@ public interface Memory {
   default void enableWriteListener() {
   }
 
-  default void canDisable(boolean canDisable) {
-  }
-
-  default boolean canDisable() {
-    return false;
-  }
-
   default void copyFrom(Memory memory) {
     int[] data = memory.getData();
     for (int i = 0; i < data.length; i++) {

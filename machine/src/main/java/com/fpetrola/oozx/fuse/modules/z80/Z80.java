@@ -316,7 +316,6 @@ public class Z80 implements ZxModule {
   public void updateMemory() {
     Memory memory1 = ooz80.getState().getMemory();
 
-    memory1.canDisable(true);
     memory1.disableReadListener();
 
     for (int i = 0x4000; i < 0x8000; i++) {
@@ -325,7 +324,6 @@ public class Z80 implements ZxModule {
     }
 
     memory1.enableReadListener();
-    memory1.canDisable(false);
   }
 
   public JFrame createScreen(KeyListener keyListener, JComponent contentPane) {

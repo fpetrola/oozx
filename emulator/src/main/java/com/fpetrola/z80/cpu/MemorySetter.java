@@ -32,7 +32,6 @@ public class MemorySetter {
   }
 
   public void setData(byte[] result) {
-    memory.canDisable(true);
     memory.disableWriteListener();
     for (int i = 0; i < result.length; i++) {
       int data = ((i < 16384) ? rom[i] : result[i]) & 0xff;
@@ -40,6 +39,5 @@ public class MemorySetter {
       memory.write(i, (value & 0xff) & 0xFFFF);
     }
     memory.enableWriteListener();
-    memory.canDisable(false);
   }
 }
