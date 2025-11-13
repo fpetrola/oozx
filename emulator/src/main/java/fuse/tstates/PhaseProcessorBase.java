@@ -20,7 +20,6 @@ package fuse.tstates;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
-import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.types.Instruction;
@@ -87,7 +86,6 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
     if (lastExecutedInstruction != null) {
       CachedPhase cachedPhase = lastExecutedInstruction.getCachedPhase();
       if (!cachedPhase.isSkippable()) {
-        setPhase(cachedPhase);
         cachedPhase.execute(phase);
       }
     }

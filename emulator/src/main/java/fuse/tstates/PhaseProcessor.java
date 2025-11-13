@@ -29,8 +29,6 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import fuse.tstates.phases.AfterMRPhaseVisitor;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static com.fpetrola.z80.registers.RegisterName.HL;
