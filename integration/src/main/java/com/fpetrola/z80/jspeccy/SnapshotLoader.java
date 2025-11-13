@@ -29,7 +29,7 @@ import java.io.File;
 
 public class SnapshotLoader {
   public static  byte[] setupStateWithSnapshot(RegistersSetter registersSetter, String fileName, State state) {
-    MemorySetter memorySetter = new MemorySetter(state.getMemory(), MiniZXWithEmulationBase.createROM());
+    MemorySetter memorySetter = new MemorySetter(state.getMemory(), MiniZXWithEmulationBase.createROM(), state);
 
     try {
       File file = new File(fileName);

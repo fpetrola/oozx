@@ -30,7 +30,6 @@ import com.fpetrola.z80.spy.MemptrUpdateInstructionSpy;
 import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
 import fuse.tstates.AddStatesIO;
-import fuse.tstates.PhaseProcessor;
 
 import java.io.File;
 import java.io.IOException;

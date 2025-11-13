@@ -23,10 +23,12 @@ import com.fpetrola.z80.memory.Memory;
 public class MemorySetter {
   private final Memory memory;
   private final byte[] rom;
+  private final State state;
 
-  public MemorySetter(Memory memory, byte[] rom) {
+  public MemorySetter(Memory memory, byte[] rom, State state) {
     this.memory = memory;
     this.rom = rom;
+    this.state = state;
   }
 
   public void setData(byte[] result) {
