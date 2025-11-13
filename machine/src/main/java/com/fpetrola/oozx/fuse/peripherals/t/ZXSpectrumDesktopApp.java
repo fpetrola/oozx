@@ -765,6 +765,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
   public EmulatorInternalFrame createNewEmulator(EmulatorCore core1) {
     EmulatorCore core = core1;
+    JComponent panel = core.getPanel();
     int x = (emulatorCount * 30) % 400;
     int y = (emulatorCount * 30) % 400;
     EmulatorInternalFrame frame = new EmulatorInternalFrame(core, x, y);
@@ -774,15 +775,18 @@ public class ZXSpectrumDesktopApp extends JFrame {
       }
     });
 
-    frame.setFocusable(true);
+    panel.setFocusable(true);
     KeyListener keyListener = core1.getKeyListener();
-    frame.addFocusListener(new FocusListener() {
+    panel.addFocusListener(new FocusListener() {
       public void focusGained(FocusEvent e) {
-        getParent().addKeyListener(keyListener);
+        panel.addKeyListener(keyListener);
+        System.out.println("gained");
       }
 
       public void focusLost(FocusEvent e) {
-        getParent().removeKeyListener(keyListener);
+        panel.removeKeyListener(keyListener);
+        System.out.println("lost");
+
       }
 
       private Container getParent() {

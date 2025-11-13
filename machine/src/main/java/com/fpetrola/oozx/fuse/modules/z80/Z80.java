@@ -44,7 +44,7 @@ import fuse.tstates.phases.AfterMR;
 import fuse.tstates.phases.BeforeWrite;
 
 import javax.swing.*;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.io.File;
 import java.util.List;
 import java.util.function.Supplier;
@@ -245,6 +245,17 @@ public class Z80 implements ZxModule {
     audio = new Audio(new AY8912Type());
     audio.open(MachineTypes.SPECTRUM48K, new AY8912(), false, 32000);
     FuseScreen contentPane = new FuseScreen(screenBytes);
+    contentPane.addMouseListener(new MouseAdapter() {
+      public void mouseClicked(MouseEvent e) {
+        contentPane.requestFocus();
+      }
+    });
+
+//    contentPane.addKeyListener(new KeyAdapter() {
+//      public void keyTyped(KeyEvent e) {
+//        super.keyTyped(e);
+//      }
+//    });
     JFrame screen = createScreen(null, contentPane);
 //      new SwingKeyboard(screen, keyboard, input);
   }
