@@ -36,7 +36,7 @@ public class MemorySetter {
     for (int i = 0; i < result.length; i++) {
       int data = ((i < 16384) ? rom[i] : result[i]) & 0xff;
       int value = data;
-      state.clock.setTStates(0);
+      state.clock.addTStates(-state.clock.getTStates());
       memory.write(i, (value & 0xff) & 0xFFFF);
     }
     memory.enableWriteListener();

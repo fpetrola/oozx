@@ -316,7 +316,7 @@ public class Z80 implements ZxModule {
   public void updateMemory() {
     Memory memory1 = ooz80.getState().getMemory();
 
-    int tStates = zxClock.getTStates();
+//    int tStates = zxClock.getTStates();
     memory1.disableReadListener();
 
     for (int i = 0x4000; i < 0x8000; i++) {
@@ -324,7 +324,8 @@ public class Z80 implements ZxModule {
       memory.writeByteInternal(i, (byte) (datum & 0xff), display);
     }
 
-    zxClock.setTStates(tStates);
+//    zxClock.setTStates(tStates);
+   // zxClock.addTStates(-zxClock.getTStates());
     memory1.enableReadListener();
   }
 

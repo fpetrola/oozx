@@ -34,45 +34,24 @@ public abstract class AbstractMemory implements Memory {
   public int read(int address, int fetching) {
     int value = doRead(address);
     memoryReadListener.forAll(l -> l.readingMemoryAt(address, value, fetching));
-
     return value;
   }
 
   protected abstract int doRead(int address);
 
-  @Override
+  protected abstract void doWrite(int address, int value);
+
   public void write(final int address, final int value) {
     memoryWriteListener.forAll(l -> l.writtingMemoryAt(address, value));
     doWrite(address, value);
   }
 
-  @Override
-  public boolean compare() {
-    return false;
-  }
-
-  @Override
-  public void update() {
-
-  }
-
-  @Override
   public void addMemoryWriteListener(MemoryWriteListener memoryWriteListener) {
     this.memoryWriteListener.add(memoryWriteListener);
   }
 
-  @Override
-  public void removeMemoryWriteListener(MemoryWriteListener memoryWriteListener) {
-  }
-
-  @Override
   public void addMemoryReadListener(MemoryReadListener memoryReadListener) {
     this.memoryReadListener.add(memoryReadListener);
-  }
-
-  @Override
-  public void removeMemoryReadListener(MemoryReadListener memoryReadListener) {
-
   }
 
   public void enableReadyOnly(boolean readOnly) {
@@ -94,10 +73,4 @@ public abstract class AbstractMemory implements Memory {
   public void enableWriteListener() {
     memoryWriteListener.enable();
   }
-
-  public boolean isReadListenersDisabled() {
-    return !memoryReadListener.isEnabled();
-  }
-
-  protected abstract void doWrite(int address, int value);
 }

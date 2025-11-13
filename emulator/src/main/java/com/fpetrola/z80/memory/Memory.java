@@ -92,7 +92,4 @@ public interface Memory {
     }
   }
 
-  default boolean isReadListenersDisabled() {
-    return false;
-  }
 }
