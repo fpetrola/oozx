@@ -31,7 +31,7 @@ import fuse.tstates.phases.Phase;
 import static com.fpetrola.z80.registers.RegisterName.*;
 
 public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang.Integer> {
-  public int writeCount;
+  protected int writeCount;
   protected Phase phase;
   protected int address;
   protected boolean processing;
@@ -110,8 +110,6 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
       if (!cachedPhase.isSkippable()) {
         setPhase(cachedPhase);
         cachedPhase.execute(phase);
-      } else {
-        int a = 1;
       }
     }
     processing = false;

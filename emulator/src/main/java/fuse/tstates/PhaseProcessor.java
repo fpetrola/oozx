@@ -65,7 +65,6 @@ public class PhaseProcessor extends PhaseProcessorBase {
     addMultipleMc(x, time1, delta, register.read(), description);
   }
 
-
   public void visitingRst(RST rst) {
     addMcBeforeExecution(1);
   }
