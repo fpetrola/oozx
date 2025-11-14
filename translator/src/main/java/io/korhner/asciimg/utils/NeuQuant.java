@@ -1,21 +1,19 @@
-/* NeuQuant Neural-Net Quantization Algorithm
- * ------------------------------------------
+/*
  *
- * Copyright (c) 1994 Anthony Dekker
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *      http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
  *
- * NEUQUANT Neural-Net quantization algorithm by Anthony Dekker, 1994.
- * See "Kohonen neural networks for optimal colour quantization"
- * in "Network: Computation in Neural Systems" Vol. 5 (1994) pp 351-367.
- * for a discussion of the algorithm.
- *
- * Any party obtaining a copy of these files from the author, directly or
- * indirectly, is granted, free of charge, a full and unrestricted irrevocable,
- * world-wide, paid up, royalty-free, nonexclusive right and license to deal
- * in this software and documentation files (the "Software"), including without
- * limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons who receive
- * copies from any such party to do so, with the only requirement being
- * that this copyright notice remain intact.
  */
 
 // Ported to Java 12/00 K Weiner
