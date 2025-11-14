@@ -1124,7 +1124,7 @@ class AboutDialog extends JDialog {
     setSize(300, 200);
 
     JPanel panel = new JPanel();
-    JLabel label = new JLabel("<html><center>ZX Spectrum Emulator<br>Version 1.0<br>Built with Swing<br>By xAI Grok</center></html>");
+    JLabel label = new JLabel("<html><center>ZX Spectrum Emulator<br>Version 1.0<br>Built with Swing<br></center></html>");
     panel.add(label);
     add(panel, BorderLayout.CENTER);
 
