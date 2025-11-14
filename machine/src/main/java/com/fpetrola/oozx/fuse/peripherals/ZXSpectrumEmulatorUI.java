@@ -387,7 +387,7 @@ public class ZXSpectrumEmulatorUI extends JFrame {
     pauseIndicator.setToolTipText(emulatorCore.isPaused() ? "Paused" : "Running");
 
     // Turbo Indicator
-    JLabel turboIndicator = new JLabel(emulatorCore.isTurboMode() ? "✔ Turbo" : "✘ Turbo");
+    JLabel turboIndicator = new JLabel(emulatorCore.isTurboMode() ? "✔xxxxxxxxxxxxxx Turbo" : "✘ eeeeeeeeeeeeeee Turbo");
     turboIndicator.setForeground(emulatorCore.isTurboMode() ? Color.BLUE : Color.GRAY);
     turboIndicator.setPreferredSize(new Dimension(80, componentHeight));
 

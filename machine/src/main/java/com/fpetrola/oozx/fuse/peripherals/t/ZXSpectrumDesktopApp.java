@@ -102,8 +102,7 @@ class EmulatorInternalFrame extends JInternalFrame {
 
       @Override
       public void onTurboModeChanged(boolean turbo) {
-        turboIndicator.setText(turbo ? "Turbo On" : "Turbo Off");
-        turboIndicator.setForeground(turbo ? Color.BLUE : Color.GRAY);
+        updateTurboLabel(turbo);
       }
 
       @Override
@@ -114,6 +113,11 @@ class EmulatorInternalFrame extends JInternalFrame {
         tapeStatusLabel.setToolTipText("Tape: " + status);
       }
     });
+  }
+
+  private void updateTurboLabel(boolean turbo) {
+    turboIndicator.setText(turbo ? "✔ Turbo" : "✘ Turbo");
+    turboIndicator.setForeground(turbo ? Color.BLUE : Color.GRAY);
   }
 
   private JPanel createStatusBar() {
@@ -199,8 +203,7 @@ class EmulatorInternalFrame extends JInternalFrame {
 
       @Override
       public void onTurboModeChanged(boolean turbo) {
-        turboIndicator.setText(turbo ? "✔ Turbo" : "✘ Turbo");
-        turboIndicator.setForeground(turbo ? Color.BLUE : Color.GRAY);
+        updateTurboLabel(turbo);
       }
 
       @Override
@@ -242,7 +245,7 @@ class EmulatorInternalFrame extends JInternalFrame {
     Icon turboIcon = UIManager.getIcon("FileChooser.upFolderIcon");
     JButton turboButton = new JButton(turboIcon);
     turboButton.setToolTipText("Toggle Turbo Mode");
-    turboButton.addActionListener(e -> emulatorCore.setGeneralOption("turbo", !emulatorCore.isTurboMode()));
+    turboButton.addActionListener(e -> emulatorCore.setGeneralOption("turbo", emulatorCore.isTurboMode()));
     toolBar.add(turboButton);
 
     toolBar.addSeparator();

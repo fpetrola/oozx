@@ -382,7 +382,7 @@ public class Z80 implements ZxModule {
 
   public JFrame createScreen(KeyListener keyListener, JComponent contentPane) {
     mockCore = new MockEmulatorCore(contentPane) {
-      private boolean turbo;
+      private boolean turbo= true;
 
       public KeyListener getKeyListener() {
         return new SwingKeyboard(fuse.keyboard, fuse.input);
@@ -407,7 +407,7 @@ public class Z80 implements ZxModule {
       public void setGeneralOption(String option, Object value) {
         if (option.equals("turbo")) {
           turbo = !turbo;
-          int emulationSpeed = (boolean) value ? 15000 : 100;
+          int emulationSpeed = turbo ? 15000 : 100;
           settings.current.emulationSpeed = emulationSpeed;
           zxClock.addTStates(-zxClock.getTStates() + 60000);
           timer.changeSpeed(emulationSpeed);
