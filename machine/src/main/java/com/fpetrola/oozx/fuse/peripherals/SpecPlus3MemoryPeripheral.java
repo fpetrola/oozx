@@ -18,7 +18,6 @@
 
 package com.fpetrola.oozx.fuse.peripherals;
 
-import com.fpetrola.oozx.fuse.machine.Spec128;
 import com.fpetrola.oozx.fuse.machine.SpecPlus3;
 import com.fpetrola.oozx.fuse.ports.Spec128PortHandler;
 import com.fpetrola.oozx.fuse.ports.SpecPlus3PortHandler;
@@ -26,9 +25,9 @@ import com.fpetrola.oozx.fuse.ports.SpecPlus3PortHandler;
 import java.util.List;
 
 public class SpecPlus3MemoryPeripheral extends AbstractZxPeripheral {
-  public SpecPlus3MemoryPeripheral(Spec128 spec128, SpecPlus3 specPlus3) {
+  public SpecPlus3MemoryPeripheral(SpecPlus3 specPlus3) {
     super(Periph.Type.PLUS3_MEMORY, List.of(
-        new Spec128PortHandler(0xc002, 0x4000, spec128),
+        new Spec128PortHandler(0xc002, 0x4000, specPlus3),
         new SpecPlus3PortHandler(0xf002, 0x1000, specPlus3)
     ));
   }

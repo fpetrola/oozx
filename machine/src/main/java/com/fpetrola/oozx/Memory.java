@@ -90,7 +90,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
     for (int i = 0; i < SPECTRUM_ROM_PAGES; i++) {
       for (int j = 0; j < PAGES_IN_16K; j++) {
         MemoryPage page = mapRom[i * PAGES_IN_16K + j] = new MemoryPage();
-        page.writable = false;
+        page.setWritable(false);
         page.contended = false;
         page.source = sourceRom;
       }
@@ -101,9 +101,9 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
         MemoryPage page = mapRam[i * PAGES_IN_16K + j] = new MemoryPage();
         page.offset = j * PAGE_SIZE;
         page.setPage(getRAM(), i);
-        page.pageNum = i;
-        page.writable = true;
+        page.setPageNum(i);
         page.source = sourceRam;
+        page.setWritable(true);
       }
     }
 
@@ -272,7 +272,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   }
 
   private void writeByteInternal(final int address, final byte value, final Display display, final MemoryPage memoryPage) {
-    if (memoryPage.writable || (memoryPage.source != sourceNone && settings.current.writableRoms)) {
+    if (memoryPage.isWritable() || (memoryPage.source != sourceNone && settings.current.writableRoms)) {
       final int addressMasked = address & PAGE_SIZE_MASK;
       displayDirtySinclair(addressMasked, value, display, memoryPage);
       memoryPage.set(addressMasked, value);
@@ -288,14 +288,14 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   public void displayDirtySinclair(final int address, final byte value, final Display display, final MemoryPage mapping) {
     final int offset2 = address + mapping.offset;
 
-    if (mapping.source == sourceRam && mapping.pageNum == currentScreen && (offset2 & screenMask) < 0x1b00 && mapping.get(address) != value) {
+    if (mapping.source == sourceRam && mapping.getPageNum() == currentScreen && (offset2 & screenMask) < 0x1b00 && mapping.get(address) != value) {
       display.dirtySinclair(offset2);
     }
   }
 
   public void writeByteInternal2(int address, byte b) {
     MemoryPage mapping = mapWrite[address >>> PAGE_SIZE_LOGARITHM];
-    if (mapping.writable || (mapping.source != sourceNone && settings.current.writableRoms)) {
+    if (mapping.isWritable() || (mapping.source != sourceNone && settings.current.writableRoms)) {
       mapping.set(address & PAGE_SIZE_MASK, b);
     }
   }
@@ -337,7 +337,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
 
     for (int i = 0; i < SPECTRUM_ROM_PAGES * PAGES_IN_16K; i++) {
       if (mapRom[i].getPage() != null) {
-        if (currentPageNum != mapRom[i].pageNum) {
+        if (currentPageNum != mapRom[i].getPageNum()) {
           if (currentRom != null) {
             Libspectrum.snapSetRoms(snap, currentRomNum, currentRom);
             Libspectrum.snapSetRomLength(snap, currentRomNum, romLength);
@@ -348,7 +348,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
           romLength = PAGE_SIZE;
           currentRom = new byte[romLength];
           System.arraycopy(mapRom[i].getPage(), 0, currentRom, 0, PAGE_SIZE);
-          currentPageNum = mapRom[i].pageNum;
+          currentPageNum = mapRom[i].getPageNum();
         } else {
           byte[] newRom = new byte[romLength + PAGE_SIZE];
           System.arraycopy(currentRom, 0, newRom, 0, romLength);

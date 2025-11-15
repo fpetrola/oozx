@@ -138,7 +138,7 @@ public class Periph implements IPeriph {
   }
 
   // All peripherals known to the system
-  private Map<Class<? extends ZxPeripheral>, PrivatePeripheral> peripherals = null;
+  private Map<Class<? extends ZxPeripheral>, PrivatePeripheral> peripherals = new HashMap<>();
 
   // List of currently active ports
   private final ObjectArrayList ports = new ObjectArrayList();

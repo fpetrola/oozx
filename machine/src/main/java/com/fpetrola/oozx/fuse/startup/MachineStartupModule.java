@@ -19,15 +19,16 @@
 package com.fpetrola.oozx.fuse.startup;
 
 import com.fpetrola.oozx.Machine;
+import com.fpetrola.oozx.Spectrum;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 
 import java.util.Arrays;
 
 public class MachineStartupModule extends AbstractStartupModule {
   private Machine machine;
-  private SpectrumMachine[] spectrumMachines;
+  private Spectrum[] spectrumMachines;
 
-  public MachineStartupModule(Machine machine, SpectrumMachine... spectrumMachines) {
+  public MachineStartupModule(Machine machine, Spectrum... spectrumMachines) {
     super(MemoryStartupModule.class);
     this.machine = machine;
     this.spectrumMachines = spectrumMachines;

@@ -35,12 +35,12 @@ public class Machine implements ZxModule {
   private Module module;
   private Settings settings;
 
-  public List<SpectrumMachine> getMachineTypes() {
+  public List<Spectrum> getMachineTypes() {
     return machineTypes;
   }
 
-  public List<SpectrumMachine> machineTypes = new ArrayList<>(); // All available machines
-  public SpectrumMachine current; // The currently selected machine
+  public List<Spectrum> machineTypes = new ArrayList<>(); // All available machines
+  public Spectrum current; // The currently selected machine
   private Z80Clock z80Clock;
   private final Spectrum spectrum;
   private UiDisplay uiDisplay;
@@ -59,7 +59,7 @@ public class Machine implements ZxModule {
     this.settings = settings;
   }
 
-  public void addMachine(SpectrumMachine spectrumMachine) {
+  public void addMachine(Spectrum spectrumMachine) {
     machineTypes.add(spectrumMachine);
     setConstTimings(spectrumMachine);
   }
@@ -89,11 +89,18 @@ public class Machine implements ZxModule {
     return 1;
   }
 
-  private int selectMachine(SpectrumMachine machine) {
+  private int selectMachine(Spectrum machine) {
     int width, height;
     int capabilities;
 
+    int spectrumFrameEvent;
+    if (current != null && current.spectrumFrameEvent != -1)
+      spectrumFrameEvent = current.spectrumFrameEvent;
+    else
+      spectrumFrameEvent = spectrum.spectrumFrameEvent;
+
     current = machine;
+    current.init();
 
     settings.setString(settings.current.startMachine, machine.getClass().getSimpleName());
 
@@ -102,7 +109,10 @@ public class Machine implements ZxModule {
     eventManager.reset();
 //        EventManager.eventAdd(0, Timer.event);
     timer.addEvent();
-    eventManager.eventAdd(machine.getTimings().tstatesPerFrame, spectrum.spectrumFrameEvent);
+
+    if (spectrumFrameEvent != 1)
+      System.out.println("ehhh!!!1111");
+    eventManager.eventAdd(machine.getTimings().tstatesPerFrame, spectrumFrameEvent);
 
     Sound.end();
 
@@ -131,62 +141,6 @@ public class Machine implements ZxModule {
 //        Ui.widgetsReset();
 
     return 0;
-  }
-
-  public int loadRomBankFromBuffer(MemoryPage[] bankMap, int pageNum, byte[] buffer, int length, boolean custom) {
-    int offset = 0;
-    int[] data = new int[length];
-
-    for (int i = 0; i < length; i++) {
-      data[i] = buffer[i] & 0xff;
-    }
-    for (MemoryPage page : Arrays.asList(bankMap).subList(pageNum * memory.PAGES_IN_16K, pageNum * memory.PAGES_IN_16K + length / memory.PAGE_SIZE)) {
-      page.offset = offset;
-      page.pageNum = pageNum;
-      page.setPage(data);
-      page.writable = false;
-      page.saveToSnapshot = custom;
-      offset += memory.PAGE_SIZE;
-    }
-
-    return 0;
-  }
-
-  private int loadRomBankFromFile(MemoryPage[] bankMap, int pageNum, String filename, int expectedLength, boolean custom) {
-    Utils.File rom = new Utils.File();
-    int error = Utils.readAuxiliaryFile("roms/" + filename, rom, Utils.AuxiliaryType.ROM);
-    if (error == -1) {
-      Ui.error(UiError.ERROR, "couldn't find ROM '%s'", filename);
-      return 1;
-    }
-    if (error != 0) return error;
-//    rom.buffer = new byte[0x4000];
-//    rom.length = rom.buffer.length;
-
-    if (rom.length != expectedLength) {
-      Ui.error(UiError.ERROR, "ROM '%s' is %d bytes long; expected %d bytes", filename, rom.length, expectedLength);
-      Utils.closeFile(rom);
-      return 1;
-    }
-
-    error = loadRomBankFromBuffer(bankMap, pageNum, rom.buffer, rom.length, custom);
-
-    Utils.closeFile(rom);
-
-    return error;
-  }
-
-  public int loadRomBank(MemoryPage[] bankMap, int pageNum, String filename, String fallback, int expectedLength) {
-    boolean custom = fallback != null && !filename.equals(fallback);
-    int retval = loadRomBankFromFile(bankMap, pageNum, filename, expectedLength, custom);
-    if (retval != 0 && fallback != null && custom) {
-      retval = loadRomBankFromFile(bankMap, pageNum, fallback, expectedLength, false);
-    }
-    return retval;
-  }
-
-  public int loadRom(int pageNum, String filename, String fallback, int expectedLength) {
-    return loadRomBank(memory.mapRom, pageNum, filename, fallback, expectedLength);
   }
 
   public int reset(boolean hardReset) {
@@ -250,9 +204,8 @@ public class Machine implements ZxModule {
   }
 
   public void end() {
-    for (int i = 0; i < machineTypes.size(); i++) {
-      machineTypes.get(i).shutdown();
-    }
+    for (SpectrumMachine machineType : machineTypes)
+      machineType.shutdown();
 
     machineTypes = null;
   }

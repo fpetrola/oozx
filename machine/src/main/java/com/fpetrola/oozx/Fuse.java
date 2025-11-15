@@ -54,9 +54,6 @@ public class Fuse {
   private Timer timer;
   public Z80 z80;
   private StartupManager startupManager;
-
-  public Spectrum spectrum;
-
   public Machine machine;
   public MachinesPeriph machinesPeriph;
   public Spec48 spec48;
@@ -94,18 +91,18 @@ public class Fuse {
     sound = new Sound();
     timer = new Timer(eventManager, spectrumMachineSupplier, sound, settings, tape);
     z80 = new Z80(eventManager, memory, display, ula, spectrumMachineSupplier, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer, () -> getMachine(), module, this, settings, tape);
-    spectrum = new Spectrum(memory, display, eventManager, z80, zxClock, memory, spectrumMachineSupplier, timer, module);
-    machine = new Machine(eventManager, memory, display, ula, zxClock, spectrum, uiDisplay, timer, module, settings);
     machinesPeriph = new MachinesPeriph(ulaPeriph);
-    spec48 = new Spec48(memory, display, machine, machinesPeriph, spectrum, ulaPeriph, settings);
-    spec128 = new Spec128(memory, display, machinesPeriph, spectrum, spec48, ulaPeriph, machine, settings);
     fdd = new Fdd(settings);
     uPDFdc = new UPDFdc(settings);
-    specPlus3 = new SpecPlus3(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph, settings, fdd, uPDFdc);
-    specPlus2 = new SpecPlus2(memory, display, machine, machinesPeriph, spectrum, spec48, spec128, ulaPeriph, settings);
-    specPlus2a = new SpecPlus2A(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph, specPlus3, settings);
-    specPlus3e = new SpecPlus3E(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph, specPlus3, settings);
-    spec48Ntsc = new Spec48Ntsc(memory, display, machine, machinesPeriph, spectrum, spec48, ulaPeriph, settings);
+
+    spec48 = new Spec48(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, memory, spectrumMachineSupplier, timer, module);
+    machine = new Machine(eventManager, memory, display, ula, zxClock, spec48, uiDisplay, timer, module, settings);
+    spec128 = new Spec128(memory, display, machinesPeriph, spec48, ulaPeriph, settings, eventManager, z80, memory, spectrumMachineSupplier, timer, module);
+    specPlus3 = new SpecPlus3(memory, display, machinesPeriph, spec48, ulaPeriph, settings, fdd, uPDFdc, eventManager, z80, memory, spectrumMachineSupplier, timer, module);
+    specPlus2 = new SpecPlus2(memory, display, machinesPeriph, spec48, spec128, ulaPeriph, settings, eventManager, z80, memory, spectrumMachineSupplier, timer, module);
+    specPlus2a = new SpecPlus2A(memory, display, machinesPeriph, spec48, ulaPeriph, specPlus3, settings, eventManager, z80, memory, spectrumMachineSupplier, timer, module);
+    specPlus3e = new SpecPlus3E(memory, display, machinesPeriph, spec48, ulaPeriph, specPlus3, settings, eventManager, z80, memory, spectrumMachineSupplier, timer, module);
+    spec48Ntsc = new Spec48Ntsc(memory, display, machinesPeriph, spec48, ulaPeriph, settings, eventManager, z80, memory, spectrumMachineSupplier, timer, module);
   }
 
   private Machine getMachine() {
@@ -124,7 +121,7 @@ public class Fuse {
         new MachineStartupModule(machine, spec48, spec128, specPlus3, specPlus2, specPlus2a, specPlus3e, spec48Ntsc),
         new MachinesPeriphStartupModule(machine, spec128, specPlus3, periph),
         new MemoryStartupModule(memory, machine, spec128, specPlus3, module),
-        new SpectrumStartupModule(spectrum),
+        new SpectrumStartupModule(spec48),
         new TimerStartupModule(timer),
         new UlaStartupModule(ula),
         new Z80StartupModule(z80)

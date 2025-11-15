@@ -19,20 +19,25 @@
 package com.fpetrola.oozx.fuse.machine;
 
 import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.fuse.modules.Display;
+import com.fpetrola.oozx.fuse.modules.EventManager;
+import com.fpetrola.oozx.fuse.modules.Timer;
+import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
-public class Spec48 extends AbstractSpectrumMachine {
+import java.util.function.Supplier;
+
+public class Spec48 extends Spectrum {
   private final Memory memory;
   private final MachinesPeriph machinesPeriph;
-  public Spectrum spectrum;
   private final IPeriph periph;
 
-  public Spec48(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, IPeriph periph, Settings settings) {
-    super(display, machine, settings, new Spec48RamInfo(spectrum, 3));
+  public Spec48(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
+    super(memory, display, eventManager, z80, z80.zxClock, ramHolder,fuseMachineInfoSupplier, timer, module, settings);
+    ramInfo= new Spec48RamInfo(this, 3);
     this.memory = memory;
     this.machinesPeriph = machinesPeriph;
-    this.spectrum = spectrum;
     this.periph = periph;
   }
 
@@ -50,7 +55,7 @@ public class Spec48 extends AbstractSpectrumMachine {
 
   // Reset the Spectrum 48K machine
   public int reset() {
-    int error = machine.loadRom(0, settings.current.rom48, settings.defaults.rom48, 0x4000);
+    int error = loadRom(0, settings.current.rom48, settings.defaults.rom48, 0x4000);
     if (error != 0) return error;
 
     periph.clear();
@@ -95,7 +100,7 @@ public class Spec48 extends AbstractSpectrumMachine {
   }
 
   public int unattachedPort(int port) {
-    return spectrum.spectrumUnattachedPort();
+    return spectrumUnattachedPort();
   }
 
   @Override

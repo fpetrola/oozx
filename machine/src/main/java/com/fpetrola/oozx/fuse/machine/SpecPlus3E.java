@@ -19,37 +19,28 @@
 package com.fpetrola.oozx.fuse.machine;
 
 import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.fuse.modules.Display;
-import com.fpetrola.oozx.fuse.peripherals.IPeriph;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
+import com.fpetrola.oozx.fuse.modules.EventManager;
+import com.fpetrola.oozx.fuse.modules.Timer;
+import com.fpetrola.oozx.fuse.modules.z80.Z80;
+import com.fpetrola.oozx.fuse.peripherals.*;
 
-public class SpecPlus3E extends AbstractSpectrumMachine {
+import java.util.function.Supplier;
 
-  private Memory memory;
-  private Display display;
+public class SpecPlus3E extends SpecPlus3 {
+
   private MachinesPeriph machinesPeriph;
-  private Spectrum spectrum;
   private Spec48 spec48;
   private IPeriph periph;
-  private SpecPlus3 specPlus3;
 
-  public SpecPlus3E(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph, SpecPlus3 specPlus3, Settings settings) {
-    super(display, machine, settings, new SpecPlus3ERamInfo(8, spectrum, specPlus3));
-    this.memory = memory;
-    this.display = display;
+  public SpecPlus3E(Memory memory, Display display, MachinesPeriph machinesPeriph, Spec48 spec48, IPeriph periph, SpecPlus3 specPlus3, Settings settings, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
+    super(memory, display, machinesPeriph, spec48, periph, settings, specPlus3.fdd, specPlus3.uPDFdc, eventManager, z80, ramHolder, fuseMachineInfoSupplier, timer, module);
+    ramInfo = new SpecPlus3ERamInfo(8, spec48, this);
     this.machinesPeriph = machinesPeriph;
-    this.spectrum = spectrum;
     this.spec48 = spec48;
     this.periph = periph;
-    this.specPlus3 = specPlus3;
     init();
-  }
-
-  // ===================================================================
-  // specplus3e_init() – Configuración mínima (delegada a reset)
-  // ===================================================================
-  private void init() {
-    // Configuración en reset() según tu estilo
   }
 
   // ===================================================================
@@ -59,23 +50,23 @@ public class SpecPlus3E extends AbstractSpectrumMachine {
     int error;
 
     // Cargar ROM 0 (0x0000-0x3FFF)
-    error = machine.loadRom(0, settings.current.romPlus3e0, settings.defaults.romPlus3e0, 0x4000);
+    error = loadRom(0, settings.current.romPlus3e0, settings.defaults.romPlus3e0, 0x4000);
     if (error != 0) return error;
 
     // Cargar ROM 1 (0x4000-0x7FFF)
-    error = machine.loadRom(1, settings.current.romPlus3e1, settings.defaults.romPlus3e1, 0x4000);
+    error = loadRom(1, settings.current.romPlus3e1, settings.defaults.romPlus3e1, 0x4000);
     if (error != 0) return error;
 
     // Cargar ROM 2 (0x8000-0xBFFF)
-    error = machine.loadRom(2, settings.current.romPlus3e2, settings.defaults.romPlus3e2, 0x4000);
+    error = loadRom(2, settings.current.romPlus3e2, settings.defaults.romPlus3e2, 0x4000);
     if (error != 0) return error;
 
     // Cargar ROM 3 (0xC000-0xFFFF)
-    error = machine.loadRom(3, settings.current.romPlus3e3, settings.defaults.romPlus3e3, 0x4000);
+    error = loadRom(3, settings.current.romPlus3e3, settings.defaults.romPlus3e3, 0x4000);
     if (error != 0) return error;
 
     // Reset común de +2A/+3
-    error = specPlus3.plus2aCommonReset();
+    error = plus2aCommonReset();
     if (error != 0) return error;
 
     // Limpiar y configurar periféricos +3
@@ -88,8 +79,8 @@ public class SpecPlus3E extends AbstractSpectrumMachine {
     periph.update();
 
     // Reset FDC y menús
-    specPlus3.specplus3765Reset();
-    specPlus3.specplus3MenuItems();
+    specplus3765Reset();
+    specplus3MenuItems();
 
     // Configurar pantalla como en 48K
     spec48.commonDisplaySetup();
@@ -98,15 +89,15 @@ public class SpecPlus3E extends AbstractSpectrumMachine {
   }
 
   public int unattachedPort(int port) {
-    return spectrum.unattachedPortAmstrad(port);
+    return unattachedPortAmstrad(port);
   }
 
   public void memoryMap() {
-    specPlus3.memoryMap();
+    super.memoryMap();
   }
 
   public void shutdown() {
-    specPlus3.shutdown();
+    super.shutdown();
   }
 
   public String getName() {

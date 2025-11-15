@@ -18,16 +18,14 @@
 
 package com.fpetrola.oozx;
 
-import java.util.Arrays;
-
 // Supporting classes and enums
 public class MemoryPage {
   //  private byte[] page; // The data for this page
-  public boolean writable; // Can we write to this data?
+  private boolean writable; // Can we write to this data?
   public boolean contended; // Are reads/writes to this page contended?
   public int source; // Where did this page come from?
   boolean saveToSnapshot; // Should this page be saved to snapshots?
-  public int pageNum; // Which page from the source
+  private int pageNum; // Which page from the source
   public int offset; // How far into the page this chunk starts
   private int[] page;
 
@@ -60,5 +58,20 @@ public class MemoryPage {
 
   public int[] getPage() {
     return page;
+  }
+
+  public boolean isWritable() {
+    return writable;
+  }
+
+  public void setWritable(boolean writable) {
+    this.writable = writable;
+  }
+
+  public void setPageNum(int pageNum) {
+    this.pageNum = pageNum;
+    if (page == null) {
+      int a = 1;
+    }
   }
 }

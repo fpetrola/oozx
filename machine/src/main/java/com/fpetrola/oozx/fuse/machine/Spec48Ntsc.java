@@ -19,34 +19,39 @@
 package com.fpetrola.oozx.fuse.machine;
 
 import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.fuse.modules.Display;
+import com.fpetrola.oozx.fuse.modules.EventManager;
+import com.fpetrola.oozx.fuse.modules.Timer;
+import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
-public class Spec48Ntsc extends AbstractSpectrumMachine {
+import java.util.function.Supplier;
+
+public class Spec48Ntsc extends Spectrum {
   private final Memory memory;
   private final MachinesPeriph machinesPeriph;
-  private final Spectrum spectrum;
   private final Spec48 spec48;
   private final IPeriph periph;
 
-  public Spec48Ntsc(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph, Settings settings) {
-    super(display, machine, settings, new Spec48NtscRamInfo(3, spectrum));
+  public Spec48Ntsc(Memory memory, Display display, MachinesPeriph machinesPeriph, Spec48 spec48, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
+    super(memory, display, eventManager, z80, z80.zxClock, ramHolder, fuseMachineInfoSupplier, timer, module, settings, null);
+    this.ramInfo=  new Spec48NtscRamInfo(3, this);
     this.memory = memory;
     this.machinesPeriph = machinesPeriph;
-    this.spectrum = spectrum;
     this.spec48 = spec48;
     this.periph = periph;
     init();
   }
 
-  private void init() {
+  public void init() {
   }
 
   public int reset() {
     int error;
 
     // Cargar ROM 0 (0x0000-0x3FFF)
-    error = machine.loadRom(0, settings.current.rom48, settings.defaults.rom48, 0x4000);
+    error = loadRom(0, settings.current.rom48, settings.defaults.rom48, 0x4000);
     if (error != 0) return error;
 
     // Limpiar y configurar periféricos 48K
@@ -87,7 +92,7 @@ public class Spec48Ntsc extends AbstractSpectrumMachine {
   }
 
   public int unattachedPort(int port) {
-    return spectrum.spectrumUnattachedPort();
+    return spectrumUnattachedPort();
   }
 
   public void memoryMap() {

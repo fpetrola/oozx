@@ -452,7 +452,7 @@ public class Z80 implements ZxModule {
       public void onModelChanged(String model) {
         changeMachine = () -> {
           Machine machine1 = machine.get();
-          List<SpectrumMachine> machineTypes = machine1.getMachineTypes();
+          List<Spectrum> machineTypes = machine1.getMachineTypes();
 
           machineTypes.stream().filter(m -> m.getName().equals(model)).forEach(m -> {
             machine1.select(m);

@@ -18,15 +18,18 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.machine.AbstractSpectrumMachine;
 import com.fpetrola.oozx.fuse.machine.MachineTimings;
+import com.fpetrola.oozx.fuse.machine.RamInfo;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.*;
 import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.z80.cpu.Z80Clock;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 
-public class Spectrum implements ZxModule {
+public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModule {
   private Memory memory;
   private Display display;
   private EventManager eventManager;
@@ -37,13 +40,14 @@ public class Spectrum implements ZxModule {
   private final int[] contentionPattern65432100 = {5, 4, 3, 2, 1, 0, 0, 6};
   private final int[] contentionPattern76543210 = {5, 4, 3, 2, 1, 0, 7, 6};
 
-  public int spectrumFrameEvent;
+  public int spectrumFrameEvent = -1;
   private long framesSinceReset;
   private Timer timer;
   private Module module;
   private int[][] ram;
 
-  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, Z80Clock z80Clock, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
+  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, Z80Clock z80Clock, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module, Settings settings1, RamInfo ramInfo1) {
+    super(display, settings1, ramInfo1);
     this.memory = memory;
     this.display = display;
     this.eventManager = eventManager;
@@ -53,6 +57,69 @@ public class Spectrum implements ZxModule {
     this.timer = timer;
     this.module = module;
     this.ram = ramHolder.getRAM();
+  }
+
+  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, Z80Clock z80Clock, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module, Settings settings1) {
+    this(memory, display, eventManager, z80, z80Clock, ramHolder, fuseMachineInfoSupplier, timer, module, settings1, null);
+  }
+
+  protected void init() {
+  }
+
+  public int loadRomBankFromBuffer(MemoryPage[] bankMap, int pageNum, byte[] buffer, int length, boolean custom) {
+    int offset = 0;
+    int[] data = new int[length];
+
+    for (int i = 0; i < length; i++) {
+      data[i] = buffer[i] & 0xff;
+    }
+    for (MemoryPage page : Arrays.asList(bankMap).subList(pageNum * memory.PAGES_IN_16K, pageNum * memory.PAGES_IN_16K + length / memory.PAGE_SIZE)) {
+      page.offset = offset;
+      page.setPage(data);
+      page.setPageNum(pageNum);
+      page.saveToSnapshot = custom;
+      page.setWritable(false);
+      offset += memory.PAGE_SIZE;
+    }
+
+    return 0;
+  }
+
+  int loadRomBankFromFile(MemoryPage[] bankMap, int pageNum, String filename, int expectedLength, boolean custom) {
+    Utils.File rom = new Utils.File();
+    int error = Utils.readAuxiliaryFile("roms/" + filename, rom, Utils.AuxiliaryType.ROM);
+    if (error == -1) {
+      Ui.error(UiError.ERROR, "couldn't find ROM '%s'", filename);
+      return 1;
+    }
+    if (error != 0) return error;
+//    rom.buffer = new byte[0x4000];
+//    rom.length = rom.buffer.length;
+
+    if (rom.length != expectedLength) {
+      Ui.error(UiError.ERROR, "ROM '%s' is %d bytes long; expected %d bytes", filename, rom.length, expectedLength);
+      Utils.closeFile(rom);
+      return 1;
+    }
+
+    error = loadRomBankFromBuffer(bankMap, pageNum, rom.buffer, rom.length, custom);
+
+    Utils.closeFile(rom);
+
+    return error;
+  }
+
+  public int loadRomBank(MemoryPage[] bankMap, int pageNum, String filename, String fallback, int expectedLength) {
+    boolean custom = fallback != null && !filename.equals(fallback);
+    int retval = loadRomBankFromFile(bankMap, pageNum, filename, expectedLength, custom);
+    if (retval != 0 && fallback != null && custom) {
+      retval = loadRomBankFromFile(bankMap, pageNum, fallback, expectedLength, false);
+    }
+    return retval;
+  }
+
+  public int loadRom(int pageNum, String filename, String fallback, int expectedLength) {
+    return loadRomBank(memory.mapRom, pageNum, filename, fallback, expectedLength);
   }
 
   public void spectrumReset(int a) {

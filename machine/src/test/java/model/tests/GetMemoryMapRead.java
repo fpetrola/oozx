@@ -31,7 +31,7 @@ public class GetMemoryMapRead implements EmulatorCommand {
 
   public Object execute(LibretroCore core) {
     MemoryPage memoryPage = new MemoryPage();
-    memoryPage.pageNum= core.retro_get_memory_map_read_page_num(i);
+    memoryPage.setPageNum(core.retro_get_memory_map_read_page_num(i));
     memoryPage.source= core.retro_get_memory_map_read_source(i);
     return memoryPage;
   }

@@ -19,20 +19,26 @@
 package com.fpetrola.oozx.fuse.machine;
 
 import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.fuse.modules.Display;
+import com.fpetrola.oozx.fuse.modules.EventManager;
+import com.fpetrola.oozx.fuse.modules.Timer;
+import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
+import com.fpetrola.oozx.fuse.peripherals.Spec128MemoryPeripheral;
 
-public class SpecPlus2 extends AbstractSpectrumMachine {
+import java.util.function.Supplier;
+
+public class SpecPlus2 extends Spec128 {
   private MachinesPeriph machinesPeriph;
-  private Spectrum spectrum;
   private Spec48 spec48;
   private Spec128 spec128;
   private IPeriph periph;
 
-  public SpecPlus2(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, Spec128 spec128, IPeriph periph, Settings settings) {
-    super(display, machine, settings, new SpecPlus2RamInfo(8, spec48, spectrum));
+  public SpecPlus2(Memory memory, Display display, MachinesPeriph machinesPeriph, Spec48 spec48, Spec128 spec128, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
+    super(memory, display, machinesPeriph, spec48, periph, settings, eventManager, z80, ramHolder, fuseMachineInfoSupplier, timer, module);
+    ramInfo = new SpecPlus2RamInfo(8, spec48, this);
     this.machinesPeriph = machinesPeriph;
-    this.spectrum = spectrum;
     this.spec48 = spec48;
     this.spec128 = spec128;
     this.periph = periph;
@@ -42,7 +48,8 @@ public class SpecPlus2 extends AbstractSpectrumMachine {
   // ===================================================================
   // specplus2_init() – Configura la máquina +2
   // ===================================================================
-  private void init() {
+  public void init() {
+    periph.register(new Spec128MemoryPeripheral(this));
   }
 
   // ===================================================================
@@ -52,11 +59,11 @@ public class SpecPlus2 extends AbstractSpectrumMachine {
     int error;
 
     // Cargar ROM 0 (0x0000-0x3FFF)
-    error = machine.loadRom(0, settings.current.romPlus20, settings.defaults.romPlus20, 0x4000);
+    error = loadRom(0, settings.current.romPlus20, settings.defaults.romPlus20, 0x4000);
     if (error != 0) return error;
 
     // Cargar ROM 1 (0x4000-0x7FFF)
-    error = machine.loadRom(1, settings.current.romPlus21, settings.defaults.romPlus21, 0x4000);
+    error = loadRom(1, settings.current.romPlus21, settings.defaults.romPlus21, 0x4000);
     if (error != 0) return error;
 
     // Reset común de 128K (con RAM lock = 1)
@@ -79,7 +86,7 @@ public class SpecPlus2 extends AbstractSpectrumMachine {
 
   @Override
   public void memoryMap() {
-    spec128.memoryMap();
+    super.memoryMap();
   }
 
   // ===================================================================
@@ -116,7 +123,7 @@ public class SpecPlus2 extends AbstractSpectrumMachine {
   // ===================================================================
   @Override
   public int unattachedPort(int port) {
-    return spectrum.spectrumUnattachedPort();
+    return spectrumUnattachedPort();
   }
 
   @Override

@@ -19,34 +19,45 @@
 package com.fpetrola.oozx.fuse.machine;
 
 import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.fuse.modules.Display;
-import com.fpetrola.oozx.fuse.peripherals.IPeriph;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
+import com.fpetrola.oozx.fuse.modules.EventManager;
+import com.fpetrola.oozx.fuse.modules.Timer;
+import com.fpetrola.oozx.fuse.modules.z80.Z80;
+import com.fpetrola.oozx.fuse.peripherals.*;
 import com.fpetrola.z80.helpers.Helper;
 
-public class SpecPlus3 extends AbstractSpectrumMachine {
+import java.util.function.Supplier;
+
+public class SpecPlus3 extends Spec128 {
   private Memory memory;
   private UPDFdc specplus3Fdc;
   private Display display;
   private MachinesPeriph machinesPeriph;
-  private Spectrum spectrum;
   private Spec48 spec48;
   private IPeriph periph;
-  private Fdd fdd;
-  private UPDFdc uPDFdc;
+  public Fdd fdd;
+  public UPDFdc uPDFdc;
 
-  public SpecPlus3(Memory memory, Display display, Machine machine, MachinesPeriph machinesPeriph, Spectrum spectrum, Spec48 spec48, IPeriph periph, Settings settings, Fdd fdd, UPDFdc uPDFdc) {
-    super(display, machine, settings, new SpecPlus3RamInfo(8, spectrum));
+  public SpecPlus3(Memory memory, Display display, MachinesPeriph machinesPeriph, Spec48 spec48, IPeriph periph, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
+    super(memory, display, machinesPeriph, spec48, periph, settings, eventManager, z80, ramHolder, fuseMachineInfoSupplier, timer, module);
+    ramInfo= new SpecPlus3RamInfo(8, this);
     this.memory = memory;
     this.display = display;
     this.machinesPeriph = machinesPeriph;
-    this.spectrum = spectrum;
     this.spec48 = spec48;
     this.periph = periph;
     this.fdd = fdd;
     this.uPDFdc = uPDFdc;
     specplus3765Init();
     specplus3MenuItems();
+  }
+
+  @Override
+  protected void init() {
+    periph.register(new Spec128MemoryPeripheral(this));
+    periph.register(new SpecPlus3MemoryPeripheral(this));
+    periph.register(new Upd765Peripheral(this));
   }
 
   public Fdd[] specplus3Drives = new Fdd[SpecPlus3Constants.SPECPLUS3_NUM_DRIVES];
@@ -113,13 +124,13 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
 
   // Reset the Spectrum +3 machine
   public int reset() {
-    int error = machine.loadRom(0, settings.current.romPlus30, settings.defaults.romPlus30, 0x4000);
+    int error = loadRom(0, settings.current.romPlus30, settings.defaults.romPlus30, 0x4000);
     if (error != 0) return error;
-    error = machine.loadRom(1, settings.current.romPlus31, settings.defaults.romPlus31, 0x4000);
+    error = loadRom(1, settings.current.romPlus31, settings.defaults.romPlus31, 0x4000);
     if (error != 0) return error;
-    error = machine.loadRom(2, settings.current.romPlus32, settings.defaults.romPlus32, 0x4000);
+    error = loadRom(2, settings.current.romPlus32, settings.defaults.romPlus32, 0x4000);
     if (error != 0) return error;
-    error = machine.loadRom(3, settings.current.romPlus33, settings.defaults.romPlus33, 0x4000);
+    error = loadRom(3, settings.current.romPlus33, settings.defaults.romPlus33, 0x4000);
     if (error != 0) return error;
 
     error = plus2aCommonReset();
@@ -207,7 +218,7 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
 
   // Write to the +3 memory port 2 (0x1FFD)
   public void memoryPort2WriteInternal(int port, byte b) {
-    boolean b1 = (machine.current.getCapabilities() & Libspectrum.MachineCapability.PLUS3_DISK) != 0;
+    boolean b1 = (getCapabilities() & Libspectrum.MachineCapability.PLUS3_DISK) != 0;
     b1 = true;
     if (b1) {
       fdd.motorOn(specplus3Drives[0], (b & 0x08) != 0);
@@ -216,7 +227,7 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
 
     getCurrentRamInfo().lastByte2 = b;
 
-    machine.current.memoryMap();
+    memoryMap();
   }
 
   public void memoryPort2Write(int port, byte b) {
@@ -298,7 +309,7 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
 
   // Check if drive is available
   private boolean uiDriveIsAvailable() {
-    return (machine.current.getCapabilities() & Libspectrum.MachineCapability.PLUS3_DISK) != 0;
+    return (getCapabilities() & Libspectrum.MachineCapability.PLUS3_DISK) != 0;
   }
 
 //  // Get parameters for drive A
@@ -357,7 +368,7 @@ public class SpecPlus3 extends AbstractSpectrumMachine {
   }
 
   public int unattachedPort(int port) {
-    return spectrum.spectrumUnattachedPortNone();
+    return spectrumUnattachedPortNone();
   }
 
   public TimingsHandler.Timings getBaseTiming() {

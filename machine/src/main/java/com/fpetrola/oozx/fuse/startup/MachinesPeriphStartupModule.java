@@ -42,7 +42,7 @@ public class MachinesPeriphStartupModule extends AbstractStartupModule {
 
   public int initFn(Object initContext) {
     periph.register(new Spec128MemoryPeripheral(spec128));
-    periph.register(new SpecPlus3MemoryPeripheral(spec128, specPlus3));
+    periph.register(new SpecPlus3MemoryPeripheral(specPlus3));
     periph.register(new Upd765Peripheral(specPlus3));
     periph.register(new SeMemoryPeripheral(machine));
     return 0;

@@ -269,9 +269,9 @@ public class FuseUnitTests extends FuseBaseForTests {
       MemoryPage r = memory.mapRead[baseIdx + i];
       MemoryPage w = memory.mapWrite[baseIdx + i];
       assertEquals(source, r.source);
-      assertEquals(page, r.pageNum);
+      assertEquals(page, r.getPageNum());
       assertEquals(source, w.source);
-      assertEquals(page, w.pageNum);
+      assertEquals(page, w.getPageNum());
     }
     return 0;
   }

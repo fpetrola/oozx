@@ -19,20 +19,17 @@
 package com.fpetrola.oozx.fuse.machine;
 
 import com.fpetrola.oozx.Libspectrum;
-import com.fpetrola.oozx.Machine;
 import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.fuse.modules.Display;
 
 public abstract class AbstractSpectrumMachine implements SpectrumMachine {
-  protected final Machine machine;
   protected final MachineTimings timings = new MachineTimings(); // How long do things take to happen?
   protected final long[] lineTimes; // Redraw line y this many tstates after interrupt
   protected final Settings settings;
-  protected final RamInfo ramInfo;
+  protected RamInfo ramInfo;
 
-  public AbstractSpectrumMachine(Display display, Machine machine, Settings settings, RamInfo ramInfo) {
+  public AbstractSpectrumMachine(Display display, Settings settings, RamInfo ramInfo) {
     lineTimes = new long[display.SCREEN_HEIGHT + 1];
-    this.machine = machine;
     this.settings = settings;
     this.ramInfo = ramInfo;
   }
@@ -55,6 +52,6 @@ public abstract class AbstractSpectrumMachine implements SpectrumMachine {
   }
 
   protected RamInfo getCurrentRamInfo() {
-    return machine.current.getRamInfo();
+    return getRamInfo();
   }
 }

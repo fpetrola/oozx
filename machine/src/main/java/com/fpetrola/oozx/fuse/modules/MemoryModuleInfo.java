@@ -60,7 +60,7 @@ public class MemoryModuleInfo implements ZXModuleInfo {
       for (int i = 0; i < Libspectrum.snapCustomRomPages(snap) && i < 4; i++) {
         byte[] rom = Libspectrum.snapRoms(snap, i);
         if (rom != null) {
-          machine.loadRomBankFromBuffer(memory.mapRom, i, rom, Libspectrum.snapRomLength(snap, i), true);
+          spec128.loadRomBankFromBuffer(memory.mapRom, i, rom, Libspectrum.snapRomLength(snap, i), true);
         }
       }
     }

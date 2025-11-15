@@ -265,12 +265,12 @@ public class LocalLibretroCore implements LibretroCore {
 
   @Override
   public int retro_get_memory_map_read_page_num(int index) {
-    return fuse.memory.mapRead[index].pageNum;
+    return fuse.memory.mapRead[index].getPageNum();
   }
 
   @Override
   public int retro_get_memory_map_write_page_num(int index) {
-    return fuse.memory.mapWrite[index].pageNum;
+    return fuse.memory.mapWrite[index].getPageNum();
   }
 
   @Override
