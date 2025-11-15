@@ -27,19 +27,17 @@ import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.*;
 import com.fpetrola.z80.helpers.Helper;
 
-import java.util.function.Supplier;
-
 public class SpecPlus3 extends Spec128 {
-  private Memory memory;
+  private final Memory memory;
   private UPDFdc specplus3Fdc;
-  private Display display;
-  private MachinesPeriph machinesPeriph;
-  private IPeriph periph;
+  private final Display display;
+  private final MachinesPeriph machinesPeriph;
+  private final IPeriph periph;
   public Fdd fdd;
   public UPDFdc uPDFdc;
 
-  public SpecPlus3(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
-    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, ramHolder, fuseMachineInfoSupplier, timer, module);
+  public SpecPlus3(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Z80 z80, Timer timer, Module module) {
+    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module);
     ramInfo= new SpecPlus3RamInfo(8, this);
     this.memory = memory;
     this.display = display;

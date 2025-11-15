@@ -27,18 +27,14 @@ import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.Spec128MemoryPeripheral;
 
-import java.util.function.Supplier;
-
 public class SpecPlus2 extends Spec128 {
   private MachinesPeriph machinesPeriph;
-  private Spec128 spec128;
   private IPeriph periph;
 
-  public SpecPlus2(Memory memory, Display display, MachinesPeriph machinesPeriph, Spec128 spec128, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
-    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, ramHolder, fuseMachineInfoSupplier, timer, module);
+  public SpecPlus2(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module) {
+    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module);
     ramInfo = new SpecPlus2RamInfo(8, this);
     this.machinesPeriph = machinesPeriph;
-    this.spec128 = spec128;
     this.periph = periph;
     init();
   }
@@ -65,7 +61,7 @@ public class SpecPlus2 extends Spec128 {
     if (error != 0) return error;
 
     // Reset común de 128K (con RAM lock = 1)
-    error = spec128.commonReset(true);
+    error = commonReset(true);
     if (error != 0) return error;
 
     // Limpiar y configurar periféricos 128K

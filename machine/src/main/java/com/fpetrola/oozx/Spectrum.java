@@ -27,40 +27,37 @@ import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.Arrays;
-import java.util.function.Supplier;
 
 public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModule {
-  private Memory memory;
-  private Display display;
-  private EventManager eventManager;
-  private Z80 z80;
+  private final Memory memory;
+  private final Display display;
+  private final EventManager eventManager;
+  private final Z80 z80;
   private Z80Clock z80Clock;
-  private Supplier<SpectrumMachine> fuseMachineInfoSupplier;
 
   private final int[] contentionPattern65432100 = {5, 4, 3, 2, 1, 0, 0, 6};
   private final int[] contentionPattern76543210 = {5, 4, 3, 2, 1, 0, 7, 6};
 
   public int spectrumFrameEvent = -1;
   private long framesSinceReset;
-  private Timer timer;
-  private Module module;
-  private int[][] ram;
+  private final Timer timer;
+  private final Module module;
+  private final int[][] ram;
 
-  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, Z80Clock z80Clock, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module, Settings settings1, RamInfo ramInfo1) {
+  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, Timer timer, Module module, Settings settings1, RamInfo ramInfo1) {
     super(display, settings1, ramInfo1);
     this.memory = memory;
     this.display = display;
     this.eventManager = eventManager;
     this.z80 = z80;
-    this.z80Clock = z80Clock;
-    this.fuseMachineInfoSupplier = fuseMachineInfoSupplier;
+    this.z80Clock = z80.zxClock;
     this.timer = timer;
     this.module = module;
-    this.ram = ramHolder.getRAM();
+    this.ram = memory.getRAM();
   }
 
-  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, Z80Clock z80Clock, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module, Settings settings1) {
-    this(memory, display, eventManager, z80, z80Clock, ramHolder, fuseMachineInfoSupplier, timer, module, settings1, null);
+  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, Timer timer, Module module, Settings settings1) {
+    this(memory, display, eventManager, z80, timer, module, settings1, null);
   }
 
   protected void init() {
@@ -150,7 +147,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   }
 
   public void spectrumFrame() {
-    int frameLength = getCurrent().getTimings().tstatesPerFrame;
+    int frameLength = this.getTimings().tstatesPerFrame;
 
     eventManager.eventFrame(frameLength);
     z80Clock.addTStates(-frameLength);
@@ -163,7 +160,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
 
     if (display.frame() != 0) return;
 
-    eventManager.eventAdd(getCurrent().getTimings().tstatesPerFrame, spectrumFrameEvent);
+    eventManager.eventAdd(this.getTimings().tstatesPerFrame, spectrumFrameEvent);
 
     PhantomTypist.frame();
 
@@ -175,7 +172,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   }
 
   private int contendDelayCommon(long time, int[] timings, int offset) {
-    SpectrumMachine spectrumMachine = getCurrent();
+    SpectrumMachine spectrumMachine = this;
 
     int line = (int) ((time - spectrumMachine.getLineTimes()[0]) / spectrumMachine.getTimings().tstatesPerLine);
 
@@ -195,10 +192,6 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
     return timings[tstatesThroughLine % 8];
   }
 
-  private SpectrumMachine getCurrent() {
-    return fuseMachineInfoSupplier.get();
-  }
-
   public int contendDelay65432100(long time) {
     return contendDelayCommon(time, contentionPattern65432100, 1);
   }
@@ -208,7 +201,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   }
 
   public int spectrumUnattachedPort() {
-    SpectrumMachine spectrumMachine = getCurrent();
+    SpectrumMachine spectrumMachine = this;
     MachineTimings timings = spectrumMachine.getTimings();
     long[] lineTimes = spectrumMachine.getLineTimes();
 
@@ -262,7 +255,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
    *   - Sidewize (+2A/+3 fix)
    */
   public byte unattachedPortAmstrad(int port) {
-    SpectrumMachine spectrumMachine = getCurrent();
+    SpectrumMachine spectrumMachine = this;
 
     int game = 1; // 1 = modo "juego" (devuelve 0xFF en idle), 0 = modo "emulación precisa"
     int line;

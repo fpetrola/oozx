@@ -26,19 +26,15 @@ import com.fpetrola.oozx.fuse.modules.Timer;
 import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
-import java.util.function.Supplier;
-
 public class SpecPlus2A extends SpecPlus3 {
   private MachinesPeriph machinesPeriph;
   private IPeriph periph;
-  private SpecPlus3 specPlus3;
 
-  public SpecPlus2A(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, SpecPlus3 specPlus3, Settings settings, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
-    super(memory, display, machinesPeriph, periph, settings, specPlus3.fdd, specPlus3.uPDFdc, eventManager, z80, ramHolder, fuseMachineInfoSupplier, timer, module);
+  public SpecPlus2A(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module, Fdd fdd1, UPDFdc uPDFdc1) {
+    super(memory, display, machinesPeriph, periph, settings, fdd1, uPDFdc1, eventManager, z80, timer, module);
     ramInfo= new SpecPlus2ARamInfo(8, this);
     this.machinesPeriph = machinesPeriph;
     this.periph = periph;
-    this.specPlus3 = specPlus3;
     init();
   }
 
@@ -65,7 +61,7 @@ public class SpecPlus2A extends SpecPlus3 {
     if (error != 0) return error;
 
     // Reset común de +2A/+3
-    error = specPlus3.plus2aCommonReset();
+    error = plus2aCommonReset();
     if (error != 0) return error;
 
     // Limpiar y configurar periféricos +3

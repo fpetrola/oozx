@@ -26,15 +26,13 @@ import com.fpetrola.oozx.fuse.modules.Timer;
 import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.*;
 
-import java.util.function.Supplier;
-
 public class SpecPlus3E extends SpecPlus3 {
 
   private MachinesPeriph machinesPeriph;
   private IPeriph periph;
 
-  public SpecPlus3E(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, SpecPlus3 specPlus3, Settings settings, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
-    super(memory, display, machinesPeriph, periph, settings, specPlus3.fdd, specPlus3.uPDFdc, eventManager, z80, ramHolder, fuseMachineInfoSupplier, timer, module);
+  public SpecPlus3E(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module, Fdd fdd1, UPDFdc uPDFdc1) {
+    super(memory, display, machinesPeriph, periph, settings, fdd1, uPDFdc1, eventManager, z80, timer, module);
     this.machinesPeriph = machinesPeriph;
     this.periph = periph;
     init();

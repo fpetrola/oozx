@@ -26,15 +26,13 @@ import com.fpetrola.oozx.fuse.modules.Timer;
 import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
-import java.util.function.Supplier;
-
 public class Spec48 extends Spectrum {
   private final Memory memory;
   private final MachinesPeriph machinesPeriph;
   private final IPeriph periph;
 
-  public Spec48(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
-    super(memory, display, eventManager, z80, z80.zxClock, ramHolder,fuseMachineInfoSupplier, timer, module, settings);
+  public Spec48(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module) {
+    super(memory, display, eventManager, z80, timer, module, settings);
     ramInfo= new Spec48RamInfo(this, 3);
     this.memory = memory;
     this.machinesPeriph = machinesPeriph;
