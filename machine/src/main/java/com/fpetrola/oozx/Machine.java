@@ -170,7 +170,7 @@ public class Machine implements ZxModule {
     current.memoryMap();
 //        if (error != 0) return error;
 
-    for (int i = 0; i < (int) current.getTimings().tstatesPerFrame; i++) {
+    for (int i = 0; i < current.getTimings().tstatesPerFrame; i++) {
       ula.contention[i] = (byte) current.getRamInfo().contendDelay(i);
       ula.contentionNoMreq[i] = (byte) current.getRamInfo().contendDelayNoMreq(i);
     }

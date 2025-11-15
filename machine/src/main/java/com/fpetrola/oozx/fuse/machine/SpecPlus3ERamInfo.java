@@ -18,18 +18,14 @@
 
 package com.fpetrola.oozx.fuse.machine;
 
-import com.fpetrola.oozx.Spectrum;
-
 // ===================================================================
 // RamInfo para +3e
 // ===================================================================
 class SpecPlus3ERamInfo extends RamInfo {
   private SpecPlus3 specPlus3;
-  private Spectrum spectrum;
 
-  public SpecPlus3ERamInfo(int validPages, Spectrum spectrum, SpecPlus3 specPlus3) {
+  public SpecPlus3ERamInfo(int validPages, SpecPlus3 specPlus3) {
     this.validPages = validPages;
-    this.spectrum = spectrum;
     this.specPlus3 = specPlus3;
   }
 
@@ -38,10 +34,10 @@ class SpecPlus3ERamInfo extends RamInfo {
   }
 
   public int contendDelay(long time) {
-    return spectrum.contendDelay76543210(time);
+    return specPlus3.contendDelay76543210(time);
   }
 
   public int contendDelayNoMreq(long time) {
-    return spectrum.contendDelayNone(time);
+    return specPlus3.contendDelayNone(time);
   }
 }

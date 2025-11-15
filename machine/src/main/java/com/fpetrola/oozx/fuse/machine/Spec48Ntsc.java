@@ -28,18 +28,16 @@ import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 import java.util.function.Supplier;
 
-public class Spec48Ntsc extends Spectrum {
+public class Spec48Ntsc extends Spec48 {
   private final Memory memory;
   private final MachinesPeriph machinesPeriph;
-  private final Spec48 spec48;
   private final IPeriph periph;
 
-  public Spec48Ntsc(Memory memory, Display display, MachinesPeriph machinesPeriph, Spec48 spec48, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
-    super(memory, display, eventManager, z80, z80.zxClock, ramHolder, fuseMachineInfoSupplier, timer, module, settings, null);
-    this.ramInfo=  new Spec48NtscRamInfo(3, this);
+  public Spec48Ntsc(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
+    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, ramHolder, fuseMachineInfoSupplier, timer, module);
+    this.ramInfo = new Spec48NtscRamInfo(3, this);
     this.memory = memory;
     this.machinesPeriph = machinesPeriph;
-    this.spec48 = spec48;
     this.periph = periph;
     init();
   }
@@ -64,10 +62,10 @@ public class Spec48Ntsc extends Spectrum {
     memory.screenMask = 0xFFFF;
 
     // Configurar pantalla como en 48K
-    spec48.commonDisplaySetup();
+//    spec48.commonDisplaySetup();
 
     // Reset común de 48K
-    return spec48.commonReset();
+    return commonReset();
   }
 
   private static class Spec48NtscRamInfo extends RamInfo {
@@ -96,7 +94,7 @@ public class Spec48Ntsc extends Spectrum {
   }
 
   public void memoryMap() {
-    spec48.memoryMap();
+    super.memoryMap();
   }
 
   public String getName() {

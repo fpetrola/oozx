@@ -31,15 +31,13 @@ import java.util.function.Supplier;
 
 public class SpecPlus2 extends Spec128 {
   private MachinesPeriph machinesPeriph;
-  private Spec48 spec48;
   private Spec128 spec128;
   private IPeriph periph;
 
-  public SpecPlus2(Memory memory, Display display, MachinesPeriph machinesPeriph, Spec48 spec48, Spec128 spec128, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
-    super(memory, display, machinesPeriph, spec48, periph, settings, eventManager, z80, ramHolder, fuseMachineInfoSupplier, timer, module);
-    ramInfo = new SpecPlus2RamInfo(8, spec48, this);
+  public SpecPlus2(Memory memory, Display display, MachinesPeriph machinesPeriph, Spec128 spec128, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
+    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, ramHolder, fuseMachineInfoSupplier, timer, module);
+    ramInfo = new SpecPlus2RamInfo(8, this);
     this.machinesPeriph = machinesPeriph;
-    this.spec48 = spec48;
     this.spec128 = spec128;
     this.periph = periph;
     init();
@@ -79,7 +77,7 @@ public class SpecPlus2 extends Spec128 {
     Beta.builtin = false;
 
     // Configurar pantalla como en 48K
-    spec48.commonDisplaySetup();
+//    spec48.commonDisplaySetup();
 
     return 0;
   }
@@ -93,18 +91,16 @@ public class SpecPlus2 extends Spec128 {
   // RamInfo para +2
   // ===================================================================
   private static class SpecPlus2RamInfo extends RamInfo {
-    private Spec48 spec48;
     private Spectrum spectrum;
 
-    public SpecPlus2RamInfo(int validPages, Spec48 spec48, Spectrum spectrum) {
-      this.spec48 = spec48;
+    public SpecPlus2RamInfo(int validPages, Spectrum spectrum) {
       this.spectrum = spectrum;
       this.validPages = validPages;
     }
 
     @Override
     public boolean portFromUla(int port) {
-      return spec48.portFromUla(port);
+      return Spec48.portFromUlaStatic(port);
     }
 
     @Override

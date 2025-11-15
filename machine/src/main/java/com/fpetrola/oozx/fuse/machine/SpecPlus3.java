@@ -34,18 +34,16 @@ public class SpecPlus3 extends Spec128 {
   private UPDFdc specplus3Fdc;
   private Display display;
   private MachinesPeriph machinesPeriph;
-  private Spec48 spec48;
   private IPeriph periph;
   public Fdd fdd;
   public UPDFdc uPDFdc;
 
-  public SpecPlus3(Memory memory, Display display, MachinesPeriph machinesPeriph, Spec48 spec48, IPeriph periph, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
-    super(memory, display, machinesPeriph, spec48, periph, settings, eventManager, z80, ramHolder, fuseMachineInfoSupplier, timer, module);
+  public SpecPlus3(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
+    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, ramHolder, fuseMachineInfoSupplier, timer, module);
     ramInfo= new SpecPlus3RamInfo(8, this);
     this.memory = memory;
     this.display = display;
     this.machinesPeriph = machinesPeriph;
-    this.spec48 = spec48;
     this.periph = periph;
     this.fdd = fdd;
     this.uPDFdc = uPDFdc;
@@ -146,7 +144,7 @@ public class SpecPlus3 extends Spec128 {
     specplus3765Reset();
     specplus3MenuItems();
 
-    spec48.commonDisplaySetup();
+//    spec48.commonDisplaySetup();
 
     return 0;
   }

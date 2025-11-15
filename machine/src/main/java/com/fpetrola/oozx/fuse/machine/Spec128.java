@@ -32,16 +32,14 @@ public class Spec128 extends Spectrum {
   private final Memory memory;
   private final Display display;
   private final MachinesPeriph machinesPeriph;
-  private final Spec48 spec48;
   private final IPeriph periph;
 
-  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, Spec48 spec48, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
+  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
     super(memory, display,eventManager, z80, z80.zxClock, ramHolder, fuseMachineInfoSupplier, timer, module, settings, null);
     this.ramInfo=new Spec48RamInfo(this, 8);
     this.memory = memory;
     this.display = display;
     this.machinesPeriph = machinesPeriph;
-    this.spec48 = spec48;
     this.periph = periph;
   }
 
@@ -65,7 +63,7 @@ public class Spec128 extends Spectrum {
 
     Beta.builtin = false;
 
-    spec48.commonDisplaySetup();
+//    spec48.commonDisplaySetup();
 
     return 0;
   }

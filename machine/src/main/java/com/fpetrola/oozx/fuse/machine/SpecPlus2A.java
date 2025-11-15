@@ -30,15 +30,13 @@ import java.util.function.Supplier;
 
 public class SpecPlus2A extends SpecPlus3 {
   private MachinesPeriph machinesPeriph;
-  private Spec48 spec48;
   private IPeriph periph;
   private SpecPlus3 specPlus3;
 
-  public SpecPlus2A(Memory memory, Display display, MachinesPeriph machinesPeriph, Spec48 spec48, IPeriph periph, SpecPlus3 specPlus3, Settings settings, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
-    super(memory, display, machinesPeriph, spec48, periph, settings, specPlus3.fdd, specPlus3.uPDFdc, eventManager, z80, ramHolder, fuseMachineInfoSupplier, timer, module);
+  public SpecPlus2A(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, SpecPlus3 specPlus3, Settings settings, EventManager eventManager, Z80 z80, RAMHolder ramHolder, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Timer timer, Module module) {
+    super(memory, display, machinesPeriph, periph, settings, specPlus3.fdd, specPlus3.uPDFdc, eventManager, z80, ramHolder, fuseMachineInfoSupplier, timer, module);
     ramInfo= new SpecPlus2ARamInfo(8, this);
     this.machinesPeriph = machinesPeriph;
-    this.spec48 = spec48;
     this.periph = periph;
     this.specPlus3 = specPlus3;
     init();
@@ -76,7 +74,7 @@ public class SpecPlus2A extends SpecPlus3 {
     periph.update();
 
     // Configurar pantalla como en 48K
-    spec48.commonDisplaySetup();
+//    spec48.commonDisplaySetup();
 
     return 0;
   }
