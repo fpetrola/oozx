@@ -337,9 +337,16 @@ public class SpecPlus3 extends Spec128 {
   public void shutdown() {
   }
 
-  @Override
   public String getName() {
     return "Spectrum Plus 3";
+  }
+
+  public int unattachedPort(int port) {
+    return spectrumUnattachedPortNone();
+  }
+
+  public TimingsHandler.Timings getBaseTiming() {
+    return new TimingsHandler.Timings(3546900, 1773400, TimingsHandler.AMSTRAD_ASIC);
   }
 
   private static class SpecPlus3RamInfo extends RamInfo {
@@ -362,12 +369,6 @@ public class SpecPlus3 extends Spec128 {
       return spectrum.contendDelayNone(time);
     }
   }
-
-  public int unattachedPort(int port) {
-    return spectrumUnattachedPortNone();
-  }
-
-  public TimingsHandler.Timings getBaseTiming() {
-    return new TimingsHandler.Timings(3546900, 1773400, TimingsHandler.AMSTRAD_ASIC);
-  }
 }
+
+

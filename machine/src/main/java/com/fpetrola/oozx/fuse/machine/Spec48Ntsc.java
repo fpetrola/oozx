@@ -65,27 +65,6 @@ public class Spec48Ntsc extends Spec48 {
     return commonReset();
   }
 
-  private static class Spec48NtscRamInfo extends RamInfo {
-    private Spectrum spectrum;
-
-    public Spec48NtscRamInfo(int validPages, Spectrum spectrum) {
-      this.spectrum = spectrum;
-      this.validPages = validPages;
-    }
-
-    public boolean portFromUla(int port) {
-      return Spec48.portFromUlaStatic(port);
-    }
-
-    public int contendDelay(long time) {
-      return spectrum.contendDelay65432100(time);
-    }
-
-    public int contendDelayNoMreq(long time) {
-      return spectrum.contendDelay65432100(time);
-    }
-  }
-
   public int unattachedPort(int port) {
     return spectrumUnattachedPort();
   }

@@ -34,7 +34,6 @@ public abstract class AbstractSpectrumMachine implements SpectrumMachine {
     this.ramInfo = ramInfo;
   }
 
-
   public RamInfo getRamInfo() {
     return ramInfo;
   }

@@ -87,14 +87,6 @@ public class SpecPlus3E extends SpecPlus3 {
     return unattachedPortAmstrad(port);
   }
 
-  public void memoryMap() {
-    super.memoryMap();
-  }
-
-  public void shutdown() {
-    super.shutdown();
-  }
-
   public String getName() {
     return "Amstrad Spectrum +3e";
   }

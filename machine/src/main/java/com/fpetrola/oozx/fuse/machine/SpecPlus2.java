@@ -28,27 +28,21 @@ import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.Spec128MemoryPeripheral;
 
 public class SpecPlus2 extends Spec128 {
-  private MachinesPeriph machinesPeriph;
-  private IPeriph periph;
+  private final MachinesPeriph machinesPeriph;
+  private final IPeriph periph;
 
   public SpecPlus2(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module) {
     super(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module);
-    ramInfo = new SpecPlus2RamInfo(8, this);
+    this.ramInfo = new Spec48RamInfo(this, 8);
     this.machinesPeriph = machinesPeriph;
     this.periph = periph;
     init();
   }
 
-  // ===================================================================
-  // specplus2_init() – Configura la máquina +2
-  // ===================================================================
   public void init() {
     periph.register(new Spec128MemoryPeripheral(this));
   }
 
-  // ===================================================================
-  // reset() – Reinicia la máquina +2
-  // ===================================================================
   public int reset() {
     int error;
 
@@ -78,56 +72,7 @@ public class SpecPlus2 extends Spec128 {
     return 0;
   }
 
-  @Override
-  public void memoryMap() {
-    super.memoryMap();
-  }
-
-  // ===================================================================
-  // RamInfo para +2
-  // ===================================================================
-  private static class SpecPlus2RamInfo extends RamInfo {
-    private Spectrum spectrum;
-
-    public SpecPlus2RamInfo(int validPages, Spectrum spectrum) {
-      this.spectrum = spectrum;
-      this.validPages = validPages;
-    }
-
-    @Override
-    public boolean portFromUla(int port) {
-      return Spec48.portFromUlaStatic(port);
-    }
-
-    @Override
-    public int contendDelay(long time) {
-      return spectrum.contendDelay65432100(time);
-    }
-
-    @Override
-    public int contendDelayNoMreq(long time) {
-      return spectrum.contendDelay65432100(time);
-    }
-  }
-
-  // ===================================================================
-  // unattachedPort()
-  // ===================================================================
-  @Override
-  public int unattachedPort(int port) {
-    return spectrumUnattachedPort();
-  }
-
-  @Override
   public String getName() {
     return "Spectrum Plus 2";
-  }
-
-  // ===================================================================
-  // getBaseTiming()
-  // ===================================================================
-  @Override
-  public TimingsHandler.Timings getBaseTiming() {
-    return new TimingsHandler.Timings(3546900, 1773400, TimingsHandler.FERRANTI_7C);
   }
 }

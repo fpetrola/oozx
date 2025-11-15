@@ -27,20 +27,16 @@ import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 public class SpecPlus2A extends SpecPlus3 {
-  private MachinesPeriph machinesPeriph;
-  private IPeriph periph;
+  private final MachinesPeriph machinesPeriph;
+  private final IPeriph periph;
 
   public SpecPlus2A(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module, Fdd fdd1, UPDFdc uPDFdc1) {
     super(memory, display, machinesPeriph, periph, settings, fdd1, uPDFdc1, eventManager, z80, timer, module);
-    ramInfo= new SpecPlus2ARamInfo(8, this);
     this.machinesPeriph = machinesPeriph;
     this.periph = periph;
     init();
   }
 
-  // ===================================================================
-  // reset() – Reinicia la máquina +2A
-  // ===================================================================
   public int reset() {
     int error;
 
@@ -75,56 +71,11 @@ public class SpecPlus2A extends SpecPlus3 {
     return 0;
   }
 
-  // ===================================================================
-  // RamInfo para +2A
-  // ===================================================================
-  private static class SpecPlus2ARamInfo extends RamInfo {
-    private Spectrum spectrum;
-
-    public SpecPlus2ARamInfo(int validPages, Spectrum spectrum) {
-      this.spectrum = spectrum;
-      this.validPages = validPages;
-    }
-
-    @Override
-    public boolean portFromUla(int port) {
-      return false;
-    }
-
-    @Override
-    public int contendDelay(long time) {
-      return spectrum.contendDelay76543210(time);
-    }
-
-    @Override
-    public int contendDelayNoMreq(long time) {
-      return spectrum.contendDelayNone(time);
-    }
-  }
-
-  // ===================================================================
-  // unattachedPort() – delegado al machine
-  // ===================================================================
-  @Override
   public int unattachedPort(int port) {
-    return unattachedPortAmstrad(port); // Simula function pointer
+    return unattachedPortAmstrad(port);
   }
 
-  @Override
   public String getName() {
     return "Spectrum Plus 2A";
-  }
-
-  @Override
-  public void memoryMap() {
-    super.memoryMap();
-  }
-
-  // ===================================================================
-  // getBaseTiming()
-  // ===================================================================
-  @Override
-  public TimingsHandler.Timings getBaseTiming() {
-    return new TimingsHandler.Timings(3546900, 1773400, TimingsHandler.AMSTRAD_ASIC);
   }
 }
