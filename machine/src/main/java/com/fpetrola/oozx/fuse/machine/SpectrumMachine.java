@@ -43,4 +43,6 @@ public interface SpectrumMachine {
   default void reset(boolean b){
     reset();
   }
+
+  boolean portFromUla(int port);
 }

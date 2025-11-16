@@ -146,7 +146,7 @@ public class Ula implements ZxModule {
   }
 
   public void contendPortLate(int port) {
-    if (getCurrent().getRamInfo().portFromUla(port)) {
+    if (getCurrent().portFromUla(port)) {
       addUlaStates(2, contendPortLate);
     } else {
       if (memory.mapRead[port >>> memory.PAGE_SIZE_LOGARITHM].contended) {

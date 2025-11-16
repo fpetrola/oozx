@@ -28,14 +28,8 @@ import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.Spec128MemoryPeripheral;
 
 public class SpecPlus2 extends Spec128 {
-  private final MachinesPeriph machinesPeriph;
-  private final IPeriph periph;
-
   public SpecPlus2(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module) {
     super(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module);
-    this.ramInfo = new Spec48RamInfo(this, 8);
-    this.machinesPeriph = machinesPeriph;
-    this.periph = periph;
     init();
   }
 

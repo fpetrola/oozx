@@ -26,7 +26,7 @@ public abstract class AbstractSpectrumMachine implements SpectrumMachine {
   protected final MachineTimings timings = new MachineTimings(); // How long do things take to happen?
   protected final long[] lineTimes; // Redraw line y this many tstates after interrupt
   protected final Settings settings;
-  protected RamInfo ramInfo;
+  protected final RamInfo ramInfo;
 
   public AbstractSpectrumMachine(Display display, Settings settings, RamInfo ramInfo) {
     lineTimes = new long[display.SCREEN_HEIGHT + 1];

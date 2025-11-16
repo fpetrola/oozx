@@ -28,25 +28,24 @@ import com.fpetrola.oozx.fuse.peripherals.*;
 import com.fpetrola.z80.helpers.Helper;
 
 public class SpecPlus3 extends Spec128 {
-  private final Memory memory;
   private UPDFdc specplus3Fdc;
-  private final Display display;
-  protected final MachinesPeriph machinesPeriph;
-  protected final IPeriph periph;
   public Fdd fdd;
   public UPDFdc uPDFdc;
 
   public SpecPlus3(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Z80 z80, Timer timer, Module module) {
-    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module);
-    ramInfo= new SpecPlus3RamInfo(8, this);
-    this.memory = memory;
-    this.display = display;
-    this.machinesPeriph = machinesPeriph;
-    this.periph = periph;
+    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module,  new SpecPlus3RamInfo(8));
     this.fdd = fdd;
     this.uPDFdc = uPDFdc;
     specplus3765Init();
     specplus3MenuItems();
+  }
+
+  public int contendDelay(long time) {
+    return contendDelay76543210(time);
+  }
+
+  public int contendDelayNoMreq(long time) {
+    return contendDelayNone(time);
   }
 
   @Override
@@ -350,23 +349,8 @@ public class SpecPlus3 extends Spec128 {
   }
 
   private static class SpecPlus3RamInfo extends RamInfo {
-    private final Spectrum spectrum;
-
-    public SpecPlus3RamInfo(int validPages, Spectrum spectrum) {
-      this.spectrum = spectrum;
+    public SpecPlus3RamInfo(int validPages) {
       this.validPages = validPages;
-    }
-
-    public boolean portFromUla(int port) {
-      return false;
-    }
-
-    public int contendDelay(long time) {
-      return spectrum.contendDelay76543210(time);
-    }
-
-    public int contendDelayNoMreq(long time) {
-      return spectrum.contendDelayNone(time);
     }
   }
 }

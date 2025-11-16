@@ -27,21 +27,15 @@ import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 public class Spec128 extends Spectrum {
-  private final MachinesPeriph machinesPeriph;
-  private final IPeriph periph;
-
   public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module) {
-    super(memory, display, eventManager, z80, timer, module, settings, null);
-    this.ramInfo = new Spec48RamInfo(this, 8);
-    this.machinesPeriph = machinesPeriph;
-    this.periph = periph;
+    this(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module, new Spec48RamInfo(8));
   }
 
-  // Initialize the Spectrum 128K machine
+  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module, RamInfo ramInfo) {
+    super(memory, display, eventManager, z80, timer, module, settings, ramInfo, machinesPeriph, periph);
+  }
 
-  // Reset the Spectrum 128K machine
   @Override
-
   public int reset() {
     int error = loadRom(0, settings.current.rom1280, settings.defaults.rom1280, 0x4000);
     if (error != 0) return error;
@@ -62,7 +56,6 @@ public class Spec128 extends Spectrum {
     return 0;
   }
 
-  // Common reset for Spectrum 128K
   public int commonReset(boolean contention) {
     getCurrentRamInfo().locked = false;
     getCurrentRamInfo().lastByte = 0;

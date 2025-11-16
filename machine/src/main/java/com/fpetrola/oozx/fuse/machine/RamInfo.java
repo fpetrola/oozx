@@ -27,10 +27,4 @@ public abstract class RamInfo {
   boolean special;
   public boolean romcs;
   protected int validPages;
-
-  public abstract boolean portFromUla(int port);
-
-  public abstract int contendDelay(long time);
-
-  public abstract int contendDelayNoMreq(long time);
 }

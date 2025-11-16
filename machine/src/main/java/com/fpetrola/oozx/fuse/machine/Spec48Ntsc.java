@@ -27,15 +27,8 @@ import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 public class Spec48Ntsc extends Spec48 {
-  private final Memory memory;
-  private final MachinesPeriph machinesPeriph;
-  private final IPeriph periph;
-
   public Spec48Ntsc(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module) {
     super(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module);
-    this.memory = memory;
-    this.machinesPeriph = machinesPeriph;
-    this.periph = periph;
     init();
   }
 

@@ -27,26 +27,9 @@ import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 public class Spec48 extends Spectrum {
-  private final Memory memory;
-  private final MachinesPeriph machinesPeriph;
-  private final IPeriph periph;
 
   public Spec48(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module) {
-    super(memory, display, eventManager, z80, timer, module, settings);
-    ramInfo= new Spec48RamInfo(this, 3);
-    this.memory = memory;
-    this.machinesPeriph = machinesPeriph;
-    this.periph = periph;
-  }
-
-  // Check if a port is handled by the ULA
-  public boolean portFromUla(int port) {
-    // All even ports supplied by ULA
-    return portFromUlaStatic(port);
-  }
-
-  public static boolean portFromUlaStatic(int port) {
-    return (port & 0x0001) == 0;
+    super(memory, display, eventManager, z80, timer, module, settings, new Spec48RamInfo(3), machinesPeriph, periph);
   }
 
   // Initialize the Spectrum 48K fuseMachineInfo

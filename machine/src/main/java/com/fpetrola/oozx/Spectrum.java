@@ -24,6 +24,7 @@ import com.fpetrola.oozx.fuse.machine.RamInfo;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.*;
 import com.fpetrola.oozx.fuse.modules.z80.Z80;
+import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.Arrays;
@@ -31,9 +32,11 @@ import java.util.Arrays;
 public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModule {
   protected final Memory memory;
   protected final Display display;
+  protected final MachinesPeriph machinesPeriph;
+  protected final IPeriph periph;
   private final EventManager eventManager;
   private final Z80 z80;
-  private Z80Clock z80Clock;
+  private final Z80Clock z80Clock;
 
   private final int[] contentionPattern65432100 = {5, 4, 3, 2, 1, 0, 0, 6};
   private final int[] contentionPattern76543210 = {5, 4, 3, 2, 1, 0, 7, 6};
@@ -44,7 +47,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   private final Module module;
   private final int[][] ram;
 
-  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, Timer timer, Module module, Settings settings1, RamInfo ramInfo1) {
+  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, Timer timer, Module module, Settings settings1, RamInfo ramInfo1, MachinesPeriph machinesPeriph, IPeriph periph) {
     super(display, settings1, ramInfo1);
     this.memory = memory;
     this.display = display;
@@ -54,10 +57,8 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
     this.timer = timer;
     this.module = module;
     this.ram = memory.getRAM();
-  }
-
-  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, Timer timer, Module module, Settings settings1) {
-    this(memory, display, eventManager, z80, timer, module, settings1, null);
+    this.machinesPeriph = machinesPeriph;
+    this.periph = periph;
   }
 
   protected void init() {
@@ -334,5 +335,20 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
 
   public static void resetLastFloatingBus() {
     lastFloatingBusAmstradValue = (byte) 0xFF;
+  }
+
+  // Check if a port is handled by the ULA
+  public boolean portFromUla(int port) {
+    // All even ports supplied by ULA
+    return (port & 0x0001) == 0;
+  }
+
+
+  public int contendDelay(long time) {
+    return contendDelay65432100(time);
+  }
+
+  public int contendDelayNoMreq(long time) {
+    return contendDelay65432100(time);
   }
 }
