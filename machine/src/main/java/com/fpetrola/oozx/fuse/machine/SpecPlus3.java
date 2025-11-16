@@ -148,7 +148,7 @@ public class SpecPlus3 extends Spec128 {
 
   // Common reset for +2A/+3
   public int plus2aCommonReset() {
-    RamInfo ramInfo1 = getCurrentRamInfo();
+    RamInfo ramInfo1 = ramInfo;
 
     ramInfo1.currentPage = 0;
     ramInfo1.currentRom = 0;
@@ -220,19 +220,19 @@ public class SpecPlus3 extends Spec128 {
       fdd.motorOn(specplus3Drives[1], (b & 0x08) != 0);
     }
 
-    getCurrentRamInfo().lastByte2 = b;
+    ramInfo.lastByte2 = b;
 
     memoryMap();
   }
 
   public void memoryPort2Write(int port, byte b) {
-    if (getCurrentRamInfo().locked) return;
+    if (ramInfo.locked) return;
     memoryPort2WriteInternal(port, b);
   }
 
   // Map memory for +3
   public void memoryMap() {
-    RamInfo currentRamInfo = getCurrentRamInfo();
+    RamInfo currentRamInfo = ramInfo;
     byte lastByte = currentRamInfo.lastByte;
     byte lastByte2 = currentRamInfo.lastByte2;
 

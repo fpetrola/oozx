@@ -57,11 +57,11 @@ public class Spec128 extends Spectrum {
   }
 
   public int commonReset(boolean contention) {
-    getCurrentRamInfo().locked = false;
-    getCurrentRamInfo().lastByte = 0;
+    ramInfo.locked = false;
+    ramInfo.lastByte = 0;
 
-    getCurrentRamInfo().currentPage = 0;
-    getCurrentRamInfo().currentRom = 0;
+    ramInfo.currentPage = 0;
+    ramInfo.currentRom = 0;
 
     memory.currentScreen = 5;
     memory.screenMask = 0xffff;
@@ -85,31 +85,31 @@ public class Spec128 extends Spectrum {
 
   // Write to the 128K memory port (0x7FFD)
   public void memoryPortWrite(int port, byte b) {
-    if (getCurrentRamInfo().locked) return;
+    if (ramInfo.locked) return;
 
-    getCurrentRamInfo().lastByte = b;
+    ramInfo.lastByte = b;
 
     memoryMap();
 
-    getCurrentRamInfo().locked = (b & 0x20) != 0;
+    ramInfo.locked = (b & 0x20) != 0;
   }
 
   // Select ROM for 128K
   private void selectRom(int rom) {
     memory.map16k(0x0000, memory.mapRom, rom);
-    getCurrentRamInfo().currentRom = rom;
+    ramInfo.currentRom = rom;
   }
 
   // Select RAM page for 128K
   private void selectPage(int page) {
     memory.map16k(0xc000, memory.mapRam, page);
-    getCurrentRamInfo().currentPage = page;
+    ramInfo.currentPage = page;
   }
 
   // Map memory for Spectrum 128K
   @Override
   public void memoryMap() {
-    byte lastByte = getCurrentRamInfo().lastByte;
+    byte lastByte = ramInfo.lastByte;
 
     int page = lastByte & 0x07;
     int screen = (lastByte & 0x08) != 0 ? 7 : 5;

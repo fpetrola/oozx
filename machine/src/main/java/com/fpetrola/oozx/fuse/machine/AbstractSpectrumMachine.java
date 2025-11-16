@@ -49,8 +49,4 @@ public abstract class AbstractSpectrumMachine implements SpectrumMachine {
   public long[] getLineTimes() {
     return lineTimes;
   }
-
-  protected RamInfo getCurrentRamInfo() {
-    return getRamInfo();
-  }
 }
