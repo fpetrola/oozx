@@ -19,12 +19,13 @@
 package com.fpetrola.oozx.fuse.peripherals;
 
 import com.fpetrola.oozx.Machine;
+import com.fpetrola.oozx.Spectrum;
 import com.fpetrola.oozx.fuse.ports.SeMemoryPortHandler;
 
 import java.util.List;
 
 public class SeMemoryPeripheral extends AbstractZxPeripheral {
-  public SeMemoryPeripheral(Machine machine) {
-    super(Periph.Type.SE_MEMORY, List.of(new SeMemoryPortHandler(machine)));
+  public SeMemoryPeripheral(Spectrum spectrum) {
+    super(Periph.Type.SE_MEMORY, List.of(new SeMemoryPortHandler(spectrum)));
   }
 }

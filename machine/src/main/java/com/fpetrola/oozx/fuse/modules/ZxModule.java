@@ -20,5 +20,6 @@ package com.fpetrola.oozx.fuse.modules;
 
 public interface ZxModule {
   int init(Object initContext);
+
   void end();
 }

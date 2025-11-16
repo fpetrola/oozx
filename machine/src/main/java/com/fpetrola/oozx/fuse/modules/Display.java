@@ -18,17 +18,15 @@
 
 package com.fpetrola.oozx.fuse.modules;
 
-import com.fpetrola.oozx.Machine;
-import com.fpetrola.oozx.Memory;
-import com.fpetrola.oozx.RAMHolder;
-import com.fpetrola.oozx.UiDisplay;
+import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Display implements ZxModule {
+public class Display implements ZxModule, MachineChangeListener {
   private final Memory memory;
 
   // Constants for the width and height of the Speccy's screen
@@ -104,7 +102,7 @@ public class Display implements ZxModule {
   private final UiDisplay uiDisplay;
   private final int[][] ram;
   private final BeanPosition beam;
-  private Machine machine;
+  private SpectrumMachine spectrumMachine;
 
   public Display(Memory memory, Z80Clock z80Clock, RAMHolder ramHolder, UiDisplay uiDisplay) {
     this.memory = memory;
@@ -167,12 +165,9 @@ public class Display implements ZxModule {
 
   }
 
-  public Machine getMachine() {
-    return machine;
-  }
-
-  public void setMachine(Machine machine) {
-    this.machine = machine;
+  @Override
+  public void machineChanged(SpectrumMachine newMachine) {
+    this.spectrumMachine = newMachine;
   }
 
   // Structure for border change
@@ -259,7 +254,7 @@ public class Display implements ZxModule {
   }
 
   public BeanPosition getBeamPosition() {
-    long[] lineTimes = machine.current.getLineTimes();
+    long[] lineTimes = spectrumMachine.getLineTimes();
 
     long tStates = z80Clock.getTStates();
     if (tStates < lineTimes[0]) {
@@ -267,7 +262,7 @@ public class Display implements ZxModule {
       return beam;
     }
 
-    beam.y = (int) ((tStates - lineTimes[0]) / machine.current.getTimings().tstatesPerLine);
+    beam.y = (int) ((tStates - lineTimes[0]) / spectrumMachine.getTimings().tstatesPerLine);
 
     if (beam.y >= 0 && beam.y <= SCREEN_HEIGHT) {
       beam.x = (int) ((tStates - lineTimes[beam.y]) / 4);

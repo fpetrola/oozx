@@ -53,6 +53,7 @@ public class SpecPlus3 extends Spec128 {
     periph.register(new Spec128MemoryPeripheral(this));
     periph.register(new SpecPlus3MemoryPeripheral(this));
     periph.register(new Upd765Peripheral(this));
+    periph.register(new SeMemoryPeripheral(this));
   }
 
   public Fdd[] specplus3Drives = new Fdd[SpecPlus3Constants.SPECPLUS3_NUM_DRIVES];

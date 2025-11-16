@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.Ula;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.z80.cpu.Z80Clock;
@@ -48,5 +49,9 @@ public class UlaPeriph implements PeriphDelegate {
     ula.contendPortEarly(port);
     ula.contendPortLate(port);
     return getPeriph().readPort(port);
+  }
+
+  public void machineChanged(SpectrumMachine newMachine) {
+    periph.machineChanged(newMachine);
   }
 }

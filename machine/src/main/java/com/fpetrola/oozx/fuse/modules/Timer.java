@@ -18,20 +18,15 @@
 
 package com.fpetrola.oozx.fuse.modules;
 
-import com.fpetrola.oozx.PhantomTypist;
-import com.fpetrola.oozx.Settings;
-import com.fpetrola.oozx.Sound;
-import com.fpetrola.oozx.Ui;
+import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.modules.z80.Z80;
 
 import java.util.Arrays;
-import java.util.function.Supplier;
 
-public class Timer implements ZxModule {
+public class Timer implements ZxModule, MachineChangeListener {
   private final EventManager eventManager;
-  private final Supplier<SpectrumMachine> fuseMachineInfoSupplier;
   private final Sound sound;
 
   private final double[] storedTimes = new double[10];
@@ -45,10 +40,10 @@ public class Timer implements ZxModule {
   private final Settings settings;
   private final Tape tape;
   private boolean changeRequested = false;
+  private SpectrumMachine spectrumMachine;
 
-  public Timer(EventManager eventManager, Supplier<SpectrumMachine> fuseMachineInfoSupplier, Sound sound, Settings settings, Tape tape) {
+  public Timer(EventManager eventManager, Sound sound, Settings settings, Tape tape) {
     this.eventManager = eventManager;
-    this.fuseMachineInfoSupplier = fuseMachineInfoSupplier;
     this.sound = sound;
     this.settings = settings;
     this.tape = tape;
@@ -96,7 +91,7 @@ public class Timer implements ZxModule {
 
     storedTimes[nextStoredTime] = currentTime;
     nextStoredTime = (nextStoredTime + 1) % 10;
-    framesUntilUpdate = (int) (getCurrent().getTimings().processorSpeed / getCurrent().getTimings().tstatesPerFrame) - 1;
+    framesUntilUpdate = (int) (spectrumMachine.getTimings().processorSpeed / spectrumMachine.getTimings().tstatesPerFrame) - 1;
     samples++;
   }
 
@@ -145,7 +140,7 @@ public class Timer implements ZxModule {
     }
 
     if (settings.current.fastload && fastloadingActive()) {
-      long nextCheckTime = lastTstates + getCurrent().getTimings().tstatesPerFrame;
+      long nextCheckTime = lastTstates + spectrumMachine.getTimings().tstatesPerFrame;
       eventManager.eventAdd(nextCheckTime, timerEvent);
     } else {
       float speed = Math.max(settings.current.emulationSpeed, 1) / 100.0f;
@@ -167,7 +162,7 @@ public class Timer implements ZxModule {
         return;
       }
       double difference = currentTime - startTime;
-      int tstates = (int) (((difference + TEN_MS / 1000.0) * getCurrent().getTimings().processorSpeed) * speed + 0.5);
+      int tstates = (int) (((difference + TEN_MS / 1000.0) * spectrumMachine.getTimings().processorSpeed) * speed + 0.5);
       eventManager.eventAdd(lastTstates + tstates, timerEvent);
       startTime = currentTime + TEN_MS / 1000.0;
     }
@@ -185,7 +180,7 @@ public class Timer implements ZxModule {
             }
         }
         */
-    eventManager.eventAdd(lastTstates + getCurrent().getTimings().tstatesPerFrame, timerEvent);
+    eventManager.eventAdd(lastTstates + spectrumMachine.getTimings().tstatesPerFrame, timerEvent);
   }
 
   // Get current time in seconds
@@ -202,12 +197,12 @@ public class Timer implements ZxModule {
     }
   }
 
-  private SpectrumMachine getCurrent() {
-    return fuseMachineInfoSupplier.get();
-  }
-
   public void changeSpeed(int emulationSpeed) {
     this.changeRequested = true;
     eventManager.changeEventTime(70000, timerEvent);
+  }
+
+  public void machineChanged(SpectrumMachine newMachine) {
+    spectrumMachine = newMachine;
   }
 }

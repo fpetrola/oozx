@@ -28,23 +28,20 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Machine implements ZxModule {
-  private EventManager eventManager;
-  private Memory memory;
-  private Display display;
-  private Ula ula;
-  private Module module;
-  private Settings settings;
-
-  public List<Spectrum> getMachineTypes() {
-    return machineTypes;
-  }
-
-  public List<Spectrum> machineTypes = new ArrayList<>(); // All available machines
-  public Spectrum current; // The currently selected machine
-  private Z80Clock z80Clock;
+  private final EventManager eventManager;
+  private final Memory memory;
+  private final Display display;
+  private final Ula ula;
+  private final Module module;
+  private final Settings settings;
+  public Spectrum current;
+  private final Z80Clock z80Clock;
   private final Spectrum spectrum;
-  private UiDisplay uiDisplay;
-  private Timer timer;
+  private final UiDisplay uiDisplay;
+  private final Timer timer;
+
+  public List<Spectrum> machineTypes = new ArrayList<>();
+  private final List<MachineChangeListener> machineChangeListeners = new ArrayList<>();
 
   public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, Z80Clock z80Clock, Spectrum spectrum, UiDisplay uiDisplay, Timer timer, Module module, Settings settings) {
     this.eventManager = eventManager;
@@ -57,6 +54,10 @@ public class Machine implements ZxModule {
     this.uiDisplay = uiDisplay;
     this.timer = timer;
     this.settings = settings;
+  }
+
+  public List<Spectrum> getMachineTypes() {
+    return machineTypes;
   }
 
   public void addMachine(Spectrum spectrumMachine) {
@@ -99,9 +100,10 @@ public class Machine implements ZxModule {
     else if (spectrum != null)
       spectrumFrameEvent = spectrum.spectrumFrameEvent;
     else
-      spectrumFrameEvent= machine.spectrumFrameEvent;
+      spectrumFrameEvent = machine.spectrumFrameEvent;
 
     current = machine;
+    machineChangeListeners.forEach(listener -> listener.machineChanged(current));
     current.init();
 
     settings.setString(settings.current.startMachine, machine.getClass().getSimpleName());
@@ -135,6 +137,7 @@ public class Machine implements ZxModule {
     Sound.init(settings.current.soundDevice);
 
     machine.reset();
+
     reset(false);
 //        if (error != 0) return error;
 
@@ -210,5 +213,13 @@ public class Machine implements ZxModule {
       machineType.shutdown();
 
     machineTypes = null;
+  }
+
+  public void addMachineChangeListener(MachineChangeListener listener) {
+    machineChangeListeners.add(listener);
+  }
+
+  public void addMachineChangeListeners(MachineChangeListener... listeners) {
+    machineChangeListeners.addAll(Arrays.asList(listeners));
   }
 }

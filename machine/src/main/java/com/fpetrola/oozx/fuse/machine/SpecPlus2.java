@@ -25,6 +25,7 @@ import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.modules.Timer;
 import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
+import com.fpetrola.oozx.fuse.peripherals.SeMemoryPeripheral;
 import com.fpetrola.oozx.fuse.peripherals.Spec128MemoryPeripheral;
 
 public class SpecPlus2 extends Spec128 {
@@ -35,6 +36,7 @@ public class SpecPlus2 extends Spec128 {
 
   public void init() {
     periph.register(new Spec128MemoryPeripheral(this));
+    periph.register(new SeMemoryPeripheral(this));
   }
 
   public int reset() {

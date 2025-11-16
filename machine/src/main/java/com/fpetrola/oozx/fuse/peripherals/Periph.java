@@ -19,6 +19,7 @@
 package com.fpetrola.oozx.fuse.peripherals;
 
 import cern.colt.list.ObjectArrayList;
+import com.fpetrola.oozx.MachineChangeListener;
 import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.Ui;
 import com.fpetrola.oozx.fuse.machine.Spec128;
@@ -28,17 +29,19 @@ import com.fpetrola.oozx.fuse.ports.PortHandler;
 import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.*;
-import java.util.function.Supplier;
 
 public class Periph implements IPeriph {
-  private Supplier<SpectrumMachine> machine;
   private Z80Clock z80Clock;
   private Settings settings;
+  private SpectrumMachine spectrumMachine;
 
-  public Periph(Supplier<SpectrumMachine> machine, Z80Clock z80Clock, Settings settings) {
-    this.machine = machine;
+  public Periph(Z80Clock z80Clock, Settings settings) {
     this.z80Clock = z80Clock;
     this.settings = settings;
+  }
+
+  public void machineChanged(SpectrumMachine newMachine) {
+    spectrumMachine = newMachine;
   }
 
   // Enum for peripheral types
@@ -259,14 +262,18 @@ public class Periph implements IPeriph {
 
     // Special case for 128K/+2 machines
     if ((port & 0x8002) == 0 &&
-        (machine.get().getClass() == Spec128.class ||
-            machine.get().getClass() == SpecPlus2.class)) {
+        (getSpectrumMachine().getClass() == Spec128.class ||
+            getSpectrumMachine().getClass() == SpecPlus2.class)) {
       writePortInternal(0x7ffd, b);
     }
 
     z80Clock.addTStates(1);
 //        b= -1;
     return b;
+  }
+
+  private SpectrumMachine getSpectrumMachine() {
+    return spectrumMachine;
   }
 
   // Read a byte from a port, taking no time
@@ -288,7 +295,7 @@ public class Periph implements IPeriph {
 
     if (callbackInfo.attached != (byte) 0xff) {
       callbackInfo.value = mergeFloatingBus(callbackInfo.value, callbackInfo.attached,
-          (byte) machine.get().unattachedPort(port));
+          (byte) getSpectrumMachine().unattachedPort(port));
     }
 
     return callbackInfo.value;
@@ -403,7 +410,7 @@ public class Periph implements IPeriph {
     });
 
 //        updatePeripheralsStatus();
-    machine.get().memoryMap();
+    getSpectrumMachine().memoryMap();
 
     return needsHardReset[0];
   }

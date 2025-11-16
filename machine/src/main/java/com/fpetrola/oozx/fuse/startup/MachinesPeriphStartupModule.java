@@ -44,7 +44,7 @@ public class MachinesPeriphStartupModule extends AbstractStartupModule {
     periph.register(new Spec128MemoryPeripheral(spec128));
     periph.register(new SpecPlus3MemoryPeripheral(specPlus3));
     periph.register(new Upd765Peripheral(specPlus3));
-    periph.register(new SeMemoryPeripheral(machine));
+    periph.register(new SeMemoryPeripheral(spec128));
     return 0;
   }
 

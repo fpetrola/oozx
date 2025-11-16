@@ -18,19 +18,34 @@
 
 package com.fpetrola.oozx.fuse.peripherals;
 
-public interface IPeriph {
+import com.fpetrola.oozx.MachineChangeListener;
+
+public interface IPeriph extends MachineChangeListener {
   void register(ZxPeripheral zxPeripheral);
+
   void setPresent(Periph.Type type, Periph.Present present);
+
   void setPresent(Class<? extends ZxPeripheral> zxPeripheralClass, Periph.Present present);
+
   boolean activateType(Class<? extends ZxPeripheral> type, boolean active);
+
   boolean isActive(Periph.Type type);
+
   void clear();
+
   void end();
+
   byte readPort(int port);
+
   byte mergeFloatingBus(byte value, byte attached, byte floatingBus);
+
   void writePort(int port, byte b);
+
   void writePortInternal(int port, byte b);
+
   boolean update();
+
   void postHook();
+
   boolean postCheck();
 }

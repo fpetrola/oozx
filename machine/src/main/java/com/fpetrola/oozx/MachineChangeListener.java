@@ -16,21 +16,10 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.ports;
+package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.Spectrum;
+import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 
-public class SeMemoryPortHandler extends DefaultPortHandler {
-  private final Spectrum spectrum;
-
-  public SeMemoryPortHandler(Spectrum spectrum) {
-    super(0xffff, 0x7ffd, false, true);
-    this.spectrum = spectrum;
-  }
-
-  @Override
-  public void write(int port, byte value) {
-    spectrum.getRamInfo().lastByte = value;
-    spectrum.memoryMap();
-  }
+public interface MachineChangeListener {
+  void machineChanged(SpectrumMachine newMachine);
 }

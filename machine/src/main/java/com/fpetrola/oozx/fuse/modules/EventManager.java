@@ -19,15 +19,15 @@
 package com.fpetrola.oozx.fuse.modules;
 
 import cern.colt.list.ObjectArrayList;
+import com.fpetrola.oozx.MachineChangeListener;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.z80.cpu.Z80Clock;
 import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 
 import java.util.*;
-import java.util.function.Supplier;
 
 // When will the next event happen?
-public class EventManager implements ZxModule {
+public class EventManager implements ZxModule, MachineChangeListener {
 
   final int EVENT_NO_EVENTS = 0xffffffff;
 
@@ -39,12 +39,11 @@ public class EventManager implements ZxModule {
   // The actual list of events
 //  private final List<Event> eventList = new LinkedList<>();
 
-  private final Supplier<SpectrumMachine> fuseMachineInfoSupplier;
   private final Z80Clock z80Clock;
   private final SortedSet<Event> events;
+  private SpectrumMachine spectrumMachine;
 
-  public EventManager(Supplier<SpectrumMachine> machine, Z80Clock z80Clock) {
-    this.fuseMachineInfoSupplier = machine;
+  public EventManager(Z80Clock z80Clock) {
     this.z80Clock = z80Clock;
     Comparator<Event> customComparator = this::eventAddCmp; // Placeholder, not used
     events = new ObjectAVLTreeSet<>(customComparator);
@@ -62,6 +61,11 @@ public class EventManager implements ZxModule {
   public void end() {
     reset();
     registeredEventsFree();
+  }
+
+  @Override
+  public void machineChanged(SpectrumMachine newMachine) {
+    spectrumMachine = newMachine;
   }
 
   class EventDescriptor {
@@ -101,7 +105,7 @@ public class EventManager implements ZxModule {
     ArrayList<Event> events1 = new ArrayList<>(events);
     for (Event event : events1) {
       if (event.type == type) {
-        event.tstates= eventTime;
+        event.tstates = eventTime;
         break;
       }
     }
@@ -146,7 +150,7 @@ public class EventManager implements ZxModule {
 
   // Force all events between now and the next interrupt to happen
   public void eventForceEvents() {
-    while (eventNextEvent < fuseMachineInfoSupplier.get().getTimings().tstatesPerFrame) { // Assume Machine.current
+    while (eventNextEvent < spectrumMachine.getTimings().tstatesPerFrame) { // Assume Machine.current
       z80Clock.setTStates((int) eventNextEvent);
       eventDoEvents();
     }
@@ -186,7 +190,7 @@ public class EventManager implements ZxModule {
 
   // A textual representation of each event type
   public String eventName(int type) {
-    return ((EventDescriptor)registeredEvents.get(type)).description;
+    return ((EventDescriptor) registeredEvents.get(type)).description;
   }
 
   void registeredEventsFree() {

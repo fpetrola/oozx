@@ -445,7 +445,12 @@ public class Z80 implements ZxModule {
 
       @Override
       public void onModelChanged(String model) {
-        changeMachine = () -> machine.getMachineTypes().stream().filter(m -> m.getName().equals(model)).forEach(machine::select);
+        changeMachine = () -> {
+          machine.getMachineTypes().stream().filter(m -> m.getName().equals(model)).forEach(type -> {
+            machine.select(fuse.spec48);
+            machine.select(type);
+          });
+        };
       }
 
       @Override

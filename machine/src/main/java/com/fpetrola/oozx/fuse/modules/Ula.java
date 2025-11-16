@@ -31,7 +31,7 @@ import java.util.function.Supplier;
 import static com.fpetrola.oozx.MachineCapability.PLUS3_MEMORY;
 import static com.fpetrola.oozx.MachineCapability._128_MEMORY;
 
-public class Ula implements ZxModule {
+public class Ula implements ZxModule, MachineChangeListener {
   private final Memory memory;
 
   public final int CONTENTION_SIZE = 80000;
@@ -47,7 +47,6 @@ public class Ula implements ZxModule {
   // What to return if no other input pressed; depends on the last byte output to the ULA
   private byte defaultValue;
   private final Display display;
-  private final Supplier<SpectrumMachine> currentMachineSupplier;
   private final Keyboard keyboard;
   private final SpectrumZ80Clock z80Clock;
   private final IPeriph periph;
@@ -56,11 +55,11 @@ public class Ula implements ZxModule {
   private final Module module;
   private final Settings settings;
   private final Tape tape;
+  private SpectrumMachine spectrumMachine;
 
-  public Ula(Memory memory, Display display, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock z80Clock, IPeriph periph, Module module, Settings settings, com.fpetrola.oozx.fuse.modules.tape.Tape tape) {
+  public Ula(Memory memory, Display display, Keyboard keyboard, SpectrumZ80Clock z80Clock, IPeriph periph, Module module, Settings settings, com.fpetrola.oozx.fuse.modules.tape.Tape tape) {
     this.memory = memory;
     this.display = display;
-    this.currentMachineSupplier = machineSupplier;
     this.keyboard = keyboard;
     this.z80Clock = z80Clock;
     this.periph = periph;
@@ -125,7 +124,7 @@ public class Ula implements ZxModule {
   }
 
   private SpectrumMachine getCurrent() {
-    return currentMachineSupplier.get();
+    return spectrumMachine;
   }
 
   // Get the last byte written to the ULA
@@ -171,5 +170,9 @@ public class Ula implements ZxModule {
     z80Clock.addTStates(contentionNoMreq[z80Clock.getTStates()] + states);
   }
 
+  @Override
+  public void machineChanged(SpectrumMachine newMachine) {
+    spectrumMachine = newMachine;
+  }
 }
 

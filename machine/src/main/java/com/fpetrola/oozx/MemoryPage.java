@@ -33,10 +33,14 @@ public class MemoryPage {
   }
 
   public int get(final int index) {
+    if (page == null)
+      System.out.println("asfasgsa");
     return page[offset + index];
   }
 
   public void set(final int index, final byte value) {
+    if (page == null)
+      System.out.println("asfasgsa");
     page[offset + index] = value & 0xff;
   }
 
