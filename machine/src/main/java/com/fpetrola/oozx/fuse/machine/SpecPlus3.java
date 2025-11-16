@@ -31,8 +31,8 @@ public class SpecPlus3 extends Spec128 {
   private final Memory memory;
   private UPDFdc specplus3Fdc;
   private final Display display;
-  private final MachinesPeriph machinesPeriph;
-  private final IPeriph periph;
+  protected final MachinesPeriph machinesPeriph;
+  protected final IPeriph periph;
   public Fdd fdd;
   public UPDFdc uPDFdc;
 
@@ -350,7 +350,7 @@ public class SpecPlus3 extends Spec128 {
   }
 
   private static class SpecPlus3RamInfo extends RamInfo {
-    private Spectrum spectrum;
+    private final Spectrum spectrum;
 
     public SpecPlus3RamInfo(int validPages, Spectrum spectrum) {
       this.spectrum = spectrum;

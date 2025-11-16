@@ -21,7 +21,7 @@ package com.fpetrola.oozx.fuse.machine;
 import com.fpetrola.oozx.Spectrum;
 
 public class Spec48RamInfo extends RamInfo {
-  protected Spectrum spectrum;
+  protected final Spectrum spectrum;
 
   public Spec48RamInfo(Spectrum spectrum, int validPages) {
     this.spectrum = spectrum;

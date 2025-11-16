@@ -27,13 +27,8 @@ import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 public class SpecPlus2A extends SpecPlus3 {
-  private final MachinesPeriph machinesPeriph;
-  private final IPeriph periph;
-
   public SpecPlus2A(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module, Fdd fdd1, UPDFdc uPDFdc1) {
     super(memory, display, machinesPeriph, periph, settings, fdd1, uPDFdc1, eventManager, z80, timer, module);
-    this.machinesPeriph = machinesPeriph;
-    this.periph = periph;
     init();
   }
 

@@ -29,8 +29,8 @@ import com.fpetrola.z80.cpu.Z80Clock;
 import java.util.Arrays;
 
 public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModule {
-  private final Memory memory;
-  private final Display display;
+  protected final Memory memory;
+  protected final Display display;
   private final EventManager eventManager;
   private final Z80 z80;
   private Z80Clock z80Clock;
@@ -147,7 +147,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   }
 
   public void spectrumFrame() {
-    int frameLength = this.getTimings().tstatesPerFrame;
+    int frameLength = getTimings().tstatesPerFrame;
 
     eventManager.eventFrame(frameLength);
     z80Clock.addTStates(-frameLength);
@@ -160,7 +160,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
 
     if (display.frame() != 0) return;
 
-    eventManager.eventAdd(this.getTimings().tstatesPerFrame, spectrumFrameEvent);
+    eventManager.eventAdd(getTimings().tstatesPerFrame, spectrumFrameEvent);
 
     PhantomTypist.frame();
 
@@ -171,25 +171,21 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
     return 0;
   }
 
-  private int contendDelayCommon(long time, int[] timings, int offset) {
-    SpectrumMachine spectrumMachine = this;
+  private int contendDelayCommon(long time, int[] timingsPattern, int offset) {
 
-    int line = (int) ((time - spectrumMachine.getLineTimes()[0]) / spectrumMachine.getTimings().tstatesPerLine);
+    int line = (int) ((time - lineTimes[0]) / timings.tstatesPerLine);
 
-    int tstatesThroughLine = (int) (time - spectrumMachine.getLineTimes()[0] +
-        (spectrumMachine.getTimings().leftBorder - display.BORDER_WIDTH_COLS * 4));
+    int tstatesThroughLine = (int) (time - lineTimes[0] + (timings.leftBorder - display.BORDER_WIDTH_COLS * 4));
 
-    tstatesThroughLine %= spectrumMachine.getTimings().tstatesPerLine;
+    tstatesThroughLine %= timings.tstatesPerLine;
 
-    if (line < display.BORDER_HEIGHT ||
-        line >= display.BORDER_HEIGHT + display.HEIGHT) return 0;
+    if (line < display.BORDER_HEIGHT
+        || line >= display.BORDER_HEIGHT + display.HEIGHT
+        || tstatesThroughLine < timings.leftBorder - offset
+        || tstatesThroughLine >= timings.leftBorder + timings.horizontalScreen - offset)
+      return 0;
 
-    if (tstatesThroughLine < spectrumMachine.getTimings().leftBorder - offset) return 0;
-
-    if (tstatesThroughLine >= spectrumMachine.getTimings().leftBorder +
-        spectrumMachine.getTimings().horizontalScreen - offset) return 0;
-
-    return timings[tstatesThroughLine % 8];
+    return timingsPattern[tstatesThroughLine % 8];
   }
 
   public int contendDelay65432100(long time) {
