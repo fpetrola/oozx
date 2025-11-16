@@ -37,13 +37,13 @@ public class Spec128 extends Spectrum {
 
   @Override
   public int reset() {
-    int error = loadRom(0, settings.current.rom1280, settings.defaults.rom1280, 0x4000);
-    if (error != 0) return error;
-    error = loadRom(1, settings.current.rom1281, settings.defaults.rom1281, 0x4000);
-    if (error != 0) return error;
+    return doReset(settings.current.rom1280, settings.defaults.rom1280, settings.current.rom1281, settings.defaults.rom1281);
+  }
 
-    error = commonReset(true);
-    if (error != 0) return error;
+  protected int doReset(String rom1280, String rom1281, String rom1282, String rom1283) {
+    loadRom(0, rom1280, rom1281, 0x4000);
+    loadRom(1, rom1282, rom1283, 0x4000);
+    commonReset(true);
 
     periph.clear();
     machinesPeriph.machinesPeriph128();

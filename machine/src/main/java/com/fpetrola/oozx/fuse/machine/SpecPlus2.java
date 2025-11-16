@@ -40,32 +40,8 @@ public class SpecPlus2 extends Spec128 {
   }
 
   public int reset() {
-    int error;
-
-    // Cargar ROM 0 (0x0000-0x3FFF)
-    error = loadRom(0, settings.current.romPlus20, settings.defaults.romPlus20, 0x4000);
-    if (error != 0) return error;
-
-    // Cargar ROM 1 (0x4000-0x7FFF)
-    error = loadRom(1, settings.current.romPlus21, settings.defaults.romPlus21, 0x4000);
-    if (error != 0) return error;
-
-    // Reset común de 128K (con RAM lock = 1)
-    error = commonReset(true);
-    if (error != 0) return error;
-
-    // Limpiar y configurar periféricos 128K
-    periph.clear();
-    machinesPeriph.machinesPeriph128();
-    periph.update();
-
-    // +2 no tiene Beta integrado
-    Beta.builtin = false;
-
-    // Configurar pantalla como en 48K
-//    spec48.commonDisplaySetup();
-
-    return 0;
+    return doReset(settings.current.romPlus20, settings.defaults.romPlus20,
+        settings.current.romPlus21, settings.defaults.romPlus21);
   }
 
   public String getName() {

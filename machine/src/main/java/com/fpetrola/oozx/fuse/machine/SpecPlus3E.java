@@ -24,7 +24,7 @@ import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.modules.Timer;
 import com.fpetrola.oozx.fuse.modules.z80.Z80;
-import com.fpetrola.oozx.fuse.peripherals.*;
+import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 public class SpecPlus3E extends SpecPlus3 {
   public SpecPlus3E(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module, Fdd fdd1, UPDFdc uPDFdc1) {
@@ -33,43 +33,12 @@ public class SpecPlus3E extends SpecPlus3 {
   }
 
   public int reset() {
-    int error;
+    doReset(settings.current.romPlus3e0, settings.defaults.romPlus3e0,
+        settings.current.romPlus3e1, settings.defaults.romPlus3e1,
+        settings.current.romPlus3e2, settings.defaults.romPlus3e2,
+        settings.current.romPlus3e3, settings.defaults.romPlus3e3);
 
-    // Cargar ROM 0 (0x0000-0x3FFF)
-    error = loadRom(0, settings.current.romPlus3e0, settings.defaults.romPlus3e0, 0x4000);
-    if (error != 0) return error;
-
-    // Cargar ROM 1 (0x4000-0x7FFF)
-    error = loadRom(1, settings.current.romPlus3e1, settings.defaults.romPlus3e1, 0x4000);
-    if (error != 0) return error;
-
-    // Cargar ROM 2 (0x8000-0xBFFF)
-    error = loadRom(2, settings.current.romPlus3e2, settings.defaults.romPlus3e2, 0x4000);
-    if (error != 0) return error;
-
-    // Cargar ROM 3 (0xC000-0xFFFF)
-    error = loadRom(3, settings.current.romPlus3e3, settings.defaults.romPlus3e3, 0x4000);
-    if (error != 0) return error;
-
-    // Reset común de +2A/+3
-    error = plus2aCommonReset();
-    if (error != 0) return error;
-
-    // Limpiar y configurar periféricos +3
-    periph.clear();
-    machinesPeriph.machinesPeriphPlus3();
-
-    // FDC siempre presente
-    periph.setPresent(Periph.Type.UPD765, Periph.Present.ALWAYS);
-
-    periph.update();
-
-    // Reset FDC y menús
-    specplus3765Reset();
-    specplus3MenuItems();
-
-    // Configurar pantalla como en 48K
-//    spec48.commonDisplaySetup();
+    resetStep2();
 
     return 0;
   }
@@ -77,6 +46,7 @@ public class SpecPlus3E extends SpecPlus3 {
   public int unattachedPort(int port) {
     return unattachedPortAmstrad(port);
   }
+
   public String getName() {
     return "Amstrad Spectrum +3e";
   }

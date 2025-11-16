@@ -33,7 +33,7 @@ public class SpecPlus3 extends Spec128 {
   public UPDFdc uPDFdc;
 
   public SpecPlus3(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Z80 z80, Timer timer, Module module) {
-    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module,  new SpecPlus3RamInfo(8));
+    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module, new SpecPlus3RamInfo(8));
     this.fdd = fdd;
     this.uPDFdc = uPDFdc;
     specplus3765Init();
@@ -120,31 +120,22 @@ public class SpecPlus3 extends Spec128 {
 
   // Reset the Spectrum +3 machine
   public int reset() {
-    int error = loadRom(0, settings.current.romPlus30, settings.defaults.romPlus30, 0x4000);
-    if (error != 0) return error;
-    error = loadRom(1, settings.current.romPlus31, settings.defaults.romPlus31, 0x4000);
-    if (error != 0) return error;
-    error = loadRom(2, settings.current.romPlus32, settings.defaults.romPlus32, 0x4000);
-    if (error != 0) return error;
-    error = loadRom(3, settings.current.romPlus33, settings.defaults.romPlus33, 0x4000);
-    if (error != 0) return error;
+    doReset(settings.current.romPlus30, settings.defaults.romPlus30,
+        settings.current.romPlus31, settings.defaults.romPlus31,
+        settings.current.romPlus32, settings.defaults.romPlus32,
+        settings.current.romPlus33, settings.defaults.romPlus33);
 
-    error = plus2aCommonReset();
-    if (error != 0) return error;
-
-    periph.clear();
-    machinesPeriph.machinesPeriphPlus3();
-
-    periph.setPresent(Periph.Type.UPD765, Periph.Present.ALWAYS);
-
-    periph.update();
-
-    specplus3765Reset();
-    specplus3MenuItems();
-
-//    spec48.commonDisplaySetup();
+    resetStep2();
 
     return 0;
+  }
+
+  protected void resetStep2() {
+    periph.setPresent(Periph.Type.UPD765, Periph.Present.ALWAYS);
+    periph.update();
+    specplus3765Reset();
+    specplus3MenuItems();
+//    spec48.commonDisplaySetup();
   }
 
   // Common reset for +2A/+3
@@ -339,6 +330,18 @@ public class SpecPlus3 extends Spec128 {
 
   public String getName() {
     return "Spectrum Plus 3";
+  }
+
+  protected void doReset(String romPlus2a0, String romPlus2a1, String romPlus2a2, String romPlus2a3, String romPlus2a4, String romPlus2a5, String romPlus2a6, String romPlus2a7) {
+    loadRom(0, romPlus2a0, romPlus2a1, 0x4000);
+    loadRom(1, romPlus2a2, romPlus2a3, 0x4000);
+    loadRom(2, romPlus2a4, romPlus2a5, 0x4000);
+    loadRom(3, romPlus2a6, romPlus2a7, 0x4000);
+
+    plus2aCommonReset();
+
+    periph.clear();
+    machinesPeriph.machinesPeriphPlus3();
   }
 
   public int unattachedPort(int port) {
