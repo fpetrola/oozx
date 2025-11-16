@@ -26,7 +26,7 @@ import java.awt.event.KeyListener;
 // Mock implementation of the core
 public class MockEmulatorCore implements EmulatorCore {
   private double emulationSpeed = 1.0;
-  private String currentModel = "48K";
+  private String currentModel = "Spectrum 48K";
   private boolean paused = false;
   private boolean turboMode = true;
   private String tapeStatus = "Stopped";

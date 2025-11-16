@@ -82,8 +82,7 @@ public class Fuse {
     machinesPeriph = new MachinesPeriph(ulaPeriph);
     joystick = new Joystick(keyboard, ulaPeriph, module, settings);
     input = new Input(joystick, keyboard, settings);
-    Sound sound = new Sound();
-    timer = new Timer(eventManager, sound, settings, tape);
+    timer = new Timer(eventManager, new Sound(), settings, tape);
     machine = new Machine(eventManager, memory, display, ula, zxClock, spec48, uiDisplay, timer, module, settings);
     z80 = new Z80(eventManager, memory, display, ula, machine, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer, module, this, settings, tape);
     spec48 = new Spec48(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module);
