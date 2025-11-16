@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
+import com.fpetrola.oozx.fuse.machine.RamInfo;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.Ula;
 import com.fpetrola.oozx.fuse.modules.ZxModule;
@@ -27,7 +27,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class Memory extends DefaultRAMHolder implements ZxModule {
 
@@ -61,13 +60,11 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   public final MemoryPage[] mapWrite = new MemoryPage[PAGES_IN_64K];
   public final MemoryPage[] mapRam = new MemoryPage[SPECTRUM_RAM_PAGES * PAGES_IN_16K];
   public final MemoryPage[] mapRom = new MemoryPage[SPECTRUM_ROM_PAGES * PAGES_IN_16K];
-  private final Supplier<SpectrumMachine> fuseMachineInfoSupplier;
   private final SpectrumZ80Clock zxClock;
   private final Module module;
   private final Settings settings;
 
-  public Memory(Supplier<SpectrumMachine> machine, SpectrumZ80Clock zxClock, Module module, Settings settings) {
-    this.fuseMachineInfoSupplier = machine;
+  public Memory(SpectrumZ80Clock zxClock, Module module, Settings settings) {
     this.zxClock = zxClock;
     this.module = module;
     this.settings = settings;
@@ -301,8 +298,8 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   }
 
   // Map ROMCS
-  public void romcsMap() {
-    if (!fuseMachineInfoSupplier.get().getRamInfo().romcs) return;
+  public void romcsMap(RamInfo ramInfo) {
+    if (!ramInfo.romcs) return;
     module.romcs();
   }
 

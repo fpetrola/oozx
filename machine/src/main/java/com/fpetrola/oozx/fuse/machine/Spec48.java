@@ -77,7 +77,7 @@ public class Spec48 extends Spectrum {
   // Map memory for Spectrum 48K
   public void memoryMap() {
     memory.map16k(0x0000, memory.mapRom, 0);
-    memory.romcsMap();
+    memory.romcsMap(ramInfo);
   }
 
   public int unattachedPort(int port) {

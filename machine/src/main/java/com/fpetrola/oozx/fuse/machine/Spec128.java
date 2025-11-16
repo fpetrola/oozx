@@ -125,7 +125,7 @@ public class Spec128 extends Spectrum {
     selectRom(rom);
     selectPage(page);
 
-    memory.romcsMap();
+    memory.romcsMap(ramInfo);
 
   }
 

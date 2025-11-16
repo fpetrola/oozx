@@ -18,16 +18,15 @@
 
 package com.fpetrola.oozx.fuse.modules;
 
+import com.fpetrola.oozx.Machine;
 import com.fpetrola.oozx.Memory;
 import com.fpetrola.oozx.RAMHolder;
 import com.fpetrola.oozx.UiDisplay;
-import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class Display implements ZxModule {
   private final Memory memory;
@@ -101,15 +100,14 @@ public class Display implements ZxModule {
   // The last point at which we updated the screen display
   private int criticalRegionX;
   private int criticalRegionY;
-  private final Supplier<SpectrumMachine> fuseMachineInfoSupplier;
   private final Z80Clock z80Clock;
   private final UiDisplay uiDisplay;
   private final int[][] ram;
   private final BeanPosition beam;
+  private Machine machine;
 
-  public Display(Memory memory, Supplier<SpectrumMachine> machine, Z80Clock z80Clock, RAMHolder ramHolder, UiDisplay uiDisplay) {
+  public Display(Memory memory, Z80Clock z80Clock, RAMHolder ramHolder, UiDisplay uiDisplay) {
     this.memory = memory;
-    this.fuseMachineInfoSupplier = machine;
     this.z80Clock = z80Clock;
     this.uiDisplay = uiDisplay;
     this.ram = ramHolder.getRAM();
@@ -167,6 +165,14 @@ public class Display implements ZxModule {
   @Override
   public void end() {
 
+  }
+
+  public Machine getMachine() {
+    return machine;
+  }
+
+  public void setMachine(Machine machine) {
+    this.machine = machine;
   }
 
   // Structure for border change
@@ -253,8 +259,7 @@ public class Display implements ZxModule {
   }
 
   public BeanPosition getBeamPosition() {
-    SpectrumMachine current = fuseMachineInfoSupplier.get();
-    long[] lineTimes = current.getLineTimes();
+    long[] lineTimes = machine.current.getLineTimes();
 
     long tStates = z80Clock.getTStates();
     if (tStates < lineTimes[0]) {
@@ -262,7 +267,7 @@ public class Display implements ZxModule {
       return beam;
     }
 
-    beam.y = (int) ((tStates - lineTimes[0]) / current.getTimings().tstatesPerLine);
+    beam.y = (int) ((tStates - lineTimes[0]) / machine.current.getTimings().tstatesPerLine);
 
     if (beam.y >= 0 && beam.y <= SCREEN_HEIGHT) {
       beam.x = (int) ((tStates - lineTimes[beam.y]) / 4);

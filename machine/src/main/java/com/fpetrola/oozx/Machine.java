@@ -112,8 +112,8 @@ public class Machine implements ZxModule {
 //        EventManager.eventAdd(0, Timer.event);
     timer.addEvent();
 
-    if (spectrumFrameEvent != 1)
-      System.out.println("ehhh!!!1111");
+//    if (spectrumFrameEvent != 1)
+//      System.out.println("ehhh!!!1111");
     eventManager.eventAdd(machine.getTimings().tstatesPerFrame, spectrumFrameEvent);
 
     Sound.end();

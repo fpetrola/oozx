@@ -259,7 +259,7 @@ public class SpecPlus3 extends Spec128 {
     currentRamInfo.currentPage = page;
     currentRamInfo.currentRom = rom;
 
-    memory.romcsMap();
+    memory.romcsMap(ramInfo);
 
   }
 
