@@ -21,7 +21,6 @@ package com.fpetrola.oozx.fuse.modules.z80;
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.fuse.*;
-import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.machine.TimingsHandler;
 import com.fpetrola.oozx.fuse.modules.*;
 import com.fpetrola.oozx.fuse.modules.Timer;
@@ -46,8 +45,6 @@ import fuse.tstates.phases.BeforeWrite;
 import javax.swing.*;
 import java.awt.event.*;
 import java.io.File;
-import java.util.List;
-import java.util.function.Supplier;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
@@ -69,7 +66,7 @@ public class Z80 implements ZxModule {
   public Audio audio;
   private final Display display;
   public final Ula ula;
-  private final Supplier<SpectrumMachine> machineSupplier;
+  private final Machine machine;
   private Keyboard keyboard;
   public SpectrumZ80Clock zxClock;
   private Input input;
@@ -78,7 +75,6 @@ public class Z80 implements ZxModule {
   private volatile boolean emulatorPaused;
   private final com.fpetrola.oozx.fuse.modules.Timer timer;
   public EmulatorCore mockCore;
-  private final Supplier<Machine> machine;
   private Runnable changeMachine;
   private final Module module;
   private final Fuse fuse;
@@ -87,19 +83,18 @@ public class Z80 implements ZxModule {
   private final byte[][] screenBytes = new byte[1000][1000];
   private Memory memory1;
 
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Supplier<SpectrumMachine> machineSupplier, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer, Supplier<Machine> machine, Module module, Fuse fuse, Settings settings, Tape tape) {
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Machine machine, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer, Module module, Fuse fuse, Settings settings, Tape tape) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
     this.ula = ula;
-    this.machineSupplier = machineSupplier;
+    this.machine = machine;
     this.keyboard = keyboard;
     this.zxClock = zxClock;
     this.input = input;
     this.periph = periph;
     this.uiDisplay = uiDisplay;
     this.timer = timer;
-    this.machine = machine;
     this.module = module;
     this.fuse = fuse;
     this.settings = settings;
@@ -140,7 +135,7 @@ public class Z80 implements ZxModule {
   }
 
   public void interrupt() {
-    int i = TimingsHandler.interruptLength(machineSupplier.get().getBaseTiming());
+    int i = TimingsHandler.interruptLength(machine.current.getBaseTiming());
     if (ooz80.getState().isIff1() && zxClock.getTStates() < i) {
       zxClock.addTStates(7, "interrupt");
       ooz80.interruption();
@@ -382,7 +377,7 @@ public class Z80 implements ZxModule {
 
   public JFrame createScreen(KeyListener keyListener, JComponent contentPane) {
     mockCore = new MockEmulatorCore(contentPane) {
-      private boolean turbo= true;
+      private boolean turbo = true;
 
       public KeyListener getKeyListener() {
         return new SwingKeyboard(fuse.keyboard, fuse.input);
@@ -450,14 +445,7 @@ public class Z80 implements ZxModule {
 
       @Override
       public void onModelChanged(String model) {
-        changeMachine = () -> {
-          Machine machine1 = machine.get();
-          List<Spectrum> machineTypes = machine1.getMachineTypes();
-
-          machineTypes.stream().filter(m -> m.getName().equals(model)).forEach(m -> {
-            machine1.select(m);
-          });
-        };
+        changeMachine = () -> machine.getMachineTypes().stream().filter(m -> m.getName().equals(model)).forEach(machine::select);
       }
 
       @Override

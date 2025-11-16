@@ -86,23 +86,23 @@ public class Fuse {
     ula = new Ula(memory, display, spectrumMachineSupplier, keyboard, zxClock, periph, module, settings, tape);
     eventManager = new EventManager(spectrumMachineSupplier, zxClock);
     ulaPeriph = new UlaPeriph(ula, zxClock, periph);
+    machinesPeriph = new MachinesPeriph(ulaPeriph);
     joystick = new Joystick(keyboard, ulaPeriph, module, settings);
     input = new Input(joystick, keyboard, settings);
     sound = new Sound();
     timer = new Timer(eventManager, spectrumMachineSupplier, sound, settings, tape);
-    z80 = new Z80(eventManager, memory, display, ula, spectrumMachineSupplier, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer, () -> getMachine(), module, this, settings, tape);
-    machinesPeriph = new MachinesPeriph(ulaPeriph);
+    machine = new Machine(eventManager, memory, display, ula, zxClock, spec48, uiDisplay, timer, module, settings);
+    z80 = new Z80(eventManager, memory, display, ula, machine, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer, module, this, settings, tape);
+    spec48 = new Spec48(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module);
     fdd = new Fdd(settings);
     uPDFdc = new UPDFdc(settings);
 
-    spec48 = new Spec48(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module);
     spec128 = new Spec128(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module);
     specPlus3 = new SpecPlus3(memory, display, machinesPeriph, ulaPeriph, settings, fdd, uPDFdc, eventManager, z80, timer, module);
     specPlus2 = new SpecPlus2(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module);
     specPlus2a = new SpecPlus2A(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, fdd, uPDFdc);
     specPlus3e = new SpecPlus3E(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, fdd, uPDFdc);
     spec48Ntsc = new Spec48Ntsc(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module);
-    machine = new Machine(eventManager, memory, display, ula, zxClock, spec48, uiDisplay, timer, module, settings);
   }
 
   private Machine getMachine() {

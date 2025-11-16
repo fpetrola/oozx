@@ -96,8 +96,10 @@ public class Machine implements ZxModule {
     int spectrumFrameEvent;
     if (current != null && current.spectrumFrameEvent != -1)
       spectrumFrameEvent = current.spectrumFrameEvent;
-    else
+    else if (spectrum != null)
       spectrumFrameEvent = spectrum.spectrumFrameEvent;
+    else
+      spectrumFrameEvent= machine.spectrumFrameEvent;
 
     current = machine;
     current.init();
