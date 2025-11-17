@@ -20,6 +20,7 @@ package com.fpetrola.oozx.fuse.modules;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
+import com.fpetrola.oozx.fuse.Sound;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
@@ -56,8 +57,9 @@ public class Ula implements ZxModule, MachineChangeListener {
   private final Settings settings;
   private final Tape tape;
   private SpectrumMachine spectrumMachine;
+  private Sound sound;
 
-  public Ula(Memory memory, Display display, Keyboard keyboard, SpectrumZ80Clock z80Clock, IPeriph periph, Module module, Settings settings, com.fpetrola.oozx.fuse.modules.tape.Tape tape) {
+  public Ula(Memory memory, Display display, Keyboard keyboard, SpectrumZ80Clock z80Clock, IPeriph periph, Module module, Settings settings, com.fpetrola.oozx.fuse.modules.tape.Tape tape, Sound sound) {
     this.memory = memory;
     this.display = display;
     this.keyboard = keyboard;
@@ -66,6 +68,7 @@ public class Ula implements ZxModule, MachineChangeListener {
     this.module = module;
     this.settings = settings;
     this.tape = tape;
+    this.sound = sound;
   }
 
   // Initialize ULA module
@@ -111,8 +114,11 @@ public class Ula implements ZxModule, MachineChangeListener {
     lastByte = b;
 
     display.setLoresBorder(b & 0x07);
-    Sound.beeper(z80Clock.getTStates(),
-        ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || tape.microphone ? 1 : 0));
+
+      sound.beeper(z80Clock.getTStates(),
+          ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || tape.microphone ? 1 : 0), b & 0xff);
+
+//    sound.beeper(z80Clock.getTStates(), (int) (Math.random() * 4));
 
     if ((getCurrent().getCapabilities() & PLUS3_MEMORY) != 0) {
       defaultValue = (byte) 0xbf;

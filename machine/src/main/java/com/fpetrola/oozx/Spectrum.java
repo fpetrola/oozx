@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.Sound;
 import com.fpetrola.oozx.fuse.machine.AbstractSpectrumMachine;
 import com.fpetrola.oozx.fuse.machine.MachineTimings;
 import com.fpetrola.oozx.fuse.machine.RamInfo;
@@ -42,12 +43,20 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   private final int[] contentionPattern76543210 = {5, 4, 3, 2, 1, 0, 7, 6};
 
   public int spectrumFrameEvent = -1;
+  private Sound sound1;
+
+  public boolean isTimex() {
+    return timex;
+  }
+
+  public boolean timex;
   private long framesSinceReset;
   private final Timer timer;
   private final Module module;
   private final int[][] ram;
+  private Sound sound;
 
-  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, Timer timer, Module module, Settings settings1, RamInfo ramInfo1, MachinesPeriph machinesPeriph, IPeriph periph) {
+  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, Timer timer, Module module, Settings settings1, RamInfo ramInfo1, MachinesPeriph machinesPeriph, IPeriph periph, Sound sound) {
     super(display, settings1, ramInfo1);
     this.memory = memory;
     this.display = display;
@@ -59,6 +68,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
     this.ram = memory.getRAM();
     this.machinesPeriph = machinesPeriph;
     this.periph = periph;
+    this.sound = sound;
   }
 
   protected void init() {
@@ -148,6 +158,8 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   }
 
   public void spectrumFrame() {
+    if (sound.soundEnabled)
+      sound.frame();
     int frameLength = getTimings().tstatesPerFrame;
 
     eventManager.eventFrame(frameLength);
@@ -157,9 +169,11 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
       z80.interruptsEnabledAt -= frameLength;
     }
 
-    if (Sound.enabled) Sound.frame();
+
 
     if (display.frame() != 0) return;
+
+    sound.sendFrame();
 
     eventManager.eventAdd(getTimings().tstatesPerFrame, spectrumFrameEvent);
 

@@ -20,6 +20,7 @@ package com.fpetrola.oozx.fuse.machine;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
+import com.fpetrola.oozx.fuse.Sound;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.modules.Timer;
@@ -27,8 +28,8 @@ import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 public class Spec48Ntsc extends Spec48 {
-  public Spec48Ntsc(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module) {
-    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module);
+  public Spec48Ntsc(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module, Sound sound) {
+    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module, sound);
     init();
   }
 

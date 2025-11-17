@@ -20,6 +20,7 @@ package com.fpetrola.oozx.fuse.machine;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
+import com.fpetrola.oozx.fuse.Sound;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.modules.Timer;
@@ -29,8 +30,8 @@ import com.fpetrola.oozx.fuse.peripherals.SeMemoryPeripheral;
 import com.fpetrola.oozx.fuse.peripherals.Spec128MemoryPeripheral;
 
 public class SpecPlus2 extends Spec128 {
-  public SpecPlus2(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module) {
-    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module);
+  public SpecPlus2(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module, Sound sound) {
+    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module, sound);
     init();
   }
 

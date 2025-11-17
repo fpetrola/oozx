@@ -20,6 +20,7 @@ package com.fpetrola.oozx.fuse.machine;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
+import com.fpetrola.oozx.fuse.Sound;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.modules.Timer;
@@ -27,12 +28,12 @@ import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 public class Spec128 extends Spectrum {
-  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module) {
-    this(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module, new Spec48RamInfo(8));
+  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module, Sound sound) {
+    this(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module, new Spec48RamInfo(8), sound);
   }
 
-  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module, RamInfo ramInfo) {
-    super(memory, display, eventManager, z80, timer, module, settings, ramInfo, machinesPeriph, periph);
+  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module, RamInfo ramInfo, Sound sound) {
+    super(memory, display, eventManager, z80, timer, module, settings, ramInfo, machinesPeriph, periph, sound);
   }
 
   @Override

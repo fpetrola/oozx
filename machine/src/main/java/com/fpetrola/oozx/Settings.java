@@ -22,11 +22,11 @@ import com.fpetrola.oozx.fuse.modules.Joystick;
 
 public class Settings {
 
-  public  void setString(String startMachine, String id) {
+  public void setString(String startMachine, String id) {
 
   }
 
-  public  class SettingsInfo {
+  public class SettingsInfo {
     public boolean accelerateLoader;
     public boolean aspectHint;
     public boolean autoLoad;
@@ -73,7 +73,7 @@ public class Settings {
     public String drivePlusd1Type;
     public String drivePlusd2Type;
     public boolean embedSnapshot;
-    public int emulationSpeed= 10000;
+    public int emulationSpeed = 100;
     public boolean fastload;
     public int fbMode;
     public int frameRate;
@@ -162,10 +162,10 @@ public class Settings {
     public boolean rawSNet;
     public String recordFile;
     public boolean recreatedSpectrum;
-    public String rom1280= "128-0.rom";
-    public String rom1281= "128-1.rom";
+    public String rom1280 = "128-0.rom";
+    public String rom1281 = "128-1.rom";
     public String rom16;
-    public String rom48= "48.rom";
+    public String rom48 = "48.rom";
     public String romBeta128;
     public String romDidaktik80;
     public String romDisciple;
@@ -185,20 +185,20 @@ public class Settings {
     public String romPentagon0;
     public String romPentagon1;
     public String romPentagon2;
-    public String romPlus20= "plus2-0.rom";
-    public String romPlus21= "plus2-1.rom";
-    public String romPlus2a0= "plus3-0.rom";
-    public String romPlus2a1= "plus3-1.rom";
-    public String romPlus2a2= "plus3-2.rom";
-    public String romPlus2a3= "plus3-3.rom";
-    public String romPlus30= "plus3-0.rom";
-    public String romPlus31= "plus3-1.rom";
-    public String romPlus32= "plus3-2.rom";
-    public String romPlus33= "plus3-3.rom";
-    public String romPlus3e0= "plus3e-0.rom";
-    public String romPlus3e1= "plus3e-1.rom";
-    public String romPlus3e2= "plus3e-2.rom";
-    public String romPlus3e3= "plus3e-3.rom";
+    public String romPlus20 = "plus2-0.rom";
+    public String romPlus21 = "plus2-1.rom";
+    public String romPlus2a0 = "plus3-0.rom";
+    public String romPlus2a1 = "plus3-1.rom";
+    public String romPlus2a2 = "plus3-2.rom";
+    public String romPlus2a3 = "plus3-3.rom";
+    public String romPlus30 = "plus3-0.rom";
+    public String romPlus31 = "plus3-1.rom";
+    public String romPlus32 = "plus3-2.rom";
+    public String romPlus33 = "plus3-3.rom";
+    public String romPlus3e0 = "plus3e-0.rom";
+    public String romPlus3e1 = "plus3e-1.rom";
+    public String romPlus3e2 = "plus3e-2.rom";
+    public String romPlus3e3 = "plus3e-3.rom";
     public String romPlusd;
     public String romScorpion0;
     public String romScorpion1;
@@ -226,10 +226,10 @@ public class Settings {
     public boolean sltTraps;
     public String snapshot;
     public String snet;
-    public boolean sound;
-    public String soundDevice;
+    public boolean sound = true;
+    public String soundDevice = "buffer=8192,frames=4,verbose";
     public boolean soundForce8bit;
-    public int soundFreq;
+    public int soundFreq = 44100;
     public boolean soundLoad;
     public String speakerType;
     public boolean speccyboot;
@@ -273,34 +273,39 @@ public class Settings {
     public boolean zxmmcEnabled;
     public String zxmmcFile;
     public boolean zxprinter;
+    public int volumeAY;
+
+    public int getSoundFreq() {
+      return soundFreq;
+    }
   }
 
-  public  SettingsInfo current = new SettingsInfo();
-  public  SettingsInfo defaults = new SettingsInfo();
+  public SettingsInfo current = new SettingsInfo();
+  public SettingsInfo defaults = new SettingsInfo();
 
-  public  final int SETTINGS_ROM_COUNT = 30;
+  public final int SETTINGS_ROM_COUNT = 30;
 
-  public  void defaults(SettingsInfo settings) {
+  public void defaults(SettingsInfo settings) {
     throw new UnsupportedOperationException("settings_defaults not implemented");
   }
 
-  public  void copy(SettingsInfo dest, SettingsInfo src) {
+  public void copy(SettingsInfo dest, SettingsInfo src) {
     throw new UnsupportedOperationException("settings_copy not implemented");
   }
 
-  public  String[] getRomSetting(SettingsInfo settings, int which, boolean isPeripheral) {
+  public String[] getRomSetting(SettingsInfo settings, int which, boolean isPeripheral) {
     throw new UnsupportedOperationException("settings_get_rom_setting not implemented");
   }
 
-  public  void setString(String[] stringSetting, String value) {
+  public void setString(String[] stringSetting, String value) {
     throw new UnsupportedOperationException("settings_set_string not implemented");
   }
 
-  public  int free(SettingsInfo settings) {
+  public int free(SettingsInfo settings) {
     throw new UnsupportedOperationException("settings_free not implemented");
   }
 
-  public  int writeConfig(SettingsInfo settings) {
+  public int writeConfig(SettingsInfo settings) {
     throw new UnsupportedOperationException("settings_write_config not implemented");
   }
 

@@ -19,6 +19,8 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.fuse.Input;
+import com.fpetrola.oozx.fuse.Movie;
+import com.fpetrola.oozx.fuse.Sound;
 import com.fpetrola.oozx.fuse.machine.*;
 import com.fpetrola.oozx.fuse.modules.Joystick;
 import com.fpetrola.oozx.fuse.modules.*;
@@ -33,6 +35,7 @@ import com.fpetrola.oozx.fuse.startup.*;
 import java.util.List;
 
 public class Fuse {
+  private final com.fpetrola.oozx.fuse.Sound sound;
   public SpectrumZ80Clock zxClock;
   public Settings settings;
   public boolean alive;
@@ -76,27 +79,29 @@ public class Fuse {
     keyboard = new Keyboard();
     periph = new Periph(zxClock, settings);
     tape = new Tape(new TapeSettingsType(), zxClock);
-    ula = new Ula(memory, display, keyboard, zxClock, periph, module, settings, tape);
+    Movie movie = new Movie();
+    sound = new Sound(settings, movie, periph, tape, zxClock);
+    ula = new Ula(memory, display, keyboard, zxClock, periph, module, settings, tape, sound);
     eventManager = new EventManager(zxClock);
     ulaPeriph = new UlaPeriph(ula, zxClock, periph);
     machinesPeriph = new MachinesPeriph(ulaPeriph);
     joystick = new Joystick(keyboard, ulaPeriph, module, settings);
     input = new Input(joystick, keyboard, settings);
-    timer = new Timer(eventManager, new Sound(), settings, tape);
-    machine = new Machine(eventManager, memory, display, ula, zxClock, spec48, uiDisplay, timer, module, settings);
+    timer = new Timer(eventManager, sound, settings, tape);
+    machine = new Machine(eventManager, memory, display, ula, zxClock, spec48, uiDisplay, timer, module, settings, sound);
     z80 = new Z80(eventManager, memory, display, ula, machine, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer, module, this, settings, tape);
-    spec48 = new Spec48(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module);
+    spec48 = new Spec48(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, sound);
     Fdd fdd = new Fdd(settings);
     UPDFdc uPDFdc = new UPDFdc(settings);
 
-    machine.addMachineChangeListeners(display, timer, periph, ula, eventManager);
+    machine.addMachineChangeListeners(sound, display, timer, periph, ula, eventManager);
 
-    spec128 = new Spec128(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module);
-    specPlus3 = new SpecPlus3(memory, display, machinesPeriph, ulaPeriph, settings, fdd, uPDFdc, eventManager, z80, timer, module);
-    specPlus2 = new SpecPlus2(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module);
-    specPlus2a = new SpecPlus2A(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, fdd, uPDFdc);
-    specPlus3e = new SpecPlus3E(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, fdd, uPDFdc);
-    spec48Ntsc = new Spec48Ntsc(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module);
+    spec128 = new Spec128(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, sound);
+    specPlus3 = new SpecPlus3(memory, display, machinesPeriph, ulaPeriph, settings, fdd, uPDFdc, eventManager, z80, timer, module, sound);
+    specPlus2 = new SpecPlus2(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, sound);
+    specPlus2a = new SpecPlus2A(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, fdd, uPDFdc, sound);
+    specPlus3e = new SpecPlus3E(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, fdd, uPDFdc, sound);
+    spec48Ntsc = new Spec48Ntsc(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, sound);
   }
 
   public void init() {

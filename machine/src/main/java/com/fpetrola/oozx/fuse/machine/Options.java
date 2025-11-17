@@ -26,4 +26,12 @@ public class Options {
   public static int enumerateDiskoptionsDrivePlus3bType() {
     return 0;
   }
+
+  public static int enumerateSoundSpeakerType() {
+    return 0;
+  }
+
+  public static int enumerateSoundStereoAY() {
+    return 0;
+  }
 }

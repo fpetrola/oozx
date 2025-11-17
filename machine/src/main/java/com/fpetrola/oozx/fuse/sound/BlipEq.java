@@ -16,35 +16,11 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.machine;
+package com.fpetrola.oozx.fuse.sound;
 
-public interface SpectrumMachine {
-  TimingsHandler.Timings getBaseTiming();
-
-  int reset();
-
-  void memoryMap();
-
-  int unattachedPort(int port);
-
-  default void shutdown() {
-  }
-
-  RamInfo getRamInfo();
-
-  int getCapabilities();
-
-  MachineTimings getTimings();
-
-  long[] getLineTimes();
-
-  String getName();
-
-  default void reset(boolean b) {
-    reset();
-  }
-
-  boolean portFromUla(int port);
-
-  boolean isTimex();
+public class BlipEq {
+    public double treble = 0.0;
+    public long rolloffFreq = 0;
+    public long sampleRate = 44100;
+    public long cutoffFreq = 0;
 }

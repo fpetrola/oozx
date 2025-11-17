@@ -20,6 +20,7 @@ package com.fpetrola.oozx.fuse.machine;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
+import com.fpetrola.oozx.fuse.Sound;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.modules.Timer;
@@ -32,8 +33,8 @@ public class SpecPlus3 extends Spec128 {
   public Fdd fdd;
   public UPDFdc uPDFdc;
 
-  public SpecPlus3(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Z80 z80, Timer timer, Module module) {
-    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module, new SpecPlus3RamInfo(8));
+  public SpecPlus3(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Z80 z80, Timer timer, Module module, Sound sound) {
+    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module, new SpecPlus3RamInfo(8), sound);
     this.fdd = fdd;
     this.uPDFdc = uPDFdc;
     specplus3765Init();

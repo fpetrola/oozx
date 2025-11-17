@@ -63,7 +63,7 @@ public class Z80 implements ZxModule {
   //   ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent();
 //   MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
   private boolean init;
-  public Audio audio;
+//  public Audio audio;
   private final Display display;
   public final Ula ula;
   private final Machine machine;
@@ -237,8 +237,8 @@ public class Z80 implements ZxModule {
   private void createScreenNoTest() {
     //      JFrame screen1 = MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
 //      JFrame screen = createScreen(io.miniZXKeyboard, zxScreenComponent);
-    audio = new Audio(new AY8912Type());
-    audio.open(MachineTypes.SPECTRUM48K, new AY8912(), false, 32000);
+//    audio = new Audio(new AY8912Type());
+//    audio.open(MachineTypes.SPECTRUM48K, new AY8912(), false, 32000);
     FuseScreen contentPane = new FuseScreen(screenBytes);
     contentPane.addMouseListener(new MouseAdapter() {
       public void mouseClicked(MouseEvent e) {
@@ -344,7 +344,7 @@ public class Z80 implements ZxModule {
 
   public void doOpcodes() {
     while (zxClock.getTStates() < eventManager.eventNextEvent) {
-      while (emulatorPaused) Thread.onSpinWait();
+//      while (emulatorPaused) Thread.onSpinWait();
       bridgeCommand.invoke(0, null);
       try {
         ooz80.execute();

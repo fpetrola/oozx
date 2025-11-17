@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.Sound;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.machine.TimingsHandler;
 import com.fpetrola.oozx.fuse.modules.*;
@@ -42,8 +43,9 @@ public class Machine implements ZxModule {
 
   public List<Spectrum> machineTypes = new ArrayList<>();
   private final List<MachineChangeListener> machineChangeListeners = new ArrayList<>();
+  private Sound sound;
 
-  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, Z80Clock z80Clock, Spectrum spectrum, UiDisplay uiDisplay, Timer timer, Module module, Settings settings) {
+  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, Z80Clock z80Clock, Spectrum spectrum, UiDisplay uiDisplay, Timer timer, Module module, Settings settings, Sound sound) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
@@ -54,6 +56,7 @@ public class Machine implements ZxModule {
     this.uiDisplay = uiDisplay;
     this.timer = timer;
     this.settings = settings;
+    this.sound = sound;
   }
 
   public List<Spectrum> getMachineTypes() {
@@ -118,7 +121,7 @@ public class Machine implements ZxModule {
 //      System.out.println("ehhh!!!1111");
     eventManager.eventAdd(machine.getTimings().tstatesPerFrame, spectrumFrameEvent);
 
-    Sound.end();
+    sound.end();
 
     if (uiDisplay.end() != 0) return 1;
 
@@ -134,7 +137,7 @@ public class Machine implements ZxModule {
 
     if (uiDisplay.init(width, height) != 0) return 1;
 
-    Sound.init(settings.current.soundDevice);
+    sound.init(settings.current.soundDevice);
 
     machine.reset();
 

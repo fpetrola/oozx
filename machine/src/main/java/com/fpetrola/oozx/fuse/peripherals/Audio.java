@@ -168,6 +168,8 @@ public class Audio {
       // se añaden muestras completas mientras se pueda
       while (time >= step) {
         lastLevel += (value - lastLevel) >> 1;
+        if (lastLevel != 0)
+          System.out.println("adgadgadg");
         beeper[ptrBeeper++] = lastLevel;
         time -= step;
       }

@@ -16,33 +16,16 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse;
 
-public class Sound {
-  public static boolean enabled = true;
+public class Movie {
+  public boolean recording;
 
-  public static void frame() {
-//    Z80.audio.endFrame();
-//    Z80.audio.sendAudioFrame();
-  }
-
-  public static void beeper(long tstates, int i) {
-//    Z80.audio.updateAudio((int) tstates, i);
-  }
-
-  public static void end() {
-  }
-
-  public static void init(String soundDevice) {
+  public void initSound(int soundFreq, int soundStereoAY) {
 
   }
 
-  public static void pause() {
+  public void addSound(int[] samples, int count) {
 
   }
-
-  public static void unpause() {
-
-  }
-
 }

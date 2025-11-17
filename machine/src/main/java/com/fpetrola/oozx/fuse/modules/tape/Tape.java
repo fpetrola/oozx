@@ -81,10 +81,6 @@ public class Tape implements machine.ClockTimeoutListener {
     private final SpectrumZ80Clock clock;
     private Log1 log= new Log1();
 
-    public boolean isPlaying() {
-        return isTapePlaying();
-    }
-
     public enum TapeState {
 
         EJECT, INSERT, STOP, PLAY, RECORD

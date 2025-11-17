@@ -19,6 +19,7 @@
 package com.fpetrola.oozx.fuse.modules;
 
 import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.fuse.Sound;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.modules.z80.Z80;
@@ -125,7 +126,7 @@ public class Timer implements ZxModule, MachineChangeListener {
 
   // Check if fastloading is active
   public boolean fastloadingActive() {
-    return tape.isPlaying() || PhantomTypist.isActive();
+    return tape.isTapePlaying() || PhantomTypist.isActive();
   }
 
   // Frame handling
@@ -134,7 +135,7 @@ public class Timer implements ZxModule, MachineChangeListener {
       changeRequested= false;
       estimateReset();
     }
-    if (Sound.enabled && settings.current.sound) {
+    if (sound.soundEnabled && settings.current.sound) {
       frameCallbackSound(lastTstates);
       return;
     }
