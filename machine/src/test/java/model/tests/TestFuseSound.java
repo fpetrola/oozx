@@ -303,27 +303,27 @@ public class TestFuseSound extends FuseBaseForTests {
     }
   }
 
-  @Test
-  void test48KExecuteGame2() {
-    String model = "48K";
-    String fileName = "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
-
-    testDriver1.setModel(model);
-    testDriver1.loadSnapshot(fileName);
-
-    for (int i = 0; i < 1368000; i++) {
-      testDriver1.tstatesHistoryInit();
-      testDriver2.tstatesHistoryInit();
-      for (int j = 0; j < 100; j++) {
-        testDriver1.step();
-
-//        int pc1 = testDriver1.getRegister("PC");
-//        if (pc1 == 0) {
-//          System.out.println("sdsdgsdgdg");
-//        }
-      }
-    }
-  }
+//  @Test
+//  void test48KExecuteGame2() {
+//    String model = "48K";
+//    String fileName = "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
+//
+//    testDriver1.setModel(model);
+//    testDriver1.loadSnapshot(fileName);
+//
+//    for (int i = 0; i < 1368000; i++) {
+//      testDriver1.tstatesHistoryInit();
+//      testDriver2.tstatesHistoryInit();
+//      for (int j = 0; j < 100; j++) {
+//        testDriver1.step();
+//
+////        int pc1 = testDriver1.getRegister("PC");
+////        if (pc1 == 0) {
+////          System.out.println("sdsdgsdgdg");
+////        }
+//      }
+//    }
+//  }
 
 
 }
