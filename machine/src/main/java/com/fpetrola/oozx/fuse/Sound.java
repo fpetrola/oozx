@@ -317,32 +317,6 @@ public class Sound implements ZxModule, MachineChangeListener {
       rightBeeperSynth.update(tstates, val);
     }
   }
-  // ========================================================================
-  // Beeper (EAR + MIC)
-  // ========================================================================
-  public void beeper2(long tstates, int ear, int mic) {
-    if (!soundEnabled) return;
-
-    int on = ear | (mic << 1);
-    if (tapeIsPlaying()) {
-      if (!soundLoadEnabled() || isTimexMachine()) on &= 2;
-    } else {
-      if (on == 1) on = 0; // MIC solo no activa altavoz
-    }
-
-    int amplitude = switch (on) {
-      case 0 -> 0;
-      case 1 -> AMPL_TAPE;
-      case 2 -> AMPL_BEEPER;
-      case 3 -> AMPL_BEEPER + AMPL_TAPE;
-      default -> 0;
-    };
-
-    leftBeeperSynth.update(tstates, amplitude);
-    if (rightBeeperSynth != null) {
-      rightBeeperSynth.update(tstates, amplitude);
-    }
-  }
 
   // ========================================================================
   // AY-3-8912
