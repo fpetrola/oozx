@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.fuse.sound.p3;
 
+import java.util.function.DoubleFunction;
+
 import static com.fpetrola.oozx.fuse.sound.p3.BlipBuffer.*;
 
 public class BlipSynthImpl {
@@ -64,37 +66,56 @@ public class BlipSynthImpl {
 
   void trebleEq(BlipEq eq) {
     float[] fimpulse = new float[BLIP_RES / 2 * (BLIP_WIDEST_IMPULSE - 1) + BLIP_RES * 2];
-    int halfSize = BLIP_RES / 2 * (BLIP_SYNTH_WIDTH - 1);
+    int half_size = BLIP_RES / 2 * (BLIP_SYNTH_WIDTH - 1);
 
     // generate sinc
-//    generateSinc(fimpulse, BLIP_RES, halfSize, eq);
+//    generateSinc(fimpulse, BLIP_RES, half_size, eq);
 
-    eq.generate(halfSize, fimpulse, this);
+    eq.generate(half_size, fimpulse, this);
 
-    // integrate and rescale
+    /* need mirror slightly past center for calculation */
+    for (int i = BLIP_RES; i-- != 0; )
+      fimpulse[BLIP_RES + half_size + i] =
+          fimpulse[BLIP_RES + half_size - 1 - i];
+
+    /* starts at 0 */
+    for (int i = 0; i < BLIP_RES; i++)
+      fimpulse[i] = 0.0f;
+
+    /* find rescale factor */
     double total = 0.0;
-    for (int i = 0; i < halfSize; i++) total += fimpulse[BLIP_RES + i];
+    for (int i = 0; i < half_size; i++)
+      total += fimpulse[BLIP_RES + i];
 
-    double baseUnit = 32768.0; // para compatibilidad con blip_unscaled
-    double rescale = baseUnit / 2 / total;
-    kernelUnit = (long) baseUnit;
+/* double const base_unit = 44800.0 - 128 * 18;  allows treble up to +0 dB
+   double const base_unit = 37888.0;  allows treble to +5 dB */
+    double base_unit = 32768.0;          /*  necessary for blip_unscaled to work */
+    double rescale = base_unit / 2 / total;
+    kernelUnit = (long) base_unit;
 
-    double sum = 0.0, next = 0.0;
-    int size = impulses.length;
-    for (int i = 0; i < size; i++) {
+    /* integrate, first difference, rescale, convert to int */
+    double sum = 0.0;
+    double next = 0.0;
+    int impulses_size = _blip_synth_impulses_size();
+
+    for (int i = 0; i < impulses_size; i++) {
+      impulses[i] = (short) Math.floor((next - sum) * rescale + 0.5);
       sum += fimpulse[i];
       next += fimpulse[i + BLIP_RES];
-      impulses[i] = (short) Math.floor((next - sum) * rescale + 0.5);
     }
 
     adjustImpulse();
 
-    // reapply volume si ya estaba seteado
-    if (volumeUnit != 0.0) {
-      double v = volumeUnit;
+    /* volume might require rescaling */
+    double vol = volumeUnit;
+    if (vol != 0.0) {
       volumeUnit = 0.0;
-      volumeUnit(v);
+      volumeUnit(vol);
     }
+  }
+
+  int _blip_synth_impulses_size() {
+    return BLIP_RES / 2 * BLIP_SYNTH_WIDTH + 1;
   }
 
 //  private void generateSinc(float[] out, int start, int count, BlipEq eq) {
@@ -129,8 +150,8 @@ public class BlipSynthImpl {
       int p2 = BLIP_RES - 2 - p;
       long error = kernelUnit;
       for (int i = 1; i < size; i += BLIP_RES) {
-        error -= impulses[i + p] & 0xFFFF;
-        error -= impulses[i + p2] & 0xFFFF;
+        error -= impulses[i + p];
+        error -= impulses[i + p2];
       }
       if (p == p2) error /= 2;
       impulses[size - BLIP_RES + p] += (short) error;
