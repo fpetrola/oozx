@@ -16,11 +16,26 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.sound;
+package com.fpetrola.oozx.fuse.sound.p3;
 
-public class BlipEq {
-    public double treble = 0.0;
-    public long rolloffFreq = 0;
-    public long sampleRate = 44100;
-    public long cutoffFreq = 0;
+public class ArrayHandler {
+  private short[] imp;
+  private int impIdx;
+
+  public ArrayHandler(short[] imp, int impIdx) {
+    this.imp = imp;
+    this.impIdx = impIdx;
+  }
+
+  public int get() {
+    return imp[impIdx];
+  }
+
+  public void set(int i) {
+    imp[impIdx]= (short) i;
+  }
+
+  public int get(int i) {
+    return imp[impIdx+i];
+  }
 }

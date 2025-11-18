@@ -167,7 +167,7 @@ public class JavaSoundDevice {
    * @param len  Cantidad de samples (no frames). En C: len /= ch
    */
   public void sound_lowlevel_frame(int[] data, int len) {
-    System.out.println("local:" + Arrays.toString(data));
+//    System.out.println("local:" + Arrays.toString(data));
 
     if (line == null || !line.isOpen()) return;
 

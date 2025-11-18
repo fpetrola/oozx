@@ -18,29 +18,30 @@
 
 package com.fpetrola.oozx.fuse.sound;
 
+
 public class TestBlip {
     public static void main(String[] args) {
-        BlipBuffer buf = new BlipBuffer();
-        buf.setSampleRate(44100, 250); // 250 ms
+//        BlipBuffer buf = new BlipBuffer();
+//        buf.setSampleRate(44100, 250); // 250 ms
 
-        BlipSynth synth = new BlipSynth();
-        synth.setOutput(buf);
-        synth.setVolume(0.5);
-        synth.setTrebleEq(-6.0); // -6 dB treble
-
-        buf.setClockRate(1789773); // NES clock
-
-        // Simular un frame
-        buf.endFrame(29780); // ~60 FPS
-
-        // Generar onda cuadrada
-        for (int i = 0; i < 1000; i++) {
-            int amp = (i % 40 < 20) ? 16384 : 0;
-            synth.update(i, amp);
-        }
-
-        int[] samples = new int[1024];
-        long read = buf.readSamples(samples, 1024, false);
-        System.out.println("Leídos: " + read + " muestras");
+//        BlipSynth synth = new BlipSynth();
+//        synth.setOutput(buf);
+//        synth.setVolume(0.5);
+//        synth.setTrebleEq(-6.0); // -6 dB treble
+//
+//        buf.setClockRate(1789773); // NES clock
+//
+//        // Simular un frame
+//        buf.endFrame(29780); // ~60 FPS
+//
+//        // Generar onda cuadrada
+//        for (int i = 0; i < 1000; i++) {
+//            int amp = (i % 40 < 20) ? 16384 : 0;
+//            synth.update(i, amp);
+//        }
+//
+//        int[] samples = new int[1024];
+//        long read = buf.readSamples(samples, 1024, false);
+//        System.out.println("Leídos: " + read + " muestras");
     }
 }
