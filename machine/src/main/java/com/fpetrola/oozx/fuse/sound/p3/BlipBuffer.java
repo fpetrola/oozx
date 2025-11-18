@@ -237,7 +237,7 @@ public class BlipBuffer {
   // ------------------------------------------------------------------------
   // BlipSynth - versión genérica como en el original C++
   // ------------------------------------------------------------------------
-  public static class BlipSynth<Q extends Number, R extends Number> {
+  public static class BlipSynth {
     private final BlipSynthImpl impl;
 
     public BlipSynth(int quality, int range) {

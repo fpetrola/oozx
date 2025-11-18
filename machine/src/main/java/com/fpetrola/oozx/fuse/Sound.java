@@ -41,25 +41,6 @@ public class Sound implements ZxModule, MachineChangeListener {
     init(settings.current.soundDevice);
   }
 
-  //  public void beeper(long tstates, int on, int value) {
-//    final int[] beeperAmpl = {0, AMPL_TAPE, AMPL_BEEPER, AMPL_BEEPER + AMPL_TAPE};
-//    if (!soundEnabled) {
-//      return;
-//    }
-//    if (tape.isTapePlaying()) {
-//      if (!settings.current.soundLoad || spectrumMachine.isTimex()) {
-//        on &= 0x02;
-//      }
-//    } else {
-//      if (on == 1) {
-//        on = 0;
-//      }
-//    }
-//    int val = beeperAmpl[on];
-//
-//    beeperSynthL.update(tstates, val);
-//    if (beeperSynthR != null) beeperSynthR.update(tstates, val);
-//  }
   public final Settings settings;
   // Constants
   public final int AMPL_BEEPER = 50 * 256;
@@ -134,20 +115,20 @@ public class Sound implements ZxModule, MachineChangeListener {
   private BlipBuffer leftBuf;
   private BlipBuffer rightBuf;
 
-  private BlipBuffer.BlipSynth<Integer, Integer> leftBeeperSynth;
-  private BlipBuffer.BlipSynth<Integer, Integer> rightBeeperSynth;
+  private BlipBuffer.BlipSynth leftBeeperSynth;
+  private BlipBuffer.BlipSynth rightBeeperSynth;
 
-  private BlipBuffer.BlipSynth<Integer, Integer> ayASynth;
-  private BlipBuffer.BlipSynth<Integer, Integer> ayBSynth;
-  private BlipBuffer.BlipSynth<Integer, Integer> ayCSynth;
-  private BlipBuffer.BlipSynth<Integer, Integer> ayASynthR;
-  private BlipBuffer.BlipSynth<Integer, Integer> ayBSynthR;
-  private BlipBuffer.BlipSynth<Integer, Integer> ayCSynthR;
+  private BlipBuffer.BlipSynth ayASynth;
+  private BlipBuffer.BlipSynth ayBSynth;
+  private BlipBuffer.BlipSynth ayCSynth;
+  private BlipBuffer.BlipSynth ayASynthR;
+  private BlipBuffer.BlipSynth ayBSynthR;
+  private BlipBuffer.BlipSynth ayCSynthR;
 
-  private BlipBuffer.BlipSynth<Integer, Integer> leftSpecdrumSynth;
-  private BlipBuffer.BlipSynth<Integer, Integer> rightSpecdrumSynth;
-  private BlipBuffer.BlipSynth<Integer, Integer> leftCovoxSynth;
-  private BlipBuffer.BlipSynth<Integer, Integer> rightCovoxSynth;
+  private BlipBuffer.BlipSynth leftSpecdrumSynth;
+  private BlipBuffer.BlipSynth rightSpecdrumSynth;
+  private BlipBuffer.BlipSynth leftCovoxSynth;
+  private BlipBuffer.BlipSynth rightCovoxSynth;
 
   // ========================================================================
   // Estado del chip AY
@@ -229,14 +210,14 @@ public class Sound implements ZxModule, MachineChangeListener {
     double treble = speakerTreble[speakerType];
     int bass = speakerBass[speakerType];
 
-    leftBeeperSynth = new BlipBuffer.BlipSynth<>(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
+    leftBeeperSynth = new BlipBuffer.BlipSynth(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
     leftBeeperSynth.volume(getVolume(volumeBeeper));
     leftBeeperSynth.trebleEq(new BlipBuffer.BlipEq(treble));
     leftBeeperSynth.output(leftBuf);
     leftBuf.bassFreq(bass);
 
     if (stereoAY != 0) {
-      rightBeeperSynth = new BlipBuffer.BlipSynth<>(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
+      rightBeeperSynth = new BlipBuffer.BlipSynth(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
       rightBeeperSynth.volume(getVolume(volumeBeeper));
       rightBeeperSynth.trebleEq(new BlipBuffer.BlipEq(treble));
       rightBeeperSynth.output(rightBuf);
@@ -280,8 +261,8 @@ public class Sound implements ZxModule, MachineChangeListener {
     return true;
   }
 
-  private BlipBuffer.BlipSynth<Integer, Integer> createAySynth(double treble, BlipBuffer buf) {
-    BlipBuffer.BlipSynth<Integer, Integer> synth = new BlipBuffer.BlipSynth<>(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
+  private BlipBuffer.BlipSynth createAySynth(double treble, BlipBuffer buf) {
+    BlipBuffer.BlipSynth synth = new BlipBuffer.BlipSynth(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
     synth.volume(getVolume(volumeAY));
     synth.trebleEq(new BlipBuffer.BlipEq(treble));
     synth.output(buf);
