@@ -25,6 +25,8 @@ import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.peripherals.*;
 import com.fpetrola.oozx.fuse.sound.JavaSoundDevice;
 import com.fpetrola.oozx.fuse.sound.p3.BlipBuffer;
+import com.fpetrola.oozx.fuse.sound.p3.BlipEq;
+import com.fpetrola.oozx.fuse.sound.p3.BlipSynth;
 
 public class Sound implements ZxModule, MachineChangeListener {
   public void pause() {
@@ -115,20 +117,20 @@ public class Sound implements ZxModule, MachineChangeListener {
   private BlipBuffer leftBuf;
   private BlipBuffer rightBuf;
 
-  private BlipBuffer.BlipSynth leftBeeperSynth;
-  private BlipBuffer.BlipSynth rightBeeperSynth;
+  private BlipSynth leftBeeperSynth;
+  private BlipSynth rightBeeperSynth;
 
-  private BlipBuffer.BlipSynth ayASynth;
-  private BlipBuffer.BlipSynth ayBSynth;
-  private BlipBuffer.BlipSynth ayCSynth;
-  private BlipBuffer.BlipSynth ayASynthR;
-  private BlipBuffer.BlipSynth ayBSynthR;
-  private BlipBuffer.BlipSynth ayCSynthR;
+  private BlipSynth ayASynth;
+  private BlipSynth ayBSynth;
+  private BlipSynth ayCSynth;
+  private BlipSynth ayASynthR;
+  private BlipSynth ayBSynthR;
+  private BlipSynth ayCSynthR;
 
-  private BlipBuffer.BlipSynth leftSpecdrumSynth;
-  private BlipBuffer.BlipSynth rightSpecdrumSynth;
-  private BlipBuffer.BlipSynth leftCovoxSynth;
-  private BlipBuffer.BlipSynth rightCovoxSynth;
+  private BlipSynth leftSpecdrumSynth;
+  private BlipSynth rightSpecdrumSynth;
+  private BlipSynth leftCovoxSynth;
+  private BlipSynth rightCovoxSynth;
 
   // ========================================================================
   // Estado del chip AY
@@ -210,16 +212,16 @@ public class Sound implements ZxModule, MachineChangeListener {
     double treble = speakerTreble[speakerType];
     int bass = speakerBass[speakerType];
 
-    leftBeeperSynth = new BlipBuffer.BlipSynth(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
+    leftBeeperSynth = new BlipSynth(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
     leftBeeperSynth.volume(getVolume(volumeBeeper));
-    leftBeeperSynth.trebleEq(new BlipBuffer.BlipEq(treble));
+    leftBeeperSynth.trebleEq(new BlipEq(treble));
     leftBeeperSynth.output(leftBuf);
     leftBuf.bassFreq(bass);
 
     if (stereoAY != 0) {
-      rightBeeperSynth = new BlipBuffer.BlipSynth(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
+      rightBeeperSynth = new BlipSynth(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
       rightBeeperSynth.volume(getVolume(volumeBeeper));
-      rightBeeperSynth.trebleEq(new BlipBuffer.BlipEq(treble));
+      rightBeeperSynth.trebleEq(new BlipEq(treble));
       rightBeeperSynth.output(rightBuf);
     }
 
@@ -261,10 +263,10 @@ public class Sound implements ZxModule, MachineChangeListener {
     return true;
   }
 
-  private BlipBuffer.BlipSynth createAySynth(double treble, BlipBuffer buf) {
-    BlipBuffer.BlipSynth synth = new BlipBuffer.BlipSynth(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
+  private BlipSynth createAySynth(double treble, BlipBuffer buf) {
+    BlipSynth synth = new BlipSynth(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
     synth.volume(getVolume(volumeAY));
-    synth.trebleEq(new BlipBuffer.BlipEq(treble));
+    synth.trebleEq(new BlipEq(treble));
     synth.output(buf);
     return synth;
   }
