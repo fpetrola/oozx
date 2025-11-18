@@ -31,6 +31,7 @@ import com.fpetrola.oozx.fuse.sound.JavaSoundDevice;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public class Sound implements ZxModule, MachineChangeListener {
 
@@ -132,118 +133,115 @@ public class Sound implements ZxModule, MachineChangeListener {
 
   // Initialize sound
   public void init(String device) {
-    audio.open(MachineTypes.SPECTRUM48K, ay8912, false, 32000);
+    if (!(settings.current.sound && !soundEnabled && isInSoundEnabledRange())) {
+      return;
+    }
 
-    soundEnabled = true;
-//    if (!(settings.current.sound && !soundEnabled && isInSoundEnabledRange())) {
-//      return;
-//    }
-//
-//    soundStereoAY = Options.enumerateSoundStereoAY();
-//    Supplier<Integer> getSoundFreq = settings.current::getSoundFreq;
-//    int[] soundFreq = {getSoundFreq.get()};
-//    int[] ints = {soundStereoAY};
-//    if (settings.current.sound) {
-//      boolean b = lowlevelInit(device, soundFreq, ints);
-//      settings.current.soundFreq = soundFreq[0];
-//      soundStereoAY = ints[0];
-//      if (b) {
-//        return;
-//      }
-//    }
-//
-//    leftBuf = new BlipBuffer();
-//    leftBeeperSynth = new BlipSynth();
-//    if (!initBlip(leftBuf, leftBeeperSynth)) {
-//      return;
-//    }
-//
-//    if (soundStereoAY != SoundStereoAY.SOUND_STEREO_AY_NONE.ordinal()) {
-//      rightBuf = new BlipBuffer();
-//      rightBeeperSynth = new BlipSynth();
-//      if (!initBlip(rightBuf, rightBeeperSynth)) {
-//        return;
-//      }
-//    }
-//
-//    double treble = speakerType[Options.enumerateSoundSpeakerType()].treble;
-//
-//    ayASynth = new BlipSynth();
-//    ayASynth.setVolume(getVolume(settings.current.volumeAY));
-//    ayASynth.setTrebleEq(treble);
-//
-//    ayBSynth = new BlipSynth();
-//    ayBSynth.setVolume(getVolume(settings.current.volumeAY));
-//    ayBSynth.setTrebleEq(treble);
-//
-//    ayCSynth = new BlipSynth();
-//    ayCSynth.setVolume(getVolume(settings.current.volumeAY));
-//    ayCSynth.setTrebleEq(treble);
-//
-//    leftSpecdrumSynth = new BlipSynth();
-//    leftSpecdrumSynth.setVolume(getVolume(settings.current.volumeSpecdrum));
-//    leftSpecdrumSynth.setOutput(leftBuf);
-//    leftSpecdrumSynth.setTrebleEq(treble);
-//
-//    leftCovoxSynth = new BlipSynth();
-//    leftCovoxSynth.setVolume(getVolume(settings.current.volumeCovox));
-//    leftCovoxSynth.setOutput(leftBuf);
-//    leftCovoxSynth.setTrebleEq(treble);
-//
-//    BlipSynth ayLeftSynth, ayMidSynth, ayRightSynth;
-//    BlipSynth ayMidSynthR;
-//    ayASynthR = null;
-//    ayBSynthR = null;
-//    ayCSynthR = null;
-//
-//    if (soundStereoAY != SoundStereoAY.SOUND_STEREO_AY_NONE.ordinal()) {
-//      if (soundStereoAY == SoundStereoAY.SOUND_STEREO_AY_ACB.ordinal()) {
-//        ayLeftSynth = ayASynth;
-//        ayMidSynth = ayCSynth;
-//        ayMidSynthR = new BlipSynth();
-//        ayRightSynth = ayBSynth;
-//      } else if (soundStereoAY == SoundStereoAY.SOUND_STEREO_AY_ABC.ordinal()) {
-//        ayLeftSynth = ayASynth;
-//        ayMidSynth = ayBSynth;
-//        ayMidSynthR = new BlipSynth();
-//        ayRightSynth = ayCSynth;
-//      } else {
-//        Ui.error(UIErrorLevel.UI_ERROR_ERROR, "unknown AY stereo separation type: %d", soundStereoAY);
-//        throw new RuntimeException("Unknown AY stereo separation type");
-//      }
-//
-//      ayLeftSynth.setOutput(leftBuf);
-//      ayMidSynth.setOutput(leftBuf);
-//      ayRightSynth.setOutput(rightBuf);
-//      ayMidSynthR.setVolume(getVolume(settings.current.volumeAY));
-//      ayMidSynthR.setOutput(rightBuf);
-//      ayMidSynthR.setTrebleEq(treble);
-//
-//      rightSpecdrumSynth = new BlipSynth();
-//      rightSpecdrumSynth.setVolume(getVolume(settings.current.volumeSpecdrum));
-//      rightSpecdrumSynth.setOutput(rightBuf);
-//      rightSpecdrumSynth.setTrebleEq(treble);
-//
-//      rightCovoxSynth = new BlipSynth();
-//      rightCovoxSynth.setVolume(getVolume(settings.current.volumeCovox));
-//      rightCovoxSynth.setOutput(rightBuf);
-//      rightCovoxSynth.setTrebleEq(treble);
-//    } else {
-//      ayASynth.setOutput(leftBuf);
-//      ayBSynth.setOutput(leftBuf);
-//      ayCSynth.setOutput(leftBuf);
-//    }
-//
-//    soundEnabled = soundEnabledEver = true;
-//    soundChannels = 2;
-//
-//    float hz = (float) getEffectiveProcessorSpeed() / spectrumMachine.getTimings().tstatesPerFrame;
-//    soundFramesiz = (int) (settings.current.soundFreq / hz) + 1;
-//    soundFramesiz/= 100;
-//    samples = new int[soundFramesiz * soundChannels];
-//    movie.initSound(settings.current.soundFreq, soundStereoAY);
-//
-//    ayInit();
+    soundStereoAY = Options.enumerateSoundStereoAY();
+    Supplier<Integer> getSoundFreq = settings.current::getSoundFreq;
+    int[] soundFreq = {getSoundFreq.get()};
+    int[] ints = {soundStereoAY};
+    if (settings.current.sound) {
+      boolean b = lowlevelInit(device, soundFreq, ints);
+      settings.current.soundFreq = soundFreq[0];
+      soundStereoAY = ints[0];
+      if (b) {
+        return;
+      }
+    }
+
+    leftBuf = new BlipBuffer();
+    leftBeeperSynth = new BlipSynth();
+    if (!initBlip(leftBuf, leftBeeperSynth)) {
+      return;
+    }
+
+    if (soundStereoAY != SoundStereoAY.SOUND_STEREO_AY_NONE.ordinal()) {
+      rightBuf = new BlipBuffer();
+      rightBeeperSynth = new BlipSynth();
+      if (!initBlip(rightBuf, rightBeeperSynth)) {
+        return;
+      }
+    }
+
+    double treble = speakerType[Options.enumerateSoundSpeakerType()].treble;
+
+    ayASynth = new BlipSynth();
+    ayASynth.setVolume(getVolume(settings.current.volumeAY));
+    ayASynth.setTrebleEq(treble);
+
+    ayBSynth = new BlipSynth();
+    ayBSynth.setVolume(getVolume(settings.current.volumeAY));
+    ayBSynth.setTrebleEq(treble);
+
+    ayCSynth = new BlipSynth();
+    ayCSynth.setVolume(getVolume(settings.current.volumeAY));
+    ayCSynth.setTrebleEq(treble);
+
+    leftSpecdrumSynth = new BlipSynth();
+    leftSpecdrumSynth.setVolume(getVolume(settings.current.volumeSpecdrum));
+    leftSpecdrumSynth.setOutput(leftBuf);
+    leftSpecdrumSynth.setTrebleEq(treble);
+
+    leftCovoxSynth = new BlipSynth();
+    leftCovoxSynth.setVolume(getVolume(settings.current.volumeCovox));
+    leftCovoxSynth.setOutput(leftBuf);
+    leftCovoxSynth.setTrebleEq(treble);
+
+    BlipSynth ayLeftSynth, ayMidSynth, ayRightSynth;
+    BlipSynth ayMidSynthR;
+    ayASynthR = null;
+    ayBSynthR = null;
+    ayCSynthR = null;
+
+    if (soundStereoAY != SoundStereoAY.SOUND_STEREO_AY_NONE.ordinal()) {
+      if (soundStereoAY == SoundStereoAY.SOUND_STEREO_AY_ACB.ordinal()) {
+        ayLeftSynth = ayASynth;
+        ayMidSynth = ayCSynth;
+        ayMidSynthR = new BlipSynth();
+        ayRightSynth = ayBSynth;
+      } else if (soundStereoAY == SoundStereoAY.SOUND_STEREO_AY_ABC.ordinal()) {
+        ayLeftSynth = ayASynth;
+        ayMidSynth = ayBSynth;
+        ayMidSynthR = new BlipSynth();
+        ayRightSynth = ayCSynth;
+      } else {
+        Ui.error(UIErrorLevel.UI_ERROR_ERROR, "unknown AY stereo separation type: %d", soundStereoAY);
+        throw new RuntimeException("Unknown AY stereo separation type");
+      }
+
+      ayLeftSynth.setOutput(leftBuf);
+      ayMidSynth.setOutput(leftBuf);
+      ayRightSynth.setOutput(rightBuf);
+      ayMidSynthR.setVolume(getVolume(settings.current.volumeAY));
+      ayMidSynthR.setOutput(rightBuf);
+      ayMidSynthR.setTrebleEq(treble);
+
+      rightSpecdrumSynth = new BlipSynth();
+      rightSpecdrumSynth.setVolume(getVolume(settings.current.volumeSpecdrum));
+      rightSpecdrumSynth.setOutput(rightBuf);
+      rightSpecdrumSynth.setTrebleEq(treble);
+
+      rightCovoxSynth = new BlipSynth();
+      rightCovoxSynth.setVolume(getVolume(settings.current.volumeCovox));
+      rightCovoxSynth.setOutput(rightBuf);
+      rightCovoxSynth.setTrebleEq(treble);
+    } else {
+      ayASynth.setOutput(leftBuf);
+      ayBSynth.setOutput(leftBuf);
+      ayCSynth.setOutput(leftBuf);
+    }
+
+    soundEnabled = soundEnabledEver = true;
+    soundChannels = 2;
+
+    float hz = (float) getEffectiveProcessorSpeed() / spectrumMachine.getTimings().tstatesPerFrame;
+    soundFramesiz = (int) (settings.current.soundFreq / hz) + 1;
+    soundFramesiz/= 100;
+    samples = new int[soundFramesiz * soundChannels];
+    movie.initSound(settings.current.soundFreq, soundStereoAY);
+
+    ayInit();
   }
 
   // Pause sound
@@ -331,30 +329,30 @@ public class Sound implements ZxModule, MachineChangeListener {
   // Process sound frame
   public void frame() {
 //    audio.updateAudio(clock.getTStates(), speaker);
-    audio.endFrame();
-//    if (!soundEnabled) {
-//      return;
-//    }
-//
-////    ayOverlay();
-//    leftBuf.endFrame(spectrumMachine.getTimings().tstatesPerFrame);
-//    long count;
-//    if (soundStereoAY != SoundStereoAY.SOUND_STEREO_AY_NONE.ordinal()) {
-//      rightBuf.endFrame(spectrumMachine.getTimings().tstatesPerFrame);
-//      count = leftBuf.readSamples(samples, soundFramesiz, true);
-////      rightBuf.readSamples(samples, 1, count, true);
-//      count <<= 1;
-//    } else {
-//      count = leftBuf.readSamples(samples, soundFramesiz, true);
-//    }
-//
-//    if (settings.current.sound) {
-//      lowlevelFrame(samples, (int) count);
-//    }
-//    if (movie.recording) {
-//      movie.addSound(samples, (int) count);
-//    }
-//    ayChangeCount = 0;
+//    audio.endFrame();
+    if (!soundEnabled) {
+      return;
+    }
+
+//    ayOverlay();
+    leftBuf.endFrame(spectrumMachine.getTimings().tstatesPerFrame);
+    long count;
+    if (soundStereoAY != SoundStereoAY.SOUND_STEREO_AY_NONE.ordinal()) {
+      rightBuf.endFrame(spectrumMachine.getTimings().tstatesPerFrame);
+      count = leftBuf.readSamples(samples, soundFramesiz, true);
+//      rightBuf.readSamples(samples, 1, count, true);
+      count <<= 1;
+    } else {
+      count = leftBuf.readSamples(samples, soundFramesiz, true);
+    }
+
+    if (settings.current.sound) {
+      lowlevelFrame(samples, (int) count);
+    }
+    if (movie.recording) {
+      movie.addSound(samples, (int) count);
+    }
+    ayChangeCount = 0;
   }
 
   static final int SPEAKER_VOLUME = -32700; // 6300;
@@ -375,35 +373,28 @@ public class Sound implements ZxModule, MachineChangeListener {
 
   // Beeper sound
   public void beeper(long atTstates, int on, int value) {
-    int i = value >> 3 & 3;
-    int spkMic = sp_volt[i];
-    if (spkMic != speaker) {
-      audio.updateAudio((int) atTstates, speaker);
-      speaker = spkMic;
+    final int[] beeperAmpl = {0, AMPL_TAPE, AMPL_BEEPER, AMPL_BEEPER + AMPL_TAPE};
+    if (!soundEnabled) {
+      return;
     }
-//
-//    final int[] beeperAmpl = {0, AMPL_TAPE, AMPL_BEEPER, AMPL_BEEPER + AMPL_TAPE};
-//    if (!soundEnabled) {
-//      return;
-//    }
-//    if (tape.isTapePlaying()) {
-//      if (!settings.current.soundLoad || spectrumMachine.isTimex()) {
-//        on &= 0x02;
-//      }
-//    } else {
-//      if (on == 1) {
-//        on = 0;
-//      }
-//    }
-//    int val = beeperAmpl[on];
-////    if (val != lastVal)
-////      System.out.println("val: " + val);
-//
-//    lastVal = val;
-//    leftBeeperSynth.update(atTstates, val);
-//    if (soundStereoAY != SoundStereoAY.SOUND_STEREO_AY_NONE.ordinal()) {
-//      rightBeeperSynth.update(atTstates, val);
-//    }
+    if (tape.isTapePlaying()) {
+      if (!settings.current.soundLoad || spectrumMachine.isTimex()) {
+        on &= 0x02;
+      }
+    } else {
+      if (on == 1) {
+        on = 0;
+      }
+    }
+    int val = beeperAmpl[on];
+//    if (val != lastVal)
+//      System.out.println("val: " + val);
+
+    lastVal = val;
+    leftBeeperSynth.update(atTstates, val);
+    if (soundStereoAY != SoundStereoAY.SOUND_STEREO_AY_NONE.ordinal()) {
+      rightBeeperSynth.update(atTstates, val);
+    }
   }
 
   // Get effective processor speed

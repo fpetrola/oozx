@@ -23,11 +23,13 @@ import com.fpetrola.oozx.fuse.bridge.DefaultCommandHandler;
 import com.fpetrola.oozx.fuse.bridge.EmulatorCommand;
 import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
 
 import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -85,8 +87,17 @@ public class OOSpectrumConnector {
       bridgeCommand = (cmd, data) -> null;
     aCore.retro_set_bridge_command(bridgeCommand);
 
-    aCore.retro_set_audio_sample((l, r) -> { /* ignoramos */ });
-    aCore.retro_set_audio_sample_batch((data, frames) -> frames);
+    aCore.retro_set_audio_sample((l, r) -> {
+      System.out.println("agasgags"); /* ignoramos */
+    });
+    aCore.retro_set_audio_sample_batch((data, frames) -> {
+      System.out.println("dgasdgadg");
+
+      Pointer pointer = data.getPointer();
+      byte[] byteArray = pointer.getByteArray(0, (int) frames);
+      System.out.println("remote:" + Arrays.toString(byteArray));
+      return frames;
+    });
     aCore.retro_set_input_poll(() -> {
     });
     aCore.retro_set_input_state((port, device, index, id) -> {

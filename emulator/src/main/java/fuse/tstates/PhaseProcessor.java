@@ -288,7 +288,7 @@ public abstract class PhaseProcessor extends PhaseProcessorBase {
   public boolean visitCpi(Cpi cpi) {
     phase.acceptAfterExecution(p -> {
       currentRegister = registerHL;
-      addMultipleMCRegister(5, -1);
+      addMultipleMCRegister2(5, -1);
     });
     return true;
   }
@@ -296,7 +296,7 @@ public abstract class PhaseProcessor extends PhaseProcessorBase {
   public boolean visitCpd(Cpd cpd) {
     phase.acceptAfterExecution(p -> {
       currentRegister = registerHL;
-      addMultipleMCRegister(5, 1);
+      addMultipleMCRegister2(5, 1);
     });
     return true;
   }
@@ -404,6 +404,8 @@ public abstract class PhaseProcessor extends PhaseProcessorBase {
   protected abstract void addMultipleMCPC3();
 
   protected abstract void addMultipleMCRegister(int x, int delta1);
+
+  protected abstract void addMultipleMCRegister2(int x, int delta1);
 
   protected abstract void addMultipleMcAddress();
 

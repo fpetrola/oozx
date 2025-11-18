@@ -91,6 +91,11 @@ public class TestFusePhaseProcessor  extends PhaseProcessor {
   }
 
   @Override
+  protected void addMultipleMCRegister2(int x, int delta1) {
+    addMultipleMc(x, 1, delta1, currentRegister, "contend_read_no_mreq");
+  }
+
+  @Override
   protected void addMultipleMcAddress() {
     addMultipleMc(1, 1, 0, address, null);
   }

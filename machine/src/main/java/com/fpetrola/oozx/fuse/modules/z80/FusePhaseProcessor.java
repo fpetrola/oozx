@@ -62,6 +62,11 @@ final public class FusePhaseProcessor extends PhaseProcessor {
     addMultipleMc(x, 1);
   }
 
+  @Override
+  protected void addMultipleMCRegister2(int x, int delta1) {
+    addMultipleMCRegister(x, delta1);
+  }
+
   protected void addMultipleMcAddress() {
     addMultipleMc(1, 1);
   }

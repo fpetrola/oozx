@@ -21,6 +21,7 @@ package com.fpetrola.oozx.fuse.sound;
 import javax.sound.sampled.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 /**
  * Implementación de bajo nivel de audio para Java usando javax.sound.sampled
@@ -166,6 +167,8 @@ public class JavaSoundDevice {
    * @param len  Cantidad de samples (no frames). En C: len /= ch
    */
   public void sound_lowlevel_frame(int[] data, int len) {
+    System.out.println("local:" + Arrays.toString(data));
+
     if (line == null || !line.isOpen()) return;
 
     int frames = len / channels;

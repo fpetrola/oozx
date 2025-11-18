@@ -45,11 +45,11 @@ public class TStateUpdate {
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
     TStateUpdate that = (TStateUpdate) o;
-    return key == that.key && value == that.value && Objects.equals(description, that.description);
+    return key == that.key && value == that.value/* && Objects.equals(description, that.description)*/;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(key, value, description);
+    return Objects.hash(key, value);
   }
 }
