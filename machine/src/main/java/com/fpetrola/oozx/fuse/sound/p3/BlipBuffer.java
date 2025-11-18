@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.fuse.sound.p3;
 
+import static java.lang.Long.MAX_VALUE;
+
 /**
  * Blip_Buffer.java - Band-limited sound synthesis and buffering
  * Ported from Blip_Buffer 0.4.0 by Shay Green (blargg)
@@ -66,26 +68,24 @@ public class BlipBuffer {
   private int lengthMs;
 
   public BlipBuffer() {
-    factor = Long.MAX_VALUE;
+    factor = MAX_VALUE;
     clear(true);
   }
 
-  public boolean setSampleRate(long samplesPerSec, int msecLength) {
-    long newSize = ((0xfffffffffffffffL >>> BLIP_BUFFER_ACCURACY) - BUFFER_EXTRA - 64);
-    if (msecLength != 0) {
-      long s = (samplesPerSec * (msecLength + 1) + 999) / 1000;
+  public boolean setSampleRate(long new_rate, int msec) {
+    long newSize = ((MAX_VALUE >>> BLIP_BUFFER_ACCURACY) - BUFFER_EXTRA - 64);
+    if (msec != BLIP_MAX_LENGTH) {
+      long s = (new_rate * (msec + 1) + 999) / 1000;
       if (s < newSize) newSize = (int) s;
     }
 
     if (bufferSize != newSize) {
       buffer = new int[(int) (newSize + BUFFER_EXTRA)];
-      if (buffer == null) return false;
       bufferSize = (int) newSize;
     }
 
-    sampleRate = samplesPerSec;
-    lengthMs = (int) (newSize * 1000L / samplesPerSec - 1);
-    if (msecLength != 0) assert lengthMs == msecLength;
+    sampleRate = new_rate;
+    lengthMs = (int) (newSize * 1000L / new_rate - 1);
 
     if (clockRate != 0) clockRate(clockRate);
     bassFreq(bassFreq);
@@ -103,29 +103,53 @@ public class BlipBuffer {
   }
 
   public long readSamples(int[] out, int maxSamples, boolean stereo) {
-    long count = Math.min(samplesAvail(), maxSamples);
-    if (count == 0) return 0;
+    long count = samplesAvail();
 
-    int sampleShift = BLIP_SAMPLE_BITS - 16;
-    int bass = bassShift;
-    long accum = readerAccum;
-    int pos = 0;
+    if (count > maxSamples)
+      count = maxSamples;
 
-    int outIdx = 0;
-    for (int n = 0; n < count; n++) {
-      long s = accum >> sampleShift;
-      accum -= accum >> bass;
-      accum += buffer[pos++];
+    if (count != 0) {
+      int sample_shift = BLIP_SAMPLE_BITS - 16;
 
-      if ((short) s != s) {
-        s = (s >> 24) == 0 ? Short.MAX_VALUE : Short.MIN_VALUE + 1;
+      int my_bass_shift = bassShift;
+
+      long accum = readerAccum;
+
+      int[] in = buffer;
+      int inPos = 0;
+      int outPos = 0;
+
+      if (!stereo) {
+        for (int n = (int) count; n-- != 0; ) {
+          long s = accum >> sample_shift;
+
+          accum -= accum >> my_bass_shift;
+          accum += in[inPos++];
+          out[outPos++] = (int) s;
+
+          /* clamp sample */
+          if ((short) s != s)
+            out[outPos - 1] = (int) (0x7FFF - (s >> 24));
+        }
+      } else {
+        for (int n = (int) count; n-- != 0; ) {
+          long s = accum >> sample_shift;
+
+          accum -= accum >> my_bass_shift;
+          accum += in[inPos++];
+          out[outPos] = (int) s;
+          outPos += 2;
+
+          /* clamp sample */
+          if ((short) s != s)
+            out[outPos - 2] = (int) (0x7FFF - (s >> 24));
+        }
       }
-      out[outIdx] = (short) s;
-      outIdx += stereo ? 2 : 1;
+
+      readerAccum = accum;
+      removeSamples(count);
     }
 
-    readerAccum = accum;
-    removeSamples(count);
     return count;
   }
 
