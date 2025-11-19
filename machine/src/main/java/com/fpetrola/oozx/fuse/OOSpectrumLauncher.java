@@ -68,7 +68,7 @@ public class OOSpectrumLauncher {
   private String extracted() {
 //    String[] games = {"emlyn.z80", "dynamitedan.z80", "equinox.z80", "tge.z80", "wally.z80", "jsw.z80"};
 //    String[] games = {"rickdangerous.z80"};
-    String[] games = {"jsw.z80"};
+    String[] games = {"emlyn.z80"};
 
     Random random = new Random();
     int index = random.nextInt(games.length);

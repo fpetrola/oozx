@@ -128,7 +128,7 @@ public class BlipBuffer {
           out[outPos++] = (int) s;
 
           /* clamp sample */
-          if ((short) s != s)
+          if ((int) s != s)
             out[outPos - 1] = (int) (0x7FFF - (s >> 24));
         }
       } else {

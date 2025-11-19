@@ -334,7 +334,7 @@ public class Sound implements ZxModule, MachineChangeListener {
     int frameTstates = spectrumMachine.getTimings().tstatesPerFrame;
     if (!soundEnabled) return null;
 
-    ayOverlay(frameTstates);
+//    ayOverlay(frameTstates);
 
     leftBuf.endFrame(frameTstates);
     if (rightBuf != null) rightBuf.endFrame(frameTstates);
