@@ -20,6 +20,7 @@
         <module>host</module>
         <module>machines/ay</module>
         <module>machines/memory</module>
+        <module>machines/disk</module>
     </modules>
 
 </project>
