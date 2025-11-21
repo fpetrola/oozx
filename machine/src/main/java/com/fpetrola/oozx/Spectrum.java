@@ -172,8 +172,6 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
 
     if (display.frame() != 0) return;
 
-    sound.sendFrame();
-
     eventManager.eventAdd(getTimings().tstatesPerFrame, spectrumFrameEvent);
 
     PhantomTypist.frame();

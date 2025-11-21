@@ -230,7 +230,7 @@ public class Settings {
     public String soundDevice = "buffer=8192,frames=4,verbose";
     public boolean soundForce8bit;
     public int soundFreq = 44100;
-    public boolean soundLoad;
+    public boolean soundLoad= true;
     public String speakerType;
     public boolean speccyboot;
     public String speccybootTap;

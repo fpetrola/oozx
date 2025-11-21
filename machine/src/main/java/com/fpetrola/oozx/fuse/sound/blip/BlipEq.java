@@ -16,11 +16,9 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.sound.p3;
+package com.fpetrola.oozx.fuse.sound.blip;
 
-import com.fpetrola.oozx.fuse.OOSpectrumConnector;
-
-import static com.fpetrola.oozx.fuse.sound.p3.BlipBuffer.BLIP_RES;
+import static com.fpetrola.oozx.fuse.sound.blip.BlipBuffer.BLIP_RES;
 import static java.lang.Math.*;
 
 public class BlipEq {
@@ -40,7 +38,7 @@ public class BlipEq {
     this.cutoffFreq = cutoffFreq;
   }
 
-  void generate(int count, FloatArrayHandler fimpulse, BlipSynthImpl blipSynth) {
+  void generate(int count, float[] imp, int floatArrayIndex) {
     // lower cutoff for narrow kernels
     double oversample = BLIP_RES * 2.25 / count + 0.85;
     double halfRate = sampleRate * 0.5;
@@ -48,18 +46,18 @@ public class BlipEq {
       oversample = halfRate / cutoffFreq;
     double cutoff = rolloffFreq * oversample / halfRate;
 
-    genSinc(fimpulse, count, (BLIP_RES * oversample), treble, cutoff);
+    genSinc(count, (BLIP_RES * oversample), treble, cutoff, imp, floatArrayIndex);
 
     // apply Hamming window
     double toFraction = PI / (count - 1);
     for (int i = count; i-- != 0; ) {
-      float i1 = fimpulse.get(i) * (float) (0.54f - 0.46f * cos(i * toFraction));
-      fimpulse.set(i, i1);
+      float i1 = imp[floatArrayIndex + i] * (float) (0.54f - 0.46f * cos(i * toFraction));
+      imp[floatArrayIndex + i] = i1;
     }
   }
 
   // gen_sinc port exacto
-  private void genSinc(FloatArrayHandler out, int count, double oversample, double treble, double cutoff) {
+  private void genSinc(int count, double oversample, double treble, double cutoff, float[] imp, int floatArrayIndex) {
     int i;
 
     double maxh, rolloff, pow_a_n, to_angle;
@@ -90,7 +88,8 @@ public class BlipEq {
       a = 1.0 - cos_angle - cos_nc_angle + cos_nc1_angle;
 
       float i1 = (float) ((a * d + c * b) / (b * d));
-      out.set(i, i1);        /*  a / b + c / d */
+      /*  a / b + c / d */
+      imp[floatArrayIndex + i] = i1;
     }
   }
 }

@@ -18,33 +18,40 @@
 
 package model.tests;
 
-import com.fpetrola.oozx.fuse.LibretroCore;
-import com.fpetrola.oozx.fuse.LocalLibretroCore;
-import com.fpetrola.oozx.fuse.OOSpectrumConnector;
-import com.fpetrola.oozx.fuse.TStateUpdate;
+import com.fpetrola.oozx.fuse.*;
 import com.fpetrola.oozx.fuse.bridge.CommandHandler;
 import com.fpetrola.oozx.fuse.bridge.DefaultCommandHandler;
 import com.fpetrola.oozx.fuse.bridge.FuseBaseForTests;
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
+import com.fpetrola.oozx.fuse.sound.JavaSoundDevice;
 import model.connected.ConnectedZ80CPU;
 import org.junit.jupiter.api.*;
 
+import java.io.StringWriter;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestFuseSound extends FuseBaseForTests {
   static private TestDriver testDriver1;
   static private TestDriver testDriver2;
   private static LocalLibretroCore localLibretroCore;
   private static LibretroCore remoteCore;
+  private static List<int[]> datas = new ArrayList<>();
 
   @BeforeAll
   public static void beforeall() {
     createFuse();
+    fuse.sound.setJavaSoundDevice(new JavaSoundDevice() {
+      public void sound_lowlevel_frame(int[] data, int len) {
+        datas.add(data);
+      }
+    });
     localLibretroCore = new LocalLibretroCore(fuse.eventManager, fuse.display, fuse.machine, fuse.z80, fuse.zxClock, fuse.periph, fuse);
     remoteCore = OOSpectrumConnector.core;
     CommandHandler commandHandler1 = DefaultCommandHandler.createCommandHandler(localLibretroCore);
@@ -60,6 +67,7 @@ public class TestFuseSound extends FuseBaseForTests {
     testDriver1.tstatesHistoryInit();
     testDriver2.reset();
     testDriver2.tstatesHistoryInit();
+    datas.clear();
   }
 
 
@@ -342,7 +350,7 @@ public class TestFuseSound extends FuseBaseForTests {
     if (expectedList.size() != actualList.size()) {
       System.out.println("size");
     }
-    Assertions.assertEquals(expectedList.size(), actualList.size(),
+    assertEquals(expectedList.size(), actualList.size(),
         () -> "Tamaño de listas diferente: esperado " + expectedList.size() +
             ", actual " + actualList.size());
 
@@ -358,15 +366,14 @@ public class TestFuseSound extends FuseBaseForTests {
     }
   }
 
-  @Disabled
   @Test
   void testBeepPipOnSpeakerPortFE_A() {
-    test1(testDriver2);
-    test1(testDriver1);
+//    ArrayList<int[]> ints = test1(testDriver2);
+    ArrayList<int[]> ints1 = test1(testDriver1);
 
     List<double[]> localData = OOSpectrumConnector.localData;
-    List<double[]> remoteData = OOSpectrumConnector.remoteData;
-    assertShortArrayListEquals(localData, remoteData);
+//    List<double[]> remoteData = OOSpectrumConnector.remoteData;
+//    assertShortArrayListEquals(localData, remoteData);
   }
 
   @Test
@@ -374,7 +381,7 @@ public class TestFuseSound extends FuseBaseForTests {
     test1(testDriver2);
   }
 
-  private void test1(TestDriver testDriver3) {
+  private ArrayList<int[]> test1(TestDriver testDriver3) {
     ConnectedZ80CPU cpu = new ConnectedZ80CPU(testDriver3);
 
     testDriver3.setModel("48K");
@@ -382,27 +389,30 @@ public class TestFuseSound extends FuseBaseForTests {
 
     testDriver3.writePort(0xFE, 0b0001_1000);  // = 24 decimal → altavoz ON + borde
 
-    int i1 = 3500;
-    testDriver3.setRegister("BC", i1);
+    int i1 = 3500 * 5;
+    testDriver3.setRegister("BC", 200);
     testDriver3.setRegister("HL", 0);
     testDriver3.setRegister("DE", 1);
+    boolean active = false;
     for (int i = 0; i < i1; i++) {
       cpu.executeInstruction("LDIR");  // = 24 decimal → altavoz ON + borde
+      testDriver3.writePort(0xFE, active ? 0b0001_1000 : 0);
+      active = !active;
     }
 
     testDriver3.writePort(0xFE, 0b0000_0000);  // altavoz OFF
+    return new ArrayList<>(datas);
   }
 
 
-  @Disabled
   @Test
   void test48KExecuteGame2() {
     String model = "48K";
     String fileName = "/home/fernando/detodo/desarrollo/m/zx/roms/jsw2.z80";
 
 
-    testDriver2.setModel(model);
-    testDriver2.loadSnapshot(fileName);
+//    testDriver2.setModel(model);
+//    testDriver2.loadSnapshot(fileName);
     testDriver1.setModel(model);
     testDriver1.loadSnapshot(fileName);
     try {
@@ -410,18 +420,59 @@ public class TestFuseSound extends FuseBaseForTests {
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
+    int lastSize = 0;
+    StringBuilder result = new StringBuilder();
 
-    for (int i = 0; i < 10000000; i++) {
+    for (int i = 0; i < 100000; i++) {
       for (int j = 0; j < 1; j++) {
-        testDriver2.step();
+//        testDriver2.step();
         testDriver1.step();
       }
 
+      ArrayList<int[]> ints = new ArrayList<>(datas);
       List<double[]> localData = OOSpectrumConnector.localData;
-      List<double[]> remoteData = OOSpectrumConnector.remoteData;
-      assertShortArrayListEquals(localData, remoteData);
+      if (ints.size() != lastSize) {
+        lastSize = ints.size();
+        String string = Arrays.toString(datas.get(0));
+        result.append(string).append("\n");
+      }
+//      assertTrue(ints.isEmpty());
+//      List<double[]> remoteData = OOSpectrumConnector.remoteData;
+//      assertShortArrayListEquals(localData, remoteData);
       localData.clear();
-      remoteData.clear();
+//      remoteData.clear();
     }
+
+
+    String a = """
+        [0, 0, 0, 0, 0, 0]
+        [0, 0, 0, 0, 0, 0]
+        [0, 0, 3, 3, 0, 0]
+        [21, 21, 69, 69, 0, 0]
+        [186, 186, 455, 455, 0, 0]
+        [1058, 1058, 2365, 2365, 0, 0]
+        [4885, 4885, 7995, 7995, 0, 0]
+        [10134, 10134, 10999, 10999, 11183, 11183]
+        [11034, 11034, 10712, 10712, 11183, 11183]
+        [10235, 10235, 9553, 9553, 11183, 11183]
+        [8536, 8536, 7970, 7970, 11183, 11183]
+        [8354, 8354, 8681, 8681, 11183, 11183]
+        [8662, 8662, 8506, 8506, 11183, 11183]
+        [8256, 8256, 7927, 7927, 11183, 11183]
+        [7483, 7483, 6796, 6796, 11183, 11183]
+        [5840, 5840, 5546, 5546, 6001, 6001]
+        [6156, 6156, 5838, 5838, 6001, 6001]
+        [5128, 5128, 4831, 4831, 6001, 6001]
+        [5216, 5216, 5372, 5372, 6001, 6001]
+        [5112, 5112, 4419, 4419, 6001, 6001]
+        [3861, 3861, 4197, 4197, 6001, 6001]
+        [4608, 4608, 4571, 4571, 6001, 6001]
+        [4166, 4166, 3712, 3712, 3821, 3821]
+        [4039, 4039, 3896, 3896, 3821, 3821]
+        [3351, 3351, 2659, 2659, 3821, 3821]
+        [2780, 2780, 3310, 3310, 3821, 3821]
+        """;
+
+    assertEquals(a, result.toString());
   }
 }

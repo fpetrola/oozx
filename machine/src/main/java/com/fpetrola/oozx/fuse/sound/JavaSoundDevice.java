@@ -174,7 +174,7 @@ public class JavaSoundDevice {
     if (line == null || !line.isOpen()) return;
 
     int frames = len / channels;
-    int bytesToWrite = frames * frameSize ;
+    int bytesToWrite = frames * frameSize;
 
     byte[] audioBytes = convertToBytes(data, len);
 
@@ -194,24 +194,13 @@ public class JavaSoundDevice {
     }
   }
 
-  private byte[] convertToBytes1(int[] data, int len, int bytesToWrite) {
-    // Convertir short[] a byte[]
-    ByteBuffer byteBuffer = ByteBuffer.allocate(bytesToWrite).order(ByteOrder.LITTLE_ENDIAN);
-
-    for (int i = 0; i < len; i++) {
-      byteBuffer.putInt(data[i]);
-    }
-    return byteBuffer.array();
-  }
-
   private byte[] convertToBytes(int[] data, int len) {
     byte[] audioBytes = new byte[len * 2];
 
     for (int i = 0; i < len; i++) {
-      short sample = (short) data[i];
       int idx = i * 2;
-      audioBytes[idx ] = (byte) (sample & 0xFF);        // byte bajo
-      audioBytes[idx+1] = (byte) ((sample >> 8) & 0xFF); // byte alto
+      audioBytes[idx] = (byte) (data[i] & 0xFF);
+      audioBytes[idx + 1] = (byte) (data[i] >> 8 & 0xFF);
     }
 
     return audioBytes;

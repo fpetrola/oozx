@@ -69,7 +69,7 @@ public class OOSpectrumLauncher {
 //    String[] games = {"rickdangerous.z80"};
 //    String[] games = {"jsw.z80"};
 
-//    games = new String[]{"agentx2.z80"};
+    games = new String[]{"agentx2.z80", "equinox.z80", "darkfusion.z80"};
 
     String randomGame = games[new Random().nextInt(games.length)];
     return "/home/fernando/detodo/desarrollo/m/zx/roms/" + randomGame;

@@ -16,22 +16,13 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.sound.p3;
-
-import com.fpetrola.oozx.fuse.OOSpectrumConnector;
+package com.fpetrola.oozx.fuse.sound.blip;
 
 import static java.lang.Long.MAX_VALUE;
+import static java.lang.System.arraycopy;
+import static java.util.Arrays.fill;
 
-/**
- * Blip_Buffer.java - Band-limited sound synthesis and buffering
- * Ported from Blip_Buffer 0.4.0 by Shay Green (blargg)
- * Java port by [tu nombre] - 2025
- */
 public class BlipBuffer {
-
-  // ========================================================================
-  // Constantes
-  // ========================================================================
   public static final int BLIP_BUFFER_ACCURACY = 16;
   public static final int BLIP_PHASE_BITS = 6;
   public static final int BLIP_RES = 1 << BLIP_PHASE_BITS;         // 64
@@ -43,22 +34,14 @@ public class BlipBuffer {
   public static final int BLIP_GOOD_QUALITY = 12;
   public static final int BLIP_HIGH_QUALITY = 16;
 
-
   public static final int BLIP_UNSCALED = 65535;
   public static final int BLIP_MAX_LENGTH = 0;
 
-  public static final int BLIP_SYNTH_QUALITY = BLIP_GOOD_QUALITY;
-  public static final int BLIP_SYNTH_RANGE = BLIP_UNSCALED;
-  public static final int BLIP_SYNTH_WIDTH = BLIP_SYNTH_QUALITY;
-
   private static final int BUFFER_EXTRA = BLIP_WIDEST_IMPULSE + 2;
 
-  // ========================================================================
-  // Campos internos
-  // ========================================================================
   public long factor;
   public long offset;
-  public int[] buffer;          // buffer interno (32-bit)
+  private int[] buffer;
   private int bufferSize;
 
   private long readerAccum;
@@ -74,7 +57,7 @@ public class BlipBuffer {
     clear(true);
   }
 
-  public boolean setSampleRate(long new_rate, int msec) {
+  public void setSampleRate(long new_rate, int msec) {
     long newSize = ((MAX_VALUE >>> BLIP_BUFFER_ACCURACY) - BUFFER_EXTRA - 64);
     if (msec != BLIP_MAX_LENGTH) {
       long s = (new_rate * (msec + 1) + 999) / 1000;
@@ -92,7 +75,6 @@ public class BlipBuffer {
     if (clockRate != 0) clockRate(clockRate);
     bassFreq(bassFreq);
     clear(true);
-    return true;
   }
 
   public void clockRate(long cps) {
@@ -101,10 +83,9 @@ public class BlipBuffer {
 
   public void endFrame(long t) {
     offset += t * factor;
-//    assert samplesAvail() <= bufferSize;
   }
 
-  public long readSamples(int[] out, int maxSamples, boolean stereo) {
+  public int readSamples(int[] out, int maxSamples, boolean stereo) {
     long count = samplesAvail();
 
     if (count > maxSamples)
@@ -141,8 +122,6 @@ public class BlipBuffer {
           accum += in[inPos++];
           out[outPos] = (int) s;
           outPos += 2;
-//          double d1= s;
-//          OOSpectrumConnector.sendData(d1);
 
           /* clamp sample */
           if ((short) s != s)
@@ -154,7 +133,7 @@ public class BlipBuffer {
       removeSamples(count);
     }
 
-    return count;
+    return (int) count;
   }
 
   public void clear(boolean entireBuffer) {
@@ -162,7 +141,7 @@ public class BlipBuffer {
     readerAccum = 0;
     if (buffer != null) {
       int count = entireBuffer ? bufferSize : (int) samplesAvail();
-      java.util.Arrays.fill(buffer, 0, count + BUFFER_EXTRA, 0);
+      fill(buffer, 0, count + BUFFER_EXTRA, 0);
     }
   }
 
@@ -214,7 +193,6 @@ public class BlipBuffer {
   private long clockRateFactor(long clockRate) {
     double ratio = (double) sampleRate / clockRate;
     long factor = (long) (ratio * (1L << BLIP_BUFFER_ACCURACY) + 0.5);
-//    assert factor > 0 || sampleRate == 0;
     return factor;
   }
 
@@ -222,8 +200,8 @@ public class BlipBuffer {
     if (count > 0) {
       offset -= count << BLIP_BUFFER_ACCURACY;
       int remain = (int) (samplesAvail() + BUFFER_EXTRA);
-      System.arraycopy(buffer, (int) count, buffer, 0, remain);
-      java.util.Arrays.fill(buffer, remain, remain + (int) count, 0);
+      arraycopy(buffer, (int) count, buffer, 0, remain);
+      fill(buffer, remain, remain + (int) count, 0);
     }
   }
 
@@ -231,5 +209,9 @@ public class BlipBuffer {
     long last = (offset + duration * factor) >>> BLIP_BUFFER_ACCURACY;
     long first = offset >>> BLIP_BUFFER_ACCURACY;
     return last - first;
+  }
+
+  public int[] getBuffer() {
+    return buffer;
   }
 }
