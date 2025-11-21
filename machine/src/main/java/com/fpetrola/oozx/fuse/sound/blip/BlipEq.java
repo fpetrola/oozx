@@ -38,7 +38,7 @@ public class BlipEq {
     this.cutoffFreq = cutoffFreq;
   }
 
-  void generate(int count, float[] imp, int floatArrayIndex) {
+  void generate(int count, float[] fImpulse, int fImpulseIndex) {
     // lower cutoff for narrow kernels
     double oversample = BLIP_RES * 2.25 / count + 0.85;
     double halfRate = sampleRate * 0.5;
@@ -46,22 +46,17 @@ public class BlipEq {
       oversample = halfRate / cutoffFreq;
     double cutoff = rolloffFreq * oversample / halfRate;
 
-    genSinc(count, (BLIP_RES * oversample), treble, cutoff, imp, floatArrayIndex);
+    genSinc(count, (BLIP_RES * oversample), treble, cutoff, fImpulse, fImpulseIndex);
 
     // apply Hamming window
     double toFraction = PI / (count - 1);
     for (int i = count; i-- != 0; ) {
-      float i1 = imp[floatArrayIndex + i] * (float) (0.54f - 0.46f * cos(i * toFraction));
-      imp[floatArrayIndex + i] = i1;
+      float i1 = fImpulse[fImpulseIndex + i] * (float) (0.54f - 0.46f * cos(i * toFraction));
+      fImpulse[fImpulseIndex + i] = i1;
     }
   }
 
-  // gen_sinc port exacto
-  private void genSinc(int count, double oversample, double treble, double cutoff, float[] imp, int floatArrayIndex) {
-    int i;
-
-    double maxh, rolloff, pow_a_n, to_angle;
-
+  private void genSinc(int count, double oversample, double treble, double cutoff, float[] fImpulse, int fImpulseIndex) {
     if (cutoff > 0.999)
       cutoff = 0.999;
     if (treble < -300.0)
@@ -69,27 +64,22 @@ public class BlipEq {
     if (treble > 5.0)
       treble = 5.0;
 
-    maxh = 4096.0;
-    rolloff = pow(10.0, 1.0 / (maxh * 20.0) * treble / (1.0 - cutoff));
-    pow_a_n = pow(rolloff, maxh - maxh * cutoff);
-    to_angle = PI / 2 / maxh / oversample;
-    for (i = 0; i < count; i++) {
-      double angle, c, cos_nc_angle, cos_nc1_angle, cos_angle, d, b, a;
+    double maxh = 4096.0;
+    double rolloff = pow(10.0, 1.0 / (maxh * 20.0) * treble / (1.0 - cutoff));
+    double pow_a_n = pow(rolloff, maxh - maxh * cutoff);
+    double to_angle = PI / 2 / maxh / oversample;
 
-      angle = ((i - count) * 2 + 1) * to_angle;
-      c = rolloff * cos((maxh - 1.0) * angle) - cos(maxh * angle);
-      cos_nc_angle = cos(maxh * cutoff * angle);
-      cos_nc1_angle = cos((maxh * cutoff - 1.0) * angle);
-      cos_angle = cos(angle);
+    for (int i = 0; i < count; i++) {
+      double angle = ((i - count) * 2 + 1) * to_angle;
+      double cos_nc_angle = cos(maxh * cutoff * angle);
+      double cos_nc1_angle = cos((maxh * cutoff - 1.0) * angle);
+      double cos_angle = cos(angle);
+      double c = (rolloff * cos((maxh - 1.0) * angle) - cos(maxh * angle)) * pow_a_n - rolloff * cos_nc1_angle + cos_nc_angle;
+      double d = 1.0 + rolloff * (rolloff - cos_angle - cos_angle);
+      double b = 2.0 - cos_angle - cos_angle;
+      double a = 1.0 - cos_angle - cos_nc_angle + cos_nc1_angle;
 
-      c = c * pow_a_n - rolloff * cos_nc1_angle + cos_nc_angle;
-      d = 1.0 + rolloff * (rolloff - cos_angle - cos_angle);
-      b = 2.0 - cos_angle - cos_angle;
-      a = 1.0 - cos_angle - cos_nc_angle + cos_nc1_angle;
-
-      float i1 = (float) ((a * d + c * b) / (b * d));
-      /*  a / b + c / d */
-      imp[floatArrayIndex + i] = i1;
+      fImpulse[fImpulseIndex + i] = (float) ((a * d + c * b) / (b * d));
     }
   }
 }
