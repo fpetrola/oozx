@@ -172,7 +172,7 @@ public class Sound implements ZxModule, MachineChangeListener {
   }
 
   public void end() {
-
+//    lowlevelEnd();
   }
 
   // ========================================================================
@@ -191,7 +191,7 @@ public class Sound implements ZxModule, MachineChangeListener {
     int[] ints = {0};
     int[] soundFreqArray = {soundFreq};
 
-    String device = "buffer=8192,frames=100,verbose";
+    String device = "buffer=18192,frames=1000,verbose";
     boolean b = lowlevelInit(device, soundFreqArray, ints);
 
     if (!leftBuf.setSampleRate(soundFreq, 1000)) return false;

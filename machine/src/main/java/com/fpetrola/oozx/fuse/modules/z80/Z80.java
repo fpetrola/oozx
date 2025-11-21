@@ -493,6 +493,7 @@ public class Z80 implements ZxModule {
     settings.current.emulationSpeed = emulationSpeed;
     zxClock.addTStates(-zxClock.getTStates() + 60000);
     timer.changeSpeed(emulationSpeed);
+    fuse.sound.end();
     fuse.sound.init(null);
   }
 

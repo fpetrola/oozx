@@ -224,7 +224,7 @@ public class JavaSoundDevice {
     if (line != null) {
       line.drain();
       line.close();
-      line = null;
+//      line = null;
     }
   }
 
