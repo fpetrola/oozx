@@ -25,8 +25,10 @@ import com.fpetrola.oozx.fuse.peripherals.t.DownloadAndUnzip;
 import com.fpetrola.oozx.fuse.peripherals.t.ZXSpectrumDesktopApp;
 import com.fpetrola.z80.memory.Memory;
 import com.github.weisj.darklaf.LafManager;
+import com.github.weisj.darklaf.theme.DarculaTheme;
 import com.github.weisj.darklaf.theme.SolarizedLightTheme;
 
+import java.awt.*;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Random;
@@ -46,7 +48,7 @@ public class OOSpectrumLauncher {
 
   public void init() {
     OOSpectrumConnector.noTest = true;
-    LafManager.install(new SolarizedLightTheme());
+    LafManager.install(new DarculaTheme());
 
     ZXSpectrumDesktopApp zxSpectrumDesktopApp = new ZXSpectrumDesktopApp((filename) -> {
       String string = null;
@@ -61,15 +63,36 @@ public class OOSpectrumLauncher {
       Fuse fuse = createFuse(string);
       return fuse.z80.mockCore;
     });
-    zxSpectrumDesktopApp.setVisible(true);
+
+    showOnScreen(0, zxSpectrumDesktopApp);
+//    zxSpectrumDesktopApp.setVisible(true);
+  }
+
+  private static void showOnScreen(int screen, Window frame) {
+    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    GraphicsDevice[] gd = ge.getScreenDevices();
+    GraphicsDevice graphicsDevice;
+    if (screen > -1 && screen < gd.length) {
+      graphicsDevice = gd[screen];
+    } else if (gd.length > 0) {
+      graphicsDevice = gd[0];
+    } else {
+      throw new RuntimeException("No Screens Found");
+    }
+    Rectangle bounds = graphicsDevice.getDefaultConfiguration().getBounds();
+    int screenWidth = graphicsDevice.getDisplayMode().getWidth();
+    int screenHeight = graphicsDevice.getDisplayMode().getHeight();
+    frame.setLocation(bounds.x + (screenWidth - frame.getPreferredSize().width) / 2,
+        bounds.y + (screenHeight - frame.getPreferredSize().height) / 2);
+    frame.setVisible(true);
   }
 
   private String extracted() {
-    String[] games = {"emlyn.z80", "dynamitedan.z80", "equinox.z80", "tge.z80", "wally.z80", "jsw.z80", "agentx2.z80", "rickdangerous.z80"};
+    String[] games = {"emlyn.z80", "dynamitedan.z80", "equinox.z80", "tge.z80", "wally.z80", "jsw.z80", "agentx2.z80", "rickdangerous.z80", "darkfusion.z80", "trantor.z80"};
 //    String[] games = {"rickdangerous.z80"};
 //    String[] games = {"jsw.z80"};
 
-    games = new String[]{"agentx2.z80", "equinox.z80", "darkfusion.z80"};
+    games = new String[]{"darkfusion.z80", "trantor.z80", "rtype.z80"};
 
     String randomGame = games[new Random().nextInt(games.length)];
     return "/home/fernando/detodo/desarrollo/m/zx/roms/" + randomGame;
@@ -135,7 +158,7 @@ public class OOSpectrumLauncher {
         tape.play(false);
       });
     } else {
-      fuse.settings.current.emulationSpeed= 100;
+      fuse.settings.current.emulationSpeed = 100;
       fuse.init();
       fuse.z80.loadSnap(filename);
       fuse.z80.changeSpeed(100);

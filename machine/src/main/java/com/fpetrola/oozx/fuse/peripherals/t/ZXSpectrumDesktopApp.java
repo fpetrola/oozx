@@ -39,17 +39,17 @@ import java.util.function.Function;
 // Emulator Internal Frame
 class EmulatorInternalFrame extends JInternalFrame {
   private EmulatorCore emulatorCore;
-  private JLabel statusLabel;
+//  private JLabel statusLabel;
   private JProgressBar speedBar;
   private JComboBox<String> modelCombo;
   private JLabel pauseIndicator;
   private JLabel turboIndicator;
-  private JLabel tapeStatusLabel;
+//  private JLabel tapeStatusLabel;
 
   public EmulatorInternalFrame(EmulatorCore core, int x, int y) {
     super("ZX Spectrum Emulator", true, true, true, true);
     this.emulatorCore = core;
-    setSize(560, 420);
+    setSize(420, 380);
     setLocation(x, y);
 
     // Main Panel (emulator screen)
@@ -74,7 +74,7 @@ class EmulatorInternalFrame extends JInternalFrame {
     emulatorCore.addEmulatorListener(new EmulatorListener() {
       @Override
       public void onEmulationStateChanged(String state) {
-        statusLabel.setText("State: " + state);
+//        statusLabel.setText("State: " + state);
       }
 
       @Override
@@ -97,6 +97,7 @@ class EmulatorInternalFrame extends JInternalFrame {
       @Override
       public void onPauseStateChanged(boolean paused) {
         pauseIndicator.setBackground(paused ? Color.RED : Color.GREEN);
+        pauseIndicator.setForeground(Color.DARK_GRAY);
         pauseIndicator.setToolTipText(paused ? "Paused" : "Running");
       }
 
@@ -107,10 +108,10 @@ class EmulatorInternalFrame extends JInternalFrame {
 
       @Override
       public void onTapeStatusChanged(String status) {
-        tapeStatusLabel.setIcon(status.equals("Loaded") ?
-            UIManager.getIcon("OptionPane.informationIcon") :
-            UIManager.getIcon("OptionPane.warningIcon"));
-        tapeStatusLabel.setToolTipText("Tape: " + status);
+//        tapeStatusLabel.setIcon(status.equals("Loaded") ?
+//            UIManager.getIcon("OptionPane.informationIcon") :
+//            UIManager.getIcon("OptionPane.warningIcon"));
+//        tapeStatusLabel.setToolTipText("Tape: " + status);
       }
     });
   }
@@ -122,7 +123,8 @@ class EmulatorInternalFrame extends JInternalFrame {
 
   private JPanel createStatusBar() {
     JPanel statusBar = new JPanel();
-    statusBar.setBorder(BorderFactory.createEtchedBorder());
+//    statusBar.setBorder(BorderFactory.createEtchedBorder());
+    statusBar.setPreferredSize(new Dimension(600, 48));
     GroupLayout layout = new GroupLayout(statusBar);
     statusBar.setLayout(layout);
     layout.setAutoCreateGaps(true);
@@ -132,8 +134,8 @@ class EmulatorInternalFrame extends JInternalFrame {
     int componentHeight = 20;
 
     // State Label
-    statusLabel = new JLabel("State: Ready");
-    statusLabel.setPreferredSize(new Dimension(100, componentHeight));
+//    statusLabel = new JLabel("State: Ready");
+//    statusLabel.setPreferredSize(new Dimension(100, componentHeight));
 
     // Speed Progress Bar
     speedBar = new JProgressBar(0, 7000); // Max 4x speed
@@ -141,99 +143,92 @@ class EmulatorInternalFrame extends JInternalFrame {
     speedBar.setStringPainted(true);
     speedBar.setString(String.format("%.2f%%", emulatorCore.getEmulationSpeed()));
     speedBar.setPreferredSize(new Dimension(150, componentHeight));
-    speedBar.setMinimumSize(new Dimension(100, componentHeight - 30));
+    speedBar.setMinimumSize(new Dimension(100, componentHeight));
 
     // Model Combo
     String[] models = {"Spectrum 16K", "Spectrum 48K", "Spectrum 128K", "Spectrum Plus 2", "Spectrum Plus 3", "Pentagon"};
     modelCombo = new JComboBox<>(models);
     modelCombo.setSelectedItem(emulatorCore.getCurrentModel());
-    modelCombo.setPreferredSize(new Dimension(120, componentHeight));
+    modelCombo.setPreferredSize(new Dimension(80, componentHeight));
     modelCombo.addActionListener(e -> emulatorCore.setMachineModel((String) modelCombo.getSelectedItem()));
 
     // Pause Indicator (LED-like)
     pauseIndicator = new JLabel(emulatorCore.isPaused() ? "Paused" : "Running");
     pauseIndicator.setHorizontalAlignment(JLabel.CENTER);
     pauseIndicator.setOpaque(true);
+    pauseIndicator.setForeground(Color.DARK_GRAY);
     pauseIndicator.setBackground(emulatorCore.isPaused() ? Color.RED : Color.GREEN);
     pauseIndicator.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-    pauseIndicator.setMinimumSize(new Dimension(100, componentHeight + 4));
+    pauseIndicator.setMinimumSize(new Dimension(70, componentHeight + 4));
     pauseIndicator.setToolTipText(emulatorCore.isPaused() ? "Paused" : "Running");
 
     // Turbo Indicator
     turboIndicator = new JLabel(emulatorCore.isTurboMode() ? "✔ Turbo" : "✘ Turbo");
     turboIndicator.setForeground(emulatorCore.isTurboMode() ? Color.BLUE : Color.GRAY);
-    turboIndicator.setPreferredSize(new Dimension(80, componentHeight));
+    turboIndicator.setPreferredSize(new Dimension(40, componentHeight));
 
     // Tape Status
-    tapeStatusLabel = new JLabel();
-    tapeStatusLabel.setIcon(emulatorCore.getTapeStatus().equals("Loaded") ?
-        UIManager.getIcon("FileChooser.upFolderIcon") :
-        UIManager.getIcon("FileChooser.newFolderIcon"));
-    tapeStatusLabel.setPreferredSize(new Dimension(80, componentHeight));
-    tapeStatusLabel.setToolTipText("Tape: " + emulatorCore.getTapeStatus());
+//    tapeStatusLabel = new JLabel();
+//    tapeStatusLabel.setIcon(emulatorCore.getTapeStatus().equals("Loaded") ?
+//        UIManager.getIcon("FileChooser.upFolderIcon") :
+//        UIManager.getIcon("FileChooser.newFolderIcon"));
+//    tapeStatusLabel.setPreferredSize(new Dimension(80, componentHeight));
+//    tapeStatusLabel.setToolTipText("Tape: " + emulatorCore.getTapeStatus());
+
+
+    layout.setHorizontalGroup(layout.createSequentialGroup()
+//        .addComponent(statusLabel)
+        .addComponent(speedBar)
+        .addComponent(modelCombo)
+        .addComponent(pauseIndicator)
+        .addComponent(turboIndicator)
+//        .addComponent(tapeStatusLabel)
+    );
+
+    layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+//        .addComponent(statusLabel)
+        .addComponent(speedBar)
+        .addComponent(modelCombo)
+        .addComponent(pauseIndicator)
+        .addComponent(turboIndicator)
+//        .addComponent(tapeStatusLabel)
+    );
 
     // Bind data to components
     emulatorCore.addEmulatorListener(new EmulatorListener() {
-      @Override
       public void onEmulationStateChanged(String state) {
-        statusLabel.setText("State: " + state);
+//        statusLabel.setText("State: " + state);
       }
 
-      @Override
       public void onError(String message) {
       }
 
-      @Override
       public void onEmulationSpeedChanged(double speed) {
         speedBar.setValue((int) (speed));
         speedBar.setString(String.format("%.2f%%", speed));
       }
 
-      @Override
       public void onModelChanged(String model) {
         modelCombo.setSelectedItem(model);
       }
 
-      @Override
       public void onPauseStateChanged(boolean paused) {
         pauseIndicator.setBackground(paused ? Color.RED : Color.GREEN);
         pauseIndicator.setText(paused ? "Paused" : "Running");
         pauseIndicator.setToolTipText(paused ? "Paused" : "Running");
       }
 
-      @Override
       public void onTurboModeChanged(boolean turbo) {
         updateTurboLabel(turbo);
       }
 
-      @Override
       public void onTapeStatusChanged(String status) {
-        tapeStatusLabel.setIcon(status.equals("Loaded") ?
-            UIManager.getIcon("OptionPane.informationIcon") :
-            UIManager.getIcon("OptionPane.warningIcon"));
-        tapeStatusLabel.setToolTipText("Tape: " + status);
+//        tapeStatusLabel.setIcon(status.equals("Loaded") ?
+//            UIManager.getIcon("OptionPane.informationIcon") :
+//            UIManager.getIcon("OptionPane.warningIcon"));
+//        tapeStatusLabel.setToolTipText("Tape: " + status);
       }
-
-
     });
-
-    layout.setHorizontalGroup(layout.createSequentialGroup()
-        .addComponent(statusLabel)
-        .addComponent(speedBar)
-        .addComponent(modelCombo)
-        .addComponent(pauseIndicator)
-        .addComponent(turboIndicator)
-        .addComponent(tapeStatusLabel)
-    );
-
-    layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-        .addComponent(statusLabel)
-        .addComponent(speedBar)
-        .addComponent(modelCombo)
-        .addComponent(pauseIndicator)
-        .addComponent(turboIndicator)
-        .addComponent(tapeStatusLabel)
-    );
 
     return statusBar;
   }
