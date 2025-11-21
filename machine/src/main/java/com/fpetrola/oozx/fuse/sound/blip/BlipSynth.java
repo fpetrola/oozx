@@ -49,6 +49,12 @@ public class BlipSynth {
     trebleEq(new BlipEq(treble));
   }
 
+  public void update(long time, int amplitude) {
+    int delta = amplitude - lastAmp;
+    lastAmp = amplitude;
+    offsetResampled(time * blipBuffer.factor + blipBuffer.offset, delta);
+  }
+
   public void endFrame(int frameTstates) {
     blipBuffer.endFrame(frameTstates);
   }
@@ -104,12 +110,6 @@ public class BlipSynth {
       volumeUnit = 0.0;
       volumeUnit(vol);
     }
-  }
-
-  public void update(long time, int amplitude) {
-    int delta = amplitude - lastAmp;
-    lastAmp = amplitude;
-    offsetResampled(time * blipBuffer.factor + blipBuffer.offset, delta);
   }
 
   private void volumeUnit(double newUnit) {
