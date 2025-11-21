@@ -21,6 +21,7 @@ package com.fpetrola.oozx.fuse;
 import com.fpetrola.oozx.fuse.bridge.ContinueExecutionCommand;
 import com.fpetrola.oozx.fuse.bridge.DefaultCommandHandler;
 import com.fpetrola.oozx.fuse.bridge.EmulatorCommand;
+import com.fpetrola.oozx.fuse.sound.JavaSoundDevice;
 import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
@@ -29,7 +30,9 @@ import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -37,6 +40,9 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 public class OOSpectrumConnector {
   public static LibretroCore core = LibretroCore.INSTANCE;
   public static boolean noTest;
+  public static List<double[]> localData = new ArrayList<>();
+  public static List<double[]> remoteData = new ArrayList<>();
+  String device = "buffer=8192,frames=4,verbose";
 
   public static void main(String[] args) {
     noTest = true;
@@ -44,7 +50,22 @@ public class OOSpectrumConnector {
     DefaultCommandHandler.createCommandHandler();
   }
 
+  public static void sendData(double data) {
+//    localData.add(new double[]{data});
+  }
+
+  public static void sendData(double[] data) {
+    localData.add(data);
+  }
+
   public void init(DefaultCommandHandler commandHandler, LibretroCore aCore) {
+
+    JavaSoundDevice javaSoundDevice = new JavaSoundDevice();
+
+    int[] freq = {44100};
+    int[] ay = {0};
+    javaSoundDevice.sound_lowlevel_init(device, freq, ay);
+
 //    core.retro_set_register_data("name", 1);
 //    core.retro_tstates_history_init();
 
@@ -88,14 +109,17 @@ public class OOSpectrumConnector {
     aCore.retro_set_bridge_command(bridgeCommand);
 
     aCore.retro_set_audio_sample((l, r) -> {
-      System.out.println("agasgags"); /* ignoramos */
     });
     aCore.retro_set_audio_sample_batch((data, frames) -> {
-      System.out.println("dgasdgadg");
-
       Pointer pointer = data.getPointer();
-      byte[] byteArray = pointer.getByteArray(0, (int) frames);
-      System.out.println("remote:" + Arrays.toString(byteArray));
+      double[] shortArray = pointer.getDoubleArray(0, (int) frames);
+      remoteData.add(shortArray);
+//      System.out.println("remote:" + Arrays.toString(shortArray));
+      int[] intArray = new int[shortArray.length];
+      for (int i = 0; i < shortArray.length; i++) {
+        intArray[i] = (int) shortArray[i];
+      }
+      javaSoundDevice.sound_lowlevel_frame(intArray, shortArray.length);
       return frames;
     });
     aCore.retro_set_input_poll(() -> {
@@ -121,10 +145,10 @@ public class OOSpectrumConnector {
 //    }).start();
 
     newSingleThreadScheduledExecutor()
-        .scheduleAtFixedRate(() -> {
+        .submit(() -> {
           while (true)
             aCore.retro_run();
-        }, 0, 1, MILLISECONDS);
+        });
 //        aCore.retro_unload_game();
 //        aCore.retro_deinit();
 //        System.out.println("Ejecución terminada.");

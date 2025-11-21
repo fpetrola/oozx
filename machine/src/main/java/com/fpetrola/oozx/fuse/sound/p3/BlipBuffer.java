@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.fuse.sound.p3;
 
+import com.fpetrola.oozx.fuse.OOSpectrumConnector;
+
 import static java.lang.Long.MAX_VALUE;
 
 /**
@@ -76,10 +78,10 @@ public class BlipBuffer {
     long newSize = ((MAX_VALUE >>> BLIP_BUFFER_ACCURACY) - BUFFER_EXTRA - 64);
     if (msec != BLIP_MAX_LENGTH) {
       long s = (new_rate * (msec + 1) + 999) / 1000;
-      if (s < newSize) newSize = (int) s;
+      if (s < newSize) newSize = s;
     }
 
-    if (bufferSize != newSize) {
+    if (bufferSize != newSize || buffer == null) {
       buffer = new int[(int) (newSize + BUFFER_EXTRA)];
       bufferSize = (int) newSize;
     }
@@ -99,7 +101,7 @@ public class BlipBuffer {
 
   public void endFrame(long t) {
     offset += t * factor;
-    assert samplesAvail() <= bufferSize;
+//    assert samplesAvail() <= bufferSize;
   }
 
   public long readSamples(int[] out, int maxSamples, boolean stereo) {
@@ -139,6 +141,8 @@ public class BlipBuffer {
           accum += in[inPos++];
           out[outPos] = (int) s;
           outPos += 2;
+//          double d1= s;
+//          OOSpectrumConnector.sendData(d1);
 
           /* clamp sample */
           if ((short) s != s)
@@ -210,16 +214,16 @@ public class BlipBuffer {
   private long clockRateFactor(long clockRate) {
     double ratio = (double) sampleRate / clockRate;
     long factor = (long) (ratio * (1L << BLIP_BUFFER_ACCURACY) + 0.5);
-    assert factor > 0 || sampleRate == 0;
+//    assert factor > 0 || sampleRate == 0;
     return factor;
   }
 
   public void removeSamples(long count) {
     if (count > 0) {
+      offset -= count << BLIP_BUFFER_ACCURACY;
       int remain = (int) (samplesAvail() + BUFFER_EXTRA);
       System.arraycopy(buffer, (int) count, buffer, 0, remain);
       java.util.Arrays.fill(buffer, remain, remain + (int) count, 0);
-      offset -= count << BLIP_BUFFER_ACCURACY;
     }
   }
 

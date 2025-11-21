@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.fuse.sound;
 
+import com.fpetrola.oozx.fuse.OOSpectrumConnector;
+
 import javax.sound.sampled.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -175,6 +177,9 @@ public class JavaSoundDevice {
     int bytesToWrite = frames * frameSize ;
 
     byte[] audioBytes = convertToBytes(data, len);
+
+//    System.out.println("local2:" + Arrays.toString(audioBytes));
+
 //    bytesToWrite = audioBytes.length;
 
     int written = 0;

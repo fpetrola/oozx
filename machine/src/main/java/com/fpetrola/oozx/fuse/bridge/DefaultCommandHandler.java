@@ -18,8 +18,6 @@
 
 package com.fpetrola.oozx.fuse.bridge;
 
-import com.fpetrola.oozx.Fuse;
-import com.fpetrola.oozx.SpectrumZ80Clock;
 import com.fpetrola.oozx.fuse.EmulatorCommandResult;
 import com.fpetrola.oozx.fuse.OOSpectrumConnector;
 import com.fpetrola.oozx.fuse.LibretroCore;
@@ -28,7 +26,6 @@ import com.fpetrola.oozx.fuse.LocalLibretroCore;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class DefaultCommandHandler extends FuseBaseForTests implements CommandHandler  {
   public EmulatorCommand lastCommand;
@@ -40,7 +37,7 @@ public class DefaultCommandHandler extends FuseBaseForTests implements CommandHa
   }
 
   public static CommandHandler createCommandHandler() {
-    initFuse();
+    createFuse();
     LibretroCore core = LibretroCore.INSTANCE;
     core = new LocalLibretroCore(fuse.eventManager, fuse.display, fuse.machine, fuse.z80, fuse.zxClock, fuse.periph, fuse);
     return createCommandHandler(core);

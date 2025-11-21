@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.fuse.sound.p3;
 
+import com.fpetrola.oozx.fuse.OOSpectrumConnector;
+
 import static com.fpetrola.oozx.fuse.sound.p3.BlipBuffer.*;
 import static com.fpetrola.oozx.fuse.sound.p3.BlipBuffer.BLIP_BUFFER_ACCURACY;
 import static com.fpetrola.oozx.fuse.sound.p3.BlipBuffer.BLIP_PHASE_BITS;
@@ -82,7 +84,7 @@ public class BlipSynthImpl {
     // generate sinc
 //    generateSinc(fimpulse, BLIP_RES, half_size, eq);
 
-    eq.generate(half_size, fimpulse, this);
+    eq.generate(half_size, new FloatArrayHandler(fimpulse, BLIP_RES), this);
 
     /* need mirror slightly past center for calculation */
     for (int i = BLIP_RES; i-- != 0; )
@@ -130,25 +132,29 @@ public class BlipSynthImpl {
   }
 
   void adjustImpulse() {
-    int size = impulses.length;
+    int size = _blip_synth_impulses_size();
     for (int p = BLIP_RES; p-- >= BLIP_RES / 2; ) {
       int p2 = BLIP_RES - 2 - p;
-      long error = kernelUnit;
+      int error = (int) kernelUnit;
       for (int i = 1; i < size; i += BLIP_RES) {
         error -= impulses[i + p];
         error -= impulses[i + p2];
       }
       if (p == p2) error /= 2;
       impulses[size - BLIP_RES + p] += (short) error;
+      short impuls = impulses[size - BLIP_RES + p];
     }
   }
 
   void offsetResampled(long time, int delta) {
 //      if (time > buf.length())
 //        return;
+
+//    if (delta> 0)
+//      System.out.println("mayor a cero");
     delta *= deltaFactor;
     int phase = (int) ((time >> (BLIP_BUFFER_ACCURACY - BLIP_PHASE_BITS)) & (BLIP_RES - 1));
-    int[] buf = this.buf.buffer;
+    IntArrayHandler buf = new IntArrayHandler(this.buf.buffer, (int)( time >> BLIP_BUFFER_ACCURACY ));
 
     ArrayHandler imp = new ArrayHandler(impulses, BLIP_RES - phase);
 
@@ -161,36 +167,43 @@ public class BlipSynthImpl {
     if (BLIP_SYNTH_QUALITY > 12) blipFwd(buf, imp, i0, delta, 4, fwd);
 
     int mid = BLIP_SYNTH_QUALITY / 2 - 1;
-    long t0 = i0[0] * delta + buf[fwd + mid - 1];
-    long t1 = (long) imp.get(BLIP_RES * mid) * delta + buf[fwd + mid];
+    long t0 = i0[0] * delta + buf.get(fwd + mid - 1);
+    long t1 = (long) imp.get(BLIP_RES * mid) * delta + buf.get(fwd + mid);
     imp = new ArrayHandler(impulses, phase);
     i0[0] = imp.get(BLIP_RES * mid);
-    buf[fwd + mid - 1] = (int) t0;
-    buf[fwd + mid] = (int) t1;
+    buf.set(fwd + mid - 1, (int) t0);
+    buf.set(fwd + mid , (int) t1);
 
     if (BLIP_SYNTH_QUALITY > 12) blipRev(buf, imp, i0, delta, 6, rev);
     if (BLIP_SYNTH_QUALITY > 8) blipRev(buf, imp, i0, delta, 4, rev);
     blipRev(buf, imp, i0, delta, 2, rev);
 
-    t0 = i0[0] * delta + buf[rev];
-    t1 = (long) imp.get() * delta + buf[rev + 1];
-    buf[rev] = (int) t0;
-    buf[rev + 1] = (int) t1;
+    t0 = i0[0] * delta + buf.get(rev);
+    t1 = (long) imp.get() * delta + buf.get(rev + 1);
+    buf.set(rev, (int) t0);
+    buf.set(rev + 1, (int) t1);
+//
+    OOSpectrumConnector.sendData(t0);
+    OOSpectrumConnector.sendData(t1);
   }
 
-  private void blipFwd(int[] buf, ArrayHandler imp, long[] i0, int delta, int i, int fwd) {
-    int t0 = (int) (i0[0] * delta + buf[fwd + i]);
-    int t1 = imp.get(BLIP_RES * (i + 1)) * delta + buf[fwd + 1 + i];
+  private void blipFwd(IntArrayHandler buf, ArrayHandler imp, long[] i0, int delta, int i, int fwd) {
+    int t0 = (int) (i0[0] * delta + buf.get(fwd + i));
+    int t1 = imp.get(BLIP_RES * (i + 1)) * delta + buf.get(fwd + 1 + i);
     i0[0] = imp.get(BLIP_RES * (i + 2));
-    buf[fwd + i] = t0;
-    buf[fwd + 1 + i] = t1;
+    buf.set(fwd + i, t0);
+    buf.set(fwd + 1 + i, t1);
+    OOSpectrumConnector.sendData(t0);
+    OOSpectrumConnector.sendData(t1);
   }
 
-  private void blipRev(int[] buf, ArrayHandler imp, long[] i0, int delta, int r, int rev) {
-    int t0 = (int) (i0[0] * delta + buf[rev - r]);
-    int t1 = imp.get(BLIP_RES * r) * delta + buf[rev + 1 - r];
+  private void blipRev(IntArrayHandler buf, ArrayHandler imp, long[] i0, int delta, int r, int rev) {
+    int t0 = (int) (i0[0] * delta + buf.get(rev - r));
+    int t1 = imp.get(BLIP_RES * r) * delta + buf.get(rev + 1 - r);
     i0[0] = imp.get(BLIP_RES * (r - 1));
-    buf[rev - r] = t0;
-    buf[rev + 1 - r] = t1;
+    buf.set(rev - r, t0);
+    buf.set(rev + 1 - r, t1);
+    OOSpectrumConnector.sendData(t0);
+    OOSpectrumConnector.sendData(t1);
   }
 }

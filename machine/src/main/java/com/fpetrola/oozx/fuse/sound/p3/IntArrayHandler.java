@@ -16,20 +16,30 @@
  *
  */
 
-package com.fpetrola.z80.cpu;
+package com.fpetrola.oozx.fuse.sound.p3;
 
-public class DefaultZ80Clock implements Z80Clock {
-  protected int tStates;
+public class IntArrayHandler {
+  private int[] imp;
+  private int impIdx;
 
-  public int getTStates() {
-    return tStates & 0xFFFFF;
+  public IntArrayHandler(int[] imp, int impIdx) {
+    this.imp = imp;
+    this.impIdx = impIdx;
   }
 
-  public void setTStates(int tStates) {
-    this.tStates = tStates;
+  public int get() {
+    return imp[impIdx];
   }
 
-  public void addTStates(int tStatesToAdd) {
-    this.tStates += tStatesToAdd;
+  public void set(int i) {
+    imp[impIdx]= (int) i;
+  }
+
+  public void set(int index, int i) {
+    imp[impIdx + index] = i;
+  }
+
+  public int get(int i) {
+    return imp[impIdx+i];
   }
 }

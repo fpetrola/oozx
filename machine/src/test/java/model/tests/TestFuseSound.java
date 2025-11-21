@@ -26,9 +26,11 @@ import com.fpetrola.oozx.fuse.bridge.CommandHandler;
 import com.fpetrola.oozx.fuse.bridge.DefaultCommandHandler;
 import com.fpetrola.oozx.fuse.bridge.FuseBaseForTests;
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
+import model.connected.ConnectedZ80CPU;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -42,7 +44,7 @@ public class TestFuseSound extends FuseBaseForTests {
 
   @BeforeAll
   public static void beforeall() {
-    initFuse();
+    createFuse();
     localLibretroCore = new LocalLibretroCore(fuse.eventManager, fuse.display, fuse.machine, fuse.z80, fuse.zxClock, fuse.periph, fuse);
     remoteCore = OOSpectrumConnector.core;
     CommandHandler commandHandler1 = DefaultCommandHandler.createCommandHandler(localLibretroCore);
@@ -65,11 +67,11 @@ public class TestFuseSound extends FuseBaseForTests {
   static void tearDown() {
   }
 
-  //  @Disabled
+  @Disabled
   @Test
   void test48KExecuteGame() {
     String model = "48K";
-    String fileName = "/home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80";
+    String fileName = "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
 
     testDriver1.setModel(model);
     testDriver1.loadSnapshot(fileName);
@@ -317,13 +319,109 @@ public class TestFuseSound extends FuseBaseForTests {
 //      for (int j = 0; j < 100; j++) {
 //        testDriver1.step();
 //
-////        int pc1 = testDriver1.getRegister("PC");
-////        if (pc1 == 0) {
-////          System.out.println("sdsdgsdgdg");
-////        }
+
+  ////        int pc1 = testDriver1.getRegister("PC");
+  ////        if (pc1 == 0) {
+  ////          System.out.println("sdsdgsdgdg");
+  ////        }
 //      }
 //    }
 //  }
 
 
+// Interface 1 Peripheral Tests
+  @Test
+  void test48KInterface1PortEFContentionT14335() {
+    testDriver1.setModel("48K");
+    int initialTStates = testDriver1.getTstates();
+    testDriver1.writePort(0x4000, 1);
+    assertEquals(initialTStates, testDriver1.getTstates());
+  }
+
+  public static void assertShortArrayListEquals(List<double[]> expectedList, List<double[]> actualList) {
+    if (expectedList.size() != actualList.size()) {
+      System.out.println("size");
+    }
+    Assertions.assertEquals(expectedList.size(), actualList.size(),
+        () -> "Tamaño de listas diferente: esperado " + expectedList.size() +
+            ", actual " + actualList.size());
+
+    for (int i = 0; i < expectedList.size(); i++) {
+      double[] expected = expectedList.get(i);
+      double[] actual = actualList.get(i);
+
+      int finalI = i;
+      Assertions.assertArrayEquals(expected, actual,
+          () -> "Fila " + finalI + " diferente:\n" +
+              "  Esperado: " + Arrays.toString(expected) + "\n" +
+              "  Actual:   " + Arrays.toString(actual));
+    }
+  }
+
+  @Disabled
+  @Test
+  void testBeepPipOnSpeakerPortFE_A() {
+    test1(testDriver2);
+    test1(testDriver1);
+
+    List<double[]> localData = OOSpectrumConnector.localData;
+    List<double[]> remoteData = OOSpectrumConnector.remoteData;
+    assertShortArrayListEquals(localData, remoteData);
+  }
+
+  @Test
+  void testBeepPipOnSpeakerPortFE_B() {
+    test1(testDriver2);
+  }
+
+  private void test1(TestDriver testDriver3) {
+    ConnectedZ80CPU cpu = new ConnectedZ80CPU(testDriver3);
+
+    testDriver3.setModel("48K");
+    testDriver3.setRegister("PC", 0xF000);
+
+    testDriver3.writePort(0xFE, 0b0001_1000);  // = 24 decimal → altavoz ON + borde
+
+    int i1 = 3500;
+    testDriver3.setRegister("BC", i1);
+    testDriver3.setRegister("HL", 0);
+    testDriver3.setRegister("DE", 1);
+    for (int i = 0; i < i1; i++) {
+      cpu.executeInstruction("LDIR");  // = 24 decimal → altavoz ON + borde
+    }
+
+    testDriver3.writePort(0xFE, 0b0000_0000);  // altavoz OFF
+  }
+
+
+  @Disabled
+  @Test
+  void test48KExecuteGame2() {
+    String model = "48K";
+    String fileName = "/home/fernando/detodo/desarrollo/m/zx/roms/jsw2.z80";
+
+
+    testDriver2.setModel(model);
+    testDriver2.loadSnapshot(fileName);
+    testDriver1.setModel(model);
+    testDriver1.loadSnapshot(fileName);
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+
+    for (int i = 0; i < 10000000; i++) {
+      for (int j = 0; j < 1; j++) {
+        testDriver2.step();
+        testDriver1.step();
+      }
+
+      List<double[]> localData = OOSpectrumConnector.localData;
+      List<double[]> remoteData = OOSpectrumConnector.remoteData;
+      assertShortArrayListEquals(localData, remoteData);
+      localData.clear();
+      remoteData.clear();
+    }
+  }
 }

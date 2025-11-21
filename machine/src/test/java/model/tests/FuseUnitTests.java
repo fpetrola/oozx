@@ -58,7 +58,7 @@ public class FuseUnitTests extends FuseBaseForTests {
 
   @BeforeAll
   public static void beforeAll() {
-    initFuse();
+    createFuse();
     localLibretroCore = new LocalLibretroCore(fuse.eventManager, fuse.display, fuse.machine, fuse.z80, fuse.zxClock, fuse.periph, fuse);
 
     testDriver = new TestDriver(DefaultCommandHandler.createCommandHandler());

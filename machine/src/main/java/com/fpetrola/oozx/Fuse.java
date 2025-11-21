@@ -35,7 +35,7 @@ import com.fpetrola.oozx.fuse.startup.*;
 import java.util.List;
 
 public class Fuse {
-  private final com.fpetrola.oozx.fuse.Sound sound;
+  public final com.fpetrola.oozx.fuse.Sound sound;
   public SpectrumZ80Clock zxClock;
   public Settings settings;
   public boolean alive;

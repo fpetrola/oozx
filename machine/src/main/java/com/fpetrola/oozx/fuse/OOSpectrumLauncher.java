@@ -19,7 +19,6 @@
 package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.Fuse;
-import com.fpetrola.oozx.SpectrumZ80Clock;
 import com.fpetrola.oozx.fuse.modules.tape.Log1;
 import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.peripherals.t.DownloadAndUnzip;
@@ -66,14 +65,14 @@ public class OOSpectrumLauncher {
   }
 
   private String extracted() {
-//    String[] games = {"emlyn.z80", "dynamitedan.z80", "equinox.z80", "tge.z80", "wally.z80", "jsw.z80"};
+    String[] games = {"emlyn.z80", "dynamitedan.z80", "equinox.z80", "tge.z80", "wally.z80", "jsw.z80", "agentx2.z80", "rickdangerous.z80"};
 //    String[] games = {"rickdangerous.z80"};
-    String[] games = {"emlyn.z80"};
+//    String[] games = {"jsw.z80"};
 
-    Random random = new Random();
-    int index = random.nextInt(games.length);
-    String s = "/home/fernando/detodo/desarrollo/m/zx/roms/" + games[index];
-    return s;
+//    games = new String[]{"agentx2.z80"};
+
+    String randomGame = games[new Random().nextInt(games.length)];
+    return "/home/fernando/detodo/desarrollo/m/zx/roms/" + randomGame;
   }
 
   // Spectrum system variables
@@ -124,22 +123,22 @@ public class OOSpectrumLauncher {
 
   private Fuse createFuse(String filename) {
     Fuse fuse = new Fuse();
-    fuse.init();
 
-    boolean isTape;
-    if (filename != null) {
-      isTape = filename.toLowerCase().contains("tzx") || filename.toLowerCase().contains("tap");
-      if (isTape) {
-        Tape tape = fuse.tape;
-        tape.stop();
-        tape.eject();
-        doAutoLoadTape(fuse.z80.ooz80.getState().getMemory(), 1f, () -> {
-          tape.insert(new File(filename));
-          tape.play(false);
-        });
-
-      } else
-        fuse.z80.loadSnap(filename);
+    boolean isTape = filename != null && filename.toLowerCase().contains("tzx") || filename.toLowerCase().contains("tap");
+    if (isTape) {
+      fuse.init();
+      Tape tape = fuse.tape;
+      tape.stop();
+      tape.eject();
+      doAutoLoadTape(fuse.z80.ooz80.getState().getMemory(), 1f, () -> {
+        tape.insert(new File(filename));
+        tape.play(false);
+      });
+    } else {
+      fuse.settings.current.emulationSpeed= 100;
+      fuse.init();
+      fuse.z80.loadSnap(filename);
+      fuse.z80.changeSpeed(100);
     }
 
     fuse.z80.bridgeCommand = (a, b) -> null;

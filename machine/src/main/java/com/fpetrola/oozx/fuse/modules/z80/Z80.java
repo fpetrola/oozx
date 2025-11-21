@@ -63,7 +63,7 @@ public class Z80 implements ZxModule {
   //   ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent();
 //   MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
   private boolean init;
-//  public Audio audio;
+  //  public Audio audio;
   private final Display display;
   public final Ula ula;
   private final Machine machine;
@@ -344,7 +344,7 @@ public class Z80 implements ZxModule {
 
   public void doOpcodes() {
     while (zxClock.getTStates() < eventManager.eventNextEvent) {
-//      while (emulatorPaused) Thread.onSpinWait();
+      while (emulatorPaused) Thread.onSpinWait();
       bridgeCommand.invoke(0, null);
       try {
         ooz80.execute();
@@ -377,7 +377,7 @@ public class Z80 implements ZxModule {
 
   public JFrame createScreen(KeyListener keyListener, JComponent contentPane) {
     mockCore = new MockEmulatorCore(contentPane) {
-      private boolean turbo = true;
+      private boolean turbo = settings.current.emulationSpeed != 100;
 
       public KeyListener getKeyListener() {
         return new SwingKeyboard(fuse.keyboard, fuse.input);
@@ -403,13 +403,15 @@ public class Z80 implements ZxModule {
         if (option.equals("turbo")) {
           turbo = !turbo;
           int emulationSpeed = turbo ? 15000 : 100;
-          settings.current.emulationSpeed = emulationSpeed;
-          zxClock.addTStates(-zxClock.getTStates() + 60000);
-          timer.changeSpeed(emulationSpeed);
-          notifyTurboModeChange(turbo);
-          notifyEmulationSpeedChange(Z80.emulationSpeed);
+          changeSpeed1(emulationSpeed);
 //          timer.estimateReset();
         }
+      }
+
+      public void changeSpeed1(int emulationSpeed) {
+        changeSpeed(emulationSpeed);
+        notifyTurboModeChange(turbo);
+        notifyEmulationSpeedChange(Z80.emulationSpeed);
       }
 
       @Override
@@ -485,6 +487,13 @@ public class Z80 implements ZxModule {
 //    frame.addKeyListener(keyListener);
 
     return null;
+  }
+
+  public void changeSpeed(int emulationSpeed) {
+    settings.current.emulationSpeed = emulationSpeed;
+    zxClock.addTStates(-zxClock.getTStates() + 60000);
+    timer.changeSpeed(emulationSpeed);
+    fuse.sound.init(null);
   }
 
 }

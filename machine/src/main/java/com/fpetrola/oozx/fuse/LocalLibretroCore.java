@@ -101,7 +101,6 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb) {
-
   }
 
   public void retro_set_input_poll(retro_input_poll_t cb) {

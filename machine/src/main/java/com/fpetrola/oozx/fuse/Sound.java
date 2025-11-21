@@ -28,6 +28,9 @@ import com.fpetrola.oozx.fuse.sound.p3.BlipBuffer;
 import com.fpetrola.oozx.fuse.sound.p3.BlipEq;
 import com.fpetrola.oozx.fuse.sound.p3.BlipSynth;
 
+import javax.swing.*;
+import java.util.Arrays;
+
 public class Sound implements ZxModule, MachineChangeListener {
   public void pause() {
     if (soundEnabled) {
@@ -59,11 +62,6 @@ public class Sound implements ZxModule, MachineChangeListener {
   private JavaSoundDevice javaSoundDevice = new JavaSoundDevice();
   private SpectrumMachine spectrumMachine;
   private int lastVal;
-  private Audio audio;
-
-  private AY8912Type ayConf;
-
-  private AY8912 ay8912;
 
   public Sound(Settings settings, Movie movie, IPeriph periph, Tape tape, SpectrumZ80Clock clock) {
     this.settings = settings;
@@ -72,9 +70,6 @@ public class Sound implements ZxModule, MachineChangeListener {
     this.periph = periph;
     this.tape = tape;
     this.clock = clock;
-    ayConf = new AY8912Type();
-    audio = new Audio(ayConf);
-    ay8912 = new AY8912();
   }
 
   public void machineChanged(SpectrumMachine newMachine) {
@@ -82,7 +77,7 @@ public class Sound implements ZxModule, MachineChangeListener {
   }
 
   public void sendFrame() {
-    audio.sendAudioFrame();
+//    audio.sendAudioFrame();
   }
 
   // ========================================================================
@@ -158,7 +153,6 @@ public class Sound implements ZxModule, MachineChangeListener {
   // Configuración actual (simulación de settings_current)
   // ========================================================================
   public int soundFreq = 44100;
-  public int emulationSpeed = 100; // %
   public int volumeBeeper = 100;
   public int volumeAY = 100;
   public int volumeSpecdrum = 100;
@@ -185,19 +179,19 @@ public class Sound implements ZxModule, MachineChangeListener {
   // Inicialización del sonido
   // ========================================================================
   public boolean initSound(long cpuFrequency, int tstatesPerFrame) {
-    if (soundEnabled) return true;
+//    if (soundEnabled) return true;
 
-    if (emulationSpeed < 2 || emulationSpeed > 500) return false;
+//    if (settings.current.emulationSpeed < 2 || settings.current.emulationSpeed > 500) return false;
 
     leftBuf = new BlipBuffer();
     rightBuf = new BlipBuffer();
 
-    long effectiveSpeed = cpuFrequency * emulationSpeed / 100;
+    long effectiveSpeed = cpuFrequency * settings.current.emulationSpeed / 100 * 2;
 
     int[] ints = {0};
     int[] soundFreqArray = {soundFreq};
 
-    String device= "buffer=8192,frames=4,verbose";
+    String device = "buffer=8192,frames=100,verbose";
     boolean b = lowlevelInit(device, soundFreqArray, ints);
 
     if (!leftBuf.setSampleRate(soundFreq, 1000)) return false;
@@ -214,44 +208,44 @@ public class Sound implements ZxModule, MachineChangeListener {
 
     leftBeeperSynth = new BlipSynth(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
     leftBeeperSynth.volume(getVolume(volumeBeeper));
-    leftBeeperSynth.trebleEq(new BlipEq(treble));
     leftBeeperSynth.output(leftBuf);
     leftBuf.bassFreq(bass);
+    leftBeeperSynth.trebleEq(new BlipEq(treble));
 
-    if (stereoAY != 0) {
-      rightBeeperSynth = new BlipSynth(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
-      rightBeeperSynth.volume(getVolume(volumeBeeper));
-      rightBeeperSynth.trebleEq(new BlipEq(treble));
-      rightBeeperSynth.output(rightBuf);
-    }
-
-    ayASynth = createAySynth(treble, leftBuf);
-    ayBSynth = createAySynth(treble, leftBuf);
-    ayCSynth = createAySynth(treble, leftBuf);
-
-    if (stereoAY != 0) {
-      switch (stereoAY) {
-        case 1: // ABC
-          ayASynth.output(leftBuf);
-          ayBSynth.output(leftBuf);
-          ayCSynth.output(rightBuf);
-          ayBSynthR = createAySynth(treble, rightBuf);
-          break;
-        case 2: // ACB
-          ayASynth.output(leftBuf);
-          ayCSynth.output(leftBuf);
-          ayBSynth.output(rightBuf);
-          ayCSynthR = createAySynth(treble, rightBuf);
-          break;
-      }
-    }
-
-    leftSpecdrumSynth = createAySynth(treble, leftBuf);
-    leftCovoxSynth = createAySynth(treble, leftBuf);
-    if (stereoAY != 0) {
-      rightSpecdrumSynth = createAySynth(treble, rightBuf);
-      rightCovoxSynth = createAySynth(treble, rightBuf);
-    }
+//    if (stereoAY != 0) {
+//      rightBeeperSynth = new BlipSynth(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
+//      rightBeeperSynth.volume(getVolume(volumeBeeper));
+//      rightBeeperSynth.trebleEq(new BlipEq(treble));
+//      rightBeeperSynth.output(rightBuf);
+//    }
+//
+//    ayASynth = createAySynth(treble, leftBuf);
+//    ayBSynth = createAySynth(treble, leftBuf);
+//    ayCSynth = createAySynth(treble, leftBuf);
+//
+//    if (stereoAY != 0) {
+//      switch (stereoAY) {
+//        case 1: // ABC
+//          ayASynth.output(leftBuf);
+//          ayBSynth.output(leftBuf);
+//          ayCSynth.output(rightBuf);
+//          ayBSynthR = createAySynth(treble, rightBuf);
+//          break;
+//        case 2: // ACB
+//          ayASynth.output(leftBuf);
+//          ayCSynth.output(leftBuf);
+//          ayBSynth.output(rightBuf);
+//          ayCSynthR = createAySynth(treble, rightBuf);
+//          break;
+//      }
+//    }
+//
+//    leftSpecdrumSynth = createAySynth(treble, leftBuf);
+//    leftCovoxSynth = createAySynth(treble, leftBuf);
+//    if (stereoAY != 0) {
+//      rightSpecdrumSynth = createAySynth(treble, rightBuf);
+//      rightCovoxSynth = createAySynth(treble, rightBuf);
+//    }
 
     // Calcular tamaño de frame de audio
     double hz = (double) effectiveSpeed / tstatesPerFrame;
@@ -271,8 +265,11 @@ public class Sound implements ZxModule, MachineChangeListener {
     return synth;
   }
 
-  private double getVolume(int vol) {
-    return Math.max(0, Math.min(100, vol)) / 100.0;
+  private double getVolume(int volume) {
+    if (volume < 0) volume = 0;
+    else if (volume > 100) volume = 100;
+
+    return volume / 100.0;
   }
 
 
@@ -316,10 +313,10 @@ public class Sound implements ZxModule, MachineChangeListener {
 
   public void ayReset() {
     ayChangeCount = 0;
-    java.util.Arrays.fill(ayRegisters, (byte) 0);
-    java.util.Arrays.fill(ayTonePeriod, 1);
-    java.util.Arrays.fill(ayToneTick, 0);
-    java.util.Arrays.fill(ayToneHigh, 0);
+    Arrays.fill(ayRegisters, (byte) 0);
+    Arrays.fill(ayTonePeriod, 1);
+    Arrays.fill(ayToneTick, 0);
+    Arrays.fill(ayToneHigh, 0);
     ayNoisePeriod = ayNoiseTick = 0;
     ayEnvPeriod = ayEnvTick = ayEnvInternalTick = 0;
     ayToneCycles = ayEnvCycles = 0;
@@ -339,17 +336,19 @@ public class Sound implements ZxModule, MachineChangeListener {
     leftBuf.endFrame(frameTstates);
     if (rightBuf != null) rightBuf.endFrame(frameTstates);
 
-    int count;
+    int count = 0;
     if (stereoAY != 0) {
       count = (int) leftBuf.readSamples(outputSamples, soundFrameSize, true);
       rightBuf.readSamples(outputSamples, count, true); // interleave
       count *= 2;
     } else {
-      count = (int) leftBuf.readSamples(outputSamples, soundFrameSize, false);
-      for (int i = count - 1; i >= 0; i--) {
-        outputSamples[i * 2 + 1] = outputSamples[i * 2];
+      if (leftBuf.buffer != null) {
+        count = (int) leftBuf.readSamples(outputSamples, soundFrameSize, true);
+        for (int i = count - 1; i >= 0; i--) {
+          outputSamples[i * 2 + 1] = outputSamples[i * 2];
+        }
+        count *= 2;
       }
-      count *= 2;
     }
 
     if (settings.current.sound) {
@@ -372,6 +371,13 @@ public class Sound implements ZxModule, MachineChangeListener {
   }
 
   private void lowlevelFrame(int[] data, int len) {
+//    double[] data1 = new double[len];
+//    for (int i = 0; i < len; i++) {
+//      data1[i]= data[i];
+////      OOSpectrumConnector.sendData(data1[i]);
+//    }
+//    OOSpectrumConnector.sendData(data1);
+
     javaSoundDevice.sound_lowlevel_frame(data, len);
   }
 

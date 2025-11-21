@@ -26,7 +26,7 @@ import java.util.function.Supplier;
 public class FuseBaseForTests {
   public static Fuse fuse;
 
-  public static void initFuse() {
+  public static void createFuse() {
     fuse = new Fuse(new SpectrumZ80Clock() {
       public void log(Supplier<String> description, byte data) {
         GetTStatesHistory.addTStateUpdate(data, description, tStates, fuse.z80.ooz80.getState().getPc());

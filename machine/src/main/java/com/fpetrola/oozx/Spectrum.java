@@ -158,8 +158,6 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   }
 
   public void spectrumFrame() {
-    if (sound.soundEnabled)
-      sound.frame();
     int frameLength = getTimings().tstatesPerFrame;
 
     eventManager.eventFrame(frameLength);
@@ -169,7 +167,8 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
       z80.interruptsEnabledAt -= frameLength;
     }
 
-
+    if (sound.soundEnabled)
+      sound.frame();
 
     if (display.frame() != 0) return;
 

@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.fuse.sound.p3;
 
+import static com.fpetrola.oozx.fuse.sound.p3.BlipBuffer.BLIP_SYNTH_RANGE;
+
 public class BlipSynth {
   private final BlipSynthImpl impl;
 
@@ -25,11 +27,14 @@ public class BlipSynth {
     int absRange = range < 0 ? -range : range;
     short[] impulses = new short[BlipBuffer.BLIP_RES * (quality / 2) + 1];
     impl = new BlipSynthImpl(impulses, quality);
-    volume(1.0 / absRange);
+//    volume(1.0 / absRange);
   }
 
   public void volume(double v) {
-    impl.volumeUnit(v);
+    impl.volumeUnit(v * (1.0 /
+        (BLIP_SYNTH_RANGE <
+            0 ? -(BLIP_SYNTH_RANGE) :
+            BLIP_SYNTH_RANGE)));
   }
 
   public void trebleEq(BlipEq eq) {
@@ -46,9 +51,11 @@ public class BlipSynth {
   }
 
   public void update(long time, int amplitude) {
-    int delta = amplitude - impl.lastAmp;
-    impl.lastAmp = amplitude;
-    offset(time, delta);
+    if (impl.buf != null) {
+      int delta = amplitude - impl.lastAmp;
+      impl.lastAmp = amplitude;
+      offset(time, delta);
+    }
   }
 
   public void offset(long time, int delta) {

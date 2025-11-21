@@ -33,7 +33,8 @@ public class ZxInfoApiHandler {
   }
 
   public List<Hit> search(String everyoneWally) {
-    Client client = ClientBuilder.newClient();
+    Client client = null;
+    client = ClientBuilder.newClient();
     ResteasyWebTarget target = (ResteasyWebTarget) client.target(BASE_URL);
     ZxInfoClient zxClient = target.proxy(ZxInfoClient.class);
     SearchResponse response = zxClient.searchGames(everyoneWally, 150, 0);
