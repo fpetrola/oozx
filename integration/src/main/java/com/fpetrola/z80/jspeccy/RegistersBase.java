@@ -20,12 +20,13 @@ package com.fpetrola.z80.jspeccy;
 
 import com.fpetrola.z80.bytecode.DefaultRegistersSetter;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.cpu.RegistersGetter;
 import com.fpetrola.z80.registers.RegisterName;
 import snapshots.Z80State;
 
 import z80core.IntMode;
 
-public class RegistersBase extends DefaultRegistersSetter {
+public class RegistersBase extends DefaultRegistersSetter implements RegistersGetter {
 
   public RegistersBase() {
     super(null);
@@ -72,6 +73,11 @@ public class RegistersBase extends DefaultRegistersSetter {
 
   public final int getRegL() {
     return getRegister(RegisterName.L).read();
+  }
+
+  @Override
+  public int getRegF() {
+    return getRegister(RegisterName.F).read();
   }
 
   public final int getRegAx() {
@@ -232,7 +238,7 @@ public class RegistersBase extends DefaultRegistersSetter {
 
   // Acceso al modo de interrupción
   public final IntMode getIM() {
-    return getModeINT();
+    return IntMode.values()[getModeINT()];
   }
 
   public final boolean isHalted() {
@@ -275,7 +281,7 @@ public class RegistersBase extends DefaultRegistersSetter {
     state.setHalted(isHalted());
     state.setIFF1(isFfIFF1());
     state.setIFF2(isFfIFF2());
-    state.setIM(getModeINT());
+    state.setIM(IntMode.values()[getModeINT()]);
     state.setINTLine(isActiveINT());
     state.setPendingEI(isPendingEI());
     state.setNMI(isActiveNMI());
@@ -307,8 +313,9 @@ public class RegistersBase extends DefaultRegistersSetter {
     return state.isActiveNMI();
   }
 
-  public IntMode getModeINT() {
-    return IntMode.values()[state.getInterruptionMode().ordinal()];
+  @Override
+  public int getModeINT() {
+    return state.getInterruptionMode().ordinal();
   }
 
   public boolean isFfIFF1() {
@@ -325,6 +332,77 @@ public class RegistersBase extends DefaultRegistersSetter {
 
   public void setState(State state) {
     this.state = state;
+  }
+
+  // Implementación de RegistersGetter
+  @Override
+  public int getRegHL() {
+    return getRegister(RegisterName.HL).read();
+  }
+
+  @Override
+  public int getRegBCx() {
+    return getRegister(RegisterName.BCx).read();
+  }
+
+  @Override
+  public int getRegDEx() {
+    return getRegister(RegisterName.DEx).read();
+  }
+
+  @Override
+  public boolean isZeroFlag() {
+    return (getFlags() & 0x40) != 0;
+  }
+
+  @Override
+  public boolean isSignFlag() {
+    return (getFlags() & 0x80) != 0;
+  }
+
+  @Override
+  public boolean isParityFlag() {
+    return (getFlags() & 0x04) != 0;
+  }
+
+  @Override
+  public boolean isHalfCarryFlag() {
+    return (getFlags() & 0x10) != 0;
+  }
+
+  @Override
+  public boolean isAddSubFlag() {
+    return (getFlags() & 0x02) != 0;
+  }
+
+  @Override
+  public boolean getLastFlagQ() {
+    return state.isFlagQ();
+  }
+
+  @Override
+  public boolean getFlagQ() {
+    return state.isFlagQ();
+  }
+
+  @Override
+  public boolean getActiveNMI() {
+    return isActiveNMI();
+  }
+
+  @Override
+  public boolean getActiveINT() {
+    return isActiveINT();
+  }
+
+  @Override
+  public boolean getIFF1() {
+    return isFfIFF1();
+  }
+
+  @Override
+  public boolean getIFF2() {
+    return isFfIFF2();
   }
 
 }
