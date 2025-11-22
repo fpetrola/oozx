@@ -163,158 +163,7 @@ public class SnapshotZ80 implements SnapshotFile {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       fOut = new BufferedOutputStream(baos);
 
-      byte[] z80HeaderV3 = new byte[87];
-      z80HeaderV3[0] = (byte) z80.getRegA();
-      z80HeaderV3[1] = (byte) z80.getRegF();
-      z80HeaderV3[2] = (byte) z80.getRegC();
-      z80HeaderV3[3] = (byte) z80.getRegB();
-      z80HeaderV3[4] = (byte) z80.getRegL();
-      z80HeaderV3[5] = (byte) z80.getRegH();
-      // Bytes 6 y 7 se dejan a 0, si regPC==0, el Z80 es version 2 o 3
-      z80HeaderV3[8] = (byte) z80.getRegSP();
-      z80HeaderV3[9] = (byte) (z80.getRegSP() >>> 8);
-      z80HeaderV3[10] = (byte) z80.getRegI();
-      z80HeaderV3[11] = (byte) (z80.getRegR() & 0x7f);
-      z80HeaderV3[12] = (byte) (spectrum.getBorder() << 1);
-      if (z80.getRegR() > 0x7f) {
-        z80HeaderV3[12] |= 0x01;
-      }
-      z80HeaderV3[13] = (byte) z80.getRegE();
-      z80HeaderV3[14] = (byte) z80.getRegD();
-      z80HeaderV3[15] = (byte) z80.getRegCx();
-      z80HeaderV3[16] = (byte) z80.getRegBx();
-      z80HeaderV3[17] = (byte) z80.getRegEx();
-      z80HeaderV3[18] = (byte) z80.getRegDx();
-      z80HeaderV3[19] = (byte) z80.getRegLx();
-      z80HeaderV3[20] = (byte) z80.getRegHx();
-      z80HeaderV3[21] = (byte) z80.getRegAx();
-      z80HeaderV3[22] = (byte) z80.getRegFx();
-      z80HeaderV3[23] = (byte) z80.getRegIY();
-      z80HeaderV3[24] = (byte) (z80.getRegIY() >>> 8);
-      z80HeaderV3[25] = (byte) z80.getRegIX();
-      z80HeaderV3[26] = (byte) (z80.getRegIX() >>> 8);
-      z80HeaderV3[27] = (byte) (z80.isIFF1() ? 0x01 : 0x00);
-      z80HeaderV3[28] = (byte) (z80.isIFF2() ? 0x01 : 0x00);
-      z80HeaderV3[29] = (byte) z80.getIM().ordinal();
-
-      if (spectrum.isIssue2()) {
-        z80HeaderV3[29] |= 0x04;
-      }
-
-      switch (spectrum.getJoystick()) {
-        case NONE:
-        case CURSOR:
-          break;
-        case KEMPSTON:
-          z80HeaderV3[29] |= 0x40;
-          break;
-        case SINCLAIR1:
-          z80HeaderV3[29] |= 0x80;
-          break;
-        case SINCLAIR2:
-          z80HeaderV3[29] |= 0xC0;
-      }
-      // Hasta aquí la cabecera v1.0, ahora viene lo propio de la v3.x
-      z80HeaderV3[30] = 55; // Cabecera adicional de 55 bytes
-      z80HeaderV3[32] = (byte) z80.getRegPC();
-      z80HeaderV3[33] = (byte) (z80.getRegPC() >>> 8);
-
-      switch (spectrum.getSpectrumModel()) {
-        case SPECTRUM16K:
-          z80HeaderV3[37] |= 0x80; // modified HW, 48k --> 16k
-//                    break;
-        case SPECTRUM48K:
-          z80HeaderV3[34] = (byte) (spectrum.isConnectedIF1() ? 1 : 0);
-          break;
-        case SPECTRUM128K:
-          z80HeaderV3[34] = (byte) (spectrum.isConnectedIF1() ? 5 : 4);
-          break;
-        case SPECTRUMPLUS2:
-          z80HeaderV3[34] = 12;
-          break;
-        case SPECTRUMPLUS2A:
-          z80HeaderV3[34] = 13;
-          break;
-        case SPECTRUMPLUS3:
-          z80HeaderV3[34] = 7;
-      }
-
-      if (spectrum.getSpectrumModel().codeModel != MachineTypes.CodeModel.SPECTRUM48K) {
-        z80HeaderV3[35] = (byte) spectrum.getPort7ffd();
-      }
-
-      if (memory.isIF1RomPaged()) {
-        z80HeaderV3[36] = (byte) 0xff;
-      }
-
-      if (spectrum.isEnabledAY()) {
-        z80HeaderV3[37] |= 0x04;
-        z80HeaderV3[38] = (byte) ay8912.getAddressLatch();
-
-        int[] regAY = ay8912.getRegAY();
-        for (int reg = 0; reg < 16; reg++) {
-          z80HeaderV3[39 + reg] = (byte) regAY[reg];
-        }
-      }
-
-      if (spectrum.getSpectrumModel().codeModel == MachineTypes.CodeModel.SPECTRUMPLUS3) {
-        z80HeaderV3[86] = (byte) spectrum.getPort1ffd();
-      }
-
-      fOut.write(z80HeaderV3, 0, z80HeaderV3.length);
-
-      byte[] buffer = new byte[0x4000];
-      int bufLen;
-      if (spectrum.getSpectrumModel().codeModel == MachineTypes.CodeModel.SPECTRUM48K) {
-        // Página 5, que corresponde a 0x4000-0x7FFF
-        bufLen = compressPageZ80(buffer, 5);
-        if (bufLen == 0x4000) {
-          fOut.write(0xff);
-          fOut.write(0xff); // bloque sin compresión
-        } else {
-          fOut.write(bufLen);
-          fOut.write(bufLen >>> 8);
-        }
-        fOut.write(8);
-        fOut.write(buffer, 0, bufLen);
-
-        // Página 2, que corresponde a 0x8000-0xBFFF
-        bufLen = compressPageZ80(buffer, 2);
-        if (bufLen == 0x4000) {
-          fOut.write(0xff);
-          fOut.write(0xff); // bloque sin compresión
-        } else {
-          fOut.write(bufLen);
-          fOut.write(bufLen >>> 8);
-        }
-        fOut.write(4);
-        fOut.write(buffer, 0, bufLen);
-
-        // Página 0, que corresponde a 0xC000-0xFFFF
-        bufLen = compressPageZ80(buffer, 0);
-        if (bufLen == 0x4000) {
-          fOut.write(0xff);
-          fOut.write(0xff); // bloque sin compresión
-        } else {
-          fOut.write(bufLen);
-          fOut.write(bufLen >>> 8);
-        }
-        fOut.write(5);
-        fOut.write(buffer, 0, bufLen);
-      } else { // Mode 128k
-        for (int page = 0; page < 8; page++) {
-          bufLen = compressPageZ80(buffer, page);
-          if (bufLen == 0x4000) {
-            fOut.write(0xff);
-            fOut.write(0xff); // bloque sin compresión
-          } else {
-            fOut.write(bufLen);
-            fOut.write(bufLen >>> 8);
-          }
-          fOut.write(page + 3);
-          fOut.write(buffer, 0, bufLen);
-        }
-      }
+      writeSnapshotData(fOut);
 
       fOut.flush();
       return baos.toByteArray();
@@ -683,6 +532,161 @@ public class SnapshotZ80 implements SnapshotFile {
     spectrum.setTstates(0);
   }
 
+  private void writeSnapshotData(BufferedOutputStream out) throws IOException {
+    byte[] z80HeaderV3 = new byte[87];
+    z80HeaderV3[0] = (byte) z80.getRegA();
+    z80HeaderV3[1] = (byte) z80.getRegF();
+    z80HeaderV3[2] = (byte) z80.getRegC();
+    z80HeaderV3[3] = (byte) z80.getRegB();
+    z80HeaderV3[4] = (byte) z80.getRegL();
+    z80HeaderV3[5] = (byte) z80.getRegH();
+    // Bytes 6 y 7 se dejan a 0, si regPC==0, el Z80 es version 2 o 3
+    z80HeaderV3[8] = (byte) z80.getRegSP();
+    z80HeaderV3[9] = (byte) (z80.getRegSP() >>> 8);
+    z80HeaderV3[10] = (byte) z80.getRegI();
+    z80HeaderV3[11] = (byte) (z80.getRegR() & 0x7f);
+    z80HeaderV3[12] = (byte) (spectrum.getBorder() << 1);
+    if (z80.getRegR() > 0x7f) {
+      z80HeaderV3[12] |= 0x01;
+    }
+    z80HeaderV3[13] = (byte) z80.getRegE();
+    z80HeaderV3[14] = (byte) z80.getRegD();
+    z80HeaderV3[15] = (byte) z80.getRegCx();
+    z80HeaderV3[16] = (byte) z80.getRegBx();
+    z80HeaderV3[17] = (byte) z80.getRegEx();
+    z80HeaderV3[18] = (byte) z80.getRegDx();
+    z80HeaderV3[19] = (byte) z80.getRegLx();
+    z80HeaderV3[20] = (byte) z80.getRegHx();
+    z80HeaderV3[21] = (byte) z80.getRegAx();
+    z80HeaderV3[22] = (byte) z80.getRegFx();
+    z80HeaderV3[23] = (byte) z80.getRegIY();
+    z80HeaderV3[24] = (byte) (z80.getRegIY() >>> 8);
+    z80HeaderV3[25] = (byte) z80.getRegIX();
+    z80HeaderV3[26] = (byte) (z80.getRegIX() >>> 8);
+    z80HeaderV3[27] = (byte) (z80.isIFF1() ? 0x01 : 0x00);
+    z80HeaderV3[28] = (byte) (z80.isIFF2() ? 0x01 : 0x00);
+    z80HeaderV3[29] = (byte) z80.getIM().ordinal();
+
+    if (spectrum.isIssue2()) {
+      z80HeaderV3[29] |= 0x04;
+    }
+
+    switch (spectrum.getJoystick()) {
+      case NONE:
+      case CURSOR:
+        break;
+      case KEMPSTON:
+        z80HeaderV3[29] |= 0x40;
+        break;
+      case SINCLAIR1:
+        z80HeaderV3[29] |= 0x80;
+        break;
+      case SINCLAIR2:
+        z80HeaderV3[29] |= 0xC0;
+    }
+    // Hasta aquí la cabecera v1.0, ahora viene lo propio de la v3.x
+    z80HeaderV3[30] = 55; // Cabecera adicional de 55 bytes
+    z80HeaderV3[32] = (byte) z80.getRegPC();
+    z80HeaderV3[33] = (byte) (z80.getRegPC() >>> 8);
+
+    switch (spectrum.getSpectrumModel()) {
+      case SPECTRUM16K:
+        z80HeaderV3[37] |= 0x80; // modified HW, 48k --> 16k
+//                    break;
+      case SPECTRUM48K:
+        z80HeaderV3[34] = (byte) (spectrum.isConnectedIF1() ? 1 : 0);
+        break;
+      case SPECTRUM128K:
+        z80HeaderV3[34] = (byte) (spectrum.isConnectedIF1() ? 5 : 4);
+        break;
+      case SPECTRUMPLUS2:
+        z80HeaderV3[34] = 12;
+        break;
+      case SPECTRUMPLUS2A:
+        z80HeaderV3[34] = 13;
+        break;
+      case SPECTRUMPLUS3:
+        z80HeaderV3[34] = 7;
+    }
+
+    if (spectrum.getSpectrumModel().codeModel != MachineTypes.CodeModel.SPECTRUM48K) {
+      z80HeaderV3[35] = (byte) spectrum.getPort7ffd();
+    }
+
+    if (memory.isIF1RomPaged()) {
+      z80HeaderV3[36] = (byte) 0xff;
+    }
+
+    if (spectrum.isEnabledAY()) {
+      z80HeaderV3[37] |= 0x04;
+      z80HeaderV3[38] = (byte) ay8912.getAddressLatch();
+
+      int[] regAY = ay8912.getRegAY();
+      for (int reg = 0; reg < 16; reg++) {
+        z80HeaderV3[39 + reg] = (byte) regAY[reg];
+      }
+    }
+
+    if (spectrum.getSpectrumModel().codeModel == MachineTypes.CodeModel.SPECTRUMPLUS3) {
+      z80HeaderV3[86] = (byte) spectrum.getPort1ffd();
+    }
+
+    out.write(z80HeaderV3, 0, z80HeaderV3.length);
+
+    byte[] buffer = new byte[0x4000];
+    int bufLen;
+    if (spectrum.getSpectrumModel().codeModel == MachineTypes.CodeModel.SPECTRUM48K) {
+      // Página 5, que corresponde a 0x4000-0x7FFF
+      bufLen = compressPageZ80(buffer, 5);
+      if (bufLen == 0x4000) {
+        out.write(0xff);
+        out.write(0xff); // bloque sin compresión
+      } else {
+        out.write(bufLen);
+        out.write(bufLen >>> 8);
+      }
+      out.write(8);
+      out.write(buffer, 0, bufLen);
+
+      // Página 2, que corresponde a 0x8000-0xBFFF
+      bufLen = compressPageZ80(buffer, 2);
+      if (bufLen == 0x4000) {
+        out.write(0xff);
+        out.write(0xff); // bloque sin compresión
+      } else {
+        out.write(bufLen);
+        out.write(bufLen >>> 8);
+      }
+      out.write(4);
+      out.write(buffer, 0, bufLen);
+
+      // Página 0, que corresponde a 0xC000-0xFFFF
+      bufLen = compressPageZ80(buffer, 0);
+      if (bufLen == 0x4000) {
+        out.write(0xff);
+        out.write(0xff); // bloque sin compresión
+      } else {
+        out.write(bufLen);
+        out.write(bufLen >>> 8);
+      }
+      out.write(5);
+      out.write(buffer, 0, bufLen);
+    } else { // Mode 128k
+      for (int page = 0; page < 8; page++) {
+        bufLen = compressPageZ80(buffer, page);
+        if (bufLen == 0x4000) {
+          out.write(0xff);
+          out.write(0xff); // bloque sin compresión
+        } else {
+          out.write(bufLen);
+          out.write(bufLen >>> 8);
+        }
+        out.write(page + 3);
+        out.write(buffer, 0, bufLen);
+      }
+    }
+  }
+
   // Solo se graban Z80's versión 3
   @Override
   public boolean save(File filename, SpectrumState state) throws SnapshotException {
@@ -698,158 +702,7 @@ public class SnapshotZ80 implements SnapshotFile {
         throw new SnapshotException("OPEN_FILE_ERROR", ex);
       }
 
-      byte[] z80HeaderV3 = new byte[87];
-      z80HeaderV3[0] = (byte) z80.getRegA();
-      z80HeaderV3[1] = (byte) z80.getRegF();
-      z80HeaderV3[2] = (byte) z80.getRegC();
-      z80HeaderV3[3] = (byte) z80.getRegB();
-      z80HeaderV3[4] = (byte) z80.getRegL();
-      z80HeaderV3[5] = (byte) z80.getRegH();
-      // Bytes 6 y 7 se dejan a 0, si regPC==0, el Z80 es version 2 o 3
-      z80HeaderV3[8] = (byte) z80.getRegSP();
-      z80HeaderV3[9] = (byte) (z80.getRegSP() >>> 8);
-      z80HeaderV3[10] = (byte) z80.getRegI();
-      z80HeaderV3[11] = (byte) (z80.getRegR() & 0x7f);
-      z80HeaderV3[12] = (byte) (spectrum.getBorder() << 1);
-      if (z80.getRegR() > 0x7f) {
-        z80HeaderV3[12] |= 0x01;
-      }
-      z80HeaderV3[13] = (byte) z80.getRegE();
-      z80HeaderV3[14] = (byte) z80.getRegD();
-      z80HeaderV3[15] = (byte) z80.getRegCx();
-      z80HeaderV3[16] = (byte) z80.getRegBx();
-      z80HeaderV3[17] = (byte) z80.getRegEx();
-      z80HeaderV3[18] = (byte) z80.getRegDx();
-      z80HeaderV3[19] = (byte) z80.getRegLx();
-      z80HeaderV3[20] = (byte) z80.getRegHx();
-      z80HeaderV3[21] = (byte) z80.getRegAx();
-      z80HeaderV3[22] = (byte) z80.getRegFx();
-      z80HeaderV3[23] = (byte) z80.getRegIY();
-      z80HeaderV3[24] = (byte) (z80.getRegIY() >>> 8);
-      z80HeaderV3[25] = (byte) z80.getRegIX();
-      z80HeaderV3[26] = (byte) (z80.getRegIX() >>> 8);
-      z80HeaderV3[27] = (byte) (z80.isIFF1() ? 0x01 : 0x00);
-      z80HeaderV3[28] = (byte) (z80.isIFF2() ? 0x01 : 0x00);
-      z80HeaderV3[29] = (byte) z80.getIM().ordinal();
-
-      if (spectrum.isIssue2()) {
-        z80HeaderV3[29] |= 0x04;
-      }
-
-      switch (spectrum.getJoystick()) {
-        case NONE:
-        case CURSOR:
-          break;
-        case KEMPSTON:
-          z80HeaderV3[29] |= 0x40;
-          break;
-        case SINCLAIR1:
-          z80HeaderV3[29] |= 0x80;
-          break;
-        case SINCLAIR2:
-          z80HeaderV3[29] |= 0xC0;
-      }
-      // Hasta aquí la cabecera v1.0, ahora viene lo propio de la v3.x
-      z80HeaderV3[30] = 55; // Cabecera adicional de 55 bytes
-      z80HeaderV3[32] = (byte) z80.getRegPC();
-      z80HeaderV3[33] = (byte) (z80.getRegPC() >>> 8);
-
-      switch (spectrum.getSpectrumModel()) {
-        case SPECTRUM16K:
-          z80HeaderV3[37] |= 0x80; // modified HW, 48k --> 16k
-//                    break;
-        case SPECTRUM48K:
-          z80HeaderV3[34] = (byte) (spectrum.isConnectedIF1() ? 1 : 0);
-          break;
-        case SPECTRUM128K:
-          z80HeaderV3[34] = (byte) (spectrum.isConnectedIF1() ? 5 : 4);
-          break;
-        case SPECTRUMPLUS2:
-          z80HeaderV3[34] = 12;
-          break;
-        case SPECTRUMPLUS2A:
-          z80HeaderV3[34] = 13;
-          break;
-        case SPECTRUMPLUS3:
-          z80HeaderV3[34] = 7;
-      }
-
-      if (spectrum.getSpectrumModel().codeModel != MachineTypes.CodeModel.SPECTRUM48K) {
-        z80HeaderV3[35] = (byte) spectrum.getPort7ffd();
-      }
-
-      if (memory.isIF1RomPaged()) {
-        z80HeaderV3[36] = (byte) 0xff;
-      }
-
-      if (spectrum.isEnabledAY()) {
-        z80HeaderV3[37] |= 0x04;
-        z80HeaderV3[38] = (byte) ay8912.getAddressLatch();
-
-        int[] regAY = ay8912.getRegAY();
-        for (int reg = 0; reg < 16; reg++) {
-          z80HeaderV3[39 + reg] = (byte) regAY[reg];
-        }
-      }
-
-      if (spectrum.getSpectrumModel().codeModel == MachineTypes.CodeModel.SPECTRUMPLUS3) {
-        z80HeaderV3[86] = (byte) spectrum.getPort1ffd();
-      }
-
-      fOut.write(z80HeaderV3, 0, z80HeaderV3.length);
-
-      byte[] buffer = new byte[0x4000];
-      int bufLen;
-      if (spectrum.getSpectrumModel().codeModel == MachineTypes.CodeModel.SPECTRUM48K) {
-        // Página 5, que corresponde a 0x4000-0x7FFF
-        bufLen = compressPageZ80(buffer, 5);
-        if (bufLen == 0x4000) {
-          fOut.write(0xff);
-          fOut.write(0xff); // bloque sin compresión
-        } else {
-          fOut.write(bufLen);
-          fOut.write(bufLen >>> 8);
-        }
-        fOut.write(8);
-        fOut.write(buffer, 0, bufLen);
-
-        // Página 2, que corresponde a 0x8000-0xBFFF
-        bufLen = compressPageZ80(buffer, 2);
-        if (bufLen == 0x4000) {
-          fOut.write(0xff);
-          fOut.write(0xff); // bloque sin compresión
-        } else {
-          fOut.write(bufLen);
-          fOut.write(bufLen >>> 8);
-        }
-        fOut.write(4);
-        fOut.write(buffer, 0, bufLen);
-
-        // Página 0, que corresponde a 0xC000-0xFFFF
-        bufLen = compressPageZ80(buffer, 0);
-        if (bufLen == 0x4000) {
-          fOut.write(0xff);
-          fOut.write(0xff); // bloque sin compresión
-        } else {
-          fOut.write(bufLen);
-          fOut.write(bufLen >>> 8);
-        }
-        fOut.write(5);
-        fOut.write(buffer, 0, bufLen);
-      } else { // Mode 128k
-        for (int page = 0; page < 8; page++) {
-          bufLen = compressPageZ80(buffer, page);
-          if (bufLen == 0x4000) {
-            fOut.write(0xff);
-            fOut.write(0xff); // bloque sin compresión
-          } else {
-            fOut.write(bufLen);
-            fOut.write(bufLen >>> 8);
-          }
-          fOut.write(page + 3);
-          fOut.write(buffer, 0, bufLen);
-        }
-      }
+      writeSnapshotData(fOut);
 
     } catch (IOException ex) {
       throw new SnapshotException("FILE_WRITE_ERROR", ex);
