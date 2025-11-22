@@ -35,7 +35,8 @@ import static com.fpetrola.oozx.MachineCapability._128_MEMORY;
 public class Ula implements ZxModule, MachineChangeListener {
   private final Memory memory;
 
-  public final int CONTENTION_SIZE = 80000;
+//  public final int CONTENTION_SIZE = 80000;
+  public final int CONTENTION_SIZE = 0xFFFFF;
 
   // How much contention do we get at every tstate when MREQ is active?
   public final byte[] contention = new byte[CONTENTION_SIZE];

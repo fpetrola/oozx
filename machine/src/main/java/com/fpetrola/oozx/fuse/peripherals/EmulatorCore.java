@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx.fuse.peripherals;
 
+import com.fpetrola.z80.cpu.RegistersGetter;
+import com.fpetrola.z80.cpu.State;
+
 import javax.swing.*;
 import java.awt.event.KeyListener;
 
@@ -49,4 +52,12 @@ public interface EmulatorCore {
     KeyListener getKeyListener();
 
     void finishEmulation();
+
+  default RegistersGetter getRegistersGetter() {
+    return null;
+  }
+
+  default State getState() {
+    return null;
+  }
 }

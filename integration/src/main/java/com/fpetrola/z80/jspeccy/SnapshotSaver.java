@@ -21,6 +21,8 @@ package com.fpetrola.z80.jspeccy;
 import com.fpetrola.z80.cpu.RegistersGetter;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.transformations.Base64Utils;
+import machine.Keyboard;
 import snapshots.*;
 import machine.MachineTypes;
 import z80core.IntMode;
@@ -135,18 +137,21 @@ public class SnapshotSaver {
     // Copiar las páginas de RAM
     // El memory es mapeado en bloques: ROM, Página 5, Página 2, Página 0
     // Página 5 (dirección 0x4000-0x7FFF)
+    int base = 0x4000;
     for (int i = 0; i < 0x4000; i++) {
-      ram[5][i] = (byte) memory.read(5, i);
+      ram[5][i] = (byte) memory.read(base + i);
     }
 
+    base += 0x4000;
     // Página 2 (dirección 0x8000-0xBFFF)
     for (int i = 0; i < 0x4000; i++) {
-      ram[2][i] = (byte) memory.read(2, i);
+      ram[2][i] = (byte) memory.read(base + i);
     }
 
+    base += 0x4000;
     // Página 0 (dirección 0xC000-0xFFFF)
     for (int i = 0; i < 0x4000; i++) {
-      ram[0][i] = (byte) memory.read(0, i);
+      ram[0][i] = (byte) memory.read(base + i);
     }
 
     memoryState.setRam(ram);
@@ -177,8 +182,40 @@ public class SnapshotSaver {
     spectrumState.setAY8912State(new AY8912State());
     spectrumState.setTstates(state.clock.getTStates());
 
+    spectrumState.setJoystick(Keyboard.JoystickModel.NONE);
+
     // Convertir a bytes usando SnapshotZ80
     SnapshotZ80 snapshot = new SnapshotZ80();
     return snapshot.saveToBytes(spectrumState);
+  }
+
+  /**
+   * Guarda el estado del emulador como un snapshot comprimido en formato Base64
+   * para almacenar en la configuración del programa
+   *
+   * @param registersGetter Interface para leer los registros de la CPU
+   * @param state Estado actual de la emulación
+   * @return String con el snapshot comprimido y codificado en Base64
+   * @throws SnapshotException Si ocurre un error al crear el snapshot
+   */
+  public static String getSnapshotAsCompressedBase64(RegistersGetter registersGetter, State state) throws SnapshotException {
+    byte[] snapshotBytes = getSnapshotAsBytes(registersGetter, state);
+    return Base64Utils.gzipArrayCompressToBase64(snapshotBytes);
+  }
+
+  /**
+   * Carga el estado del emulador desde un snapshot comprimido en formato Base64
+   *
+   * @param compressedBase64 String con el snapshot comprimido y codificado en Base64
+   * @return SpectrumState con el estado cargado
+   * @throws SnapshotException Si ocurre un error al descomprimir o cargar el snapshot
+   */
+  public static SpectrumState loadSnapshotFromCompressedBase64(String compressedBase64) throws SnapshotException {
+    if (compressedBase64 == null || compressedBase64.isEmpty()) {
+      throw new SnapshotException("INVALID_SNAPSHOT_DATA");
+    }
+    byte[] decompressedBytes = Base64Utils.gzipDecompressFromBase64(compressedBase64);
+    SnapshotZ80 snapshot = new SnapshotZ80();
+    return snapshot.loadFromBytes(decompressedBytes);
   }
 }

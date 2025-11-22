@@ -29,7 +29,6 @@ import java.io.File;
 
 public class SnapshotLoader {
   public static  byte[] setupStateWithSnapshot(RegistersSetter registersSetter, String fileName, State state) {
-    MemorySetter memorySetter = new MemorySetter(state.getMemory(), MiniZXWithEmulationBase.createROM(), state);
 
     try {
       File file = new File(fileName);
@@ -38,27 +37,33 @@ public class SnapshotLoader {
       SnapshotFile snapshot = SnapshotFactory.getSnapshot(file);
 
       if (snapshot != null) {
-        result = new byte[0x10000];
         SpectrumState snapState = snapshot.load(file);
-
-        state.clock.setTStates(snapState.getTstates());
-
-        setZ80State(registersSetter, snapState.getZ80State());
-//      registersBase.setZ80State(snapState.getZ80State());
-
-        MemoryState memoryState = snapState.getMemoryState();
-        byte[][] ram = memoryState.getRam();
-        int position = 16384;
-        position = copyPage(ram, 5, position, result);
-        position = copyPage(ram, 2, position, result);
-        copyPage(ram, 0, position, result);
-        memorySetter.setData(result);
+        result= setupFromSpectrumState(registersSetter, state, snapState);
       }
 
       return result;
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static byte[] setupFromSpectrumState(RegistersSetter registersSetter, State state, SpectrumState snapState) {
+    byte[] result = new byte[0x10000];
+
+    state.clock.setTStates(snapState.getTstates());
+
+    setZ80State(registersSetter, snapState.getZ80State());
+//      registersBase.setZ80State(snapState.getZ80State());
+
+    MemoryState memoryState = snapState.getMemoryState();
+    byte[][] ram = memoryState.getRam();
+    int position = 16384;
+    position = copyPage(ram, 5, position, result);
+    position = copyPage(ram, 2, position, result);
+    copyPage(ram, 0, position, result);
+    MemorySetter memorySetter = new MemorySetter(state.getMemory(), MiniZXWithEmulationBase.createROM(), state);
+    memorySetter.setData(result);
+    return result;
   }
 
   private static  int copyPage(byte[][] ram, int page, int position, byte[] result) {

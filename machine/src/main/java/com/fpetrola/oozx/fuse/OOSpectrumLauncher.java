@@ -21,18 +21,20 @@ package com.fpetrola.oozx.fuse;
 import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.fuse.modules.tape.Log1;
 import com.fpetrola.oozx.fuse.modules.tape.Tape;
+import com.fpetrola.oozx.fuse.peripherals.EmulatorCore;
 import com.fpetrola.oozx.fuse.peripherals.t.DownloadAndUnzip;
 import com.fpetrola.oozx.fuse.peripherals.t.ZXSpectrumDesktopApp;
 import com.fpetrola.z80.memory.Memory;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.DarculaTheme;
-import com.github.weisj.darklaf.theme.SolarizedLightTheme;
+import snapshots.SpectrumState;
 
 import java.awt.*;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Function;
 
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
@@ -50,6 +52,10 @@ public class OOSpectrumLauncher {
     OOSpectrumConnector.noTest = true;
     LafManager.install(new DarculaTheme());
 
+    Function<SpectrumState, EmulatorCore> mockCoreState = spectrumState -> {
+      Fuse fuse = createFuse2(spectrumState);
+      return fuse.z80.mockCore;
+    };
     ZXSpectrumDesktopApp zxSpectrumDesktopApp = new ZXSpectrumDesktopApp((filename) -> {
       String string = null;
 
@@ -62,7 +68,7 @@ public class OOSpectrumLauncher {
       } else string = filename;
       Fuse fuse = createFuse(string);
       return fuse.z80.mockCore;
-    });
+    }, mockCoreState);
 
     showOnScreen(0, zxSpectrumDesktopApp);
 //    zxSpectrumDesktopApp.setVisible(true);
@@ -144,7 +150,7 @@ public class OOSpectrumLauncher {
     Thread.sleep((long) (i * coe));
   }
 
-  private Fuse createFuse(String filename) {
+  public Fuse createFuse(String filename) {
     Fuse fuse = new Fuse();
 
     boolean isTape = filename != null && filename.toLowerCase().contains("tzx") || filename.toLowerCase().contains("tap");
@@ -164,6 +170,24 @@ public class OOSpectrumLauncher {
       fuse.z80.changeSpeed(100);
     }
 
+    extracted(fuse);
+
+    return fuse;
+  }
+
+  private Fuse createFuse2(SpectrumState spectrumState) {
+    Fuse fuse = new Fuse();
+    fuse.settings.current.emulationSpeed = 100;
+    fuse.init();
+    fuse.z80.loadSnap(spectrumState);
+    fuse.z80.changeSpeed(100);
+
+    extracted(fuse);
+
+    return fuse;
+  }
+
+  private void extracted(Fuse fuse) {
     fuse.z80.bridgeCommand = (a, b) -> null;
 
     scheduledExecutorService.schedule(() -> {
@@ -172,8 +196,6 @@ public class OOSpectrumLauncher {
         fuse.eventManager.eventDoEvents();
       }
     }, 0, MILLISECONDS);
-
-    return fuse;
   }
 
 }

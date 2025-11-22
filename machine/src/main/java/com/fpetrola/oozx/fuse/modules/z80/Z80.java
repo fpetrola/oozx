@@ -41,6 +41,7 @@ import fuse.tstates.AddStatesMemoryWriteListener;
 import fuse.tstates.PhaseProcessor;
 import fuse.tstates.phases.AfterMR;
 import fuse.tstates.phases.BeforeWrite;
+import snapshots.SpectrumState;
 
 import javax.swing.*;
 import java.awt.event.*;
@@ -316,6 +317,15 @@ public class Z80 implements ZxModule {
     }
   }
 
+  public void loadSnap(SpectrumState spectrumState) {
+    State state = ooz80.getState();
+    RegistersBase registersBase = new RegistersBase(ooz80.getState());
+    SnapshotLoader.setupFromSpectrumState(registersBase, state, spectrumState);
+    interruptsEnabledAt = -1;
+    updateMemory();
+    display.refreshAll();
+  }
+
   public int init(Object o) {
     z80_interrupt_event = eventManager.eventRegister(this::z80_interrupt_event_fn, "Retriggered interrupt");
     int z80_nmi_event = eventManager.eventRegister(this::z80_nmi, "Non-maskable interrupt");
@@ -425,6 +435,14 @@ public class Z80 implements ZxModule {
       @Override
       public boolean isTurboMode() {
         return turbo;
+      }
+
+      public State getState() {
+        return ooz80.getState();
+      }
+
+      public RegistersGetter getRegistersGetter() {
+        return new RegistersBase(ooz80.getState());
       }
     };
     mockCore.addEmulatorListener(new EmulatorListener() {

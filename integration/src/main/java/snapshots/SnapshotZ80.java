@@ -163,7 +163,7 @@ public class SnapshotZ80 implements SnapshotFile {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       fOut = new BufferedOutputStream(baos);
 
-      writeSnapshotData(fOut);
+      writeSnapshotData();
 
       fOut.flush();
       return baos.toByteArray();
@@ -532,7 +532,7 @@ public class SnapshotZ80 implements SnapshotFile {
     spectrum.setTstates(0);
   }
 
-  private void writeSnapshotData(BufferedOutputStream out) throws IOException {
+  private void writeSnapshotData() throws IOException {
     byte[] z80HeaderV3 = new byte[87];
     z80HeaderV3[0] = (byte) z80.getRegA();
     z80HeaderV3[1] = (byte) z80.getRegF();
@@ -631,7 +631,7 @@ public class SnapshotZ80 implements SnapshotFile {
       z80HeaderV3[86] = (byte) spectrum.getPort1ffd();
     }
 
-    out.write(z80HeaderV3, 0, z80HeaderV3.length);
+    fOut.write(z80HeaderV3, 0, z80HeaderV3.length);
 
     byte[] buffer = new byte[0x4000];
     int bufLen;
@@ -639,50 +639,50 @@ public class SnapshotZ80 implements SnapshotFile {
       // Página 5, que corresponde a 0x4000-0x7FFF
       bufLen = compressPageZ80(buffer, 5);
       if (bufLen == 0x4000) {
-        out.write(0xff);
-        out.write(0xff); // bloque sin compresión
+        fOut.write(0xff);
+        fOut.write(0xff); // bloque sin compresión
       } else {
-        out.write(bufLen);
-        out.write(bufLen >>> 8);
+        fOut.write(bufLen);
+        fOut.write(bufLen >>> 8);
       }
-      out.write(8);
-      out.write(buffer, 0, bufLen);
+      fOut.write(8);
+      fOut.write(buffer, 0, bufLen);
 
       // Página 2, que corresponde a 0x8000-0xBFFF
       bufLen = compressPageZ80(buffer, 2);
       if (bufLen == 0x4000) {
-        out.write(0xff);
-        out.write(0xff); // bloque sin compresión
+        fOut.write(0xff);
+        fOut.write(0xff); // bloque sin compresión
       } else {
-        out.write(bufLen);
-        out.write(bufLen >>> 8);
+        fOut.write(bufLen);
+        fOut.write(bufLen >>> 8);
       }
-      out.write(4);
-      out.write(buffer, 0, bufLen);
+      fOut.write(4);
+      fOut.write(buffer, 0, bufLen);
 
       // Página 0, que corresponde a 0xC000-0xFFFF
       bufLen = compressPageZ80(buffer, 0);
       if (bufLen == 0x4000) {
-        out.write(0xff);
-        out.write(0xff); // bloque sin compresión
+        fOut.write(0xff);
+        fOut.write(0xff); // bloque sin compresión
       } else {
-        out.write(bufLen);
-        out.write(bufLen >>> 8);
+        fOut.write(bufLen);
+        fOut.write(bufLen >>> 8);
       }
-      out.write(5);
-      out.write(buffer, 0, bufLen);
+      fOut.write(5);
+      fOut.write(buffer, 0, bufLen);
     } else { // Mode 128k
       for (int page = 0; page < 8; page++) {
         bufLen = compressPageZ80(buffer, page);
         if (bufLen == 0x4000) {
-          out.write(0xff);
-          out.write(0xff); // bloque sin compresión
+          fOut.write(0xff);
+          fOut.write(0xff); // bloque sin compresión
         } else {
-          out.write(bufLen);
-          out.write(bufLen >>> 8);
+          fOut.write(bufLen);
+          fOut.write(bufLen >>> 8);
         }
-        out.write(page + 3);
-        out.write(buffer, 0, bufLen);
+        fOut.write(page + 3);
+        fOut.write(buffer, 0, bufLen);
       }
     }
   }
@@ -702,7 +702,7 @@ public class SnapshotZ80 implements SnapshotFile {
         throw new SnapshotException("OPEN_FILE_ERROR", ex);
       }
 
-      writeSnapshotData(fOut);
+      writeSnapshotData();
 
     } catch (IOException ex) {
       throw new SnapshotException("FILE_WRITE_ERROR", ex);

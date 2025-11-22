@@ -25,9 +25,10 @@ import com.fpetrola.oozx.fuse.config.OOZxConfiguration;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorCore;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorListener;
 import com.fpetrola.oozx.fuse.peripherals.SettingsDialog;
-import com.fpetrola.oozx.fuse.peripherals.ZXSpectrumEmulatorUI;
+import com.fpetrola.z80.jspeccy.SnapshotSaver;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.*;
+import snapshots.SpectrumState;
 
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
@@ -405,7 +406,18 @@ class EmulatorInternalFrame extends JInternalFrame {
     state.setFilePath(filePath);
     state.setTurboMode(false); // TODO: obtener del emulador
     state.setMuted(isMuted);
-    // TODO: guardar snapshot cuando esté disponible
+
+    // Guardar el estado actual del emulador comprimido en Base64
+    try {
+      String compressedSnapshot = SnapshotSaver.getSnapshotAsCompressedBase64(
+          emulatorCore.getRegistersGetter(),
+          emulatorCore.getState()
+      );
+      state.setSnapshotData(compressedSnapshot);
+    } catch (Exception e) {
+      System.err.println("Error guardando snapshot en configuración: " + e.getMessage());
+    }
+
     return state;
   }
 
@@ -421,7 +433,6 @@ class EmulatorInternalFrame extends JInternalFrame {
       muteButton.setIcon(loadIcon("1F507.svg"));
       muteButton.setToolTipText("Unmute Sound");
     }
-    // TODO: restaurar turbo mode y snapshot
   }
 }
 
@@ -720,6 +731,7 @@ class GameBrowserInternalFrame extends JInternalFrame {
 // --- UPDATED: ZXSpectrumDesktopApp with Game Browser ---
 public class ZXSpectrumDesktopApp extends JFrame {
   private final Function<String, EmulatorCore> mockCore;
+  private final Function<SpectrumState, EmulatorCore> mockCoreState;
   private JDesktopPane desktop;
   private int emulatorCount = 0;
   private GameBrowserInternalFrame gameBrowser;
@@ -807,10 +819,11 @@ public class ZXSpectrumDesktopApp extends JFrame {
     return frame;
   }
 
-  public ZXSpectrumDesktopApp(Function<String, EmulatorCore> mockCore) {
+  public ZXSpectrumDesktopApp(Function<String, EmulatorCore> mockCore, Function<SpectrumState, EmulatorCore> mockCoreState1) {
     this.mockCore = mockCore;
+    this.mockCoreState = mockCoreState1;
     this.config = OOZxConfiguration.load();
-    
+
     setTitle("ZX Spectrum Multi-Emulator");
     setSize(1200, 800);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -825,10 +838,10 @@ public class ZXSpectrumDesktopApp extends JFrame {
     // Toolbar
     JToolBar toolBar = createMainToolBar();
     add(toolBar, BorderLayout.NORTH);
-    
+
     // Restaurar ventanas abiertas
     restoreOpenWindows();
-    
+
     // Guardar configuración al cerrar la aplicación
     addWindowListener(new java.awt.event.WindowAdapter() {
       @Override
@@ -1097,7 +1110,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
   private void saveOpenWindows() {
     config.getOpenWindows().clear();
-    
+
     for (JInternalFrame frame : desktop.getAllFrames()) {
       if (frame instanceof EmulatorInternalFrame) {
         EmulatorInternalFrame eFrame = (EmulatorInternalFrame) frame;
@@ -1114,9 +1127,17 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private void restoreOpenWindows() {
     for (OOZxConfiguration.WindowState windowState : config.getOpenWindows()) {
       if ("EMULATOR".equals(windowState.getType())) {
-        EmulatorCore core = mockCore.apply(windowState.getFilePath() != null ? windowState.getFilePath() : "");
-        EmulatorInternalFrame frame = createNewEmulator(core);
-        frame.restoreWindowState(windowState);
+        // Restaurar el estado del emulador desde el snapshot comprimido
+        if (windowState.getSnapshotData() != null && !windowState.getSnapshotData().isEmpty()) {
+          try {
+            SpectrumState spectrumState = SnapshotSaver.loadSnapshotFromCompressedBase64(windowState.getSnapshotData());
+            EmulatorCore core = mockCoreState.apply(spectrumState);
+            EmulatorInternalFrame frame = createNewEmulator(core);
+            frame.restoreWindowState(windowState);
+          } catch (Exception e) {
+            System.err.println("Error restaurando snapshot desde configuración: " + e.getMessage());
+          }
+        }
       } else if ("GAME_BROWSER".equals(windowState.getType())) {
         if (gameBrowser == null || gameBrowser.isClosed()) {
           gameBrowser = new GameBrowserInternalFrame(createGameBrowserListener());
@@ -1159,14 +1180,14 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private void updateRecentFilesMenu() {
     recentFilesMenu.removeAll();
     List<String> recentFiles = config.getRecentFiles();
-    
+
     if (recentFiles.isEmpty()) {
       JMenuItem emptyItem = new JMenuItem("(No recent files)");
       emptyItem.setEnabled(false);
       recentFilesMenu.add(emptyItem);
       return;
     }
-    
+
     for (String filePath : recentFiles) {
       JMenuItem item = new JMenuItem(new java.io.File(filePath).getName());
       item.setToolTipText(filePath);
@@ -1176,7 +1197,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
       });
       recentFilesMenu.add(item);
     }
-    
+
     recentFilesMenu.addSeparator();
     JMenuItem clearItem = new JMenuItem("Clear Recent Files");
     clearItem.addActionListener(e -> {
