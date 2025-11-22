@@ -23,6 +23,8 @@ import com.fpetrola.oozx.api.Hit;
 import com.fpetrola.oozx.api.ZxInfoApiHandler;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorCore;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorListener;
+import com.github.weisj.darklaf.LafManager;
+import com.github.weisj.darklaf.theme.*;
 
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
@@ -32,19 +34,23 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
+
+import static com.fpetrola.oozx.fuse.peripherals.t.EmulatorInternalFrame.loadIcon;
 
 // Emulator Internal Frame
 class EmulatorInternalFrame extends JInternalFrame {
   private EmulatorCore emulatorCore;
-//  private JLabel statusLabel;
+  //  private JLabel statusLabel;
   private JProgressBar speedBar;
   private JComboBox<String> modelCombo;
   private JLabel pauseIndicator;
   private JLabel turboIndicator;
-//  private JLabel tapeStatusLabel;
+  private float scaleFactor0 = 1.73f;
+  private float scaleFactor = scaleFactor0;
+  //  private JLabel tapeStatusLabel;
 
   public EmulatorInternalFrame(EmulatorCore core, int x, int y) {
     super("ZX Spectrum Emulator", true, true, true, true);
@@ -142,14 +148,15 @@ class EmulatorInternalFrame extends JInternalFrame {
     speedBar.setValue((int) (emulatorCore.getEmulationSpeed()));
     speedBar.setStringPainted(true);
     speedBar.setString(String.format("%.2f%%", emulatorCore.getEmulationSpeed()));
-    speedBar.setPreferredSize(new Dimension(150, componentHeight));
-    speedBar.setMinimumSize(new Dimension(100, componentHeight));
+    speedBar.setPreferredSize(new Dimension(150, 24));
+    speedBar.setMinimumSize(new Dimension(100, 24));
 
     // Model Combo
     String[] models = {"Spectrum 16K", "Spectrum 48K", "Spectrum 128K", "Spectrum Plus 2", "Spectrum Plus 3", "Pentagon"};
     modelCombo = new JComboBox<>(models);
+    modelCombo.setRenderer(new CustomComboBox());
     modelCombo.setSelectedItem(emulatorCore.getCurrentModel());
-    modelCombo.setPreferredSize(new Dimension(80, componentHeight));
+    modelCombo.setPreferredSize(new Dimension(80, 10));
     modelCombo.addActionListener(e -> emulatorCore.setMachineModel((String) modelCombo.getSelectedItem()));
 
     // Pause Indicator (LED-like)
@@ -178,19 +185,19 @@ class EmulatorInternalFrame extends JInternalFrame {
 
     layout.setHorizontalGroup(layout.createSequentialGroup()
 //        .addComponent(statusLabel)
-        .addComponent(speedBar)
-        .addComponent(modelCombo)
-        .addComponent(pauseIndicator)
-        .addComponent(turboIndicator)
+            .addComponent(speedBar)
+            .addComponent(modelCombo)
+            .addComponent(pauseIndicator)
+            .addComponent(turboIndicator)
 //        .addComponent(tapeStatusLabel)
     );
 
     layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 //        .addComponent(statusLabel)
-        .addComponent(speedBar)
-        .addComponent(modelCombo)
-        .addComponent(pauseIndicator)
-        .addComponent(turboIndicator)
+            .addComponent(speedBar)
+            .addComponent(modelCombo)
+            .addComponent(pauseIndicator)
+            .addComponent(turboIndicator)
 //        .addComponent(tapeStatusLabel)
     );
 
@@ -233,12 +240,32 @@ class EmulatorInternalFrame extends JInternalFrame {
     return statusBar;
   }
 
+  static class CustomComboBox extends JLabel implements ListCellRenderer {
+    @Override
+    public Component getListCellRendererComponent(
+        JList list,
+        Object value,
+        int index,
+        boolean isSelected,
+        boolean cellHasFocus) {
+
+      JLabel label = new JLabel() {
+        public Dimension getPreferredSize() {
+          return new Dimension(200, 15);
+        }
+      };
+      label.setText(String.valueOf(value));
+
+      return label;
+    }
+  }
+
   private JToolBar createToolBar() {
     JToolBar toolBar = new JToolBar();
     toolBar.setFloatable(false);
 
-    Icon turboIcon = UIManager.getIcon("FileChooser.upFolderIcon");
-    JButton turboButton = new JButton(turboIcon);
+    //    Icon turboIcon = UIManager.getIcon("FileChooser.upFolderIcon");
+    JButton turboButton = new JButton(loadIcon("1F680.svg"));
     turboButton.setToolTipText("Toggle Turbo Mode");
     turboButton.addActionListener(e -> emulatorCore.setGeneralOption("turbo", emulatorCore.isTurboMode()));
     toolBar.add(turboButton);
@@ -295,8 +322,7 @@ class EmulatorInternalFrame extends JInternalFrame {
 //    stopButton.addActionListener(e -> emulatorCore.stopEmulation());
 //    toolBar.add(stopButton);
 
-    Icon pauseIcon = UIManager.getIcon("FileChooser.upFolderIcon");
-    JButton pauseButton = new JButton(pauseIcon);
+    JButton pauseButton = new JButton(loadIcon("23EF.svg"));
     pauseButton.setToolTipText("Pause Emulation");
     pauseButton.addActionListener(e -> emulatorCore.pauseEmulation());
     toolBar.add(pauseButton);
@@ -326,13 +352,30 @@ class EmulatorInternalFrame extends JInternalFrame {
 //    model128KButton.addActionListener(e -> emulatorCore.setMachineModel("Spectrum 128K"));
 //    toolBar.add(model128KButton);
 
-    Icon fullscreenIcon = UIManager.getIcon("Tree.leafIcon");
-    JButton fullscreenButton = new JButton(fullscreenIcon);
+    JButton fullscreenButton = new JButton(loadIcon("1F4FA.svg"));
     fullscreenButton.setToolTipText("Toggle Fullscreen");
 //    fullscreenButton.addActionListener(e -> setExtendedState(getExtendedState() == JFrame.MAXIMIZED_BOTH ? JFrame.NORMAL : JFrame.MAXIMIZED_BOTH));
     toolBar.add(fullscreenButton);
 
+    JButton changeSize = new JButton(loadIcon("E243.svg"));
+    changeSize.setToolTipText("Change size");
+    changeSize.addActionListener(e -> {
+      Dimension size = EmulatorInternalFrame.this.getSize();
+      if (size.width > 1000)
+        scaleFactor = 1 / scaleFactor0;
+      if (size.width < 600)
+        scaleFactor = scaleFactor0;
+      EmulatorInternalFrame.this.setSize((int) (size.width * scaleFactor), (int) (size.height * scaleFactor));
+    });
+    toolBar.add(changeSize);
+
     return toolBar;
+  }
+
+  public static ImageIcon loadIcon(String iconFile) {
+    int size = 24;
+    ImageIcon turboIcon = SvgIconLoader.loadSvgAsImageIcon("/icons/" + iconFile, size, size);
+    return turboIcon;
   }
 }
 
@@ -660,6 +703,48 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
     menuBar.add(fileMenu);
 
+    addLFMenu(menuBar);
+    addWindowMenu(menuBar);
+    return menuBar;
+  }
+
+  private void addLFMenu(JMenuBar menuBar) {
+    JMenu windowMenu = new JMenu("Look&Feel");
+    windowMenu.setMnemonic(KeyEvent.VK_W);
+
+    addLaf(windowMenu, new DarculaTheme());
+    addLaf(windowMenu, new OneDarkTheme());
+    addLaf(windowMenu, new SolarizedLightTheme());
+    addLaf(windowMenu, new SolarizedDarkTheme());
+    addLaf(windowMenu, new IntelliJTheme());
+
+    AbstractAction tileAction = new AbstractAction("Metal") {
+      public void actionPerformed(ActionEvent e) {
+        try {
+//          LafManager.install(new DarculaTheme());
+
+          UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+          LafManager.updateLaf();
+        } catch (Exception ex) {
+          throw new RuntimeException(ex);
+        }
+      }
+    };
+    windowMenu.add(tileAction);
+
+    menuBar.add(windowMenu);
+  }
+
+  private void addLaf(JMenu windowMenu, final Theme theme) {
+    AbstractAction cascadeAction = new AbstractAction(theme.getName()) {
+      public void actionPerformed(ActionEvent e) {
+        LafManager.install(theme);
+      }
+    };
+    windowMenu.add(cascadeAction);
+  }
+
+  private void addWindowMenu(JMenuBar menuBar) {
     JMenu windowMenu = new JMenu("Window");
     windowMenu.setMnemonic(KeyEvent.VK_W);
 
@@ -680,16 +765,13 @@ public class ZXSpectrumDesktopApp extends JFrame {
     windowMenu.add(tileAction);
 
     menuBar.add(windowMenu);
-
-    return menuBar;
   }
 
   private JToolBar createMainToolBar() {
     JToolBar toolBar = new JToolBar();
     toolBar.setFloatable(false);
 
-    Icon newEmulatorIcon = UIManager.getIcon("FileView.computerIcon");
-    JButton newEmulatorBtn = new JButton(newEmulatorIcon);
+    JButton newEmulatorBtn = new JButton(loadIcon("Sinclair_ZX_Spectrum-02b.svg"));
     newEmulatorBtn.setToolTipText("New Emulator");
     newEmulatorBtn.addActionListener(e -> {
       EmulatorCore core = mockCore.apply("");
@@ -697,8 +779,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     });
     toolBar.add(newEmulatorBtn);
 
-    Icon gameBrowserIcon = UIManager.getIcon("FileView.directoryIcon");
-    JButton gameBrowserBtn = new JButton(gameBrowserIcon);
+    JButton gameBrowserBtn = new JButton(loadIcon("1F579.svg"));
     gameBrowserBtn.setToolTipText("Open Game Browser");
     gameBrowserBtn.addActionListener(e -> openGameBrowser());
     toolBar.add(gameBrowserBtn);
@@ -783,7 +864,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     EmulatorCore core = core1;
     JComponent panel = core.getPanel();
     int x = (emulatorCount * 30) % 400;
-    int y = (emulatorCount * 30) % 400;
+    int y = (emulatorCount * 30) % 300;
     EmulatorInternalFrame frame = new EmulatorInternalFrame(core, x, y);
     frame.addInternalFrameListener(new InternalFrameAdapter() {
       public void internalFrameClosed(InternalFrameEvent e) {
