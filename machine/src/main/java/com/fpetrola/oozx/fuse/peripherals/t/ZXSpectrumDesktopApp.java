@@ -839,6 +839,9 @@ public class ZXSpectrumDesktopApp extends JFrame {
     JToolBar toolBar = createMainToolBar();
     add(toolBar, BorderLayout.NORTH);
 
+    // Restaurar estado de la ventana principal
+    restoreMainWindowState();
+
     // Restaurar ventanas abiertas
     restoreOpenWindows();
 
@@ -846,6 +849,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     addWindowListener(new java.awt.event.WindowAdapter() {
       @Override
       public void windowClosing(java.awt.event.WindowEvent e) {
+        saveMainWindowState();
         saveOpenWindows();
         config.save();
       }
@@ -1107,6 +1111,24 @@ public class ZXSpectrumDesktopApp extends JFrame {
     return frame;
   }
 
+
+  private void saveMainWindowState() {
+    OOZxConfiguration.WindowState mainState = new OOZxConfiguration.WindowState(
+        "MAIN_WINDOW", getX(), getY(), getWidth(), getHeight());
+    config.setMainWindowState(mainState);
+  }
+
+  private void restoreMainWindowState() {
+    OOZxConfiguration.WindowState mainState = config.getMainWindowState();
+    if (mainState != null) {
+      if (mainState.getWidth() > 0 && mainState.getHeight() > 0) {
+        setSize(mainState.getWidth(), mainState.getHeight());
+      }
+      if (mainState.getX() >= 0 && mainState.getY() >= 0) {
+        setLocation(mainState.getX(), mainState.getY());
+      }
+    }
+  }
 
   private void saveOpenWindows() {
     config.getOpenWindows().clear();

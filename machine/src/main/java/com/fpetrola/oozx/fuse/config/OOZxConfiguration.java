@@ -36,6 +36,7 @@ public class OOZxConfiguration {
   private String lastSaveStateDirectory = System.getProperty("user.home");
   private List<String> recentFiles = new ArrayList<>();
   private List<WindowState> openWindows = new ArrayList<>();
+  private WindowState mainWindowState; // Estado de la ventana principal
   private static final int MAX_RECENT_FILES = 10;
   private static final String CONFIG_DIR = System.getProperty("user.home") + File.separator + ".oozx";
   private static final String CONFIG_FILE = CONFIG_DIR + File.separator + "config.json";
@@ -122,6 +123,14 @@ public class OOZxConfiguration {
 
   public void setOpenWindows(List<WindowState> openWindows) {
     this.openWindows = openWindows;
+  }
+
+  public WindowState getMainWindowState() {
+    return mainWindowState;
+  }
+
+  public void setMainWindowState(WindowState mainWindowState) {
+    this.mainWindowState = mainWindowState;
   }
 
   // Utilidades de compresión
