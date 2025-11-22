@@ -398,6 +398,31 @@ class EmulatorInternalFrame extends JInternalFrame {
     ImageIcon turboIcon = SvgIconLoader.loadSvgAsImageIcon("/icons/" + iconFile, size, size);
     return turboIcon;
   }
+
+  public OOZxConfiguration.WindowState saveWindowState(String filePath) {
+    OOZxConfiguration.WindowState state = new OOZxConfiguration.WindowState(
+        "EMULATOR", getX(), getY(), getWidth(), getHeight());
+    state.setFilePath(filePath);
+    state.setTurboMode(false); // TODO: obtener del emulador
+    state.setMuted(isMuted);
+    // TODO: guardar snapshot cuando esté disponible
+    return state;
+  }
+
+  public void restoreWindowState(OOZxConfiguration.WindowState state) {
+    if (state.getWidth() > 0 && state.getHeight() > 0) {
+      setSize(state.getWidth(), state.getHeight());
+    }
+    if (state.getX() >= 0 && state.getY() >= 0) {
+      setLocation(state.getX(), state.getY());
+    }
+    isMuted = state.isMuted();
+    if (isMuted) {
+      muteButton.setIcon(loadIcon("1F507.svg"));
+      muteButton.setToolTipText("Unmute Sound");
+    }
+    // TODO: restaurar turbo mode y snapshot
+  }
 }
 
 // --- NEW: Game Search Result Model ---
@@ -671,6 +696,25 @@ class GameBrowserInternalFrame extends JInternalFrame {
     searchField.setText(query);
     performSearch();
   }
+
+  public OOZxConfiguration.WindowState saveWindowState() {
+    OOZxConfiguration.WindowState state = new OOZxConfiguration.WindowState(
+        "GAME_BROWSER", getX(), getY(), getWidth(), getHeight());
+    state.setSearchQuery(searchField.getText());
+    return state;
+  }
+
+  public void restoreWindowState(OOZxConfiguration.WindowState state) {
+    if (state.getWidth() > 0 && state.getHeight() > 0) {
+      setSize(state.getWidth(), state.getHeight());
+    }
+    if (state.getX() >= 0 && state.getY() >= 0) {
+      setLocation(state.getX(), state.getY());
+    }
+    if (state.getSearchQuery() != null && !state.getSearchQuery().isEmpty()) {
+      setSearchQuery(state.getSearchQuery());
+    }
+  }
 }
 
 // --- UPDATED: ZXSpectrumDesktopApp with Game Browser ---
@@ -782,10 +826,14 @@ public class ZXSpectrumDesktopApp extends JFrame {
     JToolBar toolBar = createMainToolBar();
     add(toolBar, BorderLayout.NORTH);
     
+    // Restaurar ventanas abiertas
+    restoreOpenWindows();
+    
     // Guardar configuración al cerrar la aplicación
     addWindowListener(new java.awt.event.WindowAdapter() {
       @Override
       public void windowClosing(java.awt.event.WindowEvent e) {
+        saveOpenWindows();
         config.save();
       }
     });
@@ -971,40 +1019,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
   private void openGameBrowser() {
     if (gameBrowser == null || gameBrowser.isClosed()) {
-      gameBrowser = new GameBrowserInternalFrame(new GameBrowserListener() {
-        @Override
-        public void onGameSelected(GameSearchResult gameSearchResult) {
-          // Find or create an emulator and load the game
-          EmulatorInternalFrame target = getActiveEmulatorOrCreateNew(gameSearchResult);
-          if (target != null) {
-            // In real app: download and load ROM/tape
-//            JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-//                "Loading game from: " + gameSearchResult + "",
-//                "Load Game", JOptionPane.INFORMATION_MESSAGE);
-          }
-        }
-
-        @Override
-        public void onViewDetails(String gameUrl) {
-          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-              "Game Details: " + gameUrl + "",
-              "Game Details", JOptionPane.INFORMATION_MESSAGE);
-        }
-
-        @Override
-        public void onAddToFavorites(String gameUrl) {
-          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-              "Added to favorites: " + gameUrl,
-              "Favorites", JOptionPane.INFORMATION_MESSAGE);
-        }
-
-        @Override
-        public void onDownloadGame(String gameUrl) {
-          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-              "Downloading: " + gameUrl + "\n(Download feature coming soon)",
-              "Download", JOptionPane.INFORMATION_MESSAGE);
-        }
-      });
+      gameBrowser = new GameBrowserInternalFrame(createGameBrowserListener());
       desktop.add(gameBrowser);
       gameBrowser.setVisible(true);
       try {
@@ -1079,6 +1094,67 @@ public class ZXSpectrumDesktopApp extends JFrame {
     return frame;
   }
 
+
+  private void saveOpenWindows() {
+    config.getOpenWindows().clear();
+    
+    for (JInternalFrame frame : desktop.getAllFrames()) {
+      if (frame instanceof EmulatorInternalFrame) {
+        EmulatorInternalFrame eFrame = (EmulatorInternalFrame) frame;
+        // Obtener el archivo que se está emulando (si existe)
+        String filePath = ""; // TODO: obtener del core
+        config.getOpenWindows().add(eFrame.saveWindowState(filePath));
+      } else if (frame instanceof GameBrowserInternalFrame) {
+        GameBrowserInternalFrame gFrame = (GameBrowserInternalFrame) frame;
+        config.getOpenWindows().add(gFrame.saveWindowState());
+      }
+    }
+  }
+
+  private void restoreOpenWindows() {
+    for (OOZxConfiguration.WindowState windowState : config.getOpenWindows()) {
+      if ("EMULATOR".equals(windowState.getType())) {
+        EmulatorCore core = mockCore.apply(windowState.getFilePath() != null ? windowState.getFilePath() : "");
+        EmulatorInternalFrame frame = createNewEmulator(core);
+        frame.restoreWindowState(windowState);
+      } else if ("GAME_BROWSER".equals(windowState.getType())) {
+        if (gameBrowser == null || gameBrowser.isClosed()) {
+          gameBrowser = new GameBrowserInternalFrame(createGameBrowserListener());
+          desktop.add(gameBrowser);
+          gameBrowser.setVisible(true);
+        }
+        gameBrowser.restoreWindowState(windowState);
+      }
+    }
+  }
+
+  private GameBrowserListener createGameBrowserListener() {
+    return new GameBrowserListener() {
+      @Override
+      public void onGameSelected(GameSearchResult gameSearchResult) {
+        EmulatorInternalFrame target = getActiveEmulatorOrCreateNew(gameSearchResult);
+      }
+
+      @Override
+      public void onViewDetails(String gameUrl) {
+        JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+            "Game Details: " + gameUrl + "", "Game Details", JOptionPane.INFORMATION_MESSAGE);
+      }
+
+      @Override
+      public void onAddToFavorites(String gameUrl) {
+        JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+            "Added to favorites: " + gameUrl, "Favorites", JOptionPane.INFORMATION_MESSAGE);
+      }
+
+      @Override
+      public void onDownloadGame(String gameUrl) {
+        JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+            "Downloading: " + gameUrl + "\n(Download feature coming soon)", "Download",
+            JOptionPane.INFORMATION_MESSAGE);
+      }
+    };
+  }
 
   private void updateRecentFilesMenu() {
     recentFilesMenu.removeAll();

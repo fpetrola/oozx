@@ -25,13 +25,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 public class OOZxConfiguration {
   private String lastOpenDirectory = System.getProperty("user.home");
   private String lastLoadStateDirectory = System.getProperty("user.home");
   private String lastSaveStateDirectory = System.getProperty("user.home");
   private List<String> recentFiles = new ArrayList<>();
+  private List<WindowState> openWindows = new ArrayList<>();
   private static final int MAX_RECENT_FILES = 10;
   private static final String CONFIG_DIR = System.getProperty("user.home") + File.separator + ".oozx";
   private static final String CONFIG_FILE = CONFIG_DIR + File.separator + "config.json";
@@ -110,5 +114,161 @@ public class OOZxConfiguration {
 
   public void setRecentFiles(List<String> recentFiles) {
     this.recentFiles = recentFiles;
+  }
+
+  public List<WindowState> getOpenWindows() {
+    return openWindows;
+  }
+
+  public void setOpenWindows(List<WindowState> openWindows) {
+    this.openWindows = openWindows;
+  }
+
+  // Utilidades de compresión
+  public static String compressAndEncode(byte[] data) {
+    try {
+      Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);
+      deflater.setInput(data);
+      deflater.finish();
+
+      byte[] compressedData = new byte[data.length];
+      int compressedSize = deflater.deflate(compressedData);
+      deflater.end();
+
+      byte[] finalData = new byte[compressedSize];
+      System.arraycopy(compressedData, 0, finalData, 0, compressedSize);
+
+      return Base64.getEncoder().encodeToString(finalData);
+    } catch (Exception e) {
+      System.err.println("Error comprimiendo datos: " + e.getMessage());
+      return null;
+    }
+  }
+
+  public static byte[] decodeAndDecompress(String encoded) {
+    try {
+      byte[] compressedData = Base64.getDecoder().decode(encoded);
+
+      Inflater inflater = new Inflater();
+      inflater.setInput(compressedData);
+
+      byte[] decompressedData = new byte[compressedData.length * 10]; // Aproximado
+      int decompressedSize = inflater.inflate(decompressedData);
+      inflater.end();
+
+      byte[] finalData = new byte[decompressedSize];
+      System.arraycopy(decompressedData, 0, finalData, 0, decompressedSize);
+
+      return finalData;
+    } catch (Exception e) {
+      System.err.println("Error descomprimiendo datos: " + e.getMessage());
+      return null;
+    }
+  }
+
+  // Clase para almacenar estado de ventanas
+  public static class WindowState {
+    private String type; // "EMULATOR", "GAME_BROWSER"
+    private int x;
+    private int y;
+    private int width;
+    private int height;
+    private String filePath; // Para emuladores
+    private String searchQuery; // Para game browser
+    private boolean turboMode;
+    private boolean muted;
+    private String snapshotData; // Base64 encoded snapshot
+
+    public WindowState() {
+    }
+
+    public WindowState(String type, int x, int y, int width, int height) {
+      this.type = type;
+      this.x = x;
+      this.y = y;
+      this.width = width;
+      this.height = height;
+    }
+
+    // Getters and Setters
+    public String getType() {
+      return type;
+    }
+
+    public void setType(String type) {
+      this.type = type;
+    }
+
+    public int getX() {
+      return x;
+    }
+
+    public void setX(int x) {
+      this.x = x;
+    }
+
+    public int getY() {
+      return y;
+    }
+
+    public void setY(int y) {
+      this.y = y;
+    }
+
+    public int getWidth() {
+      return width;
+    }
+
+    public void setWidth(int width) {
+      this.width = width;
+    }
+
+    public int getHeight() {
+      return height;
+    }
+
+    public void setHeight(int height) {
+      this.height = height;
+    }
+
+    public String getFilePath() {
+      return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+      this.filePath = filePath;
+    }
+
+    public String getSearchQuery() {
+      return searchQuery;
+    }
+
+    public void setSearchQuery(String searchQuery) {
+      this.searchQuery = searchQuery;
+    }
+
+    public boolean isTurboMode() {
+      return turboMode;
+    }
+
+    public void setTurboMode(boolean turboMode) {
+      this.turboMode = turboMode;
+    }
+
+    public boolean isMuted() {
+      return muted;
+    }
+
+    public void setMuted(boolean muted) {
+      this.muted = muted;
+    }
+
+    public String getSnapshotData() {
+      return snapshotData;
+    }
+
+    public void setSnapshotData(String snapshotData) {
+      this.snapshotData = snapshotData;
+    }
   }
 }
