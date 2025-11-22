@@ -55,11 +55,11 @@ public class OOSpectrumLauncher {
 
       if (filename.isBlank()) {
         string = extracted();
-      } else if (!filename.isBlank()) {
+      } else if (!filename.isBlank() && filename.contains("http")) {
         Path unzip = new DownloadAndUnzip().unzip(filename);
 //      String snapshotFile = Helper.getSnapshotFile(filename);
         string = unzip.toAbsolutePath().toString();
-      }
+      } else string = filename;
       Fuse fuse = createFuse(string);
       return fuse.z80.mockCore;
     });

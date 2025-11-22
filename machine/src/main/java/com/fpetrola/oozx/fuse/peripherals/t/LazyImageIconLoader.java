@@ -19,7 +19,7 @@
 package com.fpetrola.oozx.fuse.peripherals.t;
 
 import javax.swing.*;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.net.MalformedURLException;
 import java.net.URL;

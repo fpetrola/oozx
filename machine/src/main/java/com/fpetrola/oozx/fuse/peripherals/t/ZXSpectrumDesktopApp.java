@@ -31,6 +31,7 @@ import com.github.weisj.darklaf.theme.*;
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -44,7 +45,7 @@ import static com.fpetrola.oozx.fuse.peripherals.t.EmulatorInternalFrame.loadIco
 
 // Emulator Internal Frame
 class EmulatorInternalFrame extends JInternalFrame {
-  private EmulatorCore emulatorCore;
+  public EmulatorCore emulatorCore;
   //  private JLabel statusLabel;
   private JProgressBar speedBar;
   private JComboBox<String> modelCombo;
@@ -53,6 +54,7 @@ class EmulatorInternalFrame extends JInternalFrame {
   private float scaleFactor0 = 1.73f;
   private float scaleFactor = scaleFactor0;
   //  private JLabel tapeStatusLabel;
+
 
   public EmulatorInternalFrame(EmulatorCore core, int x, int y) {
     super("ZX Spectrum Emulator", true, true, true, true);
@@ -437,7 +439,8 @@ class GameBrowserInternalFrame extends JInternalFrame {
 
     resultsPanel = new JPanel();
     resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
-    resultsPanel.setBackground(Color.WHITE);
+    Color color = UIManager.getColor("Panel.background");
+    resultsPanel.setBackground(color);
 
     JScrollPane scrollPane = new JScrollPane(resultsPanel);
     scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -565,6 +568,7 @@ class GameBrowserInternalFrame extends JInternalFrame {
 
   private JPanel createGameRow(GameSearchResult result) {
     JPanel row = new JPanel();
+    Color color = UIManager.getColor("List.background");
     row.setLayout(new BoxLayout(row, BoxLayout.X_AXIS));
     row.setBorder(BorderFactory.createCompoundBorder(
         BorderFactory.createLineBorder(Color.LIGHT_GRAY),
@@ -577,11 +581,12 @@ class GameBrowserInternalFrame extends JInternalFrame {
       }
 
       public void mouseExited(MouseEvent e) {
-        row.setBackground(Color.WHITE);
+        row.setBackground(color);
       }
     };
     row.addMouseListener(l);
-    row.setBackground(Color.WHITE);
+
+    row.setBackground(color);
 
     JLabel imgLabel1 = new JLabel();
     loadLazyImage(imgLabel1, result.screenshot1, l);
@@ -657,6 +662,79 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private JDesktopPane desktop;
   private int emulatorCount = 0;
   private GameBrowserInternalFrame gameBrowser;
+  private final JFileChooser fileChooser = new JFileChooser();
+
+  {
+    // Configuración única del file chooser
+    FileNameExtensionFilter filter = new FileNameExtensionFilter(
+        "ZX Spectrum files (*.tap, *.tzx, *.z80, *.sna, *.szx)",
+        "tap", "tzx", "z80", "sna", "szx");
+    fileChooser.setFileFilter(filter);
+    fileChooser.setCurrentDirectory(new java.io.File(System.getProperty("user.home")));
+  }
+
+  private void openFile() {
+    if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+      String path = fileChooser.getSelectedFile().getAbsolutePath();
+//      EmulatorInternalFrame target = getActiveEmulatorOrCreateNew();
+//      if (target != null) {
+      EmulatorCore emulatorCore = mockCore.apply(path);
+      createNewEmulator(emulatorCore);
+//        target.emulatorCore.loadFile(path);
+//      }
+    }
+  }
+
+  private void saveState() {
+    EmulatorInternalFrame active = getActiveEmulator();
+    if (active == null) {
+      JOptionPane.showMessageDialog(this, "No hay emulador activo para guardar estado.", "Save State", JOptionPane.WARNING_MESSAGE);
+      return;
+    }
+    if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+      String path = fileChooser.getSelectedFile().getAbsolutePath();
+      active.emulatorCore.saveState(path);
+    }
+  }
+
+  private void loadState() {
+    if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+      String path = fileChooser.getSelectedFile().getAbsolutePath();
+      EmulatorInternalFrame target = getActiveEmulatorOrCreateNew();
+      if (target != null) {
+        target.emulatorCore.loadState(path);
+      }
+    }
+  }
+
+  // Devuelve el emulador que está seleccionado o visible, o null
+  private EmulatorInternalFrame getActiveEmulator() {
+    JInternalFrame selected = desktop.getSelectedFrame();
+    if (selected instanceof EmulatorInternalFrame) {
+      return (EmulatorInternalFrame) selected;
+    }
+    // Si no hay seleccionado, devuelve el primero visible
+    for (JInternalFrame f : desktop.getAllFrames()) {
+      if (f instanceof EmulatorInternalFrame && f.isVisible()) {
+        return (EmulatorInternalFrame) f;
+      }
+    }
+    return null;
+  }
+
+  // Devuelve el emulador activo o crea uno nuevo si no existe ninguno
+  private EmulatorInternalFrame getActiveEmulatorOrCreateNew() {
+    EmulatorInternalFrame frame = getActiveEmulator();
+    if (frame == null) {
+      EmulatorCore core = mockCore.apply("");
+      frame = createNewEmulator(core);
+    }
+    try {
+      frame.setSelected(true);
+    } catch (Exception ignored) {
+    }
+    return frame;
+  }
 
   public ZXSpectrumDesktopApp(Function<String, EmulatorCore> mockCore) {
     this.mockCore = mockCore;
@@ -679,8 +757,47 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private JMenuBar createMenuBar() {
     JMenuBar menuBar = new JMenuBar();
 
+    // ====================== MENU FILE ======================
     JMenu fileMenu = new JMenu("File");
     fileMenu.setMnemonic(KeyEvent.VK_F);
+
+    // ---- Open (cargar tape/snapshot) ----
+    JMenuItem openItem = new JMenuItem("Open...");
+    openItem.setMnemonic(KeyEvent.VK_O);
+    openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
+    openItem.addActionListener(e -> openFile());
+    fileMenu.add(openItem);
+
+    fileMenu.addSeparator();
+
+    // ---- Save State ----
+    JMenuItem saveStateItem = new JMenuItem("Save State...");
+    saveStateItem.setMnemonic(KeyEvent.VK_S);
+    saveStateItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
+    saveStateItem.addActionListener(e -> saveState());
+    fileMenu.add(saveStateItem);
+
+    // ---- Load State ----
+    JMenuItem loadStateItem = new JMenuItem("Load State...");
+    loadStateItem.setMnemonic(KeyEvent.VK_L);
+    loadStateItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK));
+    loadStateItem.addActionListener(e -> loadState());
+    fileMenu.add(loadStateItem);
+
+    fileMenu.addSeparator();
+
+    // ---- Quit ----
+    JMenuItem quitItem = new JMenuItem("Quit");
+    quitItem.setMnemonic(KeyEvent.VK_Q);
+    quitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
+    quitItem.addActionListener(e -> System.exit(0));
+    fileMenu.add(quitItem);
+
+    menuBar.add(fileMenu);
+
+    // ====================== MENU EMULATOR ======================
+    JMenu emulatorMenu = new JMenu("Emulator");
+    emulatorMenu.setMnemonic(KeyEvent.VK_E);
 
     AbstractAction newEmulatorAction = new AbstractAction("New Emulator") {
       @Override
@@ -689,22 +806,17 @@ public class ZXSpectrumDesktopApp extends JFrame {
         createNewEmulator(emulatorCore);
       }
     };
-    fileMenu.add(newEmulatorAction);
+    newEmulatorAction.putValue(AbstractAction.ACCELERATOR_KEY,
+        KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
+    emulatorMenu.add(newEmulatorAction);
 
     JMenuItem gameBrowserMenuItem = new JMenuItem("Game Browser...");
     gameBrowserMenuItem.addActionListener(e -> openGameBrowser());
-    fileMenu.add(gameBrowserMenuItem);
+    emulatorMenu.add(gameBrowserMenuItem);
 
-    AbstractAction exitAction = new AbstractAction("Exit") {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        System.exit(0);
-      }
-    };
-    fileMenu.add(exitAction);
+    menuBar.add(emulatorMenu);
 
-    menuBar.add(fileMenu);
-
+    // ====================== MENU OPTIONS ======================
     JMenu optionsMenu = new JMenu("Options");
     optionsMenu.setMnemonic(KeyEvent.VK_O);
 
@@ -716,6 +828,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     optionsMenu.add(settingsAction);
     menuBar.add(optionsMenu);
 
+    // Look&Feel y Window (sin cambios)
     addLFMenu(menuBar);
     addWindowMenu(menuBar);
     return menuBar;
