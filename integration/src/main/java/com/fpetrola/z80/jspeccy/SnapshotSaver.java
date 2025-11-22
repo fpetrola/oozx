@@ -178,12 +178,7 @@ public class SnapshotSaver {
     spectrumState.setTstates(state.clock.getTStates());
 
     // Convertir a bytes usando SnapshotZ80
-    SnapshotFile snapshot = new SnapshotZ80();
-
-    // Usar método interno para guardar a ByteArrayOutputStream
-    // Este método requeriría una extensión de SnapshotZ80 para soportarlo
-    // Por ahora, retornaremos null como placeholder
-    // TODO: Implementar método en SnapshotZ80 para guardar a byte array
-    return null;
+    SnapshotZ80 snapshot = new SnapshotZ80();
+    return snapshot.saveToBytes(spectrumState);
   }
 }
