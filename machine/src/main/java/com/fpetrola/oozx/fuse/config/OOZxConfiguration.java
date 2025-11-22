@@ -186,6 +186,7 @@ public class OOZxConfiguration {
     private String searchQuery; // Para game browser
     private boolean turboMode;
     private boolean muted;
+    private boolean paused; // Estado de pausa del emulador
     private String snapshotData; // Base64 encoded snapshot
 
     public WindowState() {
@@ -270,6 +271,14 @@ public class OOZxConfiguration {
 
     public void setMuted(boolean muted) {
       this.muted = muted;
+    }
+
+    public boolean isPaused() {
+      return paused;
+    }
+
+    public void setPaused(boolean paused) {
+      this.paused = paused;
     }
 
     public String getSnapshotData() {

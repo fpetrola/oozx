@@ -25,33 +25,54 @@ import javax.swing.*;
 import java.awt.event.KeyListener;
 
 public interface EmulatorCore {
-    void startEmulation();
-    void stopEmulation();
-    void pauseEmulation();
-    void resumeEmulation();
-    void resetEmulation();
-    void loadFile(String filePath);
-    void saveState(String filePath);
-    void loadState(String filePath);
-    void setMachineModel(String model); // e.g., "48K", "128K"
-    void setVideoOption(String option, Object value); // e.g., "border", true
-    void setAudioOption(String option, Object value);
-    void setInputOption(String option, Object value);
-    void setStorageOption(String option, Object value);
-    void setPeripheralOption(String option, Object value);
-    void setGeneralOption(String option, Object value);
-    // Add more as needed for peripherals, etc.
-    void addEmulatorListener(EmulatorListener listener);
-    double getEmulationSpeed(); // New: Get emulation speed
-    String getCurrentModel(); // New: Get current machine model
-    boolean isPaused(); // New: Check if paused
-    boolean isTurboMode(); // New: Check if turbo mode is on
-    String getTapeStatus(); // New: Get tape status
-    JComponent getPanel();
+  void startEmulation();
 
-    KeyListener getKeyListener();
+  void stopEmulation();
 
-    void finishEmulation();
+  void pauseEmulation();
+
+  void resumeEmulation();
+
+  void resetEmulation();
+
+  void loadFile(String filePath);
+
+  void saveState(String filePath);
+
+  void loadState(String filePath);
+
+  void setMachineModel(String model); // e.g., "48K", "128K"
+
+  void setVideoOption(String option, Object value); // e.g., "border", true
+
+  void setAudioOption(String option, Object value);
+
+  void setInputOption(String option, Object value);
+
+  void setStorageOption(String option, Object value);
+
+  void setPeripheralOption(String option, Object value);
+
+  void setGeneralOption(String option, Object value);
+
+  // Add more as needed for peripherals, etc.
+  void addEmulatorListener(EmulatorListener listener);
+
+  double getEmulationSpeed(); // New: Get emulation speed
+
+  String getCurrentModel(); // New: Get current machine model
+
+  boolean isPaused(); // New: Check if paused
+
+  boolean isTurboMode(); // New: Check if turbo mode is on
+
+  String getTapeStatus(); // New: Get tape status
+
+  JComponent getPanel();
+
+  KeyListener getKeyListener();
+
+  void finishEmulation();
 
   default RegistersGetter getRegistersGetter() {
     return null;
@@ -59,5 +80,9 @@ public interface EmulatorCore {
 
   default State getState() {
     return null;
+  }
+
+  default boolean isMuted() {
+    return false;
   }
 }

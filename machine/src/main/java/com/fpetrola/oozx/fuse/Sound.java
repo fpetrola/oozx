@@ -161,7 +161,7 @@ public class Sound implements ZxModule, MachineChangeListener {
     String soundDevice = settings.current.soundDevice;
     int frameTstates = spectrumMachine.getTimings().tstatesPerFrame;
 
-    initSound(3500000, frameTstates);
+    initSound(3500000, frameTstates, initContext);
     return 0;
   }
 
@@ -173,7 +173,7 @@ public class Sound implements ZxModule, MachineChangeListener {
   // Inicialización del sonido
   // ========================================================================
 
-  public boolean initSound(long cpuFrequency, int tstatesPerFrame) {
+  public boolean initSound(long cpuFrequency, int tstatesPerFrame, Object initContext) {
 //    if (soundEnabled) return true;
 
 //    if (settings.current.emulationSpeed < 2 || settings.current.emulationSpeed > 500) return false;
@@ -238,7 +238,9 @@ public class Sound implements ZxModule, MachineChangeListener {
     soundFrameSize = (int) (soundFreq / hz) + 1;
     outputSamples = new int[soundFrameSize * 2];
 
-    soundEnabled = true;
+    if (!(initContext instanceof Boolean bool1) || bool1)
+      soundEnabled = true;
+
     ayReset();
     return true;
   }

@@ -398,6 +398,10 @@ public class Z80 implements ZxModule {
         fuse.alive = false;
       }
 
+      public boolean isPaused() {
+        return emulatorPaused;
+      }
+
       public void pauseEmulation() {
         emulatorPaused = !emulatorPaused;
         notifyPauseStateChange(emulatorPaused);
@@ -411,13 +415,16 @@ public class Z80 implements ZxModule {
 
       public void setGeneralOption(String option, Object value) {
         if (option.equals("turbo")) {
-          turbo = !turbo;
+          turbo = (boolean) value;
           int emulationSpeed = turbo ? 15000 : 100;
           changeSpeed1(emulationSpeed);
 //          timer.estimateReset();
         } else if (option.equals("mute")) {
-          fuse.sound.soundEnabled = (boolean) value;
+          fuse.sound.soundEnabled = !(boolean) value;
 //          timer.estimateReset();
+        } else if (option.equals("pause")) {
+          emulatorPaused = (boolean) value;
+          notifyPauseStateChange(emulatorPaused);
         }
       }
 
@@ -435,6 +442,10 @@ public class Z80 implements ZxModule {
       @Override
       public boolean isTurboMode() {
         return turbo;
+      }
+
+      public boolean isMuted() {
+        return !fuse.sound.soundEnabled;
       }
 
       public State getState() {
@@ -515,7 +526,7 @@ public class Z80 implements ZxModule {
     zxClock.addTStates(-zxClock.getTStates() + 60000);
     timer.changeSpeed(emulationSpeed);
     fuse.sound.end();
-    fuse.sound.init(null);
+    fuse.sound.init(false);
   }
 
 }

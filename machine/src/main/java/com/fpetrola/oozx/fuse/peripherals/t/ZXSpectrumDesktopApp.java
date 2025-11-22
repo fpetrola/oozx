@@ -136,10 +136,9 @@ class EmulatorInternalFrame extends JInternalFrame {
   }
 
   private void toggleMute() {
-    emulatorCore.setGeneralOption("mute", isMuted);
-    isMuted = !isMuted;
-    muteButton.setIcon(loadIcon(!isMuted ? "1F507.svg" : "1F509.svg"));
-    muteButton.setToolTipText(isMuted ? "Unmute Sound" : "Mute Sound");
+    emulatorCore.setGeneralOption("mute", !emulatorCore.isMuted());
+    muteButton.setIcon(loadIcon(!emulatorCore.isMuted() ? "1F507.svg" : "1F509.svg"));
+    muteButton.setToolTipText(emulatorCore.isMuted() ? "Unmute Sound" : "Mute Sound");
   }
 
   private JPanel createStatusBar() {
@@ -282,7 +281,7 @@ class EmulatorInternalFrame extends JInternalFrame {
     //    Icon turboIcon = UIManager.getIcon("FileChooser.upFolderIcon");
     JButton turboButton = new JButton(loadIcon("1F680.svg"));
     turboButton.setToolTipText("Toggle Turbo Mode");
-    turboButton.addActionListener(e -> emulatorCore.setGeneralOption("turbo", emulatorCore.isTurboMode()));
+    turboButton.addActionListener(e -> emulatorCore.setGeneralOption("turbo", !emulatorCore.isTurboMode()));
     toolBar.add(turboButton);
 
     toolBar.addSeparator();
@@ -404,8 +403,9 @@ class EmulatorInternalFrame extends JInternalFrame {
     OOZxConfiguration.WindowState state = new OOZxConfiguration.WindowState(
         "EMULATOR", getX(), getY(), getWidth(), getHeight());
     state.setFilePath(filePath);
-    state.setTurboMode(false); // TODO: obtener del emulador
-    state.setMuted(isMuted);
+    state.setTurboMode(emulatorCore.isTurboMode());
+    state.setMuted(emulatorCore.isMuted());
+    state.setPaused(emulatorCore.isPaused());
 
     // Guardar el estado actual del emulador comprimido en Base64
     try {
@@ -428,10 +428,30 @@ class EmulatorInternalFrame extends JInternalFrame {
     if (state.getX() >= 0 && state.getY() >= 0) {
       setLocation(state.getX(), state.getY());
     }
+
+    // Restaurar el mute
     isMuted = state.isMuted();
     if (isMuted) {
-      muteButton.setIcon(loadIcon("1F507.svg"));
+      emulatorCore.setGeneralOption("mute", true);
+      muteButton.setIcon(loadIcon("1F509.svg"));
       muteButton.setToolTipText("Unmute Sound");
+    } else {
+      emulatorCore.setGeneralOption("mute", false);
+      muteButton.setIcon(loadIcon("1F507.svg"));
+      muteButton.setToolTipText("Mute Sound");
+    }
+
+    emulatorCore.setGeneralOption("turbo", state.isTurboMode());
+
+    emulatorCore.setGeneralOption("pause", state.isPaused());
+
+    // Restaurar el estado del emulador desde el snapshot comprimido
+    if (state.getSnapshotData() != null && !state.getSnapshotData().isEmpty()) {
+      try {
+        SnapshotSaver.loadSnapshotFromCompressedBase64(state.getSnapshotData());
+      } catch (Exception e) {
+        System.err.println("Error restaurando snapshot desde configuración: " + e.getMessage());
+      }
     }
   }
 }
