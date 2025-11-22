@@ -21,6 +21,7 @@ package com.fpetrola.oozx.fuse.peripherals.t;
 import com.fpetrola.oozx.api.GameEntry;
 import com.fpetrola.oozx.api.Hit;
 import com.fpetrola.oozx.api.ZxInfoApiHandler;
+import com.fpetrola.oozx.fuse.config.OOZxConfiguration;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorCore;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorListener;
 import com.fpetrola.oozx.fuse.peripherals.SettingsDialog;
@@ -679,6 +680,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private int emulatorCount = 0;
   private GameBrowserInternalFrame gameBrowser;
   private final JFileChooser fileChooser = new JFileChooser();
+  private OOZxConfiguration config;
+  private JMenu recentFilesMenu;
 
   {
     // Configuración única del file chooser
@@ -690,8 +693,12 @@ public class ZXSpectrumDesktopApp extends JFrame {
   }
 
   private void openFile() {
+    fileChooser.setCurrentDirectory(new java.io.File(config.getLastOpenDirectory()));
     if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
       String path = fileChooser.getSelectedFile().getAbsolutePath();
+      config.setLastOpenDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
+      config.addRecentFile(path);
+      updateRecentFilesMenu();
 //      EmulatorInternalFrame target = getActiveEmulatorOrCreateNew();
 //      if (target != null) {
       EmulatorCore emulatorCore = mockCore.apply(path);
@@ -707,15 +714,19 @@ public class ZXSpectrumDesktopApp extends JFrame {
       JOptionPane.showMessageDialog(this, "No hay emulador activo para guardar estado.", "Save State", JOptionPane.WARNING_MESSAGE);
       return;
     }
+    fileChooser.setCurrentDirectory(new java.io.File(config.getLastSaveStateDirectory()));
     if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
       String path = fileChooser.getSelectedFile().getAbsolutePath();
+      config.setLastSaveStateDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
       active.emulatorCore.saveState(path);
     }
   }
 
   private void loadState() {
+    fileChooser.setCurrentDirectory(new java.io.File(config.getLastLoadStateDirectory()));
     if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
       String path = fileChooser.getSelectedFile().getAbsolutePath();
+      config.setLastLoadStateDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
       EmulatorInternalFrame target = getActiveEmulatorOrCreateNew();
       if (target != null) {
         target.emulatorCore.loadState(path);
@@ -754,6 +765,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
   public ZXSpectrumDesktopApp(Function<String, EmulatorCore> mockCore) {
     this.mockCore = mockCore;
+    this.config = OOZxConfiguration.load();
+    
     setTitle("ZX Spectrum Multi-Emulator");
     setSize(1200, 800);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -768,6 +781,14 @@ public class ZXSpectrumDesktopApp extends JFrame {
     // Toolbar
     JToolBar toolBar = createMainToolBar();
     add(toolBar, BorderLayout.NORTH);
+    
+    // Guardar configuración al cerrar la aplicación
+    addWindowListener(new java.awt.event.WindowAdapter() {
+      @Override
+      public void windowClosing(java.awt.event.WindowEvent e) {
+        config.save();
+      }
+    });
   }
 
   private JMenuBar createMenuBar() {
@@ -783,6 +804,14 @@ public class ZXSpectrumDesktopApp extends JFrame {
     openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
     openItem.addActionListener(e -> openFile());
     fileMenu.add(openItem);
+
+    fileMenu.addSeparator();
+
+    // ---- Recent Files ----
+    recentFilesMenu = new JMenu("Recent Files");
+    recentFilesMenu.setMnemonic(KeyEvent.VK_R);
+    updateRecentFilesMenu();
+    fileMenu.add(recentFilesMenu);
 
     fileMenu.addSeparator();
 
@@ -1050,6 +1079,37 @@ public class ZXSpectrumDesktopApp extends JFrame {
     return frame;
   }
 
+
+  private void updateRecentFilesMenu() {
+    recentFilesMenu.removeAll();
+    List<String> recentFiles = config.getRecentFiles();
+    
+    if (recentFiles.isEmpty()) {
+      JMenuItem emptyItem = new JMenuItem("(No recent files)");
+      emptyItem.setEnabled(false);
+      recentFilesMenu.add(emptyItem);
+      return;
+    }
+    
+    for (String filePath : recentFiles) {
+      JMenuItem item = new JMenuItem(new java.io.File(filePath).getName());
+      item.setToolTipText(filePath);
+      item.addActionListener(e -> {
+        EmulatorCore emulatorCore = mockCore.apply(filePath);
+        createNewEmulator(emulatorCore);
+      });
+      recentFilesMenu.add(item);
+    }
+    
+    recentFilesMenu.addSeparator();
+    JMenuItem clearItem = new JMenuItem("Clear Recent Files");
+    clearItem.addActionListener(e -> {
+      config.getRecentFiles().clear();
+      config.save();
+      updateRecentFilesMenu();
+    });
+    recentFilesMenu.add(clearItem);
+  }
 
   private void cascadeWindows() {
     JInternalFrame[] frames = desktop.getAllFrames();
