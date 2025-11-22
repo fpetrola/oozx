@@ -23,6 +23,8 @@ import com.fpetrola.oozx.api.Hit;
 import com.fpetrola.oozx.api.ZxInfoApiHandler;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorCore;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorListener;
+import com.fpetrola.oozx.fuse.peripherals.SettingsDialog;
+import com.fpetrola.oozx.fuse.peripherals.ZXSpectrumEmulatorUI;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.*;
 
@@ -703,9 +705,26 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
     menuBar.add(fileMenu);
 
+    JMenu optionsMenu = new JMenu("Options");
+    optionsMenu.setMnemonic(KeyEvent.VK_O);
+
+    AbstractAction settingsAction = new AbstractAction("Settings...") {
+      public void actionPerformed(ActionEvent e) {
+        openSettings();
+      }
+    };
+    optionsMenu.add(settingsAction);
+    menuBar.add(optionsMenu);
+
     addLFMenu(menuBar);
     addWindowMenu(menuBar);
     return menuBar;
+  }
+
+  private void openSettings() {
+    SettingsDialog settingsDialog = new SettingsDialog(ZXSpectrumDesktopApp.this, null);
+    settingsDialog.setLocationRelativeTo(ZXSpectrumDesktopApp.this);
+    settingsDialog.setVisible(true);
   }
 
   private void addLFMenu(JMenuBar menuBar) {
@@ -783,6 +802,11 @@ public class ZXSpectrumDesktopApp extends JFrame {
     gameBrowserBtn.setToolTipText("Open Game Browser");
     gameBrowserBtn.addActionListener(e -> openGameBrowser());
     toolBar.add(gameBrowserBtn);
+
+    JButton settingsBtn = new JButton(loadIcon("2699.svg"));
+    settingsBtn.setToolTipText("Settings");
+    settingsBtn.addActionListener(e -> openSettings());
+    toolBar.add(settingsBtn);
 
     return toolBar;
   }
