@@ -92,7 +92,7 @@ public class MiniZXWithEmulationBase {
   }
 
   private static SpectrumState getSpectrumStateFromBase64(String t1) throws SnapshotException {
-    return new SnapshotZ80().loadFromString(Base64Utils.gzipDecompressFromBase64(t1));
+    return new SnapshotZ80().loadFromBytes(Base64Utils.gzipDecompressFromBase64(t1));
   }
 
   private static int copyPage(byte[][] ram, int page, int position, int[] data) {

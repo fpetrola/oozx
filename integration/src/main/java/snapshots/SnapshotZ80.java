@@ -133,7 +133,7 @@ public class SnapshotZ80 implements SnapshotFile {
     return spectrum;
   }
 
-  public SpectrumState loadFromString(byte[] bytes) throws SnapshotException {
+  public SpectrumState loadFromBytes(byte[] bytes) throws SnapshotException {
     spectrum = new SpectrumState();
     fIn = new BufferedInputStream(new ByteArrayInputStream(bytes));
 
