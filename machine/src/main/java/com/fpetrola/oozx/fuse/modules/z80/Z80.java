@@ -405,6 +405,9 @@ public class Z80 implements ZxModule {
           int emulationSpeed = turbo ? 15000 : 100;
           changeSpeed1(emulationSpeed);
 //          timer.estimateReset();
+        } else if (option.equals("mute")) {
+          fuse.sound.soundEnabled = (boolean) value;
+//          timer.estimateReset();
         }
       }
 

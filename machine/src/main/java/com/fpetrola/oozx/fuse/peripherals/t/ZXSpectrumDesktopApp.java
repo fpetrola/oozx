@@ -51,6 +51,8 @@ class EmulatorInternalFrame extends JInternalFrame {
   private JComboBox<String> modelCombo;
   private JLabel pauseIndicator;
   private JLabel turboIndicator;
+  private JButton muteButton;
+  private boolean isMuted = false;
   private float scaleFactor0 = 1.73f;
   private float scaleFactor = scaleFactor0;
   //  private JLabel tapeStatusLabel;
@@ -129,6 +131,13 @@ class EmulatorInternalFrame extends JInternalFrame {
   private void updateTurboLabel(boolean turbo) {
     turboIndicator.setText(turbo ? "✔ Turbo" : "✘ Turbo");
     turboIndicator.setForeground(turbo ? Color.BLUE : Color.GRAY);
+  }
+
+  private void toggleMute() {
+    emulatorCore.setGeneralOption("mute", isMuted);
+    isMuted = !isMuted;
+    muteButton.setIcon(loadIcon(!isMuted ? "1F507.svg" : "1F509.svg"));
+    muteButton.setToolTipText(isMuted ? "Unmute Sound" : "Mute Sound");
   }
 
   private JPanel createStatusBar() {
@@ -330,6 +339,13 @@ class EmulatorInternalFrame extends JInternalFrame {
     pauseButton.setToolTipText("Pause Emulation");
     pauseButton.addActionListener(e -> emulatorCore.pauseEmulation());
     toolBar.add(pauseButton);
+
+    toolBar.addSeparator();
+
+    muteButton = new JButton(loadIcon("1F507.svg"));
+    muteButton.setToolTipText("Mute/Unmute Sound");
+    muteButton.addActionListener(e -> toggleMute());
+    toolBar.add(muteButton);
 
 //    Icon resumeIcon = UIManager.getIcon("FileChooser.upFolderIcon");
 //    JButton resumeButton = new JButton(resumeIcon);
