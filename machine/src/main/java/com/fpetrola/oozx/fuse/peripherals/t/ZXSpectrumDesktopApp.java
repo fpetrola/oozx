@@ -451,9 +451,9 @@ class EmulatorInternalFrame extends JInternalFrame {
     }
 
     emulatorCore.setGeneralOption("turbo", state.isTurboMode());
-
     emulatorCore.setGeneralOption("pause", state.isPaused());
 
+    emulatorCore.setFilename(state.getFilePath());
     // Restaurar el estado del emulador desde el snapshot comprimido
     if (state.getSnapshotId() != null && !state.getSnapshotId().isEmpty()) {
       try {
