@@ -404,12 +404,12 @@ class EmulatorInternalFrame extends JInternalFrame {
         "EMULATOR", getX(), getY(), getWidth(), getHeight());
     state.setFilePath(filePath);
     state.setZOrder(ZXSpectrumDesktopApp.getComponentZOrder(this));
-    
+
     // Guardar el nombre legible del archivo/snapshot
     if (filePath != null && !filePath.isEmpty()) {
       state.setSnapshotName(new java.io.File(filePath).getName());
     }
-    
+
     state.setTurboMode(emulatorCore.isTurboMode());
     state.setMuted(emulatorCore.isMuted());
     state.setPaused(emulatorCore.isPaused());
@@ -1293,11 +1293,11 @@ public class ZXSpectrumDesktopApp extends JFrame {
         gameBrowser.restoreWindowState(windowState);
       }
     }
-    
+
     // Restaurar el orden Z de todas las ventanas
     for (OOZxConfiguration.WindowState windowState : config.getOpenWindows()) {
       JInternalFrame frame = findFrameByWindowState(windowState);
-      if (frame != null && windowState.getZOrder() > 0) {
+      if (frame != null && windowState.getZOrder() >= 0) {
         desktop.setComponentZOrder(frame, windowState.getZOrder());
       }
     }
