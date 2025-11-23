@@ -42,6 +42,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.awt.Desktop;
 
 import static com.fpetrola.oozx.fuse.peripherals.t.EmulatorInternalFrame.loadIcon;
 
@@ -879,6 +880,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
     // Restaurar ventanas abiertas
     restoreOpenWindows();
 
+    config.getSnapshots().clear();
+
     // Guardar configuración al cerrar la aplicación
     addWindowListener(new java.awt.event.WindowAdapter() {
       @Override
@@ -1010,6 +1013,24 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
     // Window menu (includes Look&Feel submenu)
     addWindowMenu(menuBar);
+
+    // ====================== MENU HELP ======================
+    JMenu helpMenu = new JMenu("Help");
+    helpMenu.setMnemonic(KeyEvent.VK_H);
+
+    JMenuItem readmeItem = new JMenuItem("View README");
+    readmeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
+    readmeItem.addActionListener(e -> openReadme());
+    helpMenu.add(readmeItem);
+
+    helpMenu.addSeparator();
+
+    JMenuItem aboutItem = new JMenuItem("About");
+    aboutItem.addActionListener(e -> showAboutDialog());
+    helpMenu.add(aboutItem);
+
+    menuBar.add(helpMenu);
+
     return menuBar;
   }
 
@@ -1017,6 +1038,159 @@ public class ZXSpectrumDesktopApp extends JFrame {
     SettingsDialog settingsDialog = new SettingsDialog(ZXSpectrumDesktopApp.this, null);
     settingsDialog.setLocationRelativeTo(ZXSpectrumDesktopApp.this);
     settingsDialog.setVisible(true);
+  }
+
+  private void openReadme() {
+    SwingUtilities.invokeLater(() -> {
+      try {
+        // Leer el README desde resources
+        String readmeContent = loadReadmeFromResources();
+
+        if (readmeContent != null && !readmeContent.isEmpty()) {
+          // Convertir markdown a HTML
+          String html = markdownToHtml(readmeContent);
+
+          // Mostrar en una ventana interna
+          showReadmeWindow(html);
+        } else {
+          JOptionPane.showMessageDialog(this,
+              "Could not load README",
+              "Error", JOptionPane.ERROR_MESSAGE);
+        }
+      } catch (Exception e) {
+        JOptionPane.showMessageDialog(this,
+            "Error loading README:n" + e.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
+      }
+    });
+  }
+
+  private String loadReadmeFromResources() throws Exception {
+    try (java.io.InputStream in = getClass().getClassLoader().getResourceAsStream("README.md")) {
+      if (in == null) {
+        throw new Exception("README.md not found in resources");
+      }
+      return new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+    }
+  }
+
+  private String markdownToHtml(String markdown) {
+    org.commonmark.parser.Parser parser = org.commonmark.parser.Parser.builder()
+        .extensions(java.util.List.of(
+            org.commonmark.ext.gfm.tables.TablesExtension.create()
+        ))
+        .build();
+    org.commonmark.node.Node document = parser.parse(markdown);
+    org.commonmark.renderer.html.HtmlRenderer renderer = org.commonmark.renderer.html.HtmlRenderer.builder()
+        .extensions(java.util.List.of(
+            org.commonmark.ext.gfm.tables.TablesExtension.create()
+        ))
+        .build();
+    String html = renderer.render(document);
+
+    // Agregar estilos CSS
+    String styledHtml = "<html><head><style>" +
+                        "body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; color: #333; }" +
+                        "h1 { color: #1f77b4; border-bottom: 2px solid #1f77b4; padding-bottom: 10px; }" +
+                        "h2 { color: #ff7f0e; margin-top: 20px; }" +
+                        "h3 { color: #2ca02c; }" +
+                        "code { background-color: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New'; }" +
+                        "pre { background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow-x: auto; }" +
+                        "pre code { background-color: transparent; padding: 0; }" +
+                        "a { color: #1f77b4; text-decoration: none; }" +
+                        "a:hover { text-decoration: underline; }" +
+                        "blockquote { border-left: 4px solid #ddd; padding-left: 15px; color: #666; margin-left: 0; }" +
+                        "img { max-width: 100%; height: auto; }" +
+                        "table { border-collapse: collapse; width: 100%; }" +
+                        "th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }" +
+                        "th { background-color: #f5f5f5; }" +
+                        "</style></head><body>" +
+                        html +
+                        "</body></html>";
+
+    return styledHtml;
+  }
+
+  private void showReadmeWindow(String html) {
+    JInternalFrame readmeFrame = new JInternalFrame("README - OOZX", true, true, true, true);
+    readmeFrame.setSize(800, 600);
+    readmeFrame.setLocation(50, 50);
+
+    // Crear un JEditorPane para renderizar HTML
+    JEditorPane editorPane = new JEditorPane();
+    editorPane.setContentType("text/html");
+    editorPane.setText(html);
+    editorPane.setEditable(false);
+    editorPane.setCaretPosition(0);
+
+    // Agregar scroll
+    JScrollPane scrollPane = new JScrollPane(editorPane);
+    scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+    readmeFrame.add(scrollPane, BorderLayout.CENTER);
+    desktop.add(readmeFrame);
+    readmeFrame.setVisible(true);
+
+    try {
+      readmeFrame.setSelected(true);
+    } catch (java.beans.PropertyVetoException e) {
+      // Ignore
+    }
+  }
+
+  private void showAboutDialog() {
+    String appName = "OOZX";
+    String version = "0.0.1";
+    String versionSuffix = "SNAPSHOT";
+    String shortDescription = "Modern ZX Spectrum Emulator";
+    String fullDescription = "Object-Oriented emulator with modular, pluggable architecture";
+    String author = "Fernando Damian Petrola";
+    String copyright = "Copyright (C) 2023-2025";
+    String license = "Apache License 2.0";
+    String website = "github.com/fpetrola/oozx";
+
+    String about = String.format("""
+            <html>
+                  <head>
+                    <title></title>
+                  </head>
+                  <body style='font-family: Segoe UI, Arial, sans-serif; width: 420px; color: #333;'>
+                    <div style='text-align: center;'>
+                      <h1 style='margin: 0; padding: 0; font-size: 28px; color: #1f77b4;'>%s</h1>
+                      <p style='margin: 2px 0; font-size: 10px; color: #999;'>v%s <span style='color: #aaa;'>%s</span></p>
+                    </div>
+                    <p style='text-align: center; margin: 8px 0; font-size: 12px; color: #555;'><b>%s</b></p>
+                    <p style='text-align: center; margin: 4px 0; font-size: 11px; color: #777;'>%s</p>
+                    <hr style='border: none; border-top: 1px solid #ddd; margin: 12px 0;'>
+                    <table style='width: 100%%; font-size: 11px; line-height: 1.8;'>
+                      <tr>
+                        <td style='color: #666;'><b>Author:</b></td>
+                        <td style='text-align: right; color: #333;'>%s</td>
+                      </tr>
+                      <tr>
+                        <td style='color: #666;'><b>License:</b></td>
+                        <td style='text-align: right; color: #333;'>%s</td>
+                      </tr>
+                      <tr>
+                        <td style='color: #666;'><b>Repository:</b></td>
+                        <td style='text-align: right;'><span style='color: #0066cc;'>%s</span></td>
+                      </tr>
+                    </table>
+                    <hr style='border: none; border-top: 1px solid #ddd; margin: 12px 0;'>
+                    <div style='padding: 8px; border-radius: 4px; border-left: 3px solid #1f77b4;'>
+                      <p style='font-size: 10px; color: #666; margin: 0; line-height: 1.5;'>A high-performance, multi-model Z80 emulator built with pure object-oriented design. Features pluggable peripherals, simultaneous multi-game emulation, online game discovery, and automatic state preservation between sessions.</p>
+                    </div>
+                    <p style='text-align: center; margin-top: 12px; font-size: 9px; color: #999;'>%s</p>
+                  </body>
+                  </html>
+            """,
+        appName, version, versionSuffix, shortDescription, fullDescription, author, license, website, copyright
+    );
+
+    JOptionPane.showMessageDialog(this,
+        new JLabel(about),
+        "About " + appName,
+        JOptionPane.INFORMATION_MESSAGE);
   }
 
   private void addLaf(JMenu menu, final Theme theme) {
@@ -1292,13 +1466,13 @@ public class ZXSpectrumDesktopApp extends JFrame {
       }
     }
 
-    // Restaurar el orden Z de todas las ventanas
-    for (OOZxConfiguration.WindowState windowState : config.getOpenWindows()) {
-      JInternalFrame frame = findFrameByWindowState(windowState);
-      if (frame != null && windowState.getZOrder() >= 0) {
-        desktop.setComponentZOrder(frame, windowState.getZOrder());
-      }
-    }
+//    // Restaurar el orden Z de todas las ventanas
+//    for (OOZxConfiguration.WindowState windowState : config.getOpenWindows()) {
+//      JInternalFrame frame = findFrameByWindowState(windowState);
+//      if (frame != null && windowState.getZOrder() >= 0) {
+//        desktop.setComponentZOrder(frame, windowState.getZOrder());
+//      }
+//    }
   }
 
   private JInternalFrame findFrameByWindowState(OOZxConfiguration.WindowState windowState) {
@@ -1337,7 +1511,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
       @Override
       public void onDownloadGame(String gameUrl) {
         JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-            "Downloading: " + gameUrl + "\n(Download feature coming soon)", "Download",
+            "Downloading: " + gameUrl + "n(Download feature coming soon)", "Download",
             JOptionPane.INFORMATION_MESSAGE);
       }
     };

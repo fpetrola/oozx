@@ -102,6 +102,18 @@
             <artifactId>batik-transcoder</artifactId>
             <version>1.17</version>
         </dependency>
+
+        <!-- Markdown parser -->
+        <dependency>
+            <groupId>org.commonmark</groupId>
+            <artifactId>commonmark</artifactId>
+            <version>0.21.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.commonmark</groupId>
+            <artifactId>commonmark-ext-gfm-tables</artifactId>
+            <version>0.21.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
