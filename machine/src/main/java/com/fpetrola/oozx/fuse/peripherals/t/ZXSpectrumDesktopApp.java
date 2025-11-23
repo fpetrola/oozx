@@ -955,8 +955,44 @@ public class ZXSpectrumDesktopApp extends JFrame {
     emulatorMenu.add(newEmulatorAction);
 
     JMenuItem gameBrowserMenuItem = new JMenuItem("Game Browser...");
+    gameBrowserMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.CTRL_DOWN_MASK));
     gameBrowserMenuItem.addActionListener(e -> openGameBrowser());
     emulatorMenu.add(gameBrowserMenuItem);
+
+    emulatorMenu.addSeparator();
+
+    // ---- Pause/Resume ----
+    JMenuItem pauseResumeItem = new JMenuItem("Pause/Resume");
+    pauseResumeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_DOWN_MASK));
+    pauseResumeItem.addActionListener(e -> {
+      EmulatorInternalFrame active = getActiveEmulator();
+      if (active != null) {
+        active.emulatorCore.pauseEmulation();
+      }
+    });
+    emulatorMenu.add(pauseResumeItem);
+
+    // ---- Turbo Mode ----
+    JMenuItem turboModeItem = new JMenuItem("Toggle Turbo Mode");
+    turboModeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK));
+    turboModeItem.addActionListener(e -> {
+      EmulatorInternalFrame active = getActiveEmulator();
+      if (active != null) {
+        active.emulatorCore.setGeneralOption("turbo", !active.emulatorCore.isTurboMode());
+      }
+    });
+    emulatorMenu.add(turboModeItem);
+
+    // ---- Mute/Unmute ----
+    JMenuItem muteItem = new JMenuItem("Toggle Mute");
+    muteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK));
+    muteItem.addActionListener(e -> {
+      EmulatorInternalFrame active = getActiveEmulator();
+      if (active != null) {
+        active.emulatorCore.setGeneralOption("mute", !active.emulatorCore.isMuted());
+      }
+    });
+    emulatorMenu.add(muteItem);
 
     menuBar.add(emulatorMenu);
 
@@ -1024,12 +1060,38 @@ public class ZXSpectrumDesktopApp extends JFrame {
     JMenu windowMenu = new JMenu("Window");
     windowMenu.setMnemonic(KeyEvent.VK_W);
 
+    // ---- Close Active Window ----
+    AbstractAction closeWindowAction = new AbstractAction("Close Active Window") {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        closeActiveWindow();
+      }
+    };
+    closeWindowAction.putValue(AbstractAction.ACCELERATOR_KEY,
+        KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK));
+    windowMenu.add(closeWindowAction);
+
+    // ---- Close All Windows ----
+    AbstractAction closeAllWindowsAction = new AbstractAction("Close All Windows") {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        closeAllWindows();
+      }
+    };
+    closeAllWindowsAction.putValue(AbstractAction.ACCELERATOR_KEY,
+        KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+    windowMenu.add(closeAllWindowsAction);
+
+    windowMenu.addSeparator();
+
     AbstractAction cascadeAction = new AbstractAction("Cascade") {
       @Override
       public void actionPerformed(ActionEvent e) {
         cascadeWindows();
       }
     };
+    cascadeAction.putValue(AbstractAction.ACCELERATOR_KEY,
+        KeyStroke.getKeyStroke(KeyEvent.VK_1, InputEvent.ALT_DOWN_MASK));
     windowMenu.add(cascadeAction);
 
     AbstractAction tileAction = new AbstractAction("Tile") {
@@ -1038,9 +1100,33 @@ public class ZXSpectrumDesktopApp extends JFrame {
         tileWindows();
       }
     };
+    tileAction.putValue(AbstractAction.ACCELERATOR_KEY,
+        KeyStroke.getKeyStroke(KeyEvent.VK_2, InputEvent.ALT_DOWN_MASK));
     windowMenu.add(tileAction);
 
     menuBar.add(windowMenu);
+  }
+
+  private void closeActiveWindow() {
+    JInternalFrame frame = desktop.getSelectedFrame();
+    if (frame != null) {
+      try {
+        frame.setClosed(true);
+      } catch (java.beans.PropertyVetoException e) {
+        // Window refused to close
+      }
+    }
+  }
+
+  private void closeAllWindows() {
+    JInternalFrame[] frames = desktop.getAllFrames();
+    for (JInternalFrame frame : frames) {
+      try {
+        frame.setClosed(true);
+      } catch (java.beans.PropertyVetoException e) {
+        // Window refused to close
+      }
+    }
   }
 
   private JToolBar createMainToolBar() {
