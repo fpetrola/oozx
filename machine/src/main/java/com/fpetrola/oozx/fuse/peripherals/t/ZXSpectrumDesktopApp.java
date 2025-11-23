@@ -1008,8 +1008,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     optionsMenu.add(settingsAction);
     menuBar.add(optionsMenu);
 
-    // Look&Feel y Window (sin cambios)
-    addLFMenu(menuBar);
+    // Window menu (includes Look&Feel submenu)
     addWindowMenu(menuBar);
     return menuBar;
   }
@@ -1020,40 +1019,13 @@ public class ZXSpectrumDesktopApp extends JFrame {
     settingsDialog.setVisible(true);
   }
 
-  private void addLFMenu(JMenuBar menuBar) {
-    JMenu windowMenu = new JMenu("Look&Feel");
-    windowMenu.setMnemonic(KeyEvent.VK_W);
-
-    addLaf(windowMenu, new DarculaTheme());
-    addLaf(windowMenu, new OneDarkTheme());
-    addLaf(windowMenu, new SolarizedLightTheme());
-    addLaf(windowMenu, new SolarizedDarkTheme());
-    addLaf(windowMenu, new IntelliJTheme());
-
-    AbstractAction tileAction = new AbstractAction("Metal") {
-      public void actionPerformed(ActionEvent e) {
-        try {
-//          LafManager.install(new DarculaTheme());
-
-          UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
-          LafManager.updateLaf();
-        } catch (Exception ex) {
-          throw new RuntimeException(ex);
-        }
-      }
-    };
-    windowMenu.add(tileAction);
-
-    menuBar.add(windowMenu);
-  }
-
-  private void addLaf(JMenu windowMenu, final Theme theme) {
-    AbstractAction cascadeAction = new AbstractAction(theme.getName()) {
+  private void addLaf(JMenu menu, final Theme theme) {
+    AbstractAction themeAction = new AbstractAction(theme.getName()) {
       public void actionPerformed(ActionEvent e) {
         LafManager.install(theme);
       }
     };
-    windowMenu.add(cascadeAction);
+    menu.add(themeAction);
   }
 
   private void addWindowMenu(JMenuBar menuBar) {
@@ -1103,6 +1075,32 @@ public class ZXSpectrumDesktopApp extends JFrame {
     tileAction.putValue(AbstractAction.ACCELERATOR_KEY,
         KeyStroke.getKeyStroke(KeyEvent.VK_2, InputEvent.ALT_DOWN_MASK));
     windowMenu.add(tileAction);
+
+    windowMenu.addSeparator();
+
+    // ---- Look&Feel Submenu ----
+    JMenu lookAndFeelMenu = new JMenu("Look&Feel");
+    lookAndFeelMenu.setMnemonic(KeyEvent.VK_L);
+
+    addLaf(lookAndFeelMenu, new DarculaTheme());
+    addLaf(lookAndFeelMenu, new OneDarkTheme());
+    addLaf(lookAndFeelMenu, new SolarizedLightTheme());
+    addLaf(lookAndFeelMenu, new SolarizedDarkTheme());
+    addLaf(lookAndFeelMenu, new IntelliJTheme());
+
+    AbstractAction metalAction = new AbstractAction("Metal") {
+      public void actionPerformed(ActionEvent e) {
+        try {
+          UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+          LafManager.updateLaf();
+        } catch (Exception ex) {
+          throw new RuntimeException(ex);
+        }
+      }
+    };
+    lookAndFeelMenu.add(metalAction);
+
+    windowMenu.add(lookAndFeelMenu);
 
     menuBar.add(windowMenu);
   }
