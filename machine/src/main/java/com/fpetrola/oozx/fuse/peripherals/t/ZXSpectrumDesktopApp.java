@@ -403,6 +403,7 @@ class EmulatorInternalFrame extends JInternalFrame {
     OOZxConfiguration.WindowState state = new OOZxConfiguration.WindowState(
         "EMULATOR", getX(), getY(), getWidth(), getHeight());
     state.setFilePath(filePath);
+    state.setZOrder(ZXSpectrumDesktopApp.getComponentZOrder(this));
     
     // Guardar el nombre legible del archivo/snapshot
     if (filePath != null && !filePath.isEmpty()) {
@@ -744,6 +745,7 @@ class GameBrowserInternalFrame extends JInternalFrame {
     OOZxConfiguration.WindowState state = new OOZxConfiguration.WindowState(
         "GAME_BROWSER", getX(), getY(), getWidth(), getHeight());
     state.setSearchQuery(searchField.getText());
+    state.setZOrder(ZXSpectrumDesktopApp.getComponentZOrder(this));
     return state;
   }
 
@@ -1179,6 +1181,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
   }
 
   private void restoreOpenWindows() {
+    // Crear todas las ventanas primero
     for (OOZxConfiguration.WindowState windowState : config.getOpenWindows()) {
       if ("EMULATOR".equals(windowState.getType())) {
         // Restaurar el estado del emulador desde el snapshot comprimido
@@ -1204,6 +1207,28 @@ public class ZXSpectrumDesktopApp extends JFrame {
         gameBrowser.restoreWindowState(windowState);
       }
     }
+    
+    // Restaurar el orden Z de todas las ventanas
+    for (OOZxConfiguration.WindowState windowState : config.getOpenWindows()) {
+      JInternalFrame frame = findFrameByWindowState(windowState);
+      if (frame != null && windowState.getZOrder() > 0) {
+        desktop.setComponentZOrder(frame, windowState.getZOrder());
+      }
+    }
+  }
+
+  private JInternalFrame findFrameByWindowState(OOZxConfiguration.WindowState windowState) {
+    for (JInternalFrame frame : desktop.getAllFrames()) {
+      if ("EMULATOR".equals(windowState.getType()) && frame instanceof EmulatorInternalFrame) {
+        EmulatorInternalFrame eFrame = (EmulatorInternalFrame) frame;
+        if (windowState.getSnapshotId() != null && eFrame.saveWindowState(eFrame.emulatorCore.getFilename()).getSnapshotId().equals(windowState.getSnapshotId())) {
+          return frame;
+        }
+      } else if ("GAME_BROWSER".equals(windowState.getType()) && frame instanceof GameBrowserInternalFrame) {
+        return frame;
+      }
+    }
+    return null;
   }
 
   private GameBrowserListener createGameBrowserListener() {
@@ -1325,6 +1350,19 @@ public class ZXSpectrumDesktopApp extends JFrame {
         w = desktop.getWidth() / cols;
       }
     }
+  }
+
+  public static int getComponentZOrder(JInternalFrame component) {
+    Container parent = component.getParent();
+    if (parent != null) {
+      java.awt.Component[] components = parent.getComponents();
+      for (int i = 0; i < components.length; i++) {
+        if (components[i] == component) {
+          return i;
+        }
+      }
+    }
+    return 0;
   }
 
   public static void main(String[] args) {

@@ -206,7 +206,7 @@ public class OOZxConfiguration {
 
   // Clase para almacenar estado de ventanas
   @JsonPropertyOrder({
-      "type", "x", "y", "width", "height",
+      "type", "x", "y", "width", "height", "zOrder",
       "filePath", "snapshotName", "searchQuery", "turboMode", "muted", "paused",
       "snapshotId" // Referencia al snapshot en el mapa centralizado
   })
@@ -216,6 +216,7 @@ public class OOZxConfiguration {
     private int y;
     private int width;
     private int height;
+    private int zOrder; // Orden de profundidad de la ventana (0 = al frente)
     private String filePath; // Para emuladores
     private String snapshotName; // Nombre legible del archivo/snapshot cargado
     private String searchQuery; // Para game browser
@@ -274,6 +275,14 @@ public class OOZxConfiguration {
 
     public void setHeight(int height) {
       this.height = height;
+    }
+
+    public int getZOrder() {
+      return zOrder;
+    }
+
+    public void setZOrder(int zOrder) {
+      this.zOrder = zOrder;
     }
 
     public String getFilePath() {
