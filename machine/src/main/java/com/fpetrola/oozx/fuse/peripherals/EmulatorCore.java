@@ -85,4 +85,11 @@ public interface EmulatorCore {
   default boolean isMuted() {
     return false;
   }
+
+  default String getFilename() {
+    return "";
+  }
+
+  default void setFilename(String string) {
+  }
 }

@@ -387,13 +387,21 @@ public class Z80 implements ZxModule {
 
   public JFrame createScreen(KeyListener keyListener, JComponent contentPane) {
     mockCore = new MockEmulatorCore(contentPane) {
+      private String filename;
       private boolean turbo = settings.current.emulationSpeed != 100;
+
+      public void setFilename(String filename) {
+        this.filename = filename;
+      }
+
+      public String getFilename() {
+        return filename;
+      }
 
       public KeyListener getKeyListener() {
         return new SwingKeyboard(fuse.keyboard, fuse.input);
       }
 
-      @Override
       public void finishEmulation() {
         fuse.alive = false;
       }

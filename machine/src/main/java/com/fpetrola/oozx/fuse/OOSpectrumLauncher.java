@@ -67,7 +67,9 @@ public class OOSpectrumLauncher {
         string = unzip.toAbsolutePath().toString();
       } else string = filename;
       Fuse fuse = createFuse(string);
-      return fuse.z80.mockCore;
+      EmulatorCore mockCore = fuse.z80.mockCore;
+      mockCore.setFilename(string);
+      return mockCore;
     }, mockCoreState);
 
     showOnScreen(0, zxSpectrumDesktopApp);

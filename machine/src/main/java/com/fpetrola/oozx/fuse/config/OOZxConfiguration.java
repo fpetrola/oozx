@@ -19,6 +19,7 @@
 package com.fpetrola.oozx.fuse.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +27,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
@@ -37,6 +41,7 @@ public class OOZxConfiguration {
   private List<String> recentFiles = new ArrayList<>();
   private List<WindowState> openWindows = new ArrayList<>();
   private WindowState mainWindowState; // Estado de la ventana principal
+  private Map<String, String> snapshots = new HashMap<>(); // Mapa centralizado de snapshots: id -> data
   private static final int MAX_RECENT_FILES = 10;
   private static final String CONFIG_DIR = System.getProperty("user.home") + File.separator + ".oozx";
   private static final String CONFIG_FILE = CONFIG_DIR + File.separator + "config.json";
@@ -133,6 +138,30 @@ public class OOZxConfiguration {
     this.mainWindowState = mainWindowState;
   }
 
+  public Map<String, String> getSnapshots() {
+    return snapshots;
+  }
+
+  public void setSnapshots(Map<String, String> snapshots) {
+    this.snapshots = snapshots;
+  }
+
+  /**
+   * Guarda un snapshot en el mapa centralizado y retorna su ID
+   */
+  public String saveSnapshot(String snapshotData) {
+    String snapshotId = "snapshot_" + UUID.randomUUID().toString();
+    snapshots.put(snapshotId, snapshotData);
+    return snapshotId;
+  }
+
+  /**
+   * Obtiene un snapshot del mapa centralizado usando su ID
+   */
+  public String getSnapshot(String snapshotId) {
+    return snapshots.get(snapshotId);
+  }
+
   // Utilidades de compresión
   public static String compressAndEncode(byte[] data) {
     try {
@@ -176,6 +205,11 @@ public class OOZxConfiguration {
   }
 
   // Clase para almacenar estado de ventanas
+  @JsonPropertyOrder({
+      "type", "x", "y", "width", "height",
+      "filePath", "snapshotName", "searchQuery", "turboMode", "muted", "paused",
+      "snapshotId" // Referencia al snapshot en el mapa centralizado
+  })
   public static class WindowState {
     private String type; // "EMULATOR", "GAME_BROWSER"
     private int x;
@@ -183,11 +217,12 @@ public class OOZxConfiguration {
     private int width;
     private int height;
     private String filePath; // Para emuladores
+    private String snapshotName; // Nombre legible del archivo/snapshot cargado
     private String searchQuery; // Para game browser
     private boolean turboMode;
     private boolean muted;
     private boolean paused; // Estado de pausa del emulador
-    private String snapshotData; // Base64 encoded snapshot
+    private String snapshotId; // Referencia al snapshot en el mapa centralizado
 
     public WindowState() {
     }
@@ -249,6 +284,14 @@ public class OOZxConfiguration {
       this.filePath = filePath;
     }
 
+    public String getSnapshotName() {
+      return snapshotName;
+    }
+
+    public void setSnapshotName(String snapshotName) {
+      this.snapshotName = snapshotName;
+    }
+
     public String getSearchQuery() {
       return searchQuery;
     }
@@ -281,12 +324,12 @@ public class OOZxConfiguration {
       this.paused = paused;
     }
 
-    public String getSnapshotData() {
-      return snapshotData;
+    public String getSnapshotId() {
+      return snapshotId;
     }
 
-    public void setSnapshotData(String snapshotData) {
-      this.snapshotData = snapshotData;
+    public void setSnapshotId(String snapshotId) {
+      this.snapshotId = snapshotId;
     }
   }
 }

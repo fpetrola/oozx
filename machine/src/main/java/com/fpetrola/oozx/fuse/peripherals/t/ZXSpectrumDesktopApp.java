@@ -403,17 +403,25 @@ class EmulatorInternalFrame extends JInternalFrame {
     OOZxConfiguration.WindowState state = new OOZxConfiguration.WindowState(
         "EMULATOR", getX(), getY(), getWidth(), getHeight());
     state.setFilePath(filePath);
+    
+    // Guardar el nombre legible del archivo/snapshot
+    if (filePath != null && !filePath.isEmpty()) {
+      state.setSnapshotName(new java.io.File(filePath).getName());
+    }
+    
     state.setTurboMode(emulatorCore.isTurboMode());
     state.setMuted(emulatorCore.isMuted());
     state.setPaused(emulatorCore.isPaused());
 
-    // Guardar el estado actual del emulador comprimido en Base64
+    // Guardar el estado actual del emulador comprimido en Base64 y obtener su ID
     try {
       String compressedSnapshot = SnapshotSaver.getSnapshotAsCompressedBase64(
           emulatorCore.getRegistersGetter(),
           emulatorCore.getState()
       );
-      state.setSnapshotData(compressedSnapshot);
+      // Guardar el snapshot en el mapa centralizado y obtener su ID
+      String snapshotId = ((ZXSpectrumDesktopApp) SwingUtilities.getWindowAncestor(this)).config.saveSnapshot(compressedSnapshot);
+      state.setSnapshotId(snapshotId);
     } catch (Exception e) {
       System.err.println("Error guardando snapshot en configuración: " + e.getMessage());
     }
@@ -446,9 +454,13 @@ class EmulatorInternalFrame extends JInternalFrame {
     emulatorCore.setGeneralOption("pause", state.isPaused());
 
     // Restaurar el estado del emulador desde el snapshot comprimido
-    if (state.getSnapshotData() != null && !state.getSnapshotData().isEmpty()) {
+    if (state.getSnapshotId() != null && !state.getSnapshotId().isEmpty()) {
       try {
-        SnapshotSaver.loadSnapshotFromCompressedBase64(state.getSnapshotData());
+        ZXSpectrumDesktopApp parentApp = (ZXSpectrumDesktopApp) SwingUtilities.getWindowAncestor(this);
+        String snapshotData = parentApp.config.getSnapshot(state.getSnapshotId());
+        if (snapshotData != null && !snapshotData.isEmpty()) {
+          SnapshotSaver.loadSnapshotFromCompressedBase64(snapshotData);
+        }
       } catch (Exception e) {
         System.err.println("Error restaurando snapshot desde configuración: " + e.getMessage());
       }
@@ -756,7 +768,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private int emulatorCount = 0;
   private GameBrowserInternalFrame gameBrowser;
   private final JFileChooser fileChooser = new JFileChooser();
-  private OOZxConfiguration config;
+  protected OOZxConfiguration config;
   private JMenu recentFilesMenu;
 
   {
@@ -1157,7 +1169,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
       if (frame instanceof EmulatorInternalFrame) {
         EmulatorInternalFrame eFrame = (EmulatorInternalFrame) frame;
         // Obtener el archivo que se está emulando (si existe)
-        String filePath = ""; // TODO: obtener del core
+        String filePath = eFrame.emulatorCore.getFilename();
         config.getOpenWindows().add(eFrame.saveWindowState(filePath));
       } else if (frame instanceof GameBrowserInternalFrame) {
         GameBrowserInternalFrame gFrame = (GameBrowserInternalFrame) frame;
@@ -1170,12 +1182,15 @@ public class ZXSpectrumDesktopApp extends JFrame {
     for (OOZxConfiguration.WindowState windowState : config.getOpenWindows()) {
       if ("EMULATOR".equals(windowState.getType())) {
         // Restaurar el estado del emulador desde el snapshot comprimido
-        if (windowState.getSnapshotData() != null && !windowState.getSnapshotData().isEmpty()) {
+        if (windowState.getSnapshotId() != null && !windowState.getSnapshotId().isEmpty()) {
           try {
-            SpectrumState spectrumState = SnapshotSaver.loadSnapshotFromCompressedBase64(windowState.getSnapshotData());
-            EmulatorCore core = mockCoreState.apply(spectrumState);
-            EmulatorInternalFrame frame = createNewEmulator(core);
-            frame.restoreWindowState(windowState);
+            String snapshotData = config.getSnapshot(windowState.getSnapshotId());
+            if (snapshotData != null && !snapshotData.isEmpty()) {
+              SpectrumState spectrumState = SnapshotSaver.loadSnapshotFromCompressedBase64(snapshotData);
+              EmulatorCore core = mockCoreState.apply(spectrumState);
+              EmulatorInternalFrame frame = createNewEmulator(core);
+              frame.restoreWindowState(windowState);
+            }
           } catch (Exception e) {
             System.err.println("Error restaurando snapshot desde configuración: " + e.getMessage());
           }
