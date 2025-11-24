@@ -19,17 +19,17 @@
 package com.fpetrola.oozx.fuse.pokes;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
- * Gestiona la descarga, indexación y búsqueda de archivos .pok
+ * Gestiona la indexación y búsqueda de archivos .pok desde resources
  */
 public class PokesManager {
-  private static final String POKES_REPO_URL = "https://github.com/ladyeklipse/all-tipshop-pokes.git";
-  private static final String POKES_DIR = System.getProperty("user.home") + File.separator + ".oozx" + File.separator + "pokes";
+  private static final String POKES_RESOURCE_PATH = "/pokes";
   
   private Map<String, List<PokFile>> pokIndex = new ConcurrentHashMap<>();
   private boolean initialized = false;
@@ -39,15 +39,14 @@ public class PokesManager {
   }
 
   /**
-   * Inicializa el gestor de pokes
+   * Inicializa el gestor de pokes desde resources
    */
   public void initializePokes() {
     if (initialized) return;
     
     new Thread(() -> {
       try {
-        downloadPokesIfNeeded();
-        indexPokes();
+        indexPokesFromResources();
         initialized = true;
         System.out.println("Pokes initialized: " + pokIndex.size() + " games with pokes");
       } catch (Exception e) {
@@ -58,80 +57,40 @@ public class PokesManager {
   }
 
   /**
-   * Descarga el repositorio de pokes si no existe o está desactualizado
+   * Indexa los pokes desde los recursos embebidos en la aplicación
    */
-  private void downloadPokesIfNeeded() throws Exception {
-    Path pokesPath = Paths.get(POKES_DIR);
+  private void indexPokesFromResources() throws Exception {
+    System.out.println("Loading pokes from resources...");
     
-    // Verificar si ya existe
-    if (Files.exists(pokesPath)) {
-      // Verificar si es antiguo (más de 7 días)
-      long lastModified = Files.getLastModifiedTime(pokesPath).toMillis();
-      long now = System.currentTimeMillis();
-      long sevenDaysMs = 7L * 24 * 60 * 60 * 1000;
-      
-      if (now - lastModified < sevenDaysMs) {
-        System.out.println("Pokes already downloaded and fresh");
-        return;
-      }
-      
-      // Actualizar repositorio
-      System.out.println("Updating pokes repository...");
-      updateRepository(pokesPath);
-    } else {
-      // Clonar repositorio
-      System.out.println("Downloading pokes repository...");
-      Files.createDirectories(pokesPath.getParent());
-      cloneRepository(pokesPath);
-    }
-  }
-
-  /**
-   * Clona el repositorio de pokes
-   */
-  private void cloneRepository(Path targetPath) throws Exception {
-    ProcessBuilder pb = new ProcessBuilder(
-        "git", "clone", "--depth", "1", POKES_REPO_URL, targetPath.toString()
-    );
-    pb.directory(new File(POKES_DIR).getParentFile());
-    pb.redirectErrorStream(true);
-    
-    Process process = pb.start();
-    int exitCode = process.waitFor();
-    
-    if (exitCode != 0) {
-      throw new Exception("Failed to clone pokes repository");
-    }
-  }
-
-  /**
-   * Actualiza el repositorio existente
-   */
-  private void updateRepository(Path repositoryPath) throws Exception {
-    ProcessBuilder pb = new ProcessBuilder("git", "pull", "--depth", "1");
-    pb.directory(repositoryPath.toFile());
-    pb.redirectErrorStream(true);
-    
-    Process process = pb.start();
-    int exitCode = process.waitFor();
-    
-    if (exitCode != 0) {
-      System.err.println("Failed to update pokes repository, using cached version");
-    }
-  }
-
-  /**
-   * Indexa todos los archivos .pok disponibles
-   */
-  private void indexPokes() throws Exception {
-    Path pokesPath = Paths.get(POKES_DIR);
-    
-    if (!Files.exists(pokesPath)) {
-      System.out.println("Pokes directory not found");
+    // Obtener la URL del recurso de pokes
+    URL pokesUrl = getClass().getResource(POKES_RESOURCE_PATH);
+    if (pokesUrl == null) {
+      System.err.println("Pokes resource not found: " + POKES_RESOURCE_PATH);
       return;
     }
+    
+    // Convertir URL a Path para poder iterar directorios
+    Path pokesPath = null;
+    if (pokesUrl.getProtocol().equals("file")) {
+      pokesPath = Paths.get(pokesUrl.toURI());
+    } else if (pokesUrl.getProtocol().equals("jar")) {
+      // Si está en un JAR, crear un FileSystem temporal
+      String[] parts = pokesUrl.getPath().split("!");
+      Path jarPath = Paths.get(parts[0].substring(5)); // Quitar "file:"
+      pokesPath = Paths.get(parts[1]);
+    }
+    
+    if (pokesPath != null && Files.exists(pokesPath)) {
+      indexPokesDirectory(pokesPath);
+    } else {
+      System.err.println("Could not access pokes directory");
+    }
+  }
 
-    // Buscar todos los archivos .pok
+  /**
+   * Indexa el directorio de pokes
+   */
+  private void indexPokesDirectory(Path pokesPath) throws Exception {
     try (DirectoryStream<Path> directories = Files.newDirectoryStream(pokesPath)) {
       for (Path dir : directories) {
         if (Files.isDirectory(dir) && !dir.getFileName().toString().startsWith(".")) {
@@ -140,6 +99,8 @@ public class PokesManager {
       }
     }
   }
+
+
 
   /**
    * Indexa una carpeta de pokes (organizada por letra)
@@ -290,6 +251,6 @@ public class PokesManager {
   }
 
   public static String getPokesDirectory() {
-    return POKES_DIR;
+    return POKES_RESOURCE_PATH;
   }
 }

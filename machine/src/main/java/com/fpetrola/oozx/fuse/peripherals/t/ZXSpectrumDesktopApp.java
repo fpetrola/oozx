@@ -357,7 +357,7 @@ class EmulatorInternalFrame extends JInternalFrame {
     toolBar.addSeparator();
 
     if (parentApp != null) {
-      JButton pokesButton = new JButton(loadIcon("1F4A9.svg"));
+      JButton pokesButton = new JButton(loadIcon("1F513.svg"));
       pokesButton.setToolTipText("Cheats/Pokes");
       pokesButton.addActionListener(e -> openPokesDialog());
       toolBar.add(pokesButton);
