@@ -161,6 +161,10 @@ public class PokFile {
       return parsedInstruction.getDescription();
     }
 
+    public boolean isApplied() {
+      return parsedInstruction.isApplied();
+    }
+
     @Override
     public String toString() {
       return name;

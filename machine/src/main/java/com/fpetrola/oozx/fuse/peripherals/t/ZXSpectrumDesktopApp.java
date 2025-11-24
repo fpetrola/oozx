@@ -62,6 +62,7 @@ class EmulatorInternalFrame extends JInternalFrame {
   private float scaleFactor0 = 1.73f;
   private float scaleFactor = scaleFactor0;
   //  private JLabel tapeStatusLabel;
+  private List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> appliedPokes = new ArrayList<>();
 
 
   public EmulatorInternalFrame(EmulatorCore core, int x, int y, ZXSpectrumDesktopApp parentApp) {
@@ -442,11 +443,19 @@ class EmulatorInternalFrame extends JInternalFrame {
         (Frame) SwingUtilities.getWindowAncestor(this), 
         gameName, 
         availablePokes,
-        parentApp.pokesManager);
+        parentApp.pokesManager,
+        new ArrayList<>(appliedPokes)); // Pasar pokes previamente aplicados en el constructor
     
     pokesDialog.setOnPokesAppliedListener(selectedMods -> {
       if (!selectedMods.isEmpty()) {
         applyPokes(selectedMods);
+      }
+    });
+    
+    // Listener para revertir pokes removidos
+    pokesDialog.setOnPokesChangedListener(removedMods -> {
+      if (!removedMods.isEmpty()) {
+        revertPokes(removedMods);
       }
     });
     
@@ -456,12 +465,28 @@ class EmulatorInternalFrame extends JInternalFrame {
   private void applyPokes(java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> mods) {
     // TODO: Implementar la aplicación actual de pokes en el emulador
     System.out.println("Aplicando " + mods.size() + " pokes:");
+    
+    // Limpiar pokes aplicados y agregar los nuevos
+    appliedPokes.clear();
     for (com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod : mods) {
       System.out.println("  - " + mod.getName() + ": " + mod.getDescription());
       System.out.println("    Type: " + mod.getInstructionType() + ", Raw: " + mod.getRawInstruction());
       // Aquí se enviaría la instrucción al emulador para modificar memoria
       // mod.getParsedInstruction().apply(emulatorMemoryWriter);
       emulatorCore.applyMod(mod);
+      appliedPokes.add(mod); // Guardar en el registro
+    }
+  }
+
+  private void revertPokes(java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> mods) {
+    System.out.println("Revertiendo " + mods.size() + " pokes:");
+    for (com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod : mods) {
+      System.out.println("  - " + mod.getName() + ": " + mod.getDescription());
+      // Remover del registro
+      appliedPokes.removeIf(p -> p.getName().equals(mod.getName()) && 
+                                 p.getRawInstruction().equals(mod.getRawInstruction()));
+      // Revertir el poke en el emulador (el valor previo está guardado en PokInstruction)
+      emulatorCore.revertMod(mod);
     }
   }
 

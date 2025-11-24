@@ -406,6 +406,19 @@ public class Z80 implements ZxModule {
         });
       }
 
+      public void revertMod(PokFile.PokeMod mod) {
+        PokInstruction parsedInstruction = mod.getParsedInstruction();
+        parsedInstruction.revert(new PokInstruction.EmulatorMemoryWriter() {
+          public void writeMemory(int bank, int address, int value) {
+            ooz80.getState().getMemory().write(address, value);
+          }
+
+          public int readMemory(int bank, int address) {
+            return ooz80.getState().getMemory().read(address);
+          }
+        });
+      }
+
       public void setFilename(String filename) {
         this.filename = filename;
       }

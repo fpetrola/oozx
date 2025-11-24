@@ -35,19 +35,32 @@ public class PokesDialog extends JDialog {
   private List<PokFile> filteredPokes;
   private Map<String, List<JCheckBox>> pokCheckboxes = new HashMap<>();
   private OnPokesAppliedListener onPokesAppliedListener;
+  private OnPokesChangedListener onPokesChangedListener;
   private PokesManager pokesManager;
   private JPanel contentPanel;
   private JLabel countLabel;
+  private List<PokFile.PokeMod> previouslyAppliedMods = new ArrayList<>();
   
   public interface OnPokesAppliedListener {
     void onPokesApplied(List<PokFile.PokeMod> selectedMods);
   }
 
-  public PokesDialog(Frame owner, String gameName, List<PokFile> availablePokes, PokesManager pokesManager) {
+  public interface OnPokesChangedListener {
+    void onPokesRemoved(List<PokFile.PokeMod> removedMods);
+  }
+
+  public PokesDialog(Frame owner, String gameName, List<PokFile> availablePokes, PokesManager pokesManager, 
+                     List<PokFile.PokeMod> previouslyAppliedMods) {
     super(owner, "Game Cheats/Pokes - " + gameName, true);
     this.availablePokes = availablePokes;
     this.filteredPokes = new ArrayList<>(availablePokes);
     this.pokesManager = pokesManager;
+    this.previouslyAppliedMods = previouslyAppliedMods != null ? new ArrayList<>(previouslyAppliedMods) : new ArrayList<>();
+    
+    System.out.println("PokesDialog creado con " + this.previouslyAppliedMods.size() + " pokes previamente aplicados");
+    for (PokFile.PokeMod mod : this.previouslyAppliedMods) {
+      System.out.println("  - " + mod.getName() + " : " + mod.getRawInstruction());
+    }
     
     setSize(800, 750);
     setLocationRelativeTo(owner);
@@ -55,10 +68,22 @@ public class PokesDialog extends JDialog {
     
     initializeUI();
   }
+
+  public PokesDialog(Frame owner, String gameName, List<PokFile> availablePokes, PokesManager pokesManager) {
+    this(owner, gameName, availablePokes, pokesManager, null);
+  }
   
   // Constructor compatible con la versión anterior
   public PokesDialog(Frame owner, String gameName, List<PokFile> availablePokes) {
-    this(owner, gameName, availablePokes, null);
+    this(owner, gameName, availablePokes, null, null);
+  }
+
+  /**
+   * Establece los pokes que fueron previamente aplicados para marcarlos como chequeados
+   * (puede usarse si se requiere actualizar después de la construcción)
+   */
+  public void setPreviouslyAppliedMods(List<PokFile.PokeMod> appliedMods) {
+    this.previouslyAppliedMods = new ArrayList<>(appliedMods);
   }
 
   private void initializeUI() {
@@ -197,6 +222,21 @@ public class PokesDialog extends JDialog {
     contentPanel.repaint();
   }
 
+  /**
+   * Verifica si un PokeMod fue previamente aplicado
+   */
+  private boolean wasPreviouslyApplied(PokFile.PokeMod mod) {
+    for (PokFile.PokeMod applied : previouslyAppliedMods) {
+      // Comparar por nombre y por instrucción raw para identificar el mismo poke
+      if (applied.getName().equals(mod.getName()) && 
+          applied.getRawInstruction().equals(mod.getRawInstruction())) {
+        System.out.println("✓ Poke previamente aplicado encontrado: " + mod.getName());
+        return true;
+      }
+    }
+    return false;
+  }
+
   private JPanel createPokPanel(PokFile pokFile) {
     JPanel panel = new JPanel();
     panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -211,36 +251,40 @@ public class PokesDialog extends JDialog {
       panel.add(noMods);
     } else {
       for (PokFile.PokeMod mod : pokFile.getMods()) {
-        // Crear un panel para cada cheat con nombre y descripción
-        JPanel cheatPanel = new JPanel();
-        cheatPanel.setLayout(new BorderLayout(5, 5));
-        cheatPanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
-        cheatPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-        
-        JCheckBox checkBox = new JCheckBox(mod.getName());
-        cheatPanel.add(checkBox, BorderLayout.WEST);
-        
-        // Descripción del tipo de instrucción
-        JLabel descLabel = new JLabel(mod.getDescription());
-        descLabel.setFont(new Font("Arial", Font.PLAIN, 10));
-        descLabel.setForeground(UIManager.getColor("Label.disabledForeground"));
-        descLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
-        cheatPanel.add(descLabel, BorderLayout.CENTER);
-        
-        // Tipo de instrucción como badge
-        JLabel typeLabel = new JLabel(mod.getInstructionType());
-        typeLabel.setFont(new Font("Arial", Font.BOLD, 9));
-        typeLabel.setForeground(Color.WHITE);
-        typeLabel.setBackground(getColorForInstructionType(mod.getInstructionType()));
-        typeLabel.setOpaque(true);
-        typeLabel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
-        cheatPanel.add(typeLabel, BorderLayout.EAST);
-        
-        // Tooltip con instrucción raw
-        checkBox.setToolTipText("<html>Raw: " + mod.getRawInstruction() + "<br>" + mod.getDescription() + "</html>");
-        
-        panel.add(cheatPanel);
-        pokCheckboxList.add(checkBox);
+       // Crear un panel para cada cheat con nombre y descripción
+       JPanel cheatPanel = new JPanel();
+       cheatPanel.setLayout(new BorderLayout(5, 5));
+       cheatPanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+       cheatPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+       
+       JCheckBox checkBox = new JCheckBox(mod.getName());
+       // Marcar si fue previamente aplicado
+       if (wasPreviouslyApplied(mod)) {
+         checkBox.setSelected(true);
+       }
+       cheatPanel.add(checkBox, BorderLayout.WEST);
+       
+       // Descripción del tipo de instrucción
+       JLabel descLabel = new JLabel(mod.getDescription());
+       descLabel.setFont(new Font("Arial", Font.PLAIN, 10));
+       descLabel.setForeground(UIManager.getColor("Label.disabledForeground"));
+       descLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
+       cheatPanel.add(descLabel, BorderLayout.CENTER);
+       
+       // Tipo de instrucción como badge
+       JLabel typeLabel = new JLabel(mod.getInstructionType());
+       typeLabel.setFont(new Font("Arial", Font.BOLD, 9));
+       typeLabel.setForeground(Color.WHITE);
+       typeLabel.setBackground(getColorForInstructionType(mod.getInstructionType()));
+       typeLabel.setOpaque(true);
+       typeLabel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
+       cheatPanel.add(typeLabel, BorderLayout.EAST);
+       
+       // Tooltip con instrucción raw
+       checkBox.setToolTipText("<html>Raw: " + mod.getRawInstruction() + "<br>" + mod.getDescription() + "</html>");
+       
+       panel.add(cheatPanel);
+       pokCheckboxList.add(checkBox);
       }
     }
     
@@ -307,6 +351,27 @@ public class PokesDialog extends JDialog {
       }
     }
     
+    // Detectar pokes que fueron removidos (deschequeados)
+    List<PokFile.PokeMod> removedMods = new ArrayList<>();
+    for (PokFile.PokeMod previousMod : previouslyAppliedMods) {
+      boolean stillSelected = false;
+      for (PokFile.PokeMod selectedMod : selectedMods) {
+        if (selectedMod.getName().equals(previousMod.getName()) && 
+            selectedMod.getRawInstruction().equals(previousMod.getRawInstruction())) {
+          stillSelected = true;
+          break;
+        }
+      }
+      if (!stillSelected) {
+        removedMods.add(previousMod);
+      }
+    }
+    
+    // Notificar de pokes removidos si hay listener
+    if (!removedMods.isEmpty() && onPokesChangedListener != null) {
+      onPokesChangedListener.onPokesRemoved(removedMods);
+    }
+    
     if (onPokesAppliedListener != null) {
       onPokesAppliedListener.onPokesApplied(selectedMods);
     }
@@ -325,6 +390,10 @@ public class PokesDialog extends JDialog {
 
   public void setOnPokesAppliedListener(OnPokesAppliedListener listener) {
     this.onPokesAppliedListener = listener;
+  }
+
+  public void setOnPokesChangedListener(OnPokesChangedListener listener) {
+    this.onPokesChangedListener = listener;
   }
 
   /**

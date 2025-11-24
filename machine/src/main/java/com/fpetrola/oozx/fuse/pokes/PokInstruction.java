@@ -21,9 +21,13 @@ package com.fpetrola.oozx.fuse.pokes;
 /**
  * Representación abstracta de una instrucción de poke
  * Las instrucciones pueden ser de diferentes tipos (Memory write, conditional, etc)
+ * Guarda el valor previo para poder revertir el cambio
  */
 public abstract class PokInstruction {
   protected String rawInstruction;
+  protected Integer previousValue = null;  // Valor guardado antes de aplicar el poke
+  protected Integer previousBank = null;   // Banco guardado (para instrucciones que lo modifican)
+  protected Integer previousAddress = null; // Dirección guardada (para instrucciones que la modifican)
 
   public PokInstruction(String rawInstruction) {
     this.rawInstruction = rawInstruction;
@@ -37,7 +41,22 @@ public abstract class PokInstruction {
 
   public abstract String getDescription();
 
+  /**
+   * Aplica el poke y guarda el valor previo para poder revertir
+   */
   public abstract void apply(EmulatorMemoryWriter memoryWriter);
+
+  /**
+   * Revierte el poke restaurando el valor previo
+   */
+  public abstract void revert(EmulatorMemoryWriter memoryWriter);
+
+  /**
+   * Retorna true si el poke fue aplicado (tiene valor previo guardado)
+   */
+  public boolean isApplied() {
+    return previousValue != null;
+  }
 
   /**
    * Interfaz para escribir en memoria del emulador
@@ -102,6 +121,11 @@ public abstract class PokInstruction {
     public void apply(EmulatorMemoryWriter memoryWriter) {
       System.out.println("Cannot apply unknown instruction: " + rawInstruction);
     }
+
+    @Override
+    public void revert(EmulatorMemoryWriter memoryWriter) {
+      System.out.println("Cannot revert unknown instruction: " + rawInstruction);
+    }
   }
 
   /**
@@ -124,6 +148,11 @@ public abstract class PokInstruction {
 
     @Override
     public void apply(EmulatorMemoryWriter memoryWriter) {
+      // No action needed
+    }
+
+    @Override
+    public void revert(EmulatorMemoryWriter memoryWriter) {
       // No action needed
     }
   }
@@ -170,7 +199,23 @@ public abstract class PokInstruction {
 
     @Override
     public void apply(EmulatorMemoryWriter memoryWriter) {
+      // Guardar el valor previo antes de modificar
+      previousValue = memoryWriter.readMemory(bank, address);
+      previousBank = bank;
+      previousAddress = address;
+      // Aplicar el cambio
       memoryWriter.writeMemory(bank, address, value);
+    }
+
+    @Override
+    public void revert(EmulatorMemoryWriter memoryWriter) {
+      if (previousValue != null && previousBank != null && previousAddress != null) {
+        memoryWriter.writeMemory(previousBank, previousAddress, previousValue);
+        // Limpiar el registro después de revertir
+        previousValue = null;
+        previousBank = null;
+        previousAddress = null;
+      }
     }
   }
 
@@ -216,9 +261,24 @@ public abstract class PokInstruction {
 
     @Override
     public void apply(EmulatorMemoryWriter memoryWriter) {
+      // Guardar valores previos
+      previousValue = memoryWriter.readMemory(bank, address);
+      previousBank = bank;
+      previousAddress = address;
       // Reset address to zero and then write
       memoryWriter.writeMemory(bank, 0, 0);
       memoryWriter.writeMemory(bank, address, value);
+    }
+
+    @Override
+    public void revert(EmulatorMemoryWriter memoryWriter) {
+      if (previousValue != null && previousBank != null && previousAddress != null) {
+        memoryWriter.writeMemory(previousBank, previousAddress, previousValue);
+        // Limpiar el registro después de revertir
+        previousValue = null;
+        previousBank = null;
+        previousAddress = null;
+      }
     }
   }
 
@@ -264,9 +324,24 @@ public abstract class PokInstruction {
 
     @Override
     public void apply(EmulatorMemoryWriter memoryWriter) {
-      int currentValue = memoryWriter.readMemory(bank, address);
-      int newValue = (currentValue + offset) & 0xFF; // Keep as byte
+      // Guardar el valor previo
+      previousValue = memoryWriter.readMemory(bank, address);
+      previousBank = bank;
+      previousAddress = address;
+      // Aplicar suma
+      int newValue = (previousValue + offset) & 0xFF; // Keep as byte
       memoryWriter.writeMemory(bank, address, newValue);
+    }
+
+    @Override
+    public void revert(EmulatorMemoryWriter memoryWriter) {
+      if (previousValue != null && previousBank != null && previousAddress != null) {
+        memoryWriter.writeMemory(previousBank, previousAddress, previousValue);
+        // Limpiar el registro después de revertir
+        previousValue = null;
+        previousBank = null;
+        previousAddress = null;
+      }
     }
   }
 
@@ -312,9 +387,24 @@ public abstract class PokInstruction {
 
     @Override
     public void apply(EmulatorMemoryWriter memoryWriter) {
-      int currentValue = memoryWriter.readMemory(bank, address);
-      int newValue = currentValue ^ value;
+      // Guardar el valor previo
+      previousValue = memoryWriter.readMemory(bank, address);
+      previousBank = bank;
+      previousAddress = address;
+      // Aplicar XOR
+      int newValue = previousValue ^ value;
       memoryWriter.writeMemory(bank, address, newValue);
+    }
+
+    @Override
+    public void revert(EmulatorMemoryWriter memoryWriter) {
+      if (previousValue != null && previousBank != null && previousAddress != null) {
+        memoryWriter.writeMemory(previousBank, previousAddress, previousValue);
+        // Limpiar el registro después de revertir
+        previousValue = null;
+        previousBank = null;
+        previousAddress = null;
+      }
     }
   }
 

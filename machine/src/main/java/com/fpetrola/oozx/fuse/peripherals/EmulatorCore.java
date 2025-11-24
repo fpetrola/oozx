@@ -97,4 +97,8 @@ public interface EmulatorCore {
   default void applyMod(PokFile.PokeMod mod) {
 
   }
+
+  default void revertMod(PokFile.PokeMod mod) {
+
+  }
 }
