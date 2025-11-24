@@ -110,16 +110,36 @@ public class PokesDialog extends JDialog {
       panel.add(noMods);
     } else {
       for (PokFile.PokeMod mod : pokFile.getMods()) {
+        // Crear un panel para cada cheat con nombre y descripción
+        JPanel cheatPanel = new JPanel();
+        cheatPanel.setLayout(new BorderLayout(5, 5));
+        cheatPanel.setBackground(new Color(245, 245, 245));
+        cheatPanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        
         JCheckBox checkBox = new JCheckBox(mod.getName());
         checkBox.setBackground(new Color(245, 245, 245));
-        checkBox.addActionListener(e -> {
-          // Mostrar detalles en tooltip
-          if (checkBox.isSelected()) {
-            String instruction = mod.getInstruction();
-            checkBox.setToolTipText("Instruction: " + instruction);
-          }
-        });
-        panel.add(checkBox);
+        cheatPanel.add(checkBox, BorderLayout.WEST);
+        
+        // Descripción del tipo de instrucción
+        JLabel descLabel = new JLabel(mod.getDescription());
+        descLabel.setFont(new Font("Arial", Font.PLAIN, 10));
+        descLabel.setForeground(Color.DARK_GRAY);
+        descLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
+        cheatPanel.add(descLabel, BorderLayout.CENTER);
+        
+        // Tipo de instrucción como badge
+        JLabel typeLabel = new JLabel(mod.getInstructionType());
+        typeLabel.setFont(new Font("Arial", Font.BOLD, 9));
+        typeLabel.setForeground(Color.WHITE);
+        typeLabel.setBackground(getColorForInstructionType(mod.getInstructionType()));
+        typeLabel.setOpaque(true);
+        typeLabel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
+        cheatPanel.add(typeLabel, BorderLayout.EAST);
+        
+        // Tooltip con instrucción raw
+        checkBox.setToolTipText("<html>Raw: " + mod.getRawInstruction() + "<br>" + mod.getDescription() + "</html>");
+        
+        panel.add(cheatPanel);
         pokCheckboxList.add(checkBox);
       }
     }
@@ -193,5 +213,25 @@ public class PokesDialog extends JDialog {
 
   public void setOnPokesAppliedListener(OnPokesAppliedListener listener) {
     this.onPokesAppliedListener = listener;
+  }
+
+  /**
+   * Retorna un color para el badge según el tipo de instrucción
+   */
+  private Color getColorForInstructionType(String type) {
+    switch (type) {
+      case "MEMORY_WRITE":
+        return new Color(0, 153, 204);      // Blue
+      case "MEMORY_RESET":
+        return new Color(204, 0, 0);        // Red
+      case "MEMORY_ADD":
+        return new Color(0, 153, 0);        // Green
+      case "MEMORY_XOR":
+        return new Color(153, 102, 0);      // Brown
+      case "END":
+        return new Color(153, 153, 153);    // Gray
+      default:
+        return new Color(102, 102, 102);    // Dark gray
+    }
   }
 }

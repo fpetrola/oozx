@@ -26,6 +26,7 @@ import com.fpetrola.oozx.fuse.modules.*;
 import com.fpetrola.oozx.fuse.modules.Timer;
 import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.peripherals.*;
+import com.fpetrola.oozx.fuse.pokes.PokFile;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
@@ -389,6 +390,10 @@ public class Z80 implements ZxModule {
     mockCore = new MockEmulatorCore(contentPane) {
       private String filename;
       private boolean turbo = settings.current.emulationSpeed != 100;
+
+
+      public void applyMod(PokFile.PokeMod mod) {
+      }
 
       public void setFilename(String filename) {
         this.filename = filename;

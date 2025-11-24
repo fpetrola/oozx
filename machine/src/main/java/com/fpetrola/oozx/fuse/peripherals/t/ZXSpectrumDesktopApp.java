@@ -65,12 +65,8 @@ class EmulatorInternalFrame extends JInternalFrame {
 
 
   public EmulatorInternalFrame(EmulatorCore core, int x, int y, ZXSpectrumDesktopApp parentApp) {
-    this(core, x, y);
-    this.parentApp = parentApp;
-  }
-
-  public EmulatorInternalFrame(EmulatorCore core, int x, int y) {
     super("ZX Spectrum Emulator", true, true, true, true);
+    this.parentApp = parentApp;
     this.emulatorCore = core;
     setSize(420, 380);
     setLocation(x, y);
@@ -460,8 +456,10 @@ class EmulatorInternalFrame extends JInternalFrame {
     // TODO: Implementar la aplicación actual de pokes en el emulador
     System.out.println("Aplicando " + mods.size() + " pokes:");
     for (com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod : mods) {
-      System.out.println("  - " + mod.getName() + ": " + mod.getInstruction());
+      System.out.println("  - " + mod.getName() + ": " + mod.getDescription());
+      System.out.println("    Type: " + mod.getInstructionType() + ", Raw: " + mod.getRawInstruction());
       // Aquí se enviaría la instrucción al emulador para modificar memoria
+      // mod.getParsedInstruction().apply(emulatorMemoryWriter);
     }
   }
 

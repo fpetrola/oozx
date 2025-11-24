@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx.fuse.peripherals;
 
+import com.fpetrola.oozx.fuse.pokes.PokFile;
 import com.fpetrola.z80.cpu.RegistersGetter;
 import com.fpetrola.z80.cpu.State;
 
@@ -91,5 +92,9 @@ public interface EmulatorCore {
   }
 
   default void setFilename(String string) {
+  }
+
+  default void applyMod(PokFile.PokeMod mod) {
+
   }
 }

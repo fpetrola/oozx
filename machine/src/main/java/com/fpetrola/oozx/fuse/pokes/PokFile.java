@@ -44,20 +44,33 @@ public class PokFile {
     String currentModName = null;
     for (String line : lines) {
       line = line.trim();
-      if (line.isEmpty() || line.equals("Y")) continue;
+      if (line.isEmpty()) continue;
       
       if (line.startsWith("N")) {
         // Nombre del poke
         currentModName = line.substring(1).trim();
-      } else if (line.startsWith("M") || line.startsWith("Z")) {
-        // Modificación de memoria
-        // Formato: [M|Z] bank address value [...]
+      } else if (line.equals("Y")) {
+        // Fin del poke actual
+        currentModName = null;
+      } else if (isInstructionLine(line)) {
+        // Modificación de memoria (M, Z, A, X, etc.)
         if (currentModName != null) {
           PokeMod mod = new PokeMod(currentModName, line);
           mods.add(mod);
         }
       }
     }
+  }
+
+  /**
+   * Verifica si una línea es una instrucción de poke
+   */
+  private boolean isInstructionLine(String line) {
+    if (line.isEmpty()) return false;
+    char firstChar = line.charAt(0);
+    return firstChar == 'M' || firstChar == 'Z' || firstChar == 'A' || 
+           firstChar == 'X' || firstChar == 'Y' || firstChar == 'B' || 
+           firstChar == 'C' || firstChar == 'D' || firstChar == 'E';
   }
 
   public String getName() {
@@ -85,19 +98,39 @@ public class PokFile {
    */
   public static class PokeMod {
     private String name;
-    private String instruction;
+    private String rawInstruction;
+    private PokInstruction parsedInstruction;
 
-    public PokeMod(String name, String instruction) {
+    public PokeMod(String name, String rawInstruction) {
       this.name = name;
-      this.instruction = instruction;
+      this.rawInstruction = rawInstruction;
+      // Parsear la instrucción al crear el objeto
+      try {
+        this.parsedInstruction = PokInstruction.parse(rawInstruction);
+      } catch (IllegalArgumentException e) {
+        System.err.println("Error parsing instruction '" + rawInstruction + "': " + e.getMessage());
+        this.parsedInstruction = new PokInstruction.GenericInstruction(rawInstruction);
+      }
     }
 
     public String getName() {
       return name;
     }
 
-    public String getInstruction() {
-      return instruction;
+    public String getRawInstruction() {
+      return rawInstruction;
+    }
+
+    public PokInstruction getParsedInstruction() {
+      return parsedInstruction;
+    }
+
+    public String getInstructionType() {
+      return parsedInstruction.getInstructionType();
+    }
+
+    public String getDescription() {
+      return parsedInstruction.getDescription();
     }
 
     @Override
