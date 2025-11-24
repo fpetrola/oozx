@@ -47,8 +47,13 @@ public class PokFile {
       if (line.isEmpty()) continue;
       
       if (line.startsWith("N")) {
-        // Nombre del poke
-        currentModName = line.substring(1).trim();
+        // Nombre del poke - validar que sea un nombre válido
+        String modName = line.substring(1).trim();
+        if (isValidModName(modName)) {
+          currentModName = modName;
+        } else {
+          currentModName = null;
+        }
       } else if (line.equals("Y")) {
         // Fin del poke actual
         currentModName = null;
@@ -60,6 +65,29 @@ public class PokFile {
         }
       }
     }
+  }
+  
+  /**
+   * Valida si un nombre de mod es válido (descarta líneas de basura como "Press W...")
+   */
+  private boolean isValidModName(String name) {
+    if (name == null || name.isEmpty()) {
+      return false;
+    }
+    
+    // Rechazar líneas que contengan palabras clave típicas de mensajes/instrucciones
+    String lower = name.toLowerCase();
+    if (lower.contains("press ") || 
+        lower.contains("attachments") ||
+        lower.contains("get all") ||
+        lower.contains("fuse") ||
+        lower.contains("http") ||
+        lower.contains("www")) {
+      return false;
+    }
+    
+    // El nombre debe tener al menos 2 caracteres significativos
+    return name.length() >= 2;
   }
 
   /**
