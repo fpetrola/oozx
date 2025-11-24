@@ -41,6 +41,9 @@ public class PokFile {
     rawContent = new String(Files.readAllBytes(filePath));
     String[] lines = rawContent.split("\n");
     
+    // Extraer el nombre del juego del nombre del archivo .pok
+    String gameName = extractGameName(name);
+    
     String currentModName = null;
     for (String line : lines) {
       line = line.trim();
@@ -60,11 +63,22 @@ public class PokFile {
       } else if (isInstructionLine(line)) {
         // Modificación de memoria (M, Z, A, X, etc.)
         if (currentModName != null) {
-          PokeMod mod = new PokeMod(currentModName, line);
+          PokeMod mod = new PokeMod(currentModName, line, name, gameName);
           mods.add(mod);
         }
       }
     }
+  }
+
+  /**
+   * Extrae el nombre del juego del nombre del archivo .pok
+   */
+  private String extractGameName(String pokFileName) {
+    int parenIndex = pokFileName.indexOf('(');
+    if (parenIndex > 0) {
+      return pokFileName.substring(0, parenIndex).trim();
+    }
+    return pokFileName;
   }
   
   /**
@@ -122,12 +136,14 @@ public class PokFile {
   }
 
   /**
-   * Representa una modificación individual en un archivo .pok
-   */
+    * Representa una modificación individual en un archivo .pok
+    */
   public static class PokeMod {
     private String name;
     private String rawInstruction;
     private PokInstruction parsedInstruction;
+    private String pokFileName;             // Nombre del archivo .pok (ej: "JetPac (1983)(Ultimate)")
+    private String gameName;                // Nombre del juego para identificación
 
     public PokeMod(String name, String rawInstruction) {
       this.name = name;
@@ -139,6 +155,12 @@ public class PokFile {
         System.err.println("Error parsing instruction '" + rawInstruction + "': " + e.getMessage());
         this.parsedInstruction = new PokInstruction.GenericInstruction(rawInstruction);
       }
+    }
+
+    public PokeMod(String name, String rawInstruction, String pokFileName, String gameName) {
+      this(name, rawInstruction);
+      this.pokFileName = pokFileName;
+      this.gameName = gameName;
     }
 
     public String getName() {
@@ -163,6 +185,22 @@ public class PokFile {
 
     public boolean isApplied() {
       return parsedInstruction.isApplied();
+    }
+
+    public String getPokFileName() {
+      return pokFileName;
+    }
+
+    public void setPokFileName(String pokFileName) {
+      this.pokFileName = pokFileName;
+    }
+
+    public String getGameName() {
+      return gameName;
+    }
+
+    public void setGameName(String gameName) {
+      this.gameName = gameName;
     }
 
     @Override

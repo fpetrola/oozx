@@ -228,7 +228,7 @@ public class OOZxConfiguration {
   @JsonPropertyOrder({
       "type", "x", "y", "width", "height", "zOrder",
       "filePath", "snapshotName", "searchQuery", "turboMode", "muted", "paused",
-      "snapshotId" // Referencia al snapshot en el mapa centralizado
+      "snapshotId", "appliedPokes" // Referencia al snapshot en el mapa centralizado y pokes aplicados
   })
   public static class WindowState {
     private String type; // "EMULATOR", "GAME_BROWSER"
@@ -244,6 +244,7 @@ public class OOZxConfiguration {
     private boolean muted;
     private boolean paused; // Estado de pausa del emulador
     private String snapshotId; // Referencia al snapshot en el mapa centralizado
+    private List<PokModState> appliedPokes = new ArrayList<>(); // Pokes aplicados en el emulador
 
     public WindowState() {
     }
@@ -359,6 +360,138 @@ public class OOZxConfiguration {
 
     public void setSnapshotId(String snapshotId) {
       this.snapshotId = snapshotId;
+    }
+
+    public List<PokModState> getAppliedPokes() {
+      return appliedPokes;
+    }
+
+    public void setAppliedPokes(List<PokModState> appliedPokes) {
+      this.appliedPokes = appliedPokes;
+    }
+  }
+
+  /**
+   * Representa un poke aplicado de forma serializable
+   * Almacena información para poder revertir el poke posteriormente
+   */
+  public static class PokModState {
+    private String name;                    // Nombre del poke (ej: "Infinite Lives")
+    private String rawInstruction;          // Instrucción raw (ej: "M65280,255")
+    private String pokFileName;             // Nombre del archivo .pok (ej: "JetPac (1983)(Ultimate)")
+    private String gameName;                // Nombre del juego para identificación
+    private String instructionType;         // Tipo de instrucción parseado
+    private String description;             // Descripción del poke
+    private Integer previousValue;          // Valor anterior (para revertir)
+    private Integer previousBank;           // Banco anterior (para revertir)
+    private Integer previousAddress;        // Dirección anterior (para revertir)
+
+    public PokModState() {
+    }
+
+    public PokModState(String name, String rawInstruction) {
+      this.name = name;
+      this.rawInstruction = rawInstruction;
+    }
+
+    public PokModState(String name, String rawInstruction, String pokFileName, String gameName, 
+                       String instructionType, String description) {
+      this.name = name;
+      this.rawInstruction = rawInstruction;
+      this.pokFileName = pokFileName;
+      this.gameName = gameName;
+      this.instructionType = instructionType;
+      this.description = description;
+    }
+
+    public PokModState(String name, String rawInstruction, String pokFileName, String gameName, 
+                       String instructionType, String description, Integer previousValue,
+                       Integer previousBank, Integer previousAddress) {
+      this(name, rawInstruction, pokFileName, gameName, instructionType, description);
+      this.previousValue = previousValue;
+      this.previousBank = previousBank;
+      this.previousAddress = previousAddress;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    public String getRawInstruction() {
+      return rawInstruction;
+    }
+
+    public void setRawInstruction(String rawInstruction) {
+      this.rawInstruction = rawInstruction;
+    }
+
+    public String getPokFileName() {
+      return pokFileName;
+    }
+
+    public void setPokFileName(String pokFileName) {
+      this.pokFileName = pokFileName;
+    }
+
+    public String getGameName() {
+      return gameName;
+    }
+
+    public void setGameName(String gameName) {
+      this.gameName = gameName;
+    }
+
+    public String getInstructionType() {
+      return instructionType;
+    }
+
+    public void setInstructionType(String instructionType) {
+      this.instructionType = instructionType;
+    }
+
+    public String getDescription() {
+      return description;
+    }
+
+    public void setDescription(String description) {
+      this.description = description;
+    }
+
+    public Integer getPreviousValue() {
+      return previousValue;
+    }
+
+    public void setPreviousValue(Integer previousValue) {
+      this.previousValue = previousValue;
+    }
+
+    public Integer getPreviousBank() {
+      return previousBank;
+    }
+
+    public void setPreviousBank(Integer previousBank) {
+      this.previousBank = previousBank;
+    }
+
+    public Integer getPreviousAddress() {
+      return previousAddress;
+    }
+
+    public void setPreviousAddress(Integer previousAddress) {
+      this.previousAddress = previousAddress;
+    }
+
+    @Override
+    public String toString() {
+      return "PokModState{" +
+          "name='" + name + '\'' +
+          ", instructionType='" + instructionType + '\'' +
+          ", pokFileName='" + pokFileName + '\'' +
+          '}';
     }
   }
 }

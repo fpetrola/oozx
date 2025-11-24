@@ -37,6 +37,30 @@ public abstract class PokInstruction {
     return rawInstruction;
   }
 
+  public Integer getPreviousValue() {
+    return previousValue;
+  }
+
+  public Integer getPreviousBank() {
+    return previousBank;
+  }
+
+  public Integer getPreviousAddress() {
+    return previousAddress;
+  }
+
+  public void setPreviousValue(Integer previousValue) {
+    this.previousValue = previousValue;
+  }
+
+  public void setPreviousBank(Integer previousBank) {
+    this.previousBank = previousBank;
+  }
+
+  public void setPreviousAddress(Integer previousAddress) {
+    this.previousAddress = previousAddress;
+  }
+
   public abstract String getInstructionType();
 
   public abstract String getDescription();

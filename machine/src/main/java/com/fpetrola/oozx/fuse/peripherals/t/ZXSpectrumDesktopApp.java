@@ -519,6 +519,25 @@ class EmulatorInternalFrame extends JInternalFrame {
     state.setMuted(emulatorCore.isMuted());
     state.setPaused(emulatorCore.isPaused());
 
+    // Guardar los pokes aplicados con información completa y valores de reversión
+    java.util.List<OOZxConfiguration.PokModState> pokModStates = new java.util.ArrayList<>();
+    for (com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod : appliedPokes) {
+      com.fpetrola.oozx.fuse.pokes.PokInstruction instruction = mod.getParsedInstruction();
+      OOZxConfiguration.PokModState pokState = new OOZxConfiguration.PokModState(
+          mod.getName(),
+          mod.getRawInstruction(),
+          mod.getPokFileName(),
+          mod.getGameName(),
+          mod.getInstructionType(),
+          mod.getDescription(),
+          instruction.getPreviousValue(),
+          instruction.getPreviousBank(),
+          instruction.getPreviousAddress()
+      );
+      pokModStates.add(pokState);
+    }
+    state.setAppliedPokes(pokModStates);
+
     // Guardar el estado actual del emulador en formato Unicode empaquetado y obtener su ID
     try {
       String unicodePackedSnapshot = SnapshotSaver.getSnapshotAsUnicodePacked(
@@ -569,6 +588,33 @@ class EmulatorInternalFrame extends JInternalFrame {
         }
       } catch (Exception e) {
         System.err.println("Error restaurando snapshot desde configuración: " + e.getMessage());
+      }
+    }
+
+    // Restaurar los pokes aplicados
+    if (state.getAppliedPokes() != null && !state.getAppliedPokes().isEmpty()) {
+      appliedPokes.clear();
+      java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> mods = new java.util.ArrayList<>();
+      for (OOZxConfiguration.PokModState pokState : state.getAppliedPokes()) {
+        com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod = new com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod(
+            pokState.getName(),
+            pokState.getRawInstruction(),
+            pokState.getPokFileName(),
+            pokState.getGameName()
+        );
+        // Restaurar los valores de reversión en la instrucción parseada
+        com.fpetrola.oozx.fuse.pokes.PokInstruction instruction = mod.getParsedInstruction();
+        if (instruction != null) {
+          instruction.setPreviousValue(pokState.getPreviousValue());
+          instruction.setPreviousBank(pokState.getPreviousBank());
+          instruction.setPreviousAddress(pokState.getPreviousAddress());
+        }
+        mods.add(mod);
+        appliedPokes.add(mod);
+      }
+      // Aplicar los pokes restaurados
+      if (!mods.isEmpty()) {
+        applyPokes(mods);
       }
     }
   }
