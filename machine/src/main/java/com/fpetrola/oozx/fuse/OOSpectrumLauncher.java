@@ -26,7 +26,7 @@ import com.fpetrola.oozx.fuse.peripherals.t.DownloadAndUnzip;
 import com.fpetrola.oozx.fuse.peripherals.t.ZXSpectrumDesktopApp;
 import com.fpetrola.z80.memory.Memory;
 import com.github.weisj.darklaf.LafManager;
-import com.github.weisj.darklaf.theme.DarculaTheme;
+import com.github.weisj.darklaf.theme.SolarizedLightTheme;
 import snapshots.SpectrumState;
 
 import java.awt.*;
@@ -50,7 +50,7 @@ public class OOSpectrumLauncher {
 
   public void init() {
     OOSpectrumConnector.noTest = true;
-    LafManager.install(new DarculaTheme());
+    LafManager.install(new SolarizedLightTheme());
 
     Function<SpectrumState, EmulatorCore> mockCoreState = spectrumState -> {
       Fuse fuse = createFuse2(spectrumState);

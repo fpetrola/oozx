@@ -26,6 +26,8 @@ import com.fpetrola.oozx.fuse.modules.*;
 import com.fpetrola.oozx.fuse.modules.Timer;
 import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.peripherals.*;
+import com.fpetrola.oozx.fuse.pokes.PokFile;
+import com.fpetrola.oozx.fuse.pokes.PokInstruction;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
@@ -389,6 +391,33 @@ public class Z80 implements ZxModule {
     mockCore = new MockEmulatorCore(contentPane) {
       private String filename;
       private boolean turbo = settings.current.emulationSpeed != 100;
+
+
+      public void applyMod(PokFile.PokeMod mod) {
+        PokInstruction parsedInstruction = mod.getParsedInstruction();
+        parsedInstruction.apply(new PokInstruction.EmulatorMemoryWriter() {
+          public void writeMemory(int bank, int address, int value) {
+            ooz80.getState().getMemory().write(address, value);
+          }
+
+          public int readMemory(int bank, int address) {
+            return ooz80.getState().getMemory().read(address);
+          }
+        });
+      }
+
+      public void revertMod(PokFile.PokeMod mod) {
+        PokInstruction parsedInstruction = mod.getParsedInstruction();
+        parsedInstruction.revert(new PokInstruction.EmulatorMemoryWriter() {
+          public void writeMemory(int bank, int address, int value) {
+            ooz80.getState().getMemory().write(address, value);
+          }
+
+          public int readMemory(int bank, int address) {
+            return ooz80.getState().getMemory().read(address);
+          }
+        });
+      }
 
       public void setFilename(String filename) {
         this.filename = filename;

@@ -25,6 +25,8 @@ import com.fpetrola.oozx.fuse.config.OOZxConfiguration;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorCore;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorListener;
 import com.fpetrola.oozx.fuse.peripherals.SettingsDialog;
+import com.fpetrola.oozx.fuse.pokes.PokesManager;
+import com.fpetrola.oozx.fuse.pokes.PokesDialog;
 import com.fpetrola.z80.jspeccy.SnapshotSaver;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.*;
@@ -49,6 +51,7 @@ import static com.fpetrola.oozx.fuse.peripherals.t.EmulatorInternalFrame.loadIco
 // Emulator Internal Frame
 class EmulatorInternalFrame extends JInternalFrame {
   public EmulatorCore emulatorCore;
+  private ZXSpectrumDesktopApp parentApp;
   //  private JLabel statusLabel;
   private JProgressBar speedBar;
   private JComboBox<String> modelCombo;
@@ -59,10 +62,12 @@ class EmulatorInternalFrame extends JInternalFrame {
   private float scaleFactor0 = 1.73f;
   private float scaleFactor = scaleFactor0;
   //  private JLabel tapeStatusLabel;
+  private List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> appliedPokes = new ArrayList<>();
 
 
-  public EmulatorInternalFrame(EmulatorCore core, int x, int y) {
+  public EmulatorInternalFrame(EmulatorCore core, int x, int y, ZXSpectrumDesktopApp parentApp) {
     super("ZX Spectrum Emulator", true, true, true, true);
+    this.parentApp = parentApp;
     this.emulatorCore = core;
     setSize(420, 380);
     setLocation(x, y);
@@ -349,6 +354,15 @@ class EmulatorInternalFrame extends JInternalFrame {
     muteButton.addActionListener(e -> toggleMute());
     toolBar.add(muteButton);
 
+    toolBar.addSeparator();
+
+    if (parentApp != null) {
+      JButton pokesButton = new JButton(loadIcon("1F513.svg"));
+      pokesButton.setToolTipText("Cheats/Pokes");
+      pokesButton.addActionListener(e -> openPokesDialog());
+      toolBar.add(pokesButton);
+    }
+
 //    Icon resumeIcon = UIManager.getIcon("FileChooser.upFolderIcon");
 //    JButton resumeButton = new JButton(resumeIcon);
 //    resumeButton.setToolTipText("Resume Emulation");
@@ -400,6 +414,96 @@ class EmulatorInternalFrame extends JInternalFrame {
     return turboIcon;
   }
 
+  private void openPokesDialog() {
+    if (parentApp == null) return;
+    
+    String gameName = emulatorCore.getFilename();
+    if (gameName != null) {
+      gameName = new java.io.File(gameName).getName().replace(".tap", "").replace(".tzx", "")
+          .replace(".z80", "").replace(".sna", "").replace(".szx", "");
+    }
+    
+    if (gameName == null || gameName.isEmpty()) {
+      JOptionPane.showMessageDialog(this, "No game loaded", "Info", JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+    
+    java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile> availablePokes = 
+        parentApp.pokesManager.findPokesForGame(gameName);
+    
+    if (availablePokes.isEmpty()) {
+      JOptionPane.showMessageDialog(this, 
+          "No pokes found for: " + gameName, 
+          "Pokes Not Found", 
+          JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+    
+    PokesDialog pokesDialog = new PokesDialog(
+        (Frame) SwingUtilities.getWindowAncestor(this), 
+        gameName, 
+        availablePokes,
+        parentApp.pokesManager,
+        new ArrayList<>(appliedPokes)); // Pasar pokes previamente aplicados en el constructor
+    
+    pokesDialog.setOnPokesAppliedListener(selectedMods -> {
+      if (!selectedMods.isEmpty()) {
+        applyPokes(selectedMods);
+      }
+    });
+    
+    // Listener para revertir pokes removidos
+    pokesDialog.setOnPokesChangedListener(removedMods -> {
+      if (!removedMods.isEmpty()) {
+        revertPokes(removedMods);
+      }
+    });
+    
+    pokesDialog.setVisible(true);
+  }
+
+  private void applyPokes(java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> mods) {
+    System.out.println("Aplicando " + mods.size() + " pokes:");
+    
+    // Identificar pokes nuevos que no estaban aplicados
+    java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> newMods = new java.util.ArrayList<>();
+    for (com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod : mods) {
+      boolean wasAlreadyApplied = appliedPokes.stream()
+          .anyMatch(p -> p.getName().equals(mod.getName()) && 
+                        p.getRawInstruction().equals(mod.getRawInstruction()));
+      if (!wasAlreadyApplied) {
+        newMods.add(mod);
+      }
+    }
+    
+    // Actualizar la lista de pokes aplicados
+    appliedPokes.clear();
+    appliedPokes.addAll(mods);
+    
+    // Solo aplicar los nuevos pokes
+    for (com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod : newMods) {
+      System.out.println("  - " + mod.getName() + ": " + mod.getDescription());
+      System.out.println("    Type: " + mod.getInstructionType() + ", Raw: " + mod.getRawInstruction());
+      emulatorCore.applyMod(mod);
+    }
+    
+    if (newMods.isEmpty()) {
+      System.out.println("  (No nuevos pokes para aplicar)");
+    }
+  }
+
+  private void revertPokes(java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> mods) {
+    System.out.println("Revertiendo " + mods.size() + " pokes:");
+    for (com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod : mods) {
+      System.out.println("  - " + mod.getName() + ": " + mod.getDescription());
+      // Remover del registro
+      appliedPokes.removeIf(p -> p.getName().equals(mod.getName()) && 
+                                 p.getRawInstruction().equals(mod.getRawInstruction()));
+      // Revertir el poke en el emulador (el valor previo está guardado en PokInstruction)
+      emulatorCore.revertMod(mod);
+    }
+  }
+
   public OOZxConfiguration.WindowState saveWindowState(String filePath) {
     OOZxConfiguration.WindowState state = new OOZxConfiguration.WindowState(
         "EMULATOR", getX(), getY(), getWidth(), getHeight());
@@ -415,14 +519,33 @@ class EmulatorInternalFrame extends JInternalFrame {
     state.setMuted(emulatorCore.isMuted());
     state.setPaused(emulatorCore.isPaused());
 
-    // Guardar el estado actual del emulador comprimido en Base64 y obtener su ID
+    // Guardar los pokes aplicados con información completa y valores de reversión
+    java.util.List<OOZxConfiguration.PokModState> pokModStates = new java.util.ArrayList<>();
+    for (com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod : appliedPokes) {
+      com.fpetrola.oozx.fuse.pokes.PokInstruction instruction = mod.getParsedInstruction();
+      OOZxConfiguration.PokModState pokState = new OOZxConfiguration.PokModState(
+          mod.getName(),
+          mod.getRawInstruction(),
+          mod.getPokFileName(),
+          mod.getGameName(),
+          mod.getInstructionType(),
+          mod.getDescription(),
+          instruction.getPreviousValue(),
+          instruction.getPreviousBank(),
+          instruction.getPreviousAddress()
+      );
+      pokModStates.add(pokState);
+    }
+    state.setAppliedPokes(pokModStates);
+
+    // Guardar el estado actual del emulador en formato Unicode empaquetado y obtener su ID
     try {
-      String compressedSnapshot = SnapshotSaver.getSnapshotAsCompressedBase64(
+      String unicodePackedSnapshot = SnapshotSaver.getSnapshotAsUnicodePacked(
           emulatorCore.getRegistersGetter(),
           emulatorCore.getState()
       );
       // Guardar el snapshot en el mapa centralizado y obtener su ID
-      String snapshotId = ((ZXSpectrumDesktopApp) SwingUtilities.getWindowAncestor(this)).config.saveSnapshot(compressedSnapshot);
+      String snapshotId = ((ZXSpectrumDesktopApp) SwingUtilities.getWindowAncestor(this)).config.saveSnapshot(unicodePackedSnapshot);
       state.setSnapshotId(snapshotId);
     } catch (Exception e) {
       System.err.println("Error guardando snapshot en configuración: " + e.getMessage());
@@ -455,16 +578,43 @@ class EmulatorInternalFrame extends JInternalFrame {
     emulatorCore.setGeneralOption("pause", state.isPaused());
 
     emulatorCore.setFilename(state.getFilePath());
-    // Restaurar el estado del emulador desde el snapshot comprimido
+    // Restaurar el estado del emulador desde el snapshot empaquetado
     if (state.getSnapshotId() != null && !state.getSnapshotId().isEmpty()) {
       try {
         ZXSpectrumDesktopApp parentApp = (ZXSpectrumDesktopApp) SwingUtilities.getWindowAncestor(this);
         String snapshotData = parentApp.config.getSnapshot(state.getSnapshotId());
         if (snapshotData != null && !snapshotData.isEmpty()) {
-          SnapshotSaver.loadSnapshotFromCompressedBase64(snapshotData);
+          SnapshotSaver.loadSnapshotFromUnicodePacked(snapshotData);
         }
       } catch (Exception e) {
         System.err.println("Error restaurando snapshot desde configuración: " + e.getMessage());
+      }
+    }
+
+    // Restaurar los pokes aplicados
+    if (state.getAppliedPokes() != null && !state.getAppliedPokes().isEmpty()) {
+      appliedPokes.clear();
+      java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> mods = new java.util.ArrayList<>();
+      for (OOZxConfiguration.PokModState pokState : state.getAppliedPokes()) {
+        com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod = new com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod(
+            pokState.getName(),
+            pokState.getRawInstruction(),
+            pokState.getPokFileName(),
+            pokState.getGameName()
+        );
+        // Restaurar los valores de reversión en la instrucción parseada
+        com.fpetrola.oozx.fuse.pokes.PokInstruction instruction = mod.getParsedInstruction();
+        if (instruction != null) {
+          instruction.setPreviousValue(pokState.getPreviousValue());
+          instruction.setPreviousBank(pokState.getPreviousBank());
+          instruction.setPreviousAddress(pokState.getPreviousAddress());
+        }
+        mods.add(mod);
+        appliedPokes.add(mod);
+      }
+      // Aplicar los pokes restaurados
+      if (!mods.isEmpty()) {
+        applyPokes(mods);
       }
     }
   }
@@ -831,6 +981,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private final JFileChooser fileChooser = new JFileChooser();
   protected OOZxConfiguration config;
   private JMenu recentFilesMenu;
+  protected PokesManager pokesManager;
 
   {
     // Configuración única del file chooser
@@ -916,6 +1067,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     this.mockCore = mockCore;
     this.mockCoreState = mockCoreState1;
     this.config = OOZxConfiguration.load();
+    this.pokesManager = new PokesManager();
 
     setTitle("ZX Spectrum Multi-Emulator");
     setSize(1200, 800);
@@ -1453,7 +1605,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     JComponent panel = core.getPanel();
     int x = (emulatorCount * 30) % 400;
     int y = (emulatorCount * 30) % 300;
-    EmulatorInternalFrame frame = new EmulatorInternalFrame(core, x, y);
+    EmulatorInternalFrame frame = new EmulatorInternalFrame(core, x, y, this);
     frame.addInternalFrameListener(new InternalFrameAdapter() {
       public void internalFrameClosed(InternalFrameEvent e) {
         core1.finishEmulation();
@@ -1554,7 +1706,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
           try {
             String snapshotData = config.getSnapshot(windowState.getSnapshotId());
             if (snapshotData != null && !snapshotData.isEmpty()) {
-              SpectrumState spectrumState = SnapshotSaver.loadSnapshotFromCompressedBase64(snapshotData);
+              SpectrumState spectrumState = SnapshotSaver.loadSnapshotFromUnicodePacked(snapshotData);
               EmulatorCore core = mockCoreState.apply(spectrumState);
               EmulatorInternalFrame frame = createNewEmulator(core);
               frame.restoreWindowState(windowState);

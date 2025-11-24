@@ -20,6 +20,7 @@ package com.fpetrola.oozx.fuse.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fpetrola.emulation.SnapshotUnicodePacker;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,9 +43,7 @@ public class OOZxConfiguration {
   private List<WindowState> openWindows = new ArrayList<>();
   private WindowState mainWindowState; // Estado de la ventana principal
   private Map<String, String> snapshots = new HashMap<>(); // Mapa centralizado de snapshots: id -> data
-  private List<GameHistoryEntry> gameHistory = new ArrayList<>(); // Histórico de juegos jugados
   private static final int MAX_RECENT_FILES = 10;
-  private static final int MAX_GAME_HISTORY = 50;
   private static final String CONFIG_DIR = System.getProperty("user.home") + File.separator + ".oozx";
   private static final String CONFIG_FILE = CONFIG_DIR + File.separator + "config.json";
 
@@ -164,30 +163,26 @@ public class OOZxConfiguration {
     return snapshots.get(snapshotId);
   }
 
-  public List<GameHistoryEntry> getGameHistory() {
-    return gameHistory;
-  }
-
-  public void setGameHistory(List<GameHistoryEntry> gameHistory) {
-    this.gameHistory = gameHistory;
-  }
-
-  /**
-   * Agrega un juego al histórico
-   */
-  public void addToGameHistory(String gameName, String snapshotId, String filePath) {
-    GameHistoryEntry entry = new GameHistoryEntry(gameName, snapshotId, filePath);
-    // Remover si ya existe para evitar duplicados
-    gameHistory.removeIf(e -> e.snapshotId.equals(snapshotId));
-    // Agregar al inicio
-    gameHistory.add(0, entry);
-    // Mantener solo los últimos N juegos
-    if (gameHistory.size() > MAX_GAME_HISTORY) {
-      gameHistory = new ArrayList<>(gameHistory.subList(0, MAX_GAME_HISTORY));
+  // Utilidades de empaquetado usando SnapshotUnicodePacker
+  public static String packSnapshot(byte[] data) {
+    try {
+      return SnapshotUnicodePacker.packToUnicodeString(data);
+    } catch (Exception e) {
+      System.err.println("Error empaquetando snapshot: " + e.getMessage());
+      return null;
     }
   }
 
-  // Utilidades de compresión
+  public static byte[] unpackSnapshot(String packed) {
+    try {
+      return SnapshotUnicodePacker.unpackFromUnicodeString(packed);
+    } catch (Exception e) {
+      System.err.println("Error desempaquetando snapshot: " + e.getMessage());
+      return null;
+    }
+  }
+
+  // Utilidades de compresión (legacy - para mantener compatibilidad)
   public static String compressAndEncode(byte[] data) {
     try {
       Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);
@@ -233,7 +228,7 @@ public class OOZxConfiguration {
   @JsonPropertyOrder({
       "type", "x", "y", "width", "height", "zOrder",
       "filePath", "snapshotName", "searchQuery", "turboMode", "muted", "paused",
-      "snapshotId" // Referencia al snapshot en el mapa centralizado
+      "snapshotId", "appliedPokes" // Referencia al snapshot en el mapa centralizado y pokes aplicados
   })
   public static class WindowState {
     private String type; // "EMULATOR", "GAME_BROWSER"
@@ -249,6 +244,7 @@ public class OOZxConfiguration {
     private boolean muted;
     private boolean paused; // Estado de pausa del emulador
     private String snapshotId; // Referencia al snapshot en el mapa centralizado
+    private List<PokModState> appliedPokes = new ArrayList<>(); // Pokes aplicados en el emulador
 
     public WindowState() {
     }
@@ -365,24 +361,80 @@ public class OOZxConfiguration {
     public void setSnapshotId(String snapshotId) {
       this.snapshotId = snapshotId;
     }
-  }
 
-  // Clase para almacenar historial de juegos
-  public static class GameHistoryEntry {
-    public String gameName;
-    public String snapshotId;
-    public String filePath;
-    public long timestamp;
-
-    public GameHistoryEntry() {
-      // Constructor vacío para Jackson
+    public List<PokModState> getAppliedPokes() {
+      return appliedPokes;
     }
 
-    public GameHistoryEntry(String gameName, String snapshotId, String filePath) {
+    public void setAppliedPokes(List<PokModState> appliedPokes) {
+      this.appliedPokes = appliedPokes;
+    }
+  }
+
+  /**
+   * Representa un poke aplicado de forma serializable
+   * Almacena información para poder revertir el poke posteriormente
+   */
+  public static class PokModState {
+    private String name;                    // Nombre del poke (ej: "Infinite Lives")
+    private String rawInstruction;          // Instrucción raw (ej: "M65280,255")
+    private String pokFileName;             // Nombre del archivo .pok (ej: "JetPac (1983)(Ultimate)")
+    private String gameName;                // Nombre del juego para identificación
+    private String instructionType;         // Tipo de instrucción parseado
+    private String description;             // Descripción del poke
+    private Integer previousValue;          // Valor anterior (para revertir)
+    private Integer previousBank;           // Banco anterior (para revertir)
+    private Integer previousAddress;        // Dirección anterior (para revertir)
+
+    public PokModState() {
+    }
+
+    public PokModState(String name, String rawInstruction) {
+      this.name = name;
+      this.rawInstruction = rawInstruction;
+    }
+
+    public PokModState(String name, String rawInstruction, String pokFileName, String gameName,
+                       String instructionType, String description) {
+      this.name = name;
+      this.rawInstruction = rawInstruction;
+      this.pokFileName = pokFileName;
       this.gameName = gameName;
-      this.snapshotId = snapshotId;
-      this.filePath = filePath;
-      this.timestamp = System.currentTimeMillis();
+      this.instructionType = instructionType;
+      this.description = description;
+    }
+
+    public PokModState(String name, String rawInstruction, String pokFileName, String gameName,
+                       String instructionType, String description, Integer previousValue,
+                       Integer previousBank, Integer previousAddress) {
+      this(name, rawInstruction, pokFileName, gameName, instructionType, description);
+      this.previousValue = previousValue;
+      this.previousBank = previousBank;
+      this.previousAddress = previousAddress;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    public String getRawInstruction() {
+      return rawInstruction;
+    }
+
+    public void setRawInstruction(String rawInstruction) {
+      this.rawInstruction = rawInstruction;
+    }
+
+    public String getPokFileName() {
+      return pokFileName;
+    }
+
+    public void setPokFileName(String pokFileName) {
+      this.pokFileName = pokFileName;
     }
 
     public String getGameName() {
@@ -393,28 +445,53 @@ public class OOZxConfiguration {
       this.gameName = gameName;
     }
 
-    public String getSnapshotId() {
-      return snapshotId;
+    public String getInstructionType() {
+      return instructionType;
     }
 
-    public void setSnapshotId(String snapshotId) {
-      this.snapshotId = snapshotId;
+    public void setInstructionType(String instructionType) {
+      this.instructionType = instructionType;
     }
 
-    public String getFilePath() {
-      return filePath;
+    public String getDescription() {
+      return description;
     }
 
-    public void setFilePath(String filePath) {
-      this.filePath = filePath;
+    public void setDescription(String description) {
+      this.description = description;
     }
 
-    public long getTimestamp() {
-      return timestamp;
+    public Integer getPreviousValue() {
+      return previousValue;
     }
 
-    public void setTimestamp(long timestamp) {
-      this.timestamp = timestamp;
+    public void setPreviousValue(Integer previousValue) {
+      this.previousValue = previousValue;
+    }
+
+    public Integer getPreviousBank() {
+      return previousBank;
+    }
+
+    public void setPreviousBank(Integer previousBank) {
+      this.previousBank = previousBank;
+    }
+
+    public Integer getPreviousAddress() {
+      return previousAddress;
+    }
+
+    public void setPreviousAddress(Integer previousAddress) {
+      this.previousAddress = previousAddress;
+    }
+
+    @Override
+    public String toString() {
+      return "PokModState{" +
+          "name='" + name + '\'' +
+          ", instructionType='" + instructionType + '\'' +
+          ", pokFileName='" + pokFileName + '\'' +
+          '}';
     }
   }
 }
