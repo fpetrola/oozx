@@ -28,6 +28,8 @@ import com.fpetrola.oozx.fuse.peripherals.SettingsDialog;
 import com.fpetrola.oozx.fuse.pokes.PokesManager;
 import com.fpetrola.oozx.fuse.pokes.PokesDialog;
 import com.fpetrola.z80.jspeccy.SnapshotSaver;
+import com.fpetrola.z80.cpu.RegistersGetter;
+import com.fpetrola.z80.cpu.State;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.*;
 import snapshots.SpectrumState;
@@ -920,6 +922,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private JDesktopPane desktop;
   private int emulatorCount = 0;
   private GameBrowserInternalFrame gameBrowser;
+  private SnapshotHistoryInternalFrame snapshotHistory;
   private final JFileChooser fileChooser = new JFileChooser();
   protected OOZxConfiguration config;
   private JMenu recentFilesMenu;
@@ -944,7 +947,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
 //      EmulatorInternalFrame target = getActiveEmulatorOrCreateNew();
 //      if (target != null) {
       EmulatorCore emulatorCore = mockCore.apply(path);
-      createNewEmulator(emulatorCore);
+      createNewEmulator(emulatorCore, path);
 //        target.emulatorCore.loadFile(path);
 //      }
     }
@@ -1470,6 +1473,11 @@ public class ZXSpectrumDesktopApp extends JFrame {
     gameBrowserBtn.addActionListener(e -> openGameBrowser());
     toolBar.add(gameBrowserBtn);
 
+    JButton historyBtn = new JButton(loadIcon("1F559.svg"));
+    historyBtn.setToolTipText("Snapshot History");
+    historyBtn.addActionListener(e -> openSnapshotHistory());
+    toolBar.add(historyBtn);
+
     JButton settingsBtn = new JButton(loadIcon("2699.svg"));
     settingsBtn.setToolTipText("Settings");
     settingsBtn.addActionListener(e -> openSettings());
@@ -1491,6 +1499,66 @@ public class ZXSpectrumDesktopApp extends JFrame {
       try {
         gameBrowser.setSelected(true);
         gameBrowser.toFront();
+      } catch (java.beans.PropertyVetoException ex) {
+      }
+    }
+  }
+
+  private void openSnapshotHistory() {
+    if (snapshotHistory == null || snapshotHistory.isClosed()) {
+      snapshotHistory = new SnapshotHistoryInternalFrame(config);
+      
+      // Listener para cargar un snapshot del historial
+      snapshotHistory.setOnSnapshotSelectedListener(entry -> {
+        // Si hay estado guardado, usarlo; si no, cargar desde el archivo
+        if (entry.getInitialStateId() != null && !entry.getInitialStateId().isEmpty()) {
+          try {
+            String snapshotData = config.getSnapshot(entry.getInitialStateId());
+            if (snapshotData != null && !snapshotData.isEmpty()) {
+              SpectrumState spectrumState = SnapshotSaver.loadSnapshotFromUnicodePacked(snapshotData);
+              EmulatorCore core = mockCoreState.apply(spectrumState);
+              createNewEmulator(core, entry.getFilePath());
+              return;
+            }
+          } catch (Exception ex) {
+            System.err.println("Error restaurando snapshot guardado: " + ex.getMessage());
+            // Fallback a cargar desde archivo
+          }
+        }
+        
+        // Fallback: cargar desde el archivo
+        EmulatorCore core = mockCore.apply(entry.getFilePath());
+        createNewEmulator(core, entry.getFilePath());
+      });
+      
+      // Listener para remover del historial
+      snapshotHistory.setOnSnapshotRemovedListener(entry -> {
+        if (entry == null) {
+          // Limpiar el historial completo
+          config.getSnapshotHistory().clear();
+        } else {
+          // Remover un snapshot específico
+          String key = new java.io.File(entry.getFilePath()).getAbsolutePath();
+          config.getSnapshotHistory().remove(key);
+        }
+        // Limpiar snapshots huérfanos
+        config.cleanOrphanSnapshots();
+        // Refrescar la lista en la ventana
+        if (snapshotHistory != null && !snapshotHistory.isClosed()) {
+          snapshotHistory.refreshHistory(config);
+        }
+      });
+      
+      desktop.add(snapshotHistory);
+      snapshotHistory.setVisible(true);
+      try {
+        snapshotHistory.setSelected(true);
+      } catch (java.beans.PropertyVetoException ex) {
+      }
+    } else {
+      try {
+        snapshotHistory.setSelected(true);
+        snapshotHistory.toFront();
       } catch (java.beans.PropertyVetoException ex) {
       }
     }
@@ -1519,6 +1587,10 @@ public class ZXSpectrumDesktopApp extends JFrame {
   // ... (rest of the methods: createNewEmulator, cascadeWindows, tileWindows remain unchanged)
 
   public EmulatorInternalFrame createNewEmulator(EmulatorCore core1) {
+    return createNewEmulator(core1, null);
+  }
+
+  public EmulatorInternalFrame createNewEmulator(EmulatorCore core1, String filePath) {
     EmulatorCore core = core1;
     JComponent panel = core.getPanel();
     int x = (emulatorCount * 30) % 400;
@@ -1552,6 +1624,45 @@ public class ZXSpectrumDesktopApp extends JFrame {
     desktop.add(frame);
     frame.setVisible(true);
     emulatorCount++;
+
+    // Registrar en el historial - capturar el estado inicial después de cargar
+    // Usar un timer para permitir que se cargue el snapshot completamente
+    final String finalFilePath = filePath;
+    final EmulatorCore finalCore = core;
+    
+    Timer stateCapture = new Timer(500, e -> {
+      try {
+        // Obtener el path real del emulator
+        String actualFilePath = finalFilePath;
+        if (actualFilePath == null || actualFilePath.isEmpty()) {
+          actualFilePath = finalCore.getFilename();
+        }
+        
+        if (actualFilePath != null && !actualFilePath.isEmpty()) {
+          String gameName = new java.io.File(actualFilePath).getName();
+          
+          // Intentar capturar el estado inicial
+          String initialStateData = null;
+          try {
+            RegistersGetter registersGetter = finalCore.getRegistersGetter();
+            State state = finalCore.getState();
+            if (registersGetter != null && state != null) {
+              initialStateData = SnapshotSaver.getSnapshotAsUnicodePacked(registersGetter, state);
+            }
+          } catch (Exception ex) {
+            System.err.println("Error capturando estado inicial: " + ex.getMessage());
+          }
+          
+          // Registrar en el historial con el estado (o sin si no se pudo capturar)
+          config.addToSnapshotHistory(actualFilePath, gameName, initialStateData);
+        }
+      } finally {
+        ((Timer) e.getSource()).stop();
+      }
+    });
+    stateCapture.setRepeats(false);
+    stateCapture.start();
+
     return frame;
   }
 

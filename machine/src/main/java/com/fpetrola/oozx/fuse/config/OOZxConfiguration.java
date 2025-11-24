@@ -18,10 +18,12 @@
 
 package com.fpetrola.oozx.fuse.config;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fpetrola.emulation.SnapshotUnicodePacker;
 
+import java.beans.Transient;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,6 +31,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -43,7 +46,9 @@ public class OOZxConfiguration {
   private List<WindowState> openWindows = new ArrayList<>();
   private WindowState mainWindowState; // Estado de la ventana principal
   private Map<String, String> snapshots = new HashMap<>(); // Mapa centralizado de snapshots: id -> data
+  private Map<String, SnapshotHistoryEntry> snapshotHistory = new LinkedHashMap<>(); // Historial de snapshots cargados
   private static final int MAX_RECENT_FILES = 10;
+  private static final int MAX_SNAPSHOT_HISTORY = 20;
   private static final String CONFIG_DIR = System.getProperty("user.home") + File.separator + ".oozx";
   private static final String CONFIG_FILE = CONFIG_DIR + File.separator + "config.json";
 
@@ -147,6 +152,78 @@ public class OOZxConfiguration {
     this.snapshots = snapshots;
   }
 
+  public Map<String, SnapshotHistoryEntry> getSnapshotHistory() {
+    return snapshotHistory;
+  }
+
+  public void setSnapshotHistory(Map<String, SnapshotHistoryEntry> snapshotHistory) {
+    this.snapshotHistory = snapshotHistory;
+  }
+
+  /**
+   * Agrega un snapshot al historial con estado inicial
+   */
+  public void addToSnapshotHistory(String filePath, String gameName, String initialStateData) {
+    String key = new java.io.File(filePath).getAbsolutePath();
+    
+    // Guardar el estado inicial
+    String stateId = saveSnapshot(initialStateData);
+    
+    SnapshotHistoryEntry entry = new SnapshotHistoryEntry(gameName, filePath, System.currentTimeMillis(), stateId);
+    snapshotHistory.put(key, entry);
+    
+    // Mantener solo los últimos N snapshots
+    if (snapshotHistory.size() > MAX_SNAPSHOT_HISTORY) {
+      String oldestKey = snapshotHistory.keySet().iterator().next();
+      SnapshotHistoryEntry oldEntry = snapshotHistory.remove(oldestKey);
+      // Limpiar el estado guardado del snapshots map
+      if (oldEntry.getInitialStateId() != null) {
+        snapshots.remove(oldEntry.getInitialStateId());
+      }
+    }
+    save();
+  }
+
+  /**
+   * Versión sin estado inicial (compatible con código existente)
+   */
+  public void addToSnapshotHistory(String filePath, String gameName) {
+    addToSnapshotHistory(filePath, gameName, null);
+  }
+
+  /**
+   * Limpia snapshots huérfanos (no referenciados en el historial)
+   */
+  public void cleanOrphanSnapshots() {
+    java.util.Set<String> referencedIds = new java.util.HashSet<>();
+    
+    // Recolectar IDs referenciados en el historial
+    for (SnapshotHistoryEntry entry : snapshotHistory.values()) {
+      if (entry.getInitialStateId() != null) {
+        referencedIds.add(entry.getInitialStateId());
+      }
+    }
+    
+    // Recolectar IDs referenciados en ventanas abiertas
+    for (WindowState window : openWindows) {
+      if (window.getSnapshotId() != null) {
+        referencedIds.add(window.getSnapshotId());
+      }
+    }
+    
+    // Eliminar snapshots no referenciados
+    java.util.Set<String> orphanIds = new java.util.HashSet<>(snapshots.keySet());
+    orphanIds.removeAll(referencedIds);
+    
+    for (String orphanId : orphanIds) {
+      snapshots.remove(orphanId);
+    }
+    
+    if (!orphanIds.isEmpty()) {
+      save();
+    }
+  }
+
   /**
    * Guarda un snapshot en el mapa centralizado y retorna su ID
    */
@@ -221,6 +298,67 @@ public class OOZxConfiguration {
     } catch (Exception e) {
       System.err.println("Error descomprimiendo datos: " + e.getMessage());
       return null;
+    }
+  }
+
+  // Clase para almacenar una entrada del historial de snapshots
+  public static class SnapshotHistoryEntry {
+    private String gameName;          // Nombre del juego
+    private String filePath;          // Ruta del archivo
+    private long loadedTime;          // Timestamp cuando se cargó
+    private String initialStateId;    // ID del snapshot del estado inicial guardado en la config
+
+    public SnapshotHistoryEntry() {
+    }
+
+    public SnapshotHistoryEntry(String gameName, String filePath, long loadedTime) {
+      this.gameName = gameName;
+      this.filePath = filePath;
+      this.loadedTime = loadedTime;
+    }
+
+    public SnapshotHistoryEntry(String gameName, String filePath, long loadedTime, String initialStateId) {
+      this.gameName = gameName;
+      this.filePath = filePath;
+      this.loadedTime = loadedTime;
+      this.initialStateId = initialStateId;
+    }
+
+    public String getGameName() {
+      return gameName;
+    }
+
+    public void setGameName(String gameName) {
+      this.gameName = gameName;
+    }
+
+    public String getFilePath() {
+      return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+      this.filePath = filePath;
+    }
+
+    public long getLoadedTime() {
+      return loadedTime;
+    }
+
+    public void setLoadedTime(long loadedTime) {
+      this.loadedTime = loadedTime;
+    }
+
+    public String getInitialStateId() {
+      return initialStateId;
+    }
+
+    public void setInitialStateId(String initialStateId) {
+      this.initialStateId = initialStateId;
+    }
+
+    @Transient
+    public String getDisplayName() {
+      return gameName + " (" + new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date(loadedTime)) + ")";
     }
   }
 
