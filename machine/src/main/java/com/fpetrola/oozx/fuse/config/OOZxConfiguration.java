@@ -42,7 +42,9 @@ public class OOZxConfiguration {
   private List<WindowState> openWindows = new ArrayList<>();
   private WindowState mainWindowState; // Estado de la ventana principal
   private Map<String, String> snapshots = new HashMap<>(); // Mapa centralizado de snapshots: id -> data
+  private List<GameHistoryEntry> gameHistory = new ArrayList<>(); // Histórico de juegos jugados
   private static final int MAX_RECENT_FILES = 10;
+  private static final int MAX_GAME_HISTORY = 50;
   private static final String CONFIG_DIR = System.getProperty("user.home") + File.separator + ".oozx";
   private static final String CONFIG_FILE = CONFIG_DIR + File.separator + "config.json";
 
@@ -160,6 +162,29 @@ public class OOZxConfiguration {
    */
   public String getSnapshot(String snapshotId) {
     return snapshots.get(snapshotId);
+  }
+
+  public List<GameHistoryEntry> getGameHistory() {
+    return gameHistory;
+  }
+
+  public void setGameHistory(List<GameHistoryEntry> gameHistory) {
+    this.gameHistory = gameHistory;
+  }
+
+  /**
+   * Agrega un juego al histórico
+   */
+  public void addToGameHistory(String gameName, String snapshotId, String filePath) {
+    GameHistoryEntry entry = new GameHistoryEntry(gameName, snapshotId, filePath);
+    // Remover si ya existe para evitar duplicados
+    gameHistory.removeIf(e -> e.snapshotId.equals(snapshotId));
+    // Agregar al inicio
+    gameHistory.add(0, entry);
+    // Mantener solo los últimos N juegos
+    if (gameHistory.size() > MAX_GAME_HISTORY) {
+      gameHistory = new ArrayList<>(gameHistory.subList(0, MAX_GAME_HISTORY));
+    }
   }
 
   // Utilidades de compresión
@@ -339,6 +364,57 @@ public class OOZxConfiguration {
 
     public void setSnapshotId(String snapshotId) {
       this.snapshotId = snapshotId;
+    }
+  }
+
+  // Clase para almacenar historial de juegos
+  public static class GameHistoryEntry {
+    public String gameName;
+    public String snapshotId;
+    public String filePath;
+    public long timestamp;
+
+    public GameHistoryEntry() {
+      // Constructor vacío para Jackson
+    }
+
+    public GameHistoryEntry(String gameName, String snapshotId, String filePath) {
+      this.gameName = gameName;
+      this.snapshotId = snapshotId;
+      this.filePath = filePath;
+      this.timestamp = System.currentTimeMillis();
+    }
+
+    public String getGameName() {
+      return gameName;
+    }
+
+    public void setGameName(String gameName) {
+      this.gameName = gameName;
+    }
+
+    public String getSnapshotId() {
+      return snapshotId;
+    }
+
+    public void setSnapshotId(String snapshotId) {
+      this.snapshotId = snapshotId;
+    }
+
+    public String getFilePath() {
+      return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+      this.filePath = filePath;
+    }
+
+    public long getTimestamp() {
+      return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+      this.timestamp = timestamp;
     }
   }
 }

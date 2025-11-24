@@ -477,6 +477,17 @@ class GameSearchResult {
   String screenshot1;
   String screenshot2;
   String filename;
+  String description;
+  String genre;
+  String developer;
+  String publisher;
+  String releaseYear;
+  String platform;
+  List<String> tags;
+  int rating; // 1-5
+  String difficulty;
+  String players; // "1", "1-2", "1-4", etc.
+  boolean isFavorite;
 
   public GameSearchResult(String title, String url, String screenshot1, String screenshot2, String filename) {
     this.title = title;
@@ -484,14 +495,45 @@ class GameSearchResult {
     this.screenshot1 = screenshot1;
     this.screenshot2 = screenshot2;
     this.filename = filename;
+    this.tags = new ArrayList<>();
   }
+
+  // Getters
+  public String getTitle() { return title; }
+  public String getUrl() { return url; }
+  public String getScreenshot1() { return screenshot1; }
+  public String getScreenshot2() { return screenshot2; }
+  public String getFilename() { return filename; }
+  public String getDescription() { return description; }
+  public String getGenre() { return genre; }
+  public String getDeveloper() { return developer; }
+  public String getPublisher() { return publisher; }
+  public String getReleaseYear() { return releaseYear; }
+  public String getPlatform() { return platform; }
+  public List<String> getTags() { return tags; }
+  public int getRating() { return rating; }
+  public String getDifficulty() { return difficulty; }
+  public String getPlayers() { return players; }
+  public boolean isFavorite() { return isFavorite; }
+
+  // Setters
+  public void setDescription(String description) { this.description = description; }
+  public void setGenre(String genre) { this.genre = genre; }
+  public void setDeveloper(String developer) { this.developer = developer; }
+  public void setPublisher(String publisher) { this.publisher = publisher; }
+  public void setReleaseYear(String releaseYear) { this.releaseYear = releaseYear; }
+  public void setPlatform(String platform) { this.platform = platform; }
+  public void setRating(int rating) { this.rating = Math.min(5, Math.max(1, rating)); }
+  public void setDifficulty(String difficulty) { this.difficulty = difficulty; }
+  public void setPlayers(String players) { this.players = players; }
+  public void setFavorite(boolean favorite) { this.isFavorite = favorite; }
 }
 
 // --- NEW: Game Browser Listener Interface ---
 interface GameBrowserListener {
   void onGameSelected(GameSearchResult gameUrl);
 
-  void onViewDetails(String gameUrl);
+  void onViewDetails(GameSearchResult game);
 
   void onAddToFavorites(String gameUrl);
 
@@ -600,7 +642,22 @@ class GameBrowserInternalFrame extends JInternalFrame {
         String screenshot2 = getString(screenshots, 1);
         if (!files.isEmpty()) {
           String s = !files.isEmpty() ? files.get(0) : null;
-          results.add(new GameSearchResult(game.title, "http://example.com/game/" + query, screenshot1, screenshot2, s));
+          GameSearchResult gameResult = new GameSearchResult(game.title, "http://example.com/game/" + query, screenshot1, screenshot2, s);
+          
+          // Add metadata with reasonable defaults
+          gameResult.setDescription("A classic ZX Spectrum game with engaging gameplay and charming graphics. " +
+              "This iconic title features challenging levels and addictive mechanics that defined an era of gaming.");
+          gameResult.setGenre("Arcade");
+          gameResult.setDeveloper("Spectrum Software");
+          gameResult.setPublisher("Various Publishers");
+          gameResult.setReleaseYear("1983-1990");
+          gameResult.setPlatform("ZX Spectrum 48K+");
+          gameResult.setDifficulty("Medium");
+          gameResult.setPlayers("1");
+          gameResult.setRating(4);
+          gameResult.getTags().addAll(java.util.Arrays.asList("Retro", "Action", "Classic", "8-bit", "British"));
+          
+          results.add(gameResult);
         }
       }
     }
@@ -720,7 +777,7 @@ class GameBrowserInternalFrame extends JInternalFrame {
     imgLabel2.addMouseListener(mouseAdapter);
 
     loadItem.addActionListener(e -> listener.onGameSelected(result));
-    detailsItem.addActionListener(e -> listener.onViewDetails(result.title));
+    detailsItem.addActionListener(e -> listener.onViewDetails(result));
     favoriteItem.addActionListener(e -> listener.onAddToFavorites(result.url));
     downloadItem.addActionListener(e -> listener.onDownloadGame(result.url));
 
@@ -770,6 +827,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private JDesktopPane desktop;
   private int emulatorCount = 0;
   private GameBrowserInternalFrame gameBrowser;
+  private GameHistoryBrowserInternalFrame gameHistoryBrowser;
   private final JFileChooser fileChooser = new JFileChooser();
   protected OOZxConfiguration config;
   private JMenu recentFilesMenu;
@@ -880,7 +938,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     // Restaurar ventanas abiertas
     restoreOpenWindows();
 
-    config.getSnapshots().clear();
+//    config.getSnapshots().clear();
 
     // Guardar configuración al cerrar la aplicación
     addWindowListener(new java.awt.event.WindowAdapter() {
@@ -1318,6 +1376,11 @@ public class ZXSpectrumDesktopApp extends JFrame {
     gameBrowserBtn.addActionListener(e -> openGameBrowser());
     toolBar.add(gameBrowserBtn);
 
+    JButton gameHistoryBtn = new JButton(loadIcon("1F550.svg"));
+    gameHistoryBtn.setToolTipText("Open Game History");
+    gameHistoryBtn.addActionListener(e -> openGameHistory());
+    toolBar.add(gameHistoryBtn);
+
     JButton settingsBtn = new JButton(loadIcon("2699.svg"));
     settingsBtn.setToolTipText("Settings");
     settingsBtn.addActionListener(e -> openSettings());
@@ -1339,6 +1402,25 @@ public class ZXSpectrumDesktopApp extends JFrame {
       try {
         gameBrowser.setSelected(true);
         gameBrowser.toFront();
+      } catch (java.beans.PropertyVetoException ex) {
+      }
+    }
+  }
+
+  private void openGameHistory() {
+    if (gameHistoryBrowser == null || gameHistoryBrowser.isClosed()) {
+      gameHistoryBrowser = new GameHistoryBrowserInternalFrame(createGameHistoryListener());
+      gameHistoryBrowser.loadGameHistory(config.getGameHistory());
+      desktop.add(gameHistoryBrowser);
+      gameHistoryBrowser.setVisible(true);
+      try {
+        gameHistoryBrowser.setSelected(true);
+      } catch (java.beans.PropertyVetoException ex) {
+      }
+    } else {
+      try {
+        gameHistoryBrowser.setSelected(true);
+        gameHistoryBrowser.toFront();
       } catch (java.beans.PropertyVetoException ex) {
       }
     }
@@ -1400,7 +1482,29 @@ public class ZXSpectrumDesktopApp extends JFrame {
     desktop.add(frame);
     frame.setVisible(true);
     emulatorCount++;
+    
+    // Agregar el juego al histórico
+    addGameToHistory(frame);
+    
     return frame;
+  }
+
+  private void addGameToHistory(EmulatorInternalFrame frame) {
+    try {
+      String filePath = frame.emulatorCore.getFilename();
+      if (filePath != null && !filePath.isEmpty()) {
+        String gameName = new java.io.File(filePath).getName();
+        String snapshotData = SnapshotSaver.getSnapshotAsCompressedBase64(
+            frame.emulatorCore.getRegistersGetter(),
+            frame.emulatorCore.getState()
+        );
+        String snapshotId = config.saveSnapshot(snapshotData);
+        config.addToGameHistory(gameName, snapshotId, filePath);
+        config.save();
+      }
+    } catch (Exception e) {
+      System.err.println("Error adding game to history: " + e.getMessage());
+    }
   }
 
 
@@ -1434,6 +1538,9 @@ public class ZXSpectrumDesktopApp extends JFrame {
       } else if (frame instanceof GameBrowserInternalFrame) {
         GameBrowserInternalFrame gFrame = (GameBrowserInternalFrame) frame;
         config.getOpenWindows().add(gFrame.saveWindowState());
+      } else if (frame instanceof GameHistoryBrowserInternalFrame) {
+        GameHistoryBrowserInternalFrame ghFrame = (GameHistoryBrowserInternalFrame) frame;
+        config.getOpenWindows().add(ghFrame.saveWindowState());
       }
     }
   }
@@ -1463,6 +1570,14 @@ public class ZXSpectrumDesktopApp extends JFrame {
           gameBrowser.setVisible(true);
         }
         gameBrowser.restoreWindowState(windowState);
+      } else if ("GAME_HISTORY".equals(windowState.getType())) {
+        if (gameHistoryBrowser == null || gameHistoryBrowser.isClosed()) {
+          gameHistoryBrowser = new GameHistoryBrowserInternalFrame(createGameHistoryListener());
+          gameHistoryBrowser.loadGameHistory(config.getGameHistory());
+          desktop.add(gameHistoryBrowser);
+          gameHistoryBrowser.setVisible(true);
+        }
+        gameHistoryBrowser.restoreWindowState(windowState);
       }
     }
 
@@ -1497,9 +1612,12 @@ public class ZXSpectrumDesktopApp extends JFrame {
       }
 
       @Override
-      public void onViewDetails(String gameUrl) {
-        JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-            "Game Details: " + gameUrl + "", "Game Details", JOptionPane.INFORMATION_MESSAGE);
+      public void onViewDetails(GameSearchResult game) {
+        GameDetailsDialog dialog = new GameDetailsDialog(ZXSpectrumDesktopApp.this, game);
+        dialog.setOnGameLoadedListener(gameResult -> {
+          EmulatorInternalFrame target = getActiveEmulatorOrCreateNew(gameResult);
+        });
+        dialog.setVisible(true);
       }
 
       @Override
@@ -1513,6 +1631,29 @@ public class ZXSpectrumDesktopApp extends JFrame {
         JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
             "Downloading: " + gameUrl + "n(Download feature coming soon)", "Download",
             JOptionPane.INFORMATION_MESSAGE);
+      }
+    };
+  }
+
+  private GameHistoryBrowserInternalFrame.GameHistoryListener createGameHistoryListener() {
+    return new GameHistoryBrowserInternalFrame.GameHistoryListener() {
+      @Override
+      public void onGameSelected(OOZxConfiguration.GameHistoryEntry entry) {
+        if (entry != null && entry.getSnapshotId() != null && !entry.getSnapshotId().isEmpty()) {
+          try {
+            String snapshotData = config.getSnapshot(entry.getSnapshotId());
+            if (snapshotData != null && !snapshotData.isEmpty()) {
+              SpectrumState spectrumState = SnapshotSaver.loadSnapshotFromCompressedBase64(snapshotData);
+              EmulatorCore core = mockCoreState.apply(spectrumState);
+              EmulatorInternalFrame frame = createNewEmulator(core);
+              frame.emulatorCore.setFilename(entry.getFilePath());
+            }
+          } catch (Exception e) {
+            System.err.println("Error loading game from history: " + e.getMessage());
+            JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+                "Error loading game: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+          }
+        }
       }
     };
   }
