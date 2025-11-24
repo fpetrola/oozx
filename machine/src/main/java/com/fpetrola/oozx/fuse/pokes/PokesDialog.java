@@ -312,10 +312,12 @@ public class PokesDialog extends JDialog {
     }
     
     if (!selectedMods.isEmpty()) {
-      JOptionPane.showMessageDialog(this,
-          "Applied " + selectedMods.size() + " cheat(s)",
-          "Success",
-          JOptionPane.INFORMATION_MESSAGE);
+      // Mostrar diálogo con detalles de los pokes aplicados
+      PokesAppliedDialog appliedDialog = new PokesAppliedDialog(
+          (Frame) SwingUtilities.getWindowAncestor(this),
+          selectedMods
+      );
+      appliedDialog.setVisible(true);
     }
     
     dispose();
