@@ -20,6 +20,7 @@ package com.fpetrola.oozx.fuse.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fpetrola.emulation.SnapshotUnicodePacker;
 
 import java.io.File;
 import java.io.IOException;
@@ -162,7 +163,26 @@ public class OOZxConfiguration {
     return snapshots.get(snapshotId);
   }
 
-  // Utilidades de compresión
+  // Utilidades de empaquetado usando SnapshotUnicodePacker
+  public static String packSnapshot(byte[] data) {
+    try {
+      return SnapshotUnicodePacker.packToUnicodeString(data);
+    } catch (Exception e) {
+      System.err.println("Error empaquetando snapshot: " + e.getMessage());
+      return null;
+    }
+  }
+
+  public static byte[] unpackSnapshot(String packed) {
+    try {
+      return SnapshotUnicodePacker.unpackFromUnicodeString(packed);
+    } catch (Exception e) {
+      System.err.println("Error desempaquetando snapshot: " + e.getMessage());
+      return null;
+    }
+  }
+
+  // Utilidades de compresión (legacy - para mantener compatibilidad)
   public static String compressAndEncode(byte[] data) {
     try {
       Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);

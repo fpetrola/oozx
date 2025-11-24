@@ -22,6 +22,7 @@ import com.fpetrola.z80.cpu.RegistersGetter;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.transformations.Base64Utils;
+import com.fpetrola.emulation.SnapshotUnicodePacker;
 import machine.Keyboard;
 import snapshots.*;
 import machine.MachineTypes;
@@ -217,5 +218,35 @@ public class SnapshotSaver {
     byte[] decompressedBytes = Base64Utils.gzipDecompressFromBase64(compressedBase64);
     SnapshotZ80 snapshot = new SnapshotZ80();
     return snapshot.loadFromBytes(decompressedBytes);
+  }
+
+  /**
+   * Guarda el estado del emulador como un snapshot en formato Unicode empaquetado
+   * para almacenar en la configuración del programa (más eficiente en JSON)
+   *
+   * @param registersGetter Interface para leer los registros de la CPU
+   * @param state Estado actual de la emulación
+   * @return String con el snapshot empaquetado en formato Unicode
+   * @throws SnapshotException Si ocurre un error al crear el snapshot
+   */
+  public static String getSnapshotAsUnicodePacked(RegistersGetter registersGetter, State state) throws SnapshotException {
+    byte[] snapshotBytes = getSnapshotAsBytes(registersGetter, state);
+    return SnapshotUnicodePacker.packToUnicodeString(snapshotBytes);
+  }
+
+  /**
+   * Carga el estado del emulador desde un snapshot empaquetado en formato Unicode
+   *
+   * @param unicodePacked String con el snapshot empaquetado en formato Unicode
+   * @return SpectrumState con el estado cargado
+   * @throws SnapshotException Si ocurre un error al desempaquetar o cargar el snapshot
+   */
+  public static SpectrumState loadSnapshotFromUnicodePacked(String unicodePacked) throws SnapshotException {
+    if (unicodePacked == null || unicodePacked.isEmpty()) {
+      throw new SnapshotException("INVALID_SNAPSHOT_DATA");
+    }
+    byte[] unpackedBytes = SnapshotUnicodePacker.unpackFromUnicodeString(unicodePacked);
+    SnapshotZ80 snapshot = new SnapshotZ80();
+    return snapshot.loadFromBytes(unpackedBytes);
   }
 }

@@ -519,14 +519,14 @@ class EmulatorInternalFrame extends JInternalFrame {
     state.setMuted(emulatorCore.isMuted());
     state.setPaused(emulatorCore.isPaused());
 
-    // Guardar el estado actual del emulador comprimido en Base64 y obtener su ID
+    // Guardar el estado actual del emulador en formato Unicode empaquetado y obtener su ID
     try {
-      String compressedSnapshot = SnapshotSaver.getSnapshotAsCompressedBase64(
+      String unicodePackedSnapshot = SnapshotSaver.getSnapshotAsUnicodePacked(
           emulatorCore.getRegistersGetter(),
           emulatorCore.getState()
       );
       // Guardar el snapshot en el mapa centralizado y obtener su ID
-      String snapshotId = ((ZXSpectrumDesktopApp) SwingUtilities.getWindowAncestor(this)).config.saveSnapshot(compressedSnapshot);
+      String snapshotId = ((ZXSpectrumDesktopApp) SwingUtilities.getWindowAncestor(this)).config.saveSnapshot(unicodePackedSnapshot);
       state.setSnapshotId(snapshotId);
     } catch (Exception e) {
       System.err.println("Error guardando snapshot en configuración: " + e.getMessage());
@@ -559,13 +559,13 @@ class EmulatorInternalFrame extends JInternalFrame {
     emulatorCore.setGeneralOption("pause", state.isPaused());
 
     emulatorCore.setFilename(state.getFilePath());
-    // Restaurar el estado del emulador desde el snapshot comprimido
+    // Restaurar el estado del emulador desde el snapshot empaquetado
     if (state.getSnapshotId() != null && !state.getSnapshotId().isEmpty()) {
       try {
         ZXSpectrumDesktopApp parentApp = (ZXSpectrumDesktopApp) SwingUtilities.getWindowAncestor(this);
         String snapshotData = parentApp.config.getSnapshot(state.getSnapshotId());
         if (snapshotData != null && !snapshotData.isEmpty()) {
-          SnapshotSaver.loadSnapshotFromCompressedBase64(snapshotData);
+          SnapshotSaver.loadSnapshotFromUnicodePacked(snapshotData);
         }
       } catch (Exception e) {
         System.err.println("Error restaurando snapshot desde configuración: " + e.getMessage());
@@ -1553,7 +1553,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
           try {
             String snapshotData = config.getSnapshot(windowState.getSnapshotId());
             if (snapshotData != null && !snapshotData.isEmpty()) {
-              SpectrumState spectrumState = SnapshotSaver.loadSnapshotFromCompressedBase64(snapshotData);
+              SpectrumState spectrumState = SnapshotSaver.loadSnapshotFromUnicodePacked(snapshotData);
               EmulatorCore core = mockCoreState.apply(spectrumState);
               EmulatorInternalFrame frame = createNewEmulator(core);
               frame.restoreWindowState(windowState);
