@@ -44,7 +44,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import java.awt.Desktop;
 
 import static com.fpetrola.oozx.fuse.peripherals.t.EmulatorInternalFrame.loadIcon;
 
@@ -977,7 +976,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private JDesktopPane desktop;
   private int emulatorCount = 0;
   private GameBrowserInternalFrame gameBrowser;
-  private GameHistoryBrowserInternalFrame gameHistoryBrowser;
   private final JFileChooser fileChooser = new JFileChooser();
   protected OOZxConfiguration config;
   private JMenu recentFilesMenu;
@@ -1528,11 +1526,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
     gameBrowserBtn.addActionListener(e -> openGameBrowser());
     toolBar.add(gameBrowserBtn);
 
-    JButton gameHistoryBtn = new JButton(loadIcon("1F550.svg"));
-    gameHistoryBtn.setToolTipText("Open Game History");
-    gameHistoryBtn.addActionListener(e -> openGameHistory());
-    toolBar.add(gameHistoryBtn);
-
     JButton settingsBtn = new JButton(loadIcon("2699.svg"));
     settingsBtn.setToolTipText("Settings");
     settingsBtn.addActionListener(e -> openSettings());
@@ -1554,25 +1547,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
       try {
         gameBrowser.setSelected(true);
         gameBrowser.toFront();
-      } catch (java.beans.PropertyVetoException ex) {
-      }
-    }
-  }
-
-  private void openGameHistory() {
-    if (gameHistoryBrowser == null || gameHistoryBrowser.isClosed()) {
-      gameHistoryBrowser = new GameHistoryBrowserInternalFrame(createGameHistoryListener());
-      gameHistoryBrowser.loadGameHistory(config.getGameHistory());
-      desktop.add(gameHistoryBrowser);
-      gameHistoryBrowser.setVisible(true);
-      try {
-        gameHistoryBrowser.setSelected(true);
-      } catch (java.beans.PropertyVetoException ex) {
-      }
-    } else {
-      try {
-        gameHistoryBrowser.setSelected(true);
-        gameHistoryBrowser.toFront();
       } catch (java.beans.PropertyVetoException ex) {
       }
     }
@@ -1635,28 +1609,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     frame.setVisible(true);
     emulatorCount++;
     
-    // Agregar el juego al histórico
-    addGameToHistory(frame);
-    
     return frame;
-  }
-
-  private void addGameToHistory(EmulatorInternalFrame frame) {
-    try {
-      String filePath = frame.emulatorCore.getFilename();
-      if (filePath != null && !filePath.isEmpty()) {
-        String gameName = new java.io.File(filePath).getName();
-        String snapshotData = SnapshotSaver.getSnapshotAsCompressedBase64(
-            frame.emulatorCore.getRegistersGetter(),
-            frame.emulatorCore.getState()
-        );
-        String snapshotId = config.saveSnapshot(snapshotData);
-        config.addToGameHistory(gameName, snapshotId, filePath);
-        config.save();
-      }
-    } catch (Exception e) {
-      System.err.println("Error adding game to history: " + e.getMessage());
-    }
   }
 
 
@@ -1690,9 +1643,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
       } else if (frame instanceof GameBrowserInternalFrame) {
         GameBrowserInternalFrame gFrame = (GameBrowserInternalFrame) frame;
         config.getOpenWindows().add(gFrame.saveWindowState());
-      } else if (frame instanceof GameHistoryBrowserInternalFrame) {
-        GameHistoryBrowserInternalFrame ghFrame = (GameHistoryBrowserInternalFrame) frame;
-        config.getOpenWindows().add(ghFrame.saveWindowState());
       }
     }
   }
@@ -1722,14 +1672,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
           gameBrowser.setVisible(true);
         }
         gameBrowser.restoreWindowState(windowState);
-      } else if ("GAME_HISTORY".equals(windowState.getType())) {
-        if (gameHistoryBrowser == null || gameHistoryBrowser.isClosed()) {
-          gameHistoryBrowser = new GameHistoryBrowserInternalFrame(createGameHistoryListener());
-          gameHistoryBrowser.loadGameHistory(config.getGameHistory());
-          desktop.add(gameHistoryBrowser);
-          gameHistoryBrowser.setVisible(true);
-        }
-        gameHistoryBrowser.restoreWindowState(windowState);
       }
     }
 
@@ -1783,29 +1725,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
         JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
             "Downloading: " + gameUrl + "n(Download feature coming soon)", "Download",
             JOptionPane.INFORMATION_MESSAGE);
-      }
-    };
-  }
-
-  private GameHistoryBrowserInternalFrame.GameHistoryListener createGameHistoryListener() {
-    return new GameHistoryBrowserInternalFrame.GameHistoryListener() {
-      @Override
-      public void onGameSelected(OOZxConfiguration.GameHistoryEntry entry) {
-        if (entry != null && entry.getSnapshotId() != null && !entry.getSnapshotId().isEmpty()) {
-          try {
-            String snapshotData = config.getSnapshot(entry.getSnapshotId());
-            if (snapshotData != null && !snapshotData.isEmpty()) {
-              SpectrumState spectrumState = SnapshotSaver.loadSnapshotFromCompressedBase64(snapshotData);
-              EmulatorCore core = mockCoreState.apply(spectrumState);
-              EmulatorInternalFrame frame = createNewEmulator(core);
-              frame.emulatorCore.setFilename(entry.getFilePath());
-            }
-          } catch (Exception e) {
-            System.err.println("Error loading game from history: " + e.getMessage());
-            JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-                "Error loading game: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-          }
-        }
       }
     };
   }
