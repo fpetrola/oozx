@@ -21,6 +21,7 @@ package com.fpetrola.oozx.fuse.pokes;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.*;
 import java.util.List;
 
@@ -70,24 +71,33 @@ public class PokesDialog extends JDialog {
     // Content area with scrollable pokes
     JPanel contentPanel = new JPanel();
     contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+    contentPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     
     if (availablePokes.isEmpty()) {
       JLabel noLabel = new JLabel("No pokes found for this game");
       noLabel.setForeground(Color.GRAY);
       noLabel.setFont(new Font("Arial", Font.ITALIC, 12));
       contentPanel.add(noLabel);
-      contentPanel.add(Box.createVerticalGlue());
     } else {
       for (PokFile pokFile : availablePokes) {
         JPanel pokPanel = createPokPanel(pokFile);
+        pokPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, pokPanel.getPreferredSize().height));
         contentPanel.add(pokPanel);
         contentPanel.add(Box.createVerticalStrut(10));
       }
-      contentPanel.add(Box.createVerticalGlue());
     }
     
     JScrollPane scrollPane = new JScrollPane(contentPanel);
     scrollPane.setBorder(new LineBorder(Color.LIGHT_GRAY));
+    scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+    scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    
+    // Configurar velocidad de scroll
+    scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+    scrollPane.getVerticalScrollBar().setBlockIncrement(50);
+    scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
+    scrollPane.getHorizontalScrollBar().setBlockIncrement(50);
+    
     mainPanel.add(scrollPane, BorderLayout.CENTER);
     
     // Buttons
@@ -101,6 +111,7 @@ public class PokesDialog extends JDialog {
     panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
     panel.setBorder(new TitledBorder(pokFile.getDisplayName()));
     panel.setBackground(new Color(245, 245, 245));
+    panel.setAlignmentX(Component.LEFT_ALIGNMENT);
     
     List<JCheckBox> pokCheckboxList = new ArrayList<>();
     
@@ -115,6 +126,7 @@ public class PokesDialog extends JDialog {
         cheatPanel.setLayout(new BorderLayout(5, 5));
         cheatPanel.setBackground(new Color(245, 245, 245));
         cheatPanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        cheatPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         
         JCheckBox checkBox = new JCheckBox(mod.getName());
         checkBox.setBackground(new Color(245, 245, 245));
@@ -170,6 +182,16 @@ public class PokesDialog extends JDialog {
     JButton closeButton = new JButton("Close");
     closeButton.addActionListener(e -> dispose());
     panel.add(closeButton);
+    
+    // Agregar ESC para cerrar el diálogo
+    KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0);
+    getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "closeDialog");
+    getRootPane().getActionMap().put("closeDialog", new javax.swing.AbstractAction() {
+      @Override
+      public void actionPerformed(java.awt.event.ActionEvent e) {
+        dispose();
+      }
+    });
     
     return panel;
   }
