@@ -26,7 +26,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import java.util.List;
 
 public class ZxInfoApiHandler {
-  private final String BASE_URL = "http://api.zxinfo.dk";
+  private final String BASE_URL = "https://api.zxinfo.dk";
 
   public static void main(String[] args) {
     new ZxInfoApiHandler().search("everyone wally");
