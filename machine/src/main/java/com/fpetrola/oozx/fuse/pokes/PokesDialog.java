@@ -22,30 +22,43 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyAdapter;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Diálogo para seleccionar y aplicar pokes a un juego
  */
 public class PokesDialog extends JDialog {
   private List<PokFile> availablePokes;
+  private List<PokFile> filteredPokes;
   private Map<String, List<JCheckBox>> pokCheckboxes = new HashMap<>();
   private OnPokesAppliedListener onPokesAppliedListener;
+  private PokesManager pokesManager;
+  private JPanel contentPanel;
+  private JLabel countLabel;
   
   public interface OnPokesAppliedListener {
     void onPokesApplied(List<PokFile.PokeMod> selectedMods);
   }
 
-  public PokesDialog(Frame owner, String gameName, List<PokFile> availablePokes) {
+  public PokesDialog(Frame owner, String gameName, List<PokFile> availablePokes, PokesManager pokesManager) {
     super(owner, "Game Cheats/Pokes - " + gameName, true);
     this.availablePokes = availablePokes;
+    this.filteredPokes = new ArrayList<>(availablePokes);
+    this.pokesManager = pokesManager;
     
-    setSize(700, 700);
+    setSize(800, 750);
     setLocationRelativeTo(owner);
     setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     
     initializeUI();
+  }
+  
+  // Constructor compatible con la versión anterior
+  public PokesDialog(Frame owner, String gameName, List<PokFile> availablePokes) {
+    this(owner, gameName, availablePokes, null);
   }
 
   private void initializeUI() {
@@ -61,31 +74,25 @@ public class PokesDialog extends JDialog {
     titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
     headerPanel.add(titleLabel, BorderLayout.WEST);
     
-    JLabel countLabel = new JLabel(availablePokes.size() + " poke file(s) found");
+    countLabel = new JLabel(availablePokes.size() + " poke file(s) found");
     countLabel.setFont(new Font("Arial", Font.PLAIN, 11));
     countLabel.setForeground(Color.GRAY);
     headerPanel.add(countLabel, BorderLayout.EAST);
     
     mainPanel.add(headerPanel, BorderLayout.NORTH);
     
+    // Search panel
+    if (pokesManager != null) {
+      JPanel searchPanel = createSearchPanel();
+      mainPanel.add(searchPanel, BorderLayout.BEFORE_FIRST_LINE);
+    }
+    
     // Content area with scrollable pokes
-    JPanel contentPanel = new JPanel();
+    contentPanel = new JPanel();
     contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
     contentPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
     
-    if (availablePokes.isEmpty()) {
-      JLabel noLabel = new JLabel("No pokes found for this game");
-      noLabel.setForeground(Color.GRAY);
-      noLabel.setFont(new Font("Arial", Font.ITALIC, 12));
-      contentPanel.add(noLabel);
-    } else {
-      for (PokFile pokFile : availablePokes) {
-        JPanel pokPanel = createPokPanel(pokFile);
-        pokPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, pokPanel.getPreferredSize().height));
-        contentPanel.add(pokPanel);
-        contentPanel.add(Box.createVerticalStrut(10));
-      }
-    }
+    updateContentPanel();
     
     JScrollPane scrollPane = new JScrollPane(contentPanel);
     scrollPane.setBorder(new LineBorder(Color.LIGHT_GRAY));
@@ -104,6 +111,91 @@ public class PokesDialog extends JDialog {
     mainPanel.add(createButtonPanel(), BorderLayout.SOUTH);
     
     add(mainPanel);
+  }
+  
+  private JPanel createSearchPanel() {
+    JPanel searchPanel = new JPanel();
+    searchPanel.setLayout(new BorderLayout(5, 5));
+    searchPanel.setBorder(BorderFactory.createCompoundBorder(
+        new LineBorder(Color.LIGHT_GRAY),
+        new EmptyBorder(5, 5, 5, 5)
+    ));
+    searchPanel.setBackground(new Color(240, 240, 240));
+    
+    JLabel searchLabel = new JLabel("Search pok files:");
+    searchLabel.setFont(new Font("Arial", Font.PLAIN, 11));
+    searchPanel.add(searchLabel, BorderLayout.WEST);
+    
+    JTextField searchField = new JTextField();
+    searchField.setFont(new Font("Arial", Font.PLAIN, 12));
+    searchField.setToolTipText("Enter part of the pok file name to search for similar files");
+    
+    searchField.addKeyListener(new KeyAdapter() {
+      @Override
+      public void keyReleased(java.awt.event.KeyEvent e) {
+        String searchTerm = searchField.getText().trim();
+        if (searchTerm.isEmpty()) {
+          filteredPokes = new ArrayList<>(availablePokes);
+        } else {
+          filteredPokes = searchPokFiles(searchTerm);
+        }
+        pokCheckboxes.clear();
+        updateContentPanel();
+      }
+    });
+    
+    searchPanel.add(searchField, BorderLayout.CENTER);
+    
+    return searchPanel;
+  }
+  
+  private List<PokFile> searchPokFiles(String searchTerm) {
+    if (pokesManager == null) {
+      return availablePokes;
+    }
+    
+    List<PokFile> results = new ArrayList<>();
+    String lowerSearch = searchTerm.toLowerCase();
+    
+    // Buscar por nombre exacto en la lista actual
+    for (PokFile pok : availablePokes) {
+      if (pok.getName().toLowerCase().contains(lowerSearch) || 
+          pok.getDisplayName().toLowerCase().contains(lowerSearch)) {
+        results.add(pok);
+      }
+    }
+    
+    // Si no hay resultados, buscar en todos los archivos disponibles
+    if (results.isEmpty()) {
+      List<PokFile> allResults = pokesManager.searchPokFilesByName(searchTerm);
+      results.addAll(allResults);
+      availablePokes.addAll(allResults); // Agregar a la lista disponible
+    }
+    
+    return results;
+  }
+  
+  private void updateContentPanel() {
+    contentPanel.removeAll();
+    pokCheckboxes.clear();
+    
+    if (filteredPokes.isEmpty()) {
+      JLabel noLabel = new JLabel("No pokes found");
+      noLabel.setForeground(Color.GRAY);
+      noLabel.setFont(new Font("Arial", Font.ITALIC, 12));
+      contentPanel.add(noLabel);
+    } else {
+      for (PokFile pokFile : filteredPokes) {
+        JPanel pokPanel = createPokPanel(pokFile);
+        pokPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, pokPanel.getPreferredSize().height));
+        contentPanel.add(pokPanel);
+        contentPanel.add(Box.createVerticalStrut(10));
+      }
+    }
+    
+    countLabel.setText(filteredPokes.size() + " poke file(s) found");
+    contentPanel.revalidate();
+    contentPanel.repaint();
   }
 
   private JPanel createPokPanel(PokFile pokFile) {

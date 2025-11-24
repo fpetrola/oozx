@@ -441,7 +441,8 @@ class EmulatorInternalFrame extends JInternalFrame {
     PokesDialog pokesDialog = new PokesDialog(
         (Frame) SwingUtilities.getWindowAncestor(this), 
         gameName, 
-        availablePokes);
+        availablePokes,
+        parentApp.pokesManager);
     
     pokesDialog.setOnPokesAppliedListener(selectedMods -> {
       if (!selectedMods.isEmpty()) {

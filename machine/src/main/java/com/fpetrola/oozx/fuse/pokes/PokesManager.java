@@ -202,6 +202,33 @@ public class PokesManager {
     
     return results;
   }
+  
+  /**
+   * Busca archivos .pok por nombre similar (para búsquedas por patrón de nombre)
+   */
+  public List<PokFile> searchPokFilesByName(String searchTerm) {
+    if (!initialized) {
+      System.out.println("Pokes not yet initialized");
+      return new ArrayList<>();
+    }
+    
+    List<PokFile> results = new ArrayList<>();
+    String lowerSearch = searchTerm.toLowerCase();
+    
+    // Buscar en todos los pok files indexados
+    for (Map.Entry<String, List<PokFile>> gameEntry : pokIndex.entrySet()) {
+      for (PokFile pokFile : gameEntry.getValue()) {
+        // Comparar por nombre del archivo (sin extensión) y por nombre del juego
+        if (pokFile.getName().toLowerCase().contains(lowerSearch) ||
+            gameEntry.getKey().toLowerCase().contains(lowerSearch) ||
+            isSimilar(lowerSearch, pokFile.getName().toLowerCase())) {
+          results.add(pokFile);
+        }
+      }
+    }
+    
+    return results;
+  }
 
   /**
    * Compara dos nombres para encontrar similitud
