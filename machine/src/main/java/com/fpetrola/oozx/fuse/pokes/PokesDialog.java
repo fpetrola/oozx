@@ -41,7 +41,7 @@ public class PokesDialog extends JDialog {
     super(owner, "Game Cheats/Pokes - " + gameName, true);
     this.availablePokes = availablePokes;
     
-    setSize(600, 700);
+    setSize(700, 700);
     setLocationRelativeTo(owner);
     setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     
