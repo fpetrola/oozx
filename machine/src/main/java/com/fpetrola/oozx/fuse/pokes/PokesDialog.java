@@ -76,7 +76,7 @@ public class PokesDialog extends JDialog {
     
     countLabel = new JLabel(availablePokes.size() + " poke file(s) found");
     countLabel.setFont(new Font("Arial", Font.PLAIN, 11));
-    countLabel.setForeground(Color.GRAY);
+    countLabel.setForeground(UIManager.getColor("Label.disabledForeground"));
     headerPanel.add(countLabel, BorderLayout.EAST);
     
     mainPanel.add(headerPanel, BorderLayout.NORTH);
@@ -95,7 +95,7 @@ public class PokesDialog extends JDialog {
     updateContentPanel();
     
     JScrollPane scrollPane = new JScrollPane(contentPanel);
-    scrollPane.setBorder(new LineBorder(Color.LIGHT_GRAY));
+    scrollPane.setBorder(new LineBorder(UIManager.getColor("controlShadow")));
     scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
     scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     
@@ -117,10 +117,9 @@ public class PokesDialog extends JDialog {
     JPanel searchPanel = new JPanel();
     searchPanel.setLayout(new BorderLayout(5, 5));
     searchPanel.setBorder(BorderFactory.createCompoundBorder(
-        new LineBorder(Color.LIGHT_GRAY),
+        new LineBorder(UIManager.getColor("controlShadow")),
         new EmptyBorder(5, 5, 5, 5)
     ));
-    searchPanel.setBackground(new Color(240, 240, 240));
     
     JLabel searchLabel = new JLabel("Search pok files:");
     searchLabel.setFont(new Font("Arial", Font.PLAIN, 11));
@@ -181,7 +180,7 @@ public class PokesDialog extends JDialog {
     
     if (filteredPokes.isEmpty()) {
       JLabel noLabel = new JLabel("No pokes found");
-      noLabel.setForeground(Color.GRAY);
+      noLabel.setForeground(UIManager.getColor("Label.disabledForeground"));
       noLabel.setFont(new Font("Arial", Font.ITALIC, 12));
       contentPanel.add(noLabel);
     } else {
@@ -202,32 +201,29 @@ public class PokesDialog extends JDialog {
     JPanel panel = new JPanel();
     panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
     panel.setBorder(new TitledBorder(pokFile.getDisplayName()));
-    panel.setBackground(new Color(245, 245, 245));
     panel.setAlignmentX(Component.LEFT_ALIGNMENT);
     
     List<JCheckBox> pokCheckboxList = new ArrayList<>();
     
     if (pokFile.getMods().isEmpty()) {
       JLabel noMods = new JLabel("No mods found in this file");
-      noMods.setForeground(Color.GRAY);
+      noMods.setForeground(UIManager.getColor("Label.disabledForeground"));
       panel.add(noMods);
     } else {
       for (PokFile.PokeMod mod : pokFile.getMods()) {
         // Crear un panel para cada cheat con nombre y descripción
         JPanel cheatPanel = new JPanel();
         cheatPanel.setLayout(new BorderLayout(5, 5));
-        cheatPanel.setBackground(new Color(245, 245, 245));
         cheatPanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
         cheatPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         
         JCheckBox checkBox = new JCheckBox(mod.getName());
-        checkBox.setBackground(new Color(245, 245, 245));
         cheatPanel.add(checkBox, BorderLayout.WEST);
         
         // Descripción del tipo de instrucción
         JLabel descLabel = new JLabel(mod.getDescription());
         descLabel.setFont(new Font("Arial", Font.PLAIN, 10));
-        descLabel.setForeground(Color.DARK_GRAY);
+        descLabel.setForeground(UIManager.getColor("Label.disabledForeground"));
         descLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
         cheatPanel.add(descLabel, BorderLayout.CENTER);
         
@@ -333,19 +329,20 @@ public class PokesDialog extends JDialog {
    * Retorna un color para el badge según el tipo de instrucción
    */
   private Color getColorForInstructionType(String type) {
+    // Usar colores más saturados para mejor visibilidad en ambos temas
     switch (type) {
       case "MEMORY_WRITE":
-        return new Color(0, 153, 204);      // Blue
+        return new Color(30, 150, 200);      // Cyan
       case "MEMORY_RESET":
-        return new Color(204, 0, 0);        // Red
+        return new Color(220, 50, 50);       // Red
       case "MEMORY_ADD":
-        return new Color(0, 153, 0);        // Green
+        return new Color(50, 180, 80);       // Green
       case "MEMORY_XOR":
-        return new Color(153, 102, 0);      // Brown
+        return new Color(200, 140, 50);      // Orange
       case "END":
-        return new Color(153, 153, 153);    // Gray
+        return new Color(120, 120, 120);     // Gray
       default:
-        return new Color(102, 102, 102);    // Dark gray
+        return new Color(100, 100, 150);     // Blue-gray
     }
   }
 }
