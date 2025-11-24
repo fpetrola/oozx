@@ -1541,8 +1541,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
           String key = new java.io.File(entry.getFilePath()).getAbsolutePath();
           config.getSnapshotHistory().remove(key);
         }
-        // Limpiar snapshots huérfanos
-        config.cleanOrphanSnapshots();
+        // Guardar (se limpian automáticamente snapshots huérfanos)
+        config.save();
         // Refrescar la lista en la ventana
         if (snapshotHistory != null && !snapshotHistory.isClosed()) {
           snapshotHistory.refreshHistory(config);

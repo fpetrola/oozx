@@ -71,6 +71,9 @@ public class OOZxConfiguration {
   }
 
   public void save() {
+    // Limpiar snapshots huérfanos antes de guardar
+    cleanOrphanSnapshots();
+    
     try {
       File configDir = new File(CONFIG_DIR);
       if (!configDir.exists()) {
@@ -192,9 +195,10 @@ public class OOZxConfiguration {
   }
 
   /**
-   * Limpia snapshots huérfanos (no referenciados en el historial)
+   * Limpia snapshots huérfanos (no referenciados en el historial o ventanas abiertas)
+   * Se llamará automáticamente antes de guardar
    */
-  public void cleanOrphanSnapshots() {
+  private void cleanOrphanSnapshots() {
     java.util.Set<String> referencedIds = new java.util.HashSet<>();
     
     // Recolectar IDs referenciados en el historial
@@ -217,10 +221,6 @@ public class OOZxConfiguration {
     
     for (String orphanId : orphanIds) {
       snapshots.remove(orphanId);
-    }
-    
-    if (!orphanIds.isEmpty()) {
-      save();
     }
   }
 
