@@ -22,6 +22,7 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 
 // Settings Dialog with tabs
 public class SettingsDialog extends JDialog {
@@ -75,6 +76,16 @@ public class SettingsDialog extends JDialog {
     buttonPanel.add(cancelButton);
 
     add(buttonPanel, BorderLayout.SOUTH);
+    
+    // Agregar ESC para cerrar el diálogo
+    KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+    getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "closeDialog");
+    getRootPane().getActionMap().put("closeDialog", new javax.swing.AbstractAction() {
+      @Override
+      public void actionPerformed(java.awt.event.ActionEvent e) {
+        dispose();
+      }
+    });
   }
 
   private JPanel createVideoPanel() {

@@ -21,6 +21,7 @@ package com.fpetrola.oozx.fuse.pokes;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 /**
@@ -85,6 +86,16 @@ public class PokesAppliedDialog extends JDialog {
     mainPanel.add(buttonPanel, BorderLayout.SOUTH);
     
     add(mainPanel);
+    
+    // Agregar ESC para cerrar el diálogo
+    KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+    getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "closeDialog");
+    getRootPane().getActionMap().put("closeDialog", new javax.swing.AbstractAction() {
+      @Override
+      public void actionPerformed(java.awt.event.ActionEvent e) {
+        dispose();
+      }
+    });
   }
 
   private JPanel createPokPanel(PokFile.PokeMod mod) {
