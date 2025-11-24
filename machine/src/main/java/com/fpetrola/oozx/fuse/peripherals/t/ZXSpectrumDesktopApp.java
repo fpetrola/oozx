@@ -463,18 +463,32 @@ class EmulatorInternalFrame extends JInternalFrame {
   }
 
   private void applyPokes(java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> mods) {
-    // TODO: Implementar la aplicación actual de pokes en el emulador
     System.out.println("Aplicando " + mods.size() + " pokes:");
     
-    // Limpiar pokes aplicados y agregar los nuevos
-    appliedPokes.clear();
+    // Identificar pokes nuevos que no estaban aplicados
+    java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> newMods = new java.util.ArrayList<>();
     for (com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod : mods) {
+      boolean wasAlreadyApplied = appliedPokes.stream()
+          .anyMatch(p -> p.getName().equals(mod.getName()) && 
+                        p.getRawInstruction().equals(mod.getRawInstruction()));
+      if (!wasAlreadyApplied) {
+        newMods.add(mod);
+      }
+    }
+    
+    // Actualizar la lista de pokes aplicados
+    appliedPokes.clear();
+    appliedPokes.addAll(mods);
+    
+    // Solo aplicar los nuevos pokes
+    for (com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod : newMods) {
       System.out.println("  - " + mod.getName() + ": " + mod.getDescription());
       System.out.println("    Type: " + mod.getInstructionType() + ", Raw: " + mod.getRawInstruction());
-      // Aquí se enviaría la instrucción al emulador para modificar memoria
-      // mod.getParsedInstruction().apply(emulatorMemoryWriter);
       emulatorCore.applyMod(mod);
-      appliedPokes.add(mod); // Guardar en el registro
+    }
+    
+    if (newMods.isEmpty()) {
+      System.out.println("  (No nuevos pokes para aplicar)");
     }
   }
 
