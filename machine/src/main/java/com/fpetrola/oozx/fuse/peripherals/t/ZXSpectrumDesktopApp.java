@@ -460,6 +460,7 @@ class EmulatorInternalFrame extends JInternalFrame {
       System.out.println("    Type: " + mod.getInstructionType() + ", Raw: " + mod.getRawInstruction());
       // Aquí se enviaría la instrucción al emulador para modificar memoria
       // mod.getParsedInstruction().apply(emulatorMemoryWriter);
+      emulatorCore.applyMod(mod);
     }
   }
 
