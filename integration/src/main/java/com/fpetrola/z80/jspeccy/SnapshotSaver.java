@@ -28,7 +28,11 @@ import snapshots.*;
 import machine.MachineTypes;
 import z80core.IntMode;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * SnapshotSaver - Clase que permite guardar el estado actual de la emulación como un snapshot Z80.
@@ -221,32 +225,69 @@ public class SnapshotSaver {
   }
 
   /**
-   * Guarda el estado del emulador como un snapshot en formato Unicode empaquetado
+   * Comprime un array de bytes usando GZIP
+   */
+  private static byte[] gzipCompress(byte[] data) throws Exception {
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+      try (GZIPOutputStream gzip = new GZIPOutputStream(out)) {
+        gzip.write(data);
+      }
+      return out.toByteArray();
+    }
+  }
+
+  /**
+   * Descomprime un array de bytes comprimido con GZIP
+   */
+  private static byte[] gzipDecompress(byte[] data) throws Exception {
+    try (ByteArrayInputStream in = new ByteArrayInputStream(data)) {
+      try (GZIPInputStream gzip = new GZIPInputStream(in)) {
+        return gzip.readAllBytes();
+      }
+    }
+  }
+
+  /**
+   * Guarda el estado del emulador como un snapshot en formato Unicode empaquetado con compresión GZIP
    * para almacenar en la configuración del programa (más eficiente en JSON)
    *
    * @param registersGetter Interface para leer los registros de la CPU
    * @param state Estado actual de la emulación
-   * @return String con el snapshot empaquetado en formato Unicode
+   * @return String con el snapshot comprimido y empaquetado en formato Unicode
    * @throws SnapshotException Si ocurre un error al crear el snapshot
    */
   public static String getSnapshotAsUnicodePacked(RegistersGetter registersGetter, State state) throws SnapshotException {
-    byte[] snapshotBytes = getSnapshotAsBytes(registersGetter, state);
-    return SnapshotUnicodePacker.packToUnicodeString(snapshotBytes);
+    try {
+      byte[] snapshotBytes = getSnapshotAsBytes(registersGetter, state);
+      byte[] compressedBytes = gzipCompress(snapshotBytes);
+      return SnapshotUnicodePacker.packToUnicodeString(compressedBytes);
+    } catch (SnapshotException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new SnapshotException("Error comprimiendo snapshot: " + e.getMessage());
+    }
   }
 
   /**
-   * Carga el estado del emulador desde un snapshot empaquetado en formato Unicode
+   * Carga el estado del emulador desde un snapshot empaquetado en formato Unicode con compresión GZIP
    *
-   * @param unicodePacked String con el snapshot empaquetado en formato Unicode
+   * @param unicodePacked String con el snapshot comprimido y empaquetado en formato Unicode
    * @return SpectrumState con el estado cargado
    * @throws SnapshotException Si ocurre un error al desempaquetar o cargar el snapshot
    */
   public static SpectrumState loadSnapshotFromUnicodePacked(String unicodePacked) throws SnapshotException {
-    if (unicodePacked == null || unicodePacked.isEmpty()) {
-      throw new SnapshotException("INVALID_SNAPSHOT_DATA");
+    try {
+      if (unicodePacked == null || unicodePacked.isEmpty()) {
+        throw new SnapshotException("INVALID_SNAPSHOT_DATA");
+      }
+      byte[] compressedBytes = SnapshotUnicodePacker.unpackFromUnicodeString(unicodePacked);
+      byte[] decompressedBytes = gzipDecompress(compressedBytes);
+      SnapshotZ80 snapshot = new SnapshotZ80();
+      return snapshot.loadFromBytes(decompressedBytes);
+    } catch (SnapshotException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new SnapshotException("Error descomprimiendo snapshot: " + e.getMessage());
     }
-    byte[] unpackedBytes = SnapshotUnicodePacker.unpackFromUnicodeString(unicodePacked);
-    SnapshotZ80 snapshot = new SnapshotZ80();
-    return snapshot.loadFromBytes(unpackedBytes);
   }
 }
