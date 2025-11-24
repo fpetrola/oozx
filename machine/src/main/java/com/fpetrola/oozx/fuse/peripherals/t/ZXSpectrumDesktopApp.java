@@ -25,6 +25,8 @@ import com.fpetrola.oozx.fuse.config.OOZxConfiguration;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorCore;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorListener;
 import com.fpetrola.oozx.fuse.peripherals.SettingsDialog;
+import com.fpetrola.oozx.fuse.pokes.PokesManager;
+import com.fpetrola.oozx.fuse.pokes.PokesDialog;
 import com.fpetrola.z80.jspeccy.SnapshotSaver;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.*;
@@ -49,6 +51,7 @@ import static com.fpetrola.oozx.fuse.peripherals.t.EmulatorInternalFrame.loadIco
 // Emulator Internal Frame
 class EmulatorInternalFrame extends JInternalFrame {
   public EmulatorCore emulatorCore;
+  private ZXSpectrumDesktopApp parentApp;
   //  private JLabel statusLabel;
   private JProgressBar speedBar;
   private JComboBox<String> modelCombo;
@@ -60,6 +63,11 @@ class EmulatorInternalFrame extends JInternalFrame {
   private float scaleFactor = scaleFactor0;
   //  private JLabel tapeStatusLabel;
 
+
+  public EmulatorInternalFrame(EmulatorCore core, int x, int y, ZXSpectrumDesktopApp parentApp) {
+    this(core, x, y);
+    this.parentApp = parentApp;
+  }
 
   public EmulatorInternalFrame(EmulatorCore core, int x, int y) {
     super("ZX Spectrum Emulator", true, true, true, true);
@@ -349,6 +357,15 @@ class EmulatorInternalFrame extends JInternalFrame {
     muteButton.addActionListener(e -> toggleMute());
     toolBar.add(muteButton);
 
+    toolBar.addSeparator();
+
+    if (parentApp != null) {
+      JButton pokesButton = new JButton(loadIcon("1F4A9.svg"));
+      pokesButton.setToolTipText("Cheats/Pokes");
+      pokesButton.addActionListener(e -> openPokesDialog());
+      toolBar.add(pokesButton);
+    }
+
 //    Icon resumeIcon = UIManager.getIcon("FileChooser.upFolderIcon");
 //    JButton resumeButton = new JButton(resumeIcon);
 //    resumeButton.setToolTipText("Resume Emulation");
@@ -398,6 +415,54 @@ class EmulatorInternalFrame extends JInternalFrame {
     int size = 24;
     ImageIcon turboIcon = SvgIconLoader.loadSvgAsImageIcon("/icons/" + iconFile, size, size);
     return turboIcon;
+  }
+
+  private void openPokesDialog() {
+    if (parentApp == null) return;
+    
+    String gameName = emulatorCore.getFilename();
+    if (gameName != null) {
+      gameName = new java.io.File(gameName).getName().replace(".tap", "").replace(".tzx", "")
+          .replace(".z80", "").replace(".sna", "").replace(".szx", "");
+    }
+    
+    if (gameName == null || gameName.isEmpty()) {
+      JOptionPane.showMessageDialog(this, "No game loaded", "Info", JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+    
+    java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile> availablePokes = 
+        parentApp.pokesManager.findPokesForGame(gameName);
+    
+    if (availablePokes.isEmpty()) {
+      JOptionPane.showMessageDialog(this, 
+          "No pokes found for: " + gameName, 
+          "Pokes Not Found", 
+          JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+    
+    PokesDialog pokesDialog = new PokesDialog(
+        (Frame) SwingUtilities.getWindowAncestor(this), 
+        gameName, 
+        availablePokes);
+    
+    pokesDialog.setOnPokesAppliedListener(selectedMods -> {
+      if (!selectedMods.isEmpty()) {
+        applyPokes(selectedMods);
+      }
+    });
+    
+    pokesDialog.setVisible(true);
+  }
+
+  private void applyPokes(java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> mods) {
+    // TODO: Implementar la aplicación actual de pokes en el emulador
+    System.out.println("Aplicando " + mods.size() + " pokes:");
+    for (com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod : mods) {
+      System.out.println("  - " + mod.getName() + ": " + mod.getInstruction());
+      // Aquí se enviaría la instrucción al emulador para modificar memoria
+    }
   }
 
   public OOZxConfiguration.WindowState saveWindowState(String filePath) {
@@ -773,6 +838,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private final JFileChooser fileChooser = new JFileChooser();
   protected OOZxConfiguration config;
   private JMenu recentFilesMenu;
+  protected PokesManager pokesManager;
 
   {
     // Configuración única del file chooser
@@ -858,6 +924,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     this.mockCore = mockCore;
     this.mockCoreState = mockCoreState1;
     this.config = OOZxConfiguration.load();
+    this.pokesManager = new PokesManager();
 
     setTitle("ZX Spectrum Multi-Emulator");
     setSize(1200, 800);
@@ -1371,7 +1438,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     JComponent panel = core.getPanel();
     int x = (emulatorCount * 30) % 400;
     int y = (emulatorCount * 30) % 300;
-    EmulatorInternalFrame frame = new EmulatorInternalFrame(core, x, y);
+    EmulatorInternalFrame frame = new EmulatorInternalFrame(core, x, y, this);
     frame.addInternalFrameListener(new InternalFrameAdapter() {
       public void internalFrameClosed(InternalFrameEvent e) {
         core1.finishEmulation();
