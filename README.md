@@ -4,9 +4,7 @@
 
 OOZX is a comprehensive, open-source Z80 emulator and ZX Spectrum game emulation platform built with clean object-oriented architecture. It provides both powerful bytecode translation capabilities for converting classic ZX Spectrum games into modern Java applications, and a feature-rich desktop environment for playing and exploring these retro games.
 
-![Gameplay de ZX Spectrum en oozx](doc/jsw1.gif)  
-![dan-95%.gif](doc/dan-95%25.gif)
-![wally-90%.gif](doc/wally-90%25.gif)
+![Emulation environment in oozx](doc/zxenv1.gif)
 
 ---
 
@@ -59,6 +57,11 @@ The bytecode translation system transforms ZX Spectrum Z80 assembly into Java:
 - **Manic Miner**: Fully translated (100%)
 - **Dynamite Dan**: Partially translated (~95%)
 - **Everyone's a Wally**: Partially translated (~90%)
+
+![Gameplay de ZX Spectrum en oozx](doc/jsw1.gif)  
+![dan-95%.gif](doc/dan-95%25.gif)
+![wally-90%.gif](doc/wally-90%25.gif)
+
 
 ### Emulation Engine
 
