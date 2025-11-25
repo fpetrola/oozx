@@ -19,6 +19,7 @@
 // src/main/java/com/example/GameEntry.java
 package com.fpetrola.oozx.api;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -112,7 +113,7 @@ public class GameEntry {
     public List<Object> youTubeLinks;
     public List<AdditionalDownload> additionalDownloads;
     public List<MagazineReference> magazineReferences;
-    public List<Screen> screens;
+    public List<Object> screens;
     public List<MD5Hash> md5hash;
 
     @Override

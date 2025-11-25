@@ -19,6 +19,7 @@
 // src/main/java/com/example/Main.java
 package com.fpetrola.oozx.api;
 
+import com.fpetrola.oozx.fuse.peripherals.t.GameBrowserInternalFrame;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
@@ -57,7 +58,7 @@ public class ZxInfoApiHandler {
       ZxInfoClient zxClient = target.proxy(ZxInfoClient.class);
       GameResponse response = zxClient.getGameDetails(gameId);
       GameEntry gameEntry = response.getGameEntry();
-      
+
       return convertGameEntryToDetail(gameEntry, gameId);
     } catch (Exception e) {
       System.err.println("Error fetching game details: " + e.getMessage());
@@ -75,7 +76,7 @@ public class ZxInfoApiHandler {
    */
   private GameDetail convertGameEntryToDetail(GameEntry entry, String gameId) {
     GameDetail detail = new GameDetail();
-    
+
     detail.id = gameId;
     detail.title = entry.title;
     detail.yearOfRelease = entry.originalYearOfRelease != null ? entry.originalYearOfRelease.toString() : null;
@@ -90,12 +91,12 @@ public class ZxInfoApiHandler {
     detail.xrated = entry.xrated;
     detail.contentType = entry.contentType;
     detail.zxinfoVersion = entry.zxinfoVersion;
-    
+
     // Handle score
     if (entry.score != null) {
       detail.score = entry.score.score != null ? entry.score.score.doubleValue() : null;
     }
-    
+
     // Handle publishers
     if (entry.publishers != null && !entry.publishers.isEmpty()) {
       detail.publisher = entry.publishers.get(0).name;
@@ -104,7 +105,7 @@ public class ZxInfoApiHandler {
         detail.publishers.add(pub.name);
       }
     }
-    
+
     // Handle authors
     if (entry.authors != null && !entry.authors.isEmpty()) {
       detail.authors = new java.util.ArrayList<>();
@@ -114,27 +115,30 @@ public class ZxInfoApiHandler {
         }
       }
     }
-    
+
     // Handle screenshots
     if (entry.screens != null && !entry.screens.isEmpty()) {
       detail.screenshots = new java.util.ArrayList<>();
-      for (Screen screen : entry.screens) {
-        String screenshotUrl = null;
-        // Try to use URL if available
-        if (screen.url != null && !screen.url.isEmpty()) {
-          screenshotUrl = screen.url;
-        } else if (screen.scrUrl != null && !screen.scrUrl.isEmpty()) {
-          screenshotUrl = screen.scrUrl;
-        } else if (screen.filename != null && !screen.filename.isEmpty()) {
-          // Construct full URL from filename
-          screenshotUrl = "https://media.zxinfo.dk/media/" + screen.filename;
-        }
-        if (screenshotUrl != null) {
-          detail.screenshots.add(screenshotUrl);
+      for (Object screenMap : entry.screens) {
+        Screen screen = GameBrowserInternalFrame.getScreen(screenMap);
+        if (screen != null) {
+          String screenshotUrl = null;
+          // Try to use URL if available
+          if (screen.url != null && !screen.url.isEmpty()) {
+            screenshotUrl = screen.url;
+          } else if (screen.scrUrl != null && !screen.scrUrl.isEmpty()) {
+            screenshotUrl = screen.scrUrl;
+          } else if (screen.filename != null && !screen.filename.isEmpty()) {
+            // Construct full URL from filename
+            screenshotUrl = "https://media.zxinfo.dk/media/" + screen.filename;
+          }
+          if (screenshotUrl != null) {
+            detail.screenshots.add(screenshotUrl);
+          }
         }
       }
     }
-    
+
     // Handle additional downloads
     if (entry.additionalDownloads != null && !entry.additionalDownloads.isEmpty()) {
       detail.additionalDownloads = new java.util.ArrayList<>();
@@ -148,7 +152,7 @@ public class ZxInfoApiHandler {
         }
       }
     }
-    
+
     // Handle releases
     if (entry.releases != null && !entry.releases.isEmpty()) {
       detail.releases = new java.util.ArrayList<>();
@@ -162,7 +166,7 @@ public class ZxInfoApiHandler {
         }
       }
     }
-    
+
     return detail;
   }
 }

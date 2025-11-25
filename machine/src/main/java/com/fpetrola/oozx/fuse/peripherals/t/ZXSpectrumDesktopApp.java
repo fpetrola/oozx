@@ -20,6 +20,7 @@ package com.fpetrola.oozx.fuse.peripherals.t;
 
 import com.fpetrola.oozx.api.GameEntry;
 import com.fpetrola.oozx.api.Hit;
+import com.fpetrola.oozx.api.Screen;
 import com.fpetrola.oozx.api.ZxInfoApiHandler;
 import com.fpetrola.oozx.fuse.config.OOZxConfiguration;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorCore;
@@ -32,6 +33,9 @@ import com.fpetrola.z80.cpu.RegistersGetter;
 import com.fpetrola.z80.cpu.State;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import snapshots.SpectrumState;
 
 import javax.swing.*;
@@ -417,77 +421,77 @@ class EmulatorInternalFrame extends JInternalFrame {
 
   private void openPokesDialog() {
     if (parentApp == null) return;
-    
+
     String gameName = emulatorCore.getFilename();
     if (gameName != null) {
       gameName = new java.io.File(gameName).getName().replace(".tap", "").replace(".tzx", "")
           .replace(".z80", "").replace(".sna", "").replace(".szx", "");
     }
-    
+
     if (gameName == null || gameName.isEmpty()) {
       JOptionPane.showMessageDialog(this, "No game loaded", "Info", JOptionPane.INFORMATION_MESSAGE);
       return;
     }
-    
-    java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile> availablePokes = 
+
+    java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile> availablePokes =
         parentApp.pokesManager.findPokesForGame(gameName);
-    
+
     if (availablePokes.isEmpty()) {
-      JOptionPane.showMessageDialog(this, 
-          "No pokes found for: " + gameName, 
-          "Pokes Not Found", 
+      JOptionPane.showMessageDialog(this,
+          "No pokes found for: " + gameName,
+          "Pokes Not Found",
           JOptionPane.INFORMATION_MESSAGE);
       return;
     }
-    
+
     PokesDialog pokesDialog = new PokesDialog(
-        (Frame) SwingUtilities.getWindowAncestor(this), 
-        gameName, 
+        (Frame) SwingUtilities.getWindowAncestor(this),
+        gameName,
         availablePokes,
         parentApp.pokesManager,
         new ArrayList<>(appliedPokes)); // Pasar pokes previamente aplicados en el constructor
-    
+
     pokesDialog.setOnPokesAppliedListener(selectedMods -> {
       if (!selectedMods.isEmpty()) {
         applyPokes(selectedMods);
       }
     });
-    
+
     // Listener para revertir pokes removidos
     pokesDialog.setOnPokesChangedListener(removedMods -> {
       if (!removedMods.isEmpty()) {
         revertPokes(removedMods);
       }
     });
-    
+
     pokesDialog.setVisible(true);
   }
 
   private void applyPokes(java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> mods) {
     System.out.println("Aplicando " + mods.size() + " pokes:");
-    
+
     // Identificar pokes nuevos que no estaban aplicados
     java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> newMods = new java.util.ArrayList<>();
     for (com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod : mods) {
       boolean wasAlreadyApplied = appliedPokes.stream()
-          .anyMatch(p -> p.getName().equals(mod.getName()) && 
-                        p.getRawInstruction().equals(mod.getRawInstruction()));
+          .anyMatch(p -> p.getName().equals(mod.getName()) &&
+                         p.getRawInstruction().equals(mod.getRawInstruction()));
       if (!wasAlreadyApplied) {
         newMods.add(mod);
       }
     }
-    
+
     // Actualizar la lista de pokes aplicados
     appliedPokes.clear();
     appliedPokes.addAll(mods);
-    
+
     // Solo aplicar los nuevos pokes
     for (com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod : newMods) {
       System.out.println("  - " + mod.getName() + ": " + mod.getDescription());
       System.out.println("    Type: " + mod.getInstructionType() + ", Raw: " + mod.getRawInstruction());
       emulatorCore.applyMod(mod);
     }
-    
+
     if (newMods.isEmpty()) {
       System.out.println("  (No nuevos pokes para aplicar)");
     }
@@ -498,7 +502,7 @@ class EmulatorInternalFrame extends JInternalFrame {
     for (com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod : mods) {
       System.out.println("  - " + mod.getName() + ": " + mod.getDescription());
       // Remover del registro
-      appliedPokes.removeIf(p -> p.getName().equals(mod.getName()) && 
+      appliedPokes.removeIf(p -> p.getName().equals(mod.getName()) &&
                                  p.getRawInstruction().equals(mod.getRawInstruction()));
       // Revertir el poke en el emulador (el valor previo está guardado en PokInstruction)
       emulatorCore.revertMod(mod);
@@ -649,271 +653,6 @@ interface GameBrowserListener {
   void onAddToFavorites(String gameUrl);
 
   void onDownloadGame(String gameUrl);
-}
-
-// --- NEW: Game Browser Internal Frame ---
-class GameBrowserInternalFrame extends JInternalFrame {
-  private JTextField searchField;
-  private JPanel resultsPanel;
-  private GameBrowserListener listener;
-
-  public GameBrowserInternalFrame(GameBrowserListener listener) {
-    super("Game Browser", true, true, true, true);
-    this.listener = listener;
-    setSize(560, 600);
-    setLocation(50, 50);
-
-    JPanel topPanel = new JPanel();
-    topPanel.setLayout(new BorderLayout());
-    topPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-    searchField = new JTextField();
-    searchField.setFont(new Font("Arial", Font.PLAIN, 16));
-    JButton searchButton = new JButton("Search");
-    searchButton.setPreferredSize(new Dimension(100, 30));
-
-    topPanel.add(searchField, BorderLayout.CENTER);
-    topPanel.add(searchButton, BorderLayout.EAST);
-
-    add(topPanel, BorderLayout.NORTH);
-
-    resultsPanel = new JPanel();
-    resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
-    Color color = UIManager.getColor("Panel.background");
-    resultsPanel.setBackground(color);
-
-    JScrollPane scrollPane = new JScrollPane(resultsPanel);
-    scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-    scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-    add(scrollPane, BorderLayout.CENTER);
-
-    searchButton.addActionListener(e -> performSearch());
-    searchField.addActionListener(e -> performSearch());
-  }
-
-  private void performSearch() {
-    String query = searchField.getText().trim();
-    if (query.isEmpty()) return;
-
-    // Clear previous results
-    resultsPanel.removeAll();
-
-    SwingUtilities.invokeLater(() -> {
-      // Mock search results (in real app, this would be async from web)
-      List<GameSearchResult> mockResults = createMockResults(query);
-
-      for (GameSearchResult result : mockResults) {
-        JPanel gameRow = createGameRow(result);
-        resultsPanel.add(gameRow);
-        resultsPanel.add(Box.createVerticalStrut(10));
-      }
-
-      resultsPanel.revalidate();
-      resultsPanel.repaint();
-    });
-  }
-
-  private List<GameSearchResult> createMockResults(String query) {
-    List<Hit> search = new ZxInfoApiHandler().search(query);
-
-    List<GameSearchResult> results = new ArrayList<>();
-
-    for (Hit hit : search) {
-      GameEntry game = hit._source;
-      if (game.contentType.equals("SOFTWARE")) {
-        List<String> screenshots = new ArrayList<>();
-        game.screens.forEach(s -> {
-          String filename = "https://worldofspectrum.net" + s.url;
-          if (s.url.startsWith("/zxscreens"))
-            filename = "https://zxinfo.dk/media" + s.url;
-
-          screenshots.add(filename);
-        });
-        List<String> files = new ArrayList<>();
-
-        game.releases.forEach(s -> {
-          s.files.forEach(f -> {
-            if (f.format != null) {
-              System.out.println(f.format);
-//              List<String> anObject = List.of("Snapshot (Z80)", "Snapshot (SNA)", "Tape (TAP)", "Perfect tape (TZX)");
-              List<String> anObject = List.of("Snapshot (Z80)", "Snapshot (SNA)", "Perfect tape (TZX)");
-//              List<String> anObject = List.of("Snapshot (Z80)", "Snapshot (SNA)");
-              if (anObject.contains(f.format)) {
-                String filename = "https://worldofspectrum.net" + f.path;
-                if (f.path.startsWith("/zxdb"))
-                  filename = "https://spectrumcomputing.co.uk" + f.path;
-                files.add(filename);
-              }
-            }
-          });
-        });
-
-        String screenshot1 = getString(screenshots, 0);
-        String screenshot2 = getString(screenshots, 1);
-        if (!files.isEmpty()) {
-          String s = !files.isEmpty() ? files.get(0) : null;
-          results.add(new GameSearchResult(hit._id, game.title, "http://example.com/game/" + query, screenshot1, screenshot2, s));
-        }
-      }
-    }
-    return results;
-  }
-
-  private String getString(List<String> screenshots, int x) {
-    if (x == -1)
-      return "https://i.sstatic.net/wAz1X.gif";
-    else
-      return screenshots.size() > x ? screenshots.get(x) : getString(screenshots, x - 1);
-  }
-
-  private GameData getGameData() {
-    String text = "https://worldofspectrum.net/pub/sinclair/screens/in-game/e/EveryonesAWally.gif";
-    ImageIcon img1 = getImageIcon(text);
-//      ImageIcon img1 = createPlaceholderImage(256, 192, Color.LIGHT_GRAY, text);
-//    String text1 = "https://worldofspectrum.net/pub/sinclair/screens/in-game/e/EveryonesAWally.gif";
-//      ImageIcon img2 = createPlaceholderImage(256, 192, Color.GRAY, text1);
-//    ImageIcon img2 = new ImageIcon(url);
-    GameData gameData = new GameData(img1, img1);
-    return gameData;
-  }
-
-  private ImageIcon getImageIcon(String text) {
-    try {
-      return new ImageIcon(new URL(text));
-    } catch (MalformedURLException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private record GameData(ImageIcon img1, ImageIcon img2) {
-  }
-
-  private ImageIcon createPlaceholderImage(int w, int h, Color bg, String text) {
-    BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-    Graphics2D g = img.createGraphics();
-    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-    g.setColor(bg);
-    g.fillRect(0, 0, w, h);
-    g.setColor(Color.BLACK);
-    g.drawRect(0, 0, w - 1, h - 1);
-    g.setFont(new Font("Arial", Font.BOLD, 16));
-    FontMetrics fm = g.getFontMetrics();
-    int x = (w - fm.stringWidth(text)) / 2;
-    int y = (h - fm.getHeight()) / 2 + fm.getAscent();
-    g.drawString(text, x, y);
-    g.dispose();
-    return new ImageIcon(img);
-  }
-
-  private JPanel createGameRow(GameSearchResult result) {
-    JPanel row = new JPanel();
-    Color color = UIManager.getColor("List.background");
-    row.setLayout(new BoxLayout(row, BoxLayout.X_AXIS));
-    row.setBorder(BorderFactory.createCompoundBorder(
-        BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-        BorderFactory.createEmptyBorder(5, 5, 5, 5)
-    ));
-    MouseAdapter l = new MouseAdapter() {
-      public void mouseEntered(MouseEvent e) {
-        Color color = UIManager.getColor("List.selectionBackground");
-        row.setBackground(color);
-      }
-
-      public void mouseExited(MouseEvent e) {
-        row.setBackground(color);
-      }
-    };
-    row.addMouseListener(l);
-
-    row.setBackground(color);
-
-    JLabel imgLabel1 = new JLabel();
-    loadLazyImage(imgLabel1, result.screenshot1, l);
-    imgLabel1.setAlignmentY(Component.TOP_ALIGNMENT);
-    JLabel imgLabel2 = new JLabel();
-    loadLazyImage(imgLabel2, result.screenshot2, l);
-    imgLabel2.setAlignmentY(Component.TOP_ALIGNMENT);
-
-    // Context menu
-    JPopupMenu contextMenu = new JPopupMenu();
-    JMenuItem loadItem = new JMenuItem("Load Game");
-    JMenuItem detailsItem = new JMenuItem("View Details");
-    JMenuItem favoriteItem = new JMenuItem("Add to Favorites");
-    JMenuItem downloadItem = new JMenuItem("Download");
-    contextMenu.add(loadItem);
-    contextMenu.add(detailsItem);
-    contextMenu.add(favoriteItem);
-    contextMenu.add(downloadItem);
-
-    MouseAdapter mouseAdapter = new MouseAdapter() {
-      @Override
-      public void mousePressed(MouseEvent e) {
-        if (e.isPopupTrigger()) showPopup(e);
-      }
-
-      @Override
-      public void mouseReleased(MouseEvent e) {
-        if (e.isPopupTrigger()) showPopup(e);
-      }
-
-      private void showPopup(MouseEvent e) {
-        contextMenu.show(e.getComponent(), e.getX(), e.getY());
-      }
-
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
-          listener.onGameSelected(result);
-        }
-      }
-    };
-
-    imgLabel1.addMouseListener(mouseAdapter);
-    imgLabel2.addMouseListener(mouseAdapter);
-
-    loadItem.addActionListener(e -> listener.onGameSelected(result));
-    detailsItem.addActionListener(e -> listener.onViewDetails(result));
-    favoriteItem.addActionListener(e -> listener.onAddToFavorites(result.url));
-    downloadItem.addActionListener(e -> listener.onDownloadGame(result.url));
-
-    row.add(imgLabel1);
-    row.add(Box.createHorizontalStrut(10));
-    row.add(imgLabel2);
-    row.add(Box.createHorizontalGlue());
-
-    return row;
-  }
-
-  private void loadLazyImage(JLabel imgLabel1, String screenshot1, MouseAdapter mouseAdapter) {
-    LazyImageIconLoader lazyImageIconLoader = new LazyImageIconLoader(imgLabel1, screenshot1, mouseAdapter);
-    lazyImageIconLoader.execute();
-  }
-
-  public void setSearchQuery(String query) {
-    searchField.setText(query);
-    performSearch();
-  }
-
-  public OOZxConfiguration.WindowState saveWindowState() {
-    OOZxConfiguration.WindowState state = new OOZxConfiguration.WindowState(
-        "GAME_BROWSER", getX(), getY(), getWidth(), getHeight());
-    state.setSearchQuery(searchField.getText());
-    state.setZOrder(ZXSpectrumDesktopApp.getComponentZOrder(this));
-    return state;
-  }
-
-  public void restoreWindowState(OOZxConfiguration.WindowState state) {
-    if (state.getWidth() > 0 && state.getHeight() > 0) {
-      setSize(state.getWidth(), state.getHeight());
-    }
-    if (state.getX() >= 0 && state.getY() >= 0) {
-      setLocation(state.getX(), state.getY());
-    }
-    if (state.getSearchQuery() != null && !state.getSearchQuery().isEmpty()) {
-      setSearchQuery(state.getSearchQuery());
-    }
-  }
 }
 
 // --- UPDATED: ZXSpectrumDesktopApp with Game Browser ---
@@ -1508,7 +1247,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private void openSnapshotHistory() {
     if (snapshotHistory == null || snapshotHistory.isClosed()) {
       snapshotHistory = new SnapshotHistoryInternalFrame(config);
-      
+
       // Listener para cargar un snapshot del historial
       snapshotHistory.setOnSnapshotSelectedListener(entry -> {
         // Si hay estado guardado, usarlo; si no, cargar desde el archivo
@@ -1526,12 +1265,12 @@ public class ZXSpectrumDesktopApp extends JFrame {
             // Fallback a cargar desde archivo
           }
         }
-        
+
         // Fallback: cargar desde el archivo
         EmulatorCore core = mockCore.apply(entry.getFilePath());
         createNewEmulator(core, entry.getFilePath());
       });
-      
+
       // Listener para remover del historial
       snapshotHistory.setOnSnapshotRemovedListener(entry -> {
         if (entry == null) {
@@ -1545,24 +1284,24 @@ public class ZXSpectrumDesktopApp extends JFrame {
         // Guardar (se limpian automáticamente snapshots huérfanos)
         config.save();
       });
-      
+
       // Listener para ver detalles del juego
       snapshotHistory.setOnViewDetailsListener(gameName -> {
         showGameDetailsFromHistory(gameName);
       });
-      
+
       // Callback para refrescar la lista cuando cambia el historial
       config.setOnHistoryChanged(() -> {
         if (snapshotHistory != null && !snapshotHistory.isClosed()) {
           snapshotHistory.refreshHistory(config);
         }
       });
-      
+
       // Callback para guardar estado cuando se cierre la ventana
       snapshotHistory.setOnClosedListener(() -> {
         config.save();
       });
-      
+
       desktop.add(snapshotHistory);
       snapshotHistory.setVisible(true);
       try {
@@ -1586,7 +1325,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     String cleanGameName = gameName
         .replaceAll("\\.(z80|sna|tap|tzx|szx)$", "")
         .trim();
-    
+
     // Show loading dialog
     JDialog loadingDialog = new JDialog(this, "Loading Game Details", true);
     loadingDialog.setSize(300, 100);
@@ -1594,55 +1333,55 @@ public class ZXSpectrumDesktopApp extends JFrame {
     JLabel loadingLabel = new JLabel("Searching for: " + cleanGameName);
     loadingLabel.setHorizontalAlignment(JLabel.CENTER);
     loadingDialog.add(loadingLabel);
-    
+
     // Search in background
-    SwingWorker<com.fpetrola.oozx.api.GameDetail, Void> worker = 
-      new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
-        @Override
-        protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
-          try {
-            // Search for the game by name (without file extension)
-            ZxInfoApiHandler apiHandler = new ZxInfoApiHandler();
-            java.util.List<Hit> results = apiHandler.search(cleanGameName);
-            
-            if (results == null || results.isEmpty()) {
+    SwingWorker<com.fpetrola.oozx.api.GameDetail, Void> worker =
+        new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
+          @Override
+          protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
+            try {
+              // Search for the game by name (without file extension)
+              ZxInfoApiHandler apiHandler = new ZxInfoApiHandler();
+              java.util.List<Hit> results = apiHandler.search(cleanGameName);
+
+              if (results == null || results.isEmpty()) {
+                return null;
+              }
+
+              // Get the best matching result (first one)
+              Hit bestMatch = results.get(0);
+              String gameId = bestMatch._id;
+
+              // Fetch full details from API
+              return apiHandler.fetchGameDetails(gameId);
+            } catch (Exception e) {
+              System.err.println("Error searching for game: " + e.getMessage());
               return null;
             }
-            
-            // Get the best matching result (first one)
-            Hit bestMatch = results.get(0);
-            String gameId = bestMatch._id;
-            
-            // Fetch full details from API
-            return apiHandler.fetchGameDetails(gameId);
-          } catch (Exception e) {
-            System.err.println("Error searching for game: " + e.getMessage());
-            return null;
           }
-        }
-        
-        @Override
-        protected void done() {
-          loadingDialog.dispose();
-          try {
-            com.fpetrola.oozx.api.GameDetail gameDetail = get();
-            
-            if (gameDetail == null) {
-              // Show dialog to allow user to search again
-              showGameNotFoundDialog(cleanGameName);
-              return;
+
+          @Override
+          protected void done() {
+            loadingDialog.dispose();
+            try {
+              com.fpetrola.oozx.api.GameDetail gameDetail = get();
+
+              if (gameDetail == null) {
+                // Show dialog to allow user to search again
+                showGameNotFoundDialog(cleanGameName);
+                return;
+              }
+
+              GameDetailsDialog dialog = new GameDetailsDialog(ZXSpectrumDesktopApp.this, gameDetail);
+              dialog.setVisible(true);
+            } catch (Exception e) {
+              JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+                  "Error loading game details: " + e.getMessage(),
+                  "Error", JOptionPane.ERROR_MESSAGE);
             }
-            
-            GameDetailsDialog dialog = new GameDetailsDialog(ZXSpectrumDesktopApp.this, gameDetail);
-            dialog.setVisible(true);
-          } catch (Exception e) {
-            JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-              "Error loading game details: " + e.getMessage(),
-              "Error", JOptionPane.ERROR_MESSAGE);
           }
-        }
-      };
-    
+        };
+
     worker.execute();
     loadingDialog.setVisible(true);
   }
@@ -1651,8 +1390,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
    * Show dialog when game not found, allowing user to search with different name
    */
   private void showGameNotFoundDialog(String attemptedName) {
-    GameNotFoundDialog.showWithRetry(this, "Game not found: " + attemptedName, 
-      newName -> showGameDetailsFromHistory(newName));
+    GameNotFoundDialog.showWithRetry(this, "Game not found: " + attemptedName,
+        newName -> showGameDetailsFromHistory(newName));
   }
 
   private EmulatorInternalFrame getActiveEmulatorOrCreateNew(GameSearchResult gameSearchResult) {
@@ -1683,12 +1422,12 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
   public EmulatorInternalFrame createNewEmulator(EmulatorCore core1, String filePath) {
     EmulatorCore core = core1;
-    
+
     // Asignar el filename si se proporciona
     if (filePath != null && !filePath.isEmpty()) {
       core.setFilename(filePath);
     }
-    
+
     JComponent panel = core.getPanel();
     int x = (emulatorCount * 30) % 400;
     int y = (emulatorCount * 30) % 300;
@@ -1726,7 +1465,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     // Usar un timer para permitir que se cargue el snapshot completamente
     final String finalFilePath = filePath;
     final EmulatorCore finalCore = core;
-    
+
     Timer stateCapture = new Timer(500, e -> {
       try {
         // Obtener el path real del emulator
@@ -1734,10 +1473,10 @@ public class ZXSpectrumDesktopApp extends JFrame {
         if (actualFilePath == null || actualFilePath.isEmpty()) {
           actualFilePath = finalCore.getFilename();
         }
-        
+
         if (actualFilePath != null && !actualFilePath.isEmpty()) {
           String gameName = new java.io.File(actualFilePath).getName();
-          
+
           // Intentar capturar el estado inicial
           String initialStateData = null;
           try {
@@ -1749,7 +1488,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
           } catch (Exception ex) {
             System.err.println("Error capturando estado inicial: " + ex.getMessage());
           }
-          
+
           // Registrar en el historial con el estado (o sin si no se pudo capturar)
           config.addToSnapshotHistory(actualFilePath, gameName, initialStateData);
         }
@@ -1875,55 +1614,55 @@ public class ZXSpectrumDesktopApp extends JFrame {
         JLabel loadingLabel = new JLabel("Fetching game details from ZXInfo API...");
         loadingLabel.setHorizontalAlignment(JLabel.CENTER);
         loadingDialog.add(loadingLabel);
-        
+
         // Fetch details in background thread
-        SwingWorker<com.fpetrola.oozx.api.GameDetail, Void> worker = 
-          new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
-            @Override
-            protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
-              // Extract ID from URL (e.g., "https://zxinfo.dk/games/xxxx")
-              String gameId = gameSearchResult.id;
-              // Fetch full details from API
-              ZxInfoApiHandler apiHandler = new ZxInfoApiHandler();
-              return apiHandler.fetchGameDetails(gameId);
-            }
-            
-            @Override
-            protected void done() {
-              loadingDialog.dispose();
-              try {
-                com.fpetrola.oozx.api.GameDetail gameDetail = get();
-                
-                if (gameDetail == null) {
-                  // Fallback to basic info if API call fails
-                  gameDetail = new com.fpetrola.oozx.api.GameDetail();
-                  gameDetail.id = gameSearchResult.url;
-                  gameDetail.title = gameSearchResult.title;
-                  gameDetail.yearOfRelease = "Unknown";
-                  gameDetail.publisher = "Unknown";
-                  gameDetail.genre = "Unknown";
-                  gameDetail.machineType = "Spectrum 48K";
-                  gameDetail.memoryRequired = "48K";
-                  gameDetail.screenshots = new java.util.ArrayList<>();
-                  if (gameSearchResult.screenshot1 != null && !gameSearchResult.screenshot1.isEmpty()) {
-                    gameDetail.screenshots.add(gameSearchResult.screenshot1);
-                  }
-                  if (gameSearchResult.screenshot2 != null && !gameSearchResult.screenshot2.isEmpty()) {
-                    gameDetail.screenshots.add(gameSearchResult.screenshot2);
-                  }
-                  gameDetail.description = "Game description not available";
-                }
-                
-                GameDetailsDialog dialog = new GameDetailsDialog(ZXSpectrumDesktopApp.this, gameDetail);
-                dialog.setVisible(true);
-              } catch (Exception e) {
-                JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-                  "Error loading game details: " + e.getMessage(),
-                  "Error", JOptionPane.ERROR_MESSAGE);
+        SwingWorker<com.fpetrola.oozx.api.GameDetail, Void> worker =
+            new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
+              @Override
+              protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
+                // Extract ID from URL (e.g., "https://zxinfo.dk/games/xxxx")
+                String gameId = gameSearchResult.id;
+                // Fetch full details from API
+                ZxInfoApiHandler apiHandler = new ZxInfoApiHandler();
+                return apiHandler.fetchGameDetails(gameId);
               }
-            }
-          };
-        
+
+              @Override
+              protected void done() {
+                loadingDialog.dispose();
+                try {
+                  com.fpetrola.oozx.api.GameDetail gameDetail = get();
+
+                  if (gameDetail == null) {
+                    // Fallback to basic info if API call fails
+                    gameDetail = new com.fpetrola.oozx.api.GameDetail();
+                    gameDetail.id = gameSearchResult.url;
+                    gameDetail.title = gameSearchResult.title;
+                    gameDetail.yearOfRelease = "Unknown";
+                    gameDetail.publisher = "Unknown";
+                    gameDetail.genre = "Unknown";
+                    gameDetail.machineType = "Spectrum 48K";
+                    gameDetail.memoryRequired = "48K";
+                    gameDetail.screenshots = new java.util.ArrayList<>();
+                    if (gameSearchResult.screenshot1 != null && !gameSearchResult.screenshot1.isEmpty()) {
+                      gameDetail.screenshots.add(gameSearchResult.screenshot1);
+                    }
+                    if (gameSearchResult.screenshot2 != null && !gameSearchResult.screenshot2.isEmpty()) {
+                      gameDetail.screenshots.add(gameSearchResult.screenshot2);
+                    }
+                    gameDetail.description = "Game description not available";
+                  }
+
+                  GameDetailsDialog dialog = new GameDetailsDialog(ZXSpectrumDesktopApp.this, gameDetail);
+                  dialog.setVisible(true);
+                } catch (Exception e) {
+                  JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+                      "Error loading game details: " + e.getMessage(),
+                      "Error", JOptionPane.ERROR_MESSAGE);
+                }
+              }
+            };
+
         worker.execute();
         loadingDialog.setVisible(true);
       }
