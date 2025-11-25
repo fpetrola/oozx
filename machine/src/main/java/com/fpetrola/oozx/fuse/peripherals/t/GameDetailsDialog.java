@@ -120,9 +120,13 @@ public class GameDetailsDialog extends JDialog {
         
         JTextField searchField = new JTextField();
         searchField.setToolTipText("Enter game name to search for details");
+        searchField.setPreferredSize(new Dimension(Integer.MAX_VALUE, 30));
         
         JButton searchButton = new JButton("Search");
         searchButton.addActionListener(e -> searchForGame(searchField.getText()));
+        
+        // Add Enter key support to search field
+        searchField.addActionListener(e -> searchForGame(searchField.getText()));
         
         panel.add(searchField, BorderLayout.CENTER);
         panel.add(searchButton, BorderLayout.EAST);
@@ -133,9 +137,35 @@ public class GameDetailsDialog extends JDialog {
     
     private void searchForGame(String gameName) {
         if (gameName == null || gameName.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                "Please enter a game name",
-                "Empty Search", JOptionPane.WARNING_MESSAGE);
+            JDialog gameNotFoundDialog = new JDialog(this, "Game Not Found", true);
+            gameNotFoundDialog.setSize(400, 120);
+            gameNotFoundDialog.setLocationRelativeTo(this);
+            gameNotFoundDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+            
+            // Add Escape key support
+            KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0);
+            gameNotFoundDialog.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "closeDialog");
+            gameNotFoundDialog.getRootPane().getActionMap().put("closeDialog", new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    gameNotFoundDialog.dispose();
+                }
+            });
+            
+            JPanel panel = new JPanel(new BorderLayout(10, 10));
+            panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            JLabel messageLabel = new JLabel("Please enter a game name");
+            messageLabel.setHorizontalAlignment(JLabel.CENTER);
+            panel.add(messageLabel, BorderLayout.CENTER);
+            
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            JButton okButton = new JButton("OK");
+            okButton.addActionListener(e -> gameNotFoundDialog.dispose());
+            buttonPanel.add(okButton);
+            panel.add(buttonPanel, BorderLayout.SOUTH);
+            
+            gameNotFoundDialog.add(panel);
+            gameNotFoundDialog.setVisible(true);
             return;
         }
         
@@ -178,9 +208,35 @@ public class GameDetailsDialog extends JDialog {
                         com.fpetrola.oozx.api.GameDetail detail = get();
                         
                         if (detail == null) {
-                            JOptionPane.showMessageDialog(GameDetailsDialog.this,
-                                "Game not found: " + gameName,
-                                "Not Found", JOptionPane.INFORMATION_MESSAGE);
+                            JDialog gameNotFoundDialog = new JDialog(GameDetailsDialog.this, "Game Not Found", true);
+                            gameNotFoundDialog.setSize(400, 120);
+                            gameNotFoundDialog.setLocationRelativeTo(GameDetailsDialog.this);
+                            gameNotFoundDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+                            
+                            // Add Escape key support
+                            KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0);
+                            gameNotFoundDialog.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "closeDialog");
+                            gameNotFoundDialog.getRootPane().getActionMap().put("closeDialog", new AbstractAction() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    gameNotFoundDialog.dispose();
+                                }
+                            });
+                            
+                            JPanel panel = new JPanel(new BorderLayout(10, 10));
+                            panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                            JLabel messageLabel = new JLabel("Game not found: " + gameName);
+                            messageLabel.setHorizontalAlignment(JLabel.CENTER);
+                            panel.add(messageLabel, BorderLayout.CENTER);
+                            
+                            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+                            JButton okButton = new JButton("OK");
+                            okButton.addActionListener(e -> gameNotFoundDialog.dispose());
+                            buttonPanel.add(okButton);
+                            panel.add(buttonPanel, BorderLayout.SOUTH);
+                            
+                            gameNotFoundDialog.add(panel);
+                            gameNotFoundDialog.setVisible(true);
                             return;
                         }
                         
@@ -366,7 +422,7 @@ public class GameDetailsDialog extends JDialog {
         JLabel titleLabel = new JLabel(gameDetail.title);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
         titlePanel.add(titleLabel, BorderLayout.CENTER);
-        titlePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+        titlePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
         mainPanel.add(titlePanel);
         mainPanel.add(Box.createVerticalStrut(10));
@@ -761,11 +817,13 @@ public class GameDetailsDialog extends JDialog {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
 
         // Top row: Emulation options
         JPanel optionsPanel = new JPanel();
         optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
         optionsPanel.setBorder(BorderFactory.createTitledBorder("Emulation Options"));
+        optionsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
 
         JLabel modelLabel = new JLabel("Model:");
         String[] models = {"Spectrum 48K", "Spectrum 128K", "Spectrum +3"};
@@ -789,14 +847,18 @@ public class GameDetailsDialog extends JDialog {
         optionsPanel.add(speedSpinner);
         optionsPanel.add(Box.createHorizontalGlue());
 
-        // Second row: Feature checkboxes
+        // Second row: Feature checkboxes (read-only)
         JPanel featuresPanel = new JPanel();
         featuresPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         featuresPanel.setBorder(BorderFactory.createTitledBorder("Features"));
+        featuresPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
 
         JCheckBox muteCheckBox = new JCheckBox("Mute Sound");
+        muteCheckBox.setEnabled(true);
         JCheckBox turboCheckBox = new JCheckBox("Turbo Mode");
+        turboCheckBox.setEnabled(true);
         JCheckBox fullscreenCheckBox = new JCheckBox("Fullscreen");
+        fullscreenCheckBox.setEnabled(true);
 
         featuresPanel.add(muteCheckBox);
         featuresPanel.add(turboCheckBox);
@@ -804,6 +866,7 @@ public class GameDetailsDialog extends JDialog {
 
         // Third row: Action buttons
         JPanel buttonsActionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
+        buttonsActionPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
         JButton playButton = new JButton("▶ Play Game");
         playButton.setFont(new Font("Arial", Font.BOLD, 12));
