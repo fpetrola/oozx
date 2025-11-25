@@ -32,6 +32,7 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
   private DefaultListModel<OOZxConfiguration.SnapshotHistoryEntry> listModel;
   private Consumer<OOZxConfiguration.SnapshotHistoryEntry> onSnapshotSelected;
   private Consumer<OOZxConfiguration.SnapshotHistoryEntry> onSnapshotRemoved;
+  private Consumer<String> onViewDetails;
   private Runnable onClosed;
 
   public SnapshotHistoryInternalFrame(OOZxConfiguration config) {
@@ -53,7 +54,7 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
       listModel.addElement(entry);
     }
     
-    // Listener para doble click
+    // Listener para doble click y click derecho
     historyList.addMouseListener(new MouseListener() {
       @Override
       public void mouseClicked(MouseEvent e) {
@@ -66,10 +67,18 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
       }
 
       @Override
-      public void mousePressed(MouseEvent e) {}
+      public void mousePressed(MouseEvent e) {
+        if (e.isPopupTrigger()) {
+          showContextMenu(e);
+        }
+      }
 
       @Override
-      public void mouseReleased(MouseEvent e) {}
+      public void mouseReleased(MouseEvent e) {
+        if (e.isPopupTrigger()) {
+          showContextMenu(e);
+        }
+      }
 
       @Override
       public void mouseEntered(MouseEvent e) {}
@@ -144,6 +153,49 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
     });
   }
 
+  private void showContextMenu(MouseEvent e) {
+    int index = historyList.locationToIndex(e.getPoint());
+    if (index >= 0) {
+      historyList.setSelectedIndex(index);
+      
+      JPopupMenu menu = new JPopupMenu();
+      
+      JMenuItem viewDetailsItem = new JMenuItem("View Details");
+      viewDetailsItem.addActionListener(ev -> {
+        OOZxConfiguration.SnapshotHistoryEntry selected = historyList.getSelectedValue();
+        if (selected != null && onViewDetails != null) {
+          onViewDetails.accept(selected.getGameName().substring(0, selected.getGameName().indexOf(".")));
+        }
+      });
+      menu.add(viewDetailsItem);
+      
+      menu.addSeparator();
+      
+      JMenuItem loadItem = new JMenuItem("Load");
+      loadItem.addActionListener(ev -> {
+        OOZxConfiguration.SnapshotHistoryEntry selected = historyList.getSelectedValue();
+        if (selected != null && onSnapshotSelected != null) {
+          onSnapshotSelected.accept(selected);
+        }
+      });
+      menu.add(loadItem);
+      
+      JMenuItem removeItem = new JMenuItem("Remove from History");
+      removeItem.addActionListener(ev -> {
+        OOZxConfiguration.SnapshotHistoryEntry selected = historyList.getSelectedValue();
+        if (selected != null) {
+          listModel.removeElement(selected);
+          if (onSnapshotRemoved != null) {
+            onSnapshotRemoved.accept(selected);
+          }
+        }
+      });
+      menu.add(removeItem);
+      
+      menu.show(historyList, e.getX(), e.getY());
+    }
+  }
+
   public OOZxConfiguration.SnapshotHistoryEntry getSelectedEntry() {
     return historyList.getSelectedValue();
   }
@@ -154,6 +206,10 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
 
   public void setOnSnapshotRemovedListener(Consumer<OOZxConfiguration.SnapshotHistoryEntry> listener) {
     this.onSnapshotRemoved = listener;
+  }
+
+  public void setOnViewDetailsListener(Consumer<String> listener) {
+    this.onViewDetails = listener;
   }
 
   public void setOnClosedListener(Runnable listener) {

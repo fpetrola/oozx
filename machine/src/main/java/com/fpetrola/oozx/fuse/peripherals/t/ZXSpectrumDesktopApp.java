@@ -1546,6 +1546,11 @@ public class ZXSpectrumDesktopApp extends JFrame {
         config.save();
       });
       
+      // Listener para ver detalles del juego
+      snapshotHistory.setOnViewDetailsListener(gameName -> {
+        showGameDetailsFromHistory(gameName);
+      });
+      
       // Callback para refrescar la lista cuando cambia el historial
       config.setOnHistoryChanged(() -> {
         if (snapshotHistory != null && !snapshotHistory.isClosed()) {
@@ -1571,6 +1576,76 @@ public class ZXSpectrumDesktopApp extends JFrame {
       } catch (java.beans.PropertyVetoException ex) {
       }
     }
+  }
+
+  /**
+   * Search for game by name and show details dialog
+   */
+  private void showGameDetailsFromHistory(String gameName) {
+    // Remove file extensions from game name
+    String cleanGameName = gameName
+        .replaceAll("\\.(z80|sna|tap|tzx|szx)$", "")
+        .trim();
+    
+    // Show loading dialog
+    JDialog loadingDialog = new JDialog(this, "Loading Game Details", true);
+    loadingDialog.setSize(300, 100);
+    loadingDialog.setLocationRelativeTo(this);
+    JLabel loadingLabel = new JLabel("Searching for: " + cleanGameName);
+    loadingLabel.setHorizontalAlignment(JLabel.CENTER);
+    loadingDialog.add(loadingLabel);
+    
+    // Search in background
+    SwingWorker<com.fpetrola.oozx.api.GameDetail, Void> worker = 
+      new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
+        @Override
+        protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
+          try {
+            // Search for the game by name (without file extension)
+            ZxInfoApiHandler apiHandler = new ZxInfoApiHandler();
+            java.util.List<Hit> results = apiHandler.search(cleanGameName);
+            
+            if (results == null || results.isEmpty()) {
+              return null;
+            }
+            
+            // Get the best matching result (first one)
+            Hit bestMatch = results.get(0);
+            String gameId = bestMatch._id;
+            
+            // Fetch full details from API
+            return apiHandler.fetchGameDetails(gameId);
+          } catch (Exception e) {
+            System.err.println("Error searching for game: " + e.getMessage());
+            return null;
+          }
+        }
+        
+        @Override
+        protected void done() {
+          loadingDialog.dispose();
+          try {
+            com.fpetrola.oozx.api.GameDetail gameDetail = get();
+            
+            if (gameDetail == null) {
+              JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+                "Game not found: " + cleanGameName,
+                "Not Found", JOptionPane.INFORMATION_MESSAGE);
+              return;
+            }
+            
+            GameDetailsDialog dialog = new GameDetailsDialog(ZXSpectrumDesktopApp.this, gameDetail);
+            dialog.setVisible(true);
+          } catch (Exception e) {
+            JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+              "Error loading game details: " + e.getMessage(),
+              "Error", JOptionPane.ERROR_MESSAGE);
+          }
+        }
+      };
+    
+    worker.execute();
+    loadingDialog.setVisible(true);
   }
 
   private EmulatorInternalFrame getActiveEmulatorOrCreateNew(GameSearchResult gameSearchResult) {
