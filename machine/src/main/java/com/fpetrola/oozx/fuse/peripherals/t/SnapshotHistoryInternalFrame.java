@@ -21,15 +21,20 @@ package com.fpetrola.oozx.fuse.peripherals.t;
 import com.fpetrola.oozx.fuse.config.OOZxConfiguration;
 
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class SnapshotHistoryInternalFrame extends JInternalFrame {
-  private JList<OOZxConfiguration.SnapshotHistoryEntry> historyList;
-  private DefaultListModel<OOZxConfiguration.SnapshotHistoryEntry> listModel;
+  private JTable historyTable;
+  private SnapshotHistoryTableModel tableModel;
   private Consumer<OOZxConfiguration.SnapshotHistoryEntry> onSnapshotSelected;
   private Consumer<OOZxConfiguration.SnapshotHistoryEntry> onSnapshotRemoved;
   private Consumer<String> onViewDetails;
@@ -37,37 +42,50 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
 
   public SnapshotHistoryInternalFrame(OOZxConfiguration config) {
     super("Snapshot History", true, true, true, true);
-    setSize(400, 400);
+    setSize(700, 400);
     setLocation(100, 100);
 
     // Panel principal
     JPanel mainPanel = new JPanel(new BorderLayout());
 
-    // Panel de lista
-    listModel = new DefaultListModel<>();
-    historyList = new JList<>(listModel);
-    historyList.setCellRenderer(new SnapshotHistoryCellRenderer());
-    historyList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    // Crear tabla con modelo personalizado
+    tableModel = new SnapshotHistoryTableModel();
+    historyTable = new JTable(tableModel);
+    historyTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    historyTable.setRowHeight(25);
     
-    // Agregar el historial a la lista
+    // Configurar anchos de columnas
+    historyTable.getColumnModel().getColumn(0).setPreferredWidth(250);
+    historyTable.getColumnModel().getColumn(1).setPreferredWidth(300);
+    historyTable.getColumnModel().getColumn(2).setPreferredWidth(120);
+    
+    // Agregar el historial a la tabla
     for (OOZxConfiguration.SnapshotHistoryEntry entry : config.getSnapshotHistory().values()) {
-      listModel.addElement(entry);
+      tableModel.addEntry(entry);
     }
     
     // Listener para doble click y click derecho
-    historyList.addMouseListener(new MouseListener() {
+    historyTable.addMouseListener(new MouseListener() {
       @Override
       public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2) {
-          OOZxConfiguration.SnapshotHistoryEntry selected = historyList.getSelectedValue();
-          if (selected != null && onSnapshotSelected != null) {
-            onSnapshotSelected.accept(selected);
+        int row = historyTable.rowAtPoint(e.getPoint());
+        if (row >= 0) {
+          historyTable.setRowSelectionInterval(row, row);
+          if (e.getClickCount() == 2) {
+            OOZxConfiguration.SnapshotHistoryEntry selected = getSelectedEntry();
+            if (selected != null && onSnapshotSelected != null) {
+              onSnapshotSelected.accept(selected);
+            }
           }
         }
       }
 
       @Override
       public void mousePressed(MouseEvent e) {
+        int row = historyTable.rowAtPoint(e.getPoint());
+        if (row >= 0) {
+          historyTable.setRowSelectionInterval(row, row);
+        }
         if (e.isPopupTrigger()) {
           showContextMenu(e);
         }
@@ -87,7 +105,7 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
       public void mouseExited(MouseEvent e) {}
     });
 
-    JScrollPane scrollPane = new JScrollPane(historyList);
+    JScrollPane scrollPane = new JScrollPane(historyTable);
     mainPanel.add(scrollPane, BorderLayout.CENTER);
 
     // Panel de botones
@@ -95,7 +113,7 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
     
     JButton loadButton = new JButton("Load");
     loadButton.addActionListener(e -> {
-      OOZxConfiguration.SnapshotHistoryEntry selected = historyList.getSelectedValue();
+      OOZxConfiguration.SnapshotHistoryEntry selected = getSelectedEntry();
       if (selected != null && onSnapshotSelected != null) {
         onSnapshotSelected.accept(selected);
       }
@@ -104,11 +122,14 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
 
     JButton removeButton = new JButton("Remove from History");
     removeButton.addActionListener(e -> {
-      OOZxConfiguration.SnapshotHistoryEntry selected = historyList.getSelectedValue();
-      if (selected != null) {
-        listModel.removeElement(selected);
-        if (onSnapshotRemoved != null) {
-          onSnapshotRemoved.accept(selected);
+      int row = historyTable.getSelectedRow();
+      if (row >= 0) {
+        OOZxConfiguration.SnapshotHistoryEntry selected = tableModel.getEntryAt(row);
+        if (selected != null) {
+          tableModel.removeEntryAt(row);
+          if (onSnapshotRemoved != null) {
+            onSnapshotRemoved.accept(selected);
+          }
         }
       }
     });
@@ -122,10 +143,9 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
           "Confirm",
           JOptionPane.YES_NO_OPTION);
       if (confirm == JOptionPane.YES_OPTION) {
-        listModel.clear();
-        // Notificar el borrado completo
+        tableModel.clear();
         if (onSnapshotRemoved != null) {
-          onSnapshotRemoved.accept(null); // null para indicar borrado completo
+          onSnapshotRemoved.accept(null);
         }
       }
     });
@@ -154,17 +174,15 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
   }
 
   private void showContextMenu(MouseEvent e) {
-    int index = historyList.locationToIndex(e.getPoint());
-    if (index >= 0) {
-      historyList.setSelectedIndex(index);
-      
+    int row = historyTable.getSelectedRow();
+    if (row >= 0) {
       JPopupMenu menu = new JPopupMenu();
       
       JMenuItem viewDetailsItem = new JMenuItem("View Details");
       viewDetailsItem.addActionListener(ev -> {
-        OOZxConfiguration.SnapshotHistoryEntry selected = historyList.getSelectedValue();
+        OOZxConfiguration.SnapshotHistoryEntry selected = tableModel.getEntryAt(row);
         if (selected != null && onViewDetails != null) {
-          onViewDetails.accept(selected.getGameName().substring(0, selected.getGameName().indexOf(".")));
+          onViewDetails.accept(selected.getGameName());
         }
       });
       menu.add(viewDetailsItem);
@@ -173,7 +191,7 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
       
       JMenuItem loadItem = new JMenuItem("Load");
       loadItem.addActionListener(ev -> {
-        OOZxConfiguration.SnapshotHistoryEntry selected = historyList.getSelectedValue();
+        OOZxConfiguration.SnapshotHistoryEntry selected = tableModel.getEntryAt(row);
         if (selected != null && onSnapshotSelected != null) {
           onSnapshotSelected.accept(selected);
         }
@@ -182,9 +200,9 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
       
       JMenuItem removeItem = new JMenuItem("Remove from History");
       removeItem.addActionListener(ev -> {
-        OOZxConfiguration.SnapshotHistoryEntry selected = historyList.getSelectedValue();
+        OOZxConfiguration.SnapshotHistoryEntry selected = tableModel.getEntryAt(row);
         if (selected != null) {
-          listModel.removeElement(selected);
+          tableModel.removeEntryAt(row);
           if (onSnapshotRemoved != null) {
             onSnapshotRemoved.accept(selected);
           }
@@ -192,12 +210,16 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
       });
       menu.add(removeItem);
       
-      menu.show(historyList, e.getX(), e.getY());
+      menu.show(historyTable, e.getX(), e.getY());
     }
   }
 
   public OOZxConfiguration.SnapshotHistoryEntry getSelectedEntry() {
-    return historyList.getSelectedValue();
+    int row = historyTable.getSelectedRow();
+    if (row >= 0) {
+      return tableModel.getEntryAt(row);
+    }
+    return null;
   }
 
   public void setOnSnapshotSelectedListener(Consumer<OOZxConfiguration.SnapshotHistoryEntry> listener) {
@@ -217,9 +239,9 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
   }
 
   public void refreshHistory(OOZxConfiguration config) {
-    listModel.clear();
+    tableModel.clear();
     for (OOZxConfiguration.SnapshotHistoryEntry entry : config.getSnapshotHistory().values()) {
-      listModel.addElement(entry);
+      tableModel.addEntry(entry);
     }
   }
 
@@ -240,27 +262,75 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
   }
 
   /**
-   * Renderer personalizado para mostrar las entradas del historial
+   * Modelo personalizado para la tabla de historial
    */
-  private static class SnapshotHistoryCellRenderer extends DefaultListCellRenderer {
+  private static class SnapshotHistoryTableModel extends AbstractTableModel {
+    private List<OOZxConfiguration.SnapshotHistoryEntry> entries = new ArrayList<>();
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    
+    private static final String[] COLUMN_NAMES = {"Game Name", "File Path", "Loaded Time"};
+    private static final int[] COLUMN_WIDTHS = {250, 300, 120};
+
     @Override
-    public Component getListCellRendererComponent(
-        JList list,
-        Object value,
-        int index,
-        boolean isSelected,
-        boolean cellHasFocus) {
+    public int getRowCount() {
+      return entries.size();
+    }
 
-      if (value instanceof OOZxConfiguration.SnapshotHistoryEntry) {
-        OOZxConfiguration.SnapshotHistoryEntry entry = (OOZxConfiguration.SnapshotHistoryEntry) value;
-        super.getListCellRendererComponent(list, entry.getDisplayName(), index, isSelected, cellHasFocus);
-        
-        // Mostrar la ruta como tooltip
-        this.setToolTipText(entry.getFilePath());
-        return this;
+    @Override
+    public int getColumnCount() {
+      return COLUMN_NAMES.length;
+    }
+
+    @Override
+    public String getColumnName(int column) {
+      return COLUMN_NAMES[column];
+    }
+
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
+      OOZxConfiguration.SnapshotHistoryEntry entry = entries.get(rowIndex);
+      switch (columnIndex) {
+        case 0:
+          return entry.getGameName();
+        case 1:
+          return entry.getFilePath();
+        case 2:
+          return dateFormat.format(new Date(entry.getLoadedTime()));
+        default:
+          return "";
       }
+    }
 
-      return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+    @Override
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+      return false;
+    }
+
+    public void addEntry(OOZxConfiguration.SnapshotHistoryEntry entry) {
+      entries.add(entry);
+      fireTableRowsInserted(entries.size() - 1, entries.size() - 1);
+    }
+
+    public void removeEntryAt(int row) {
+      if (row >= 0 && row < entries.size()) {
+        entries.remove(row);
+        fireTableRowsDeleted(row, row);
+      }
+    }
+
+    public OOZxConfiguration.SnapshotHistoryEntry getEntryAt(int row) {
+      if (row >= 0 && row < entries.size()) {
+        return entries.get(row);
+      }
+      return null;
+    }
+
+    public void clear() {
+      int size = entries.size();
+      entries.clear();
+      if (size > 0) {
+        fireTableRowsDeleted(0, size - 1);
+      }
     }
   }
 }

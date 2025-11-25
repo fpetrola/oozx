@@ -88,20 +88,122 @@ public class GameDetailsDialog extends JDialog {
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        // Top: Search bar for finding another game
+        JPanel searchPanel = createSearchPanel();
+        mainPanel.add(searchPanel, BorderLayout.NORTH);
+
         // Left side: Cover and basic info
         JPanel leftPanel = createLeftPanel();
 
         // Right side: Tabs with detailed information
         JPanel rightPanel = createRightPanel();
 
-        mainPanel.add(leftPanel, BorderLayout.WEST);
-        mainPanel.add(rightPanel, BorderLayout.CENTER);
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.add(leftPanel, BorderLayout.WEST);
+        centerPanel.add(rightPanel, BorderLayout.CENTER);
+
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
 
         // Bottom: Action buttons
         JPanel buttonsPanel = createButtonsPanel();
         mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
+    }
+    
+    private JPanel createSearchPanel() {
+        JPanel panel = new JPanel(new BorderLayout(5, 0));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createTitledBorder("Search Another Game"),
+            BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+        
+        JTextField searchField = new JTextField();
+        searchField.setToolTipText("Enter game name to search for details");
+        
+        JButton searchButton = new JButton("Search");
+        searchButton.addActionListener(e -> searchForGame(searchField.getText()));
+        
+        panel.add(searchField, BorderLayout.CENTER);
+        panel.add(searchButton, BorderLayout.EAST);
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+        
+        return panel;
+    }
+    
+    private void searchForGame(String gameName) {
+        if (gameName == null || gameName.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "Please enter a game name",
+                "Empty Search", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        // Show loading dialog
+        JDialog loadingDialog = new JDialog(this, "Searching", true);
+        loadingDialog.setSize(300, 100);
+        loadingDialog.setLocationRelativeTo(this);
+        JLabel loadingLabel = new JLabel("Searching for: " + gameName);
+        loadingLabel.setHorizontalAlignment(JLabel.CENTER);
+        loadingDialog.add(loadingLabel);
+        
+        // Search in background
+        SwingWorker<com.fpetrola.oozx.api.GameDetail, Void> worker = 
+            new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
+                @Override
+                protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
+                    try {
+                        com.fpetrola.oozx.api.ZxInfoApiHandler apiHandler = 
+                            new com.fpetrola.oozx.api.ZxInfoApiHandler();
+                        java.util.List<com.fpetrola.oozx.api.Hit> results = apiHandler.search(gameName);
+                        
+                        if (results == null || results.isEmpty()) {
+                            return null;
+                        }
+                        
+                        com.fpetrola.oozx.api.Hit bestMatch = results.get(0);
+                        String gameId = bestMatch._id;
+                        
+                        return apiHandler.fetchGameDetails(gameId);
+                    } catch (Exception e) {
+                        System.err.println("Error searching for game: " + e.getMessage());
+                        return null;
+                    }
+                }
+                
+                @Override
+                protected void done() {
+                    loadingDialog.dispose();
+                    try {
+                        com.fpetrola.oozx.api.GameDetail detail = get();
+                        
+                        if (detail == null) {
+                            JOptionPane.showMessageDialog(GameDetailsDialog.this,
+                                "Game not found: " + gameName,
+                                "Not Found", JOptionPane.INFORMATION_MESSAGE);
+                            return;
+                        }
+                        
+                        // Update the dialog with new game details
+                        gameDetail = detail;
+                        setTitle("Game Details - " + gameDetail.title);
+                        
+                        // Refresh all panels
+                        Container contentPane = GameDetailsDialog.this.getContentPane();
+                        contentPane.removeAll();
+                        initializeComponents();
+                        contentPane.revalidate();
+                        contentPane.repaint();
+                    } catch (Exception e) {
+                        JOptionPane.showMessageDialog(GameDetailsDialog.this,
+                            "Error loading game details: " + e.getMessage(),
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            };
+        
+        worker.execute();
+        loadingDialog.setVisible(true);
     }
 
     private JPanel createLeftPanel() {
