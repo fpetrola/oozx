@@ -16,15 +16,32 @@
  *
  */
 
-// src/main/java/com/example/Release.java
 package com.fpetrola.oozx.api;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import java.util.List;
-
+/**
+ * Wrapper for Elasticsearch response containing metadata and the actual game data
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Release {
-    public List<Publisher> publishers;
-    public List<GameFile> files;
+public class GameResponse {
+    public String _index;
+    public String _id;
+    public Integer _version;
+    public Integer _seq_no;
+    public Integer _primary_term;
+    public Boolean found;
+    public GameEntry _source;
+    
+    public GameEntry getGameEntry() {
+        if (_source != null) {
+            _source._id = _id;
+            _source._index = _index;
+            _source._version = _version;
+            _source._seq_no = _seq_no;
+            _source._primary_term = _primary_term;
+            _source.found = found;
+        }
+        return _source;
+    }
 }

@@ -36,5 +36,5 @@ public interface ZxInfoClient {
 
     @GET
     @Path("/games/{id}")
-    GameEntry getGameDetails(@PathParam("id") String id);
+    GameResponse getGameDetails(@PathParam("id") String id);
 }
