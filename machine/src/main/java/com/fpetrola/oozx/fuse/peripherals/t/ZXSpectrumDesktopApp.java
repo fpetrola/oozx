@@ -1651,47 +1651,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
    * Show dialog when game not found, allowing user to search with different name
    */
   private void showGameNotFoundDialog(String attemptedName) {
-    JDialog dialog = new JDialog(this, "Game Not Found", true);
-    dialog.setSize(400, 150);
-    dialog.setLocationRelativeTo(this);
-    dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-    
-    JPanel panel = new JPanel(new BorderLayout(10, 10));
-    panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-    
-    // Message
-    JLabel messageLabel = new JLabel("Game not found: " + attemptedName);
-    messageLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-    panel.add(messageLabel, BorderLayout.NORTH);
-    
-    // Search field
-    JPanel searchPanel = new JPanel(new BorderLayout(5, 0));
-    searchPanel.add(new JLabel("Try another name:"), BorderLayout.WEST);
-    JTextField searchField = new JTextField(attemptedName);
-    searchPanel.add(searchField, BorderLayout.CENTER);
-    panel.add(searchPanel, BorderLayout.CENTER);
-    
-    // Buttons
-    JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
-    
-    JButton searchButton = new JButton("Search");
-    searchButton.addActionListener(e -> {
-      String newName = searchField.getText().trim();
-      if (!newName.isEmpty()) {
-        dialog.dispose();
-        showGameDetailsFromHistory(newName);
-      }
-    });
-    buttonPanel.add(searchButton);
-    
-    JButton cancelButton = new JButton("Cancel");
-    cancelButton.addActionListener(e -> dialog.dispose());
-    buttonPanel.add(cancelButton);
-    
-    panel.add(buttonPanel, BorderLayout.SOUTH);
-    
-    dialog.add(panel);
-    dialog.setVisible(true);
+    GameNotFoundDialog.showWithRetry(this, "Game not found: " + attemptedName, 
+      newName -> showGameDetailsFromHistory(newName));
   }
 
   private EmulatorInternalFrame getActiveEmulatorOrCreateNew(GameSearchResult gameSearchResult) {
