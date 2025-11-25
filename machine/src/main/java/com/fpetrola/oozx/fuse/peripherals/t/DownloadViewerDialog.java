@@ -19,7 +19,10 @@
 package com.fpetrola.oozx.fuse.peripherals.t;
 
 import javax.swing.*;
+import javax.swing.AbstractAction;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -38,6 +41,9 @@ public class DownloadViewerDialog extends JDialog {
         setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         setLocationRelativeTo(owner);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setModal(true);
+        // Setup Escape key to close
+        setupEscapeToClose();
         
         // Create content panel
         JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
@@ -201,5 +207,16 @@ public class DownloadViewerDialog extends JDialog {
     private String getFileExtension(String fileName) {
         int lastDot = fileName.lastIndexOf('.');
         return lastDot > 0 ? fileName.substring(lastDot + 1) : "unknown";
+    }
+    
+    private void setupEscapeToClose() {
+        KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "closeDialog");
+        getRootPane().getActionMap().put("closeDialog", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
     }
 }
