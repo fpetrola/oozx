@@ -22,7 +22,7 @@ import com.fpetrola.oozx.fuse.Input;
 import com.fpetrola.oozx.fuse.Movie;
 import com.fpetrola.oozx.fuse.Sound;
 import com.fpetrola.oozx.fuse.machine.*;
-import com.fpetrola.oozx.fuse.modules.Joystick;
+import com.fpetrola.oozx.joystick.modules.Joystick;
 import com.fpetrola.oozx.fuse.modules.*;
 import com.fpetrola.oozx.fuse.modules.Keyboard;
 import com.fpetrola.oozx.fuse.modules.tape.Tape;
@@ -31,6 +31,7 @@ import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 import com.fpetrola.oozx.fuse.startup.*;
+import com.fpetrola.oozx.joystick.startup.JoystickStartupModule;
 
 import java.util.List;
 

@@ -18,8 +18,8 @@
 
 package com.fpetrola.oozx.fuse.peripherals;
 
-import com.fpetrola.oozx.fuse.modules.Joystick;
-import com.fpetrola.oozx.fuse.ports.JoystickPortHandler;
+import com.fpetrola.oozx.joystick.modules.Joystick;
+import com.fpetrola.oozx.joystick.handlers.JoystickPortHandler;
 
 import java.util.List;
 

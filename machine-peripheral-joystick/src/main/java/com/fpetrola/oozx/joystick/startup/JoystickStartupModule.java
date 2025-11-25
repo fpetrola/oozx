@@ -16,15 +16,35 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.peripherals;
+package com.fpetrola.oozx.joystick.startup;
 
+import com.fpetrola.oozx.fuse.startup.AbstractStartupModule;
+import com.fpetrola.oozx.fuse.startup.StartupModuleProvider;
 import com.fpetrola.oozx.joystick.modules.Joystick;
-import com.fpetrola.oozx.joystick.handlers.JoystickPortHandler;
 
-import java.util.List;
+public class JoystickStartupModule extends AbstractStartupModule implements StartupModuleProvider {
+  private Joystick joystick;
 
-public class KempstonStrictPeripheral extends AbstractZxPeripheral {
-  public KempstonStrictPeripheral(Joystick joystick) {
-    super(Periph.Type.KEMPSTON, List.of(new JoystickPortHandler(0x00e0, 0x0000, joystick)));
+  public JoystickStartupModule(Joystick joystick) {
+    super(Object.class); // Will be set later
+    this.joystick = joystick;
   }
+
+  @Override
+  public JoystickStartupModule getStartupModule() {
+    return this;
+  }
+
+  public Object getInitContext() {
+    return null;
+  }
+
+  public int initFn(Object initContext) {
+    return joystick.init(initContext);
+  }
+
+  public void endFn() {
+    joystick.end();
+  }
+
 }

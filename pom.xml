@@ -35,7 +35,9 @@
         <module>blocks</module>
         <module>routines</module>
         <module>se</module>
+        <module>machine-core</module>
         <module>machine</module>
+        <module>machine-peripheral-joystick</module>
     </modules>
 
     <properties>

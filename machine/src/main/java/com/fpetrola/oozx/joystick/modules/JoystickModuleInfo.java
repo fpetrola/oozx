@@ -16,15 +16,23 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.peripherals;
+package com.fpetrola.oozx.joystick.modules;
 
-import com.fpetrola.oozx.joystick.modules.Joystick;
-import com.fpetrola.oozx.joystick.handlers.JoystickPortHandler;
+import com.fpetrola.oozx.Libspectrum;
+import com.fpetrola.oozx.fuse.modules.ZXModuleInfo;
 
-import java.util.List;
+public class JoystickModuleInfo implements ZXModuleInfo {
+  private Joystick joystick;
 
-public class KempstonStrictPeripheral extends AbstractZxPeripheral {
-  public KempstonStrictPeripheral(Joystick joystick) {
-    super(Periph.Type.KEMPSTON, List.of(new JoystickPortHandler(0x00e0, 0x0000, joystick)));
+  public JoystickModuleInfo(Joystick joystick) {
+    this.joystick = joystick;
+  }
+
+  public void snapshotEnabled(Libspectrum.Snap snap) {
+    joystick.enabledSnapshot(snap); // snapshot_enabled
+  }
+
+  public void snapshotTo(Libspectrum.Snap snap) {
+    joystick.toSnapshot(snap); // snapshot_to
   }
 }

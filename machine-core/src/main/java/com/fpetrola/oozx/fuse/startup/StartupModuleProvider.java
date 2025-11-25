@@ -18,26 +18,9 @@
 
 package com.fpetrola.oozx.fuse.startup;
 
-import com.fpetrola.oozx.fuse.modules.Joystick;
-
-public class JoystickStartupModule extends AbstractStartupModule {
-  private Joystick joystick;
-
-  public JoystickStartupModule(Joystick joystick) {
-    super(LibspectrumStartupModule.class);
-    this.joystick = joystick;
-  }
-
-  public Object getInitContext() {
-    return null;
-  }
-
-  public int initFn(Object initContext) {
-    return joystick.init(initContext);
-  }
-
-  public void endFn() {
-    joystick.end();
-  }
-
+/**
+ * Provider for startup modules that can be optionally loaded
+ */
+public interface StartupModuleProvider {
+  StartupModule getStartupModule();
 }

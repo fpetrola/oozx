@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.fuse.modules.Joystick;
+import com.fpetrola.oozx.joystick.modules.Joystick;
 import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorCore;
 import com.fpetrola.oozx.fuse.peripherals.MockEmulatorCore;

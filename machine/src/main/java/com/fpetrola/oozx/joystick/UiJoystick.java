@@ -16,22 +16,18 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.modules;
+package com.fpetrola.oozx.joystick;
 
-import com.fpetrola.oozx.Libspectrum;
+public class UiJoystick {
+  public static void poll() {
 
-public class JoystickModuleInfo implements ZXModuleInfo {
-  private Joystick joystick;
-
-  public JoystickModuleInfo(Joystick joystick) {
-    this.joystick = joystick;
   }
 
-  public void snapshotEnabled(Libspectrum.Snap snap) {
-    joystick.enabledSnapshot(snap); // snapshot_enabled
+  public static int init() {
+    return 0;
   }
 
-  public void snapshotTo(Libspectrum.Snap snap) {
-    joystick.toSnapshot(snap); // snapshot_to
+  public static void end() {
+
   }
 }

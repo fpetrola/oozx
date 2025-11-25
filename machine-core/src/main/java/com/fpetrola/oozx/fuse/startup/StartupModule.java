@@ -16,15 +16,25 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.peripherals;
-
-import com.fpetrola.oozx.joystick.modules.Joystick;
-import com.fpetrola.oozx.joystick.handlers.JoystickPortHandler;
+package com.fpetrola.oozx.fuse.startup;
 
 import java.util.List;
 
-public class KempstonStrictPeripheral extends AbstractZxPeripheral {
-  public KempstonStrictPeripheral(Joystick joystick) {
-    super(Periph.Type.KEMPSTON, List.of(new JoystickPortHandler(0x00e0, 0x0000, joystick)));
+public interface StartupModule {
+  List<?> getDependencies();
+
+  Object getInitContext();
+
+  int initFn(Object initContext);
+
+  void endFn();
+
+  default void removeDependency(StartupModule module) {
+    getDependencies().removeIf(d -> d.equals(module.getClass()));
   }
+
+  default Object getId() {
+    return getClass();
+  }
+
 }

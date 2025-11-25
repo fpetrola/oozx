@@ -18,13 +18,34 @@
 
 package com.fpetrola.oozx.fuse.peripherals;
 
-import com.fpetrola.oozx.joystick.modules.Joystick;
-import com.fpetrola.oozx.joystick.handlers.JoystickPortHandler;
+import com.fpetrola.oozx.MachineChangeListener;
 
-import java.util.List;
+public interface IPeriph extends MachineChangeListener {
+  void register(ZxPeripheral zxPeripheral);
 
-public class KempstonStrictPeripheral extends AbstractZxPeripheral {
-  public KempstonStrictPeripheral(Joystick joystick) {
-    super(Periph.Type.KEMPSTON, List.of(new JoystickPortHandler(0x00e0, 0x0000, joystick)));
-  }
+  void setPresent(Periph.Type type, Periph.Present present);
+
+  void setPresent(Class<? extends ZxPeripheral> zxPeripheralClass, Periph.Present present);
+
+  boolean activateType(Class<? extends ZxPeripheral> type, boolean active);
+
+  boolean isActive(Periph.Type type);
+
+  void clear();
+
+  void end();
+
+  byte readPort(int port);
+
+  byte mergeFloatingBus(byte value, byte attached, byte floatingBus);
+
+  void writePort(int port, byte b);
+
+  void writePortInternal(int port, byte b);
+
+  boolean update();
+
+  void postHook();
+
+  boolean postCheck();
 }

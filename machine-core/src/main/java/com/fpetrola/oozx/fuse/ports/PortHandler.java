@@ -16,18 +16,18 @@
  *
  */
 
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.ports;
 
-public class UiJoystick {
-  public static void poll() {
+public interface PortHandler {
+  byte read(int port, byte[] attached);
 
-  }
+  int getMask();
 
-  public static int init() {
-    return 0;
-  }
+  int getValue();
 
-  public static void end() {
+  boolean isReader();
 
-  }
+  boolean isWriter();
+
+  void write(int port, byte value);
 }

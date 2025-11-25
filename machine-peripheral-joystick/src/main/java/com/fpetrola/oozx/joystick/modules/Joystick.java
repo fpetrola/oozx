@@ -16,16 +16,17 @@
  *
  */
 
-package com.fpetrola.oozx.fuse.modules;
+package com.fpetrola.oozx.joystick.modules;
 
 import com.fpetrola.oozx.*;
-import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.fuse.KeyboardKeyName;
+import com.fpetrola.oozx.fuse.modules.Keyboard;
+import com.fpetrola.oozx.fuse.modules.JoystickProvider;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.KempstonLoosePeriphPeripheral;
 import com.fpetrola.oozx.fuse.peripherals.KempstonStrictPeripheral;
 
-public class Joystick implements ZxModule {
+public class Joystick implements JoystickProvider {
 
   // Constants
   public final int JOYSTICK_KEYBOARD = 2;
@@ -36,10 +37,10 @@ public class Joystick implements ZxModule {
   public int joysticksSupported = 0;
   private Keyboard keyboard;
   private IPeriph periph;
-  private Module module;
+  private com.fpetrola.oozx.Module module;
   private Settings settings;
 
-  public Joystick(Keyboard keyboard, IPeriph periph, Module module, Settings settings) {
+  public Joystick(Keyboard keyboard, IPeriph periph, com.fpetrola.oozx.Module module, Settings settings) {
     this.keyboard = keyboard;
     this.periph = periph;
     this.module = module;
@@ -47,7 +48,7 @@ public class Joystick implements ZxModule {
   }
 
   public int init(Object initContext) {
-    joysticksSupported = UiJoystick.init();
+    joysticksSupported = com.fpetrola.oozx.joystick.UiJoystick.init();
     kempstonValue = timex1Value = timex2Value = 0x00;
     fullerValue = (byte) 0xff;
 
@@ -134,7 +135,7 @@ public class Joystick implements ZxModule {
 
   // Cleanup joysticks
   public void end() {
-    UiJoystick.end();
+    com.fpetrola.oozx.joystick.UiJoystick.end();
   }
 
   // Handle joystick button press/release
