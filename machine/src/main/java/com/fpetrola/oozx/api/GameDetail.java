@@ -41,7 +41,7 @@ public class GameDetail {
     public Double score;
     public Integer xrated;
     public List<String> authors;
-    public List<String> additionalDownloads;
+    public List<AdditionalDownload> additionalDownloads;
     public List<Map<String, String>> releases;
     public String coverImageUrl;
     public String rating;

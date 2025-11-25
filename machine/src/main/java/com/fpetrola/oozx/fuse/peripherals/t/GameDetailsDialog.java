@@ -652,12 +652,20 @@ public class GameDetailsDialog extends JDialog {
       noDownloadsLabel.setHorizontalAlignment(JLabel.CENTER);
       panel.add(noDownloadsLabel, BorderLayout.CENTER);
     } else {
-      String[][] data = new String[gameDetail.additionalDownloads.size()][1];
+      // Prepare data for table with multiple columns
+      String[][] data = new String[gameDetail.additionalDownloads.size()][5];
+      String[] columns = {"Path", "Type", "Format", "Size", "Language"};
+      
       for (int i = 0; i < gameDetail.additionalDownloads.size(); i++) {
-        data[i][0] = gameDetail.additionalDownloads.get(i);
+        com.fpetrola.oozx.api.AdditionalDownload download = gameDetail.additionalDownloads.get(i);
+        data[i][0] = download.path != null ? download.path : "";
+        data[i][1] = download.type != null ? download.type : "";
+        data[i][2] = download.format != null ? download.format : "";
+        data[i][3] = download.size != null ? String.valueOf(download.size) : "";
+        data[i][4] = download.language != null ? download.language : "";
       }
 
-      DefaultTableModel model = new DefaultTableModel(data, new String[]{"Download"}) {
+      DefaultTableModel model = new DefaultTableModel(data, columns) {
         @Override
         public boolean isCellEditable(int row, int column) {
           return false;
@@ -666,6 +674,11 @@ public class GameDetailsDialog extends JDialog {
 
       JTable table = new JTable(model);
       table.setRowHeight(25);
+      table.getColumnModel().getColumn(0).setPreferredWidth(300);
+      table.getColumnModel().getColumn(1).setPreferredWidth(100);
+      table.getColumnModel().getColumn(2).setPreferredWidth(100);
+      table.getColumnModel().getColumn(3).setPreferredWidth(80);
+      table.getColumnModel().getColumn(4).setPreferredWidth(80);
 
       // Add double-click listener to open downloads
       table.addMouseListener(new java.awt.event.MouseAdapter() {

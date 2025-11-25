@@ -141,16 +141,7 @@ public class ZxInfoApiHandler {
 
     // Handle additional downloads
     if (entry.additionalDownloads != null && !entry.additionalDownloads.isEmpty()) {
-      detail.additionalDownloads = new java.util.ArrayList<>();
-      for (AdditionalDownload download : entry.additionalDownloads) {
-        if (download.path != null) {
-          StringBuilder downloadInfo = new StringBuilder(download.path);
-          if (download.type != null) {
-            downloadInfo.append(" (").append(download.type).append(")");
-          }
-          detail.additionalDownloads.add(downloadInfo.toString());
-        }
-      }
+      detail.additionalDownloads = new java.util.ArrayList<>(entry.additionalDownloads);
     }
 
     // Handle releases
