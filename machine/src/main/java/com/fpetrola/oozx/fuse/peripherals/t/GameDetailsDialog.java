@@ -784,34 +784,37 @@ public class GameDetailsDialog extends JDialog {
   }
 
   /**
-   * Open a download URL or file
+   * Open a download URL or file in a Swing viewer dialog
    */
   private void openDownloadUrl(String downloadUrl) {
-    try {
-      if (downloadUrl == null || downloadUrl.trim().isEmpty()) {
-        return;
+      try {
+          if (downloadUrl == null || downloadUrl.trim().isEmpty()) {
+              return;
+          }
+          
+          // Convert relative paths to full URLs
+          String fullUrl = GameBrowserInternalFrame.getFileURL(downloadUrl);
+          
+          // Extract filename from URL
+          String fileName = downloadUrl;
+          int lastSlash = downloadUrl.lastIndexOf('/');
+          if (lastSlash >= 0) {
+              fileName = downloadUrl.substring(lastSlash + 1);
+          }
+          
+          // Open in Swing viewer dialog
+          Frame owner = (Frame) getOwner();
+          if (owner == null) {
+              owner = new Frame();
+          }
+          
+          DownloadViewerDialog viewer = new DownloadViewerDialog(owner, fullUrl, fileName);
+          viewer.setVisible(true);
+      } catch (Exception e) {
+          JOptionPane.showMessageDialog(this,
+              "Unable to open: " + e.getMessage(),
+              "Error", JOptionPane.ERROR_MESSAGE);
       }
-
-      // Check if it's a URL or a local file path
-      downloadUrl = GameBrowserInternalFrame.getFileURL(downloadUrl);
-      if (downloadUrl.startsWith("http://") || downloadUrl.startsWith("https://")) {
-        // Open URL in browser
-        java.awt.Desktop.getDesktop().browse(new java.net.URI(downloadUrl));
-      } else {
-        // Try to open as a local file
-        java.io.File file = new java.io.File(downloadUrl);
-        if (file.exists()) {
-          java.awt.Desktop.getDesktop().open(file);
-        } else {
-          // If file doesn't exist, try as URL
-          java.awt.Desktop.getDesktop().browse(new java.net.URI(downloadUrl));
-        }
-      }
-    } catch (Exception e) {
-      JOptionPane.showMessageDialog(this,
-          "Unable to open: " + e.getMessage(),
-          "Error", JOptionPane.ERROR_MESSAGE);
-    }
   }
 
   private JPanel createButtonsPanel() {
