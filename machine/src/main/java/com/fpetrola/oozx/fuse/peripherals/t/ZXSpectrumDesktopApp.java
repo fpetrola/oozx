@@ -643,7 +643,7 @@ class GameSearchResult {
 interface GameBrowserListener {
   void onGameSelected(GameSearchResult gameUrl);
 
-  void onViewDetails(String gameUrl);
+  void onViewDetails(GameSearchResult gameSearchResult);
 
   void onAddToFavorites(String gameUrl);
 
@@ -872,7 +872,7 @@ class GameBrowserInternalFrame extends JInternalFrame {
     imgLabel2.addMouseListener(mouseAdapter);
 
     loadItem.addActionListener(e -> listener.onGameSelected(result));
-    detailsItem.addActionListener(e -> listener.onViewDetails(result.title));
+    detailsItem.addActionListener(e -> listener.onViewDetails(result));
     favoriteItem.addActionListener(e -> listener.onAddToFavorites(result.url));
     downloadItem.addActionListener(e -> listener.onDownloadGame(result.url));
 
@@ -1784,9 +1784,30 @@ public class ZXSpectrumDesktopApp extends JFrame {
       }
 
       @Override
-      public void onViewDetails(String gameUrl) {
-        JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-            "Game Details: " + gameUrl + "", "Game Details", JOptionPane.INFORMATION_MESSAGE);
+      public void onViewDetails(GameSearchResult gameSearchResult) {
+        // TODO: Fetch full GameDetail from API if available
+        com.fpetrola.oozx.api.GameDetail gameDetail = new com.fpetrola.oozx.api.GameDetail();
+        gameDetail.id = gameSearchResult.url;
+        gameDetail.title = gameSearchResult.title;
+        gameDetail.yearOfRelease = "Unknown";
+        gameDetail.publisher = "Unknown";
+        gameDetail.genre = "Unknown";
+        gameDetail.machineType = "Spectrum 48K";
+        gameDetail.memoryRequired = "48K";
+        
+        // Add screenshots if available
+        gameDetail.screenshots = new java.util.ArrayList<>();
+        if (gameSearchResult.screenshot1 != null && !gameSearchResult.screenshot1.isEmpty()) {
+          gameDetail.screenshots.add(gameSearchResult.screenshot1);
+        }
+        if (gameSearchResult.screenshot2 != null && !gameSearchResult.screenshot2.isEmpty()) {
+          gameDetail.screenshots.add(gameSearchResult.screenshot2);
+        }
+        
+        gameDetail.description = "Game description not available yet";
+        
+        GameDetailsDialog dialog = new GameDetailsDialog(ZXSpectrumDesktopApp.this, gameDetail);
+        dialog.setVisible(true);
       }
 
       @Override
