@@ -48,8 +48,6 @@ public class GameEntry {
     public String _seq_no;
     public String _primary_term;
     public String found;
-    public Map<String, Object> originalPrice;
-    public Map<String, String> _source;
 
     @Override
     public String toString() {
