@@ -24,8 +24,10 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.AbstractAction;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.ArrayList;
@@ -45,6 +47,41 @@ public class GameDetailsDialog extends JDialog {
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         initializeComponents();
+        setupEscapeToClose();
+    }
+    
+    private void setupEscapeToClose() {
+        KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0);
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "closeDialog");
+        getRootPane().getActionMap().put("closeDialog", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
+    }
+    
+    /**
+     * Build complete image URL using same logic as createMockResults
+     */
+    private String buildCompleteImageUrl(String imagePath) {
+        if (imagePath == null || imagePath.isEmpty()) {
+            return null;
+        }
+        
+        // If already a complete URL, return as is
+        if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+            return imagePath;
+        }
+        
+        // Use the same logic as createMockResults:
+        // Default to WorldOfSpectrum, but if path starts with /zxscreens use zxinfo.dk/media
+        String filename = "https://worldofspectrum.net" + imagePath;
+        if (imagePath.startsWith("/zxscreens")) {
+            filename = "https://zxinfo.dk/media" + imagePath;
+        }
+        
+        return filename;
     }
 
     private void initializeComponents() {
@@ -80,12 +117,27 @@ public class GameDetailsDialog extends JDialog {
         coverLabel.setHorizontalAlignment(JLabel.CENTER);
         coverLabel.setVerticalAlignment(JLabel.CENTER);
         coverLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        coverLabel.setPreferredSize(new Dimension(240, 300));
 
-        // Try to load cover image in background
+        // Try to load cover image in background, or use first screenshot as fallback
+        String imageUrlToLoad = null;
+        boolean isScreenshotFallback = false;
+        
         if (gameDetail.coverImageUrl != null && !gameDetail.coverImageUrl.isEmpty()) {
-            loadImageAsync(gameDetail.coverImageUrl, coverLabel, 240, 300, "Cover Image");
+            imageUrlToLoad = gameDetail.coverImageUrl;
+            coverLabel.setPreferredSize(new Dimension(240, 300));
+        } else if (gameDetail.screenshots != null && !gameDetail.screenshots.isEmpty()) {
+            // Use first screenshot as fallback cover - use ZX Spectrum resolution proportions
+            imageUrlToLoad = buildCompleteImageUrl(gameDetail.screenshots.get(0));
+            isScreenshotFallback = true;
+            coverLabel.setPreferredSize(new Dimension(256, 192));
+        }
+        
+        if (imageUrlToLoad != null) {
+            int width = isScreenshotFallback ? 256 : 240;
+            int height = isScreenshotFallback ? 192 : 300;
+            loadImageAsync(imageUrlToLoad, coverLabel, width, height, "Loading cover...");
         } else {
+            coverLabel.setPreferredSize(new Dimension(240, 300));
             coverLabel.setText("No cover image");
             coverLabel.setForeground(Color.WHITE);
         }
@@ -432,9 +484,10 @@ public class GameDetailsDialog extends JDialog {
                 screenshotLabel.setFont(new Font("Arial", Font.PLAIN, 10));
                 screenshotLabel.setPreferredSize(new Dimension(200, 150));
 
-                // Load screenshot asynchronously
+                // Load screenshot asynchronously with complete URL
                 if (screenshotUrl != null && !screenshotUrl.isEmpty()) {
-                    loadImageAsync(screenshotUrl, screenshotLabel, 200, 150, "Loading...");
+                    String completeUrl = buildCompleteImageUrl(screenshotUrl);
+                    loadImageAsync(completeUrl, screenshotLabel, 200, 150, "Loading...");
                 } else {
                     screenshotLabel.setText("No URL");
                     screenshotLabel.setForeground(Color.WHITE);
@@ -560,6 +613,48 @@ public class GameDetailsDialog extends JDialog {
         worker.execute();
     }
 
+    /**
+     * Play game with selected options
+     */
+    private void playGame(String model, double speed, boolean muted, boolean turbo) {
+        JOptionPane.showMessageDialog(this,
+            "Loading: " + gameDetail.title + "\n" +
+            "Model: " + model + "\n" +
+            "Speed: " + String.format("%.1fx", speed) + "\n" +
+            "Muted: " + muted + "\n" +
+            "Turbo: " + turbo,
+            "Game Loaded", JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    /**
+     * Open the ZXInfo page for this game
+     */
+    private void openZXInfoLink() {
+        try {
+            String zxinfoUrl = "https://zxinfo.dk/details/" + gameDetail.id;
+            java.awt.Desktop.getDesktop().browse(new java.net.URI(zxinfoUrl));
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                "Unable to open link: " + e.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    /**
+     * Search for download links (opens search engine or zxinfo)
+     */
+    private void openDownloadLink() {
+        try {
+            String searchUrl = "https://zxinfo.dk/search?q=" + 
+                java.net.URLEncoder.encode(gameDetail.title, "UTF-8");
+            java.awt.Desktop.getDesktop().browse(new java.net.URI(searchUrl));
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                "Unable to open download link: " + e.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private JPanel createButtonsPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -610,19 +705,18 @@ public class GameDetailsDialog extends JDialog {
 
         JButton playButton = new JButton("▶ Play Game");
         playButton.setFont(new Font("Arial", Font.BOLD, 12));
-        playButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Play functionality to be implemented", "Info", JOptionPane.INFORMATION_MESSAGE);
-        });
+        playButton.addActionListener(e -> playGame(
+            (String) modelCombo.getSelectedItem(),
+            ((Number) speedSpinner.getValue()).doubleValue(),
+            muteCheckBox.isSelected(),
+            turboCheckBox.isSelected()
+        ));
 
         JButton downloadButton = new JButton("↓ Download");
-        downloadButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Download functionality to be implemented", "Info", JOptionPane.INFORMATION_MESSAGE);
-        });
+        downloadButton.addActionListener(e -> openDownloadLink());
 
         JButton openLinkButton = new JButton("🌐 Open Link");
-        openLinkButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Would open ZXInfo page", "Info", JOptionPane.INFORMATION_MESSAGE);
-        });
+        openLinkButton.addActionListener(e -> openZXInfoLink());
 
         JButton closeButton = new JButton("Close");
         closeButton.addActionListener(e -> dispose());
