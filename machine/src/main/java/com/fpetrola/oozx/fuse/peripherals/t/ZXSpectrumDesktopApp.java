@@ -1600,6 +1600,12 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
   public EmulatorInternalFrame createNewEmulator(EmulatorCore core1, String filePath) {
     EmulatorCore core = core1;
+    
+    // Asignar el filename si se proporciona
+    if (filePath != null && !filePath.isEmpty()) {
+      core.setFilename(filePath);
+    }
+    
     JComponent panel = core.getPanel();
     int x = (emulatorCount * 30) % 400;
     int y = (emulatorCount * 30) % 300;
