@@ -46,7 +46,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import java.awt.Desktop;
 
 import static com.fpetrola.oozx.fuse.peripherals.t.EmulatorInternalFrame.loadIcon;
 
@@ -624,13 +623,15 @@ class EmulatorInternalFrame extends JInternalFrame {
 
 // --- NEW: Game Search Result Model ---
 class GameSearchResult {
+  public String id;
   String title;
   String url;
   String screenshot1;
   String screenshot2;
   String filename;
 
-  public GameSearchResult(String title, String url, String screenshot1, String screenshot2, String filename) {
+  public GameSearchResult(String _id, String title, String url, String screenshot1, String screenshot2, String filename) {
+    id = _id;
     this.title = title;
     this.url = url;
     this.screenshot1 = screenshot1;
@@ -752,7 +753,7 @@ class GameBrowserInternalFrame extends JInternalFrame {
         String screenshot2 = getString(screenshots, 1);
         if (!files.isEmpty()) {
           String s = !files.isEmpty() ? files.get(0) : null;
-          results.add(new GameSearchResult(game.title, "http://example.com/game/" + query, screenshot1, screenshot2, s));
+          results.add(new GameSearchResult(hit._id, game.title, "http://example.com/game/" + query, screenshot1, screenshot2, s));
         }
       }
     }
@@ -1799,12 +1800,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
             @Override
             protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
               // Extract ID from URL (e.g., "https://zxinfo.dk/games/xxxx")
-              String gameId = gameSearchResult.url;
-              if (gameSearchResult.url.contains("/")) {
-                String[] parts = gameSearchResult.url.split("/");
-                gameId = parts[parts.length - 1];
-              }
-              
+              String gameId = gameSearchResult.id;
               // Fetch full details from API
               ZxInfoApiHandler apiHandler = new ZxInfoApiHandler();
               return apiHandler.fetchGameDetails(gameId);
