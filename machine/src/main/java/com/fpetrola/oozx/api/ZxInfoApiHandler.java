@@ -39,39 +39,129 @@ public class ZxInfoApiHandler {
     ZxInfoClient zxClient = target.proxy(ZxInfoClient.class);
     SearchResponse response = zxClient.searchGames(everyoneWally, 150, 0);
 
-//    for (Hit hit : response.hits.hits) {
-//      GameEntry game = hit._source;
-////            game.id = hit._id; // asignamos el ID real
-////            System.out.println("[" + game.id + "] " + game.title +
-////                    " (" + game.originalYearOfRelease + ") - " +
-////                    (game.publishers != null && !game.publishers.isEmpty() ? game.publishers.get(0).name : "Unknown"));
-////            System.out.println("   Género: " + game.genre + " | Máquina: " + game.machineType);
-////            if (game.score != null && game.score.score != null) {
-////                System.out.println("   Puntuación: " + game.score.score + "/10 (" + game.score.votes + " votos)");
-////            }
-//      game.screens.forEach(s -> {
-//        String filename = s.filename;
-//        System.out.println(filename);
-//      });
-//      System.out.println();
-//    }
-
-//    // Detalles del primer juego
-//    if (!response.hits.hits.isEmpty()) {
-//      String firstId = response.hits.hits.get(0)._id;
-//      System.out.println("=== Detalles del juego ID: " + firstId + " ===");
-////            GameEntry detail = zxClient.getGameDetails(firstId);
-////            detail.id = firstId;
-////            System.out.println("Título: " + detail.title);
-////            System.out.println("Año: " + detail.originalYearOfRelease);
-////            System.out.println("Editor: " + (detail.publishers != null ? detail.publishers.get(0).name : "N/A"));
-////            System.out.println("Género: " + detail.genre);
-////            System.out.println("Descargas adicionales: " + detail.additionalDownloads.size());
-////            System.out.println("Pantallas: " + detail.screens.size());
-//    }
-
     client.close();
 
     return response.hits.hits;
+  }
+
+  /**
+   * Fetches game details from the API by game ID and converts to GameDetail
+   * @param gameId the game ID to fetch
+   * @return GameDetail with all available information from the API
+   */
+  public GameDetail fetchGameDetails(String gameId) {
+    Client client = null;
+    try {
+      client = ClientBuilder.newClient();
+      ResteasyWebTarget target = (ResteasyWebTarget) client.target(BASE_URL);
+      ZxInfoClient zxClient = target.proxy(ZxInfoClient.class);
+      GameEntry gameEntry = zxClient.getGameDetails(gameId);
+      
+      return convertGameEntryToDetail(gameEntry, gameId);
+    } catch (Exception e) {
+      System.err.println("Error fetching game details: " + e.getMessage());
+      e.printStackTrace();
+      return null;
+    } finally {
+      if (client != null) {
+        client.close();
+      }
+    }
+  }
+
+  /**
+   * Converts GameEntry from API to GameDetail for UI display
+   */
+  private GameDetail convertGameEntryToDetail(GameEntry entry, String gameId) {
+    GameDetail detail = new GameDetail();
+    
+    detail.id = gameId;
+    detail.title = entry.title;
+    detail.yearOfRelease = entry.originalYearOfRelease != null ? entry.originalYearOfRelease.toString() : null;
+    detail.originalMonthOfRelease = entry.originalMonthOfRelease;
+    detail.originalDayOfRelease = entry.originalDayOfRelease;
+    detail.machineType = entry.machineType;
+    detail.genre = entry.genre;
+    detail.genreType = entry.genreType;
+    detail.genreSubType = entry.genreSubType;
+    detail.availability = entry.availability;
+    detail.isbn = entry.isbn;
+    detail.xrated = entry.xrated;
+    detail.contentType = entry.contentType;
+    detail.zxinfoVersion = entry.zxinfoVersion;
+    
+    // Handle score
+    if (entry.score != null) {
+      detail.score = entry.score.score != null ? entry.score.score.doubleValue() : null;
+    }
+    
+    // Handle publishers
+    if (entry.publishers != null && !entry.publishers.isEmpty()) {
+      detail.publisher = entry.publishers.get(0).name;
+      detail.publishers = new java.util.ArrayList<>();
+      for (Publisher pub : entry.publishers) {
+        detail.publishers.add(pub.name);
+      }
+    }
+    
+    // Handle authors
+    if (entry.authors != null && !entry.authors.isEmpty()) {
+      detail.authors = new java.util.ArrayList<>();
+      for (Author author : entry.authors) {
+        if (author.name != null) {
+          detail.authors.add(author.name);
+        }
+      }
+    }
+    
+    // Handle screenshots
+    if (entry.screens != null && !entry.screens.isEmpty()) {
+      detail.screenshots = new java.util.ArrayList<>();
+      for (Screen screen : entry.screens) {
+        String screenshotUrl = null;
+        // Try to use URL if available
+        if (screen.url != null && !screen.url.isEmpty()) {
+          screenshotUrl = screen.url;
+        } else if (screen.scrUrl != null && !screen.scrUrl.isEmpty()) {
+          screenshotUrl = screen.scrUrl;
+        } else if (screen.filename != null && !screen.filename.isEmpty()) {
+          // Construct full URL from filename
+          screenshotUrl = "https://media.zxinfo.dk/media/" + screen.filename;
+        }
+        if (screenshotUrl != null) {
+          detail.screenshots.add(screenshotUrl);
+        }
+      }
+    }
+    
+    // Handle additional downloads
+    if (entry.additionalDownloads != null && !entry.additionalDownloads.isEmpty()) {
+      detail.additionalDownloads = new java.util.ArrayList<>();
+      for (AdditionalDownload download : entry.additionalDownloads) {
+        if (download.path != null) {
+          StringBuilder downloadInfo = new StringBuilder(download.path);
+          if (download.type != null) {
+            downloadInfo.append(" (").append(download.type).append(")");
+          }
+          detail.additionalDownloads.add(downloadInfo.toString());
+        }
+      }
+    }
+    
+    // Handle releases
+    if (entry.releases != null && !entry.releases.isEmpty()) {
+      detail.releases = new java.util.ArrayList<>();
+      for (Release release : entry.releases) {
+        if (release.publishers != null && !release.publishers.isEmpty()) {
+          for (Publisher publisher : release.publishers) {
+            java.util.Map<String, String> releaseMap = new java.util.HashMap<>();
+            releaseMap.put("Publisher", publisher.name != null ? publisher.name : "N/A");
+            detail.releases.add(releaseMap);
+          }
+        }
+      }
+    }
+    
+    return detail;
   }
 }

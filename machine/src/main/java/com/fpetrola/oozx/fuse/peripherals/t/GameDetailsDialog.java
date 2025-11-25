@@ -25,442 +25,564 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GameDetailsDialog extends JDialog {
     private GameDetail gameDetail;
-    
+    private static final int DIALOG_WIDTH = 1000;
+    private static final int DIALOG_HEIGHT = 700;
+
     public GameDetailsDialog(Frame owner, GameDetail gameDetail) {
         super(owner, "Game Details - " + gameDetail.title, true);
         this.gameDetail = gameDetail;
-        
-        setSize(900, 600);
+
+        setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
         setLocationRelativeTo(owner);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        
+
         initializeComponents();
     }
-    
+
     private void initializeComponents() {
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        // Left side: Game cover/image
+
+        // Left side: Cover and basic info
         JPanel leftPanel = createLeftPanel();
-        
-        // Right side: Tabs with information
+
+        // Right side: Tabs with detailed information
         JPanel rightPanel = createRightPanel();
-        
+
         mainPanel.add(leftPanel, BorderLayout.WEST);
         mainPanel.add(rightPanel, BorderLayout.CENTER);
-        
-        // Bottom: Buttons
+
+        // Bottom: Action buttons
         JPanel buttonsPanel = createButtonsPanel();
         mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
-        
+
         add(mainPanel);
     }
-    
+
     private JPanel createLeftPanel() {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
-        panel.setPreferredSize(new Dimension(250, 500));
-        
+        panel.setPreferredSize(new Dimension(280, 500));
+
         // Game cover image
         JPanel coverPanel = new JPanel(new BorderLayout());
         coverPanel.setBorder(BorderFactory.createTitledBorder("Game Cover"));
         JLabel coverLabel = new JLabel();
-        coverLabel.setIcon(null);
         coverLabel.setBackground(Color.DARK_GRAY);
         coverLabel.setOpaque(true);
         coverLabel.setHorizontalAlignment(JLabel.CENTER);
         coverLabel.setVerticalAlignment(JLabel.CENTER);
-        coverLabel.setText("(Cover Image)");
-        coverLabel.setForeground(Color.WHITE);
         coverLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        coverLabel.setPreferredSize(new Dimension(230, 300));
+        coverLabel.setPreferredSize(new Dimension(240, 300));
+
+        // Try to load cover image in background
+        if (gameDetail.coverImageUrl != null && !gameDetail.coverImageUrl.isEmpty()) {
+            loadImageAsync(gameDetail.coverImageUrl, coverLabel, 240, 300, "Cover Image");
+        } else {
+            coverLabel.setText("No cover image");
+            coverLabel.setForeground(Color.WHITE);
+        }
+
         coverPanel.add(coverLabel, BorderLayout.CENTER);
-        
-        // Rating panel with stars
-        JPanel ratingPanel = new JPanel(new BorderLayout());
-        ratingPanel.setBorder(BorderFactory.createTitledBorder("Rating"));
+
+        // Rating panel
+        JPanel ratingPanel = createRatingPanel();
+
+        // Game info summary panel
+        JPanel infoSummaryPanel = createInfoSummaryPanel();
+
+        // Favorite checkbox
+        JCheckBox favoriteCheckBox = new JCheckBox("Mark as Favorite");
+        JPanel statusPanel = new JPanel(new BorderLayout());
+        statusPanel.add(favoriteCheckBox, BorderLayout.NORTH);
+        statusPanel.setBorder(BorderFactory.createTitledBorder("Status"));
+
+        // Assemble left panel
+        panel.add(coverPanel, BorderLayout.NORTH);
+
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.add(ratingPanel);
+        centerPanel.add(Box.createVerticalStrut(5));
+        centerPanel.add(infoSummaryPanel);
+
+        panel.add(centerPanel, BorderLayout.CENTER);
+        panel.add(statusPanel, BorderLayout.SOUTH);
+
+        return panel;
+    }
+
+    private JPanel createRatingPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("Rating"));
         JPanel starsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+        int rating = 0;
+        if (gameDetail.score != null) {
+            rating = (int) Math.round(gameDetail.score / 20); // Convert 0-100 to 0-5
+            rating = Math.min(5, rating);
+        }
+
         for (int i = 0; i < 5; i++) {
             JLabel star = new JLabel("★");
             star.setFont(new Font("Arial", Font.PLAIN, 18));
-            if (i < 3) {
+            if (i < rating) {
                 star.setForeground(Color.YELLOW);
             } else {
                 star.setForeground(Color.LIGHT_GRAY);
             }
             starsPanel.add(star);
         }
-        ratingPanel.add(starsPanel, BorderLayout.NORTH);
-        JLabel ratingLabel = new JLabel("Rating: 3.0/5.0");
-        ratingPanel.add(ratingLabel, BorderLayout.CENTER);
-        
-        // Favorite checkbox
-        JCheckBox favoriteCheckBox = new JCheckBox("Mark as Favorite");
-        JPanel favoritePanel = new JPanel(new BorderLayout());
-        favoritePanel.add(favoriteCheckBox, BorderLayout.NORTH);
-        favoritePanel.setBorder(BorderFactory.createTitledBorder("Status"));
-        
-        // Game type radio buttons
-        JPanel typePanel = new JPanel();
-        typePanel.setLayout(new BoxLayout(typePanel, BoxLayout.Y_AXIS));
-        typePanel.setBorder(BorderFactory.createTitledBorder("Game Type"));
-        ButtonGroup typeGroup = new ButtonGroup();
-        JRadioButton actionRadio = new JRadioButton("Action", true);
-        JRadioButton adventureRadio = new JRadioButton("Adventure");
-        JRadioButton puzzleRadio = new JRadioButton("Puzzle");
-        typeGroup.add(actionRadio);
-        typeGroup.add(adventureRadio);
-        typeGroup.add(puzzleRadio);
-        typePanel.add(actionRadio);
-        typePanel.add(adventureRadio);
-        typePanel.add(puzzleRadio);
-        
-        // Assemble left panel
-        panel.add(coverPanel, BorderLayout.NORTH);
-        panel.add(ratingPanel, BorderLayout.CENTER);
-        
-        JPanel bottomLeftPanel = new JPanel();
-        bottomLeftPanel.setLayout(new BoxLayout(bottomLeftPanel, BoxLayout.Y_AXIS));
-        bottomLeftPanel.add(favoritePanel);
-        bottomLeftPanel.add(Box.createVerticalStrut(5));
-        bottomLeftPanel.add(typePanel);
-        
-        panel.add(bottomLeftPanel, BorderLayout.SOUTH);
-        
+
+        panel.add(starsPanel, BorderLayout.NORTH);
+        String ratingText = gameDetail.score != null ? String.format("%.1f/100", gameDetail.score) : "N/A";
+        JLabel ratingLabel = new JLabel("Score: " + ratingText);
+        panel.add(ratingLabel, BorderLayout.CENTER);
+
+        if (gameDetail.xrated != null && gameDetail.xrated > 0) {
+            JLabel xratedLabel = new JLabel("⚠ X-Rated");
+            xratedLabel.setForeground(Color.RED);
+            panel.add(xratedLabel, BorderLayout.SOUTH);
+        }
+
         return panel;
     }
-    
+
+    private JPanel createInfoSummaryPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createTitledBorder("Quick Info"));
+
+        addInfoLine(panel, "Year:", gameDetail.yearOfRelease);
+        addInfoLine(panel, "Publisher:", gameDetail.publisher);
+        addInfoLine(panel, "Genre:", gameDetail.genre);
+        addInfoLine(panel, "Machine:", gameDetail.machineType);
+        addInfoLine(panel, "Memory:", gameDetail.memoryRequired);
+        addInfoLine(panel, "Status:", gameDetail.availability);
+
+        return panel;
+    }
+
+    private void addInfoLine(JPanel panel, String label, String value) {
+        JPanel linePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        linePanel.setMaximumSize(new Dimension(250, 20));
+        JLabel labelComponent = new JLabel(label);
+        labelComponent.setFont(new Font("Arial", Font.BOLD, 10));
+        labelComponent.setPreferredSize(new Dimension(80, 20));
+        JLabel valueComponent = new JLabel(value != null ? value : "N/A");
+        valueComponent.setFont(new Font("Arial", Font.PLAIN, 10));
+        linePanel.add(labelComponent);
+        linePanel.add(valueComponent);
+        panel.add(linePanel);
+    }
+
     private JPanel createRightPanel() {
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setTabPlacement(JTabbedPane.TOP);
-        
-        // Tab 1: General Info
+
         tabbedPane.addTab("General", createGeneralInfoPanel());
-        
-        // Tab 2: Technical Specs
         tabbedPane.addTab("Technical", createTechnicalSpecsPanel());
-        
-        // Tab 3: Description
+        tabbedPane.addTab("Publishers", createPublishersPanel());
+        tabbedPane.addTab("Authors", createAuthorsPanel());
         tabbedPane.addTab("Description", createDescriptionPanel());
-        
-        // Tab 4: Screenshots
         tabbedPane.addTab("Screenshots", createScreenshotsPanel());
-        
-        // Tab 5: Compatibility
-        tabbedPane.addTab("Compatibility", createCompatibilityPanel());
-        
-        // Tab 6: Details Tree
-        tabbedPane.addTab("Details", createDetailsTreePanel());
-        
+        tabbedPane.addTab("Releases", createReleasesPanel());
+        tabbedPane.addTab("Downloads", createDownloadsPanel());
+
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(tabbedPane, BorderLayout.CENTER);
         return panel;
     }
-    
+
     private JPanel createGeneralInfoPanel() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
+
         // Title section
         JPanel titlePanel = new JPanel(new BorderLayout());
         titlePanel.setBorder(BorderFactory.createTitledBorder("Game Information"));
         JLabel titleLabel = new JLabel(gameDetail.title);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
         titlePanel.add(titleLabel, BorderLayout.CENTER);
-        
-        // Information grid
-        JPanel infoPanel = new JPanel();
-        GroupLayout layout = new GroupLayout(infoPanel);
-        infoPanel.setLayout(layout);
-        layout.setAutoCreateGaps(true);
-        layout.setAutoCreateContainerGaps(true);
-        
-        JLabel yearLabel = new JLabel("Year of Release:");
-        JLabel yearValue = new JLabel(gameDetail.yearOfRelease != null ? gameDetail.yearOfRelease : "N/A");
-        
-        JLabel publisherLabel = new JLabel("Publisher:");
-        JLabel publisherValue = new JLabel(gameDetail.publisher != null ? gameDetail.publisher : "N/A");
-        
-        JLabel genreLabel = new JLabel("Genre:");
-        JLabel genreValue = new JLabel(gameDetail.genre != null ? gameDetail.genre : "N/A");
-        
-        JLabel idLabel = new JLabel("Game ID:");
-        JLabel idValue = new JLabel(gameDetail.id != null ? gameDetail.id : "N/A");
-        idValue.setFont(new Font("Courier", Font.PLAIN, 10));
-        
-        // Tags/Labels
-        JLabel tagsLabel = new JLabel("Tags:");
-        JPanel tagsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        String[] tags = {"Retro", "Action", "Arcade"};
-        for (String tag : tags) {
-            JLabel tagLabel = new JLabel(tag);
-            tagLabel.setBackground(new Color(200, 220, 255));
-            tagLabel.setOpaque(true);
-            tagLabel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.GRAY),
-                BorderFactory.createEmptyBorder(2, 5, 2, 5)
-            ));
-            tagLabel.setFont(new Font("Arial", Font.PLAIN, 10));
-            tagsPanel.add(tagLabel);
-        }
-        
-        layout.setHorizontalGroup(layout.createSequentialGroup()
-            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                .addComponent(yearLabel)
-                .addComponent(publisherLabel)
-                .addComponent(genreLabel)
-                .addComponent(idLabel)
-                .addComponent(tagsLabel))
-            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                .addComponent(yearValue)
-                .addComponent(publisherValue)
-                .addComponent(genreValue)
-                .addComponent(idValue)
-                .addComponent(tagsPanel))
-        );
-        
-        layout.setVerticalGroup(layout.createSequentialGroup()
-            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                .addComponent(yearLabel)
-                .addComponent(yearValue))
-            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                .addComponent(publisherLabel)
-                .addComponent(publisherValue))
-            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                .addComponent(genreLabel)
-                .addComponent(genreValue))
-            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                .addComponent(idLabel)
-                .addComponent(idValue))
-            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                .addComponent(tagsLabel)
-                .addComponent(tagsPanel))
-        );
-        
+        titlePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+
         mainPanel.add(titlePanel);
         mainPanel.add(Box.createVerticalStrut(10));
-        mainPanel.add(infoPanel);
-        mainPanel.add(Box.createVerticalGlue());
-        
-        JPanel wrapper = new JPanel(new BorderLayout());
-        wrapper.add(mainPanel, BorderLayout.NORTH);
-        return wrapper;
-    }
-    
-    private JPanel createTechnicalSpecsPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        // Create table with technical specs
-        String[] columnNames = {"Specification", "Value"};
-        Object[][] data = {
-            {"Machine Type", gameDetail.machineType != null ? gameDetail.machineType : "N/A"},
-            {"Memory Required", gameDetail.memoryRequired != null ? gameDetail.memoryRequired : "N/A"},
-            {"ID", gameDetail.id != null ? gameDetail.id : "N/A"}
+
+        // Information table
+        JPanel infoPanel = new JPanel(new BorderLayout());
+        infoPanel.setBorder(BorderFactory.createTitledBorder("Details"));
+
+        String[][] data = {
+                {"Title", gameDetail.title},
+                {"Year of Release", gameDetail.yearOfRelease != null ? gameDetail.yearOfRelease : "N/A"},
+                {"Release Date", formatReleaseDate()},
+                {"Genre", gameDetail.genre != null ? gameDetail.genre : "N/A"},
+                {"Genre Type", gameDetail.genreType != null ? gameDetail.genreType : "N/A"},
+                {"Genre Sub-Type", gameDetail.genreSubType != null ? gameDetail.genreSubType : "N/A"},
+                {"Machine Type", gameDetail.machineType != null ? gameDetail.machineType : "N/A"},
+                {"Availability", gameDetail.availability != null ? gameDetail.availability : "N/A"},
+                {"Game ID", gameDetail.id != null ? gameDetail.id : "N/A"},
+                {"Score", gameDetail.score != null ? String.format("%.1f/100", gameDetail.score) : "N/A"},
+                {"ISBN", gameDetail.isbn != null ? gameDetail.isbn : "N/A"},
         };
-        
-        DefaultTableModel model = new DefaultTableModel(data, columnNames) {
+
+        String[] columns = {"Property", "Value"};
+        DefaultTableModel model = new DefaultTableModel(data, columns) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
-        
+
         JTable table = new JTable(model);
         table.setRowHeight(25);
         table.getColumnModel().getColumn(0).setPreferredWidth(150);
         table.getColumnModel().getColumn(1).setPreferredWidth(300);
-        
+
         JScrollPane scrollPane = new JScrollPane(table);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        
+        infoPanel.add(scrollPane, BorderLayout.CENTER);
+
+        mainPanel.add(infoPanel);
+        mainPanel.add(Box.createVerticalGlue());
+
+        return mainPanel;
+    }
+
+    private String formatReleaseDate() {
+        if (gameDetail.yearOfRelease == null) return "N/A";
+        StringBuilder date = new StringBuilder(gameDetail.yearOfRelease);
+        if (gameDetail.originalMonthOfRelease != null) {
+            date.append("-").append(String.format("%02d", gameDetail.originalMonthOfRelease));
+            if (gameDetail.originalDayOfRelease != null) {
+                date.append("-").append(String.format("%02d", gameDetail.originalDayOfRelease));
+            }
+        }
+        return date.toString();
+    }
+
+    private JPanel createTechnicalSpecsPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        String[][] data = {
+                {"Machine Type", gameDetail.machineType != null ? gameDetail.machineType : "N/A"},
+                {"Memory Required", gameDetail.memoryRequired != null ? gameDetail.memoryRequired : "N/A"},
+                {"Content Type", gameDetail.contentType != null ? gameDetail.contentType : "N/A"},
+                {"Format", gameDetail.zxinfoVersion != null ? gameDetail.zxinfoVersion : "N/A"},
+        };
+
+        if (gameDetail.machines != null && !gameDetail.machines.isEmpty()) {
+            JPanel machinesPanel = new JPanel(new BorderLayout());
+            machinesPanel.setBorder(BorderFactory.createTitledBorder("Compatible Machines"));
+
+            String[][] machineData = new String[gameDetail.machines.size()][1];
+            for (int i = 0; i < gameDetail.machines.size(); i++) {
+                machineData[i][0] = gameDetail.machines.get(i);
+            }
+
+            DefaultTableModel machineModel = new DefaultTableModel(machineData, new String[]{"Machine"}) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+
+            JTable machineTable = new JTable(machineModel);
+            machineTable.setRowHeight(20);
+            JScrollPane machineScroll = new JScrollPane(machineTable);
+            machinesPanel.add(machineScroll, BorderLayout.CENTER);
+            machinesPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
+
+            panel.add(machinesPanel);
+            panel.add(Box.createVerticalStrut(10));
+        }
+
+        DefaultTableModel model = new DefaultTableModel(data, new String[]{"Property", "Value"}) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        JTable table = new JTable(model);
+        table.setRowHeight(25);
+        table.getColumnModel().getColumn(0).setPreferredWidth(150);
+        table.getColumnModel().getColumn(1).setPreferredWidth(300);
+
+        JPanel infoPanel = new JPanel(new BorderLayout());
+        infoPanel.setBorder(BorderFactory.createTitledBorder("Specifications"));
+        JScrollPane scrollPane = new JScrollPane(table);
+        infoPanel.add(scrollPane, BorderLayout.CENTER);
+
+        panel.add(infoPanel);
+        panel.add(Box.createVerticalGlue());
+
         return panel;
     }
-    
+
+    private JPanel createPublishersPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        if (gameDetail.publishers == null || gameDetail.publishers.isEmpty()) {
+            JLabel noDataLabel = new JLabel("No publisher information available");
+            noDataLabel.setHorizontalAlignment(JLabel.CENTER);
+            panel.add(noDataLabel, BorderLayout.CENTER);
+        } else {
+            String[][] data = new String[gameDetail.publishers.size()][1];
+            for (int i = 0; i < gameDetail.publishers.size(); i++) {
+                data[i][0] = gameDetail.publishers.get(i);
+            }
+
+            DefaultTableModel model = new DefaultTableModel(data, new String[]{"Publisher"}) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+
+            JTable table = new JTable(model);
+            table.setRowHeight(25);
+            JScrollPane scrollPane = new JScrollPane(table);
+            panel.add(scrollPane, BorderLayout.CENTER);
+        }
+
+        return panel;
+    }
+
+    private JPanel createAuthorsPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        if (gameDetail.authors == null || gameDetail.authors.isEmpty()) {
+            JLabel noDataLabel = new JLabel("No author information available");
+            noDataLabel.setHorizontalAlignment(JLabel.CENTER);
+            panel.add(noDataLabel, BorderLayout.CENTER);
+        } else {
+            String[][] data = new String[gameDetail.authors.size()][1];
+            for (int i = 0; i < gameDetail.authors.size(); i++) {
+                data[i][0] = gameDetail.authors.get(i);
+            }
+
+            DefaultTableModel model = new DefaultTableModel(data, new String[]{"Author"}) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+
+            JTable table = new JTable(model);
+            table.setRowHeight(25);
+            JScrollPane scrollPane = new JScrollPane(table);
+            panel.add(scrollPane, BorderLayout.CENTER);
+        }
+
+        return panel;
+    }
+
     private JPanel createDescriptionPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
+
         JTextArea descriptionArea = new JTextArea();
         descriptionArea.setText(gameDetail.description != null ? gameDetail.description : "No description available");
         descriptionArea.setLineWrap(true);
         descriptionArea.setWrapStyleWord(true);
         descriptionArea.setEditable(false);
         descriptionArea.setFont(new Font("Arial", Font.PLAIN, 12));
-        
+
         JScrollPane scrollPane = new JScrollPane(descriptionArea);
         panel.add(scrollPane, BorderLayout.CENTER);
-        
+
         return panel;
     }
-    
-    private JPanel createCompatibilityPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        // Compatibility ratings using sliders and checkboxes
-        String[] models = {"Spectrum 48K", "Spectrum 128K", "Pentagon", "Timex"};
-        
-        for (String model : models) {
-            JPanel modelPanel = new JPanel();
-            modelPanel.setLayout(new BoxLayout(modelPanel, BoxLayout.X_AXIS));
-            modelPanel.setBorder(BorderFactory.createTitledBorder(model));
-            
-            JCheckBox compatibleCheckBox = new JCheckBox("Compatible");
-            compatibleCheckBox.setSelected(true);
-            
-            JLabel compatLabel = new JLabel("Compatibility:");
-            JSlider compatSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 85);
-            compatSlider.setMajorTickSpacing(20);
-            compatSlider.setMinorTickSpacing(5);
-            compatSlider.setPaintTicks(true);
-            compatSlider.setPaintLabels(true);
-            compatSlider.setPreferredSize(new Dimension(200, 40));
-            compatSlider.setMaximumSize(new Dimension(200, 40));
-            
-            JLabel scoreLabel = new JLabel("85%");
-            compatSlider.addChangeListener(e -> scoreLabel.setText(compatSlider.getValue() + "%"));
-            
-            modelPanel.add(compatibleCheckBox);
-            modelPanel.add(Box.createHorizontalStrut(10));
-            modelPanel.add(compatLabel);
-            modelPanel.add(Box.createHorizontalStrut(5));
-            modelPanel.add(compatSlider);
-            modelPanel.add(Box.createHorizontalStrut(5));
-            modelPanel.add(scoreLabel);
-            modelPanel.add(Box.createHorizontalGlue());
-            
-            panel.add(modelPanel);
-            panel.add(Box.createVerticalStrut(5));
-        }
-        
-        // Overall compatibility progress bar
-        JPanel overallPanel = new JPanel();
-        overallPanel.setLayout(new BoxLayout(overallPanel, BoxLayout.X_AXIS));
-        overallPanel.setBorder(BorderFactory.createTitledBorder("Overall Compatibility"));
-        
-        JLabel overallLabel = new JLabel("Score:");
-        JProgressBar progressBar = new JProgressBar(0, 100);
-        progressBar.setValue(85);
-        progressBar.setStringPainted(true);
-        progressBar.setString("85%");
-        progressBar.setPreferredSize(new Dimension(300, 20));
-        progressBar.setMaximumSize(new Dimension(300, 20));
-        
-        overallPanel.add(overallLabel);
-        overallPanel.add(Box.createHorizontalStrut(10));
-        overallPanel.add(progressBar);
-        overallPanel.add(Box.createHorizontalGlue());
-        
-        panel.add(overallPanel);
-        panel.add(Box.createVerticalGlue());
-        
-        return panel;
-    }
-    
+
     private JPanel createScreenshotsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
+
         if (gameDetail.screenshots == null || gameDetail.screenshots.isEmpty()) {
             JLabel noScreenshotsLabel = new JLabel("No screenshots available");
             noScreenshotsLabel.setHorizontalAlignment(JLabel.CENTER);
             panel.add(noScreenshotsLabel, BorderLayout.CENTER);
         } else {
             JPanel screenshotsGridPanel = new JPanel();
-            screenshotsGridPanel.setLayout(new GridLayout(2, 2, 10, 10));
-            
+            int cols = (int) Math.ceil(Math.sqrt(gameDetail.screenshots.size()));
+            screenshotsGridPanel.setLayout(new GridLayout(cols, cols, 10, 10));
+
             for (String screenshotUrl : gameDetail.screenshots) {
                 JPanel screenshotPanel = new JPanel(new BorderLayout());
                 screenshotPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-                
+
                 JLabel screenshotLabel = new JLabel();
                 screenshotLabel.setBackground(Color.BLACK);
                 screenshotLabel.setOpaque(true);
                 screenshotLabel.setHorizontalAlignment(JLabel.CENTER);
                 screenshotLabel.setVerticalAlignment(JLabel.CENTER);
-                screenshotLabel.setText(screenshotUrl != null ? screenshotUrl : "(Screenshot)");
                 screenshotLabel.setFont(new Font("Arial", Font.PLAIN, 10));
-                screenshotLabel.setForeground(Color.WHITE);
-                
+                screenshotLabel.setPreferredSize(new Dimension(200, 150));
+
+                // Load screenshot asynchronously
+                if (screenshotUrl != null && !screenshotUrl.isEmpty()) {
+                    loadImageAsync(screenshotUrl, screenshotLabel, 200, 150, "Loading...");
+                } else {
+                    screenshotLabel.setText("No URL");
+                    screenshotLabel.setForeground(Color.WHITE);
+                }
+
                 screenshotPanel.add(screenshotLabel, BorderLayout.CENTER);
                 screenshotsGridPanel.add(screenshotPanel);
             }
-            
+
             JScrollPane scrollPane = new JScrollPane(screenshotsGridPanel);
             panel.add(scrollPane, BorderLayout.CENTER);
         }
-        
+
         return panel;
     }
-    
-    private JPanel createDetailsTreePanel() {
+
+    private JPanel createReleasesPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        // Create tree structure with game details
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Game Details");
-        
-        DefaultMutableTreeNode generalNode = new DefaultMutableTreeNode("General Information");
-        generalNode.add(new DefaultMutableTreeNode("Title: " + gameDetail.title));
-        generalNode.add(new DefaultMutableTreeNode("Year: " + (gameDetail.yearOfRelease != null ? gameDetail.yearOfRelease : "N/A")));
-        generalNode.add(new DefaultMutableTreeNode("Publisher: " + (gameDetail.publisher != null ? gameDetail.publisher : "N/A")));
-        generalNode.add(new DefaultMutableTreeNode("Genre: " + (gameDetail.genre != null ? gameDetail.genre : "N/A")));
-        root.add(generalNode);
-        
-        DefaultMutableTreeNode technicalNode = new DefaultMutableTreeNode("Technical");
-        technicalNode.add(new DefaultMutableTreeNode("Machine: " + (gameDetail.machineType != null ? gameDetail.machineType : "N/A")));
-        technicalNode.add(new DefaultMutableTreeNode("Memory: " + (gameDetail.memoryRequired != null ? gameDetail.memoryRequired : "N/A")));
-        root.add(technicalNode);
-        
-        if (gameDetail.screenshots != null && !gameDetail.screenshots.isEmpty()) {
-            DefaultMutableTreeNode screenshotsNode = new DefaultMutableTreeNode("Screenshots (" + gameDetail.screenshots.size() + ")");
-            for (int i = 0; i < gameDetail.screenshots.size(); i++) {
-                screenshotsNode.add(new DefaultMutableTreeNode("Screenshot " + (i + 1)));
+
+        if (gameDetail.releases == null || gameDetail.releases.isEmpty()) {
+            JLabel noReleasesLabel = new JLabel("No release information available");
+            noReleasesLabel.setHorizontalAlignment(JLabel.CENTER);
+            panel.add(noReleasesLabel, BorderLayout.CENTER);
+        } else {
+            String[][] data = new String[gameDetail.releases.size()][gameDetail.releases.get(0).size()];
+            String[] columns = gameDetail.releases.get(0).keySet().toArray(new String[0]);
+
+            for (int i = 0; i < gameDetail.releases.size(); i++) {
+                int j = 0;
+                for (String value : gameDetail.releases.get(i).values()) {
+                    data[i][j++] = value;
+                }
             }
-            root.add(screenshotsNode);
+
+            DefaultTableModel model = new DefaultTableModel(data, columns) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+
+            JTable table = new JTable(model);
+            table.setRowHeight(25);
+            for (int i = 0; i < columns.length; i++) {
+                table.getColumnModel().getColumn(i).setPreferredWidth(150);
+            }
+
+            JScrollPane scrollPane = new JScrollPane(table);
+            panel.add(scrollPane, BorderLayout.CENTER);
         }
-        
-        JTree tree = new JTree(new DefaultTreeModel(root));
-        tree.setRootVisible(true);
-        tree.setShowsRootHandles(true);
-        
-        JScrollPane scrollPane = new JScrollPane(tree);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        
+
         return panel;
     }
-    
+
+    private JPanel createDownloadsPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        if (gameDetail.additionalDownloads == null || gameDetail.additionalDownloads.isEmpty()) {
+            JLabel noDownloadsLabel = new JLabel("No additional downloads available");
+            noDownloadsLabel.setHorizontalAlignment(JLabel.CENTER);
+            panel.add(noDownloadsLabel, BorderLayout.CENTER);
+        } else {
+            String[][] data = new String[gameDetail.additionalDownloads.size()][1];
+            for (int i = 0; i < gameDetail.additionalDownloads.size(); i++) {
+                data[i][0] = gameDetail.additionalDownloads.get(i);
+            }
+
+            DefaultTableModel model = new DefaultTableModel(data, new String[]{"Download"}) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+
+            JTable table = new JTable(model);
+            table.setRowHeight(25);
+            JScrollPane scrollPane = new JScrollPane(table);
+            panel.add(scrollPane, BorderLayout.CENTER);
+        }
+
+        return panel;
+    }
+
+    /**
+     * Loads an image from URL asynchronously and sets it on a JLabel
+     */
+    private void loadImageAsync(String imageUrl, JLabel label, int width, int height, String fallbackText) {
+        SwingWorker<ImageIcon, Void> worker = new SwingWorker<ImageIcon, Void>() {
+            @Override
+            protected ImageIcon doInBackground() throws Exception {
+                try {
+                    URL url = new URL(imageUrl);
+                    ImageIcon icon = new ImageIcon(url);
+                    if (icon.getIconWidth() > 0 && icon.getIconHeight() > 0) {
+                        Image scaledImage = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+                        return new ImageIcon(scaledImage);
+                    }
+                    return null;
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    ImageIcon icon = get();
+                    if (icon != null) {
+                        label.setIcon(icon);
+                        label.setText(null);
+                    } else {
+                        label.setText(fallbackText);
+                        label.setForeground(Color.WHITE);
+                    }
+                } catch (Exception e) {
+                    label.setText(fallbackText);
+                    label.setForeground(Color.WHITE);
+                }
+            }
+        };
+        worker.execute();
+    }
+
     private JPanel createButtonsPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        
-        // Top row: Model and other options
+
+        // Top row: Emulation options
         JPanel optionsPanel = new JPanel();
         optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
         optionsPanel.setBorder(BorderFactory.createTitledBorder("Emulation Options"));
-        
+
         JLabel modelLabel = new JLabel("Model:");
         String[] models = {"Spectrum 48K", "Spectrum 128K", "Spectrum +3"};
         JComboBox<String> modelCombo = new JComboBox<>(models);
         modelCombo.setSelectedIndex(0);
         modelCombo.setPreferredSize(new Dimension(120, 25));
         modelCombo.setMaximumSize(new Dimension(120, 25));
-        
+
         JLabel speedLabel = new JLabel("Speed:");
         SpinnerModel speedModel = new javax.swing.SpinnerNumberModel(1.0, 0.5, 4.0, 0.5);
         JSpinner speedSpinner = new JSpinner(speedModel);
         speedSpinner.setPreferredSize(new Dimension(80, 25));
         speedSpinner.setMaximumSize(new Dimension(80, 25));
-        
+
         optionsPanel.add(modelLabel);
         optionsPanel.add(Box.createHorizontalStrut(5));
         optionsPanel.add(modelCombo);
@@ -469,52 +591,52 @@ public class GameDetailsDialog extends JDialog {
         optionsPanel.add(Box.createHorizontalStrut(5));
         optionsPanel.add(speedSpinner);
         optionsPanel.add(Box.createHorizontalGlue());
-        
-        // Second row: Checkboxes for features
+
+        // Second row: Feature checkboxes
         JPanel featuresPanel = new JPanel();
         featuresPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         featuresPanel.setBorder(BorderFactory.createTitledBorder("Features"));
-        
+
         JCheckBox muteCheckBox = new JCheckBox("Mute Sound");
         JCheckBox turboCheckBox = new JCheckBox("Turbo Mode");
         JCheckBox fullscreenCheckBox = new JCheckBox("Fullscreen");
-        
+
         featuresPanel.add(muteCheckBox);
         featuresPanel.add(turboCheckBox);
         featuresPanel.add(fullscreenCheckBox);
-        
+
         // Third row: Action buttons
         JPanel buttonsActionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
-        
+
         JButton playButton = new JButton("▶ Play Game");
         playButton.setFont(new Font("Arial", Font.BOLD, 12));
         playButton.addActionListener(e -> {
             JOptionPane.showMessageDialog(this, "Play functionality to be implemented", "Info", JOptionPane.INFORMATION_MESSAGE);
         });
-        
+
         JButton downloadButton = new JButton("↓ Download");
         downloadButton.addActionListener(e -> {
             JOptionPane.showMessageDialog(this, "Download functionality to be implemented", "Info", JOptionPane.INFORMATION_MESSAGE);
         });
-        
+
         JButton openLinkButton = new JButton("🌐 Open Link");
         openLinkButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Would open external link", "Info", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Would open ZXInfo page", "Info", JOptionPane.INFORMATION_MESSAGE);
         });
-        
+
         JButton closeButton = new JButton("Close");
         closeButton.addActionListener(e -> dispose());
-        
+
         buttonsActionPanel.add(playButton);
         buttonsActionPanel.add(downloadButton);
         buttonsActionPanel.add(openLinkButton);
         buttonsActionPanel.add(closeButton);
-        
-        // Assemble bottom panel
+
+        // Assemble panel
         panel.add(optionsPanel);
         panel.add(featuresPanel);
         panel.add(buttonsActionPanel);
-        
+
         return panel;
     }
 }

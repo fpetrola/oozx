@@ -1785,29 +1785,69 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
       @Override
       public void onViewDetails(GameSearchResult gameSearchResult) {
-        // TODO: Fetch full GameDetail from API if available
-        com.fpetrola.oozx.api.GameDetail gameDetail = new com.fpetrola.oozx.api.GameDetail();
-        gameDetail.id = gameSearchResult.url;
-        gameDetail.title = gameSearchResult.title;
-        gameDetail.yearOfRelease = "Unknown";
-        gameDetail.publisher = "Unknown";
-        gameDetail.genre = "Unknown";
-        gameDetail.machineType = "Spectrum 48K";
-        gameDetail.memoryRequired = "48K";
+        // Show loading dialog while fetching from API
+        JDialog loadingDialog = new JDialog(ZXSpectrumDesktopApp.this, "Loading Game Details", true);
+        loadingDialog.setSize(300, 100);
+        loadingDialog.setLocationRelativeTo(ZXSpectrumDesktopApp.this);
+        JLabel loadingLabel = new JLabel("Fetching game details from ZXInfo API...");
+        loadingLabel.setHorizontalAlignment(JLabel.CENTER);
+        loadingDialog.add(loadingLabel);
         
-        // Add screenshots if available
-        gameDetail.screenshots = new java.util.ArrayList<>();
-        if (gameSearchResult.screenshot1 != null && !gameSearchResult.screenshot1.isEmpty()) {
-          gameDetail.screenshots.add(gameSearchResult.screenshot1);
-        }
-        if (gameSearchResult.screenshot2 != null && !gameSearchResult.screenshot2.isEmpty()) {
-          gameDetail.screenshots.add(gameSearchResult.screenshot2);
-        }
+        // Fetch details in background thread
+        SwingWorker<com.fpetrola.oozx.api.GameDetail, Void> worker = 
+          new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
+            @Override
+            protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
+              // Extract ID from URL (e.g., "https://zxinfo.dk/games/xxxx")
+              String gameId = gameSearchResult.url;
+              if (gameSearchResult.url.contains("/")) {
+                String[] parts = gameSearchResult.url.split("/");
+                gameId = parts[parts.length - 1];
+              }
+              
+              // Fetch full details from API
+              ZxInfoApiHandler apiHandler = new ZxInfoApiHandler();
+              return apiHandler.fetchGameDetails(gameId);
+            }
+            
+            @Override
+            protected void done() {
+              loadingDialog.dispose();
+              try {
+                com.fpetrola.oozx.api.GameDetail gameDetail = get();
+                
+                if (gameDetail == null) {
+                  // Fallback to basic info if API call fails
+                  gameDetail = new com.fpetrola.oozx.api.GameDetail();
+                  gameDetail.id = gameSearchResult.url;
+                  gameDetail.title = gameSearchResult.title;
+                  gameDetail.yearOfRelease = "Unknown";
+                  gameDetail.publisher = "Unknown";
+                  gameDetail.genre = "Unknown";
+                  gameDetail.machineType = "Spectrum 48K";
+                  gameDetail.memoryRequired = "48K";
+                  gameDetail.screenshots = new java.util.ArrayList<>();
+                  if (gameSearchResult.screenshot1 != null && !gameSearchResult.screenshot1.isEmpty()) {
+                    gameDetail.screenshots.add(gameSearchResult.screenshot1);
+                  }
+                  if (gameSearchResult.screenshot2 != null && !gameSearchResult.screenshot2.isEmpty()) {
+                    gameDetail.screenshots.add(gameSearchResult.screenshot2);
+                  }
+                  gameDetail.description = "Game description not available";
+                }
+                
+                GameDetailsDialog dialog = new GameDetailsDialog(ZXSpectrumDesktopApp.this, gameDetail);
+                dialog.setVisible(true);
+              } catch (Exception e) {
+                JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+                  "Error loading game details: " + e.getMessage(),
+                  "Error", JOptionPane.ERROR_MESSAGE);
+              }
+            }
+          };
         
-        gameDetail.description = "Game description not available yet";
-        
-        GameDetailsDialog dialog = new GameDetailsDialog(ZXSpectrumDesktopApp.this, gameDetail);
-        dialog.setVisible(true);
+        worker.execute();
+        loadingDialog.setVisible(true);
       }
 
       @Override

@@ -19,17 +19,37 @@
 package com.fpetrola.oozx.api;
 
 import java.util.List;
+import java.util.Map;
 
 public class GameDetail {
     public String id;
     public String title;
     public String yearOfRelease;
+    public Integer originalMonthOfRelease;
+    public Integer originalDayOfRelease;
     public String publisher;
+    public List<String> publishers;
     public String genre;
+    public String genreType;
+    public String genreSubType;
     public String machineType;
+    public List<String> machines;
     public String memoryRequired;
     public List<String> screenshots;
     public String description;
+    public String availability;
+    public Double score;
+    public Integer xrated;
+    public List<String> authors;
+    public List<String> additionalDownloads;
+    public List<Map<String, String>> releases;
+    public String coverImageUrl;
+    public String rating;
+    
+    // Fields from GameEntry for compatibility
+    public String contentType;
+    public String zxinfoVersion;
+    public String isbn;
 
     @Override
     public String toString() {
