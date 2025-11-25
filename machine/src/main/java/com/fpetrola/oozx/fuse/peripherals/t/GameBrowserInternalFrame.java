@@ -18,10 +18,7 @@
 
 package com.fpetrola.oozx.fuse.peripherals.t;
 
-import com.fpetrola.oozx.api.GameEntry;
-import com.fpetrola.oozx.api.Hit;
-import com.fpetrola.oozx.api.Screen;
-import com.fpetrola.oozx.api.ZxInfoApiHandler;
+import com.fpetrola.oozx.api.*;
 import com.fpetrola.oozx.fuse.config.OOZxConfiguration;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -87,7 +84,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
     SwingUtilities.invokeLater(() -> {
       // Mock search results (in real app, this would be async from web)
-      java.util.List<GameSearchResult> mockResults = createMockResults(query);
+      List<GameSearchResult> mockResults = createMockResults(query);
 
       for (GameSearchResult result : mockResults) {
         JPanel gameRow = createGameRow(result);
@@ -100,47 +97,43 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     });
   }
 
-  private java.util.List<GameSearchResult> createMockResults(String query) {
-    java.util.List<Hit> search = new ZxInfoApiHandler().search(query);
+  private List<GameSearchResult> createMockResults(String query) {
+    List<Hit> search = new ZxInfoApiHandler().search(query);
 
-    java.util.List<GameSearchResult> results = new ArrayList<>();
+    List<GameSearchResult> results = new ArrayList<>();
 
     for (Hit hit : search) {
       GameEntry game = hit._source;
       if (game.contentType.equals("SOFTWARE")) {
-        java.util.List<String> screenshots = new ArrayList<>();
+        List<String> screenshots = new ArrayList<>();
         game.screens.forEach(s1 -> {
           Screen screen = getScreen(s1);
 
           if (screen != null) {
-            String filename = "https://worldofspectrum.net" + screen.url;
-            if (screen.url.startsWith("/zxscreens"))
-              filename = "https://zxinfo.dk/media" + screen.url;
+            String filename = getFileURL(screen.url);
 
             screenshots.add(filename);
           }
         });
-        java.util.List<String> files = new ArrayList<>();
+        List<String> files = new ArrayList<>();
 
         game.releases.forEach(s -> {
           s.files.forEach(f -> {
             if (f.format != null) {
               System.out.println(f.format);
 //              List<String> anObject = List.of("Snapshot (Z80)", "Snapshot (SNA)", "Tape (TAP)", "Perfect tape (TZX)");
-              java.util.List<String> anObject = java.util.List.of("Snapshot (Z80)", "Snapshot (SNA)", "Perfect tape (TZX)");
+              List<String> anObject = List.of("Snapshot (Z80)", "Snapshot (SNA)", "Perfect tape (TZX)");
 //              List<String> anObject = List.of("Snapshot (Z80)", "Snapshot (SNA)");
               if (anObject.contains(f.format)) {
-                String filename = "https://worldofspectrum.net" + f.path;
-                if (f.path.startsWith("/zxdb"))
-                  filename = "https://spectrumcomputing.co.uk" + f.path;
+                String filename = getFileURL(f.path);
                 files.add(filename);
               }
             }
           });
         });
 
-        String screenshot1 = getString(screenshots, 0);
-        String screenshot2 = getString(screenshots, 1);
+        String screenshot1 = getFileURL(screenshots, 0);
+        String screenshot2 = getFileURL(screenshots, 1);
         if (!files.isEmpty()) {
           String s = !files.isEmpty() ? files.get(0) : null;
           results.add(new GameSearchResult(hit._id, game.title, "http://example.com/game/" + query, screenshot1, screenshot2, s));
@@ -150,21 +143,31 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     return results;
   }
 
+  public static String getFileURL(String f1) {
+    String result = "https://worldofspectrum.net" + f1;
+    if (f1.startsWith("/zxscreens"))
+      return "https://zxinfo.dk/media" + f1;
+    else if (f1.startsWith("/zxdb"))
+      return "https://spectrumcomputing.co.uk" + f1;
+
+    return result;
+  }
+
   public static Screen getScreen(Object s1) {
     Screen screen = null;
     try {
       screen = gson.fromJson(gson.toJson(s1), Screen.class);
     } catch (JsonSyntaxException e) {
-      e.printStackTrace();
+//      e.printStackTrace();
     }
     return screen;
   }
 
-  private String getString(List<String> screenshots, int x) {
+  private String getFileURL(List<String> screenshots, int x) {
     if (x == -1)
       return "https://i.sstatic.net/wAz1X.gif";
     else
-      return screenshots.size() > x ? screenshots.get(x) : getString(screenshots, x - 1);
+      return screenshots.size() > x ? screenshots.get(x) : getFileURL(screenshots, x - 1);
   }
 
   private GameData getGameData() {
