@@ -57,6 +57,7 @@ import static com.fpetrola.oozx.fuse.peripherals.t.EmulatorInternalFrame.loadIco
 class EmulatorInternalFrame extends JInternalFrame {
   public EmulatorCore emulatorCore;
   private ZXSpectrumDesktopApp parentApp;
+  private GameSearchResult gameSearchResult;
   //  private JLabel statusLabel;
   private JProgressBar speedBar;
   private JComboBox<String> modelCombo;
@@ -71,9 +72,14 @@ class EmulatorInternalFrame extends JInternalFrame {
 
 
   public EmulatorInternalFrame(EmulatorCore core, int x, int y, ZXSpectrumDesktopApp parentApp) {
-    super("ZX Spectrum Emulator", true, true, true, true);
-    this.parentApp = parentApp;
-    this.emulatorCore = core;
+    this(core, x, y, parentApp, null);
+  }
+
+  public EmulatorInternalFrame(EmulatorCore core, int x, int y, ZXSpectrumDesktopApp parentApp, GameSearchResult gameSearchResult) {
+     super("ZX Spectrum Emulator", true, true, true, true);
+     this.parentApp = parentApp;
+     this.gameSearchResult = gameSearchResult;
+     this.emulatorCore = core;
     setSize(420, 380);
     setLocation(x, y);
 
@@ -366,6 +372,11 @@ class EmulatorInternalFrame extends JInternalFrame {
       pokesButton.setToolTipText("Cheats/Pokes");
       pokesButton.addActionListener(e -> openPokesDialog());
       toolBar.add(pokesButton);
+      
+      JButton viewDetailsButton = new JButton(loadIcon("E259.svg"));
+      viewDetailsButton.setToolTipText("View Game Details");
+      viewDetailsButton.addActionListener(e -> openGameDetails());
+      toolBar.add(viewDetailsButton);
     }
 
 //    Icon resumeIcon = UIManager.getIcon("FileChooser.upFolderIcon");
@@ -465,6 +476,100 @@ class EmulatorInternalFrame extends JInternalFrame {
     });
 
     pokesDialog.setVisible(true);
+  }
+  
+  private void openGameDetails() {
+    String gameId = null;
+    String gameName = null;
+    
+    // Try to get game ID from gameSearchResult first
+    if (gameSearchResult != null) {
+      gameId = gameSearchResult.id;
+    } else {
+      // If no gameSearchResult, try to extract game name from filename
+      String filename = emulatorCore.getFilename();
+      if (filename != null && !filename.isEmpty()) {
+        gameName = new java.io.File(filename).getName()
+            .replace(".tap", "").replace(".tzx", "")
+            .replace(".z80", "").replace(".sna", "").replace(".szx", "")
+            .replace(".dsk", "").replace(".vg", "");
+      }
+    }
+    
+    // If we don't have either gameId or gameName, show error
+    if (gameId == null && (gameName == null || gameName.isEmpty())) {
+      JOptionPane.showMessageDialog(this, 
+          "No game information available", 
+          "Info", 
+          JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+    
+    // Show loading dialog while fetching from API
+    JDialog loadingDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), 
+        "Loading Game Details", true);
+    loadingDialog.setSize(300, 100);
+    loadingDialog.setLocationRelativeTo(this);
+    JLabel loadingLabel = new JLabel("Fetching game details from ZXInfo API...");
+    loadingLabel.setHorizontalAlignment(JLabel.CENTER);
+    loadingDialog.add(loadingLabel);
+    
+    final String finalGameId = gameId;
+    final String finalGameName = gameName;
+    
+    // Fetch details in background thread
+    SwingWorker<com.fpetrola.oozx.api.GameDetail, Void> worker =
+        new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
+          @Override
+          protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
+            try {
+              com.fpetrola.oozx.api.ZxInfoApiHandler apiHandler = 
+                  new com.fpetrola.oozx.api.ZxInfoApiHandler();
+              
+              // If we have gameId, use it directly
+              if (finalGameId != null) {
+                return apiHandler.fetchGameDetails(finalGameId);
+              } else {
+                // Otherwise search by game name and use the first result
+                java.util.List<com.fpetrola.oozx.api.Hit> results = apiHandler.search(finalGameName);
+                if (results == null || results.isEmpty()) {
+                  return null;
+                }
+                com.fpetrola.oozx.api.Hit bestMatch = results.get(0);
+                return apiHandler.fetchGameDetails(bestMatch._id);
+              }
+            } catch (Exception e) {
+              System.err.println("Error fetching game details: " + e.getMessage());
+              e.printStackTrace();
+              return null;
+            }
+          }
+          
+          @Override
+          protected void done() {
+            loadingDialog.dispose();
+            try {
+              com.fpetrola.oozx.api.GameDetail detail = get();
+              if (detail != null) {
+                GameDetailsDialog dialog = new GameDetailsDialog(
+                    (Frame) SwingUtilities.getWindowAncestor(EmulatorInternalFrame.this), 
+                    detail);
+                dialog.setVisible(true);
+              } else {
+                String searchTerm = finalGameId != null ? "game ID" : ("\"" + finalGameName + "\"");
+                JOptionPane.showMessageDialog(EmulatorInternalFrame.this,
+                    "No game details found for " + searchTerm,
+                    "Game Not Found", JOptionPane.INFORMATION_MESSAGE);
+              }
+            } catch (Exception e) {
+              JOptionPane.showMessageDialog(EmulatorInternalFrame.this,
+                  "Error loading game details: " + e.getMessage(),
+                  "Error", JOptionPane.ERROR_MESSAGE);
+            }
+          }
+        };
+    worker.execute();
+    loadingDialog.setVisible(true);
   }
 
   private void applyPokes(java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> mods) {
@@ -1395,32 +1500,40 @@ public class ZXSpectrumDesktopApp extends JFrame {
   }
 
   private EmulatorInternalFrame getActiveEmulatorOrCreateNew(GameSearchResult gameSearchResult) {
-//    JInternalFrame[] frames = desktop.getAllFrames();
-//    for (JInternalFrame frame : frames) {
-//      if (frame instanceof EmulatorInternalFrame && frame.isVisible()) {
-//        try {
-//          frame.setSelected(true);
-//          return (EmulatorInternalFrame) frame;
-//        } catch (java.beans.PropertyVetoException ex) {
-//        }
-//      }
-//    }
+  //    JInternalFrame[] frames = desktop.getAllFrames();
+  //    for (JInternalFrame frame : frames) {
+  //      if (frame instanceof EmulatorInternalFrame && frame.isVisible()) {
+  //        try {
+  //          frame.setSelected(true);
+  //          return (EmulatorInternalFrame) frame;
+  //        } catch (java.beans.PropertyVetoException ex) {
+  //        }
+  //      }
+  //    }
     // Create new if none active
     EmulatorCore core = mockCore.apply(gameSearchResult.filename);
-    EmulatorInternalFrame newFrame = createNewEmulator(core);
-//    EmulatorInternalFrame newFrame = new EmulatorInternalFrame(core, 100, 100);
-//    desktop.add(newFrame);
-//    newFrame.setVisible(true);
+    EmulatorInternalFrame newFrame = createNewEmulator(core, gameSearchResult);
+  //    EmulatorInternalFrame newFrame = new EmulatorInternalFrame(core, 100, 100);
+  //    desktop.add(newFrame);
+  //    newFrame.setVisible(true);
     return newFrame;
   }
 
   // ... (rest of the methods: createNewEmulator, cascadeWindows, tileWindows remain unchanged)
 
   public EmulatorInternalFrame createNewEmulator(EmulatorCore core1) {
-    return createNewEmulator(core1, null);
+    return createNewEmulator(core1, (String) null);
   }
 
   public EmulatorInternalFrame createNewEmulator(EmulatorCore core1, String filePath) {
+    return createNewEmulator(core1, filePath, null);
+  }
+
+  public EmulatorInternalFrame createNewEmulator(EmulatorCore core1, GameSearchResult gameSearchResult) {
+    return createNewEmulator(core1, null, gameSearchResult);
+  }
+
+  public EmulatorInternalFrame createNewEmulator(EmulatorCore core1, String filePath, GameSearchResult gameSearchResult) {
     EmulatorCore core = core1;
 
     // Asignar el filename si se proporciona
@@ -1431,7 +1544,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     JComponent panel = core.getPanel();
     int x = (emulatorCount * 30) % 400;
     int y = (emulatorCount * 30) % 300;
-    EmulatorInternalFrame frame = new EmulatorInternalFrame(core, x, y, this);
+    EmulatorInternalFrame frame = new EmulatorInternalFrame(core, x, y, this, gameSearchResult);
     frame.addInternalFrameListener(new InternalFrameAdapter() {
       public void internalFrameClosed(InternalFrameEvent e) {
         core1.finishEmulation();
