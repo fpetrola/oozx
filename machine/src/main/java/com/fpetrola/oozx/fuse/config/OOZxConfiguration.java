@@ -53,6 +53,9 @@ public class OOZxConfiguration {
   private static final String CONFIG_FILE = CONFIG_DIR + File.separator + "config.json";
 
   private static final ObjectMapper mapper = new ObjectMapper();
+  
+  // Callback para notificar cambios en el historial
+  private Runnable onHistoryChanged;
 
   public OOZxConfiguration() {
     // Constructor vacío para Jackson
@@ -163,6 +166,10 @@ public class OOZxConfiguration {
     this.snapshotHistory = snapshotHistory;
   }
 
+  public void setOnHistoryChanged(Runnable callback) {
+    this.onHistoryChanged = callback;
+  }
+
   /**
    * Agrega un snapshot al historial con estado inicial
    */
@@ -185,6 +192,11 @@ public class OOZxConfiguration {
       }
     }
     save();
+    
+    // Notificar cambios en el historial
+    if (onHistoryChanged != null) {
+      onHistoryChanged.run();
+    }
   }
 
   /**

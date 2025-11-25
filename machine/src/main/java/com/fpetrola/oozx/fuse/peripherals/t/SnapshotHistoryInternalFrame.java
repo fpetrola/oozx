@@ -22,6 +22,9 @@ import com.fpetrola.oozx.fuse.config.OOZxConfiguration;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.function.Consumer;
 
 public class SnapshotHistoryInternalFrame extends JInternalFrame {
@@ -29,6 +32,7 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
   private DefaultListModel<OOZxConfiguration.SnapshotHistoryEntry> listModel;
   private Consumer<OOZxConfiguration.SnapshotHistoryEntry> onSnapshotSelected;
   private Consumer<OOZxConfiguration.SnapshotHistoryEntry> onSnapshotRemoved;
+  private Runnable onClosed;
 
   public SnapshotHistoryInternalFrame(OOZxConfiguration config) {
     super("Snapshot History", true, true, true, true);
@@ -48,6 +52,31 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
     for (OOZxConfiguration.SnapshotHistoryEntry entry : config.getSnapshotHistory().values()) {
       listModel.addElement(entry);
     }
+    
+    // Listener para doble click
+    historyList.addMouseListener(new MouseListener() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2) {
+          OOZxConfiguration.SnapshotHistoryEntry selected = historyList.getSelectedValue();
+          if (selected != null && onSnapshotSelected != null) {
+            onSnapshotSelected.accept(selected);
+          }
+        }
+      }
+
+      @Override
+      public void mousePressed(MouseEvent e) {}
+
+      @Override
+      public void mouseReleased(MouseEvent e) {}
+
+      @Override
+      public void mouseEntered(MouseEvent e) {}
+
+      @Override
+      public void mouseExited(MouseEvent e) {}
+    });
 
     JScrollPane scrollPane = new JScrollPane(historyList);
     mainPanel.add(scrollPane, BorderLayout.CENTER);
@@ -96,6 +125,23 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
     mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
     add(mainPanel);
+    
+    // Listener para cerrar con ESC
+    getRootPane().registerKeyboardAction(
+        e -> dispose(),
+        KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+        JComponent.WHEN_IN_FOCUSED_WINDOW
+    );
+    
+    // Listener para cuando se cierre la ventana
+    addInternalFrameListener(new javax.swing.event.InternalFrameAdapter() {
+      @Override
+      public void internalFrameClosing(javax.swing.event.InternalFrameEvent e) {
+        if (onClosed != null) {
+          onClosed.run();
+        }
+      }
+    });
   }
 
   public OOZxConfiguration.SnapshotHistoryEntry getSelectedEntry() {
@@ -110,10 +156,30 @@ public class SnapshotHistoryInternalFrame extends JInternalFrame {
     this.onSnapshotRemoved = listener;
   }
 
+  public void setOnClosedListener(Runnable listener) {
+    this.onClosed = listener;
+  }
+
   public void refreshHistory(OOZxConfiguration config) {
     listModel.clear();
     for (OOZxConfiguration.SnapshotHistoryEntry entry : config.getSnapshotHistory().values()) {
       listModel.addElement(entry);
+    }
+  }
+
+  public OOZxConfiguration.WindowState saveWindowState() {
+    return new OOZxConfiguration.WindowState(
+        "SNAPSHOT_HISTORY", getX(), getY(), getWidth(), getHeight());
+  }
+
+  public void restoreWindowState(OOZxConfiguration.WindowState state) {
+    if (state != null) {
+      if (state.getWidth() > 0 && state.getHeight() > 0) {
+        setSize(state.getWidth(), state.getHeight());
+      }
+      if (state.getX() >= 0 && state.getY() >= 0) {
+        setLocation(state.getX(), state.getY());
+      }
     }
   }
 

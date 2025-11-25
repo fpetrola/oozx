@@ -1473,7 +1473,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     gameBrowserBtn.addActionListener(e -> openGameBrowser());
     toolBar.add(gameBrowserBtn);
 
-    JButton historyBtn = new JButton(loadIcon("1F559.svg"));
+    JButton historyBtn = new JButton(loadIcon("E260.svg"));
     historyBtn.setToolTipText("Snapshot History");
     historyBtn.addActionListener(e -> openSnapshotHistory());
     toolBar.add(historyBtn);
@@ -1543,10 +1543,18 @@ public class ZXSpectrumDesktopApp extends JFrame {
         }
         // Guardar (se limpian automáticamente snapshots huérfanos)
         config.save();
-        // Refrescar la lista en la ventana
+      });
+      
+      // Callback para refrescar la lista cuando cambia el historial
+      config.setOnHistoryChanged(() -> {
         if (snapshotHistory != null && !snapshotHistory.isClosed()) {
           snapshotHistory.refreshHistory(config);
         }
+      });
+      
+      // Callback para guardar estado cuando se cierre la ventana
+      snapshotHistory.setOnClosedListener(() -> {
+        config.save();
       });
       
       desktop.add(snapshotHistory);
@@ -1697,6 +1705,9 @@ public class ZXSpectrumDesktopApp extends JFrame {
       } else if (frame instanceof GameBrowserInternalFrame) {
         GameBrowserInternalFrame gFrame = (GameBrowserInternalFrame) frame;
         config.getOpenWindows().add(gFrame.saveWindowState());
+      } else if (frame instanceof SnapshotHistoryInternalFrame) {
+        SnapshotHistoryInternalFrame hFrame = (SnapshotHistoryInternalFrame) frame;
+        config.getOpenWindows().add(hFrame.saveWindowState());
       }
     }
   }
@@ -1726,6 +1737,13 @@ public class ZXSpectrumDesktopApp extends JFrame {
           gameBrowser.setVisible(true);
         }
         gameBrowser.restoreWindowState(windowState);
+      } else if ("SNAPSHOT_HISTORY".equals(windowState.getType())) {
+        if (snapshotHistory == null || snapshotHistory.isClosed()) {
+          openSnapshotHistory();
+        }
+        if (snapshotHistory != null && !snapshotHistory.isClosed()) {
+          snapshotHistory.restoreWindowState(windowState);
+        }
       }
     }
 
