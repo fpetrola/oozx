@@ -276,9 +276,9 @@ public class GameDetailsDialog extends JDialog {
     panel.setBorder(BorderFactory.createTitledBorder("Rating"));
     JPanel starsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-    int rating = 0;
+    double rating = 0;
     if (gameDetail.score != null) {
-      rating = (int) Math.round(gameDetail.score / 20); // Convert 0-100 to 0-5
+      rating = Math.round(gameDetail.score); // Convert 0-100 to 0-5
       rating = Math.min(5, rating);
     }
 
@@ -286,7 +286,7 @@ public class GameDetailsDialog extends JDialog {
       JLabel star = new JLabel("★");
       star.setFont(new Font("Arial", Font.PLAIN, 18));
       if (i < rating) {
-        star.setForeground(Color.YELLOW);
+        star.setForeground(Color.YELLOW.darker());
       } else {
         star.setForeground(Color.LIGHT_GRAY);
       }
@@ -294,7 +294,7 @@ public class GameDetailsDialog extends JDialog {
     }
 
     panel.add(starsPanel, BorderLayout.NORTH);
-    String ratingText = gameDetail.score != null ? String.format("%.1f/100", gameDetail.score) : "N/A";
+    String ratingText = gameDetail.score != null ? String.format("%.1f", gameDetail.score) : "N/A";
     JLabel ratingLabel = new JLabel("Score: " + ratingText);
     panel.add(ratingLabel, BorderLayout.CENTER);
 
@@ -383,7 +383,7 @@ public class GameDetailsDialog extends JDialog {
         {"Machine Type", gameDetail.machineType != null ? gameDetail.machineType : "N/A"},
         {"Availability", gameDetail.availability != null ? gameDetail.availability : "N/A"},
         {"Game ID", gameDetail.id != null ? gameDetail.id : "N/A"},
-        {"Score", gameDetail.score != null ? String.format("%.1f/100", gameDetail.score) : "N/A"},
+        {"Score", gameDetail.score != null ? String.format("%.1f", gameDetail.score) : "N/A"},
         {"ISBN", gameDetail.isbn != null ? gameDetail.isbn : "N/A"},
     };
 
