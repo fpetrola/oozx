@@ -556,7 +556,7 @@ public class GameDetailsDialogEnhanced extends JDialog {
     modelCombo.setMaximumSize(new Dimension(120, 25));
 
     JLabel speedLabel = new JLabel("Speed:");
-    SpinnerModel speedModel = new javax.swing.SpinnerNumberModel(1.0, 0.5, 4.0, 0.5);
+    SpinnerModel speedModel = new SpinnerNumberModel(1.0, 0.5, 4.0, 0.5);
     JSpinner speedSpinner = new JSpinner(speedModel);
     speedSpinner.setPreferredSize(new Dimension(80, 25));
     speedSpinner.setMaximumSize(new Dimension(80, 25));

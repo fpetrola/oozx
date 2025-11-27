@@ -51,7 +51,7 @@ public class GameDetailsDialog extends JDialog {
   }
 
   private void setupEscapeToClose() {
-    KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0);
+    KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
     getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "closeDialog");
     getRootPane().getActionMap().put("closeDialog", new AbstractAction() {
       @Override
@@ -148,14 +148,14 @@ public class GameDetailsDialog extends JDialog {
     loadingDialog.add(loadingLabel);
 
     // Search in background
-    SwingWorker<com.fpetrola.oozx.api.GameDetail, Void> worker =
-        new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
+    SwingWorker<GameDetail, Void> worker =
+        new SwingWorker<GameDetail, Void>() {
           @Override
-          protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
+          protected GameDetail doInBackground() throws Exception {
             try {
               com.fpetrola.oozx.api.ZxInfoApiHandler apiHandler =
                   new com.fpetrola.oozx.api.ZxInfoApiHandler();
-              java.util.List<com.fpetrola.oozx.api.Hit> results = apiHandler.search(gameName);
+              List<com.fpetrola.oozx.api.Hit> results = apiHandler.search(gameName);
 
               if (results == null || results.isEmpty()) {
                 return null;
@@ -175,7 +175,7 @@ public class GameDetailsDialog extends JDialog {
           protected void done() {
             loadingDialog.dispose();
             try {
-              com.fpetrola.oozx.api.GameDetail detail = get();
+              GameDetail detail = get();
 
               if (detail == null) {
                 GameNotFoundDialog.showSimple(getOwner(), "Game not found: " + gameName);
@@ -760,7 +760,7 @@ public class GameDetailsDialog extends JDialog {
   private void openZXInfoLink() {
     try {
       String zxinfoUrl = "https://zxinfo.dk/details/" + gameDetail.id;
-      java.awt.Desktop.getDesktop().browse(new java.net.URI(zxinfoUrl));
+      Desktop.getDesktop().browse(new java.net.URI(zxinfoUrl));
     } catch (Exception e) {
       JOptionPane.showMessageDialog(this,
           "Unable to open link: " + e.getMessage(),
@@ -775,7 +775,7 @@ public class GameDetailsDialog extends JDialog {
     try {
       String searchUrl = "https://zxinfo.dk/search?q=" +
                          java.net.URLEncoder.encode(gameDetail.title, "UTF-8");
-      java.awt.Desktop.getDesktop().browse(new java.net.URI(searchUrl));
+      Desktop.getDesktop().browse(new java.net.URI(searchUrl));
     } catch (Exception e) {
       JOptionPane.showMessageDialog(this,
           "Unable to open download link: " + e.getMessage(),
@@ -837,7 +837,7 @@ public class GameDetailsDialog extends JDialog {
     modelCombo.setMaximumSize(new Dimension(120, 25));
 
     JLabel speedLabel = new JLabel("Speed:");
-    SpinnerModel speedModel = new javax.swing.SpinnerNumberModel(1.0, 0.5, 4.0, 0.5);
+    SpinnerModel speedModel = new SpinnerNumberModel(1.0, 0.5, 4.0, 0.5);
     JSpinner speedSpinner = new JSpinner(speedModel);
     speedSpinner.setPreferredSize(new Dimension(80, 25));
     speedSpinner.setMaximumSize(new Dimension(80, 25));

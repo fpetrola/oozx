@@ -60,7 +60,7 @@ public class Ula implements ZxModule, MachineChangeListener {
   private SpectrumMachine spectrumMachine;
   private Sound sound;
 
-  public Ula(Memory memory, Display display, Keyboard keyboard, SpectrumZ80Clock z80Clock, IPeriph periph, Module module, Settings settings, com.fpetrola.oozx.fuse.modules.tape.Tape tape, Sound sound) {
+  public Ula(Memory memory, Display display, Keyboard keyboard, SpectrumZ80Clock z80Clock, IPeriph periph, Module module, Settings settings, Tape tape, Sound sound) {
     this.memory = memory;
     this.display = display;
     this.keyboard = keyboard;

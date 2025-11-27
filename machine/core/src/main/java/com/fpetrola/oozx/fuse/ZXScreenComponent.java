@@ -98,7 +98,7 @@ public class ZXScreenComponent extends JComponent {
 
   public static class ZxAttribute {
     private final LineUpdater lineUpdater;
-    private Map<java.lang.Integer, java.lang.Integer> pixelValues = new HashMap<>();
+    private Map<Integer, Integer> pixelValues = new HashMap<>();
     private ZxColor zxColor;
   
     public ZxAttribute(LineUpdater lineUpdater) {
@@ -114,7 +114,7 @@ public class ZXScreenComponent extends JComponent {
       }
     }
   
-    private void updatePixels(int line, java.lang.Integer pixelsValue) {
+    private void updatePixels(int line, Integer pixelsValue) {
       for (int bit = 0; bit < 8 && pixelsValue != null; bit++) {
         lineUpdater.update(zxColor, pixelsValue, line, bit);
       }

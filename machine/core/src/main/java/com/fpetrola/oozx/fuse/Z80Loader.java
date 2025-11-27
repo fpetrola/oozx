@@ -84,7 +84,7 @@ public class Z80Loader {
   }
 
   public static int  getTstates(LibSpectrum lib, String url) {
-    Z80Loader.libspectrum_snap snap = Z80Loader.getLibspectrumSnap(lib, url);
+    libspectrum_snap snap = Z80Loader.getLibspectrumSnap(lib, url);
     int tstates = lib.libspectrum_snap_tstates(snap);
     lib.libspectrum_snap_free(snap);
     return tstates;

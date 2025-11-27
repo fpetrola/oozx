@@ -156,7 +156,7 @@ public class PokesDialog extends JDialog {
     
     searchField.addKeyListener(new KeyAdapter() {
       @Override
-      public void keyReleased(java.awt.event.KeyEvent e) {
+      public void keyReleased(KeyEvent e) {
         String searchTerm = searchField.getText().trim();
         if (searchTerm.isEmpty()) {
           filteredPokes = new ArrayList<>(availablePokes);
@@ -316,9 +316,9 @@ public class PokesDialog extends JDialog {
     panel.add(closeButton);
     
     // Agregar ESC para cerrar el diálogo
-    KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0);
+    KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
     getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "closeDialog");
-    getRootPane().getActionMap().put("closeDialog", new javax.swing.AbstractAction() {
+    getRootPane().getActionMap().put("closeDialog", new AbstractAction() {
       @Override
       public void actionPerformed(java.awt.event.ActionEvent e) {
         dispose();

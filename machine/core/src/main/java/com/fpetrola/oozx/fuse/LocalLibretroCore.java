@@ -145,7 +145,7 @@ public class LocalLibretroCore implements LibretroCore {
     return z80.ooz80.getState();
   }
 
-  private int executePreservingTstates(Supplier<java.lang.Integer> supplier) {
+  private int executePreservingTstates(Supplier<Integer> supplier) {
     List<TStateUpdate> tstatesUpdates = new ArrayList<>(GetTStatesHistory.tstatesUpdates);
     int tstates = z80Clock.getTStates();
     int result = supplier.get();

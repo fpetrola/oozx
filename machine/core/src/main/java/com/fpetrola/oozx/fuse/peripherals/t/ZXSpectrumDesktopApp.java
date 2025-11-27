@@ -444,7 +444,7 @@ class EmulatorInternalFrame extends JInternalFrame {
       return;
     }
 
-    java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile> availablePokes =
+    List<com.fpetrola.oozx.fuse.pokes.PokFile> availablePokes =
         parentApp.pokesManager.findPokesForGame(gameName);
 
     if (availablePokes.isEmpty()) {
@@ -523,19 +523,19 @@ class EmulatorInternalFrame extends JInternalFrame {
           @Override
           protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
             try {
-              com.fpetrola.oozx.api.ZxInfoApiHandler apiHandler = 
-                  new com.fpetrola.oozx.api.ZxInfoApiHandler();
+              ZxInfoApiHandler apiHandler =
+                  new ZxInfoApiHandler();
               
               // If we have gameId, use it directly
               if (finalGameId != null) {
                 return apiHandler.fetchGameDetails(finalGameId);
               } else {
                 // Otherwise search by game name and use the first result
-                java.util.List<com.fpetrola.oozx.api.Hit> results = apiHandler.search(finalGameName);
+                List<Hit> results = apiHandler.search(finalGameName);
                 if (results == null || results.isEmpty()) {
                   return null;
                 }
-                com.fpetrola.oozx.api.Hit bestMatch = results.get(0);
+                Hit bestMatch = results.get(0);
                 return apiHandler.fetchGameDetails(bestMatch._id);
               }
             } catch (Exception e) {
@@ -572,11 +572,11 @@ class EmulatorInternalFrame extends JInternalFrame {
     loadingDialog.setVisible(true);
   }
 
-  private void applyPokes(java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> mods) {
+  private void applyPokes(List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> mods) {
     System.out.println("Aplicando " + mods.size() + " pokes:");
 
     // Identificar pokes nuevos que no estaban aplicados
-    java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> newMods = new java.util.ArrayList<>();
+    List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> newMods = new ArrayList<>();
     for (com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod : mods) {
       boolean wasAlreadyApplied = appliedPokes.stream()
           .anyMatch(p -> p.getName().equals(mod.getName()) &&
@@ -602,7 +602,7 @@ class EmulatorInternalFrame extends JInternalFrame {
     }
   }
 
-  private void revertPokes(java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> mods) {
+  private void revertPokes(List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> mods) {
     System.out.println("Revertiendo " + mods.size() + " pokes:");
     for (com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod : mods) {
       System.out.println("  - " + mod.getName() + ": " + mod.getDescription());
@@ -630,7 +630,7 @@ class EmulatorInternalFrame extends JInternalFrame {
     state.setPaused(emulatorCore.isPaused());
 
     // Guardar los pokes aplicados con información completa y valores de reversión
-    java.util.List<OOZxConfiguration.PokModState> pokModStates = new java.util.ArrayList<>();
+    List<OOZxConfiguration.PokModState> pokModStates = new ArrayList<>();
     for (com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod : appliedPokes) {
       com.fpetrola.oozx.fuse.pokes.PokInstruction instruction = mod.getParsedInstruction();
       OOZxConfiguration.PokModState pokState = new OOZxConfiguration.PokModState(
@@ -704,7 +704,7 @@ class EmulatorInternalFrame extends JInternalFrame {
     // Restaurar los pokes aplicados
     if (state.getAppliedPokes() != null && !state.getAppliedPokes().isEmpty()) {
       appliedPokes.clear();
-      java.util.List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> mods = new java.util.ArrayList<>();
+      List<com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod> mods = new ArrayList<>();
       for (OOZxConfiguration.PokModState pokState : state.getAppliedPokes()) {
         com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod mod = new com.fpetrola.oozx.fuse.pokes.PokFile.PokeMod(
             pokState.getName(),
@@ -883,9 +883,9 @@ public class ZXSpectrumDesktopApp extends JFrame {
     config.getSnapshots().clear();
 
     // Guardar configuración al cerrar la aplicación
-    addWindowListener(new java.awt.event.WindowAdapter() {
+    addWindowListener(new WindowAdapter() {
       @Override
-      public void windowClosing(java.awt.event.WindowEvent e) {
+      public void windowClosing(WindowEvent e) {
         saveMainWindowState();
         saveOpenWindows();
         config.save();
@@ -1076,13 +1076,13 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
   private String markdownToHtml(String markdown) {
     org.commonmark.parser.Parser parser = org.commonmark.parser.Parser.builder()
-        .extensions(java.util.List.of(
+        .extensions(List.of(
             org.commonmark.ext.gfm.tables.TablesExtension.create()
         ))
         .build();
     org.commonmark.node.Node document = parser.parse(markdown);
     org.commonmark.renderer.html.HtmlRenderer renderer = org.commonmark.renderer.html.HtmlRenderer.builder()
-        .extensions(java.util.List.of(
+        .extensions(List.of(
             org.commonmark.ext.gfm.tables.TablesExtension.create()
         ))
         .build();
@@ -1447,7 +1447,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
             try {
               // Search for the game by name (without file extension)
               ZxInfoApiHandler apiHandler = new ZxInfoApiHandler();
-              java.util.List<Hit> results = apiHandler.search(cleanGameName);
+              List<Hit> results = apiHandler.search(cleanGameName);
 
               if (results == null || results.isEmpty()) {
                 return null;
@@ -1756,7 +1756,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
                     gameDetail.genre = "Unknown";
                     gameDetail.machineType = "Spectrum 48K";
                     gameDetail.memoryRequired = "48K";
-                    gameDetail.screenshots = new java.util.ArrayList<>();
+                    gameDetail.screenshots = new ArrayList<>();
                     if (gameSearchResult.screenshot1 != null && !gameSearchResult.screenshot1.isEmpty()) {
                       gameDetail.screenshots.add(gameSearchResult.screenshot1);
                     }
@@ -1891,7 +1891,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
   public static int getComponentZOrder(JInternalFrame component) {
     Container parent = component.getParent();
     if (parent != null) {
-      java.awt.Component[] components = parent.getComponents();
+      Component[] components = parent.getComponents();
       for (int i = 0; i < components.length; i++) {
         if (components[i] == component) {
           return i;

@@ -174,7 +174,7 @@ public class OOZxConfiguration {
    * Agrega un snapshot al historial con estado inicial
    */
   public void addToSnapshotHistory(String filePath, String gameName, String initialStateData) {
-    String key = new java.io.File(filePath).getAbsolutePath();
+    String key = new File(filePath).getAbsolutePath();
     
     // Guardar el estado inicial
     String stateId = saveSnapshot(initialStateData);

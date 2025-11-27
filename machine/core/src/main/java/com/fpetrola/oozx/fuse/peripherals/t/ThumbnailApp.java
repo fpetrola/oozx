@@ -116,6 +116,6 @@ public class ThumbnailApp
     }
     public static void main(String[] args)
     {
-        javax.swing.SwingUtilities.invokeLater(() -> createAndShowGUI());
+        SwingUtilities.invokeLater(() -> createAndShowGUI());
     }
 }

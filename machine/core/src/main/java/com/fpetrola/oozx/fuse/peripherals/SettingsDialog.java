@@ -80,7 +80,7 @@ public class SettingsDialog extends JDialog {
     // Agregar ESC para cerrar el diálogo
     KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
     getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "closeDialog");
-    getRootPane().getActionMap().put("closeDialog", new javax.swing.AbstractAction() {
+    getRootPane().getActionMap().put("closeDialog", new AbstractAction() {
       @Override
       public void actionPerformed(java.awt.event.ActionEvent e) {
         dispose();

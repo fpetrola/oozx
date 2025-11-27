@@ -76,7 +76,7 @@ public class Z80 implements ZxModule {
   private final IPeriph periph;
   private final UiDisplay uiDisplay;
   private volatile boolean emulatorPaused;
-  private final com.fpetrola.oozx.fuse.modules.Timer timer;
+  private final Timer timer;
   public EmulatorCore mockCore;
   private Runnable changeMachine;
   private final Module module;
