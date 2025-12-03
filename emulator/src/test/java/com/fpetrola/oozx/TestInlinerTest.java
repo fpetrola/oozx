@@ -113,7 +113,7 @@ public class TestInlinerTest {
 
   private static Ld getLd3() {
     MyAbstractMemory memory = new MyAbstractMemory();
-    var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("PC"), 3), memory);
+    var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
     var source = new Plain8BitRegister("B");
     return new Ld(target, source, new Plain8BitRegister("F"));
   }
