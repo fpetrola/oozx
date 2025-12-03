@@ -1,6 +1,7 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.instructions.impl.Xor;
 import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
 import com.fpetrola.z80.opcodes.references.Memory16BitReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
@@ -82,6 +83,75 @@ public class TestInlinerTest {
         """);
   }
 
+  @Test
+  public void testXorInline1() {
+    var xor = getXor1();
+    testInlineOf(xor, """
+        public class Xor1 extends TargetSourceInstruction<ImmutableOpcodeReference> {
+            int C;
+            int IX;
+            Memory memory;
+            Register pc;
+        
+            public Xor1(Memory memory, Register pc) {
+                this.memory= memory;
+                this.pc= pc;
+            }
+        
+            public void execute() {
+                  int dd = (byte) memory.read((pc.read() + 2) & 0xFFFF, 0);
+                  int value = memory.read((IX + dd) & 0xFFFF, 0);
+                  A ^= value;
+            }
+        }
+        """);
+  }
+
+  @Test
+  public void testXorInline2() {
+    var xor = getXor2();
+    testInlineOf(xor, """
+        public class Xor2 extends TargetSourceInstruction<ImmutableOpcodeReference> {
+            int D;
+            int IY;
+            Memory memory;
+        
+            public Xor2(Memory memory) {
+                this.memory= memory;
+            }
+        
+            public void execute() {
+                int value = memory.read(IY, 0);
+                A ^= value;
+            }
+        }
+        """);
+  }
+
+  @Test
+  public void testXorInline3() {
+    var xor = getXor3();
+    testInlineOf(xor, """
+        public class Xor3 extends TargetSourceInstruction<ImmutableOpcodeReference> {
+            int E;
+            int IX;
+            Memory memory;
+        
+             Register pc;
+        
+            public Xor3(Memory memory, Register pc) {
+                this.memory= memory;
+                this.pc= pc;
+            }
+        
+            public void execute() {
+                int address= memory.read16Bits((pc.read() + 3) & 0xFFFF);
+                int value = memory.read(address, 0);
+                A ^= value;
+            }
+        }
+        """);
+  }
 
   private void testInlineOf(Ld ld, String expected) {
     var analyzer = new InstructionAnalyzer();
@@ -90,6 +160,19 @@ public class TestInlinerTest {
     Path path = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
     var inliner = new CodeInliner(analyzer, path);
     var cu = inliner.inlineLd(ld);
+
+    String inlinedCode = cu.toString();
+
+    assertEquals(expected, inlinedCode);
+  }
+
+  private void testInlineOf(Xor xor, String expected) {
+    var analyzer = new InstructionAnalyzer();
+    analyzer.analyze(xor);
+
+    Path path = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
+    var inliner = new CodeInliner(analyzer, path);
+    var cu = inliner.inlineXor(xor);
 
     String inlinedCode = cu.toString();
 
@@ -116,5 +199,27 @@ public class TestInlinerTest {
     var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
     var source = new Plain8BitRegister("B");
     return new Ld(target, source, new Plain8BitRegister("F"));
+  }
+
+  private static Xor getXor1() {
+    var target = new MemoryPlusRegister8BitReference(
+        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
+    );
+    var source = new Plain8BitRegister("C");
+    var xor = new Xor(target, source, new Plain8BitRegister("F"));
+    return xor;
+  }
+
+  private static Xor getXor2() {
+    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
+    var source = new Plain8BitRegister("D");
+    return new Xor(target, source, new Plain8BitRegister("F"));
+  }
+
+  private static Xor getXor3() {
+    MyAbstractMemory memory = new MyAbstractMemory();
+    var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IX"), 3), memory);
+    var source = new Plain8BitRegister("E");
+    return new Xor(target, source, new Plain8BitRegister("F"));
   }
 }

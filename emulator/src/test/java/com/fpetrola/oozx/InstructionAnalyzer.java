@@ -2,9 +2,10 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.instructions.impl.Xor;
+import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 
 import java.util.*;
 
@@ -15,10 +16,18 @@ public class InstructionAnalyzer implements InstructionVisitor<Void> {
   private Register currentFlag;
   private Set<Object> referencedInstances = new HashSet<>();
   
-  public void analyze(Ld ld) {
+  public void analyze(TargetSourceInstruction instruction) {
     requiredVariables.clear();
     referencedInstances.clear();
-    ld.accept(this);
+    instruction.accept(this);
+  }
+
+  public void analyze(Ld ld) {
+    analyze((TargetSourceInstruction) ld);
+  }
+
+  public void analyze(Xor xor) {
+    analyze((TargetSourceInstruction) xor);
   }
 
   @Override

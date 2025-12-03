@@ -1,6 +1,8 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.instructions.impl.Xor;
+import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 
@@ -17,11 +19,23 @@ public class CodeInliner {
     this.path = path;
   }
 
+  public GeneratedCode inlineInstruction(TargetSourceInstruction instruction, String operationName) {
+    return generateInlinedClass(instruction, operationName);
+  }
+
   public GeneratedCode inlineLd(Ld ld) {
+    return generateInlinedClass(ld, "Ld");
+  }
+
+  public GeneratedCode inlineXor(Xor xor) {
+    return generateInlinedClass(xor, "Xor");
+  }
+
+  private GeneratedCode generateInlinedClass(TargetSourceInstruction instruction, String operationName) {
     StringBuilder sb = new StringBuilder();
     
-    // Get the class name based on the Ld instance type
-    String className = getClassName(ld);
+    // Get the class name based on the instruction type
+    String className = getClassName(instruction, operationName);
     
     sb.append("public class ").append(className)
         .append(" extends TargetSourceInstruction<ImmutableOpcodeReference> {\n");
@@ -99,7 +113,7 @@ public class CodeInliner {
 
     // Add execute method
     sb.append("    public void execute() {\n");
-    sb.append(generateExecuteBody(ld));
+    sb.append(generateExecuteBody(instruction, operationName));
     sb.append("    }\n");
 
     sb.append("}\n");
@@ -107,21 +121,22 @@ public class CodeInliner {
     return new GeneratedCode(sb.toString());
   }
 
-  private String getClassName(Ld ld) {
+  private String getClassName(TargetSourceInstruction instruction, String operationName) {
     OpcodeReference target = analyzer.getTarget();
+    int suffix = 1;
     if (target instanceof MemoryPlusRegister8BitReference) {
-      return "Ld1";
+      suffix = 1;
     } else if (target instanceof IndirectMemory8BitReference indMem) {
       if (indMem.getTarget() instanceof Register) {
-        return "Ld2";
+        suffix = 2;
       } else if (indMem.getTarget() instanceof Memory16BitReference) {
-        return "Ld3";
+        suffix = 3;
       }
     }
-    return "Ld";
+    return operationName + suffix;
   }
 
-  private String generateExecuteBody(Ld ld) {
+  private String generateExecuteBody(TargetSourceInstruction instruction, String operationName) {
     OpcodeReference target = analyzer.getTarget();
     ImmutableOpcodeReference source = analyzer.getSource();
 
@@ -132,29 +147,52 @@ public class CodeInliner {
       String targetRegName = getRegisterName(memPlusReg.getTarget());
       int valueDelta = memPlusReg.getValueDelta();
 
-      code.append("          int dd = (byte) memory.read((pc.read() + ")
-          .append(valueDelta)
-          .append(") & 0xFFFF, 0);\n");
-      code.append("          memory.write((")
-          .append(targetRegName)
-          .append(" + dd) & 0xFFFF, ")
-          .append(sourceExpr)
-          .append(");\n");
+      if (operationName.equals("Ld")) {
+        code.append("          int dd = (byte) memory.read((pc.read() + ")
+            .append(valueDelta)
+            .append(") & 0xFFFF, 0);\n");
+        code.append("          memory.write((")
+            .append(targetRegName)
+            .append(" + dd) & 0xFFFF, ")
+            .append(sourceExpr)
+            .append(");\n");
+      } else if (operationName.equals("Xor")) {
+        code.append("          int dd = (byte) memory.read((pc.read() + ")
+            .append(valueDelta)
+            .append(") & 0xFFFF, 0);\n");
+        code.append("          int value = memory.read((")
+            .append(targetRegName)
+            .append(" + dd) & 0xFFFF, 0);\n");
+        code.append("          A ^= value;\n");
+      }
     } else if (target instanceof IndirectMemory8BitReference indMem) {
       String sourceExpr = getSourceExpression(source);
       ImmutableOpcodeReference targetRef = indMem.getTarget();
 
       if (targetRef instanceof Register targetReg) {
-        code.append("        memory.write(")
-            .append(targetReg.getName())
-            .append(", ")
-            .append(sourceExpr)
-            .append(");\n");
+        if (operationName.equals("Ld")) {
+          code.append("        memory.write(")
+              .append(targetReg.getName())
+              .append(", ")
+              .append(sourceExpr)
+              .append(");\n");
+        } else if (operationName.equals("Xor")) {
+          code.append("        int value = memory.read(")
+              .append(targetReg.getName())
+              .append(", 0);\n");
+          code.append("        A ^= value;\n");
+        }
       } else if (targetRef instanceof Memory16BitReference) {
-        code.append("        int address= memory.read16Bits((pc.read() + 3) & 0xFFFF);\n");
-        code.append("        memory.write(address, ")
-            .append(sourceExpr)
-            .append(");\n");
+        if (operationName.equals("Ld")) {
+          code.append("        int address= memory.read16Bits((pc.read() + 3) & 0xFFFF);\n");
+          code.append("        memory.write(address, ")
+              .append(sourceExpr)
+              .append(");\n");
+        } else if (operationName.equals("Xor")) {
+          code.append("        int address= memory.read16Bits((pc.read() + 3) & 0xFFFF);\n");
+          code.append("        int value = memory.read(address, 0);\n");
+          code.append("        A ^= value;\n");
+        }
       }
     }
 
