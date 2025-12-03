@@ -7,10 +7,10 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>core1</artifactId>
+    <artifactId>core</artifactId>
     <packaging>jar</packaging>
 
-    <name>core1</name>
+    <name>core</name>
     <url>http://maven.apache.org</url>
 
     <properties>
