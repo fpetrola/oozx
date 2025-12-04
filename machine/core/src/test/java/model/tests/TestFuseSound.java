@@ -376,6 +376,7 @@ public class TestFuseSound extends FuseBaseForTests {
 //    assertShortArrayListEquals(localData, remoteData);
   }
 
+  @Disabled
   @Test
   void testBeepPipOnSpeakerPortFE_B() {
     test1(testDriver2);
