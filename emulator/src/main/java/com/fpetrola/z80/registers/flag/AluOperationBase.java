@@ -35,31 +35,31 @@ public class AluOperationBase {
   public AluOperationBase() {
   }
 
-  protected int halfCarryAddTable(int i) {
+  final protected int halfCarryAddTable(int i) {
     return new int[]{0, FLAG_H, FLAG_H, FLAG_H, 0, 0, 0, FLAG_H}[i];
   }
 
-  protected int halfCarrySubTable(int i) {
+  final protected int halfCarrySubTable(int i) {
     return new int[]{0, 0, FLAG_H, 0, FLAG_H, 0, FLAG_H, FLAG_H}[i];
   }
 
-  protected int overflowAddTable(int i) {
+  final protected int overflowAddTable(int i) {
     return new int[]{0, 0, 0, FLAG_V, FLAG_V, 0, 0, 0}[i];
   }
 
-  protected int overflowSubTable(int i) {
+  final protected int overflowSubTable(int i) {
     return new int[]{0, FLAG_V, 0, 0, 0, 0, FLAG_V, 0}[i];
   }
 
-  protected int sz53Table(int i) {
+  final protected int sz53Table(int i) {
     return i & (FLAG_3 | FLAG_5 | FLAG_S) | (i == 0 ? FLAG_Z : 0);
   }
 
-  protected int sz53pTable(int i) {
+  final protected int sz53pTable(int i) {
     return sz53Table(i) | parityTable(i) | (i == 0 ? FLAG_Z : 0);
   }
 
-  protected int parityTable(int i) {
+  final protected int parityTable(int i) {
     int j, k;
     j = i;
     int parity = 0;
