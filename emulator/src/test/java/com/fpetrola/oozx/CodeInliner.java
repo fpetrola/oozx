@@ -25,20 +25,21 @@ public class CodeInliner {
     this.extractor = new MethodCodeExtractor(sourcePath);
   }
 
-  public GeneratedCode inlineInstruction(TargetSourceInstruction instruction, String operationName) {
+  public GeneratedCode inlineInstruction(TargetSourceInstruction instruction) {
+    String operationName = instruction.getClass().getSimpleName();
     return generateInlinedClass(instruction, operationName);
   }
 
   public GeneratedCode inlineLd(Ld ld) {
-    return generateInlinedClass(ld, "Ld");
+    return inlineInstruction(ld);
   }
 
   public GeneratedCode inlineXor(Xor xor) {
-    return generateInlinedClass(xor, "Xor");
+    return inlineInstruction(xor);
   }
 
   public GeneratedCode inlineOr(Or or) {
-    return generateInlinedClass(or, "Or");
+    return inlineInstruction(or);
   }
 
   private GeneratedCode generateInlinedClass(TargetSourceInstruction instruction, String operationName) {
@@ -163,57 +164,56 @@ public class CodeInliner {
   private String generateExecuteBody(TargetSourceInstruction instruction, String operationName, OpcodeReference target) {
     ImmutableOpcodeReference source = analyzer.getSource();
     StringBuilder code = new StringBuilder();
+    
+    boolean isAluOperation = isAluOperation(instruction);
 
     if (target instanceof MemoryPlusRegister8BitReference memPlusReg) {
       String sourceExpr = getSourceExpression(source);
       String targetRegName = getRegisterName(memPlusReg.getTarget());
       int valueDelta = memPlusReg.getValueDelta();
 
-      if (operationName.equals("Ld")) {
-        code.append("          int dd = (byte) memory.read((pc.read() + ")
-            .append(valueDelta)
-            .append(") & 0xFFFF, 0);\n");
+      code.append("          int dd = (byte) memory.read((pc.read() + ")
+          .append(valueDelta)
+          .append(") & 0xFFFF, 0);\n");
+
+      if (isAluOperation) {
+        code.append("          int value = memory.read((")
+            .append(targetRegName)
+            .append(" + dd) & 0xFFFF, 0);\n");
+        code.append(extractAndInlineAluOperation(instruction, "          "));
+      } else {
         code.append("          memory.write((")
             .append(targetRegName)
             .append(" + dd) & 0xFFFF, ")
             .append(sourceExpr)
             .append(");\n");
-      } else if (operationName.equals("Xor") || operationName.equals("Or")) {
-        code.append("          int dd = (byte) memory.read((pc.read() + ")
-            .append(valueDelta)
-            .append(") & 0xFFFF, 0);\n");
-        code.append("          int value = memory.read((")
-            .append(targetRegName)
-            .append(" + dd) & 0xFFFF, 0);\n");
-        code.append(extractAndInlineOperation(instruction, operationName, "          "));
       }
     } else if (target instanceof IndirectMemory8BitReference indMem) {
       String sourceExpr = getSourceExpression(source);
       ImmutableOpcodeReference targetRef = indMem.getTarget();
 
       if (targetRef instanceof Register targetReg) {
-        if (operationName.equals("Ld")) {
+        if (isAluOperation) {
+          code.append("        int value = memory.read(")
+              .append(targetReg.getName())
+              .append(", 0);\n");
+          code.append(extractAndInlineAluOperation(instruction, "        "));
+        } else {
           code.append("        memory.write(")
               .append(targetReg.getName())
               .append(", ")
               .append(sourceExpr)
               .append(");\n");
-        } else if (operationName.equals("Xor") || operationName.equals("Or")) {
-          code.append("        int value = memory.read(")
-              .append(targetReg.getName())
-              .append(", 0);\n");
-          code.append(extractAndInlineOperation(instruction, operationName, "        "));
         }
       } else if (targetRef instanceof Memory16BitReference) {
-        if (operationName.equals("Ld")) {
-          code.append("        int address= memory.read16Bits((pc.read() + 3) & 0xFFFF);\n");
+        code.append("        int address= memory.read16Bits((pc.read() + 3) & 0xFFFF);\n");
+        if (isAluOperation) {
+          code.append("        int value = memory.read(address, 0);\n");
+          code.append(extractAndInlineAluOperation(instruction, "        "));
+        } else {
           code.append("        memory.write(address, ")
               .append(sourceExpr)
               .append(");\n");
-        } else if (operationName.equals("Xor") || operationName.equals("Or")) {
-          code.append("        int address= memory.read16Bits((pc.read() + 3) & 0xFFFF);\n");
-          code.append("        int value = memory.read(address, 0);\n");
-          code.append(extractAndInlineOperation(instruction, operationName, "        "));
         }
       }
     }
@@ -222,42 +222,70 @@ public class CodeInliner {
   }
 
   /**
-   * Extrae y hace inline del código de la operación (ej: xorTableAluOperation u orTableAluOperation).
+   * Detecta si la instrucción es una operación ALU (basada en campos xorTableAluOperation, orTableAluOperation, etc).
    */
-  private String extractAndInlineOperation(TargetSourceInstruction instruction, String operationName, String indent) {
-    String operationField = null;
-    String defaultOperation = null;
-    
-    if (operationName.equals("Xor")) {
-      operationField = "xorTableAluOperation";
-      defaultOperation = "A ^= value;";
-    } else if (operationName.equals("Or")) {
-      operationField = "orTableAluOperation";
-      defaultOperation = "A |= value;";
+  private boolean isAluOperation(TargetSourceInstruction instruction) {
+    Class<?> clazz = instruction.getClass();
+    try {
+      return clazz.getDeclaredField(getAluOperationFieldName(clazz.getSimpleName())) != null;
+    } catch (NoSuchFieldException e) {
+      return false;
     }
+  }
+
+  /**
+   * Obtiene el nombre del campo ALU basado en el nombre de la clase de instrucción.
+   * Ej: "Xor" -> "xorTableAluOperation", "Or" -> "orTableAluOperation"
+   */
+  private String getAluOperationFieldName(String instructionClassName) {
+    return instructionClassName.toLowerCase() + "TableAluOperation";
+  }
+
+  /**
+   * Extrae y hace inline del código de la operación ALU de forma dinámica.
+   */
+  private String extractAndInlineAluOperation(TargetSourceInstruction instruction, String indent) {
+    String instructionName = instruction.getClass().getSimpleName();
+    String operationField = getAluOperationFieldName(instructionName);
+    String defaultOperation = "A " + getDefaultAluOperator(instructionName) + "= value;";
     
-    if (operationField != null) {
-      // Extraer el código de la operación, excluyendo variables F y Q
-      String operationCode = extractor.extractAnonymousOperationMethodBody(
-          instruction.getClass().getName(), 
-          operationField, 
-          "execute",
-          "F", "Q"  // Excluir asignaciones a F y Q
-      );
-      
-      if (operationCode != null && !operationCode.isEmpty()) {
-        // Hacer inline del código con indentación correcta
-        String[] lines = operationCode.split("\n");
-        StringBuilder result = new StringBuilder();
-        for (String line : lines) {
-          result.append(indent).append(line).append("\n");
-        }
-        return result.toString();
+    // Extraer el código de la operación, excluyendo variables F y Q
+    String operationCode = extractor.extractAnonymousOperationMethodBody(
+        instruction.getClass().getName(), 
+        operationField, 
+        "execute",
+        "F", "Q"  // Excluir asignaciones a F y Q
+    );
+    
+    if (operationCode != null && !operationCode.isEmpty()) {
+      // Hacer inline del código con indentación correcta
+      String[] lines = operationCode.split("\n");
+      StringBuilder result = new StringBuilder();
+      for (String line : lines) {
+        result.append(indent).append(line).append("\n");
       }
+      return result.toString();
     }
     
     // Fallback: usar la operación por defecto
-    return indent + (defaultOperation != null ? defaultOperation : "A ^= value;") + "\n";
+    return indent + defaultOperation + "\n";
+  }
+
+  /**
+   * Obtiene el operador ALU por defecto basado en el nombre de la instrucción.
+   * Ej: "Xor" -> "^", "Or" -> "|", "And" -> "&"
+   */
+  private String getDefaultAluOperator(String instructionClassName) {
+    return switch (instructionClassName) {
+      case "Xor" -> "^";
+      case "Or" -> "|";
+      case "And" -> "&";
+      case "Add" -> "+";
+      case "Sub" -> "-";
+      case "Sbc" -> "-";  // Substract with carry
+      case "Adc" -> "+";  // Add with carry
+      default -> "^";  // Default a XOR
+    };
   }
 
   private String getSourceExpression(ImmutableOpcodeReference source) {
