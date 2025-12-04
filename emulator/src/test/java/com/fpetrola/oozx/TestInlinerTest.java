@@ -2,6 +2,7 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Xor;
+import com.fpetrola.z80.instructions.impl.Or;
 import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
 import com.fpetrola.z80.opcodes.references.Memory16BitReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
@@ -153,6 +154,76 @@ public class TestInlinerTest {
         """);
   }
 
+  @Test
+  public void testOrInline1() {
+    var or = getOr1();
+    testInlineOf(or, """
+        public class Or1 extends TargetSourceInstruction<ImmutableOpcodeReference> {
+            int C;
+            int IX;
+            Memory memory;
+            Register pc;
+        
+            public Or1(Memory memory, Register pc) {
+                this.memory= memory;
+                this.pc= pc;
+            }
+        
+            public void execute() {
+                  int dd = (byte) memory.read((pc.read() + 2) & 0xFFFF, 0);
+                  int value = memory.read((IX + dd) & 0xFFFF, 0);
+                  A |= value;
+            }
+        }
+        """);
+  }
+
+  @Test
+  public void testOrInline2() {
+    var or = getOr2();
+    testInlineOf(or, """
+        public class Or2 extends TargetSourceInstruction<ImmutableOpcodeReference> {
+            int D;
+            int IY;
+            Memory memory;
+        
+            public Or2(Memory memory) {
+                this.memory= memory;
+            }
+        
+            public void execute() {
+                int value = memory.read(IY, 0);
+                A |= value;
+            }
+        }
+        """);
+  }
+
+  @Test
+  public void testOrInline3() {
+    var or = getOr3();
+    testInlineOf(or, """
+        public class Or3 extends TargetSourceInstruction<ImmutableOpcodeReference> {
+            int E;
+            int IX;
+            Memory memory;
+        
+             Register pc;
+        
+            public Or3(Memory memory, Register pc) {
+                this.memory= memory;
+                this.pc= pc;
+            }
+        
+            public void execute() {
+                int address= memory.read16Bits((pc.read() + 3) & 0xFFFF);
+                int value = memory.read(address, 0);
+                A |= value;
+            }
+        }
+        """);
+  }
+
   private void testInlineOf(Ld ld, String expected) {
     var analyzer = new InstructionAnalyzer();
     analyzer.analyze(ld);
@@ -173,6 +244,19 @@ public class TestInlinerTest {
     Path path = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
     var inliner = new CodeInliner(analyzer, path);
     var cu = inliner.inlineXor(xor);
+
+    String inlinedCode = cu.toString();
+
+    assertEquals(expected, inlinedCode);
+  }
+
+  private void testInlineOf(Or or, String expected) {
+    var analyzer = new InstructionAnalyzer();
+    analyzer.analyze(or);
+
+    Path path = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
+    var inliner = new CodeInliner(analyzer, path);
+    var cu = inliner.inlineOr(or);
 
     String inlinedCode = cu.toString();
 
@@ -221,5 +305,27 @@ public class TestInlinerTest {
     var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IX"), 3), memory);
     var source = new Plain8BitRegister("E");
     return new Xor(target, source, new Plain8BitRegister("F"));
+  }
+
+  private static Or getOr1() {
+    var target = new MemoryPlusRegister8BitReference(
+        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
+    );
+    var source = new Plain8BitRegister("C");
+    var or = new Or(target, source, new Plain8BitRegister("F"));
+    return or;
+  }
+
+  private static Or getOr2() {
+    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
+    var source = new Plain8BitRegister("D");
+    return new Or(target, source, new Plain8BitRegister("F"));
+  }
+
+  private static Or getOr3() {
+    MyAbstractMemory memory = new MyAbstractMemory();
+    var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IX"), 3), memory);
+    var source = new Plain8BitRegister("E");
+    return new Or(target, source, new Plain8BitRegister("F"));
   }
 }

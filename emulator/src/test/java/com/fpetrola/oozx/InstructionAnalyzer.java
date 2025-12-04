@@ -3,6 +3,7 @@ package com.fpetrola.oozx;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Xor;
+import com.fpetrola.z80.instructions.impl.Or;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
@@ -28,6 +29,10 @@ public class InstructionAnalyzer implements InstructionVisitor<Void> {
 
   public void analyze(Xor xor) {
     analyze((TargetSourceInstruction) xor);
+  }
+
+  public void analyze(Or or) {
+    analyze((TargetSourceInstruction) or);
   }
 
   @Override

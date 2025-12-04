@@ -2,6 +2,7 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Xor;
+import com.fpetrola.z80.instructions.impl.Or;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
@@ -34,6 +35,10 @@ public class CodeInliner {
 
   public GeneratedCode inlineXor(Xor xor) {
     return generateInlinedClass(xor, "Xor");
+  }
+
+  public GeneratedCode inlineOr(Or or) {
+    return generateInlinedClass(or, "Or");
   }
 
   private GeneratedCode generateInlinedClass(TargetSourceInstruction instruction, String operationName) {
@@ -173,7 +178,7 @@ public class CodeInliner {
             .append(" + dd) & 0xFFFF, ")
             .append(sourceExpr)
             .append(");\n");
-      } else if (operationName.equals("Xor")) {
+      } else if (operationName.equals("Xor") || operationName.equals("Or")) {
         code.append("          int dd = (byte) memory.read((pc.read() + ")
             .append(valueDelta)
             .append(") & 0xFFFF, 0);\n");
@@ -193,7 +198,7 @@ public class CodeInliner {
               .append(", ")
               .append(sourceExpr)
               .append(");\n");
-        } else if (operationName.equals("Xor")) {
+        } else if (operationName.equals("Xor") || operationName.equals("Or")) {
           code.append("        int value = memory.read(")
               .append(targetReg.getName())
               .append(", 0);\n");
@@ -205,7 +210,7 @@ public class CodeInliner {
           code.append("        memory.write(address, ")
               .append(sourceExpr)
               .append(");\n");
-        } else if (operationName.equals("Xor")) {
+        } else if (operationName.equals("Xor") || operationName.equals("Or")) {
           code.append("        int address= memory.read16Bits((pc.read() + 3) & 0xFFFF);\n");
           code.append("        int value = memory.read(address, 0);\n");
           code.append(extractAndInlineOperation(instruction, operationName, "        "));
@@ -217,14 +222,25 @@ public class CodeInliner {
   }
 
   /**
-   * Extrae y hace inline del código de la operación (ej: xorTableAluOperation).
+   * Extrae y hace inline del código de la operación (ej: xorTableAluOperation u orTableAluOperation).
    */
   private String extractAndInlineOperation(TargetSourceInstruction instruction, String operationName, String indent) {
+    String operationField = null;
+    String defaultOperation = null;
+    
     if (operationName.equals("Xor")) {
-      // Extraer el código de xorTableAluOperation.execute(), excluyendo variables F y Q
+      operationField = "xorTableAluOperation";
+      defaultOperation = "A ^= value;";
+    } else if (operationName.equals("Or")) {
+      operationField = "orTableAluOperation";
+      defaultOperation = "A |= value;";
+    }
+    
+    if (operationField != null) {
+      // Extraer el código de la operación, excluyendo variables F y Q
       String operationCode = extractor.extractAnonymousOperationMethodBody(
           instruction.getClass().getName(), 
-          "xorTableAluOperation", 
+          operationField, 
           "execute",
           "F", "Q"  // Excluir asignaciones a F y Q
       );
@@ -241,7 +257,7 @@ public class CodeInliner {
     }
     
     // Fallback: usar la operación por defecto
-    return indent + "A ^= value;\n";
+    return indent + (defaultOperation != null ? defaultOperation : "A ^= value;") + "\n";
   }
 
   private String getSourceExpression(ImmutableOpcodeReference source) {
