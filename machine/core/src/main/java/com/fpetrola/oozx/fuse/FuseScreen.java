@@ -92,14 +92,18 @@ public class FuseScreen extends JPanel {
   }
 
   public static BufferedImage getScaledImage(BufferedImage image, int width, int height, boolean b) {
-    int imageWidth = image.getWidth();
-    int imageHeight = image.getHeight();
+    try {
+      int imageWidth = image.getWidth();
+      int imageHeight = image.getHeight();
 
-    double scaleX = (double) width / imageWidth;
-    double scaleY = (double) height / imageHeight;
-    AffineTransform scaleTransform = AffineTransform.getScaleInstance(scaleX, scaleY);
-    AffineTransformOp bilinearScaleOp = new AffineTransformOp(scaleTransform, b ? AffineTransformOp.TYPE_NEAREST_NEIGHBOR : AffineTransformOp.TYPE_BILINEAR);
+      double scaleX = (double) width / imageWidth;
+      double scaleY = (double) height / imageHeight;
+      AffineTransform scaleTransform = AffineTransform.getScaleInstance(scaleX, scaleY);
+      AffineTransformOp bilinearScaleOp = new AffineTransformOp(scaleTransform, b ? AffineTransformOp.TYPE_NEAREST_NEIGHBOR : AffineTransformOp.TYPE_BILINEAR);
 
-    return bilinearScaleOp.filter(image, new BufferedImage(width, height, image.getType()));
+      return bilinearScaleOp.filter(image, new BufferedImage(width, height, image.getType()));
+    } catch (Exception e) {
+      return image;
+    }
   }
 }

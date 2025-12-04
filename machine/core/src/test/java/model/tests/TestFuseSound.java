@@ -18,12 +18,14 @@
 
 package model.tests;
 
+import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.fuse.*;
 import com.fpetrola.oozx.fuse.bridge.CommandHandler;
 import com.fpetrola.oozx.fuse.bridge.DefaultCommandHandler;
 import com.fpetrola.oozx.fuse.bridge.FuseBaseForTests;
 import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
 import com.fpetrola.oozx.fuse.sound.JavaSoundDevice;
+import com.fpetrola.z80.blocks.Block;
 import model.connected.ConnectedZ80CPU;
 import org.junit.jupiter.api.*;
 
@@ -230,7 +232,7 @@ public class TestFuseSound extends FuseBaseForTests {
             }
             String format = String.format(
                 "First difference found at index %d (chunk starting at %d): expected %s, but was %s. "
-                    + "Number of prior elements where %s is %s: %d\n PC=%d",
+                + "Number of prior elements where %s is %s: %d\n PC=%d",
                 globalIndex, i, expectedElement, actualElement,
                 propertyDescription, expectedPropertyValue, matchingCount, ((TStateUpdate) expectedElement).pc
             );
@@ -352,7 +354,7 @@ public class TestFuseSound extends FuseBaseForTests {
     }
     assertEquals(expectedList.size(), actualList.size(),
         () -> "Tamaño de listas diferente: esperado " + expectedList.size() +
-            ", actual " + actualList.size());
+              ", actual " + actualList.size());
 
     for (int i = 0; i < expectedList.size(); i++) {
       double[] expected = expectedList.get(i);
@@ -361,8 +363,8 @@ public class TestFuseSound extends FuseBaseForTests {
       int finalI = i;
       Assertions.assertArrayEquals(expected, actual,
           () -> "Fila " + finalI + " diferente:\n" +
-              "  Esperado: " + Arrays.toString(expected) + "\n" +
-              "  Actual:   " + Arrays.toString(actual));
+                "  Esperado: " + Arrays.toString(expected) + "\n" +
+                "  Actual:   " + Arrays.toString(actual));
     }
   }
 

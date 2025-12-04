@@ -169,7 +169,7 @@ public class OOSpectrumLauncher {
       fuse.settings.current.emulationSpeed = 100;
       fuse.init();
       fuse.z80.loadSnap(filename);
-      fuse.z80.changeSpeed(100);
+//      fuse.z80.changeSpeed(100);
     }
 
     extracted(fuse);

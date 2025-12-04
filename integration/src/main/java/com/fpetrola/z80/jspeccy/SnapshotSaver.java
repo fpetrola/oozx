@@ -256,15 +256,13 @@ public class SnapshotSaver {
    * @return String con el snapshot comprimido y empaquetado en formato Unicode
    * @throws SnapshotException Si ocurre un error al crear el snapshot
    */
-  public static String getSnapshotAsUnicodePacked(RegistersGetter registersGetter, State state) throws SnapshotException {
+  public static String getSnapshotAsUnicodePacked(RegistersGetter registersGetter, State state) {
     try {
       byte[] snapshotBytes = getSnapshotAsBytes(registersGetter, state);
       byte[] compressedBytes = gzipCompress(snapshotBytes);
       return SnapshotUnicodePacker.packToUnicodeString(compressedBytes);
-    } catch (SnapshotException e) {
-      throw e;
     } catch (Exception e) {
-      throw new SnapshotException("Error comprimiendo snapshot: " + e.getMessage());
+      throw new RuntimeException("Error comprimiendo snapshot: " + e.getMessage());
     }
   }
 
@@ -275,7 +273,7 @@ public class SnapshotSaver {
    * @return SpectrumState con el estado cargado
    * @throws SnapshotException Si ocurre un error al desempaquetar o cargar el snapshot
    */
-  public static SpectrumState loadSnapshotFromUnicodePacked(String unicodePacked) throws SnapshotException {
+  public static SpectrumState loadSnapshotFromUnicodePacked(String unicodePacked)  {
     try {
       if (unicodePacked == null || unicodePacked.isEmpty()) {
         throw new SnapshotException("INVALID_SNAPSHOT_DATA");
@@ -284,10 +282,8 @@ public class SnapshotSaver {
       byte[] decompressedBytes = gzipDecompress(compressedBytes);
       SnapshotZ80 snapshot = new SnapshotZ80();
       return snapshot.loadFromBytes(decompressedBytes);
-    } catch (SnapshotException e) {
-      throw e;
     } catch (Exception e) {
-      throw new SnapshotException("Error descomprimiendo snapshot: " + e.getMessage());
+      throw new RuntimeException("Error descomprimiendo snapshot: " + e.getMessage());
     }
   }
 }

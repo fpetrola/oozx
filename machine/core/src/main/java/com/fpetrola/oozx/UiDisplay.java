@@ -21,6 +21,7 @@ package com.fpetrola.oozx;
 public class UiDisplay {
   public byte[][] screenMatrix;
   private byte[] cache;
+  public boolean active = true;
 
   public UiDisplay() {
 //    cache = createCache();
@@ -37,8 +38,9 @@ public class UiDisplay {
   }
 
   public void plot8(int x, int y, byte data, byte ink, byte paper) {
-    for (int i = 0; i < 8; i++)
-      screenMatrix[(x << 3) + i][y] = (data & (0x80 >> i)) != 0 ? ink : paper;
+    if (active)
+      for (int i = 0; i < 8; i++)
+        screenMatrix[(x << 3) + i][y] = (data & (0x80 >> i)) != 0 ? ink : paper;
   }
 
   private byte[] createCache() {

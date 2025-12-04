@@ -43,6 +43,7 @@ public class OOSpectrumConnector {
   public static List<double[]> localData = new ArrayList<>();
   public static List<double[]> remoteData = new ArrayList<>();
   String device = "buffer=8192,frames=4,verbose";
+  private int counter;
 
   public static void main(String[] args) {
     noTest = true;
@@ -80,7 +81,7 @@ public class OOSpectrumConnector {
 
     LibretroCore.bridge_command bridgeCommand;
 
-    bridgeCommand = (cmd, data) -> {
+    LibretroCore.bridge_command bridgeCommand1 = (cmd, data) -> {
       DefaultCommandHandler commandHandler1 = commandHandler;
       if (commandHandler1.lastCommand instanceof ContinueExecutionCommand) {
         commandHandler1.addResultFor(commandHandler1.lastCommand, 0);
@@ -103,9 +104,24 @@ public class OOSpectrumConnector {
         }
       }
     };
+    bridgeCommand = bridgeCommand1;
+
+//    if (testSteps != 0) {
+//      counter = testSteps;
+//      bridgeCommand = (cmd, data) -> {
+//        counter--;
+//        if (counter > 0)
+//          return null;
+//        else {
+//          counter = testSteps;
+//          return bridgeCommand1.invoke(cmd, data);
+//        }
+//      };
+//    }
 
     if (noTest)
       bridgeCommand = (cmd, data) -> null;
+
     aCore.retro_set_bridge_command(bridgeCommand);
 
     aCore.retro_set_audio_sample((l, r) -> {

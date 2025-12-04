@@ -1610,7 +1610,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
       }
     });
     stateCapture.setRepeats(false);
-    stateCapture.start();
+//    stateCapture.start();
 
     return frame;
   }

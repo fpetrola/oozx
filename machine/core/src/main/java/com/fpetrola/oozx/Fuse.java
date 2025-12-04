@@ -62,6 +62,7 @@ public class Fuse {
   public SpecPlus2A specPlus2a;
   public SpecPlus3E specPlus3e;
   public Spec48Ntsc spec48Ntsc;
+  public UiDisplay uiDisplay;
 
   public Fuse() {
     this(new SpectrumZ80Clock());
@@ -74,7 +75,7 @@ public class Fuse {
     alive = true;
     module = new Module();
     memory = new Memory(zxClock, module, settings);
-    UiDisplay uiDisplay = new UiDisplay();
+    uiDisplay = new UiDisplay();
     display = new Display(memory, zxClock, memory, uiDisplay);
     keyboard = new Keyboard();
     periph = new Periph(zxClock, settings);
