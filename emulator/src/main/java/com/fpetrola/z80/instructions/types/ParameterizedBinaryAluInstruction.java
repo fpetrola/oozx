@@ -32,7 +32,7 @@ public class ParameterizedBinaryAluInstruction extends TargetSourceInstruction<I
     this.binaryAluOperation = getTBinaryAluOperation(tableAluOperation);
   }
   public interface BinaryAluOperation {
-    int execute(Register flag, int value1, int value2);
+    int execute(Register flagRegister, int sourceValue, int targetValue);
   }
 
   public ParameterizedBinaryAluInstruction(OpcodeReference target, ImmutableOpcodeReference source, Register flag, BinaryAluOperation binaryAluOperation) {
@@ -44,8 +44,8 @@ public class ParameterizedBinaryAluInstruction extends TargetSourceInstruction<I
     assignTarget(doExecute(source.read(), target.read()));
   }
 
-  protected int doExecute(int value1, int value2) {
-    return binaryAluOperation.execute(flag, value1, value2);
+  protected int doExecute(int sourceValue, int targetValue) {
+    return binaryAluOperation.execute(flag, sourceValue, targetValue);
   }
 
   protected void assignTarget(int execute) {
@@ -53,8 +53,8 @@ public class ParameterizedBinaryAluInstruction extends TargetSourceInstruction<I
   }
 
   public <T1> BinaryAluOperation getTBinaryAluOperation(TableAluOperation tableAluOperation) {
-    return (tFlagRegister, a, value) -> {
-      int[] i = tableAluOperation.executeWithoutCarry2(value, a);
+    return (flagRegister, sourceValue, targetValue) -> {
+      int[] i = tableAluOperation.executeWithoutCarry2(targetValue, sourceValue);
       flag.write(i[1]);
       return i[0];
     };

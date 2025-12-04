@@ -43,8 +43,8 @@ public class Sub extends ParameterizedBinaryAluInstruction {
     super(target, source, flag,  sub8TableAluOperation);
   }
 
-  protected int doExecute(int value1, int value2) {
-    return super.doExecute(value2, value1);
+  protected int doExecute(int sourceValue, int targetValue) {
+    return super.doExecute(targetValue, sourceValue);
   }
 
   @Override

@@ -63,13 +63,13 @@ public class TableAluOperation extends AluOperation {
     return data1 >> 16;
   }
 
-  public int[] executeWithoutCarry2(int value, int regA) {
-    int data1 = table[(regA & 0xff) << 8 | (value & 0xff)];
+  public int[] executeWithoutCarry2(int targetValue, int sourceValue) {
+    int data1 = table[(sourceValue & 0xff) << 8 | (targetValue & 0xff)];
     return new int[]{data1 >> 16, data1 & 0xFF};
   }
 
-  public int[] executeWithCarry2(int regA, int i1) {
-    int data1 = table[(i1 & 0x01) << 8 | (regA & 0xff)];
+  public int[] executeWithCarry2(int aValue, int fValue) {
+    int data1 = table[(fValue & 0x01) << 8 | (aValue & 0xff)];
     return new int[]{data1 >> 16, data1 & 0xFF};
   }
 }
