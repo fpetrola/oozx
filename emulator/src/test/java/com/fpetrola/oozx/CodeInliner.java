@@ -180,7 +180,7 @@ public class CodeInliner {
         code.append("          int value = memory.read((")
             .append(targetRegName)
             .append(" + dd) & 0xFFFF, 0);\n");
-        code.append("          A ^= value;\n");
+        code.append(extractAndInlineOperation(instruction, operationName, "          "));
       }
     } else if (target instanceof IndirectMemory8BitReference indMem) {
       String sourceExpr = getSourceExpression(source);
@@ -197,7 +197,7 @@ public class CodeInliner {
           code.append("        int value = memory.read(")
               .append(targetReg.getName())
               .append(", 0);\n");
-          code.append("        A ^= value;\n");
+          code.append(extractAndInlineOperation(instruction, operationName, "        "));
         }
       } else if (targetRef instanceof Memory16BitReference) {
         if (operationName.equals("Ld")) {
@@ -208,12 +208,40 @@ public class CodeInliner {
         } else if (operationName.equals("Xor")) {
           code.append("        int address= memory.read16Bits((pc.read() + 3) & 0xFFFF);\n");
           code.append("        int value = memory.read(address, 0);\n");
-          code.append("        A ^= value;\n");
+          code.append(extractAndInlineOperation(instruction, operationName, "        "));
         }
       }
     }
 
     return code.toString();
+  }
+
+  /**
+   * Extrae y hace inline del código de la operación (ej: xorTableAluOperation).
+   */
+  private String extractAndInlineOperation(TargetSourceInstruction instruction, String operationName, String indent) {
+    if (operationName.equals("Xor")) {
+      // Extraer el código de xorTableAluOperation.execute(), excluyendo variables F y Q
+      String operationCode = extractor.extractAnonymousOperationMethodBody(
+          instruction.getClass().getName(), 
+          "xorTableAluOperation", 
+          "execute",
+          "F", "Q"  // Excluir asignaciones a F y Q
+      );
+      
+      if (operationCode != null && !operationCode.isEmpty()) {
+        // Hacer inline del código con indentación correcta
+        String[] lines = operationCode.split("\n");
+        StringBuilder result = new StringBuilder();
+        for (String line : lines) {
+          result.append(indent).append(line).append("\n");
+        }
+        return result.toString();
+      }
+    }
+    
+    // Fallback: usar la operación por defecto
+    return indent + "A ^= value;\n";
   }
 
   private String getSourceExpression(ImmutableOpcodeReference source) {
