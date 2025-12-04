@@ -7,16 +7,21 @@ import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
+/**
+ * Genera clases Java con código inlineado extrayendo dinámicamente el código
+ * de las instrucciones y referencias usando JavaParser para hacer inlining recursivo.
+ */
 public class CodeInliner {
   private final InstructionAnalyzer analyzer;
-  private final Path path;
+  private final Path sourcePath;
+  private final MethodCodeExtractor extractor;
 
-  public CodeInliner(InstructionAnalyzer analyzer, Path path) {
+  public CodeInliner(InstructionAnalyzer analyzer, Path sourcePath) {
     this.analyzer = analyzer;
-    this.path = path;
+    this.sourcePath = sourcePath;
+    this.extractor = new MethodCodeExtractor(sourcePath);
   }
 
   public GeneratedCode inlineInstruction(TargetSourceInstruction instruction, String operationName) {
@@ -33,92 +38,106 @@ public class CodeInliner {
 
   private GeneratedCode generateInlinedClass(TargetSourceInstruction instruction, String operationName) {
     StringBuilder sb = new StringBuilder();
-    
-    // Get the class name based on the instruction type
+
     String className = getClassName(instruction, operationName);
-    
+
     sb.append("public class ").append(className)
         .append(" extends TargetSourceInstruction<ImmutableOpcodeReference> {\n");
 
-    // Add fields
-    ImmutableOpcodeReference source = analyzer.getSource();
+    // Get analyzed variables in order
+    Map<String, InstructionAnalyzer.VariableInfo> requiredVars = analyzer.getRequiredVariables();
+    
+    // Orden deseado: source registers, target registers, memory, pc
     OpcodeReference target = analyzer.getTarget();
-
-    // Add source field
-    if (source instanceof Register sourceReg) {
-      sb.append("    int ").append(sourceReg.getName()).append(";\n");
-    }
-
-    // Add target register field
-    if (target instanceof MemoryPlusRegister8BitReference memPlusReg) {
-      ImmutableOpcodeReference targetRef = memPlusReg.getTarget();
-      if (targetRef instanceof Register targetReg) {
-        sb.append("    int ").append(targetReg.getName()).append(";\n");
-      }
-    } else if (target instanceof IndirectMemory8BitReference indMem) {
-      ImmutableOpcodeReference targetRef = indMem.getTarget();
-      if (targetRef instanceof Register targetReg) {
-        sb.append("    int ").append(targetReg.getName()).append(";\n");
-      } else if (targetRef instanceof Memory16BitReference mem16) {
-        // Memory16BitReference - extract the register from it
-        ImmutableOpcodeReference mem16Ref = mem16.getPc();
-        if (mem16Ref instanceof Register targetReg) {
-          sb.append("    int ").append(targetReg.getName()).append(";\n");
-        }
-      }
-    }
-
-    // Add memory field if needed
-    boolean needsMemory = false;
-    if (target instanceof MemoryPlusRegister8BitReference || target instanceof IndirectMemory8BitReference) {
-      needsMemory = true;
-      sb.append("    Memory memory;\n");
-    }
-
-    // Add pc field if needed
-    boolean needsPc = false;
-    if (target instanceof MemoryPlusRegister8BitReference) {
-      needsPc = true;
-      sb.append("    Register pc;\n");
-    } else if (target instanceof IndirectMemory8BitReference indMem) {
-      if (indMem.getTarget() instanceof Memory16BitReference) {
-        needsPc = true;
-        sb.append("\n");  // Add blank line before pc
-        sb.append("     Register pc;\n");
-      }
-    }
+    printFieldsInOrder(sb, requiredVars, target);
 
     sb.append("\n");
 
     // Add constructor
+    List<String> constructorParams = buildConstructorParams(target);
+    
     sb.append("    public ").append(className).append("(");
-    List<String> constructorParams = new ArrayList<>();
-    if (needsMemory) {
-      constructorParams.add("Memory memory");
-    }
-    if (needsPc) {
-      constructorParams.add("Register pc");
-    }
     sb.append(String.join(", ", constructorParams));
     sb.append(") {\n");
-    if (needsMemory) {
-      sb.append("        this.memory= memory;\n");
-    }
-    if (needsPc) {
-      sb.append("        this.pc= pc;\n");
+    
+    for (String param : constructorParams) {
+      String paramName = param.split(" ")[1];
+      sb.append("        this.").append(paramName).append("= ").append(paramName).append(";\n");
     }
     sb.append("    }\n");
 
     sb.append("\n");
 
-    // Add execute method
+    // Add execute method with inlined code
     sb.append("    public void execute() {\n");
-    sb.append(generateExecuteBody(instruction, operationName));
+    String executeBody = generateExecuteBody(instruction, operationName, target);
+    sb.append(executeBody);
     sb.append("    }\n");
 
     sb.append("}\n");
 
     return new GeneratedCode(sb.toString());
+  }
+
+  private void printFieldsInOrder(StringBuilder sb, Map<String, InstructionAnalyzer.VariableInfo> vars, OpcodeReference target) {
+    // Excluir: F (flag register), Q
+    Set<String> excluded = Set.of("F", "Q");
+    
+    // Determinar si necesitamos blank line antes de pc
+    boolean needsBlankLineBeforePc = false;
+    if (target instanceof IndirectMemory8BitReference indMem) {
+      if (indMem.getTarget() instanceof Memory16BitReference) {
+        needsBlankLineBeforePc = true;
+      }
+    }
+    
+    // 1. Imprimir variables en orden manteniendo el de inserción
+    boolean printedAnything = false;
+    for (String name : vars.keySet()) {
+      InstructionAnalyzer.VariableInfo var = vars.get(name);
+      
+      // Saltar si es excluido o si es pc/memory (los hacemos aparte)
+      if (excluded.contains(name) || "memory".equals(name) || "pc".equals(name)) {
+        continue;
+      }
+      
+      sb.append("    ").append(var.type).append(" ").append(var.name).append(";\n");
+      printedAnything = true;
+    }
+    
+    // 2. Memory
+    if (vars.containsKey("memory")) {
+      InstructionAnalyzer.VariableInfo var = vars.get("memory");
+      sb.append("    ").append(var.type).append(" ").append(var.name).append(";\n");
+    }
+    
+    // 3. PC con blank line antes si es Memory16BitReference
+    if (vars.containsKey("pc")) {
+      if (needsBlankLineBeforePc) {
+        sb.append("\n");
+        sb.append("     ").append("Register").append(" ").append("pc").append(";\n");
+      } else if (target instanceof MemoryPlusRegister8BitReference) {
+        sb.append("    ").append("Register").append(" ").append("pc").append(";\n");
+      }
+    }
+  }
+
+  private List<String> buildConstructorParams(OpcodeReference target) {
+    List<String> params = new ArrayList<>();
+    
+    if (target instanceof MemoryPlusRegister8BitReference || target instanceof IndirectMemory8BitReference) {
+      params.add("Memory memory");
+    }
+    
+    if (target instanceof MemoryPlusRegister8BitReference) {
+      params.add("Register pc");
+    } else if (target instanceof IndirectMemory8BitReference indMem) {
+      if (indMem.getTarget() instanceof Memory16BitReference) {
+        params.add("Register pc");
+      }
+    }
+    
+    return params;
   }
 
   private String getClassName(TargetSourceInstruction instruction, String operationName) {
@@ -136,10 +155,8 @@ public class CodeInliner {
     return operationName + suffix;
   }
 
-  private String generateExecuteBody(TargetSourceInstruction instruction, String operationName) {
-    OpcodeReference target = analyzer.getTarget();
+  private String generateExecuteBody(TargetSourceInstruction instruction, String operationName, OpcodeReference target) {
     ImmutableOpcodeReference source = analyzer.getSource();
-
     StringBuilder code = new StringBuilder();
 
     if (target instanceof MemoryPlusRegister8BitReference memPlusReg) {

@@ -10,7 +10,7 @@ import com.fpetrola.z80.registers.Register;
 import java.util.*;
 
 public class InstructionAnalyzer implements InstructionVisitor<Void> {
-  private Map<String, VariableInfo> requiredVariables = new HashMap<>();
+  private Map<String, VariableInfo> requiredVariables = new LinkedHashMap<>();
   private OpcodeReference currentTarget;
   private ImmutableOpcodeReference currentSource;
   private Register currentFlag;
@@ -85,8 +85,19 @@ public class InstructionAnalyzer implements InstructionVisitor<Void> {
   @Override
   public boolean visitMemory16BitReference(Memory16BitReference memory16BitReference) {
     referencedInstances.add(memory16BitReference);
+    referencedInstances.add(memory16BitReference.getMemory());
+    referencedInstances.add(memory16BitReference.getPc());
+    
     addVariable("memory", "Memory", null);
-    addVariable("pc", "Register", null);
+    addVariable("pc", "Register", null);  // Siempre agregamos pc como marcador
+    
+    // Visitar el PC para obtener su nombre real y agregarlo como variable
+    if (memory16BitReference.getPc() instanceof Register reg) {
+      addVariable(reg.getName(), "int", null);
+      referencedInstances.add(reg);
+    } else {
+      memory16BitReference.getPc().accept(this);
+    }
     return true;
   }
 
