@@ -1,0 +1,61 @@
+/*
+ * Copyright (c) 2023-2025 Fernando Damian Petrola
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package com.fpetrola.oozx.speccy.machines;
+
+import com.fpetrola.oozx.Extension;
+import com.fpetrola.oozx.speccy.machine.Pentagon;
+import com.fpetrola.oozx.speccy.machine.Spec128;
+import com.fpetrola.oozx.speccy.machine.Spec48;
+import com.fpetrola.oozx.speccy.machine.SpecPlus2;
+import com.fpetrola.oozx.speccy.machine.SpecPlus2A;
+import com.fpetrola.oozx.speccy.machine.SpecPlus3;
+import com.fpetrola.oozx.speccy.modules.machine.DefaultMachine;
+import com.fpetrola.oozx.speccy.machine.Spec48Ntsc;
+import com.fpetrola.oozx.speccy.machine.SpecPlus3E;
+import com.fpetrola.oozx.speccy.machine.Spectrum;
+import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.Multibinder;
+
+/**
+ * Every machine the emulator can be, found on the classpath like a device: the core is the
+ * chassis and cannot start without one of these. Sinclair's, then the variants a snapshot never
+ * names, then the clones.
+ */
+public class Machines extends AbstractModule implements Extension {
+  /**
+   * What the machines call themselves, for anything that has to offer them before one has been
+   * built - a menu in the browser is drawn long before a machine exists. A copy, and copies go
+   * stale, so a test asserts it against the machines themselves.
+   */
+  public static final java.util.List<String> MODEL_NAMES = java.util.List.of(
+      "Spectrum 48K", "Spectrum 128K", "Spectrum Plus 3", "Spectrum Plus 2", "Spectrum Plus 2A",
+      "Sinclair Spectrum 48K (NTSC)", "Amstrad Spectrum +3e", "Pentagon");
+
+  protected void configure() {
+    Multibinder<Spectrum> models = Multibinder.newSetBinder(binder(), Spectrum.class);
+    models.addBinding().to(Spec48.class);
+    models.addBinding().to(Spec128.class);
+    models.addBinding().to(SpecPlus3.class);
+    models.addBinding().to(SpecPlus2.class);
+    models.addBinding().to(SpecPlus2A.class);
+    models.addBinding().to(Spec48Ntsc.class);
+    models.addBinding().to(SpecPlus3E.class);
+    models.addBinding().to(Pentagon.class);
+    bind(Spectrum.class).annotatedWith(DefaultMachine.class).to(Spec48.class);
+  }
+}
