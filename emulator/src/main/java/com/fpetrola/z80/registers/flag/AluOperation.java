@@ -33,11 +33,11 @@ public class AluOperation extends AluOperationBase {
     }
   }
 
-  public int execute(int A, int value, int carry) {
+  protected int execute(int A, int value, int carry) {
     return -1;
   }
 
-  public int execute(int value, int carry) {
+  protected int execute(int value, int carry) {
     return -1;
   }
 

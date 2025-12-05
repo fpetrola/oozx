@@ -29,8 +29,9 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class LdAR extends Ld {
   public static final TableAluOperation ldarTableAluOperation = new TableAluOperation() {
     public int execute(int R, int A, int IFF2) {
-      A = R & 0xff;
-      F = (F & FLAG_C) | sz53Table(A) | (IFF2 != 0 ? FLAG_V : 0);
+      F = A;
+      int A1 = R & 0xff;
+      F = (F & FLAG_C) | sz53Table(A1) | (IFF2 != 0 ? FLAG_V : 0);
       Q = F;
       return F;
     }
@@ -44,14 +45,9 @@ public class LdAR extends Ld {
 
   public void execute() {
     int value = source.read();
-    int reg_A = target.read();
-    boolean iff2 = state.isIff2();
-    ldarTableAluOperation.F = flag.read();
-    int ldar = ldarTableAluOperation.execute(value, reg_A, iff2 ? 1 : 0);
-    flag.write(ldarTableAluOperation.F);
+    int i = ldarTableAluOperation.executeWithCarry2(value, flag.read(), state.isIff2() ? 1 : 0, flag);
+    flag.write(i);
     target.write(value);
-
-    
   }
 
   @Override
