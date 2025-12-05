@@ -24,9 +24,10 @@ import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class LdAR extends Ld {
-  public static final AluOperation ldarTableAluOperation = new AluOperation() {
+  public static final TableAluOperation ldarTableAluOperation = new TableAluOperation() {
     public int execute(int R, int A, int IFF2) {
       A = R & 0xff;
       F = (F & FLAG_C) | sz53Table(A) | (IFF2 != 0 ? FLAG_V : 0);
