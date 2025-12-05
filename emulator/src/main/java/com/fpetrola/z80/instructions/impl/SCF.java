@@ -39,8 +39,8 @@ public class SCF extends DefaultTargetFlagInstruction {
   }
 
   public void execute() {
-    scfTableAluOperation.execute(flag.read(), target.read(), 1);
-    flag.write(scfTableAluOperation.F);
+    int[] i = scfTableAluOperation.executeWithoutCarry2(target.read(), flag.read());
+    flag.write(i[0]);
   }
 
   public void accept(InstructionVisitor visitor) {
