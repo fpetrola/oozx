@@ -20,16 +20,18 @@ package com.fpetrola.oozx.fuse.bridge;
 
 import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.SpectrumZ80Clock;
+import com.fpetrola.z80.registers.Plain8BitRegister;
+import com.fpetrola.z80.registers.Register;
 
 import java.util.function.Supplier;
 
 public class FuseBaseForTests {
-  public static Fuse fuse;
-
-  public static void  createFuse() {
-    fuse = new Fuse(new SpectrumZ80Clock() {
+  public static Fuse createFuse() {
+    Fuse fuse = new Fuse(new SpectrumZ80Clock() {
       public void log(Supplier<String> description, byte data) {
-        GetTStatesHistory.addTStateUpdate(data, description, tStates, fuse.z80.ooz80.getState().getPc());
+//        Register pc = fuse.z80.ooz80.getState().getPc();
+        Register pc = new Plain8BitRegister("PC");
+        GetTStatesHistory.addTStateUpdate(data, description, tStates, pc);
       }
 
       public void addTStates(int tStatesToAdd, String description) {
@@ -42,5 +44,9 @@ public class FuseBaseForTests {
         addTStates(tStatesToAdd);
       }
     });
+
+    return fuse;
   }
+
+  public Fuse fuse;
 }

@@ -18,6 +18,7 @@
 
 package model.tests;
 
+import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.fuse.*;
 import com.fpetrola.oozx.fuse.bridge.CommandHandler;
@@ -48,7 +49,7 @@ public class TestFuseSound extends FuseBaseForTests {
 
   @BeforeAll
   public static void beforeall() {
-    createFuse();
+    Fuse fuse = createFuse();
     fuse.sound.setJavaSoundDevice(new JavaSoundDevice() {
       public void sound_lowlevel_frame(int[] data, int len) {
         datas.add(data);

@@ -31,6 +31,9 @@ import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestGameExecution extends FuseBaseForTests {
+  public TestGameExecution() {
+    fuse= createFuse();
+  }
 
   @BeforeAll
   public static void beforeall() {
@@ -43,6 +46,7 @@ public class TestGameExecution extends FuseBaseForTests {
 
   @AfterAll
   static void tearDown() {
+    OOSpectrumConnector.noTest = false;
   }
 
   @Test

@@ -21,6 +21,7 @@ package com.fpetrola.oozx.fuse;
 import com.fpetrola.oozx.fuse.bridge.ContinueExecutionCommand;
 import com.fpetrola.oozx.fuse.bridge.DefaultCommandHandler;
 import com.fpetrola.oozx.fuse.bridge.EmulatorCommand;
+import com.fpetrola.oozx.fuse.bridge.FuseBaseForTests;
 import com.fpetrola.oozx.fuse.sound.JavaSoundDevice;
 import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
@@ -31,11 +32,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class OOSpectrumConnector {
   public static LibretroCore core = LibretroCore.INSTANCE;
@@ -48,7 +47,7 @@ public class OOSpectrumConnector {
   public static void main(String[] args) {
     noTest = true;
     new OOSpectrumConnector();
-    DefaultCommandHandler.createCommandHandler();
+    DefaultCommandHandler.createCommandHandler(FuseBaseForTests.createFuse());
   }
 
   public static void sendData(double data) {

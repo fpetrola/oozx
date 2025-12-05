@@ -19,6 +19,7 @@
 package model.tests;
 
 import com.fpetrola.oozx.fuse.bridge.DefaultCommandHandler;
+import com.fpetrola.oozx.fuse.bridge.FuseBaseForTests;
 import model.connected.*;
 import model.interfaces.*;
 import org.junit.jupiter.api.*;
@@ -35,7 +36,7 @@ public class FuseUnitTests2 {
 
   @BeforeAll
   public static void beforeAll() {
-    testDriver = new TestDriver(DefaultCommandHandler.createCommandHandler());
+    testDriver = new TestDriver(DefaultCommandHandler.createCommandHandler(FuseBaseForTests.createFuse()));
     interface1= new ConnectedInterface1(testDriver);
     bus = new ConnectedSpectrumBus(new ConnectedMemory(testDriver), new ConnectedULA(testDriver), testDriver);
     IZXInterface1 interface1 = new ConnectedInterface1(testDriver);

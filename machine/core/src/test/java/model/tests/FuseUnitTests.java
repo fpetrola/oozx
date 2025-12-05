@@ -56,18 +56,21 @@ public class FuseUnitTests extends FuseBaseForTests {
   private static ISpectrumBus bus;
   private static LocalLibretroCore localLibretroCore;
 
-  @BeforeAll
-  public static void beforeAll() {
-    createFuse();
+  public FuseUnitTests(){
+    fuse= createFuse();
     localLibretroCore = new LocalLibretroCore(fuse.eventManager, fuse.display, fuse.machine, fuse.z80, fuse.zxClock, fuse.periph, fuse);
 
-    testDriver = new TestDriver(DefaultCommandHandler.createCommandHandler());
-
-//        bus = new ConnectedSpectrumBus(fuse.memory, fuse.ula, testDriver);
+    testDriver = new TestDriver(DefaultCommandHandler.createCommandHandler(fuse));
+    //        bus = new ConnectedSpectrumBus(fuse.memory, fuse.ula, testDriver);
     cpu = new ConnectedZ80CPU(testDriver);
 
     memory.init(null);
 //        ula.setScreenActive(true);
+  }
+
+  @BeforeAll
+  public static void beforeAll() {
+
   }
 
   @BeforeEach
