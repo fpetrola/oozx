@@ -109,12 +109,6 @@ public class TestGameExecution extends FuseBaseForTests {
       x = "Score: " + localGoals + " - " + visitGoals;
       if (!x.equals(lastX)) {
         System.out.println(x);
-
-        SnapshotSaver snapshotSaver = new SnapshotSaver();
-        String snapshotAsUnicodePacked = snapshotSaver.getSnapshotAsUnicodePacked(new RegistersBase(fuse.z80.ooz80.getState()), fuse.z80.ooz80.getState());
-
-        //TODO: save snapshot in resources like g.compressed incrementing name
-
       }
       lastX = x;
 
