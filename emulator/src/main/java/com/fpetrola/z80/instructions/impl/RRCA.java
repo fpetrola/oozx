@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RRCA extends ParameterizedUnaryAluInstruction {
-  public static final AluOperation rrcaTableAluOperation = new AluOperation() {
+  public static final TableAluOperation rrcaTableAluOperation = new TableAluOperation() {
     public int execute(int A, int flag) {
       F = (F & (FLAG_P | FLAG_Z | FLAG_S)) | (A & FLAG_C);
       A = (A >> 1) | (A << 7);
@@ -37,7 +37,7 @@ public class RRCA extends ParameterizedUnaryAluInstruction {
   };
 
   public RRCA(OpcodeReference target, Register flag) {
-    super(target, flag, (regA) -> rrcaTableAluOperation.executeWithCarry(regA, flag));
+    super(target, flag, rrcaTableAluOperation);
   }
 
   public void accept(InstructionVisitor visitor) {

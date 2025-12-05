@@ -22,9 +22,10 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class CCF extends DefaultTargetFlagInstruction {
-  public static final AluOperation ccfTableAluOperation = new AluOperation() {
+  public static final TableAluOperation ccfTableAluOperation = new TableAluOperation() {
     public int execute(int flag, int A, int carry) {
       F = flag;
       F = F & (FLAG_P | FLAG_Z | FLAG_S) | ((F & FLAG_C) != 0 ? FLAG_H : FLAG_C) | A & (FLAG_3 | FLAG_5);
