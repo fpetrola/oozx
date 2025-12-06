@@ -42,7 +42,7 @@ public class Adc extends ParameterizedBinaryAluInstruction {
     }
   };
   public Adc(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
-    super(target, source, flag, (tFlagRegister, value, regA) -> adc8TableAluOperation.executeWithCarry(value, regA, tFlagRegister));
+    super(target, source, flag, (tFlagRegister, value, regA) -> adc8TableAluOperation.execute1ValueAndCarry(value, regA, tFlagRegister));
   }
 
   @Override

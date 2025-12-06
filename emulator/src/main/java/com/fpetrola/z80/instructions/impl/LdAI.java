@@ -44,7 +44,7 @@ public class LdAI extends Ld {
     int value = source.read();
     int reg_A = target.read();
     boolean iff2 = state.isIff2();
-    int ldar = ldaiTableAluOperation.executeWithCarry2(reg_A, value, iff2 ? 1 : 0, flag);
+    int ldar = ldaiTableAluOperation.execute2Values1Boolean(reg_A, value, iff2 ? 1 : 0, flag);
 
     target.write(value);
 

@@ -28,11 +28,11 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Ldd extends Ldi {
   public static final AluOperation lddTableAluOperation = new TableAluOperation() {
-    public  int executeWithCarry2(int value, int a, int bc, Register flag) {
+    public  int execute2Values1Boolean(int value1, int value2, int booleanValue, Register flag) {
       F = flag.read();
-      int A = a;
-      int BC = bc;
-      int bytetemp = value;
+      int A = value2;
+      int BC = booleanValue;
+      int bytetemp = value1;
       bytetemp += A;
       F = (F & (FLAG_C | FLAG_Z | FLAG_S)) | (BC != 0 ? FLAG_V : 0) |
           (bytetemp & FLAG_3) | ((bytetemp & 0x02) != 0 ? FLAG_5 : 0);
@@ -47,7 +47,7 @@ public class Ldd extends Ldi {
   }
 
   protected void flagOperation(int valueFromHL) {
-    flag.write(lddTableAluOperation.executeWithCarry2(valueFromHL, a.read(), bc.read() != 0 ? 1 : 0, flag));
+    flag.write(lddTableAluOperation.execute2Values1Boolean(valueFromHL, a.read(), bc.read() != 0 ? 1 : 0, flag));
   }
 
   protected void next() {

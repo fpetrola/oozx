@@ -38,7 +38,7 @@ public class RRD extends RLD {
   }
 
   protected void executeAlu(int value, int reg_A) {
-    rrdTableAluOperation.executeWithCarry(value, reg_A, flag);
+    rrdTableAluOperation.execute1ValueAndCarry(value, reg_A, flag);
   }
 
   protected int getTemp1(int nibble2, int nibble3, int nibble4) {

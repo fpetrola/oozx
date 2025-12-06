@@ -28,7 +28,7 @@ import com.fpetrola.z80.registers.flag.IniAluOperation;
 
 public class Ind extends Ini {
   public static final AluOperation indTableAluOperation = new IniAluOperation() {
-    public  int executeWithCarry(int value, int b, Register c) {
+    public  int execute1ValueAndCarry(int value, int b, Register c) {
       return update(value, b, c, -1);
     }
   };
@@ -52,7 +52,7 @@ public class Ind extends Ini {
   }
 
   protected void flagOperation(int valueFromHL) {
-    int t = indTableAluOperation.executeWithCarry(valueFromHL, bc.getHigh().read(), bc.getLow());
+    int t = indTableAluOperation.execute1ValueAndCarry(valueFromHL, bc.getHigh().read(), bc.getLow());
     flag.write(t);
   }
 

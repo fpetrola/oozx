@@ -29,7 +29,7 @@ import com.fpetrola.z80.registers.flag.IniAluOperation;
 
 public class Ini extends BlockInstruction {
   public static final AluOperation iniTableAluOperation = new IniAluOperation() {
-    public  int executeWithCarry(int value, int b, Register c) {
+    public  int execute1ValueAndCarry(int value, int b, Register c) {
       return update(value, b, c, 1);
     }
   };
@@ -50,7 +50,7 @@ public class Ini extends BlockInstruction {
   }
 
   protected void flagOperation(int valueFromHL) {
-    int t = iniTableAluOperation.executeWithCarry(valueFromHL, bc.getHigh().read(), bc.getLow());
+    int t = iniTableAluOperation.execute1ValueAndCarry(valueFromHL, bc.getHigh().read(), bc.getLow());
     flag.write(t);
   }
 

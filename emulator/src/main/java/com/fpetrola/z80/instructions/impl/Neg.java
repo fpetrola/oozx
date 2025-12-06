@@ -31,7 +31,7 @@ public class Neg extends ParameterizedUnaryAluInstruction {
 
   @Override
   public UnaryAluOperation getTUnaryAluOperation(TableAluOperation tableAluOperation) {
-    return (a) -> tableAluOperation.executeWithoutCarry2(a, 0, flag);
+    return (a) -> tableAluOperation.execute2Values(a, 0, flag);
   }
 
   @Override

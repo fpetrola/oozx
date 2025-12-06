@@ -47,28 +47,28 @@ public class AluOperation extends AluOperationBase {
   public void init(ToPrimitiveIntTriFunction triFunction) {
   }
 
-  public int executeWithCarry(int regA, Register flag) {
+  public int execute1ValueAndCarry(int regA, Register flag) {
     F = flag.read();
     int result = execute(regA, flag.read() & 0x01);
     flag.write(F);
     return result;
   }
 
-  public int executeWithCarry(int value, int regA, Register flag) {
+  public int execute1ValueAndCarry(int value, int regA, Register flag) {
     F = flag.read();
-    return executeWithCarry2(value, regA, flag.read() & 0x01, flag);
+    return execute2Values1Boolean(value, regA, flag.read() & 0x01, flag);
   }
 
-  public int executeWithCarry2(int value, int regA, int carry, Register flag) {
+  public int execute2Values1Boolean(int value, int regA, int carry, Register flag) {
     F = flag.read();
     int result = execute(regA, value, carry & 1);
     flag.write(F);
     return result;
   }
 
-  public int executeWithoutCarry(int value, int regA, Register flag) {
+  public int execute2Values(int value1, int value2, Register flag) {
     F = flag.read();
-    int result = execute(regA, value, 0);
+    int result = execute(value2, value1, 0);
     flag.write(F);
     return result;
   }

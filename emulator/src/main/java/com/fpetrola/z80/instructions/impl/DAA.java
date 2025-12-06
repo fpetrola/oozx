@@ -39,9 +39,9 @@ public class DAA extends ParameterizedUnaryAluInstruction {
       Register f = new Plain8BitRegister("");
       f.write(F);
       if ((F & FLAG_N) != 0) {
-        A = Sub.sub8TableAluOperation.executeWithoutCarry(add, A, f);
+        A = Sub.sub8TableAluOperation.execute2Values(add, A, f);
       } else {
-        A = Add.add8TableAluOperation.executeWithoutCarry(add, A, f);
+        A = Add.add8TableAluOperation.execute2Values(add, A, f);
       }
       F = f.read();
 
@@ -53,7 +53,7 @@ public class DAA extends ParameterizedUnaryAluInstruction {
   };
 
   public DAA(OpcodeReference target, Register flag) {
-    super(target, flag, (reg_A) -> daaTableAluOperation.executeWithCarry(reg_A, flag.read(), flag));
+    super(target, flag, (reg_A) -> daaTableAluOperation.execute1ValueAndCarry(reg_A, flag.read(), flag));
   }
 
   public void accept(InstructionVisitor visitor) {

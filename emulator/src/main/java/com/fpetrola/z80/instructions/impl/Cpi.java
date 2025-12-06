@@ -61,7 +61,7 @@ public class Cpi extends BlockInstruction {
   protected void flagOperation(int valueFromHL) {
     int value = memory.read(hl.read(), 0);
     int reg_A = a.read();
-    cpiTableAluOperation.executeWithCarry2(value, reg_A, bc.read() != 0 ? 1 : 0, flag);
+    cpiTableAluOperation.execute2Values1Boolean(value, reg_A, bc.read() != 0 ? 1 : 0, flag);
   }
 
 

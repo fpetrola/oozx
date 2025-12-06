@@ -79,7 +79,7 @@ public class In extends TargetSourceInstruction<ImmutableOpcodeReference> {
     target.write(value);
 
     if (!equalsN)
-      inCTableAluOperation.executeWithCarry(value, flag.read(), flag);
+      inCTableAluOperation.execute1ValueAndCarry(value, flag.read(), flag);
     else
       flag.write(flag.read());
 

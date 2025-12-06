@@ -23,7 +23,6 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class LdAR extends Ld {
@@ -45,7 +44,7 @@ public class LdAR extends Ld {
 
   public void execute() {
     int value = source.read();
-    int i = ldarTableAluOperation.executeWithCarry2(value, flag.read(), state.isIff2() ? 1 : 0, flag);
+    int i = ldarTableAluOperation.execute2Values1Boolean(value, flag.read(), state.isIff2() ? 1 : 0, flag);
     flag.write(i);
     target.write(value);
   }

@@ -29,7 +29,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Outi extends BlockInstruction {
   public static final AluOperation outiTableAluOperation = new TableAluOperation() {
-    public  int executeWithCarry(int value, int b, Register l) {
+    public  int execute1ValueAndCarry(int value, int b, Register l) {
       int outitemp = value;
       int B = b;
       int L = l.read();
@@ -58,7 +58,7 @@ public class Outi extends BlockInstruction {
   }
 
   protected void flagOperation(int valueFromHL) {
-    int t = outiTableAluOperation.executeWithCarry(valueFromHL, bc.getHigh().read(), hl.getLow());
+    int t = outiTableAluOperation.execute1ValueAndCarry(valueFromHL, bc.getHigh().read(), hl.getLow());
     flag.write(t);
   }
 

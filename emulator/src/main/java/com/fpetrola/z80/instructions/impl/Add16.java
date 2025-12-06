@@ -50,7 +50,7 @@ public class Add16 extends Binary16BitsOperation {
         calculate(flag0, b, a,
             (v1, v2, f) -> v1 + v2,
             (flag1, value3, value2, result1) -> {
-              return add16TableAluOperation.executeWithCarry2(value3, flag1.read(), value2 >> 11, flag0);
+              return add16TableAluOperation.execute2Values1Boolean(value3, flag1.read(), value2 >> 11, flag0);
             },
             (v3, v4, result2) -> (v3 & 0x0800) >> 4 | result2 >> 11));
   }

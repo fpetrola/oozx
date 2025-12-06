@@ -45,33 +45,18 @@ public class TableAluOperation extends AluOperation {
     }
   }
 
-  public int executeWithoutCarry(int value, int regA, Register flag) {
-    int data1 = table[((regA << 8) & 0xFFFF | value & 0xFFFF) & 0xFFFF];
+  public int execute2Values1Boolean(int value1, int value2, int booleanValue, Register flag) {
+    return fetchValueAndWriteFlag(flag, ((value2 & 0xff) << 8 | value1 & 0xff) & 0xFFFF | ((booleanValue & 1) << 16));
+  }
+
+  public int execute2Values(int value1, int value2, Register flag) {
+    return fetchValueAndWriteFlag(flag, (value2 & 0xff) << 8 | (value1 & 0xff));
+  }
+
+  private int fetchValueAndWriteFlag(Register flag, int i) {
+    int data1 = table[i];
     flag.write(data1 & 0xFF);
     return data1 >> 16 & 0xFFFF;
   }
 
-  public int executeWithCarry(int regA, Register flag) {
-    int data1 = table[((flag.read() & 0x01) << 8) | (regA & 0xff)];
-    flag.write(data1 & 0xFF);
-    return data1 >> 16 & 0xFFFF;
-  }
-
-  public int executeWithCarry2(int value, int regA, int carry, Register flag) {
-    int data1 = table[((((regA & 0xff) << 8) | (value & 0xff)) & 0xFFFF) | ((carry & 1) << 16)];
-    flag.write(data1 & 0xFF);
-    return data1 >> 16;
-  }
-
-  public int executeWithoutCarry2(int targetValue, int sourceValue, Register flag) {
-    int data1 = table[(sourceValue & 0xff) << 8 | (targetValue & 0xff)];
-    flag.write(data1 & 0xFF);
-    return data1 >> 16;
-  }
-
-  public int executeWithCarry2(int aValue, Register flag) {
-    int data1 = table[(flag.read() & 0x01) << 8 | (aValue & 0xff)];
-    flag.write(data1 & 0xFF);
-    return data1 >> 16;
-  }
 }

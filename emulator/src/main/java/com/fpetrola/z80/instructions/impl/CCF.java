@@ -38,7 +38,7 @@ public class CCF extends DefaultTargetFlagInstruction {
   }
 
   public void execute() {
-    ccfTableAluOperation.executeWithoutCarry2(target.read(), flag.read(), flag);
+    ccfTableAluOperation.execute2Values(target.read(), flag.read(), flag);
   }
 
   public void accept(InstructionVisitor visitor) {

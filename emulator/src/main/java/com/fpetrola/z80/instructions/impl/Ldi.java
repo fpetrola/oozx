@@ -66,7 +66,7 @@ public class Ldi extends BlockInstruction {
   }
 
   protected void flagOperation(int valueFromHL) {
-    flag.write(Ldd.lddTableAluOperation.executeWithCarry2(valueFromHL, a.read(), bc.read() != 0 ? 1 : 0, flag));
+    flag.write(Ldd.lddTableAluOperation.execute2Values1Boolean(valueFromHL, a.read(), bc.read() != 0 ? 1 : 0, flag));
   }
 
   protected void next() {

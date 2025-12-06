@@ -71,7 +71,7 @@ public class RLD extends AbstractInstruction {
   }
 
   protected void executeAlu(int value, int reg_A) {
-    rldTableAluOperation.executeWithCarry(value, reg_A, flag);
+    rldTableAluOperation.execute1ValueAndCarry(value, reg_A, flag);
   }
 
   protected int getTemp1(int nibble2, int nibble3, int nibble4) {
