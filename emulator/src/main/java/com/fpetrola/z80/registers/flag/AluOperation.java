@@ -57,9 +57,8 @@ public abstract class AluOperation extends AluOperationBase {
   public void init(ToPrimitiveIntTriFunction triFunction) {
   }
 
-  public int execute1ValueAndCarry(int value, int regA, Register flag) {
-    F = flag.read();
-    return execute2Values1Boolean(value, regA, flag.read() & 0x01, flag);
+  public int execute2ValuesAndCarry(int value1, int value2, Register flag) {
+    return execute2Values1Boolean(value1, value2, flag.read() & 0x01, flag);
   }
 
   public abstract int execute2Values1Boolean(int value, int regA, int carry, Register flag);

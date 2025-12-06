@@ -42,7 +42,7 @@ public class Sbc extends ParameterizedBinaryAluInstruction {
   };
 
   public Sbc(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
-    super(target, source, flag, (tFlagRegister, value, reg_A) -> sbc8TableAluOperation.execute1ValueAndCarry(value, reg_A, tFlagRegister));
+    super(target, source, flag, (tFlagRegister, value, reg_A) -> sbc8TableAluOperation.execute2ValuesAndCarry(value, reg_A, tFlagRegister));
   }
 
   @Override

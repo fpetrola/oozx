@@ -66,7 +66,7 @@ public class Sbc16 extends Binary16BitsOperation {
       return calculate(f0, b, a,
           (v1, v2, f) -> v1 - v2 - (f & 1),
           (f1, value3, value2, result1) -> {
-            return sbc16TableAluOperation.execute1ValueAndCarry(result1 != 0 ? 1 : 0, value3, f0);
+            return sbc16TableAluOperation.execute2ValuesAndCarry(result1 != 0 ? 1 : 0, value3, f0);
           });
 
 //      int execute = sbc16TableAluOperation.execute(b, a, flag.read());

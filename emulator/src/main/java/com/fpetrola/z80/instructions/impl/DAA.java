@@ -53,7 +53,7 @@ public class DAA extends ParameterizedUnaryAluInstruction {
   };
 
   public DAA(OpcodeReference target, Register flag) {
-    super(target, flag, (reg_A) -> daaTableAluOperation.execute1ValueAndCarry(reg_A, flag.read(), flag));
+    super(target, flag, (reg_A) -> daaTableAluOperation.execute2ValuesAndCarry(reg_A, flag.read(), flag));
   }
 
   public void accept(InstructionVisitor visitor) {
