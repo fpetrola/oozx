@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Add16 extends Binary16BitsOperation {
-  public static final AluOperation add16TableAluOperation = new TableAluOperation() {
+  public static final TableAluOperation add16TableAluOperation = new TableAluOperation() {
     public int execute(int value1, int value2, int value2Bit0) {
       F = value1;
       getValue1(value2 << 4, value2Bit0 << 11, value2 << 11);

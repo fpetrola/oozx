@@ -20,7 +20,7 @@ package com.fpetrola.z80.registers.flag;
 
 import com.fpetrola.z80.registers.Register;
 
-public class AluOperation extends AluOperationBase {
+public abstract class AluOperation extends AluOperationBase {
   public AluOperation() {
     super();
     F = 0;
@@ -59,17 +59,7 @@ public class AluOperation extends AluOperationBase {
     return execute2Values1Boolean(value, regA, flag.read() & 0x01, flag);
   }
 
-  public int execute2Values1Boolean(int value, int regA, int carry, Register flag) {
-    F = flag.read();
-    int result = execute(regA, value, carry & 1);
-    flag.write(F);
-    return result;
-  }
+  public abstract int execute2Values1Boolean(int value, int regA, int carry, Register flag);
 
-  public int execute2Values(int value1, int value2, Register flag) {
-    F = flag.read();
-    int result = execute(value2, value1, 0);
-    flag.write(F);
-    return result;
-  }
+  public abstract int execute2Values(int value1, int value2, Register flag);
 }

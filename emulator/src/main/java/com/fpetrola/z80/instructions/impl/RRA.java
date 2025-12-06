@@ -22,11 +22,10 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RRA extends ParameterizedUnaryAluInstruction {
-  public static final AluOperation rraTableAluOperation = new TableAluOperation() {
+  public static final TableAluOperation rraTableAluOperation = new TableAluOperation() {
     public int execute(int value1, int value2, int carry) {
       F = value1;
       int A = value2;
