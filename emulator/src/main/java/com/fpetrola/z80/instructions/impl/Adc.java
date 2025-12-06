@@ -27,18 +27,18 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Adc extends ParameterizedBinaryAluInstruction {
   public static final TableAluOperation adc8TableAluOperation = new TableAluOperation() {
-    public int execute(int A, int value, int carry) {
+    public int execute(int value1, int value2, int carry) {
       F = carry;
-      int adctemp = A + (value) + (F & FLAG_C);
-      int lookup = ((A & 0x88) >> 3) |
-          (((value) & 0x88) >> 2) |
-          ((adctemp & 0x88) >> 1);
-      A = adctemp & 0xff;
+      int adctemp = value1 + (value2) + (F & FLAG_C);
+      int lookup = ((value1 & 0x88) >> 3) |
+                   (((value2) & 0x88) >> 2) |
+                   ((adctemp & 0x88) >> 1);
+      value1 = adctemp & 0xff;
       F = ((adctemp & 0x100) != 0 ? FLAG_C : 0) |
           halfCarryAddTable(lookup & 0x07) | overflowAddTable(lookup >> 4) |
-          sz53Table(A);
+          sz53Table(value1);
       Q = F;
-      return A;
+      return value1;
     }
   };
   public Adc(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {

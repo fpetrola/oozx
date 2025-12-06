@@ -28,6 +28,11 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Ldd extends Ldi {
   public static final AluOperation lddTableAluOperation = new TableAluOperation() {
+    @Override
+    protected int execute(int value1, int value2, int carry) {
+      return super.execute(value1, value2, carry);
+    }
+
     public  int execute2Values1Boolean(int value1, int value2, int booleanValue, Register flag) {
       F = flag.read();
       int A = value2;

@@ -25,9 +25,9 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class CCF extends DefaultTargetFlagInstruction {
   public static final TableAluOperation ccfTableAluOperation = new TableAluOperation() {
-    public int execute(int flag, int A, int carry) {
-      F = flag;
-      F = F & (FLAG_P | FLAG_Z | FLAG_S) | ((F & FLAG_C) != 0 ? FLAG_H : FLAG_C) | A & (FLAG_3 | FLAG_5);
+    public int execute(int value1, int value2, int carry) {
+      F = value1;
+      F = F & (FLAG_P | FLAG_Z | FLAG_S) | ((F & FLAG_C) != 0 ? FLAG_H : FLAG_C) | value2 & (FLAG_3 | FLAG_5);
       Q = F;
       return F;
     }

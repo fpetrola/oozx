@@ -27,15 +27,15 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Sub extends ParameterizedBinaryAluInstruction {
   public static final TableAluOperation sub8TableAluOperation = new TableAluOperation() {
-    public int execute(int A, int value, int carry) {
-      int subtemp = A - value;
-      int lookup = ((A & 0x88) >> 3) | ((value & 0x88) >> 2) | ((subtemp & 0x88) >> 1);
-      A = subtemp & 0xff;
+    public int execute(int value1, int value2, int carry) {
+      int subtemp = value1 - value2;
+      int lookup = ((value1 & 0x88) >> 3) | ((value2 & 0x88) >> 2) | ((subtemp & 0x88) >> 1);
+      value1 = subtemp & 0xff;
       F = ((subtemp & 0x100) != 0 ? FLAG_C : 0) | FLAG_N |
-          halfCarrySubTable(lookup & 0x07) | overflowSubTable(lookup >> 4) | sz53Table(A);
+          halfCarrySubTable(lookup & 0x07) | overflowSubTable(lookup >> 4) | sz53Table(value1);
       Q = F;
 
-      return A;
+      return value1;
     }
   };
 

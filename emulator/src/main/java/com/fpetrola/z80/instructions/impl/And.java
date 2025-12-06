@@ -27,11 +27,11 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class And extends ParameterizedBinaryAluInstruction {
   protected static final TableAluOperation andTableAluOperation = new TableAluOperation() {
-    public int execute(int A, int value, int carry) {
-      A &= value;
-      F = FLAG_H | sz53pTable(A);
+    public int execute(int value1, int value2, int carry) {
+      value1 &= value2;
+      F = FLAG_H | sz53pTable(value1);
       Q = F;
-      return A;
+      return value1;
     }
   };
 

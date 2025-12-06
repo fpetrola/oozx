@@ -29,11 +29,11 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class In extends TargetSourceInstruction<ImmutableOpcodeReference> {
   public final static AluOperation inCTableAluOperation = new TableAluOperation() {
-    public int execute(int value, int reg, int carry) {
-      F = value;
-      F = (F & FLAG_C) | sz53pTable((reg));
+    public int execute(int value1, int value2, int carry) {
+      F = value1;
+      F = (F & FLAG_C) | sz53pTable((value2));
       Q = F;
-      return reg;
+      return value2;
     }
   };
 

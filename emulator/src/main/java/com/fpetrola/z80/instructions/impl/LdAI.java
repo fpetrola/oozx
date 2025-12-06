@@ -26,9 +26,9 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class LdAI extends Ld {
   public static final AluOperation ldaiTableAluOperation = new TableAluOperation() {
-    public int execute(int I, int A, int IFF2) {
-      A = I;
-      F = (F & FLAG_C) | sz53Table(A) | (IFF2 != 0 ? FLAG_V : 0);
+    public int execute(int value1, int value2, int IFF2) {
+      value2 = value1;
+      F = (F & FLAG_C) | sz53Table(value2) | (IFF2 != 0 ? FLAG_V : 0);
       Q = F;
       return F;
     }

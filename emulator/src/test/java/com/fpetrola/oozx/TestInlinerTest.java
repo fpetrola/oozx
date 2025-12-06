@@ -102,7 +102,7 @@ public class TestInlinerTest {
             public void execute() {
                   int dd = (byte) memory.read((pc.read() + 2) & 0xFFFF, 0);
                   int value = memory.read((IX + dd) & 0xFFFF, 0);
-                  A ^= value;
+                  value1 ^= (value2);
             }
         }
         """);
@@ -123,7 +123,7 @@ public class TestInlinerTest {
         
             public void execute() {
                 int value = memory.read(IY, 0);
-                A ^= value;
+                value1 ^= (value2);
             }
         }
         """);
@@ -148,7 +148,7 @@ public class TestInlinerTest {
             public void execute() {
                 int address= memory.read16Bits((pc.read() + 3) & 0xFFFF);
                 int value = memory.read(address, 0);
-                A ^= value;
+                value1 ^= (value2);
             }
         }
         """);
@@ -172,7 +172,7 @@ public class TestInlinerTest {
             public void execute() {
                   int dd = (byte) memory.read((pc.read() + 2) & 0xFFFF, 0);
                   int value = memory.read((IX + dd) & 0xFFFF, 0);
-                  A |= value;
+                  value1 |= (value2);
             }
         }
         """);
@@ -193,7 +193,7 @@ public class TestInlinerTest {
         
             public void execute() {
                 int value = memory.read(IY, 0);
-                A |= value;
+                value1 |= (value2);
             }
         }
         """);
@@ -218,7 +218,7 @@ public class TestInlinerTest {
             public void execute() {
                 int address= memory.read16Bits((pc.read() + 3) & 0xFFFF);
                 int value = memory.read(address, 0);
-                A |= value;
+                value1 |= (value2);
             }
         }
         """);

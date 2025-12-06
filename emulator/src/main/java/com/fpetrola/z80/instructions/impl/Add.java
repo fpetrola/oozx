@@ -27,17 +27,17 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Add extends ParameterizedBinaryAluInstruction {
   public static final TableAluOperation add8TableAluOperation = new TableAluOperation() {
-    public int execute(int A, int value, int carry) {
-      int addtemp = A + (value);
-      int lookup = ((A & 0x88) >> 3) |
-          (((value) & 0x88) >> 2) |
-          ((addtemp & 0x88) >> 1);
-      A = addtemp & 0xff;
+    public int execute(int value1, int value2, int carry) {
+      int addtemp = value1 + (value2);
+      int lookup = ((value1 & 0x88) >> 3) |
+                   (((value2) & 0x88) >> 2) |
+                   ((addtemp & 0x88) >> 1);
+      value1 = addtemp & 0xff;
       F = ((addtemp & 0x100) != 0 ? FLAG_C : 0) |
           halfCarryAddTable(lookup & 0x07) | overflowAddTable(lookup >> 4) |
-          sz53Table(A);
+          sz53Table(value1);
       Q = F;
-      return A;
+      return value1;
     }
   };
 
