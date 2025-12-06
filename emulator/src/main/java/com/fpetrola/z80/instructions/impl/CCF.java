@@ -21,7 +21,6 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class CCF extends DefaultTargetFlagInstruction {
@@ -39,8 +38,7 @@ public class CCF extends DefaultTargetFlagInstruction {
   }
 
   public void execute() {
-    int[] i = ccfTableAluOperation.executeWithoutCarry2(target.read(), flag.read());
-    flag.write(i[0]);
+    ccfTableAluOperation.executeWithoutCarry2(target.read(), flag.read(), flag);
   }
 
   public void accept(InstructionVisitor visitor) {

@@ -63,9 +63,10 @@ public class TableAluOperation extends AluOperation {
     return data1 >> 16;
   }
 
-  public int[] executeWithoutCarry2(int targetValue, int sourceValue) {
+  public int executeWithoutCarry2(int targetValue, int sourceValue, Register flag) {
     int data1 = table[(sourceValue & 0xff) << 8 | (targetValue & 0xff)];
-    return new int[]{data1 >> 16, data1 & 0xFF};
+    flag.write(data1 & 0xFF);
+    return data1 >> 16;
   }
 
   public int[] executeWithCarry2(int aValue, int fValue) {

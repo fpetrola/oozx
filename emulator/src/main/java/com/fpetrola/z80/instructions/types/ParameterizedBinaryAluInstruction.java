@@ -53,11 +53,7 @@ public class ParameterizedBinaryAluInstruction extends TargetSourceInstruction<I
   }
 
   public <T1> BinaryAluOperation getTBinaryAluOperation(TableAluOperation tableAluOperation) {
-    return (flagRegister, sourceValue, targetValue) -> {
-      int[] i = tableAluOperation.executeWithoutCarry2(targetValue, sourceValue);
-      flag.write(i[1]);
-      return i[0];
-    };
+    return (flagRegister, sourceValue, targetValue) -> tableAluOperation.executeWithoutCarry2(targetValue, sourceValue, flag);
   }
 
   public void accept(InstructionVisitor visitor) {
