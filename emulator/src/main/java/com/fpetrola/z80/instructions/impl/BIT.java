@@ -29,7 +29,17 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 import java.util.function.IntSupplier;
 
 public class BIT extends BitOperation {
-  private BitAluOperation tBitAluOperation;
+  private static final TableAluOperation tBitAluOperation = new TableAluOperation() {
+    protected int calculate3Values(int value1, int address, int bit) {
+      F = bit & 1;
+      bit = bit >>> 1;
+      F = (F & FLAG_C) | FLAG_H | (address & (FLAG_3 | FLAG_5));
+      if (((value1) & (0x01 << (bit))) == 0) F |= FLAG_P | FLAG_Z;
+      if ((bit) == 7 && ((value1) & 0x80) != 0) F |= FLAG_S;
+      Q = F;
+      return F;
+    }
+  };
 
   public Register getMemptr() {
     return memptr;
@@ -40,40 +50,23 @@ public class BIT extends BitOperation {
   public BIT(OpcodeReference target, int n, Register flag, Register memptr) {
     super(target, n, flag);
     this.memptr = memptr;
-    tBitAluOperation = new BitAluOperation(target, memptr);
   }
 
   public void execute() {
-    int f = tBitAluOperation.execute2(n, flag.read(), target.read());
-    flag.write(f);
-
-    
+    int address;
+    if (target instanceof MemoryPlusRegister8BitReference memoryPlusRegister8BitReference) {
+      address = ((memoryPlusRegister8BitReference.getTarget().read() + (int) memoryPlusRegister8BitReference.fetchRelative()) & 0xFFFF) >> 8;
+    } else if (target instanceof IndirectMemory8BitReference) {
+      address = memptr.read() >>> 8;
+    } else {
+      address = target.read();
+    }
+    int nAndCarry = (n << 1) | flag.read() & 1;
+    tBitAluOperation.execute3Values(address, target.read(), nAndCarry, flag);
   }
 
   public void accept(InstructionVisitor visitor) {
     if (!visitor.visitingBit(this))
       super.accept(visitor);
-  }
-
-  private static class BitAluOperation extends TableAluOperation {
-    private IntSupplier addressP;
-
-    public BitAluOperation(OpcodeReference target, Register memptr) {
-      addressP = () -> target.read();
-      if (target instanceof MemoryPlusRegister8BitReference memoryPlusRegister8BitReference)
-        addressP = () -> ((memoryPlusRegister8BitReference.getTarget().read() + (int) memoryPlusRegister8BitReference.fetchRelative()) & 0xFFFF) >> 8;
-      else if (target instanceof IndirectMemory8BitReference)
-        addressP = () -> memptr.read() >>> 8;
-    }
-
-    public int execute2(int bit, int F, int value1) {
-      int address = addressP.getAsInt();
-      F = (F & FLAG_C) | FLAG_H | (address & (FLAG_3 | FLAG_5));
-      if (((value1) & (0x01 << (bit))) == 0) F |= FLAG_P | FLAG_Z;
-      if ((bit) == 7 && ((value1) & 0x80) != 0) F |= FLAG_S;
-      Q = F;
-      return F;
-    }
-
   }
 }
