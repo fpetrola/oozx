@@ -28,7 +28,7 @@ public class TableAluOperation extends AluOperation {
     for (int a = 0; a < 256; a++) {
       for (int c = 0; c < 2; c++) {
         int aluResult = biFunction.applyAsInt(a, c);
-        table[((a & 0xff)) | (c << 8)] = ((aluResult & 0xff) << 16) + F;
+        table[((a & 0xff)) | (c << 8)] = ((aluResult & 0xff) << 8) + F;
       }
     }
   }
@@ -39,24 +39,24 @@ public class TableAluOperation extends AluOperation {
       for (int value = 0; value < 256; value++) {
         for (int c = 0; c < 2; c++) {
           int aluResult = triFunction.applyAsInt(a, value, c);
-          table[((value & 0xff)) | (a << 8) | (c << 16)] = ((aluResult & 0xff) << 16) + F;
+          table[((value & 0xff)) | (a << 8) | (c << 16)] = ((aluResult & 0xff) << 8) + F;
         }
       }
     }
   }
 
   public int execute2Values1Boolean(int value1, int value2, int booleanValue, Register flag) {
-    return fetchValueAndWriteFlag(flag, ((value2 & 0xff) << 8 | value1 & 0xff) & 0xFFFF | ((booleanValue & 1) << 16));
+    return fetchValueAndWriteFlag(flag, (value2 << 8 | value1) & 0xFFFF | ((booleanValue & 1) << 16));
   }
 
   public int execute2Values(int value1, int value2, Register flag) {
-    return fetchValueAndWriteFlag(flag, (value2 & 0xff) << 8 | (value1 & 0xff));
+    return fetchValueAndWriteFlag(flag, value2 << 8 | value1 & 0xff);
   }
 
   private int fetchValueAndWriteFlag(Register flag, int i) {
     int data1 = table[i];
     flag.write(data1 & 0xFF);
-    return data1 >> 16 & 0xFFFF;
+    return data1 >> 8;
   }
 
 }
