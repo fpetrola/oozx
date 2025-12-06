@@ -47,8 +47,8 @@ public class ParameterizedUnaryAluInstruction extends DefaultTargetFlagInstructi
     return unaryAluOperation.execute(value2);
   }
 
-  public UnaryAluOperation getTUnaryAluOperation(TableAluOperation rrTableAluOperation1) {
-    return (a) -> rrTableAluOperation1.execute2Values(a, flag.read() & 0x01, flag);
+  public UnaryAluOperation getTUnaryAluOperation(TableAluOperation tableAluOperation) {
+    return (a) -> tableAluOperation.execute2Values(a, flag.read() & 0x01, flag);
   }
 
   public void accept(InstructionVisitor visitor) {
