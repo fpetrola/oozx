@@ -28,12 +28,15 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Ldi extends BlockInstruction {
-  public static final AluOperation ldiTableAluOperation = new TableAluOperation() {
-    public int execute(int value1, int value2, int bc) {
-      value1 += value2;
-      F = (F & (FLAG_C | FLAG_Z | FLAG_S)) | (bc != 0 ? FLAG_V : 0) |
-          (value1 & FLAG_3) | ((value1 & 0x02) != 0F ? FLAG_5 : 0);
+  public static final TableAluOperation ldiTableAluOperation = new TableAluOperation() {
+    protected int execute(int value1, int value2, int carry) {
+      F = value2;
+      int BC = carry;
+      int bytetemp = value1;
+      F = (F & (FLAG_C | FLAG_Z | FLAG_S)) | (BC != 0 ? FLAG_V : 0) |
+          (bytetemp & FLAG_3) | ((bytetemp & 0x02) != 0 ? FLAG_5 : 0);
       Q = F;
+
       return F;
     }
   };
@@ -66,7 +69,8 @@ public class Ldi extends BlockInstruction {
   }
 
   protected void flagOperation(int valueFromHL) {
-    flag.write(Ldd.lddTableAluOperation.execute2Values1Boolean(valueFromHL, a.read(), bc.read() != 0 ? 1 : 0, flag));
+    int byteTemp = valueFromHL + a.read();
+    ldiTableAluOperation.execute2Values1Boolean(flag.read(), byteTemp, bc.read() != 0 ? 1 : 0, flag);
   }
 
   protected void next() {
