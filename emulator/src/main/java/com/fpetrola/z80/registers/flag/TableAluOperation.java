@@ -57,15 +57,15 @@ public class TableAluOperation extends AluOperation {
     }
   }
 
-  public int execute2Values1Boolean(int value1, int value2, int booleanValue, Register flag) {
+  final public int execute2Values1Boolean(int value1, int value2, int booleanValue, Register flag) {
     return fetchValueAndWriteFlag(flag, (value2 << 8 | value1) & 0xFFFF | ((booleanValue & 1) << 16));
   }
 
-  public int execute2Values(int value1, int value2, Register flag) {
+  final public int execute2Values(int value1, int value2, Register flag) {
     return fetchValueAndWriteFlag(flag, value2 << 8 | value1 & 0xff);
   }
 
-  public void execute3Values(int value1, int value2, int value3, Register flag) {
+  final public void execute3Values(int value1, int value2, int value3, Register flag) {
     fetchValueAndWriteFlag(flag, (value2 << 8 | value1) & 0xFFFF | value3 << 16);
   }
 
@@ -74,5 +74,4 @@ public class TableAluOperation extends AluOperation {
     flag.write(data1 & 0xFF);
     return data1 >> 8;
   }
-
 }
