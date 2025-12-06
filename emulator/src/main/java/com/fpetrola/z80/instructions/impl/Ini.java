@@ -26,12 +26,10 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.IniAluOperation;
+import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Ini extends BlockInstruction {
-  public static final AluOperation iniTableAluOperation = new IniAluOperation() {
-    public  int execute1ValueAndCarry(int value, int b, Register c) {
-      return update(value, b, c, 1);
-    }
+  public static final TableAluOperation iniTableAluOperation = new IniAluOperation() {
   };
 
   public Ini(RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io) {
@@ -49,9 +47,20 @@ public class Ini extends BlockInstruction {
     flagOperation(in);
   }
 
-  protected void flagOperation(int valueFromHL) {
-    int t = iniTableAluOperation.execute1ValueAndCarry(valueFromHL, bc.getHigh().read(), bc.getLow());
-    flag.write(t);
+  protected void flagOperation(int value) {
+    int b = bc.getHigh().read();
+    Register c = bc.getLow();
+    int C = c.read() & 0xff;
+    int B = b & 0xff;
+    int i = getDirection();
+
+    int initemp = value & 0xff;
+    int initemp2 = (initemp + C + i) & 0xff;
+    iniTableAluOperation.execute3Values(initemp, initemp2, B, flag);
+  }
+
+  protected int getDirection() {
+    return 1;
   }
 
   public void accept(InstructionVisitor visitor) {

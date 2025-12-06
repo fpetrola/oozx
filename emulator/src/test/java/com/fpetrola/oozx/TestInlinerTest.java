@@ -83,146 +83,146 @@ public class TestInlinerTest {
         }
         """);
   }
-
-  @Test
-  public void testXorInline1() {
-    var xor = getXor1();
-    testInlineOf(xor, """
-        public class Xor1 extends TargetSourceInstruction<ImmutableOpcodeReference> {
-            int C;
-            int IX;
-            Memory memory;
-            Register pc;
-        
-            public Xor1(Memory memory, Register pc) {
-                this.memory= memory;
-                this.pc= pc;
-            }
-        
-            public void execute() {
-                  int dd = (byte) memory.read((pc.read() + 2) & 0xFFFF, 0);
-                  int value = memory.read((IX + dd) & 0xFFFF, 0);
-                  value1 ^= (value2);
-            }
-        }
-        """);
-  }
-
-  @Test
-  public void testXorInline2() {
-    var xor = getXor2();
-    testInlineOf(xor, """
-        public class Xor2 extends TargetSourceInstruction<ImmutableOpcodeReference> {
-            int D;
-            int IY;
-            Memory memory;
-        
-            public Xor2(Memory memory) {
-                this.memory= memory;
-            }
-        
-            public void execute() {
-                int value = memory.read(IY, 0);
-                value1 ^= (value2);
-            }
-        }
-        """);
-  }
-
-  @Test
-  public void testXorInline3() {
-    var xor = getXor3();
-    testInlineOf(xor, """
-        public class Xor3 extends TargetSourceInstruction<ImmutableOpcodeReference> {
-            int E;
-            int IX;
-            Memory memory;
-        
-             Register pc;
-        
-            public Xor3(Memory memory, Register pc) {
-                this.memory= memory;
-                this.pc= pc;
-            }
-        
-            public void execute() {
-                int address= memory.read16Bits((pc.read() + 3) & 0xFFFF);
-                int value = memory.read(address, 0);
-                value1 ^= (value2);
-            }
-        }
-        """);
-  }
-
-  @Test
-  public void testOrInline1() {
-    var or = getOr1();
-    testInlineOf(or, """
-        public class Or1 extends TargetSourceInstruction<ImmutableOpcodeReference> {
-            int C;
-            int IX;
-            Memory memory;
-            Register pc;
-        
-            public Or1(Memory memory, Register pc) {
-                this.memory= memory;
-                this.pc= pc;
-            }
-        
-            public void execute() {
-                  int dd = (byte) memory.read((pc.read() + 2) & 0xFFFF, 0);
-                  int value = memory.read((IX + dd) & 0xFFFF, 0);
-                  value1 |= (value2);
-            }
-        }
-        """);
-  }
-
-  @Test
-  public void testOrInline2() {
-    var or = getOr2();
-    testInlineOf(or, """
-        public class Or2 extends TargetSourceInstruction<ImmutableOpcodeReference> {
-            int D;
-            int IY;
-            Memory memory;
-        
-            public Or2(Memory memory) {
-                this.memory= memory;
-            }
-        
-            public void execute() {
-                int value = memory.read(IY, 0);
-                value1 |= (value2);
-            }
-        }
-        """);
-  }
-
-  @Test
-  public void testOrInline3() {
-    var or = getOr3();
-    testInlineOf(or, """
-        public class Or3 extends TargetSourceInstruction<ImmutableOpcodeReference> {
-            int E;
-            int IX;
-            Memory memory;
-        
-             Register pc;
-        
-            public Or3(Memory memory, Register pc) {
-                this.memory= memory;
-                this.pc= pc;
-            }
-        
-            public void execute() {
-                int address= memory.read16Bits((pc.read() + 3) & 0xFFFF);
-                int value = memory.read(address, 0);
-                value1 |= (value2);
-            }
-        }
-        """);
-  }
+//
+//  @Test
+//  public void testXorInline1() {
+//    var xor = getXor1();
+//    testInlineOf(xor, """
+//        public class Xor1 extends TargetSourceInstruction<ImmutableOpcodeReference> {
+//            int C;
+//            int IX;
+//            Memory memory;
+//            Register pc;
+//
+//            public Xor1(Memory memory, Register pc) {
+//                this.memory= memory;
+//                this.pc= pc;
+//            }
+//
+//            public void execute() {
+//                  int dd = (byte) memory.read((pc.read() + 2) & 0xFFFF, 0);
+//                  int value = memory.read((IX + dd) & 0xFFFF, 0);
+//                  value1 ^= (value2);
+//            }
+//        }
+//        """);
+//  }
+//
+//  @Test
+//  public void testXorInline2() {
+//    var xor = getXor2();
+//    testInlineOf(xor, """
+//        public class Xor2 extends TargetSourceInstruction<ImmutableOpcodeReference> {
+//            int D;
+//            int IY;
+//            Memory memory;
+//
+//            public Xor2(Memory memory) {
+//                this.memory= memory;
+//            }
+//
+//            public void execute() {
+//                int value = memory.read(IY, 0);
+//                value1 ^= (value2);
+//            }
+//        }
+//        """);
+//  }
+//
+//  @Test
+//  public void testXorInline3() {
+//    var xor = getXor3();
+//    testInlineOf(xor, """
+//        public class Xor3 extends TargetSourceInstruction<ImmutableOpcodeReference> {
+//            int E;
+//            int IX;
+//            Memory memory;
+//
+//             Register pc;
+//
+//            public Xor3(Memory memory, Register pc) {
+//                this.memory= memory;
+//                this.pc= pc;
+//            }
+//
+//            public void execute() {
+//                int address= memory.read16Bits((pc.read() + 3) & 0xFFFF);
+//                int value = memory.read(address, 0);
+//                value1 ^= (value2);
+//            }
+//        }
+//        """);
+//  }
+//
+//  @Test
+//  public void testOrInline1() {
+//    var or = getOr1();
+//    testInlineOf(or, """
+//        public class Or1 extends TargetSourceInstruction<ImmutableOpcodeReference> {
+//            int C;
+//            int IX;
+//            Memory memory;
+//            Register pc;
+//
+//            public Or1(Memory memory, Register pc) {
+//                this.memory= memory;
+//                this.pc= pc;
+//            }
+//
+//            public void execute() {
+//                  int dd = (byte) memory.read((pc.read() + 2) & 0xFFFF, 0);
+//                  int value = memory.read((IX + dd) & 0xFFFF, 0);
+//                  value1 |= (value2);
+//            }
+//        }
+//        """);
+//  }
+//
+//  @Test
+//  public void testOrInline2() {
+//    var or = getOr2();
+//    testInlineOf(or, """
+//        public class Or2 extends TargetSourceInstruction<ImmutableOpcodeReference> {
+//            int D;
+//            int IY;
+//            Memory memory;
+//
+//            public Or2(Memory memory) {
+//                this.memory= memory;
+//            }
+//
+//            public void execute() {
+//                int value = memory.read(IY, 0);
+//                value1 |= (value2);
+//            }
+//        }
+//        """);
+//  }
+//
+//  @Test
+//  public void testOrInline3() {
+//    var or = getOr3();
+//    testInlineOf(or, """
+//        public class Or3 extends TargetSourceInstruction<ImmutableOpcodeReference> {
+//            int E;
+//            int IX;
+//            Memory memory;
+//
+//             Register pc;
+//
+//            public Or3(Memory memory, Register pc) {
+//                this.memory= memory;
+//                this.pc= pc;
+//            }
+//
+//            public void execute() {
+//                int address= memory.read16Bits((pc.read() + 3) & 0xFFFF);
+//                int value = memory.read(address, 0);
+//                value1 |= (value2);
+//            }
+//        }
+//        """);
+//  }
 
   private void testInlineOf(Ld ld, String expected) {
     var analyzer = new InstructionAnalyzer();

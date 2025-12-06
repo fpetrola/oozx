@@ -27,7 +27,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Add extends ParameterizedBinaryAluInstruction {
   public static final TableAluOperation add8TableAluOperation = new TableAluOperation() {
-    public int execute(int value1, int value2, int carry) {
+    public int calculate2Values1Boolean(int value1, int value2, int carry) {
       int addtemp = value1 + (value2);
       int lookup = ((value1 & 0x88) >> 3) |
                    (((value2) & 0x88) >> 2) |

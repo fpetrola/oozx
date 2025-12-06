@@ -24,20 +24,27 @@ public abstract class AluOperation extends AluOperationBase {
   public AluOperation() {
     super();
     F = 0;
-    if (execute(0, 0, 0) != -1) {
-      ToPrimitiveIntTriFunction triFunction = this::execute;
+    if (calculate2Values1Boolean(0, 0, 0) != -1) {
+      ToPrimitiveIntTriFunction triFunction = this::calculate2Values1Boolean;
       init(triFunction);
-    } else if (execute(0, 0) != -1) {
-      ToPrimitiveIntBiFunction biFunction = this::execute;
+    } else if (calculate1Value1Boolean(0, 0) != -1) {
+      ToPrimitiveIntBiFunction biFunction = this::calculate1Value1Boolean;
       init(biFunction);
+    } else if (calculate3Values(0, 0, 0) != -1) {
+      ToPrimitiveIntTriFunction2 triFunction = this::calculate3Values;
+      init(triFunction);
     }
   }
 
-  protected int execute(int value1, int value2, int carry) {
+  protected int calculate2Values1Boolean(int value1, int value2, int carry) {
     return -1;
   }
 
-  protected int execute(int value, int carry) {
+  protected int calculate3Values(int value1, int value2, int value3) {
+    return -1;
+  }
+
+  protected int calculate1Value1Boolean(int value, int carry) {
     return -1;
   }
 
@@ -45,6 +52,9 @@ public abstract class AluOperation extends AluOperationBase {
   }
 
   public void init(ToPrimitiveIntTriFunction triFunction) {
+  }
+
+  public void init(ToPrimitiveIntTriFunction2 triFunction) {
   }
 
   public int execute1ValueAndCarry(int value, int regA, Register flag) {

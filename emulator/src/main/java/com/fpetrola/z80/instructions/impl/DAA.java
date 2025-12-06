@@ -28,7 +28,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class DAA extends ParameterizedUnaryAluInstruction {
   public final static AluOperation daaTableAluOperation = new TableAluOperation() {
-    public int execute(int value1, int value2, int flags) {
+    public int calculate2Values1Boolean(int value1, int value2, int flags) {
       F = value1;
       value2 &= 0xff;
       int add = 0;

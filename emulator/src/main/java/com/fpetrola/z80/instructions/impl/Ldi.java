@@ -29,7 +29,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Ldi extends BlockInstruction {
   public static final TableAluOperation ldiTableAluOperation = new TableAluOperation() {
-    protected int execute(int value1, int value2, int carry) {
+    protected int calculate2Values1Boolean(int value1, int value2, int carry) {
       F = value2;
       int BC = carry;
       int bytetemp = value1;

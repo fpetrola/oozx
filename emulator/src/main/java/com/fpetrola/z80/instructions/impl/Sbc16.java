@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Sbc16 extends Binary16BitsOperation {
   public static final TableAluOperation sbc16TableAluOperation = new TableAluOperation() {
-    public int execute(int value1, int value2, int carry) {
+    public int calculate2Values1Boolean(int value1, int value2, int carry) {
       int i = value1 & 0x33;
       i |= i << 1 & 0x04;
       int result1 = i << 11 & 0x1A800;

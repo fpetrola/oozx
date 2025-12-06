@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RRA extends ParameterizedUnaryAluInstruction {
   public static final TableAluOperation rraTableAluOperation = new TableAluOperation() {
-    public int execute(int value1, int value2, int carry) {
+    public int calculate2Values1Boolean(int value1, int value2, int carry) {
       F = value1;
       int A = value2;
       int bytetemp = A;

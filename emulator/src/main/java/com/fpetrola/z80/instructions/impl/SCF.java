@@ -25,7 +25,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class SCF extends DefaultTargetFlagInstruction {
   public static final TableAluOperation scfTableAluOperation = new TableAluOperation() {
-    public int execute(int value1, int value2, int carry) {
+    public int calculate2Values1Boolean(int value1, int value2, int carry) {
       F = value1;
       F = F & (FLAG_P | FLAG_Z | FLAG_S) | value2 & (FLAG_3 | FLAG_5) | FLAG_C;
       Q = F;

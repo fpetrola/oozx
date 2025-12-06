@@ -45,12 +45,28 @@ public class TableAluOperation extends AluOperation {
     }
   }
 
+  public void init(ToPrimitiveIntTriFunction2 triFunction) {
+    table = new int[256 * 256 * 256];
+    for (int a = 0; a < 256; a++) {
+      for (int value = 0; value < 256; value++) {
+        for (int c = 0; c < 256; c++) {
+          int aluResult = triFunction.applyAsInt(a, value, c);
+          table[((value & 0xff)) | (a << 8) | (c << 16)] = ((aluResult & 0xff) << 8) + F;
+        }
+      }
+    }
+  }
+
   public int execute2Values1Boolean(int value1, int value2, int booleanValue, Register flag) {
     return fetchValueAndWriteFlag(flag, (value2 << 8 | value1) & 0xFFFF | ((booleanValue & 1) << 16));
   }
 
   public int execute2Values(int value1, int value2, Register flag) {
     return fetchValueAndWriteFlag(flag, value2 << 8 | value1 & 0xff);
+  }
+
+  public int execute3Values(int value1, int value2, int value3, Register flag) {
+    return fetchValueAndWriteFlag(flag, (value2 << 8 | value1) & 0xFFFF | value3 << 16);
   }
 
   private int fetchValueAndWriteFlag(Register flag, int i) {

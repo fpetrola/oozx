@@ -23,16 +23,8 @@ import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
-import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.IniAluOperation;
 
 public class Ind extends Ini {
-  public static final AluOperation indTableAluOperation = new IniAluOperation() {
-    public  int execute1ValueAndCarry(int value, int b, Register c) {
-      return update(value, b, c, -1);
-    }
-  };
-
   public Ind(RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io) {
     super(bc, hl, flag, memory, io);
   }
@@ -51,9 +43,8 @@ public class Ind extends Ini {
     hl.decrement();
   }
 
-  protected void flagOperation(int valueFromHL) {
-    int t = indTableAluOperation.execute1ValueAndCarry(valueFromHL, bc.getHigh().read(), bc.getLow());
-    flag.write(t);
+  protected int getDirection() {
+    return -1;
   }
 
   public void accept(InstructionVisitor visitor) {

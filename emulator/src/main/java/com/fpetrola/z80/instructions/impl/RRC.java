@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RRC extends ParameterizedUnaryAluInstruction {
   public static final TableAluOperation rrcTableAluOperation = new TableAluOperation() {
-    public int execute(int value, int carry) {
+    public int calculate1Value1Boolean(int value, int carry) {
       F = value & FLAG_C;
       value = (value >> 1) | (value << 7);
       value &= 0xff;

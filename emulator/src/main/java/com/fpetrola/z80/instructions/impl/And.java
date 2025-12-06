@@ -27,7 +27,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class And extends ParameterizedBinaryAluInstruction {
   protected static final TableAluOperation andTableAluOperation = new TableAluOperation() {
-    public int execute(int value1, int value2, int carry) {
+    public int calculate2Values1Boolean(int value1, int value2, int carry) {
       value1 &= value2;
       F = FLAG_H | sz53pTable(value1);
       Q = F;

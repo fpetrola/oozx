@@ -28,7 +28,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Cpd extends Cpi {
   public static final AluOperation cpdTableAluOperation = new TableAluOperation() {
-    public int execute(int value1, int value2, int BC) {
+    public int calculate2Values1Boolean(int value1, int value2, int BC) {
       int bytetemp = value1 - value2;
       int lookup = ((value1 & 0x08) >> 3) |
                    (((value2) & 0x08) >> 2) |

@@ -29,7 +29,7 @@ import com.fpetrola.z80.registers.flag.CpiOperation;
 
 public class Cpi extends BlockInstruction {
   public static final AluOperation cpiTableAluOperation = new CpiOperation() {
-    public int execute(int value1, int value2, int BC) {
+    public int calculate2Values1Boolean(int value1, int value2, int BC) {
       F = BC;
       calculate(value1, value2, BC);
       return value1;

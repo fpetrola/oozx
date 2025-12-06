@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class SLL extends ParameterizedUnaryAluInstruction {
   public static final TableAluOperation sllTableAluOperation = new TableAluOperation() {
-    public int execute(int value, int carry) {
+    public int calculate1Value1Boolean(int value, int carry) {
       F = value >> 7;
       value = (value << 1) | 0x01;
       value &= 0xff;
