@@ -24,12 +24,18 @@ import com.fpetrola.z80.instructions.types.BlockInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
-import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.IniAluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Ini extends BlockInstruction {
-  public static final TableAluOperation iniTableAluOperation = new IniAluOperation() {
+  public static final TableAluOperation iniTableAluOperation = new TableAluOperation() {
+    protected int calculate3Values(int initemp2, int initemp, int B) {
+      F = ((initemp & 0x80) != 0 ? FLAG_N : 0) |
+          ((initemp2 < initemp) ? FLAG_H | FLAG_C : 0) |
+          (parityTable((initemp2 & 0x07) ^ B) != 0 ? FLAG_P : 0) |
+          sz53Table(B);
+      Q = F;
+      return F;
+    }
   };
 
   public Ini(RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io) {
