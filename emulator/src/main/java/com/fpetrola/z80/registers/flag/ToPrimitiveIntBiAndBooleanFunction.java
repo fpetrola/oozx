@@ -18,6 +18,6 @@
 
 package com.fpetrola.z80.registers.flag;
 
-public interface ToPrimitiveIntTriFunction2 {
+public interface ToPrimitiveIntBiAndBooleanFunction {
   int applyAsInt(int t, int u, int v);
 }
