@@ -166,7 +166,7 @@ public class OOSpectrumLauncher {
         tape.play(false);
       });
     } else {
-      fuse.settings.current.emulationSpeed = 100;
+      fuse.settings.current.emulationSpeed = 10000;
       fuse.init();
       fuse.z80.loadSnap(filename);
 //      fuse.z80.changeSpeed(100);
