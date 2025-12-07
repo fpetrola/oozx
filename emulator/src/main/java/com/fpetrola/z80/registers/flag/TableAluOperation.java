@@ -63,7 +63,7 @@ public class TableAluOperation extends AluOperation {
   }
 
   final public int execute2Values(int value1, int value2, Register flag) {
-    return fetchValueAndWriteFlag(flag, value2 << 8 | value1 & 0xff);
+    return fetchValueAndWriteFlag(flag, (value2 << 8 | value1 & 0xff) & 0xFFFF);
   }
 
   final public void execute3Values(int value1, int value2, int value3, Register flag) {
