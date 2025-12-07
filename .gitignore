@@ -11,5 +11,6 @@ JSpeccy.xml
 *.class
 *.jfr
 */target/**
-
-
+**/target/**
+dependency-reduced-pom.xml
+.profileconfig.json
