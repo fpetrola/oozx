@@ -29,9 +29,9 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class Cpd extends Cpi {
   public static final AluOperation cpdTableAluOperation = new TableAluOperation() {
     public int calculate2Values1Boolean(int value1, int value2, int BC) {
-      int bytetemp = value1 - value2;
-      int lookup = ((value1 & 0x08) >> 3) |
-                   (((value2) & 0x08) >> 2) |
+      int bytetemp = value2 - value1;
+      int lookup = ((value2 & 0x08) >> 3) |
+                   (((value1) & 0x08) >> 2) |
                    ((bytetemp & 0x08) >> 1);
       F = (F & FLAG_C) | (BC != 0 ? (FLAG_V | FLAG_N) : FLAG_N) |
           halfCarrySubTable(lookup) | (bytetemp != 0 ? 0 : FLAG_Z) |
@@ -39,7 +39,7 @@ public class Cpd extends Cpi {
       if ((F & FLAG_H) != 0) bytetemp--;
       F |= (bytetemp & FLAG_3) | ((bytetemp & 0x02) != 0 ? FLAG_5 : 0);
       Q = F;
-      return value1;
+      return value2;
     }
   };
 

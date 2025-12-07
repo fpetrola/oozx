@@ -27,17 +27,17 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class Sbc16 extends Binary16BitsOperation {
   public static final TableAluOperation sbc16TableAluOperation = new TableAluOperation() {
     public int calculate2Values1Boolean(int value1, int value2, int carry) {
-      int i = value1 & 0x33;
+      int i = value2 & 0x33;
       i |= i << 1 & 0x04;
       int result1 = i << 11 & 0x1A800;
-      int lookup = (value1 << 8 & 0x8800) >> 11 |
-          (value1 << 9 & 0x8800) >> 10 |
+      int lookup = (value2 << 8 & 0x8800) >> 11 |
+                   (value2 << 9 & 0x8800) >> 10 |
           (result1 & 0x8800) >> 9;
       F = ((result1 & 0x10000) != 0 ? FLAG_C : 0) |
           FLAG_N | overflowSubTable(lookup >> 4) |
           (result1 >> 8 & (FLAG_3 | FLAG_5 | FLAG_S)) |
           halfCarrySubTable(lookup & 0x07) |
-          (value2 != 0 ? 0 : FLAG_Z);
+          (value1 != 0 ? 0 : FLAG_Z);
       Q = F;
       return F;
     }

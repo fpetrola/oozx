@@ -28,8 +28,8 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class LdAR extends Ld {
   public static final TableAluOperation ldarTableAluOperation = new TableAluOperation() {
     public int calculate2Values1Boolean(int value1, int value2, int IFF2) {
-      F = value2;
-      int A1 = value1 & 0xff;
+      F = value1;
+      int A1 = value2 & 0xff;
       F = (F & FLAG_C) | sz53Table(A1) | (IFF2 != 0 ? FLAG_V : 0);
       Q = F;
       return F;

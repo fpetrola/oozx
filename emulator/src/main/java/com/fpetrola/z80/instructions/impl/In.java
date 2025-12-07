@@ -30,10 +30,10 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class In extends TargetSourceInstruction<ImmutableOpcodeReference> {
   public final static AluOperation inCTableAluOperation = new TableAluOperation() {
     public int calculate2Values1Boolean(int value1, int value2, int carry) {
-      F = value1;
-      F = (F & FLAG_C) | sz53pTable((value2));
+      F = value2;
+      F = (F & FLAG_C) | sz53pTable((value1));
       Q = F;
-      return value2;
+      return value1;
     }
   };
 

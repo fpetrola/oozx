@@ -29,7 +29,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Cpi extends BlockInstruction {
   public static final AluOperation cpiTableAluOperation = new TableAluOperation() {
-    public int calculate2Values1Boolean(int A, int value, int BC) {
+    public int calculate2Values1Boolean(int value, int A, int BC) {
       F = BC;
       int bytetemp = A - value;
       int lookup = ((A & 0x08) >> 3) |

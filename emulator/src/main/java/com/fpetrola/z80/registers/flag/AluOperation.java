@@ -25,7 +25,7 @@ public abstract class AluOperation extends AluOperationBase {
     super();
     F = 0;
     if (calculate2Values1Boolean(0, 0, 0) != -1) {
-      ToPrimitiveIntBiAndBooleanFunction triFunction = this::calculate2Values1Boolean;
+      ToPrimitiveIntBiAndBooleanFunction triFunction = (value1, value2, carry) -> calculate2Values1Boolean(value2, value1, carry);
       init(triFunction);
     } else if (calculate1Value1Boolean(0, 0) != -1) {
       ToPrimitiveIntBiFunction biFunction = this::calculate1Value1Boolean;

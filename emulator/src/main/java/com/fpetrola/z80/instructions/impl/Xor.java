@@ -28,10 +28,10 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class Xor extends ParameterizedBinaryAluInstruction {
   protected static final TableAluOperation xorTableAluOperation = new TableAluOperation() {
     public int calculate2Values1Boolean(int value1, int value2, int carry) {
-      value1 ^= (value2);
-      F = sz53pTable(value1);
+      value2 ^= (value1);
+      F = sz53pTable(value2);
       Q = F;
-      return value1;
+      return value2;
     }
   };
 

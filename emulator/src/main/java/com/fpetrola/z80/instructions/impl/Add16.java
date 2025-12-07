@@ -22,14 +22,13 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Add16 extends Binary16BitsOperation {
   public static final TableAluOperation add16TableAluOperation = new TableAluOperation() {
     public int calculate2Values1Boolean(int value1, int value2, int value2Bit0) {
-      F = value1;
-      getValue1(value2 << 4, value2Bit0 << 11, value2 << 11);
+      F = value2;
+      getValue1(value1 << 4, value2Bit0 << 11, value1 << 11);
       return F;
     }
 

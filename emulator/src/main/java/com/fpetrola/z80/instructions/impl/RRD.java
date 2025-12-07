@@ -26,10 +26,10 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class RRD extends RLD {
   public static final TableAluOperation rrdTableAluOperation = new TableAluOperation() {
     public int calculate2Values1Boolean(int value1, int value2, int flag) {
-      value1 = (value1 & 0xf0) | (value2 & 0x0f);
-      F = (F & FLAG_C) | sz53pTable(value1);
+      value2 = (value2 & 0xf0) | (value1 & 0x0f);
+      F = (F & FLAG_C) | sz53pTable(value2);
       Q = F;
-      return value1;
+      return value2;
     }
   };
 

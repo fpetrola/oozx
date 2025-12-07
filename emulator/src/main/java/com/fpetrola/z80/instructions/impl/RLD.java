@@ -28,10 +28,10 @@ public class RLD extends AbstractInstruction {
   public static final TableAluOperation rldTableAluOperation = new TableAluOperation() {
     public int calculate2Values1Boolean(int value1, int value2, int flag) {
       F = flag;
-      value1 = (value1 & 0xf0) | (value2 >> 4);
-      F = (F & FLAG_C) | sz53pTable(value1);
+      value2 = (value2 & 0xf0) | (value1 >> 4);
+      F = (F & FLAG_C) | sz53pTable(value2);
       Q = F;
-      return value1;
+      return value2;
     }
   };
   protected final Register a;

@@ -29,15 +29,15 @@ public class Sbc extends ParameterizedBinaryAluInstruction {
   public static final TableAluOperation sbc8TableAluOperation = new TableAluOperation() {
     public int calculate2Values1Boolean(int value1, int value2, int carry) {
       F = carry;
-      int sbctemp = value1 - (value2) - (F & FLAG_C);
-      int lookup = ((value1 & 0x88) >> 3) | (((value2) & 0x88) >> 2) | ((sbctemp & 0x88) >> 1);
-      value1 = sbctemp & 0xff;
+      int sbctemp = value2 - (value1) - (F & FLAG_C);
+      int lookup = ((value2 & 0x88) >> 3) | (((value1) & 0x88) >> 2) | ((sbctemp & 0x88) >> 1);
+      value2 = sbctemp & 0xff;
       F = ((sbctemp & 0x100) != 0 ? FLAG_C : 0) | FLAG_N |
           halfCarrySubTable(lookup & 0x07) | overflowSubTable(lookup >> 4) |
-          sz53Table(value1);
+          sz53Table(value2);
       Q = F;
 
-      return value1;
+      return value2;
     }
   };
 
