@@ -9,6 +9,7 @@ JSpeccy.xml
 *.iml
 *.dot
 *.class
+*.jfr
 */target/**
 
 
