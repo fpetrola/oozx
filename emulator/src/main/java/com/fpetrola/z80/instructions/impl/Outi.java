@@ -28,11 +28,11 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Outi extends BlockInstruction {
-  public static final AluOperation outiTableAluOperation = new TableAluOperation() {
-    public  int execute2ValuesAndCarry(int value1, int value2, Register l) {
+  public static final TableAluOperation outiTableAluOperation = new TableAluOperation() {
+    protected int calculate3Values(int value2, int value1, int value3) {
       int outitemp = value1;
       int B = value2;
-      int L = l.read();
+      int L = value3;
       int outitemp2 = (outitemp + L) & 0xff;
       F = ((outitemp & 0x80) != 0 ? FLAG_N : 0) |
           ((outitemp2 < outitemp) ? FLAG_H | FLAG_C : 0) |
@@ -58,8 +58,7 @@ public class Outi extends BlockInstruction {
   }
 
   protected void flagOperation(int valueFromHL) {
-    int t = outiTableAluOperation.execute2ValuesAndCarry(valueFromHL, bc.getHigh().read(), hl.getLow());
-    flag.write(t);
+    outiTableAluOperation.execute3Values(valueFromHL, bc.getHigh().read(), hl.getLow().read(), flag);
   }
 
   public void accept(InstructionVisitor<?> visitor) {

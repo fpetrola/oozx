@@ -24,11 +24,10 @@ import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.AluOperation;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class In extends TargetSourceInstruction<ImmutableOpcodeReference> {
-  public final static AluOperation inCTableAluOperation = new TableAluOperation() {
+  public final static TableAluOperation inTableAluOperation = new TableAluOperation() {
     public int calculate2Values1Boolean(int value1, int value2, int carry) {
       F = value2;
       F = (F & FLAG_C) | sz53pTable((value1));
@@ -79,7 +78,7 @@ public class In extends TargetSourceInstruction<ImmutableOpcodeReference> {
     target.write(value);
 
     if (!equalsN)
-      inCTableAluOperation.execute2ValuesAndCarry(value, flag.read(), flag);
+      inTableAluOperation.execute2ValuesAndCarry(value, flag.read(), flag);
     else
       flag.write(flag.read());
 
