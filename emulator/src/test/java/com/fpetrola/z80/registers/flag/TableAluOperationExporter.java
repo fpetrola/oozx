@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
@@ -39,6 +41,7 @@ public class TableAluOperationExporter {
     public String className;
     public long exportedAt;
     public int tableSize;
+    public String tableMd5;
     public List<TableEntry> entries;
 
     public TableExport() {
@@ -61,6 +64,41 @@ public class TableAluOperationExporter {
   }
 
   /**
+   * Calcula el MD5 de una tabla int[].
+   */
+  public static String calculateTableMd5(int[] table) {
+    try {
+      MessageDigest md = MessageDigest.getInstance("MD5");
+      byte[] messageDigest = md.digest(intArrayToBytes(table));
+      StringBuilder hexString = new StringBuilder();
+      for (byte b : messageDigest) {
+        String hex = Integer.toHexString(0xff & b);
+        if (hex.length() == 1) {
+          hexString.append('0');
+        }
+        hexString.append(hex);
+      }
+      return hexString.toString();
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException("MD5 algorithm not available", e);
+    }
+  }
+
+  /**
+   * Convierte un array int[] a bytes para cálculo de hash.
+   */
+  private static byte[] intArrayToBytes(int[] intArray) {
+    byte[] bytes = new byte[intArray.length * 4];
+    for (int i = 0; i < intArray.length; i++) {
+      bytes[i * 4] = (byte) ((intArray[i] >> 24) & 0xff);
+      bytes[i * 4 + 1] = (byte) ((intArray[i] >> 16) & 0xff);
+      bytes[i * 4 + 2] = (byte) ((intArray[i] >> 8) & 0xff);
+      bytes[i * 4 + 3] = (byte) (intArray[i] & 0xff);
+    }
+    return bytes;
+  }
+
+  /**
    * Exporta la tabla de una TableAluOperation a JSON.
    *
    * @param operation Instancia de TableAluOperation a exportar
@@ -75,6 +113,7 @@ public class TableAluOperationExporter {
     export.operationName = operationName;
     export.className = operation.getClass().getName();
     export.tableSize = table.length;
+    export.tableMd5 = calculateTableMd5(table);
 
     // Convertir cada entrada de la tabla
     for (int i = 0; i < table.length; i++) {
@@ -90,6 +129,7 @@ public class TableAluOperationExporter {
     Files.write(Paths.get(outputPath), json.getBytes());
 
     System.out.println("✓ Exported " + operationName + " table (" + table.length + " entries)");
+    System.out.println("  MD5: " + export.tableMd5);
     System.out.println("  Saved to: " + outputPath);
   }
 
@@ -103,7 +143,7 @@ public class TableAluOperationExporter {
   }
 
   /**
-   * Compara dos tablas y retorna las diferencias encontradas.
+   * Compara dos tablas usando MD5 (rápido) y retorna las diferencias encontradas.
    */
   public static List<String> compareTables(int[] currentTable, TableExport savedExport) {
     List<String> differences = new ArrayList<>();
@@ -116,19 +156,13 @@ public class TableAluOperationExporter {
       return differences;
     }
 
-    for (int i = 0; i < Math.min(currentTable.length, savedExport.entries.size()); i++) {
-      int currentValue = currentTable[i];
-      TableEntry savedEntry = savedExport.entries.get(i);
-
-      if (currentValue != savedEntry.value) {
-        int currentA = currentValue >> 8;
-        int currentF = currentValue & 0xFF;
-        differences.add(
-            String.format(
-                "Mismatch at index %d: current=(A=0x%02X,F=0x%02X,val=0x%08X) vs saved=(A=0x%02X,F=0x%02X,val=0x%08X)",
-                i, currentA, currentF, currentValue, savedEntry.resultA, savedEntry.resultFlags,
-                savedEntry.value));
-      }
+    // Comparar usando MD5
+    String currentMd5 = calculateTableMd5(currentTable);
+    if (!currentMd5.equals(savedExport.tableMd5)) {
+      differences.add(
+          String.format(
+              "Table MD5 mismatch: current=%s, saved=%s",
+              currentMd5, savedExport.tableMd5));
     }
 
     return differences;

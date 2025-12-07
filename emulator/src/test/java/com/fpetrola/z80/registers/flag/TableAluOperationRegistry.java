@@ -1,7 +1,7 @@
 package com.fpetrola.z80.registers.flag;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -17,6 +17,7 @@ public class TableAluOperationRegistry {
     public String className;
     public String fieldName;
     public String description;
+    public String md5;
 
     public OperationConfig() {}
 
@@ -25,6 +26,14 @@ public class TableAluOperationRegistry {
       this.className = className;
       this.fieldName = fieldName;
       this.description = description;
+    }
+
+    public OperationConfig(String name, String className, String fieldName, String description, String md5) {
+      this.name = name;
+      this.className = className;
+      this.fieldName = fieldName;
+      this.description = description;
+      this.md5 = md5;
     }
 
     @Override
@@ -90,9 +99,54 @@ public class TableAluOperationRegistry {
   }
 
   /**
-   * Exporta las tablas de todas las operaciones a archivos JSON individuales.
+   * Calcula y actualiza los MD5 de todas las operaciones en el config JSON.
+   */
+  public static void updateAllMd5Hashes() throws Exception {
+    List<OperationConfig> configs = getOperations();
+    int successCount = 0;
+    int failCount = 0;
+
+    System.out.println("Calculating MD5 hashes for " + configs.size() + " table ALU operations...\n");
+
+    for (OperationConfig config : configs) {
+      try {
+        TableAluOperation operation = getOperation(config);
+        int[] table = getTable(operation);
+        config.md5 = TableAluOperationExporter.calculateTableMd5(table);
+        System.out.println("✓ " + config.name + ": " + config.md5);
+        successCount++;
+      } catch (Exception e) {
+        System.err.println("✗ Failed to calculate MD5 for " + config.name + ": " + e.getMessage());
+        failCount++;
+      }
+    }
+
+    // Guardar el config actualizado
+    saveConfigJson(configs);
+
+    System.out.println(
+        "\n✓ Updated " + successCount + " operations" + (failCount > 0 ? ", " + failCount + " failed" : ""));
+    System.out.println("  Config saved to: src/test/resources/table_alu_operations_config.json");
+  }
+
+  /**
+   * Guarda la configuración actualizada al JSON.
+   */
+  private static void saveConfigJson(List<OperationConfig> configs) throws IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    ConfigRoot root = new ConfigRoot();
+    root.operations = configs;
+    
+    String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
+    Files.write(Paths.get("src/test/resources/table_alu_operations_config.json"), json.getBytes());
+  }
+
+  /**
+   * Exporta las tablas a JSON (deprecated, usar binario).
    */
   public static void exportAllOperations(String outputDirectory) throws Exception {
+    System.out.println(
+        "Warning: JSON export is deprecated due to large file sizes. Use exportAllOperationsBinary() instead.");
     Files.createDirectories(Paths.get(outputDirectory));
 
     List<OperationConfig> configs = getOperations();

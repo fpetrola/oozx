@@ -1,233 +1,231 @@
 {
-  "operations": [
-    {
-      "name": "RLA",
-      "className": "com.fpetrola.z80.instructions.impl.RLA",
-      "fieldName": "rlaTableAluOperation",
-      "description": "Rotate Left Accumulator"
-    },
-    {
-      "name": "RRA",
-      "className": "com.fpetrola.z80.instructions.impl.RRA",
-      "fieldName": "rraTableAluOperation",
-      "description": "Rotate Right Accumulator"
-    },
-    {
-      "name": "RLCA",
-      "className": "com.fpetrola.z80.instructions.impl.RLCA",
-      "fieldName": "rlcaTableAluOperation",
-      "description": "Rotate Left Circular Accumulator"
-    },
-    {
-      "name": "RRCA",
-      "className": "com.fpetrola.z80.instructions.impl.RRCA",
-      "fieldName": "rrcaTableAluOperation",
-      "description": "Rotate Right Circular Accumulator"
-    },
-    {
-      "name": "RLC",
-      "className": "com.fpetrola.z80.instructions.impl.RLC",
-      "fieldName": "rlcTableAluOperation1",
-      "description": "Rotate Left Circular"
-    },
-    {
-      "name": "RRC",
-      "className": "com.fpetrola.z80.instructions.impl.RRC",
-      "fieldName": "rrcTableAluOperation",
-      "description": "Rotate Right Circular"
-    },
-    {
-      "name": "RL",
-      "className": "com.fpetrola.z80.instructions.impl.RL",
-      "fieldName": "rlTableAluOperation",
-      "description": "Rotate Left"
-    },
-    {
-      "name": "RR",
-      "className": "com.fpetrola.z80.instructions.impl.RR",
-      "fieldName": "rrTableAluOperation",
-      "description": "Rotate Right"
-    },
-    {
-      "name": "SLA",
-      "className": "com.fpetrola.z80.instructions.impl.SLA",
-      "fieldName": "slaTableAluOperation",
-      "description": "Shift Left Arithmetic"
-    },
-    {
-      "name": "SRA",
-      "className": "com.fpetrola.z80.instructions.impl.SRA",
-      "fieldName": "sraTableAluOperation",
-      "description": "Shift Right Arithmetic"
-    },
-    {
-      "name": "SRL",
-      "className": "com.fpetrola.z80.instructions.impl.SRL",
-      "fieldName": "srlTableAluOperation",
-      "description": "Shift Right Logical"
-    },
-    {
-      "name": "SLL",
-      "className": "com.fpetrola.z80.instructions.impl.SLL",
-      "fieldName": "sllTableAluOperation",
-      "description": "Shift Left Logical"
-    },
-    {
-      "name": "RLD",
-      "className": "com.fpetrola.z80.instructions.impl.RLD",
-      "fieldName": "rldTableAluOperation",
-      "description": "Rotate Left Digit"
-    },
-    {
-      "name": "RRD",
-      "className": "com.fpetrola.z80.instructions.impl.RRD",
-      "fieldName": "rrdTableAluOperation",
-      "description": "Rotate Right Digit"
-    },
-    {
-      "name": "Add",
-      "className": "com.fpetrola.z80.instructions.impl.Add",
-      "fieldName": "add8TableAluOperation",
-      "description": "Add to Accumulator"
-    },
-    {
-      "name": "Adc",
-      "className": "com.fpetrola.z80.instructions.impl.Adc",
-      "fieldName": "adc8TableAluOperation",
-      "description": "Add with Carry"
-    },
-    {
-      "name": "Sub",
-      "className": "com.fpetrola.z80.instructions.impl.Sub",
-      "fieldName": "sub8TableAluOperation",
-      "description": "Subtract from Accumulator"
-    },
-    {
-      "name": "Sbc",
-      "className": "com.fpetrola.z80.instructions.impl.Sbc",
-      "fieldName": "sbc8TableAluOperation",
-      "description": "Subtract with Carry"
-    },
-    {
-      "name": "And",
-      "className": "com.fpetrola.z80.instructions.impl.And",
-      "fieldName": "andTableAluOperation",
-      "description": "Logical AND"
-    },
-    {
-      "name": "Xor",
-      "className": "com.fpetrola.z80.instructions.impl.Xor",
-      "fieldName": "xorTableAluOperation",
-      "description": "Logical XOR"
-    },
-    {
-      "name": "Or",
-      "className": "com.fpetrola.z80.instructions.impl.Or",
-      "fieldName": "orTableAluOperation",
-      "description": "Logical OR"
-    },
-    {
-      "name": "Cp",
-      "className": "com.fpetrola.z80.instructions.impl.Cp",
-      "fieldName": "cpTableAluOperation",
-      "description": "Compare with Accumulator"
-    },
-    {
-      "name": "Inc",
-      "className": "com.fpetrola.z80.instructions.impl.Inc",
-      "fieldName": "inc8TableAluOperation",
-      "description": "Increment 8-bit"
-    },
-    {
-      "name": "Dec",
-      "className": "com.fpetrola.z80.instructions.impl.Dec",
-      "fieldName": "dec8TableAluOperation",
-      "description": "Decrement 8-bit"
-    },
-    {
-      "name": "DAA",
-      "className": "com.fpetrola.z80.instructions.impl.DAA",
-      "fieldName": "daaTableAluOperation",
-      "description": "Decimal Adjust Accumulator"
-    },
-    {
-      "name": "CPL",
-      "className": "com.fpetrola.z80.instructions.impl.CPL",
-      "fieldName": "cplTableAluOperation",
-      "description": "Complement Accumulator"
-    },
-    {
-      "name": "SCF",
-      "className": "com.fpetrola.z80.instructions.impl.SCF",
-      "fieldName": "scfTableAluOperation",
-      "description": "Set Carry Flag"
-    },
-    {
-      "name": "CCF",
-      "className": "com.fpetrola.z80.instructions.impl.CCF",
-      "fieldName": "ccfTableAluOperation",
-      "description": "Complement Carry Flag"
-    },
-    {
-      "name": "BIT",
-      "className": "com.fpetrola.z80.instructions.impl.BIT",
-      "fieldName": "tBitAluOperation",
-      "description": "Test Bit"
-    },
-    {
-      "name": "Ini",
-      "className": "com.fpetrola.z80.instructions.impl.Ini",
-      "fieldName": "iniTableAluOperation",
-      "description": "Input and increment"
-    },
-
-    {
-      "name": "Ldi",
-      "className": "com.fpetrola.z80.instructions.impl.Ldi",
-      "fieldName": "ldiTableAluOperation",
-      "description": "Load and increment"
-    },
-    {
-      "name": "Cpi",
-      "className": "com.fpetrola.z80.instructions.impl.Cpi",
-      "fieldName": "cpiTableAluOperation",
-      "description": "Compare and increment"
-    },
-    {
-      "name": "LdAI",
-      "className": "com.fpetrola.z80.instructions.impl.LdAI",
-      "fieldName": "ldaiTableAluOperation",
-      "description": "Load A from I"
-    },
-    {
-      "name": "LdAR",
-      "className": "com.fpetrola.z80.instructions.impl.LdAR",
-      "fieldName": "ldarTableAluOperation",
-      "description": "Load A from R"
-    },
-    {
-      "name": "Add16",
-      "className": "com.fpetrola.z80.instructions.impl.Add16",
-      "fieldName": "add16TableAluOperation",
-      "description": "Add 16-bit"
-    },
-    {
-      "name": "Adc16",
-      "className": "com.fpetrola.z80.instructions.impl.Adc16",
-      "fieldName": "adc16TableAluOperation",
-      "description": "Add 16-bit with Carry"
-    },
-    {
-      "name": "Sbc16",
-      "className": "com.fpetrola.z80.instructions.impl.Sbc16",
-      "fieldName": "sbc16TableAluOperation",
-      "description": "Subtract 16-bit with Carry"
-    },
-    {
-      "name": "Cpd",
-      "className": "com.fpetrola.z80.instructions.impl.Cpd",
-      "fieldName": "cpdTableAluOperation",
-      "description": "Compare and decrement"
-    }
-  ]
+  "operations" : [ {
+    "name" : "RLA",
+    "className" : "com.fpetrola.z80.instructions.impl.RLA",
+    "fieldName" : "rlaTableAluOperation",
+    "description" : "Rotate Left Accumulator",
+    "md5" : "ddaede4ab663b1bb8fd450a337153b2a"
+  }, {
+    "name" : "RRA",
+    "className" : "com.fpetrola.z80.instructions.impl.RRA",
+    "fieldName" : "rraTableAluOperation",
+    "description" : "Rotate Right Accumulator",
+    "md5" : "b3cf9bcf21861153a0bfd8e1166a79e8"
+  }, {
+    "name" : "RLCA",
+    "className" : "com.fpetrola.z80.instructions.impl.RLCA",
+    "fieldName" : "rlcaTableAluOperation",
+    "description" : "Rotate Left Circular Accumulator",
+    "md5" : "120ec3232d7215b9630fc3bc6806c536"
+  }, {
+    "name" : "RRCA",
+    "className" : "com.fpetrola.z80.instructions.impl.RRCA",
+    "fieldName" : "rrcaTableAluOperation",
+    "description" : "Rotate Right Circular Accumulator",
+    "md5" : "45b9991b860d9ba720840fc9a7e24e15"
+  }, {
+    "name" : "RLC",
+    "className" : "com.fpetrola.z80.instructions.impl.RLC",
+    "fieldName" : "rlcTableAluOperation1",
+    "description" : "Rotate Left Circular",
+    "md5" : "0d525b32b8f90768b1eb481f7cccbbaa"
+  }, {
+    "name" : "RRC",
+    "className" : "com.fpetrola.z80.instructions.impl.RRC",
+    "fieldName" : "rrcTableAluOperation",
+    "description" : "Rotate Right Circular",
+    "md5" : "8d1dad46817ecce6cab5e097e7022194"
+  }, {
+    "name" : "RL",
+    "className" : "com.fpetrola.z80.instructions.impl.RL",
+    "fieldName" : "rlTableAluOperation",
+    "description" : "Rotate Left",
+    "md5" : "d993e524133c87b4735de78f1fd44448"
+  }, {
+    "name" : "RR",
+    "className" : "com.fpetrola.z80.instructions.impl.RR",
+    "fieldName" : "rrTableAluOperation",
+    "description" : "Rotate Right",
+    "md5" : "8b4d3604e270db304fe51509786b41c4"
+  }, {
+    "name" : "SLA",
+    "className" : "com.fpetrola.z80.instructions.impl.SLA",
+    "fieldName" : "slaTableAluOperation",
+    "description" : "Shift Left Arithmetic",
+    "md5" : "f84f7ee85204e7650e29d1ff0e294afc"
+  }, {
+    "name" : "SRA",
+    "className" : "com.fpetrola.z80.instructions.impl.SRA",
+    "fieldName" : "sraTableAluOperation",
+    "description" : "Shift Right Arithmetic",
+    "md5" : "06f10ff8704eac630e95ab36598c0773"
+  }, {
+    "name" : "SRL",
+    "className" : "com.fpetrola.z80.instructions.impl.SRL",
+    "fieldName" : "srlTableAluOperation",
+    "description" : "Shift Right Logical",
+    "md5" : "dcb846ad7487f77186808871aa04cc7d"
+  }, {
+    "name" : "SLL",
+    "className" : "com.fpetrola.z80.instructions.impl.SLL",
+    "fieldName" : "sllTableAluOperation",
+    "description" : "Shift Left Logical",
+    "md5" : "504f419ae94aa08acc6b5cac643a6ddc"
+  }, {
+    "name" : "RLD",
+    "className" : "com.fpetrola.z80.instructions.impl.RLD",
+    "fieldName" : "rldTableAluOperation",
+    "description" : "Rotate Left Digit",
+    "md5" : "e837d37f5d0bbb426246e03389c68ffb"
+  }, {
+    "name" : "RRD",
+    "className" : "com.fpetrola.z80.instructions.impl.RRD",
+    "fieldName" : "rrdTableAluOperation",
+    "description" : "Rotate Right Digit",
+    "md5" : "af191c1601f1aa09a77e7026813d113b"
+  }, {
+    "name" : "Add",
+    "className" : "com.fpetrola.z80.instructions.impl.Add",
+    "fieldName" : "add8TableAluOperation",
+    "description" : "Add to Accumulator",
+    "md5" : "be682dd2336a93af4f3c99078c688042"
+  }, {
+    "name" : "Adc",
+    "className" : "com.fpetrola.z80.instructions.impl.Adc",
+    "fieldName" : "adc8TableAluOperation",
+    "description" : "Add with Carry",
+    "md5" : "08012c414a8c510e94bd777f3c74013b"
+  }, {
+    "name" : "Sub",
+    "className" : "com.fpetrola.z80.instructions.impl.Sub",
+    "fieldName" : "sub8TableAluOperation",
+    "description" : "Subtract from Accumulator",
+    "md5" : "163101391f772fc94417082f634682dd"
+  }, {
+    "name" : "Sbc",
+    "className" : "com.fpetrola.z80.instructions.impl.Sbc",
+    "fieldName" : "sbc8TableAluOperation",
+    "description" : "Subtract with Carry",
+    "md5" : "4c0d3f5c045f0cf2a84f570630699b30"
+  }, {
+    "name" : "And",
+    "className" : "com.fpetrola.z80.instructions.impl.And",
+    "fieldName" : "andTableAluOperation",
+    "description" : "Logical AND",
+    "md5" : "9bfa45df7dca6a57186806b8248d1eed"
+  }, {
+    "name" : "Xor",
+    "className" : "com.fpetrola.z80.instructions.impl.Xor",
+    "fieldName" : "xorTableAluOperation",
+    "description" : "Logical XOR",
+    "md5" : "2e4776399807a00babd4d7c31f745383"
+  }, {
+    "name" : "Or",
+    "className" : "com.fpetrola.z80.instructions.impl.Or",
+    "fieldName" : "orTableAluOperation",
+    "description" : "Logical OR",
+    "md5" : "833e2981980a119ffcf525e8910a38ed"
+  }, {
+    "name" : "Cp",
+    "className" : "com.fpetrola.z80.instructions.impl.Cp",
+    "fieldName" : "cpTableAluOperation",
+    "description" : "Compare with Accumulator",
+    "md5" : "15be4621978666e5987d809a9a286407"
+  }, {
+    "name" : "Inc",
+    "className" : "com.fpetrola.z80.instructions.impl.Inc",
+    "fieldName" : "inc8TableAluOperation",
+    "description" : "Increment 8-bit",
+    "md5" : "ce5910c7435b983a7d0d6c1b4721becd"
+  }, {
+    "name" : "Dec",
+    "className" : "com.fpetrola.z80.instructions.impl.Dec",
+    "fieldName" : "dec8TableAluOperation",
+    "description" : "Decrement 8-bit",
+    "md5" : "040f4d9744e9f4f931ecd6cd25c5570e"
+  }, {
+    "name" : "DAA",
+    "className" : "com.fpetrola.z80.instructions.impl.DAA",
+    "fieldName" : "daaTableAluOperation",
+    "description" : "Decimal Adjust Accumulator",
+    "md5" : "333b5627ae5b5fbc28e6fa407295e1f6"
+  }, {
+    "name" : "CPL",
+    "className" : "com.fpetrola.z80.instructions.impl.CPL",
+    "fieldName" : "cplTableAluOperation",
+    "description" : "Complement Accumulator",
+    "md5" : "4d76fd34314b186b85d70822b5169dad"
+  }, {
+    "name" : "SCF",
+    "className" : "com.fpetrola.z80.instructions.impl.SCF",
+    "fieldName" : "scfTableAluOperation",
+    "description" : "Set Carry Flag",
+    "md5" : "761accef121ab8804ca314edf2ed415d"
+  }, {
+    "name" : "CCF",
+    "className" : "com.fpetrola.z80.instructions.impl.CCF",
+    "fieldName" : "ccfTableAluOperation",
+    "description" : "Complement Carry Flag",
+    "md5" : "8fe9088778ec266f7ac1fff87ddba844"
+  }, {
+    "name" : "BIT",
+    "className" : "com.fpetrola.z80.instructions.impl.BIT",
+    "fieldName" : "tBitAluOperation",
+    "description" : "Test Bit",
+    "md5" : "e56d20c3db679a8bdccf1751e7d217b2"
+  }, {
+    "name" : "Ini",
+    "className" : "com.fpetrola.z80.instructions.impl.Ini",
+    "fieldName" : "iniTableAluOperation",
+    "description" : "Input and increment",
+    "md5" : "2aa5372f79b664337b07f91496176b19"
+  }, {
+    "name" : "Ldi",
+    "className" : "com.fpetrola.z80.instructions.impl.Ldi",
+    "fieldName" : "ldiTableAluOperation",
+    "description" : "Load and increment",
+    "md5" : "84b908efdd3f3787c241e3b96c702959"
+  }, {
+    "name" : "Cpi",
+    "className" : "com.fpetrola.z80.instructions.impl.Cpi",
+    "fieldName" : "cpiTableAluOperation",
+    "description" : "Compare and increment",
+    "md5" : "456fdaf089cd481c2f1dfa24d8214b34"
+  }, {
+    "name" : "LdAI",
+    "className" : "com.fpetrola.z80.instructions.impl.LdAI",
+    "fieldName" : "ldaiTableAluOperation",
+    "description" : "Load A from I",
+    "md5" : "567702a6c3a976dd102d726ff3dbfeec"
+  }, {
+    "name" : "LdAR",
+    "className" : "com.fpetrola.z80.instructions.impl.LdAR",
+    "fieldName" : "ldarTableAluOperation",
+    "description" : "Load A from R",
+    "md5" : "0afb82d33493c6663b62b21e2080d550"
+  }, {
+    "name" : "Add16",
+    "className" : "com.fpetrola.z80.instructions.impl.Add16",
+    "fieldName" : "add16TableAluOperation",
+    "description" : "Add 16-bit",
+    "md5" : "f120367b697df682016081d97b6798dc"
+  }, {
+    "name" : "Adc16",
+    "className" : "com.fpetrola.z80.instructions.impl.Adc16",
+    "fieldName" : "adc16TableAluOperation",
+    "description" : "Add 16-bit with Carry",
+    "md5" : "f4c68031bce7dab1d1f4241d9044ce32"
+  }, {
+    "name" : "Sbc16",
+    "className" : "com.fpetrola.z80.instructions.impl.Sbc16",
+    "fieldName" : "sbc16TableAluOperation",
+    "description" : "Subtract 16-bit with Carry",
+    "md5" : "882c58cd733ab714d5c20d30c933f528"
+  }, {
+    "name" : "Cpd",
+    "className" : "com.fpetrola.z80.instructions.impl.Cpd",
+    "fieldName" : "cpdTableAluOperation",
+    "description" : "Compare and decrement",
+    "md5" : "4fdf7fd029e6d075e005850699b14aff"
+  } ]
 }

@@ -1,28 +1,30 @@
 package com.fpetrola.z80.registers.flag;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.List;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Test parametrizado que verifica la compatibilidad de TODAS las operaciones TableAluOperation.
  *
  * Lee la configuración desde table_alu_operations_config.json y automáticamente:
  * 1. Carga cada operación usando reflexión
- * 2. Compara su tabla con el JSON baseline correspondiente
- * 3. Reporta diferencias
+ * 2. Calcula el MD5 de la tabla
+ * 3. Compara contra el MD5 baseline en la configuración
+ * 4. Reporta diferencias
  *
  * NO requiere código específico para cada instrucción.
  * Solo agregar la operación al JSON de configuración para que se pruebe automáticamente.
+ * 
+ * Para actualizar los MD5 (cuando cambien las tablas):
+ *   mvn test -Dtest=UpdateMd5Test -pl emulator
  */
 @DisplayName("All Table ALU Operations - Compatibility Test")
 class AllTableAluOperationsCompatibilityTest {
@@ -39,129 +41,39 @@ class AllTableAluOperationsCompatibilityTest {
   }
 
   /**
-   * Test parametrizado que prueba cada operación contra su baseline JSON.
+   * Test parametrizado que prueba cada operación contra el MD5 en la configuración.
    */
   @ParameterizedTest(name = "{0}")
   @MethodSource("provideAllOperations")
-  @DisplayName("Operation table matches baseline")
+  @DisplayName("Operation table matches baseline MD5")
   void testOperationTableCompatibility(
       TableAluOperationRegistry.OperationConfig operationConfig) throws Exception {
     // Obtener la operación
     TableAluOperation operation = TableAluOperationRegistry.getOperation(operationConfig);
     assertNotNull(operation, "Operation " + operationConfig.name + " should not be null");
 
-    // Generar el nombre del archivo esperado
-    String baselineJsonPath =
-        "src/test/resources/alu_operations/" + operationConfig.name.toLowerCase() + "_table.json";
-
-    // Si el archivo no existe, skip con mensaje informativo
-    if (!Files.exists(Paths.get(baselineJsonPath))) {
-      System.out.println(
-          "⊘ Skipped " + operationConfig.name + " - baseline not found: " + baselineJsonPath);
-      System.out.println("  Run: mvn test -Dtest=AllTableAluOperationsCompatibilityTest#generateAllBaselines");
-      return;
-    }
-
-    // Cargar baseline
-    TableAluOperationExporter.TableExport savedExport =
-        TableAluOperationExporter.loadFromJson(baselineJsonPath);
+    // Verificar que el MD5 esté configurado
+    assertNotNull(operationConfig.md5, "Operation " + operationConfig.name + " should have MD5 configured");
 
     // Obtener tabla actual
     int[] currentTable = TableAluOperationRegistry.getTable(operation);
-
     assertNotNull(currentTable, "Table for " + operationConfig.name + " should not be null");
 
-    // Comparar
-    List<String> differences =
-        TableAluOperationExporter.compareTables(currentTable, savedExport);
+    // Calcular MD5 actual
+    String currentMd5 = TableAluOperationExporter.calculateTableMd5(currentTable);
 
-    if (!differences.isEmpty()) {
-      System.out.println(
-          "✗ " + operationConfig.name + " has " + differences.size() + " differences:");
-      differences.stream().limit(5).forEach(d -> System.out.println("  " + d));
-      if (differences.size() > 5) {
-        System.out.println("  ... and " + (differences.size() - 5) + " more");
-      }
-    } else {
+    // Comparar
+    if (currentMd5.equals(operationConfig.md5)) {
       System.out.println("✓ " + operationConfig.name);
+    } else {
+      System.out.println("✗ " + operationConfig.name);
+      System.out.println("  Expected MD5: " + operationConfig.md5);
+      System.out.println("  Current MD5:  " + currentMd5);
     }
 
     assertEquals(
-        0,
-        differences.size(),
-        () ->
-            operationConfig.name
-                + " has "
-                + differences.size()
-                + " differences from baseline");
-  }
-
-//  /**
-//   * Test que exporta baselines para todas las operaciones.
-//   * Ejecutar una sola vez: mvn test -Dtest=AllTableAluOperationsCompatibilityTest#generateAllBaselines
-//   */
-//  @Test
-//  @DisplayName("Generate baselines for all operations")
-//  void generateAllBaselines() throws Exception {
-//    String outputDir = "src/test/resources/alu_operations";
-//    System.out.println("\nGenerating baselines in: " + outputDir);
-//
-//    TableAluOperationRegistry.exportAllOperations(outputDir);
-//
-//    System.out.println("✓ Baselines generated successfully");
-//    System.out.println("Next: mvn test -Dtest=AllTableAluOperationsCompatibilityTest");
-//  }
-
-  /**
-   * Test de validación: verifica que todas las operaciones están inicializadas.
-   */
-  @ParameterizedTest(name = "{0}")
-  @MethodSource("provideAllOperations")
-  @DisplayName("Operation table is initialized")
-  void testOperationTableInitialized(
-      TableAluOperationRegistry.OperationConfig operationConfig) throws Exception {
-    TableAluOperation operation = TableAluOperationRegistry.getOperation(operationConfig);
-    int[] table = TableAluOperationRegistry.getTable(operation);
-
-    assertTrue(table.length > 0, operationConfig.name + " table should not be empty");
-
-    long nonZeroCount = java.util.Arrays.stream(table).filter(v -> v != 0).count();
-    assertTrue(
-        nonZeroCount > 0,
-        operationConfig.name + " table should have non-zero values, found: " + nonZeroCount);
-  }
-
-  /**
-   * Test informativo: muestra qué operaciones tienen baselines y cuáles no.
-   */
-  @Test
-  @DisplayName("Baseline status report")
-  void baselineStatusReport() throws IOException {
-    List<TableAluOperationRegistry.OperationConfig> configs =
-        TableAluOperationRegistry.getOperations();
-    int withBaseline = 0;
-    int withoutBaseline = 0;
-
-    System.out.println("\n=== Baseline Status Report ===\n");
-
-    for (TableAluOperationRegistry.OperationConfig config : configs) {
-      String path = "src/test/resources/alu_operations/" + config.name.toLowerCase() + "_table.json";
-      boolean exists = Files.exists(Paths.get(path));
-      if (exists) {
-        withBaseline++;
-        System.out.println("✓ " + config.name);
-      } else {
-        withoutBaseline++;
-        System.out.println("⊘ " + config.name);
-      }
-    }
-
-    System.out.println(
-        "\nTotal: " + configs.size() + " | With baseline: " + withBaseline + " | Without: " + withoutBaseline);
-
-    if (withoutBaseline > 0) {
-      System.out.println("\nTo generate missing baselines:");
-      System.out.println("  mvn test -Dtest=AllTableAluOperationsCompatibilityTest#generateAllBaselines");
-    }
+        operationConfig.md5,
+        currentMd5,
+        () -> operationConfig.name + " MD5 mismatch");
   }
 }
