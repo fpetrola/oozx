@@ -54,7 +54,7 @@ public class Add16 extends Binary16BitsOperation {
             (v3, v4, result2) -> (v3 & 0x0800) >> 4 | result2 >> 11));
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingAdd16(this))
       super.accept(visitor);
   }

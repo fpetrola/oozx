@@ -33,7 +33,7 @@ public class Outd extends Outi {
     hl.decrement();
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitOutd(this))
       super.accept(visitor);
   }

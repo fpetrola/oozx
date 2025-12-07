@@ -40,7 +40,7 @@ public class Inc extends ParameterizedUnaryAluInstruction {
     super(target, flag, inc8TableAluOperation);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingInc(this))
       super.accept(visitor);
   }

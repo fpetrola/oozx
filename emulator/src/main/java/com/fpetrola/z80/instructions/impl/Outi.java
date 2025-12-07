@@ -62,7 +62,7 @@ public class Outi extends BlockInstruction {
     flag.write(t);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitOuti(this))
       super.accept(visitor);
   }

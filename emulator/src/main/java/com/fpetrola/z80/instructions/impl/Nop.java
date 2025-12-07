@@ -29,7 +29,7 @@ public class Nop extends AbstractInstruction {
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitNop(this);
   }
 }

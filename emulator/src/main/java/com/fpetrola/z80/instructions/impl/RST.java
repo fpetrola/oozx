@@ -51,7 +51,7 @@ public class RST extends AbstractInstruction implements JumpInstruction {
     return p;
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitingRst(this);
   }
 }

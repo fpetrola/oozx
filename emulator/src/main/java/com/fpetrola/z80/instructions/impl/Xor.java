@@ -39,7 +39,7 @@ public class Xor extends ParameterizedBinaryAluInstruction {
     super(target, source, flag, xorTableAluOperation);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingXor(this);
   }

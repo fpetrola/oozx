@@ -40,7 +40,7 @@ public class Cpir extends RepeatingInstruction {
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitCpir(this))
       super.accept(visitor);
   }

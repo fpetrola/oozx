@@ -82,7 +82,7 @@ public class RLD extends AbstractInstruction {
     return (nibble1 << 4) | nibble3;
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitRLD(this)) {
       super.accept(visitor);
     }

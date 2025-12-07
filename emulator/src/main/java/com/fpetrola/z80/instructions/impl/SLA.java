@@ -40,7 +40,7 @@ public class SLA extends ParameterizedUnaryAluInstruction {
     super(target, flag, slaTableAluOperation);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingSla(this))
       super.accept(visitor);
   }

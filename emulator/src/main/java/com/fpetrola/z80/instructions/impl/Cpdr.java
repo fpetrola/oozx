@@ -38,7 +38,7 @@ public class Cpdr extends RepeatingInstruction {
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitCpdr(this))
       super.accept(visitor);
   }

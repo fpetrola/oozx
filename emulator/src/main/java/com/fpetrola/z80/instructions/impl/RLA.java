@@ -40,7 +40,7 @@ public class RLA extends ParameterizedUnaryAluInstruction {
     super(target, flag, rlaTableAluOperation);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingRla(this))
       super.accept(visitor);
   }

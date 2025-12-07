@@ -39,7 +39,7 @@ public class RLC extends ParameterizedUnaryAluInstruction {
     super(target, flag, rlcTableAluOperation1);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingRlc(this))
       super.accept(visitor);
   }

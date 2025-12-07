@@ -32,7 +32,7 @@ public class Ldir extends RepeatingInstruction {
     return bc.read() != 0;
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitLdir(this))
       super.accept(visitor);
   }

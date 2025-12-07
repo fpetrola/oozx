@@ -34,7 +34,7 @@ public class SET extends BitOperation {
     
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingSet(this))
       super.accept(visitor);
   }

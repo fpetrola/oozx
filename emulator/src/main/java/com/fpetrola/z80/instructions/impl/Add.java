@@ -45,7 +45,7 @@ public class Add extends ParameterizedBinaryAluInstruction {
     super(target, source, flag, add8TableAluOperation);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingAdd(this))
       super.accept(visitor);
   }

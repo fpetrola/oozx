@@ -46,7 +46,7 @@ public class Pop extends DefaultTargetFlagInstruction {
     return value;
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitingPop(this);
   }
 }

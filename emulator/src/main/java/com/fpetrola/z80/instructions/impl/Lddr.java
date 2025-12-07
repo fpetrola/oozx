@@ -33,7 +33,7 @@ public class Lddr extends RepeatingInstruction {
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitLddr(this))
       super.accept(visitor);
   }

@@ -50,7 +50,7 @@ public class LdAR extends Ld {
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitLdAR(this)) {
       super.accept(visitor);
     }

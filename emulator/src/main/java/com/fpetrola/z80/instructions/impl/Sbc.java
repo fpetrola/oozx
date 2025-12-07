@@ -46,7 +46,7 @@ public class Sbc extends ParameterizedBinaryAluInstruction {
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingSbc(this);
   }

@@ -44,7 +44,7 @@ public class DJNZ extends ConditionalInstruction<BNotZeroCondition> {
     return calculateRelativeJumpAddress();
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingDjnz(this)) {
       super.accept(visitor);
     }

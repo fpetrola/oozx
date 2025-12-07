@@ -34,7 +34,7 @@ public class JP extends ConditionalInstruction<Condition> {
     jumpIfConditionMatches();
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingJP(this))
       super.accept(visitor);
   }

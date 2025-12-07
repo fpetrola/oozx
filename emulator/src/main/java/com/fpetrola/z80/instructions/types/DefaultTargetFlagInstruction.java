@@ -35,7 +35,7 @@ public abstract class DefaultTargetFlagInstruction extends DefaultTargetInstruct
     return flag;
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitingTarget(getTarget(), this);
     visitor.visitingFlag(flag, this);
     visitor.visitingTargetInstruction(this);

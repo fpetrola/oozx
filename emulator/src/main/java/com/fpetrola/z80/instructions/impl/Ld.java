@@ -33,7 +33,7 @@ public class Ld extends TargetSourceInstruction<ImmutableOpcodeReference> {
     target.write(source.read());
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingLd(this);
   }

@@ -50,7 +50,7 @@ public class Adc16 extends Binary16BitsOperation {
             (tFlagRegister1, value3, value2, result1) -> adc16TableAluOperation.execute2Values1Boolean(tFlagRegister1.read(),value3, result1 != 0 ? 1 : 0, tFlagRegister1)));
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingAdc16(this))
       super.accept(visitor);
   }

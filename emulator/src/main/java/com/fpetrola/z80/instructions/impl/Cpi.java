@@ -73,7 +73,7 @@ public class Cpi extends BlockInstruction {
   }
 
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitCpi(this))
       super.accept(visitor);
   }

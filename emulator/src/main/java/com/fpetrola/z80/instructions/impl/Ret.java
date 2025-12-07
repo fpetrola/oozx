@@ -44,7 +44,7 @@ public class Ret extends ConditionalInstruction<Condition> {
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingRet(this))
       super.accept(visitor);
   }

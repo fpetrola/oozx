@@ -71,7 +71,7 @@ public class Out extends TargetSourceInstruction<ImmutableOpcodeReference> {
     }
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitOut(this);
   }

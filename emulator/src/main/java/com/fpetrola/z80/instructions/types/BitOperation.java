@@ -38,7 +38,7 @@ public abstract class BitOperation extends DefaultTargetFlagInstruction {
     return n;
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingBitOperation(this)) {
       visitor.visitingTarget(target, this);
       visitor.visitingFlag(flag, this);

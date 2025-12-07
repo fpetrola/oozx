@@ -33,7 +33,7 @@ public class EI extends AbstractInstruction {
     state.enableInterrupt();
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitEI(this);
   }
 

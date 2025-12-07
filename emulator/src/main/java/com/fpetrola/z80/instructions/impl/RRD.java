@@ -49,7 +49,7 @@ public class RRD extends RLD {
     return (nibble1 << 4) | nibble4;
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitRRD(this)) {
       super.accept(visitor);
     }

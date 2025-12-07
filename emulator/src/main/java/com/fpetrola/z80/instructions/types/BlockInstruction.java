@@ -45,7 +45,7 @@ public abstract class BlockInstruction extends AbstractInstruction {
     hl.increment();
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitBlockInstruction(this);
   }
 

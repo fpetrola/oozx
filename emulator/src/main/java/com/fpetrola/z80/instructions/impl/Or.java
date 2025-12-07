@@ -40,7 +40,7 @@ public class Or extends ParameterizedBinaryAluInstruction {
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingOr(this);
   }

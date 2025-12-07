@@ -63,7 +63,7 @@ public class Cpd extends Cpi {
     flag.write((flag.read() | lastCarry) & 0xFFFF);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitCpd(this))
       super.accept(visitor);
   }

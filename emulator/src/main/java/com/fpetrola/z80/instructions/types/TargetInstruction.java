@@ -25,7 +25,7 @@ public interface TargetInstruction extends Instruction {
   OpcodeReference getTarget();
 
   @Override
-  default void accept(InstructionVisitor visitor) {
+  default void accept(InstructionVisitor<?> visitor) {
     visitor.visitingTarget(getTarget(), this);
     visitor.visitingTargetInstruction(this);
   }

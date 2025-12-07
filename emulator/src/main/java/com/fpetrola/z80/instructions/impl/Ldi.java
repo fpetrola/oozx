@@ -77,7 +77,7 @@ public class Ldi extends BlockInstruction {
     de.increment();
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitLdi(this))
       super.accept(visitor);
   }

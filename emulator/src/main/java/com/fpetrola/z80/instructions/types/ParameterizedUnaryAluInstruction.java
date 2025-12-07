@@ -51,7 +51,7 @@ public class ParameterizedUnaryAluInstruction extends DefaultTargetFlagInstructi
     return (a) -> tableAluOperation.execute2Values(a, flag.read() & 0x01, flag);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingParameterizedUnaryAluInstruction(this))
       super.accept(visitor);
   }

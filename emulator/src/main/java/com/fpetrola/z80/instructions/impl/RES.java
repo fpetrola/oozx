@@ -34,7 +34,7 @@ public class RES extends BitOperation {
     
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingRes(this))
       super.accept(visitor);
   }

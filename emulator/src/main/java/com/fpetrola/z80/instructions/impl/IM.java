@@ -44,7 +44,7 @@ public class IM extends AbstractInstruction {
     return mode;
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitingIm(this);
   }
 }

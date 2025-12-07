@@ -76,7 +76,7 @@ public abstract class AbstractInstruction implements Instruction {
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitingInstruction(this);
   }
 }

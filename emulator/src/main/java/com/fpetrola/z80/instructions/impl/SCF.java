@@ -41,7 +41,7 @@ public class SCF extends DefaultTargetFlagInstruction {
     scfTableAluOperation.execute2Values(target.read(), flag.read(), flag);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingScf(this);
   }

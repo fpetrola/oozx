@@ -36,7 +36,7 @@ public class Ex extends TargetSourceInstruction<OpcodeReference> {
     
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitEx(this);
   }
 }

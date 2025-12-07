@@ -56,7 +56,7 @@ public class ParameterizedBinaryAluInstruction extends TargetSourceInstruction<I
     return (flagRegister, sourceValue, targetValue) -> tableAluOperation.execute2Values(targetValue, sourceValue, flag);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingParameterizedBinaryAluInstruction(this);
   }

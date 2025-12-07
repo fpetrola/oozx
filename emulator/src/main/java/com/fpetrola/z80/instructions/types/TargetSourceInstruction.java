@@ -40,7 +40,7 @@ public abstract class TargetSourceInstruction<S extends ImmutableOpcodeReference
     return source;
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitingFlag(getFlag(), this);
     visitor.visitingSource(getSource(), this);
     visitor.visitingTarget(getTarget(), this);

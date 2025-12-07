@@ -54,7 +54,7 @@ public class Call extends ConditionalInstruction<Condition> {
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingCall(this))
       super.accept(visitor);
   }

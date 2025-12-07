@@ -69,7 +69,7 @@ public class Ini extends BlockInstruction {
     return 1;
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitIni(this))
       super.accept(visitor);
   }

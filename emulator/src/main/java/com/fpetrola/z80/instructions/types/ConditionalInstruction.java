@@ -83,7 +83,7 @@ public abstract class ConditionalInstruction<C extends Condition> extends Abstra
     return getName() + " " + ((condition.toString().length() > 0) ? condition.toString() + ", " : "") + (jumpAddress != -1 ? Helper.formatAddress(jumpAddress) : 0);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     condition.accept(visitor);
     visitor.visitingConditionalInstruction(this);
   }

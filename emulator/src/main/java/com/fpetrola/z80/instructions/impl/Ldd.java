@@ -34,7 +34,7 @@ public class Ldd extends Ldi {
     de.decrement();
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitLdd(this))
       super.accept(visitor);
   }

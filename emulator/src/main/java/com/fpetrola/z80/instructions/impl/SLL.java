@@ -40,7 +40,7 @@ public class SLL extends ParameterizedUnaryAluInstruction {
     super(target, flag, sllTableAluOperation);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingSll(this))
       super.accept(visitor);
   }

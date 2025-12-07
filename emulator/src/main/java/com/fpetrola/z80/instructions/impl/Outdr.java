@@ -28,7 +28,7 @@ public class Outdr extends RepeatingInstruction {
     super(outd, pc, bc);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitOutdr(this)) {
       super.accept(visitor);
     }

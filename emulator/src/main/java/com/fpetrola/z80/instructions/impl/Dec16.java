@@ -32,7 +32,7 @@ public class Dec16 extends DefaultTargetInstruction {
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitingTarget(getTarget(), this);
     visitor.visitingTargetInstruction(this);
     visitor.visitingDec16(this);

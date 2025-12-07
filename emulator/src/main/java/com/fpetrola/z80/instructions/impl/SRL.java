@@ -41,7 +41,7 @@ public class SRL extends ParameterizedUnaryAluInstruction {
     super(target, flag, srlTableAluOperation);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingSrl(this))
       super.accept(visitor);
   }

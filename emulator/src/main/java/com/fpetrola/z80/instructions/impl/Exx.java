@@ -78,7 +78,7 @@ public class Exx extends AbstractInstruction {
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitExx(this);
   }
 

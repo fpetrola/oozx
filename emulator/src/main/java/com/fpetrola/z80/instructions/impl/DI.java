@@ -34,7 +34,7 @@ public class DI extends AbstractInstruction {
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     visitor.visitDI(this);
   }
 }

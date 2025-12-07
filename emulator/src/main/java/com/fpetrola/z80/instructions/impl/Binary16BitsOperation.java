@@ -44,7 +44,7 @@ public class Binary16BitsOperation extends ParameterizedBinaryAluInstruction {
     return result & 0xffff;
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visiting16BitsOperation(this))
       super.accept(visitor);
   }

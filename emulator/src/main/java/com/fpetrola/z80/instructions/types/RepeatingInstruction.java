@@ -43,7 +43,7 @@ public class RepeatingInstruction extends AbstractInstruction implements JumpIns
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitRepeatingInstruction(this))
       super.accept(visitor);
   }

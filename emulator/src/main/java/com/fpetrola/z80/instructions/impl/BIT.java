@@ -26,8 +26,6 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
-import java.util.function.IntSupplier;
-
 public class BIT extends BitOperation {
   private static final TableAluOperation tBitAluOperation = new TableAluOperation() {
     protected int calculate3Values(int value1, int address, int bit) {
@@ -65,7 +63,7 @@ public class BIT extends BitOperation {
     tBitAluOperation.execute3Values(address, target.read(), nAndCarry, flag);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingBit(this))
       super.accept(visitor);
   }

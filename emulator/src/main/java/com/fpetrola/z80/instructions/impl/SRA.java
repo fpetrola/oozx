@@ -40,7 +40,7 @@ public class SRA extends ParameterizedUnaryAluInstruction {
     super(target, flag, sraTableAluOperation);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingSra(this))
       super.accept(visitor);
   }

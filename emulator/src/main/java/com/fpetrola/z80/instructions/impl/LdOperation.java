@@ -61,7 +61,7 @@ public class LdOperation extends AbstractInstruction {
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitLdOperation(this)) {
       instruction.accept(visitor);
       target.accept(visitor);

@@ -40,7 +40,7 @@ public class Dec extends ParameterizedUnaryAluInstruction {
     super(target, flag, dec8TableAluOperation);
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingDec(this))
       super.accept(visitor);
   }

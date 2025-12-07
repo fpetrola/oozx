@@ -75,7 +75,7 @@ public class Sbc16 extends Binary16BitsOperation {
     });
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingSbc16(this))
       super.accept(visitor);
   }

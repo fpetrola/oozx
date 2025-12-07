@@ -47,7 +47,7 @@ public class JR extends ConditionalInstruction<Condition> {
   }
 
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingJR(this);
   }

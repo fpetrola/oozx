@@ -35,7 +35,7 @@ public class Neg extends ParameterizedUnaryAluInstruction {
   }
 
   @Override
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingNeg(this);
   }

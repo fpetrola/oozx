@@ -47,7 +47,7 @@ public class Ind extends Ini {
     return -1;
   }
 
-  public void accept(InstructionVisitor visitor) {
+  public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitInd(this)) {
       super.accept(visitor);
     }
