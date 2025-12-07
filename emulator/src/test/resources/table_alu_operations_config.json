@@ -227,5 +227,17 @@
     "fieldName" : "cpdTableAluOperation",
     "description" : "Compare and decrement",
     "md5" : "4fdf7fd029e6d075e005850699b14aff"
+  }, {
+    "name" : "In",
+    "className" : "com.fpetrola.z80.instructions.impl.In",
+    "fieldName" : "inTableAluOperation",
+    "description" : "Input",
+    "md5" : "67f30d05f2b69b1277305440563b0309"
+  }, {
+    "name" : "Outi",
+    "className" : "com.fpetrola.z80.instructions.impl.Outi",
+    "fieldName" : "outiTableAluOperation",
+    "description" : "Output and increment",
+    "md5" : "9fd1e9c08e1525c6e90bae4a7c72b5ac"
   } ]
 }

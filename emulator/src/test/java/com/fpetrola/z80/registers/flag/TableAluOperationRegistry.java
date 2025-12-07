@@ -42,7 +42,7 @@ public class TableAluOperationRegistry {
     }
   }
 
-  static class ConfigRoot {
+  public static class ConfigRoot {
     public List<OperationConfig> operations;
 
     public ConfigRoot() {
