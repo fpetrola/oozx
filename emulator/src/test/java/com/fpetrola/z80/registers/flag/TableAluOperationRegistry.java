@@ -14,26 +14,40 @@ public class TableAluOperationRegistry {
 
   public static class OperationConfig {
     public String name;
-    public String className;
-    public String fieldName;
     public String description;
     public String md5;
 
+    // Campos que se resuelven por reflection
+    private transient String className;
+    private transient String fieldName;
+
     public OperationConfig() {}
 
-    public OperationConfig(String name, String className, String fieldName, String description) {
+    public OperationConfig(String name, String description) {
       this.name = name;
-      this.className = className;
-      this.fieldName = fieldName;
       this.description = description;
     }
 
-    public OperationConfig(String name, String className, String fieldName, String description, String md5) {
+    public OperationConfig(String name, String description, String md5) {
       this.name = name;
-      this.className = className;
-      this.fieldName = fieldName;
       this.description = description;
       this.md5 = md5;
+    }
+
+    public String getClassName() {
+      return className;
+    }
+
+    public void setClassName(String className) {
+      this.className = className;
+    }
+
+    public String getFieldName() {
+      return fieldName;
+    }
+
+    public void setFieldName(String fieldName) {
+      this.fieldName = fieldName;
     }
 
     @Override
@@ -62,6 +76,8 @@ public class TableAluOperationRegistry {
     return loadedConfigs;
   }
 
+  private static final String BASE_PACKAGE = "com.fpetrola.z80.instructions.impl";
+
   /**
    * Carga operaciones desde archivo JSON.
    */
@@ -69,7 +85,61 @@ public class TableAluOperationRegistry {
     ObjectMapper mapper = new ObjectMapper();
     String json = new String(Files.readAllBytes(Paths.get(path)));
     ConfigRoot root = mapper.readValue(json, ConfigRoot.class);
+    
+    // Resolver className y fieldName por reflection
+    for (OperationConfig config : root.operations) {
+      resolveClassAndFieldByReflection(config);
+    }
+    
     return root.operations;
+  }
+
+  /**
+   * Resuelve el className y fieldName por reflection basado en el nombre de la operación.
+   */
+  private static void resolveClassAndFieldByReflection(OperationConfig config) throws IOException {
+    String className = BASE_PACKAGE + "." + config.name;
+    config.setClassName(className);
+    
+    try {
+      Class<?> clazz = Class.forName(className);
+      
+      // Buscar campos static de tipo TableAluOperation o AluOperation que sea TableAluOperation
+      java.lang.reflect.Field[] fields = clazz.getDeclaredFields();
+      java.lang.reflect.Field tableAluField = null;
+      
+      for (java.lang.reflect.Field field : fields) {
+        if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+          // Verificar si es TableAluOperation (puede ser directo o anónimo)
+          try {
+            field.setAccessible(true);
+            Object fieldValue = field.get(null);
+            if (fieldValue instanceof TableAluOperation) {
+              // Prefiere campos que coincidan con el patrón de nombre
+              String fieldNameLower = field.getName().toLowerCase();
+              String nameLower = config.name.toLowerCase();
+              
+              if (fieldNameLower.contains(nameLower) || fieldNameLower.contains("table")) {
+                tableAluField = field;
+                break;
+              } else if (tableAluField == null) {
+                tableAluField = field;
+              }
+            }
+          } catch (Exception e) {
+            // Ignorar si no se puede acceder
+          }
+        }
+      }
+      
+      if (tableAluField != null) {
+        config.setFieldName(tableAluField.getName());
+      } else {
+        throw new IOException("No TableAluOperation field found in class " + className);
+      }
+    } catch (ClassNotFoundException e) {
+      throw new IOException("Class not found: " + className, e);
+    }
   }
 
   /**
@@ -78,8 +148,8 @@ public class TableAluOperationRegistry {
    */
   public static TableAluOperation getOperation(OperationConfig config) throws Exception {
     try {
-      Class<?> clazz = Class.forName(config.className);
-      java.lang.reflect.Field field = clazz.getDeclaredField(config.fieldName);
+      Class<?> clazz = Class.forName(config.getClassName());
+      java.lang.reflect.Field field = clazz.getDeclaredField(config.getFieldName());
       field.setAccessible(true);
       return (TableAluOperation) field.get(null);
     } catch (Exception e) {
