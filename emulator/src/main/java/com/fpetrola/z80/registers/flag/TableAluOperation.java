@@ -24,9 +24,9 @@ public class TableAluOperation extends AluOperation {
   protected int[] table;
 
   protected void init(ToPrimitiveIntBiFunction biFunction) {
-    table = new int[256 * 2];
+    table = new int[256 * 256];
     for (int a = 0; a < 256; a++) {
-      for (int c = 0; c < 2; c++) {
+      for (int c = 0; c < 256; c++) {
         F = c;
         int aluResult = biFunction.applyAsInt(a, c);
         table[((a & 0xff)) | (c << 8)] = ((aluResult & 0xff) << 8) + F;

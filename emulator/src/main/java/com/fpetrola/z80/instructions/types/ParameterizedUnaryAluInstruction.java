@@ -40,15 +40,11 @@ public class ParameterizedUnaryAluInstruction extends DefaultTargetFlagInstructi
   }
 
   public void execute() {
-    target.write(doExecute(target.read()));
-  }
-
-  protected int doExecute(int value2) {
-    return unaryAluOperation.execute(value2);
+    target.write(unaryAluOperation.execute(target.read()));
   }
 
   public UnaryAluOperation getTUnaryAluOperation(TableAluOperation tableAluOperation) {
-    return (a) -> tableAluOperation.execute2Values(a, flag.read() & 0x01, flag);
+    return (a) -> tableAluOperation.execute2Values(a, flag.read(), flag);
   }
 
   public void accept(InstructionVisitor<?> visitor) {

@@ -24,15 +24,18 @@ public abstract class AluOperation extends AluOperationBase {
   public AluOperation() {
     super();
     F = 0;
-    if (calculate2Values1Boolean(0, 0, 0) != -1) {
-      ToPrimitiveIntBiAndBooleanFunction triFunction = (value1, value2, carry) -> calculate2Values1Boolean(value2, value1, carry);
-      init(triFunction);
-    } else if (calculate1Value1Boolean(0, 0) != -1) {
-      ToPrimitiveIntBiFunction biFunction = this::calculate1Value1Boolean;
-      init(biFunction);
-    } else if (calculate3Values(0, 0, 0) != -1) {
-      ToPrimitiveIntTriFunction triFunction = this::calculate3Values;
-      init(triFunction);
+    // Auto-initialize TablesAluOperation subclasses
+    if (this instanceof TableAluOperation) {
+      if (calculate2Values1Boolean(0, 0, 0) != -1) {
+        ToPrimitiveIntBiAndBooleanFunction triFunction = (value1, value2, carry) -> calculate2Values1Boolean(value2, value1, carry);
+        init(triFunction);
+      } else if (calculate1Value1Boolean(0, 0) != -1) {
+        ToPrimitiveIntBiFunction biFunction = this::calculate1Value1Boolean;
+        init(biFunction);
+      } else if (calculate3Values(0, 0, 0) != -1) {
+        ToPrimitiveIntTriFunction triFunction = this::calculate3Values;
+        init(triFunction);
+      }
     }
   }
 
@@ -61,7 +64,15 @@ public abstract class AluOperation extends AluOperationBase {
     return execute2Values1Boolean(value1, value2, flag.read() & 0x01, flag);
   }
 
-  public abstract int execute2Values1Boolean(int value, int regA, int carry, Register flag);
+  public int execute2Values1Boolean(int value1, int value2, int booleanValue, Register flag) {
+    int data1 = calculate2Values1Boolean(value1, value2, booleanValue);
+    flag.write(F & 0xFF);
+    return data1;
+  }
 
-  public abstract int execute2Values(int value1, int value2, Register flag);
+  public int execute2Values(int value1, int value2, Register flag) {
+    int data1 = calculate2Values1Boolean(value1, value2, 0);
+    flag.write(F & 0xFF);
+    return data1;
+  }
 }
