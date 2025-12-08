@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.beans.Transient;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -23,7 +24,8 @@ public class TableAluOperationRegistry {
     private transient String className;
     private transient String fieldName;
 
-    public OperationConfig() {}
+    public OperationConfig() {
+    }
 
     public OperationConfig(String name, String description) {
       this.name = name;
@@ -91,12 +93,12 @@ public class TableAluOperationRegistry {
     ObjectMapper mapper = new ObjectMapper();
     String json = new String(Files.readAllBytes(Paths.get(path)));
     ConfigRoot root = mapper.readValue(json, ConfigRoot.class);
-    
+
     // Resolver className y fieldName por reflection
     for (OperationConfig config : root.operations) {
       resolveClassAndFieldByReflection(config);
     }
-    
+
     return root.operations;
   }
 
@@ -106,25 +108,25 @@ public class TableAluOperationRegistry {
   private static void resolveClassAndFieldByReflection(OperationConfig config) throws IOException {
     String className = BASE_PACKAGE + "." + config.name;
     config.setClassName(className);
-    
+
     try {
       Class<?> clazz = Class.forName(className);
-      
+
       // Buscar campos static de tipo TableAluOperation o AluOperation que sea TableAluOperation
       java.lang.reflect.Field[] fields = clazz.getDeclaredFields();
       java.lang.reflect.Field tableAluField = null;
-      
+
       for (java.lang.reflect.Field field : fields) {
         if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
           // Verificar si es TableAluOperation (puede ser directo o anónimo)
           try {
             field.setAccessible(true);
             Object fieldValue = field.get(null);
-            if (fieldValue instanceof TableAluOperation) {
+            if (fieldValue instanceof AluOperation) {
               // Prefiere campos que coincidan con el patrón de nombre
               String fieldNameLower = field.getName().toLowerCase();
               String nameLower = config.name.toLowerCase();
-              
+
               if (fieldNameLower.contains(nameLower) || fieldNameLower.contains("table")) {
                 tableAluField = field;
                 break;
@@ -137,7 +139,7 @@ public class TableAluOperationRegistry {
           }
         }
       }
-      
+
       if (tableAluField != null) {
         config.setFieldName(tableAluField.getName());
       } else {
@@ -152,12 +154,12 @@ public class TableAluOperationRegistry {
    * Obtiene una operación TableAluOperation por nombre de configuración.
    * Usa reflexión para acceder al campo estático.
    */
-  public static TableAluOperation getOperation(OperationConfig config) throws Exception {
+  public static AluOperation getOperation(OperationConfig config) throws Exception {
     try {
       Class<?> clazz = Class.forName(config.getClassName());
       java.lang.reflect.Field field = clazz.getDeclaredField(config.getFieldName());
       field.setAccessible(true);
-      return (TableAluOperation) field.get(null);
+      return (AluOperation) field.get(null);
     } catch (Exception e) {
       throw new RuntimeException(
           "Failed to load operation " + config + ": " + e.getMessage(), e);
@@ -167,11 +169,23 @@ public class TableAluOperationRegistry {
   /**
    * Obtiene la tabla int[] de una TableAluOperation.
    */
-  public static int[] getTable(TableAluOperation operation) throws NoSuchFieldException,
-      IllegalAccessException {
-    java.lang.reflect.Field tableField = TableAluOperation.class.getDeclaredField("table");
-    tableField.setAccessible(true);
-    return (int[]) tableField.get(operation);
+  public static int[] getTable(AluOperation operation) {
+    try {
+      Field tableField = getTableField(operation);
+      tableField.setAccessible(true);
+      return (int[]) tableField.get(operation);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static Field getTableField(AluOperation operation) {
+    try {
+      Field tableField = CachedTableAluOperation.class.getDeclaredField("table");
+      return tableField;
+    } catch (NoSuchFieldException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -186,7 +200,7 @@ public class TableAluOperationRegistry {
 
     for (OperationConfig config : configs) {
       try {
-        TableAluOperation operation = getOperation(config);
+        AluOperation operation = getOperation(config);
         int[] table = getTable(operation);
         config.md5 = TableAluOperationExporter.calculateTableMd5(table);
         System.out.println("✓ " + config.name + ": " + config.md5);
@@ -212,7 +226,7 @@ public class TableAluOperationRegistry {
     ObjectMapper mapper = new ObjectMapper();
     ConfigRoot root = new ConfigRoot();
     root.operations = configs;
-    
+
     String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
     Files.write(Paths.get("src/test/resources/table_alu_operations_config.json"), json.getBytes());
   }
@@ -233,7 +247,7 @@ public class TableAluOperationRegistry {
 
     for (OperationConfig config : configs) {
       try {
-        TableAluOperation operation = getOperation(config);
+        AluOperation operation = getOperation(config);
         String outputPath = outputDirectory + "/" + config.name.toLowerCase() + "_table.json";
         TableAluOperationExporter.exportToJson(operation, config.name, outputPath);
         successCount++;

@@ -23,26 +23,35 @@ import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Adc extends ParameterizedBinaryAluInstruction {
-  public static final TableAluOperation adc8TableAluOperation = new TableAluOperation() {
-    public int calculate2Values1Boolean(int value1, int value2, int carry) {
-      F = carry;
-      int adctemp = value2 + (value1) + (F & FLAG_C);
-      int lookup = ((value2 & 0x88) >> 3) |
-                   (((value1) & 0x88) >> 2) |
-                   ((adctemp & 0x88) >> 1);
-      value2 = adctemp & 0xff;
-      F = ((adctemp & 0x100) != 0 ? FLAG_C : 0) |
-          halfCarryAddTable(lookup & 0x07) | overflowAddTable(lookup >> 4) |
-          sz53Table(value2);
-      Q = F;
-      return value2;
-    }
-  };
+  public static final AluOperation adc8TableAluOperation = new CachedTableAluOperation(
+      new AluOperation() {
+        protected int calculate2Values1Boolean(int value1, int value2, int carry) {
+          F = carry;
+          int adctemp = value2 + (value1) + (F & FLAG_C);
+          int lookup = ((value2 & 0x88) >> 3) |
+                       (((value1) & 0x88) >> 2) |
+                       ((adctemp & 0x88) >> 1);
+          value2 = adctemp & 0xff;
+          F = ((adctemp & 0x100) != 0 ? FLAG_C : 0) |
+              halfCarryAddTable(lookup & 0x07) | overflowAddTable(lookup >> 4) |
+              sz53Table(value2);
+          Q = F;
+          return value2;
+        }
+      }
+  );
+
   public Adc(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
-    super(target, source, flag, (tFlagRegister, value, regA) -> adc8TableAluOperation.execute2ValuesAndCarry(value, regA, tFlagRegister));
+    super(target, source, flag, adc8TableAluOperation);
+  }
+
+  @Override
+  public <T1> BinaryAluOperation getTBinaryAluOperation(AluOperation tableAluOperation) {
+    return (tFlagRegister, value, regA) -> adc8TableAluOperation.execute2ValuesAndCarry(value, regA, tFlagRegister);
   }
 
   @Override

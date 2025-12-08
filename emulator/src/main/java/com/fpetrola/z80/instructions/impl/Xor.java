@@ -23,17 +23,21 @@ import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Xor extends ParameterizedBinaryAluInstruction {
-  protected static final TableAluOperation xorTableAluOperation = new TableAluOperation() {
-    public int calculate2Values1Boolean(int value1, int value2, int carry) {
+  protected static final AluOperation xorTableAluOperation = new CachedTableAluOperation(
+    new AluOperation() {
+      @Override
+      protected int calculate2Values1Boolean(int value1, int value2, int carry) {
       value2 ^= (value1);
       F = sz53pTable(value2);
       Q = F;
       return value2;
     }
-  };
+    }
+  );
 
   public Xor(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
     super(target, source, flag, xorTableAluOperation);

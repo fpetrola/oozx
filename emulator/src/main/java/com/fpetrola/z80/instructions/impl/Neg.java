@@ -22,11 +22,14 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Neg extends ParameterizedUnaryAluInstruction {
-  public static final TableAluOperation negTableAluOperation = new TableAluOperation() {
-    public int calculate2Values1Boolean(int value1, int value2, int carry) {
+  public static final AluOperation negTableAluOperation = new CachedTableAluOperation(
+    new AluOperation() {
+      @Override
+      protected int calculate2Values1Boolean(int value1, int value2, int carry) {
       value2 = 0;
       int subtemp = value2 - value1;
       int lookup = ((value2 & 0x88) >> 3) | ((value1 & 0x88) >> 2) | ((subtemp & 0x88) >> 1);
@@ -37,7 +40,8 @@ public class Neg extends ParameterizedUnaryAluInstruction {
 
       return value2;
     }
-  };
+    }
+  );
 
   public Neg(OpcodeReference target, Register flag) {
     super(target, flag, negTableAluOperation);

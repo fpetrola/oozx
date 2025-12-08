@@ -20,17 +20,37 @@ package com.fpetrola.z80.registers.flag;
 
 import com.fpetrola.z80.registers.Register;
 
-public class TableAluOperation extends AluOperation {
-  protected int[] table;
+public class CachedTableAluOperation extends AluOperation {
+  private final AluOperation delegate;
+  private int[] table;
 
-  public void init(ToPrimitiveIntTriFunction triFunction, int i) {
+  public CachedTableAluOperation(AluOperation delegate) {
+    this.delegate = delegate;
+    initializeTable(delegate);
+  }
+
+  private void initializeTable(AluOperation delegate) {
+    ToPrimitiveIntTriFunction triFunction = null;
+    int i = 2;
+    if (delegate.calculate2Values1Boolean(0, 0, 0) != -1) {
+      triFunction = delegate::calculate2Values1Boolean;
+    } else if (delegate.calculate1Value(0) != -1) {
+      triFunction = (value1, value2, carry) -> delegate.calculate1Value(value1);
+    } else if (delegate.calculate3Values(0, 0, 0) != -1) {
+      triFunction = delegate::calculate3Values;
+      i = 256;
+    }
+    buildTable(triFunction, i);
+  }
+
+  public void buildTable(ToPrimitiveIntTriFunction triFunction, int i) {
     table = new int[256 * 256 * i];
     for (int a = 0; a < 256; a++) {
       for (int b = 0; b < 256; b++) {
         for (int c = 0; c < i; c++) {
-          F = b;
+          delegate.F = b;
           int aluResult = triFunction.applyAsInt(a, b, c);
-          table[((a & 0xff)) | (b << 8) | (c << 16)] = ((aluResult & 0xff) << 8) + F;
+          table[((a & 0xff)) | (b << 8) | (c << 16)] = ((aluResult & 0xff) << 8) + delegate.F;
         }
       }
     }

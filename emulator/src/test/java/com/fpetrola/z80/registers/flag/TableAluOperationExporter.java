@@ -1,6 +1,7 @@
 package com.fpetrola.z80.registers.flag;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,7 +21,8 @@ public class TableAluOperationExporter {
     public int resultA;
     public int resultFlags;
 
-    public TableEntry() {}
+    public TableEntry() {
+    }
 
     public TableEntry(int index, int value, int resultA, int resultFlags) {
       this.index = index;
@@ -47,19 +49,6 @@ public class TableAluOperationExporter {
     public TableExport() {
       this.exportedAt = System.currentTimeMillis();
       this.entries = new ArrayList<>();
-    }
-  }
-
-  /**
-   * Obtiene el campo protegido 'table' de una TableAluOperation usando reflexión.
-   */
-  private static int[] getTableFromOperation(TableAluOperation operation) {
-    try {
-      java.lang.reflect.Field tableField = TableAluOperation.class.getDeclaredField("table");
-      tableField.setAccessible(true);
-      return (int[]) tableField.get(operation);
-    } catch (NoSuchFieldException | IllegalAccessException e) {
-      throw new RuntimeException("Failed to access table field", e);
     }
   }
 
@@ -106,8 +95,8 @@ public class TableAluOperationExporter {
    * @param outputPath Ruta del archivo JSON de salida
    */
   public static void exportToJson(
-      TableAluOperation operation, String operationName, String outputPath) throws IOException {
-    int[] table = getTableFromOperation(operation);
+      AluOperation operation, String operationName, String outputPath) throws IOException {
+    int[] table = TableAluOperationRegistry.getTable(operation);
 
     TableExport export = new TableExport();
     export.operationName = operationName;

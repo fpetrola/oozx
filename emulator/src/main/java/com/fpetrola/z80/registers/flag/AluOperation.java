@@ -21,19 +21,16 @@ package com.fpetrola.z80.registers.flag;
 import com.fpetrola.z80.registers.Register;
 
 public abstract class AluOperation extends AluOperationBase {
+  private ToPrimitiveIntTriFunction triFunction;
+
   public AluOperation() {
-    if (this instanceof TableAluOperation) {
-      ToPrimitiveIntTriFunction triFunction = null;
-      int i = 2;
-      if (calculate2Values1Boolean(0, 0, 0) != -1) {
-        triFunction = this::calculate2Values1Boolean;
-      } else if (calculate1Value(0) != -1) {
-        triFunction = (value1, value2, carry) -> calculate1Value(value1);
-      } else if (calculate3Values(0, 0, 0) != -1) {
-        triFunction = this::calculate3Values;
-        i = 256;
-      }
-      init(triFunction, i);
+    triFunction = null;
+    if (calculate2Values1Boolean(0, 0, 0) != -1) {
+      triFunction = this::calculate2Values1Boolean;
+    } else if (calculate1Value(0) != -1) {
+      triFunction = (value1, value2, carry) -> this.calculate1Value(value1);
+    } else if (calculate3Values(0, 0, 0) != -1) {
+      triFunction = this::calculate3Values;
     }
   }
 
@@ -49,21 +46,25 @@ public abstract class AluOperation extends AluOperationBase {
     return -1;
   }
 
-  public void init(ToPrimitiveIntTriFunction triFunction, int i) {
-  }
-
   public int execute2ValuesAndCarry(int value1, int value2, Register flag) {
     return execute2Values1Boolean(value1, value2, flag.read() & 0x01, flag);
   }
 
   public int execute2Values1Boolean(int value1, int value2, int booleanValue, Register flag) {
-    int data1 = calculate2Values1Boolean(value1, value2, booleanValue);
-    flag.write(F & 0xFF);
-    return data1;
+    return executeWrappingF(value1, value2, booleanValue, flag);
   }
 
   public int execute2Values(int value1, int value2, Register flag) {
-    int data1 = calculate2Values1Boolean(value1, value2, 0);
+    return executeWrappingF(value1, value2, 0, flag);
+  }
+
+  public void execute3Values(int value1, int value2, int value3, Register flag) {
+    executeWrappingF(value1, value2, value3, flag);
+  }
+
+  private int executeWrappingF(int value1, int value2, int value3, Register flag) {
+    F = flag.read();
+    int data1 = triFunction.applyAsInt(value1, value2, value3) & 0xFF;
     flag.write(F & 0xFF);
     return data1;
   }

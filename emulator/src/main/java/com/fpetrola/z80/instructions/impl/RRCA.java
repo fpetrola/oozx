@@ -22,18 +22,22 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class RRCA extends ParameterizedUnaryAluInstruction {
-  public static final TableAluOperation rrcaTableAluOperation = new TableAluOperation() {
-    public int calculate1Value(int A) {
+  public static final AluOperation rrcaTableAluOperation = new CachedTableAluOperation(
+    new AluOperation() {
+      @Override
+      protected int calculate1Value(int A) {
       F = (F & (FLAG_P | FLAG_Z | FLAG_S)) | (A & FLAG_C);
       A = (A >> 1) | (A << 7);
       F |= (A & (FLAG_3 | FLAG_5));
       Q = F;
       return A & 0xff;
     }
-  };
+    }
+  );
 
   public RRCA(OpcodeReference target, Register flag) {
     super(target, flag, rrcaTableAluOperation);

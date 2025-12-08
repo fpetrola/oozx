@@ -21,17 +21,21 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class RRD extends RLD {
-  public static final TableAluOperation rrdTableAluOperation = new TableAluOperation() {
-    public int calculate2Values1Boolean(int value1, int value2, int flag) {
+  public static final AluOperation rrdTableAluOperation = new CachedTableAluOperation(
+    new AluOperation() {
+      @Override
+      protected int calculate2Values1Boolean(int value1, int value2, int flag) {
       value2 = (value2 & 0xf0) | (value1 & 0x0f);
       F = (F & FLAG_C) | sz53pTable(value2);
       Q = F;
       return value2;
     }
-  };
+    }
+  );
 
   public RRD(Register a, Register hl, Register r, Register flag, Memory memory) {
     super(a, hl, flag, r, memory);

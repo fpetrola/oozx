@@ -22,12 +22,12 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class ParameterizedBinaryAluInstruction extends TargetSourceInstruction<ImmutableOpcodeReference> {
   final protected BinaryAluOperation binaryAluOperation;
 
-  public ParameterizedBinaryAluInstruction(OpcodeReference target, ImmutableOpcodeReference source, Register flag, TableAluOperation tableAluOperation) {
+  public ParameterizedBinaryAluInstruction(OpcodeReference target, ImmutableOpcodeReference source, Register flag, AluOperation tableAluOperation) {
     super(target, source, flag);
     this.binaryAluOperation = getTBinaryAluOperation(tableAluOperation);
   }
@@ -52,7 +52,7 @@ public class ParameterizedBinaryAluInstruction extends TargetSourceInstruction<I
     target.write(execute);
   }
 
-  public <T1> BinaryAluOperation getTBinaryAluOperation(TableAluOperation tableAluOperation) {
+  public <T1> BinaryAluOperation getTBinaryAluOperation(AluOperation tableAluOperation) {
     return (flagRegister, sourceValue, targetValue) -> tableAluOperation.execute2Values(targetValue, sourceValue, flag);
   }
 

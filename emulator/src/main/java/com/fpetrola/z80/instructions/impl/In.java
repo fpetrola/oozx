@@ -24,17 +24,20 @@ import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class In extends TargetSourceInstruction<ImmutableOpcodeReference> {
-  public final static TableAluOperation inTableAluOperation = new TableAluOperation() {
-    public int calculate2Values1Boolean(int value1, int value2, int carry) {
-      F = value2;
-      F = (F & FLAG_C) | sz53pTable((value1));
-      Q = F;
-      return value1;
-    }
-  };
+  public final static AluOperation inTableAluOperation = new CachedTableAluOperation(
+      new AluOperation() {
+        protected int calculate2Values1Boolean(int value1, int value2, int carry) {
+          F = value2;
+          F = (F & FLAG_C) | sz53pTable((value1));
+          Q = F;
+          return value1;
+        }
+      }
+  );
 
   public ImmutableOpcodeReference getA() {
     return a;
@@ -82,7 +85,7 @@ public class In extends TargetSourceInstruction<ImmutableOpcodeReference> {
     else
       flag.write(flag.read());
 
-    
+
   }
 
   public void accept(InstructionVisitor<?> visitor) {

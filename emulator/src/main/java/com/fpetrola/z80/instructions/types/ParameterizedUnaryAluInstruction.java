@@ -21,16 +21,16 @@ package com.fpetrola.z80.instructions.types;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class ParameterizedUnaryAluInstruction extends DefaultTargetFlagInstruction {
   final protected UnaryAluOperation unaryAluOperation;
 
-  public ParameterizedUnaryAluInstruction(OpcodeReference target, Register flag, TableAluOperation tableAluOperation) {
+  public ParameterizedUnaryAluInstruction(OpcodeReference target, Register flag, AluOperation tableAluOperation) {
     super(target, flag);
     this.unaryAluOperation = (a) -> tableAluOperation.execute2Values(a, this.flag.read(), this.flag);
   }
-  
+
   public interface UnaryAluOperation {
     int execute(int value);
   }

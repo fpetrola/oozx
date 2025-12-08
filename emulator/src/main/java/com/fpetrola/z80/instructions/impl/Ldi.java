@@ -24,10 +24,12 @@ import com.fpetrola.z80.instructions.types.BlockInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Ldi extends BlockInstruction {
-  public static final TableAluOperation ldiTableAluOperation = new TableAluOperation() {
+  public static final AluOperation ldiTableAluOperation = new CachedTableAluOperation(
+    new AluOperation() {
     protected int calculate2Values1Boolean(int value1, int value2, int carry) {
       F = value1;
       int BC = carry;
@@ -38,7 +40,8 @@ public class Ldi extends BlockInstruction {
 
       return F;
     }
-  };
+    }
+  );
   protected final Register a;
 
   public Register getDe() {

@@ -23,18 +23,22 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class LdAR extends Ld {
-  public static final TableAluOperation ldarTableAluOperation = new TableAluOperation() {
-    public int calculate2Values1Boolean(int value1, int value2, int IFF2) {
+  public static final AluOperation ldarTableAluOperation = new CachedTableAluOperation(
+    new AluOperation() {
+      @Override
+      protected int calculate2Values1Boolean(int value1, int value2, int IFF2) {
       F = value1;
       int A1 = value2 & 0xff;
       F = (F & FLAG_C) | sz53Table(A1) | (IFF2 != 0 ? FLAG_V : 0);
       Q = F;
       return F;
     }
-  };
+    }
+  );
   private final State state;
 
   public LdAR(OpcodeReference target, ImmutableOpcodeReference source, Register flag, State state) {

@@ -24,11 +24,13 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Plain8BitRegister;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 
 public class DAA extends ParameterizedUnaryAluInstruction {
-  public final static AluOperation daaTableAluOperation = new TableAluOperation() {
-    public int calculate2Values1Boolean(int value1, int value2, int flags) {
+  public final static AluOperation daaTableAluOperation = new CachedTableAluOperation(
+    new AluOperation() {
+      @Override
+      protected int calculate2Values1Boolean(int value1, int value2, int flags) {
       F = value2;
       value1 &= 0xff;
       int add = 0;
@@ -50,7 +52,8 @@ public class DAA extends ParameterizedUnaryAluInstruction {
 
       return value1;
     }
-  };
+    }
+  );
 
   public DAA(OpcodeReference target, Register flag) {
     super(target, flag, (reg_A) -> daaTableAluOperation.execute2ValuesAndCarry(reg_A, flag.read(), flag));

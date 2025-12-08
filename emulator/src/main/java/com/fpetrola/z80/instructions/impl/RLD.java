@@ -22,18 +22,22 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class RLD extends AbstractInstruction {
-  public static final TableAluOperation rldTableAluOperation = new TableAluOperation() {
-    public int calculate2Values1Boolean(int value1, int value2, int flag) {
+  public static final AluOperation rldTableAluOperation = new CachedTableAluOperation(
+    new AluOperation() {
+      @Override
+      protected int calculate2Values1Boolean(int value1, int value2, int flag) {
       F = flag;
       value2 = (value2 & 0xf0) | (value1 >> 4);
       F = (F & FLAG_C) | sz53pTable(value2);
       Q = F;
       return value2;
     }
-  };
+    }
+  );
   protected final Register a;
 
   public Register getHl() {

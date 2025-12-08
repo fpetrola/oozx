@@ -25,11 +25,13 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 
 public class Cpi extends BlockInstruction {
-  public static final AluOperation cpiTableAluOperation = new TableAluOperation() {
-    public int calculate2Values1Boolean(int value, int A, int BC) {
+  public static final AluOperation cpiTableAluOperation = new CachedTableAluOperation(
+    new AluOperation() {
+      @Override
+      protected int calculate2Values1Boolean(int value, int A, int BC) {
       F = BC;
       int bytetemp = A - value;
       int lookup = ((A & 0x08) >> 3) |
@@ -43,7 +45,8 @@ public class Cpi extends BlockInstruction {
       Q = F;
       return F;
     }
-  };
+    }
+  );
 
   public Register getA() {
     return a;

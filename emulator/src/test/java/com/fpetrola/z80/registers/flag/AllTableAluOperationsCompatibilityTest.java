@@ -103,7 +103,7 @@ class AllTableAluOperationsCompatibilityTest {
       TableAluOperationRegistry.OperationConfig operationConfig) throws Exception {
 
     // === STEP 1: Cargar operación ===
-    TableAluOperation operation = TableAluOperationRegistry.getOperation(operationConfig);
+    AluOperation operation = TableAluOperationRegistry.getOperation(operationConfig);
     assertNotNull(
         operation,
         String.format(

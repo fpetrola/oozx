@@ -24,10 +24,12 @@ import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class BIT extends BitOperation {
-  private static final TableAluOperation tBitAluOperation = new TableAluOperation() {
+  private static final AluOperation tBitAluOperation = new CachedTableAluOperation(
+    new AluOperation() {
     protected int calculate3Values(int address, int value1, int bit) {
       F = bit & 1;
       bit = bit >>> 1;
@@ -37,7 +39,8 @@ public class BIT extends BitOperation {
       Q = F;
       return F;
     }
-  };
+    }
+  );
 
   public Register getMemptr() {
     return memptr;

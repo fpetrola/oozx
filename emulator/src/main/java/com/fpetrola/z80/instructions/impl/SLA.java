@@ -22,11 +22,14 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class SLA extends ParameterizedUnaryAluInstruction {
-  public static final TableAluOperation slaTableAluOperation = new TableAluOperation() {
-    public int calculate1Value(int value) {
+  public static final AluOperation slaTableAluOperation = new CachedTableAluOperation(
+    new AluOperation() {
+      @Override
+      protected int calculate1Value(int value) {
       F = value >> 7;
       value <<= 1;
       value &= 0xff;
@@ -34,7 +37,8 @@ public class SLA extends ParameterizedUnaryAluInstruction {
       Q = F;
       return value;
     }
-  };
+    }
+  );
 
   public SLA(OpcodeReference target, Register flag) {
     super(target, flag, slaTableAluOperation);

@@ -23,23 +23,27 @@ import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 
 public class Add extends ParameterizedBinaryAluInstruction {
-  public static final TableAluOperation add8TableAluOperation = new TableAluOperation() {
-    public int calculate2Values1Boolean(int value1, int value2, int carry) {
-      int addtemp = value2 + (value1);
-      int lookup = ((value2 & 0x88) >> 3) |
-                   (((value1) & 0x88) >> 2) |
-                   ((addtemp & 0x88) >> 1);
-      value2 = addtemp & 0xff;
-      F = ((addtemp & 0x100) != 0 ? FLAG_C : 0) |
-          halfCarryAddTable(lookup & 0x07) | overflowAddTable(lookup >> 4) |
-          sz53Table(value2);
-      Q = F;
-      return value2;
+  public static final AluOperation add8TableAluOperation = new CachedTableAluOperation(
+    new AluOperation() {
+      @Override
+      protected int calculate2Values1Boolean(int value1, int value2, int carry) {
+        int addtemp = value2 + (value1);
+        int lookup = ((value2 & 0x88) >> 3) |
+                     (((value1) & 0x88) >> 2) |
+                     ((addtemp & 0x88) >> 1);
+        value2 = addtemp & 0xff;
+        F = ((addtemp & 0x100) != 0 ? FLAG_C : 0) |
+            halfCarryAddTable(lookup & 0x07) | overflowAddTable(lookup >> 4) |
+            sz53Table(value2);
+        Q = F;
+        return value2;
+      }
     }
-  };
+  );
 
   public Add(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
     super(target, source, flag, add8TableAluOperation);

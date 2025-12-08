@@ -24,11 +24,13 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 
 public class Cpd extends Cpi {
-  public static final AluOperation cpdTableAluOperation = new TableAluOperation() {
-    public int calculate2Values1Boolean(int value1, int value2, int BC) {
+  public static final AluOperation cpdTableAluOperation = new CachedTableAluOperation(
+    new AluOperation() {
+      @Override
+      protected int calculate2Values1Boolean(int value1, int value2, int BC) {
       int bytetemp = value2 - value1;
       int lookup = ((value2 & 0x08) >> 3) |
                    (((value1) & 0x08) >> 2) |
@@ -41,7 +43,8 @@ public class Cpd extends Cpi {
       Q = F;
       return value2;
     }
-  };
+    }
+  );
 
   public Cpd(Register a, Register flag, RegisterPair bc, RegisterPair hl, Memory memory, IO io) {
     super(a, flag, bc, hl, memory, io);

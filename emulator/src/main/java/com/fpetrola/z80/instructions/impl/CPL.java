@@ -22,19 +22,23 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 
 public class CPL extends ParameterizedUnaryAluInstruction {
-  public static final TableAluOperation cplTableAluOperation = new TableAluOperation() {
-    public int calculate1Value(int A) {
-      A ^= 0xff;
-      F = (F & (FLAG_C | FLAG_P | FLAG_Z | FLAG_S)) |
-          (A & (FLAG_3 | FLAG_5)) | (FLAG_N | FLAG_H);
-      Q = F;
+  public static final AluOperation cplTableAluOperation = new CachedTableAluOperation(
+    new AluOperation() {
+      @Override
+      protected int calculate1Value(int A) {
+        A ^= 0xff;
+        F = (F & (FLAG_C | FLAG_P | FLAG_Z | FLAG_S)) |
+            (A & (FLAG_3 | FLAG_5)) | (FLAG_N | FLAG_H);
+        Q = F;
 
-      return A;
+        return A;
+      }
     }
-  };
+  );
 
   public CPL(OpcodeReference target, Register flag) {
     super(target, flag, cplTableAluOperation);

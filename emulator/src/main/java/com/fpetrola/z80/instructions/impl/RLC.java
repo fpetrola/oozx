@@ -22,18 +22,22 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.TableAluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class RLC extends ParameterizedUnaryAluInstruction {
 
-  public static final TableAluOperation rlcTableAluOperation1 = new TableAluOperation() {
-    public int calculate1Value(int value) {
+  public static final AluOperation rlcTableAluOperation1 = new CachedTableAluOperation(
+    new AluOperation() {
+      @Override
+      protected int calculate1Value(int value) {
       value = (value << 1 | value >> 7) & 0xff;
       F = (value & FLAG_C) | sz53pTable(value);
       Q = F;
       return value;
     }
-  };
+    }
+  );
 
   public RLC(OpcodeReference target, Register flag) {
     super(target, flag, rlcTableAluOperation1);
