@@ -25,16 +25,24 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Neg extends ParameterizedUnaryAluInstruction {
+  public static final TableAluOperation negTableAluOperation = new TableAluOperation() {
+    public int calculate2Values1Boolean(int value1, int value2, int carry) {
+      value2 = 0;
+      int subtemp = value2 - value1;
+      int lookup = ((value2 & 0x88) >> 3) | ((value1 & 0x88) >> 2) | ((subtemp & 0x88) >> 1);
+      value2 = subtemp & 0xff;
+      F = ((subtemp & 0x100) != 0 ? FLAG_C : 0) | FLAG_N |
+          halfCarrySubTable(lookup & 0x07) | overflowSubTable(lookup >> 4) | sz53Table(value2);
+      Q = F;
+
+      return value2;
+    }
+  };
+
   public Neg(OpcodeReference target, Register flag) {
-    super(target, flag, Sub.sub8TableAluOperation);
+    super(target, flag, negTableAluOperation);
   }
 
-  @Override
-  public UnaryAluOperation getTUnaryAluOperation(TableAluOperation tableAluOperation) {
-    return (a) -> tableAluOperation.execute2Values(a, 0, flag);
-  }
-
-  @Override
   public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingNeg(this);

@@ -32,9 +32,6 @@ public class AluOperationBase {
   public int F;
   protected int Q;
 
-  public AluOperationBase() {
-  }
-
   final protected int halfCarryAddTable(int i) {
     return new int[]{0, FLAG_H, FLAG_H, FLAG_H, 0, 0, 0, FLAG_H}[i];
   }

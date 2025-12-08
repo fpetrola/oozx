@@ -22,20 +22,18 @@ import com.fpetrola.z80.registers.Register;
 
 public abstract class AluOperation extends AluOperationBase {
   public AluOperation() {
-    super();
-    F = 0;
-    // Auto-initialize TablesAluOperation subclasses
     if (this instanceof TableAluOperation) {
+      ToPrimitiveIntTriFunction triFunction = null;
+      int i = 2;
       if (calculate2Values1Boolean(0, 0, 0) != -1) {
-        ToPrimitiveIntBiAndBooleanFunction triFunction = (value1, value2, carry) -> calculate2Values1Boolean(value2, value1, carry);
-        init(triFunction);
+        triFunction = (value1, value2, carry) -> calculate2Values1Boolean(value2, value1, carry);
       } else if (calculate1Value1Boolean(0, 0) != -1) {
-        ToPrimitiveIntBiFunction biFunction = this::calculate1Value1Boolean;
-        init(biFunction);
+        triFunction = (value1, value2, carry) -> calculate1Value1Boolean(value2, carry);
       } else if (calculate3Values(0, 0, 0) != -1) {
-        ToPrimitiveIntTriFunction triFunction = this::calculate3Values;
-        init(triFunction);
+        triFunction = (value1, value2, value3) -> calculate3Values(value1, value2, value3);
+        i = 256;
       }
+      init(triFunction, i);
     }
   }
 
@@ -51,13 +49,7 @@ public abstract class AluOperation extends AluOperationBase {
     return -1;
   }
 
-  protected void init(ToPrimitiveIntBiFunction biFunction) {
-  }
-
-  public void init(ToPrimitiveIntBiAndBooleanFunction triFunction) {
-  }
-
-  public void init(ToPrimitiveIntTriFunction triFunction) {
+  public void init(ToPrimitiveIntTriFunction triFunction, int i) {
   }
 
   public int execute2ValuesAndCarry(int value1, int value2, Register flag) {

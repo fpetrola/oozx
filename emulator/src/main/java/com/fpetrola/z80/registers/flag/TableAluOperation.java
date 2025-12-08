@@ -23,34 +23,12 @@ import com.fpetrola.z80.registers.Register;
 public class TableAluOperation extends AluOperation {
   protected int[] table;
 
-  protected void init(ToPrimitiveIntBiFunction biFunction) {
-    table = new int[256 * 256];
-    for (int a = 0; a < 256; a++) {
-      for (int c = 0; c < 256; c++) {
-        F = c;
-        int aluResult = biFunction.applyAsInt(a, c);
-        table[((a & 0xff)) | (c << 8)] = ((aluResult & 0xff) << 8) + F;
-      }
-    }
-  }
-
-  public void init(ToPrimitiveIntBiAndBooleanFunction biAndBooleanFunction) {
-    table = new int[256 * 256 * 2];
+  public void init(ToPrimitiveIntTriFunction triFunction, int i) {
+    table = new int[256 * 256 * i];
     for (int a = 0; a < 256; a++) {
       for (int value = 0; value < 256; value++) {
-        for (int c = 0; c < 2; c++) {
-          int aluResult = biAndBooleanFunction.applyAsInt(a, value, c);
-          table[((value & 0xff)) | (a << 8) | (c << 16)] = ((aluResult & 0xff) << 8) + F;
-        }
-      }
-    }
-  }
-
-  public void init(ToPrimitiveIntTriFunction triFunction) {
-    table = new int[256 * 256 * 256];
-    for (int a = 0; a < 256; a++) {
-      for (int value = 0; value < 256; value++) {
-        for (int c = 0; c < 256; c++) {
+        for (int c = 0; c < i; c++) {
+          F = a;
           int aluResult = triFunction.applyAsInt(a, value, c);
           table[((value & 0xff)) | (a << 8) | (c << 16)] = ((aluResult & 0xff) << 8) + F;
         }

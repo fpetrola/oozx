@@ -1,6 +1,8 @@
 package com.fpetrola.z80.registers.flag;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.beans.Transient;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -34,18 +36,22 @@ public class TableAluOperationRegistry {
       this.md5 = md5;
     }
 
+    @Transient
     public String getClassName() {
       return className;
     }
 
+    @Transient
     public void setClassName(String className) {
       this.className = className;
     }
 
+    @Transient
     public String getFieldName() {
       return fieldName;
     }
 
+    @Transient
     public void setFieldName(String fieldName) {
       this.fieldName = fieldName;
     }

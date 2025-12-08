@@ -41,10 +41,6 @@ public class RRA extends ParameterizedUnaryAluInstruction {
     super(target, flag, rraTableAluOperation);
   }
 
-  public UnaryAluOperation getTUnaryAluOperation(TableAluOperation tableAluOperation) {
-    return (a) -> rraTableAluOperation.execute2ValuesAndCarry(a, flag.read(), flag);
-  }
-
   public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingRra(this))
       super.accept(visitor);
