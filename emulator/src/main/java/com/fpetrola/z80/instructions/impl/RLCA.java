@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class RLCA extends ParameterizedUnaryAluInstruction {
   public static final TableAluOperation rlcaTableAluOperation = new TableAluOperation() {
-    public int calculate1Value1Boolean(int A, int carry) {
+    public int calculate1Value(int A) {
       A = (A << 1) | (A >> 7);
       F = (F & (FLAG_P | FLAG_Z | FLAG_S)) | (A & (FLAG_C | FLAG_3 | FLAG_5));
       Q = F;

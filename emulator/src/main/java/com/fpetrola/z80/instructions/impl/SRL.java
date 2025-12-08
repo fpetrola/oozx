@@ -27,7 +27,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 public class SRL extends ParameterizedUnaryAluInstruction {
 
   public static final TableAluOperation srlTableAluOperation = new TableAluOperation() {
-    public int calculate1Value1Boolean(int value, int carry) {
+    public int calculate1Value(int value) {
       F = (value) & FLAG_C;
       (value) >>= 1;
       value &= 0xff;

@@ -29,7 +29,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Outi extends BlockInstruction {
   public static final TableAluOperation outiTableAluOperation = new TableAluOperation() {
-    protected int calculate3Values(int value2, int value1, int value3) {
+    protected int calculate3Values(int value1, int value2, int value3) {
       int outitemp = value1;
       int B = value2;
       int L = value3;

@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Dec extends ParameterizedUnaryAluInstruction {
   public static final TableAluOperation dec8TableAluOperation = new TableAluOperation() {
-    public int calculate1Value1Boolean(int value, int carry) {
+    public int calculate1Value(int value) {
       F = (F & FLAG_C) | (((value) & 0x0f) != 0 ? 0 : FLAG_H) | FLAG_N;
       (value)--;
       value &= 0xff;

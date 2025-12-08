@@ -26,11 +26,11 @@ public class TableAluOperation extends AluOperation {
   public void init(ToPrimitiveIntTriFunction triFunction, int i) {
     table = new int[256 * 256 * i];
     for (int a = 0; a < 256; a++) {
-      for (int value = 0; value < 256; value++) {
+      for (int b = 0; b < 256; b++) {
         for (int c = 0; c < i; c++) {
-          F = a;
-          int aluResult = triFunction.applyAsInt(a, value, c);
-          table[((value & 0xff)) | (a << 8) | (c << 16)] = ((aluResult & 0xff) << 8) + F;
+          F = b;
+          int aluResult = triFunction.applyAsInt(a, b, c);
+          table[((a & 0xff)) | (b << 8) | (c << 16)] = ((aluResult & 0xff) << 8) + F;
         }
       }
     }

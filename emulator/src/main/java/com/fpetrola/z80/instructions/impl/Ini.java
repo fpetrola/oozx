@@ -28,7 +28,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class Ini extends BlockInstruction {
   public static final TableAluOperation iniTableAluOperation = new TableAluOperation() {
-    protected int calculate3Values(int initemp2, int initemp, int B) {
+    protected int calculate3Values(int initemp, int initemp2, int B) {
       F = ((initemp & 0x80) != 0 ? FLAG_N : 0) |
           ((initemp2 < initemp) ? FLAG_H | FLAG_C : 0) |
           (parityTable((initemp2 & 0x07) ^ B) != 0 ? FLAG_P : 0) |

@@ -28,7 +28,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class BIT extends BitOperation {
   private static final TableAluOperation tBitAluOperation = new TableAluOperation() {
-    protected int calculate3Values(int value1, int address, int bit) {
+    protected int calculate3Values(int address, int value1, int bit) {
       F = bit & 1;
       bit = bit >>> 1;
       F = (F & FLAG_C) | FLAG_H | (address & (FLAG_3 | FLAG_5));

@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.flag.TableAluOperation;
 
 public class CPL extends ParameterizedUnaryAluInstruction {
   public static final TableAluOperation cplTableAluOperation = new TableAluOperation() {
-    public int calculate1Value1Boolean(int A, int carry) {
+    public int calculate1Value(int A) {
       A ^= 0xff;
       F = (F & (FLAG_C | FLAG_P | FLAG_Z | FLAG_S)) |
           (A & (FLAG_3 | FLAG_5)) | (FLAG_N | FLAG_H);

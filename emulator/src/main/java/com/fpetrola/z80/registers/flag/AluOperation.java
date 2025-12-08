@@ -26,11 +26,11 @@ public abstract class AluOperation extends AluOperationBase {
       ToPrimitiveIntTriFunction triFunction = null;
       int i = 2;
       if (calculate2Values1Boolean(0, 0, 0) != -1) {
-        triFunction = (value1, value2, carry) -> calculate2Values1Boolean(value2, value1, carry);
-      } else if (calculate1Value1Boolean(0, 0) != -1) {
-        triFunction = (value1, value2, carry) -> calculate1Value1Boolean(value2, carry);
+        triFunction = this::calculate2Values1Boolean;
+      } else if (calculate1Value(0) != -1) {
+        triFunction = (value1, value2, carry) -> calculate1Value(value1);
       } else if (calculate3Values(0, 0, 0) != -1) {
-        triFunction = (value1, value2, value3) -> calculate3Values(value1, value2, value3);
+        triFunction = this::calculate3Values;
         i = 256;
       }
       init(triFunction, i);
@@ -45,7 +45,7 @@ public abstract class AluOperation extends AluOperationBase {
     return -1;
   }
 
-  protected int calculate1Value1Boolean(int value, int carry) {
+  protected int calculate1Value(int value) {
     return -1;
   }
 
