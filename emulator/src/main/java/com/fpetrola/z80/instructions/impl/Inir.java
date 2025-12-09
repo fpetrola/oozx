@@ -30,7 +30,7 @@ public class Inir extends RepeatingInstruction {
 
   @Override
   public void accept(InstructionVisitor<?> visitor) {
-    if (!visitor.visitInir(this)){
+    if (!visitor.visitInir(this)) {
       super.accept(visitor);
     }
   }

@@ -25,14 +25,15 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class CCF extends DefaultTargetFlagInstruction {
   public static final AluOperation ccfTableAluOperation = new AluOperation() {
-      @Override
-      protected int calculate2Values1Boolean(int value1, int value2, int carry) {
+    @Override
+    protected int calculate2Values1Boolean(int value1, int value2, int carry) {
       F = value2;
       F = F & (FLAG_P | FLAG_Z | FLAG_S) | ((F & FLAG_C) != 0 ? FLAG_H : FLAG_C) | value1 & (FLAG_3 | FLAG_5);
       Q = F;
       return F;
     }
-    };
+  };
+
   public CCF(Register flag, Register a) {
     super(a, flag, ccfTableAluOperation);
   }

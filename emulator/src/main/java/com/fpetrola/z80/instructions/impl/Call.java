@@ -50,7 +50,7 @@ public class Call extends ConditionalInstruction<Condition> {
     } else
       setNextPC(-1);
 
-    
+
   }
 
   @Override

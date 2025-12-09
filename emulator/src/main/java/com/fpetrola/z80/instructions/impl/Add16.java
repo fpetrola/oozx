@@ -26,34 +26,39 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Add16 extends Binary16BitsOperation {
   public static final AluOperation add16TableAluOperation = new AluOperation() {
-        @Override
-        protected int calculate2Values1Boolean(int value1, int value2, int value2Bit0) {
-          F = value2;
-          getValue1(value1 << 4, value2Bit0 << 11, value1 << 11);
-          return F;
-        }
+    @Override
+    protected int calculate2Values1Boolean(int value1, int value2, int value2Bit0) {
+      F = value2;
+      getValue1(value1 << 4, value2Bit0 << 11, value1 << 11);
+      return F;
+    }
 
-        private void getValue1(int value1, int value2, int add16temp) {
-          int lookup = ((value1 & 0x0800) >> 11) |
-                       ((value2 & 0x0800) >> 10) |
-                       ((add16temp & 0x0800) >> 9);
-          F = (F & (FLAG_V | FLAG_Z | FLAG_S)) |
-              ((add16temp & 0x10000) != 0 ? FLAG_C : 0) |
-              ((add16temp >> 8) & (FLAG_3 | FLAG_5)) |
-              halfCarryAddTable(lookup);
-          Q = F;
-        }
-      };
+    private void getValue1(int value1, int value2, int add16temp) {
+      int lookup = ((value1 & 0x0800) >> 11) |
+                   ((value2 & 0x0800) >> 10) |
+                   ((add16temp & 0x0800) >> 9);
+      F = (F & (FLAG_V | FLAG_Z | FLAG_S)) |
+          ((add16temp & 0x10000) != 0 ? FLAG_C : 0) |
+          ((add16temp >> 8) & (FLAG_3 | FLAG_5)) |
+          halfCarryAddTable(lookup);
+      Q = F;
+    }
+  };
+
   public Add16(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
     super(target, source, flag, add16TableAluOperation);
   }
 
-  @Override
-  protected int doExecute(int sourceValue, int targetValue) {
-    return  calculate(flag, targetValue, sourceValue,
-        (v1, v2, f) -> v1 + v2,
-        (flag1, value3, value2, result1) -> aluOperation.execute2Values1Boolean(value3, flag1.read(), value2 >> 11, flag),
-        (v3, v4, result2) -> (v3 & 0x0800) >> 4 | result2 >> 11);
+  protected int operation(int v1, int v2, int f) {
+    return v1 + v2;
+  }
+
+  protected void executeAction(int v1, int v2, int result) {
+    aluOperation.execute2Values1Boolean(v1, flag.read(), v2 >> 11, flag);
+  }
+
+  protected int compress(int v1, int v2, int result) {
+    return (v1 & 0x0800) >> 4 | result >> 11;
   }
 
   public void accept(InstructionVisitor<?> visitor) {

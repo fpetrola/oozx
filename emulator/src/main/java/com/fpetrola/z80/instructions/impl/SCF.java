@@ -25,14 +25,15 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class SCF extends DefaultTargetFlagInstruction {
   public static final AluOperation scfTableAluOperation = new AluOperation() {
-      @Override
-      protected int calculate2Values1Boolean(int value1, int value2, int carry) {
+    @Override
+    protected int calculate2Values1Boolean(int value1, int value2, int carry) {
       F = value2;
       F = F & (FLAG_P | FLAG_Z | FLAG_S) | value1 & (FLAG_3 | FLAG_5) | FLAG_C;
       Q = F;
       return F;
     }
-    };
+  };
+
   public SCF(Register flag, Register a) {
     super(a, flag, scfTableAluOperation);
   }

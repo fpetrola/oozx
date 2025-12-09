@@ -30,10 +30,8 @@ public class Inc16 extends DefaultTargetInstruction {
   public void execute() {
     int read = target.read();
     target.write((read + 1) & 0xFFFF);
-    
   }
 
-  @Override
   public void accept(InstructionVisitor<?> visitor) {
     visitor.visitingTarget(getTarget(), this);
     visitor.visitingTargetInstruction(this);

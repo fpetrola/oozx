@@ -31,7 +31,7 @@ public class SET extends BitOperation {
 
   public void execute() {
     target.write((target.read() | 1 << n) & 0xFFFF);
-    
+
   }
 
   public void accept(InstructionVisitor<?> visitor) {

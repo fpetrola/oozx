@@ -27,14 +27,15 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 public class RLC extends ParameterizedUnaryAluInstruction {
 
   public static final AluOperation rlcTableAluOperation1 = new AluOperation() {
-      @Override
-      protected int calculate1Value(int value) {
+    @Override
+    protected int calculate1Value(int value) {
       value = (value << 1 | value >> 7) & 0xff;
       F = (value & FLAG_C) | sz53pTable(value);
       Q = F;
       return value;
     }
-    };
+  };
+
   public RLC(OpcodeReference target, Register flag) {
     super(target, flag, rlcTableAluOperation1);
   }
@@ -42,10 +43,5 @@ public class RLC extends ParameterizedUnaryAluInstruction {
   public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingRlc(this))
       super.accept(visitor);
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
   }
 }

@@ -27,30 +27,24 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Sbc extends ParameterizedBinaryAluInstruction {
   public static final AluOperation sbc8TableAluOperation = new AluOperation() {
-        @Override
-        protected int calculate2Values1Boolean(int value1, int value2, int carry) {
-          F = carry;
-          int sbctemp = value2 - (value1) - (F & FLAG_C);
-          int lookup = ((value2 & 0x88) >> 3) | (((value1) & 0x88) >> 2) | ((sbctemp & 0x88) >> 1);
-          value2 = sbctemp & 0xff;
-          F = ((sbctemp & 0x100) != 0 ? FLAG_C : 0) | FLAG_N |
-              halfCarrySubTable(lookup & 0x07) | overflowSubTable(lookup >> 4) |
-              sz53Table(value2);
-          Q = F;
+    protected int calculate2Values1Boolean(int value1, int value2, int carry) {
+      F = carry;
+      int sbctemp = value1 - (value2) - (F & FLAG_C);
+      int lookup = ((value1 & 0x88) >> 3) | (((value2) & 0x88) >> 2) | ((sbctemp & 0x88) >> 1);
+      value1 = sbctemp & 0xff;
+      F = ((sbctemp & 0x100) != 0 ? FLAG_C : 0) | FLAG_N |
+          halfCarrySubTable(lookup & 0x07) | overflowSubTable(lookup >> 4) |
+          sz53Table(value1);
+      Q = F;
 
-          return value2;
-        }
-      };
+      return value1;
+    }
+  };
+
   public Sbc(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
     super(target, source, flag, sbc8TableAluOperation);
   }
 
-  @Override
-  protected int doExecute(int sourceValue, int targetValue) {
-    return aluOperation.execute2ValuesAndCarry(sourceValue, targetValue, flag);
-  }
-
-  @Override
   public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingSbc(this);

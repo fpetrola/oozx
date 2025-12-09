@@ -46,7 +46,8 @@ public class Cp extends ParameterizedBinaryAluInstruction {
     super(target, source, flag, cpTableAluOperation);
   }
 
-  protected void assignTarget(int execute) {
+  public void execute() {
+    doExecute(source.read(), target.read());
   }
 
   public void accept(InstructionVisitor<?> visitor) {

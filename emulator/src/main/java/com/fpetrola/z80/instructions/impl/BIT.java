@@ -37,7 +37,8 @@ public class BIT extends BitOperation {
       Q = F;
       return F;
     }
-    };
+  };
+
   public Register getMemptr() {
     return memptr;
   }

@@ -70,7 +70,7 @@
   }, {
     "name" : "Sbc",
     "description" : "Subtract with Carry",
-    "md5" : "4c0d3f5c045f0cf2a84f570630699b30"
+    "md5" : "5fd836723687d3b558b0df6006c40ff7"
   }, {
     "name" : "And",
     "description" : "Logical AND",
@@ -142,7 +142,7 @@
   }, {
     "name" : "Adc16",
     "description" : "Add 16-bit with Carry",
-    "md5" : "f4c68031bce7dab1d1f4241d9044ce32"
+    "md5" : "099202dec42c43aaf91006fa99baa15a"
   }, {
     "name" : "Sbc16",
     "description" : "Subtract 16-bit with Carry",

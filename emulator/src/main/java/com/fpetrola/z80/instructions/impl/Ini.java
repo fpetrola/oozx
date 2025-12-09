@@ -36,7 +36,8 @@ public class Ini extends BlockInstruction {
       Q = F;
       return F;
     }
-    };
+  };
+
   public Ini(RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io) {
     super(bc, hl, flag, memory, io, iniTableAluOperation);
   }

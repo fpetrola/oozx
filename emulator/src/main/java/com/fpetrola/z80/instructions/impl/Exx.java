@@ -23,36 +23,12 @@ import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.registers.Register;
 
 public class Exx extends AbstractInstruction {
-  public Register getBc() {
-    return bc;
-  }
-
-  public Register getDe() {
-    return de;
-  }
-
-  public Register getHl() {
-    return hl;
-  }
-
-  public Register get_bc() {
-    return _bc;
-  }
-
-  public Register get_de() {
-    return _de;
-  }
-
-  public Register get_hl() {
-    return _hl;
-  }
-
-  private Register bc;
-  private Register de;
-  private Register hl;
-  private Register _bc;
-  private Register _de;
-  private Register _hl;
+  private final Register bc;
+  private final Register de;
+  private final Register hl;
+  private final Register _bc;
+  private final Register _de;
+  private final Register _hl;
 
   public Exx(Register bc, Register de, Register hl, Register _bc, Register _de, Register _hl) {
     this.bc = bc;
@@ -77,32 +53,31 @@ public class Exx extends AbstractInstruction {
     _hl.write(v1);
   }
 
-  @Override
+  public Register getBc() {
+    return bc;
+  }
+
+  public Register getDe() {
+    return de;
+  }
+
+  public Register getHl() {
+    return hl;
+  }
+
+  public Register get_bc() {
+    return _bc;
+  }
+
+  public Register get_de() {
+    return _de;
+  }
+
+  public Register get_hl() {
+    return _hl;
+  }
+
   public void accept(InstructionVisitor<?> visitor) {
     visitor.visitExx(this);
-  }
-
-  public void setBc(Register bc) {
-    this.bc = bc;
-  }
-
-  public void setDe(Register de) {
-    this.de = de;
-  }
-
-  public void setHl(Register hl) {
-    this.hl = hl;
-  }
-
-  public void set_bc(Register _bc) {
-    this._bc = _bc;
-  }
-
-  public void set_de(Register _de) {
-    this._de = _de;
-  }
-
-  public void set_hl(Register _hl) {
-    this._hl = _hl;
   }
 }

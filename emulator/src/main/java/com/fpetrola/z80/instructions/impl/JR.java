@@ -43,7 +43,7 @@ public class JR extends ConditionalInstruction<Condition> {
     } else
       setNextPC(-1);
 
-    
+
   }
 
 

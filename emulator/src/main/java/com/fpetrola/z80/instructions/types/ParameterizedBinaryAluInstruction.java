@@ -28,24 +28,13 @@ public class ParameterizedBinaryAluInstruction extends TargetSourceInstruction<I
   public ParameterizedBinaryAluInstruction(OpcodeReference target, ImmutableOpcodeReference source, Register flag, AluOperation aluOperation) {
     super(target, source, flag, aluOperation);
   }
-  public interface BinaryAluOperation {
-    int execute(Register flagRegister, int sourceValue, int targetValue);
-  }
-
-  public ParameterizedBinaryAluInstruction(OpcodeReference target, ImmutableOpcodeReference source, Register flag, BinaryAluOperation binaryAluOperation) {
-    super(target, source, flag);
-  }
 
   public void execute() {
-    assignTarget(doExecute(source.read(), target.read()));
+    target.write(doExecute(source.read(), target.read()));
   }
 
   protected int doExecute(int sourceValue, int targetValue) {
-    return aluOperation.execute2Values(targetValue, sourceValue, flag);
-  }
-
-  protected void assignTarget(int execute) {
-    target.write(execute);
+    return aluOperation.execute2ValuesAndCarry(targetValue, sourceValue, flag);
   }
 
   public void accept(InstructionVisitor<?> visitor) {

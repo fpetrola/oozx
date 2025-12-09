@@ -31,7 +31,6 @@ public class Dec16 extends DefaultTargetInstruction {
     target.write((target.read() - 1) & 0xFFFF);
   }
 
-  @Override
   public void accept(InstructionVisitor<?> visitor) {
     visitor.visitingTarget(getTarget(), this);
     visitor.visitingTargetInstruction(this);

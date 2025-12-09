@@ -28,60 +28,42 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class In extends TargetSourceInstruction<ImmutableOpcodeReference> {
   public final static AluOperation inTableAluOperation = new AluOperation() {
-        protected int calculate2Values1Boolean(int value1, int value2, int carry) {
-          F = value2;
-          F = (F & FLAG_C) | sz53pTable((value1));
-          Q = F;
-          return value1;
-        }
-      };
-  public ImmutableOpcodeReference getA() {
-    return a;
-  }
+    protected int calculate2Values1Boolean(int value1, int value2, int carry) {
+      F = value2;
+      F = (F & FLAG_C) | sz53pTable((value1));
+      Q = F;
+      return value1;
+    }
+  };
 
-  public void setA(ImmutableOpcodeReference a) {
-    this.a = a;
-  }
-
-  public ImmutableOpcodeReference getBc() {
-    return bc;
-  }
-
-  public void setBc(ImmutableOpcodeReference bc) {
-    this.bc = bc;
-  }
-
-  private ImmutableOpcodeReference a;
-  private ImmutableOpcodeReference bc;
+  private final ImmutableOpcodeReference a;
+  private final ImmutableOpcodeReference bc;
   private final IO io;
+  private final boolean notRegister;
 
   public In(OpcodeReference target, ImmutableOpcodeReference source, ImmutableOpcodeReference a, ImmutableOpcodeReference bc, Register flag, IO io) {
     super(target, source, flag, inTableAluOperation);
     this.a = a;
     this.bc = bc;
     this.io = io;
+    notRegister = !(this.source instanceof Register);
   }
 
   public void execute() {
     int port = source.read();
-
-    boolean equalsN = !(source instanceof Register);
-    if (equalsN) {
-      port = (port | a.read() << 8) & 0xFFFF;
-    } else {
-      port = bc.read();
-    }
-
+    port = notRegister ? (port | a.read() << 8) & 0xFFFF : bc.read();
     int value = io.in(port);
-
     target.write(value);
-
-    if (!equalsN)
+    if (!notRegister)
       aluOperation.execute2ValuesAndCarry(value, flag.read(), flag);
-    else
-      flag.write(flag.read());
+  }
 
+  public ImmutableOpcodeReference getA() {
+    return a;
+  }
 
+  public ImmutableOpcodeReference getBc() {
+    return bc;
   }
 
   public void accept(InstructionVisitor<?> visitor) {

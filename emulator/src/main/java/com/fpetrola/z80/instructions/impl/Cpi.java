@@ -28,8 +28,8 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Cpi extends BlockInstruction {
   public static final AluOperation cpiTableAluOperation = new AluOperation() {
-      @Override
-      protected int calculate2Values1Boolean(int value, int A, int BC) {
+    @Override
+    protected int calculate2Values1Boolean(int value, int A, int BC) {
       F = BC;
       int bytetemp = A - value;
       int lookup = ((A & 0x08) >> 3) |
@@ -43,7 +43,8 @@ public class Cpi extends BlockInstruction {
       Q = F;
       return F;
     }
-    };
+  };
+
   public Register getA() {
     return a;
   }

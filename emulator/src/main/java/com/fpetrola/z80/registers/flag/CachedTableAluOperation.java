@@ -88,6 +88,10 @@ public class CachedTableAluOperation extends AluOperation {
     fetchValueAndWriteFlag(flag, (value2 << 8 | value1) & 0xFFFF | value3 << 16);
   }
 
+  public int execute2ValuesAndCarry(int value1, int value2, Register flag) {
+    return execute2Values1Boolean(value1 & 0xff, value2 & 0xff, flag.read() & 0x01, flag);
+  }
+
   private int fetchValueAndWriteFlag(Register flag, int i) {
     int data1 = table[i];
     flag.write(data1 & 0xFF);

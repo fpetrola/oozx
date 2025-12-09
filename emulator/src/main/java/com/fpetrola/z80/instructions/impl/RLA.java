@@ -26,8 +26,8 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class RLA extends ParameterizedUnaryAluInstruction {
   public static final AluOperation rlaTableAluOperation = new AluOperation() {
-      @Override
-      protected int calculate1Value(int A) {
+    @Override
+    protected int calculate1Value(int A) {
       int bytetemp = A;
       A = (A << 1) | (F & FLAG_C);
       F = (F & (FLAG_P | FLAG_Z | FLAG_S)) |
@@ -35,7 +35,8 @@ public class RLA extends ParameterizedUnaryAluInstruction {
       Q = F;
       return A;
     }
-    };
+  };
+
   public RLA(OpcodeReference target, Register flag) {
     super(target, flag, rlaTableAluOperation);
   }

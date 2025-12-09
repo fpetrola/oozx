@@ -39,7 +39,7 @@ public class Pop extends DefaultTargetFlagInstruction {
     target.write(value);
   }
 
-  public static  int doPop(Memory memory, Register sp) {
+  public static int doPop(Memory memory, Register sp) {
     final int value = memory.read16Bits(sp.read());
     int wordNumber = sp.read();
     sp.write((wordNumber + 2) & 0xFFFF);

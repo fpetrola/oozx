@@ -76,7 +76,7 @@ public abstract class AbstractInstruction implements Instruction {
   }
 
   public void setRDelta(int rdelta) {
-    this.rdelta= rdelta;
+    this.rdelta = rdelta;
   }
 
   public int getRDelta() {

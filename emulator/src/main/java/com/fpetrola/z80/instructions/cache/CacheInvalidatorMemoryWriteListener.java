@@ -20,7 +20,7 @@ package com.fpetrola.z80.instructions.cache;
 
 import com.fpetrola.z80.memory.MemoryWriteListener;
 
-public class CacheInvalidatorMemoryWriteListener  implements MemoryWriteListener {
+public class CacheInvalidatorMemoryWriteListener implements MemoryWriteListener {
   public CacheInvalidatorMemoryWriteListener(Runnable[] cacheInvalidators) {
     this.cacheInvalidators = cacheInvalidators;
   }

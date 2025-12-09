@@ -32,7 +32,6 @@ public class Out extends TargetSourceInstruction<ImmutableOpcodeReference> {
 
   public void execute() {
     target.write(source.read());
-    
   }
 
   public static class OutPortOpcodeReference implements OpcodeReference {

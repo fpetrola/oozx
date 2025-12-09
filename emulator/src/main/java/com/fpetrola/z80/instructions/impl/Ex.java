@@ -33,7 +33,6 @@ public class Ex extends TargetSourceInstruction<OpcodeReference> {
     final int v2 = source.read();
     target.write(v2);
     source.write(v1);
-    
   }
 
   public void accept(InstructionVisitor<?> visitor) {

@@ -26,21 +26,21 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class CPL extends ParameterizedUnaryAluInstruction {
   public static final AluOperation cplTableAluOperation = new AluOperation() {
-      @Override
-      protected int calculate1Value(int A) {
-        A ^= 0xff;
-        F = (F & (FLAG_C | FLAG_P | FLAG_Z | FLAG_S)) |
-            (A & (FLAG_3 | FLAG_5)) | (FLAG_N | FLAG_H);
-        Q = F;
+    @Override
+    protected int calculate1Value(int A) {
+      A ^= 0xff;
+      F = (F & (FLAG_C | FLAG_P | FLAG_Z | FLAG_S)) |
+          (A & (FLAG_3 | FLAG_5)) | (FLAG_N | FLAG_H);
+      Q = F;
 
-        return A;
-      }
-    };
+      return A;
+    }
+  };
+
   public CPL(OpcodeReference target, Register flag) {
     super(target, flag, cplTableAluOperation);
   }
 
-  @Override
   public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingCpl(this))
       super.accept(visitor);

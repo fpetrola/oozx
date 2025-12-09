@@ -20,7 +20,7 @@ package com.fpetrola.z80.registers.flag;
 
 import com.fpetrola.z80.registers.Register;
 
-public abstract class AluOperation extends AluOperationBase {
+public class AluOperation extends AluOperationBase {
   private ToPrimitiveIntTriFunction triFunction;
 
   public AluOperation() {

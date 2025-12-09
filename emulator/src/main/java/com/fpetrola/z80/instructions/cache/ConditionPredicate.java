@@ -20,6 +20,6 @@ package com.fpetrola.z80.instructions.cache;
 
 import com.fpetrola.z80.instructions.types.Instruction;
 
-public interface ConditionPredicate<T>{
+public interface ConditionPredicate<T> {
   boolean test(T t, Instruction instruction);
 }

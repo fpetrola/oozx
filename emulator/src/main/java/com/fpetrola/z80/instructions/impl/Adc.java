@@ -27,30 +27,25 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Adc extends ParameterizedBinaryAluInstruction {
   public static final AluOperation adc8TableAluOperation = new AluOperation() {
-        protected int calculate2Values1Boolean(int value1, int value2, int carry) {
-          F = carry;
-          int adctemp = value2 + (value1) + (F & FLAG_C);
-          int lookup = ((value2 & 0x88) >> 3) |
-                       (((value1) & 0x88) >> 2) |
-                       ((adctemp & 0x88) >> 1);
-          value2 = adctemp & 0xff;
-          F = ((adctemp & 0x100) != 0 ? FLAG_C : 0) |
-              halfCarryAddTable(lookup & 0x07) | overflowAddTable(lookup >> 4) |
-              sz53Table(value2);
-          Q = F;
-          return value2;
-        }
-      };
+    protected int calculate2Values1Boolean(int value1, int value2, int carry) {
+      F = carry;
+      int adctemp = value1 + (value2) + (F & FLAG_C);
+      int lookup = ((value1 & 0x88) >> 3) |
+                   (((value2) & 0x88) >> 2) |
+                   ((adctemp & 0x88) >> 1);
+      value1 = adctemp & 0xff;
+      F = ((adctemp & 0x100) != 0 ? FLAG_C : 0) |
+          halfCarryAddTable(lookup & 0x07) | overflowAddTable(lookup >> 4) |
+          sz53Table(value1);
+      Q = F;
+      return value1;
+    }
+  };
+
   public Adc(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
     super(target, source, flag, adc8TableAluOperation);
   }
 
-  @Override
-  protected int doExecute(int sourceValue, int targetValue) {
-    return aluOperation.execute2ValuesAndCarry(sourceValue, targetValue, flag);
-  }
-
-  @Override
   public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingAdc(this);

@@ -53,7 +53,7 @@ public class LdOperation extends AbstractInstruction {
         read = targetInstruction.getTarget().read();
       target.write(read);
     }
-    
+
   }
 
   public String toString() {

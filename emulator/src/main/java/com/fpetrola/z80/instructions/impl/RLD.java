@@ -26,20 +26,17 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class RLD extends AbstractInstruction {
   public static final AluOperation rldTableAluOperation = new AluOperation() {
-      @Override
-      protected int calculate2Values1Boolean(int value1, int value2, int flag) {
+    @Override
+    protected int calculate2Values1Boolean(int value1, int value2, int flag) {
       F = flag;
       value2 = (value2 & 0xf0) | (value1 >> 4);
       F = (F & FLAG_C) | sz53pTable(value2);
       Q = F;
       return value2;
     }
-    };  protected final Register a;
+  };
 
-  public Register getHl() {
-    return hl;
-  }
-
+  protected final Register a;
   protected final Register hl;
   protected final Register flag;
   protected final Register r;
@@ -96,5 +93,9 @@ public class RLD extends AbstractInstruction {
     if (!visitor.visitRLD(this)) {
       super.accept(visitor);
     }
+  }
+
+  public Register getHl() {
+    return hl;
   }
 }

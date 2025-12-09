@@ -25,7 +25,7 @@ import com.fpetrola.z80.opcodes.references.*;
 
 public interface InstructionFactoryDelegator extends InstructionFactory {
 
-  default FetchNextOpcodeInstructionFactory getFetchNextOpcodeInstructionFactory(){
+  default FetchNextOpcodeInstructionFactory getFetchNextOpcodeInstructionFactory() {
     return getDelegate().getFetchNextOpcodeInstructionFactory();
   }
 

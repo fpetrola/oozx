@@ -55,10 +55,6 @@ public class DAA extends ParameterizedUnaryAluInstruction {
     super(target, flag, daaTableAluOperation);
   }
 
-  protected int doExecute() {
-    return aluOperation.execute2ValuesAndCarry(target.read(), flag.read(), flag);
-  }
-
   public void accept(InstructionVisitor<?> visitor) {
     if (!visitor.visitingDaa(this))
       super.accept(visitor);

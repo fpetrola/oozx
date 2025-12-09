@@ -30,7 +30,7 @@ public class Outir extends RepeatingInstruction {
 
 
   public void accept(InstructionVisitor<?> visitor) {
-    if (!visitor.visitOutir(this)){
+    if (!visitor.visitOutir(this)) {
       super.accept(visitor);
     }
   }

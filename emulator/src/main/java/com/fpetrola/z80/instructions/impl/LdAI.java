@@ -25,14 +25,15 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class LdAI extends Ld {
   public static final AluOperation ldaiTableAluOperation = new AluOperation() {
-      @Override
-      protected int calculate2Values1Boolean(int value1, int value2, int IFF2) {
+    @Override
+    protected int calculate2Values1Boolean(int value1, int value2, int IFF2) {
       value1 = value2;
       F = (F & FLAG_C) | sz53Table(value1) | (IFF2 != 0 ? FLAG_V : 0);
       Q = F;
       return F;
     }
-    };  private final State state;
+  };
+  private final State state;
 
   public LdAI(OpcodeReference target, OpcodeReference source, Register flag, State state) {
     super(target, source, flag, ldaiTableAluOperation);
@@ -47,6 +48,6 @@ public class LdAI extends Ld {
 
     target.write(value);
 
-    
+
   }
 }

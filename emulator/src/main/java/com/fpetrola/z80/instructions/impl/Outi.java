@@ -40,7 +40,8 @@ public class Outi extends BlockInstruction {
       Q = F;
       return F;
     }
-    };
+  };
+
   public Outi(RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io) {
     super(bc, hl, flag, memory, io, outiTableAluOperation);
   }
