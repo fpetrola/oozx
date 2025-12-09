@@ -25,13 +25,8 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class ParameterizedBinaryAluInstruction extends TargetSourceInstruction<ImmutableOpcodeReference> {
-  final protected BinaryAluOperation binaryAluOperation;
-  protected AluOperation aluOperation;
-
   public ParameterizedBinaryAluInstruction(OpcodeReference target, ImmutableOpcodeReference source, Register flag, AluOperation aluOperation) {
-    super(target, source, flag);
-    this.binaryAluOperation = getTBinaryAluOperation(aluOperation);
-    this.aluOperation = aluOperation;
+    super(target, source, flag, aluOperation);
   }
   public interface BinaryAluOperation {
     int execute(Register flagRegister, int sourceValue, int targetValue);
@@ -39,7 +34,6 @@ public class ParameterizedBinaryAluInstruction extends TargetSourceInstruction<I
 
   public ParameterizedBinaryAluInstruction(OpcodeReference target, ImmutableOpcodeReference source, Register flag, BinaryAluOperation binaryAluOperation) {
     super(target, source, flag);
-    this.binaryAluOperation = binaryAluOperation;
   }
 
   public void execute() {
@@ -47,15 +41,11 @@ public class ParameterizedBinaryAluInstruction extends TargetSourceInstruction<I
   }
 
   protected int doExecute(int sourceValue, int targetValue) {
-    return binaryAluOperation.execute(flag, sourceValue, targetValue);
+    return aluOperation.execute2Values(targetValue, sourceValue, flag);
   }
 
   protected void assignTarget(int execute) {
     target.write(execute);
-  }
-
-  public <T1> BinaryAluOperation getTBinaryAluOperation(AluOperation tableAluOperation) {
-    return (flagRegister, sourceValue, targetValue) -> tableAluOperation.execute2Values(targetValue, sourceValue, flag);
   }
 
   public void accept(InstructionVisitor<?> visitor) {

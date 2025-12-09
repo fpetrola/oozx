@@ -24,12 +24,10 @@ import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class BIT extends BitOperation {
-  private static final AluOperation bitAluOperation = new CachedTableAluOperation(
-    new AluOperation() {
+  public static final AluOperation bitAluOperation = new AluOperation() {
     protected int calculate3Values(int address, int value1, int bit) {
       F = bit & 1;
       bit = bit >>> 1;
@@ -39,9 +37,7 @@ public class BIT extends BitOperation {
       Q = F;
       return F;
     }
-    }
-  );
-
+    };
   public Register getMemptr() {
     return memptr;
   }
@@ -49,7 +45,7 @@ public class BIT extends BitOperation {
   private final Register memptr;
 
   public BIT(OpcodeReference target, int n, Register flag, Register memptr) {
-    super(target, n, flag);
+    super(target, n, flag, bitAluOperation);
     this.memptr = memptr;
   }
 
@@ -63,7 +59,7 @@ public class BIT extends BitOperation {
       address = target.read();
     }
     int nAndCarry = (n << 1) | flag.read() & 1;
-    bitAluOperation.execute3Values(address, target.read(), nAndCarry, flag);
+    aluOperation.execute3Values(address, target.read(), nAndCarry, flag);
   }
 
   public void accept(InstructionVisitor<?> visitor) {

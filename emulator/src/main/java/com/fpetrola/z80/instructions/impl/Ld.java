@@ -23,10 +23,15 @@ import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Ld extends TargetSourceInstruction<ImmutableOpcodeReference> {
   public Ld(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
     super(target, source, flag);
+  }
+
+  public Ld(OpcodeReference target, ImmutableOpcodeReference source, Register flag, AluOperation aluOperation) {
+    super(target, source, flag, aluOperation);
   }
 
   public void execute() {

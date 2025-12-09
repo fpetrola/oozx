@@ -24,11 +24,9 @@ import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 
 public class Add extends ParameterizedBinaryAluInstruction {
-  public static final AluOperation add8TableAluOperation = new CachedTableAluOperation(
-    new AluOperation() {
+  public static final AluOperation add8TableAluOperation = new AluOperation() {
       @Override
       protected int calculate2Values1Boolean(int value1, int value2, int carry) {
         int addtemp = value2 + (value1);
@@ -42,9 +40,7 @@ public class Add extends ParameterizedBinaryAluInstruction {
         Q = F;
         return value2;
       }
-    }
-  );
-
+    };
   public Add(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
     super(target, source, flag, add8TableAluOperation);
   }

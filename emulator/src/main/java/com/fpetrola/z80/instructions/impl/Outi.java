@@ -25,11 +25,9 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 
 public class Outi extends BlockInstruction {
-  public static final AluOperation outiTableAluOperation = new CachedTableAluOperation(
-    new AluOperation() {
+  public static final AluOperation outiTableAluOperation = new AluOperation() {
     protected int calculate3Values(int value1, int value2, int value3) {
       int outitemp = value1;
       int B = value2;
@@ -42,11 +40,9 @@ public class Outi extends BlockInstruction {
       Q = F;
       return F;
     }
-    }
-  );
-
+    };
   public Outi(RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io) {
-    super(bc, hl, flag, memory, io);
+    super(bc, hl, flag, memory, io, outiTableAluOperation);
   }
 
   public void execute() {
@@ -60,7 +56,7 @@ public class Outi extends BlockInstruction {
   }
 
   protected void flagOperation(int valueFromHL) {
-    outiTableAluOperation.execute3Values(valueFromHL, bc.getHigh().read(), hl.getLow().read(), flag);
+    aluOperation.execute3Values(valueFromHL, bc.getHigh().read(), hl.getLow().read(), flag);
   }
 
   public void accept(InstructionVisitor<?> visitor) {

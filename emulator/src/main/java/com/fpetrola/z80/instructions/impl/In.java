@@ -24,21 +24,17 @@ import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class In extends TargetSourceInstruction<ImmutableOpcodeReference> {
-  public final static AluOperation inTableAluOperation = new CachedTableAluOperation(
-      new AluOperation() {
+  public final static AluOperation inTableAluOperation = new AluOperation() {
         protected int calculate2Values1Boolean(int value1, int value2, int carry) {
           F = value2;
           F = (F & FLAG_C) | sz53pTable((value1));
           Q = F;
           return value1;
         }
-      }
-  );
-
+      };
   public ImmutableOpcodeReference getA() {
     return a;
   }
@@ -60,7 +56,7 @@ public class In extends TargetSourceInstruction<ImmutableOpcodeReference> {
   private final IO io;
 
   public In(OpcodeReference target, ImmutableOpcodeReference source, ImmutableOpcodeReference a, ImmutableOpcodeReference bc, Register flag, IO io) {
-    super(target, source, flag);
+    super(target, source, flag, inTableAluOperation);
     this.a = a;
     this.bc = bc;
     this.io = io;
@@ -81,7 +77,7 @@ public class In extends TargetSourceInstruction<ImmutableOpcodeReference> {
     target.write(value);
 
     if (!equalsN)
-      inTableAluOperation.execute2ValuesAndCarry(value, flag.read(), flag);
+      aluOperation.execute2ValuesAndCarry(value, flag.read(), flag);
     else
       flag.write(flag.read());
 

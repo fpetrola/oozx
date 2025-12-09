@@ -22,12 +22,10 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Dec extends ParameterizedUnaryAluInstruction {
-  public static final AluOperation dec8TableAluOperation = new CachedTableAluOperation(
-    new AluOperation() {
+  public static final AluOperation dec8TableAluOperation = new AluOperation() {
       @Override
       protected int calculate1Value(int value) {
       F = (F & FLAG_C) | (((value) & 0x0f) != 0 ? 0 : FLAG_H) | FLAG_N;
@@ -37,9 +35,7 @@ public class Dec extends ParameterizedUnaryAluInstruction {
       Q = F;
       return value;
     }
-    }
-  );
-
+    };
   public Dec(OpcodeReference target, Register flag) {
     super(target, flag, dec8TableAluOperation);
   }

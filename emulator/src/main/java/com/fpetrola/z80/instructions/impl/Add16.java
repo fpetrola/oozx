@@ -22,12 +22,10 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Add16 extends Binary16BitsOperation {
-  public static final AluOperation add16TableAluOperation = new CachedTableAluOperation(
-      new AluOperation() {
+  public static final AluOperation add16TableAluOperation = new AluOperation() {
         @Override
         protected int calculate2Values1Boolean(int value1, int value2, int value2Bit0) {
           F = value2;
@@ -45,22 +43,17 @@ public class Add16 extends Binary16BitsOperation {
               halfCarryAddTable(lookup);
           Q = F;
         }
-      }
-  );
-
+      };
   public Add16(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
     super(target, source, flag, add16TableAluOperation);
   }
 
   @Override
-  public BinaryAluOperation getTBinaryAluOperation(AluOperation tableAluOperation) {
-    return (flag0, a, b) ->
-        calculate(flag0, b, a,
-            (v1, v2, f) -> v1 + v2,
-            (flag1, value3, value2, result1) -> {
-              return aluOperation.execute2Values1Boolean(value3, flag1.read(), value2 >> 11, flag0);
-            },
-            (v3, v4, result2) -> (v3 & 0x0800) >> 4 | result2 >> 11);
+  protected int doExecute(int sourceValue, int targetValue) {
+    return  calculate(flag, targetValue, sourceValue,
+        (v1, v2, f) -> v1 + v2,
+        (flag1, value3, value2, result1) -> aluOperation.execute2Values1Boolean(value3, flag1.read(), value2 >> 11, flag),
+        (v3, v4, result2) -> (v3 & 0x0800) >> 4 | result2 >> 11);
   }
 
   public void accept(InstructionVisitor<?> visitor) {

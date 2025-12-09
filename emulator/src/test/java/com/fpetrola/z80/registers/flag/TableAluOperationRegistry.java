@@ -167,26 +167,71 @@ public class TableAluOperationRegistry {
   }
 
   /**
-   * Obtiene la tabla int[] de una TableAluOperation.
+   * Obtiene la tabla int[] de una AluOperation.
+   * Si la operación tiene una tabla precalculada (CachedTableAluOperation), la retorna.
+   * Si no, genera la tabla bajo demanda.
    */
   public static int[] getTable(AluOperation operation) {
+    // Try to get the table field from CachedTableAluOperation if it exists
     try {
-      Field tableField = getTableField(operation);
-      tableField.setAccessible(true);
-      return (int[]) tableField.get(operation);
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
+      Class<?> cachedClass = Class.forName("com.fpetrola.z80.registers.flag.CachedTableAluOperation");
+      if (cachedClass.isInstance(operation)) {
+        // Operation is a CachedTableAluOperation, get its table field
+        Field tableField = cachedClass.getDeclaredField("table");
+        tableField.setAccessible(true);
+        return (int[]) tableField.get(operation);
+      }
+    } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
+      // Ignore, we'll generate the table on demand
     }
+    
+    // Generate table on demand for non-cached AluOperations
+    return generateTableForOperation(operation);
   }
 
-  public static Field getTableField(AluOperation operation) {
-    try {
-      Field tableField = CachedTableAluOperation.class.getDeclaredField("table");
-      return tableField;
-    } catch (NoSuchFieldException e) {
-      throw new RuntimeException(e);
+  /**
+   * Genera la tabla de una AluOperation bajo demanda.
+   */
+  private static int[] generateTableForOperation(AluOperation operation) {
+    int tableSize = 256 * 256 * 2; // Default size for 2-value operations
+    int[] table = new int[tableSize];
+    
+    for (int a = 0; a < 256; a++) {
+      for (int b = 0; b < 256; b++) {
+        for (int c = 0; c < 2; c++) {
+          operation.F = b;
+          int result = operation.calculate2Values1Boolean(a, b, c);
+          if (result != -1) {
+            table[((a & 0xff)) | (b << 8) | (c << 16)] = ((result & 0xff) << 8) + operation.F;
+          } else {
+            // Try other calculation methods
+            operation.F = b;
+            result = operation.calculate1Value(a);
+            if (result != -1) {
+              table[((a & 0xff)) | (b << 8) | (c << 16)] = ((result & 0xff) << 8) + operation.F;
+            } else {
+              // Try 3-value calculation
+              tableSize = 256 * 256 * 256;
+              if (table.length < tableSize) {
+                int[] newTable = new int[tableSize];
+                System.arraycopy(table, 0, newTable, 0, table.length);
+                table = newTable;
+              }
+              operation.F = b;
+              result = operation.calculate3Values(a, b, c);
+              if (result != -1) {
+                table[((a & 0xff)) | (b << 8) | (c << 16)] = ((result & 0xff) << 8) + operation.F;
+              }
+            }
+          }
+        }
+      }
     }
+    
+    return table;
   }
+
+
 
   /**
    * Calcula y actualiza los MD5 de todas las operaciones en el config JSON.

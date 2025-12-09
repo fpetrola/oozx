@@ -24,11 +24,9 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 
 public class Cpd extends Cpi {
-  public static final AluOperation cpdTableAluOperation = new CachedTableAluOperation(
-    new AluOperation() {
+  public static final AluOperation cpdTableAluOperation = new AluOperation() {
       @Override
       protected int calculate2Values1Boolean(int value1, int value2, int BC) {
       int bytetemp = value2 - value1;
@@ -43,11 +41,9 @@ public class Cpd extends Cpi {
       Q = F;
       return value2;
     }
-    }
-  );
-
+    };
   public Cpd(Register a, Register flag, RegisterPair bc, RegisterPair hl, Memory memory, IO io) {
-    super(a, flag, bc, hl, memory, io);
+    super(a, flag, bc, hl, memory, io, cpdTableAluOperation);
   }
 
   public void execute() {
@@ -62,7 +58,7 @@ public class Cpd extends Cpi {
 
   protected void flagOperation(int valueFromHL) {
     int lastCarry = flag.read() & 1;
-    cpdTableAluOperation.execute2Values1Boolean(memory.read(hl.read(), 0), a.read(), bc.read() != 0 ? 1 : 0, flag);
+    aluOperation.execute2Values1Boolean(memory.read(hl.read(), 0), a.read(), bc.read() != 0 ? 1 : 0, flag);
     flag.write((flag.read() | lastCarry) & 0xFFFF);
   }
 

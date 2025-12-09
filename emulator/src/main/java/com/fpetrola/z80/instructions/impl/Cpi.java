@@ -25,11 +25,9 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 
 public class Cpi extends BlockInstruction {
-  public static final AluOperation cpiTableAluOperation = new CachedTableAluOperation(
-    new AluOperation() {
+  public static final AluOperation cpiTableAluOperation = new AluOperation() {
       @Override
       protected int calculate2Values1Boolean(int value, int A, int BC) {
       F = BC;
@@ -45,9 +43,7 @@ public class Cpi extends BlockInstruction {
       Q = F;
       return F;
     }
-    }
-  );
-
+    };
   public Register getA() {
     return a;
   }
@@ -59,7 +55,12 @@ public class Cpi extends BlockInstruction {
   protected Register a;
 
   public Cpi(Register a, Register flag, RegisterPair bc, RegisterPair hl, Memory memory, IO io) {
-    super(bc, hl, flag, memory, io);
+    super(bc, hl, flag, memory, io, cpiTableAluOperation);
+    this.a = a;
+  }
+
+  protected Cpi(Register a, Register flag, RegisterPair bc, RegisterPair hl, Memory memory, IO io, AluOperation aluOperation) {
+    super(bc, hl, flag, memory, io, aluOperation);
     this.a = a;
   }
 
@@ -72,7 +73,7 @@ public class Cpi extends BlockInstruction {
   protected void flagOperation(int valueFromHL) {
     int value = memory.read(hl.read(), 0);
     int reg_A = a.read();
-    cpiTableAluOperation.execute2Values1Boolean(value, reg_A, bc.read() != 0 ? 1 : 0, flag);
+    aluOperation.execute2Values1Boolean(value, reg_A, bc.read() != 0 ? 1 : 0, flag);
   }
 
 

@@ -66,7 +66,7 @@
   }, {
     "name" : "Sub",
     "description" : "Subtract from Accumulator",
-    "md5" : "163101391f772fc94417082f634682dd"
+    "md5" : "417cd881079023a2bdc4ad386a17c0d9"
   }, {
     "name" : "Sbc",
     "description" : "Subtract with Carry",
@@ -86,7 +86,7 @@
   }, {
     "name" : "Cp",
     "description" : "Compare with Accumulator",
-    "md5" : "15be4621978666e5987d809a9a286407"
+    "md5" : "81badeaca94f9b7d59c084bddf62ec38"
   }, {
     "name" : "Inc",
     "description" : "Increment 8-bit",
@@ -114,11 +114,11 @@
   }, {
     "name" : "BIT",
     "description" : "Test Bit",
-    "md5" : "e56d20c3db679a8bdccf1751e7d217b2"
+    "md5" : "a72fac775d2bd7b7db90543084e6de12"
   }, {
     "name" : "Ini",
     "description" : "Input and increment",
-    "md5" : "2aa5372f79b664337b07f91496176b19"
+    "md5" : "47a98366596c98699bf03dda9e810fc2"
   }, {
     "name" : "Ldi",
     "description" : "Load and increment",
@@ -158,6 +158,6 @@
   }, {
     "name" : "Outi",
     "description" : "Output and increment",
-    "md5" : "9fd1e9c08e1525c6e90bae4a7c72b5ac"
+    "md5" : "6bef22866c3a9cc19a0410ae427205c6"
   } ]
 }

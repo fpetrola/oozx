@@ -23,14 +23,11 @@ import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Sub extends ParameterizedBinaryAluInstruction {
-  public static final AluOperation sub8TableAluOperation = new CachedTableAluOperation(
-    new AluOperation() {
-      @Override
-      protected int calculate2Values1Boolean(int value1, int value2, int carry) {
+  public static final AluOperation sub8TableAluOperation = new AluOperation() {
+    protected int calculate2Values1Boolean(int value2, int value1, int carry) {
       int subtemp = value2 - value1;
       int lookup = ((value2 & 0x88) >> 3) | ((value1 & 0x88) >> 2) | ((subtemp & 0x88) >> 1);
       value2 = subtemp & 0xff;
@@ -40,18 +37,12 @@ public class Sub extends ParameterizedBinaryAluInstruction {
 
       return value2;
     }
-    }
-  );
+  };
 
   public Sub(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
-    super(target, source, flag,  sub8TableAluOperation);
+    super(target, source, flag, sub8TableAluOperation);
   }
 
-  protected int doExecute(int sourceValue, int targetValue) {
-    return super.doExecute(targetValue, sourceValue);
-  }
-
-  @Override
   public void accept(InstructionVisitor<?> visitor) {
     super.accept(visitor);
     visitor.visitingSub(this);

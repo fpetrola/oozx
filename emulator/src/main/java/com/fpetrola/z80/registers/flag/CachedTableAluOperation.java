@@ -19,8 +19,12 @@
 package com.fpetrola.z80.registers.flag;
 
 import com.fpetrola.z80.registers.Register;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CachedTableAluOperation extends AluOperation {
+  private static final Map<String, int[]> TABLE_CACHE = new HashMap<>();
+  
   private final AluOperation delegate;
   private int[] table;
 
@@ -44,6 +48,15 @@ public class CachedTableAluOperation extends AluOperation {
   }
 
   public void buildTable(ToPrimitiveIntTriFunction triFunction, int i) {
+    String cacheKey = generateCacheKey(triFunction, i);
+    
+    // Verificar si la tabla ya existe en el cache
+    if (TABLE_CACHE.containsKey(cacheKey)) {
+      table = TABLE_CACHE.get(cacheKey);
+      return;
+    }
+    
+    // Construir la tabla si no existe
     table = new int[256 * 256 * i];
     for (int a = 0; a < 256; a++) {
       for (int b = 0; b < 256; b++) {
@@ -54,6 +67,13 @@ public class CachedTableAluOperation extends AluOperation {
         }
       }
     }
+    
+    // Guardar en el cache
+    TABLE_CACHE.put(cacheKey, table);
+  }
+  
+  private String generateCacheKey(ToPrimitiveIntTriFunction triFunction, int i) {
+    return delegate.getClass().getName() + "_" + i;
   }
 
   final public int execute2Values1Boolean(int value1, int value2, int booleanValue, Register flag) {

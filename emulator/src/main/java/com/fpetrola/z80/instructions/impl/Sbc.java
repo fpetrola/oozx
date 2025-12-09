@@ -23,12 +23,10 @@ import com.fpetrola.z80.instructions.types.ParameterizedBinaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Sbc extends ParameterizedBinaryAluInstruction {
-  public static final AluOperation sbc8TableAluOperation = new CachedTableAluOperation(
-      new AluOperation() {
+  public static final AluOperation sbc8TableAluOperation = new AluOperation() {
         @Override
         protected int calculate2Values1Boolean(int value1, int value2, int carry) {
           F = carry;
@@ -42,15 +40,14 @@ public class Sbc extends ParameterizedBinaryAluInstruction {
 
           return value2;
         }
-      }
-  );
-
+      };
   public Sbc(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
     super(target, source, flag, sbc8TableAluOperation);
   }
 
-  public BinaryAluOperation getTBinaryAluOperation(AluOperation tableAluOperation) {
-    return (tFlagRegister, value, reg_A) -> aluOperation.execute2ValuesAndCarry(value, reg_A, tFlagRegister);
+  @Override
+  protected int doExecute(int sourceValue, int targetValue) {
+    return aluOperation.execute2ValuesAndCarry(sourceValue, targetValue, flag);
   }
 
   @Override

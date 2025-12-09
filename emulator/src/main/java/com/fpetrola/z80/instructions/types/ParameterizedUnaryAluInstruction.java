@@ -24,24 +24,16 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class ParameterizedUnaryAluInstruction extends DefaultTargetFlagInstruction {
-  final protected UnaryAluOperation unaryAluOperation;
-
   public ParameterizedUnaryAluInstruction(OpcodeReference target, Register flag, AluOperation tableAluOperation) {
-    super(target, flag);
-    this.unaryAluOperation = (a) -> tableAluOperation.execute2Values(a, this.flag.read(), this.flag);
-  }
-
-  public interface UnaryAluOperation {
-    int execute(int value);
-  }
-
-  public ParameterizedUnaryAluInstruction(OpcodeReference target, Register flag, UnaryAluOperation unaryAluOperation) {
-    super(target, flag);
-    this.unaryAluOperation = unaryAluOperation;
+    super(target, flag, tableAluOperation);
   }
 
   public void execute() {
-    target.write(unaryAluOperation.execute(target.read()));
+    target.write(doExecute());
+  }
+
+  protected int doExecute() {
+    return aluOperation.execute2Values(target.read(), flag.read(), flag);
   }
 
   public void accept(InstructionVisitor<?> visitor) {

@@ -21,12 +21,19 @@ package com.fpetrola.z80.instructions.types;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public abstract class DefaultTargetFlagInstruction extends DefaultTargetInstruction implements FlagInstruction {
   final protected Register flag;
 
   public DefaultTargetFlagInstruction(OpcodeReference target, Register flag) {
     super(target);
+    this.flag = flag;
+    incrementLengthBy(target.getLength());
+  }
+
+  public DefaultTargetFlagInstruction(OpcodeReference target, Register flag, AluOperation aluOperation) {
+    super(target, aluOperation);
     this.flag = flag;
     incrementLengthBy(target.getLength());
   }

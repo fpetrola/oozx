@@ -22,11 +22,9 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
-import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 
 public class LdAI extends Ld {
-  public static final AluOperation ldaiTableAluOperation = new CachedTableAluOperation(
-    new AluOperation() {
+  public static final AluOperation ldaiTableAluOperation = new AluOperation() {
       @Override
       protected int calculate2Values1Boolean(int value1, int value2, int IFF2) {
       value1 = value2;
@@ -34,12 +32,10 @@ public class LdAI extends Ld {
       Q = F;
       return F;
     }
-    }
-  );
-  private final State state;
+    };  private final State state;
 
   public LdAI(OpcodeReference target, OpcodeReference source, Register flag, State state) {
-    super(target, source, flag);
+    super(target, source, flag, ldaiTableAluOperation);
     this.state = state;
   }
 
@@ -47,7 +43,7 @@ public class LdAI extends Ld {
     int value = source.read();
     int reg_A = target.read();
     boolean iff2 = state.isIff2();
-    int ldar = ldaiTableAluOperation.execute2Values1Boolean(reg_A, value, iff2 ? 1 : 0, flag);
+    int ldar = aluOperation.execute2Values1Boolean(reg_A, value, iff2 ? 1 : 0, flag);
 
     target.write(value);
 

@@ -23,6 +23,7 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public abstract class BlockInstruction extends AbstractInstruction {
   final protected RegisterPair bc;
@@ -32,6 +33,15 @@ public abstract class BlockInstruction extends AbstractInstruction {
   final protected IO io;
 
   public BlockInstruction(RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io) {
+    this.bc = bc;
+    this.hl = hl;
+    this.flag = flag;
+    this.memory = memory;
+    this.io = io;
+  }
+
+  public BlockInstruction(RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io, AluOperation aluOperation) {
+    super(aluOperation);
     this.bc = bc;
     this.hl = hl;
     this.flag = flag;

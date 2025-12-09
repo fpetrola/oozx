@@ -21,12 +21,10 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class SCF extends DefaultTargetFlagInstruction {
-  public static final AluOperation scfTableAluOperation = new CachedTableAluOperation(
-    new AluOperation() {
+  public static final AluOperation scfTableAluOperation = new AluOperation() {
       @Override
       protected int calculate2Values1Boolean(int value1, int value2, int carry) {
       F = value2;
@@ -34,15 +32,13 @@ public class SCF extends DefaultTargetFlagInstruction {
       Q = F;
       return F;
     }
-    }
-  );
-
+    };
   public SCF(Register flag, Register a) {
-    super(a, flag);
+    super(a, flag, scfTableAluOperation);
   }
 
   public void execute() {
-    scfTableAluOperation.execute2Values(target.read(), flag.read(), flag);
+    aluOperation.execute2Values(target.read(), flag.read(), flag);
   }
 
   public void accept(InstructionVisitor<?> visitor) {

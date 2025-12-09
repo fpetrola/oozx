@@ -22,12 +22,19 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public abstract class TargetSourceInstruction<S extends ImmutableOpcodeReference> extends DefaultTargetFlagInstruction implements SourceInstruction<S> {
   final protected S source;
 
   public TargetSourceInstruction(OpcodeReference target, S source, Register flag) {
     super(target, flag);
+    this.source = source;
+    incrementLengthBy(source.getLength());
+  }
+
+  public TargetSourceInstruction(OpcodeReference target, S source, Register flag, AluOperation aluOperation) {
+    super(target, flag, aluOperation);
     this.source = source;
     incrementLengthBy(source.getLength());
   }

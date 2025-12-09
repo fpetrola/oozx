@@ -23,12 +23,10 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class LdAR extends Ld {
-  public static final AluOperation ldarTableAluOperation = new CachedTableAluOperation(
-    new AluOperation() {
+  public static final AluOperation ldarTableAluOperation = new AluOperation() {
       @Override
       protected int calculate2Values1Boolean(int value1, int value2, int IFF2) {
       F = value1;
@@ -37,18 +35,16 @@ public class LdAR extends Ld {
       Q = F;
       return F;
     }
-    }
-  );
-  private final State state;
+    };  private final State state;
 
   public LdAR(OpcodeReference target, ImmutableOpcodeReference source, Register flag, State state) {
-    super(target, source, flag);
+    super(target, source, flag, ldarTableAluOperation);
     this.state = state;
   }
 
   public void execute() {
     int value = source.read();
-    int i = ldarTableAluOperation.execute2Values1Boolean(value, flag.read(), state.isIff2() ? 1 : 0, flag);
+    int i = aluOperation.execute2Values1Boolean(value, flag.read(), state.isIff2() ? 1 : 0, flag);
     flag.write(i);
     target.write(value);
   }

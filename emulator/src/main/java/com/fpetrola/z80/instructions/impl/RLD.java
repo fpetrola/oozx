@@ -22,12 +22,10 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class RLD extends AbstractInstruction {
-  public static final AluOperation rldTableAluOperation = new CachedTableAluOperation(
-    new AluOperation() {
+  public static final AluOperation rldTableAluOperation = new AluOperation() {
       @Override
       protected int calculate2Values1Boolean(int value1, int value2, int flag) {
       F = flag;
@@ -36,9 +34,7 @@ public class RLD extends AbstractInstruction {
       Q = F;
       return value2;
     }
-    }
-  );
-  protected final Register a;
+    };  protected final Register a;
 
   public Register getHl() {
     return hl;
@@ -50,6 +46,16 @@ public class RLD extends AbstractInstruction {
   protected final Memory memory;
 
   public RLD(Register a, Register hl, Register flag, Register r, Memory memory) {
+    super(rldTableAluOperation);
+    this.a = a;
+    this.hl = hl;
+    this.flag = flag;
+    this.r = r;
+    this.memory = memory;
+  }
+
+  protected RLD(Register a, Register hl, Register flag, Register r, Memory memory, AluOperation aluOperation) {
+    super(aluOperation);
     this.a = a;
     this.hl = hl;
     this.flag = flag;
@@ -75,7 +81,7 @@ public class RLD extends AbstractInstruction {
   }
 
   protected void executeAlu(int value, int reg_A) {
-    rldTableAluOperation.execute2ValuesAndCarry(value, reg_A, flag);
+    aluOperation.execute2ValuesAndCarry(value, reg_A, flag);
   }
 
   protected int getTemp1(int nibble2, int nibble3, int nibble4) {

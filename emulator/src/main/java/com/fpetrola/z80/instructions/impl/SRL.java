@@ -22,13 +22,11 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class SRL extends ParameterizedUnaryAluInstruction {
 
-  public static final AluOperation srlTableAluOperation = new CachedTableAluOperation(
-    new AluOperation() {
+  public static final AluOperation srlTableAluOperation = new AluOperation() {
       @Override
       protected int calculate1Value(int value) {
       F = (value) & FLAG_C;
@@ -38,9 +36,7 @@ public class SRL extends ParameterizedUnaryAluInstruction {
       Q = F;
       return value;
     }
-    }
-  );
-
+    };
   public SRL(OpcodeReference target, Register flag) {
     super(target, flag, srlTableAluOperation);
   }

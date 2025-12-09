@@ -21,12 +21,10 @@ package com.fpetrola.z80.instructions.impl;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class RRD extends RLD {
-  public static final AluOperation rrdTableAluOperation = new CachedTableAluOperation(
-    new AluOperation() {
+  public static final AluOperation rrdTableAluOperation = new AluOperation() {
       @Override
       protected int calculate2Values1Boolean(int value1, int value2, int flag) {
       value2 = (value2 & 0xf0) | (value1 & 0x0f);
@@ -34,15 +32,13 @@ public class RRD extends RLD {
       Q = F;
       return value2;
     }
-    }
-  );
-
+    };
   public RRD(Register a, Register hl, Register r, Register flag, Memory memory) {
-    super(a, hl, flag, r, memory);
+    super(a, hl, flag, r, memory, rrdTableAluOperation);
   }
 
   protected void executeAlu(int value, int reg_A) {
-    rrdTableAluOperation.execute2ValuesAndCarry(value, reg_A, flag);
+    aluOperation.execute2ValuesAndCarry(value, reg_A, flag);
   }
 
   protected int getTemp1(int nibble2, int nibble3, int nibble4) {

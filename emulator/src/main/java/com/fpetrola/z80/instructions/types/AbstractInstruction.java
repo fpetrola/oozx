@@ -19,12 +19,15 @@
 package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 import fuse.tstates.CachedPhase;
 
 public abstract class AbstractInstruction implements Instruction {
   protected int length = 1;
   private int nextPC = -1;
   private int rdelta;
+  protected final AluOperation aluOperation;
 
   public void setPhaseInterceptor(CachedPhase cachedPhase) {
     this.cachedPhase = cachedPhase;
@@ -33,6 +36,11 @@ public abstract class AbstractInstruction implements Instruction {
   private CachedPhase cachedPhase = new CachedPhase();
 
   protected AbstractInstruction() {
+    this.aluOperation = null;
+  }
+
+  protected AbstractInstruction(AluOperation aluOperation) {
+    this.aluOperation = new CachedTableAluOperation(aluOperation);
   }
 
   public String toString() {
@@ -73,6 +81,10 @@ public abstract class AbstractInstruction implements Instruction {
 
   public int getRDelta() {
     return rdelta;
+  }
+
+  public AluOperation getAluOperation() {
+    return aluOperation;
   }
 
   @Override

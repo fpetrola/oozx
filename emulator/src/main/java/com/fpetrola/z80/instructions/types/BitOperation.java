@@ -21,12 +21,18 @@ package com.fpetrola.z80.instructions.types;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public abstract class BitOperation extends DefaultTargetFlagInstruction {
   protected final int n;
 
   public BitOperation(OpcodeReference target, int n, Register flag) {
     super(target, flag);
+    this.n = n;
+  }
+
+  public BitOperation(OpcodeReference target, int n, Register flag, AluOperation aluOperation) {
+    super(target, flag, aluOperation);
     this.n = n;
   }
 

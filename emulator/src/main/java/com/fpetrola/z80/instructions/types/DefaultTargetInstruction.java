@@ -19,11 +19,17 @@
 package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
+import com.fpetrola.z80.registers.flag.AluOperation;
 
 public abstract class DefaultTargetInstruction extends AbstractInstruction implements TargetInstruction {
   final protected OpcodeReference target;
 
   public DefaultTargetInstruction(OpcodeReference target) {
+    this.target = target;
+  }
+
+  public DefaultTargetInstruction(OpcodeReference target, AluOperation aluOperation) {
+    super(aluOperation);
     this.target = target;
   }
 
