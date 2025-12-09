@@ -28,7 +28,7 @@ import com.fpetrola.z80.registers.flag.CachedTableAluOperation;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class BIT extends BitOperation {
-  private static final AluOperation tBitAluOperation = new CachedTableAluOperation(
+  private static final AluOperation bitAluOperation = new CachedTableAluOperation(
     new AluOperation() {
     protected int calculate3Values(int address, int value1, int bit) {
       F = bit & 1;
@@ -63,7 +63,7 @@ public class BIT extends BitOperation {
       address = target.read();
     }
     int nAndCarry = (n << 1) | flag.read() & 1;
-    tBitAluOperation.execute3Values(address, target.read(), nAndCarry, flag);
+    bitAluOperation.execute3Values(address, target.read(), nAndCarry, flag);
   }
 
   public void accept(InstructionVisitor<?> visitor) {

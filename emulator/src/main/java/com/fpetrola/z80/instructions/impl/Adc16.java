@@ -48,10 +48,15 @@ public class Adc16 extends Binary16BitsOperation {
   );
 
   public Adc16(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
-    super(target, source, flag, (tFlagRegister, a, b) ->
+    super(target, source, flag, adc16TableAluOperation);
+  }
+
+  @Override
+  public BinaryAluOperation getTBinaryAluOperation(AluOperation tableAluOperation) {
+    return  (tFlagRegister, a, b) ->
         calculate(tFlagRegister, a, b,
             (v1, v2, f) -> v1 + v2 + (f & 1),
-            (tFlagRegister1, value3, value2, result1) -> adc16TableAluOperation.execute2Values1Boolean(tFlagRegister1.read(),value3, result1 != 0 ? 1 : 0, tFlagRegister1)));
+            (tFlagRegister1, value3, value2, result1) -> aluOperation.execute2Values1Boolean(tFlagRegister1.read(),value3, result1 != 0 ? 1 : 0, tFlagRegister1));
   }
 
   public void accept(InstructionVisitor<?> visitor) {

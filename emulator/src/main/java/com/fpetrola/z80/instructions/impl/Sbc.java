@@ -49,8 +49,8 @@ public class Sbc extends ParameterizedBinaryAluInstruction {
     super(target, source, flag, sbc8TableAluOperation);
   }
 
-  public <T1> BinaryAluOperation getTBinaryAluOperation(AluOperation tableAluOperation) {
-    return (tFlagRegister, value, reg_A) -> sbc8TableAluOperation.execute2ValuesAndCarry(value, reg_A, tFlagRegister);
+  public BinaryAluOperation getTBinaryAluOperation(AluOperation tableAluOperation) {
+    return (tFlagRegister, value, reg_A) -> aluOperation.execute2ValuesAndCarry(value, reg_A, tFlagRegister);
   }
 
   @Override

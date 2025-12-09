@@ -51,7 +51,7 @@ public class Adc extends ParameterizedBinaryAluInstruction {
 
   @Override
   public <T1> BinaryAluOperation getTBinaryAluOperation(AluOperation tableAluOperation) {
-    return (tFlagRegister, value, regA) -> adc8TableAluOperation.execute2ValuesAndCarry(value, regA, tFlagRegister);
+    return (tFlagRegister, value, regA) -> aluOperation.execute2ValuesAndCarry(value, regA, tFlagRegister);
   }
 
   @Override
