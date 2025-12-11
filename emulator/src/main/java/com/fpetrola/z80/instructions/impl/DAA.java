@@ -38,9 +38,9 @@ public class DAA extends ParameterizedUnaryAluInstruction {
       Register f = new Plain8BitRegister("");
       f.write(F);
       if ((F & FLAG_N) != 0) {
-        value1 = new Sub.Sub8TableAluOperation().execute2Values(value1, add, f);
+        value1 = new Sub.SubTableAluOperation().execute2Values(value1, add, f);
       } else {
-        value1 = new Add.Add8TableAluOperation().execute2Values(add, value1, f);
+        value1 = new Add.AddTableAluOperation().execute2Values(add, value1, f);
       }
       F = f.read();
 

@@ -1,9 +1,6 @@
 package com.fpetrola.oozx;
 
-import com.fpetrola.z80.instructions.impl.Ld;
-import com.fpetrola.z80.instructions.impl.Xor;
-import com.fpetrola.z80.instructions.impl.Or;
-import com.fpetrola.z80.instructions.impl.And;
+import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
 import com.fpetrola.z80.opcodes.references.Memory16BitReference;
@@ -22,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests para BytecodeInliner que verifica que se generan correctamente
- * clases bytecode compiladas dinámicamente.
+ * clases bytecode compiladas dinámicamente que extiendan Z80UnRolled.
  */
 public class BytecodeInlinerTest {
 
@@ -31,18 +28,11 @@ public class BytecodeInlinerTest {
     var ld = getLd1();
     String actualSource = testBytecodeInlineOf(ld);
 
-    // Verificar código fuente generado
     String expectedSource = """
-        import com.fpetrola.z80.memory.Memory;
+        public class LdBytecode extends Z80UnRolled {
 
-        public class LdBytecode {
-           private int A;
-           private int IX;
-           private Memory memory;
-           private int pc;
-
-           public void execute() {
-              int var1 = this.pc + 2 & '\\uffff';
+           public void executeLd() {
+              int var1 = this.PC + 2 & '\\uffff';
               int var2 = this.memory.read(var1, 0);
               int var3 = this.IX + var2 & '\\uffff';
               this.memory.write(var3, this.A);
@@ -57,14 +47,9 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(ld);
 
     String expectedSource = """
-        import com.fpetrola.z80.memory.Memory;
+        public class LdBytecode extends Z80UnRolled {
 
-        public class LdBytecode {
-           private int B;
-           private int IY;
-           private Memory memory;
-
-           public void execute() {
+           public void executeLd() {
               this.memory.write(this.IY, this.B);
            }
         }""";
@@ -77,18 +62,12 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(ld);
 
     String expectedSource = """
-        import com.fpetrola.z80.memory.Memory;
+        public class LdBytecode extends Z80UnRolled {
 
-        public class LdBytecode {
-           private int B;
-           private int IY;
-           private Memory memory;
-           private int pc;
-
-           public void execute() {
-              int var1 = this.pc + 3 & '\\uffff';
+           public void executeLd() {
+              int var1 = this.PC + 3 & '\\uffff';
               int var2 = this.memory.read(var1, 0);
-              int var3 = this.pc + 4 & '\\uffff';
+              int var3 = this.PC + 4 & '\\uffff';
               int var4 = this.memory.read(var3, 0) << 8;
               int var5 = var2 | var4;
               this.memory.write(var5, this.B);
@@ -102,10 +81,9 @@ public class BytecodeInlinerTest {
     var ld = getLd1();
     String actualSource = testBytecodeInlineOf(ld);
 
-    // Verificar que se generó código válido
     assertNotNull(actualSource);
     assertFalse(actualSource.isEmpty());
-    assertTrue(actualSource.contains("public class LdBytecode"));
+    assertTrue(actualSource.contains("extends Z80UnRolled"));
   }
 
   @Test
@@ -114,20 +92,10 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(xor);
 
     String expectedSource = """
-        import com.fpetrola.z80.instructions.impl.Xor.XorTableAluOperation;
-        import com.fpetrola.z80.memory.Memory;
-        import com.fpetrola.z80.registers.Register;
+        public class XorBytecode extends Z80UnRolled {
 
-        public class XorBytecode {
-           private int C;
-           private int IX;
-           private Memory memory;
-           private int pc;
-           private Register flag;
-           private XorTableAluOperation xorTableAluOperation;
-
-           public void execute() {
-              int var1 = this.pc + 2 & '\\uffff';
+           public void executeXor() {
+              int var1 = this.PC + 2 & '\\uffff';
               int var2 = this.memory.read(var1, 0);
               int var3 = this.IX + var2 & '\\uffff';
               int var4 = this.memory.read(var3, 0);
@@ -144,20 +112,10 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(or);
 
     String expectedSource = """
-        import com.fpetrola.z80.instructions.impl.Or.OrTableAluOperation;
-        import com.fpetrola.z80.memory.Memory;
-        import com.fpetrola.z80.registers.Register;
+        public class OrBytecode extends Z80UnRolled {
 
-        public class OrBytecode {
-           private int C;
-           private int IX;
-           private Memory memory;
-           private int pc;
-           private Register flag;
-           private OrTableAluOperation orTableAluOperation;
-
-           public void execute() {
-              int var1 = this.pc + 2 & '\\uffff';
+           public void executeOr() {
+              int var1 = this.PC + 2 & '\\uffff';
               int var2 = this.memory.read(var1, 0);
               int var3 = this.IX + var2 & '\\uffff';
               int var4 = this.memory.read(var3, 0);
@@ -174,18 +132,9 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(xor);
 
     String expectedSource = """
-        import com.fpetrola.z80.instructions.impl.Xor.XorTableAluOperation;
-        import com.fpetrola.z80.memory.Memory;
-        import com.fpetrola.z80.registers.Register;
+        public class XorBytecode extends Z80UnRolled {
 
-        public class XorBytecode {
-           private int C;
-           private int IY;
-           private Memory memory;
-           private Register flag;
-           private XorTableAluOperation xorTableAluOperation;
-
-           public void execute() {
+           public void executeXor() {
               int var1 = this.memory.read(this.IY, 0);
               int var2 = this.xorTableAluOperation.execute2ValuesAndCarry(var1, this.C, this.flag);
               this.memory.write(this.IY, var2);
@@ -200,22 +149,12 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(xor);
 
     String expectedSource = """
-        import com.fpetrola.z80.instructions.impl.Xor.XorTableAluOperation;
-        import com.fpetrola.z80.memory.Memory;
-        import com.fpetrola.z80.registers.Register;
+        public class XorBytecode extends Z80UnRolled {
 
-        public class XorBytecode {
-           private int C;
-           private int IY;
-           private Memory memory;
-           private int pc;
-           private Register flag;
-           private XorTableAluOperation xorTableAluOperation;
-
-           public void execute() {
-              int var1 = this.pc + 3 & '\\uffff';
+           public void executeXor() {
+              int var1 = this.PC + 3 & '\\uffff';
               int var2 = this.memory.read(var1, 0);
-              int var3 = this.pc + 4 & '\\uffff';
+              int var3 = this.PC + 4 & '\\uffff';
               int var4 = this.memory.read(var3, 0) << 8;
               int var5 = var2 | var4;
               int var6 = this.memory.read(var5, 0);
@@ -232,18 +171,9 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(or);
 
     String expectedSource = """
-        import com.fpetrola.z80.instructions.impl.Or.OrTableAluOperation;
-        import com.fpetrola.z80.memory.Memory;
-        import com.fpetrola.z80.registers.Register;
+        public class OrBytecode extends Z80UnRolled {
 
-        public class OrBytecode {
-           private int C;
-           private int IY;
-           private Memory memory;
-           private Register flag;
-           private OrTableAluOperation orTableAluOperation;
-
-           public void execute() {
+           public void executeOr() {
               int var1 = this.memory.read(this.IY, 0);
               int var2 = this.orTableAluOperation.execute2ValuesAndCarry(var1, this.C, this.flag);
               this.memory.write(this.IY, var2);
@@ -258,22 +188,12 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(or);
 
     String expectedSource = """
-        import com.fpetrola.z80.instructions.impl.Or.OrTableAluOperation;
-        import com.fpetrola.z80.memory.Memory;
-        import com.fpetrola.z80.registers.Register;
+        public class OrBytecode extends Z80UnRolled {
 
-        public class OrBytecode {
-           private int C;
-           private int IY;
-           private Memory memory;
-           private int pc;
-           private Register flag;
-           private OrTableAluOperation orTableAluOperation;
-
-           public void execute() {
-              int var1 = this.pc + 3 & '\\uffff';
+           public void executeOr() {
+              int var1 = this.PC + 3 & '\\uffff';
               int var2 = this.memory.read(var1, 0);
-              int var3 = this.pc + 4 & '\\uffff';
+              int var3 = this.PC + 4 & '\\uffff';
               int var4 = this.memory.read(var3, 0) << 8;
               int var5 = var2 | var4;
               int var6 = this.memory.read(var5, 0);
@@ -290,20 +210,10 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(and);
 
     String expectedSource = """
-        import com.fpetrola.z80.instructions.impl.And.AndTableAluOperation;
-        import com.fpetrola.z80.memory.Memory;
-        import com.fpetrola.z80.registers.Register;
+        public class AndBytecode extends Z80UnRolled {
 
-        public class AndBytecode {
-           private int C;
-           private int IX;
-           private Memory memory;
-           private int pc;
-           private Register flag;
-           private AndTableAluOperation andTableAluOperation;
-
-           public void execute() {
-              int var1 = this.pc + 2 & '\\uffff';
+           public void executeAnd() {
+              int var1 = this.PC + 2 & '\\uffff';
               int var2 = this.memory.read(var1, 0);
               int var3 = this.IX + var2 & '\\uffff';
               int var4 = this.memory.read(var3, 0);
@@ -320,18 +230,9 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(and);
 
     String expectedSource = """
-        import com.fpetrola.z80.instructions.impl.And.AndTableAluOperation;
-        import com.fpetrola.z80.memory.Memory;
-        import com.fpetrola.z80.registers.Register;
+        public class AndBytecode extends Z80UnRolled {
 
-        public class AndBytecode {
-           private int C;
-           private int IY;
-           private Memory memory;
-           private Register flag;
-           private AndTableAluOperation andTableAluOperation;
-
-           public void execute() {
+           public void executeAnd() {
               int var1 = this.memory.read(this.IY, 0);
               int var2 = this.andTableAluOperation.execute2ValuesAndCarry(var1, this.C, this.flag);
               this.memory.write(this.IY, var2);
@@ -346,22 +247,12 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(and);
 
     String expectedSource = """
-        import com.fpetrola.z80.instructions.impl.And.AndTableAluOperation;
-        import com.fpetrola.z80.memory.Memory;
-        import com.fpetrola.z80.registers.Register;
+        public class AndBytecode extends Z80UnRolled {
 
-        public class AndBytecode {
-           private int C;
-           private int IY;
-           private Memory memory;
-           private int pc;
-           private Register flag;
-           private AndTableAluOperation andTableAluOperation;
-
-           public void execute() {
-              int var1 = this.pc + 3 & '\\uffff';
+           public void executeAnd() {
+              int var1 = this.PC + 3 & '\\uffff';
               int var2 = this.memory.read(var1, 0);
-              int var3 = this.pc + 4 & '\\uffff';
+              int var3 = this.PC + 4 & '\\uffff';
               int var4 = this.memory.read(var3, 0) << 8;
               int var5 = var2 | var4;
               int var6 = this.memory.read(var5, 0);
@@ -372,12 +263,110 @@ public class BytecodeInlinerTest {
     assertSourceEquals(actualSource, expectedSource);
   }
 
+  @Test
+  public void testBytecodeSubInline1() throws IOException {
+    var sub = getSub1();
+    String actualSource = testBytecodeInlineOf(sub);
+
+    String expectedSource = """
+        public class SubBytecode extends Z80UnRolled {
+
+           public void executeSub() {
+              int var1 = this.PC + 2 & '\\uffff';
+              int var2 = this.memory.read(var1, 0);
+              int var3 = this.IX + var2 & '\\uffff';
+              int var4 = this.memory.read(var3, 0);
+              int var5 = this.subTableAluOperation.execute2ValuesAndCarry(var4, this.B, this.flag);
+              this.memory.write(var3, var5);
+           }
+        }""";
+    assertSourceEquals(actualSource, expectedSource);
+  }
+
+  @Test
+  public void testBytecodeCpInline1() throws IOException {
+    var cp = getCp1();
+    String actualSource = testBytecodeInlineOf(cp);
+
+    String expectedSource = """
+        public class CpBytecode extends Z80UnRolled {
+
+           public void executeCp() {
+              int var1 = this.PC + 2 & '\\uffff';
+              int var2 = this.memory.read(var1, 0);
+              int var3 = this.IX + var2 & '\\uffff';
+              int var4 = this.memory.read(var3, 0);
+              int var5 = this.cpTableAluOperation.execute2ValuesAndCarry(var4, this.D, this.flag);
+              this.memory.write(var3, var5);
+           }
+        }""";
+    assertSourceEquals(actualSource, expectedSource);
+  }
+
+  @Test
+  public void testBytecodeAddInline1() throws IOException {
+    var add = getAdd1();
+    String actualSource = testBytecodeInlineOf(add);
+
+    String expectedSource = """
+        public class AddBytecode extends Z80UnRolled {
+
+           public void executeAdd() {
+              int var1 = this.PC + 2 & '\\uffff';
+              int var2 = this.memory.read(var1, 0);
+              int var3 = this.IX + var2 & '\\uffff';
+              int var4 = this.memory.read(var3, 0);
+              int var5 = this.addTableAluOperation.execute2ValuesAndCarry(var4, this.E, this.flag);
+              this.memory.write(var3, var5);
+           }
+        }""";
+    assertSourceEquals(actualSource, expectedSource);
+  }
+
+  @Test
+  public void testBytecodeAdcInline1() throws IOException {
+    var adc = getAdc1();
+    String actualSource = testBytecodeInlineOf(adc);
+
+    String expectedSource = """
+        public class AdcBytecode extends Z80UnRolled {
+
+           public void executeAdc() {
+              int var1 = this.PC + 2 & '\\uffff';
+              int var2 = this.memory.read(var1, 0);
+              int var3 = this.IX + var2 & '\\uffff';
+              int var4 = this.memory.read(var3, 0);
+              int var5 = this.adcTableAluOperation.execute2ValuesAndCarry(var4, this.H, this.flag);
+              this.memory.write(var3, var5);
+           }
+        }""";
+    assertSourceEquals(actualSource, expectedSource);
+  }
+
+  @Test
+  public void testBytecodeSbcInline1() throws IOException {
+    var sbc = getSbc1();
+    String actualSource = testBytecodeInlineOf(sbc);
+
+    String expectedSource = """
+        public class SbcBytecode extends Z80UnRolled {
+
+           public void executeSbc() {
+              int var1 = this.PC + 2 & '\\uffff';
+              int var2 = this.memory.read(var1, 0);
+              int var3 = this.IX + var2 & '\\uffff';
+              int var4 = this.memory.read(var3, 0);
+              int var5 = this.sbcTableAluOperation.execute2ValuesAndCarry(var4, this.L, this.flag);
+              this.memory.write(var3, var5);
+           }
+        }""";
+    assertSourceEquals(actualSource, expectedSource);
+  }
+
+
   // Guardar referencia al inliner para acceder al bytecode generado
   private BytecodeInliner lastInliner;
 
-  /**
-   * Test helper que genera bytecode, descompila y retorna el código fuente
-   */
   /**
    * Test helper genérico que genera bytecode, descompila y retorna el código fuente
    */
@@ -393,39 +382,21 @@ public class BytecodeInlinerTest {
   }
 
   /**
-   * Guarda el bytecode generado a un archivo .class o crea un fallback
+   * Obtiene el código fuente descompilado de la clase generada usando Decompiler
    */
-  private void saveGeneratedClass(Class<?> generatedClass) {
-    try {
-      Path outputDir = Paths.get("target/generated-classes");
-      BytecodeWriter.writeClassToFile(generatedClass, outputDir);
-      BytecodeWriter.printJavapCommand(generatedClass);
-    } catch (IOException e) {
-      System.err.println("Error guardando bytecode: " + e.getMessage());
-    }
-  }
-
-  /**
-    * Obtiene el código fuente descompilado de la clase generada usando Decompiler
-    * Utiliza el bytecode capturado directamente de ClassMaker.finishBytes()
-    */
   private String getDecompiledSource(String generatedClass) throws IOException {
     try {
-      // Obtener el bytecode del último inliner (generado por ClassMaker.finishBytes())
       if (lastInliner == null) {
         throw new IOException("lastInliner no fue inicializado");
       }
 
       byte[] bytecode = BytecodeInliner.generatedBytecodes.get(generatedClass);
 
-      // Crear un archivo temporal para el bytecode
       Path tempDir = Paths.get("target/decompiled-temp");
       Files.createDirectories(tempDir);
-      String className = generatedClass;
-      Path classFile = tempDir.resolve(className + ".class");
+      Path classFile = tempDir.resolve(generatedClass + ".class");
       Files.write(classFile, bytecode);
 
-      // Usar Decompiler para descompilar el bytecode
       Decompiler decompiler = new Decompiler();
       decompiler.addClass(bytecode, classFile.toFile());
       String decompiled = decompiler.decompile();
@@ -436,30 +407,27 @@ public class BytecodeInlinerTest {
 
       return decompiled;
     } catch (Exception e) {
-      // Lanzar excepción para que el test falle si no se puede descompilar
       throw new IOException("Error descompilando bytecode generado: " + e.getMessage(), e);
     }
   }
 
   /**
-    * Compara el código fuente descompilado con el esperado
-    */
+   * Compara el código fuente descompilado con el esperado
+   */
   private void assertSourceEquals(String actual, String expectedSource) {
     assertEquals(expectedSource.trim(), actual.trim(), "Source code does not match:\n\n" +
                                                        "expected:\n" + expectedSource + "\n\n" +
                                                        "actual:\n" + actual);
   }
 
-
-  // Helpers para crear instrucciones de prueba
+  // ============ Helpers para crear instrucciones de prueba ============
 
   private static Ld getLd1() {
     var target = new MemoryPlusRegister8BitReference(
         new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
     );
     var source = new Plain8BitRegister("A");
-    var ld = new Ld(target, source, new Plain8BitRegister("F"));
-    return ld;
+    return new Ld(target, source, new Plain8BitRegister("F"));
   }
 
   private static Ld getLd2() {
@@ -480,8 +448,7 @@ public class BytecodeInlinerTest {
         new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
     );
     var source = new Plain8BitRegister("C");
-    var xor = new Xor(target, source, new Plain8BitRegister("F"));
-    return xor;
+    return new Xor(target, source, new Plain8BitRegister("F"));
   }
 
   private static Or getOr1() {
@@ -489,8 +456,7 @@ public class BytecodeInlinerTest {
         new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
     );
     var source = new Plain8BitRegister("C");
-    var or = new Or(target, source, new Plain8BitRegister("F"));
-    return or;
+    return new Or(target, source, new Plain8BitRegister("F"));
   }
 
   private static Xor getXor2() {
@@ -513,31 +479,91 @@ public class BytecodeInlinerTest {
   }
 
   private static Or getOr3() {
-     MyAbstractMemory memory = new MyAbstractMemory();
-     var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
-     var source = new Plain8BitRegister("C");
-     return new Or(target, source, new Plain8BitRegister("F"));
-   }
-
-   private static And getAnd1() {
-     var target = new MemoryPlusRegister8BitReference(
-         new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
-     );
-     var source = new Plain8BitRegister("C");
-     var and = new And(target, source, new Plain8BitRegister("F"));
-     return and;
-   }
-
-   private static And getAnd2() {
-     var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
-     var source = new Plain8BitRegister("C");
-     return new And(target, source, new Plain8BitRegister("F"));
-   }
-
-   private static And getAnd3() {
-     MyAbstractMemory memory = new MyAbstractMemory();
-     var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
-     var source = new Plain8BitRegister("C");
-     return new And(target, source, new Plain8BitRegister("F"));
-   }
+    MyAbstractMemory memory = new MyAbstractMemory();
+    var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
+    var source = new Plain8BitRegister("C");
+    return new Or(target, source, new Plain8BitRegister("F"));
   }
+
+  private static And getAnd1() {
+    var target = new MemoryPlusRegister8BitReference(
+        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
+    );
+    var source = new Plain8BitRegister("C");
+    return new And(target, source, new Plain8BitRegister("F"));
+  }
+
+  private static And getAnd2() {
+    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
+    var source = new Plain8BitRegister("C");
+    return new And(target, source, new Plain8BitRegister("F"));
+  }
+
+  private static And getAnd3() {
+    MyAbstractMemory memory = new MyAbstractMemory();
+    var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
+    var source = new Plain8BitRegister("C");
+    return new And(target, source, new Plain8BitRegister("F"));
+  }
+
+  private static Sub getSub1() {
+    var target = new MemoryPlusRegister8BitReference(
+        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
+    );
+    var source = new Plain8BitRegister("B");
+    return new Sub(target, source, new Plain8BitRegister("F"));
+  }
+
+  private static Cp getCp1() {
+    var target = new MemoryPlusRegister8BitReference(
+        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
+    );
+    var source = new Plain8BitRegister("D");
+    return new Cp(target, source, new Plain8BitRegister("F"));
+  }
+
+  private static Add getAdd1() {
+    var target = new MemoryPlusRegister8BitReference(
+        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
+    );
+    var source = new Plain8BitRegister("E");
+    return new Add(target, source, new Plain8BitRegister("F"));
+  }
+
+  private static Adc getAdc1() {
+    var target = new MemoryPlusRegister8BitReference(
+        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
+    );
+    var source = new Plain8BitRegister("H");
+    return new Adc(target, source, new Plain8BitRegister("F"));
+  }
+
+  private static Sbc getSbc1() {
+    var target = new MemoryPlusRegister8BitReference(
+        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
+    );
+    var source = new Plain8BitRegister("L");
+    return new Sbc(target, source, new Plain8BitRegister("F"));
+  }
+
+  private static Dec getDec1() {
+    var target = new MemoryPlusRegister8BitReference(
+        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
+    );
+    return new Dec(target, new Plain8BitRegister("F"));
+  }
+
+  private static Inc getInc1() {
+    var target = new MemoryPlusRegister8BitReference(
+        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
+    );
+    return new Inc(target, new Plain8BitRegister("F"));
+  }
+
+  private static Neg getNeg1() {
+    var target = new MemoryPlusRegister8BitReference(
+        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
+    );
+    return new Neg(target, new Plain8BitRegister("F"));
+  }
+}

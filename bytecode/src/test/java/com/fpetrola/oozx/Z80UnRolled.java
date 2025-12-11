@@ -20,10 +20,10 @@ public class Z80UnRolled {
   SLL.SLLAluOperation sLLAluOperation = new SLL.SLLAluOperation();
   RLD.RldTableAluOperation rldTableAluOperation = new RLD.RldTableAluOperation();
   RRD.RrdTableAluOperation rrdTableAluOperation = new RRD.RrdTableAluOperation();
-  Add.Add8TableAluOperation add8TableAluOperation = new Add.Add8TableAluOperation();
-  Adc.Adc8TableAluOperation adc8TableAluOperation = new Adc.Adc8TableAluOperation();
-  Sub.Sub8TableAluOperation sub8TableAluOperation = new Sub.Sub8TableAluOperation();
-  Sbc.Sbc8TableAluOperation sbc8TableAluOperation = new Sbc.Sbc8TableAluOperation();
+  Add.AddTableAluOperation addTableAluOperation = new Add.AddTableAluOperation();
+  Adc.AdcTableAluOperation adcTableAluOperation = new Adc.AdcTableAluOperation();
+  Sub.SubTableAluOperation subTableAluOperation = new Sub.SubTableAluOperation();
+  Sbc.SbcTableAluOperation sbcTableAluOperation = new Sbc.SbcTableAluOperation();
   And.AndTableAluOperation andTableAluOperation = new And.AndTableAluOperation();
   Xor.XorTableAluOperation xorTableAluOperation = new Xor.XorTableAluOperation();
   Or.OrTableAluOperation orTableAluOperation = new Or.OrTableAluOperation();

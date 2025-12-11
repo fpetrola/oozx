@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Sub extends ParameterizedBinaryAluInstruction {
-  public static class Sub8TableAluOperation extends AluOperation {
+  public static class SubTableAluOperation extends AluOperation {
     protected int calculate2Values1Boolean(int value2, int value1, int carry) {
       int subtemp = value2 - value1;
       int lookup = ((value2 & 0x88) >> 3) | ((value1 & 0x88) >> 2) | ((subtemp & 0x88) >> 1);
@@ -40,7 +40,7 @@ public class Sub extends ParameterizedBinaryAluInstruction {
   }
 
   public Sub(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
-    super(target, source, flag, new Sub8TableAluOperation());
+    super(target, source, flag, new SubTableAluOperation());
   }
 
   public void accept(InstructionVisitor<?> visitor) {

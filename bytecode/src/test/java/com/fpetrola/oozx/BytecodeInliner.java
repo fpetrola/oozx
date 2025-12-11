@@ -47,16 +47,17 @@ public class BytecodeInliner {
     // Crear class maker - cojen generará un nombre único basado en el className
     ClassMaker cm = ClassMaker.beginExternal(className);
     cm.public_();
+    
+    // Extender de Z80UnRolled
+    cm.extend(Z80UnRolled.class);
 
     // Get analyzed variables in order
     Map<String, InstructionAnalyzer.VariableInfo> requiredVars = analyzer.getRequiredVariables();
     OpcodeReference target = analyzer.getTarget();
 
-    // Add fields for target and other variables
-    addFieldsInOrder(cm, requiredVars, target);
-
-    // Add ALU operation field if the instruction has one
-    addAluOperationField(cm, instruction);
+    // No agregar fields - se heredan de Z80UnRolled
+    // addFieldsInOrder(cm, requiredVars, target);
+    // addAluOperationField(cm, instruction);
 
     // No agregar constructor (se omite siempre)
     // addConstructor(cm, className, instruction, target);
@@ -153,7 +154,11 @@ public class BytecodeInliner {
 
 
   private void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, String operationName, OpcodeReference target) {
-    MethodMaker mm = cm.addMethod(void.class, "execute");
+    // Generar nombre de método único basado en la clase generada
+    // El nombre será algo como "executeXor1" o "executeLd2"
+    String methodName = "execute" + operationName;
+    
+    MethodMaker mm = cm.addMethod(void.class, methodName);
     mm.public_();
     generateExecute(mm, instruction, target);
     mm.return_();
@@ -164,7 +169,7 @@ public class BytecodeInliner {
    */
   private Variable readAddress16Bit(MethodMaker mm, Memory16BitReference mem16Ref) {
     Variable memory = mm.field("memory");
-    Variable pc = mm.field("pc");
+    Variable pc = mm.field("PC");
 
     // Leer dirección de 16 bits desde (pc + delta)
     Variable addr1 = mm.var(int.class);
@@ -275,7 +280,7 @@ public class BytecodeInliner {
     // 1. Leer el byte offset (dd) desde memoria en (pc + valueDelta)
     Variable dd = mm.var(int.class);
     Variable memory = mm.field("memory");
-    Variable pc = mm.field("pc");
+    Variable pc = mm.field("PC");
 
     // Cálculo: (pc + valueDelta) & 0xFFFF
     Variable pcPlusDelta = pc.add(memRef.getValueDelta());

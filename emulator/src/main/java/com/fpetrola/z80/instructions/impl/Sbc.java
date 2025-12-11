@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Sbc extends ParameterizedBinaryAluInstruction {
-  public static class Sbc8TableAluOperation extends AluOperation {
+  public static class SbcTableAluOperation extends AluOperation {
     protected int calculate2Values1Boolean(int value1, int value2, int carry) {
       F = carry;
       int sbctemp = value1 - (value2) - (F & FLAG_C);
@@ -42,7 +42,7 @@ public class Sbc extends ParameterizedBinaryAluInstruction {
   }
 
   public Sbc(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
-    super(target, source, flag, new Sbc8TableAluOperation());
+    super(target, source, flag, new SbcTableAluOperation());
   }
 
   public void accept(InstructionVisitor<?> visitor) {
