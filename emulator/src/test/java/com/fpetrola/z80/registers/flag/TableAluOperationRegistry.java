@@ -143,7 +143,21 @@ public class TableAluOperationRegistry {
       if (tableAluField != null) {
         config.setFieldName(tableAluField.getName());
       } else {
-        throw new IOException("No TableAluOperation field found in class " + className);
+        // Try to find inner class that extends AluOperation
+        Class<?>[] innerClasses = clazz.getDeclaredClasses();
+        for (Class<?> innerClass : innerClasses) {
+          if (AluOperation.class.isAssignableFrom(innerClass) && 
+              java.lang.reflect.Modifier.isStatic(innerClass.getModifiers())) {
+            // Found an inner class that extends AluOperation
+            // We need to instantiate it to treat it as a field
+            config.setFieldName(innerClass.getSimpleName());
+            break;
+          }
+        }
+        
+        if (config.getFieldName() == null) {
+          throw new IOException("No TableAluOperation field or inner class found in class " + className);
+        }
       }
     } catch (ClassNotFoundException e) {
       throw new IOException("Class not found: " + className, e);
@@ -152,14 +166,29 @@ public class TableAluOperationRegistry {
 
   /**
    * Obtiene una operación TableAluOperation por nombre de configuración.
-   * Usa reflexión para acceder al campo estático.
+   * Usa reflexión para acceder al campo estático o instanciar una clase interna.
    */
   public static AluOperation getOperation(OperationConfig config) throws Exception {
     try {
       Class<?> clazz = Class.forName(config.getClassName());
-      java.lang.reflect.Field field = clazz.getDeclaredField(config.getFieldName());
-      field.setAccessible(true);
-      return (AluOperation) field.get(null);
+      
+      // Try to get it as a static field first
+      try {
+        java.lang.reflect.Field field = clazz.getDeclaredField(config.getFieldName());
+        field.setAccessible(true);
+        return (AluOperation) field.get(null);
+      } catch (NoSuchFieldException e) {
+        // Field not found, try as inner class
+        Class<?>[] innerClasses = clazz.getDeclaredClasses();
+        for (Class<?> innerClass : innerClasses) {
+          if (innerClass.getSimpleName().equals(config.getFieldName()) &&
+              AluOperation.class.isAssignableFrom(innerClass)) {
+            // Instantiate the inner class
+            return (AluOperation) innerClass.getDeclaredConstructor().newInstance();
+          }
+        }
+        throw new NoSuchFieldException("Could not find field or inner class: " + config.getFieldName());
+      }
     } catch (Exception e) {
       throw new RuntimeException(
           "Failed to load operation " + config + ": " + e.getMessage(), e);

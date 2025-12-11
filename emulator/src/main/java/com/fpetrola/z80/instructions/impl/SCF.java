@@ -24,7 +24,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class SCF extends DefaultTargetFlagInstruction {
-  public static final AluOperation scfTableAluOperation = new AluOperation() {
+  public static class ScfTableAluOperation extends AluOperation {
     @Override
     protected int calculate2Values1Boolean(int value1, int value2, int carry) {
       F = value2;
@@ -32,10 +32,10 @@ public class SCF extends DefaultTargetFlagInstruction {
       Q = F;
       return F;
     }
-  };
+  }
 
   public SCF(Register flag, Register a) {
-    super(a, flag, scfTableAluOperation);
+    super(a, flag, new ScfTableAluOperation());
   }
 
   public void execute() {

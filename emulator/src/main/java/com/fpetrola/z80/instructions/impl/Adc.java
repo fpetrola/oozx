@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Adc extends ParameterizedBinaryAluInstruction {
-  public static final AluOperation adc8TableAluOperation = new AluOperation() {
+  public static class Adc8TableAluOperation extends AluOperation {
     protected int calculate2Values1Boolean(int value1, int value2, int carry) {
       F = carry;
       int adctemp = value1 + (value2) + (F & FLAG_C);
@@ -40,10 +40,10 @@ public class Adc extends ParameterizedBinaryAluInstruction {
       Q = F;
       return value1;
     }
-  };
+  }
 
   public Adc(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
-    super(target, source, flag, adc8TableAluOperation);
+    super(target, source, flag, new Adc8TableAluOperation());
   }
 
   public void accept(InstructionVisitor<?> visitor) {

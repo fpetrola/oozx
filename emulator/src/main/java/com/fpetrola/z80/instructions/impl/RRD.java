@@ -24,17 +24,17 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class RRD extends RLD {
-  public static final AluOperation rrdTableAluOperation = new AluOperation() {
+  public static class RrdTableAluOperation extends AluOperation {
     protected int calculate2Values1Boolean(int value1, int value2, int flag) {
       value2 = (value2 & 0xf0) | (value1 & 0x0f);
       F = (F & FLAG_C) | sz53pTable(value2);
       Q = F;
       return value2;
     }
-  };
+  }
 
   public RRD(Register a, Register hl, Register r, Register flag, Memory memory) {
-    super(a, hl, flag, r, memory, rrdTableAluOperation);
+    super(a, hl, flag, r, memory, new RrdTableAluOperation());
   }
 
   protected int getTemp1(int nibble2, int nibble3, int nibble4) {

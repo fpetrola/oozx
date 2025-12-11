@@ -27,22 +27,23 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class In extends TargetSourceInstruction<ImmutableOpcodeReference> {
-  public final static AluOperation inTableAluOperation = new AluOperation() {
+  public static class InAluOperation extends AluOperation {
     protected int calculate2Values1Boolean(int value1, int value2, int carry) {
       F = value2;
       F = (F & FLAG_C) | sz53pTable((value1));
       Q = F;
       return value1;
     }
-  };
+  }
 
   private final ImmutableOpcodeReference a;
   private final ImmutableOpcodeReference bc;
   private final IO io;
+
   private final boolean notRegister;
 
   public In(OpcodeReference target, ImmutableOpcodeReference source, ImmutableOpcodeReference a, ImmutableOpcodeReference bc, Register flag, IO io) {
-    super(target, source, flag, inTableAluOperation);
+    super(target, source, flag, new InAluOperation());
     this.a = a;
     this.bc = bc;
     this.io = io;

@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class DAA extends ParameterizedUnaryAluInstruction {
-  public final static AluOperation daaTableAluOperation = new AluOperation() {
+  public static class DaaTableAluOperation extends AluOperation {
     protected int calculate2Values1Boolean(int value1, int value2, int flags) {
       F = value2;
       value1 &= 0xff;
@@ -38,9 +38,9 @@ public class DAA extends ParameterizedUnaryAluInstruction {
       Register f = new Plain8BitRegister("");
       f.write(F);
       if ((F & FLAG_N) != 0) {
-        value1 = Sub.sub8TableAluOperation.execute2Values(value1, add, f);
+        value1 = new Sub.Sub8TableAluOperation().execute2Values(value1, add, f);
       } else {
-        value1 = Add.add8TableAluOperation.execute2Values(add, value1, f);
+        value1 = new Add.Add8TableAluOperation().execute2Values(add, value1, f);
       }
       F = f.read();
 
@@ -49,10 +49,10 @@ public class DAA extends ParameterizedUnaryAluInstruction {
 
       return value1;
     }
-  };
+  }
 
   public DAA(OpcodeReference target, Register flag) {
-    super(target, flag, daaTableAluOperation);
+    super(target, flag, new DaaTableAluOperation());
   }
 
   public void accept(InstructionVisitor<?> visitor) {

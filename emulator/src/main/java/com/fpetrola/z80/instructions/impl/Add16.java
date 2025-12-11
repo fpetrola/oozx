@@ -25,7 +25,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Add16 extends Binary16BitsOperation {
-  public static final AluOperation add16TableAluOperation = new AluOperation() {
+  public static class Add16TableAluOperation extends AluOperation {
     @Override
     protected int calculate2Values1Boolean(int value1, int value2, int value2Bit0) {
       F = value2;
@@ -43,10 +43,10 @@ public class Add16 extends Binary16BitsOperation {
           halfCarryAddTable(lookup);
       Q = F;
     }
-  };
+  }
 
   public Add16(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
-    super(target, source, flag, add16TableAluOperation);
+    super(target, source, flag, new Add16TableAluOperation());
   }
 
   protected int operation(int v1, int v2, int f) {

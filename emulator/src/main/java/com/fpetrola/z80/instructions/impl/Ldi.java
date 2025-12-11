@@ -27,7 +27,7 @@ import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Ldi extends BlockInstruction {
-  public static final AluOperation ldiTableAluOperation = new AluOperation() {
+  public static class LdiTableAluOperation extends AluOperation {
     protected int calculate2Values1Boolean(int value1, int value2, int carry) {
       F = value1;
       int BC = carry;
@@ -38,7 +38,7 @@ public class Ldi extends BlockInstruction {
 
       return F;
     }
-  };
+  }
   protected final Register a;
 
   public Register getDe() {
@@ -52,7 +52,7 @@ public class Ldi extends BlockInstruction {
   protected Register de;
 
   public Ldi(Register de, RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io, Register a) {
-    super(bc, hl, flag, memory, io, ldiTableAluOperation);
+    super(bc, hl, flag, memory, io, new LdiTableAluOperation());
     this.de = de;
     this.a = a;
   }

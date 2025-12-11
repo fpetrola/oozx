@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Cp extends ParameterizedBinaryAluInstruction {
-  public static final AluOperation cpTableAluOperation = new AluOperation() {
+  public static class CpTableAluOperation extends AluOperation {
     protected int calculate2Values1Boolean(int value1, int value2, int carry) {
       int cptemp = value1 - value2;
       int lookup = ((value1 & 0x88) >> 3) |
@@ -40,10 +40,10 @@ public class Cp extends ParameterizedBinaryAluInstruction {
       Q = F;
       return value1;
     }
-  };
+  }
 
   public Cp(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
-    super(target, source, flag, cpTableAluOperation);
+    super(target, source, flag, new CpTableAluOperation());
   }
 
   public void execute() {

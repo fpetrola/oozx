@@ -25,7 +25,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Neg extends ParameterizedUnaryAluInstruction {
-  public static final AluOperation negTableAluOperation = new AluOperation() {
+  public static class NegTableAluOperation extends AluOperation {
     protected int calculate2Values1Boolean(int value1, int value2, int carry) {
       value2 = 0;
       int subtemp = value2 - value1;
@@ -37,10 +37,10 @@ public class Neg extends ParameterizedUnaryAluInstruction {
 
       return value2;
     }
-  };
+  }
 
   public Neg(OpcodeReference target, Register flag) {
-    super(target, flag, negTableAluOperation);
+    super(target, flag, new NegTableAluOperation());
   }
 
   public void accept(InstructionVisitor<?> visitor) {

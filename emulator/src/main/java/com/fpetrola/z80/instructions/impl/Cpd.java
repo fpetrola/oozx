@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Cpd extends Cpi {
-  public static final AluOperation cpdTableAluOperation = new AluOperation() {
+  public static class CpdTableAluOperation extends AluOperation {
     @Override
     protected int calculate2Values1Boolean(int value1, int value2, int BC) {
       int bytetemp = value2 - value1;
@@ -41,10 +41,10 @@ public class Cpd extends Cpi {
       Q = F;
       return value2;
     }
-  };
+  }
 
   public Cpd(Register a, Register flag, RegisterPair bc, RegisterPair hl, Memory memory, IO io) {
-    super(a, flag, bc, hl, memory, io, cpdTableAluOperation);
+    super(a, flag, bc, hl, memory, io, new CpdTableAluOperation());
   }
 
   public void execute() {

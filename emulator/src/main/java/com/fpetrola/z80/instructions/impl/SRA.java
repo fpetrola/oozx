@@ -25,7 +25,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class SRA extends ParameterizedUnaryAluInstruction {
-  public static final AluOperation sraTableAluOperation = new AluOperation() {
+  public static class SRAAluOperation extends AluOperation {
     @Override
     protected int calculate1Value(int value) {
       F = value & FLAG_C;
@@ -35,10 +35,10 @@ public class SRA extends ParameterizedUnaryAluInstruction {
       Q = F;
       return value;
     }
-  };
+  }
 
   public SRA(OpcodeReference target, Register flag) {
-    super(target, flag, sraTableAluOperation);
+    super(target, flag, new SRAAluOperation());
   }
 
   public void accept(InstructionVisitor<?> visitor) {

@@ -26,17 +26,17 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class And extends ParameterizedBinaryAluInstruction {
-  protected static final AluOperation andTableAluOperation = new AluOperation() {
+  public static class AndTableAluOperation extends AluOperation {
     protected int calculate2Values1Boolean(int value1, int value2, int carry) {
       value2 &= value1;
       F = FLAG_H | sz53pTable(value2);
       Q = F;
       return value2;
     }
-  };
+  }
 
   public And(OpcodeReference target, ImmutableOpcodeReference source, Register flag) {
-    super(target, source, flag, andTableAluOperation);
+    super(target, source, flag, new AndTableAluOperation());
   }
 
   public void accept(InstructionVisitor<?> visitor) {

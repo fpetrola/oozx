@@ -26,7 +26,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class LdAR extends Ld {
-  public static final AluOperation ldarTableAluOperation = new AluOperation() {
+  public static class LdarTableAluOperation extends AluOperation {
     @Override
     protected int calculate2Values1Boolean(int value1, int value2, int IFF2) {
       F = value1;
@@ -35,11 +35,11 @@ public class LdAR extends Ld {
       Q = F;
       return F;
     }
-  };
+  }
   private final State state;
 
   public LdAR(OpcodeReference target, ImmutableOpcodeReference source, Register flag, State state) {
-    super(target, source, flag, ldarTableAluOperation);
+    super(target, source, flag, new LdarTableAluOperation());
     this.state = state;
   }
 

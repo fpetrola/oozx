@@ -27,7 +27,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class BIT extends BitOperation {
-  public static final AluOperation bitAluOperation = new AluOperation() {
+  public static class BitAluOperation extends AluOperation {
     protected int calculate3Values(int address, int value1, int bit) {
       F = bit & 1;
       bit = bit >>> 1;
@@ -37,7 +37,7 @@ public class BIT extends BitOperation {
       Q = F;
       return F;
     }
-  };
+  }
 
   public Register getMemptr() {
     return memptr;
@@ -46,7 +46,7 @@ public class BIT extends BitOperation {
   private final Register memptr;
 
   public BIT(OpcodeReference target, int n, Register flag, Register memptr) {
-    super(target, n, flag, bitAluOperation);
+    super(target, n, flag, new BitAluOperation());
     this.memptr = memptr;
   }
 

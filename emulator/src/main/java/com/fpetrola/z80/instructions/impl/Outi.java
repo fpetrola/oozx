@@ -27,7 +27,7 @@ import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Outi extends BlockInstruction {
-  public static final AluOperation outiTableAluOperation = new AluOperation() {
+  public static class OutiTableAluOperation extends AluOperation {
     protected int calculate3Values(int value1, int value2, int value3) {
       int outitemp = value1;
       int B = value2;
@@ -40,10 +40,10 @@ public class Outi extends BlockInstruction {
       Q = F;
       return F;
     }
-  };
+  }
 
   public Outi(RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io) {
-    super(bc, hl, flag, memory, io, outiTableAluOperation);
+    super(bc, hl, flag, memory, io, new OutiTableAluOperation());
   }
 
   public void execute() {

@@ -25,7 +25,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class RLD extends AbstractInstruction {
-  public static final AluOperation rldTableAluOperation = new AluOperation() {
+  public static class RldTableAluOperation extends AluOperation {
     @Override
     protected int calculate2Values1Boolean(int value1, int value2, int flag) {
       F = flag;
@@ -34,7 +34,7 @@ public class RLD extends AbstractInstruction {
       Q = F;
       return value2;
     }
-  };
+  }
 
   protected final Register a;
   protected final Register hl;
@@ -43,7 +43,7 @@ public class RLD extends AbstractInstruction {
   protected final Memory memory;
 
   public RLD(Register a, Register hl, Register flag, Register r, Memory memory) {
-    super(rldTableAluOperation);
+    super(new RldTableAluOperation());
     this.a = a;
     this.hl = hl;
     this.flag = flag;

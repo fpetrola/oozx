@@ -27,7 +27,7 @@ import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Ini extends BlockInstruction {
-  public static final AluOperation iniTableAluOperation = new AluOperation() {
+  public static class IniTableAluOperation extends AluOperation {
     protected int calculate3Values(int initemp, int initemp2, int B) {
       F = ((initemp & 0x80) != 0 ? FLAG_N : 0) |
           ((initemp2 < initemp) ? FLAG_H | FLAG_C : 0) |
@@ -36,10 +36,10 @@ public class Ini extends BlockInstruction {
       Q = F;
       return F;
     }
-  };
+  }
 
   public Ini(RegisterPair bc, RegisterPair hl, Register flag, Memory memory, IO io) {
-    super(bc, hl, flag, memory, io, iniTableAluOperation);
+    super(bc, hl, flag, memory, io, new IniTableAluOperation());
   }
 
   public void execute() {

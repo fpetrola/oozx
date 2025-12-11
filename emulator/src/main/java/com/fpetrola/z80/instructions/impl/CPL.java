@@ -25,7 +25,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class CPL extends ParameterizedUnaryAluInstruction {
-  public static final AluOperation cplTableAluOperation = new AluOperation() {
+  public static class CplTableAluOperation extends AluOperation {
     @Override
     protected int calculate1Value(int A) {
       A ^= 0xff;
@@ -35,10 +35,10 @@ public class CPL extends ParameterizedUnaryAluInstruction {
 
       return A;
     }
-  };
+  }
 
   public CPL(OpcodeReference target, Register flag) {
-    super(target, flag, cplTableAluOperation);
+    super(target, flag, new CplTableAluOperation());
   }
 
   public void accept(InstructionVisitor<?> visitor) {

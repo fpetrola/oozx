@@ -159,5 +159,9 @@
     "name" : "Outi",
     "description" : "Output and increment",
     "md5" : "6bef22866c3a9cc19a0410ae427205c6"
+  }, {
+    "name" : "Neg",
+    "description" : "Negate Accumulator",
+    "md5" : "8623464ca5fb49766717ef9e17a9a89b"
   } ]
 }

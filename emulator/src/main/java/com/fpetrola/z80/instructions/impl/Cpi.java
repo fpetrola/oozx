@@ -27,7 +27,7 @@ import com.fpetrola.z80.registers.RegisterPair;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Cpi extends BlockInstruction {
-  public static final AluOperation cpiTableAluOperation = new AluOperation() {
+  public static class CpiTableAluOperation extends AluOperation {
     @Override
     protected int calculate2Values1Boolean(int value, int A, int BC) {
       F = BC;
@@ -43,7 +43,7 @@ public class Cpi extends BlockInstruction {
       Q = F;
       return F;
     }
-  };
+  }
 
   public Register getA() {
     return a;
@@ -56,7 +56,7 @@ public class Cpi extends BlockInstruction {
   protected Register a;
 
   public Cpi(Register a, Register flag, RegisterPair bc, RegisterPair hl, Memory memory, IO io) {
-    super(bc, hl, flag, memory, io, cpiTableAluOperation);
+    super(bc, hl, flag, memory, io, new CpiTableAluOperation());
     this.a = a;
   }
 
