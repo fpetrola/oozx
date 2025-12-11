@@ -24,6 +24,8 @@ public class BytecodeInliner {
   private final Path sourcePath;
   private final MethodCodeExtractor extractor;
   private Path bytecodeOutputDir;
+  private byte[] lastGeneratedBytecode;
+  public static Map<String, byte[]> generatedBytecodes = new HashMap<>();
 
   public BytecodeInliner(InstructionAnalyzer analyzer, Path sourcePath) {
     this(analyzer, sourcePath, null);
@@ -36,25 +38,33 @@ public class BytecodeInliner {
     this.bytecodeOutputDir = bytecodeOutputDir;
   }
 
-  public Class<?> inlineInstruction(TargetSourceInstruction instruction) {
+  public String inlineInstruction(TargetSourceInstruction instruction) {
     String operationName = instruction.getClass().getSimpleName();
     return generateInlinedClass(instruction, operationName);
   }
 
-  public Class<?> inlineLd(Ld ld) {
+  public String inlineLd(Ld ld) {
     return inlineInstruction(ld);
   }
 
-  public Class<?> inlineXor(Xor xor) {
+  public String inlineXor(Xor xor) {
     return inlineInstruction(xor);
   }
 
-  public Class<?> inlineOr(Or or) {
+  public String inlineOr(Or or) {
     return inlineInstruction(or);
   }
 
-  private Class<?> generateInlinedClass(TargetSourceInstruction instruction, String operationName) {
+  /**
+   * Retorna el bytecode de la última clase generada
+   */
+  public byte[] getLastGeneratedBytecode() {
+    return lastGeneratedBytecode;
+  }
+
+  private String generateInlinedClass(TargetSourceInstruction instruction, String operationName) {
     String className = getClassName(instruction, operationName);
+    className= className.replace("-", "_");
 
     // Crear class maker - cojen generará un nombre único basado en el className
     ClassMaker cm = ClassMaker.begin(className, getClass().getClassLoader(), Object.class);
@@ -73,19 +83,17 @@ public class BytecodeInliner {
     // Add execute method with inlined code
     addExecuteMethod(cm, instruction, operationName, target);
 
-    // Compilar la clase
-    Class<?> compiledClass = cm.finish();
-    
-    // Si se especificó un directorio de salida, guardar el bytecode
-    if (bytecodeOutputDir != null) {
-      // Obtener el bytecode de la clase compilada
-      byte[] bytecodeBytes = extractBytecodeFromCompiledClass(compiledClass);
-      if (bytecodeBytes != null) {
-        saveBytecode(bytecodeBytes, className);
-      }
-    }
+    // Compilar la clase y obtener el bytecode directamente
+    byte[] bytecodeBytes = cm.finishBytes();
+    lastGeneratedBytecode = bytecodeBytes;
 
-    return compiledClass;
+    generatedBytecodes.put(className, bytecodeBytes);
+
+    // Si se especificó un directorio de salida, guardar el bytecode
+    if (bytecodeOutputDir != null && bytecodeBytes != null) {
+      saveBytecode(bytecodeBytes, className);
+    }
+    return className;
   }
 
   /**

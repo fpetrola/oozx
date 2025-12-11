@@ -50,7 +50,7 @@ public class BytecodeWriter {
   /**
    * Intenta extraer bytecode de una clase generada dinámicamente
    */
-  private static byte[] extractBytecodeFromDynamicClass(Class<?> clazz) {
+  public static byte[] extractBytecodeFromDynamicClass(Class<?> clazz) {
     try {
       // Intentar obtener el bytecode a través del ClassLoader
       String resourcePath = clazz.getName().replace('.', '/') + ".class";

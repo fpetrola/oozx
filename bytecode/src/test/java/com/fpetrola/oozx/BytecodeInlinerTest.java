@@ -8,11 +8,11 @@ import com.fpetrola.z80.opcodes.references.Memory16BitReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.registers.Plain16BitRegister;
 import com.fpetrola.z80.registers.Plain8BitRegister;
+import com.fpetrola.z80.bytecode.Decompiler;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -25,182 +25,180 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BytecodeInlinerTest {
 
   @Test
-  public void testBytecodeInline1() {
+  public void testBytecodeInline1() throws IOException {
     var ld = getLd1();
-    Class<?> generatedClass = testBytecodeInlineOf(ld);
+    String actualSource = testBytecodeInlineOf(ld);
     
-    // Verificar que se generó la clase
-    assertNotNull(generatedClass);
-    assertTrue(generatedClass.getName().contains("Bytecode"));
-    
-    // Verificar campos
-    verifyFields(generatedClass, new String[]{"A", "IX", "memory", "pc"});
-    
-    // Verificar constructor
-    verifyConstructor(generatedClass, 2); // Memory y Register
-    
-    // Verificar método execute
-    verifyMethodExists(generatedClass, "execute");
+    // Verificar código fuente generado
+    String expectedSource = """
+        public class LdBytecode {
+            private Plain8BitRegister A;
+            private Plain16BitRegister IX;
+            private AbstractMemory memory;
+            private Plain16BitRegister pc;
+            
+            public LdBytecode(AbstractMemory memory, Plain16BitRegister pc) {
+                this.memory = memory;
+                this.pc = pc;
+            }
+            
+            public void execute() {
+                // Implementación inline del LD A, (IX+offset)
+            }
+        }
+        """;
+    assertSourceEquals(actualSource, expectedSource);
   }
 
   @Test
-  public void testBytecodeInline2() {
+  public void testBytecodeInline2() throws IOException {
     var ld = getLd2();
-    Class<?> generatedClass = testBytecodeInlineOf(ld);
+    String actualSource = testBytecodeInlineOf(ld);
     
-    assertNotNull(generatedClass);
-    assertTrue(generatedClass.getName().contains("Bytecode"));
-    
-    // Verificar campos
-    verifyFields(generatedClass, new String[]{"B", "IY", "memory"});
-    
-    // Verificar constructor
-    verifyConstructor(generatedClass, 1); // Solo Memory
-    
-    // Verificar método execute
-    verifyMethodExists(generatedClass, "execute");
+    String expectedSource = """
+        public class LdBytecode {
+            private Plain8BitRegister B;
+            private Plain16BitRegister IY;
+            private AbstractMemory memory;
+            
+            public LdBytecode(AbstractMemory memory) {
+                this.memory = memory;
+            }
+            
+            public void execute() {
+                // Implementación inline del LD (IY), B
+            }
+        }
+        """;
+    assertSourceEquals(actualSource, expectedSource);
   }
 
   @Test
-  public void testBytecodeInline3() {
+  public void testBytecodeInline3() throws IOException {
     var ld = getLd3();
-    Class<?> generatedClass = testBytecodeInlineOf(ld);
+    String actualSource = testBytecodeInlineOf(ld);
     
-    assertNotNull(generatedClass);
-    assertTrue(generatedClass.getName().contains("Bytecode"));
-    
-    // Verificar campos
-    verifyFields(generatedClass, new String[]{"B", "IY", "memory", "pc"});
-    
-    // Verificar constructor
-    verifyConstructor(generatedClass, 2); // Memory y Register
-    
-    // Verificar método execute
-    verifyMethodExists(generatedClass, "execute");
+    String expectedSource = """
+        public class LdBytecode {
+            private Plain8BitRegister B;
+            private Plain16BitRegister IY;
+            private AbstractMemory memory;
+            private Plain16BitRegister pc;
+            
+            public LdBytecode(AbstractMemory memory, Plain16BitRegister pc) {
+                this.memory = memory;
+                this.pc = pc;
+            }
+            
+            public void execute() {
+                // Implementación inline del LD (IY+offset), B
+            }
+        }
+        """;
+    assertSourceEquals(actualSource, expectedSource);
   }
 
   @Test
   public void testBytecodeGeneratesValidClass() throws Exception {
     var ld = getLd1();
-    Class<?> generatedClass = testBytecodeInlineOf(ld);
+    String actualSource = testBytecodeInlineOf(ld);
     
-    // Verificar que se puede acceder a constructores
-    assertNotNull(generatedClass.getConstructors());
-    assertTrue(generatedClass.getConstructors().length > 0);
-    
-    // Verificar que se puede obtener el método execute
-    var executeMethod = generatedClass.getDeclaredMethod("execute");
-    assertNotNull(executeMethod);
+    // Verificar que se generó código válido
+    assertNotNull(actualSource);
+    assertFalse(actualSource.isEmpty());
+    assertTrue(actualSource.contains("public class LdBytecode"));
   }
 
   @Test
-  public void testBytecodeXorInline1() {
+  public void testBytecodeXorInline1() throws IOException {
     var xor = getXor1();
-    Class<?> generatedClass = testBytecodeInlineOf(xor);
+    String actualSource = testBytecodeInlineOf(xor);
     
-    assertNotNull(generatedClass);
-    assertTrue(generatedClass.getName().contains("XorBytecode"));
-    verifyFields(generatedClass, new String[]{"C", "IX", "memory", "pc"});
-    verifyMethodExists(generatedClass, "execute");
+    String expectedSource = """
+        public class XorBytecode {
+            private Plain8BitRegister C;
+            private Plain16BitRegister IX;
+            private AbstractMemory memory;
+            private Plain16BitRegister pc;
+            
+            public XorBytecode(AbstractMemory memory, Plain16BitRegister pc) {
+                this.memory = memory;
+                this.pc = pc;
+            }
+            
+            public void execute() {
+                // Implementación inline del XOR C, (IX+offset)
+            }
+        }
+        """;
+    assertSourceEquals(actualSource, expectedSource);
   }
 
   @Test
-  public void testBytecodeOrInline1() {
+  public void testBytecodeOrInline1() throws IOException {
     var or = getOr1();
-    Class<?> generatedClass = testBytecodeInlineOf(or);
+    String actualSource = testBytecodeInlineOf(or);
     
-    assertNotNull(generatedClass);
-    assertTrue(generatedClass.getName().contains("OrBytecode"));
-    verifyFields(generatedClass, new String[]{"C", "IX", "memory", "pc"});
-    verifyMethodExists(generatedClass, "execute");
-  }
-
-  /**
-   * Verifica que el método execute existe y es público
-   */
-  private void verifyMethodExists(Class<?> generatedClass, String methodName) {
-    try {
-      Method method = generatedClass.getDeclaredMethod(methodName);
-      assertTrue(method.getReturnType() == void.class);
-    } catch (NoSuchMethodException e) {
-      fail("Método " + methodName + " no encontrado en clase generada");
-    }
-  }
-
-  /**
-   * Verifica que existen los campos esperados
-   */
-  private void verifyFields(Class<?> generatedClass, String[] expectedFields) {
-    Field[] fields = generatedClass.getDeclaredFields();
-    for (String expectedField : expectedFields) {
-      boolean found = false;
-      for (Field field : fields) {
-        if (field.getName().equals(expectedField)) {
-          found = true;
-          break;
+    String expectedSource = """
+        public class OrBytecode {
+            private Plain8BitRegister C;
+            private Plain16BitRegister IX;
+            private AbstractMemory memory;
+            private Plain16BitRegister pc;
+            
+            public OrBytecode(AbstractMemory memory, Plain16BitRegister pc) {
+                this.memory = memory;
+                this.pc = pc;
+            }
+            
+            public void execute() {
+                // Implementación inline del OR C, (IX+offset)
+            }
         }
-      }
-      assertTrue(found, "Campo " + expectedField + " no encontrado");
-    }
+        """;
+    assertSourceEquals(actualSource, expectedSource);
   }
 
-  /**
-   * Verifica que el constructor existe con el número esperado de parámetros
-   */
-  private void verifyConstructor(Class<?> generatedClass, int expectedParamCount) {
-    var constructors = generatedClass.getDeclaredConstructors();
-    boolean found = false;
-    for (var constructor : constructors) {
-      if (constructor.getParameterCount() == expectedParamCount) {
-        found = true;
-        break;
-      }
-    }
-    assertTrue(found, "Constructor con " + expectedParamCount + " parámetros no encontrado");
-  }
+  // Guardar referencia al inliner para acceder al bytecode generado
+  private BytecodeInliner lastInliner;
 
   /**
-   * Test helper que genera bytecode y retorna la clase compilada
+   * Test helper que genera bytecode, descompila y retorna el código fuente
    */
-  private Class<?> testBytecodeInlineOf(Ld ld) {
+  private String testBytecodeInlineOf(Ld ld) throws IOException {
     var analyzer = new InstructionAnalyzer();
     analyzer.analyze(ld);
 
     Path sourcePath = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
     Path bytecodeOutputDir = Paths.get("target/generated-classes");
-    var inliner = new BytecodeInliner(analyzer, sourcePath, bytecodeOutputDir);
-    Class<?> generatedClass = inliner.inlineLd(ld);
+    lastInliner = new BytecodeInliner(analyzer, sourcePath, bytecodeOutputDir);
+    String generatedClass = lastInliner.inlineLd(ld);
 
-    // Guardar información de la clase
-    saveGeneratedClass(generatedClass);
-
-    return generatedClass;
+    return getDecompiledSource(generatedClass);
   }
 
-  private Class<?> testBytecodeInlineOf(Xor xor) {
+  private String testBytecodeInlineOf(Xor xor) throws IOException {
     var analyzer = new InstructionAnalyzer();
     analyzer.analyze(xor);
 
     Path sourcePath = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
     Path bytecodeOutputDir = Paths.get("target/generated-classes");
-    var inliner = new BytecodeInliner(analyzer, sourcePath, bytecodeOutputDir);
-    Class<?> generatedClass = inliner.inlineXor(xor);
+    lastInliner = new BytecodeInliner(analyzer, sourcePath, bytecodeOutputDir);
+    String generatedClass = lastInliner.inlineXor(xor);
 
-    saveGeneratedClass(generatedClass);
-    return generatedClass;
+    return getDecompiledSource(generatedClass);
   }
 
-  private Class<?> testBytecodeInlineOf(Or or) {
+  private String testBytecodeInlineOf(Or or) throws IOException {
     var analyzer = new InstructionAnalyzer();
     analyzer.analyze(or);
 
     Path sourcePath = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
     Path bytecodeOutputDir = Paths.get("target/generated-classes");
-    var inliner = new BytecodeInliner(analyzer, sourcePath, bytecodeOutputDir);
-    Class<?> generatedClass = inliner.inlineOr(or);
+    lastInliner = new BytecodeInliner(analyzer, sourcePath, bytecodeOutputDir);
+    String generatedClass = lastInliner.inlineOr(or);
 
-    saveGeneratedClass(generatedClass);
-    return generatedClass;
+    return getDecompiledSource(generatedClass);
   }
 
   /**
@@ -215,6 +213,77 @@ public class BytecodeInlinerTest {
       System.err.println("Error guardando bytecode: " + e.getMessage());
     }
   }
+
+  /**
+   * Obtiene el código fuente descompilado de la clase generada usando Decompiler
+   * Utiliza el bytecode capturado directamente de ClassMaker.finishBytes()
+   */
+  private String getDecompiledSource(String generatedClass) throws IOException {
+    try {
+      // Obtener el bytecode del último inliner (generado por ClassMaker.finishBytes())
+      if (lastInliner == null) {
+        throw new IOException("lastInliner no fue inicializado");
+      }
+
+      byte[] bytecode = BytecodeInliner.generatedBytecodes.get(generatedClass);
+
+      // Crear un archivo temporal para el bytecode
+      Path tempDir = Paths.get("target/decompiled-temp");
+      Files.createDirectories(tempDir);
+      String className= "Test1";
+      Path classFile = tempDir.resolve(className + ".class");
+      Files.write(classFile, bytecode);
+
+      // Usar Decompiler para descompilar el bytecode
+      Decompiler decompiler = new Decompiler();
+      decompiler.addClass(bytecode, classFile.toFile());
+      String decompiled = decompiler.decompile();
+
+      if (decompiled == null || decompiled.trim().isEmpty()) {
+        throw new IOException("Decompiler no pudo descompilar la clase");
+      }
+
+      return decompiled;
+    } catch (Exception e) {
+      // Lanzar excepción para que el test falle si no se puede descompilar
+      throw new IOException("Error descompilando bytecode generado: " + e.getMessage(), e);
+    }
+  }
+
+  /**
+   * Compara el código fuente descompilado con el esperado
+   */
+  private void assertSourceEquals(String actual, String expectedSource) {
+    // Normalizar espacios en blanco para comparación flexible
+    String actualNormalized = normalizeSource(actual);
+    String expectedNormalized = normalizeSource(expectedSource);
+    
+    if (!actualNormalized.equals(expectedNormalized)) {
+      throw new AssertionError(
+          "Código fuente no coincide:\n\n" +
+          "ESPERADO:\n" + expectedSource + "\n\n" +
+          "ACTUAL:\n" + actual
+      );
+    }
+  }
+
+  /**
+   * Normaliza el código fuente para comparación
+   * - Elimina espacios en blanco al inicio/final
+   * - Normaliza saltos de línea
+   * - Reduce espacios múltiples a uno solo
+   */
+  private String normalizeSource(String source) {
+    return source
+        .replaceAll("\\r\\n", "\n")  // Normalizar saltos de línea
+        .replaceAll("[ \\t]+", " ")   // Múltiples espacios a uno
+        .replaceAll("\\n[ \\t]+", "\n") // Espacios después de saltos
+        .replaceAll("[ \\t]+\\n", "\n") // Espacios antes de saltos
+        .replaceAll("\\n+", "\n")     // Múltiples saltos a uno
+        .trim();
+  }
+
+
 
   // Helpers para crear instrucciones de prueba
 
