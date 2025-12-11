@@ -454,7 +454,7 @@ public class BytecodeInlinerTest {
   private String testBytecodeInlineOf(TargetSourceInstruction instruction) throws IOException {
     var analyzer = new InstructionAnalyzer();
     analyzer.analyze(instruction);
-    
+
     lastInliner = setupInliner(analyzer);
     String generatedClass = lastInliner.inlineInstruction(instruction);
 
