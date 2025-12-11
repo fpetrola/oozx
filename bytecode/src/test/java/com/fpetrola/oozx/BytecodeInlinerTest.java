@@ -60,6 +60,7 @@ public class BytecodeInlinerTest {
             private Memory memory;
         
             public void execute() {
+                this.memory.write(this.IY, this.B);
             }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -78,6 +79,12 @@ public class BytecodeInlinerTest {
             private int pc;
         
             public void execute() {
+                int var1 = this.pc + 3 & '\\uffff';
+                int var2 = this.memory.read(var1, 0);
+                int var3 = this.pc + 4 & '\\uffff';
+                int var4 = this.memory.read(var3, 0) << 8;
+                int var5 = var2 | var4;
+                this.memory.write(var5, this.B);
             }
         }""";
     assertSourceEquals(actualSource, expectedSource);

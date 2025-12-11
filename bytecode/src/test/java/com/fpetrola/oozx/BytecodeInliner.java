@@ -182,11 +182,49 @@ public class BytecodeInliner {
     mm.return_();
   }
 
+  private void generateLdForIndirectMemory8Bit(MethodMaker mm, Ld ld, IndirectMemory8BitReference target) {
+    ImmutableOpcodeReference innerTarget = target.getTarget();
+    Variable source = mm.field("B");
+    
+    if (innerTarget instanceof Register reg) {
+      // Caso simple: (IY) -> escribir valor del source en dirección del registro
+      Variable targetReg = mm.field(reg.getName());
+      Variable memory = mm.field("memory");
+      memory.invoke("write", targetReg, source);
+    } else if (innerTarget instanceof Memory16BitReference mem16Ref) {
+      // Caso complejo: dirección se lee desde (pc + delta)
+      Variable address = readAddress16Bit(mm, mem16Ref);
+      Variable memory = mm.field("memory");
+      memory.invoke("write", address, source);
+    }
+  }
+
+  /**
+   * Lee una dirección de 16 bits desde (pc + delta) en formato little-endian
+   */
+  private Variable readAddress16Bit(MethodMaker mm, Memory16BitReference mem16Ref) {
+    Variable memory = mm.field("memory");
+    Variable pc = mm.field("pc");
+    
+    // Leer dirección de 16 bits desde (pc + delta)
+    Variable addr1 = mm.var(int.class);
+    addr1.set(memory.invoke("read", pc.add(mem16Ref.getDelta()).and(0xFFFF), 0));
+    Variable addr2 = mm.var(int.class);
+    addr2.set(memory.invoke("read", pc.add(mem16Ref.getDelta() + 1).and(0xFFFF), 0));
+    
+    // Combinar en dirección de 16 bits (little-endian)
+    Variable address = mm.var(int.class);
+    address.set(addr1.or(addr2.shl(8)));
+    return address;
+  }
+
   private void generateLdExecute(MethodMaker mm, Ld ld, OpcodeReference target) {
     if (target instanceof MemoryPlusRegister8BitReference memRef) {
       MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
       Variable source = mm.field("A");
       ctx.memory.invoke("write", ctx.address, source);
+    } else if (target instanceof IndirectMemory8BitReference indMem) {
+      generateLdForIndirectMemory8Bit(mm, ld, indMem);
     }
   }
 
