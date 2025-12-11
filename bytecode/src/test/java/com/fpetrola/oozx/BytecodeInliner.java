@@ -349,7 +349,10 @@ public class BytecodeInliner {
     dd.set(memory.invoke("read", pcPlusDelta, 0));
 
     // 2. Calcular dirección destino: (targetReg + dd) & 0xFFFF
-    Variable targetReg = mm.field("IX");
+    // Obtener el nombre del registro de forma genérica (puede ser IX, IY, etc.)
+    ImmutableOpcodeReference target = memRef.getTarget();
+    String registerName = getRegisterName(target);
+    Variable targetReg = mm.field(registerName);
     Variable regPlusDd = targetReg.add(dd);
     Variable address = mm.var(int.class);
     address.set(regPlusDd.and(0xFFFF));
