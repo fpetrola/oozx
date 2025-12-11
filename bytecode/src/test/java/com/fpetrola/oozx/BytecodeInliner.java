@@ -183,114 +183,83 @@ public class BytecodeInliner {
   }
 
   private void generateLdExecute(MethodMaker mm, Ld ld, OpcodeReference target) {
-    // Para MemoryPlusRegister8BitReference(target register, memory, pc, offset)
-    // que es el patrón (IX+dd) o (IY+dd)
     if (target instanceof MemoryPlusRegister8BitReference memRef) {
-      // 1. Leer el byte offset (dd) desde memoria en (pc + offset)
-      // Variable local: int dd
-      Variable dd = mm.var(int.class);
-      
-      // memory.read((pc + valueDelta) & 0xFFFF, 0)
-      Variable memory = mm.field("memory");
-      Variable pc = mm.field("pc");
-      
-      // Cálculo: (pc + valueDelta) & 0xFFFF
-      Variable address = mm.var(int.class);
-      Variable pcPlusDelta = pc.add(memRef.getValueDelta());
-      Variable addressCalc = pcPlusDelta.and(0xFFFF);
-      address.set(addressCalc);
-      
-      // Leer el byte offset
-      dd.set(memory.invoke("read", address, 0));
-      
-      // 2. Calcular dirección destino: (IX + dd) & 0xFFFF
-      Variable targetReg = mm.field("IX");
-      Variable destAddr = mm.var(int.class);
-      Variable regPlusDd = targetReg.add(dd);
-      Variable destAddrCalc = regPlusDd.and(0xFFFF);
-      destAddr.set(destAddrCalc);
-      
-      // 3. Escribir el valor del registro source (A) en la dirección
+      MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
       Variable source = mm.field("A");
-      memory.invoke("write", destAddr, source);
+      ctx.memory.invoke("write", ctx.address, source);
     }
   }
 
   private void generateXorExecute(MethodMaker mm, Xor xor, OpcodeReference target) {
-    // Para MemoryPlusRegister8BitReference(target register, memory, pc, offset)
-    // que es el patrón (IX+dd) o (IY+dd)
     if (target instanceof MemoryPlusRegister8BitReference memRef) {
-      // 1. Leer el byte offset (dd) desde memoria en (pc + offset)
-      Variable dd = mm.var(int.class);
-      Variable memory = mm.field("memory");
-      Variable pc = mm.field("pc");
+      MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
       
-      // Cálculo: (pc + valueDelta) & 0xFFFF
-      Variable address = mm.var(int.class);
-      Variable pcPlusDelta = pc.add(memRef.getValueDelta());
-      Variable addressCalc = pcPlusDelta.and(0xFFFF);
-      address.set(addressCalc);
-      
-      // Leer el byte offset
-      dd.set(memory.invoke("read", address, 0));
-      
-      // 2. Calcular dirección de lectura: (IX + dd) & 0xFFFF
-      Variable targetReg = mm.field("IX");
-      Variable readAddr = mm.var(int.class);
-      Variable regPlusDd = targetReg.add(dd);
-      Variable readAddrCalc = regPlusDd.and(0xFFFF);
-      readAddr.set(readAddrCalc);
-      
-      // 3. Leer el valor de la memoria
+      // Leer el valor de la memoria
       Variable value = mm.var(int.class);
-      value.set(memory.invoke("read", readAddr, 0));
+      value.set(ctx.memory.invoke("read", ctx.address, 0));
       
-      // 4. XOR con el registro C
+      // XOR con el registro C
       Variable source = mm.field("C");
       Variable result = mm.var(int.class);
       result.set(source.xor(value));
       
-      // 5. Escribir el resultado de vuelta a la memoria
-      memory.invoke("write", readAddr, result);
+      // Escribir el resultado
+      ctx.memory.invoke("write", ctx.address, result);
     }
   }
 
   private void generateOrExecute(MethodMaker mm, Or or, OpcodeReference target) {
-    // Para MemoryPlusRegister8BitReference(target register, memory, pc, offset)
-    // que es el patrón (IX+dd) o (IY+dd)
     if (target instanceof MemoryPlusRegister8BitReference memRef) {
-      // 1. Leer el byte offset (dd) desde memoria en (pc + offset)
-      Variable dd = mm.var(int.class);
-      Variable memory = mm.field("memory");
-      Variable pc = mm.field("pc");
+      MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
       
-      // Cálculo: (pc + valueDelta) & 0xFFFF
-      Variable address = mm.var(int.class);
-      Variable pcPlusDelta = pc.add(memRef.getValueDelta());
-      Variable addressCalc = pcPlusDelta.and(0xFFFF);
-      address.set(addressCalc);
-      
-      // Leer el byte offset
-      dd.set(memory.invoke("read", address, 0));
-      
-      // 2. Calcular dirección de lectura: (IX + dd) & 0xFFFF
-      Variable targetReg = mm.field("IX");
-      Variable readAddr = mm.var(int.class);
-      Variable regPlusDd = targetReg.add(dd);
-      Variable readAddrCalc = regPlusDd.and(0xFFFF);
-      readAddr.set(readAddrCalc);
-      
-      // 3. Leer el valor de la memoria
+      // Leer el valor de la memoria
       Variable value = mm.var(int.class);
-      value.set(memory.invoke("read", readAddr, 0));
+      value.set(ctx.memory.invoke("read", ctx.address, 0));
       
-      // 4. OR con el registro C
+      // OR con el registro C
       Variable source = mm.field("C");
       Variable result = mm.var(int.class);
       result.set(source.or(value));
       
-      // 5. Escribir el resultado de vuelta a la memoria
-      memory.invoke("write", readAddr, result);
+      // Escribir el resultado
+      ctx.memory.invoke("write", ctx.address, result);
+    }
+  }
+
+  /**
+   * Lee el byte offset (dd) desde memoria en (pc + valueDelta) y calcula la dirección
+   * destino como (targetReg + dd) & 0xFFFF. Retorna el contexto con memoria y dirección.
+   */
+  private MemoryPlusRegisterContext readOffsetAndCalculateAddress(MethodMaker mm, MemoryPlusRegister8BitReference memRef) {
+    // 1. Leer el byte offset (dd) desde memoria en (pc + valueDelta)
+    Variable dd = mm.var(int.class);
+    Variable memory = mm.field("memory");
+    Variable pc = mm.field("pc");
+    
+    // Cálculo: (pc + valueDelta) & 0xFFFF
+    Variable pcPlusDelta = pc.add(memRef.getValueDelta());
+    Variable addressDelta = pcPlusDelta.and(0xFFFF);
+    dd.set(memory.invoke("read", addressDelta, 0));
+    
+    // 2. Calcular dirección destino: (targetReg + dd) & 0xFFFF
+    Variable targetReg = mm.field("IX");
+    Variable regPlusDd = targetReg.add(dd);
+    Variable address = mm.var(int.class);
+    address.set(regPlusDd.and(0xFFFF));
+    
+    return new MemoryPlusRegisterContext(memory, address);
+  }
+
+  /**
+   * Contexto para operaciones de MemoryPlusRegister8BitReference
+   */
+  private static class MemoryPlusRegisterContext {
+    final Variable memory;
+    final Variable address;
+    
+    MemoryPlusRegisterContext(Variable memory, Variable address) {
+      this.memory = memory;
+      this.address = address;
     }
   }
 
