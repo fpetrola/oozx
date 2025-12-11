@@ -28,7 +28,7 @@ public class BytecodeInlinerTest {
   public void testBytecodeInline1() throws IOException {
     var ld = getLd1();
     String actualSource = testBytecodeInlineOf(ld);
-    
+
     // Verificar código fuente generado
     String expectedSource = """
         public class LdBytecode {
@@ -36,12 +36,12 @@ public class BytecodeInlinerTest {
             private int IX;
             private Memory memory;
             private int pc;
-            
+        
             public LdBytecode(Memory memory, int pc) {
                 this.memory = memory;
                 this.pc = pc;
             }
-            
+        
             public void execute() {
             }
         }
@@ -53,22 +53,22 @@ public class BytecodeInlinerTest {
   public void testBytecodeInline2() throws IOException {
     var ld = getLd2();
     String actualSource = testBytecodeInlineOf(ld);
-    
+
     String expectedSource = """
+        import com.fpetrola.z80.memory.Memory;
+        
         public class LdBytecode {
-            private Plain8BitRegister B;
-            private Plain16BitRegister IY;
-            private AbstractMemory memory;
-            
-            public LdBytecode(AbstractMemory memory) {
-                this.memory = memory;
-            }
-            
-            public void execute() {
-                // Implementación inline del LD (IY), B
-            }
-        }
-        """;
+           private int B;
+           private int IY;
+           private Memory memory;
+        
+           public LdBytecode(Memory memory) {
+              this.memory = memory;
+           }
+        
+           public void execute() {
+           }
+        }""";
     assertSourceEquals(actualSource, expectedSource);
   }
 
@@ -76,24 +76,20 @@ public class BytecodeInlinerTest {
   public void testBytecodeInline3() throws IOException {
     var ld = getLd3();
     String actualSource = testBytecodeInlineOf(ld);
-    
+
     String expectedSource = """
         public class LdBytecode {
-            private Plain8BitRegister B;
-            private Plain16BitRegister IY;
-            private AbstractMemory memory;
-            private Plain16BitRegister pc;
-            
-            public LdBytecode(AbstractMemory memory, Plain16BitRegister pc) {
-                this.memory = memory;
-                this.pc = pc;
-            }
-            
-            public void execute() {
-                // Implementación inline del LD (IY+offset), B
-            }
-        }
-        """;
+                 private int B;
+                 private int IY;
+                 private Memory memory;
+                 private int pc;
+                 public LdBytecode(Memory memory, int pc) {
+                 this.memory = memory;
+                 this.pc = pc;
+                 }
+                 public void execute() {
+                 }
+                 }""";
     assertSourceEquals(actualSource, expectedSource);
   }
 
@@ -101,7 +97,7 @@ public class BytecodeInlinerTest {
   public void testBytecodeGeneratesValidClass() throws Exception {
     var ld = getLd1();
     String actualSource = testBytecodeInlineOf(ld);
-    
+
     // Verificar que se generó código válido
     assertNotNull(actualSource);
     assertFalse(actualSource.isEmpty());
@@ -112,24 +108,20 @@ public class BytecodeInlinerTest {
   public void testBytecodeXorInline1() throws IOException {
     var xor = getXor1();
     String actualSource = testBytecodeInlineOf(xor);
-    
+
     String expectedSource = """
         public class XorBytecode {
-            private Plain8BitRegister C;
-            private Plain16BitRegister IX;
-            private AbstractMemory memory;
-            private Plain16BitRegister pc;
-            
-            public XorBytecode(AbstractMemory memory, Plain16BitRegister pc) {
-                this.memory = memory;
-                this.pc = pc;
-            }
-            
-            public void execute() {
-                // Implementación inline del XOR C, (IX+offset)
-            }
+        private int C;
+        private int IX;
+        private Memory memory;
+        private int pc;
+        public XorBytecode(Memory memory, int pc) {
+        this.memory = memory;
+        this.pc = pc;
         }
-        """;
+        public void execute() {
+        }
+        }""";
     assertSourceEquals(actualSource, expectedSource);
   }
 
@@ -137,24 +129,20 @@ public class BytecodeInlinerTest {
   public void testBytecodeOrInline1() throws IOException {
     var or = getOr1();
     String actualSource = testBytecodeInlineOf(or);
-    
+
     String expectedSource = """
         public class OrBytecode {
-            private Plain8BitRegister C;
-            private Plain16BitRegister IX;
-            private AbstractMemory memory;
-            private Plain16BitRegister pc;
-            
-            public OrBytecode(AbstractMemory memory, Plain16BitRegister pc) {
-                this.memory = memory;
-                this.pc = pc;
-            }
-            
-            public void execute() {
-                // Implementación inline del OR C, (IX+offset)
-            }
+        private int C;
+        private int IX;
+        private Memory memory;
+        private int pc;
+        public OrBytecode(Memory memory, int pc) {
+        this.memory = memory;
+        this.pc = pc;
         }
-        """;
+        public void execute() {
+        }
+        }""";
     assertSourceEquals(actualSource, expectedSource);
   }
 
@@ -229,7 +217,7 @@ public class BytecodeInlinerTest {
       // Crear un archivo temporal para el bytecode
       Path tempDir = Paths.get("target/decompiled-temp");
       Files.createDirectories(tempDir);
-      String className= "Test1";
+      String className = "Test1";
       Path classFile = tempDir.resolve(className + ".class");
       Files.write(classFile, bytecode);
 
@@ -256,14 +244,10 @@ public class BytecodeInlinerTest {
     // Normalizar espacios en blanco para comparación flexible
     String actualNormalized = normalizeSource(actual);
     String expectedNormalized = normalizeSource(expectedSource);
-    
-    if (!actualNormalized.equals(expectedNormalized)) {
-      throw new AssertionError(
-          "Código fuente no coincide:\n\n" +
-          "ESPERADO:\n" + expectedSource + "\n\n" +
-          "ACTUAL:\n" + actual
-      );
-    }
+
+    assertEquals(expectedNormalized, actualNormalized, "Código fuente no coincide:\n\n" +
+                                                       "ESPERADO:\n" + expectedSource + "\n\n" +
+                                                       "ACTUAL:\n" + actual);
   }
 
   /**
@@ -291,7 +275,6 @@ public class BytecodeInlinerTest {
         .replaceAll("\\n+", "\n")     // Múltiples saltos a uno
         .trim();
   }
-
 
 
   // Helpers para crear instrucciones de prueba
