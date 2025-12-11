@@ -10,9 +10,11 @@ import com.fpetrola.z80.registers.Plain16BitRegister;
 import com.fpetrola.z80.registers.Plain8BitRegister;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -164,9 +166,13 @@ public class BytecodeInlinerTest {
     var analyzer = new InstructionAnalyzer();
     analyzer.analyze(ld);
 
-    Path path = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
-    var inliner = new BytecodeInliner(analyzer, path);
+    Path sourcePath = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
+    Path bytecodeOutputDir = Paths.get("target/generated-classes");
+    var inliner = new BytecodeInliner(analyzer, sourcePath, bytecodeOutputDir);
     Class<?> generatedClass = inliner.inlineLd(ld);
+
+    // Guardar información de la clase
+    saveGeneratedClass(generatedClass);
 
     return generatedClass;
   }
@@ -175,10 +181,12 @@ public class BytecodeInlinerTest {
     var analyzer = new InstructionAnalyzer();
     analyzer.analyze(xor);
 
-    Path path = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
-    var inliner = new BytecodeInliner(analyzer, path);
+    Path sourcePath = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
+    Path bytecodeOutputDir = Paths.get("target/generated-classes");
+    var inliner = new BytecodeInliner(analyzer, sourcePath, bytecodeOutputDir);
     Class<?> generatedClass = inliner.inlineXor(xor);
 
+    saveGeneratedClass(generatedClass);
     return generatedClass;
   }
 
@@ -186,11 +194,26 @@ public class BytecodeInlinerTest {
     var analyzer = new InstructionAnalyzer();
     analyzer.analyze(or);
 
-    Path path = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
-    var inliner = new BytecodeInliner(analyzer, path);
+    Path sourcePath = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
+    Path bytecodeOutputDir = Paths.get("target/generated-classes");
+    var inliner = new BytecodeInliner(analyzer, sourcePath, bytecodeOutputDir);
     Class<?> generatedClass = inliner.inlineOr(or);
 
+    saveGeneratedClass(generatedClass);
     return generatedClass;
+  }
+
+  /**
+   * Guarda el bytecode generado a un archivo .class o crea un fallback
+   */
+  private void saveGeneratedClass(Class<?> generatedClass) {
+    try {
+      Path outputDir = Paths.get("target/generated-classes");
+      BytecodeWriter.writeClassToFile(generatedClass, outputDir);
+      BytecodeWriter.printJavapCommand(generatedClass);
+    } catch (IOException e) {
+      System.err.println("Error guardando bytecode: " + e.getMessage());
+    }
   }
 
   // Helpers para crear instrucciones de prueba

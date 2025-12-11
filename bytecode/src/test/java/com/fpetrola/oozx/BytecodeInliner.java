@@ -11,6 +11,7 @@ import org.cojen.maker.ClassMaker;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -22,11 +23,17 @@ public class BytecodeInliner {
   private final InstructionAnalyzer analyzer;
   private final Path sourcePath;
   private final MethodCodeExtractor extractor;
+  private Path bytecodeOutputDir;
 
   public BytecodeInliner(InstructionAnalyzer analyzer, Path sourcePath) {
+    this(analyzer, sourcePath, null);
+  }
+
+  public BytecodeInliner(InstructionAnalyzer analyzer, Path sourcePath, Path bytecodeOutputDir) {
     this.analyzer = analyzer;
     this.sourcePath = sourcePath;
     this.extractor = new MethodCodeExtractor(sourcePath);
+    this.bytecodeOutputDir = bytecodeOutputDir;
   }
 
   public Class<?> inlineInstruction(TargetSourceInstruction instruction) {
@@ -66,7 +73,56 @@ public class BytecodeInliner {
     // Add execute method with inlined code
     addExecuteMethod(cm, instruction, operationName, target);
 
-    return cm.finish();
+    // Compilar la clase
+    Class<?> compiledClass = cm.finish();
+    
+    // Si se especificó un directorio de salida, guardar el bytecode
+    if (bytecodeOutputDir != null) {
+      // Obtener el bytecode de la clase compilada
+      byte[] bytecodeBytes = extractBytecodeFromCompiledClass(compiledClass);
+      if (bytecodeBytes != null) {
+        saveBytecode(bytecodeBytes, className);
+      }
+    }
+
+    return compiledClass;
+  }
+
+  /**
+   * Extrae el bytecode de una clase compilada usando el ClassLoader
+   */
+  private byte[] extractBytecodeFromCompiledClass(Class<?> clazz) {
+    try {
+      String resourcePath = clazz.getName().replace('.', '/') + ".class";
+      var resourceStream = clazz.getClassLoader().getResourceAsStream(resourcePath);
+      
+      if (resourceStream != null) {
+        return resourceStream.readAllBytes();
+      }
+    } catch (Exception e) {
+      // Ignorar
+    }
+    
+    return null;
+  }
+
+  /**
+   * Guarda el bytecode a un archivo .class
+   */
+  private void saveBytecode(byte[] bytecodeBytes, String className) {
+    try {
+      String classPath = className.replace('.', '/') + ".class";
+      Path classFile = bytecodeOutputDir.resolve(classPath);
+      
+      // Crear directorios si no existen
+      Files.createDirectories(classFile.getParent());
+      
+      // Guardar el bytecode
+      Files.write(classFile, bytecodeBytes);
+      System.out.println("✓ Bytecode guardado en: " + classFile + " (" + bytecodeBytes.length + " bytes)");
+    } catch (Exception e) {
+      System.err.println("Error guardando bytecode para " + className + ": " + e.getMessage());
+    }
   }
 
   private void addFieldsInOrder(ClassMaker cm, Map<String, InstructionAnalyzer.VariableInfo> vars, OpcodeReference target) {
