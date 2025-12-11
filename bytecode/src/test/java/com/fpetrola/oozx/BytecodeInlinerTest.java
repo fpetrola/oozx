@@ -4,6 +4,7 @@ import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Xor;
 import com.fpetrola.z80.instructions.impl.Or;
 import com.fpetrola.z80.instructions.impl.And;
+import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
 import com.fpetrola.z80.opcodes.references.Memory16BitReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
@@ -377,53 +378,19 @@ public class BytecodeInlinerTest {
   /**
    * Test helper que genera bytecode, descompila y retorna el código fuente
    */
-  private String testBytecodeInlineOf(Ld ld) throws IOException {
+  /**
+   * Test helper genérico que genera bytecode, descompila y retorna el código fuente
+   */
+  private String testBytecodeInlineOf(TargetSourceInstruction instruction) throws IOException {
     var analyzer = new InstructionAnalyzer();
-    analyzer.analyze(ld);
+    analyzer.analyze(instruction);
 
-    Path sourcePath = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
     Path bytecodeOutputDir = Paths.get("target/generated-classes");
-    lastInliner = new BytecodeInliner(analyzer, sourcePath, bytecodeOutputDir);
-    String generatedClass = lastInliner.inlineInstruction(ld);
+    lastInliner = new BytecodeInliner(analyzer, bytecodeOutputDir);
+    String generatedClass = lastInliner.inlineInstruction(instruction);
 
     return getDecompiledSource(generatedClass);
   }
-
-  private String testBytecodeInlineOf(Xor xor) throws IOException {
-    var analyzer = new InstructionAnalyzer();
-    analyzer.analyze(xor);
-
-    Path sourcePath = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
-    Path bytecodeOutputDir = Paths.get("target/generated-classes");
-    lastInliner = new BytecodeInliner(analyzer, sourcePath, bytecodeOutputDir);
-    String generatedClass = lastInliner.inlineInstruction(xor);
-
-    return getDecompiledSource(generatedClass);
-  }
-
-  private String testBytecodeInlineOf(Or or) throws IOException {
-     var analyzer = new InstructionAnalyzer();
-     analyzer.analyze(or);
-
-     Path sourcePath = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
-     Path bytecodeOutputDir = Paths.get("target/generated-classes");
-     lastInliner = new BytecodeInliner(analyzer, sourcePath, bytecodeOutputDir);
-     String generatedClass = lastInliner.inlineInstruction(or);
-
-     return getDecompiledSource(generatedClass);
-   }
-
-   private String testBytecodeInlineOf(And and) throws IOException {
-     var analyzer = new InstructionAnalyzer();
-     analyzer.analyze(and);
-
-     Path sourcePath = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
-     Path bytecodeOutputDir = Paths.get("target/generated-classes");
-     lastInliner = new BytecodeInliner(analyzer, sourcePath, bytecodeOutputDir);
-     String generatedClass = lastInliner.inlineInstruction(and);
-
-     return getDecompiledSource(generatedClass);
-   }
 
   /**
    * Guarda el bytecode generado a un archivo .class o crea un fallback
