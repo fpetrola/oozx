@@ -383,7 +383,7 @@ public class BytecodeInlinerTest {
   }
 
   @Test
-  public void testBytecodeMultipleInstructions() throws IOException {
+  public void testBytecodeMultipleInstructionsSwitch() throws IOException {
     var ld = getLd1();
     var xor = getXor1();
     var add = getAdd1();
@@ -417,6 +417,27 @@ public class BytecodeInlinerTest {
               int var4 = super.memory.read(var3, 0);
               int var5 = super.addTableAluOperation.execute2ValuesAndCarry(var4, super.E, super.flag);
               super.memory.write(var3, var5);
+           }
+        
+           public void execute(int opcode) {
+              switch(opcode) {
+              case 0:
+                 this.executeLdMprfIxA();
+                 break;
+              case 1:
+                 this.executeXorMprfIxC();
+                 break;
+              case 2:
+                 this.executeAddMprfIxE();
+                 break;
+              default:
+                 StringBuilder var2 = new StringBuilder();
+                 var2.append("Invalid instruction index: ");
+                 var2.append(opcode);
+                 String var3 = var2.toString();
+                 throw new IllegalArgumentException(var3);
+              }
+        
            }
         }
         """;

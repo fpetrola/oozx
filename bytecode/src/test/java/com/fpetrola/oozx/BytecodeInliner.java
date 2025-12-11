@@ -9,6 +9,7 @@ import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 import org.cojen.maker.ClassMaker;
+import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
@@ -41,13 +42,21 @@ public class BytecodeInliner {
     
     ClassMaker cm = createBaseClass(className);
     
+    // Guardar los nombres de métodos generados
+    List<String> methodNames = new ArrayList<>();
+    
     // Agregar un método execute para cada instrucción
     for (TargetSourceInstruction instruction : instructions) {
       analyzer.analyze(instruction);
       String operationName = instruction.getClass().getSimpleName();
       OpcodeReference target = analyzer.getTarget();
+      String methodName = generateUniquMethodName(instruction, operationName, target);
       addExecuteMethod(cm, instruction, operationName, target);
+      methodNames.add(methodName);
     }
+    
+    // Agregar método switch que dispache por índice de opcode
+    addDispatchMethod(cm, methodNames);
     
     return finializeClass(className, cm);
   }
@@ -169,6 +178,55 @@ public class BytecodeInliner {
     }
   }
 
+
+  /**
+   * Agrega un método execute(int opcode) que despacha a los métodos específicos
+   */
+  private void addDispatchMethod(ClassMaker cm, List<String> methodNames) {
+    MethodMaker mm = cm.addMethod(void.class, "execute", int.class);
+    mm.public_();
+    
+    // Crear labels para cada case y el default
+    Label[] caseLabels = new Label[methodNames.size()];
+    for (int i = 0; i < methodNames.size(); i++) {
+      caseLabels[i] = mm.label();
+    }
+    Label defaultLabel = mm.label();
+    Label endLabel = mm.label();
+    
+    // Crear array de casos (0, 1, 2, ...)
+    int[] cases = new int[methodNames.size()];
+    for (int i = 0; i < methodNames.size(); i++) {
+      cases[i] = i;
+    }
+    
+    // Obtener variable del parámetro opcode y asignarle el nombre
+    Variable opcodeVar = mm.param(0);
+    opcodeVar.name("opcode");
+    
+    // Generar switch statement
+    opcodeVar.switch_(defaultLabel, cases, caseLabels);
+    
+    // Generar código para cada case
+    for (int i = 0; i < methodNames.size(); i++) {
+      caseLabels[i].here();
+      mm.invoke(methodNames.get(i));
+      mm.goto_(endLabel);
+    }
+    
+    // Default case: throw exception
+    defaultLabel.here();
+    // Crear mensaje usando StringBuilder para mejor compatibilidad con decompiladores
+    Variable sb = mm.new_(StringBuilder.class);
+    sb.invoke("append", "Invalid instruction index: ");
+    sb.invoke("append", opcodeVar);
+    Variable msgStr = sb.invoke("toString");
+    mm.new_(IllegalArgumentException.class, msgStr).throw_();
+    
+    // End label: fin del switch
+    endLabel.here();
+    mm.return_();
+  }
 
   private void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, String operationName, OpcodeReference target) {
     // Generar nombre de método único basado en la instrucción y sus referencias
