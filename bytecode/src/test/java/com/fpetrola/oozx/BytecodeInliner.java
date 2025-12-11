@@ -3,7 +3,6 @@ package com.fpetrola.oozx;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Xor;
 import com.fpetrola.z80.instructions.impl.Or;
-import com.fpetrola.z80.instructions.impl.And;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.*;
@@ -156,19 +155,7 @@ public class BytecodeInliner {
   private void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, String operationName, OpcodeReference target) {
     MethodMaker mm = cm.addMethod(void.class, "execute");
     mm.public_();
-
-    // Generar lógica según el tipo de instrucción
-    if (instruction instanceof Ld ld) {
-      generateLdExecute(mm, ld, target);
-    } else if (instruction instanceof Xor xor) {
-      generateXorExecute(mm, xor, target);
-    } else if (instruction instanceof Or or) {
-      generateOrExecute(mm, or, target);
-    } else if (instruction instanceof And and) {
-      generateAndExecute(mm, and, target);
-    }
-    // Para otras instrucciones, por ahora solo stub vacío
-
+    generateExecute(mm, instruction, target);
     mm.return_();
   }
 
@@ -191,21 +178,9 @@ public class BytecodeInliner {
     return address;
   }
 
-  private void generateLdExecute(MethodMaker mm, Ld ld, OpcodeReference target) {
+  private void generateExecute(MethodMaker mm, TargetSourceInstruction ld, OpcodeReference target) {
     String sourceRegName = ((Register) ld.getSource()).getName();
     generateAluExecute(mm, ld, target, sourceRegName);
-  }
-
-  private void generateXorExecute(MethodMaker mm, Xor xor, OpcodeReference target) {
-    generateAluExecute(mm, xor, target, "C");
-  }
-
-  private void generateOrExecute(MethodMaker mm, Or or, OpcodeReference target) {
-    generateAluExecute(mm, or, target, "C");
-  }
-
-  private void generateAndExecute(MethodMaker mm, And and, OpcodeReference target) {
-    generateAluExecute(mm, and, target, "C");
   }
 
   /**
