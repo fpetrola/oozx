@@ -32,10 +32,10 @@ public class BytecodeInlinerTest {
         public class LdBytecode extends Z80UnRolled {
 
            public void executeLd() {
-              int var1 = this.PC + 2 & '\\uffff';
-              int var2 = this.memory.read(var1, 0);
-              int var3 = this.IX + var2 & '\\uffff';
-              this.memory.write(var3, this.A);
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              super.memory.write(var3, super.A);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -50,7 +50,7 @@ public class BytecodeInlinerTest {
         public class LdBytecode extends Z80UnRolled {
 
            public void executeLd() {
-              this.memory.write(this.IY, this.B);
+              super.memory.write(super.IY, super.B);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -65,12 +65,12 @@ public class BytecodeInlinerTest {
         public class LdBytecode extends Z80UnRolled {
 
            public void executeLd() {
-              int var1 = this.PC + 3 & '\\uffff';
-              int var2 = this.memory.read(var1, 0);
-              int var3 = this.PC + 4 & '\\uffff';
-              int var4 = this.memory.read(var3, 0) << 8;
+              int var1 = super.PC + 3 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.PC + 4 & '\\uffff';
+              int var4 = super.memory.read(var3, 0) << 8;
               int var5 = var2 | var4;
-              this.memory.write(var5, this.B);
+              super.memory.write(var5, super.B);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -95,12 +95,12 @@ public class BytecodeInlinerTest {
         public class XorBytecode extends Z80UnRolled {
 
            public void executeXor() {
-              int var1 = this.PC + 2 & '\\uffff';
-              int var2 = this.memory.read(var1, 0);
-              int var3 = this.IX + var2 & '\\uffff';
-              int var4 = this.memory.read(var3, 0);
-              int var5 = this.xorTableAluOperation.execute2ValuesAndCarry(var4, this.C, this.flag);
-              this.memory.write(var3, var5);
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              int var4 = super.memory.read(var3, 0);
+              int var5 = super.xorTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.flag);
+              super.memory.write(var3, var5);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -115,12 +115,12 @@ public class BytecodeInlinerTest {
         public class OrBytecode extends Z80UnRolled {
 
            public void executeOr() {
-              int var1 = this.PC + 2 & '\\uffff';
-              int var2 = this.memory.read(var1, 0);
-              int var3 = this.IX + var2 & '\\uffff';
-              int var4 = this.memory.read(var3, 0);
-              int var5 = this.orTableAluOperation.execute2ValuesAndCarry(var4, this.C, this.flag);
-              this.memory.write(var3, var5);
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              int var4 = super.memory.read(var3, 0);
+              int var5 = super.orTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.flag);
+              super.memory.write(var3, var5);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -135,9 +135,9 @@ public class BytecodeInlinerTest {
         public class XorBytecode extends Z80UnRolled {
 
            public void executeXor() {
-              int var1 = this.memory.read(this.IY, 0);
-              int var2 = this.xorTableAluOperation.execute2ValuesAndCarry(var1, this.C, this.flag);
-              this.memory.write(this.IY, var2);
+              int var1 = super.memory.read(super.IY, 0);
+              int var2 = super.xorTableAluOperation.execute2ValuesAndCarry(var1, super.C, super.flag);
+              super.memory.write(super.IY, var2);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -152,14 +152,14 @@ public class BytecodeInlinerTest {
         public class XorBytecode extends Z80UnRolled {
 
            public void executeXor() {
-              int var1 = this.PC + 3 & '\\uffff';
-              int var2 = this.memory.read(var1, 0);
-              int var3 = this.PC + 4 & '\\uffff';
-              int var4 = this.memory.read(var3, 0) << 8;
+              int var1 = super.PC + 3 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.PC + 4 & '\\uffff';
+              int var4 = super.memory.read(var3, 0) << 8;
               int var5 = var2 | var4;
-              int var6 = this.memory.read(var5, 0);
-              int var7 = this.xorTableAluOperation.execute2ValuesAndCarry(var6, this.C, this.flag);
-              this.memory.write(var5, var7);
+              int var6 = super.memory.read(var5, 0);
+              int var7 = super.xorTableAluOperation.execute2ValuesAndCarry(var6, super.C, super.flag);
+              super.memory.write(var5, var7);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -174,9 +174,9 @@ public class BytecodeInlinerTest {
         public class OrBytecode extends Z80UnRolled {
 
            public void executeOr() {
-              int var1 = this.memory.read(this.IY, 0);
-              int var2 = this.orTableAluOperation.execute2ValuesAndCarry(var1, this.C, this.flag);
-              this.memory.write(this.IY, var2);
+              int var1 = super.memory.read(super.IY, 0);
+              int var2 = super.orTableAluOperation.execute2ValuesAndCarry(var1, super.C, super.flag);
+              super.memory.write(super.IY, var2);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -191,14 +191,14 @@ public class BytecodeInlinerTest {
         public class OrBytecode extends Z80UnRolled {
 
            public void executeOr() {
-              int var1 = this.PC + 3 & '\\uffff';
-              int var2 = this.memory.read(var1, 0);
-              int var3 = this.PC + 4 & '\\uffff';
-              int var4 = this.memory.read(var3, 0) << 8;
+              int var1 = super.PC + 3 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.PC + 4 & '\\uffff';
+              int var4 = super.memory.read(var3, 0) << 8;
               int var5 = var2 | var4;
-              int var6 = this.memory.read(var5, 0);
-              int var7 = this.orTableAluOperation.execute2ValuesAndCarry(var6, this.C, this.flag);
-              this.memory.write(var5, var7);
+              int var6 = super.memory.read(var5, 0);
+              int var7 = super.orTableAluOperation.execute2ValuesAndCarry(var6, super.C, super.flag);
+              super.memory.write(var5, var7);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -213,12 +213,12 @@ public class BytecodeInlinerTest {
         public class AndBytecode extends Z80UnRolled {
 
            public void executeAnd() {
-              int var1 = this.PC + 2 & '\\uffff';
-              int var2 = this.memory.read(var1, 0);
-              int var3 = this.IX + var2 & '\\uffff';
-              int var4 = this.memory.read(var3, 0);
-              int var5 = this.andTableAluOperation.execute2ValuesAndCarry(var4, this.C, this.flag);
-              this.memory.write(var3, var5);
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              int var4 = super.memory.read(var3, 0);
+              int var5 = super.andTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.flag);
+              super.memory.write(var3, var5);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -233,9 +233,9 @@ public class BytecodeInlinerTest {
         public class AndBytecode extends Z80UnRolled {
 
            public void executeAnd() {
-              int var1 = this.memory.read(this.IY, 0);
-              int var2 = this.andTableAluOperation.execute2ValuesAndCarry(var1, this.C, this.flag);
-              this.memory.write(this.IY, var2);
+              int var1 = super.memory.read(super.IY, 0);
+              int var2 = super.andTableAluOperation.execute2ValuesAndCarry(var1, super.C, super.flag);
+              super.memory.write(super.IY, var2);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -250,14 +250,14 @@ public class BytecodeInlinerTest {
         public class AndBytecode extends Z80UnRolled {
 
            public void executeAnd() {
-              int var1 = this.PC + 3 & '\\uffff';
-              int var2 = this.memory.read(var1, 0);
-              int var3 = this.PC + 4 & '\\uffff';
-              int var4 = this.memory.read(var3, 0) << 8;
+              int var1 = super.PC + 3 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.PC + 4 & '\\uffff';
+              int var4 = super.memory.read(var3, 0) << 8;
               int var5 = var2 | var4;
-              int var6 = this.memory.read(var5, 0);
-              int var7 = this.andTableAluOperation.execute2ValuesAndCarry(var6, this.C, this.flag);
-              this.memory.write(var5, var7);
+              int var6 = super.memory.read(var5, 0);
+              int var7 = super.andTableAluOperation.execute2ValuesAndCarry(var6, super.C, super.flag);
+              super.memory.write(var5, var7);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -272,12 +272,12 @@ public class BytecodeInlinerTest {
         public class SubBytecode extends Z80UnRolled {
 
            public void executeSub() {
-              int var1 = this.PC + 2 & '\\uffff';
-              int var2 = this.memory.read(var1, 0);
-              int var3 = this.IX + var2 & '\\uffff';
-              int var4 = this.memory.read(var3, 0);
-              int var5 = this.subTableAluOperation.execute2ValuesAndCarry(var4, this.B, this.flag);
-              this.memory.write(var3, var5);
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              int var4 = super.memory.read(var3, 0);
+              int var5 = super.subTableAluOperation.execute2ValuesAndCarry(var4, super.B, super.flag);
+              super.memory.write(var3, var5);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -292,12 +292,12 @@ public class BytecodeInlinerTest {
         public class CpBytecode extends Z80UnRolled {
 
            public void executeCp() {
-              int var1 = this.PC + 2 & '\\uffff';
-              int var2 = this.memory.read(var1, 0);
-              int var3 = this.IX + var2 & '\\uffff';
-              int var4 = this.memory.read(var3, 0);
-              int var5 = this.cpTableAluOperation.execute2ValuesAndCarry(var4, this.D, this.flag);
-              this.memory.write(var3, var5);
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              int var4 = super.memory.read(var3, 0);
+              int var5 = super.cpTableAluOperation.execute2ValuesAndCarry(var4, super.D, super.flag);
+              super.memory.write(var3, var5);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -312,12 +312,12 @@ public class BytecodeInlinerTest {
         public class AddBytecode extends Z80UnRolled {
 
            public void executeAdd() {
-              int var1 = this.PC + 2 & '\\uffff';
-              int var2 = this.memory.read(var1, 0);
-              int var3 = this.IX + var2 & '\\uffff';
-              int var4 = this.memory.read(var3, 0);
-              int var5 = this.addTableAluOperation.execute2ValuesAndCarry(var4, this.E, this.flag);
-              this.memory.write(var3, var5);
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              int var4 = super.memory.read(var3, 0);
+              int var5 = super.addTableAluOperation.execute2ValuesAndCarry(var4, super.E, super.flag);
+              super.memory.write(var3, var5);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -332,12 +332,12 @@ public class BytecodeInlinerTest {
         public class AdcBytecode extends Z80UnRolled {
 
            public void executeAdc() {
-              int var1 = this.PC + 2 & '\\uffff';
-              int var2 = this.memory.read(var1, 0);
-              int var3 = this.IX + var2 & '\\uffff';
-              int var4 = this.memory.read(var3, 0);
-              int var5 = this.adcTableAluOperation.execute2ValuesAndCarry(var4, this.H, this.flag);
-              this.memory.write(var3, var5);
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              int var4 = super.memory.read(var3, 0);
+              int var5 = super.adcTableAluOperation.execute2ValuesAndCarry(var4, super.H, super.flag);
+              super.memory.write(var3, var5);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -352,12 +352,12 @@ public class BytecodeInlinerTest {
         public class SbcBytecode extends Z80UnRolled {
 
            public void executeSbc() {
-              int var1 = this.PC + 2 & '\\uffff';
-              int var2 = this.memory.read(var1, 0);
-              int var3 = this.IX + var2 & '\\uffff';
-              int var4 = this.memory.read(var3, 0);
-              int var5 = this.sbcTableAluOperation.execute2ValuesAndCarry(var4, this.L, this.flag);
-              this.memory.write(var3, var5);
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              int var4 = super.memory.read(var3, 0);
+              int var5 = super.sbcTableAluOperation.execute2ValuesAndCarry(var4, super.L, super.flag);
+              super.memory.write(var3, var5);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
