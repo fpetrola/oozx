@@ -105,7 +105,7 @@ public class BytecodeInlinerTest {
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
-              int var5 = super.xorTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.flag);
+              int var5 = super.xorTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.F);
               super.memory.write(var3, var5);
            }
         }""";
@@ -126,7 +126,7 @@ public class BytecodeInlinerTest {
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
-              int var5 = super.orTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.flag);
+              int var5 = super.orTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.F);
               super.memory.write(var3, var5);
            }
         }""";
@@ -144,7 +144,7 @@ public class BytecodeInlinerTest {
         public class XorBytecode extends Z80UnRolled {
            public void executeXorImrIyC() {
               int var1 = super.memory.read(super.IY, 0);
-              int var2 = super.xorTableAluOperation.execute2ValuesAndCarry(var1, super.C, super.flag);
+              int var2 = super.xorTableAluOperation.execute2ValuesAndCarry(var1, super.C, super.F);
               super.memory.write(super.IY, var2);
            }
         }""";
@@ -167,7 +167,7 @@ public class BytecodeInlinerTest {
               int var4 = super.memory.read(var3, 0) << 8;
               int var5 = var2 | var4;
               int var6 = super.memory.read(var5, 0);
-              int var7 = super.xorTableAluOperation.execute2ValuesAndCarry(var6, super.C, super.flag);
+              int var7 = super.xorTableAluOperation.execute2ValuesAndCarry(var6, super.C, super.F);
               super.memory.write(var5, var7);
            }
         }""";
@@ -185,7 +185,7 @@ public class BytecodeInlinerTest {
         public class OrBytecode extends Z80UnRolled {
            public void executeOrImrIyC() {
               int var1 = super.memory.read(super.IY, 0);
-              int var2 = super.orTableAluOperation.execute2ValuesAndCarry(var1, super.C, super.flag);
+              int var2 = super.orTableAluOperation.execute2ValuesAndCarry(var1, super.C, super.F);
               super.memory.write(super.IY, var2);
            }
         }""";
@@ -208,7 +208,7 @@ public class BytecodeInlinerTest {
               int var4 = super.memory.read(var3, 0) << 8;
               int var5 = var2 | var4;
               int var6 = super.memory.read(var5, 0);
-              int var7 = super.orTableAluOperation.execute2ValuesAndCarry(var6, super.C, super.flag);
+              int var7 = super.orTableAluOperation.execute2ValuesAndCarry(var6, super.C, super.F);
               super.memory.write(var5, var7);
            }
         }""";
@@ -229,7 +229,7 @@ public class BytecodeInlinerTest {
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
-              int var5 = super.andTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.flag);
+              int var5 = super.andTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.F);
               super.memory.write(var3, var5);
            }
         }""";
@@ -247,7 +247,7 @@ public class BytecodeInlinerTest {
         public class AndBytecode extends Z80UnRolled {
            public void executeAndImrIyC() {
               int var1 = super.memory.read(super.IY, 0);
-              int var2 = super.andTableAluOperation.execute2ValuesAndCarry(var1, super.C, super.flag);
+              int var2 = super.andTableAluOperation.execute2ValuesAndCarry(var1, super.C, super.F);
               super.memory.write(super.IY, var2);
            }
         }""";
@@ -270,7 +270,7 @@ public class BytecodeInlinerTest {
               int var4 = super.memory.read(var3, 0) << 8;
               int var5 = var2 | var4;
               int var6 = super.memory.read(var5, 0);
-              int var7 = super.andTableAluOperation.execute2ValuesAndCarry(var6, super.C, super.flag);
+              int var7 = super.andTableAluOperation.execute2ValuesAndCarry(var6, super.C, super.F);
               super.memory.write(var5, var7);
            }
         }""";
@@ -291,7 +291,7 @@ public class BytecodeInlinerTest {
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
-              int var5 = super.subTableAluOperation.execute2ValuesAndCarry(var4, super.B, super.flag);
+              int var5 = super.subTableAluOperation.execute2ValuesAndCarry(var4, super.B, super.F);
               super.memory.write(var3, var5);
            }
         }""";
@@ -312,7 +312,7 @@ public class BytecodeInlinerTest {
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
-              int var5 = super.cpTableAluOperation.execute2ValuesAndCarry(var4, super.D, super.flag);
+              int var5 = super.cpTableAluOperation.execute2ValuesAndCarry(var4, super.D, super.F);
               super.memory.write(var3, var5);
            }
         }""";
@@ -333,7 +333,7 @@ public class BytecodeInlinerTest {
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
-              int var5 = super.addTableAluOperation.execute2ValuesAndCarry(var4, super.E, super.flag);
+              int var5 = super.addTableAluOperation.execute2ValuesAndCarry(var4, super.E, super.F);
               super.memory.write(var3, var5);
            }
         }""";
@@ -354,7 +354,7 @@ public class BytecodeInlinerTest {
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
-              int var5 = super.adcTableAluOperation.execute2ValuesAndCarry(var4, super.H, super.flag);
+              int var5 = super.adcTableAluOperation.execute2ValuesAndCarry(var4, super.H, super.F);
               super.memory.write(var3, var5);
            }
         }""";
@@ -375,7 +375,7 @@ public class BytecodeInlinerTest {
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
-              int var5 = super.sbcTableAluOperation.execute2ValuesAndCarry(var4, super.L, super.flag);
+              int var5 = super.sbcTableAluOperation.execute2ValuesAndCarry(var4, super.L, super.F);
               super.memory.write(var3, var5);
            }
         }""";
@@ -406,7 +406,7 @@ public class BytecodeInlinerTest {
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
-              int var5 = super.xorTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.flag);
+              int var5 = super.xorTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.F);
               super.memory.write(var3, var5);
            }
         
@@ -415,7 +415,7 @@ public class BytecodeInlinerTest {
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
-              int var5 = super.addTableAluOperation.execute2ValuesAndCarry(var4, super.E, super.flag);
+              int var5 = super.addTableAluOperation.execute2ValuesAndCarry(var4, super.E, super.F);
               super.memory.write(var3, var5);
            }
         

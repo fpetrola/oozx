@@ -51,7 +51,7 @@ public class Z80UnRolled {
 
   // ============ 8-bit Registers (Primary Set) ============
   private int A;      // Accumulator
-  private int flag;      // Flags
+  private int F;      // Flags
   private int B;      // Register B
   private int C;      // Register C
   private int D;      // Register D

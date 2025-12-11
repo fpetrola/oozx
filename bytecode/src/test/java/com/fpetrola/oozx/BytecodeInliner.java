@@ -21,6 +21,7 @@ import java.util.*;
  * extrayendo e inlineando código de instrucciones de forma dinámica.
  */
 public class BytecodeInliner {
+  public static final String FLAG = "F";
   private final InstructionAnalyzer analyzer;
   private byte[] lastGeneratedBytecode;
   public static Map<String, byte[]> generatedBytecodes = new HashMap<>();
@@ -104,8 +105,8 @@ public class BytecodeInliner {
   private void addAluOperationField(ClassMaker cm, TargetSourceInstruction instruction) {
     if (isAluOperation(instruction)) {
       // Add flag field if not already added
-      if (!analyzer.getRequiredVariables().containsKey("flag")) {
-        cm.addField(Register.class, "flag").private_();
+      if (!analyzer.getRequiredVariables().containsKey(FLAG)) {
+        cm.addField(Register.class, FLAG).private_();
       }
 
       // Add ALU operation field with the correct type
@@ -406,7 +407,7 @@ public class BytecodeInliner {
 
     // Ejecutar la operación ALU: execute2ValuesAndCarry(value, source, flag)
     Variable result = mm.var(int.class);
-    Variable flag = mm.field("flag");
+    Variable flag = mm.field(FLAG);
     result.set(aluOp.invoke("execute2ValuesAndCarry", value, source, flag));
 
     // Escribir el resultado
