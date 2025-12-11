@@ -1,46 +1,9 @@
-package com.fpetrola.z80.instructions;
+package com.fpetrola.oozx;
 
-import com.fpetrola.z80.instructions.impl.Adc;
-import com.fpetrola.z80.instructions.impl.Adc16;
-import com.fpetrola.z80.instructions.impl.Add;
-import com.fpetrola.z80.instructions.impl.Add16;
-import com.fpetrola.z80.instructions.impl.And;
-import com.fpetrola.z80.instructions.impl.BIT;
-import com.fpetrola.z80.instructions.impl.CCF;
-import com.fpetrola.z80.instructions.impl.CPL;
-import com.fpetrola.z80.instructions.impl.Cp;
-import com.fpetrola.z80.instructions.impl.Cpd;
-import com.fpetrola.z80.instructions.impl.Cpi;
-import com.fpetrola.z80.instructions.impl.DAA;
-import com.fpetrola.z80.instructions.impl.Dec;
-import com.fpetrola.z80.instructions.impl.In;
-import com.fpetrola.z80.instructions.impl.Inc;
-import com.fpetrola.z80.instructions.impl.Ini;
-import com.fpetrola.z80.instructions.impl.LdAI;
-import com.fpetrola.z80.instructions.impl.LdAR;
-import com.fpetrola.z80.instructions.impl.Ldi;
-import com.fpetrola.z80.instructions.impl.Neg;
-import com.fpetrola.z80.instructions.impl.Or;
-import com.fpetrola.z80.instructions.impl.Outi;
-import com.fpetrola.z80.instructions.impl.RL;
-import com.fpetrola.z80.instructions.impl.RLA;
-import com.fpetrola.z80.instructions.impl.RLC;
-import com.fpetrola.z80.instructions.impl.RLCA;
-import com.fpetrola.z80.instructions.impl.RLD;
-import com.fpetrola.z80.instructions.impl.RR;
-import com.fpetrola.z80.instructions.impl.RRA;
-import com.fpetrola.z80.instructions.impl.RRC;
-import com.fpetrola.z80.instructions.impl.RRCA;
-import com.fpetrola.z80.instructions.impl.RRD;
-import com.fpetrola.z80.instructions.impl.SCF;
-import com.fpetrola.z80.instructions.impl.SLA;
-import com.fpetrola.z80.instructions.impl.SLL;
-import com.fpetrola.z80.instructions.impl.SRA;
-import com.fpetrola.z80.instructions.impl.SRL;
-import com.fpetrola.z80.instructions.impl.Sbc;
-import com.fpetrola.z80.instructions.impl.Sbc16;
-import com.fpetrola.z80.instructions.impl.Sub;
-import com.fpetrola.z80.instructions.impl.Xor;
+import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
+import com.fpetrola.z80.registers.Plain16BitRegister;
+import com.fpetrola.z80.registers.Plain8BitRegister;
 
 public class Main1 {
   public static void main(String[] args) {
@@ -85,5 +48,23 @@ public class Main1 {
     In.InAluOperation inAluOperation = new In.InAluOperation();
     Outi.OutiTableAluOperation outiTableAluOperation = new Outi.OutiTableAluOperation();
     Neg.NegTableAluOperation negTableAluOperation = new Neg.NegTableAluOperation();
+  }
+
+  private static Ld getLd1B() {
+    var target = new MemoryPlusRegister8BitReference(
+        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
+    );
+    var source = new Plain8BitRegister("A");
+    var ld = new Ld(target, source, new Plain8BitRegister("F"));
+    return ld;
+  }
+
+  private static Ld getLd1() {
+    var target = new MemoryPlusRegister8BitReference(
+        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
+    );
+    var source = new Plain8BitRegister("A");
+    var ld = new Ld(target, source, new Plain8BitRegister("F"));
+    return ld;
   }
 }
