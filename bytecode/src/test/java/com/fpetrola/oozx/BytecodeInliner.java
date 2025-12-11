@@ -104,10 +104,18 @@ public class BytecodeInliner {
   }
   
   private Class<?> getAluOperationClass(TargetSourceInstruction instruction) {
-    if (instruction instanceof Xor) {
-      return Xor.XorTableAluOperation.class;
-    } else if (instruction instanceof Or) {
-      return Or.OrTableAluOperation.class;
+    try {
+      Class<?> instructionClass = instruction.getClass();
+      String innerClassName = instructionClass.getSimpleName() + "TableAluOperation";
+      
+      // Buscar el inner class declarado
+      for (Class<?> innerClass : instructionClass.getDeclaredClasses()) {
+        if (innerClass.getSimpleName().equals(innerClassName)) {
+          return innerClass;
+        }
+      }
+    } catch (Exception e) {
+      // Ignorar
     }
     return Object.class;
   }
