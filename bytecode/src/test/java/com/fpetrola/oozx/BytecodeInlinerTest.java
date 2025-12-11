@@ -31,20 +31,21 @@ public class BytecodeInlinerTest {
 
     // Verificar código fuente generado
     String expectedSource = """
+        import com.fpetrola.z80.memory.Memory;
+
         public class LdBytecode {
-            private int A;
-            private int IX;
-            private Memory memory;
-            private int pc;
-        
-            public void execute() {
-                int var1 = this.pc + 2 & '\\uffff';
-                int var2 = this.memory.read(var1, 0);
-                int var3 = this.IX + var2 & '\\uffff';
-                this.memory.write(var3, this.A);
-            }
-        }
-        """;
+           private int A;
+           private int IX;
+           private Memory memory;
+           private int pc;
+
+           public void execute() {
+              int var1 = this.pc + 2 & '\\uffff';
+              int var2 = this.memory.read(var1, 0);
+              int var3 = this.IX + var2 & '\\uffff';
+              this.memory.write(var3, this.A);
+           }
+        }""";
     assertSourceEquals(actualSource, expectedSource);
   }
 
@@ -54,14 +55,16 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(ld);
 
     String expectedSource = """
+        import com.fpetrola.z80.memory.Memory;
+
         public class LdBytecode {
-            private int B;
-            private int IY;
-            private Memory memory;
-        
-            public void execute() {
-                this.memory.write(this.IY, this.B);
-            }
+           private int B;
+           private int IY;
+           private Memory memory;
+
+           public void execute() {
+              this.memory.write(this.IY, this.B);
+           }
         }""";
     assertSourceEquals(actualSource, expectedSource);
   }
@@ -72,20 +75,22 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(ld);
 
     String expectedSource = """
+        import com.fpetrola.z80.memory.Memory;
+
         public class LdBytecode {
-            private int B;
-            private int IY;
-            private Memory memory;
-            private int pc;
-        
-            public void execute() {
-                int var1 = this.pc + 3 & '\\uffff';
-                int var2 = this.memory.read(var1, 0);
-                int var3 = this.pc + 4 & '\\uffff';
-                int var4 = this.memory.read(var3, 0) << 8;
-                int var5 = var2 | var4;
-                this.memory.write(var5, this.B);
-            }
+           private int B;
+           private int IY;
+           private Memory memory;
+           private int pc;
+
+           public void execute() {
+              int var1 = this.pc + 3 & '\\uffff';
+              int var2 = this.memory.read(var1, 0);
+              int var3 = this.pc + 4 & '\\uffff';
+              int var4 = this.memory.read(var3, 0) << 8;
+              int var5 = var2 | var4;
+              this.memory.write(var5, this.B);
+           }
         }""";
     assertSourceEquals(actualSource, expectedSource);
   }
@@ -107,20 +112,22 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(xor);
 
     String expectedSource = """
+        import com.fpetrola.z80.memory.Memory;
+
         public class XorBytecode {
-            private int C;
-            private int IX;
-            private Memory memory;
-            private int pc;
-        
-            public void execute() {
-                int var1 = this.pc + 2 & '\\uffff';
-                int var2 = this.memory.read(var1, 0);
-                int var3 = this.IX + var2 & '\\uffff';
-                int var4 = this.memory.read(var3, 0);
-                int var5 = this.C ^ var4;
-                this.memory.write(var3, var5);
-            }
+           private int C;
+           private int IX;
+           private Memory memory;
+           private int pc;
+
+           public void execute() {
+              int var1 = this.pc + 2 & '\\uffff';
+              int var2 = this.memory.read(var1, 0);
+              int var3 = this.IX + var2 & '\\uffff';
+              int var4 = this.memory.read(var3, 0);
+              int var5 = this.C ^ var4;
+              this.memory.write(var3, var5);
+           }
         }""";
     assertSourceEquals(actualSource, expectedSource);
   }
@@ -131,20 +138,22 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(or);
 
     String expectedSource = """
+        import com.fpetrola.z80.memory.Memory;
+
         public class OrBytecode {
-            private int C;
-            private int IX;
-            private Memory memory;
-            private int pc;
-        
-            public void execute() {
-                int var1 = this.pc + 2 & '\\uffff';
-                int var2 = this.memory.read(var1, 0);
-                int var3 = this.IX + var2 & '\\uffff';
-                int var4 = this.memory.read(var3, 0);
-                int var5 = this.C | var4;
-                this.memory.write(var3, var5);
-            }
+           private int C;
+           private int IX;
+           private Memory memory;
+           private int pc;
+
+           public void execute() {
+              int var1 = this.pc + 2 & '\\uffff';
+              int var2 = this.memory.read(var1, 0);
+              int var3 = this.IX + var2 & '\\uffff';
+              int var4 = this.memory.read(var3, 0);
+              int var5 = this.C | var4;
+              this.memory.write(var3, var5);
+           }
         }""";
     assertSourceEquals(actualSource, expectedSource);
   }
@@ -155,16 +164,18 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(xor);
 
     String expectedSource = """
+        import com.fpetrola.z80.memory.Memory;
+
         public class XorBytecode {
-            private int C;
-            private int IY;
-            private Memory memory;
-        
-            public void execute() {
-                int var1 = this.memory.read(this.IY, 0);
-                int var2 = this.C ^ var1;
-                this.memory.write(this.IY, var2);
-            }
+           private int C;
+           private int IY;
+           private Memory memory;
+
+           public void execute() {
+              int var1 = this.memory.read(this.IY, 0);
+              int var2 = this.C ^ var1;
+              this.memory.write(this.IY, var2);
+           }
         }""";
     assertSourceEquals(actualSource, expectedSource);
   }
@@ -175,22 +186,24 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(xor);
 
     String expectedSource = """
+        import com.fpetrola.z80.memory.Memory;
+
         public class XorBytecode {
-            private int C;
-            private int IY;
-            private Memory memory;
-            private int pc;
-        
-            public void execute() {
-                int var1 = this.pc + 3 & '\\uffff';
-                int var2 = this.memory.read(var1, 0);
-                int var3 = this.pc + 4 & '\\uffff';
-                int var4 = this.memory.read(var3, 0) << 8;
-                int var5 = var2 | var4;
-                int var6 = this.memory.read(var5, 0);
-                int var7 = this.C ^ var6;
-                this.memory.write(var5, var7);
-            }
+           private int C;
+           private int IY;
+           private Memory memory;
+           private int pc;
+
+           public void execute() {
+              int var1 = this.pc + 3 & '\\uffff';
+              int var2 = this.memory.read(var1, 0);
+              int var3 = this.pc + 4 & '\\uffff';
+              int var4 = this.memory.read(var3, 0) << 8;
+              int var5 = var2 | var4;
+              int var6 = this.memory.read(var5, 0);
+              int var7 = this.C ^ var6;
+              this.memory.write(var5, var7);
+           }
         }""";
     assertSourceEquals(actualSource, expectedSource);
   }
@@ -201,16 +214,18 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(or);
 
     String expectedSource = """
+        import com.fpetrola.z80.memory.Memory;
+
         public class OrBytecode {
-            private int C;
-            private int IY;
-            private Memory memory;
-        
-            public void execute() {
-                int var1 = this.memory.read(this.IY, 0);
-                int var2 = this.C | var1;
-                this.memory.write(this.IY, var2);
-            }
+           private int C;
+           private int IY;
+           private Memory memory;
+
+           public void execute() {
+              int var1 = this.memory.read(this.IY, 0);
+              int var2 = this.C | var1;
+              this.memory.write(this.IY, var2);
+           }
         }""";
     assertSourceEquals(actualSource, expectedSource);
   }
@@ -221,22 +236,24 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(or);
 
     String expectedSource = """
+        import com.fpetrola.z80.memory.Memory;
+
         public class OrBytecode {
-            private int C;
-            private int IY;
-            private Memory memory;
-            private int pc;
-        
-            public void execute() {
-                int var1 = this.pc + 3 & '\\uffff';
-                int var2 = this.memory.read(var1, 0);
-                int var3 = this.pc + 4 & '\\uffff';
-                int var4 = this.memory.read(var3, 0) << 8;
-                int var5 = var2 | var4;
-                int var6 = this.memory.read(var5, 0);
-                int var7 = this.C | var6;
-                this.memory.write(var5, var7);
-            }
+           private int C;
+           private int IY;
+           private Memory memory;
+           private int pc;
+
+           public void execute() {
+              int var1 = this.pc + 3 & '\\uffff';
+              int var2 = this.memory.read(var1, 0);
+              int var3 = this.pc + 4 & '\\uffff';
+              int var4 = this.memory.read(var3, 0) << 8;
+              int var5 = var2 | var4;
+              int var6 = this.memory.read(var5, 0);
+              int var7 = this.C | var6;
+              this.memory.write(var5, var7);
+           }
         }""";
     assertSourceEquals(actualSource, expectedSource);
   }
@@ -297,9 +314,9 @@ public class BytecodeInlinerTest {
   }
 
   /**
-   * Obtiene el código fuente descompilado de la clase generada usando Decompiler
-   * Utiliza el bytecode capturado directamente de ClassMaker.finishBytes()
-   */
+    * Obtiene el código fuente descompilado de la clase generada usando Decompiler
+    * Utiliza el bytecode capturado directamente de ClassMaker.finishBytes()
+    */
   private String getDecompiledSource(String generatedClass) throws IOException {
     try {
       // Obtener el bytecode del último inliner (generado por ClassMaker.finishBytes())
@@ -312,7 +329,7 @@ public class BytecodeInlinerTest {
       // Crear un archivo temporal para el bytecode
       Path tempDir = Paths.get("target/decompiled-temp");
       Files.createDirectories(tempDir);
-      String className = "Test1";
+      String className = generatedClass;
       Path classFile = tempDir.resolve(className + ".class");
       Files.write(classFile, bytecode);
 
@@ -333,42 +350,12 @@ public class BytecodeInlinerTest {
   }
 
   /**
-   * Compara el código fuente descompilado con el esperado
-   */
+    * Compara el código fuente descompilado con el esperado
+    */
   private void assertSourceEquals(String actual, String expectedSource) {
-    // Normalizar espacios en blanco para comparación flexible
-    String actualNormalized = normalizeSource(actual);
-    String expectedNormalized = normalizeSource(expectedSource);
-
-    assertEquals(expectedNormalized, actualNormalized, "Código fuente no coincide:\n\n" +
+    assertEquals(expectedSource.trim(), actual.trim(), "Código fuente no coincide:\n\n" +
                                                        "ESPERADO:\n" + expectedSource + "\n\n" +
                                                        "ACTUAL:\n" + actual);
-  }
-
-  /**
-   * Normaliza el código fuente para comparación
-   * - Elimina espacios en blanco al inicio/final
-   * - Normaliza saltos de línea
-   * - Reduce espacios múltiples a uno solo
-   * - Elimina imports
-   * - Normaliza nombres de clase generados (LdBytecode-X → LdBytecode)
-   */
-  private String normalizeSource(String source) {
-    return source
-        .replaceAll("\\r\\n", "\n")  // Normalizar saltos de línea
-        .replaceAll("(?m)^import .*?;\\n", "") // Eliminar imports (multiline mode)
-        .replaceAll("\\bLdBytecode-\\d+\\b", "LdBytecode") // Normalizar nombre de clase generado
-        .replaceAll("\\bLdBytecode_\\d+", "LdBytecode") // Constructor normalizado
-        .replaceAll("\\bXorBytecode-\\d+\\b", "XorBytecode") // Para XOR
-        .replaceAll("\\bXorBytecode_\\d+", "XorBytecode") // Constructor XOR
-        .replaceAll("\\bOrBytecode-\\d+\\b", "OrBytecode") // Para OR
-        .replaceAll("\\bOrBytecode_\\d+", "OrBytecode") // Constructor OR
-        .replaceAll("/\\*.*?\\*/", "") // Eliminar comentarios /* ... */
-        .replaceAll("[ \\t]+", " ")   // Múltiples espacios a uno
-        .replaceAll("\\n[ \\t]+", "\n") // Espacios después de saltos
-        .replaceAll("[ \\t]+\\n", "\n") // Espacios antes de saltos
-        .replaceAll("\\n+", "\n")     // Múltiples saltos a uno
-        .trim();
   }
 
 
