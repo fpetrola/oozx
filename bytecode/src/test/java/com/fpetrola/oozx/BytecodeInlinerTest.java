@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,7 +32,7 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
-
+        
         public class LdBytecode extends Z80UnRolled {
            public void executeLdMprfIxA() {
               int var1 = super.PC + 2 & '\\uffff';
@@ -50,7 +51,7 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
-
+        
         public class LdBytecode extends Z80UnRolled {
            public void executeLdImrIyB() {
               super.memory.write(super.IY, super.B);
@@ -66,7 +67,7 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
-
+        
         public class LdBytecode extends Z80UnRolled {
            public void executeLdImrM16RB() {
               int var1 = super.PC + 3 & '\\uffff';
@@ -97,7 +98,7 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
-
+        
         public class XorBytecode extends Z80UnRolled {
            public void executeXorMprfIxC() {
               int var1 = super.PC + 2 & '\\uffff';
@@ -118,7 +119,7 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
-
+        
         public class OrBytecode extends Z80UnRolled {
            public void executeOrMprfIxC() {
               int var1 = super.PC + 2 & '\\uffff';
@@ -139,7 +140,7 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
-
+        
         public class XorBytecode extends Z80UnRolled {
            public void executeXorImrIyC() {
               int var1 = super.memory.read(super.IY, 0);
@@ -157,7 +158,7 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
-
+        
         public class XorBytecode extends Z80UnRolled {
            public void executeXorImrM16RC() {
               int var1 = super.PC + 3 & '\\uffff';
@@ -180,7 +181,7 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
-
+        
         public class OrBytecode extends Z80UnRolled {
            public void executeOrImrIyC() {
               int var1 = super.memory.read(super.IY, 0);
@@ -198,7 +199,7 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
-
+        
         public class OrBytecode extends Z80UnRolled {
            public void executeOrImrM16RC() {
               int var1 = super.PC + 3 & '\\uffff';
@@ -221,7 +222,7 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
-
+        
         public class AndBytecode extends Z80UnRolled {
            public void executeAndMprfIxC() {
               int var1 = super.PC + 2 & '\\uffff';
@@ -242,7 +243,7 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
-
+        
         public class AndBytecode extends Z80UnRolled {
            public void executeAndImrIyC() {
               int var1 = super.memory.read(super.IY, 0);
@@ -260,7 +261,7 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
-
+        
         public class AndBytecode extends Z80UnRolled {
            public void executeAndImrM16RC() {
               int var1 = super.PC + 3 & '\\uffff';
@@ -283,7 +284,7 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
-
+        
         public class SubBytecode extends Z80UnRolled {
            public void executeSubMprfIxB() {
               int var1 = super.PC + 2 & '\\uffff';
@@ -304,7 +305,7 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
-
+        
         public class CpBytecode extends Z80UnRolled {
            public void executeCpMprfIxD() {
               int var1 = super.PC + 2 & '\\uffff';
@@ -325,7 +326,7 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
-
+        
         public class AddBytecode extends Z80UnRolled {
            public void executeAddMprfIxE() {
               int var1 = super.PC + 2 & '\\uffff';
@@ -346,7 +347,7 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
-
+        
         public class AdcBytecode extends Z80UnRolled {
            public void executeAdcMprfIxH() {
               int var1 = super.PC + 2 & '\\uffff';
@@ -367,7 +368,7 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
-
+        
         public class SbcBytecode extends Z80UnRolled {
            public void executeSbcMprfIxL() {
               int var1 = super.PC + 2 & '\\uffff';
@@ -381,6 +382,47 @@ public class BytecodeInlinerTest {
     assertSourceEquals(actualSource, expectedSource);
   }
 
+  @Test
+  public void testBytecodeMultipleInstructions() throws IOException {
+    var ld = getLd1();
+    var xor = getXor1();
+    var add = getAdd1();
+
+    String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecode", List.of(ld, xor, add));
+
+    String expectedSource = """
+        import com.fpetrola.oozx.Z80UnRolled;
+        
+        public class MultiInstructionBytecode extends Z80UnRolled {
+           public void executeLdMprfIxA() {
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              super.memory.write(var3, super.A);
+           }
+        
+           public void executeXorMprfIxC() {
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              int var4 = super.memory.read(var3, 0);
+              int var5 = super.xorTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.flag);
+              super.memory.write(var3, var5);
+           }
+        
+           public void executeAddMprfIxE() {
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              int var4 = super.memory.read(var3, 0);
+              int var5 = super.addTableAluOperation.execute2ValuesAndCarry(var4, super.E, super.flag);
+              super.memory.write(var3, var5);
+           }
+        }
+        """;
+    assertSourceEquals(actualSource, expectedSource);
+  }
+
 
   // Guardar referencia al inliner para acceder al bytecode generado
   private BytecodeInliner lastInliner;
@@ -391,12 +433,30 @@ public class BytecodeInlinerTest {
   private String testBytecodeInlineOf(TargetSourceInstruction instruction) throws IOException {
     var analyzer = new InstructionAnalyzer();
     analyzer.analyze(instruction);
-
-    Path bytecodeOutputDir = Paths.get("target/generated-classes");
-    lastInliner = new BytecodeInliner(analyzer, bytecodeOutputDir);
+    
+    lastInliner = setupInliner(analyzer);
     String generatedClass = lastInliner.inlineInstruction(instruction);
 
     return getDecompiledSource(generatedClass);
+  }
+
+  /**
+   * Test helper que genera una clase con múltiples instrucciones
+   */
+  private String testBytecodeMultipleInstructionsOf(String className, List<TargetSourceInstruction> instructions) throws IOException {
+    var analyzer = new InstructionAnalyzer();
+    lastInliner = setupInliner(analyzer);
+    String generatedClass = lastInliner.inlineMultipleInstructions(className, instructions);
+
+    return getDecompiledSource(generatedClass);
+  }
+
+  /**
+   * Configura un BytecodeInliner con el analyzer y directorio de salida
+   */
+  private BytecodeInliner setupInliner(InstructionAnalyzer analyzer) {
+    Path bytecodeOutputDir = Paths.get("target/generated-classes");
+    return new BytecodeInliner(analyzer, bytecodeOutputDir);
   }
 
   /**

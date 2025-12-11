@@ -34,6 +34,25 @@ public class BytecodeInliner {
   }
 
   /**
+   * Genera una clase con múltiples métodos execute a partir de varias instrucciones
+   */
+  public String inlineMultipleInstructions(String className, List<TargetSourceInstruction> instructions) {
+    className = className.replace("-", "_");
+    
+    ClassMaker cm = createBaseClass(className);
+    
+    // Agregar un método execute para cada instrucción
+    for (TargetSourceInstruction instruction : instructions) {
+      analyzer.analyze(instruction);
+      String operationName = instruction.getClass().getSimpleName();
+      OpcodeReference target = analyzer.getTarget();
+      addExecuteMethod(cm, instruction, operationName, target);
+    }
+    
+    return finializeClass(className, cm);
+  }
+
+  /**
    * Retorna el bytecode de la última clase generada
    */
   public byte[] getLastGeneratedBytecode() {
@@ -44,34 +63,32 @@ public class BytecodeInliner {
     String className = getClassName(instruction, operationName);
     className = className.replace("-", "_");
 
-    // Crear class maker - cojen generará un nombre único basado en el className
-    ClassMaker cm = ClassMaker.beginExternal(className);
-    cm.public_();
-
-    // Extender de Z80UnRolled
-    cm.extend(Z80UnRolled.class);
-
-    // Get analyzed variables in order
-    Map<String, InstructionAnalyzer.VariableInfo> requiredVars = analyzer.getRequiredVariables();
+    ClassMaker cm = createBaseClass(className);
     OpcodeReference target = analyzer.getTarget();
-
-    // No agregar fields - se heredan de Z80UnRolled
-    // addFieldsInOrder(cm, requiredVars, target);
-    // addAluOperationField(cm, instruction);
-
-    // No agregar constructor (se omite siempre)
-    // addConstructor(cm, className, instruction, target);
 
     // Add execute method with inlined code
     addExecuteMethod(cm, instruction, operationName, target);
 
-    // Compilar la clase y obtener el bytecode directamente
+    return finializeClass(className, cm);
+  }
+
+  /**
+   * Crea la clase base que extiende Z80UnRolled
+   */
+  private ClassMaker createBaseClass(String className) {
+    ClassMaker cm = ClassMaker.beginExternal(className);
+    cm.public_();
+    cm.extend(Z80UnRolled.class);
+    return cm;
+  }
+
+  /**
+   * Compila la clase y guarda el bytecode
+   */
+  private String finializeClass(String className, ClassMaker cm) {
     byte[] bytecodeBytes = cm.finishBytes();
-
     lastGeneratedBytecode = bytecodeBytes;
-
     generatedBytecodes.put(className, bytecodeBytes);
-
     return className;
   }
 
