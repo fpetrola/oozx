@@ -119,13 +119,15 @@ public class BytecodeInlinerTest {
            private int IX;
            private Memory memory;
            private int pc;
+           private Register flag;
+           private XorTableAluOperation xorAluOperation= new XorTableAluOperation();
 
            public void execute() {
               int var1 = this.pc + 2 & '\\uffff';
               int var2 = this.memory.read(var1, 0);
               int var3 = this.IX + var2 & '\\uffff';
               int var4 = this.memory.read(var3, 0);
-              int var5 = this.C ^ var4;
+              int var5 = xorAluOperation.execute2ValuesAndCarry(var4, this.C, flag);
               this.memory.write(var3, var5);
            }
         }""";
