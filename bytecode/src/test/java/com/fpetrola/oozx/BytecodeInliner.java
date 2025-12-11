@@ -191,15 +191,15 @@ public class BytecodeInliner {
 
   private void generateLdExecute(MethodMaker mm, Ld ld, OpcodeReference target) {
     String sourceRegName = ((Register) ld.getSource()).getName();
-    generateAluExecute(mm, ld, target, sourceRegName, AluOp.LD);
+    generateAluExecute(mm, ld, target, sourceRegName);
   }
 
   private void generateXorExecute(MethodMaker mm, Xor xor, OpcodeReference target) {
-    generateAluExecute(mm, xor, target, "C", AluOp.XOR);
+    generateAluExecute(mm, xor, target, "C");
   }
 
   private void generateOrExecute(MethodMaker mm, Or or, OpcodeReference target) {
-    generateAluExecute(mm, or, target, "C", AluOp.OR);
+    generateAluExecute(mm, or, target, "C");
   }
 
   /**
@@ -207,14 +207,14 @@ public class BytecodeInliner {
     * que leen un valor de memoria (o registro para LD), aplican la operación y escriben el resultado.
     */
   private void generateAluExecute(MethodMaker mm, TargetSourceInstruction instruction, 
-                                   OpcodeReference target, String sourceRegName, AluOp operation) {
+                                   OpcodeReference target, String sourceRegName) {
     if (target instanceof MemoryPlusRegister8BitReference memRef) {
       MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
-      executeAluOperation(mm, ctx.memory, ctx.address, sourceRegName, operation);
+      executeAluOperation(mm, instruction, ctx.memory, ctx.address, sourceRegName);
     } else if (target instanceof IndirectMemory8BitReference indMem) {
       Variable address = resolveIndirectMemoryAddress(mm, indMem);
       Variable memory = mm.field("memory");
-      executeAluOperation(mm, memory, address, sourceRegName, operation);
+      executeAluOperation(mm, instruction, memory, address, sourceRegName);
     }
   }
 
@@ -235,12 +235,12 @@ public class BytecodeInliner {
   /**
     * Ejecuta una operación ALU: lee valor (de memoria o registro para LD), aplica operación y escribe resultado
     */
-  private void executeAluOperation(MethodMaker mm, Variable memory, Variable address, 
-                                     String sourceRegName, AluOp operation) {
+  private void executeAluOperation(MethodMaker mm, TargetSourceInstruction instruction, 
+                                     Variable memory, Variable address, String sourceRegName) {
     Variable source = mm.field(sourceRegName);
     
     // Para LD, escribir directamente sin variable intermedia
-    if (operation == AluOp.LD) {
+    if (instruction instanceof Ld) {
       memory.invoke("write", address, source);
       return;
     }
@@ -250,21 +250,14 @@ public class BytecodeInliner {
     value.set(memory.invoke("read", address, 0));
     Variable result = mm.var(int.class);
     
-    switch (operation) {
-      case XOR -> result.set(source.xor(value));
-      case OR -> result.set(source.or(value));
-      default -> {}  // LD ya fue manejado arriba
+    if (instruction instanceof Xor) {
+      result.set(source.xor(value));
+    } else if (instruction instanceof Or) {
+      result.set(source.or(value));
     }
     
     // Escribir el resultado
     memory.invoke("write", address, result);
-  }
-
-  /**
-    * Enumeración de operaciones ALU soportadas
-    */
-  private enum AluOp {
-    LD, XOR, OR
   }
 
   /**
