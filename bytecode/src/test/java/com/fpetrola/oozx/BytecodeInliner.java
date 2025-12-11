@@ -47,7 +47,7 @@ public class BytecodeInliner {
     // Crear class maker - cojen generará un nombre único basado en el className
     ClassMaker cm = ClassMaker.beginExternal(className);
     cm.public_();
-    
+
     // Extender de Z80UnRolled
     cm.extend(Z80UnRolled.class);
 
@@ -124,7 +124,7 @@ public class BytecodeInliner {
     return null;
   }
 
-   private void addFieldsInOrder(ClassMaker cm, Map<String, InstructionAnalyzer.VariableInfo> vars, OpcodeReference target) {
+  private void addFieldsInOrder(ClassMaker cm, Map<String, InstructionAnalyzer.VariableInfo> vars, OpcodeReference target) {
     Set<String> excluded = Set.of("F", "Q");
 
     // 1. Variables en orden manteniendo el de inserción
@@ -156,7 +156,7 @@ public class BytecodeInliner {
   private void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, String operationName, OpcodeReference target) {
     // Generar nombre de método único basado en la instrucción y sus referencias
     String methodName = generateUniquMethodName(instruction, operationName, target);
-    
+
     MethodMaker mm = cm.addMethod(void.class, methodName);
     mm.public_();
     generateExecute(mm, instruction, target);
@@ -169,16 +169,16 @@ public class BytecodeInliner {
    */
   private String generateUniquMethodName(TargetSourceInstruction instruction, String operationName, OpcodeReference target) {
     StringBuilder methodName = new StringBuilder("execute").append(operationName);
-    
+
     // Agregar información del target
     methodName.append(getReferenceSuffix(target));
-    
+
     // Agregar información de source
     if (instruction instanceof TargetSourceInstruction tsi) {
       ImmutableOpcodeReference source = tsi.getSource();
       methodName.append(getReferenceSuffix(source));
     }
-    
+
     return methodName.toString();
   }
 
@@ -216,7 +216,7 @@ public class BytecodeInliner {
       // M16R: Memory16BitReference
       return "M16R";
     }
-    
+
     return "";
   }
 
@@ -343,15 +343,10 @@ public class BytecodeInliner {
    * destino como (targetReg + dd) & 0xFFFF. Retorna el contexto con memoria y dirección.
    */
   private MemoryPlusRegisterContext readOffsetAndCalculateAddress(MethodMaker mm, MemoryPlusRegister8BitReference memRef) {
-    // 1. Leer el byte offset (dd) desde memoria en (pc + valueDelta)
+    Variable pcPlusDelta = mm.field("PC").add(memRef.getValueDelta()).and(0xFFFF);
     Variable dd = mm.var(int.class);
     Variable memory = mm.field("memory");
-    Variable pc = mm.field("PC");
-
-    // Cálculo: (pc + valueDelta) & 0xFFFF
-    Variable pcPlusDelta = pc.add(memRef.getValueDelta());
-    Variable addressDelta = pcPlusDelta.and(0xFFFF);
-    dd.set(memory.invoke("read", addressDelta, 0));
+    dd.set(memory.invoke("read", pcPlusDelta, 0));
 
     // 2. Calcular dirección destino: (targetReg + dd) & 0xFFFF
     Variable targetReg = mm.field("IX");
