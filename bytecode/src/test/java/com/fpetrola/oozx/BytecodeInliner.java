@@ -3,6 +3,7 @@ package com.fpetrola.oozx;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Xor;
 import com.fpetrola.z80.instructions.impl.Or;
+import com.fpetrola.z80.instructions.impl.And;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.*;
@@ -198,6 +199,8 @@ public class BytecodeInliner {
       generateXorExecute(mm, xor, target);
     } else if (instruction instanceof Or or) {
       generateOrExecute(mm, or, target);
+    } else if (instruction instanceof And and) {
+      generateAndExecute(mm, and, target);
     }
     // Para otras instrucciones, por ahora solo stub vacío
     
@@ -234,6 +237,10 @@ public class BytecodeInliner {
 
   private void generateOrExecute(MethodMaker mm, Or or, OpcodeReference target) {
     generateAluExecute(mm, or, target, "C");
+  }
+
+  private void generateAndExecute(MethodMaker mm, And and, OpcodeReference target) {
+    generateAluExecute(mm, and, target, "C");
   }
 
   /**
@@ -358,8 +365,8 @@ public class BytecodeInliner {
   }
 
   private boolean isAluOperation(TargetSourceInstruction instruction) {
-    // Xor, Or y otras instrucciones ALU que heredan de ParameterizedBinaryAluInstruction
-    return instruction instanceof Xor || instruction instanceof Or;
+    // Xor, Or, And y otras instrucciones ALU que heredan de ParameterizedBinaryAluInstruction
+    return instruction instanceof Xor || instruction instanceof Or || instruction instanceof And;
   }
 
   private String getAluOperationFieldName(String instructionClassName) {
