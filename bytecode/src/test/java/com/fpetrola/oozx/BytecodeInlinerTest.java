@@ -32,12 +32,12 @@ public class BytecodeInlinerTest {
     // Verificar código fuente generado
     String expectedSource = """
         public class LdBytecode {
-            private Plain8BitRegister A;
-            private Plain16BitRegister IX;
+            private int A;
+            private int IX;
             private Memory memory;
-            private Register pc;
+            private int pc;
             
-            public LdBytecode(Memory memory, Register pc) {
+            public LdBytecode(Memory memory, int pc) {
                 this.memory = memory;
                 this.pc = pc;
             }
@@ -277,7 +277,7 @@ public class BytecodeInlinerTest {
   private String normalizeSource(String source) {
     return source
         .replaceAll("\\r\\n", "\n")  // Normalizar saltos de línea
-        .replaceAll("import .*?;\\n", "") // Eliminar imports
+        .replaceAll("(?m)^import .*?;\\n", "") // Eliminar imports (multiline mode)
         .replaceAll("\\bLdBytecode-\\d+\\b", "LdBytecode") // Normalizar nombre de clase generado
         .replaceAll("\\bLdBytecode_\\d+", "LdBytecode") // Constructor normalizado
         .replaceAll("\\bXorBytecode-\\d+\\b", "XorBytecode") // Para XOR
