@@ -120,7 +120,7 @@ public class BytecodeInlinerTest {
            private Memory memory;
            private int pc;
            private Register flag;
-           private XorTableAluOperation xorAluOperation= new XorTableAluOperation();
+           private XorTableAluOperation xorAluOperation;
 
            public void execute() {
               int var1 = this.pc + 2 & '\\uffff';
