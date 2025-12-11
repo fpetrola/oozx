@@ -190,16 +190,8 @@ public class BytecodeInliner {
   }
 
   private void generateLdExecute(MethodMaker mm, Ld ld, OpcodeReference target) {
-    if (target instanceof MemoryPlusRegister8BitReference memRef) {
-      MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
-      Variable source = mm.field("A");
-      ctx.memory.invoke("write", ctx.address, source);
-    } else if (target instanceof IndirectMemory8BitReference indMem) {
-      Variable address = resolveIndirectMemoryAddress(mm, indMem);
-      Variable source = mm.field("B");
-      Variable memory = mm.field("memory");
-      memory.invoke("write", address, source);
-    }
+    String sourceRegName = ((Register) ld.getSource()).getName();
+    executeLdOperation(mm, target, sourceRegName);
   }
 
   private void generateXorExecute(MethodMaker mm, Xor xor, OpcodeReference target) {
@@ -208,6 +200,22 @@ public class BytecodeInliner {
 
   private void generateOrExecute(MethodMaker mm, Or or, OpcodeReference target) {
     generateAluExecute(mm, or, target, "C", AluOp.OR);
+  }
+
+  /**
+   * Ejecuta una operación Ld: escribe el valor de un registro en memoria
+   */
+  private void executeLdOperation(MethodMaker mm, OpcodeReference target, String sourceRegName) {
+    if (target instanceof MemoryPlusRegister8BitReference memRef) {
+      MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
+      Variable source = mm.field(sourceRegName);
+      ctx.memory.invoke("write", ctx.address, source);
+    } else if (target instanceof IndirectMemory8BitReference indMem) {
+      Variable address = resolveIndirectMemoryAddress(mm, indMem);
+      Variable source = mm.field(sourceRegName);
+      Variable memory = mm.field("memory");
+      memory.invoke("write", address, source);
+    }
   }
 
   /**
