@@ -254,7 +254,7 @@ public class BytecodeInlinerTest {
     Path sourcePath = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
     Path bytecodeOutputDir = Paths.get("target/generated-classes");
     lastInliner = new BytecodeInliner(analyzer, sourcePath, bytecodeOutputDir);
-    String generatedClass = lastInliner.inlineLd(ld);
+    String generatedClass = lastInliner.inlineInstruction(ld);
 
     return getDecompiledSource(generatedClass);
   }
@@ -266,7 +266,7 @@ public class BytecodeInlinerTest {
     Path sourcePath = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
     Path bytecodeOutputDir = Paths.get("target/generated-classes");
     lastInliner = new BytecodeInliner(analyzer, sourcePath, bytecodeOutputDir);
-    String generatedClass = lastInliner.inlineXor(xor);
+    String generatedClass = lastInliner.inlineInstruction(xor);
 
     return getDecompiledSource(generatedClass);
   }
@@ -278,7 +278,7 @@ public class BytecodeInlinerTest {
     Path sourcePath = Path.of("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/src/main/java");
     Path bytecodeOutputDir = Paths.get("target/generated-classes");
     lastInliner = new BytecodeInliner(analyzer, sourcePath, bytecodeOutputDir);
-    String generatedClass = lastInliner.inlineOr(or);
+    String generatedClass = lastInliner.inlineInstruction(or);
 
     return getDecompiledSource(generatedClass);
   }

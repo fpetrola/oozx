@@ -44,18 +44,6 @@ public class BytecodeInliner {
     return generateInlinedClass(instruction, operationName);
   }
 
-  public String inlineLd(Ld ld) {
-    return inlineInstruction(ld);
-  }
-
-  public String inlineXor(Xor xor) {
-    return inlineInstruction(xor);
-  }
-
-  public String inlineOr(Or or) {
-    return inlineInstruction(or);
-  }
-
   /**
    * Retorna el bytecode de la última clase generada
    */
