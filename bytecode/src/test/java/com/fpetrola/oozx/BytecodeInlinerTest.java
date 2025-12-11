@@ -1,6 +1,7 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.instructions.impl.Cp;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
 import com.fpetrola.z80.opcodes.references.Memory16BitReference;
@@ -29,6 +30,7 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(ld);
 
     String expectedSource = """
+        import com.fpetrola.z80.opcodes.references.*;
         public class LdBytecode extends Z80UnRolled {
 
            public void executeLd() {
@@ -47,6 +49,7 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(ld);
 
     String expectedSource = """
+        import com.fpetrola.z80.opcodes.references.*;
         public class LdBytecode extends Z80UnRolled {
 
            public void executeLd() {
@@ -62,6 +65,7 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(ld);
 
     String expectedSource = """
+        import com.fpetrola.z80.opcodes.references.*;
         public class LdBytecode extends Z80UnRolled {
 
            public void executeLd() {
@@ -92,6 +96,7 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(xor);
 
     String expectedSource = """
+        import com.fpetrola.z80.opcodes.references.*;
         public class XorBytecode extends Z80UnRolled {
 
            public void executeXor() {
@@ -112,6 +117,7 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(or);
 
     String expectedSource = """
+        import com.fpetrola.z80.opcodes.references.*;
         public class OrBytecode extends Z80UnRolled {
 
            public void executeOr() {
@@ -132,6 +138,7 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(xor);
 
     String expectedSource = """
+        import com.fpetrola.z80.opcodes.references.*;
         public class XorBytecode extends Z80UnRolled {
 
            public void executeXor() {
@@ -149,6 +156,7 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(xor);
 
     String expectedSource = """
+        import com.fpetrola.z80.opcodes.references.*;
         public class XorBytecode extends Z80UnRolled {
 
            public void executeXor() {
@@ -171,6 +179,7 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(or);
 
     String expectedSource = """
+        import com.fpetrola.z80.opcodes.references.*;
         public class OrBytecode extends Z80UnRolled {
 
            public void executeOr() {
@@ -188,6 +197,7 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(or);
 
     String expectedSource = """
+        import com.fpetrola.z80.opcodes.references.*;
         public class OrBytecode extends Z80UnRolled {
 
            public void executeOr() {
@@ -210,6 +220,7 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(and);
 
     String expectedSource = """
+        import com.fpetrola.z80.opcodes.references.*;
         public class AndBytecode extends Z80UnRolled {
 
            public void executeAnd() {
@@ -230,6 +241,7 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(and);
 
     String expectedSource = """
+        import com.fpetrola.z80.opcodes.references.*;
         public class AndBytecode extends Z80UnRolled {
 
            public void executeAnd() {
@@ -247,6 +259,7 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(and);
 
     String expectedSource = """
+        import com.fpetrola.z80.opcodes.references.*;
         public class AndBytecode extends Z80UnRolled {
 
            public void executeAnd() {
@@ -269,6 +282,7 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(sub);
 
     String expectedSource = """
+        import com.fpetrola.z80.opcodes.references.*;
         public class SubBytecode extends Z80UnRolled {
 
            public void executeSub() {
@@ -289,6 +303,7 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(cp);
 
     String expectedSource = """
+        import com.fpetrola.z80.opcodes.references.*;
         public class CpBytecode extends Z80UnRolled {
 
            public void executeCp() {
@@ -309,6 +324,7 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(add);
 
     String expectedSource = """
+        import com.fpetrola.z80.opcodes.references.*;
         public class AddBytecode extends Z80UnRolled {
 
            public void executeAdd() {
@@ -329,6 +345,7 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(adc);
 
     String expectedSource = """
+        import com.fpetrola.z80.opcodes.references.*;
         public class AdcBytecode extends Z80UnRolled {
 
            public void executeAdc() {
@@ -349,6 +366,7 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(sbc);
 
     String expectedSource = """
+        import com.fpetrola.z80.opcodes.references.*;
         public class SbcBytecode extends Z80UnRolled {
 
            public void executeSbc() {
