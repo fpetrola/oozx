@@ -8,6 +8,7 @@ import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.flag.AluOperation;
 import org.cojen.maker.ClassMaker;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
@@ -365,8 +366,18 @@ public class BytecodeInliner {
   }
 
   private boolean isAluOperation(TargetSourceInstruction instruction) {
-    // Xor, Or, And y otras instrucciones ALU que heredan de ParameterizedBinaryAluInstruction
-    return instruction instanceof Xor || instruction instanceof Or || instruction instanceof And;
+    // Buscar por reflection si la clase tiene un inner class que implemente AluOperation
+    try {
+      Class<?> instructionClass = instruction.getClass();
+      for (Class<?> innerClass : instructionClass.getDeclaredClasses()) {
+        if (AluOperation.class.isAssignableFrom(innerClass)) {
+          return true;
+        }
+      }
+    } catch (Exception e) {
+      // Ignorar excepciones
+    }
+    return false;
   }
 
   private String getAluOperationFieldName(String instructionClassName) {
