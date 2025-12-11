@@ -2,9 +2,9 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.UnrolledRegisterBank;
 
-public class Z80UnRolled {
+public class Z80UnRolled extends UnrolledRegisterBank {
   // ============ ALU Operations ============
   // All ALU operations initialized from their respective instruction classes
   RLA.RLAAluOperation rLAAluOperation = new RLA.RLAAluOperation();
@@ -49,42 +49,5 @@ public class Z80UnRolled {
   Outi.OutiTableAluOperation outiTableAluOperation = new Outi.OutiTableAluOperation();
   Neg.NegTableAluOperation negTableAluOperation = new Neg.NegTableAluOperation();
 
-  // ============ 8-bit Registers (Primary Set) ============
-  private int A;      // Accumulator
-  private int F;      // Flags
-  private int B;      // Register B
-  private int C;      // Register C
-  private int D;      // Register D
-  private int E;      // Register E
-  private int H;      // Register H
-  private int L;      // Register L
-
-  // ============ 16-bit Registers (Shadow Pairs) ============
-  private int AFx;    // Alternate A:F pair
-  private int BCx;    // Alternate B:C pair
-  private int DEx;    // Alternate D:E pair
-  private int HLx;    // Alternate H:L pair
-
-  // ============ Index Registers ============
-  private int IX;     // Index Register X
-  private int IY;     // Index Register Y
-  private int IXH;    // IX High byte
-  private int IXL;    // IX Low byte
-  private int IYH;    // IY High byte
-  private int IYL;    // IY Low byte
-
-  // ============ Control Registers ============
-  private int PC;     // Program Counter
-  private int SP;     // Stack Pointer
-  private int I;      // Interrupt Vector Register
-  private int R;      // Refresh Counter
-  private int MEMPTR; // Memory Pointer (temporary)
-
-  // ============ Memory and Status ============
-  private Memory memory;
-
-  // ============ Control Flags ============
-  private boolean IME;       // Interrupt Master Enable
-  private int interruptMode; // 0, 1, or 2
-  private boolean halt;      // HALT instruction flag
+  protected Memory memory;
 }
