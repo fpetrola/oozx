@@ -78,8 +78,8 @@ public class BytecodeInliner {
     // Add fields for target and other variables
     addFieldsInOrder(cm, requiredVars, target);
 
-    // Add constructor
-    addConstructor(cm, className, target);
+    // Add constructor (skip for Ld with MemoryPlusRegister8BitReference)
+    addConstructor(cm, className, instruction, target);
 
     // Add execute method with inlined code
     addExecuteMethod(cm, instruction, operationName, target);
@@ -166,7 +166,12 @@ public class BytecodeInliner {
      }
    }
 
-  private void addConstructor(ClassMaker cm, String className, OpcodeReference target) {
+  private void addConstructor(ClassMaker cm, String className, TargetSourceInstruction instruction, OpcodeReference target) {
+     // No generar constructor para Ld con MemoryPlusRegister8BitReference (se omite)
+     if (instruction instanceof Ld && target instanceof MemoryPlusRegister8BitReference) {
+       return;
+     }
+
      List<Class<?>> paramTypes = new ArrayList<>();
      List<String> paramNames = new ArrayList<>();
 
@@ -206,10 +211,47 @@ public class BytecodeInliner {
     MethodMaker mm = cm.addMethod(void.class, "execute");
     mm.public_();
 
-    // Por ahora solo generamos un stub vacío que compila
-    // La lógica de bytecode se puede expandir después
-
+    // Generar lógica para Ld (Load)
+    if (instruction instanceof Ld ld) {
+      generateLdExecute(mm, ld, target);
+    }
+    // Para otras instrucciones, por ahora solo stub vacío
+    
     mm.return_();
+  }
+
+  private void generateLdExecute(MethodMaker mm, Ld ld, OpcodeReference target) {
+    // Para MemoryPlusRegister8BitReference(target register, memory, pc, offset)
+    // que es el patrón (IX+dd) o (IY+dd)
+    if (target instanceof MemoryPlusRegister8BitReference memRef) {
+      // 1. Leer el byte offset (dd) desde memoria en (pc + offset)
+      // Variable local: int dd
+      Variable dd = mm.var(int.class);
+      
+      // memory.read((pc + valueDelta) & 0xFFFF, 0)
+      Variable memory = mm.field("memory");
+      Variable pc = mm.field("pc");
+      
+      // Cálculo: (pc + valueDelta) & 0xFFFF
+      Variable address = mm.var(int.class);
+      Variable pcPlusDelta = pc.add(memRef.getValueDelta());
+      Variable addressCalc = pcPlusDelta.and(0xFFFF);
+      address.set(addressCalc);
+      
+      // Leer el byte offset
+      dd.set(memory.invoke("read", address, 0));
+      
+      // 2. Calcular dirección destino: (IX + dd) & 0xFFFF
+      Variable targetReg = mm.field("IX");
+      Variable destAddr = mm.var(int.class);
+      Variable regPlusDd = targetReg.add(dd);
+      Variable destAddrCalc = regPlusDd.and(0xFFFF);
+      destAddr.set(destAddrCalc);
+      
+      // 3. Escribir el valor del registro source (A) en la dirección
+      Variable source = mm.field("A");
+      memory.invoke("write", destAddr, source);
+    }
   }
 
   private boolean isAluOperation(TargetSourceInstruction instruction) {

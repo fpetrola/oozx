@@ -38,8 +38,10 @@ public class BytecodeInlinerTest {
             private int pc;
         
             public void execute() {
-                int dd= memory.read((pc + 2) & 0xFFFF, 0)
-                memory.write((IX + dd) & 0xFFFF, A);
+                int var1 = this.pc + 2 & '\\uffff';
+                int var2 = this.memory.read(var1, 0);
+                int var3 = this.IX + var2 & '\\uffff';
+                this.memory.write(var3, this.A);
             }
         }
         """;
