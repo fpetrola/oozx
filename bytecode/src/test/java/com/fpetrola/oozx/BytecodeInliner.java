@@ -67,7 +67,7 @@ public class BytecodeInliner {
     className= className.replace("-", "_");
 
     // Crear class maker - cojen generará un nombre único basado en el className
-    ClassMaker cm = ClassMaker.begin(className, getClass().getClassLoader(), Object.class);
+    ClassMaker cm = ClassMaker.beginExternal(className);
     cm.public_();
 
     // Get analyzed variables in order
@@ -221,18 +221,8 @@ public class BytecodeInliner {
   }
 
   private String getClassName(TargetSourceInstruction instruction, String operationName) {
-    OpcodeReference target = analyzer.getTarget();
-    int suffix = 1;
-    if (target instanceof MemoryPlusRegister8BitReference) {
-      suffix = 1;
-    } else if (target instanceof IndirectMemory8BitReference indMem) {
-      if (indMem.getTarget() instanceof Register) {
-        suffix = 2;
-      } else if (indMem.getTarget() instanceof Memory16BitReference) {
-        suffix = 3;
-      }
-    }
-    return operationName + "Bytecode" + suffix;
+    // Generar nombre sin sufijo (o agregar sufijo si necesitas múltiples variantes)
+    return operationName + "Bytecode";
   }
 
   private String getSourceExpression(ImmutableOpcodeReference source) {
@@ -264,6 +254,15 @@ public class BytecodeInliner {
       case "double" -> double.class;
       case "Register" -> Register.class;
       case "Memory" -> Memory.class;
+      case "Plain8BitRegister", "Plain16BitRegister" -> {
+        try {
+          // Cargar dinámicamente la clase del paquete de registros
+          String className = "com.fpetrola.z80.registers." + typeName;
+          yield Class.forName(className);
+        } catch (ClassNotFoundException e) {
+          yield Object.class;
+        }
+      }
       default -> Object.class;
     };
   }

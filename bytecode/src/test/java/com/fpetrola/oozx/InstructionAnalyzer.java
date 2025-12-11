@@ -83,8 +83,29 @@ public class InstructionAnalyzer implements InstructionVisitor<Void> {
   @Override
   public boolean visitRegister(Register register) {
     referencedInstances.add(register);
-    addVariable(register.getName(), "int", null);
+    // Determinar el tipo de registro basado en su clase
+    String registerType = determineRegisterType(register);
+    addVariable(register.getName(), registerType, null);
     return true;
+  }
+
+  /**
+   * Determina el tipo de registro basado en su clase
+   */
+  private String determineRegisterType(Register register) {
+    String className = register.getClass().getSimpleName();
+    
+    // Registros de 8 bits
+    if (className.contains("8Bit")) {
+      return "Plain8BitRegister";
+    }
+    // Registros de 16 bits
+    if (className.contains("16Bit")) {
+      return "Plain16BitRegister";
+    }
+    
+    // Fallback
+    return "Register";
   }
 
   @Override
@@ -98,7 +119,8 @@ public class InstructionAnalyzer implements InstructionVisitor<Void> {
     
     // Visitar el PC para obtener su nombre real y agregarlo como variable
     if (memory16BitReference.getPc() instanceof Register reg) {
-      addVariable(reg.getName(), "int", null);
+      String registerType = determineRegisterType(reg);
+      addVariable(reg.getName(), registerType, null);
       referencedInstances.add(reg);
     } else {
       memory16BitReference.getPc().accept(this);

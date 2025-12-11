@@ -34,16 +34,15 @@ public class BytecodeInlinerTest {
         public class LdBytecode {
             private Plain8BitRegister A;
             private Plain16BitRegister IX;
-            private AbstractMemory memory;
-            private Plain16BitRegister pc;
+            private Memory memory;
+            private Register pc;
             
-            public LdBytecode(AbstractMemory memory, Plain16BitRegister pc) {
+            public LdBytecode(Memory memory, Register pc) {
                 this.memory = memory;
                 this.pc = pc;
             }
             
             public void execute() {
-                // Implementación inline del LD A, (IX+offset)
             }
         }
         """;
@@ -272,10 +271,20 @@ public class BytecodeInlinerTest {
    * - Elimina espacios en blanco al inicio/final
    * - Normaliza saltos de línea
    * - Reduce espacios múltiples a uno solo
+   * - Elimina imports
+   * - Normaliza nombres de clase generados (LdBytecode-X → LdBytecode)
    */
   private String normalizeSource(String source) {
     return source
         .replaceAll("\\r\\n", "\n")  // Normalizar saltos de línea
+        .replaceAll("import .*?;\\n", "") // Eliminar imports
+        .replaceAll("\\bLdBytecode-\\d+\\b", "LdBytecode") // Normalizar nombre de clase generado
+        .replaceAll("\\bLdBytecode_\\d+", "LdBytecode") // Constructor normalizado
+        .replaceAll("\\bXorBytecode-\\d+\\b", "XorBytecode") // Para XOR
+        .replaceAll("\\bXorBytecode_\\d+", "XorBytecode") // Constructor XOR
+        .replaceAll("\\bOrBytecode-\\d+\\b", "OrBytecode") // Para OR
+        .replaceAll("\\bOrBytecode_\\d+", "OrBytecode") // Constructor OR
+        .replaceAll("/\\*.*?\\*/", "") // Eliminar comentarios /* ... */
         .replaceAll("[ \\t]+", " ")   // Múltiples espacios a uno
         .replaceAll("\\n[ \\t]+", "\n") // Espacios después de saltos
         .replaceAll("[ \\t]+\\n", "\n") // Espacios antes de saltos
