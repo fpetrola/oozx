@@ -112,7 +112,9 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(xor);
 
     String expectedSource = """
+        import com.fpetrola.z80.instructions.impl.Xor.XorTableAluOperation;
         import com.fpetrola.z80.memory.Memory;
+        import com.fpetrola.z80.registers.Register;
 
         public class XorBytecode {
            private int C;
@@ -120,14 +122,14 @@ public class BytecodeInlinerTest {
            private Memory memory;
            private int pc;
            private Register flag;
-           private XorTableAluOperation xorAluOperation;
+           private XorTableAluOperation xorTableAluOperation;
 
            public void execute() {
               int var1 = this.pc + 2 & '\\uffff';
               int var2 = this.memory.read(var1, 0);
               int var3 = this.IX + var2 & '\\uffff';
               int var4 = this.memory.read(var3, 0);
-              int var5 = xorAluOperation.execute2ValuesAndCarry(var4, this.C, flag);
+              int var5 = this.xorTableAluOperation.execute2ValuesAndCarry(var4, this.C, this.flag);
               this.memory.write(var3, var5);
            }
         }""";
@@ -140,20 +142,24 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(or);
 
     String expectedSource = """
+        import com.fpetrola.z80.instructions.impl.Or.OrTableAluOperation;
         import com.fpetrola.z80.memory.Memory;
+        import com.fpetrola.z80.registers.Register;
 
         public class OrBytecode {
            private int C;
            private int IX;
            private Memory memory;
            private int pc;
+           private Register flag;
+           private OrTableAluOperation orTableAluOperation;
 
            public void execute() {
               int var1 = this.pc + 2 & '\\uffff';
               int var2 = this.memory.read(var1, 0);
               int var3 = this.IX + var2 & '\\uffff';
               int var4 = this.memory.read(var3, 0);
-              int var5 = this.C | var4;
+              int var5 = this.orTableAluOperation.execute2ValuesAndCarry(var4, this.C, this.flag);
               this.memory.write(var3, var5);
            }
         }""";
@@ -166,16 +172,20 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(xor);
 
     String expectedSource = """
+        import com.fpetrola.z80.instructions.impl.Xor.XorTableAluOperation;
         import com.fpetrola.z80.memory.Memory;
+        import com.fpetrola.z80.registers.Register;
 
         public class XorBytecode {
            private int C;
            private int IY;
            private Memory memory;
+           private Register flag;
+           private XorTableAluOperation xorTableAluOperation;
 
            public void execute() {
               int var1 = this.memory.read(this.IY, 0);
-              int var2 = this.C ^ var1;
+              int var2 = this.xorTableAluOperation.execute2ValuesAndCarry(var1, this.C, this.flag);
               this.memory.write(this.IY, var2);
            }
         }""";
@@ -188,13 +198,17 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(xor);
 
     String expectedSource = """
+        import com.fpetrola.z80.instructions.impl.Xor.XorTableAluOperation;
         import com.fpetrola.z80.memory.Memory;
+        import com.fpetrola.z80.registers.Register;
 
         public class XorBytecode {
            private int C;
            private int IY;
            private Memory memory;
            private int pc;
+           private Register flag;
+           private XorTableAluOperation xorTableAluOperation;
 
            public void execute() {
               int var1 = this.pc + 3 & '\\uffff';
@@ -203,7 +217,7 @@ public class BytecodeInlinerTest {
               int var4 = this.memory.read(var3, 0) << 8;
               int var5 = var2 | var4;
               int var6 = this.memory.read(var5, 0);
-              int var7 = this.C ^ var6;
+              int var7 = this.xorTableAluOperation.execute2ValuesAndCarry(var6, this.C, this.flag);
               this.memory.write(var5, var7);
            }
         }""";
@@ -216,16 +230,20 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(or);
 
     String expectedSource = """
+        import com.fpetrola.z80.instructions.impl.Or.OrTableAluOperation;
         import com.fpetrola.z80.memory.Memory;
+        import com.fpetrola.z80.registers.Register;
 
         public class OrBytecode {
            private int C;
            private int IY;
            private Memory memory;
+           private Register flag;
+           private OrTableAluOperation orTableAluOperation;
 
            public void execute() {
               int var1 = this.memory.read(this.IY, 0);
-              int var2 = this.C | var1;
+              int var2 = this.orTableAluOperation.execute2ValuesAndCarry(var1, this.C, this.flag);
               this.memory.write(this.IY, var2);
            }
         }""";
@@ -238,13 +256,17 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(or);
 
     String expectedSource = """
+        import com.fpetrola.z80.instructions.impl.Or.OrTableAluOperation;
         import com.fpetrola.z80.memory.Memory;
+        import com.fpetrola.z80.registers.Register;
 
         public class OrBytecode {
            private int C;
            private int IY;
            private Memory memory;
            private int pc;
+           private Register flag;
+           private OrTableAluOperation orTableAluOperation;
 
            public void execute() {
               int var1 = this.pc + 3 & '\\uffff';
@@ -253,7 +275,7 @@ public class BytecodeInlinerTest {
               int var4 = this.memory.read(var3, 0) << 8;
               int var5 = var2 | var4;
               int var6 = this.memory.read(var5, 0);
-              int var7 = this.C | var6;
+              int var7 = this.orTableAluOperation.execute2ValuesAndCarry(var6, this.C, this.flag);
               this.memory.write(var5, var7);
            }
         }""";

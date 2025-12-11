@@ -65,6 +65,9 @@ public class BytecodeInliner {
 
     // Add fields for target and other variables
     addFieldsInOrder(cm, requiredVars, target);
+    
+    // Add ALU operation field if the instruction has one
+    addAluOperationField(cm, instruction);
 
     // No agregar constructor (se omite siempre)
     // addConstructor(cm, className, instruction, target);
@@ -84,6 +87,29 @@ public class BytecodeInliner {
       saveBytecode(bytecodeBytes, className);
     }
     return className;
+  }
+  
+  private void addAluOperationField(ClassMaker cm, TargetSourceInstruction instruction) {
+    if (isAluOperation(instruction)) {
+      // Add flag field if not already added
+      if (!analyzer.getRequiredVariables().containsKey("flag")) {
+        cm.addField(Register.class, "flag").private_();
+      }
+      
+      // Add ALU operation field with the correct type
+      String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
+      Class<?> aluOperationClass = getAluOperationClass(instruction);
+      cm.addField(aluOperationClass, fieldName).private_();
+    }
+  }
+  
+  private Class<?> getAluOperationClass(TargetSourceInstruction instruction) {
+    if (instruction instanceof Xor) {
+      return Xor.XorTableAluOperation.class;
+    } else if (instruction instanceof Or) {
+      return Or.OrTableAluOperation.class;
+    }
+    return Object.class;
   }
 
   /**
@@ -245,6 +271,12 @@ public class BytecodeInliner {
       return;
     }
     
+    // Si la instrucción tiene una operación ALU, usarla
+    if (isAluOperation(instruction)) {
+      executeWithAluOperation(mm, instruction, memory, address, sourceRegName);
+      return;
+    }
+    
     // Para XOR/OR: leer, aplicar operación y escribir
     Variable value = mm.var(int.class);
     value.set(memory.invoke("read", address, 0));
@@ -255,6 +287,26 @@ public class BytecodeInliner {
     } else if (instruction instanceof Or) {
       result.set(source.or(value));
     }
+    
+    // Escribir el resultado
+    memory.invoke("write", address, result);
+  }
+  
+  private void executeWithAluOperation(MethodMaker mm, TargetSourceInstruction instruction, 
+                                        Variable memory, Variable address, String sourceRegName) {
+    // Leer valor de memoria
+    Variable value = mm.var(int.class);
+    value.set(memory.invoke("read", address, 0));
+    Variable source = mm.field(sourceRegName);
+    
+    // Obtener la operación ALU
+    String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
+    Variable aluOp = mm.field(fieldName);
+    
+    // Ejecutar la operación ALU: execute2ValuesAndCarry(value, source, flag)
+    Variable result = mm.var(int.class);
+    Variable flag = mm.field("flag");
+    result.set(aluOp.invoke("execute2ValuesAndCarry", value, source, flag));
     
     // Escribir el resultado
     memory.invoke("write", address, result);
@@ -298,12 +350,8 @@ public class BytecodeInliner {
   }
 
   private boolean isAluOperation(TargetSourceInstruction instruction) {
-    Class<?> clazz = instruction.getClass();
-    try {
-      return clazz.getDeclaredField(getAluOperationFieldName(clazz.getSimpleName())) != null;
-    } catch (NoSuchFieldException e) {
-      return false;
-    }
+    // Xor, Or y otras instrucciones ALU que heredan de ParameterizedBinaryAluInstruction
+    return instruction instanceof Xor || instruction instanceof Or;
   }
 
   private String getAluOperationFieldName(String instructionClassName) {
