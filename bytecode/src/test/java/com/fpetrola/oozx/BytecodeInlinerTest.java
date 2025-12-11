@@ -37,12 +37,9 @@ public class BytecodeInlinerTest {
             private Memory memory;
             private int pc;
         
-            public LdBytecode(Memory memory, int pc) {
-                this.memory = memory;
-                this.pc = pc;
-            }
-        
             public void execute() {
+                int dd= memory.read((pc + 2) & 0xFFFF, 0)
+                memory.write((IX + dd) & 0xFFFF, A);
             }
         }
         """;
