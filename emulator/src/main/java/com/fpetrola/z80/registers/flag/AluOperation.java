@@ -46,6 +46,11 @@ public class AluOperation extends AluOperationBase {
     return -1;
   }
 
+  public int execute2ValuesAndCarry(int value1, int value2, int flag) {
+    F = flag;
+    return triFunction.applyAsInt(value1, value2, flag & 0x01) & 0xFF;
+  }
+
   public int execute2ValuesAndCarry(int value1, int value2, Register flag) {
     return execute2Values1Boolean(value1, value2, flag.read() & 0x01, flag);
   }

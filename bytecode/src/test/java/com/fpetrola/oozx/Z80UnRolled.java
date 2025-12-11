@@ -51,29 +51,13 @@ public class Z80UnRolled {
 
   // ============ 8-bit Registers (Primary Set) ============
   private int A;      // Accumulator
+  private int flag;      // Flags
   private int B;      // Register B
   private int C;      // Register C
   private int D;      // Register D
   private int E;      // Register E
   private int H;      // Register H
   private int L;      // Register L
-  private int F;      // Flags
-
-  // ============ 8-bit Registers (Shadow/Alternate Set) ============
-  private int Ax;     // Alternate A
-  private int Bx;     // Alternate B
-  private int Cx;     // Alternate C
-  private int Dx;     // Alternate D
-  private int Ex;     // Alternate E
-  private int Hx;     // Alternate H
-  private int Lx;     // Alternate L
-  private int Fx;     // Alternate Flags
-
-  // ============ 16-bit Registers (Primary Pairs) ============
-  private int AF;     // A:F pair (31:24 | 23:16)
-  private int BC;     // B:C pair
-  private int DE;     // D:E pair
-  private int HL;     // H:L pair
 
   // ============ 16-bit Registers (Shadow Pairs) ============
   private int AFx;    // Alternate A:F pair
@@ -98,7 +82,6 @@ public class Z80UnRolled {
 
   // ============ Memory and Status ============
   private Memory memory;
-  private Register flag;
 
   // ============ Control Flags ============
   private boolean IME;       // Interrupt Master Enable
