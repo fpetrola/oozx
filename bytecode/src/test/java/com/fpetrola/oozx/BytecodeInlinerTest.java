@@ -33,7 +33,7 @@ public class BytecodeInlinerTest {
         import com.fpetrola.oozx.Z80UnRolled;
 
         public class LdBytecode extends Z80UnRolled {
-           public void executeLd() {
+           public void executeLdMprfIxA() {
               int var1 = super.PC + 2 & '\\uffff';
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
@@ -52,7 +52,7 @@ public class BytecodeInlinerTest {
         import com.fpetrola.oozx.Z80UnRolled;
 
         public class LdBytecode extends Z80UnRolled {
-           public void executeLd() {
+           public void executeLdImrIyB() {
               super.memory.write(super.IY, super.B);
            }
         }""";
@@ -68,7 +68,7 @@ public class BytecodeInlinerTest {
         import com.fpetrola.oozx.Z80UnRolled;
 
         public class LdBytecode extends Z80UnRolled {
-           public void executeLd() {
+           public void executeLdImrM16RB() {
               int var1 = super.PC + 3 & '\\uffff';
               int var2 = super.memory.read(var1, 0);
               int var3 = super.PC + 4 & '\\uffff';
@@ -99,7 +99,7 @@ public class BytecodeInlinerTest {
         import com.fpetrola.oozx.Z80UnRolled;
 
         public class XorBytecode extends Z80UnRolled {
-           public void executeXor() {
+           public void executeXorMprfIxC() {
               int var1 = super.PC + 2 & '\\uffff';
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
@@ -120,7 +120,7 @@ public class BytecodeInlinerTest {
         import com.fpetrola.oozx.Z80UnRolled;
 
         public class OrBytecode extends Z80UnRolled {
-           public void executeOr() {
+           public void executeOrMprfIxC() {
               int var1 = super.PC + 2 & '\\uffff';
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
@@ -141,7 +141,7 @@ public class BytecodeInlinerTest {
         import com.fpetrola.oozx.Z80UnRolled;
 
         public class XorBytecode extends Z80UnRolled {
-           public void executeXor() {
+           public void executeXorImrIyC() {
               int var1 = super.memory.read(super.IY, 0);
               int var2 = super.xorTableAluOperation.execute2ValuesAndCarry(var1, super.C, super.flag);
               super.memory.write(super.IY, var2);
@@ -159,7 +159,7 @@ public class BytecodeInlinerTest {
         import com.fpetrola.oozx.Z80UnRolled;
 
         public class XorBytecode extends Z80UnRolled {
-           public void executeXor() {
+           public void executeXorImrM16RC() {
               int var1 = super.PC + 3 & '\\uffff';
               int var2 = super.memory.read(var1, 0);
               int var3 = super.PC + 4 & '\\uffff';
@@ -182,7 +182,7 @@ public class BytecodeInlinerTest {
         import com.fpetrola.oozx.Z80UnRolled;
 
         public class OrBytecode extends Z80UnRolled {
-           public void executeOr() {
+           public void executeOrImrIyC() {
               int var1 = super.memory.read(super.IY, 0);
               int var2 = super.orTableAluOperation.execute2ValuesAndCarry(var1, super.C, super.flag);
               super.memory.write(super.IY, var2);
@@ -200,7 +200,7 @@ public class BytecodeInlinerTest {
         import com.fpetrola.oozx.Z80UnRolled;
 
         public class OrBytecode extends Z80UnRolled {
-           public void executeOr() {
+           public void executeOrImrM16RC() {
               int var1 = super.PC + 3 & '\\uffff';
               int var2 = super.memory.read(var1, 0);
               int var3 = super.PC + 4 & '\\uffff';
@@ -223,7 +223,7 @@ public class BytecodeInlinerTest {
         import com.fpetrola.oozx.Z80UnRolled;
 
         public class AndBytecode extends Z80UnRolled {
-           public void executeAnd() {
+           public void executeAndMprfIxC() {
               int var1 = super.PC + 2 & '\\uffff';
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
@@ -244,7 +244,7 @@ public class BytecodeInlinerTest {
         import com.fpetrola.oozx.Z80UnRolled;
 
         public class AndBytecode extends Z80UnRolled {
-           public void executeAnd() {
+           public void executeAndImrIyC() {
               int var1 = super.memory.read(super.IY, 0);
               int var2 = super.andTableAluOperation.execute2ValuesAndCarry(var1, super.C, super.flag);
               super.memory.write(super.IY, var2);
@@ -262,7 +262,7 @@ public class BytecodeInlinerTest {
         import com.fpetrola.oozx.Z80UnRolled;
 
         public class AndBytecode extends Z80UnRolled {
-           public void executeAnd() {
+           public void executeAndImrM16RC() {
               int var1 = super.PC + 3 & '\\uffff';
               int var2 = super.memory.read(var1, 0);
               int var3 = super.PC + 4 & '\\uffff';
@@ -285,7 +285,7 @@ public class BytecodeInlinerTest {
         import com.fpetrola.oozx.Z80UnRolled;
 
         public class SubBytecode extends Z80UnRolled {
-           public void executeSub() {
+           public void executeSubMprfIxB() {
               int var1 = super.PC + 2 & '\\uffff';
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
@@ -306,7 +306,7 @@ public class BytecodeInlinerTest {
         import com.fpetrola.oozx.Z80UnRolled;
 
         public class CpBytecode extends Z80UnRolled {
-           public void executeCp() {
+           public void executeCpMprfIxD() {
               int var1 = super.PC + 2 & '\\uffff';
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
@@ -327,7 +327,7 @@ public class BytecodeInlinerTest {
         import com.fpetrola.oozx.Z80UnRolled;
 
         public class AddBytecode extends Z80UnRolled {
-           public void executeAdd() {
+           public void executeAddMprfIxE() {
               int var1 = super.PC + 2 & '\\uffff';
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
@@ -348,7 +348,7 @@ public class BytecodeInlinerTest {
         import com.fpetrola.oozx.Z80UnRolled;
 
         public class AdcBytecode extends Z80UnRolled {
-           public void executeAdc() {
+           public void executeAdcMprfIxH() {
               int var1 = super.PC + 2 & '\\uffff';
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
@@ -369,7 +369,7 @@ public class BytecodeInlinerTest {
         import com.fpetrola.oozx.Z80UnRolled;
 
         public class SbcBytecode extends Z80UnRolled {
-           public void executeSbc() {
+           public void executeSbcMprfIxL() {
               int var1 = super.PC + 2 & '\\uffff';
               int var2 = super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
