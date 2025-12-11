@@ -149,6 +149,98 @@ public class BytecodeInlinerTest {
     assertSourceEquals(actualSource, expectedSource);
   }
 
+  @Test
+  public void testBytecodeXorInline2() throws IOException {
+    var xor = getXor2();
+    String actualSource = testBytecodeInlineOf(xor);
+
+    String expectedSource = """
+        public class XorBytecode {
+            private int C;
+            private int IY;
+            private Memory memory;
+        
+            public void execute() {
+                int var1 = this.memory.read(this.IY, 0);
+                int var2 = this.C ^ var1;
+                this.memory.write(this.IY, var2);
+            }
+        }""";
+    assertSourceEquals(actualSource, expectedSource);
+  }
+
+  @Test
+  public void testBytecodeXorInline3() throws IOException {
+    var xor = getXor3();
+    String actualSource = testBytecodeInlineOf(xor);
+
+    String expectedSource = """
+        public class XorBytecode {
+            private int C;
+            private int IY;
+            private Memory memory;
+            private int pc;
+        
+            public void execute() {
+                int var1 = this.pc + 3 & '\\uffff';
+                int var2 = this.memory.read(var1, 0);
+                int var3 = this.pc + 4 & '\\uffff';
+                int var4 = this.memory.read(var3, 0) << 8;
+                int var5 = var2 | var4;
+                int var6 = this.memory.read(var5, 0);
+                int var7 = this.C ^ var6;
+                this.memory.write(var5, var7);
+            }
+        }""";
+    assertSourceEquals(actualSource, expectedSource);
+  }
+
+  @Test
+  public void testBytecodeOrInline2() throws IOException {
+    var or = getOr2();
+    String actualSource = testBytecodeInlineOf(or);
+
+    String expectedSource = """
+        public class OrBytecode {
+            private int C;
+            private int IY;
+            private Memory memory;
+        
+            public void execute() {
+                int var1 = this.memory.read(this.IY, 0);
+                int var2 = this.C | var1;
+                this.memory.write(this.IY, var2);
+            }
+        }""";
+    assertSourceEquals(actualSource, expectedSource);
+  }
+
+  @Test
+  public void testBytecodeOrInline3() throws IOException {
+    var or = getOr3();
+    String actualSource = testBytecodeInlineOf(or);
+
+    String expectedSource = """
+        public class OrBytecode {
+            private int C;
+            private int IY;
+            private Memory memory;
+            private int pc;
+        
+            public void execute() {
+                int var1 = this.pc + 3 & '\\uffff';
+                int var2 = this.memory.read(var1, 0);
+                int var3 = this.pc + 4 & '\\uffff';
+                int var4 = this.memory.read(var3, 0) << 8;
+                int var5 = var2 | var4;
+                int var6 = this.memory.read(var5, 0);
+                int var7 = this.C | var6;
+                this.memory.write(var5, var7);
+            }
+        }""";
+    assertSourceEquals(actualSource, expectedSource);
+  }
+
   // Guardar referencia al inliner para acceder al bytecode generado
   private BytecodeInliner lastInliner;
 
@@ -320,5 +412,31 @@ public class BytecodeInlinerTest {
     var source = new Plain8BitRegister("C");
     var or = new Or(target, source, new Plain8BitRegister("F"));
     return or;
+  }
+
+  private static Xor getXor2() {
+    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
+    var source = new Plain8BitRegister("C");
+    return new Xor(target, source, new Plain8BitRegister("F"));
+  }
+
+  private static Xor getXor3() {
+    MyAbstractMemory memory = new MyAbstractMemory();
+    var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
+    var source = new Plain8BitRegister("C");
+    return new Xor(target, source, new Plain8BitRegister("F"));
+  }
+
+  private static Or getOr2() {
+    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
+    var source = new Plain8BitRegister("C");
+    return new Or(target, source, new Plain8BitRegister("F"));
+  }
+
+  private static Or getOr3() {
+    MyAbstractMemory memory = new MyAbstractMemory();
+    var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
+    var source = new Plain8BitRegister("C");
+    return new Or(target, source, new Plain8BitRegister("F"));
   }
 }
