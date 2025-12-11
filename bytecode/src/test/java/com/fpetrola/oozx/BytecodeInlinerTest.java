@@ -353,9 +353,9 @@ public class BytecodeInlinerTest {
     * Compara el código fuente descompilado con el esperado
     */
   private void assertSourceEquals(String actual, String expectedSource) {
-    assertEquals(expectedSource.trim(), actual.trim(), "Código fuente no coincide:\n\n" +
-                                                       "ESPERADO:\n" + expectedSource + "\n\n" +
-                                                       "ACTUAL:\n" + actual);
+    assertEquals(expectedSource.trim(), actual.trim(), "Source code does not match:\n\n" +
+                                                       "expected:\n" + expectedSource + "\n\n" +
+                                                       "actual:\n" + actual);
   }
 
 
