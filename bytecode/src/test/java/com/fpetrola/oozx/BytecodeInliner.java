@@ -78,17 +78,14 @@ public class BytecodeInliner {
     // Add fields for target and other variables
     addFieldsInOrder(cm, requiredVars, target);
 
-    // Add constructor (skip for Ld with MemoryPlusRegister8BitReference)
-    addConstructor(cm, className, instruction, target);
+    // No agregar constructor (se omite siempre)
+    // addConstructor(cm, className, instruction, target);
 
     // Add execute method with inlined code
     addExecuteMethod(cm, instruction, operationName, target);
 
     // Compilar la clase y obtener el bytecode directamente
     byte[] bytecodeBytes = cm.finishBytes();
-    
-    // Post-procesar para agregar LocalVariableTable con nombres de parámetros
-    bytecodeBytes = addParameterNames(bytecodeBytes);
     
     lastGeneratedBytecode = bytecodeBytes;
 
@@ -166,54 +163,19 @@ public class BytecodeInliner {
      }
    }
 
-  private void addConstructor(ClassMaker cm, String className, TargetSourceInstruction instruction, OpcodeReference target) {
-     // No generar constructor para Ld con MemoryPlusRegister8BitReference (se omite)
-     if (instruction instanceof Ld && target instanceof MemoryPlusRegister8BitReference) {
-       return;
-     }
 
-     List<Class<?>> paramTypes = new ArrayList<>();
-     List<String> paramNames = new ArrayList<>();
-
-     if (target instanceof MemoryPlusRegister8BitReference || target instanceof IndirectMemory8BitReference) {
-       paramTypes.add(Memory.class);
-       paramNames.add("memory");
-     }
-
-     if (target instanceof MemoryPlusRegister8BitReference) {
-       paramTypes.add(int.class);
-       paramNames.add("pc");
-     } else if (target instanceof IndirectMemory8BitReference indMem) {
-       if (indMem.getTarget() instanceof Memory16BitReference) {
-         paramTypes.add(int.class);
-         paramNames.add("pc");
-       }
-     }
-
-     Class<?>[] types = paramTypes.toArray(new Class<?>[0]);
-     MethodMaker mm = cm.addConstructor(types);
-     mm.public_();
-     
-     // Llamar a super()
-     mm.invokeSuperConstructor();
-
-     for (int i = 0; i < paramNames.size(); i++) {
-       String paramName = paramNames.get(i);
-       Variable field = mm.field(paramName);
-       Variable param = mm.param(i);
-       field.set(param);
-     }
-
-     mm.return_();
-   }
 
   private void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, String operationName, OpcodeReference target) {
     MethodMaker mm = cm.addMethod(void.class, "execute");
     mm.public_();
 
-    // Generar lógica para Ld (Load)
+    // Generar lógica según el tipo de instrucción
     if (instruction instanceof Ld ld) {
       generateLdExecute(mm, ld, target);
+    } else if (instruction instanceof Xor xor) {
+      generateXorExecute(mm, xor, target);
+    } else if (instruction instanceof Or or) {
+      generateOrExecute(mm, or, target);
     }
     // Para otras instrucciones, por ahora solo stub vacío
     
@@ -254,6 +216,84 @@ public class BytecodeInliner {
     }
   }
 
+  private void generateXorExecute(MethodMaker mm, Xor xor, OpcodeReference target) {
+    // Para MemoryPlusRegister8BitReference(target register, memory, pc, offset)
+    // que es el patrón (IX+dd) o (IY+dd)
+    if (target instanceof MemoryPlusRegister8BitReference memRef) {
+      // 1. Leer el byte offset (dd) desde memoria en (pc + offset)
+      Variable dd = mm.var(int.class);
+      Variable memory = mm.field("memory");
+      Variable pc = mm.field("pc");
+      
+      // Cálculo: (pc + valueDelta) & 0xFFFF
+      Variable address = mm.var(int.class);
+      Variable pcPlusDelta = pc.add(memRef.getValueDelta());
+      Variable addressCalc = pcPlusDelta.and(0xFFFF);
+      address.set(addressCalc);
+      
+      // Leer el byte offset
+      dd.set(memory.invoke("read", address, 0));
+      
+      // 2. Calcular dirección de lectura: (IX + dd) & 0xFFFF
+      Variable targetReg = mm.field("IX");
+      Variable readAddr = mm.var(int.class);
+      Variable regPlusDd = targetReg.add(dd);
+      Variable readAddrCalc = regPlusDd.and(0xFFFF);
+      readAddr.set(readAddrCalc);
+      
+      // 3. Leer el valor de la memoria
+      Variable value = mm.var(int.class);
+      value.set(memory.invoke("read", readAddr, 0));
+      
+      // 4. XOR con el registro C
+      Variable source = mm.field("C");
+      Variable result = mm.var(int.class);
+      result.set(source.xor(value));
+      
+      // 5. Escribir el resultado de vuelta a la memoria
+      memory.invoke("write", readAddr, result);
+    }
+  }
+
+  private void generateOrExecute(MethodMaker mm, Or or, OpcodeReference target) {
+    // Para MemoryPlusRegister8BitReference(target register, memory, pc, offset)
+    // que es el patrón (IX+dd) o (IY+dd)
+    if (target instanceof MemoryPlusRegister8BitReference memRef) {
+      // 1. Leer el byte offset (dd) desde memoria en (pc + offset)
+      Variable dd = mm.var(int.class);
+      Variable memory = mm.field("memory");
+      Variable pc = mm.field("pc");
+      
+      // Cálculo: (pc + valueDelta) & 0xFFFF
+      Variable address = mm.var(int.class);
+      Variable pcPlusDelta = pc.add(memRef.getValueDelta());
+      Variable addressCalc = pcPlusDelta.and(0xFFFF);
+      address.set(addressCalc);
+      
+      // Leer el byte offset
+      dd.set(memory.invoke("read", address, 0));
+      
+      // 2. Calcular dirección de lectura: (IX + dd) & 0xFFFF
+      Variable targetReg = mm.field("IX");
+      Variable readAddr = mm.var(int.class);
+      Variable regPlusDd = targetReg.add(dd);
+      Variable readAddrCalc = regPlusDd.and(0xFFFF);
+      readAddr.set(readAddrCalc);
+      
+      // 3. Leer el valor de la memoria
+      Variable value = mm.var(int.class);
+      value.set(memory.invoke("read", readAddr, 0));
+      
+      // 4. OR con el registro C
+      Variable source = mm.field("C");
+      Variable result = mm.var(int.class);
+      result.set(source.or(value));
+      
+      // 5. Escribir el resultado de vuelta a la memoria
+      memory.invoke("write", readAddr, result);
+    }
+  }
+
   private boolean isAluOperation(TargetSourceInstruction instruction) {
     Class<?> clazz = instruction.getClass();
     try {
@@ -286,88 +326,7 @@ public class BytecodeInliner {
     return "register";
   }
 
-  /**
-    * Post-procesa el bytecode para agregar LocalVariableTable con nombres de parámetros
-    */
-   private byte[] addParameterNames(byte[] bytecode) {
-     ClassReader cr = new ClassReader(bytecode);
-     ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-     
-     ClassVisitor visitor = new ClassVisitor(Opcodes.ASM9, cw) {
-       @Override
-       public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-         MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-         
-         // Solo procesar constructores
-         if (!name.equals("<init>")) {
-           return mv;
-         }
-         
-         // Envolver el método visitor para agregar LocalVariableTable
-         return new MethodVisitor(Opcodes.ASM9, mv) {
-           @Override
-           public void visitCode() {
-             super.visitCode();
-             // Agregar variables locales con nombres
-             Label startLabel = new Label();
-             Label endLabel = new Label();
-             
-             // Parámetro 0: this
-             this.visitLocalVariable("this", "L" + cr.getClassName() + ";", null, startLabel, endLabel, 0);
-             
-             // Parámetros adicionales basados en el descriptor del constructor
-             String[] parts = desc.substring(1, desc.indexOf(')')).split("");
-             int paramIndex = 1;
-             List<String> paramNames = getConstructorParameterNames();
-             
-             for (String paramName : paramNames) {
-               if (paramIndex < parts.length) {
-                 this.visitLocalVariable(paramName, "L" + getTypeForParameter(paramName) + ";", null, startLabel, endLabel, paramIndex);
-                 paramIndex++;
-               }
-             }
-           }
-           
-           @Override
-           public void visitEnd() {
-             super.visitEnd();
-           }
-         };
-       }
-     };
-     
-     cr.accept(visitor, ClassReader.EXPAND_FRAMES);
-     return cw.toByteArray();
-   }
 
-   private List<String> getConstructorParameterNames() {
-     OpcodeReference target = analyzer.getTarget();
-     List<String> names = new ArrayList<>();
-     
-     if (target instanceof MemoryPlusRegister8BitReference || target instanceof IndirectMemory8BitReference) {
-       names.add("memory");
-     }
-     
-     if (target instanceof MemoryPlusRegister8BitReference) {
-       names.add("pc");
-     } else if (target instanceof IndirectMemory8BitReference indMem) {
-       if (indMem.getTarget() instanceof Memory16BitReference) {
-         names.add("pc");
-       }
-     }
-     
-     return names;
-   }
-
-   private String getTypeForParameter(String paramName) {
-     if ("memory".equals(paramName)) {
-       return "com/fpetrola/z80/memory/Memory";
-     }
-     if ("pc".equals(paramName)) {
-       return "java/lang/Integer"; // int se mapea como Integer en tipo descriptor
-     }
-     return "java/lang/Object";
-   }
 
   /**
     * Resuelve nombres de tipo a clases Java.

@@ -54,19 +54,13 @@ public class BytecodeInlinerTest {
     String actualSource = testBytecodeInlineOf(ld);
 
     String expectedSource = """
-        import com.fpetrola.z80.memory.Memory;
-        
         public class LdBytecode {
-           private int B;
-           private int IY;
-           private Memory memory;
+            private int B;
+            private int IY;
+            private Memory memory;
         
-           public LdBytecode(Memory memory) {
-              this.memory = memory;
-           }
-        
-           public void execute() {
-           }
+            public void execute() {
+            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
   }
@@ -78,17 +72,14 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         public class LdBytecode {
-                 private int B;
-                 private int IY;
-                 private Memory memory;
-                 private int pc;
-                 public LdBytecode(Memory memory, int pc) {
-                 this.memory = memory;
-                 this.pc = pc;
-                 }
-                 public void execute() {
-                 }
-                 }""";
+            private int B;
+            private int IY;
+            private Memory memory;
+            private int pc;
+        
+            public void execute() {
+            }
+        }""";
     assertSourceEquals(actualSource, expectedSource);
   }
 
@@ -110,16 +101,19 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         public class XorBytecode {
-        private int C;
-        private int IX;
-        private Memory memory;
-        private int pc;
-        public XorBytecode(Memory memory, int pc) {
-        this.memory = memory;
-        this.pc = pc;
-        }
-        public void execute() {
-        }
+            private int C;
+            private int IX;
+            private Memory memory;
+            private int pc;
+        
+            public void execute() {
+                int var1 = this.pc + 2 & '\\uffff';
+                int var2 = this.memory.read(var1, 0);
+                int var3 = this.IX + var2 & '\\uffff';
+                int var4 = this.memory.read(var3, 0);
+                int var5 = this.C ^ var4;
+                this.memory.write(var3, var5);
+            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
   }
@@ -131,16 +125,19 @@ public class BytecodeInlinerTest {
 
     String expectedSource = """
         public class OrBytecode {
-        private int C;
-        private int IX;
-        private Memory memory;
-        private int pc;
-        public OrBytecode(Memory memory, int pc) {
-        this.memory = memory;
-        this.pc = pc;
-        }
-        public void execute() {
-        }
+            private int C;
+            private int IX;
+            private Memory memory;
+            private int pc;
+        
+            public void execute() {
+                int var1 = this.pc + 2 & '\\uffff';
+                int var2 = this.memory.read(var1, 0);
+                int var3 = this.IX + var2 & '\\uffff';
+                int var4 = this.memory.read(var3, 0);
+                int var5 = this.C | var4;
+                this.memory.write(var3, var5);
+            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
   }
