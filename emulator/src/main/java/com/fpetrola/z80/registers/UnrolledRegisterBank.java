@@ -825,10 +825,10 @@ public class UnrolledRegisterBank extends RegisterBank {
 
   final class AFRegister implements RegisterPair {
 
-    private final Register high;
-    private final Register low;
+    private final ARegister high;
+    private final FRegister low;
 
-    public AFRegister(Register high, Register low) {
+    public AFRegister(ARegister high, FRegister low) {
 
       this.high = high;
       this.low = low;
@@ -857,11 +857,11 @@ public class UnrolledRegisterBank extends RegisterBank {
       A = 0xFF;
     }
 
-    public Register getHigh() {
+    public ARegister getHigh() {
       return high;
     }
 
-    public Register getLow() {
+    public FRegister getLow() {
       return low;
     }
 
@@ -880,10 +880,10 @@ public class UnrolledRegisterBank extends RegisterBank {
 
   final class BCRegister implements RegisterPair {
 
-    private final Register high;
-    private final Register low;
+    private final BRegister high;
+    private final CRegister low;
 
-    public BCRegister(Register high, Register low) {
+    public BCRegister(BRegister high, CRegister low) {
 
       this.high = high;
       this.low = low;
@@ -912,11 +912,11 @@ public class UnrolledRegisterBank extends RegisterBank {
       B = 0xFF;
     }
 
-    public Register getHigh() {
+    public BRegister getHigh() {
       return high;
     }
 
-    public Register getLow() {
+    public CRegister getLow() {
       return low;
     }
 
@@ -935,10 +935,10 @@ public class UnrolledRegisterBank extends RegisterBank {
 
   final class DERegister implements RegisterPair {
 
-    private final Register high;
-    private final Register low;
+    private final DRegister high;
+    private final ERegister low;
 
-    public DERegister(Register high, Register low) {
+    public DERegister(DRegister high, ERegister low) {
 
       this.high = high;
       this.low = low;
@@ -967,11 +967,11 @@ public class UnrolledRegisterBank extends RegisterBank {
       D = 0xFF;
     }
 
-    public Register getHigh() {
+    public DRegister getHigh() {
       return high;
     }
 
-    public Register getLow() {
+    public ERegister getLow() {
       return low;
     }
 
@@ -990,10 +990,10 @@ public class UnrolledRegisterBank extends RegisterBank {
 
   final class HLRegister implements RegisterPair {
 
-    private final Register high;
-    private final Register low;
+    private final HRegister high;
+    private final LRegister low;
 
-    public HLRegister(Register high, Register low) {
+    public HLRegister(HRegister high, LRegister low) {
 
       this.high = high;
       this.low = low;
@@ -1022,11 +1022,11 @@ public class UnrolledRegisterBank extends RegisterBank {
       H = 0xFF;
     }
 
-    public Register getHigh() {
+    public HRegister getHigh() {
       return high;
     }
 
-    public Register getLow() {
+    public LRegister getLow() {
       return low;
     }
 
