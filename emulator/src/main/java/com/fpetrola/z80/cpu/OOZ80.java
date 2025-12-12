@@ -63,20 +63,17 @@ final public class OOZ80 implements Z80Cpu {
     if (state.isIntLine() && state.isIff1() && !state.isPendingEI())
       interruption();
 
-    Instruction instruction;
-    Instruction result;
+    Instruction currentInstruction;
     try {
-      Instruction currentInstruction = instructionFetcher.fetchNextInstruction();
+      currentInstruction = instructionFetcher.fetchNextInstruction();
       instructionExecutor.execute(currentInstruction);
       //      instructionFetcher.afterExecute(currentInstruction);
-      result = currentInstruction;
     } catch (Exception e) {
       e.printStackTrace();
       state.setRunState(State.RunState.STATE_STOPPED_BREAK);
-      result = null;
+      currentInstruction = null;
     }
-    instruction = result;
-    if (state.isPendingEI() && !(instruction instanceof EI)) {
+    if (state.isPendingEI() && !(currentInstruction instanceof EI)) {
       state.setPendingEI(false);
       endInterruption();
     }
