@@ -21,6 +21,7 @@ package com.fpetrola.z80.cpu;
 import com.fpetrola.z80.instructions.impl.EI;
 import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 
 import static com.fpetrola.z80.cpu.State.InterruptionMode.IM2;
@@ -34,6 +35,7 @@ final public class OOZ80 implements Z80Cpu {
   private final Register pc;
   private final Register regI;
   private final Register memptr;
+  private Memory memory;
 
   public OOZ80(State aState, InstructionFetcher instructionFetcher, InstructionExecutor instructionExecutor) {
     this.state = aState;
@@ -44,6 +46,7 @@ final public class OOZ80 implements Z80Cpu {
     pc = state.getPc();
     regI = state.getRegI();
     memptr = state.getMemptr();
+    memory = state.getMemory();
   }
 
   public void reset() {
@@ -100,13 +103,13 @@ final public class OOZ80 implements Z80Cpu {
     }
 
     registerR.increment();
-    Push.doPush(pc.read(), registerSP, state.getMemory());
+    Push.doPush(pc.read(), registerSP, memory);
     state.setIff1(false);
     state.setIff2(false);
 
     int value;
     if (state.getInterruptionMode() == IM2) {
-      value = state.getMemory().read16Bits(((regI.read() << 8) & 0xFFFF | 0xff) & 0xFFFF);
+      value = memory.read16Bits(((regI.read() << 8) & 0xFFFF | 0xff) & 0xFFFF);
     } else {
       value = 0x0038;
     }
@@ -118,7 +121,7 @@ final public class OOZ80 implements Z80Cpu {
   }
 
   public void update() {
-    state.getMemory().update();
+    memory.update();
     instructionFetcher.reset();
   }
 
