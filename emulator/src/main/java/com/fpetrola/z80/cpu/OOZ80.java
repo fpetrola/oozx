@@ -25,25 +25,33 @@ import com.fpetrola.z80.registers.Register;
 
 import static com.fpetrola.z80.cpu.State.InterruptionMode.IM2;
 
-public class OOZ80 implements Z80Cpu {
-  protected InstructionFetcher instructionFetcher;
+final public class OOZ80 implements Z80Cpu {
+  private final InstructionFetcher instructionFetcher;
   private final InstructionExecutor instructionExecutor;
-  protected State state;
+  private final State state;
+  private final Register registerR;
+  private final Register registerSP;
+  private final Register pc;
+  private final Register regI;
+  private final Register memptr;
 
   public OOZ80(State aState, InstructionFetcher instructionFetcher, InstructionExecutor instructionExecutor) {
     this.state = aState;
     this.instructionFetcher = instructionFetcher;
     this.instructionExecutor = instructionExecutor;
+    registerR = state.getRegisterR();
+    registerSP = state.getRegisterSP();
+    pc = state.getPc();
+    regI = state.getRegI();
+    memptr = state.getMemptr();
   }
 
-  @Override
   public void reset() {
     instructionExecutor.reset();
     instructionFetcher.reset();
     state.reset();
   }
 
-  @Override
   public void execute() {
     if (state.isActiveNMI()) {
       state.setActiveNMI(false);
@@ -79,7 +87,6 @@ public class OOZ80 implements Z80Cpu {
     }
   }
 
-  @Override
   public void interruption() {
     getState().setINTLine(true);
     doInt();
@@ -87,31 +94,26 @@ public class OOZ80 implements Z80Cpu {
   }
 
   private void doInt() {
-    Register pc = state.getPc();
-
     if (state.isHalted()) {
       state.setHalted(false);
       pc.increment();
     }
 
-    state.getRegisterR().increment();
-    Push.doPush(pc.read(), state.getRegisterSP(), state.getMemory());
+    registerR.increment();
+    Push.doPush(pc.read(), registerSP, state.getMemory());
     state.setIff1(false);
     state.setIff2(false);
 
     int value;
     if (state.getInterruptionMode() == IM2) {
-      int wordNumber = state.getRegI().read();
-      int wordNumber1 = (wordNumber << 8) & 0xFFFF;
-      value = state.getMemory().read16Bits((wordNumber1 | 0xff) & 0xFFFF);
+      value = state.getMemory().read16Bits(((regI.read() << 8) & 0xFFFF | 0xff) & 0xFFFF);
     } else {
       value = 0x0038;
     }
     pc.write(value);
-    state.getMemptr().write(value);
+    memptr.write(value);
   }
 
-  @Override
   public void endInterruption() {
   }
 
@@ -120,17 +122,14 @@ public class OOZ80 implements Z80Cpu {
     instructionFetcher.reset();
   }
 
-  @Override
   public InstructionFetcher getInstructionFetcher() {
     return instructionFetcher;
   }
 
-  @Override
   public State getState() {
     return state;
   }
 
-  @Override
   public InstructionExecutor getInstructionExecutor() {
     return instructionExecutor;
   }
