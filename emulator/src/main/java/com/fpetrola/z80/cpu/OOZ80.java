@@ -64,29 +64,21 @@ final public class OOZ80 implements Z80Cpu {
       interruption();
 
     Instruction instruction;
-    try {
-      instruction = execute(1);
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.out.println("Invalid instruction");
-      throw new RuntimeException(e);
-    }
-    if (state.isPendingEI() && !(instruction instanceof EI)) {
-      state.setPendingEI(false);
-      endInterruption();
-    }
-  }
-
-  public Instruction execute(int cycles) {
+    Instruction result;
     try {
       Instruction currentInstruction = instructionFetcher.fetchNextInstruction();
       instructionExecutor.execute(currentInstruction);
-//      instructionFetcher.afterExecute(currentInstruction);
-      return currentInstruction;
+      //      instructionFetcher.afterExecute(currentInstruction);
+      result = currentInstruction;
     } catch (Exception e) {
       e.printStackTrace();
       state.setRunState(State.RunState.STATE_STOPPED_BREAK);
-      return null;
+      result = null;
+    }
+    instruction = result;
+    if (state.isPendingEI() && !(instruction instanceof EI)) {
+      state.setPendingEI(false);
+      endInterruption();
     }
   }
 
