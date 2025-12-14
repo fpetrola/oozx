@@ -6,6 +6,7 @@ import org.objectweb.asm.*;
 import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.*;
 import java.util.jar.*;
 
 public class OfflineTransformer {
@@ -111,28 +112,8 @@ public class OfflineTransformer {
         public MethodVisitor visitMethod(int access, String name, String descriptor,
                                          String signature, String[] exceptions) {
           MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
-          return new MethodVisitor(Opcodes.ASM9, mv) {
-            @Override
-            public void visitMethodInsn(int opcode, String owner, String name,
-                                        String descriptor, boolean isInterface) {
-              if (opcode == Opcodes.INVOKEVIRTUAL && !isInterface) {
-                // No transformamos nuestras propias clases para evitar recursión
-                if (owner.startsWith("agent/")) {
-                  super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
-                  return;
-                }
-
-                super.visitInvokeDynamicInsn(
-                    name,
-                    descriptor,
-                    BOOTSTRAP_HANDLE,
-                    owner, name, descriptor
-                );
-              } else {
-                super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
-              }
-            }
-          };
+          // Usar rastreador de tipos concretos del receiver
+          return new TypeTracker(Opcodes.ASM9, mv);
         }
       };
 
@@ -141,6 +122,126 @@ public class OfflineTransformer {
     } catch (Exception e) {
       System.err.println("Error transformando clase: " + e.getMessage());
       return original; // Devuelve original si falla
+    }
+  }
+
+  /**
+   * Rastreador de tipos concretos en el stack para devirtualizar invokevirtual.
+   * Determina el tipo real del receiver y lo pasa como parámetro bootstrap.
+   */
+  private static class TypeTracker extends MethodVisitor {
+    private final Map<Integer, String> localVarTypes = new HashMap<>();
+    private final Deque<String> stack = new ArrayDeque<>();
+
+    public TypeTracker(int api, MethodVisitor mv) {
+      super(api, mv);
+    }
+
+    @Override
+    public void visitCode() {
+      super.visitCode();
+      // Local 0 es siempre 'this'
+      localVarTypes.put(0, "java/lang/Object");
+    }
+
+    @Override
+    public void visitVarInsn(int opcode, int var) {
+      super.visitVarInsn(opcode, var);
+
+      switch (opcode) {
+        case Opcodes.ALOAD:
+          String varType = localVarTypes.getOrDefault(var, "java/lang/Object");
+          stack.push(varType);
+          break;
+        case Opcodes.ASTORE:
+          if (!stack.isEmpty()) {
+            String type = stack.pop();
+            localVarTypes.put(var, type);
+          }
+          break;
+      }
+    }
+
+    @Override
+    public void visitFieldInsn(int opcode, String owner, String fieldName, String fieldDesc) {
+      super.visitFieldInsn(opcode, owner, fieldName, fieldDesc);
+
+      switch (opcode) {
+        case Opcodes.GETFIELD:
+          if (!stack.isEmpty()) stack.pop();
+          String fieldType = extractClassName(fieldDesc);
+          stack.push(fieldType);
+          break;
+        case Opcodes.PUTFIELD:
+          if (!stack.isEmpty()) stack.pop();
+          if (!stack.isEmpty()) stack.pop();
+          break;
+        case Opcodes.GETSTATIC:
+          stack.push(extractClassName(fieldDesc));
+          break;
+        case Opcodes.PUTSTATIC:
+          if (!stack.isEmpty()) stack.pop();
+          break;
+      }
+    }
+
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name,
+                                String descriptor, boolean isInterface) {
+      if (opcode == Opcodes.INVOKEVIRTUAL && !isInterface && !owner.startsWith("agent/")) {
+        // Obtener tipo concreto del receiver desde el stack
+        String concreteReceiver = "java/lang/Object";
+        if (!stack.isEmpty()) {
+          String potentialType = stack.peek();
+          if (potentialType != null && !potentialType.equals("java/lang/Object")) {
+            concreteReceiver = potentialType;
+          }
+        }
+
+        // Transformar a invokedynamic con el tipo concreto
+        mv.visitInvokeDynamicInsn(
+            name,
+            descriptor,
+            BOOTSTRAP_HANDLE,
+            concreteReceiver, name, descriptor
+        );
+
+        // Limpiar stack
+        Type[] args = Type.getArgumentTypes(descriptor);
+        if (!stack.isEmpty()) stack.pop(); // receiver
+        for (Type arg : args) {
+          if (!stack.isEmpty()) stack.pop();
+        }
+
+        // Pushear return type
+        Type retType = Type.getReturnType(descriptor);
+        if (retType != Type.VOID_TYPE) {
+          stack.push(retType.getInternalName());
+        }
+      } else {
+        super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+
+        // Actualizar stack también para métodos no transformados
+        Type[] args = Type.getArgumentTypes(descriptor);
+        if (opcode == Opcodes.INVOKEVIRTUAL || opcode == Opcodes.INVOKEINTERFACE) {
+          if (!stack.isEmpty()) stack.pop(); // receiver
+        }
+        for (Type arg : args) {
+          if (!stack.isEmpty()) stack.pop();
+        }
+        Type retType = Type.getReturnType(descriptor);
+        if (retType != Type.VOID_TYPE) {
+          stack.push(retType.getInternalName());
+        }
+      }
+    }
+
+    private String extractClassName(String desc) {
+      // "Ljava/lang/String;" -> "java/lang/String"
+      if (desc.startsWith("L") && desc.endsWith(";")) {
+        return desc.substring(1, desc.length() - 1);
+      }
+      return "java/lang/Object";
     }
   }
 }

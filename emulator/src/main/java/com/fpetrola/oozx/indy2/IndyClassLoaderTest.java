@@ -8,7 +8,8 @@ public class IndyClassLoaderTest {
 
   public static void main(String[] args) {
     Dog a = new Dog();
-    new IndyClassLoaderTest().callSpeak(a);
+    IndyClassLoaderTest indyClassLoaderTest = new IndyClassLoaderTest();
+    indyClassLoaderTest.callSpeak(a);
   }
 }
 
