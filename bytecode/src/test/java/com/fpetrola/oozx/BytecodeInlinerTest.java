@@ -521,7 +521,7 @@ public class BytecodeInlinerTest {
 
   // ============ Helpers para crear instrucciones de prueba ============
 
-  private static Ld getLd1() {
+  public static Ld getLd1() {
     var target = new MemoryPlusRegister8BitReference(
         new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
     );

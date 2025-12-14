@@ -75,7 +75,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class FRegister implements Register {
+  final public class FRegister implements Register {
 
 
     public FRegister() {
@@ -111,7 +111,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class BRegister implements Register {
+  final public class BRegister implements Register {
 
 
     public BRegister() {
@@ -147,7 +147,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class CRegister implements Register {
+  final public class CRegister implements Register {
 
 
     public CRegister() {
@@ -183,7 +183,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class DRegister implements Register {
+  final public class DRegister implements Register {
 
 
     public DRegister() {
@@ -219,7 +219,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class ERegister implements Register {
+  final public class ERegister implements Register {
 
 
     public ERegister() {
@@ -255,7 +255,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class HRegister implements Register {
+  final public class HRegister implements Register {
 
 
     public HRegister() {
@@ -291,7 +291,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class LRegister implements Register {
+  final public class LRegister implements Register {
 
 
     public LRegister() {
@@ -327,7 +327,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class IRegister implements Register {
+  final public class IRegister implements Register {
 
 
     public IRegister() {
@@ -391,7 +391,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class AxRegister implements Register {
+  final public class AxRegister implements Register {
 
 
     public AxRegister() {
@@ -427,7 +427,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class FxRegister implements Register {
+  final public class FxRegister implements Register {
 
 
     public FxRegister() {
@@ -463,7 +463,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class BxRegister implements Register {
+  final public class BxRegister implements Register {
 
 
     public BxRegister() {
@@ -499,7 +499,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class CxRegister implements Register {
+  final public class CxRegister implements Register {
 
 
     public CxRegister() {
@@ -535,7 +535,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class DxRegister implements Register {
+  final public class DxRegister implements Register {
 
 
     public DxRegister() {
@@ -571,7 +571,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class ExRegister implements Register {
+  final public class ExRegister implements Register {
 
 
     public ExRegister() {
@@ -607,7 +607,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class HxRegister implements Register {
+  final public class HxRegister implements Register {
 
 
     public HxRegister() {
@@ -643,7 +643,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class LxRegister implements Register {
+  final public class LxRegister implements Register {
 
 
     public LxRegister() {
@@ -679,7 +679,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class IXHRegister implements Register {
+  final public class IXHRegister implements Register {
 
 
     public IXHRegister() {
@@ -715,7 +715,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class IXLRegister implements Register {
+  final public class IXLRegister implements Register {
 
 
     public IXLRegister() {
@@ -751,7 +751,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class IYHRegister implements Register {
+  final public class IYHRegister implements Register {
 
 
     public IYHRegister() {
@@ -787,7 +787,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class IYLRegister implements Register {
+  final public class IYLRegister implements Register {
 
 
     public IYLRegister() {
@@ -823,7 +823,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class AFRegister implements RegisterPair {
+  final public class AFRegister implements RegisterPair {
 
     private final ARegister high;
     private final FRegister low;
@@ -878,7 +878,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class BCRegister implements RegisterPair {
+  final public class BCRegister implements RegisterPair {
 
     private final BRegister high;
     private final CRegister low;
@@ -933,7 +933,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class DERegister implements RegisterPair {
+  final public class DERegister implements RegisterPair {
 
     private final DRegister high;
     private final ERegister low;
@@ -988,7 +988,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class HLRegister implements RegisterPair {
+  final public class HLRegister implements RegisterPair {
 
     private final HRegister high;
     private final LRegister low;
@@ -1043,7 +1043,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class IRRegister implements RegisterPair {
+  final public class IRRegister implements RegisterPair {
 
     private final Register high;
     private final Register low;
@@ -1104,7 +1104,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class AFxRegister implements RegisterPair {
+  final public class AFxRegister implements RegisterPair {
 
     private final Register high;
     private final Register low;
@@ -1152,7 +1152,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class BCxRegister implements RegisterPair {
+  final public class BCxRegister implements RegisterPair {
 
     private final Register high;
     private final Register low;
@@ -1200,7 +1200,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class DExRegister implements RegisterPair {
+  final public class DExRegister implements RegisterPair {
 
     private final Register high;
     private final Register low;
@@ -1248,7 +1248,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class HLxRegister implements RegisterPair {
+  final public class HLxRegister implements RegisterPair {
 
     private final Register high;
     private final Register low;
@@ -1296,7 +1296,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class IXRegister implements RegisterPair {
+  final public class IXRegister implements RegisterPair {
 
     private final Register high;
     private final Register low;
@@ -1344,7 +1344,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class IYRegister implements RegisterPair {
+  final public class IYRegister implements RegisterPair {
 
     private final Register high;
     private final Register low;
@@ -1392,7 +1392,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class PCRegister implements Register {
+  final public class PCRegister implements Register {
 
 
     public PCRegister() {
@@ -1429,7 +1429,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class SPRegister implements Register {
+  final public class SPRegister implements Register {
 
 
     public SPRegister() {
@@ -1466,7 +1466,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class MEMPTRRegister implements Register {
+  final public class MEMPTRRegister implements Register {
 
 
     public MEMPTRRegister() {
@@ -1503,7 +1503,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class VirtualRegister implements Register {
+  final public class VirtualRegister implements Register {
 
 
     public VirtualRegister() {
