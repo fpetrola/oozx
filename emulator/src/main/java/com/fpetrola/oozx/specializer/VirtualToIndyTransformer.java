@@ -10,12 +10,32 @@ import java.lang.invoke.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.ProtectionDomain;
 
 public class VirtualToIndyTransformer {
 
   private static int l = 1;
+  private static void saveBytecode(String className, byte[] bytecode) {
+    try {
+      Path OUTPUT_DIR= Path.of("specialized_classes");
+      Files.createDirectories(OUTPUT_DIR);
 
+      // Convertir nombre de clase a ruta: com.example.MyClass -> com/example/MyClass.class
+      String filePath = className.replace('.', '/') + ".class";
+      Path outputPath = OUTPUT_DIR.resolve(filePath);
+
+      // Crear directorios si no existen
+      Files.createDirectories(outputPath.getParent());
+
+      Files.write(outputPath, bytecode);
+      System.out.println("[VirtualToIndyTransformer] Bytecode guardado: " + outputPath.toAbsolutePath());
+    } catch (Exception e) {
+      System.err.println("[VirtualToIndyTransformer] Error guardando bytecode: " + e.getMessage());
+      e.printStackTrace();
+    }
+  }
   /**
    * Crea una versión especializada de la instancia: genera una subclase donde
    * todas las llamadas virtuales se convierten en invokedynamic.
@@ -36,6 +56,7 @@ public class VirtualToIndyTransformer {
 
     byte[] transformedBytes = transformClass(concreteClass, original, specializedName);
 
+    saveBytecode(specializedName, transformedBytes);
     ClassLoader loader = concreteClass.getClassLoader();
     Class<?> specializedClass = new CustomClassLoader(loader)
         .defineClass(specializedName.replace('.', '/'), transformedBytes);
