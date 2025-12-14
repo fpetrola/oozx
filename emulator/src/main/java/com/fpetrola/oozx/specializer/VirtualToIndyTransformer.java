@@ -13,6 +13,9 @@ import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.ProtectionDomain;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class VirtualToIndyTransformer {
 
@@ -124,37 +127,8 @@ public class VirtualToIndyTransformer {
         MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
         
         // Envolver para transformar invokevirtual/invokeinterface en invokedynamic
-        return new MethodVisitor(Opcodes.ASM9, mv) {
-          @Override
-          public void visitMethodInsn(int opcode, String owner, String methodName, 
-                                      String methodDesc, boolean isInterface) {
-            // Transformar invokevirtual e invokeinterface en invokedynamic
-            // si el owner es compatible con la clase original
-            if ((opcode == Opcodes.INVOKEVIRTUAL || opcode == Opcodes.INVOKEINTERFACE) &&
-                isAssignableFrom(concreteClass, Type.getObjectType(owner).getClassName())) {
-
-              // Bootstrap method que vinculará la llamada a la instancia real
-              Handle bsm = new Handle(
-                  Opcodes.H_INVOKESTATIC,
-                  Type.getInternalName(Bootstrap.class),
-                  "bootstrap",
-                  MethodType.methodType(
-                      CallSite.class,
-                      MethodHandles.Lookup.class,
-                      String.class,
-                      MethodType.class,
-                      Object.class
-                  ).toMethodDescriptorString(),
-                  false
-              );
-
-              // Crear invokedynamic que pasará la instancia como constante
-              mv.visitInvokeDynamicInsn(methodName, methodDesc, bsm, instance);
-            } else {
-              super.visitMethodInsn(opcode, owner, methodName, methodDesc, isInterface);
-            }
-          }
-        };
+        // con análisis de flujo de datos para rastrear tipos concretos
+        return new FieldAndTypeTracker(Opcodes.ASM9, mv, concreteClass, instance);
       }
     };
 
@@ -202,6 +176,180 @@ public class VirtualToIndyTransformer {
         }
       }
       clazz = clazz.getSuperclass();
+    }
+  }
+
+  /**
+   * MethodVisitor que rastrea tipos concretos de variables y campos
+   * para transformar invokevirtual/invokeinterface en invokedynamic
+   * con el tipo concreto del receptor, no solo el tipo declarado.
+   */
+  private static class FieldAndTypeTracker extends MethodVisitor {
+    private final Class<?> concreteClass;
+    private final Object instance;
+    private final Map<Integer, String> localVarTypes = new HashMap<>(); // var index -> type name
+    private final Deque<String> stack = new ArrayDeque<>(); // tipo del top del stack
+    private boolean trackingEnabled = true;
+
+    public FieldAndTypeTracker(int api, MethodVisitor mv, Class<?> concreteClass, Object instance) {
+      super(api, mv);
+      this.concreteClass = concreteClass;
+      this.instance = instance;
+    }
+
+    @Override
+    public void visitCode() {
+      super.visitCode();
+      // Al iniciar el método, 'this' está en local 0
+      localVarTypes.put(0, concreteClass.getName());
+    }
+
+    @Override
+    public void visitVarInsn(int opcode, int var) {
+      super.visitVarInsn(opcode, var);
+      
+      if (!trackingEnabled) return;
+
+      // ALOAD/ASTORE: carga/almacena referencia
+      switch (opcode) {
+        case Opcodes.ALOAD:
+          // Cargar variable al stack
+          String varType = localVarTypes.getOrDefault(var, "java/lang/Object");
+          stack.push(varType);
+          break;
+        case Opcodes.ASTORE:
+          // Almacenar top del stack en variable
+          if (!stack.isEmpty()) {
+            String type = stack.pop();
+            localVarTypes.put(var, type);
+          }
+          break;
+        case Opcodes.DLOAD:
+        case Opcodes.LLOAD:
+          // Estos usan 2 slots, ignorar
+          break;
+        case Opcodes.DSTORE:
+        case Opcodes.LSTORE:
+          break;
+      }
+    }
+
+    @Override
+    public void visitFieldInsn(int opcode, String owner, String fieldName, String fieldDesc) {
+      super.visitFieldInsn(opcode, owner, fieldName, fieldDesc);
+      
+      if (!trackingEnabled) return;
+
+      switch (opcode) {
+        case Opcodes.GETFIELD:
+          // Obtener campo: pop object, push field value
+          if (!stack.isEmpty()) stack.pop(); // quitar object del stack
+          // Rastrear el tipo del campo
+          String fieldType = extractClassNameFromDescriptor(fieldDesc);
+          stack.push(fieldType);
+          break;
+        case Opcodes.PUTFIELD:
+          // Setear campo: pop value, pop object
+          if (!stack.isEmpty()) stack.pop(); // value
+          if (!stack.isEmpty()) stack.pop(); // object
+          break;
+        case Opcodes.GETSTATIC:
+          stack.push(extractClassNameFromDescriptor(fieldDesc));
+          break;
+        case Opcodes.PUTSTATIC:
+          if (!stack.isEmpty()) stack.pop();
+          break;
+      }
+    }
+
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String methodName,
+                                String methodDesc, boolean isInterface) {
+      if ((opcode == Opcodes.INVOKEVIRTUAL || opcode == Opcodes.INVOKEINTERFACE) &&
+          trackingEnabled && isAssignableFrom(concreteClass, Type.getObjectType(owner).getClassName())) {
+
+        // Intentar obtener el tipo concreto del receptor desde el stack
+        String concreteReceiverType = null;
+        
+        if (!stack.isEmpty()) {
+          // El top del stack es el receiver (objeto sobre el cual se invoca el método)
+          String potentialType = stack.peek();
+          if (potentialType != null && !potentialType.equals("java/lang/Object")) {
+            concreteReceiverType = potentialType;
+          }
+        }
+
+        // Si no pudimos rastrear el tipo, usar el tipo concreto de la instancia
+        if (concreteReceiverType == null) {
+          concreteReceiverType = Type.getInternalName(concreteClass);
+        }
+
+        // Transformar a invokedynamic con el tipo concreto
+        transformToInvokeDynamic(methodName, methodDesc, concreteReceiverType);
+      } else {
+        super.visitMethodInsn(opcode, owner, methodName, methodDesc, isInterface);
+      }
+
+      // Actualizar stack con el return type del método
+      if (trackingEnabled) {
+        Type returnType = Type.getReturnType(methodDesc);
+        if (returnType != Type.VOID_TYPE) {
+          // Contar args para saber cuántos items sacar del stack
+          int argCount = Type.getArgumentTypes(methodDesc).length;
+          // Sacar el receiver + args
+          for (int i = 0; i <= argCount; i++) {
+            if (!stack.isEmpty()) stack.pop();
+          }
+          stack.push(returnType.getInternalName());
+        } else {
+          // Void: solo sacar receiver + args
+          int argCount = Type.getArgumentTypes(methodDesc).length;
+          for (int i = 0; i <= argCount; i++) {
+            if (!stack.isEmpty()) stack.pop();
+          }
+        }
+      }
+    }
+
+    private void transformToInvokeDynamic(String methodName, String methodDesc, String receiverType) {
+      Handle bsm = new Handle(
+          Opcodes.H_INVOKESTATIC,
+          Type.getInternalName(Bootstrap.class),
+          "bootstrap",
+          MethodType.methodType(
+              CallSite.class,
+              MethodHandles.Lookup.class,
+              String.class,
+              MethodType.class,
+              Object.class
+          ).toMethodDescriptorString(),
+          false
+      );
+
+      // Pasar instancia como constante
+      mv.visitInvokeDynamicInsn(methodName, methodDesc, bsm, instance);
+      
+      // Actualizar metadata con el tipo concreto usado
+      System.out.println("[FieldAndTypeTracker] Transformado: " + methodName + 
+                         " con receiver concreto: " + receiverType);
+    }
+
+    private String extractClassNameFromDescriptor(String desc) {
+      // "L java/lang/String;" -> "java/lang/String"
+      if (desc.startsWith("L") && desc.endsWith(";")) {
+        return desc.substring(1, desc.length() - 1);
+      }
+      return desc;
+    }
+
+    @Override
+    public void visitInsn(int opcode) {
+      super.visitInsn(opcode);
+      
+      // Simplificar: marcar como no rastreable si hay operaciones complejas
+      if (opcode == Opcodes.ATHROW || opcode == Opcodes.MONITORENTER || opcode == Opcodes.MONITOREXIT) {
+        trackingEnabled = false;
+      }
     }
   }
 
