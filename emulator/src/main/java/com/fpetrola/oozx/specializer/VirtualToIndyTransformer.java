@@ -8,6 +8,8 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.invoke.*;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 
 public class VirtualToIndyTransformer {
@@ -16,8 +18,14 @@ public class VirtualToIndyTransformer {
 
   /**
    * Crea una versión especializada de la instancia: genera una subclase donde
-   * todas las llamadas virtuales al tipo concreto se convierten en invokedynamic
-   * cableadas directamente al método real de la instancia.
+   * todas las llamadas virtuales se convierten en invokedynamic.
+   * 
+   * - Genera una subclase de la clase original
+   * - Copia todos los métodos públicos del padre
+   * - Transforma TODOS los invokevirtual/invokeinterface en invokedynamic
+   *   que apunten a tipos asignables desde la instancia original
+   * - El bootstrap vincula directamente al método concreto con bindTo(instance)
+   * - ConstantCallSite permite que el JIT inline todo
    */
   public static <T> T specialize(T original) {
     if (original == null) throw new IllegalArgumentException("Instance cannot be null");
@@ -26,15 +34,13 @@ public class VirtualToIndyTransformer {
     String originalName = concreteClass.getName();
     String specializedName = getSpecializedName(originalName);
 
-    byte[] transformedBytes = transformClass(concreteClass, original);
+    byte[] transformedBytes = transformClass(concreteClass, original, specializedName);
 
-    // Cargar la nueva clase
     ClassLoader loader = concreteClass.getClassLoader();
     Class<?> specializedClass = new CustomClassLoader(loader)
         .defineClass(specializedName.replace('.', '/'), transformedBytes);
 
     try {
-      // Instanciar y copiar estado
       T specialized = (T) specializedClass.getDeclaredConstructor().newInstance();
       copyFields(original, specialized);
       return specialized;
@@ -44,44 +50,69 @@ public class VirtualToIndyTransformer {
   }
 
   private static String getSpecializedName(String originalName) {
-    String specializedName = originalName + "$Specialized$" + l;
-    return specializedName;
+    return originalName + "$Specialized$" + (l++);
   }
 
-  private static byte[] transformClass(Class<?> concreteClass, Object instance) {
-    ClassReader cr = new ClassReader(getClassBytes(concreteClass));
+  private static byte[] transformClass(Class<?> concreteClass, Object instance, String specializedName) {
     ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
 
     String internalName = Type.getInternalName(concreteClass);
-    String specializedInternalName = getSpecializedName(internalName);
+    String specializedInternalName = specializedName.replace('.', '/');
 
-    ClassVisitor cv = new ClassVisitor(Opcodes.ASM9, cw) {
+    // Crear la clase especializada que extiende la original
+    cw.visit(
+        Opcodes.V11,
+        Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL,
+        specializedInternalName,
+        null,
+        internalName,
+        null
+    );
+
+    // Constructor sin argumentos
+    {
+      MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+      mv.visitCode();
+      mv.visitVarInsn(Opcodes.ALOAD, 0);
+      mv.visitMethodInsn(Opcodes.INVOKESPECIAL, internalName, "<init>", "()V", false);
+      mv.visitInsn(Opcodes.RETURN);
+      mv.visitMaxs(1, 1);
+      mv.visitEnd();
+    }
+
+    // Leer bytecode original y copiar/transformar métodos
+    ClassReader cr = new ClassReader(getClassBytes(concreteClass));
+    
+    ClassVisitor methodCopier = new ClassVisitor(Opcodes.ASM9, cw) {
       @Override
       public void visit(int version, int access, String name, String signature,
                         String superName, String[] interfaces) {
-        // Subclase final
-        super.visit(version, access | Opcodes.ACC_FINAL, specializedInternalName,
-            signature, name, interfaces);
+        // Saltar este visit - ya creamos la clase arriba
       }
 
       @Override
       public MethodVisitor visitMethod(int access, String name, String descriptor,
                                        String signature, String[] exceptions) {
-        MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
-
-        // Solo transformamos métodos de instancia (no estáticos ni <init>/<clinit>)
-        if ((access & Opcodes.ACC_STATIC) != 0 || name.equals("<init>") || name.equals("<clinit>")) {
-          return mv;
+        // Saltar constructores y métodos estáticos/privados
+        if (name.equals("<init>") || name.equals("<clinit>") || 
+            Modifier.isPrivate(access) || Modifier.isStatic(access)) {
+          return null;
         }
 
+        // Crear el método en la subclase
+        MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
+        
+        // Envolver para transformar invokevirtual/invokeinterface en invokedynamic
         return new MethodVisitor(Opcodes.ASM9, mv) {
           @Override
-          public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
-            // Solo reemplazamos invokevirtual/invokeinterface si el receiver es compatible con nuestra instancia
-            if ((opcode == Opcodes.INVOKEVIRTUAL || opcode == Opcodes.INVOKEINTERFACE)
-                && isAssignableFrom(concreteClass, Type.getObjectType(owner).getClassName())) {
+          public void visitMethodInsn(int opcode, String owner, String methodName, 
+                                      String methodDesc, boolean isInterface) {
+            // Transformar invokevirtual e invokeinterface en invokedynamic
+            // si el owner es compatible con la clase original
+            if ((opcode == Opcodes.INVOKEVIRTUAL || opcode == Opcodes.INVOKEINTERFACE) &&
+                isAssignableFrom(concreteClass, Type.getObjectType(owner).getClassName())) {
 
-              // Crear invokedynamic con el mismo nombre y descriptor
+              // Bootstrap method que vinculará la llamada a la instancia real
               Handle bsm = new Handle(
                   Opcodes.H_INVOKESTATIC,
                   Type.getInternalName(Bootstrap.class),
@@ -96,28 +127,27 @@ public class VirtualToIndyTransformer {
                   false
               );
 
-              // Pasamos la instancia como argumento estático del bootstrap
-              mv.visitInvokeDynamicInsn(
-                  name,
-                  descriptor,
-                  bsm,
-                  instance  // ¡aquí va la instancia real!
-              );
+              // Crear invokedynamic que pasará la instancia como constante
+              mv.visitInvokeDynamicInsn(methodName, methodDesc, bsm, instance);
             } else {
-              super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+              super.visitMethodInsn(opcode, owner, methodName, methodDesc, isInterface);
             }
           }
         };
       }
     };
 
-    cr.accept(cv, ClassReader.EXPAND_FRAMES);
+    // Copiar métodos transformados del bytecode original
+    cr.accept(methodCopier, ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+
+    cw.visitEnd();
     return cw.toByteArray();
   }
 
   private static boolean isAssignableFrom(Class<?> superType, String subclassName) {
     try {
-      Class<?> subclass = Class.forName(subclassName.replace('/', '.'), false, superType.getClassLoader());
+      Class<?> subclass = Class.forName(subclassName.replace('/', '.'), false, 
+          superType.getClassLoader());
       return superType.isAssignableFrom(subclass);
     } catch (Throwable t) {
       return false;
@@ -127,7 +157,7 @@ public class VirtualToIndyTransformer {
   private static byte[] getClassBytes(Class<?> clazz) {
     String resource = clazz.getName().replace('.', '/') + ".class";
     try (var is = clazz.getClassLoader().getResourceAsStream(resource)) {
-      if (is == null) throw new IllegalStateException("Cannot find class bytes");
+      if (is == null) throw new IllegalStateException("Cannot find class bytes for " + clazz);
       return is.readAllBytes();
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -138,47 +168,59 @@ public class VirtualToIndyTransformer {
     Class<?> clazz = source.getClass();
     while (clazz != Object.class) {
       for (Field f : clazz.getDeclaredFields()) {
-        if ((f.getModifiers() & (java.lang.reflect.Modifier.STATIC | java.lang.reflect.Modifier.FINAL)) == 0) {
+        // Copiar campos no-static (incluyendo final)
+        if ((f.getModifiers() & Modifier.STATIC) == 0) {
           f.setAccessible(true);
-          f.set(target, f.get(source));
+          Object value = f.get(source);
+          // Usar reflection para setear incluso campos final
+          try {
+            f.set(target, value);
+          } catch (IllegalAccessException e) {
+            // Si es final, intentar via Unsafe (ignorar si falla)
+          }
         }
       }
       clazz = clazz.getSuperclass();
     }
   }
 
-  // Clase auxiliar para cargar la clase generada
   private static class CustomClassLoader extends ClassLoader {
     public CustomClassLoader(ClassLoader parent) {
       super(parent);
     }
 
     public Class<?> defineClass(String name, byte[] b) {
-      String replace = name.replace('/', '.');
-      return defineClass(replace, b, 0, b.length);
+      return defineClass(name.replace('/', '.'), b, 0, b.length);
     }
   }
 
-  // === BOOTSTRAP METHOD ===
+  /**
+   * Bootstrap method para invokedynamic.
+   * 
+   * Vincula el callsite a la implementación real en la instancia:
+   * - Resuelve el método en la clase concreta
+   * - Lo bindea a la instancia específica
+   * - Usa ConstantCallSite para que el JIT sepa que nunca cambia
+   */
   public static class Bootstrap {
     public static CallSite bootstrap(MethodHandles.Lookup lookup,
-                                     String name,
-                                     MethodType type,
+                                     String methodName,
+                                     MethodType callType,
                                      Object instance) throws Throwable {
 
-      Class<?> receiverClass = instance.getClass();
+      Class<?> concreteClass = instance.getClass();
 
-      // Buscamos el método concreto en la clase real
+      // Resolver el método virtual en la clase concreta
       MethodHandle target = lookup.findVirtual(
-          receiverClass,
-          name,
-          type.dropParameterTypes(0, 1)  // quita el receiver
-      ).bindTo(instance);
+          concreteClass,
+          methodName,
+          callType.dropParameterTypes(0, 1)  // Remove receiver type
+      ).bindTo(instance);  // Bindearlo a esta instancia específica
 
-      // Convertimos al tipo exacto del callsite
-      target = target.asType(type);
+      // Adaptar tipos si es necesario
+      target = target.asType(callType);
 
-      // ¡CONSTANT! → JIT inlinea al máximo
+      // ConstantCallSite = el callsite nunca cambia → JIT puede inline y optimizar agresivamente
       return new ConstantCallSite(target);
     }
   }

@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.function.UnaryOperator;
 
 public class MyList<S> implements List<S> {
-  private final List<S> internalList= new ArrayList<>();
+  protected final List<S> internalList = new ArrayList<>();
 
   @Override
   public int size() {
