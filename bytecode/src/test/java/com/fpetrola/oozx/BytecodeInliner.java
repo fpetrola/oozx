@@ -432,15 +432,17 @@ public class BytecodeInliner {
                                          Variable memory, Variable address, String sourceRegName) {
      Variable source = mm.field(sourceRegName);
 
-     // Para LD, escribir directamente sin variable intermedia
+     // Leer valor de 16 bits desde la dirección
+     Variable value = mm.var(int.class);
+     value.set(memory.invoke("read16Bits", address));
+
+     // Para LD, escribir directamente el valor leído
      if (instruction instanceof Ld) {
-       memory.invoke("write16BitsReverse", source, address);
+       memory.invoke("write16BitsReverse", value, source);
        return;
      }
 
-     // Para XOR/OR: leer, aplicar operación y escribir
-     Variable value = mm.var(int.class);
-     value.set(memory.invoke("read16Bits", address));
+     // Para XOR/OR: aplicar operación y escribir
      Variable result = mm.var(int.class);
 
      if (instruction instanceof Xor) {

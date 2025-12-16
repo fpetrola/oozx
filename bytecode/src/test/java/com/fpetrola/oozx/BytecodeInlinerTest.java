@@ -118,9 +118,8 @@ public class BytecodeInlinerTest {
         
         public class LdBytecode extends Z80UnRolled {
            public void executeLdImr16IxD() {
-              int var1 = super.IX;
-              int var2 = super.memory.read16Bits(var1);
-              super.memory.write16BitsReverse(var2, super.D);
+              int var1 = super.memory.read16Bits(super.IX);
+              super.memory.write16BitsReverse(var1, super.D);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -559,17 +558,13 @@ public class BytecodeInlinerTest {
    * Compara el código fuente descompilado con el esperado
    */
   private void assertSourceEquals(String actual, String expectedSource) {
-    assertEquals(expectedSource.trim(), actual.trim(), "Source code does not match:\n\n" +
-                                                       "expected:\n" + expectedSource + "\n\n" +
-                                                       "actual:\n" + actual);
+    assertEquals(expectedSource.trim(), actual.trim(), "Source code does not match:\n\n" + "expected:\n" + expectedSource + "\n\n" + "actual:\n" + actual);
   }
 
   // ============ Helpers para crear instrucciones de prueba ============
 
   public static Ld getLd1() {
-    var target = new MemoryPlusRegister8BitReference(
-        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
-    );
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("A");
     return new Ld(target, source, new Plain8BitRegister("F"));
   }
@@ -595,17 +590,13 @@ public class BytecodeInlinerTest {
   }
 
   private static Xor getXor1() {
-    var target = new MemoryPlusRegister8BitReference(
-        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
-    );
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("C");
     return new Xor(target, source, new Plain8BitRegister("F"));
   }
 
   private static Or getOr1() {
-    var target = new MemoryPlusRegister8BitReference(
-        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
-    );
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("C");
     return new Or(target, source, new Plain8BitRegister("F"));
   }
@@ -637,9 +628,7 @@ public class BytecodeInlinerTest {
   }
 
   private static And getAnd1() {
-    var target = new MemoryPlusRegister8BitReference(
-        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
-    );
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("C");
     return new And(target, source, new Plain8BitRegister("F"));
   }
@@ -658,63 +647,47 @@ public class BytecodeInlinerTest {
   }
 
   private static Sub getSub1() {
-    var target = new MemoryPlusRegister8BitReference(
-        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
-    );
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("B");
     return new Sub(target, source, new Plain8BitRegister("F"));
   }
 
   private static Cp getCp1() {
-    var target = new MemoryPlusRegister8BitReference(
-        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
-    );
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("D");
     return new Cp(target, source, new Plain8BitRegister("F"));
   }
 
   private static Add getAdd1() {
-    var target = new MemoryPlusRegister8BitReference(
-        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
-    );
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("E");
     return new Add(target, source, new Plain8BitRegister("F"));
   }
 
   private static Adc getAdc1() {
-    var target = new MemoryPlusRegister8BitReference(
-        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
-    );
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("H");
     return new Adc(target, source, new Plain8BitRegister("F"));
   }
 
   private static Sbc getSbc1() {
-    var target = new MemoryPlusRegister8BitReference(
-        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
-    );
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("L");
     return new Sbc(target, source, new Plain8BitRegister("F"));
   }
 
   private static Dec getDec1() {
-    var target = new MemoryPlusRegister8BitReference(
-        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
-    );
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
     return new Dec(target, new Plain8BitRegister("F"));
   }
 
   private static Inc getInc1() {
-    var target = new MemoryPlusRegister8BitReference(
-        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
-    );
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
     return new Inc(target, new Plain8BitRegister("F"));
   }
 
   private static Neg getNeg1() {
-    var target = new MemoryPlusRegister8BitReference(
-        new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2
-    );
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
     return new Neg(target, new Plain8BitRegister("F"));
   }
 }
