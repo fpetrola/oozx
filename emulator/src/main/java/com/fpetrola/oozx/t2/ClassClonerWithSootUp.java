@@ -1,6 +1,5 @@
 package com.fpetrola.oozx.t2;
 
-import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import org.apache.commons.io.FileUtils;
 import org.cojen.maker.*;
 import sootup.core.IdentifierFactory;
@@ -22,11 +21,8 @@ import sootup.java.core.types.JavaClassType;
 import sootup.java.core.views.JavaView;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ClassClonerWithSootUp {
   public static void main(String[] args) {
@@ -65,20 +61,16 @@ public class ClassClonerWithSootUp {
     for (SootMethod sm : originalClass.getMethods()) {
       Set<MethodModifier> modifiers = sm.getModifiers();
       String returnType = sm.getReturnType().toString();
+      List<Type> parameterTypes1 = sm.getParameterTypes();
+      Object[] parameterTypes = getParameterTypes(parameterTypes1);
 
       MethodMaker methodMaker;
       if (sm.getName().equals("<init>") && returnType.equals("void")) {
-        methodMaker = cm.addConstructor();
+        methodMaker = cm.addConstructor(parameterTypes);
         methodMaker.invokeSuperConstructor();
       } else {
-        List<Type> parameterTypes1 = sm.getParameterTypes();
-        List<String> parameterTypes = new ArrayList<>();
-        for (Type pt : parameterTypes1) {
-          if (pt instanceof ClassType classType1){
-            parameterTypes.add(classType1.getFullyQualifiedName());
-          }
-        }
-        methodMaker = cm.addMethod(returnType, sm.getName(), parameterTypes.toArray(new Class[0]));
+
+        methodMaker = cm.addMethod(returnType, sm.getName(), parameterTypes);
       }
       MethodMaker mm = setModifiers(methodMaker, modifiers);
 
@@ -96,11 +88,18 @@ public class ClassClonerWithSootUp {
       }
 
       // Parámetros: En SootUp, params son locales con identity stmts; aquí asumimos mm.param(i) para params
-      for (int i = 0; i < sm.getParameterCount(); i++) {
+      int paramCount = sm.getParameterCount();
+      for (int i = 0; i < paramCount; i++) {
         // Encuentra el local correspondiente (típicamente el primero después de 'this')
         // Para precisión, recorre stmts para identity, pero simplificamos
-        Local paramLocal = body.getParameterLocal(i); // Si disponible, usa esto
-        localToVar.put(paramLocal, mm.param(i));
+        try {
+          Local paramLocal = body.getParameterLocal(i); // Si disponible, usa esto
+          if (paramLocal != null && i < paramCount) {
+            localToVar.put(paramLocal, mm.param(i));
+          }
+        } catch (Exception e) {
+          System.err.println("Error mapeando parámetro " + i + ": " + e.getMessage());
+        }
       }
 
       // Recorrer statements de Jimple y traducir a Maker (EJEMPLO BÁSICO)
@@ -112,22 +111,35 @@ public class ClassClonerWithSootUp {
           Value left = assign.getLeftOp();
           Value right = assign.getRightOp();
 
-          Variable leftVar = getVarFromValue(left, mm, localToVar);
-          Variable rightVar = getVarFromValue(right, mm, localToVar);
-
-          leftVar.set(rightVar);
+          try {
+            Variable leftVar = getVarFromValue(left, mm, localToVar);
+            Variable rightVar = getVarFromValue(right, mm, localToVar);
+            if (leftVar != null && rightVar != null) {
+              leftVar.set(rightVar);
+            }
+          } catch (Exception e) {
+            System.err.println("Error procesando assign: " + assign + " -> " + e.getMessage());
+          }
         } else if (stmt instanceof JReturnStmt) {
           JReturnStmt ret = (JReturnStmt) stmt;
           Variable retVar = getVarFromValue(ret.getOp(), mm, localToVar);
-          mm.return_(retVar);
+          if (retVar != null) {
+            mm.return_(retVar);
+          }
         } else if (stmt instanceof JIfStmt) {
           JIfStmt ifStmt = (JIfStmt) stmt;
           AbstractConditionExpr cond = (AbstractConditionExpr) ifStmt.getCondition();
-          Variable op1 = getVarFromValue(cond.getOp1(), mm, localToVar);
-          Variable op2 = getVarFromValue(cond.getOp2(), mm, localToVar);
-          Label elseLabel = mm.label();
-          op1.ifNe(op2, elseLabel); // Ajusta según cond (eq, ne, lt, etc.)
-          elseLabel.here();
+          try {
+            Variable op1 = getVarFromValue(cond.getOp1(), mm, localToVar);
+            Variable op2 = getVarFromValue(cond.getOp2(), mm, localToVar);
+            Label elseLabel = mm.label();
+            if (op1 != null && op2 != null) {
+              op1.ifNe(op2, elseLabel); // Ajusta según cond (eq, ne, lt, etc.)
+              elseLabel.here();
+            }
+          } catch (Exception e) {
+            System.err.println("Error procesando if: " + ifStmt + " -> " + e.getMessage());
+          }
         } else if (stmt instanceof JInvokeStmt) {
           // Implementa: mm.invoke(...)
         } else if (stmt instanceof JReturnVoidStmt) {
@@ -140,6 +152,23 @@ public class ClassClonerWithSootUp {
     // Finalizar y cargar
     byte[] clonedClass = cm.finishBytes();
     writeClass(clonedClass);
+  }
+
+  private static Class<?>[] getParameterTypes(List<Type> parameterTypes1) {
+    List<String> parameterTypes = new ArrayList<>();
+    for (Type pt : parameterTypes1) {
+      if (pt instanceof ClassType classType1){
+        parameterTypes.add(classType1.getFullyQualifiedName());
+      }
+    }
+    List<? extends Class<?>> parameterList = parameterTypes.stream().map(s -> {
+      try {
+        return Class.forName(s);
+      } catch (ClassNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+    }).toList();
+    return parameterList.toArray(new Class[0]);
   }
 
   private static void writeClass(byte[] clonedClass) {
@@ -163,16 +192,23 @@ public class ClassClonerWithSootUp {
   // Helper: Value de Jimple a Variable de Maker
   private static Variable getVarFromValue(Value value, MethodMaker mm, Map<Local, Variable> localToVar) {
     if (value instanceof Local) {
-      return localToVar.get((Local) value);
+      Local local = (Local) value;
+      Variable v = localToVar.get(local);
+      return v != null ? v : null;
     } else if (value instanceof IntConstant) {
-      return mm.var(int.class).set(((IntConstant) value).getValue());
+      int val = ((IntConstant) value).getValue();
+      return mm.var(int.class).set(val);
     } else if (value instanceof StringConstant) {
-      return mm.var(String.class).set(((StringConstant) value).getValue());
+      String val = ((StringConstant) value).getValue();
+      return mm.var(String.class).set(val);
     } else if (value instanceof JFieldRef) {
       JFieldRef fr = (JFieldRef) value;
       return mm.field(fr.getFieldSignature().getName()); // Ajusta instancia/static
+    } else if (value instanceof sootup.core.jimple.common.expr.AbstractInvokeExpr) {
+      // Para invocaciones, retorna null - no se puede representar con Maker sin contexto más complejo
+      return null;
     }
     // Agrega más: NullConstant, etc.
-    throw new UnsupportedOperationException("Value no soportado: " + value);
+    return null; // En lugar de lanzar excepción, retorna null
   }
 }
