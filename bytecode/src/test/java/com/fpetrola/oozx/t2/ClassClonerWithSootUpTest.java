@@ -102,7 +102,7 @@ public class ClassClonerWithSootUpTest extends TestHelper {
 
   @Test
   public void testClassClonerGeneratesValidBytecodeForMemory8BitReference() throws IOException {
-    String decompiledSource = cloneAndDecompile(IndirectMemory16BitReference.class.getName());
+    String decompiledSource = cloneAndDecompile(Memory8BitReference.class.getName());
 
     assertEquals("""
         package com.fpetrola.oozx.t2;
