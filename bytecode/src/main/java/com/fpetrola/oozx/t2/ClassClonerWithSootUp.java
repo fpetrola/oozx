@@ -26,12 +26,6 @@ import java.util.*;
 
 public class ClassClonerWithSootUp {
   public static void main(String[] args) {
-    args = new String[]{IndirectMemory8BitReference.class.getName()};
-    if (args.length < 1) {
-      System.err.println("Uso: java ClassClonerWithSootUp <nombreClaseOriginal>");
-      return;
-    }
-
     String originalClassName = args[0];
     String newClassName = originalClassName + "Clone";
 

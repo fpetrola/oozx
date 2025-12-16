@@ -1,7 +1,6 @@
 package com.fpetrola.oozx.t2;
 
 import com.fpetrola.z80.bytecode.Decompiler;
-import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
 import org.junit.Test;
 
 import java.io.File;
@@ -78,10 +77,6 @@ public class ClassClonerWithSootUpTest {
   private byte[] generateClonedBytecode(String originalClassName) throws IOException {
     // Guardar args en ClassClonerWithSootUp (usa reflection para ejecutar)
     try {
-      // Ejecutar la lógica de ClassClonerWithSootUp
-      ClassClonerWithSootUp cloner = new ClassClonerWithSootUp();
-
-      // Simular lo que hace el main
       String[] args = new String[]{originalClassName};
       ClassClonerWithSootUp.main(args);
 
