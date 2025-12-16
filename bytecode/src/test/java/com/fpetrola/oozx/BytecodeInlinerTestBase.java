@@ -47,15 +47,15 @@ public class BytecodeInlinerTestBase {
   }
 
   /**
-   * Test helper que genera una clase con múltiples instrucciones
-   */
-  protected String testBytecodeMultipleInstructionsOf(String className, Map<Integer, TargetSourceInstruction> instructions) throws IOException {
-    var analyzer = new InstructionAnalyzer();
-    lastInliner = setupInliner(analyzer);
-    String generatedClass = lastInliner.inlineMultipleInstructions(className, instructions.values());
+    * Test helper que genera una clase con múltiples instrucciones
+    */
+   protected String testBytecodeMultipleInstructionsOf(String className, Map<Integer, TargetSourceInstruction<?>> instructions) throws IOException {
+     var analyzer = new InstructionAnalyzer();
+     lastInliner = setupInliner(analyzer);
+     String generatedClass = lastInliner.inlineMultipleInstructions(className, instructions);
 
-    return getDecompiledSource(generatedClass);
-  }
+     return getDecompiledSource(generatedClass);
+   }
 
   /**
    * Configura un BytecodeInliner con el analyzer y directorio de salida

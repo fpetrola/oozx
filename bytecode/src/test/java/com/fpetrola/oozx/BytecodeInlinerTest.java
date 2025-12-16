@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -473,60 +474,59 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     var source = new Plain8BitRegister("E");
     var add = new Add(target, source, new Plain8BitRegister("F"));
 
-    Map<Integer, TargetSourceInstruction> instructions = Map.of(10, ld, 20, xor, 30, add);
+    Map<Integer, TargetSourceInstruction<?>> instructions = new TreeMap<>(Map.of(10, ld, 20, xor, 30, add));
     String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecode", instructions);
 
     String expectedSource = """
-        import com.fpetrola.oozx.Z80UnRolled;
+                import com.fpetrola.oozx.Z80UnRolled;
         
-        public class MultiInstructionBytecode extends Z80UnRolled {
-           public void executeLdMprfIxA() {
-              int var1 = super.PC + 2 & '\\uffff';
-              int var2 = super.memory.read(var1, 0);
-              int var3 = super.IX + var2 & '\\uffff';
-              super.memory.write(var3, super.A);
-           }
+                public class MultiInstructionBytecode extends Z80UnRolled {
+                   public void executeLdMprfIxA() {
+                      int var1 = super.PC + 2 & '\\uffff';
+                      int var2 = super.memory.read(var1, 0);
+                      int var3 = super.IX + var2 & '\\uffff';
+                      super.memory.write(var3, super.A);
+                   }
         
-           public void executeXorMprfIxC() {
-              int var1 = super.PC + 2 & '\\uffff';
-              int var2 = super.memory.read(var1, 0);
-              int var3 = super.IX + var2 & '\\uffff';
-              int var4 = super.memory.read(var3, 0);
-              int var5 = super.xorTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.F);
-              super.memory.write(var3, var5);
-           }
+                   public void executeXorMprfIxC() {
+                      int var1 = super.PC + 2 & '\\uffff';
+                      int var2 = super.memory.read(var1, 0);
+                      int var3 = super.IX + var2 & '\\uffff';
+                      int var4 = super.memory.read(var3, 0);
+                      int var5 = super.xorTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.F);
+                      super.memory.write(var3, var5);
+                   }
         
-           public void executeAddMprfIxE() {
-              int var1 = super.PC + 2 & '\\uffff';
-              int var2 = super.memory.read(var1, 0);
-              int var3 = super.IX + var2 & '\\uffff';
-              int var4 = super.memory.read(var3, 0);
-              int var5 = super.addTableAluOperation.execute2ValuesAndCarry(var4, super.E, super.F);
-              super.memory.write(var3, var5);
-           }
+                   public void executeAddMprfIxE() {
+                      int var1 = super.PC + 2 & '\\uffff';
+                      int var2 = super.memory.read(var1, 0);
+                      int var3 = super.IX + var2 & '\\uffff';
+                      int var4 = super.memory.read(var3, 0);
+                      int var5 = super.addTableAluOperation.execute2ValuesAndCarry(var4, super.E, super.F);
+                      super.memory.write(var3, var5);
+                   }
         
-           public void execute(int opcode) {
-              switch(opcode) {
-              case 10:
-                 this.executeLdMprfIxA();
-                 break;
-              case 20:
-                 this.executeXorMprfIxC();
-                 break;
-              case 30:
-                 this.executeAddMprfIxE();
-                 break;
-              default:
-                 StringBuilder var2 = new StringBuilder();
-                 var2.append("Invalid instruction index: ");
-                 var2.append(opcode);
-                 String var3 = var2.toString();
-                 throw new IllegalArgumentException(var3);
-              }
+                   public void execute(int opcode) {
+                      switch(opcode) {
+                      case 10:
+                         this.executeLdMprfIxA();
+                         break;
+                      case 20:
+                         this.executeXorMprfIxC();
+                         break;
+                      case 30:
+                         this.executeAddMprfIxE();
+                         break;
+                      default:
+                         StringBuilder var2 = new StringBuilder();
+                         var2.append("Invalid instruction index: ");
+                         var2.append(opcode);
+                         String var3 = var2.toString();
+                         throw new IllegalArgumentException(var3);
+                      }
         
-           }
-        }
-        """;
+                   }
+                }""";
     assertSourceEquals(actualSource, expectedSource);
   }
 
