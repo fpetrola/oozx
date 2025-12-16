@@ -350,8 +350,18 @@ public class BytecodeInliner {
   private void generateExecute(MethodMaker mm, TargetSourceInstruction ld, OpcodeReference target) {
      ImmutableOpcodeReference source = ld.getSource();
      // Solo procesar si el source es un Register
-     if (source instanceof Register) {
-       String sourceRegName = ((Register) source).getName();
+     if (source instanceof Register sourceReg) {
+       String sourceRegName = sourceReg.getName();
+       // Si target es también un Register (register-to-register)
+       if (target instanceof Register targetReg) {
+         if (ld instanceof Ld) {
+           String targetRegName = targetReg.getName();
+           Variable sourceValue = resolveRegisterValueByName(mm, sourceRegName);
+           Variable targetVar = mm.field(targetRegName);
+           targetVar.set(sourceValue);
+         }
+         return;
+       }
        generateAluExecute(mm, ld, target, sourceRegName);
      }
    }
