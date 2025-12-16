@@ -214,305 +214,135 @@ public class ClassClonerWithSootUp {
   // Helper: Generar body del método desde Jimple statements
   private static void generateMethodBody(MethodMaker mm, SootMethod sm, StmtGraph<?> stmtGraph,
                                          Map<Local, Variable> localToVar, String returnType) {
-    boolean foundReturn = false;
-    Map<Local, JFieldRef> localToField = new HashMap<>();
     Map<Local, Object> localValues = new HashMap<>();
 
-    // Primer paso: mapear locales a campos y procesar asignaciones
-    for (Stmt stmt : stmtGraph.getStmts()) {
-      if (stmt instanceof JAssignStmt) {
-        JAssignStmt assign = (JAssignStmt) stmt;
-        Object left = assign.getLeftOp();
-        Object right = assign.getRightOp();
-
-        if (left instanceof Local && right instanceof JFieldRef) {
-          localToField.put((Local) left, (JFieldRef) right);
-        }
-      }
-    }
-
-    // Segundo paso: procesar statements y generar código
     for (Stmt stmt : stmtGraph.getStmts()) {
       if (stmt instanceof JIdentityStmt) {
-        // Identity statements ya son manejados antes
         continue;
-      } else if (stmt instanceof JAssignStmt) {
-        JAssignStmt assign = (JAssignStmt) stmt;
-        Object left = assign.getLeftOp();
-        Object right = assign.getRightOp();
-
-        // Procesar asignación
-        if (left instanceof Local) {
-          Local leftLocal = (Local) left;
-
-          // Manejar invocaciones dentro de asignaciones
-          if (right instanceof JVirtualInvokeExpr || right instanceof JInterfaceInvokeExpr) {
-            Variable result = getInvokeExprResult(right, mm, localToVar, localValues);
-            if (result != null) {
-              localToVar.put(leftLocal, result);
-              localValues.put(leftLocal, result);
-            }
-          } else if (right instanceof JFieldRef) {
-            JFieldRef fr = (JFieldRef) right;
-            Variable fieldVar = mm.field(fr.getFieldSignature().getName());
-            localToVar.put(leftLocal, fieldVar);
-            localValues.put(leftLocal, fieldVar);
-          } else if (right instanceof Local) {
-            Local rightLocal = (Local) right;
-            Object val = localValues.getOrDefault(rightLocal, localToVar.get(rightLocal));
-            if (val != null) {
-              localValues.put(leftLocal, val);
-              if (val instanceof Variable) {
-                localToVar.put(leftLocal, (Variable) val);
-              }
-            }
-          } else if (right instanceof IntConstant) {
-            localValues.put(leftLocal, ((IntConstant) right).getValue());
-          }
-        } else if (left instanceof JFieldRef) {
-          JFieldRef fr = (JFieldRef) left;
-          try {
-            Object value = getValueOrVarFromValue(right, mm, localToVar, localValues);
-            if (value instanceof Variable) {
-              mm.field(fr.getFieldSignature().getName()).set((Variable) value);
-            }
-          } catch (Exception e) {
-            // Ignorar errores
-          }
-        }
-      } else if (stmt instanceof JReturnStmt) {
-        JReturnStmt ret = (JReturnStmt) stmt;
-        Object op = ret.getOp();
-
-        try {
-          if (op instanceof JFieldRef) {
-            // Retornar un campo directamente
-            JFieldRef fr = (JFieldRef) op;
-            mm.return_(mm.field(fr.getFieldSignature().getName()));
-            foundReturn = true;
-            break;
-          } else if (op instanceof Local) {
-            // Retornar una variable local
-            Local retLocal = (Local) op;
-            Object value = localValues.get(retLocal);
-            if (value instanceof Variable) {
-              mm.return_((Variable) value);
-              foundReturn = true;
-              break;
-            } else if (value instanceof Integer) {
-              mm.return_((Integer) value);
-              foundReturn = true;
-              break;
-            } else {
-              // Intenta obtener valor de campos
-              JFieldRef fr = localToField.get(retLocal);
-              if (fr != null) {
-                mm.return_(mm.field(fr.getFieldSignature().getName()));
-                foundReturn = true;
-                break;
-              }
-            }
-          }
-        } catch (Exception e) {
-          // Ignorar
-        }
+      } else if (stmt instanceof JAssignStmt assign) {
+        processAssignment(assign, mm, localToVar, localValues);
+      } else if (stmt instanceof JReturnStmt ret) {
+        if (processReturn(ret, mm, localToVar, localValues)) return;
       } else if (stmt instanceof JReturnVoidStmt) {
         mm.return_();
-      } else if (stmt instanceof JInvokeStmt) {
-        JInvokeStmt invokeStmt = (JInvokeStmt) stmt;
-        AbstractInvokeExpr invokeExpr = invokeStmt.getInvokeExpr().orElse(null);
-        if (invokeExpr == null) continue;
-
-        // Procesar invocaciones (virtual, special, interface, static)
-        if (invokeExpr instanceof JVirtualInvokeExpr) {
-          JVirtualInvokeExpr vInvoke = (JVirtualInvokeExpr) invokeExpr;
-          processVirtualInvoke(vInvoke, mm, localToVar, localValues);
-        } else if (invokeExpr instanceof JSpecialInvokeExpr) {
-          JSpecialInvokeExpr sInvoke = (JSpecialInvokeExpr) invokeExpr;
-          processSpecialInvoke(sInvoke, mm, localToVar);
-        } else if (invokeExpr instanceof JInterfaceInvokeExpr) {
-          JInterfaceInvokeExpr iInvoke = (JInterfaceInvokeExpr) invokeExpr;
-          processInterfaceInvoke(iInvoke, mm, localToVar, localValues);
-        }
+        return;
+      } else if (stmt instanceof JInvokeStmt invokeStmt) {
+        invokeStmt.getInvokeExpr().ifPresent(expr -> processInvocation(expr, mm, localToVar, localValues));
       }
     }
+    
+    generateDefaultReturn(mm, returnType);
+  }
 
-    // Si no encontramos un return válido, generar default
-    if (!foundReturn) {
-      if (returnType.equals("void")) {
-        mm.return_();
-      } else if (returnType.equals("int")) {
-        mm.return_(0);
-      } else if (returnType.equals("boolean")) {
-        mm.return_(false);
-      } else {
-        // Para objetos, retornar null
-        mm.return_(null);
+  private static void processAssignment(JAssignStmt assign, MethodMaker mm, 
+                                       Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
+    Object left = assign.getLeftOp();
+    Object right = assign.getRightOp();
+
+    if (left instanceof Local leftLocal) {
+      Object value = getValue(right, mm, localToVar, localValues);
+      if (value != null) {
+        if (value instanceof Variable var) localToVar.put(leftLocal, var);
+        localValues.put(leftLocal, value);
       }
+    } else if (left instanceof JFieldRef fr) {
+      setFieldValue(mm, fr.getFieldSignature().getName(), right, localToVar, localValues);
     }
   }
 
-  // Helper: Obtener resultado de invocación
-  private static Variable getInvokeExprResult(Object expr, MethodMaker mm, Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
-    if (expr instanceof JVirtualInvokeExpr) {
-      JVirtualInvokeExpr vInvoke = (JVirtualInvokeExpr) expr;
-      Variable baseVar = getVarFromValue(vInvoke.getBase(), mm, localToVar);
-      if (baseVar != null) {
-        String methodName = vInvoke.getMethodSignature().getName();
-        Object[] args = buildArgArray(vInvoke.getArgs(), mm, localToVar, localValues);
-        return (Variable) baseVar.invoke(methodName, args);
-      }
-    } else if (expr instanceof JInterfaceInvokeExpr) {
-      JInterfaceInvokeExpr iInvoke = (JInterfaceInvokeExpr) expr;
-      Variable baseVar = getVarFromValue(iInvoke.getBase(), mm, localToVar);
-      if (baseVar != null) {
-        String methodName = iInvoke.getMethodSignature().getName();
-        Object[] args = buildArgArray(iInvoke.getArgs(), mm, localToVar, localValues);
-        return (Variable) baseVar.invoke(methodName, args);
-      }
-    }
-    return null;
-  }
-
-  // Helper: Traducir invocación de método
-  private static void translateInvoke(AbstractInvokeExpr invokeExpr, MethodMaker mm,
-                                      Map<Local, Variable> localToVar) {
-    String methodName = invokeExpr.getMethodSignature().getName();
-
-    // Ignorar invocaciones a constructores (<init>)
-    if (methodName.equals("<init>")) {
-      return;
-    }
-
-    List<? extends Immediate> args = invokeExpr.getArgs();
-    Object[] argVars = new Object[args.size()];
-
-    for (int i = 0; i < args.size(); i++) {
-      Immediate arg = args.get(i);
-      if (arg instanceof Local) {
-        Local local = (Local) arg;
-        Variable v = localToVar.get(local);
-        argVars[i] = v;
-      } else if (arg instanceof IntConstant) {
-        argVars[i] = ((IntConstant) arg).getValue();
-      }
-    }
-
-    // Obtener el objeto sobre el que se invoca (para métodos instancia)
-    if (invokeExpr instanceof JVirtualInvokeExpr) {
-      JVirtualInvokeExpr vInvoke = (JVirtualInvokeExpr) invokeExpr;
-      Object base = vInvoke.getBase();
-      Variable baseVar = getVarFromValue(base, mm, localToVar);
-      if (baseVar != null) {
-        baseVar.invoke(methodName, argVars);
-      }
-    } else if (invokeExpr instanceof JSpecialInvokeExpr) {
-      JSpecialInvokeExpr sInvoke = (JSpecialInvokeExpr) invokeExpr;
-      Object base = sInvoke.getBase();
-      Variable baseVar = getVarFromValue(base, mm, localToVar);
-      if (baseVar != null) {
-        baseVar.invoke(methodName, argVars);
-      }
+  private static void setFieldValue(MethodMaker mm, String fieldName, Object value,
+                                   Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
+    Object val = getValue(value, mm, localToVar, localValues);
+    if (val instanceof Variable var) {
+      mm.field(fieldName).set(var);
     }
   }
 
-  // Helper: Value de Jimple a Variable de Maker o resultado de invocación
-  private static Object getValueOrVarFromValue(Object value, MethodMaker mm, Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
-    if (value instanceof Local) {
-      Local local = (Local) value;
-      Object val = localValues.get(local);
-      if (val != null) return val;
-      return localToVar.get(local);
-    } else if (value instanceof IntConstant) {
-      return ((IntConstant) value).getValue();
-    } else if (value instanceof StringConstant) {
-      return ((StringConstant) value).getValue();
-    } else if (value instanceof JFieldRef) {
-      JFieldRef fr = (JFieldRef) value;
+  private static boolean processReturn(JReturnStmt ret, MethodMaker mm,
+                                      Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
+    Object value = getValue(ret.getOp(), mm, localToVar, localValues);
+    if (value instanceof Variable var) {
+      mm.return_(var);
+    } else if (value instanceof Integer i) {
+      mm.return_(i);
+    }
+    return true;
+  }
+
+  private static void processInvocation(AbstractInvokeExpr expr, MethodMaker mm,
+                                       Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
+    Object base = getInvokeBase(expr);
+    if (base == null) return;
+    
+    Variable baseVar = (Variable) getValue(base, mm, localToVar, localValues);
+    if (baseVar != null) {
+      String method = expr.getMethodSignature().getName();
+      Object[] args = buildArgArray(expr.getArgs(), mm, localToVar, localValues);
+      baseVar.invoke(method, args);
+    }
+  }
+
+  private static Object getInvokeBase(AbstractInvokeExpr expr) {
+    return expr instanceof JVirtualInvokeExpr ve ? ve.getBase() :
+           expr instanceof JInterfaceInvokeExpr ie ? ie.getBase() :
+           expr instanceof JSpecialInvokeExpr se ? se.getBase() : null;
+  }
+
+  private static Object getValue(Object value, MethodMaker mm, 
+                                Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
+    if (value instanceof Local local) {
+      Object cached = localValues.get(local);
+      return cached != null ? cached : localToVar.get(local);
+    } else if (value instanceof IntConstant ic) {
+      return ic.getValue();
+    } else if (value instanceof StringConstant sc) {
+      return sc.getValue();
+    } else if (value instanceof JFieldRef fr) {
       return mm.field(fr.getFieldSignature().getName());
-    } else if (value instanceof JVirtualInvokeExpr) {
-      JVirtualInvokeExpr vInvoke = (JVirtualInvokeExpr) value;
-      String methodName = vInvoke.getMethodSignature().getName();
-      Object base = vInvoke.getBase();
-      List<? extends Immediate> args = vInvoke.getArgs();
-
-      Variable baseVar = getVarFromValue(base, mm, localToVar);
-      Object[] argVars = buildArgArray(args, mm, localToVar);
-
-      if (baseVar != null) {
-        return baseVar.invoke(methodName, argVars);
-      }
+    } else if (value instanceof JVirtualInvokeExpr || value instanceof JInterfaceInvokeExpr) {
+      return getInvokeResult((AbstractInvokeExpr) value, mm, localToVar, localValues);
+    } else if (value != null && value.getClass().getSimpleName().equals("NullConstant")) {
+      // Manejo de NullConstant de Jimple
+      return null;
     }
     return null;
   }
 
-  // Helper: Construir array de argumentos
-  private static Object[] buildArgArray(List<? extends Immediate> args, MethodMaker mm, Map<Local, Variable> localToVar) {
-    return buildArgArray(args, mm, localToVar, new HashMap<>());
+  private static Object getInvokeResult(AbstractInvokeExpr expr, MethodMaker mm,
+                                       Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
+    Object base = getInvokeBase(expr);
+    Variable baseVar = (Variable) getValue(base, mm, localToVar, localValues);
+    
+    if (baseVar != null) {
+      String method = expr.getMethodSignature().getName();
+      Object[] args = buildArgArray(expr.getArgs(), mm, localToVar, localValues);
+      return baseVar.invoke(method, args);
+    }
+    return null;
+  }
+
+  private static void generateDefaultReturn(MethodMaker mm, String returnType) {
+    switch (returnType) {
+      case "void" -> mm.return_();
+      case "int" -> mm.return_(0);
+      case "boolean" -> mm.return_(false);
+      default -> mm.return_(null);
+    }
   }
 
   // Helper: Construir array de argumentos con soporte a localValues
-  private static Object[] buildArgArray(List<? extends Immediate> args, MethodMaker mm, Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
+  private static Object[] buildArgArray(List<? extends Immediate> args, MethodMaker mm, 
+                                       Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
     Object[] argVars = new Object[args.size()];
     for (int i = 0; i < args.size(); i++) {
       Immediate arg = args.get(i);
-      if (arg instanceof Local) {
-        Local local = (Local) arg;
+      if (arg instanceof Local local) {
         Object val = localValues.getOrDefault(local, localToVar.get(local));
         argVars[i] = val;
-      } else if (arg instanceof IntConstant) {
-        argVars[i] = ((IntConstant) arg).getValue();
+      } else if (arg instanceof IntConstant ic) {
+        argVars[i] = ic.getValue();
       }
     }
     return argVars;
-  }
-
-  // Helper: Procesar invocación virtual
-  private static void processVirtualInvoke(JVirtualInvokeExpr vInvoke, MethodMaker mm, Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
-    Variable baseVar = getVarFromValue(vInvoke.getBase(), mm, localToVar);
-    if (baseVar != null) {
-      String methodName = vInvoke.getMethodSignature().getName();
-      Object[] args = buildArgArray(vInvoke.getArgs(), mm, localToVar);
-      baseVar.invoke(methodName, args);
-    }
-  }
-
-  // Helper: Procesar invocación especial
-  private static void processSpecialInvoke(JSpecialInvokeExpr sInvoke, MethodMaker mm, Map<Local, Variable> localToVar) {
-    Variable baseVar = getVarFromValue(sInvoke.getBase(), mm, localToVar);
-    if (baseVar != null) {
-      String methodName = sInvoke.getMethodSignature().getName();
-      Object[] args = buildArgArray(sInvoke.getArgs(), mm, localToVar);
-      baseVar.invoke(methodName, args);
-    }
-  }
-
-  // Helper: Procesar invocación de interfaz
-  private static void processInterfaceInvoke(JInterfaceInvokeExpr iInvoke, MethodMaker mm, Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
-    Variable baseVar = getVarFromValue(iInvoke.getBase(), mm, localToVar);
-    if (baseVar != null) {
-      String methodName = iInvoke.getMethodSignature().getName();
-      Object[] args = buildArgArray(iInvoke.getArgs(), mm, localToVar);
-      baseVar.invoke(methodName, args);
-    }
-  }
-
-  // Helper: Value de Jimple a Variable de Maker
-  private static Variable getVarFromValue(Object value, MethodMaker mm, Map<Local, Variable> localToVar) {
-    if (value instanceof Local) {
-      Local local = (Local) value;
-      Variable v = localToVar.get(local);
-      return v != null ? v : null;
-    } else if (value instanceof IntConstant) {
-      int val = ((IntConstant) value).getValue();
-      return mm.var(int.class).set(val);
-    } else if (value instanceof StringConstant) {
-      String val = ((StringConstant) value).getValue();
-      return mm.var(String.class).set(val);
-    } else if (value instanceof JFieldRef) {
-      JFieldRef fr = (JFieldRef) value;
-      return mm.field(fr.getFieldSignature().getName());
-    }
-    return null;
   }
 }
