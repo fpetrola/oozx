@@ -124,11 +124,6 @@ public class ClassClonerWithSootUpTest {
               return this.memory.read16Bits(this.address);
            }
         
-           String toString() {
-              this.target.toString();
-              return null;
-           }
-        
            void write(int var1) {
               int var2 = this.target.read();
               this.address = var2;

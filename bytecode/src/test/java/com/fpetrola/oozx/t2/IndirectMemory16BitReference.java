@@ -55,8 +55,4 @@ public final class IndirectMemory16BitReference implements OpcodeReference {
   public ImmutableOpcodeReference getTarget() {
     return target;
   }
-
-  public String toString() {
-    return "(" + target.toString() + ")";
-  }
 }
