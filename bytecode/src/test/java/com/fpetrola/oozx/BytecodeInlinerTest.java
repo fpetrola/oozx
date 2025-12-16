@@ -555,9 +555,8 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         
         public class MultiInstructionBytecode extends Z80UnRolled {
            public void executeLdImrBcA() {
-              int var1 = super.B << 8;
-              int var2 = super.C | var1;
-              super.memory.write(var2, super.A);
+              int var1 = this.getBC();
+              super.memory.write(var1, super.A);
            }
         
            public void executeExImrBcAfx() {
@@ -565,9 +564,8 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
            }
         
            public void executeLdImrDeA() {
-              int var1 = super.D << 8;
-              int var2 = super.E | var1;
-              super.memory.write(var2, super.A);
+              int var1 = this.getDE();
+              super.memory.write(var1, super.A);
            }
         
            public void executeLdImr16M16RHl() {
@@ -576,10 +574,9 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
               int var3 = super.PC + 2 & '\\uffff';
               int var4 = super.memory.read(var3, 0) << 8;
               int var5 = var2 | var4;
-              int var6 = super.H << 8;
-              int var7 = super.L | var6;
-              int var8 = super.memory.read16Bits(var5);
-              super.memory.write16BitsReverse(var8, var7);
+              int var6 = this.getHL();
+              int var7 = super.memory.read16Bits(var5);
+              super.memory.write16BitsReverse(var7, var6);
            }
         
            public void executeLdImrM16RA() {
@@ -646,21 +643,18 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
            }
         
            public void executeLdImrHlB() {
-              int var1 = super.H << 8;
-              int var2 = super.L | var1;
-              super.memory.write(var2, super.B);
+              int var1 = this.getHL();
+              super.memory.write(var1, super.B);
            }
         
            public void executeLdImrHlD() {
-              int var1 = super.H << 8;
-              int var2 = super.L | var1;
-              super.memory.write(var2, super.D);
+              int var1 = this.getHL();
+              super.memory.write(var1, super.D);
            }
         
            public void executeLdImrHlH() {
-              int var1 = super.H << 8;
-              int var2 = super.L | var1;
-              super.memory.write(var2, super.H);
+              int var1 = this.getHL();
+              super.memory.write(var1, super.H);
            }
         
            public void executeLdAB() {

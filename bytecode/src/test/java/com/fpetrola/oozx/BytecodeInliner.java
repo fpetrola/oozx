@@ -413,24 +413,20 @@ public class BytecodeInliner {
    }
 
   /**
-   * Resuelve el valor de un registro por su nombre, manejando registros de 16 bits construidos a partir de 8 bits
+   * Resuelve el valor de un registro por su nombre, manejando registros de 16 bits usando los getters de UnrolledRegisterBank
    */
-   private Variable resolveRegisterValueByName(MethodMaker mm, String regName) {
-     // Si el registro es de 16 bits sin underscore (BC, DE, HL), construirlo a partir de sus componentes
-     if (regName.length() == 2 && !regName.startsWith("_")) {
-       String highReg = regName.substring(0, 1);  // B, D, H
-       String lowReg = regName.substring(1, 2);   // C, E, L
-       
-       Variable high = mm.field(highReg);
-       Variable low = mm.field(lowReg);
-       Variable result = mm.var(int.class);
-       result.set(low.or(high.shl(8)));
-       return result;
-     }
-     
-     // Para otros registros (A, F, I, R, IX, IY, SP, PC, etc.), acceder directamente
-     return mm.field(regName);
-   }
+    private Variable resolveRegisterValueByName(MethodMaker mm, String regName) {
+      // Si el registro es de 16 bits sin underscore (BC, DE, HL, AF), usar los getters de UnrolledRegisterBank
+      if (regName.length() == 2 && !regName.startsWith("_")) {
+        String getterMethodName = "get" + regName;  // getBC, getDE, getHL, getAF
+        Variable result = mm.var(int.class);
+        result.set(mm.invoke(getterMethodName));
+        return result;
+      }
+      
+      // Para otros registros (A, F, I, R, IX, IY, SP, PC, etc.), acceder directamente
+      return mm.field(regName);
+    }
 
   /**
     * Ejecuta una operación ALU: lee valor (de memoria o registro para LD), aplica operación y escribe resultado
