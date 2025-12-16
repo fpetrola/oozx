@@ -14,6 +14,8 @@ import sootup.core.jimple.common.expr.JVirtualInvokeExpr;
 import sootup.core.jimple.common.expr.JSpecialInvokeExpr;
 import sootup.core.jimple.common.ref.JFieldRef;
 import sootup.core.jimple.common.stmt.*;
+import sootup.core.jimple.common.expr.JInterfaceInvokeExpr;
+import sootup.core.jimple.common.stmt.JInvokeStmt;
 import sootup.core.model.*;
 import sootup.core.types.ClassType;
 import sootup.core.types.PrimitiveType;
@@ -211,8 +213,9 @@ public class ClassClonerWithSootUp {
                                          Map<Local, Variable> localToVar, String returnType) {
     boolean foundReturn = false;
     Map<Local, JFieldRef> localToField = new HashMap<>();
+    Map<Local, Object> localValues = new HashMap<>();
 
-    // Primer paso: mapear locales a campos
+    // Primer paso: mapear locales a campos y procesar asignaciones
     for (Stmt stmt : stmtGraph.getStmts()) {
       if (stmt instanceof JAssignStmt) {
         JAssignStmt assign = (JAssignStmt) stmt;
@@ -227,28 +230,51 @@ public class ClassClonerWithSootUp {
 
     // Segundo paso: procesar statements y generar código
     for (Stmt stmt : stmtGraph.getStmts()) {
-      if (stmt instanceof JIdentityStmt || stmt instanceof JAssignStmt) {
-        if (stmt instanceof JAssignStmt) {
-          JAssignStmt assign = (JAssignStmt) stmt;
-          Object left = assign.getLeftOp();
-          Object right = assign.getRightOp();
+      if (stmt instanceof JIdentityStmt) {
+        // Identity statements ya son manejados antes
+        continue;
+      } else if (stmt instanceof JAssignStmt) {
+        JAssignStmt assign = (JAssignStmt) stmt;
+        Object left = assign.getLeftOp();
+        Object right = assign.getRightOp();
 
-          // Si es asignación a campo desde variable o invocación
-          if (left instanceof JFieldRef) {
-            JFieldRef fr = (JFieldRef) left;
-            try {
-              // Intentar asignar al campo
-              if (right instanceof JVirtualInvokeExpr) {
-                // Ignorar por ahora - es complejo
-              } else if (right instanceof Local) {
-                Variable rightVar = localToVar.get((Local) right);
-                if (rightVar != null) {
-                  mm.field(fr.getFieldSignature().getName()).set(rightVar);
-                }
-              }
-            } catch (Exception e) {
-              // Ignorar errores
+        // Procesar asignación
+        if (left instanceof Local) {
+          Local leftLocal = (Local) left;
+          
+          // Manejar invocaciones dentro de asignaciones
+          if (right instanceof JVirtualInvokeExpr || right instanceof JInterfaceInvokeExpr) {
+            Variable result = getInvokeExprResult(right, mm, localToVar, localValues);
+            if (result != null) {
+              localToVar.put(leftLocal, result);
+              localValues.put(leftLocal, result);
             }
+          } else if (right instanceof JFieldRef) {
+            JFieldRef fr = (JFieldRef) right;
+            Variable fieldVar = mm.field(fr.getFieldSignature().getName());
+            localToVar.put(leftLocal, fieldVar);
+            localValues.put(leftLocal, fieldVar);
+          } else if (right instanceof Local) {
+            Local rightLocal = (Local) right;
+            Object val = localValues.getOrDefault(rightLocal, localToVar.get(rightLocal));
+            if (val != null) {
+              localValues.put(leftLocal, val);
+              if (val instanceof Variable) {
+                localToVar.put(leftLocal, (Variable) val);
+              }
+            }
+          } else if (right instanceof IntConstant) {
+            localValues.put(leftLocal, ((IntConstant) right).getValue());
+          }
+        } else if (left instanceof JFieldRef) {
+          JFieldRef fr = (JFieldRef) left;
+          try {
+            Object value = getValueOrVarFromValue(right, mm, localToVar, localValues);
+            if (value instanceof Variable) {
+              mm.field(fr.getFieldSignature().getName()).set((Variable) value);
+            }
+          } catch (Exception e) {
+            // Ignorar errores
           }
         }
       } else if (stmt instanceof JReturnStmt) {
@@ -263,13 +289,25 @@ public class ClassClonerWithSootUp {
             foundReturn = true;
             break;
           } else if (op instanceof Local) {
-            // Retornar una variable local que es un campo
+            // Retornar una variable local
             Local retLocal = (Local) op;
-            JFieldRef fr = localToField.get(retLocal);
-            if (fr != null) {
-              mm.return_(mm.field(fr.getFieldSignature().getName()));
+            Object value = localValues.get(retLocal);
+            if (value instanceof Variable) {
+              mm.return_((Variable) value);
               foundReturn = true;
               break;
+            } else if (value instanceof Integer) {
+              mm.return_((Integer) value);
+              foundReturn = true;
+              break;
+            } else {
+              // Intenta obtener valor de campos
+              JFieldRef fr = localToField.get(retLocal);
+              if (fr != null) {
+                mm.return_(mm.field(fr.getFieldSignature().getName()));
+                foundReturn = true;
+                break;
+              }
             }
           }
         } catch (Exception e) {
@@ -277,8 +315,22 @@ public class ClassClonerWithSootUp {
         }
       } else if (stmt instanceof JReturnVoidStmt) {
         mm.return_();
-      } else {
-        System.out.println("Cannot process: " + stmt);
+      } else if (stmt instanceof JInvokeStmt) {
+        JInvokeStmt invokeStmt = (JInvokeStmt) stmt;
+        AbstractInvokeExpr invokeExpr = invokeStmt.getInvokeExpr().orElse(null);
+        if (invokeExpr == null) continue;
+        
+        // Procesar invocaciones (virtual, special, interface, static)
+        if (invokeExpr instanceof JVirtualInvokeExpr) {
+          JVirtualInvokeExpr vInvoke = (JVirtualInvokeExpr) invokeExpr;
+          processVirtualInvoke(vInvoke, mm, localToVar, localValues);
+        } else if (invokeExpr instanceof JSpecialInvokeExpr) {
+          JSpecialInvokeExpr sInvoke = (JSpecialInvokeExpr) invokeExpr;
+          processSpecialInvoke(sInvoke, mm, localToVar);
+        } else if (invokeExpr instanceof JInterfaceInvokeExpr) {
+          JInterfaceInvokeExpr iInvoke = (JInterfaceInvokeExpr) invokeExpr;
+          processInterfaceInvoke(iInvoke, mm, localToVar, localValues);
+        }
       }
     }
 
@@ -295,6 +347,28 @@ public class ClassClonerWithSootUp {
         mm.return_(null);
       }
     }
+  }
+
+  // Helper: Obtener resultado de invocación
+  private static Variable getInvokeExprResult(Object expr, MethodMaker mm, Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
+    if (expr instanceof JVirtualInvokeExpr) {
+      JVirtualInvokeExpr vInvoke = (JVirtualInvokeExpr) expr;
+      Variable baseVar = getVarFromValue(vInvoke.getBase(), mm, localToVar);
+      if (baseVar != null) {
+        String methodName = vInvoke.getMethodSignature().getName();
+        Object[] args = buildArgArray(vInvoke.getArgs(), mm, localToVar, localValues);
+        return (Variable) baseVar.invoke(methodName, args);
+      }
+    } else if (expr instanceof JInterfaceInvokeExpr) {
+      JInterfaceInvokeExpr iInvoke = (JInterfaceInvokeExpr) expr;
+      Variable baseVar = getVarFromValue(iInvoke.getBase(), mm, localToVar);
+      if (baseVar != null) {
+        String methodName = iInvoke.getMethodSignature().getName();
+        Object[] args = buildArgArray(iInvoke.getArgs(), mm, localToVar, localValues);
+        return (Variable) baseVar.invoke(methodName, args);
+      }
+    }
+    return null;
   }
 
   // Helper: Traducir invocación de método
@@ -340,9 +414,11 @@ public class ClassClonerWithSootUp {
   }
 
   // Helper: Value de Jimple a Variable de Maker o resultado de invocación
-  private static Object getValueOrVarFromValue(Object value, MethodMaker mm, Map<Local, Variable> localToVar) {
+  private static Object getValueOrVarFromValue(Object value, MethodMaker mm, Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
     if (value instanceof Local) {
       Local local = (Local) value;
+      Object val = localValues.get(local);
+      if (val != null) return val;
       return localToVar.get(local);
     } else if (value instanceof IntConstant) {
       return ((IntConstant) value).getValue();
@@ -369,18 +445,53 @@ public class ClassClonerWithSootUp {
 
   // Helper: Construir array de argumentos
   private static Object[] buildArgArray(List<? extends Immediate> args, MethodMaker mm, Map<Local, Variable> localToVar) {
+    return buildArgArray(args, mm, localToVar, new HashMap<>());
+  }
+  
+  // Helper: Construir array de argumentos con soporte a localValues
+  private static Object[] buildArgArray(List<? extends Immediate> args, MethodMaker mm, Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
     Object[] argVars = new Object[args.size()];
     for (int i = 0; i < args.size(); i++) {
       Immediate arg = args.get(i);
       if (arg instanceof Local) {
         Local local = (Local) arg;
-        Variable v = localToVar.get(local);
-        argVars[i] = v;
+        Object val = localValues.getOrDefault(local, localToVar.get(local));
+        argVars[i] = val;
       } else if (arg instanceof IntConstant) {
         argVars[i] = ((IntConstant) arg).getValue();
       }
     }
     return argVars;
+  }
+
+  // Helper: Procesar invocación virtual
+  private static void processVirtualInvoke(JVirtualInvokeExpr vInvoke, MethodMaker mm, Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
+    Variable baseVar = getVarFromValue(vInvoke.getBase(), mm, localToVar);
+    if (baseVar != null) {
+      String methodName = vInvoke.getMethodSignature().getName();
+      Object[] args = buildArgArray(vInvoke.getArgs(), mm, localToVar);
+      baseVar.invoke(methodName, args);
+    }
+  }
+
+  // Helper: Procesar invocación especial
+  private static void processSpecialInvoke(JSpecialInvokeExpr sInvoke, MethodMaker mm, Map<Local, Variable> localToVar) {
+    Variable baseVar = getVarFromValue(sInvoke.getBase(), mm, localToVar);
+    if (baseVar != null) {
+      String methodName = sInvoke.getMethodSignature().getName();
+      Object[] args = buildArgArray(sInvoke.getArgs(), mm, localToVar);
+      baseVar.invoke(methodName, args);
+    }
+  }
+
+  // Helper: Procesar invocación de interfaz
+  private static void processInterfaceInvoke(JInterfaceInvokeExpr iInvoke, MethodMaker mm, Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
+    Variable baseVar = getVarFromValue(iInvoke.getBase(), mm, localToVar);
+    if (baseVar != null) {
+      String methodName = iInvoke.getMethodSignature().getName();
+      Object[] args = buildArgArray(iInvoke.getArgs(), mm, localToVar);
+      baseVar.invoke(methodName, args);
+    }
   }
 
   // Helper: Value de Jimple a Variable de Maker
