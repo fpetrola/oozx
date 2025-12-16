@@ -40,7 +40,6 @@ public class ClassClonerWithSootUpTest {
         public class IndirectMemory8BitReferenceClone {
            ImmutableOpcodeReference target;
            Memory memory;
-           int address;
         
            IndirectMemory8BitReferenceClone(ImmutableOpcodeReference var1, Memory var2) {
               this.target = var1;
@@ -61,14 +60,12 @@ public class ClassClonerWithSootUpTest {
         
            int read() {
               int var1 = this.target.read();
-              this.address = var1;
-              return this.memory.read(this.address, 0);
+              return this.memory.read(var1, 0);
            }
         
            void write(int var1) {
               int var2 = this.target.read();
-              this.address = var2;
-              this.memory.write(this.address, var1);
+              this.memory.write(var2, var1);
            }
         }
         """, decompiledSource);
@@ -99,7 +96,6 @@ public class ClassClonerWithSootUpTest {
         public class IndirectMemory16BitReferenceClone {
            ImmutableOpcodeReference target;
            Memory memory;
-           int address;
         
            IndirectMemory16BitReferenceClone(ImmutableOpcodeReference var1, Memory var2) {
               this.target = var1;
@@ -120,14 +116,12 @@ public class ClassClonerWithSootUpTest {
         
            int read() {
               int var1 = this.target.read();
-              this.address = var1;
-              return this.memory.read16Bits(this.address);
+              return this.memory.read16Bits(var1);
            }
         
            void write(int var1) {
               int var2 = this.target.read();
-              this.address = var2;
-              this.memory.write16Bits(var1, this.address);
+              this.memory.write16Bits(var1, var2);
            }
         }
         """, decompiledSource);

@@ -27,7 +27,6 @@ import com.fpetrola.z80.registers.flag.PrimitiveIntBiFunction;
 public final class IndirectMemory16BitReference implements OpcodeReference {
   private final ImmutableOpcodeReference target;
   private final Memory memory;
-  public int address;
 
   public IndirectMemory16BitReference(ImmutableOpcodeReference target, Memory memory) {
     this.target = target;
@@ -35,13 +34,11 @@ public final class IndirectMemory16BitReference implements OpcodeReference {
   }
 
   public int read() {
-    address = target.read();
-    return memory.read16Bits(address);
+    return memory.read16Bits(target.read());
   }
 
   public void write(int value) {
-    address = target.read();
-    memory.write16Bits(value, address);
+    memory.write16Bits(value, target.read());
   }
 
   public Memory getMemory() {

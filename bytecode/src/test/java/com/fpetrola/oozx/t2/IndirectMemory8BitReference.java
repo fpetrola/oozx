@@ -7,7 +7,6 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 public final class IndirectMemory8BitReference implements OpcodeReference {
   private final ImmutableOpcodeReference target;
   private final Memory memory;
-  public int address;
 
   public IndirectMemory8BitReference(ImmutableOpcodeReference target, Memory memory) {
     this.target = target;
@@ -15,13 +14,11 @@ public final class IndirectMemory8BitReference implements OpcodeReference {
   }
 
   public int read() {
-    address = target.read();
-    return memory.read(address, 0);
+    return memory.read(target.read(), 0);
   }
 
   public void write(int value) {
-    address = target.read();
-    memory.write(address, value);
+    memory.write(target.read(), value);
   }
 
   public int getLength() {
