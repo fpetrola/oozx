@@ -507,13 +507,13 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         
            public void execute(int opcode) {
               switch(opcode) {
-              case 0:
+              case 10:
                  this.executeLdMprfIxA();
                  break;
-              case 1:
+              case 20:
                  this.executeXorMprfIxC();
                  break;
-              case 2:
+              case 30:
                  this.executeAddMprfIxE();
                  break;
               default:
