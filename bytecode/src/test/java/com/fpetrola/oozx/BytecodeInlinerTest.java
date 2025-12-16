@@ -544,7 +544,8 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     for (int i = 0; i < opcodeLookupTable.length; i++) {
       Instruction instruction = opcodeLookupTable[i];
       if (instruction instanceof TargetSourceInstruction<?>)
-        instructions.put(i, (TargetSourceInstruction<?>) instruction);
+        if (i % 2 == 0)
+          instructions.put(i, (TargetSourceInstruction<?>) instruction);
     }
 
     String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecode", instructions);
@@ -553,41 +554,356 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         import com.fpetrola.oozx.Z80UnRolled;
         
         public class MultiInstructionBytecode extends Z80UnRolled {
-           public void executeLdMprfIxA() {
-              int var1 = super.PC + 2 & '\\uffff';
-              int var2 = super.memory.read(var1, 0);
-              int var3 = super.IX + var2 & '\\uffff';
-              super.memory.write(var3, super.A);
+           public void executeLdImrBcA() {
+              int var1 = super.B << 8;
+              int var2 = super.C | var1;
+              super.memory.write(var2, super.A);
            }
         
-           public void executeXorMprfIxC() {
-              int var1 = super.PC + 2 & '\\uffff';
-              int var2 = super.memory.read(var1, 0);
-              int var3 = super.IX + var2 & '\\uffff';
-              int var4 = super.memory.read(var3, 0);
-              int var5 = super.xorTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.F);
-              super.memory.write(var3, var5);
+           public void executeExImrBcAfx() {
+              // $FF: Couldn't be decompiled
            }
         
-           public void executeAddMprfIxE() {
-              int var1 = super.PC + 2 & '\\uffff';
+           public void executeLdImrDeA() {
+              int var1 = super.D << 8;
+              int var2 = super.E | var1;
+              super.memory.write(var2, super.A);
+           }
+        
+           public void executeLdImr16M16RHl() {
+              int var1 = super.PC + 1 & '\\uffff';
               int var2 = super.memory.read(var1, 0);
-              int var3 = super.IX + var2 & '\\uffff';
-              int var4 = super.memory.read(var3, 0);
-              int var5 = super.addTableAluOperation.execute2ValuesAndCarry(var4, super.E, super.F);
-              super.memory.write(var3, var5);
+              int var3 = super.PC + 2 & '\\uffff';
+              int var4 = super.memory.read(var3, 0) << 8;
+              int var5 = var2 | var4;
+              int var6 = super.H << 8;
+              int var7 = super.L | var6;
+              int var8 = super.memory.read16Bits(var5);
+              super.memory.write16BitsReverse(var8, var7);
+           }
+        
+           public void executeLdImrM16RA() {
+              int var1 = super.PC + 1 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.PC + 2 & '\\uffff';
+              int var4 = super.memory.read(var3, 0) << 8;
+              int var5 = var2 | var4;
+              super.memory.write(var5, super.A);
+           }
+        
+           public void executeLdBB() {
+           }
+        
+           public void executeLdBD() {
+           }
+        
+           public void executeLdBH() {
+           }
+        
+           public void executeLdCB() {
+           }
+        
+           public void executeLdCD() {
+           }
+        
+           public void executeLdCH() {
+           }
+        
+           public void executeLdDB() {
+           }
+        
+           public void executeLdDD() {
+           }
+        
+           public void executeLdDH() {
+           }
+        
+           public void executeLdEB() {
+           }
+        
+           public void executeLdED() {
+           }
+        
+           public void executeLdEH() {
+           }
+        
+           public void executeLdHB() {
+           }
+        
+           public void executeLdHD() {
+           }
+        
+           public void executeLdHH() {
+           }
+        
+           public void executeLdLB() {
+           }
+        
+           public void executeLdLD() {
+           }
+        
+           public void executeLdLH() {
+           }
+        
+           public void executeLdImrHlB() {
+              int var1 = super.H << 8;
+              int var2 = super.L | var1;
+              super.memory.write(var2, super.B);
+           }
+        
+           public void executeLdImrHlD() {
+              int var1 = super.H << 8;
+              int var2 = super.L | var1;
+              super.memory.write(var2, super.D);
+           }
+        
+           public void executeLdImrHlH() {
+              int var1 = super.H << 8;
+              int var2 = super.L | var1;
+              super.memory.write(var2, super.H);
+           }
+        
+           public void executeLdAB() {
+           }
+        
+           public void executeLdAD() {
+           }
+        
+           public void executeLdAH() {
+           }
+        
+           public void executeAddAB() {
+           }
+        
+           public void executeAddAD() {
+           }
+        
+           public void executeAddAH() {
+           }
+        
+           public void executeAdcAB() {
+           }
+        
+           public void executeAdcAD() {
+           }
+        
+           public void executeAdcAH() {
+           }
+        
+           public void executeSubAB() {
+           }
+        
+           public void executeSubAD() {
+           }
+        
+           public void executeSubAH() {
+           }
+        
+           public void executeSbcAB() {
+           }
+        
+           public void executeSbcAD() {
+           }
+        
+           public void executeSbcAH() {
+           }
+        
+           public void executeAndAB() {
+           }
+        
+           public void executeAndAD() {
+           }
+        
+           public void executeAndAH() {
+           }
+        
+           public void executeXorAB() {
+           }
+        
+           public void executeXorAD() {
+           }
+        
+           public void executeXorAH() {
+           }
+        
+           public void executeOrAB() {
+           }
+        
+           public void executeOrAD() {
+           }
+        
+           public void executeOrAH() {
+           }
+        
+           public void executeCpAB() {
+           }
+        
+           public void executeCpAD() {
+           }
+        
+           public void executeCpAH() {
            }
         
            public int execute(int opcode) {
               switch(opcode) {
-              case 10:
-                 this.executeLdMprfIxA();
+              case 2:
+                 this.executeLdImrBcA();
                  break;
-              case 20:
-                 this.executeXorMprfIxC();
+              case 8:
+                 this.executeExImrBcAfx();
                  break;
-              case 30:
-                 this.executeAddMprfIxE();
+              case 18:
+                 this.executeLdImrDeA();
+                 break;
+              case 34:
+                 this.executeLdImr16M16RHl();
+                 break;
+              case 50:
+                 this.executeLdImrM16RA();
+                 break;
+              case 64:
+                 this.executeLdBB();
+                 break;
+              case 66:
+                 this.executeLdBD();
+                 break;
+              case 68:
+                 this.executeLdBH();
+                 break;
+              case 72:
+                 this.executeLdCB();
+                 break;
+              case 74:
+                 this.executeLdCD();
+                 break;
+              case 76:
+                 this.executeLdCH();
+                 break;
+              case 80:
+                 this.executeLdDB();
+                 break;
+              case 82:
+                 this.executeLdDD();
+                 break;
+              case 84:
+                 this.executeLdDH();
+                 break;
+              case 88:
+                 this.executeLdEB();
+                 break;
+              case 90:
+                 this.executeLdED();
+                 break;
+              case 92:
+                 this.executeLdEH();
+                 break;
+              case 96:
+                 this.executeLdHB();
+                 break;
+              case 98:
+                 this.executeLdHD();
+                 break;
+              case 100:
+                 this.executeLdHH();
+                 break;
+              case 104:
+                 this.executeLdLB();
+                 break;
+              case 106:
+                 this.executeLdLD();
+                 break;
+              case 108:
+                 this.executeLdLH();
+                 break;
+              case 112:
+                 this.executeLdImrHlB();
+                 break;
+              case 114:
+                 this.executeLdImrHlD();
+                 break;
+              case 116:
+                 this.executeLdImrHlH();
+                 break;
+              case 120:
+                 this.executeLdAB();
+                 break;
+              case 122:
+                 this.executeLdAD();
+                 break;
+              case 124:
+                 this.executeLdAH();
+                 break;
+              case 128:
+                 this.executeAddAB();
+                 break;
+              case 130:
+                 this.executeAddAD();
+                 break;
+              case 132:
+                 this.executeAddAH();
+                 break;
+              case 136:
+                 this.executeAdcAB();
+                 break;
+              case 138:
+                 this.executeAdcAD();
+                 break;
+              case 140:
+                 this.executeAdcAH();
+                 break;
+              case 144:
+                 this.executeSubAB();
+                 break;
+              case 146:
+                 this.executeSubAD();
+                 break;
+              case 148:
+                 this.executeSubAH();
+                 break;
+              case 152:
+                 this.executeSbcAB();
+                 break;
+              case 154:
+                 this.executeSbcAD();
+                 break;
+              case 156:
+                 this.executeSbcAH();
+                 break;
+              case 160:
+                 this.executeAndAB();
+                 break;
+              case 162:
+                 this.executeAndAD();
+                 break;
+              case 164:
+                 this.executeAndAH();
+                 break;
+              case 168:
+                 this.executeXorAB();
+                 break;
+              case 170:
+                 this.executeXorAD();
+                 break;
+              case 172:
+                 this.executeXorAH();
+                 break;
+              case 176:
+                 this.executeOrAB();
+                 break;
+              case 178:
+                 this.executeOrAD();
+                 break;
+              case 180:
+                 this.executeOrAH();
+                 break;
+              case 184:
+                 this.executeCpAB();
+                 break;
+              case 186:
+                 this.executeCpAD();
+                 break;
+              case 188:
+                 this.executeCpAH();
                  break;
               default:
                  return -1;

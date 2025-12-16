@@ -405,11 +405,17 @@ public class BytecodeInliner {
    }
 
   /**
-    * Resuelve el valor de un registro, manejando registros de 16 bits construidos a partir de 8 bits
-    */
+   * Resuelve el valor de un registro, manejando registros de 16 bits construidos a partir de 8 bits
+   */
    private Variable resolveRegisterValue(MethodMaker mm, Register reg) {
      String regName = reg.getName();
-     
+     return resolveRegisterValueByName(mm, regName);
+   }
+
+  /**
+   * Resuelve el valor de un registro por su nombre, manejando registros de 16 bits construidos a partir de 8 bits
+   */
+   private Variable resolveRegisterValueByName(MethodMaker mm, String regName) {
      // Si el registro es de 16 bits sin underscore (BC, DE, HL), construirlo a partir de sus componentes
      if (regName.length() == 2 && !regName.startsWith("_")) {
        String highReg = regName.substring(0, 1);  // B, D, H
@@ -427,57 +433,27 @@ public class BytecodeInliner {
    }
 
   /**
-   * Ejecuta una operación ALU: lee valor (de memoria o registro para LD), aplica operación y escribe resultado
-   */
-  private void executeAluOperation(MethodMaker mm, TargetSourceInstruction instruction,
-                                   Variable memory, Variable address, String sourceRegName) {
-    Variable source = mm.field(sourceRegName);
-
-    // Para LD, escribir directamente sin variable intermedia
-    if (instruction instanceof Ld) {
-      memory.invoke("write", address, source);
-      return;
-    }
-
-    // Si la instrucción tiene una operación ALU, usarla
-    if (isAluOperation(instruction)) {
-      executeWithAluOperation(mm, instruction, memory, address, sourceRegName);
-      return;
-    }
-
-    // Para XOR/OR: leer, aplicar operación y escribir
-    Variable value = mm.var(int.class);
-    value.set(memory.invoke("read", address, 0));
-    Variable result = mm.var(int.class);
-
-    if (instruction instanceof Xor) {
-      result.set(source.xor(value));
-    } else if (instruction instanceof Or) {
-      result.set(source.or(value));
-    }
-
-    // Escribir el resultado
-    memory.invoke("write", address, result);
-  }
-
-  /**
-    * Ejecuta una operación ALU para valores de 16 bits: lee valor (de memoria), aplica operación y escribe resultado
+    * Ejecuta una operación ALU: lee valor (de memoria o registro para LD), aplica operación y escribe resultado
     */
-   private void executeAluOperation16Bit(MethodMaker mm, TargetSourceInstruction instruction,
-                                         Variable memory, Variable address, String sourceRegName) {
-     Variable source = mm.field(sourceRegName);
+   private void executeAluOperation(MethodMaker mm, TargetSourceInstruction instruction,
+                                    Variable memory, Variable address, String sourceRegName) {
+     Variable source = resolveRegisterValueByName(mm, sourceRegName);
 
-     // Leer valor de 16 bits desde la dirección
-     Variable value = mm.var(int.class);
-     value.set(memory.invoke("read16Bits", address));
-
-     // Para LD, escribir directamente el valor leído
+     // Para LD, escribir directamente sin variable intermedia
      if (instruction instanceof Ld) {
-       memory.invoke("write16BitsReverse", value, source);
+       memory.invoke("write", address, source);
        return;
      }
 
-     // Para XOR/OR: aplicar operación y escribir
+     // Si la instrucción tiene una operación ALU, usarla
+     if (isAluOperation(instruction)) {
+       executeWithAluOperation(mm, instruction, memory, address, sourceRegName);
+       return;
+     }
+
+     // Para XOR/OR: leer, aplicar operación y escribir
+     Variable value = mm.var(int.class);
+     value.set(memory.invoke("read", address, 0));
      Variable result = mm.var(int.class);
 
      if (instruction instanceof Xor) {
@@ -486,16 +462,46 @@ public class BytecodeInliner {
        result.set(source.or(value));
      }
 
-     // Escribir el resultado (16 bits)
-     memory.invoke("write16BitsReverse", result, address);
+     // Escribir el resultado
+     memory.invoke("write", address, result);
    }
+
+  /**
+     * Ejecuta una operación ALU para valores de 16 bits: lee valor (de memoria), aplica operación y escribe resultado
+     */
+    private void executeAluOperation16Bit(MethodMaker mm, TargetSourceInstruction instruction,
+                                          Variable memory, Variable address, String sourceRegName) {
+      Variable source = resolveRegisterValueByName(mm, sourceRegName);
+
+      // Leer valor de 16 bits desde la dirección
+      Variable value = mm.var(int.class);
+      value.set(memory.invoke("read16Bits", address));
+
+      // Para LD, escribir directamente el valor leído
+      if (instruction instanceof Ld) {
+        memory.invoke("write16BitsReverse", value, source);
+        return;
+      }
+
+      // Para XOR/OR: aplicar operación y escribir
+      Variable result = mm.var(int.class);
+
+      if (instruction instanceof Xor) {
+        result.set(source.xor(value));
+      } else if (instruction instanceof Or) {
+        result.set(source.or(value));
+      }
+
+      // Escribir el resultado (16 bits)
+      memory.invoke("write16BitsReverse", result, address);
+    }
 
    private void executeWithAluOperation(MethodMaker mm, TargetSourceInstruction instruction,
                                         Variable memory, Variable address, String sourceRegName) {
      // Leer valor de memoria
      Variable value = mm.var(int.class);
      value.set(memory.invoke("read", address, 0));
-     Variable source = mm.field(sourceRegName);
+     Variable source = resolveRegisterValueByName(mm, sourceRegName);
 
      // Obtener la operación ALU
      String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
