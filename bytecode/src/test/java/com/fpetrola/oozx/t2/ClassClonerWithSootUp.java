@@ -22,6 +22,7 @@ import sootup.core.types.PrimitiveType;
 import sootup.core.types.Type;
 import sootup.java.bytecode.frontend.inputlocation.JavaClassPathAnalysisInputLocation;
 import sootup.java.core.JavaSootClass;
+import sootup.java.core.JavaSootMethod;
 import sootup.java.core.views.JavaView;
 
 import java.io.File;
@@ -76,7 +77,9 @@ public class ClassClonerWithSootUp {
     }
 
     // Recorrer y clonar methods
-    for (SootMethod sm : originalClass.getMethods()) {
+    List<JavaSootMethod> methods = new ArrayList<>(originalClass.getMethods());
+    Collections.sort(methods, Comparator.comparing(JavaSootMethod::getName));
+    for (SootMethod sm : methods) {
       processMethod(sm, cm);
     }
 
@@ -241,7 +244,7 @@ public class ClassClonerWithSootUp {
         // Procesar asignación
         if (left instanceof Local) {
           Local leftLocal = (Local) left;
-          
+
           // Manejar invocaciones dentro de asignaciones
           if (right instanceof JVirtualInvokeExpr || right instanceof JInterfaceInvokeExpr) {
             Variable result = getInvokeExprResult(right, mm, localToVar, localValues);
@@ -319,7 +322,7 @@ public class ClassClonerWithSootUp {
         JInvokeStmt invokeStmt = (JInvokeStmt) stmt;
         AbstractInvokeExpr invokeExpr = invokeStmt.getInvokeExpr().orElse(null);
         if (invokeExpr == null) continue;
-        
+
         // Procesar invocaciones (virtual, special, interface, static)
         if (invokeExpr instanceof JVirtualInvokeExpr) {
           JVirtualInvokeExpr vInvoke = (JVirtualInvokeExpr) invokeExpr;
@@ -447,7 +450,7 @@ public class ClassClonerWithSootUp {
   private static Object[] buildArgArray(List<? extends Immediate> args, MethodMaker mm, Map<Local, Variable> localToVar) {
     return buildArgArray(args, mm, localToVar, new HashMap<>());
   }
-  
+
   // Helper: Construir array de argumentos con soporte a localValues
   private static Object[] buildArgArray(List<? extends Immediate> args, MethodMaker mm, Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
     Object[] argVars = new Object[args.size()];
