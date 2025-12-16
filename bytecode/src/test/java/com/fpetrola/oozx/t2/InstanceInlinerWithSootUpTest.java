@@ -2,14 +2,13 @@ package com.fpetrola.oozx.t2;
 
 import com.fpetrola.oozx.MyAbstractMemory;
 import com.fpetrola.z80.registers.RegisterBank;
-import com.fpetrola.z80.registers.RegisterName;
-import com.fpetrola.z80.registers.UnrolledRegisterBank;
 import com.fpetrola.z80.registers.UnrolledRegisterBankFactory;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.fpetrola.z80.registers.RegisterName.*;
+import static com.fpetrola.z80.registers.RegisterName.IX;
+import static com.fpetrola.z80.registers.RegisterName.PC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class InstanceInlinerWithSootUpTest {
