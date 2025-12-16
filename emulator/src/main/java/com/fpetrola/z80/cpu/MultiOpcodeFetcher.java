@@ -28,7 +28,6 @@ import com.fpetrola.z80.opcodes.decoder.table.MemoryForOpcodes;
 import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.Memory8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
-import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.registers.Register;
 
 import java.util.function.Supplier;
@@ -39,6 +38,7 @@ public class MultiOpcodeFetcher {
   private final Register registerR;
   public final FetchedInstructionWrapper[] opcodesTables = new FetchedInstructionWrapper[0x100];
   public Supplier<TableBasedOpCodeDecoder> tableFactory;
+  private final OpcodeConditions opcodeConditions;
   public boolean clone;
   private final MemoryForOpcodes memoryForOpcode;
   private final Memory memory;
@@ -48,12 +48,17 @@ public class MultiOpcodeFetcher {
     this.instructionFactory = instructionFactory;
     this.state = state;
     this.pc = state.getPc();
+    this.opcodeConditions = opcodeConditions;
     this.clone = clone;
     memoryForOpcode = new MemoryForOpcodes(this.state.getMemory(), this.state);
-    tableFactory = () -> createOpcodesTables(opcodeConditions, instructionFactory.getFetchNextOpcodeInstructionFactory(), instructionFactory);
+    tableFactory = () -> getOpcodesTables();
     createOpcodeTables();
     memory = state.getMemory();
     this.registerR = state.getRegisterR();
+  }
+
+  public TableBasedOpCodeDecoder getOpcodesTables() {
+    return createOpcodesTables(opcodeConditions, instructionFactory.getFetchNextOpcodeInstructionFactory(), instructionFactory);
   }
 
   public void createOpcodeTables() {

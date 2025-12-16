@@ -186,59 +186,10 @@ public class BytecodeInliner {
 
 
   /**
-    * Agrega un método execute(int opcode) que despacha a los métodos específicos
-    */
-   private void addDispatchMethod(ClassMaker cm, List<String> methodNames) {
-     MethodMaker mm = cm.addMethod(void.class, "execute", int.class);
-     mm.public_();
-     
-     // Crear labels para cada case y el default
-     Label[] caseLabels = new Label[methodNames.size()];
-     for (int i = 0; i < methodNames.size(); i++) {
-       caseLabels[i] = mm.label();
-     }
-     Label defaultLabel = mm.label();
-     Label endLabel = mm.label();
-     
-     // Crear array de casos (0, 1, 2, ...)
-     int[] cases = new int[methodNames.size()];
-     for (int i = 0; i < methodNames.size(); i++) {
-       cases[i] = i;
-     }
-     
-     // Obtener variable del parámetro opcode y asignarle el nombre
-     Variable opcodeVar = mm.param(0);
-     opcodeVar.name("opcode");
-     
-     // Generar switch statement
-     opcodeVar.switch_(defaultLabel, cases, caseLabels);
-     
-     // Generar código para cada case
-     for (int i = 0; i < methodNames.size(); i++) {
-       caseLabels[i].here();
-       mm.invoke(methodNames.get(i));
-       mm.goto_(endLabel);
-     }
-     
-     // Default case: throw exception
-     defaultLabel.here();
-     // Crear mensaje usando StringBuilder para mejor compatibilidad con decompiladores
-     Variable sb = mm.new_(StringBuilder.class);
-     sb.invoke("append", "Invalid instruction index: ");
-     sb.invoke("append", opcodeVar);
-     Variable msgStr = sb.invoke("toString");
-     mm.new_(IllegalArgumentException.class, msgStr).throw_();
-     
-     // End label: fin del switch
-     endLabel.here();
-     mm.return_();
-   }
-
-  /**
     * Agrega un método execute(int opcode) que despacha a los métodos específicos usando opcodes reales
     */
    private void addDispatchMethodWithOpcodes(ClassMaker cm, Map<Integer, String> opcodeToMethodName) {
-     MethodMaker mm = cm.addMethod(void.class, "execute", int.class);
+     MethodMaker mm = cm.addMethod(int.class, "execute", int.class);
      mm.public_();
      
      // Crear labels para cada case y el default
@@ -276,16 +227,11 @@ public class BytecodeInliner {
      
      // Default case: throw exception
      defaultLabel.here();
-     // Crear mensaje usando StringBuilder para mejor compatibilidad con decompiladores
-     Variable sb = mm.new_(StringBuilder.class);
-     sb.invoke("append", "Invalid instruction index: ");
-     sb.invoke("append", opcodeVar);
-     Variable msgStr = sb.invoke("toString");
-     mm.new_(IllegalArgumentException.class, msgStr).throw_();
-     
+     mm.return_(-1);
+
      // End label: fin del switch
      endLabel.here();
-     mm.return_();
+     mm.return_(0);
    }
 
   private void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, String operationName, OpcodeReference target) {

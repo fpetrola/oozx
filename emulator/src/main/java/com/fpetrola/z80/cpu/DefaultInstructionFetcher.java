@@ -32,7 +32,7 @@ import fuse.tstates.CachedPhase;
 import fuse.tstates.PhaseProcessor;
 
 public class DefaultInstructionFetcher implements InstructionFetcher {
-  protected final MultiOpcodeFetcher multiOpcodeFetcher;
+  public final MultiOpcodeFetcher multiOpcodeFetcher;
   protected final State state;
   protected int pcValue;
   public Instruction currentInstruction;

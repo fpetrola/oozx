@@ -1,8 +1,12 @@
 package com.fpetrola.oozx;
 
+import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.impl.Cp;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
+import com.fpetrola.z80.minizx.emulation.Helper;
+import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
 import com.fpetrola.z80.opcodes.references.IndirectMemory16BitReference;
 import com.fpetrola.z80.opcodes.references.Memory16BitReference;
@@ -478,55 +482,120 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecode", instructions);
 
     String expectedSource = """
-                import com.fpetrola.oozx.Z80UnRolled;
+        import com.fpetrola.oozx.Z80UnRolled;
         
-                public class MultiInstructionBytecode extends Z80UnRolled {
-                   public void executeLdMprfIxA() {
-                      int var1 = super.PC + 2 & '\\uffff';
-                      int var2 = super.memory.read(var1, 0);
-                      int var3 = super.IX + var2 & '\\uffff';
-                      super.memory.write(var3, super.A);
-                   }
+        public class MultiInstructionBytecode extends Z80UnRolled {
+           public void executeLdMprfIxA() {
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              super.memory.write(var3, super.A);
+           }
         
-                   public void executeXorMprfIxC() {
-                      int var1 = super.PC + 2 & '\\uffff';
-                      int var2 = super.memory.read(var1, 0);
-                      int var3 = super.IX + var2 & '\\uffff';
-                      int var4 = super.memory.read(var3, 0);
-                      int var5 = super.xorTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.F);
-                      super.memory.write(var3, var5);
-                   }
+           public void executeXorMprfIxC() {
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              int var4 = super.memory.read(var3, 0);
+              int var5 = super.xorTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.F);
+              super.memory.write(var3, var5);
+           }
         
-                   public void executeAddMprfIxE() {
-                      int var1 = super.PC + 2 & '\\uffff';
-                      int var2 = super.memory.read(var1, 0);
-                      int var3 = super.IX + var2 & '\\uffff';
-                      int var4 = super.memory.read(var3, 0);
-                      int var5 = super.addTableAluOperation.execute2ValuesAndCarry(var4, super.E, super.F);
-                      super.memory.write(var3, var5);
-                   }
+           public void executeAddMprfIxE() {
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              int var4 = super.memory.read(var3, 0);
+              int var5 = super.addTableAluOperation.execute2ValuesAndCarry(var4, super.E, super.F);
+              super.memory.write(var3, var5);
+           }
         
-                   public void execute(int opcode) {
-                      switch(opcode) {
-                      case 10:
-                         this.executeLdMprfIxA();
-                         break;
-                      case 20:
-                         this.executeXorMprfIxC();
-                         break;
-                      case 30:
-                         this.executeAddMprfIxE();
-                         break;
-                      default:
-                         StringBuilder var2 = new StringBuilder();
-                         var2.append("Invalid instruction index: ");
-                         var2.append(opcode);
-                         String var3 = var2.toString();
-                         throw new IllegalArgumentException(var3);
-                      }
+           public int execute(int opcode) {
+              switch(opcode) {
+              case 10:
+                 this.executeLdMprfIxA();
+                 break;
+              case 20:
+                 this.executeXorMprfIxC();
+                 break;
+              case 30:
+                 this.executeAddMprfIxE();
+                 break;
+              default:
+                 return -1;
+              }
         
-                   }
-                }""";
+              return 0;
+           }
+        }""";
+    assertSourceEquals(actualSource, expectedSource);
+  }
+
+
+  @Test
+  public void testBytecodeTableOpcodesSwitch() throws IOException {
+    Map<Integer, TargetSourceInstruction<?>> instructions = new TreeMap<>();
+
+    OOZ80 ooz80 = Helper.createOOZ80();
+    DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
+    TableBasedOpCodeDecoder opcodesTables = instructionFetcher.multiOpcodeFetcher.getOpcodesTables();
+
+    Instruction[] opcodeLookupTable = opcodesTables.getOpcodeLookupTable();
+    for (int i = 0; i < opcodeLookupTable.length; i++) {
+      Instruction instruction = opcodeLookupTable[i];
+      if (instruction instanceof TargetSourceInstruction<?>)
+        instructions.put(i, (TargetSourceInstruction<?>) instruction);
+    }
+
+    String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecode", instructions);
+
+    String expectedSource = """
+        import com.fpetrola.oozx.Z80UnRolled;
+        
+        public class MultiInstructionBytecode extends Z80UnRolled {
+           public void executeLdMprfIxA() {
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              super.memory.write(var3, super.A);
+           }
+        
+           public void executeXorMprfIxC() {
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              int var4 = super.memory.read(var3, 0);
+              int var5 = super.xorTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.F);
+              super.memory.write(var3, var5);
+           }
+        
+           public void executeAddMprfIxE() {
+              int var1 = super.PC + 2 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.IX + var2 & '\\uffff';
+              int var4 = super.memory.read(var3, 0);
+              int var5 = super.addTableAluOperation.execute2ValuesAndCarry(var4, super.E, super.F);
+              super.memory.write(var3, var5);
+           }
+        
+           public int execute(int opcode) {
+              switch(opcode) {
+              case 10:
+                 this.executeLdMprfIxA();
+                 break;
+              case 20:
+                 this.executeXorMprfIxC();
+                 break;
+              case 30:
+                 this.executeAddMprfIxE();
+                 break;
+              default:
+                 return -1;
+              }
+        
+              return 0;
+           }
+        }""";
     assertSourceEquals(actualSource, expectedSource);
   }
 

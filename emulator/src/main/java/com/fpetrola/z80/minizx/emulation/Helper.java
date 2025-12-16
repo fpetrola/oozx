@@ -24,7 +24,7 @@ import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.MemptrUpdateInstructionSpy;
 
 public class Helper {
-  public static  OOZ80 createOOZ80(IO io) {
+  public static OOZ80 createOOZ80(IO io) {
     var state = new State(io, new MockedMemory(true));
     return new OOZ80(state, getInstructionFetcher(state, new MemptrUpdateInstructionSpy(state), new DefaultInstructionFactory(state)), new DefaultInstructionExecutor(state, false));
   }
@@ -32,5 +32,19 @@ public class Helper {
   public static DefaultInstructionFetcher getInstructionFetcher(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory) {
     return new DefaultInstructionFetcher(state, instructionFactory, false, false);
 //    return new CachedInstructionFetcher(state, instructionFactory, false);
+  }
+
+  public static OOZ80 createOOZ80() {
+    return Helper.createOOZ80(new MyIO());
+  }
+
+
+  private static class MyIO implements IO {
+    public int in(int port) {
+      return 0;
+    }
+
+    public void out(int port, int value) {
+    }
   }
 }
