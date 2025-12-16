@@ -22,22 +22,23 @@ public class InstanceInlinerWithSootUpTest {
         
         import com.fpetrola.z80.memory.Memory;
         import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
+        import com.fpetrola.z80.registers.Register;
         
         public class MemoryPlusRegister8BitReferenceClone {
-           MyAbstractMemory memory;
-           Plain16BitRegister target;
+           Memory memory;
+           int IX;
            int valueDelta;
-           Plain16BitRegister pc;
+           int PC;
         
            MemoryPlusRegister8BitReferenceClone(Plain16BitRegister var1, MyAbstractMemory var2, Plain16BitRegister var3, int var4) {
-              this.target = var1;
+              this.IX = var1.read();
               this.memory = var2;
-              this.pc = var3;
+              this.PC = var3.read();
               this.valueDelta = var4;
            }
         
            byte fetchRelative() {
-              int var1 = this.pc.read() + this.valueDelta & '\\uffff';
+              int var1 = this.PC + this.valueDelta & '\\uffff';
               return (byte)this.memory.read(var1, 0);
            }
         
@@ -46,22 +47,17 @@ public class InstanceInlinerWithSootUpTest {
            }
         
            int read() {
-              int var1 = this.target.read();
+              int var1 = this.IX;
               byte var2 = this.fetchRelative();
               int var3 = var1 + var2 & '\\uffff';
-              this.address = var3;
-              int var4 = this.memory.read(this.address, 0);
-              this.value = var4;
-              return this.value;
+              return this.memory.read(var3, 0);
            }
         
            void write(int var1) {
-              int var2 = this.target.read();
+              int var2 = this.IX;
               byte var3 = this.fetchRelative();
               int var4 = var2 + var3 & '\\uffff';
-              this.address = var4;
-              this.value = var1;
-              this.memory.write(this.address, var1);
+              this.memory.write(var4, var1);
            }
         }
         """, decompiledSource);
