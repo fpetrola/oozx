@@ -240,10 +240,17 @@ public class ClassClonerWithSootUp {
     Object right = assign.getRightOp();
 
     if (left instanceof Local leftLocal) {
-      Object value = getValue(right, mm, localToVar, localValues);
-      if (value != null) {
-        if (value instanceof Variable var) localToVar.put(leftLocal, var);
-        localValues.put(leftLocal, value);
+      // Si el lado derecho es un field read, mapeamos la local al field pero no ejecutamos código
+      if (right instanceof JFieldRef fr) {
+        // Mapear la variable local al acceso del field, pero sin ejecutar nada
+        // Esto permite que cuando se use la variable local, se acceda al field directamente
+        localToVar.put(leftLocal, mm.field(fr.getFieldSignature().getName()));
+      } else {
+        Object value = getValue(right, mm, localToVar, localValues);
+        if (value != null) {
+          if (value instanceof Variable var) localToVar.put(leftLocal, var);
+          localValues.put(leftLocal, value);
+        }
       }
     } else if (left instanceof JFieldRef fr) {
       setFieldValue(mm, fr.getFieldSignature().getName(), right, localToVar, localValues);
@@ -304,6 +311,61 @@ public class ClassClonerWithSootUp {
     } else if (value != null && value.getClass().getSimpleName().equals("NullConstant")) {
       // Manejo de NullConstant de Jimple
       return null;
+    } else if (value != null && isBinaryExpr(value)) {
+      // Manejar expresiones binarias (suma, resta, AND, OR, etc.)
+      return processBinaryExpr(value, mm, localToVar, localValues);
+    }
+    return null;
+  }
+
+  private static boolean isBinaryExpr(Object value) {
+   String className = value.getClass().getSimpleName();
+   return className.contains("BinOp") || className.contains("AddExpr") || className.contains("SubExpr") ||
+          className.contains("AndExpr") || className.contains("OrExpr") || className.contains("XorExpr") ||
+          className.contains("ShlExpr") || className.contains("ShrExpr") || className.contains("UshrExpr") ||
+          className.contains("MulExpr") || className.contains("DivExpr") || className.contains("RemExpr");
+  }
+
+  private static Object processBinaryExpr(Object value, MethodMaker mm,
+                                         Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
+    try {
+      Object leftOp = value.getClass().getMethod("getOp1").invoke(value);
+      Object rightOp = value.getClass().getMethod("getOp2").invoke(value);
+      String opName = value.getClass().getSimpleName();
+      
+      Object leftVal = getValue(leftOp, mm, localToVar, localValues);
+      Object rightVal = getValue(rightOp, mm, localToVar, localValues);
+      
+      if (leftVal instanceof Variable leftVar && rightVal instanceof Variable rightVar) {
+        if (opName.contains("AddExpr")) {
+          return leftVar.add(rightVar);
+        } else if (opName.contains("SubExpr")) {
+          return leftVar.sub(rightVar);
+        } else if (opName.contains("AndExpr")) {
+          return leftVar.and(rightVar);
+        } else if (opName.contains("OrExpr")) {
+          return leftVar.or(rightVar);
+        } else if (opName.contains("XorExpr")) {
+          return leftVar.xor(rightVar);
+        }
+      } else if (leftVal instanceof Variable leftVar && rightVal != null) {
+        // rightVal puede ser Integer (objeto) o int (primitivo)
+        int rightInt = (rightVal instanceof Integer) ? (Integer) rightVal : (int) rightVal;
+        if (opName.contains("AddExpr")) {
+          return leftVar.add(rightInt);
+        } else if (opName.contains("SubExpr")) {
+          return leftVar.sub(rightInt);
+        } else if (opName.contains("AndExpr")) {
+          return leftVar.and(rightInt);
+        } else if (opName.contains("OrExpr")) {
+          return leftVar.or(rightInt);
+        } else if (opName.contains("XorExpr")) {
+          return leftVar.xor(rightInt);
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace(); // Para debug
+      // Si hay error, retornar null
     }
     return null;
   }
