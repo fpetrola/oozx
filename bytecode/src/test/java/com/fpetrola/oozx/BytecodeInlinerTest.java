@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests para BytecodeInliner que verifica que se generan correctamente
  * clases bytecode compiladas dinámicamente que extiendan Z80UnRolled.
  */
-public class BytecodeInlinerTest {
+public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeInline1() throws IOException {
@@ -47,7 +47,10 @@ public class BytecodeInlinerTest {
 
   @Test
   public void testBytecodeInline2() throws IOException {
-    var ld = getLd2();
+    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
+    var source = new Plain8BitRegister("B");
+    var ld = new Ld(target, source, new Plain8BitRegister("F"));
+
     String actualSource = testBytecodeInlineOf(ld);
 
     String expectedSource = """
@@ -63,7 +66,10 @@ public class BytecodeInlinerTest {
 
   @Test
   public void testBytecodeInline3() throws IOException {
-    var ld = getLd3();
+    MyAbstractMemory memory = new MyAbstractMemory();
+    var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
+    var source = new Plain8BitRegister("B");
+    var ld = new Ld(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(ld);
 
     String expectedSource = """
@@ -110,7 +116,10 @@ public class BytecodeInlinerTest {
 
   @Test
   public void testBytecodeInline5() throws IOException {
-    var ld = getLd5();
+    MyAbstractMemory memory = new MyAbstractMemory();
+    var target = new IndirectMemory16BitReference(new Plain16BitRegister("IX"), memory);
+    var source = new Plain8BitRegister("D");
+    var ld = new Ld(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(ld);
 
     String expectedSource = """
@@ -158,7 +167,9 @@ public class BytecodeInlinerTest {
 
   @Test
   public void testBytecodeOrInline1() throws IOException {
-    var or = getOr1();
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var source = new Plain8BitRegister("C");
+    var or = new Or(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(or);
 
     String expectedSource = """
@@ -179,7 +190,9 @@ public class BytecodeInlinerTest {
 
   @Test
   public void testBytecodeXorInline2() throws IOException {
-    var xor = getXor2();
+    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
+    var source = new Plain8BitRegister("C");
+    var xor = new Xor(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(xor);
 
     String expectedSource = """
@@ -197,7 +210,10 @@ public class BytecodeInlinerTest {
 
   @Test
   public void testBytecodeXorInline3() throws IOException {
-    var xor = getXor3();
+    MyAbstractMemory memory = new MyAbstractMemory();
+    var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
+    var source = new Plain8BitRegister("C");
+    var xor = new Xor(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(xor);
 
     String expectedSource = """
@@ -220,7 +236,9 @@ public class BytecodeInlinerTest {
 
   @Test
   public void testBytecodeOrInline2() throws IOException {
-    var or = getOr2();
+    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
+    var source = new Plain8BitRegister("C");
+    var or = new Or(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(or);
 
     String expectedSource = """
@@ -238,7 +256,10 @@ public class BytecodeInlinerTest {
 
   @Test
   public void testBytecodeOrInline3() throws IOException {
-    var or = getOr3();
+    MyAbstractMemory memory = new MyAbstractMemory();
+    var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
+    var source = new Plain8BitRegister("C");
+    var or = new Or(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(or);
 
     String expectedSource = """
@@ -261,7 +282,9 @@ public class BytecodeInlinerTest {
 
   @Test
   public void testBytecodeAndInline1() throws IOException {
-    var and = getAnd1();
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var source = new Plain8BitRegister("C");
+    var and = new And(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(and);
 
     String expectedSource = """
@@ -282,7 +305,9 @@ public class BytecodeInlinerTest {
 
   @Test
   public void testBytecodeAndInline2() throws IOException {
-    var and = getAnd2();
+    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
+    var source = new Plain8BitRegister("C");
+    var and = new And(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(and);
 
     String expectedSource = """
@@ -300,7 +325,10 @@ public class BytecodeInlinerTest {
 
   @Test
   public void testBytecodeAndInline3() throws IOException {
-    var and = getAnd3();
+    MyAbstractMemory memory = new MyAbstractMemory();
+    var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
+    var source = new Plain8BitRegister("C");
+    var and = new And(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(and);
 
     String expectedSource = """
@@ -323,7 +351,9 @@ public class BytecodeInlinerTest {
 
   @Test
   public void testBytecodeSubInline1() throws IOException {
-    var sub = getSub1();
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var source = new Plain8BitRegister("B");
+    var sub = new Sub(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(sub);
 
     String expectedSource = """
@@ -344,7 +374,9 @@ public class BytecodeInlinerTest {
 
   @Test
   public void testBytecodeCpInline1() throws IOException {
-    var cp = getCp1();
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var source = new Plain8BitRegister("D");
+    var cp = new Cp(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(cp);
 
     String expectedSource = """
@@ -365,7 +397,9 @@ public class BytecodeInlinerTest {
 
   @Test
   public void testBytecodeAddInline1() throws IOException {
-    var add = getAdd1();
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var source = new Plain8BitRegister("E");
+    var add = new Add(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(add);
 
     String expectedSource = """
@@ -386,7 +420,9 @@ public class BytecodeInlinerTest {
 
   @Test
   public void testBytecodeAdcInline1() throws IOException {
-    var adc = getAdc1();
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var source = new Plain8BitRegister("H");
+    var adc = new Adc(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(adc);
 
     String expectedSource = """
@@ -407,7 +443,9 @@ public class BytecodeInlinerTest {
 
   @Test
   public void testBytecodeSbcInline1() throws IOException {
-    var sbc = getSbc1();
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var source = new Plain8BitRegister("L");
+    var sbc = new Sbc(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(sbc);
 
     String expectedSource = """
@@ -430,7 +468,9 @@ public class BytecodeInlinerTest {
   public void testBytecodeMultipleInstructionsSwitch() throws IOException {
     var ld = getLd1();
     var xor = getXor1();
-    var add = getAdd1();
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var source = new Plain8BitRegister("E");
+    var add = new Add(target, source, new Plain8BitRegister("F"));
 
     String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecode", List.of(ld, xor, add));
 
@@ -489,205 +529,4 @@ public class BytecodeInlinerTest {
   }
 
 
-  // Guardar referencia al inliner para acceder al bytecode generado
-  private BytecodeInliner lastInliner;
-
-  /**
-   * Test helper genérico que genera bytecode, descompila y retorna el código fuente
-   */
-  private String testBytecodeInlineOf(TargetSourceInstruction instruction) throws IOException {
-    var analyzer = new InstructionAnalyzer();
-    analyzer.analyze(instruction);
-
-    lastInliner = setupInliner(analyzer);
-    String generatedClass = lastInliner.inlineInstruction(instruction);
-
-    return getDecompiledSource(generatedClass);
-  }
-
-  /**
-   * Test helper que genera una clase con múltiples instrucciones
-   */
-  private String testBytecodeMultipleInstructionsOf(String className, List<TargetSourceInstruction> instructions) throws IOException {
-    var analyzer = new InstructionAnalyzer();
-    lastInliner = setupInliner(analyzer);
-    String generatedClass = lastInliner.inlineMultipleInstructions(className, instructions);
-
-    return getDecompiledSource(generatedClass);
-  }
-
-  /**
-   * Configura un BytecodeInliner con el analyzer y directorio de salida
-   */
-  private BytecodeInliner setupInliner(InstructionAnalyzer analyzer) {
-    Path bytecodeOutputDir = Paths.get("target/generated-classes");
-    return new BytecodeInliner(analyzer, bytecodeOutputDir);
-  }
-
-  /**
-   * Obtiene el código fuente descompilado de la clase generada usando Decompiler
-   */
-  private String getDecompiledSource(String generatedClass) throws IOException {
-    try {
-      if (lastInliner == null) {
-        throw new IOException("lastInliner no fue inicializado");
-      }
-
-      byte[] bytecode = BytecodeInliner.generatedBytecodes.get(generatedClass);
-
-      Path tempDir = Paths.get("target/decompiled-temp");
-      Files.createDirectories(tempDir);
-      Path classFile = tempDir.resolve(generatedClass + ".class");
-      Files.write(classFile, bytecode);
-
-      Decompiler decompiler = new Decompiler();
-      decompiler.addClass(bytecode, classFile.toFile());
-      String decompiled = decompiler.decompile();
-
-      if (decompiled == null || decompiled.trim().isEmpty()) {
-        throw new IOException("Decompiler no pudo descompilar la clase");
-      }
-
-      return decompiled;
-    } catch (Exception e) {
-      throw new IOException("Error descompilando bytecode generado: " + e.getMessage(), e);
-    }
-  }
-
-  /**
-   * Compara el código fuente descompilado con el esperado
-   */
-  private void assertSourceEquals(String actual, String expectedSource) {
-    assertEquals(expectedSource.trim(), actual.trim(), "Source code does not match:\n\n" + "expected:\n" + expectedSource + "\n\n" + "actual:\n" + actual);
-  }
-
-  // ============ Helpers para crear instrucciones de prueba ============
-
-  public static Ld getLd1() {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
-    var source = new Plain8BitRegister("A");
-    return new Ld(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static Ld getLd2() {
-    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
-    var source = new Plain8BitRegister("B");
-    return new Ld(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static Ld getLd3() {
-    MyAbstractMemory memory = new MyAbstractMemory();
-    var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
-    var source = new Plain8BitRegister("B");
-    return new Ld(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static Ld getLd5() {
-    MyAbstractMemory memory = new MyAbstractMemory();
-    var target = new IndirectMemory16BitReference(new Plain16BitRegister("IX"), memory);
-    var source = new Plain8BitRegister("D");
-    return new Ld(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static Xor getXor1() {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
-    var source = new Plain8BitRegister("C");
-    return new Xor(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static Or getOr1() {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
-    var source = new Plain8BitRegister("C");
-    return new Or(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static Xor getXor2() {
-    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
-    var source = new Plain8BitRegister("C");
-    return new Xor(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static Xor getXor3() {
-    MyAbstractMemory memory = new MyAbstractMemory();
-    var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
-    var source = new Plain8BitRegister("C");
-    return new Xor(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static Or getOr2() {
-    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
-    var source = new Plain8BitRegister("C");
-    return new Or(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static Or getOr3() {
-    MyAbstractMemory memory = new MyAbstractMemory();
-    var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
-    var source = new Plain8BitRegister("C");
-    return new Or(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static And getAnd1() {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
-    var source = new Plain8BitRegister("C");
-    return new And(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static And getAnd2() {
-    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
-    var source = new Plain8BitRegister("C");
-    return new And(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static And getAnd3() {
-    MyAbstractMemory memory = new MyAbstractMemory();
-    var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
-    var source = new Plain8BitRegister("C");
-    return new And(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static Sub getSub1() {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
-    var source = new Plain8BitRegister("B");
-    return new Sub(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static Cp getCp1() {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
-    var source = new Plain8BitRegister("D");
-    return new Cp(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static Add getAdd1() {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
-    var source = new Plain8BitRegister("E");
-    return new Add(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static Adc getAdc1() {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
-    var source = new Plain8BitRegister("H");
-    return new Adc(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static Sbc getSbc1() {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
-    var source = new Plain8BitRegister("L");
-    return new Sbc(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static Dec getDec1() {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
-    return new Dec(target, new Plain8BitRegister("F"));
-  }
-
-  private static Inc getInc1() {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
-    return new Inc(target, new Plain8BitRegister("F"));
-  }
-
-  private static Neg getNeg1() {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
-    return new Neg(target, new Plain8BitRegister("F"));
-  }
 }

@@ -1,0 +1,103 @@
+package com.fpetrola.oozx;
+
+import com.fpetrola.z80.bytecode.Decompiler;
+import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.instructions.impl.Xor;
+import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
+import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
+import com.fpetrola.z80.registers.Plain16BitRegister;
+import com.fpetrola.z80.registers.Plain8BitRegister;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class BytecodeInlinerTestBase {
+  // Guardar referencia al inliner para acceder al bytecode generado
+  private BytecodeInliner lastInliner;
+
+  public static Ld getLd1() {
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var source = new Plain8BitRegister("A");
+    return new Ld(target, source, new Plain8BitRegister("F"));
+  }
+
+  protected static Xor getXor1() {
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var source = new Plain8BitRegister("C");
+    return new Xor(target, source, new Plain8BitRegister("F"));
+  }
+
+  /**
+   * Test helper genérico que genera bytecode, descompila y retorna el código fuente
+   */
+  protected String testBytecodeInlineOf(TargetSourceInstruction instruction) throws IOException {
+    var analyzer = new InstructionAnalyzer();
+    analyzer.analyze(instruction);
+
+    lastInliner = setupInliner(analyzer);
+    String generatedClass = lastInliner.inlineInstruction(instruction);
+
+    return getDecompiledSource(generatedClass);
+  }
+
+  /**
+   * Test helper que genera una clase con múltiples instrucciones
+   */
+  protected String testBytecodeMultipleInstructionsOf(String className, List<TargetSourceInstruction> instructions) throws IOException {
+    var analyzer = new InstructionAnalyzer();
+    lastInliner = setupInliner(analyzer);
+    String generatedClass = lastInliner.inlineMultipleInstructions(className, instructions);
+
+    return getDecompiledSource(generatedClass);
+  }
+
+  /**
+   * Configura un BytecodeInliner con el analyzer y directorio de salida
+   */
+  private BytecodeInliner setupInliner(InstructionAnalyzer analyzer) {
+    Path bytecodeOutputDir = Paths.get("target/generated-classes");
+    return new BytecodeInliner(analyzer, bytecodeOutputDir);
+  }
+
+  /**
+   * Obtiene el código fuente descompilado de la clase generada usando Decompiler
+   */
+  private String getDecompiledSource(String generatedClass) throws IOException {
+    try {
+      if (lastInliner == null) {
+        throw new IOException("lastInliner no fue inicializado");
+      }
+
+      byte[] bytecode = BytecodeInliner.generatedBytecodes.get(generatedClass);
+
+      Path tempDir = Paths.get("target/decompiled-temp");
+      Files.createDirectories(tempDir);
+      Path classFile = tempDir.resolve(generatedClass + ".class");
+      Files.write(classFile, bytecode);
+
+      Decompiler decompiler = new Decompiler();
+      decompiler.addClass(bytecode, classFile.toFile());
+      String decompiled = decompiler.decompile();
+
+      if (decompiled == null || decompiled.trim().isEmpty()) {
+        throw new IOException("Decompiler no pudo descompilar la clase");
+      }
+
+      return decompiled;
+    } catch (Exception e) {
+      throw new IOException("Error descompilando bytecode generado: " + e.getMessage(), e);
+    }
+  }
+
+  /**
+   * Compara el código fuente descompilado con el esperado
+   */
+  protected void assertSourceEquals(String actual, String expectedSource) {
+    assertEquals(expectedSource.trim(), actual.trim(), "Source code does not match:\n\n" + "expected:\n" + expectedSource + "\n\n" + "actual:\n" + actual);
+  }
+}
