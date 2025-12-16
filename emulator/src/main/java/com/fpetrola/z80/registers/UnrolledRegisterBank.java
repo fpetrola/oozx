@@ -29,10 +29,10 @@ public class UnrolledRegisterBank extends RegisterBank {
   private int L;
   private int I;
   private int R;
-  private int _AF;
-  private int _BC;
-  private int _DE;
-  private int _HL;
+  private int AFx;
+  private int BCx;
+  private int DEx;
+  private int HLx;
   private int IX;
   private int IY;
   private int PC;
@@ -399,19 +399,19 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public int read() {
-      return _AF >> 8;
+      return AFx >> 8;
     }
 
     public void write(int value) {
-      _AF = (_AF & 0x00FF) | ((value & 0xFF) << 8);
+      AFx = (AFx & 0x00FF) | ((value & 0xFF) << 8);
     }
 
     public void increment() {
-      _AF = (_AF + 0x100) & 0xFFFF;
+      AFx = (AFx + 0x100) & 0xFFFF;
     }
 
     public void decrement() {
-      _AF = (_AF - 0x100) & 0xFFFF;
+      AFx = (AFx - 0x100) & 0xFFFF;
     }
 
     public int getLength() {
@@ -435,19 +435,19 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public int read() {
-      return _AF & 0xFF;
+      return AFx & 0xFF;
     }
 
     public void write(int value) {
-      _AF = (_AF & 0xFF00) | (value & 0xFF);
+      AFx = (AFx & 0xFF00) | (value & 0xFF);
     }
 
     public void increment() {
-      _AF = (_AF + 1) & 0xFFFF;
+      AFx = (AFx + 1) & 0xFFFF;
     }
 
     public void decrement() {
-      _AF = (_AF - 1) & 0xFFFF;
+      AFx = (AFx - 1) & 0xFFFF;
     }
 
     public int getLength() {
@@ -471,19 +471,19 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public int read() {
-      return _BC >> 8;
+      return BCx >> 8;
     }
 
     public void write(int value) {
-      _BC = (_BC & 0x00FF) | ((value & 0xFF) << 8);
+      BCx = (BCx & 0x00FF) | ((value & 0xFF) << 8);
     }
 
     public void increment() {
-      _BC = (_BC + 0x100) & 0xFFFF;
+      BCx = (BCx + 0x100) & 0xFFFF;
     }
 
     public void decrement() {
-      _BC = (_BC - 0x100) & 0xFFFF;
+      BCx = (BCx - 0x100) & 0xFFFF;
     }
 
     public int getLength() {
@@ -507,19 +507,19 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public int read() {
-      return _BC & 0xFF;
+      return BCx & 0xFF;
     }
 
     public void write(int value) {
-      _BC = (_BC & 0xFF00) | (value & 0xFF);
+      BCx = (BCx & 0xFF00) | (value & 0xFF);
     }
 
     public void increment() {
-      _BC = (_BC + 1) & 0xFFFF;
+      BCx = (BCx + 1) & 0xFFFF;
     }
 
     public void decrement() {
-      _BC = (_BC - 1) & 0xFFFF;
+      BCx = (BCx - 1) & 0xFFFF;
     }
 
     public int getLength() {
@@ -543,19 +543,19 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public int read() {
-      return _DE >> 8;
+      return DEx >> 8;
     }
 
     public void write(int value) {
-      _DE = (_DE & 0x00FF) | ((value & 0xFF) << 8);
+      DEx = (DEx & 0x00FF) | ((value & 0xFF) << 8);
     }
 
     public void increment() {
-      _DE = (_DE + 0x100) & 0xFFFF;
+      DEx = (DEx + 0x100) & 0xFFFF;
     }
 
     public void decrement() {
-      _DE = (_DE - 0x100) & 0xFFFF;
+      DEx = (DEx - 0x100) & 0xFFFF;
     }
 
     public int getLength() {
@@ -579,19 +579,19 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public int read() {
-      return _DE & 0xFF;
+      return DEx & 0xFF;
     }
 
     public void write(int value) {
-      _DE = (_DE & 0xFF00) | (value & 0xFF);
+      DEx = (DEx & 0xFF00) | (value & 0xFF);
     }
 
     public void increment() {
-      _DE = (_DE + 1) & 0xFFFF;
+      DEx = (DEx + 1) & 0xFFFF;
     }
 
     public void decrement() {
-      _DE = (_DE - 1) & 0xFFFF;
+      DEx = (DEx - 1) & 0xFFFF;
     }
 
     public int getLength() {
@@ -615,19 +615,19 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public int read() {
-      return _HL >> 8;
+      return HLx >> 8;
     }
 
     public void write(int value) {
-      _HL = (_HL & 0x00FF) | ((value & 0xFF) << 8);
+      HLx = (HLx & 0x00FF) | ((value & 0xFF) << 8);
     }
 
     public void increment() {
-      _HL = (_HL + 0x100) & 0xFFFF;
+      HLx = (HLx + 0x100) & 0xFFFF;
     }
 
     public void decrement() {
-      _HL = (_HL - 0x100) & 0xFFFF;
+      HLx = (HLx - 0x100) & 0xFFFF;
     }
 
     public int getLength() {
@@ -651,19 +651,19 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public int read() {
-      return _HL & 0xFF;
+      return HLx & 0xFF;
     }
 
     public void write(int value) {
-      _HL = (_HL & 0xFF00) | (value & 0xFF);
+      HLx = (HLx & 0xFF00) | (value & 0xFF);
     }
 
     public void increment() {
-      _HL = (_HL + 1) & 0xFFFF;
+      HLx = (HLx + 1) & 0xFFFF;
     }
 
     public void decrement() {
-      _HL = (_HL - 1) & 0xFFFF;
+      HLx = (HLx - 1) & 0xFFFF;
     }
 
     public int getLength() {
@@ -1116,19 +1116,19 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public int read() {
-      return _AF;
+      return AFx;
     }
 
     public void write(int value) {
-      _AF = value & 0xFFFF;
+      AFx = value & 0xFFFF;
     }
 
     public void increment() {
-      _AF = (_AF + 1) & 0xFFFF;
+      AFx = (AFx + 1) & 0xFFFF;
     }
 
     public void decrement() {
-      _AF = (_AF - 1) & 0xFFFF;
+      AFx = (AFx - 1) & 0xFFFF;
     }
 
     public Register getHigh() {
@@ -1164,19 +1164,19 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public int read() {
-      return _BC;
+      return BCx;
     }
 
     public void write(int value) {
-      _BC = value & 0xFFFF;
+      BCx = value & 0xFFFF;
     }
 
     public void increment() {
-      _BC = (_BC + 1) & 0xFFFF;
+      BCx = (BCx + 1) & 0xFFFF;
     }
 
     public void decrement() {
-      _BC = (_BC - 1) & 0xFFFF;
+      BCx = (BCx - 1) & 0xFFFF;
     }
 
     public Register getHigh() {
@@ -1212,19 +1212,19 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public int read() {
-      return _DE;
+      return DEx;
     }
 
     public void write(int value) {
-      _DE = value & 0xFFFF;
+      DEx = value & 0xFFFF;
     }
 
     public void increment() {
-      _DE = (_DE + 1) & 0xFFFF;
+      DEx = (DEx + 1) & 0xFFFF;
     }
 
     public void decrement() {
-      _DE = (_DE - 1) & 0xFFFF;
+      DEx = (DEx - 1) & 0xFFFF;
     }
 
     public Register getHigh() {
@@ -1260,19 +1260,19 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public int read() {
-      return _HL;
+      return HLx;
     }
 
     public void write(int value) {
-      _HL = value & 0xFFFF;
+      HLx = value & 0xFFFF;
     }
 
     public void increment() {
-      _HL = (_HL + 1) & 0xFFFF;
+      HLx = (HLx + 1) & 0xFFFF;
     }
 
     public void decrement() {
-      _HL = (_HL - 1) & 0xFFFF;
+      HLx = (HLx - 1) & 0xFFFF;
     }
 
     public Register getHigh() {

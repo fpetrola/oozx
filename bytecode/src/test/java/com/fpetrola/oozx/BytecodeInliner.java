@@ -383,7 +383,7 @@ public class BytecodeInliner {
      ImmutableOpcodeReference innerTarget = target.getTarget();
 
      if (innerTarget instanceof Register reg) {
-       return mm.field(reg.getName());
+       return resolveRegisterValue(mm, reg);
      } else if (innerTarget instanceof Memory16BitReference mem16Ref) {
        return readAddress16Bit(mm, mem16Ref);
      }
@@ -397,11 +397,33 @@ public class BytecodeInliner {
      ImmutableOpcodeReference innerTarget = target.getTarget();
 
      if (innerTarget instanceof Register reg) {
-       return mm.field(reg.getName());
+       return resolveRegisterValue(mm, reg);
      } else if (innerTarget instanceof Memory16BitReference mem16Ref) {
        return readAddress16Bit(mm, mem16Ref);
      }
      return null;
+   }
+
+  /**
+    * Resuelve el valor de un registro, manejando registros de 16 bits construidos a partir de 8 bits
+    */
+   private Variable resolveRegisterValue(MethodMaker mm, Register reg) {
+     String regName = reg.getName();
+     
+     // Si el registro es de 16 bits sin underscore (BC, DE, HL), construirlo a partir de sus componentes
+     if (regName.length() == 2 && !regName.startsWith("_")) {
+       String highReg = regName.substring(0, 1);  // B, D, H
+       String lowReg = regName.substring(1, 2);   // C, E, L
+       
+       Variable high = mm.field(highReg);
+       Variable low = mm.field(lowReg);
+       Variable result = mm.var(int.class);
+       result.set(low.or(high.shl(8)));
+       return result;
+     }
+     
+     // Para otros registros (A, F, I, R, IX, IY, SP, PC, etc.), acceder directamente
+     return mm.field(regName);
    }
 
   /**
