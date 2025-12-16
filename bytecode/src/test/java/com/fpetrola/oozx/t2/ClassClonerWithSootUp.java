@@ -314,6 +314,9 @@ public class ClassClonerWithSootUp {
     } else if (value != null && isBinaryExpr(value)) {
       // Manejar expresiones binarias (suma, resta, AND, OR, etc.)
       return processBinaryExpr(value, mm, localToVar, localValues);
+    } else if (value != null && value.getClass().getSimpleName().equals("JCastExpr")) {
+      // Manejar casts
+      return processCastExpr(value, mm, localToVar, localValues);
     }
     return null;
   }
@@ -364,7 +367,35 @@ public class ClassClonerWithSootUp {
         }
       }
     } catch (Exception e) {
-      e.printStackTrace(); // Para debug
+      // Si hay error, retornar null
+    }
+    return null;
+  }
+
+  private static Object processCastExpr(Object value, MethodMaker mm,
+                                       Map<Local, Variable> localToVar, Map<Local, Object> localValues) {
+    try {
+      Object operand = value.getClass().getMethod("getOp").invoke(value);
+      Object castType = value.getClass().getMethod("getType").invoke(value);
+      
+      Object operandVal = getValue(operand, mm, localToVar, localValues);
+      if (operandVal instanceof Variable var) {
+        String typeName = castType.toString();
+        if (typeName.contains("byte")) {
+          return var.cast(byte.class);
+        } else if (typeName.contains("short")) {
+          return var.cast(short.class);
+        } else if (typeName.contains("int")) {
+          return var.cast(int.class);
+        } else if (typeName.contains("long")) {
+          return var.cast(long.class);
+        } else if (typeName.contains("float")) {
+          return var.cast(float.class);
+        } else if (typeName.contains("double")) {
+          return var.cast(double.class);
+        }
+      }
+    } catch (Exception e) {
       // Si hay error, retornar null
     }
     return null;

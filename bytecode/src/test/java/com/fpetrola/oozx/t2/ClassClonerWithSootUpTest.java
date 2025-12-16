@@ -168,7 +168,7 @@ public class ClassClonerWithSootUpTest extends TestHelper {
         
            byte fetchRelative() {
               int var1 = this.pc.read() + this.valueDelta & '\\uffff';
-              return (byte) memory.read(var1, 0);
+              return (byte)this.memory.read(var1, 0);
            }
         
            int getLength() {
