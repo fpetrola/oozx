@@ -38,34 +38,39 @@ public class BytecodeInliner {
   }
 
   /**
-    * Genera una clase con múltiples métodos execute a partir de varias instrucciones
-    */
-   public String inlineMultipleInstructions(String className, Map<Integer, TargetSourceInstruction<?>> instructions) {
-     className = className.replace("-", "_");
-     
-     ClassMaker cm = createBaseClass(className);
-     
-     // Guardar los nombres de métodos generados y sus opcodes asociados
-     Map<Integer, String> opcodeToMethodName = new LinkedHashMap<>();
-     
-     // Agregar un método execute para cada instrucción
-     for (Map.Entry<Integer, TargetSourceInstruction<?>> entry : instructions.entrySet()) {
-       Integer opcode = entry.getKey();
-       TargetSourceInstruction<?> instruction = entry.getValue();
-       
-       analyzer.analyze(instruction);
-       String operationName = instruction.getClass().getSimpleName();
-       OpcodeReference target = analyzer.getTarget();
-       String methodName = generateUniquMethodName(instruction, operationName, target);
-       addExecuteMethod(cm, instruction, operationName, target);
-       opcodeToMethodName.put(opcode, methodName);
-     }
-     
-     // Agregar método switch que dispache por opcode
-     addDispatchMethodWithOpcodes(cm, opcodeToMethodName);
-     
-     return finializeClass(className, cm);
-   }
+     * Genera una clase con múltiples métodos execute a partir de varias instrucciones
+     */
+    public String inlineMultipleInstructions(String className, Map<Integer, TargetSourceInstruction<?>> instructions) {
+      className = className.replace("-", "_");
+      
+      ClassMaker cm = createBaseClass(className);
+      
+      // Guardar los nombres de métodos generados y sus opcodes asociados
+      Map<Integer, String> opcodeToMethodName = new LinkedHashMap<>();
+      
+      // Agregar un método execute para cada instrucción
+      for (Map.Entry<Integer, TargetSourceInstruction<?>> entry : instructions.entrySet()) {
+        Integer opcode = entry.getKey();
+        TargetSourceInstruction<?> instruction = entry.getValue();
+        
+        // Solo procesar si la instrucción tiene un source que es un Register
+        if (!(instruction.getSource() instanceof Register)) {
+          continue;
+        }
+        
+        analyzer.analyze(instruction);
+        String operationName = instruction.getClass().getSimpleName();
+        OpcodeReference target = analyzer.getTarget();
+        String methodName = generateUniquMethodName(instruction, operationName, target);
+        addExecuteMethod(cm, instruction, operationName, target);
+        opcodeToMethodName.put(opcode, methodName);
+      }
+      
+      // Agregar método switch que dispache por opcode
+      addDispatchMethodWithOpcodes(cm, opcodeToMethodName);
+      
+      return finializeClass(className, cm);
+    }
 
   /**
    * Retorna el bytecode de la última clase generada
@@ -343,9 +348,13 @@ public class BytecodeInliner {
   }
 
   private void generateExecute(MethodMaker mm, TargetSourceInstruction ld, OpcodeReference target) {
-    String sourceRegName = ((Register) ld.getSource()).getName();
-    generateAluExecute(mm, ld, target, sourceRegName);
-  }
+     ImmutableOpcodeReference source = ld.getSource();
+     // Solo procesar si el source es un Register
+     if (source instanceof Register) {
+       String sourceRegName = ((Register) source).getName();
+       generateAluExecute(mm, ld, target, sourceRegName);
+     }
+   }
 
   /**
     * Genera código de ejecución para instrucciones ALU (LD, XOR, OR, etc.)
