@@ -41,6 +41,42 @@ public class UnrolledRegisterBank extends RegisterBank {
   private int VIRTUAL;
   private int regRBit7;
 
+  public int getAF() {
+    return (A << 8) | F;
+  }
+
+  public int getBC() {
+    return (B << 8) | C;
+  }
+
+  public int getDE() {
+    return (D << 8) | E;
+  }
+
+  public int getHL() {
+    return (H << 8) | L;
+  }
+
+  public void setAF(int value) {
+    A = value >>> 8;
+    F = value & 0xFF;
+  }
+
+  public void setBC(int value) {
+    B = value >>> 8;
+    C = value & 0xFF;
+  }
+
+  public void setDE(int value) {
+    D = value >>> 8;
+    E = value & 0xFF;
+  }
+
+  public void setHL(int value) {
+    H = value >>> 8;
+    L = value & 0xFF;
+  }
+
   public final class ARegister implements Register {
     public ARegister() {
 
