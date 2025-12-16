@@ -27,12 +27,6 @@ import java.util.*;
 
 public class ClassClonerWithSootUp {
   public static void main(String[] args) {
-    args = new String[]{IndirectMemory8BitReference.class.getName()};
-    if (args.length < 1) {
-      System.err.println("Uso: java ClassClonerWithSootUp <nombreClaseOriginal>");
-      return;
-    }
-
     String originalClassName = args[0];
     String newClassName = originalClassName + "Clone";
 
@@ -80,98 +74,102 @@ public class ClassClonerWithSootUp {
 
     // Recorrer y clonar methods
     for (SootMethod sm : originalClass.getMethods()) {
-      Set<MethodModifier> modifiers = sm.getModifiers();
-      String returnType = sm.getReturnType().toString();
-      List<Type> parameterTypes1 = sm.getParameterTypes();
-      Object[] parameterTypes = getParameterTypes(parameterTypes1);
-
-      MethodMaker methodMaker;
-      if (sm.getName().equals("<init>") && returnType.equals("void")) {
-        methodMaker = cm.addConstructor(parameterTypes);
-        // No llamamos invokeSuperConstructor() aquí, lo haremos después de procesar statements
-      } else {
-        methodMaker = cm.addMethod(returnType, sm.getName(), parameterTypes);
-      }
-      MethodMaker mm = setModifiers(methodMaker, modifiers);
-      
-      // Para constructores, invocar super solo si es necesario
-      boolean isConstructor = sm.getName().equals("<init>") && returnType.equals("void");
-
-      if (sm.isAbstract() || !sm.hasBody()) {
-        continue;
-      }
-
-      Body body = sm.getBody();
-      StmtGraph<?> stmtGraph = body.getStmtGraph();
-      int paramCount = sm.getParameterCount();
-
-      // Mapear locales a variables de Maker
-      Map<Local, Variable> localToVar = new HashMap<>();
-      for (Local local : body.getLocals()) {
-        Variable var = mm.var(local.getType().toString());
-        localToVar.put(local, var);
-      }
-
-      // Parámetros: Mapear identity statements
-      for (Stmt stmt : stmtGraph.getStmts()) {
-        if (stmt instanceof JIdentityStmt) {
-          JIdentityStmt idStmt = (JIdentityStmt) stmt;
-          Object right = idStmt.getRightOp();
-          Local left = (Local) idStmt.getLeftOp();
-
-          String rightClass = right.getClass().getSimpleName();
-          if (rightClass.contains("ThisRef")) {
-            localToVar.put(left, mm.this_());
-          } else if (rightClass.contains("ParameterRef")) {
-            try {
-              // Usar reflection para obtener el índice del parámetro
-              int paramIndex = (Integer) right.getClass().getMethod("getIndex").invoke(right);
-              // Los parámetros ya se declararon en addMethod/addConstructor
-              // Aquí simplemente registramos la variable local como parámetro
-              if (paramIndex < paramCount) {
-                localToVar.put(left, mm.param(paramIndex));
-              }
-            } catch (Exception e) {
-              // Si hay error, simplemente continuar - la variable local ya está mapeada arriba
-            }
-          }
-        }
-      }
-
-      // Procesar el constructor para asignar parámetros a campos
-      if (isConstructor) {
-        mm.invokeSuperConstructor();
-        // Procesar statements del constructor para asignar parámetros
-        for (Stmt stmt : stmtGraph.getStmts()) {
-          if (stmt instanceof JAssignStmt) {
-            JAssignStmt assign = (JAssignStmt) stmt;
-            Object left = assign.getLeftOp();
-            Object right = assign.getRightOp();
-            
-            try {
-              // Si es this.field = param, procesarlo
-              if (left instanceof JFieldRef && right instanceof Local) {
-                JFieldRef fr = (JFieldRef) left;
-                Local rightLocal = (Local) right;
-                Variable rightVar = localToVar.get(rightLocal);
-                if (rightVar != null) {
-                  mm.field(fr.getFieldSignature().getName()).set(rightVar);
-                }
-              }
-            } catch (Exception e) {
-              // Ignorar errores
-            }
-          }
-        }
-      } else {
-        // Para métodos normales, intentar generar código desde statements
-        generateMethodBody(mm, sm, stmtGraph, localToVar, returnType);
-      }
+      processMethod(sm, cm);
     }
 
     // Finalizar y cargar
     byte[] clonedClass = cm.finishBytes();
     writeClass(clonedClass);
+  }
+
+  private static void processMethod(SootMethod sm, ClassMaker cm) {
+    Set<MethodModifier> modifiers = sm.getModifiers();
+    String returnType = sm.getReturnType().toString();
+    List<Type> parameterTypes1 = sm.getParameterTypes();
+    Object[] parameterTypes = getParameterTypes(parameterTypes1);
+
+    MethodMaker methodMaker;
+    if (sm.getName().equals("<init>") && returnType.equals("void")) {
+      methodMaker = cm.addConstructor(parameterTypes);
+      // No llamamos invokeSuperConstructor() aquí, lo haremos después de procesar statements
+    } else {
+      methodMaker = cm.addMethod(returnType, sm.getName(), parameterTypes);
+    }
+    MethodMaker mm = setModifiers(methodMaker, modifiers);
+
+    // Para constructores, invocar super solo si es necesario
+    boolean isConstructor = sm.getName().equals("<init>") && returnType.equals("void");
+
+    if (sm.isAbstract() || !sm.hasBody()) {
+      return;
+    }
+
+    Body body = sm.getBody();
+    StmtGraph<?> stmtGraph = body.getStmtGraph();
+    int paramCount = sm.getParameterCount();
+
+    // Mapear locales a variables de Maker
+    Map<Local, Variable> localToVar = new HashMap<>();
+    for (Local local : body.getLocals()) {
+      Variable var = mm.var(local.getType().toString());
+      localToVar.put(local, var);
+    }
+
+    // Parámetros: Mapear identity statements
+    for (Stmt stmt : stmtGraph.getStmts()) {
+      if (stmt instanceof JIdentityStmt) {
+        JIdentityStmt idStmt = (JIdentityStmt) stmt;
+        Object right = idStmt.getRightOp();
+        Local left = (Local) idStmt.getLeftOp();
+
+        String rightClass = right.getClass().getSimpleName();
+        if (rightClass.contains("ThisRef")) {
+          localToVar.put(left, mm.this_());
+        } else if (rightClass.contains("ParameterRef")) {
+          try {
+            // Usar reflection para obtener el índice del parámetro
+            int paramIndex = (Integer) right.getClass().getMethod("getIndex").invoke(right);
+            // Los parámetros ya se declararon en addMethod/addConstructor
+            // Aquí simplemente registramos la variable local como parámetro
+            if (paramIndex < paramCount) {
+              localToVar.put(left, mm.param(paramIndex));
+            }
+          } catch (Exception e) {
+            // Si hay error, simplemente continuar - la variable local ya está mapeada arriba
+          }
+        }
+      }
+    }
+
+    // Procesar el constructor para asignar parámetros a campos
+    if (isConstructor) {
+      mm.invokeSuperConstructor();
+      // Procesar statements del constructor para asignar parámetros
+      for (Stmt stmt : stmtGraph.getStmts()) {
+        if (stmt instanceof JAssignStmt) {
+          JAssignStmt assign = (JAssignStmt) stmt;
+          Object left = assign.getLeftOp();
+          Object right = assign.getRightOp();
+
+          try {
+            // Si es this.field = param, procesarlo
+            if (left instanceof JFieldRef && right instanceof Local) {
+              JFieldRef fr = (JFieldRef) left;
+              Local rightLocal = (Local) right;
+              Variable rightVar = localToVar.get(rightLocal);
+              if (rightVar != null) {
+                mm.field(fr.getFieldSignature().getName()).set(rightVar);
+              }
+            }
+          } catch (Exception e) {
+            // Ignorar errores
+          }
+        }
+      }
+    } else {
+      // Para métodos normales, intentar generar código desde statements
+      generateMethodBody(mm, sm, stmtGraph, localToVar, returnType);
+    }
   }
 
   private static Class<?>[] getParameterTypes(List<Type> parameterTypes1) {
@@ -276,6 +274,8 @@ public class ClassClonerWithSootUp {
         } catch (Exception e) {
           // Ignorar
         }
+      } else {
+        System.out.println("Cannot process");
       }
     }
     
