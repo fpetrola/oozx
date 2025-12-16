@@ -68,9 +68,6 @@ public class MultiOpcodeFetcher {
           wrappers[i] = new LdSpecialWrapper(instruction, increment, pc, memory);
         } else if (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
           wrappers[i] = new FetchNextOpcodeInstructionWrapper(fetchNextOpcodeInstruction);
-        } else if (instruction instanceof Ld ld) {
-          Instruction fastLd = com.fpetrola.oozx.fuse.modules.z80.InstructionSpecializer.specialize(ld);
-          wrappers[i] = new FetchedInstructionWrapper(fastLd);
         } else
           wrappers[i] = new FetchedInstructionWrapper(instruction);
       }
