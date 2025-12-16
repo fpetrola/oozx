@@ -126,8 +126,8 @@ public class ClassClonerWithSootUpTest extends TestHelper {
            }
         
            int read() {
-              int var1 = (this.pc.read() + this.delta) & 65535;
-              return memory.read(var1, 0);
+              int var1 = this.pc.read() + this.delta & '\\uffff';
+              return this.memory.read(var1, 0);
            }
         
            void write(int var1) {
