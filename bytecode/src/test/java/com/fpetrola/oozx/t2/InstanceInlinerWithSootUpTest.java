@@ -7,11 +7,7 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * Test para ClassClonerWithSootUp que verifica que se genera correctamente
- * el bytecode clonado descompilando y validando el código fuente generado.
- */
-public class InstanceInlinerWithSootUpTest extends TestHelper {
+public class InstanceInlinerWithSootUpTest {
 
   @Test
   public void testClassClonerGeneratesValidBytecode() throws IOException {
@@ -27,35 +23,45 @@ public class InstanceInlinerWithSootUpTest extends TestHelper {
         import com.fpetrola.z80.memory.Memory;
         import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
         
-        public class IndirectMemory8BitReferenceClone {
-           ImmutableOpcodeReference target;
-           Memory memory;
+        public class MemoryPlusRegister8BitReferenceClone {
+           MyAbstractMemory memory;
+           Plain16BitRegister target;
+           int valueDelta;
+           Plain16BitRegister pc;
         
-           IndirectMemory8BitReferenceClone(ImmutableOpcodeReference var1, Memory var2) {
+           MemoryPlusRegister8BitReferenceClone(Plain16BitRegister var1, MyAbstractMemory var2, Plain16BitRegister var3, int var4) {
               this.target = var1;
               this.memory = var2;
+              this.pc = var3;
+              this.valueDelta = var4;
+           }
+        
+           byte fetchRelative() {
+              int var1 = this.pc.read() + this.valueDelta & '\\uffff';
+              return (byte)this.memory.read(var1, 0);
            }
         
            int getLength() {
-              return this.target.getLength();
-           }
-        
-           Memory getMemory() {
-              return this.memory;
-           }
-        
-           ImmutableOpcodeReference getTarget() {
-              return this.target;
+              return 1;
            }
         
            int read() {
               int var1 = this.target.read();
-              return this.memory.read(var1, 0);
+              byte var2 = this.fetchRelative();
+              int var3 = var1 + var2 & '\\uffff';
+              this.address = var3;
+              int var4 = this.memory.read(this.address, 0);
+              this.value = var4;
+              return this.value;
            }
         
            void write(int var1) {
               int var2 = this.target.read();
-              this.memory.write(var2, var1);
+              byte var3 = this.fetchRelative();
+              int var4 = var2 + var3 & '\\uffff';
+              this.address = var4;
+              this.value = var1;
+              this.memory.write(this.address, var1);
            }
         }
         """, decompiledSource);
