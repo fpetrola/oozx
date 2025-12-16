@@ -4,6 +4,7 @@ import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.impl.Cp;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
+import com.fpetrola.z80.opcodes.references.IndirectMemory16BitReference;
 import com.fpetrola.z80.opcodes.references.Memory16BitReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.registers.Plain16BitRegister;
@@ -76,6 +77,46 @@ public class BytecodeInlinerTest {
               int var4 = super.memory.read(var3, 0) << 8;
               int var5 = var2 | var4;
               super.memory.write(var5, super.B);
+           }
+        }""";
+    assertSourceEquals(actualSource, expectedSource);
+  }
+
+  @Test
+  public void testBytecodeInline4() throws IOException {
+    var ld = getLd4();
+    String actualSource = testBytecodeInlineOf(ld);
+
+    String expectedSource = """
+        import com.fpetrola.oozx.Z80UnRolled;
+        
+        public class LdBytecode extends Z80UnRolled {
+           public void executeLdImr16M16RC() {
+              int var1 = super.PC + 3 & '\\uffff';
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.PC + 4 & '\\uffff';
+              int var4 = super.memory.read(var3, 0) << 8;
+              int var5 = var2 | var4;
+              int var6 = super.memory.read16Bits(var5);
+              super.memory.write16BitsReverse(var6, super.C);
+           }
+        }""";
+    assertSourceEquals(actualSource, expectedSource);
+  }
+
+  @Test
+  public void testBytecodeInline5() throws IOException {
+    var ld = getLd5();
+    String actualSource = testBytecodeInlineOf(ld);
+
+    String expectedSource = """
+        import com.fpetrola.oozx.Z80UnRolled;
+        
+        public class LdBytecode extends Z80UnRolled {
+           public void executeLdImr16IxD() {
+              int var1 = super.IX;
+              int var2 = super.memory.read16Bits(var1);
+              super.memory.write16BitsReverse(var2, super.D);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -539,6 +580,20 @@ public class BytecodeInlinerTest {
     MyAbstractMemory memory = new MyAbstractMemory();
     var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
     var source = new Plain8BitRegister("B");
+    return new Ld(target, source, new Plain8BitRegister("F"));
+  }
+
+  private static Ld getLd4() {
+    MyAbstractMemory memory = new MyAbstractMemory();
+    var target = new IndirectMemory16BitReference(new Memory16BitReference(memory, new Plain16BitRegister("PC"), 3), memory);
+    var source = new Plain8BitRegister("C");
+    return new Ld(target, source, new Plain8BitRegister("F"));
+  }
+
+  private static Ld getLd5() {
+    MyAbstractMemory memory = new MyAbstractMemory();
+    var target = new IndirectMemory16BitReference(new Plain16BitRegister("IX"), memory);
+    var source = new Plain8BitRegister("D");
     return new Ld(target, source, new Plain8BitRegister("F"));
   }
 
