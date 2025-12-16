@@ -84,7 +84,11 @@ public class BytecodeInlinerTest {
 
   @Test
   public void testBytecodeInline4() throws IOException {
-    var ld = getLd4();
+    MyAbstractMemory memory = new MyAbstractMemory();
+    var target = new IndirectMemory16BitReference(new Memory16BitReference(memory, new Plain16BitRegister("PC"), 3), memory);
+    var source = new Plain8BitRegister("C");
+    var ld = new Ld(target, source, new Plain8BitRegister("F"));
+
     String actualSource = testBytecodeInlineOf(ld);
 
     String expectedSource = """
@@ -580,13 +584,6 @@ public class BytecodeInlinerTest {
     MyAbstractMemory memory = new MyAbstractMemory();
     var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
     var source = new Plain8BitRegister("B");
-    return new Ld(target, source, new Plain8BitRegister("F"));
-  }
-
-  private static Ld getLd4() {
-    MyAbstractMemory memory = new MyAbstractMemory();
-    var target = new IndirectMemory16BitReference(new Memory16BitReference(memory, new Plain16BitRegister("PC"), 3), memory);
-    var source = new Plain8BitRegister("C");
     return new Ld(target, source, new Plain8BitRegister("F"));
   }
 

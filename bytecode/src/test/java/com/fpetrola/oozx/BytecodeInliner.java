@@ -6,6 +6,7 @@ import com.fpetrola.z80.instructions.impl.Or;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.*;
+import com.fpetrola.z80.opcodes.references.IndirectMemory16BitReference;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 import org.cojen.maker.ClassMaker;
@@ -288,6 +289,18 @@ public class BytecodeInliner {
         suffix.append("M16R");
       }
       return suffix.toString();
+    } else if (reference instanceof IndirectMemory16BitReference) {
+      IndirectMemory16BitReference imr16 = (IndirectMemory16BitReference) reference;
+      // IMR16: IndirectMemory16BitReference
+      StringBuilder suffix = new StringBuilder("Imr16");
+      ImmutableOpcodeReference innerTarget = imr16.getTarget();
+      if (innerTarget instanceof Register) {
+        Register reg = (Register) innerTarget;
+        suffix.append(capitalizeFirstLetter(reg.getName()));
+      } else if (innerTarget instanceof Memory16BitReference) {
+        suffix.append("M16R");
+      }
+      return suffix.toString();
     } else if (reference instanceof Memory16BitReference) {
       // M16R: Memory16BitReference
       return "M16R";
@@ -331,34 +344,52 @@ public class BytecodeInliner {
   }
 
   /**
-   * Genera código de ejecución para instrucciones ALU (LD, XOR, OR, etc.)
-   * que leen un valor de memoria (o registro para LD), aplican la operación y escriben el resultado.
-   */
-  private void generateAluExecute(MethodMaker mm, TargetSourceInstruction instruction,
-                                  OpcodeReference target, String sourceRegName) {
-    if (target instanceof MemoryPlusRegister8BitReference memRef) {
-      MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
-      executeAluOperation(mm, instruction, ctx.memory, ctx.address, sourceRegName);
-    } else if (target instanceof IndirectMemory8BitReference indMem) {
-      Variable address = resolveIndirectMemoryAddress(mm, indMem);
-      Variable memory = mm.field("memory");
-      executeAluOperation(mm, instruction, memory, address, sourceRegName);
-    }
-  }
+    * Genera código de ejecución para instrucciones ALU (LD, XOR, OR, etc.)
+    * que leen un valor de memoria (o registro para LD), aplican la operación y escriben el resultado.
+    */
+   private void generateAluExecute(MethodMaker mm, TargetSourceInstruction instruction,
+                                   OpcodeReference target, String sourceRegName) {
+     if (target instanceof MemoryPlusRegister8BitReference memRef) {
+       MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
+       executeAluOperation(mm, instruction, ctx.memory, ctx.address, sourceRegName);
+     } else if (target instanceof IndirectMemory8BitReference indMem) {
+       Variable address = resolveIndirectMemoryAddress(mm, indMem);
+       Variable memory = mm.field("memory");
+       executeAluOperation(mm, instruction, memory, address, sourceRegName);
+     } else if (target instanceof IndirectMemory16BitReference indMem16) {
+       Variable address = resolveIndirectMemory16BitAddress(mm, indMem16);
+       Variable memory = mm.field("memory");
+       executeAluOperation16Bit(mm, instruction, memory, address, sourceRegName);
+     }
+   }
 
   /**
-   * Resuelve la dirección para IndirectMemory8BitReference
-   */
-  private Variable resolveIndirectMemoryAddress(MethodMaker mm, IndirectMemory8BitReference target) {
-    ImmutableOpcodeReference innerTarget = target.getTarget();
+    * Resuelve la dirección para IndirectMemory8BitReference
+    */
+   private Variable resolveIndirectMemoryAddress(MethodMaker mm, IndirectMemory8BitReference target) {
+     ImmutableOpcodeReference innerTarget = target.getTarget();
 
-    if (innerTarget instanceof Register reg) {
-      return mm.field(reg.getName());
-    } else if (innerTarget instanceof Memory16BitReference mem16Ref) {
-      return readAddress16Bit(mm, mem16Ref);
-    }
-    return null;
-  }
+     if (innerTarget instanceof Register reg) {
+       return mm.field(reg.getName());
+     } else if (innerTarget instanceof Memory16BitReference mem16Ref) {
+       return readAddress16Bit(mm, mem16Ref);
+     }
+     return null;
+   }
+
+  /**
+    * Resuelve la dirección para IndirectMemory16BitReference
+    */
+   private Variable resolveIndirectMemory16BitAddress(MethodMaker mm, IndirectMemory16BitReference target) {
+     ImmutableOpcodeReference innerTarget = target.getTarget();
+
+     if (innerTarget instanceof Register reg) {
+       return mm.field(reg.getName());
+     } else if (innerTarget instanceof Memory16BitReference mem16Ref) {
+       return readAddress16Bit(mm, mem16Ref);
+     }
+     return null;
+   }
 
   /**
    * Ejecuta una operación ALU: lee valor (de memoria o registro para LD), aplica operación y escribe resultado
@@ -394,25 +425,53 @@ public class BytecodeInliner {
     memory.invoke("write", address, result);
   }
 
-  private void executeWithAluOperation(MethodMaker mm, TargetSourceInstruction instruction,
-                                       Variable memory, Variable address, String sourceRegName) {
-    // Leer valor de memoria
-    Variable value = mm.var(int.class);
-    value.set(memory.invoke("read", address, 0));
-    Variable source = mm.field(sourceRegName);
+  /**
+    * Ejecuta una operación ALU para valores de 16 bits: lee valor (de memoria), aplica operación y escribe resultado
+    */
+   private void executeAluOperation16Bit(MethodMaker mm, TargetSourceInstruction instruction,
+                                         Variable memory, Variable address, String sourceRegName) {
+     Variable source = mm.field(sourceRegName);
 
-    // Obtener la operación ALU
-    String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
-    Variable aluOp = mm.field(fieldName);
+     // Para LD, escribir directamente sin variable intermedia
+     if (instruction instanceof Ld) {
+       memory.invoke("write16BitsReverse", source, address);
+       return;
+     }
 
-    // Ejecutar la operación ALU: execute2ValuesAndCarry(value, source, flag)
-    Variable result = mm.var(int.class);
-    Variable flag = mm.field(FLAG);
-    result.set(aluOp.invoke("execute2ValuesAndCarry", value, source, flag));
+     // Para XOR/OR: leer, aplicar operación y escribir
+     Variable value = mm.var(int.class);
+     value.set(memory.invoke("read16Bits", address));
+     Variable result = mm.var(int.class);
 
-    // Escribir el resultado
-    memory.invoke("write", address, result);
-  }
+     if (instruction instanceof Xor) {
+       result.set(source.xor(value));
+     } else if (instruction instanceof Or) {
+       result.set(source.or(value));
+     }
+
+     // Escribir el resultado (16 bits)
+     memory.invoke("write16BitsReverse", result, address);
+   }
+
+   private void executeWithAluOperation(MethodMaker mm, TargetSourceInstruction instruction,
+                                        Variable memory, Variable address, String sourceRegName) {
+     // Leer valor de memoria
+     Variable value = mm.var(int.class);
+     value.set(memory.invoke("read", address, 0));
+     Variable source = mm.field(sourceRegName);
+
+     // Obtener la operación ALU
+     String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
+     Variable aluOp = mm.field(fieldName);
+
+     // Ejecutar la operación ALU: execute2ValuesAndCarry(value, source, flag)
+     Variable result = mm.var(int.class);
+     Variable flag = mm.field(FLAG);
+     result.set(aluOp.invoke("execute2ValuesAndCarry", value, source, flag));
+
+     // Escribir el resultado
+     memory.invoke("write", address, result);
+   }
 
   /**
    * Lee el byte offset (dd) desde memoria en (pc + valueDelta) y calcula la dirección
