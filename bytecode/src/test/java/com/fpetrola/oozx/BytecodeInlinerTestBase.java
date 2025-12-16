@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -48,10 +49,10 @@ public class BytecodeInlinerTestBase {
   /**
    * Test helper que genera una clase con múltiples instrucciones
    */
-  protected String testBytecodeMultipleInstructionsOf(String className, List<TargetSourceInstruction> instructions) throws IOException {
+  protected String testBytecodeMultipleInstructionsOf(String className, Map<Integer, TargetSourceInstruction> instructions) throws IOException {
     var analyzer = new InstructionAnalyzer();
     lastInliner = setupInliner(analyzer);
-    String generatedClass = lastInliner.inlineMultipleInstructions(className, instructions);
+    String generatedClass = lastInliner.inlineMultipleInstructions(className, instructions.values());
 
     return getDecompiledSource(generatedClass);
   }

@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -472,7 +473,8 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     var source = new Plain8BitRegister("E");
     var add = new Add(target, source, new Plain8BitRegister("F"));
 
-    String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecode", List.of(ld, xor, add));
+    Map<Integer, TargetSourceInstruction> instructions = Map.of(10, ld, 20, xor, 30, add);
+    String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecode", instructions);
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;

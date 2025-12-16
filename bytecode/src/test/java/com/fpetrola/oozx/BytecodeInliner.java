@@ -39,7 +39,7 @@ public class BytecodeInliner {
   /**
    * Genera una clase con múltiples métodos execute a partir de varias instrucciones
    */
-  public String inlineMultipleInstructions(String className, List<TargetSourceInstruction> instructions) {
+  public String inlineMultipleInstructions(String className, Collection<TargetSourceInstruction> instructions) {
     className = className.replace("-", "_");
     
     ClassMaker cm = createBaseClass(className);
