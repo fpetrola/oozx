@@ -10,12 +10,9 @@ package com.fpetrola.oozx.indy4;
 
 import com.fpetrola.oozx.indy2.*;
 import com.sun.tools.attach.VirtualMachine;
-import com.sun.tools.attach.VirtualMachineDescriptor;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class TestC {
 

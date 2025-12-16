@@ -1,8 +1,6 @@
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.fuse.modules.z80;
 
-import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.impl.Ld;
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;

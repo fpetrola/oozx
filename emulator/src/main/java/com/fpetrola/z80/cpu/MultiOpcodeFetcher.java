@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.cpu;
 
-import com.fpetrola.oozx.InstructionSpecializer;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.Instruction;
@@ -70,7 +69,7 @@ public class MultiOpcodeFetcher {
         } else if (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
           wrappers[i] = new FetchNextOpcodeInstructionWrapper(fetchNextOpcodeInstruction);
         } else if (instruction instanceof Ld ld) {
-          Instruction fastLd = InstructionSpecializer.specialize(ld);
+          Instruction fastLd = com.fpetrola.oozx.fuse.modules.z80.InstructionSpecializer.specialize(ld);
           wrappers[i] = new FetchedInstructionWrapper(fastLd);
         } else
           wrappers[i] = new FetchedInstructionWrapper(instruction);

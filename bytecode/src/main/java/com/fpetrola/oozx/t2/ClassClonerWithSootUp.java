@@ -36,7 +36,7 @@ public class ClassClonerWithSootUp {
     String newClassName = originalClassName + "Clone";
 
     // Configurar SootUp
-    AnalysisInputLocation inputLocation = new JavaClassPathAnalysisInputLocation("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/emulator/target/classes"); // Ajusta al path de clases
+    AnalysisInputLocation inputLocation = new JavaClassPathAnalysisInputLocation("/home/fernando/detodo/desarrollo/m/zx/my-zx/oozx/bytecode/target/classes"); // Ajusta al path de clases
     JavaView view = new JavaView(inputLocation);
 
     IdentifierFactory factory = view.getIdentifierFactory();
