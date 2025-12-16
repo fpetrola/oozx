@@ -589,57 +589,75 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
            }
         
            public void executeLdBB() {
+              super.B = super.B;
            }
         
            public void executeLdBD() {
+              super.B = super.D;
            }
         
            public void executeLdBH() {
+              super.B = super.H;
            }
         
            public void executeLdCB() {
+              super.C = super.B;
            }
         
            public void executeLdCD() {
+              super.C = super.D;
            }
         
            public void executeLdCH() {
+              super.C = super.H;
            }
         
            public void executeLdDB() {
+              super.D = super.B;
            }
         
            public void executeLdDD() {
+              super.D = super.D;
            }
         
            public void executeLdDH() {
+              super.D = super.H;
            }
         
            public void executeLdEB() {
+              super.E = super.B;
            }
         
            public void executeLdED() {
+              super.E = super.D;
            }
         
            public void executeLdEH() {
+              super.E = super.H;
            }
         
            public void executeLdHB() {
+              super.H = super.B;
            }
         
            public void executeLdHD() {
+              super.H = super.D;
            }
         
            public void executeLdHH() {
+              super.H = super.H;
            }
         
            public void executeLdLB() {
+              super.L = super.B;
            }
         
            public void executeLdLD() {
+              super.L = super.D;
            }
         
            public void executeLdLH() {
+              super.L = super.H;
            }
         
            public void executeLdImrHlB() {
@@ -658,84 +676,135 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
            }
         
            public void executeLdAB() {
+              super.A = super.B;
            }
         
            public void executeLdAD() {
+              super.A = super.D;
            }
         
            public void executeLdAH() {
+              super.A = super.H;
            }
         
            public void executeAddAB() {
+              int var1 = super.addTableAluOperation.execute2ValuesAndCarry(super.A, super.B, super.F);
+              super.A = var1;
            }
         
            public void executeAddAD() {
+              int var1 = super.addTableAluOperation.execute2ValuesAndCarry(super.A, super.D, super.F);
+              super.A = var1;
            }
         
            public void executeAddAH() {
+              int var1 = super.addTableAluOperation.execute2ValuesAndCarry(super.A, super.H, super.F);
+              super.A = var1;
            }
         
            public void executeAdcAB() {
+              int var1 = super.adcTableAluOperation.execute2ValuesAndCarry(super.A, super.B, super.F);
+              super.A = var1;
            }
         
            public void executeAdcAD() {
+              int var1 = super.adcTableAluOperation.execute2ValuesAndCarry(super.A, super.D, super.F);
+              super.A = var1;
            }
         
            public void executeAdcAH() {
+              int var1 = super.adcTableAluOperation.execute2ValuesAndCarry(super.A, super.H, super.F);
+              super.A = var1;
            }
         
            public void executeSubAB() {
+              int var1 = super.subTableAluOperation.execute2ValuesAndCarry(super.A, super.B, super.F);
+              super.A = var1;
            }
         
            public void executeSubAD() {
+              int var1 = super.subTableAluOperation.execute2ValuesAndCarry(super.A, super.D, super.F);
+              super.A = var1;
            }
         
            public void executeSubAH() {
+              int var1 = super.subTableAluOperation.execute2ValuesAndCarry(super.A, super.H, super.F);
+              super.A = var1;
            }
         
            public void executeSbcAB() {
+              int var1 = super.sbcTableAluOperation.execute2ValuesAndCarry(super.A, super.B, super.F);
+              super.A = var1;
            }
         
            public void executeSbcAD() {
+              int var1 = super.sbcTableAluOperation.execute2ValuesAndCarry(super.A, super.D, super.F);
+              super.A = var1;
            }
         
            public void executeSbcAH() {
+              int var1 = super.sbcTableAluOperation.execute2ValuesAndCarry(super.A, super.H, super.F);
+              super.A = var1;
            }
         
            public void executeAndAB() {
+              int var1 = super.andTableAluOperation.execute2ValuesAndCarry(super.A, super.B, super.F);
+              super.A = var1;
            }
         
            public void executeAndAD() {
+              int var1 = super.andTableAluOperation.execute2ValuesAndCarry(super.A, super.D, super.F);
+              super.A = var1;
            }
         
            public void executeAndAH() {
+              int var1 = super.andTableAluOperation.execute2ValuesAndCarry(super.A, super.H, super.F);
+              super.A = var1;
            }
         
            public void executeXorAB() {
+              int var1 = super.xorTableAluOperation.execute2ValuesAndCarry(super.A, super.B, super.F);
+              super.A = var1;
            }
         
            public void executeXorAD() {
+              int var1 = super.xorTableAluOperation.execute2ValuesAndCarry(super.A, super.D, super.F);
+              super.A = var1;
            }
         
            public void executeXorAH() {
+              int var1 = super.xorTableAluOperation.execute2ValuesAndCarry(super.A, super.H, super.F);
+              super.A = var1;
            }
         
            public void executeOrAB() {
+              int var1 = super.orTableAluOperation.execute2ValuesAndCarry(super.A, super.B, super.F);
+              super.A = var1;
            }
         
            public void executeOrAD() {
+              int var1 = super.orTableAluOperation.execute2ValuesAndCarry(super.A, super.D, super.F);
+              super.A = var1;
            }
         
            public void executeOrAH() {
+              int var1 = super.orTableAluOperation.execute2ValuesAndCarry(super.A, super.H, super.F);
+              super.A = var1;
            }
         
            public void executeCpAB() {
+              int var1 = super.cpTableAluOperation.execute2ValuesAndCarry(super.A, super.B, super.F);
+              super.A = var1;
            }
         
            public void executeCpAD() {
+              int var1 = super.cpTableAluOperation.execute2ValuesAndCarry(super.A, super.D, super.F);
+              super.A = var1;
            }
         
            public void executeCpAH() {
+              int var1 = super.cpTableAluOperation.execute2ValuesAndCarry(super.A, super.H, super.F);
+              super.A = var1;
            }
         
            public int execute(int opcode) {

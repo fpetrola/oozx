@@ -1,8 +1,6 @@
 package com.fpetrola.oozx;
 
-import com.fpetrola.z80.instructions.impl.Ld;
-import com.fpetrola.z80.instructions.impl.Xor;
-import com.fpetrola.z80.instructions.impl.Or;
+import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.*;
@@ -354,17 +352,43 @@ public class BytecodeInliner {
        String sourceRegName = sourceReg.getName();
        // Si target es también un Register (register-to-register)
        if (target instanceof Register targetReg) {
+         String targetRegName = targetReg.getName();
          if (ld instanceof Ld) {
-           String targetRegName = targetReg.getName();
+           // LD: copiar valor del registro fuente al destino
            Variable sourceValue = resolveRegisterValueByName(mm, sourceRegName);
            Variable targetVar = mm.field(targetRegName);
            targetVar.set(sourceValue);
+         } else if (isAluOperation(ld)) {
+           // Operaciones ALU: aplicar operación entre registros y guardar resultado
+           executeRegisterToRegisterAluOperation(mm, ld, sourceRegName, targetRegName);
          }
          return;
        }
        generateAluExecute(mm, ld, target, sourceRegName);
      }
    }
+
+  /**
+   * Ejecuta operaciones ALU entre dos registros (register-to-register)
+   */
+  private void executeRegisterToRegisterAluOperation(MethodMaker mm, TargetSourceInstruction instruction,
+                                                     String sourceRegName, String targetRegName) {
+    Variable sourceValue = resolveRegisterValueByName(mm, sourceRegName);
+    Variable targetValue = resolveRegisterValueByName(mm, targetRegName);
+    
+    // Obtener la operación ALU
+    String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
+    Variable aluOp = mm.field(fieldName);
+    Variable flag = mm.field(FLAG);
+    
+    // Ejecutar la operación ALU: execute2ValuesAndCarry(targetValue, sourceValue, flag)
+    Variable result = mm.var(int.class);
+    result.set(aluOp.invoke("execute2ValuesAndCarry", targetValue, sourceValue, flag));
+    
+    // Escribir el resultado de vuelta al registro destino
+    Variable targetVar = mm.field(targetRegName);
+    targetVar.set(result);
+  }
 
   /**
     * Genera código de ejecución para instrucciones ALU (LD, XOR, OR, etc.)
