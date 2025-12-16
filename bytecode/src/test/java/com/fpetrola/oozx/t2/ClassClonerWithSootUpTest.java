@@ -108,37 +108,31 @@ public class ClassClonerWithSootUpTest extends TestHelper {
         package com.fpetrola.oozx.t2;
         
         import com.fpetrola.z80.memory.Memory;
-        import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
+        import com.fpetrola.z80.registers.Register;
         
-        public class IndirectMemory16BitReferenceClone {
-           ImmutableOpcodeReference target;
+        public class Memory8BitReferenceClone {
            Memory memory;
+           int delta;
+           Register pc;
         
-           IndirectMemory16BitReferenceClone(ImmutableOpcodeReference var1, Memory var2) {
-              this.target = var1;
-              this.memory = var2;
+           Memory8BitReferenceClone(Memory var1, Register var2, int var3) {
+              this.memory = var1;
+              this.pc = var2;
+              this.delta = var3;
            }
         
            int getLength() {
-              return this.target.getLength();
-           }
-        
-           Memory getMemory() {
-              return this.memory;
-           }
-        
-           ImmutableOpcodeReference getTarget() {
-              return this.target;
+              return 1;
            }
         
            int read() {
-              int var1 = this.target.read();
-              return this.memory.read16Bits(var1);
+              int var1 = (this.pc.read() + this.delta) & 65535;
+              return memory.read(var1, 0);
            }
         
            void write(int var1) {
-              int var2 = this.target.read();
-              this.memory.write16Bits(var1, var2);
+              int var2 = this.pc.read();
+              this.memory.write(var2, var1);
            }
         }
         """, decompiledSource);
