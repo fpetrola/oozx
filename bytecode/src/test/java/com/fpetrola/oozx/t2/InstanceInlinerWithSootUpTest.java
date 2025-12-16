@@ -32,7 +32,7 @@ public class InstanceInlinerWithSootUpTest {
            Memory memory;
         
            int read() {
-              int var1 = this.PC + this.valueDelta & '\\uffff';
+              int var1 = this.PC + 2 & '\\uffff';
               byte var2 = (byte) this.memory.read(var1, 0);
               int var3 = this.IX;
               int var4 = var2 + var3 & '\\uffff';
@@ -40,7 +40,7 @@ public class InstanceInlinerWithSootUpTest {
            }
         
            void write(int var1) {
-              int var2 = this.PC + this.valueDelta & '\\uffff';
+              int var2 = this.PC + 2 & '\\uffff';
               byte var3 = (byte) this.memory.read(var2, 0);
               int var4 = this.IX;
               int var5 = var3 + var4 & '\\uffff';
