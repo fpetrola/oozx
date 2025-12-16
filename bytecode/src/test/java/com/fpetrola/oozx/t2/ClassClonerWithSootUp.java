@@ -276,7 +276,7 @@ private static void generateMethodBody(MethodMaker mm, SootMethod sm, StmtGraph<
         // Ignorar
       }
     } else {
-      System.out.println("Cannot process");
+      System.out.println("Cannot process: "+ stmt);
     }
   }
 
