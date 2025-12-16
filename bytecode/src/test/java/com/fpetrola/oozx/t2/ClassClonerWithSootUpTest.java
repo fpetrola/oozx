@@ -138,4 +138,63 @@ public class ClassClonerWithSootUpTest extends TestHelper {
         """, decompiledSource);
 
   }
+
+  @Test
+  public void testClassClonerGeneratesValidBytecodeForMemoryPlusRegister8BitReference() throws IOException {
+    String decompiledSource = cloneAndDecompile(MemoryPlusRegister8BitReference.class.getName());
+
+    assertEquals("""
+        package com.fpetrola.oozx.t2;
+        
+        import com.fpetrola.z80.memory.Memory;
+        import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
+        import com.fpetrola.z80.registers.Register;
+        
+        public class MemoryPlusRegister8BitReferenceClone {
+           Memory memory;
+           ImmutableOpcodeReference target;
+           int valueDelta;
+           Register pc;
+           int fetchedRelative;
+           int address;
+           int value;
+        
+           MemoryPlusRegister8BitReferenceClone(ImmutableOpcodeReference var1, Memory var2, Register var3, int var4) {
+              this.target = var1;
+              this.memory = var2;
+              this.pc = var3;
+              this.valueDelta = var4;
+           }
+        
+           byte fetchRelative() {
+              int var1 = this.pc.read() + this.valueDelta & '\\uffff';
+              return (byte) memory.read(var1, 0);
+           }
+        
+           int getLength() {
+              return 1;
+           }
+        
+           int read() {
+              int var1 = this.target.read();
+              byte var2 = this.fetchRelative();
+              int var3 = var1 + var2 & '\\uffff';
+              this.address = var3;
+              int var4 = this.memory.read(this.address, 0);
+              this.value = var4;
+              return this.value;
+           }
+        
+           void write(int var1) {
+              int var2 = this.target.read();
+              byte var3 = this.fetchRelative();
+              int var4 = var2 + var3 & '\\uffff';
+              this.address = var4;
+              this.value = var1;
+              this.memory.write(this.address, var1);
+           }
+        }
+        """, decompiledSource);
+
+  }
 }
