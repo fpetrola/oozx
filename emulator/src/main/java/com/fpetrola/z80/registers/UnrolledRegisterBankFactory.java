@@ -18,9 +18,50 @@
 
 package com.fpetrola.z80.registers;
 
+import com.fpetrola.oozx.BytecodeInliner;
+import com.fpetrola.oozx.InstructionAnalyzer;
+import com.fpetrola.oozx.Z80UnRolled;
+import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
+import com.fpetrola.z80.cpu.InstructionFetcher;
+import com.fpetrola.z80.cpu.OOZ80;
+import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
+import com.fpetrola.z80.minizx.emulation.Helper;
+import com.fpetrola.z80.opcodes.decoder.OpCodeDecoder;
+import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
+
+import java.util.Map;
+import java.util.TreeMap;
+
 public class UnrolledRegisterBankFactory {
+
+  private static int i;
+
+  public Z80UnRolled createZ80Unrolled(OpCodeDecoder getOpcodesTables) {
+    Map<Integer, TargetSourceInstruction<?>> instructions = new TreeMap<>();
+    Instruction[] opcodeLookupTable = getOpcodesTables.getOpcodeLookupTable();
+    BytecodeInliner lastInliner = new BytecodeInliner(new InstructionAnalyzer());
+    for (int i = 0; i < opcodeLookupTable.length; i++) {
+      Instruction instruction = opcodeLookupTable[i];
+      if (instruction instanceof TargetSourceInstruction<?>) {
+        instructions.put(i, (TargetSourceInstruction<?>) instruction);
+      }
+    }
+    Class<?> instructionsSwitchClass = lastInliner.generateAndLoadMultipleInstructions("InstructionsSwitch" + i++, instructions);
+    try {
+      return (Z80UnRolled) instructionsSwitchClass.getDeclaredConstructors()[0].newInstance();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   public RegisterBank createBank() {
-    UnrolledRegisterBank registerBank = new UnrolledRegisterBank();
+
+    OOZ80 ooz80 = Helper.createOOZ80();
+    DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
+    TableBasedOpCodeDecoder opcodesTables = instructionFetcher.multiOpcodeFetcher.getOpcodesTables();
+    Z80UnRolled registerBank = createZ80Unrolled(opcodesTables);
+//    UnrolledRegisterBank registerBank = new UnrolledRegisterBank();
 
     registerBank.registerAf = registerBank.new AFRegister(registerBank.new ARegister(), registerBank.new FRegister());
     registerBank.registerBc = registerBank.new BCRegister(registerBank.new BRegister(), registerBank.new CRegister());

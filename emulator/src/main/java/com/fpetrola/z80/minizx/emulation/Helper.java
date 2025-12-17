@@ -20,6 +20,7 @@ package com.fpetrola.z80.minizx.emulation;
 
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
+import com.fpetrola.z80.registers.RegisterBank;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.spy.MemptrUpdateInstructionSpy;
 
@@ -28,6 +29,12 @@ public class Helper {
     var state = new State(io, new MockedMemory(true));
     return new OOZ80(state, getInstructionFetcher(state, new MemptrUpdateInstructionSpy(state), new DefaultInstructionFactory(state)), new DefaultInstructionExecutor(state, false));
   }
+
+  public static OOZ80 createOOZ80(IO io, RegisterBank c) {
+    var state = new State(io, c, new MockedMemory(true));
+    return new OOZ80(state, getInstructionFetcher(state, new MemptrUpdateInstructionSpy(state), new DefaultInstructionFactory(state)), new DefaultInstructionExecutor(state, false));
+  }
+
 
   public static DefaultInstructionFetcher getInstructionFetcher(State state, InstructionSpy spy, DefaultInstructionFactory instructionFactory) {
     return new DefaultInstructionFetcher(state, instructionFactory, false, false);

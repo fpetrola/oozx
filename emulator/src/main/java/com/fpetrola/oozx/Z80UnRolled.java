@@ -49,6 +49,10 @@ public class Z80UnRolled extends UnrolledRegisterBank {
 
   protected Memory memory;
 
+  public void setMemory(Memory memory) {
+    this.memory = memory;
+  }
+
   public int execute(int opcode) {
     return -1;
   }

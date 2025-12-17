@@ -18,9 +18,15 @@
 
 package com.fpetrola.z80.cpu;
 
+import com.fpetrola.oozx.BytecodeInliner;
+import com.fpetrola.oozx.InstructionAnalyzer;
+import com.fpetrola.oozx.Z80UnRolled;
+import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
@@ -29,7 +35,11 @@ import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.Memory8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.RegisterBank;
+import fuse.tstates.CachedPhase;
 
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Supplier;
 
 public class MultiOpcodeFetcher {
@@ -43,6 +53,7 @@ public class MultiOpcodeFetcher {
   private final MemoryForOpcodes memoryForOpcode;
   private final Memory memory;
   private final Register pc;
+  private Z80UnRolled registerBank;
 
   public MultiOpcodeFetcher(InstructionFactory instructionFactory, State state, OpcodeConditions opcodeConditions, boolean clone) {
     this.instructionFactory = instructionFactory;
@@ -55,6 +66,11 @@ public class MultiOpcodeFetcher {
     createOpcodeTables();
     memory = state.getMemory();
     this.registerR = state.getRegisterR();
+
+    if ((this.state.getRegisters() instanceof Z80UnRolled)) {
+      registerBank = (Z80UnRolled) this.state.getRegisters();
+      registerBank.setMemory(state.getMemory());
+    }
   }
 
   public TableBasedOpCodeDecoder getOpcodesTables() {
@@ -92,7 +108,28 @@ public class MultiOpcodeFetcher {
 //    int rValue = registerR.read();
     memoryForOpcode.reset();
 
-    FetchedInstructionWrapper fetchedInstructionWrapper = opcodesTables[memory.read(address, 1)];
+    int read = memory.read(address, 1);
+    FetchedInstructionWrapper fetchedInstructionWrapper = opcodesTables[read];
+
+    int execute = registerBank.execute(read);
+
+    if (execute == 0) {
+      return new AbstractInstruction() {
+        public void execute() {
+        }
+
+        public int getLength() {
+          return fetchedInstructionWrapper.getInstruction().getLength();
+        }
+
+        public void accept(InstructionVisitor<?> visitor) {
+        }
+
+        public CachedPhase getCachedPhase() {
+          return fetchedInstructionWrapper.getInstruction().getCachedPhase();
+        }
+      };
+    } else {
 
 //    int rdelta = registerR.read().minus(rValue);
 //    ((AbstractInstruction<?>) fetchedInstruction).setRDelta(rdelta.intValue());
@@ -101,7 +138,8 @@ public class MultiOpcodeFetcher {
 //      fetchedInstruction = new InstructionCloner(instructionFactory).clone(fetchedInstruction);
 //    }
 
-    return fetchedInstructionWrapper.getInstruction();
+      return fetchedInstructionWrapper.getInstruction();
+    }
   }
 
   public void reset() {

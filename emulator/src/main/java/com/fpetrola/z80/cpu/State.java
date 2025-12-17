@@ -77,6 +77,10 @@ public class State {
 
   private InterruptionMode intMode;
 
+  public RegisterBank getRegisters() {
+    return registers;
+  }
+
   private final RegisterBank registers;
   private final Memory memory;
   private final IO io;

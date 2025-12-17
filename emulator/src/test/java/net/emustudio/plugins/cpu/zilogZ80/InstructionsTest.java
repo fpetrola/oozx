@@ -24,6 +24,7 @@ import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.cpu.IO;
+import com.fpetrola.z80.registers.UnrolledRegisterBankFactory;
 import net.emustudio.cpu.testsuite.Generator;
 import net.emustudio.emulib.plugins.PluginInitializationException;
 import net.emustudio.emulib.plugins.memory.MemoryContext;
@@ -75,7 +76,7 @@ public class InstructionsTest {
 
 
       io = new MyIO();
-      ooz80 = Helper.createOOZ80(io);
+      ooz80 = Helper.createOOZ80(io, new UnrolledRegisterBankFactory().createBank());
       memory = new MyByteMemoryStub();
       cpu = new CpuImpl(PLUGIN_ID, applicationApi, PluginSettings.UNAVAILABLE, ooz80);
 

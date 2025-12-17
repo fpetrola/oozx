@@ -24,6 +24,7 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.registers.UnrolledRegisterBankFactory;
 import com.fpetrola.z80.spy.InstructionSpy;
 import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.spy.MemptrUpdateInstructionSpy;
@@ -101,7 +102,7 @@ public class FuseTestParser {
     MockedMemory memory = new MockedMemory(true);
 
     AddStatesIO io = new AddStatesIO();
-    state = new State(io, memory) {
+    state = new State(io, new UnrolledRegisterBankFactory().createBank(), memory) {
       public void addEvent(Event event) {
         super.addEvent(event);
         events.add(event);
