@@ -375,11 +375,15 @@ public class BytecodeInliner {
                                                      String sourceRegName, String targetRegName) {
     Variable sourceValue = resolveRegisterValueByName(mm, sourceRegName);
     Variable targetValue = resolveRegisterValueByName(mm, targetRegName);
-    
-    // Obtener la operación ALU
-    String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
-    Variable aluOp = mm.field(fieldName);
     Variable flag = mm.field(FLAG);
+    
+    // Obtener la clase específica de la tabla ALU
+    Class<?> aluOperationClass = getAluOperationClass(instruction);
+    String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
+    
+    // Guardar la operación ALU en una variable local con el tipo correcto
+    Variable aluOp = mm.var(aluOperationClass);
+    aluOp.set(mm.field(fieldName));
     
     // Ejecutar la operación ALU: execute2ValuesAndCarry(targetValue, sourceValue, flag)
     Variable result = mm.var(int.class);
