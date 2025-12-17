@@ -15,6 +15,7 @@ import org.cojen.maker.Variable;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.LinkedHashMap;
+import java.util.function.Supplier;
 
 /**
  * Genera clases Java en bytecode directamente usando cojen/maker,
@@ -59,19 +60,8 @@ public class BytecodeInliner {
         addExecuteMethod(cm, instruction, operationName, target);
         opcodeToMethodName.put(opcode, methodName);
       } catch (Exception e) {
-        // Si no puede procesar la instrucción, generar un método vacío
-        String operationName = instruction.getClass().getSimpleName();
-        ImmutableOpcodeReference source = instruction.getSource();
-        String methodName = "execute" + operationName;
-        if (source instanceof Register reg) {
-          methodName += capitalizeFirstLetter(reg.getName());
-        }
-
-        MethodMaker mm = cm.addMethod(void.class, methodName);
-        mm.public_();
-        mm.return_();
-
-        opcodeToMethodName.put(opcode, methodName);
+        // Si no puede procesar la instrucción, omitirla del switch (no generar nada)
+        // La instrucción no se incluirá en opcodeToMethodName
       }
     }
 
@@ -251,12 +241,20 @@ public class BytecodeInliner {
   private void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, String operationName, OpcodeReference target) {
     // Generar nombre de método único basado en la instrucción y sus referencias
     String methodName = generateUniquMethodName(instruction, operationName, target);
-    if (methodName.equals("executeLdBcM16R"))
+    if (methodName.equals("executeOutA"))
       System.out.println("dsagadg");
-    MethodMaker mm = cm.addMethod(void.class, methodName);
-    mm.public_();
-    generateExecute(mm, instruction, target);
-    mm.return_();
+    MethodMaker[] mms = new MethodMaker[]{null};
+
+    Supplier<MethodMaker> methodMakerSupplier = () -> {
+      if (mms[0] == null) {
+        mms[0] = cm.addMethod(void.class, methodName);
+        mms[0].public_();
+      }
+      return mms[0];
+    };
+
+    generateExecute(methodMakerSupplier, instruction, target);
+    mms[0].return_();
   }
 
   /**
@@ -360,7 +358,7 @@ public class BytecodeInliner {
     return address;
   }
 
-  private void generateExecute(MethodMaker mm, TargetSourceInstruction ld, OpcodeReference target) {
+  private void generateExecute(Supplier<MethodMaker> mm, TargetSourceInstruction ld, OpcodeReference target) {
     ImmutableOpcodeReference source = ld.getSource();
 
     // Caso 1: source es un Register
@@ -371,12 +369,15 @@ public class BytecodeInliner {
         String targetRegName = targetReg.getName();
         if (ld instanceof Ld) {
           // LD: copiar valor del registro fuente al destino
-          Variable sourceValue = resolveRegisterValueByName(mm, sourceRegName);
-          assignRegisterValue(mm, targetRegName, sourceValue);
+          Variable sourceValue = resolveRegisterValueByName(mm.get(), sourceRegName);
+          assignRegisterValue(mm.get(), targetRegName, sourceValue);
         } else if (isAluOperation(ld)) {
           // Operaciones ALU: aplicar operación entre registros y guardar resultado
-          executeRegisterToRegisterAluOperation(mm, ld, sourceRegName, targetRegName);
+          executeRegisterToRegisterAluOperation(mm.get(), ld, sourceRegName, targetRegName);
+        } else {
+          throw new UnsupportedOperationException("No se soporta operación entre referencias de memoria para " + ld.getClass());
         }
+
         return;
       }
       generateAluExecute(mm, ld, target, sourceRegName);
@@ -386,38 +387,38 @@ public class BytecodeInliner {
       String targetRegName = targetReg.getName();
       if (ld instanceof Ld) {
         // LD reg, (mem): copiar de memoria a registro
-        Variable address = resolveSourceMemoryAddress(mm, source);
+        Variable address = resolveSourceMemoryAddress(mm.get(), source);
         if (address != null) {
-          Variable memory = mm.field("memory");
-          Variable value = mm.var(int.class);
+          Variable memory = mm.get().field("memory");
+          Variable value = mm.get().var(int.class);
           if (ld.getSource() instanceof Memory16BitReference) {
             value.set(memory.invoke("read16Bits", address));
           } else {
             value.set(memory.invoke("read", address, 0));
           }
-          assignRegisterValue(mm, targetRegName, value);
+          assignRegisterValue(mm.get(), targetRegName, value);
         }
       } else if (isAluOperation(ld)) {
         // Operaciones ALU desde memoria: A = A op (mem)
-        executeAluOperationFromMemory(mm, ld, source, targetRegName);
+        executeAluOperationFromMemory(mm.get(), ld, source, targetRegName);
       }
     }
     // Caso 3: source es memoria y target también es memoria (LD (mem), (mem) - raro pero posible)
     else {
       if (ld instanceof Ld && source instanceof IndirectMemory8BitReference) {
         // Copiar de memoria a memoria: (target) = (source)
-        Variable sourceAddr = resolveSourceMemoryAddress(mm, source);
+        Variable sourceAddr = resolveSourceMemoryAddress(mm.get(), source);
         if (sourceAddr != null && target instanceof IndirectMemory8BitReference targetMem) {
-          Variable targetAddr = resolveIndirectMemoryAddress(mm, targetMem);
+          Variable targetAddr = resolveIndirectMemoryAddress(mm.get(), targetMem);
           if (targetAddr != null) {
-            Variable memory = mm.field("memory");
-            Variable value = mm.var(int.class);
+            Variable memory = mm.get().field("memory");
+            Variable value = mm.get().var(int.class);
             value.set(memory.invoke("read", sourceAddr, 0));
             memory.invoke("write", targetAddr, value);
           }
         }
       } else {
-        System.out.println("BytecodeInliner: No se soporta operación entre referencias de memoria para " + ld.getClass());
+        throw new UnsupportedOperationException("No se soporta operación entre referencias de memoria para " + ld.getClass());
       }
     }
   }
@@ -555,24 +556,26 @@ public class BytecodeInliner {
    * Genera código de ejecución para instrucciones ALU (LD, XOR, OR, etc.)
    * que leen un valor de memoria (o registro para LD), aplican la operación y escriben el resultado.
    */
-  private void generateAluExecute(MethodMaker mm, TargetSourceInstruction instruction,
+  private void generateAluExecute(Supplier<MethodMaker> mm, TargetSourceInstruction instruction,
                                   OpcodeReference target, String sourceRegName) {
     if (target instanceof MemoryPlusRegister8BitReference memRef) {
-      MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
-      executeAluOperation(mm, instruction, ctx.memory, ctx.address, sourceRegName);
+      MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm.get(), memRef);
+      executeAluOperation(mm.get(), instruction, ctx.memory, ctx.address, sourceRegName);
     } else if (target instanceof IndirectMemory8BitReference indMem) {
-      Variable address = resolveIndirectMemoryAddress(mm, indMem);
-      Variable memory = mm.field("memory");
-      executeAluOperation(mm, instruction, memory, address, sourceRegName);
+      Variable address = resolveIndirectMemoryAddress(mm.get(), indMem);
+      Variable memory = mm.get().field("memory");
+      executeAluOperation(mm.get(), instruction, memory, address, sourceRegName);
     } else if (target instanceof IndirectMemory16BitReference indMem16) {
-      Variable address = resolveIndirectMemory16BitAddress(mm, indMem16);
-      Variable memory = mm.field("memory");
-      executeAluOperation16Bit(mm, instruction, memory, address, sourceRegName);
+      Variable address = resolveIndirectMemory16BitAddress(mm.get(), indMem16);
+      Variable memory = mm.get().field("memory");
+      executeAluOperation16Bit(mm.get(), instruction, memory, address, sourceRegName);
     } else if (target instanceof Register targetReg) {
       // Fallback: si target es un Register (por ejemplo ADD A con target=A)
       String targetRegName = targetReg.getName();
-      executeRegisterToRegisterAluOperation(mm, instruction, sourceRegName, targetRegName);
-    }
+      executeRegisterToRegisterAluOperation(mm.get(), instruction, sourceRegName, targetRegName);
+    } else
+      throw new UnsupportedOperationException("No se soporta operación entre referencias de memoria para " + instruction.getClass());
+
     // Si target es null o tipo desconocido, no generar código (es un no-op)
   }
 
