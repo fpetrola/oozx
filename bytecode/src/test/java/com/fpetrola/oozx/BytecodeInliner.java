@@ -477,8 +477,8 @@ public class BytecodeInliner {
    * Resuelve el valor de un registro por su nombre, manejando registros de 16 bits usando los getters de UnrolledRegisterBank
    */
     private Variable resolveRegisterValueByName(MethodMaker mm, String regName) {
-      // Si el registro es de 16 bits sin underscore (BC, DE, HL, AF), usar los getters de UnrolledRegisterBank
-      if (regName.length() == 2 && !regName.startsWith("_")) {
+      // Si es un registro de 16 bits compuesto que tiene getters (BC, DE, HL, AF)
+      if (is16BitCompositeRegister(regName)) {
         String getterMethodName = "get" + regName;  // getBC, getDE, getHL, getAF
         Variable result = mm.var(int.class);
         result.set(mm.invoke(getterMethodName));
