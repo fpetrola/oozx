@@ -51,17 +51,28 @@ public class BytecodeInliner {
         Integer opcode = entry.getKey();
         TargetSourceInstruction<?> instruction = entry.getValue();
         
-        // Solo procesar si la instrucción tiene un source que es un Register
-        if (!(instruction.getSource() instanceof Register)) {
-          continue;
+        try {
+          analyzer.analyze(instruction);
+          String operationName = instruction.getClass().getSimpleName();
+          OpcodeReference target = analyzer.getTarget();
+          String methodName = generateUniquMethodName(instruction, operationName, target);
+          addExecuteMethod(cm, instruction, operationName, target);
+          opcodeToMethodName.put(opcode, methodName);
+        } catch (Exception e) {
+          // Si no puede procesar la instrucción, generar un método vacío
+          String operationName = instruction.getClass().getSimpleName();
+          ImmutableOpcodeReference source = instruction.getSource();
+          String methodName = "execute" + operationName;
+          if (source instanceof Register reg) {
+            methodName += capitalizeFirstLetter(reg.getName());
+          }
+          
+          MethodMaker mm = cm.addMethod(void.class, methodName);
+          mm.public_();
+          mm.return_();
+          
+          opcodeToMethodName.put(opcode, methodName);
         }
-        
-        analyzer.analyze(instruction);
-        String operationName = instruction.getClass().getSimpleName();
-        OpcodeReference target = analyzer.getTarget();
-        String methodName = generateUniquMethodName(instruction, operationName, target);
-        addExecuteMethod(cm, instruction, operationName, target);
-        opcodeToMethodName.put(opcode, methodName);
       }
       
       // Agregar método switch que dispache por opcode
@@ -347,7 +358,8 @@ public class BytecodeInliner {
 
   private void generateExecute(MethodMaker mm, TargetSourceInstruction ld, OpcodeReference target) {
      ImmutableOpcodeReference source = ld.getSource();
-     // Solo procesar si el source es un Register
+     
+     // Caso 1: source es un Register
      if (source instanceof Register sourceReg) {
        String sourceRegName = sourceReg.getName();
        // Si target es también un Register (register-to-register)
@@ -364,12 +376,91 @@ public class BytecodeInliner {
          return;
        }
        generateAluExecute(mm, ld, target, sourceRegName);
+     } 
+     // Caso 2: source es una referencia de memoria pero target es un Register
+     else if (target instanceof Register targetReg) {
+       String targetRegName = targetReg.getName();
+       if (ld instanceof Ld) {
+         // LD reg, (mem): copiar de memoria a registro
+         Variable sourceValue = resolveSourceMemoryValue(mm, source);
+         if (sourceValue != null) {
+           assignRegisterValue(mm, targetRegName, sourceValue);
+         }
+       } else if (isAluOperation(ld)) {
+         // Operaciones ALU desde memoria: A = A op (mem)
+         executeAluOperationFromMemory(mm, ld, source, targetRegName);
+       }
      }
+   }
+
+     /**
+      * Resuelve el valor fuente desde una referencia de memoria
+      */
+     private Variable resolveSourceMemoryValue(MethodMaker mm, ImmutableOpcodeReference source) {
+       if (source instanceof IndirectMemory8BitReference indMem) {
+         return resolveIndirectMemoryAddress(mm, indMem);
+       } else if (source instanceof IndirectMemory16BitReference indMem16) {
+         return resolveIndirectMemory16BitAddress(mm, indMem16);
+       } else if (source instanceof MemoryPlusRegister8BitReference memRef) {
+         MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
+         return ctx.address;
+       }
+       return null;
      }
 
      /**
-     * Asigna un valor a un registro, manejando registros de 16 bits compuestos (BC, DE, HL, AF)
-     */
+      * Ejecuta operaciones ALU cuando el source es memoria: target = target op (memoria)
+      */
+     private void executeAluOperationFromMemory(MethodMaker mm, TargetSourceInstruction instruction,
+                                                 ImmutableOpcodeReference source, String targetRegName) {
+       Variable memory = mm.field("memory");
+       
+       if (source instanceof IndirectMemory8BitReference indMem) {
+         Variable address = resolveIndirectMemoryAddress(mm, indMem);
+         Variable value = mm.var(int.class);
+         value.set(memory.invoke("read", address, 0));
+         executeAluWithMemoryValue(mm, instruction, targetRegName, value);
+       } else if (source instanceof IndirectMemory16BitReference indMem16) {
+         Variable address = resolveIndirectMemory16BitAddress(mm, indMem16);
+         Variable value = mm.var(int.class);
+         value.set(memory.invoke("read16Bits", address));
+         executeAluWithMemoryValue(mm, instruction, targetRegName, value);
+       } else if (source instanceof MemoryPlusRegister8BitReference memRef) {
+         MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
+         Variable value = mm.var(int.class);
+         value.set(ctx.memory.invoke("read", ctx.address, 0));
+         executeAluWithMemoryValue(mm, instruction, targetRegName, value);
+       }
+     }
+
+     /**
+      * Ejecuta la operación ALU con un valor leído de memoria
+      */
+     private void executeAluWithMemoryValue(MethodMaker mm, TargetSourceInstruction instruction,
+                                            String targetRegName, Variable memoryValue) {
+       Variable targetValue = resolveRegisterValueByName(mm, targetRegName);
+       
+       if (isAluOperation(instruction)) {
+         Class<?> aluOperationClass = getAluOperationClass(instruction);
+         String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
+         
+         Variable aluOp = mm.var(aluOperationClass);
+         aluOp.set(mm.field(fieldName));
+         Variable flag = mm.field(FLAG);
+         
+         Variable result = mm.var(int.class);
+         result.set(aluOp.invoke("execute2ValuesAndCarry", targetValue, memoryValue, flag));
+         
+         assignRegisterValue(mm, targetRegName, result);
+         
+         Variable flagField = mm.field(FLAG);
+         flagField.set(aluOp.field(FLAG));
+       }
+     }
+
+     /**
+      * Asigna un valor a un registro, manejando registros de 16 bits compuestos (BC, DE, HL, AF)
+      */
      private void assignRegisterValue(MethodMaker mm, String regName, Variable value) {
      if (is16BitCompositeRegister(regName)) {
      // Para registros de 16 bits compuestos, usar el setter correspondiente
