@@ -19,27 +19,27 @@
 package com.fpetrola.z80.registers;
 
 public class UnrolledRegisterBank extends RegisterBank {
-  private int A;
-  private int F;
-  private int B;
-  private int C;
-  private int D;
-  private int E;
-  private int H;
-  private int L;
-  private int I;
-  private int R;
-  private int AFx;
-  private int BCx;
-  private int DEx;
-  private int HLx;
-  private int IX;
-  private int IY;
-  private int PC;
-  private int SP;
-  private int MEMPTR;
-  private int VIRTUAL;
-  private int regRBit7;
+  protected int A;
+  protected int F;
+  protected int B;
+  protected int C;
+  protected int D;
+  protected int E;
+  protected int H;
+  protected int L;
+  protected int I;
+  protected int R;
+  protected int AFx;
+  protected int BCx;
+  protected int DEx;
+  protected int HLx;
+  protected int IX;
+  protected int IY;
+  protected int PC;
+  protected int SP;
+  protected int MEMPTR;
+  protected int VIRTUAL;
+  protected int regRBit7;
 
   public int getAF() {
     return (A << 8) | F;
@@ -861,8 +861,8 @@ public class UnrolledRegisterBank extends RegisterBank {
 
   final public class AFRegister implements RegisterPair {
 
-    private final ARegister high;
-    private final FRegister low;
+    protected final ARegister high;
+    protected final FRegister low;
 
     public AFRegister(ARegister high, FRegister low) {
 
@@ -916,8 +916,8 @@ public class UnrolledRegisterBank extends RegisterBank {
 
   final public class BCRegister implements RegisterPair {
 
-    private final BRegister high;
-    private final CRegister low;
+    protected final BRegister high;
+    protected final CRegister low;
 
     public BCRegister(BRegister high, CRegister low) {
 
@@ -971,8 +971,8 @@ public class UnrolledRegisterBank extends RegisterBank {
 
   final public class DERegister implements RegisterPair {
 
-    private final DRegister high;
-    private final ERegister low;
+    protected final DRegister high;
+    protected final ERegister low;
 
     public DERegister(DRegister high, ERegister low) {
 
@@ -1026,8 +1026,8 @@ public class UnrolledRegisterBank extends RegisterBank {
 
   final public class HLRegister implements RegisterPair {
 
-    private final HRegister high;
-    private final LRegister low;
+    protected final HRegister high;
+    protected final LRegister low;
 
     public HLRegister(HRegister high, LRegister low) {
 
@@ -1081,8 +1081,8 @@ public class UnrolledRegisterBank extends RegisterBank {
 
   final public class IRRegister implements RegisterPair {
 
-    private final Register high;
-    private final Register low;
+    protected final Register high;
+    protected final Register low;
 
     public IRRegister(Register high, Register low) {
 
@@ -1094,7 +1094,7 @@ public class UnrolledRegisterBank extends RegisterBank {
       return (I << 8) | getR();
     }
 
-    private int getR() {
+    protected int getR() {
       return low.read();
     }
 
@@ -1142,8 +1142,8 @@ public class UnrolledRegisterBank extends RegisterBank {
 
   final public class AFxRegister implements RegisterPair {
 
-    private final Register high;
-    private final Register low;
+    protected final Register high;
+    protected final Register low;
 
     public AFxRegister(Register high, Register low) {
 
@@ -1190,8 +1190,8 @@ public class UnrolledRegisterBank extends RegisterBank {
 
   final public class BCxRegister implements RegisterPair {
 
-    private final Register high;
-    private final Register low;
+    protected final Register high;
+    protected final Register low;
 
     public BCxRegister(Register high, Register low) {
 
@@ -1238,8 +1238,8 @@ public class UnrolledRegisterBank extends RegisterBank {
 
   final public class DExRegister implements RegisterPair {
 
-    private final Register high;
-    private final Register low;
+    protected final Register high;
+    protected final Register low;
 
     public DExRegister(Register high, Register low) {
 
@@ -1286,8 +1286,8 @@ public class UnrolledRegisterBank extends RegisterBank {
 
   final public class HLxRegister implements RegisterPair {
 
-    private final Register high;
-    private final Register low;
+    protected final Register high;
+    protected final Register low;
 
     public HLxRegister(Register high, Register low) {
 
@@ -1334,8 +1334,8 @@ public class UnrolledRegisterBank extends RegisterBank {
 
   final public class IXRegister implements RegisterPair {
 
-    private final Register high;
-    private final Register low;
+    protected final Register high;
+    protected final Register low;
 
     public IXRegister(Register high, Register low) {
 
@@ -1382,8 +1382,8 @@ public class UnrolledRegisterBank extends RegisterBank {
 
   final public class IYRegister implements RegisterPair {
 
-    private final Register high;
-    private final Register low;
+    protected final Register high;
+    protected final Register low;
 
     public IYRegister(Register high, Register low) {
 

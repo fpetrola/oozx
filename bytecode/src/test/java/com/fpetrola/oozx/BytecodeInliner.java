@@ -78,6 +78,48 @@ public class BytecodeInliner {
     return lastGeneratedBytecode;
   }
 
+  /**
+   * Genera una clase con múltiples instrucciones y la carga en memoria
+   * Retorna el Class<?> directamente usable usando finish()
+   */
+  public Class<?> generateAndLoadMultipleInstructions(String className, Map<Integer, TargetSourceInstruction<?>> instructions) {
+    className = className.replace("-", "_");
+
+    ClassMaker cm = createBaseClass(className);
+
+    MethodMaker constructorMaker = cm.addConstructor();
+    constructorMaker.invokeSuperConstructor();
+    constructorMaker.public_();
+    constructorMaker.return_();
+
+    // Guardar los nombres de métodos generados y sus opcodes asociados
+    Map<Integer, String> opcodeToMethodName = new LinkedHashMap<>();
+
+    // Agregar un método execute para cada instrucción
+    for (Map.Entry<Integer, TargetSourceInstruction<?>> entry : instructions.entrySet()) {
+      Integer opcode = entry.getKey();
+      TargetSourceInstruction<?> instruction = entry.getValue();
+
+      try {
+        analyzer.analyze(instruction);
+        String operationName = instruction.getClass().getSimpleName();
+        OpcodeReference target = analyzer.getTarget();
+        String methodName = generateUniquMethodName(instruction, operationName, target);
+        addExecuteMethod(cm, instruction, operationName, target);
+        opcodeToMethodName.put(opcode, methodName);
+      } catch (Exception e) {
+        // Si no puede procesar la instrucción, omitirla del switch (no generar nada)
+        // La instrucción no se incluirá en opcodeToMethodName
+      }
+    }
+
+    // Agregar método switch que dispache por opcode
+    addDispatchMethodWithOpcodes(cm, opcodeToMethodName);
+
+    // Usar finish() para cargar la clase directamente en memoria
+    return cm.finish();
+  }
+
   private String generateInlinedClass(TargetSourceInstruction instruction, String operationName) {
     String className = getClassName(instruction, operationName);
     className = className.replace("-", "_");

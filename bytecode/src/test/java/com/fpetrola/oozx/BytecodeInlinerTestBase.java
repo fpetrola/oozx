@@ -9,6 +9,8 @@ import com.fpetrola.z80.registers.Plain16BitRegister;
 import com.fpetrola.z80.registers.Plain8BitRegister;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -53,6 +55,14 @@ public class BytecodeInlinerTestBase {
      var analyzer = new InstructionAnalyzer();
      lastInliner = setupInliner(analyzer);
      String generatedClass = lastInliner.inlineMultipleInstructions(className, instructions);
+
+     Class<?> aClass = lastInliner.generateAndLoadMultipleInstructions(className, instructions);
+     try {
+       Z80UnRolled o = (Z80UnRolled) aClass.getDeclaredConstructors()[0].newInstance();
+       System.out.println(o);
+     } catch (Exception e) {
+       throw new RuntimeException(e);
+     }
 
      return getDecompiledSource(generatedClass);
    }

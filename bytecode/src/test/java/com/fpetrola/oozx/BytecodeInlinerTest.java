@@ -575,7 +575,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
       Instruction instruction = opcodeLookupTable[i];
       if (instruction instanceof TargetSourceInstruction<?>) {
         for (int opcode : testOpcodes) {
-          if (i == opcode) {
+          if (true || i == opcode) {
             instructions.put(i, (TargetSourceInstruction<?>) instruction);
             break;
           }
