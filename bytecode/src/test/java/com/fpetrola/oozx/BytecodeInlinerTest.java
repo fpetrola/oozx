@@ -575,7 +575,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
       Instruction instruction = opcodeLookupTable[i];
       if (instruction instanceof TargetSourceInstruction<?>) {
         for (int opcode : testOpcodes) {
-          if (true || i == opcode) {
+          if (i == opcode) {
             instructions.put(i, (TargetSourceInstruction<?>) instruction);
             break;
           }
@@ -602,7 +602,8 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         
            public void executeLdAImrBc() {
               int var1 = this.getBC();
-              super.A = var1;
+              int var2 = super.memory.read(var1, 0);
+              super.A = var2;
            }
         
            public void executeLdImrDeA() {
@@ -612,7 +613,8 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         
            public void executeLdAImrDe() {
               int var1 = this.getDE();
-              super.A = var1;
+              int var2 = super.memory.read(var1, 0);
+              super.A = var2;
            }
         
            public void executeLdImr16M16RHl() {
@@ -641,7 +643,8 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         
            public void executeLdBImrHl() {
               int var1 = this.getHL();
-              super.B = var1;
+              int var2 = super.memory.read(var1, 0);
+              super.B = var2;
            }
         
            public void executeLdAB() {
