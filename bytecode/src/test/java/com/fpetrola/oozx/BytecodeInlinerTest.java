@@ -695,10 +695,10 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
            }
         
            public void executeAddAB() {
-              int var1 = super.addTableAluOperation.execute2ValuesAndCarry(super.A, super.B, super.F);
-              super.A = var1;
-              AddTableAluOperation var2 = super.addTableAluOperation;
-              super.F = var2.F;
+              AddTableAluOperation var1 = super.addTableAluOperation;
+              int var2 = var1.execute2ValuesAndCarry(super.A, super.B, super.F);
+              super.A = var2;
+              super.F = var1.F;
            }
         
            public void executeAddAD() {
