@@ -382,21 +382,40 @@ public class BytecodeInliner {
        String targetRegName = targetReg.getName();
        if (ld instanceof Ld) {
          // LD reg, (mem): copiar de memoria a registro
-         Variable sourceValue = resolveSourceMemoryValue(mm, source);
-         if (sourceValue != null) {
-           assignRegisterValue(mm, targetRegName, sourceValue);
+         Variable address = resolveSourceMemoryAddress(mm, source);
+         if (address != null) {
+           Variable memory = mm.field("memory");
+           Variable value = mm.var(int.class);
+           value.set(memory.invoke("read", address, 0));
+           assignRegisterValue(mm, targetRegName, value);
          }
        } else if (isAluOperation(ld)) {
          // Operaciones ALU desde memoria: A = A op (mem)
          executeAluOperationFromMemory(mm, ld, source, targetRegName);
        }
      }
-   }
+     // Caso 3: source es memoria y target también es memoria (LD (mem), (mem) - raro pero posible)
+     else {
+       if (ld instanceof Ld && source instanceof IndirectMemory8BitReference) {
+         // Copiar de memoria a memoria: (target) = (source)
+         Variable sourceAddr = resolveSourceMemoryAddress(mm, source);
+         if (sourceAddr != null && target instanceof IndirectMemory8BitReference targetMem) {
+           Variable targetAddr = resolveIndirectMemoryAddress(mm, targetMem);
+           if (targetAddr != null) {
+             Variable memory = mm.field("memory");
+             Variable value = mm.var(int.class);
+             value.set(memory.invoke("read", sourceAddr, 0));
+             memory.invoke("write", targetAddr, value);
+           }
+         }
+       }
+     }
+     }
 
      /**
-      * Resuelve el valor fuente desde una referencia de memoria
+      * Resuelve la dirección de memoria desde una referencia
       */
-     private Variable resolveSourceMemoryValue(MethodMaker mm, ImmutableOpcodeReference source) {
+     private Variable resolveSourceMemoryAddress(MethodMaker mm, ImmutableOpcodeReference source) {
        if (source instanceof IndirectMemory8BitReference indMem) {
          return resolveIndirectMemoryAddress(mm, indMem);
        } else if (source instanceof IndirectMemory16BitReference indMem16) {
