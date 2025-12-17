@@ -355,9 +355,8 @@ public class BytecodeInliner {
          String targetRegName = targetReg.getName();
          if (ld instanceof Ld) {
            // LD: copiar valor del registro fuente al destino
-           Variable sourceValue = resolveRegisterValueByName(mm, sourceRegName);
-           Variable targetVar = mm.field(targetRegName);
-           targetVar.set(sourceValue);
+            Variable sourceValue = resolveRegisterValueByName(mm, sourceRegName);
+            assignRegisterValue(mm, targetRegName, sourceValue);
          } else if (isAluOperation(ld)) {
            // Operaciones ALU: aplicar operación entre registros y guardar resultado
            executeRegisterToRegisterAluOperation(mm, ld, sourceRegName, targetRegName);
@@ -366,11 +365,33 @@ public class BytecodeInliner {
        }
        generateAluExecute(mm, ld, target, sourceRegName);
      }
-   }
+     }
 
-  /**
-   * Ejecuta operaciones ALU entre dos registros (register-to-register)
-   */
+     /**
+     * Asigna un valor a un registro, manejando registros de 16 bits compuestos (BC, DE, HL, AF)
+     */
+     private void assignRegisterValue(MethodMaker mm, String regName, Variable value) {
+     if (is16BitCompositeRegister(regName)) {
+     // Para registros de 16 bits compuestos, usar el setter correspondiente
+     String setterMethodName = "set" + regName;  // setBC, setDE, setHL, setAF
+     mm.invoke(setterMethodName, value);
+     } else {
+     // Para registros de 8 bits o especiales, asignar directamente
+     mm.field(regName).set(value);
+     }
+     }
+
+     /**
+     * Verifica si es un registro de 16 bits compuesto (BC, DE, HL, AF)
+     */
+     private boolean is16BitCompositeRegister(String regName) {
+     return regName.length() == 2 && !regName.startsWith("_") && 
+          (regName.equals("BC") || regName.equals("DE") || regName.equals("HL") || regName.equals("AF"));
+     }
+
+     /**
+     * Ejecuta operaciones ALU entre dos registros (register-to-register)
+     */
   private void executeRegisterToRegisterAluOperation(MethodMaker mm, TargetSourceInstruction instruction,
                                                      String sourceRegName, String targetRegName) {
     Variable sourceValue = resolveRegisterValueByName(mm, sourceRegName);
@@ -390,8 +411,7 @@ public class BytecodeInliner {
     result.set(aluOp.invoke("execute2ValuesAndCarry", targetValue, sourceValue, flag));
     
     // Escribir el resultado de vuelta al registro destino
-    Variable targetVar = mm.field(targetRegName);
-    targetVar.set(result);
+    assignRegisterValue(mm, targetRegName, result);
     
     // Actualizar el registro F con los flags de la operación ALU
     Variable flagField = mm.field(FLAG);
