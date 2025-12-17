@@ -9,12 +9,9 @@ import com.fpetrola.z80.registers.Plain16BitRegister;
 import com.fpetrola.z80.registers.Plain8BitRegister;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,7 +39,7 @@ public class BytecodeInlinerTestBase {
     var analyzer = new InstructionAnalyzer();
     analyzer.analyze(instruction);
 
-    lastInliner = setupInliner(analyzer);
+    lastInliner = new BytecodeInliner(analyzer);
     String generatedClass = lastInliner.inlineInstruction(instruction);
 
     return getDecompiledSource(generatedClass);
@@ -52,28 +49,13 @@ public class BytecodeInlinerTestBase {
     * Test helper que genera una clase con múltiples instrucciones
     */
    protected String testBytecodeMultipleInstructionsOf(String className, Map<Integer, TargetSourceInstruction<?>> instructions) throws IOException {
-     var analyzer = new InstructionAnalyzer();
-     lastInliner = setupInliner(analyzer);
+     lastInliner = new BytecodeInliner(new InstructionAnalyzer());
      String generatedClass = lastInliner.inlineMultipleInstructions(className, instructions);
 
      Class<?> aClass = lastInliner.generateAndLoadMultipleInstructions(className, instructions);
-     try {
-       Z80UnRolled o = (Z80UnRolled) aClass.getDeclaredConstructors()[0].newInstance();
-       System.out.println(o);
-     } catch (Exception e) {
-       throw new RuntimeException(e);
-     }
 
      return getDecompiledSource(generatedClass);
    }
-
-  /**
-   * Configura un BytecodeInliner con el analyzer y directorio de salida
-   */
-  private BytecodeInliner setupInliner(InstructionAnalyzer analyzer) {
-    Path bytecodeOutputDir = Paths.get("target/generated-classes");
-    return new BytecodeInliner(analyzer, bytecodeOutputDir);
-  }
 
   /**
    * Obtiene el código fuente descompilado de la clase generada usando Decompiler

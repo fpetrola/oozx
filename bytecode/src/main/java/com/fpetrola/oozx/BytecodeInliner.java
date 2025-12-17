@@ -12,7 +12,6 @@ import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
-import java.nio.file.Path;
 import java.util.*;
 import java.util.LinkedHashMap;
 import java.util.function.Supplier;
@@ -27,7 +26,7 @@ public class BytecodeInliner {
   private byte[] lastGeneratedBytecode;
   public static Map<String, byte[]> generatedBytecodes = new HashMap<>();
 
-  public BytecodeInliner(InstructionAnalyzer analyzer, Path bytecodeOutputDir) {
+  public BytecodeInliner(InstructionAnalyzer analyzer) {
     this.analyzer = analyzer;
   }
 
