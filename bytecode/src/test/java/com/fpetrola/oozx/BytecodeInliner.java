@@ -388,6 +388,10 @@ public class BytecodeInliner {
     // Escribir el resultado de vuelta al registro destino
     Variable targetVar = mm.field(targetRegName);
     targetVar.set(result);
+    
+    // Actualizar el registro F con los flags de la operación ALU
+    Variable flagField = mm.field(FLAG);
+    flagField.set(aluOp.field(FLAG));
   }
 
   /**

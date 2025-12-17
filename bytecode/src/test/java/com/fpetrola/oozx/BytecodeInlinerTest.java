@@ -549,9 +549,16 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     }
 
     String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecode", instructions);
-
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
+        import com.fpetrola.z80.instructions.impl.Adc.AdcTableAluOperation;
+        import com.fpetrola.z80.instructions.impl.Add.AddTableAluOperation;
+        import com.fpetrola.z80.instructions.impl.And.AndTableAluOperation;
+        import com.fpetrola.z80.instructions.impl.Cp.CpTableAluOperation;
+        import com.fpetrola.z80.instructions.impl.Or.OrTableAluOperation;
+        import com.fpetrola.z80.instructions.impl.Sbc.SbcTableAluOperation;
+        import com.fpetrola.z80.instructions.impl.Sub.SubTableAluOperation;
+        import com.fpetrola.z80.instructions.impl.Xor.XorTableAluOperation;
         
         public class MultiInstructionBytecode extends Z80UnRolled {
            public void executeLdImrBcA() {
@@ -690,122 +697,169 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
            public void executeAddAB() {
               int var1 = super.addTableAluOperation.execute2ValuesAndCarry(super.A, super.B, super.F);
               super.A = var1;
-              super.F = super.addTableAluOperation.F;
+              AddTableAluOperation var2 = super.addTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeAddAD() {
               int var1 = super.addTableAluOperation.execute2ValuesAndCarry(super.A, super.D, super.F);
               super.A = var1;
+              AddTableAluOperation var2 = super.addTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeAddAH() {
               int var1 = super.addTableAluOperation.execute2ValuesAndCarry(super.A, super.H, super.F);
               super.A = var1;
+              AddTableAluOperation var2 = super.addTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeAdcAB() {
               int var1 = super.adcTableAluOperation.execute2ValuesAndCarry(super.A, super.B, super.F);
               super.A = var1;
+              AdcTableAluOperation var2 = super.adcTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeAdcAD() {
               int var1 = super.adcTableAluOperation.execute2ValuesAndCarry(super.A, super.D, super.F);
               super.A = var1;
+              AdcTableAluOperation var2 = super.adcTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeAdcAH() {
               int var1 = super.adcTableAluOperation.execute2ValuesAndCarry(super.A, super.H, super.F);
               super.A = var1;
+              AdcTableAluOperation var2 = super.adcTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeSubAB() {
               int var1 = super.subTableAluOperation.execute2ValuesAndCarry(super.A, super.B, super.F);
               super.A = var1;
+              SubTableAluOperation var2 = super.subTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeSubAD() {
               int var1 = super.subTableAluOperation.execute2ValuesAndCarry(super.A, super.D, super.F);
               super.A = var1;
+              SubTableAluOperation var2 = super.subTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeSubAH() {
               int var1 = super.subTableAluOperation.execute2ValuesAndCarry(super.A, super.H, super.F);
               super.A = var1;
+              SubTableAluOperation var2 = super.subTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeSbcAB() {
               int var1 = super.sbcTableAluOperation.execute2ValuesAndCarry(super.A, super.B, super.F);
               super.A = var1;
+              SbcTableAluOperation var2 = super.sbcTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeSbcAD() {
               int var1 = super.sbcTableAluOperation.execute2ValuesAndCarry(super.A, super.D, super.F);
               super.A = var1;
+              SbcTableAluOperation var2 = super.sbcTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeSbcAH() {
               int var1 = super.sbcTableAluOperation.execute2ValuesAndCarry(super.A, super.H, super.F);
               super.A = var1;
+              SbcTableAluOperation var2 = super.sbcTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeAndAB() {
               int var1 = super.andTableAluOperation.execute2ValuesAndCarry(super.A, super.B, super.F);
               super.A = var1;
+              AndTableAluOperation var2 = super.andTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeAndAD() {
               int var1 = super.andTableAluOperation.execute2ValuesAndCarry(super.A, super.D, super.F);
               super.A = var1;
+              AndTableAluOperation var2 = super.andTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeAndAH() {
               int var1 = super.andTableAluOperation.execute2ValuesAndCarry(super.A, super.H, super.F);
               super.A = var1;
+              AndTableAluOperation var2 = super.andTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeXorAB() {
               int var1 = super.xorTableAluOperation.execute2ValuesAndCarry(super.A, super.B, super.F);
               super.A = var1;
+              XorTableAluOperation var2 = super.xorTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeXorAD() {
               int var1 = super.xorTableAluOperation.execute2ValuesAndCarry(super.A, super.D, super.F);
               super.A = var1;
+              XorTableAluOperation var2 = super.xorTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeXorAH() {
               int var1 = super.xorTableAluOperation.execute2ValuesAndCarry(super.A, super.H, super.F);
               super.A = var1;
+              XorTableAluOperation var2 = super.xorTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeOrAB() {
               int var1 = super.orTableAluOperation.execute2ValuesAndCarry(super.A, super.B, super.F);
               super.A = var1;
+              OrTableAluOperation var2 = super.orTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeOrAD() {
               int var1 = super.orTableAluOperation.execute2ValuesAndCarry(super.A, super.D, super.F);
               super.A = var1;
+              OrTableAluOperation var2 = super.orTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeOrAH() {
               int var1 = super.orTableAluOperation.execute2ValuesAndCarry(super.A, super.H, super.F);
               super.A = var1;
+              OrTableAluOperation var2 = super.orTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeCpAB() {
               int var1 = super.cpTableAluOperation.execute2ValuesAndCarry(super.A, super.B, super.F);
               super.A = var1;
+              CpTableAluOperation var2 = super.cpTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeCpAD() {
               int var1 = super.cpTableAluOperation.execute2ValuesAndCarry(super.A, super.D, super.F);
               super.A = var1;
+              CpTableAluOperation var2 = super.cpTableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeCpAH() {
               int var1 = super.cpTableAluOperation.execute2ValuesAndCarry(super.A, super.H, super.F);
               super.A = var1;
+              CpTableAluOperation var2 = super.cpTableAluOperation;
+              super.F = var2.F;
            }
         
            public int execute(int opcode) {
@@ -976,6 +1030,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
               return 0;
            }
         }""";
+
     assertSourceEquals(actualSource, expectedSource);
   }
 
