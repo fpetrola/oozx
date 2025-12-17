@@ -382,11 +382,10 @@ public class BytecodeInliner {
      }
 
      /**
-     * Verifica si es un registro de 16 bits compuesto (BC, DE, HL, AF)
-     */
+      * Verifica si es un registro de 16 bits compuesto que tiene getters/setters (BC, DE, HL, AF)
+      */
      private boolean is16BitCompositeRegister(String regName) {
-     return regName.length() == 2 && !regName.startsWith("_") && 
-          (regName.equals("BC") || regName.equals("DE") || regName.equals("HL") || regName.equals("AF"));
+       return (regName.equals("BC") || regName.equals("DE") || regName.equals("HL") || regName.equals("AF"));
      }
 
      /**
