@@ -18,15 +18,11 @@
 
 package com.fpetrola.z80.cpu;
 
-import com.fpetrola.oozx.BytecodeInliner;
-import com.fpetrola.oozx.InstructionAnalyzer;
 import com.fpetrola.oozx.Z80UnRolled;
-import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
@@ -35,11 +31,7 @@ import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.Memory8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.RegisterBank;
-import fuse.tstates.CachedPhase;
 
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.function.Supplier;
 
 public class MultiOpcodeFetcher {
