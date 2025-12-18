@@ -390,6 +390,11 @@ public class BytecodeInliner {
   }
 
   private void generateExecute(Supplier<MethodMaker> mm, TargetSourceInstruction ld, OpcodeReference target) {
+    // Excluir operaciones de 16 bits (Add16, Adc16, Sbc16, etc.)
+    if (ld instanceof com.fpetrola.z80.instructions.impl.Binary16BitsOperation) {
+      throw new UnsupportedOperationException("Binary16BitsOperation no soportada: " + ld.getClass().getSimpleName());
+    }
+
     ImmutableOpcodeReference source = ld.getSource();
 
     // Caso 1: source es un Register
