@@ -2,6 +2,7 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Xor;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.registers.Plain16BitRegister;
@@ -47,7 +48,7 @@ public class BytecodeInlinerTestBase {
   /**
     * Test helper que genera una clase con múltiples instrucciones
     */
-   protected String testBytecodeMultipleInstructionsOf(String className, Map<Integer, TargetSourceInstruction<?>> instructions) throws IOException {
+   protected String testBytecodeMultipleInstructionsOf(String className, Map<Integer, Instruction> instructions) throws IOException {
      lastInliner = new BytecodeInliner(new InstructionAnalyzer());
      String generatedClass = lastInliner.inlineMultipleInstructions(className, instructions);
 

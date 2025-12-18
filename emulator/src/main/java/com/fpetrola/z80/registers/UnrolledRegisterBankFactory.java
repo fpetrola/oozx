@@ -38,13 +38,13 @@ public class UnrolledRegisterBankFactory {
   private static int i;
 
   public Z80UnRolled createZ80Unrolled(OpCodeDecoder getOpcodesTables) {
-    Map<Integer, TargetSourceInstruction<?>> instructions = new TreeMap<>();
+    Map<Integer, Instruction> instructions = new TreeMap<>();
     Instruction[] opcodeLookupTable = getOpcodesTables.getOpcodeLookupTable();
     BytecodeInliner lastInliner = new BytecodeInliner(new InstructionAnalyzer());
     for (int i = 0; i < opcodeLookupTable.length; i++) {
       Instruction instruction = opcodeLookupTable[i];
       if (instruction instanceof TargetSourceInstruction<?>) {
-        instructions.put(i, (TargetSourceInstruction<?>) instruction);
+        instructions.put(i, instruction);
       }
     }
     Class<?> instructionsSwitchClass = lastInliner.generateAndLoadMultipleInstructions("InstructionsSwitch" + i++, instructions);

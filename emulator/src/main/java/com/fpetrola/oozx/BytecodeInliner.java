@@ -1,6 +1,7 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.*;
@@ -38,7 +39,7 @@ public class BytecodeInliner {
   /**
    * Genera una clase con múltiples métodos execute a partir de varias instrucciones
    */
-  public String inlineMultipleInstructions(String className, Map<Integer, TargetSourceInstruction<?>> instructions) {
+  public String inlineMultipleInstructions(String className, Map<Integer, Instruction> instructions) {
     className = className.replace("-", "_");
 
     ClassMaker cm = createBaseClass(className);
@@ -47,20 +48,23 @@ public class BytecodeInliner {
     Map<Integer, String> opcodeToMethodName = new LinkedHashMap<>();
 
     // Agregar un método execute para cada instrucción
-    for (Map.Entry<Integer, TargetSourceInstruction<?>> entry : instructions.entrySet()) {
+    for (Map.Entry<Integer, Instruction> entry : instructions.entrySet()) {
       Integer opcode = entry.getKey();
-      TargetSourceInstruction<?> instruction = entry.getValue();
+      Instruction instruction = entry.getValue();
 
-      try {
-        analyzer.analyze(instruction);
-        String operationName = instruction.getClass().getSimpleName();
-        OpcodeReference target = analyzer.getTarget();
-        String methodName = generateUniquMethodName(instruction, operationName, target);
-        addExecuteMethod(cm, instruction, operationName, target);
-        opcodeToMethodName.put(opcode, methodName);
-      } catch (Exception e) {
-        // Si no puede procesar la instrucción, omitirla del switch (no generar nada)
-        // La instrucción no se incluirá en opcodeToMethodName
+      // Solo procesar TargetSourceInstruction por ahora
+      if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
+        try {
+          analyzer.analyze(targetSourceInstruction);
+          String operationName = instruction.getClass().getSimpleName();
+          OpcodeReference target = analyzer.getTarget();
+          String methodName = generateUniquMethodName(targetSourceInstruction, operationName, target);
+          addExecuteMethod(cm, targetSourceInstruction, operationName, target);
+          opcodeToMethodName.put(opcode, methodName);
+        } catch (Exception e) {
+          // Si no puede procesar la instrucción, omitirla del switch (no generar nada)
+          // La instrucción no se incluirá en opcodeToMethodName
+        }
       }
     }
 
@@ -81,7 +85,7 @@ public class BytecodeInliner {
    * Genera una clase con múltiples instrucciones y la carga en memoria
    * Retorna el Class<?> directamente usable usando finish()
    */
-  public Class<?> generateAndLoadMultipleInstructions(String className, Map<Integer, TargetSourceInstruction<?>> instructions) {
+  public Class<?> generateAndLoadMultipleInstructions(String className, Map<Integer, Instruction> instructions) {
     className = className.replace("-", "_");
 
     ClassMaker cm = createBaseClass(className);
@@ -95,20 +99,23 @@ public class BytecodeInliner {
     Map<Integer, String> opcodeToMethodName = new LinkedHashMap<>();
 
     // Agregar un método execute para cada instrucción
-    for (Map.Entry<Integer, TargetSourceInstruction<?>> entry : instructions.entrySet()) {
+    for (Map.Entry<Integer, Instruction> entry : instructions.entrySet()) {
       Integer opcode = entry.getKey();
-      TargetSourceInstruction<?> instruction = entry.getValue();
+      Instruction instruction = entry.getValue();
 
-      try {
-        analyzer.analyze(instruction);
-        String operationName = instruction.getClass().getSimpleName();
-        OpcodeReference target = analyzer.getTarget();
-        String methodName = generateUniquMethodName(instruction, operationName, target);
-        addExecuteMethod(cm, instruction, operationName, target);
-        opcodeToMethodName.put(opcode, methodName);
-      } catch (Exception e) {
-        // Si no puede procesar la instrucción, omitirla del switch (no generar nada)
-        // La instrucción no se incluirá en opcodeToMethodName
+      // Solo procesar TargetSourceInstruction por ahora
+      if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
+        try {
+          analyzer.analyze(targetSourceInstruction);
+          String operationName = instruction.getClass().getSimpleName();
+          OpcodeReference target = analyzer.getTarget();
+          String methodName = generateUniquMethodName(targetSourceInstruction, operationName, target);
+          addExecuteMethod(cm, targetSourceInstruction, operationName, target);
+          opcodeToMethodName.put(opcode, methodName);
+        } catch (Exception e) {
+          // Si no puede procesar la instrucción, omitirla del switch (no generar nada)
+          // La instrucción no se incluirá en opcodeToMethodName
+        }
       }
     }
 

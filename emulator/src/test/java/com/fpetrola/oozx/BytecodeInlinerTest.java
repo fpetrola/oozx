@@ -451,7 +451,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     var source = new Plain8BitRegister("E");
     var add = new Add(target, source, new Plain8BitRegister("F"));
 
-    Map<Integer, TargetSourceInstruction<?>> instructions = new TreeMap<>(Map.of(10, ld, 20, xor, 30, add));
+    Map<Integer, Instruction> instructions = new TreeMap<>(Map.of(10, ld, 20, xor, 30, add));
     String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecodetestBytecodeMultipleInstructionsSwitch", instructions);
 
     String expectedSource = """
@@ -507,7 +507,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeTableOpcodesSwitch() throws IOException {
-    Map<Integer, TargetSourceInstruction<?>> instructions = new TreeMap<>();
+    Map<Integer, Instruction> instructions = new TreeMap<>();
 
     OOZ80 ooz80 = Helper.createOOZ80();
     DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
@@ -544,10 +544,10 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
     for (int i = 0; i < opcodeLookupTable.length; i++) {
       Instruction instruction = opcodeLookupTable[i];
-      if (instruction instanceof TargetSourceInstruction<?>) {
+      if (instruction != null) {
         for (int opcode : testOpcodes) {
           if (i == opcode) {
-            instructions.put(i, (TargetSourceInstruction<?>) instruction);
+            instructions.put(i, instruction);
             break;
           }
         }
