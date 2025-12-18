@@ -6,6 +6,7 @@ import com.fpetrola.z80.instructions.impl.Cp;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.minizx.emulation.Helper;
+import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
 import com.fpetrola.z80.opcodes.references.IndirectMemory16BitReference;
@@ -952,5 +953,43 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
     assertSourceEquals(actualSource, expectedSource);
   }
+
+
+  @Test
+  public void testBytecodeTableOpcodesSwitchCB() throws IOException {
+    Map<Integer, Instruction> instructions = new TreeMap<>();
+
+    OOZ80 ooz80 = Helper.createOOZ80();
+    DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
+    TableBasedOpCodeDecoder opcodesTables = instructionFetcher.multiOpcodeFetcher.getOpcodesTables();
+
+    Instruction[] opcodeLookupTable = opcodesTables.getOpcodeLookupTable();
+
+    DefaultFetchNextOpcodeInstruction cBInstruction = (DefaultFetchNextOpcodeInstruction) opcodeLookupTable[0xCB];
+    Instruction[] cbTable = cBInstruction.getTable();
+
+    int[] testOpcodes = {
+    };
+
+    for (int i = 0; i < cbTable.length; i++) {
+      Instruction instruction = cbTable[i];
+      if (instruction != null) {
+        for (int opcode : testOpcodes) {
+          boolean b = i == opcode;
+          if (b) {
+            instructions.put(i, instruction);
+            break;
+          }
+        }
+      }
+    }
+
+    String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecode2", instructions);
+    String expectedSource = """
+        """;
+
+    assertSourceEquals(actualSource, expectedSource);
+  }
+
 
 }
