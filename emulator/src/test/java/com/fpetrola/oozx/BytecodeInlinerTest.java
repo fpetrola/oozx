@@ -517,11 +517,23 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     // Opcodes significativos para pruebas: registros, memoria, ALU, 16-bit, etc
     int[] testOpcodes = {
         0x02,   // LD (BC), A
+        0x04,   // INC B
+        0x05,   // DEC B
         0x0A,   // LD A, (BC)
+        0x0C,   // INC C
+        0x0D,   // DEC C
         0x12,   // LD (DE), A
+        0x14,   // INC D
+        0x15,   // DEC D
         0x1A,   // LD A, (DE)
+        0x1C,   // INC E
+        0x1D,   // DEC E
         0x22,   // LD (nn), HL
+        0x24,   // INC H
+        0x25,   // DEC H
         0x32,   // LD (nn), A
+        0x34,   // INC (HL)
+        0x35,   // DEC (HL)
         0x40,   // LD B, B
         0x46,   // LD B, (HL)
         0x78,   // LD A, B
@@ -571,15 +583,33 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
               super.memory.write(var1, super.A);
            }
         
+           public void executeIncB() {
+           }
+        
+           public void executeDecB() {
+           }
+        
            public void executeLdAImrBc() {
               int var1 = this.getBC();
               int var2 = super.memory.read(var1, 0);
               super.A = var2;
            }
         
+           public void executeIncC() {
+           }
+        
+           public void executeDecC() {
+           }
+        
            public void executeLdImrDeA() {
               int var1 = this.getDE();
               super.memory.write(var1, super.A);
+           }
+        
+           public void executeIncD() {
+           }
+        
+           public void executeDecD() {
            }
         
            public void executeLdAImrDe() {
@@ -588,15 +618,37 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
               super.A = var2;
            }
         
+           public void executeIncE() {
+           }
+        
+           public void executeDecE() {
+           }
+        
            public void executeLdImr16M16RHl() {
               int var1 = this.read16(super.PC);
               int var2 = this.getHL();
               super.memory.write16BitsReverse(var2, var1);
            }
         
+           public void executeIncH() {
+           }
+        
+           public void executeDecH() {
+           }
+        
            public void executeLdImrM16RA() {
               int var1 = this.read16(super.PC);
               super.memory.write(var1, super.A);
+           }
+        
+           public void executeIncImrHl() {
+              int var1 = this.getHL();
+              super.memory.read(var1, 0);
+           }
+        
+           public void executeDecImrHl() {
+              int var1 = this.getHL();
+              super.memory.read(var1, 0);
            }
         
            public void executeLdBB() {
