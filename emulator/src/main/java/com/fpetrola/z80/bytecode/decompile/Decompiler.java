@@ -16,18 +16,13 @@
  *
  */
 
-package com.fpetrola.z80.bytecode;import com.fpetrola.z80.bytecode.decompile.SimpleBytecodeProvider;
-import com.fpetrola.z80.bytecode.decompile.SimpleResultSaverFor;
-import com.hypherionmc.jarmanager.JarManager;
-import org.apache.commons.io.FileUtils;
+package com.fpetrola.z80.bytecode.decompile;
+
 import org.jetbrains.java.decompiler.main.Fernflower;
 import org.jetbrains.java.decompiler.main.decompiler.PrintStreamLogger;
-import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import soot.Main;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 
@@ -44,26 +39,26 @@ public class Decompiler {
     fernflower = new Fernflower(bytecodeProvider, saver, customProperties, new PrintStreamLogger(new PrintStream(new ByteArrayOutputStream())));
   }
 
-  private static byte[] optimize(String className, String targetFolder, File source, byte[] bytecode) throws IOException {
-    String path = Decompiler.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-
-    int i1 = path.indexOf("nested:");
-    boolean isExecutingFatJar = i1 != -1;
-    if (isExecutingFatJar) {
-      int i = path.indexOf(".jar");
-      path = path.substring(i1 + "nested:".length(), i + ".jar".length());
-      JarManager.getInstance().unpackJar(new File(path), new File("target/jar-content"));
-    }
-
-    if (!targetFolder.equals(".")) {
-      FileUtils.writeByteArrayToFile(source, bytecode);
-      String s = isExecutingFatJar ? "target/jar-content/BOOT-INF/classes/rt.jar:target/jar-content/BOOT-INF/classes:" : "target/classes/rt.jar:target/classes:";
-      String pack = "com.fpetrola.z80.minizx.";
-      pack = "";
-      String[] args = {"-via-shimple", "-allow-phantom-refs", "-d", targetFolder, "-cp", s + targetFolder, "-O", pack + className};
-      Main.main(args);
-      bytecode = InterpreterUtil.getBytes(source);
-    }
+//  private static byte[] optimize(String className, String targetFolder, File source, byte[] bytecode) throws IOException {
+//    String path = Decompiler.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+//
+//    int i1 = path.indexOf("nested:");
+//    boolean isExecutingFatJar = i1 != -1;
+//    if (isExecutingFatJar) {
+//      int i = path.indexOf(".jar");
+//      path = path.substring(i1 + "nested:".length(), i + ".jar".length());
+//      JarManager.getInstance().unpackJar(new File(path), new File("target/jar-content"));
+//    }
+//
+//    if (!targetFolder.equals(".")) {
+//      FileUtils.writeByteArrayToFile(source, bytecode);
+//      String s = isExecutingFatJar ? "target/jar-content/BOOT-INF/classes/rt.jar:target/jar-content/BOOT-INF/classes:" : "target/classes/rt.jar:target/classes:";
+//      String pack = "com.fpetrola.z80.minizx.";
+//      pack = "";
+//      String[] args = {"-via-shimple", "-allow-phantom-refs", "-d", targetFolder, "-cp", s + targetFolder, "-O", pack + className};
+//      Main.main(args);
+//      bytecode = InterpreterUtil.getBytes(source);
+//    }
 
 //    Scene scene = Scene.v();
 //
@@ -86,8 +81,8 @@ public class Decompiler {
 //        System.out.println(unit);
 //      }
 //    }
-    return bytecode;
-  }
+//    return bytecode;
+//  }
 
   private static HashMap<String, Object> createCustomProperties() {
     HashMap<String, Object> customProperties = new HashMap<>();

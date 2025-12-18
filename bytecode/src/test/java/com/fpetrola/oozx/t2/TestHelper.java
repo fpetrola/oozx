@@ -1,14 +1,11 @@
 package com.fpetrola.oozx.t2;
 
-import com.fpetrola.z80.bytecode.Decompiler;
-import org.junit.Test;
+import com.fpetrola.z80.bytecode.decompile.Decompiler;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class TestHelper {
   public byte[] generateClonedBytecode(String originalClassName) throws IOException {

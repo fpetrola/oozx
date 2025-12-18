@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.bytecode;
 
+import com.fpetrola.z80.bytecode.decompile.Decompiler;
 import com.fpetrola.z80.bytecode.generators.StateBytecodeGenerator;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.minizx.MiniZX;

@@ -1,12 +1,8 @@
 package com.fpetrola.oozx;
 
 import java.io.IOException;
-import java.lang.instrument.ClassDefinition;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Base64;
 
 /**
  * Utilidad para escribir clases generadas dinámicamente a archivos .class

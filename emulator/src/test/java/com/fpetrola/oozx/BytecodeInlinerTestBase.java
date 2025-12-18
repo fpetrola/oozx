@@ -1,6 +1,5 @@
 package com.fpetrola.oozx;
 
-import com.fpetrola.z80.bytecode.Decompiler;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Xor;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
@@ -73,7 +72,7 @@ public class BytecodeInlinerTestBase {
       Path classFile = tempDir.resolve(generatedClass + ".class");
       Files.write(classFile, bytecode);
 
-      Decompiler decompiler = new Decompiler();
+      com.fpetrola.z80.bytecode.decompile.Decompiler decompiler = new com.fpetrola.z80.bytecode.decompile.Decompiler();
       decompiler.addClass(bytecode, classFile.toFile());
       String decompiled = decompiler.decompile();
 
