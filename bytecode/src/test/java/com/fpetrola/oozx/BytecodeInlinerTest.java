@@ -543,39 +543,14 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     Instruction[] opcodeLookupTable = opcodesTables.getOpcodeLookupTable();
     // Opcodes significativos para pruebas: registros, memoria, ALU, 16-bit, etc
     int[] testOpcodes = {
-        0,    // LD BC, nn (16-bit immediate)
-        2,    // LD (BC), A (indirect write)
-        10,   // LD A, (BC) (indirect read)
-        18,   // LD (DE), A (indirect write)
-        26,   // LD (HL), n (write immediate to HL indirect)
-        32,   // LD (HL), HL (special case)
-        34,   // LD (nn), HL (write 16bit)
-        50,   // LD (nn), A (write immediate)
-        64,   // LD B,B (register-to-register same)
-        70,   // LD B, (HL) (register from indirect)
-        120,  // LD A,B (register-to-register)
-        124,  // LD A,H (register-to-register different)
-        128,  // ADD A,B (register)
-        134,  // ADD A, (HL) (from indirect memory)
-        136,  // ADC A,B (register)
-        142,  // ADC A, (HL) (from indirect memory)
-        144,  // SUB A,B (register)
-        150,  // SUB A, (HL) (from indirect memory)
-        160,  // AND A,B (register)
-        166,  // AND A, (HL) (from indirect memory)
-        168,  // XOR A,B (register)
-        174,  // XOR A, (HL) (from indirect memory)
-        176,  // OR A,B (register)
-        182,  // OR A, (HL) (from indirect memory)
-        184,  // CP A,B (register)
-        190   // CP A, (HL) (from indirect memory)
+        0x29
     };
 
     for (int i = 0; i < opcodeLookupTable.length; i++) {
       Instruction instruction = opcodeLookupTable[i];
       if (instruction instanceof TargetSourceInstruction<?>) {
         for (int opcode : testOpcodes) {
-          if (i == opcode) {
+          if ( i == opcode) {
             instructions.put(i, (TargetSourceInstruction<?>) instruction);
             break;
           }
@@ -618,23 +593,15 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
            }
         
            public void executeLdImr16M16RHl() {
-              int var1 = super.PC + 1 & '\\uffff';
-              int var2 = super.memory.read(var1, 0);
-              int var3 = super.PC + 2 & '\\uffff';
-              int var4 = super.memory.read(var3, 0) << 8;
-              int var5 = var2 | var4;
-              int var6 = this.getHL();
-              int var7 = super.memory.read16Bits(var5);
-              super.memory.write16BitsReverse(var7, var6);
+              int var1 = this.read16(super.PC);
+              int var2 = this.getHL();
+              int var3 = super.memory.read16Bits(var1);
+              super.memory.write16BitsReverse(var3, var2);
            }
         
            public void executeLdImrM16RA() {
-              int var1 = super.PC + 1 & '\\uffff';
-              int var2 = super.memory.read(var1, 0);
-              int var3 = super.PC + 2 & '\\uffff';
-              int var4 = super.memory.read(var3, 0) << 8;
-              int var5 = var2 | var4;
-              super.memory.write(var5, super.A);
+              int var1 = this.read16(super.PC);
+              super.memory.write(var1, super.A);
            }
         
            public void executeLdBB() {

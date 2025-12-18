@@ -384,19 +384,9 @@ public class BytecodeInliner {
    * Lee una dirección de 16 bits desde (pc + delta) en formato little-endian
    */
   private Variable readAddress16Bit(MethodMaker mm, Memory16BitReference mem16Ref) {
-    Variable memory = mm.field("memory");
     Variable pc = mm.field("PC");
-
-    // Leer dirección de 16 bits desde (pc + delta)
-    Variable addr1 = mm.var(int.class);
-    addr1.set(memory.invoke("read", pc.add(mem16Ref.getDelta()).and(0xFFFF), 0));
-    Variable addr2 = mm.var(int.class);
-    addr2.set(memory.invoke("read", pc.add(mem16Ref.getDelta() + 1).and(0xFFFF), 0));
-
-    // Combinar en dirección de 16 bits (little-endian)
-    Variable address = mm.var(int.class);
-    address.set(addr1.or(addr2.shl(8)));
-    return address;
+    Variable read16 = mm.invoke("read16", pc);
+    return read16;
   }
 
   private void generateExecute(Supplier<MethodMaker> mm, TargetSourceInstruction ld, OpcodeReference target) {
@@ -433,6 +423,8 @@ public class BytecodeInliner {
           Variable memory = mm.get().field("memory");
           Variable value = mm.get().var(int.class);
           if (ld.getSource() instanceof Memory16BitReference) {
+            value.set(memory.invoke("read16Bits", address));
+          } else if (ld.getSource() instanceof IndirectMemory16BitReference) {
             value.set(memory.invoke("read16Bits", address));
           } else {
             value.set(memory.invoke("read", address, 0));
@@ -714,8 +706,10 @@ public class BytecodeInliner {
     Variable source = resolveRegisterValueByName(mm, sourceRegName);
 
     // Leer valor de 16 bits desde la dirección
-    Variable value = mm.var(int.class);
-    value.set(memory.invoke("read16Bits", address));
+//    Variable value = mm.var(int.class);
+//    value.set(memory.invoke("read16Bits", address));
+
+    Variable value= address;
 
     // Para LD, escribir directamente el valor leído
     if (instruction instanceof Ld) {
