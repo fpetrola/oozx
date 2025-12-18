@@ -99,7 +99,8 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
 
   private Instruction fetchInstruction(int address) {
     Instruction fetchedInstruction = multiOpcodeFetcher.fetchInstruction(address);
-    setupPhaseInterceptor((AbstractInstruction) fetchedInstruction);
+    if (fetchedInstruction != null)
+      setupPhaseInterceptor((AbstractInstruction) fetchedInstruction);
 //    fetchListeners.forAll(l -> l.instructionFetchedAt(address, fetchedInstruction));
     return fetchedInstruction;
   }

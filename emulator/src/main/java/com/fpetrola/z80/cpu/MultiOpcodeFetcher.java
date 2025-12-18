@@ -54,6 +54,9 @@ public class MultiOpcodeFetcher {
   private final Memory memory;
   private final Register pc;
   private Z80UnRolled registerBank;
+  CachedPhase cachedPhase = new CachedPhase();
+  private int length1;
+  private AbstractInstruction abstractInstruction;
 
   public MultiOpcodeFetcher(InstructionFactory instructionFactory, State state, OpcodeConditions opcodeConditions, boolean clone) {
     this.instructionFactory = instructionFactory;
@@ -105,30 +108,21 @@ public class MultiOpcodeFetcher {
   }
 
   public Instruction fetchInstruction(int address) {
+    Instruction result = null;
 //    int rValue = registerR.read();
     memoryForOpcode.reset();
 
     int read = memory.read(address, 1);
     FetchedInstructionWrapper fetchedInstructionWrapper = opcodesTables[read];
 
-    int execute = registerBank.execute(read);
+    int execute = -1;
+
+    if (registerBank != null)
+      execute = registerBank.execute(read);
 
     if (execute == 0) {
-      return new AbstractInstruction() {
-        public void execute() {
-        }
-
-        public int getLength() {
-          return fetchedInstructionWrapper.getInstruction().getLength();
-        }
-
-        public void accept(InstructionVisitor<?> visitor) {
-        }
-
-        public CachedPhase getCachedPhase() {
-          return fetchedInstructionWrapper.getInstruction().getCachedPhase();
-        }
-      };
+      this.length1 = fetchedInstructionWrapper.getInstruction().getLength();
+      pc.write((pc.read() + this.length1) & 0xFFFF);
     } else {
 
 //    int rdelta = registerR.read().minus(rValue);
@@ -138,8 +132,17 @@ public class MultiOpcodeFetcher {
 //      fetchedInstruction = new InstructionCloner(instructionFactory).clone(fetchedInstruction);
 //    }
 
-      return fetchedInstructionWrapper.getInstruction();
+      AbstractInstruction instruction = (AbstractInstruction) fetchedInstructionWrapper.getInstruction();
+      result = instruction;
+      result.execute();
+      int nextPC = ((AbstractInstruction) result).getNextPC();
+      if (nextPC == -1) {
+        nextPC = (pc.read() + result.getLength()) & 0xFFFF;
+      }
+      pc.write(nextPC);
     }
+
+    return result;
   }
 
   public void reset() {
