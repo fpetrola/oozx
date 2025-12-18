@@ -516,14 +516,37 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     Instruction[] opcodeLookupTable = opcodesTables.getOpcodeLookupTable();
     // Opcodes significativos para pruebas: registros, memoria, ALU, 16-bit, etc
     int[] testOpcodes = {
-        0x22
+        0x02,   // LD (BC), A
+        0x0A,   // LD A, (BC)
+        0x12,   // LD (DE), A
+        0x1A,   // LD A, (DE)
+        0x22,   // LD (nn), HL
+        0x32,   // LD (nn), A
+        0x40,   // LD B, B
+        0x46,   // LD B, (HL)
+        0x78,   // LD A, B
+        0x7C,   // LD A, H
+        0x80,   // ADD A, B
+        0x86,   // ADD A, (HL)
+        0x88,   // ADC A, B
+        0x8E,   // ADC A, (HL)
+        0x90,   // SUB A, B
+        0x96,   // SUB A, (HL)
+        0xA0,   // AND A, B
+        0xA6,   // AND A, (HL)
+        0xA8,   // XOR A, B
+        0xAE,   // XOR A, (HL)
+        0xB0,   // OR A, B
+        0xB6,   // OR A, (HL)
+        0xB8,   // CP A, B
+        0xBE    // CP A, (HL)
     };
 
     for (int i = 0; i < opcodeLookupTable.length; i++) {
       Instruction instruction = opcodeLookupTable[i];
       if (instruction instanceof TargetSourceInstruction<?>) {
         for (int opcode : testOpcodes) {
-          if (true || i == opcode) {
+          if (i == opcode) {
             instructions.put(i, (TargetSourceInstruction<?>) instruction);
             break;
           }
@@ -568,8 +591,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
            public void executeLdImr16M16RHl() {
               int var1 = this.read16(super.PC);
               int var2 = this.getHL();
-              int var3 = super.memory.read16Bits(var1);
-              super.memory.write16BitsReverse(var3, var2);
+              super.memory.write16BitsReverse(var2, var1);
            }
         
            public void executeLdImrM16RA() {
