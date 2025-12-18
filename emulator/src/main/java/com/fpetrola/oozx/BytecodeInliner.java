@@ -193,7 +193,14 @@ public class BytecodeInliner {
   private Class<?> getAluOperationClass(TargetSourceInstruction instruction) {
     try {
       Class<?> instructionClass = instruction.getClass();
-      String innerClassName = instructionClass.getSimpleName() + "TableAluOperation";
+      String instructionName = instructionClass.getSimpleName();
+      
+      // Mapeo de nombres especiales
+      String innerClassName = switch(instructionName) {
+        case "RRC" -> "RRCAluOperation";
+        case "SRA" -> "SRAAluOperation";
+        default -> instructionName + "TableAluOperation";
+      };
 
       // Buscar el inner class declarado
       for (Class<?> innerClass : instructionClass.getDeclaredClasses()) {
@@ -860,6 +867,8 @@ public class BytecodeInliner {
     return switch(instructionClassName) {
       case "Inc" -> "inc8TableAluOperation";
       case "Dec" -> "dec8TableAluOperation";
+      case "RRC" -> "rRCAluOperation";
+      case "SRA" -> "sRAAluOperation";
       default -> instructionClassName.toLowerCase() + "TableAluOperation";
     };
   }

@@ -1011,7 +1011,9 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
         import com.fpetrola.z80.instructions.impl.RLC.RlcTableAluOperation;
+        import com.fpetrola.z80.instructions.impl.RRC.RRCAluOperation;
         import com.fpetrola.z80.instructions.impl.SLA.SlaTableAluOperation;
+        import com.fpetrola.z80.instructions.impl.SRA.SRAAluOperation;
         import com.fpetrola.z80.instructions.impl.SRL.SrlTableAluOperation;
         
         public class MultiInstructionBytecode2 extends Z80UnRolled {
@@ -1046,17 +1048,33 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
            }
         
            public void executeRRCB() {
+              int var1 = super.rRCAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
+              super.B = var1;
+              RRCAluOperation var2 = super.rRCAluOperation;
+              super.F = var2.F;
            }
         
            public void executeRRCD() {
+              int var1 = super.rRCAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
+              super.D = var1;
+              RRCAluOperation var2 = super.rRCAluOperation;
+              super.F = var2.F;
            }
         
            public void executeRRCH() {
+              int var1 = super.rRCAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
+              super.H = var1;
+              RRCAluOperation var2 = super.rRCAluOperation;
+              super.F = var2.F;
            }
         
            public void executeRRCImrHl() {
               int var1 = this.getHL();
-              super.memory.read(var1, 0);
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.rRCAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
+              super.memory.write(var1, var3);
+              RRCAluOperation var4 = super.rRCAluOperation;
+              super.F = var4.F;
            }
         
            public void executeSLAB() {
@@ -1090,17 +1108,33 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
            }
         
            public void executeSRAB() {
+              int var1 = super.sRAAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
+              super.B = var1;
+              SRAAluOperation var2 = super.sRAAluOperation;
+              super.F = var2.F;
            }
         
            public void executeSRAD() {
+              int var1 = super.sRAAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
+              super.D = var1;
+              SRAAluOperation var2 = super.sRAAluOperation;
+              super.F = var2.F;
            }
         
            public void executeSRAH() {
+              int var1 = super.sRAAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
+              super.H = var1;
+              SRAAluOperation var2 = super.sRAAluOperation;
+              super.F = var2.F;
            }
         
            public void executeSRAImrHl() {
               int var1 = this.getHL();
-              super.memory.read(var1, 0);
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.sRAAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
+              super.memory.write(var1, var3);
+              SRAAluOperation var4 = super.sRAAluOperation;
+              super.F = var4.F;
            }
         
            public void executeSRLB() {
@@ -1147,6 +1181,18 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
               case 51974:
                  this.executeRLCImrHl();
                  break;
+              case 51976:
+                 this.executeRRCB();
+                 break;
+              case 51978:
+                 this.executeRRCD();
+                 break;
+              case 51980:
+                 this.executeRRCH();
+                 break;
+              case 51982:
+                 this.executeRRCImrHl();
+                 break;
               case 52000:
                  this.executeSLAB();
                  break;
@@ -1158,6 +1204,18 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
                  break;
               case 52006:
                  this.executeSLAImrHl();
+                 break;
+              case 52008:
+                 this.executeSRAB();
+                 break;
+              case 52010:
+                 this.executeSRAD();
+                 break;
+              case 52012:
+                 this.executeSRAH();
+                 break;
+              case 52014:
+                 this.executeSRAImrHl();
                  break;
               case 52024:
                  this.executeSRLB();
