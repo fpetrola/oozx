@@ -37,7 +37,6 @@ import java.util.function.Supplier;
 public class MultiOpcodeFetcher {
   public final InstructionFactory instructionFactory;
   private final State state;
-  private final Register registerR;
   public final FetchedInstructionWrapper[] opcodesTables = new FetchedInstructionWrapper[0x100];
   public Supplier<TableBasedOpCodeDecoder> tableFactory;
   private final OpcodeConditions opcodeConditions;
@@ -58,7 +57,6 @@ public class MultiOpcodeFetcher {
     tableFactory = () -> getOpcodesTables();
     createOpcodeTables();
     memory = state.getMemory();
-    this.registerR = state.getRegisterR();
 
     if ((this.state.getRegisters() instanceof Z80UnRolled)) {
       registerBank = (Z80UnRolled) this.state.getRegisters();
@@ -99,7 +97,6 @@ public class MultiOpcodeFetcher {
 
   public Instruction fetchInstruction(int address) {
     Instruction result = null;
-//    int rValue = registerR.read();
     memoryForOpcode.reset();
 
     int read = memory.read(address, 1);
