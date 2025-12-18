@@ -9,7 +9,7 @@ public class Z80UnRolled extends UnrolledRegisterBank {
   public RRA.RRAAluOperation rRAAluOperation = new RRA.RRAAluOperation();
   public RLCA.RlcaTableAluOperation rlcaTableAluOperation = new RLCA.RlcaTableAluOperation();
   public RRCA.RRCAAluOperation rRCAAluOperation = new RRCA.RRCAAluOperation();
-  public RLC.RlcTable1AluOperation rlcTable1AluOperation = new RLC.RlcTable1AluOperation();
+  public RLC.RlcTableAluOperation rlcTableAluOperation = new RLC.RlcTableAluOperation();
   public RRC.RRCAluOperation rRCAluOperation = new RRC.RRCAluOperation();
   public RL.RlTableAluOperation rlTableAluOperation = new RL.RlTableAluOperation();
   public RR.RrTableAluOperation rrTableAluOperation = new RR.RrTableAluOperation();

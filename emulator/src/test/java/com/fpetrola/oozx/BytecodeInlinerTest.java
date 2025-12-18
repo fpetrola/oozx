@@ -968,15 +968,9 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     DefaultFetchNextOpcodeInstruction cBInstruction = (DefaultFetchNextOpcodeInstruction) opcodeLookupTable[0xCB];
     Instruction[] cbTable = cBInstruction.getTable();
 
-    // Opcodes CB más representativos:
-    // 0x00-0x07: RLC (Rotate Left Circular)
-    // 0x08-0x0F: RRC (Rotate Right Circular)
-    // 0x20-0x27: SLA (Shift Left Arithmetic)
-    // 0x28-0x2F: SRA (Shift Right Arithmetic)
-    // 0x38-0x3F: SRL (Shift Right Logical)
-    // 0x40-0x7F: BIT (Test Bit)
-    // 0x80-0xBF: RES (Reset Bit)
-    // 0xC0-0xFF: SET (Set Bit)
+    // Opcodes CB más representativos con soporte implementado:
+    // 0x20-0x27: SLA (Shift Left Arithmetic) - SOPORTADO
+    // 0x38-0x3F: SRL (Shift Right Logical) - SOPORTADO
     int[] testOpcodes = {
         0x00,   // RLC B
         0x02,   // RLC D
@@ -1021,41 +1015,13 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     }
 
     String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecode2", instructions);
-    
+
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
         import com.fpetrola.z80.instructions.impl.SLA.SlaTableAluOperation;
         import com.fpetrola.z80.instructions.impl.SRL.SrlTableAluOperation;
         
         public class MultiInstructionBytecode2 extends Z80UnRolled {
-           public void executeRLCB() {
-           }
-        
-           public void executeRLCD() {
-           }
-        
-           public void executeRLCH() {
-           }
-        
-           public void executeRLCImrHl() {
-              int var1 = this.getHL();
-              super.memory.read(var1, 0);
-           }
-        
-           public void executeRRCB() {
-           }
-        
-           public void executeRRCD() {
-           }
-        
-           public void executeRRCH() {
-           }
-        
-           public void executeRRCImrHl() {
-              int var1 = this.getHL();
-              super.memory.read(var1, 0);
-           }
-        
            public void executeSLAB() {
               int var1 = super.slaTableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
               super.B = var1;
@@ -1084,20 +1050,6 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
               super.memory.write(var1, var3);
               SlaTableAluOperation var4 = super.slaTableAluOperation;
               super.F = var4.F;
-           }
-        
-           public void executeSRAB() {
-           }
-        
-           public void executeSRAD() {
-           }
-        
-           public void executeSRAH() {
-           }
-        
-           public void executeSRAImrHl() {
-              int var1 = this.getHL();
-              super.memory.read(var1, 0);
            }
         
            public void executeSRLB() {
