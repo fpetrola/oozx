@@ -26,7 +26,6 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Add16 extends Binary16BitsOperation {
   public static class Add16TableAluOperation extends AluOperation {
-    @Override
     protected int calculate2Values1Boolean(int value1, int value2, int value2Bit0) {
       F = value2;
       getValue1(value1 << 4, value2Bit0 << 11, value1 << 11);
