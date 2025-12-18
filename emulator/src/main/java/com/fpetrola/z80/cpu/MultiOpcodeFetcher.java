@@ -114,14 +114,6 @@ public class MultiOpcodeFetcher {
       this.length1 = fetchedInstructionWrapper.getInstruction().getLength();
       pc.write((pc.read() + this.length1) & 0xFFFF);
     } else {
-
-//    int rdelta = registerR.read().minus(rValue);
-//    ((AbstractInstruction<?>) fetchedInstruction).setRDelta(rdelta.intValue());
-
-//    if (clone) {
-//      fetchedInstruction = new InstructionCloner(instructionFactory).clone(fetchedInstruction);
-//    }
-
       AbstractInstruction instruction = (AbstractInstruction) fetchedInstructionWrapper.getInstruction();
       result = instruction;
       result.execute();
