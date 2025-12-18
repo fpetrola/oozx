@@ -20,13 +20,13 @@ public class BytecodeInlinerTestBase {
   private BytecodeInliner lastInliner;
 
   public static Ld getLd1() {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new DummyMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("A");
     return new Ld(target, source, new Plain8BitRegister("F"));
   }
 
   protected static Xor getXor1() {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new DummyMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("C");
     return new Xor(target, source, new Plain8BitRegister("F"));
   }

@@ -1,6 +1,6 @@
 package com.fpetrola.oozx.t2;
 
-import com.fpetrola.oozx.MyAbstractMemory;
+import com.fpetrola.oozx.DummyMemory;
 import com.fpetrola.z80.registers.RegisterBank;
 import com.fpetrola.z80.registers.UnrolledRegisterBankFactory;
 import org.junit.Test;
@@ -16,7 +16,7 @@ public class InstanceInlinerWithSootUpTest {
   @Test
   public void testClassClonerGeneratesValidBytecode() throws IOException {
     RegisterBank bank = new UnrolledRegisterBankFactory().createBank();
-    var target = new MemoryPlusRegister8BitReference(bank.get(IX), new MyAbstractMemory(), bank.get(PC), 2);
+    var target = new MemoryPlusRegister8BitReference(bank.get(IX), new DummyMemory(), bank.get(PC), 2);
 
     String decompiledSource = inlineAndDecompile(target);
 

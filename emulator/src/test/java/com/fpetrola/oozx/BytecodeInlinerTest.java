@@ -48,7 +48,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeInline2() throws IOException {
-    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
+    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new DummyMemory());
     var source = new Plain8BitRegister("B");
     var ld = new Ld(target, source, new Plain8BitRegister("F"));
 
@@ -67,7 +67,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeInline3() throws IOException {
-    MyAbstractMemory memory = new MyAbstractMemory();
+    DummyMemory memory = new DummyMemory();
     var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
     var source = new Plain8BitRegister("B");
     var ld = new Ld(target, source, new Plain8BitRegister("F"));
@@ -87,7 +87,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeInline4() throws IOException {
-    MyAbstractMemory memory = new MyAbstractMemory();
+    DummyMemory memory = new DummyMemory();
     var target = new IndirectMemory16BitReference(new Memory16BitReference(memory, new Plain16BitRegister("PC"), 3), memory);
     var source = new Plain8BitRegister("C");
     var ld = new Ld(target, source, new Plain8BitRegister("F"));
@@ -108,7 +108,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeInline5() throws IOException {
-    MyAbstractMemory memory = new MyAbstractMemory();
+    DummyMemory memory = new DummyMemory();
     var target = new IndirectMemory16BitReference(new Plain16BitRegister("IX"), memory);
     var source = new Plain8BitRegister("D");
     var ld = new Ld(target, source, new Plain8BitRegister("F"));
@@ -158,7 +158,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeOrInline1() throws IOException {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new DummyMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("C");
     var or = new Or(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(or);
@@ -181,7 +181,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeXorInline2() throws IOException {
-    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
+    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new DummyMemory());
     var source = new Plain8BitRegister("C");
     var xor = new Xor(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(xor);
@@ -201,7 +201,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeXorInline3() throws IOException {
-    MyAbstractMemory memory = new MyAbstractMemory();
+    DummyMemory memory = new DummyMemory();
     var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
     var source = new Plain8BitRegister("C");
     var xor = new Xor(target, source, new Plain8BitRegister("F"));
@@ -223,7 +223,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeOrInline2() throws IOException {
-    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
+    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new DummyMemory());
     var source = new Plain8BitRegister("C");
     var or = new Or(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(or);
@@ -243,7 +243,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeOrInline3() throws IOException {
-    MyAbstractMemory memory = new MyAbstractMemory();
+    DummyMemory memory = new DummyMemory();
     var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
     var source = new Plain8BitRegister("C");
     var or = new Or(target, source, new Plain8BitRegister("F"));
@@ -265,7 +265,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeAndInline1() throws IOException {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new DummyMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("C");
     var and = new And(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(and);
@@ -288,7 +288,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeAndInline2() throws IOException {
-    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new MyAbstractMemory());
+    var target = new IndirectMemory8BitReference(new Plain16BitRegister("IY"), new DummyMemory());
     var source = new Plain8BitRegister("C");
     var and = new And(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(and);
@@ -308,7 +308,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeAndInline3() throws IOException {
-    MyAbstractMemory memory = new MyAbstractMemory();
+    DummyMemory memory = new DummyMemory();
     var target = new IndirectMemory8BitReference(new Memory16BitReference(memory, new Plain16BitRegister("IY"), 3), memory);
     var source = new Plain8BitRegister("C");
     var and = new And(target, source, new Plain8BitRegister("F"));
@@ -330,7 +330,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeSubInline1() throws IOException {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new DummyMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("B");
     var sub = new Sub(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(sub);
@@ -353,7 +353,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeCpInline1() throws IOException {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new DummyMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("D");
     var cp = new Cp(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(cp);
@@ -376,7 +376,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeAddInline1() throws IOException {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new DummyMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("E");
     var add = new Add(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(add);
@@ -399,7 +399,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeAdcInline1() throws IOException {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new DummyMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("H");
     var adc = new Adc(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(adc);
@@ -422,7 +422,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   @Test
   public void testBytecodeSbcInline1() throws IOException {
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new DummyMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("L");
     var sbc = new Sbc(target, source, new Plain8BitRegister("F"));
     String actualSource = testBytecodeInlineOf(sbc);
@@ -447,7 +447,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
   public void testBytecodeMultipleInstructionsSwitch() throws IOException {
     var ld = getLd1();
     var xor = getXor1();
-    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new MyAbstractMemory(), new Plain16BitRegister("PC"), 2);
+    var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new DummyMemory(), new Plain16BitRegister("PC"), 2);
     var source = new Plain8BitRegister("E");
     var add = new Add(target, source, new Plain8BitRegister("F"));
 
