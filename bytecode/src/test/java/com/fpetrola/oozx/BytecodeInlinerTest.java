@@ -83,12 +83,8 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         
         public class LdBytecode extends Z80UnRolled {
            public void executeLdImrM16RB() {
-              int var1 = super.PC + 3 & '\\uffff';
-              int var2 = super.memory.read(var1, 0);
-              int var3 = super.PC + 4 & '\\uffff';
-              int var4 = super.memory.read(var3, 0) << 8;
-              int var5 = var2 | var4;
-              super.memory.write(var5, super.B);
+              int var1 = this.read16(super.PC);
+              super.memory.write(var1, super.B);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -108,13 +104,8 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         
         public class LdBytecode extends Z80UnRolled {
            public void executeLdImr16M16RC() {
-              int var1 = super.PC + 3 & '\\uffff';
-              int var2 = super.memory.read(var1, 0);
-              int var3 = super.PC + 4 & '\\uffff';
-              int var4 = super.memory.read(var3, 0) << 8;
-              int var5 = var2 | var4;
-              int var6 = super.memory.read16Bits(var5);
-              super.memory.write16BitsReverse(var6, super.C);
+              int var1 = this.read16(super.PC);
+              super.memory.write16BitsReverse(super.C, var1);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -133,8 +124,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         
         public class LdBytecode extends Z80UnRolled {
            public void executeLdImr16IxD() {
-              int var1 = super.memory.read16Bits(super.IX);
-              super.memory.write16BitsReverse(var1, super.D);
+              super.memory.write16BitsReverse(super.D, super.IX);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -227,14 +217,10 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         
         public class XorBytecode extends Z80UnRolled {
            public void executeXorImrM16RC() {
-              int var1 = super.PC + 3 & '\\uffff';
+              int var1 = this.read16(super.PC);
               int var2 = super.memory.read(var1, 0);
-              int var3 = super.PC + 4 & '\\uffff';
-              int var4 = super.memory.read(var3, 0) << 8;
-              int var5 = var2 | var4;
-              int var6 = super.memory.read(var5, 0);
-              int var7 = super.xorTableAluOperation.execute2ValuesAndCarry(var6, super.C, super.F);
-              super.memory.write(var5, var7);
+              int var3 = super.xorTableAluOperation.execute2ValuesAndCarry(var2, super.C, super.F);
+              super.memory.write(var1, var3);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -273,14 +259,10 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         
         public class OrBytecode extends Z80UnRolled {
            public void executeOrImrM16RC() {
-              int var1 = super.PC + 3 & '\\uffff';
+              int var1 = this.read16(super.PC);
               int var2 = super.memory.read(var1, 0);
-              int var3 = super.PC + 4 & '\\uffff';
-              int var4 = super.memory.read(var3, 0) << 8;
-              int var5 = var2 | var4;
-              int var6 = super.memory.read(var5, 0);
-              int var7 = super.orTableAluOperation.execute2ValuesAndCarry(var6, super.C, super.F);
-              super.memory.write(var5, var7);
+              int var3 = super.orTableAluOperation.execute2ValuesAndCarry(var2, super.C, super.F);
+              super.memory.write(var1, var3);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -342,14 +324,10 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         
         public class AndBytecode extends Z80UnRolled {
            public void executeAndImrM16RC() {
-              int var1 = super.PC + 3 & '\\uffff';
+              int var1 = this.read16(super.PC);
               int var2 = super.memory.read(var1, 0);
-              int var3 = super.PC + 4 & '\\uffff';
-              int var4 = super.memory.read(var3, 0) << 8;
-              int var5 = var2 | var4;
-              int var6 = super.memory.read(var5, 0);
-              int var7 = super.andTableAluOperation.execute2ValuesAndCarry(var6, super.C, super.F);
-              super.memory.write(var5, var7);
+              int var3 = super.andTableAluOperation.execute2ValuesAndCarry(var2, super.C, super.F);
+              super.memory.write(var1, var3);
            }
         }""";
     assertSourceEquals(actualSource, expectedSource);
@@ -479,12 +457,12 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     var add = new Add(target, source, new Plain8BitRegister("F"));
 
     Map<Integer, TargetSourceInstruction<?>> instructions = new TreeMap<>(Map.of(10, ld, 20, xor, 30, add));
-    String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecode", instructions);
+    String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecodetestBytecodeMultipleInstructionsSwitch", instructions);
 
     String expectedSource = """
         import com.fpetrola.oozx.Z80UnRolled;
         
-        public class MultiInstructionBytecode extends Z80UnRolled {
+        public class MultiInstructionBytecodetestBytecodeMultipleInstructionsSwitch extends Z80UnRolled {
            public void executeLdMprfIxA() {
               int var1 = super.PC + 2 & '\\uffff';
               int var2 = super.memory.read(var1, 0);
@@ -550,7 +528,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
       Instruction instruction = opcodeLookupTable[i];
       if (instruction instanceof TargetSourceInstruction<?>) {
         for (int opcode : testOpcodes) {
-          if ( i == opcode) {
+          if (true || i == opcode) {
             instructions.put(i, (TargetSourceInstruction<?>) instruction);
             break;
           }
@@ -818,6 +796,5 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
     assertSourceEquals(actualSource, expectedSource);
   }
-
 
 }

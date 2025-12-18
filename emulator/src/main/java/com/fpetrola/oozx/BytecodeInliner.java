@@ -1,6 +1,7 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.*;
@@ -38,7 +39,7 @@ public class BytecodeInliner {
   /**
    * Genera una clase con múltiples métodos execute a partir de varias instrucciones
    */
-  public String inlineMultipleInstructions(String className, Map<Integer, TargetSourceInstruction<?>> instructions) {
+  public String inlineMultipleInstructions(String className, Map<Integer, ? extends com.fpetrola.z80.instructions.types.Instruction> instructions) {
     className = className.replace("-", "_");
 
     ClassMaker cm = createBaseClass(className);
@@ -47,17 +48,26 @@ public class BytecodeInliner {
     Map<Integer, String> opcodeToMethodName = new LinkedHashMap<>();
 
     // Agregar un método execute para cada instrucción
-    for (Map.Entry<Integer, TargetSourceInstruction<?>> entry : instructions.entrySet()) {
+    for (Map.Entry<Integer, ? extends com.fpetrola.z80.instructions.types.Instruction> entry : instructions.entrySet()) {
       Integer opcode = entry.getKey();
-      TargetSourceInstruction<?> instruction = entry.getValue();
+      com.fpetrola.z80.instructions.types.Instruction instruction = entry.getValue();
 
       try {
-        analyzer.analyze(instruction);
-        String operationName = instruction.getClass().getSimpleName();
-        OpcodeReference target = analyzer.getTarget();
-        String methodName = generateUniquMethodName(instruction, operationName, target);
-        addExecuteMethod(cm, instruction, operationName, target);
-        opcodeToMethodName.put(opcode, methodName);
+        if (instruction instanceof TargetSourceInstruction targetSourceInstruction) {
+          analyzer.analyze(targetSourceInstruction);
+          String operationName = instruction.getClass().getSimpleName();
+          OpcodeReference target = analyzer.getTarget();
+          String methodName = generateUniquMethodName(targetSourceInstruction, operationName, target);
+          addExecuteMethod(cm, targetSourceInstruction, operationName, target);
+          opcodeToMethodName.put(opcode, methodName);
+        } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
+          String operationName = instruction.getClass().getSimpleName();
+          String methodName = generateUniquMethodNameForUnary(unaryInstruction, operationName);
+          addExecuteMethodUnary(cm, unaryInstruction, operationName);
+          opcodeToMethodName.put(opcode, methodName);
+        } else {
+          throw new UnsupportedOperationException("Tipo de instrucción no soportado: " + instruction.getClass().getSimpleName());
+        }
       } catch (Exception e) {
         // Si no puede procesar la instrucción, omitirla del switch (no generar nada)
         // La instrucción no se incluirá en opcodeToMethodName
@@ -167,8 +177,18 @@ public class BytecodeInliner {
   }
 
   private Class<?> getAluOperationClass(TargetSourceInstruction instruction) {
+    return getAluOperationClassForType(instruction.getClass());
+  }
+
+  /**
+   * Versión sobrecargada que acepte cualquier tipo de instrucción
+   */
+  private Class<?> getAluOperationClass(com.fpetrola.z80.instructions.types.Instruction instruction) {
+    return getAluOperationClassForType(instruction.getClass());
+  }
+
+  private Class<?> getAluOperationClassForType(Class<?> instructionClass) {
     try {
-      Class<?> instructionClass = instruction.getClass();
       String innerClassName = instructionClass.getSimpleName() + "TableAluOperation";
 
       // Buscar el inner class declarado
@@ -299,6 +319,27 @@ public class BytecodeInliner {
   }
 
   /**
+   * Añade un método execute para una instrucción unaria
+   */
+  private void addExecuteMethodUnary(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, String operationName) {
+    String methodName = generateUniquMethodNameForUnary(instruction, operationName);
+    MethodMaker mm = cm.addMethod(void.class, methodName);
+    mm.public_();
+
+    // Obtener el target desde la instrucción
+    try {
+      java.lang.reflect.Field targetField = instruction.getClass().getSuperclass().getDeclaredField("target");
+      targetField.setAccessible(true);
+      OpcodeReference target = (OpcodeReference) targetField.get(instruction);
+      generateUnaryAluOperation(mm, instruction, target);
+    } catch (Exception e) {
+      throw new RuntimeException("No se puede obtener el target de la instrucción unaria", e);
+    }
+
+    mm.return_();
+  }
+
+  /**
    * Genera un nombre único para el método execute basado en el tipo de instrucción,
    * target, source y referencias involucradas
    */
@@ -312,6 +353,27 @@ public class BytecodeInliner {
     if (instruction instanceof TargetSourceInstruction tsi) {
       ImmutableOpcodeReference source = tsi.getSource();
       methodName.append(getReferenceSuffix(source));
+    }
+
+    return methodName.toString();
+  }
+
+  /**
+   * Genera un nombre único para instrucciones unarias (Inc, Dec, RRA, etc.)
+   */
+  private String generateUniquMethodNameForUnary(ParameterizedUnaryAluInstruction instruction, String operationName) {
+    StringBuilder methodName = new StringBuilder("execute").append(operationName);
+
+    // Agregar información del target desde DefaultTargetFlagInstruction
+    try {
+      java.lang.reflect.Field targetField = instruction.getClass().getSuperclass().getDeclaredField("target");
+      targetField.setAccessible(true);
+      OpcodeReference target = (OpcodeReference) targetField.get(instruction);
+      if (target instanceof Register reg) {
+        methodName.append(capitalizeFirstLetter(reg.getName()));
+      }
+    } catch (Exception e) {
+      // Si no se puede obtener el target, usar nombre por defecto
     }
 
     return methodName.toString();
@@ -828,6 +890,42 @@ public class BytecodeInliner {
     return "register";
   }
 
+
+  /**
+   * Genera código para operaciones unarias (Inc, Dec, RRA, SRL, etc.)
+   * target = target op flag
+   */
+  private void generateUnaryAluOperation(MethodMaker mm, ParameterizedUnaryAluInstruction instruction, OpcodeReference target) {
+    if (target instanceof Register targetReg) {
+      // Instrucción unaria sobre un registro
+      String targetRegName = targetReg.getName();
+      Variable targetValue = resolveRegisterValueByName(mm, targetRegName);
+      Variable flag = mm.field(FLAG);
+
+      // Obtener la clase específica de la tabla ALU
+      Class<?> aluOperationClass = getAluOperationClass(instruction);
+      String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
+
+      // Guardar la operación ALU en una variable local con el tipo correcto
+      Variable aluOp = mm.var(aluOperationClass);
+      aluOp.set(mm.field(fieldName));
+
+      // Ejecutar la operación ALU unaria: execute2ValuesAndCarry(target, flag, flag)
+      Variable result = mm.var(int.class);
+      result.set(aluOp.invoke("execute2ValuesAndCarry", targetValue, flag, flag));
+
+      // Escribir el resultado de vuelta al registro destino
+      assignRegisterValue(mm, targetRegName, result);
+
+      // Actualizar el registro F con los flags de la operación ALU
+      Variable flagField = mm.field(FLAG);
+      flagField.set(aluOp.field(FLAG));
+    }
+    // Si target es una referencia de memoria, no soportado por ahora
+    else {
+      throw new UnsupportedOperationException("Operación unaria sobre memoria no soportada: " + instruction.getClass().getSimpleName());
+    }
+  }
 
   /**
    * Resuelve nombres de tipo a clases Java.
