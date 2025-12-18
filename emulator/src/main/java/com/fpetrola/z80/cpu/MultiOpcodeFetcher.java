@@ -54,9 +54,7 @@ public class MultiOpcodeFetcher {
   private final Memory memory;
   private final Register pc;
   private Z80UnRolled registerBank;
-  CachedPhase cachedPhase = new CachedPhase();
   private int length1;
-  private AbstractInstruction abstractInstruction;
 
   public MultiOpcodeFetcher(InstructionFactory instructionFactory, State state, OpcodeConditions opcodeConditions, boolean clone) {
     this.instructionFactory = instructionFactory;
