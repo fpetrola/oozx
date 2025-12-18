@@ -101,8 +101,8 @@ public class MultiOpcodeFetcher {
 
     int execute = -1;
 
-    if (registerBank != null)
-      execute = registerBank.execute(memory.read(address, 1));
+//    if (registerBank != null)
+//      execute = registerBank.execute(memory.read(address, 1));
 
     if (execute == 0) {
       pc.write((pc.read() + fetchedInstructionWrapper.getInstruction().getLength()) & 0xFFFF);
