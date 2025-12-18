@@ -543,7 +543,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     Instruction[] opcodeLookupTable = opcodesTables.getOpcodeLookupTable();
     // Opcodes significativos para pruebas: registros, memoria, ALU, 16-bit, etc
     int[] testOpcodes = {
-        0x29
+        0x22
     };
 
     for (int i = 0; i < opcodeLookupTable.length; i++) {

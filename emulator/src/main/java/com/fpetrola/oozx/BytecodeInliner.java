@@ -718,7 +718,7 @@ public class BytecodeInliner {
 
     // Para LD, escribir directamente el valor leído
     if (instruction instanceof Ld) {
-      memory.invoke("write16BitsReverse", value, source);
+      memory.invoke("write16BitsReverse", source, value);
       return;
     }
 
