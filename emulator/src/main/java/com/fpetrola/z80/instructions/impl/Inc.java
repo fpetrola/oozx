@@ -26,7 +26,6 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Inc extends ParameterizedUnaryAluInstruction {
   public static class Inc8TableAluOperation extends AluOperation {
-    @Override
     protected int calculate1Value(int value) {
       (value)++;
       value &= 0xff;

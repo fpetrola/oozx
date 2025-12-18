@@ -26,7 +26,6 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class RRA extends ParameterizedUnaryAluInstruction {
   public static class RRAAluOperation extends AluOperation {
-    @Override
     protected int calculate2Values1Boolean(int value1, int value2, int carry) {
       F = value2;
       int A = value1;

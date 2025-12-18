@@ -26,7 +26,6 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class RL extends ParameterizedUnaryAluInstruction {
   public static class RlTableAluOperation extends AluOperation {
-    @Override
     protected int calculate1Value(int value) {
       int rltemp = value;
       value = (value << 1) | (F & FLAG_C);

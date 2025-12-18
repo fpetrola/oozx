@@ -26,7 +26,6 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Dec extends ParameterizedUnaryAluInstruction {
   public static class Dec8TableAluOperation extends AluOperation {
-    @Override
     protected int calculate1Value(int value) {
       F = (F & FLAG_C) | (((value) & 0x0f) != 0 ? 0 : FLAG_H) | FLAG_N;
       (value)--;

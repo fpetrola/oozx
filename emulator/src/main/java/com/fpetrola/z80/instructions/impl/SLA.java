@@ -26,7 +26,6 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class SLA extends ParameterizedUnaryAluInstruction {
   public static class SlaTableAluOperation extends AluOperation {
-    @Override
     protected int calculate1Value(int value) {
       F = value >> 7;
       value <<= 1;

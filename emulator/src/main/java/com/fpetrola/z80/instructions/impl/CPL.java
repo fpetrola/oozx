@@ -26,7 +26,6 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class CPL extends ParameterizedUnaryAluInstruction {
   public static class CplTableAluOperation extends AluOperation {
-    @Override
     protected int calculate1Value(int A) {
       A ^= 0xff;
       F = (F & (FLAG_C | FLAG_P | FLAG_Z | FLAG_S)) |
