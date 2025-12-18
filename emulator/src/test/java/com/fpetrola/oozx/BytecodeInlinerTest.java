@@ -968,16 +968,52 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     DefaultFetchNextOpcodeInstruction cBInstruction = (DefaultFetchNextOpcodeInstruction) opcodeLookupTable[0xCB];
     Instruction[] cbTable = cBInstruction.getTable();
 
+    // Opcodes CB más representativos:
+    // 0x00-0x07: RLC (Rotate Left Circular)
+    // 0x08-0x0F: RRC (Rotate Right Circular)
+    // 0x20-0x27: SLA (Shift Left Arithmetic)
+    // 0x28-0x2F: SRA (Shift Right Arithmetic)
+    // 0x38-0x3F: SRL (Shift Right Logical)
+    // 0x40-0x7F: BIT (Test Bit)
+    // 0x80-0xBF: RES (Reset Bit)
+    // 0xC0-0xFF: SET (Set Bit)
     int[] testOpcodes = {
+        0x00,   // RLC B
+        0x02,   // RLC D
+        0x04,   // RLC H
+        0x06,   // RLC (HL)
+        0x08,   // RRC B
+        0x0A,   // RRC D
+        0x0C,   // RRC H
+        0x0E,   // RRC (HL)
+        0x20,   // SLA B
+        0x22,   // SLA D
+        0x24,   // SLA H
+        0x26,   // SLA (HL)
+        0x28,   // SRA B
+        0x2A,   // SRA D
+        0x2C,   // SRA H
+        0x2E,   // SRA (HL)
+        0x38,   // SRL B
+        0x3A,   // SRL D
+        0x3C,   // SRL H
+        0x3E,   // SRL (HL)
+        0x40,   // BIT 0, B
+        0x46,   // BIT 0, (HL)
+        0x78,   // BIT 7, B
+        0x7E,   // BIT 7, (HL)
+        0x80,   // RES 0, B
+        0x86,   // RES 0, (HL)
+        0xF8,   // RES 7, B
+        0xFE    // RES 7, (HL)
     };
 
     for (int i = 0; i < cbTable.length; i++) {
       Instruction instruction = cbTable[i];
       if (instruction != null) {
         for (int opcode : testOpcodes) {
-          boolean b = i == opcode;
-          if (b) {
-            instructions.put(i, instruction);
+          if (i == opcode) {
+            instructions.put(i + 0xCB00, instruction);  // Agregar prefijo CB para distinción
             break;
           }
         }
@@ -985,8 +1021,148 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     }
 
     String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecode2", instructions);
+    
     String expectedSource = """
-        """;
+        import com.fpetrola.oozx.Z80UnRolled;
+        import com.fpetrola.z80.instructions.impl.SLA.SlaTableAluOperation;
+        import com.fpetrola.z80.instructions.impl.SRL.SrlTableAluOperation;
+        
+        public class MultiInstructionBytecode2 extends Z80UnRolled {
+           public void executeRLCB() {
+           }
+        
+           public void executeRLCD() {
+           }
+        
+           public void executeRLCH() {
+           }
+        
+           public void executeRLCImrHl() {
+              int var1 = this.getHL();
+              super.memory.read(var1, 0);
+           }
+        
+           public void executeRRCB() {
+           }
+        
+           public void executeRRCD() {
+           }
+        
+           public void executeRRCH() {
+           }
+        
+           public void executeRRCImrHl() {
+              int var1 = this.getHL();
+              super.memory.read(var1, 0);
+           }
+        
+           public void executeSLAB() {
+              int var1 = super.slaTableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
+              super.B = var1;
+              SlaTableAluOperation var2 = super.slaTableAluOperation;
+              super.F = var2.F;
+           }
+        
+           public void executeSLAD() {
+              int var1 = super.slaTableAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
+              super.D = var1;
+              SlaTableAluOperation var2 = super.slaTableAluOperation;
+              super.F = var2.F;
+           }
+        
+           public void executeSLAH() {
+              int var1 = super.slaTableAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
+              super.H = var1;
+              SlaTableAluOperation var2 = super.slaTableAluOperation;
+              super.F = var2.F;
+           }
+        
+           public void executeSLAImrHl() {
+              int var1 = this.getHL();
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.slaTableAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
+              super.memory.write(var1, var3);
+              SlaTableAluOperation var4 = super.slaTableAluOperation;
+              super.F = var4.F;
+           }
+        
+           public void executeSRAB() {
+           }
+        
+           public void executeSRAD() {
+           }
+        
+           public void executeSRAH() {
+           }
+        
+           public void executeSRAImrHl() {
+              int var1 = this.getHL();
+              super.memory.read(var1, 0);
+           }
+        
+           public void executeSRLB() {
+              int var1 = super.srlTableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
+              super.B = var1;
+              SrlTableAluOperation var2 = super.srlTableAluOperation;
+              super.F = var2.F;
+           }
+        
+           public void executeSRLD() {
+              int var1 = super.srlTableAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
+              super.D = var1;
+              SrlTableAluOperation var2 = super.srlTableAluOperation;
+              super.F = var2.F;
+           }
+        
+           public void executeSRLH() {
+              int var1 = super.srlTableAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
+              super.H = var1;
+              SrlTableAluOperation var2 = super.srlTableAluOperation;
+              super.F = var2.F;
+           }
+        
+           public void executeSRLImrHl() {
+              int var1 = this.getHL();
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.srlTableAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
+              super.memory.write(var1, var3);
+              SrlTableAluOperation var4 = super.srlTableAluOperation;
+              super.F = var4.F;
+           }
+        
+           public int execute(int opcode) {
+              switch(opcode) {
+              case 52000:
+                 this.executeSLAB();
+                 break;
+              case 52002:
+                 this.executeSLAD();
+                 break;
+              case 52004:
+                 this.executeSLAH();
+                 break;
+              case 52006:
+                 this.executeSLAImrHl();
+                 break;
+              case 52024:
+                 this.executeSRLB();
+                 break;
+              case 52026:
+                 this.executeSRLD();
+                 break;
+              case 52028:
+                 this.executeSRLH();
+                 break;
+              case 52030:
+                 this.executeSRLImrHl();
+                 break;
+              default:
+                 return -1;
+              }
+        
+              return 0;
+           }
+        }""";
 
     assertSourceEquals(actualSource, expectedSource);
   }
