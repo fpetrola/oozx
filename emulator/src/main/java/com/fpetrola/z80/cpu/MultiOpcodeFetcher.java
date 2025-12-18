@@ -45,7 +45,6 @@ public class MultiOpcodeFetcher {
   private final Memory memory;
   private final Register pc;
   private Z80UnRolled registerBank;
-  private int length1;
 
   public MultiOpcodeFetcher(InstructionFactory instructionFactory, State state, OpcodeConditions opcodeConditions, boolean clone) {
     this.instructionFactory = instructionFactory;
@@ -96,32 +95,28 @@ public class MultiOpcodeFetcher {
   }
 
   public Instruction fetchInstruction(int address) {
-    Instruction result = null;
     memoryForOpcode.reset();
 
-    int read = memory.read(address, 1);
-    FetchedInstructionWrapper fetchedInstructionWrapper = opcodesTables[read];
+    FetchedInstructionWrapper fetchedInstructionWrapper = opcodesTables[memory.read(address, 1)];
 
     int execute = -1;
 
     if (registerBank != null)
-      execute = registerBank.execute(read);
+      execute = registerBank.execute(memory.read(address, 1));
 
     if (execute == 0) {
-      this.length1 = fetchedInstructionWrapper.getInstruction().getLength();
-      pc.write((pc.read() + this.length1) & 0xFFFF);
+      pc.write((pc.read() + fetchedInstructionWrapper.getInstruction().getLength()) & 0xFFFF);
+      return null;
     } else {
       AbstractInstruction instruction = (AbstractInstruction) fetchedInstructionWrapper.getInstruction();
-      result = instruction;
-      result.execute();
-      int nextPC = ((AbstractInstruction) result).getNextPC();
+      instruction.execute();
+      int nextPC = instruction.getNextPC();
       if (nextPC == -1) {
-        nextPC = (pc.read() + result.getLength()) & 0xFFFF;
+        nextPC = (pc.read() + instruction.getLength()) & 0xFFFF;
       }
       pc.write(nextPC);
+      return instruction;
     }
-
-    return result;
   }
 
   public void reset() {
