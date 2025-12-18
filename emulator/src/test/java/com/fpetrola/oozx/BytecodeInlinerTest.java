@@ -558,7 +558,8 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
       Instruction instruction = opcodeLookupTable[i];
       if (instruction != null) {
         for (int opcode : testOpcodes) {
-          if (i == opcode) {
+          boolean b = i == opcode;
+          if (b) {
             instructions.put(i, instruction);
             break;
           }
@@ -573,6 +574,8 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         import com.fpetrola.z80.instructions.impl.Add.AddTableAluOperation;
         import com.fpetrola.z80.instructions.impl.And.AndTableAluOperation;
         import com.fpetrola.z80.instructions.impl.Cp.CpTableAluOperation;
+        import com.fpetrola.z80.instructions.impl.Dec.Dec8TableAluOperation;
+        import com.fpetrola.z80.instructions.impl.Inc.Inc8TableAluOperation;
         import com.fpetrola.z80.instructions.impl.Or.OrTableAluOperation;
         import com.fpetrola.z80.instructions.impl.Sub.SubTableAluOperation;
         import com.fpetrola.z80.instructions.impl.Xor.XorTableAluOperation;
@@ -584,9 +587,17 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
            }
         
            public void executeIncB() {
+              int var1 = super.inc8TableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
+              super.B = var1;
+              Inc8TableAluOperation var2 = super.inc8TableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeDecB() {
+              int var1 = super.dec8TableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
+              super.B = var1;
+              Dec8TableAluOperation var2 = super.dec8TableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeLdAImrBc() {
@@ -596,9 +607,17 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
            }
         
            public void executeIncC() {
+              int var1 = super.inc8TableAluOperation.execute2ValuesAndCarry(super.C, 0, super.F);
+              super.C = var1;
+              Inc8TableAluOperation var2 = super.inc8TableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeDecC() {
+              int var1 = super.dec8TableAluOperation.execute2ValuesAndCarry(super.C, 0, super.F);
+              super.C = var1;
+              Dec8TableAluOperation var2 = super.dec8TableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeLdImrDeA() {
@@ -607,9 +626,17 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
            }
         
            public void executeIncD() {
+              int var1 = super.inc8TableAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
+              super.D = var1;
+              Inc8TableAluOperation var2 = super.inc8TableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeDecD() {
+              int var1 = super.dec8TableAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
+              super.D = var1;
+              Dec8TableAluOperation var2 = super.dec8TableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeLdAImrDe() {
@@ -619,9 +646,17 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
            }
         
            public void executeIncE() {
+              int var1 = super.inc8TableAluOperation.execute2ValuesAndCarry(super.E, 0, super.F);
+              super.E = var1;
+              Inc8TableAluOperation var2 = super.inc8TableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeDecE() {
+              int var1 = super.dec8TableAluOperation.execute2ValuesAndCarry(super.E, 0, super.F);
+              super.E = var1;
+              Dec8TableAluOperation var2 = super.dec8TableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeLdImr16M16RHl() {
@@ -631,9 +666,17 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
            }
         
            public void executeIncH() {
+              int var1 = super.inc8TableAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
+              super.H = var1;
+              Inc8TableAluOperation var2 = super.inc8TableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeDecH() {
+              int var1 = super.dec8TableAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
+              super.H = var1;
+              Dec8TableAluOperation var2 = super.dec8TableAluOperation;
+              super.F = var2.F;
            }
         
            public void executeLdImrM16RA() {
@@ -643,12 +686,20 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         
            public void executeIncImrHl() {
               int var1 = this.getHL();
-              super.memory.read(var1, 0);
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.inc8TableAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
+              super.memory.write(var1, var3);
+              Inc8TableAluOperation var4 = super.inc8TableAluOperation;
+              super.F = var4.F;
            }
         
            public void executeDecImrHl() {
               int var1 = this.getHL();
-              super.memory.read(var1, 0);
+              int var2 = super.memory.read(var1, 0);
+              int var3 = super.dec8TableAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
+              super.memory.write(var1, var3);
+              Dec8TableAluOperation var4 = super.dec8TableAluOperation;
+              super.F = var4.F;
            }
         
            public void executeLdBB() {
@@ -786,20 +837,56 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
               case 2:
                  this.executeLdImrBcA();
                  break;
+              case 4:
+                 this.executeIncB();
+                 break;
+              case 5:
+                 this.executeDecB();
+                 break;
               case 10:
                  this.executeLdAImrBc();
+                 break;
+              case 12:
+                 this.executeIncC();
+                 break;
+              case 13:
+                 this.executeDecC();
                  break;
               case 18:
                  this.executeLdImrDeA();
                  break;
+              case 20:
+                 this.executeIncD();
+                 break;
+              case 21:
+                 this.executeDecD();
+                 break;
               case 26:
                  this.executeLdAImrDe();
+                 break;
+              case 28:
+                 this.executeIncE();
+                 break;
+              case 29:
+                 this.executeDecE();
                  break;
               case 34:
                  this.executeLdImr16M16RHl();
                  break;
+              case 36:
+                 this.executeIncH();
+                 break;
+              case 37:
+                 this.executeDecH();
+                 break;
               case 50:
                  this.executeLdImrM16RA();
+                 break;
+              case 52:
+                 this.executeIncImrHl();
+                 break;
+              case 53:
+                 this.executeDecImrHl();
                  break;
               case 64:
                  this.executeLdBB();

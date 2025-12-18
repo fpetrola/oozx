@@ -327,8 +327,25 @@ public class BytecodeInliner {
     MethodMaker mm = cm.addMethod(void.class, methodName);
     mm.public_();
     
+    // Verificar que el campo ALU existe en la clase padre
+    addAluOperationFieldForUnary(cm, instruction);
+    
     generateUnaryExecute(mm, instruction);
     mm.return_();
+  }
+
+  /**
+   * Verifica que el campo ALU existe en la clase padre (Z80UnRolled)
+   * No necesitamos agregarlo porque ya está declarado en la clase base
+   */
+  private void addAluOperationFieldForUnary(ClassMaker cm, ParameterizedUnaryAluInstruction instruction) {
+    // Los campos ALU ya existen en Z80UnRolled, no necesitamos agregarlos
+    // Solo verificamos que la instrucción tenga una operación ALU válida
+    try {
+      getAluOperationClassFromUnaryInstruction(instruction);
+    } catch (Exception e) {
+      System.err.println("Warning: Instrucción unaria no tiene operación ALU válida: " + e.getMessage());
+    }
   }
 
   /**
@@ -839,7 +856,12 @@ public class BytecodeInliner {
   }
 
   private String getAluOperationFieldName(String instructionClassName) {
-    return instructionClassName.toLowerCase() + "TableAluOperation";
+    // Mapeo especial para instrucciones que tienen names diferentes
+    return switch(instructionClassName) {
+      case "Inc" -> "inc8TableAluOperation";
+      case "Dec" -> "dec8TableAluOperation";
+      default -> instructionClassName.toLowerCase() + "TableAluOperation";
+    };
   }
 
   private String getClassName(TargetSourceInstruction instruction, String operationName) {
@@ -917,7 +939,7 @@ public class BytecodeInliner {
       // Obtener la operación ALU mediante reflexión
       Class<?> aluOperationClass = getAluOperationClassFromUnaryInstruction(instruction);
       
-      // Generar el código
+      // Generar el código según el tipo de operando
       if (target instanceof Register targetReg) {
         String targetRegName = targetReg.getName();
         executeUnaryRegisterOperation(mm, instruction, targetRegName, aluOperationClass);
@@ -964,8 +986,8 @@ public class BytecodeInliner {
     String fieldName = getAluOperationFieldName(operationName);
     
     Variable targetValue = resolveRegisterValueByName(mm, targetRegName);
-    Variable aluOp = mm.var(aluOperationClass);
-    aluOp.set(mm.field(fieldName));
+    // Acceder al campo de la clase padre (Z80UnRolled) - es público
+    Variable aluOp = mm.field(fieldName);
     Variable flag = mm.field(FLAG);
     
     // Ejecutar: result = aluOperation.execute2ValuesAndCarry(value, 0, flag)
@@ -991,8 +1013,7 @@ public class BytecodeInliner {
     Variable value = mm.var(int.class);
     value.set(memory.invoke("read", address, 0));
     
-    Variable aluOp = mm.var(aluOperationClass);
-    aluOp.set(mm.field(fieldName));
+    Variable aluOp = mm.field(fieldName);
     Variable flag = mm.field(FLAG);
     
     // Ejecutar: result = aluOperation.execute2ValuesAndCarry(value, 0, flag)
