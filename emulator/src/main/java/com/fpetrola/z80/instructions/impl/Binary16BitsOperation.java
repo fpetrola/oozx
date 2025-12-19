@@ -98,8 +98,4 @@ public class Binary16BitsOperation extends ParameterizedBinaryAluInstruction {
     if (!visitor.visiting16BitsOperation(this))
       super.accept(visitor);
   }
-
-  interface Binary16BitsAluOperation {
-    int execute(Register flag, int value1, int value2, int result);
-  }
 }
