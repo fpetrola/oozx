@@ -25,8 +25,10 @@ import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.minizx.emulation.Helper;
+import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.decoder.OpCodeDecoder;
 import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 
@@ -41,12 +43,31 @@ public class UnrolledRegisterBankFactory {
     Map<Integer, Instruction> instructions = new TreeMap<>();
     Instruction[] opcodeLookupTable = getOpcodesTables.getOpcodeLookupTable();
     BytecodeInliner lastInliner = new BytecodeInliner(new InstructionAnalyzer());
-    for (int i = 0; i < opcodeLookupTable.length; i++) {
-      Instruction instruction = opcodeLookupTable[i];
-      if (instruction instanceof TargetSourceInstruction<?>) {
-        instructions.put(i, instruction);
+    
+    // Agregar instrucciones principales (sin prefijo)
+    for (int idx = 0; idx < opcodeLookupTable.length; idx++) {
+      Instruction instruction = opcodeLookupTable[idx];
+      if (instruction instanceof TargetSourceInstruction<?> || 
+          instruction instanceof ParameterizedUnaryAluInstruction ||
+          instruction instanceof DefaultFetchNextOpcodeInstruction) {
+        instructions.put(idx, instruction);
       }
     }
+    
+    // Agregar instrucciones prefijadas con 0xCB si existe
+    if (opcodeLookupTable[0xCB] instanceof DefaultFetchNextOpcodeInstruction cbInstruction) {
+      Instruction[] cbTable = cbInstruction.getTable();
+      for (int idx = 0; idx < cbTable.length; idx++) {
+        Instruction instruction = cbTable[idx];
+        if (instruction instanceof TargetSourceInstruction<?> || 
+            instruction instanceof ParameterizedUnaryAluInstruction) {
+          // Opcode prefijado: prefijo en byte alto, siguiente byte en byte bajo
+          int prefixedOpcode = (0xCB << 8) | idx;
+          instructions.put(prefixedOpcode, instruction);
+        }
+      }
+    }
+    
     Class<?> instructionsSwitchClass = lastInliner.generateAndLoadMultipleInstructions("InstructionsSwitch" + i++, instructions);
     try {
       return (Z80UnRolled) instructionsSwitchClass.getDeclaredConstructors()[0].newInstance();

@@ -4,6 +4,7 @@ import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.impl.Cp;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
@@ -1345,6 +1346,50 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
               return 0;
            }
         }""";
+
+    assertSourceEquals(actualSource, expectedSource);
+  }
+
+
+  @Test
+  public void testBytecodeTableOpcodesMergedSwitchWithCB2() throws IOException {
+    Map<Integer, Instruction> instructions = new TreeMap<>();
+
+
+    OOZ80 ooz80 = Helper.createOOZ80();
+    DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
+    TableBasedOpCodeDecoder opcodesTables = instructionFetcher.multiOpcodeFetcher.getOpcodesTables();
+    Instruction[] opcodeLookupTable = opcodesTables.getOpcodeLookupTable();
+    BytecodeInliner lastInliner = new BytecodeInliner(new InstructionAnalyzer());
+
+    // Agregar instrucciones principales (sin prefijo)
+    for (int idx = 0; idx < opcodeLookupTable.length; idx++) {
+      Instruction instruction = opcodeLookupTable[idx];
+      if (instruction instanceof TargetSourceInstruction<?> ||
+          instruction instanceof ParameterizedUnaryAluInstruction ||
+          instruction instanceof DefaultFetchNextOpcodeInstruction) {
+        instructions.put(idx, instruction);
+      }
+    }
+
+    // Agregar instrucciones prefijadas con 0xCB si existe
+    if (opcodeLookupTable[0xCB] instanceof DefaultFetchNextOpcodeInstruction cbInstruction) {
+      Instruction[] cbTable = cbInstruction.getTable();
+      for (int idx = 0; idx < cbTable.length; idx++) {
+        Instruction instruction = cbTable[idx];
+        if (instruction instanceof TargetSourceInstruction<?> ||
+            instruction instanceof ParameterizedUnaryAluInstruction) {
+          // Opcode prefijado: prefijo en byte alto, siguiente byte en byte bajo
+          int prefixedOpcode = (0xCB << 8) | idx;
+          instructions.put(prefixedOpcode, instruction);
+        }
+      }
+    }
+
+    String actualSource = testBytecodeMultipleInstructionsOf("MergedSwitchWithCBBytecode", instructions);
+
+    String expectedSource = """
+        """;
 
     assertSourceEquals(actualSource, expectedSource);
   }
