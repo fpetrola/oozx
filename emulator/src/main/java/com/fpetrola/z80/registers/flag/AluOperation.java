@@ -21,17 +21,22 @@ package com.fpetrola.z80.registers.flag;
 import com.fpetrola.z80.registers.Register;
 
 public class AluOperation extends AluOperationBase {
+  private final int method;
   private ToPrimitiveIntTriFunction triFunction;
 
   public AluOperation() {
     triFunction = null;
     if (calculate2Values1Boolean(0, 0, 0) != -1) {
+      method = 1;
       triFunction = this::calculate2Values1Boolean;
     } else if (calculate1Value(0) != -1) {
+      method = 2;
       triFunction = (value1, value2, carry) -> this.calculate1Value(value1);
     } else if (calculate3Values(0, 0, 0) != -1) {
+      method = 3;
       triFunction = this::calculate3Values;
-    }
+    } else
+      method = 0;
   }
 
   protected int calculate2Values1Boolean(int value1, int value2, int carry) {
@@ -48,7 +53,16 @@ public class AluOperation extends AluOperationBase {
 
   public int execute2ValuesAndCarry(int value1, int value2, int flag) {
     F = flag;
-    return triFunction.applyAsInt(value1, value2, flag & 0x01) & 0xFF;
+    int result = 0;
+
+    if (method == 1) {
+      result = calculate2Values1Boolean(value1, value2, flag);
+    } else if (method == 2) {
+      result = calculate1Value(value1);
+    } else if (method == 3) {
+      result = calculate3Values(value1, value2, flag);
+    }
+    return result & 0xFF;
   }
 
   public int execute2ValuesAndCarry(int value1, int value2, Register flag) {
