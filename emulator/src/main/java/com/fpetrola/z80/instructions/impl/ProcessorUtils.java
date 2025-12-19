@@ -25,9 +25,9 @@ public class ProcessorUtils extends AluOperationBase {
     packed |= (((temp & 0x1FFFF) != 0 ? 1 : 0) << 8);
 
     // Bits de F (3 bits de entrada) -> bits 9, 10, 11
-    packed |= ((f & 0x04) != 0 ? 1 << 9 : 0);
-    packed |= ((f & 0x40) != 0 ? 1 << 10 : 0);
-    packed |= ((f & 0x80) != 0 ? 1 << 11 : 0);
+    packed |= (f & 0x04) << 7;
+    packed |= (f & 0x40) << 4;
+    packed |= (f & 0x80) << 4;
 
     return new int[]{packed >> 8 & 0xFF, packed & 0xFF};
   }
@@ -38,7 +38,6 @@ public class ProcessorUtils extends AluOperationBase {
   public static int[] decompress(int v1, int v2) {
     int packed = (v1 << 8) | v2;
     int[] d = new int[5];
-
     // Reconstruir Value1 (solo bits 11 y 15)
     d[0] = ((packed & 0x01) << 11) | ((packed & 0x02) << 14);
 
@@ -46,10 +45,7 @@ public class ProcessorUtils extends AluOperationBase {
     d[1] = ((packed & 0x04) << 9) | ((packed & 0x08) << 12);
 
     // Reconstruir F (bits 0-2 originales)
-    int i = ((packed >> 9) & 1) != 0 ? 0x04 : 0;
-    int i2 = ((packed >> 10) & 1) != 0 ? 0x40 : 0;
-    int i3 = ((packed >> 11) & 1) != 0 ? 0x80 : 0;
-    d[2] = i + i2 + i3;
+    d[2] = ((packed >> 7) & 0x04) + ((packed >> 4) & 0x40) + ((packed >> 4) & 0x80);
 
     // Reconstruir Temp (bits 11, 13, 15, 16)
     d[3] = ((packed & 0x10) << 7) |
