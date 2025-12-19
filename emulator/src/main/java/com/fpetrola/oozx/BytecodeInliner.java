@@ -79,16 +79,20 @@ public class BytecodeInliner {
             // Omitir si no puede procesar
           }
         } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
-          try {
-            String operationName = instruction.getClass().getSimpleName();
-            String methodName = generateUnaryMethodName(unaryInstruction, operationName);
-            addExecuteUnaryMethod(cm, unaryInstruction, operationName);
-            prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
-          } catch (Exception e) {
-            // Omitir si no puede procesar
-          }
-        }
-      } else if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
+           try {
+             String operationName = instruction.getClass().getSimpleName();
+             String methodName = generateUnaryMethodName(unaryInstruction, operationName);
+             addExecuteUnaryMethod(cm, unaryInstruction, operationName);
+             prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
+           } catch (Exception e) {
+             // Omitir si no puede procesar
+             System.err.println("Warning: No se pudo procesar instrucción unaria prefijada 0x" + 
+               String.format("%02X%02X", prefixByte, nextOpcode) + 
+               " (" + instruction.getClass().getSimpleName() + "): " + e.getMessage());
+             e.printStackTrace();
+           }
+         }
+        } else if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
         try {
           analyzer.analyze(targetSourceInstruction);
           String operationName = instruction.getClass().getSimpleName();
@@ -1060,6 +1064,7 @@ public class BytecodeInliner {
       case "Dec" -> "dec8TableAluOperation";
       case "RRC" -> "rRCAluOperation";
       case "SRA" -> "sRAAluOperation";
+      case "SLL" -> "sLLAluOperation";
       default -> instructionClassName.toLowerCase() + "TableAluOperation";
     };
   }
@@ -1125,36 +1130,41 @@ public class BytecodeInliner {
   }
 
   /**
-   * Genera código para instrucciones unarias (Inc, Dec, etc.)
-   * target = operation(target)
-   */
-  private void generateUnaryExecute(MethodMaker mm, ParameterizedUnaryAluInstruction instruction) {
-    try {
-      // Obtener el target mediante reflexión
-      OpcodeReference target = getTargetFromUnaryInstruction(instruction);
-      if (target == null) {
-        throw new RuntimeException("No se pudo obtener target de la instrucción unaria");
-      }
-      
-      // Obtener la operación ALU mediante reflexión
-      Class<?> aluOperationClass = getAluOperationClassFromUnaryInstruction(instruction);
-      
-      // Generar el código según el tipo de operando
-      if (target instanceof Register targetReg) {
-        String targetRegName = targetReg.getName();
-        executeUnaryRegisterOperation(mm, instruction, targetRegName, aluOperationClass);
-      } else if (target instanceof IndirectMemory8BitReference indMem) {
-        Variable address = resolveIndirectMemoryAddress(mm, indMem);
-        Variable memory = mm.field("memory");
-        executeUnaryMemoryOperation(mm, instruction, memory, address, aluOperationClass);
-      } else if (target instanceof MemoryPlusRegister8BitReference memRef) {
-        MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
-        executeUnaryMemoryOperation(mm, instruction, ctx.memory, ctx.address, aluOperationClass);
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("Error generando código para instrucción unaria: " + e.getMessage(), e);
-    }
-  }
+    * Genera código para instrucciones unarias (Inc, Dec, etc.)
+    * target = operation(target)
+    */
+   private void generateUnaryExecute(MethodMaker mm, ParameterizedUnaryAluInstruction instruction) {
+     try {
+       // Obtener el target mediante reflexión
+       OpcodeReference target = getTargetFromUnaryInstruction(instruction);
+       if (target == null) {
+         throw new RuntimeException("No se pudo obtener target de la instrucción unaria");
+       }
+       
+       // Obtener la operación ALU mediante reflexión
+       Class<?> aluOperationClass = getAluOperationClassFromUnaryInstruction(instruction);
+       
+       // Generar el código según el tipo de operando
+       if (target instanceof Register targetReg) {
+         String targetRegName = targetReg.getName();
+         executeUnaryRegisterOperation(mm, instruction, targetRegName, aluOperationClass);
+       } else if (target instanceof IndirectMemory8BitReference indMem) {
+         Variable address = resolveIndirectMemoryAddress(mm, indMem);
+         if (address == null) {
+           throw new RuntimeException("No se pudo resolver dirección para IndirectMemory8BitReference en " + instruction.getClass().getSimpleName());
+         }
+         Variable memory = mm.field("memory");
+         executeUnaryMemoryOperation(mm, instruction, memory, address, aluOperationClass);
+       } else if (target instanceof MemoryPlusRegister8BitReference memRef) {
+         MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
+         executeUnaryMemoryOperation(mm, instruction, ctx.memory, ctx.address, aluOperationClass);
+       } else {
+         throw new RuntimeException("Tipo de target no soportado para instrucción unaria: " + target.getClass().getSimpleName() + " en " + instruction.getClass().getSimpleName());
+       }
+     } catch (Exception e) {
+       throw new RuntimeException("Error generando código para instrucción unaria (" + instruction.getClass().getSimpleName() + "): " + e.getMessage(), e);
+     }
+   }
 
   /**
    * Obtiene la clase de la operación ALU desde una instrucción unaria
