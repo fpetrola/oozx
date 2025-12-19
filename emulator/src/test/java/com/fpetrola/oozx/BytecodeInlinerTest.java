@@ -1240,5 +1240,114 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     assertSourceEquals(actualSource, expectedSource);
   }
 
+  @Test
+  public void testBytecodeTableOpcodesMergedSwitchWithCB() throws IOException {
+    Map<Integer, Instruction> instructions = new TreeMap<>();
+
+    OOZ80 ooz80 = Helper.createOOZ80();
+    DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
+    TableBasedOpCodeDecoder opcodesTables = instructionFetcher.multiOpcodeFetcher.getOpcodesTables();
+
+    Instruction[] opcodeLookupTable = opcodesTables.getOpcodeLookupTable();
+
+    // Agregar instrucciones del switch principal (sin prefijo CB)
+    instructions.put(0x02, opcodeLookupTable[0x02]);  // LD (BC), A
+    instructions.put(0x0A, opcodeLookupTable[0x0A]);  // LD A, (BC)
+
+    // Agregar el opcode 0xCB como especial que debe leer el siguiente opcode
+    DefaultFetchNextOpcodeInstruction cbInstruction = (DefaultFetchNextOpcodeInstruction) opcodeLookupTable[0xCB];
+    Instruction[] cbTable = cbInstruction.getTable();
+
+    // Instrucciones CB a incluir
+    instructions.put(0xCB, cbInstruction);  // Opcode CB mismo (dispatcher)
+    instructions.put(0xCB00, cbTable[0x00]);  // RLC B
+    instructions.put(0xCB20, cbTable[0x20]);  // SLA B
+    instructions.put(0xCB38, cbTable[0x38]);  // SRL B
+
+    String actualSource = testBytecodeMultipleInstructionsOf("MergedSwitchWithCBBytecode", instructions);
+
+    // El test verifica que:
+    // 1. El caso 0xCB del switch principal lee el siguiente opcode de memoria
+    // 2. Llama a un método dispatcher que despacha a las instrucciones CB
+    String expectedSource = """
+        import com.fpetrola.oozx.Z80UnRolled;
+        import com.fpetrola.z80.instructions.impl.RLC.RlcTableAluOperation;
+        import com.fpetrola.z80.instructions.impl.SLA.SlaTableAluOperation;
+        import com.fpetrola.z80.instructions.impl.SRL.SrlTableAluOperation;
+        
+        public class MergedSwitchWithCBBytecode extends Z80UnRolled {
+           public void executeLdImrBcA() {
+              int var1 = this.getBC();
+              super.memory.write(var1, super.A);
+           }
+        
+           public void executeLdAImrBc() {
+              int var1 = this.getBC();
+              int var2 = super.memory.read(var1, 0);
+              super.A = var2;
+           }
+        
+           public void executeRLCB() {
+              int var1 = super.rlcTableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
+              super.B = var1;
+              RlcTableAluOperation var2 = super.rlcTableAluOperation;
+              super.F = var2.F;
+           }
+        
+           public void executeSLAB() {
+              int var1 = super.slaTableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
+              super.B = var1;
+              SlaTableAluOperation var2 = super.slaTableAluOperation;
+              super.F = var2.F;
+           }
+        
+           public void executeSRLB() {
+              int var1 = super.srlTableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
+              super.B = var1;
+              SrlTableAluOperation var2 = super.srlTableAluOperation;
+              super.F = var2.F;
+           }
+        
+           public int executeCBPrefix(int nextOpcode) {
+              switch(nextOpcode) {
+              case 0:
+                 this.executeRLCB();
+                 break;
+              case 32:
+                 this.executeSLAB();
+                 break;
+              case 56:
+                 this.executeSRLB();
+                 break;
+              default:
+                 return -1;
+              }
+        
+              return 0;
+           }
+        
+           public int execute(int opcode) {
+              switch(opcode) {
+              case 2:
+                 this.executeLdImrBcA();
+                 break;
+              case 10:
+                 this.executeLdAImrBc();
+                 break;
+              case 203:
+                 int var2 = super.PC + 1;
+                 int var3 = super.memory.read(var2, 0);
+                 return this.executeCBPrefix(var3);
+              default:
+                 return -1;
+              }
+        
+              return 0;
+           }
+        }""";
+
+    assertSourceEquals(actualSource, expectedSource);
+  }
+
 
 }

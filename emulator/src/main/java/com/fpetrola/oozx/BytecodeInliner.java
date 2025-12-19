@@ -5,6 +5,7 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.opcodes.references.IndirectMemory16BitReference;
 import com.fpetrola.z80.registers.Register;
@@ -47,13 +48,47 @@ public class BytecodeInliner {
 
     // Guardar los nombres de métodos generados y sus opcodes asociados
     Map<Integer, String> opcodeToMethodName = new LinkedHashMap<>();
+    
+    // Detectar si hay prefijos (DefaultFetchNextOpcodeInstruction) y sus instrucciones
+    Map<Integer, String> prefixOpcodes = new LinkedHashMap<>();  // prefixOpcode -> methodName de dispatcher
+    Map<Integer, Map<Integer, String>> prefixedInstructions = new LinkedHashMap<>();  // prefixOpcode -> (nextOpcode -> methodName)
 
     // Agregar un método execute para cada instrucción
     for (Map.Entry<Integer, Instruction> entry : instructions.entrySet()) {
       Integer opcode = entry.getKey();
       Instruction instruction = entry.getValue();
 
-      if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
+      if (instruction instanceof DefaultFetchNextOpcodeInstruction prefixInstruction) {
+        // Este es un prefijo - lo trataremos especialmente
+        prefixOpcodes.put(opcode, prefixInstruction.getClass().getSimpleName());
+        prefixedInstructions.put(opcode, new LinkedHashMap<>());
+      } else if (isPrefixedOpcode(opcode, instructions)) {
+        // Esta instrucción pertenece a un prefijo (ej: 0xCB00, 0xCB20, etc.)
+        int prefixByte = (opcode >> 8) & 0xFF;
+        int nextOpcode = opcode & 0xFF;
+        
+        if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
+          try {
+            analyzer.analyze(targetSourceInstruction);
+            String operationName = instruction.getClass().getSimpleName();
+            OpcodeReference target = analyzer.getTarget();
+            String methodName = generateUniquMethodName(targetSourceInstruction, operationName, target);
+            addExecuteMethod(cm, targetSourceInstruction, operationName, target);
+            prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
+          } catch (Exception e) {
+            // Omitir si no puede procesar
+          }
+        } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
+          try {
+            String operationName = instruction.getClass().getSimpleName();
+            String methodName = generateUnaryMethodName(unaryInstruction, operationName);
+            addExecuteUnaryMethod(cm, unaryInstruction, operationName);
+            prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
+          } catch (Exception e) {
+            // Omitir si no puede procesar
+          }
+        }
+      } else if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
         try {
           analyzer.analyze(targetSourceInstruction);
           String operationName = instruction.getClass().getSimpleName();
@@ -77,10 +112,100 @@ public class BytecodeInliner {
       }
     }
 
+    // Agregar métodos dispatch para prefijos si existen
+    for (Map.Entry<Integer, Map<Integer, String>> prefixEntry : prefixedInstructions.entrySet()) {
+      Integer prefixOpcode = prefixEntry.getKey();
+      Map<Integer, String> prefixMethods = prefixEntry.getValue();
+      if (!prefixMethods.isEmpty()) {
+        String dispatchMethodName = generatePrefixDispatchMethodName(prefixOpcode);
+        addPrefixDispatchMethod(cm, dispatchMethodName, prefixMethods);
+        opcodeToMethodName.put(prefixOpcode, dispatchMethodName);
+      }
+    }
+
     // Agregar método switch que dispache por opcode
-    addDispatchMethodWithOpcodes(cm, opcodeToMethodName);
+    addDispatchMethodWithOpcodes(cm, opcodeToMethodName, prefixOpcodes);
 
     return finializeClass(className, cm);
+  }
+
+  /**
+   * Verifica si un opcode es un opcode prefijado (ej: 0xCB00 significa prefijo CB con siguiente byte 0x00)
+   */
+  private boolean isPrefixedOpcode(Integer opcode, Map<Integer, Instruction> instructions) {
+    // Un opcode prefijado tiene más de 1 byte y existe un prefijo correspondiente
+    if (opcode > 0xFF) {
+      int prefixByte = (opcode >> 8) & 0xFF;
+      // Buscar si existe el prefijo en las instrucciones
+      for (Integer key : instructions.keySet()) {
+        if (key == prefixByte && instructions.get(key) instanceof DefaultFetchNextOpcodeInstruction) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Genera el nombre del método dispatch para un prefijo
+   */
+  private String generatePrefixDispatchMethodName(Integer prefixOpcode) {
+    String prefixName = switch(prefixOpcode & 0xFF) {
+      case 0xCB -> "CB";
+      case 0xDD -> "DD";
+      case 0xFD -> "FD";
+      default -> String.format("Prefix%02X", prefixOpcode & 0xFF);
+    };
+    return "execute" + prefixName + "Prefix";
+  }
+
+  /**
+   * Agrega un método dispatch para un prefijo que despacha por el siguiente opcode
+   */
+  private void addPrefixDispatchMethod(ClassMaker cm, String methodName, Map<Integer, String> opcodeToMethodName) {
+    MethodMaker mm = cm.addMethod(int.class, methodName, int.class);
+    mm.public_();
+
+    // Crear labels para cada case y el default
+    int numCases = opcodeToMethodName.size();
+    Label[] caseLabels = new Label[numCases];
+    for (int i = 0; i < numCases; i++) {
+      caseLabels[i] = mm.label();
+    }
+    Label defaultLabel = mm.label();
+    Label endLabel = mm.label();
+
+    // Crear array de casos a partir de los opcodes
+    int[] cases = new int[numCases];
+    String[] methodNames = new String[numCases];
+    int idx = 0;
+    for (Map.Entry<Integer, String> entry : opcodeToMethodName.entrySet()) {
+      cases[idx] = entry.getKey();
+      methodNames[idx] = entry.getValue();
+      idx++;
+    }
+
+    // Obtener variable del parámetro nextOpcode
+    Variable nextOpcodeVar = mm.param(0);
+    nextOpcodeVar.name("nextOpcode");
+
+    // Generar switch statement
+    nextOpcodeVar.switch_(defaultLabel, cases, caseLabels);
+
+    // Generar código para cada case
+    for (int i = 0; i < numCases; i++) {
+      caseLabels[i].here();
+      mm.invoke(methodNames[i]);
+      mm.goto_(endLabel);
+    }
+
+    // Default case: return -1
+    defaultLabel.here();
+    mm.return_(-1);
+
+    // End label: fin del switch
+    endLabel.here();
+    mm.return_(0);
   }
 
   /**
@@ -106,13 +231,47 @@ public class BytecodeInliner {
 
     // Guardar los nombres de métodos generados y sus opcodes asociados
     Map<Integer, String> opcodeToMethodName = new LinkedHashMap<>();
+    
+    // Detectar si hay prefijos (DefaultFetchNextOpcodeInstruction) y sus instrucciones
+    Map<Integer, String> prefixOpcodes = new LinkedHashMap<>();
+    Map<Integer, Map<Integer, String>> prefixedInstructions = new LinkedHashMap<>();
 
     // Agregar un método execute para cada instrucción
     for (Map.Entry<Integer, Instruction> entry : instructions.entrySet()) {
       Integer opcode = entry.getKey();
       Instruction instruction = entry.getValue();
 
-      if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
+      if (instruction instanceof DefaultFetchNextOpcodeInstruction prefixInstruction) {
+        // Este es un prefijo - lo trataremos especialmente
+        prefixOpcodes.put(opcode, prefixInstruction.getClass().getSimpleName());
+        prefixedInstructions.put(opcode, new LinkedHashMap<>());
+      } else if (isPrefixedOpcode(opcode, instructions)) {
+        // Esta instrucción pertenece a un prefijo (ej: 0xCB00, 0xCB20, etc.)
+        int prefixByte = (opcode >> 8) & 0xFF;
+        int nextOpcode = opcode & 0xFF;
+        
+        if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
+          try {
+            analyzer.analyze(targetSourceInstruction);
+            String operationName = instruction.getClass().getSimpleName();
+            OpcodeReference target = analyzer.getTarget();
+            String methodName = generateUniquMethodName(targetSourceInstruction, operationName, target);
+            addExecuteMethod(cm, targetSourceInstruction, operationName, target);
+            prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
+          } catch (Exception e) {
+            // Omitir si no puede procesar
+          }
+        } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
+          try {
+            String operationName = instruction.getClass().getSimpleName();
+            String methodName = generateUnaryMethodName(unaryInstruction, operationName);
+            addExecuteUnaryMethod(cm, unaryInstruction, operationName);
+            prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
+          } catch (Exception e) {
+            // Omitir si no puede procesar
+          }
+        }
+      } else if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
         try {
           analyzer.analyze(targetSourceInstruction);
           String operationName = instruction.getClass().getSimpleName();
@@ -136,8 +295,19 @@ public class BytecodeInliner {
       }
     }
 
+    // Agregar métodos dispatch para prefijos si existen
+    for (Map.Entry<Integer, Map<Integer, String>> prefixEntry : prefixedInstructions.entrySet()) {
+      Integer prefixOpcode = prefixEntry.getKey();
+      Map<Integer, String> prefixMethods = prefixEntry.getValue();
+      if (!prefixMethods.isEmpty()) {
+        String dispatchMethodName = generatePrefixDispatchMethodName(prefixOpcode);
+        addPrefixDispatchMethod(cm, dispatchMethodName, prefixMethods);
+        opcodeToMethodName.put(prefixOpcode, dispatchMethodName);
+      }
+    }
+
     // Agregar método switch que dispache por opcode
-    addDispatchMethodWithOpcodes(cm, opcodeToMethodName);
+    addDispatchMethodWithOpcodes(cm, opcodeToMethodName, prefixOpcodes);
 
     // Usar finish() para cargar la clase directamente en memoria
     return cm.finish();
@@ -264,7 +434,7 @@ public class BytecodeInliner {
   /**
    * Agrega un método execute(int opcode) que despacha a los métodos específicos usando opcodes reales
    */
-  private void addDispatchMethodWithOpcodes(ClassMaker cm, Map<Integer, String> opcodeToMethodName) {
+  private void addDispatchMethodWithOpcodes(ClassMaker cm, Map<Integer, String> opcodeToMethodName, Map<Integer, String> prefixOpcodes) {
     MethodMaker mm = cm.addMethod(int.class, "execute", int.class);
     mm.public_();
 
@@ -297,8 +467,22 @@ public class BytecodeInliner {
     // Generar código para cada case
     for (int i = 0; i < numCases; i++) {
       caseLabels[i].here();
-      mm.invoke(methodNames[i]);
-      mm.goto_(endLabel);
+      int currentOpcode = cases[i];
+      
+      // Si es un prefijo, leer el siguiente byte y despachar
+      if (prefixOpcodes.containsKey(currentOpcode)) {
+        String dispatchMethodName = methodNames[i];
+        Variable memory = mm.field("memory");
+        Variable pc = mm.field("PC");
+        Variable nextOpcode = mm.var(int.class);
+        nextOpcode.set(memory.invoke("read", pc.add(1), 0));
+        Variable result = mm.var(int.class);
+        result.set(mm.invoke(dispatchMethodName, nextOpcode));
+        mm.return_(result);
+      } else {
+        mm.invoke(methodNames[i]);
+        mm.goto_(endLabel);
+      }
     }
 
     // Default case: throw exception
@@ -308,6 +492,13 @@ public class BytecodeInliner {
     // End label: fin del switch
     endLabel.here();
     mm.return_(0);
+  }
+
+  /**
+   * Versión anterior del método (sobrecargado para compatibilidad)
+   */
+  private void addDispatchMethodWithOpcodes(ClassMaker cm, Map<Integer, String> opcodeToMethodName) {
+    addDispatchMethodWithOpcodes(cm, opcodeToMethodName, new LinkedHashMap<>());
   }
 
   private void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, String operationName, OpcodeReference target) {
