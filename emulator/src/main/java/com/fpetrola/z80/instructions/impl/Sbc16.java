@@ -27,7 +27,7 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 public class Sbc16 extends Binary16BitsOperation {
   public static class Sbc16TableAluOperation extends AluOperation {
     protected int calculate2Values1Boolean(int value1, int value2, int carry) {
-      int[] decompressed = ProcessorUtils.decompress(value1, value2);
+      int[] decompressed = Binary16BitsOperation.decompress(value1, value2);
       F = decompressed[2];
       return calculateOriginal(decompressed[0], decompressed[1], decompressed[3], decompressed[4]);
     }
