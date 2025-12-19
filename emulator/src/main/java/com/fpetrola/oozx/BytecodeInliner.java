@@ -479,7 +479,7 @@ public class BytecodeInliner {
         Variable memory = mm.field("memory");
         Variable pc = mm.field("PC");
         Variable nextOpcode = mm.var(int.class);
-        nextOpcode.set(memory.invoke("read", pc.add(1), 0));
+        nextOpcode.set(memory.invoke("read", pc.add(1), 1));
         Variable result = mm.var(int.class);
         result.set(mm.invoke(dispatchMethodName, nextOpcode));
         mm.return_(result);
