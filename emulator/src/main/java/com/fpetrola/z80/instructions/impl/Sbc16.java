@@ -27,17 +27,20 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 public class Sbc16 extends Binary16BitsOperation {
   public static class Sbc16TableAluOperation extends AluOperation {
     protected int calculate2Values1Boolean(int value1, int value2, int carry) {
-      int i = value2 & 0x33;
-      i |= i << 1 & 0x04;
-      int result1 = i << 11 & 0x1A800;
-      int lookup = (value2 << 8 & 0x8800) >> 11 |
-                   (value2 << 9 & 0x8800) >> 10 |
-                   (result1 & 0x8800) >> 9;
-      F = ((result1 & 0x10000) != 0 ? FLAG_C : 0) |
+      int[] decompressed = ProcessorUtils.decompress(value1, value2);
+      F = decompressed[2];
+      return calculateOriginal(decompressed[0], decompressed[1], decompressed[3], decompressed[4]);
+    }
+
+    private int calculateOriginal(int value1, int value2, int sub16temp, int value1NotZero) {
+      int lookup = ((value1 & 0x8800) >> 11) |
+                   ((value2 & 0x8800) >> 10) |
+                   ((sub16temp & 0x8800) >> 9);
+      F = ((sub16temp & 0x10000) != 0 ? FLAG_C : 0) |
           FLAG_N | overflowSubTable(lookup >> 4) |
-          (result1 >> 8 & (FLAG_3 | FLAG_5 | FLAG_S)) |
+          (sub16temp >> 8 & (FLAG_3 | FLAG_5 | FLAG_S)) |
           halfCarrySubTable(lookup & 0x07) |
-          (value1 != 0 ? 0 : FLAG_Z);
+          (value1NotZero != 0 ? 0 : FLAG_Z);
       Q = F;
       return F;
     }

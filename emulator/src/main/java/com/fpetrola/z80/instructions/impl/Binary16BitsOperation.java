@@ -30,22 +30,12 @@ public class Binary16BitsOperation extends ParameterizedBinaryAluInstruction {
     super(target, source, flag, aluOperation);
   }
 
-  protected int calculate(int a, int b) {
-    int result = operation(a, b, flag.read());
-    executeAction(compress(a, b, result), b, result);
-    return result & 0xffff;
-  }
-
   protected int doExecute(int sourceValue, int targetValue) {
-    return calculate(targetValue, sourceValue);
-  }
-
-  protected int compress(int v1, int v2, int result) {
-    return ((v1 & 0x8800 | (v2 & 0x8800) >> 1) | (result & 0x1A800 | (result & 0x2000) >> 1) >> 3) >> 8;
-  }
-
-  protected void executeAction(int v1, int v2, int result) {
-    aluOperation.execute2Values1Boolean(result != 0 ? 1 : 0, v1, flag.read() & 1, flag);
+    int f = flag.read() & 0xff;
+    int result = operation(targetValue, sourceValue, f);
+    int[] compressedParameters = ProcessorUtils.compressParameters(targetValue, sourceValue, result, f);
+    aluOperation.execute2Values1Boolean(compressedParameters[0], compressedParameters[1], f, flag);
+    return result & 0xffff;
   }
 
   protected int operation(int v1, int v2, int f) {

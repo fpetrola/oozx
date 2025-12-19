@@ -26,13 +26,13 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class Add16 extends Binary16BitsOperation {
   public static class Add16TableAluOperation extends AluOperation {
-    protected int calculate2Values1Boolean(int value1, int value2, int value2Bit0) {
-      F = value2;
-      getValue1(value1 << 4, value2Bit0 << 11, value1 << 11);
-      return F;
+    protected int calculate2Values1Boolean(int value1, int value2, int empty) {
+      int[] decompressed = ProcessorUtils.decompress(value1, value2);
+      F = decompressed[2];
+      return calculateOriginal(decompressed[0], decompressed[1], decompressed[3]);
     }
 
-    private void getValue1(int value1, int value2, int add16temp) {
+    private int calculateOriginal(int value1, int value2, int add16temp) {
       int lookup = ((value1 & 0x0800) >> 11) |
                    ((value2 & 0x0800) >> 10) |
                    ((add16temp & 0x0800) >> 9);
@@ -41,6 +41,7 @@ public class Add16 extends Binary16BitsOperation {
           ((add16temp >> 8) & (FLAG_3 | FLAG_5)) |
           halfCarryAddTable(lookup);
       Q = F;
+      return F;
     }
   }
 
@@ -50,14 +51,6 @@ public class Add16 extends Binary16BitsOperation {
 
   protected int operation(int v1, int v2, int f) {
     return v1 + v2;
-  }
-
-  protected void executeAction(int v1, int v2, int result) {
-    aluOperation.execute2Values1Boolean(v1, flag.read(), v2 >> 11, flag);
-  }
-
-  protected int compress(int v1, int v2, int result) {
-    return (v1 & 0x0800) >> 4 | result >> 11;
   }
 
   public void accept(InstructionVisitor<?> visitor) {

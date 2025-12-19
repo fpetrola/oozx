@@ -40,7 +40,8 @@ public abstract class AbstractInstruction implements Instruction {
   }
 
   protected AbstractInstruction(AluOperation aluOperation) {
-    this.aluOperation = new CachedTableAluOperation(aluOperation);
+//    this.aluOperation = new CachedTableAluOperation(aluOperation);
+    this.aluOperation = aluOperation;
   }
 
   public String toString() {
