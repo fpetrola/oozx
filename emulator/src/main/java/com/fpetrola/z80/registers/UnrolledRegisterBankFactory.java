@@ -18,11 +18,10 @@
 
 package com.fpetrola.z80.registers;
 
-import com.fpetrola.oozx.BytecodeInliner;
-import com.fpetrola.oozx.InstructionAnalyzer;
+import com.fpetrola.oozx.inliner.BytecodeInliner;
+import com.fpetrola.oozx.inliner.InstructionAnalyzer;
 import com.fpetrola.oozx.Z80UnRolled;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
-import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;

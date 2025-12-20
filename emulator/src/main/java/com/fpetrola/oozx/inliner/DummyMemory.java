@@ -1,4 +1,4 @@
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.inliner;
 
 import com.fpetrola.z80.memory.Memory;
 

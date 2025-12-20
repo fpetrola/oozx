@@ -1,5 +1,8 @@
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.inliner.BytecodeInliner;
+import com.fpetrola.oozx.inliner.DummyMemory;
+import com.fpetrola.oozx.inliner.InstructionAnalyzer;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Xor;
 import com.fpetrola.z80.instructions.types.Instruction;

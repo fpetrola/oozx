@@ -1,4 +1,4 @@
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.inliner;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;

@@ -1,5 +1,6 @@
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.inliner.DummyMemory;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.impl.Cp;

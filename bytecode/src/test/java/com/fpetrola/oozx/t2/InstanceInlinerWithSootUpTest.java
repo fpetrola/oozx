@@ -1,6 +1,6 @@
 package com.fpetrola.oozx.t2;
 
-import com.fpetrola.oozx.DummyMemory;
+import com.fpetrola.oozx.inliner.DummyMemory;
 import com.fpetrola.z80.registers.RegisterBank;
 import com.fpetrola.z80.registers.UnrolledRegisterBankFactory;
 import org.junit.Test;

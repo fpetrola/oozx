@@ -1,5 +1,6 @@
-package com.fpetrola.oozx;
+package com.fpetrola.oozx.inliner;
 
+import com.fpetrola.oozx.Z80UnRolled;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
