@@ -52,6 +52,9 @@ public class BytecodeInliner {
     // Detectar si hay prefijos (DefaultFetchNextOpcodeInstruction) y sus instrucciones
     Map<Integer, String> prefixOpcodes = new LinkedHashMap<>();  // prefixOpcode -> methodName de dispatcher
     Map<Integer, Map<Integer, String>> prefixedInstructions = new LinkedHashMap<>();  // prefixOpcode -> (nextOpcode -> methodName)
+    
+    // Rastrear métodos ya agregados para evitar duplicados
+    Set<String> generatedMethods = new HashSet<>();
 
     // Agregar un método execute para cada instrucción
     for (Map.Entry<Integer, Instruction> entry : instructions.entrySet()) {
@@ -73,7 +76,12 @@ public class BytecodeInliner {
             String operationName = instruction.getClass().getSimpleName();
             OpcodeReference target = analyzer.getTarget();
             String methodName = generateUniquMethodName(targetSourceInstruction, operationName, target);
-            addExecuteMethod(cm, targetSourceInstruction, operationName, target);
+            
+            // Solo agregar el método si no existe ya
+            if (!generatedMethods.contains(methodName)) {
+              addExecuteMethod(cm, targetSourceInstruction, operationName, target);
+              generatedMethods.add(methodName);
+            }
             prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
           } catch (Exception e) {
             // Omitir si no puede procesar
@@ -82,7 +90,12 @@ public class BytecodeInliner {
            try {
              String operationName = instruction.getClass().getSimpleName();
              String methodName = generateUnaryMethodName(unaryInstruction, operationName);
-             addExecuteUnaryMethod(cm, unaryInstruction, operationName);
+             
+             // Solo agregar el método si no existe ya
+             if (!generatedMethods.contains(methodName)) {
+               addExecuteUnaryMethod(cm, unaryInstruction, operationName);
+               generatedMethods.add(methodName);
+             }
              prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
            } catch (Exception e) {
              // Omitir si no puede procesar
@@ -92,13 +105,18 @@ public class BytecodeInliner {
              e.printStackTrace();
            }
          }
-        } else if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
+      } else if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
         try {
           analyzer.analyze(targetSourceInstruction);
           String operationName = instruction.getClass().getSimpleName();
           OpcodeReference target = analyzer.getTarget();
           String methodName = generateUniquMethodName(targetSourceInstruction, operationName, target);
-          addExecuteMethod(cm, targetSourceInstruction, operationName, target);
+          
+          // Solo agregar el método si no existe ya
+          if (!generatedMethods.contains(methodName)) {
+            addExecuteMethod(cm, targetSourceInstruction, operationName, target);
+            generatedMethods.add(methodName);
+          }
           opcodeToMethodName.put(opcode, methodName);
         } catch (Exception e) {
           // Si no puede procesar la instrucción, omitirla del switch (no generar nada)
@@ -108,7 +126,12 @@ public class BytecodeInliner {
         try {
           String operationName = instruction.getClass().getSimpleName();
           String methodName = generateUnaryMethodName(unaryInstruction, operationName);
-          addExecuteUnaryMethod(cm, unaryInstruction, operationName);
+          
+          // Solo agregar el método si no existe ya
+          if (!generatedMethods.contains(methodName)) {
+            addExecuteUnaryMethod(cm, unaryInstruction, operationName);
+            generatedMethods.add(methodName);
+          }
           opcodeToMethodName.put(opcode, methodName);
         } catch (Exception e) {
           // Si no puede procesar la instrucción, omitirla del switch
@@ -239,6 +262,9 @@ public class BytecodeInliner {
     // Detectar si hay prefijos (DefaultFetchNextOpcodeInstruction) y sus instrucciones
     Map<Integer, String> prefixOpcodes = new LinkedHashMap<>();
     Map<Integer, Map<Integer, String>> prefixedInstructions = new LinkedHashMap<>();
+    
+    // Rastrear métodos ya agregados para evitar duplicados
+    Set<String> generatedMethods = new HashSet<>();
 
     // Agregar un método execute para cada instrucción
     for (Map.Entry<Integer, Instruction> entry : instructions.entrySet()) {
@@ -260,7 +286,12 @@ public class BytecodeInliner {
             String operationName = instruction.getClass().getSimpleName();
             OpcodeReference target = analyzer.getTarget();
             String methodName = generateUniquMethodName(targetSourceInstruction, operationName, target);
-            addExecuteMethod(cm, targetSourceInstruction, operationName, target);
+            
+            // Solo agregar el método si no existe ya
+            if (!generatedMethods.contains(methodName)) {
+              addExecuteMethod(cm, targetSourceInstruction, operationName, target);
+              generatedMethods.add(methodName);
+            }
             prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
           } catch (Exception e) {
             // Omitir si no puede procesar
@@ -269,7 +300,12 @@ public class BytecodeInliner {
           try {
             String operationName = instruction.getClass().getSimpleName();
             String methodName = generateUnaryMethodName(unaryInstruction, operationName);
-            addExecuteUnaryMethod(cm, unaryInstruction, operationName);
+            
+            // Solo agregar el método si no existe ya
+            if (!generatedMethods.contains(methodName)) {
+              addExecuteUnaryMethod(cm, unaryInstruction, operationName);
+              generatedMethods.add(methodName);
+            }
             prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
           } catch (Exception e) {
             // Omitir si no puede procesar
@@ -281,7 +317,12 @@ public class BytecodeInliner {
           String operationName = instruction.getClass().getSimpleName();
           OpcodeReference target = analyzer.getTarget();
           String methodName = generateUniquMethodName(targetSourceInstruction, operationName, target);
-          addExecuteMethod(cm, targetSourceInstruction, operationName, target);
+          
+          // Solo agregar el método si no existe ya
+          if (!generatedMethods.contains(methodName)) {
+            addExecuteMethod(cm, targetSourceInstruction, operationName, target);
+            generatedMethods.add(methodName);
+          }
           opcodeToMethodName.put(opcode, methodName);
         } catch (Exception e) {
           // Si no puede procesar la instrucción, omitirla del switch (no generar nada)
@@ -291,7 +332,12 @@ public class BytecodeInliner {
         try {
           String operationName = instruction.getClass().getSimpleName();
           String methodName = generateUnaryMethodName(unaryInstruction, operationName);
-          addExecuteUnaryMethod(cm, unaryInstruction, operationName);
+          
+          // Solo agregar el método si no existe ya
+          if (!generatedMethods.contains(methodName)) {
+            addExecuteUnaryMethod(cm, unaryInstruction, operationName);
+            generatedMethods.add(methodName);
+          }
           opcodeToMethodName.put(opcode, methodName);
         } catch (Exception e) {
           // Si no puede procesar la instrucción, omitirla del switch

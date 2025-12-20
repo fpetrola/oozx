@@ -35,6 +35,8 @@ import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class UnrolledRegisterBankFactory {
 
   private static int i;
@@ -67,6 +69,34 @@ public class UnrolledRegisterBankFactory {
         }
       }
     }
+
+    // Get the ED table and count valid instructions
+    DefaultFetchNextOpcodeInstruction edInstruction = (DefaultFetchNextOpcodeInstruction) opcodeLookupTable[0xED];
+    Instruction[] edTable = edInstruction.getTable();
+
+    int validEDInstructions = 0;
+    for (Instruction instr : edTable) {
+      if (instr instanceof TargetSourceInstruction<?> || instr instanceof ParameterizedUnaryAluInstruction) {
+        validEDInstructions++;
+      }
+    }
+
+    assertTrue(validEDInstructions > 0,
+        "ED prefix table should contain at least some TargetSourceInstruction or ParameterizedUnaryAluInstruction");
+
+    // Now test that BytecodeInliner properly handles ED prefix with CB prefix (both prefixes together)
+    instructions.put(0xED, edInstruction);
+
+    // Add some ED-prefixed instructions (selecting unique ones to avoid duplicates)
+    String[] addedEDInstructions = new String[0];
+    for (int idx = 0; idx < edTable.length && addedEDInstructions.length < 5; idx++) {
+      Instruction instruction = edTable[idx];
+      if (instruction instanceof TargetSourceInstruction<?> || instruction instanceof ParameterizedUnaryAluInstruction) {
+        int prefixedOpcode = (0xED << 8) | idx;
+        instructions.put(prefixedOpcode, instruction);
+      }
+    }
+
     
     Class<?> instructionsSwitchClass = lastInliner.generateAndLoadMultipleInstructions("InstructionsSwitch" + i++, instructions);
     try {
