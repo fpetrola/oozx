@@ -30,6 +30,7 @@ public class BytecodeInliner {
   private final InstructionClassifier classifier;
   private final DispatchMethodGenerator dispatchGenerator;
   private final MethodNameGenerator nameGenerator;
+  private final RegisterValueResolver registerValueResolver;
   private byte[] lastGeneratedBytecode;
   public static Map<String, byte[]> generatedBytecodes = new HashMap<>();
 
@@ -38,6 +39,7 @@ public class BytecodeInliner {
     this.classifier = new InstructionClassifier();
     this.dispatchGenerator = new DispatchMethodGenerator();
     this.nameGenerator = new MethodNameGenerator();
+    this.registerValueResolver = new RegisterValueResolver();
   }
 
   public String inlineInstruction(TargetSourceInstruction instruction) {
@@ -424,8 +426,8 @@ public class BytecodeInliner {
         String targetRegName = targetReg.getName();
         if (ld instanceof Ld) {
           // LD: copiar valor del registro fuente al destino
-          Variable sourceValue = resolveRegisterValueByName(mm.get(), sourceRegName);
-          assignRegisterValue(mm.get(), targetRegName, sourceValue);
+              Variable sourceValue = registerValueResolver.resolveRegisterValueByName(mm.get(), sourceRegName);
+              registerValueResolver.assignRegisterValue(mm.get(), targetRegName, sourceValue);
         } else if (classifier.isAluOperation(ld)) {
           // Operaciones ALU: aplicar operación entre registros y guardar resultado
           executeRegisterToRegisterAluOperation(mm.get(), ld, sourceRegName, targetRegName);
@@ -452,8 +454,8 @@ public class BytecodeInliner {
             value.set(memory.invoke("read16Bits", address));
           } else {
             value.set(memory.invoke("read", address, 0));
-          }
-          assignRegisterValue(mm.get(), targetRegName, value);
+            }
+            registerValueResolver.assignRegisterValue(mm.get(), targetRegName, value);
         }
       } else if (classifier.isAluOperation(ld)) {
         // Operaciones ALU desde memoria: A = A op (mem)
@@ -538,8 +540,8 @@ public class BytecodeInliner {
    * Ejecuta la operación ALU con un valor leído de memoria
    */
   private void executeAluWithMemoryValue(MethodMaker mm, TargetSourceInstruction instruction,
-                                         String targetRegName, Variable memoryValue) {
-    Variable targetValue = resolveRegisterValueByName(mm, targetRegName);
+                                          String targetRegName, Variable memoryValue) {
+    Variable targetValue = registerValueResolver.resolveRegisterValueByName(mm, targetRegName);
 
     if (classifier.isAluOperation(instruction)) {
       Class<?> aluOperationClass = getAluOperationClass(instruction);
@@ -552,33 +554,14 @@ public class BytecodeInliner {
       Variable result = mm.var(int.class);
       result.set(aluOp.invoke("execute2ValuesAndCarry", targetValue, memoryValue, flag));
 
-      assignRegisterValue(mm, targetRegName, result);
+      registerValueResolver.assignRegisterValue(mm, targetRegName, result);
 
       Variable flagField = mm.field(FLAG);
       flagField.set(aluOp.field(FLAG));
     }
   }
 
-  /**
-   * Asigna un valor a un registro, manejando registros de 16 bits compuestos (BC, DE, HL, AF)
-   */
-  private void assignRegisterValue(MethodMaker mm, String regName, Variable value) {
-    if (is16BitCompositeRegister(regName)) {
-      // Para registros de 16 bits compuestos, usar el setter correspondiente
-      String setterMethodName = "set" + regName;  // setBC, setDE, setHL, setAF
-      mm.invoke(setterMethodName, value);
-    } else {
-      // Para registros de 8 bits o especiales, asignar directamente
-      mm.field(regName).set(value);
-    }
-  }
 
-  /**
-   * Verifica si es un registro de 16 bits compuesto que tiene getters/setters (BC, DE, HL, AF)
-   */
-  private boolean is16BitCompositeRegister(String regName) {
-    return (regName.equals("BC") || regName.equals("DE") || regName.equals("HL") || regName.equals("AF"));
-  }
 
   /**
    * Ejecuta operaciones ALU entre dos registros (register-to-register)
@@ -591,8 +574,8 @@ public class BytecodeInliner {
       return;
     }
 
-    Variable sourceValue = resolveRegisterValueByName(mm, sourceRegName);
-    Variable targetValue = resolveRegisterValueByName(mm, targetRegName);
+    Variable sourceValue = registerValueResolver.resolveRegisterValueByName(mm, sourceRegName);
+    Variable targetValue = registerValueResolver.resolveRegisterValueByName(mm, targetRegName);
     Variable flag = mm.field(FLAG);
 
     // Obtener la clase específica de la tabla ALU
@@ -608,7 +591,7 @@ public class BytecodeInliner {
     result.set(aluOp.invoke("execute2ValuesAndCarry", targetValue, sourceValue, flag));
 
     // Escribir el resultado de vuelta al registro destino
-    assignRegisterValue(mm, targetRegName, result);
+    registerValueResolver.assignRegisterValue(mm, targetRegName, result);
 
     // Actualizar el registro F con los flags de la operación ALU
     Variable flagField = mm.field(FLAG);
@@ -621,8 +604,8 @@ public class BytecodeInliner {
    */
   private void executeBinary16BitsOperation(MethodMaker mm, com.fpetrola.z80.instructions.impl.Binary16BitsOperation instruction,
                                             String sourceRegName, String targetRegName) {
-    Variable sourceValue = resolveRegisterValueByName(mm, sourceRegName);
-    Variable targetValue = resolveRegisterValueByName(mm, targetRegName);
+    Variable sourceValue = registerValueResolver.resolveRegisterValueByName(mm, sourceRegName);
+    Variable targetValue = registerValueResolver.resolveRegisterValueByName(mm, targetRegName);
     Variable flag = mm.field(FLAG);
 
     // Obtener la clase específica de la tabla ALU
@@ -653,7 +636,7 @@ public class BytecodeInliner {
     aluOp.invoke("calculateOriginal", targetValue, sourceValue, result, maskedResultValue);
 
     // 4. Escribir el resultado de vuelta al registro destino (16 bits)
-    assignRegisterValue(mm, targetRegName, result.and(0xFFFF));
+    registerValueResolver.assignRegisterValue(mm, targetRegName, result.and(0xFFFF));
 
     // 5. Actualizar el registro F con los flags de la operación ALU
     Variable flagField = mm.field(FLAG);
@@ -681,8 +664,9 @@ public class BytecodeInliner {
       // Fallback: si target es un Register (por ejemplo ADD A con target=A)
       String targetRegName = targetReg.getName();
       executeRegisterToRegisterAluOperation(mm.get(), instruction, sourceRegName, targetRegName);
-    } else
+    } else {
       throw new UnsupportedOperationException("No se soporta operación entre referencias de memoria para " + instruction.getClass());
+    }
 
     // Si target es null o tipo desconocido, no generar código (es un no-op)
   }
@@ -694,7 +678,7 @@ public class BytecodeInliner {
     ImmutableOpcodeReference innerTarget = target.getTarget();
 
     if (innerTarget instanceof Register reg) {
-      return resolveRegisterValue(mm, reg);
+      return registerValueResolver.resolveRegisterValue(mm, reg);
     } else if (innerTarget instanceof Memory16BitReference mem16Ref) {
       return readAddress16Bit(mm, mem16Ref);
     }
@@ -708,7 +692,7 @@ public class BytecodeInliner {
     ImmutableOpcodeReference innerTarget = target.getTarget();
 
     if (innerTarget instanceof Register reg) {
-      return resolveRegisterValue(mm, reg);
+      return registerValueResolver.resolveRegisterValue(mm, reg);
     } else if (innerTarget instanceof Memory16BitReference mem16Ref) {
       return readAddress16Bit(mm, mem16Ref);
     }
@@ -716,35 +700,11 @@ public class BytecodeInliner {
   }
 
   /**
-   * Resuelve el valor de un registro, manejando registros de 16 bits construidos a partir de 8 bits
-   */
-  private Variable resolveRegisterValue(MethodMaker mm, Register reg) {
-    String regName = reg.getName();
-    return resolveRegisterValueByName(mm, regName);
-  }
-
-  /**
-   * Resuelve el valor de un registro por su nombre, manejando registros de 16 bits usando los getters de UnrolledRegisterBank
-   */
-  private Variable resolveRegisterValueByName(MethodMaker mm, String regName) {
-    // Si es un registro de 16 bits compuesto que tiene getters (BC, DE, HL, AF)
-    if (is16BitCompositeRegister(regName)) {
-      String getterMethodName = "get" + regName;  // getBC, getDE, getHL, getAF
-      Variable result = mm.var(int.class);
-      result.set(mm.invoke(getterMethodName));
-      return result;
-    }
-
-    // Para otros registros (A, F, I, R, IX, IY, SP, PC, etc.), acceder directamente
-    return mm.field(regName);
-  }
-
-  /**
    * Ejecuta una operación ALU: lee valor (de memoria o registro para LD), aplica operación y escribe resultado
    */
   private void executeAluOperation(MethodMaker mm, TargetSourceInstruction instruction,
                                    Variable memory, Variable address, String sourceRegName) {
-    Variable source = resolveRegisterValueByName(mm, sourceRegName);
+    Variable source = registerValueResolver.resolveRegisterValueByName(mm, sourceRegName);
 
     // Para LD, escribir directamente sin variable intermedia
     if (instruction instanceof Ld) {
@@ -778,7 +738,7 @@ public class BytecodeInliner {
    */
   private void executeAluOperation16Bit(MethodMaker mm, TargetSourceInstruction instruction,
                                         Variable memory, Variable address, String sourceRegName) {
-    Variable source = resolveRegisterValueByName(mm, sourceRegName);
+    Variable source = registerValueResolver.resolveRegisterValueByName(mm, sourceRegName);
 
     // Leer valor de 16 bits desde la dirección
 //    Variable value = mm.var(int.class);
@@ -810,7 +770,7 @@ public class BytecodeInliner {
     // Leer valor de memoria
     Variable value = mm.var(int.class);
     value.set(memory.invoke("read", address, 0));
-    Variable source = resolveRegisterValueByName(mm, sourceRegName);
+    Variable source = registerValueResolver.resolveRegisterValueByName(mm, sourceRegName);
 
     // Obtener la operación ALU
     String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
@@ -962,9 +922,9 @@ public class BytecodeInliner {
    */
   private void executeUnaryRegisterOperation(MethodMaker mm, ParameterizedUnaryAluInstruction instruction,
                                              String targetRegName, Class<?> aluOperationClass) {
-    Variable value = resolveRegisterValueByName(mm, targetRegName);
+    Variable value = registerValueResolver.resolveRegisterValueByName(mm, targetRegName);
     Variable result = executeUnaryAluOperation(mm, instruction, value);
-    assignRegisterValue(mm, targetRegName, result);
+    registerValueResolver.assignRegisterValue(mm, targetRegName, result);
   }
 
   /**
