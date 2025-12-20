@@ -90,7 +90,7 @@ public class Binary16BitsOperation extends ParameterizedBinaryAluInstruction {
     return result & 0xffff;
   }
 
-  protected int operation(int v1, int v2, int f) {
+  public int operation(int v1, int v2, int f) {
     return 0;
   }
 

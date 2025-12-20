@@ -51,7 +51,7 @@ public class Adc16 extends Binary16BitsOperation {
     super(target, source, flag, new Adc16TableAluOperation());
   }
 
-  protected int operation(int v1, int v2, int f) {
+  public int operation(int v1, int v2, int f) {
     return v1 + v2 + (f & 1);
   }
 
