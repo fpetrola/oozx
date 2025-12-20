@@ -1010,6 +1010,8 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
     String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecode2", createDecoderFromInstructions(instructions));
 
+
+//    assertEquals("", actualSource);
     // Verificamos que el código generado contiene la estructura esperada:
     // 1. Debe ser una clase que extiende Z80UnRolled
     // 2. Debe tener un método execute(int opcode) con switch
