@@ -1,24 +1,13 @@
 package com.fpetrola.oozx.inliner;
 
-import com.fpetrola.oozx.Z80UnRolled;
-import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
-import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
-import com.fpetrola.z80.opcodes.references.*;
-import com.fpetrola.z80.opcodes.references.IndirectMemory16BitReference;
-import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.flag.AluOperation;
+import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import org.cojen.maker.ClassMaker;
-import org.cojen.maker.Label;
-import org.cojen.maker.MethodMaker;
-import org.cojen.maker.Variable;
 
-import java.util.*;
-import java.util.LinkedHashMap;
-import java.util.function.Supplier;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Genera clases Java en bytecode directamente usando cojen/maker,
