@@ -24,8 +24,8 @@ public class RegisterValueResolver {
    */
   public Variable resolveRegisterValueByName(MethodMaker mm, String regName) {
     // Si es un registro de 16 bits compuesto que tiene getters (BC, DE, HL, AF)
-    if (is16BitCompositeRegister(regName)) {
-      String getterMethodName = "get" + regName;  // getBC, getDE, getHL, getAF
+    if (RegisterUtils.is16BitCompositeRegister(regName)) {
+      String getterMethodName = RegisterUtils.getCompositeRegisterGetterName(regName);
       Variable result = mm.var(int.class);
       result.set(mm.invoke(getterMethodName));
       return result;
@@ -39,20 +39,13 @@ public class RegisterValueResolver {
    * Asigna un valor a un registro, manejando registros de 16 bits compuestos (BC, DE, HL, AF)
    */
   public void assignRegisterValue(MethodMaker mm, String regName, Variable value) {
-    if (is16BitCompositeRegister(regName)) {
+    if (RegisterUtils.is16BitCompositeRegister(regName)) {
       // Para registros de 16 bits compuestos, usar el setter correspondiente
-      String setterMethodName = "set" + regName;  // setBC, setDE, setHL, setAF
+      String setterMethodName = RegisterUtils.getCompositeRegisterSetterName(regName);
       mm.invoke(setterMethodName, value);
     } else {
       // Para registros de 8 bits o especiales, asignar directamente
       mm.field(regName).set(value);
     }
-  }
-
-  /**
-   * Verifica si es un registro de 16 bits compuesto que tiene getters/setters (BC, DE, HL, AF)
-   */
-  public boolean is16BitCompositeRegister(String regName) {
-    return (regName.equals("BC") || regName.equals("DE") || regName.equals("HL") || regName.equals("AF"));
   }
 }

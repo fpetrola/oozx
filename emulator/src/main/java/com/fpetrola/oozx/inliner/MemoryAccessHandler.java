@@ -45,15 +45,7 @@ public class MemoryAccessHandler {
     ImmutableOpcodeReference innerTarget = target.getTarget();
 
     if (innerTarget instanceof com.fpetrola.z80.registers.Register reg) {
-      String regName = reg.getName();
-      // Si es un registro de 16 bits compuesto que tiene getters (BC, DE, HL, AF)
-      if (is16BitCompositeRegister(regName)) {
-        String getterMethodName = "get" + regName;
-        Variable result = mm.var(int.class);
-        result.set(mm.invoke(getterMethodName));
-        return result;
-      }
-      return mm.field(regName);
+      return resolveRegisterValue(mm, reg.getName());
     } else if (innerTarget instanceof Memory16BitReference mem16Ref) {
       return readAddress16Bit(mm, mem16Ref);
     }
@@ -67,19 +59,24 @@ public class MemoryAccessHandler {
     ImmutableOpcodeReference innerTarget = target.getTarget();
 
     if (innerTarget instanceof com.fpetrola.z80.registers.Register reg) {
-      String regName = reg.getName();
-      // Si es un registro de 16 bits compuesto que tiene getters (BC, DE, HL, AF)
-      if (is16BitCompositeRegister(regName)) {
-        String getterMethodName = "get" + regName;
-        Variable result = mm.var(int.class);
-        result.set(mm.invoke(getterMethodName));
-        return result;
-      }
-      return mm.field(regName);
+      return resolveRegisterValue(mm, reg.getName());
     } else if (innerTarget instanceof Memory16BitReference mem16Ref) {
       return readAddress16Bit(mm, mem16Ref);
     }
     return null;
+  }
+
+  /**
+   * Resuelve el valor de un registro, manejando registros de 16 bits compuestos
+   */
+  private Variable resolveRegisterValue(MethodMaker mm, String regName) {
+    if (RegisterUtils.is16BitCompositeRegister(regName)) {
+      String getterMethodName = RegisterUtils.getCompositeRegisterGetterName(regName);
+      Variable result = mm.var(int.class);
+      result.set(mm.invoke(getterMethodName));
+      return result;
+    }
+    return mm.field(regName);
   }
 
   /**
@@ -95,7 +92,7 @@ public class MemoryAccessHandler {
     // 2. Calcular dirección destino: (targetReg + dd) & 0xFFFF
     // Obtener el nombre del registro de forma genérica (puede ser IX, IY, etc.)
     ImmutableOpcodeReference target = memRef.getTarget();
-    String registerName = getRegisterName(target);
+    String registerName = RegisterUtils.getRegisterName(target);
     Variable targetReg = mm.field(registerName);
     Variable regPlusDd = targetReg.add(dd);
     Variable address = mm.var(int.class);
@@ -104,22 +101,7 @@ public class MemoryAccessHandler {
     return new MemoryPlusRegisterContext(memory, address);
   }
 
-  /**
-   * Verifica si es un registro de 16 bits compuesto que tiene getters/setters (BC, DE, HL, AF)
-   */
-  private boolean is16BitCompositeRegister(String regName) {
-    return (regName.equals("BC") || regName.equals("DE") || regName.equals("HL") || regName.equals("AF"));
-  }
 
-  /**
-   * Obtiene el nombre del registro desde una referencia
-   */
-  private String getRegisterName(ImmutableOpcodeReference ref) {
-    if (ref instanceof com.fpetrola.z80.registers.Register reg) {
-      return reg.getName();
-    }
-    return "register";
-  }
 
   /**
    * Contexto para operaciones de MemoryPlusRegister8BitReference

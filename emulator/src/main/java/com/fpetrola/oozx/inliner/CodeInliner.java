@@ -296,10 +296,7 @@ public class CodeInliner {
   }
 
   private String getRegisterName(ImmutableOpcodeReference ref) {
-    if (ref instanceof Register reg) {
-      return reg.getName();
-    }
-    return "register";
+    return RegisterUtils.getRegisterName(ref);
   }
 
   public static class GeneratedCode {
