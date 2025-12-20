@@ -100,12 +100,14 @@ public class MultiOpcodeFetcher {
     FetchedInstructionWrapper fetchedInstructionWrapper = opcodesTables[memory.read(address, 1)];
 
     int execute = -1;
+    int read = pc.read();
 
     if (registerBank != null)
       execute = registerBank.execute(memory.read(address, 1));
 
+    pc.write(read);
     if (execute == 0) {
-      pc.write((pc.read() + fetchedInstructionWrapper.getInstruction().getLength()) & 0xFFFF);
+      pc.write((read + fetchedInstructionWrapper.getInstruction().getLength()) & 0xFFFF);
       return null;
     } else {
       AbstractInstruction instruction = (AbstractInstruction) fetchedInstructionWrapper.getInstruction();
