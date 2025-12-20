@@ -4,6 +4,7 @@ import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.*;
+import com.fpetrola.oozx.inliner.strategies.OpcodeReferenceStrategyFactory;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
@@ -97,34 +98,11 @@ public class BinaryOperationHandler {
    */
   public void executeAluOperationFromMemory(MethodMaker mm, TargetSourceInstruction instruction,
                                             ImmutableOpcodeReference source, String targetRegName) {
+    var strategy = OpcodeReferenceStrategyFactory.create(source);
+    Variable address = strategy.resolveAddress(mm, memoryAccessHandler);
     Variable memory = mm.field("memory");
-
-    if (source instanceof IndirectMemory8BitReference indMem) {
-      Variable address = memoryAccessHandler.resolveIndirectMemoryAddress(mm, indMem);
-      Variable value = mm.var(int.class);
-      value.set(memory.invoke("read", address, 0));
-      executeAluWithMemoryValue(mm, instruction, targetRegName, value);
-    } else if (source instanceof IndirectMemory16BitReference indMem16) {
-      Variable address = memoryAccessHandler.resolveIndirectMemory16BitAddress(mm, indMem16);
-      Variable value = mm.var(int.class);
-      value.set(memory.invoke("read16Bits", address));
-      executeAluWithMemoryValue(mm, instruction, targetRegName, value);
-    } else if (source instanceof MemoryPlusRegister8BitReference memRef) {
-      MemoryAccessHandler.MemoryPlusRegisterContext ctx = memoryAccessHandler.readOffsetAndCalculateAddress(mm, memRef);
-      Variable value = mm.var(int.class);
-      value.set(ctx.memory.invoke("read", ctx.address, 0));
-      executeAluWithMemoryValue(mm, instruction, targetRegName, value);
-    } else if (source instanceof Memory8BitReference memory8BitReference) {
-      Variable pcPlusDelta = mm.field("PC").add(memory8BitReference.getDelta()).and(0xFFFF);
-      Variable dd = mm.var(int.class);
-      dd.set(memory.invoke("read", pcPlusDelta, 0));
-      executeAluWithMemoryValue(mm, instruction, targetRegName, dd);
-    } else if (source instanceof Memory16BitReference memory16BitReference) {
-      Variable pcPlusDelta = mm.field("PC").add(memory16BitReference.getDelta()).and(0xFFFF);
-      Variable dd = mm.var(int.class);
-      dd.set(memory.invoke("read16Bits", pcPlusDelta, 0));
-      executeAluWithMemoryValue(mm, instruction, targetRegName, dd);
-    }
+    Variable value = strategy.readValue(mm, address, memory);
+    executeAluWithMemoryValue(mm, instruction, targetRegName, value);
   }
 
   /**

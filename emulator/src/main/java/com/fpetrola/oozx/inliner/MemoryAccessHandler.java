@@ -1,6 +1,7 @@
 package com.fpetrola.oozx.inliner;
 
 import com.fpetrola.z80.opcodes.references.*;
+import com.fpetrola.oozx.inliner.strategies.OpcodeReferenceStrategyFactory;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
@@ -23,19 +24,8 @@ public class MemoryAccessHandler {
    * Resuelve la dirección de memoria desde una referencia
    */
   public Variable resolveSourceMemoryAddress(MethodMaker mm, ImmutableOpcodeReference source) {
-    if (source instanceof IndirectMemory8BitReference indMem) {
-      return resolveIndirectMemoryAddress(mm, indMem);
-    } else if (source instanceof IndirectMemory16BitReference indMem16) {
-      return resolveIndirectMemory16BitAddress(mm, indMem16);
-    } else if (source instanceof MemoryPlusRegister8BitReference memRef) {
-      MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
-      return ctx.address;
-    } else if (source instanceof Memory8BitReference memory8BitReference) {
-      return mm.field("PC").add(memory8BitReference.getDelta()).and(0xFFFF);
-    } else if (source instanceof Memory16BitReference memory16BitReference) {
-      return mm.field("PC").add(memory16BitReference.getDelta()).and(0xFFFF);
-    }
-    return null;
+    var strategy = OpcodeReferenceStrategyFactory.create(source);
+    return strategy.resolveAddress(mm, this);
   }
 
   /**

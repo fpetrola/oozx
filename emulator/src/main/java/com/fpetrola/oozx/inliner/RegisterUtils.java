@@ -54,4 +54,19 @@ public class RegisterUtils {
     }
     throw new IllegalArgumentException("No es un registro compuesto de 16 bits: " + regName);
   }
+
+  /**
+   * Capitaliza la primera letra de una cadena
+   * Preserva el caso del resto si es una constante numérica (como M16R)
+   */
+  public static String capitalizeFirstLetter(String str) {
+    if (str == null || str.isEmpty()) {
+      return str;
+    }
+    // Si la cadena tiene dígitos (como M16R), devolverla tal cual
+    if (str.matches(".*\\d.*")) {
+      return str;
+    }
+    return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
+  }
 }

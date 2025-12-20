@@ -4,6 +4,7 @@ import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.oozx.inliner.strategies.OpcodeReferenceStrategyFactory;
 
 /**
  * Genera nombres únicos y descriptivos para los métodos generados en el bytecode.
@@ -73,53 +74,8 @@ public class MethodNameGenerator {
    * Genera un sufijo basado en el tipo de referencia (Register, Memory, etc.)
    */
   public String getReferenceSuffix(ImmutableOpcodeReference reference) {
-    if (reference instanceof Register) {
-      Register reg = (Register) reference;
-      // Para registros, usar el nombre del registro en formato camelCase
-      return capitalizeFirstLetter(reg.getName());
-    } else if (reference instanceof MemoryPlusRegister8BitReference) {
-      MemoryPlusRegister8BitReference mprf = (MemoryPlusRegister8BitReference) reference;
-      // MPRF: MemoryPlusRegister8BitReference
-      StringBuilder suffix = new StringBuilder("Mprf");
-      ImmutableOpcodeReference innerTarget = mprf.getTarget();
-      if (innerTarget instanceof Register) {
-        Register reg = (Register) innerTarget;
-        suffix.append(capitalizeFirstLetter(reg.getName()));
-      }
-      return suffix.toString();
-    } else if (reference instanceof IndirectMemory8BitReference) {
-      IndirectMemory8BitReference imr = (IndirectMemory8BitReference) reference;
-      // IMR: IndirectMemory8BitReference
-      StringBuilder suffix = new StringBuilder("Imr");
-      ImmutableOpcodeReference innerTarget = imr.getTarget();
-      if (innerTarget instanceof Register) {
-        Register reg = (Register) innerTarget;
-        suffix.append(capitalizeFirstLetter(reg.getName()));
-      } else if (innerTarget instanceof Memory16BitReference) {
-        suffix.append("M16R");
-      }
-      return suffix.toString();
-    } else if (reference instanceof IndirectMemory16BitReference) {
-      IndirectMemory16BitReference imr16 = (IndirectMemory16BitReference) reference;
-      // IMR16: IndirectMemory16BitReference
-      StringBuilder suffix = new StringBuilder("Imr16");
-      ImmutableOpcodeReference innerTarget = imr16.getTarget();
-      if (innerTarget instanceof Register) {
-        Register reg = (Register) innerTarget;
-        suffix.append(capitalizeFirstLetter(reg.getName()));
-      } else if (innerTarget instanceof Memory16BitReference) {
-        suffix.append("M16R");
-      }
-      return suffix.toString();
-    } else if (reference instanceof Memory16BitReference) {
-      // M16R: Memory16BitReference
-      return "M16R";
-    } else if (reference instanceof Memory8BitReference) {
-      // M16R: Memory16BitReference
-      return "M8R";
-    }
-
-    return "";
+    var strategy = OpcodeReferenceStrategyFactory.create(reference);
+    return strategy.generateNameSuffix();
   }
 
   /**
