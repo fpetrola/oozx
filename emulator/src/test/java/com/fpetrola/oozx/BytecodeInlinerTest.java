@@ -571,386 +571,386 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
     String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecode", instructions);
     String expectedSource = """
-        import com.fpetrola.oozx.Z80UnRolled;
-        import com.fpetrola.z80.instructions.impl.Adc.AdcTableAluOperation;
-        import com.fpetrola.z80.instructions.impl.Add.AddTableAluOperation;
-        import com.fpetrola.z80.instructions.impl.And.AndTableAluOperation;
-        import com.fpetrola.z80.instructions.impl.Cp.CpTableAluOperation;
-        import com.fpetrola.z80.instructions.impl.Dec.Dec8TableAluOperation;
-        import com.fpetrola.z80.instructions.impl.Inc.Inc8TableAluOperation;
-        import com.fpetrola.z80.instructions.impl.Or.OrTableAluOperation;
-        import com.fpetrola.z80.instructions.impl.Sub.SubTableAluOperation;
-        import com.fpetrola.z80.instructions.impl.Xor.XorTableAluOperation;
-        
-        public class MultiInstructionBytecode extends Z80UnRolled {
-           public void executeLdImrBcA() {
-              int var1 = this.getBC();
-              super.memory.write(var1, super.A);
-           }
-        
-           public void executeIncB() {
-              int var1 = super.inc8TableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
-              super.B = var1;
-              Inc8TableAluOperation var2 = super.inc8TableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeDecB() {
-              int var1 = super.dec8TableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
-              super.B = var1;
-              Dec8TableAluOperation var2 = super.dec8TableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeLdAImrBc() {
-              int var1 = this.getBC();
-              int var2 = super.memory.read(var1, 0);
-              super.A = var2;
-           }
-        
-           public void executeIncC() {
-              int var1 = super.inc8TableAluOperation.execute2ValuesAndCarry(super.C, 0, super.F);
-              super.C = var1;
-              Inc8TableAluOperation var2 = super.inc8TableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeDecC() {
-              int var1 = super.dec8TableAluOperation.execute2ValuesAndCarry(super.C, 0, super.F);
-              super.C = var1;
-              Dec8TableAluOperation var2 = super.dec8TableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeLdImrDeA() {
-              int var1 = this.getDE();
-              super.memory.write(var1, super.A);
-           }
-        
-           public void executeIncD() {
-              int var1 = super.inc8TableAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
-              super.D = var1;
-              Inc8TableAluOperation var2 = super.inc8TableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeDecD() {
-              int var1 = super.dec8TableAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
-              super.D = var1;
-              Dec8TableAluOperation var2 = super.dec8TableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeLdAImrDe() {
-              int var1 = this.getDE();
-              int var2 = super.memory.read(var1, 0);
-              super.A = var2;
-           }
-        
-           public void executeIncE() {
-              int var1 = super.inc8TableAluOperation.execute2ValuesAndCarry(super.E, 0, super.F);
-              super.E = var1;
-              Inc8TableAluOperation var2 = super.inc8TableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeDecE() {
-              int var1 = super.dec8TableAluOperation.execute2ValuesAndCarry(super.E, 0, super.F);
-              super.E = var1;
-              Dec8TableAluOperation var2 = super.dec8TableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeLdImr16M16RHl() {
-              int var1 = this.read16(super.PC);
-              int var2 = this.getHL();
-              super.memory.write16BitsReverse(var2, var1);
-           }
-        
-           public void executeIncH() {
-              int var1 = super.inc8TableAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
-              super.H = var1;
-              Inc8TableAluOperation var2 = super.inc8TableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeDecH() {
-              int var1 = super.dec8TableAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
-              super.H = var1;
-              Dec8TableAluOperation var2 = super.dec8TableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeLdImrM16RA() {
-              int var1 = this.read16(super.PC);
-              super.memory.write(var1, super.A);
-           }
-        
-           public void executeIncImrHl() {
-              int var1 = this.getHL();
-              int var2 = super.memory.read(var1, 0);
-              int var3 = super.inc8TableAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
-              super.memory.write(var1, var3);
-              Inc8TableAluOperation var4 = super.inc8TableAluOperation;
-              super.F = var4.F;
-           }
-        
-           public void executeDecImrHl() {
-              int var1 = this.getHL();
-              int var2 = super.memory.read(var1, 0);
-              int var3 = super.dec8TableAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
-              super.memory.write(var1, var3);
-              Dec8TableAluOperation var4 = super.dec8TableAluOperation;
-              super.F = var4.F;
-           }
-        
-           public void executeLdBB() {
-              super.B = super.B;
-           }
-        
-           public void executeLdBImrHl() {
-              int var1 = this.getHL();
-              int var2 = super.memory.read(var1, 0);
-              super.B = var2;
-           }
-        
-           public void executeLdAB() {
-              super.A = super.B;
-           }
-        
-           public void executeLdAH() {
-              super.A = super.H;
-           }
-        
-           public void executeAddAB() {
-              AddTableAluOperation var1 = super.addTableAluOperation;
-              int var2 = var1.execute2ValuesAndCarry(super.A, super.B, super.F);
-              super.A = var2;
-              super.F = var1.F;
-           }
-        
-           public void executeAddAImrHl() {
-              int var1 = this.getHL();
-              int var2 = super.memory.read(var1, 0);
-              AddTableAluOperation var3 = super.addTableAluOperation;
-              int var4 = var3.execute2ValuesAndCarry(super.A, var2, super.F);
-              super.A = var4;
-              super.F = var3.F;
-           }
-        
-           public void executeAdcAB() {
-              AdcTableAluOperation var1 = super.adcTableAluOperation;
-              int var2 = var1.execute2ValuesAndCarry(super.A, super.B, super.F);
-              super.A = var2;
-              super.F = var1.F;
-           }
-        
-           public void executeAdcAImrHl() {
-              int var1 = this.getHL();
-              int var2 = super.memory.read(var1, 0);
-              AdcTableAluOperation var3 = super.adcTableAluOperation;
-              int var4 = var3.execute2ValuesAndCarry(super.A, var2, super.F);
-              super.A = var4;
-              super.F = var3.F;
-           }
-        
-           public void executeSubAB() {
-              SubTableAluOperation var1 = super.subTableAluOperation;
-              int var2 = var1.execute2ValuesAndCarry(super.A, super.B, super.F);
-              super.A = var2;
-              super.F = var1.F;
-           }
-        
-           public void executeSubAImrHl() {
-              int var1 = this.getHL();
-              int var2 = super.memory.read(var1, 0);
-              SubTableAluOperation var3 = super.subTableAluOperation;
-              int var4 = var3.execute2ValuesAndCarry(super.A, var2, super.F);
-              super.A = var4;
-              super.F = var3.F;
-           }
-        
-           public void executeAndAB() {
-              AndTableAluOperation var1 = super.andTableAluOperation;
-              int var2 = var1.execute2ValuesAndCarry(super.A, super.B, super.F);
-              super.A = var2;
-              super.F = var1.F;
-           }
-        
-           public void executeAndAImrHl() {
-              int var1 = this.getHL();
-              int var2 = super.memory.read(var1, 0);
-              AndTableAluOperation var3 = super.andTableAluOperation;
-              int var4 = var3.execute2ValuesAndCarry(super.A, var2, super.F);
-              super.A = var4;
-              super.F = var3.F;
-           }
-        
-           public void executeXorAB() {
-              XorTableAluOperation var1 = super.xorTableAluOperation;
-              int var2 = var1.execute2ValuesAndCarry(super.A, super.B, super.F);
-              super.A = var2;
-              super.F = var1.F;
-           }
-        
-           public void executeXorAImrHl() {
-              int var1 = this.getHL();
-              int var2 = super.memory.read(var1, 0);
-              XorTableAluOperation var3 = super.xorTableAluOperation;
-              int var4 = var3.execute2ValuesAndCarry(super.A, var2, super.F);
-              super.A = var4;
-              super.F = var3.F;
-           }
-        
-           public void executeOrAB() {
-              OrTableAluOperation var1 = super.orTableAluOperation;
-              int var2 = var1.execute2ValuesAndCarry(super.A, super.B, super.F);
-              super.A = var2;
-              super.F = var1.F;
-           }
-        
-           public void executeOrAImrHl() {
-              int var1 = this.getHL();
-              int var2 = super.memory.read(var1, 0);
-              OrTableAluOperation var3 = super.orTableAluOperation;
-              int var4 = var3.execute2ValuesAndCarry(super.A, var2, super.F);
-              super.A = var4;
-              super.F = var3.F;
-           }
-        
-           public void executeCpAB() {
-              CpTableAluOperation var1 = super.cpTableAluOperation;
-              int var2 = var1.execute2ValuesAndCarry(super.A, super.B, super.F);
-              super.A = var2;
-              super.F = var1.F;
-           }
-        
-           public void executeCpAImrHl() {
-              int var1 = this.getHL();
-              int var2 = super.memory.read(var1, 0);
-              CpTableAluOperation var3 = super.cpTableAluOperation;
-              int var4 = var3.execute2ValuesAndCarry(super.A, var2, super.F);
-              super.A = var4;
-              super.F = var3.F;
-           }
-        
-           public int execute(int opcode) {
-              switch(opcode) {
-              case 2:
-                 this.executeLdImrBcA();
-                 break;
-              case 4:
-                 this.executeIncB();
-                 break;
-              case 5:
-                 this.executeDecB();
-                 break;
-              case 10:
-                 this.executeLdAImrBc();
-                 break;
-              case 12:
-                 this.executeIncC();
-                 break;
-              case 13:
-                 this.executeDecC();
-                 break;
-              case 18:
-                 this.executeLdImrDeA();
-                 break;
-              case 20:
-                 this.executeIncD();
-                 break;
-              case 21:
-                 this.executeDecD();
-                 break;
-              case 26:
-                 this.executeLdAImrDe();
-                 break;
-              case 28:
-                 this.executeIncE();
-                 break;
-              case 29:
-                 this.executeDecE();
-                 break;
-              case 34:
-                 this.executeLdImr16M16RHl();
-                 break;
-              case 36:
-                 this.executeIncH();
-                 break;
-              case 37:
-                 this.executeDecH();
-                 break;
-              case 50:
-                 this.executeLdImrM16RA();
-                 break;
-              case 52:
-                 this.executeIncImrHl();
-                 break;
-              case 53:
-                 this.executeDecImrHl();
-                 break;
-              case 64:
-                 this.executeLdBB();
-                 break;
-              case 70:
-                 this.executeLdBImrHl();
-                 break;
-              case 120:
-                 this.executeLdAB();
-                 break;
-              case 124:
-                 this.executeLdAH();
-                 break;
-              case 128:
-                 this.executeAddAB();
-                 break;
-              case 134:
-                 this.executeAddAImrHl();
-                 break;
-              case 136:
-                 this.executeAdcAB();
-                 break;
-              case 142:
-                 this.executeAdcAImrHl();
-                 break;
-              case 144:
-                 this.executeSubAB();
-                 break;
-              case 150:
-                 this.executeSubAImrHl();
-                 break;
-              case 160:
-                 this.executeAndAB();
-                 break;
-              case 166:
-                 this.executeAndAImrHl();
-                 break;
-              case 168:
-                 this.executeXorAB();
-                 break;
-              case 174:
-                 this.executeXorAImrHl();
-                 break;
-              case 176:
-                 this.executeOrAB();
-                 break;
-              case 182:
-                 this.executeOrAImrHl();
-                 break;
-              case 184:
-                 this.executeCpAB();
-                 break;
-              case 190:
-                 this.executeCpAImrHl();
-                 break;
-              default:
-                 return -1;
-              }
-        
-              return 0;
-           }
-        }""";
+import com.fpetrola.oozx.Z80UnRolled;
+import com.fpetrola.z80.instructions.impl.Adc.AdcTableAluOperation;
+import com.fpetrola.z80.instructions.impl.Add.AddTableAluOperation;
+import com.fpetrola.z80.instructions.impl.And.AndTableAluOperation;
+import com.fpetrola.z80.instructions.impl.Cp.CpTableAluOperation;
+import com.fpetrola.z80.instructions.impl.Dec.Dec8TableAluOperation;
+import com.fpetrola.z80.instructions.impl.Inc.Inc8TableAluOperation;
+import com.fpetrola.z80.instructions.impl.Or.OrTableAluOperation;
+import com.fpetrola.z80.instructions.impl.Sub.SubTableAluOperation;
+import com.fpetrola.z80.instructions.impl.Xor.XorTableAluOperation;
+
+public class MultiInstructionBytecode extends Z80UnRolled {
+   public void executeLdImrBcA() {
+      int var1 = this.getBC();
+      super.memory.write(var1, super.A);
+   }
+
+   public void executeIncB() {
+      int var1 = super.inc8TableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
+      Inc8TableAluOperation var2 = super.inc8TableAluOperation;
+      super.F = var2.F;
+      super.B = var1;
+   }
+
+   public void executeDecB() {
+      int var1 = super.dec8TableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
+      Dec8TableAluOperation var2 = super.dec8TableAluOperation;
+      super.F = var2.F;
+      super.B = var1;
+   }
+
+   public void executeLdAImrBc() {
+      int var1 = this.getBC();
+      int var2 = super.memory.read(var1, 0);
+      super.A = var2;
+   }
+
+   public void executeIncC() {
+      int var1 = super.inc8TableAluOperation.execute2ValuesAndCarry(super.C, 0, super.F);
+      Inc8TableAluOperation var2 = super.inc8TableAluOperation;
+      super.F = var2.F;
+      super.C = var1;
+   }
+
+   public void executeDecC() {
+      int var1 = super.dec8TableAluOperation.execute2ValuesAndCarry(super.C, 0, super.F);
+      Dec8TableAluOperation var2 = super.dec8TableAluOperation;
+      super.F = var2.F;
+      super.C = var1;
+   }
+
+   public void executeLdImrDeA() {
+      int var1 = this.getDE();
+      super.memory.write(var1, super.A);
+   }
+
+   public void executeIncD() {
+      int var1 = super.inc8TableAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
+      Inc8TableAluOperation var2 = super.inc8TableAluOperation;
+      super.F = var2.F;
+      super.D = var1;
+   }
+
+   public void executeDecD() {
+      int var1 = super.dec8TableAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
+      Dec8TableAluOperation var2 = super.dec8TableAluOperation;
+      super.F = var2.F;
+      super.D = var1;
+   }
+
+   public void executeLdAImrDe() {
+      int var1 = this.getDE();
+      int var2 = super.memory.read(var1, 0);
+      super.A = var2;
+   }
+
+   public void executeIncE() {
+      int var1 = super.inc8TableAluOperation.execute2ValuesAndCarry(super.E, 0, super.F);
+      Inc8TableAluOperation var2 = super.inc8TableAluOperation;
+      super.F = var2.F;
+      super.E = var1;
+   }
+
+   public void executeDecE() {
+      int var1 = super.dec8TableAluOperation.execute2ValuesAndCarry(super.E, 0, super.F);
+      Dec8TableAluOperation var2 = super.dec8TableAluOperation;
+      super.F = var2.F;
+      super.E = var1;
+   }
+
+   public void executeLdImr16M16RHl() {
+      int var1 = this.read16(super.PC);
+      int var2 = this.getHL();
+      super.memory.write16BitsReverse(var2, var1);
+   }
+
+   public void executeIncH() {
+      int var1 = super.inc8TableAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
+      Inc8TableAluOperation var2 = super.inc8TableAluOperation;
+      super.F = var2.F;
+      super.H = var1;
+   }
+
+   public void executeDecH() {
+      int var1 = super.dec8TableAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
+      Dec8TableAluOperation var2 = super.dec8TableAluOperation;
+      super.F = var2.F;
+      super.H = var1;
+   }
+
+   public void executeLdImrM16RA() {
+      int var1 = this.read16(super.PC);
+      super.memory.write(var1, super.A);
+   }
+
+   public void executeIncImrHl() {
+      int var1 = this.getHL();
+      int var2 = super.memory.read(var1, 0);
+      int var3 = super.inc8TableAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
+      Inc8TableAluOperation var4 = super.inc8TableAluOperation;
+      super.F = var4.F;
+      super.memory.write(var1, var3);
+   }
+
+   public void executeDecImrHl() {
+      int var1 = this.getHL();
+      int var2 = super.memory.read(var1, 0);
+      int var3 = super.dec8TableAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
+      Dec8TableAluOperation var4 = super.dec8TableAluOperation;
+      super.F = var4.F;
+      super.memory.write(var1, var3);
+   }
+
+   public void executeLdBB() {
+      super.B = super.B;
+   }
+
+   public void executeLdBImrHl() {
+      int var1 = this.getHL();
+      int var2 = super.memory.read(var1, 0);
+      super.B = var2;
+   }
+
+   public void executeLdAB() {
+      super.A = super.B;
+   }
+
+   public void executeLdAH() {
+      super.A = super.H;
+   }
+
+   public void executeAddAB() {
+      AddTableAluOperation var1 = super.addTableAluOperation;
+      int var2 = var1.execute2ValuesAndCarry(super.A, super.B, super.F);
+      super.A = var2;
+      super.F = var1.F;
+   }
+
+   public void executeAddAImrHl() {
+      int var1 = this.getHL();
+      int var2 = super.memory.read(var1, 0);
+      AddTableAluOperation var3 = super.addTableAluOperation;
+      int var4 = var3.execute2ValuesAndCarry(super.A, var2, super.F);
+      super.A = var4;
+      super.F = var3.F;
+   }
+
+   public void executeAdcAB() {
+      AdcTableAluOperation var1 = super.adcTableAluOperation;
+      int var2 = var1.execute2ValuesAndCarry(super.A, super.B, super.F);
+      super.A = var2;
+      super.F = var1.F;
+   }
+
+   public void executeAdcAImrHl() {
+      int var1 = this.getHL();
+      int var2 = super.memory.read(var1, 0);
+      AdcTableAluOperation var3 = super.adcTableAluOperation;
+      int var4 = var3.execute2ValuesAndCarry(super.A, var2, super.F);
+      super.A = var4;
+      super.F = var3.F;
+   }
+
+   public void executeSubAB() {
+      SubTableAluOperation var1 = super.subTableAluOperation;
+      int var2 = var1.execute2ValuesAndCarry(super.A, super.B, super.F);
+      super.A = var2;
+      super.F = var1.F;
+   }
+
+   public void executeSubAImrHl() {
+      int var1 = this.getHL();
+      int var2 = super.memory.read(var1, 0);
+      SubTableAluOperation var3 = super.subTableAluOperation;
+      int var4 = var3.execute2ValuesAndCarry(super.A, var2, super.F);
+      super.A = var4;
+      super.F = var3.F;
+   }
+
+   public void executeAndAB() {
+      AndTableAluOperation var1 = super.andTableAluOperation;
+      int var2 = var1.execute2ValuesAndCarry(super.A, super.B, super.F);
+      super.A = var2;
+      super.F = var1.F;
+   }
+
+   public void executeAndAImrHl() {
+      int var1 = this.getHL();
+      int var2 = super.memory.read(var1, 0);
+      AndTableAluOperation var3 = super.andTableAluOperation;
+      int var4 = var3.execute2ValuesAndCarry(super.A, var2, super.F);
+      super.A = var4;
+      super.F = var3.F;
+   }
+
+   public void executeXorAB() {
+      XorTableAluOperation var1 = super.xorTableAluOperation;
+      int var2 = var1.execute2ValuesAndCarry(super.A, super.B, super.F);
+      super.A = var2;
+      super.F = var1.F;
+   }
+
+   public void executeXorAImrHl() {
+      int var1 = this.getHL();
+      int var2 = super.memory.read(var1, 0);
+      XorTableAluOperation var3 = super.xorTableAluOperation;
+      int var4 = var3.execute2ValuesAndCarry(super.A, var2, super.F);
+      super.A = var4;
+      super.F = var3.F;
+   }
+
+   public void executeOrAB() {
+      OrTableAluOperation var1 = super.orTableAluOperation;
+      int var2 = var1.execute2ValuesAndCarry(super.A, super.B, super.F);
+      super.A = var2;
+      super.F = var1.F;
+   }
+
+   public void executeOrAImrHl() {
+      int var1 = this.getHL();
+      int var2 = super.memory.read(var1, 0);
+      OrTableAluOperation var3 = super.orTableAluOperation;
+      int var4 = var3.execute2ValuesAndCarry(super.A, var2, super.F);
+      super.A = var4;
+      super.F = var3.F;
+   }
+
+   public void executeCpAB() {
+      CpTableAluOperation var1 = super.cpTableAluOperation;
+      int var2 = var1.execute2ValuesAndCarry(super.A, super.B, super.F);
+      super.A = var2;
+      super.F = var1.F;
+   }
+
+   public void executeCpAImrHl() {
+      int var1 = this.getHL();
+      int var2 = super.memory.read(var1, 0);
+      CpTableAluOperation var3 = super.cpTableAluOperation;
+      int var4 = var3.execute2ValuesAndCarry(super.A, var2, super.F);
+      super.A = var4;
+      super.F = var3.F;
+   }
+
+   public int execute(int opcode) {
+      switch(opcode) {
+      case 2:
+         this.executeLdImrBcA();
+         break;
+      case 4:
+         this.executeIncB();
+         break;
+      case 5:
+         this.executeDecB();
+         break;
+      case 10:
+         this.executeLdAImrBc();
+         break;
+      case 12:
+         this.executeIncC();
+         break;
+      case 13:
+         this.executeDecC();
+         break;
+      case 18:
+         this.executeLdImrDeA();
+         break;
+      case 20:
+         this.executeIncD();
+         break;
+      case 21:
+         this.executeDecD();
+         break;
+      case 26:
+         this.executeLdAImrDe();
+         break;
+      case 28:
+         this.executeIncE();
+         break;
+      case 29:
+         this.executeDecE();
+         break;
+      case 34:
+         this.executeLdImr16M16RHl();
+         break;
+      case 36:
+         this.executeIncH();
+         break;
+      case 37:
+         this.executeDecH();
+         break;
+      case 50:
+         this.executeLdImrM16RA();
+         break;
+      case 52:
+         this.executeIncImrHl();
+         break;
+      case 53:
+         this.executeDecImrHl();
+         break;
+      case 64:
+         this.executeLdBB();
+         break;
+      case 70:
+         this.executeLdBImrHl();
+         break;
+      case 120:
+         this.executeLdAB();
+         break;
+      case 124:
+         this.executeLdAH();
+         break;
+      case 128:
+         this.executeAddAB();
+         break;
+      case 134:
+         this.executeAddAImrHl();
+         break;
+      case 136:
+         this.executeAdcAB();
+         break;
+      case 142:
+         this.executeAdcAImrHl();
+         break;
+      case 144:
+         this.executeSubAB();
+         break;
+      case 150:
+         this.executeSubAImrHl();
+         break;
+      case 160:
+         this.executeAndAB();
+         break;
+      case 166:
+         this.executeAndAImrHl();
+         break;
+      case 168:
+         this.executeXorAB();
+         break;
+      case 174:
+         this.executeXorAImrHl();
+         break;
+      case 176:
+         this.executeOrAB();
+         break;
+      case 182:
+         this.executeOrAImrHl();
+         break;
+      case 184:
+         this.executeCpAB();
+         break;
+      case 190:
+         this.executeCpAImrHl();
+         break;
+      default:
+         return -1;
+      }
+
+      return 0;
+   }
+}""";
 
     assertSourceEquals(actualSource, expectedSource);
   }
@@ -1010,233 +1010,233 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
     String actualSource = testBytecodeMultipleInstructionsOf("MultiInstructionBytecode2", instructions);
 
     String expectedSource = """
-        import com.fpetrola.oozx.Z80UnRolled;
-        import com.fpetrola.z80.instructions.impl.RLC.RlcTableAluOperation;
-        import com.fpetrola.z80.instructions.impl.RRC.RRCAluOperation;
-        import com.fpetrola.z80.instructions.impl.SLA.SlaTableAluOperation;
-        import com.fpetrola.z80.instructions.impl.SRA.SRAAluOperation;
-        import com.fpetrola.z80.instructions.impl.SRL.SrlTableAluOperation;
-        
-        public class MultiInstructionBytecode2 extends Z80UnRolled {
-           public void executeRLCB() {
-              int var1 = super.rlcTableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
-              super.B = var1;
-              RlcTableAluOperation var2 = super.rlcTableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeRLCD() {
-              int var1 = super.rlcTableAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
-              super.D = var1;
-              RlcTableAluOperation var2 = super.rlcTableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeRLCH() {
-              int var1 = super.rlcTableAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
-              super.H = var1;
-              RlcTableAluOperation var2 = super.rlcTableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeRLCImrHl() {
-              int var1 = this.getHL();
-              int var2 = super.memory.read(var1, 0);
-              int var3 = super.rlcTableAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
-              super.memory.write(var1, var3);
-              RlcTableAluOperation var4 = super.rlcTableAluOperation;
-              super.F = var4.F;
-           }
-        
-           public void executeRRCB() {
-              int var1 = super.rRCAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
-              super.B = var1;
-              RRCAluOperation var2 = super.rRCAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeRRCD() {
-              int var1 = super.rRCAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
-              super.D = var1;
-              RRCAluOperation var2 = super.rRCAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeRRCH() {
-              int var1 = super.rRCAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
-              super.H = var1;
-              RRCAluOperation var2 = super.rRCAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeRRCImrHl() {
-              int var1 = this.getHL();
-              int var2 = super.memory.read(var1, 0);
-              int var3 = super.rRCAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
-              super.memory.write(var1, var3);
-              RRCAluOperation var4 = super.rRCAluOperation;
-              super.F = var4.F;
-           }
-        
-           public void executeSLAB() {
-              int var1 = super.slaTableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
-              super.B = var1;
-              SlaTableAluOperation var2 = super.slaTableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeSLAD() {
-              int var1 = super.slaTableAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
-              super.D = var1;
-              SlaTableAluOperation var2 = super.slaTableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeSLAH() {
-              int var1 = super.slaTableAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
-              super.H = var1;
-              SlaTableAluOperation var2 = super.slaTableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeSLAImrHl() {
-              int var1 = this.getHL();
-              int var2 = super.memory.read(var1, 0);
-              int var3 = super.slaTableAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
-              super.memory.write(var1, var3);
-              SlaTableAluOperation var4 = super.slaTableAluOperation;
-              super.F = var4.F;
-           }
-        
-           public void executeSRAB() {
-              int var1 = super.sRAAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
-              super.B = var1;
-              SRAAluOperation var2 = super.sRAAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeSRAD() {
-              int var1 = super.sRAAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
-              super.D = var1;
-              SRAAluOperation var2 = super.sRAAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeSRAH() {
-              int var1 = super.sRAAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
-              super.H = var1;
-              SRAAluOperation var2 = super.sRAAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeSRAImrHl() {
-              int var1 = this.getHL();
-              int var2 = super.memory.read(var1, 0);
-              int var3 = super.sRAAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
-              super.memory.write(var1, var3);
-              SRAAluOperation var4 = super.sRAAluOperation;
-              super.F = var4.F;
-           }
-        
-           public void executeSRLB() {
-              int var1 = super.srlTableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
-              super.B = var1;
-              SrlTableAluOperation var2 = super.srlTableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeSRLD() {
-              int var1 = super.srlTableAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
-              super.D = var1;
-              SrlTableAluOperation var2 = super.srlTableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeSRLH() {
-              int var1 = super.srlTableAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
-              super.H = var1;
-              SrlTableAluOperation var2 = super.srlTableAluOperation;
-              super.F = var2.F;
-           }
-        
-           public void executeSRLImrHl() {
-              int var1 = this.getHL();
-              int var2 = super.memory.read(var1, 0);
-              int var3 = super.srlTableAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
-              super.memory.write(var1, var3);
-              SrlTableAluOperation var4 = super.srlTableAluOperation;
-              super.F = var4.F;
-           }
-        
-           public int execute(int opcode) {
-              switch(opcode) {
-              case 51968:
-                 this.executeRLCB();
-                 break;
-              case 51970:
-                 this.executeRLCD();
-                 break;
-              case 51972:
-                 this.executeRLCH();
-                 break;
-              case 51974:
-                 this.executeRLCImrHl();
-                 break;
-              case 51976:
-                 this.executeRRCB();
-                 break;
-              case 51978:
-                 this.executeRRCD();
-                 break;
-              case 51980:
-                 this.executeRRCH();
-                 break;
-              case 51982:
-                 this.executeRRCImrHl();
-                 break;
-              case 52000:
-                 this.executeSLAB();
-                 break;
-              case 52002:
-                 this.executeSLAD();
-                 break;
-              case 52004:
-                 this.executeSLAH();
-                 break;
-              case 52006:
-                 this.executeSLAImrHl();
-                 break;
-              case 52008:
-                 this.executeSRAB();
-                 break;
-              case 52010:
-                 this.executeSRAD();
-                 break;
-              case 52012:
-                 this.executeSRAH();
-                 break;
-              case 52014:
-                 this.executeSRAImrHl();
-                 break;
-              case 52024:
-                 this.executeSRLB();
-                 break;
-              case 52026:
-                 this.executeSRLD();
-                 break;
-              case 52028:
-                 this.executeSRLH();
-                 break;
-              case 52030:
-                 this.executeSRLImrHl();
-                 break;
-              default:
-                 return -1;
-              }
-        
-              return 0;
-           }
-        }""";
+import com.fpetrola.oozx.Z80UnRolled;
+import com.fpetrola.z80.instructions.impl.RLC.RlcTableAluOperation;
+import com.fpetrola.z80.instructions.impl.RRC.RRCAluOperation;
+import com.fpetrola.z80.instructions.impl.SLA.SlaTableAluOperation;
+import com.fpetrola.z80.instructions.impl.SRA.SRAAluOperation;
+import com.fpetrola.z80.instructions.impl.SRL.SrlTableAluOperation;
+
+public class MultiInstructionBytecode2 extends Z80UnRolled {
+   public void executeRLCB() {
+      int var1 = super.rlcTableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
+      RlcTableAluOperation var2 = super.rlcTableAluOperation;
+      super.F = var2.F;
+      super.B = var1;
+   }
+
+   public void executeRLCD() {
+      int var1 = super.rlcTableAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
+      RlcTableAluOperation var2 = super.rlcTableAluOperation;
+      super.F = var2.F;
+      super.D = var1;
+   }
+
+   public void executeRLCH() {
+      int var1 = super.rlcTableAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
+      RlcTableAluOperation var2 = super.rlcTableAluOperation;
+      super.F = var2.F;
+      super.H = var1;
+   }
+
+   public void executeRLCImrHl() {
+      int var1 = this.getHL();
+      int var2 = super.memory.read(var1, 0);
+      int var3 = super.rlcTableAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
+      RlcTableAluOperation var4 = super.rlcTableAluOperation;
+      super.F = var4.F;
+      super.memory.write(var1, var3);
+   }
+
+   public void executeRRCB() {
+      int var1 = super.rRCAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
+      RRCAluOperation var2 = super.rRCAluOperation;
+      super.F = var2.F;
+      super.B = var1;
+   }
+
+   public void executeRRCD() {
+      int var1 = super.rRCAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
+      RRCAluOperation var2 = super.rRCAluOperation;
+      super.F = var2.F;
+      super.D = var1;
+   }
+
+   public void executeRRCH() {
+      int var1 = super.rRCAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
+      RRCAluOperation var2 = super.rRCAluOperation;
+      super.F = var2.F;
+      super.H = var1;
+   }
+
+   public void executeRRCImrHl() {
+      int var1 = this.getHL();
+      int var2 = super.memory.read(var1, 0);
+      int var3 = super.rRCAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
+      RRCAluOperation var4 = super.rRCAluOperation;
+      super.F = var4.F;
+      super.memory.write(var1, var3);
+   }
+
+   public void executeSLAB() {
+      int var1 = super.slaTableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
+      SlaTableAluOperation var2 = super.slaTableAluOperation;
+      super.F = var2.F;
+      super.B = var1;
+   }
+
+   public void executeSLAD() {
+      int var1 = super.slaTableAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
+      SlaTableAluOperation var2 = super.slaTableAluOperation;
+      super.F = var2.F;
+      super.D = var1;
+   }
+
+   public void executeSLAH() {
+      int var1 = super.slaTableAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
+      SlaTableAluOperation var2 = super.slaTableAluOperation;
+      super.F = var2.F;
+      super.H = var1;
+   }
+
+   public void executeSLAImrHl() {
+      int var1 = this.getHL();
+      int var2 = super.memory.read(var1, 0);
+      int var3 = super.slaTableAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
+      SlaTableAluOperation var4 = super.slaTableAluOperation;
+      super.F = var4.F;
+      super.memory.write(var1, var3);
+   }
+
+   public void executeSRAB() {
+      int var1 = super.sRAAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
+      SRAAluOperation var2 = super.sRAAluOperation;
+      super.F = var2.F;
+      super.B = var1;
+   }
+
+   public void executeSRAD() {
+      int var1 = super.sRAAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
+      SRAAluOperation var2 = super.sRAAluOperation;
+      super.F = var2.F;
+      super.D = var1;
+   }
+
+   public void executeSRAH() {
+      int var1 = super.sRAAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
+      SRAAluOperation var2 = super.sRAAluOperation;
+      super.F = var2.F;
+      super.H = var1;
+   }
+
+   public void executeSRAImrHl() {
+      int var1 = this.getHL();
+      int var2 = super.memory.read(var1, 0);
+      int var3 = super.sRAAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
+      SRAAluOperation var4 = super.sRAAluOperation;
+      super.F = var4.F;
+      super.memory.write(var1, var3);
+   }
+
+   public void executeSRLB() {
+      int var1 = super.srlTableAluOperation.execute2ValuesAndCarry(super.B, 0, super.F);
+      SrlTableAluOperation var2 = super.srlTableAluOperation;
+      super.F = var2.F;
+      super.B = var1;
+   }
+
+   public void executeSRLD() {
+      int var1 = super.srlTableAluOperation.execute2ValuesAndCarry(super.D, 0, super.F);
+      SrlTableAluOperation var2 = super.srlTableAluOperation;
+      super.F = var2.F;
+      super.D = var1;
+   }
+
+   public void executeSRLH() {
+      int var1 = super.srlTableAluOperation.execute2ValuesAndCarry(super.H, 0, super.F);
+      SrlTableAluOperation var2 = super.srlTableAluOperation;
+      super.F = var2.F;
+      super.H = var1;
+   }
+
+   public void executeSRLImrHl() {
+      int var1 = this.getHL();
+      int var2 = super.memory.read(var1, 0);
+      int var3 = super.srlTableAluOperation.execute2ValuesAndCarry(var2, 0, super.F);
+      SrlTableAluOperation var4 = super.srlTableAluOperation;
+      super.F = var4.F;
+      super.memory.write(var1, var3);
+   }
+
+   public int execute(int opcode) {
+      switch(opcode) {
+      case 51968:
+         this.executeRLCB();
+         break;
+      case 51970:
+         this.executeRLCD();
+         break;
+      case 51972:
+         this.executeRLCH();
+         break;
+      case 51974:
+         this.executeRLCImrHl();
+         break;
+      case 51976:
+         this.executeRRCB();
+         break;
+      case 51978:
+         this.executeRRCD();
+         break;
+      case 51980:
+         this.executeRRCH();
+         break;
+      case 51982:
+         this.executeRRCImrHl();
+         break;
+      case 52000:
+         this.executeSLAB();
+         break;
+      case 52002:
+         this.executeSLAD();
+         break;
+      case 52004:
+         this.executeSLAH();
+         break;
+      case 52006:
+         this.executeSLAImrHl();
+         break;
+      case 52008:
+         this.executeSRAB();
+         break;
+      case 52010:
+         this.executeSRAD();
+         break;
+      case 52012:
+         this.executeSRAH();
+         break;
+      case 52014:
+         this.executeSRAImrHl();
+         break;
+      case 52024:
+         this.executeSRLB();
+         break;
+      case 52026:
+         this.executeSRLD();
+         break;
+      case 52028:
+         this.executeSRLH();
+         break;
+      case 52030:
+         this.executeSRLImrHl();
+         break;
+      default:
+         return -1;
+      }
+
+      return 0;
+   }
+}""";
 
     assertSourceEquals(actualSource, expectedSource);
   }

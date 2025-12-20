@@ -104,36 +104,32 @@ public class BytecodeInliner {
     int nextOpcode = opcode & 0xFF;
 
     if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
-      try {
-        analyzer.analyze(targetSourceInstruction);
-        String operationName = instruction.getClass().getSimpleName();
-        OpcodeReference target = analyzer.getTarget();
-        String methodName = generateUniquMethodName(targetSourceInstruction, operationName, target);
-
-        if (!generatedMethods.contains(methodName)) {
-          addExecuteMethod(cm, targetSourceInstruction, operationName, target);
-          generatedMethods.add(methodName);
-        }
+      String methodName = processTargetSourceInstruction(cm, targetSourceInstruction, generatedMethods);
+      if (methodName != null) {
         prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
-      } catch (Exception e) {
-        // Omitir si no puede procesar
       }
     } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
-      try {
-        String operationName = instruction.getClass().getSimpleName();
-        String methodName = generateUnaryMethodName(unaryInstruction, operationName);
-
-        if (!generatedMethods.contains(methodName)) {
-          addExecuteUnaryMethod(cm, unaryInstruction, operationName);
-          generatedMethods.add(methodName);
-        }
+      String methodName = processUnaryInstructionPrefixed(cm, unaryInstruction, generatedMethods, prefixByte, nextOpcode);
+      if (methodName != null) {
         prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
-      } catch (Exception e) {
-        System.err.println("Warning: No se pudo procesar instrucción unaria prefijada 0x" +
-          String.format("%02X%02X", prefixByte, nextOpcode) +
-          " (" + instruction.getClass().getSimpleName() + "): " + e.getMessage());
-        e.printStackTrace();
       }
+    }
+  }
+
+  /**
+   * Procesa una ParameterizedUnaryAluInstruction prefijada con logging
+   */
+  private String processUnaryInstructionPrefixed(ClassMaker cm, ParameterizedUnaryAluInstruction instruction,
+                                                Set<String> generatedMethods, int prefixByte, int nextOpcode) {
+    try {
+      String methodName = processUnaryInstruction(cm, instruction, generatedMethods);
+      return methodName;
+    } catch (Exception e) {
+      System.err.println("Warning: No se pudo procesar instrucción unaria prefijada 0x" +
+        String.format("%02X%02X", prefixByte, nextOpcode) +
+        " (" + instruction.getClass().getSimpleName() + "): " + e.getMessage());
+      e.printStackTrace();
+      return null;
     }
   }
 
@@ -144,33 +140,55 @@ public class BytecodeInliner {
                                             Map<Integer, String> opcodeToMethodName,
                                             Set<String> generatedMethods) {
     if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
-      try {
-        analyzer.analyze(targetSourceInstruction);
-        String operationName = instruction.getClass().getSimpleName();
-        OpcodeReference target = analyzer.getTarget();
-        String methodName = generateUniquMethodName(targetSourceInstruction, operationName, target);
-
-        if (!generatedMethods.contains(methodName)) {
-          addExecuteMethod(cm, targetSourceInstruction, operationName, target);
-          generatedMethods.add(methodName);
-        }
+      String methodName = processTargetSourceInstruction(cm, targetSourceInstruction, generatedMethods);
+      if (methodName != null) {
         opcodeToMethodName.put(opcode, methodName);
-      } catch (Exception e) {
-        // Omitir si no puede procesar
       }
     } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
-      try {
-        String operationName = instruction.getClass().getSimpleName();
-        String methodName = generateUnaryMethodName(unaryInstruction, operationName);
-
-        if (!generatedMethods.contains(methodName)) {
-          addExecuteUnaryMethod(cm, unaryInstruction, operationName);
-          generatedMethods.add(methodName);
-        }
+      String methodName = processUnaryInstruction(cm, unaryInstruction, generatedMethods);
+      if (methodName != null) {
         opcodeToMethodName.put(opcode, methodName);
-      } catch (Exception e) {
-        // Omitir si no puede procesar
       }
+    }
+  }
+
+  /**
+   * Procesa una TargetSourceInstruction: análisis, generación de nombre y creación del método
+   */
+  private String processTargetSourceInstruction(ClassMaker cm, TargetSourceInstruction<?> instruction,
+                                               Set<String> generatedMethods) {
+    try {
+      analyzer.analyze(instruction);
+      String operationName = instruction.getClass().getSimpleName();
+      OpcodeReference target = analyzer.getTarget();
+      String methodName = generateUniquMethodName(instruction, operationName, target);
+
+      if (!generatedMethods.contains(methodName)) {
+        addExecuteMethod(cm, instruction, operationName, target);
+        generatedMethods.add(methodName);
+      }
+      return methodName;
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  /**
+   * Procesa una ParameterizedUnaryAluInstruction: generación de nombre y creación del método
+   */
+  private String processUnaryInstruction(ClassMaker cm, ParameterizedUnaryAluInstruction instruction,
+                                        Set<String> generatedMethods) {
+    try {
+      String operationName = instruction.getClass().getSimpleName();
+      String methodName = generateUnaryMethodName(instruction, operationName);
+
+      if (!generatedMethods.contains(methodName)) {
+        addExecuteUnaryMethod(cm, instruction, operationName);
+        generatedMethods.add(methodName);
+      }
+      return methodName;
+    } catch (Exception e) {
+      return null;
     }
   }
 
@@ -1215,24 +1233,9 @@ public class BytecodeInliner {
    */
   private void executeUnaryRegisterOperation(MethodMaker mm, ParameterizedUnaryAluInstruction instruction,
                                              String targetRegName, Class<?> aluOperationClass) {
-    String operationName = instruction.getClass().getSimpleName();
-    String fieldName = getAluOperationFieldName(operationName);
-    
-    Variable targetValue = resolveRegisterValueByName(mm, targetRegName);
-    // Acceder al campo de la clase padre (Z80UnRolled) - es público
-    Variable aluOp = mm.field(fieldName);
-    Variable flag = mm.field(FLAG);
-    
-    // Ejecutar: result = aluOperation.execute2ValuesAndCarry(value, 0, flag)
-    // Inc solo modifica el valor, ignora el segundo parámetro
-    Variable result = mm.var(int.class);
-    result.set(aluOp.invoke("execute2ValuesAndCarry", targetValue, 0, flag));
-    
+    Variable value = resolveRegisterValueByName(mm, targetRegName);
+    Variable result = executeUnaryAluOperation(mm, instruction, value);
     assignRegisterValue(mm, targetRegName, result);
-    
-    // Actualizar flags
-    Variable flagField = mm.field(FLAG);
-    flagField.set(aluOp.field(FLAG));
   }
 
   /**
@@ -1240,11 +1243,20 @@ public class BytecodeInliner {
    */
   private void executeUnaryMemoryOperation(MethodMaker mm, ParameterizedUnaryAluInstruction instruction,
                                           Variable memory, Variable address, Class<?> aluOperationClass) {
-    String operationName = instruction.getClass().getSimpleName();
-    String fieldName = getAluOperationFieldName(operationName);
-    
     Variable value = mm.var(int.class);
     value.set(memory.invoke("read", address, 0));
+    Variable result = executeUnaryAluOperation(mm, instruction, value);
+    memory.invoke("write", address, result);
+  }
+
+  /**
+   * Ejecuta la operación ALU unaria y actualiza los flags
+   * Retorna el resultado y actualiza el campo de flags
+   */
+  private Variable executeUnaryAluOperation(MethodMaker mm, ParameterizedUnaryAluInstruction instruction,
+                                           Variable value) {
+    String operationName = instruction.getClass().getSimpleName();
+    String fieldName = getAluOperationFieldName(operationName);
     
     Variable aluOp = mm.field(fieldName);
     Variable flag = mm.field(FLAG);
@@ -1253,11 +1265,11 @@ public class BytecodeInliner {
     Variable result = mm.var(int.class);
     result.set(aluOp.invoke("execute2ValuesAndCarry", value, 0, flag));
     
-    memory.invoke("write", address, result);
-    
     // Actualizar flags
     Variable flagField = mm.field(FLAG);
     flagField.set(aluOp.field(FLAG));
+    
+    return result;
   }
 
   /**
