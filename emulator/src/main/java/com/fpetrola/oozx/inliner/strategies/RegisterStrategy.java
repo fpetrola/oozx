@@ -5,7 +5,6 @@ import com.fpetrola.oozx.inliner.MemoryAccessHandler;
 import com.fpetrola.z80.registers.Register;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
-import java.util.List;
 
 /**
  * Estrategia para manejar referencias de registros (A, B, C, etc.)
@@ -42,12 +41,6 @@ public class RegisterStrategy implements OpcodeReferenceStrategy {
   public String getClassName(String operationName) {
     // ExecuteLdA, ExecuteXorB, etc.
     return "Execute" + operationName + generateNameSuffix();
-  }
-
-  @Override
-  public List<String> getConstructorParameters() {
-    // Los registros no necesitan parámetros especiales
-    return List.of();
   }
 
   @Override

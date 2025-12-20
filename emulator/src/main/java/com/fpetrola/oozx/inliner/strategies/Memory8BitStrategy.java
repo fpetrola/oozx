@@ -4,7 +4,6 @@ import com.fpetrola.oozx.inliner.MemoryAccessHandler;
 import com.fpetrola.z80.opcodes.references.Memory8BitReference;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
-import java.util.List;
 
 /**
  * Estrategia para manejar referencias de memoria de 8 bits: (PC + delta)
@@ -31,11 +30,6 @@ public class Memory8BitStrategy implements OpcodeReferenceStrategy {
   @Override
   public String getClassName(String operationName) {
     return "Execute" + operationName + "M8R";
-  }
-
-  @Override
-  public List<String> getConstructorParameters() {
-    return List.of();
   }
 
   @Override

@@ -1,10 +1,8 @@
 package com.fpetrola.oozx.inliner.strategies;
 
-import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.oozx.inliner.MemoryAccessHandler;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
-import java.util.List;
 
 /**
  * Estrategia para manejar un tipo específico de referencia de opcode.
@@ -26,11 +24,6 @@ public interface OpcodeReferenceStrategy {
    * Obtiene el nombre de la clase para código generado
    */
   String getClassName(String operationName);
-
-  /**
-   * Obtiene los parámetros del constructor en orden
-   */
-  List<String> getConstructorParameters();
 
   /**
    * Lee el valor desde memoria según el tipo de referencia

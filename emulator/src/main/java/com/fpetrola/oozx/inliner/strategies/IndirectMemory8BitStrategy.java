@@ -8,7 +8,6 @@ import com.fpetrola.z80.opcodes.references.Memory16BitReference;
 import com.fpetrola.z80.registers.Register;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
-import java.util.List;
 
 /**
  * Estrategia para manejar referencias de memoria indirecta de 8 bits: (HL), (BC), (DE), etc.
@@ -55,12 +54,6 @@ public class IndirectMemory8BitStrategy implements OpcodeReferenceStrategy {
   @Override
   public String getClassName(String operationName) {
     return "Execute" + operationName + generateNameSuffix();
-  }
-
-  @Override
-  public List<String> getConstructorParameters() {
-    // (HL) no necesita parámetros, está en registro
-    return List.of();
   }
 
   @Override

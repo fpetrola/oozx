@@ -3,10 +3,8 @@ package com.fpetrola.oozx.inliner.strategies;
 import com.fpetrola.oozx.inliner.RegisterUtils;
 import com.fpetrola.oozx.inliner.MemoryAccessHandler;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
-import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
-import java.util.List;
 
 /**
  * Estrategia para manejar referencias de memoria más registro de 8 bits: (IX+d), (IY+d)
@@ -47,12 +45,6 @@ public class MemoryPlusRegister8BitStrategy implements OpcodeReferenceStrategy {
   @Override
   public String getClassName(String operationName) {
     return "Execute" + operationName + generateNameSuffix();
-  }
-
-  @Override
-  public List<String> getConstructorParameters() {
-    // Necesita parámetro: el offset 'dd'
-    return List.of("int dd");
   }
 
   @Override
