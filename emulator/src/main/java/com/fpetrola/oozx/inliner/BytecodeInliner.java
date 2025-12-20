@@ -211,6 +211,18 @@ public class BytecodeInliner {
       }
     }
 
+    // Agregar instrucciones prefijadas con 0xDD si existe (IX prefix)
+    // Nota: DD y FD reutilizan la mayoría de instrucciones de CB, por lo que los nombres
+    // de métodos generados serían idénticos. El dispatcher maneja correctamente estos prefijos.
+    if (opcodeLookupTable[0xDD] instanceof DefaultFetchNextOpcodeInstruction ddInstruction) {
+      instructions.put(0xDD, ddInstruction);
+    }
+
+    // Agregar instrucciones prefijadas con 0xFD si existe (IY prefix)
+    if (opcodeLookupTable[0xFD] instanceof DefaultFetchNextOpcodeInstruction fdInstruction) {
+      instructions.put(0xFD, fdInstruction);
+    }
+
     return instructions;
   }
 

@@ -147,50 +147,70 @@ public class InstructionProcessorHandler {
   }
 
   /**
-   * Procesa una TargetSourceInstruction: análisis, generación de nombre y creación del método
-   */
-  private String processTargetSourceInstruction(
-      ClassMaker cm, TargetSourceInstruction<?> instruction,
-      Set<String> generatedMethods,
-      IInstructionMethodGenerator methodGenerator) {
-    
-    try {
-      analyzer.analyze(instruction);
-      String operationName = instruction.getClass().getSimpleName();
-      OpcodeReference target = analyzer.getTarget();
-      String methodName = nameGenerator.generateUniquMethodName(instruction, operationName, target);
+    * Procesa una TargetSourceInstruction: análisis, generación de nombre y creación del método
+    */
+   private String processTargetSourceInstruction(
+       ClassMaker cm, TargetSourceInstruction<?> instruction,
+       Set<String> generatedMethods,
+       IInstructionMethodGenerator methodGenerator) {
+     
+     try {
+       analyzer.analyze(instruction);
+       String operationName = instruction.getClass().getSimpleName();
+       OpcodeReference target = analyzer.getTarget();
+       String methodName = nameGenerator.generateUniquMethodName(instruction, operationName, target);
 
-      if (!generatedMethods.contains(methodName)) {
-        methodGenerator.addExecuteMethod(cm, instruction, operationName, target);
-        generatedMethods.add(methodName);
-      }
-      return methodName;
-    } catch (Exception e) {
-      return null;
-    }
-  }
+       if (!generatedMethods.contains(methodName)) {
+         try {
+           methodGenerator.addExecuteMethod(cm, instruction, operationName, target);
+         } catch (ClassFormatError e) {
+           // Si el método ya existe (puede ocurrir con instrucciones duplicadas en diferentes prefijos),
+           // simplemente reutilizamos el nombre que ya existe
+           if (e.getMessage() != null && e.getMessage().contains("Duplicate method")) {
+             // El método ya fue agregado, continuamos
+           } else {
+             throw e;
+           }
+         }
+         generatedMethods.add(methodName);
+       }
+       return methodName;
+     } catch (Exception e) {
+       return null;
+     }
+   }
 
   /**
-   * Procesa una ParameterizedUnaryAluInstruction: generación de nombre y creación del método
-   */
-  private String processUnaryInstruction(
-      ClassMaker cm, ParameterizedUnaryAluInstruction instruction,
-      Set<String> generatedMethods,
-      IInstructionMethodGenerator methodGenerator) {
-    
-    try {
-      String operationName = instruction.getClass().getSimpleName();
-      String methodName = nameGenerator.generateUnaryMethodName(instruction, operationName);
+    * Procesa una ParameterizedUnaryAluInstruction: generación de nombre y creación del método
+    */
+   private String processUnaryInstruction(
+       ClassMaker cm, ParameterizedUnaryAluInstruction instruction,
+       Set<String> generatedMethods,
+       IInstructionMethodGenerator methodGenerator) {
+     
+     try {
+       String operationName = instruction.getClass().getSimpleName();
+       String methodName = nameGenerator.generateUnaryMethodName(instruction, operationName);
 
-      if (!generatedMethods.contains(methodName)) {
-        methodGenerator.addExecuteUnaryMethod(cm, instruction, operationName);
-        generatedMethods.add(methodName);
-      }
-      return methodName;
-    } catch (Exception e) {
-      return null;
-    }
-  }
+       if (!generatedMethods.contains(methodName)) {
+         try {
+           methodGenerator.addExecuteUnaryMethod(cm, instruction, operationName);
+         } catch (ClassFormatError e) {
+           // Si el método ya existe (puede ocurrir con instrucciones duplicadas en diferentes prefijos),
+           // simplemente reutilizamos el nombre que ya existe
+           if (e.getMessage() != null && e.getMessage().contains("Duplicate method")) {
+             // El método ya fue agregado, continuamos
+           } else {
+             throw e;
+           }
+         }
+         generatedMethods.add(methodName);
+       }
+       return methodName;
+     } catch (Exception e) {
+       return null;
+     }
+   }
 
   /**
    * Interfaz para abstracción de generación de métodos
