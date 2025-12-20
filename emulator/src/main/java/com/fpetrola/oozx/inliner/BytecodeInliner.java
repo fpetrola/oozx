@@ -33,7 +33,10 @@ public class BytecodeInliner {
   private final RegisterValueResolver registerValueResolver;
   private final MemoryAccessHandler memoryAccessHandler;
   private final AluOperationHandler aluOperationHandler;
-  private byte[] lastGeneratedBytecode;
+  private final InstructionProcessorHandler processorHandler;
+  private final ExecuteMethodGenerator executeMethodGenerator;
+  private final ClassGenerationHandler classGenerationHandler;
+  private final FieldManagementHandler fieldManagementHandler;
   public static Map<String, byte[]> generatedBytecodes = new HashMap<>();
 
   public BytecodeInliner(InstructionAnalyzer analyzer) {
@@ -44,6 +47,11 @@ public class BytecodeInliner {
     this.registerValueResolver = new RegisterValueResolver();
     this.memoryAccessHandler = new MemoryAccessHandler();
     this.aluOperationHandler = new AluOperationHandler(registerValueResolver);
+    this.processorHandler = new InstructionProcessorHandler(classifier, nameGenerator, analyzer, dispatchGenerator);
+    this.executeMethodGenerator = new ExecuteMethodGenerator(analyzer, classifier, registerValueResolver, 
+                                                            memoryAccessHandler, aluOperationHandler, nameGenerator);
+    this.classGenerationHandler = new ClassGenerationHandler(generatedBytecodes);
+    this.fieldManagementHandler = new FieldManagementHandler(analyzer, classifier, aluOperationHandler);
   }
 
   public String inlineInstruction(TargetSourceInstruction instruction) {
@@ -56,153 +64,38 @@ public class BytecodeInliner {
    */
   public String inlineMultipleInstructions(String className, Map<Integer, Instruction> instructions) {
     className = className.replace("-", "_");
-    ClassMaker cm = createBaseClass(className);
+    ClassMaker cm = classGenerationHandler.createBaseClass(className);
     
-    InstructionProcessingResult result = processInstructions(cm, instructions);
+    InstructionProcessingResult result = processorHandler.processInstructions(cm, instructions, 
+                                                                             createMethodGenerator());
     dispatchGenerator.addDispatchMethodWithOpcodes(cm, result.opcodeToMethodName, result.prefixOpcodes);
     
-    return finializeClass(className, cm);
+    return classGenerationHandler.finializeClass(className, cm);
   }
 
   /**
-   * Procesa todas las instrucciones y genera los métodos correspondientes
-   * Retorna un objeto con los mapeos necesarios para el dispatch
+   * Crea una implementación anónima de IInstructionMethodGenerator
    */
-  private InstructionProcessingResult processInstructions(ClassMaker cm, Map<Integer, Instruction> instructions) {
-    Map<Integer, String> opcodeToMethodName = new LinkedHashMap<>();
-    Map<Integer, String> prefixOpcodes = new LinkedHashMap<>();
-    Map<Integer, Map<Integer, String>> prefixedInstructions = new LinkedHashMap<>();
-    Set<String> generatedMethods = new HashSet<>();
-
-    for (Map.Entry<Integer, Instruction> entry : instructions.entrySet()) {
-      Integer opcode = entry.getKey();
-      Instruction instruction = entry.getValue();
-
-      if (classifier.isUnsupportedInstruction(instruction)) {
-        continue;
+  private InstructionProcessorHandler.IInstructionMethodGenerator createMethodGenerator() {
+    return new InstructionProcessorHandler.IInstructionMethodGenerator() {
+      @Override
+      public void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, 
+                                   String operationName, OpcodeReference target) {
+        executeMethodGenerator.addExecuteMethod(cm, instruction, operationName, target);
       }
 
-      if (instruction instanceof DefaultFetchNextOpcodeInstruction prefixInstruction) {
-        prefixOpcodes.put(opcode, prefixInstruction.getClass().getSimpleName());
-        prefixedInstructions.put(opcode, new LinkedHashMap<>());
-      } else if (classifier.isPrefixedOpcode(opcode, instructions)) {
-        processPrefixedInstruction(cm, instruction, opcode, instructions, prefixedInstructions, generatedMethods);
-      } else {
-        processNonPrefixedInstruction(cm, instruction, opcode, opcodeToMethodName, generatedMethods);
+      @Override
+      public void addExecuteUnaryMethod(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, 
+                                        String operationName) {
+        executeMethodGenerator.addExecuteUnaryMethod(cm, instruction, operationName);
       }
-    }
 
-    // Agregar métodos dispatch para prefijos
-    for (Map.Entry<Integer, Map<Integer, String>> prefixEntry : prefixedInstructions.entrySet()) {
-      Integer prefixOpcode = prefixEntry.getKey();
-      Map<Integer, String> prefixMethods = prefixEntry.getValue();
-      if (!prefixMethods.isEmpty()) {
-        String dispatchMethodName = dispatchGenerator.generatePrefixDispatchMethodName(prefixOpcode);
+      @Override
+      public void addPrefixDispatchMethod(ClassMaker cm, String dispatchMethodName, 
+                                          Map<Integer, String> prefixMethods) {
         dispatchGenerator.addPrefixDispatchMethod(cm, dispatchMethodName, prefixMethods);
-        opcodeToMethodName.put(prefixOpcode, dispatchMethodName);
       }
-    }
-
-    return new InstructionProcessingResult(opcodeToMethodName, prefixOpcodes);
-  }
-
-  /**
-   * Procesa una instrucción prefijada (ej: instrucciones CB, DD, FD)
-   */
-  private void processPrefixedInstruction(ClassMaker cm, Instruction instruction, Integer opcode,
-                                         Map<Integer, Instruction> instructions,
-                                         Map<Integer, Map<Integer, String>> prefixedInstructions,
-                                         Set<String> generatedMethods) {
-    int prefixByte = (opcode >> 8) & 0xFF;
-    int nextOpcode = opcode & 0xFF;
-
-    if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
-      String methodName = processTargetSourceInstruction(cm, targetSourceInstruction, generatedMethods);
-      if (methodName != null) {
-        prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
-      }
-    } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
-      String methodName = processUnaryInstructionPrefixed(cm, unaryInstruction, generatedMethods, prefixByte, nextOpcode);
-      if (methodName != null) {
-        prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
-      }
-    }
-  }
-
-  /**
-   * Procesa una ParameterizedUnaryAluInstruction prefijada con logging
-   */
-  private String processUnaryInstructionPrefixed(ClassMaker cm, ParameterizedUnaryAluInstruction instruction,
-                                                Set<String> generatedMethods, int prefixByte, int nextOpcode) {
-    try {
-      String methodName = processUnaryInstruction(cm, instruction, generatedMethods);
-      return methodName;
-    } catch (Exception e) {
-      System.err.println("Warning: No se pudo procesar instrucción unaria prefijada 0x" +
-        String.format("%02X%02X", prefixByte, nextOpcode) +
-        " (" + instruction.getClass().getSimpleName() + "): " + e.getMessage());
-      e.printStackTrace();
-      return null;
-    }
-  }
-
-  /**
-   * Procesa una instrucción no prefijada
-   */
-  private void processNonPrefixedInstruction(ClassMaker cm, Instruction instruction, Integer opcode,
-                                            Map<Integer, String> opcodeToMethodName,
-                                            Set<String> generatedMethods) {
-    if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
-      String methodName = processTargetSourceInstruction(cm, targetSourceInstruction, generatedMethods);
-      if (methodName != null) {
-        opcodeToMethodName.put(opcode, methodName);
-      }
-    } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
-      String methodName = processUnaryInstruction(cm, unaryInstruction, generatedMethods);
-      if (methodName != null) {
-        opcodeToMethodName.put(opcode, methodName);
-      }
-    }
-  }
-
-  /**
-   * Procesa una TargetSourceInstruction: análisis, generación de nombre y creación del método
-   */
-  private String processTargetSourceInstruction(ClassMaker cm, TargetSourceInstruction<?> instruction,
-                                                Set<String> generatedMethods) {
-    try {
-      analyzer.analyze(instruction);
-      String operationName = instruction.getClass().getSimpleName();
-      OpcodeReference target = analyzer.getTarget();
-      String methodName = nameGenerator.generateUniquMethodName(instruction, operationName, target);
-
-      if (!generatedMethods.contains(methodName)) {
-        addExecuteMethod(cm, instruction, operationName, target);
-        generatedMethods.add(methodName);
-      }
-      return methodName;
-    } catch (Exception e) {
-      return null;
-    }
-  }
-
-  /**
-   * Procesa una ParameterizedUnaryAluInstruction: generación de nombre y creación del método
-   */
-  private String processUnaryInstruction(ClassMaker cm, ParameterizedUnaryAluInstruction instruction,
-                                         Set<String> generatedMethods) {
-    try {
-      String operationName = instruction.getClass().getSimpleName();
-      String methodName = nameGenerator.generateUnaryMethodName(instruction, operationName);
-
-      if (!generatedMethods.contains(methodName)) {
-        addExecuteUnaryMethod(cm, instruction, operationName);
-        generatedMethods.add(methodName);
-      }
-      return methodName;
-    } catch (Exception e) {
-      return null;
-    }
+    };
   }
 
 
@@ -211,7 +104,7 @@ public class BytecodeInliner {
    * Retorna el bytecode de la última clase generada
    */
   public byte[] getLastGeneratedBytecode() {
-    return lastGeneratedBytecode;
+    return classGenerationHandler.getLastGeneratedBytecode();
   }
 
   /**
@@ -219,416 +112,30 @@ public class BytecodeInliner {
    * Retorna el Class<?> directamente usable usando finish()
    */
   public Class<?> generateAndLoadMultipleInstructions(String className, Map<Integer, Instruction> instructions) {
-    className = className.replace("-", "_");
-    ClassMaker cm = createBaseClass(className);
-
-    MethodMaker constructorMaker = cm.addConstructor();
-    constructorMaker.invokeSuperConstructor();
-    constructorMaker.public_();
-    constructorMaker.return_();
-
-    InstructionProcessingResult result = processInstructions(cm, instructions);
-    dispatchGenerator.addDispatchMethodWithOpcodes(cm, result.opcodeToMethodName, result.prefixOpcodes);
-
-    // Usar finish() para cargar la clase directamente en memoria
-    return cm.finish();
+    return classGenerationHandler.generateAndLoadMultipleInstructions(className, createMethodGenerator(), 
+                                                                     processorHandler, dispatchGenerator, instructions);
   }
 
   private String generateInlinedClass(TargetSourceInstruction instruction, String operationName) {
     String className = getClassName(instruction, operationName);
     className = className.replace("-", "_");
 
-    ClassMaker cm = createBaseClass(className);
+    ClassMaker cm = classGenerationHandler.createBaseClass(className);
     OpcodeReference target = analyzer.getTarget();
 
     // Add execute method with inlined code
-    addExecuteMethod(cm, instruction, operationName, target);
+    executeMethodGenerator.addExecuteMethod(cm, instruction, operationName, target);
 
-    return finializeClass(className, cm);
-  }
-
-  /**
-   * Crea la clase base que extiende Z80UnRolled
-   */
-  private ClassMaker createBaseClass(String className) {
-    ClassMaker cm = ClassMaker.beginExternal(className);
-    cm.public_();
-    cm.extend(Z80UnRolled.class);
-    return cm;
-  }
-
-  /**
-   * Compila la clase y guarda el bytecode
-   */
-  private String finializeClass(String className, ClassMaker cm) {
-    byte[] bytecodeBytes = cm.finishBytes();
-    lastGeneratedBytecode = bytecodeBytes;
-    generatedBytecodes.put(className, bytecodeBytes);
-    return className;
+    return classGenerationHandler.finializeClass(className, cm);
   }
 
   private void addAluOperationField(ClassMaker cm, TargetSourceInstruction instruction) {
-    if (classifier.isAluOperation(instruction)) {
-      // Add flag field if not already added
-      if (!analyzer.getRequiredVariables().containsKey(FLAG)) {
-        cm.addField(Register.class, FLAG).private_();
-      }
-
-      // Add ALU operation field with the correct type
-      String fieldName = aluOperationHandler.getAluOperationFieldName(instruction.getClass().getSimpleName());
-      Class<?> aluOperationClass = aluOperationHandler.getAluOperationClass(instruction);
-      cm.addField(aluOperationClass, fieldName).private_();
-    }
-  }
-
-  /**
-   * Extrae el bytecode de una clase compilada usando el ClassLoader
-   */
-  private byte[] extractBytecodeFromCompiledClass(Class<?> clazz) {
-    try {
-      String resourcePath = clazz.getName().replace('.', '/') + ".class";
-      var resourceStream = clazz.getClassLoader().getResourceAsStream(resourcePath);
-
-      if (resourceStream != null) {
-        return resourceStream.readAllBytes();
-      }
-    } catch (Exception e) {
-      // Ignorar
-    }
-
-    return null;
+    fieldManagementHandler.addAluOperationField(cm, instruction);
   }
 
   private void addFieldsInOrder(ClassMaker cm, Map<String, InstructionAnalyzer.VariableInfo> vars, OpcodeReference target) {
-    Set<String> excluded = Set.of("F", "Q");
-
-    // 1. Variables en orden manteniendo el de inserción
-    for (String name : vars.keySet()) {
-      InstructionAnalyzer.VariableInfo var = vars.get(name);
-
-      // Saltar si es excluido o si es pc/memory (los hacemos aparte)
-      if (excluded.contains(name) || "memory".equals(name) || "pc".equals(name)) {
-        continue;
-      }
-
-      Class<?> fieldType = resolveType(var.type);
-      cm.addField(fieldType, var.name).private_();
-    }
-
-    // 2. Memory
-    if (vars.containsKey("memory")) {
-      Class<?> fieldType = Memory.class;
-      cm.addField(fieldType, "memory").private_();
-    }
-
-    // 3. PC
-    if (vars.containsKey("pc")) {
-      cm.addField(int.class, "pc").private_();
-    }
+    fieldManagementHandler.addFieldsInOrder(cm, vars, target);
   }
-
-
-
-
-  private void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, String operationName, OpcodeReference target) {
-    // Generar nombre de método único basado en la instrucción y sus referencias
-    String methodName = nameGenerator.generateUniquMethodName(instruction, operationName, target);
-    if (methodName.equals("executeOutA"))
-      System.out.println("dsagadg");
-    MethodMaker[] mms = new MethodMaker[]{null};
-
-    Supplier<MethodMaker> methodMakerSupplier = () -> {
-      if (mms[0] == null) {
-        mms[0] = cm.addMethod(void.class, methodName);
-        mms[0].public_();
-      }
-      return mms[0];
-    };
-
-    generateExecute(methodMakerSupplier, instruction, target);
-    mms[0].return_();
-  }
-
-  private void addExecuteUnaryMethod(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, String operationName) {
-    String methodName = nameGenerator.generateUnaryMethodName(instruction, operationName);
-    MethodMaker mm = cm.addMethod(void.class, methodName);
-    mm.public_();
-    
-    // Verificar que el campo ALU existe en la clase padre
-    addAluOperationFieldForUnary(cm, instruction);
-    
-    generateUnaryExecute(mm, instruction);
-    mm.return_();
-  }
-
-  /**
-   * Verifica que el campo ALU existe en la clase padre (Z80UnRolled)
-   * No necesitamos agregarlo porque ya está declarado en la clase base
-   */
-  private void addAluOperationFieldForUnary(ClassMaker cm, ParameterizedUnaryAluInstruction instruction) {
-    // Los campos ALU ya existen en Z80UnRolled, no necesitamos agregarlos
-    // Solo verificamos que la instrucción tenga una operación ALU válida
-    try {
-      getAluOperationClassFromUnaryInstruction(instruction);
-    } catch (Exception e) {
-      System.err.println("Warning: Instrucción unaria no tiene operación ALU válida: " + e.getMessage());
-    }
-  }
-
-  /**
-   * Genera un nombre único para el método execute basado en el tipo de instrucción,
-   * target, source y referencias involucradas
-   */
-
-
-
-
-  private void generateExecute(Supplier<MethodMaker> mm, TargetSourceInstruction ld, OpcodeReference target) {
-    // Excluir operaciones de 16 bits (Add16, Adc16, Sbc16, etc.)
-//    if (ld instanceof com.fpetrola.z80.instructions.impl.Binary16BitsOperation) {
-//      throw new UnsupportedOperationException("Binary16BitsOperation no soportada: " + ld.getClass().getSimpleName());
-//    }
-
-    ImmutableOpcodeReference source = ld.getSource();
-
-    // Caso 1: source es un Register
-    if (source instanceof Register sourceReg) {
-      String sourceRegName = sourceReg.getName();
-      // Si target es también un Register (register-to-register)
-      if (target instanceof Register targetReg) {
-        String targetRegName = targetReg.getName();
-        if (ld instanceof Ld) {
-          // LD: copiar valor del registro fuente al destino
-              Variable sourceValue = registerValueResolver.resolveRegisterValueByName(mm.get(), sourceRegName);
-              registerValueResolver.assignRegisterValue(mm.get(), targetRegName, sourceValue);
-        } else if (classifier.isAluOperation(ld)) {
-          // Operaciones ALU: aplicar operación entre registros y guardar resultado
-          executeRegisterToRegisterAluOperation(mm.get(), ld, sourceRegName, targetRegName);
-        } else {
-          throw new UnsupportedOperationException("No se soporta operación entre referencias de memoria para " + ld.getClass());
-        }
-
-        return;
-      }
-      generateAluExecute(mm, ld, target, sourceRegName);
-    }
-    // Caso 2: source es una referencia de memoria pero target es un Register
-    else if (target instanceof Register targetReg) {
-      String targetRegName = targetReg.getName();
-      if (ld instanceof Ld) {
-        // LD reg, (mem): copiar de memoria a registro
-        Variable address = memoryAccessHandler.resolveSourceMemoryAddress(mm.get(), source);
-        if (address != null) {
-          Variable memory = mm.get().field("memory");
-          Variable value = mm.get().var(int.class);
-          if (ld.getSource() instanceof Memory16BitReference) {
-            value.set(memory.invoke("read16Bits", address));
-          } else if (ld.getSource() instanceof IndirectMemory16BitReference) {
-            value.set(memory.invoke("read16Bits", address));
-          } else {
-            value.set(memory.invoke("read", address, 0));
-            }
-            registerValueResolver.assignRegisterValue(mm.get(), targetRegName, value);
-        }
-      } else if (classifier.isAluOperation(ld)) {
-        // Operaciones ALU desde memoria: A = A op (mem)
-        executeAluOperationFromMemory(mm.get(), ld, source, targetRegName);
-      }
-    }
-    // Caso 3: source es memoria y target también es memoria (LD (mem), (mem) - raro pero posible)
-    else {
-      if (ld instanceof Ld && source instanceof IndirectMemory8BitReference) {
-        // Copiar de memoria a memoria: (target) = (source)
-        Variable sourceAddr = memoryAccessHandler.resolveSourceMemoryAddress(mm.get(), source);
-        if (sourceAddr != null && target instanceof IndirectMemory8BitReference targetMem) {
-          Variable targetAddr = memoryAccessHandler.resolveIndirectMemoryAddress(mm.get(), targetMem);
-          if (targetAddr != null) {
-            Variable memory = mm.get().field("memory");
-            Variable value = mm.get().var(int.class);
-            value.set(memory.invoke("read", sourceAddr, 0));
-            memory.invoke("write", targetAddr, value);
-          }
-        }
-      } else {
-        throw new UnsupportedOperationException("No se soporta operación entre referencias de memoria para " + ld.getClass());
-      }
-    }
-  }
-
-
-
-  /**
-   * Ejecuta operaciones ALU cuando el source es memoria: target = target op (memoria)
-   */
-  private void executeAluOperationFromMemory(MethodMaker mm, TargetSourceInstruction instruction,
-                                             ImmutableOpcodeReference source, String targetRegName) {
-    Variable memory = mm.field("memory");
-
-    if (source instanceof IndirectMemory8BitReference indMem) {
-      Variable address = memoryAccessHandler.resolveIndirectMemoryAddress(mm, indMem);
-      Variable value = mm.var(int.class);
-      value.set(memory.invoke("read", address, 0));
-      executeAluWithMemoryValue(mm, instruction, targetRegName, value);
-    } else if (source instanceof IndirectMemory16BitReference indMem16) {
-      Variable address = memoryAccessHandler.resolveIndirectMemory16BitAddress(mm, indMem16);
-      Variable value = mm.var(int.class);
-      value.set(memory.invoke("read16Bits", address));
-      executeAluWithMemoryValue(mm, instruction, targetRegName, value);
-    } else if (source instanceof MemoryPlusRegister8BitReference memRef) {
-      MemoryAccessHandler.MemoryPlusRegisterContext ctx = memoryAccessHandler.readOffsetAndCalculateAddress(mm, memRef);
-      Variable value = mm.var(int.class);
-      value.set(ctx.memory.invoke("read", ctx.address, 0));
-      executeAluWithMemoryValue(mm, instruction, targetRegName, value);
-    } else if (source instanceof Memory8BitReference memory8BitReference) {
-      Variable pcPlusDelta = mm.field("PC").add(memory8BitReference.getDelta()).and(0xFFFF);
-      Variable dd = mm.var(int.class);
-      dd.set(memory.invoke("read", pcPlusDelta, 0));
-      executeAluWithMemoryValue(mm, instruction, targetRegName, dd);
-    } else if (source instanceof Memory16BitReference memory16BitReference) {
-      Variable pcPlusDelta = mm.field("PC").add(memory16BitReference.getDelta()).and(0xFFFF);
-      Variable dd = mm.var(int.class);
-      dd.set(memory.invoke("read16Bits", pcPlusDelta, 0));
-      executeAluWithMemoryValue(mm, instruction, targetRegName, dd);
-    }
-  }
-
-  /**
-   * Ejecuta la operación ALU con un valor leído de memoria
-   */
-  private void executeAluWithMemoryValue(MethodMaker mm, TargetSourceInstruction instruction,
-                                          String targetRegName, Variable memoryValue) {
-    Variable targetValue = registerValueResolver.resolveRegisterValueByName(mm, targetRegName);
-
-    if (classifier.isAluOperation(instruction)) {
-      Class<?> aluOperationClass = aluOperationHandler.getAluOperationClass(instruction);
-      String fieldName = aluOperationHandler.getAluOperationFieldName(instruction.getClass().getSimpleName());
-
-      Variable aluOp = mm.var(aluOperationClass);
-      aluOp.set(mm.field(fieldName));
-      Variable flag = mm.field(FLAG);
-
-      Variable result = mm.var(int.class);
-      result.set(aluOp.invoke("execute2ValuesAndCarry", targetValue, memoryValue, flag));
-
-      registerValueResolver.assignRegisterValue(mm, targetRegName, result);
-
-      Variable flagField = mm.field(FLAG);
-      flagField.set(aluOp.field(FLAG));
-    }
-  }
-
-
-
-  /**
-   * Ejecuta operaciones ALU entre dos registros (register-to-register)
-   */
-  private void executeRegisterToRegisterAluOperation(MethodMaker mm, TargetSourceInstruction instruction,
-                                                     String sourceRegName, String targetRegName) {
-    // Verificar si es una operación Binary16BitsOperation
-    if (instruction instanceof com.fpetrola.z80.instructions.impl.Binary16BitsOperation bin16) {
-      executeBinary16BitsOperation(mm, bin16, sourceRegName, targetRegName);
-      return;
-    }
-
-    Variable sourceValue = registerValueResolver.resolveRegisterValueByName(mm, sourceRegName);
-    Variable targetValue = registerValueResolver.resolveRegisterValueByName(mm, targetRegName);
-    Variable flag = mm.field(FLAG);
-
-    // Obtener la clase específica de la tabla ALU
-    Class<?> aluOperationClass = aluOperationHandler.getAluOperationClass(instruction);
-    String fieldName = aluOperationHandler.getAluOperationFieldName(instruction.getClass().getSimpleName());
-
-    // Guardar la operación ALU en una variable local con el tipo correcto
-    Variable aluOp = mm.var(aluOperationClass);
-    aluOp.set(mm.field(fieldName));
-
-    // Ejecutar la operación ALU: execute2ValuesAndCarry(targetValue, sourceValue, flag)
-    Variable result = mm.var(int.class);
-    result.set(aluOp.invoke("execute2ValuesAndCarry", targetValue, sourceValue, flag));
-
-    // Escribir el resultado de vuelta al registro destino
-    registerValueResolver.assignRegisterValue(mm, targetRegName, result);
-
-    // Actualizar el registro F con los flags de la operación ALU
-    Variable flagField = mm.field(FLAG);
-    flagField.set(aluOp.field(FLAG));
-  }
-
-  /**
-   * Ejecuta una operación Binary16BitsOperation llamando directamente a calculateOriginal
-   * sin usar compress/decompress.
-   */
-  private void executeBinary16BitsOperation(MethodMaker mm, com.fpetrola.z80.instructions.impl.Binary16BitsOperation instruction,
-                                            String sourceRegName, String targetRegName) {
-    Variable sourceValue = registerValueResolver.resolveRegisterValueByName(mm, sourceRegName);
-    Variable targetValue = registerValueResolver.resolveRegisterValueByName(mm, targetRegName);
-    Variable flag = mm.field(FLAG);
-
-    // Obtener la clase específica de la tabla ALU
-    Class<?> aluOperationClass = aluOperationHandler.getAluOperationClass(instruction);
-    String fieldName = aluOperationHandler.getAluOperationFieldName(instruction.getClass().getSimpleName());
-
-    // Guardar la operación ALU en una variable local con el tipo correcto
-    Variable aluOp = mm.var(aluOperationClass);
-    aluOp.set(mm.field(fieldName));
-
-    // 1. Calcular el resultado directamente según el tipo de instrucción
-    Variable result = mm.var(int.class);
-    if (instruction instanceof com.fpetrola.z80.instructions.impl.Add16) {
-      result.set(targetValue.add(sourceValue));
-    } else if (instruction instanceof com.fpetrola.z80.instructions.impl.Adc16) {
-      result.set(targetValue.add(sourceValue).add(flag.and(0x01)));
-    } else if (instruction instanceof com.fpetrola.z80.instructions.impl.Sbc16) {
-      result.set(targetValue.sub(sourceValue).sub(flag.and(0x01)));
-    } else {
-      throw new UnsupportedOperationException("Operación Binary16BitsOperation no soportada: " + instruction.getClass().getSimpleName());
-    }
-
-    // 2. Calcular resultNotZero: pasamos result & 0xFFFF directamente
-    // El método calculateOriginal interpretará esto como: 0 si es cero, 1 si es no-cero
-    Variable maskedResultValue = result.and(0xFFFF);
-
-    // 3. Llamar a calculateOriginal directamente en el aluOp
-    aluOp.invoke("calculateOriginal", targetValue, sourceValue, result, maskedResultValue);
-
-    // 4. Escribir el resultado de vuelta al registro destino (16 bits)
-    registerValueResolver.assignRegisterValue(mm, targetRegName, result.and(0xFFFF));
-
-    // 5. Actualizar el registro F con los flags de la operación ALU
-    Variable flagField = mm.field(FLAG);
-    flagField.set(aluOp.field(FLAG));
-  }
-
-  /**
-   * Genera código de ejecución para instrucciones ALU (LD, XOR, OR, etc.)
-   * que leen un valor de memoria (o registro para LD), aplican la operación y escriben el resultado.
-   */
-  private void generateAluExecute(Supplier<MethodMaker> mm, TargetSourceInstruction instruction,
-                                  OpcodeReference target, String sourceRegName) {
-    if (target instanceof MemoryPlusRegister8BitReference memRef) {
-      MemoryAccessHandler.MemoryPlusRegisterContext ctx = memoryAccessHandler.readOffsetAndCalculateAddress(mm.get(), memRef);
-      aluOperationHandler.executeAluOperation(mm.get(), instruction, ctx.memory, ctx.address, sourceRegName);
-    } else if (target instanceof IndirectMemory8BitReference indMem) {
-      Variable address = memoryAccessHandler.resolveIndirectMemoryAddress(mm.get(), indMem);
-      Variable memory = mm.get().field("memory");
-      aluOperationHandler.executeAluOperation(mm.get(), instruction, memory, address, sourceRegName);
-    } else if (target instanceof IndirectMemory16BitReference indMem16) {
-      Variable address = memoryAccessHandler.resolveIndirectMemory16BitAddress(mm.get(), indMem16);
-      Variable memory = mm.get().field("memory");
-      aluOperationHandler.executeAluOperation16Bit(mm.get(), instruction, memory, address, sourceRegName);
-    } else if (target instanceof Register targetReg) {
-      // Fallback: si target es un Register (por ejemplo ADD A con target=A)
-      String targetRegName = targetReg.getName();
-      executeRegisterToRegisterAluOperation(mm.get(), instruction, sourceRegName, targetRegName);
-    } else {
-      throw new UnsupportedOperationException("No se soporta operación entre referencias de memoria para " + instruction.getClass());
-    }
-
-    // Si target es null o tipo desconocido, no generar código (es un no-op)
-  }
-
-
-
 
 
 
@@ -640,136 +147,18 @@ public class BytecodeInliner {
     return operationName + "Bytecode";
   }
 
-  private String getSourceExpression(ImmutableOpcodeReference source) {
-    if (source instanceof Register reg) {
-      return reg.getName();
-    }
-    return "source.read()";
-  }
 
-  private String getRegisterName(ImmutableOpcodeReference ref) {
-    if (ref instanceof Register reg) {
-      return reg.getName();
-    }
-    return "register";
-  }
+
 
 
   /**
-   * Genera nombre para instrucciones unarias (Inc, Dec, etc.)
-   */
-
-
-  /**
-    * Genera código para instrucciones unarias (Inc, Dec, etc.)
-    * target = operation(target)
+    * Contenedor para los resultados del procesamiento de instrucciones
     */
-   private void generateUnaryExecute(MethodMaker mm, ParameterizedUnaryAluInstruction instruction) {
-      try {
-        // Obtener el target mediante reflexión
-        OpcodeReference target = nameGenerator.getTargetFromUnaryInstruction(instruction);
-       if (target == null) {
-         throw new RuntimeException("No se pudo obtener target de la instrucción unaria");
-       }
-       
-       // Obtener la operación ALU mediante reflexión
-       Class<?> aluOperationClass = getAluOperationClassFromUnaryInstruction(instruction);
-       
-       // Generar el código según el tipo de operando
-       if (target instanceof Register targetReg) {
-         String targetRegName = targetReg.getName();
-         executeUnaryRegisterOperation(mm, instruction, targetRegName, aluOperationClass);
-       } else if (target instanceof IndirectMemory8BitReference indMem) {
-         Variable address = memoryAccessHandler.resolveIndirectMemoryAddress(mm, indMem);
-         if (address == null) {
-           throw new RuntimeException("No se pudo resolver dirección para IndirectMemory8BitReference en " + instruction.getClass().getSimpleName());
-         }
-         Variable memory = mm.field("memory");
-         executeUnaryMemoryOperation(mm, instruction, memory, address, aluOperationClass);
-       } else if (target instanceof MemoryPlusRegister8BitReference memRef) {
-         MemoryAccessHandler.MemoryPlusRegisterContext ctx = memoryAccessHandler.readOffsetAndCalculateAddress(mm, memRef);
-         executeUnaryMemoryOperation(mm, instruction, ctx.memory, ctx.address, aluOperationClass);
-       } else {
-         throw new RuntimeException("Tipo de target no soportado para instrucción unaria: " + target.getClass().getSimpleName() + " en " + instruction.getClass().getSimpleName());
-       }
-     } catch (Exception e) {
-       throw new RuntimeException("Error generando código para instrucción unaria (" + instruction.getClass().getSimpleName() + "): " + e.getMessage(), e);
-     }
-   }
+  public static class InstructionProcessingResult {
+    public final Map<Integer, String> opcodeToMethodName;
+    public final Map<Integer, String> prefixOpcodes;
 
-  /**
-   * Obtiene la clase de la operación ALU desde una instrucción unaria
-   */
-  private Class<?> getAluOperationClassFromUnaryInstruction(ParameterizedUnaryAluInstruction instruction) throws Exception {
-    Class<?> clazz = instruction.getClass();
-    
-    // Buscar el campo 'aluOperation' en la jerarquía de clases
-    while (clazz != null && clazz != Object.class) {
-      try {
-        java.lang.reflect.Field aluOpField = clazz.getDeclaredField("aluOperation");
-        aluOpField.setAccessible(true);
-        Object aluOp = aluOpField.get(instruction);
-        return aluOp.getClass();
-      } catch (NoSuchFieldException e) {
-        clazz = clazz.getSuperclass();
-      }
-    }
-    
-    throw new RuntimeException("No se pudo obtener aluOperation");
-  }
-
-  /**
-   * Ejecuta operación unaria en un registro: reg = alu.execute(reg, flag)
-   */
-  private void executeUnaryRegisterOperation(MethodMaker mm, ParameterizedUnaryAluInstruction instruction,
-                                             String targetRegName, Class<?> aluOperationClass) {
-    Variable value = registerValueResolver.resolveRegisterValueByName(mm, targetRegName);
-    Variable result = aluOperationHandler.executeUnaryAluOperation(mm, instruction, value);
-    registerValueResolver.assignRegisterValue(mm, targetRegName, result);
-  }
-
-  /**
-   * Ejecuta operación unaria en memoria: (addr) = alu.execute((addr), flag)
-   */
-  private void executeUnaryMemoryOperation(MethodMaker mm, ParameterizedUnaryAluInstruction instruction,
-                                          Variable memory, Variable address, Class<?> aluOperationClass) {
-    Variable value = mm.var(int.class);
-    value.set(memory.invoke("read", address, 0));
-    Variable result = aluOperationHandler.executeUnaryAluOperation(mm, instruction, value);
-    memory.invoke("write", address, result);
-  }
-
-  /**
-   * Resuelve nombres de tipo a clases Java.
-   */
-  private Class<?> resolveType(String typeName) {
-    return switch (typeName) {
-      case "int" -> int.class;
-      case "long" -> long.class;
-      case "byte" -> byte.class;
-      case "short" -> short.class;
-      case "boolean" -> boolean.class;
-      case "char" -> char.class;
-      case "float" -> float.class;
-      case "double" -> double.class;
-      case "Register" -> Register.class;
-      case "Memory" -> Memory.class;
-      case "Plain8BitRegister" -> int.class;
-      case "Plain16BitRegister" -> int.class;
-      default -> Object.class;
-    };
-  }
-
-
-
-  /**
-   * Contenedor para los resultados del procesamiento de instrucciones
-   */
-  private static class InstructionProcessingResult {
-    final Map<Integer, String> opcodeToMethodName;
-    final Map<Integer, String> prefixOpcodes;
-
-    InstructionProcessingResult(Map<Integer, String> opcodeToMethodName, Map<Integer, String> prefixOpcodes) {
+    public InstructionProcessingResult(Map<Integer, String> opcodeToMethodName, Map<Integer, String> prefixOpcodes) {
       this.opcodeToMethodName = opcodeToMethodName;
       this.prefixOpcodes = prefixOpcodes;
     }
