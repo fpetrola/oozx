@@ -27,11 +27,15 @@ import java.util.function.Supplier;
 public class BytecodeInliner {
   public static final String FLAG = "F";
   private final InstructionAnalyzer analyzer;
+  private final InstructionClassifier classifier;
+  private final DispatchMethodGenerator dispatchGenerator;
   private byte[] lastGeneratedBytecode;
   public static Map<String, byte[]> generatedBytecodes = new HashMap<>();
 
   public BytecodeInliner(InstructionAnalyzer analyzer) {
     this.analyzer = analyzer;
+    this.classifier = new InstructionClassifier();
+    this.dispatchGenerator = new DispatchMethodGenerator();
   }
 
   public String inlineInstruction(TargetSourceInstruction instruction) {
@@ -47,7 +51,7 @@ public class BytecodeInliner {
     ClassMaker cm = createBaseClass(className);
     
     InstructionProcessingResult result = processInstructions(cm, instructions);
-    addDispatchMethodWithOpcodes(cm, result.opcodeToMethodName, result.prefixOpcodes);
+    dispatchGenerator.addDispatchMethodWithOpcodes(cm, result.opcodeToMethodName, result.prefixOpcodes);
     
     return finializeClass(className, cm);
   }
@@ -66,14 +70,14 @@ public class BytecodeInliner {
       Integer opcode = entry.getKey();
       Instruction instruction = entry.getValue();
 
-      if (isUnsupportedInstruction(instruction)) {
+      if (classifier.isUnsupportedInstruction(instruction)) {
         continue;
       }
 
       if (instruction instanceof DefaultFetchNextOpcodeInstruction prefixInstruction) {
         prefixOpcodes.put(opcode, prefixInstruction.getClass().getSimpleName());
         prefixedInstructions.put(opcode, new LinkedHashMap<>());
-      } else if (isPrefixedOpcode(opcode, instructions)) {
+      } else if (classifier.isPrefixedOpcode(opcode, instructions)) {
         processPrefixedInstruction(cm, instruction, opcode, instructions, prefixedInstructions, generatedMethods);
       } else {
         processNonPrefixedInstruction(cm, instruction, opcode, opcodeToMethodName, generatedMethods);
@@ -85,8 +89,8 @@ public class BytecodeInliner {
       Integer prefixOpcode = prefixEntry.getKey();
       Map<Integer, String> prefixMethods = prefixEntry.getValue();
       if (!prefixMethods.isEmpty()) {
-        String dispatchMethodName = generatePrefixDispatchMethodName(prefixOpcode);
-        addPrefixDispatchMethod(cm, dispatchMethodName, prefixMethods);
+        String dispatchMethodName = dispatchGenerator.generatePrefixDispatchMethodName(prefixOpcode);
+        dispatchGenerator.addPrefixDispatchMethod(cm, dispatchMethodName, prefixMethods);
         opcodeToMethodName.put(prefixOpcode, dispatchMethodName);
       }
     }
@@ -193,84 +197,7 @@ public class BytecodeInliner {
     }
   }
 
-  /**
-   * Verifica si un opcode es un opcode prefijado (ej: 0xCB00 significa prefijo CB con siguiente byte 0x00)
-   */
-  private boolean isPrefixedOpcode(Integer opcode, Map<Integer, Instruction> instructions) {
-    // Un opcode prefijado tiene más de 1 byte y existe un prefijo correspondiente
-    if (opcode > 0xFF) {
-      int prefixByte = (opcode >> 8) & 0xFF;
-      // Buscar si existe el prefijo en las instrucciones
-      for (Integer key : instructions.keySet()) {
-        if (key == prefixByte && instructions.get(key) instanceof DefaultFetchNextOpcodeInstruction) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
 
-  /**
-   * Genera el nombre del método dispatch para un prefijo
-   */
-  private String generatePrefixDispatchMethodName(Integer prefixOpcode) {
-    String prefixName = switch(prefixOpcode & 0xFF) {
-      case 0xCB -> "CB";
-      case 0xDD -> "DD";
-      case 0xFD -> "FD";
-      default -> String.format("Prefix%02X", prefixOpcode & 0xFF);
-    };
-    return "execute" + prefixName + "Prefix";
-  }
-
-  /**
-   * Agrega un método dispatch para un prefijo que despacha por el siguiente opcode
-   */
-  private void addPrefixDispatchMethod(ClassMaker cm, String methodName, Map<Integer, String> opcodeToMethodName) {
-    MethodMaker mm = cm.addMethod(int.class, methodName, int.class);
-    mm.public_();
-
-    // Crear labels para cada case y el default
-    int numCases = opcodeToMethodName.size();
-    Label[] caseLabels = new Label[numCases];
-    for (int i = 0; i < numCases; i++) {
-      caseLabels[i] = mm.label();
-    }
-    Label defaultLabel = mm.label();
-    Label endLabel = mm.label();
-
-    // Crear array de casos a partir de los opcodes
-    int[] cases = new int[numCases];
-    String[] methodNames = new String[numCases];
-    int idx = 0;
-    for (Map.Entry<Integer, String> entry : opcodeToMethodName.entrySet()) {
-      cases[idx] = entry.getKey();
-      methodNames[idx] = entry.getValue();
-      idx++;
-    }
-
-    // Obtener variable del parámetro nextOpcode
-    Variable nextOpcodeVar = mm.param(0);
-    nextOpcodeVar.name("nextOpcode");
-
-    // Generar switch statement
-    nextOpcodeVar.switch_(defaultLabel, cases, caseLabels);
-
-    // Generar código para cada case
-    for (int i = 0; i < numCases; i++) {
-      caseLabels[i].here();
-      mm.invoke(methodNames[i]);
-      mm.goto_(endLabel);
-    }
-
-    // Default case: return -1
-    defaultLabel.here();
-    mm.return_(-1);
-
-    // End label: fin del switch
-    endLabel.here();
-    mm.return_(0);
-  }
 
   /**
    * Retorna el bytecode de la última clase generada
@@ -293,7 +220,7 @@ public class BytecodeInliner {
     constructorMaker.return_();
 
     InstructionProcessingResult result = processInstructions(cm, instructions);
-    addDispatchMethodWithOpcodes(cm, result.opcodeToMethodName, result.prefixOpcodes);
+    dispatchGenerator.addDispatchMethodWithOpcodes(cm, result.opcodeToMethodName, result.prefixOpcodes);
 
     // Usar finish() para cargar la clase directamente en memoria
     return cm.finish();
@@ -333,7 +260,7 @@ public class BytecodeInliner {
   }
 
   private void addAluOperationField(ClassMaker cm, TargetSourceInstruction instruction) {
-    if (isAluOperation(instruction)) {
+    if (classifier.isAluOperation(instruction)) {
       // Add flag field if not already added
       if (!analyzer.getRequiredVariables().containsKey(FLAG)) {
         cm.addField(Register.class, FLAG).private_();
@@ -417,84 +344,7 @@ public class BytecodeInliner {
   }
 
 
-  /**
-   * Agrega un método execute(int opcode) que despacha a los métodos específicos usando opcodes reales
-   */
-  private void addDispatchMethodWithOpcodes(ClassMaker cm, Map<Integer, String> opcodeToMethodName, Map<Integer, String> prefixOpcodes) {
-    MethodMaker mm = cm.addMethod(int.class, "execute", int.class);
-    mm.public_();
 
-    // Crear labels para cada case y el default
-    int numCases = opcodeToMethodName.size();
-    Label[] caseLabels = new Label[numCases];
-    for (int i = 0; i < numCases; i++) {
-      caseLabels[i] = mm.label();
-    }
-    Label defaultLabel = mm.label();
-    Label endLabel = mm.label();
-
-    // Crear array de casos a partir de los opcodes
-    int[] cases = new int[numCases];
-    String[] methodNames = new String[numCases];
-    int idx = 0;
-    for (Map.Entry<Integer, String> entry : opcodeToMethodName.entrySet()) {
-      cases[idx] = entry.getKey();
-      methodNames[idx] = entry.getValue();
-      idx++;
-    }
-
-    // Obtener variable del parámetro opcode y asignarle el nombre
-    Variable opcodeVar = mm.param(0);
-    opcodeVar.name("opcode");
-
-    // Generar switch statement
-    opcodeVar.switch_(defaultLabel, cases, caseLabels);
-
-    // Generar código para cada case
-    for (int i = 0; i < numCases; i++) {
-      caseLabels[i].here();
-      int currentOpcode = cases[i];
-      
-      // Si es un prefijo, leer el siguiente byte y despachar
-      if (prefixOpcodes.containsKey(currentOpcode)) {
-        String dispatchMethodName = methodNames[i];
-        Variable memory = mm.field("memory");
-        Variable pc = mm.field("PC");
-        
-        // Calcular la dirección del siguiente byte (PC + 1)
-        Variable nextPc = mm.var(int.class);
-        nextPc.set(pc.add(1).and(0xFFFF));
-        
-        Variable nextOpcode = mm.var(int.class);
-        nextOpcode.set(memory.invoke("read", nextPc, 1));
-        
-        // Incrementar PC en 1 para apuntar al siguiente byte (después del prefijo)
-        pc.set(nextPc);
-        
-        Variable result = mm.var(int.class);
-        result.set(mm.invoke(dispatchMethodName, nextOpcode));
-        mm.return_(result);
-      } else {
-        mm.invoke(methodNames[i]);
-        mm.goto_(endLabel);
-      }
-    }
-
-    // Default case: throw exception
-    defaultLabel.here();
-    mm.return_(-1);
-
-    // End label: fin del switch
-    endLabel.here();
-    mm.return_(0);
-  }
-
-  /**
-   * Versión anterior del método (sobrecargado para compatibilidad)
-   */
-  private void addDispatchMethodWithOpcodes(ClassMaker cm, Map<Integer, String> opcodeToMethodName) {
-    addDispatchMethodWithOpcodes(cm, opcodeToMethodName, new LinkedHashMap<>());
-  }
 
   private void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, String operationName, OpcodeReference target) {
     // Generar nombre de método único basado en la instrucción y sus referencias
@@ -650,7 +500,7 @@ public class BytecodeInliner {
           // LD: copiar valor del registro fuente al destino
           Variable sourceValue = resolveRegisterValueByName(mm.get(), sourceRegName);
           assignRegisterValue(mm.get(), targetRegName, sourceValue);
-        } else if (isAluOperation(ld)) {
+        } else if (classifier.isAluOperation(ld)) {
           // Operaciones ALU: aplicar operación entre registros y guardar resultado
           executeRegisterToRegisterAluOperation(mm.get(), ld, sourceRegName, targetRegName);
         } else {
@@ -679,7 +529,7 @@ public class BytecodeInliner {
           }
           assignRegisterValue(mm.get(), targetRegName, value);
         }
-      } else if (isAluOperation(ld)) {
+      } else if (classifier.isAluOperation(ld)) {
         // Operaciones ALU desde memoria: A = A op (mem)
         executeAluOperationFromMemory(mm.get(), ld, source, targetRegName);
       }
@@ -765,7 +615,7 @@ public class BytecodeInliner {
                                          String targetRegName, Variable memoryValue) {
     Variable targetValue = resolveRegisterValueByName(mm, targetRegName);
 
-    if (isAluOperation(instruction)) {
+    if (classifier.isAluOperation(instruction)) {
       Class<?> aluOperationClass = getAluOperationClass(instruction);
       String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
 
@@ -977,7 +827,7 @@ public class BytecodeInliner {
     }
 
     // Si la instrucción tiene una operación ALU, usarla
-    if (isAluOperation(instruction)) {
+    if (classifier.isAluOperation(instruction)) {
       executeWithAluOperation(mm, instruction, memory, address, sourceRegName);
       return;
     }
@@ -1084,20 +934,7 @@ public class BytecodeInliner {
     }
   }
 
-  private boolean isAluOperation(TargetSourceInstruction instruction) {
-    // Buscar por reflection si la clase tiene un inner class que implemente AluOperation
-    try {
-      Class<?> instructionClass = instruction.getClass();
-      for (Class<?> innerClass : instructionClass.getDeclaredClasses()) {
-        if (AluOperation.class.isAssignableFrom(innerClass)) {
-          return true;
-        }
-      }
-    } catch (Exception e) {
-      // Ignorar excepciones
-    }
-    return false;
-  }
+
 
   private String getAluOperationFieldName(String instructionClassName) {
     // Mapeo especial para instrucciones que tienen names diferentes
@@ -1294,46 +1131,7 @@ public class BytecodeInliner {
     };
   }
 
-  /**
-   * Verifica si una instrucción no puede ser inlineada (ej: LdAI, LdAR, LD R/I)
-   * Estas instrucciones usan registros especiales (I, R) que requieren lógica especial
-   */
-  private boolean isUnsupportedInstruction(Instruction instruction) {
-    String className = instruction.getClass().getSimpleName();
-    
-    // Filtrar instrucciones específicas con I y R
-    if (className.equals("LdAI") || className.equals("LdAR") || className.equals("DAA")) {
-      return true;
-    }
-    
-    // Filtrar Ld que involucran registros I o R
-    if (instruction instanceof Ld ld) {
-      try {
-        OpcodeReference target = ld.getTarget();
-        ImmutableOpcodeReference source = ld.getSource();
-        
-        // Verificar si target es R o I
-        if (target instanceof Register reg) {
-          String regName = reg.getName();
-          if ("R".equals(regName) || "I".equals(regName)) {
-            return true;
-          }
-        }
-        
-        // Verificar si source es R o I
-        if (source instanceof Register reg) {
-          String regName = reg.getName();
-          if ("R".equals(regName) || "I".equals(regName)) {
-            return true;
-          }
-        }
-      } catch (Exception e) {
-        // Si hay error accediendo a target/source, permitir procesar la instrucción
-      }
-    }
-    
-    return false;
-  }
+
 
   /**
    * Contenedor para los resultados del procesamiento de instrucciones
