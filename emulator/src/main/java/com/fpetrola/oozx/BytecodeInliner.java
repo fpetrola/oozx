@@ -43,108 +43,43 @@ public class BytecodeInliner {
    */
   public String inlineMultipleInstructions(String className, Map<Integer, Instruction> instructions) {
     className = className.replace("-", "_");
-
     ClassMaker cm = createBaseClass(className);
+    
+    InstructionProcessingResult result = processInstructions(cm, instructions);
+    addDispatchMethodWithOpcodes(cm, result.opcodeToMethodName, result.prefixOpcodes);
+    
+    return finializeClass(className, cm);
+  }
 
-    // Guardar los nombres de métodos generados y sus opcodes asociados
+  /**
+   * Procesa todas las instrucciones y genera los métodos correspondientes
+   * Retorna un objeto con los mapeos necesarios para el dispatch
+   */
+  private InstructionProcessingResult processInstructions(ClassMaker cm, Map<Integer, Instruction> instructions) {
     Map<Integer, String> opcodeToMethodName = new LinkedHashMap<>();
-    
-    // Detectar si hay prefijos (DefaultFetchNextOpcodeInstruction) y sus instrucciones
-    Map<Integer, String> prefixOpcodes = new LinkedHashMap<>();  // prefixOpcode -> methodName de dispatcher
-    Map<Integer, Map<Integer, String>> prefixedInstructions = new LinkedHashMap<>();  // prefixOpcode -> (nextOpcode -> methodName)
-    
-    // Rastrear métodos ya agregados para evitar duplicados
+    Map<Integer, String> prefixOpcodes = new LinkedHashMap<>();
+    Map<Integer, Map<Integer, String>> prefixedInstructions = new LinkedHashMap<>();
     Set<String> generatedMethods = new HashSet<>();
 
-    // Agregar un método execute para cada instrucción
     for (Map.Entry<Integer, Instruction> entry : instructions.entrySet()) {
       Integer opcode = entry.getKey();
       Instruction instruction = entry.getValue();
 
-      // Filtrar instrucciones con registros especiales I y R (LdAI, LdAR) que no se pueden inlinear
       if (isUnsupportedInstruction(instruction)) {
-        continue;  // Omitir estas instrucciones
+        continue;
       }
 
       if (instruction instanceof DefaultFetchNextOpcodeInstruction prefixInstruction) {
-        // Este es un prefijo - lo trataremos especialmente
         prefixOpcodes.put(opcode, prefixInstruction.getClass().getSimpleName());
         prefixedInstructions.put(opcode, new LinkedHashMap<>());
       } else if (isPrefixedOpcode(opcode, instructions)) {
-        // Esta instrucción pertenece a un prefijo (ej: 0xCB00, 0xCB20, etc.)
-        int prefixByte = (opcode >> 8) & 0xFF;
-        int nextOpcode = opcode & 0xFF;
-        
-        if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
-          try {
-            analyzer.analyze(targetSourceInstruction);
-            String operationName = instruction.getClass().getSimpleName();
-            OpcodeReference target = analyzer.getTarget();
-            String methodName = generateUniquMethodName(targetSourceInstruction, operationName, target);
-            
-            // Solo agregar el método si no existe ya
-            if (!generatedMethods.contains(methodName)) {
-              addExecuteMethod(cm, targetSourceInstruction, operationName, target);
-              generatedMethods.add(methodName);
-            }
-            prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
-          } catch (Exception e) {
-            // Omitir si no puede procesar
-          }
-        } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
-           try {
-             String operationName = instruction.getClass().getSimpleName();
-             String methodName = generateUnaryMethodName(unaryInstruction, operationName);
-             
-             // Solo agregar el método si no existe ya
-             if (!generatedMethods.contains(methodName)) {
-               addExecuteUnaryMethod(cm, unaryInstruction, operationName);
-               generatedMethods.add(methodName);
-             }
-             prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
-           } catch (Exception e) {
-             // Omitir si no puede procesar
-             System.err.println("Warning: No se pudo procesar instrucción unaria prefijada 0x" + 
-               String.format("%02X%02X", prefixByte, nextOpcode) + 
-               " (" + instruction.getClass().getSimpleName() + "): " + e.getMessage());
-             e.printStackTrace();
-           }
-         }
-      } else if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
-        try {
-          analyzer.analyze(targetSourceInstruction);
-          String operationName = instruction.getClass().getSimpleName();
-          OpcodeReference target = analyzer.getTarget();
-          String methodName = generateUniquMethodName(targetSourceInstruction, operationName, target);
-          
-          // Solo agregar el método si no existe ya
-          if (!generatedMethods.contains(methodName)) {
-            addExecuteMethod(cm, targetSourceInstruction, operationName, target);
-            generatedMethods.add(methodName);
-          }
-          opcodeToMethodName.put(opcode, methodName);
-        } catch (Exception e) {
-          // Si no puede procesar la instrucción, omitirla del switch (no generar nada)
-          // La instrucción no se incluirá en opcodeToMethodName
-        }
-      } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
-        try {
-          String operationName = instruction.getClass().getSimpleName();
-          String methodName = generateUnaryMethodName(unaryInstruction, operationName);
-          
-          // Solo agregar el método si no existe ya
-          if (!generatedMethods.contains(methodName)) {
-            addExecuteUnaryMethod(cm, unaryInstruction, operationName);
-            generatedMethods.add(methodName);
-          }
-          opcodeToMethodName.put(opcode, methodName);
-        } catch (Exception e) {
-          // Si no puede procesar la instrucción, omitirla del switch
-        }
+        processPrefixedInstruction(cm, instruction, opcode, instructions, prefixedInstructions, generatedMethods);
+      } else {
+        processNonPrefixedInstruction(cm, instruction, opcode, opcodeToMethodName, generatedMethods);
       }
     }
 
-    // Agregar métodos dispatch para prefijos si existen
+    // Agregar métodos dispatch para prefijos
     for (Map.Entry<Integer, Map<Integer, String>> prefixEntry : prefixedInstructions.entrySet()) {
       Integer prefixOpcode = prefixEntry.getKey();
       Map<Integer, String> prefixMethods = prefixEntry.getValue();
@@ -155,10 +90,88 @@ public class BytecodeInliner {
       }
     }
 
-    // Agregar método switch que dispache por opcode
-    addDispatchMethodWithOpcodes(cm, opcodeToMethodName, prefixOpcodes);
+    return new InstructionProcessingResult(opcodeToMethodName, prefixOpcodes);
+  }
 
-    return finializeClass(className, cm);
+  /**
+   * Procesa una instrucción prefijada (ej: instrucciones CB, DD, FD)
+   */
+  private void processPrefixedInstruction(ClassMaker cm, Instruction instruction, Integer opcode,
+                                         Map<Integer, Instruction> instructions,
+                                         Map<Integer, Map<Integer, String>> prefixedInstructions,
+                                         Set<String> generatedMethods) {
+    int prefixByte = (opcode >> 8) & 0xFF;
+    int nextOpcode = opcode & 0xFF;
+
+    if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
+      try {
+        analyzer.analyze(targetSourceInstruction);
+        String operationName = instruction.getClass().getSimpleName();
+        OpcodeReference target = analyzer.getTarget();
+        String methodName = generateUniquMethodName(targetSourceInstruction, operationName, target);
+
+        if (!generatedMethods.contains(methodName)) {
+          addExecuteMethod(cm, targetSourceInstruction, operationName, target);
+          generatedMethods.add(methodName);
+        }
+        prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
+      } catch (Exception e) {
+        // Omitir si no puede procesar
+      }
+    } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
+      try {
+        String operationName = instruction.getClass().getSimpleName();
+        String methodName = generateUnaryMethodName(unaryInstruction, operationName);
+
+        if (!generatedMethods.contains(methodName)) {
+          addExecuteUnaryMethod(cm, unaryInstruction, operationName);
+          generatedMethods.add(methodName);
+        }
+        prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
+      } catch (Exception e) {
+        System.err.println("Warning: No se pudo procesar instrucción unaria prefijada 0x" +
+          String.format("%02X%02X", prefixByte, nextOpcode) +
+          " (" + instruction.getClass().getSimpleName() + "): " + e.getMessage());
+        e.printStackTrace();
+      }
+    }
+  }
+
+  /**
+   * Procesa una instrucción no prefijada
+   */
+  private void processNonPrefixedInstruction(ClassMaker cm, Instruction instruction, Integer opcode,
+                                            Map<Integer, String> opcodeToMethodName,
+                                            Set<String> generatedMethods) {
+    if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
+      try {
+        analyzer.analyze(targetSourceInstruction);
+        String operationName = instruction.getClass().getSimpleName();
+        OpcodeReference target = analyzer.getTarget();
+        String methodName = generateUniquMethodName(targetSourceInstruction, operationName, target);
+
+        if (!generatedMethods.contains(methodName)) {
+          addExecuteMethod(cm, targetSourceInstruction, operationName, target);
+          generatedMethods.add(methodName);
+        }
+        opcodeToMethodName.put(opcode, methodName);
+      } catch (Exception e) {
+        // Omitir si no puede procesar
+      }
+    } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
+      try {
+        String operationName = instruction.getClass().getSimpleName();
+        String methodName = generateUnaryMethodName(unaryInstruction, operationName);
+
+        if (!generatedMethods.contains(methodName)) {
+          addExecuteUnaryMethod(cm, unaryInstruction, operationName);
+          generatedMethods.add(methodName);
+        }
+        opcodeToMethodName.put(opcode, methodName);
+      } catch (Exception e) {
+        // Omitir si no puede procesar
+      }
+    }
   }
 
   /**
@@ -253,7 +266,6 @@ public class BytecodeInliner {
    */
   public Class<?> generateAndLoadMultipleInstructions(String className, Map<Integer, Instruction> instructions) {
     className = className.replace("-", "_");
-
     ClassMaker cm = createBaseClass(className);
 
     MethodMaker constructorMaker = cm.addConstructor();
@@ -261,113 +273,8 @@ public class BytecodeInliner {
     constructorMaker.public_();
     constructorMaker.return_();
 
-    // Guardar los nombres de métodos generados y sus opcodes asociados
-    Map<Integer, String> opcodeToMethodName = new LinkedHashMap<>();
-    
-    // Detectar si hay prefijos (DefaultFetchNextOpcodeInstruction) y sus instrucciones
-    Map<Integer, String> prefixOpcodes = new LinkedHashMap<>();
-    Map<Integer, Map<Integer, String>> prefixedInstructions = new LinkedHashMap<>();
-    
-    // Rastrear métodos ya agregados para evitar duplicados
-    Set<String> generatedMethods = new HashSet<>();
-
-    // Agregar un método execute para cada instrucción
-    for (Map.Entry<Integer, Instruction> entry : instructions.entrySet()) {
-      Integer opcode = entry.getKey();
-      Instruction instruction = entry.getValue();
-
-      // Filtrar instrucciones con registros especiales I y R (LdAI, LdAR) que no se pueden inlinear
-      if (isUnsupportedInstruction(instruction)) {
-        continue;  // Omitir estas instrucciones
-      }
-
-      if (instruction instanceof DefaultFetchNextOpcodeInstruction prefixInstruction) {
-        // Este es un prefijo - lo trataremos especialmente
-        prefixOpcodes.put(opcode, prefixInstruction.getClass().getSimpleName());
-        prefixedInstructions.put(opcode, new LinkedHashMap<>());
-      } else if (isPrefixedOpcode(opcode, instructions)) {
-        // Esta instrucción pertenece a un prefijo (ej: 0xCB00, 0xCB20, etc.)
-        int prefixByte = (opcode >> 8) & 0xFF;
-        int nextOpcode = opcode & 0xFF;
-        
-        if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
-          try {
-            analyzer.analyze(targetSourceInstruction);
-            String operationName = instruction.getClass().getSimpleName();
-            OpcodeReference target = analyzer.getTarget();
-            String methodName = generateUniquMethodName(targetSourceInstruction, operationName, target);
-            
-            // Solo agregar el método si no existe ya
-            if (!generatedMethods.contains(methodName)) {
-              addExecuteMethod(cm, targetSourceInstruction, operationName, target);
-              generatedMethods.add(methodName);
-            }
-            prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
-          } catch (Exception e) {
-            // Omitir si no puede procesar
-          }
-        } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
-          try {
-            String operationName = instruction.getClass().getSimpleName();
-            String methodName = generateUnaryMethodName(unaryInstruction, operationName);
-            
-            // Solo agregar el método si no existe ya
-            if (!generatedMethods.contains(methodName)) {
-              addExecuteUnaryMethod(cm, unaryInstruction, operationName);
-              generatedMethods.add(methodName);
-            }
-            prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
-          } catch (Exception e) {
-            // Omitir si no puede procesar
-          }
-        }
-      } else if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
-        try {
-          analyzer.analyze(targetSourceInstruction);
-          String operationName = instruction.getClass().getSimpleName();
-          OpcodeReference target = analyzer.getTarget();
-          String methodName = generateUniquMethodName(targetSourceInstruction, operationName, target);
-          
-          // Solo agregar el método si no existe ya
-          if (!generatedMethods.contains(methodName)) {
-            addExecuteMethod(cm, targetSourceInstruction, operationName, target);
-            generatedMethods.add(methodName);
-          }
-          opcodeToMethodName.put(opcode, methodName);
-        } catch (Exception e) {
-          // Si no puede procesar la instrucción, omitirla del switch (no generar nada)
-          // La instrucción no se incluirá en opcodeToMethodName
-        }
-      } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
-        try {
-          String operationName = instruction.getClass().getSimpleName();
-          String methodName = generateUnaryMethodName(unaryInstruction, operationName);
-          
-          // Solo agregar el método si no existe ya
-          if (!generatedMethods.contains(methodName)) {
-            addExecuteUnaryMethod(cm, unaryInstruction, operationName);
-            generatedMethods.add(methodName);
-          }
-          opcodeToMethodName.put(opcode, methodName);
-        } catch (Exception e) {
-          // Si no puede procesar la instrucción, omitirla del switch
-        }
-      }
-    }
-
-    // Agregar métodos dispatch para prefijos si existen
-    for (Map.Entry<Integer, Map<Integer, String>> prefixEntry : prefixedInstructions.entrySet()) {
-      Integer prefixOpcode = prefixEntry.getKey();
-      Map<Integer, String> prefixMethods = prefixEntry.getValue();
-      if (!prefixMethods.isEmpty()) {
-        String dispatchMethodName = generatePrefixDispatchMethodName(prefixOpcode);
-        addPrefixDispatchMethod(cm, dispatchMethodName, prefixMethods);
-        opcodeToMethodName.put(prefixOpcode, dispatchMethodName);
-      }
-    }
-
-    // Agregar método switch que dispache por opcode
-    addDispatchMethodWithOpcodes(cm, opcodeToMethodName, prefixOpcodes);
+    InstructionProcessingResult result = processInstructions(cm, instructions);
+    addDispatchMethodWithOpcodes(cm, result.opcodeToMethodName, result.prefixOpcodes);
 
     // Usar finish() para cargar la clase directamente en memoria
     return cm.finish();
@@ -1382,7 +1289,7 @@ public class BytecodeInliner {
     String className = instruction.getClass().getSimpleName();
     
     // Filtrar instrucciones específicas con I y R
-    if (className.equals("LdAI") || className.equals("LdAR")) {
+    if (className.equals("LdAI") || className.equals("LdAR") || className.equals("DAA")) {
       return true;
     }
     
@@ -1413,5 +1320,18 @@ public class BytecodeInliner {
     }
     
     return false;
+  }
+
+  /**
+   * Contenedor para los resultados del procesamiento de instrucciones
+   */
+  private static class InstructionProcessingResult {
+    final Map<Integer, String> opcodeToMethodName;
+    final Map<Integer, String> prefixOpcodes;
+
+    InstructionProcessingResult(Map<Integer, String> opcodeToMethodName, Map<Integer, String> prefixOpcodes) {
+      this.opcodeToMethodName = opcodeToMethodName;
+      this.prefixOpcodes = prefixOpcodes;
+    }
   }
 }
