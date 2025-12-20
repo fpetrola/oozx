@@ -31,6 +31,7 @@ public class BytecodeInliner {
   private final DispatchMethodGenerator dispatchGenerator;
   private final MethodNameGenerator nameGenerator;
   private final RegisterValueResolver registerValueResolver;
+  private final MemoryAccessHandler memoryAccessHandler;
   private byte[] lastGeneratedBytecode;
   public static Map<String, byte[]> generatedBytecodes = new HashMap<>();
 
@@ -40,6 +41,7 @@ public class BytecodeInliner {
     this.dispatchGenerator = new DispatchMethodGenerator();
     this.nameGenerator = new MethodNameGenerator();
     this.registerValueResolver = new RegisterValueResolver();
+    this.memoryAccessHandler = new MemoryAccessHandler();
   }
 
   public String inlineInstruction(TargetSourceInstruction instruction) {
@@ -401,14 +403,7 @@ public class BytecodeInliner {
    */
 
 
-  /**
-   * Lee una dirección de 16 bits desde (pc + delta) en formato little-endian
-   */
-  private Variable readAddress16Bit(MethodMaker mm, Memory16BitReference mem16Ref) {
-    Variable pc = mm.field("PC");
-    Variable read16 = mm.invoke("read16", pc);
-    return read16;
-  }
+
 
   private void generateExecute(Supplier<MethodMaker> mm, TargetSourceInstruction ld, OpcodeReference target) {
     // Excluir operaciones de 16 bits (Add16, Adc16, Sbc16, etc.)
@@ -444,7 +439,7 @@ public class BytecodeInliner {
       String targetRegName = targetReg.getName();
       if (ld instanceof Ld) {
         // LD reg, (mem): copiar de memoria a registro
-        Variable address = resolveSourceMemoryAddress(mm.get(), source);
+        Variable address = memoryAccessHandler.resolveSourceMemoryAddress(mm.get(), source);
         if (address != null) {
           Variable memory = mm.get().field("memory");
           Variable value = mm.get().var(int.class);
@@ -466,9 +461,9 @@ public class BytecodeInliner {
     else {
       if (ld instanceof Ld && source instanceof IndirectMemory8BitReference) {
         // Copiar de memoria a memoria: (target) = (source)
-        Variable sourceAddr = resolveSourceMemoryAddress(mm.get(), source);
+        Variable sourceAddr = memoryAccessHandler.resolveSourceMemoryAddress(mm.get(), source);
         if (sourceAddr != null && target instanceof IndirectMemory8BitReference targetMem) {
-          Variable targetAddr = resolveIndirectMemoryAddress(mm.get(), targetMem);
+          Variable targetAddr = memoryAccessHandler.resolveIndirectMemoryAddress(mm.get(), targetMem);
           if (targetAddr != null) {
             Variable memory = mm.get().field("memory");
             Variable value = mm.get().var(int.class);
@@ -482,24 +477,7 @@ public class BytecodeInliner {
     }
   }
 
-  /**
-   * Resuelve la dirección de memoria desde una referencia
-   */
-  private Variable resolveSourceMemoryAddress(MethodMaker mm, ImmutableOpcodeReference source) {
-    if (source instanceof IndirectMemory8BitReference indMem) {
-      return resolveIndirectMemoryAddress(mm, indMem);
-    } else if (source instanceof IndirectMemory16BitReference indMem16) {
-      return resolveIndirectMemory16BitAddress(mm, indMem16);
-    } else if (source instanceof MemoryPlusRegister8BitReference memRef) {
-      MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
-      return ctx.address;
-    } else if (source instanceof Memory8BitReference memory8BitReference) {
-      return mm.field("PC").add(memory8BitReference.getDelta()).and(0xFFFF);
-    } else if (source instanceof Memory16BitReference memory16BitReference) {
-      return mm.field("PC").add(memory16BitReference.getDelta()).and(0xFFFF);
-    }
-    return null;
-  }
+
 
   /**
    * Ejecuta operaciones ALU cuando el source es memoria: target = target op (memoria)
@@ -509,17 +487,17 @@ public class BytecodeInliner {
     Variable memory = mm.field("memory");
 
     if (source instanceof IndirectMemory8BitReference indMem) {
-      Variable address = resolveIndirectMemoryAddress(mm, indMem);
+      Variable address = memoryAccessHandler.resolveIndirectMemoryAddress(mm, indMem);
       Variable value = mm.var(int.class);
       value.set(memory.invoke("read", address, 0));
       executeAluWithMemoryValue(mm, instruction, targetRegName, value);
     } else if (source instanceof IndirectMemory16BitReference indMem16) {
-      Variable address = resolveIndirectMemory16BitAddress(mm, indMem16);
+      Variable address = memoryAccessHandler.resolveIndirectMemory16BitAddress(mm, indMem16);
       Variable value = mm.var(int.class);
       value.set(memory.invoke("read16Bits", address));
       executeAluWithMemoryValue(mm, instruction, targetRegName, value);
     } else if (source instanceof MemoryPlusRegister8BitReference memRef) {
-      MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
+      MemoryAccessHandler.MemoryPlusRegisterContext ctx = memoryAccessHandler.readOffsetAndCalculateAddress(mm, memRef);
       Variable value = mm.var(int.class);
       value.set(ctx.memory.invoke("read", ctx.address, 0));
       executeAluWithMemoryValue(mm, instruction, targetRegName, value);
@@ -650,14 +628,14 @@ public class BytecodeInliner {
   private void generateAluExecute(Supplier<MethodMaker> mm, TargetSourceInstruction instruction,
                                   OpcodeReference target, String sourceRegName) {
     if (target instanceof MemoryPlusRegister8BitReference memRef) {
-      MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm.get(), memRef);
+      MemoryAccessHandler.MemoryPlusRegisterContext ctx = memoryAccessHandler.readOffsetAndCalculateAddress(mm.get(), memRef);
       executeAluOperation(mm.get(), instruction, ctx.memory, ctx.address, sourceRegName);
     } else if (target instanceof IndirectMemory8BitReference indMem) {
-      Variable address = resolveIndirectMemoryAddress(mm.get(), indMem);
+      Variable address = memoryAccessHandler.resolveIndirectMemoryAddress(mm.get(), indMem);
       Variable memory = mm.get().field("memory");
       executeAluOperation(mm.get(), instruction, memory, address, sourceRegName);
     } else if (target instanceof IndirectMemory16BitReference indMem16) {
-      Variable address = resolveIndirectMemory16BitAddress(mm.get(), indMem16);
+      Variable address = memoryAccessHandler.resolveIndirectMemory16BitAddress(mm.get(), indMem16);
       Variable memory = mm.get().field("memory");
       executeAluOperation16Bit(mm.get(), instruction, memory, address, sourceRegName);
     } else if (target instanceof Register targetReg) {
@@ -671,33 +649,7 @@ public class BytecodeInliner {
     // Si target es null o tipo desconocido, no generar código (es un no-op)
   }
 
-  /**
-   * Resuelve la dirección para IndirectMemory8BitReference
-   */
-  private Variable resolveIndirectMemoryAddress(MethodMaker mm, IndirectMemory8BitReference target) {
-    ImmutableOpcodeReference innerTarget = target.getTarget();
 
-    if (innerTarget instanceof Register reg) {
-      return registerValueResolver.resolveRegisterValue(mm, reg);
-    } else if (innerTarget instanceof Memory16BitReference mem16Ref) {
-      return readAddress16Bit(mm, mem16Ref);
-    }
-    return null;
-  }
-
-  /**
-   * Resuelve la dirección para IndirectMemory16BitReference
-   */
-  private Variable resolveIndirectMemory16BitAddress(MethodMaker mm, IndirectMemory16BitReference target) {
-    ImmutableOpcodeReference innerTarget = target.getTarget();
-
-    if (innerTarget instanceof Register reg) {
-      return registerValueResolver.resolveRegisterValue(mm, reg);
-    } else if (innerTarget instanceof Memory16BitReference mem16Ref) {
-      return readAddress16Bit(mm, mem16Ref);
-    }
-    return null;
-  }
 
   /**
    * Ejecuta una operación ALU: lee valor (de memoria o registro para LD), aplica operación y escribe resultado
@@ -785,40 +737,7 @@ public class BytecodeInliner {
     memory.invoke("write", address, result);
   }
 
-  /**
-   * Lee el byte offset (dd) desde memoria en (pc + valueDelta) y calcula la dirección
-   * destino como (targetReg + dd) & 0xFFFF. Retorna el contexto con memoria y dirección.
-   */
-  private MemoryPlusRegisterContext readOffsetAndCalculateAddress(MethodMaker mm, MemoryPlusRegister8BitReference memRef) {
-    Variable pcPlusDelta = mm.field("PC").add(memRef.getValueDelta()).and(0xFFFF);
-    Variable dd = mm.var(int.class);
-    Variable memory = mm.field("memory");
-    dd.set(memory.invoke("read", pcPlusDelta, 0));
 
-    // 2. Calcular dirección destino: (targetReg + dd) & 0xFFFF
-    // Obtener el nombre del registro de forma genérica (puede ser IX, IY, etc.)
-    ImmutableOpcodeReference target = memRef.getTarget();
-    String registerName = getRegisterName(target);
-    Variable targetReg = mm.field(registerName);
-    Variable regPlusDd = targetReg.add(dd);
-    Variable address = mm.var(int.class);
-    address.set(regPlusDd.and(0xFFFF));
-
-    return new MemoryPlusRegisterContext(memory, address);
-  }
-
-  /**
-   * Contexto para operaciones de MemoryPlusRegister8BitReference
-   */
-  private static class MemoryPlusRegisterContext {
-    final Variable memory;
-    final Variable address;
-
-    MemoryPlusRegisterContext(Variable memory, Variable address) {
-      this.memory = memory;
-      this.address = address;
-    }
-  }
 
 
 
@@ -879,14 +798,14 @@ public class BytecodeInliner {
          String targetRegName = targetReg.getName();
          executeUnaryRegisterOperation(mm, instruction, targetRegName, aluOperationClass);
        } else if (target instanceof IndirectMemory8BitReference indMem) {
-         Variable address = resolveIndirectMemoryAddress(mm, indMem);
+         Variable address = memoryAccessHandler.resolveIndirectMemoryAddress(mm, indMem);
          if (address == null) {
            throw new RuntimeException("No se pudo resolver dirección para IndirectMemory8BitReference en " + instruction.getClass().getSimpleName());
          }
          Variable memory = mm.field("memory");
          executeUnaryMemoryOperation(mm, instruction, memory, address, aluOperationClass);
        } else if (target instanceof MemoryPlusRegister8BitReference memRef) {
-         MemoryPlusRegisterContext ctx = readOffsetAndCalculateAddress(mm, memRef);
+         MemoryAccessHandler.MemoryPlusRegisterContext ctx = memoryAccessHandler.readOffsetAndCalculateAddress(mm, memRef);
          executeUnaryMemoryOperation(mm, instruction, ctx.memory, ctx.address, aluOperationClass);
        } else {
          throw new RuntimeException("Tipo de target no soportado para instrucción unaria: " + target.getClass().getSimpleName() + " en " + instruction.getClass().getSimpleName());
