@@ -818,6 +818,12 @@ public class BytecodeInliner {
    */
   private void executeRegisterToRegisterAluOperation(MethodMaker mm, TargetSourceInstruction instruction,
                                                      String sourceRegName, String targetRegName) {
+    // Verificar si es una operación Binary16BitsOperation
+    if (instruction instanceof com.fpetrola.z80.instructions.impl.Binary16BitsOperation bin16) {
+      executeBinary16BitsOperation(mm, bin16, sourceRegName, targetRegName);
+      return;
+    }
+
     Variable sourceValue = resolveRegisterValueByName(mm, sourceRegName);
     Variable targetValue = resolveRegisterValueByName(mm, targetRegName);
     Variable flag = mm.field(FLAG);
@@ -838,6 +844,51 @@ public class BytecodeInliner {
     assignRegisterValue(mm, targetRegName, result);
 
     // Actualizar el registro F con los flags de la operación ALU
+    Variable flagField = mm.field(FLAG);
+    flagField.set(aluOp.field(FLAG));
+  }
+
+  /**
+   * Ejecuta una operación Binary16BitsOperation llamando directamente a calculateOriginal
+   * sin usar compress/decompress.
+   */
+  private void executeBinary16BitsOperation(MethodMaker mm, com.fpetrola.z80.instructions.impl.Binary16BitsOperation instruction,
+                                            String sourceRegName, String targetRegName) {
+    Variable sourceValue = resolveRegisterValueByName(mm, sourceRegName);
+    Variable targetValue = resolveRegisterValueByName(mm, targetRegName);
+    Variable flag = mm.field(FLAG);
+
+    // Obtener la clase específica de la tabla ALU
+    Class<?> aluOperationClass = getAluOperationClass(instruction);
+    String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
+
+    // Guardar la operación ALU en una variable local con el tipo correcto
+    Variable aluOp = mm.var(aluOperationClass);
+    aluOp.set(mm.field(fieldName));
+
+    // 1. Calcular el resultado directamente según el tipo de instrucción
+    Variable result = mm.var(int.class);
+    if (instruction instanceof com.fpetrola.z80.instructions.impl.Add16) {
+      result.set(targetValue.add(sourceValue));
+    } else if (instruction instanceof com.fpetrola.z80.instructions.impl.Adc16) {
+      result.set(targetValue.add(sourceValue).add(flag.and(0x01)));
+    } else if (instruction instanceof com.fpetrola.z80.instructions.impl.Sbc16) {
+      result.set(targetValue.sub(sourceValue).sub(flag.and(0x01)));
+    } else {
+      throw new UnsupportedOperationException("Operación Binary16BitsOperation no soportada: " + instruction.getClass().getSimpleName());
+    }
+
+    // 2. Calcular resultNotZero: pasamos result & 0xFFFF directamente
+    // El método calculateOriginal interpretará esto como: 0 si es cero, 1 si es no-cero
+    Variable maskedResultValue = result.and(0xFFFF);
+
+    // 3. Llamar a calculateOriginal directamente en el aluOp
+    aluOp.invoke("calculateOriginal", targetValue, sourceValue, result, maskedResultValue);
+
+    // 4. Escribir el resultado de vuelta al registro destino (16 bits)
+    assignRegisterValue(mm, targetRegName, result.and(0xFFFF));
+
+    // 5. Actualizar el registro F con los flags de la operación ALU
     Variable flagField = mm.field(FLAG);
     flagField.set(aluOp.field(FLAG));
   }
