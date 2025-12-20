@@ -7,6 +7,7 @@ import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Xor;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
+import com.fpetrola.z80.opcodes.decoder.OpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.registers.Plain16BitRegister;
 import com.fpetrola.z80.registers.Plain8BitRegister;
@@ -49,16 +50,36 @@ public class BytecodeInlinerTestBase {
   }
 
   /**
-    * Test helper que genera una clase con múltiples instrucciones
-    */
-   protected String testBytecodeMultipleInstructionsOf(String className, Map<Integer, Instruction> instructions) throws IOException {
-     lastInliner = new BytecodeInliner(new InstructionAnalyzer());
-     String generatedClass = lastInliner.inlineMultipleInstructions(className, instructions);
+   * Test helper que genera una clase con múltiples instrucciones desde OpCodeDecoder
+   */
+  protected String testBytecodeMultipleInstructionsOf(String className, OpCodeDecoder decoder) throws IOException {
+    lastInliner = new BytecodeInliner(new InstructionAnalyzer(), decoder);
+    String generatedClass = lastInliner.inlineMultipleInstructions(className);
 
-     Class<?> aClass = lastInliner.generateAndLoadMultipleInstructions(className, instructions);
+    Class<?> aClass = lastInliner.generateAndLoadMultipleInstructions(className);
 
-     return getDecompiledSource(generatedClass);
-   }
+    return getDecompiledSource(generatedClass);
+  }
+
+  /**
+   * Crea un OpCodeDecoder simple a partir de un mapa de instrucciones (solo para opcodes simples sin prefijo)
+   */
+  protected OpCodeDecoder createDecoderFromInstructions(Map<Integer, Instruction> instructions) {
+    return new OpCodeDecoder() {
+      @Override
+      public Instruction[] getOpcodeLookupTable() {
+        Instruction[] table = new Instruction[256];
+        for (Map.Entry<Integer, Instruction> entry : instructions.entrySet()) {
+          int opcode = entry.getKey();
+          if (opcode < 256 && entry.getValue() != null) {
+            table[opcode] = entry.getValue();
+          }
+          // Los opcodes prefijados se ignoran - este método solo soporta opcodes simples
+        }
+        return table;
+      }
+    };
+  }
 
   /**
    * Obtiene el código fuente descompilado de la clase generada usando Decompiler

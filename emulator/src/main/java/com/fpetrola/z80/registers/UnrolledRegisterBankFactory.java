@@ -23,81 +23,18 @@ import com.fpetrola.oozx.inliner.InstructionAnalyzer;
 import com.fpetrola.oozx.Z80UnRolled;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.OOZ80;
-import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
-import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.minizx.emulation.Helper;
-import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.decoder.OpCodeDecoder;
 import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
-
-import java.util.Map;
-import java.util.TreeMap;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.fpetrola.z80.registers.RegisterBank;
 
 public class UnrolledRegisterBankFactory {
 
   private static int i;
 
-  public Z80UnRolled createZ80Unrolled(OpCodeDecoder getOpcodesTables) {
-    Map<Integer, Instruction> instructions = new TreeMap<>();
-    Instruction[] opcodeLookupTable = getOpcodesTables.getOpcodeLookupTable();
-    BytecodeInliner lastInliner = new BytecodeInliner(new InstructionAnalyzer());
-    
-    // Agregar instrucciones principales (sin prefijo)
-    for (int idx = 0; idx < opcodeLookupTable.length; idx++) {
-      Instruction instruction = opcodeLookupTable[idx];
-      if (instruction instanceof TargetSourceInstruction<?> || 
-          instruction instanceof ParameterizedUnaryAluInstruction ||
-          instruction instanceof DefaultFetchNextOpcodeInstruction) {
-        instructions.put(idx, instruction);
-      }
-    }
-    
-    // Agregar instrucciones prefijadas con 0xCB si existe
-    if (opcodeLookupTable[0xCB] instanceof DefaultFetchNextOpcodeInstruction cbInstruction) {
-      Instruction[] cbTable = cbInstruction.getTable();
-      for (int idx = 0; idx < cbTable.length; idx++) {
-        Instruction instruction = cbTable[idx];
-        if (instruction instanceof TargetSourceInstruction<?> || 
-            instruction instanceof ParameterizedUnaryAluInstruction) {
-          // Opcode prefijado: prefijo en byte alto, siguiente byte en byte bajo
-          int prefixedOpcode = (0xCB << 8) | idx;
-          instructions.put(prefixedOpcode, instruction);
-        }
-      }
-    }
-
-    // Get the ED table and count valid instructions
-    DefaultFetchNextOpcodeInstruction edInstruction = (DefaultFetchNextOpcodeInstruction) opcodeLookupTable[0xED];
-    Instruction[] edTable = edInstruction.getTable();
-
-    int validEDInstructions = 0;
-    for (Instruction instr : edTable) {
-      if (instr instanceof TargetSourceInstruction<?> || instr instanceof ParameterizedUnaryAluInstruction) {
-        validEDInstructions++;
-      }
-    }
-
-    assertTrue(validEDInstructions > 0,
-        "ED prefix table should contain at least some TargetSourceInstruction or ParameterizedUnaryAluInstruction");
-
-    // Now test that BytecodeInliner properly handles ED prefix with CB prefix (both prefixes together)
-    instructions.put(0xED, edInstruction);
-
-    // Add some ED-prefixed instructions (selecting unique ones to avoid duplicates)
-    String[] addedEDInstructions = new String[0];
-    for (int idx = 0; idx < edTable.length && addedEDInstructions.length < 5; idx++) {
-      Instruction instruction = edTable[idx];
-      if (instruction instanceof TargetSourceInstruction<?> || instruction instanceof ParameterizedUnaryAluInstruction) {
-        int prefixedOpcode = (0xED << 8) | idx;
-        instructions.put(prefixedOpcode, instruction);
-      }
-    }
-
-    
-    Class<?> instructionsSwitchClass = lastInliner.generateAndLoadMultipleInstructions("InstructionsSwitch" + i++, instructions);
+  public Z80UnRolled createZ80Unrolled(OpCodeDecoder opcodeDecoder) {
+    BytecodeInliner inliner = new BytecodeInliner(new InstructionAnalyzer(), opcodeDecoder);
+    Class<?> instructionsSwitchClass = inliner.generateAndLoadMultipleInstructions("InstructionsSwitch" + i++);
     try {
       return (Z80UnRolled) instructionsSwitchClass.getDeclaredConstructors()[0].newInstance();
     } catch (Exception e) {

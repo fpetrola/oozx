@@ -39,6 +39,8 @@ public class InstructionClassifier {
    * Estas instrucciones usan registros especiales (I, R) que requieren lógica especial
    */
   public boolean isUnsupportedInstruction(Instruction instruction) {
+    if (instruction == null)
+      return false;
     String className = instruction.getClass().getSimpleName();
 
     // Filtrar instrucciones específicas con I y R
