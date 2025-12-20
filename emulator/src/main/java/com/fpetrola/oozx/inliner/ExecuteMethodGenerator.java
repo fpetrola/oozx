@@ -77,8 +77,8 @@ public class ExecuteMethodGenerator {
   /**
    * Genera código de ejecución para instrucciones binarias (LD, XOR, OR, etc.)
    */
-  private void generateExecute(Supplier<MethodMaker> mm, TargetSourceInstruction ld, OpcodeReference target) {
-    ImmutableOpcodeReference source = ld.getSource();
+  private void generateExecute(Supplier<MethodMaker> mm, TargetSourceInstruction targetSourceInstruction, OpcodeReference target) {
+    ImmutableOpcodeReference source = targetSourceInstruction.getSource();
 
     // Caso 1: source es un Register
     if (source instanceof Register sourceReg) {
@@ -86,42 +86,42 @@ public class ExecuteMethodGenerator {
       // Si target es también un Register (register-to-register)
       if (target instanceof Register targetReg) {
         String targetRegName = targetReg.getName();
-        if (ld instanceof Ld) {
+        if (targetSourceInstruction instanceof Ld) {
           Variable sourceValue = registerValueResolver.resolveRegisterValueByName(mm.get(), sourceRegName);
           registerValueResolver.assignRegisterValue(mm.get(), targetRegName, sourceValue);
-        } else if (classifier.isAluOperation(ld)) {
-          binaryOperationHandler.executeRegisterToRegisterAluOperation(mm.get(), ld, sourceRegName, targetRegName);
+        } else if (classifier.isAluOperation(targetSourceInstruction)) {
+          binaryOperationHandler.executeRegisterToRegisterAluOperation(mm.get(), targetSourceInstruction, sourceRegName, targetRegName);
         } else {
-          throw new UnsupportedOperationException("No se soporta operación entre referencias de memoria para " + ld.getClass());
+          throw new UnsupportedOperationException("No se soporta operación entre referencias de memoria para " + targetSourceInstruction.getClass());
         }
         return;
       }
-      generateAluExecute(mm, ld, target, sourceRegName);
+      generateAluExecute(mm, targetSourceInstruction, target, sourceRegName);
     }
     // Caso 2: source es una referencia de memoria pero target es un Register
     else if (target instanceof Register targetReg) {
       String targetRegName = targetReg.getName();
-      if (ld instanceof Ld) {
+      if (targetSourceInstruction instanceof Ld) {
         Variable address = memoryAccessHandler.resolveSourceMemoryAddress(mm.get(), source);
         if (address != null) {
           Variable memory = mm.get().field("memory");
           Variable value = mm.get().var(int.class);
-          if (ld.getSource() instanceof Memory16BitReference) {
+          if (targetSourceInstruction.getSource() instanceof Memory16BitReference) {
             value.set(memory.invoke("read16Bits", address));
-          } else if (ld.getSource() instanceof IndirectMemory16BitReference) {
+          } else if (targetSourceInstruction.getSource() instanceof IndirectMemory16BitReference) {
             value.set(memory.invoke("read16Bits", address));
           } else {
             value.set(memory.invoke("read", address, 0));
           }
           registerValueResolver.assignRegisterValue(mm.get(), targetRegName, value);
         }
-      } else if (classifier.isAluOperation(ld)) {
-        binaryOperationHandler.executeAluOperationFromMemory(mm.get(), ld, source, targetRegName);
+      } else if (classifier.isAluOperation(targetSourceInstruction)) {
+        binaryOperationHandler.executeAluOperationFromMemory(mm.get(), targetSourceInstruction, source, targetRegName);
       }
     }
     // Caso 3: source es memoria y target también es memoria
     else {
-      if (ld instanceof Ld && source instanceof IndirectMemory8BitReference) {
+      if (targetSourceInstruction instanceof Ld && source instanceof IndirectMemory8BitReference) {
         Variable sourceAddr = memoryAccessHandler.resolveSourceMemoryAddress(mm.get(), source);
         if (sourceAddr != null && target instanceof IndirectMemory8BitReference targetMem) {
           Variable targetAddr = memoryAccessHandler.resolveIndirectMemoryAddress(mm.get(), targetMem);
@@ -133,7 +133,7 @@ public class ExecuteMethodGenerator {
           }
         }
       } else {
-        throw new UnsupportedOperationException("No se soporta operación entre referencias de memoria para " + ld.getClass());
+        throw new UnsupportedOperationException("No se soporta operación entre referencias de memoria para " + targetSourceInstruction.getClass());
       }
     }
   }
