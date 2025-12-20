@@ -32,7 +32,7 @@ public class Add16 extends Binary16BitsOperation {
       return calculateOriginal(decompressed[0], decompressed[1], decompressed[3], 0);
     }
 
-    private int calculateOriginal(int value1, int value2, int result, int resultNotZero) {
+    public int calculateOriginal(int value1, int value2, int result, int resultNotZero) {
       int lookup = ((value1 & 0x0800) >> 11) |
                    ((value2 & 0x0800) >> 10) |
                    ((result & 0x0800) >> 9);
