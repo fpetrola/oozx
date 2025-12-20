@@ -1375,11 +1375,43 @@ public class BytecodeInliner {
   }
 
   /**
-   * Verifica si una instrucción no puede ser inlineada (ej: LdAI, LdAR)
+   * Verifica si una instrucción no puede ser inlineada (ej: LdAI, LdAR, LD R/I)
    * Estas instrucciones usan registros especiales (I, R) que requieren lógica especial
    */
   private boolean isUnsupportedInstruction(Instruction instruction) {
     String className = instruction.getClass().getSimpleName();
-    return className.equals("LdAI") || className.equals("LdAR");
+    
+    // Filtrar instrucciones específicas con I y R
+    if (className.equals("LdAI") || className.equals("LdAR")) {
+      return true;
+    }
+    
+    // Filtrar Ld que involucran registros I o R
+    if (instruction instanceof Ld ld) {
+      try {
+        OpcodeReference target = ld.getTarget();
+        ImmutableOpcodeReference source = ld.getSource();
+        
+        // Verificar si target es R o I
+        if (target instanceof Register reg) {
+          String regName = reg.getName();
+          if ("R".equals(regName) || "I".equals(regName)) {
+            return true;
+          }
+        }
+        
+        // Verificar si source es R o I
+        if (source instanceof Register reg) {
+          String regName = reg.getName();
+          if ("R".equals(regName) || "I".equals(regName)) {
+            return true;
+          }
+        }
+      } catch (Exception e) {
+        // Si hay error accediendo a target/source, permitir procesar la instrucción
+      }
+    }
+    
+    return false;
   }
 }
