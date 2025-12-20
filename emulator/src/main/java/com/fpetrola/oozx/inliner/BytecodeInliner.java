@@ -32,6 +32,7 @@ public class BytecodeInliner {
   private final MethodNameGenerator nameGenerator;
   private final RegisterValueResolver registerValueResolver;
   private final MemoryAccessHandler memoryAccessHandler;
+  private final AluOperationHandler aluOperationHandler;
   private byte[] lastGeneratedBytecode;
   public static Map<String, byte[]> generatedBytecodes = new HashMap<>();
 
@@ -42,6 +43,7 @@ public class BytecodeInliner {
     this.nameGenerator = new MethodNameGenerator();
     this.registerValueResolver = new RegisterValueResolver();
     this.memoryAccessHandler = new MemoryAccessHandler();
+    this.aluOperationHandler = new AluOperationHandler(registerValueResolver);
   }
 
   public String inlineInstruction(TargetSourceInstruction instruction) {
@@ -273,34 +275,10 @@ public class BytecodeInliner {
       }
 
       // Add ALU operation field with the correct type
-      String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
-      Class<?> aluOperationClass = getAluOperationClass(instruction);
+      String fieldName = aluOperationHandler.getAluOperationFieldName(instruction.getClass().getSimpleName());
+      Class<?> aluOperationClass = aluOperationHandler.getAluOperationClass(instruction);
       cm.addField(aluOperationClass, fieldName).private_();
     }
-  }
-
-  private Class<?> getAluOperationClass(TargetSourceInstruction instruction) {
-    try {
-      Class<?> instructionClass = instruction.getClass();
-      String instructionName = instructionClass.getSimpleName();
-      
-      // Mapeo de nombres especiales
-      String innerClassName = switch(instructionName) {
-        case "RRC" -> "RRCAluOperation";
-        case "SRA" -> "SRAAluOperation";
-        default -> instructionName + "TableAluOperation";
-      };
-
-      // Buscar el inner class declarado
-      for (Class<?> innerClass : instructionClass.getDeclaredClasses()) {
-        if (innerClass.getSimpleName().equals(innerClassName)) {
-          return innerClass;
-        }
-      }
-    } catch (Exception e) {
-      // Ignorar
-    }
-    return Object.class;
   }
 
   /**
@@ -522,8 +500,8 @@ public class BytecodeInliner {
     Variable targetValue = registerValueResolver.resolveRegisterValueByName(mm, targetRegName);
 
     if (classifier.isAluOperation(instruction)) {
-      Class<?> aluOperationClass = getAluOperationClass(instruction);
-      String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
+      Class<?> aluOperationClass = aluOperationHandler.getAluOperationClass(instruction);
+      String fieldName = aluOperationHandler.getAluOperationFieldName(instruction.getClass().getSimpleName());
 
       Variable aluOp = mm.var(aluOperationClass);
       aluOp.set(mm.field(fieldName));
@@ -557,8 +535,8 @@ public class BytecodeInliner {
     Variable flag = mm.field(FLAG);
 
     // Obtener la clase específica de la tabla ALU
-    Class<?> aluOperationClass = getAluOperationClass(instruction);
-    String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
+    Class<?> aluOperationClass = aluOperationHandler.getAluOperationClass(instruction);
+    String fieldName = aluOperationHandler.getAluOperationFieldName(instruction.getClass().getSimpleName());
 
     // Guardar la operación ALU en una variable local con el tipo correcto
     Variable aluOp = mm.var(aluOperationClass);
@@ -587,8 +565,8 @@ public class BytecodeInliner {
     Variable flag = mm.field(FLAG);
 
     // Obtener la clase específica de la tabla ALU
-    Class<?> aluOperationClass = getAluOperationClass(instruction);
-    String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
+    Class<?> aluOperationClass = aluOperationHandler.getAluOperationClass(instruction);
+    String fieldName = aluOperationHandler.getAluOperationFieldName(instruction.getClass().getSimpleName());
 
     // Guardar la operación ALU en una variable local con el tipo correcto
     Variable aluOp = mm.var(aluOperationClass);
@@ -629,15 +607,15 @@ public class BytecodeInliner {
                                   OpcodeReference target, String sourceRegName) {
     if (target instanceof MemoryPlusRegister8BitReference memRef) {
       MemoryAccessHandler.MemoryPlusRegisterContext ctx = memoryAccessHandler.readOffsetAndCalculateAddress(mm.get(), memRef);
-      executeAluOperation(mm.get(), instruction, ctx.memory, ctx.address, sourceRegName);
+      aluOperationHandler.executeAluOperation(mm.get(), instruction, ctx.memory, ctx.address, sourceRegName);
     } else if (target instanceof IndirectMemory8BitReference indMem) {
       Variable address = memoryAccessHandler.resolveIndirectMemoryAddress(mm.get(), indMem);
       Variable memory = mm.get().field("memory");
-      executeAluOperation(mm.get(), instruction, memory, address, sourceRegName);
+      aluOperationHandler.executeAluOperation(mm.get(), instruction, memory, address, sourceRegName);
     } else if (target instanceof IndirectMemory16BitReference indMem16) {
       Variable address = memoryAccessHandler.resolveIndirectMemory16BitAddress(mm.get(), indMem16);
       Variable memory = mm.get().field("memory");
-      executeAluOperation16Bit(mm.get(), instruction, memory, address, sourceRegName);
+      aluOperationHandler.executeAluOperation16Bit(mm.get(), instruction, memory, address, sourceRegName);
     } else if (target instanceof Register targetReg) {
       // Fallback: si target es un Register (por ejemplo ADD A con target=A)
       String targetRegName = targetReg.getName();
@@ -651,107 +629,11 @@ public class BytecodeInliner {
 
 
 
-  /**
-   * Ejecuta una operación ALU: lee valor (de memoria o registro para LD), aplica operación y escribe resultado
-   */
-  private void executeAluOperation(MethodMaker mm, TargetSourceInstruction instruction,
-                                   Variable memory, Variable address, String sourceRegName) {
-    Variable source = registerValueResolver.resolveRegisterValueByName(mm, sourceRegName);
-
-    // Para LD, escribir directamente sin variable intermedia
-    if (instruction instanceof Ld) {
-      memory.invoke("write", address, source);
-      return;
-    }
-
-    // Si la instrucción tiene una operación ALU, usarla
-    if (classifier.isAluOperation(instruction)) {
-      executeWithAluOperation(mm, instruction, memory, address, sourceRegName);
-      return;
-    }
-
-    // Para XOR/OR: leer, aplicar operación y escribir
-    Variable value = mm.var(int.class);
-    value.set(memory.invoke("read", address, 0));
-    Variable result = mm.var(int.class);
-
-    if (instruction instanceof Xor) {
-      result.set(source.xor(value));
-    } else if (instruction instanceof Or) {
-      result.set(source.or(value));
-    }
-
-    // Escribir el resultado
-    memory.invoke("write", address, result);
-  }
-
-  /**
-   * Ejecuta una operación ALU para valores de 16 bits: lee valor (de memoria), aplica operación y escribe resultado
-   */
-  private void executeAluOperation16Bit(MethodMaker mm, TargetSourceInstruction instruction,
-                                        Variable memory, Variable address, String sourceRegName) {
-    Variable source = registerValueResolver.resolveRegisterValueByName(mm, sourceRegName);
-
-    // Leer valor de 16 bits desde la dirección
-//    Variable value = mm.var(int.class);
-//    value.set(memory.invoke("read16Bits", address));
-
-    Variable value= address;
-
-    // Para LD, escribir directamente el valor leído
-    if (instruction instanceof Ld) {
-      memory.invoke("write16BitsReverse", source, value);
-      return;
-    }
-
-    // Para XOR/OR: aplicar operación y escribir
-    Variable result = mm.var(int.class);
-
-    if (instruction instanceof Xor) {
-      result.set(source.xor(value));
-    } else if (instruction instanceof Or) {
-      result.set(source.or(value));
-    }
-
-    // Escribir el resultado (16 bits)
-    memory.invoke("write16BitsReverse", result, address);
-  }
-
-  private void executeWithAluOperation(MethodMaker mm, TargetSourceInstruction instruction,
-                                       Variable memory, Variable address, String sourceRegName) {
-    // Leer valor de memoria
-    Variable value = mm.var(int.class);
-    value.set(memory.invoke("read", address, 0));
-    Variable source = registerValueResolver.resolveRegisterValueByName(mm, sourceRegName);
-
-    // Obtener la operación ALU
-    String fieldName = getAluOperationFieldName(instruction.getClass().getSimpleName());
-    Variable aluOp = mm.field(fieldName);
-
-    // Ejecutar la operación ALU: execute2ValuesAndCarry(value, source, flag)
-    Variable result = mm.var(int.class);
-    Variable flag = mm.field(FLAG);
-    result.set(aluOp.invoke("execute2ValuesAndCarry", value, source, flag));
-
-    // Escribir el resultado
-    memory.invoke("write", address, result);
-  }
 
 
 
 
 
-  private String getAluOperationFieldName(String instructionClassName) {
-    // Mapeo especial para instrucciones que tienen names diferentes
-    return switch(instructionClassName) {
-      case "Inc" -> "inc8TableAluOperation";
-      case "Dec" -> "dec8TableAluOperation";
-      case "RRC" -> "rRCAluOperation";
-      case "SRA" -> "sRAAluOperation";
-      case "SLL" -> "sLLAluOperation";
-      default -> instructionClassName.toLowerCase() + "TableAluOperation";
-    };
-  }
 
   private String getClassName(TargetSourceInstruction instruction, String operationName) {
     // Generar nombre sin sufijo (o agregar sufijo si necesitas múltiples variantes)
@@ -842,7 +724,7 @@ public class BytecodeInliner {
   private void executeUnaryRegisterOperation(MethodMaker mm, ParameterizedUnaryAluInstruction instruction,
                                              String targetRegName, Class<?> aluOperationClass) {
     Variable value = registerValueResolver.resolveRegisterValueByName(mm, targetRegName);
-    Variable result = executeUnaryAluOperation(mm, instruction, value);
+    Variable result = aluOperationHandler.executeUnaryAluOperation(mm, instruction, value);
     registerValueResolver.assignRegisterValue(mm, targetRegName, result);
   }
 
@@ -853,31 +735,8 @@ public class BytecodeInliner {
                                           Variable memory, Variable address, Class<?> aluOperationClass) {
     Variable value = mm.var(int.class);
     value.set(memory.invoke("read", address, 0));
-    Variable result = executeUnaryAluOperation(mm, instruction, value);
+    Variable result = aluOperationHandler.executeUnaryAluOperation(mm, instruction, value);
     memory.invoke("write", address, result);
-  }
-
-  /**
-   * Ejecuta la operación ALU unaria y actualiza los flags
-   * Retorna el resultado y actualiza el campo de flags
-   */
-  private Variable executeUnaryAluOperation(MethodMaker mm, ParameterizedUnaryAluInstruction instruction,
-                                           Variable value) {
-    String operationName = instruction.getClass().getSimpleName();
-    String fieldName = getAluOperationFieldName(operationName);
-    
-    Variable aluOp = mm.field(fieldName);
-    Variable flag = mm.field(FLAG);
-    
-    // Ejecutar: result = aluOperation.execute2ValuesAndCarry(value, 0, flag)
-    Variable result = mm.var(int.class);
-    result.set(aluOp.invoke("execute2ValuesAndCarry", value, 0, flag));
-    
-    // Actualizar flags
-    Variable flagField = mm.field(FLAG);
-    flagField.set(aluOp.field(FLAG));
-    
-    return result;
   }
 
   /**
