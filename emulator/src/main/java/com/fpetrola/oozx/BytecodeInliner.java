@@ -61,6 +61,11 @@ public class BytecodeInliner {
       Integer opcode = entry.getKey();
       Instruction instruction = entry.getValue();
 
+      // Filtrar instrucciones con registros especiales I y R (LdAI, LdAR) que no se pueden inlinear
+      if (isUnsupportedInstruction(instruction)) {
+        continue;  // Omitir estas instrucciones
+      }
+
       if (instruction instanceof DefaultFetchNextOpcodeInstruction prefixInstruction) {
         // Este es un prefijo - lo trataremos especialmente
         prefixOpcodes.put(opcode, prefixInstruction.getClass().getSimpleName());
@@ -270,6 +275,11 @@ public class BytecodeInliner {
     for (Map.Entry<Integer, Instruction> entry : instructions.entrySet()) {
       Integer opcode = entry.getKey();
       Instruction instruction = entry.getValue();
+
+      // Filtrar instrucciones con registros especiales I y R (LdAI, LdAR) que no se pueden inlinear
+      if (isUnsupportedInstruction(instruction)) {
+        continue;  // Omitir estas instrucciones
+      }
 
       if (instruction instanceof DefaultFetchNextOpcodeInstruction prefixInstruction) {
         // Este es un prefijo - lo trataremos especialmente
@@ -1363,4 +1373,13 @@ public class BytecodeInliner {
       default -> Object.class;
     };
   }
+
+  /**
+   * Verifica si una instrucción no puede ser inlineada (ej: LdAI, LdAR)
+   * Estas instrucciones usan registros especiales (I, R) que requieren lógica especial
+   */
+  private boolean isUnsupportedInstruction(Instruction instruction) {
+    String className = instruction.getClass().getSimpleName();
+    return className.equals("LdAI") || className.equals("LdAR");
   }
+}
