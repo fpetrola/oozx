@@ -32,15 +32,15 @@ public class Adc16 extends Binary16BitsOperation {
       return calculateOriginal(decompressed[0], decompressed[1], decompressed[3], decompressed[4]);
     }
 
-    private int calculateOriginal(int value1, int value2, int add16temp, int value1NotZero) {
+    private int calculateOriginal(int value1, int value2, int result, int resultNotZero) {
       int lookup = ((value1 & 0x8800) >> 11) |
                    ((value2 & 0x8800) >> 10) |
-                   ((add16temp & 0x8800) >> 9);
-      F = ((add16temp & 0x10000) != 0 ? FLAG_C : 0) |
+                   ((result & 0x8800) >> 9);
+      F = ((result & 0x10000) != 0 ? FLAG_C : 0) |
           overflowAddTable(lookup >> 4) |
-          (add16temp >> 8 & (FLAG_3 | FLAG_5 | FLAG_S)) |
+          (result >> 8 & (FLAG_3 | FLAG_5 | FLAG_S)) |
           halfCarryAddTable(lookup & 0x07) |
-          (value1NotZero != 0 ? 0 : FLAG_Z);
+          (resultNotZero != 0 ? 0 : FLAG_Z);
       Q = F;
 
       return F;

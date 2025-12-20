@@ -29,16 +29,16 @@ public class Add16 extends Binary16BitsOperation {
     protected int calculate2Values1Boolean(int value1, int value2, int empty) {
       int[] decompressed = decompress(value1, value2);
       F = decompressed[2];
-      return calculateOriginal(decompressed[0], decompressed[1], decompressed[3]);
+      return calculateOriginal(decompressed[0], decompressed[1], decompressed[3], 0);
     }
 
-    private int calculateOriginal(int value1, int value2, int add16temp) {
+    private int calculateOriginal(int value1, int value2, int result, int resultNotZero) {
       int lookup = ((value1 & 0x0800) >> 11) |
                    ((value2 & 0x0800) >> 10) |
-                   ((add16temp & 0x0800) >> 9);
+                   ((result & 0x0800) >> 9);
       F = (F & (FLAG_V | FLAG_Z | FLAG_S)) |
-          ((add16temp & 0x10000) != 0 ? FLAG_C : 0) |
-          ((add16temp >> 8) & (FLAG_3 | FLAG_5)) |
+          ((result & 0x10000) != 0 ? FLAG_C : 0) |
+          ((result >> 8) & (FLAG_3 | FLAG_5)) |
           halfCarryAddTable(lookup);
       Q = F;
       return F;
