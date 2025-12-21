@@ -52,21 +52,6 @@ public class ClassGenerationHandler {
                                                       InstructionProcessorHandler processorHandler,
                                                       DispatchMethodGenerator dispatchGenerator,
                                                       Map<Integer, Instruction> instructions) {
-    return generateAndLoadMultipleInstructions(className, methodGenerator, processorHandler, 
-                                               dispatchGenerator, instructions, new HashSet<>());
-  }
-
-  /**
-    * Genera una clase con múltiples instrucciones y la carga en memoria
-    * usando un conjunto compartido de métodos generados para evitar duplicados
-    * Retorna el Class<?> directamente usable usando finish()
-    */
-  public Class<?> generateAndLoadMultipleInstructions(String className, 
-                                                      InstructionProcessorHandler.IInstructionMethodGenerator methodGenerator,
-                                                      InstructionProcessorHandler processorHandler,
-                                                      DispatchMethodGenerator dispatchGenerator,
-                                                      Map<Integer, Instruction> instructions,
-                                                      Set<String> generatedMethods) {
     className = className.replace("-", "_");
     ClassMaker cm = createBaseClass(className);
 
@@ -76,9 +61,9 @@ public class ClassGenerationHandler {
     constructorMaker.public_();
     constructorMaker.return_();
 
-    // Procesar instrucciones con el conjunto compartido de métodos generados
+    // Procesar instrucciones
     BytecodeInliner.InstructionProcessingResult result = processorHandler.processInstructions(cm, instructions, 
-                                                                                                methodGenerator, generatedMethods);
+                                                                                                methodGenerator);
     dispatchGenerator.addDispatchMethodWithOpcodes(cm, result.opcodeToMethodName, result.prefixOpcodes);
 
     // Usar finish() para cargar la clase directamente en memoria

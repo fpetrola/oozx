@@ -38,16 +38,8 @@ public class InstructionProcessorHandler {
   public BytecodeInliner.InstructionProcessingResult processInstructions(
       ClassMaker cm, Map<Integer, Instruction> instructions,
       IInstructionMethodGenerator methodGenerator) {
-    return processInstructions(cm, instructions, methodGenerator, new HashSet<>());
-  }
-
-  /**
-    * Procesa todas las instrucciones y genera los métodos correspondientes
-    * usando un conjunto compartido de métodos generados para evitar duplicados
-    */
-  public BytecodeInliner.InstructionProcessingResult processInstructions(
-      ClassMaker cm, Map<Integer, Instruction> instructions,
-      IInstructionMethodGenerator methodGenerator, Set<String> generatedMethods) {
+    
+    Set<String> generatedMethods = methodGenerator.getByteocdeInliner().getGeneratedMethods();
     
     Map<Integer, String> opcodeToMethodName = new LinkedHashMap<>();
     Map<Integer, String> prefixOpcodes = new LinkedHashMap<>();
@@ -312,19 +304,21 @@ public class InstructionProcessorHandler {
    }
 
   /**
-    * Interfaz para abstracción de generación de métodos
-    */
-  public interface IInstructionMethodGenerator {
-    void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, 
-                         String operationName, OpcodeReference target, Set<String> generatedMethods);
-    
-    void addExecuteUnaryMethod(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, 
-                              String operationName, Set<String> generatedMethods);
-    
-    boolean addExecuteGenericMethod(ClassMaker cm, Instruction instruction, 
-                                   String operationName, Set<String> generatedMethods);
-    
-    void addPrefixDispatchMethod(ClassMaker cm, String dispatchMethodName, 
-                                Map<Integer, String> prefixMethods);
-  }
+     * Interfaz para abstracción de generación de métodos
+     */
+   public interface IInstructionMethodGenerator {
+     void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, 
+                          String operationName, OpcodeReference target, Set<String> generatedMethods);
+     
+     void addExecuteUnaryMethod(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, 
+                               String operationName, Set<String> generatedMethods);
+     
+     boolean addExecuteGenericMethod(ClassMaker cm, Instruction instruction, 
+                                    String operationName, Set<String> generatedMethods);
+     
+     void addPrefixDispatchMethod(ClassMaker cm, String dispatchMethodName, 
+                                 Map<Integer, String> prefixMethods);
+     
+     BytecodeInliner getByteocdeInliner();
+   }
 }

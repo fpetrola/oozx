@@ -34,6 +34,7 @@ public class BytecodeInliner {
   private final FieldManagementHandler fieldManagementHandler;
   private final OpCodeDecoder opcodeDecoder;
   public static Map<String, byte[]> generatedBytecodes = new HashMap<>();
+  private Set<String> generatedMethods;
 
   public BytecodeInliner(InstructionAnalyzer analyzer, OpCodeDecoder opcodeDecoder) {
     this.analyzer = analyzer;
@@ -49,6 +50,7 @@ public class BytecodeInliner {
                                                             memoryAccessHandler, aluOperationHandler, nameGenerator);
     this.classGenerationHandler = new ClassGenerationHandler(generatedBytecodes);
     this.fieldManagementHandler = new FieldManagementHandler(analyzer, classifier, aluOperationHandler);
+    this.generatedMethods = new HashSet<>();
   }
 
   /**
@@ -88,13 +90,9 @@ public class BytecodeInliner {
   private String inlineMultipleInstructionsInternal(String className, Map<Integer, Instruction> instructions) {
     className = className.replace("-", "_");
     ClassMaker cm = classGenerationHandler.createBaseClass(className);
-    
-    // Cada procesamiento obtiene su propio conjunto de métodos para evitar duplicados
-    // dentro del MISMO procesamiento
-    Set<String> generatedMethods = new HashSet<>();
-    
+
     InstructionProcessingResult result = processorHandler.processInstructions(cm, instructions, 
-                                                                             createMethodGenerator(), generatedMethods);
+                                                                              createMethodGenerator());
     dispatchGenerator.addDispatchMethodWithOpcodes(cm, result.opcodeToMethodName, result.prefixOpcodes);
     
     return classGenerationHandler.finializeClass(className, cm);
@@ -128,6 +126,11 @@ public class BytecodeInliner {
                                           Map<Integer, String> prefixMethods) {
         dispatchGenerator.addPrefixDispatchMethod(cm, dispatchMethodName, prefixMethods);
       }
+
+      @Override
+      public BytecodeInliner getByteocdeInliner() {
+        return BytecodeInliner.this;
+      }
     };
   }
 
@@ -138,6 +141,13 @@ public class BytecodeInliner {
    */
   public byte[] getLastGeneratedBytecode() {
     return classGenerationHandler.getLastGeneratedBytecode();
+  }
+
+  /**
+   * Retorna el conjunto de métodos generados en la clase actual
+   */
+  public Set<String> getGeneratedMethods() {
+    return generatedMethods;
   }
 
   /**
@@ -157,12 +167,8 @@ public class BytecodeInliner {
     * Retorna el Class<?> directamente usable usando finish()
     */
   private Class<?> generateAndLoadMultipleInstructionsInternal(String className, Map<Integer, Instruction> instructions) {
-    // Cada procesamiento obtiene su propio conjunto de métodos para evitar duplicados
-    // dentro del MISMO procesamiento
-    Set<String> generatedMethods = new HashSet<>();
-    
-    return classGenerationHandler.generateAndLoadMultipleInstructions(className, createMethodGenerator(), 
-                                                                      processorHandler, dispatchGenerator, instructions, generatedMethods);
+    return classGenerationHandler.generateAndLoadMultipleInstructions(className, createMethodGenerator(),
+                                                                      processorHandler, dispatchGenerator, instructions);
   }
 
   private String generateInlinedClass(TargetSourceInstruction instruction, String operationName) {
