@@ -34,7 +34,7 @@ public class BytecodeInliner {
   private final FieldManagementHandler fieldManagementHandler;
   private final OpCodeDecoder opcodeDecoder;
   public static Map<String, byte[]> generatedBytecodes = new HashMap<>();
-  private Set<String> generatedMethods;
+  private Set<String> currentClassGeneratedMethods;
 
   public BytecodeInliner(InstructionAnalyzer analyzer, OpCodeDecoder opcodeDecoder) {
     this.analyzer = analyzer;
@@ -50,7 +50,7 @@ public class BytecodeInliner {
                                                             memoryAccessHandler, aluOperationHandler, nameGenerator);
     this.classGenerationHandler = new ClassGenerationHandler(generatedBytecodes);
     this.fieldManagementHandler = new FieldManagementHandler(analyzer, classifier, aluOperationHandler);
-    this.generatedMethods = new HashSet<>();
+    this.currentClassGeneratedMethods = new HashSet<>();
   }
 
   /**
@@ -90,6 +90,7 @@ public class BytecodeInliner {
   private String inlineMultipleInstructionsInternal(String className, Map<Integer, Instruction> instructions) {
     className = className.replace("-", "_");
     ClassMaker cm = classGenerationHandler.createBaseClass(className);
+    currentClassGeneratedMethods.clear();
 
     InstructionProcessingResult result = processorHandler.processInstructions(cm, instructions, 
                                                                               createMethodGenerator());
@@ -105,20 +106,20 @@ public class BytecodeInliner {
     return new InstructionProcessorHandler.IInstructionMethodGenerator() {
       @Override
       public void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, 
-                                   String operationName, OpcodeReference target, Set<String> generatedMethods) {
-        executeMethodGenerator.addExecuteMethod(cm, instruction, operationName, target, generatedMethods);
+                                   String operationName, OpcodeReference target) {
+        executeMethodGenerator.addExecuteMethod(cm, instruction, operationName, target, currentClassGeneratedMethods);
       }
 
       @Override
       public void addExecuteUnaryMethod(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, 
-                                        String operationName, Set<String> generatedMethods) {
-        executeMethodGenerator.addExecuteUnaryMethod(cm, instruction, operationName, generatedMethods);
+                                        String operationName) {
+        executeMethodGenerator.addExecuteUnaryMethod(cm, instruction, operationName, currentClassGeneratedMethods);
       }
 
       @Override
       public boolean addExecuteGenericMethod(ClassMaker cm, Instruction instruction, 
-                                            String operationName, Set<String> generatedMethods) {
-        return executeMethodGenerator.addExecuteGenericMethod(cm, instruction, operationName, generatedMethods);
+                                            String operationName) {
+        return executeMethodGenerator.addExecuteGenericMethod(cm, instruction, operationName, currentClassGeneratedMethods);
       }
 
       @Override
@@ -147,7 +148,7 @@ public class BytecodeInliner {
    * Retorna el conjunto de métodos generados en la clase actual
    */
   public Set<String> getGeneratedMethods() {
-    return generatedMethods;
+    return currentClassGeneratedMethods;
   }
 
   /**
@@ -167,6 +168,7 @@ public class BytecodeInliner {
     * Retorna el Class<?> directamente usable usando finish()
     */
   private Class<?> generateAndLoadMultipleInstructionsInternal(String className, Map<Integer, Instruction> instructions) {
+    currentClassGeneratedMethods.clear();
     return classGenerationHandler.generateAndLoadMultipleInstructions(className, createMethodGenerator(),
                                                                       processorHandler, dispatchGenerator, instructions);
   }

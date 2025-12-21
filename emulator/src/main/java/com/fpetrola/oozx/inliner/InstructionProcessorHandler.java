@@ -58,10 +58,10 @@ public class InstructionProcessorHandler {
         prefixedInstructions.put(opcode, new LinkedHashMap<>());
       } else if (classifier.isPrefixedOpcode(opcode, instructions)) {
         processPrefixedInstruction(cm, instruction, opcode, instructions, prefixedInstructions, 
-                                  generatedMethods, methodGenerator);
+                                  methodGenerator);
       } else {
         processNonPrefixedInstruction(cm, instruction, opcode, opcodeToMethodName, 
-                                     generatedMethods, methodGenerator);
+                                     methodGenerator);
       }
     }
 
@@ -80,33 +80,33 @@ public class InstructionProcessorHandler {
   }
 
   /**
-   * Procesa una instrucción prefijada (ej: instrucciones CB, DD, FD)
-   */
-  private void processPrefixedInstruction(
-      ClassMaker cm, Instruction instruction, Integer opcode,
-      Map<Integer, Instruction> instructions,
-      Map<Integer, Map<Integer, String>> prefixedInstructions,
-      Set<String> generatedMethods,
-      IInstructionMethodGenerator methodGenerator) {
+    * Procesa una instrucción prefijada (ej: instrucciones CB, DD, FD)
+    */
+   private void processPrefixedInstruction(
+       ClassMaker cm, Instruction instruction, Integer opcode,
+       Map<Integer, Instruction> instructions,
+       Map<Integer, Map<Integer, String>> prefixedInstructions,
+       IInstructionMethodGenerator methodGenerator) {
+     Set<String> generatedMethods = methodGenerator.getByteocdeInliner().getGeneratedMethods();
     
     int prefixByte = (opcode >> 8) & 0xFF;
     int nextOpcode = opcode & 0xFF;
 
     if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
-      String methodName = processTargetSourceInstruction(cm, targetSourceInstruction, generatedMethods, 
-                                                        methodGenerator);
+      String methodName = processTargetSourceInstruction(cm, targetSourceInstruction, 
+                                                         methodGenerator);
       if (methodName != null) {
         prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
       }
     } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
-      String methodName = processUnaryInstructionPrefixed(cm, unaryInstruction, generatedMethods, 
+      String methodName = processUnaryInstructionPrefixed(cm, unaryInstruction, 
                                                          prefixByte, nextOpcode, methodGenerator);
       if (methodName != null) {
         prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
       }
     } else {
       // Intentar procesar como instrucción del registry (Push, Pop, etc.)
-      String methodName = processRegistryInstruction(cm, instruction, generatedMethods, methodGenerator);
+      String methodName = processRegistryInstruction(cm, instruction, methodGenerator);
       if (methodName != null) {
         prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
       }
@@ -118,11 +118,11 @@ public class InstructionProcessorHandler {
    */
   private String processUnaryInstructionPrefixed(
       ClassMaker cm, ParameterizedUnaryAluInstruction instruction,
-      Set<String> generatedMethods, int prefixByte, int nextOpcode,
+      int prefixByte, int nextOpcode,
       IInstructionMethodGenerator methodGenerator) {
     
     try {
-      return processUnaryInstruction(cm, instruction, generatedMethods, methodGenerator);
+      return processUnaryInstruction(cm, instruction, methodGenerator);
     } catch (Exception e) {
       System.err.println("Warning: No se pudo procesar instrucción unaria prefijada 0x" +
         String.format("%02X%02X", prefixByte, nextOpcode) +
@@ -135,11 +135,11 @@ public class InstructionProcessorHandler {
   /**
     * Procesa una instrucción no prefijada
     */
-  private void processNonPrefixedInstruction(
-     ClassMaker cm, Instruction instruction, Integer opcode,
-     Map<Integer, String> opcodeToMethodName,
-     Set<String> generatedMethods,
-     IInstructionMethodGenerator methodGenerator) {
+   private void processNonPrefixedInstruction(
+      ClassMaker cm, Instruction instruction, Integer opcode,
+      Map<Integer, String> opcodeToMethodName,
+      IInstructionMethodGenerator methodGenerator) {
+     Set<String> generatedMethods = methodGenerator.getByteocdeInliner().getGeneratedMethods();
    
    if (instruction == null) {
      // Ignorar instrucciones nulas
@@ -147,20 +147,20 @@ public class InstructionProcessorHandler {
    }
    
    if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
-     String methodName = processTargetSourceInstruction(cm, targetSourceInstruction, generatedMethods, 
+     String methodName = processTargetSourceInstruction(cm, targetSourceInstruction, 
                                                        methodGenerator);
      if (methodName != null) {
        opcodeToMethodName.put(opcode, methodName);
      }
    } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
-     String methodName = processUnaryInstruction(cm, unaryInstruction, generatedMethods, 
+     String methodName = processUnaryInstruction(cm, unaryInstruction, 
                                                 methodGenerator);
      if (methodName != null) {
        opcodeToMethodName.put(opcode, methodName);
      }
    } else {
      // Intentar procesar con handlers registrados (Push, Dec16, Inc16, etc.)
-     String methodName = processRegistryInstruction(cm, instruction, generatedMethods, methodGenerator);
+     String methodName = processRegistryInstruction(cm, instruction, methodGenerator);
      if (methodName != null) {
        opcodeToMethodName.put(opcode, methodName);
      }
@@ -172,7 +172,6 @@ public class InstructionProcessorHandler {
     */
    private String processTargetSourceInstruction(
        ClassMaker cm, TargetSourceInstruction<?> instruction,
-       Set<String> generatedMethods,
        IInstructionMethodGenerator methodGenerator) {
      
      try {
@@ -182,7 +181,7 @@ public class InstructionProcessorHandler {
        String methodName = nameGenerator.generateUniquMethodName(instruction, operationName, target);
 
        try {
-         methodGenerator.addExecuteMethod(cm, instruction, operationName, target, generatedMethods);
+         methodGenerator.addExecuteMethod(cm, instruction, operationName, target);
        } catch (ClassFormatError e) {
          // Si el método ya existe (puede ocurrir con instrucciones duplicadas en diferentes prefijos),
          // simplemente reutilizamos el nombre que ya existe sin intentar volver a agregarlo
@@ -205,7 +204,6 @@ public class InstructionProcessorHandler {
     */
    private String processUnaryInstruction(
        ClassMaker cm, ParameterizedUnaryAluInstruction instruction,
-       Set<String> generatedMethods,
        IInstructionMethodGenerator methodGenerator) {
      
      try {
@@ -213,7 +211,7 @@ public class InstructionProcessorHandler {
        String methodName = nameGenerator.generateUnaryMethodName(instruction, operationName);
 
        try {
-         methodGenerator.addExecuteUnaryMethod(cm, instruction, operationName, generatedMethods);
+         methodGenerator.addExecuteUnaryMethod(cm, instruction, operationName);
          return methodName;
        } catch (ClassFormatError e) {
          // Si el método ya existe (puede ocurrir con instrucciones duplicadas en diferentes prefijos),
@@ -236,7 +234,6 @@ public class InstructionProcessorHandler {
     */
    private String processRegistryInstruction(
        ClassMaker cm, Instruction instruction,
-       Set<String> generatedMethods,
        IInstructionMethodGenerator methodGenerator) {
      
      // Si no hay handler registrado para esta instrucción, no la procesamos
@@ -249,7 +246,7 @@ public class InstructionProcessorHandler {
      
      try {
        // Intentar procesar con el handler del registry
-       boolean processed = methodGenerator.addExecuteGenericMethod(cm, instruction, operationName, generatedMethods);
+       boolean processed = methodGenerator.addExecuteGenericMethod(cm, instruction, operationName);
        
        // Solo agregar al mapping si fue procesado exitosamente
        if (!processed) {
@@ -308,13 +305,13 @@ public class InstructionProcessorHandler {
      */
    public interface IInstructionMethodGenerator {
      void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, 
-                          String operationName, OpcodeReference target, Set<String> generatedMethods);
+                          String operationName, OpcodeReference target);
      
      void addExecuteUnaryMethod(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, 
-                               String operationName, Set<String> generatedMethods);
+                               String operationName);
      
      boolean addExecuteGenericMethod(ClassMaker cm, Instruction instruction, 
-                                    String operationName, Set<String> generatedMethods);
+                                    String operationName);
      
      void addPrefixDispatchMethod(ClassMaker cm, String dispatchMethodName, 
                                  Map<Integer, String> prefixMethods);
