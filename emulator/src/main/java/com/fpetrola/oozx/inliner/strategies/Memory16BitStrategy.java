@@ -18,7 +18,7 @@ public class Memory16BitStrategy implements OpcodeReferenceStrategy {
 
   @Override
   public Variable resolveAddress(MethodMaker mm, MemoryAccessHandler memoryAccessHandler) {
-    return mm.field("PC").add(reference.getDelta()).and(0xFFFF);
+    return mm.field("PC").and(0xFFFF);
   }
 
   @Override

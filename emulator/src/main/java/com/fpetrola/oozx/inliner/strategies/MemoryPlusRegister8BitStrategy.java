@@ -23,7 +23,7 @@ public class MemoryPlusRegister8BitStrategy implements OpcodeReferenceStrategy {
   public Variable resolveAddress(MethodMaker mm, MemoryAccessHandler memoryAccessHandler) {
     // (IX+d), (IY+d) - requiere offset
     // Calcular: (registerValue + offset) & 0xFFFF
-    Variable pcPlusDelta = mm.field("PC").add(reference.getValueDelta()).and(0xFFFF);
+    Variable pcPlusDelta = mm.field("PC").and(0xFFFF);
     Variable dd = mm.var(int.class);
     Variable memory = mm.field("memory");
     dd.set(memory.invoke("read", pcPlusDelta, 0));

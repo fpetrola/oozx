@@ -19,7 +19,7 @@ public class Memory8BitStrategy implements OpcodeReferenceStrategy {
   @Override
   public Variable resolveAddress(MethodMaker mm, MemoryAccessHandler memoryAccessHandler) {
     // (PC + delta) & 0xFFFF
-    return mm.field("PC").add(reference.getDelta()).and(0xFFFF);
+    return mm.field("PC").and(0xFFFF);
   }
 
   @Override

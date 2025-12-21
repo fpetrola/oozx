@@ -46,7 +46,7 @@ public class Z80UnRolled extends UnrolledRegisterBank {
   public In.InAluOperation inAluOperation = new In.InAluOperation();
   public Outi.OutiTableAluOperation outiTableAluOperation = new Outi.OutiTableAluOperation();
   public Neg.NegTableAluOperation negTableAluOperation = new Neg.NegTableAluOperation();
-  public RRCA.RRCAAluOperation rrcaTableAluOperation =  new RRCA.RRCAAluOperation();
+  public RRCA.RRCAAluOperation rrcaTableAluOperation = new RRCA.RRCAAluOperation();
 
   protected Memory memory;
 
@@ -59,9 +59,9 @@ public class Z80UnRolled extends UnrolledRegisterBank {
   }
 
   public int read16(int address) {
-    int var1 = address + 1 & '\uffff';
+    int var1 = address & '\uffff';
     int var2 = memory.read(var1, 0) & 0xff;
-    int var3 = address + 2 & '\uffff';
+    int var3 = address + 1 & '\uffff';
     int var4 = (memory.read(var3, 0) & 0xff) << 8;
     return var2 | var4;
   }

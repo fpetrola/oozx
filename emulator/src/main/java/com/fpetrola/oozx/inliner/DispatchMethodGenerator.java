@@ -59,13 +59,13 @@ public class DispatchMethodGenerator {
         Variable pc = mm.field("PC");
 
         // Calcular la dirección del siguiente byte (PC + 1)
-        Variable nextPc = mm.var(int.class);
-        nextPc.set(pc.add(1).and(0xFFFF));
 
         Variable nextOpcode = mm.var(int.class);
-        nextOpcode.set(memory.invoke("read", nextPc, 1));
+        nextOpcode.set(memory.invoke("read", pc, 1));
 
         // Incrementar PC en 1 para apuntar al siguiente byte (después del prefijo)
+        Variable nextPc = mm.var(int.class);
+        nextPc.set(pc.add(1).and(0xFFFF));
         pc.set(nextPc);
 
         Variable result = mm.var(int.class);
