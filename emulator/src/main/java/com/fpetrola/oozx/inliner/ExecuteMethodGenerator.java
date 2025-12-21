@@ -321,6 +321,9 @@ public class ExecuteMethodGenerator {
     } else if (instruction instanceof com.fpetrola.z80.instructions.types.DefaultTargetInstruction defaultTargetInstr) {
       OpcodeReference target = defaultTargetInstr.getTarget();
       methodName.append(nameGenerator.getReferenceSuffix(target));
+      if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction){
+        methodName.append(nameGenerator.getReferenceSuffix(targetSourceInstruction.getSource()));
+      }
     }
     
     return methodName.toString();

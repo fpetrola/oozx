@@ -1,5 +1,6 @@
 package com.fpetrola.oozx.inliner;
 
+import com.fpetrola.z80.instructions.impl.Ex;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.instructions.impl.Push;
@@ -17,6 +18,8 @@ public class MethodNameGenerator {
    * Genera un nombre único para un método execute basado en la instrucción y sus referencias
    */
   public String generateUniquMethodName(TargetSourceInstruction instruction, String operationName, OpcodeReference target) {
+    if (instruction instanceof Ex)
+      System.out.println("adgagag");
     StringBuilder methodName = new StringBuilder("execute").append(operationName);
 
     // Agregar información del target
