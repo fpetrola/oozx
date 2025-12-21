@@ -115,10 +115,10 @@ public class MultiOpcodeFetcher {
       return null;
     } else {
       AbstractInstruction instruction = (AbstractInstruction) fetchedInstructionWrapper.getInstruction();
-      if (!instructions.contains(instruction)) {
-        System.out.println(new ToStringInstructionVisitor().createToString(instruction));
-        instructions.add(instruction);
-      }
+//      if (!instructions.contains(instruction)) {
+//        System.out.println(new ToStringInstructionVisitor().createToString(instruction));
+//        instructions.add(instruction);
+//      }
       instruction.execute();
       int nextPC = instruction.getNextPC();
       if (nextPC == -1) {
