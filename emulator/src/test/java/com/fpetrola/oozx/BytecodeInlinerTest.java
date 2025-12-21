@@ -42,7 +42,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         public class LdBytecode extends Z80UnRolled {
            public void executeLdMprfIxA() {
               int var1 = super.PC & '\\uffff';
-              byte var2 = (byte)super.memory.read(var1, 0);
+              byte var2 = (byte) super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               super.memory.write(var3, super.A);
            }
@@ -150,7 +150,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         public class XorBytecode extends Z80UnRolled {
            public void executeXorMprfIxC() {
               int var1 = super.PC & '\\uffff';
-              byte var2 = (byte)super.memory.read(var1, 0);
+              byte var2 = (byte) super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
               int var5 = super.xorTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.F);
@@ -173,7 +173,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         public class OrBytecode extends Z80UnRolled {
            public void executeOrMprfIxC() {
               int var1 = super.PC & '\\uffff';
-              byte var2 = (byte)super.memory.read(var1, 0);
+              byte var2 = (byte) super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
               int var5 = super.orTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.F);
@@ -280,7 +280,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         public class AndBytecode extends Z80UnRolled {
            public void executeAndMprfIxC() {
               int var1 = super.PC & '\\uffff';
-              byte var2 = (byte)super.memory.read(var1, 0);
+              byte var2 = (byte) super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
               int var5 = super.andTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.F);
@@ -345,7 +345,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         public class SubBytecode extends Z80UnRolled {
            public void executeSubMprfIxB() {
               int var1 = super.PC & '\\uffff';
-              byte var2 = (byte)super.memory.read(var1, 0);
+              byte var2 = (byte) super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
               int var5 = super.subTableAluOperation.execute2ValuesAndCarry(var4, super.B, super.F);
@@ -368,7 +368,7 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         public class CpBytecode extends Z80UnRolled {
            public void executeCpMprfIxD() {
               int var1 = super.PC & '\\uffff';
-              byte var2 = (byte)super.memory.read(var1, 0);
+              byte var2 = (byte) super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
               int var5 = super.cpTableAluOperation.execute2ValuesAndCarry(var4, super.D, super.F);
@@ -390,8 +390,8 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         
         public class AddBytecode extends Z80UnRolled {
            public void executeAddMprfIxE() {
-              int var1 = super.PC + 2 & '\\uffff';
-              int var2 = super.memory.read(var1, 0);
+              int var1 = super.PC & '\\uffff';
+              byte var2 = (byte) super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
               int var5 = super.addTableAluOperation.execute2ValuesAndCarry(var4, super.E, super.F);
@@ -413,8 +413,8 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         
         public class AdcBytecode extends Z80UnRolled {
            public void executeAdcMprfIxH() {
-              int var1 = super.PC + 2 & '\\uffff';
-              int var2 = super.memory.read(var1, 0);
+              int var1 = super.PC & '\\uffff';
+              byte var2 = (byte) super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
               int var5 = super.adcTableAluOperation.execute2ValuesAndCarry(var4, super.H, super.F);
@@ -436,8 +436,8 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         
         public class SbcBytecode extends Z80UnRolled {
            public void executeSbcMprfIxL() {
-              int var1 = super.PC + 2 & '\\uffff';
-              int var2 = super.memory.read(var1, 0);
+              int var1 = super.PC & '\\uffff';
+              byte var2 = (byte) super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
               int var5 = super.sbcTableAluOperation.execute2ValuesAndCarry(var4, super.L, super.F);
@@ -463,24 +463,24 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
         
         public class MultiInstructionBytecodetestBytecodeMultipleInstructionsSwitch extends Z80UnRolled {
            public void executeLdMprfIxA() {
-              int var1 = super.PC + 2 & '\\uffff';
-              int var2 = super.memory.read(var1, 0);
+              int var1 = super.PC & '\\uffff';
+              byte var2 = (byte) super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               super.memory.write(var3, super.A);
            }
-        
+           
            public void executeXorMprfIxC() {
-              int var1 = super.PC + 2 & '\\uffff';
-              int var2 = super.memory.read(var1, 0);
+              int var1 = super.PC & '\\uffff';
+              byte var2 = (byte) super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
               int var5 = super.xorTableAluOperation.execute2ValuesAndCarry(var4, super.C, super.F);
               super.memory.write(var3, var5);
            }
-        
+           
            public void executeAddMprfIxE() {
-              int var1 = super.PC + 2 & '\\uffff';
-              int var2 = super.memory.read(var1, 0);
+              int var1 = super.PC & '\\uffff';
+              byte var2 = (byte) super.memory.read(var1, 0);
               int var3 = super.IX + var2 & '\\uffff';
               int var4 = super.memory.read(var3, 0);
               int var5 = super.addTableAluOperation.execute2ValuesAndCarry(var4, super.E, super.F);
