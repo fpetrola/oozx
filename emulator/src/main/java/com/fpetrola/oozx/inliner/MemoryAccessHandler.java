@@ -74,10 +74,10 @@ public class MemoryAccessHandler {
    * destino como (targetReg + dd) & 0xFFFF. Retorna el contexto con memoria y dirección.
    */
   public MemoryPlusRegisterContext readOffsetAndCalculateAddress(MethodMaker mm, MemoryPlusRegister8BitReference memRef) {
-    Variable pcPlusDelta = mm.field("PC").and(0xFFFF);
-    Variable dd = mm.var(int.class);
-    Variable memory = mm.field("memory");
-    dd.set(memory.invoke("read", pcPlusDelta, 0));
+     Variable pcPlusDelta = mm.field("PC").and(0xFFFF);
+     Variable dd = mm.var(byte.class);
+     Variable memory = mm.field("memory");
+     dd.set(memory.invoke("read", pcPlusDelta, 0));
 
     // 2. Calcular dirección destino: (targetReg + dd) & 0xFFFF
     // Obtener el nombre del registro de forma genérica (puede ser IX, IY, etc.)
