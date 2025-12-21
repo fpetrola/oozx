@@ -59,8 +59,8 @@ public class BinaryOperationHandler {
   }
 
   /**
-   * Ejecuta una operación Binary16BitsOperation (Add16, Adc16, Sbc16)
-   */
+    * Ejecuta una operación Binary16BitsOperation (Add16, Adc16, Sbc16)
+    */
   public void executeBinary16BitsOperation(MethodMaker mm, com.fpetrola.z80.instructions.impl.Binary16BitsOperation instruction,
                                            String sourceRegName, String targetRegName) {
     Variable sourceValue = registerValueResolver.resolveRegisterValueByName(mm, sourceRegName);
@@ -72,6 +72,9 @@ public class BinaryOperationHandler {
 
     Variable aluOp = mm.var(aluOperationClass);
     aluOp.set(mm.field(fieldName));
+    
+    // Set F on aluOperation before using it
+    aluOp.field("F").set(flag);
 
     Variable result = mm.var(int.class);
     if (instruction instanceof com.fpetrola.z80.instructions.impl.Add16) {
