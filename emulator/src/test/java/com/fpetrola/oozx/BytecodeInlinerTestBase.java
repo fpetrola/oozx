@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BytecodeInlinerTestBase {
   // Guardar referencia al inliner para acceder al bytecode generado
-  private BytecodeInliner lastInliner;
+  protected BytecodeInliner lastInliner;
 
   public static Ld getLd1() {
     var target = new MemoryPlusRegister8BitReference(new Plain16BitRegister("IX"), new DummyMemory(), new Plain16BitRegister("PC"), 2);
@@ -84,7 +84,7 @@ public class BytecodeInlinerTestBase {
   /**
    * Obtiene el código fuente descompilado de la clase generada usando Decompiler
    */
-  private String getDecompiledSource(String generatedClass) throws IOException {
+  protected String getDecompiledSource(String generatedClass) throws IOException {
     try {
       if (lastInliner == null) {
         throw new IOException("lastInliner no fue inicializado");

@@ -2,6 +2,7 @@ package com.fpetrola.oozx.inliner;
 
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
+import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.oozx.inliner.strategies.OpcodeReferenceStrategyFactory;
@@ -79,6 +80,23 @@ public class MethodNameGenerator {
   }
 
   /**
+   * Genera un nombre único para un método PUSH basado en el registro destino
+   */
+  public String generatePushMethodName(Push instruction, String operationName) {
+    StringBuilder methodName = new StringBuilder("execute").append(operationName);
+    
+    // Obtener el target (que debe ser un Register)
+    try {
+      OpcodeReference target = instruction.getTarget();
+      methodName.append(getReferenceSuffix(target));
+    } catch (Exception e) {
+      System.err.println("Warning: No se pudo obtener target para PUSH: " + e.getMessage());
+    }
+    
+    return methodName.toString();
+  }
+
+  /**
    * Capitaliza la primera letra de una cadena
    */
   public String capitalizeFirstLetter(String str) {
@@ -87,4 +105,4 @@ public class MethodNameGenerator {
     }
     return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
   }
-}
+  }

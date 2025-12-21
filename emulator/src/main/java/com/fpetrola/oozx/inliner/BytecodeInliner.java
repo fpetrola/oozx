@@ -3,6 +3,7 @@ package com.fpetrola.oozx.inliner;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
+import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.decoder.OpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
@@ -63,6 +64,14 @@ public class BytecodeInliner {
   }
 
   /**
+   * Genera bytecode para una instrucción Push
+   */
+  public String inlineInstruction(Push instruction) {
+    String operationName = instruction.getClass().getSimpleName();
+    return generateInlinedPushClass(instruction, operationName);
+  }
+
+  /**
     * Genera una clase con múltiples métodos execute a partir del OpCodeDecoder
     */
   public String inlineMultipleInstructions(String className) {
@@ -92,29 +101,35 @@ public class BytecodeInliner {
   }
 
   /**
-    * Crea una implementación anónima de IInstructionMethodGenerator
-    */
-  private InstructionProcessorHandler.IInstructionMethodGenerator createMethodGenerator() {
-    return new InstructionProcessorHandler.IInstructionMethodGenerator() {
-      @Override
-      public void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, 
-                                   String operationName, OpcodeReference target, Set<String> generatedMethods) {
-        executeMethodGenerator.addExecuteMethod(cm, instruction, operationName, target, generatedMethods);
-      }
+     * Crea una implementación anónima de IInstructionMethodGenerator
+     */
+   private InstructionProcessorHandler.IInstructionMethodGenerator createMethodGenerator() {
+     return new InstructionProcessorHandler.IInstructionMethodGenerator() {
+       @Override
+       public void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, 
+                                    String operationName, OpcodeReference target, Set<String> generatedMethods) {
+         executeMethodGenerator.addExecuteMethod(cm, instruction, operationName, target, generatedMethods);
+       }
 
-      @Override
-      public void addExecuteUnaryMethod(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, 
+       @Override
+       public void addExecuteUnaryMethod(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, 
+                                         String operationName, Set<String> generatedMethods) {
+         executeMethodGenerator.addExecuteUnaryMethod(cm, instruction, operationName, generatedMethods);
+       }
+
+       @Override
+       public void addExecutePushMethod(ClassMaker cm, Push instruction, 
                                         String operationName, Set<String> generatedMethods) {
-        executeMethodGenerator.addExecuteUnaryMethod(cm, instruction, operationName, generatedMethods);
-      }
+         executeMethodGenerator.addExecutePushMethod(cm, instruction, operationName, generatedMethods);
+       }
 
-      @Override
-      public void addPrefixDispatchMethod(ClassMaker cm, String dispatchMethodName, 
-                                          Map<Integer, String> prefixMethods) {
-        dispatchGenerator.addPrefixDispatchMethod(cm, dispatchMethodName, prefixMethods);
-      }
-    };
-  }
+       @Override
+       public void addPrefixDispatchMethod(ClassMaker cm, String dispatchMethodName, 
+                                           Map<Integer, String> prefixMethods) {
+         dispatchGenerator.addPrefixDispatchMethod(cm, dispatchMethodName, prefixMethods);
+       }
+     };
+   }
 
 
 
@@ -163,6 +178,18 @@ public class BytecodeInliner {
     return classGenerationHandler.finializeClass(className, cm);
   }
 
+  private String generateInlinedPushClass(Push instruction, String operationName) {
+    String className = getPushClassName(instruction, operationName);
+    className = className.replace("-", "_");
+
+    ClassMaker cm = classGenerationHandler.createBaseClass(className);
+
+    // Add execute method for PUSH
+    executeMethodGenerator.addExecutePushMethod(cm, instruction, operationName, null);
+
+    return classGenerationHandler.finializeClass(className, cm);
+  }
+
   private void addAluOperationField(ClassMaker cm, TargetSourceInstruction instruction) {
     fieldManagementHandler.addAluOperationField(cm, instruction);
   }
@@ -178,6 +205,10 @@ public class BytecodeInliner {
 
   private String getClassName(TargetSourceInstruction instruction, String operationName) {
     // Generar nombre sin sufijo (o agregar sufijo si necesitas múltiples variantes)
+    return operationName + "Bytecode";
+  }
+
+  private String getPushClassName(Push instruction, String operationName) {
     return operationName + "Bytecode";
   }
 

@@ -1209,5 +1209,55 @@ public class BytecodeInlinerTest extends BytecodeInlinerTestBase {
 
   }
 
+  @Test
+  public void testBytecodeInlinePush() throws IOException {
+    var target = new Plain8BitRegister("A");
+    var push = new Push(target, new Plain16BitRegister("SP"), new DummyMemory());
+
+    String actualSource = testBytecodeInlineOfPush(push);
+
+    String expectedSource = """
+        import com.fpetrola.oozx.Z80UnRolled;
+        
+        public class PushBytecode extends Z80UnRolled {
+           public void executePushA() {
+              int var1 = super.SP - 2 & '\\uffff';
+              super.SP = var1;
+              super.memory.write16Bits(super.A, super.SP);
+           }
+        }""";
+    assertSourceEquals(actualSource, expectedSource);
+  }
+
+  @Test
+  public void testBytecodeInlinePushBC() throws IOException {
+    var target = new Plain16BitRegister("BC");
+    var push = new Push(target, new Plain16BitRegister("SP"), new DummyMemory());
+
+    String actualSource = testBytecodeInlineOfPush(push);
+
+    // Para registros de 16 bits compuestos como BC, el RegisterValueResolver
+    // debe generar una llamada al getter getBC() que combina B y C
+    assertTrue(actualSource.contains("executePush"),
+        "Should have executePush method");
+    assertTrue(actualSource.contains("write16Bits"),
+        "Should call memory.write16Bits");
+    assertTrue(actualSource.contains("SP - 2"),
+        "Should decrement SP by 2");
+    assertTrue(actualSource.contains("getBC") || actualSource.contains("super.BC"),
+        "Should resolve BC register through getter or field");
+  }
+
+  /**
+   * Test helper para PUSH instruction
+   */
+  private String testBytecodeInlineOfPush(Push instruction) throws IOException {
+    var analyzer = new com.fpetrola.oozx.inliner.InstructionAnalyzer();
+    lastInliner = new com.fpetrola.oozx.inliner.BytecodeInliner(analyzer);
+    String generatedClass = lastInliner.inlineInstruction(instruction);
+
+    return getDecompiledSource(generatedClass);
+  }
+
 
 }

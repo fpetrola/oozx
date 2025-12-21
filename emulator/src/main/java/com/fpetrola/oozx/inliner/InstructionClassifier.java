@@ -1,6 +1,7 @@
 package com.fpetrola.oozx.inliner;
 
 import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
@@ -79,8 +80,8 @@ public class InstructionClassifier {
   }
 
   /**
-   * Verifica si una instrucción tiene una operación ALU asociada
-   */
+    * Verifica si una instrucción tiene una operación ALU asociada
+    */
   public boolean isAluOperation(TargetSourceInstruction instruction) {
     // Buscar por reflection si la clase tiene un inner class que implemente AluOperation
     try {
@@ -95,4 +96,11 @@ public class InstructionClassifier {
     }
     return false;
   }
-}
+
+  /**
+   * Verifica si una instrucción es una instrucción PUSH
+   */
+  public boolean isPushInstruction(Instruction instruction) {
+    return instruction instanceof Push;
+  }
+  }

@@ -132,8 +132,8 @@ public class InstructionProcessorHandler {
   }
 
   /**
-   * Procesa una instrucción no prefijada
-   */
+    * Procesa una instrucción no prefijada
+    */
   private void processNonPrefixedInstruction(
       ClassMaker cm, Instruction instruction, Integer opcode,
       Map<Integer, String> opcodeToMethodName,
@@ -149,6 +149,12 @@ public class InstructionProcessorHandler {
     } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
       String methodName = processUnaryInstruction(cm, unaryInstruction, generatedMethods, 
                                                  methodGenerator);
+      if (methodName != null) {
+        opcodeToMethodName.put(opcode, methodName);
+      }
+    } else if (instruction instanceof Push pushInstruction) {
+      String methodName = processPushInstruction(cm, pushInstruction, generatedMethods, 
+                                                methodGenerator);
       if (methodName != null) {
         opcodeToMethodName.put(opcode, methodName);
       }
@@ -219,6 +225,35 @@ public class InstructionProcessorHandler {
    }
 
   /**
+    * Procesa una instrucción PUSH: generación de nombre y creación del método
+    */
+   private String processPushInstruction(
+       ClassMaker cm, Push instruction,
+       Set<String> generatedMethods,
+       IInstructionMethodGenerator methodGenerator) {
+     
+     try {
+       String operationName = instruction.getClass().getSimpleName();
+       String methodName = nameGenerator.generatePushMethodName(instruction, operationName);
+
+       try {
+         methodGenerator.addExecutePushMethod(cm, instruction, operationName, generatedMethods);
+         return methodName;
+       } catch (ClassFormatError e) {
+         if (e.getMessage() != null && e.getMessage().contains("Duplicate method")) {
+           return methodName;
+         } else {
+           throw e;
+         }
+       }
+     } catch (Exception e) {
+       System.err.println("DEBUG: Exception in processPushInstruction for PUSH: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+       e.printStackTrace();
+       return null;
+     }
+   }
+
+  /**
    * Interfaz para abstracción de generación de métodos
    */
   public interface IInstructionMethodGenerator {
@@ -227,6 +262,9 @@ public class InstructionProcessorHandler {
     
     void addExecuteUnaryMethod(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, 
                               String operationName, Set<String> generatedMethods);
+    
+    void addExecutePushMethod(ClassMaker cm, Push instruction, 
+                             String operationName, Set<String> generatedMethods);
     
     void addPrefixDispatchMethod(ClassMaker cm, String dispatchMethodName, 
                                 Map<Integer, String> prefixMethods);

@@ -9,6 +9,7 @@ import com.fpetrola.z80.registers.Register;
 import org.cojen.maker.ClassMaker;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
+import com.fpetrola.z80.instructions.impl.Push;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -28,6 +29,7 @@ public class ExecuteMethodGenerator {
   private final MethodNameGenerator nameGenerator;
   private final BinaryOperationHandler binaryOperationHandler;
   private final UnaryOperationHandler unaryOperationHandler;
+  private final PushOperationHandler pushOperationHandler;
 
   public ExecuteMethodGenerator(InstructionAnalyzer analyzer, InstructionClassifier classifier,
                                 RegisterValueResolver registerValueResolver, MemoryAccessHandler memoryAccessHandler,
@@ -40,6 +42,7 @@ public class ExecuteMethodGenerator {
     this.nameGenerator = nameGenerator;
     this.binaryOperationHandler = new BinaryOperationHandler(classifier, registerValueResolver, memoryAccessHandler, aluOperationHandler);
     this.unaryOperationHandler = new UnaryOperationHandler(registerValueResolver, memoryAccessHandler, aluOperationHandler, nameGenerator);
+    this.pushOperationHandler = new PushOperationHandler(registerValueResolver);
   }
 
   /**
@@ -233,4 +236,52 @@ public class ExecuteMethodGenerator {
   private void generateUnaryExecute(MethodMaker mm, ParameterizedUnaryAluInstruction instruction) {
     unaryOperationHandler.generateUnaryExecute(mm, instruction);
   }
-}
+
+  /**
+   * Agrega un método execute para una instrucción PUSH
+   */
+  public void addExecutePushMethod(ClassMaker cm, Push instruction, String operationName, Set<String> generatedMethods) {
+    String methodName = nameGenerator.generatePushMethodName(instruction, operationName);
+    
+    // Si generatedMethods está disponible y el método ya existe, no lo agreguemos de nuevo
+    if (generatedMethods != null && generatedMethods.contains(methodName)) {
+      return;
+    }
+    
+    // Agregar INMEDIATAMENTE a generatedMethods para prevenir re-intentos durante procesamiento paralelo
+    if (generatedMethods != null) {
+      if (!generatedMethods.add(methodName)) {
+        return;
+      }
+    }
+    
+    MethodMaker mm = cm.addMethod(void.class, methodName);
+    mm.public_();
+    
+    try {
+      generatePushExecute(mm, instruction);
+      mm.return_();
+    } catch (Exception e) {
+      if (generatedMethods != null) {
+        generatedMethods.remove(methodName);
+      }
+      throw e;
+    }
+  }
+
+  /**
+   * Genera código de ejecución para PUSH
+   */
+  private void generatePushExecute(MethodMaker mm, Push instruction) {
+    // Obtener el nombre del registro desde el target
+    // Push.getTarget() retorna un OpcodeReference (que debería ser un Register)
+    OpcodeReference target = instruction.getTarget();
+    
+    if (target instanceof Register targetReg) {
+      String registerName = targetReg.getName();
+      pushOperationHandler.executePushWithRegister(mm, registerName);
+    } else {
+      throw new UnsupportedOperationException("PUSH requiere un registro como target, pero se encontró: " + target.getClass().getSimpleName());
+    }
+  }
+  }
