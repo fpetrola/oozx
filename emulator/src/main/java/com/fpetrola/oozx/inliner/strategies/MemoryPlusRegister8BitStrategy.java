@@ -26,7 +26,7 @@ public class MemoryPlusRegister8BitStrategy implements OpcodeReferenceStrategy {
     Variable pcPlusDelta = mm.field("PC").and(0xFFFF);
     Variable dd = mm.var(byte.class);
     Variable memory = mm.field("memory");
-    dd.set(memory.invoke("read", pcPlusDelta, 0));
+    dd.set(memory.invoke("read", pcPlusDelta, 0).cast(byte.class));
 
     // Obtener el valor del registro
     Variable targetReg = mm.field(registerName);

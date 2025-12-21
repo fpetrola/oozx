@@ -77,7 +77,7 @@ public class MemoryAccessHandler {
      Variable pcPlusDelta = mm.field("PC").and(0xFFFF);
      Variable dd = mm.var(byte.class);
      Variable memory = mm.field("memory");
-     dd.set(memory.invoke("read", pcPlusDelta, 0));
+     dd.set(memory.invoke("read", pcPlusDelta, 0).cast(byte.class));
 
     // 2. Calcular dirección destino: (targetReg + dd) & 0xFFFF
     // Obtener el nombre del registro de forma genérica (puede ser IX, IY, etc.)
