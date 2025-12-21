@@ -160,13 +160,16 @@ public class AluOperationHandler {
     
     Variable aluOp = mm.field(fieldName);
     Variable flag = mm.field(FLAG);
-    
+
+    Variable flagField = mm.field(FLAG);
+
+    aluOp.field(FLAG).set(flagField);
+
     // Ejecutar: result = aluOperation.execute2ValuesAndCarry(value, 0, flag)
     Variable result = mm.var(int.class);
     result.set(aluOp.invoke("execute2ValuesAndCarry", value, 0, flag));
     
     // Actualizar flags
-    Variable flagField = mm.field(FLAG);
     flagField.set(aluOp.field(FLAG));
     
     return result;
