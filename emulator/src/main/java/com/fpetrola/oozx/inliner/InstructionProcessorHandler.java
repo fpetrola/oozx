@@ -112,6 +112,12 @@ public class InstructionProcessorHandler {
       if (methodName != null) {
         prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
       }
+    } else {
+      // Intentar procesar como instrucción del registry (Push, Pop, etc.)
+      String methodName = processRegistryInstruction(cm, instruction, generatedMethods, methodGenerator);
+      if (methodName != null) {
+        prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
+      }
     }
   }
 

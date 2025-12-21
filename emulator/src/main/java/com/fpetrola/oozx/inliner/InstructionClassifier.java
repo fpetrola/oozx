@@ -46,7 +46,7 @@ public class InstructionClassifier {
 
     // Filtrar instrucciones específicas con I y R, y instrucciones complejas
     if (className.equals("LdAI") || className.equals("LdAR") || className.equals("DAA") ||
-        className.equals("In") || className.equals("Out") || className.equals("Ex")) {
+        className.equals("In") || className.equals("Out") || className.equals("Ex") || className.equals("BIT") || className.equals("RES") || className.equals("SET")) {
       return true;
     }
 
