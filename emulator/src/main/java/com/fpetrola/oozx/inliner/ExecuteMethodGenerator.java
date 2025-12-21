@@ -1,6 +1,7 @@
 package com.fpetrola.oozx.inliner;
 
 import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.memory.Memory;
@@ -9,7 +10,6 @@ import com.fpetrola.z80.registers.Register;
 import org.cojen.maker.ClassMaker;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
-import com.fpetrola.z80.instructions.impl.Push;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -29,7 +29,7 @@ public class ExecuteMethodGenerator {
   private final MethodNameGenerator nameGenerator;
   private final BinaryOperationHandler binaryOperationHandler;
   private final UnaryOperationHandler unaryOperationHandler;
-  private final PushOperationHandler pushOperationHandler;
+  private final InstructionHandlerRegistry handlerRegistry;
 
   public ExecuteMethodGenerator(InstructionAnalyzer analyzer, InstructionClassifier classifier,
                                 RegisterValueResolver registerValueResolver, MemoryAccessHandler memoryAccessHandler,
@@ -42,7 +42,7 @@ public class ExecuteMethodGenerator {
     this.nameGenerator = nameGenerator;
     this.binaryOperationHandler = new BinaryOperationHandler(classifier, registerValueResolver, memoryAccessHandler, aluOperationHandler);
     this.unaryOperationHandler = new UnaryOperationHandler(registerValueResolver, memoryAccessHandler, aluOperationHandler, nameGenerator);
-    this.pushOperationHandler = new PushOperationHandler(registerValueResolver);
+    this.handlerRegistry = new InstructionHandlerRegistry(registerValueResolver, memoryAccessHandler);
   }
 
   /**
@@ -238,10 +238,19 @@ public class ExecuteMethodGenerator {
   }
 
   /**
-   * Agrega un método execute para una instrucción PUSH
+   * Agrega un método execute genérico para instrucciones manejadas por el registry
+   * Si no hay handler o falla el procesamiento, simplemente no agrega el método y continúa
    */
-  public void addExecutePushMethod(ClassMaker cm, Push instruction, String operationName, Set<String> generatedMethods) {
-    String methodName = nameGenerator.generatePushMethodName(instruction, operationName);
+  public void addExecuteGenericMethod(ClassMaker cm, Instruction instruction, 
+                                      String operationName, Set<String> generatedMethods) {
+    // Verificar que hay handler registrado antes de crear el método
+    if (!handlerRegistry.hasHandler(instruction)) {
+      // Sin handler registrado, no procesamos - simplemente retornamos
+      return;
+    }
+    
+    // Generar el nombre del método según el tipo de instrucción
+    String methodName = generateGenericMethodName(instruction, operationName);
     
     // Si generatedMethods está disponible y el método ya existe, no lo agreguemos de nuevo
     if (generatedMethods != null && generatedMethods.contains(methodName)) {
@@ -259,29 +268,41 @@ public class ExecuteMethodGenerator {
     mm.public_();
     
     try {
-      generatePushExecute(mm, instruction);
+      // Intentar procesar con el registry - ya verificamos que existe handler
+      boolean handled = handlerRegistry.tryHandle(cm, instruction, mm, operationName, generatedMethods);
+      if (!handled) {
+        // Si el handler existe pero falla, removemos el método y continuamos
+        if (generatedMethods != null) {
+          generatedMethods.remove(methodName);
+        }
+        return;
+      }
       mm.return_();
     } catch (Exception e) {
+      // Si hay error, removemos el método del registro y continuamos sin lanzar
       if (generatedMethods != null) {
         generatedMethods.remove(methodName);
       }
-      throw e;
+      System.err.println("Warning: No se pudo procesar instrucción " + instruction.getClass().getSimpleName() + 
+                        " con handler registrado: " + e.getMessage());
     }
   }
 
   /**
-   * Genera código de ejecución para PUSH
+   * Genera el nombre del método para una instrucción genérica
    */
-  private void generatePushExecute(MethodMaker mm, Push instruction) {
-    // Obtener el nombre del registro desde el target
-    // Push.getTarget() retorna un OpcodeReference (que debería ser un Register)
-    OpcodeReference target = instruction.getTarget();
+  private String generateGenericMethodName(Instruction instruction, String operationName) {
+    StringBuilder methodName = new StringBuilder("execute").append(operationName);
     
-    if (target instanceof Register targetReg) {
-      String registerName = targetReg.getName();
-      pushOperationHandler.executePushWithRegister(mm, registerName);
-    } else {
-      throw new UnsupportedOperationException("PUSH requiere un registro como target, pero se encontró: " + target.getClass().getSimpleName());
+    // Para instrucciones que tienen target (Push, Dec16, Inc16, etc.)
+    if (instruction instanceof Push pushInstr) {
+      OpcodeReference target = pushInstr.getTarget();
+      methodName.append(nameGenerator.getReferenceSuffix(target));
+    } else if (instruction instanceof com.fpetrola.z80.instructions.types.DefaultTargetInstruction defaultTargetInstr) {
+      OpcodeReference target = defaultTargetInstr.getTarget();
+      methodName.append(nameGenerator.getReferenceSuffix(target));
     }
+    
+    return methodName.toString();
   }
-  }
+}

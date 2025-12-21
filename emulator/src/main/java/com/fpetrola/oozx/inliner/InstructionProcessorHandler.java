@@ -135,30 +135,35 @@ public class InstructionProcessorHandler {
     * Procesa una instrucción no prefijada
     */
   private void processNonPrefixedInstruction(
-      ClassMaker cm, Instruction instruction, Integer opcode,
-      Map<Integer, String> opcodeToMethodName,
-      Set<String> generatedMethods,
-      IInstructionMethodGenerator methodGenerator) {
-    
-    if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
-      String methodName = processTargetSourceInstruction(cm, targetSourceInstruction, generatedMethods, 
-                                                        methodGenerator);
-      if (methodName != null) {
-        opcodeToMethodName.put(opcode, methodName);
-      }
-    } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
-      String methodName = processUnaryInstruction(cm, unaryInstruction, generatedMethods, 
-                                                 methodGenerator);
-      if (methodName != null) {
-        opcodeToMethodName.put(opcode, methodName);
-      }
-    } else if (instruction instanceof Push pushInstruction) {
-      String methodName = processPushInstruction(cm, pushInstruction, generatedMethods, 
+     ClassMaker cm, Instruction instruction, Integer opcode,
+     Map<Integer, String> opcodeToMethodName,
+     Set<String> generatedMethods,
+     IInstructionMethodGenerator methodGenerator) {
+   
+   if (instruction == null) {
+     // Ignorar instrucciones nulas
+     return;
+   }
+   
+   if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
+     String methodName = processTargetSourceInstruction(cm, targetSourceInstruction, generatedMethods, 
+                                                       methodGenerator);
+     if (methodName != null) {
+       opcodeToMethodName.put(opcode, methodName);
+     }
+   } else if (instruction instanceof ParameterizedUnaryAluInstruction unaryInstruction) {
+     String methodName = processUnaryInstruction(cm, unaryInstruction, generatedMethods, 
                                                 methodGenerator);
-      if (methodName != null) {
-        opcodeToMethodName.put(opcode, methodName);
-      }
-    }
+     if (methodName != null) {
+       opcodeToMethodName.put(opcode, methodName);
+     }
+   } else {
+     // Intentar procesar con handlers registrados (Push, Dec16, Inc16, etc.)
+     String methodName = processRegistryInstruction(cm, instruction, generatedMethods, methodGenerator);
+     if (methodName != null) {
+       opcodeToMethodName.put(opcode, methodName);
+     }
+   }
   }
 
   /**
@@ -225,37 +230,69 @@ public class InstructionProcessorHandler {
    }
 
   /**
-    * Procesa una instrucción PUSH: generación de nombre y creación del método
+    * Procesa una instrucción con handler registrado (Push, Dec16, Inc16, etc.)
+    * Si no hay handler, simplemente retorna null sin procesar
     */
-   private String processPushInstruction(
-       ClassMaker cm, Push instruction,
+   private String processRegistryInstruction(
+       ClassMaker cm, Instruction instruction,
        Set<String> generatedMethods,
        IInstructionMethodGenerator methodGenerator) {
      
+     // Si no hay handler registrado para esta instrucción, no la procesamos
+     // Necesitamos verificar antes de intentar generar el método
+     if (!new InstructionHandlerRegistry(null, null).hasHandler(instruction)) {
+       return null;
+     }
+     
+     String operationName = instruction.getClass().getSimpleName();
+     
      try {
-       String operationName = instruction.getClass().getSimpleName();
-       String methodName = nameGenerator.generatePushMethodName(instruction, operationName);
-
-       try {
-         methodGenerator.addExecutePushMethod(cm, instruction, operationName, generatedMethods);
+       // Intentar procesar con el handler del registry
+       methodGenerator.addExecuteGenericMethod(cm, instruction, operationName, generatedMethods);
+       
+       // Si llegamos aquí, el método fue procesado o ignorado gracefully
+       // Generar el nombre del método para el mapping
+       String methodName = generateRegistryMethodName(instruction, operationName);
+       return methodName;
+       
+     } catch (ClassFormatError e) {
+       // Manejo especial para métodos duplicados - reutilizamos el nombre existente
+       if (e.getMessage() != null && e.getMessage().contains("Duplicate method")) {
+         String methodName = generateRegistryMethodName(instruction, operationName);
          return methodName;
-       } catch (ClassFormatError e) {
-         if (e.getMessage() != null && e.getMessage().contains("Duplicate method")) {
-           return methodName;
-         } else {
-           throw e;
-         }
+       } else {
+         // Otros errores de formato de clase - continuamos sin la instrucción
+         System.err.println("Warning: ClassFormatError al procesar " + operationName + ": " + e.getMessage());
+         return null;
        }
      } catch (Exception e) {
-       System.err.println("DEBUG: Exception in processPushInstruction for PUSH: " + e.getClass().getSimpleName() + ": " + e.getMessage());
-       e.printStackTrace();
+       // Cualquier otra excepción - simplemente log y continua
+       System.err.println("Warning: No se pudo procesar instrucción del registry " + operationName + 
+                         ": " + e.getClass().getSimpleName());
        return null;
      }
    }
 
+   /**
+    * Genera el nombre del método para instrucciones del registry
+    */
+   private String generateRegistryMethodName(Instruction instruction, String operationName) {
+     StringBuilder methodName = new StringBuilder("execute").append(operationName);
+     
+     if (instruction instanceof Push pushInstr) {
+       OpcodeReference target = pushInstr.getTarget();
+       methodName.append(nameGenerator.getReferenceSuffix(target));
+     } else if (instruction instanceof com.fpetrola.z80.instructions.types.DefaultTargetInstruction defaultTargetInstr) {
+       OpcodeReference target = defaultTargetInstr.getTarget();
+       methodName.append(nameGenerator.getReferenceSuffix(target));
+     }
+     
+     return methodName.toString();
+   }
+
   /**
-   * Interfaz para abstracción de generación de métodos
-   */
+    * Interfaz para abstracción de generación de métodos
+    */
   public interface IInstructionMethodGenerator {
     void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, 
                          String operationName, OpcodeReference target, Set<String> generatedMethods);
@@ -263,8 +300,8 @@ public class InstructionProcessorHandler {
     void addExecuteUnaryMethod(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, 
                               String operationName, Set<String> generatedMethods);
     
-    void addExecutePushMethod(ClassMaker cm, Push instruction, 
-                             String operationName, Set<String> generatedMethods);
+    void addExecuteGenericMethod(ClassMaker cm, Instruction instruction, 
+                                String operationName, Set<String> generatedMethods);
     
     void addPrefixDispatchMethod(ClassMaker cm, String dispatchMethodName, 
                                 Map<Integer, String> prefixMethods);
