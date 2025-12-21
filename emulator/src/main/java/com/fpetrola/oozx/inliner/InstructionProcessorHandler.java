@@ -7,6 +7,7 @@ import com.fpetrola.z80.instructions.impl.Pop;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
+import com.fpetrola.z80.instructions.types.BitOperation;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import org.cojen.maker.ClassMaker;
@@ -270,7 +271,7 @@ public class InstructionProcessorHandler {
      
      // Si no hay handler registrado para esta instrucción, no la procesamos
      // Necesitamos verificar antes de intentar generar el método
-     if (!new InstructionHandlerRegistry(null, null).hasHandler(instruction)) {
+     if (!handlerRegistry.hasHandler(instruction)) {
        return null;
      }
      
@@ -330,6 +331,11 @@ public class InstructionProcessorHandler {
         methodName.append(nameGenerator.getReferenceSuffix(target));
       } else if (instruction instanceof Pop popInstr) {
         OpcodeReference target = popInstr.getTarget();
+        methodName.append(nameGenerator.getReferenceSuffix(target));
+      } else if (instruction instanceof com.fpetrola.z80.instructions.types.BitOperation bitOp) {
+        // Para BitOperation (RES, SET, BIT), incluir el número del bit en el nombre
+        OpcodeReference target = bitOp.getTarget();
+        methodName.append("Bit").append(bitOp.getN());
         methodName.append(nameGenerator.getReferenceSuffix(target));
       } else if (instruction instanceof com.fpetrola.z80.instructions.types.DefaultTargetInstruction defaultTargetInstr) {
         OpcodeReference target = defaultTargetInstr.getTarget();

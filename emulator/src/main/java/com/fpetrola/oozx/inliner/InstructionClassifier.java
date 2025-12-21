@@ -46,8 +46,9 @@ public class InstructionClassifier {
 
     // Filtrar instrucciones específicas con I y R, y instrucciones complejas
     // Nota: Ex ahora tiene su propio handler, así que no debe marcarse como unsupported
+    // Nota: RES y SET tienen handlers BitOperationHandler, así que pueden procesarse
     if (className.equals("LdAI") || className.equals("LdAR") || className.equals("DAA") ||
-        className.equals("In") || className.equals("Out") || className.equals("BIT") || className.equals("RES") || className.equals("SET")) {
+        className.equals("In") || className.equals("Out") || className.equals("BIT")) {
       return true;
     }
 

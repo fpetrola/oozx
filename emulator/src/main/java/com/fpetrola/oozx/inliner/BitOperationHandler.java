@@ -5,6 +5,7 @@ import com.fpetrola.z80.instructions.impl.SET;
 import com.fpetrola.z80.instructions.impl.BIT;
 import com.fpetrola.z80.instructions.types.BitOperation;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
+import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
 import com.fpetrola.z80.registers.Register;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
@@ -16,9 +17,11 @@ import org.cojen.maker.Variable;
 public class BitOperationHandler {
 
   private final RegisterValueResolver registerValueResolver;
+  private final MemoryAccessHandler memoryAccessHandler;
 
-  public BitOperationHandler(RegisterValueResolver registerValueResolver) {
+  public BitOperationHandler(RegisterValueResolver registerValueResolver, MemoryAccessHandler memoryAccessHandler) {
     this.registerValueResolver = registerValueResolver;
+    this.memoryAccessHandler = memoryAccessHandler;
   }
 
   /**
@@ -43,8 +46,15 @@ public class BitOperationHandler {
   private Variable resolveTargetValue(MethodMaker mm, OpcodeReference target) {
     if (target instanceof Register reg) {
       return registerValueResolver.resolveRegisterValueByName(mm, reg.getName());
+    } else if (target instanceof IndirectMemory8BitReference indMem) {
+      // Para memoria indirecta, leer el valor desde la dirección
+      Variable address = memoryAccessHandler.resolveIndirectMemoryAddress(mm, indMem);
+      Variable memory = mm.field("memory");
+      Variable value = mm.var(int.class);
+      value.set(memory.invoke("read", address, 0));
+      return value;
     }
-    // Para referencias de memoria, sería más complejo; por ahora solo soportamos registros
+    // Para otras referencias de memoria complejas, lanzar excepción
     throw new UnsupportedOperationException("Target no soportado para BitOperation: " + target.getClass().getSimpleName());
   }
 
@@ -76,6 +86,11 @@ public class BitOperationHandler {
   private void writeTargetValue(MethodMaker mm, OpcodeReference target, Variable value) {
     if (target instanceof Register reg) {
       registerValueResolver.assignRegisterValue(mm, reg.getName(), value);
+    } else if (target instanceof IndirectMemory8BitReference indMem) {
+      // Para memoria indirecta, escribir el valor en la dirección
+      Variable address = memoryAccessHandler.resolveIndirectMemoryAddress(mm, indMem);
+      Variable memory = mm.field("memory");
+      memory.invoke("write", address, value);
     } else {
       throw new UnsupportedOperationException("No se puede escribir a: " + target.getClass().getSimpleName());
     }

@@ -324,6 +324,11 @@ public class ExecuteMethodGenerator {
     } else if (instruction instanceof Pop popInstr) {
       OpcodeReference target = popInstr.getTarget();
       methodName.append(nameGenerator.getReferenceSuffix(target));
+    } else if (instruction instanceof com.fpetrola.z80.instructions.types.BitOperation bitOp) {
+      // Para BitOperation (RES, SET, BIT), incluir el número del bit en el nombre
+      OpcodeReference target = bitOp.getTarget();
+      methodName.append("Bit").append(bitOp.getN());
+      methodName.append(nameGenerator.getReferenceSuffix(target));
     } else if (instruction instanceof com.fpetrola.z80.instructions.types.DefaultTargetInstruction defaultTargetInstr) {
       OpcodeReference target = defaultTargetInstr.getTarget();
       methodName.append(nameGenerator.getReferenceSuffix(target));

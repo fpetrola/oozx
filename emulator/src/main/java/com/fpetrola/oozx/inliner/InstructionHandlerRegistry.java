@@ -121,7 +121,7 @@ public class InstructionHandlerRegistry {
     registerHandler(BitOperation.class, (cm, instr, mm, opName, genMethods) -> {
       var bitOp = (BitOperation) instr;
       try {
-        new BitOperationHandler(registerValueResolver)
+        new BitOperationHandler(registerValueResolver, memoryAccessHandler)
           .executeBitOperation(mm, bitOp);
         return true;
       } catch (UnsupportedOperationException e) {
