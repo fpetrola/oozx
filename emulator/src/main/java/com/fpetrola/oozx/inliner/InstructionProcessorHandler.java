@@ -22,13 +22,16 @@ public class InstructionProcessorHandler {
   private final MethodNameGenerator nameGenerator;
   private final InstructionAnalyzer analyzer;
   private final DispatchMethodGenerator dispatchGenerator;
+  private final InstructionHandlerRegistry handlerRegistry;
 
   public InstructionProcessorHandler(InstructionClassifier classifier, MethodNameGenerator nameGenerator, 
-                                     InstructionAnalyzer analyzer, DispatchMethodGenerator dispatchGenerator) {
+                                     InstructionAnalyzer analyzer, DispatchMethodGenerator dispatchGenerator,
+                                     InstructionHandlerRegistry handlerRegistry) {
     this.classifier = classifier;
     this.nameGenerator = nameGenerator;
     this.analyzer = analyzer;
     this.dispatchGenerator = dispatchGenerator;
+    this.handlerRegistry = handlerRegistry;
   }
 
   /**
@@ -49,7 +52,7 @@ public class InstructionProcessorHandler {
       Integer opcode = entry.getKey();
       Instruction instruction = entry.getValue();
 
-      if (classifier.isUnsupportedInstruction(instruction)) {
+      if (instruction == null || classifier.isUnsupportedInstruction(instruction)) {
         continue;
       }
 
@@ -93,6 +96,16 @@ public class InstructionProcessorHandler {
     int nextOpcode = opcode & 0xFF;
 
     if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
+      // Pero si tiene handler ESPECÍFICO (como Ex), usarlo primero
+      if (handlerRegistry.hasHandler(instruction) && 
+          (instruction instanceof Ex)) {  // Solo para instrucciones que sabemos tienen handlers
+        String methodName = processRegistryInstruction(cm, instruction, methodGenerator);
+        if (methodName != null) {
+          prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
+          return;
+        }
+      }
+      
       String methodName = processTargetSourceInstruction(cm, targetSourceInstruction, 
                                                          methodGenerator);
       if (methodName != null) {
@@ -106,9 +119,12 @@ public class InstructionProcessorHandler {
       }
     } else {
       // Intentar procesar como instrucción del registry (Push, Pop, etc.)
-      String methodName = processRegistryInstruction(cm, instruction, methodGenerator);
-      if (methodName != null) {
-        prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
+      if (handlerRegistry.hasHandler(instruction)) {
+        String methodName = processRegistryInstruction(cm, instruction, methodGenerator);
+        if (methodName != null) {
+          prefixedInstructions.get(prefixByte).put(nextOpcode, methodName);
+          return;  // Si el handler procesó, no continuar
+        }
       }
     }
   }
@@ -146,7 +162,18 @@ public class InstructionProcessorHandler {
      return;
    }
    
+   // Si es TargetSourceInstruction, procesar como tal (no con handlers genéricos que fallarían)
    if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
+     // Pero si tiene handler ESPECÍFICO (como Ex), usarlo primero
+     if (handlerRegistry.hasHandler(instruction) && 
+         (instruction instanceof Ex)) {  // Solo para instrucciones que sabemos tienen handlers
+       String methodName = processRegistryInstruction(cm, instruction, methodGenerator);
+       if (methodName != null) {
+         opcodeToMethodName.put(opcode, methodName);
+         return;
+       }
+     }
+     
      String methodName = processTargetSourceInstruction(cm, targetSourceInstruction, 
                                                        methodGenerator);
      if (methodName != null) {
@@ -160,9 +187,12 @@ public class InstructionProcessorHandler {
      }
    } else {
      // Intentar procesar con handlers registrados (Push, Dec16, Inc16, etc.)
-     String methodName = processRegistryInstruction(cm, instruction, methodGenerator);
-     if (methodName != null) {
-       opcodeToMethodName.put(opcode, methodName);
+     if (handlerRegistry.hasHandler(instruction)) {
+       String methodName = processRegistryInstruction(cm, instruction, methodGenerator);
+       if (methodName != null) {
+         opcodeToMethodName.put(opcode, methodName);
+         return;  // Si el handler procesó, no continuar
+       }
      }
    }
   }
@@ -175,8 +205,10 @@ public class InstructionProcessorHandler {
        IInstructionMethodGenerator methodGenerator) {
      
      try {
-       analyzer.analyze(instruction);
        String operationName = instruction.getClass().getSimpleName();
+       
+       // Procesar como TargetSourceInstruction normal
+       analyzer.analyze(instruction);
        OpcodeReference target = analyzer.getTarget();
        String methodName = nameGenerator.generateUniquMethodName(instruction, operationName, target);
 

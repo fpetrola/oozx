@@ -45,8 +45,9 @@ public class InstructionClassifier {
     String className = instruction.getClass().getSimpleName();
 
     // Filtrar instrucciones específicas con I y R, y instrucciones complejas
+    // Nota: Ex ahora tiene su propio handler, así que no debe marcarse como unsupported
     if (className.equals("LdAI") || className.equals("LdAR") || className.equals("DAA") ||
-        className.equals("In") || className.equals("Out") || className.equals("Ex") || className.equals("BIT") || className.equals("RES") || className.equals("SET")) {
+        className.equals("In") || className.equals("Out") || className.equals("BIT") || className.equals("RES") || className.equals("SET")) {
       return true;
     }
 

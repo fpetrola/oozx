@@ -45,9 +45,11 @@ public class BytecodeInliner {
     this.registerValueResolver = new RegisterValueResolver();
     this.memoryAccessHandler = new MemoryAccessHandler();
     this.aluOperationHandler = new AluOperationHandler(registerValueResolver);
-    this.processorHandler = new InstructionProcessorHandler(classifier, nameGenerator, analyzer, dispatchGenerator);
     this.executeMethodGenerator = new ExecuteMethodGenerator(analyzer, classifier, registerValueResolver, 
                                                             memoryAccessHandler, aluOperationHandler, nameGenerator);
+    // Crear el handler registry que se usa en processorHandler
+    InstructionHandlerRegistry handlerRegistry = new InstructionHandlerRegistry(registerValueResolver, memoryAccessHandler);
+    this.processorHandler = new InstructionProcessorHandler(classifier, nameGenerator, analyzer, dispatchGenerator, handlerRegistry);
     this.classGenerationHandler = new ClassGenerationHandler(generatedBytecodes);
     this.fieldManagementHandler = new FieldManagementHandler(analyzer, classifier, aluOperationHandler);
     this.currentClassGeneratedMethods = new HashSet<>();
