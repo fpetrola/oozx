@@ -2,7 +2,6 @@ package com.fpetrola.oozx.inliner;
 
 import com.fpetrola.z80.instructions.impl.SCF;
 import com.fpetrola.z80.instructions.impl.CCF;
-import com.fpetrola.z80.instructions.impl.Pop;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.registers.Register;
 import org.cojen.maker.MethodMaker;
@@ -10,7 +9,7 @@ import org.cojen.maker.Variable;
 
 /**
  * Maneja la generación de bytecode para instrucciones que manipulan flags.
- * Incluye SCF (Set Carry Flag), CCF (Complement Carry Flag), y POP.
+ * Incluye SCF (Set Carry Flag) y CCF (Complement Carry Flag).
  */
 public class FlagOperationHandler {
 
@@ -90,38 +89,5 @@ public class FlagOperationHandler {
     registerValueResolver.assignRegisterValue(mm, flag.getName(), result);
   }
 
-  /**
-   * Ejecuta POP (Pop from stack)
-   */
-  public void executePop(MethodMaker mm, Pop instruction) {
-    try {
-      Register target = (Register) instruction.getTarget();
-      
-      // Obtener SP mediante reflexión (es un campo protected en Pop)
-      java.lang.reflect.Field spField = Pop.class.getDeclaredField("sp");
-      spField.setAccessible(true);
-      Register sp = (Register) spField.get(instruction);
-      
-      // Leer valor actual de SP
-      Variable spValue = registerValueResolver.resolveRegisterValueByName(mm, sp.getName());
-      
-      // Obtener acceso a memory
-      Variable memory = mm.field("memory");
-      
-      // Leer valor de 16 bits desde SP: value = memory.read16Bits(SP)
-      Variable value = mm.var(int.class);
-      value.set(memory.invoke("read16Bits", spValue));
-      
-      // Escribir el valor al registro target
-      registerValueResolver.assignRegisterValue(mm, target.getName(), value);
-      
-      // Incrementar SP por 2: SP = (SP + 2) & 0xFFFF
-      Variable newSp = mm.var(int.class);
-      newSp.set(spValue.add(2).and(0xFFFF));
-      registerValueResolver.assignRegisterValue(mm, sp.getName(), newSp);
-      
-    } catch (Exception e) {
-      throw new RuntimeException("Error generando código para POP: " + e.getMessage(), e);
-    }
   }
-}
+

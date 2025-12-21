@@ -82,8 +82,12 @@ public class InstructionHandlerRegistry {
     // Handler para POP
     registerHandler(Pop.class, (cm, instr, mm, opName, genMethods) -> {
       var pop = (Pop) instr;
-      new FlagOperationHandler(registerValueResolver, memoryAccessHandler).executePop(mm, pop);
-      return true;
+      var target = pop.getTarget();
+      if (target instanceof Register targetReg) {
+        new PopOperationHandler(registerValueResolver).executePopWithRegister(mm, targetReg.getName());
+        return true;
+      }
+      return false;
     });
 
     // Handler genérico para instrucciones de un solo target (Dec16, Inc16, etc.)
