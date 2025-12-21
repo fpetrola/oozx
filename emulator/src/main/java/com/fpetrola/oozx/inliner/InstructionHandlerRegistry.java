@@ -10,6 +10,7 @@ import com.fpetrola.z80.instructions.impl.Ex;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.DefaultTargetInstruction;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
+import com.fpetrola.z80.instructions.types.BitOperation;
 import com.fpetrola.z80.registers.Register;
 import org.cojen.maker.ClassMaker;
 import org.cojen.maker.MethodMaker;
@@ -112,6 +113,19 @@ public class InstructionHandlerRegistry {
         return true;
       } catch (UnsupportedOperationException e) {
         // Si la operación no es soportada, retorna false para omitirla
+        return false;
+      }
+    });
+
+    // Handler para instrucciones de bit (BIT, RES, SET)
+    registerHandler(BitOperation.class, (cm, instr, mm, opName, genMethods) -> {
+      var bitOp = (BitOperation) instr;
+      try {
+        new BitOperationHandler(registerValueResolver)
+          .executeBitOperation(mm, bitOp);
+        return true;
+      } catch (UnsupportedOperationException e) {
+        // Si la operación no es soportada, retorna false
         return false;
       }
     });
