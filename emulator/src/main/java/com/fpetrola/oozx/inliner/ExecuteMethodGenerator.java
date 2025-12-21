@@ -253,6 +253,7 @@ public class ExecuteMethodGenerator {
     }
     
     // Generar el nombre del método según el tipo de instrucción
+    // Esto debe coincidir con lo que genera InstructionProcessorHandler.generateRegistryMethodName()
     String methodName = generateGenericMethodName(instruction, operationName);
     
     // Si generatedMethods está disponible y el método ya existe, no lo agreguemos de nuevo
@@ -295,18 +296,22 @@ public class ExecuteMethodGenerator {
   }
 
   /**
-   * Genera el nombre del método para una instrucción genérica
-   */
+    * Genera el nombre del método para una instrucción genérica
+    */
   private String generateGenericMethodName(Instruction instruction, String operationName) {
     StringBuilder methodName = new StringBuilder("execute").append(operationName);
     
-    // Para instrucciones que NO son flag operations (SCF, CCF, POP)
-    // y que tienen target (Push, Dec16, Inc16, etc.)
-    if (instruction instanceof SCF || instruction instanceof CCF || instruction instanceof Pop) {
-      // No agregar sufijo para instrucciones de flag
+    // No agregar sufijo para instrucciones de flag (SCF, CCF)
+    if (instruction instanceof SCF || instruction instanceof CCF) {
       return methodName.toString().toLowerCase();
-    } else if (instruction instanceof Push pushInstr) {
+    }
+    
+    // Para Push y Pop, agregar el sufijo del registro
+    if (instruction instanceof Push pushInstr) {
       OpcodeReference target = pushInstr.getTarget();
+      methodName.append(nameGenerator.getReferenceSuffix(target));
+    } else if (instruction instanceof Pop popInstr) {
+      OpcodeReference target = popInstr.getTarget();
       methodName.append(nameGenerator.getReferenceSuffix(target));
     } else if (instruction instanceof com.fpetrola.z80.instructions.types.DefaultTargetInstruction defaultTargetInstr) {
       OpcodeReference target = defaultTargetInstr.getTarget();

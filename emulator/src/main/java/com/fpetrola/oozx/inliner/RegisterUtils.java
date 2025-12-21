@@ -11,10 +11,29 @@ import java.util.Set;
 public class RegisterUtils {
 
   /**
-   * Registros de 16 bits compuestos que tienen getters/setters (BC, DE, HL, AF)
-   */
+    * Registros de 16 bits compuestos que tienen getters/setters en UnrolledRegisterBank (BC, DE, HL, AF)
+    */
   public static final Set<String> COMPOSITE_16BIT_REGISTERS = 
     Set.of("BC", "DE", "HL", "AF");
+
+  /**
+   * Registros de 16 bits que son campos directos en UnrolledRegisterBank (IX, IY, PC, SP, I, R, MEMPTR)
+   */
+  public static final Set<String> DIRECT_FIELD_REGISTERS = 
+    Set.of("IX", "IY", "PC", "SP", "I", "R", "MEMPTR");
+
+  /**
+   * Registros de 8 bits que son parte de registros de 16 bits
+   * IXH, IXL -> IX
+   * IYH, IYL -> IY
+   */
+  public static final java.util.Map<String, String> REGISTER_MAPPING = 
+    java.util.Map.ofEntries(
+      java.util.Map.entry("IXH", "IX"),
+      java.util.Map.entry("IXL", "IX"),
+      java.util.Map.entry("IYH", "IY"),
+      java.util.Map.entry("IYL", "IY")
+    );
 
   /**
    * Verifica si un registro es de 16 bits compuesto que tiene getters/setters
@@ -56,6 +75,35 @@ public class RegisterUtils {
   }
 
   /**
+   * Verifica si un registro es un campo directo en UnrolledRegisterBank
+   */
+  public static boolean isDirectFieldRegister(String regName) {
+    return DIRECT_FIELD_REGISTERS.contains(regName);
+  }
+
+  /**
+   * Verifica si un registro es un sub-registro de 8 bits de un registro de 16 bits
+   */
+  public static boolean isSubRegister(String regName) {
+    return REGISTER_MAPPING.containsKey(regName);
+  }
+
+  /**
+   * Obtiene el registro padre de un sub-registro
+   * Ej: "IYH" -> "IY", "IXL" -> "IX"
+   */
+  public static String getParentRegister(String regName) {
+    return REGISTER_MAPPING.get(regName);
+  }
+
+  /**
+   * Verifica si un registro es el byte alto (H) de un registro de 16 bits
+   */
+  public static boolean isHighByte(String regName) {
+    return regName.endsWith("H") && REGISTER_MAPPING.containsKey(regName);
+  }
+
+  /**
    * Capitaliza la primera letra de una cadena
    * Preserva el caso del resto si es una constante numérica (como M16R)
    */
@@ -69,4 +117,4 @@ public class RegisterUtils {
     }
     return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
   }
-}
+  }
