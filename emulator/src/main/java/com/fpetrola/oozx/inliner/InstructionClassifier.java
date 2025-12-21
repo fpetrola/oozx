@@ -35,16 +35,17 @@ public class InstructionClassifier {
   }
 
   /**
-   * Verifica si una instrucción no puede ser inlineada (ej: LdAI, LdAR, LD R/I)
-   * Estas instrucciones usan registros especiales (I, R) que requieren lógica especial
-   */
+    * Verifica si una instrucción no puede ser inlineada (ej: LdAI, LdAR, LD R/I, IN, OUT, EX)
+    * Estas instrucciones usan registros especiales (I, R) o referencias complejas que requieren lógica especial
+    */
   public boolean isUnsupportedInstruction(Instruction instruction) {
     if (instruction == null)
       return false;
     String className = instruction.getClass().getSimpleName();
 
-    // Filtrar instrucciones específicas con I y R
-    if (className.equals("LdAI") || className.equals("LdAR") || className.equals("DAA")) {
+    // Filtrar instrucciones específicas con I y R, y instrucciones complejas
+    if (className.equals("LdAI") || className.equals("LdAR") || className.equals("DAA") ||
+        className.equals("In") || className.equals("Out") || className.equals("Ex")) {
       return true;
     }
 
