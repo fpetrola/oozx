@@ -18,9 +18,7 @@ public class MethodNameGenerator {
    * Genera un nombre único para un método execute basado en la instrucción y sus referencias
    */
   public String generateUniquMethodName(TargetSourceInstruction instruction, String operationName, OpcodeReference target) {
-    if (instruction instanceof Ex)
-      System.out.println("adgagag");
-    StringBuilder methodName = new StringBuilder("execute").append(operationName);
+     StringBuilder methodName = new StringBuilder("execute").append(operationName);
 
     // Agregar información del target
     methodName.append(getReferenceSuffix(target));
