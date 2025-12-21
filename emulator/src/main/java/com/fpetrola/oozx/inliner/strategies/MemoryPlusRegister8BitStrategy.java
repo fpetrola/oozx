@@ -24,7 +24,7 @@ public class MemoryPlusRegister8BitStrategy implements OpcodeReferenceStrategy {
     // (IX+d), (IY+d) - requiere offset
     // Calcular: (registerValue + offset) & 0xFFFF
     Variable pcPlusDelta = mm.field("PC").and(0xFFFF);
-    Variable dd = mm.var(int.class);
+    Variable dd = mm.var(byte.class);
     Variable memory = mm.field("memory");
     dd.set(memory.invoke("read", pcPlusDelta, 0));
 
