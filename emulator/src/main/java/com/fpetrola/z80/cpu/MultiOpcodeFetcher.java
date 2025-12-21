@@ -24,6 +24,7 @@ import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.minizx.emulation.ToStringInstructionVisitor;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.decoder.table.MemoryForOpcodes;
@@ -32,6 +33,7 @@ import com.fpetrola.z80.opcodes.references.Memory8BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.registers.Register;
 
+import java.util.HashSet;
 import java.util.function.Supplier;
 
 public class MultiOpcodeFetcher {
@@ -45,6 +47,7 @@ public class MultiOpcodeFetcher {
   private final Memory memory;
   private final Register pc;
   private Z80UnRolled registerBank;
+  private HashSet<Instruction> instructions = new HashSet<>();
 
   public MultiOpcodeFetcher(InstructionFactory instructionFactory, State state, OpcodeConditions opcodeConditions, boolean clone) {
     this.instructionFactory = instructionFactory;
@@ -111,6 +114,10 @@ public class MultiOpcodeFetcher {
       return null;
     } else {
       AbstractInstruction instruction = (AbstractInstruction) fetchedInstructionWrapper.getInstruction();
+//      if (!instructions.contains(instruction)) {
+//        System.out.println(new ToStringInstructionVisitor().createToString(instruction));
+//        instructions.add(instruction);
+//      }
       instruction.execute();
       int nextPC = instruction.getNextPC();
       if (nextPC == -1) {
