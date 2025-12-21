@@ -121,11 +121,18 @@ public class InstructionHandlerRegistry {
     registerHandler(BitOperation.class, (cm, instr, mm, opName, genMethods) -> {
       var bitOp = (BitOperation) instr;
       try {
+        System.out.println("DEBUG BitOperation handler lambda executing for " + instr.getClass().getSimpleName());
         new BitOperationHandler(registerValueResolver, memoryAccessHandler)
           .executeBitOperation(mm, bitOp);
+        System.out.println("DEBUG BitOperation handler lambda completed successfully");
         return true;
       } catch (UnsupportedOperationException e) {
         // Si la operación no es soportada, retorna false
+        System.out.println("DEBUG BitOperation handler UnsupportedOperationException: " + e.getMessage());
+        return false;
+      } catch (Exception e) {
+        System.out.println("DEBUG BitOperation handler Exception: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+        e.printStackTrace();
         return false;
       }
     });
