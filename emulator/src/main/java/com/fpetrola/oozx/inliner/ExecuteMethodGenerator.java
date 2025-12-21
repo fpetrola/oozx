@@ -10,6 +10,7 @@ import org.cojen.maker.ClassMaker;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -42,11 +43,34 @@ public class ExecuteMethodGenerator {
   }
 
   /**
-   * Agrega un método execute para una TargetSourceInstruction
-   */
+    * Agrega un método execute para una TargetSourceInstruction
+    */
   public void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, 
                                String operationName, OpcodeReference target) {
+    addExecuteMethod(cm, instruction, operationName, target, null);
+  }
+
+  /**
+    * Agrega un método execute para una TargetSourceInstruction con seguimiento de métodos generados
+    */
+  public void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, 
+                               String operationName, OpcodeReference target, Set<String> generatedMethods) {
     String methodName = nameGenerator.generateUniquMethodName(instruction, operationName, target);
+    
+    // Si generatedMethods está disponible y el método ya existe, no lo agreguemos de nuevo
+    if (generatedMethods != null && generatedMethods.contains(methodName)) {
+      return;
+    }
+    
+    // Agregar INMEDIATAMENTE a generatedMethods para prevenir re-intentos durante procesamiento paralelo
+    if (generatedMethods != null) {
+      // Si otro thread/contexto ya lo agregó, no lo hacemos de nuevo
+      if (!generatedMethods.add(methodName)) {
+        // El método ya estaba en el conjunto, no agregamos
+        return;
+      }
+    }
+    
     MethodMaker[] mms = new MethodMaker[]{null};
 
     Supplier<MethodMaker> methodMakerSupplier = () -> {
@@ -57,21 +81,60 @@ public class ExecuteMethodGenerator {
       return mms[0];
     };
 
-    generateExecute(methodMakerSupplier, instruction, target);
-    mms[0].return_();
+    try {
+      generateExecute(methodMakerSupplier, instruction, target);
+      mms[0].return_();
+    } catch (Exception e) {
+      // Si la generación falla, removemos del registry para permitir reintentos
+      if (generatedMethods != null) {
+        generatedMethods.remove(methodName);
+      }
+      throw e;
+    }
   }
 
   /**
-   * Agrega un método execute para una ParameterizedUnaryAluInstruction
-   */
+    * Agrega un método execute para una ParameterizedUnaryAluInstruction
+    */
   public void addExecuteUnaryMethod(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, 
                                     String operationName) {
+    addExecuteUnaryMethod(cm, instruction, operationName, null);
+  }
+
+  /**
+    * Agrega un método execute para una ParameterizedUnaryAluInstruction con seguimiento de métodos generados
+    */
+  public void addExecuteUnaryMethod(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, 
+                                    String operationName, Set<String> generatedMethods) {
     String methodName = nameGenerator.generateUnaryMethodName(instruction, operationName);
+    
+    // Si generatedMethods está disponible y el método ya existe, no lo agreguemos de nuevo
+    if (generatedMethods != null && generatedMethods.contains(methodName)) {
+      return;
+    }
+    
+    // Agregar INMEDIATAMENTE a generatedMethods para prevenir re-intentos durante procesamiento paralelo
+    if (generatedMethods != null) {
+      // Si otro thread/contexto ya lo agregó, no lo hacemos de nuevo
+      if (!generatedMethods.add(methodName)) {
+        // El método ya estaba en el conjunto, no agregamos
+        return;
+      }
+    }
+    
     MethodMaker mm = cm.addMethod(void.class, methodName);
     mm.public_();
     
-    generateUnaryExecute(mm, instruction);
-    mm.return_();
+    try {
+      generateUnaryExecute(mm, instruction);
+      mm.return_();
+    } catch (Exception e) {
+      // Si la generación falla, removemos del registry para permitir reintentos
+      if (generatedMethods != null) {
+        generatedMethods.remove(methodName);
+      }
+      throw e;
+    }
   }
 
   /**

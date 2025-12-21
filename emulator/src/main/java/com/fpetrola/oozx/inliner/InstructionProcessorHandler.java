@@ -29,17 +29,26 @@ public class InstructionProcessorHandler {
   }
 
   /**
-   * Procesa todas las instrucciones y genera los métodos correspondientes
-   * Retorna un objeto con los mapeos necesarios para el dispatch
-   */
+    * Procesa todas las instrucciones y genera los métodos correspondientes
+    * Retorna un objeto con los mapeos necesarios para el dispatch
+    */
   public BytecodeInliner.InstructionProcessingResult processInstructions(
       ClassMaker cm, Map<Integer, Instruction> instructions,
       IInstructionMethodGenerator methodGenerator) {
+    return processInstructions(cm, instructions, methodGenerator, new HashSet<>());
+  }
+
+  /**
+    * Procesa todas las instrucciones y genera los métodos correspondientes
+    * usando un conjunto compartido de métodos generados para evitar duplicados
+    */
+  public BytecodeInliner.InstructionProcessingResult processInstructions(
+      ClassMaker cm, Map<Integer, Instruction> instructions,
+      IInstructionMethodGenerator methodGenerator, Set<String> generatedMethods) {
     
     Map<Integer, String> opcodeToMethodName = new LinkedHashMap<>();
     Map<Integer, String> prefixOpcodes = new LinkedHashMap<>();
     Map<Integer, Map<Integer, String>> prefixedInstructions = new LinkedHashMap<>();
-    Set<String> generatedMethods = new HashSet<>();
 
     for (Map.Entry<Integer, Instruction> entry : instructions.entrySet()) {
       Integer opcode = entry.getKey();
@@ -160,22 +169,21 @@ public class InstructionProcessorHandler {
        OpcodeReference target = analyzer.getTarget();
        String methodName = nameGenerator.generateUniquMethodName(instruction, operationName, target);
 
-       if (!generatedMethods.contains(methodName)) {
-         try {
-           methodGenerator.addExecuteMethod(cm, instruction, operationName, target);
-         } catch (ClassFormatError e) {
-           // Si el método ya existe (puede ocurrir con instrucciones duplicadas en diferentes prefijos),
-           // simplemente reutilizamos el nombre que ya existe
-           if (e.getMessage() != null && e.getMessage().contains("Duplicate method")) {
-             // El método ya fue agregado, continuamos
-           } else {
-             throw e;
-           }
+       try {
+         methodGenerator.addExecuteMethod(cm, instruction, operationName, target, generatedMethods);
+       } catch (ClassFormatError e) {
+         // Si el método ya existe (puede ocurrir con instrucciones duplicadas en diferentes prefijos),
+         // simplemente reutilizamos el nombre que ya existe sin intentar volver a agregarlo
+         if (e.getMessage() != null && e.getMessage().contains("Duplicate method")) {
+           // El método ya fue agregado, continuamos
+         } else {
+           throw e;
          }
-         generatedMethods.add(methodName);
        }
        return methodName;
      } catch (Exception e) {
+       System.err.println("DEBUG: Exception in processTargetSourceInstruction for " + instruction.getClass().getSimpleName() + ": " + e.getClass().getSimpleName() + ": " + e.getMessage());
+       e.printStackTrace();
        return null;
      }
    }
@@ -192,22 +200,20 @@ public class InstructionProcessorHandler {
        String operationName = instruction.getClass().getSimpleName();
        String methodName = nameGenerator.generateUnaryMethodName(instruction, operationName);
 
-       if (!generatedMethods.contains(methodName)) {
-         try {
-           methodGenerator.addExecuteUnaryMethod(cm, instruction, operationName);
-         } catch (ClassFormatError e) {
-           // Si el método ya existe (puede ocurrir con instrucciones duplicadas en diferentes prefijos),
-           // simplemente reutilizamos el nombre que ya existe
-           if (e.getMessage() != null && e.getMessage().contains("Duplicate method")) {
-             // El método ya fue agregado, continuamos
-           } else {
-             throw e;
-           }
+       try {
+         methodGenerator.addExecuteUnaryMethod(cm, instruction, operationName, generatedMethods);
+         return methodName;
+       } catch (ClassFormatError e) {
+         // Si el método ya existe (puede ocurrir con instrucciones duplicadas en diferentes prefijos),
+         // simplemente reutilizamos el nombre que ya existe sin intentar volver a agregarlo
+         if (e.getMessage() != null && e.getMessage().contains("Duplicate method")) {
+           return methodName;
+         } else {
+           throw e;
          }
-         generatedMethods.add(methodName);
        }
-       return methodName;
      } catch (Exception e) {
+       System.err.println("DEBUG: Exception in processUnaryInstruction for " + instruction.getClass().getSimpleName() + ": " + e.getClass().getSimpleName() + ": " + e.getMessage());
        return null;
      }
    }
@@ -217,10 +223,10 @@ public class InstructionProcessorHandler {
    */
   public interface IInstructionMethodGenerator {
     void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, 
-                         String operationName, OpcodeReference target);
+                         String operationName, OpcodeReference target, Set<String> generatedMethods);
     
     void addExecuteUnaryMethod(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, 
-                              String operationName);
+                              String operationName, Set<String> generatedMethods);
     
     void addPrefixDispatchMethod(ClassMaker cm, String dispatchMethodName, 
                                 Map<Integer, String> prefixMethods);

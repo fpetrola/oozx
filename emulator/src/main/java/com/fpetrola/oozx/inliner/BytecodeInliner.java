@@ -9,7 +9,9 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import org.cojen.maker.ClassMaker;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -61,8 +63,8 @@ public class BytecodeInliner {
   }
 
   /**
-   * Genera una clase con múltiples métodos execute a partir del OpCodeDecoder
-   */
+    * Genera una clase con múltiples métodos execute a partir del OpCodeDecoder
+    */
   public String inlineMultipleInstructions(String className) {
     if (opcodeDecoder == null) {
       throw new IllegalStateException("OpCodeDecoder no fue proporcionado en el constructor");
@@ -72,34 +74,38 @@ public class BytecodeInliner {
   }
 
   /**
-   * Genera una clase con múltiples métodos execute a partir de varias instrucciones (uso interno)
-   */
+    * Genera una clase con múltiples métodos execute a partir de varias instrucciones (uso interno)
+    */
   private String inlineMultipleInstructionsInternal(String className, Map<Integer, Instruction> instructions) {
     className = className.replace("-", "_");
     ClassMaker cm = classGenerationHandler.createBaseClass(className);
     
+    // Cada procesamiento obtiene su propio conjunto de métodos para evitar duplicados
+    // dentro del MISMO procesamiento
+    Set<String> generatedMethods = new HashSet<>();
+    
     InstructionProcessingResult result = processorHandler.processInstructions(cm, instructions, 
-                                                                             createMethodGenerator());
+                                                                             createMethodGenerator(), generatedMethods);
     dispatchGenerator.addDispatchMethodWithOpcodes(cm, result.opcodeToMethodName, result.prefixOpcodes);
     
     return classGenerationHandler.finializeClass(className, cm);
   }
 
   /**
-   * Crea una implementación anónima de IInstructionMethodGenerator
-   */
+    * Crea una implementación anónima de IInstructionMethodGenerator
+    */
   private InstructionProcessorHandler.IInstructionMethodGenerator createMethodGenerator() {
     return new InstructionProcessorHandler.IInstructionMethodGenerator() {
       @Override
       public void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, 
-                                   String operationName, OpcodeReference target) {
-        executeMethodGenerator.addExecuteMethod(cm, instruction, operationName, target);
+                                   String operationName, OpcodeReference target, Set<String> generatedMethods) {
+        executeMethodGenerator.addExecuteMethod(cm, instruction, operationName, target, generatedMethods);
       }
 
       @Override
       public void addExecuteUnaryMethod(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, 
-                                        String operationName) {
-        executeMethodGenerator.addExecuteUnaryMethod(cm, instruction, operationName);
+                                        String operationName, Set<String> generatedMethods) {
+        executeMethodGenerator.addExecuteUnaryMethod(cm, instruction, operationName, generatedMethods);
       }
 
       @Override
@@ -124,20 +130,24 @@ public class BytecodeInliner {
    * Retorna el Class<?> directamente usable usando finish()
    */
   public Class<?> generateAndLoadMultipleInstructions(String className) {
-    if (opcodeDecoder == null) {
-      throw new IllegalStateException("OpCodeDecoder no fue proporcionado en el constructor");
-    }
-    Map<Integer, Instruction> instructions = extractInstructionsFromDecoder();
-    return generateAndLoadMultipleInstructionsInternal(className, instructions);
+   if (opcodeDecoder == null) {
+     throw new IllegalStateException("OpCodeDecoder no fue proporcionado en el constructor");
+   }
+   Map<Integer, Instruction> instructions = extractInstructionsFromDecoder();
+   return generateAndLoadMultipleInstructionsInternal(className, instructions);
   }
 
   /**
-   * Genera una clase con múltiples instrucciones y la carga en memoria (uso interno)
-   * Retorna el Class<?> directamente usable usando finish()
-   */
+    * Genera una clase con múltiples instrucciones y la carga en memoria (uso interno)
+    * Retorna el Class<?> directamente usable usando finish()
+    */
   private Class<?> generateAndLoadMultipleInstructionsInternal(String className, Map<Integer, Instruction> instructions) {
+    // Cada procesamiento obtiene su propio conjunto de métodos para evitar duplicados
+    // dentro del MISMO procesamiento
+    Set<String> generatedMethods = new HashSet<>();
+    
     return classGenerationHandler.generateAndLoadMultipleInstructions(className, createMethodGenerator(), 
-                                                                     processorHandler, dispatchGenerator, instructions);
+                                                                      processorHandler, dispatchGenerator, instructions, generatedMethods);
   }
 
   private String generateInlinedClass(TargetSourceInstruction instruction, String operationName) {

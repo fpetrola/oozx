@@ -6,7 +6,9 @@ import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import org.cojen.maker.ClassMaker;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Maneja el ciclo de vida completo de generación de clases:
@@ -42,14 +44,29 @@ public class ClassGenerationHandler {
   }
 
   /**
-   * Genera una clase con múltiples instrucciones y la carga en memoria
-   * Retorna el Class<?> directamente usable usando finish()
-   */
+    * Genera una clase con múltiples instrucciones y la carga en memoria
+    * Retorna el Class<?> directamente usable usando finish()
+    */
   public Class<?> generateAndLoadMultipleInstructions(String className, 
-                                                     InstructionProcessorHandler.IInstructionMethodGenerator methodGenerator,
-                                                     InstructionProcessorHandler processorHandler,
-                                                     DispatchMethodGenerator dispatchGenerator,
-                                                     Map<Integer, Instruction> instructions) {
+                                                      InstructionProcessorHandler.IInstructionMethodGenerator methodGenerator,
+                                                      InstructionProcessorHandler processorHandler,
+                                                      DispatchMethodGenerator dispatchGenerator,
+                                                      Map<Integer, Instruction> instructions) {
+    return generateAndLoadMultipleInstructions(className, methodGenerator, processorHandler, 
+                                               dispatchGenerator, instructions, new HashSet<>());
+  }
+
+  /**
+    * Genera una clase con múltiples instrucciones y la carga en memoria
+    * usando un conjunto compartido de métodos generados para evitar duplicados
+    * Retorna el Class<?> directamente usable usando finish()
+    */
+  public Class<?> generateAndLoadMultipleInstructions(String className, 
+                                                      InstructionProcessorHandler.IInstructionMethodGenerator methodGenerator,
+                                                      InstructionProcessorHandler processorHandler,
+                                                      DispatchMethodGenerator dispatchGenerator,
+                                                      Map<Integer, Instruction> instructions,
+                                                      Set<String> generatedMethods) {
     className = className.replace("-", "_");
     ClassMaker cm = createBaseClass(className);
 
@@ -59,9 +76,9 @@ public class ClassGenerationHandler {
     constructorMaker.public_();
     constructorMaker.return_();
 
-    // Procesar instrucciones
+    // Procesar instrucciones con el conjunto compartido de métodos generados
     BytecodeInliner.InstructionProcessingResult result = processorHandler.processInstructions(cm, instructions, 
-                                                                                               methodGenerator);
+                                                                                                methodGenerator, generatedMethods);
     dispatchGenerator.addDispatchMethodWithOpcodes(cm, result.opcodeToMethodName, result.prefixOpcodes);
 
     // Usar finish() para cargar la clase directamente en memoria

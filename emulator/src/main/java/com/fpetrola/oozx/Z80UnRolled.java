@@ -5,8 +5,8 @@ import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.UnrolledRegisterBank;
 
 public class Z80UnRolled extends UnrolledRegisterBank {
-  public RLA.RLAAluOperation rLAAluOperation = new RLA.RLAAluOperation();
-  public RRA.RRAAluOperation rRAAluOperation = new RRA.RRAAluOperation();
+  public RLA.RLAAluOperation rlaTableAluOperation = new RLA.RLAAluOperation();
+  public RRA.RRAAluOperation rraTableAluOperation = new RRA.RRAAluOperation();
   public RLCA.RlcaTableAluOperation rlcaTableAluOperation = new RLCA.RlcaTableAluOperation();
   public RRCA.RRCAAluOperation rRCAAluOperation = new RRCA.RRCAAluOperation();
   public RLC.RlcTableAluOperation rlcTableAluOperation = new RLC.RlcTableAluOperation();
@@ -46,6 +46,7 @@ public class Z80UnRolled extends UnrolledRegisterBank {
   public In.InAluOperation inAluOperation = new In.InAluOperation();
   public Outi.OutiTableAluOperation outiTableAluOperation = new Outi.OutiTableAluOperation();
   public Neg.NegTableAluOperation negTableAluOperation = new Neg.NegTableAluOperation();
+  public RRCA.RRCAAluOperation rrcaTableAluOperation =  new RRCA.RRCAAluOperation();
 
   protected Memory memory;
 
