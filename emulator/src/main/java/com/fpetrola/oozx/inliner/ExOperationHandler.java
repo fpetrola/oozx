@@ -57,6 +57,22 @@ public class ExOperationHandler {
       return;
     }
 
+    if (source instanceof Register register && target instanceof IndirectMemory16BitReference indirectMemory16BitReference) {
+      Variable memory = mm.field("memory");
+      Variable targetAddr = memoryAccessHandler.resolveIndirectMemory16BitAddress(mm, indirectMemory16BitReference);
+      Variable sourceAddr = memoryAccessHandler.resolveSourceMemoryAddress(mm, register);
+
+      // temp = memory[targetAddr]
+      Variable temp = mm.var(int.class);
+      temp.set(memory.invoke("read16Bits", targetAddr));
+
+      memory.invoke("write16Bits", targetAddr, sourceAddr);
+
+      registerValueResolver.assignRegisterValue(mm, register.getName(), temp);
+      return;
+    }
+
+
     throw new UnsupportedOperationException("EX entre " + target.getClass().getSimpleName() + " y " + 
                                            source.getClass().getSimpleName() + " no soportado");
   }

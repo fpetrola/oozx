@@ -7,7 +7,6 @@ import com.fpetrola.z80.instructions.impl.Pop;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
-import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import org.cojen.maker.ClassMaker;
@@ -81,7 +80,7 @@ public class ExecuteMethodGenerator {
 
     Supplier<MethodMaker> methodMakerSupplier = () -> {
       if (mms[0] == null) {
-        mms[0] = cm.addMethod(void.class, methodName);
+        mms[0] = addingMethod(cm, methodName);
         mms[0].public_();
       }
       return mms[0];
@@ -128,7 +127,7 @@ public class ExecuteMethodGenerator {
       }
     }
     
-    MethodMaker mm = cm.addMethod(void.class, methodName);
+    MethodMaker mm = addingMethod(cm, methodName);
     mm.public_();
     
     try {
@@ -141,6 +140,12 @@ public class ExecuteMethodGenerator {
       }
       throw e;
     }
+  }
+
+  private MethodMaker addingMethod(ClassMaker cm, String methodName) {
+    if (methodName.equals("executeExImr16Sp"))
+      System.out.println("adgadgd");
+    return cm.addMethod(void.class, methodName);
   }
 
   /**
@@ -265,7 +270,7 @@ public class ExecuteMethodGenerator {
     try {
       // Intentar procesar con el registry - ya verificamos que existe handler
       // Creamos un MethodMaker temporal para que el handler pueda generar código
-      MethodMaker tempMm = cm.addMethod(void.class, methodName);
+      MethodMaker tempMm = addingMethod(cm, methodName);
       tempMm.public_();
       
       boolean handled = handlerRegistry.tryHandle(cm, instruction, tempMm, operationName, generatedMethods);
