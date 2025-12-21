@@ -6,6 +6,7 @@ import com.fpetrola.z80.instructions.impl.Inc16;
 import com.fpetrola.z80.instructions.impl.SCF;
 import com.fpetrola.z80.instructions.impl.CCF;
 import com.fpetrola.z80.instructions.impl.Pop;
+import com.fpetrola.z80.instructions.impl.Ex;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.DefaultTargetInstruction;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
@@ -88,6 +89,18 @@ public class InstructionHandlerRegistry {
         return true;
       }
       return false;
+    });
+
+    // Handler para EX (Exchange/Swap)
+    registerHandler(Ex.class, (cm, instr, mm, opName, genMethods) -> {
+      var ex = (Ex) instr;
+      try {
+        new ExOperationHandler(registerValueResolver, memoryAccessHandler).executeEx(mm, ex);
+        return true;
+      } catch (UnsupportedOperationException e) {
+        // Si el tipo de intercambio no es soportado, retorna false
+        return false;
+      }
     });
 
     // Handler genérico para instrucciones de un solo target (Dec16, Inc16, etc.)
