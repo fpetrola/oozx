@@ -308,29 +308,36 @@ public class InstructionProcessorHandler {
    }
 
    /**
-    * Genera el nombre del método para instrucciones del registry
-    */
-   private String generateRegistryMethodName(Instruction instruction, String operationName) {
-     StringBuilder methodName = new StringBuilder("execute").append(operationName);
-     
-     // No agregar sufijo para instrucciones de flag (SCF, CCF)
-     if (instruction instanceof SCF || instruction instanceof CCF) {
-       return methodName.toString().toLowerCase();
-     }
-     
-     if (instruction instanceof Push pushInstr) {
-       OpcodeReference target = pushInstr.getTarget();
-       methodName.append(nameGenerator.getReferenceSuffix(target));
-     } else if (instruction instanceof Pop popInstr) {
-       OpcodeReference target = popInstr.getTarget();
-       methodName.append(nameGenerator.getReferenceSuffix(target));
-     } else if (instruction instanceof com.fpetrola.z80.instructions.types.DefaultTargetInstruction defaultTargetInstr) {
-       OpcodeReference target = defaultTargetInstr.getTarget();
-       methodName.append(nameGenerator.getReferenceSuffix(target));
-     }
-     
-     return methodName.toString();
-   }
+     * Genera el nombre del método para instrucciones del registry
+     * Delega a MethodNameGenerator para instrucciones TargetSource
+     */
+    private String generateRegistryMethodName(Instruction instruction, String operationName) {
+      // No agregar sufijo para instrucciones de flag (SCF, CCF)
+      if (instruction instanceof SCF || instruction instanceof CCF) {
+        return "execute" + operationName.toLowerCase();
+      }
+      
+      // Para TargetSourceInstructions, usar el generador de nombres principal
+      if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
+        OpcodeReference target = ((com.fpetrola.z80.instructions.types.DefaultTargetInstruction) targetSourceInstruction).getTarget();
+        return nameGenerator.generateUniquMethodName(targetSourceInstruction, operationName, target);
+      }
+      
+      StringBuilder methodName = new StringBuilder("execute").append(operationName);
+      
+      if (instruction instanceof Push pushInstr) {
+        OpcodeReference target = pushInstr.getTarget();
+        methodName.append(nameGenerator.getReferenceSuffix(target));
+      } else if (instruction instanceof Pop popInstr) {
+        OpcodeReference target = popInstr.getTarget();
+        methodName.append(nameGenerator.getReferenceSuffix(target));
+      } else if (instruction instanceof com.fpetrola.z80.instructions.types.DefaultTargetInstruction defaultTargetInstr) {
+        OpcodeReference target = defaultTargetInstr.getTarget();
+        methodName.append(nameGenerator.getReferenceSuffix(target));
+      }
+      
+      return methodName.toString();
+    }
 
   /**
      * Interfaz para abstracción de generación de métodos
