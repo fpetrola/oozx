@@ -118,9 +118,9 @@ public class BytecodeInliner {
       }
 
       @Override
-      public void addExecuteGenericMethod(ClassMaker cm, Instruction instruction, 
-                                         String operationName, Set<String> generatedMethods) {
-        executeMethodGenerator.addExecuteGenericMethod(cm, instruction, operationName, generatedMethods);
+      public boolean addExecuteGenericMethod(ClassMaker cm, Instruction instruction, 
+                                            String operationName, Set<String> generatedMethods) {
+        return executeMethodGenerator.addExecuteGenericMethod(cm, instruction, operationName, generatedMethods);
       }
 
       @Override

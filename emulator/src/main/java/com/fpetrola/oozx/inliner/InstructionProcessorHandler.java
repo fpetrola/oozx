@@ -1,6 +1,9 @@
 package com.fpetrola.oozx.inliner;
 
 import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.instructions.impl.SCF;
+import com.fpetrola.z80.instructions.impl.CCF;
+import com.fpetrola.z80.instructions.impl.Pop;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
@@ -248,9 +251,13 @@ public class InstructionProcessorHandler {
      
      try {
        // Intentar procesar con el handler del registry
-       methodGenerator.addExecuteGenericMethod(cm, instruction, operationName, generatedMethods);
+       boolean processed = methodGenerator.addExecuteGenericMethod(cm, instruction, operationName, generatedMethods);
        
-       // Si llegamos aquí, el método fue procesado o ignorado gracefully
+       // Solo agregar al mapping si fue procesado exitosamente
+       if (!processed) {
+         return null;  // No fue procesado, no agregamos al switch
+       }
+       
        // Generar el nombre del método para el mapping
        String methodName = generateRegistryMethodName(instruction, operationName);
        return methodName;
@@ -279,6 +286,11 @@ public class InstructionProcessorHandler {
    private String generateRegistryMethodName(Instruction instruction, String operationName) {
      StringBuilder methodName = new StringBuilder("execute").append(operationName);
      
+     // No agregar sufijo para instrucciones de flag (SCF, CCF, POP)
+     if (instruction instanceof SCF || instruction instanceof CCF || instruction instanceof Pop) {
+       return methodName.toString().toLowerCase();
+     }
+     
      if (instruction instanceof Push pushInstr) {
        OpcodeReference target = pushInstr.getTarget();
        methodName.append(nameGenerator.getReferenceSuffix(target));
@@ -300,8 +312,8 @@ public class InstructionProcessorHandler {
     void addExecuteUnaryMethod(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, 
                               String operationName, Set<String> generatedMethods);
     
-    void addExecuteGenericMethod(ClassMaker cm, Instruction instruction, 
-                                String operationName, Set<String> generatedMethods);
+    boolean addExecuteGenericMethod(ClassMaker cm, Instruction instruction, 
+                                   String operationName, Set<String> generatedMethods);
     
     void addPrefixDispatchMethod(ClassMaker cm, String dispatchMethodName, 
                                 Map<Integer, String> prefixMethods);

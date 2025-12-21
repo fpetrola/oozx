@@ -1,6 +1,9 @@
 package com.fpetrola.oozx.inliner;
 
 import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.instructions.impl.SCF;
+import com.fpetrola.z80.instructions.impl.CCF;
+import com.fpetrola.z80.instructions.impl.Pop;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
@@ -239,14 +242,14 @@ public class ExecuteMethodGenerator {
 
   /**
    * Agrega un método execute genérico para instrucciones manejadas por el registry
-   * Si no hay handler o falla el procesamiento, simplemente no agrega el método y continúa
+   * Retorna true si fue procesado exitosamente, false si no pudo ser procesado
    */
-  public void addExecuteGenericMethod(ClassMaker cm, Instruction instruction, 
-                                      String operationName, Set<String> generatedMethods) {
+  public boolean addExecuteGenericMethod(ClassMaker cm, Instruction instruction, 
+                                         String operationName, Set<String> generatedMethods) {
     // Verificar que hay handler registrado antes de crear el método
     if (!handlerRegistry.hasHandler(instruction)) {
-      // Sin handler registrado, no procesamos - simplemente retornamos
-      return;
+      // Sin handler registrado, no procesamos - simplemente retornamos false
+      return false;
     }
     
     // Generar el nombre del método según el tipo de instrucción
@@ -254,37 +257,40 @@ public class ExecuteMethodGenerator {
     
     // Si generatedMethods está disponible y el método ya existe, no lo agreguemos de nuevo
     if (generatedMethods != null && generatedMethods.contains(methodName)) {
-      return;
+      return true;  // Ya fue procesado
     }
     
-    // Agregar INMEDIATAMENTE a generatedMethods para prevenir re-intentos durante procesamiento paralelo
-    if (generatedMethods != null) {
-      if (!generatedMethods.add(methodName)) {
-        return;
-      }
-    }
-    
-    MethodMaker mm = cm.addMethod(void.class, methodName);
-    mm.public_();
-    
+    // Primero, intentar procesar sin crear el método aún
     try {
       // Intentar procesar con el registry - ya verificamos que existe handler
-      boolean handled = handlerRegistry.tryHandle(cm, instruction, mm, operationName, generatedMethods);
+      // Creamos un MethodMaker temporal para que el handler pueda generar código
+      MethodMaker tempMm = cm.addMethod(void.class, methodName);
+      tempMm.public_();
+      
+      boolean handled = handlerRegistry.tryHandle(cm, instruction, tempMm, operationName, generatedMethods);
+      
       if (!handled) {
-        // Si el handler existe pero falla, removemos el método y continuamos
-        if (generatedMethods != null) {
-          generatedMethods.remove(methodName);
-        }
-        return;
+        // Si el handler no pudo procesar, el método se quedó vacío
+        // No hacemos nada porque el método vacío ya está en la clase
+        // (ClassMaker API no permite remover métodos una vez agregados)
+        return false;  // No fue procesado
       }
-      mm.return_();
-    } catch (Exception e) {
-      // Si hay error, removemos el método del registro y continuamos sin lanzar
+      
+      // El handler procesó exitosamente, retornamos
+      tempMm.return_();
+      
+      // Agregar a generatedMethods si fue procesado exitosamente
       if (generatedMethods != null) {
-        generatedMethods.remove(methodName);
+        generatedMethods.add(methodName);
       }
+      
+      return true;  // Procesado exitosamente
+      
+    } catch (Exception e) {
+      // Si hay error durante el procesamiento, continuamos sin lanzar
       System.err.println("Warning: No se pudo procesar instrucción " + instruction.getClass().getSimpleName() + 
                         " con handler registrado: " + e.getMessage());
+      return false;  // No fue procesado
     }
   }
 
@@ -294,8 +300,12 @@ public class ExecuteMethodGenerator {
   private String generateGenericMethodName(Instruction instruction, String operationName) {
     StringBuilder methodName = new StringBuilder("execute").append(operationName);
     
-    // Para instrucciones que tienen target (Push, Dec16, Inc16, etc.)
-    if (instruction instanceof Push pushInstr) {
+    // Para instrucciones que NO son flag operations (SCF, CCF, POP)
+    // y que tienen target (Push, Dec16, Inc16, etc.)
+    if (instruction instanceof SCF || instruction instanceof CCF || instruction instanceof Pop) {
+      // No agregar sufijo para instrucciones de flag
+      return methodName.toString().toLowerCase();
+    } else if (instruction instanceof Push pushInstr) {
       OpcodeReference target = pushInstr.getTarget();
       methodName.append(nameGenerator.getReferenceSuffix(target));
     } else if (instruction instanceof com.fpetrola.z80.instructions.types.DefaultTargetInstruction defaultTargetInstr) {

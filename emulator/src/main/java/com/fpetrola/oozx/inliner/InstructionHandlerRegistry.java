@@ -3,8 +3,12 @@ package com.fpetrola.oozx.inliner;
 import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.instructions.impl.Dec16;
 import com.fpetrola.z80.instructions.impl.Inc16;
+import com.fpetrola.z80.instructions.impl.SCF;
+import com.fpetrola.z80.instructions.impl.CCF;
+import com.fpetrola.z80.instructions.impl.Pop;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.DefaultTargetInstruction;
+import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.registers.Register;
 import org.cojen.maker.ClassMaker;
 import org.cojen.maker.MethodMaker;
@@ -40,7 +44,7 @@ public class InstructionHandlerRegistry {
   private final MemoryAccessHandler memoryAccessHandler;
 
   public InstructionHandlerRegistry(RegisterValueResolver registerValueResolver,
-                                   MemoryAccessHandler memoryAccessHandler) {
+                                    MemoryAccessHandler memoryAccessHandler) {
     this.registerValueResolver = registerValueResolver;
     this.memoryAccessHandler = memoryAccessHandler;
     registerDefaultHandlers();
@@ -61,12 +65,38 @@ public class InstructionHandlerRegistry {
       return false;
     });
 
+    // Handler para SCF (Set Carry Flag)
+    registerHandler(SCF.class, (cm, instr, mm, opName, genMethods) -> {
+      var scf = (SCF) instr;
+      new FlagOperationHandler(registerValueResolver, memoryAccessHandler).executeFlagOperation(mm, scf);
+      return true;
+    });
+
+    // Handler para CCF (Complement Carry Flag)
+    registerHandler(CCF.class, (cm, instr, mm, opName, genMethods) -> {
+      var ccf = (CCF) instr;
+      new FlagOperationHandler(registerValueResolver, memoryAccessHandler).executeFlagOperation(mm, ccf);
+      return true;
+    });
+
+    // Handler para POP
+    registerHandler(Pop.class, (cm, instr, mm, opName, genMethods) -> {
+      var pop = (Pop) instr;
+      new FlagOperationHandler(registerValueResolver, memoryAccessHandler).executePop(mm, pop);
+      return true;
+    });
+
     // Handler genérico para instrucciones de un solo target (Dec16, Inc16, etc.)
     registerHandler(DefaultTargetInstruction.class, (cm, instr, mm, opName, genMethods) -> {
       var defaultTargetInstr = (DefaultTargetInstruction) instr;
-      new DefaultTargetInstructionHandler(registerValueResolver)
-        .executeDefaultTargetInstruction(mm, defaultTargetInstr, opName);
-      return true;
+      try {
+        new DefaultTargetInstructionHandler(registerValueResolver)
+          .executeDefaultTargetInstruction(mm, defaultTargetInstr, opName);
+        return true;
+      } catch (UnsupportedOperationException e) {
+        // Si la operación no es soportada, retorna false para omitirla
+        return false;
+      }
     });
   }
 
