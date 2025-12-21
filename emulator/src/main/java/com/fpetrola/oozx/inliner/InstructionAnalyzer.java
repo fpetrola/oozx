@@ -130,6 +130,8 @@ public class InstructionAnalyzer implements InstructionVisitor<Void> {
 
   @Override
   public void visitingTargetSourceInstruction(TargetSourceInstruction targetSourceInstruction) {
+    currentTarget = targetSourceInstruction.getTarget();
+    currentSource= targetSourceInstruction.getSource();
   }
 
   private void addVariable(String name, String type, String value) {

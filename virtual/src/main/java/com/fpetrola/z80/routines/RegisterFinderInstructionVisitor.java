@@ -78,10 +78,11 @@ public abstract class RegisterFinderInstructionVisitor implements InstructionVis
     pop.getTarget().accept(this);
   }
 
-  public void visitEx(Ex ex) {
+  public boolean visitEx(Ex ex) {
     isTarget = true;
     ex.getSource().accept(this);
     ex.getTarget().accept(this);
+    return false;
   }
 
   public boolean visitLdi(Ldi blockInstruction) {

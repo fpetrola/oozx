@@ -187,9 +187,10 @@ public class InstructionActionExecutor implements InstructionVisitor<java.lang.I
   }
 
 
-  public void visitEx(Ex ex) {
+  public boolean visitEx(Ex ex) {
     executeAction(ex.getSource());
     executeAction(ex.getTarget());
+    return false;
   }
 
   @Override

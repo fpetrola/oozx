@@ -152,9 +152,10 @@ public class TransformerInstructionExecutor implements InstructionExecutor {
       }
 
       @Override
-      public void visitEx(Ex ex) {
+      public boolean visitEx(Ex ex) {
         ex.getSource().accept(this);
         ex.getTarget().accept(this);
+        return false;
       }
     };
     cloned.accept(instructionVisitor);

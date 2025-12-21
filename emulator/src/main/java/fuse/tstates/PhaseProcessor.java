@@ -168,7 +168,7 @@ public abstract class PhaseProcessor extends PhaseProcessorBase {
     }
   }
 
-  public void visitEx(Ex ex) {
+  public boolean visitEx(Ex ex) {
     final ObjectArrayList afterExecutionActions = new ObjectArrayList();
 
     if (ex.getTarget() instanceof IndirectMemory16BitReference indirectMemory16BitReference)
@@ -195,6 +195,7 @@ public abstract class PhaseProcessor extends PhaseProcessorBase {
           addMultipleMcRegister();
         }
       });
+    return false;
   }
 
   private Runnable computeActions(ObjectArrayList afterExecutionActions) {

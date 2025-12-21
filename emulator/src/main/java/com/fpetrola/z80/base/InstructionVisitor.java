@@ -218,7 +218,8 @@ public interface InstructionVisitor<R> {
 
   }
 
-  default void visitEx(Ex ex) {
+  default boolean visitEx(Ex ex) {
+    return false;
   }
 
   default void visitIn(In tIn) {

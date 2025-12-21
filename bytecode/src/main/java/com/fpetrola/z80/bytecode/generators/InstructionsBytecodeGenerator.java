@@ -66,7 +66,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   }
 
   @Override
-  public void visitEx(Ex ex) {
+  public boolean visitEx(Ex ex) {
     Register source = (Register) ex.getSource();
     String sourceName = source.getName();
     if (ex.getTarget() instanceof Register target) {
@@ -77,6 +77,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
       }
     } else
       ex_iSP_Reg(ex, sourceName);
+    return false;
   }
 
   private void exAF(Register target) {

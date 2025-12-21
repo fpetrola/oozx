@@ -97,13 +97,14 @@ public class ToStringInstructionVisitor implements InstructionVisitor<String> {
     return true;
   }
 
-  public void visitEx(Ex instruction) {
+  public boolean visitEx(Ex instruction) {
     ToStringInstructionVisitor instructionVisitor = new ToStringInstructionVisitor();
     instruction.getTarget().accept(instructionVisitor);
     String targetString = instructionVisitor.getResult();
     instruction.getSource().accept(instructionVisitor);
     String sourceString = instructionVisitor.getResult();
     result = getInstructionName(instruction) + " " + targetString + ", " + sourceString;
+    return false;
   }
 
 

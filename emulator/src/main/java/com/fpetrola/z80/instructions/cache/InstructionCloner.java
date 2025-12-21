@@ -234,8 +234,9 @@ public class InstructionCloner implements InstructionVisitor<Object> {
   }
 
   @Override
-  public void visitEx(Ex ex) {
+  public boolean visitEx(Ex ex) {
     setCloned(instructionFactory.Ex(clone(ex.getTarget()), clone(ex.getSource())), ex);
+    return false;
   }
 
   @Override
