@@ -43,19 +43,8 @@ public class AluOperationHandler {
     return Object.class;
   }
 
-  /**
-   * Obtiene el nombre del campo ALU operation para una instrucción
-   */
   public String getAluOperationFieldName(String instructionClassName) {
-    // Mapeo especial para instrucciones que tienen names diferentes
-    return switch (instructionClassName) {
-      case "Inc" -> "inc8TableAluOperation";
-      case "Dec" -> "dec8TableAluOperation";
-      case "RRC" -> "rRCAluOperation";
-      case "SRA" -> "sRAAluOperation";
-      case "SLL" -> "sLLAluOperation";
-      default -> instructionClassName.toLowerCase() + "TableAluOperation";
-    };
+    return instructionClassName.toLowerCase() + "TableAluOperation";
   }
 
   /**

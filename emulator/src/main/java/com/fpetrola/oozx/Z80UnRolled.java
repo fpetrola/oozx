@@ -27,8 +27,8 @@ public class Z80UnRolled extends UnrolledRegisterBank {
   public Xor.XorTableAluOperation xorTableAluOperation = new Xor.XorTableAluOperation();
   public Or.OrTableAluOperation orTableAluOperation = new Or.OrTableAluOperation();
   public Cp.CpTableAluOperation cpTableAluOperation = new Cp.CpTableAluOperation();
-  public Inc.Inc8TableAluOperation inc8TableAluOperation = new Inc.Inc8TableAluOperation();
-  public Dec.Dec8TableAluOperation dec8TableAluOperation = new Dec.Dec8TableAluOperation();
+  public Inc.IncTableAluOperation incTableAluOperation = new Inc.IncTableAluOperation();
+  public Dec.DecTableAluOperation decTableAluOperation = new Dec.DecTableAluOperation();
   public DAA.DaaTableAluOperation daaTableAluOperation = new DAA.DaaTableAluOperation();
   public CPL.CplTableAluOperation cplTableAluOperation = new CPL.CplTableAluOperation();
   public SCF.ScfTableAluOperation scfTableAluOperation = new SCF.ScfTableAluOperation();
