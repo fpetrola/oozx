@@ -53,9 +53,25 @@ public class InstructionHandlerRegistry {
   }
 
   /**
-   * Registra los handlers para instrucciones comunes
-   */
+    * Registra los handlers para instrucciones comunes
+    */
   private void registerDefaultHandlers() {
+    // Handler para instrucciones de bit (BIT, RES, SET) - DEBE IR ANTES de DefaultTargetInstruction
+    // porque BitOperation extiende DefaultTargetFlagInstruction que extiende DefaultTargetInstruction
+    registerHandler(BitOperation.class, (cm, instr, mm, opName, genMethods) -> {
+      var bitOp = (BitOperation) instr;
+      try {
+        new BitOperationHandler(registerValueResolver, memoryAccessHandler)
+          .executeBitOperation(mm, bitOp);
+        return true;
+      } catch (UnsupportedOperationException e) {
+        // Si la operación no es soportada, retorna false
+        return false;
+      } catch (Exception e) {
+        return false;
+      }
+    });
+    
     // Handler para PUSH
     registerHandler(Push.class, (cm, instr, mm, opName, genMethods) -> {
       var push = (Push) instr;
@@ -116,26 +132,6 @@ public class InstructionHandlerRegistry {
         return false;
       }
     });
-
-    // Handler para instrucciones de bit (BIT, RES, SET)
-    registerHandler(BitOperation.class, (cm, instr, mm, opName, genMethods) -> {
-      var bitOp = (BitOperation) instr;
-      try {
-        System.out.println("DEBUG BitOperation handler lambda executing for " + instr.getClass().getSimpleName());
-        new BitOperationHandler(registerValueResolver, memoryAccessHandler)
-          .executeBitOperation(mm, bitOp);
-        System.out.println("DEBUG BitOperation handler lambda completed successfully");
-        return true;
-      } catch (UnsupportedOperationException e) {
-        // Si la operación no es soportada, retorna false
-        System.out.println("DEBUG BitOperation handler UnsupportedOperationException: " + e.getMessage());
-        return false;
-      } catch (Exception e) {
-        System.out.println("DEBUG BitOperation handler Exception: " + e.getClass().getSimpleName() + " - " + e.getMessage());
-        e.printStackTrace();
-        return false;
-      }
-    });
   }
 
   /**
@@ -146,20 +142,77 @@ public class InstructionHandlerRegistry {
   }
 
   /**
-   * Obtiene el handler para una instrucción, si existe
-   */
+    * Obtiene el handler para una instrucción, si existe.
+    * Busca en orden de especificidad (más específico primero).
+    */
   public InstructionHandler getHandler(Instruction instruction) {
     // Búsqueda directa
     InstructionHandler handler = handlers.get(instruction.getClass());
-    if (handler != null) return handler;
+    if (handler != null) {
+      return handler;
+    }
     
-    // Búsqueda por jerarquía (para instrucciones que extienden DefaultTargetInstruction)
+    // Búsqueda por jerarquía, ordenando por especificidad (subclases primero)
+    // Esto asegura que BitOperation se evalúe antes que DefaultTargetInstruction
+    InstructionHandler bestMatch = null;
+    Class<?> bestMatchClass = null;
+    int bestMatchDepth = -1;
+    
     for (Map.Entry<Class<?>, InstructionHandler> entry : handlers.entrySet()) {
       if (entry.getKey().isAssignableFrom(instruction.getClass())) {
-        return entry.getValue();
+        // Calcular la especificidad (mayor especificidad = más específico)
+        int depth = getInheritanceDepth(instruction.getClass(), entry.getKey());
+        if (depth > bestMatchDepth) {
+          bestMatchDepth = depth;
+          bestMatch = entry.getValue();
+          bestMatchClass = entry.getKey();
+        }
       }
     }
+    
+    if (bestMatch != null) {
+      return bestMatch;
+    }
     return null;
+  }
+  
+  /**
+   * Calcula la especificidad de un handler para una instrucción.
+   * Mayor valor = más específico.
+   * Esto es importante porque queremos handlers más específicos (como BitOperation)
+   * antes que sus supertypes (como DefaultTargetInstruction).
+   */
+  private int getInheritanceDepth(Class<?> child, Class<?> parent) {
+    // Primero, buscar en la jerarquía de clases
+    int depth = 0;
+    Class<?> current = child;
+    while (current != null) {
+      if (current == parent) {
+        // Menor profundidad = más cercano en la jerarquía = más específico
+        // Invertimos el valor: 1000 - depth para que los más cercanos tengan valores mayores
+        return 1000 - depth;  // Valor alto para jerarquía de clases
+      }
+      current = current.getSuperclass();
+      depth++;
+    }
+    
+    // Si no se encontró en la jerarquía de clases, buscar en interfaces
+    depth = 0;
+    current = child;
+    while (current != null) {
+      for (Class<?> iface : current.getInterfaces()) {
+        if (iface == parent) {
+          return 500 - depth;  // Valor medio para interfaces
+        }
+        if (parent.isAssignableFrom(iface)) {
+          return 400 - depth;
+        }
+      }
+      current = current.getSuperclass();
+      depth++;
+    }
+    
+    return 0;  // No encontrado
   }
 
   /**

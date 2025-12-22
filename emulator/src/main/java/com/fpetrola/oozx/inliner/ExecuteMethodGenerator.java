@@ -251,14 +251,11 @@ public class ExecuteMethodGenerator {
     */
    public boolean addExecuteGenericMethod(ClassMaker cm, Instruction instruction, 
                                           String operationName, Set<String> generatedMethods) {
-     System.out.println("DEBUG ExecuteMethodGenerator.addExecuteGenericMethod: " + instruction.getClass().getSimpleName());
      // Verificar que hay handler registrado antes de crear el método
      if (!handlerRegistry.hasHandler(instruction)) {
        // Sin handler registrado, no procesamos - simplemente retornamos false
-       System.out.println("DEBUG  -> No handler found");
        return false;
      }
-     System.out.println("DEBUG  -> Handler found");
      
      // Generar el nombre del método según el tipo de instrucción
      // Esto debe coincidir con lo que genera InstructionProcessorHandler.generateRegistryMethodName()
@@ -282,14 +279,12 @@ public class ExecuteMethodGenerator {
          // Si el handler no pudo procesar, el método se quedó vacío
          // Agregamos un return_() para que el método sea válido de todas formas,
          // aunque esté vacío (sin código útil)
-         System.out.println("DEBUG: Handler returned false, adding empty return to close the method");
          tempMm.return_();
          // NO agregamos a generatedMethods ya que no fue procesado exitosamente
          return false;  // No fue procesado
        }
        
        // El handler procesó exitosamente, retornamos
-       System.out.println("DEBUG: Handler succeeded, adding return statement");
        tempMm.return_();
        
        // Agregar a generatedMethods si fue procesado exitosamente

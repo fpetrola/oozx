@@ -33,8 +33,6 @@ public class BitOperationHandler {
     OpcodeReference target = instruction.getTarget();
     int bitPosition = instruction.getN();
 
-    System.out.println("DEBUG BitOperationHandler.executeBitOperation: " + instruction.getClass().getSimpleName() + " target=" + target.getClass().getSimpleName() + " bit=" + bitPosition);
-
     // Leer el valor actual del target
     Variable currentValue = resolveTargetValue(mm, target);
 
