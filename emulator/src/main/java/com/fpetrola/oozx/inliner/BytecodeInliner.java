@@ -17,18 +17,14 @@ import java.util.TreeMap;
  * extrayendo e inlineando código de instrucciones de forma dinámica.
  */
 public class BytecodeInliner {
-  public static final String FLAG = "F";
   private final InstructionAnalyzer analyzer;
-  private final InstructionClassifier classifier;
   private final DispatchMethodGenerator dispatchGenerator;
-  private final MethodNameGenerator nameGenerator;
   private final RegisterValueResolver registerValueResolver;
   private final MemoryAccessHandler memoryAccessHandler;
   private final AluOperationHandler aluOperationHandler;
   private final InstructionProcessorHandler processorHandler;
   private final ExecuteMethodGenerator executeMethodGenerator;
   private final ClassGenerationHandler classGenerationHandler;
-  private final FieldManagementHandler fieldManagementHandler;
   private final OpCodeDecoder opcodeDecoder;
   public static Map<String, byte[]> generatedBytecodes = new HashMap<>();
   private InstructionProcessingContext processingContext;
@@ -36,9 +32,9 @@ public class BytecodeInliner {
   public BytecodeInliner(InstructionAnalyzer analyzer, OpCodeDecoder opcodeDecoder) {
     this.analyzer = analyzer;
     this.opcodeDecoder = opcodeDecoder;
-    this.classifier = new InstructionClassifier();
+    InstructionClassifier classifier = new InstructionClassifier();
+    MethodNameGenerator nameGenerator = new MethodNameGenerator();
     this.dispatchGenerator = new DispatchMethodGenerator();
-    this.nameGenerator = new MethodNameGenerator();
     this.registerValueResolver = new RegisterValueResolver();
     this.memoryAccessHandler = new MemoryAccessHandler();
     this.aluOperationHandler = new AluOperationHandler(registerValueResolver);
@@ -48,7 +44,6 @@ public class BytecodeInliner {
     InstructionHandlerRegistry handlerRegistry = new InstructionHandlerRegistry(registerValueResolver, memoryAccessHandler);
     this.processorHandler = new InstructionProcessorHandler(classifier, nameGenerator, analyzer, dispatchGenerator, handlerRegistry);
     this.classGenerationHandler = new ClassGenerationHandler(generatedBytecodes);
-    this.fieldManagementHandler = new FieldManagementHandler(analyzer, classifier, aluOperationHandler);
     this.processingContext = new InstructionProcessingContext();
   }
 
@@ -157,8 +152,7 @@ public class BytecodeInliner {
   }
 
   private String generateInlinedClass(TargetSourceInstruction instruction, String operationName) {
-    String className = getClassName(instruction, operationName);
-    className = className.replace("-", "_");
+    String className = (operationName + "Bytecode").replace("-", "_");
 
     ClassMaker cm = classGenerationHandler.createBaseClass(className);
     OpcodeReference target = analyzer.getTarget();
@@ -182,16 +176,11 @@ public class BytecodeInliner {
   }
 
 
-  private String getClassName(TargetSourceInstruction instruction, String operationName) {
-    // Generar nombre sin sufijo (o agregar sufijo si necesitas múltiples variantes)
-    return operationName + "Bytecode";
-  }
-
   /**
-    * Extrae todas las instrucciones del OpCodeDecoder incluyendo instrucciones con prefijo
-    * (CB, ED, DD, FD, etc.)
-    * @return Mapa de opcode a instrucción
-    */
+     * Extrae todas las instrucciones del OpCodeDecoder incluyendo instrucciones con prefijo
+     * (CB, ED, DD, FD, etc.)
+     * @return Mapa de opcode a instrucción
+     */
    private Map<Integer, Instruction> extractInstructionsFromDecoder() {
      Map<Integer, Instruction> instructions = new TreeMap<>();
 
