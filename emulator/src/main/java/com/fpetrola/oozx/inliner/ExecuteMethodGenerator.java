@@ -61,7 +61,7 @@ public class ExecuteMethodGenerator {
   public void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, 
                                String operationName, OpcodeReference target, Set<String> generatedMethods) {
     String methodName = nameGenerator.generateUniquMethodName(instruction, operationName, target);
-    
+
     // Si generatedMethods está disponible y el método ya existe, no lo agreguemos de nuevo
     if (generatedMethods != null && generatedMethods.contains(methodName)) {
       return;
