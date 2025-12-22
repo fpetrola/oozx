@@ -13,6 +13,9 @@ public class OpcodeReferenceStrategyFactory {
       case Register reg -> 
         new RegisterStrategy(reg);
       
+      case ConstantOpcodeReference ref -> 
+        new ConstantOpcodeStrategy(ref);
+      
       case IndirectMemory8BitReference ref -> 
         new IndirectMemory8BitStrategy(ref);
       

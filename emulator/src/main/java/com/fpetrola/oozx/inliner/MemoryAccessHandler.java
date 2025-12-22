@@ -70,11 +70,12 @@ public class MemoryAccessHandler {
   }
 
   /**
-   * Lee el byte offset (dd) desde memoria en (pc + valueDelta) y calcula la dirección
-   * destino como (targetReg + dd) & 0xFFFF. Retorna el contexto con memoria y dirección.
-   */
+    * Lee el byte offset (dd) desde memoria en (pc + valueDelta) y calcula la dirección
+    * destino como (targetReg + dd) & 0xFFFF. Retorna el contexto con memoria y dirección.
+    */
   public MemoryPlusRegisterContext readOffsetAndCalculateAddress(MethodMaker mm, MemoryPlusRegister8BitReference memRef) {
-     Variable pcPlusDelta = mm.field("PC").and(0xFFFF);
+     Variable pc = mm.field("PC");
+     Variable pcPlusDelta = pc.and(0xFFFF);
      Variable dd = mm.var(byte.class);
      Variable memory = mm.field("memory");
      dd.set(memory.invoke("read", pcPlusDelta, 0).cast(byte.class));
