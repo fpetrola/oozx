@@ -59,19 +59,18 @@ public class ExecuteMethodGenerator {
     * Agrega un método execute para una TargetSourceInstruction con seguimiento de métodos generados
     */
   public void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, 
-                               String operationName, OpcodeReference target, Set<String> generatedMethods) {
+                               String operationName, OpcodeReference target, InstructionProcessingContext context) {
     String methodName = nameGenerator.generateUniquMethodName(instruction, operationName, target);
 
-    // Si generatedMethods está disponible y el método ya existe, no lo agreguemos de nuevo
-    if (generatedMethods != null && generatedMethods.contains(methodName)) {
+    // Si el método ya existe en el contexto, no lo agreguemos de nuevo
+    if (context != null && context.hasGeneratedMethod(methodName)) {
       return;
     }
     
-    // Agregar INMEDIATAMENTE a generatedMethods para prevenir re-intentos durante procesamiento paralelo
-    if (generatedMethods != null) {
+    // Registrar INMEDIATAMENTE en el contexto para prevenir re-intentos
+    if (context != null) {
       // Si otro thread/contexto ya lo agregó, no lo hacemos de nuevo
-      if (!generatedMethods.add(methodName)) {
-        // El método ya estaba en el conjunto, no agregamos
+      if (!context.addGeneratedMethod(methodName)) {
         return;
       }
     }
@@ -90,9 +89,9 @@ public class ExecuteMethodGenerator {
       generateExecute(methodMakerSupplier, instruction, target);
       mms[0].return_();
     } catch (Exception e) {
-      // Si la generación falla, removemos del registry para permitir reintentos
-      if (generatedMethods != null) {
-        generatedMethods.remove(methodName);
+      // Si la generación falla, removemos del contexto para permitir reintentos
+      if (context != null) {
+        context.removeGeneratedMethod(methodName);
       }
       throw e;
     }
@@ -110,19 +109,18 @@ public class ExecuteMethodGenerator {
     * Agrega un método execute para una ParameterizedUnaryAluInstruction con seguimiento de métodos generados
     */
   public void addExecuteUnaryMethod(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, 
-                                    String operationName, Set<String> generatedMethods) {
+                                    String operationName, InstructionProcessingContext context) {
     String methodName = nameGenerator.generateUnaryMethodName(instruction, operationName);
     
-    // Si generatedMethods está disponible y el método ya existe, no lo agreguemos de nuevo
-    if (generatedMethods != null && generatedMethods.contains(methodName)) {
+    // Si el método ya existe en el contexto, no lo agreguemos de nuevo
+    if (context != null && context.hasGeneratedMethod(methodName)) {
       return;
     }
     
-    // Agregar INMEDIATAMENTE a generatedMethods para prevenir re-intentos durante procesamiento paralelo
-    if (generatedMethods != null) {
+    // Registrar INMEDIATAMENTE en el contexto para prevenir re-intentos
+    if (context != null) {
       // Si otro thread/contexto ya lo agregó, no lo hacemos de nuevo
-      if (!generatedMethods.add(methodName)) {
-        // El método ya estaba en el conjunto, no agregamos
+      if (!context.addGeneratedMethod(methodName)) {
         return;
       }
     }
@@ -134,9 +132,9 @@ public class ExecuteMethodGenerator {
       generateUnaryExecute(mm, instruction);
       mm.return_();
     } catch (Exception e) {
-      // Si la generación falla, removemos del registry para permitir reintentos
-      if (generatedMethods != null) {
-        generatedMethods.remove(methodName);
+      // Si la generación falla, removemos del contexto para permitir reintentos
+      if (context != null) {
+        context.removeGeneratedMethod(methodName);
       }
       throw e;
     }
@@ -275,7 +273,7 @@ public class ExecuteMethodGenerator {
     * Retorna true si fue procesado exitosamente, false si no pudo ser procesado
     */
    public boolean addExecuteGenericMethod(ClassMaker cm, Instruction instruction, 
-                                          String operationName, Set<String> generatedMethods) {
+                                          String operationName, InstructionProcessingContext context) {
      // Verificar que hay handler registrado antes de crear el método
      if (!handlerRegistry.hasHandler(instruction)) {
        // Sin handler registrado, no procesamos - simplemente retornamos false
@@ -286,8 +284,8 @@ public class ExecuteMethodGenerator {
      // Esto debe coincidir con lo que genera InstructionProcessorHandler.generateRegistryMethodName()
      String methodName = generateGenericMethodName(instruction, operationName);
      
-     // Si generatedMethods está disponible y el método ya existe, no lo agreguemos de nuevo
-     if (generatedMethods != null && generatedMethods.contains(methodName)) {
+     // Si el método ya existe en el contexto, no lo agreguemos de nuevo
+     if (context != null && context.hasGeneratedMethod(methodName)) {
        return true;  // Ya fue procesado
      }
      
@@ -298,23 +296,24 @@ public class ExecuteMethodGenerator {
        MethodMaker tempMm = addingMethod(cm, methodName);
        tempMm.public_();
        
-       boolean handled = handlerRegistry.tryHandle(cm, instruction, tempMm, operationName, generatedMethods);
+       boolean handled = handlerRegistry.tryHandle(cm, instruction, tempMm, operationName, 
+                                                  context != null ? context.getGeneratedMethods() : null);
        
        if (!handled) {
          // Si el handler no pudo procesar, el método se quedó vacío
          // Agregamos un return_() para que el método sea válido de todas formas,
          // aunque esté vacío (sin código útil)
          tempMm.return_();
-         // NO agregamos a generatedMethods ya que no fue procesado exitosamente
+         // NO agregamos al contexto ya que no fue procesado exitosamente
          return false;  // No fue procesado
        }
        
        // El handler procesó exitosamente, retornamos
        tempMm.return_();
        
-       // Agregar a generatedMethods si fue procesado exitosamente
-       if (generatedMethods != null) {
-         generatedMethods.add(methodName);
+       // Registrar en el contexto si fue procesado exitosamente
+       if (context != null) {
+         context.markMethodGenerated(methodName);
        }
        
        return true;  // Procesado exitosamente
