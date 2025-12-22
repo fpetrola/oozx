@@ -226,73 +226,50 @@ public class BytecodeInliner {
   }
 
   /**
-   * Extrae todas las instrucciones del OpCodeDecoder incluyendo instrucciones con prefijo
-   * (CB, ED, etc.)
-   * @return Mapa de opcode a instrucción
-   */
-  private Map<Integer, Instruction> extractInstructionsFromDecoder() {
-    Map<Integer, Instruction> instructions = new TreeMap<>();
+    * Extrae todas las instrucciones del OpCodeDecoder incluyendo instrucciones con prefijo
+    * (CB, ED, DD, FD, etc.)
+    * @return Mapa de opcode a instrucción
+    */
+   private Map<Integer, Instruction> extractInstructionsFromDecoder() {
+     Map<Integer, Instruction> instructions = new TreeMap<>();
 
-    Instruction[] opcodeLookupTable = opcodeDecoder.getOpcodeLookupTable();
+     Instruction[] opcodeLookupTable = opcodeDecoder.getOpcodeLookupTable();
 
-    // Agregar instrucciones principales (sin prefijo)
-    for (int idx = 0; idx < opcodeLookupTable.length; idx++) {
-      Instruction instruction = opcodeLookupTable[idx];
-      instructions.put(idx, instruction);
-    }
+     // Agregar instrucciones principales (sin prefijo)
+     for (int idx = 0; idx < opcodeLookupTable.length; idx++) {
+       Instruction instruction = opcodeLookupTable[idx];
+       instructions.put(idx, instruction);
+     }
 
-    // Agregar instrucciones prefijadas con 0xCB si existe
-    if (opcodeLookupTable[0xCB] instanceof DefaultFetchNextOpcodeInstruction cbInstruction) {
-      Instruction[] cbTable = cbInstruction.getTable();
-      for (int idx = 0; idx < cbTable.length; idx++) {
-        Instruction instruction = cbTable[idx];
-        // Opcode prefijado: prefijo en byte alto, siguiente byte en byte bajo
-        int prefixedOpcode = (0xCB << 8) | idx;
-        instructions.put(prefixedOpcode, instruction);
-      }
-    }
+     // Agregar instrucciones con prefijo
+     // Soportados: CB (0xCB), ED (0xED), DD (0xDD), FD (0xFD)
+     int[] prefixes = {0xCB, 0xED, 0xDD, 0xFD};
+     for (int prefix : prefixes) {
+       if (opcodeLookupTable[prefix] instanceof DefaultFetchNextOpcodeInstruction prefixInstruction) {
+         addPrefixedInstructions(instructions, prefix, prefixInstruction.getTable());
+       }
+     }
 
-    // Agregar instrucciones prefijadas con 0xED si existe
-    if (opcodeLookupTable[0xED] instanceof DefaultFetchNextOpcodeInstruction edInstruction) {
-      Instruction[] edTable = edInstruction.getTable();
-      for (int idx = 0; idx < edTable.length; idx++) {
-        Instruction instruction = edTable[idx];
-        // Opcode prefijado: prefijo en byte alto, siguiente byte en byte bajo
-        int prefixedOpcode = (0xED << 8) | idx;
-        if (instruction != null) {
-          instructions.put(prefixedOpcode, instruction);
-        }
-      }
-    }
+     return instructions;
+   }
 
-    // Agregar instrucciones prefijadas con 0xED si existe
-    if (opcodeLookupTable[0xDD] instanceof DefaultFetchNextOpcodeInstruction edInstruction) {
-      Instruction[] edTable = edInstruction.getTable();
-      for (int idx = 0; idx < edTable.length; idx++) {
-        Instruction instruction = edTable[idx];
-        // Opcode prefijado: prefijo en byte alto, siguiente byte en byte bajo
-        int prefixedOpcode = (0xDD << 8) | idx;
-        if (instruction != null) {
-          instructions.put(prefixedOpcode, instruction);
-        }
-      }
-    }
-
-    // Agregar instrucciones prefijadas con 0xED si existe
-    if (opcodeLookupTable[0xFD] instanceof DefaultFetchNextOpcodeInstruction edInstruction) {
-      Instruction[] edTable = edInstruction.getTable();
-      for (int idx = 0; idx < edTable.length; idx++) {
-        Instruction instruction = edTable[idx];
-        // Opcode prefijado: prefijo en byte alto, siguiente byte en byte bajo
-        int prefixedOpcode = (0xFD << 8) | idx;
-        if (instruction != null) {
-          instructions.put(prefixedOpcode, instruction);
-        }
-      }
-    }
-
-    return instructions;
-  }
+   /**
+    * Agrega instrucciones prefijadas al mapa
+    * @param instructions Mapa donde agregar las instrucciones
+    * @param prefix Byte de prefijo (0xCB, 0xED, 0xDD, 0xFD)
+    * @param prefixTable Tabla de instrucciones para este prefijo
+    */
+   private void addPrefixedInstructions(Map<Integer, Instruction> instructions, int prefix, 
+                                       Instruction[] prefixTable) {
+     for (int idx = 0; idx < prefixTable.length; idx++) {
+       Instruction instruction = prefixTable[idx];
+       if (instruction != null) {
+         // Opcode prefijado: prefijo en byte alto, siguiente byte en byte bajo
+         int prefixedOpcode = (prefix << 8) | idx;
+         instructions.put(prefixedOpcode, instruction);
+       }
+     }
+   }
 
 
 
