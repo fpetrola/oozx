@@ -6,6 +6,8 @@ import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import org.cojen.maker.ClassMaker;
+import com.fpetrola.z80.instructions.impl.SCF;
+import com.fpetrola.z80.instructions.impl.CCF;
 
 import java.util.Map;
 
@@ -85,10 +87,11 @@ public class InstructionDispatcher {
         throw e;
       }
     } catch (Exception e) {
-      System.err.println("DEBUG: Exception in processTargetSourceInstruction for " + 
-                        instruction.getClass().getSimpleName() + ": " + 
-                        e.getClass().getSimpleName() + ": " + e.getMessage());
-      e.printStackTrace();
+      InstructionProcessingLogger.logTargetSourceInstructionError(
+        instruction.getClass().getSimpleName(), 
+        e.getClass().getSimpleName(), 
+        e.getMessage());
+      InstructionProcessingLogger.logProcessingError(instruction.getClass().getSimpleName(), e);
       return null;
     }
   }
@@ -113,9 +116,10 @@ public class InstructionDispatcher {
         throw e;
       }
     } catch (Exception e) {
-      System.err.println("DEBUG: Exception in processUnaryInstruction for " + 
-                        instruction.getClass().getSimpleName() + ": " + 
-                        e.getClass().getSimpleName() + ": " + e.getMessage());
+      InstructionProcessingLogger.logUnaryInstructionError(
+        instruction.getClass().getSimpleName(), 
+        e.getClass().getSimpleName(), 
+        e.getMessage());
       return null;
     }
   }
@@ -136,51 +140,18 @@ public class InstructionDispatcher {
       if (!processed) {
         return null;
       }
-      return generateRegistryMethodName(instruction, operationName);
+      return nameGenerator.generateMethodName(instruction, operationName);
     } catch (ClassFormatError e) {
       // Manejo especial para métodos duplicados
       if (e.getMessage() != null && e.getMessage().contains("Duplicate method")) {
-        return generateRegistryMethodName(instruction, operationName);
+        return nameGenerator.generateMethodName(instruction, operationName);
       }
-      System.err.println("Warning: ClassFormatError al procesar " + operationName + ": " + e.getMessage());
+      InstructionProcessingLogger.logClassFormatError(operationName, e.getMessage());
       return null;
     } catch (Exception e) {
-      System.err.println("Warning: No se pudo procesar instrucción del registry " + operationName + 
-                        ": " + e.getClass().getSimpleName());
+      InstructionProcessingLogger.logRegistryInstructionError(operationName, 
+                                                             e.getClass().getSimpleName());
       return null;
     }
-  }
-
-  /**
-   * Genera el nombre del método para instrucciones del registry.
-   */
-  private String generateRegistryMethodName(Instruction instruction, String operationName) {
-    if (instruction instanceof SCF || instruction instanceof CCF) {
-      return "execute" + operationName.toLowerCase();
-    }
-    
-    if (instruction instanceof TargetSourceInstruction<?> targetSourceInstruction) {
-      OpcodeReference target = ((com.fpetrola.z80.instructions.types.DefaultTargetInstruction) targetSourceInstruction).getTarget();
-      return nameGenerator.generateUniquMethodName(targetSourceInstruction, operationName, target);
-    }
-    
-    StringBuilder methodName = new StringBuilder("execute").append(operationName);
-    
-    if (instruction instanceof Push pushInstr) {
-      OpcodeReference target = pushInstr.getTarget();
-      methodName.append(nameGenerator.getReferenceSuffix(target));
-    } else if (instruction instanceof Pop popInstr) {
-      OpcodeReference target = popInstr.getTarget();
-      methodName.append(nameGenerator.getReferenceSuffix(target));
-    } else if (instruction instanceof com.fpetrola.z80.instructions.types.BitOperation bitOp) {
-      OpcodeReference target = bitOp.getTarget();
-      methodName.append("Bit").append(bitOp.getN());
-      methodName.append(nameGenerator.getReferenceSuffix(target));
-    } else if (instruction instanceof com.fpetrola.z80.instructions.types.DefaultTargetInstruction defaultTargetInstr) {
-      OpcodeReference target = defaultTargetInstr.getTarget();
-      methodName.append(nameGenerator.getReferenceSuffix(target));
-    }
-    
-    return methodName.toString();
   }
 }

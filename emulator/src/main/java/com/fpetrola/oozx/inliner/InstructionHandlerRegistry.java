@@ -142,6 +142,24 @@ public class InstructionHandlerRegistry {
   }
 
   /**
+   * Registra un handler con una condición de filtrado específica.
+   * Permite registrar handlers condicionales para subtipos de instrucciones.
+   * Ejemplo: registrar un handler solo para Push con ciertos registros
+   */
+  public void registerConditionalHandler(Class<?> baseClass, 
+                                        java.util.function.Predicate<Instruction> condition,
+                                        InstructionHandler handler) {
+    // Wrapped handler que verifica la condición antes de procesar
+    InstructionHandler wrappedHandler = (cm, instr, mm, opName, genMethods) -> {
+      if (condition.test(instr)) {
+        return handler.handle(cm, instr, mm, opName, genMethods);
+      }
+      return false;
+    };
+    registerHandler(baseClass, wrappedHandler);
+  }
+
+  /**
     * Obtiene el handler para una instrucción, si existe.
     * Busca en orden de especificidad (más específico primero).
     */
