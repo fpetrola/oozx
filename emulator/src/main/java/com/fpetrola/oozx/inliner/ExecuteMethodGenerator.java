@@ -296,8 +296,7 @@ public class ExecuteMethodGenerator {
        MethodMaker tempMm = addingMethod(cm, methodName);
        tempMm.public_();
        
-       boolean handled = handlerRegistry.tryHandle(cm, instruction, tempMm, operationName, 
-                                                  context != null ? context.getGeneratedMethods() : null);
+       boolean handled = handlerRegistry.tryHandle(cm, instruction, tempMm, operationName, context);
        
        if (!handled) {
          // Si el handler no pudo procesar, el método se quedó vacío

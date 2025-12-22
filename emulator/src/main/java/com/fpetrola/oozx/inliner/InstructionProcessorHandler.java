@@ -45,8 +45,6 @@ public class InstructionProcessorHandler {
       ClassMaker cm, Map<Integer, Instruction> instructions,
       IInstructionMethodGenerator methodGenerator) {
     
-    Set<String> generatedMethods = methodGenerator.getByteocdeInliner().getGeneratedMethods();
-    
     Map<Integer, String> opcodeToMethodName = new LinkedHashMap<>();
     Map<Integer, String> prefixOpcodes = new LinkedHashMap<>();
     Map<Integer, Map<Integer, String>> prefixedInstructions = new LinkedHashMap<>();

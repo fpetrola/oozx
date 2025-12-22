@@ -38,7 +38,7 @@ public class InstructionHandlerRegistry {
      * @return true si fue procesada, false si no puede procesar
      */
     boolean handle(ClassMaker cm, Instruction instruction, MethodMaker mm, 
-                   String operationName, Set<String> generatedMethods);
+                   String operationName, InstructionProcessingContext context);
   }
 
   private final Map<Class<?>, InstructionHandler> handlers = new HashMap<>();
@@ -244,16 +244,16 @@ public class InstructionHandlerRegistry {
    * Intenta procesar la instrucción con el handler registrado
    */
   public boolean tryHandle(ClassMaker cm, Instruction instruction, MethodMaker mm,
-                          String operationName, Set<String> generatedMethods) {
-    var handler = getHandler(instruction);
-    if (handler == null) return false;
-    
-    try {
-      return handler.handle(cm, instruction, mm, operationName, generatedMethods);
-    } catch (Exception e) {
-      System.err.println("Error al procesar instrucción " + instruction.getClass().getSimpleName() + ": " + e.getMessage());
-      e.printStackTrace();
-      return false;
-    }
+                         String operationName, InstructionProcessingContext context) {
+   var handler = getHandler(instruction);
+   if (handler == null) return false;
+   
+   try {
+     return handler.handle(cm, instruction, mm, operationName, context);
+   } catch (Exception e) {
+     System.err.println("Error al procesar instrucción " + instruction.getClass().getSimpleName() + ": " + e.getMessage());
+     e.printStackTrace();
+     return false;
+   }
   }
 }
