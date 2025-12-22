@@ -25,7 +25,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class RRC extends ParameterizedUnaryAluInstruction {
-  public static class RRCAluOperation extends AluOperation {
+  public static class RRCATableluOperation extends AluOperation {
     protected int calculate1Value(int value) {
       F = value & FLAG_C;
       value = (value >> 1) | (value << 7);
@@ -37,7 +37,7 @@ public class RRC extends ParameterizedUnaryAluInstruction {
   }
 
   public RRC(OpcodeReference target, Register flag) {
-    super(target, flag, new RRCAluOperation());
+    super(target, flag, new RRCATableluOperation());
   }
 
   public void accept(InstructionVisitor<?> visitor) {

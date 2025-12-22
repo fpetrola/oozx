@@ -28,13 +28,8 @@ public class AluOperationHandler {
     try {
       Class<?> instructionClass = instruction.getClass();
       String instructionName = instructionClass.getSimpleName();
-      
-      // Mapeo de nombres especiales
-      String innerClassName = switch(instructionName) {
-        case "RRC" -> "RRCAluOperation";
-        case "SRA" -> "SRAAluOperation";
-        default -> instructionName + "TableAluOperation";
-      };
+
+      String innerClassName = instructionName + "TableAluOperation";
 
       // Buscar el inner class declarado
       for (Class<?> innerClass : instructionClass.getDeclaredClasses()) {
@@ -53,7 +48,7 @@ public class AluOperationHandler {
    */
   public String getAluOperationFieldName(String instructionClassName) {
     // Mapeo especial para instrucciones que tienen names diferentes
-    return switch(instructionClassName) {
+    return switch (instructionClassName) {
       case "Inc" -> "inc8TableAluOperation";
       case "Dec" -> "dec8TableAluOperation";
       case "RRC" -> "rRCAluOperation";
@@ -157,7 +152,7 @@ public class AluOperationHandler {
                                            Variable value) {
     String operationName = instruction.getClass().getSimpleName();
     String fieldName = getAluOperationFieldName(operationName);
-    
+
     Variable aluOp = mm.field(fieldName);
     Variable flag = mm.field(FLAG);
 
@@ -168,10 +163,10 @@ public class AluOperationHandler {
     // Ejecutar: result = aluOperation.execute2ValuesAndCarry(value, flag, flag)
     Variable result = mm.var(int.class);
     result.set(aluOp.invoke("execute2ValuesAndCarry", value, flag, flag));
-    
+
     // Actualizar flags
     flagField.set(aluOp.field(FLAG));
-    
+
     return result;
   }
 
