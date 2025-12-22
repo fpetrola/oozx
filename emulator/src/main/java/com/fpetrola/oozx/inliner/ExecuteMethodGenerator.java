@@ -13,7 +13,6 @@ import org.cojen.maker.ClassMaker;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
-import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -45,14 +44,6 @@ public class ExecuteMethodGenerator {
     this.binaryOperationHandler = new BinaryOperationHandler(classifier, registerValueResolver, memoryAccessHandler, aluOperationHandler);
     this.unaryOperationHandler = new UnaryOperationHandler(registerValueResolver, memoryAccessHandler, aluOperationHandler, nameGenerator);
     this.handlerRegistry = new InstructionHandlerRegistry(registerValueResolver, memoryAccessHandler);
-  }
-
-  /**
-    * Agrega un método execute para una TargetSourceInstruction
-    */
-  public void addExecuteMethod(ClassMaker cm, TargetSourceInstruction instruction, 
-                               String operationName, OpcodeReference target) {
-    addExecuteMethod(cm, instruction, operationName, target, null);
   }
 
   /**
@@ -95,14 +86,6 @@ public class ExecuteMethodGenerator {
       }
       throw e;
     }
-  }
-
-  /**
-    * Agrega un método execute para una ParameterizedUnaryAluInstruction
-    */
-  public void addExecuteUnaryMethod(ClassMaker cm, ParameterizedUnaryAluInstruction instruction, 
-                                    String operationName) {
-    addExecuteUnaryMethod(cm, instruction, operationName, null);
   }
 
   /**

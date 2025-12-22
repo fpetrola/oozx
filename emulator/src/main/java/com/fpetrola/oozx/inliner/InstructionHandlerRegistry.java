@@ -1,23 +1,19 @@
 package com.fpetrola.oozx.inliner;
 
 import com.fpetrola.z80.instructions.impl.Push;
-import com.fpetrola.z80.instructions.impl.Dec16;
-import com.fpetrola.z80.instructions.impl.Inc16;
 import com.fpetrola.z80.instructions.impl.SCF;
 import com.fpetrola.z80.instructions.impl.CCF;
 import com.fpetrola.z80.instructions.impl.Pop;
 import com.fpetrola.z80.instructions.impl.Ex;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.DefaultTargetInstruction;
-import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.instructions.types.BitOperation;
 import com.fpetrola.z80.registers.Register;
 import org.cojen.maker.ClassMaker;
 import org.cojen.maker.MethodMaker;
-import org.cojen.maker.Variable;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Registro centralizado de handlers para diferentes tipos de instrucciones.
@@ -137,26 +133,8 @@ public class InstructionHandlerRegistry {
   /**
    * Registra un handler para un tipo de instrucción
    */
-  public void registerHandler(Class<?> instructionClass, InstructionHandler handler) {
+  private void registerHandler(Class<?> instructionClass, InstructionHandler handler) {
     handlers.put(instructionClass, handler);
-  }
-
-  /**
-   * Registra un handler con una condición de filtrado específica.
-   * Permite registrar handlers condicionales para subtipos de instrucciones.
-   * Ejemplo: registrar un handler solo para Push con ciertos registros
-   */
-  public void registerConditionalHandler(Class<?> baseClass, 
-                                        java.util.function.Predicate<Instruction> condition,
-                                        InstructionHandler handler) {
-    // Wrapped handler que verifica la condición antes de procesar
-    InstructionHandler wrappedHandler = (cm, instr, mm, opName, genMethods) -> {
-      if (condition.test(instr)) {
-        return handler.handle(cm, instr, mm, opName, genMethods);
-      }
-      return false;
-    };
-    registerHandler(baseClass, wrappedHandler);
   }
 
   /**
@@ -244,7 +222,7 @@ public class InstructionHandlerRegistry {
    * Intenta procesar la instrucción con el handler registrado
    */
   public boolean tryHandle(ClassMaker cm, Instruction instruction, MethodMaker mm,
-                         String operationName, InstructionProcessingContext context) {
+                           String operationName, InstructionProcessingContext context) {
    var handler = getHandler(instruction);
    if (handler == null) return false;
    

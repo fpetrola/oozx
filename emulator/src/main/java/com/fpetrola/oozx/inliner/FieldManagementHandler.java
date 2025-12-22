@@ -10,8 +10,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Gestiona los campos de la clase generada (orden, tipos, ALU fields).
+ * @deprecated Clase no utilizada. Los campos se manejan en otros handlers.
  */
+@Deprecated
 public class FieldManagementHandler {
   public static final String FLAG = "F";
   
@@ -27,8 +28,9 @@ public class FieldManagementHandler {
   }
 
   /**
-   * Agrega los campos en el orden correcto: variables, memory, pc
+   * @deprecated No se utiliza
    */
+  @Deprecated
   public void addFieldsInOrder(ClassMaker cm, Map<String, InstructionAnalyzer.VariableInfo> vars, 
                                OpcodeReference target) {
     Set<String> excluded = Set.of("F", "Q");
@@ -59,8 +61,9 @@ public class FieldManagementHandler {
   }
 
   /**
-   * Agrega un campo ALU con el tipo correcto si es una operación ALU
+   * @deprecated No se utiliza
    */
+  @Deprecated
   public void addAluOperationField(ClassMaker cm, TargetSourceInstruction instruction) {
     if (classifier.isAluOperation(instruction)) {
       // Add flag field if not already added

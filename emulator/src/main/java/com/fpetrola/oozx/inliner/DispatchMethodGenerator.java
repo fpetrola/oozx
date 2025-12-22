@@ -87,13 +87,6 @@ public class DispatchMethodGenerator {
   }
 
   /**
-   * Versión anterior del método (sobrecargado para compatibilidad)
-   */
-  public void addDispatchMethodWithOpcodes(ClassMaker cm, Map<Integer, String> opcodeToMethodName) {
-    addDispatchMethodWithOpcodes(cm, opcodeToMethodName, new LinkedHashMap<>());
-  }
-
-  /**
    * Agrega un método dispatch para un prefijo que despacha por el siguiente opcode
    */
   public void addPrefixDispatchMethod(ClassMaker cm, String methodName, Map<Integer, String> opcodeToMethodName) {

@@ -1,6 +1,5 @@
 package com.fpetrola.oozx.inliner;
 
-import com.fpetrola.z80.instructions.impl.Ex;
 import com.fpetrola.z80.instructions.impl.SCF;
 import com.fpetrola.z80.instructions.impl.CCF;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
@@ -11,7 +10,6 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.DefaultTargetInstruction;
 import com.fpetrola.z80.instructions.types.BitOperation;
 import com.fpetrola.z80.opcodes.references.*;
-import com.fpetrola.z80.registers.Register;
 import com.fpetrola.oozx.inliner.strategies.OpcodeReferenceStrategyFactory;
 
 /**
@@ -87,23 +85,6 @@ public class MethodNameGenerator {
   }
 
   /**
-   * Genera un nombre único para un método PUSH basado en el registro destino
-   */
-  public String generatePushMethodName(Push instruction, String operationName) {
-    StringBuilder methodName = new StringBuilder("execute").append(operationName);
-    
-    // Obtener el target (que debe ser un Register)
-    try {
-      OpcodeReference target = instruction.getTarget();
-      methodName.append(getReferenceSuffix(target));
-    } catch (Exception e) {
-      System.err.println("Warning: No se pudo obtener target para PUSH: " + e.getMessage());
-    }
-    
-    return methodName.toString();
-  }
-
-  /**
    * Genera nombre para cualquier instrucción, considerando su tipo.
    * Este es el método centralizado para generación de nombres.
    */
@@ -152,13 +133,4 @@ public class MethodNameGenerator {
     return "execute" + operationName;
   }
 
-  /**
-   * Capitaliza la primera letra de una cadena
-   */
-  public String capitalizeFirstLetter(String str) {
-    if (str == null || str.isEmpty()) {
-      return str;
-    }
-    return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
-  }
   }

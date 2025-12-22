@@ -158,7 +158,7 @@ public class BytecodeInliner {
     OpcodeReference target = analyzer.getTarget();
 
     // Add execute method with inlined code
-    executeMethodGenerator.addExecuteMethod(cm, instruction, operationName, target);
+    executeMethodGenerator.addExecuteMethod(cm, instruction, operationName, target, processingContext);
 
     return classGenerationHandler.finializeClass(className, cm);
   }
