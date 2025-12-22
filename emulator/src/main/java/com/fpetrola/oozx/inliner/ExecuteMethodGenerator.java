@@ -206,6 +206,31 @@ public class ExecuteMethodGenerator {
             memory.invoke("write", targetAddr, value);
           }
         }
+      } else if (targetSourceInstruction instanceof Ld) {
+        // Generalizar para cualquier combinación de referencias de memoria
+        Variable sourceValue = mm.get().var(int.class);
+        // Resolver el valor del source
+        Variable sourceAddr = memoryAccessHandler.resolveSourceMemoryAddress(mm.get(), source);
+        if (sourceAddr != null) {
+          Variable memory = mm.get().field("memory");
+          if (source instanceof Memory16BitReference || source instanceof IndirectMemory16BitReference) {
+            sourceValue.set(memory.invoke("read16Bits", sourceAddr));
+          } else {
+            sourceValue.set(memory.invoke("read", sourceAddr, 0));
+          }
+          
+          // Escribir en el target de memoria
+          if (target instanceof MemoryPlusRegister8BitReference memTarget) {
+            MemoryAccessHandler.MemoryPlusRegisterContext ctx = memoryAccessHandler.readOffsetAndCalculateAddress(mm.get(), memTarget);
+            ctx.memory.invoke("write", ctx.address, sourceValue);
+          } else if (target instanceof IndirectMemory8BitReference indMemTarget) {
+            Variable targetAddr = memoryAccessHandler.resolveIndirectMemoryAddress(mm.get(), indMemTarget);
+            memory.invoke("write", targetAddr, sourceValue);
+          } else if (target instanceof IndirectMemory16BitReference indMem16Target) {
+            Variable targetAddr = memoryAccessHandler.resolveIndirectMemory16BitAddress(mm.get(), indMem16Target);
+            memory.invoke("write16Bits", sourceValue, targetAddr);
+          }
+        }
       } else {
         throw new UnsupportedOperationException("No se soporta operación entre referencias de memoria para " + targetSourceInstruction.getClass());
       }
