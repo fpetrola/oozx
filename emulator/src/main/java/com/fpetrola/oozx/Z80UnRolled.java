@@ -1,5 +1,6 @@
 package com.fpetrola.oozx;
 
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.UnrolledRegisterBank;
@@ -49,6 +50,12 @@ public class Z80UnRolled extends UnrolledRegisterBank {
   public RRCA.RRCAAluOperation rrcaTableAluOperation = new RRCA.RRCAAluOperation();
 
   protected Memory memory;
+
+  public void setState(State state) {
+    this.state = state;
+  }
+
+  protected State state;
 
   public void setMemory(Memory memory) {
     this.memory = memory;

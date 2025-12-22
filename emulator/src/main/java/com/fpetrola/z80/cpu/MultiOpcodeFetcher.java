@@ -63,6 +63,7 @@ public class MultiOpcodeFetcher {
     if ((this.state.getRegisters() instanceof Z80UnRolled)) {
       registerBank = (Z80UnRolled) this.state.getRegisters();
       registerBank.setMemory(state.getMemory());
+      registerBank.setState(state);
     }
   }
 
