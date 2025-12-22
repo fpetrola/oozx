@@ -1,18 +1,14 @@
 package com.fpetrola.oozx.inliner;
 
-import com.fpetrola.z80.instructions.impl.*;
-import com.fpetrola.z80.instructions.impl.SCF;
-import com.fpetrola.z80.instructions.impl.CCF;
-import com.fpetrola.z80.instructions.impl.Pop;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
-import com.fpetrola.z80.instructions.types.BitOperation;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import org.cojen.maker.ClassMaker;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Maneja el procesamiento de instrucciones: análisis de prefijos, clasificación
@@ -20,20 +16,14 @@ import java.util.*;
  */
 public class InstructionProcessorHandler {
   private final InstructionClassifier classifier;
-  private final MethodNameGenerator nameGenerator;
-  private final InstructionAnalyzer analyzer;
   private final DispatchMethodGenerator dispatchGenerator;
-  private final InstructionHandlerRegistry handlerRegistry;
   private final InstructionDispatcher dispatcher;
 
   public InstructionProcessorHandler(InstructionClassifier classifier, MethodNameGenerator nameGenerator, 
                                      InstructionAnalyzer analyzer, DispatchMethodGenerator dispatchGenerator,
                                      InstructionHandlerRegistry handlerRegistry) {
     this.classifier = classifier;
-    this.nameGenerator = nameGenerator;
-    this.analyzer = analyzer;
     this.dispatchGenerator = dispatchGenerator;
-    this.handlerRegistry = handlerRegistry;
     this.dispatcher = new InstructionDispatcher(classifier, analyzer, handlerRegistry, nameGenerator);
   }
 
@@ -134,7 +124,6 @@ public class InstructionProcessorHandler {
      
      void addPrefixDispatchMethod(ClassMaker cm, String dispatchMethodName, 
                                  Map<Integer, String> prefixMethods);
-     
-     BytecodeInliner getByteocdeInliner();
-   }
+
+  }
 }

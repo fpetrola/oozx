@@ -3,16 +3,13 @@ package com.fpetrola.oozx.inliner;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.ParameterizedUnaryAluInstruction;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
-import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.opcodes.decoder.OpCodeDecoder;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import org.cojen.maker.ClassMaker;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -130,36 +127,13 @@ public class BytecodeInliner {
         dispatchGenerator.addPrefixDispatchMethod(cm, dispatchMethodName, prefixMethods);
       }
 
-      @Override
-      public BytecodeInliner getByteocdeInliner() {
-        return BytecodeInliner.this;
-      }
     };
   }
 
 
-
-  /**
-   * Retorna el bytecode de la última clase generada
-   */
-  public byte[] getLastGeneratedBytecode() {
-    return classGenerationHandler.getLastGeneratedBytecode();
-  }
-
-  /**
-    * Retorna el contexto de procesamiento actual
-    */
-  public InstructionProcessingContext getProcessingContext() {
-    return processingContext;
-  }
-
   /**
     * Retorna el conjunto de métodos generados en la clase actual (getter por compatibilidad)
     */
-  public Set<String> getGeneratedMethods() {
-    return processingContext.getGeneratedMethods();
-  }
-
   /**
    * Genera una clase con múltiples instrucciones desde el OpCodeDecoder y la carga en memoria
    * Retorna el Class<?> directamente usable usando finish()
@@ -206,18 +180,6 @@ public class BytecodeInliner {
 
     return classGenerationHandler.finializeClass(className, cm);
   }
-
-  private void addAluOperationField(ClassMaker cm, TargetSourceInstruction instruction) {
-    fieldManagementHandler.addAluOperationField(cm, instruction);
-  }
-
-  private void addFieldsInOrder(ClassMaker cm, Map<String, InstructionAnalyzer.VariableInfo> vars, OpcodeReference target) {
-    fieldManagementHandler.addFieldsInOrder(cm, vars, target);
-  }
-
-
-
-
 
 
   private String getClassName(TargetSourceInstruction instruction, String operationName) {
