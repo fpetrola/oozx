@@ -6,6 +6,7 @@ import com.fpetrola.z80.instructions.impl.BIT;
 import com.fpetrola.z80.instructions.types.BitOperation;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.opcodes.references.IndirectMemory8BitReference;
+import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.registers.Register;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
@@ -53,6 +54,12 @@ public class BitOperationHandler {
       Variable value = mm.var(int.class);
       value.set(memory.invoke("read", address, 0));
       return value;
+    } else if (target instanceof MemoryPlusRegister8BitReference memPlusReg) {
+      // Para memoria con registro + offset (ej: (IY+5))
+      MemoryAccessHandler.MemoryPlusRegisterContext ctx = memoryAccessHandler.readOffsetAndCalculateAddress(mm, memPlusReg);
+      Variable value = mm.var(int.class);
+      value.set(ctx.memory.invoke("read", ctx.address, 0));
+      return value;
     }
     // Para otras referencias de memoria complejas, lanzar excepción
     throw new UnsupportedOperationException("Target no soportado para BitOperation: " + target.getClass().getSimpleName());
@@ -91,6 +98,10 @@ public class BitOperationHandler {
       Variable address = memoryAccessHandler.resolveIndirectMemoryAddress(mm, indMem);
       Variable memory = mm.field("memory");
       memory.invoke("write", address, value);
+    } else if (target instanceof MemoryPlusRegister8BitReference memPlusReg) {
+      // Para memoria con registro + offset (ej: (IY+5))
+      MemoryAccessHandler.MemoryPlusRegisterContext ctx = memoryAccessHandler.readOffsetAndCalculateAddress(mm, memPlusReg);
+      ctx.memory.invoke("write", ctx.address, value);
     } else {
       throw new UnsupportedOperationException("No se puede escribir a: " + target.getClass().getSimpleName());
     }
