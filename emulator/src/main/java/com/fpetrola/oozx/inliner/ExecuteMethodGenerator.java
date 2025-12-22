@@ -188,28 +188,57 @@ public class ExecuteMethodGenerator {
           }
         }
       } else if (targetSourceInstruction instanceof Ld) {
-        // Generalizar para cualquier combinación de referencias de memoria
-        Variable sourceValue = mm.get().var(int.class);
-        // Resolver el valor del source
-        Variable sourceAddr = memoryAccessHandler.resolveSourceMemoryAddress(mm.get(), source);
-        if (sourceAddr != null) {
+        // Caso especial: cuando source es Memory16BitReference y target es MemoryPlusRegister8Bit
+        // Patrón: LD (IX+d), (PC+1)  => leer offset de PC, calcular dirección, leer valor de PC+1, escribir
+        if (target instanceof MemoryPlusRegister8BitReference memTarget && source instanceof Memory8BitReference) {
           Variable memory = mm.get().field("memory");
-          if (source instanceof Memory16BitReference || source instanceof IndirectMemory16BitReference) {
-            sourceValue.set(memory.invoke("read16Bits", sourceAddr));
-          } else {
-            sourceValue.set(memory.invoke("read", sourceAddr, 0));
-          }
+          Variable pc = mm.get().field("PC");
+          Variable pcMasked = mm.get().var(int.class);
+          pcMasked.set(pc.and(0xFFFF));
           
-          // Escribir en el target de memoria
-          if (target instanceof MemoryPlusRegister8BitReference memTarget) {
-            MemoryAccessHandler.MemoryPlusRegisterContext ctx = memoryAccessHandler.readOffsetAndCalculateAddress(mm.get(), memTarget);
-            ctx.memory.invoke("write", ctx.address, sourceValue);
-          } else if (target instanceof IndirectMemory8BitReference indMemTarget) {
-            Variable targetAddr = memoryAccessHandler.resolveIndirectMemoryAddress(mm.get(), indMemTarget);
-            memory.invoke("write", targetAddr, sourceValue);
-          } else if (target instanceof IndirectMemory16BitReference indMem16Target) {
-            Variable targetAddr = memoryAccessHandler.resolveIndirectMemory16BitAddress(mm.get(), indMem16Target);
-            memory.invoke("write16Bits", sourceValue, targetAddr);
+          Variable dd = mm.get().var(byte.class);
+          dd.set(memory.invoke("read", pcMasked, 0).cast(byte.class));
+          
+          // Obtener el nombre del registro (IX o IY)
+          ImmutableOpcodeReference targetRef = memTarget.getTarget();
+          String registerName = RegisterUtils.getRegisterName(targetRef);
+          Variable targetReg = mm.get().field(registerName);
+          Variable regPlusDd = targetReg.add(dd);
+          Variable address = mm.get().var(int.class);
+          address.set(regPlusDd.and(0xFFFF));
+          
+          // Leer valor desde PC+1
+          Variable pcPlus1 = mm.get().var(int.class);
+          pcPlus1.set(pc.add(1).and(0xFFFF));
+          Variable value = mm.get().var(int.class);
+          value.set(memory.invoke("read", pcPlus1, 0));
+          
+          // Escribir en memory[address]
+          memory.invoke("write", address, value);
+        } else {
+          // Generalizar para cualquier combinación de referencias de memoria
+          Variable sourceValue = mm.get().var(int.class);
+          // Resolver el valor del source
+          Variable sourceAddr = memoryAccessHandler.resolveSourceMemoryAddress(mm.get(), source);
+          if (sourceAddr != null) {
+            Variable memory = mm.get().field("memory");
+            if (source instanceof Memory16BitReference || source instanceof IndirectMemory16BitReference) {
+              sourceValue.set(memory.invoke("read16Bits", sourceAddr));
+            } else {
+              sourceValue.set(memory.invoke("read", sourceAddr, 0));
+            }
+            
+            // Escribir en el target de memoria
+            if (target instanceof MemoryPlusRegister8BitReference memTarget) {
+              MemoryAccessHandler.MemoryPlusRegisterContext ctx = memoryAccessHandler.readOffsetAndCalculateAddress(mm.get(), memTarget);
+              ctx.memory.invoke("write", ctx.address, sourceValue);
+            } else if (target instanceof IndirectMemory8BitReference indMemTarget) {
+              Variable targetAddr = memoryAccessHandler.resolveIndirectMemoryAddress(mm.get(), indMemTarget);
+              memory.invoke("write", targetAddr, sourceValue);
+            } else if (target instanceof IndirectMemory16BitReference indMem16Target) {
+              Variable targetAddr = memoryAccessHandler.resolveIndirectMemory16BitAddress(mm.get(), indMem16Target);
+              memory.invoke("write16Bits", sourceValue, targetAddr);
+            }
           }
         }
       } else {
