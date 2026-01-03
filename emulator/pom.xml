@@ -125,6 +125,13 @@
             <version>2.3.0.Final</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.wendykierp</groupId>
+            <artifactId>JTransforms</artifactId>
+            <version>3.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
