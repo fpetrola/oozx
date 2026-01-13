@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 Fernando Damian Petrola
+ * Copyright (c) 2023-2026 Fernando Damian Petrola
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
