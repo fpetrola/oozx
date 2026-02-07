@@ -51,4 +51,9 @@ public class Composed16BitRegisterVariable implements VariableDelegator {
   public Class<?> classType() {
     return int.class;
   }
+
+  @Override
+  public Variable get() {
+    return getDelegate().get();
+  }
 }

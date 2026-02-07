@@ -18,7 +18,9 @@
 
 package com.fpetrola.z80.bytecode.generators;
 
+import com.fpetrola.z80.bytecode.generators.helpers.Composed16BitRegisterVariable;
 import com.fpetrola.z80.bytecode.generators.helpers.PendingFlagUpdate;
+import com.fpetrola.z80.bytecode.generators.helpers.VariableDelegator;
 import com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.helpers.Helper;
@@ -127,7 +129,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   protected void invokeRlc(Variable t, Variable variable, String functionName) {
     Variable f = getF();
-    Variable invoke = methodMaker.invoke(functionName, variable, f);
+    Variable invoke = methodMaker.invoke(functionName, variable, f.get());
     t.set(invoke.aget(0));
     f.set(invoke.aget(1));
   }
@@ -370,13 +372,15 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   @Override
   public void visitingAdc(Adc adc) { //TODO: revisar
-    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.add(s).add(methodMaker.invoke("carry", getF()).and(255))), routineByteCodeGenerator);
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.add(s).add(methodMaker.invoke("carry", getF().get()).and(255))), routineByteCodeGenerator);
     adc.accept(visitor);
     processFlag(adc, () -> visitor.targetVariable);
   }
 
   private Variable getF() {
-    return routineByteCodeGenerator.getExistingVariable("F");
+    Variable variable1 = routineByteCodeGenerator.variables.get("F");
+    return variable1;
+//    return routineByteCodeGenerator.getExistingVariable("F");
   }
 
   public void visitingSub(Sub sub) {
@@ -398,7 +402,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   @Override
   public boolean visitingSbc16(Sbc16 sbc16) {
-    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.sub(s).sub(methodMaker.invoke("carry", getF())).and(0xffff)), routineByteCodeGenerator);
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.sub(s).sub(methodMaker.invoke("carry", getF().get())).and(0xffff)), routineByteCodeGenerator);
     sbc16.accept(visitor);
     processFlag(sbc16, () -> visitor.targetVariable);
     return false;
@@ -407,7 +411,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   @Override
   public boolean visitingAdc16(Adc16 adc16) {
-    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.add(s).add(methodMaker.invoke("carry", getF()).and(0xffff))), routineByteCodeGenerator);
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.add(s).add(methodMaker.invoke("carry", getF().get()).and(0xffff))), routineByteCodeGenerator);
     adc16.accept(visitor);
     processFlag(adc16, () -> visitor.targetVariable);
     return false;
@@ -587,17 +591,17 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   private boolean isRotationInstruction(FlagInstruction targetFlagInstruction) {
     return targetFlagInstruction instanceof RR ||
-        targetFlagInstruction instanceof RRA ||
-        targetFlagInstruction instanceof RRC ||
-        targetFlagInstruction instanceof RRCA ||
-        targetFlagInstruction instanceof RL ||
-        targetFlagInstruction instanceof RLA ||
-        targetFlagInstruction instanceof RLC ||
-        targetFlagInstruction instanceof RLCA ||
-        targetFlagInstruction instanceof SLA ||
-        targetFlagInstruction instanceof SLL ||
-        targetFlagInstruction instanceof SRA ||
-        targetFlagInstruction instanceof SRL;
+           targetFlagInstruction instanceof RRA ||
+           targetFlagInstruction instanceof RRC ||
+           targetFlagInstruction instanceof RRCA ||
+           targetFlagInstruction instanceof RL ||
+           targetFlagInstruction instanceof RLA ||
+           targetFlagInstruction instanceof RLC ||
+           targetFlagInstruction instanceof RLCA ||
+           targetFlagInstruction instanceof SLA ||
+           targetFlagInstruction instanceof SLL ||
+           targetFlagInstruction instanceof SRA ||
+           targetFlagInstruction instanceof SRL;
   }
 
   private void executeCondition(Runnable runnable, String conditionString, Variable target, Object source) {

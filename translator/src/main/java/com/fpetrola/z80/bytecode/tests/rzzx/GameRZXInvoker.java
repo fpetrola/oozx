@@ -19,6 +19,7 @@
 package com.fpetrola.z80.bytecode.tests.rzzx;
 
 import com.fpetrola.z80.bytecode.tests.JetSetWilly;
+import com.fpetrola.z80.bytecode.tests.JetSetWilly2;
 import com.fpetrola.z80.minizx.RZXPlayerIO;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.implementation.MethodDelegation;
@@ -35,7 +36,7 @@ public class GameRZXInvoker {
       Predicate<Integer> interruptionCondition = miniZXIO.getInterruptionCondition();
       String[] s = {"AF, BC", "DE", "HL", "IX", "IY", "A, B", "D", "H", "IXH", "IYH", "F, C", "E", "L", "IXL", "IYL"};
       Constructor<?>[] constructors = new ByteBuddy()
-          .subclass(JetSetWilly.class)
+          .subclass(JetSetWilly2.class)
           .method(ElementMatchers.named("pc")).intercept(MethodDelegation.to(PcInterceptor.class))
           .method(ElementMatchers.nameStartsWith("$")).intercept(MethodDelegation.to(RoutineCallInterceptor.class))
           .method(ElementMatchers.namedOneOf(s)).intercept(MethodDelegation.to(Reg16AccessInterceptor.class))
@@ -46,7 +47,7 @@ public class GameRZXInvoker {
 
       Constructor<?> constructor = Arrays.stream(constructors).filter(c -> c.getParameterCount() == 2).findFirst().get();
 
-      JetSetWilly jetSetWilly1 = (JetSetWilly) constructor.newInstance(miniZXIO, interruptionCondition);
+      JetSetWilly2 jetSetWilly1 = (JetSetWilly2) constructor.newInstance(miniZXIO, interruptionCondition);
 
       jetSetWilly1.$34463();
     } catch (Exception e) {

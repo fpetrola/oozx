@@ -12,6 +12,11 @@ public class JetSetWilly extends MiniZX {
     super(rzxPlayerIO, interruptionCondition);
   }
 
+  public void pc(int address, int rdelta) {
+    waitNanos(2200);
+    super.pc(address, rdelta);
+  }
+
   public JetSetWilly() {
   }
 

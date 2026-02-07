@@ -235,6 +235,7 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
     String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
     stepUntilComplete(34762);
     translateToJava("JetSetWilly", base64Memory, "$34762");
+
   }
 
   @Test
