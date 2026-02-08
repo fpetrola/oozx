@@ -12,25 +12,20 @@ import java.util.stream.Collectors;
 
 /**
  * Simplified field access analyzer.
- * 
- * Core logic:
- * - For each field, store only the last write path: [A, B, C]
- * - When a field is read in path [X, Y, Z]:
- *   - If last write path differs from read path:
- *     - Find common ancestor
- *     - All methods from read path to ancestor: add as PARAMETER
- *     - All methods from last write path to ancestor: add as RETURN
+ * Stores:
+ * - fieldLastWritePath: last path where each field was written
+ * - methodFieldDeps: parameters and returns for each method
  */
 public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
 
-  // Core: for each 8-bit field, track last write path
+  // Core data: for each 8-bit field, store last write path
   private final Map<String, List<String>> fieldLastWritePath = new HashMap<>();
-  
-  // Call path stack (A -> B -> C)
-  private final Deque<String> callPath = new LinkedList<>();
   
   // Result: parameters and returns per method
   private final Map<String, MethodFieldDeps> methodFieldDeps = new HashMap<>();
+  
+  // Call path stack
+  private final Deque<String> callPath = new LinkedList<>();
   
   // 8-bit registers
   private static final Set<String> EIGHT_BIT_REGISTERS = new HashSet<>(Arrays.asList(
@@ -74,13 +69,6 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     return callPath.stream().collect(Collectors.toList());
   }
 
-  private String getCurrentMethod() {
-    return callPath.isEmpty() ? null : callPath.peek();
-  }
-
-  /**
-   * Expand 16-bit register to its 8-bit components, or keep 8-bit as is
-   */
   private Set<String> expand8BitFields(String fieldName) {
     Set<String> components = REGISTER_COMPONENTS.get(fieldName);
     if (components != null) {
@@ -116,20 +104,13 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     for (String field : fields8bit) {
       List<String> writePath = fieldLastWritePath.get(field);
       
-      // If field was never written or written in a different path
       if (writePath == null || !pathsAreEqual(writePath, readPath)) {
-        // Propagate parameters and returns through intermediate paths
         propagateDependencies(field, writePath, readPath);
       }
     }
   }
 
-  /**
-   * When a field is read in a different path than it was written,
-   * propagate as parameter from read path upwards and as return from write path upwards
-   */
   private void propagateDependencies(String field, List<String> writePath, List<String> readPath) {
-    // Find common ancestor
     int commonDepth = getCommonAncestorDepth(writePath, readPath);
     
     // Add as PARAMETER to all methods from read path to common ancestor (exclusive)
@@ -149,14 +130,9 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     }
   }
 
-  /**
-   * Find the depth of the common ancestor between two paths
-   * Returns -1 if no common ancestor (different root)
-   * Returns 0 if paths diverge at root level
-   */
   private int getCommonAncestorDepth(List<String> path1, List<String> path2) {
     if (path1 == null) {
-      return path2.size() - 1; // All of path2 needs the field
+      return path2.size() - 1;
     }
     
     int minLen = Math.min(path1.size(), path2.size());
@@ -173,9 +149,6 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     return commonDepth;
   }
 
-  /**
-   * Check if two paths are equal
-   */
   private boolean pathsAreEqual(List<String> path1, List<String> path2) {
     if (path1.size() != path2.size()) {
       return false;
@@ -286,8 +259,6 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     super.L(value);
   }
 
-  // 16-bit register accessors (expanded to 8-bit components)
-
   @Override
   public int AF() {
     recordFieldRead("AF");
@@ -372,45 +343,28 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     super.SP(value);
   }
 
-  public Map<String, Object> generateReport() {
-    Map<String, Object> report = new LinkedHashMap<>();
-    report.put("title", "Field Access Analysis (Simplified Path-Based)");
+  public void saveAnalysis(String filePath) throws Exception {
+    Map<String, Object> json = new LinkedHashMap<>();
     
-    // Field state summary
-    Map<String, Object> fieldSummary = new LinkedHashMap<>();
-    for (Map.Entry<String, List<String>> entry : fieldLastWritePath.entrySet()) {
-      Map<String, Object> fieldInfo = new LinkedHashMap<>();
-      fieldInfo.put("lastWritePath", entry.getValue());
-      fieldSummary.put(entry.getKey(), fieldInfo);
+    // fieldLastWritePath data
+    json.put("fieldLastWritePath", fieldLastWritePath);
+    
+    // methodFieldDeps data
+    Map<String, Object> methods = new LinkedHashMap<>();
+    for (MethodFieldDeps deps : methodFieldDeps.values()) {
+      Map<String, Object> methodData = new LinkedHashMap<>();
+      methodData.put("parameters", new ArrayList<>(deps.parameters));
+      methodData.put("returns", new ArrayList<>(deps.returns));
+      methods.put(deps.methodName, methodData);
     }
-    report.put("fieldStates", fieldSummary);
+    json.put("methodDependencies", methods);
     
-    // Method dependencies
-    Map<String, Object> methodInfo = new LinkedHashMap<>();
-    for (MethodFieldDeps methodDeps : methodFieldDeps.values()) {
-      Map<String, Object> deps = new LinkedHashMap<>();
-      deps.put("parameters", new ArrayList<>(methodDeps.parameters));
-      deps.put("returns", new ArrayList<>(methodDeps.returns));
-      methodInfo.put(methodDeps.methodName, deps);
-    }
-    report.put("methodDependencies", methodInfo);
-    
-    return report;
-  }
-
-  public void saveReport(String filePath) throws Exception {
-    Map<String, Object> report = generateReport();
     ObjectMapper mapper = new ObjectMapper();
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
-    mapper.writeValue(new File(filePath), report);
-    System.out.println("Report saved to: " + filePath);
+    mapper.writeValue(new File(filePath), json);
+    System.out.println("Analysis saved to: " + filePath);
   }
 
-  // ============ Helper classes ============
-
-  /**
-   * Which fields are parameters/returns for a method
-   */
   private static class MethodFieldDeps {
     final String methodName;
     final Set<String> parameters = new HashSet<>();

@@ -49,11 +49,11 @@ public class GameRZXInvokerAnalyzer {
       analyzer.$34463();
       
       System.out.println("Game execution complete. Generating analysis report...");
-      analyzer.saveReport("field-dependency-analysis.json");
+      analyzer.saveAnalysis("field-dependency-analysis.json");
       
     } catch (Exception e) {
       try {
-        analyzer.saveReport("field-dependency-analysis.json");
+        analyzer.saveAnalysis("field-dependency-analysis.json");
       } catch (Exception ex) {
         throw new RuntimeException(ex);
       }
