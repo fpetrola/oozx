@@ -64,11 +64,11 @@
       "returns" : [ ]
     },
     "$36307" : {
-      "parameters" : [ "H", "L" ],
-      "returns" : [ "B", "C", "D", "E", "H", "L" ]
+      "parameters" : [ "A", "B", "C", "D", "E", "F", "H", "IXH", "L", "IXL" ],
+      "returns" : [ "B", "C", "D", "E", "H", "IXH", "L", "IXL" ]
     },
     "$38528" : {
-      "parameters" : [ "C", "D", "E", "IXH", "IXL" ],
+      "parameters" : [ "A", "B", "C", "D", "E", "IXH", "H", "IXL", "L" ],
       "returns" : [ ]
     },
     "$38504" : {
@@ -79,36 +79,68 @@
       "parameters" : [ "D", "IXH", "IXL" ],
       "returns" : [ ]
     },
+    "$38064" : {
+      "parameters" : [ "A", "B", "C", "D", "E", "F", "IXH", "H", "IXL", "L" ],
+      "returns" : [ ]
+    },
+    "$38196" : {
+      "parameters" : [ "B", "C", "D", "E", "IXH", "IXL" ],
+      "returns" : [ ]
+    },
+    "$36203" : {
+      "parameters" : [ "A", "IXH", "IXL" ],
+      "returns" : [ ]
+    },
     "$37974" : {
       "parameters" : [ "C", "D", "E", "H", "L" ],
       "returns" : [ ]
     },
-    "$34499" : {
-      "parameters" : [ "A", "F", "IXH", "IXL" ],
+    "$35211" : {
+      "parameters" : [ "C", "D", "E", "H", "L" ],
       "returns" : [ ]
+    },
+    "$34463" : {
+      "parameters" : [ ],
+      "returns" : [ "IYH", "SPH", "IYL", "SPL" ]
+    },
+    "$34499" : {
+      "parameters" : [ "A", "B", "C", "D", "E", "F", "IXH", "H", "IXL", "L" ],
+      "returns" : [ "IYH", "SPH", "IYL", "SPL" ]
     },
     "$34620" : {
       "parameters" : [ "IXH", "IXL" ],
       "returns" : [ "IYH", "SPH", "IYL", "SPL" ]
     },
     "$38545" : {
-      "parameters" : [ "A" ],
+      "parameters" : [ "A", "B", "D", "E", "H", "L" ],
       "returns" : [ ]
     },
     "$38555" : {
       "parameters" : [ "B", "D", "E", "H", "L" ],
       "returns" : [ ]
     },
+    "$37841" : {
+      "parameters" : [ "B", "D", "E", "H", "L" ],
+      "returns" : [ ]
+    },
+    "$36147" : {
+      "parameters" : [ "A", "D", "IXH", "IXL" ],
+      "returns" : [ ]
+    },
     "$37310" : {
-      "parameters" : [ "F" ],
+      "parameters" : [ "C", "D", "E", "F", "H", "L" ],
       "returns" : [ "IXH", "IXL" ]
     },
     "$36288" : {
       "parameters" : [ "A", "IXH", "IXL" ],
       "returns" : [ ]
     },
+    "$38344" : {
+      "parameters" : [ "A", "B", "C", "D", "E", "F", "IXH", "H", "IXL", "L" ],
+      "returns" : [ ]
+    },
     "$38430" : {
-      "parameters" : [ "C", "H", "L" ],
+      "parameters" : [ "A", "B", "C", "D", "E", "F", "H", "IXH", "L", "IXL" ],
       "returns" : [ ]
     },
     "$38562" : {
