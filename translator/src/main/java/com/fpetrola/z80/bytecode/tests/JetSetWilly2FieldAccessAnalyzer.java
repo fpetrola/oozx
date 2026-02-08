@@ -538,19 +538,14 @@ public class JetSetWilly2FieldAccessAnalyzer extends JetSetWilly2 {
         info.recordRead();
       }
       
-      // If accessing a 16-bit register, also record access for 8-bit components
-      // BUT mark them as indirect (not direct accesses)
+      // For 16-bit registers, also record indirect access on the register itself
+      // E.g., (HL) counts as an indirect read of HL, not of H and L separately
       Set<String> components = REGISTER_COMPONENTS.get(fieldName);
       if (components != null) {
-        for (String component : components) {
-          FieldAccessInfo componentInfo = fieldAccess.computeIfAbsent(component,
-              k -> new FieldAccessInfo(component));
-          
-          if (isWrite) {
-            componentInfo.recordIndirectWrite();
-          } else {
-            componentInfo.recordIndirectRead();
-          }
+        if (isWrite) {
+          info.recordIndirectWrite();
+        } else {
+          info.recordIndirectRead();
         }
       }
     }
@@ -590,14 +585,22 @@ public class JetSetWilly2FieldAccessAnalyzer extends JetSetWilly2 {
       }
       
       void recordIndirectRead() {
-        // Indirect access through a register (like (IX+0)) is still a read dependency
-        // The register value is needed, so treat as direct read
-        recordRead();
+        // Indirect access through a register (like (HL) or (IX+0)) means the register value is needed
+        // Only treat as direct read for pointer/address registers
+        if (isAddressRegister()) {
+          recordRead();
+        }
       }
       
       void recordIndirectWrite() {
-        // Indirect writes through a register still count as uses of that register
-        // Keep as indirect - the register itself isn't written, just used for addressing
+        // Indirect writes don't directly modify the register itself
+      }
+      
+      private boolean isAddressRegister() {
+        return fieldName.equals("HL") || fieldName.equals("IX") || fieldName.equals("IY") ||
+               fieldName.equals("H") || fieldName.equals("L") ||
+               fieldName.equals("IXH") || fieldName.equals("IXL") ||
+               fieldName.equals("IYH") || fieldName.equals("IYL");
       }
 
       /**
