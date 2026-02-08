@@ -20,20 +20,21 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
 
   // Core data: for each 8-bit field, store last write path
   private final Map<String, List<String>> fieldLastWritePath = new HashMap<>();
-  
+
   // Result: parameters and returns per method
   private final Map<String, MethodFieldDeps> methodFieldDeps = new HashMap<>();
-  
+
   // Call path stack
   private final Deque<String> callPath = new LinkedList<>();
-  
+
   // 8-bit registers
   private static final Set<String> EIGHT_BIT_REGISTERS = new HashSet<>(Arrays.asList(
       "A", "F", "B", "C", "D", "E", "H", "L"
   ));
-  
+
   // Map 16-bit registers to their 8-bit components
   private static final Map<String, Set<String>> REGISTER_COMPONENTS = new HashMap<>();
+
   static {
     REGISTER_COMPONENTS.put("HL", new HashSet<>(Arrays.asList("H", "L")));
     REGISTER_COMPONENTS.put("BC", new HashSet<>(Arrays.asList("B", "C")));
@@ -47,7 +48,7 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
   private boolean recordingEnabled = true;
 
   public JetSetWilly2FieldAccessAnalyzer3(MiniZXIO<WordNumber> rzxPlayerIO,
-      Predicate<Integer> interruptionCondition) {
+                                          Predicate<Integer> interruptionCondition) {
     super(rzxPlayerIO, interruptionCondition);
   }
 
@@ -87,7 +88,7 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
 
     List<String> currentPath = getCurrentPath();
     Set<String> fields8bit = expand8BitFields(fieldName);
-    
+
     for (String field : fields8bit) {
       fieldLastWritePath.put(field, new ArrayList<>(currentPath));
     }
@@ -100,10 +101,10 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
 
     List<String> readPath = getCurrentPath();
     Set<String> fields8bit = expand8BitFields(fieldName);
-    
+
     for (String field : fields8bit) {
       List<String> writePath = fieldLastWritePath.get(field);
-      
+
       if (writePath == null || !pathsAreEqual(writePath, readPath)) {
         propagateDependencies(field, writePath, readPath);
       }
@@ -112,14 +113,16 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
 
   private void propagateDependencies(String field, List<String> writePath, List<String> readPath) {
     int commonDepth = getCommonAncestorDepth(writePath, readPath);
-    
+
+
+    int i1 = readPath.indexOf(writePath.get(0));
     // Add as PARAMETER to all methods from read path to common ancestor (exclusive)
-    for (int i = readPath.size() - 1; i > commonDepth; i--) {
+    for (int i = i1 - 1; i >= 0; i--) {
       String method = readPath.get(i);
       methodFieldDeps.computeIfAbsent(method, k -> new MethodFieldDeps(method))
           .addParameter(field);
     }
-    
+
     // Add as RETURN to all methods from write path to common ancestor (exclusive)
     if (writePath != null) {
       for (int i = writePath.size() - 1; i > commonDepth; i--) {
@@ -134,10 +137,10 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     if (path1 == null) {
       return path2.size() - 1;
     }
-    
+
     int minLen = Math.min(path1.size(), path2.size());
     int commonDepth = -1;
-    
+
     for (int i = 0; i < minLen; i++) {
       if (path1.get(i).equals(path2.get(i))) {
         commonDepth = i;
@@ -145,7 +148,7 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
         break;
       }
     }
-    
+
     return commonDepth;
   }
 
@@ -345,10 +348,10 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
 
   public void saveAnalysis(String filePath) throws Exception {
     Map<String, Object> json = new LinkedHashMap<>();
-    
+
     // fieldLastWritePath data
     json.put("fieldLastWritePath", fieldLastWritePath);
-    
+
     // methodFieldDeps data
     Map<String, Object> methods = new LinkedHashMap<>();
     for (MethodFieldDeps deps : methodFieldDeps.values()) {
@@ -358,7 +361,7 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
       methods.put(deps.methodName, methodData);
     }
     json.put("methodDependencies", methods);
-    
+
     ObjectMapper mapper = new ObjectMapper();
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
     mapper.writeValue(new File(filePath), json);

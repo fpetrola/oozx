@@ -21,11 +21,11 @@
       "returns" : [ "H", "L" ]
     },
     "$36307" : {
-      "parameters" : [ "A", "B", "C", "D", "E", "F", "H", "IXH", "L", "IXL" ],
+      "parameters" : [ ],
       "returns" : [ "A", "B", "C", "D", "E", "F", "H", "IXH", "L", "IXL" ]
     },
     "$38528" : {
-      "parameters" : [ "A", "B", "C", "D", "E", "IXH", "H", "IXL", "L" ],
+      "parameters" : [ "C", "D", "E", "IXH", "IXL" ],
       "returns" : [ "A", "B", "D", "E", "H", "L" ]
     },
     "$38504" : {
@@ -33,23 +33,23 @@
       "returns" : [ ]
     },
     "$38064" : {
-      "parameters" : [ "A", "B", "C", "D", "E", "F", "IXH", "H", "IXL", "L" ],
+      "parameters" : [ ],
       "returns" : [ "A", "B", "C", "D", "E", "F", "IXH", "H", "IXL", "L" ]
     },
     "$38196" : {
-      "parameters" : [ "B", "C", "D", "E", "IXH", "IXL" ],
+      "parameters" : [ ],
       "returns" : [ "B", "C", "D", "E", "IXH", "IXL" ]
     },
     "$36171" : {
-      "parameters" : [ "D", "IXH", "IXL" ],
+      "parameters" : [ "IXH", "IXL" ],
       "returns" : [ ]
     },
     "$36203" : {
-      "parameters" : [ "A", "IXH", "IXL" ],
+      "parameters" : [ ],
       "returns" : [ "A", "D", "IXH", "IXL" ]
     },
     "$35211" : {
-      "parameters" : [ "C", "D", "E", "H", "L" ],
+      "parameters" : [ ],
       "returns" : [ "C", "D", "E", "H", "L" ]
     },
     "$38601" : {
@@ -61,7 +61,7 @@
       "returns" : [ "F" ]
     },
     "$34463" : {
-      "parameters" : [ "A", "B", "C", "D", "E", "F", "IXH", "H", "IXL", "L" ],
+      "parameters" : [ ],
       "returns" : [ "A", "B", "C", "D", "E", "F", "IXH", "H", "IXL", "L" ]
     },
     "$34620" : {
@@ -69,19 +69,19 @@
       "returns" : [ "A", "F", "IXH", "IXL" ]
     },
     "$38545" : {
-      "parameters" : [ "A", "B", "D", "E", "H", "L" ],
+      "parameters" : [ "A", "D", "E" ],
       "returns" : [ "B", "D", "H", "L" ]
     },
     "$34499" : {
-      "parameters" : [ "A", "B", "C", "D", "E", "F", "IXH", "H", "IXL", "L" ],
+      "parameters" : [ "IXH", "IXL" ],
       "returns" : [ "A", "B", "C", "D", "E", "F", "H", "IXH", "L", "IXL" ]
     },
     "$37841" : {
-      "parameters" : [ "B", "D", "E", "H", "L" ],
+      "parameters" : [ ],
       "returns" : [ "B", "D", "E", "H", "L" ]
     },
     "$36147" : {
-      "parameters" : [ "A", "D", "IXH", "IXL" ],
+      "parameters" : [ ],
       "returns" : [ "A", "D", "IXH", "IXL" ]
     },
     "$38555" : {
@@ -89,11 +89,11 @@
       "returns" : [ "D" ]
     },
     "$37310" : {
-      "parameters" : [ "C", "D", "E", "F", "H", "L" ],
+      "parameters" : [ ],
       "returns" : [ "C", "D", "E", "F", "H", "L" ]
     },
     "$38344" : {
-      "parameters" : [ "A", "B", "C", "D", "E", "F", "H", "IXH", "L", "IXL" ],
+      "parameters" : [ ],
       "returns" : [ "A", "B", "C", "D", "E", "F", "H", "IXH", "L", "IXL" ]
     },
     "$36288" : {
@@ -105,11 +105,11 @@
       "returns" : [ "IXH", "IXL" ]
     },
     "$38430" : {
-      "parameters" : [ "A", "B", "C", "D", "E", "F", "H", "IXH", "L", "IXL" ],
+      "parameters" : [ "C", "H", "L" ],
       "returns" : [ "A", "B", "C", "D", "E", "F", "IXH", "H", "IXL", "L" ]
     },
     "$38562" : {
-      "parameters" : [ "F", "H", "L" ],
+      "parameters" : [ "H", "L" ],
       "returns" : [ "F" ]
     }
   }
