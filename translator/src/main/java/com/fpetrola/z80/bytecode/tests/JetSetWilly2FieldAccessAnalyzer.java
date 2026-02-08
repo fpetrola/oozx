@@ -27,6 +27,18 @@ public class JetSetWilly2FieldAccessAnalyzer extends JetSetWilly2 {
       "A", "F", "B", "C", "D", "E", "H", "L", "IXH", "IXL", "IYH", "IYL",
       "AF", "BC", "DE", "HL", "IX", "IY", "SP"
   ));
+  
+  // Map 16-bit registers to their 8-bit components
+  private static final Map<String, Set<String>> REGISTER_COMPONENTS = new HashMap<>();
+  static {
+    REGISTER_COMPONENTS.put("HL", new HashSet<>(Arrays.asList("H", "L")));
+    REGISTER_COMPONENTS.put("BC", new HashSet<>(Arrays.asList("B", "C")));
+    REGISTER_COMPONENTS.put("DE", new HashSet<>(Arrays.asList("D", "E")));
+    REGISTER_COMPONENTS.put("AF", new HashSet<>(Arrays.asList("A", "F")));
+    REGISTER_COMPONENTS.put("IX", new HashSet<>(Arrays.asList("IXH", "IXL")));
+    REGISTER_COMPONENTS.put("IY", new HashSet<>(Arrays.asList("IYH", "IYL")));
+  }
+  
   private final Map<String, Integer> fieldAccessCounter = new HashMap<>();
   private boolean recordingEnabled = true;
 
@@ -41,7 +53,7 @@ public class JetSetWilly2FieldAccessAnalyzer extends JetSetWilly2 {
 
   /**
    * Record field access using methodStack (RoutineCallInterceptor maintains it)
-   * Much faster than reading Java stack traces
+   * Tracks order of reads/writes to determine parameters and returns
    */
   private void recordFieldAccess(String fieldName, boolean isWrite) {
     if (!recordingEnabled) {
@@ -55,12 +67,7 @@ public class JetSetWilly2FieldAccessAnalyzer extends JetSetWilly2 {
       MethodFieldAnalysis analysis = methodAnalyses.computeIfAbsent(
           currentMethod, k -> new MethodFieldAnalysis(currentMethod));
 
-      if (isWrite) {
-        analysis.addFieldWrite(fieldName);
-      } else {
-        analysis.addFieldRead(fieldName);
-      }
-
+      analysis.recordAccess(fieldName, isWrite);
       fieldAccessCounter.merge(fieldName + (isWrite ? ":W" : ":R"), 1, Integer::sum);
     }
   }
@@ -319,23 +326,25 @@ public class JetSetWilly2FieldAccessAnalyzer extends JetSetWilly2 {
       Map<String, Object> methodData = new LinkedHashMap<>();
       methodData.put("name", analysis.getMethodName());
 
-      List<String> reads = new ArrayList<>(analysis.getFieldReads());
-      List<String> writes = new ArrayList<>(analysis.getFieldWrites());
+      List<String> allReads = new ArrayList<>(analysis.getAllReadFields());
+      List<String> allWrites = new ArrayList<>(analysis.getAllWriteFields());
+      List<String> parameters = new ArrayList<>(analysis.getRequiredParameters());
+      List<String> returns = new ArrayList<>(analysis.getReturnValues());
 
-      methodData.put("fieldReads", reads);
-      methodData.put("fieldWrites", writes);
-      methodData.put("requiresAsParameters", reads);
-      methodData.put("shouldReturn", writes);
+      methodData.put("fieldReads", allReads);
+      methodData.put("fieldWrites", allWrites);
+      methodData.put("requiresAsParameters", parameters);
+      methodData.put("shouldReturn", returns);
 
       // Analysis notes
       List<String> notes = new ArrayList<>();
-      if (!reads.isEmpty()) {
-        notes.add("PARAMETER: Add these as parameters since they're read without initialization");
-        notes.addAll(reads.stream().map(f -> "  - " + f).collect(Collectors.toList()));
+      if (!parameters.isEmpty()) {
+        notes.add("PARAMETER: Fields read before write (value comes from caller)");
+        notes.addAll(parameters.stream().map(f -> "  - " + f).collect(Collectors.toList()));
       }
-      if (!writes.isEmpty()) {
-        notes.add("RETURN: Create return object with these fields (modified during execution)");
-        notes.addAll(writes.stream().map(f -> "  - " + f).collect(Collectors.toList()));
+      if (!returns.isEmpty()) {
+        notes.add("RETURN: Fields written before read (modified value needed by caller)");
+        notes.addAll(returns.stream().map(f -> "  - " + f).collect(Collectors.toList()));
       }
       methodData.put("refactoringNotes", notes);
 
@@ -380,17 +389,17 @@ public class JetSetWilly2FieldAccessAnalyzer extends JetSetWilly2 {
 
     // Methods needing most refactoring
     List<Map<String, Object>> methodsNeedingWork = methodAnalyses.values().stream()
-        .filter(m -> !m.getFieldReads().isEmpty() || !m.getFieldWrites().isEmpty())
+        .filter(m -> !m.getRequiredParameters().isEmpty() || !m.getReturnValues().isEmpty())
         .sorted((a, b) -> Integer.compare(
-            b.getFieldReads().size() + b.getFieldWrites().size(),
-            a.getFieldReads().size() + a.getFieldWrites().size()))
+            b.getRequiredParameters().size() + b.getReturnValues().size(),
+            a.getRequiredParameters().size() + a.getReturnValues().size()))
         .limit(10)
         .map(m -> {
           Map<String, Object> item = new LinkedHashMap<>();
           item.put("method", m.getMethodName());
-          item.put("readFields", m.getFieldReads().size());
-          item.put("writeFields", m.getFieldWrites().size());
-          item.put("totalDependencies", m.getFieldReads().size() + m.getFieldWrites().size());
+          item.put("parameterFields", m.getRequiredParameters().size());
+          item.put("returnFields", m.getReturnValues().size());
+          item.put("totalDependencies", m.getRequiredParameters().size() + m.getReturnValues().size());
           return item;
         })
         .collect(Collectors.toList());
@@ -410,11 +419,12 @@ public class JetSetWilly2FieldAccessAnalyzer extends JetSetWilly2 {
 
   /**
    * Information about a method's field dependencies
+   * Tracks the ORDER of field accesses to determine parameters and returns
    */
   private static class MethodFieldAnalysis {
     private final String methodName;
-    private final Set<String> fieldReads = new HashSet<>();
-    private final Set<String> fieldWrites = new HashSet<>();
+    // For each field, track: is first access READ or WRITE?
+    private final Map<String, FieldAccessInfo> fieldAccess = new HashMap<>();
 
     public MethodFieldAnalysis(String methodName) {
       this.methodName = methodName;
@@ -424,20 +434,164 @@ public class JetSetWilly2FieldAccessAnalyzer extends JetSetWilly2 {
       return methodName;
     }
 
-    public Set<String> getFieldReads() {
-      return fieldReads;
+    /**
+     * Get fields that need to be parameters (READ before WRITE or only READ)
+     * For 16-bit registers, check if their 8-bit components were initialized first
+     */
+    public Set<String> getRequiredParameters() {
+      return fieldAccess.values().stream()
+          .filter(f -> isRequiredParameterForField(f))
+          .map(f -> f.fieldName)
+          .collect(Collectors.toSet());
+    }
+    
+    private boolean isRequiredParameterForField(FieldAccessInfo field) {
+      // Base check: is this field a parameter?
+      if (!field.isRequiredParameter()) {
+        return false;
+      }
+      
+      // For 16-bit registers, check if components were already initialized
+      Set<String> components = REGISTER_COMPONENTS.get(field.fieldName);
+      if (components != null) {
+        // All components must NOT be required parameters for the 16-bit to be a parameter
+        // In other words: if ALL components are written before read, 16-bit doesn't need parameter
+        boolean allComponentsInitialized = components.stream()
+            .allMatch(comp -> {
+              FieldAccessInfo compInfo = fieldAccess.get(comp);
+              return compInfo != null && !compInfo.isRequiredParameter();
+            });
+        
+        // If all components were initialized locally, the 16-bit register doesn't need parameter
+        return !allComponentsInitialized;
+      }
+      
+      return true;
     }
 
-    public Set<String> getFieldWrites() {
-      return fieldWrites;
+    /**
+     * Get fields that should be returned (ANY WRITE)
+     * For 16-bit registers, only return if at least one component is a return value
+     */
+    public Set<String> getReturnValues() {
+      return fieldAccess.values().stream()
+          .filter(f -> shouldReturnField(f))
+          .map(f -> f.fieldName)
+          .collect(Collectors.toSet());
+    }
+    
+    private boolean shouldReturnField(FieldAccessInfo field) {
+      // Base check: was this field written?
+      if (!field.shouldReturn()) {
+        return false;
+      }
+      
+      // For 16-bit registers, check if they have any return value in components
+      Set<String> components = REGISTER_COMPONENTS.get(field.fieldName);
+      if (components != null) {
+        // Return true if ANY component is a return value
+        // This ensures we capture partial modifications to 16-bit registers
+        boolean anyComponentIsReturn = components.stream()
+            .anyMatch(comp -> {
+              FieldAccessInfo compInfo = fieldAccess.get(comp);
+              return compInfo != null && compInfo.shouldReturn();
+            });
+        
+        return anyComponentIsReturn;
+      }
+      
+      return true;
     }
 
-    public void addFieldRead(String field) {
-      fieldReads.add(field);
+    /**
+     * Get all fields accessed (read or write)
+     */
+    public Set<String> getAllReadFields() {
+      return fieldAccess.values().stream()
+          .filter(f -> f.hasRead)
+          .map(f -> f.fieldName)
+          .collect(Collectors.toSet());
     }
 
-    public void addFieldWrite(String field) {
-      fieldWrites.add(field);
+    public Set<String> getAllWriteFields() {
+      return fieldAccess.values().stream()
+          .filter(f -> f.hasWrite)
+          .map(f -> f.fieldName)
+          .collect(Collectors.toSet());
+    }
+
+    public void recordAccess(String fieldName, boolean isWrite) {
+      FieldAccessInfo info = fieldAccess.computeIfAbsent(fieldName, 
+          k -> new FieldAccessInfo(fieldName));
+      
+      if (isWrite) {
+        info.recordWrite();
+      } else {
+        info.recordRead();
+      }
+      
+      // If accessing a 16-bit register, also record access for 8-bit components
+      Set<String> components = REGISTER_COMPONENTS.get(fieldName);
+      if (components != null) {
+        for (String component : components) {
+          FieldAccessInfo componentInfo = fieldAccess.computeIfAbsent(component,
+              k -> new FieldAccessInfo(component));
+          
+          if (isWrite) {
+            componentInfo.recordWrite();
+          } else {
+            componentInfo.recordRead();
+          }
+        }
+      }
+    }
+
+    /**
+     * Track access order for a single field
+     */
+    private static class FieldAccessInfo {
+      final String fieldName;
+      boolean hasRead = false;
+      boolean hasWrite = false;
+      boolean firstAccessIsRead = false;
+      boolean firstAccessSet = false;
+
+      FieldAccessInfo(String fieldName) {
+        this.fieldName = fieldName;
+      }
+
+      void recordRead() {
+        if (!firstAccessSet) {
+          firstAccessIsRead = true;
+          firstAccessSet = true;
+        }
+        hasRead = true;
+      }
+
+      void recordWrite() {
+        if (!firstAccessSet) {
+          firstAccessIsRead = false;
+          firstAccessSet = true;
+        }
+        hasWrite = true;
+      }
+
+      /**
+       * Parameter: READ before WRITE (or READ only)
+       * Means: value comes from outside, must be a parameter
+       */
+      boolean isRequiredParameter() {
+        return hasRead && (firstAccessIsRead || !hasWrite);
+      }
+
+      /**
+       * Return: ANY WRITE
+       * Means: value is modified, must be returned to caller
+       * (whether it was read before, read after, or not read at all)
+       */
+      boolean shouldReturn() {
+        return hasWrite;
+      }
     }
   }
 }
