@@ -18,10 +18,7 @@
 
 package com.fpetrola.z80.bytecode.tests.rzzx;
 
-import com.fpetrola.z80.bytecode.tests.JetSetWilly;
-import com.fpetrola.z80.bytecode.tests.JetSetWilly2;
-import com.fpetrola.z80.bytecode.tests.MyMemorySetter;
-import com.fpetrola.z80.bytecode.tests.MyRegistersSetter;
+import com.fpetrola.z80.bytecode.tests.*;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
@@ -34,7 +31,7 @@ import java.util.concurrent.Callable;
 public class PcInterceptor {
   private static boolean initializing = true;
 
-  public static void log(@SuperCall Callable<List<String>> zuper, @AllArguments Object[] args, @This JetSetWilly2 thiz) throws Exception {
+  public static void log(@SuperCall Callable<List<String>> zuper, @AllArguments Object[] args, @This JetSetWilly2FieldAccessAnalyzer thiz) throws Exception {
 //        SpectrumApplication.waitNanos(2000);
 
     if (initializing) {

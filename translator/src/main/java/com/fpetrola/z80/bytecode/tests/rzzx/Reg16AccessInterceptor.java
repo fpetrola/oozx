@@ -20,6 +20,7 @@ package com.fpetrola.z80.bytecode.tests.rzzx;
 
 import com.fpetrola.z80.bytecode.tests.JetSetWilly;
 import com.fpetrola.z80.bytecode.tests.JetSetWilly2;
+import com.fpetrola.z80.bytecode.tests.JetSetWilly2FieldAccessAnalyzer;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
@@ -57,7 +58,7 @@ public class Reg16AccessInterceptor {
     }
   }
 
-  public static int log(@Origin Method method, @SuperCall Callable<Integer> zuper, @AllArguments Object[] args, @This JetSetWilly2 thiz) throws Exception {
+  public static int log(@Origin Method method, @SuperCall Callable<Integer> zuper, @AllArguments Object[] args, @This JetSetWilly2FieldAccessAnalyzer thiz) throws Exception {
 //    System.out.println("reg16: " + method.getName() + " " + args.length);
     boolean writing = args.length == 1;
     if (writing) {

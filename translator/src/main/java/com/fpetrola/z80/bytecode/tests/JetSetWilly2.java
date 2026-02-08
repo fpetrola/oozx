@@ -14,7 +14,7 @@ public class JetSetWilly2 extends MiniZX {
   }
 
   public void pc(int address, int rdelta) {
-    waitNanos(2200);
+//    waitNanos(2200);
     super.pc(address, rdelta);
   }
 
