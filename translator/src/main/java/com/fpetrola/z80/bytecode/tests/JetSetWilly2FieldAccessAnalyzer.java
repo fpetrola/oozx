@@ -481,26 +481,34 @@ public class JetSetWilly2FieldAccessAnalyzer extends JetSetWilly2 {
     }
     
     private boolean shouldReturnField(FieldAccessInfo field) {
-      // Base check: was this field written?
-      if (!field.shouldReturn()) {
-        return false;
-      }
-      
-      // For 16-bit registers, check if they have any return value in components
+      // For 16-bit registers, special handling:
+      // Return if ANY component was written (modified), since caller may read the 16-bit after the call
       Set<String> components = REGISTER_COMPONENTS.get(field.fieldName);
       if (components != null) {
-        // Return true if ANY component is a return value
-        // This ensures we capture partial modifications to 16-bit registers
+        // Check if ANY component is a return value
         boolean anyComponentIsReturn = components.stream()
             .anyMatch(comp -> {
               FieldAccessInfo compInfo = fieldAccess.get(comp);
               return compInfo != null && compInfo.shouldReturn();
             });
         
-        return anyComponentIsReturn;
+        if (anyComponentIsReturn) {
+          return true;
+        }
+        
+        // Also check if ANY component was written (even if not a "return" by 8-bit logic)
+        // because the 16-bit register value may be used by the caller after the call
+        boolean anyComponentWritten = components.stream()
+            .anyMatch(comp -> {
+              FieldAccessInfo compInfo = fieldAccess.get(comp);
+              return compInfo != null && compInfo.hasDirectWrite;
+            });
+        
+        return anyComponentWritten;
       }
       
-      return true;
+      // For 8-bit registers: base check - was this field written and last access is read?
+      return field.shouldReturn();
     }
 
     /**
@@ -508,14 +516,14 @@ public class JetSetWilly2FieldAccessAnalyzer extends JetSetWilly2 {
      */
     public Set<String> getAllReadFields() {
       return fieldAccess.values().stream()
-          .filter(f -> f.hasRead)
+          .filter(f -> f.hasDirectRead)
           .map(f -> f.fieldName)
           .collect(Collectors.toSet());
     }
 
     public Set<String> getAllWriteFields() {
       return fieldAccess.values().stream()
-          .filter(f -> f.hasWrite)
+          .filter(f -> f.hasDirectWrite)
           .map(f -> f.fieldName)
           .collect(Collectors.toSet());
     }
@@ -531,6 +539,7 @@ public class JetSetWilly2FieldAccessAnalyzer extends JetSetWilly2 {
       }
       
       // If accessing a 16-bit register, also record access for 8-bit components
+      // BUT mark them as indirect (not direct accesses)
       Set<String> components = REGISTER_COMPONENTS.get(fieldName);
       if (components != null) {
         for (String component : components) {
@@ -538,9 +547,9 @@ public class JetSetWilly2FieldAccessAnalyzer extends JetSetWilly2 {
               k -> new FieldAccessInfo(component));
           
           if (isWrite) {
-            componentInfo.recordWrite();
+            componentInfo.recordIndirectWrite();
           } else {
-            componentInfo.recordRead();
+            componentInfo.recordIndirectRead();
           }
         }
       }
@@ -548,13 +557,15 @@ public class JetSetWilly2FieldAccessAnalyzer extends JetSetWilly2 {
 
     /**
      * Track access order for a single field
+     * Distinguishes between direct and indirect accesses
      */
     private static class FieldAccessInfo {
       final String fieldName;
-      boolean hasRead = false;
-      boolean hasWrite = false;
+      boolean hasDirectRead = false;
+      boolean hasDirectWrite = false;
       boolean firstAccessIsRead = false;
       boolean firstAccessSet = false;
+      boolean lastAccessIsRead = false;
 
       FieldAccessInfo(String fieldName) {
         this.fieldName = fieldName;
@@ -565,7 +576,8 @@ public class JetSetWilly2FieldAccessAnalyzer extends JetSetWilly2 {
           firstAccessIsRead = true;
           firstAccessSet = true;
         }
-        hasRead = true;
+        hasDirectRead = true;
+        lastAccessIsRead = true;
       }
 
       void recordWrite() {
@@ -573,24 +585,36 @@ public class JetSetWilly2FieldAccessAnalyzer extends JetSetWilly2 {
           firstAccessIsRead = false;
           firstAccessSet = true;
         }
-        hasWrite = true;
+        hasDirectWrite = true;
+        lastAccessIsRead = false;
+      }
+      
+      void recordIndirectRead() {
+        // Indirect reads don't affect parameter/return logic
+        // Only direct accesses matter
+      }
+      
+      void recordIndirectWrite() {
+        // Indirect writes don't affect parameter/return logic
+        // Only direct accesses matter
       }
 
       /**
        * Parameter: READ before WRITE (or READ only)
-       * Means: value comes from outside, must be a parameter
+       * Only counts DIRECT reads/writes
        */
       boolean isRequiredParameter() {
-        return hasRead && (firstAccessIsRead || !hasWrite);
+        return hasDirectRead && (firstAccessIsRead || !hasDirectWrite);
       }
 
       /**
-       * Return: ANY WRITE
-       * Means: value is modified, must be returned to caller
-       * (whether it was read before, read after, or not read at all)
+       * Return: WRITE and last access is READ (modified value needed by caller)
+       * Only counts DIRECT reads/writes
+       * Fields written but ending with WRITE (not READ) have value discarded by caller
+       * If READ is first, the value comes from caller, so it's a parameter not a return
        */
       boolean shouldReturn() {
-        return hasWrite;
+        return hasDirectWrite && lastAccessIsRead && !firstAccessIsRead;
       }
     }
   }
