@@ -590,13 +590,14 @@ public class JetSetWilly2FieldAccessAnalyzer extends JetSetWilly2 {
       }
       
       void recordIndirectRead() {
-        // Indirect reads don't affect parameter/return logic
-        // Only direct accesses matter
+        // Indirect access through a register (like (IX+0)) is still a read dependency
+        // The register value is needed, so treat as direct read
+        recordRead();
       }
       
       void recordIndirectWrite() {
-        // Indirect writes don't affect parameter/return logic
-        // Only direct accesses matter
+        // Indirect writes through a register still count as uses of that register
+        // Keep as indirect - the register itself isn't written, just used for addressing
       }
 
       /**

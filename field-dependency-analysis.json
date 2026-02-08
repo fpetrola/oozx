@@ -1,7 +1,7 @@
 {
   "analysisType" : "Field Dependency Analysis via Stack Trace Interception",
   "gameClass" : "JetSetWilly2",
-  "analysisDate" : "Sat Feb 07 23:14:41 GMT-03:00 2026",
+  "analysisDate" : "Sat Feb 07 23:20:03 GMT-03:00 2026",
   "description" : "Tracks which fields are read/written in each method by intercepting field accessors",
   "summary" : {
     "totalMethodsAnalyzed" : 26,
@@ -11,99 +11,99 @@
   "methods" : {
     "$36508" : {
       "name" : "$36508",
-      "fieldReads" : [ "A", "HL", "F", "L" ],
+      "fieldReads" : [ "A", "HL", "F", "H", "L" ],
       "fieldWrites" : [ "A", "F", "H", "L" ],
       "requiresAsParameters" : [ "A" ],
-      "shouldReturn" : [ "HL" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - A", "RETURN: Fields written before read (modified value needed by caller)", "  - HL" ]
+      "shouldReturn" : [ "HL", "H", "L" ],
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - A", "RETURN: Fields written before read (modified value needed by caller)", "  - HL", "  - H", "  - L" ]
     },
     "$36307" : {
       "name" : "$36307",
-      "fieldReads" : [ "BC", "DE", "A", "B", "C", "D", "HL", "E", "F", "H", "L", "IX" ],
+      "fieldReads" : [ "BC", "DE", "A", "B", "C", "D", "HL", "E", "F", "H", "L", "IX", "IXH", "IXL" ],
       "fieldWrites" : [ "BC", "DE", "A", "B", "C", "D", "HL", "E", "F", "H", "L", "IX" ],
-      "requiresAsParameters" : [ "H", "L" ],
-      "shouldReturn" : [ "BC", "DE", "A", "B", "D", "HL", "E" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - H", "  - L", "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - DE", "  - A", "  - B", "  - D", "  - HL", "  - E" ]
+      "requiresAsParameters" : [ "B", "C", "D", "E", "H", "IXH", "L", "IXL" ],
+      "shouldReturn" : [ "BC", "DE", "A", "HL" ],
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - B", "  - C", "  - D", "  - E", "  - H", "  - IXH", "  - L", "  - IXL", "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - DE", "  - A", "  - HL" ]
     },
     "$38528" : {
       "name" : "$38528",
-      "fieldReads" : [ "A", "C", "D", "E", "F", "IX" ],
+      "fieldReads" : [ "A", "C", "D", "E", "F", "IXH", "IXL", "IX" ],
       "fieldWrites" : [ "A", "C", "D", "E", "F", "IX" ],
-      "requiresAsParameters" : [ "C", "D", "E" ],
+      "requiresAsParameters" : [ "C", "D", "E", "IXH", "IXL", "IX" ],
       "shouldReturn" : [ "A", "F" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - C", "  - D", "  - E", "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - F" ]
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - C", "  - D", "  - E", "  - IXH", "  - IXL", "  - IX", "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - F" ]
     },
     "$38504" : {
       "name" : "$38504",
-      "fieldReads" : [ "DE", "A", "B", "C", "HL", "IX" ],
+      "fieldReads" : [ "DE", "A", "B", "C", "HL", "D", "E", "H", "IXH", "L", "IXL", "IX" ],
       "fieldWrites" : [ "DE", "A", "B", "HL", "F", "H", "L", "IX" ],
-      "requiresAsParameters" : [ "B", "C" ],
-      "shouldReturn" : [ "A", "HL" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - B", "  - C", "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - HL" ]
+      "requiresAsParameters" : [ "DE", "B", "C", "D", "E", "IXH", "IXL", "IX" ],
+      "shouldReturn" : [ "A", "HL", "H", "L" ],
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - DE", "  - B", "  - C", "  - D", "  - E", "  - IXH", "  - IXL", "  - IX", "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - HL", "  - H", "  - L" ]
     },
     "$38064" : {
       "name" : "$38064",
-      "fieldReads" : [ "BC", "DE", "A", "B", "C", "HL", "D", "E", "F", "L", "IX" ],
+      "fieldReads" : [ "BC", "DE", "A", "B", "C", "HL", "D", "E", "F", "H", "L", "IX", "IXH", "IXL" ],
       "fieldWrites" : [ "BC", "DE", "A", "B", "C", "HL", "D", "E", "F", "H", "L", "IX" ],
-      "requiresAsParameters" : [ ],
-      "shouldReturn" : [ "BC", "DE", "A", "B", "HL", "D", "F" ],
-      "refactoringNotes" : [ "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - DE", "  - A", "  - B", "  - HL", "  - D", "  - F" ]
+      "requiresAsParameters" : [ "B", "C", "D", "E", "IXH", "IXL" ],
+      "shouldReturn" : [ "BC", "DE", "A", "HL", "F", "H", "L" ],
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - B", "  - C", "  - D", "  - E", "  - IXH", "  - IXL", "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - DE", "  - A", "  - HL", "  - F", "  - H", "  - L" ]
     },
     "$36203" : {
       "name" : "$36203",
-      "fieldReads" : [ "DE", "A", "B", "HL", "F", "L" ],
+      "fieldReads" : [ "DE", "A", "B", "D", "HL", "E", "F", "H", "L" ],
       "fieldWrites" : [ "A", "B", "D", "HL", "E", "F", "IX" ],
-      "requiresAsParameters" : [ "L" ],
-      "shouldReturn" : [ "DE", "A", "B" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - L", "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - A", "  - B" ]
+      "requiresAsParameters" : [ "H", "L" ],
+      "shouldReturn" : [ "DE", "A", "B", "D", "E" ],
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - H", "  - L", "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - A", "  - B", "  - D", "  - E" ]
     },
     "$35211" : {
       "name" : "$35211",
-      "fieldReads" : [ "BC", "A", "B", "HL", "F" ],
+      "fieldReads" : [ "BC", "A", "B", "C", "HL", "F", "H", "L" ],
       "fieldWrites" : [ "BC", "A", "B", "C", "D", "HL", "E", "F" ],
-      "requiresAsParameters" : [ ],
-      "shouldReturn" : [ "BC", "A", "B" ],
-      "refactoringNotes" : [ "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - A", "  - B" ]
+      "requiresAsParameters" : [ "H", "L" ],
+      "shouldReturn" : [ "BC", "A", "B", "C" ],
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - H", "  - L", "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - A", "  - B", "  - C" ]
     },
     "$38601" : {
       "name" : "$38601",
-      "fieldReads" : [ "BC", "A", "F" ],
+      "fieldReads" : [ "BC", "A", "B", "C", "F" ],
       "fieldWrites" : [ "BC", "A", "F" ],
-      "requiresAsParameters" : [ ],
+      "requiresAsParameters" : [ "B", "C" ],
       "shouldReturn" : [ "A" ],
-      "refactoringNotes" : [ "RETURN: Fields written before read (modified value needed by caller)", "  - A" ]
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - B", "  - C", "RETURN: Fields written before read (modified value needed by caller)", "  - A" ]
     },
     "$37974" : {
       "name" : "$37974",
-      "fieldReads" : [ "A", "DE", "B", "C", "HL", "F", "H", "L" ],
+      "fieldReads" : [ "A", "DE", "B", "C", "HL", "D", "E", "F", "H", "L" ],
       "fieldWrites" : [ "A", "DE", "B", "F", "H", "L" ],
-      "requiresAsParameters" : [ "C", "HL", "H", "L" ],
+      "requiresAsParameters" : [ "DE", "C", "HL", "D", "E", "H", "L" ],
       "shouldReturn" : [ "A", "B", "HL" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - C", "  - HL", "  - H", "  - L", "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - B", "  - HL" ]
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - DE", "  - C", "  - HL", "  - D", "  - E", "  - H", "  - L", "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - B", "  - HL" ]
     },
     "$34463" : {
       "name" : "$34463",
-      "fieldReads" : [ "BC", "DE", "HL" ],
+      "fieldReads" : [ "BC", "DE", "B", "C", "D", "HL", "E", "H", "L" ],
       "fieldWrites" : [ "BC", "DE", "HL", "IX" ],
-      "requiresAsParameters" : [ ],
+      "requiresAsParameters" : [ "B", "C", "D", "E", "H", "L" ],
       "shouldReturn" : [ ],
-      "refactoringNotes" : [ ]
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - B", "  - C", "  - D", "  - E", "  - H", "  - L" ]
     },
     "$34620" : {
       "name" : "$34620",
-      "fieldReads" : [ "A", "BC", "B", "C", "HL", "E", "F", "IX" ],
+      "fieldReads" : [ "A", "BC", "B", "C", "HL", "E", "F", "H", "IXH", "L", "IXL", "IX" ],
       "fieldWrites" : [ "A", "BC", "B", "C", "HL", "D", "E", "F", "H", "L", "IX", "IY", "SP" ],
-      "requiresAsParameters" : [ ],
-      "shouldReturn" : [ "A", "BC", "C", "HL" ],
-      "refactoringNotes" : [ "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - BC", "  - C", "  - HL" ]
+      "requiresAsParameters" : [ "B", "C", "IXH", "IXL", "IX" ],
+      "shouldReturn" : [ "A", "BC", "HL", "H", "L" ],
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - B", "  - C", "  - IXH", "  - IXL", "  - IX", "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - BC", "  - HL", "  - H", "  - L" ]
     },
     "$38545" : {
       "name" : "$38545",
-      "fieldReads" : [ "A", "HL", "L" ],
+      "fieldReads" : [ "A", "HL", "H", "L" ],
       "fieldWrites" : [ "B", "HL", "H", "L" ],
       "requiresAsParameters" : [ "A" ],
-      "shouldReturn" : [ "HL" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - A", "RETURN: Fields written before read (modified value needed by caller)", "  - HL" ]
+      "shouldReturn" : [ "HL", "H", "L" ],
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - A", "RETURN: Fields written before read (modified value needed by caller)", "  - HL", "  - H", "  - L" ]
     },
     "$36147" : {
       "name" : "$36147",
@@ -115,91 +115,91 @@
     },
     "$37310" : {
       "name" : "$37310",
-      "fieldReads" : [ "BC", "DE", "A", "B", "C", "HL", "E", "F", "H", "L", "IX", "IY", "IYL" ],
+      "fieldReads" : [ "BC", "DE", "A", "B", "C", "HL", "D", "E", "F", "H", "L", "IX", "IY", "IXH", "IYH", "IXL", "IYL" ],
       "fieldWrites" : [ "BC", "DE", "A", "B", "C", "HL", "D", "E", "F", "H", "L", "IX", "IY" ],
-      "requiresAsParameters" : [ "B", "IYL" ],
-      "shouldReturn" : [ "BC", "DE", "A", "HL", "F" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - B", "  - IYL", "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - DE", "  - A", "  - HL", "  - F" ]
+      "requiresAsParameters" : [ "B", "IXH", "IYH", "IXL", "IYL" ],
+      "shouldReturn" : [ "BC", "DE", "A", "HL", "D", "E", "F" ],
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - B", "  - IXH", "  - IYH", "  - IXL", "  - IYL", "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - DE", "  - A", "  - HL", "  - D", "  - E", "  - F" ]
     },
     "$38344" : {
       "name" : "$38344",
-      "fieldReads" : [ "DE", "A", "B", "HL", "E", "F" ],
+      "fieldReads" : [ "DE", "A", "B", "D", "HL", "E", "F", "H", "L" ],
       "fieldWrites" : [ "DE", "A", "B", "C", "D", "HL", "E", "F", "IXH", "IXL" ],
-      "requiresAsParameters" : [ ],
+      "requiresAsParameters" : [ "H", "L" ],
       "shouldReturn" : [ "DE", "A" ],
-      "refactoringNotes" : [ "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - A" ]
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - H", "  - L", "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - A" ]
     },
     "$36288" : {
       "name" : "$36288",
-      "fieldReads" : [ "DE", "A", "C", "IX" ],
+      "fieldReads" : [ "DE", "A", "C", "D", "E", "IXH", "IXL", "IX" ],
       "fieldWrites" : [ "A", "C", "D", "E", "F", "IX" ],
-      "requiresAsParameters" : [ "A" ],
-      "shouldReturn" : [ "DE", "C" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - A", "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - C" ]
+      "requiresAsParameters" : [ "A", "IXH", "IXL", "IX" ],
+      "shouldReturn" : [ "DE", "C", "D", "E" ],
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - A", "  - IXH", "  - IXL", "  - IX", "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - C", "  - D", "  - E" ]
     },
     "$37056" : {
       "name" : "$37056",
-      "fieldReads" : [ "DE", "A", "F", "IX" ],
+      "fieldReads" : [ "DE", "A", "D", "E", "F", "IXH", "IXL", "IX" ],
       "fieldWrites" : [ "DE", "A", "F", "IX" ],
-      "requiresAsParameters" : [ ],
+      "requiresAsParameters" : [ "D", "E", "IXH", "IXL" ],
       "shouldReturn" : [ "A", "F" ],
-      "refactoringNotes" : [ "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - F" ]
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - D", "  - E", "  - IXH", "  - IXL", "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - F" ]
     },
     "$38562" : {
       "name" : "$38562",
-      "fieldReads" : [ "A", "B", "C", "D", "HL", "AF", "E", "F" ],
+      "fieldReads" : [ "A", "B", "C", "D", "HL", "AF", "E", "F", "H", "L" ],
       "fieldWrites" : [ "BC", "A", "B", "C", "D", "HL", "AF", "E", "F" ],
-      "requiresAsParameters" : [ "B", "C" ],
+      "requiresAsParameters" : [ "B", "C", "HL", "H", "L" ],
       "shouldReturn" : [ "BC", "A", "AF", "E", "F" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - B", "  - C", "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - A", "  - AF", "  - E", "  - F" ]
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - B", "  - C", "  - HL", "  - H", "  - L", "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - A", "  - AF", "  - E", "  - F" ]
     },
     "$38196" : {
       "name" : "$38196",
-      "fieldReads" : [ "A", "HL", "E", "F" ],
+      "fieldReads" : [ "A", "HL", "E", "F", "H", "L" ],
       "fieldWrites" : [ "BC", "A", "HL", "D", "E", "F", "IX" ],
-      "requiresAsParameters" : [ ],
+      "requiresAsParameters" : [ "H", "L" ],
       "shouldReturn" : [ "A", "F" ],
-      "refactoringNotes" : [ "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - F" ]
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - H", "  - L", "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - F" ]
     },
     "$36171" : {
       "name" : "$36171",
-      "fieldReads" : [ "DE", "BC", "A", "B", "C", "D", "HL", "E", "F", "IX" ],
+      "fieldReads" : [ "DE", "BC", "A", "B", "C", "D", "HL", "E", "F", "H", "L", "IX", "IXH", "IXL" ],
       "fieldWrites" : [ "BC", "A", "B", "C", "D", "HL", "E", "F", "IX" ],
-      "requiresAsParameters" : [ "DE", "D" ],
-      "shouldReturn" : [ "DE", "BC", "A", "B", "E", "F" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - DE", "  - D", "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - BC", "  - A", "  - B", "  - E", "  - F" ]
+      "requiresAsParameters" : [ "DE", "B", "D", "H", "IXH", "L", "IXL", "IX" ],
+      "shouldReturn" : [ "DE", "BC", "A", "E", "F" ],
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - DE", "  - B", "  - D", "  - H", "  - IXH", "  - L", "  - IXL", "  - IX", "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - BC", "  - A", "  - E", "  - F" ]
     },
     "$34499" : {
       "name" : "$34499",
-      "fieldReads" : [ "A", "BC", "DE", "B", "C", "HL", "D", "E", "F", "L", "IXL", "IX" ],
+      "fieldReads" : [ "A", "BC", "DE", "B", "C", "HL", "D", "E", "F", "H", "L", "IX", "IXH", "IXL" ],
       "fieldWrites" : [ "A", "BC", "DE", "B", "C", "HL", "D", "E", "F", "H", "L", "IX" ],
-      "requiresAsParameters" : [ "D", "IXL" ],
-      "shouldReturn" : [ "A", "BC", "DE", "B", "HL", "F" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - D", "  - IXL", "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - BC", "  - DE", "  - B", "  - HL", "  - F" ]
+      "requiresAsParameters" : [ "B", "D", "E", "H", "IXH", "L", "IXL" ],
+      "shouldReturn" : [ "A", "BC", "DE", "C", "HL", "F" ],
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - B", "  - D", "  - E", "  - H", "  - IXH", "  - L", "  - IXL", "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - BC", "  - DE", "  - C", "  - HL", "  - F" ]
     },
     "$37841" : {
       "name" : "$37841",
-      "fieldReads" : [ "DE", "A", "B", "C", "HL", "E", "F", "H", "L", "IX" ],
+      "fieldReads" : [ "DE", "A", "B", "C", "D", "HL", "E", "F", "H", "L", "IX", "IXH", "IXL" ],
       "fieldWrites" : [ "A", "B", "C", "D", "HL", "E", "F", "H", "L", "IX" ],
-      "requiresAsParameters" : [ ],
-      "shouldReturn" : [ "DE", "A", "C", "HL", "F" ],
-      "refactoringNotes" : [ "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - A", "  - C", "  - HL", "  - F" ]
+      "requiresAsParameters" : [ "IXH", "IXL" ],
+      "shouldReturn" : [ "DE", "A", "C", "HL", "E", "F", "H" ],
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - IXH", "  - IXL", "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - A", "  - C", "  - HL", "  - E", "  - F", "  - H" ]
     },
     "$38137" : {
       "name" : "$38137",
-      "fieldReads" : [ "DE", "A", "B", "C", "HL", "E", "F", "H", "L" ],
+      "fieldReads" : [ "DE", "A", "B", "C", "D", "HL", "E", "F", "H", "L" ],
       "fieldWrites" : [ "A", "B", "C", "D", "HL", "E", "F", "H", "L" ],
       "requiresAsParameters" : [ "H", "L" ],
-      "shouldReturn" : [ "DE", "A", "B", "C", "HL" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - H", "  - L", "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - A", "  - B", "  - C", "  - HL" ]
+      "shouldReturn" : [ "DE", "A", "B", "C", "D", "HL" ],
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - H", "  - L", "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - A", "  - B", "  - C", "  - D", "  - HL" ]
     },
     "$38555" : {
       "name" : "$38555",
-      "fieldReads" : [ "DE", "A", "B", "D", "HL" ],
+      "fieldReads" : [ "DE", "A", "B", "D", "HL", "E", "H", "L" ],
       "fieldWrites" : [ "A", "B", "D", "HL", "F" ],
-      "requiresAsParameters" : [ "DE", "B", "D" ],
+      "requiresAsParameters" : [ "DE", "B", "D", "HL", "E", "H", "L" ],
       "shouldReturn" : [ "DE", "A" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - DE", "  - B", "  - D", "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - A" ]
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - DE", "  - B", "  - D", "  - HL", "  - E", "  - H", "  - L", "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - A" ]
     },
     "$38276" : {
       "name" : "$38276",
@@ -211,11 +211,11 @@
     },
     "$38430" : {
       "name" : "$38430",
-      "fieldReads" : [ "BC", "DE", "A", "B", "C", "D", "HL", "E", "F", "L", "IX" ],
+      "fieldReads" : [ "BC", "DE", "A", "B", "C", "D", "HL", "E", "F", "H", "L", "IX", "IXH", "IXL" ],
       "fieldWrites" : [ "BC", "DE", "A", "B", "C", "D", "HL", "E", "F", "H", "L", "IX" ],
-      "requiresAsParameters" : [ "C" ],
-      "shouldReturn" : [ "BC", "DE", "A", "B", "D", "HL", "F" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - C", "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - DE", "  - A", "  - B", "  - D", "  - HL", "  - F" ]
+      "requiresAsParameters" : [ "B", "C", "D", "HL", "E", "H", "IXH", "L", "IXL" ],
+      "shouldReturn" : [ "BC", "DE", "A", "HL", "F" ],
+      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - B", "  - C", "  - D", "  - HL", "  - E", "  - H", "  - IXH", "  - L", "  - IXL", "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - DE", "  - A", "  - HL", "  - F" ]
     }
   },
   "fieldAccessFrequency" : {
@@ -242,55 +242,55 @@
     "overview" : "Convert instance fields to local variables and parameters",
     "steps" : [ "1. For each method, identify requiredAsParameters - these must be added as method parameters", "2. Fields that are read but not in parent scope must come from grandparent - trace up the call chain", "3. Create a return record/class for shouldReturn fields", "4. Propagate return values up the call chain (grandchild -> child -> parent)", "5. For methods called from multiple places, union all parameter requirements", "6. Use try-catch or explicit return to handle fields modified in nested calls" ],
     "topMethodsNeedingRefactoring" : [ {
-      "method" : "$36307",
-      "parameterFields" : 2,
-      "returnFields" : 7,
-      "totalDependencies" : 9
-    }, {
-      "method" : "$36171",
-      "parameterFields" : 2,
-      "returnFields" : 6,
-      "totalDependencies" : 8
-    }, {
-      "method" : "$34499",
-      "parameterFields" : 2,
-      "returnFields" : 6,
-      "totalDependencies" : 8
-    }, {
       "method" : "$38430",
-      "parameterFields" : 1,
-      "returnFields" : 7,
-      "totalDependencies" : 8
+      "parameterFields" : 9,
+      "returnFields" : 5,
+      "totalDependencies" : 14
     }, {
       "method" : "$38064",
-      "parameterFields" : 0,
+      "parameterFields" : 6,
       "returnFields" : 7,
-      "totalDependencies" : 7
+      "totalDependencies" : 13
     }, {
-      "method" : "$37974",
-      "parameterFields" : 4,
-      "returnFields" : 3,
-      "totalDependencies" : 7
+      "method" : "$36171",
+      "parameterFields" : 8,
+      "returnFields" : 5,
+      "totalDependencies" : 13
+    }, {
+      "method" : "$34499",
+      "parameterFields" : 7,
+      "returnFields" : 6,
+      "totalDependencies" : 13
+    }, {
+      "method" : "$36307",
+      "parameterFields" : 8,
+      "returnFields" : 4,
+      "totalDependencies" : 12
+    }, {
+      "method" : "$38504",
+      "parameterFields" : 8,
+      "returnFields" : 4,
+      "totalDependencies" : 12
     }, {
       "method" : "$37310",
-      "parameterFields" : 2,
+      "parameterFields" : 5,
+      "returnFields" : 7,
+      "totalDependencies" : 12
+    }, {
+      "method" : "$37974",
+      "parameterFields" : 7,
+      "returnFields" : 3,
+      "totalDependencies" : 10
+    }, {
+      "method" : "$34620",
+      "parameterFields" : 5,
       "returnFields" : 5,
-      "totalDependencies" : 7
+      "totalDependencies" : 10
     }, {
       "method" : "$38562",
-      "parameterFields" : 2,
+      "parameterFields" : 5,
       "returnFields" : 5,
-      "totalDependencies" : 7
-    }, {
-      "method" : "$38137",
-      "parameterFields" : 2,
-      "returnFields" : 5,
-      "totalDependencies" : 7
-    }, {
-      "method" : "$38528",
-      "parameterFields" : 3,
-      "returnFields" : 2,
-      "totalDependencies" : 5
+      "totalDependencies" : 10
     } ]
   }
 }
