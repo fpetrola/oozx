@@ -11,24 +11,30 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Simplified field access analyzer that tracks:
- * - Current call path (stack of methods being executed)
- * - For each field: last write operation (path, location) and last read operation (path, location)
+ * Simplified field access analyzer using path-based logic.
  * 
- * Analysis logic:
- * - If a field is read in method A, but was last written in an ancestor method or different path,
- *   then it must be passed as a parameter to A
- * - If a field is written in method A, but is read later in an ancestor method,
- *   then it must be returned from A
+ * Core idea:
+ * - Track call path: A -> B -> C
+ * - For each 8-bit field, record only: lastWritePath, lastWriteMethod
+ * - When a field is read:
+ *   - If lastWritePath is NOT an ancestor of currentPath: PARAMETER (passed from caller)
+ *   - If lastWritePath IS an ancestor but different from currentPath: PARAMETER
+ * - When returning from a method, if a field was modified and is used by parent: RETURN
  */
 public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
 
-  private final Map<String, FieldStateInfo> fieldStates = new HashMap<>();
-  private final Map<String, MethodFieldDependencies> methodDependencies = new HashMap<>();
+  // Core data: for each 8-bit field, track last write location
+  private final Map<String, FieldLastWrite> fieldStates = new HashMap<>();
+  
+  // Call path stack (A -> B -> C)
   private final Deque<String> callPath = new LinkedList<>();
-  private final Set<String> allFields = new HashSet<>(Arrays.asList(
-      "A", "F", "B", "C", "D", "E", "H", "L", "IXH", "IXL", "IYH", "IYL",
-      "AF", "BC", "DE", "HL", "IX", "IY", "SP"
+  
+  // Result: which fields are parameters and which are returns PER METHOD
+  private final Map<String, MethodFieldDeps> methodFieldDeps = new HashMap<>();
+  
+  // 8-bit registers
+  private static final Set<String> EIGHT_BIT_REGISTERS = new HashSet<>(Arrays.asList(
+      "A", "F", "B", "C", "D", "E", "H", "L"
   ));
   
   // Map 16-bit registers to their 8-bit components
@@ -40,6 +46,7 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     REGISTER_COMPONENTS.put("AF", new HashSet<>(Arrays.asList("A", "F")));
     REGISTER_COMPONENTS.put("IX", new HashSet<>(Arrays.asList("IXH", "IXL")));
     REGISTER_COMPONENTS.put("IY", new HashSet<>(Arrays.asList("IYH", "IYL")));
+    REGISTER_COMPONENTS.put("SP", new HashSet<>(Arrays.asList("SPH", "SPL")));
   }
 
   private boolean recordingEnabled = true;
@@ -53,85 +60,28 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     super();
   }
 
-  /**
-   * Records that we entered a method
-   */
   public void enterMethod(String methodName) {
     callPath.push(methodName);
   }
 
-  /**
-   * Records that we exited a method
-   */
   public void exitMethod() {
     if (!callPath.isEmpty()) {
       callPath.pop();
     }
   }
 
-  /**
-   * Get the current call path as a list (root to leaf)
-   */
   private List<String> getCurrentPath() {
-    return new ArrayList<>(callPath.stream().collect(Collectors.toList()));
+    return callPath.stream().collect(Collectors.toList());
+  }
+
+  private String getCurrentMethod() {
+    return callPath.isEmpty() ? null : callPath.peek();
   }
 
   /**
-   * Record a write operation on a field
+   * Check if pathA is ancestor of pathB (pathB extends pathA)
    */
-  private void recordFieldWrite(String fieldName) {
-    if (!recordingEnabled || callPath.isEmpty()) {
-      return;
-    }
-
-    String currentMethod = callPath.peek();
-    List<String> path = getCurrentPath();
-    
-    FieldStateInfo state = fieldStates.computeIfAbsent(fieldName, k -> new FieldStateInfo(fieldName));
-    state.lastWritePath = new ArrayList<>(path);
-    state.lastWriteMethod = currentMethod;
-    state.lastAccessType = AccessType.WRITE;
-
-    // Record dependency in current method
-    MethodFieldDependencies methodDeps = methodDependencies.computeIfAbsent(currentMethod,
-        k -> new MethodFieldDependencies(currentMethod));
-    methodDeps.recordWrite(fieldName);
-  }
-
-  /**
-   * Record a read operation on a field
-   */
-  private void recordFieldRead(String fieldName) {
-    if (!recordingEnabled || callPath.isEmpty()) {
-      return;
-    }
-
-    String currentMethod = callPath.peek();
-    List<String> path = getCurrentPath();
-    
-    FieldStateInfo state = fieldStates.computeIfAbsent(fieldName, k -> new FieldStateInfo(fieldName));
-    
-    // Check if this field was last written in a different method context
-    if (state.lastWritePath != null && !isPathAncestorOf(state.lastWritePath, path)) {
-      // Field was modified in a different branch, must be passed as parameter
-      state.needsAsParameter = true;
-    }
-    
-    state.lastReadPath = new ArrayList<>(path);
-    state.lastReadMethod = currentMethod;
-    state.lastAccessType = AccessType.READ;
-
-    // Record dependency in current method
-    MethodFieldDependencies methodDeps = methodDependencies.computeIfAbsent(currentMethod,
-        k -> new MethodFieldDependencies(currentMethod));
-    methodDeps.recordRead(fieldName);
-  }
-
-  /**
-   * Check if pathA is an ancestor of pathB
-   * e.g., [main] is ancestor of [main, methodA, methodB]
-   */
-  private boolean isPathAncestorOf(List<String> pathA, List<String> pathB) {
+  private boolean isAncestorPath(List<String> pathA, List<String> pathB) {
     if (pathA.size() > pathB.size()) return false;
     for (int i = 0; i < pathA.size(); i++) {
       if (!pathA.get(i).equals(pathB.get(i))) {
@@ -142,40 +92,63 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
   }
 
   /**
-   * Analyze dependencies after recording is complete
-   * Determines which fields need to be parameters and which need to be returned
+   * Expand 16-bit register to its 8-bit components, or keep 8-bit as is
    */
-  public void analyzeDependencies() {
-    for (FieldStateInfo fieldState : fieldStates.values()) {
-      String fieldName = fieldState.fieldName;
-      
-      // For each method that uses this field
-      for (MethodFieldDependencies methodDeps : methodDependencies.values()) {
-        if (methodDeps.readsField(fieldName)) {
-          // This method reads the field
-          // Check if the field was last written in an ancestor method
-          if (fieldState.lastWritePath != null && 
-              !isPathAncestorOf(fieldState.lastWritePath, methodDeps.getPath())) {
-            // Field needs to be passed as parameter
-            methodDeps.addRequiredParameter(fieldName);
-          }
-        }
-        
-        if (methodDeps.writesField(fieldName)) {
-          // This method writes the field
-          // Check if it's read in a calling method (ancestor in path)
-          List<String> methodPath = methodDeps.getPath();
-          if (fieldState.lastReadPath != null && 
-              isPathAncestorOf(methodPath, fieldState.lastReadPath)) {
-            // Field is read by a caller, must return it
-            methodDeps.addReturnValue(fieldName);
-          }
-        }
-      }
+  private Set<String> expand8BitFields(String fieldName) {
+    Set<String> components = REGISTER_COMPONENTS.get(fieldName);
+    if (components != null) {
+      return new HashSet<>(components);
+    }
+    // If it's an 8-bit register or not a standard register, keep as is
+    if (EIGHT_BIT_REGISTERS.contains(fieldName)) {
+      return Set.of(fieldName);
+    }
+    // Ignore unknown registers
+    return Set.of();
+  }
+
+  private void recordFieldWrite(String fieldName) {
+    if (!recordingEnabled || callPath.isEmpty()) {
+      return;
+    }
+
+    List<String> currentPath = getCurrentPath();
+    String currentMethod = getCurrentMethod();
+    
+    // Expand to 8-bit fields and record write for each
+    Set<String> fields8bit = expand8BitFields(fieldName);
+    for (String field : fields8bit) {
+      fieldStates.put(field, new FieldLastWrite(currentPath, currentMethod));
     }
   }
 
-  // Override all field accessors to capture reads/writes
+  private void recordFieldRead(String fieldName) {
+    if (!recordingEnabled || callPath.isEmpty()) {
+      return;
+    }
+
+    List<String> currentPath = getCurrentPath();
+    String currentMethod = getCurrentMethod();
+    
+    // Expand to 8-bit fields and check each
+    Set<String> fields8bit = expand8BitFields(fieldName);
+    for (String field : fields8bit) {
+      FieldLastWrite lastWrite = fieldStates.get(field);
+      
+      if (lastWrite == null) {
+        // Field never written, must be parameter
+        methodFieldDeps.computeIfAbsent(currentMethod, k -> new MethodFieldDeps(currentMethod))
+            .addParameter(field);
+      } else if (!isAncestorPath(lastWrite.path, currentPath)) {
+        // Last write is in a DIFFERENT branch, must be parameter
+        methodFieldDeps.computeIfAbsent(currentMethod, k -> new MethodFieldDeps(currentMethod))
+            .addParameter(field);
+      }
+      // else: last write is in current or ancestor path, no parameter needed
+    }
+  }
+
+  // Override all 8-bit field accessors
 
   @Override
   public int A() {
@@ -273,6 +246,8 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     super.L(value);
   }
 
+  // 16-bit register accessors (expanded to 8-bit components)
+
   @Override
   public int AF() {
     recordFieldRead("AF");
@@ -346,54 +321,6 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
   }
 
   @Override
-  public int IXH() {
-    recordFieldRead("IXH");
-    return super.IXH();
-  }
-
-  @Override
-  public void IXH(int value) {
-    recordFieldWrite("IXH");
-    super.IXH(value);
-  }
-
-  @Override
-  public int IXL() {
-    recordFieldRead("IXL");
-    return super.IXL();
-  }
-
-  @Override
-  public void IXL(int value) {
-    recordFieldWrite("IXL");
-    super.IXL(value);
-  }
-
-  @Override
-  public int IYH() {
-    recordFieldRead("IYH");
-    return super.IYH();
-  }
-
-  @Override
-  public void IYH(int value) {
-    recordFieldWrite("IYH");
-    super.IYH(value);
-  }
-
-  @Override
-  public int IYL() {
-    recordFieldRead("IYL");
-    return super.IYL();
-  }
-
-  @Override
-  public void IYL(int value) {
-    recordFieldWrite("IYL");
-    super.IYL(value);
-  }
-
-  @Override
   public int SP() {
     recordFieldRead("SP");
     return super.SP();
@@ -405,55 +332,58 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     super.SP(value);
   }
 
+  /**
+   * Analyze return values: if a field was modified in method M and then read by caller
+   */
+  public void analyzeReturns() {
+    // For each field, check if it was written and then read in ancestor paths
+    for (Map.Entry<String, FieldLastWrite> entry : fieldStates.entrySet()) {
+      String fieldName = entry.getKey();
+      FieldLastWrite lastWrite = entry.getValue();
+      
+      // For each method, check if it reads this field after it was modified deeper
+      for (MethodFieldDeps methodDeps : methodFieldDeps.values()) {
+        List<String> methodPath = methodDeps.getPath();
+        
+        // If this method is an ancestor of lastWrite path, it reads after modification
+        if (isAncestorPath(methodPath, lastWrite.path) && 
+            !methodPath.equals(lastWrite.path)) {
+          // The method that did the writing should return this field
+          MethodFieldDeps writingMethod = methodFieldDeps.get(lastWrite.methodName);
+          if (writingMethod != null) {
+            writingMethod.addReturn(fieldName);
+          }
+        }
+      }
+    }
+  }
+
   public Map<String, Object> generateReport() {
-    analyzeDependencies();
+    analyzeReturns();
 
     Map<String, Object> report = new LinkedHashMap<>();
-    report.put("title", "Field Access Analysis (Simplified Path-Based)");
-    report.put("totalFields", fieldStates.size());
-    report.put("totalMethods", methodDependencies.size());
-
-    // Field state details
-    Map<String, Object> fieldDetails = new LinkedHashMap<>();
-    for (FieldStateInfo state : fieldStates.values()) {
+    report.put("title", "Field Access Analysis (8-bit Path-Based)");
+    
+    // Field state summary
+    Map<String, Object> fieldSummary = new LinkedHashMap<>();
+    for (Map.Entry<String, FieldLastWrite> entry : fieldStates.entrySet()) {
       Map<String, Object> fieldInfo = new LinkedHashMap<>();
-      fieldInfo.put("fieldName", state.fieldName);
-      fieldInfo.put("lastWriteMethod", state.lastWriteMethod);
-      fieldInfo.put("lastWritePath", state.lastWritePath);
-      fieldInfo.put("lastReadMethod", state.lastReadMethod);
-      fieldInfo.put("lastReadPath", state.lastReadPath);
-      fieldInfo.put("needsAsParameter", state.needsAsParameter);
-      fieldDetails.put(state.fieldName, fieldInfo);
+      fieldInfo.put("lastWritePath", entry.getValue().path);
+      fieldInfo.put("lastWriteMethod", entry.getValue().methodName);
+      fieldSummary.put(entry.getKey(), fieldInfo);
     }
-    report.put("fieldStates", fieldDetails);
-
+    report.put("fieldStates", fieldSummary);
+    
     // Method dependencies
-    Map<String, Object> methodDetails = new LinkedHashMap<>();
-    for (MethodFieldDependencies methodDeps : methodDependencies.values()) {
-      Map<String, Object> methodInfo = new LinkedHashMap<>();
-      methodInfo.put("method", methodDeps.methodName);
-      methodInfo.put("requiredParameters", new ArrayList<>(methodDeps.requiredParameters));
-      methodInfo.put("returnValues", new ArrayList<>(methodDeps.returnValues));
-      methodInfo.put("readFields", new ArrayList<>(methodDeps.readFields));
-      methodInfo.put("writeFields", new ArrayList<>(methodDeps.writeFields));
-      methodDetails.put(methodDeps.methodName, methodInfo);
+    Map<String, Object> methodInfo = new LinkedHashMap<>();
+    for (MethodFieldDeps methodDeps : methodFieldDeps.values()) {
+      Map<String, Object> deps = new LinkedHashMap<>();
+      deps.put("parameters", new ArrayList<>(methodDeps.parameters));
+      deps.put("returns", new ArrayList<>(methodDeps.returns));
+      methodInfo.put(methodDeps.methodName, deps);
     }
-    report.put("methodDependencies", methodDetails);
-
-    // Summary
-    Map<String, Object> summary = new LinkedHashMap<>();
-    summary.put("overview", "Path-based field analysis: tracks where fields are last written/read");
+    report.put("methodDependencies", methodInfo);
     
-    List<String> strategy = new ArrayList<>();
-    strategy.add("1. Track current call path (stack of methods)");
-    strategy.add("2. For each field, record last write path and last read path");
-    strategy.add("3. If a field is read in method A, but last written in ancestor, it's a parameter");
-    strategy.add("4. If a field is written in method A, but read in ancestor after return, it's a return value");
-    strategy.add("5. Build parameter and return lists per method");
-    
-    summary.put("strategy", strategy);
-    report.put("summary", summary);
-
     return report;
   }
 
@@ -468,71 +398,42 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
   // ============ Helper classes ============
 
   /**
-   * Tracks state of a single field across all methods
+   * Last write location of a field
    */
-  private static class FieldStateInfo {
-    final String fieldName;
-    List<String> lastWritePath;
-    String lastWriteMethod;
-    List<String> lastReadPath;
-    String lastReadMethod;
-    AccessType lastAccessType;
-    boolean needsAsParameter = false;
+  private static class FieldLastWrite {
+    final List<String> path;  // e.g., [A, B, C]
+    final String methodName;
 
-    FieldStateInfo(String fieldName) {
-      this.fieldName = fieldName;
+    FieldLastWrite(List<String> path, String methodName) {
+      this.path = new ArrayList<>(path);
+      this.methodName = methodName;
     }
   }
 
   /**
-   * Tracks field dependencies for a single method
+   * Which fields are parameters/returns for a method
    */
-  private static class MethodFieldDependencies {
+  private static class MethodFieldDeps {
     final String methodName;
-    final Set<String> readFields = new HashSet<>();
-    final Set<String> writeFields = new HashSet<>();
-    final Set<String> requiredParameters = new HashSet<>();
-    final Set<String> returnValues = new HashSet<>();
+    final Set<String> parameters = new HashSet<>();
+    final Set<String> returns = new HashSet<>();
+    final List<String> path = new ArrayList<>();
 
-    MethodFieldDependencies(String methodName) {
+    MethodFieldDeps(String methodName) {
       this.methodName = methodName;
+      this.path.add(methodName);  // Single-element path for now
     }
 
-    void recordRead(String fieldName) {
-      readFields.add(fieldName);
+    void addParameter(String fieldName) {
+      parameters.add(fieldName);
     }
 
-    void recordWrite(String fieldName) {
-      writeFields.add(fieldName);
-    }
-
-    void addRequiredParameter(String fieldName) {
-      requiredParameters.add(fieldName);
-    }
-
-    void addReturnValue(String fieldName) {
-      returnValues.add(fieldName);
-    }
-
-    boolean readsField(String fieldName) {
-      return readFields.contains(fieldName);
-    }
-
-    boolean writesField(String fieldName) {
-      return writeFields.contains(fieldName);
+    void addReturn(String fieldName) {
+      returns.add(fieldName);
     }
 
     List<String> getPath() {
-      // For now, return just the method name as a single-element path
-      // In a full implementation, this would be the actual call path
-      return Arrays.asList(methodName);
+      return path;
     }
-  }
-
-  /**
-   * Type of field access
-   */
-  private enum AccessType {
-    READ, WRITE
   }
 }
