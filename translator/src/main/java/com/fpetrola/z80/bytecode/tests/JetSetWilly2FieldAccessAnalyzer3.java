@@ -19,13 +19,13 @@ import java.util.stream.Collectors;
 public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
 
   // Core data: for each 8-bit field, store last write path
-  private final Map<String, List<String>> fieldLastWritePath = new HashMap<>();
-
+  private final Map<String, List<Segment>> fieldLastWritePath = new HashMap<>();
+  
   // Result: parameters and returns per method
-  private final Map<String, MethodFieldDeps> methodFieldDeps = new HashMap<>();
-
+  private final Map<Segment, MethodFieldDeps> methodFieldDeps = new HashMap<>();
+  
   // Call path stack
-  private final Deque<String> callPath = new LinkedList<>();
+  private final Deque<Segment> callPath = new LinkedList<>();
 
   // 8-bit registers
   private static final Set<String> EIGHT_BIT_REGISTERS = new HashSet<>(Arrays.asList(
@@ -57,7 +57,7 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
   }
 
   public void enterMethod(String methodName) {
-    callPath.push(methodName);
+    callPath.push(new Segment(methodName));
   }
 
   public void exitMethod() {
@@ -66,7 +66,7 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     }
   }
 
-  private List<String> getCurrentPath() {
+  private List<Segment> getCurrentPath() {
     return callPath.stream().collect(Collectors.toList());
   }
 
@@ -86,7 +86,7 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
       return;
     }
 
-    List<String> currentPath = getCurrentPath();
+    List<Segment> currentPath = getCurrentPath();
     Set<String> fields8bit = expand8BitFields(fieldName);
 
     for (String field : fields8bit) {
@@ -99,11 +99,11 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
       return;
     }
 
-    List<String> readPath = getCurrentPath();
+    List<Segment> readPath = getCurrentPath();
     Set<String> fields8bit = expand8BitFields(fieldName);
 
     for (String field : fields8bit) {
-      List<String> writePath = fieldLastWritePath.get(field);
+      List<Segment> writePath = fieldLastWritePath.get(field);
 
       if (writePath == null || !pathsAreEqual(writePath, readPath)) {
         propagateDependencies(field, writePath, readPath);
@@ -111,14 +111,14 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     }
   }
 
-  private void propagateDependencies(String field, List<String> writePath, List<String> readPath) {
+  private void propagateDependencies(String field, List<Segment> writePath, List<Segment> readPath) {
     int commonDepth = getCommonAncestorDepth(writePath, readPath);
 
 
     int i1 = readPath.indexOf(writePath.get(0));
     // Add as PARAMETER to all methods from read path to common ancestor (exclusive)
     for (int i = i1 - 1; i >= 0; i--) {
-      String method = readPath.get(i);
+      Segment method = readPath.get(i);
       methodFieldDeps.computeIfAbsent(method, k -> new MethodFieldDeps(method))
           .addParameter(field);
     }
@@ -128,14 +128,14 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
 
       int i2 = writePath.indexOf(readPath.get(0));
       for (int i = i2 - 1; i >= 0; i--) {
-        String method = writePath.get(i);
+        Segment method = writePath.get(i);
         methodFieldDeps.computeIfAbsent(method, k -> new MethodFieldDeps(method))
             .addReturn(field);
       }
     }
   }
 
-  private int getCommonAncestorDepth(List<String> path1, List<String> path2) {
+  private int getCommonAncestorDepth(List<Segment> path1, List<Segment> path2) {
     if (path1 == null) {
       return path2.size() - 1;
     }
@@ -154,7 +154,7 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     return commonDepth;
   }
 
-  private boolean pathsAreEqual(List<String> path1, List<String> path2) {
+  private boolean pathsAreEqual(List<Segment> path1, List<Segment> path2) {
     if (path1.size() != path2.size()) {
       return false;
     }
@@ -350,33 +350,77 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
 
   public void saveAnalysis(String filePath) throws Exception {
     Map<String, Object> json = new LinkedHashMap<>();
-
-    // fieldLastWritePath data
-    json.put("fieldLastWritePath", fieldLastWritePath);
-
+    
+    // fieldLastWritePath data - convert Segments to strings
+    Map<String, List<String>> fieldPathsStr = new LinkedHashMap<>();
+    for (Map.Entry<String, List<Segment>> entry : fieldLastWritePath.entrySet()) {
+      List<String> pathStrs = entry.getValue().stream()
+          .map(Segment::getMethodName)
+          .collect(Collectors.toList());
+      fieldPathsStr.put(entry.getKey(), pathStrs);
+    }
+    json.put("fieldLastWritePath", fieldPathsStr);
+    
     // methodFieldDeps data
     Map<String, Object> methods = new LinkedHashMap<>();
     for (MethodFieldDeps deps : methodFieldDeps.values()) {
       Map<String, Object> methodData = new LinkedHashMap<>();
       methodData.put("parameters", new ArrayList<>(deps.parameters));
       methodData.put("returns", new ArrayList<>(deps.returns));
-      methods.put(deps.methodName, methodData);
+      methods.put(deps.segment.getMethodName(), methodData);
     }
     json.put("methodDependencies", methods);
-
+    
     ObjectMapper mapper = new ObjectMapper();
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
     mapper.writeValue(new File(filePath), json);
     System.out.println("Analysis saved to: " + filePath);
   }
 
+  private static class Segment {
+    private static int idCounter = 0;
+    private final int id;
+    private final String methodName;
+
+    Segment(String methodName) {
+      this.id = idCounter++;
+      this.methodName = methodName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      Segment segment = (Segment) o;
+      return methodName.equals(segment.methodName);
+    }
+
+    @Override
+    public int hashCode() {
+      return methodName.hashCode();
+    }
+
+    @Override
+    public String toString() {
+      return methodName + "#" + id;
+    }
+
+    public String getMethodName() {
+      return methodName;
+    }
+
+    public int getId() {
+      return id;
+    }
+  }
+
   private static class MethodFieldDeps {
-    final String methodName;
+    final Segment segment;
     final Set<String> parameters = new HashSet<>();
     final Set<String> returns = new HashSet<>();
 
-    MethodFieldDeps(String methodName) {
-      this.methodName = methodName;
+    MethodFieldDeps(Segment segment) {
+      this.segment = segment;
     }
 
     void addParameter(String fieldName) {
@@ -387,4 +431,4 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
       returns.add(fieldName);
     }
   }
-}
+  }
