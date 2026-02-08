@@ -1,6 +1,6 @@
 package com.fpetrola.z80.bytecode.tests.rzzx;
 
-import com.fpetrola.z80.bytecode.tests.JetSetWilly2FieldAccessAnalyzer;
+import com.fpetrola.z80.bytecode.tests.JetSetWilly2FieldAccessAnalyzer3;
 import com.fpetrola.z80.minizx.RZXPlayerIO;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.implementation.MethodDelegation;
@@ -21,7 +21,7 @@ import java.util.function.Predicate;
  */
 public class GameRZXInvokerAnalyzer {
   public static void main(String[] args) {
-    JetSetWilly2FieldAccessAnalyzer analyzer = null;
+    JetSetWilly2FieldAccessAnalyzer3 analyzer = null;
     try {
       System.out.println("Starting game execution with field access analysis...");
       RZXPlayerIO miniZXIO = new RZXPlayerIO();
@@ -29,7 +29,7 @@ public class GameRZXInvokerAnalyzer {
       String[] s = {"AF, BC", "DE", "HL", "IX", "IY", "A, B", "D", "H", "IXH", "IYH", "F, C", "E", "L", "IXL", "IYL"};
       
       Constructor<?>[] constructors = new ByteBuddy()
-          .subclass(JetSetWilly2FieldAccessAnalyzer.class)
+          .subclass(JetSetWilly2FieldAccessAnalyzer3.class)
           .method(ElementMatchers.named("pc")).intercept(MethodDelegation.to(PcInterceptor.class))
           .method(ElementMatchers.nameStartsWith("$")).intercept(MethodDelegation.to(RoutineCallInterceptor.class))
           .method(ElementMatchers.namedOneOf(s)).intercept(MethodDelegation.to(Reg16AccessInterceptor.class))
@@ -43,7 +43,7 @@ public class GameRZXInvokerAnalyzer {
           .findFirst()
           .orElseThrow(() -> new RuntimeException("Constructor not found"));
 
-      analyzer = (JetSetWilly2FieldAccessAnalyzer) constructor.newInstance(miniZXIO, interruptionCondition);
+      analyzer = (JetSetWilly2FieldAccessAnalyzer3) constructor.newInstance(miniZXIO, interruptionCondition);
 
       System.out.println("Executing game...");
       analyzer.$34463();

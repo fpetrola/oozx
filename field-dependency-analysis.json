@@ -1,296 +1,324 @@
 {
-  "analysisType" : "Field Dependency Analysis via Stack Trace Interception",
-  "gameClass" : "JetSetWilly2",
-  "analysisDate" : "Sat Feb 07 23:37:03 GMT-03:00 2026",
-  "description" : "Tracks which fields are read/written in each method by intercepting field accessors",
-  "summary" : {
-    "totalMethodsAnalyzed" : 26,
-    "totalFieldsIdentified" : 19,
-    "totalFieldAccessRecorded" : 33
-  },
-  "methods" : {
-    "$36508" : {
-      "name" : "$36508",
-      "fieldReads" : [ "A", "HL", "F", "L" ],
-      "fieldWrites" : [ "A", "F", "H", "L" ],
-      "requiresAsParameters" : [ "A" ],
-      "shouldReturn" : [ "HL" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - A", "RETURN: Fields written before read (modified value needed by caller)", "  - HL" ]
+  "title" : "Field Access Analysis (Simplified Path-Based)",
+  "totalFields" : 17,
+  "totalMethods" : 25,
+  "fieldStates" : {
+    "A" : {
+      "fieldName" : "A",
+      "lastWriteMethod" : "$37841",
+      "lastWritePath" : [ "$37841", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "lastReadMethod" : "$37841",
+      "lastReadPath" : [ "$37841", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "needsAsParameter" : true
     },
-    "$36307" : {
-      "name" : "$36307",
-      "fieldReads" : [ "BC", "DE", "A", "B", "C", "D", "HL", "E", "F", "H", "L", "IX" ],
-      "fieldWrites" : [ "BC", "DE", "A", "B", "C", "D", "HL", "E", "F", "H", "L", "IX" ],
-      "requiresAsParameters" : [ "H", "L" ],
-      "shouldReturn" : [ "BC", "DE", "A", "B", "D", "HL", "E" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - H", "  - L", "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - DE", "  - A", "  - B", "  - D", "  - HL", "  - E" ]
+    "BC" : {
+      "fieldName" : "BC",
+      "lastWriteMethod" : "$36307",
+      "lastWritePath" : [ "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "lastReadMethod" : "$36307",
+      "lastReadPath" : [ "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "needsAsParameter" : true
     },
-    "$38528" : {
-      "name" : "$38528",
-      "fieldReads" : [ "A", "C", "D", "E", "F", "IX" ],
-      "fieldWrites" : [ "A", "C", "D", "E", "F", "IX" ],
-      "requiresAsParameters" : [ "C", "D", "E", "IX" ],
-      "shouldReturn" : [ "A", "F" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - C", "  - D", "  - E", "  - IX", "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - F" ]
+    "DE" : {
+      "fieldName" : "DE",
+      "lastWriteMethod" : "$36307",
+      "lastWritePath" : [ "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "lastReadMethod" : "$36307",
+      "lastReadPath" : [ "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "needsAsParameter" : true
     },
-    "$38504" : {
-      "name" : "$38504",
-      "fieldReads" : [ "DE", "A", "B", "C", "HL", "IX" ],
-      "fieldWrites" : [ "DE", "A", "B", "HL", "F", "H", "L", "IX" ],
-      "requiresAsParameters" : [ "DE", "B", "C", "IX" ],
-      "shouldReturn" : [ "A", "HL" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - DE", "  - B", "  - C", "  - IX", "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - HL" ]
+    "B" : {
+      "fieldName" : "B",
+      "lastWriteMethod" : "$38555",
+      "lastWritePath" : [ "$38555", "$37841", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "lastReadMethod" : "$38555",
+      "lastReadPath" : [ "$38555", "$37841", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "needsAsParameter" : true
     },
-    "$38064" : {
-      "name" : "$38064",
-      "fieldReads" : [ "BC", "DE", "A", "B", "C", "D", "HL", "E", "F", "L", "IX" ],
-      "fieldWrites" : [ "BC", "DE", "A", "B", "C", "D", "HL", "E", "F", "H", "L", "IX" ],
-      "requiresAsParameters" : [ ],
-      "shouldReturn" : [ "BC", "DE", "A", "B", "D", "HL", "F" ],
-      "refactoringNotes" : [ "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - DE", "  - A", "  - B", "  - D", "  - HL", "  - F" ]
+    "C" : {
+      "fieldName" : "C",
+      "lastWriteMethod" : "$37841",
+      "lastWritePath" : [ "$37841", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "lastReadMethod" : "$37841",
+      "lastReadPath" : [ "$37841", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "needsAsParameter" : true
     },
-    "$36203" : {
-      "name" : "$36203",
-      "fieldReads" : [ "DE", "A", "B", "HL", "F", "L" ],
-      "fieldWrites" : [ "A", "B", "D", "HL", "E", "F", "IX" ],
-      "requiresAsParameters" : [ "L" ],
-      "shouldReturn" : [ "DE", "A", "B" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - L", "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - A", "  - B" ]
+    "D" : {
+      "fieldName" : "D",
+      "lastWriteMethod" : "$38555",
+      "lastWritePath" : [ "$38555", "$37841", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "lastReadMethod" : "$38555",
+      "lastReadPath" : [ "$38555", "$37841", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "needsAsParameter" : true
     },
-    "$35211" : {
-      "name" : "$35211",
-      "fieldReads" : [ "BC", "A", "B", "HL", "F" ],
-      "fieldWrites" : [ "BC", "A", "B", "C", "D", "HL", "E", "F" ],
-      "requiresAsParameters" : [ ],
-      "shouldReturn" : [ "BC", "A", "B" ],
-      "refactoringNotes" : [ "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - A", "  - B" ]
+    "HL" : {
+      "fieldName" : "HL",
+      "lastWriteMethod" : "$36307",
+      "lastWritePath" : [ "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "lastReadMethod" : "$36307",
+      "lastReadPath" : [ "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "needsAsParameter" : true
     },
-    "$38601" : {
-      "name" : "$38601",
-      "fieldReads" : [ "BC", "A", "F" ],
-      "fieldWrites" : [ "BC", "A", "F" ],
-      "requiresAsParameters" : [ ],
-      "shouldReturn" : [ "A" ],
-      "refactoringNotes" : [ "RETURN: Fields written before read (modified value needed by caller)", "  - A" ]
+    "AF" : {
+      "fieldName" : "AF",
+      "lastWriteMethod" : "$38562",
+      "lastWritePath" : [ "$38562", "$34499", "$34499", "$34463" ],
+      "lastReadMethod" : "$38562",
+      "lastReadPath" : [ "$38562", "$34499", "$34499", "$34463" ],
+      "needsAsParameter" : false
     },
-    "$37974" : {
-      "name" : "$37974",
-      "fieldReads" : [ "A", "DE", "B", "C", "HL", "F", "H", "L" ],
-      "fieldWrites" : [ "A", "DE", "B", "F", "H", "L" ],
-      "requiresAsParameters" : [ "DE", "C", "HL", "H", "L" ],
-      "shouldReturn" : [ "A", "B", "HL" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - DE", "  - C", "  - HL", "  - H", "  - L", "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - B", "  - HL" ]
+    "E" : {
+      "fieldName" : "E",
+      "lastWriteMethod" : "$37841",
+      "lastWritePath" : [ "$37841", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "lastReadMethod" : "$37310",
+      "lastReadPath" : [ "$37310", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "needsAsParameter" : true
     },
-    "$34463" : {
-      "name" : "$34463",
-      "fieldReads" : [ "BC", "DE", "HL" ],
-      "fieldWrites" : [ "BC", "DE", "HL", "IX" ],
-      "requiresAsParameters" : [ ],
-      "shouldReturn" : [ ],
-      "refactoringNotes" : [ ]
+    "F" : {
+      "fieldName" : "F",
+      "lastWriteMethod" : "$37841",
+      "lastWritePath" : [ "$37841", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "lastReadMethod" : "$37841",
+      "lastReadPath" : [ "$37841", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "needsAsParameter" : true
     },
-    "$34620" : {
-      "name" : "$34620",
-      "fieldReads" : [ "A", "BC", "B", "C", "HL", "E", "F", "IX" ],
-      "fieldWrites" : [ "A", "BC", "B", "C", "HL", "D", "E", "F", "H", "L", "IX", "IY", "SP" ],
-      "requiresAsParameters" : [ "IX" ],
-      "shouldReturn" : [ "A", "BC", "C", "HL" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - IX", "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - BC", "  - C", "  - HL" ]
+    "H" : {
+      "fieldName" : "H",
+      "lastWriteMethod" : "$37841",
+      "lastWritePath" : [ "$37841", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "lastReadMethod" : "$37841",
+      "lastReadPath" : [ "$37841", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "needsAsParameter" : true
     },
-    "$38545" : {
-      "name" : "$38545",
-      "fieldReads" : [ "A", "HL", "L" ],
-      "fieldWrites" : [ "B", "HL", "H", "L" ],
-      "requiresAsParameters" : [ "A" ],
-      "shouldReturn" : [ "HL" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - A", "RETURN: Fields written before read (modified value needed by caller)", "  - HL" ]
+    "L" : {
+      "fieldName" : "L",
+      "lastWriteMethod" : "$37841",
+      "lastWritePath" : [ "$37841", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "lastReadMethod" : "$37841",
+      "lastReadPath" : [ "$37841", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "needsAsParameter" : true
     },
-    "$36147" : {
-      "name" : "$36147",
-      "fieldReads" : [ "A" ],
-      "fieldWrites" : [ "A", "IX" ],
-      "requiresAsParameters" : [ ],
-      "shouldReturn" : [ "A" ],
-      "refactoringNotes" : [ "RETURN: Fields written before read (modified value needed by caller)", "  - A" ]
+    "IX" : {
+      "fieldName" : "IX",
+      "lastWriteMethod" : "$37310",
+      "lastWritePath" : [ "$37310", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "lastReadMethod" : "$37310",
+      "lastReadPath" : [ "$37310", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "needsAsParameter" : true
     },
-    "$37310" : {
-      "name" : "$37310",
-      "fieldReads" : [ "BC", "DE", "A", "B", "C", "HL", "E", "F", "H", "L", "IX", "IY", "IYL" ],
-      "fieldWrites" : [ "BC", "DE", "A", "B", "C", "HL", "D", "E", "F", "H", "L", "IX", "IY" ],
-      "requiresAsParameters" : [ "B", "IYL" ],
-      "shouldReturn" : [ "BC", "DE", "A", "HL", "F" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - B", "  - IYL", "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - DE", "  - A", "  - HL", "  - F" ]
+    "IY" : {
+      "fieldName" : "IY",
+      "lastWriteMethod" : "$34620",
+      "lastWritePath" : [ "$34620", "$34499", "$34463" ],
+      "lastReadMethod" : null,
+      "lastReadPath" : null,
+      "needsAsParameter" : false
     },
-    "$38344" : {
-      "name" : "$38344",
-      "fieldReads" : [ "DE", "A", "B", "HL", "E", "F" ],
-      "fieldWrites" : [ "DE", "A", "B", "C", "D", "HL", "E", "F", "IXH", "IXL" ],
-      "requiresAsParameters" : [ ],
-      "shouldReturn" : [ "DE", "A" ],
-      "refactoringNotes" : [ "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - A" ]
+    "IXH" : {
+      "fieldName" : "IXH",
+      "lastWriteMethod" : "$38344",
+      "lastWritePath" : [ "$38344", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "lastReadMethod" : null,
+      "lastReadPath" : null,
+      "needsAsParameter" : false
     },
-    "$36288" : {
-      "name" : "$36288",
-      "fieldReads" : [ "DE", "A", "C", "IX" ],
-      "fieldWrites" : [ "A", "C", "D", "E", "F", "IX" ],
-      "requiresAsParameters" : [ "A", "IX" ],
-      "shouldReturn" : [ "DE", "C" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - A", "  - IX", "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - C" ]
+    "IXL" : {
+      "fieldName" : "IXL",
+      "lastWriteMethod" : "$38344",
+      "lastWritePath" : [ "$38344", "$36307", "$36307", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$38430", "$38344", "$36307", "$36307", "$36307", "$38064", "$36307", "$38064", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$36307", "$34499", "$34499", "$34463" ],
+      "lastReadMethod" : "$34499",
+      "lastReadPath" : [ "$34499", "$34499", "$34463" ],
+      "needsAsParameter" : false
     },
-    "$37056" : {
-      "name" : "$37056",
-      "fieldReads" : [ "DE", "A", "F", "IX" ],
-      "fieldWrites" : [ "DE", "A", "F", "IX" ],
-      "requiresAsParameters" : [ ],
-      "shouldReturn" : [ "A", "F" ],
-      "refactoringNotes" : [ "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - F" ]
-    },
-    "$38562" : {
-      "name" : "$38562",
-      "fieldReads" : [ "A", "B", "C", "D", "HL", "AF", "E", "F" ],
-      "fieldWrites" : [ "BC", "A", "B", "C", "D", "HL", "AF", "E", "F" ],
-      "requiresAsParameters" : [ "B", "C", "HL" ],
-      "shouldReturn" : [ "BC", "A", "AF", "E", "F" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - B", "  - C", "  - HL", "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - A", "  - AF", "  - E", "  - F" ]
-    },
-    "$38196" : {
-      "name" : "$38196",
-      "fieldReads" : [ "A", "HL", "E", "F" ],
-      "fieldWrites" : [ "BC", "A", "HL", "D", "E", "F", "IX" ],
-      "requiresAsParameters" : [ ],
-      "shouldReturn" : [ "A", "F" ],
-      "refactoringNotes" : [ "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - F" ]
-    },
-    "$36171" : {
-      "name" : "$36171",
-      "fieldReads" : [ "DE", "BC", "A", "B", "C", "D", "HL", "E", "F", "IX" ],
-      "fieldWrites" : [ "BC", "A", "B", "C", "D", "HL", "E", "F", "IX" ],
-      "requiresAsParameters" : [ "DE", "D", "IX" ],
-      "shouldReturn" : [ "DE", "BC", "A", "B", "E", "F" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - DE", "  - D", "  - IX", "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - BC", "  - A", "  - B", "  - E", "  - F" ]
-    },
-    "$34499" : {
-      "name" : "$34499",
-      "fieldReads" : [ "A", "BC", "DE", "B", "C", "D", "HL", "E", "F", "L", "IXL", "IX" ],
-      "fieldWrites" : [ "A", "BC", "DE", "B", "C", "D", "HL", "E", "F", "H", "L", "IX" ],
-      "requiresAsParameters" : [ "D", "IXL" ],
-      "shouldReturn" : [ "A", "BC", "DE", "B", "HL", "F" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - D", "  - IXL", "RETURN: Fields written before read (modified value needed by caller)", "  - A", "  - BC", "  - DE", "  - B", "  - HL", "  - F" ]
-    },
-    "$37841" : {
-      "name" : "$37841",
-      "fieldReads" : [ "DE", "A", "B", "C", "HL", "E", "F", "H", "L", "IX" ],
-      "fieldWrites" : [ "A", "B", "C", "D", "HL", "E", "F", "H", "L", "IX" ],
-      "requiresAsParameters" : [ ],
-      "shouldReturn" : [ "DE", "A", "C", "HL", "F" ],
-      "refactoringNotes" : [ "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - A", "  - C", "  - HL", "  - F" ]
-    },
-    "$38137" : {
-      "name" : "$38137",
-      "fieldReads" : [ "DE", "A", "B", "C", "HL", "E", "F", "H", "L" ],
-      "fieldWrites" : [ "A", "B", "C", "D", "HL", "E", "F", "H", "L" ],
-      "requiresAsParameters" : [ "H", "L" ],
-      "shouldReturn" : [ "DE", "A", "B", "C", "HL" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - H", "  - L", "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - A", "  - B", "  - C", "  - HL" ]
-    },
-    "$38555" : {
-      "name" : "$38555",
-      "fieldReads" : [ "DE", "A", "B", "D", "HL" ],
-      "fieldWrites" : [ "A", "B", "D", "HL", "F" ],
-      "requiresAsParameters" : [ "DE", "B", "D", "HL" ],
-      "shouldReturn" : [ "DE", "A" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - DE", "  - B", "  - D", "  - HL", "RETURN: Fields written before read (modified value needed by caller)", "  - DE", "  - A" ]
-    },
-    "$38276" : {
-      "name" : "$38276",
-      "fieldReads" : [ "A", "F" ],
-      "fieldWrites" : [ "A", "F" ],
-      "requiresAsParameters" : [ ],
-      "shouldReturn" : [ "A" ],
-      "refactoringNotes" : [ "RETURN: Fields written before read (modified value needed by caller)", "  - A" ]
-    },
-    "$38430" : {
-      "name" : "$38430",
-      "fieldReads" : [ "BC", "DE", "A", "B", "C", "D", "HL", "E", "F", "L", "IX" ],
-      "fieldWrites" : [ "BC", "DE", "A", "B", "C", "D", "HL", "E", "F", "H", "L", "IX" ],
-      "requiresAsParameters" : [ "C" ],
-      "shouldReturn" : [ "BC", "DE", "A", "B", "D", "HL", "F" ],
-      "refactoringNotes" : [ "PARAMETER: Fields read before write (value comes from caller)", "  - C", "RETURN: Fields written before read (modified value needed by caller)", "  - BC", "  - DE", "  - A", "  - B", "  - D", "  - HL", "  - F" ]
+    "SP" : {
+      "fieldName" : "SP",
+      "lastWriteMethod" : "$34620",
+      "lastWritePath" : [ "$34620", "$34499", "$34463" ],
+      "lastReadMethod" : null,
+      "lastReadPath" : null,
+      "needsAsParameter" : false
     }
   },
-  "fieldAccessFrequency" : {
-    "A" : 134083157,
-    "BC" : 10743609,
-    "DE" : 34085883,
-    "B" : 157937414,
-    "C" : 20180688,
-    "D" : 67194403,
-    "HL" : 53460446,
-    "E" : 11558885,
-    "AF" : 585000,
-    "F" : 130489183,
-    "H" : 11424809,
-    "L" : 19500886,
-    "IX" : 9456932,
-    "IY" : 160399,
-    "IXH" : 22487,
-    "IXL" : 22495,
-    "IYL" : 404,
-    "SP" : 1
-  },
-  "refactoringStrategy" : {
-    "overview" : "Convert instance fields to local variables and parameters",
-    "steps" : [ "1. For each method, identify requiredAsParameters - these must be added as method parameters", "2. Fields that are read but not in parent scope must come from grandparent - trace up the call chain", "3. Create a return record/class for shouldReturn fields", "4. Propagate return values up the call chain (grandchild -> child -> parent)", "5. For methods called from multiple places, union all parameter requirements", "6. Use try-catch or explicit return to handle fields modified in nested calls" ],
-    "topMethodsNeedingRefactoring" : [ {
+  "methodDependencies" : {
+    "$36508" : {
+      "method" : "$36508",
+      "requiredParameters" : [ "A", "HL", "F", "L" ],
+      "returnValues" : [ ],
+      "readFields" : [ "A", "HL", "F", "L" ],
+      "writeFields" : [ "A", "F", "H", "L" ]
+    },
+    "$36307" : {
       "method" : "$36307",
-      "parameterFields" : 2,
-      "returnFields" : 7,
-      "totalDependencies" : 9
-    }, {
-      "method" : "$36171",
-      "parameterFields" : 3,
-      "returnFields" : 6,
-      "totalDependencies" : 9
-    }, {
-      "method" : "$37974",
-      "parameterFields" : 5,
-      "returnFields" : 3,
-      "totalDependencies" : 8
-    }, {
-      "method" : "$38562",
-      "parameterFields" : 3,
-      "returnFields" : 5,
-      "totalDependencies" : 8
-    }, {
-      "method" : "$34499",
-      "parameterFields" : 2,
-      "returnFields" : 6,
-      "totalDependencies" : 8
-    }, {
-      "method" : "$38430",
-      "parameterFields" : 1,
-      "returnFields" : 7,
-      "totalDependencies" : 8
-    }, {
-      "method" : "$38064",
-      "parameterFields" : 0,
-      "returnFields" : 7,
-      "totalDependencies" : 7
-    }, {
-      "method" : "$37310",
-      "parameterFields" : 2,
-      "returnFields" : 5,
-      "totalDependencies" : 7
-    }, {
-      "method" : "$38137",
-      "parameterFields" : 2,
-      "returnFields" : 5,
-      "totalDependencies" : 7
-    }, {
+      "requiredParameters" : [ "A", "BC", "DE", "B", "C", "D", "HL", "E", "F", "H", "L", "IX" ],
+      "returnValues" : [ "BC", "DE", "HL" ],
+      "readFields" : [ "A", "DE", "BC", "B", "C", "HL", "D", "E", "F", "H", "L", "IX" ],
+      "writeFields" : [ "A", "DE", "BC", "B", "C", "HL", "D", "E", "F", "H", "L", "IX" ]
+    },
+    "$38528" : {
       "method" : "$38528",
-      "parameterFields" : 4,
-      "returnFields" : 2,
-      "totalDependencies" : 6
-    } ]
+      "requiredParameters" : [ "A", "C", "D", "E", "F", "IX" ],
+      "returnValues" : [ ],
+      "readFields" : [ "A", "C", "D", "E", "F", "IX" ],
+      "writeFields" : [ "A", "C", "D", "E", "F", "IX" ]
+    },
+    "$38504" : {
+      "method" : "$38504",
+      "requiredParameters" : [ "A", "DE", "B", "C", "HL", "IX" ],
+      "returnValues" : [ ],
+      "readFields" : [ "A", "DE", "B", "C", "HL", "IX" ],
+      "writeFields" : [ "A", "DE", "B", "HL", "F", "H", "L", "IX" ]
+    },
+    "$38064" : {
+      "method" : "$38064",
+      "requiredParameters" : [ "A", "BC", "DE", "B", "C", "D", "HL", "E", "F", "L", "IX" ],
+      "returnValues" : [ ],
+      "readFields" : [ "A", "BC", "DE", "B", "C", "HL", "D", "E", "F", "L", "IX" ],
+      "writeFields" : [ "A", "DE", "BC", "B", "C", "HL", "D", "E", "F", "H", "L", "IX" ]
+    },
+    "$36203" : {
+      "method" : "$36203",
+      "requiredParameters" : [ "A", "DE", "B", "HL", "F", "L" ],
+      "returnValues" : [ ],
+      "readFields" : [ "A", "DE", "B", "HL", "F", "L" ],
+      "writeFields" : [ "A", "B", "HL", "D", "E", "F", "IX" ]
+    },
+    "$35211" : {
+      "method" : "$35211",
+      "requiredParameters" : [ "A", "BC", "B", "HL", "F" ],
+      "returnValues" : [ ],
+      "readFields" : [ "A", "BC", "B", "HL", "F" ],
+      "writeFields" : [ "A", "BC", "B", "C", "HL", "D", "E", "F" ]
+    },
+    "$38601" : {
+      "method" : "$38601",
+      "requiredParameters" : [ "A", "BC", "F" ],
+      "returnValues" : [ ],
+      "readFields" : [ "A", "BC", "F" ],
+      "writeFields" : [ "A", "BC", "F" ]
+    },
+    "$37974" : {
+      "method" : "$37974",
+      "requiredParameters" : [ "A", "DE", "B", "C", "HL", "F", "H", "L" ],
+      "returnValues" : [ ],
+      "readFields" : [ "DE", "A", "B", "C", "HL", "F", "H", "L" ],
+      "writeFields" : [ "A", "DE", "B", "F", "H", "L" ]
+    },
+    "$34463" : {
+      "method" : "$34463",
+      "requiredParameters" : [ "BC", "DE", "HL" ],
+      "returnValues" : [ ],
+      "readFields" : [ "BC", "DE", "HL" ],
+      "writeFields" : [ "DE", "BC", "HL", "IX" ]
+    },
+    "$34620" : {
+      "method" : "$34620",
+      "requiredParameters" : [ "A", "BC", "B", "C", "HL", "E", "F", "IX" ],
+      "returnValues" : [ ],
+      "readFields" : [ "BC", "A", "B", "C", "HL", "E", "F", "IX" ],
+      "writeFields" : [ "BC", "A", "B", "C", "D", "HL", "E", "F", "H", "L", "IX", "IY", "SP" ]
+    },
+    "$38545" : {
+      "method" : "$38545",
+      "requiredParameters" : [ "A", "HL", "L" ],
+      "returnValues" : [ ],
+      "readFields" : [ "A", "HL", "L" ],
+      "writeFields" : [ "B", "HL", "H", "L" ]
+    },
+    "$36147" : {
+      "method" : "$36147",
+      "requiredParameters" : [ "A" ],
+      "returnValues" : [ ],
+      "readFields" : [ "A" ],
+      "writeFields" : [ "A", "IX" ]
+    },
+    "$37310" : {
+      "method" : "$37310",
+      "requiredParameters" : [ "A", "DE", "B", "C", "HL", "E", "F", "H", "L", "IX" ],
+      "returnValues" : [ "E", "IX" ],
+      "readFields" : [ "A", "DE", "B", "C", "HL", "E", "F", "H", "L", "IX" ],
+      "writeFields" : [ "A", "DE", "BC", "B", "C", "D", "HL", "E", "F", "H", "L", "IX" ]
+    },
+    "$38344" : {
+      "method" : "$38344",
+      "requiredParameters" : [ "A", "DE", "B", "HL", "E", "F" ],
+      "returnValues" : [ ],
+      "readFields" : [ "A", "DE", "B", "HL", "E", "F" ],
+      "writeFields" : [ "A", "DE", "B", "C", "HL", "D", "E", "F", "IXH", "IXL" ]
+    },
+    "$36288" : {
+      "method" : "$36288",
+      "requiredParameters" : [ "A", "DE", "C", "IX" ],
+      "returnValues" : [ ],
+      "readFields" : [ "A", "DE", "C", "IX" ],
+      "writeFields" : [ "A", "C", "D", "E", "F", "IX" ]
+    },
+    "$37056" : {
+      "method" : "$37056",
+      "requiredParameters" : [ "A", "DE", "F", "IX" ],
+      "returnValues" : [ ],
+      "readFields" : [ "A", "DE", "F", "IX" ],
+      "writeFields" : [ "A", "DE", "F", "IX" ]
+    },
+    "$38562" : {
+      "method" : "$38562",
+      "requiredParameters" : [ "A", "B", "C", "D", "HL", "AF", "E", "F" ],
+      "returnValues" : [ "AF" ],
+      "readFields" : [ "A", "B", "C", "HL", "D", "E", "AF", "F" ],
+      "writeFields" : [ "A", "BC", "B", "C", "D", "HL", "E", "AF", "F" ]
+    },
+    "$38196" : {
+      "method" : "$38196",
+      "requiredParameters" : [ "A", "HL", "F" ],
+      "returnValues" : [ ],
+      "readFields" : [ "A", "HL", "F" ],
+      "writeFields" : [ "A", "BC", "D", "HL", "E", "F", "IX" ]
+    },
+    "$36171" : {
+      "method" : "$36171",
+      "requiredParameters" : [ "A", "BC", "DE", "B", "C", "D", "HL", "E", "F", "IX" ],
+      "returnValues" : [ ],
+      "readFields" : [ "BC", "A", "DE", "B", "C", "HL", "D", "E", "F", "IX" ],
+      "writeFields" : [ "A", "BC", "B", "C", "HL", "D", "E", "F", "IX" ]
+    },
+    "$34499" : {
+      "method" : "$34499",
+      "requiredParameters" : [ "A", "BC", "DE", "B", "C", "D", "HL", "E", "F", "L", "IXL", "IX" ],
+      "returnValues" : [ ],
+      "readFields" : [ "BC", "DE", "A", "B", "C", "HL", "D", "E", "F", "L", "IXL", "IX" ],
+      "writeFields" : [ "DE", "BC", "A", "B", "C", "HL", "D", "E", "F", "H", "L", "IX" ]
+    },
+    "$37841" : {
+      "method" : "$37841",
+      "requiredParameters" : [ "A", "DE", "B", "C", "HL", "E", "F", "H", "L", "IX" ],
+      "returnValues" : [ "A", "C", "F", "H", "L" ],
+      "readFields" : [ "A", "DE", "B", "C", "HL", "E", "F", "H", "L", "IX" ],
+      "writeFields" : [ "A", "B", "C", "D", "HL", "E", "F", "H", "L", "IX" ]
+    },
+    "$38137" : {
+      "method" : "$38137",
+      "requiredParameters" : [ "A", "DE", "B", "C", "HL", "E", "F", "H", "L" ],
+      "returnValues" : [ ],
+      "readFields" : [ "A", "DE", "B", "C", "HL", "E", "F", "H", "L" ],
+      "writeFields" : [ "A", "B", "C", "HL", "D", "E", "F", "H", "L" ]
+    },
+    "$38555" : {
+      "method" : "$38555",
+      "requiredParameters" : [ "A", "DE", "B", "D", "HL" ],
+      "returnValues" : [ "B", "D" ],
+      "readFields" : [ "A", "DE", "B", "HL", "D" ],
+      "writeFields" : [ "A", "B", "HL", "D", "F" ]
+    },
+    "$38430" : {
+      "method" : "$38430",
+      "requiredParameters" : [ "A", "BC", "DE", "B", "C", "D", "HL", "E", "F", "L", "IX" ],
+      "returnValues" : [ ],
+      "readFields" : [ "A", "BC", "DE", "B", "C", "HL", "D", "E", "F", "L", "IX" ],
+      "writeFields" : [ "A", "DE", "BC", "B", "C", "HL", "D", "E", "F", "H", "L", "IX" ]
+    }
+  },
+  "summary" : {
+    "overview" : "Path-based field analysis: tracks where fields are last written/read",
+    "strategy" : [ "1. Track current call path (stack of methods)", "2. For each field, record last write path and last read path", "3. If a field is read in method A, but last written in ancestor, it's a parameter", "4. If a field is written in method A, but read in ancestor after return, it's a return value", "5. Build parameter and return lists per method" ]
   }
 }

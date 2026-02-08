@@ -20,6 +20,7 @@ package com.fpetrola.z80.bytecode.tests.rzzx;
 
 import com.fpetrola.z80.bytecode.tests.JetSetWilly;
 import com.fpetrola.z80.bytecode.tests.JetSetWilly2;
+import com.fpetrola.z80.bytecode.tests.JetSetWilly2FieldAccessAnalyzer3;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
@@ -30,10 +31,12 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class RoutineCallInterceptor {
-  public static void log(@Origin Method method, @SuperCall Callable<List<String>> zuper, @AllArguments Object[] args, @This JetSetWilly2 thiz) throws Exception {
+  public static void log(@Origin Method method, @SuperCall Callable<List<String>> zuper, @AllArguments Object[] args, @This JetSetWilly2FieldAccessAnalyzer3 thiz) throws Exception {
 //    System.out.println("Calling: " + method.getName());
     thiz.methodStack.push(method.getName());
+    thiz.enterMethod(method.getName());
     zuper.call();
+    thiz.exitMethod();
     thiz.methodStack.pop();
 //    System.out.println("Exiting: " + method.getName());
   }
