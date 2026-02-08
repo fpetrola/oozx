@@ -125,7 +125,9 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
 
     // Add as RETURN to all methods from write path to common ancestor (exclusive)
     if (writePath != null) {
-      for (int i = writePath.size() - 1; i > commonDepth; i--) {
+
+      int i2 = writePath.indexOf(readPath.get(0));
+      for (int i = i2 - 1; i >= 0; i--) {
         String method = writePath.get(i);
         methodFieldDeps.computeIfAbsent(method, k -> new MethodFieldDeps(method))
             .addReturn(field);
