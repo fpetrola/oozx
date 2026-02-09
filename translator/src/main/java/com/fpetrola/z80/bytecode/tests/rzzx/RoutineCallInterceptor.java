@@ -33,11 +33,20 @@ import java.util.concurrent.Callable;
 public class RoutineCallInterceptor {
   public static void log(@Origin Method method, @SuperCall Callable<List<String>> zuper, @AllArguments Object[] args, @This JetSetWilly2FieldAccessAnalyzer3 thiz) throws Exception {
 //    System.out.println("Calling: " + method.getName());
-    thiz.methodStack.push(method.getName());
+//    thiz.methodStack.push(method.getName());
     thiz.enterMethod(method.getName());
-    zuper.call();
-    thiz.exitMethod();
-    thiz.methodStack.pop();
+    try {
+      zuper.call();
+    } catch (Exception e) {
+      end(method, thiz);
+      throw e;
+    }
+    end(method, thiz);
+  }
+
+  private static void end(Method method, JetSetWilly2FieldAccessAnalyzer3 thiz) {
+    thiz.exitMethod(method.getName());
+//    thiz.methodStack.pop();
 //    System.out.println("Exiting: " + method.getName());
   }
 }

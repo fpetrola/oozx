@@ -20,10 +20,10 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
 
   // Core data: for each 8-bit field, store last write path
   private final Map<String, List<Segment>> fieldLastWritePath = new HashMap<>();
-  
+
   // Result: parameters and returns per method
   private final Map<Segment, MethodFieldDeps> methodFieldDeps = new HashMap<>();
-  
+
   // Call path stack
   private final Deque<Segment> callPath = new LinkedList<>();
 
@@ -60,8 +60,11 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     callPath.push(new Segment(methodName));
   }
 
-  public void exitMethod() {
+  public void exitMethod(String name) {
     if (!callPath.isEmpty()) {
+      if (!callPath.peek().getMethodName().equals(name)) {
+        System.out.println("Warning: exiting method " + name + " but top of call stack is " + callPath.peek().getMethodName());
+      }
       callPath.pop();
     }
   }
@@ -114,6 +117,7 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
   private void propagateDependencies(String field, List<Segment> writePath, List<Segment> readPath) {
     int commonDepth = getCommonAncestorDepth(writePath, readPath);
 
+    checkSegments(field, readPath, writePath);
 
     int i1 = readPath.indexOf(writePath.get(0));
     // Add as PARAMETER to all methods from read path to common ancestor (exclusive)
@@ -126,11 +130,27 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     // Add as RETURN to all methods from write path to common ancestor (exclusive)
     if (writePath != null) {
 
+      checkSegments(field, writePath, readPath);
+
       int i2 = writePath.indexOf(readPath.get(0));
       for (int i = i2 - 1; i >= 0; i--) {
         Segment method = writePath.get(i);
         methodFieldDeps.computeIfAbsent(method, k -> new MethodFieldDeps(method))
             .addReturn(field);
+      }
+    }
+  }
+
+  private void checkSegments(String field, List<Segment> writePath, List<Segment> readPath) {
+    for (int j = readPath.size() - 1; j >= 0; j--) {
+      for (int i = writePath.size() - 1; i >= 0; i--) {
+        Segment segment1 = writePath.get(i);
+        Segment segment2 = readPath.get(j);
+        if (segment1.getMethodName().equals(segment2.getMethodName()))
+
+          if (segment1.id != segment2.id) {
+            System.out.println("Warning: different root methods for read and write of field " + field);
+          }
       }
     }
   }
@@ -350,7 +370,7 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
 
   public void saveAnalysis(String filePath) throws Exception {
     Map<String, Object> json = new LinkedHashMap<>();
-    
+
     // fieldLastWritePath data - convert Segments to strings
     Map<String, List<String>> fieldPathsStr = new LinkedHashMap<>();
     for (Map.Entry<String, List<Segment>> entry : fieldLastWritePath.entrySet()) {
@@ -360,7 +380,7 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
       fieldPathsStr.put(entry.getKey(), pathStrs);
     }
     json.put("fieldLastWritePath", fieldPathsStr);
-    
+
     // methodFieldDeps data
     Map<String, Object> methods = new LinkedHashMap<>();
     for (MethodFieldDeps deps : methodFieldDeps.values()) {
@@ -370,7 +390,7 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
       methods.put(deps.segment.getMethodName(), methodData);
     }
     json.put("methodDependencies", methods);
-    
+
     ObjectMapper mapper = new ObjectMapper();
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
     mapper.writeValue(new File(filePath), json);
@@ -431,4 +451,4 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
       returns.add(fieldName);
     }
   }
-  }
+}
