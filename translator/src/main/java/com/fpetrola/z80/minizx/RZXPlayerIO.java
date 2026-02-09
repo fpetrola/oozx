@@ -43,6 +43,7 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
   private byte lastPoll;
   private List<OutListener> outListeners = new ArrayList<>();
   private int fetchCounter;
+  public static boolean stop;
 
   public RZXPlayerIO() {
     miniZXKeyboard = new MiniZXKeyboard();
@@ -76,6 +77,8 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
   }
 
   private byte getNextInput() {
+    if (currentFrameIndex > 8400000 || stop)
+      throw new RuntimeException("stop");
     if (inputs.isEmpty()) {
       ++currentFrameIndex;
       changeFrame();
@@ -124,8 +127,6 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
   }
 
   private void printFrameCount() {
-    if (currentFrameIndex > 84000)
-      throw new RuntimeException("stop");
     if (currentFrameIndex % 1000 == 0)
       System.out.println(currentFrameIndex);
   }
