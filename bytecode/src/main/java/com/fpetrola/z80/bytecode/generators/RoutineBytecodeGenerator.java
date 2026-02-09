@@ -158,7 +158,8 @@ public class RoutineBytecodeGenerator {
             int rDelta = abstractInstruction.getRDelta();
 //            if (rDelta < 0)
 //              System.out.println("adgagadg");
-            mm.invoke("pc", context.pc.read().intValue(), rDelta);
+            if (context.direct)
+              mm.invoke("pc", context.pc.read().intValue(), rDelta);
           } else
             System.out.println("dsggag");
           InstructionsBytecodeGenerator instructionsBytecodeGenerator = new InstructionsBytecodeGenerator(mm, label, RoutineBytecodeGenerator.this, address, pendingFlag);
@@ -265,7 +266,7 @@ public class RoutineBytecodeGenerator {
     Variable field = mm.field(name);
     registers.put(name, field);
 
-    if (name.length() == 2 || name.equals("R") || true) field = new Composed16BitRegisterVariable(mm, name);
+    if (name.length() == 2 || name.equals("R") || true) field = new Composed16BitRegisterVariable(mm, name, context);
 
     variables.put(name, field);
   }

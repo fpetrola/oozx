@@ -24,15 +24,26 @@ import org.cojen.maker.*;
 public class Composed16BitRegisterVariable implements VariableDelegator {
   private final MethodMaker methodMaker;
   private final String name;
+  private final BytecodeGenerationContext context;
   private Register<?> register;
 
-  public Composed16BitRegisterVariable(MethodMaker methodMaker, String name) {
+  public Composed16BitRegisterVariable(MethodMaker methodMaker, String name, BytecodeGenerationContext context) {
     this.methodMaker = methodMaker;
     this.name = name;
+    this.context = context;
   }
 
   public Variable getDelegate() {
-    return methodMaker.invoke(name);
+    return getField();
+
+//    return methodMaker.invoke(name);
+  }
+
+  private Variable getField() {
+    if (name.length() == 1 && context.direct) {
+      return methodMaker.field(name);
+    } else
+      return methodMaker.invoke(name);
   }
 
   public String name() {
@@ -45,7 +56,14 @@ public class Composed16BitRegisterVariable implements VariableDelegator {
   }
 
   public Variable set(Object value) {
-    return methodMaker.invoke(name, value);
+    if (name.length() == 1 && context.direct) {
+      Variable field = getField();
+      field.set(value);
+      return field;
+    } else
+      return methodMaker.invoke(name, value);
+
+//    return methodMaker.invoke(name, value);
   }
 
   public Class<?> classType() {
@@ -54,6 +72,7 @@ public class Composed16BitRegisterVariable implements VariableDelegator {
 
   @Override
   public Variable get() {
-    return getDelegate().get();
+    return getField();
+//    return getDelegate().get();
   }
 }

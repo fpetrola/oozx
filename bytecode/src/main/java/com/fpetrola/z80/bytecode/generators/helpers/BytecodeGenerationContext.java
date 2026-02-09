@@ -38,6 +38,7 @@ public class BytecodeGenerationContext {
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
   public GameData gameData;
   public boolean syncEnabled;
+  public boolean direct= true;
 
   public BytecodeGenerationContext(RoutineManager routineManager, ClassMaker classMaker, Register<?> pc1, SymbolicExecutionAdapter symbolicExecutionAdapter, GameData gameData) {
     this.routineManager = routineManager;
