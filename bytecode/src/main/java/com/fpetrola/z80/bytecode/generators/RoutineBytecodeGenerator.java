@@ -158,7 +158,7 @@ public class RoutineBytecodeGenerator {
             int rDelta = abstractInstruction.getRDelta();
 //            if (rDelta < 0)
 //              System.out.println("adgagadg");
-            if (context.direct)
+            if (!context.direct)
               mm.invoke("pc", context.pc.read().intValue(), rDelta);
           } else
             System.out.println("dsggag");
