@@ -41,10 +41,6 @@ public abstract class SpectrumApplication<T> {
   private int E;
   private int H;
   private int L;
-  private int IXH;
-  private int IXL;
-  private int IYH;
-  private int IYL;
   private int lastStackDepth;
 
   public void setNextAddress(int nextAddress) {
@@ -236,10 +232,6 @@ public abstract class SpectrumApplication<T> {
     this.D = D;
     this.H = H;
     this.L = L;
-    this.IXL = IXL;
-    this.IXH = IXH;
-    this.IYL = IYL;
-    this.IYH = IYH;
   }
 
   public void wMem(int address, int value, int pc) {
@@ -314,16 +306,6 @@ public abstract class SpectrumApplication<T> {
     return new int[]{HL, DE, BC};
   }
 
-//  public void ldir() {
-//    while (BC() != 0) {
-//      wMem(DE(), mem(HL()));
-
-  ////      mem[DE()] = mem[HL()];
-//      BC(BC() - 1);
-//      HL(HL() + 1);
-//      DE(DE() + 1);
-//    }
-//  }
   public void pc(int address, int rdelta) {
     int stackDelta = getStackDelta();
     PC = address;
@@ -413,14 +395,10 @@ public abstract class SpectrumApplication<T> {
 
   public void IX(int value) {
     IX = value & 0xffff;
-    IXH = IX >> 8;
-    IXL = IX & 0xFF;
   }
 
   public void IY(int value) {
     IY = value & 0xffff;
-    IYH = IY >> 8;
-    IYL = IY & 0xFF;
   }
 
   public int pair(int a, int f) {
@@ -486,8 +464,6 @@ public abstract class SpectrumApplication<T> {
     BC(pair(B, C));
     DE(pair(D, E));
     HL(pair(H, L));
-    IX(pair(IXH, IXL));
-    IY(pair(IYH, IYL));
 
     AFx(pair(Ax, Fx));
     BCx(pair(Bx, Cx));
@@ -588,11 +564,11 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int IX() {
-    return ((IXH & 0xFF) << 8) | (IXL & 0xFF);
+    return IX;
   }
 
   public int IY() {
-    return ((IYH & 0xFF) << 8) | (IYL & 0xFF);
+    return IY;
   }
 
   public int[] getMem() {
@@ -668,35 +644,35 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int IXH() {
-    return IXH;
+    return IX >> 8;
   }
 
   public void IXH(int IXH) {
-    this.IXH = IXH;
+    this.IX = IXH << 8 | (IX & 0xff);
   }
 
   public int IXL() {
-    return IXL;
+    return IX & 0xff;
   }
 
   public void IXL(int IXL) {
-    this.IXL = IXL;
+    this.IX = (IX & 0xff00) | IXL;
   }
 
   public int IYH() {
-    return IYH;
+    return IY >> 8;
   }
 
   public void IYH(int IYH) {
-    this.IYH = IYH;
+    this.IY = IYH << 8 | (IY & 0xff);
   }
 
   public int IYL() {
-    return IYL;
+    return IY & 0xff;
   }
 
   public void IYL(int IYL) {
-    this.IYL = IYL;
+    this.IY = (IY & 0xff00) | IYL;
   }
 
   public int I() {
