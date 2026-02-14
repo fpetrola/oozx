@@ -257,7 +257,9 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   @Override
   public boolean visitingSra(SRA sra) {
     sra.accept(new VariableHandlingInstructionVisitor((s, t) -> {
-      t.set(t.shr(1).or(t.and(0x80)));
+     // t.set(t.shr(1).or(t.and(0x80)));
+      Variable sra1 = methodMaker.invoke("sra", t.get());
+      t.set(sra1);
     }, routineByteCodeGenerator));
     return true;
   }
@@ -280,7 +282,8 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   public boolean visitingInc(Inc inc) {
     final Variable[] and = new Variable[1];
     VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> {
-      and[0] = t.add(1).and(0xff);
+      // and[0] = t.add(1).and(0xff);
+      and[0] = methodMaker.invoke("inc", t.get());
       t.set(and[0]);
     }, routineByteCodeGenerator);
     inc.accept(visitor);
@@ -291,7 +294,13 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   public void visitingXor(Xor xor) {
     VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> xorAndSet(s, t), routineByteCodeGenerator);
     xor.accept(visitor);
-    processFlag(xor, () -> visitor.targetVariable.shl(1));
+    processFlag(xor, () -> getShl(visitor));
+  }
+
+  private Variable getShl(VariableHandlingInstructionVisitor visitor) {
+//    return visitor.targetVariable.shl(1);
+    return methodMaker.invoke("flagZ", visitor.targetVariable.get());
+//    return visitor.targetVariable;
   }
 
   public boolean visitingCpl(CPL cpl) {
@@ -305,20 +314,23 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   public void visitingOr(Or or) {
     VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> orAndSet(s, t), routineByteCodeGenerator);
     or.accept(visitor);
-    processFlag(or, () -> visitor.targetVariable.shl(1));
+    processFlag(or, () -> getShl(visitor));
   }
 
   @Override
   public void visitingAnd(And and) {
     VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> andAndSet(s, t), routineByteCodeGenerator);
     and.accept(visitor);
-    processFlag(and, () -> visitor.targetVariable.shl(1));
+    processFlag(and, () -> getShl(visitor));
   }
 
   public boolean visitingAdd16(Add16 add16) {
 //    if (add16.getSource() instanceof Register<?> register && register.getName().equals("SP"))
 //      return false;
-    add16.accept(new VariableHandlingInstructionVisitor((s, t) -> getSet(s, t, 0xffff), routineByteCodeGenerator));
+    add16.accept(new VariableHandlingInstructionVisitor((s, t) -> {
+//      getSet(s, t, 0xffff);
+      t.set(methodMaker.invoke("add16", t.get(), s));
+    }, routineByteCodeGenerator));
     return false;
   }
 
@@ -349,21 +361,28 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   public void visitingInc16(Inc16 inc16) {
-    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.add(1).and(0xffff)), routineByteCodeGenerator);
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> {
+//      t.set(t.add(1).and(0xffff));
+      t.set(methodMaker.invoke("inc16", t.get()));
+    }, routineByteCodeGenerator);
     inc16.accept(visitor);
   }
 
   @Override
   public void visitingDec16(Dec16 dec16) {
-    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.sub(1).and(0xffff)), routineByteCodeGenerator);
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> {
+//      t.set(t.sub(1).and(0xffff));
+      t.set(methodMaker.invoke("dec16", t.get()));
+    }, routineByteCodeGenerator);
     dec16.accept(visitor);
   }
 
   public boolean visitingAdd(Add add) {
     Variable[] add1 = new Variable[1];
     VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> {
-      add1[0] = t.add(s);
-      t.set(add1[0].and(0xFF));
+//      add1[0] = t.add(s);
+      add1[0] = methodMaker.invoke("add", t.get(), s);
+      t.set(add1[0]);
     }, routineByteCodeGenerator);
     add.accept(visitor);
     processFlag(add, () -> add1[0]);
@@ -372,7 +391,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   @Override
   public void visitingAdc(Adc adc) { //TODO: revisar
-    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.add(s).add(methodMaker.invoke("carry", getF().get()).and(255))), routineByteCodeGenerator);
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.add(s).add(methodMaker.invoke("carry", getF().get()).and(0xff))), routineByteCodeGenerator);
     adc.accept(visitor);
     processFlag(adc, () -> visitor.targetVariable);
   }
@@ -395,7 +414,7 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
   @Override
   public void visitingSbc(Sbc sbc) { //TODO: revisar
-    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.sub(s).sub(methodMaker.invoke("carry", getF()).and(255))), routineByteCodeGenerator);
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.sub(s).sub(methodMaker.invoke("carry", getF()).and(0xff))), routineByteCodeGenerator);
     sbc.accept(visitor);
     processFlag(sbc, () -> visitor.targetVariable);
   }
@@ -420,7 +439,8 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   public boolean visitingDec(Dec dec) {
     final Variable[] and = new Variable[1];
     VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> {
-      and[0] = t.sub(1).and(0xff);
+//      and[0] = t.sub(1).and(0xff);
+      and[0] = methodMaker.invoke("dec", t.get());
       t.set(and[0]);
     }, routineByteCodeGenerator);
     dec.accept(visitor);
@@ -472,7 +492,9 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
 
 
   public void visitingCp(Cp cp) {
-    cp.accept(new VariableHandlingInstructionVisitor((s, t) -> processFlag(cp, () -> t.sub(s), () -> s), routineByteCodeGenerator));
+    cp.accept(new VariableHandlingInstructionVisitor((s, t) -> processFlag(cp, () -> {
+      return methodMaker.invoke("cp", t.get(), s);
+    }, () -> s), routineByteCodeGenerator));
   }
 
   public boolean visitingRet(Ret ret) {

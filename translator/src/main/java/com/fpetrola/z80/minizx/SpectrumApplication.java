@@ -23,7 +23,6 @@ import com.fpetrola.z80.minizx.sync.SyncChecker;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public abstract class SpectrumApplication<T> {
   public SyncChecker syncChecker = new SyncChecker() {
@@ -79,6 +78,43 @@ public abstract class SpectrumApplication<T> {
 
 //    System.out.println("mutant at: " + address);
   }
+
+  public int cp(int value1, int value2) {
+    return value1 - value2;
+  }
+
+  public int inc(int value1) {
+    return (value1 + 1) & 0xff;
+  }
+
+  public int inc16(int value1) {
+    return (value1 + 1) & 0xffff;
+  }
+
+  public int dec(int value1) {
+    return (value1 - 1) & 0xff;
+  }
+
+  public int dec16(int value1) {
+    return (value1 - 1) & 0xffff;
+  }
+
+  public int add(int value1, int value2) {
+    return (value1 + value2) & 0xff;
+  }
+
+  public int add16(int value1, int value2) {
+    return (value1 + value2) & 0xffff;
+  }
+
+  public int flagZ(int value1) {
+    return value1 << 1;
+  }
+
+  public int sra(int value1) {
+    return (value1 >> 1) | (value1 & 0x80);
+  }
+
 
   public void SP(int value) {
     SP = value;
@@ -281,13 +317,13 @@ public abstract class SpectrumApplication<T> {
 //  public void ldir() {
 //    while (BC() != 0) {
 //      wMem(DE(), mem(HL()));
-////      mem[DE()] = mem[HL()];
+
+  ////      mem[DE()] = mem[HL()];
 //      BC(BC() - 1);
 //      HL(HL() + 1);
 //      DE(DE() + 1);
 //    }
 //  }
-
   public void pc(int address, int rdelta) {
     int stackDelta = getStackDelta();
     PC = address;
