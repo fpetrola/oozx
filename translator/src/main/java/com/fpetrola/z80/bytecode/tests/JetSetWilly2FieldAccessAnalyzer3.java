@@ -108,14 +108,18 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     for (String field : fields8bit) {
       List<Segment> writePath = fieldLastWritePath.get(field);
 
-      if (writePath == null || !pathsAreEqual(writePath, readPath)) {
-        propagateDependencies(field, writePath, readPath);
-      }
+//      if (writePath == null /*|| !pathsAreEqual(writePath, readPath)*/) {
+      propagateDependencies(field, writePath, readPath);
+//      }
     }
   }
 
   private void propagateDependencies(String field, List<Segment> writePath, List<Segment> readPath) {
     int commonDepth = getCommonAncestorDepth(writePath, readPath);
+
+    if (readPath.stream().anyMatch(s -> s.getMethodName().contains("36288")) && field.contains("IX")) {
+      System.out.println("DAfadgadg");
+    }
 
     checkSegments(field, readPath, writePath);
 
@@ -141,7 +145,7 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     }
   }
 
-  private void checkSegments(String field, List<Segment> writePath, List<Segment> readPath) {
+  private boolean checkSegments(String field, List<Segment> writePath, List<Segment> readPath) {
     for (int j = readPath.size() - 1; j >= 0; j--) {
       for (int i = writePath.size() - 1; i >= 0; i--) {
         Segment segment1 = writePath.get(i);
@@ -149,10 +153,13 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
         if (segment1.getMethodName().equals(segment2.getMethodName()))
 
           if (segment1.id != segment2.id) {
-            System.out.println("Warning: different root methods for read and write of field " + field);
+            methodFieldDeps.computeIfAbsent(segment1, k -> new MethodFieldDeps(segment1)).addReturn(field);
+            return false;
+//            System.out.println("Warning: different root methods for read and write of field " + field);
           }
       }
     }
+    return true;
   }
 
   private int getCommonAncestorDepth(List<Segment> path1, List<Segment> path2) {

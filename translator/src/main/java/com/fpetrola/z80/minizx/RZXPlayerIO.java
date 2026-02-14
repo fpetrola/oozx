@@ -77,7 +77,7 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
   }
 
   private byte getNextInput() {
-    if (currentFrameIndex > 8400000 || stop)
+    if (currentFrameIndex > 84000 || stop)
       throw new RuntimeException("stop");
     if (inputs.isEmpty()) {
       ++currentFrameIndex;
