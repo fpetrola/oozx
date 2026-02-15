@@ -1,6 +1,6 @@
 {
   "fieldLastWritePath" : {
-      "A" : [ "$34463" ],
+    "A" : [ "$34463" ],
     "B" : [ "$34463" ],
     "C" : [ "$34463" ],
     "D" : [ "$38528", "$34463" ],
@@ -67,6 +67,55 @@
     "$38562" : {
       "parameters" : [ "H", "L" ],
       "returns" : [ "F" ]
+    }
+  },
+  "conversionRequirements" : {
+    "16bit_to_8bit:C" : [ 37008, 36897, 38510 ],
+    "16bit_to_8bit:B" : [ 34756, 38580, 37465, 35242, 35691, 34973, 38525 ],
+    "16bit_to_8bit:E" : [ 34929 ],
+    "16bit_to_8bit:D" : [ 34944, 38558, 34959 ],
+    "8bit_to_16bit:BC" : [ 35507, 36645, 35526, 35223, 36712, 34633, 34970, 36730, 36651, 36636, 34942 ],
+    "8bit_to_16bit:DE" : [ 37987, 36965, 37514, 36300, 37868, 37484, 38512, 35664, 38516, 38359, 36855, 37945, 37978, 35770, 37339, 38556, 36284, 37949, 36191, 37983, 38175 ],
+    "16bit_to_8bit:H" : [ 36420, 38140 ],
+    "8bit_to_16bit:HL" : [ 34564, 37510, 37960, 34825, 37513, 37521, 38163, 37523, 38550, 37847, 38170, 37530, 37981, 35104, 37984, 38176, 37536, 37985, 37858, 38182, 37993, 37418, 37866, 37419, 37996, 37932, 36524, 37997, 38189, 38513, 35122, 38514, 38515, 37368, 36346, 37500, 37373, 37374, 37950, 36350 ],
+    "8bit_to_16bit:AF" : [ 38582, 38590 ],
+    "16bit_to_8bit:L" : [ 37986, 37970, 36235, 36877, 36990 ]
+  },
+  "registerState" : {
+    "IY" : {
+      "lastWriteType" : "FULL_16BIT",
+      "lastWritePC" : 34736,
+      "modifiedComponents" : [ ]
+    },
+    "BC" : {
+      "lastWriteType" : "FULL_16BIT",
+      "lastWritePC" : 35499,
+      "modifiedComponents" : [ ]
+    },
+    "DE" : {
+      "lastWriteType" : "PARTIAL_8BIT",
+      "lastWritePC" : 38540,
+      "modifiedComponents" : [ "D", "E" ]
+    },
+    "HL" : {
+      "lastWriteType" : "FULL_16BIT",
+      "lastWritePC" : 38557,
+      "modifiedComponents" : [ ]
+    },
+    "AF" : {
+      "lastWriteType" : "PARTIAL_8BIT",
+      "lastWritePC" : 35404,
+      "modifiedComponents" : [ "A", "F" ]
+    },
+    "SP" : {
+      "lastWriteType" : "FULL_16BIT",
+      "lastWritePC" : 34736,
+      "modifiedComponents" : [ ]
+    },
+    "IX" : {
+      "lastWriteType" : "FULL_16BIT",
+      "lastWritePC" : 38534,
+      "modifiedComponents" : [ ]
     }
   }
 }

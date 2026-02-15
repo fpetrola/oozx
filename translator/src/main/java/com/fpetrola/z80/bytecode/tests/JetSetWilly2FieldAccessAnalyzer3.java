@@ -27,6 +27,17 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
   // Call path stack
   private final Deque<Segment> callPath = new LinkedList<>();
 
+  // Register state tracking: whether each 16-bit register needs conversion
+  // key: "16bit register" -> value: metadata about its current state
+  private final Map<String, RegisterState> register16BitState = new HashMap<>();
+
+  // Conversion requirements: PC where conversion is needed
+  // key: "16bit_to_8bit:DE" or "8bit_to_16bit:D", value: list of PCs where conversion needed
+  private final Map<String, Set<Integer>> conversionRequirements = new HashMap<>();
+
+  // Last PC where an instruction was executed
+  private int lastPC = -1;
+
   // 8-bit registers
   private static final Set<String> EIGHT_BIT_REGISTERS = new HashSet<>(Arrays.asList(
       "A", "F", "B", "C", "D", "E", "H", "L"
@@ -54,6 +65,12 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
 
   public JetSetWilly2FieldAccessAnalyzer3() {
     super();
+  }
+
+  @Override
+  public void pc(int address, int rdelta) {
+    this.lastPC = address;
+    super.pc(address, rdelta);
   }
 
   public void enterMethod(String methodName) {
@@ -95,6 +112,30 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     for (String field : fields8bit) {
       fieldLastWritePath.put(field, new ArrayList<>(currentPath));
     }
+
+    // Update register state tracking
+    updateRegisterStateOnWrite(fieldName);
+  }
+
+  private void updateRegisterStateOnWrite(String fieldName) {
+    int currentPC = lastPC;
+    
+    // If writing a 16-bit register
+    if (REGISTER_COMPONENTS.containsKey(fieldName)) {
+      RegisterState state = register16BitState.computeIfAbsent(fieldName, k -> new RegisterState(fieldName));
+      state.setLastWriteType(WriteType.FULL_16BIT, currentPC);
+    } 
+    // If writing an 8-bit register
+    else if (EIGHT_BIT_REGISTERS.contains(fieldName)) {
+      // Find which 16-bit register contains this 8-bit register
+      for (Map.Entry<String, Set<String>> entry : REGISTER_COMPONENTS.entrySet()) {
+        if (entry.getValue().contains(fieldName)) {
+          RegisterState state = register16BitState.computeIfAbsent(entry.getKey(), k -> new RegisterState(entry.getKey()));
+          state.setLastWriteType(WriteType.PARTIAL_8BIT, currentPC);
+          state.addModifiedComponent(fieldName);
+        }
+      }
+    }
   }
 
   private void recordFieldRead(String fieldName) {
@@ -111,6 +152,38 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
 //      if (writePath == null /*|| !pathsAreEqual(writePath, readPath)*/) {
       propagateDependencies(field, writePath, readPath);
 //      }
+    }
+
+    // Check if conversion is needed
+    checkConversionNeeded(fieldName);
+  }
+
+  private void checkConversionNeeded(String fieldName) {
+    int currentPC = lastPC;
+    
+    // If reading a 16-bit register
+    if (REGISTER_COMPONENTS.containsKey(fieldName)) {
+      RegisterState state = register16BitState.get(fieldName);
+      if (state != null && state.getLastWriteType() == WriteType.PARTIAL_8BIT) {
+        // Need to convert from 8-bit components to 16-bit
+        String conversionKey = "8bit_to_16bit:" + fieldName;
+        conversionRequirements.computeIfAbsent(conversionKey, k -> new HashSet<>())
+            .add(currentPC);
+      }
+    } 
+    // If reading an 8-bit register
+    else if (EIGHT_BIT_REGISTERS.contains(fieldName)) {
+      // Find which 16-bit register contains this 8-bit register
+      for (Map.Entry<String, Set<String>> entry : REGISTER_COMPONENTS.entrySet()) {
+        RegisterState state = register16BitState.get(entry.getKey());
+        if (state != null && entry.getValue().contains(fieldName) && 
+            state.getLastWriteType() == WriteType.FULL_16BIT) {
+          // Need to convert from 16-bit to 8-bit component
+          String conversionKey = "16bit_to_8bit:" + fieldName;
+          conversionRequirements.computeIfAbsent(conversionKey, k -> new HashSet<>())
+              .add(currentPC);
+        }
+      }
     }
   }
 
@@ -375,6 +448,27 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
     super.SP(value);
   }
 
+  public Map<String, Set<Integer>> getConversionRequirements() {
+    return new LinkedHashMap<>(conversionRequirements);
+  }
+
+  public Map<String, RegisterState> getRegisterStates() {
+    return new LinkedHashMap<>(register16BitState);
+  }
+
+  public void printConversionSummary() {
+    System.out.println("\n=== Conversion Requirements Summary ===");
+    conversionRequirements.forEach((key, pcs) -> {
+      System.out.println(key + ": " + pcs.size() + " locations at PCs: " + 
+          pcs.stream().map(String::valueOf).collect(Collectors.joining(", ")));
+    });
+    
+    System.out.println("\n=== Register States ===");
+    register16BitState.forEach((reg, state) -> {
+      System.out.println("  " + state);
+    });
+  }
+
   public void saveAnalysis(String filePath) throws Exception {
     Map<String, Object> json = new LinkedHashMap<>();
 
@@ -397,6 +491,20 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
       methods.put(deps.segment.getMethodName(), methodData);
     }
     json.put("methodDependencies", methods);
+
+    // Conversion requirements
+    json.put("conversionRequirements", new LinkedHashMap<>(conversionRequirements));
+
+    // Register state
+    Map<String, Map<String, Object>> registerStateMap = new LinkedHashMap<>();
+    for (Map.Entry<String, RegisterState> entry : register16BitState.entrySet()) {
+      Map<String, Object> stateData = new LinkedHashMap<>();
+      stateData.put("lastWriteType", entry.getValue().getLastWriteType());
+      stateData.put("lastWritePC", entry.getValue().getLastWritePC());
+      stateData.put("modifiedComponents", entry.getValue().getModifiedComponents());
+      registerStateMap.put(entry.getKey(), stateData);
+    }
+    json.put("registerState", registerStateMap);
 
     ObjectMapper mapper = new ObjectMapper();
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -456,6 +564,55 @@ public class JetSetWilly2FieldAccessAnalyzer3 extends JetSetWilly2 {
 
     void addReturn(String fieldName) {
       returns.add(fieldName);
+    }
+  }
+
+  enum WriteType {
+    FULL_16BIT,    // Escrito como registro de 16 bits completo
+    PARTIAL_8BIT   // Escrito como componente de 8 bits
+  }
+
+  private static class RegisterState {
+    private final String registerName;
+    private WriteType lastWriteType;
+    private int lastWritePC;
+    private final Set<String> modifiedComponents = new HashSet<>();
+
+    RegisterState(String registerName) {
+      this.registerName = registerName;
+      this.lastWriteType = null;
+      this.lastWritePC = -1;
+    }
+
+    void setLastWriteType(WriteType type, int pc) {
+      this.lastWriteType = type;
+      this.lastWritePC = pc;
+      // Reset modified components when writing full 16-bit
+      if (type == WriteType.FULL_16BIT) {
+        modifiedComponents.clear();
+      }
+    }
+
+    void addModifiedComponent(String component) {
+      modifiedComponents.add(component);
+    }
+
+    WriteType getLastWriteType() {
+      return lastWriteType;
+    }
+
+    int getLastWritePC() {
+      return lastWritePC;
+    }
+
+    Set<String> getModifiedComponents() {
+      return new HashSet<>(modifiedComponents);
+    }
+
+    @Override
+    public String toString() {
+      return registerName + " [lastWrite=" + lastWriteType + ", pc=" + lastWritePC + 
+             ", components=" + modifiedComponents + "]";
     }
   }
 }
