@@ -579,6 +579,50 @@ public abstract class SpectrumApplication<T> {
     return io.in(WordNumber.createValue(port)).intValue();
   }
 
+  public int A_16() {
+    return AF >> 8;
+  }
+
+  public int AF_8() {
+    return A << 8 | F & 0xff;
+  }
+
+  public int B_16() {
+    return BC >> 8;
+  }
+
+  public int C_16() {
+    return BC & 0xff;
+  }
+
+  public int BC_8() {
+    return B << 8 | C & 0xff;
+  }
+
+  public int D_16() {
+    return DE >> 8;
+  }
+
+  public int E_16() {
+    return DE & 0xff;
+  }
+
+  public int DE_8() {
+    return D << 8 | E & 0xff;
+  }
+
+  public int H_16() {
+    return HL >> 8;
+  }
+
+  public int L_16() {
+    return HL & 0xff;
+  }
+
+  public int HL_8() {
+    return H << 8 | L & 0xff;
+  }
+
   public int A() {
     return A;
   }
