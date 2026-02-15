@@ -371,26 +371,18 @@ public abstract class SpectrumApplication<T> {
 
   public void AF(int value) {
     AF = value & 0xffff;
-    A = AF >> 8;
-    F = AF & 0xFF;
   }
 
   public void BC(int value) {
     BC = value & 0xffff;
-    B = BC >> 8;
-    C = BC & 0xFF;
   }
 
   public void DE(int value) {
     DE = value & 0xffff;
-    D = DE >> 8;
-    E = DE & 0xFF;
   }
 
   public void HL(int value) {
     HL = value & 0xffff;
-    H = HL >> 8;
-    L = HL & 0xFF;
   }
 
   public void IX(int value) {
@@ -532,19 +524,19 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int AF() {
-    return ((A & 0xFF) << 8) | (F & 0xFF);
+    return AF;
   }
 
   public int BC() {
-    return ((B & 0xFF) << 8) | (C & 0xFF);
+    return BC;
   }
 
   public int DE() {
-    return ((D & 0xFF) << 8) | (E & 0xFF);
+    return DE;
   }
 
   public int HL() {
-    return ((H & 0xFF) << 8) | (L & 0xFF);
+    return HL;
   }
 
   public int AFx() {
