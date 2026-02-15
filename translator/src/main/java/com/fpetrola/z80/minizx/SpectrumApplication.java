@@ -371,18 +371,26 @@ public abstract class SpectrumApplication<T> {
 
   public void AF(int value) {
     AF = value & 0xffff;
+    A= AF >> 8;
+    F = AF & 0xFF;
   }
 
   public void BC(int value) {
     BC = value & 0xffff;
+    B = BC >> 8;
+    C = BC & 0xFF;
   }
 
   public void DE(int value) {
     DE = value & 0xffff;
+    D = DE >> 8;
+    E = DE & 0xFF;
   }
 
   public void HL(int value) {
     HL = value & 0xffff;
+    H = HL >> 8;
+    L = HL & 0xFF;
   }
 
   public void IX(int value) {
@@ -524,19 +532,19 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int AF() {
-    return AF;
+    return A << 8 | F & 0xff;
   }
 
   public int BC() {
-    return BC;
+    return B << 8 | C & 0xff;
   }
 
   public int DE() {
-    return DE;
+    return D << 8 | E & 0xff;
   }
 
   public int HL() {
-    return HL;
+    return H << 8 | L & 0xff;
   }
 
   public int AFx() {
@@ -576,43 +584,63 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int AF_8() {
-    return A << 8 | F & 0xff;
+    int i = A << 8 | F & 0xff;
+//    AF = i;
+    return i;
   }
 
   public int B_16() {
-    return BC >> 8;
+//    int i = BC >> 8;
+//    B = i;
+    return B;
   }
 
   public int C_16() {
-    return BC & 0xff;
+//    int i = BC & 0xff;
+//    C = i;
+    return C;
   }
 
   public int BC_8() {
-    return B << 8 | C & 0xff;
+    int i = B << 8 | C & 0xff;
+//    BC = i;
+    return i;
   }
 
   public int D_16() {
-    return DE >> 8;
+//    int i = DE >> 8;
+//    D = i;
+    return D;
   }
 
   public int E_16() {
-    return DE & 0xff;
+//    int i = DE & 0xff;
+//    E = i;
+    return E;
   }
 
   public int DE_8() {
-    return D << 8 | E & 0xff;
+    int i = D << 8 | E & 0xff;
+//    DE = i;
+    return i;
   }
 
   public int H_16() {
-    return HL >> 8;
+//    int i = HL >> 8;
+//    H = i;
+    return H;
   }
 
   public int L_16() {
-    return HL & 0xff;
+//    int i = HL & 0xff;
+//    L = i;
+    return L;
   }
 
   public int HL_8() {
-    return H << 8 | L & 0xff;
+    int i = H << 8 | L & 0xff;
+//    HL = i;
+    return i;
   }
 
   public int A() {
