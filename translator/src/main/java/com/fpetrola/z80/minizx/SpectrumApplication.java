@@ -602,8 +602,8 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int BC_8() {
-//    int i = B << 8 | BC & 0xff;
-//    BC = i;
+    int i = B << 8 | BC & 0xff;
+    BC = i;
     return BC;
   }
 
