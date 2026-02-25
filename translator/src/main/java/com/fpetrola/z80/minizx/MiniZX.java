@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.minizx;
 
+import com.fpetrola.z80.bytecode.tests.JetSetWilly2FieldAccessAnalyzer3;
 import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulationBase;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
@@ -44,6 +45,12 @@ public abstract class MiniZX extends SpectrumApplication {
   public MiniZX(MiniZXIO miniZXIO, Predicate<Integer> interruptionCondition) {
     this(miniZXIO);
     this.interruptionCondition = interruptionCondition;
+  }
+
+  public void enterMethod(String methodName) {
+  }
+
+  public void exitMethod(String name) {
   }
 
   public void pc(int address, int rdelta) {

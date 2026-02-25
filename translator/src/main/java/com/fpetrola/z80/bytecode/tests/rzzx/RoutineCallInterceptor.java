@@ -20,6 +20,7 @@ package com.fpetrola.z80.bytecode.tests.rzzx;
 
 import com.fpetrola.z80.bytecode.tests.JetSetWilly;
 import com.fpetrola.z80.bytecode.tests.JetSetWilly2;
+import com.fpetrola.z80.bytecode.tests.JetSetWilly2Converted;
 import com.fpetrola.z80.bytecode.tests.JetSetWilly2FieldAccessAnalyzer3;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
@@ -31,7 +32,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class RoutineCallInterceptor {
-  public static void log(@Origin Method method, @SuperCall Callable<List<String>> zuper, @AllArguments Object[] args, @This JetSetWilly2FieldAccessAnalyzer3 thiz) throws Exception {
+  public static void log(@Origin Method method, @SuperCall Callable<List<String>> zuper, @AllArguments Object[] args, @This JetSetWilly2Converted thiz) throws Exception {
 //    System.out.println("Calling: " + method.getName());
 //    thiz.methodStack.push(method.getName());
     thiz.enterMethod(method.getName());
@@ -44,7 +45,7 @@ public class RoutineCallInterceptor {
     end(method, thiz);
   }
 
-  private static void end(Method method, JetSetWilly2FieldAccessAnalyzer3 thiz) {
+  private static void end(Method method, JetSetWilly2Converted thiz) {
     thiz.exitMethod(method.getName());
 //    thiz.methodStack.pop();
 //    System.out.println("Exiting: " + method.getName());
