@@ -69,7 +69,7 @@ public abstract class SpectrumApplication<T> {
     } else if (mem[address] == 0x12) {
       wMem(DE(), A, address);
     } else if (mem[address] == 0x16) {
-      D = mem[address + 1];
+      D(mem[address + 1]);
     }
 
 //    System.out.println("mutant at: " + address);
@@ -383,8 +383,8 @@ public abstract class SpectrumApplication<T> {
 
   public void DE(int value) {
     DE = value & 0xffff;
-    D = DE >> 8;
-    E = DE & 0xFF;
+//    D = DE >> 8;
+//    E = DE & 0xFF;
   }
 
   public void HL(int value) {
@@ -662,7 +662,7 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int B() {
-    return BC >> 8;
+    return B;
   }
 
   public void B(int b) {
@@ -706,6 +706,9 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int H() {
+    int i = (HL & 0xff00) >> 8 ;
+    if (i != H)
+      System.out.println("asfsaf");
     return H;
   }
 
@@ -715,6 +718,9 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int L() {
+    int i = (HL & 0xff) ;
+    if (i != L)
+      System.out.println("asfsaf");
     return L;
   }
 
