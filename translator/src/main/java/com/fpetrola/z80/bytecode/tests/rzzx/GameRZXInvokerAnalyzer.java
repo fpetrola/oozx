@@ -52,6 +52,7 @@ public class GameRZXInvokerAnalyzer {
       analyzer.saveAnalysis("field-dependency-analysis.json");
       
     } catch (Exception e) {
+      e.printStackTrace();
       try {
         analyzer.saveAnalysis("field-dependency-analysis.json");
       } catch (Exception ex) {

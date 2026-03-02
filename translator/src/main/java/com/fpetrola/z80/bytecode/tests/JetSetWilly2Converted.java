@@ -1171,7 +1171,7 @@ public class JetSetWilly2Converted extends MiniZX {
                   pc(35537, 1);
                   B(2);
                   pc(35539, 2);
-                  int var137 = BC();
+                  int var137 = BC_8();
                   int var138 = in(var137, 35539);
                   A(var138);
                   pc(35541, 1);
@@ -1434,7 +1434,7 @@ public class JetSetWilly2Converted extends MiniZX {
                     pc(35957, 1);
                     B(130);
                     pc(35959, 1);
-                    int var206 = BC();
+                    int var206 = BC_8();
                     int var207 = mem(var206, 35959);
                     A(var207);
                     pc(35960, 1);
@@ -1448,7 +1448,7 @@ public class JetSetWilly2Converted extends MiniZX {
                     int var211 = A();
                     L(var211);
                     pc(35963, 1);
-                    int var212 = BC();
+                    int var212 = BC_8();
                     int var213 = inc16(var212);
                     BC(var213);
                     pc(35964, 1);
@@ -2002,7 +2002,7 @@ public class JetSetWilly2Converted extends MiniZX {
 
                     pc(35691, 1);
                     int var475 = B_16() - 1 & 255;
-                    B(var475);
+                    B_16(var475);
                   } while (B_16() != 0);
 
                   pc(35693, 1);
@@ -2708,7 +2708,7 @@ public class JetSetWilly2Converted extends MiniZX {
       do {
         pc(34756, 1);
         int var34 = B_16() - 1 & 255;
-        B(var34);
+        B_16(var34);
       } while (B_16() != 0);
 
       pc(34758, 1);
@@ -2796,7 +2796,7 @@ public class JetSetWilly2Converted extends MiniZX {
         HL(var25);
         pc(35242, 1);
         int var26 = B_16() - 1 & 255;
-        B(var26);
+        B_16(var26);
       } while (B_16() != 0);
 
       pc(35244, 1);
@@ -5878,7 +5878,7 @@ public class JetSetWilly2Converted extends MiniZX {
                 do {
                   pc(37465, 1);
                   int var273 = B_16() - 1 & 255;
-                  B(var273);
+                  B_16(var273);
                 } while (B_16() != 0);
 
                 pc(37467, 1);
@@ -7769,7 +7769,7 @@ public class JetSetWilly2Converted extends MiniZX {
       DE(var37);
       pc(38525, 1);
       int var38 = B_16() - 1 & 255;
-      B(var38);
+      B_16(var38);
     } while (B_16() != 0);
 
     pc(38527, 1);
@@ -7926,7 +7926,7 @@ public class JetSetWilly2Converted extends MiniZX {
 
         pc(38580, 1);
         int var14 = B_16() - 1 & 255;
-        B(var14);
+        B_16(var14);
         if (B_16() == 0) {
           pc(38582, 1);
           int var15 = AF_8();

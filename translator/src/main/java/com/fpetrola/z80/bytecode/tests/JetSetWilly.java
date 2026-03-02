@@ -340,8 +340,8 @@ public class JetSetWilly extends MiniZX {
             F(var28);
             pc(34973, 1);
             int var29 = B() - 1 & 255;
-            B(var29);
-          } while(B() != 0);
+            B_16(var29);
+          } while(B_16() != 0);
 
           pc(34975, 1);
           int var30 = A() & 32;

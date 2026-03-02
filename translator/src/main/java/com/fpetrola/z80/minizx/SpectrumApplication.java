@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.minizx;
 
+import com.fpetrola.z80.bytecode.generators.helpers.Composed16BitRegisterVariable;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.minizx.sync.SyncChecker;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -42,6 +43,7 @@ public abstract class SpectrumApplication<T> {
   private int H;
   private int L;
   private int lastStackDepth;
+  private Map<String, Boolean> lastUpdateFrom8 = new HashMap<>();
 
   public void setNextAddress(int nextAddress) {
     this.nextAddress = nextAddress;
@@ -377,6 +379,8 @@ public abstract class SpectrumApplication<T> {
 
   public void BC(int value) {
     BC = value & 0xffff;
+    lastUpdateFrom8.put("B", false);
+
 //    B = BC >> 8;
 //    C = BC & 0xFF;
   }
@@ -536,6 +540,10 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int BC() {
+    boolean l = lastUpdateFrom8.get("B");
+    if (l) {
+      System.out.println("asfsaf");
+    }
     return BC;
   }
 
@@ -662,12 +670,22 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int B() {
+    boolean l = lastUpdateFrom8.get("B");
+    if (!l) {
+      System.out.println("asfsaf");
+    }
     return B;
   }
 
   public void B(int b) {
     B = b & 0xff;
-    BC = B << 8 | BC & 0xff;
+    lastUpdateFrom8.put("B", true);
+//    BC = B << 8 | BC & 0xff;
+  }
+
+  public void B_16(int b) {
+    BC = BC & 0xff | ((b & 0xff) << 8);
+    lastUpdateFrom8.put("B", false);
   }
 
   public int C() {
@@ -706,7 +724,7 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int H() {
-    int i = (HL & 0xff00) >> 8 ;
+    int i = (HL & 0xff00) >> 8;
     if (i != H)
       System.out.println("asfsaf");
     return H;
@@ -718,7 +736,7 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int L() {
-    int i = (HL & 0xff) ;
+    int i = (HL & 0xff);
     if (i != L)
       System.out.println("asfsaf");
     return L;
