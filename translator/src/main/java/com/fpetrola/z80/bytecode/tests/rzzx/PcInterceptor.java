@@ -31,7 +31,7 @@ import java.util.concurrent.Callable;
 public class PcInterceptor {
   private static boolean initializing = true;
 
-  public static void log(@SuperCall Callable<List<String>> zuper, @AllArguments Object[] args, @This JetSetWilly2Converted thiz) throws Exception {
+  public static void log(@SuperCall Callable<List<String>> zuper, @AllArguments Object[] args, @This JetSetWilly2FieldAccessAnalyzer3 thiz) throws Exception {
 //        SpectrumApplication.waitNanos(2000);
 
     if (initializing) {

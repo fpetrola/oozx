@@ -56,7 +56,7 @@ public class Reg16AccessInterceptor {
     }
   }
 
-  public static int log(@Origin Method method, @SuperCall Callable<Integer> zuper, @AllArguments Object[] args, @This JetSetWilly2Converted thiz) throws Exception {
+  public static int log(@Origin Method method, @SuperCall Callable<Integer> zuper, @AllArguments Object[] args, @This JetSetWilly2FieldAccessAnalyzer3 thiz) throws Exception {
 //    System.out.println("reg16: " + method.getName() + " " + args.length);
     boolean writing = args.length == 1;
     if (writing) {

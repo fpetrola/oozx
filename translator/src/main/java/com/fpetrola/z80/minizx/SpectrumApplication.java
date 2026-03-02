@@ -541,9 +541,9 @@ public abstract class SpectrumApplication<T> {
 
   public int BC() {
     boolean l = lastUpdateFrom8.get("B");
-    if (l) {
-      System.out.println("asfsaf");
-    }
+//    if (l) {
+//      System.out.println("asfsaf");
+//    }
     return BC;
   }
 
@@ -671,9 +671,9 @@ public abstract class SpectrumApplication<T> {
 
   public int B() {
     boolean l = lastUpdateFrom8.get("B");
-    if (!l) {
-      System.out.println("asfsaf");
-    }
+//    if (!l) {
+//      System.out.println("asfsaf");
+//    }
     return B;
   }
 
@@ -725,8 +725,8 @@ public abstract class SpectrumApplication<T> {
 
   public int H() {
     int i = (HL & 0xff00) >> 8;
-    if (i != H)
-      System.out.println("asfsaf");
+//    if (i != H)
+//      System.out.println("asfsaf");
     return H;
   }
 
@@ -737,8 +737,8 @@ public abstract class SpectrumApplication<T> {
 
   public int L() {
     int i = (HL & 0xff);
-    if (i != L)
-      System.out.println("asfsaf");
+//    if (i != L)
+//      System.out.println("asfsaf");
     return L;
   }
 
