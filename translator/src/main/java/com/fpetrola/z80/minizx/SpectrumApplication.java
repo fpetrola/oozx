@@ -42,8 +42,44 @@ public abstract class SpectrumApplication<T> {
   private int E;
   private int H;
   private int L;
+
+  public int IXL;
+  public int IXH;
+  public int IYL;
+  public int IYH;
+
+  public int AF;
+  public int BC;
+  public int DE;
+  public int HL;
+
+  public int IX;
+  public int IY;
+
+  public int Ax;
+  public int Fx;
+  public int Bx;
+  public int Cx;
+  public int Dx;
+  public int Ex;
+  public int Hx;
+  public int Lx;
+  public int AFx;
+  public int BCx;
+  public int DEx;
+  public int HLx;
+  public int PC;
+  public int SP = INITIAL_SP_VALUE;
+  private int I;
+
+  private int R;
+
+  public int IR;
+  public int VIRTUAL;
+  public int MEMPTR;
+
+
   private int lastStackDepth;
-  private Map<String, Boolean> lastUpdateFrom8 = new HashMap<>();
 
   public void setNextAddress(int nextAddress) {
     this.nextAddress = nextAddress;
@@ -373,14 +409,12 @@ public abstract class SpectrumApplication<T> {
 
   public void AF(int value) {
     AF = value & 0xffff;
-    A= AF >> 8;
-    F= AF & 0xFF;
+    A = AF >> 8;
+    F = AF & 0xFF;
   }
 
   public void BC(int value) {
     BC = value & 0xffff;
-    lastUpdateFrom8.put("B", false);
-
     B = BC >> 8;
     C = BC & 0xFF;
   }
@@ -475,29 +509,6 @@ public abstract class SpectrumApplication<T> {
     HLx(pair(Hx, Lx));
   }
 
-
-  public int AF;
-  public int BC;
-  public int DE;
-  public int HL;
-  public int Ax;
-  public int Fx;
-  public int Bx;
-  public int Cx;
-  public int Dx;
-  public int Ex;
-  public int Hx;
-  public int Lx;
-  public int AFx;
-  public int BCx;
-  public int DEx;
-  public int HLx;
-  public int IX;
-  public int IY;
-  public int PC;
-  public int SP = INITIAL_SP_VALUE;
-  private int I;
-
   public int R() {
     return R;
   }
@@ -505,11 +516,6 @@ public abstract class SpectrumApplication<T> {
   public void R(int r) {
     R = r;
   }
-
-  private int R;
-  public int IR;
-  public int VIRTUAL;
-  public int MEMPTR;
 
   public void AFx(int value) {
     AFx = value & 0xffff;
@@ -540,10 +546,6 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int BC() {
-    boolean l = lastUpdateFrom8.get("B");
-//    if (l) {
-//      System.out.println("asfsaf");
-//    }
     return BC;
   }
 
@@ -599,32 +601,32 @@ public abstract class SpectrumApplication<T> {
 
   public int B_16() {
     int i = BC >> 8;
-    B = i & 0xff;
-    return B;
+//    B = i & 0xff;
+    return i;
   }
 
   public int C_16() {
     int i = BC & 0xff;
-    C = i;
-    return C;
+//    C = i;
+    return i;
   }
 
   public int BC_8() {
     int i = B << 8 | BC & 0xff;
-    BC = i;
-    return BC;
+//    BC = i;
+    return i;
   }
 
   public int D_16() {
     int i = DE >> 8;
-    D = i;
-    return D;
+//    D = i;
+    return i;
   }
 
   public int E_16() {
     int i = DE & 0xff;
-    E = i;
-    return E;
+//    E = i;
+    return i;
   }
 
   public int DE_8() {
@@ -635,19 +637,19 @@ public abstract class SpectrumApplication<T> {
 
   public int H_16() {
     int i = HL >> 8;
-    H = i;
-    return H;
+//    H = i;
+    return i;
   }
 
   public int L_16() {
     int i = HL & 0xff;
-    L = i;
-    return L;
+//    L = i;
+    return i;
   }
 
   public int HL_8() {
     int i = H << 8 | HL & 0xff;
-    HL = i;
+//    HL = i;
     return i;
   }
 
@@ -657,7 +659,7 @@ public abstract class SpectrumApplication<T> {
 
   public void A(int a) {
     A = a;
-    AF = A << 8 | AF & 0xff;
+//    AF = A << 8 | AF & 0xff;
   }
 
   public int F() {
@@ -666,42 +668,30 @@ public abstract class SpectrumApplication<T> {
 
   public void F(int f) {
     F = f;
-    AF = AF & 0xff00 | F & 0xff;
+//    AF = AF & 0xff00 | F & 0xff;
   }
 
   public int B() {
-    boolean l = lastUpdateFrom8.get("B");
-//    if (!l) {
-//      System.out.println("asfsaf");
-//    }
     return B;
   }
 
   public void B(int b) {
     B = b & 0xff;
-    lastUpdateFrom8.put("B", true);
-    BC = B << 8 | BC & 0xff;
   }
 
   public void B_16(int b) {
     BC = BC & 0xff | ((b & 0xff) << 8);
-    lastUpdateFrom8.put("B", false);
   }
 
   public int C() {
-//    int i = BC & 0xff;
-//    if (i != C)
-//      System.out.println("asfsaf");
     return C;
   }
 
   public void C(int c) {
     C = c;
-    BC = BC & 0xff00 | c & 0xff;
   }
 
   public void C_16(int c) {
-    C = c;
     BC = BC & 0xff00 | c & 0xff;
   }
 
@@ -711,7 +701,6 @@ public abstract class SpectrumApplication<T> {
 
   public void D(int d) {
     D = d;
-    DE = D << 8 | DE & 0xff;
   }
 
   public int E() {
@@ -720,63 +709,62 @@ public abstract class SpectrumApplication<T> {
 
   public void E(int e) {
     E = e;
-    DE = DE & 0xff00 | e & 0xff;
   }
 
   public int H() {
-    int i = (HL & 0xff00) >> 8;
-//    if (i != H)
-//      System.out.println("asfsaf");
     return H;
   }
 
   public void H(int h) {
     H = h & 0xff;
-    HL = H << 8 | HL & 0xff;
   }
 
   public int L() {
-    int i = (HL & 0xff);
-//    if (i != L)
-//      System.out.println("asfsaf");
     return L;
   }
 
   public void L(int l) {
     L = l;
-    HL = HL & 0xff00 | l & 0xff;
   }
 
   public int IXH() {
-    return IX >> 8;
+    return IXH;
   }
 
   public void IXH(int IXH) {
-    this.IX = IXH << 8 | (IX & 0xff);
+    this.IXH = IXH;
   }
 
   public int IXL() {
-    return IX & 0xff;
+    return IXL;
   }
 
   public void IXL(int IXL) {
-    this.IX = (IX & 0xff00) | IXL;
+    this.IXL = IXL;
   }
 
   public int IYH() {
-    return IY >> 8;
+    return IYH;
   }
 
   public void IYH(int IYH) {
-    this.IY = IYH << 8 | (IY & 0xff);
+    this.IY = IYH;
   }
 
   public int IYL() {
-    return IY & 0xff;
+    return IYL;
   }
 
   public void IYL(int IYL) {
-    this.IY = (IY & 0xff00) | IYL;
+    this.IY = IYL;
+  }
+
+  public int IXL_16() {
+    return IX >> 8;
+  }
+
+  public int IX_8() {
+    return ((IXH & 0xff) << 8) | IX & 0xff;
   }
 
   public int I() {
