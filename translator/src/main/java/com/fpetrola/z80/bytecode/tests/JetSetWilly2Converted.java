@@ -380,7 +380,7 @@ public class JetSetWilly2Converted extends MiniZX {
 
           do {
             pc(34970, 2);
-            int var52 = BC_8_16();
+            int var52 = BC();
             int var53 = in(var52, 34970);
             E(var53);
             pc(34972, 1);
@@ -7937,6 +7937,7 @@ public class JetSetWilly2Converted extends MiniZX {
         if (B_16() == 0) {
           pc(38582, 1);
           int var15 = AF_8();
+          AF(AF_8());
           exAF(var15);
           pc(38583, 1);
           int var16 = C_16();
@@ -7956,10 +7957,11 @@ public class JetSetWilly2Converted extends MiniZX {
           pc(38590, 1);
           int var19 = AF_8();
           exAF(var19);
+          A(A_16());
           pc(38591, 1);
           int var20 = C_16();
           int var21 = dec(var20);
-          C(var21);
+          C_16(var21);
           F(var21);
           pc(38592, 1);
           if (F() == 0) {
