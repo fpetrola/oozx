@@ -29,7 +29,10 @@ public class SmartRegister16 {
       value16 = (high.getValue() << 8) | (low.getValue() & 0xFF);
       currentMode = Mode.MODE_16;
       conv = true;
-      type = "8to16";
+      // Registrar el currentMode de cada parte
+      String highSrc = high.getCurrentMode() == Mode.MODE_16 ? "16" : "8";
+      String lowSrc = low.getCurrentMode() == Mode.MODE_16 ? "16" : "8";
+      type = "8to16_high_from_" + highSrc + "_low_from_" + lowSrc;
     }
     Z80Registers.recordAccess(name, Z80Registers.getCurrentPC(), "get16", conv, type);
     Z80Registers.recordMode(name, Z80Registers.getCurrentPC(), currentMode);
