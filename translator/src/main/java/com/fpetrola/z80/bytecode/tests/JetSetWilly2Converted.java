@@ -6580,7 +6580,7 @@ public class JetSetWilly2Converted extends MiniZX {
           pc(37964, 1);
           B(8);
           pc(37966, 1);
-          DE(DE_8_16());
+          DE(DE_8());
           $38555();
           pc(37969, 1);
           int var76 = pop();
@@ -6700,9 +6700,9 @@ public class JetSetWilly2Converted extends MiniZX {
       }
 
       pc(37970, 1);
-      int var13 = L_16();
+      int var13 = L();
       int var14 = inc(var13);
-      L_16(var14);
+      L(var14);
       F(var14);
       pc(37971, 1);
     } while (F() != 0);
