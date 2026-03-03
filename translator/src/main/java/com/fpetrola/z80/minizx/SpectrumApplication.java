@@ -373,22 +373,22 @@ public abstract class SpectrumApplication<T> {
 
   public void AF(int value) {
     AF = value & 0xffff;
-//    A= AF >> 8;
-//    F= AF & 0xFF;
+    A= AF >> 8;
+    F= AF & 0xFF;
   }
 
   public void BC(int value) {
     BC = value & 0xffff;
     lastUpdateFrom8.put("B", false);
 
-//    B = BC >> 8;
-//    C = BC & 0xFF;
+    B = BC >> 8;
+    C = BC & 0xFF;
   }
 
   public void DE(int value) {
     DE = value & 0xffff;
-//    D = DE >> 8;
-//    E = DE & 0xFF;
+    D = DE >> 8;
+    E = DE & 0xFF;
   }
 
   public void HL(int value) {
@@ -680,7 +680,7 @@ public abstract class SpectrumApplication<T> {
   public void B(int b) {
     B = b & 0xff;
     lastUpdateFrom8.put("B", true);
-//    BC = B << 8 | BC & 0xff;
+    BC = B << 8 | BC & 0xff;
   }
 
   public void B_16(int b) {
