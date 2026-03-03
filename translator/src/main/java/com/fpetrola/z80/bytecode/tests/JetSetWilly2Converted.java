@@ -14,7 +14,7 @@ public class JetSetWilly2Converted extends MiniZX {
   }
 
   public void pc(int address, int rdelta) {
-//    waitNanos(2200);
+    waitNanos(2200);
     super.pc(address, rdelta);
   }
 
@@ -841,7 +841,7 @@ public class JetSetWilly2Converted extends MiniZX {
                     A(255);
                     pc(37050, 1);
                     int var100 = A();
-                    wMem(34257, var100, 37050);
+//                    wMem(34257, var100, 37050);
                     pc(37053, 1);
                     break label283;
                   }
@@ -2784,6 +2784,7 @@ public class JetSetWilly2Converted extends MiniZX {
         pc(35233, 1);
         D(157);
         pc(35235, 1);
+        DE(DE_8());
         $37974();
         pc(35238, 1);
         int var20 = pop();
@@ -5658,6 +5659,8 @@ public class JetSetWilly2Converted extends MiniZX {
             pc(37421, 1);
             int var379 = A();
             L(var379);
+            HL(HL_8());
+            DE(DE_8());
             pc(37422, 1);
             $37974();
             pc(37425, 1);
@@ -5890,11 +5893,11 @@ public class JetSetWilly2Converted extends MiniZX {
 
                 pc(37467, 1);
                 int var274 = C_16();
-                B(var274);
+                B_16(var274);
                 pc(37468, 1);
                 int var275 = C_16();
                 int var276 = dec(var275);
-                C(var276);
+                C_16(var276);
                 F(var276);
                 pc(37469, 1);
                 if (F() == 0) {
@@ -6459,16 +6462,16 @@ public class JetSetWilly2Converted extends MiniZX {
         pc(37865, 1);
         int var25 = H_16();
         int var26 = inc(var25);
-        H(var26);
+        H_16(var26);
         F(var26);
         pc(37866, 1);
         int var27 = HL_8();
         int var28 = mem(var27, 37866);
         E(var28);
         pc(37867, 1);
-        int var29 = H();
+        int var29 = H_16();
         int var30 = dec(var29);
-        H(var30);
+        H_16(var30);
         F(var30);
         pc(37868, 1);
         int var31 = DE_8();
@@ -6491,7 +6494,7 @@ public class JetSetWilly2Converted extends MiniZX {
           int var38 = mem(34251, 37936);
           A(var38);
           pc(37939, 1);
-          int var39 = L();
+          int var39 = L_16();
           int var40 = A();
           int var41 = add(var40, var39);
           A(var41);
@@ -6581,7 +6584,7 @@ public class JetSetWilly2Converted extends MiniZX {
           $38555();
           pc(37969, 1);
           int var76 = pop();
-          HL(var76);
+          HL_8(var76);
         } else {
           pc(37875, 2);
           IX(34172);
@@ -6699,7 +6702,7 @@ public class JetSetWilly2Converted extends MiniZX {
       pc(37970, 1);
       int var13 = L_16();
       int var14 = inc(var13);
-      L(var14);
+      L_16(var14);
       F(var14);
       pc(37971, 1);
     } while (F() != 0);

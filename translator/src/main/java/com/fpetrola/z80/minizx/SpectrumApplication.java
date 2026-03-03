@@ -423,6 +423,10 @@ public abstract class SpectrumApplication<T> {
 //    L = HL & 0xFF;
   }
 
+  public void HL_8(int value) {
+    H = value >> 8;
+    L = value & 0xFF;
+  }
   public void IX(int value) {
     IX = value & 0xffff;
   }
