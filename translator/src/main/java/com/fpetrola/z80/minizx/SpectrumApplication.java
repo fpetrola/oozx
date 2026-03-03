@@ -606,10 +606,18 @@ public abstract class SpectrumApplication<T> {
     return i;
   }
 
+  public void D_16(int d) {
+    DE= DE & 0xff | ((d & 0xff) << 8);
+  }
+
   public int E_16() {
     int i = DE & 0xff;
 //    E = i;
     return i;
+  }
+
+  public void E_16(int e) {
+    DE = DE & 0xff00 | e & 0xff;
   }
 
   public int DE_8() {
