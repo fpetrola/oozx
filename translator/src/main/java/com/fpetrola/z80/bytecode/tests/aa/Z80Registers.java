@@ -1,6 +1,8 @@
 package com.fpetrola.z80.bytecode.tests.aa;
 
 import java.util.*;
+
+import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
@@ -37,7 +39,7 @@ public class Z80Registers {
 //    recordMode("IY", dir, iy.getCurrentMode());
   }
 
-  public static void recordMode(String reg, int pc, Mode mode) {
+  public static void recordMode(String reg, int pc, Mode mode, String type) {
     Map<Integer, CountMode> map = modesAtPC.get(reg);
     CountMode cm = map.computeIfAbsent(pc, k -> new CountMode());
     if (mode == Mode.MODE_16) {
@@ -45,6 +47,8 @@ public class Z80Registers {
     } else {
       cm.count8++;
     }
+    if (type != null)
+      cm.types.add(type);
   }
 
   public static void recordAccess(String reg, int pc, String op, boolean conv, String type) {
@@ -205,7 +209,7 @@ public class Z80Registers {
   public static String generarReporte() {
 
     StringBuilder json = new StringBuilder("{");
-        extracted(json);
+    extracted(json);
     boolean firstReg;
     // Recomendaciones
     json.append("\"recomendaciones\": [");
@@ -226,7 +230,7 @@ public class Z80Registers {
         }
       }
     }
-        extracted(firstRec, json);
+    extracted(firstRec, json);
     return json.toString();
   }
 
@@ -242,7 +246,7 @@ public class Z80Registers {
     for (Iterator<Integer> iterator = integers.iterator(); iterator.hasNext(); ) {
       Integer i = iterator.next();
       CountMode cm = integerCountModeMap.get(i);
-      if (cm.count16 == 0 || cm.count8 == 0) {
+      if ((cm.count16 == 0 || cm.count8 == 0) && cm.types.size() <= 1) {
         iterator.remove();
       }
     }
@@ -431,7 +435,7 @@ public class Z80Registers {
   public static String generarReporte2() {
     Gson gson = new Gson();
     JsonObject root = new JsonObject();
-    
+
     // Agregar accesses
     JsonArray accessesArray = new JsonArray();
     for (Access access : accesses.values()) {
@@ -444,7 +448,7 @@ public class Z80Registers {
       accessesArray.add(accessObj);
     }
     root.add("accesses", accessesArray);
-    
+
     // Agregar modesAtPC
     JsonObject modesObj = new JsonObject();
     for (Map.Entry<String, Map<Integer, CountMode>> entry : modesAtPC.entrySet()) {
@@ -458,11 +462,12 @@ public class Z80Registers {
       modesObj.add(entry.getKey(), regModes);
     }
     root.add("modesAtPC", modesObj);
-    
+
     return gson.toJson(root);
   }
 
   public static class CountMode {
+    public Set<String> types = new HashSet<>();
     int count16 = 0;
     int count8 = 0;
   }

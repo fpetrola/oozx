@@ -48,7 +48,7 @@ public class SmartRegister16 {
       type = "8to16_high_from_" + highSrc + "_low_from_" + lowSrc;
     }
     Z80Registers.recordAccess(name, Z80Registers.getCurrentPC(), "get" + name, conv, type);
-    Z80Registers.recordMode(name, Z80Registers.getCurrentPC(), currentMode);
+    Z80Registers.recordMode(name, Z80Registers.getCurrentPC(), currentMode, type);
     return value16;
   }
 
@@ -69,7 +69,7 @@ public class SmartRegister16 {
       value = value16 >> 8 & 0xFF;
     }
     Z80Registers.recordAccess(name, Z80Registers.getCurrentPC(), "get" + high.getName(), conv, type);
-    Z80Registers.recordMode(name, Z80Registers.getCurrentPC(), currentMode);
+    Z80Registers.recordMode(name, Z80Registers.getCurrentPC(), currentMode, type);
     return value;
   }
 
@@ -90,7 +90,7 @@ public class SmartRegister16 {
       value = value16 & 0xFF;
     }
     Z80Registers.recordAccess(name, Z80Registers.getCurrentPC(), "get" + low.getName(), conv, type);
-    Z80Registers.recordMode(name, Z80Registers.getCurrentPC(), currentMode);
+    Z80Registers.recordMode(name, Z80Registers.getCurrentPC(), currentMode, type);
     return value;
   }
 
