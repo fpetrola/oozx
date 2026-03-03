@@ -841,7 +841,7 @@ public class JetSetWilly2Converted extends MiniZX {
                     A(255);
                     pc(37050, 1);
                     int var100 = A();
-//                    wMem(34257, var100, 37050);
+                    wMem(34257, var100, 37050);
                     pc(37053, 1);
                     break label283;
                   }
