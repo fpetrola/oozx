@@ -409,26 +409,26 @@ public abstract class SpectrumApplication<T> {
 
   public void AF(int value) {
     AF = value & 0xffff;
-    A = AF >> 8;
-    F = AF & 0xFF;
+//    A = AF >> 8;
+//    F = AF & 0xFF;
   }
 
   public void BC(int value) {
     BC = value & 0xffff;
-    B = BC >> 8;
-    C = BC & 0xFF;
+//    B = BC >> 8;
+//    C = BC & 0xFF;
   }
 
   public void DE(int value) {
     DE = value & 0xffff;
-    D = DE >> 8;
-    E = DE & 0xFF;
+//    D = DE >> 8;
+//    E = DE & 0xFF;
   }
 
   public void HL(int value) {
     HL = value & 0xffff;
-    H = HL >> 8;
-    L = HL & 0xFF;
+//    H = HL >> 8;
+//    L = HL & 0xFF;
   }
 
   public void IX(int value) {
