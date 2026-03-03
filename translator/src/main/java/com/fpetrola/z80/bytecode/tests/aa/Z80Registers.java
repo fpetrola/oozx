@@ -1,6 +1,9 @@
 package com.fpetrola.z80.bytecode.tests.aa;
 
 import java.util.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 
 public class Z80Registers {
   private SmartRegister16 hl = new SmartRegister16("HL");
@@ -201,7 +204,6 @@ public class Z80Registers {
 
   public static String generarReporte() {
 
-    clearModesAtPC();
     StringBuilder json = new StringBuilder("{");
         extracted(json);
     boolean firstReg;
@@ -228,7 +230,7 @@ public class Z80Registers {
     return json.toString();
   }
 
-  private static void clearModesAtPC() {
+  public static void clearModesAtPC() {
     Set<String> strings = modesAtPC.keySet();
     for (String s : strings) {
       clearSimple(modesAtPC.get(s));
@@ -424,6 +426,40 @@ public class Z80Registers {
     for (Map<Integer, CountMode> m : modesAtPC.values()) {
       m.clear();
     }
+  }
+
+  public static String generarReporte2() {
+    Gson gson = new Gson();
+    JsonObject root = new JsonObject();
+    
+    // Agregar accesses
+    JsonArray accessesArray = new JsonArray();
+    for (Access access : accesses.values()) {
+      JsonObject accessObj = new JsonObject();
+      accessObj.addProperty("pc", access.pc);
+      accessObj.addProperty("registro", access.reg);
+      accessObj.addProperty("operacion", access.op);
+      accessObj.addProperty("conversion", access.conversion);
+      accessObj.addProperty("tipo", access.type);
+      accessesArray.add(accessObj);
+    }
+    root.add("accesses", accessesArray);
+    
+    // Agregar modesAtPC
+    JsonObject modesObj = new JsonObject();
+    for (Map.Entry<String, Map<Integer, CountMode>> entry : modesAtPC.entrySet()) {
+      JsonObject regModes = new JsonObject();
+      for (Map.Entry<Integer, CountMode> modeEntry : entry.getValue().entrySet()) {
+        JsonObject mode = new JsonObject();
+        mode.addProperty("count16", modeEntry.getValue().count16);
+        mode.addProperty("count8", modeEntry.getValue().count8);
+        regModes.add(String.valueOf(modeEntry.getKey()), mode);
+      }
+      modesObj.add(entry.getKey(), regModes);
+    }
+    root.add("modesAtPC", modesObj);
+    
+    return gson.toJson(root);
   }
 
   public static class CountMode {

@@ -55,7 +55,8 @@ public class GameRZXInvokerAnalyzer {
     } catch (Exception e) {
       e.printStackTrace();
       try {
-        String s = Z80Registers.generarReporte();
+        Z80Registers.clearModesAtPC();
+        String s = Z80Registers.generarReporte2();
         System.out.println(s);
 //        analyzer.saveAnalysis("field-dependency-analysis.json");
       } catch (Exception ex) {
