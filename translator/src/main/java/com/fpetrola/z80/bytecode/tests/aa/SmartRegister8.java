@@ -21,4 +21,8 @@ public class SmartRegister8 {
   public Mode getCurrentMode() {
     return currentMode;
   }
+
+  public String getName() {
+    return name;
+  }
 }
