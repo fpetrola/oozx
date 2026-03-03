@@ -722,6 +722,14 @@ public abstract class SpectrumApplication<T> {
     L = l;
   }
 
+  public void L_16(int l) {
+    HL = HL & 0xff00 | l;
+  }
+
+  public void H_16(int h) {
+    HL = HL & 0xff | h << 8;
+  }
+
   public int IXH() {
     return IXH;
   }
