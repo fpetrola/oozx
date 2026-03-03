@@ -1,6 +1,7 @@
 package com.fpetrola.z80.bytecode.tests.rzzx;
 
 import com.fpetrola.z80.bytecode.tests.JetSetWilly2FieldAccessAnalyzer3;
+import com.fpetrola.z80.bytecode.tests.aa.Z80Registers;
 import com.fpetrola.z80.minizx.RZXPlayerIO;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.implementation.MethodDelegation;
@@ -54,6 +55,8 @@ public class GameRZXInvokerAnalyzer {
     } catch (Exception e) {
       e.printStackTrace();
       try {
+        String s = Z80Registers.generarReporte();
+        System.out.println(s);
 //        analyzer.saveAnalysis("field-dependency-analysis.json");
       } catch (Exception ex) {
         throw new RuntimeException(ex);
