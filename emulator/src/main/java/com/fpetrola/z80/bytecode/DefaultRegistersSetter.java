@@ -84,46 +84,6 @@ public class DefaultRegistersSetter<T extends WordNumber> implements RegistersSe
   }
 
   @Override
-  public final void setRegAx(int value) {
-    getRegister(RegisterName.Ax).write(mask8(value));
-  }
-
-  @Override
-  public final void setRegFx(int value) {
-    getRegister(RegisterName.Fx).write(mask8(value));
-  }
-
-  @Override
-  public final void setRegBx(int value) {
-    getRegister(RegisterName.Bx).write(mask8(value));
-  }
-
-  @Override
-  public final void setRegCx(int value) {
-    getRegister(RegisterName.Cx).write(mask8(value));
-  }
-
-  @Override
-  public final void setRegDx(int value) {
-    getRegister(RegisterName.Dx).write(mask8(value));
-  }
-
-  @Override
-  public final void setRegEx(int value) {
-    getRegister(RegisterName.Ex).write(mask8(value));
-  }
-
-  @Override
-  public final void setRegHx(int value) {
-    getRegister(RegisterName.Hx).write(mask8(value));
-  }
-
-  @Override
-  public final void setRegLx(int value) {
-    getRegister(RegisterName.Lx).write(mask8(value));
-  }
-
-  @Override
   public final void setRegAF(int word) {
     getRegister(RegisterName.AF).write(mask16(word));
   }
@@ -131,6 +91,18 @@ public class DefaultRegistersSetter<T extends WordNumber> implements RegistersSe
   @Override
   public final void setRegBC(int word) {
     getRegister(RegisterName.BC).write(mask8(word));
+  }
+
+  public final void setRegAFx(int word) {
+    getRegister(RegisterName.AFx).write(mask16(word));
+  }
+
+  public final void setRegBCx(int word) {
+    getRegister(RegisterName.BCx).write(mask16(word));
+  }
+
+  public final void setRegDEx(int word) {
+    getRegister(RegisterName.DEx).write(mask16(word));
   }
 
   @Override

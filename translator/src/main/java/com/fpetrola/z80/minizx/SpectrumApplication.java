@@ -56,14 +56,6 @@ public abstract class SpectrumApplication<T> {
   public int IX;
   public int IY;
 
-  public int Ax;
-  public int Fx;
-  public int Bx;
-  public int Cx;
-  public int Dx;
-  public int Ex;
-  public int Hx;
-  public int Lx;
   public int AFx;
   public int BCx;
   public int DEx;
@@ -502,11 +494,6 @@ public abstract class SpectrumApplication<T> {
     BC(pair(B, C));
     DE(pair(D, E));
     HL(pair(H, L));
-
-    AFx(pair(Ax, Fx));
-    BCx(pair(Bx, Cx));
-    DEx(pair(Dx, Ex));
-    HLx(pair(Hx, Lx));
   }
 
   public int R() {
@@ -519,26 +506,18 @@ public abstract class SpectrumApplication<T> {
 
   public void AFx(int value) {
     AFx = value & 0xffff;
-    Ax = AFx >> 8;
-    Fx = AFx & 0xFF;
   }
 
   public void BCx(int value) {
     BCx = value & 0xffff;
-    Bx = BCx >> 8;
-    Cx = BCx & 0xFF;
   }
 
   public void DEx(int value) {
     DEx = value & 0xffff;
-    Dx = DEx >> 8;
-    Ex = DEx & 0xFF;
   }
 
   public void HLx(int value) {
     HLx = value & 0xffff;
-    Hx = HLx >> 8;
-    Lx = HLx & 0xFF;
   }
 
   public int AF() {
@@ -558,19 +537,19 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int AFx() {
-    return ((Ax & 0xFF) << 8) | (Fx & 0xFF);
+    return AFx;
   }
 
   public int BCx() {
-    return ((Bx & 0xFF) << 8) | (Cx & 0xFF);
+    return BCx;
   }
 
   public int DEx() {
-    return ((Dx & 0xFF) << 8) | (Ex & 0xFF);
+    return DEx;
   }
 
   public int HLx() {
-    return ((Hx & 0xFF) << 8) | (Lx & 0xFF);
+    return HLx;
   }
 
   public int IX() {

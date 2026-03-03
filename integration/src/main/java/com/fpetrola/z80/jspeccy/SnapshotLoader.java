@@ -87,14 +87,10 @@ public class SnapshotLoader {
     registersBase.setRegE(state.getRegE());
     registersBase.setRegH(state.getRegH());
     registersBase.setRegL(state.getRegL());
-    registersBase.setRegAx(state.getRegAx());
-    registersBase.setRegFx(state.getRegFx());
-    registersBase.setRegBx(state.getRegBx());
-    registersBase.setRegCx(state.getRegCx());
-    registersBase.setRegDx(state.getRegDx());
-    registersBase.setRegEx(state.getRegEx());
-    registersBase.setRegHx(state.getRegHx());
-    registersBase.setRegLx(state.getRegLx());
+    registersBase.setRegAFx(state.getRegAFx());
+    registersBase.setRegBCx(state.getRegBCx());
+    registersBase.setRegDEx(state.getRegDEx());
+    registersBase.setRegHLx(state.getRegHLx());
     registersBase.setRegIX(state.getRegIX());
     registersBase.setRegIY(state.getRegIY());
     registersBase.setRegSP(state.getRegSP());

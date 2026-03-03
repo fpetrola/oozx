@@ -41,27 +41,17 @@ public interface RegistersSetter<T extends WordNumber> {
 
   void setRegL(int value);
 
-  void setRegAx(int value);
+  void setRegAFx(int value);
 
-  void setRegFx(int value);
+  void setRegBCx(int value);
 
-  void setRegBx(int value);
+  void setRegDEx(int value);
 
-  void setRegCx(int value);
-
-  void setRegDx(int value);
-
-  void setRegEx(int value);
-
-  void setRegHx(int value);
-
-  void setRegLx(int value);
+  void setRegHLx(int value);
 
   void setRegAF(int word);
 
   void setRegBC(int word);
-
-  void setRegHLx(int word);
 
   void setRegSP(int word);
 

@@ -115,10 +115,6 @@ public class RegistersBase<T extends WordNumber> extends DefaultRegistersSetter<
     return getRegister(RegisterName.AFx).read().intValue();
   }
 
-  public final void setRegAFx(int word) {
-    getRegister(RegisterName.AFx).write(mask16(word));
-  }
-
   public final int getRegBC() {
     return getRegister(RegisterName.BC).read().intValue();
   }
@@ -181,14 +177,11 @@ public class RegistersBase<T extends WordNumber> extends DefaultRegistersSetter<
     setRegE(state.getRegE());
     setRegH(state.getRegH());
     setRegL(state.getRegL());
-    setRegAx(state.getRegAx());
-    setRegFx(state.getRegFx());
-    setRegBx(state.getRegBx());
-    setRegCx(state.getRegCx());
-    setRegDx(state.getRegDx());
-    setRegEx(state.getRegEx());
-    setRegHx(state.getRegHx());
-    setRegLx(state.getRegLx());
+    setRegAFx(state.getRegAx()<< 8 | state.getRegFx());
+    setRegBCx(state.getRegBx()<< 8 | state.getRegFx());
+    setRegDEx(state.getRegDx()<< 8 | state.getRegEx());
+    setRegHLx(state.getRegHx()<< 8 | state.getRegLx());
+
     setRegIX(state.getRegIX());
     setRegIY(state.getRegIY());
     setRegSP(state.getRegSP());

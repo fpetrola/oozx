@@ -83,56 +83,23 @@ public class MyRegistersSetter implements RegistersSetter {
   }
 
   @Override
-  public void setRegAx(int value) {
+  public void setRegAFx(int value) {
     spectrumApplication.AFx(value);
-
   }
 
   @Override
-  public void setRegFx(int value) {
-    spectrumApplication.Fx = value;
+  public void setRegBCx(int value) {
+    spectrumApplication.BCx(value);
   }
 
   @Override
-  public void setRegBx(int value) {
-    spectrumApplication.Bx = value;
-
-  }
-
-  @Override
-  public void setRegCx(int value) {
-    spectrumApplication.Cx = value;
-
-  }
-
-  @Override
-  public void setRegDx(int value) {
-    spectrumApplication.Dx = value;
-
-  }
-
-  @Override
-  public void setRegEx(int value) {
-    spectrumApplication.Ex = value;
-
-  }
-
-  @Override
-  public void setRegHx(int value) {
-    spectrumApplication.Hx = value;
-
-  }
-
-  @Override
-  public void setRegLx(int value) {
-    spectrumApplication.Lx = value;
-
+  public void setRegDEx(int value) {
+    spectrumApplication.DEx(value);
   }
 
   @Override
   public void setRegAF(int word) {
     spectrumApplication.AF(word);
-
   }
 
   @Override
