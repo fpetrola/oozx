@@ -1,4 +1,4 @@
-package com.fpetrola.z80.bytecode.tests;
+package com.fpetrola.z80.bytecode.tests.minimal;
 
 import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
@@ -7,7 +7,7 @@ import com.fpetrola.z80.opcodes.references.WordNumber;
 
 import java.util.function.Predicate;
 
-public class JetSetWilly2Converted extends MiniZX {
+public class JetSetWilly2Converted extends ConvertedMiniZX {
 
   public JetSetWilly2Converted(MiniZXIO<WordNumber> rzxPlayerIO, Predicate<Integer> interruptionCondition) {
     super(rzxPlayerIO, interruptionCondition);
@@ -16,9 +16,6 @@ public class JetSetWilly2Converted extends MiniZX {
   public void pc(int address, int rdelta) {
     waitNanos(2200);
     super.pc(address, rdelta);
-  }
-
-  public JetSetWilly2Converted() {
   }
 
   public String getProgramBytes() {

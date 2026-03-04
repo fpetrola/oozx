@@ -18,8 +18,7 @@
 
 package com.fpetrola.z80.bytecode.tests.rzzx;
 
-import com.fpetrola.z80.bytecode.tests.JetSetWilly2Converted;
-import com.fpetrola.z80.bytecode.tests.JetSetWilly2FieldAccessAnalyzer3;
+import com.fpetrola.z80.bytecode.tests.minimal.JetSetWilly2Converted;
 import com.fpetrola.z80.minizx.RZXPlayerIO;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.implementation.MethodDelegation;

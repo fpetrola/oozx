@@ -34,14 +34,14 @@ public abstract class SpectrumApplication<T> {
 
   public static final int INITIAL_SP_VALUE = 1234;
   public Deque<Integer> methodStack = new ArrayDeque<>();
-  private int A;
-  private int F;
-  private int B;
-  private int C;
-  private int D;
-  private int E;
-  private int H;
-  private int L;
+  protected int A;
+  protected int F;
+  protected int B;
+  protected int C;
+  protected int D;
+  protected int E;
+  protected int H;
+  protected int L;
 
   public int IXL;
   public int IXH;
@@ -62,9 +62,9 @@ public abstract class SpectrumApplication<T> {
   public int HLx;
   public int PC;
   public int SP = INITIAL_SP_VALUE;
-  private int I;
+  protected int I;
 
-  private int R;
+  protected int R;
 
   public int IR;
   public int VIRTUAL;
@@ -389,19 +389,19 @@ public abstract class SpectrumApplication<T> {
   }
 
   public void AF(int value) {
-    AF = value & 0xffff;
+    AF = value;
   }
 
   public void BC(int value) {
-    BC = value & 0xffff;
+    BC = value;
   }
 
   public void DE(int value) {
-    DE = value & 0xffff;
+    DE = value;
   }
 
   public void HL(int value) {
-    HL = value & 0xffff;
+    HL = value;
   }
 
   public void HL_8(int value) {
@@ -410,11 +410,11 @@ public abstract class SpectrumApplication<T> {
   }
 
   public void IX(int value) {
-    IX = value & 0xffff;
+    IX = value;
   }
 
   public void IY(int value) {
-    IY = value & 0xffff;
+    IY = value;
   }
 
   public int pair(int a, int f) {

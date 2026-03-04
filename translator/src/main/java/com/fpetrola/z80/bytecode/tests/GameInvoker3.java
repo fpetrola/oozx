@@ -18,14 +18,8 @@
 
 package com.fpetrola.z80.bytecode.tests;
 
+import com.fpetrola.z80.bytecode.tests.minimal.JetSetWilly2Converted;
 import com.fpetrola.z80.minizx.DefaultMiniZXIO;
-import com.fpetrola.z80.minizx.RZXPlayerIO;
-import com.fpetrola.z80.minizx.SpectrumApplication;
-import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
-import com.fpetrola.z80.minizx.sync.DefaultSyncChecker;
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
-import java.util.function.Predicate;
 
 public class GameInvoker3 {
   public static void main(String[] args) throws InstantiationException {

@@ -18,9 +18,6 @@
 
 package com.fpetrola.z80.bytecode.tests.rzzx;
 
-import com.fpetrola.z80.bytecode.tests.JetSetWilly;
-import com.fpetrola.z80.bytecode.tests.JetSetWilly2;
-import com.fpetrola.z80.bytecode.tests.JetSetWilly2Converted;
 import com.fpetrola.z80.bytecode.tests.JetSetWilly2FieldAccessAnalyzer3;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
