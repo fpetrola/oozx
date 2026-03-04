@@ -185,21 +185,10 @@ public abstract class SpectrumApplication<T> {
   }
 
   public void push(int value) {
-//    if (SP != INITIAL_SP_VALUE) {
-//      wMem16(SP, value);
-//      SP -= 2;
-//    } else
     stack.push(value);
-//    if (stack.size() > 100)
-//      System.out.println("mmmmmm push");
   }
 
   public int pop() {
-//    if (SP != INITIAL_SP_VALUE) {
-//      int i = mem16(SP);
-//      SP += 2;
-//      return i;
-//    } else
     return stack.pop();
   }
 
@@ -401,32 +390,25 @@ public abstract class SpectrumApplication<T> {
 
   public void AF(int value) {
     AF = value & 0xffff;
-//    A = AF >> 8;
-//    F = AF & 0xFF;
   }
 
   public void BC(int value) {
     BC = value & 0xffff;
-//    B = BC >> 8;
-//    C = BC & 0xFF;
   }
 
   public void DE(int value) {
     DE = value & 0xffff;
-//    D = DE >> 8;
-//    E = DE & 0xFF;
   }
 
   public void HL(int value) {
     HL = value & 0xffff;
-//    H = HL >> 8;
-//    L = HL & 0xFF;
   }
 
   public void HL_8(int value) {
     H = value >> 8;
     L = value & 0xFF;
   }
+
   public void IX(int value) {
     IX = value & 0xffff;
   }
@@ -577,27 +559,19 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int AF_8() {
-    int i = A << 8 | F & 0xff;
-//    AF= i;
-    return i;
+    return A << 8 | F & 0xff;
   }
 
   public int B_16() {
-    int i = BC >> 8;
-//    B = i & 0xff;
-    return i;
+    return BC >> 8;
   }
 
   public int C_16() {
-    int i = BC & 0xff;
-//    C = i;
-    return i;
+    return BC & 0xff;
   }
 
   public int BC_8() {
-    int i = B << 8 | C & 0xff;
-//    BC = i;
-    return i;
+    return B << 8 | C & 0xff;
   }
 
   public int BC_8_16() {
@@ -605,19 +579,15 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int D_16() {
-    int i = DE >> 8;
-//    D = i;
-    return i;
+    return DE >> 8;
   }
 
   public void D_16(int d) {
-    DE= DE & 0xff | ((d & 0xff) << 8);
+    DE = DE & 0xff | ((d & 0xff) << 8);
   }
 
   public int E_16() {
-    int i = DE & 0xff;
-//    E = i;
-    return i;
+    return DE & 0xff;
   }
 
   public void E_16(int e) {
@@ -625,14 +595,12 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int DE_8() {
-    int i = D << 8 | E & 0xff;
-//    DE = i;
-    return i;
+    return D << 8 | E & 0xff;
   }
 
   public void DE_8(int de) {
-    D= de >> 8;
-    E= de & 0xff;
+    D = de >> 8;
+    E = de & 0xff;
   }
 
   public int DE_8_16() {
@@ -640,21 +608,15 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int H_16() {
-    int i = HL >> 8;
-//    H = i;
-    return i;
+    return HL >> 8;
   }
 
   public int L_16() {
-    int i = HL & 0xff;
-//    L = i;
-    return i;
+    return HL & 0xff;
   }
 
   public int HL_8() {
-    int i = H << 8 | L & 0xff;
-//    HL = i;
-    return i;
+    return H << 8 | L & 0xff;
   }
 
   public int HL_8_16() {
@@ -671,7 +633,6 @@ public abstract class SpectrumApplication<T> {
 
   public void A(int a) {
     A = a;
-//    AF = A << 8 | AF & 0xff;
   }
 
   public int F() {
@@ -680,7 +641,6 @@ public abstract class SpectrumApplication<T> {
 
   public void F(int f) {
     F = f;
-//    AF = AF & 0xff00 | F & 0xff;
   }
 
   public int B() {
