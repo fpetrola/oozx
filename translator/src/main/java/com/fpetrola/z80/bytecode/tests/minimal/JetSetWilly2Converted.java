@@ -28,10 +28,10 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
     ldir();
     IX = 34187;
     $34499();
-    if (F() != 0) {
+    if (F != 0) {
       IX = 34219;
       $34499();
-      if (F() != 0) {
+      if (F != 0) {
       }
     }
 
@@ -43,7 +43,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         A = var3;
         int var4 = A;
         int var5 = flagZ(var4);
-        F(var5);
+        F = var5;
         int var6 = A;
         mem[34254] = var6;
         int var7 = A;
@@ -84,28 +84,28 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         HL = var22;
         int var23 = HL;
         mem[var23] = 48;
-        H(164);
-        int var24 = mem(41983, 34818);
+        H = 164 & 0xff;
+        int var24 = mem[41983];
         A = var24;
         int var25 = A;
-        L(var25);
+        L = var25;
         int var26 = A;
         mem[34270] = var26;
 
         do {
           int var27 = HL_8();
-          int var28 = mem(var27, 34825) | 64;
+          int var28 = mem[var27] | 64;
           int var29 = HL_8();
           mem[var29] = var28;
-          int var30 = L();
+          int var30 = L;
           int var31 = inc(var30);
-          L(var31);
-          F(var31);
-        } while (F() != 0);
+          L = var31;
+          F = var31;
+        } while (F != 0);
 
         HL = 34274;
         int var32 = HL;
-        int var33 = mem(var32, 34833) | 1;
+        int var33 = mem[var32] | 1;
         int var34 = HL;
         mem[var34] = var33;
 
@@ -128,55 +128,55 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           ldir();
           IX = 33876;
           DE = 20576;
-          C(32);
+          C = 32;
           $38528();
           DE = 22528;
 
           do {
             int var37 = DE();
-            int var38 = mem(var37, 34884);
+            int var38 = mem[var37];
             A = var38;
             int var39 = A;
             int var40 = A | var39;
             A = var40;
             int var41 = A;
             int var42 = flagZ(var41);
-            F(var42);
-            if (F() != 0) {
+            F = var42;
+            if (F != 0) {
               int var602 = A;
               int var603 = cp(var602, 211);
-              F(var603);
-              if (F() != 0) {
+              F = var603;
+              if (F != 0) {
                 int var604 = A;
                 int var605 = cp(var604, 9);
-                F(var605);
-                if (F() != 0) {
+                F = var605;
+                if (F != 0) {
                   int var606 = A;
                   int var607 = cp(var606, 45);
-                  F(var607);
-                  if (F() != 0) {
+                  F = var607;
+                  if (F != 0) {
                     int var608 = A;
                     int var609 = cp(var608, 36);
-                    F(var609);
-                    if (F() != 0) {
-                      C(0);
+                    F = var609;
+                    if (F != 0) {
+                      C = 0;
                       int var610 = A;
                       int var611 = cp(var610, 8);
-                      F(var611);
-                      if (F() != 0) {
+                      F = var611;
+                      if (F != 0) {
                         int var633 = A;
                         int var634 = cp(var633, 41);
-                        F(var634);
-                        if (F() != 0) {
+                        F = var634;
+                        if (F != 0) {
                           int var635 = A;
                           int var636 = cp(var635, 44);
-                          F(var636);
-                          if (F() != 0) {
+                          F = var636;
+                          if (F != 0) {
                             int var639 = A;
                             int var640 = cp(var639, 5);
-                            F(var640);
-                            if (F() != 0) {
-                              C(16);
+                            F = var640;
+                            if (F != 0) {
+                              C = 16;
                             }
                           } else {
                             A = 37;
@@ -193,7 +193,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                       A = var613;
                       int var614 = A;
                       int var615 = flagZ(var614);
-                      F(var615);
+                      F = var615;
                       int var616 = A;
                       int var617 = rlc(var616);
                       A = var617;
@@ -203,15 +203,15 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                       int var620 = A;
                       int var621 = rlc(var620);
                       A = var621;
-                      int var622 = C();
+                      int var622 = C;
                       int var623 = A | var622;
                       A = var623;
                       int var624 = A;
                       int var625 = flagZ(var624);
-                      F(var625);
+                      F = var625;
                       int var626 = A;
-                      C(var626);
-                      B(0);
+                      C = var626;
+                      B = 0;
                       HL = 33841;
                       int var627 = BC_8();
                       int var628 = HL;
@@ -220,13 +220,13 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                       int var630 = DE();
                       push(var630);
                       int var631 = D_16() & 1;
-                      F(var631);
-                      D(64);
-                      if (F() != 0) {
-                        D(72);
+                      F = var631;
+                      D = 64;
+                      if (F != 0) {
+                        D = 72;
                       }
 
-                      B(8);
+                      B = 8;
                       DE = DE_8_16();
                       $38555();
                       int var632 = pop();
@@ -244,8 +244,8 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
             A = var45;
             int var46 = A;
             int var47 = cp(var46, 90);
-            F(var47);
-          } while (F() != 0);
+            F = var47;
+          } while (F != 0);
 
           BC = 31;
           int var48 = A;
@@ -253,18 +253,18 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           A = var49;
           int var50 = A;
           int var51 = flagZ(var50);
-          F(var51);
+          F = var51;
 
           do {
-            int var52 = BC();
+            int var52 = BC;
             int var53 = in(var52, 34970);
-            E(var53);
-            int var54 = E();
+            E = var53;
+            int var54 = E;
             int var55 = A | var54;
             A = var55;
             int var56 = A;
             int var57 = flagZ(var56);
-            F(var57);
+            F = var57;
             int var58 = B_16() - 1 & 255;
             B_16(var58);
           } while (B_16() != 0);
@@ -273,8 +273,8 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           A = var59;
           int var60 = A;
           int var61 = flagZ(var60);
-          F(var61);
-          if (F() == 0) {
+          F = var61;
+          if (F == 0) {
             A = 1;
             int var601 = A;
             mem[34254] = var601;
@@ -282,7 +282,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
 
           HL = 34299;
           $38562();
-          if (F() != 0) {
+          if (F != 0) {
             break;
           }
 
@@ -291,7 +291,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           A = var572;
           int var573 = A;
           int var574 = flagZ(var573);
-          F(var574);
+          F = var574;
           int var575 = A;
           mem[34276] = var575;
 
@@ -303,59 +303,59 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
             int var576 = HL;
             mem[var576] = 79;
             ldir();
-            int var577 = mem(34276, 35013);
+            int var577 = mem[34276];
             A = var577;
             IX = 33876;
             int var578 = A;
-            E(var578);
-            D(0);
+            E = var578;
+            D = 0;
             int var579 = DE();
             int var580 = IX;
             int var581 = add16(var580, var579);
             IX = var581;
             DE = 20576;
-            C(32);
+            C = 32;
             $38528();
-            int var582 = mem(34276, 35033);
+            int var582 = mem[34276];
             A = var582;
             int var583 = A & 31;
             A = var583;
             int var584 = A;
             int var585 = flagZ(var584);
-            F(var585);
+            F = var585;
             int var586 = A;
             int var587 = add(var586, 50);
             A = var587;
-            F(var587);
+            F = var587;
             $38622();
             BC = 45054;
-            int var588 = BC();
+            int var588 = BC;
             int var589 = in(var588, 35046);
             A = var589;
             int var590 = A & 1;
             A = var590;
             int var591 = A;
             int var592 = flagZ(var591);
-            F(var592);
+            F = var592;
             int var593 = A;
             int var594 = cp(var593, 1);
-            F(var594);
-            if (F() != 0) {
+            F = var594;
+            if (F != 0) {
               break label207;
             }
 
-            int var595 = mem(34276, 35054);
+            int var595 = mem[34276];
             A = var595;
             int var596 = A;
             int var597 = inc(var596);
             A = var597;
-            F(var597);
+            F = var597;
             int var598 = A;
             int var599 = cp(var598, 224);
-            F(var599);
+            F = var599;
             int var600 = A;
             mem[34276] = var600;
-          } while (F() != 0);
+          } while (F != 0);
 
         }
 
@@ -370,16 +370,16 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
 
         while (true) {
           while (true) {
-            int var62 = mem(33824, 35090);
+            int var62 = mem[33824];
             A = var62;
             int var63 = A | 192;
             A = var63;
             int var64 = A;
             int var65 = flagZ(var64);
-            F(var65);
+            F = var65;
             int var66 = A;
-            H(var66);
-            L(0);
+            H = var66 & 0xff;
+            L = 0;
             DE = 32768;
             BC = 256;
             HL = HL_8();
@@ -390,11 +390,11 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
 
             do {
               int var67 = IX + 0;
-              int var68 = mem(var67, 35115);
-              L(var68);
-              int var69 = L() & -129;
-              L(var69);
-              H(20);
+              int var68 = mem[var67];
+              L = var68;
+              int var69 = L & -129;
+              L = var69;
+              H = 20 & 0xff;
               int var70 = HL_8();
               int var71 = HL_8();
               int var72 = add16(var71, var70);
@@ -410,9 +410,9 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
               BC = 2;
               ldir();
               int var79 = IX + 1;
-              int var80 = mem(var79, 35130);
-              C(var80);
-              int var81 = C();
+              int var80 = mem[var79];
+              C = var80;
+              int var81 = C;
               int var82 = HL;
               mem[var82] = var81;
               BC = 6;
@@ -426,8 +426,8 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
               int var87 = A;
               int var88 = dec(var87);
               A = var88;
-              F(var88);
-            } while (F() != 0);
+              F = var88;
+            } while (F != 0);
 
             HL = 34255;
             DE = 34263;
@@ -441,22 +441,22 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
             mem[var89] = 0;
             ldir();
             IX = 32896;
-            C(32);
+            C = 32;
             DE = 20480;
             $38528();
             IX = 34132;
             DE = 20576;
-            C(32);
+            C = 32;
             $38528();
-            int var90 = mem(32990, 35197);
+            int var90 = mem[32990];
             A = var90;
-            C(254);
+            C = 254;
             int var91 = A;
             int var92 = A ^ var91;
             A = var92;
             int var93 = A;
             int var94 = flagZ(var93);
-            F(var94);
+            F = var94;
             int var95 = A;
             mem[34262] = var95;
 
@@ -473,11 +473,11 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 BC = 4096;
                 ldir();
                 $37056();
-                int var96 = mem(34271, 35273);
+                int var96 = mem[34271];
                 A = var96;
                 int var97 = A;
                 int var98 = cp(var97, 3);
-                F(var98);
+                F = var98;
 
                 label283:
                 {
@@ -490,7 +490,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                         label358:
                         {
                           try {
-                            if (F() != 0) {
+                            if (F != 0) {
                               $36307();
                             }
                           } catch (StackException var645) {
@@ -516,14 +516,14 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                             }
                           }
 
-                          int var562 = mem(34255, 35281);
+                          int var562 = mem[34255];
                           A = var562;
                           int var563 = A;
                           int var564 = cp(var563, 225);
-                          F(var564);
+                          F = var564;
 
                           try {
-                            if (F() >= 0) {
+                            if (F >= 0) {
                               $38064();
                             }
                             break label279;
@@ -537,14 +537,14 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                         break;
                       }
 
-                      int var565 = mem(34271, 35289);
+                      int var565 = mem[34271];
                       A = var565;
                       int var566 = A;
                       int var567 = cp(var566, 3);
-                      F(var567);
+                      F = var567;
 
                       try {
-                        if (F() != 0) {
+                        if (F != 0) {
                           $38344();
                         }
                       } catch (StackException var643) {
@@ -553,12 +553,12 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                         }
                       }
 
-                      int var568 = mem(34271, 35297);
+                      int var568 = mem[34271];
                       A = var568;
                       int var569 = A;
                       int var570 = cp(var569, 2);
-                      F(var570);
-                      if (F() == 0) {
+                      F = var570;
+                      if (F == 0) {
                         $38276();
                       }
 
@@ -594,40 +594,40 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 DE = 16384;
                 BC = 4096;
                 ldir();
-                int var101 = mem(34271, 35328);
+                int var101 = mem[34271];
                 A = var101;
                 int var102 = A & 2;
                 A = var102;
                 int var103 = A;
                 int var104 = flagZ(var103);
-                F(var104);
+                F = var104;
                 int var105 = A;
                 int var106 = rrc(var105);
                 A = var106;
                 HL = 34258;
                 int var107 = HL;
-                int var108 = mem(var107, 35337);
+                int var108 = mem[var107];
                 int var109 = A | var108;
                 A = var109;
                 int var110 = A;
                 int var111 = flagZ(var110);
-                F(var111);
+                F = var111;
                 int var112 = A;
                 int var113 = HL;
                 mem[var113] = var112;
-                int var114 = mem(34253, 35339);
+                int var114 = mem[34253];
                 A = var114;
                 int var115 = A;
                 int var116 = A | var115;
                 A = var116;
                 int var117 = A;
                 int var118 = flagZ(var117);
-                F(var118);
-                if (F() != 0) {
+                F = var118;
+                if (F != 0) {
                   int var548 = A;
                   int var549 = dec(var548);
                   A = var549;
-                  F(var549);
+                  F = var549;
                   int var550 = A;
                   mem[34253] = var550;
                   int var551 = A;
@@ -643,7 +643,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                   A = var557;
                   int var558 = A;
                   int var559 = flagZ(var558);
-                  F(var559);
+                  F = var559;
                   HL = 23552;
                   DE = 23553;
                   BC = 511;
@@ -659,76 +659,76 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 ldir();
                 IX = 34175;
                 DE = 20601;
-                C(6);
+                C = 6;
                 $38528();
                 IX = 34172;
                 DE = 20592;
-                C(3);
+                C = 3;
                 $38528();
-                int var119 = mem(34251, 35401);
+                int var119 = mem[34251];
                 A = var119;
                 int var120 = A;
                 int var121 = inc(var120);
                 A = var121;
-                F(var121);
+                F = var121;
                 int var122 = A;
                 mem[34251] = var122;
-                if (F() == 0) {
+                if (F == 0) {
                   IX = 34175;
                   int var505 = IX + 4;
-                  int var506 = mem(var505, 35414);
+                  int var506 = mem[var505];
                   int var507 = inc(var506);
                   mem[var505] = var507;
-                  F(var507);
+                  F = var507;
                   int var508 = IX + 4;
-                  int var509 = mem(var508, 35417);
+                  int var509 = mem[var508];
                   A = var509;
                   int var510 = A;
                   int var511 = cp(var510, 58);
-                  F(var511);
-                  if (F() == 0) {
+                  F = var511;
+                  if (F == 0) {
                     int var512 = IX + 4;
                     mem[var512] = 48;
                     int var513 = IX + 3;
-                    int var514 = mem(var513, 35428);
+                    int var514 = mem[var513];
                     int var515 = inc(var514);
                     mem[var513] = var515;
-                    F(var515);
+                    F = var515;
                     int var516 = IX + 3;
-                    int var517 = mem(var516, 35431);
+                    int var517 = mem[var516];
                     A = var517;
                     int var518 = A;
                     int var519 = cp(var518, 54);
-                    F(var519);
-                    if (F() == 0) {
+                    F = var519;
+                    if (F == 0) {
                       int var520 = IX + 3;
                       mem[var520] = 48;
                       int var521 = IX + 0;
-                      int var522 = mem(var521, 35442);
+                      int var522 = mem[var521];
                       A = var522;
                       int var523 = A;
                       int var524 = cp(var523, 49);
-                      F(var524);
-                      if (F() == 0) {
+                      F = var524;
+                      if (F == 0) {
                         int var534 = IX + 1;
-                        int var535 = mem(var534, 35449);
+                        int var535 = mem[var534];
                         int var536 = inc(var535);
                         mem[var534] = var536;
-                        F(var536);
+                        F = var536;
                         int var537 = IX + 1;
-                        int var538 = mem(var537, 35452);
+                        int var538 = mem[var537];
                         A = var538;
                         int var539 = A;
                         int var540 = cp(var539, 51);
-                        F(var540);
-                        if (F() == 0) {
+                        F = var540;
+                        if (F == 0) {
                           int var541 = IX + 5;
-                          int var542 = mem(var541, 35459);
+                          int var542 = mem[var541];
                           A = var542;
                           int var543 = A;
                           int var544 = cp(var543, 112);
-                          F(var544);
-                          if (F() == 0) {
+                          F = var544;
+                          if (F == 0) {
                             continue label325;
                           }
 
@@ -741,17 +741,17 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                         }
                       } else {
                         int var525 = IX + 1;
-                        int var526 = mem(var525, 35481);
+                        int var526 = mem[var525];
                         int var527 = inc(var526);
                         mem[var525] = var527;
-                        F(var527);
+                        F = var527;
                         int var528 = IX + 1;
-                        int var529 = mem(var528, 35484);
+                        int var529 = mem[var528];
                         A = var529;
                         int var530 = A;
                         int var531 = cp(var530, 58);
-                        F(var531);
-                        if (F() == 0) {
+                        F = var531;
+                        if (F == 0) {
                           int var532 = IX + 1;
                           mem[var532] = 48;
                           int var533 = IX + 0;
@@ -763,36 +763,36 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 }
 
                 BC = 65278;
-                int var123 = BC();
+                int var123 = BC;
                 int var124 = in(var123, 35502);
                 A = var124;
                 int var125 = A;
-                E(var125);
-                B(127);
+                E = var125;
+                B = 127;
                 int var126 = BC_8_16();
                 int var127 = in(var126, 35507);
                 A = var127;
-                int var128 = E();
+                int var128 = E;
                 int var129 = A | var128;
                 A = var129;
                 int var130 = A;
                 int var131 = flagZ(var130);
-                F(var131);
+                F = var131;
                 int var132 = A & 1;
                 A = var132;
                 int var133 = A;
                 int var134 = flagZ(var133);
-                F(var134);
-                if (F() == 0) {
+                F = var134;
+                if (F == 0) {
                   continue label325;
                 }
 
-                int var135 = mem(34272, 35515);
+                int var135 = mem[34272];
                 A = var135;
                 int var136 = A;
                 mem[34272] = var136;
-                if (F() != 0) {
-                  B(253);
+                if (F != 0) {
+                  B = 253;
                   int var498 = BC_8_16();
                   int var499 = in(var498, 35526);
                   A = var499;
@@ -800,11 +800,11 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                   A = var500;
                   int var501 = A;
                   int var502 = flagZ(var501);
-                  F(var502);
+                  F = var502;
                   int var503 = A;
                   int var504 = cp(var503, 31);
-                  F(var504);
-                  if (F() == 0) {
+                  F = var504;
+                  if (F == 0) {
                     break label363;
                   }
 
@@ -812,7 +812,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 }
 
                 while (true) {
-                  B(2);
+                  B = 2;
                   int var137 = BC_8();
                   int var138 = in(var137, 35539);
                   A = var138;
@@ -820,36 +820,36 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                   A = var139;
                   int var140 = A;
                   int var141 = flagZ(var140);
-                  F(var141);
+                  F = var141;
                   int var142 = A;
                   int var143 = cp(var142, 31);
-                  F(var143);
-                  if (F() != 0) {
+                  F = var143;
+                  if (F != 0) {
                     HL = 39424;
                     DE = 23040;
                     BC = 256;
                     ldir();
-                    int var144 = mem(32990, 35602);
+                    int var144 = mem[32990];
                     A = var144;
                     break;
                   }
 
-                  int var491 = E();
+                  int var491 = E;
                   int var492 = inc(var491);
-                  E(var492);
-                  F(var492);
-                  if (F() == 0) {
-                    int var493 = D();
+                  E = var492;
+                  F = var492;
+                  if (F == 0) {
+                    int var493 = D;
                     int var494 = inc(var493);
-                    D(var494);
-                    F(var494);
-                    if (F() == 0) {
-                      int var495 = mem(34275, 35553);
+                    D = var494;
+                    F = var494;
+                    if (F == 0) {
+                      int var495 = mem[34275];
                       A = var495;
                       int var496 = A;
                       int var497 = cp(var496, 10);
-                      F(var497);
-                      if (F() != 0) {
+                      F = var497;
+                      if (F != 0) {
                         $35563();
                       }
 
@@ -858,12 +858,12 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 }
               }
 
-              int var145 = mem(34257, 35607);
+              int var145 = mem[34257];
               A = var145;
               int var146 = A;
               int var147 = cp(var146, 255);
-              F(var147);
-              if (F() == 0) {
+              F = var147;
+              if (F == 0) {
                 A = 71;
 
                 do {
@@ -875,16 +875,16 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                   mem[var149] = var148;
                   ldir();
                   int var150 = A;
-                  E(var150);
+                  E = var150;
                   int var151 = ~A;
                   A = var151;
                   int var152 = A;
-                  F(var152);
+                  F = var152;
                   int var153 = A & 7;
                   A = var153;
                   int var154 = A;
                   int var155 = flagZ(var154);
-                  F(var155);
+                  F = var155;
                   int var156 = A;
                   int var157 = rlc(var156);
                   A = var157;
@@ -898,74 +898,74 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                   A = var162;
                   int var163 = A;
                   int var164 = flagZ(var163);
-                  F(var164);
+                  F = var164;
                   int var165 = A;
-                  D(var165);
-                  int var166 = E();
-                  C(var166);
-                  int var167 = C();
+                  D = var165;
+                  int var166 = E;
+                  C = var166;
+                  int var167 = C;
                   int var168 = rrc(var167);
-                  C(var168);
-                  int var169 = C();
+                  C = var168;
+                  int var169 = C;
                   int var170 = rrc(var169);
-                  C(var170);
-                  int var171 = C();
+                  C = var170;
+                  int var171 = C;
                   int var172 = rrc(var171);
-                  C(var172);
+                  C = var172;
                   int var173 = A | 16;
                   A = var173;
                   int var174 = A;
                   int var175 = flagZ(var174);
-                  F(var175);
+                  F = var175;
                   int var176 = A;
                   int var177 = A ^ var176;
                   A = var177;
                   int var178 = A;
                   int var179 = flagZ(var178);
-                  F(var179);
+                  F = var179;
 
                   do {
                     int var180 = A ^ 24;
                     A = var180;
                     int var181 = A;
                     int var182 = flagZ(var181);
-                    F(var182);
-                    int var183 = D();
-                    B(var183);
+                    F = var182;
+                    int var183 = D;
+                    B = var183;
 
                     do {
-                      int var184 = B() - 1 & 255;
-                      B(var184);
-                    } while (B() != 0);
+                      int var184 = B - 1 & 255;
+                      B = var184;
+                    } while (B != 0);
 
-                    int var185 = C();
+                    int var185 = C;
                     int var186 = dec(var185);
-                    C(var186);
-                    F(var186);
-                  } while (F() != 0);
+                    C = var186;
+                    F = var186;
+                  } while (F != 0);
 
-                  int var187 = E();
+                  int var187 = E;
                   A = var187;
                   int var188 = A;
                   int var189 = dec(var188);
                   A = var189;
-                  F(var189);
+                  F = var189;
                   int var190 = A;
                   int var191 = cp(var190, 63);
-                  F(var191);
-                } while (F() != 0);
+                  F = var191;
+                } while (F != 0);
 
                 HL = 34252;
                 int var192 = HL;
-                int var193 = mem(var192, 35894);
+                int var193 = mem[var192];
                 A = var193;
                 int var194 = A;
                 int var195 = A | var194;
                 A = var195;
                 int var196 = A;
                 int var197 = flagZ(var196);
-                F(var197);
-                if (F() == 0) {
+                F = var197;
+                if (F == 0) {
                   HL = 16384;
                   DE = 16385;
                   BC = 4095;
@@ -977,63 +977,63 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                   A = var200;
                   int var201 = A;
                   int var202 = flagZ(var201);
-                  F(var202);
+                  F = var202;
                   int var203 = A;
                   mem[34276] = var203;
                   DE = 40256;
                   HL = 18575;
-                  C(0);
+                  C = 0;
                   $37974();
                   DE = 40032;
                   HL = 18639;
-                  C(0);
+                  C = 0;
                   $37974();
 
                   do {
-                    int var204 = mem(34276, 35953);
+                    int var204 = mem[34276];
                     A = var204;
                     int var205 = A;
-                    C(var205);
-                    B(130);
+                    C = var205;
+                    B = 130;
                     int var206 = BC_8();
-                    int var207 = mem(var206, 35959);
+                    int var207 = mem[var206];
                     A = var207;
                     int var208 = A | 15;
                     A = var208;
                     int var209 = A;
                     int var210 = flagZ(var209);
-                    F(var210);
+                    F = var210;
                     int var211 = A;
-                    L(var211);
+                    L = var211;
                     int var212 = BC_8();
                     int var213 = inc16(var212);
                     BC = var213;
-                    int var214 = BC();
-                    int var215 = mem(var214, 35964);
+                    int var214 = BC;
+                    int var215 = mem[var214];
                     A = var215;
                     int var216 = A - 32;
                     int var217 = var216 & 255;
                     A = var217;
-                    F(var216);
+                    F = var216;
                     int var218 = A;
-                    H(var218);
+                    H = var218 & 0xff;
                     DE = 40000;
-                    C(0);
+                    C = 0;
                     $37974();
-                    int var219 = mem(34276, 35976);
+                    int var219 = mem[34276];
                     A = var219;
                     int var220 = ~A;
                     A = var220;
                     int var221 = A;
-                    F(var221);
+                    F = var221;
                     int var222 = A;
-                    E(var222);
+                    E = var222;
                     int var223 = A;
                     int var224 = A ^ var223;
                     A = var224;
                     int var225 = A;
                     int var226 = flagZ(var225);
-                    F(var226);
+                    F = var226;
                     BC = 64;
 
                     do {
@@ -1041,31 +1041,31 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                       A = var227;
                       int var228 = A;
                       int var229 = flagZ(var228);
-                      F(var229);
-                      int var230 = E();
-                      B(var230);
+                      F = var229;
+                      int var230 = E;
+                      B = var230;
 
                       do {
-                        int var231 = B() - 1 & 255;
-                        B(var231);
-                      } while (B() != 0);
+                        int var231 = B - 1 & 255;
+                        B = var231;
+                      } while (B != 0);
 
-                      int var232 = C();
+                      int var232 = C;
                       int var233 = dec(var232);
-                      C(var233);
-                      F(var233);
-                    } while (F() != 0);
+                      C = var233;
+                      F = var233;
+                    } while (F != 0);
 
                     HL = 22528;
                     DE = 22529;
                     BC = 511;
-                    int var234 = mem(34276, 36004);
+                    int var234 = mem[34276];
                     A = var234;
                     int var235 = A & 12;
                     A = var235;
                     int var236 = A;
                     int var237 = flagZ(var236);
-                    F(var237);
+                    F = var237;
                     int var238 = A;
                     int var239 = rlc(var238);
                     A = var239;
@@ -1073,7 +1073,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                     A = var240;
                     int var241 = A;
                     int var242 = flagZ(var241);
-                    F(var242);
+                    F = var242;
                     int var243 = A;
                     int var244 = HL;
                     mem[var244] = var243;
@@ -1082,12 +1082,12 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                     A = var245;
                     int var246 = A;
                     int var247 = flagZ(var246);
-                    F(var247);
+                    F = var247;
                     int var248 = A | 2;
                     A = var248;
                     int var249 = A;
                     int var250 = flagZ(var249);
-                    F(var250);
+                    F = var250;
                     int var251 = A;
                     mem[22991] = var251;
                     int var252 = A;
@@ -1096,174 +1096,174 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                     mem[23023] = var253;
                     int var254 = A;
                     mem[23024] = var254;
-                    int var255 = mem(34276, 36031);
+                    int var255 = mem[34276];
                     A = var255;
                     int var256 = A;
                     int var257 = add(var256, 4);
                     A = var257;
-                    F(var257);
+                    F = var257;
                     int var258 = A;
                     mem[34276] = var258;
                     int var259 = A;
                     int var260 = cp(var259, 196);
-                    F(var260);
-                  } while (F() != 0);
+                    F = var260;
+                  } while (F != 0);
 
                   IX = 34164;
-                  C(4);
+                  C = 4;
                   DE = 16586;
                   $38528();
                   IX = 34168;
-                  C(4);
+                  C = 4;
                   DE = 16594;
                   $38528();
                   BC = 0;
-                  B(0);
-                  C(0);
-                  D(6);
+                  B = 0;
+                  C = 0;
+                  D = 6;
 
                   while (true) {
                     do {
-                      int var261 = B() - 1 & 255;
-                      B(var261);
-                    } while (B() != 0);
+                      int var261 = B - 1 & 255;
+                      B = var261;
+                    } while (B != 0);
 
-                    int var262 = C();
+                    int var262 = C;
                     A = var262;
                     int var263 = A & 7;
                     A = var263;
                     int var264 = A;
                     int var265 = flagZ(var264);
-                    F(var265);
+                    F = var265;
                     int var266 = A | 64;
                     A = var266;
                     int var267 = A;
                     int var268 = flagZ(var267);
-                    F(var268);
+                    F = var268;
                     int var269 = A;
                     mem[22730] = var269;
                     int var270 = A;
                     int var271 = inc(var270);
                     A = var271;
-                    F(var271);
+                    F = var271;
                     int var272 = A & 7;
                     A = var272;
                     int var273 = A;
                     int var274 = flagZ(var273);
-                    F(var274);
+                    F = var274;
                     int var275 = A | 64;
                     A = var275;
                     int var276 = A;
                     int var277 = flagZ(var276);
-                    F(var277);
+                    F = var277;
                     int var278 = A;
                     mem[22731] = var278;
                     int var279 = A;
                     int var280 = inc(var279);
                     A = var280;
-                    F(var280);
+                    F = var280;
                     int var281 = A & 7;
                     A = var281;
                     int var282 = A;
                     int var283 = flagZ(var282);
-                    F(var283);
+                    F = var283;
                     int var284 = A | 64;
                     A = var284;
                     int var285 = A;
                     int var286 = flagZ(var285);
-                    F(var286);
+                    F = var286;
                     int var287 = A;
                     mem[22732] = var287;
                     int var288 = A;
                     int var289 = inc(var288);
                     A = var289;
-                    F(var289);
+                    F = var289;
                     int var290 = A & 7;
                     A = var290;
                     int var291 = A;
                     int var292 = flagZ(var291);
-                    F(var292);
+                    F = var292;
                     int var293 = A | 64;
                     A = var293;
                     int var294 = A;
                     int var295 = flagZ(var294);
-                    F(var295);
+                    F = var295;
                     int var296 = A;
                     mem[22733] = var296;
                     int var297 = A;
                     int var298 = inc(var297);
                     A = var298;
-                    F(var298);
+                    F = var298;
                     int var299 = A & 7;
                     A = var299;
                     int var300 = A;
                     int var301 = flagZ(var300);
-                    F(var301);
+                    F = var301;
                     int var302 = A | 64;
                     A = var302;
                     int var303 = A;
                     int var304 = flagZ(var303);
-                    F(var304);
+                    F = var304;
                     int var305 = A;
                     mem[22738] = var305;
                     int var306 = A;
                     int var307 = inc(var306);
                     A = var307;
-                    F(var307);
+                    F = var307;
                     int var308 = A & 7;
                     A = var308;
                     int var309 = A;
                     int var310 = flagZ(var309);
-                    F(var310);
+                    F = var310;
                     int var311 = A | 64;
                     A = var311;
                     int var312 = A;
                     int var313 = flagZ(var312);
-                    F(var313);
+                    F = var313;
                     int var314 = A;
                     mem[22739] = var314;
                     int var315 = A;
                     int var316 = inc(var315);
                     A = var316;
-                    F(var316);
+                    F = var316;
                     int var317 = A & 7;
                     A = var317;
                     int var318 = A;
                     int var319 = flagZ(var318);
-                    F(var319);
+                    F = var319;
                     int var320 = A | 64;
                     A = var320;
                     int var321 = A;
                     int var322 = flagZ(var321);
-                    F(var322);
+                    F = var322;
                     int var323 = A;
                     mem[22740] = var323;
                     int var324 = A;
                     int var325 = inc(var324);
                     A = var325;
-                    F(var325);
+                    F = var325;
                     int var326 = A & 7;
                     A = var326;
                     int var327 = A;
                     int var328 = flagZ(var327);
-                    F(var328);
+                    F = var328;
                     int var329 = A | 64;
                     A = var329;
                     int var330 = A;
                     int var331 = flagZ(var330);
-                    F(var331);
+                    F = var331;
                     int var332 = A;
                     mem[22741] = var332;
-                    int var333 = C();
+                    int var333 = C;
                     int var334 = dec(var333);
-                    C(var334);
-                    F(var334);
-                    if (F() == 0) {
-                      int var335 = D();
+                    C = var334;
+                    F = var334;
+                    if (F == 0) {
+                      int var335 = D;
                       int var336 = dec(var335);
-                      D(var336);
-                      F(var336);
-                      if (F() == 0) {
+                      D = var336;
+                      F = var336;
+                      if (F == 0) {
                         continue label325;
                       }
                     }
@@ -1271,11 +1271,11 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 }
 
                 int var337 = HL;
-                int var338 = mem(var337, 35899);
+                int var338 = mem[var337];
                 int var339 = dec(var338);
                 int var340 = HL;
                 mem[var340] = var339;
-                F(var339);
+                F = var339;
                 HL = 34263;
                 DE = 34255;
                 BC = 7;
@@ -1292,71 +1292,71 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
               A = var343;
               int var344 = A;
               int var345 = flagZ(var344);
-              F(var345);
+              F = var345;
               int var346 = A;
               int var347 = cp(var346, 31);
-              F(var347);
-              if (F() != 0) {
+              F = var347;
+              if (F != 0) {
                 int var482 = HL;
-                int var483 = mem(var482, 35628) & 1;
-                F(var483);
-                if (F() == 0) {
+                int var483 = mem[var482] & 1;
+                F = var483;
+                if (F == 0) {
                   int var484 = HL;
-                  int var485 = mem(var484, 35632);
+                  int var485 = mem[var484];
                   A = var485;
                   int var486 = A ^ 3;
                   A = var486;
                   int var487 = A;
                   int var488 = flagZ(var487);
-                  F(var488);
+                  F = var488;
                   int var489 = A;
                   int var490 = HL;
                   mem[var490] = var489;
                 }
               } else {
                 int var348 = HL;
-                int var349 = mem(var348, 35638) & -2;
+                int var349 = mem[var348] & -2;
                 int var350 = HL;
                 mem[var350] = var349;
               }
 
               int var351 = HL;
-              int var352 = mem(var351, 35640) & 2;
-              F(var352);
-              if (F() == 0) {
+              int var352 = mem[var351] & 2;
+              F = var352;
+              if (F == 0) {
                 int var440 = A;
                 int var441 = A ^ var440;
                 A = var441;
                 int var442 = A;
                 int var443 = flagZ(var442);
-                F(var443);
+                F = var443;
                 int var444 = A;
                 mem[34272] = var444;
-                int var445 = mem(34273, 35648);
+                int var445 = mem[34273];
                 A = var445;
                 int var446 = A;
                 int var447 = inc(var446);
                 A = var447;
-                F(var447);
+                F = var447;
                 int var448 = A;
                 mem[34273] = var448;
                 int var449 = A & 126;
                 A = var449;
                 int var450 = A;
                 int var451 = flagZ(var450);
-                F(var451);
+                F = var451;
                 int var452 = A;
                 int var453 = rrc(var452);
                 A = var453;
                 int var454 = A;
-                E(var454);
-                D(0);
+                E = var454;
+                D = 0;
                 HL = 34399;
                 int var455 = DE_8();
                 int var456 = HL;
                 int var457 = add16(var456, var455);
                 HL = var457;
-                int var458 = mem(34252, 35665);
+                int var458 = mem[34252];
                 A = var458;
                 int var459 = A;
                 int var460 = rlc(var459);
@@ -1367,37 +1367,37 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 int var463 = A - 28;
                 int var464 = var463 & 255;
                 A = var464;
-                F(var463);
+                F = var463;
                 int var465 = -A & 255;
                 A = var465;
                 int var466 = HL;
-                int var467 = mem(var466, 35674);
+                int var467 = mem[var466];
                 int var468 = A;
                 int var469 = add(var468, var467);
                 A = var469;
-                F(var469);
+                F = var469;
                 int var470 = A;
-                D(var470);
-                int var471 = mem(32990, 35676);
+                D = var470;
+                int var471 = mem[32990];
                 A = var471;
-                int var472 = D();
-                E(var472);
+                int var472 = D;
+                E = var472;
                 BC = 3;
 
                 do {
                   do {
-                    int var473 = E();
+                    int var473 = E;
                     int var474 = dec(var473);
-                    E(var474);
-                    F(var474);
-                    if (F() == 0) {
-                      int var478 = D();
-                      E(var478);
+                    E = var474;
+                    F = var474;
+                    if (F == 0) {
+                      int var478 = D;
+                      E = var478;
                       int var479 = A ^ 24;
                       A = var479;
                       int var480 = A;
                       int var481 = flagZ(var480);
-                      F(var481);
+                      F = var481;
                     }
 
                     int var475 = B_16() - 1 & 255;
@@ -1407,172 +1407,172 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                   int var476 = C_16();
                   int var477 = dec(var476);
                   C_16(var477);
-                  F(var477);
-                } while (F() != 0);
+                  F = var477;
+                } while (F != 0);
               }
 
               BC = 61438;
-              int var353 = BC();
+              int var353 = BC;
               int var354 = in(var353, 35699);
               A = var354;
               int var355 = A & 2;
-              F(var355);
-              if (F() == 0) {
+              F = var355;
+              if (F == 0) {
                 int var416 = A & 16;
                 A = var416;
                 int var417 = A;
                 int var418 = flagZ(var417);
-                F(var418);
+                F = var418;
                 int var419 = A ^ 16;
                 A = var419;
                 int var420 = A;
                 int var421 = flagZ(var420);
-                F(var421);
+                F = var421;
                 int var422 = A;
                 int var423 = rlc(var422);
                 A = var423;
                 int var424 = A;
-                D(var424);
-                int var425 = mem(34275, 35712);
+                D = var424;
+                int var425 = mem[34275];
                 A = var425;
                 int var426 = A;
                 int var427 = cp(var426, 10);
-                F(var427);
-                if (F() == 0) {
+                F = var427;
+                if (F == 0) {
                   BC = 63486;
-                  int var428 = BC();
+                  int var428 = BC;
                   int var429 = in(var428, 35723);
                   A = var429;
                   int var430 = ~A;
                   A = var430;
                   int var431 = A;
-                  F(var431);
+                  F = var431;
                   int var432 = A & 31;
                   A = var432;
                   int var433 = A;
                   int var434 = flagZ(var433);
-                  F(var434);
-                  int var435 = D();
+                  F = var434;
+                  int var435 = D;
                   int var436 = A | var435;
                   A = var436;
                   int var437 = A;
                   int var438 = flagZ(var437);
-                  F(var438);
+                  F = var438;
                   int var439 = A;
                   mem[33824] = var439;
                   break;
                 }
               }
 
-              int var356 = mem(34275, 35735);
+              int var356 = mem[34275];
               A = var356;
               int var357 = A;
               int var358 = cp(var357, 10);
-              F(var358);
-              if (F() != 0) {
-                int var359 = mem(33824, 35743);
+              F = var358;
+              if (F != 0) {
+                int var359 = mem[33824];
                 A = var359;
                 int var360 = A;
                 int var361 = cp(var360, 28);
-                F(var361);
-                if (F() == 0) {
-                  int var362 = mem(34255, 35751);
+                F = var361;
+                if (F == 0) {
+                  int var362 = mem[34255];
                   A = var362;
                   int var363 = A;
                   int var364 = cp(var363, 208);
-                  F(var364);
-                  if (F() == 0) {
-                    int var365 = mem(34275, 35759);
+                  F = var364;
+                  if (F == 0) {
+                    int var365 = mem[34275];
                     A = var365;
                     int var366 = A;
                     int var367 = rlc(var366);
                     A = var367;
                     int var368 = A;
-                    E(var368);
-                    D(0);
+                    E = var368;
+                    D = 0;
                     IX = 34279;
                     int var369 = DE_8();
                     int var370 = IX;
                     int var371 = add16(var370, var369);
                     IX = var371;
                     BC = 64510;
-                    int var372 = BC();
+                    int var372 = BC;
                     int var373 = in(var372, 35775);
                     A = var373;
                     int var374 = A & 31;
                     A = var374;
                     int var375 = A;
                     int var376 = flagZ(var375);
-                    F(var376);
+                    F = var376;
                     int var377 = IX + 0;
-                    int var378 = mem(var377, 35779);
+                    int var378 = mem[var377];
                     int var379 = A;
                     int var380 = cp(var379, var378);
-                    F(var380);
-                    if (F() != 0) {
+                    F = var380;
+                    if (F != 0) {
                       int var405 = A;
                       int var406 = cp(var405, 31);
-                      F(var406);
-                      if (F() != 0) {
+                      F = var406;
+                      if (F != 0) {
                         int var407 = IX + -2;
-                        int var408 = mem(var407, 35789);
+                        int var408 = mem[var407];
                         int var409 = A;
                         int var410 = cp(var409, var408);
-                        F(var410);
-                        if (F() != 0) {
+                        F = var410;
+                        if (F != 0) {
                           int var411 = A;
                           int var412 = A ^ var411;
                           A = var412;
                           int var413 = A;
                           int var414 = flagZ(var413);
-                          F(var414);
+                          F = var414;
                           int var415 = A;
                           mem[34275] = var415;
                         }
                       }
                     } else {
-                      B(223);
-                      int var381 = BC();
+                      B = 223;
+                      int var381 = BC;
                       int var382 = in(var381, 35804);
                       A = var382;
                       int var383 = A & 31;
                       A = var383;
                       int var384 = A;
                       int var385 = flagZ(var384);
-                      F(var385);
+                      F = var385;
                       int var386 = IX + 1;
-                      int var387 = mem(var386, 35808);
+                      int var387 = mem[var386];
                       int var388 = A;
                       int var389 = cp(var388, var387);
-                      F(var389);
-                      if (F() != 0) {
+                      F = var389;
+                      if (F != 0) {
                         int var394 = A;
                         int var395 = cp(var394, 31);
-                        F(var395);
-                        if (F() != 0) {
+                        F = var395;
+                        if (F != 0) {
                           int var396 = IX + -1;
-                          int var397 = mem(var396, 35818);
+                          int var397 = mem[var396];
                           int var398 = A;
                           int var399 = cp(var398, var397);
-                          F(var399);
-                          if (F() != 0) {
+                          F = var399;
+                          if (F != 0) {
                             int var400 = A;
                             int var401 = A ^ var400;
                             A = var401;
                             int var402 = A;
                             int var403 = flagZ(var402);
-                            F(var403);
+                            F = var403;
                             int var404 = A;
                             mem[34275] = var404;
                           }
                         }
                       } else {
-                        int var390 = mem(34275, 35831);
+                        int var390 = mem[34275];
                         A = var390;
                         int var391 = A;
                         int var392 = inc(var391);
                         A = var392;
-                        F(var392);
+                        F = var392;
                         int var393 = A;
                         mem[34275] = var393;
                       }
@@ -1589,11 +1589,11 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
 
   public void $34499() {
     DE = 18432;
-    C(32);
+    C = 32;
     $38528();
     HL = 18498;
     DE = 39680;
-    C(0);
+    C = 0;
     $37974();
     HL = 18501;
     $37974();
@@ -1605,62 +1605,62 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
     DE = 22784;
     BC = 128;
     ldir();
-    int var1 = mem(23672, 34547);
+    int var1 = mem[23672];
     A = var1;
     int var2 = A;
     int var3 = add(var2, 37);
     A = var3;
-    F(var3);
+    F = var3;
     int var4 = A;
     mem[23672] = var4;
     int var5 = A;
     int var6 = cp(var5, 179);
-    F(var6);
-    if (F() > 0) {
+    F = var6;
+    if (F > 0) {
       int var44 = A - 180;
       int var45 = var44 & 255;
       A = var45;
-      F(var44);
+      F = var44;
     }
 
     int var7 = A;
-    L(var7);
-    H(158);
+    L = var7;
+    H = 158 & 0xff;
     int var8 = HL_8();
-    int var9 = mem(var8, 34564);
+    int var9 = mem[var8];
     A = var9;
-    int var10 = L();
+    int var10 = L;
     int var11 = A;
     int var12 = add(var11, var10);
     A = var12;
-    F(var12);
+    F = var12;
     int var13 = A;
     mem[34276] = var13;
-    int var14 = L();
-    C(var14);
-    E(47);
+    int var14 = L;
+    C = var14;
+    E = 47;
 
     while (true) {
-      int var15 = E();
+      int var15 = E;
       int var16 = inc(var15);
-      E(var16);
-      F(var16);
-      int var17 = C();
+      E = var16;
+      F = var16;
+      int var17 = C;
       A = var17;
       int var18 = A;
       int var19 = cp(var18, 18);
-      F(var19);
-      if (F() <= 0) {
-        int var20 = E();
+      F = var19;
+      if (F <= 0) {
+        int var20 = E;
         A = var20;
         DE = 18462;
         $38545();
-        int var21 = C();
+        int var21 = C;
         A = var21;
         int var22 = A;
         int var23 = add(var22, 65);
         A = var23;
-        F(var23);
+        F = var23;
         DE = 18461;
         $38545();
 
@@ -1672,18 +1672,18 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
               $34620();
             } catch (StackException var46) {
               if (var46.getNextPC() == 34687) {
-                int var24 = C();
+                int var24 = C;
                 int var25 = A | var24;
                 A = var25;
                 int var26 = A;
                 int var27 = flagZ(var26);
-                F(var27);
+                F = var27;
                 HL = 34276;
                 int var28 = HL;
-                int var29 = mem(var28, 34691);
+                int var29 = mem[var28];
                 int var30 = A;
                 int var31 = cp(var30, var29);
-                F(var31);
+                F = var31;
                 return;
               }
             }
@@ -1701,8 +1701,8 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
             A = var38;
             int var39 = A;
             int var40 = cp(var39, 92);
-            F(var40);
-          } while (F() != 0);
+            F = var40;
+          } while (F != 0);
 
         }
       }
@@ -1710,57 +1710,57 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       int var41 = A - 18;
       int var42 = var41 & 255;
       A = var42;
-      F(var41);
+      F = var41;
       int var43 = A;
-      C(var43);
+      C = var43;
     }
   }
 
   public void $34620() {
     do {
       BC = 63486;
-      C(C_16());
-      int var1 = BC();
+      C = C_16();
+      int var1 = BC;
       int var2 = in(var1, 34623);
       A = var2;
       int var3 = A & 15;
       A = var3;
       int var4 = A;
       int var5 = flagZ(var4);
-      F(var5);
+      F = var5;
       int var6 = A;
       int var7 = cp(var6, 15);
-      F(var7);
-    } while (F() != 0);
+      F = var7;
+    } while (F != 0);
 
     do {
-      B(191);
+      B = 191;
       int var8 = BC_8();
       int var9 = in(var8, 34633);
       A = var9;
       int var10 = A & 1;
-      F(var10);
-      if (F() == 0) {
-        int var43 = mem(22873, 34639);
+      F = var10;
+      if (F == 0) {
+        int var43 = mem[22873];
         A = var43;
         int var44 = A & 127;
         A = var44;
         int var45 = A;
         int var46 = flagZ(var45);
-        F(var46);
+        F = var46;
         int var47 = A;
         int var48 = cp(var47, 7);
-        F(var48);
-        if (F() != 0) {
+        F = var48;
+        if (F != 0) {
           int var49 = A - 8;
           int var50 = var49 & 255;
           A = var50;
-          F(var49);
+          F = var49;
           int var51 = A & 24;
           A = var51;
           int var52 = A;
           int var53 = flagZ(var52);
-          F(var53);
+          F = var53;
           int var54 = A;
           int var55 = rrc(var54);
           A = var55;
@@ -1771,62 +1771,62 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           int var59 = rrc(var58);
           A = var59;
           int var60 = A;
-          C(var60);
-          int var61 = mem(22867, 34656);
+          C = var60;
+          int var61 = mem[22867];
           A = var61;
           int var62 = A - 8;
           int var63 = var62 & 255;
           A = var63;
-          F(var62);
+          F = var62;
           int var64 = A & 24;
           A = var64;
           int var65 = A;
           int var66 = flagZ(var65);
-          F(var66);
+          F = var66;
           int var67 = A;
           int var68 = rlc(var67);
           A = var68;
-          int var69 = C();
+          int var69 = C;
           int var70 = A | var69;
           A = var70;
           int var71 = A;
           int var72 = flagZ(var71);
-          F(var72);
+          F = var72;
           int var73 = A;
-          C(var73);
-          int var74 = mem(22870, 34666);
+          C = var73;
+          int var74 = mem[22870];
           A = var74;
           int var75 = A - 8;
           int var76 = var75 & 255;
           A = var76;
-          F(var75);
+          F = var75;
           int var77 = A & 24;
           A = var77;
           int var78 = A;
           int var79 = flagZ(var78);
-          F(var79);
+          F = var79;
           int var80 = A;
           int var81 = rrc(var80);
           A = var81;
-          int var82 = C();
+          int var82 = C;
           int var83 = A | var82;
           A = var83;
           int var84 = A;
           int var85 = flagZ(var84);
-          F(var85);
+          F = var85;
           int var86 = A;
-          C(var86);
-          int var87 = mem(22864, 34676);
+          C = var86;
+          int var87 = mem[22864];
           A = var87;
           int var88 = A - 8;
           int var89 = var88 & 255;
           A = var89;
-          F(var88);
+          F = var88;
           int var90 = A & 24;
           A = var90;
           int var91 = A;
           int var92 = flagZ(var91);
-          F(var92);
+          F = var92;
           int var93 = A;
           int var94 = rlc(var93);
           A = var94;
@@ -1841,71 +1841,71 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       }
 
       int var11 = IX + 0;
-      int var12 = mem(var11, 34693) | 128;
+      int var12 = mem[var11] | 128;
       mem[var11] = var12;
       int var13 = IX + 1;
-      int var14 = mem(var13, 34697) | 128;
+      int var14 = mem[var13] | 128;
       mem[var13] = var14;
       int var15 = IX + 32;
-      int var16 = mem(var15, 34701) | 128;
+      int var16 = mem[var15] | 128;
       mem[var15] = var16;
       int var17 = IX + 33;
-      int var18 = mem(var17, 34705) | 128;
+      int var18 = mem[var17] | 128;
       mem[var17] = var18;
       BC = 63486;
-      C(C_16());
-      int var19 = BC();
+      C = C_16();
+      int var19 = BC;
       int var20 = in(var19, 34712);
       A = var20;
       int var21 = A & 15;
       A = var21;
       int var22 = A;
       int var23 = flagZ(var22);
-      F(var23);
-      E(8);
+      F = var23;
+      E = 8;
       int var24 = A;
       int var25 = cp(var24, 14);
-      F(var25);
-      if (F() == 0) {
+      F = var25;
+      if (F == 0) {
         break;
       }
 
-      E(16);
+      E = 16;
       int var37 = A;
       int var38 = cp(var37, 13);
-      F(var38);
-      if (F() == 0) {
+      F = var38;
+      if (F == 0) {
         break;
       }
 
-      E(24);
+      E = 24;
       int var39 = A;
       int var40 = cp(var39, 11);
-      F(var40);
-      if (F() == 0) {
+      F = var40;
+      if (F == 0) {
         break;
       }
 
-      E(32);
+      E = 32;
       int var41 = A;
       int var42 = cp(var41, 7);
-      F(var42);
-    } while (F() != 0);
+      F = var42;
+    } while (F != 0);
 
     int var26 = IX + 0;
-    int var27 = E();
+    int var27 = E;
     mem[var26] = var27;
     int var28 = IX + 1;
-    int var29 = E();
+    int var29 = E;
     mem[var28] = var29;
     int var30 = IX + 32;
-    int var31 = E();
+    int var31 = E;
     mem[var30] = var31;
     int var32 = IX + 33;
-    int var33 = E();
+    int var33 = E;
     mem[var32] = var33;
     BC = 24;
-    C(C_16());
+    C = C_16();
 
     do {
       do {
@@ -1916,13 +1916,13 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       int var35 = C_16();
       int var36 = dec(var35);
       C_16(var36);
-      F(var36);
-    } while (F() != 0);
+      F = var36;
+    } while (F != 0);
 
   }
 
   public void $35211() {
-    int var1 = mem(34252, 35211);
+    int var1 = mem[34252];
     A = var1;
     HL = 20640;
     int var2 = A;
@@ -1930,18 +1930,18 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
     A = var3;
     int var4 = A;
     int var5 = flagZ(var4);
-    F(var5);
-    if (F() != 0) {
+    F = var5;
+    if (F != 0) {
       int var6 = A;
-      B(var6);
+      B = var6;
 
       do {
-        C(0);
+        C = 0;
         int var7 = HL;
         push(var7);
         int var8 = BC_8();
         push(var8);
-        int var9 = mem(34273, 35224);
+        int var9 = mem[34273];
         A = var9;
         int var10 = A;
         int var11 = rlc(var10);
@@ -1956,16 +1956,16 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         A = var16;
         int var17 = A;
         int var18 = flagZ(var17);
-        F(var18);
+        F = var18;
         int var19 = A;
-        E(var19);
-        D(157);
+        E = var19;
+        D = 157;
         DE = DE_8();
         $37974();
         int var20 = pop();
         BC = var20;
-        B(B_16());
-        C(C_16());
+        B = B_16();
+        C = C_16();
         int var21 = pop();
         HL = var21;
         int var22 = HL;
@@ -1974,9 +1974,9 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         int var24 = HL;
         int var25 = inc16(var24);
         HL = var25;
-        int var26 = B() - 1 & 255;
-        B(var26);
-      } while (B() != 0);
+        int var26 = B - 1 & 255;
+        B = var26;
+      } while (B != 0);
 
     }
   }
@@ -1984,47 +1984,47 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
   public void $35563() {
     HL = 22528;
     int var1 = HL;
-    int var2 = mem(var1, 35566);
+    int var2 = mem[var1];
     A = var2;
     int var3 = A & 7;
     A = var3;
     int var4 = A;
     int var5 = flagZ(var4);
-    F(var5);
+    F = var5;
 
     do {
       int var6 = HL;
-      int var7 = mem(var6, 35571);
+      int var7 = mem[var6];
       A = var7;
       int var8 = A;
       int var9 = add(var8, 3);
       A = var9;
-      F(var9);
+      F = var9;
       int var10 = A & 7;
       A = var10;
       int var11 = A;
       int var12 = flagZ(var11);
-      F(var12);
+      F = var12;
       int var13 = A;
-      D(var13);
+      D = var13;
       int var14 = HL;
-      int var15 = mem(var14, 35577);
+      int var15 = mem[var14];
       A = var15;
       int var16 = A;
       int var17 = add(var16, 24);
       A = var17;
-      F(var17);
+      F = var17;
       int var18 = A & 184;
       A = var18;
       int var19 = A;
       int var20 = flagZ(var19);
-      F(var20);
-      int var21 = D();
+      F = var20;
+      int var21 = D;
       int var22 = A | var21;
       A = var22;
       int var23 = A;
       int var24 = flagZ(var23);
-      F(var24);
+      F = var24;
       int var25 = A;
       int var26 = HL;
       mem[var26] = var25;
@@ -2035,8 +2035,8 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       A = var29;
       int var30 = A;
       int var31 = cp(var30, 91);
-      F(var31);
-    } while (F() != 0);
+      F = var31;
+    } while (F != 0);
 
   }
 
@@ -2055,25 +2055,25 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
   }
 
   public void $36171() {
-    C(0);
+    C = 0;
 
     do {
-      int var1 = C();
-      E(var1);
+      int var1 = C;
+      E = var1;
       int var2 = IX + 0;
-      int var3 = mem(var2, 36174);
+      int var3 = mem[var2];
       A = var3;
       HL = 32928;
       BC = 54;
       cpir();
-      int var4 = E();
-      C(var4);
-      B(8);
+      int var4 = E;
+      C = var4;
+      B = 8;
       executeMutantCode(36188);
 
       do {
         int var5 = HL;
-        int var6 = mem(var5, 36190);
+        int var6 = mem[var5];
         A = var6;
         int var7 = A;
         int var8 = DE_8();
@@ -2081,22 +2081,22 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         int var9 = HL;
         int var10 = inc16(var9);
         HL = var10;
-        int var11 = D();
+        int var11 = D;
         int var12 = inc(var11);
-        D(var12);
-        F(var12);
-        int var13 = B() - 1 & 255;
-        B(var13);
-      } while (B() != 0);
+        D = var12;
+        F = var12;
+        int var13 = B - 1 & 255;
+        B = var13;
+      } while (B != 0);
 
       int var14 = IX;
       int var15 = inc16(var14);
       IX = var15;
-      int var16 = C();
+      int var16 = C;
       int var17 = inc(var16);
-      C(var17);
-      F(var17);
-    } while (F() != 0);
+      C = var17;
+      F = var17;
+    } while (F != 0);
 
   }
 
@@ -2106,7 +2106,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
 
     do {
       int var1 = HL;
-      int var2 = mem(var1, 36210);
+      int var2 = mem[var1];
       A = var2;
       int var3 = A;
       int var4 = rlc(var3);
@@ -2116,7 +2116,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       A = var6;
       $36288();
       int var7 = HL;
-      int var8 = mem(var7, 36216);
+      int var8 = mem[var7];
       A = var8;
       int var9 = A;
       int var10 = rrc(var9);
@@ -2132,7 +2132,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       A = var16;
       $36288();
       int var17 = HL;
-      int var18 = mem(var17, 36224);
+      int var18 = mem[var17];
       A = var18;
       int var19 = A;
       int var20 = rrc(var19);
@@ -2142,7 +2142,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       A = var22;
       $36288();
       int var23 = HL;
-      int var24 = mem(var23, 36230);
+      int var24 = mem[var23];
       A = var24;
       $36288();
       int var25 = HL;
@@ -2154,23 +2154,23 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       A = var28;
       int var29 = A;
       int var30 = flagZ(var29);
-      F(var30);
-    } while (F() == 0);
+      F = var30;
+    } while (F == 0);
 
-    int var31 = mem(32985, 36240);
+    int var31 = mem[32985];
     A = var31;
     int var32 = A;
     int var33 = A | var32;
     A = var33;
     int var34 = A;
     int var35 = flagZ(var34);
-    F(var35);
-    if (F() != 0) {
-      int var60 = mem16(32983, 36246);
+    F = var35;
+    if (F != 0) {
+      int var60 = (mem[32983 + 1] << 8) + mem[32983];
       HL = var60;
       int var61 = A;
-      B(var61);
-      int var62 = mem(32973, 36250);
+      B = var61;
+      int var62 = mem[32973];
       A = var62;
 
       do {
@@ -2180,44 +2180,44 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         int var65 = HL;
         int var66 = inc16(var65);
         HL = var66;
-        int var67 = B() - 1 & 255;
-        B(var67);
-      } while (B() != 0);
+        int var67 = B - 1 & 255;
+        B = var67;
+      } while (B != 0);
     }
 
-    int var36 = mem(32989, 36257);
+    int var36 = mem[32989];
     A = var36;
     int var37 = A;
     int var38 = A | var37;
     A = var38;
     int var39 = A;
     int var40 = flagZ(var39);
-    F(var40);
-    if (F() != 0) {
-      int var41 = mem16(32987, 36262);
+    F = var40;
+    if (F != 0) {
+      int var41 = (mem[32987 + 1] << 8) + mem[32987];
       HL = var41;
-      int var42 = mem(32986, 36265);
+      int var42 = mem[32986];
       A = var42;
       int var43 = A & 1;
       A = var43;
       int var44 = A;
       int var45 = flagZ(var44);
-      F(var45);
+      F = var45;
       int var46 = A;
       int var47 = rlc(var46);
       A = var47;
       int var48 = A;
       int var49 = add(var48, 223);
       A = var49;
-      F(var49);
+      F = var49;
       int var50 = A;
-      E(var50);
-      D(255);
-      int var51 = mem(32989, 36276);
+      E = var50;
+      D = 255;
+      int var51 = mem[32989];
       A = var51;
       int var52 = A;
-      B(var52);
-      int var53 = mem(32964, 36280);
+      B = var52;
+      int var53 = mem[32964];
       A = var53;
 
       do {
@@ -2228,9 +2228,9 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         int var57 = HL;
         int var58 = add16(var57, var56);
         HL = var58;
-        int var59 = B() - 1 & 255;
-        B(var59);
-      } while (B() != 0);
+        int var59 = B - 1 & 255;
+        B = var59;
+      } while (B != 0);
 
     }
   }
@@ -2240,9 +2240,9 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
     A = var1;
     int var2 = A;
     int var3 = flagZ(var2);
-    F(var3);
+    F = var3;
     int var4 = A;
-    C(var4);
+    C = var4;
     int var5 = A;
     int var6 = rlc(var5);
     A = var6;
@@ -2252,20 +2252,20 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
     int var9 = A;
     int var10 = rlc(var9);
     A = var10;
-    int var11 = C();
+    int var11 = C;
     int var12 = A;
     int var13 = add(var12, var11);
     A = var13;
-    F(var13);
+    F = var13;
     int var14 = A;
     int var15 = add(var14, 160);
     A = var15;
-    F(var15);
+    F = var15;
     int var16 = A;
-    E(var16);
-    D(128);
+    E = var16;
+    D = 128;
     int var17 = DE_8();
-    int var18 = mem(var17, 36300);
+    int var18 = mem[var17];
     A = var18;
     int var19 = IX + 0;
     int var20 = A;
@@ -2280,61 +2280,61 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
     {
       label226:
       {
-        int var1 = mem(34262, 36307);
+        int var1 = mem[34262];
         A = var1;
         int var2 = A;
         int var3 = dec(var2);
         A = var3;
-        F(var3);
+        F = var3;
         int var4 = A & 128;
-        F(var4);
-        if (F() != 0) {
+        F = var4;
+        if (F != 0) {
           label223:
           {
-            int var430 = mem(34257, 36316);
+            int var430 = mem[34257];
             A = var430;
             int var431 = A;
             int var432 = cp(var431, 1);
-            F(var432);
-            if (F() == 0) {
-              int var520 = mem(34261, 36323);
+            F = var432;
+            if (F == 0) {
+              int var520 = mem[34261];
               A = var520;
               int var521 = A & 254;
               A = var521;
               int var522 = A;
               int var523 = flagZ(var522);
-              F(var523);
+              F = var523;
               int var524 = A - 8;
               int var525 = var524 & 255;
               A = var525;
-              F(var524);
+              F = var524;
               HL = 34255;
               int var526 = HL;
-              int var527 = mem(var526, 36333);
+              int var527 = mem[var526];
               int var528 = A;
               int var529 = add(var528, var527);
               A = var529;
-              F(var529);
+              F = var529;
               int var530 = A;
               int var531 = HL;
               mem[var531] = var530;
               int var532 = A;
               int var533 = cp(var532, 240);
-              F(var533);
-              if (F() >= 0) {
+              F = var533;
+              if (F >= 0) {
                 $38064();
                 return;
               }
 
               $36508();
-              int var534 = mem(32946, 36343);
+              int var534 = mem[32946];
               A = var534;
               int var535 = HL_8();
-              int var536 = mem(var535, 36346);
+              int var536 = mem[var535];
               int var537 = A;
               int var538 = cp(var537, var536);
-              F(var538);
-              if (F() == 0) {
+              F = var538;
+              if (F == 0) {
                 break label213;
               }
 
@@ -2342,27 +2342,27 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
               int var551 = inc16(var550);
               HL = var551;
               int var552 = HL;
-              int var553 = mem(var552, 36351);
+              int var553 = mem[var552];
               int var554 = A;
               int var555 = cp(var554, var553);
-              F(var555);
-              if (F() == 0) {
+              F = var555;
+              if (F == 0) {
                 break label213;
               }
 
-              int var556 = mem(34261, 36355);
+              int var556 = mem[34261];
               A = var556;
               int var557 = A;
               int var558 = inc(var557);
               A = var558;
-              F(var558);
+              F = var558;
               int var559 = A;
               mem[34261] = var559;
               int var560 = A - 8;
               int var561 = var560 & 255;
               A = var561;
-              F(var560);
-              if (F() < 0) {
+              F = var560;
+              if (F < 0) {
                 int var587 = -A & 255;
                 A = var587;
               }
@@ -2370,7 +2370,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
               int var562 = A;
               int var563 = inc(var562);
               A = var563;
-              F(var563);
+              F = var563;
               int var564 = A;
               int var565 = rlc(var564);
               A = var565;
@@ -2381,9 +2381,9 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
               int var569 = rlc(var568);
               A = var569;
               int var570 = A;
-              D(var570);
-              C(32);
-              int var571 = mem(32990, 36376);
+              D = var570;
+              C = 32;
+              int var571 = mem[32990];
               A = var571;
 
               while (true) {
@@ -2391,26 +2391,26 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 A = var572;
                 int var573 = A;
                 int var574 = flagZ(var573);
-                F(var574);
-                int var575 = D();
-                B(var575);
+                F = var574;
+                int var575 = D;
+                B = var575;
 
                 do {
-                  int var576 = B() - 1 & 255;
-                  B(var576);
-                } while (B() != 0);
+                  int var576 = B - 1 & 255;
+                  B = var576;
+                } while (B != 0);
 
-                int var577 = C();
+                int var577 = C;
                 int var578 = dec(var577);
-                C(var578);
-                F(var578);
-                if (F() == 0) {
-                  int var579 = mem(34261, 36389);
+                C = var578;
+                F = var578;
+                if (F == 0) {
+                  int var579 = mem[34261];
                   A = var579;
                   int var580 = A;
                   int var581 = cp(var580, 18);
-                  F(var581);
-                  if (F() == 0) {
+                  F = var581;
+                  if (F == 0) {
                     A = 6;
                     int var582 = A;
                     mem[34257] = var582;
@@ -2419,12 +2419,12 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
 
                   int var583 = A;
                   int var584 = cp(var583, 16);
-                  F(var584);
-                  if (F() != 0) {
+                  F = var584;
+                  if (F != 0) {
                     int var585 = A;
                     int var586 = cp(var585, 13);
-                    F(var586);
-                    if (F() != 0) {
+                    F = var586;
+                    if (F != 0) {
                       break label226;
                     }
                   }
@@ -2433,15 +2433,15 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
               }
             }
 
-            int var433 = mem(34255, 36406);
+            int var433 = mem[34255];
             A = var433;
             int var434 = A & 14;
             A = var434;
             int var435 = A;
             int var436 = flagZ(var435);
-            F(var436);
-            if (F() == 0) {
-              int var475 = mem16(34259, 36413);
+            F = var436;
+            if (F == 0) {
+              int var475 = (mem[34259 + 1] << 8) + mem[34259];
               HL = var475;
               DE = 64;
               int var476 = DE();
@@ -2449,9 +2449,9 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
               int var478 = add16(var477, var476);
               HL = var478;
               int var479 = H_16() & 2;
-              F(var479);
-              if (F() != 0) {
-                int var480 = mem(33004, 38098);
+              F = var479;
+              if (F != 0) {
+                int var480 = mem[33004];
                 A = var480;
                 int var481 = A;
                 mem[33824] = var481;
@@ -2460,27 +2460,27 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 A = var483;
                 int var484 = A;
                 int var485 = flagZ(var484);
-                F(var485);
+                F = var485;
                 int var486 = A;
                 mem[34255] = var486;
-                int var487 = mem(34257, 38108);
+                int var487 = mem[34257];
                 A = var487;
                 int var488 = A;
                 int var489 = cp(var488, 11);
-                F(var489);
-                if (F() < 0) {
+                F = var489;
+                if (F < 0) {
                   A = 2;
                   int var496 = A;
                   mem[34257] = var496;
                 }
 
-                int var490 = mem(34259, 38120);
+                int var490 = mem[34259];
                 A = var490;
                 int var491 = A & 31;
                 A = var491;
                 int var492 = A;
                 int var493 = flagZ(var492);
-                F(var493);
+                F = var493;
                 int var494 = A;
                 mem[34259] = var494;
                 A = 92;
@@ -2489,71 +2489,71 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 throw new StackException(38134);
               }
 
-              int var497 = mem(32955, 36425);
+              int var497 = mem[32955];
               A = var497;
               int var498 = HL;
-              int var499 = mem(var498, 36428);
+              int var499 = mem[var498];
               int var500 = A;
               int var501 = cp(var500, var499);
-              F(var501);
-              if (F() != 0) {
+              F = var501;
+              if (F != 0) {
                 int var502 = HL;
                 int var503 = inc16(var502);
                 HL = var503;
-                int var504 = mem(32955, 36432);
+                int var504 = mem[32955];
                 A = var504;
                 int var505 = HL;
-                int var506 = mem(var505, 36435);
+                int var506 = mem[var505];
                 int var507 = A;
                 int var508 = cp(var507, var506);
-                F(var508);
-                if (F() != 0) {
-                  int var509 = mem(32928, 36438);
+                F = var508;
+                if (F != 0) {
+                  int var509 = mem[32928];
                   A = var509;
                   int var510 = HL;
-                  int var511 = mem(var510, 36441);
+                  int var511 = mem[var510];
                   int var512 = A;
                   int var513 = cp(var512, var511);
-                  F(var513);
+                  F = var513;
                   int var514 = HL;
                   int var515 = dec16(var514);
                   HL = var515;
-                  if (F() != 0) {
+                  if (F != 0) {
                     break label223;
                   }
 
                   int var516 = HL;
-                  int var517 = mem(var516, 36446);
+                  int var517 = mem[var516];
                   int var518 = A;
                   int var519 = cp(var518, var517);
-                  F(var519);
-                  if (F() != 0) {
+                  F = var519;
+                  if (F != 0) {
                     break label223;
                   }
                 }
               }
             }
 
-            int var437 = mem(34257, 36450);
+            int var437 = mem[34257];
             A = var437;
             int var438 = A;
             int var439 = cp(var438, 1);
-            F(var439);
-            if (F() != 0) {
+            F = var439;
+            if (F != 0) {
               HL = 34256;
               int var440 = HL;
-              int var441 = mem(var440, 36461) & -3;
+              int var441 = mem[var440] & -3;
               int var442 = HL;
               mem[var442] = var441;
-              int var443 = mem(34257, 36463);
+              int var443 = mem[34257];
               A = var443;
               int var444 = A;
               int var445 = A | var444;
               A = var445;
               int var446 = A;
               int var447 = flagZ(var446);
-              F(var447);
-              if (F() == 0) {
+              F = var447;
+              if (F == 0) {
                 A = 2;
                 int var448 = A;
                 mem[34257] = var448;
@@ -2563,11 +2563,11 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
               int var449 = A;
               int var450 = inc(var449);
               A = var450;
-              F(var450);
+              F = var450;
               int var451 = A;
               int var452 = cp(var451, 16);
-              F(var452);
-              if (F() == 0) {
+              F = var452;
+              if (F == 0) {
                 A = 12;
               }
 
@@ -2586,9 +2586,9 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
               int var461 = rlc(var460);
               A = var461;
               int var462 = A;
-              D(var462);
-              C(32);
-              int var463 = mem(32990, 36487);
+              D = var462;
+              C = 32;
+              int var463 = mem[32990];
               A = var463;
 
               do {
@@ -2596,27 +2596,27 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 A = var464;
                 int var465 = A;
                 int var466 = flagZ(var465);
-                F(var466);
-                int var467 = D();
-                B(var467);
+                F = var466;
+                int var467 = D;
+                B = var467;
 
                 do {
-                  int var468 = B() - 1 & 255;
-                  B(var468);
-                } while (B() != 0);
+                  int var468 = B - 1 & 255;
+                  B = var468;
+                } while (B != 0);
 
-                int var469 = C();
+                int var469 = C;
                 int var470 = dec(var469);
-                C(var470);
-                F(var470);
-              } while (F() != 0);
+                C = var470;
+                F = var470;
+              } while (F != 0);
 
-              int var471 = mem(34255, 36500);
+              int var471 = mem[34255];
               A = var471;
               int var472 = A;
               int var473 = add(var472, 8);
               A = var473;
-              F(var473);
+              F = var473;
               int var474 = A;
               mem[34255] = var474;
               $36508();
@@ -2626,24 +2626,24 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           }
         }
 
-        E(255);
-        int var5 = mem(34262, 36566);
+        E = 255;
+        int var5 = mem[34262];
         A = var5;
         int var6 = A;
         int var7 = dec(var6);
         A = var7;
-        F(var7);
+        F = var7;
         int var8 = A & 128;
-        F(var8);
-        if (F() != 0) {
+        F = var8;
+        if (F != 0) {
           label225:
           {
-            int var407 = mem(34257, 36574);
+            int var407 = mem[34257];
             A = var407;
             int var408 = A;
             int var409 = cp(var408, 12);
-            F(var409);
-            if (F() >= 0) {
+            F = var409;
+            if (F >= 0) {
               throw new StackException(37048);
             }
 
@@ -2652,90 +2652,90 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
             A = var411;
             int var412 = A;
             int var413 = flagZ(var412);
-            F(var413);
+            F = var413;
             int var414 = A;
             mem[34257] = var414;
-            int var415 = mem(32973, 36586);
+            int var415 = mem[32973];
             A = var415;
             int var416 = HL;
-            int var417 = mem(var416, 36589);
+            int var417 = mem[var416];
             int var418 = A;
             int var419 = cp(var418, var417);
-            F(var419);
-            if (F() != 0) {
+            F = var419;
+            if (F != 0) {
               int var424 = HL;
               int var425 = inc16(var424);
               HL = var425;
               int var426 = HL;
-              int var427 = mem(var426, 36593);
+              int var427 = mem[var426];
               int var428 = A;
               int var429 = cp(var428, var427);
-              F(var429);
-              if (F() != 0) {
+              F = var429;
+              if (F != 0) {
                 break label225;
               }
             }
 
-            int var420 = mem(32982, 36596);
+            int var420 = mem[32982];
             A = var420;
             int var421 = A - 3;
             int var422 = var421 & 255;
             A = var422;
-            F(var421);
+            F = var421;
             int var423 = A;
-            E(var423);
+            E = var423;
           }
         }
 
         BC = 57342;
-        int var9 = BC();
+        int var9 = BC;
         int var10 = in(var9, 36605);
         A = var10;
         int var11 = A & 31;
         A = var11;
         int var12 = A;
         int var13 = flagZ(var12);
-        F(var13);
+        F = var13;
         int var14 = A | 32;
         A = var14;
         int var15 = A;
         int var16 = flagZ(var15);
-        F(var16);
-        int var17 = E();
+        F = var16;
+        int var17 = E;
         int var18 = A & var17;
         A = var18;
         int var19 = A;
         int var20 = flagZ(var19);
-        F(var20);
+        F = var20;
         int var21 = A;
-        E(var21);
-        int var22 = mem(34271, 36613);
+        E = var21;
+        int var22 = mem[34271];
         A = var22;
         int var23 = A & 2;
         A = var23;
         int var24 = A;
         int var25 = flagZ(var24);
-        F(var25);
+        F = var25;
         int var26 = A;
         int var27 = rrc(var26);
         A = var27;
-        int var28 = E();
+        int var28 = E;
         int var29 = A ^ var28;
         A = var29;
         int var30 = A;
         int var31 = flagZ(var30);
-        F(var31);
+        F = var31;
         int var32 = A;
-        E(var32);
+        E = var32;
         BC = 64510;
-        int var33 = BC();
+        int var33 = BC;
         int var34 = in(var33, 36624);
         A = var34;
         int var35 = A & 31;
         A = var35;
         int var36 = A;
         int var37 = flagZ(var36);
-        F(var37);
+        F = var37;
         int var38 = A;
         int var39 = rlc(var38);
         A = var39;
@@ -2743,16 +2743,16 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         A = var40;
         int var41 = A;
         int var42 = flagZ(var41);
-        F(var42);
-        int var43 = E();
+        F = var42;
+        int var43 = E;
         int var44 = A & var43;
         A = var44;
         int var45 = A;
         int var46 = flagZ(var45);
-        F(var46);
+        F = var46;
         int var47 = A;
-        E(var47);
-        B(231);
+        E = var47;
+        B = 231;
         int var48 = BC_8_16();
         int var49 = in(var48, 36636);
         A = var49;
@@ -2763,16 +2763,16 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         A = var52;
         int var53 = A;
         int var54 = flagZ(var53);
-        F(var54);
-        int var55 = E();
+        F = var54;
+        int var55 = E;
         int var56 = A & var55;
         A = var56;
         int var57 = A;
         int var58 = flagZ(var57);
-        F(var58);
+        F = var58;
         int var59 = A;
-        E(var59);
-        B(239);
+        E = var59;
+        B = 239;
         int var60 = BC_8_16();
         int var61 = in(var60, 36645);
         A = var61;
@@ -2780,15 +2780,15 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         A = var62;
         int var63 = A;
         int var64 = flagZ(var63);
-        F(var64);
-        int var65 = E();
+        F = var64;
+        int var65 = E;
         int var66 = A & var65;
         A = var66;
         int var67 = A;
         int var68 = flagZ(var67);
-        F(var68);
+        F = var68;
         int var69 = A;
-        E(var69);
+        E = var69;
         int var70 = BC_8();
         int var71 = in(var70, 36651);
         A = var71;
@@ -2799,168 +2799,168 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         A = var74;
         int var75 = A;
         int var76 = flagZ(var75);
-        F(var76);
-        int var77 = E();
+        F = var76;
+        int var77 = E;
         int var78 = A & var77;
         A = var78;
         int var79 = A;
         int var80 = flagZ(var79);
-        F(var80);
+        F = var80;
         int var81 = A;
-        E(var81);
-        int var82 = mem(34254, 36658);
+        E = var81;
+        int var82 = mem[34254];
         A = var82;
         int var83 = A;
         int var84 = A | var83;
         A = var84;
         int var85 = A;
         int var86 = flagZ(var85);
-        F(var86);
-        if (F() != 0) {
+        F = var86;
+        if (F != 0) {
           BC = 31;
-          int var395 = BC();
+          int var395 = BC;
           int var396 = in(var395, 36667);
           A = var396;
           int var397 = A & 3;
           A = var397;
           int var398 = A;
           int var399 = flagZ(var398);
-          F(var399);
+          F = var399;
           int var400 = ~A;
           A = var400;
           int var401 = A;
-          F(var401);
-          int var402 = E();
+          F = var401;
+          int var402 = E;
           int var403 = A & var402;
           A = var403;
           int var404 = A;
           int var405 = flagZ(var404);
-          F(var405);
+          F = var405;
           int var406 = A;
-          E(var406);
+          E = var406;
         }
 
-        C(0);
-        int var87 = E();
+        C = 0;
+        int var87 = E;
         A = var87;
         int var88 = A & 42;
         A = var88;
         int var89 = A;
         int var90 = flagZ(var89);
-        F(var90);
+        F = var90;
         int var91 = A;
         int var92 = cp(var91, 42);
-        F(var92);
-        if (F() != 0) {
-          C(4);
+        F = var92;
+        if (F != 0) {
+          C = 4;
           int var390 = A;
           int var391 = A ^ var390;
           A = var391;
           int var392 = A;
           int var393 = flagZ(var392);
-          F(var393);
+          F = var393;
           int var394 = A;
           mem[34272] = var394;
         }
 
-        int var93 = E();
+        int var93 = E;
         A = var93;
         int var94 = A & 21;
         A = var94;
         int var95 = A;
         int var96 = flagZ(var95);
-        F(var96);
+        F = var96;
         int var97 = A;
         int var98 = cp(var97, 21);
-        F(var98);
-        if (F() != 0) {
-          int var384 = C() | 8;
-          C(var384);
+        F = var98;
+        if (F != 0) {
+          int var384 = C | 8;
+          C = var384;
           int var385 = A;
           int var386 = A ^ var385;
           A = var386;
           int var387 = A;
           int var388 = flagZ(var387);
-          F(var388);
+          F = var388;
           int var389 = A;
           mem[34272] = var389;
         }
 
-        int var99 = mem(34256, 36702);
+        int var99 = mem[34256];
         A = var99;
-        int var100 = C();
+        int var100 = C;
         int var101 = A;
         int var102 = add(var101, var100);
         A = var102;
-        F(var102);
+        F = var102;
         int var103 = A;
-        C(var103);
-        B(0);
+        C = var103;
+        B = 0;
         HL = 33825;
         int var104 = BC_8();
         int var105 = HL;
         int var106 = add16(var105, var104);
         HL = var106;
         int var107 = HL;
-        int var108 = mem(var107, 36713);
+        int var108 = mem[var107];
         A = var108;
         int var109 = A;
         mem[34256] = var109;
         BC = 32510;
-        int var110 = BC();
+        int var110 = BC;
         int var111 = in(var110, 36720);
         A = var111;
         int var112 = A & 31;
         A = var112;
         int var113 = A;
         int var114 = flagZ(var113);
-        F(var114);
+        F = var114;
         int var115 = A;
         int var116 = cp(var115, 31);
-        F(var116);
-        if (F() == 0) {
-          B(239);
+        F = var116;
+        if (F == 0) {
+          B = 239;
           int var373 = BC_8_16();
           int var374 = in(var373, 36730);
           A = var374;
           int var375 = A & 1;
-          F(var375);
-          if (F() != 0) {
-            int var376 = mem(34254, 36736);
+          F = var375;
+          if (F != 0) {
+            int var376 = mem[34254];
             A = var376;
             int var377 = A;
             int var378 = A | var377;
             A = var378;
             int var379 = A;
             int var380 = flagZ(var379);
-            F(var380);
-            if (F() == 0) {
+            F = var380;
+            if (F == 0) {
               break label226;
             }
 
             BC = 31;
-            int var381 = BC();
+            int var381 = BC;
             int var382 = in(var381, 36745);
             A = var382;
             int var383 = A & 16;
-            F(var383);
-            if (F() == 0) {
+            F = var383;
+            if (F == 0) {
               break label226;
             }
           }
         }
 
-        int var117 = mem(34271, 36751);
+        int var117 = mem[34271];
         A = var117;
         int var118 = A & 2;
-        F(var118);
-        if (F() == 0) {
+        F = var118;
+        if (F == 0) {
           int var351 = A;
           int var352 = A ^ var351;
           A = var352;
           int var353 = A;
           int var354 = flagZ(var353);
-          F(var354);
+          F = var354;
           int var355 = A;
           mem[34261] = var355;
           int var356 = A;
@@ -2968,33 +2968,33 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           int var357 = A;
           int var358 = inc(var357);
           A = var358;
-          F(var358);
+          F = var358;
           int var359 = A;
           mem[34257] = var359;
-          int var360 = mem(34262, 36769);
+          int var360 = mem[34262];
           A = var360;
           int var361 = A;
           int var362 = dec(var361);
           A = var362;
-          F(var362);
+          F = var362;
           int var363 = A & 128;
-          F(var363);
-          if (F() == 0) {
+          F = var363;
+          if (F == 0) {
             A = 240;
             int var364 = A;
             mem[34262] = var364;
-            int var365 = mem(34255, 36782);
+            int var365 = mem[34255];
             A = var365;
             int var366 = A & 240;
             A = var366;
             int var367 = A;
             int var368 = flagZ(var367);
-            F(var368);
+            F = var368;
             int var369 = A;
             mem[34255] = var369;
             HL = 34256;
             int var370 = HL;
-            int var371 = mem(var370, 36793) | 2;
+            int var371 = mem[var370] | 2;
             int var372 = HL;
             mem[var372] = var371;
             return;
@@ -3002,112 +3002,112 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         }
       }
 
-      int var119 = mem(34256, 36796);
+      int var119 = mem[34256];
       A = var119;
       int var120 = A & 2;
       A = var120;
       int var121 = A;
       int var122 = flagZ(var121);
-      F(var122);
-      if (F() == 0) {
+      F = var122;
+      if (F == 0) {
         return;
       }
 
-      int var123 = mem(34262, 36802);
+      int var123 = mem[34262];
       A = var123;
       int var124 = A;
       int var125 = dec(var124);
       A = var125;
-      F(var125);
+      F = var125;
       int var126 = A & 128;
-      F(var126);
-      if (F() == 0) {
+      F = var126;
+      if (F == 0) {
         return;
       }
 
-      int var127 = mem(34256, 36809);
+      int var127 = mem[34256];
       A = var127;
       int var128 = A & 1;
       A = var128;
       int var129 = A;
       int var130 = flagZ(var129);
-      F(var130);
-      if (F() != 0) {
-        int var246 = mem(34258, 36817);
+      F = var130;
+      if (F != 0) {
+        int var246 = mem[34258];
         A = var246;
         int var247 = A;
         int var248 = A | var247;
         A = var248;
         int var249 = A;
         int var250 = flagZ(var249);
-        F(var250);
-        if (F() != 0) {
+        F = var250;
+        if (F != 0) {
           int var348 = A;
           int var349 = dec(var348);
           A = var349;
-          F(var349);
+          F = var349;
           int var350 = A;
           mem[34258] = var350;
           return;
         }
 
-        int var251 = mem(34257, 36828);
+        int var251 = mem[34257];
         A = var251;
         BC = 0;
         int var252 = A;
         int var253 = cp(var252, 0);
-        F(var253);
-        if (F() == 0) {
-          int var324 = mem16(34259, 36838);
+        F = var253;
+        if (F == 0) {
+          int var324 = (mem[34259 + 1] << 8) + mem[34259];
           HL = var324;
           BC = 0;
-          int var325 = mem(32986, 36844);
+          int var325 = mem[32986];
           A = var325;
           int var326 = A;
           int var327 = dec(var326);
           A = var327;
-          F(var327);
+          F = var327;
           int var328 = A | 161;
           A = var328;
           int var329 = A;
           int var330 = flagZ(var329);
-          F(var330);
+          F = var330;
           int var331 = A ^ 224;
           A = var331;
           int var332 = A;
           int var333 = flagZ(var332);
-          F(var333);
+          F = var333;
           int var334 = A;
-          E(var334);
-          D(0);
+          E = var334;
+          D = 0;
           int var335 = DE_8();
           int var336 = HL;
           int var337 = add16(var336, var335);
           HL = var337;
-          int var338 = mem(32964, 36856);
+          int var338 = mem[32964];
           A = var338;
           int var339 = HL;
-          int var340 = mem(var339, 36859);
+          int var340 = mem[var339];
           int var341 = A;
           int var342 = cp(var341, var340);
-          F(var342);
-          if (F() == 0) {
+          F = var342;
+          if (F == 0) {
             BC = 32;
-            int var343 = mem(32986, 36865);
+            int var343 = mem[32986];
             A = var343;
             int var344 = A;
             int var345 = A | var344;
             A = var345;
             int var346 = A;
             int var347 = flagZ(var346);
-            F(var347);
-            if (F() == 0) {
+            F = var347;
+            if (F == 0) {
               BC = 65504;
             }
           }
         }
 
-        int var254 = mem16(34259, 36874);
+        int var254 = (mem[34259 + 1] << 8) + mem[34259];
         HL = var254;
         int var255 = L_16();
         A = var255;
@@ -3115,9 +3115,9 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         A = var256;
         int var257 = A;
         int var258 = flagZ(var257);
-        F(var258);
-        if (F() != 0) {
-          int var269 = BC();
+        F = var258;
+        if (F != 0) {
+          int var269 = BC;
           int var270 = HL;
           int var271 = add16(var270, var269);
           HL = var271;
@@ -3129,47 +3129,47 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           int var275 = HL;
           int var276 = add16(var275, var274);
           HL = var276;
-          int var277 = mem(32946, 36889);
+          int var277 = mem[32946];
           A = var277;
           int var278 = HL;
-          int var279 = mem(var278, 36892);
+          int var279 = mem[var278];
           int var280 = A;
           int var281 = cp(var280, var279);
-          F(var281);
-          if (F() == 0) {
+          F = var281;
+          if (F == 0) {
             return;
           }
 
-          int var282 = mem(34255, 36894);
+          int var282 = mem[34255];
           A = var282;
           int var283 = C_16();
           int var284 = sra(var283);
-          C(var284);
-          int var285 = C();
+          C = var284;
+          int var285 = C;
           int var286 = A;
           int var287 = add(var286, var285);
           A = var287;
-          F(var287);
+          F = var287;
           int var288 = A;
-          B(var288);
+          B = var288;
           int var289 = A & 15;
           A = var289;
           int var290 = A;
           int var291 = flagZ(var290);
-          F(var291);
-          if (F() != 0) {
-            int var306 = mem(32946, 36905);
+          F = var291;
+          if (F != 0) {
+            int var306 = mem[32946];
             A = var306;
             int var307 = DE();
             int var308 = HL;
             int var309 = add16(var308, var307);
             HL = var309;
             int var310 = HL;
-            int var311 = mem(var310, 36909);
+            int var311 = mem[var310];
             int var312 = A;
             int var313 = cp(var312, var311);
-            F(var313);
-            if (F() == 0) {
+            F = var313;
+            if (F == 0) {
               return;
             }
 
@@ -3178,15 +3178,15 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
             A = var315;
             int var316 = A;
             int var317 = flagZ(var316);
-            F(var317);
+            F = var317;
             int var318 = DE();
             int var319 = HL - var318;
-            int var320 = F();
+            int var320 = F;
             int var321 = carry(var320);
             int var322 = var319 - var321 & 65535;
             HL = var322;
             int var323 = HL;
-            F(var323);
+            F = var323;
           }
 
           int var292 = A;
@@ -3194,19 +3194,19 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           A = var293;
           int var294 = A;
           int var295 = flagZ(var294);
-          F(var295);
+          F = var295;
           int var296 = DE();
           int var297 = HL - var296;
-          int var298 = F();
+          int var298 = F;
           int var299 = carry(var298);
           int var300 = var297 - var299 & 65535;
           HL = var300;
           int var301 = HL;
-          F(var301);
+          F = var301;
           int var302 = HL;
           mem[34259] = var302 & 0xFF;
           mem[34259 + 1] = var302 >>> 8;
-          int var303 = B();
+          int var303 = B;
           A = var303;
           int var304 = A;
           mem[34255] = var304;
@@ -3216,43 +3216,43 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           return;
         }
 
-        int var259 = mem(33001, 38026);
+        int var259 = mem[33001];
         A = var259;
         int var260 = A;
         mem[33824] = var260;
-        int var261 = mem(34259, 38032);
+        int var261 = mem[34259];
         A = var261;
         int var262 = A | 31;
         A = var262;
         int var263 = A;
         int var264 = flagZ(var263);
-        F(var264);
+        F = var264;
         int var265 = A & 254;
         A = var265;
         int var266 = A;
         int var267 = flagZ(var266);
-        F(var267);
+        F = var267;
         int var268 = A;
         mem[34259] = var268;
         throw new StackException(38043);
       }
 
-      int var131 = mem(34258, 36930);
+      int var131 = mem[34258];
       A = var131;
       int var132 = A;
       int var133 = cp(var132, 3);
-      F(var133);
-      if (F() != 0) {
+      F = var133;
+      if (F != 0) {
         int var243 = A;
         int var244 = inc(var243);
         A = var244;
-        F(var244);
+        F = var244;
         int var245 = A;
         mem[34258] = var245;
         return;
       }
 
-      int var134 = mem(34257, 36942);
+      int var134 = mem[34257];
       A = var134;
       BC = 0;
       int var135 = A;
@@ -3260,59 +3260,59 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       A = var136;
       int var137 = A;
       int var138 = flagZ(var137);
-      F(var138);
-      if (F() == 0) {
-        int var219 = mem16(34259, 36951);
+      F = var138;
+      if (F == 0) {
+        int var219 = (mem[34259 + 1] << 8) + mem[34259];
         HL = var219;
-        int var220 = mem(32986, 36954);
+        int var220 = mem[32986];
         A = var220;
         int var221 = A;
         int var222 = dec(var221);
         A = var222;
-        F(var222);
+        F = var222;
         int var223 = A | 157;
         A = var223;
         int var224 = A;
         int var225 = flagZ(var224);
-        F(var225);
+        F = var225;
         int var226 = A ^ 191;
         A = var226;
         int var227 = A;
         int var228 = flagZ(var227);
-        F(var228);
+        F = var228;
         int var229 = A;
-        E(var229);
-        D(0);
+        E = var229;
+        D = 0;
         int var230 = DE_8();
         int var231 = HL;
         int var232 = add16(var231, var230);
         HL = var232;
-        int var233 = mem(32964, 36966);
+        int var233 = mem[32964];
         A = var233;
         int var234 = HL;
-        int var235 = mem(var234, 36969);
+        int var235 = mem[var234];
         int var236 = A;
         int var237 = cp(var236, var235);
-        F(var237);
-        if (F() == 0) {
+        F = var237;
+        if (F == 0) {
           BC = 32;
-          int var238 = mem(32986, 36975);
+          int var238 = mem[32986];
           A = var238;
           int var239 = A;
           int var240 = A | var239;
           A = var240;
           int var241 = A;
           int var242 = flagZ(var241);
-          F(var242);
-          if (F() != 0) {
+          F = var242;
+          if (F != 0) {
             BC = 65504;
           }
         }
       }
 
-      int var139 = mem16(34259, 36984);
+      int var139 = (mem[34259 + 1] << 8) + mem[34259];
       HL = var139;
-      int var140 = BC();
+      int var140 = BC;
       int var141 = HL;
       int var142 = add16(var141, var140);
       HL = var142;
@@ -3328,54 +3328,54 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       A = var148;
       int var149 = A;
       int var150 = flagZ(var149);
-      F(var150);
-      if (F() != 0) {
+      F = var150;
+      if (F != 0) {
         DE = 32;
-        int var158 = mem(32946, 36999);
+        int var158 = mem[32946];
         A = var158;
         int var159 = DE();
         int var160 = HL;
         int var161 = add16(var160, var159);
         HL = var161;
         int var162 = HL;
-        int var163 = mem(var162, 37003);
+        int var163 = mem[var162];
         int var164 = A;
         int var165 = cp(var164, var163);
-        F(var165);
-        if (F() == 0) {
+        F = var165;
+        if (F == 0) {
           return;
         }
 
-        int var166 = mem(34255, 37005);
+        int var166 = mem[34255];
         A = var166;
         int var167 = C_16();
         int var168 = sra(var167);
-        C(var168);
-        int var169 = C();
+        C = var168;
+        int var169 = C;
         int var170 = A;
         int var171 = add(var170, var169);
         A = var171;
-        F(var171);
+        F = var171;
         int var172 = A;
-        B(var172);
+        B = var172;
         int var173 = A & 15;
         A = var173;
         int var174 = A;
         int var175 = flagZ(var174);
-        F(var175);
-        if (F() != 0) {
-          int var201 = mem(32946, 37016);
+        F = var175;
+        if (F != 0) {
+          int var201 = mem[32946];
           A = var201;
           int var202 = DE();
           int var203 = HL;
           int var204 = add16(var203, var202);
           HL = var204;
           int var205 = HL;
-          int var206 = mem(var205, 37020);
+          int var206 = mem[var205];
           int var207 = A;
           int var208 = cp(var207, var206);
-          F(var208);
-          if (F() == 0) {
+          F = var208;
+          if (F == 0) {
             return;
           }
 
@@ -3384,39 +3384,39 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           A = var210;
           int var211 = A;
           int var212 = flagZ(var211);
-          F(var212);
+          F = var212;
           int var213 = DE();
           int var214 = HL - var213;
-          int var215 = F();
+          int var215 = F;
           int var216 = carry(var215);
           int var217 = var214 - var216 & 65535;
           HL = var217;
           int var218 = HL;
-          F(var218);
+          F = var218;
         }
 
-        int var176 = mem(32946, 37025);
+        int var176 = mem[32946];
         A = var176;
         int var177 = A;
         int var178 = A | var177;
         A = var178;
         int var179 = A;
         int var180 = flagZ(var179);
-        F(var180);
+        F = var180;
         int var181 = DE();
         int var182 = HL - var181;
-        int var183 = F();
+        int var183 = F;
         int var184 = carry(var183);
         int var185 = var182 - var184 & 65535;
         HL = var185;
         int var186 = HL;
-        F(var186);
+        F = var186;
         int var187 = HL;
-        int var188 = mem(var187, 37031);
+        int var188 = mem[var187];
         int var189 = A;
         int var190 = cp(var189, var188);
-        F(var190);
-        if (F() == 0) {
+        F = var190;
+        if (F == 0) {
           return;
         }
 
@@ -3431,43 +3431,43 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         A = var195;
         int var196 = A;
         int var197 = flagZ(var196);
-        F(var197);
+        F = var197;
         int var198 = A;
         mem[34258] = var198;
-        int var199 = B();
+        int var199 = B;
         A = var199;
         int var200 = A;
         mem[34255] = var200;
         return;
       }
 
-      int var151 = mem(33002, 38046);
+      int var151 = mem[33002];
       A = var151;
       int var152 = A;
       mem[33824] = var152;
-      int var153 = mem(34259, 38052);
+      int var153 = mem[34259];
       A = var153;
       int var154 = A & 224;
       A = var154;
       int var155 = A;
       int var156 = flagZ(var155);
-      F(var156);
+      F = var156;
       int var157 = A;
       mem[34259] = var157;
       throw new StackException(38061);
     }
 
-    int var539 = mem(34255, 36540);
+    int var539 = mem[34255];
     A = var539;
     int var540 = A;
     int var541 = add(var540, 16);
     A = var541;
-    F(var541);
+    F = var541;
     int var542 = A & 240;
     A = var542;
     int var543 = A;
     int var544 = flagZ(var543);
-    F(var544);
+    F = var544;
     int var545 = A;
     mem[34255] = var545;
     $36508();
@@ -3476,7 +3476,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
     mem[34257] = var546;
     HL = 34256;
     int var547 = HL;
-    int var548 = mem(var547, 36561) & -3;
+    int var548 = mem[var547] & -3;
     int var549 = HL;
     mem[var549] = var548;
   }
@@ -3486,42 +3486,42 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
     A = var1;
     int var2 = A;
     int var3 = flagZ(var2);
-    F(var3);
+    F = var3;
     int var4 = A;
-    L(var4);
+    L = var4;
     int var5 = A;
     int var6 = A ^ var5;
     A = var6;
     int var7 = A;
     int var8 = flagZ(var7);
-    F(var8);
-    int var9 = L();
+    F = var8;
+    int var9 = L;
     int var10 = rl(var9);
-    L(var10);
+    L = var10;
     int var11 = A + 92;
-    int var12 = F();
+    int var12 = F;
     int var13 = carry(var12) & 255;
     int var14 = var11 + var13;
     A = var14;
     int var15 = A;
-    F(var15);
+    F = var15;
     int var16 = A;
-    H(var16);
-    int var17 = mem(34259, 36517);
+    H = var16 & 0xff;
+    int var17 = mem[34259];
     A = var17;
     int var18 = A & 31;
     A = var18;
     int var19 = A;
     int var20 = flagZ(var19);
-    F(var20);
-    int var21 = L();
+    F = var20;
+    int var21 = L;
     int var22 = A | var21;
     A = var22;
     int var23 = A;
     int var24 = flagZ(var23);
-    F(var24);
+    F = var24;
     int var25 = A;
-    L(var25);
+    L = var25;
     int var26 = HL_8();
     mem[34259] = var26 & 0xFF;
     mem[34259 + 1] = var26 >>> 8;
@@ -3532,12 +3532,12 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
 
     while (true) {
       int var1 = IX + 0;
-      int var2 = mem(var1, 37060);
+      int var2 = mem[var1];
       A = var2;
       int var3 = A;
       int var4 = cp(var3, 255);
-      F(var4);
-      if (F() == 0) {
+      F = var4;
+      if (F == 0) {
         return;
       }
 
@@ -3545,91 +3545,91 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       A = var5;
       int var6 = A;
       int var7 = flagZ(var6);
-      F(var7);
-      if (F() != 0) {
+      F = var7;
+      if (F != 0) {
         int var11 = A;
         int var12 = cp(var11, 1);
-        F(var12);
-        if (F() != 0) {
+        F = var12;
+        if (F != 0) {
           int var63 = A;
           int var64 = cp(var63, 2);
-          F(var64);
-          if (F() != 0) {
+          F = var64;
+          if (F != 0) {
             int var106 = IX + 0;
-            int var107 = mem(var106, 37081) & 128;
-            F(var107);
-            if (F() != 0) {
+            int var107 = mem[var106] & 128;
+            F = var107;
+            if (F != 0) {
               int var143 = IX + 1;
-              int var144 = mem(var143, 37087);
+              int var144 = mem[var143];
               A = var144;
               int var145 = A & 128;
-              F(var145);
-              if (F() != 0) {
+              F = var145;
+              if (F != 0) {
                 int var152 = A - 2;
                 int var153 = var152 & 255;
                 A = var153;
-                F(var152);
+                F = var152;
                 int var154 = A;
                 int var155 = cp(var154, 148);
-                F(var155);
-                if (F() < 0) {
+                F = var155;
+                if (F < 0) {
                   int var156 = A - 2;
                   int var157 = var156 & 255;
                   A = var157;
-                  F(var156);
+                  F = var156;
                   int var158 = A;
                   int var159 = cp(var158, 128);
-                  F(var159);
-                  if (F() == 0) {
+                  F = var159;
+                  if (F == 0) {
                     int var160 = A;
                     int var161 = A ^ var160;
                     A = var161;
                     int var162 = A;
                     int var163 = flagZ(var162);
-                    F(var163);
+                    F = var163;
                   }
                 }
               } else {
                 int var146 = A;
                 int var147 = add(var146, 2);
                 A = var147;
-                F(var147);
+                F = var147;
                 int var148 = A;
                 int var149 = cp(var148, 18);
-                F(var149);
-                if (F() < 0) {
+                F = var149;
+                if (F < 0) {
                   int var150 = A;
                   int var151 = add(var150, 2);
                   A = var151;
-                  F(var151);
+                  F = var151;
                 }
               }
             } else {
               int var108 = IX + 1;
-              int var109 = mem(var108, 37119);
+              int var109 = mem[var108];
               A = var109;
               int var110 = A & 128;
-              F(var110);
-              if (F() == 0) {
+              F = var110;
+              if (F == 0) {
                 int var133 = A - 2;
                 int var134 = var133 & 255;
                 A = var134;
-                F(var133);
+                F = var133;
                 int var135 = A;
                 int var136 = cp(var135, 20);
-                F(var136);
-                if (F() < 0) {
+                F = var136;
+                if (F < 0) {
                   int var137 = A - 2;
                   int var138 = var137 & 255;
                   A = var138;
-                  F(var137);
+                  F = var137;
                   int var139 = A;
                   int var140 = A | var139;
                   A = var140;
                   int var141 = A;
                   int var142 = flagZ(var141);
-                  F(var142);
-                  if (F() == 0) {
+                  F = var142;
+                  if (F == 0) {
                     A = 128;
                   }
                 }
@@ -3637,15 +3637,15 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 int var111 = A;
                 int var112 = add(var111, 2);
                 A = var112;
-                F(var112);
+                F = var112;
                 int var113 = A;
                 int var114 = cp(var113, 146);
-                F(var114);
-                if (F() < 0) {
+                F = var114;
+                if (F < 0) {
                   int var131 = A;
                   int var132 = add(var131, 2);
                   A = var132;
-                  F(var132);
+                  F = var132;
                 }
               }
             }
@@ -3657,21 +3657,21 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
             A = var117;
             int var118 = A;
             int var119 = flagZ(var118);
-            F(var119);
+            F = var119;
             int var120 = IX + 7;
-            int var121 = mem(var120, 37154);
+            int var121 = mem[var120];
             int var122 = A;
             int var123 = cp(var122, var121);
-            F(var123);
-            if (F() == 0) {
+            F = var123;
+            if (F == 0) {
               int var124 = IX + 0;
-              int var125 = mem(var124, 37160);
+              int var125 = mem[var124];
               A = var125;
               int var126 = A ^ 128;
               A = var126;
               int var127 = A;
               int var128 = flagZ(var127);
-              F(var128);
+              F = var128;
               int var129 = IX + 0;
               int var130 = A;
               mem[var129] = var130;
@@ -3680,13 +3680,13 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
             label82:
             {
               int var65 = IX + 0;
-              int var66 = mem(var65, 37247);
+              int var66 = mem[var65];
               A = var66;
               int var67 = A ^ 8;
               A = var67;
               int var68 = A;
               int var69 = flagZ(var68);
-              F(var69);
+              F = var69;
               int var70 = IX + 0;
               int var71 = A;
               mem[var70] = var71;
@@ -3694,51 +3694,51 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
               A = var72;
               int var73 = A;
               int var74 = flagZ(var73);
-              F(var74);
-              if (F() != 0) {
+              F = var74;
+              if (F != 0) {
                 int var100 = IX + 0;
-                int var101 = mem(var100, 37259);
+                int var101 = mem[var100];
                 A = var101;
                 int var102 = A;
                 int var103 = add(var102, 32);
                 A = var103;
-                F(var103);
+                F = var103;
                 int var104 = IX + 0;
                 int var105 = A;
                 mem[var104] = var105;
               }
 
               int var75 = IX + 3;
-              int var76 = mem(var75, 37267);
+              int var76 = mem[var75];
               A = var76;
               int var77 = IX + 4;
-              int var78 = mem(var77, 37270);
+              int var78 = mem[var77];
               int var79 = A;
               int var80 = add(var79, var78);
               A = var80;
-              F(var80);
+              F = var80;
               int var81 = IX + 3;
               int var82 = A;
               mem[var81] = var82;
               int var83 = IX + 7;
-              int var84 = mem(var83, 37276);
+              int var84 = mem[var83];
               int var85 = A;
               int var86 = cp(var85, var84);
-              F(var86);
-              if (F() < 0) {
+              F = var86;
+              if (F < 0) {
                 int var92 = IX + 6;
-                int var93 = mem(var92, 37281);
+                int var93 = mem[var92];
                 int var94 = A;
                 int var95 = cp(var94, var93);
-                F(var95);
-                if (F() != 0) {
-                  if (F() >= 0) {
+                F = var95;
+                if (F != 0) {
+                  if (F >= 0) {
                     break label82;
                   }
                 }
 
                 int var96 = IX + 6;
-                int var97 = mem(var96, 37288);
+                int var97 = mem[var96];
                 A = var97;
                 int var98 = IX + 3;
                 int var99 = A;
@@ -3746,7 +3746,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
               }
 
               int var87 = IX + 4;
-              int var88 = mem(var87, 37294);
+              int var88 = mem[var87];
               A = var88;
               int var89 = -A & 255;
               A = var89;
@@ -3757,47 +3757,47 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           }
         } else {
           int var13 = IX + 0;
-          int var14 = mem(var13, 37171) & 128;
-          F(var14);
-          if (F() == 0) {
+          int var14 = mem[var13] & 128;
+          F = var14;
+          if (F == 0) {
             int var39 = IX + 0;
-            int var40 = mem(var39, 37177);
+            int var40 = mem[var39];
             A = var40;
             int var41 = A - 32;
             int var42 = var41 & 255;
             A = var42;
-            F(var41);
+            F = var41;
             int var43 = A & 127;
             A = var43;
             int var44 = A;
             int var45 = flagZ(var44);
-            F(var45);
+            F = var45;
             int var46 = IX + 0;
             int var47 = A;
             mem[var46] = var47;
             int var48 = A;
             int var49 = cp(var48, 96);
-            F(var49);
-            if (F() > 0) {
+            F = var49;
+            if (F > 0) {
               int var50 = IX + 2;
-              int var51 = mem(var50, 37191);
+              int var51 = mem[var50];
               A = var51;
               int var52 = A & 31;
               A = var52;
               int var53 = A;
               int var54 = flagZ(var53);
-              F(var54);
+              F = var54;
               int var55 = IX + 6;
-              int var56 = mem(var55, 37196);
+              int var56 = mem[var55];
               int var57 = A;
               int var58 = cp(var57, var56);
-              F(var58);
-              if (F() != 0) {
+              F = var58;
+              if (F != 0) {
                 int var60 = IX + 2;
-                int var61 = mem(var60, 37201);
+                int var61 = mem[var60];
                 int var62 = dec(var61);
                 mem[var60] = var62;
-                F(var62);
+                F = var62;
               } else {
                 int var59 = IX + 0;
                 mem[var59] = 129;
@@ -3805,43 +3805,43 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
             }
           } else {
             int var15 = IX + 0;
-            int var16 = mem(var15, 37212);
+            int var16 = mem[var15];
             A = var16;
             int var17 = A;
             int var18 = add(var17, 32);
             A = var18;
-            F(var18);
+            F = var18;
             int var19 = A | 128;
             A = var19;
             int var20 = A;
             int var21 = flagZ(var20);
-            F(var21);
+            F = var21;
             int var22 = IX + 0;
             int var23 = A;
             mem[var22] = var23;
             int var24 = A;
             int var25 = cp(var24, 160);
-            F(var25);
-            if (F() < 0) {
+            F = var25;
+            if (F < 0) {
               int var26 = IX + 2;
-              int var27 = mem(var26, 37226);
+              int var27 = mem[var26];
               A = var27;
               int var28 = A & 31;
               A = var28;
               int var29 = A;
               int var30 = flagZ(var29);
-              F(var30);
+              F = var30;
               int var31 = IX + 7;
-              int var32 = mem(var31, 37231);
+              int var32 = mem[var31];
               int var33 = A;
               int var34 = cp(var33, var32);
-              F(var34);
-              if (F() != 0) {
+              F = var34;
+              if (F != 0) {
                 int var36 = IX + 2;
-                int var37 = mem(var36, 37236);
+                int var37 = mem[var36];
                 int var38 = inc(var37);
                 mem[var36] = var38;
-                F(var38);
+                F = var38;
               } else {
                 int var35 = IX + 0;
                 mem[var35] = 97;
@@ -3864,12 +3864,12 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
 
     while (true) {
       int var1 = IX + 0;
-      int var2 = mem(var1, 37314);
+      int var2 = mem[var1];
       A = var2;
       int var3 = A;
       int var4 = cp(var3, 255);
-      F(var4);
-      if (F() == 0) {
+      F = var4;
+      if (F == 0) {
         return;
       }
 
@@ -3877,41 +3877,41 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       A = var5;
       int var6 = A;
       int var7 = flagZ(var6);
-      F(var7);
-      if (F() != 0) {
+      F = var7;
+      if (F != 0) {
         int var11 = A;
         int var12 = cp(var11, 3);
-        F(var12);
-        if (F() != 0) {
+        F = var12;
+        if (F != 0) {
           int var190 = A;
           int var191 = cp(var190, 4);
-          F(var191);
-          if (F() != 0) {
+          F = var191;
+          if (F != 0) {
             int var280 = IX + 3;
-            int var281 = mem(var280, 37334);
-            E(var281);
-            D(130);
+            int var281 = mem[var280];
+            E = var281;
+            D = 130;
             int var282 = DE_8();
-            int var283 = mem(var282, 37339);
+            int var283 = mem[var282];
             A = var283;
             int var284 = A;
-            L(var284);
+            L = var284;
             int var285 = IX + 2;
-            int var286 = mem(var285, 37341);
+            int var286 = mem[var285];
             A = var286;
             int var287 = A & 31;
             A = var287;
             int var288 = A;
             int var289 = flagZ(var288);
-            F(var289);
-            int var290 = L();
+            F = var289;
+            int var290 = L;
             int var291 = A;
             int var292 = add(var291, var290);
             A = var292;
-            F(var292);
+            F = var292;
             int var293 = A;
-            L(var293);
-            int var294 = E();
+            L = var293;
+            int var294 = E;
             A = var294;
             int var295 = A;
             int var296 = rlc(var295);
@@ -3920,214 +3920,214 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
             A = var297;
             int var298 = A;
             int var299 = flagZ(var298);
-            F(var299);
+            F = var299;
             int var300 = A | 92;
             A = var300;
             int var301 = A;
             int var302 = flagZ(var301);
-            F(var302);
+            F = var302;
             int var303 = A;
-            H(var303);
+            H = var303 & 0xff;
             DE = 31;
             int var304 = IX + 1;
-            int var305 = mem(var304, 37358);
+            int var305 = mem[var304];
             A = var305;
             int var306 = A & 15;
             A = var306;
             int var307 = A;
             int var308 = flagZ(var307);
-            F(var308);
+            F = var308;
             int var309 = A;
             int var310 = add(var309, 56);
             A = var310;
-            F(var310);
+            F = var310;
             int var311 = A & 71;
             A = var311;
             int var312 = A;
             int var313 = flagZ(var312);
-            F(var313);
+            F = var313;
             int var314 = A;
-            C(var314);
+            C = var314;
             int var315 = HL_8();
-            int var316 = mem(var315, 37368);
+            int var316 = mem[var315];
             A = var316;
             int var317 = A & 56;
             A = var317;
             int var318 = A;
             int var319 = flagZ(var318);
-            F(var319);
-            int var320 = C();
+            F = var319;
+            int var320 = C;
             int var321 = A ^ var320;
             A = var321;
             int var322 = A;
             int var323 = flagZ(var322);
-            F(var323);
+            F = var323;
             int var324 = A;
-            C(var324);
-            int var325 = C();
+            C = var324;
+            int var325 = C;
             int var326 = HL_8();
             mem[var326] = var325;
             int var327 = HL_8();
             int var328 = inc16(var327);
             HL = var328;
-            int var329 = C();
+            int var329 = C;
             int var330 = HL;
             mem[var330] = var329;
             int var331 = DE();
             int var332 = HL;
             int var333 = add16(var332, var331);
             HL = var333;
-            int var334 = C();
+            int var334 = C;
             int var335 = HL;
             mem[var335] = var334;
             int var336 = HL;
             int var337 = inc16(var336);
             HL = var337;
-            int var338 = C();
+            int var338 = C;
             int var339 = HL;
             mem[var339] = var338;
             int var340 = IX + 3;
-            int var341 = mem(var340, 37380);
+            int var341 = mem[var340];
             A = var341;
             int var342 = A & 14;
             A = var342;
             int var343 = A;
             int var344 = flagZ(var343);
-            F(var344);
-            if (F() != 0) {
+            F = var344;
+            if (F != 0) {
               int var380 = DE();
               int var381 = HL;
               int var382 = add16(var381, var380);
               HL = var382;
-              int var383 = C();
+              int var383 = C;
               int var384 = HL;
               mem[var384] = var383;
               int var385 = HL;
               int var386 = inc16(var385);
               HL = var386;
-              int var387 = C();
+              int var387 = C;
               int var388 = HL;
               mem[var388] = var387;
             }
 
-            C(1);
+            C = 1;
             int var345 = IX + 1;
-            int var346 = mem(var345, 37393);
+            int var346 = mem[var345];
             A = var346;
             int var347 = IX + 0;
-            int var348 = mem(var347, 37396);
+            int var348 = mem[var347];
             int var349 = A & var348;
             A = var349;
             int var350 = A;
             int var351 = flagZ(var350);
-            F(var351);
+            F = var351;
             int var352 = IX + 2;
-            int var353 = mem(var352, 37399);
+            int var353 = mem[var352];
             int var354 = A | var353;
             A = var354;
             int var355 = A;
             int var356 = flagZ(var355);
-            F(var356);
+            F = var356;
             int var357 = A & 224;
             A = var357;
             int var358 = A;
             int var359 = flagZ(var358);
-            F(var359);
+            F = var359;
             int var360 = A;
-            E(var360);
+            E = var360;
             int var361 = IX + 5;
-            int var362 = mem(var361, 37405);
-            D(var362);
-            H(130);
+            int var362 = mem[var361];
+            D = var362;
+            H = 130 & 0xff;
             int var363 = IX + 3;
-            int var364 = mem(var363, 37410);
-            L(var364);
+            int var364 = mem[var363];
+            L = var364;
             int var365 = IX + 2;
-            int var366 = mem(var365, 37413);
+            int var366 = mem[var365];
             A = var366;
             int var367 = A & 31;
             A = var367;
             int var368 = A;
             int var369 = flagZ(var368);
-            F(var369);
+            F = var369;
             int var370 = HL_8();
-            int var371 = mem(var370, 37418);
+            int var371 = mem[var370];
             int var372 = A | var371;
             A = var372;
             int var373 = A;
             int var374 = flagZ(var373);
-            F(var374);
+            F = var374;
             int var375 = HL_8();
             int var376 = inc16(var375);
             HL = var376;
             int var377 = HL;
-            int var378 = mem(var377, 37420);
-            H(var378);
+            int var378 = mem[var377];
+            H = var378 & 0xff;
             int var379 = A;
-            L(var379);
+            L = var379;
             HL = HL_8();
             DE = DE_8();
             $37974();
-            if (F() != 0) {
+            if (F != 0) {
               throw new StackException(37048);
             }
 
           } else {
             int var192 = IX + 0;
-            int var193 = mem(var192, 37431) & 128;
-            F(var193);
-            if (F() == 0) {
+            int var193 = mem[var192] & 128;
+            F = var193;
+            if (F == 0) {
               int var277 = IX + 4;
-              int var278 = mem(var277, 37437);
+              int var278 = mem[var277];
               int var279 = dec(var278);
               mem[var277] = var279;
-              F(var279);
-              C(44);
+              F = var279;
+              C = 44;
             } else {
               int var194 = IX + 4;
-              int var195 = mem(var194, 37444);
+              int var195 = mem[var194];
               int var196 = inc(var195);
               mem[var194] = var196;
-              F(var196);
-              C(244);
+              F = var196;
+              C = 244;
             }
 
             int var197 = IX + 4;
-            int var198 = mem(var197, 37449);
+            int var198 = mem[var197];
             A = var198;
-            int var199 = C();
+            int var199 = C;
             int var200 = A;
             int var201 = cp(var200, var199);
-            F(var201);
-            if (F() != 0) {
+            F = var201;
+            if (F != 0) {
               int var202 = A & 224;
               A = var202;
               int var203 = A;
               int var204 = flagZ(var203);
-              F(var204);
-              if (F() == 0) {
+              F = var204;
+              if (F == 0) {
                 int var205 = IX + 2;
-                int var206 = mem(var205, 37479);
-                E(var206);
-                D(130);
+                int var206 = mem[var205];
+                E = var206;
+                D = 130;
                 int var207 = DE_8();
-                int var208 = mem(var207, 37484);
+                int var208 = mem[var207];
                 A = var208;
                 int var209 = IX + 4;
-                int var210 = mem(var209, 37485);
+                int var210 = mem[var209];
                 int var211 = A;
                 int var212 = add(var211, var210);
                 A = var212;
-                F(var212);
+                F = var212;
                 int var213 = A;
-                L(var213);
-                int var214 = E();
+                L = var213;
+                int var214 = E;
                 A = var214;
                 int var215 = A & 128;
                 A = var215;
                 int var216 = A;
                 int var217 = flagZ(var216);
-                F(var217);
+                F = var217;
                 int var218 = A;
                 int var219 = rlc(var218);
                 A = var219;
@@ -4135,38 +4135,38 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 A = var220;
                 int var221 = A;
                 int var222 = flagZ(var221);
-                F(var222);
+                F = var222;
                 int var223 = A;
-                H(var223);
+                H = var223 & 0xff;
                 int var224 = IX + 5;
                 mem[var224] = 0;
                 int var225 = HL_8();
-                int var226 = mem(var225, 37500);
+                int var226 = mem[var225];
                 A = var226;
                 int var227 = A & 7;
                 A = var227;
                 int var228 = A;
                 int var229 = flagZ(var228);
-                F(var229);
+                F = var229;
                 int var230 = A;
                 int var231 = cp(var230, 7);
-                F(var231);
-                if (F() == 0) {
+                F = var231;
+                if (F == 0) {
                   int var266 = IX + 5;
-                  int var267 = mem(var266, 37507);
+                  int var267 = mem[var266];
                   int var268 = dec(var267);
                   mem[var266] = var268;
-                  F(var268);
+                  F = var268;
                 }
 
                 int var232 = HL_8();
-                int var233 = mem(var232, 37510);
+                int var233 = mem[var232];
                 A = var233;
                 int var234 = A | 7;
                 A = var234;
                 int var235 = A;
                 int var236 = flagZ(var235);
-                F(var236);
+                F = var236;
                 int var237 = A;
                 int var238 = HL_8();
                 mem[var238] = var237;
@@ -4174,35 +4174,35 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 int var240 = inc16(var239);
                 DE = var240;
                 int var241 = DE();
-                int var242 = mem(var241, 37515);
+                int var242 = mem[var241];
                 A = var242;
                 int var243 = A;
-                H(var243);
+                H = var243 & 0xff;
                 int var244 = H();
                 int var245 = dec(var244);
-                H(var245);
-                F(var245);
+                H = var245 & 0xff;
+                F = var245;
                 int var246 = IX + 6;
-                int var247 = mem(var246, 37518);
+                int var247 = mem[var246];
                 A = var247;
                 int var248 = A;
                 int var249 = HL_8();
                 mem[var249] = var248;
                 int var250 = H();
                 int var251 = inc(var250);
-                H(var251);
-                F(var251);
+                H = var251 & 0xff;
+                F = var251;
                 int var252 = HL_8();
-                int var253 = mem(var252, 37523);
+                int var253 = mem[var252];
                 A = var253;
                 int var254 = IX + 5;
-                int var255 = mem(var254, 37524);
+                int var255 = mem[var254];
                 int var256 = A & var255;
                 A = var256;
                 int var257 = A;
                 int var258 = flagZ(var257);
-                F(var258);
-                if (F() != 0) {
+                F = var258;
+                if (F != 0) {
                   throw new StackException(37048);
                 }
 
@@ -4210,10 +4210,10 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 mem[var259] = 255;
                 int var260 = H();
                 int var261 = inc(var260);
-                H(var261);
-                F(var261);
+                H = var261 & 0xff;
+                F = var261;
                 int var262 = IX + 6;
-                int var263 = mem(var262, 37533);
+                int var263 = mem[var262];
                 A = var263;
                 int var264 = A;
                 int var265 = HL_8();
@@ -4221,7 +4221,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
               }
             } else {
               BC = 640;
-              int var269 = mem(32990, 37458);
+              int var269 = mem[32990];
               A = var269;
 
               while (true) {
@@ -4229,7 +4229,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 A = var270;
                 int var271 = A;
                 int var272 = flagZ(var271);
-                F(var272);
+                F = var272;
 
                 do {
                   int var273 = B_16() - 1 & 255;
@@ -4241,8 +4241,8 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                 int var275 = C_16();
                 int var276 = dec(var275);
                 C_16(var276);
-                F(var276);
-                if (F() == 0) {
+                F = var276;
+                if (F == 0) {
                   break;
                 }
               }
@@ -4253,7 +4253,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           int var13 = IX + 9;
           mem[var13] = 0;
           int var14 = IX + 2;
-          int var15 = mem(var14, 37548);
+          int var15 = mem[var14];
           A = var15;
           int var16 = IX + 3;
           int var17 = A;
@@ -4265,93 +4265,93 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
             label116:
             {
               int var19 = IY() + 0;
-              int var20 = mem(var19, 37558);
+              int var20 = mem[var19];
               A = var20;
               int var21 = IX + 3;
-              int var22 = mem(var21, 37561);
+              int var22 = mem[var21];
               int var23 = A;
               int var24 = add(var23, var22);
               A = var24;
-              F(var24);
+              F = var24;
               int var25 = A;
-              L(var25);
+              L = var25;
               int var26 = IY() + 1;
-              int var27 = mem(var26, 37565);
-              H(var27);
-              int var28 = mem(34262, 37568);
+              int var27 = mem[var26];
+              H = var27 & 0xff;
+              int var28 = mem[34262];
               A = var28;
               int var29 = A;
               int var30 = A | var29;
               A = var30;
               int var31 = A;
               int var32 = flagZ(var31);
-              F(var32);
-              if (F() == 0) {
+              F = var32;
+              if (F == 0) {
                 int var178 = IX + 5;
-                int var179 = mem(var178, 37574);
+                int var179 = mem[var178];
                 A = var179;
                 int var180 = HL;
-                int var181 = mem(var180, 37577);
+                int var181 = mem[var180];
                 int var182 = A & var181;
                 A = var182;
                 int var183 = A;
                 int var184 = flagZ(var183);
-                F(var184);
-                if (F() == 0) {
+                F = var184;
+                if (F == 0) {
                   break label116;
                 }
 
                 int var185 = IX + 9;
-                int var186 = mem(var185, 37580);
+                int var186 = mem[var185];
                 A = var186;
                 int var187 = A;
                 mem[34262] = var187;
                 int var188 = IX + 11;
-                int var189 = mem(var188, 37586) | 1;
+                int var189 = mem[var188] | 1;
                 mem[var188] = var189;
               }
 
               int var33 = IX + 9;
-              int var34 = mem(var33, 37590);
+              int var34 = mem[var33];
               int var35 = A;
               int var36 = cp(var35, var34);
-              F(var36);
-              if (F() == 0) {
+              F = var36;
+              if (F == 0) {
                 int var157 = IX + 11;
-                int var158 = mem(var157, 37595) & 1;
-                F(var158);
-                if (F() != 0) {
+                int var158 = mem[var157] & 1;
+                F = var158;
+                if (F != 0) {
                   int var159 = IX + 3;
-                  int var160 = mem(var159, 37601);
-                  B(var160);
+                  int var160 = mem[var159];
+                  B = var160;
                   int var161 = IX + 5;
-                  int var162 = mem(var161, 37604);
+                  int var162 = mem[var161];
                   A = var162;
-                  C(1);
+                  C = 1;
                   int var163 = A;
                   int var164 = cp(var163, 4);
-                  F(var164);
-                  if (F() > 0) {
-                    C(0);
+                  F = var164;
+                  if (F > 0) {
+                    C = 0;
                     int var172 = A;
                     int var173 = cp(var172, 16);
-                    F(var173);
-                    if (F() > 0) {
-                      int var174 = B();
+                    F = var173;
+                    if (F > 0) {
+                      int var174 = B;
                       int var175 = dec(var174);
-                      B(var175);
-                      F(var175);
-                      C(3);
+                      B = var175;
+                      F = var175;
+                      C = 3;
                       int var176 = A;
                       int var177 = cp(var176, 64);
-                      F(var177);
-                      if (F() > 0) {
-                        C(2);
+                      F = var177;
+                      if (F > 0) {
+                        C = 2;
                       }
                     }
                   }
 
-                  int var165 = BC();
+                  int var165 = BC;
                   mem[34258] = var165 & 0xFF;
                   mem[34258 + 1] = var165 >>> 8;
                   int var166 = IYL();
@@ -4359,7 +4359,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                   int var167 = A - 16;
                   int var168 = var167 & 255;
                   A = var168;
-                  F(var167);
+                  F = var167;
                   int var169 = A;
                   mem[34255] = var169;
                   int var170 = HL;
@@ -4372,146 +4372,146 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
             }
 
             int var37 = IX + 5;
-            int var38 = mem(var37, 37646);
+            int var38 = mem[var37];
             A = var38;
             int var39 = HL;
-            int var40 = mem(var39, 37649);
+            int var40 = mem[var39];
             int var41 = A | var40;
             A = var41;
             int var42 = A;
             int var43 = flagZ(var42);
-            F(var43);
+            F = var43;
             int var44 = A;
             int var45 = HL;
             mem[var45] = var44;
             int var46 = IX + 9;
-            int var47 = mem(var46, 37651);
+            int var47 = mem[var46];
             A = var47;
             int var48 = IX + 1;
-            int var49 = mem(var48, 37654);
+            int var49 = mem[var48];
             int var50 = A;
             int var51 = add(var50, var49);
             A = var51;
-            F(var51);
+            F = var51;
             int var52 = A;
-            L(var52);
-            int var53 = L() | 128;
-            L(var53);
-            H(131);
+            L = var52;
+            int var53 = L | 128;
+            L = var53;
+            H = 131 & 0xff;
             int var54 = HL;
-            int var55 = mem(var54, 37662);
-            E(var55);
-            D(0);
+            int var55 = mem[var54];
+            E = var55;
+            D = 0;
             int var56 = DE();
             int var57 = IY();
             int var58 = add16(var57, var56);
             IY(var58);
-            int var59 = L() & -129;
-            L(var59);
+            int var59 = L & -129;
+            L = var59;
             int var60 = HL;
-            int var61 = mem(var60, 37669);
+            int var61 = mem[var60];
             A = var61;
             int var62 = A;
             int var63 = A | var62;
             A = var63;
             int var64 = A;
             int var65 = flagZ(var64);
-            F(var65);
-            if (F() != 0) {
+            F = var65;
+            if (F != 0) {
               int var136 = A;
-              B(var136);
+              B = var136;
               int var137 = IX + 1;
-              int var138 = mem(var137, 37674) & 128;
-              F(var138);
-              if (F() != 0) {
+              int var138 = mem[var137] & 128;
+              F = var138;
+              if (F != 0) {
                 while (true) {
                   int var148 = IX + 5;
-                  int var149 = mem(var148, 37680);
+                  int var149 = mem[var148];
                   int var150 = rlc(var149);
                   mem[var148] = var150;
                   int var151 = IX + 5;
-                  int var152 = mem(var151, 37684) & 1;
-                  F(var152);
-                  if (F() != 0) {
+                  int var152 = mem[var151] & 1;
+                  F = var152;
+                  if (F != 0) {
                     int var154 = IX + 3;
-                    int var155 = mem(var154, 37690);
+                    int var155 = mem[var154];
                     int var156 = dec(var155);
                     mem[var154] = var156;
-                    F(var156);
+                    F = var156;
                   }
 
-                  int var153 = B() - 1 & 255;
-                  B(var153);
-                  if (B() == 0) {
+                  int var153 = B - 1 & 255;
+                  B = var153;
+                  if (B == 0) {
                     break;
                   }
                 }
               } else {
                 do {
                   int var139 = IX + 5;
-                  int var140 = mem(var139, 37697);
+                  int var140 = mem[var139];
                   int var141 = rrc(var140);
                   mem[var139] = var141;
                   int var142 = IX + 5;
-                  int var143 = mem(var142, 37701) & 128;
-                  F(var143);
-                  if (F() != 0) {
+                  int var143 = mem[var142] & 128;
+                  F = var143;
+                  if (F != 0) {
                     int var145 = IX + 3;
-                    int var146 = mem(var145, 37707);
+                    int var146 = mem[var145];
                     int var147 = inc(var146);
                     mem[var145] = var147;
-                    F(var147);
+                    F = var147;
                   }
 
-                  int var144 = B() - 1 & 255;
-                  B(var144);
-                } while (B() != 0);
+                  int var144 = B - 1 & 255;
+                  B = var144;
+                } while (B != 0);
               }
             }
 
             int var66 = IX + 9;
-            int var67 = mem(var66, 37712);
+            int var67 = mem[var66];
             A = var67;
             int var68 = IX + 4;
-            int var69 = mem(var68, 37715);
+            int var69 = mem[var68];
             int var70 = A;
             int var71 = cp(var70, var69);
-            F(var71);
-            if (F() == 0) {
-              int var72 = mem(34262, 37726);
+            F = var71;
+            if (F == 0) {
+              int var72 = mem[34262];
               A = var72;
               int var73 = A & 128;
-              F(var73);
-              if (F() != 0) {
+              F = var73;
+              if (F != 0) {
                 int var128 = A;
                 int var129 = inc(var128);
                 A = var129;
-                F(var129);
+                F = var129;
                 int var130 = A;
                 mem[34262] = var130;
                 int var131 = IX + 11;
-                int var132 = mem(var131, 37737) & -2;
+                int var132 = mem[var131] & -2;
                 mem[var131] = var132;
               } else {
                 int var74 = IX + 11;
-                int var75 = mem(var74, 37743) & 1;
-                F(var75);
-                if (F() != 0) {
-                  int var76 = mem(34256, 37749);
+                int var75 = mem[var74] & 1;
+                F = var75;
+                if (F != 0) {
+                  int var76 = mem[34256];
                   A = var76;
                   int var77 = A & 2;
-                  F(var77);
-                  if (F() != 0) {
+                  F = var77;
+                  if (F != 0) {
                     int var78 = A;
                     int var79 = rrc(var78);
                     A = var79;
                     int var80 = IX + 0;
-                    int var81 = mem(var80, 37757);
+                    int var81 = mem[var80];
                     int var82 = A ^ var81;
                     A = var82;
                     int var83 = A;
                     int var84 = flagZ(var83);
-                    F(var84);
+                    F = var84;
                     int var85 = A;
                     int var86 = rlc(var85);
                     A = var86;
@@ -4522,63 +4522,63 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                     A = var89;
                     int var90 = A;
                     int var91 = flagZ(var90);
-                    F(var91);
+                    F = var91;
                     int var92 = A;
                     int var93 = dec(var92);
                     A = var93;
-                    F(var93);
+                    F = var93;
                     HL = 34262;
                     int var94 = HL;
-                    int var95 = mem(var94, 37768);
+                    int var95 = mem[var94];
                     int var96 = A;
                     int var97 = add(var96, var95);
                     A = var97;
-                    F(var97);
+                    F = var97;
                     int var98 = A;
                     int var99 = HL;
                     mem[var99] = var98;
-                    int var100 = mem(33003, 37770);
+                    int var100 = mem[33003];
                     A = var100;
                     int var101 = A;
-                    C(var101);
-                    int var102 = mem(33824, 37774);
+                    C = var101;
+                    int var102 = mem[33824];
                     A = var102;
-                    int var103 = C();
+                    int var103 = C;
                     int var104 = A;
                     int var105 = cp(var104, var103);
-                    F(var105);
-                    if (F() == 0) {
+                    F = var105;
+                    if (F == 0) {
                       int var123 = HL;
-                      int var124 = mem(var123, 37780);
+                      int var124 = mem[var123];
                       A = var124;
                       int var125 = A;
                       int var126 = cp(var125, 15);
-                      F(var126);
-                      if (F() < 0) {
+                      F = var126;
+                      if (F < 0) {
                         int var127 = HL;
                         mem[var127] = 15;
                       }
                     }
 
                     int var106 = HL;
-                    int var107 = mem(var106, 37787);
+                    int var107 = mem[var106];
                     A = var107;
                     int var108 = IX + 4;
-                    int var109 = mem(var108, 37788);
+                    int var109 = mem[var108];
                     int var110 = A;
                     int var111 = cp(var110, var109);
-                    F(var111);
-                    if (F() > 0) {
-                      if (F() != 0) {
+                    F = var111;
+                    if (F > 0) {
+                      if (F != 0) {
                         int var112 = HL;
                         mem[var112] = 240;
-                        int var113 = mem(34255, 37797);
+                        int var113 = mem[34255];
                         A = var113;
                         int var114 = A & 248;
                         A = var114;
                         int var115 = A;
                         int var116 = flagZ(var115);
-                        F(var116);
+                        F = var116;
                         int var117 = A;
                         mem[34255] = var117;
                         int var118 = A;
@@ -4586,7 +4586,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                         A = var119;
                         int var120 = A;
                         int var121 = flagZ(var120);
-                        F(var121);
+                        F = var121;
                         int var122 = A;
                         mem[34257] = var122;
                       }
@@ -4598,10 +4598,10 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
             }
 
             int var133 = IX + 9;
-            int var134 = mem(var133, 37720);
+            int var134 = mem[var133];
             int var135 = inc(var134);
             mem[var133] = var135;
-            F(var135);
+            F = var135;
           }
         }
       }
@@ -4615,32 +4615,32 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
   }
 
   public void $37841() {
-    H(164);
-    int var1 = mem(41983, 37843);
+    H = 164 & 0xff;
+    int var1 = mem[41983];
     A = var1;
     int var2 = A;
-    L(var2);
+    L = var2;
 
     do {
       int var3 = HL_8();
-      int var4 = mem(var3, 37847);
-      C(var4);
-      int var5 = C() & -129;
-      C(var5);
-      int var6 = mem(33824, 37850);
+      int var4 = mem[var3];
+      C = var4;
+      int var5 = C & -129;
+      C = var5;
+      int var6 = mem[33824];
       A = var6;
       int var7 = A | 64;
       A = var7;
       int var8 = A;
       int var9 = flagZ(var8);
-      F(var9);
-      int var10 = C();
+      F = var9;
+      int var10 = C;
       int var11 = A;
       int var12 = cp(var11, var10);
-      F(var12);
-      if (F() == 0) {
+      F = var12;
+      if (F == 0) {
         int var15 = HL_8();
-        int var16 = mem(var15, 37858);
+        int var16 = mem[var15];
         A = var16;
         int var17 = A;
         int var18 = rlc(var17);
@@ -4649,73 +4649,73 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         A = var19;
         int var20 = A;
         int var21 = flagZ(var20);
-        F(var21);
+        F = var21;
         int var22 = A;
         int var23 = add(var22, 92);
         A = var23;
-        F(var23);
+        F = var23;
         int var24 = A;
-        D(var24);
+        D = var24;
         int var25 = H();
         int var26 = inc(var25);
-        H(var26);
-        F(var26);
+        H = var26 & 0xff;
+        F = var26;
         int var27 = HL_8();
-        int var28 = mem(var27, 37866);
-        E(var28);
+        int var28 = mem[var27];
+        E = var28;
         int var29 = H();
         int var30 = dec(var29);
-        H(var30);
-        F(var30);
+        H = var30 & 0xff;
+        F = var30;
         int var31 = DE_8();
-        int var32 = mem(var31, 37868);
+        int var32 = mem[var31];
         A = var32;
         int var33 = A & 7;
         A = var33;
         int var34 = A;
         int var35 = flagZ(var34);
-        F(var35);
+        F = var35;
         int var36 = A;
         int var37 = cp(var36, 7);
-        F(var37);
-        if (F() != 0) {
-          int var38 = mem(34251, 37936);
+        F = var37;
+        if (F != 0) {
+          int var38 = mem[34251];
           A = var38;
-          int var39 = L();
+          int var39 = L;
           int var40 = A;
           int var41 = add(var40, var39);
           A = var41;
-          F(var41);
+          F = var41;
           int var42 = A & 3;
           A = var42;
           int var43 = A;
           int var44 = flagZ(var43);
-          F(var44);
+          F = var44;
           int var45 = A;
           int var46 = add(var45, 3);
           A = var46;
-          F(var46);
+          F = var46;
           int var47 = A;
-          C(var47);
+          C = var47;
           int var48 = DE_8();
-          int var49 = mem(var48, 37945);
+          int var49 = mem[var48];
           A = var49;
           int var50 = A & 248;
           A = var50;
           int var51 = A;
           int var52 = flagZ(var51);
-          F(var52);
-          int var53 = C();
+          F = var52;
+          int var53 = C;
           int var54 = A | var53;
           A = var54;
           int var55 = A;
           int var56 = flagZ(var55);
-          F(var56);
+          F = var56;
           int var57 = A;
           int var58 = DE_8();
           mem[var58] = var57;
           int var59 = HL_8();
-          int var60 = mem(var59, 37950);
+          int var60 = mem[var59];
           A = var60;
           int var61 = A;
           int var62 = rlc(var61);
@@ -4733,17 +4733,17 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           A = var69;
           int var70 = A;
           int var71 = flagZ(var70);
-          F(var71);
+          F = var71;
           int var72 = A;
           int var73 = add(var72, 96);
           A = var73;
-          F(var73);
+          F = var73;
           int var74 = A;
-          D(var74);
+          D = var74;
           int var75 = HL_8();
           push(var75);
           HL = 32993;
-          B(8);
+          B = 8;
           DE = DE_8();
           $38555();
           int var76 = pop();
@@ -4753,71 +4753,71 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
 
           while (true) {
             int var77 = IX + 2;
-            int var78 = mem(var77, 37879);
+            int var78 = mem[var77];
             int var79 = inc(var78);
             mem[var77] = var79;
-            F(var79);
+            F = var79;
             int var80 = IX + 2;
-            int var81 = mem(var80, 37882);
+            int var81 = mem[var80];
             A = var81;
             int var82 = A;
             int var83 = cp(var82, 58);
-            F(var83);
-            if (F() != 0) {
-              int var84 = mem(32990, 37897);
+            F = var83;
+            if (F != 0) {
+              int var84 = mem[32990];
               A = var84;
-              C(128);
+              C = 128;
 
               do {
                 int var85 = A ^ 24;
                 A = var85;
                 int var86 = A;
                 int var87 = flagZ(var86);
-                F(var87);
+                F = var87;
                 int var88 = A;
-                E(var88);
+                E = var88;
                 A = 144;
-                int var89 = C();
+                int var89 = C;
                 int var90 = A - var89;
                 int var91 = var90 & 255;
                 A = var91;
-                F(var90);
+                F = var90;
                 int var92 = A;
-                B(var92);
-                int var93 = E();
+                B = var92;
+                int var93 = E;
                 A = var93;
 
                 do {
-                  int var94 = B() - 1 & 255;
-                  B(var94);
-                } while (B() != 0);
+                  int var94 = B - 1 & 255;
+                  B = var94;
+                } while (B != 0);
 
-                int var95 = C();
+                int var95 = C;
                 int var96 = dec(var95);
-                C(var96);
-                F(var96);
-                int var97 = C();
+                C = var96;
+                F = var96;
+                int var97 = C;
                 int var98 = dec(var97);
-                C(var98);
-                F(var98);
-              } while (F() != 0);
+                C = var98;
+                F = var98;
+              } while (F != 0);
 
-              int var99 = mem(34270, 37918);
+              int var99 = mem[34270];
               A = var99;
               int var100 = A;
               int var101 = inc(var100);
               A = var101;
-              F(var101);
+              F = var101;
               int var102 = A;
               mem[34270] = var102;
-              if (F() == 0) {
+              if (F == 0) {
                 A = 1;
                 int var106 = A;
                 mem[34271] = var106;
               }
 
               int var103 = HL_8();
-              int var104 = mem(var103, 37932) & -65;
+              int var104 = mem[var103] & -65;
               int var105 = HL_8();
               mem[var105] = var104;
               break;
@@ -4832,45 +4832,45 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         }
       }
 
-      int var13 = L();
+      int var13 = L;
       int var14 = inc(var13);
-      L(var14);
-      F(var14);
-    } while (F() != 0);
+      L = var14;
+      F = var14;
+    } while (F != 0);
 
   }
 
   public void $37974() {
-    B(16);
+    B = 16;
 
     do {
-      int var1 = C() & 1;
-      F(var1);
+      int var1 = C & 1;
+      F = var1;
       int var2 = DE();
-      int var3 = mem(var2, 37978);
+      int var3 = mem[var2];
       A = var3;
-      if (F() != 0) {
+      if (F != 0) {
         int var57 = HL;
-        int var58 = mem(var57, 37981);
+        int var58 = mem[var57];
         int var59 = A & var58;
         A = var59;
         int var60 = A;
         int var61 = flagZ(var60);
-        F(var61);
-        if (F() != 0) {
+        F = var61;
+        if (F != 0) {
           return;
         }
 
         int var62 = DE();
-        int var63 = mem(var62, 37983);
+        int var63 = mem[var62];
         A = var63;
         int var64 = HL;
-        int var65 = mem(var64, 37984);
+        int var65 = mem[var64];
         int var66 = A | var65;
         A = var66;
         int var67 = A;
         int var68 = flagZ(var67);
-        F(var68);
+        F = var68;
       }
 
       int var4 = A;
@@ -4879,37 +4879,37 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       int var6 = L_16();
       int var7 = inc(var6);
       L_16(var7);
-      F(var7);
+      F = var7;
       int var8 = DE();
       int var9 = inc16(var8);
       DE = var9;
-      int var10 = C() & 1;
-      F(var10);
+      int var10 = C & 1;
+      F = var10;
       int var11 = DE();
-      int var12 = mem(var11, 37990);
+      int var12 = mem[var11];
       A = var12;
-      if (F() != 0) {
+      if (F != 0) {
         int var45 = HL;
-        int var46 = mem(var45, 37993);
+        int var46 = mem[var45];
         int var47 = A & var46;
         A = var47;
         int var48 = A;
         int var49 = flagZ(var48);
-        F(var49);
-        if (F() != 0) {
+        F = var49;
+        if (F != 0) {
           return;
         }
 
         int var50 = DE();
-        int var51 = mem(var50, 37995);
+        int var51 = mem[var50];
         A = var51;
         int var52 = HL;
-        int var53 = mem(var52, 37996);
+        int var53 = mem[var52];
         int var54 = A | var53;
         A = var54;
         int var55 = A;
         int var56 = flagZ(var55);
-        F(var56);
+        F = var56;
       }
 
       int var13 = A;
@@ -4918,11 +4918,11 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       int var15 = L_16();
       int var16 = dec(var15);
       L_16(var16);
-      F(var16);
+      F = var16;
       int var17 = H_16();
       int var18 = inc(var17);
       H_16(var18);
-      F(var18);
+      F = var18;
       int var19 = DE();
       int var20 = inc16(var19);
       DE = var20;
@@ -4932,14 +4932,14 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       A = var22;
       int var23 = A;
       int var24 = flagZ(var23);
-      F(var24);
-      if (F() == 0) {
+      F = var24;
+      if (F == 0) {
         int var30 = H_16();
         A = var30;
         int var31 = A - 8;
         int var32 = var31 & 255;
         A = var32;
-        F(var31);
+        F = var31;
         int var33 = A;
         H_16(var33);
         int var34 = L_16();
@@ -4947,54 +4947,54 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         int var35 = A;
         int var36 = add(var35, 32);
         A = var36;
-        F(var36);
+        F = var36;
         int var37 = A;
         L_16(var37);
         int var38 = A & 224;
         A = var38;
         int var39 = A;
         int var40 = flagZ(var39);
-        F(var40);
-        if (F() == 0) {
+        F = var40;
+        if (F == 0) {
           int var41 = H_16();
           A = var41;
           int var42 = A;
           int var43 = add(var42, 8);
           A = var43;
-          F(var43);
+          F = var43;
           int var44 = A;
           H_16(var44);
         }
       }
 
-      int var25 = B() - 1 & 255;
-      B(var25);
-    } while (B() != 0);
+      int var25 = B - 1 & 255;
+      B = var25;
+    } while (B != 0);
 
     int var26 = A;
     int var27 = A ^ var26;
     A = var27;
     int var28 = A;
     int var29 = flagZ(var28);
-    F(var29);
+    F = var29;
   }
 
   public void $38064() {
-    int var1 = mem(33003, 38064);
+    int var1 = mem[33003];
     A = var1;
     int var2 = A;
     mem[33824] = var2;
-    int var3 = mem(34259, 38070);
+    int var3 = mem[34259];
     A = var3;
     int var4 = A & 31;
     A = var4;
     int var5 = A;
     int var6 = flagZ(var5);
-    F(var6);
+    F = var6;
     int var7 = A;
     int var8 = add(var7, 160);
     A = var8;
-    F(var8);
+    F = var8;
     int var9 = A;
     mem[34259] = var9;
     A = 93;
@@ -5008,14 +5008,14 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
     A = var13;
     int var14 = A;
     int var15 = flagZ(var14);
-    F(var15);
+    F = var15;
     int var16 = A;
     mem[34257] = var16;
     throw new StackException(38095);
   }
 
   public void $38137() {
-    int var1 = mem16(32983, 38137);
+    int var1 = (mem[32983 + 1] << 8) + mem[32983];
     HL = var1;
     int var2 = H_16();
     A = var2;
@@ -5023,7 +5023,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
     A = var3;
     int var4 = A;
     int var5 = flagZ(var4);
-    F(var5);
+    F = var5;
     int var6 = A;
     int var7 = rlc(var6);
     A = var7;
@@ -5036,35 +5036,35 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
     int var12 = A;
     int var13 = add(var12, 112);
     A = var13;
-    F(var13);
+    F = var13;
     int var14 = A;
-    H(var14);
+    H = var14 & 0xff;
     int var15 = L_16();
-    E(var15);
+    E = var15;
     int var16 = H();
-    D(var16);
-    int var17 = mem(32985, 38151);
+    D = var16;
+    int var17 = mem[32985];
     A = var17;
     int var18 = A;
     int var19 = A | var18;
     A = var19;
     int var20 = A;
     int var21 = flagZ(var20);
-    F(var21);
-    if (F() != 0) {
+    F = var21;
+    if (F != 0) {
       int var22 = A;
-      B(var22);
-      int var23 = mem(32982, 38157);
+      B = var22;
+      int var23 = mem[32982];
       A = var23;
       int var24 = A;
       int var25 = A | var24;
       A = var25;
       int var26 = A;
       int var27 = flagZ(var26);
-      F(var27);
-      if (F() == 0) {
+      F = var27;
+      if (F == 0) {
         int var53 = HL_8_16();
-        int var54 = mem(var53, 38163);
+        int var54 = mem[var53];
         A = var54;
         int var55 = A;
         int var56 = rlc(var55);
@@ -5074,24 +5074,24 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         A = var58;
         int var59 = H();
         int var60 = inc(var59);
-        H(var60);
-        F(var60);
+        H = var60 & 0xff;
+        F = var60;
         int var61 = H();
         int var62 = inc(var61);
-        H(var62);
-        F(var62);
+        H = var62 & 0xff;
+        F = var62;
         int var63 = HL_8_16();
-        int var64 = mem(var63, 38170);
-        C(var64);
-        int var65 = C();
+        int var64 = mem[var63];
+        C = var64;
+        int var65 = C;
         int var66 = rrc(var65);
-        C(var66);
-        int var67 = C();
+        C = var66;
+        int var67 = C;
         int var68 = rrc(var67);
-        C(var68);
+        C = var68;
       } else {
         int var28 = HL_8_16();
-        int var29 = mem(var28, 38182);
+        int var29 = mem[var28];
         A = var29;
         int var30 = A;
         int var31 = rrc(var30);
@@ -5101,68 +5101,68 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         A = var33;
         int var34 = H();
         int var35 = inc(var34);
-        H(var35);
-        F(var35);
+        H = var35 & 0xff;
+        F = var35;
         int var36 = H();
         int var37 = inc(var36);
-        H(var37);
-        F(var37);
+        H = var37 & 0xff;
+        F = var37;
         int var38 = HL_8_16();
-        int var39 = mem(var38, 38189);
-        C(var39);
-        int var40 = C();
+        int var39 = mem[var38];
+        C = var39;
+        int var40 = C;
         int var41 = rlc(var40);
-        C(var41);
-        int var42 = C();
+        C = var41;
+        int var42 = C;
         int var43 = rlc(var42);
-        C(var43);
+        C = var43;
       }
 
       do {
         int var44 = A;
         int var45 = DE_8();
         mem[var45] = var44;
-        int var46 = C();
+        int var46 = C;
         int var47 = HL_8();
         mem[var47] = var46;
         int var48 = L_16();
         int var49 = inc(var48);
-        L(var49);
-        F(var49);
-        int var50 = E();
+        L = var49;
+        F = var49;
+        int var50 = E;
         int var51 = inc(var50);
-        E(var51);
-        F(var51);
-        int var52 = B() - 1 & 255;
-        B(var52);
-      } while (B() != 0);
+        E = var51;
+        F = var51;
+        int var52 = B - 1 & 255;
+        B = var52;
+      } while (B != 0);
 
     }
   }
 
   public void $38196() {
-    int var1 = mem(33824, 38196);
+    int var1 = mem[33824];
     A = var1;
     int var2 = A;
     int var3 = cp(var2, 35);
-    F(var3);
-    if (F() == 0) {
-      int var24 = mem(34271, 38203);
+    F = var3;
+    if (F == 0) {
+      int var24 = mem[34271];
       A = var24;
       int var25 = A;
       int var26 = A | var25;
       A = var26;
       int var27 = A;
       int var28 = flagZ(var27);
-      F(var28);
-      if (F() == 0) {
-        int var36 = mem(34251, 38209);
+      F = var28;
+      if (F == 0) {
+        int var36 = mem[34251];
         A = var36;
         int var37 = A & 2;
         A = var37;
         int var38 = A;
         int var39 = flagZ(var38);
-        F(var39);
+        F = var39;
         int var40 = A;
         int var41 = rrc(var40);
         A = var41;
@@ -5179,29 +5179,29 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         A = var48;
         int var49 = A;
         int var50 = flagZ(var49);
-        F(var50);
+        F = var50;
         int var51 = A;
-        E(var51);
-        int var52 = mem(34255, 38221);
+        E = var51;
+        int var52 = mem[34255];
         A = var52;
         int var53 = A;
         int var54 = cp(var53, 208);
-        F(var54);
-        if (F() != 0) {
-          E(192);
+        F = var54;
+        if (F != 0) {
+          E = 192;
           int var57 = A;
           int var58 = cp(var57, 192);
-          F(var58);
-          if (F() < 0) {
-            E(224);
+          F = var58;
+          if (F < 0) {
+            E = 224;
           }
         }
 
-        D(156);
+        D = 156;
         HL = 26734;
-        C(1);
+        C = 1;
         $37974();
-        if (F() != 0) {
+        if (F != 0) {
           throw new StackException(37048);
         } else {
           HL = 17733;
@@ -5214,36 +5214,36 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           mem[23950 + 1] = var56 >>> 8;
         }
       } else {
-        int var29 = mem(34259, 38262);
+        int var29 = mem[34259];
         A = var29;
         int var30 = A & 31;
         A = var30;
         int var31 = A;
         int var32 = flagZ(var31);
-        F(var32);
+        F = var32;
         int var33 = A;
         int var34 = cp(var33, 6);
-        F(var34);
-        if (F() < 0) {
+        F = var34;
+        if (F < 0) {
           A = 2;
           int var35 = A;
           mem[34271] = var35;
         }
       }
     } else {
-      int var4 = mem(33824, 38298);
+      int var4 = mem[33824];
       A = var4;
       int var5 = A;
       int var6 = cp(var5, 33);
-      F(var6);
-      if (F() == 0) {
-        int var7 = mem(34251, 38304);
+      F = var6;
+      if (F == 0) {
+        int var7 = mem[34251];
         A = var7;
         int var8 = A & 1;
         A = var8;
         int var9 = A;
         int var10 = flagZ(var9);
-        F(var10);
+        F = var10;
         int var11 = A;
         int var12 = rrc(var11);
         A = var12;
@@ -5254,22 +5254,22 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         int var16 = rrc(var15);
         A = var16;
         int var17 = A;
-        E(var17);
-        int var18 = mem(34271, 38313);
+        E = var17;
+        int var18 = mem[34271];
         A = var18;
         int var19 = A;
         int var20 = cp(var19, 3);
-        F(var20);
-        if (F() == 0) {
-          int var23 = E() | 64;
-          E(var23);
+        F = var20;
+        if (F == 0) {
+          int var23 = E | 64;
+          E = var23;
         }
 
-        D(166);
+        D = 166;
         IX = 33488;
         BC = 4124;
-        C(C_16());
-        B(B_16());
+        C = C_16();
+        B = B_16();
         $38504();
         HL = 1799;
         int var21 = HL;
@@ -5283,24 +5283,24 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
   }
 
   public void $38276() {
-    int var1 = mem(33824, 38276);
+    int var1 = mem[33824];
     A = var1;
     int var2 = A;
     int var3 = cp(var2, 33);
-    F(var3);
-    if (F() == 0) {
-      int var4 = mem(34259, 38282);
+    F = var3;
+    if (F == 0) {
+      int var4 = mem[34259];
       A = var4;
       int var5 = A;
       int var6 = cp(var5, 188);
-      F(var6);
-      if (F() == 0) {
+      F = var6;
+      if (F == 0) {
         int var7 = A;
         int var8 = A ^ var7;
         A = var8;
         int var9 = A;
         int var10 = flagZ(var9);
-        F(var10);
+        F = var10;
         int var11 = A;
         mem[34251] = var11;
         A = 3;
@@ -5311,51 +5311,51 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
   }
 
   public void $38344() {
-    int var1 = mem16(34259, 38344);
+    int var1 = (mem[34259 + 1] << 8) + mem[34259];
     HL = var1;
-    B(0);
-    int var2 = mem(32986, 38349);
+    B = 0;
+    int var2 = mem[32986];
     A = var2;
     int var3 = A & 1;
     A = var3;
     int var4 = A;
     int var5 = flagZ(var4);
-    F(var5);
+    F = var5;
     int var6 = A;
     int var7 = add(var6, 64);
     A = var7;
-    F(var7);
+    F = var7;
     int var8 = A;
-    E(var8);
-    D(0);
+    E = var8;
+    D = 0;
     int var9 = DE_8();
     int var10 = HL;
     int var11 = add16(var10, var9);
     HL = var11;
-    int var12 = mem(32964, 38360);
+    int var12 = mem[32964];
     A = var12;
     int var13 = HL;
-    int var14 = mem(var13, 38363);
+    int var14 = mem[var13];
     int var15 = A;
     int var16 = cp(var15, var14);
-    F(var16);
-    if (F() == 0) {
-      int var76 = mem(34257, 38366);
+    F = var16;
+    if (F == 0) {
+      int var76 = mem[34257];
       A = var76;
       int var77 = A;
       int var78 = A | var77;
       A = var78;
       int var79 = A;
       int var80 = flagZ(var79);
-      F(var80);
-      if (F() == 0) {
-        int var81 = mem(34258, 38372);
+      F = var80;
+      if (F == 0) {
+        int var81 = mem[34258];
         A = var81;
         int var82 = A & 3;
         A = var82;
         int var83 = A;
         int var84 = flagZ(var83);
-        F(var84);
+        F = var84;
         int var85 = A;
         int var86 = rlc(var85);
         A = var86;
@@ -5363,43 +5363,43 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         int var88 = rlc(var87);
         A = var88;
         int var89 = A;
-        B(var89);
-        int var90 = mem(32986, 38380);
+        B = var89;
+        int var90 = mem[32986];
         A = var90;
         int var91 = A & 1;
         A = var91;
         int var92 = A;
         int var93 = flagZ(var92);
-        F(var93);
+        F = var93;
         int var94 = A;
         int var95 = dec(var94);
         A = var95;
-        F(var95);
+        F = var95;
         int var96 = A ^ 12;
         A = var96;
         int var97 = A;
         int var98 = flagZ(var97);
-        F(var98);
-        int var99 = B();
+        F = var98;
+        int var99 = B;
         int var100 = A ^ var99;
         A = var100;
         int var101 = A;
         int var102 = flagZ(var101);
-        F(var102);
+        F = var102;
         int var103 = A & 12;
         A = var103;
         int var104 = A;
         int var105 = flagZ(var104);
-        F(var105);
+        F = var105;
         int var106 = A;
-        B(var106);
+        B = var106;
       }
     }
 
-    int var17 = mem16(34259, 38392);
+    int var17 = (mem[34259 + 1] << 8) + mem[34259];
     HL = var17;
     DE = 31;
-    C(15);
+    C = 15;
 
     try {
       $38430();
@@ -5423,15 +5423,15 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
     int var25 = inc16(var24);
     HL = var25;
     $38430();
-    int var26 = mem(34255, 38415);
+    int var26 = mem[34255];
     A = var26;
-    int var27 = B();
+    int var27 = B;
     int var28 = A;
     int var29 = add(var28, var27);
     A = var29;
-    F(var29);
+    F = var29;
     int var30 = A;
-    C(var30);
+    C = var30;
     int var31 = DE();
     int var32 = HL;
     int var33 = add16(var32, var31);
@@ -5441,35 +5441,35 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
     int var35 = inc16(var34);
     HL = var35;
     $38430();
-    int var36 = mem(34255, 38455);
+    int var36 = mem[34255];
     A = var36;
-    int var37 = B();
+    int var37 = B;
     int var38 = A;
     int var39 = add(var38, var37);
     A = var39;
-    F(var39);
+    F = var39;
     IXH(130);
     int var40 = A;
     IXL(var40);
-    int var41 = mem(34256, 38464);
+    int var41 = mem[34256];
     A = var41;
     int var42 = A & 1;
     A = var42;
     int var43 = A;
     int var44 = flagZ(var43);
-    F(var44);
+    F = var44;
     int var45 = A;
     int var46 = rrc(var45);
     A = var46;
     int var47 = A;
-    E(var47);
-    int var48 = mem(34258, 38471);
+    E = var47;
+    int var48 = mem[34258];
     A = var48;
     int var49 = A & 3;
     A = var49;
     int var50 = A;
     int var51 = flagZ(var50);
-    F(var51);
+    F = var51;
     int var52 = A;
     int var53 = rrc(var52);
     A = var53;
@@ -5479,85 +5479,85 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
     int var56 = A;
     int var57 = rrc(var56);
     A = var57;
-    int var58 = E();
+    int var58 = E;
     int var59 = A | var58;
     A = var59;
     int var60 = A;
     int var61 = flagZ(var60);
-    F(var61);
+    F = var61;
     int var62 = A;
-    E(var62);
-    D(157);
-    int var63 = mem(33824, 38483);
+    E = var62;
+    D = 157;
+    int var63 = mem[33824];
     A = var63;
     int var64 = A;
     int var65 = cp(var64, 29);
-    F(var65);
-    if (F() == 0) {
-      D(182);
-      int var71 = E();
+    F = var65;
+    if (F == 0) {
+      D = 182;
+      int var71 = E;
       A = var71;
       int var72 = A ^ 128;
       A = var72;
       int var73 = A;
       int var74 = flagZ(var73);
-      F(var74);
+      F = var74;
       int var75 = A;
-      E(var75);
+      E = var75;
     }
 
-    B(16);
-    int var66 = mem(34259, 38498);
+    B = 16;
+    int var66 = mem[34259];
     A = var66;
     int var67 = A & 31;
     A = var67;
     int var68 = A;
     int var69 = flagZ(var68);
-    F(var69);
+    F = var69;
     int var70 = A;
-    C(var70);
+    C = var70;
     IX = IX_8();
     $38504();
   }
 
   public void $38430() {
-    int var1 = mem(32928, 38430);
+    int var1 = mem[32928];
     A = var1;
     int var2 = HL;
-    int var3 = mem(var2, 38433);
+    int var3 = mem[var2];
     int var4 = A;
     int var5 = cp(var4, var3);
-    F(var5);
-    if (F() == 0) {
-      int var11 = C();
+    F = var5;
+    if (F == 0) {
+      int var11 = C;
       A = var11;
       int var12 = A & 15;
       A = var12;
       int var13 = A;
       int var14 = flagZ(var13);
-      F(var14);
-      if (F() != 0) {
-        int var15 = mem(32928, 38441);
+      F = var14;
+      if (F != 0) {
+        int var15 = mem[32928];
         A = var15;
         int var16 = A | 7;
         A = var16;
         int var17 = A;
         int var18 = flagZ(var17);
-        F(var18);
+        F = var18;
         int var19 = A;
         int var20 = HL;
         mem[var20] = var19;
       }
     }
 
-    int var6 = mem(32955, 38447);
+    int var6 = mem[32955];
     A = var6;
     int var7 = HL;
-    int var8 = mem(var7, 38450);
+    int var8 = mem[var7];
     int var9 = A;
     int var10 = cp(var9, var8);
-    F(var10);
-    if (F() == 0) {
+    F = var10;
+    if (F == 0) {
       throw new StackException(37047);
     } else {
     }
@@ -5567,30 +5567,30 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
     DE = DE_8();
     do {
       int var1 = IX + 0;
-      int var2 = mem(var1, 38504);
+      int var2 = mem[var1];
       A = var2;
       int var3 = IX + 1;
-      int var4 = mem(var3, 38507);
-      H(var4);
-      int var5 = C();
+      int var4 = mem[var3];
+      H = var4 & 0xff;
+      int var5 = C;
       int var6 = A | var5;
       A = var6;
       int var7 = A;
       int var8 = flagZ(var7);
-      F(var8);
+      F = var8;
       int var9 = A;
-      L(var9);
+      L = var9;
       HL = HL_8();
       int var10 = DE();
-      int var11 = mem(var10, 38512);
+      int var11 = mem[var10];
       A = var11;
       int var12 = HL;
-      int var13 = mem(var12, 38513);
+      int var13 = mem[var12];
       int var14 = A | var13;
       A = var14;
       int var15 = A;
       int var16 = flagZ(var15);
-      F(var16);
+      F = var16;
       int var17 = A;
       int var18 = HL;
       mem[var18] = var17;
@@ -5601,15 +5601,15 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       int var22 = inc16(var21);
       DE = var22;
       int var23 = DE();
-      int var24 = mem(var23, 38517);
+      int var24 = mem[var23];
       A = var24;
       int var25 = HL;
-      int var26 = mem(var25, 38518);
+      int var26 = mem[var25];
       int var27 = A | var26;
       A = var27;
       int var28 = A;
       int var29 = flagZ(var28);
-      F(var29);
+      F = var29;
       int var30 = A;
       int var31 = HL;
       mem[var31] = var30;
@@ -5622,16 +5622,16 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       int var36 = DE();
       int var37 = inc16(var36);
       DE = var37;
-      int var38 = B() - 1 & 255;
-      B(var38);
-    } while (B() != 0);
+      int var38 = B - 1 & 255;
+      B = var38;
+    } while (B != 0);
 
   }
 
   public void $38528() {
     do {
       int var1 = IX + 0;
-      int var2 = mem(var1, 38528);
+      int var2 = mem[var1];
       A = var2;
       $38545();
       int var3 = IX;
@@ -5640,29 +5640,29 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       int var5 = E_16();
       int var6 = inc(var5);
       E_16(var6);
-      F(var6);
+      F = var6;
       int var7 = D_16();
       A = var7;
       int var8 = A - 8;
       int var9 = var8 & 255;
       A = var9;
-      F(var8);
+      F = var8;
       int var10 = A;
       D_16(var10);
-      int var11 = C();
+      int var11 = C;
       int var12 = dec(var11);
-      C(var12);
-      F(var12);
-    } while (F() != 0);
+      C = var12;
+      F = var12;
+    } while (F != 0);
 
   }
 
   public void $38545() {
-    H(7);
+    H = 7 & 0xff;
     int var1 = A;
-    L(var1);
-    int var2 = L() | 128;
-    L(var2);
+    L = var1;
+    int var2 = L | 128;
+    L = var2;
     int var3 = HL_8();
     int var4 = HL_8();
     int var5 = add16(var4, var3);
@@ -5675,14 +5675,14 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
     int var10 = HL;
     int var11 = add16(var10, var9);
     HL = var11;
-    B(8);
+    B = 8;
     $38555();
   }
 
   public void $38555() {
     do {
       int var1 = HL;
-      int var2 = mem(var1, 38555);
+      int var2 = mem[var1];
       A = var2;
       int var3 = A;
       int var4 = DE();
@@ -5693,22 +5693,22 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       int var7 = D_16();
       int var8 = inc(var7);
       D_16(var8);
-      F(var8);
-      int var9 = B() - 1 & 255;
-      B(var9);
-    } while (B() != 0);
+      F = var8;
+      int var9 = B - 1 & 255;
+      B = var9;
+    } while (B != 0);
 
   }
 
   public void $38562() {
     while (true) {
       int var1 = HL;
-      int var2 = mem(var1, 38562);
+      int var2 = mem[var1];
       A = var2;
       int var3 = A;
       int var4 = cp(var3, 255);
-      F(var4);
-      if (F() == 0) {
+      F = var4;
+      if (F == 0) {
         return;
       }
 
@@ -5718,26 +5718,26 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       A = var6;
       int var7 = A;
       int var8 = flagZ(var7);
-      F(var8);
+      F = var8;
       int var9 = HL;
-      int var10 = mem(var9, 38570);
-      E(var10);
-      int var11 = E();
-      D(var11);
+      int var10 = mem[var9];
+      E = var10;
+      int var11 = E;
+      D = var11;
 
       while (true) {
-        int var12 = D();
+        int var12 = D;
         int var13 = dec(var12);
-        D(var13);
-        F(var13);
-        if (F() == 0) {
-          int var26 = E();
-          D(var26);
+        D = var13;
+        F = var13;
+        if (F == 0) {
+          int var26 = E;
+          D = var26;
           int var27 = A ^ 24;
           A = var27;
           int var28 = A;
           int var29 = flagZ(var28);
-          F(var29);
+          F = var29;
         }
 
         int var14 = B_16() - 1 & 255;
@@ -5750,11 +5750,11 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           A = var16;
           int var17 = A;
           int var18 = cp(var17, 50);
-          F(var18);
-          if (F() == 0) {
-            int var24 = E();
+          F = var18;
+          if (F == 0) {
+            int var24 = E;
             int var25 = rl(var24);
-            E(var25);
+            E = var25;
           }
 
           int var19 = AF_8();
@@ -5763,10 +5763,10 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           int var20 = C_16();
           int var21 = dec(var20);
           C_16(var21);
-          F(var21);
-          if (F() == 0) {
+          F = var21;
+          if (F == 0) {
             $38601();
-            if (F() != 0) {
+            if (F != 0) {
               return;
             }
 
@@ -5781,72 +5781,72 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
   }
 
   public void $38601() {
-    int var1 = mem(34254, 38601);
+    int var1 = mem[34254];
     A = var1;
     int var2 = A;
     int var3 = A | var2;
     A = var3;
     int var4 = A;
     int var5 = flagZ(var4);
-    F(var5);
-    if (F() != 0) {
+    F = var5;
+    if (F != 0) {
       int var13 = A << 8 | 31;
       int var14 = in(var13, 38607);
       A = var14;
       int var15 = A & 16;
-      F(var15);
-      if (F() != 0) {
+      F = var15;
+      if (F != 0) {
         return;
       }
     }
 
     BC = 45054;
-    int var6 = BC();
+    int var6 = BC;
     int var7 = in(var6, 38615);
     A = var7;
     int var8 = A & 1;
     A = var8;
     int var9 = A;
     int var10 = flagZ(var9);
-    F(var10);
+    F = var10;
     int var11 = A;
     int var12 = cp(var11, 1);
-    F(var12);
+    F = var12;
   }
 
   public void $38622() {
     int var1 = A;
-    E(var1);
-    C(254);
+    E = var1;
+    C = 254;
 
     do {
       int var2 = A;
-      D(var2);
-      int var3 = D() & -17;
-      D(var3);
-      int var4 = D() & -9;
-      D(var4);
-      int var5 = E();
-      B(var5);
+      D = var2;
+      int var3 = D & -17;
+      D = var3;
+      int var4 = D & -9;
+      D = var4;
+      int var5 = E;
+      B = var5;
 
       do {
-        int var6 = B();
+        int var6 = B;
         int var7 = A;
         int var8 = cp(var7, var6);
-        F(var8);
-        if (F() == 0) {
-          D(24);
+        F = var8;
+        if (F == 0) {
+          D = 24;
         }
 
-        int var9 = B() - 1 & 255;
-        B(var9);
-      } while (B() != 0);
+        int var9 = B - 1 & 255;
+        B = var9;
+      } while (B != 0);
 
       int var10 = A;
       int var11 = dec(var10);
       A = var11;
-      F(var11);
-    } while (F() != 0);
+      F = var11;
+    } while (F != 0);
 
   }
 }

@@ -71,7 +71,8 @@ public abstract class SpectrumApplication<T> {
       int address1 = HL();
       mem[address1] = A;
     } else if (mem[address] == 0x7E) {
-      A = mem(HL(), address);
+      int address1 = HL();
+      A = mem[address1];
     } else if (mem[address] == 0x12) {
       int address1 = DE();
       mem[address1] = A;
@@ -203,7 +204,7 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int mem16(int address, int pc) {
-    return (mem(address + 1) << 8) + mem(address);
+    return (mem[address + 1] << 8) + mem[address];
   }
 
   public int mem(int address) {
@@ -230,7 +231,8 @@ public abstract class SpectrumApplication<T> {
     while (bc-- != 0) {
       pc(-1, 16);
       int address = de++;
-      int value = mem(hl++);
+      int address1 = hl++;
+      int value = mem[address1];
       mem[address] = value;
     }
     BC(bc);
@@ -241,7 +243,8 @@ public abstract class SpectrumApplication<T> {
   public void lddr() {
     while (BC() != 0) {
       int address = DE();
-      int value = mem(HL());
+      int address1 = HL();
+      int value = mem[address1];
       mem[address] = value;
       BC(BC() - 1);
       HL(HL() - 1);
@@ -252,7 +255,7 @@ public abstract class SpectrumApplication<T> {
   public int[] cpir(int HL, int BC, int A) {
     int result = -1;
     while (BC != 0 && result != A) {
-      result = mem(HL);
+      result = mem[HL];
       BC--;
       HL++;
     }
@@ -262,7 +265,8 @@ public abstract class SpectrumApplication<T> {
   public void cpir() {
     int result = -1;
     while (BC() != 0 && result != A) {
-      result = mem(HL());
+      int address = HL();
+      result = mem[address];
       BC(BC() - 1);
       HL(HL() + 1);
     }
