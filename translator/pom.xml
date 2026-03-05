@@ -98,7 +98,12 @@
             <artifactId>byte-buddy</artifactId>
             <version>LATEST</version>
         </dependency>
-
+        <dependency>
+            <groupId>fr.inria.gforge.spoon</groupId>
+            <artifactId>spoon-core</artifactId>
+            <version>10.4.3-beta-21</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1612,6 +1612,8 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
                   $38528();
                   pc(36067, 1);
                   BC(0);
+                  B(0);
+                  C(0);
                   pc(36070, 1);
                   D(6);
 
