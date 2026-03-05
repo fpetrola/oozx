@@ -191,7 +191,7 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int mem(int address, int pc) {
-    return getMem()[address] & 0xff;
+    return getMem()[address];
   }
 
   public void wMem(int address, int value, int pc) {

@@ -28,7 +28,7 @@ public abstract class ConvertedMiniZX extends MiniZX {
 
   public void HL_8(int value) {
     H = value >> 8;
-    L = value & 0xFF;
+    L = value;
   }
 
   public void IX(int value) {
@@ -40,19 +40,19 @@ public abstract class ConvertedMiniZX extends MiniZX {
   }
 
   public void AFx(int value) {
-    AFx = value & 0xffff;
+    AFx = value;
   }
 
   public void BCx(int value) {
-    BCx = value & 0xffff;
+    BCx = value;
   }
 
   public void DEx(int value) {
-    DEx = value & 0xffff;
+    DEx = value;
   }
 
   public void HLx(int value) {
-    HLx = value & 0xffff;
+    HLx = value;
   }
 
   public int AF() {
@@ -100,7 +100,7 @@ public abstract class ConvertedMiniZX extends MiniZX {
   }
 
   public int AF_8() {
-    return A << 8 | F & 0xff;
+    return A << 8 | F;
   }
 
   public int B_16() {
@@ -112,7 +112,7 @@ public abstract class ConvertedMiniZX extends MiniZX {
   }
 
   public int BC_8() {
-    return B << 8 | C & 0xff;
+    return B << 8 | C;
   }
 
   public int BC_8_16() {
@@ -124,7 +124,7 @@ public abstract class ConvertedMiniZX extends MiniZX {
   }
 
   public void D_16(int d) {
-    DE = DE & 0xff | ((d & 0xff) << 8);
+    DE = DE & 0xff | ((d) << 8);
   }
 
   public int E_16() {
@@ -132,11 +132,11 @@ public abstract class ConvertedMiniZX extends MiniZX {
   }
 
   public void E_16(int e) {
-    DE = DE & 0xff00 | e & 0xff;
+    DE = DE & 0xff00 | e;
   }
 
   public int DE_8() {
-    return D << 8 | E & 0xff;
+    return D << 8 | E;
   }
 
   public void DE_8(int de) {
