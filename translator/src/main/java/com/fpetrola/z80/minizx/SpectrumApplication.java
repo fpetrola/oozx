@@ -61,8 +61,6 @@ public abstract class SpectrumApplication<T> {
   public int[] mem = new int[0x10000];
   static public IO<WordNumber> io;
   private final Stack<Integer> stack = new Stack<>();
-  protected int carry;
-
 
   public boolean isOwnAddress(StackException stackException, int... integers) {
     nextAddress = stackException.getNextPC();
@@ -200,7 +198,7 @@ public abstract class SpectrumApplication<T> {
 
   public void wMem16(int address, int value, int pc) {
     wMem(address, value & 0xFF);
-    wMem(address + 1 , value >>> 8);
+    wMem(address + 1, value >>> 8);
   }
 
   public int mem16(int address, int pc) {
@@ -277,8 +275,8 @@ public abstract class SpectrumApplication<T> {
 
   public void AF(int value) {
     AF = value & 0xffff;
-    A= AF >> 8;
-    F= AF & 0xFF;
+    A = AF >> 8;
+    F = AF & 0xFF;
   }
 
   public void BC(int value) {
@@ -314,44 +312,36 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int rrc(int a) {
-    F = carry = a & 1;
+    F = a & 1;
     return ((a & 0xff) >> 1) | ((a & 0x01) << 7) & 0xff;
   }
 
   public int rr(int a) {
     int lastCarry = (carry(F) & 0x01) << 7;
-    F = carry = a & 1;
+    F = a & 1;
     return ((a & 0xff) >> 1) | lastCarry;
   }
 
   public int rlc(int a) {
-    F = carry = (a & 128) >> 7;
+    F = (a & 128) >> 7;
     return ((a << 1) & 0xfe) | (a & 0xFF) >> 7;
   }
 
   public int rl(int a) {
     int lastCarry = carry(F) & 0x01;
-    F = carry = (a & 128) >> 7;
+    F = (a & 128) >> 7;
     return ((a << 1) & 0xfe) | lastCarry;
   }
 
   public int sl(int a) {
     int lastCarry = 0;
-    F = carry = (a & 128) >> 7;
+    F = (a & 128) >> 7;
     return ((a << 1) & 0xfe) | lastCarry;
   }
 
   public int sr(int a) {
-    F = carry = (a & 1) >> 7;
+    F = (a & 1) >> 7;
     return ((a & 0xff) >> 1);
-  }
-
-  public int getCarry() {
-    return carry;
-  }
-
-  public void ccf() {
-    carry = ~carry;
   }
 
   public int AF;
