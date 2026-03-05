@@ -2,7 +2,7 @@
   "className": "com.fpetrola.z80.bytecode.tests.minimal.JSWTest1",
   "methods": {
     "$2000": {
-      "inputs": ["DE"]
+      "inputs": ["HL"]
     },
     "$1000": {
       "inputs": ["BC"]

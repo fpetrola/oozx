@@ -25,7 +25,5 @@ public class JSWTest1 {
 
   public void $3000 (){
     BC= 0x1234;
-    $1000();
-    HL= DE;
   }
 }

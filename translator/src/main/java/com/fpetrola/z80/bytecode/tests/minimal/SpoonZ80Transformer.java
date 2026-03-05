@@ -218,8 +218,8 @@ public class SpoonZ80Transformer {
         List<CtReturn<?>> returns = new ArrayList<>(
             body.getElements(new TypeFilter<>(CtReturn.class)));
         for (CtReturn<?> ret : returns) {
-            CtNewArray<?> arr = buildReturnArray(F, intRef, null, ms.outputs);
-            ret.setReturnedExpression((CtExpression) arr);
+          CtNewArray<?> arr = buildReturnArray(F, intRef, null, ms.outputs);
+          ret.setReturnedExpression((CtExpression) arr);
         }
 
         CtNewArray<?> arr = buildReturnArray(F, intRef, null, ms.outputs);
@@ -271,7 +271,7 @@ public class SpoonZ80Transformer {
       for (String out : calleeSpec.outputs) {
         if (out.equals(calleeSkipOutput)) {
           // this output was merged into index 0 (the return value position)
-          continue;
+          outputIndexMap.put(out, 0);
         } else {
           outputIndexMap.put(out, arrIdx++);
         }
@@ -285,10 +285,10 @@ public class SpoonZ80Transformer {
         Set<String> callerOutputs = callerSpec != null ? new LinkedHashSet<>(callerSpec.outputs) : Collections.emptySet();
 
         List<CtInvocation<?>> invocations = new ArrayList<>(
-            callerMethod.getElements(new TypeFilter<>(CtInvocation.class){
+            callerMethod.getElements(new TypeFilter<>(CtInvocation.class) {
               @Override
               public boolean matches(CtInvocation<?> element) {
-                return super.matches(element) && callerName.equals(element.getExecutable().getSimpleName());
+                return super.matches(element) && calleeName.equals(element.getExecutable().getSimpleName());
               }
             }));
 
@@ -306,12 +306,10 @@ public class SpoonZ80Transformer {
           CtStatement parentStmt = null;
           CtBlock<?> parentBlock = null;
           while (current != null) {
-            if (current instanceof CtStatement stmt) {
-              if (current.getParent() instanceof CtBlock<?> blk) {
-                parentStmt = stmt;
-                parentBlock = blk;
-                break;
-              }
+            if (current instanceof CtStatement stmt && current.getParent() instanceof CtBlock<?> blk) {
+              parentStmt = stmt;
+              parentBlock = blk;
+              break;
             }
             current = current.getParent();
           }
@@ -348,7 +346,7 @@ public class SpoonZ80Transformer {
 
           // Unpack each output that exists in the caller's locals
           for (String out : calleeSpec.outputs) {
-            if (callerOutputs.contains(out)) continue; // caller doesn't have this var
+//            if (!callerOutputs.contains(out)) continue; // caller doesn't have this var
             int unpackIdx = outputIndexMap.get(out);
             CtAssignment<?, ?> unpack = buildArrayUnpack(
                 F, intRef, out, resVarName, unpackIdx);
@@ -356,7 +354,7 @@ public class SpoonZ80Transformer {
           }
 
           // Replace the original statement with the new statements
-          parentBlock.delete();
+          parentStmt.delete();
           for (int i = 0; i < replacements.size(); i++) {
             parentBlock.addStatement(stmtIdx + i, replacements.get(i));
           }
