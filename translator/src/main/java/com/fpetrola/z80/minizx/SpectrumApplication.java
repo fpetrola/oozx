@@ -220,32 +220,8 @@ public abstract class SpectrumApplication<T> {
     while (start + i >= System.nanoTime()) ;
   }
 
-  public int[] ldir(int HL, int DE, int BC) {
-    while (BC != 0) {
-      wMem(DE, mem(HL));
-      BC--;
-      HL++;
-      DE++;
-    }
-    return new int[]{HL, DE, BC};
-  }
-
   public void pc(int address, int rdelta) {
-    int stackDelta = getStackDelta();
     PC = address;
-//    System.out.println(stackDelta);
-  }
-
-  public int getStackDelta() {
-    int stackDepth = methodStack.size();
-    int stackDelta = 0;
-    if (lastStackDepth != stackDepth)
-      if (stackDepth > lastStackDepth)
-        stackDelta = 1;
-      else
-        stackDelta = -1;
-    lastStackDepth = stackDepth;
-    return stackDelta;
   }
 
   public void ldir() {
@@ -331,19 +307,6 @@ public abstract class SpectrumApplication<T> {
     return ((a & 0xFF) << 8) | (f & 0xFF);
   }
 
-//  public int[] rlc(int a, int F) {
-//    F = (a & 128) >> 7;
-//    int i = ((a << 1) & 0xfe) | (a & 0xFF) >> 7;
-//    return new int[]{i & 0xff, F};
-//  }
-//
-//  public int[] rl(int a, int F) {
-//    int lastCarry = carry(F) & 0x01;
-//    F = (a & 128) >> 7;
-//    int i = ((a << 1) & 0xfe) | lastCarry;
-//    return new int[]{i & 0xff, F};
-//  }
-
   public int rrc(int a) {
     F = carry = a & 1;
     return ((a & 0xff) >> 1) | ((a & 0x01) << 7) & 0xff;
@@ -384,19 +347,6 @@ public abstract class SpectrumApplication<T> {
   public void ccf() {
     carry = ~carry;
   }
-
-  public void update16Registers() {
-    AF(pair(A, F));
-    BC(pair(B, C));
-    DE(pair(D, E));
-    HL(pair(H, L));
-
-    AFx(pair(Ax, Fx));
-    BCx(pair(Bx, Cx));
-    DEx(pair(Dx, Ex));
-    HLx(pair(Hx, Lx));
-  }
-
 
   public int AF;
   public int BC;
