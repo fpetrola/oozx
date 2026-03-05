@@ -38,21 +38,21 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
   public int mem(int address, int pc) {
     waitNanos(delay);
     syncChecker.checkSyncJava(address, 0, pc);
-    return getMem()[address] & 0xff;
+    return mem[address] & 0xff;
   }
 
   public void wMem(int address, int value, int pc) {
     waitNanos(delay);
     syncChecker.checkSyncJava(address, value, pc);
 //    System.out.println("pc: " + pc);
-    wMem(address, value);
+    mem[address] = value;
   }
 
   public void wMem16(int address, int value, int pc) {
     syncChecker.checkSyncJava(address, value, pc);
-    getMem()[address] = value & 0xFF;
+    mem[address] = value & 0xFF;
     syncChecker.checkSyncJava(address + 1, value, pc);
-    getMem()[address + 1] = value >> 8;
+    mem[address + 1] = value >> 8;
     if (address == 32985) {
       System.out.println();
     }
@@ -70,7 +70,7 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
   public void wMem(int address, int value) {
 //    long start = System.nanoTime();
 //    while (start + 4000 >= System.nanoTime()) ;
-    getMem()[address] = value & 0xff;
+    mem[address] = value & 0xff;
     objectMemory[address] = new ZxObject(value);
     replaceWithObject(address, value);
   }
@@ -98,7 +98,7 @@ public abstract class SyncSpectrumApplication<T> extends SpectrumApplication<T> 
 
   public class DummySyncChecker implements SyncChecker {
     public int getByteFromEmu(Integer index) {
-      return getMem()[index];
+      return mem[index];
     }
   }
 

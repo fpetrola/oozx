@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.minizx;
 
-import com.fpetrola.z80.bytecode.generators.helpers.Composed16BitRegisterVariable;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.minizx.sync.SyncChecker;
 import com.fpetrola.z80.opcodes.references.WordNumber;
@@ -69,11 +68,13 @@ public abstract class SpectrumApplication<T> {
 
   public void executeMutantCode(int address) {
     if (mem[address] == 0x77) {
-      wMem(HL(), A, address);
+      int address1 = HL();
+      mem[address1] = A;
     } else if (mem[address] == 0x7E) {
       A = mem(HL(), address);
     } else if (mem[address] == 0x12) {
-      wMem(DE(), A, address);
+      int address1 = DE();
+      mem[address1] = A;
     } else if (mem[address] == 0x16) {
       D(mem[address + 1]);
     }
@@ -180,7 +181,7 @@ public abstract class SpectrumApplication<T> {
   }
 
   public SpectrumApplication() {
-    Arrays.fill(getMem(), 0);
+    Arrays.fill(mem, 0);
     io = new DefaultMiniZXIO();
   }
 
@@ -189,16 +190,16 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int mem(int address, int pc) {
-    return getMem()[address];
+    return mem[address];
   }
 
   public void wMem(int address, int value, int pc) {
-    wMem(address, value);
+    mem[address] = value;
   }
 
   public void wMem16(int address, int value, int pc) {
-    wMem(address, value & 0xFF);
-    wMem(address + 1, value >>> 8);
+    mem[address] = value & 0xFF;
+    mem[address + 1] = value >>> 8;
   }
 
   public int mem16(int address, int pc) {
@@ -206,17 +207,11 @@ public abstract class SpectrumApplication<T> {
   }
 
   public int mem(int address) {
-    return getMem()[address];
+    return mem[address];
   }
 
   public void wMem(int address, int value) {
-    checkAnd(value);
-    getMem()[address] = value;
-  }
-
-  private void checkAnd(int value) {
-    if (value != (value & 0xff))
-      System.out.println("dsgdsag");
+    mem[address] = value;
   }
 
   public static void waitNanos(int i) {
@@ -234,7 +229,9 @@ public abstract class SpectrumApplication<T> {
     int hl = HL();
     while (bc-- != 0) {
       pc(-1, 16);
-      wMem(de++, mem(hl++));
+      int address = de++;
+      int value = mem(hl++);
+      mem[address] = value;
     }
     BC(bc);
     HL(hl);
@@ -243,7 +240,9 @@ public abstract class SpectrumApplication<T> {
 
   public void lddr() {
     while (BC() != 0) {
-      wMem(DE(), mem(HL()));
+      int address = DE();
+      int value = mem(HL());
+      mem[address] = value;
       BC(BC() - 1);
       HL(HL() - 1);
       DE(DE() - 1);

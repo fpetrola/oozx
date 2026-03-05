@@ -18,9 +18,7 @@
 
 package com.fpetrola.z80.minizx;
 
-import com.fpetrola.z80.bytecode.tests.JetSetWilly2FieldAccessAnalyzer3;
 import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulationBase;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -72,7 +70,7 @@ public abstract class MiniZX extends SpectrumApplication {
     final byte[] rom = MiniZXWithEmulationBase.createROM();
     final byte[] bytes = MiniZXWithEmulationBase.gzipDecompressFromBase64(this.getProgramBytes());
     for (int i = 0; i < 65536; ++i) {
-      this.getMem()[i] = ((i < 16384) ? rom[i] : bytes[i]) & 0xff;
+      mem[i] = ((i < 16384) ? rom[i] : bytes[i]) & 0xff;
     }
 
     customizeMemory();
