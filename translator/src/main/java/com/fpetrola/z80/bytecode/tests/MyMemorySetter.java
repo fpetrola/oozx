@@ -32,7 +32,7 @@ public class MyMemorySetter implements MemorySetter {
   public void setData(byte[] result) {
     for (int i = 0; i < result.length; i++) {
       if (i >= 16384) {
-        spectrumApplication.mem[i] = result[i];
+        spectrumApplication.mem[i] = result[i] & 0xff;
       }
     }
   }

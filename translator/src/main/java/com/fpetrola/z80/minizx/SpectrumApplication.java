@@ -199,20 +199,26 @@ public abstract class SpectrumApplication<T> {
   }
 
   public void wMem16(int address, int value, int pc) {
-    getMem()[address] = value & 0xFF;
-    getMem()[address + 1] = value >> 8;
+    wMem(address, value & 0xFF);
+    wMem(address + 1 , value >>> 8);
   }
 
   public int mem16(int address, int pc) {
-    return mem(address + 1) * 256 + mem(address);
+    return (mem(address + 1) << 8) + mem(address);
   }
 
   public int mem(int address) {
-    return getMem()[address] & 0xff;
+    return getMem()[address];
   }
 
   public void wMem(int address, int value) {
-    getMem()[address] = value & 0xff;
+    checkAnd(value);
+    getMem()[address] = value;
+  }
+
+  private void checkAnd(int value) {
+    if (value != (value & 0xff))
+      System.out.println("dsgdsag");
   }
 
   public static void waitNanos(int i) {
