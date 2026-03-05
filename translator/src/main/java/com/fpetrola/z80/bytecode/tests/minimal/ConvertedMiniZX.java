@@ -157,7 +157,7 @@ public abstract class ConvertedMiniZX extends MiniZX {
   }
 
   public int HL_8() {
-    return H << 8 | L & 0xff;
+    return H << 8 | L;
   }
 
   public int HL_8_16() {
@@ -165,7 +165,7 @@ public abstract class ConvertedMiniZX extends MiniZX {
   }
 
   public int HL_16_8() {
-    return (HL & 0xff00) | L & 0xff;
+    return (HL & 0xff00) | L;
   }
 
   public int A() {
@@ -189,7 +189,7 @@ public abstract class ConvertedMiniZX extends MiniZX {
   }
 
   public void B(int b) {
-    B = b & 0xff;
+    B = b;
   }
 
   public void B_16(int b) {
@@ -205,7 +205,7 @@ public abstract class ConvertedMiniZX extends MiniZX {
   }
 
   public void C_16(int c) {
-    BC = BC & 0xff00 | c & 0xff;
+    BC = BC & 0xff00 | c;
   }
 
   public int D() {
