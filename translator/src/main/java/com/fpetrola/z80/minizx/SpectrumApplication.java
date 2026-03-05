@@ -163,21 +163,10 @@ public abstract class SpectrumApplication<T> {
   }
 
   public void push(int value) {
-//    if (SP != INITIAL_SP_VALUE) {
-//      wMem16(SP, value);
-//      SP -= 2;
-//    } else
     stack.push(value);
-//    if (stack.size() > 100)
-//      System.out.println("mmmmmm push");
   }
 
   public int pop() {
-//    if (SP != INITIAL_SP_VALUE) {
-//      int i = mem16(SP);
-//      SP += 2;
-//      return i;
-//    } else
     return stack.pop();
   }
 
@@ -201,54 +190,12 @@ public abstract class SpectrumApplication<T> {
     return io.in(WordNumber.createValue(port)).intValue();
   }
 
-  public int l(int value) {
-    return value & 0xff;
-  }
-
-  public int h(int value) {
-    return value >> 8 & 0xff;
-  }
-
-  public int reg16low(int reg16, int low) {
-    return reg16 & 255 | low << 8;
-  }
-
-  public int reg16high(int reg16, int high) {
-    return reg16 & 0xFF00 | high;
-  }
-
   public int mem(int address, int pc) {
     return getMem()[address] & 0xff;
   }
 
-  public int mem(int address, int pc, int AF, int BC, int DE, int HL, int IX, int IY, int A, int F, int B, int C, int D, int E, int H, int L, int IXL, int IXH, int IYL, int IYH) {
-    updateRegisters(AF, BC, DE, HL, IX, IY, A, F, B, C, D, E, H, L, IXL, IXH, IYL, IYH);
-    return mem(address, pc);
-  }
-
-  private void updateRegisters(int AF, int BC, int DE, int HL, int IX, int IY, int A, int F, int B, int C, int D, int E, int H, int L, int IXL, int IXH, int IYL, int IYH) {
-    this.AF = AF;
-    this.BC = BC;
-    this.DE = DE;
-    this.HL = HL;
-    this.IX = IX;
-    this.IY = IY;
-    this.A = A;
-    this.F = F;
-    this.B = B;
-    this.C = C;
-    this.D = D;
-    this.H = H;
-    this.L = L;
-  }
-
   public void wMem(int address, int value, int pc) {
     wMem(address, value);
-  }
-
-  public void wMem(int address, int value, int pc, int AF, int BC, int DE, int HL, int IX, int IY, int A, int F, int B, int C, int D, int E, int H, int L, int IXL, int IXH, int IYL, int IYH) {
-    updateRegisters(AF, BC, DE, HL, IX, IY, A, F, B, C, D, E, H, L, IXL, IXH, IYL, IYH);
-    wMem(address, value, pc);
   }
 
   public void wMem16(int address, int value, int pc) {
@@ -256,52 +203,21 @@ public abstract class SpectrumApplication<T> {
     getMem()[address + 1] = value >> 8;
   }
 
-  public void wMem16(int address, int value, int pc, int AF, int BC, int DE, int HL, int IX, int IY, int A, int F, int B, int C, int D, int E, int H, int L, int IXL, int IXH, int IYL, int IYH) {
-    updateRegisters(AF, BC, DE, HL, IX, IY, A, F, B, C, D, E, H, L, IXL, IXH, IYL, IYH);
-    wMem16(address, value, pc);
-  }
-
   public int mem16(int address, int pc) {
     return mem(address + 1) * 256 + mem(address);
   }
 
-  public int mem16(int address, int pc, int AF, int BC, int DE, int HL, int IX, int IY, int A, int F, int B, int C, int D, int E, int H, int L, int IXL, int IXH, int IYL, int IYH) {
-    updateRegisters(AF, BC, DE, HL, IX, IY, A, F, B, C, D, E, H, L, IXL, IXH, IYL, IYH);
-    return mem16(address, pc);
-  }
-
   public int mem(int address) {
-//    waitNanos(40);
     return getMem()[address] & 0xff;
   }
 
   public void wMem(int address, int value) {
-//    waitNanos(40);
     getMem()[address] = value & 0xff;
   }
 
   public static void waitNanos(int i) {
     long start = System.nanoTime();
     while (start + i >= System.nanoTime()) ;
-  }
-
-  public void waitMilis(int i) {
-    long start = System.currentTimeMillis();
-    while (start + i >= System.currentTimeMillis()) ;
-  }
-
-  public void wMem16(int address, int value) {
-    value = value & 0xffff;
-    getMem()[address + 1] = value >> 8;
-    getMem()[address] = value & 0xFF;
-  }
-
-  public int mem16(int i) {
-    return (mem(i + 1) * 256 + mem(i)) & 0xffff;
-  }
-
-  public int[] result(int... results) {
-    return results;
   }
 
   public int[] ldir(int HL, int DE, int BC) {
