@@ -414,7 +414,7 @@ public class JetSetWilly2Converted {
           }
 
           HL = 34299;
-          $38562(HL);
+          F= $38562(HL);
           if (F != 0) {
             break;
           }
@@ -5914,7 +5914,7 @@ public class JetSetWilly2Converted {
     return DE;
   }
 
-  public void $38562(int HL) {
+  public int $38562(int HL) {
     int A, B, C, D, E, H, L, IX, IY, F, DE, BC, AF;
 
     while (true) {
@@ -5925,7 +5925,7 @@ public class JetSetWilly2Converted {
       int var4 = cp(var3, 255);
       F = var4;
       if (F == 0) {
-        return;
+        return F;
       }
 
       BC = 100;
@@ -5983,9 +5983,9 @@ public class JetSetWilly2Converted {
           BC = BC & 0xff00 | var21;
           F = var21;
           if (F == 0) {
-            $38601();
+            F= $38601();
             if (F != 0) {
-              return;
+              return F;
             }
 
             int var22 = HL;
@@ -5998,7 +5998,7 @@ public class JetSetWilly2Converted {
     }
   }
 
-  public void $38601() {
+  public int $38601() {
     int A, B, C, D, E, H, L, IX, IY, F, HL, DE, BC;
 
     int var1 = mem[34254];
@@ -6016,7 +6016,7 @@ public class JetSetWilly2Converted {
       int var15 = A & 16;
       F = var15;
       if (F != 0) {
-        return;
+        return F;
       }
     }
 
@@ -6032,6 +6032,7 @@ public class JetSetWilly2Converted {
     int var11 = A;
     int var12 = cp(var11, 1);
     F = var12;
+    return F;
   }
 
   public void $38622(int A) {
