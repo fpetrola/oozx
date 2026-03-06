@@ -4,7 +4,6 @@ import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.MiniZXScreen;
-import com.fpetrola.z80.minizx.StackException;
 import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulationBase;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
@@ -636,8 +635,8 @@ public class JetSetWilly2Converted {
                             if (F != 0) {
                               $36307();
                             }
-                          } catch (StackException var645) {
-                            int var99 = var645.getNextPC();
+                          } catch (RuntimeException var645) {
+                            int var99 = Integer.parseInt(var645.getMessage());
                             if (var99 == 37048) {
                               break label412;
                             }
@@ -670,8 +669,8 @@ public class JetSetWilly2Converted {
                               $38064();
                             }
                             break label279;
-                          } catch (StackException var644) {
-                            if (var644.getNextPC() != 38095) {
+                          } catch (RuntimeException var644) {
+                            if (Integer.parseInt(var644.getMessage()) != 38095) {
                               break label279;
                             }
                           }
@@ -690,8 +689,8 @@ public class JetSetWilly2Converted {
                         if (F != 0) {
                           $38344();
                         }
-                      } catch (StackException var643) {
-                        if (var643.getNextPC() == 37048) {
+                      } catch (RuntimeException var643) {
+                        if (Integer.parseInt(var643.getMessage()) == 37048) {
                           break label412;
                         }
                       }
@@ -707,8 +706,8 @@ public class JetSetWilly2Converted {
 
                       try {
                         $38196();
-                      } catch (StackException var642) {
-                        if (var642.getNextPC() == 37048) {
+                      } catch (RuntimeException var642) {
+                        if (Integer.parseInt(var642.getMessage()) == 37048) {
                           break label412;
                         }
                       }
@@ -716,8 +715,8 @@ public class JetSetWilly2Converted {
                       try {
                         $37310();
                         break label282;
-                      } catch (StackException var641) {
-                        if (var641.getNextPC() != 37048) {
+                      } catch (RuntimeException var641) {
+                        if (Integer.parseInt(var641.getMessage()) != 37048) {
                           break label282;
                         }
                       }
@@ -1841,8 +1840,8 @@ public class JetSetWilly2Converted {
               A = r4[0];
               C = r4[1];
               IX = r4[2];
-            } catch (StackException var46) {
-              if (var46.getNextPC() == 34687) {
+            } catch (RuntimeException var46) {
+              if (Integer.parseInt(var46.getMessage()) == 34687) {
                 int var24 = C;
                 int var25 = A | var24;
                 A = var25;
@@ -2008,7 +2007,7 @@ public class JetSetWilly2Converted {
           int var97 = A;
           int var98 = _rlc(var97);
           A = var98;
-          throw new StackException(34687);
+          throw new RuntimeException("34687");
         }
       }
 
@@ -2677,7 +2676,7 @@ public class JetSetWilly2Converted {
                 A = 92;
                 int var495 = A;
                 mem[34260] = var495;
-                throw new StackException(38134);
+                throw new RuntimeException("38134");
               }
 
               int var497 = mem[32955];
@@ -2837,7 +2836,7 @@ public class JetSetWilly2Converted {
             int var409 = cp(var408, 12);
             F = var409;
             if (F >= 0) {
-              throw new StackException(37048);
+              throw new RuntimeException("37048");
             }
 
             int var410 = A;
@@ -3427,7 +3426,7 @@ public class JetSetWilly2Converted {
         F = var267;
         int var268 = A;
         mem[34259] = var268;
-        throw new StackException(38043);
+        throw new RuntimeException("38043");
       }
 
       int var131 = mem[34258];
@@ -3647,7 +3646,7 @@ public class JetSetWilly2Converted {
       F = var156;
       int var157 = A;
       mem[34259] = var157;
-      throw new StackException(38061);
+      throw new RuntimeException("38061");
     }
 
     int var539 = mem[34255];
@@ -4274,7 +4273,7 @@ public class JetSetWilly2Converted {
             F = r1[0];
             DE = r1[1];
             if (F != 0) {
-              throw new StackException(37048);
+              throw new RuntimeException("37048");
             }
 
           } else {
@@ -4408,7 +4407,7 @@ public class JetSetWilly2Converted {
                 int var258 = flagZ(var257);
                 F = var258;
                 if (F != 0) {
-                  throw new StackException(37048);
+                  throw new RuntimeException("37048");
                 }
 
                 int var259 = H << 8 | L;
@@ -5226,7 +5225,7 @@ public class JetSetWilly2Converted {
     F = var15;
     int var16 = A;
     mem[34257] = var16;
-    throw new StackException(38095);
+    throw new RuntimeException("38095");
   }
 
   public void $38137() {
@@ -5423,7 +5422,7 @@ public class JetSetWilly2Converted {
         F = r1[0];
         DE = r1[1];
         if (F != 0) {
-          throw new StackException(37048);
+          throw new RuntimeException("37048");
         } else {
           HL = 17733;
           int var55 = HL;
@@ -5628,10 +5627,9 @@ public class JetSetWilly2Converted {
 
     try {
       $38430(C, HL);
-    } catch (StackException var107) {
-      if (var107.getNextPC() == 37047) {
-        var107.setNextPC(37048);
-        throw var107;
+    } catch (RuntimeException var107) {
+      if (Integer.parseInt(var107.getMessage()) == 37047) {
+        throw new RuntimeException("37048");
       }
     }
 
@@ -5782,7 +5780,7 @@ public class JetSetWilly2Converted {
     int var10 = cp(var9, var8);
     F = var10;
     if (F == 0) {
-      throw new StackException(37047);
+      throw new RuntimeException("37047");
     } else {
     }
   }
