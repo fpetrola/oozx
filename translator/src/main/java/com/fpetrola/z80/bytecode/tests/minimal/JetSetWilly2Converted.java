@@ -361,7 +361,7 @@ public class JetSetWilly2Converted {
 
                       B = 8;
                       DE = D << 8 | DE & 0xff;
-                      DE= $38555(B, DE, HL);
+                      DE = $38555(B, DE, HL);
                       int var632 = pop();
                       DE = var632;
                     }
@@ -414,7 +414,7 @@ public class JetSetWilly2Converted {
           }
 
           HL = 34299;
-          F= $38562(HL);
+          F = $38562(HL);
           if (F != 0) {
             break;
           }
@@ -1134,11 +1134,14 @@ public class JetSetWilly2Converted {
                   DE = 40256;
                   HL = 18575;
                   C = 0;
-                  F= $37974(C, DE, HL);
+                  r1 = $37974(C, DE, HL);
+                  F = r1[0];
+
                   DE = 40032;
                   HL = 18639;
                   C = 0;
-                  F= $37974(C, DE, HL);
+                  r1 = $37974(C, DE, HL);
+                  F = r1[0];
 
                   do {
                     int var204 = mem[34276];
@@ -1170,7 +1173,8 @@ public class JetSetWilly2Converted {
                     H = var218 & 0xff;
                     DE = 40000;
                     C = 0;
-                    F= $37974(C, DE, HL);
+                    r1 = $37974(C, DE, HL);
+                    F = r1[0];
                     int var219 = mem[34276];
                     A = var219;
                     int var220 = ~A;
@@ -1749,13 +1753,21 @@ public class JetSetWilly2Converted {
     HL = 18498;
     DE = 39680;
     C = 0;
-    F= $37974(C, DE, HL);
+    int[] r1 = $37974(C, DE, HL);
+    F = r1[0];
+    DE = r1[1];
     HL = 18501;
-    F= $37974(C, DE, HL);
+    r1 = $37974(C, DE, HL);
+    F = r1[0];
+    DE = r1[1];
     HL = 18504;
-    F= $37974(C, DE, HL);
+    r1 = $37974(C, DE, HL);
+    F = r1[0];
+    DE = r1[1];
     HL = 18507;
-    F= $37974(C, DE, HL);
+    r1 = $37974(C, DE, HL);
+    F = r1[0];
+    DE = r1[1];
     HL = 39808;
     DE = 22784;
     BC = 128;
@@ -1810,7 +1822,7 @@ public class JetSetWilly2Converted {
         int var20 = E;
         A = var20;
         DE = 18462;
-        DE= $38545(A, DE);
+        DE = $38545(A, DE);
         int var21 = C;
         A = var21;
         int var22 = A;
@@ -1818,17 +1830,17 @@ public class JetSetWilly2Converted {
         A = var23;
         F = var23;
         DE = 18461;
-        DE= $38545(A, DE);
+        DE = $38545(A, DE);
 
         while (true) {
           IX = 22864;
 
           do {
             try {
-              int [] r4= $34620(IX);
-              A= r4[0];
-              C= r4[1];
-              IX= r4[2];
+              int[] r4 = $34620(IX);
+              A = r4[0];
+              C = r4[1];
+              IX = r4[2];
             } catch (StackException var46) {
               if (var46.getNextPC() == 34687) {
                 int var24 = C;
@@ -2124,7 +2136,9 @@ public class JetSetWilly2Converted {
         E = var19;
         D = 157;
         DE = D << 8 | E;
-        F= $37974(C, DE, HL);
+        int[] r1 = $37974(C, DE, HL);
+        F = r1[0];
+        DE = r1[1];
         int var20 = pop();
         BC = var20;
         B = BC >> 8;
@@ -2284,7 +2298,7 @@ public class JetSetWilly2Converted {
       int var5 = A;
       int var6 = _rlc(var5);
       A = var6;
-      IX= $36288(A, IX);
+      IX = $36288(A, IX);
       int var7 = HL;
       int var8 = mem[var7];
       A = var8;
@@ -2300,7 +2314,7 @@ public class JetSetWilly2Converted {
       int var15 = A;
       int var16 = _rrc(var15);
       A = var16;
-      IX= $36288(A, IX);
+      IX = $36288(A, IX);
       int var17 = HL;
       int var18 = mem[var17];
       A = var18;
@@ -2310,11 +2324,11 @@ public class JetSetWilly2Converted {
       int var21 = A;
       int var22 = _rrc(var21);
       A = var22;
-      IX= $36288(A, IX);
+      IX = $36288(A, IX);
       int var23 = HL;
       int var24 = mem[var23];
       A = var24;
-      IX= $36288(A, IX);
+      IX = $36288(A, IX);
       int var25 = HL;
       int var26 = inc16(var25);
       HL = var26;
@@ -4256,7 +4270,9 @@ public class JetSetWilly2Converted {
             L = var379;
             HL = H << 8 | L;
             DE = D << 8 | E;
-            F= $37974(C, DE, HL);
+            int[] r1 = $37974(C, DE, HL);
+            F = r1[0];
+            DE = r1[1];
             if (F != 0) {
               throw new StackException(37048);
             }
@@ -4938,7 +4954,7 @@ public class JetSetWilly2Converted {
           HL = 32993;
           B = 8;
           DE = D << 8 | E;
-          DE= $38555(B, DE, HL);
+          DE = $38555(B, DE, HL);
           int var76 = pop();
           H = var76 >> 8;
           L = var76;
@@ -5034,7 +5050,7 @@ public class JetSetWilly2Converted {
 
   }
 
-  public static int $37974(int C, int DE, int HL) {
+  public static int[] $37974(int C, int DE, int HL) {
     int B, F, A;
 
     B = 16;
@@ -5054,7 +5070,7 @@ public class JetSetWilly2Converted {
         int var61 = flagZ(var60);
         F = var61;
         if (F != 0) {
-          return F;
+          return new int[] {F, DE};
         }
 
         int var62 = DE;
@@ -5093,7 +5109,7 @@ public class JetSetWilly2Converted {
         int var49 = flagZ(var48);
         F = var49;
         if (F != 0) {
-          return F;
+          return new int[] {F, DE};
         }
 
         int var50 = DE;
@@ -5173,7 +5189,7 @@ public class JetSetWilly2Converted {
     int var28 = A;
     int var29 = flagZ(var28);
     F = var29;
-    return F;
+    return new int[]{F, DE};
   }
 
   public void $38064() {
@@ -5403,7 +5419,9 @@ public class JetSetWilly2Converted {
         D = 156;
         HL = 26734;
         C = 1;
-        F= $37974(C, DE, HL);
+        int[] r1 = $37974(C, DE, HL);
+        F = r1[0];
+        DE = r1[1];
         if (F != 0) {
           throw new StackException(37048);
         } else {
@@ -5843,7 +5861,7 @@ public class JetSetWilly2Converted {
       int var1 = IX + 0;
       int var2 = mem[var1];
       A = var2;
-      DE= $38545(A, DE);
+      DE = $38545(A, DE);
       int var3 = IX;
       int var4 = inc16(var3);
       IX = var4;
@@ -5887,7 +5905,7 @@ public class JetSetWilly2Converted {
     int var11 = add16(var10, var9);
     HL = var11;
     B = 8;
-    DE= $38555(B, DE, HL);
+    DE = $38555(B, DE, HL);
     return DE;
   }
 
@@ -5983,7 +6001,7 @@ public class JetSetWilly2Converted {
           BC = BC & 0xff00 | var21;
           F = var21;
           if (F == 0) {
-            F= $38601();
+            F = $38601();
             if (F != 0) {
               return F;
             }
