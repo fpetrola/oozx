@@ -1,15 +1,123 @@
 package com.fpetrola.z80.bytecode.tests.minimal;
 
+import com.fpetrola.z80.cpu.IO;
+import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
+import com.fpetrola.z80.minizx.MiniZXScreen;
 import com.fpetrola.z80.minizx.StackException;
+import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulationBase;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyListener;
+import java.util.Stack;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class JetSetWilly2Converted extends ConvertedMiniZX {
+public class JetSetWilly2Converted {
+  public int[] mem = new int[0x10000];
+  static public IO<WordNumber> io;
+  protected int A;
+  protected int F;
+  protected int B;
+  protected int C;
+  protected int D;
+  protected int E;
+  protected int H;
+  protected int L;
+
+  public int AF;
+  public int BC;
+  public int DE;
+  public int HL;
+
+  public int IX;
+  public int IY;
+
+  private final Stack<Integer> stack = new Stack<>();
+
+
+  public void D_16(int d) {
+    DE = DE & 0xff | ((d) << 8);
+  }
+
+  public int E_16() {
+    return DE & 0xff;
+  }
+
+  public void E_16(int e) {
+    DE = DE & 0xff00 | e;
+  }
+
+  public void HL_8(int value) {
+    H = value >> 8;
+    L = value;
+  }
+
+  public void L_16(int l) {
+    HL = HL & 0xff00 | l;
+  }
+
+
+  public void H_16(int h) {
+    HL = HL & 0xff | h << 8;
+  }
+
+  public int L_16() {
+    return HL & 0xff;
+  }
+
+  public int carry(int f) {
+    return f & 1;
+  }
+
+  public int BC_8_16() {
+    return B << 8 | BC & 0xff;
+  }
+
+  public int H_16() {
+    return HL >> 8;
+  }
+
+  public void push(int value) {
+    stack.push(value);
+  }
+
+  public int pop() {
+    return stack.pop();
+  }
+
+  protected Function<Integer, Integer> getMemFunction() {
+    return index -> mem[index];
+  }
+
+  public void init() {
+    this.mem = new int[65536];
+    MiniZX.createScreen(((MiniZXIO) io).getMiniZXKeyboard(), new MiniZXScreen(this.getMemFunction()));
+    final byte[] rom = MiniZXWithEmulationBase.createROM();
+    final byte[] bytes = MiniZXWithEmulationBase.gzipDecompressFromBase64(this.getProgramBytes());
+    for (int i = 0; i < 65536; ++i) {
+      mem[i] = ((i < 16384) ? rom[i] : bytes[i]) & 0xff;
+    }
+  }
+
+  public static JFrame createScreen(KeyListener keyListener, Container miniZXScreen1) {
+    JFrame frame = new JFrame("Mini ZX Spectrum");
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setContentPane(miniZXScreen1);
+    frame.setLocationRelativeTo(null);
+    frame.setSize(512, 384);
+    frame.pack();
+    frame.setVisible(true);
+    frame.addKeyListener(keyListener);
+    return frame;
+  }
+
 
   public JetSetWilly2Converted(MiniZXIO<WordNumber> rzxPlayerIO, Predicate<Integer> interruptionCondition) {
-    super(rzxPlayerIO, interruptionCondition);
+    io = rzxPlayerIO;
+    init();
   }
 
   public String getProgramBytes() {
@@ -67,8 +175,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
   }
 
   public int in(int port, int pc) {
-//    waitNanos(20000);
-    return super.in(port, pc);
+    return io.in(WordNumber.createValue(port)).intValue();
   }
 
   public void $0() {
@@ -2147,7 +2254,8 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
       int var4 = E;
       C = var4;
       B = 8;
-      executeMutantCode(36188);
+
+      D= mem[36188 + 1];
 
       do {
         int var5 = HL;
@@ -5822,7 +5930,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
         if (BC >> 8 == 0) {
           int var15 = A << 8 | F;
           AF = A << 8 | F;
-          int AF_= AF;
+          int AF_ = AF;
           int var16 = BC & 0xff;
           A = var16;
           int var17 = A;
@@ -5837,7 +5945,7 @@ public class JetSetWilly2Converted extends ConvertedMiniZX {
           }
 
           int var19 = A << 8 | F;
-          AF= AF_;
+          AF = AF_;
           A = AF >> 8;
           int var20 = BC & 0xff;
           int var21 = dec(var20);
