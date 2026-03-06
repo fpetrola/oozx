@@ -6015,39 +6015,21 @@ public class JetSetWilly2Converted {
   }
 
   public int $38601() {
-    int A, B, C, D, E, H, L, IX, IY, F, HL, DE, BC;
-
-    int var1 = mem[34254];
-    A = var1;
-    int var2 = A;
-    int var3 = A | var2;
-    A = var3;
-    int var4 = A;
-    int var5 = flagZ(var4);
-    F = var5;
+    int A = mem[34254];
+    A = A | A;
+    int F = flagZ(A);
     if (F != 0) {
-      int var13 = A << 8 | 31;
-      int var14 = in(var13, 38607);
-      A = var14;
-      int var15 = A & 16;
-      F = var15;
+      A = in(A << 8 | 31, 38607);
+      F = A & 16;
       if (F != 0) {
         return F;
       }
     }
 
-    BC = 45054;
-    int var6 = BC;
-    int var7 = in(var6, 38615);
-    A = var7;
-    int var8 = A & 1;
-    A = var8;
-    int var9 = A;
-    int var10 = flagZ(var9);
-    F = var10;
-    int var11 = A;
-    int var12 = cp(var11, 1);
-    F = var12;
+    int BC = 45054;
+    A = in(BC, 38615);
+    A = A & 1;
+    F = cp(A, 1);
     return F;
   }
 
