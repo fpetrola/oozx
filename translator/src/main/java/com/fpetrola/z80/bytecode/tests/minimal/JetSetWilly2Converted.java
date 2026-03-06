@@ -17,23 +17,6 @@ import java.util.function.Predicate;
 public class JetSetWilly2Converted {
   public static int[] mem = new int[0x10000];
   static public IO<WordNumber> io;
-//  protected int A;
-//  protected int F;
-//  protected int B;
-//  protected int C;
-//  protected int D;
-//  protected int E;
-//  protected int H;
-//  protected int L;
-//
-//  public int AF;
-//  public int BC;
-//  public int DE;
-//  public int HL;
-//
-//  public int IX;
-//  public int IY;
-
   private final Stack<Integer> stack = new Stack<>();
 
 
