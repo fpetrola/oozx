@@ -158,8 +158,7 @@ public class JetSetWilly2Converted2 {
     while (true) {
       label325:
       while (true) {
-        A = A ^ A;
-        F = flagZ(A);
+        A = 0;
         mem[34254] = A;
         mem[34273] = A;
         mem[34253] = A;
@@ -245,12 +244,10 @@ public class JetSetWilly2Converted2 {
                       }
                       A = DE & 0xff;
                       A = A & 1;
-                      F = flagZ(A);
                       A = _rlc(A);
                       A = _rlc(A);
                       A = _rlc(A);
                       A = A | C;
-                      F = flagZ(A);
                       C = A;
                       B = 0;
                       HL = 33841;
@@ -275,12 +272,10 @@ public class JetSetWilly2Converted2 {
             F = cp(A, 90);
           } while (F != 0);
           BC = 31;
-          A = A ^ A;
-          F = flagZ(A);
+          A = 0;
           do {
             E = in(BC, 34970);
             A = A | E;
-            F = flagZ(A);
             BC = (BC & 0xff) | (((((BC >> 8) - 1) & 255) & 0xff) << 8);
           } while ((BC >> 8) != 0);
           A = A & 32;
@@ -294,8 +289,7 @@ public class JetSetWilly2Converted2 {
           if (F != 0) {
             break;
           }
-          A = A ^ A;
-          F = flagZ(A);
+          A = 0;
           mem[34276] = A;
           do {
             $35563();
@@ -316,22 +310,16 @@ public class JetSetWilly2Converted2 {
             $38528(C, DE, IX);
             A = mem[34276];
             A = A & 31;
-            F = flagZ(A);
-            int var587 = add(A, 50);
-            A = var587;
-            F = var587;
+            A = add(A, 50);
             $38622(A);
             BC = 45054;
             A = in(BC, 35046);
             A = A & 1;
-            F = flagZ(A);
             if (A != 1) {
               break label207;
             }
             A = mem[34276];
-            int var597 = inc(A);
-            A = var597;
-            F = var597;
+            A = inc(A);
             F = cp(A, 224);
             mem[34276] = A;
           } while (F != 0);
@@ -568,32 +556,21 @@ public class JetSetWilly2Converted2 {
                 C = 3;
                 $38528(C, DE, IX);
                 A = mem[34251];
-                int var121 = inc(A);
-                A = var121;
-                F = var121;
+                A = inc(A);
                 mem[34251] = A;
                 if (F == 0) {
                   IX = 34175;
-                  int var505 = IX + 4;
-                  int var507 = inc(mem[var505]);
-                  mem[var505] = var507;
-                  F = var507;
+                  mem[IX + 4] = inc(mem[IX + 4]);
                   A = mem[IX + 4];
                   if (A == 58) {
                     mem[IX + 4] = 48;
-                    int var513 = IX + 3;
-                    int var515 = inc(mem[var513]);
-                    mem[var513] = var515;
-                    F = var515;
+                    mem[IX + 3] = inc(mem[IX + 3]);
                     A = mem[IX + 3];
                     if (A == 54) {
                       mem[IX + 3] = 48;
                       A = mem[IX];
                       if (A == 49) {
-                        int var534 = IX + 1;
-                        int var536 = inc(mem[var534]);
-                        mem[var534] = var536;
-                        F = var536;
+                        mem[IX + 1] = inc(mem[IX + 1]);
                         A = mem[IX + 1];
                         if (A == 51) {
                           A = mem[IX + 5];
@@ -605,10 +582,7 @@ public class JetSetWilly2Converted2 {
                           mem[IX + 5] = 112;
                         }
                       } else {
-                        int var525 = IX + 1;
-                        int var527 = inc(mem[var525]);
-                        mem[var525] = var527;
-                        F = var527;
+                        mem[IX + 1] = inc(mem[IX + 1]);
                         A = mem[IX + 1];
                         if (A == 58) {
                           mem[IX + 1] = 48;
