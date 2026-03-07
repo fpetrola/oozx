@@ -1554,8 +1554,6 @@ public class JetSetWilly2Converted {
     int E;
     int H;
     int L;
-    int IX;
-    int IY;
     int F;
     int HL = 0;
     int DE;
@@ -1565,7 +1563,6 @@ public class JetSetWilly2Converted {
         A = mem[34262];
         int var3 = dec(A);
         A = var3;
-        F = var3;
         F = A & 128;
         if (F != 0) {
           label223 : {
@@ -1574,14 +1571,11 @@ public class JetSetWilly2Converted {
             if (F == 0) {
               A = mem[34261];
               A = A & 254;
-              F = flagZ(A);
               int var524 = A - 8;
               A = var524 & 255;
-              F = var524;
               HL = 34255;
               int var529 = add(A, mem[HL]);
               A = var529;
-              F = var529;
               mem[HL] = A;
               F = cp(A, 240);
               if (F >= 0) {
@@ -1623,7 +1617,6 @@ public class JetSetWilly2Converted {
               A = mem[32990];
               while (true) {
                 A = A ^ 24;
-                F = flagZ(A);
                 B = D;
                 do {
                   B = (B - 1) & 255;
@@ -1661,8 +1654,7 @@ public class JetSetWilly2Converted {
               if (F != 0) {
                 A = mem[33004];
                 mem[33824] = A;
-                A = A ^ A;
-                F = flagZ(A);
+                A = 0;
                 mem[34255] = A;
                 A = mem[34257];
                 F = cp(A, 11);
@@ -1672,7 +1664,6 @@ public class JetSetWilly2Converted {
                 }
                 A = mem[34259];
                 A = A & 31;
-                F = flagZ(A);
                 mem[34259] = A;
                 A = 92;
                 mem[34260] = A;
@@ -1704,16 +1695,13 @@ public class JetSetWilly2Converted {
               HL = 34256;
               mem[HL] = mem[HL] & (-3);
               A = mem[34257];
-              A = A | A;
               F = flagZ(A);
               if (F == 0) {
                 A = 2;
                 mem[34257] = A;
                 return;
               }
-              int var450 = inc(A);
-              A = var450;
-              F = var450;
+              A = inc(A);
               F = cp(A, 16);
               if (F == 0) {
                 A = 12;
@@ -1728,7 +1716,6 @@ public class JetSetWilly2Converted {
               A = mem[32990];
               do {
                 A = A ^ 24;
-                F = flagZ(A);
                 B = D;
                 do {
                   B = (B - 1) & 255;
@@ -1740,11 +1727,8 @@ public class JetSetWilly2Converted {
               A = mem[34255];
               int var473 = add(A, 8);
               A = var473;
-              F = var473;
               mem[34255] = A;
               int[] r3 = $36508(A);
-              H = r3[0];
-              L = r3[1];
               return;
             }
             break label226;
@@ -1752,9 +1736,7 @@ public class JetSetWilly2Converted {
         }
         E = 255;
         A = mem[34262];
-        int var7 = dec(A);
-        A = var7;
-        F = var7;
+        A = dec(A);
         F = A & 128;
         if (F != 0) {
           label225 : {
@@ -1763,8 +1745,7 @@ public class JetSetWilly2Converted {
             if (F >= 0) {
               throw new RuntimeException("37048");
             }
-            A = A ^ A;
-            F = flagZ(A);
+            A = 0;
             mem[34257] = A;
             A = mem[32973];
             F = cp(A, mem[HL]);
@@ -1776,99 +1757,73 @@ public class JetSetWilly2Converted {
               }
             }
             A = mem[32982];
-            int var421 = A - 3;
-            A = var421 & 255;
-            F = var421;
+            A = A - 3 & 255;
             E = A;
           }
         }
         BC = 57342;
         A = in(BC, 36605);
         A = A & 31;
-        F = flagZ(A);
         A = A | 32;
-        F = flagZ(A);
         A = A & E;
-        F = flagZ(A);
         E = A;
         A = mem[34271];
         A = A & 2;
-        F = flagZ(A);
         A = _rrc(A);
         A = A ^ E;
-        F = flagZ(A);
         E = A;
         BC = 64510;
         A = in(BC, 36624);
         A = A & 31;
-        F = flagZ(A);
         A = _rlc(A);
         A = A | 1;
-        F = flagZ(A);
         A = A & E;
-        F = flagZ(A);
         E = A;
         B = 231;
         A = in((B << 8) | (BC & 0xff), 36636);
         A = _rrc(A);
         A = A | 247;
-        F = flagZ(A);
         A = A & E;
-        F = flagZ(A);
         E = A;
         B = 239;
         A = in((B << 8) | (BC & 0xff), 36645);
         A = A | 251;
-        F = flagZ(A);
         A = A & E;
-        F = flagZ(A);
         E = A;
         A = in((B << 8) | C, 36651);
         A = _rrc(A);
         A = A | 251;
-        F = flagZ(A);
         A = A & E;
-        F = flagZ(A);
         E = A;
         A = mem[34254];
-        A = A | A;
         F = flagZ(A);
         if (F != 0) {
           BC = 31;
           A = in(BC, 36667);
           A = A & 3;
-          F = flagZ(A);
           A = ~A;
-          F = A;
           A = A & E;
-          F = flagZ(A);
           E = A;
         }
         C = 0;
         A = E;
         A = A & 42;
-        F = flagZ(A);
         F = cp(A, 42);
         if (F != 0) {
           C = 4;
-          A = A ^ A;
-          F = flagZ(A);
+          A = 0;
           mem[34272] = A;
         }
         A = E;
         A = A & 21;
-        F = flagZ(A);
         F = cp(A, 21);
         if (F != 0) {
           C = C | 8;
-          A = A ^ A;
-          F = flagZ(A);
+          A = 0;
           mem[34272] = A;
         }
         A = mem[34256];
-        int var102 = add(A, C);
-        A = var102;
-        F = var102;
+        A = add(A, C);
         C = A;
         B = 0;
         HL = 33825;
@@ -1878,7 +1833,6 @@ public class JetSetWilly2Converted {
         BC = 32510;
         A = in(BC, 36720);
         A = A & 31;
-        F = flagZ(A);
         F = cp(A, 31);
         if (F == 0) {
           B = 239;
@@ -1886,7 +1840,6 @@ public class JetSetWilly2Converted {
           F = A & 1;
           if (F != 0) {
             A = mem[34254];
-            A = A | A;
             F = flagZ(A);
             if (F == 0) {
               break label226;
@@ -1902,25 +1855,19 @@ public class JetSetWilly2Converted {
         A = mem[34271];
         F = A & 2;
         if (F == 0) {
-          A = A ^ A;
-          F = flagZ(A);
+          A = 0;
           mem[34261] = A;
           mem[34272] = A;
-          int var358 = inc(A);
-          A = var358;
-          F = var358;
+          A = inc(A);
           mem[34257] = A;
           A = mem[34262];
-          int var362 = dec(A);
-          A = var362;
-          F = var362;
+          A = dec(A);
           F = A & 128;
           if (F == 0) {
             A = 240;
             mem[34262] = A;
             A = mem[34255];
             A = A & 240;
-            F = flagZ(A);
             mem[34255] = A;
             HL = 34256;
             mem[HL] = mem[HL] | 2;
@@ -1935,9 +1882,7 @@ public class JetSetWilly2Converted {
         return;
       }
       A = mem[34262];
-      int var125 = dec(A);
-      A = var125;
-      F = var125;
+      A = dec(A);
       F = A & 128;
       if (F == 0) {
         return;
@@ -1947,12 +1892,9 @@ public class JetSetWilly2Converted {
       F = flagZ(A);
       if (F != 0) {
         A = mem[34258];
-        A = A | A;
         F = flagZ(A);
         if (F != 0) {
-          int var349 = dec(A);
-          A = var349;
-          F = var349;
+          A = dec(A);
           mem[34258] = A;
           return;
         }
@@ -1963,13 +1905,9 @@ public class JetSetWilly2Converted {
           HL = (mem[34259 + 1] << 8) + mem[34259];
           BC = 0;
           A = mem[32986];
-          int var327 = dec(A);
-          A = var327;
-          F = var327;
+          A = dec(A);
           A = A | 161;
-          F = flagZ(A);
           A = A ^ 224;
-          F = flagZ(A);
           E = A;
           D = 0;
           HL = add16(HL, (D << 8) | E);
@@ -1978,7 +1916,6 @@ public class JetSetWilly2Converted {
           if (F == 0) {
             BC = 32;
             A = mem[32986];
-            A = A | A;
             F = flagZ(A);
             if (F == 0) {
               BC = 65504;
@@ -2003,7 +1940,6 @@ public class JetSetWilly2Converted {
           C = sra(BC & 0xff);
           int var287 = add(A, C);
           A = var287;
-          F = var287;
           B = A;
           A = A & 15;
           F = flagZ(A);
@@ -2014,15 +1950,11 @@ public class JetSetWilly2Converted {
             if (F == 0) {
               return;
             }
-            A = A | A;
             F = flagZ(A);
             HL = ((HL - DE) - carry(F)) & 65535;
-            F = HL;
           }
-          A = A | A;
           F = flagZ(A);
           HL = ((HL - DE) - carry(F)) & 65535;
-          F = HL;
           int var302 = HL;
           mem[34259] = var302 & 0xff;
           mem[34259 + 1] = var302 >>> 8;
@@ -2036,9 +1968,7 @@ public class JetSetWilly2Converted {
         mem[33824] = A;
         A = mem[34259];
         A = A | 31;
-        F = flagZ(A);
         A = A & 254;
-        F = flagZ(A);
         mem[34259] = A;
         throw new RuntimeException("38043");
       }
@@ -2047,24 +1977,18 @@ public class JetSetWilly2Converted {
       if (F != 0) {
         int var244 = inc(A);
         A = var244;
-        F = var244;
         mem[34258] = A;
         return;
       }
       A = mem[34257];
       BC = 0;
-      A = A | A;
       F = flagZ(A);
       if (F == 0) {
         HL = (mem[34259 + 1] << 8) + mem[34259];
         A = mem[32986];
-        int var222 = dec(A);
-        A = var222;
-        F = var222;
+        A = dec(A);
         A = A | 157;
-        F = flagZ(A);
         A = A ^ 191;
-        F = flagZ(A);
         E = A;
         D = 0;
         HL = add16(HL, (D << 8) | E);
@@ -2073,7 +1997,6 @@ public class JetSetWilly2Converted {
         if (F == 0) {
           BC = 32;
           A = mem[32986];
-          A = A | A;
           F = flagZ(A);
           if (F != 0) {
             BC = 65504;
@@ -2097,9 +2020,7 @@ public class JetSetWilly2Converted {
         }
         A = mem[34255];
         C = sra(BC & 0xff);
-        int var171 = add(A, C);
-        A = var171;
-        F = var171;
+        A = add(A, C);
         B = A;
         A = A & 15;
         F = flagZ(A);
@@ -2110,16 +2031,12 @@ public class JetSetWilly2Converted {
           if (F == 0) {
             return;
           }
-          A = A | A;
           F = flagZ(A);
           HL = ((HL - DE) - carry(F)) & 65535;
-          F = HL;
         }
         A = mem[32946];
-        A = A | A;
         F = flagZ(A);
         HL = ((HL - DE) - carry(F)) & 65535;
-        F = HL;
         F = cp(A, mem[HL]);
         if (F == 0) {
           return;
@@ -2128,8 +2045,7 @@ public class JetSetWilly2Converted {
         int var193 = HL;
         mem[34259] = var193 & 0xff;
         mem[34259 + 1] = var193 >>> 8;
-        A = A ^ A;
-        F = flagZ(A);
+        A = 0;
         mem[34258] = A;
         A = B;
         mem[34255] = A;
@@ -2139,20 +2055,14 @@ public class JetSetWilly2Converted {
       mem[33824] = A;
       A = mem[34259];
       A = A & 224;
-      F = flagZ(A);
       mem[34259] = A;
       throw new RuntimeException("38061");
     }
     A = mem[34255];
-    int var541 = add(A, 16);
-    A = var541;
-    F = var541;
+    A = add(A, 16);
     A = A & 240;
-    F = flagZ(A);
     mem[34255] = A;
     int[] r3 = $36508(A);
-    H = r3[0];
-    L = r3[1];
     A = 2;
     mem[34257] = A;
     HL = 34256;
