@@ -365,7 +365,7 @@ public class JetSetWilly2Converted2 {
             DE = 33024;
             A = 8;
             do {
-              L = mem[IX + 0];
+              L = mem[IX];
               L = L & (-129);
               H = 20 & 0xff;
               HL = add16((H << 8) | L, (H << 8) | L);
@@ -588,7 +588,7 @@ public class JetSetWilly2Converted2 {
                     A = mem[IX + 3];
                     if (A == 54) {
                       mem[IX + 3] = 48;
-                      A = mem[IX + 0];
+                      A = mem[IX];
                       if (A == 49) {
                         int var534 = IX + 1;
                         int var536 = inc(mem[var534]);
@@ -600,7 +600,7 @@ public class JetSetWilly2Converted2 {
                           if (A == 112) {
                             continue label325;
                           }
-                          mem[IX + 0] = 32;
+                          mem[IX] = 32;
                           mem[IX + 1] = 49;
                           mem[IX + 5] = 112;
                         }
@@ -612,7 +612,7 @@ public class JetSetWilly2Converted2 {
                         A = mem[IX + 1];
                         if (A == 58) {
                           mem[IX + 1] = 48;
-                          mem[IX + 0] = 49;
+                          mem[IX] = 49;
                         }
                       }
                     }
@@ -1015,7 +1015,7 @@ public class JetSetWilly2Converted2 {
                     BC = 64510;
                     A = in(BC, 35775);
                     A = A & 31;
-                    if (A != mem[IX + 0]) {
+                    if (A != mem[IX]) {
                       if (A != 31) {
                         if (A != mem[IX + (-2)]) {
                           A = 0;
