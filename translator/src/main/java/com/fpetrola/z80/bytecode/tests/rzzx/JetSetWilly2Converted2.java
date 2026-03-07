@@ -1566,9 +1566,7 @@ public class JetSetWilly2Converted2 {
         int i60 = 0;
         mem[34272] = i60;
       }
-      int i61 = add16(33825, 0 << 8 | add(mem[34256], i3));
-      int i62 = mem[i61];
-      mem[34256] = i62;
+      mem[34256] = mem[add16(33825, 0 << 8 | add(mem[34256], i3))];
       int i63 = in(32510, 36720) & 31;
       int i64 = cp(i63, 31);
       label0: {
@@ -1591,17 +1589,13 @@ public class JetSetWilly2Converted2 {
         }
         break label2;
       }
-      int i67 = mem[34271];
-      if ((i67 & 2) == 0) {
-        int i68 = 0;
-        mem[34261] = i68;
-        mem[34272] = i68;
-        int i69 = inc(i68);
-        mem[34257] = i69;
+      if ((mem[34271] & 2) == 0) {
+        mem[34261] = 0;
+        mem[34272] = 0;
+        mem[34257] = inc(0);
         if ((dec(mem[34262]) & 128) == 0) {
           mem[34262] = 240;
-          int i70 = mem[34255] & 240;
-          mem[34255] = i70;
+          mem[34255] = mem[34255] & 240;
           mem[34256] = mem[34256] | 2;
           return;
         }
@@ -1617,8 +1611,7 @@ public class JetSetWilly2Converted2 {
       int i71 = 0;
       int i72 = mem[34258];
       if (cp(i72, 3) != 0) {
-        int i73 = inc(i72);
-        mem[34258] = i73;
+        mem[34258] = inc(i72);
         return;
       }
       int i74 = mem[34257];
@@ -1638,10 +1631,8 @@ public class JetSetWilly2Converted2 {
       }
       int i80 = inc16(inc16(add16((mem[34260] << 8) + mem[34259], i71)));
       if (flagZ(i80 & 255 & 31) == 0) {
-        int i81 = mem[33002];
-        mem[33824] = i81;
-        int i82 = mem[34259] & 224;
-        mem[34259] = i82;
+        mem[33824] = mem[33002];
+        mem[34259] = mem[34259] & 224;
         throw new RuntimeException("38061");
       }
       int i83 = mem[32946];
@@ -1658,8 +1649,7 @@ public class JetSetWilly2Converted2 {
         }
         i84 = i87 - 32 - this.carry(flagZ(i86 | i86)) & 65535;
       }
-      int i88 = mem[32946];
-      int i89 = i88;
+      int i89 = mem[32946];
       int i90 = i84 - 32 - this.carry(flagZ(i89)) & 65535;
       if (cp(i89, mem[i90]) == 0) {
         return;
@@ -1667,14 +1657,12 @@ public class JetSetWilly2Converted2 {
       int i91 = this.dec16(i90);
       mem[34259] = i91 & 255;
       mem[34260] = i91 >>> 8;
-      int i92 = 0;
-      mem[34258] = i92;
+      mem[34258] = 0;
       mem[34255] = i85;
       return;
     } else {
       int i93 = 0;
-      int i94 = mem[34258];
-      int i95 = i94;
+      int i95 = mem[34258];
       if (flagZ(i95) != 0) {
         int i96 = dec(i95);
         mem[34258] = i96;
